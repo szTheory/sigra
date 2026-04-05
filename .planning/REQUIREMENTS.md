@@ -187,25 +187,99 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 through FOUND-10 | TBD | Pending |
-| AUTH-01 through AUTH-07 | TBD | Pending |
-| CONF-01 through CONF-06 | TBD | Pending |
-| RESET-01 through RESET-05 | TBD | Pending |
-| SESS-01 through SESS-09 | TBD | Pending |
-| OAUTH-01 through OAUTH-08 | TBD | Pending |
-| MFA-01 through MFA-09 | TBD | Pending |
-| API-01 through API-07 | TBD | Pending |
-| SEC-01 through SEC-07 | TBD | Pending |
-| EMAIL-01 through EMAIL-05 | TBD | Pending |
-| ACCT-01 through ACCT-04 | TBD | Pending |
-| AUDIT-01 through AUDIT-04 | TBD | Pending |
-| DX-01 through DX-04 | TBD | Pending |
+| FOUND-01 | Phase 1 | Pending |
+| FOUND-02 | Phase 1 | Pending |
+| FOUND-03 | Phase 1 | Pending |
+| FOUND-04 | Phase 1 | Pending |
+| FOUND-05 | Phase 1 | Pending |
+| FOUND-06 | Phase 1 | Pending |
+| FOUND-07 | Phase 1 | Pending |
+| FOUND-08 | Phase 1 | Pending |
+| FOUND-09 | Phase 1 | Pending |
+| FOUND-10 | Phase 1 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| AUTH-07 | Phase 2 | Pending |
+| CONF-01 | Phase 3 | Pending |
+| CONF-02 | Phase 3 | Pending |
+| CONF-03 | Phase 3 | Pending |
+| CONF-04 | Phase 3 | Pending |
+| CONF-05 | Phase 3 | Pending |
+| CONF-06 | Phase 3 | Pending |
+| RESET-01 | Phase 3 | Pending |
+| RESET-02 | Phase 3 | Pending |
+| RESET-03 | Phase 3 | Pending |
+| RESET-04 | Phase 3 | Pending |
+| RESET-05 | Phase 3 | Pending |
+| EMAIL-01 | Phase 3 | Pending |
+| EMAIL-02 | Phase 3 | Pending |
+| EMAIL-03 | Phase 3 | Pending |
+| EMAIL-04 | Phase 3 | Pending |
+| EMAIL-05 | Phase 3 | Pending |
+| SESS-01 | Phase 4 | Pending |
+| SESS-02 | Phase 4 | Pending |
+| SESS-03 | Phase 4 | Pending |
+| SESS-04 | Phase 4 | Pending |
+| SESS-05 | Phase 4 | Pending |
+| SESS-06 | Phase 4 | Pending |
+| SESS-07 | Phase 4 | Pending |
+| SESS-08 | Phase 4 | Pending |
+| SEC-01 | Phase 4 | Pending |
+| SEC-02 | Phase 4 | Pending |
+| SEC-03 | Phase 4 | Pending |
+| SEC-04 | Phase 4 | Pending |
+| SEC-05 | Phase 4 | Pending |
+| SEC-06 | Phase 4 | Pending |
+| SEC-07 | Phase 4 | Pending |
+| OAUTH-01 | Phase 5 | Pending |
+| OAUTH-02 | Phase 5 | Pending |
+| OAUTH-03 | Phase 5 | Pending |
+| OAUTH-04 | Phase 5 | Pending |
+| OAUTH-05 | Phase 5 | Pending |
+| OAUTH-06 | Phase 5 | Pending |
+| OAUTH-07 | Phase 5 | Pending |
+| OAUTH-08 | Phase 5 | Pending |
+| MFA-01 | Phase 6 | Pending |
+| MFA-02 | Phase 6 | Pending |
+| MFA-03 | Phase 6 | Pending |
+| MFA-04 | Phase 6 | Pending |
+| MFA-05 | Phase 6 | Pending |
+| MFA-06 | Phase 6 | Pending |
+| MFA-07 | Phase 6 | Pending |
+| MFA-08 | Phase 6 | Pending |
+| MFA-09 | Phase 6 | Pending |
+| API-01 | Phase 7 | Pending |
+| API-02 | Phase 7 | Pending |
+| API-03 | Phase 7 | Pending |
+| API-04 | Phase 7 | Pending |
+| API-05 | Phase 7 | Pending |
+| API-06 | Phase 7 | Pending |
+| API-07 | Phase 7 | Pending |
+| ACCT-01 | Phase 8 | Pending |
+| ACCT-02 | Phase 8 | Pending |
+| ACCT-03 | Phase 8 | Pending |
+| ACCT-04 | Phase 8 | Pending |
+| SESS-09 | Phase 8 | Pending |
+| AUDIT-01 | Phase 9 | Pending |
+| AUDIT-02 | Phase 9 | Pending |
+| AUDIT-03 | Phase 9 | Pending |
+| AUDIT-04 | Phase 9 | Pending |
+| DX-01 | Phase 10 | Pending |
+| DX-02 | Phase 10 | Pending |
+| DX-03 | Phase 10 | Pending |
+| DX-04 | Phase 10 | Pending |
 
 **Coverage:**
-- v1 requirements: 80 total
-- Mapped to phases: 0
-- Unmapped: 80 (pending roadmap creation)
+- v1 requirements: 85 total
+- Mapped to phases: 85
+- Unmapped: 0
+
+**Note:** REQUIREMENTS.md originally listed 80 requirements; actual count is 85 (SESS has 9, not grouped as 8; all categories counted individually at roadmap creation).
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after initial definition*
+*Last updated: 2026-04-05 after roadmap creation — full traceability added*
