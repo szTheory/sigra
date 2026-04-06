@@ -37,9 +37,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Telemetry events are emitted for operations as stubs that will be filled in by later phases; `Sigra.Telemetry` module exists
 **Plans:** 3 plans
 Plans:
-- [ ] 01-01-PLAN.md — Core library modules (config, crypto, token, behaviours, error handling)
-- [ ] 01-02-PLAN.md — Telemetry and library plugs (event catalog, HTTP middleware)
-- [ ] 01-03-PLAN.md — Generator (EEx templates, mix sigra.install task, injector)
+- [x] 01-01-PLAN.md — Core library modules (config, crypto, token, behaviours, error handling)
+- [x] 01-02-PLAN.md — Telemetry and library plugs (event catalog, HTTP middleware)
+- [x] 01-03-PLAN.md — Generator (EEx templates, mix sigra.install task, injector)
 
 ### Phase 2: Core Auth
 **Goal**: A developer's users can register with email/password, log in, and log out, with passwords hashed using Argon2id and enumeration prevention on by default
