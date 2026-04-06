@@ -62,7 +62,7 @@ defmodule Sigra.EmailTest do
     end
 
     test "accepts string exactly at 160 chars" do
-      local = String.duplicate("a", 147)
+      local = String.duplicate("a", 148)
       email = "#{local}@example.com"
       assert byte_size(email) == 160
       assert Email.validate_format(email) == :ok

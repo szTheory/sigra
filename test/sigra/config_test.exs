@@ -39,7 +39,7 @@ defmodule Sigra.ConfigTest do
     test "provides correct password defaults" do
       config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
 
-      assert config.password[:min_length] == 12
+      assert config.password[:min_length] == 8
       assert config.password[:max_length] == 72
       assert config.password[:hasher] == Sigra.Hashers.Argon2
     end
@@ -87,6 +87,51 @@ defmodule Sigra.ConfigTest do
       config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, mailer: MyApp.Mailer)
 
       assert config.mailer == MyApp.Mailer
+    end
+
+    test "provides correct password_policy defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.password_policy[:min_length] == 8
+      assert config.password_policy[:max_bytes] == 72
+      assert config.password_policy[:require_uppercase] == false
+      assert config.password_policy[:require_digit] == false
+      assert config.password_policy[:require_special] == false
+      assert config.password_policy[:check_common] == true
+      assert config.password_policy[:check_breached] == false
+      assert config.password_policy[:password_max_age] == nil
+    end
+
+    test "provides correct magic_link defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.magic_link[:ttl] == 600
+      assert config.magic_link[:max_requests] == 3
+      assert config.magic_link[:window_seconds] == 900
+    end
+
+    test "provides correct require_confirmation default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.require_confirmation == false
+    end
+
+    test "provides correct session_ttl default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.session_ttl == 5_184_000
+    end
+
+    test "allows overriding require_confirmation" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, require_confirmation: true)
+
+      assert config.require_confirmation == true
+    end
+
+    test "allows overriding session_ttl" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, session_ttl: 3600)
+
+      assert config.session_ttl == 3600
     end
   end
 end

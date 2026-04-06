@@ -41,8 +41,8 @@ defmodule Sigra.Config do
       keys: [
         min_length: [
           type: :pos_integer,
-          default: 12,
-          doc: "Minimum password length. OWASP recommends at least 8; Sigra defaults to 12."
+          default: 8,
+          doc: "Minimum password length. NIST SP 800-63B recommends at least 8."
         ],
         max_length: [
           type: :pos_integer,
@@ -56,6 +56,85 @@ defmodule Sigra.Config do
           doc: "Module implementing the `Sigra.Hasher` behaviour."
         ]
       ]
+    ],
+    password_policy: [
+      type: :keyword_list,
+      default: [],
+      doc: "Password validation policy options for `Sigra.PasswordPolicy`.",
+      keys: [
+        min_length: [
+          type: :pos_integer,
+          default: 8,
+          doc: "Minimum password length. Default: 8 (NIST SP 800-63B)."
+        ],
+        max_bytes: [
+          type: :pos_integer,
+          default: 72,
+          doc: "Maximum password byte size. Default: 72 (bcrypt compatibility)."
+        ],
+        require_uppercase: [
+          type: :boolean,
+          default: false,
+          doc: "Require at least one uppercase letter. Default: false."
+        ],
+        require_digit: [
+          type: :boolean,
+          default: false,
+          doc: "Require at least one digit. Default: false."
+        ],
+        require_special: [
+          type: :boolean,
+          default: false,
+          doc: "Require at least one special character. Default: false."
+        ],
+        check_common: [
+          type: :boolean,
+          default: true,
+          doc: "Check against the embedded common passwords list. Default: true."
+        ],
+        check_breached: [
+          type: :boolean,
+          default: false,
+          doc: "Check against the HIBP breached passwords API. Default: false."
+        ],
+        password_max_age: [
+          type: {:or, [:pos_integer, nil]},
+          default: nil,
+          doc: "Maximum password age in seconds before forced rotation. Default: nil (disabled)."
+        ]
+      ]
+    ],
+    magic_link: [
+      type: :keyword_list,
+      default: [],
+      doc: "Magic link authentication options.",
+      keys: [
+        ttl: [
+          type: :pos_integer,
+          default: 600,
+          doc: "Magic link token TTL in seconds. Default: 600 (10 minutes)."
+        ],
+        max_requests: [
+          type: :pos_integer,
+          default: 3,
+          doc: "Maximum magic link requests within the rate limit window. Default: 3."
+        ],
+        window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for magic link requests in seconds. Default: 900 (15 minutes)."
+        ]
+      ]
+    ],
+    require_confirmation: [
+      type: :boolean,
+      default: false,
+      doc: "Whether email confirmation is required before login. Default: false."
+    ],
+    session_ttl: [
+      type: :pos_integer,
+      default: 5_184_000,
+      doc: "Session time-to-live in seconds. Default: 5,184,000 (60 days)."
     ],
     session: [
       type: :keyword_list,
@@ -158,8 +237,8 @@ defmodule Sigra.Config do
       keys: [
         min_length: [
           type: :pos_integer,
-          default: 12,
-          doc: "Minimum password length. OWASP recommends at least 8; Sigra defaults to 12."
+          default: 8,
+          doc: "Minimum password length. NIST SP 800-63B recommends at least 8."
         ],
         max_length: [
           type: :pos_integer,
@@ -173,6 +252,85 @@ defmodule Sigra.Config do
           doc: "Module implementing the `Sigra.Hasher` behaviour."
         ]
       ]
+    ],
+    password_policy: [
+      type: :keyword_list,
+      default: [],
+      doc: "Password validation policy options for `Sigra.PasswordPolicy`.",
+      keys: [
+        min_length: [
+          type: :pos_integer,
+          default: 8,
+          doc: "Minimum password length. Default: 8 (NIST SP 800-63B)."
+        ],
+        max_bytes: [
+          type: :pos_integer,
+          default: 72,
+          doc: "Maximum password byte size. Default: 72 (bcrypt compatibility)."
+        ],
+        require_uppercase: [
+          type: :boolean,
+          default: false,
+          doc: "Require at least one uppercase letter. Default: false."
+        ],
+        require_digit: [
+          type: :boolean,
+          default: false,
+          doc: "Require at least one digit. Default: false."
+        ],
+        require_special: [
+          type: :boolean,
+          default: false,
+          doc: "Require at least one special character. Default: false."
+        ],
+        check_common: [
+          type: :boolean,
+          default: true,
+          doc: "Check against the embedded common passwords list. Default: true."
+        ],
+        check_breached: [
+          type: :boolean,
+          default: false,
+          doc: "Check against the HIBP breached passwords API. Default: false."
+        ],
+        password_max_age: [
+          type: {:or, [:pos_integer, nil]},
+          default: nil,
+          doc: "Maximum password age in seconds before forced rotation. Default: nil (disabled)."
+        ]
+      ]
+    ],
+    magic_link: [
+      type: :keyword_list,
+      default: [],
+      doc: "Magic link authentication options.",
+      keys: [
+        ttl: [
+          type: :pos_integer,
+          default: 600,
+          doc: "Magic link token TTL in seconds. Default: 600 (10 minutes)."
+        ],
+        max_requests: [
+          type: :pos_integer,
+          default: 3,
+          doc: "Maximum magic link requests within the rate limit window. Default: 3."
+        ],
+        window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for magic link requests in seconds. Default: 900 (15 minutes)."
+        ]
+      ]
+    ],
+    require_confirmation: [
+      type: :boolean,
+      default: false,
+      doc: "Whether email confirmation is required before login. Default: false."
+    ],
+    session_ttl: [
+      type: :pos_integer,
+      default: 5_184_000,
+      doc: "Session time-to-live in seconds. Default: 5,184,000 (60 days)."
     ],
     session: [
       type: :keyword_list,
@@ -254,6 +412,10 @@ defmodule Sigra.Config do
           otp_app: atom() | nil,
           mailer: module() | nil,
           password: keyword(),
+          password_policy: keyword(),
+          magic_link: keyword(),
+          require_confirmation: boolean(),
+          session_ttl: pos_integer(),
           session: keyword(),
           token_ttl: keyword(),
           rate_limiting: keyword()
@@ -265,6 +427,10 @@ defmodule Sigra.Config do
     :otp_app,
     :mailer,
     password: [],
+    password_policy: [],
+    magic_link: [],
+    require_confirmation: false,
+    session_ttl: 5_184_000,
     session: [],
     token_ttl: [],
     rate_limiting: []
