@@ -53,8 +53,8 @@ Plans:
   5. User can request a magic link and authenticate via the emailed link without a password
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Library modules (email normalization, password policy, bcrypt hasher, crypto upgrade detection)
-- [ ] 02-02-PLAN.md — Auth orchestrator and generator templates (Sigra.Auth, dual-mode login, registration, controller templates)
+- [x] 02-01-PLAN.md — Library modules (email normalization, password policy, bcrypt hasher, crypto upgrade detection)
+- [x] 02-02-PLAN.md — Auth orchestrator and generator templates (Sigra.Auth, dual-mode login, registration, controller templates)
 
 ### Phase 3: Email Flows and Transactional Email
 **Goal**: All email-based auth flows work end to end — confirmation, password reset, and transactional delivery — with HMAC-protected single-use tokens, async delivery, and customizable templates
