@@ -2,9 +2,10 @@
 phase: 1
 slug: foundation
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-04-05
+updated: 2026-04-05
 ---
 
 # Phase 1 — Validation Strategy
@@ -36,30 +37,32 @@ created: 2026-04-05
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 1-01-01 | 01 | 1 | FOUND-01 | — | N/A | unit | `mix test test/sigra/config_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-02 | 01 | 1 | FOUND-02 | — | N/A | unit | `mix test test/sigra/crypto_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-03 | 01 | 1 | FOUND-03 | — | N/A | unit | `mix test test/sigra/token_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-04 | 01 | 1 | FOUND-04 | — | N/A | unit | `mix test test/sigra/telemetry_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-05 | 01 | 1 | FOUND-05 | — | N/A | unit | `mix test test/mix/tasks/sigra.install_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-06 | 01 | 1 | FOUND-06 | — | N/A | unit | `mix test test/sigra/behaviours_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-07 | 01 | 1 | FOUND-07 | — | N/A | unit | `mix test test/sigra/auth_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-08 | 01 | 1 | FOUND-08 | — | N/A | unit | `mix test test/sigra/plugs_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-09 | 01 | 1 | FOUND-09 | — | N/A | unit | `mix test test/sigra/schema_test.exs` | ❌ W0 | ⬜ pending |
-| 1-01-10 | 01 | 1 | FOUND-10 | — | N/A | unit | `mix test test/sigra/generator_test.exs` | ❌ W0 | ⬜ pending |
+| Task ID | Plan | Wave | Task Name | Requirement | Test Type | Automated Command | File Exists | Status |
+|---------|------|------|-----------|-------------|-----------|-------------------|-------------|--------|
+| 01-01-T1 | 01 | 1 | Mix project, config, error modules | FOUND-03, FOUND-05, FOUND-06 | unit | `mix test test/sigra/config_test.exs test/sigra/error_test.exs` | created by task | pending |
+| 01-01-T2 | 01 | 1 | Crypto, Token, Behaviours, Testing skeleton | FOUND-04, FOUND-10 | unit | `mix test test/sigra/crypto_test.exs test/sigra/token_test.exs test/sigra/behaviours_test.exs` | created by task | pending |
+| 01-02-T1 | 02 | 1 | Telemetry module | FOUND-07 | unit | `mix test test/sigra/telemetry_test.exs` | created by task | pending |
+| 01-02-T2 | 02 | 1 | Library plugs | FOUND-08 | unit | `mix test test/sigra/plug/` | created by task | pending |
+| 01-03-T1 | 03 | 2 | EEx templates | FOUND-01, FOUND-02, FOUND-04, FOUND-09, FOUND-10 | compile | `mix compile --warnings-as-errors` | created by task | pending |
+| 01-03-T2 | 03 | 2 | Mix task, Injector, generator tests | FOUND-01, FOUND-09, FOUND-10 | unit | `mix test test/mix/tasks/sigra.install_test.exs test/sigra/install/injector_test.exs` | created by task | pending |
+| 01-03-T3 | 03 | 2 | Verify generator in real Phoenix app | FOUND-01 | manual | Human inspects generated output | N/A (checkpoint) | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `test/test_helper.exs` — ExUnit setup
-- [ ] `test/support/` — shared test fixtures and helpers
-- [ ] Mix project compiles with `mix compile --warnings-as-errors`
+- [ ] `test/test_helper.exs` — ExUnit setup (created by Plan 01, Task 1)
+- [ ] Mix project compiles with `mix compile --warnings-as-errors` (created by Plan 01, Task 1)
 
-*Existing infrastructure covers basic requirements; Wave 0 adds test stubs.*
+*Wave 0 is satisfied by Plan 01 Task 1 which creates the Mix project from scratch.*
+
+---
+
+## Nyquist Compliance
+
+All 6 automated tasks (01-01-T1 through 01-03-T2) have `<automated>` verify commands in their respective PLAN.md files. Task 01-03-T3 is a checkpoint:human-verify task (manual by design). No consecutive automated tasks lack verification commands.
 
 ---
 
@@ -68,16 +71,17 @@ created: 2026-04-05
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
 | Generator output looks like idiomatic Phoenix code | FOUND-01 | Subjective code style check | Run `mix sigra.install`, review generated files for Phoenix conventions |
+| --no-live flag produces working headless scaffold | FOUND-10 | End-to-end integration in real Phoenix app | Run generator with --no-live in fresh Phoenix app, verify no LiveView files |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or are checkpoint tasks
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covered by Plan 01 Task 1 (creates test infrastructure)
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** pending execution
