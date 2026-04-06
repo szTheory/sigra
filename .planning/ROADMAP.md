@@ -51,7 +51,10 @@ Plans:
   3. User can log out from any page and the session is invalidated
   4. A user migrating from bcrypt transparently receives an Argon2id hash on their next successful login
   5. User can request a magic link and authenticate via the emailed link without a password
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Library modules (email normalization, password policy, bcrypt hasher, crypto upgrade detection)
+- [ ] 02-02-PLAN.md — Auth orchestrator and generator templates (Sigra.Auth, dual-mode login, registration, controller templates)
 
 ### Phase 3: Email Flows and Transactional Email
 **Goal**: All email-based auth flows work end to end — confirmation, password reset, and transactional delivery — with HMAC-protected single-use tokens, async delivery, and customizable templates
@@ -159,7 +162,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 0/3 | Planning complete | - |
-| 2. Core Auth | 0/TBD | Not started | - |
+| 2. Core Auth | 0/2 | Planning complete | - |
 | 3. Email Flows and Transactional Email | 0/TBD | Not started | - |
 | 4. Session Management and Security Baseline | 0/TBD | Not started | - |
 | 5. OAuth and Social Login | 0/TBD | Not started | - |
