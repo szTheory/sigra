@@ -12,7 +12,13 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] `mix sigra.install` generator — Validated in Phase 1: Foundation
+- [x] Phoenix context pattern (`MyApp.Auth`) — Validated in Phase 1: Foundation
+- [x] Headless mode (all logic works without UI) — Validated in Phase 1: Foundation
+- [x] Telemetry events for auth operations — Validated in Phase 1: Foundation (stubs)
+- [x] Behaviour + callback architecture for extensibility — Validated in Phase 1: Foundation
+- [x] No macro magic hiding schema fields — Validated in Phase 1: Foundation
+- [x] Smart defaults with easy overrides — Validated in Phase 1: Foundation (NimbleOptions config)
 
 ### Active
 
@@ -149,12 +155,12 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | — Pending |
+| Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated Phase 1 |
 | Assent over Ueberauth for OAuth | Framework-agnostic, PKCE/OIDC built-in, single package vs N strategy deps, actively maintained. Ueberauth is Plug-coupled with lagging strategies. | — Pending |
 | Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent pattern. Single merged table breaks with OAuth. | — Pending |
 | Organizations deferred to v2 | Significant scope expansion. Core auth must be solid first. Identity layer designed to support org membership later. | — Pending |
 | SAML/OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending |
-| Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | — Pending |
+| Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | ✓ Validated Phase 1 |
 
 ## Evolution
 
@@ -174,4 +180,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after initialization*
+*Last updated: 2026-04-05 after Phase 1 completion*
