@@ -39,6 +39,7 @@ defmodule Sigra.MixProject do
       {:argon2_elixir, "~> 4.1"},
       {:comeonin, "~> 5.3"},
       # Optional deps
+      {:bcrypt_elixir, "~> 3.3", optional: true},
       {:hammer, "~> 7.3", optional: true},
       {:swoosh, "~> 1.5", optional: true},
       {:oban, "~> 2.17", optional: true},
