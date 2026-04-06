@@ -11,7 +11,6 @@ defmodule <%= web_module %>.UserAuth do
   import Plug.Conn
   import Phoenix.Controller
 
-  alias <%= context_module %>
   alias <%= context_module %>.Scope
 
   # Make the remember me cookie valid for 60 days.

@@ -85,16 +85,32 @@ defmodule Mix.Tasks.Sigra.Install do
       otp_app: otp_app,
       repo_module: inspect(repo_module),
       binary_id: opts[:binary_id] || false,
+      live: opts[:live],
       adapter: adapter
     ]
 
     context_underscore = Macro.underscore(context_name)
     otp_app_str = to_string(otp_app)
 
+    # Check if migration already exists (prevent duplicates on re-run)
+    existing_migration =
+      Path.join(["priv", "repo", "migrations"])
+      |> File.ls()
+      |> case do
+        {:ok, files} -> Enum.find(files, &String.contains?(&1, "create_sigra_auth_tables"))
+        _ -> nil
+      end
+
     # Always generated files
+    migration_path =
+      if existing_migration do
+        Path.join(["priv", "repo", "migrations", existing_migration])
+      else
+        Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_sigra_auth_tables.exs"])
+      end
+
     files = [
-      {:eex, "migration.exs",
-       Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_sigra_auth_tables.exs"])},
+      {:eex, "migration.exs", migration_path},
       {:eex, "user.ex",
        Path.join(["lib", otp_app_str, context_underscore, "user.ex"])},
       {:eex, "user_token.ex",
@@ -130,11 +146,15 @@ defmodule Mix.Tasks.Sigra.Install do
 
     all_files = files ++ live_files
 
-    # Generate files from templates
+    # Generate files from templates (skip existing files for idempotency)
     for {_type, template_name, target_path} <- all_files do
-      template_path = find_template(template_name)
-      content = EEx.eval_file(template_path, binding)
-      Mix.Generator.create_file(target_path, content)
+      if File.exists?(target_path) do
+        Mix.shell().info([:yellow, "* skipping ", :reset, target_path, " (already exists)"])
+      else
+        template_path = find_template(template_name)
+        content = EEx.eval_file(template_path, binding)
+        Mix.Generator.create_file(target_path, content)
+      end
     end
 
     # Inject into existing files
@@ -166,6 +186,22 @@ defmodule Mix.Tasks.Sigra.Install do
     router_path = Path.join(["lib", "#{otp_app}_web", "router.ex"])
 
     if File.exists?(router_path) do
+      live_routes =
+        if binding[:live] do
+          """
+
+              live "/register", RegistrationLive
+              live "/log_in", LoginLive
+          """
+        else
+          """
+
+              get "/register", RegistrationController, :new
+              post "/register", RegistrationController, :create
+              get "/log_in", SessionController, :new
+          """
+        end
+
       router_plug_code = """
         # Sigra authentication
         import #{web_module}.UserAuth
@@ -176,8 +212,7 @@ defmodule Mix.Tasks.Sigra.Install do
 
         scope "/users", #{web_module} do
           pipe_through [:browser, :redirect_if_user_is_authenticated]
-
-          get "/log_in", SessionController, :new
+      #{live_routes}
           post "/log_in", SessionController, :create
         end
 

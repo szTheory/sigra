@@ -4,7 +4,7 @@ defmodule <%= web_module %>.LoginLive do
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
-      <.header class="text-center">
+      <.header>
         Log in
         <:subtitle>
           Don't have an account?
@@ -15,22 +15,21 @@ defmodule <%= web_module %>.LoginLive do
         </:subtitle>
       </.header>
 
-      <.simple_form for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+      <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
+        <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
+        <.input field={f[:password]} type="password" label="Password" autocomplete="current-password" required />
 
-        <:actions>
-          <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-          <.link href={~p"/users/reset_password"} class="text-sm font-semibold">
-            Forgot your password?
-          </.link>
-        </:actions>
-        <:actions>
-          <.button phx-disable-with="Logging in..." class="w-full">
-            Log in <span aria-hidden="true">-></span>
-          </.button>
-        </:actions>
-      </.simple_form>
+        <div class="flex items-center justify-between">
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
+            Keep me logged in
+          </label>
+        </div>
+
+        <.button phx-disable-with="Logging in..." class="btn btn-primary w-full">
+          Log in <span aria-hidden="true">→</span>
+        </.button>
+      </.form>
     </div>
     """
   end

@@ -24,7 +24,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
   def auth_error(conn, :stale_sudo, _opts) do
     conn
     |> put_flash(:error, "Please re-enter your password to continue.")
-    |> redirect(to: ~p"/users/sudo")
+    |> redirect(to: ~p"/users/log_in")
   end
 
   @impl true

@@ -112,6 +112,17 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   end
 
   @doc """
+  Validates the current password when changing the user password.
+  """
+  def validate_current_password(changeset, password) do
+    if valid_password?(changeset.data, password) do
+      changeset
+    else
+      add_error(changeset, :current_password, "is not valid")
+    end
+  end
+
+  @doc """
   Confirms the account by setting `confirmed_at`.
   """
   def confirm_changeset(user) do

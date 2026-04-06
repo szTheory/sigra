@@ -1,8 +1,12 @@
 defmodule <%= web_module %>.SessionController do
   use <%= web_module %>, :controller
 
-  alias <%= context_module %>
   alias <%= web_module %>.UserAuth
+
+  def new(conn, _params) do
+    form = Phoenix.Component.to_form(%{"email" => ""}, as: "user")
+    render(conn, :new, form: form)
+  end
 
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")

@@ -1,13 +1,12 @@
 defmodule <%= web_module %>.RegistrationLive do
   use <%= web_module %>, :live_view
 
-  alias <%= context_module %>
   alias <%= context_module %>.<%= schema_alias %>
 
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
-      <.header class="text-center">
+      <.header>
         Register
         <:subtitle>
           Already registered?
@@ -18,7 +17,8 @@ defmodule <%= web_module %>.RegistrationLive do
         </:subtitle>
       </.header>
 
-      <.simple_form
+      <.form
+        :let={f}
         for={@form}
         id="registration_form"
         phx-submit="save"
@@ -27,19 +27,17 @@ defmodule <%= web_module %>.RegistrationLive do
         action={~p"/users/log_in?_action=registered"}
         method="post"
       >
-        <.error :if={@check_errors}>
+        <p :if={@check_errors} class="alert alert-danger">
           Oops, something went wrong! Please check the errors below.
-        </.error>
+        </p>
 
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+        <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
+        <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
 
-        <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">
-            Create an account <span aria-hidden="true">-></span>
-          </.button>
-        </:actions>
-      </.simple_form>
+        <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
+          Create an account <span aria-hidden="true">→</span>
+        </.button>
+      </.form>
     </div>
     """
   end
