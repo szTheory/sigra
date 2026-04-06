@@ -35,7 +35,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Security-critical functions (hashing, token generation, HMAC verification) live in library modules; generated code calls into them
   4. Configuration compiles without error using only smart defaults; every option has a documented override
   5. Telemetry events are emitted for operations as stubs that will be filled in by later phases; `Sigra.Telemetry` module exists
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 01-01-PLAN.md — Core library modules (config, crypto, token, behaviours, error handling)
+- [ ] 01-02-PLAN.md — Telemetry and library plugs (event catalog, HTTP middleware)
+- [ ] 01-03-PLAN.md — Generator (EEx templates, mix sigra.install task, injector)
 
 ### Phase 2: Core Auth
 **Goal**: A developer's users can register with email/password, log in, and log out, with passwords hashed using Argon2id and enumeration prevention on by default
@@ -150,11 +154,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/3 | Planning complete | - |
 | 2. Core Auth | 0/TBD | Not started | - |
 | 3. Email Flows and Transactional Email | 0/TBD | Not started | - |
 | 4. Session Management and Security Baseline | 0/TBD | Not started | - |
