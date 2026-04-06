@@ -9,6 +9,7 @@ defmodule <%= context_module %>.UserToken do
   @confirm_validity_in_days 2
   @reset_password_validity_in_days 1
   @change_email_validity_in_days 2
+  @magic_link_validity_in_seconds 600
 
   schema "user_tokens" do
     field :token, :binary
@@ -134,6 +135,41 @@ defmodule <%= context_module %>.UserToken do
   defp days_for_context("confirm"), do: @confirm_validity_in_days
   defp days_for_context("reset_password"), do: @reset_password_validity_in_days
   defp days_for_context("change:" <> _), do: @change_email_validity_in_days
+
+  @doc """
+  Builds a magic link token for the given user.
+
+  The non-hashed token is returned for inclusion in the magic link URL,
+  while the hashed part is stored in the database with a "magic_link" context.
+  """
+  def build_magic_link_token(user) do
+    build_hashed_token(user, "magic_link", user.email)
+  end
+
+  @doc """
+  Checks if a magic link token is valid and returns its underlying lookup query.
+
+  Magic link tokens expire after @magic_link_validity_in_seconds (10 minutes)
+  and are verified against the user's current email.
+  """
+  def verify_magic_link_token_query(token) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = Sigra.Token.hash_token(decoded_token)
+
+        query =
+          from token in by_token_and_context_query(hashed_token, "magic_link"),
+            join: user in assoc(token, :user),
+            where: token.inserted_at > ago(@magic_link_validity_in_seconds, "second"),
+            where: token.sent_to == user.email,
+            select: user
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
 
   @doc """
   Returns the token struct for the given token value and context.

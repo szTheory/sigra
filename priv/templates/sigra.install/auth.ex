@@ -11,6 +11,7 @@ defmodule <%= context_module %> do
   alias <%= repo_module %>, as: Repo
   alias <%= context_module %>.<%= schema_alias %>
   alias <%= context_module %>.UserToken
+  alias Sigra.Auth, as: SigraAuth
 
   ## Database getters
 
@@ -44,9 +45,10 @@ defmodule <%= context_module %> do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    user = Repo.get_by(<%= schema_alias %>, email: email)
-
-    if <%= schema_alias %>.valid_password?(user, password), do: user
+    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password}, user_schema: <%= schema_alias %>) do
+      {:ok, user} -> user
+      {:error, _} -> nil
+    end
   end
 
   @doc """
@@ -80,9 +82,13 @@ defmodule <%= context_module %> do
 
   """
   def register_user(attrs) do
-    %<%= schema_alias %>{}
-    |> <%= schema_alias %>.registration_changeset(attrs)
-    |> Repo.insert()
+    changeset_fn = fn a -> <%= schema_alias %>.registration_changeset(%<%= schema_alias %>{}, a) end
+
+    case SigraAuth.register(Repo, attrs, changeset_fn: changeset_fn) do
+      {:ok, user} -> {:ok, user}
+      {:error, :email_taken} -> {:error, :email_taken}
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   @doc """
@@ -96,6 +102,35 @@ defmodule <%= context_module %> do
   """
   def change_user_registration(%<%= schema_alias %>{} = user, attrs \\ %{}) do
     <%= schema_alias %>.registration_changeset(user, attrs, hash_password: false, validate_email: false)
+  end
+
+  ## Magic link
+
+  @doc """
+  Requests a magic link for the given email.
+
+  Returns `{:ok, {raw_token, url}}` for existing users, `{:ok, :sent}`
+  for non-existent emails (enumeration-safe), or `{:error, :rate_limited}`.
+  """
+  def request_magic_link(email, url_fun) when is_binary(email) and is_function(url_fun, 1) do
+    SigraAuth.request_magic_link(Repo, email,
+      user_schema: <%= schema_alias %>,
+      url_fun: url_fun
+    )
+  end
+
+  @doc """
+  Verifies a magic link token.
+
+  Returns `{:ok, user}` if valid (token is consumed), or `{:error, reason}`.
+  Also confirms unconfirmed users.
+  """
+  def verify_magic_link(token) when is_binary(token) do
+    SigraAuth.verify_magic_link(Repo, token,
+      user_schema: <%= schema_alias %>,
+      user_token_schema: UserToken,
+      magic_link_ttl: 600
+    )
   end
 
   ## Settings

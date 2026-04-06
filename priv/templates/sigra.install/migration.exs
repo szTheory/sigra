@@ -9,7 +9,9 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
 <% end %>      add :email, :citext, null: false
       add :hashed_password, :string
       add :confirmed_at, :utc_datetime
+      add :failed_login_attempts, :integer, default: 0, null: false
       add :locked_at, :utc_datetime
+      add :password_changed_at, :utc_datetime
 
       timestamps(type: :utc_datetime)
     end
@@ -43,7 +45,9 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
 <% end %>      add :email, :string, null: false, size: 160
       add :hashed_password, :string
       add :confirmed_at, :utc_datetime
+      add :failed_login_attempts, :integer, default: 0, null: false
       add :locked_at, :utc_datetime
+      add :password_changed_at, :utc_datetime
 
       timestamps(type: :utc_datetime)
     end
@@ -71,7 +75,9 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
 <% end %>      add :email, :string, null: false, collate: :nocase
       add :hashed_password, :string
       add :confirmed_at, :utc_datetime
+      add :failed_login_attempts, :integer, default: 0, null: false
       add :locked_at, :utc_datetime
+      add :password_changed_at, :utc_datetime
 
       timestamps(type: :utc_datetime)
     end

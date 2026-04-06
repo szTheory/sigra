@@ -131,8 +131,8 @@ defmodule Mix.Tasks.Sigra.Install do
        Path.join(["test", "support", "conn_case_helpers.ex"])}
     ]
 
-    # Conditionally add LiveView templates
-    live_files =
+    # Conditionally add LiveView or controller-mode templates
+    ui_files =
       if opts[:live] do
         [
           {:eex, "login_live.ex",
@@ -141,10 +141,15 @@ defmodule Mix.Tasks.Sigra.Install do
            Path.join(["lib", "#{otp_app_str}_web", "live", "registration_live.ex"])}
         ]
       else
-        []
+        [
+          {:eex, "login_html.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "controllers", "session_html.ex"])},
+          {:eex, "registration_html.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "controllers", "registration_html.ex"])}
+        ]
       end
 
-    all_files = files ++ live_files
+    all_files = files ++ ui_files
 
     # Generate files from templates (skip existing files for idempotency)
     for {_type, template_name, target_path} <- all_files do
@@ -214,6 +219,7 @@ defmodule Mix.Tasks.Sigra.Install do
           pipe_through [:browser, :redirect_if_user_is_authenticated]
       #{live_routes}
           post "/log_in", SessionController, :create
+          get "/log-in/:token", SessionController, :magic_link
         end
 
         scope "/users", #{web_module} do

@@ -10,7 +10,9 @@ defmodule <%= context_module %>.<%= schema_alias %> do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
+    field :failed_login_attempts, :integer, default: 0
     field :locked_at, :utc_datetime
+    field :password_changed_at, :utc_datetime
 
     timestamps(type: :utc_datetime)
   end
@@ -36,6 +38,7 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
+    # Add custom fields here (e.g., :name, :company)
     |> cast(attrs, [:email, :password])
     |> validate_email(opts)
     |> validate_password(opts)
@@ -44,6 +47,7 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   defp validate_email(changeset, opts) do
     changeset
     |> validate_required([:email])
+    |> update_change(:email, &Sigra.Email.normalize/1)
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:email, max: 160)
     |> maybe_validate_unique_email(opts)
@@ -52,7 +56,7 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   defp validate_password(changeset, opts) do
     changeset
     |> validate_required([:password])
-    |> validate_length(:password, min: 12, max: 72)
+    |> Sigra.PasswordPolicy.validate()
     |> maybe_hash_password(opts)
   end
 
@@ -64,6 +68,7 @@ defmodule <%= context_module %>.<%= schema_alias %> do
       changeset
       |> validate_length(:password, max: 72, count: :bytes)
       |> put_change(:hashed_password, Sigra.Crypto.hash_password(password))
+      |> put_change(:password_changed_at, DateTime.utc_now() |> DateTime.truncate(:second))
       |> delete_change(:password)
     else
       changeset
