@@ -19,17 +19,19 @@ Authentication that works out of the box with great DX on the happy path AND on 
 - [x] Behaviour + callback architecture for extensibility — Validated in Phase 1: Foundation
 - [x] No macro magic hiding schema fields — Validated in Phase 1: Foundation
 - [x] Smart defaults with easy overrides — Validated in Phase 1: Foundation (NimbleOptions config)
+- [x] Email/password registration with Argon2id hashing — Validated in Phase 2: Core Auth
+- [x] Magic link / passwordless email authentication — Validated in Phase 2: Core Auth
+- [x] Login / logout with server-side database-backed sessions — Validated in Phase 2: Core Auth
+- [x] Password hash algorithm migration (transparent upgrade from bcrypt to Argon2id on login) — Validated in Phase 2: Core Auth
+- [x] Account lockout after N failed attempts (temporary, configurable duration) — Validated in Phase 2: Core Auth
+- [x] Email enumeration prevention by default (constant-time comparisons, generic messages) — Validated in Phase 2: Core Auth
 
 ### Active
 
 #### Core Authentication
-- [ ] Email/password registration with Argon2id hashing
-- [ ] Magic link / passwordless email authentication
-- [ ] Login / logout with server-side database-backed sessions
 - [ ] Email confirmation (link + code verification)
 - [ ] Password reset via secure email tokens (HMAC-protected, single-use, time-limited)
 - [ ] Remember-me persistent sessions (separate long-lived cookie)
-- [ ] Password hash algorithm migration (transparent upgrade from bcrypt to Argon2id on login)
 - [ ] Sudo/re-authentication mode for sensitive operations
 
 #### OAuth / Social Login
@@ -59,9 +61,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 - [ ] Dual-mode auth plug (session for browser, bearer for API)
 
 #### Security
-- [ ] Account lockout after N failed attempts (temporary, configurable duration)
 - [ ] IP-based and account-based rate limiting
-- [ ] Email enumeration prevention by default (constant-time comparisons, generic messages)
 - [ ] CSRF protection (integrated with Phoenix's existing infrastructure)
 - [ ] HMAC-protected tokens for all email flows
 - [ ] Suspicious login detection (new IP/device triggers email notification)
@@ -180,4 +180,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after Phase 1 completion*
+*Last updated: 2026-04-06 after Phase 2 completion*
