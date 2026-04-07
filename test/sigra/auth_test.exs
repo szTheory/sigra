@@ -535,10 +535,13 @@ defmodule Sigra.AuthTest do
           user_token_schema: TestUserToken
         )
 
-      # Mock repo.transaction to simulate successful confirmation
+      # Mock get_by for token lookup, then transaction for atomic confirm
       Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
+        %TestUserToken{id: 1, token: link_struct.token, context: "confirm", user_id: 1,
+                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+      end)
       |> expect(:transaction, fn multi ->
-        # Verify multi contains the expected operations
         assert %Ecto.Multi{} = multi
         confirmed_user = %{user | confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)}
         {:ok, %{confirm_user: confirmed_user}}
@@ -558,15 +561,18 @@ defmodule Sigra.AuthTest do
     test "with valid token deletes all confirm and confirm_code tokens for user" do
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
 
-      {encoded_token, _code, _link_struct, _code_struct} =
+      {encoded_token, _code, link_struct, _code_struct} =
         Auth.generate_confirmation_token(Sigra.MockRepo, user,
           secret_key_base: @secret_key_base,
           user_token_schema: TestUserToken
         )
 
       Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
+        %TestUserToken{id: 1, token: link_struct.token, context: "confirm", user_id: 1,
+                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+      end)
       |> expect(:transaction, fn multi ->
-        # The multi should include a delete_all for confirm tokens
         assert %Ecto.Multi{} = multi
         confirmed_user = %{user | confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)}
         {:ok, %{confirm_user: confirmed_user}}
@@ -615,16 +621,17 @@ defmodule Sigra.AuthTest do
     test "with already-confirmed user returns {:error, :already_confirmed}" do
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
 
-      {encoded_token, _code, _link_struct, _code_struct} =
+      {encoded_token, _code, link_struct, _code_struct} =
         Auth.generate_confirmation_token(Sigra.MockRepo, user,
           secret_key_base: @secret_key_base,
           user_token_schema: TestUserToken
         )
 
-      # Simulate user already confirmed when the transaction runs
-      already_confirmed_user = %{user | confirmed_at: ~U[2024-01-01 00:00:00Z]}
-
       Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
+        %TestUserToken{id: 1, token: link_struct.token, context: "confirm", user_id: 1,
+                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+      end)
       |> expect(:transaction, fn _multi ->
         {:error, :confirm_user, :already_confirmed, %{}}
       end)
@@ -644,13 +651,17 @@ defmodule Sigra.AuthTest do
     test "with valid 6-digit code returns {:ok, user} with confirmed_at set" do
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
 
-      {_encoded_token, code, _link_struct, _code_struct} =
+      {_encoded_token, code, _link_struct, code_struct} =
         Auth.generate_confirmation_token(Sigra.MockRepo, user,
           secret_key_base: @secret_key_base,
           user_token_schema: TestUserToken
         )
 
       Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] ->
+        %TestUserToken{id: 2, token: code_struct.token, context: "confirm_code", user_id: 1,
+                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+      end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
         confirmed_user = %{user | confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)}
