@@ -226,6 +226,61 @@ defmodule <%= web_module %>.UserAuth do
     end
   end
 
+  @doc """
+  Plug that handles unconfirmed users based on configuration.
+
+  When `:unconfirmed_access` is `:allow_with_banner` (default):
+    - Sets info flash reminding the user to confirm their email
+    - Allows request to continue
+
+  When `:unconfirmed_access` is `:block`:
+    - Auto-resends confirmation email (D-04)
+    - Sets error flash and redirects to confirmation page
+    - Halts the connection
+
+  ## Usage
+
+  In your router:
+
+      pipe_through [:browser, :require_authenticated_user, :require_confirmed_user]
+
+  Or with explicit mode override:
+
+      plug :require_confirmed_user, unconfirmed_access: :block
+
+  """
+  def require_confirmed_user(conn, opts \\ []) do
+    user = conn.assigns[:current_scope] && conn.assigns.current_scope.user
+
+    cond do
+      is_nil(user) ->
+        conn
+
+      user.confirmed_at != nil ->
+        conn
+
+      unconfirmed_access_mode(opts) == :allow_with_banner ->
+        conn
+        |> put_flash(:info, dgettext("sigra", "Please confirm your email. Check your inbox or request a new confirmation email."))
+
+      unconfirmed_access_mode(opts) == :block ->
+        # D-04: auto-resend confirmation on blocked login attempt
+        <%= context_module %>.deliver_user_confirmation_instructions(
+          user,
+          &url(conn, ~p"/users/confirm/#{&1}")
+        )
+
+        conn
+        |> put_flash(:error, dgettext("sigra", "You must confirm your email before logging in. We've sent a new confirmation email."))
+        |> redirect(to: ~p"/users/confirm")
+        |> halt()
+    end
+  end
+
+  defp unconfirmed_access_mode(opts) do
+    Keyword.get(opts, :unconfirmed_access, :allow_with_banner)
+  end
+
   defp put_token_in_session(conn, token) do
     conn
     |> put_session(:user_token, token)
