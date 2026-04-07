@@ -16,8 +16,16 @@ defmodule Sigra.Mailer do
       Mox.defmock(MockMailer, for: Sigra.Mailer)
   """
 
+  @typedoc """
+  Email body content.
+
+  Accepts a plain string (backward compatible), a map with `:html` and `:text`
+  keys for multipart emails, or a map with only `:text` for plain-text emails.
+  """
+  @type body :: String.t() | %{html: String.t(), text: String.t()} | %{text: String.t()}
+
   @doc "Delivers an email to the given recipient."
   @doc since: "0.1.0"
-  @callback deliver(to :: String.t(), subject :: String.t(), body :: map()) ::
+  @callback deliver(to :: String.t(), subject :: String.t(), body :: body()) ::
               {:ok, term()} | {:error, term()}
 end

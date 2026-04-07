@@ -133,5 +133,111 @@ defmodule Sigra.ConfigTest do
 
       assert config.session_ttl == 3600
     end
+
+    # Phase 3: Confirmation config section
+    test "accepts confirmation with unconfirmed_access: :allow_with_banner" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          confirmation: [unconfirmed_access: :allow_with_banner]
+        )
+
+      assert config.confirmation[:unconfirmed_access] == :allow_with_banner
+    end
+
+    test "accepts confirmation with unconfirmed_access: :block" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          confirmation: [unconfirmed_access: :block]
+        )
+
+      assert config.confirmation[:unconfirmed_access] == :block
+    end
+
+    test "rejects confirmation with unconfirmed_access: :invalid" do
+      assert_raise NimbleOptions.ValidationError, ~r/unconfirmed_access/, fn ->
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          confirmation: [unconfirmed_access: :invalid]
+        )
+      end
+    end
+
+    test "accepts confirmation with code_length: 6" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.confirmation[:code_length] == 6
+    end
+
+    test "provides correct confirmation defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.confirmation[:unconfirmed_access] == :allow_with_banner
+      assert config.confirmation[:code_length] == 6
+      assert config.confirmation[:max_resends] == 3
+      assert config.confirmation[:resend_window_seconds] == 900
+      assert config.confirmation[:code_max_attempts] == 5
+      assert config.confirmation[:code_window_seconds] == 900
+    end
+
+    # Phase 3: Reset config section
+    test "accepts reset with rate_limit options" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          reset: [max_requests: 3, window_seconds: 900]
+        )
+
+      assert config.reset[:max_requests] == 3
+      assert config.reset[:window_seconds] == 900
+    end
+
+    test "provides correct reset defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.reset[:max_requests] == 3
+      assert config.reset[:window_seconds] == 900
+    end
+
+    # Phase 3: Email config section
+    test "accepts email with from_address, delivery_mode, and oban_queue" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          email: [
+            from_address: "noreply@example.com",
+            delivery_mode: :auto,
+            oban_queue: "sigra_mailer"
+          ]
+        )
+
+      assert config.email[:from_address] == "noreply@example.com"
+      assert config.email[:delivery_mode] == :auto
+      assert config.email[:oban_queue] == "sigra_mailer"
+    end
+
+    test "rejects email with delivery_mode: :invalid" do
+      assert_raise NimbleOptions.ValidationError, ~r/delivery_mode/, fn ->
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          email: [delivery_mode: :invalid]
+        )
+      end
+    end
+
+    test "provides correct email defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.email[:delivery_mode] == :auto
+      assert config.email[:oban_queue] == "sigra_mailer"
+      assert config.email[:oban_concurrency] == 10
+    end
   end
 end

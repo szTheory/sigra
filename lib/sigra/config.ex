@@ -207,6 +207,86 @@ defmodule Sigra.Config do
           doc: "Maximum failed attempts per account before lockout. Default: 5."
         ]
       ]
+    ],
+    confirmation: [
+      type: :keyword_list,
+      default: [],
+      doc: "Email confirmation options.",
+      keys: [
+        unconfirmed_access: [
+          type: {:in, [:allow_with_banner, :block]},
+          default: :allow_with_banner,
+          doc: "Behavior for unconfirmed users. :allow_with_banner shows a reminder, :block prevents login."
+        ],
+        code_length: [
+          type: :pos_integer,
+          default: 6,
+          doc: "Length of the numeric confirmation code. Default: 6."
+        ],
+        max_resends: [
+          type: :pos_integer,
+          default: 3,
+          doc: "Maximum confirmation resend requests per window. Default: 3."
+        ],
+        resend_window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for confirmation resend in seconds. Default: 900 (15 minutes)."
+        ],
+        code_max_attempts: [
+          type: :pos_integer,
+          default: 5,
+          doc: "Maximum code entry attempts per window. Default: 5."
+        ],
+        code_window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for code entry in seconds. Default: 900 (15 minutes)."
+        ]
+      ]
+    ],
+    reset: [
+      type: :keyword_list,
+      default: [],
+      doc: "Password reset options.",
+      keys: [
+        max_requests: [
+          type: :pos_integer,
+          default: 3,
+          doc: "Maximum reset requests per email per window. Default: 3."
+        ],
+        window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for reset requests in seconds. Default: 900 (15 minutes)."
+        ]
+      ]
+    ],
+    email: [
+      type: :keyword_list,
+      default: [],
+      doc: "Email delivery options.",
+      keys: [
+        from_address: [
+          type: :string,
+          doc: "From address for transactional emails. Default derived from endpoint config."
+        ],
+        delivery_mode: [
+          type: {:in, [:auto, :async, :sync]},
+          default: :auto,
+          doc: "Email delivery mode. :auto detects Oban presence. Default: :auto."
+        ],
+        oban_queue: [
+          type: :string,
+          default: "sigra_mailer",
+          doc: "Oban queue name for async email delivery. Default: \"sigra_mailer\"."
+        ],
+        oban_concurrency: [
+          type: :pos_integer,
+          default: 10,
+          doc: "Maximum concurrent email delivery workers. Default: 10."
+        ]
+      ]
     ]
   ])}
   """
@@ -403,6 +483,88 @@ defmodule Sigra.Config do
           doc: "Maximum failed attempts per account before lockout. Default: 5."
         ]
       ]
+    ],
+    confirmation: [
+      type: :keyword_list,
+      default: [],
+      doc: "Email confirmation options.",
+      keys: [
+        unconfirmed_access: [
+          type: {:in, [:allow_with_banner, :block]},
+          default: :allow_with_banner,
+          doc:
+            "Behavior for unconfirmed users. :allow_with_banner shows a reminder, :block prevents login."
+        ],
+        code_length: [
+          type: :pos_integer,
+          default: 6,
+          doc: "Length of the numeric confirmation code. Default: 6."
+        ],
+        max_resends: [
+          type: :pos_integer,
+          default: 3,
+          doc: "Maximum confirmation resend requests per window. Default: 3."
+        ],
+        resend_window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc:
+            "Rate limit window for confirmation resend in seconds. Default: 900 (15 minutes)."
+        ],
+        code_max_attempts: [
+          type: :pos_integer,
+          default: 5,
+          doc: "Maximum code entry attempts per window. Default: 5."
+        ],
+        code_window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for code entry in seconds. Default: 900 (15 minutes)."
+        ]
+      ]
+    ],
+    reset: [
+      type: :keyword_list,
+      default: [],
+      doc: "Password reset options.",
+      keys: [
+        max_requests: [
+          type: :pos_integer,
+          default: 3,
+          doc: "Maximum reset requests per email per window. Default: 3."
+        ],
+        window_seconds: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Rate limit window for reset requests in seconds. Default: 900 (15 minutes)."
+        ]
+      ]
+    ],
+    email: [
+      type: :keyword_list,
+      default: [],
+      doc: "Email delivery options.",
+      keys: [
+        from_address: [
+          type: :string,
+          doc: "From address for transactional emails. Default derived from endpoint config."
+        ],
+        delivery_mode: [
+          type: {:in, [:auto, :async, :sync]},
+          default: :auto,
+          doc: "Email delivery mode. :auto detects Oban presence. Default: :auto."
+        ],
+        oban_queue: [
+          type: :string,
+          default: "sigra_mailer",
+          doc: "Oban queue name for async email delivery. Default: \"sigra_mailer\"."
+        ],
+        oban_concurrency: [
+          type: :pos_integer,
+          default: 10,
+          doc: "Maximum concurrent email delivery workers. Default: 10."
+        ]
+      ]
     ]
   ]
 
@@ -418,7 +580,10 @@ defmodule Sigra.Config do
           session_ttl: pos_integer(),
           session: keyword(),
           token_ttl: keyword(),
-          rate_limiting: keyword()
+          rate_limiting: keyword(),
+          confirmation: keyword(),
+          reset: keyword(),
+          email: keyword()
         }
 
   defstruct [
@@ -433,7 +598,10 @@ defmodule Sigra.Config do
     session_ttl: 5_184_000,
     session: [],
     token_ttl: [],
-    rate_limiting: []
+    rate_limiting: [],
+    confirmation: [],
+    reset: [],
+    email: []
   ]
 
   @doc """

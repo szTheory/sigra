@@ -30,6 +30,57 @@ defmodule Sigra.ErrorTest do
     test "returns fallback for unknown errors" do
       assert Error.safe_message(:something_unknown) == "Something went wrong. Please try again."
     end
+
+    # Phase 3: Confirmation/reset error messages
+    test "returns message for :already_confirmed" do
+      assert Error.safe_message(:already_confirmed) == "Your email is already confirmed."
+    end
+
+    test "returns message for :unconfirmed" do
+      assert Error.safe_message(:unconfirmed) ==
+               "You must confirm your email before continuing."
+    end
+
+    test "returns message for :confirmation_code_invalid" do
+      assert Error.safe_message(:confirmation_code_invalid) ==
+               "Invalid confirmation code. Please try again."
+    end
+
+    test "returns message for :reset_token_expired" do
+      assert Error.safe_message(:reset_token_expired) ==
+               "This password reset link has expired or was already used."
+    end
+
+    test "returns message for :confirmation_token_expired" do
+      assert Error.safe_message(:confirmation_token_expired) ==
+               "This confirmation link has expired or was already used."
+    end
+  end
+
+  describe "AlreadyConfirmed exception" do
+    test "is a defexception with default message" do
+      error = %Error.AlreadyConfirmed{}
+      assert error.message == "email already confirmed"
+    end
+
+    test "can be raised" do
+      assert_raise Error.AlreadyConfirmed, fn ->
+        raise Error.AlreadyConfirmed
+      end
+    end
+  end
+
+  describe "Unconfirmed exception" do
+    test "is a defexception with default message" do
+      error = %Error.Unconfirmed{}
+      assert error.message == "email not confirmed"
+    end
+
+    test "can be raised" do
+      assert_raise Error.Unconfirmed, fn ->
+        raise Error.Unconfirmed
+      end
+    end
   end
 
   describe "InvalidCredentials exception" do

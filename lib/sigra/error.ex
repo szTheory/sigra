@@ -47,6 +47,16 @@ defmodule Sigra.Error do
     defexception [:locked_until, message: "account is locked"]
   end
 
+  defmodule AlreadyConfirmed do
+    @moduledoc "Raised when a user's email is already confirmed."
+    defexception message: "email already confirmed"
+  end
+
+  defmodule Unconfirmed do
+    @moduledoc "Raised when an unconfirmed user attempts a restricted action."
+    defexception message: "email not confirmed"
+  end
+
   @doc """
   Maps an internal error atom to an enumeration-safe user-facing message.
 
@@ -72,6 +82,20 @@ defmodule Sigra.Error do
 
   def safe_message(:account_locked),
     do: "Account is temporarily locked. Please try again later."
+
+  def safe_message(:already_confirmed), do: "Your email is already confirmed."
+
+  def safe_message(:unconfirmed),
+    do: "You must confirm your email before continuing."
+
+  def safe_message(:confirmation_code_invalid),
+    do: "Invalid confirmation code. Please try again."
+
+  def safe_message(:reset_token_expired),
+    do: "This password reset link has expired or was already used."
+
+  def safe_message(:confirmation_token_expired),
+    do: "This confirmation link has expired or was already used."
 
   def safe_message(_), do: "Something went wrong. Please try again."
 end
