@@ -50,8 +50,8 @@ All email templates use these inline CSS spacing values:
 |-------|-------|-------|
 | cell-pad | 16px | Table cell padding (left/right) |
 | section-pad | 24px | Section padding (top/bottom) |
-| element-gap | 12px | Spacing between paragraphs |
-| button-pad | 12px 24px | CTA button internal padding |
+| element-gap | 12px | Spacing between paragraphs. Exception from 8-point scale justified: 16px creates excessive visual separation between short email paragraphs (typically 1-2 sentences), while 8px is too tight. 12px maintains comfortable reading rhythm at email widths without inflating total email height. |
+| button-pad | 12px 24px | CTA button internal padding (12px vertical maintains 44px touch target with 16px text + line-height) |
 | container-width | 600px max-width | Email body container |
 
 ---
@@ -72,13 +72,15 @@ Inherits host app typography via Phoenix core components. No custom font declara
 
 ### Transactional Email Templates
 
+2 font weights only: 400 (regular) and 700 (bold).
+
 | Role | Size | Weight | Line Height | Font Family |
 |------|------|--------|-------------|-------------|
 | Heading | 24px | 700 (bold) | 1.2 | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif |
 | Body | 16px | 400 (regular) | 1.5 | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif |
 | Code display | 32px | 700 (bold) | 1.0 | monospace (for 6-digit confirmation code) |
 | Footer | 14px | 400 (regular) | 1.5 | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif |
-| Button text | 16px | 600 (semibold) | 1.0 | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif |
+| Button text | 16px | 700 (bold) | 1.0 | -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif |
 
 ---
 
@@ -98,6 +100,16 @@ Inherits host app color theme. Uses only these semantic Tailwind classes:
 | Error flash | Phoenix flash `:error` | Invalid token, expired token, rate limited |
 
 ### Transactional Email Templates
+
+**60/30/10 color distribution:**
+
+| Split | Color | Hex | Usage |
+|-------|-------|-----|-------|
+| 60% dominant | zinc-100 | `#f4f4f5` | Email body background -- fills the viewport behind the content card |
+| 30% secondary | white | `#ffffff` | Content card surface -- the main reading area |
+| 10% accent | blue-600 | `#2563eb` | CTA button background and inline link text -- reserved for actionable elements only |
+
+**Full palette:**
 
 | Role | Hex Value | Usage |
 |------|-----------|-------|
@@ -283,6 +295,10 @@ All pages use `mx-auto max-w-sm` container matching Phase 2 login/registration l
 
 ## Email Template Structure
 
+### Visual Hierarchy
+
+The CTA button is the focal point of every email. The layout funnels attention top-to-bottom: heading establishes context, body copy explains the action, and the full-width blue-600 CTA button is the single most prominent visual element. All other content (code display, fallback URL, footer) is secondary and uses muted colors.
+
 ### HTML Layout (D-12, D-15)
 
 All emails share this structure via `base_layout/1`:
@@ -297,7 +313,7 @@ All emails share this structure via `base_layout/1`:
 |  [Optional: 6-digit code block]                    |  32px bold monospace, zinc-100 bg
 |                                                    |
 |  +--------------------------------------------+   |
-|  |          [CTA Button]                       |   |  blue-600 bg, white text, 16px semibold
+|  |          [CTA Button]                       |   |  blue-600 bg, white text, 16px bold
 |  +--------------------------------------------+   |
 |                                                    |
 |  [Optional: fallback URL as text]                  |  14px, zinc-500
