@@ -19,11 +19,23 @@ defmodule Sigra.Telemetry do
     * `[:sigra, :token, :generate, :start | :stop | :exception]` - Token generation
     * `[:sigra, :token, :verify, :start | :stop | :exception]` - Token verification
 
+  ### Email Delivery
+
+    * `[:sigra, :email, :deliver, :start | :stop | :exception]` - Email delivery attempts
+
+  ### Confirmation
+
+    * `[:sigra, :confirmation, :verify, :start | :stop | :exception]` - Confirmation verification
+
   ### Security Signals (one-shot events)
 
     * `[:sigra, :security, :rate_limited]` - Rate limit exceeded
     * `[:sigra, :security, :lockout]` - Account locked after failed attempts
     * `[:sigra, :security, :invalid_credentials]` - Invalid credential submission
+    * `[:sigra, :confirmation, :sent]` - Confirmation email dispatched
+    * `[:sigra, :reset, :requested]` - Password reset requested
+    * `[:sigra, :reset, :completed]` - Password reset completed
+    * `[:sigra, :token, :expired]` - Token expired during verification
 
   ## Metadata Policy
 
@@ -53,7 +65,14 @@ defmodule Sigra.Telemetry do
     [:sigra, :token, :verify, :stop],
     [:sigra, :security, :rate_limited],
     [:sigra, :security, :lockout],
-    [:sigra, :security, :invalid_credentials]
+    [:sigra, :security, :invalid_credentials],
+    [:sigra, :email, :deliver, :stop],
+    [:sigra, :email, :deliver, :exception],
+    [:sigra, :confirmation, :verify, :stop],
+    [:sigra, :confirmation, :sent],
+    [:sigra, :reset, :requested],
+    [:sigra, :reset, :completed],
+    [:sigra, :token, :expired]
   ]
 
   @doc """

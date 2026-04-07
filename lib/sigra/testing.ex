@@ -66,17 +66,75 @@ defmodule Sigra.Testing do
   @doc """
   Asserts that a token email was sent to the given address for the given context.
 
-  > #### Stub {: .warning}
-  >
-  > This function is a stub that will be filled in by later phases
-  > when email delivery is fully implemented.
+  Delegates to `assert_email_sent/1` with `:to` set to the given address.
   """
   @doc since: "0.1.0"
   @spec assert_token_sent(String.t(), atom()) :: true
-  def assert_token_sent(_to, _context) do
-    # Stub: will verify email delivery via Mox or Swoosh test adapter
-    # once mailer integration is implemented in later phases.
-    true
+  def assert_token_sent(to, _context) do
+    assert_email_sent(to: to)
+  end
+
+  @doc """
+  Asserts that an email was sent (via Swoosh test adapter).
+
+  Checks the Swoosh test mailbox for an email matching the given criteria.
+  Uses `Swoosh.TestAssertions` under the hood when available.
+
+  ## Options
+
+  - `:to` - Expected recipient email
+  - `:subject` - Expected subject (substring match)
+  """
+  @doc since: "0.3.0"
+  @spec assert_email_sent(keyword()) :: true
+  def assert_email_sent(opts \\ []) do
+    to = Keyword.get(opts, :to)
+    subject = Keyword.get(opts, :subject)
+
+    if Code.ensure_loaded?(Swoosh.TestAssertions) do
+      criteria = []
+      criteria = if to, do: [{:to, [{nil, to}]} | criteria], else: criteria
+      criteria = if subject, do: [{:subject, subject} | criteria], else: criteria
+      apply(Swoosh.TestAssertions, :assert_email_sent, [criteria])
+    else
+      raise "Swoosh.TestAssertions not available. Add {:swoosh, \"~> 1.5\"} to test deps."
+    end
+  end
+
+  @doc """
+  Extracts the confirmation token from a confirmation URL string.
+
+  Parses `/users/confirm/<token>` and returns the token portion.
+
+  ## Examples
+
+      iex> Sigra.Testing.extract_confirmation_token("https://example.com/users/confirm/abc123")
+      "abc123"
+
+  """
+  @doc since: "0.3.0"
+  @spec extract_confirmation_token(String.t()) :: String.t()
+  def extract_confirmation_token(url) when is_binary(url) do
+    uri = URI.parse(url)
+    uri.path |> String.split("/") |> List.last()
+  end
+
+  @doc """
+  Extracts the reset password token from a reset URL string.
+
+  Parses `/users/reset-password/<token>` and returns the token portion.
+
+  ## Examples
+
+      iex> Sigra.Testing.extract_reset_token("https://example.com/users/reset-password/xyz789")
+      "xyz789"
+
+  """
+  @doc since: "0.3.0"
+  @spec extract_reset_token(String.t()) :: String.t()
+  def extract_reset_token(url) when is_binary(url) do
+    uri = URI.parse(url)
+    uri.path |> String.split("/") |> List.last()
   end
 
   @doc """

@@ -163,5 +163,100 @@ defmodule Sigra.TelemetryTest do
       assert moduledoc =~ "[:sigra, :security, :invalid_credentials]"
       assert moduledoc =~ "NEVER included: passwords"
     end
+
+    test "moduledoc contains Phase 3 email and confirmation events" do
+      {:docs_v1, _, _, _, %{"en" => moduledoc}, _, _} = Code.fetch_docs(Sigra.Telemetry)
+
+      assert moduledoc =~ "Email Delivery"
+      assert moduledoc =~ "[:sigra, :email, :deliver"
+      assert moduledoc =~ "[:sigra, :confirmation, :verify"
+      assert moduledoc =~ "[:sigra, :confirmation, :sent]"
+      assert moduledoc =~ "[:sigra, :reset, :requested]"
+      assert moduledoc =~ "[:sigra, :reset, :completed]"
+      assert moduledoc =~ "[:sigra, :token, :expired]"
+    end
+  end
+
+  describe "Phase 3 default logger events" do
+    test "logs [:sigra, :email, :deliver, :stop] event" do
+      :ok = Telemetry.attach_default_logger()
+      on_exit(fn -> :telemetry.detach("sigra-default-logger") end)
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Telemetry.event([:sigra, :email, :deliver, :stop], %{}, %{email_type: :confirmation})
+        end)
+
+      assert log =~ "[Sigra]"
+      assert log =~ "email.deliver.stop"
+    end
+
+    test "logs [:sigra, :confirmation, :verify, :stop] event" do
+      :ok = Telemetry.attach_default_logger()
+      on_exit(fn -> :telemetry.detach("sigra-default-logger") end)
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Telemetry.event([:sigra, :confirmation, :verify, :stop], %{}, %{user_id: 1})
+        end)
+
+      assert log =~ "[Sigra]"
+      assert log =~ "confirmation.verify.stop"
+    end
+
+    test "logs [:sigra, :reset, :requested] event" do
+      :ok = Telemetry.attach_default_logger()
+      on_exit(fn -> :telemetry.detach("sigra-default-logger") end)
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: 1})
+        end)
+
+      assert log =~ "[Sigra]"
+      assert log =~ "reset.requested"
+    end
+
+    test "logs [:sigra, :reset, :completed] event" do
+      :ok = Telemetry.attach_default_logger()
+      on_exit(fn -> :telemetry.detach("sigra-default-logger") end)
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Telemetry.event([:sigra, :reset, :completed], %{}, %{user_id: 1})
+        end)
+
+      assert log =~ "[Sigra]"
+      assert log =~ "reset.completed"
+    end
+
+    test "logs [:sigra, :token, :expired] event" do
+      :ok = Telemetry.attach_default_logger()
+      on_exit(fn -> :telemetry.detach("sigra-default-logger") end)
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          Telemetry.event([:sigra, :token, :expired], %{}, %{context: "confirm"})
+        end)
+
+      assert log =~ "[Sigra]"
+      assert log =~ "token.expired"
+    end
+  end
+
+  describe "Testing helpers" do
+    test "extract_confirmation_token/1 extracts token from URL" do
+      token = "abc123def456"
+      url = "https://example.com/users/confirm/#{token}"
+
+      assert Sigra.Testing.extract_confirmation_token(url) == token
+    end
+
+    test "extract_reset_token/1 extracts token from URL" do
+      token = "xyz789ghi012"
+      url = "https://example.com/users/reset-password/#{token}"
+
+      assert Sigra.Testing.extract_reset_token(url) == token
+    end
   end
 end

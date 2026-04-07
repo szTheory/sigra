@@ -20,6 +20,7 @@ defmodule Sigra.Auth do
   - Telemetry: all operations emit structured events
   """
 
+  alias Ecto.Multi
   alias Sigra.{Crypto, Email, Telemetry, Token}
 
   @doc """
@@ -152,7 +153,7 @@ defmodule Sigra.Auth do
         # Enumeration-safe: return generic response without DB write
         {:ok, :sent}
 
-      rate_limiter && rate_limited?(rate_limiter, normalized_email, max_requests, window_ms) ->
+      rate_limiter && rate_limited?(rate_limiter, "magic_link:#{normalized_email}", max_requests, window_ms) ->
         {:error, :rate_limited}
 
       true ->
@@ -228,6 +229,371 @@ defmodule Sigra.Auth do
     end
   end
 
+  @doc """
+  Generates a confirmation link token AND a 6-digit code for the given user.
+
+  Returns `{encoded_token, code, link_token_struct, code_token_struct}`.
+  The encoded_token is HMAC-signed for URL use. The code is a random 6-digit
+  numeric string. Both are stored as SHA-256 hashes in the DB.
+
+  Per D-01: link-first, code as fallback. Both generated together.
+
+  ## Options
+
+  - `:secret_key_base` - Required. The host app's secret key base.
+  - `:user_token_schema` - Required. The Ecto schema module for user tokens.
+  """
+  @doc since: "0.3.0"
+  @spec generate_confirmation_token(module(), struct(), keyword()) ::
+          {String.t(), String.t(), struct(), struct()}
+  def generate_confirmation_token(_repo, user, opts \\ []) do
+    secret_key_base = Keyword.fetch!(opts, :secret_key_base)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+
+    # Generate link token: random bytes -> HMAC sign -> base64 encode
+    {raw_token, hashed_token} = Token.generate_hashed_token()
+    signed = Plug.Crypto.sign(secret_key_base, "sigra-confirm-token", raw_token)
+    encoded_token = Base.url_encode64(signed, padding: false)
+
+    # Generate 6-digit code (100000-999999)
+    code = (:rand.uniform(900_000) + 99_999) |> Integer.to_string()
+    hashed_code = Token.hash_token(code)
+
+    # Build token structs
+    link_struct = struct!(user_token_schema, %{
+      token: hashed_token,
+      context: "confirm",
+      sent_to: user.email,
+      user_id: user.id
+    })
+
+    code_struct = struct!(user_token_schema, %{
+      token: hashed_code,
+      context: "confirm_code",
+      sent_to: user.email,
+      user_id: user.id
+    })
+
+    {encoded_token, code, link_struct, code_struct}
+  end
+
+  @doc """
+  Confirms a user by HMAC-signed link token.
+
+  Verifies the HMAC signature, decodes the raw token, hashes it,
+  looks up in DB. On success, sets confirmed_at and deletes all
+  confirm/confirm_code tokens for the user in a single transaction.
+
+  Returns `{:ok, user}`, `{:error, :token_expired}`, `{:error, :token_invalid}`,
+  or `{:error, :already_confirmed}`.
+
+  ## Options
+
+  - `:secret_key_base` - Required. The host app's secret key base.
+  - `:user_token_schema` - Required. The Ecto schema module for user tokens.
+  - `:user_schema` - Required. The Ecto schema module for users.
+  - `:confirmation_ttl` - Token TTL in seconds. Default: `172800` (48 hours).
+  """
+  @doc since: "0.3.0"
+  @spec confirm_user(module(), String.t(), keyword()) ::
+          {:ok, struct()} | {:error, :token_expired | :token_invalid | :already_confirmed}
+  def confirm_user(repo, encoded_token, opts \\ []) do
+    secret_key_base = Keyword.fetch!(opts, :secret_key_base)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+    user_schema = Keyword.fetch!(opts, :user_schema)
+    ttl = Keyword.get(opts, :confirmation_ttl, 48 * 60 * 60)
+
+    # Decode base64, then verify HMAC
+    with {:ok, signed} <- Base.url_decode64(encoded_token, padding: false),
+         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-confirm-token", signed, max_age: ttl) do
+      hashed_token = Token.hash_token(raw_token)
+
+      # Look up token in DB
+      case repo.get_by(user_token_schema, token: hashed_token, context: "confirm") do
+        nil ->
+          {:error, :token_invalid}
+
+        token_record ->
+          # Build atomic transaction: confirm user + delete all confirm tokens
+          multi =
+            Multi.new()
+            |> Multi.run(:confirm_user, fn _repo, _changes ->
+              user = repo.get!(user_schema, token_record.user_id)
+
+              if user.confirmed_at do
+                {:error, :already_confirmed}
+              else
+                now = DateTime.utc_now() |> DateTime.truncate(:second)
+                changeset = Ecto.Changeset.change(user, confirmed_at: now)
+
+                case repo.update(changeset) do
+                  {:ok, updated} -> {:ok, updated}
+                  {:error, changeset} -> {:error, changeset}
+                end
+              end
+            end)
+            |> Multi.run(:delete_tokens, fn _repo, _changes ->
+              import Ecto.Query
+
+              query =
+                from(t in user_token_schema,
+                  where: t.user_id == ^token_record.user_id,
+                  where: t.context in ["confirm", "confirm_code"]
+                )
+
+              repo.delete_all(query)
+              {:ok, :deleted}
+            end)
+
+          case repo.transaction(multi) do
+            {:ok, %{confirm_user: user}} ->
+              Telemetry.event([:sigra, :confirmation, :verify, :stop], %{}, %{user_id: user.id})
+              {:ok, user}
+
+            {:error, :confirm_user, :already_confirmed, _changes} ->
+              {:error, :already_confirmed}
+
+            {:error, _step, reason, _changes} ->
+              {:error, reason}
+          end
+      end
+    else
+      {:error, :expired} -> {:error, :token_expired}
+      {:error, _} -> {:error, :token_invalid}
+      :error -> {:error, :token_invalid}
+    end
+  end
+
+  @doc """
+  Confirms a user by 6-digit code.
+
+  SHA-256 hashes the submitted code, looks up in DB with context "confirm_code".
+  Rate-limited to 5 attempts per user per 15 minutes.
+
+  ## Options
+
+  - `:user_id` - Required. The user ID to confirm.
+  - `:user_token_schema` - Required. The Ecto schema module for user tokens.
+  - `:user_schema` - Required. The Ecto schema module for users.
+  - `:secret_key_base` - Required. The host app's secret key base.
+  - `:rate_limiter` - Module implementing `Sigra.RateLimiter`. Default: `nil`.
+  - `:max_code_attempts` - Max code verification attempts per window. Default: `5`.
+  - `:code_window_ms` - Rate limit window in milliseconds. Default: `900_000` (15 min).
+  """
+  @doc since: "0.3.0"
+  @spec verify_confirmation_code(module(), String.t(), keyword()) ::
+          {:ok, struct()} | {:error, :invalid_code | :rate_limited | :already_confirmed}
+  def verify_confirmation_code(repo, code, opts \\ []) do
+    user_id = Keyword.fetch!(opts, :user_id)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+    user_schema = Keyword.fetch!(opts, :user_schema)
+    rate_limiter = Keyword.get(opts, :rate_limiter)
+    max_attempts = Keyword.get(opts, :max_code_attempts, 5)
+    window_ms = Keyword.get(opts, :code_window_ms, 900_000)
+
+    # Check rate limit first
+    if rate_limiter do
+      case rate_limiter.check_rate("sigra:confirm_code:#{user_id}", max_attempts, window_ms) do
+        {:allow, _count} -> :ok
+        {:deny, _retry_after} -> {:error, :rate_limited}
+      end
+    else
+      :ok
+    end
+    |> case do
+      {:error, :rate_limited} = err ->
+        err
+
+      :ok ->
+        hashed_code = Token.hash_token(code)
+
+        case repo.get_by(user_token_schema, token: hashed_code, context: "confirm_code") do
+          nil ->
+            {:error, :invalid_code}
+
+          token_record ->
+            # Build atomic transaction: confirm user + delete all confirm tokens
+            multi =
+              Multi.new()
+              |> Multi.run(:confirm_user, fn _repo, _changes ->
+                user = repo.get!(user_schema, token_record.user_id)
+
+                if user.confirmed_at do
+                  {:error, :already_confirmed}
+                else
+                  now = DateTime.utc_now() |> DateTime.truncate(:second)
+                  changeset = Ecto.Changeset.change(user, confirmed_at: now)
+
+                  case repo.update(changeset) do
+                    {:ok, updated} -> {:ok, updated}
+                    {:error, changeset} -> {:error, changeset}
+                  end
+                end
+              end)
+              |> Multi.run(:delete_tokens, fn _repo, _changes ->
+                import Ecto.Query
+
+                query =
+                  from(t in user_token_schema,
+                    where: t.user_id == ^token_record.user_id,
+                    where: t.context in ["confirm", "confirm_code"]
+                  )
+
+                repo.delete_all(query)
+                {:ok, :deleted}
+              end)
+
+            case repo.transaction(multi) do
+              {:ok, %{confirm_user: user}} ->
+                Telemetry.event([:sigra, :confirmation, :verify, :stop], %{}, %{user_id: user.id})
+                {:ok, user}
+
+              {:error, :confirm_user, :already_confirmed, _changes} ->
+                {:error, :already_confirmed}
+
+              {:error, _step, reason, _changes} ->
+                {:error, reason}
+            end
+        end
+    end
+  end
+
+  @doc """
+  Requests a password reset for the given email.
+
+  Enumeration-safe: always returns `{:ok, :sent}` for non-existent emails
+  with a dummy hash operation to match timing (per D-38).
+
+  ## Options
+
+  - `:user_schema` - Required. The Ecto schema module for users.
+  - `:secret_key_base` - Required. The host app's secret key base.
+  - `:url_fun` - Required. Function `(token -> url_string)`.
+  - `:rate_limiter` - Module implementing `Sigra.RateLimiter`. Default: `nil`.
+  - `:max_requests` - Max reset requests per window. Default: `3`.
+  - `:window_ms` - Rate limit window in milliseconds. Default: `900_000` (15 min).
+  """
+  @doc since: "0.3.0"
+  @spec request_password_reset(module(), String.t(), keyword()) ::
+          {:ok, {String.t(), String.t()}} | {:ok, :sent} | {:error, :rate_limited}
+  def request_password_reset(repo, email, opts \\ []) do
+    user_schema = Keyword.fetch!(opts, :user_schema)
+    secret_key_base = Keyword.fetch!(opts, :secret_key_base)
+    url_fun = Keyword.fetch!(opts, :url_fun)
+    rate_limiter = Keyword.get(opts, :rate_limiter)
+    max_requests = Keyword.get(opts, :max_requests, 3)
+    window_ms = Keyword.get(opts, :window_ms, 900_000)
+
+    normalized_email = Email.normalize(email)
+    user = repo.get_by(user_schema, email: normalized_email)
+
+    cond do
+      is_nil(user) ->
+        # Enumeration-safe: dummy hash to match timing
+        Crypto.hash_password("dummy_password_for_timing")
+        {:ok, :sent}
+
+      rate_limiter && rate_limited?(rate_limiter, "sigra:reset:#{normalized_email}", max_requests, window_ms) ->
+        {:error, :rate_limited}
+
+      true ->
+        {raw_token, hashed_token} = Token.generate_hashed_token()
+        signed = Plug.Crypto.sign(secret_key_base, "sigra-reset-token", raw_token)
+        encoded_token = Base.url_encode64(signed, padding: false)
+
+        token_struct = %{
+          token: hashed_token,
+          context: "reset_password",
+          sent_to: user.email,
+          user_id: user.id
+        }
+
+        repo.insert!(token_struct)
+        url = url_fun.(encoded_token)
+
+        Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
+
+        {:ok, {encoded_token, url}}
+    end
+  end
+
+  @doc """
+  Resets a user's password using a valid reset token.
+
+  Verifies HMAC signature, looks up token in DB, changes password,
+  and invalidates ALL tokens (including sessions) in a single transaction.
+  Per D-29: auto-login after reset (caller creates new session).
+
+  ## Options
+
+  - `:secret_key_base` - Required. The host app's secret key base.
+  - `:user_token_schema` - Required. The Ecto schema module for user tokens.
+  - `:user_schema` - Required. The Ecto schema module for users.
+  - `:changeset_fn` - Required. Function `(user, attrs -> Ecto.Changeset.t())`.
+  - `:reset_ttl` - Token TTL in seconds. Default: `3600` (1 hour).
+  """
+  @doc since: "0.3.0"
+  @spec reset_password(module(), String.t(), map(), keyword()) ::
+          {:ok, struct()} | {:error, :token_expired | :token_invalid | Ecto.Changeset.t()}
+  def reset_password(repo, encoded_token, password_attrs, opts \\ []) do
+    secret_key_base = Keyword.fetch!(opts, :secret_key_base)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+    user_schema = Keyword.fetch!(opts, :user_schema)
+    changeset_fn = Keyword.fetch!(opts, :changeset_fn)
+    ttl = Keyword.get(opts, :reset_ttl, 60 * 60)
+
+    # Decode base64, then verify HMAC
+    with {:ok, signed} <- Base.url_decode64(encoded_token, padding: false),
+         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: ttl) do
+      hashed_token = Token.hash_token(raw_token)
+
+      case repo.get_by(user_token_schema, token: hashed_token, context: "reset_password") do
+        nil ->
+          {:error, :token_invalid}
+
+        token_record ->
+          multi =
+            Multi.new()
+            |> Multi.run(:reset_password, fn _repo, _changes ->
+              user = repo.get!(user_schema, token_record.user_id)
+              changeset = changeset_fn.(user, password_attrs)
+
+              case repo.update(changeset) do
+                {:ok, updated} -> {:ok, updated}
+                {:error, changeset} -> {:error, changeset}
+              end
+            end)
+            |> Multi.run(:delete_all_tokens, fn _repo, _changes ->
+              import Ecto.Query
+
+              query =
+                from(t in user_token_schema,
+                  where: t.user_id == ^token_record.user_id
+                )
+
+              repo.delete_all(query)
+              {:ok, :deleted}
+            end)
+
+          case repo.transaction(multi) do
+            {:ok, %{reset_password: user}} ->
+              Telemetry.event([:sigra, :reset, :completed], %{}, %{user_id: user.id})
+              {:ok, user}
+
+            {:error, :reset_password, %Ecto.Changeset{} = changeset, _changes} ->
+              {:error, changeset}
+
+            {:error, _step, reason, _changes} ->
+              {:error, reason}
+          end
+      end
+    else
+      {:error, :expired} -> {:error, :token_expired}
+      {:error, _} -> {:error, :token_invalid}
+      :error -> {:error, :token_invalid}
+    end
+  end
+
   # -- Private helpers --
 
   defp email_taken_error?(%Ecto.Changeset{errors: errors}) do
@@ -276,8 +642,8 @@ defmodule Sigra.Auth do
     repo.update(changeset)
   end
 
-  defp rate_limited?(rate_limiter, email, max_requests, window_ms) do
-    case rate_limiter.check_rate("magic_link:#{email}", max_requests, window_ms) do
+  defp rate_limited?(rate_limiter, key, max_requests, window_ms) do
+    case rate_limiter.check_rate(key, max_requests, window_ms) do
       {:allow, _count} -> false
       {:deny, _retry_after} -> true
     end
