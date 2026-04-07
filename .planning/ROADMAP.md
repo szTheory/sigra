@@ -73,7 +73,7 @@ Plans:
 - [x] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
 - [x] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
 - [x] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
-- [ ] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
+- [x] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
 
 ### Phase 4: Session Management and Security Baseline
 **Goal**: Sessions are database-backed and fully controllable, with secure cookie defaults, configurable timeouts, account lockout, IP-based rate limiting, and suspicious login detection
@@ -91,8 +91,8 @@ Plans:
 - [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
 - [x] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
 - [x] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
-- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
-- [ ] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
+- [x] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
+- [x] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
 
 ### Phase 5: OAuth and Social Login
 **Goal**: Users can register and log in via Google, GitHub, Apple, and Meta; existing users can link and unlink OAuth providers; account linking requires explicit confirmation to prevent account takeover
@@ -110,7 +110,7 @@ Plans:
 - [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
 - [x] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
 - [x] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
-- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
+- [x] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 - [ ] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
 **UI hint**: yes
 
@@ -128,8 +128,8 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
 - [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
-- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
-- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [x] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [x] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
 - [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 - [ ] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
 **UI hint**: yes
@@ -148,8 +148,8 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
 - [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
-- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
-- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [x] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [x] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
 - [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 - [ ] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
 
@@ -165,8 +165,8 @@ Plans:
   5. Application developers can register profile update callbacks that run within the same transaction as auth operations
 **Plans:** 6 plans
 Plans:
-- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
-- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [x] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
 - [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
 - [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
 - [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
@@ -184,8 +184,8 @@ Plans:
   4. Developer can emit a custom audit event from application code using the same API
 **Plans:** 6 plans
 Plans:
-- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
-- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [x] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
 - [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
 - [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
 - [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
