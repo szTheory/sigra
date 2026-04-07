@@ -133,8 +133,48 @@ defmodule <%= context_module %>.UserToken do
   end
 
   defp days_for_context("confirm"), do: @confirm_validity_in_days
+  defp days_for_context("confirm_code"), do: @confirm_validity_in_days
   defp days_for_context("reset_password"), do: @reset_password_validity_in_days
   defp days_for_context("change:" <> _), do: @change_email_validity_in_days
+
+  @doc """
+  Builds a confirmation code token.
+
+  The code is SHA-256 hashed before storage. The raw code is returned
+  for inclusion in the confirmation email.
+  """
+  def build_confirmation_code_token(user, code) do
+    hashed_code = Sigra.Token.hash_token(code)
+
+    {code,
+     %__MODULE__{
+       token: hashed_code,
+       context: "confirm_code",
+       sent_to: user.email,
+       user_id: user.id
+     }}
+  end
+
+  @doc """
+  Checks if a confirmation code is valid.
+
+  Looks up the SHA-256 hash of the submitted code in the database
+  with context "confirm_code". Valid within @confirm_validity_in_days.
+  """
+  def verify_confirmation_code_query(code, user_id) do
+    hashed_code = Sigra.Token.hash_token(code)
+
+    query =
+      from token in __MODULE__,
+        join: user in assoc(token, :user),
+        where: token.token == ^hashed_code,
+        where: token.context == "confirm_code",
+        where: token.user_id == ^user_id,
+        where: token.inserted_at > ago(@confirm_validity_in_days, "day"),
+        select: user
+
+    {:ok, query}
+  end
 
   @doc """
   Builds a magic link token for the given user.

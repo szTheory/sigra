@@ -81,11 +81,19 @@ defmodule <%= context_module %> do
       {:error, %Ecto.Changeset{}}
 
   """
-  def register_user(attrs) do
+  def register_user(attrs, opts \\ []) do
     changeset_fn = fn a -> <%= schema_alias %>.registration_changeset(%<%= schema_alias %>{}, a) end
+    confirmation_url_fun = Keyword.get(opts, :confirmation_url_fun)
 
     case SigraAuth.register(Repo, attrs, changeset_fn: changeset_fn) do
-      {:ok, user} -> {:ok, user}
+      {:ok, user} ->
+        # CONF-01: Auto-send confirmation email on registration
+        if confirmation_url_fun do
+          deliver_user_confirmation_instructions(user, confirmation_url_fun)
+        end
+
+        {:ok, user}
+
       {:error, :email_taken} -> {:error, :email_taken}
       {:error, changeset} -> {:error, changeset}
     end
@@ -245,67 +253,121 @@ defmodule <%= context_module %> do
   ## Confirmation
 
   @doc """
-  Delivers the confirmation email instructions to the given user.
+  Delivers the confirmation email to the given user.
 
-  NOTE: Actual email delivery will be implemented in Phase 3.
-  For now this builds the token and calls the provided function.
+  Generates both a link token (HMAC-signed) and a 6-digit code.
+  Delivers via Oban (async) or inline (sync) based on config.
+
+  Returns `{:ok, :sent}` on success, `{:error, :already_confirmed}` if
+  already confirmed.
   """
   def deliver_user_confirmation_instructions(%<%= schema_alias %>{} = user, confirmation_url_fun)
       when is_function(confirmation_url_fun, 1) do
     if user.confirmed_at do
       {:error, :already_confirmed}
     else
-      {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
-      Repo.insert!(user_token)
-      # Phase 3 will deliver via Swoosh/Oban
-      {:ok, confirmation_url_fun.(encoded_token)}
+      {signed_token, code, link_token, code_token} =
+        Sigra.Auth.generate_confirmation_token(Repo, user,
+          secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
+          user_token_schema: UserToken
+        )
+
+      Repo.insert!(link_token)
+      Repo.insert!(code_token)
+
+      url = confirmation_url_fun.(signed_token)
+      email = <%= context_module %>.Emails.confirmation_email(user, url, code)
+
+      Sigra.Delivery.deliver(:confirmation, %{
+        user_id: user.id,
+        to: user.email,
+        subject: email.subject,
+        body: %{html: email.html_body, text: email.text_body},
+        token: signed_token,
+        code: code,
+        url: url
+      }, delivery_opts())
+
+      {:ok, :sent}
     end
   end
 
   @doc """
-  Confirms a user by the given token.
+  Confirms a user by HMAC-signed link token.
 
-  If the token matches, the user account is marked as confirmed
-  and the token is deleted.
+  Verifies the HMAC signature, looks up the token in the database,
+  sets `confirmed_at`, and deletes all confirm/confirm_code tokens.
   """
-  def confirm_user(token) do
-    with {:ok, query} <- UserToken.verify_email_token_query(token, "confirm"),
-         %<%= schema_alias %>{} = user <- Repo.one(query),
-         {:ok, %{user: user}} <-
-           user
-           |> <%= schema_alias %>.confirm_changeset()
-           |> confirm_user_multi(user)
-           |> Repo.transaction() do
-      {:ok, user}
-    else
-      _ -> :error
-    end
+  def confirm_user(signed_token) when is_binary(signed_token) do
+    Sigra.Auth.confirm_user(Repo, signed_token,
+      user_schema: <%= schema_alias %>,
+      user_token_schema: UserToken,
+      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
+      confirmation_ttl: 48 * 60 * 60
+    )
   end
 
-  defp confirm_user_multi(changeset, user) do
-    Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, changeset)
-    |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, ["confirm"]))
+  @doc """
+  Confirms a user by 6-digit code entry.
+
+  Rate-limited to 5 attempts per user per 15 minutes.
+  """
+  def confirm_user_by_code(%<%= schema_alias %>{} = user, code) when is_binary(code) do
+    Sigra.Auth.verify_confirmation_code(Repo, code,
+      user_id: user.id,
+      user_schema: <%= schema_alias %>,
+      user_token_schema: UserToken,
+      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base)
+    )
   end
 
   ## Reset password
 
   @doc """
-  Delivers the reset password email instructions to the given user.
+  Delivers the reset password email to the given email address.
 
-  NOTE: Actual email delivery will be implemented in Phase 3.
-  For now this builds the token and calls the provided function.
+  Enumeration-safe: always returns `{:ok, :sent}` regardless of whether
+  the email exists. A dummy hash operation matches timing for non-existent
+  emails.
   """
-  def deliver_user_reset_password_instructions(%<%= schema_alias %>{} = user, reset_password_url_fun)
-      when is_function(reset_password_url_fun, 1) do
-    {encoded_token, user_token} = UserToken.build_email_token(user, "reset_password")
-    Repo.insert!(user_token)
-    # Phase 3 will deliver via Swoosh/Oban
-    {:ok, reset_password_url_fun.(encoded_token)}
+  def deliver_user_reset_password_instructions(email, reset_password_url_fun)
+      when is_binary(email) and is_function(reset_password_url_fun, 1) do
+    case Sigra.Auth.request_password_reset(Repo, email,
+      user_schema: <%= schema_alias %>,
+      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
+      url_fun: reset_password_url_fun
+    ) do
+      {:ok, {signed_token, url}} ->
+        user = get_user_by_email(email)
+
+        if user do
+          email_struct = <%= context_module %>.Emails.reset_password_email(user, url)
+
+          Sigra.Delivery.deliver(:reset_password, %{
+            user_id: user.id,
+            to: user.email,
+            subject: email_struct.subject,
+            body: %{html: email_struct.html_body, text: email_struct.text_body},
+            token: signed_token,
+            url: url
+          }, delivery_opts())
+        end
+
+        {:ok, :sent}
+
+      {:ok, :sent} ->
+        # Non-existent email -- enumeration safe
+        {:ok, :sent}
+
+      {:error, :rate_limited} ->
+        {:error, :rate_limited}
+    end
   end
 
   @doc """
   Gets the user by reset password token.
+
+  Verifies the HMAC signature and looks up the token in the database.
 
   ## Examples
 
@@ -316,10 +378,20 @@ defmodule <%= context_module %> do
       nil
 
   """
-  def get_user_by_reset_password_token(token) do
-    with {:ok, query} <- UserToken.verify_email_token_query(token, "reset_password"),
-         %<%= schema_alias %>{} = user <- Repo.one(query) do
-      user
+  def get_user_by_reset_password_token(signed_token) do
+    secret_key_base = <%= web_module %>.Endpoint.config(:secret_key_base)
+
+    with {:ok, signed} <- Base.url_decode64(signed_token, padding: false),
+         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
+      hashed_token = Sigra.Token.hash_token(raw_token)
+
+      Repo.one(
+        from t in UserToken,
+          join: u in assoc(t, :user),
+          where: t.token == ^hashed_token,
+          where: t.context == "reset_password",
+          select: u
+      )
     else
       _ -> nil
     end
@@ -327,6 +399,29 @@ defmodule <%= context_module %> do
 
   @doc """
   Resets the user password.
+
+  Uses `Sigra.Auth.reset_password/4` which verifies the HMAC-signed token,
+  updates the password, and invalidates all tokens (including sessions)
+  in a single transaction. Per D-29: caller creates new session after reset.
+
+  ## Examples
+
+      iex> reset_user_password(signed_token, %{password: "new long password", password_confirmation: "new long password"})
+      {:ok, %<%= schema_alias %>{}}
+
+  """
+  def reset_user_password(signed_token, attrs) when is_binary(signed_token) do
+    Sigra.Auth.reset_password(Repo, signed_token, attrs,
+      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
+      user_token_schema: UserToken,
+      user_schema: <%= schema_alias %>,
+      changeset_fn: &<%= schema_alias %>.password_changeset/2,
+      reset_ttl: 3600
+    )
+  end
+
+  @doc """
+  Resets the user password (legacy API accepting user struct).
 
   ## Examples
 
@@ -343,5 +438,15 @@ defmodule <%= context_module %> do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  # -- Private helpers --
+
+  defp delivery_opts do
+    [
+      mailer: <%= context_module %>.Mailer,
+      delivery_mode: :auto,
+      oban_queue: "sigra_mailer"
+    ]
   end
 end
