@@ -76,12 +76,20 @@ defmodule Mix.Tasks.Sigra.Install do
     repo_module = get_repo_module(otp_app)
     adapter = detect_adapter(repo_module)
 
+    app_name = otp_app |> to_string() |> Macro.camelize()
+    from_email = "noreply@example.com"
+    log_in_url = "/users/log_in"
+
     binding = [
       context_module: inspect(Module.concat([base, context_name])),
       schema_module: inspect(Module.concat([base, context_name, schema_name])),
       schema_alias: schema_name,
       table_name: table_name,
       web_module: inspect(web_module),
+      app_module: inspect(Module.concat([base])),
+      app_name: app_name,
+      from_email: from_email,
+      log_in_url: log_in_url,
       otp_app: otp_app,
       repo_module: inspect(repo_module),
       binary_id: opts[:binary_id] || false,
@@ -128,7 +136,20 @@ defmodule Mix.Tasks.Sigra.Install do
       {:eex, "auth_fixtures.ex",
        Path.join(["test", "support", "fixtures", "auth_fixtures.ex"])},
       {:eex, "conn_case_helpers.ex",
-       Path.join(["test", "support", "conn_case_helpers.ex"])}
+       Path.join(["test", "support", "conn_case_helpers.ex"])},
+      # Phase 3: Email flow templates
+      {:eex, "emails.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "emails.ex"])},
+      {:eex, "auth_mailer.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "mailer.ex"])},
+      {:eex, "confirmation_controller.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "confirmation_controller.ex"])},
+      {:eex, "confirmation_html.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "confirmation_html.ex"])},
+      {:eex, "reset_password_controller.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "reset_password_controller.ex"])},
+      {:eex, "reset_password_html.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "reset_password_html.ex"])}
     ]
 
     # Conditionally add LiveView or controller-mode templates
@@ -138,7 +159,12 @@ defmodule Mix.Tasks.Sigra.Install do
           {:eex, "login_live.ex",
            Path.join(["lib", "#{otp_app_str}_web", "live", "login_live.ex"])},
           {:eex, "registration_live.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "live", "registration_live.ex"])}
+           Path.join(["lib", "#{otp_app_str}_web", "live", "registration_live.ex"])},
+          # Phase 3: LiveView email flow pages
+          {:eex, "confirmation_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "confirmation_live.ex"])},
+          {:eex, "reset_password_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "reset_password_live.ex"])}
         ]
       else
         [
@@ -207,6 +233,40 @@ defmodule Mix.Tasks.Sigra.Install do
           """
         end
 
+      confirmation_routes =
+        if binding[:live] do
+          """
+
+              live "/confirm", ConfirmationLive
+              live "/confirm/:token", ConfirmationLive, :confirm
+          """
+        else
+          """
+
+              get "/confirm", ConfirmationController, :new
+              post "/confirm", ConfirmationController, :create
+              get "/confirm/:token", ConfirmationController, :confirm
+              post "/confirm/resend", ConfirmationController, :resend
+          """
+        end
+
+      reset_routes =
+        if binding[:live] do
+          """
+
+              live "/reset-password", ResetPasswordLive
+              live "/reset-password/:token", ResetPasswordLive, :edit
+          """
+        else
+          """
+
+              get "/reset-password", ResetPasswordController, :new
+              post "/reset-password", ResetPasswordController, :create
+              get "/reset-password/:token", ResetPasswordController, :edit
+              put "/reset-password/:token", ResetPasswordController, :update
+          """
+        end
+
       router_plug_code = """
         # Sigra authentication
         import #{web_module}.UserAuth
@@ -220,6 +280,8 @@ defmodule Mix.Tasks.Sigra.Install do
       #{live_routes}
           post "/log_in", SessionController, :create
           get "/log-in/:token", SessionController, :magic_link
+      #{confirmation_routes}
+      #{reset_routes}
         end
 
         scope "/users", #{web_module} do
@@ -271,6 +333,74 @@ defmodule Mix.Tasks.Sigra.Install do
       helper_code = "      import #{web_module}.ConnCaseHelpers"
 
       inject_file(conn_case_path, &Sigra.Install.Injector.inject_conn_case(&1, helper_code))
+    end
+
+    # Oban queue injection (per D-22)
+    inject_oban_queue(otp_app)
+
+    # Swoosh config detection (per D-19/D-55)
+    inject_swoosh_config(otp_app, context_module)
+  end
+
+  defp inject_oban_queue(otp_app) do
+    runtime_config = Path.join(["config", "runtime.exs"])
+    config_path = Path.join(["config", "config.exs"])
+
+    # Check runtime.exs first, then config.exs for Oban config
+    target =
+      cond do
+        File.exists?(runtime_config) && File.read!(runtime_config) =~ "Oban" -> runtime_config
+        File.exists?(config_path) && File.read!(config_path) =~ "Oban" -> config_path
+        true -> nil
+      end
+
+    if target do
+      content = File.read!(target)
+
+      if content =~ "sigra_mailer" do
+        Mix.shell().info([:yellow, "* already configured ", :reset, "Oban sigra_mailer queue"])
+      else
+        Mix.shell().info([:green, "* detected Oban config in ", :reset, target])
+
+        Mix.shell().info([
+          :yellow,
+          "  Add the sigra_mailer queue to your Oban config:\n",
+          :reset,
+          "    config :#{otp_app}, Oban, queues: [sigra_mailer: 10]\n"
+        ])
+      end
+    else
+      Mix.shell().info([
+        :yellow,
+        "* Oban not detected. ",
+        :reset,
+        "Email delivery will use synchronous mode.\n",
+        "  To enable async delivery, add Oban and configure the sigra_mailer queue."
+      ])
+    end
+  end
+
+  defp inject_swoosh_config(otp_app, context_module) do
+    dev_config = Path.join(["config", "dev.exs"])
+
+    if File.exists?(dev_config) do
+      content = File.read!(dev_config)
+
+      if content =~ "Swoosh" do
+        Mix.shell().info([:yellow, "* already configured ", :reset, "Swoosh in #{dev_config}"])
+      else
+        swoosh_block = """
+
+        # Sigra email delivery (dev)
+        config :#{otp_app}, #{context_module}.Mailer,
+          adapter: Swoosh.Adapters.Local
+
+        config :swoosh, :api_client, false
+        """
+
+        File.write!(dev_config, content <> swoosh_block)
+        Mix.shell().info([:green, "* injecting ", :reset, "Swoosh dev config into #{dev_config}"])
+      end
     end
   end
 
