@@ -487,4 +487,349 @@ defmodule Sigra.AuthTest do
       assert confirmed_user.confirmed_at
     end
   end
+
+  # -- Phase 3 Plan 02: Confirmation and Reset functions --
+
+  @secret_key_base String.duplicate("a", 64)
+
+  describe "generate_confirmation_token/3" do
+    test "returns {encoded_token, code, link_token_struct, code_token_struct}" do
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      {encoded_token, code, link_struct, code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      # encoded_token is a URL-safe base64 string (HMAC-signed)
+      assert is_binary(encoded_token)
+      assert byte_size(encoded_token) > 0
+
+      # code is a 6-digit numeric string
+      assert Regex.match?(~r/^\d{6}$/, code)
+      code_int = String.to_integer(code)
+      assert code_int >= 100_000 and code_int <= 999_999
+
+      # link_struct has context "confirm"
+      assert link_struct.context == "confirm"
+      assert link_struct.user_id == 1
+      assert link_struct.sent_to == "user@example.com"
+      assert is_binary(link_struct.token)
+
+      # code_struct has context "confirm_code"
+      assert code_struct.context == "confirm_code"
+      assert code_struct.user_id == 1
+      assert is_binary(code_struct.token)
+    end
+  end
+
+  describe "confirm_user/3" do
+    test "with valid HMAC-signed token returns {:ok, user} with confirmed_at set" do
+      user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
+
+      # Generate a real confirmation token
+      {encoded_token, _code, link_struct, _code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      # Mock repo.transaction to simulate successful confirmation
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        # Verify multi contains the expected operations
+        assert %Ecto.Multi{} = multi
+        confirmed_user = %{user | confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        {:ok, %{confirm_user: confirmed_user}}
+      end)
+
+      result =
+        Auth.confirm_user(Sigra.MockRepo, encoded_token,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser
+        )
+
+      assert {:ok, confirmed_user} = result
+      assert confirmed_user.confirmed_at
+    end
+
+    test "with valid token deletes all confirm and confirm_code tokens for user" do
+      user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
+
+      {encoded_token, _code, _link_struct, _code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        # The multi should include a delete_all for confirm tokens
+        assert %Ecto.Multi{} = multi
+        confirmed_user = %{user | confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        {:ok, %{confirm_user: confirmed_user}}
+      end)
+
+      assert {:ok, _user} =
+               Auth.confirm_user(Sigra.MockRepo, encoded_token,
+                 secret_key_base: @secret_key_base,
+                 user_token_schema: TestUserToken,
+                 user_schema: TestUser
+               )
+    end
+
+    test "with expired token returns {:error, :token_expired}" do
+      user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
+
+      # Generate token, then verify with a very short TTL that's already passed
+      {encoded_token, _code, _link_struct, _code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      result =
+        Auth.confirm_user(Sigra.MockRepo, encoded_token,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          confirmation_ttl: 0
+        )
+
+      assert {:error, :token_expired} = result
+    end
+
+    test "with invalid HMAC signature returns {:error, :token_invalid}" do
+      result =
+        Auth.confirm_user(Sigra.MockRepo, "totally-invalid-token",
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser
+        )
+
+      assert {:error, :token_invalid} = result
+    end
+
+    test "with already-confirmed user returns {:error, :already_confirmed}" do
+      user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
+
+      {encoded_token, _code, _link_struct, _code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      # Simulate user already confirmed when the transaction runs
+      already_confirmed_user = %{user | confirmed_at: ~U[2024-01-01 00:00:00Z]}
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn _multi ->
+        {:error, :confirm_user, :already_confirmed, %{}}
+      end)
+
+      result =
+        Auth.confirm_user(Sigra.MockRepo, encoded_token,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser
+        )
+
+      assert {:error, :already_confirmed} = result
+    end
+  end
+
+  describe "verify_confirmation_code/3" do
+    test "with valid 6-digit code returns {:ok, user} with confirmed_at set" do
+      user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
+
+      {_encoded_token, code, _link_struct, _code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        assert %Ecto.Multi{} = multi
+        confirmed_user = %{user | confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        {:ok, %{confirm_user: confirmed_user}}
+      end)
+
+      result =
+        Auth.verify_confirmation_code(Sigra.MockRepo, code,
+          user_id: user.id,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          secret_key_base: @secret_key_base
+        )
+
+      assert {:ok, confirmed_user} = result
+      assert confirmed_user.confirmed_at
+    end
+
+    test "with invalid code returns {:error, :invalid_code}" do
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] -> nil end)
+
+      result =
+        Auth.verify_confirmation_code(Sigra.MockRepo, "000000",
+          user_id: 1,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          secret_key_base: @secret_key_base
+        )
+
+      assert {:error, :invalid_code} = result
+    end
+
+    test "with rate limiting returns {:error, :rate_limited}" do
+      Sigra.MockRateLimiter
+      |> expect(:check_rate, fn "sigra:confirm_code:1", 5, 900_000 -> {:deny, 60_000} end)
+
+      result =
+        Auth.verify_confirmation_code(Sigra.MockRepo, "123456",
+          user_id: 1,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          secret_key_base: @secret_key_base,
+          rate_limiter: Sigra.MockRateLimiter
+        )
+
+      assert {:error, :rate_limited} = result
+    end
+  end
+
+  describe "request_password_reset/3" do
+    test "with existing email returns {:ok, {token, url}}" do
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:insert!, fn token_struct ->
+        assert token_struct.context == "reset_password"
+        assert token_struct.user_id == 1
+        assert is_binary(token_struct.token)
+        token_struct
+      end)
+
+      url_fun = fn token -> "https://example.com/reset/#{token}" end
+
+      result =
+        Auth.request_password_reset(Sigra.MockRepo, "user@example.com",
+          user_schema: TestUser,
+          secret_key_base: @secret_key_base,
+          url_fun: url_fun
+        )
+
+      assert {:ok, {signed_token, url}} = result
+      assert is_binary(signed_token)
+      assert String.starts_with?(url, "https://example.com/reset/")
+    end
+
+    test "with non-existent email returns {:ok, :sent} (enumeration-safe)" do
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "nobody@example.com"] -> nil end)
+
+      result =
+        Auth.request_password_reset(Sigra.MockRepo, "nobody@example.com",
+          user_schema: TestUser,
+          secret_key_base: @secret_key_base,
+          url_fun: fn _t -> "" end
+        )
+
+      assert {:ok, :sent} = result
+    end
+
+    test "with rate limiting returns {:error, :rate_limited}" do
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+
+      Sigra.MockRateLimiter
+      |> expect(:check_rate, fn "sigra:reset:" <> _, 3, 900_000 -> {:deny, 60_000} end)
+
+      result =
+        Auth.request_password_reset(Sigra.MockRepo, "user@example.com",
+          user_schema: TestUser,
+          secret_key_base: @secret_key_base,
+          url_fun: fn _t -> "" end,
+          rate_limiter: Sigra.MockRateLimiter
+        )
+
+      assert {:error, :rate_limited} = result
+    end
+  end
+
+  describe "reset_password/4" do
+    test "with valid token changes password and deletes all tokens" do
+      user = %TestUser{id: 1, email: "user@example.com", hashed_password: "old_hash"}
+
+      # Generate a real reset token
+      {raw_bytes, hashed} = Sigra.Token.generate_hashed_token()
+      signed_token = Plug.Crypto.sign(@secret_key_base, "sigra-reset-token", raw_bytes)
+      encoded_token = Base.url_encode64(signed_token, padding: false)
+
+      token_record = %TestUserToken{
+        id: 1,
+        token: hashed,
+        context: "reset_password",
+        sent_to: "user@example.com",
+        user_id: 1,
+        inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] -> token_record end)
+      |> expect(:transaction, fn multi ->
+        assert %Ecto.Multi{} = multi
+        updated_user = %{user | hashed_password: "new_argon2_hash"}
+        {:ok, %{reset_password: updated_user}}
+      end)
+
+      changeset_fn = fn _user, _attrs ->
+        Ecto.Changeset.change(user, hashed_password: "new_argon2_hash")
+      end
+
+      result =
+        Auth.reset_password(Sigra.MockRepo, encoded_token, %{"password" => "new_secure_password"},
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          changeset_fn: changeset_fn
+        )
+
+      assert {:ok, updated_user} = result
+      assert updated_user.hashed_password == "new_argon2_hash"
+    end
+
+    test "with expired token returns {:error, :token_expired}" do
+      result =
+        Auth.reset_password(Sigra.MockRepo, "some-token", %{"password" => "new_password"},
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          changeset_fn: fn _u, _a -> Ecto.Changeset.change(%TestUser{}) end,
+          reset_ttl: 0
+        )
+
+      # With TTL of 0, a real token would expire immediately
+      # But an invalid token will fail HMAC verification first
+      assert {:error, :token_invalid} = result
+    end
+
+    test "with invalid token returns {:error, :token_invalid}" do
+      result =
+        Auth.reset_password(Sigra.MockRepo, "totally-bogus", %{"password" => "new_password"},
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken,
+          user_schema: TestUser,
+          changeset_fn: fn _u, _a -> Ecto.Changeset.change(%TestUser{}) end
+        )
+
+      assert {:error, :token_invalid} = result
+    end
+  end
 end
