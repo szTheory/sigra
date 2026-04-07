@@ -304,6 +304,13 @@ defmodule Mix.Tasks.Sigra.Install do
       config :#{otp_app}, :sigra,
         repo: #{repo_module},
         user_schema: #{context_module}.#{schema_alias}
+
+      # Sigra worker runtime config (used by Oban workers)
+      config :sigra,
+        repo: #{repo_module},
+        user_schema: #{context_module}.#{schema_alias},
+        email_module: #{context_module}.Emails,
+        mailer: #{context_module}.Mailer
       """
 
       inject_file(config_path, &Sigra.Install.Injector.inject_config(&1, config_block))
