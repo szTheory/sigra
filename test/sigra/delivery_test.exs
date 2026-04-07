@@ -5,6 +5,19 @@ defmodule Sigra.DeliveryTest do
 
   alias Sigra.Delivery
 
+  # Fake Oban modules for testing async delivery without a running Oban instance
+  defmodule FakeOban do
+    def insert(changeset) do
+      {:ok, %{id: 1, args: changeset.changes[:args]}}
+    end
+  end
+
+  defmodule FailingOban do
+    def insert(_changeset) do
+      {:error, :queue_full}
+    end
+  end
+
   setup :verify_on_exit!
 
   describe "deliver_sync/3" do
@@ -69,13 +82,6 @@ defmodule Sigra.DeliveryTest do
 
   describe "deliver_async/3" do
     test "inserts an Oban job via Oban.insert" do
-      # Use a simple module that captures the insert call
-      defmodule FakeOban do
-        def insert(changeset) do
-          {:ok, %{id: 1, args: changeset.changes[:args]}}
-        end
-      end
-
       args = %{user_id: 42, token: "abc123"}
 
       assert {:ok, %{id: 1, args: job_args}} =
@@ -86,12 +92,6 @@ defmodule Sigra.DeliveryTest do
     end
 
     test "returns {:error, reason} when Oban.insert fails" do
-      defmodule FailingOban do
-        def insert(_changeset) do
-          {:error, :queue_full}
-        end
-      end
-
       args = %{user_id: 1}
 
       assert {:error, :queue_full} =
@@ -116,35 +116,23 @@ defmodule Sigra.DeliveryTest do
     end
 
     test "with delivery_mode: :async uses Oban path" do
-      defmodule FakeOban2 do
-        def insert(changeset) do
-          {:ok, %{id: 2, args: changeset.changes[:args]}}
-        end
-      end
-
       args = %{user_id: 1, token: "tok"}
 
       assert {:ok, _job} =
                Delivery.deliver(:reset, args,
                  delivery_mode: :async,
-                 oban: FakeOban2
+                 oban: FakeOban
                )
     end
 
     test "with delivery_mode: :auto detects Oban presence" do
       # Oban is loaded in test env, so auto should route to async
-      defmodule FakeOban3 do
-        def insert(changeset) do
-          {:ok, %{id: 3, args: changeset.changes[:args]}}
-        end
-      end
-
       args = %{user_id: 1, token: "tok"}
 
       assert {:ok, _job} =
                Delivery.deliver(:confirmation, args,
                  delivery_mode: :auto,
-                 oban: FakeOban3
+                 oban: FakeOban
                )
     end
   end

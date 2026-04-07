@@ -11,12 +11,14 @@ defmodule Sigra.Workers.TokenCleanupTest do
 
   describe "perform/1" do
     test "is a function that accepts an Oban.Job" do
+      Code.ensure_loaded!(TokenCleanup)
       assert function_exported?(TokenCleanup, :perform, 1)
     end
   end
 
   describe "module attributes" do
     test "uses Oban.Worker with expected exports" do
+      Code.ensure_loaded!(TokenCleanup)
       assert function_exported?(TokenCleanup, :perform, 1)
       assert function_exported?(TokenCleanup, :new, 2)
     end
