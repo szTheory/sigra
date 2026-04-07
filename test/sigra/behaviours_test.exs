@@ -120,8 +120,10 @@ defmodule Sigra.BehavioursTest do
       assert Sigra.Testing.assert_session_created(%{}) == true
     end
 
-    test "assert_token_sent/2 is a stub that returns true" do
-      assert Sigra.Testing.assert_token_sent("user@example.com", :confirm) == true
+    test "assert_token_sent/2 delegates to Swoosh assertions" do
+      assert_raise ExUnit.AssertionError, fn ->
+        Sigra.Testing.assert_token_sent("user@example.com", :confirm)
+      end
     end
 
     test "with_test_mailer/1 executes the given function" do
