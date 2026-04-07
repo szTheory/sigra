@@ -66,7 +66,13 @@ Plans:
   3. User can reset their password via email; the reset link expires after 60 minutes and works only once; using it invalidates all other sessions
   4. All email flows return identical responses for known and unknown email addresses, preventing enumeration
   5. Emails are delivered asynchronously via Oban when present, falling back to inline delivery; HTML + text multipart templates are generated into the project for customization
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 
 ### Phase 4: Session Management and Security Baseline
 **Goal**: Sessions are database-backed and fully controllable, with secure cookie defaults, configurable timeouts, account lockout, IP-based rate limiting, and suspicious login detection
@@ -78,7 +84,13 @@ Plans:
   3. User can view all active sessions (IP, user agent, last active) and revoke any individual session or all sessions at once
   4. After 5 failed login attempts the account locks for 15 minutes; after 10 failed attempts from one IP in a minute the IP receives a 429 response
   5. When a user logs in from a new IP or device, they receive an email notification
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 
 ### Phase 5: OAuth and Social Login
 **Goal**: Users can register and log in via Google, GitHub, Apple, and Meta; existing users can link and unlink OAuth providers; account linking requires explicit confirmation to prevent account takeover
@@ -90,7 +102,13 @@ Plans:
   3. Authenticated user can link a new OAuth provider from settings and unlink it; a user with only one OAuth provider cannot unlink until a password is set
   4. Multiple OAuth providers can be linked to one account; each stored with encrypted access and refresh tokens
   5. Edge cases are handled gracefully: provider returns no email, user denies permissions, provider is down, CSRF state mismatch all produce clear error messages
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 **UI hint**: yes
 
 ### Phase 6: Multi-Factor Authentication
@@ -103,7 +121,13 @@ Plans:
   3. User is shown 8 backup codes exactly once at enrollment; using a code consumes it atomically; user can regenerate a fresh set
   4. User can check "trust this browser" and skip MFA for a configurable period on that device; disabling MFA requires the current TOTP code or a backup code
   5. After 5 failed TOTP attempts the TOTP endpoint locks for 15 minutes, independently of the main login lockout
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 **UI hint**: yes
 
 ### Phase 7: API Authentication
@@ -116,7 +140,13 @@ Plans:
   3. Personal access tokens can be scoped and given an expiration; they appear in a listing; any token can be revoked individually
   4. JWT support works for stateless API use cases where instant revocation is not required; it is opt-in, not the default
   5. All auth logic works in headless mode with no LiveView or HTML components present
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 
 ### Phase 8: Account Lifecycle
 **Goal**: Users can change email (with re-verification), change password, delete their account, and perform sensitive operations only after re-authenticating in sudo mode; profile update hooks integrate cleanly with app-specific schemas
@@ -128,7 +158,13 @@ Plans:
   3. User can delete their account; the deletion behavior (soft delete, hard delete, anonymization) is configurable by the developer
   4. Sensitive operations (change email, delete account, manage MFA) prompt for re-authentication if the sudo window has expired; the sudo window is configurable
   5. Application developers can register profile update callbacks that run within the same transaction as auth operations
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 **UI hint**: yes
 
 ### Phase 9: Audit Logging
@@ -140,7 +176,13 @@ Plans:
   2. Each audit event includes user ID, IP address, user agent, timestamp, operation name, and outcome; the full metadata is queryable via `Sigra.Audit` API
   3. Developer can query the audit log by user, date range, or event type and receive structured results
   4. Developer can emit a custom audit event from application code using the same API
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 
 ### Phase 10: Developer Experience
 **Goal**: The library ships with testing helpers that make auth state easy to set up in tests, scenario fixtures covering all auth states, correct cookie domain config, and copy-paste documentation examples
@@ -152,7 +194,13 @@ Plans:
   3. Cookie domain is configurable with sensible defaults that work in development, test, and production without manual intervention
   4. Documentation includes copy-paste examples for every major flow; a developer can get from zero to working auth in an afternoon
 
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
+- [ ] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
+- [ ] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
+- [ ] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
+- [ ] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
 
 ## Progress
 
@@ -163,7 +211,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 |-------|----------------|--------|-----------|
 | 1. Foundation | 0/3 | Planning complete | - |
 | 2. Core Auth | 0/2 | Planning complete | - |
-| 3. Email Flows and Transactional Email | 0/TBD | Not started | - |
+| 3. Email Flows and Transactional Email | 0/5 | Planning complete | - |
 | 4. Session Management and Security Baseline | 0/TBD | Not started | - |
 | 5. OAuth and Social Login | 0/TBD | Not started | - |
 | 6. Multi-Factor Authentication | 0/TBD | Not started | - |
