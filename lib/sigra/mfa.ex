@@ -114,9 +114,9 @@ defmodule Sigra.MFA do
           enabled_at: now
         }
 
-        # Insert MFA credential using cast/4 so cloak_ecto's Encrypted.Binary
-        # type invokes dump/1 and encrypts the secret before storage.
-        {:ok, db_credential} =
+        # Insert MFA credential and backup codes atomically so partial
+        # state (credential without backup codes) cannot occur.
+        credential_changeset =
           %{mfa_credential_schema.__struct__()}
           |> Ecto.Changeset.cast(credential_params, [
             :user_id,
@@ -127,9 +127,7 @@ defmodule Sigra.MFA do
             :locked_until,
             :enabled_at
           ])
-          |> repo.insert()
 
-        # Generate and insert backup codes
         codes = BackupCodes.generate(backup_count)
 
         entries =
@@ -143,12 +141,20 @@ defmodule Sigra.MFA do
             }
           end)
 
-        repo.insert_all(backup_code_schema, entries)
+        multi =
+          Ecto.Multi.new()
+          |> Ecto.Multi.insert(:credential, credential_changeset)
+          |> Ecto.Multi.insert_all(:backup_codes, backup_code_schema, entries)
 
-        credential = Credential.from_schema(db_credential)
-        formatted_codes = Enum.map(codes, &elem(&1, 0))
+        case repo.transaction(multi) do
+          {:ok, %{credential: db_credential}} ->
+            credential = Credential.from_schema(db_credential)
+            formatted_codes = Enum.map(codes, &elem(&1, 0))
+            {:ok, %{credential: credential, backup_codes: formatted_codes}}
 
-        {:ok, %{credential: credential, backup_codes: formatted_codes}}
+          {:error, _step, changeset, _changes} ->
+            {:error, changeset}
+        end
 
       {:error, _reason} ->
         {:error, :invalid_code}
@@ -507,15 +513,24 @@ defmodule Sigra.MFA do
   defp cleanup_mfa(repo, user_schema, mfa_credential_schema, backup_code_schema, user_id) do
     import Ecto.Query
 
-    # Delete backup codes
-    from(bc in backup_code_schema, where: bc.user_id == ^user_id)
-    |> repo.delete_all()
+    # Delete backup codes, credential, and revoke trust cookies atomically
+    # so partial cleanup cannot leave orphaned records.
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.delete_all(
+        :backup_codes,
+        from(bc in backup_code_schema, where: bc.user_id == ^user_id)
+      )
+      |> Ecto.Multi.delete_all(
+        :credential,
+        from(c in mfa_credential_schema, where: c.user_id == ^user_id)
+      )
+      |> Ecto.Multi.run(:revoke_trust, fn _repo, _changes ->
+        Trust.revoke_all(repo, user_schema, user_id)
+        {:ok, :revoked}
+      end)
 
-    # Delete MFA credential
-    from(c in mfa_credential_schema, where: c.user_id == ^user_id)
-    |> repo.delete_all()
-
-    # Increment trust_epoch to revoke all trust cookies (D-53)
-    Trust.revoke_all(repo, user_schema, user_id)
+    {:ok, _} = repo.transaction(multi)
+    :ok
   end
 end
