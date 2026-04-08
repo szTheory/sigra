@@ -93,7 +93,15 @@ defmodule <%= context_module %>Fixtures do
   """
   def mfa_user_fixture(attrs \\ %{}) do
     user = user_fixture(attrs)
-    %{totp_secret: secret, backup_codes: codes} = Sigra.Testing.setup_totp(user, repo: <%= repo_module %>)
+    config = Auth.sigra_config()
+
+    %{totp_secret: secret, backup_codes: codes} =
+      Sigra.Testing.setup_totp(user,
+        config: config,
+        mfa_credential_schema: <%= context_module %>.UserMFACredential,
+        backup_code_schema: <%= context_module %>.UserBackupCode
+      )
+
     %{user: user, totp_secret: secret, backup_codes: codes}
   end
 
@@ -116,7 +124,14 @@ defmodule <%= context_module %>Fixtures do
   """
   def mfa_locked_fixture(attrs \\ %{}) do
     %{user: user} = mfa_user_fixture(attrs)
-    credential = Sigra.Testing.simulate_mfa_lockout(user, repo: <%= repo_module %>)
+    config = Auth.sigra_config()
+
+    credential =
+      Sigra.Testing.simulate_mfa_lockout(user,
+        config: config,
+        mfa_credential_schema: <%= context_module %>.UserMFACredential
+      )
+
     %{user: user, credential: credential}
   end
 end
