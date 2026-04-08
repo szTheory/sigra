@@ -43,9 +43,15 @@ defmodule <%= web_module %>.ConnCaseHelpers do
   Logs the given `user` into the `conn`.
 
   It returns an updated `conn`.
+
+  ## Options
+
+    * `:type` - Session type, either `:standard` (default) or `:remember_me`
+
   """
-  def log_in_user(conn, user) do
-    token = <%= context_module %>.generate_user_session_token(user)
+  def log_in_user(conn, user, opts \\ []) do
+    type = Keyword.get(opts, :type, :standard)
+    token = <%= context_module %>.generate_user_session_token(user, type: type)
 
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
