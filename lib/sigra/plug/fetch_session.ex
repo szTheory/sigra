@@ -80,9 +80,18 @@ defmodule Sigra.Plug.FetchSession do
         maybe_update_activity(session, session_store, session_config, store_opts)
         scope = scope_module.new(%{id: session.user_id})
 
-        conn
-        |> Plug.Conn.assign(:current_scope, scope)
-        |> Plug.Conn.put_private(:sigra_session, session)
+        conn =
+          conn
+          |> Plug.Conn.assign(:current_scope, scope)
+          |> Plug.Conn.put_private(:sigra_session, session)
+
+        # Propagate mfa_pending state into the Plug session so LiveView
+        # mounts (which only receive the serialized session map) can detect it.
+        if session.type == :mfa_pending do
+          Plug.Conn.put_session(conn, :mfa_pending, true)
+        else
+          Plug.Conn.delete_session(conn, :mfa_pending)
+        end
 
       :skip ->
         Plug.Conn.assign(conn, :current_scope, nil)

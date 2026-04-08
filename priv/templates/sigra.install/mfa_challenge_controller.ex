@@ -20,7 +20,7 @@ defmodule <%= web_module %>.MFAChallengeController do
       is_nil(scope) ->
         conn |> redirect(to: ~p"/users/log_in") |> halt()
 
-      get_session(conn, :mfa_pending) != true ->
+      !match?(%{type: :mfa_pending}, conn.private[:sigra_session]) ->
         # Not in MFA pending state -- redirect appropriately (D-35)
         conn |> redirect(to: ~p"/") |> halt()
 

@@ -311,7 +311,7 @@ defmodule <%= web_module %>.UserAuth do
   def require_mfa(conn, _opts) do
     scope = conn.assigns[:current_scope]
 
-    if scope && get_session(conn, :mfa_pending) == true do
+    if scope && match?(%{type: :mfa_pending}, conn.private[:sigra_session]) do
       conn
       |> maybe_store_return_to()
       |> put_session(:mfa_return_to, current_path(conn))
