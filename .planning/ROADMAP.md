@@ -104,7 +104,11 @@ Plans:
   3. Authenticated user can link a new OAuth provider from settings and unlink it; a user with only one OAuth provider cannot unlink until a password is set
   4. Multiple OAuth providers can be linked to one account; each stored with encrypted access and refresh tokens
   5. Edge cases are handled gracefully: provider returns no email, user denies permissions, provider is down, CSRF state mismatch all produce clear error messages
-**Plans:** TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 05-01-PLAN.md — Core types, config, Identity struct, Assent strategy wrappers
+- [ ] 05-02-PLAN.md — OAuth orchestrator, callback processor, Auth integration, telemetry, testing
+- [ ] 05-03-PLAN.md — Generator (mix sigra.gen.oauth), templates, route/config injection
 **UI hint**: yes
 
 ### Phase 6: Multi-Factor Authentication
@@ -179,7 +183,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 2. Core Auth | 0/2 | Planning complete | - |
 | 3. Email Flows and Transactional Email | 0/5 | Planning complete | - |
 | 4. Session Management and Security Baseline | 0/6 | Planning complete | - |
-| 5. OAuth and Social Login | 0/TBD | Not started | - |
+| 5. OAuth and Social Login | 0/3 | Planning complete | - |
 | 6. Multi-Factor Authentication | 0/TBD | Not started | - |
 | 7. API Authentication | 0/TBD | Not started | - |
 | 8. Account Lifecycle | 0/TBD | Not started | - |
