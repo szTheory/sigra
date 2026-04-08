@@ -306,8 +306,13 @@ defmodule Sigra.Auth do
     signed = Plug.Crypto.sign(secret_key_base, "sigra-confirm-token", raw_token)
     encoded_token = Base.url_encode64(signed, padding: false)
 
-    # Generate 6-digit code (100000-999999)
-    code = (:rand.uniform(900_000) + 99_999) |> Integer.to_string()
+    # Generate 6-digit code (100000-999999) using crypto-safe random
+    code =
+      :crypto.strong_rand_bytes(4)
+      |> :binary.decode_unsigned()
+      |> rem(900_000)
+      |> Kernel.+(100_000)
+      |> Integer.to_string()
     hashed_code = Token.hash_token(code)
 
     # Build token structs
