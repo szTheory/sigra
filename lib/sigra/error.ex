@@ -104,6 +104,21 @@ defmodule Sigra.Error do
     def message(%{message: message}), do: message
   end
 
+  defmodule TokenRevoked do
+    @moduledoc "Raised when a revoked API token or JWT refresh token is used."
+    defexception [:token_id, message: "token has been revoked"]
+  end
+
+  defmodule InsufficientScope do
+    @moduledoc "Raised when a valid token lacks required scopes."
+    defexception [:required_scopes, :provided_scopes, message: "insufficient scope"]
+  end
+
+  defmodule MFARequired do
+    @moduledoc "Raised when JWT login requires MFA verification."
+    defexception [:mfa_token, message: "MFA verification required"]
+  end
+
   defmodule AlreadyConfirmed do
     @moduledoc "Raised when a user's email is already confirmed."
     defexception message: "email already confirmed"
@@ -193,6 +208,11 @@ defmodule Sigra.Error do
   def safe_message(:oauth_authorize_failed),
     do:
       "Could not sign in with the selected provider. Please try again or use another method."
+
+  # API token / JWT error codes
+  def safe_message(:token_revoked), do: "This token has been revoked."
+  def safe_message(:insufficient_scope), do: "You do not have permission to perform this action."
+  def safe_message(:mfa_required), do: "Multi-factor authentication is required."
 
   def safe_message(_), do: "Something went wrong. Please try again."
 end

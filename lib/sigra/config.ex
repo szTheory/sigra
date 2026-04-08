@@ -456,6 +456,39 @@ defmodule Sigra.Config do
           doc: "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."
         ]
       ]
+    ],
+    api_token: [
+      type: :keyword_list,
+      default: [],
+      doc: "API token options.",
+      keys: [
+        prefix: [type: {:or, [:string, nil]}, default: nil, doc: "Token prefix. Nil derives from otp_app: {otp_app}_sk_. Must match ^[a-z0-9_]+$ and not start with eyJ."],
+        custom_scopes: [type: {:list, :string}, default: [], doc: "Custom scope strings in resource:action format."],
+        write_implies_read: [type: :boolean, default: false, doc: "Whether write scope implies read. Default: false."],
+        require_expiry: [type: :boolean, default: false, doc: "Whether expiration is required. Default: false."],
+        max_ttl: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Maximum TTL in seconds. Nil = no limit."],
+        cleanup_retention: [type: :pos_integer, default: 90 * 24 * 60 * 60, doc: "Retention period for revoked/expired tokens in seconds. Default: 90 days."],
+        activity_update_threshold: [type: :pos_integer, default: 300, doc: "Minimum seconds between last_used_at writes. Default: 300."],
+        default_page_size: [type: :pos_integer, default: 50, doc: "Default page size for token listing. Default: 50."],
+        max_page_size: [type: :pos_integer, default: 200, doc: "Maximum page size. Default: 200."],
+        api_token_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated UserAPIToken schema module."]
+      ]
+    ],
+    jwt: [
+      type: :keyword_list,
+      default: [],
+      doc: "JWT options (requires Joken ~> 2.6 as optional dependency).",
+      keys: [
+        enabled: [type: :boolean, default: false, doc: "Enable JWT support. Default: false."],
+        algorithm: [type: {:in, ["HS256", "RS256", "ES256"]}, default: "HS256", doc: "Signing algorithm. Default: HS256."],
+        issuer: [type: {:or, [:string, nil]}, default: nil, doc: "JWT issuer claim. Nil = otp_app name."],
+        access_ttl: [type: :pos_integer, default: 900, doc: "Access token TTL in seconds. Default: 900 (15 min)."],
+        refresh_ttl: [type: :pos_integer, default: 30 * 24 * 60 * 60, doc: "Refresh token TTL in seconds. Default: 30 days."],
+        refresh: [type: :boolean, default: true, doc: "Enable refresh tokens. Default: true."],
+        claims_builder: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing Sigra.JWT.ClaimsBuilder behaviour."],
+        verify_epoch: [type: :boolean, default: true, doc: "Verify user token_epoch on every JWT request. Default: true."],
+        private_key: [type: {:or, [:string, nil]}, default: nil, doc: "PEM private key for RS256/ES256."]
+      ]
     ]
   ])}
   """
@@ -908,6 +941,116 @@ defmodule Sigra.Config do
             "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."
         ]
       ]
+    ],
+    api_token: [
+      type: :keyword_list,
+      default: [],
+      doc: "API token options.",
+      keys: [
+        prefix: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc:
+            "Token prefix. Nil derives from otp_app: {otp_app}_sk_. Must match ^[a-z0-9_]+$ and not start with eyJ."
+        ],
+        custom_scopes: [
+          type: {:list, :string},
+          default: [],
+          doc: "Custom scope strings in resource:action format."
+        ],
+        write_implies_read: [
+          type: :boolean,
+          default: false,
+          doc: "Whether write scope implies read. Default: false."
+        ],
+        require_expiry: [
+          type: :boolean,
+          default: false,
+          doc: "Whether expiration is required. Default: false."
+        ],
+        max_ttl: [
+          type: {:or, [:pos_integer, nil]},
+          default: nil,
+          doc: "Maximum TTL in seconds. Nil = no limit."
+        ],
+        cleanup_retention: [
+          type: :pos_integer,
+          default: 90 * 24 * 60 * 60,
+          doc: "Retention period for revoked/expired tokens in seconds. Default: 90 days."
+        ],
+        activity_update_threshold: [
+          type: :pos_integer,
+          default: 300,
+          doc: "Minimum seconds between last_used_at writes. Default: 300."
+        ],
+        default_page_size: [
+          type: :pos_integer,
+          default: 50,
+          doc: "Default page size for token listing. Default: 50."
+        ],
+        max_page_size: [
+          type: :pos_integer,
+          default: 200,
+          doc: "Maximum page size. Default: 200."
+        ],
+        api_token_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "The generated UserAPIToken schema module."
+        ]
+      ]
+    ],
+    jwt: [
+      type: :keyword_list,
+      default: [],
+      doc: "JWT options (requires Joken ~> 2.6 as optional dependency).",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: false,
+          doc: "Enable JWT support. Default: false."
+        ],
+        algorithm: [
+          type: {:in, ["HS256", "RS256", "ES256"]},
+          default: "HS256",
+          doc: "Signing algorithm. Default: HS256."
+        ],
+        issuer: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "JWT issuer claim. Nil = otp_app name."
+        ],
+        access_ttl: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Access token TTL in seconds. Default: 900 (15 min)."
+        ],
+        refresh_ttl: [
+          type: :pos_integer,
+          default: 30 * 24 * 60 * 60,
+          doc: "Refresh token TTL in seconds. Default: 30 days."
+        ],
+        refresh: [
+          type: :boolean,
+          default: true,
+          doc: "Enable refresh tokens. Default: true."
+        ],
+        claims_builder: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Module implementing Sigra.JWT.ClaimsBuilder behaviour."
+        ],
+        verify_epoch: [
+          type: :boolean,
+          default: true,
+          doc: "Verify user token_epoch on every JWT request. Default: true."
+        ],
+        private_key: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "PEM private key for RS256/ES256."
+        ]
+      ]
     ]
   ]
 
@@ -932,7 +1075,9 @@ defmodule Sigra.Config do
           geo_ip: keyword(),
           suspicious_login: keyword(),
           mfa: keyword(),
-          oauth: keyword()
+          oauth: keyword(),
+          api_token: keyword(),
+          jwt: keyword()
         }
 
   defstruct [
@@ -956,7 +1101,9 @@ defmodule Sigra.Config do
     geo_ip: [],
     suspicious_login: [],
     mfa: [],
-    oauth: []
+    oauth: [],
+    api_token: [],
+    jwt: []
   ]
 
   @doc """

@@ -106,7 +106,22 @@ defmodule Sigra.Telemetry do
     [:sigra, :security, :suspicious_login],
     [:sigra, :security, :invalid_credentials],
     [:sigra, :mfa, :lockout],
-    [:sigra, :mfa, :pending_expired]
+    [:sigra, :mfa, :pending_expired],
+    [:sigra, :jwt, :refresh_reuse_detected]
+  ]
+
+  @api_token_events [
+    [:sigra, :api_token, :create, :stop],
+    [:sigra, :api_token, :verify, :stop],
+    [:sigra, :api_token, :revoke, :stop],
+    [:sigra, :api_token, :revoke_all, :stop]
+  ]
+
+  @jwt_events [
+    [:sigra, :jwt, :generate, :stop],
+    [:sigra, :jwt, :verify, :stop],
+    [:sigra, :jwt, :refresh, :stop],
+    [:sigra, :jwt, :refresh_reuse_detected]
   ]
 
   @logged_events [
@@ -153,7 +168,7 @@ defmodule Sigra.Telemetry do
     [:sigra, :reset, :requested],
     [:sigra, :reset, :completed],
     [:sigra, :token, :expired]
-  ]
+  ] ++ @api_token_events ++ @jwt_events
 
   @doc """
   Execute a function within a telemetry span.
@@ -232,6 +247,24 @@ defmodule Sigra.Telemetry do
   @doc since: "0.5.0"
   @spec oauth_events() :: [[atom()]]
   def oauth_events, do: @oauth_events
+
+  @doc """
+  Returns the list of API token-specific telemetry event names.
+
+  Useful for attaching custom handlers to all API token events.
+  """
+  @doc since: "0.7.0"
+  @spec api_token_events() :: [[atom()]]
+  def api_token_events, do: @api_token_events
+
+  @doc """
+  Returns the list of JWT-specific telemetry event names.
+
+  Useful for attaching custom handlers to all JWT events.
+  """
+  @doc since: "0.7.0"
+  @spec jwt_events() :: [[atom()]]
+  def jwt_events, do: @jwt_events
 
   @doc """
   Attach the default Sigra logger handler.

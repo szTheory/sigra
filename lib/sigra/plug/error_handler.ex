@@ -40,7 +40,14 @@ defmodule Sigra.Plug.ErrorHandler do
       end
   """
 
-  @type error_type :: :unauthenticated | :stale_sudo | :rate_limited
+  @type error_type ::
+          :unauthenticated
+          | :stale_sudo
+          | :rate_limited
+          | :insufficient_scope
+          | :token_expired
+          | :token_revoked
+          | :mfa_required
 
   @doc """
   Handle an authentication error.
