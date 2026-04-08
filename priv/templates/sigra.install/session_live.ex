@@ -106,9 +106,9 @@ defmodule <%= web_module %>.Auth.SessionLive do
     {:noreply, socket |> put_flash(:info, "Session revoked.") |> assign(sessions: sessions)}
   end
 
-  def handle_event("revoke_current", %{"token" => _encoded_token}, socket) do
-    user = socket.assigns.current_scope.user
-    Auth.revoke_all_sessions(user, except_token: nil)
+  def handle_event("revoke_current", %{"token" => encoded_token}, socket) do
+    hashed_token = Base.url_decode64!(encoded_token)
+    Auth.revoke_session(hashed_token)
 
     {:noreply, redirect(socket, to: ~p"/users/log_in")}
   end
