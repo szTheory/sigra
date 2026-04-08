@@ -84,23 +84,18 @@ defmodule Sigra.Lockout do
   @spec increment!(module(), struct(), keyword()) :: struct()
   def increment!(repo, user, opts \\ []) do
     threshold = Keyword.get(opts, :threshold, @default_threshold)
-    import Ecto.Query
+    new_count = (user.failed_login_attempts || 0) + 1
 
-    {1, [updated]} =
-      from(u in user.__struct__,
-        where: u.id == ^user.id,
-        select: u
-      )
-      |> repo.update_all(inc: [failed_login_attempts: 1])
+    changes =
+      if new_count >= threshold && is_nil(user.locked_at) do
+        %{failed_login_attempts: new_count, locked_at: DateTime.utc_now()}
+      else
+        %{failed_login_attempts: new_count}
+      end
 
-    # Set locked_at if threshold reached (and not already locked)
-    if updated.failed_login_attempts >= threshold && is_nil(updated.locked_at) do
-      updated
-      |> Ecto.Changeset.change(%{locked_at: DateTime.utc_now()})
-      |> repo.update!()
-    else
-      updated
-    end
+    user
+    |> Ecto.Changeset.change(changes)
+    |> repo.update!()
   end
 
   @doc """

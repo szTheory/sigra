@@ -130,6 +130,7 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+      |> expect(:delete, fn _token, _opts -> :ok end)
 
       opts = FetchSession.init(@default_opts)
 
@@ -150,6 +151,7 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+      |> expect(:delete, fn _token, _opts -> :ok end)
 
       opts = FetchSession.init(@default_opts)
 
@@ -189,6 +191,7 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+      |> expect(:delete, fn _token, _opts -> :ok end)
 
       opts = FetchSession.init(@default_opts)
 
