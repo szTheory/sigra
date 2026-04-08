@@ -816,7 +816,8 @@ defmodule Sigra.Config do
           lockout: keyword(),
           geo_ip: keyword(),
           suspicious_login: keyword(),
-          oauth: keyword()
+          oauth: keyword(),
+          mfa: keyword()
         }
 
   defstruct [
@@ -839,7 +840,8 @@ defmodule Sigra.Config do
     lockout: [],
     geo_ip: [],
     suspicious_login: [],
-    oauth: []
+    oauth: [],
+    mfa: []
   ]
 
   @doc """

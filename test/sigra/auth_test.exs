@@ -1019,7 +1019,8 @@ defmodule Sigra.AuthTest do
     lockout: [threshold: 5, duration: 900, notify: true],
     suspicious_login: [enabled: true, notify: true],
     geo_ip: [],
-    email_module: Sigra.MockEmailTemplates
+    email_module: Sigra.MockEmailTemplates,
+    mfa: []
   }
 
   describe "authenticate/2 (config-based)" do
@@ -1211,6 +1212,9 @@ defmodule Sigra.AuthTest do
       # Suspicious login check -- no prior sessions means no suspicion
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [] end)
+      |> expect(:create, fn 1, _metadata, _opts ->
+        {:ok, %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, inserted_at: DateTime.utc_now()}}
+      end)
 
       result =
         Auth.authenticate(@auth_config, %{
@@ -1218,7 +1222,7 @@ defmodule Sigra.AuthTest do
           "password" => "correct_password"
         })
 
-      assert {:ok, _user} = result
+      assert {:ok, _user, %{session: _session}} = result
     end
 
     test "detects suspicious login on success and returns {:ok, user, suspicious: details}" do
@@ -1242,6 +1246,9 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [session] end)
+      |> expect(:create, fn 1, _metadata, _opts ->
+        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+      end)
 
       # Expect suspicious login email
       Sigra.MockEmailTemplates
@@ -1285,6 +1292,9 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [session] end)
+      |> expect(:create, fn 1, _metadata, _opts ->
+        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+      end)
 
       Sigra.MockEmailTemplates
       |> expect(:suspicious_login_email, fn ^user, %{ip: "5.5.5.5"} ->
@@ -1324,6 +1334,9 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [session] end)
+      |> expect(:create, fn 1, _metadata, _opts ->
+        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+      end)
 
       # No email template or mailer calls expected (Mox will fail if called)
 
@@ -1334,7 +1347,7 @@ defmodule Sigra.AuthTest do
           "ip" => "1.2.3.4"
         })
 
-      assert {:ok, _user} = result
+      assert {:ok, _user, %{session: _session}} = result
     end
 
     test "does not detect suspicious login on failure" do
@@ -1390,6 +1403,9 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [] end)
+      |> expect(:create, fn 1, _metadata, _opts ->
+        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+      end)
 
       result =
         Auth.authenticate(@auth_config, %{
@@ -1397,7 +1413,7 @@ defmodule Sigra.AuthTest do
           "password" => "correct_password"
         })
 
-      assert {:ok, _user} = result
+      assert {:ok, _user, %{session: _session}} = result
     end
   end
 
@@ -1472,7 +1488,8 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "mfa_user@example.com"] -> user end)
-      |> expect(:update, fn changeset -> {:ok, struct(user, changeset.changes)} end)
+      # Lockout.reset! calls repo.update!
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
 
       Sigra.MockSessionStore
       |> expect(:create, fn 1, metadata, _opts ->
@@ -1525,7 +1542,8 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "normal_user@example.com"] -> user end)
-      |> expect(:update, fn changeset -> {:ok, struct(user, changeset.changes)} end)
+      # Lockout.reset! calls repo.update!
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
 
       Sigra.MockSessionStore
       |> expect(:create, fn 2, metadata, _opts ->

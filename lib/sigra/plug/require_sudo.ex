@@ -8,18 +8,26 @@ defmodule Sigra.Plug.RequireSudo do
   the configured error handler is called with `:stale_sudo` and the
   connection is halted.
 
+  When MFA is enabled for the user, sudo re-authentication can also be
+  completed via TOTP code (not just password). The `:mfa_verify_fn` option
+  enables this: when provided, the sudo confirmation endpoint can accept
+  a TOTP code as an alternative to the password. Per D-40.
+
   ## Options
 
     * `:error_handler` - Module implementing `Sigra.Plug.ErrorHandler`.
       Required.
     * `:sudo_window` - Maximum age of sudo confirmation in seconds.
       Defaults to `300` (5 minutes).
+    * `:mfa_verify_fn` - Optional function `(user, code -> boolean)` for
+      TOTP-based sudo verification when MFA is enabled.
 
   ## Example
 
       plug Sigra.Plug.RequireSudo,
         error_handler: MyAppWeb.AuthErrorHandler,
-        sudo_window: 600
+        sudo_window: 600,
+        mfa_verify_fn: &MyApp.Auth.verify_totp/2
 
   """
 

@@ -127,6 +127,12 @@ defmodule Sigra.Plug.FetchSession do
 
     {idle_limit, absolute_limit} =
       case session.type do
+        :mfa_pending ->
+          # MFA pending sessions have a short timeout (default 5 min)
+          # No idle timeout -- they either complete or expire (D-26)
+          pending_timeout = Keyword.get(session_config, :mfa_pending_timeout, 300)
+          {nil, pending_timeout}
+
         :remember_me ->
           {nil, Keyword.get(session_config, :remember_me_max_age, 5_184_000)}
 

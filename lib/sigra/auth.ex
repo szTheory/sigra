@@ -733,12 +733,17 @@ defmodule Sigra.Auth do
 
   @doc """
   List all active sessions for a user.
+
+  Excludes `:mfa_pending` sessions from the listing since they represent
+  incomplete authentication attempts, not active sessions (D-29).
   """
   @doc since: "0.4.0"
   @spec list_sessions(Sigra.Config.t(), term(), keyword()) :: [Sigra.Session.t()]
   def list_sessions(config, user_id, opts \\ []) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
+
     session_store.list_by_user(user_id, store_opts)
+    |> Enum.reject(fn session -> session.type == :mfa_pending end)
   end
 
   @doc """
@@ -825,6 +830,58 @@ defmodule Sigra.Auth do
           {:ok, :unlinked} | {:error, :last_provider | :not_found}
   def unlink_provider(config, user, provider, opts \\ []) do
     Sigra.OAuth.unlink_provider(config, user, provider, opts)
+  end
+
+  # -- MFA Session Management (Phase 6 Plan 02) --
+
+  @doc """
+  Completes MFA verification by rotating the session token and upgrading
+  the session type from :mfa_pending to :standard or :remember_me.
+
+  Called after successful TOTP or backup code verification. The old
+  mfa_pending session token is invalidated and a new token is issued,
+  preventing session fixation attacks.
+
+  ## Options
+
+    * `:remember_me` - If `true`, upgrades to `:remember_me` session. Default: `false`.
+    * `:trust_browser` - If `true`, includes trust_browser flag in result for
+      "trust this browser" cookie. Default: `false`.
+
+  ## Returns
+
+    * `{:ok, %{session: session, trust_browser: boolean}}` on success
+    * `{:error, reason}` if session creation fails
+  """
+  @doc since: "0.6.0"
+  @spec complete_mfa_verification(Sigra.Config.t(), struct(), Sigra.Session.t(), keyword()) ::
+          {:ok, map()} | {:error, term()}
+  def complete_mfa_verification(config, user, old_session, opts \\ []) do
+    remember_me = Keyword.get(opts, :remember_me, false)
+    trust_browser = Keyword.get(opts, :trust_browser, false)
+    target_type = if remember_me, do: :remember_me, else: :standard
+
+    {session_store, store_opts} = session_store_and_opts(config, opts)
+
+    # Delete old mfa_pending session (invalidate old token)
+    session_store.delete(old_session.hashed_token, store_opts)
+
+    # Create new session with upgraded type
+    metadata = %{type: target_type}
+
+    case create_session(config, user, metadata) do
+      {:ok, new_session} ->
+        Telemetry.event([:sigra, :mfa, :verification_complete], %{}, %{
+          user_id: user.id,
+          target_type: target_type,
+          trust_browser: trust_browser
+        })
+
+        {:ok, %{session: new_session, trust_browser: trust_browser}}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   # -- Private helpers --
@@ -930,13 +987,32 @@ defmodule Sigra.Auth do
       })
 
       # Check suspicious login (D-44)
-      case Sigra.SuspiciousLogin.detect(config, updated_user.id, login_ip || "") do
-        {:suspicious, details} ->
-          maybe_deliver_suspicious_login_email(config, updated_user, details)
-          {:ok, updated_user, %{suspicious_login: details}}
+      suspicious_details =
+        case Sigra.SuspiciousLogin.detect(config, updated_user.id, login_ip || "") do
+          {:suspicious, details} ->
+            maybe_deliver_suspicious_login_email(config, updated_user, details)
+            %{suspicious_login: details}
 
-        :ok ->
-          {:ok, updated_user}
+          :ok ->
+            %{}
+        end
+
+      # Check MFA enrollment and create appropriate session (D-22, D-27, D-30)
+      mfa_config = Map.get(config, :mfa, [])
+      mfa_check_fn = Keyword.get(mfa_config, :check_fn)
+      mfa_enabled = mfa_check_fn && mfa_check_fn.(updated_user.id)
+
+      session_type = if mfa_enabled, do: :mfa_pending, else: :standard
+      metadata = %{type: session_type, ip: login_ip}
+
+      case create_session(config, updated_user, metadata) do
+        {:ok, session} ->
+          result = Map.merge(suspicious_details, %{session: session})
+          result = if mfa_enabled, do: Map.put(result, :mfa_required, true), else: result
+          {:ok, updated_user, result}
+
+        {:error, reason} ->
+          {:error, reason}
       end
     end
   end
