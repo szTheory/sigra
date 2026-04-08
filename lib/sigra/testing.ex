@@ -207,6 +207,283 @@ defmodule Sigra.Testing do
     fun.()
   end
 
+  # -- MFA Testing Helpers (Phase 6) --
+
+  @doc """
+  Creates a fully enrolled MFA credential for the user.
+
+  Generates a real TOTP secret, creates the credential in the DB,
+  and generates backup codes. Returns the secret, credential, and
+  raw formatted backup codes.
+
+  ## Options
+
+    * `:config` - `%Sigra.Config{}` (required)
+    * `:mfa_credential_schema` - MFA credential schema module (required)
+    * `:backup_code_schema` - Backup code schema module (required)
+    * `:backup_code_count` - Number of backup codes (default: 8)
+
+  ## Returns
+
+      %{secret: raw_secret, credential: credential, backup_codes: [formatted_codes]}
+
+  """
+  @doc since: "0.6.0"
+  @spec setup_totp(struct(), keyword()) :: map()
+  def setup_totp(user, opts \\ []) do
+    config = Keyword.fetch!(opts, :config)
+    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+    backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
+    backup_count = Keyword.get(opts, :backup_code_count, 8)
+
+    raw_secret = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+
+    credential_params = %{
+      user_id: user.id,
+      type: "totp",
+      encrypted_secret: raw_secret,
+      last_verified_step: 0,
+      failed_attempts: 0,
+      locked_until: nil,
+      enabled_at: now
+    }
+
+    {:ok, db_credential} =
+      mfa_credential_schema
+      |> struct(credential_params)
+      |> Ecto.Changeset.change()
+      |> config.repo.insert()
+
+    codes = Sigra.MFA.BackupCodes.generate(backup_count)
+
+    entries =
+      Enum.map(codes, fn {_formatted, hashed} ->
+        %{
+          user_id: user.id,
+          hashed_code: hashed,
+          used_at: nil,
+          inserted_at: now,
+          updated_at: now
+        }
+      end)
+
+    config.repo.insert_all(backup_code_schema, entries)
+
+    credential = Sigra.MFA.Credential.from_schema(db_credential)
+    formatted_codes = Enum.map(codes, &elem(&1, 0))
+
+    %{secret: raw_secret, credential: credential, backup_codes: formatted_codes}
+  end
+
+  @doc """
+  Generates a valid TOTP code for the given raw secret.
+
+  Uses `NimbleTOTP.verification_code/1` to produce a real 6-digit code
+  valid for the current time window.
+
+  ## Examples
+
+      code = Sigra.Testing.generate_totp_code(raw_secret)
+      assert String.length(code) == 6
+
+  """
+  @doc since: "0.6.0"
+  @spec generate_totp_code(binary()) :: String.t()
+  def generate_totp_code(secret) when is_binary(secret) do
+    NimbleTOTP.verification_code(secret)
+  end
+
+  @doc """
+  Generates backup codes for a user and stores hashes in the DB.
+
+  Returns a list of raw formatted codes (shown once to user).
+
+  ## Options
+
+    * `:config` - `%Sigra.Config{}` (required)
+    * `:backup_code_schema` - Backup code schema module (required)
+    * `:count` - Number of codes to generate (default: 8)
+  """
+  @doc since: "0.6.0"
+  @spec create_backup_codes(struct(), keyword()) :: [String.t()]
+  def create_backup_codes(user, opts \\ []) do
+    config = Keyword.fetch!(opts, :config)
+    backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
+    count = Keyword.get(opts, :count, 8)
+
+    codes = Sigra.MFA.BackupCodes.generate(count)
+    now = DateTime.utc_now()
+
+    entries =
+      Enum.map(codes, fn {_formatted, hashed} ->
+        %{
+          user_id: user.id,
+          hashed_code: hashed,
+          used_at: nil,
+          inserted_at: now,
+          updated_at: now
+        }
+      end)
+
+    config.repo.insert_all(backup_code_schema, entries)
+    Enum.map(codes, &elem(&1, 0))
+  end
+
+  @doc """
+  Marks user's session as MFA-completed without requiring code entry.
+
+  For tests that don't care about the MFA verification flow. Returns
+  a conn with the session type set to `:standard`.
+
+  ## Examples
+
+      conn = Sigra.Testing.bypass_mfa(conn)
+
+  """
+  @doc since: "0.6.0"
+  @spec bypass_mfa(Plug.Conn.t()) :: Plug.Conn.t()
+  def bypass_mfa(conn) do
+    Plug.Conn.put_session(conn, :sigra_session_type, :standard)
+  end
+
+  @doc """
+  Simulates an MFA lockout by setting failed_attempts to threshold.
+
+  Sets `failed_attempts` to the lockout threshold and `locked_until`
+  to 15 minutes from now on the user's MFA credential.
+
+  ## Options
+
+    * `:config` - `%Sigra.Config{}` (required)
+    * `:mfa_credential_schema` - MFA credential schema module (required)
+    * `:threshold` - Lockout threshold (default: 5)
+    * `:duration` - Lockout duration in seconds (default: 900)
+  """
+  @doc since: "0.6.0"
+  @spec simulate_mfa_lockout(struct(), keyword()) :: :ok
+  def simulate_mfa_lockout(user, opts \\ []) do
+    config = Keyword.fetch!(opts, :config)
+    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+    threshold = Keyword.get(opts, :threshold, 5)
+    duration = Keyword.get(opts, :duration, 900)
+
+    import Ecto.Query
+
+    locked_until = DateTime.add(DateTime.utc_now(), duration, :second)
+
+    from(c in mfa_credential_schema,
+      where: c.user_id == ^user.id,
+      update: [
+        set: [
+          failed_attempts: ^threshold,
+          locked_until: ^locked_until
+        ]
+      ]
+    )
+    |> config.repo.update_all([])
+
+    :ok
+  end
+
+  @doc """
+  Asserts that the user has MFA enabled (has credential with non-nil enabled_at).
+
+  Raises `ExUnit.AssertionError` on failure.
+
+  ## Options
+
+    * `:config` - `%Sigra.Config{}` (required)
+    * `:mfa_credential_schema` - MFA credential schema module (required)
+  """
+  @doc since: "0.6.0"
+  @spec assert_mfa_enabled(struct(), keyword()) :: true
+  def assert_mfa_enabled(user, opts \\ []) do
+    config = Keyword.fetch!(opts, :config)
+    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+
+    import Ecto.Query
+
+    count =
+      from(c in mfa_credential_schema,
+        where: c.user_id == ^user.id and not is_nil(c.enabled_at),
+        select: count(c.id)
+      )
+      |> config.repo.one()
+
+    if count > 0 do
+      true
+    else
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have MFA enabled, but no enabled credential found"
+    end
+  end
+
+  @doc """
+  Asserts that the user does not have MFA enabled.
+
+  Raises `ExUnit.AssertionError` on failure.
+
+  ## Options
+
+    * `:config` - `%Sigra.Config{}` (required)
+    * `:mfa_credential_schema` - MFA credential schema module (required)
+  """
+  @doc since: "0.6.0"
+  @spec assert_mfa_disabled(struct(), keyword()) :: true
+  def assert_mfa_disabled(user, opts \\ []) do
+    config = Keyword.fetch!(opts, :config)
+    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+
+    import Ecto.Query
+
+    count =
+      from(c in mfa_credential_schema,
+        where: c.user_id == ^user.id and not is_nil(c.enabled_at),
+        select: count(c.id)
+      )
+      |> config.repo.one()
+
+    if count == 0 do
+      true
+    else
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have MFA disabled, but found #{count} enabled credential(s)"
+    end
+  end
+
+  @doc """
+  Sets the `_sigra_mfa_trust` cookie on the conn for the given user.
+
+  Simulates a trusted browser for MFA bypass in tests.
+
+  ## Options
+
+    * `:secret_key_base` - The app's secret key base (default: generates a test key)
+    * `:trust_epoch` - The user's trust epoch (default: 0)
+    * `:trust_ttl` - Trust cookie TTL in seconds (default: 2_592_000 = 30 days)
+  """
+  @doc since: "0.6.0"
+  @spec trust_browser(Plug.Conn.t(), struct(), keyword()) :: Plug.Conn.t()
+  def trust_browser(conn, user, opts \\ []) do
+    secret_key_base = Keyword.get(opts, :secret_key_base, conn.secret_key_base || generate_test_secret())
+    trust_epoch = Keyword.get(opts, :trust_epoch, 0)
+    trust_ttl = Keyword.get(opts, :trust_ttl, 2_592_000)
+
+    cookie_value = Sigra.MFA.Trust.sign(secret_key_base, user.id, trust_epoch, trust_ttl)
+
+    Plug.Conn.put_resp_cookie(
+      conn,
+      Sigra.MFA.Trust.cookie_name(),
+      cookie_value,
+      Sigra.MFA.Trust.cookie_opts() ++ [max_age: trust_ttl]
+    )
+  end
+
+  defp generate_test_secret do
+    :crypto.strong_rand_bytes(64) |> Base.encode64()
+  end
+
   # -- OAuth Testing Helpers (Phase 5) --
 
   @doc """

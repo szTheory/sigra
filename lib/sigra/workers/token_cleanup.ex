@@ -69,6 +69,57 @@ defmodule Sigra.Workers.TokenCleanup do
   end
 
   @doc """
+  Deletes expired mfa_pending sessions from the database.
+
+  Cleans up sessions with `type = "mfa_pending"` that are older than
+  the configured `pending_timeout` (default: 300 seconds / 5 minutes).
+
+  Emits `[:sigra, :mfa, :pending_expired]` telemetry event for each
+  batch of expired sessions found.
+
+  ## Parameters
+
+  - `config` - `%Sigra.Config{}` struct with MFA and session configuration
+  """
+  @spec cleanup_mfa_pending_sessions(Sigra.Config.t()) :: :ok
+  def cleanup_mfa_pending_sessions(config) do
+    repo = config.repo
+    session_schema = Keyword.get(config.session, :session_schema)
+
+    if session_schema do
+      pending_timeout = Keyword.get(config.mfa, :pending_timeout, 300)
+      cutoff = DateTime.add(DateTime.utc_now(), -pending_timeout, :second)
+
+      # Find expired mfa_pending sessions for telemetry
+      expired_sessions =
+        from(s in session_schema,
+          where: s.type == "mfa_pending" and s.inserted_at < ^cutoff,
+          select: s.user_id
+        )
+        |> repo.all()
+
+      if expired_sessions != [] do
+        # Delete them
+        from(s in session_schema,
+          where: s.type == "mfa_pending" and s.inserted_at < ^cutoff
+        )
+        |> repo.delete_all()
+
+        # Emit telemetry for each expired session
+        Enum.each(expired_sessions, fn user_id ->
+          Sigra.Telemetry.event(
+            [:sigra, :mfa, :pending_expired],
+            %{count: 1},
+            %{user_id: user_id}
+          )
+        end)
+      end
+    end
+
+    :ok
+  end
+
+  @doc """
   Deletes expired sessions from the database.
 
   Cleans up:
