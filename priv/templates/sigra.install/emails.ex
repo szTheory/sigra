@@ -148,6 +148,112 @@ defmodule <%= context_module %>.Emails do
     |> text_body(text_body)
   end
 
+  @doc "Builds a suspicious login notification email."
+  def suspicious_login_email(user, details) do
+    ip = Map.get(details, :ip, "Unknown")
+    geo_city = Map.get(details, :geo_city)
+    geo_country = Map.get(details, :geo_country_code)
+    location = if geo_city, do: "#{geo_city}, #{geo_country}", else: "Unknown"
+    device = Map.get(details, :device, "Unknown device")
+
+    time =
+      Map.get(details, :time, DateTime.utc_now())
+      |> Calendar.strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "New Sign-In Detected")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "We noticed a new sign-in to your account from an unrecognized device or location.")}
+    </p>
+    <div style="margin: 16px 0; padding: 16px; background-color: #f4f4f5; border-radius: 8px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "IP address:")}</strong> #{ip}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Location:")}</strong> #{location}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Device:")}</strong> #{device}
+      </p>
+      <p style="margin: 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Time:")}</strong> #{time}
+      </p>
+    </div>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "New Sign-In Detected")}
+
+    #{dgettext("sigra", "We noticed a new sign-in to your account from an unrecognized device or location.")}
+
+    #{dgettext("sigra", "IP address:")} #{ip}
+    #{dgettext("sigra", "Location:")} #{location}
+    #{dgettext("sigra", "Device:")} #{device}
+    #{dgettext("sigra", "Time:")} #{time}
+
+    #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
+
+    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "New sign-in to your account"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a lockout notification email."
+  def lockout_notification_email(user, _details) do
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Account Locked")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If this was you, you can try again after the lockout period.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
+    <p style="margin: 12px 0 0 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If you did not attempt to log in, we recommend changing your password immediately.")}
+    </p>
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Account Locked")}
+
+    #{dgettext("sigra", "We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.")}
+
+    #{dgettext("sigra", "If this was you, you can try again after the lockout period.")}
+
+    #{dgettext("sigra", "Change your password:")} #{reset_url}
+
+    #{dgettext("sigra", "If you did not attempt to log in, we recommend changing your password immediately.")}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Your account has been temporarily locked"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
   # -- Private helpers --
 
   defp base_email(to) do
@@ -226,6 +332,14 @@ defmodule <%= context_module %>.Emails do
     dgettext(
       "sigra",
       "You're receiving this email because you have an account with %{app_name}. If you didn't request this, you can safely ignore this email.",
+      app_name: "<%= app_name %>"
+    )
+  end
+
+  defp security_footer_text do
+    dgettext(
+      "sigra",
+      "You received this email because your %{app_name} account experienced a security event.",
       app_name: "<%= app_name %>"
     )
   end
