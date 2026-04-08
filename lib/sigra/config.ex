@@ -368,6 +368,63 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    mfa: [
+      type: :keyword_list,
+      default: [],
+      doc: "Multi-factor authentication options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable MFA support. Default: true."
+        ],
+        totp_issuer: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "TOTP issuer name for authenticator apps. Falls back to humanized otp_app. Default: nil."
+        ],
+        totp_drift_steps: [
+          type: :non_neg_integer,
+          default: 1,
+          doc: "TOTP drift window in 30-second steps. Default: 1."
+        ],
+        backup_code_count: [
+          type: :pos_integer,
+          default: 8,
+          doc: "Number of backup codes generated per enrollment. Default: 8."
+        ],
+        trust_enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable trust-this-browser cookies. Default: true."
+        ],
+        trust_ttl: [
+          type: :pos_integer,
+          default: 2_592_000,
+          doc: "Trust cookie TTL in seconds (default 30 days). Default: 2,592,000."
+        ],
+        lockout_threshold: [
+          type: :pos_integer,
+          default: 5,
+          doc: "Failed MFA attempts before lockout. Default: 5."
+        ],
+        lockout_duration: [
+          type: :pos_integer,
+          default: 900,
+          doc: "MFA lockout duration in seconds (default 15 min). Default: 900."
+        ],
+        pending_timeout: [
+          type: :pos_integer,
+          default: 300,
+          doc: "MFA pending session timeout in seconds (default 5 min). Default: 300."
+        ],
+        show_trust_option: [
+          type: :boolean,
+          default: true,
+          doc: "Show trust-this-browser checkbox on MFA challenge. Default: true."
+        ]
+      ]
+    ],
     oauth: [
       type: :keyword_list,
       default: [],
@@ -426,6 +483,64 @@ defmodule Sigra.Config do
       type: {:or, [:atom, nil]},
       default: nil,
       doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."
+    ],
+    mfa: [
+      type: :keyword_list,
+      default: [],
+      doc: "Multi-factor authentication options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable MFA support. Default: true."
+        ],
+        totp_issuer: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc:
+            "TOTP issuer name for authenticator apps. Falls back to humanized otp_app. Default: nil."
+        ],
+        totp_drift_steps: [
+          type: :non_neg_integer,
+          default: 1,
+          doc: "TOTP drift window in 30-second steps. Default: 1."
+        ],
+        backup_code_count: [
+          type: :pos_integer,
+          default: 8,
+          doc: "Number of backup codes generated per enrollment. Default: 8."
+        ],
+        trust_enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable trust-this-browser cookies. Default: true."
+        ],
+        trust_ttl: [
+          type: :pos_integer,
+          default: 2_592_000,
+          doc: "Trust cookie TTL in seconds (default 30 days). Default: 2,592,000."
+        ],
+        lockout_threshold: [
+          type: :pos_integer,
+          default: 5,
+          doc: "Failed MFA attempts before lockout. Default: 5."
+        ],
+        lockout_duration: [
+          type: :pos_integer,
+          default: 900,
+          doc: "MFA lockout duration in seconds (default 15 min). Default: 900."
+        ],
+        pending_timeout: [
+          type: :pos_integer,
+          default: 300,
+          doc: "MFA pending session timeout in seconds (default 5 min). Default: 300."
+        ],
+        show_trust_option: [
+          type: :boolean,
+          default: true,
+          doc: "Show trust-this-browser checkbox on MFA challenge. Default: true."
+        ]
+      ]
     ],
     password: [
       type: :keyword_list,
@@ -816,8 +931,8 @@ defmodule Sigra.Config do
           lockout: keyword(),
           geo_ip: keyword(),
           suspicious_login: keyword(),
-          oauth: keyword(),
-          mfa: keyword()
+          mfa: keyword(),
+          oauth: keyword()
         }
 
   defstruct [
@@ -840,8 +955,8 @@ defmodule Sigra.Config do
     lockout: [],
     geo_ip: [],
     suspicious_login: [],
-    oauth: [],
-    mfa: []
+    mfa: [],
+    oauth: []
   ]
 
   @doc """
