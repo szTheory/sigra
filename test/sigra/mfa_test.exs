@@ -38,7 +38,7 @@ defmodule Sigra.MFATest do
 
       {:ok, enrollment} = MFA.enroll(config, account: "user@example.com")
 
-      assert enrollment.otpauth_uri =~ "My Cool App"
+      assert enrollment.otpauth_uri =~ "My%20Cool%20App"
     end
   end
 
