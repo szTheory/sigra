@@ -15,8 +15,8 @@
         <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div>
             <div class="flex items-center gap-2">
-              <%%= <%= web_module %>.OAuthHTML.oauth_provider_icon(String.to_existing_atom(identity.provider)) %>
-              <span class="font-semibold text-sm"><%%= <%= web_module %>.OAuthHTML.oauth_provider_name(String.to_existing_atom(identity.provider)) %></span>
+              <%%= <%= web_module %>.OAuthHTML.oauth_provider_icon(<%= web_module %>.OAuthHTML.safe_provider_atom(identity.provider)) %>
+              <span class="font-semibold text-sm"><%%= <%= web_module %>.OAuthHTML.oauth_provider_name(<%= web_module %>.OAuthHTML.safe_provider_atom(identity.provider)) %></span>
               <span class="text-sm text-gray-500"><%%= identity.provider_email %></span>
             </div>
             <div class="mt-1 text-sm text-gray-500">
@@ -31,7 +31,7 @@
               <a
                 href={~p"<%= settings_path %>/identities/#{identity.id}"}
                 method="delete"
-                data-confirm={"Unlink #{<%= web_module %>.OAuthHTML.oauth_provider_name(String.to_existing_atom(identity.provider))}? You'll still be able to log in with: #{@remaining_methods_text}."}
+                data-confirm={"Unlink #{<%= web_module %>.OAuthHTML.oauth_provider_name(<%= web_module %>.OAuthHTML.safe_provider_atom(identity.provider))}? You'll still be able to log in with: #{@remaining_methods_text}."}
                 class="text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-md px-3 py-1.5"
               >
                 Unlink

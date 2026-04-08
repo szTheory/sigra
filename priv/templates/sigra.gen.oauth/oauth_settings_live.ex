@@ -65,8 +65,8 @@ defmodule <%= web_module %>.OAuthSettingsLive do
             <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div>
                 <div class="flex items-center gap-2">
-                  {oauth_provider_icon(String.to_existing_atom(identity.provider))}
-                  <span class="font-semibold text-sm">{oauth_provider_name(String.to_existing_atom(identity.provider))}</span>
+                  {oauth_provider_icon(safe_provider_atom(identity.provider))}
+                  <span class="font-semibold text-sm">{oauth_provider_name(safe_provider_atom(identity.provider))}</span>
                   <span class="text-sm text-gray-500">{identity.provider_email}</span>
                 </div>
                 <div class="mt-1 text-sm text-gray-500">
@@ -81,7 +81,7 @@ defmodule <%= web_module %>.OAuthSettingsLive do
                   <button
                     phx-click="unlink"
                     phx-value-id={identity.id}
-                    data-confirm={"Unlink #{oauth_provider_name(String.to_existing_atom(identity.provider))}? You'll still be able to log in with: #{@remaining_methods_text}."}
+                    data-confirm={"Unlink #{oauth_provider_name(safe_provider_atom(identity.provider))}? You'll still be able to log in with: #{@remaining_methods_text}."}
                     class="text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-md px-3 py-1.5"
                   >
                     Unlink
@@ -139,7 +139,7 @@ defmodule <%= web_module %>.OAuthSettingsLive do
 
     case Sigra.OAuth.unlink_provider(config, user, identity.provider) do
       {:ok, :unlinked} ->
-        provider_name = oauth_provider_name(String.to_existing_atom(identity.provider))
+        provider_name = oauth_provider_name(safe_provider_atom(identity.provider))
 
         {:noreply,
          socket
@@ -168,7 +168,7 @@ defmodule <%= web_module %>.OAuthSettingsLive do
     provider_names =
       identities
       |> Enum.map(fn i ->
-        i.provider |> String.to_existing_atom() |> oauth_provider_name()
+        i.provider |> safe_provider_atom() |> oauth_provider_name()
       end)
 
     methods = if has_password, do: ["Password" | provider_names], else: provider_names
@@ -178,5 +178,13 @@ defmodule <%= web_module %>.OAuthSettingsLive do
       [] -> "none"
       list -> Enum.join(list, ", ")
     end
+  end
+
+  defp safe_provider_atom(provider) when is_atom(provider), do: provider
+
+  defp safe_provider_atom(provider) when is_binary(provider) do
+    String.to_existing_atom(provider)
+  rescue
+    ArgumentError -> :unknown
   end
 end

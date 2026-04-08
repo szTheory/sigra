@@ -66,6 +66,20 @@ defmodule <%= web_module %>.OAuthHTML do
     """
   end
 
+  @doc """
+  Safely converts a provider string to an existing atom.
+
+  Returns `:unknown` if the atom does not exist, preventing crashes
+  from manually-edited database records or removed providers.
+  """
+  def safe_provider_atom(provider) when is_atom(provider), do: provider
+
+  def safe_provider_atom(provider) when is_binary(provider) do
+    String.to_existing_atom(provider)
+  rescue
+    ArgumentError -> :unknown
+  end
+
   @doc "Returns a human-readable display name for the given provider."
   def oauth_provider_name(:google), do: "Google"
   def oauth_provider_name(:github), do: "GitHub"
