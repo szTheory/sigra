@@ -453,7 +453,7 @@ defmodule <%= context_module %> do
       repo: <%= repo_module %>,
       user_schema: <%= schema_alias %>,
       session: [
-        store: Sigra.SessionStore.Ecto,
+        store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
       ],
       lockout: [
