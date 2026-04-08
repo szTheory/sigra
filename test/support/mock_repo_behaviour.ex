@@ -7,7 +7,9 @@ defmodule Sigra.MockRepo.Behaviour do
   @callback insert(Ecto.Changeset.t()) :: {:ok, struct()} | {:error, Ecto.Changeset.t()}
   @callback insert!(struct()) :: struct()
   @callback update(Ecto.Changeset.t()) :: {:ok, struct()} | {:error, Ecto.Changeset.t()}
+  @callback update!(Ecto.Changeset.t()) :: struct()
   @callback delete!(struct()) :: struct()
+  @callback get(module(), term()) :: struct() | nil
   @callback transaction(Ecto.Multi.t()) :: {:ok, map()} | {:error, atom(), term(), map()}
   @callback delete_all(Ecto.Queryable.t()) :: {non_neg_integer(), nil | [term()]}
   @callback all(Ecto.Queryable.t()) :: [struct()]

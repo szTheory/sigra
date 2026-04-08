@@ -1006,4 +1006,421 @@ defmodule Sigra.AuthTest do
       assert :ok = result
     end
   end
+
+  # -- Phase 4 Plan 04: Lockout + Suspicious Login Integration --
+
+  @auth_config %Sigra.Config{
+    repo: Sigra.MockRepo,
+    user_schema: TestUser,
+    session: [
+      store: Sigra.MockSessionStore,
+      session_schema: TestUser
+    ],
+    lockout: [threshold: 5, duration: 900, notify: true],
+    suspicious_login: [enabled: true, notify: true],
+    geo_ip: [],
+    email_module: Sigra.MockEmailTemplates
+  }
+
+  describe "authenticate/2 (config-based)" do
+    test "returns {:error, :account_locked} when user is locked (before hash check)" do
+      locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: "should_not_be_checked",
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 5,
+        locked_at: locked_at
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      # No password verification should happen -- Mox will fail if Crypto is called
+
+      result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "user@example.com",
+          "password" => "any_password"
+        })
+
+      assert {:error, :account_locked} = result
+    end
+
+    test "increments failed_login_attempts on wrong password" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 2,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset ->
+        changes = changeset.changes
+        assert changes.failed_login_attempts == 3
+        struct(user, changes)
+      end)
+
+      result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "user@example.com",
+          "password" => "wrong_password"
+        })
+
+      assert {:error, :invalid_credentials} = result
+    end
+
+    test "sets locked_at when failed_login_attempts reaches threshold" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 4,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset ->
+        changes = changeset.changes
+        assert changes.failed_login_attempts == 5
+        assert %DateTime{} = changes.locked_at
+        struct(user, changes)
+      end)
+
+      # Expect lockout email notification
+      Sigra.MockEmailTemplates
+      |> expect(:lockout_notification_email, fn ^user, %{ip: nil} ->
+        %{to: user.email, subject: "Account locked", body: %{}}
+      end)
+
+      Sigra.MockMailer
+      |> expect(:deliver, fn _to, _subject, _body -> {:ok, :sent} end)
+
+      config = %{@auth_config | mailer: Sigra.MockMailer}
+
+      result =
+        Auth.authenticate(config, %{
+          "email" => "user@example.com",
+          "password" => "wrong_password"
+        })
+
+      assert {:error, :account_locked} = result
+    end
+
+    test "emits [:sigra, :security, :lockout] telemetry when lockout triggered" do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :security, :lockout]])
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 4,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
+
+      Sigra.MockEmailTemplates
+      |> expect(:lockout_notification_email, fn _user, _details ->
+        %{to: "user@example.com", subject: "Locked", body: %{}}
+      end)
+
+      Sigra.MockMailer
+      |> expect(:deliver, fn _to, _subject, _body -> {:ok, :sent} end)
+
+      config = %{@auth_config | mailer: Sigra.MockMailer}
+
+      Auth.authenticate(config, %{
+        "email" => "user@example.com",
+        "password" => "wrong_password"
+      })
+
+      assert_received {[:sigra, :security, :lockout], ^ref, _measurements, metadata}
+      assert metadata.user_id == 1
+      assert metadata.reason == :threshold_reached
+    end
+
+    test "sends lockout notification email when lockout threshold reached (D-28)" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 4,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
+
+      Sigra.MockEmailTemplates
+      |> expect(:lockout_notification_email, fn ^user, %{ip: nil} ->
+        %{to: user.email, subject: "Account locked", body: %{html: "<p>Locked</p>", text: "Locked"}}
+      end)
+
+      Sigra.MockMailer
+      |> expect(:deliver, fn "user@example.com", "Account locked", _body -> {:ok, :sent} end)
+
+      config = %{@auth_config | mailer: Sigra.MockMailer}
+
+      Auth.authenticate(config, %{
+        "email" => "user@example.com",
+        "password" => "wrong_password"
+      })
+    end
+
+    test "resets failed_login_attempts to 0 on successful login" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 3,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset ->
+        changes = changeset.changes
+        assert changes.failed_login_attempts == 0
+        assert changes.locked_at == nil
+        struct(user, changes)
+      end)
+
+      # Suspicious login check -- no prior sessions means no suspicion
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [] end)
+
+      result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "user@example.com",
+          "password" => "correct_password"
+        })
+
+      assert {:ok, _user} = result
+    end
+
+    test "detects suspicious login on success and returns {:ok, user, suspicious: details}" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
+
+      # Has prior sessions from different IP
+      session = %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, ip: "1.2.3.4"}
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session] end)
+
+      # Expect suspicious login email
+      Sigra.MockEmailTemplates
+      |> expect(:suspicious_login_email, fn _user, %{ip: "9.9.9.9"} ->
+        %{to: "user@example.com", subject: "New login", body: %{html: "<p>New</p>", text: "New"}}
+      end)
+
+      Sigra.MockMailer
+      |> expect(:deliver, fn _to, _subject, _body -> {:ok, :sent} end)
+
+      config = %{@auth_config | mailer: Sigra.MockMailer}
+
+      result =
+        Auth.authenticate(config, %{
+          "email" => "user@example.com",
+          "password" => "correct_password",
+          "ip" => "9.9.9.9"
+        })
+
+      assert {:ok, _user, %{suspicious_login: details}} = result
+      assert details.ip == "9.9.9.9"
+    end
+
+    test "sends suspicious login notification email on detection (D-46)" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
+
+      session = %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, ip: "1.2.3.4"}
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session] end)
+
+      Sigra.MockEmailTemplates
+      |> expect(:suspicious_login_email, fn ^user, %{ip: "5.5.5.5"} ->
+        %{to: user.email, subject: "Suspicious login", body: %{html: "<p>New</p>", text: "New"}}
+      end)
+
+      Sigra.MockMailer
+      |> expect(:deliver, fn "user@example.com", "Suspicious login", _body -> {:ok, :sent} end)
+
+      config = %{@auth_config | mailer: Sigra.MockMailer}
+
+      Auth.authenticate(config, %{
+        "email" => "user@example.com",
+        "password" => "correct_password",
+        "ip" => "5.5.5.5"
+      })
+    end
+
+    test "does not send suspicious login email when detection returns :ok" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
+
+      # Known IP -- no suspicion
+      session = %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, ip: "1.2.3.4"}
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session] end)
+
+      # No email template or mailer calls expected (Mox will fail if called)
+
+      result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "user@example.com",
+          "password" => "correct_password",
+          "ip" => "1.2.3.4"
+        })
+
+      assert {:ok, _user} = result
+    end
+
+    test "does not detect suspicious login on failure" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0,
+        locked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
+
+      # No session store calls expected -- suspicious login not checked on failure
+
+      result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "user@example.com",
+          "password" => "wrong_password",
+          "ip" => "9.9.9.9"
+        })
+
+      assert {:error, :invalid_credentials} = result
+    end
+
+    test "allows login when lockout has expired (auto-unlock)" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+      # Locked 20 minutes ago, lockout duration is 15 minutes (900s) = expired
+      locked_at = DateTime.utc_now() |> DateTime.add(-1200, :second)
+
+      user = %TestUser{
+        id: 1,
+        email: "user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 5,
+        locked_at: locked_at
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+      |> expect(:update!, fn changeset ->
+        changes = changeset.changes
+        assert changes.failed_login_attempts == 0
+        assert changes.locked_at == nil
+        struct(user, changes)
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [] end)
+
+      result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "user@example.com",
+          "password" => "correct_password"
+        })
+
+      assert {:ok, _user} = result
+    end
+  end
+
+  describe "TokenCleanup session cleanup" do
+    test "perform/1 deletes expired sessions in addition to expired tokens" do
+      # This tests the extended cleanup_expired_sessions function
+      # We test it directly since the Oban worker integration is tested elsewhere
+      config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        session: [
+          session_schema: TestUser,
+          absolute_timeout: 86_400,
+          remember_me_max_age: 5_184_000
+        ]
+      }
+
+      # Expect two delete_all calls for session cleanup (standard + remember_me)
+      Sigra.MockRepo
+      |> expect(:delete_all, fn _query -> {3, nil} end)
+      |> expect(:delete_all, fn _query -> {1, nil} end)
+
+      Sigra.Workers.TokenCleanup.cleanup_expired_sessions(config)
+    end
+  end
 end

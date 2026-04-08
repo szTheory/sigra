@@ -34,6 +34,11 @@ defmodule Sigra.Config do
       type: :atom,
       doc: "The mailer module implementing `Sigra.Mailer` behaviour."
     ],
+    email_module: [
+      type: {:or, [:atom, nil]},
+      default: nil,
+      doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."
+    ],
     password: [
       type: :keyword_list,
       default: [],
@@ -385,6 +390,11 @@ defmodule Sigra.Config do
       type: :atom,
       doc: "The mailer module implementing `Sigra.Mailer` behaviour."
     ],
+    email_module: [
+      type: {:or, [:atom, nil]},
+      default: nil,
+      doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."
+    ],
     password: [
       type: :keyword_list,
       default: [],
@@ -723,6 +733,7 @@ defmodule Sigra.Config do
           user_schema: module(),
           otp_app: atom() | nil,
           mailer: module() | nil,
+          email_module: module() | nil,
           password: keyword(),
           password_policy: keyword(),
           magic_link: keyword(),
@@ -744,6 +755,7 @@ defmodule Sigra.Config do
     :user_schema,
     :otp_app,
     :mailer,
+    :email_module,
     password: [],
     password_policy: [],
     magic_link: [],
