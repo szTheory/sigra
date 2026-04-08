@@ -196,18 +196,11 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
     end
   end
 
-  defp detect_context_name(otp_app, base) do
+  defp detect_context_name(otp_app, _base) do
     # Try to detect from existing sigra config
     case Application.get_env(otp_app, :sigra, [])[:user_schema] do
       nil ->
-        # Check if Accounts module exists
-        accounts = Module.concat([base, "Accounts"])
-
-        if Code.ensure_loaded?(accounts) do
-          "Accounts"
-        else
-          "Accounts"
-        end
+        "Accounts"
 
       schema_module ->
         # Extract context from schema module (e.g., MyApp.Accounts.User -> "Accounts")
