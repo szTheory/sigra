@@ -335,7 +335,7 @@ defmodule Sigra.OAuth do
   end
 
   defp get_provider_config(config, provider) do
-    providers = get_in(config, [:oauth, :providers]) || Keyword.get(config.oauth, :providers, [])
+    providers = Keyword.get(config.oauth, :providers, [])
     Keyword.get(providers, provider)
   end
 
