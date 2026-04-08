@@ -13,6 +13,7 @@ defmodule Sigra.Error do
   - `Sigra.Error.TokenInvalid` -- token is malformed or tampered
   - `Sigra.Error.RateLimited` -- too many requests
   - `Sigra.Error.AccountLocked` -- account temporarily locked
+  - `Sigra.Error.OAuthError` -- OAuth operation failed (provider, error_code)
 
   ## Enumeration Prevention
 
@@ -45,6 +46,27 @@ defmodule Sigra.Error do
   defmodule AccountLocked do
     @moduledoc "Raised when an account is temporarily locked due to failed attempts."
     defexception [:locked_until, message: "account is locked"]
+  end
+
+  defmodule OAuthError do
+    @moduledoc "Raised when an OAuth operation fails."
+    defexception [:provider, :error_code, message: "OAuth error"]
+
+    @type error_code ::
+            :state_mismatch
+            | :no_email
+            | :provider_error
+            | :token_exchange_failed
+            | :link_conflict
+            | :email_mismatch
+            | :authorize_failed
+
+    @impl true
+    def message(%{provider: provider, error_code: code}) when not is_nil(code) do
+      "OAuth error: #{code} for provider #{provider}"
+    end
+
+    def message(%{message: message}), do: message
   end
 
   defmodule AlreadyConfirmed do
@@ -99,6 +121,31 @@ defmodule Sigra.Error do
 
   def safe_message(:confirmation_token_expired),
     do: "This confirmation link has expired or was already used."
+
+  def safe_message(:oauth_state_mismatch),
+    do: "Authentication expired. Please try again."
+
+  def safe_message(:oauth_no_email),
+    do:
+      "We need your email to create an account. Please grant email permission and try again."
+
+  def safe_message(:oauth_provider_error),
+    do:
+      "Could not sign in with the selected provider. Please try again or use another method."
+
+  def safe_message(:oauth_token_exchange_failed),
+    do:
+      "Could not sign in with the selected provider. Please try again or use another method."
+
+  def safe_message(:oauth_link_conflict),
+    do: "Could not complete sign in."
+
+  def safe_message(:oauth_email_mismatch),
+    do: "Could not complete sign in."
+
+  def safe_message(:oauth_authorize_failed),
+    do:
+      "Could not sign in with the selected provider. Please try again or use another method."
 
   def safe_message(_), do: "Something went wrong. Please try again."
 end

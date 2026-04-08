@@ -367,6 +367,38 @@ defmodule Sigra.Config do
           doc: "Send suspicious login notification email. Default: true."
         ]
       ]
+    ],
+    oauth: [
+      type: :keyword_list,
+      default: [],
+      doc: "OAuth / social login options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Master switch for OAuth. When false, OAuth routes are disabled and buttons hidden (D-63)."
+        ],
+        providers: [
+          type: :keyword_list,
+          default: [],
+          doc: "Provider configurations. Each key is a provider atom, value is a keyword list with :client_id, :client_secret, :redirect_uri, and optional :strategy, :scopes."
+        ],
+        session_type: [
+          type: {:in, [:standard, :remember_me]},
+          default: :remember_me,
+          doc: "Session type for OAuth logins. Default: :remember_me (D-43)."
+        ],
+        link_confirmation: [
+          type: {:in, [:required, :auto]},
+          default: :required,
+          doc: "Account linking behavior when OAuth email matches existing account. Default: :required (D-01)."
+        ],
+        trust_provider_email: [
+          type: :boolean,
+          default: true,
+          doc: "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."
+        ]
+      ]
     ]
   ])}
   """
@@ -725,6 +757,42 @@ defmodule Sigra.Config do
           doc: "Send suspicious login notification email. Default: true."
         ]
       ]
+    ],
+    oauth: [
+      type: :keyword_list,
+      default: [],
+      doc: "OAuth / social login options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc:
+            "Master switch for OAuth. When false, OAuth routes are disabled and buttons hidden (D-63)."
+        ],
+        providers: [
+          type: :keyword_list,
+          default: [],
+          doc:
+            "Provider configurations. Each key is a provider atom, value is a keyword list with :client_id, :client_secret, :redirect_uri, and optional :strategy, :scopes."
+        ],
+        session_type: [
+          type: {:in, [:standard, :remember_me]},
+          default: :remember_me,
+          doc: "Session type for OAuth logins. Default: :remember_me (D-43)."
+        ],
+        link_confirmation: [
+          type: {:in, [:required, :auto]},
+          default: :required,
+          doc:
+            "Account linking behavior when OAuth email matches existing account. Default: :required (D-01)."
+        ],
+        trust_provider_email: [
+          type: :boolean,
+          default: true,
+          doc:
+            "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."
+        ]
+      ]
     ]
   ]
 
@@ -747,7 +815,8 @@ defmodule Sigra.Config do
           email: keyword(),
           lockout: keyword(),
           geo_ip: keyword(),
-          suspicious_login: keyword()
+          suspicious_login: keyword(),
+          oauth: keyword()
         }
 
   defstruct [
@@ -769,7 +838,8 @@ defmodule Sigra.Config do
     email: [],
     lockout: [],
     geo_ip: [],
-    suspicious_login: []
+    suspicious_login: [],
+    oauth: []
   ]
 
   @doc """
@@ -792,5 +862,37 @@ defmodule Sigra.Config do
   def new!(opts) when is_list(opts) do
     validated = NimbleOptions.validate!(opts, @schema)
     struct!(__MODULE__, validated)
+  end
+
+  @doc """
+  Returns whether OAuth is enabled in the given config.
+
+  ## Examples
+
+      iex> config = Sigra.Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, oauth: [enabled: true])
+      iex> Sigra.Config.oauth_enabled?(config)
+      true
+
+  """
+  @doc since: "0.1.0"
+  @spec oauth_enabled?(t()) :: boolean()
+  def oauth_enabled?(%__MODULE__{oauth: oauth}) do
+    Keyword.get(oauth, :enabled, true)
+  end
+
+  @doc """
+  Returns the list of configured OAuth providers from the given config.
+
+  ## Examples
+
+      iex> config = Sigra.Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, oauth: [providers: [google: [client_id: "x"]]])
+      iex> Sigra.Config.oauth_providers(config)
+      [google: [client_id: "x"]]
+
+  """
+  @doc since: "0.1.0"
+  @spec oauth_providers(t()) :: keyword()
+  def oauth_providers(%__MODULE__{oauth: oauth}) do
+    Keyword.get(oauth, :providers, [])
   end
 end
