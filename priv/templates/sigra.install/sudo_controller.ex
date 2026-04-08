@@ -28,9 +28,17 @@ defmodule <%= web_module %>.Auth.SudoController do
         session = conn.private[:sigra_session]
         <%= context_module %>.confirm_sudo(session.hashed_token)
 
+        # Validate return_to is a local path (not an external URL)
+        safe_return_to =
+          if return_to && String.starts_with?(return_to, "/") && !String.starts_with?(return_to, "//") do
+            return_to
+          else
+            ~p"/"
+          end
+
         conn
         |> put_flash(:info, "Password confirmed.")
-        |> redirect(to: return_to || ~p"/")
+        |> redirect(to: safe_return_to)
 
       false ->
         conn
