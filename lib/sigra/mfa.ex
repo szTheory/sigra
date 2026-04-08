@@ -114,11 +114,19 @@ defmodule Sigra.MFA do
           enabled_at: now
         }
 
-        # Insert MFA credential
+        # Insert MFA credential using cast/4 so cloak_ecto's Encrypted.Binary
+        # type invokes dump/1 and encrypts the secret before storage.
         {:ok, db_credential} =
-          mfa_credential_schema
-          |> struct(credential_params)
-          |> Ecto.Changeset.change()
+          %{mfa_credential_schema.__struct__()}
+          |> Ecto.Changeset.cast(credential_params, [
+            :user_id,
+            :type,
+            :encrypted_secret,
+            :last_verified_step,
+            :failed_attempts,
+            :locked_until,
+            :enabled_at
+          ])
           |> repo.insert()
 
         # Generate and insert backup codes
