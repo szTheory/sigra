@@ -123,11 +123,11 @@ Plans:
   5. After 5 failed TOTP attempts the TOTP endpoint locks for 15 minutes, independently of the main login lockout
 **Plans:** 5 plans
 Plans:
-- [ ] 06-01-PLAN.md — MFA core library modules (Sigra.MFA, Credential, BackupCodes, Trust, Lockout, Config, Error)
-- [ ] 06-02-PLAN.md — MFA session gate (Session :mfa_pending, RequireMFA/RequireMFAEnrolled plugs, Auth MFA flow)
-- [ ] 06-03-PLAN.md — MFA telemetry, testing helpers, TokenCleanup extension
-- [ ] 06-04-PLAN.md — Generated schemas, migration, email templates, Auth context delegation
-- [ ] 06-05-PLAN.md — Generated UI templates, generator wiring, router injection
+- [x] 06-01-PLAN.md — MFA core library modules (Sigra.MFA, Credential, BackupCodes, Trust, Lockout, Config, Error)
+- [x] 06-02-PLAN.md — MFA session gate (Session :mfa_pending, RequireMFA/RequireMFAEnrolled plugs, Auth MFA flow)
+- [x] 06-03-PLAN.md — MFA telemetry, testing helpers, TokenCleanup extension
+- [x] 06-04-PLAN.md — Generated schemas, migration, email templates, Auth context delegation
+- [x] 06-05-PLAN.md — Generated UI templates, generator wiring, router injection
 **UI hint**: yes
 
 
