@@ -69,6 +69,41 @@ defmodule Sigra.Error do
     def message(%{message: message}), do: message
   end
 
+  defmodule MFAError do
+    @moduledoc """
+    Raised when an MFA operation fails.
+
+    ## Fields
+
+    - `:error_code` - one of `:invalid_code`, `:lockout`, `:not_enrolled`,
+      `:already_enrolled`, `:enrollment_required`, `:backup_exhausted`,
+      `:invalid_backup_code`
+    - `:message` - human-readable error message (default "MFA error")
+    - `:metadata` - map with extra data (e.g., remaining_attempts, lockout_seconds)
+    """
+    defexception [:error_code, :metadata, message: "MFA error"]
+
+    @type error_code ::
+            :invalid_code
+            | :lockout
+            | :not_enrolled
+            | :already_enrolled
+            | :enrollment_required
+            | :backup_exhausted
+            | :invalid_backup_code
+
+    @impl true
+    def message(%{error_code: code, metadata: meta}) when not is_nil(code) and is_map(meta) do
+      "MFA error: #{code} (#{inspect(meta)})"
+    end
+
+    def message(%{error_code: code}) when not is_nil(code) do
+      "MFA error: #{code}"
+    end
+
+    def message(%{message: message}), do: message
+  end
+
   defmodule AlreadyConfirmed do
     @moduledoc "Raised when a user's email is already confirmed."
     defexception message: "email already confirmed"
@@ -121,6 +156,18 @@ defmodule Sigra.Error do
 
   def safe_message(:confirmation_token_expired),
     do: "This confirmation link has expired or was already used."
+
+  # MFA error codes (D-89, D-90, D-91)
+  def safe_message(:invalid_code), do: "Invalid verification code."
+  def safe_message(:invalid_backup_code), do: "Invalid verification code."
+  def safe_message(:lockout), do: "Too many failed attempts. Try again later."
+  def safe_message(:not_enrolled), do: "Two-factor authentication is not enabled."
+  def safe_message(:already_enrolled), do: "Two-factor authentication is already enabled."
+
+  def safe_message(:enrollment_required),
+    do: "Two-factor authentication enrollment is required."
+
+  def safe_message(:backup_exhausted), do: "All backup codes have been used."
 
   def safe_message(:oauth_state_mismatch),
     do: "Authentication expired. Please try again."
