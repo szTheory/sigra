@@ -15,7 +15,7 @@ defmodule Sigra.Session do
   - `:user_id` - The owning user's ID
   - `:token` - Raw token (ephemeral, populated only on create)
   - `:hashed_token` - SHA-256 hash of the raw token (stored in DB)
-  - `:type` - Session type: `:standard` or `:remember_me`
+  - `:type` - Session type: `:standard`, `:remember_me`, or `:mfa_pending`
   - `:ip` - Client IP address at session creation or last activity
   - `:user_agent` - Raw User-Agent header string
   - `:parsed_ua` - Parsed user agent map from `Sigra.UAParser`
@@ -28,7 +28,7 @@ defmodule Sigra.Session do
 
   @doc since: "0.1.0"
 
-  @type session_type :: :standard | :remember_me
+  @type session_type :: :standard | :remember_me | :mfa_pending
 
   @type t :: %__MODULE__{
           id: term(),
