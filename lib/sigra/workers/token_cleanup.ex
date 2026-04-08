@@ -68,6 +68,45 @@ defmodule Sigra.Workers.TokenCleanup do
     :ok
   end
 
+  @doc """
+  Deletes expired sessions from the database.
+
+  Cleans up:
+  - Standard sessions older than `absolute_timeout`
+  - Remember-me sessions older than `remember_me_max_age`
+
+  ## Parameters
+
+  - `config` - `%Sigra.Config{}` struct with session configuration
+  """
+  @spec cleanup_expired_sessions(Sigra.Config.t()) :: :ok
+  def cleanup_expired_sessions(config) do
+    repo = config.repo
+    session_schema = Keyword.get(config.session, :session_schema)
+
+    if session_schema do
+      absolute_timeout = Keyword.get(config.session, :absolute_timeout, 86_400)
+      remember_me_max_age = Keyword.get(config.session, :remember_me_max_age, 5_184_000)
+
+      cutoff_standard = DateTime.add(DateTime.utc_now(), -absolute_timeout, :second)
+      cutoff_remember = DateTime.add(DateTime.utc_now(), -remember_me_max_age, :second)
+
+      # Delete standard sessions older than absolute timeout
+      from(s in session_schema,
+        where: s.type == "standard" and s.inserted_at < ^cutoff_standard
+      )
+      |> repo.delete_all()
+
+      # Delete remember_me sessions older than remember_me_max_age
+      from(s in session_schema,
+        where: s.type == "remember_me" and s.inserted_at < ^cutoff_remember
+      )
+      |> repo.delete_all()
+    end
+
+    :ok
+  end
+
   defp get_repo(%{"repo" => repo_string}), do: String.to_existing_atom(repo_string)
   defp get_token_schema(%{"token_schema" => schema_string}), do: String.to_existing_atom(schema_string)
 end

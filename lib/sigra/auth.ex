@@ -88,9 +88,17 @@ defmodule Sigra.Auth do
   - `[:sigra, :auth, :hash_upgraded]` event when hash is upgraded
   """
   @doc since: "0.2.0"
-  @spec authenticate(module(), map(), keyword()) ::
-          {:ok, struct()} | {:error, :invalid_credentials | :unconfirmed}
-  def authenticate(repo, params, opts \\ []) do
+  @spec authenticate(module() | Sigra.Config.t(), map(), keyword()) ::
+          {:ok, struct()}
+          | {:ok, struct(), map()}
+          | {:error, :invalid_credentials | :unconfirmed | :account_locked}
+  def authenticate(repo_or_config, params, opts \\ [])
+
+  def authenticate(%Sigra.Config{} = config, params, _opts) do
+    authenticate_with_config(config, params)
+  end
+
+  def authenticate(repo, params, opts) do
     user_schema = Keyword.fetch!(opts, :user_schema)
     require_confirmation = Keyword.get(opts, :require_confirmation, false)
 
@@ -117,6 +125,49 @@ defmodule Sigra.Auth do
         end
 
         {:error, :invalid_credentials}
+    end
+  end
+
+  defp authenticate_with_config(config, params) do
+    repo = config.repo
+    user_schema = config.user_schema
+    require_confirmation = config.require_confirmation
+    lockout_opts = [
+      threshold: Keyword.get(config.lockout, :threshold, 5),
+      duration: Keyword.get(config.lockout, :duration, 900)
+    ]
+
+    email =
+      (params["email"] || params[:email] || "")
+      |> Email.normalize()
+
+    login_ip = params["ip"] || params[:ip]
+    user = repo.get_by(user_schema, email: email)
+
+    # Step 1: Check lockout BEFORE password verification (D-29)
+    case Sigra.Lockout.check(user, lockout_opts) do
+      {:error, :account_locked, _remaining} ->
+        {:error, :account_locked}
+
+      :ok ->
+        password = params["password"] || params[:password] || ""
+        hashed_password = user && Map.get(user, :hashed_password)
+
+        case Crypto.verify_with_upgrade(password, hashed_password) do
+          {:ok, :valid} ->
+            handle_valid_login_with_security(config, repo, user, require_confirmation, %{}, login_ip)
+
+          {:ok, :valid, new_hash} ->
+            Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
+            handle_valid_login_with_security(config, repo, user, require_confirmation, %{hashed_password: new_hash}, login_ip)
+
+          {:error, :invalid} ->
+            if user do
+              handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts)
+            else
+              {:error, :invalid_credentials}
+            end
+        end
     end
   end
 
@@ -784,6 +835,86 @@ defmodule Sigra.Auth do
       end
     else
       user
+    end
+  end
+
+  # -- Config-based authenticate helpers (Phase 4 Plan 04) --
+
+  defp handle_valid_login_with_security(config, repo, user, require_confirmation, extra_changes, login_ip) do
+    if require_confirmation and is_nil(Map.get(user, :confirmed_at)) do
+      {:error, :unconfirmed}
+    else
+      # Reset lockout state on successful login (D-26)
+      updated_user = Sigra.Lockout.reset!(repo, user)
+
+      # Apply any extra changes (hash upgrade)
+      updated_user =
+        if map_size(extra_changes) > 0 do
+          changeset = Ecto.Changeset.change(updated_user, extra_changes)
+          case repo.update(changeset) do
+            {:ok, u} -> u
+            {:error, _} -> updated_user
+          end
+        else
+          updated_user
+        end
+
+      Telemetry.event([:sigra, :auth, :login, :stop], %{}, %{
+        user_id: updated_user.id,
+        failed_attempts_before: Map.get(user, :failed_login_attempts, 0)
+      })
+
+      # Check suspicious login (D-44)
+      case Sigra.SuspiciousLogin.detect(config, updated_user.id, login_ip || "") do
+        {:suspicious, details} ->
+          maybe_deliver_suspicious_login_email(config, updated_user, details)
+          {:ok, updated_user, %{suspicious_login: details}}
+
+        :ok ->
+          {:ok, updated_user}
+      end
+    end
+  end
+
+  defp handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts) do
+    threshold = Keyword.get(lockout_opts, :threshold, 5)
+    updated_user = Sigra.Lockout.increment!(repo, user, lockout_opts)
+    new_count = updated_user.failed_login_attempts
+
+    if new_count >= threshold do
+      # Lockout just triggered
+      Telemetry.event([:sigra, :security, :lockout], %{}, %{
+        user_id: user.id,
+        ip: login_ip,
+        reason: :threshold_reached
+      })
+
+      maybe_deliver_lockout_email(config, user, %{ip: login_ip})
+      {:error, :account_locked}
+    else
+      {:error, :invalid_credentials}
+    end
+  end
+
+  defp maybe_deliver_suspicious_login_email(config, user, details) do
+    notify? = Keyword.get(config.suspicious_login, :notify, true)
+    email_module = config.email_module
+    mailer = config.mailer
+
+    if notify? && email_module && mailer do
+      email = email_module.suspicious_login_email(user, details)
+      mailer.deliver(email.to, email.subject, email.body)
+    end
+  end
+
+  defp maybe_deliver_lockout_email(config, user, details) do
+    notify? = Keyword.get(config.lockout, :notify, true)
+    email_module = config.email_module
+    mailer = config.mailer
+
+    if notify? && email_module && mailer do
+      email = email_module.lockout_notification_email(user, details)
+      mailer.deliver(email.to, email.subject, email.body)
     end
   end
 end

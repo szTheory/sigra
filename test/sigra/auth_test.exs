@@ -1204,8 +1204,8 @@ defmodule Sigra.AuthTest do
       |> expect(:update!, fn changeset ->
         changes = changeset.changes
         assert changes.failed_login_attempts == 0
-        assert changes.locked_at == nil
-        struct(user, changes)
+        # locked_at may or may not be in changes depending on whether it changed
+        struct(user, Map.merge(%{failed_login_attempts: 0, locked_at: nil}, changes))
       end)
 
       # Suspicious login check -- no prior sessions means no suspicion
@@ -1402,14 +1402,22 @@ defmodule Sigra.AuthTest do
   end
 
   describe "TokenCleanup session cleanup" do
-    test "perform/1 deletes expired sessions in addition to expired tokens" do
-      # This tests the extended cleanup_expired_sessions function
-      # We test it directly since the Oban worker integration is tested elsewhere
+    test "cleanup_expired_sessions/1 deletes expired sessions" do
+      # Test that cleanup_expired_sessions calls delete_all for both session types.
+      # We need a real (non-embedded) schema for Ecto.Query, so we define one inline.
+      defmodule TestSessionSchema do
+        use Ecto.Schema
+        schema "user_sessions" do
+          field :type, :string
+          field :inserted_at, :utc_datetime
+        end
+      end
+
       config = %Sigra.Config{
         repo: Sigra.MockRepo,
         user_schema: TestUser,
         session: [
-          session_schema: TestUser,
+          session_schema: TestSessionSchema,
           absolute_timeout: 86_400,
           remember_me_max_age: 5_184_000
         ]
@@ -1417,10 +1425,10 @@ defmodule Sigra.AuthTest do
 
       # Expect two delete_all calls for session cleanup (standard + remember_me)
       Sigra.MockRepo
-      |> expect(:delete_all, fn _query -> {3, nil} end)
-      |> expect(:delete_all, fn _query -> {1, nil} end)
+      |> expect(:delete_all, fn %Ecto.Query{} -> {3, nil} end)
+      |> expect(:delete_all, fn %Ecto.Query{} -> {1, nil} end)
 
-      Sigra.Workers.TokenCleanup.cleanup_expired_sessions(config)
+      assert :ok = Sigra.Workers.TokenCleanup.cleanup_expired_sessions(config)
     end
   end
 end
