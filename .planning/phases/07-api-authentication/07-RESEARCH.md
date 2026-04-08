@@ -546,22 +546,25 @@ end
 | A2 | `Plug.Crypto.sign/4` output is deterministic for same inputs (suitable for key derivation from secret_key_base) | Code Examples (HS256 signer) | Would need alternative key derivation; use `:crypto.mac/4` with HMAC-SHA256 directly instead |
 | A3 | Joken.Signer.create("RS256", %{"pem" => pem}) accepts PEM string for RSA keys | Code Examples | May need `JOSE.JWK.from_pem/1` conversion step |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Joken functional API vs module-based API**
    - What we know: Joken supports both `use Joken.Config` (module macros) and direct functional calls via `Joken.generate_and_sign/3`
    - What's unclear: Whether the functional API provides the same claim validation hooks
    - Recommendation: Use functional API to avoid macros (CLAUDE.md constraint). Validate claims manually before signing and after verification.
+   - **Resolution:** Functional API. CLAUDE.md prohibits macro-heavy `use` injection patterns. Joken functional `Joken.encode_and_sign/2` and `Joken.verify_and_validate/2` accept plain claims maps. Manual claim validation before signing and after verification.
 
 2. **HS256 key derivation from secret_key_base**
    - What we know: D-32 says "key derived from app's secret_key_base with Sigra-specific salt"
    - What's unclear: Exact derivation method (HKDF, HMAC, Plug.Crypto.sign?)
    - Recommendation: Use `:crypto.mac(:hmac, :sha256, secret_key_base, "sigra-jwt-signing-key")` to derive a 256-bit key. Simple, deterministic, standard HMAC-based key derivation. [ASSUMED]
+   - **Resolution:** HMAC-SHA256 derivation. `:crypto.mac(:hmac, :sha256, secret_key_base, "sigra-jwt-signing-key")` produces a deterministic 256-bit key. Standard, simple, no additional dependencies.
 
 3. **Refresh token family_id storage**
    - What we know: D-33 requires family-based reuse detection. Refresh tokens go in `user_tokens` table.
    - What's unclear: Whether `user_tokens` table already has a `family_id` column or needs migration
    - Recommendation: Add `family_id` (binary_id) and `superseded_at` (utc_datetime) columns to `user_tokens` migration. These are JWT-specific and only populated for `context: "api_refresh"` tokens.
+   - **Resolution:** Store as JSON in `sent_to` field. The existing `user_tokens` table has a `sent_to` text field. Refresh token metadata (family_id, scopes, superseded_at) is stored as JSON in `sent_to`, avoiding JWT-specific columns on the shared table.
 
 ## Validation Architecture
 
