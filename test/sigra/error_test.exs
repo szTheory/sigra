@@ -24,7 +24,7 @@ defmodule Sigra.ErrorTest do
 
     test "returns user-friendly message for :account_locked" do
       assert Error.safe_message(:account_locked) ==
-               "Account is temporarily locked. Please try again later."
+               "Too many attempts. Try again in a few minutes."
     end
 
     test "returns fallback for unknown errors" do
