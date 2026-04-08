@@ -1,0 +1,80 @@
+<div class="mx-auto max-w-2xl">
+  <.header>
+    Connected Accounts
+    <:subtitle>Manage your linked sign-in providers.</:subtitle>
+  </.header>
+
+  <div class="mt-8 space-y-4">
+    <%%= if @identities == [] do %>
+      <div class="text-center py-8">
+        <p class="text-sm font-semibold text-gray-900">No connected accounts</p>
+        <p class="mt-1 text-sm text-gray-500">Link a sign-in provider for faster access.</p>
+      </div>
+    <%% else %>
+      <%%= for identity <- @identities do %>
+        <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div>
+            <div class="flex items-center gap-2">
+              <%%= <%= web_module %>.OAuthHTML.oauth_provider_icon(String.to_existing_atom(identity.provider)) %>
+              <span class="font-semibold text-sm"><%%= <%= web_module %>.OAuthHTML.oauth_provider_name(String.to_existing_atom(identity.provider)) %></span>
+              <span class="text-sm text-gray-500"><%%= identity.provider_email %></span>
+            </div>
+            <div class="mt-1 text-sm text-gray-500">
+              Linked <%%= <%= web_module %>.OAuthHTML.relative_time(identity.inserted_at) %>
+              <%%= if identity.last_used_at do %>
+                &middot; Last used <%%= <%= web_module %>.OAuthHTML.relative_time(identity.last_used_at) %>
+              <%% end %>
+            </div>
+          </div>
+          <div>
+            <%%= if @can_unlink do %>
+              <a
+                href={~p"<%= settings_path %>/identities/#{identity.id}"}
+                method="delete"
+                data-confirm={"Unlink #{<%= web_module %>.OAuthHTML.oauth_provider_name(String.to_existing_atom(identity.provider))}? You'll still be able to log in with: #{@remaining_methods_text}."}
+                class="text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-md px-3 py-1.5"
+              >
+                Unlink
+              </a>
+            <%% else %>
+              <button
+                disabled
+                title="Set a password first to keep access to your account."
+                class="text-sm text-red-600 bg-red-50 rounded-md px-3 py-1.5 opacity-50 cursor-not-allowed"
+              >
+                Unlink
+              </button>
+            <%% end %>
+          </div>
+        </div>
+      <%% end %>
+    <%% end %>
+
+    <%%= if @has_no_password do %>
+      <p class="text-sm text-gray-500 mt-4">
+        No password set.
+        <a href={~p"<%= password_path %>"} class="text-brand hover:underline">Set a password</a>
+        to enable email login and as a backup.
+      </p>
+    <%% end %>
+
+    <%%= if @unlinked_providers != [] do %>
+      <div class="mt-8">
+        <h3 class="text-sm font-semibold">Add a sign-in method</h3>
+        <div class="mt-3 space-y-3">
+          <%%= for {provider, _config} <- @unlinked_providers do %>
+            <a
+              href={~p"<%= auth_path %>/#{provider}"}
+              class="w-full h-10 flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium transition-colors"
+            >
+              <%%= <%= web_module %>.OAuthHTML.oauth_provider_icon(provider) %>
+              <span>Continue with <%%= <%= web_module %>.OAuthHTML.oauth_provider_name(provider) %></span>
+            </a>
+          <%% end %>
+        </div>
+      </div>
+    <%% else %>
+      <p class="mt-8 text-sm text-gray-500">All available providers are connected.</p>
+    <%% end %>
+  </div>
+</div>

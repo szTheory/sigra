@@ -9,6 +9,8 @@ defmodule Sigra.Install.Injector do
   """
 
   @marker "# Sigra authentication"
+  @oauth_marker "# Sigra OAuth"
+  @vault_marker "Vault"
 
   @doc """
   Injects authentication pipeline and routes into the router file.
@@ -167,5 +169,89 @@ defmodule Sigra.Install.Injector do
     content
     |> String.split("\n")
     |> Enum.find(fn line -> String.contains?(line, pattern) end)
+  end
+
+  # -- OAuth-specific injection functions --
+
+  @doc """
+  Injects OAuth routes into the router file.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the OAuth marker is already present.
+  """
+  @spec inject_oauth_routes(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_oauth_routes(file_contents, route_code) do
+    if String.contains?(file_contents, @oauth_marker) do
+      {:already_injected, file_contents}
+    else
+      # Find the last `end` in the router and inject before it
+      case find_last_end(file_contents) do
+        {:ok, position} ->
+          {before, rest} = String.split_at(file_contents, position)
+          {:ok, before <> "\n" <> route_code <> "\n" <> rest}
+
+        :error ->
+          {:ok, file_contents <> "\n" <> route_code <> "\n"}
+      end
+    end
+  end
+
+  @doc """
+  Injects OAuth provider configuration into config.exs.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the OAuth marker is already present.
+  """
+  @spec inject_oauth_config(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_oauth_config(file_contents, config_block) do
+    if String.contains?(file_contents, "Sigra OAuth") do
+      {:already_injected, file_contents}
+    else
+      # Insert before import_config if present, otherwise append
+      case find_import_config(file_contents) do
+        {:ok, position} ->
+          {before, rest} = String.split_at(file_contents, position)
+          {:ok, before <> config_block <> "\n" <> rest}
+
+        :error ->
+          {:ok, file_contents <> config_block}
+      end
+    end
+  end
+
+  @doc """
+  Injects Vault child spec into the application supervision tree.
+
+  Finds the `children = [` list in application.ex and adds
+  `{MyApp.Vault, []}` to it.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if Vault is already present.
+  """
+  @spec inject_vault_child(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_vault_child(file_contents, app_module) do
+    vault_module = "#{app_module}.Vault"
+
+    if String.contains?(file_contents, @vault_marker) do
+      {:already_injected, file_contents}
+    else
+      # Find `children = [` and inject after it
+      case Regex.run(~r/children\s*=\s*\[/m, file_contents, return: :index) do
+        [{pos, len}] ->
+          insert_at = pos + len
+          vault_child = "\n      {#{vault_module}, []},"
+          {before, rest} = String.split_at(file_contents, insert_at)
+          {:ok, before <> vault_child <> rest}
+
+        _ ->
+          # Fallback: append a comment
+          {:ok,
+           file_contents <>
+             "\n# Add #{vault_module} to your application supervision tree:\n# {#{vault_module}, []}\n"}
+      end
+    end
   end
 end
