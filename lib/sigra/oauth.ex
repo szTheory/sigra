@@ -151,6 +151,8 @@ defmodule Sigra.OAuth do
   not already have an identity for this provider.
 
   Emits `[:sigra, :oauth, :link, :stop]` telemetry event (D-61).
+  The caller (controller/LiveView) is responsible for sending
+  notification emails on success using the generated email templates.
 
   ## Returns
 
@@ -208,9 +210,10 @@ defmodule Sigra.OAuth do
   Unlinks an OAuth provider from a user.
 
   Blocks if this is the user's last auth method and no password is set (D-03).
-  Sends notification email on success (D-07).
 
   Emits `[:sigra, :oauth, :unlink, :stop]` telemetry event.
+  The caller (controller/LiveView) is responsible for sending
+  notification emails on success using the generated email templates (D-07).
 
   ## Returns
 
