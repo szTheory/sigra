@@ -37,6 +37,19 @@ defmodule Sigra.Telemetry do
 
     * `[:sigra, :session, :revoke_all, :stop]` - All sessions revoked for a user
 
+  ### OAuth (span events)
+
+    * `[:sigra, :oauth, :authorize, :start | :stop | :exception]` - OAuth authorize URL generation
+    * `[:sigra, :oauth, :callback, :start | :stop | :exception]` - OAuth callback processing
+
+  ### OAuth Signals (one-shot events)
+
+    * `[:sigra, :oauth, :link, :stop]` - OAuth provider linked to account
+    * `[:sigra, :oauth, :unlink, :stop]` - OAuth provider unlinked from account
+    * `[:sigra, :oauth, :refresh, :stop]` - OAuth token refreshed
+    * `[:sigra, :oauth, :register, :stop]` - New user registered via OAuth
+    * `[:sigra, :oauth, :login, :stop]` - Existing user logged in via OAuth
+
   ### Security Signals (one-shot events)
 
     * `[:sigra, :security, :rate_limited]` - Rate limit exceeded
@@ -94,6 +107,14 @@ defmodule Sigra.Telemetry do
     [:sigra, :security, :lockout],
     [:sigra, :security, :suspicious_login],
     [:sigra, :security, :invalid_credentials],
+    # OAuth
+    [:sigra, :oauth, :authorize, :stop],
+    [:sigra, :oauth, :callback, :stop],
+    [:sigra, :oauth, :link, :stop],
+    [:sigra, :oauth, :unlink, :stop],
+    [:sigra, :oauth, :refresh, :stop],
+    [:sigra, :oauth, :register, :stop],
+    [:sigra, :oauth, :login, :stop],
     # Email
     [:sigra, :email, :deliver, :stop],
     [:sigra, :email, :deliver, :exception],
@@ -143,6 +164,25 @@ defmodule Sigra.Telemetry do
   def event(event_name, measurements \\ %{}, metadata \\ %{}) do
     :telemetry.execute(event_name, measurements, metadata)
   end
+
+  @oauth_events [
+    [:sigra, :oauth, :authorize, :stop],
+    [:sigra, :oauth, :callback, :stop],
+    [:sigra, :oauth, :link, :stop],
+    [:sigra, :oauth, :unlink, :stop],
+    [:sigra, :oauth, :refresh, :stop],
+    [:sigra, :oauth, :register, :stop],
+    [:sigra, :oauth, :login, :stop]
+  ]
+
+  @doc """
+  Returns the list of OAuth-specific telemetry event names.
+
+  Useful for attaching custom handlers to all OAuth events.
+  """
+  @doc since: "0.5.0"
+  @spec oauth_events() :: [[atom()]]
+  def oauth_events, do: @oauth_events
 
   @doc """
   Attach the default Sigra logger handler.

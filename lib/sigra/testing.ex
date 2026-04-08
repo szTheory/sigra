@@ -206,4 +206,110 @@ defmodule Sigra.Testing do
     # integration is implemented in later phases.
     fun.()
   end
+
+  # -- OAuth Testing Helpers (Phase 5) --
+
+  @doc """
+  Creates a mock OAuth callback result for testing.
+
+  Returns a map matching the shape used by `Sigra.OAuth.Callback`.
+
+  ## Options
+
+    - `:provider` - Provider atom (default: `:google`)
+    - `:email` - User email (default: `"oauth@example.com"`)
+    - `:uid` - Provider UID (default: `"provider_123"`)
+    - `:name` - User name (default: `"OAuth User"`)
+    - `:email_verified` - Whether the email is verified (default: `true`)
+  """
+  @doc since: "0.5.0"
+  @spec mock_oauth_callback(keyword()) :: map()
+  def mock_oauth_callback(opts \\ []) do
+    %{
+      provider: Keyword.get(opts, :provider, :google),
+      user_info: %{
+        "sub" => Keyword.get(opts, :uid, "provider_123"),
+        "email" => Keyword.get(opts, :email, "oauth@example.com"),
+        "name" => Keyword.get(opts, :name, "OAuth User"),
+        "picture" => "https://example.com/avatar.jpg",
+        "email_verified" => Keyword.get(opts, :email_verified, true)
+      },
+      token: %{
+        "access_token" =>
+          "test_access_token_#{:crypto.strong_rand_bytes(8) |> Base.url_encode64()}",
+        "refresh_token" => "test_refresh_token",
+        "expires_in" => 3600
+      }
+    }
+  end
+
+  @doc """
+  Creates an identity struct for testing.
+
+  ## Options
+
+    - `:provider` - Provider string (default: `"google"`)
+    - `:provider_uid` - UID string (default: auto-generated)
+    - `:user_id` - Associated user ID (required)
+    - `:email` - Provider email (default: `"oauth@example.com"`)
+    - `:name` - Provider name (default: `"Test User"`)
+    - `:id` - Identity ID (default: auto-generated)
+  """
+  @doc since: "0.5.0"
+  @spec create_identity(keyword()) :: Sigra.Identity.t()
+  def create_identity(opts \\ []) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    %Sigra.Identity{
+      id: Keyword.get(opts, :id, System.unique_integer([:positive])),
+      user_id: Keyword.fetch!(opts, :user_id),
+      provider: Keyword.get(opts, :provider, "google"),
+      provider_uid:
+        Keyword.get(opts, :provider_uid, "uid_#{System.unique_integer([:positive])}"),
+      provider_email: Keyword.get(opts, :email, "oauth@example.com"),
+      provider_name: Keyword.get(opts, :name, "Test User"),
+      metadata: %{},
+      inserted_at: now,
+      updated_at: now
+    }
+  end
+
+  @doc """
+  Creates a user registered via OAuth for testing.
+
+  Returns `%{user: user_attrs, identity: identity}` map with default
+  OAuth-specific values (confirmed_at set since OAuth auto-confirms).
+
+  ## Options
+
+    - `:email` - User email (default: `"oauth@example.com"`)
+    - `:provider` - Provider string (default: `"google"`)
+    - `:provider_uid` - Provider UID (default: auto-generated)
+    - `:user_id` - User ID (default: auto-generated)
+  """
+  @doc since: "0.5.0"
+  @spec oauth_user_fixture(keyword()) :: map()
+  def oauth_user_fixture(opts \\ []) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    user_id = Keyword.get(opts, :user_id, System.unique_integer([:positive]))
+
+    user = %{
+      id: user_id,
+      email: Keyword.get(opts, :email, "oauth@example.com"),
+      hashed_password: nil,
+      confirmed_at: now,
+      inserted_at: now,
+      updated_at: now
+    }
+
+    identity =
+      create_identity(
+        user_id: user_id,
+        provider: Keyword.get(opts, :provider, "google"),
+        provider_uid: Keyword.get(opts, :provider_uid),
+        email: Keyword.get(opts, :email, "oauth@example.com")
+      )
+
+    %{user: user, identity: identity}
+  end
 end

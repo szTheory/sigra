@@ -767,6 +767,66 @@ defmodule Sigra.Auth do
     end)
   end
 
+  # -- OAuth Integration (Phase 5 Plan 02) --
+
+  @doc """
+  Registers a new user via OAuth provider callback data.
+
+  Creates user + identity in a transaction. Sets confirmed_at if provider
+  email is trusted. Creates a session with auth_method: :oauth metadata.
+
+  Delegates to `Sigra.OAuth.Callback.process_callback/4` for the full
+  account routing logic (register/login/link-confirm).
+  """
+  @doc since: "0.5.0"
+  @spec register_oauth(Sigra.Config.t() | map(), atom(), map(), map()) ::
+          {:ok, :registered, map(), map()} | {:error, term()}
+  def register_oauth(config, provider, user_info, token) do
+    Sigra.OAuth.Callback.process_callback(config, provider, user_info, token)
+  end
+
+  @doc """
+  Logs in an existing user via OAuth identity match.
+
+  Looks up identity by (provider, provider_uid), updates identity fields,
+  creates session with auth_method: :oauth metadata.
+
+  Delegates to `Sigra.OAuth.Callback.process_callback/4`.
+  """
+  @doc since: "0.5.0"
+  @spec login_oauth(Sigra.Config.t() | map(), atom(), map(), map()) ::
+          {:ok, :logged_in, map(), map()} | {:link_confirmation_required, map()} | {:error, term()}
+  def login_oauth(config, provider, user_info, token) do
+    Sigra.OAuth.Callback.process_callback(config, provider, user_info, token)
+  end
+
+  @doc """
+  Links an OAuth provider to an existing authenticated user.
+
+  Requires sudo mode active. Creates identity record, sends notification email.
+
+  Returns `{:ok, identity}` or `{:error, reason}`.
+  """
+  @doc since: "0.5.0"
+  @spec link_provider(Sigra.Config.t() | map(), map(), map(), keyword()) ::
+          {:ok, map()} | {:error, term()}
+  def link_provider(config, user, provider_info, opts \\ []) do
+    Sigra.OAuth.link_provider(config, user, provider_info, opts)
+  end
+
+  @doc """
+  Unlinks an OAuth provider from a user.
+
+  Blocks if last auth method and no password set (D-03).
+  Sends notification email. Returns `{:ok, :unlinked}` or `{:error, reason}`.
+  """
+  @doc since: "0.5.0"
+  @spec unlink_provider(Sigra.Config.t() | map(), map(), atom() | String.t(), keyword()) ::
+          {:ok, :unlinked} | {:error, :last_provider | :not_found}
+  def unlink_provider(config, user, provider, opts \\ []) do
+    Sigra.OAuth.unlink_provider(config, user, provider, opts)
+  end
+
   # -- Private helpers --
 
   defp session_store_and_opts(config, opts) do
