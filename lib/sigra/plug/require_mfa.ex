@@ -55,7 +55,12 @@ defmodule Sigra.Plug.RequireMFA do
 
     case conn.private[:sigra_session] do
       %Sigra.Session{type: :mfa_pending} ->
-        if conn.request_path in [mfa_path, logout_path] do
+        # Normalize trailing slashes to prevent infinite redirect loops
+        # when the MFA path is accessed as /users/mfa/ instead of /users/mfa.
+        normalized = String.trim_trailing(conn.request_path, "/")
+        allowed = [mfa_path, logout_path]
+
+        if normalized in allowed or conn.request_path in allowed do
           conn
         else
           conn
