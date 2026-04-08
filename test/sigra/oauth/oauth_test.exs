@@ -184,6 +184,19 @@ defmodule Sigra.OAuthTest do
                  provider_uid: "uid_123",
                  user_info: mock_user_info(),
                  token: mock_token()
+               }, session: sudo_session())
+    end
+
+    test "returns error without sudo session" do
+      config = build_config()
+      user = %{id: 1, email: "user@example.com"}
+
+      assert {:error, :sudo_required} =
+               OAuth.link_provider(config, user, %{
+                 provider: :google,
+                 provider_uid: "uid_123",
+                 user_info: mock_user_info(),
+                 token: mock_token()
                })
     end
   end
@@ -194,14 +207,21 @@ defmodule Sigra.OAuthTest do
       user = %{id: 1, email: "user@example.com", hashed_password: nil}
 
       assert {:error, :last_provider} =
-               OAuth.unlink_provider(config, user, :google)
+               OAuth.unlink_provider(config, user, :google, session: sudo_session())
     end
 
     test "succeeds when user has password as fallback" do
       config = build_config()
       user = %{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
 
-      assert {:ok, :unlinked} = OAuth.unlink_provider(config, user, :google)
+      assert {:ok, :unlinked} = OAuth.unlink_provider(config, user, :google, session: sudo_session())
+    end
+
+    test "returns error without sudo session" do
+      config = build_config()
+      user = %{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
+
+      assert {:error, :sudo_required} = OAuth.unlink_provider(config, user, :google)
     end
   end
 
@@ -299,5 +319,9 @@ defmodule Sigra.OAuthTest do
       ],
       identity_schema: Sigra.Test.MockIdentity
     }
+  end
+
+  defp sudo_session do
+    %Sigra.Session{sudo_at: DateTime.utc_now()}
   end
 end

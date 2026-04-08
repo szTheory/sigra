@@ -157,19 +157,32 @@ defmodule Sigra.OAuth do
   Creates a new identity record for the user. Requires the user to
   not already have an identity for this provider.
 
+  Requires sudo mode (D-05). Pass the current session via `opts[:session]`.
+
   Emits `[:sigra, :oauth, :link, :stop]` telemetry event (D-61).
   The caller (controller/LiveView) is responsible for sending
   notification emails on success using the generated email templates.
+
+  ## Options
+
+  - `:session` - The current `%Sigra.Session{}`. Required for sudo check.
 
   ## Returns
 
   - `{:ok, identity}` on success
   - `{:error, :already_linked}` if the user already has this provider
+  - `{:error, :sudo_required}` if sudo mode is not active
   """
   @doc since: "0.5.0"
   @spec link_provider(map(), map(), map(), keyword()) ::
-          {:ok, map()} | {:error, :already_linked}
-  def link_provider(config, user, provider_info, _opts \\ []) do
+          {:ok, map()} | {:error, :already_linked | :sudo_required}
+  def link_provider(config, user, provider_info, opts \\ []) do
+    with :ok <- require_sudo(config, opts) do
+      do_link_provider(config, user, provider_info)
+    end
+  end
+
+  defp do_link_provider(config, user, provider_info) do
     repo = config.repo
     identity_schema = config.identity_schema
     provider = to_string(provider_info[:provider] || provider_info.provider)
@@ -218,20 +231,33 @@ defmodule Sigra.OAuth do
 
   Blocks if this is the user's last auth method and no password is set (D-03).
 
+  Requires sudo mode (D-05). Pass the current session via `opts[:session]`.
+
   Emits `[:sigra, :oauth, :unlink, :stop]` telemetry event.
   The caller (controller/LiveView) is responsible for sending
   notification emails on success using the generated email templates (D-07).
+
+  ## Options
+
+  - `:session` - The current `%Sigra.Session{}`. Required for sudo check.
 
   ## Returns
 
   - `{:ok, :unlinked}` on success
   - `{:error, :last_provider}` if last auth method and no password
   - `{:error, :not_found}` if identity not found
+  - `{:error, :sudo_required}` if sudo mode is not active
   """
   @doc since: "0.5.0"
   @spec unlink_provider(map(), map(), atom() | String.t(), keyword()) ::
-          {:ok, :unlinked} | {:error, :last_provider | :not_found}
-  def unlink_provider(config, user, provider, _opts \\ []) do
+          {:ok, :unlinked} | {:error, :last_provider | :not_found | :sudo_required}
+  def unlink_provider(config, user, provider, opts \\ []) do
+    with :ok <- require_sudo(config, opts) do
+      do_unlink_provider(config, user, provider)
+    end
+  end
+
+  defp do_unlink_provider(config, user, provider) do
     repo = config.repo
     identity_schema = config.identity_schema
     provider_str = to_string(provider) |> String.downcase()
@@ -273,6 +299,24 @@ defmodule Sigra.OAuth do
   end
 
   # -- Private helpers --
+
+  @default_sudo_window 300
+
+  defp require_sudo(config, opts) do
+    sudo_window = Keyword.get(config.session, :sudo_timeout, @default_sudo_window)
+
+    case Keyword.get(opts, :session) do
+      %Sigra.Session{sudo_at: %DateTime{} = sudo_at} ->
+        if DateTime.diff(DateTime.utc_now(), sudo_at, :second) <= sudo_window do
+          :ok
+        else
+          {:error, :sudo_required}
+        end
+
+      _ ->
+        {:error, :sudo_required}
+    end
+  end
 
   defp do_authorize_url(config, strategy_module, provider, provider_config, _opts) do
     case strategy_module.authorize_url(provider_config) do

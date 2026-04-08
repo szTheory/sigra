@@ -58,7 +58,7 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
                  provider_uid: "uid_123",
                  user_info: mock_user_info(),
                  token: mock_token()
-               })
+               }, session: %Sigra.Session{sudo_at: DateTime.utc_now()})
     end
   end
 
@@ -68,7 +68,7 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
       user = %{id: 1, email: "user@example.com", hashed_password: nil}
 
       assert {:error, :last_provider} =
-               Auth.unlink_provider(config, user, :google)
+               Auth.unlink_provider(config, user, :google, session: %Sigra.Session{sudo_at: DateTime.utc_now()})
     end
   end
 
