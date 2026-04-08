@@ -28,7 +28,8 @@ defmodule Sigra.Workers.TokenCleanup do
     {"confirm_code", 48 * 60 * 60},
     {"reset_password", 60 * 60},
     {"magic_link", 15 * 60},
-    {"session", 60 * 24 * 60 * 60}
+    {"session", 60 * 24 * 60 * 60},
+    {"api_refresh", 30 * 24 * 60 * 60}
   ]
 
   @impl Oban.Worker
@@ -154,6 +155,63 @@ defmodule Sigra.Workers.TokenCleanup do
       )
       |> repo.delete_all()
     end
+
+    :ok
+  end
+
+  @doc """
+  Deletes revoked and expired API tokens past the retention period.
+
+  Retention period defaults to 90 days (configurable via `api_token[:cleanup_retention]`).
+
+  ## Parameters
+
+  - `config` - A `%Sigra.Config{}` struct with API token configuration
+  """
+  @doc since: "0.7.0"
+  @spec cleanup_revoked_api_tokens(Sigra.Config.t()) :: :ok
+  def cleanup_revoked_api_tokens(config) do
+    api_token_schema = Keyword.get(config.api_token, :api_token_schema)
+
+    if api_token_schema do
+      retention = Keyword.get(config.api_token, :cleanup_retention, 90 * 24 * 60 * 60)
+      cutoff = DateTime.add(DateTime.utc_now(), -retention, :second)
+
+      # Delete revoked tokens past retention
+      from(t in api_token_schema,
+        where: not is_nil(t.revoked_at) and t.revoked_at < ^cutoff
+      )
+      |> config.repo.delete_all()
+
+      # Delete expired tokens past retention
+      from(t in api_token_schema,
+        where: not is_nil(t.expires_at) and t.expires_at < ^cutoff
+      )
+      |> config.repo.delete_all()
+    end
+
+    :ok
+  end
+
+  @doc """
+  Deletes superseded JWT refresh tokens past retention period.
+
+  Cleans up tokens with context `"api_refresh"` older than 90 days.
+
+  ## Parameters
+
+  - `repo` - The Ecto Repo module
+  - `token_schema` - The token Ecto schema module
+  """
+  @doc since: "0.7.0"
+  @spec cleanup_refresh_tokens(module(), module()) :: :ok
+  def cleanup_refresh_tokens(repo, token_schema) do
+    cutoff = DateTime.add(DateTime.utc_now(), -(90 * 24 * 60 * 60), :second)
+
+    from(t in token_schema,
+      where: t.context == "api_refresh" and t.inserted_at < ^cutoff
+    )
+    |> repo.delete_all()
 
     :ok
   end

@@ -70,6 +70,107 @@ defmodule Sigra.TestingTest do
     end
   end
 
+  describe "put_bearer_token/2" do
+    test "adds Bearer authorization header to conn" do
+      conn =
+        Plug.Test.conn(:get, "/api/resource")
+        |> Testing.put_bearer_token("my_token_123")
+
+      assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my_token_123"]
+    end
+  end
+
+  describe "put_api_token/2" do
+    test "is an alias for put_bearer_token" do
+      conn =
+        Plug.Test.conn(:get, "/api/resource")
+        |> Testing.put_api_token("my_token_123")
+
+      assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer my_token_123"]
+    end
+  end
+
+  describe "assert_scope_denied/1" do
+    test "passes when conn has 403 status and is halted" do
+      conn =
+        Plug.Test.conn(:get, "/")
+        |> Plug.Conn.send_resp(403, "Forbidden")
+        |> Map.put(:halted, true)
+
+      assert Testing.assert_scope_denied(conn) == true
+    end
+
+    test "raises when status is not 403" do
+      conn =
+        Plug.Test.conn(:get, "/")
+        |> Plug.Conn.send_resp(200, "OK")
+        |> Map.put(:halted, true)
+
+      assert_raise ExUnit.AssertionError, ~r/Expected 403/, fn ->
+        Testing.assert_scope_denied(conn)
+      end
+    end
+
+    test "raises when conn is not halted" do
+      conn =
+        Plug.Test.conn(:get, "/")
+        |> Plug.Conn.send_resp(403, "Forbidden")
+        |> Map.put(:halted, false)
+
+      assert_raise ExUnit.AssertionError, ~r/Expected conn to be halted/, fn ->
+        Testing.assert_scope_denied(conn)
+      end
+    end
+  end
+
+  describe "module exports API token helpers" do
+    test "create_api_token/3 is exported" do
+      assert function_exported?(Testing, :create_api_token, 3)
+    end
+
+    test "put_bearer_token/2 is exported" do
+      assert function_exported?(Testing, :put_bearer_token, 2)
+    end
+
+    test "put_api_token/2 is exported" do
+      assert function_exported?(Testing, :put_api_token, 2)
+    end
+
+    test "assert_token_revoked/2 is exported" do
+      assert function_exported?(Testing, :assert_token_revoked, 2)
+    end
+
+    test "assert_scope_denied/1 is exported" do
+      assert function_exported?(Testing, :assert_scope_denied, 1)
+    end
+
+    test "expired_api_token_fixture/3 is exported" do
+      assert function_exported?(Testing, :expired_api_token_fixture, 3)
+    end
+
+    test "revoked_api_token_fixture/3 is exported" do
+      assert function_exported?(Testing, :revoked_api_token_fixture, 3)
+    end
+
+    test "scoped_api_token_fixture/4 is exported" do
+      assert function_exported?(Testing, :scoped_api_token_fixture, 4)
+    end
+  end
+
+  describe "module exports JWT helpers" do
+    test "generate_jwt/3 is exported" do
+      assert function_exported?(Testing, :generate_jwt, 3)
+    end
+
+    test "expired_jwt/3 is exported" do
+      assert function_exported?(Testing, :expired_jwt, 3)
+    end
+
+    test "jwt_with_scopes/3 is exported" do
+      assert function_exported?(Testing, :jwt_with_scopes, 3)
+    end
+  end
+
   describe "module exports MFA helpers" do
     test "setup_totp/2 is exported" do
       assert function_exported?(Testing, :setup_totp, 2)

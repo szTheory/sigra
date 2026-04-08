@@ -32,4 +32,8 @@ defmodule Sigra.EmailTemplates do
   @doc "Build a magic link email."
   @doc since: "0.3.0"
   @callback magic_link_email(user :: struct(), url :: String.t()) :: map()
+
+  @doc "Build an API token created notification email."
+  @doc since: "0.7.0"
+  @callback api_token_created_email(user :: struct(), token :: struct()) :: map()
 end

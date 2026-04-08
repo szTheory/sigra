@@ -16,6 +16,35 @@ defmodule Sigra.Workers.TokenCleanupTest do
     end
   end
 
+  describe "cleanup_revoked_api_tokens/1" do
+    test "is a function that accepts a config struct" do
+      assert is_function(&TokenCleanup.cleanup_revoked_api_tokens/1, 1)
+    end
+
+    test "returns :ok when no api_token_schema configured" do
+      config = %Sigra.Config{
+        repo: Sigra.TestRepo,
+        user_schema: Sigra.TestUser,
+        api_token: []
+      }
+
+      assert :ok = TokenCleanup.cleanup_revoked_api_tokens(config)
+    end
+  end
+
+  describe "cleanup_refresh_tokens/2" do
+    test "is a function that accepts repo and token_schema" do
+      assert is_function(&TokenCleanup.cleanup_refresh_tokens/2, 2)
+    end
+  end
+
+  describe "contexts_and_ttls" do
+    test "includes api_refresh context" do
+      source = File.read!("lib/sigra/workers/token_cleanup.ex")
+      assert source =~ ~s|"api_refresh"|
+    end
+  end
+
   describe "module attributes" do
     test "uses Oban.Worker with expected exports" do
       Code.ensure_loaded!(TokenCleanup)

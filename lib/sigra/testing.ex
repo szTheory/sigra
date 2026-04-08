@@ -493,6 +493,182 @@ defmodule Sigra.Testing do
     :crypto.strong_rand_bytes(64) |> Base.encode64()
   end
 
+  # -- API Token Testing Helpers (Phase 7) --
+
+  @doc """
+  Creates an API token and returns `{raw_key, token_record}`.
+
+  ## Options
+
+    * `:name` - Token name (default: `"test-token"`)
+    * `:scopes` - List of scope strings (default: `["*"]`)
+    * `:expires_at` - Expiration datetime (default: `nil`)
+  """
+  @doc since: "0.7.0"
+  @spec create_api_token(Sigra.Config.t(), struct(), keyword()) :: {String.t(), struct()}
+  def create_api_token(config, user, opts \\ []) do
+    attrs = %{
+      name: Keyword.get(opts, :name, "test-token"),
+      scopes: Keyword.get(opts, :scopes, ["*"]),
+      expires_at: Keyword.get(opts, :expires_at, nil)
+    }
+
+    case Sigra.APIToken.create(config, user, attrs) do
+      {:ok, raw_key, token} -> {raw_key, token}
+      {:error, reason} -> raise "Failed to create test API token: #{inspect(reason)}"
+    end
+  end
+
+  @doc """
+  Adds a Bearer token header to a conn for API testing.
+
+  ## Examples
+
+      conn = Sigra.Testing.put_bearer_token(conn, raw_token)
+
+  """
+  @doc since: "0.7.0"
+  @spec put_bearer_token(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
+  def put_bearer_token(conn, raw_token) do
+    Plug.Conn.put_req_header(conn, "authorization", "Bearer #{raw_token}")
+  end
+
+  @doc """
+  Alias for `put_bearer_token/2`.
+  """
+  @doc since: "0.7.0"
+  @spec put_api_token(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
+  def put_api_token(conn, raw_token), do: put_bearer_token(conn, raw_token)
+
+  @doc """
+  Asserts that a token has been revoked.
+
+  Raises `ExUnit.AssertionError` if the token's `revoked_at` is nil.
+  """
+  @doc since: "0.7.0"
+  @spec assert_token_revoked(Sigra.Config.t(), term()) :: true
+  def assert_token_revoked(config, token_id) do
+    schema = Keyword.get(config.api_token, :api_token_schema)
+    token = config.repo.get!(schema, token_id)
+
+    if token.revoked_at != nil do
+      true
+    else
+      raise ExUnit.AssertionError,
+        message: "Expected token #{inspect(token_id)} to be revoked"
+    end
+  end
+
+  @doc """
+  Asserts that a conn received a 403 insufficient scope response.
+
+  Checks that the status is 403 and the connection is halted.
+  """
+  @doc since: "0.7.0"
+  @spec assert_scope_denied(Plug.Conn.t()) :: true
+  def assert_scope_denied(conn) do
+    unless conn.status == 403 do
+      raise ExUnit.AssertionError,
+        message: "Expected 403 Forbidden, got #{conn.status}"
+    end
+
+    unless conn.halted do
+      raise ExUnit.AssertionError,
+        message: "Expected conn to be halted"
+    end
+
+    true
+  end
+
+  @doc """
+  Creates an expired API token fixture.
+  """
+  @doc since: "0.7.0"
+  @spec expired_api_token_fixture(Sigra.Config.t(), struct(), keyword()) ::
+          {String.t(), struct()}
+  def expired_api_token_fixture(config, user, opts \\ []) do
+    expired_at = DateTime.add(DateTime.utc_now(), -3600, :second)
+    create_api_token(config, user, Keyword.put(opts, :expires_at, expired_at))
+  end
+
+  @doc """
+  Creates a revoked API token fixture.
+  """
+  @doc since: "0.7.0"
+  @spec revoked_api_token_fixture(Sigra.Config.t(), struct(), keyword()) ::
+          {String.t(), struct()}
+  def revoked_api_token_fixture(config, user, opts \\ []) do
+    {raw_key, token} = create_api_token(config, user, opts)
+    {:ok, revoked} = Sigra.APIToken.revoke(config, token.id)
+    {raw_key, revoked}
+  end
+
+  @doc """
+  Creates a scoped API token fixture.
+  """
+  @doc since: "0.7.0"
+  @spec scoped_api_token_fixture(Sigra.Config.t(), struct(), [String.t()], keyword()) ::
+          {String.t(), struct()}
+  def scoped_api_token_fixture(config, user, scopes, opts \\ []) do
+    create_api_token(config, user, Keyword.put(opts, :scopes, scopes))
+  end
+
+  # -- JWT Testing Helpers (Phase 7) --
+
+  @doc """
+  Generates a JWT access token for testing.
+
+  ## Options
+
+    * `:scopes` - List of scope strings (default: `["*"]`)
+  """
+  @doc since: "0.7.0"
+  @spec generate_jwt(Sigra.Config.t(), struct(), keyword()) :: String.t()
+  def generate_jwt(config, user, opts \\ []) do
+    scopes = Keyword.get(opts, :scopes, ["*"])
+    {:ok, tokens} = Sigra.JWT.generate_tokens(config, user, scopes)
+    tokens.access_token
+  end
+
+  @doc """
+  Generates an expired JWT for testing.
+
+  Uses Joken directly to create a token with a past expiry timestamp.
+
+  ## Options
+
+    * `:scopes` - List of scope strings (default: `["*"]`)
+  """
+  @doc since: "0.7.0"
+  @spec expired_jwt(Sigra.Config.t(), struct(), keyword()) :: String.t()
+  def expired_jwt(config, user, opts \\ []) do
+    scopes = Keyword.get(opts, :scopes, ["*"])
+    signer = Sigra.JWT.Signer.create_signer(config)
+    now = DateTime.utc_now() |> DateTime.to_unix()
+
+    claims = %{
+      "sub" => to_string(user.id),
+      "iat" => now - 1000,
+      "exp" => now - 1,
+      "jti" => Ecto.UUID.generate(),
+      "iss" => to_string(config.otp_app),
+      "scopes" => scopes,
+      "epoch" => Map.get(user, :token_epoch, 0)
+    }
+
+    {:ok, token, _} = Joken.encode_and_sign(claims, signer)
+    token
+  end
+
+  @doc """
+  Generates a JWT with specific scopes for testing.
+  """
+  @doc since: "0.7.0"
+  @spec jwt_with_scopes(Sigra.Config.t(), struct(), [String.t()]) :: String.t()
+  def jwt_with_scopes(config, user, scopes) do
+    generate_jwt(config, user, scopes: scopes)
+  end
+
   # -- OAuth Testing Helpers (Phase 5) --
 
   @doc """

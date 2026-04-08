@@ -1057,6 +1057,114 @@ defmodule Sigra.Auth do
     end
   end
 
+  # -- API Token Management (Phase 7 Plan 03) --
+
+  @doc """
+  Creates an API token for the user.
+
+  Returns `{:ok, raw_key, token}` on success. Sends a notification email
+  on successful creation if the email module is configured (D-62).
+
+  ## Parameters
+
+  - `config` - A `%Sigra.Config{}` struct
+  - `user` - The user struct (must have an `:id` field)
+  - `attrs` - A map with `:name`, `:scopes`, and optional `:expires_at`
+  """
+  @doc since: "0.7.0"
+  @spec create_api_token(Sigra.Config.t(), struct(), map()) ::
+          {:ok, String.t(), struct()} | {:error, term()}
+  def create_api_token(config, user, attrs) do
+    result = Sigra.APIToken.create(config, user, attrs)
+
+    case result do
+      {:ok, _raw_key, token} ->
+        maybe_send_api_token_email(config, user, token)
+        result
+
+      _ ->
+        result
+    end
+  end
+
+  @doc """
+  Revokes an API token by ID.
+  """
+  @doc since: "0.7.0"
+  @spec revoke_api_token(Sigra.Config.t(), term()) :: {:ok, struct()} | {:error, :not_found}
+  def revoke_api_token(config, token_id) do
+    Sigra.APIToken.revoke(config, token_id)
+  end
+
+  @doc """
+  Revokes all active API tokens for a user.
+  """
+  @doc since: "0.7.0"
+  @spec revoke_all_api_tokens(Sigra.Config.t(), struct()) :: {:ok, non_neg_integer()}
+  def revoke_all_api_tokens(config, user) do
+    Sigra.APIToken.revoke_all(config, user)
+  end
+
+  @doc """
+  Lists active API tokens for a user with cursor pagination.
+  """
+  @doc since: "0.7.0"
+  @spec list_api_tokens(Sigra.Config.t(), term(), keyword()) :: {[struct()], String.t() | nil}
+  def list_api_tokens(config, user_id, opts \\ []) do
+    Sigra.APIToken.list_active(config, user_id, opts)
+  end
+
+  @doc """
+  Returns all registered API token scopes.
+  """
+  @doc since: "0.7.0"
+  @spec list_api_scopes(Sigra.Config.t()) :: [String.t()]
+  def list_api_scopes(config) do
+    Sigra.APIToken.list_scopes(config)
+  end
+
+  # -- JWT (Phase 7 Plan 03) --
+
+  @doc """
+  Generates JWT access + refresh tokens for a user.
+  """
+  @doc since: "0.7.0"
+  @spec generate_jwt_tokens(Sigra.Config.t(), struct(), [String.t()]) ::
+          {:ok, map()} | {:error, term()}
+  def generate_jwt_tokens(config, user, scopes) do
+    Sigra.JWT.generate_tokens(config, user, scopes)
+  end
+
+  @doc """
+  Refreshes JWT tokens using a refresh token.
+  """
+  @doc since: "0.7.0"
+  @spec refresh_jwt(Sigra.Config.t(), String.t()) ::
+          {:ok, map()} | {:error, :invalid_token | :token_expired | :reuse_detected}
+  def refresh_jwt(config, raw_refresh_token) do
+    Sigra.JWT.refresh(config, raw_refresh_token)
+  end
+
+  @doc """
+  Revokes a JWT refresh token.
+  """
+  @doc since: "0.7.0"
+  @spec revoke_jwt_refresh(Sigra.Config.t(), String.t()) :: :ok | {:error, :invalid_token}
+  def revoke_jwt_refresh(config, raw_refresh_token) do
+    Sigra.JWT.revoke_refresh(config, raw_refresh_token)
+  end
+
+  defp maybe_send_api_token_email(config, user, token) do
+    if config.email_module && config.mailer do
+      try do
+        email = config.email_module.api_token_created_email(user, token)
+        config.mailer.deliver(email.to, email.subject, email.body)
+      rescue
+        UndefinedFunctionError -> :ok
+      end
+    end
+  end
+
   # Rejection sampling to eliminate modulo bias. A 4-byte unsigned integer
   # has max value 4,294,967,295. Values >= floor(2^32 / range) * range are
   # rejected to ensure uniform distribution across [0, range).
