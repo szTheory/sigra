@@ -308,7 +308,7 @@ defmodule Sigra.OAuth do
       is_nil(state) or state == "" ->
         {:error, %OAuthError{provider: nil, error_code: :state_mismatch}}
 
-      state != stored_state ->
+      not Plug.Crypto.secure_compare(state, stored_state || "") ->
         {:error, %OAuthError{provider: nil, error_code: :state_mismatch}}
 
       true ->
