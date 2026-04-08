@@ -125,9 +125,14 @@ defmodule Sigra.OAuth do
   updated tokens. If no refresh token is available or refresh fails,
   returns `{:error, :token_expired}`.
 
+  The returned map uses logical key names (`:access_token`, `:refresh_token`).
+  The identity struct fields are named `encrypted_*` because the generated
+  Ecto schema uses Cloak for transparent encryption -- when loaded through
+  Ecto, these fields contain plaintext (decrypted) values.
+
   ## Examples
 
-      {:ok, %{access_token: "new_token"}} = Sigra.OAuth.get_tokens(config, identity)
+      {:ok, %{access_token: "plaintext_token"}} = Sigra.OAuth.get_tokens(config, identity)
 
   """
   @doc since: "0.5.0"
@@ -140,6 +145,8 @@ defmodule Sigra.OAuth do
         {:error, :token_expired}
       end
     else
+      # Identity fields are named encrypted_* for the DB column, but Cloak
+      # transparently decrypts when loaded through Ecto, so these are plaintext.
       {:ok, %{access_token: identity.encrypted_access_token, refresh_token: identity.encrypted_refresh_token}}
     end
   end
