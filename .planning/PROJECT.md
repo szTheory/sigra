@@ -180,4 +180,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-08 after Phase 5 completion — OAuth and social login via Assent (Google, GitHub, Apple, Facebook, Generic), callback processor with 5-way account routing, link/unlink with confirmation, encrypted token storage, `mix sigra.gen.oauth` generator with 12 templates. Human UAT pending for real provider flows.*
+*Last updated: 2026-04-08 after Phase 6 completion — Multi-factor authentication: TOTP via NimbleTOTP, backup codes (SHA-256 hashed, single-use), trust cookies (HMAC + epoch revocation), MFA lockout, mfa_pending session gating, telemetry spans, testing helpers, generated schemas/migrations/emails, and MFA UI templates (challenge page, enrollment, settings) with generator wiring. Human UAT pending for visual verification and generator integration.*
