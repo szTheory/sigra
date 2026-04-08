@@ -149,7 +149,14 @@ defmodule Mix.Tasks.Sigra.Install do
       {:eex, "reset_password_controller.ex",
        Path.join(["lib", "#{otp_app_str}_web", "controllers", "reset_password_controller.ex"])},
       {:eex, "reset_password_html.ex",
-       Path.join(["lib", "#{otp_app_str}_web", "controllers", "reset_password_html.ex"])}
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "reset_password_html.ex"])},
+      # Phase 4: Session management and security baseline
+      {:eex, "user_session.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "user_session.ex"])},
+      {:eex, "sudo_controller.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "auth", "sudo_controller.ex"])},
+      {:eex, "sudo_html.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "auth", "sudo_html.ex"])}
     ]
 
     # Conditionally add LiveView or controller-mode templates
@@ -164,7 +171,10 @@ defmodule Mix.Tasks.Sigra.Install do
           {:eex, "confirmation_live.ex",
            Path.join(["lib", "#{otp_app_str}_web", "live", "confirmation_live.ex"])},
           {:eex, "reset_password_live.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "live", "reset_password_live.ex"])}
+           Path.join(["lib", "#{otp_app_str}_web", "live", "reset_password_live.ex"])},
+          # Phase 4: Session management LiveView
+          {:eex, "session_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "auth", "session_live.ex"])}
         ]
       else
         [
@@ -267,6 +277,22 @@ defmodule Mix.Tasks.Sigra.Install do
           """
         end
 
+      session_management_routes =
+        if binding[:live] do
+          """
+
+              live "/sessions", Auth.SessionLive, :index
+          """
+        else
+          ""
+        end
+
+      sudo_routes = """
+
+            get "/sudo", Auth.SudoController, :new
+            post "/sudo", Auth.SudoController, :create
+      """
+
       router_plug_code = """
         # Sigra authentication
         import #{web_module}.UserAuth
@@ -288,6 +314,7 @@ defmodule Mix.Tasks.Sigra.Install do
           pipe_through [:browser, :require_authenticated]
 
           delete "/log_out", SessionController, :delete
+      #{session_management_routes}#{sudo_routes}
         end
       """
 
@@ -470,7 +497,17 @@ defmodule Mix.Tasks.Sigra.Install do
 
       3. Review the generated configuration in config/config.exs
 
-    #{if opts[:live], do: "  LiveView pages were generated for login and registration.\n", else: "  LiveView pages were NOT generated (--no-live). Use the SessionController for login.\n"}
+      4. (Optional) Set up rate limiting with Hammer:
+
+             # In your application.ex children list:
+             {MyApp.RateLimit, clean_period: :timer.minutes(1)}
+
+             # Create lib/my_app/rate_limit.ex:
+             defmodule MyApp.RateLimit do
+               use Hammer, backend: :ets
+             end
+
+    #{if opts[:live], do: "  LiveView pages were generated for login, registration, and session management.\n", else: "  LiveView pages were NOT generated (--no-live). Use the SessionController for login.\n"}
     """)
   end
 end

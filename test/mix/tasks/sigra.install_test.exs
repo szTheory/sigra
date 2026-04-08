@@ -179,7 +179,8 @@ defmodule Mix.Tasks.Sigra.InstallTest do
     test "renders fixtures template" do
       binding = [
         context_module: "MyApp.Accounts",
-        schema_alias: "User"
+        schema_alias: "User",
+        repo_module: "MyApp.Repo"
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "auth_fixtures.ex"])
@@ -188,6 +189,103 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       assert String.contains?(content, "def user_fixture(")
       assert String.contains?(content, "def extract_user_token(")
       assert String.contains?(content, "unique_user_email")
+    end
+
+    test "renders fixtures template with Phase 4 session fixtures" do
+      binding = [
+        context_module: "MyApp.Accounts",
+        schema_alias: "User",
+        repo_module: "MyApp.Repo"
+      ]
+
+      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "auth_fixtures.ex"])
+      content = EEx.eval_file(template_path, binding)
+
+      assert String.contains?(content, "def session_fixture(")
+      assert String.contains?(content, "def remembered_session_fixture(")
+      assert String.contains?(content, "def locked_user_fixture(")
+      assert String.contains?(content, "def sudo_session_fixture(")
+      assert String.contains?(content, "MyApp.Accounts.UserSession")
+      assert String.contains?(content, "MyApp.Repo.insert!")
+    end
+
+    test "renders session_live template with UI-SPEC compliance" do
+      binding = [
+        web_module: "MyAppWeb",
+        context_module: "MyApp.Accounts"
+      ]
+
+      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "session_live.ex"])
+      content = EEx.eval_file(template_path, binding)
+
+      assert String.contains?(content, "defmodule MyAppWeb.Auth.SessionLive do")
+      assert String.contains?(content, "Active Sessions")
+      assert String.contains?(content, "These devices are currently signed in to your account.")
+      assert String.contains?(content, "This device")
+      assert String.contains?(content, "Revoke session")
+      assert String.contains?(content, "Log out of all devices")
+      assert String.contains?(content, "Session revoked.")
+      assert String.contains?(content, "mx-auto max-w-2xl")
+      assert String.contains?(content, "bg-brand/10")
+      assert String.contains?(content, "text-red-600")
+      assert String.contains?(content, "data-confirm")
+    end
+
+    test "renders user_session schema template" do
+      binding = [
+        context_module: "MyApp.Accounts",
+        schema_alias: "User",
+        binary_id: false
+      ]
+
+      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "user_session.ex"])
+      content = EEx.eval_file(template_path, binding)
+
+      assert String.contains?(content, "defmodule MyApp.Accounts.UserSession do")
+      assert String.contains?(content, ~s|schema "user_sessions"|)
+      assert String.contains?(content, "field :hashed_token, :binary")
+      assert String.contains?(content, "belongs_to :user")
+    end
+
+    test "renders sudo_controller template" do
+      binding = [
+        web_module: "MyAppWeb",
+        context_module: "MyApp.Accounts"
+      ]
+
+      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "sudo_controller.ex"])
+      content = EEx.eval_file(template_path, binding)
+
+      assert String.contains?(content, "defmodule MyAppWeb.Auth.SudoController do")
+      assert String.contains?(content, "def new(conn,")
+      assert String.contains?(content, "def create(conn,")
+      assert String.contains?(content, "Sigra.Crypto.verify_password")
+    end
+
+    test "renders sudo_html template" do
+      binding = [
+        web_module: "MyAppWeb"
+      ]
+
+      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "sudo_html.ex"])
+      content = EEx.eval_file(template_path, binding)
+
+      assert String.contains?(content, "defmodule MyAppWeb.Auth.SudoHTML do")
+      assert String.contains?(content, "Confirm your password")
+      assert String.contains?(content, ~s|action={~p"/users/sudo"}|)
+    end
+
+    test "renders conn_case_helpers with session type options" do
+      binding = [
+        web_module: "MyAppWeb",
+        context_module: "MyApp.Accounts"
+      ]
+
+      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "conn_case_helpers.ex"])
+      content = EEx.eval_file(template_path, binding)
+
+      assert String.contains?(content, "def log_in_user(conn, user, opts \\\\ [])")
+      assert String.contains?(content, "Keyword.get(opts, :type, :standard)")
     end
   end
 end
