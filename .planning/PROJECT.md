@@ -180,4 +180,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-08 after Phase 4 completion — session management infrastructure (database-backed sessions, timeouts, remember-me, sudo mode), security baseline (account lockout, IP rate limiting, suspicious login detection), and generated templates (migration, schemas, LiveView, emails) all verified*
+*Last updated: 2026-04-08 after Phase 5 completion — OAuth and social login via Assent (Google, GitHub, Apple, Facebook, Generic), callback processor with 5-way account routing, link/unlink with confirmation, encrypted token storage, `mix sigra.gen.oauth` generator with 12 templates. Human UAT pending for real provider flows.*
