@@ -56,9 +56,9 @@ All typography uses Phoenix core components which apply Tailwind classes. These 
 | Body | `text-sm` | 14px | 400 (normal) | 1.5 (`leading-normal`) |
 | Label | `text-sm` | 14px | 600 (`font-semibold`) | 1.5 |
 | Heading | `text-lg` | 20px (via `.header` component) | 600 (`font-semibold`) | 1.2 |
-| Display | `text-2xl` | 28px (email subject lines in preview) | 700 (`font-bold`) | 1.2 |
+| Display | `text-2xl` | 28px (email subject lines in preview) | 600 (`font-semibold`) | 1.2 |
 
-Weights used: 400 (normal body text, form inputs) and 600 (semibold for labels, headings, links).
+Weights used: 400 (normal body text, form inputs) and 600 (semibold for labels, headings, display text).
 
 Source: Matches existing template patterns (`.header` component uses `text-lg font-semibold`, body text uses `text-sm`).
 
@@ -83,11 +83,20 @@ Accent reserved for:
 - Navigation links (back to settings)
 
 Destructive reserved for:
-- "Revoke" button on individual sessions
+- "Revoke session" button on individual sessions
 - "Log out of all devices" button
 - Lockout notification banner text
 
 Source: Matches existing template patterns (`text-brand`, `text-gray-500`, `hover:underline`).
+
+---
+
+## Visual Focal Points
+
+| Surface | Primary Visual Anchor | Why |
+|---------|----------------------|-----|
+| Session listing (`/users/sessions`) | The current session row with "This device" badge. This row uses accent-colored badge styling (`text-brand`, `bg-brand/10`) to visually separate it from other sessions, drawing the eye immediately. | Users visit this page to understand "what's logged in" -- the current session orients them before they scan other sessions. |
+| Sudo re-authentication (`/users/sudo`) | The password field and "Confirm password" button, centered in a narrow `max-w-sm` column with no competing elements. | Single-purpose page with one action. The password field receives autofocus; the accent-colored submit button is the only interactive element besides "Go back". |
 
 ---
 
@@ -114,7 +123,7 @@ Source: Matches existing template patterns (`text-brand`, `text-gray-500`, `hove
 | Location | City, Country (if GeoIP configured) or "Unknown location" | "San Francisco, US" |
 | Last active | Relative time | "Active 5 minutes ago" |
 | Current indicator | Badge with "This device" | Green badge: "This device" |
-| Revoke action | Button per row | "Revoke" (destructive style) |
+| Revoke action | Button per row | "Revoke session" (destructive style) |
 
 **States:**
 | State | What User Sees |
@@ -124,11 +133,11 @@ Source: Matches existing template patterns (`text-brand`, `text-gray-500`, `hove
 | After revoke | Flash: "Session revoked." Session removed from list |
 | Revoke current | Confirmation modal: "This is your current session. Revoking it will log you out. Continue?" |
 | After revoke all | User is logged out, redirected to login with flash: "All sessions ended." |
-| Empty (edge) | Should not occur (user must be logged in), but if it does: "No active sessions found." |
+| Empty (edge) | Should not occur (user must be logged in), but if it does: "No active sessions found. Your session may have expired -- please sign in again." |
 
 **Interactions:**
-- "Revoke" button on non-current sessions: immediate revocation, no confirmation
-- "Revoke" on current session: confirmation required (modal or inline confirm)
+- "Revoke session" button on non-current sessions: immediate revocation, no confirmation
+- "Revoke session" on current session: confirmation required (modal or inline confirm)
 - "Log out of all devices" button at bottom: confirmation required, then redirect to login
 - Page auto-refreshes session list via LiveView (no manual refresh needed)
 
@@ -238,7 +247,7 @@ All messages are enumeration-safe: identical whether the email exists or not.
 |---------|------|
 | Session list heading | "Active Sessions" |
 | Session list subtitle | "These devices are currently signed in to your account." |
-| Revoke button | "Revoke" |
+| Revoke button | "Revoke session" |
 | Revoke all button | "Log out of all devices" |
 | Revoke current confirmation | "This is your current session. Revoking it will log you out. Continue?" |
 | Revoke all confirmation | "This will end all sessions including your current one. You will be logged out." |
@@ -257,7 +266,7 @@ All messages are enumeration-safe: identical whether the email exists or not.
 | Suspicious login email subject | "New sign-in to your account" |
 | Suspicious login CTA | "Not you? Secure your account" |
 | Lockout email CTA | "Change your password" |
-| No sessions (edge case) | "No active sessions found." |
+| No sessions (edge case) | "No active sessions found. Your session may have expired -- please sign in again." |
 
 Destructive actions requiring confirmation:
 1. **Revoke current session** -- inline confirmation or modal before proceeding (logs user out)
@@ -280,8 +289,8 @@ Destructive actions requiring confirmation:
 1. User navigates to `/users/sessions` from settings
 2. LiveView loads and displays all active sessions via `Sigra.Auth.list_sessions/2`
 3. Current session is identified by matching token from conn and tagged with "This device" badge
-4. User clicks "Revoke" on a non-current session -- session is deleted, list updates via LiveView
-5. User clicks "Revoke" on current session -- confirmation appears, on confirm user is logged out
+4. User clicks "Revoke session" on a non-current session -- session is deleted, list updates via LiveView
+5. User clicks "Revoke session" on current session -- confirmation appears, on confirm user is logged out
 6. User clicks "Log out of all devices" -- confirmation appears, on confirm all sessions deleted + PubSub broadcast, user redirected to login
 
 ### Sudo Re-Authentication
