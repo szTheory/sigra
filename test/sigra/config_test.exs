@@ -56,7 +56,7 @@ defmodule Sigra.ConfigTest do
     test "provides correct session defaults" do
       config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
 
-      assert config.session[:remember_me_max_age] == 1_209_600
+      assert config.session[:remember_me_max_age] == 5_184_000
       assert config.session[:store] == Sigra.SessionStores.Ecto
     end
 
@@ -238,6 +238,118 @@ defmodule Sigra.ConfigTest do
       assert config.email[:delivery_mode] == :auto
       assert config.email[:oban_queue] == "sigra_mailer"
       assert config.email[:oban_concurrency] == 10
+    end
+
+    # Phase 4: Session management config extensions
+    test "accepts idle_timeout in session section" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          session: [idle_timeout: 3600]
+        )
+
+      assert config.session[:idle_timeout] == 3600
+    end
+
+    test "provides correct session idle_timeout default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.session[:idle_timeout] == 1_800
+    end
+
+    test "provides correct session absolute_timeout default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.session[:absolute_timeout] == 86_400
+    end
+
+    test "provides correct session activity_update_threshold default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.session[:activity_update_threshold] == 300
+    end
+
+    test "provides correct session sudo_timeout default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.session[:sudo_timeout] == 300
+    end
+
+    test "session remember_me_max_age defaults to 60 days (5_184_000s)" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.session[:remember_me_max_age] == 5_184_000
+    end
+
+    test "accepts session_schema in session section" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          session: [session_schema: MyApp.UserSession]
+        )
+
+      assert config.session[:session_schema] == MyApp.UserSession
+    end
+
+    # Phase 4: Lockout config section
+    test "provides correct lockout defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.lockout[:threshold] == 5
+      assert config.lockout[:duration] == 900
+      assert config.lockout[:notify] == true
+    end
+
+    test "accepts lockout with custom threshold and duration" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          lockout: [threshold: 10, duration: 1800]
+        )
+
+      assert config.lockout[:threshold] == 10
+      assert config.lockout[:duration] == 1800
+    end
+
+    # Phase 4: GeoIP config section
+    test "provides correct geo_ip defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.geo_ip[:module] == nil
+    end
+
+    test "accepts geo_ip with module" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          geo_ip: [module: MyApp.GeoIP]
+        )
+
+      assert config.geo_ip[:module] == MyApp.GeoIP
+    end
+
+    # Phase 4: Suspicious login config section
+    test "provides correct suspicious_login defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.suspicious_login[:enabled] == true
+      assert config.suspicious_login[:notify] == true
+    end
+
+    test "accepts suspicious_login with enabled: false" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          suspicious_login: [enabled: false, notify: false]
+        )
+
+      assert config.suspicious_login[:enabled] == false
+      assert config.suspicious_login[:notify] == false
     end
   end
 end

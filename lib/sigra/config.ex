@@ -143,8 +143,8 @@ defmodule Sigra.Config do
       keys: [
         remember_me_max_age: [
           type: :pos_integer,
-          default: 14 * 24 * 60 * 60,
-          doc: "Max age for remember-me cookies in seconds. Default: 14 days (1,209,600s)."
+          default: 60 * 24 * 60 * 60,
+          doc: "Max age for remember-me cookies in seconds. Default: 60 days (5,184,000s)."
         ],
         reissue_age: [
           type: :pos_integer,
@@ -155,6 +155,30 @@ defmodule Sigra.Config do
           type: :atom,
           default: Sigra.SessionStores.Ecto,
           doc: "Module implementing the `Sigra.SessionStore` behaviour."
+        ],
+        idle_timeout: [
+          type: :pos_integer,
+          default: 1_800,
+          doc: "Idle timeout in seconds. Default: 1800 (30 minutes)."
+        ],
+        absolute_timeout: [
+          type: :pos_integer,
+          default: 86_400,
+          doc: "Absolute session timeout in seconds. Default: 86400 (24 hours)."
+        ],
+        activity_update_threshold: [
+          type: :pos_integer,
+          default: 300,
+          doc: "Minimum seconds between last_active_at DB writes. Default: 300 (5 minutes)."
+        ],
+        sudo_timeout: [
+          type: :pos_integer,
+          default: 300,
+          doc: "Sudo mode window in seconds. Default: 300 (5 minutes)."
+        ],
+        session_schema: [
+          type: :atom,
+          doc: "The generated UserSession Ecto schema module."
         ]
       ]
     ],
@@ -285,6 +309,57 @@ defmodule Sigra.Config do
           type: :pos_integer,
           default: 10,
           doc: "Maximum concurrent email delivery workers. Default: 10."
+        ]
+      ]
+    ],
+    lockout: [
+      type: :keyword_list,
+      default: [],
+      doc: "Account lockout options.",
+      keys: [
+        threshold: [
+          type: :pos_integer,
+          default: 5,
+          doc: "Failed attempts before lockout. Default: 5."
+        ],
+        duration: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Lockout duration in seconds. Default: 900 (15 minutes)."
+        ],
+        notify: [
+          type: :boolean,
+          default: true,
+          doc: "Send lockout notification email. Default: true."
+        ]
+      ]
+    ],
+    geo_ip: [
+      type: :keyword_list,
+      default: [],
+      doc: "GeoIP lookup options.",
+      keys: [
+        module: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Module implementing Sigra.GeoIP behaviour. Default: nil (disabled)."
+        ]
+      ]
+    ],
+    suspicious_login: [
+      type: :keyword_list,
+      default: [],
+      doc: "Suspicious login detection options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable suspicious login detection. Default: true."
+        ],
+        notify: [
+          type: :boolean,
+          default: true,
+          doc: "Send suspicious login notification email. Default: true."
         ]
       ]
     ]
@@ -419,8 +494,8 @@ defmodule Sigra.Config do
       keys: [
         remember_me_max_age: [
           type: :pos_integer,
-          default: 14 * 24 * 60 * 60,
-          doc: "Max age for remember-me cookies in seconds. Default: 14 days (1,209,600s)."
+          default: 60 * 24 * 60 * 60,
+          doc: "Max age for remember-me cookies in seconds. Default: 60 days (5,184,000s)."
         ],
         reissue_age: [
           type: :pos_integer,
@@ -431,6 +506,30 @@ defmodule Sigra.Config do
           type: :atom,
           default: Sigra.SessionStores.Ecto,
           doc: "Module implementing the `Sigra.SessionStore` behaviour."
+        ],
+        idle_timeout: [
+          type: :pos_integer,
+          default: 1_800,
+          doc: "Idle timeout in seconds. Default: 1800 (30 minutes)."
+        ],
+        absolute_timeout: [
+          type: :pos_integer,
+          default: 86_400,
+          doc: "Absolute session timeout in seconds. Default: 86400 (24 hours)."
+        ],
+        activity_update_threshold: [
+          type: :pos_integer,
+          default: 300,
+          doc: "Minimum seconds between last_active_at DB writes. Default: 300 (5 minutes)."
+        ],
+        sudo_timeout: [
+          type: :pos_integer,
+          default: 300,
+          doc: "Sudo mode window in seconds. Default: 300 (5 minutes)."
+        ],
+        session_schema: [
+          type: :atom,
+          doc: "The generated UserSession Ecto schema module."
         ]
       ]
     ],
@@ -565,6 +664,57 @@ defmodule Sigra.Config do
           doc: "Maximum concurrent email delivery workers. Default: 10."
         ]
       ]
+    ],
+    lockout: [
+      type: :keyword_list,
+      default: [],
+      doc: "Account lockout options.",
+      keys: [
+        threshold: [
+          type: :pos_integer,
+          default: 5,
+          doc: "Failed attempts before lockout. Default: 5."
+        ],
+        duration: [
+          type: :pos_integer,
+          default: 900,
+          doc: "Lockout duration in seconds. Default: 900 (15 minutes)."
+        ],
+        notify: [
+          type: :boolean,
+          default: true,
+          doc: "Send lockout notification email. Default: true."
+        ]
+      ]
+    ],
+    geo_ip: [
+      type: :keyword_list,
+      default: [],
+      doc: "GeoIP lookup options.",
+      keys: [
+        module: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Module implementing Sigra.GeoIP behaviour. Default: nil (disabled)."
+        ]
+      ]
+    ],
+    suspicious_login: [
+      type: :keyword_list,
+      default: [],
+      doc: "Suspicious login detection options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable suspicious login detection. Default: true."
+        ],
+        notify: [
+          type: :boolean,
+          default: true,
+          doc: "Send suspicious login notification email. Default: true."
+        ]
+      ]
     ]
   ]
 
@@ -583,7 +733,10 @@ defmodule Sigra.Config do
           rate_limiting: keyword(),
           confirmation: keyword(),
           reset: keyword(),
-          email: keyword()
+          email: keyword(),
+          lockout: keyword(),
+          geo_ip: keyword(),
+          suspicious_login: keyword()
         }
 
   defstruct [
@@ -601,7 +754,10 @@ defmodule Sigra.Config do
     rate_limiting: [],
     confirmation: [],
     reset: [],
-    email: []
+    email: [],
+    lockout: [],
+    geo_ip: [],
+    suspicious_login: []
   ]
 
   @doc """
