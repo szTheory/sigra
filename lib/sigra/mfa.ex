@@ -117,7 +117,7 @@ defmodule Sigra.MFA do
         # Insert MFA credential and backup codes atomically so partial
         # state (credential without backup codes) cannot occur.
         credential_changeset =
-          %{mfa_credential_schema.__struct__()}
+          mfa_credential_schema.__struct__()
           |> Ecto.Changeset.cast(credential_params, [
             :user_id,
             :type,
