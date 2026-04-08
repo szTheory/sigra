@@ -38,10 +38,7 @@ defmodule Sigra.MFA.BackupCodes do
   @spec generate(pos_integer()) :: [{String.t(), String.t()}]
   def generate(count \\ 8) do
     Enum.map(1..count, fn _ ->
-      raw_int =
-        :crypto.strong_rand_bytes(4)
-        |> :binary.decode_unsigned()
-        |> rem(100_000_000)
+      raw_int = uniform_random(100_000_000)
 
       digits = raw_int |> Integer.to_string() |> String.pad_leading(8, "0")
       formatted = String.slice(digits, 0, 4) <> "-" <> String.slice(digits, 4, 4)
@@ -155,5 +152,23 @@ defmodule Sigra.MFA.BackupCodes do
       formatted_codes = Enum.map(codes, &elem(&1, 0))
       {:ok, formatted_codes}
     end)
+  end
+
+  # Rejection sampling to eliminate modulo bias. A 4-byte unsigned integer
+  # has max value 4,294,967,295. Values >= floor(2^32 / range) * range are
+  # rejected to ensure uniform distribution across [0, range).
+  @max_uint32 4_294_967_296
+  defp uniform_random(range) when range > 0 do
+    limit = div(@max_uint32, range) * range
+
+    n =
+      :crypto.strong_rand_bytes(4)
+      |> :binary.decode_unsigned()
+
+    if n >= limit do
+      uniform_random(range)
+    else
+      rem(n, range)
+    end
   end
 end

@@ -306,12 +306,10 @@ defmodule Sigra.Auth do
     signed = Plug.Crypto.sign(secret_key_base, "sigra-confirm-token", raw_token)
     encoded_token = Base.url_encode64(signed, padding: false)
 
-    # Generate 6-digit code (100000-999999) using crypto-safe random
+    # Generate 6-digit code (100000-999999) using rejection sampling
+    # to eliminate modulo bias from the 4-byte random integer.
     code =
-      :crypto.strong_rand_bytes(4)
-      |> :binary.decode_unsigned()
-      |> rem(900_000)
-      |> Kernel.+(100_000)
+      (uniform_random(900_000) + 100_000)
       |> Integer.to_string()
     hashed_code = Token.hash_token(code)
 
@@ -1056,6 +1054,24 @@ defmodule Sigra.Auth do
     if notify? && email_module && mailer do
       email = email_module.lockout_notification_email(user, details)
       mailer.deliver(email.to, email.subject, email.body)
+    end
+  end
+
+  # Rejection sampling to eliminate modulo bias. A 4-byte unsigned integer
+  # has max value 4,294,967,295. Values >= floor(2^32 / range) * range are
+  # rejected to ensure uniform distribution across [0, range).
+  @max_uint32 4_294_967_296
+  defp uniform_random(range) when range > 0 do
+    limit = div(@max_uint32, range) * range
+
+    n =
+      :crypto.strong_rand_bytes(4)
+      |> :binary.decode_unsigned()
+
+    if n >= limit do
+      uniform_random(range)
+    else
+      rem(n, range)
     end
   end
 end
