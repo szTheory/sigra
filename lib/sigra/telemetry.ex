@@ -27,10 +27,21 @@ defmodule Sigra.Telemetry do
 
     * `[:sigra, :confirmation, :verify, :start | :stop | :exception]` - Confirmation verification
 
+  ### Session Lifecycle (span events — :start/:stop/:exception)
+
+    * `[:sigra, :session, :create, :start | :stop | :exception]` - Session creation
+    * `[:sigra, :session, :delete, :start | :stop | :exception]` - Session deletion
+    * `[:sigra, :session, :sudo, :start | :stop | :exception]` - Sudo mode confirmation
+
+  ### Session Signals (one-shot events)
+
+    * `[:sigra, :session, :revoke_all, :stop]` - All sessions revoked for a user
+
   ### Security Signals (one-shot events)
 
     * `[:sigra, :security, :rate_limited]` - Rate limit exceeded
     * `[:sigra, :security, :lockout]` - Account locked after failed attempts
+    * `[:sigra, :security, :suspicious_login]` - Login from new IP/device detected
     * `[:sigra, :security, :invalid_credentials]` - Invalid credential submission
     * `[:sigra, :confirmation, :sent]` - Confirmation email dispatched
     * `[:sigra, :reset, :requested]` - Password reset requested
@@ -57,17 +68,36 @@ defmodule Sigra.Telemetry do
 
   @handler_name "sigra-default-logger"
 
+  # Security events that should be logged at :warning level
+  @security_events [
+    [:sigra, :security, :rate_limited],
+    [:sigra, :security, :lockout],
+    [:sigra, :security, :suspicious_login],
+    [:sigra, :security, :invalid_credentials]
+  ]
+
   @logged_events [
+    # Authentication
     [:sigra, :auth, :login, :stop],
     [:sigra, :auth, :logout, :stop],
     [:sigra, :auth, :register, :stop],
+    # Token
     [:sigra, :token, :generate, :stop],
     [:sigra, :token, :verify, :stop],
+    # Session lifecycle
+    [:sigra, :session, :create, :stop],
+    [:sigra, :session, :delete, :stop],
+    [:sigra, :session, :sudo, :stop],
+    [:sigra, :session, :revoke_all, :stop],
+    # Security signals
     [:sigra, :security, :rate_limited],
     [:sigra, :security, :lockout],
+    [:sigra, :security, :suspicious_login],
     [:sigra, :security, :invalid_credentials],
+    # Email
     [:sigra, :email, :deliver, :stop],
     [:sigra, :email, :deliver, :exception],
+    # Confirmation & Reset
     [:sigra, :confirmation, :verify, :stop],
     [:sigra, :confirmation, :sent],
     [:sigra, :reset, :requested],
@@ -147,7 +177,13 @@ defmodule Sigra.Telemetry do
 
   @doc false
   def handle_event(event, measurements, metadata, opts) do
-    level = Keyword.get(opts, :level, :info)
+    level =
+      if event in @security_events do
+        :warning
+      else
+        Keyword.get(opts, :level, :info)
+      end
+
     Logger.log(level, fn -> format_event(event, measurements, metadata) end)
   end
 

@@ -594,7 +594,131 @@ defmodule Sigra.Auth do
     end
   end
 
+  # -- Session Management (Phase 4 Plan 02) --
+
+  @doc """
+  Create a new session for the user with connection metadata.
+
+  Creates a session via the configured SessionStore and emits a
+  `[:sigra, :session, :create]` telemetry span.
+
+  ## Options
+
+  - `:session_store` - Override the session store from config.
+  """
+  @doc since: "0.4.0"
+  @spec create_session(Sigra.Config.t(), struct(), map(), keyword()) ::
+          {:ok, Sigra.Session.t()} | {:error, term()}
+  def create_session(config, user, metadata, opts \\ []) do
+    {session_store, store_opts} = session_store_and_opts(config, opts)
+
+    Telemetry.span([:sigra, :session, :create], %{user_id: user.id, type: Map.get(metadata, :type, :standard)}, fn ->
+      session_store.create(user.id, metadata, store_opts)
+    end)
+  end
+
+  @doc """
+  Delete a specific session by its hashed token.
+
+  Emits a `[:sigra, :session, :delete]` telemetry span.
+  """
+  @doc since: "0.4.0"
+  @spec delete_session(Sigra.Config.t(), binary(), keyword()) :: :ok
+  def delete_session(config, hashed_token, opts \\ []) do
+    {session_store, store_opts} = session_store_and_opts(config, opts)
+
+    Telemetry.span([:sigra, :session, :delete], %{}, fn ->
+      session_store.delete(hashed_token, store_opts)
+    end)
+  end
+
+  @doc """
+  Delete all sessions for a user. Broadcasts PubSub disconnect per D-16.
+
+  Returns `{count, nil}` where count is the number of deleted sessions.
+
+  ## Options
+
+  - `:except_token` - Hashed token to exclude (current session).
+  - `:pubsub` - Phoenix.PubSub module name for LiveView disconnect broadcasts.
+  """
+  @doc since: "0.4.0"
+  @spec delete_all_sessions(Sigra.Config.t(), term(), keyword()) :: {non_neg_integer(), nil}
+  def delete_all_sessions(config, user_id, opts \\ []) do
+    {session_store, store_opts} = session_store_and_opts(config, opts)
+
+    # Get all sessions BEFORE deleting (need tokens for PubSub broadcast)
+    sessions = session_store.list_by_user(user_id, store_opts)
+
+    except_token = Keyword.get(opts, :except_token)
+
+    delete_opts =
+      if except_token,
+        do: Keyword.put(store_opts, :except_token, except_token),
+        else: store_opts
+
+    {count, _} = session_store.delete_all_for_user(user_id, delete_opts)
+
+    # Broadcast disconnect to LiveView sockets per D-16
+    pubsub = Keyword.get(opts, :pubsub)
+
+    if pubsub do
+      sessions
+      |> Enum.reject(fn s -> except_token && s.hashed_token == except_token end)
+      |> Enum.each(fn session ->
+        live_socket_id = "users_sessions:#{Base.url_encode64(session.hashed_token)}"
+        Phoenix.PubSub.broadcast(pubsub, live_socket_id, :disconnect)
+      end)
+    end
+
+    Telemetry.event([:sigra, :session, :revoke_all, :stop], %{count: count}, %{user_id: user_id})
+    {count, nil}
+  end
+
+  @doc """
+  List all active sessions for a user.
+  """
+  @doc since: "0.4.0"
+  @spec list_sessions(Sigra.Config.t(), term(), keyword()) :: [Sigra.Session.t()]
+  def list_sessions(config, user_id, opts \\ []) do
+    {session_store, store_opts} = session_store_and_opts(config, opts)
+    session_store.list_by_user(user_id, store_opts)
+  end
+
+  @doc """
+  Revoke a specific session by hashed_token.
+
+  Delegates to `delete_session/3`.
+  """
+  @doc since: "0.4.0"
+  @spec revoke_session(Sigra.Config.t(), binary(), keyword()) :: :ok
+  def revoke_session(config, hashed_token, opts \\ []) do
+    delete_session(config, hashed_token, opts)
+  end
+
+  @doc """
+  Confirm sudo mode by updating sudo_at timestamp.
+
+  Emits a `[:sigra, :session, :sudo]` telemetry span.
+  """
+  @doc since: "0.4.0"
+  @spec confirm_sudo(Sigra.Config.t(), binary(), keyword()) :: :ok | {:error, :not_found}
+  def confirm_sudo(config, hashed_token, opts \\ []) do
+    {session_store, store_opts} = session_store_and_opts(config, opts)
+
+    Telemetry.span([:sigra, :session, :sudo], %{}, fn ->
+      session_store.update_sudo(hashed_token, DateTime.utc_now(), store_opts)
+    end)
+  end
+
   # -- Private helpers --
+
+  defp session_store_and_opts(config, opts) do
+    session_config = config.session
+    session_store = Keyword.get(opts, :session_store) || Keyword.get(session_config, :store)
+    store_opts = [repo: config.repo, session_schema: Keyword.get(session_config, :session_schema)]
+    {session_store, store_opts}
+  end
 
   defp email_taken_error?(%Ecto.Changeset{errors: errors}) do
     Enum.any?(errors, fn

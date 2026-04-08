@@ -843,4 +843,167 @@ defmodule Sigra.AuthTest do
       assert {:error, :token_invalid} = result
     end
   end
+
+  # -- Phase 4 Plan 02: Session management functions --
+
+  @session_config %Sigra.Config{
+    repo: Sigra.MockRepo,
+    user_schema: TestUser,
+    session: [
+      store: Sigra.MockSessionStore,
+      idle_timeout: 1_800,
+      absolute_timeout: 86_400,
+      activity_update_threshold: 300,
+      remember_me_max_age: 5_184_000,
+      session_schema: TestUser
+    ]
+  }
+
+  defp build_session(overrides \\ %{}) do
+    defaults = %Sigra.Session{
+      id: 1,
+      user_id: 1,
+      hashed_token: "hashed-token-1",
+      type: :standard,
+      last_active_at: DateTime.utc_now(),
+      inserted_at: DateTime.utc_now(),
+      sudo_at: nil
+    }
+
+    struct(defaults, overrides)
+  end
+
+  describe "create_session/4" do
+    test "creates session via SessionStore and emits telemetry" do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :create, :stop]])
+      session = build_session(%{token: "raw-token"})
+
+      Sigra.MockSessionStore
+      |> expect(:create, fn 1, %{type: :standard, ip: "1.2.3.4"}, _opts ->
+        {:ok, session}
+      end)
+
+      user = %TestUser{id: 1}
+      metadata = %{type: :standard, ip: "1.2.3.4"}
+
+      result = Auth.create_session(@session_config, user, metadata)
+
+      assert {:ok, ^session} = result
+      assert_received {[:sigra, :session, :create, :stop], ^ref, _measurements, _metadata}
+    end
+  end
+
+  describe "delete_session/3" do
+    test "deletes session via SessionStore and emits telemetry" do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :delete, :stop]])
+
+      Sigra.MockSessionStore
+      |> expect(:delete, fn "hashed-token", _opts -> :ok end)
+
+      result = Auth.delete_session(@session_config, "hashed-token")
+
+      assert :ok = result
+      assert_received {[:sigra, :session, :delete, :stop], ^ref, _measurements, _metadata}
+    end
+  end
+
+  describe "delete_all_sessions/3" do
+    test "deletes all sessions, returns count, broadcasts PubSub disconnect" do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :revoke_all, :stop]])
+
+      session1 = build_session(%{hashed_token: "hash1"})
+      session2 = build_session(%{hashed_token: "hash2"})
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session1, session2] end)
+      |> expect(:delete_all_for_user, fn 1, _opts -> {2, nil} end)
+
+      # Start a PubSub for testing
+      start_supervised!({Phoenix.PubSub, name: :test_pubsub})
+
+      # Subscribe to the disconnect topics
+      topic1 = "users_sessions:#{Base.url_encode64("hash1")}"
+      topic2 = "users_sessions:#{Base.url_encode64("hash2")}"
+      Phoenix.PubSub.subscribe(:test_pubsub, topic1)
+      Phoenix.PubSub.subscribe(:test_pubsub, topic2)
+
+      result = Auth.delete_all_sessions(@session_config, 1, pubsub: :test_pubsub)
+
+      assert {2, nil} = result
+      assert_receive :disconnect
+      assert_receive :disconnect
+      assert_received {[:sigra, :session, :revoke_all, :stop], ^ref, %{count: 2}, %{user_id: 1}}
+    end
+
+    test "with except_token option excludes current session" do
+      session1 = build_session(%{hashed_token: "hash1"})
+      session2 = build_session(%{hashed_token: "hash2"})
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session1, session2] end)
+      |> expect(:delete_all_for_user, fn 1, opts ->
+        assert Keyword.get(opts, :except_token) == "hash1"
+        {1, nil}
+      end)
+
+      start_supervised!({Phoenix.PubSub, name: :test_pubsub_except})
+
+      topic2 = "users_sessions:#{Base.url_encode64("hash2")}"
+      Phoenix.PubSub.subscribe(:test_pubsub_except, topic2)
+
+      # hash1 should NOT get a broadcast
+      topic1 = "users_sessions:#{Base.url_encode64("hash1")}"
+      Phoenix.PubSub.subscribe(:test_pubsub_except, topic1)
+
+      result = Auth.delete_all_sessions(@session_config, 1,
+        except_token: "hash1",
+        pubsub: :test_pubsub_except
+      )
+
+      assert {1, nil} = result
+      # hash2 should get disconnect
+      assert_receive :disconnect
+      # hash1 should NOT get disconnect
+      refute_receive :disconnect, 50
+    end
+  end
+
+  describe "confirm_sudo/3" do
+    test "updates sudo_at on session record" do
+      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :sudo, :stop]])
+
+      Sigra.MockSessionStore
+      |> expect(:update_sudo, fn "hashed-token", %DateTime{}, _opts -> :ok end)
+
+      result = Auth.confirm_sudo(@session_config, "hashed-token")
+
+      assert :ok = result
+      assert_received {[:sigra, :session, :sudo, :stop], ^ref, _measurements, _metadata}
+    end
+  end
+
+  describe "list_sessions/3" do
+    test "returns all sessions for user" do
+      session1 = build_session(%{hashed_token: "hash1"})
+      session2 = build_session(%{hashed_token: "hash2"})
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session1, session2] end)
+
+      result = Auth.list_sessions(@session_config, 1)
+
+      assert length(result) == 2
+    end
+  end
+
+  describe "revoke_session/3" do
+    test "deletes specific session by hashed_token" do
+      Sigra.MockSessionStore
+      |> expect(:delete, fn "specific-hash", _opts -> :ok end)
+
+      result = Auth.revoke_session(@session_config, "specific-hash")
+
+      assert :ok = result
+    end
+  end
 end

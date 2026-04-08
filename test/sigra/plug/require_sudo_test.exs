@@ -30,27 +30,58 @@ defmodule Sigra.Plug.RequireSudoTest do
   end
 
   describe "call/2" do
-    test "passes conn through when sudo window is fresh" do
+    test "reads session from conn.private[:sigra_session] and checks sudo_at" do
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "token",
+        sudo_at: DateTime.utc_now()
+      }
+
       opts = RequireSudo.init(@default_opts)
 
       conn =
         conn(:get, "/admin/settings")
         |> Plug.Conn.assign(:current_scope, %{user_id: 1})
-        |> Plug.Conn.assign(:authenticated_at, DateTime.utc_now())
+        |> Plug.Conn.put_private(:sigra_session, session)
         |> RequireSudo.call(opts)
 
       refute conn.halted
     end
 
-    test "halts conn when sudo window has expired" do
-      opts = RequireSudo.init(@default_opts)
+    test "passes when sudo_at is within sudo_timeout (5 min default)" do
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "token",
+        sudo_at: DateTime.add(DateTime.utc_now(), -120, :second)
+      }
 
-      stale_time = DateTime.add(DateTime.utc_now(), -600, :second)
+      opts = RequireSudo.init(@default_opts)
 
       conn =
         conn(:get, "/admin/settings")
         |> Plug.Conn.assign(:current_scope, %{user_id: 1})
-        |> Plug.Conn.assign(:authenticated_at, stale_time)
+        |> Plug.Conn.put_private(:sigra_session, session)
+        |> RequireSudo.call(opts)
+
+      refute conn.halted
+    end
+
+    test "calls error_handler with :stale_sudo when sudo_at is expired" do
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "token",
+        sudo_at: DateTime.add(DateTime.utc_now(), -600, :second)
+      }
+
+      opts = RequireSudo.init(@default_opts)
+
+      conn =
+        conn(:get, "/admin/settings")
+        |> Plug.Conn.assign(:current_scope, %{user_id: 1})
+        |> Plug.Conn.put_private(:sigra_session, session)
         |> RequireSudo.call(opts)
 
       assert conn.halted
@@ -58,12 +89,20 @@ defmodule Sigra.Plug.RequireSudoTest do
       assert conn.resp_body == "stale_sudo"
     end
 
-    test "halts conn when authenticated_at is missing" do
+    test "calls error_handler with :stale_sudo when sudo_at is nil" do
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "token",
+        sudo_at: nil
+      }
+
       opts = RequireSudo.init(@default_opts)
 
       conn =
         conn(:get, "/admin/settings")
         |> Plug.Conn.assign(:current_scope, %{user_id: 1})
+        |> Plug.Conn.put_private(:sigra_session, session)
         |> RequireSudo.call(opts)
 
       assert conn.halted
@@ -71,7 +110,7 @@ defmodule Sigra.Plug.RequireSudoTest do
       assert conn.resp_body == "stale_sudo"
     end
 
-    test "halts conn when current_scope is missing" do
+    test "calls error_handler with :unauthenticated when no current_scope" do
       opts = RequireSudo.init(@default_opts)
 
       conn =
@@ -79,6 +118,8 @@ defmodule Sigra.Plug.RequireSudoTest do
         |> RequireSudo.call(opts)
 
       assert conn.halted
+      assert conn.status == 403
+      assert conn.resp_body == "unauthenticated"
     end
   end
 

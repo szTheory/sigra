@@ -2,17 +2,17 @@ defmodule Sigra.Plug.RequireSudo do
   @moduledoc """
   Sudo mode gate plug that requires recent re-authentication.
 
-  This plug checks that the user is authenticated AND that their
-  `authenticated_at` timestamp is within the configured sudo window.
-  If the window has expired (or `authenticated_at` is missing), the
-  configured error handler is called with `:stale_sudo` and the
+  This plug checks that the user is authenticated AND that the session's
+  `sudo_at` timestamp (from `conn.private[:sigra_session]`) is within the
+  configured sudo window. If the window has expired (or `sudo_at` is nil),
+  the configured error handler is called with `:stale_sudo` and the
   connection is halted.
 
   ## Options
 
     * `:error_handler` - Module implementing `Sigra.Plug.ErrorHandler`.
       Required.
-    * `:sudo_window` - Maximum age of authentication in seconds.
+    * `:sudo_window` - Maximum age of sudo confirmation in seconds.
       Defaults to `300` (5 minutes).
 
   ## Example
@@ -40,8 +40,11 @@ defmodule Sigra.Plug.RequireSudo do
 
   @doc """
   Check sudo window freshness and halt if expired.
+
+  Reads the session from `conn.private[:sigra_session]` and checks
+  `session.sudo_at` against the configured sudo window.
   """
-  @doc since: "0.1.0"
+  @doc since: "0.4.0"
   @impl Plug
   def call(conn, opts) do
     error_handler = Keyword.fetch!(opts, :error_handler)
@@ -64,12 +67,12 @@ defmodule Sigra.Plug.RequireSudo do
   end
 
   defp sudo_fresh?(conn, sudo_window) do
-    case conn.assigns[:authenticated_at] do
-      nil ->
-        false
+    case conn.private[:sigra_session] do
+      %Sigra.Session{sudo_at: %DateTime{} = sudo_at} ->
+        DateTime.diff(DateTime.utc_now(), sudo_at, :second) <= sudo_window
 
-      %DateTime{} = authenticated_at ->
-        DateTime.diff(DateTime.utc_now(), authenticated_at, :second) <= sudo_window
+      _ ->
+        false
     end
   end
 end
