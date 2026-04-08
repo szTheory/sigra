@@ -228,8 +228,8 @@ defmodule <%= context_module %> do
   @doc """
   Generates a session token.
   """
-  def generate_user_session_token(%<%= schema_alias %>{} = user) do
-    {token, user_token} = UserToken.build_session_token(user)
+  def generate_user_session_token(%<%= schema_alias %>{} = user, opts \\ []) do
+    {token, user_token} = UserToken.build_session_token(user, opts)
     Repo.insert!(user_token)
     token
   end
