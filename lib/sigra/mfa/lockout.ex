@@ -65,34 +65,31 @@ defmodule Sigra.MFA.Lockout do
     threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
     duration = Keyword.get(config.mfa, :lockout_duration, 900)
 
-    # Atomic increment
-    {1, [result]} =
+    # Atomic increment with conditional lock in a single query to prevent
+    # TOCTOU race between increment and lock operations.
+    locked_until = DateTime.add(DateTime.utc_now(), duration, :second)
+
+    {1, [new_count]} =
       from(c in mfa_credential_schema,
         where: c.id == ^credential_id,
-        update: [inc: [failed_attempts: 1]],
+        update: [
+          inc: [failed_attempts: 1],
+          set: [
+            locked_until:
+              fragment(
+                "CASE WHEN ? + 1 >= ? THEN ? ELSE ? END",
+                c.failed_attempts,
+                ^threshold,
+                ^locked_until,
+                c.locked_until
+              )
+          ]
+        ],
         select: c.failed_attempts
       )
       |> repo.update_all([])
 
-    # The returned value is the value AFTER increment (Ecto update_all with inc returns new value)
-    new_count = result
-
-    locked =
-      if new_count >= threshold do
-        locked_until = DateTime.add(DateTime.utc_now(), duration, :second)
-
-        from(c in mfa_credential_schema,
-          where: c.id == ^credential_id,
-          update: [set: [locked_until: ^locked_until]]
-        )
-        |> repo.update_all([])
-
-        true
-      else
-        false
-      end
-
-    {:ok, %{failed_attempts: new_count, locked: locked}}
+    {:ok, %{failed_attempts: new_count, locked: new_count >= threshold}}
   end
 
   @doc """
