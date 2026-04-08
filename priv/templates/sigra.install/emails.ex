@@ -150,11 +150,18 @@ defmodule <%= context_module %>.Emails do
 
   @doc "Builds a suspicious login notification email."
   def suspicious_login_email(user, details) do
-    ip = Map.get(details, :ip, "Unknown")
+    ip = details |> Map.get(:ip, "Unknown") |> html_escape_string()
     geo_city = Map.get(details, :geo_city)
     geo_country = Map.get(details, :geo_country_code)
-    location = if geo_city, do: "#{geo_city}, #{geo_country}", else: "Unknown"
-    device = Map.get(details, :device, "Unknown device")
+
+    location =
+      if geo_city do
+        "#{html_escape_string(geo_city)}, #{html_escape_string(geo_country)}"
+      else
+        "Unknown"
+      end
+
+    device = details |> Map.get(:device, "Unknown device") |> html_escape_string()
 
     time =
       Map.get(details, :time, DateTime.utc_now())
@@ -343,4 +350,10 @@ defmodule <%= context_module %>.Emails do
       app_name: "<%= app_name %>"
     )
   end
+
+  defp html_escape_string(value) when is_binary(value) do
+    Phoenix.HTML.html_escape(value) |> Phoenix.HTML.safe_to_string()
+  end
+
+  defp html_escape_string(value), do: html_escape_string(to_string(value))
 end
