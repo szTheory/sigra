@@ -94,7 +94,8 @@ defmodule Mix.Tasks.Sigra.Install do
       repo_module: inspect(repo_module),
       binary_id: opts[:binary_id] || false,
       live: opts[:live],
-      adapter: adapter
+      adapter: adapter,
+      reset_password_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/reset-password"
     ]
 
     context_underscore = Macro.underscore(context_name)
