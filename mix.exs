@@ -43,6 +43,7 @@ defmodule Sigra.MixProject do
       {:hammer, "~> 7.3", optional: true},
       {:swoosh, "~> 1.5", optional: true},
       {:oban, "~> 2.17", optional: true},
+      {:assent, "~> 0.3", optional: true},
       # Dev/test
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
