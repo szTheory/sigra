@@ -81,7 +81,10 @@ defmodule Sigra.Error do
   def safe_message(:rate_limited), do: "Too many requests. Please try again later."
 
   def safe_message(:account_locked),
-    do: "Account is temporarily locked. Please try again later."
+    do: "Too many attempts. Try again in a few minutes."
+
+  def safe_message(:account_locked_just_triggered),
+    do: "Invalid email or password. Too many attempts. Try again in a few minutes."
 
   def safe_message(:already_confirmed), do: "Your email is already confirmed."
 
