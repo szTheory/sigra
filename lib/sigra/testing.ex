@@ -138,6 +138,60 @@ defmodule Sigra.Testing do
   end
 
   @doc """
+  Simulate a locked out user by setting failed_login_attempts to threshold.
+
+  Returns the updated user struct. Requires a repo module that supports
+  `update!/1`.
+
+  ## Options
+
+    * `:threshold` - The lockout threshold to simulate. Default: `5`.
+
+  ## Examples
+
+      locked_user = Sigra.Testing.simulate_lockout(MyApp.Repo, user)
+      assert Sigra.Lockout.locked?(locked_user)
+
+  """
+  @doc since: "0.4.0"
+  @spec simulate_lockout(module(), struct(), keyword()) :: struct()
+  def simulate_lockout(repo, user, opts \\ []) do
+    threshold = Keyword.get(opts, :threshold, 5)
+
+    user
+    |> Ecto.Changeset.change(%{failed_login_attempts: threshold, locked_at: DateTime.utc_now()})
+    |> repo.update!()
+  end
+
+  @doc """
+  Assert rate limited response (429 status with Retry-After header).
+
+  Checks that the connection has a 429 status code and a non-empty
+  `retry-after` response header.
+
+  ## Examples
+
+      conn = post(conn, "/login", %{email: "test@example.com", password: "wrong"})
+      Sigra.Testing.assert_rate_limited(conn)
+
+  """
+  @doc since: "0.4.0"
+  @spec assert_rate_limited(Plug.Conn.t()) :: true
+  def assert_rate_limited(conn) do
+    unless conn.status == 429 do
+      raise ExUnit.AssertionError,
+        message: "Expected status 429, got: #{conn.status}"
+    end
+
+    unless Plug.Conn.get_resp_header(conn, "retry-after") != [] do
+      raise ExUnit.AssertionError,
+        message: "Expected retry-after header to be present"
+    end
+
+    true
+  end
+
+  @doc """
   Executes the given function with a test mailer configured.
 
   > #### Stub {: .warning}
