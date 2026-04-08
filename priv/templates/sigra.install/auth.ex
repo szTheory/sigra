@@ -440,6 +440,67 @@ defmodule <%= context_module %> do
     end
   end
 
+  ## Session management
+
+  @doc """
+  Returns the Sigra config struct for this application.
+
+  Used by generated controllers and plugs that need to pass
+  configuration to Sigra library functions.
+  """
+  def sigra_config do
+    Sigra.Config.new!(
+      repo: <%= repo_module %>,
+      user_schema: <%= schema_alias %>,
+      session: [
+        store: Sigra.SessionStore.Ecto,
+        session_schema: <%= context_module %>.UserSession
+      ],
+      lockout: [
+        threshold: 5,
+        duration: 900
+      ]
+    )
+  end
+
+  @doc "List all active sessions for a user."
+  def list_sessions(user) do
+    Sigra.Auth.list_sessions(sigra_config(), user.id)
+  end
+
+  @doc "Revoke a specific session by its hashed token."
+  def revoke_session(hashed_token) do
+    Sigra.Auth.revoke_session(sigra_config(), hashed_token)
+  end
+
+  @doc "Revoke all sessions for a user. Broadcasts PubSub disconnect."
+  def revoke_all_sessions(user, opts \\ []) do
+    Sigra.Auth.delete_all_sessions(sigra_config(), user.id, Keyword.put(opts, :pubsub, <%= web_module %>.PubSub))
+  end
+
+  @doc "Confirm sudo mode for a session."
+  def confirm_sudo(hashed_token) do
+    Sigra.Auth.confirm_sudo(sigra_config(), hashed_token)
+  end
+
+  @doc "Check if user is locked out."
+  def locked?(user) do
+    Sigra.Lockout.locked?(user, lockout_opts())
+  end
+
+  @doc "Get lock status for a user."
+  def lock_status(user) do
+    Sigra.Lockout.lock_status(user, lockout_opts())
+  end
+
+  defp lockout_opts do
+    config = sigra_config()
+    [
+      threshold: Keyword.get(config.lockout, :threshold, 5),
+      duration: Keyword.get(config.lockout, :duration, 900)
+    ]
+  end
+
   # -- Private helpers --
 
   defp delivery_opts do
