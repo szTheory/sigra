@@ -142,7 +142,12 @@ Plans:
   3. Personal access tokens can be scoped and given an expiration; they appear in a listing; any token can be revoked individually
   4. JWT support works for stateless API use cases where instant revocation is not required; it is opt-in, not the default
   5. All auth logic works in headless mode with no LiveView or HTML components present
-**Plans:** TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 07-01-PLAN.md — Core API token modules (config, types, scopes, APIToken, RequireScopes, errors, telemetry)
+- [ ] 07-02-PLAN.md — JWT library modules (Joken dep, JWT, Signer, ClaimsBuilder, RefreshToken)
+- [ ] 07-03-PLAN.md — FetchBearer rewrite, Auth delegation, TokenCleanup, Testing helpers, Email
+- [ ] 07-04-PLAN.md — Generator templates (migration, schema, controllers, router, install task)
 
 ### Phase 8: Account Lifecycle
 **Goal**: Users can change email (with re-verification), change password, delete their account, and perform sensitive operations only after re-authenticating in sudo mode; profile update hooks integrate cleanly with app-specific schemas
@@ -193,7 +198,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 4. Session Management and Security Baseline | 0/6 | Planning complete | - |
 | 5. OAuth and Social Login | 0/3 | Planning complete | - |
 | 6. Multi-Factor Authentication | 0/5 | Planning complete | - |
-| 7. API Authentication | 0/TBD | Not started | - |
+| 7. API Authentication | 0/4 | Planning complete | - |
 | 8. Account Lifecycle | 0/TBD | Not started | - |
 | 9. Audit Logging | 0/TBD | Not started | - |
 | 10. Developer Experience | 0/TBD | Not started | - |
