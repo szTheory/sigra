@@ -94,6 +94,11 @@ defmodule Sigra.MFATest do
   end
 
   describe "module exports" do
+    setup do
+      Code.ensure_loaded!(MFA)
+      :ok
+    end
+
     test "enroll/2 exists" do
       assert function_exported?(MFA, :enroll, 2)
     end

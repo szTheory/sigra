@@ -70,6 +70,7 @@ defmodule Sigra.MFA.BackupCodesTest do
 
   describe "remaining_count/3" do
     test "returns count of unused codes" do
+      Code.ensure_loaded!(BackupCodes)
       # This function requires a repo and schema module -- tested via mock in integration
       # Here we verify the function exists and has the right arity
       assert function_exported?(BackupCodes, :remaining_count, 3)
