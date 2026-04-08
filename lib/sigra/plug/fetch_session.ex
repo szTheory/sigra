@@ -112,6 +112,8 @@ defmodule Sigra.Plug.FetchSession do
         if session_valid?(session, session_config) do
           {:ok, session}
         else
+          # Clean up expired session eagerly
+          session_store.delete(session.hashed_token, opts)
           :skip
         end
 
