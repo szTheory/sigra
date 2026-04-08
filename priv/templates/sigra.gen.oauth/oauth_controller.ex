@@ -21,19 +21,26 @@ defmodule <%= web_module %>.OAuthController do
   """
   def request(conn, %{"provider" => provider}) do
     config = conn.assigns[:sigra_config] || raise "Sigra config not found in conn.assigns"
-    provider_atom = String.to_existing_atom(provider)
 
-    case Sigra.OAuth.authorize_url(config, provider_atom) do
-      {:ok, url, session_params} ->
-        conn
-        |> put_session(:sigra_oauth_state, session_params[:sigra_state])
-        |> put_session(:sigra_oauth_code_verifier, session_params[:code_verifier])
-        |> put_session(:sigra_oauth_return_to, get_session(conn, :sigra_return_to))
-        |> redirect(external: url)
+    case validate_provider(config, provider) do
+      {:ok, provider_atom} ->
+        case Sigra.OAuth.authorize_url(config, provider_atom) do
+          {:ok, url, session_params} ->
+            conn
+            |> put_session(:sigra_oauth_state, session_params[:sigra_state])
+            |> put_session(:sigra_oauth_code_verifier, session_params[:code_verifier])
+            |> put_session(:sigra_oauth_return_to, get_session(conn, :sigra_return_to))
+            |> redirect(external: url)
 
-      {:error, _reason} ->
+          {:error, _reason} ->
+            conn
+            |> put_flash(:error, "Could not connect to #{provider}. Please try again.")
+            |> redirect(to: ~p"<%= login_path %>")
+        end
+
+      :error ->
         conn
-        |> put_flash(:error, "Could not connect to #{provider}. Please try again.")
+        |> put_flash(:error, "Unknown provider.")
         |> redirect(to: ~p"<%= login_path %>")
     end
   end
@@ -46,66 +53,88 @@ defmodule <%= web_module %>.OAuthController do
   """
   def callback(conn, %{"provider" => provider} = params) do
     config = conn.assigns[:sigra_config] || raise "Sigra config not found in conn.assigns"
-    provider_atom = String.to_existing_atom(provider)
 
-    session_params = %{
-      sigra_state: get_session(conn, :sigra_oauth_state),
-      code_verifier: get_session(conn, :sigra_oauth_code_verifier)
-    }
+    case validate_provider(config, provider) do
+      {:ok, provider_atom} ->
+        session_params = %{
+          sigra_state: get_session(conn, :sigra_oauth_state),
+          code_verifier: get_session(conn, :sigra_oauth_code_verifier)
+        }
 
-    conn =
-      conn
-      |> delete_session(:sigra_oauth_state)
-      |> delete_session(:sigra_oauth_code_verifier)
+        conn =
+          conn
+          |> delete_session(:sigra_oauth_state)
+          |> delete_session(:sigra_oauth_code_verifier)
 
-    case Sigra.OAuth.handle_callback(config, provider_atom, params, session_params) do
-      {:ok, :registered, _user, session} ->
-        return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
+        case Sigra.OAuth.handle_callback(config, provider_atom, params, session_params) do
+          {:ok, :registered, _user, session} ->
+            return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
 
+            conn
+            |> delete_session(:sigra_oauth_return_to)
+            |> put_session(:sigra_session_token, session.token)
+            |> redirect(to: return_to)
+
+          {:ok, :logged_in, _user, session} ->
+            return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
+
+            conn
+            |> delete_session(:sigra_oauth_return_to)
+            |> put_session(:sigra_session_token, session.token)
+            |> redirect(to: return_to)
+
+          {:link_confirmation_required, info} ->
+            conn
+            |> put_session(:sigra_oauth_link_intent, %{
+              provider: info.provider,
+              provider_uid: info.provider_uid,
+              email: info.email,
+              expires_at: DateTime.add(DateTime.utc_now(), 900, :second)
+            })
+            |> put_flash(
+              :info,
+              "An account with this email exists. Log in to link your #{provider} account."
+            )
+            |> redirect(to: ~p"<%= login_path %>")
+
+          {:error, %Sigra.Error.OAuthError{error_code: :state_mismatch}} ->
+            conn
+            |> put_flash(:error, Sigra.Error.safe_message(:oauth_state_mismatch))
+            |> redirect(to: ~p"<%= login_path %>")
+
+          {:error, %Sigra.Error.OAuthError{error_code: :no_email}} ->
+            conn
+            |> put_flash(:error, Sigra.Error.safe_message(:oauth_no_email))
+            |> redirect(to: ~p"<%= login_path %>")
+
+          {:error, _reason} ->
+            conn
+            |> put_flash(
+              :error,
+              "Could not sign in with #{provider}. Please try again or use another method."
+            )
+            |> redirect(to: ~p"<%= login_path %>")
+        end
+
+      :error ->
         conn
-        |> delete_session(:sigra_oauth_return_to)
-        |> put_session(:sigra_session_token, session.token)
-        |> redirect(to: return_to)
-
-      {:ok, :logged_in, _user, session} ->
-        return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
-
-        conn
-        |> delete_session(:sigra_oauth_return_to)
-        |> put_session(:sigra_session_token, session.token)
-        |> redirect(to: return_to)
-
-      {:link_confirmation_required, info} ->
-        conn
-        |> put_session(:sigra_oauth_link_intent, %{
-          provider: info.provider,
-          provider_uid: info.provider_uid,
-          email: info.email,
-          expires_at: DateTime.add(DateTime.utc_now(), 900, :second)
-        })
-        |> put_flash(
-          :info,
-          "An account with this email exists. Log in to link your #{provider} account."
-        )
+        |> put_flash(:error, "Unknown provider.")
         |> redirect(to: ~p"<%= login_path %>")
+    end
+  end
 
-      {:error, %Sigra.Error.OAuthError{error_code: :state_mismatch}} ->
-        conn
-        |> put_flash(:error, Sigra.Error.safe_message(:oauth_state_mismatch))
-        |> redirect(to: ~p"<%= login_path %>")
+  # Validates that the provider string matches a configured OAuth provider.
+  # Returns {:ok, atom} if valid, :error if not configured.
+  defp validate_provider(config, provider) when is_binary(provider) do
+    configured_providers =
+      Sigra.Config.oauth_providers(config)
+      |> Keyword.keys()
+      |> Enum.map(&to_string/1)
 
-      {:error, %Sigra.Error.OAuthError{error_code: :no_email}} ->
-        conn
-        |> put_flash(:error, Sigra.Error.safe_message(:oauth_no_email))
-        |> redirect(to: ~p"<%= login_path %>")
-
-      {:error, _reason} ->
-        conn
-        |> put_flash(
-          :error,
-          "Could not sign in with #{provider}. Please try again or use another method."
-        )
-        |> redirect(to: ~p"<%= login_path %>")
+    if provider in configured_providers do
+      {:ok, String.to_existing_atom(provider)}
+    else
+      :error
     end
   end
 end
