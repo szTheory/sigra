@@ -16,6 +16,7 @@ defmodule Sigra.Install.GeneratorEmailTest do
     from_email: "noreply@example.com",
     log_in_url: "/users/log_in",
     reset_password_url: "/users/reset_password",
+    settings_url: "/users/settings",
     binary_id: false,
     adapter: :postgres
   ]
