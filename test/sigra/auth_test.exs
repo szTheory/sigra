@@ -1431,4 +1431,237 @@ defmodule Sigra.AuthTest do
       assert :ok = Sigra.Workers.TokenCleanup.cleanup_expired_sessions(config)
     end
   end
+
+  describe "authenticate/3 MFA-aware flow" do
+    test "with MFA-enabled user creates mfa_pending session via config-based auth" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 1,
+        email: "mfa_user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0,
+        locked_at: nil
+      }
+
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        token: "raw-token",
+        hashed_token: "hashed",
+        type: :mfa_pending,
+        inserted_at: DateTime.utc_now()
+      }
+
+      config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        require_confirmation: false,
+        lockout: [threshold: 5, duration: 900, notify: false],
+        suspicious_login: [enabled: false, notify: false],
+        session: [
+          store: Sigra.MockSessionStore,
+          session_schema: TestSessionSchema
+        ],
+        mfa: [
+          check_fn: fn _user_id -> true end,
+          pending_timeout: 300
+        ]
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "mfa_user@example.com"] -> user end)
+      |> expect(:update, fn changeset -> {:ok, struct(user, changeset.changes)} end)
+
+      Sigra.MockSessionStore
+      |> expect(:create, fn 1, metadata, _opts ->
+        assert metadata.type == :mfa_pending
+        {:ok, session}
+      end)
+
+      result = Auth.authenticate(config, %{"email" => "mfa_user@example.com", "password" => "correct_password"})
+
+      assert {:ok, _user, %{session: returned_session, mfa_required: true}} = result
+      assert returned_session.type == :mfa_pending
+    end
+
+    test "with non-MFA user creates standard session via config-based auth" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 2,
+        email: "normal_user@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0,
+        locked_at: nil
+      }
+
+      session = %Sigra.Session{
+        id: 2,
+        user_id: 2,
+        token: "raw-token",
+        hashed_token: "hashed",
+        type: :standard,
+        inserted_at: DateTime.utc_now()
+      }
+
+      config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        require_confirmation: false,
+        lockout: [threshold: 5, duration: 900, notify: false],
+        suspicious_login: [enabled: false, notify: false],
+        session: [
+          store: Sigra.MockSessionStore,
+          session_schema: TestSessionSchema
+        ],
+        mfa: [
+          check_fn: fn _user_id -> false end,
+          pending_timeout: 300
+        ]
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "normal_user@example.com"] -> user end)
+      |> expect(:update, fn changeset -> {:ok, struct(user, changeset.changes)} end)
+
+      Sigra.MockSessionStore
+      |> expect(:create, fn 2, metadata, _opts ->
+        assert metadata.type == :standard
+        {:ok, session}
+      end)
+
+      result = Auth.authenticate(config, %{"email" => "normal_user@example.com", "password" => "correct_password"})
+
+      assert {:ok, _user, %{session: returned_session}} = result
+      assert returned_session.type == :standard
+      # Should NOT have mfa_required key
+      assert {:ok, _user, result_map} = result
+      refute Map.has_key?(result_map, :mfa_required)
+    end
+  end
+
+  describe "complete_mfa_verification/4" do
+    test "deletes old mfa_pending session and creates new standard session" do
+      old_session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "old-hashed",
+        type: :mfa_pending,
+        inserted_at: DateTime.utc_now()
+      }
+
+      new_session = %Sigra.Session{
+        id: 2,
+        user_id: 1,
+        token: "new-raw",
+        hashed_token: "new-hashed",
+        type: :standard,
+        inserted_at: DateTime.utc_now()
+      }
+
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        session: [
+          store: Sigra.MockSessionStore,
+          session_schema: TestSessionSchema
+        ]
+      }
+
+      Sigra.MockSessionStore
+      |> expect(:delete, fn "old-hashed", _opts -> :ok end)
+      |> expect(:create, fn 1, metadata, _opts ->
+        assert metadata.type == :standard
+        {:ok, new_session}
+      end)
+
+      result = Auth.complete_mfa_verification(config, user, old_session)
+
+      assert {:ok, %{session: ^new_session}} = result
+    end
+
+    test "upgrades to remember_me when remember_me option is true" do
+      old_session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "old-hashed",
+        type: :mfa_pending,
+        inserted_at: DateTime.utc_now()
+      }
+
+      new_session = %Sigra.Session{
+        id: 2,
+        user_id: 1,
+        token: "new-raw",
+        hashed_token: "new-hashed",
+        type: :remember_me,
+        inserted_at: DateTime.utc_now()
+      }
+
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        session: [
+          store: Sigra.MockSessionStore,
+          session_schema: TestSessionSchema
+        ]
+      }
+
+      Sigra.MockSessionStore
+      |> expect(:delete, fn "old-hashed", _opts -> :ok end)
+      |> expect(:create, fn 1, metadata, _opts ->
+        assert metadata.type == :remember_me
+        {:ok, new_session}
+      end)
+
+      result = Auth.complete_mfa_verification(config, user, old_session, remember_me: true)
+
+      assert {:ok, %{session: ^new_session}} = result
+    end
+
+    test "includes trust_browser flag in result" do
+      old_session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "old-hashed",
+        type: :mfa_pending,
+        inserted_at: DateTime.utc_now()
+      }
+
+      new_session = %Sigra.Session{
+        id: 2,
+        user_id: 1,
+        token: "new-raw",
+        hashed_token: "new-hashed",
+        type: :standard,
+        inserted_at: DateTime.utc_now()
+      }
+
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      config = %Sigra.Config{
+        repo: Sigra.MockRepo,
+        user_schema: TestUser,
+        session: [
+          store: Sigra.MockSessionStore,
+          session_schema: TestSessionSchema
+        ]
+      }
+
+      Sigra.MockSessionStore
+      |> expect(:delete, fn "old-hashed", _opts -> :ok end)
+      |> expect(:create, fn 1, _metadata, _opts -> {:ok, new_session} end)
+
+      result = Auth.complete_mfa_verification(config, user, old_session, trust_browser: true)
+
+      assert {:ok, %{session: _, trust_browser: true}} = result
+    end
+  end
 end
