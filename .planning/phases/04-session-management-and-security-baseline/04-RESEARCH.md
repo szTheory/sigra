@@ -552,22 +552,22 @@ end
 
 **All critical claims about Hammer API, existing codebase structure, and Phoenix PubSub are verified.**
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Hammer Module Reference Pattern**
    - What we know: Hammer 7.x requires a module defined with `use Hammer, backend: :ets` and started in the supervision tree. Sigra's wrapper needs to call `Module.hit/3`.
    - What's unclear: Best way for the wrapper to discover the host app's Hammer module name. Options: (a) Application.get_env, (b) pass in config struct, (c) convention-based module name.
-   - Recommendation: Use `Application.get_env(:sigra, :hammer_module)` with generator setting it automatically. Simple, works at runtime.
+   - RESOLVED: Use `Application.get_env(:sigra, :hammer_module)` with generator setting it automatically. Simple, works at runtime.
 
 2. **PubSub Module Reference for "Log Out Everywhere"**
    - What we know: The existing user_auth.ex template calls `Endpoint.broadcast/3` which uses the endpoint's PubSub.
    - What's unclear: Library-side code (`Sigra.Auth`) needs PubSub access to broadcast disconnect. Library doesn't know the endpoint module.
-   - Recommendation: Accept `pubsub_module` in opts or config. Generated code passes `MyApp.PubSub`. Library calls `Phoenix.PubSub.broadcast/3` directly.
+   - RESOLVED: Accept `pubsub_module` in opts or config. Generated code passes `MyApp.PubSub`. Library calls `Phoenix.PubSub.broadcast/3` directly.
 
 3. **Session Cleanup Batch Size**
    - What we know: TokenCleanup already uses `delete_all` per context. Sessions need similar cleanup.
    - What's unclear: Whether to batch deletes for very large session tables.
-   - Recommendation: Start with simple `delete_all` with WHERE clause (same as tokens). Add batching if performance issues arise. This is Claude's discretion per CONTEXT.md.
+   - RESOLVED: Start with simple `delete_all` with WHERE clause (same as tokens). Add batching if performance issues arise. This is Claude's discretion per CONTEXT.md.
 
 ## Validation Architecture
 
