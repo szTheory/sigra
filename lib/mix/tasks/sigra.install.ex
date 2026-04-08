@@ -157,7 +157,16 @@ defmodule Mix.Tasks.Sigra.Install do
       {:eex, "sudo_controller.ex",
        Path.join(["lib", "#{otp_app_str}_web", "controllers", "auth", "sudo_controller.ex"])},
       {:eex, "sudo_html.ex",
-       Path.join(["lib", "#{otp_app_str}_web", "controllers", "auth", "sudo_html.ex"])}
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "auth", "sudo_html.ex"])},
+      # Phase 6: MFA schemas and controller (always generated)
+      {:eex, "user_mfa_credential.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "user_mfa_credential.ex"])},
+      {:eex, "user_backup_code.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "user_backup_code.ex"])},
+      {:eex, "mfa_challenge_controller.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_challenge_controller.ex"])},
+      {:eex, "mfa_challenge_html.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_challenge_html.ex"])}
     ]
 
     # Conditionally add LiveView or controller-mode templates
@@ -175,14 +184,22 @@ defmodule Mix.Tasks.Sigra.Install do
            Path.join(["lib", "#{otp_app_str}_web", "live", "reset_password_live.ex"])},
           # Phase 4: Session management LiveView
           {:eex, "session_live.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "live", "auth", "session_live.ex"])}
+           Path.join(["lib", "#{otp_app_str}_web", "live", "auth", "session_live.ex"])},
+          # Phase 6: MFA LiveView pages
+          {:eex, "mfa_challenge_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "mfa_challenge_live.ex"])},
+          {:eex, "mfa_settings_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "mfa_settings_live.ex"])}
         ]
       else
         [
           {:eex, "login_html.ex",
            Path.join(["lib", "#{otp_app_str}_web", "controllers", "session_html.ex"])},
           {:eex, "registration_html.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "controllers", "registration_html.ex"])}
+           Path.join(["lib", "#{otp_app_str}_web", "controllers", "registration_html.ex"])},
+          # Phase 6: MFA controller-mode settings page
+          {:eex, "mfa_settings_html.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_settings_html.ex"])}
         ]
       end
 
@@ -294,12 +311,45 @@ defmodule Mix.Tasks.Sigra.Install do
             post "/sudo", Auth.SudoController, :create
       """
 
+      # MFA challenge routes (accessible with mfa_pending sessions, D-24)
+      mfa_challenge_routes =
+        if binding[:live] do
+          """
+
+              live "/mfa", MFAChallengeLive
+          """
+        else
+          """
+
+              get "/mfa", MFAChallengeController, :new
+              post "/mfa", MFAChallengeController, :create
+          """
+        end
+
+      # MFA settings routes (within authenticated + MFA-verified pipeline)
+      mfa_settings_routes =
+        if binding[:live] do
+          """
+
+              live "/settings/mfa", MFASettingsLive
+          """
+        else
+          ""
+        end
+
       router_plug_code = """
         # Sigra authentication
         import #{web_module}.UserAuth
 
         pipeline :require_authenticated do
           plug :require_authenticated_user
+          plug :require_mfa
+        end
+
+        # MFA challenge (accessible with mfa_pending sessions, D-24)
+        scope "/users", #{web_module} do
+          pipe_through [:browser]
+      #{mfa_challenge_routes}
         end
 
         scope "/users", #{web_module} do
@@ -315,7 +365,7 @@ defmodule Mix.Tasks.Sigra.Install do
           pipe_through [:browser, :require_authenticated]
 
           delete "/log_out", SessionController, :delete
-      #{session_management_routes}#{sudo_routes}
+      #{session_management_routes}#{sudo_routes}#{mfa_settings_routes}
         end
       """
 

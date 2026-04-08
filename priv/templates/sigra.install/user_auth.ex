@@ -299,5 +299,28 @@ defmodule <%= web_module %>.UserAuth do
 
   defp maybe_store_return_to(conn), do: conn
 
+  @doc """
+  Used for routes that require the user to have completed MFA verification.
+
+  If the user has MFA enabled and the session is in `mfa_pending` state,
+  redirects to the MFA challenge page. Delegates to `Sigra.Plug.RequireMFA`
+  for the core check.
+
+  Per D-33: auto-inserted into authenticated pipeline by generator.
+  """
+  def require_mfa(conn, _opts) do
+    scope = conn.assigns[:current_scope]
+
+    if scope && get_session(conn, :mfa_pending) == true do
+      conn
+      |> maybe_store_return_to()
+      |> put_session(:mfa_return_to, current_path(conn))
+      |> redirect(to: ~p"/users/mfa")
+      |> halt()
+    else
+      conn
+    end
+  end
+
   defp signed_in_path(_conn), do: ~p"/"
 end
