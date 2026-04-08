@@ -30,6 +30,11 @@ defmodule Sigra.Config do
       type: :atom,
       doc: "The OTP application name. Used for config.exs convenience layer."
     ],
+    secret_key_base: [
+      type: {:or, [:string, nil]},
+      default: nil,
+      doc: "The host app's secret key base. Required for JWT HS256 signing and token operations."
+    ],
     mailer: [
       type: :atom,
       doc: "The mailer module implementing `Sigra.Mailer` behaviour."
@@ -507,6 +512,11 @@ defmodule Sigra.Config do
     otp_app: [
       type: :atom,
       doc: "The OTP application name. Used for config.exs convenience layer."
+    ],
+    secret_key_base: [
+      type: {:or, [:string, nil]},
+      default: nil,
+      doc: "The host app's secret key base. Required for JWT HS256 signing and token operations."
     ],
     mailer: [
       type: :atom,
@@ -1058,6 +1068,7 @@ defmodule Sigra.Config do
           repo: module(),
           user_schema: module(),
           otp_app: atom() | nil,
+          secret_key_base: String.t() | nil,
           mailer: module() | nil,
           email_module: module() | nil,
           password: keyword(),
@@ -1084,6 +1095,7 @@ defmodule Sigra.Config do
     :repo,
     :user_schema,
     :otp_app,
+    :secret_key_base,
     :mailer,
     :email_module,
     password: [],

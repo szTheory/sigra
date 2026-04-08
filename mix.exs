@@ -44,6 +44,7 @@ defmodule Sigra.MixProject do
       {:swoosh, "~> 1.5", optional: true},
       {:oban, "~> 2.17", optional: true},
       {:assent, "~> 0.3", optional: true},
+      {:joken, "~> 2.6", optional: true},
       {:nimble_totp, "~> 1.0"},
       {:eqrcode, "~> 0.2.1", optional: true},
       # Dev/test
