@@ -261,6 +261,159 @@ defmodule <%= context_module %>.Emails do
     |> text_body(text_body)
   end
 
+  @doc "Builds a notification email when MFA is enabled on an account."
+  def mfa_enabled_email(user, _opts \\ []) do
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Two-Factor Authentication Enabled")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Two-factor authentication has been enabled on your %{app_name} account. Your account is now more secure.", app_name: "<%= app_name %>")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If you did not enable this, change your password immediately.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Two-Factor Authentication Enabled")}
+
+    #{dgettext("sigra", "Two-factor authentication has been enabled on your %{app_name} account. Your account is now more secure.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "If you did not enable this, change your password immediately.")}
+
+    #{dgettext("sigra", "Change your password:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Two-factor authentication enabled"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a notification email when MFA is disabled on an account."
+  def mfa_disabled_email(user, _opts \\ []) do
+    settings_url = "<%= settings_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Two-Factor Authentication Disabled")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Two-factor authentication was disabled on your %{app_name} account. If this wasn't you, re-enable MFA and change your password.", app_name: "<%= app_name %>")}
+    </p>
+    #{cta_button(dgettext("sigra", "Secure your account"), settings_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Two-Factor Authentication Disabled")}
+
+    #{dgettext("sigra", "Two-factor authentication was disabled on your %{app_name} account. If this wasn't you, re-enable MFA and change your password.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "Secure your account:")} #{settings_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Two-factor authentication disabled"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a notification email when a backup code is used to sign in."
+  def backup_code_used_email(user, opts \\ []) do
+    remaining = Keyword.get(opts, :remaining, 0)
+    settings_url = "<%= settings_url %>"
+
+    low_codes_warning =
+      if remaining <= 2 do
+        """
+        <p style="margin: 0 0 12px 0; font-size: 16px; color: #dc2626; font-weight: 600; line-height: 1.5; font-family: #{@font_family};">
+          #{dgettext("sigra", "You're running low on backup codes. Generate new ones to ensure you can always access your account.")}
+        </p>
+        """
+      else
+        ""
+      end
+
+    low_codes_text =
+      if remaining <= 2 do
+        "\n#{dgettext("sigra", "You're running low on backup codes. Generate new ones to ensure you can always access your account.")}\n"
+      else
+        ""
+      end
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Backup Code Used")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "A backup code was used to sign in to your %{app_name} account. You have %{remaining} of 8 backup codes remaining.", app_name: "<%= app_name %>", remaining: remaining)}
+    </p>
+    #{low_codes_warning}#{cta_button(dgettext("sigra", "Generate new backup codes"), settings_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Backup Code Used")}
+
+    #{dgettext("sigra", "A backup code was used to sign in to your %{app_name} account. You have %{remaining} of 8 backup codes remaining.", app_name: "<%= app_name %>", remaining: remaining)}
+    #{low_codes_text}
+    #{dgettext("sigra", "Generate new backup codes:")} #{settings_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Backup code used to sign in"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a notification email when MFA verification is temporarily locked."
+  def mfa_lockout_email(user, _opts \\ []) do
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Verification Temporarily Locked")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "We detected multiple failed two-factor authentication attempts on your %{app_name} account. Verification has been temporarily locked for 15 minutes.", app_name: "<%= app_name %>")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If this was you, wait for the lockout to expire and try again. If this wasn't you, change your password immediately.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Verification Temporarily Locked")}
+
+    #{dgettext("sigra", "We detected multiple failed two-factor authentication attempts on your %{app_name} account. Verification has been temporarily locked for 15 minutes.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "If this was you, wait for the lockout to expire and try again. If this wasn't you, change your password immediately.")}
+
+    #{dgettext("sigra", "Change your password:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Too many failed verification attempts"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
   # -- Private helpers --
 
   defp base_email(to) do

@@ -501,6 +501,59 @@ defmodule <%= context_module %> do
     ]
   end
 
+  ## MFA
+
+  alias <%= context_module %>.UserMFACredential
+  alias <%= context_module %>.UserBackupCode
+
+  @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
+  def mfa_enroll(opts \\ []) do
+    Sigra.MFA.enroll(sigra_config(), opts)
+  end
+
+  @doc "Confirm MFA enrollment with a TOTP code. Creates credential and backup codes."
+  def mfa_confirm_enrollment(user, raw_secret, code, opts \\ []) do
+    Sigra.MFA.confirm_enrollment(sigra_config(), user, raw_secret, code,
+      Keyword.merge([
+        mfa_credential_schema: UserMFACredential,
+        backup_code_schema: UserBackupCode
+      ], opts))
+  end
+
+  @doc "Verify a TOTP code for MFA challenge."
+  def mfa_verify(user, code, opts \\ []) do
+    Sigra.MFA.verify(sigra_config(), user, code,
+      Keyword.merge([mfa_credential_schema: UserMFACredential], opts))
+  end
+
+  @doc "Verify a backup code for MFA challenge."
+  def mfa_verify_backup(user, code, opts \\ []) do
+    Sigra.MFA.verify_backup(sigra_config(), user, code,
+      Keyword.merge([
+        mfa_credential_schema: UserMFACredential,
+        backup_code_schema: UserBackupCode
+      ], opts))
+  end
+
+  @doc "Disable MFA for a user. Requires valid TOTP or backup code."
+  def mfa_disable(user, code, opts \\ []) do
+    Sigra.MFA.disable(sigra_config(), user, code,
+      Keyword.merge([
+        mfa_credential_schema: UserMFACredential,
+        backup_code_schema: UserBackupCode
+      ], opts))
+  end
+
+  @doc "Check if a user has MFA enabled."
+  def mfa_enabled?(user) do
+    Sigra.MFA.enabled?(sigra_config(), user)
+  end
+
+  @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
+  def mfa_status(user) do
+    Sigra.MFA.status(sigra_config(), user)
+  end
+
   # -- Private helpers --
 
   defp delivery_opts do

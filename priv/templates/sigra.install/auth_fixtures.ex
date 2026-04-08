@@ -83,4 +83,40 @@ defmodule <%= context_module %>Fixtures do
     session = session_fixture(user, Map.put(attrs, :sudo_at, DateTime.utc_now()))
     session
   end
+
+  @doc """
+  Creates a user with MFA (TOTP) enabled.
+
+  Returns `%{user: user, totp_secret: secret, backup_codes: codes}` where
+  `secret` is the raw Base32 TOTP secret and `codes` are the plaintext
+  backup codes (before hashing).
+  """
+  def mfa_user_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs)
+    %{totp_secret: secret, backup_codes: codes} = Sigra.Testing.setup_totp(user, repo: <%= repo_module %>)
+    %{user: user, totp_secret: secret, backup_codes: codes}
+  end
+
+  @doc """
+  Creates a user with MFA enabled and an `mfa_pending` session.
+
+  Returns `%{user: user, session: session, totp_secret: secret}`.
+  """
+  def mfa_pending_session_fixture(attrs \\ %{}) do
+    %{user: user, totp_secret: secret} = mfa_user_fixture(attrs)
+    session = session_fixture(user, %{type: "mfa_pending"})
+    %{user: user, session: session, totp_secret: secret}
+  end
+
+  @doc """
+  Creates a user with MFA enabled whose MFA credential is locked out
+  (failed_attempts >= threshold).
+
+  Returns `%{user: user, credential: credential}`.
+  """
+  def mfa_locked_fixture(attrs \\ %{}) do
+    %{user: user} = mfa_user_fixture(attrs)
+    credential = Sigra.Testing.simulate_mfa_lockout(user, repo: <%= repo_module %>)
+    %{user: user, credential: credential}
+  end
 end
