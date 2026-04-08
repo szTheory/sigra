@@ -106,9 +106,9 @@ Plans:
   5. Edge cases are handled gracefully: provider returns no email, user denies permissions, provider is down, CSRF state mismatch all produce clear error messages
 **Plans:** 3 plans
 Plans:
-- [ ] 05-01-PLAN.md — Core types, config, Identity struct, Assent strategy wrappers
-- [ ] 05-02-PLAN.md — OAuth orchestrator, callback processor, Auth integration, telemetry, testing
-- [ ] 05-03-PLAN.md — Generator (mix sigra.gen.oauth), templates, route/config injection
+- [x] 05-01-PLAN.md — Core types, config, Identity struct, Assent strategy wrappers
+- [x] 05-02-PLAN.md — OAuth orchestrator, callback processor, Auth integration, telemetry, testing
+- [x] 05-03-PLAN.md — Generator (mix sigra.gen.oauth), templates, route/config injection
 **UI hint**: yes
 
 ### Phase 6: Multi-Factor Authentication
