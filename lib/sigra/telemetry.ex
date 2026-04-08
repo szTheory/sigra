@@ -50,6 +50,24 @@ defmodule Sigra.Telemetry do
     * `[:sigra, :oauth, :register, :stop]` - New user registered via OAuth
     * `[:sigra, :oauth, :login, :stop]` - Existing user logged in via OAuth
 
+  ### MFA (span events -- :start/:stop/:exception)
+
+    * `[:sigra, :mfa, :enroll, :start | :stop | :exception]` - TOTP enrollment.
+      Metadata: `%{user_id: id}`. On stop: `%{user_id: id, result: :success | :failure}`.
+    * `[:sigra, :mfa, :verify, :start | :stop | :exception]` - MFA verification.
+      Metadata: `%{user_id: id, method: :totp | :backup_code}`. On stop: `%{user_id: id, method: atom, result: :success | :failure, attempts_remaining: integer}`.
+    * `[:sigra, :mfa, :disable, :start | :stop | :exception]` - MFA disable.
+      Metadata: `%{user_id: id}`. On stop: `%{user_id: id, admin: boolean}`.
+    * `[:sigra, :mfa, :backup_codes, :regenerate, :start | :stop | :exception]` - Backup code regeneration.
+      Metadata: `%{user_id: id}`.
+
+  ### MFA Signals (one-shot events)
+
+    * `[:sigra, :mfa, :lockout]` - MFA lockout triggered. Metadata: `%{user_id: id, ip: string}`. Log level: `:warning`.
+    * `[:sigra, :mfa, :pending_expired]` - mfa_pending session expired. Metadata: `%{user_id: id, ip: string}`. Log level: `:warning`.
+    * `[:sigra, :mfa, :trust, :granted]` - Trust cookie granted. Metadata: `%{user_id: id}`.
+    * `[:sigra, :mfa, :trust, :revoked_all]` - All trust revoked. Metadata: `%{user_id: id}`.
+
   ### Security Signals (one-shot events)
 
     * `[:sigra, :security, :rate_limited]` - Rate limit exceeded
@@ -86,7 +104,9 @@ defmodule Sigra.Telemetry do
     [:sigra, :security, :rate_limited],
     [:sigra, :security, :lockout],
     [:sigra, :security, :suspicious_login],
-    [:sigra, :security, :invalid_credentials]
+    [:sigra, :security, :invalid_credentials],
+    [:sigra, :mfa, :lockout],
+    [:sigra, :mfa, :pending_expired]
   ]
 
   @logged_events [
@@ -115,6 +135,15 @@ defmodule Sigra.Telemetry do
     [:sigra, :oauth, :refresh, :stop],
     [:sigra, :oauth, :register, :stop],
     [:sigra, :oauth, :login, :stop],
+    # MFA
+    [:sigra, :mfa, :enroll, :stop],
+    [:sigra, :mfa, :verify, :stop],
+    [:sigra, :mfa, :disable, :stop],
+    [:sigra, :mfa, :backup_codes, :regenerate, :stop],
+    [:sigra, :mfa, :lockout],
+    [:sigra, :mfa, :pending_expired],
+    [:sigra, :mfa, :trust, :granted],
+    [:sigra, :mfa, :trust, :revoked_all],
     # Email
     [:sigra, :email, :deliver, :stop],
     [:sigra, :email, :deliver, :exception],
@@ -165,6 +194,17 @@ defmodule Sigra.Telemetry do
     :telemetry.execute(event_name, measurements, metadata)
   end
 
+  @mfa_events [
+    [:sigra, :mfa, :enroll, :stop],
+    [:sigra, :mfa, :verify, :stop],
+    [:sigra, :mfa, :disable, :stop],
+    [:sigra, :mfa, :backup_codes, :regenerate, :stop],
+    [:sigra, :mfa, :lockout],
+    [:sigra, :mfa, :pending_expired],
+    [:sigra, :mfa, :trust, :granted],
+    [:sigra, :mfa, :trust, :revoked_all]
+  ]
+
   @oauth_events [
     [:sigra, :oauth, :authorize, :stop],
     [:sigra, :oauth, :callback, :stop],
@@ -174,6 +214,15 @@ defmodule Sigra.Telemetry do
     [:sigra, :oauth, :register, :stop],
     [:sigra, :oauth, :login, :stop]
   ]
+
+  @doc """
+  Returns the list of MFA-specific telemetry event names.
+
+  Useful for attaching custom handlers to all MFA events.
+  """
+  @doc since: "0.6.0"
+  @spec mfa_events() :: [[atom()]]
+  def mfa_events, do: @mfa_events
 
   @doc """
   Returns the list of OAuth-specific telemetry event names.

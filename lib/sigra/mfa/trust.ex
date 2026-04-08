@@ -49,12 +49,16 @@ defmodule Sigra.MFA.Trust do
   @doc since: "0.6.0"
   @spec sign(String.t(), term(), non_neg_integer(), pos_integer()) :: binary()
   def sign(secret_key_base, user_id, trust_epoch, trust_ttl) do
-    Plug.Crypto.sign(
-      secret_key_base,
-      @salt,
-      {user_id, trust_epoch, System.system_time(:second)},
-      max_age: trust_ttl
-    )
+    result =
+      Plug.Crypto.sign(
+        secret_key_base,
+        @salt,
+        {user_id, trust_epoch, System.system_time(:second)},
+        max_age: trust_ttl
+      )
+
+    Sigra.Telemetry.event([:sigra, :mfa, :trust, :granted], %{}, %{user_id: user_id})
+    result
   end
 
   @doc """
@@ -102,10 +106,14 @@ defmodule Sigra.MFA.Trust do
   def revoke_all(repo, user_schema, user_id) do
     import Ecto.Query
 
-    from(u in user_schema,
-      where: u.id == ^user_id,
-      update: [inc: [mfa_trust_epoch: 1]]
-    )
-    |> repo.update_all([])
+    result =
+      from(u in user_schema,
+        where: u.id == ^user_id,
+        update: [inc: [mfa_trust_epoch: 1]]
+      )
+      |> repo.update_all([])
+
+    Sigra.Telemetry.event([:sigra, :mfa, :trust, :revoked_all], %{}, %{user_id: user_id})
+    result
   end
 end

@@ -55,22 +55,24 @@ defmodule Sigra.MFA do
   @doc since: "0.6.0"
   @spec enroll(Sigra.Config.t(), keyword()) :: {:ok, map()}
   def enroll(%Sigra.Config{} = config, opts \\ []) do
-    raw_secret = NimbleTOTP.secret()
-    base32_secret = Base.encode32(raw_secret)
-    account = Keyword.get(opts, :account, "user")
-    issuer = resolve_issuer(config)
+    Sigra.Telemetry.span([:sigra, :mfa, :enroll], %{}, fn ->
+      raw_secret = NimbleTOTP.secret()
+      base32_secret = Base.encode32(raw_secret)
+      account = Keyword.get(opts, :account, "user")
+      issuer = resolve_issuer(config)
 
-    otpauth_uri = NimbleTOTP.otpauth_uri("#{issuer}:#{account}", raw_secret, issuer: issuer)
+      otpauth_uri = NimbleTOTP.otpauth_uri("#{issuer}:#{account}", raw_secret, issuer: issuer)
 
-    svg = generate_qr_svg(otpauth_uri)
+      svg = generate_qr_svg(otpauth_uri)
 
-    {:ok,
-     %{
-       secret: base32_secret,
-       otpauth_uri: otpauth_uri,
-       svg: svg,
-       raw_secret: raw_secret
-     }}
+      {:ok,
+       %{
+         secret: base32_secret,
+         otpauth_uri: otpauth_uri,
+         svg: svg,
+         raw_secret: raw_secret
+       }}
+    end)
   end
 
   @doc """
@@ -170,60 +172,63 @@ defmodule Sigra.MFA do
           | {:error, :lockout, non_neg_integer()}
           | {:error, :not_enrolled}
   def verify(%Sigra.Config{} = config, user, code, opts \\ []) do
-    repo = config.repo
-    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+    Sigra.Telemetry.span([:sigra, :mfa, :verify], %{user_id: user.id, method: :totp}, fn ->
+      repo = config.repo
+      mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
 
-    case repo.get_by(mfa_credential_schema, user_id: user.id) do
-      nil ->
-        {:error, :not_enrolled}
+      case repo.get_by(mfa_credential_schema, user_id: user.id) do
+        nil ->
+          {:error, :not_enrolled}
 
-      db_credential ->
-        credential = Credential.from_schema(db_credential)
+        db_credential ->
+          credential = Credential.from_schema(db_credential)
 
-        case Lockout.check(credential, config) do
-          {:error, :lockout, remaining} ->
-            {:error, :lockout, remaining}
+          case Lockout.check(credential, config) do
+            {:error, :lockout, remaining} ->
+              {:error, :lockout, remaining}
 
-          :ok ->
-            drift_steps = Keyword.get(config.mfa, :totp_drift_steps, 1)
-            last_step = credential.last_verified_step || 0
+            :ok ->
+              drift_steps = Keyword.get(config.mfa, :totp_drift_steps, 1)
+              last_step = credential.last_verified_step || 0
 
-            case verify_totp(credential.encrypted_secret, code, last_step, drift_steps) do
-              {:ok, step} ->
-                # Reset attempts and update last_verified_step
-                Lockout.reset(repo, mfa_credential_schema, credential.id)
+              case verify_totp(credential.encrypted_secret, code, last_step, drift_steps) do
+                {:ok, step} ->
+                  # Reset attempts and update last_verified_step
+                  Lockout.reset(repo, mfa_credential_schema, credential.id)
 
-                import Ecto.Query
+                  import Ecto.Query
 
-                from(c in mfa_credential_schema,
-                  where: c.id == ^credential.id,
-                  update: [
-                    set: [
-                      last_verified_step: ^step,
-                      last_used_at: ^DateTime.utc_now()
+                  from(c in mfa_credential_schema,
+                    where: c.id == ^credential.id,
+                    update: [
+                      set: [
+                        last_verified_step: ^step,
+                        last_used_at: ^DateTime.utc_now()
+                      ]
                     ]
-                  ]
-                )
-                |> repo.update_all([])
+                  )
+                  |> repo.update_all([])
 
-                {:ok, :verified}
+                  {:ok, :verified}
 
-              {:error, _reason} ->
-                # Increment failed attempts
-                {:ok, %{failed_attempts: count, locked: locked}} =
-                  Lockout.increment(repo, mfa_credential_schema, credential.id, config)
+                {:error, _reason} ->
+                  # Increment failed attempts
+                  {:ok, %{failed_attempts: count, locked: locked}} =
+                    Lockout.increment(repo, mfa_credential_schema, credential.id, config)
 
-                threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
+                  threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
 
-                if locked do
-                  duration = Keyword.get(config.mfa, :lockout_duration, 900)
-                  {:error, :lockout, duration}
-                else
-                  {:error, :invalid_code, max(threshold - count, 0)}
-                end
-            end
-        end
-    end
+                  if locked do
+                    duration = Keyword.get(config.mfa, :lockout_duration, 900)
+                    Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
+                    {:error, :lockout, duration}
+                  else
+                    {:error, :invalid_code, max(threshold - count, 0)}
+                  end
+              end
+          end
+      end
+    end)
   end
 
   @doc """
@@ -244,43 +249,46 @@ defmodule Sigra.MFA do
           | {:error, :lockout, non_neg_integer()}
           | {:error, :not_enrolled}
   def verify_backup(%Sigra.Config{} = config, user, code, opts \\ []) do
-    repo = config.repo
-    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
-    backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
+    Sigra.Telemetry.span([:sigra, :mfa, :verify], %{user_id: user.id, method: :backup_code}, fn ->
+      repo = config.repo
+      mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+      backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
 
-    case repo.get_by(mfa_credential_schema, user_id: user.id) do
-      nil ->
-        {:error, :not_enrolled}
+      case repo.get_by(mfa_credential_schema, user_id: user.id) do
+        nil ->
+          {:error, :not_enrolled}
 
-      db_credential ->
-        credential = Credential.from_schema(db_credential)
+        db_credential ->
+          credential = Credential.from_schema(db_credential)
 
-        case Lockout.check(credential, config) do
-          {:error, :lockout, remaining} ->
-            {:error, :lockout, remaining}
+          case Lockout.check(credential, config) do
+            {:error, :lockout, remaining} ->
+              {:error, :lockout, remaining}
 
-          :ok ->
-            case BackupCodes.consume(repo, backup_code_schema, user.id, code) do
-              {:ok, :consumed} ->
-                Lockout.reset(repo, mfa_credential_schema, credential.id)
-                remaining = BackupCodes.remaining_count(repo, backup_code_schema, user.id)
-                {:ok, :consumed, remaining}
+            :ok ->
+              case BackupCodes.consume(repo, backup_code_schema, user.id, code) do
+                {:ok, :consumed} ->
+                  Lockout.reset(repo, mfa_credential_schema, credential.id)
+                  remaining = BackupCodes.remaining_count(repo, backup_code_schema, user.id)
+                  {:ok, :consumed, remaining}
 
-              {:error, :invalid_backup_code} ->
-                {:ok, %{failed_attempts: count, locked: locked}} =
-                  Lockout.increment(repo, mfa_credential_schema, credential.id, config)
+                {:error, :invalid_backup_code} ->
+                  {:ok, %{failed_attempts: count, locked: locked}} =
+                    Lockout.increment(repo, mfa_credential_schema, credential.id, config)
 
-                threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
+                  threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
 
-                if locked do
-                  duration = Keyword.get(config.mfa, :lockout_duration, 900)
-                  {:error, :lockout, duration}
-                else
-                  {:error, :invalid_backup_code, max(threshold - count, 0)}
-                end
-            end
-        end
-    end
+                  if locked do
+                    duration = Keyword.get(config.mfa, :lockout_duration, 900)
+                    Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
+                    {:error, :lockout, duration}
+                  else
+                    {:error, :invalid_backup_code, max(threshold - count, 0)}
+                  end
+              end
+          end
+      end
+    end)
   end
 
   @doc """
@@ -298,25 +306,27 @@ defmodule Sigra.MFA do
   @spec disable(Sigra.Config.t(), struct(), String.t(), keyword()) ::
           {:ok, :disabled} | {:error, atom()}
   def disable(%Sigra.Config{} = config, user, code, opts \\ []) do
-    repo = config.repo
-    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
-    backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
+    Sigra.Telemetry.span([:sigra, :mfa, :disable], %{user_id: user.id, admin: false}, fn ->
+      repo = config.repo
+      mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+      backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
 
-    # Try TOTP first, then backup code
-    verified =
-      case verify(config, user, code, opts) do
-        {:ok, :verified} -> :ok
-        _ -> verify_backup_for_disable(config, user, code, opts)
+      # Try TOTP first, then backup code
+      verified =
+        case verify(config, user, code, opts) do
+          {:ok, :verified} -> :ok
+          _ -> verify_backup_for_disable(config, user, code, opts)
+        end
+
+      case verified do
+        :ok ->
+          cleanup_mfa(repo, config.user_schema, mfa_credential_schema, backup_code_schema, user.id)
+          {:ok, :disabled}
+
+        error ->
+          error
       end
-
-    case verified do
-      :ok ->
-        cleanup_mfa(repo, config.user_schema, mfa_credential_schema, backup_code_schema, user.id)
-        {:ok, :disabled}
-
-      error ->
-        error
-    end
+    end)
   end
 
   @doc """
@@ -332,12 +342,14 @@ defmodule Sigra.MFA do
   @doc since: "0.6.0"
   @spec disable!(Sigra.Config.t(), struct(), keyword()) :: {:ok, :disabled}
   def disable!(%Sigra.Config{} = config, user, opts \\ []) do
-    repo = config.repo
-    mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
-    backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
+    Sigra.Telemetry.span([:sigra, :mfa, :disable], %{user_id: user.id, admin: true}, fn ->
+      repo = config.repo
+      mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+      backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
 
-    cleanup_mfa(repo, config.user_schema, mfa_credential_schema, backup_code_schema, user.id)
-    {:ok, :disabled}
+      cleanup_mfa(repo, config.user_schema, mfa_credential_schema, backup_code_schema, user.id)
+      {:ok, :disabled}
+    end)
   end
 
   @doc """

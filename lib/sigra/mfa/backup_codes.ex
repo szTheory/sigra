@@ -130,28 +130,30 @@ defmodule Sigra.MFA.BackupCodes do
   @spec regenerate(module(), module(), term(), pos_integer()) ::
           {:ok, [String.t()]}
   def regenerate(repo, backup_code_schema, user_id, count) do
-    # Delete all existing codes for this user
-    from(bc in backup_code_schema, where: bc.user_id == ^user_id)
-    |> repo.delete_all()
+    Sigra.Telemetry.span([:sigra, :mfa, :backup_codes, :regenerate], %{user_id: user_id}, fn ->
+      # Delete all existing codes for this user
+      from(bc in backup_code_schema, where: bc.user_id == ^user_id)
+      |> repo.delete_all()
 
-    # Generate and insert new codes
-    codes = generate(count)
-    now = DateTime.utc_now()
+      # Generate and insert new codes
+      codes = generate(count)
+      now = DateTime.utc_now()
 
-    entries =
-      Enum.map(codes, fn {_formatted, hashed} ->
-        %{
-          user_id: user_id,
-          hashed_code: hashed,
-          used_at: nil,
-          inserted_at: now,
-          updated_at: now
-        }
-      end)
+      entries =
+        Enum.map(codes, fn {_formatted, hashed} ->
+          %{
+            user_id: user_id,
+            hashed_code: hashed,
+            used_at: nil,
+            inserted_at: now,
+            updated_at: now
+          }
+        end)
 
-    repo.insert_all(backup_code_schema, entries)
+      repo.insert_all(backup_code_schema, entries)
 
-    formatted_codes = Enum.map(codes, &elem(&1, 0))
-    {:ok, formatted_codes}
+      formatted_codes = Enum.map(codes, &elem(&1, 0))
+      {:ok, formatted_codes}
+    end)
   end
 end
