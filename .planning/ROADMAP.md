@@ -87,12 +87,12 @@ Plans:
   5. When a user logs in from a new IP or device, they receive an email notification
 **Plans:** 6 plans
 Plans:
-- [ ] 04-01-PLAN.md — Session struct, SessionStore behaviour, GeoIP, UAParser, Ecto store, config extensions
-- [ ] 04-02-PLAN.md — FetchSession plug overhaul, RequireSudo redesign, Auth session functions, telemetry
-- [ ] 04-03-PLAN.md — Lockout module, Hammer wrapper, RateLimit plug, security testing helpers
-- [ ] 04-04-PLAN.md — Suspicious login detection, Auth.authenticate integration, TokenCleanup extension
-- [ ] 04-05-PLAN.md — Generator templates (migration, UserSession, sudo, emails, auth context)
-- [ ] 04-06-PLAN.md — Session listing LiveView, generator wiring, test fixtures, final verification
+- [x] 04-01-PLAN.md — Session struct, SessionStore behaviour, GeoIP, UAParser, Ecto store, config extensions
+- [x] 04-02-PLAN.md — FetchSession plug overhaul, RequireSudo redesign, Auth session functions, telemetry
+- [x] 04-03-PLAN.md — Lockout module, Hammer wrapper, RateLimit plug, security testing helpers
+- [x] 04-04-PLAN.md — Suspicious login detection, Auth.authenticate integration, TokenCleanup extension
+- [x] 04-05-PLAN.md — Generator templates (migration, UserSession, sudo, emails, auth context)
+- [x] 04-06-PLAN.md — Session listing LiveView, generator wiring, test fixtures, final verification
 
 ### Phase 5: OAuth and Social Login
 **Goal**: Users can register and log in via Google, GitHub, Apple, and Meta; existing users can link and unlink OAuth providers; account linking requires explicit confirmation to prevent account takeover
