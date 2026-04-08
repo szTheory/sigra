@@ -121,8 +121,16 @@ Plans:
   3. User is shown 8 backup codes exactly once at enrollment; using a code consumes it atomically; user can regenerate a fresh set
   4. User can check "trust this browser" and skip MFA for a configurable period on that device; disabling MFA requires the current TOTP code or a backup code
   5. After 5 failed TOTP attempts the TOTP endpoint locks for 15 minutes, independently of the main login lockout
-**Plans:** TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 06-01-PLAN.md — MFA core library modules (Sigra.MFA, Credential, BackupCodes, Trust, Lockout, Config, Error)
+- [ ] 06-02-PLAN.md — MFA session gate (Session :mfa_pending, RequireMFA/RequireMFAEnrolled plugs, Auth MFA flow)
+- [ ] 06-03-PLAN.md — MFA telemetry, testing helpers, TokenCleanup extension
+- [ ] 06-04-PLAN.md — Generated schemas, migration, email templates, Auth context delegation
+- [ ] 06-05-PLAN.md — Generated UI templates, generator wiring, router injection
 **UI hint**: yes
+
+
 
 ### Phase 7: API Authentication
 **Goal**: API clients can authenticate via bearer tokens or personal access tokens; the same `current_scope` shape is produced for both session and bearer auth paths; headless mode works without any UI
@@ -184,7 +192,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 3. Email Flows and Transactional Email | 0/5 | Planning complete | - |
 | 4. Session Management and Security Baseline | 0/6 | Planning complete | - |
 | 5. OAuth and Social Login | 0/3 | Planning complete | - |
-| 6. Multi-Factor Authentication | 0/TBD | Not started | - |
+| 6. Multi-Factor Authentication | 0/5 | Planning complete | - |
 | 7. API Authentication | 0/TBD | Not started | - |
 | 8. Account Lifecycle | 0/TBD | Not started | - |
 | 9. Audit Logging | 0/TBD | Not started | - |
