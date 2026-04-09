@@ -119,6 +119,9 @@ defmodule Sigra.Account.EmailChange do
       multi =
         Multi.new()
         |> Multi.update(:user, changeset_fn.(user, %{pending_email: nil}))
+        # Delete email change tokens for current email. In the unlikely case of
+        # concurrent email changes causing a context mismatch, TTL-based expiry
+        # will clean up any orphaned tokens.
         |> Multi.delete_all(:tokens, token_query_fn.(user, ["change:#{user.email}"]))
 
       case repo.transaction(multi) do
