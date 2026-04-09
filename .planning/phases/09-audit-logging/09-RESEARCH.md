@@ -434,13 +434,19 @@ Not applicable — no new external dependencies. Phase 9 uses existing deps: Ect
 | A5 | Forbidden-key scan is flat-only (not deep) for Phase 9 | §8 | LOW — deep scan deferred; document the limit. A malicious developer could hide a forbidden key under a nested map; telemetry-based detection catches this in downstream SIEM. |
 | A6 | All D-26 operations listed in §2 have a matching `Telemetry.span` or one-shot event already — no net-new telemetry needed | §2 | LOW — grep confirms all listed prefixes exist; `mfa.backup_code_used` is the one potential gap (not seen in telemetry.ex) — flagged below |
 
-## 9. Open Questions for the Planner
+## 9. Open Questions for the Planner (RESOLVED)
 
 1. **`mfa.backup_code_used` audit action has no matching telemetry event today** — `lib/sigra/telemetry.ex` does not emit `[:sigra, :mfa, :backup_code_used]` (only `mfa.verify` with `method: :backup_code` metadata). Options: (a) split audit action from telemetry, emit `mfa.backup_code_used` audit row alongside `mfa.verify.success` telemetry; (b) add the telemetry event in this phase. **Recommendation: (a)** — audit source is direct writes, not telemetry (D-01), so the lack of a parallel telemetry event is not a blocker.
 
+   **RESOLVED:** Direct-write audit row with no new telemetry event. Plan 03 Task 2 writes the audit row inside the backup-code verify Multi (alongside the `mfa.verify.success` row). Source of truth is the audit row, not telemetry.
+
 2. **`session.sudo_enter` vs `session.sudo_expire`** — current telemetry is a single `[:sigra, :session, :sudo, :stop]` span. The audit split by outcome requires either inspecting the span's result metadata at call sites or adding a second telemetry event. **Recommendation:** Inspect result in the Multi step factory; no new telemetry.
 
+   **RESOLVED:** Plan 03 Task 1 branches on the result tuple at the `Sigra.Session` call site and writes the appropriate action string (`session.sudo_enter` on entry, `session.sudo_expire` on expiry). No new telemetry event is added.
+
 3. **`after_commit` telemetry vs explicit `Multi.run` step (§7)** — planner should verify the cleaner path by testing both during implementation. Both are correct; one is more ergonomic for custom callers of `log_multi/3`.
+
+   **RESOLVED:** Override research recommendation. Telemetry fires from the `{:ok, _}` return branch of standalone `Sigra.Audit.log/3`. For `Sigra.Audit.log_multi/3`, callers manually invoke `Sigra.Audit.emit_telemetry_from_changes/1` in their own `{:ok, changes}` branch. Rationale: avoids `prepare_changes`/`after_commit` hooks (Ecto-version fragile) and guarantees telemetry never fires when the outer transaction rolls back. Documented in Plan 02 Task 2 and in the `Sigra.Audit` moduledoc.
 
 All other planning questions are resolved by CONTEXT.md.
 

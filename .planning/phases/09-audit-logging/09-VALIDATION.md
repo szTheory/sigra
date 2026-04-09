@@ -69,6 +69,7 @@ From RESEARCH.md §8 Validation Architecture — pre-implementation test scaffol
 |----------|-------------|------------|-------------------|
 | Oban-absent inline fallback for `Sigra.Audit.cleanup/1` | D-10 (retention) | Requires toggling optional Oban dep; CI typically runs with Oban present | Temporarily remove `:oban` from `mix.exs` deps, run `mix compile` and `Sigra.Audit.cleanup(retention_days: 30)` — confirm inline path works and startup warning logs |
 | Performance budget: login p99 overhead < 2ms from audit write | Non-functional (RESEARCH §8) | Requires benchmarking harness outside unit tests | Run `mix run bench/audit_login_overhead.exs` (to be added in Wave 0 if budget enforcement required); compare baseline vs audit-enabled |
+| Cursor pagination on the non-CI adapter (PG if CI = SQLite; SQLite if CI = PG) | AUDIT-03 (D-13) | CI usually runs a single adapter; `test/sigra/audit/cursor_portability_test.exs` covers the CI-selected adapter only | Locally switch `MIX_ENV=test` repo config to the other adapter, run `mix test test/sigra/audit/cursor_portability_test.exs --include cursor_portability` — must exit 0. Document in Plan 05 SUMMARY which adapter CI covered and which was verified manually. |
 
 ---
 
