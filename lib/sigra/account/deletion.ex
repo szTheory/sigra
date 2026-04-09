@@ -294,7 +294,13 @@ defmodule Sigra.Account.Deletion do
   end
 
   defp get_strategy(config) do
-    get_in(config, [:deletion, :strategy]) || :soft_delete
+    # Config may be a Sigra.Config struct (keyword list values),
+    # a plain map (from Oban worker), or a keyword list.
+    # get_in/2 handles all these shapes via Access behaviour.
+    case get_in(config, [:deletion, :strategy]) do
+      strategy when strategy in [:soft_delete, :hard_delete, :anonymize] -> strategy
+      _ -> :soft_delete
+    end
   end
 
   defp revoke_sessions(user, opts) do
