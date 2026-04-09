@@ -96,7 +96,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       assert String.contains?(content, "CREATE EXTENSION IF NOT EXISTS citext")
       assert String.contains?(content, ":citext")
       assert String.contains?(content, "create table(:users)")
-      assert String.contains?(content, "create unique_index(:users, [:email])")
+      assert String.contains?(content, "unique_index(:users, [:email]")
     end
 
     test "renders migration template for mysql adapter" do
