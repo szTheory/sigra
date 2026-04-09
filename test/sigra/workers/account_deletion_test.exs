@@ -3,6 +3,9 @@ defmodule Sigra.Workers.AccountDeletionTest do
 
   alias Sigra.Workers.AccountDeletion
 
+  # Ensure strategy atoms exist for String.to_existing_atom/1 in worker
+  _ = [:soft_delete, :hard_delete, :anonymize]
+
   describe "module configuration" do
     test "uses Oban.Worker" do
       Code.ensure_loaded!(AccountDeletion)
