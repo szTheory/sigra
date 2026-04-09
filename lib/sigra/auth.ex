@@ -1179,14 +1179,24 @@ defmodule Sigra.Auth do
           {:ok, struct(), String.t()} | {:error, term()}
   def request_email_change(config, user, new_email, opts \\ []) do
     repo = config.repo
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
 
     merged_opts =
       Keyword.merge(
         [
           changeset_fn: Keyword.fetch!(opts, :changeset_fn),
-          user_token_schema: Keyword.fetch!(opts, :user_token_schema),
+          user_token_schema: user_token_schema,
           secret_key_base: config.secret_key_base,
-          config: config
+          config: config,
+          build_email_token_fn: fn user, context ->
+            user_token_schema.build_email_token(user, context)
+          end,
+          token_query_fn: fn user, contexts ->
+            user_token_schema.by_user_and_contexts_query(user, contexts)
+          end,
+          email_taken_fn: fn repo, email ->
+            repo.get_by(config.user_schema, email: email) != nil
+          end
         ],
         opts
       )
@@ -1230,12 +1240,16 @@ defmodule Sigra.Auth do
           {:ok, struct()} | {:error, term()}
   def cancel_email_change(config, user, opts \\ []) do
     repo = config.repo
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
 
     merged_opts =
       Keyword.merge(
         [
           changeset_fn: Keyword.fetch!(opts, :changeset_fn),
-          user_token_schema: Keyword.fetch!(opts, :user_token_schema)
+          user_token_schema: user_token_schema,
+          token_query_fn: fn user, contexts ->
+            user_token_schema.by_user_and_contexts_query(user, contexts)
+          end
         ],
         opts
       )
