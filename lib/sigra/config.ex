@@ -531,6 +531,17 @@ defmodule Sigra.Config do
         on_password_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after password change. Receives (multi, context_map). Default: nil."],
         on_delete: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."]
       ]
+    ],
+    audit: [
+      type: :keyword_list,
+      default: [],
+      doc: "Structured audit logging options (Phase 9). See `Sigra.Audit`.",
+      keys: [
+        audit_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated AuditEvent schema module. Default: nil."],
+        retention_days: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Days to retain audit events. nil = keep forever (D-09). Default: nil."],
+        max_metadata_bytes: [type: :pos_integer, default: 8_192, doc: "Cap on JSON-encoded metadata byte size (D-20). Default: 8192."],
+        reserved_prefixes: [type: {:list, :string}, default: ~w(auth. session. mfa. oauth. api. account. sigra.), doc: "Reserved action prefixes developers cannot use (D-17, D-18)."]
+      ]
     ]
   ])}
   """
@@ -1174,6 +1185,34 @@ defmodule Sigra.Config do
             "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."
         ]
       ]
+    ],
+    audit: [
+      type: :keyword_list,
+      default: [],
+      doc: "Structured audit logging options (Phase 9). See `Sigra.Audit`.",
+      keys: [
+        audit_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "The generated AuditEvent schema module. Default: nil."
+        ],
+        retention_days: [
+          type: {:or, [:pos_integer, nil]},
+          default: nil,
+          doc: "Days to retain audit events. nil = keep forever (D-09). Default: nil."
+        ],
+        max_metadata_bytes: [
+          type: :pos_integer,
+          default: 8_192,
+          doc: "Cap on JSON-encoded metadata byte size (D-20). Default: 8192."
+        ],
+        reserved_prefixes: [
+          type: {:list, :string},
+          default: ~w(auth. session. mfa. oauth. api. account. sigra.),
+          doc:
+            "Reserved action prefixes developers cannot use (D-17, D-18). Default: ~w(auth. session. mfa. oauth. api. account. sigra.)."
+        ]
+      ]
     ]
   ]
 
@@ -1203,7 +1242,8 @@ defmodule Sigra.Config do
           api_token: keyword(),
           jwt: keyword(),
           deletion: keyword(),
-          hooks: keyword()
+          hooks: keyword(),
+          audit: keyword()
         }
 
   defstruct [
@@ -1232,7 +1272,8 @@ defmodule Sigra.Config do
     api_token: [],
     jwt: [],
     deletion: [],
-    hooks: []
+    hooks: [],
+    audit: []
   ]
 
   @doc """
