@@ -1215,14 +1215,29 @@ defmodule Sigra.Auth do
           {:ok, struct()} | {:error, term()}
   def confirm_email_change(config, encoded_token, opts \\ []) do
     repo = config.repo
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
 
     merged_opts =
       Keyword.merge(
         [
-          user_token_schema: Keyword.fetch!(opts, :user_token_schema),
+          user_token_schema: user_token_schema,
           user_schema: config.user_schema,
           session_store: get_session_store(config),
-          config: config
+          config: config,
+          find_user_by_token_fn: fn repo, token ->
+            context_prefix = "change:"
+
+            case user_token_schema.verify_email_token_query(token, context_prefix) do
+              {:ok, query} -> repo.one(query)
+              :error -> nil
+            end
+          end,
+          changeset_fn: Keyword.get_lazy(opts, :changeset_fn, fn ->
+            fn user, attrs -> Ecto.Changeset.change(user, attrs) end
+          end),
+          token_query_fn: fn user, contexts ->
+            user_token_schema.by_user_and_contexts_query(user, contexts)
+          end
         ],
         opts
       )
