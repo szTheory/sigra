@@ -1289,7 +1289,10 @@ defmodule Sigra.Auth do
         [
           changeset_fn: Keyword.fetch!(opts, :changeset_fn),
           session_store: get_session_store(config),
-          config: config
+          config: config,
+          validate_password_fn: fn user, password ->
+            config.user_schema.valid_password?(user, password)
+          end
         ],
         opts
       )
