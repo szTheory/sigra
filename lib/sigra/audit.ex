@@ -312,7 +312,11 @@ defmodule Sigra.Audit do
   def cleanup(opts) when is_list(opts) do
     repo = Keyword.fetch!(opts, :repo)
     audit_schema = Keyword.fetch!(opts, :audit_schema)
-    retention_days = Keyword.get(opts, :retention_days)
+
+    retention_days =
+      Keyword.get(opts, :retention_days) ||
+        Application.get_env(:sigra, :audit, [])[:retention_days]
+
     do_cleanup(repo, audit_schema, retention_days)
   end
 
@@ -323,11 +327,35 @@ defmodule Sigra.Audit do
     import Ecto.Query
 
     cutoff = DateTime.add(DateTime.utc_now(), -days * 86_400, :second)
+    batch_size = Application.get_env(:sigra, :audit, [])[:cleanup_batch_size] || 10_000
 
-    from(e in audit_schema, where: e.inserted_at < ^cutoff)
-    |> repo.delete_all()
+    delete_in_batches(repo, audit_schema, cutoff, batch_size)
 
     :ok
+  end
+
+  # Batched retention delete. Avoids a single monster delete_all that would
+  # hold a long transaction, bloat WAL on PostgreSQL, or hit statement_timeout
+  # under the Oban worker's max_attempts: 1 fail-open policy (D-36).
+  defp delete_in_batches(repo, audit_schema, cutoff, batch_size) do
+    import Ecto.Query
+
+    inner =
+      from(e in audit_schema,
+        where: e.inserted_at < ^cutoff,
+        select: e.id,
+        limit: ^batch_size
+      )
+
+    {deleted, _} =
+      from(e in audit_schema, where: e.id in subquery(inner))
+      |> repo.delete_all()
+
+    if deleted >= batch_size do
+      delete_in_batches(repo, audit_schema, cutoff, batch_size)
+    else
+      :ok
+    end
   end
 
   # -- Helpers --
