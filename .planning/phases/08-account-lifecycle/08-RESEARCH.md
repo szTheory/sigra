@@ -349,7 +349,7 @@ end
 | A2 | Oban `unique` option with `keys: [:user_id]` prevents duplicate deletion jobs | Code Examples | Could schedule multiple deletion jobs for same user |
 | A3 | `pending_email` partial unique index (`WHERE pending_email IS NOT NULL`) works correctly on PostgreSQL | Pitfalls | Email reservation race condition not prevented |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Oban queue naming for deletion jobs**
    - What we know: Existing workers use `queue: :sigra_mailer` for email. Deletion is a different concern.
