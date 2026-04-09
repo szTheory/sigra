@@ -144,10 +144,10 @@ Plans:
   5. All auth logic works in headless mode with no LiveView or HTML components present
 **Plans:** 4 plans
 Plans:
-- [ ] 07-01-PLAN.md — Core API token modules (config, types, scopes, APIToken, RequireScopes, errors, telemetry)
-- [ ] 07-02-PLAN.md — JWT library modules (Joken dep, JWT, Signer, ClaimsBuilder, RefreshToken)
-- [ ] 07-03-PLAN.md — FetchBearer rewrite, Auth delegation, TokenCleanup, Testing helpers, Email
-- [ ] 07-04-PLAN.md — Generator templates (migration, schema, controllers, router, install task)
+- [x] 07-01-PLAN.md — Core API token modules (config, types, scopes, APIToken, RequireScopes, errors, telemetry)
+- [x] 07-02-PLAN.md — JWT library modules (Joken dep, JWT, Signer, ClaimsBuilder, RefreshToken)
+- [x] 07-03-PLAN.md — FetchBearer rewrite, Auth delegation, TokenCleanup, Testing helpers, Email
+- [x] 07-04-PLAN.md — Generator templates (migration, schema, controllers, router, install task)
 
 ### Phase 8: Account Lifecycle
 **Goal**: Users can change email (with re-verification), change password, delete their account, and perform sensitive operations only after re-authenticating in sudo mode; profile update hooks integrate cleanly with app-specific schemas
