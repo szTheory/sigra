@@ -158,7 +158,7 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   """
   def deletion_changeset(user, attrs) do
     user
-    |> cast(attrs, [:deleted_at, :scheduled_deletion_at, :original_email, :pending_email])
+    |> cast(attrs, [:deleted_at, :scheduled_deletion_at, :original_email, :pending_email, :email, :hashed_password])
   end
 
   @doc """
