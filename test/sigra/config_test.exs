@@ -351,5 +351,109 @@ defmodule Sigra.ConfigTest do
       assert config.suspicious_login[:enabled] == false
       assert config.suspicious_login[:notify] == false
     end
+
+    # Phase 8: Deletion config section
+    test "provides correct deletion defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.deletion[:strategy] == :soft_delete
+      assert config.deletion[:grace_period_days] == 14
+      assert config.deletion[:cooldown_hours] == 24
+      assert config.deletion[:notify] == true
+    end
+
+    test "accepts deletion with valid strategy :soft_delete" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          deletion: [strategy: :soft_delete]
+        )
+
+      assert config.deletion[:strategy] == :soft_delete
+    end
+
+    test "accepts deletion with valid strategy :hard_delete" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          deletion: [strategy: :hard_delete]
+        )
+
+      assert config.deletion[:strategy] == :hard_delete
+    end
+
+    test "accepts deletion with valid strategy :anonymize" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          deletion: [strategy: :anonymize]
+        )
+
+      assert config.deletion[:strategy] == :anonymize
+    end
+
+    test "rejects deletion with invalid strategy :unknown" do
+      assert_raise NimbleOptions.ValidationError, ~r/strategy/, fn ->
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          deletion: [strategy: :unknown]
+        )
+      end
+    end
+
+    # Phase 8: Hooks config section
+    test "provides correct hooks defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.hooks[:on_register] == nil
+      assert config.hooks[:on_email_change] == nil
+      assert config.hooks[:on_password_change] == nil
+      assert config.hooks[:on_delete] == nil
+    end
+
+    test "accepts hooks with {Module, :function} tuples" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          hooks: [on_register: {MyApp.Hooks, :on_register}]
+        )
+
+      assert config.hooks[:on_register] == {MyApp.Hooks, :on_register}
+    end
+
+    test "rejects hooks with non-tuple values" do
+      assert_raise NimbleOptions.ValidationError, ~r/on_register/, fn ->
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          hooks: [on_register: :not_a_tuple]
+        )
+      end
+    end
+
+    # Phase 8: Token TTL email_change
+    test "provides correct email_change token TTL default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.token_ttl[:email_change] == 86_400
+    end
+
+    # Phase 8: Password notify_on_change and invalidate_sessions_on_change
+    test "provides correct password notify_on_change default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.password[:notify_on_change] == true
+    end
+
+    test "provides correct password invalidate_sessions_on_change default" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.password[:invalidate_sessions_on_change] == true
+    end
   end
 end
