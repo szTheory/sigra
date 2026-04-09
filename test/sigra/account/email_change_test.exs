@@ -11,25 +11,38 @@ defmodule Sigra.Account.EmailChangeTest do
   # --- Helpers ---
 
   defp build_user(attrs \\ %{}) do
-    Map.merge(
-      %{
-        id: 1,
-        email: "old@example.com",
-        pending_email: nil,
-        confirmed_at: ~U[2026-01-01 00:00:00Z]
-      },
-      attrs
-    )
+    defaults = %{
+      id: 1,
+      email: "old@example.com",
+      pending_email: nil,
+      confirmed_at: ~U[2026-01-01 00:00:00Z]
+    }
+
+    struct(Sigra.TestUser, Map.merge(defaults, attrs))
   end
 
   defp base_opts(overrides \\ []) do
+    token_struct = %Sigra.TestUserToken{
+      token: :crypto.hash(:sha256, "test_token"),
+      context: "change:old@example.com",
+      sent_to: "old@example.com",
+      user_id: 1
+    }
+
     Keyword.merge(
       [
-        user_token_schema: Sigra.TestUserToken,
-        user_schema: Sigra.TestUser,
         changeset_fn: fn user, attrs ->
           Ecto.Changeset.change(user, attrs)
-        end
+        end,
+        email_taken_fn: fn _repo, _email -> false end,
+        build_email_token_fn: fn _user, _context ->
+          {"encoded_test_token", token_struct}
+        end,
+        token_query_fn: fn _user, _contexts ->
+          import Ecto.Query
+          from(t in Sigra.TestUserToken, where: false)
+        end,
+        find_user_by_token_fn: fn _repo, _token -> nil end
       ],
       overrides
     )
@@ -49,10 +62,9 @@ defmodule Sigra.Account.EmailChangeTest do
     test "returns {:error, :email_taken} when email is already in use" do
       user = build_user()
 
-      Sigra.MockRepo
-      |> expect(:one, fn _query -> %{id: 2, email: "new@example.com"} end)
+      opts = base_opts(email_taken_fn: fn _repo, _email -> true end)
 
-      result = EmailChange.request(Sigra.MockRepo, user, "new@example.com", base_opts())
+      result = EmailChange.request(Sigra.MockRepo, user, "new@example.com", opts)
 
       assert result == {:error, :email_taken}
     end
@@ -61,10 +73,10 @@ defmodule Sigra.Account.EmailChangeTest do
       user = build_user()
 
       Sigra.MockRepo
-      |> expect(:one, fn _query -> nil end)
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
-        {:ok, %{user: Map.put(user, :pending_email, "new@example.com"), token: %{token: "hashed"}}}
+        updated = %{user | pending_email: "new@example.com"}
+        {:ok, %{user: updated, token: %{token: "hashed"}}}
       end)
 
       assert {:ok, updated_user, encoded_token} =
@@ -77,12 +89,9 @@ defmodule Sigra.Account.EmailChangeTest do
     test "normalizes the new email before processing" do
       user = build_user()
 
-      # " NEW@Example.COM " should be normalized to "new@example.com"
-      # which is different from "old@example.com", so it should proceed
       Sigra.MockRepo
-      |> expect(:one, fn _query -> nil end)
       |> expect(:transaction, fn _multi ->
-        {:ok, %{user: Map.put(user, :pending_email, "new@example.com"), token: %{token: "hashed"}}}
+        {:ok, %{user: %{user | pending_email: "new@example.com"}, token: %{token: "hashed"}}}
       end)
 
       assert {:ok, _user, _token} =
@@ -94,10 +103,9 @@ defmodule Sigra.Account.EmailChangeTest do
 
   describe "confirm/3" do
     test "returns :error for invalid token" do
-      Sigra.MockRepo
-      |> expect(:one, fn _query -> nil end)
+      opts = base_opts(find_user_by_token_fn: fn _repo, _token -> nil end)
 
-      result = EmailChange.confirm(Sigra.MockRepo, "invalid-token", base_opts())
+      result = EmailChange.confirm(Sigra.MockRepo, "invalid-token", opts)
 
       assert result == :error
     end
@@ -105,8 +113,9 @@ defmodule Sigra.Account.EmailChangeTest do
     test "returns {:ok, user} when token is valid" do
       user = build_user(%{pending_email: "new@example.com"})
 
+      opts = base_opts(find_user_by_token_fn: fn _repo, _token -> user end)
+
       Sigra.MockRepo
-      |> expect(:one, fn _query -> user end)
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
         updated = %{user | email: "new@example.com", pending_email: nil}
@@ -114,7 +123,7 @@ defmodule Sigra.Account.EmailChangeTest do
       end)
 
       assert {:ok, updated_user} =
-               EmailChange.confirm(Sigra.MockRepo, "valid-encoded-token", base_opts())
+               EmailChange.confirm(Sigra.MockRepo, "valid-encoded-token", opts)
 
       assert updated_user.email == "new@example.com"
       assert updated_user.pending_email == nil

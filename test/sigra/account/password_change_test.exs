@@ -11,22 +11,26 @@ defmodule Sigra.Account.PasswordChangeTest do
   # --- Helpers ---
 
   defp build_user(attrs \\ %{}) do
-    Map.merge(
-      %{
-        id: 1,
-        email: "user@example.com",
-        hashed_password: "hashed_old",
-        must_change_password: false
-      },
-      attrs
-    )
+    defaults = %{
+      id: 1,
+      email: "user@example.com",
+      hashed_password: "hashed_old",
+      must_change_password: false
+    }
+
+    struct(Sigra.TestUser, Map.merge(defaults, attrs))
   end
+
+  # Known fields on TestUser that changeset can accept
+  @known_fields ~w(hashed_password must_change_password password_changed_at email)a
 
   defp base_opts(overrides \\ []) do
     Keyword.merge(
       [
         changeset_fn: fn user, attrs ->
-          Ecto.Changeset.change(user, attrs)
+          # Filter to known schema fields (real changeset_fn would do its own filtering)
+          filtered = Map.take(attrs, @known_fields)
+          Ecto.Changeset.change(user, filtered)
         end,
         session_store: Sigra.MockSessionStore
       ],
@@ -43,16 +47,11 @@ defmodule Sigra.Account.PasswordChangeTest do
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
-        {:ok, %{user: Map.put(user, :hashed_password, "hashed_new")}}
+        {:ok, %{user: %{user | hashed_password: "hashed_new"}}}
       end)
 
       Sigra.MockSessionStore
       |> expect(:delete_all_for_user, fn _user_id, _opts -> {1, nil} end)
-
-      changeset_fn = fn _user, attrs ->
-        # Simulate valid password changeset
-        Ecto.Changeset.change(%Sigra.TestUser{}, attrs)
-      end
 
       assert {:ok, updated_user} =
                PasswordChange.change(
@@ -60,7 +59,7 @@ defmodule Sigra.Account.PasswordChangeTest do
                  user,
                  "current_password",
                  %{password: "new_password"},
-                 base_opts(changeset_fn: changeset_fn, validate_password_fn: fn _user, _pw -> true end)
+                 base_opts(validate_password_fn: fn _user, _pw -> true end)
                )
 
       assert updated_user.hashed_password == "hashed_new"
@@ -91,19 +90,15 @@ defmodule Sigra.Account.PasswordChangeTest do
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
-        {:ok, %{user: Map.put(user, :hashed_password, "hashed_new")}}
+        {:ok, %{user: %{user | hashed_password: "hashed_new"}}}
       end)
-
-      changeset_fn = fn _user, attrs ->
-        Ecto.Changeset.change(%Sigra.TestUser{}, attrs)
-      end
 
       assert {:ok, updated_user} =
                PasswordChange.set_for_oauth_user(
                  Sigra.MockRepo,
                  user,
                  %{password: "new_password"},
-                 base_opts(changeset_fn: changeset_fn)
+                 base_opts()
                )
 
       assert updated_user.hashed_password == "hashed_new"
@@ -138,7 +133,7 @@ defmodule Sigra.Account.PasswordChangeTest do
       Sigra.MockRepo
       |> expect(:update, fn changeset ->
         assert Ecto.Changeset.get_change(changeset, :must_change_password) == true
-        {:ok, Map.put(user, :must_change_password, true)}
+        {:ok, %{user | must_change_password: true}}
       end)
 
       assert {:ok, updated} = PasswordChange.require_force_change(Sigra.MockRepo, user)
@@ -155,7 +150,7 @@ defmodule Sigra.Account.PasswordChangeTest do
       Sigra.MockRepo
       |> expect(:update, fn changeset ->
         assert Ecto.Changeset.get_change(changeset, :must_change_password) == false
-        {:ok, Map.put(user, :must_change_password, false)}
+        {:ok, %{user | must_change_password: false}}
       end)
 
       assert {:ok, updated} = PasswordChange.clear_force_change(Sigra.MockRepo, user)
