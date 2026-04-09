@@ -179,11 +179,11 @@ Plans:
   4. Developer can emit a custom audit event from application code using the same API
 **Plans:** 5 plans
 Plans:
-- [ ] 09-01-PLAN.md — Generator: audit_events migration + AuditEvent schema templates
-- [ ] 09-02-PLAN.md — Sigra.Audit core module (log/log_multi/query/list/stream/count) + Changeset/Cursor/Query submodules + Config
-- [ ] 09-03-PLAN.md — Integrate Sigra.Audit.__log_internal__ into auth/session/mfa/oauth/api/account/security subsystems (D-26 mapping)
-- [ ] 09-04-PLAN.md — Sigra.Workers.AuditCleanup Oban worker + inline fallback startup warning
-- [ ] 09-05-PLAN.md — Wave 0 test scaffolding (unit, integration, property, observability, sensitive-data, security, worker tests + fixtures)
+- [x] 09-01-PLAN.md — Generator: audit_events migration + AuditEvent schema templates
+- [x] 09-02-PLAN.md — Sigra.Audit core module (log/log_multi/query/list/stream/count) + Changeset/Cursor/Query submodules + Config
+- [x] 09-03-PLAN.md — Integrate Sigra.Audit.__log_internal__ into auth/session/mfa/oauth/api/account/security subsystems (D-26 mapping)
+- [x] 09-04-PLAN.md — Sigra.Workers.AuditCleanup Oban worker + inline fallback startup warning
+- [x] 09-05-PLAN.md — Wave 0 test scaffolding (unit, integration, property, observability, sensitive-data, security, worker tests + fixtures)
 
 ### Phase 10: Developer Experience
 **Goal**: The library ships with testing helpers that make auth state easy to set up in tests, scenario fixtures covering all auth states, correct cookie domain config, and copy-paste documentation examples

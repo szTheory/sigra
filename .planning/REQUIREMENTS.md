@@ -119,10 +119,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Audit Logging
 
-- [ ] **AUDIT-01**: Automatic logging of all security-relevant auth events
-- [ ] **AUDIT-02**: Event metadata includes user, IP, user agent, timestamp, outcome
-- [ ] **AUDIT-03**: Queryable audit log API (by user, by org scope, by date range)
-- [ ] **AUDIT-04**: Hook for custom events
+- [x] **AUDIT-01**: Automatic logging of all security-relevant auth events
+- [x] **AUDIT-02**: Event metadata includes user, IP, user agent, timestamp, outcome
+- [x] **AUDIT-03**: Queryable audit log API (by user, by org scope, by date range)
+- [x] **AUDIT-04**: Hook for custom events
 
 ### Developer Experience
 
@@ -264,10 +264,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ACCT-03 | Phase 8 | Pending |
 | ACCT-04 | Phase 8 | Pending |
 | SESS-09 | Phase 8 | Pending |
-| AUDIT-01 | Phase 9 | Pending |
-| AUDIT-02 | Phase 9 | Pending |
-| AUDIT-03 | Phase 9 | Pending |
-| AUDIT-04 | Phase 9 | Pending |
+| AUDIT-01 | Phase 9 | Complete |
+| AUDIT-02 | Phase 9 | Complete |
+| AUDIT-03 | Phase 9 | Complete |
+| AUDIT-04 | Phase 9 | Complete |
 | DX-01 | Phase 10 | Pending |
 | DX-02 | Phase 10 | Pending |
 | DX-03 | Phase 10 | Pending |
