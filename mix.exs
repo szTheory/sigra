@@ -51,7 +51,8 @@ defmodule Sigra.MixProject do
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:mox, "~> 1.1", only: :test}
+      {:mox, "~> 1.1", only: :test},
+      {:stream_data, "~> 1.1", only: [:dev, :test]}
     ]
   end
 
