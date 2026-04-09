@@ -54,11 +54,11 @@ Authentication that works out of the box with great DX on the happy path AND on 
 - [ ] Idle timeout and absolute timeout (configurable)
 - [ ] Secure cookie defaults (SameSite=Lax, HttpOnly, Secure)
 
-#### API Authentication
-- [ ] Bearer token authentication (API keys with prefix format)
-- [ ] Personal access tokens (user-scoped, with scopes and expiration)
-- [ ] JWT support for stateless API use cases
-- [ ] Dual-mode auth plug (session for browser, bearer for API)
+#### API Authentication — Validated in Phase 7: API Authentication
+- [x] Bearer token authentication (API keys with prefix format)
+- [x] Personal access tokens (user-scoped, with scopes and expiration)
+- [x] JWT support for stateless API use cases
+- [x] Dual-mode auth plug (session for browser, bearer for API)
 
 #### Security
 - [ ] IP-based and account-based rate limiting
