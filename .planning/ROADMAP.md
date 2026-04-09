@@ -177,7 +177,13 @@ Plans:
   2. Each audit event includes user ID, IP address, user agent, timestamp, operation name, and outcome; the full metadata is queryable via `Sigra.Audit` API
   3. Developer can query the audit log by user, date range, or event type and receive structured results
   4. Developer can emit a custom audit event from application code using the same API
-**Plans:** TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 09-01-PLAN.md — Generator: audit_events migration + AuditEvent schema templates
+- [ ] 09-02-PLAN.md — Sigra.Audit core module (log/log_multi/query/list/stream/count) + Changeset/Cursor/Query submodules + Config
+- [ ] 09-03-PLAN.md — Integrate Sigra.Audit.__log_internal__ into auth/session/mfa/oauth/api/account/security subsystems (D-26 mapping)
+- [ ] 09-04-PLAN.md — Sigra.Workers.AuditCleanup Oban worker + inline fallback startup warning
+- [ ] 09-05-PLAN.md — Wave 0 test scaffolding (unit, integration, property, observability, sensitive-data, security, worker tests + fixtures)
 
 ### Phase 10: Developer Experience
 **Goal**: The library ships with testing helpers that make auth state easy to set up in tests, scenario fixtures covering all auth states, correct cookie domain config, and copy-paste documentation examples
@@ -206,5 +212,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Multi-Factor Authentication | 0/5 | Planning complete | - |
 | 7. API Authentication | 0/4 | Planning complete | - |
 | 8. Account Lifecycle | 0/5 | Planning complete | - |
-| 9. Audit Logging | 0/TBD | Not started | - |
+| 9. Audit Logging | 0/5 | Planning complete | - |
 | 10. Developer Experience | 0/TBD | Not started | - |
