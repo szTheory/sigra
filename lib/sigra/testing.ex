@@ -669,6 +669,236 @@ defmodule Sigra.Testing do
     generate_jwt(config, user, scopes: scopes)
   end
 
+  # -- Account Lifecycle Testing Helpers (Phase 8) --
+
+  @doc """
+  Creates a user fixture with scheduled deletion.
+
+  Sets `deleted_at` and `scheduled_deletion_at` on the user, plus
+  stores the original email in `original_email` for restore on cancel.
+
+  ## Options
+
+    * `:grace_period_days` - Days until permanent deletion (default: 14)
+  """
+  @doc since: "0.8.0"
+  @spec scheduled_deletion_fixture(module(), struct(), keyword()) :: struct()
+  def scheduled_deletion_fixture(repo, user, opts \\ []) do
+    grace_days = Keyword.get(opts, :grace_period_days, 14)
+    now = DateTime.utc_now()
+    scheduled_at = DateTime.add(now, grace_days * 86_400, :second)
+
+    user
+    |> Ecto.Changeset.change(%{
+      deleted_at: now,
+      scheduled_deletion_at: scheduled_at,
+      original_email: user.email
+    })
+    |> repo.update!()
+  end
+
+  @doc """
+  Creates a user fixture in fully deleted/anonymized state.
+
+  Sets `deleted_at` to a past timestamp and anonymizes the email.
+  """
+  @doc since: "0.8.0"
+  @spec deleted_user_fixture(module(), struct()) :: struct()
+  def deleted_user_fixture(repo, user) do
+    past = DateTime.add(DateTime.utc_now(), -30 * 86_400, :second)
+
+    user
+    |> Ecto.Changeset.change(%{
+      deleted_at: past,
+      scheduled_deletion_at: past,
+      original_email: user.email,
+      email: "deleted_#{user.id}@deleted.invalid",
+      hashed_password: nil
+    })
+    |> repo.update!()
+  end
+
+  @doc """
+  Asserts that the user account is scheduled for deletion.
+
+  Raises `ExUnit.AssertionError` if `deleted_at` or `scheduled_deletion_at` is nil.
+  """
+  @doc since: "0.8.0"
+  @spec assert_deletion_scheduled(struct()) :: true
+  def assert_deletion_scheduled(user) do
+    unless user.deleted_at do
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have deleted_at set"
+    end
+
+    unless user.scheduled_deletion_at do
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have scheduled_deletion_at set"
+    end
+
+    true
+  end
+
+  @doc """
+  Asserts that the user account deletion was cancelled.
+
+  Raises `ExUnit.AssertionError` if `deleted_at` or `scheduled_deletion_at` is not nil.
+  """
+  @doc since: "0.8.0"
+  @spec assert_deletion_cancelled(struct()) :: true
+  def assert_deletion_cancelled(user) do
+    if user.deleted_at do
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have deleted_at cleared, got: #{inspect(user.deleted_at)}"
+    end
+
+    if user.scheduled_deletion_at do
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have scheduled_deletion_at cleared"
+    end
+
+    true
+  end
+
+  @doc """
+  Asserts that the user account was permanently deleted or anonymized.
+
+  Checks that the user either no longer exists or has an anonymized email.
+  """
+  @doc since: "0.8.0"
+  @spec assert_account_deleted(module(), module(), term()) :: true
+  def assert_account_deleted(repo, user_schema, user_id) do
+    case repo.get(user_schema, user_id) do
+      nil ->
+        true
+
+      user ->
+        if String.starts_with?(user.email, "deleted_") do
+          true
+        else
+          raise ExUnit.AssertionError,
+            message: "Expected user #{inspect(user_id)} to be deleted or anonymized, but found active email: #{user.email}"
+        end
+    end
+  end
+
+  @doc """
+  Simulates grace period expiry by setting `scheduled_deletion_at` to a past timestamp.
+
+  Useful for testing the Oban deletion worker.
+  """
+  @doc since: "0.8.0"
+  @spec simulate_grace_period_expiry(module(), struct()) :: struct()
+  def simulate_grace_period_expiry(repo, user) do
+    past = DateTime.add(DateTime.utc_now(), -86_400, :second)
+
+    user
+    |> Ecto.Changeset.change(%{scheduled_deletion_at: past})
+    |> repo.update!()
+  end
+
+  @doc """
+  Creates a user fixture with the force password change flag set.
+
+  Sets `must_change_password` to `true` on the user.
+  """
+  @doc since: "0.8.0"
+  @spec force_password_change_fixture(module(), struct()) :: struct()
+  def force_password_change_fixture(repo, user) do
+    user
+    |> Ecto.Changeset.change(%{must_change_password: true})
+    |> repo.update!()
+  end
+
+  @doc """
+  Asserts that the user's password was recently changed.
+
+  Checks that `password_changed_at` is set and within the last 60 seconds.
+  """
+  @doc since: "0.8.0"
+  @spec assert_password_changed(struct()) :: true
+  def assert_password_changed(user) do
+    unless user.password_changed_at do
+      raise ExUnit.AssertionError,
+        message: "Expected user #{inspect(user.id)} to have password_changed_at set"
+    end
+
+    seconds_ago = DateTime.diff(DateTime.utc_now(), user.password_changed_at, :second)
+
+    if seconds_ago > 60 do
+      raise ExUnit.AssertionError,
+        message: "Expected password_changed_at to be recent (within 60s), but it was #{seconds_ago}s ago"
+    end
+
+    true
+  end
+
+  @doc """
+  Asserts that all sessions except the optionally specified one were invalidated.
+
+  ## Options
+
+    * `:except_token` - A session token to exclude from the count (the current session)
+    * `:session_schema` - The session schema module (required)
+  """
+  @doc since: "0.8.0"
+  @spec assert_sessions_invalidated(module(), struct(), keyword()) :: true
+  def assert_sessions_invalidated(repo, user, opts \\ []) do
+    session_schema = Keyword.fetch!(opts, :session_schema)
+    except_token = Keyword.get(opts, :except_token)
+
+    import Ecto.Query
+
+    query =
+      from(s in session_schema,
+        where: s.user_id == ^user.id,
+        select: count(s.id)
+      )
+
+    count = repo.one(query)
+
+    expected = if except_token, do: 1, else: 0
+
+    if count > expected do
+      raise ExUnit.AssertionError,
+        message: "Expected #{expected} session(s) remaining, but found #{count}"
+    end
+
+    true
+  end
+
+  @doc """
+  Temporarily overrides a hook for a test block.
+
+  Swaps the hook configuration for the given operation, runs the test
+  function, and restores the original configuration afterward.
+
+  ## Examples
+
+      Sigra.Testing.with_hook(:on_delete, {MyApp.TestHooks, :on_delete}, fn ->
+        # test code that exercises the hook
+      end)
+
+  """
+  @doc since: "0.8.0"
+  @spec with_hook(atom(), {module(), atom()}, (-> term())) :: term()
+  def with_hook(operation, {mod, fun}, test_fn) when is_atom(operation) and is_function(test_fn, 0) do
+    original = Application.get_env(:sigra, :hooks, [])
+    original_hook = Keyword.get(original, operation)
+
+    try do
+      updated = Keyword.put(original, operation, {mod, fun})
+      Application.put_env(:sigra, :hooks, updated)
+      test_fn.()
+    after
+      if original_hook do
+        Application.put_env(:sigra, :hooks, Keyword.put(original, operation, original_hook))
+      else
+        Application.put_env(:sigra, :hooks, Keyword.delete(original, operation))
+      end
+    end
+  end
+
   # -- OAuth Testing Helpers (Phase 5) --
 
   @doc """

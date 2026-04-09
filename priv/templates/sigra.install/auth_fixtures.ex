@@ -134,4 +134,39 @@ defmodule <%= context_module %>Fixtures do
 
     %{user: user, credential: credential}
   end
+
+  # -- Account Lifecycle Fixtures (Phase 8) --
+
+  @doc """
+  Creates a user with account deletion scheduled.
+
+  Returns the user with `deleted_at` and `scheduled_deletion_at` set.
+
+  ## Options
+
+    * `:grace_period_days` - Days until permanent deletion (default: 14)
+  """
+  def scheduled_deletion_fixture(attrs \\ %{}, opts \\ []) do
+    user = user_fixture(attrs)
+
+    Sigra.Testing.scheduled_deletion_fixture(
+      <%= repo_module %>,
+      user,
+      opts
+    )
+  end
+
+  @doc """
+  Creates a user with the force password change flag set.
+
+  Returns the user with `must_change_password: true`.
+  """
+  def force_password_change_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs)
+
+    Sigra.Testing.force_password_change_fixture(
+      <%= repo_module %>,
+      user
+    )
+  end
 end
