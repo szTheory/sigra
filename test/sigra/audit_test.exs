@@ -23,6 +23,7 @@ defmodule Sigra.AuditTest do
     end
 
     def all(_query), do: []
+    def stream(_query), do: Stream.map([], & &1)
     def aggregate(_q, :count, _f), do: 0
     def transaction(fun) when is_function(fun, 0), do: {:ok, fun.()}
   end

@@ -274,6 +274,11 @@ defmodule Sigra.Audit do
   @doc """
   Returns an `Enumerable.t()` suitable for use inside the caller's
   `repo.transaction/1` block.
+
+  The repo must implement `stream/1`. Raises `ArgumentError` otherwise so
+  that large audit tables can never be loaded entirely into memory via a
+  silent `repo.all/1` fallback. Callers without a streaming repo should use
+  `list/2` (cursor-paginated) instead.
   """
   @spec stream(keyword(), keyword()) :: Enumerable.t()
   def stream(filters, opts) when is_list(filters) and is_list(opts) do
@@ -283,14 +288,9 @@ defmodule Sigra.Audit do
     if function_exported?(repo, :stream, 1) do
       repo.stream(q)
     else
-      # Fallback for repos that don't implement Repo.stream/1. The caller is
-      # expected to be inside repo.transaction/1 per the public contract, but
-      # this branch keeps the API usable against minimal stub repos in tests.
-      Stream.unfold(:start, fn
-        :start -> {repo.all(q), :done}
-        :done -> nil
-      end)
-      |> Stream.flat_map(& &1)
+      raise ArgumentError,
+            "Sigra.Audit.stream/2 requires #{inspect(repo)} to implement stream/1. " <>
+              "Use Sigra.Audit.list/2 for cursor pagination on repos without streaming support."
     end
   end
 
