@@ -124,6 +124,36 @@ defmodule Sigra.Telemetry do
     [:sigra, :jwt, :refresh_reuse_detected]
   ]
 
+  @account_events [
+    # Email change events (D-43)
+    [:sigra, :email_change, :request, :start],
+    [:sigra, :email_change, :request, :stop],
+    [:sigra, :email_change, :request, :exception],
+    [:sigra, :email_change, :confirm, :start],
+    [:sigra, :email_change, :confirm, :stop],
+    [:sigra, :email_change, :confirm, :exception],
+    [:sigra, :email_change, :cancel, :start],
+    [:sigra, :email_change, :cancel, :stop],
+    # Password events (D-43)
+    [:sigra, :password, :change, :start],
+    [:sigra, :password, :change, :stop],
+    [:sigra, :password, :change, :exception],
+    [:sigra, :password, :set, :start],
+    [:sigra, :password, :set, :stop],
+    [:sigra, :password, :set, :exception],
+    [:sigra, :password, :force_change, :start],
+    [:sigra, :password, :force_change, :stop],
+    [:sigra, :password, :force_change_completed, :stop],
+    # Account deletion events (D-26)
+    [:sigra, :account, :deletion_scheduled],
+    [:sigra, :account, :deletion_cancelled],
+    [:sigra, :account, :deleted]
+  ]
+
+  @hook_events [
+    [:sigra, :hook, :failed]
+  ]
+
   @logged_events [
     # Authentication
     [:sigra, :auth, :login, :stop],
@@ -168,7 +198,7 @@ defmodule Sigra.Telemetry do
     [:sigra, :reset, :requested],
     [:sigra, :reset, :completed],
     [:sigra, :token, :expired]
-  ] ++ @api_token_events ++ @jwt_events
+  ] ++ @api_token_events ++ @jwt_events ++ @account_events ++ @hook_events
 
   @doc """
   Execute a function within a telemetry span.
@@ -265,6 +295,25 @@ defmodule Sigra.Telemetry do
   @doc since: "0.7.0"
   @spec jwt_events() :: [[atom()]]
   def jwt_events, do: @jwt_events
+
+  @doc """
+  Returns the list of account lifecycle telemetry event names.
+
+  Includes email change, password change, and account deletion events.
+  Useful for attaching custom handlers to all account lifecycle events.
+  """
+  @doc since: "0.8.0"
+  @spec account_events() :: [[atom()]]
+  def account_events, do: @account_events
+
+  @doc """
+  Returns the list of hook-related telemetry event names.
+
+  Useful for monitoring hook execution failures.
+  """
+  @doc since: "0.8.0"
+  @spec hook_events() :: [[atom()]]
+  def hook_events, do: @hook_events
 
   @doc """
   Attach the default Sigra logger handler.

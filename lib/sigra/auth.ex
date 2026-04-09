@@ -1165,6 +1165,190 @@ defmodule Sigra.Auth do
     end
   end
 
+  # -- Account Lifecycle (Phase 8 Plan 03) --
+
+  @doc """
+  Request an email change for the user.
+
+  Generates a verification token for the new email address and returns
+  it for delivery. The email is not changed until confirmed via
+  `confirm_email_change/3`.
+  """
+  @doc since: "0.8.0"
+  @spec request_email_change(Sigra.Config.t(), struct(), String.t(), keyword()) ::
+          {:ok, struct(), String.t()} | {:error, term()}
+  def request_email_change(config, user, new_email, opts \\ []) do
+    repo = config.repo
+
+    merged_opts =
+      Keyword.merge(
+        [
+          changeset_fn: Keyword.fetch!(opts, :changeset_fn),
+          user_token_schema: Keyword.fetch!(opts, :user_token_schema),
+          secret_key_base: config.secret_key_base,
+          config: config
+        ],
+        opts
+      )
+
+    Sigra.Account.request_email_change(repo, user, new_email, merged_opts)
+  end
+
+  @doc """
+  Confirm an email change via token.
+
+  Verifies the HMAC-signed token, updates the user's email, and
+  invalidates all existing sessions (forcing re-authentication).
+  """
+  @doc since: "0.8.0"
+  @spec confirm_email_change(Sigra.Config.t(), String.t(), keyword()) ::
+          {:ok, struct()} | {:error, term()}
+  def confirm_email_change(config, encoded_token, opts \\ []) do
+    repo = config.repo
+
+    merged_opts =
+      Keyword.merge(
+        [
+          user_token_schema: Keyword.fetch!(opts, :user_token_schema),
+          user_schema: config.user_schema,
+          session_store: get_session_store(config),
+          config: config
+        ],
+        opts
+      )
+
+    Sigra.Account.confirm_email_change(repo, encoded_token, merged_opts)
+  end
+
+  @doc """
+  Cancel a pending email change.
+
+  Clears the `pending_email` field and deletes the email change token.
+  """
+  @doc since: "0.8.0"
+  @spec cancel_email_change(Sigra.Config.t(), struct(), keyword()) ::
+          {:ok, struct()} | {:error, term()}
+  def cancel_email_change(config, user, opts \\ []) do
+    repo = config.repo
+
+    merged_opts =
+      Keyword.merge(
+        [
+          changeset_fn: Keyword.fetch!(opts, :changeset_fn),
+          user_token_schema: Keyword.fetch!(opts, :user_token_schema)
+        ],
+        opts
+      )
+
+    Sigra.Account.cancel_email_change(repo, user, merged_opts)
+  end
+
+  @doc """
+  Change password with current password verification.
+
+  Verifies the current password, updates to the new password, and
+  invalidates all sessions except the current one.
+  """
+  @doc since: "0.8.0"
+  @spec change_password(Sigra.Config.t(), struct(), String.t(), map(), keyword()) ::
+          {:ok, struct()} | {:error, term()}
+  def change_password(config, user, current_password, attrs, opts \\ []) do
+    repo = config.repo
+
+    merged_opts =
+      Keyword.merge(
+        [
+          changeset_fn: Keyword.fetch!(opts, :changeset_fn),
+          session_store: get_session_store(config),
+          config: config
+        ],
+        opts
+      )
+
+    Sigra.Account.change_password(repo, user, current_password, attrs, merged_opts)
+  end
+
+  @doc """
+  Set password for OAuth-only user.
+
+  Allows users who registered via OAuth (no password set) to add a
+  password to their account. Requires sudo mode.
+  """
+  @doc since: "0.8.0"
+  @spec set_password(Sigra.Config.t(), struct(), map(), keyword()) ::
+          {:ok, struct()} | {:error, term()}
+  def set_password(config, user, attrs, opts \\ []) do
+    repo = config.repo
+
+    merged_opts =
+      Keyword.merge(
+        [
+          changeset_fn: Keyword.fetch!(opts, :changeset_fn),
+          config: config
+        ],
+        opts
+      )
+
+    Sigra.Account.set_password(repo, user, attrs, merged_opts)
+  end
+
+  @doc """
+  Schedule account deletion with grace period.
+
+  Immediately deactivates the account (revokes sessions/tokens) and
+  schedules final deletion after the configured grace period.
+  """
+  @doc since: "0.8.0"
+  @spec schedule_deletion(Sigra.Config.t(), struct(), keyword()) ::
+          {:ok, struct(), DateTime.t()} | {:error, term()}
+  def schedule_deletion(config, user, opts \\ []) do
+    repo = config.repo
+
+    merged_opts =
+      Keyword.merge(
+        [
+          config: config,
+          session_store: get_session_store(config),
+          user_token_schema: Keyword.fetch!(opts, :user_token_schema)
+        ],
+        opts
+      )
+
+    Sigra.Account.schedule_deletion(repo, user, merged_opts)
+  end
+
+  @doc """
+  Cancel scheduled account deletion.
+
+  Clears deletion timestamps and reactivates the account. The user
+  must re-authenticate (all sessions were revoked on scheduling).
+  """
+  @doc since: "0.8.0"
+  @spec cancel_deletion(Sigra.Config.t(), struct(), keyword()) ::
+          {:ok, struct()} | {:error, term()}
+  def cancel_deletion(config, user, opts \\ []) do
+    Sigra.Account.cancel_deletion(config.repo, user, opts)
+  end
+
+  @doc """
+  Execute account deletion (called by Oban worker).
+
+  Applies the configured deletion strategy (soft_delete, hard_delete,
+  or anonymize) to finalize the account removal.
+  """
+  @doc since: "0.8.0"
+  @spec execute_deletion(Sigra.Config.t(), struct(), keyword()) ::
+          {:ok, atom()} | {:error, term()}
+  def execute_deletion(config, user, opts \\ []) do
+    Sigra.Account.execute_deletion(config.repo, user, opts)
+  end
+
+  # -- Private helpers --
+
+  defp get_session_store(config) do
+    Keyword.get(config.session, :store, Sigra.SessionStores.Ecto)
+  end
+
   # Rejection sampling to eliminate modulo bias. A 4-byte unsigned integer
   # has max value 4,294,967,295. Values >= floor(2^32 / range) * range are
   # rejected to ensure uniform distribution across [0, range).
