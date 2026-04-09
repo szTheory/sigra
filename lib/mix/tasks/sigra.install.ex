@@ -121,6 +121,22 @@ defmodule Mix.Tasks.Sigra.Install do
         Path.join(["priv", "repo", "migrations", "#{timestamp()}_create_sigra_auth_tables.exs"])
       end
 
+    # Check if audit_events migration already exists (prevent duplicates on re-run)
+    existing_audit_migration =
+      Path.join(["priv", "repo", "migrations"])
+      |> File.ls()
+      |> case do
+        {:ok, mig_files} -> Enum.find(mig_files, &String.contains?(&1, "create_audit_events"))
+        _ -> nil
+      end
+
+    audit_migration_path =
+      if existing_audit_migration do
+        Path.join(["priv", "repo", "migrations", existing_audit_migration])
+      else
+        Path.join(["priv", "repo", "migrations", "#{audit_migration_timestamp()}_create_audit_events.exs"])
+      end
+
     files = [
       {:eex, "migration.exs", migration_path},
       {:eex, "user.ex",
@@ -169,7 +185,11 @@ defmodule Mix.Tasks.Sigra.Install do
       {:eex, "mfa_challenge_controller.ex",
        Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_challenge_controller.ex"])},
       {:eex, "mfa_challenge_html.ex",
-       Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_challenge_html.ex"])}
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_challenge_html.ex"])},
+      # Phase 9: Audit log schema and migration
+      {:eex, "create_audit_events.exs", audit_migration_path},
+      {:eex, "audit_event.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "audit_event.ex"])}
     ]
 
     # Check if API token migration already exists (prevent duplicates on re-run)
@@ -565,6 +585,14 @@ defmodule Mix.Tasks.Sigra.Install do
     # Offset by 1 second from the main migration timestamp to ensure ordering
     {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
     ss = min(ss + 1, 59)
+    "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
+  end
+
+  defp audit_migration_timestamp do
+    # Offset by 2 seconds from the main migration timestamp so the audit_events
+    # migration sorts after create_sigra_auth_tables and create_user_api_tokens.
+    {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
+    ss = min(ss + 2, 59)
     "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
   end
 
