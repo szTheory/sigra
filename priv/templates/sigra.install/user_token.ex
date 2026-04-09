@@ -8,7 +8,7 @@ defmodule <%= context_module %>.UserToken do
   @session_validity_in_days 60
   @confirm_validity_in_days 2
   @reset_password_validity_in_days 1
-  @change_email_validity_in_days 2
+  @change_email_validity_in_days 1
   @magic_link_validity_in_seconds 600
 
   schema "user_tokens" do

@@ -13,10 +13,20 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
       add :locked_at, :utc_datetime
       add :password_changed_at, :utc_datetime
 
+      # Account lifecycle fields (Phase 8)
+      add :pending_email, :citext
+      add :deleted_at, :utc_datetime
+      add :scheduled_deletion_at, :utc_datetime
+      add :original_email, :string, size: 255
+      add :must_change_password, :boolean, default: false, null: false
+
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:<%= table_name %>, [:email])
+    # Partial unique index: only enforce email uniqueness for active users
+    create unique_index(:<%= table_name %>, [:email], where: "deleted_at IS NULL", name: :<%= table_name %>_email_active_index)
+    # Partial unique index on pending_email
+    create unique_index(:<%= table_name %>, [:pending_email], where: "pending_email IS NOT NULL", name: :<%= table_name %>_pending_email_index)
 
     create table(:user_tokens<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
@@ -110,10 +120,20 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
       add :locked_at, :utc_datetime
       add :password_changed_at, :utc_datetime
 
+      # Account lifecycle fields (Phase 8)
+      add :pending_email, :string, size: 160
+      add :deleted_at, :utc_datetime
+      add :scheduled_deletion_at, :utc_datetime
+      add :original_email, :string, size: 255
+      add :must_change_password, :boolean, default: false, null: false
+
       timestamps(type: :utc_datetime)
     end
 
     create unique_index(:<%= table_name %>, [:email])
+    # Composite index for application-level uniqueness enforcement on active users
+    create index(:<%= table_name %>, [:email, :deleted_at])
+    create index(:<%= table_name %>, [:pending_email])
 
     create table(:user_tokens<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
@@ -194,10 +214,20 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
       add :locked_at, :utc_datetime
       add :password_changed_at, :utc_datetime
 
+      # Account lifecycle fields (Phase 8)
+      add :pending_email, :string, collate: :nocase
+      add :deleted_at, :utc_datetime
+      add :scheduled_deletion_at, :utc_datetime
+      add :original_email, :string, size: 255
+      add :must_change_password, :boolean, default: false, null: false
+
       timestamps(type: :utc_datetime)
     end
 
     create unique_index(:<%= table_name %>, [:email])
+    # Composite index for application-level uniqueness enforcement on active users
+    create index(:<%= table_name %>, [:email, :deleted_at])
+    create index(:<%= table_name %>, [:pending_email])
 
     create table(:user_tokens<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true

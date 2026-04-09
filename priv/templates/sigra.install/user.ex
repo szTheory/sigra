@@ -14,6 +14,13 @@ defmodule <%= context_module %>.<%= schema_alias %> do
     field :locked_at, :utc_datetime
     field :password_changed_at, :utc_datetime
 
+    # Account lifecycle fields (Phase 8)
+    field :pending_email, :string
+    field :deleted_at, :utc_datetime
+    field :scheduled_deletion_at, :utc_datetime
+    field :original_email, :string
+    field :must_change_password, :boolean, default: false
+
     timestamps(type: :utc_datetime)
   end
 
@@ -133,6 +140,33 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   def confirm_changeset(user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
     change(user, confirmed_at: now)
+  end
+
+  @doc """
+  A changeset for setting/clearing the pending email during email change flow.
+  """
+  def pending_email_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:pending_email])
+    |> validate_format(:pending_email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> unsafe_validate_unique(:pending_email, <%= repo_module %>)
+    |> unique_constraint(:pending_email)
+  end
+
+  @doc """
+  A changeset for account deletion lifecycle fields.
+  """
+  def deletion_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:deleted_at, :scheduled_deletion_at, :original_email, :pending_email])
+  end
+
+  @doc """
+  A changeset for the must_change_password flag.
+  """
+  def force_password_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:must_change_password])
   end
 
   @doc """
