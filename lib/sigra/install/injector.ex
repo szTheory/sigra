@@ -10,6 +10,8 @@ defmodule Sigra.Install.Injector do
 
   @marker "# Sigra authentication"
   @oauth_marker "# Sigra OAuth"
+  @api_marker "# Sigra API"
+  @jwt_marker "# Sigra JWT"
   @vault_marker "Vault"
 
   @doc """
@@ -210,6 +212,83 @@ defmodule Sigra.Install.Injector do
       {:already_injected, file_contents}
     else
       # Insert before import_config if present, otherwise append
+      case find_import_config(file_contents) do
+        {:ok, position} ->
+          {before, rest} = String.split_at(file_contents, position)
+          {:ok, before <> config_block <> "\n" <> rest}
+
+        :error ->
+          {:ok, file_contents <> config_block}
+      end
+    end
+  end
+
+  # -- API-specific injection functions --
+
+  @doc """
+  Injects API pipeline and routes into the router file.
+
+  Adds an `:api_authenticated` pipeline with FetchBearer and
+  RequireAuthenticated plugs, plus API token CRUD routes.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the API marker is already present.
+  """
+  @spec inject_api_routes(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_api_routes(file_contents, route_code) do
+    if String.contains?(file_contents, @api_marker) do
+      {:already_injected, file_contents}
+    else
+      case find_last_end(file_contents) do
+        {:ok, position} ->
+          {before, rest} = String.split_at(file_contents, position)
+          {:ok, before <> "\n" <> route_code <> "\n" <> rest}
+
+        :error ->
+          {:ok, file_contents <> "\n" <> route_code <> "\n"}
+      end
+    end
+  end
+
+  @doc """
+  Injects JWT authentication routes into the router file.
+
+  Adds unauthenticated `/api/auth` scope with token create, refresh,
+  MFA, and revoke endpoints. Only used with `--jwt` flag.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the JWT marker is already present.
+  """
+  @spec inject_jwt_routes(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_jwt_routes(file_contents, route_code) do
+    if String.contains?(file_contents, @jwt_marker) do
+      {:already_injected, file_contents}
+    else
+      case find_last_end(file_contents) do
+        {:ok, position} ->
+          {before, rest} = String.split_at(file_contents, position)
+          {:ok, before <> "\n" <> route_code <> "\n" <> rest}
+
+        :error ->
+          {:ok, file_contents <> "\n" <> route_code <> "\n"}
+      end
+    end
+  end
+
+  @doc """
+  Injects API token configuration into config.exs.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the API marker is already present.
+  """
+  @spec inject_api_config(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_api_config(file_contents, config_block) do
+    if String.contains?(file_contents, "api_token:") do
+      {:already_injected, file_contents}
+    else
       case find_import_config(file_contents) do
         {:ok, position} ->
           {before, rest} = String.split_at(file_contents, position)

@@ -30,8 +30,8 @@ defmodule Mix.Tasks.Sigra.Install do
 
   use Mix.Task
 
-  @switches [live: :boolean, binary_id: :boolean, table: :string]
-  @default_opts [live: true]
+  @switches [live: :boolean, binary_id: :boolean, table: :string, api: :boolean, jwt: :boolean]
+  @default_opts [live: true, api: false, jwt: false]
 
   @impl true
   def run(args) do
@@ -94,6 +94,8 @@ defmodule Mix.Tasks.Sigra.Install do
       repo_module: inspect(repo_module),
       binary_id: opts[:binary_id] || false,
       live: opts[:live],
+      api: opts[:api] || opts[:jwt] || false,
+      jwt: opts[:jwt] || false,
       adapter: adapter,
       reset_password_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/reset-password",
       settings_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/settings"
@@ -170,6 +172,47 @@ defmodule Mix.Tasks.Sigra.Install do
        Path.join(["lib", "#{otp_app_str}_web", "controllers", "mfa_challenge_html.ex"])}
     ]
 
+    # Check if API token migration already exists (prevent duplicates on re-run)
+    existing_api_migration =
+      Path.join(["priv", "repo", "migrations"])
+      |> File.ls()
+      |> case do
+        {:ok, mig_files} -> Enum.find(mig_files, &String.contains?(&1, "create_user_api_tokens"))
+        _ -> nil
+      end
+
+    api_migration_path =
+      if existing_api_migration do
+        Path.join(["priv", "repo", "migrations", existing_api_migration])
+      else
+        Path.join(["priv", "repo", "migrations", "#{api_token_timestamp()}_create_user_api_tokens.exs"])
+      end
+
+    # Conditionally add API token files (--api or --jwt flag)
+    api_files =
+      if opts[:api] || opts[:jwt] do
+        [
+          {:eex, "api_token_migration.exs", api_migration_path},
+          {:eex, "user_api_token.ex",
+           Path.join(["lib", otp_app_str, context_underscore, "user_api_token.ex"])},
+          {:eex, "api_token_controller.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "controllers", "api_token_controller.ex"])}
+        ]
+      else
+        []
+      end
+
+    # Conditionally add JWT token controller (--jwt flag only)
+    jwt_files =
+      if opts[:jwt] do
+        [
+          {:eex, "token_controller.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "controllers", "token_controller.ex"])}
+        ]
+      else
+        []
+      end
+
     # Conditionally add LiveView or controller-mode templates
     ui_files =
       if opts[:live] do
@@ -204,7 +247,7 @@ defmodule Mix.Tasks.Sigra.Install do
         ]
       end
 
-    all_files = files ++ ui_files
+    all_files = files ++ ui_files ++ api_files ++ jwt_files
 
     # Generate files from templates (skip existing files for idempotency)
     for {_type, template_name, target_path} <- all_files do
@@ -421,11 +464,108 @@ defmodule Mix.Tasks.Sigra.Install do
       inject_file(conn_case_path, &Sigra.Install.Injector.inject_conn_case(&1, helper_code))
     end
 
+    # API route injection (--api or --jwt flag)
+    if binding[:api] do
+      inject_api_files(binding)
+    end
+
     # Oban queue injection (per D-22)
     inject_oban_queue(otp_app)
 
     # Swoosh config detection (per D-19/D-55)
     inject_swoosh_config(otp_app, context_module)
+  end
+
+  defp inject_api_files(binding) do
+    web_module = binding[:web_module]
+    otp_app = binding[:otp_app]
+
+    router_path = Path.join(["lib", "#{otp_app}_web", "router.ex"])
+
+    if File.exists?(router_path) do
+      api_route_code = """
+        # Sigra API
+        pipeline :api_authenticated do
+          plug Sigra.Plug.FetchBearer
+          plug Sigra.Plug.RequireAuthenticated,
+            error_handler: #{web_module}.AuthErrorHandler
+        end
+
+        scope "/api", #{web_module} do
+          pipe_through [:api, :api_authenticated]
+
+          get "/tokens", APITokenController, :index
+          post "/tokens", APITokenController, :create
+          delete "/tokens/:id", APITokenController, :delete
+          delete "/tokens", APITokenController, :delete_all
+        end
+
+        # # Mixed-mode pipeline (uncomment if you need endpoints that accept both session and bearer auth)
+        # pipeline :api_or_browser do
+        #   plug Sigra.Plug.FetchBearer
+        #   plug Sigra.Plug.FetchSession
+        # end
+      """
+
+      inject_file(router_path, &Sigra.Install.Injector.inject_api_routes(&1, api_route_code))
+
+      # JWT routes (only with --jwt)
+      if binding[:jwt] do
+        jwt_route_code = """
+          # Sigra JWT
+          scope "/api/auth", #{web_module} do
+            pipe_through :api
+
+            post "/token", TokenController, :create
+            post "/token/refresh", TokenController, :refresh
+            post "/token/mfa", TokenController, :mfa
+            delete "/token", TokenController, :revoke
+          end
+        """
+
+        inject_file(router_path, &Sigra.Install.Injector.inject_jwt_routes(&1, jwt_route_code))
+      end
+    end
+
+    # API config injection
+    config_path = Path.join(["config", "config.exs"])
+
+    if File.exists?(config_path) do
+      api_config = """
+
+      # Sigra API token configuration
+      config :#{otp_app}, :sigra_api,
+        api_token: [
+          prefix: "sigra_sk_",
+          max_tokens_per_user: 25,
+          default_scopes: ["read"]
+        ]
+      """
+
+      jwt_config =
+        if binding[:jwt] do
+          "\n  jwt: [\n    algorithm: \"HS256\",\n    access_ttl: 900,\n    refresh_ttl: 2_592_000\n  ]\n"
+        else
+          ""
+        end
+
+      inject_file(config_path, &Sigra.Install.Injector.inject_api_config(&1, api_config <> jwt_config))
+    end
+
+    # Print instructions for manual addition of auth_api_token.ex content
+    Mix.shell().info([
+      :green,
+      "* API token functions available. ",
+      :reset,
+      "Add the delegation functions from auth_api_token.ex to your Auth context module."
+    ])
+  end
+
+  defp api_token_timestamp do
+    # Offset by 1 second from the main migration timestamp to ensure ordering
+    {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
+    ss = min(ss + 1, 59)
+    "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
   end
 
   defp inject_oban_queue(otp_app) do
@@ -560,6 +700,7 @@ defmodule Mix.Tasks.Sigra.Install do
              end
 
     #{if opts[:live], do: "  LiveView pages were generated for login, registration, and session management.\n", else: "  LiveView pages were NOT generated (--no-live). Use the SessionController for login.\n"}
+    #{if opts[:api] || opts[:jwt], do: "  API token endpoints were generated at /api/tokens.\n  Add the functions from auth_api_token.ex to your Auth context.\n", else: ""}#{if opts[:jwt], do: "  JWT authentication endpoints were generated at /api/auth/token.\n", else: ""}
     """)
   end
 end
