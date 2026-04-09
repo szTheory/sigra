@@ -554,6 +554,115 @@ defmodule <%= context_module %> do
     Sigra.MFA.status(sigra_config(), user)
   end
 
+  ## Account Lifecycle
+
+  @doc """
+  Request an email change. Sends confirmation to the new address and
+  notification to the old address.
+
+  Returns `{:ok, user, encoded_token}` or `{:error, changeset}`.
+  """
+  def request_email_change(user, new_email) do
+    Sigra.Auth.request_email_change(sigra_config(), user, new_email,
+      changeset_fn: &<%= schema_alias %>.pending_email_changeset/2,
+      user_token_schema: UserToken
+    )
+  end
+
+  @doc """
+  Confirm an email change via the token from the confirmation email.
+
+  Returns `{:ok, user}` or `:error`.
+  """
+  def confirm_email_change(encoded_token, opts \\ []) do
+    Sigra.Auth.confirm_email_change(sigra_config(), encoded_token,
+      Keyword.merge([
+        user_token_schema: UserToken,
+        user_schema: <%= schema_alias %>,
+        session_store: Sigra.SessionStores.Ecto
+      ], opts)
+    )
+  end
+
+  @doc """
+  Cancel a pending email change.
+
+  Returns `{:ok, user}` or `{:error, changeset}`.
+  """
+  def cancel_email_change(user) do
+    Sigra.Auth.cancel_email_change(sigra_config(), user,
+      changeset_fn: &<%= schema_alias %>.pending_email_changeset/2,
+      user_token_schema: UserToken
+    )
+  end
+
+  @doc """
+  Change the user's password, verifying the current password.
+
+  All other sessions are invalidated on success.
+  Returns `{:ok, user}` or `{:error, changeset}`.
+  """
+  def change_password(user, current_password, attrs) do
+    Sigra.Auth.change_password(sigra_config(), user, current_password, attrs,
+      changeset_fn: &<%= schema_alias %>.password_changeset/3
+    )
+  end
+
+  @doc """
+  Set a password for an OAuth-only user who doesn't have one yet.
+
+  Requires sudo mode. Returns `{:ok, user}` or `{:error, changeset}`.
+  """
+  def set_password(user, attrs) do
+    Sigra.Auth.set_password(sigra_config(), user, attrs,
+      changeset_fn: &<%= schema_alias %>.password_changeset/3
+    )
+  end
+
+  @doc """
+  Schedule account deletion with configured grace period.
+
+  Returns `{:ok, user, scheduled_date}` or `{:error, reason}`.
+  """
+  def schedule_deletion(user) do
+    Sigra.Auth.schedule_deletion(sigra_config(), user,
+      user_token_schema: UserToken,
+      session_store: Sigra.SessionStores.Ecto
+    )
+  end
+
+  @doc """
+  Cancel a scheduled account deletion.
+
+  Returns `{:ok, user}` or `{:error, reason}`.
+  """
+  def cancel_deletion(user) do
+    Sigra.Auth.cancel_deletion(sigra_config(), user,
+      changeset_fn: &<%= schema_alias %>.deletion_changeset/2
+    )
+  end
+
+  @doc """
+  Check if the user's account is scheduled for deletion.
+  """
+  def deletion_scheduled?(user) do
+    Sigra.Account.deletion_scheduled?(user)
+  end
+
+  @doc """
+  Get deletion status: `{:scheduled, days_remaining}` | `:not_scheduled` | `:deleted`.
+  """
+  def deletion_status(user) do
+    Sigra.Account.deletion_status(user)
+  end
+
+  @doc """
+  Check if the user must change their password.
+  """
+  def must_change_password?(user) do
+    Sigra.Account.must_change_password?(user)
+  end
+
   # -- Private helpers --
 
   defp delivery_opts do
