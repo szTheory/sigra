@@ -21,7 +21,7 @@ defmodule Sigra.Auth do
   """
 
   alias Ecto.Multi
-  alias Sigra.{Crypto, Email, Telemetry, Token}
+  alias Sigra.{Audit, Crypto, Email, Telemetry, Token}
 
   @doc """
   Registers a user.
@@ -51,19 +51,101 @@ defmodule Sigra.Auth do
     Telemetry.span([:sigra, :auth, :register], %{}, fn ->
       changeset = changeset_fn.(attrs)
 
+      # D-26: audit integration. Uses Sigra.Audit.log_safe/3 (standalone, D-28)
+      # which no-ops if the host app has not configured :audit_schema, so
+      # callers without audit config see unchanged behaviour. When audit is
+      # enabled, the audit row is written in its own transaction after the
+      # business op. Note: this is NOT fully atomic with the user insert; a
+      # future task may convert register to Multi-based once subsystem tests
+      # gain audit_schema awareness.
+      audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
       case repo.insert(changeset) do
         {:ok, user} ->
+          Audit.log_safe(
+            "auth.register.success",
+            Keyword.merge(audit_opts,
+              actor_id: user.id,
+              metadata: %{method: "password"}
+            )
+          )
+
           Telemetry.event([:sigra, :auth, :register, :stop], %{}, %{user_id: user.id})
           {:ok, user}
 
         {:error, changeset} ->
           if email_taken_error?(changeset) do
+            Audit.log_safe(
+              "auth.register.failure",
+              Keyword.merge(audit_opts,
+                actor_id: nil,
+                outcome: "failure",
+                metadata: %{reason: "email_taken"}
+              )
+            )
+
             {:error, :email_taken}
           else
+            Audit.log_safe(
+              "auth.register.failure",
+              Keyword.merge(audit_opts,
+                actor_id: nil,
+                outcome: "failure",
+                metadata: %{reason: "validation"}
+              )
+            )
+
             {:error, changeset}
           end
       end
     end)
+  end
+
+  # --- Audit integration helpers (Plan 09-03) ---
+  #
+  # The audit layer is opt-in: if the host app has not configured an audit
+  # schema, log_safe/3 no-ops. All integration sites pull opts from either
+  # the per-call keyword list (non-config API) or from %Sigra.Config{} when
+  # available. Reserved-prefix guard is bypassed for internal callers.
+  #
+  # D-26 dispatch table (auth.* operations in this module):
+  #
+  #   register success    -> Sigra.Audit.log_safe("auth.register.success", ...)
+  #                          Sigra.Audit.__log_internal__ (future Multi form)
+  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", ...)
+  #   login success       -> Sigra.Audit.log_safe("auth.login.success", ...)
+  #                          Sigra.Audit.__log_internal__ (future Multi form)
+  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", ...)
+  #                          (non-Multi, standalone per D-28)
+  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", ...)
+  #                          Sigra.Audit.__log_internal__ (future Multi form)
+  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", ...)
+  #                          Sigra.Audit.__log_internal__ (future Multi form)
+  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", ...)
+  #   password_reset done -> Sigra.Audit.__log_internal__ (Multi, atomic)
+  #   confirmation link   -> Sigra.Audit.__log_internal__ (Multi, atomic)
+  #   confirmation code   -> Sigra.Audit.__log_internal__ (Multi, atomic)
+
+  @doc false
+  def audit_opts_from_keyword(opts) when is_list(opts) do
+    [
+      repo: Keyword.get(opts, :repo) || Keyword.get(opts, :audit_repo),
+      audit_schema: Keyword.get(opts, :audit_schema),
+      ip_address: Keyword.get(opts, :ip_address) || Keyword.get(opts, :ip),
+      user_agent: Keyword.get(opts, :user_agent)
+    ]
+  end
+
+  @doc false
+  def audit_opts_from_config(%Sigra.Config{} = config, extra \\ []) do
+    audit_config = Map.get(config, :audit, [])
+
+    [
+      repo: config.repo,
+      audit_schema: Keyword.get(audit_config, :audit_schema),
+      ip_address: Keyword.get(extra, :ip_address) || Keyword.get(extra, :ip),
+      user_agent: Keyword.get(extra, :user_agent)
+    ]
   end
 
   @doc """
@@ -142,11 +224,22 @@ defmodule Sigra.Auth do
       |> Email.normalize()
 
     login_ip = params["ip"] || params[:ip]
+    user_agent = params["user_agent"] || params[:user_agent]
     user = repo.get_by(user_schema, email: email)
+    audit_opts = audit_opts_from_config(config, ip_address: login_ip, user_agent: user_agent)
 
     # Step 1: Check lockout BEFORE password verification (D-29)
     case Sigra.Lockout.check(user, lockout_opts) do
       {:error, :account_locked, _remaining} ->
+        # D-26: security audit row (standalone, D-28)
+        Audit.log_safe("security.lockout",
+          Keyword.merge(audit_opts,
+            actor_id: user && user.id,
+            outcome: "failure",
+            metadata: %{reason: "account_locked"}
+          )
+        )
+
         {:error, :account_locked}
 
       :ok ->
@@ -155,16 +248,54 @@ defmodule Sigra.Auth do
 
         case Crypto.verify_with_upgrade(password, hashed_password) do
           {:ok, :valid} ->
+            # D-26: login success audit row
+            Audit.log_safe("auth.login.success",
+              Keyword.merge(audit_opts,
+                actor_id: user.id,
+                metadata: %{method: "password"}
+              )
+            )
+
             handle_valid_login_with_security(config, repo, user, require_confirmation, %{}, login_ip)
 
           {:ok, :valid, new_hash} ->
             Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
+
+            Audit.log_safe("auth.login.success",
+              Keyword.merge(audit_opts,
+                actor_id: user.id,
+                metadata: %{method: "password", hash_upgraded: true}
+              )
+            )
+
             handle_valid_login_with_security(config, repo, user, require_confirmation, %{hashed_password: new_hash}, login_ip)
 
           {:error, :invalid} ->
             if user do
+              # D-26 + D-28: login failure is a standalone audit write.
+              # The call site uses Sigra.Audit.log_safe/3 (internal variant
+              # that bypasses reserved-prefix guards for library-owned
+              # actions). The equivalent developer-facing entry point is
+              # `Sigra.Audit.log(action, opts)` for non-reserved actions.
+              Audit.log_safe("auth.login.failure",
+                Keyword.merge(audit_opts,
+                  actor_id: user.id,
+                  outcome: "failure",
+                  metadata: %{reason: "invalid_password"}
+                )
+              )
+
               handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts)
             else
+              # D-26: login failure audit (unknown email) — standalone (D-28)
+              Audit.log_safe("auth.login.failure",
+                Keyword.merge(audit_opts,
+                  actor_id: nil,
+                  outcome: "failure",
+                  metadata: %{reason: "unknown_email"}
+                )
+              )
+
               {:error, :invalid_credentials}
             end
         end
@@ -220,6 +351,13 @@ defmodule Sigra.Auth do
         repo.insert!(token_struct)
         url = url_fun.(raw_token)
 
+        # D-26: audit magic link request (standalone, always success)
+        audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
+        Audit.log_safe("auth.magic_link_request",
+          Keyword.merge(audit_opts, actor_id: user.id, metadata: %{})
+        )
+
         {:ok, {raw_token, url}}
     end
   end
@@ -273,6 +411,19 @@ defmodule Sigra.Auth do
 
             # Auto-confirm unconfirmed users
             user = maybe_confirm_user(repo, user)
+
+            # D-26: audit magic link verify success.
+            # Standalone write (Sigra.Audit.log_safe) because the delete +
+            # update above are not yet in a single Multi; the audit row is
+            # still persisted after the business op succeeds.
+            audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
+            Audit.log_safe("auth.magic_link_verify.success",
+              Keyword.merge(audit_opts,
+                actor_id: user.id,
+                metadata: %{}
+              )
+            )
 
             {:ok, user}
           end
@@ -369,6 +520,8 @@ defmodule Sigra.Auth do
 
         token_record ->
           # Build atomic transaction: confirm user + delete all confirm tokens
+          audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
           multi =
             Multi.new()
             |> Multi.run(:confirm_user, fn _repo, _changes ->
@@ -399,8 +552,26 @@ defmodule Sigra.Auth do
               {:ok, :deleted}
             end)
 
+          # D-26: atomic audit row for confirmation verify success.
+          # __log_internal__/3 is guarded by audit_schema presence so apps
+          # that have not configured audit skip the extra step entirely.
+          multi =
+            if Keyword.get(audit_opts, :audit_schema) do
+              Sigra.Audit.__log_internal__(
+                multi,
+                "auth.confirmation_verify.success",
+                Keyword.merge(audit_opts,
+                  actor_resolver: fn %{confirm_user: u} -> u.id end,
+                  metadata: %{method: "link"}
+                )
+              )
+            else
+              multi
+            end
+
           case repo.transaction(multi) do
-            {:ok, %{confirm_user: user}} ->
+            {:ok, %{confirm_user: user} = changes} ->
+              Audit.emit_telemetry_from_changes(changes)
               Telemetry.event([:sigra, :confirmation, :verify, :stop], %{}, %{user_id: user.id})
               {:ok, user}
 
@@ -497,8 +668,26 @@ defmodule Sigra.Auth do
                 {:ok, :deleted}
               end)
 
+            # D-26: audit row for confirmation-code verify success (atomic)
+            audit_opts_cc = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
+            multi =
+              if Keyword.get(audit_opts_cc, :audit_schema) do
+                Sigra.Audit.__log_internal__(
+                  multi,
+                  "auth.confirmation_verify.success",
+                  Keyword.merge(audit_opts_cc,
+                    actor_resolver: fn %{confirm_user: u} -> u.id end,
+                    metadata: %{method: "code"}
+                  )
+                )
+              else
+                multi
+              end
+
             case repo.transaction(multi) do
-              {:ok, %{confirm_user: user}} ->
+              {:ok, %{confirm_user: user} = changes} ->
+                Audit.emit_telemetry_from_changes(changes)
                 Telemetry.event([:sigra, :confirmation, :verify, :stop], %{}, %{user_id: user.id})
                 {:ok, user}
 
@@ -567,6 +756,13 @@ defmodule Sigra.Auth do
 
         Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
 
+        # D-26: audit password reset request (standalone, always success).
+        audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
+        Audit.log_safe("auth.password_reset_request",
+          Keyword.merge(audit_opts, actor_id: user.id, metadata: %{})
+        )
+
         {:ok, {encoded_token, url}}
     end
   end
@@ -629,8 +825,26 @@ defmodule Sigra.Auth do
               {:ok, :deleted}
             end)
 
+          # D-26: atomic audit row for password_reset_complete
+          audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
+          multi =
+            if Keyword.get(audit_opts, :audit_schema) do
+              Sigra.Audit.__log_internal__(
+                multi,
+                "auth.password_reset_complete",
+                Keyword.merge(audit_opts,
+                  actor_resolver: fn %{reset_password: u} -> u.id end,
+                  metadata: %{}
+                )
+              )
+            else
+              multi
+            end
+
           case repo.transaction(multi) do
-            {:ok, %{reset_password: user}} ->
+            {:ok, %{reset_password: user} = changes} ->
+              Audit.emit_telemetry_from_changes(changes)
               Telemetry.event([:sigra, :reset, :completed], %{}, %{user_id: user.id})
               {:ok, user}
 
@@ -666,9 +880,31 @@ defmodule Sigra.Auth do
   def create_session(config, user, metadata, opts \\ []) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
-    Telemetry.span([:sigra, :session, :create], %{user_id: user.id, type: Map.get(metadata, :type, :standard)}, fn ->
-      session_store.create(user.id, metadata, store_opts)
-    end)
+    result =
+      Telemetry.span([:sigra, :session, :create], %{user_id: user.id, type: Map.get(metadata, :type, :standard)}, fn ->
+        session_store.create(user.id, metadata, store_opts)
+      end)
+
+    # D-26: session.create audit row (standalone, D-28)
+    case result do
+      {:ok, session} ->
+        audit_opts = audit_opts_from_config(config,
+          ip_address: Map.get(metadata, :ip),
+          user_agent: Map.get(metadata, :user_agent)
+        )
+
+        Sigra.Audit.log_safe("session.create",
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            metadata: %{type: Map.get(metadata, :type, :standard), session_id: session.id}
+          )
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
   end
 
   @doc """
@@ -681,9 +917,23 @@ defmodule Sigra.Auth do
   def delete_session(config, hashed_token, opts \\ []) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
-    Telemetry.span([:sigra, :session, :delete], %{}, fn ->
-      session_store.delete(hashed_token, store_opts)
-    end)
+    result =
+      Telemetry.span([:sigra, :session, :delete], %{}, fn ->
+        session_store.delete(hashed_token, store_opts)
+      end)
+
+    # D-26: session.delete audit row (standalone, D-28).
+    # actor_id is resolved from the opts :user_id if provided; otherwise nil.
+    audit_opts = audit_opts_from_config(config)
+
+    Sigra.Audit.log_safe("session.delete",
+      Keyword.merge(audit_opts,
+        actor_id: Keyword.get(opts, :user_id),
+        metadata: %{}
+      )
+    )
+
+    result
   end
 
   @doc """
@@ -726,6 +976,17 @@ defmodule Sigra.Auth do
     end
 
     Telemetry.event([:sigra, :session, :revoke_all, :stop], %{count: count}, %{user_id: user_id})
+
+    # D-26: session.revoke_all audit row (standalone)
+    audit_opts = audit_opts_from_config(config)
+
+    Sigra.Audit.log_safe("session.revoke_all",
+      Keyword.merge(audit_opts,
+        actor_id: user_id,
+        metadata: %{count: count}
+      )
+    )
+
     {count, nil}
   end
 
@@ -765,9 +1026,33 @@ defmodule Sigra.Auth do
   def confirm_sudo(config, hashed_token, opts \\ []) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
-    Telemetry.span([:sigra, :session, :sudo], %{}, fn ->
-      session_store.update_sudo(hashed_token, DateTime.utc_now(), store_opts)
-    end)
+    result =
+      Telemetry.span([:sigra, :session, :sudo], %{}, fn ->
+        session_store.update_sudo(hashed_token, DateTime.utc_now(), store_opts)
+      end)
+
+    # D-26 + RESEARCH Q2: split session.sudo_enter / session.sudo_expire by
+    # result. :ok or {:ok, _} = entered; any error response = expired/failed.
+    action =
+      case result do
+        :ok -> "session.sudo_enter"
+        {:ok, _} -> "session.sudo_enter"
+        _ -> "session.sudo_expire"
+      end
+
+    audit_opts = audit_opts_from_config(config)
+
+    outcome = if action == "session.sudo_enter", do: "success", else: "failure"
+
+    Sigra.Audit.log_safe(action,
+      Keyword.merge(audit_opts,
+        actor_id: Keyword.get(opts, :user_id),
+        outcome: outcome,
+        metadata: %{}
+      )
+    )
+
+    result
   end
 
   # -- OAuth Integration (Phase 5 Plan 02) --
@@ -1019,6 +1304,16 @@ defmodule Sigra.Auth do
     threshold = Keyword.get(lockout_opts, :threshold, 5)
     updated_user = Sigra.Lockout.increment!(repo, user, lockout_opts)
     new_count = updated_user.failed_login_attempts
+    audit_opts = audit_opts_from_config(config, ip_address: login_ip)
+
+    # D-26: invalid_credentials counter audit row (every failed attempt)
+    Sigra.Audit.log_safe("security.invalid_credentials",
+      Keyword.merge(audit_opts,
+        actor_id: user.id,
+        outcome: "failure",
+        metadata: %{attempts: new_count}
+      )
+    )
 
     if new_count >= threshold do
       # Lockout just triggered
@@ -1027,6 +1322,15 @@ defmodule Sigra.Auth do
         ip: login_ip,
         reason: :threshold_reached
       })
+
+      # D-26: security.lockout audit row
+      Sigra.Audit.log_safe("security.lockout",
+        Keyword.merge(audit_opts,
+          actor_id: user.id,
+          outcome: "failure",
+          metadata: %{reason: "threshold_reached", attempts: new_count}
+        )
+      )
 
       maybe_deliver_lockout_email(config, user, %{ip: login_ip})
       {:error, :account_locked}

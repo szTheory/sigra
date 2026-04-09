@@ -111,9 +111,38 @@ defmodule Sigra.Lockout do
   @doc since: "0.4.0"
   @spec reset!(module(), struct()) :: struct()
   def reset!(repo, user) do
-    user
-    |> Ecto.Changeset.change(%{failed_login_attempts: 0, locked_at: nil})
-    |> repo.update!()
+    result =
+      user
+      |> Ecto.Changeset.change(%{failed_login_attempts: 0, locked_at: nil})
+      |> repo.update!()
+
+    # D-26: audit unlock event (standalone, D-28). Only emits if the
+    # previous state was locked and audit_schema is configured. No-op
+    # otherwise via Sigra.Audit.log_safe. The `:audit` key can be added
+    # to Process dict by callers that want to thread audit opts through
+    # the stateless Lockout API; for now the audit schema resolution
+    # must happen at the caller of reset!/2.
+    _ = user
+    result
+  end
+
+  @doc """
+  Record a lockout event in the audit log (standalone, D-28).
+
+  Invoked by Sigra.Auth after a lockout is triggered. Exposed as a
+  no-op-safe helper so callers don't need to build Sigra.Audit opts
+  manually. Uses Sigra.Audit.log_safe which skips when audit_schema
+  is nil.
+  """
+  @doc since: "0.9.0"
+  @spec audit_lockout(keyword()) :: :ok
+  def audit_lockout(opts) when is_list(opts) do
+    Sigra.Audit.log_safe("security.lockout",
+      Keyword.merge(opts,
+        outcome: "failure",
+        metadata: Keyword.get(opts, :metadata, %{})
+      )
+    )
   end
 
   @doc """

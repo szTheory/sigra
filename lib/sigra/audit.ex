@@ -95,6 +95,70 @@ defmodule Sigra.Audit do
     do_log_multi(multi, action, opts, true)
   end
 
+  @doc """
+  Safe standalone log for library-internal integration sites.
+
+  No-ops (returns `:ok`) when `:audit_schema` is nil or absent. This lets
+  integration call sites (Plan 03) add audit writes without breaking host
+  apps that have not configured an audit schema. Always bypasses the
+  reserved-prefix check (library-owned events).
+
+  Returns `:ok` in all cases (successful insert, disabled, or insert error)
+  because integration call sites must not change their return shape on
+  audit failure. Errors are logged via telemetry metadata on the separate
+  `[:sigra, :audit, :log_safe_error]` event for observability.
+  """
+  @spec log_safe(String.t(), opts()) :: :ok
+  def log_safe(action, opts) when is_binary(action) and is_list(opts) do
+    case Keyword.get(opts, :audit_schema) do
+      nil ->
+        :ok
+
+      _schema ->
+        opts = Keyword.put(opts, :allow_reserved, true)
+        cs_opts = changeset_opts(opts, true)
+        audit_schema = Keyword.fetch!(opts, :audit_schema)
+        attrs = build_attrs(action, opts, nil, %{})
+        changeset = Changeset.changeset(struct(audit_schema), attrs, cs_opts)
+
+        case Keyword.get(opts, :repo) do
+          nil ->
+            :ok
+
+          repo ->
+            case repo.insert(changeset) do
+              {:ok, event} ->
+                emit_telemetry(event)
+                :ok
+
+              {:error, %Ecto.Changeset{} = cs} ->
+                :telemetry.execute(
+                  [:sigra, :audit, :log_safe_error],
+                  %{count: 1},
+                  %{action: action, errors: cs.errors}
+                )
+
+                :ok
+            end
+        end
+    end
+  end
+
+  @doc """
+  Safe Multi-append for library-internal integration sites.
+
+  Returns the multi unchanged when `:audit_schema` is nil or absent.
+  Otherwise appends an `:audit` step via `__log_internal__/3`.
+  """
+  @spec log_multi_safe(Ecto.Multi.t(), String.t(), opts()) :: Ecto.Multi.t()
+  def log_multi_safe(%Ecto.Multi{} = multi, action, opts)
+      when is_binary(action) and is_list(opts) do
+    case Keyword.get(opts, :audit_schema) do
+      nil -> multi
+      _ -> do_log_multi(multi, action, opts, true)
+    end
+  end
+
   defp do_log_multi(multi, action, opts, allow_reserved?) do
     audit_schema = Keyword.fetch!(opts, :audit_schema)
     resolver = Keyword.get(opts, :actor_resolver)

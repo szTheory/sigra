@@ -82,6 +82,20 @@ defmodule Sigra.SuspiciousLogin do
           }
         )
 
+        # D-26: audit row for suspicious login detection (standalone, D-28).
+        # Uses Sigra.Audit.log_safe which no-ops when audit_schema not
+        # configured. Metadata never contains tokens/secrets (D-23).
+        audit_config = Map.get(config, :audit, [])
+
+        Sigra.Audit.log_safe("security.suspicious_login",
+          repo: config.repo,
+          audit_schema: Keyword.get(audit_config, :audit_schema),
+          actor_id: user_id,
+          outcome: "failure",
+          ip_address: login_ip,
+          metadata: %{geo_city: geo[:city], geo_country_code: geo[:country_code]}
+        )
+
         {:suspicious, details}
     end
   end
