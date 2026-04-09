@@ -14,4 +14,5 @@ defmodule Sigra.MockRepo.Behaviour do
   @callback delete_all(Ecto.Queryable.t()) :: {non_neg_integer(), nil | [term()]}
   @callback all(Ecto.Queryable.t()) :: [struct()]
   @callback update_all(Ecto.Queryable.t(), keyword()) :: {non_neg_integer(), nil | [term()]}
+  @callback one(Ecto.Queryable.t()) :: struct() | nil
 end
