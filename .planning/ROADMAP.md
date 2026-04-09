@@ -159,7 +159,13 @@ Plans:
   3. User can delete their account; the deletion behavior (soft delete, hard delete, anonymization) is configurable by the developer
   4. Sensitive operations (change email, delete account, manage MFA) prompt for re-authentication if the sudo window has expired; the sudo window is configurable
   5. Application developers can register profile update callbacks that run within the same transaction as auth operations
-**Plans:** TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 08-01-PLAN.md — Config extensions, EmailTemplates behaviour, Hooks engine, DataExport behaviour
+- [ ] 08-02-PLAN.md — Account lifecycle library modules (EmailChange, PasswordChange, Deletion, Account orchestrator)
+- [ ] 08-03-PLAN.md — RequirePasswordChange plug, AccountDeletion Oban worker, Telemetry, Auth delegation
+- [ ] 08-04-PLAN.md — Generated templates (migration, user schema, auth context, hooks stub, email templates)
+- [ ] 08-05-PLAN.md — Settings LiveView, reactivation page, generator/injector updates, testing helpers
 **UI hint**: yes
 
 ### Phase 9: Audit Logging
@@ -199,6 +205,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. OAuth and Social Login | 0/3 | Planning complete | - |
 | 6. Multi-Factor Authentication | 0/5 | Planning complete | - |
 | 7. API Authentication | 0/4 | Planning complete | - |
-| 8. Account Lifecycle | 0/TBD | Not started | - |
+| 8. Account Lifecycle | 0/5 | Planning complete | - |
 | 9. Audit Logging | 0/TBD | Not started | - |
 | 10. Developer Experience | 0/TBD | Not started | - |
