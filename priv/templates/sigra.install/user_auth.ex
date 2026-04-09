@@ -322,5 +322,60 @@ defmodule <%= web_module %>.UserAuth do
     end
   end
 
+  @doc """
+  Plug that checks if the user must change their password.
+
+  If `must_change_password` is true on the current user, redirects to
+  the settings page password section. The settings page itself is
+  exempt from this check to avoid redirect loops.
+
+  Delegates to `Sigra.Plug.RequirePasswordChange` pattern (D-38).
+
+  ## Usage
+
+  In your router, add after `require_authenticated_user`:
+
+      pipe_through [:browser, :require_authenticated_user, :require_password_unchanged]
+
+  """
+  def require_password_unchanged(conn, _opts) do
+    user = conn.assigns[:current_scope] && conn.assigns.current_scope.user
+
+    if user && Map.get(user, :must_change_password, false) do
+      conn
+      |> put_flash(:error, "You must change your password before you can continue using your account.")
+      |> maybe_store_return_to()
+      |> redirect(to: ~p"/users/settings#password")
+      |> halt()
+    else
+      conn
+    end
+  end
+
+  @doc """
+  Plug that checks if the user's account is scheduled for deletion.
+
+  If the user has a non-nil `deleted_at`, redirects to the reactivation
+  page where they can cancel the deletion or sign out (D-15, T-8-15).
+
+  ## Usage
+
+  In your router, add after `require_authenticated_user`:
+
+      pipe_through [:browser, :require_authenticated_user, :check_account_active]
+
+  """
+  def check_account_active(conn, _opts) do
+    user = conn.assigns[:current_scope] && conn.assigns.current_scope.user
+
+    if user && user.deleted_at do
+      conn
+      |> redirect(to: ~p"/users/reactivation")
+      |> halt()
+    else
+      conn
+    end
+  end
+
   defp signed_in_path(_conn), do: ~p"/"
 end

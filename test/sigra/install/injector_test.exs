@@ -150,6 +150,115 @@ defmodule Sigra.Install.InjectorTest do
     end
   end
 
+  describe "inject_lifecycle_routes/2" do
+    test "injects lifecycle routes when marker is absent" do
+      router_content = """
+      defmodule MyAppWeb.Router do
+        use MyAppWeb, :router
+
+        # Sigra authentication
+        pipeline :auth do
+          plug MyAppWeb.UserAuth, :fetch_current_scope
+        end
+
+        scope "/", MyAppWeb do
+          pipe_through [:browser, :auth]
+          get "/", PageController, :home
+        end
+      end
+      """
+
+      route_code = """
+        # Sigra account lifecycle
+        scope "/", MyAppWeb do
+          pipe_through [:browser, :auth, :require_authenticated_user]
+          live "/users/settings", SettingsLive, :index
+          live "/users/settings/confirm-email/:token", SettingsLive, :confirm_email
+          live "/users/reactivation", ReactivationLive, :index
+        end
+      """
+
+      assert {:ok, injected} = Injector.inject_lifecycle_routes(router_content, route_code)
+      assert String.contains?(injected, "# Sigra account lifecycle")
+      assert String.contains?(injected, "SettingsLive, :index")
+      assert String.contains?(injected, "confirm-email/:token")
+      assert String.contains?(injected, "ReactivationLive, :index")
+    end
+
+    test "returns :already_injected when lifecycle marker is present" do
+      router_content = """
+      defmodule MyAppWeb.Router do
+        # Sigra account lifecycle
+        live "/users/settings", SettingsLive, :index
+      end
+      """
+
+      route_code = "# Sigra account lifecycle\nlive \"/users/settings\", SettingsLive"
+
+      assert {:already_injected, ^router_content} =
+               Injector.inject_lifecycle_routes(router_content, route_code)
+    end
+
+    test "injection is idempotent" do
+      router_content = """
+      defmodule MyAppWeb.Router do
+        scope "/", MyAppWeb do
+          get "/", PageController, :home
+        end
+      end
+      """
+
+      route_code = """
+        # Sigra account lifecycle
+        live "/users/settings", SettingsLive, :index
+      """
+
+      assert {:ok, first_inject} = Injector.inject_lifecycle_routes(router_content, route_code)
+      assert {:already_injected, ^first_inject} = Injector.inject_lifecycle_routes(first_inject, route_code)
+    end
+  end
+
+  describe "inject_oban_lifecycle_queue/1" do
+    test "injects lifecycle queue alongside mailer queue" do
+      config_content = """
+      config :my_app, Oban,
+        repo: MyApp.Repo,
+        queues: [sigra_mailer: 10]
+      """
+
+      assert {:ok, injected} = Injector.inject_oban_lifecycle_queue(config_content)
+      assert String.contains?(injected, "sigra_lifecycle: 5")
+      assert String.contains?(injected, "sigra_mailer: 10")
+    end
+
+    test "returns :already_injected when lifecycle queue present" do
+      config_content = """
+      config :my_app, Oban,
+        queues: [sigra_mailer: 10, sigra_lifecycle: 5]
+      """
+
+      assert {:already_injected, ^config_content} =
+               Injector.inject_oban_lifecycle_queue(config_content)
+    end
+  end
+
+  describe "lifecycle_template_files/0" do
+    test "includes auth_hooks.ex in file list" do
+      files = Injector.lifecycle_template_files()
+      assert "auth_hooks.ex" in files
+    end
+
+    test "includes settings_live.ex in file list" do
+      files = Injector.lifecycle_template_files()
+      assert "settings_live.ex" in files
+    end
+
+    test "includes reactivation_live.ex in file list" do
+      files = Injector.lifecycle_template_files()
+      assert "reactivation_live.ex" in files
+    end
+  end
+
   describe "inject_conn_case/2" do
     test "injects auth helper import" do
       conn_case = """

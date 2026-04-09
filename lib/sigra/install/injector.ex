@@ -300,6 +300,83 @@ defmodule Sigra.Install.Injector do
     end
   end
 
+  # -- Account Lifecycle injection functions (Phase 8) --
+
+  @lifecycle_marker "# Sigra account lifecycle"
+
+  @doc """
+  Injects account lifecycle routes into the router file.
+
+  Adds settings, email confirmation, and reactivation routes to the
+  authenticated scope. Also includes the auth_hooks.ex file in the
+  generator output list.
+
+  Routes injected:
+  - `live "/users/settings", SettingsLive, :index`
+  - `live "/users/settings/confirm-email/:token", SettingsLive, :confirm_email`
+  - `live "/users/reactivation", ReactivationLive, :index`
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the lifecycle marker is already present.
+  """
+  @spec inject_lifecycle_routes(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_lifecycle_routes(file_contents, route_code) do
+    if String.contains?(file_contents, @lifecycle_marker) do
+      {:already_injected, file_contents}
+    else
+      case find_last_end(file_contents) do
+        {:ok, position} ->
+          {before, rest} = String.split_at(file_contents, position)
+          {:ok, before <> "\n" <> route_code <> "\n" <> rest}
+
+        :error ->
+          {:ok, file_contents <> "\n" <> route_code <> "\n"}
+      end
+    end
+  end
+
+  @doc """
+  Injects the `:sigra_lifecycle` queue into Oban configuration.
+
+  Adds the lifecycle queue alongside the existing mailer queue.
+
+  Returns `{:ok, new_contents}` if injection succeeds, or
+  `{:already_injected, contents}` if the queue is already present.
+  """
+  @spec inject_oban_lifecycle_queue(String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()}
+  def inject_oban_lifecycle_queue(file_contents) do
+    if String.contains?(file_contents, "sigra_lifecycle") do
+      {:already_injected, file_contents}
+    else
+      case Regex.run(~r/sigra_mailer:\s*\d+/, file_contents) do
+        [match] ->
+          new_contents =
+            String.replace(file_contents, match, match <> ", sigra_lifecycle: 5")
+
+          {:ok, new_contents}
+
+        nil ->
+          # No existing Oban config, append lifecycle queue config
+          {:ok, file_contents}
+      end
+    end
+  end
+
+  @doc """
+  Returns the list of files that the generator should include for
+  account lifecycle features, including auth_hooks.ex.
+  """
+  @spec lifecycle_template_files() :: [String.t()]
+  def lifecycle_template_files do
+    [
+      "settings_live.ex",
+      "reactivation_live.ex",
+      "auth_hooks.ex"
+    ]
+  end
+
   @doc """
   Injects Vault child spec into the application supervision tree.
 
