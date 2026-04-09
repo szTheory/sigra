@@ -95,9 +95,32 @@ defmodule Sigra.APIToken do
       })
 
     case config.repo.insert(changeset) do
-      {:ok, token_record} -> {:ok, raw_key, token_record}
-      {:error, changeset} -> {:error, changeset}
+      {:ok, token_record} ->
+        # D-26: api.token_create audit row (standalone, D-28). Metadata
+        # never contains the raw token or hash — only name and scopes
+        # (D-23 forbidden keys enforced by Sigra.Audit.Changeset).
+        Sigra.Audit.log_safe("api.token_create",
+          api_token_audit_opts(config) ++ [
+            actor_id: user.id,
+            metadata: %{name: attrs.name, scopes: attrs.scopes}
+          ]
+        )
+
+        {:ok, raw_key, token_record}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
+  end
+
+  # --- Audit integration helpers (Plan 09-03) ---
+  defp api_token_audit_opts(config) do
+    audit_config = Map.get(config, :audit, [])
+
+    [
+      repo: config.repo,
+      audit_schema: Keyword.get(audit_config, :audit_schema)
+    ]
   end
 
   @doc """
@@ -130,18 +153,47 @@ defmodule Sigra.APIToken do
 
       case config.repo.get_by(schema, hashed_token: hashed) do
         nil ->
+          # D-27: api.token_verify.failure only (success is NOT audited
+          # because it would be too noisy; observability is covered by
+          # telemetry).
+          Sigra.Audit.log_safe("api.token_verify.failure",
+            api_token_audit_opts(config) ++ [
+              actor_id: nil,
+              outcome: "failure",
+              metadata: %{reason: "invalid_token"}
+            ]
+          )
+
           {:error, :invalid_token}
 
         token ->
           cond do
             token.revoked_at != nil ->
+              Sigra.Audit.log_safe("api.token_verify.failure",
+                api_token_audit_opts(config) ++ [
+                  actor_id: Map.get(token, :user_id),
+                  outcome: "failure",
+                  metadata: %{reason: "token_revoked"}
+                ]
+              )
+
               {:error, :token_revoked}
 
             token.expires_at != nil and
                 DateTime.compare(token.expires_at, DateTime.utc_now()) == :lt ->
+              Sigra.Audit.log_safe("api.token_verify.failure",
+                api_token_audit_opts(config) ++ [
+                  actor_id: Map.get(token, :user_id),
+                  outcome: "failure",
+                  metadata: %{reason: "token_expired"}
+                ]
+              )
+
               {:error, :token_expired}
 
             true ->
+              # D-27: api.token_verify success is intentionally NOT audited
+              # (too noisy; covered by telemetry).
               maybe_update_last_used(config, token)
               {:ok, token}
           end
@@ -178,12 +230,53 @@ defmodule Sigra.APIToken do
               token_id: token_id
             })
 
+            # D-26: api.token_revoke audit row
+            Sigra.Audit.log_safe("api.token_revoke",
+              api_token_audit_opts(config) ++ [
+                actor_id: Map.get(token, :user_id),
+                metadata: %{token_id: to_string(token_id)}
+              ]
+            )
+
             {:ok, updated}
 
           error ->
             error
         end
     end
+  end
+
+  @doc """
+  Emit api.jwt_refresh audit row (called from Sigra.JWT refresh flow).
+
+  This is exposed so the JWT refresh implementation (potentially a
+  separate module) can write a consistent audit row through this
+  module's helpers.
+  """
+  @doc since: "0.9.0"
+  @spec audit_jwt_refresh(Sigra.Config.t(), term()) :: :ok
+  def audit_jwt_refresh(config, user_id) do
+    Sigra.Audit.log_safe("api.jwt_refresh",
+      api_token_audit_opts(config) ++ [
+        actor_id: user_id,
+        metadata: %{}
+      ]
+    )
+  end
+
+  @doc """
+  Emit api.jwt_refresh_reuse audit row (detected refresh-token reuse).
+  """
+  @doc since: "0.9.0"
+  @spec audit_jwt_refresh_reuse(Sigra.Config.t(), term()) :: :ok
+  def audit_jwt_refresh_reuse(config, user_id) do
+    Sigra.Audit.log_safe("api.jwt_refresh_reuse",
+      api_token_audit_opts(config) ++ [
+        actor_id: user_id,
+        outcome: "failure",
+        metadata: %{reason: "refresh_token_reuse_detected"}
+      ]
+    )
   end
 
   @doc """

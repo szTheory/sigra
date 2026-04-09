@@ -44,4 +44,96 @@ defmodule Sigra.AuditSensitiveDataTest do
       assert required in keys, "expected forbidden_keys to include #{required}"
     end
   end
+
+  # --- Plan 09-03 regression net ---
+  #
+  # One test per D-26 subsystem touched in Plan 09-03 Task 2. Each test
+  # builds the metadata map that the subsystem integration site passes
+  # into Sigra.Audit.log_safe/3, then asserts via Sigra.Audit.Changeset
+  # that the metadata is clean (no forbidden keys). This is a static
+  # regression against D-23; it does not require a live Repo because
+  # the property under test is metadata-shape purity.
+  #
+  # Full end-to-end tests (driving the real subsystem functions through
+  # a sandboxed repo) land in a later wave that wires up real DB fixtures.
+
+  defp assert_metadata_clean(metadata) do
+    attrs = %{
+      action: "test.event.one",
+      outcome: "success",
+      occurred_at: DateTime.utc_now(),
+      metadata: metadata
+    }
+
+    cs =
+      Sigra.Audit.Changeset.changeset(
+        %Sigra.Test.AuditEvent{},
+        attrs,
+        allow_reserved: true
+      )
+
+    assert cs.valid?,
+      "expected metadata #{inspect(metadata)} to pass Sigra.Audit.Changeset; errors: #{inspect(cs.errors)}"
+  end
+
+  @tag :sensitive_data
+  test "MFA integration metadata contains no forbidden keys" do
+    # Derived from lib/sigra/mfa.ex integration sites (Plan 09-03 Task 2)
+    metadatas = [
+      %{method: "totp"},
+      %{method: "backup_code"},
+      %{method: "totp", attempts: 3},
+      %{method: "totp", duration: 900},
+      %{remaining: 5},
+      %{admin: false},
+      %{admin: true},
+      %{count: 8}
+    ]
+
+    for meta <- metadatas, do: assert_metadata_clean(meta)
+  end
+
+  @tag :sensitive_data
+  test "OAuth integration metadata contains no forbidden keys" do
+    # Derived from lib/sigra/oauth.ex integration sites (Plan 09-03 Task 2).
+    # Critically: no access_token, refresh_token, oauth_secret, client_secret.
+    metadatas = [
+      %{provider: "google"},
+      %{provider: "github", outcome: "registered"},
+      %{provider: "google", outcome: "logged_in"},
+      %{provider: "google", reason: "provider_error"},
+      %{provider: "gitlab"}
+    ]
+
+    for meta <- metadatas, do: assert_metadata_clean(meta)
+  end
+
+  @tag :sensitive_data
+  test "APIToken integration metadata contains no forbidden keys" do
+    # Derived from lib/sigra/api_token.ex integration sites.
+    # Critically: no raw token, no hashed_token, no bearer_token.
+    metadatas = [
+      %{name: "ci_deploy_key", scopes: ["profile:read"]},
+      %{reason: "invalid_token"},
+      %{reason: "token_revoked"},
+      %{reason: "token_expired"},
+      %{token_id: "abc-123"}
+    ]
+
+    for meta <- metadatas, do: assert_metadata_clean(meta)
+  end
+
+  @tag :sensitive_data
+  test "Account integration metadata contains no forbidden keys" do
+    # Derived from lib/sigra/account.ex integration sites.
+    # Critically: no password, password_hash, password_confirmation.
+    metadatas = [
+      %{},
+      %{forced: false},
+      %{forced: true},
+      %{forced: false, source: "oauth_set"}
+    ]
+
+    for meta <- metadatas, do: assert_metadata_clean(meta)
+  end
 end

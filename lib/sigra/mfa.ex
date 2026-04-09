@@ -29,6 +29,28 @@ defmodule Sigra.MFA do
 
   alias Sigra.MFA.{BackupCodes, Credential, Lockout, Trust}
 
+  # --- Audit integration helpers (Plan 09-03) ---
+  #
+  # D-26 dispatch table:
+  #   enroll success          -> Sigra.Audit.log_safe("mfa.enroll.success", ...)
+  #                              (see Sigra.Audit.__log_internal__ for Multi form)
+  #   enroll failure          -> Sigra.Audit.log_safe("mfa.enroll.failure", ...)
+  #   verify success (totp)   -> Sigra.Audit.log_safe("mfa.verify.success", ...)
+  #   verify success (backup) -> Sigra.Audit.log_safe("mfa.verify.success", ...)
+  #                            + Sigra.Audit.log_safe("mfa.backup_code_used", ...)
+  #   verify failure          -> Sigra.Audit.log_safe("mfa.verify.failure", ...)
+  #   disable                 -> Sigra.Audit.log_safe("mfa.disable", ...)
+  #   lockout                 -> Sigra.Audit.log_safe("mfa.lockout", ...)
+
+  defp mfa_audit_opts(%Sigra.Config{} = config) do
+    audit_config = Map.get(config, :audit, [])
+
+    [
+      repo: config.repo,
+      audit_schema: Keyword.get(audit_config, :audit_schema)
+    ]
+  end
+
   @doc """
   Generates TOTP enrollment data.
 
@@ -150,13 +172,38 @@ defmodule Sigra.MFA do
           {:ok, %{credential: db_credential}} ->
             credential = Credential.from_schema(db_credential)
             formatted_codes = Enum.map(codes, &elem(&1, 0))
+
+            # D-26: mfa.enroll.success audit row (standalone, D-28)
+            Sigra.Audit.log_safe("mfa.enroll.success",
+              Keyword.merge(mfa_audit_opts(config),
+                actor_id: user.id,
+                metadata: %{method: "totp"}
+              )
+            )
+
             {:ok, %{credential: credential, backup_codes: formatted_codes}}
 
           {:error, _step, changeset, _changes} ->
+            Sigra.Audit.log_safe("mfa.enroll.failure",
+              Keyword.merge(mfa_audit_opts(config),
+                actor_id: user.id,
+                outcome: "failure",
+                metadata: %{method: "totp", reason: "insert_failed"}
+              )
+            )
+
             {:error, changeset}
         end
 
       {:error, _reason} ->
+        Sigra.Audit.log_safe("mfa.enroll.failure",
+          Keyword.merge(mfa_audit_opts(config),
+            actor_id: user.id,
+            outcome: "failure",
+            metadata: %{method: "totp", reason: "invalid_code"}
+          )
+        )
+
         {:error, :invalid_code}
     end
   end
@@ -223,6 +270,14 @@ defmodule Sigra.MFA do
                   )
                   |> repo.update_all([])
 
+                  # D-26: mfa.verify.success audit row
+                  Sigra.Audit.log_safe("mfa.verify.success",
+                    Keyword.merge(mfa_audit_opts(config),
+                      actor_id: user.id,
+                      metadata: %{method: "totp"}
+                    )
+                  )
+
                   {:ok, :verified}
 
                 {:error, _reason} ->
@@ -232,9 +287,28 @@ defmodule Sigra.MFA do
 
                   threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
 
+                  # D-26: mfa.verify.failure audit row
+                  Sigra.Audit.log_safe("mfa.verify.failure",
+                    Keyword.merge(mfa_audit_opts(config),
+                      actor_id: user.id,
+                      outcome: "failure",
+                      metadata: %{method: "totp", attempts: count}
+                    )
+                  )
+
                   if locked do
                     duration = Keyword.get(config.mfa, :lockout_duration, 900)
                     Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
+
+                    # D-26: mfa.lockout audit row
+                    Sigra.Audit.log_safe("mfa.lockout",
+                      Keyword.merge(mfa_audit_opts(config),
+                        actor_id: user.id,
+                        outcome: "failure",
+                        metadata: %{method: "totp", duration: duration}
+                      )
+                    )
+
                     {:error, :lockout, duration}
                   else
                     {:error, :invalid_code, max(threshold - count, 0)}
@@ -284,6 +358,24 @@ defmodule Sigra.MFA do
                 {:ok, :consumed} ->
                   Lockout.reset(repo, mfa_credential_schema, credential.id)
                   remaining = BackupCodes.remaining_count(repo, backup_code_schema, user.id)
+
+                  # D-26 + Q1: backup-code verification writes TWO rows.
+                  # One mfa.verify.success (the verification event) and one
+                  # mfa.backup_code_used (the code consumption event).
+                  Sigra.Audit.log_safe("mfa.verify.success",
+                    Keyword.merge(mfa_audit_opts(config),
+                      actor_id: user.id,
+                      metadata: %{method: "backup_code"}
+                    )
+                  )
+
+                  Sigra.Audit.log_safe("mfa.backup_code_used",
+                    Keyword.merge(mfa_audit_opts(config),
+                      actor_id: user.id,
+                      metadata: %{remaining: remaining}
+                    )
+                  )
+
                   {:ok, :consumed, remaining}
 
                 {:error, :invalid_backup_code} ->
@@ -335,6 +427,15 @@ defmodule Sigra.MFA do
       case verified do
         :ok ->
           cleanup_mfa(repo, config.user_schema, mfa_credential_schema, backup_code_schema, user.id)
+
+          # D-26: mfa.disable audit row
+          Sigra.Audit.log_safe("mfa.disable",
+            Keyword.merge(mfa_audit_opts(config),
+              actor_id: user.id,
+              metadata: %{admin: false}
+            )
+          )
+
           {:ok, :disabled}
 
         error ->
@@ -362,8 +463,46 @@ defmodule Sigra.MFA do
       backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
 
       cleanup_mfa(repo, config.user_schema, mfa_credential_schema, backup_code_schema, user.id)
+
+      # D-26: mfa.disable audit row (admin path)
+      Sigra.Audit.log_safe("mfa.disable",
+        Keyword.merge(mfa_audit_opts(config),
+          actor_id: user.id,
+          metadata: %{admin: true}
+        )
+      )
+
       {:ok, :disabled}
     end)
+  end
+
+  @doc """
+  Record an mfa.backup_codes_regenerate audit row. Exposed so callers
+  that regenerate backup codes (currently MFA.BackupCodes) can emit
+  consistent audit rows.
+  """
+  @spec audit_backup_codes_regenerate(Sigra.Config.t(), struct(), non_neg_integer()) :: :ok
+  def audit_backup_codes_regenerate(%Sigra.Config{} = config, user, count) do
+    Sigra.Audit.log_safe("mfa.backup_codes_regenerate",
+      Keyword.merge(mfa_audit_opts(config),
+        actor_id: user.id,
+        metadata: %{count: count}
+      )
+    )
+  end
+
+  @doc """
+  Record an mfa.trust_browser audit row. Called by Sigra.MFA.Trust when
+  a browser is marked trusted.
+  """
+  @spec audit_trust_browser(Sigra.Config.t(), struct()) :: :ok
+  def audit_trust_browser(%Sigra.Config{} = config, user) do
+    Sigra.Audit.log_safe("mfa.trust_browser",
+      Keyword.merge(mfa_audit_opts(config),
+        actor_id: user.id,
+        metadata: %{}
+      )
+    )
   end
 
   @doc """

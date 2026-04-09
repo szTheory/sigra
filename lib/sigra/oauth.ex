@@ -66,10 +66,32 @@ defmodule Sigra.OAuth do
         {:error, :unknown_provider}
 
       strategy_module ->
-        Telemetry.span([:sigra, :oauth, :authorize], %{provider: provider}, fn ->
-          do_authorize_url(config, strategy_module, provider, provider_config, opts)
-        end)
+        result =
+          Telemetry.span([:sigra, :oauth, :authorize], %{provider: provider}, fn ->
+            do_authorize_url(config, strategy_module, provider, provider_config, opts)
+          end)
+
+        # D-26: oauth.authorize audit row. Never put tokens/secrets in
+        # metadata (D-23); only the provider name.
+        Sigra.Audit.log_safe("oauth.authorize",
+          oauth_audit_opts(config) ++ [
+            actor_id: Keyword.get(opts, :user_id),
+            metadata: %{provider: to_string(provider)}
+          ]
+        )
+
+        result
     end
+  end
+
+  # --- Audit integration helpers (Plan 09-03) ---
+  defp oauth_audit_opts(config) do
+    audit_config = Map.get(config, :audit, [])
+
+    [
+      repo: config.repo,
+      audit_schema: Keyword.get(audit_config, :audit_schema)
+    ]
   end
 
   @doc """
@@ -93,28 +115,79 @@ defmodule Sigra.OAuth do
           | {:link_confirmation_required, map()}
           | {:error, %OAuthError{}}
   def handle_callback(config, provider, params, session_params) do
-    Telemetry.span([:sigra, :oauth, :callback], %{provider: provider}, fn ->
-      with :ok <- verify_state(params, session_params, config.secret_key_base) do
-        provider_config = get_provider_config(config, provider) || []
+    result =
+      Telemetry.span([:sigra, :oauth, :callback], %{provider: provider}, fn ->
+        with :ok <- verify_state(params, session_params, config.secret_key_base) do
+          provider_config = get_provider_config(config, provider) || []
 
-        case Strategies.resolve(provider, provider_config) do
-          {:error, :unknown_provider} ->
-            {:error, %OAuthError{provider: provider, error_code: :provider_error}}
+          case Strategies.resolve(provider, provider_config) do
+            {:error, :unknown_provider} ->
+              {:error, %OAuthError{provider: provider, error_code: :provider_error}}
 
-          strategy_module ->
-            assent_session = extract_assent_session(session_params)
+            strategy_module ->
+              assent_session = extract_assent_session(session_params)
 
-            case strategy_module.callback(provider_config, params, assent_session) do
-              {:ok, user_info, token} ->
-                Callback.process_callback(config, provider, user_info, token)
+              case strategy_module.callback(provider_config, params, assent_session) do
+                {:ok, user_info, token} ->
+                  Callback.process_callback(config, provider, user_info, token)
 
-              {:error, error} ->
-                Logger.error("OAuth callback failed for #{provider}: #{inspect(error)}")
-                {:error, %OAuthError{provider: provider, error_code: :token_exchange_failed}}
-            end
+                {:error, error} ->
+                  Logger.error("OAuth callback failed for #{provider}: #{inspect(error)}")
+                  {:error, %OAuthError{provider: provider, error_code: :token_exchange_failed}}
+              end
+          end
         end
-      end
-    end)
+      end)
+
+    # D-26: oauth.callback.success / .failure audit row. Provider name only;
+    # never tokens or client_secret (D-23).
+    audit_opts = oauth_audit_opts(config)
+
+    case result do
+      {:ok, :registered, user, _session} ->
+        Sigra.Audit.log_safe("oauth.callback.success",
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            metadata: %{provider: to_string(provider), outcome: "registered"}
+          )
+        )
+
+        Sigra.Audit.log_safe("oauth.register_via_oauth",
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            metadata: %{provider: to_string(provider)}
+          )
+        )
+
+      {:ok, :logged_in, user, _session} ->
+        Sigra.Audit.log_safe("oauth.callback.success",
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            metadata: %{provider: to_string(provider), outcome: "logged_in"}
+          )
+        )
+
+        Sigra.Audit.log_safe("oauth.login_via_oauth",
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            metadata: %{provider: to_string(provider)}
+          )
+        )
+
+      {:error, %OAuthError{} = err} ->
+        Sigra.Audit.log_safe("oauth.callback.failure",
+          Keyword.merge(audit_opts,
+            actor_id: nil,
+            outcome: "failure",
+            metadata: %{provider: to_string(provider), reason: Atom.to_string(err.error_code)}
+          )
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
   end
 
   @doc """
@@ -218,6 +291,15 @@ defmodule Sigra.OAuth do
             provider: provider
           })
 
+          # D-26: oauth.link audit row (standalone, D-28). Provider only,
+          # never tokens or client_secret (D-23).
+          Sigra.Audit.log_safe("oauth.link",
+            Keyword.merge(oauth_audit_opts(config),
+              actor_id: user.id,
+              metadata: %{provider: to_string(provider)}
+            )
+          )
+
           {:ok, identity}
 
         {:error, changeset} ->
@@ -288,6 +370,14 @@ defmodule Sigra.OAuth do
                 user_id: user.id,
                 provider: provider_str
               })
+
+              # D-26: oauth.unlink audit row
+              Sigra.Audit.log_safe("oauth.unlink",
+                Keyword.merge(oauth_audit_opts(config),
+                  actor_id: user.id,
+                  metadata: %{provider: provider_str}
+                )
+              )
 
               {:ok, :unlinked}
 

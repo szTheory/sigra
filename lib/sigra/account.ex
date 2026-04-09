@@ -33,31 +33,129 @@ defmodule Sigra.Account do
 
   alias Sigra.Account.{Deletion, EmailChange, PasswordChange}
 
+  # --- Audit integration helpers (Plan 09-03) ---
+  #
+  # D-26 dispatch table for account.* operations:
+  #
+  #   request_email_change  -> Sigra.Audit.log_safe("account.email_change_request")
+  #   confirm_email_change  -> Sigra.Audit.log_safe("account.email_change_confirm")
+  #   cancel_email_change   -> Sigra.Audit.log_safe("account.email_change_cancel")
+  #   change_password       -> Sigra.Audit.log_safe("account.password_change",
+  #                             metadata: %{forced: false})
+  #   forced password chg   -> Sigra.Audit.log_safe("account.password_change",
+  #                             metadata: %{forced: true})
+  #   schedule_deletion     -> Sigra.Audit.log_safe("account.deletion_schedule")
+  #   cancel_deletion       -> Sigra.Audit.log_safe("account.deletion_cancel")
+  #   execute_deletion      -> Sigra.Audit.log_safe("account.deletion_execute")
+  #
+  # Metadata: strings, IDs, flags only. NEVER passwords, hashes, or tokens.
+  defp account_audit_opts(opts) when is_list(opts) do
+    [
+      repo: Keyword.get(opts, :repo),
+      audit_schema: Keyword.get(opts, :audit_schema)
+    ]
+  end
+
   # --- Email Change (per D-28 context API) ---
 
   @doc "Request an email change. Sends verification to new address."
   @doc since: "0.8.0"
-  defdelegate request_email_change(repo, user, new_email, opts), to: EmailChange, as: :request
+  def request_email_change(repo, user, new_email, opts) do
+    result = EmailChange.request(repo, user, new_email, opts)
+
+    case result do
+      {:ok, _} ->
+        Sigra.Audit.log_safe("account.email_change_request",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   @doc "Confirm an email change via token from verification email."
   @doc since: "0.8.0"
-  defdelegate confirm_email_change(repo, encoded_token, opts), to: EmailChange, as: :confirm
+  def confirm_email_change(repo, encoded_token, opts) do
+    result = EmailChange.confirm(repo, encoded_token, opts)
+
+    case result do
+      {:ok, user} ->
+        Sigra.Audit.log_safe("account.email_change_confirm",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   @doc "Cancel a pending email change."
   @doc since: "0.8.0"
-  defdelegate cancel_email_change(repo, user, opts), to: EmailChange, as: :cancel
+  def cancel_email_change(repo, user, opts) do
+    result = EmailChange.cancel(repo, user, opts)
+
+    case result do
+      {:ok, _} ->
+        Sigra.Audit.log_safe("account.email_change_cancel",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   # --- Password Change (per D-40 context API) ---
 
   @doc "Change password with current password verification."
   @doc since: "0.8.0"
-  defdelegate change_password(repo, user, current_password, attrs, opts),
-    to: PasswordChange,
-    as: :change
+  def change_password(repo, user, current_password, attrs, opts) do
+    result = PasswordChange.change(repo, user, current_password, attrs, opts)
+
+    case result do
+      {:ok, _} ->
+        # D-26: account.password_change. NEVER include password/hash in
+        # metadata (D-23 enforced by Sigra.Audit.Changeset).
+        Sigra.Audit.log_safe("account.password_change",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{forced: false}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   @doc "Set password for OAuth-only user (no current password). Requires sudo."
   @doc since: "0.8.0"
-  defdelegate set_password(repo, user, attrs, opts), to: PasswordChange, as: :set_for_oauth_user
+  def set_password(repo, user, attrs, opts) do
+    result = PasswordChange.set_for_oauth_user(repo, user, attrs, opts)
+
+    case result do
+      {:ok, _} ->
+        Sigra.Audit.log_safe("account.password_change",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{forced: false, source: "oauth_set"}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   @doc "Check if user must change their password."
   @doc since: "0.8.0"
@@ -71,15 +169,57 @@ defmodule Sigra.Account do
 
   @doc "Schedule account deletion with grace period."
   @doc since: "0.8.0"
-  defdelegate schedule_deletion(repo, user, opts), to: Deletion, as: :schedule
+  def schedule_deletion(repo, user, opts) do
+    result = Deletion.schedule(repo, user, opts)
+
+    case result do
+      {:ok, _} ->
+        Sigra.Audit.log_safe("account.deletion_schedule",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   @doc "Cancel scheduled deletion and reactivate account."
   @doc since: "0.8.0"
-  defdelegate cancel_deletion(repo, user, opts), to: Deletion, as: :cancel
+  def cancel_deletion(repo, user, opts) do
+    result = Deletion.cancel(repo, user, opts)
+
+    case result do
+      {:ok, _} ->
+        Sigra.Audit.log_safe("account.deletion_cancel",
+          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+            [actor_id: user.id, metadata: %{}]
+        )
+
+      _ ->
+        :ok
+    end
+
+    result
+  end
 
   @doc "Execute deletion (called by Oban worker or manual task)."
   @doc since: "0.8.0"
-  defdelegate execute_deletion(repo, user, opts), to: Deletion, as: :execute
+  def execute_deletion(repo, user, opts) do
+    # D-11 / D-26: the execute_deletion audit row may reference a user_id
+    # that no longer exists after hard delete — this is intentional and
+    # preserves the forensic trail.
+    user_id = user.id
+
+    Sigra.Audit.log_safe("account.deletion_execute",
+      (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
+        [actor_id: user_id, metadata: %{}]
+    )
+
+    Deletion.execute(repo, user, opts)
+  end
 
   @doc "Check if deletion is scheduled."
   @doc since: "0.8.0"
@@ -88,4 +228,20 @@ defmodule Sigra.Account do
   @doc "Get deletion status: {:scheduled, days_remaining} | :not_scheduled | :deleted"
   @doc since: "0.8.0"
   defdelegate deletion_status(user), to: Deletion, as: :status
+
+  @doc """
+  Audit a forced password change completion event.
+
+  Called by subsystems that complete a forced-password change path
+  (e.g., `Sigra.Account.PasswordChange.clear_force_change/2`). Writes
+  a `account.password_change` audit row with `metadata: %{forced: true}`.
+  """
+  @doc since: "0.9.0"
+  @spec audit_forced_password_change(keyword(), term()) :: :ok
+  def audit_forced_password_change(opts, user_id) do
+    Sigra.Audit.log_safe("account.password_change",
+      account_audit_opts(opts) ++
+        [actor_id: user_id, metadata: %{forced: true}]
+    )
+  end
 end
