@@ -60,12 +60,20 @@ defmodule Sigra.Hooks do
       {mod, fun} ->
         step_name = :"on_#{operation}_hook"
 
-        Multi.run(multi, step_name, fn _repo, changes ->
+        Multi.run(multi, step_name, fn repo, changes ->
           merged_context = Map.merge(context_map, %{changes: changes})
 
           case apply(mod, fun, [Multi.new(), merged_context]) do
-            {:ok, _multi} -> {:ok, :hook_completed}
-            {:error, reason} -> {:error, reason}
+            {:ok, hook_multi} ->
+              # Execute the hook's multi within the current transaction
+              # (Postgres uses savepoints for nested transactions)
+              case repo.transaction(hook_multi) do
+                {:ok, _results} -> {:ok, :hook_completed}
+                {:error, _step, reason, _} -> {:error, reason}
+              end
+
+            {:error, reason} ->
+              {:error, reason}
           end
         end)
     end
