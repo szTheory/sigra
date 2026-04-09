@@ -161,11 +161,11 @@ Plans:
   5. Application developers can register profile update callbacks that run within the same transaction as auth operations
 **Plans:** 5 plans
 Plans:
-- [ ] 08-01-PLAN.md — Config extensions, EmailTemplates behaviour, Hooks engine, DataExport behaviour
-- [ ] 08-02-PLAN.md — Account lifecycle library modules (EmailChange, PasswordChange, Deletion, Account orchestrator)
-- [ ] 08-03-PLAN.md — RequirePasswordChange plug, AccountDeletion Oban worker, Telemetry, Auth delegation
-- [ ] 08-04-PLAN.md — Generated templates (migration, user schema, auth context, hooks stub, email templates)
-- [ ] 08-05-PLAN.md — Settings LiveView, reactivation page, generator/injector updates, testing helpers
+- [x] 08-01-PLAN.md — Config extensions, EmailTemplates behaviour, Hooks engine, DataExport behaviour
+- [x] 08-02-PLAN.md — Account lifecycle library modules (EmailChange, PasswordChange, Deletion, Account orchestrator)
+- [x] 08-03-PLAN.md — RequirePasswordChange plug, AccountDeletion Oban worker, Telemetry, Auth delegation
+- [x] 08-04-PLAN.md — Generated templates (migration, user schema, auth context, hooks stub, email templates)
+- [x] 08-05-PLAN.md — Settings LiveView, reactivation page, generator/injector updates, testing helpers
 **UI hint**: yes
 
 ### Phase 9: Audit Logging
