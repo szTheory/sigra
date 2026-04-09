@@ -180,4 +180,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-08 after Phase 6 completion — Multi-factor authentication: TOTP via NimbleTOTP, backup codes (SHA-256 hashed, single-use), trust cookies (HMAC + epoch revocation), MFA lockout, mfa_pending session gating, telemetry spans, testing helpers, generated schemas/migrations/emails, and MFA UI templates (challenge page, enrollment, settings) with generator wiring. Human UAT pending for visual verification and generator integration.*
+*Last updated: 2026-04-09 after Phase 8 completion — Account lifecycle: email change (request/confirm/cancel with token security), password change (with current password verification and configurable session invalidation), account deletion (soft_delete/hard_delete/anonymize with grace period via Oban worker), hooks engine (Ecto.Multi integration for profile update callbacks), DataExport behaviour, RequirePasswordChange plug, 24 telemetry events, 7 email templates, Settings LiveView, reactivation page, generator injector wiring, and 10 testing helpers. Human UAT pending for visual verification.*
