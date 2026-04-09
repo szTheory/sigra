@@ -64,6 +64,16 @@ defmodule Sigra.Config do
           type: :atom,
           default: Sigra.Hashers.Argon2,
           doc: "Module implementing the `Sigra.Hasher` behaviour."
+        ],
+        notify_on_change: [
+          type: :boolean,
+          default: true,
+          doc: "Send notification email when password is changed. Default: true."
+        ],
+        invalidate_sessions_on_change: [
+          type: :boolean,
+          default: true,
+          doc: "Invalidate all other sessions on password change. Default: true."
         ]
       ]
     ],
@@ -211,6 +221,11 @@ defmodule Sigra.Config do
           type: :pos_integer,
           default: 15 * 60,
           doc: "Magic link token TTL. Default: 15 minutes."
+        ],
+        email_change: [
+          type: :pos_integer,
+          default: 24 * 60 * 60,
+          doc: "Email change token TTL in seconds. Default: 24 hours."
         ]
       ]
     ],
@@ -494,6 +509,28 @@ defmodule Sigra.Config do
         verify_epoch: [type: :boolean, default: true, doc: "Verify user token_epoch on every JWT request. Default: true."],
         private_key: [type: {:or, [:string, nil]}, default: nil, doc: "PEM private key for RS256/ES256."]
       ]
+    ],
+    deletion: [
+      type: :keyword_list,
+      default: [],
+      doc: "Account deletion options.",
+      keys: [
+        strategy: [type: {:in, [:soft_delete, :hard_delete, :anonymize]}, default: :soft_delete, doc: "Deletion strategy. :soft_delete preserves row with deleted_at, :hard_delete removes row, :anonymize strips PII. Default: :soft_delete."],
+        grace_period_days: [type: {:or, [:non_neg_integer, nil]}, default: 14, doc: "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."],
+        cooldown_hours: [type: :pos_integer, default: 24, doc: "Hours after cancelling deletion before re-requesting is allowed. Default: 24."],
+        notify: [type: :boolean, default: true, doc: "Send email notifications for deletion events. Default: true."]
+      ]
+    ],
+    hooks: [
+      type: :keyword_list,
+      default: [],
+      doc: "Lifecycle hook callbacks. Each is a {module, function} tuple or nil.",
+      keys: [
+        on_register: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after user registration. Receives (multi, context_map). Default: nil."],
+        on_email_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after email change confirmation. Receives (multi, context_map). Default: nil."],
+        on_password_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after password change. Receives (multi, context_map). Default: nil."],
+        on_delete: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."]
+      ]
     ]
   ])}
   """
@@ -605,6 +642,16 @@ defmodule Sigra.Config do
           type: :atom,
           default: Sigra.Hashers.Argon2,
           doc: "Module implementing the `Sigra.Hasher` behaviour."
+        ],
+        notify_on_change: [
+          type: :boolean,
+          default: true,
+          doc: "Send notification email when password is changed. Default: true."
+        ],
+        invalidate_sessions_on_change: [
+          type: :boolean,
+          default: true,
+          doc: "Invalidate all other sessions on password change. Default: true."
         ]
       ]
     ],
@@ -752,6 +799,11 @@ defmodule Sigra.Config do
           type: :pos_integer,
           default: 15 * 60,
           doc: "Magic link token TTL. Default: 15 minutes."
+        ],
+        email_change: [
+          type: :pos_integer,
+          default: 24 * 60 * 60,
+          doc: "Email change token TTL in seconds. Default: 24 hours."
         ]
       ]
     ],
@@ -1061,6 +1113,67 @@ defmodule Sigra.Config do
           doc: "PEM private key for RS256/ES256."
         ]
       ]
+    ],
+    deletion: [
+      type: :keyword_list,
+      default: [],
+      doc: "Account deletion options.",
+      keys: [
+        strategy: [
+          type: {:in, [:soft_delete, :hard_delete, :anonymize]},
+          default: :soft_delete,
+          doc:
+            "Deletion strategy. :soft_delete preserves row with deleted_at, :hard_delete removes row, :anonymize strips PII. Default: :soft_delete."
+        ],
+        grace_period_days: [
+          type: {:or, [:non_neg_integer, nil]},
+          default: 14,
+          doc:
+            "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."
+        ],
+        cooldown_hours: [
+          type: :pos_integer,
+          default: 24,
+          doc:
+            "Hours after cancelling deletion before re-requesting is allowed. Default: 24."
+        ],
+        notify: [
+          type: :boolean,
+          default: true,
+          doc: "Send email notifications for deletion events. Default: true."
+        ]
+      ]
+    ],
+    hooks: [
+      type: :keyword_list,
+      default: [],
+      doc: "Lifecycle hook callbacks. Each is a {module, function} tuple or nil.",
+      keys: [
+        on_register: [
+          type: {:or, [{:tuple, [:atom, :atom]}, nil]},
+          default: nil,
+          doc:
+            "Called after user registration. Receives (multi, context_map). Default: nil."
+        ],
+        on_email_change: [
+          type: {:or, [{:tuple, [:atom, :atom]}, nil]},
+          default: nil,
+          doc:
+            "Called after email change confirmation. Receives (multi, context_map). Default: nil."
+        ],
+        on_password_change: [
+          type: {:or, [{:tuple, [:atom, :atom]}, nil]},
+          default: nil,
+          doc:
+            "Called after password change. Receives (multi, context_map). Default: nil."
+        ],
+        on_delete: [
+          type: {:or, [{:tuple, [:atom, :atom]}, nil]},
+          default: nil,
+          doc:
+            "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."
+        ]
+      ]
     ]
   ]
 
@@ -1088,7 +1201,9 @@ defmodule Sigra.Config do
           mfa: keyword(),
           oauth: keyword(),
           api_token: keyword(),
-          jwt: keyword()
+          jwt: keyword(),
+          deletion: keyword(),
+          hooks: keyword()
         }
 
   defstruct [
@@ -1115,7 +1230,9 @@ defmodule Sigra.Config do
     mfa: [],
     oauth: [],
     api_token: [],
-    jwt: []
+    jwt: [],
+    deletion: [],
+    hooks: []
   ]
 
   @doc """
