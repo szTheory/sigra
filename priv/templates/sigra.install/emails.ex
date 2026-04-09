@@ -414,6 +414,285 @@ defmodule <%= context_module %>.Emails do
     |> text_body(text_body)
   end
 
+  ## Email Change Templates (D-09)
+
+  @doc "Builds a confirmation email sent to the NEW email address during email change."
+  def email_change_confirmation_email(_user, new_email, url) do
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Confirm Email Change")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "You requested to change your %{app_name} account email to this address. Click the button below to confirm the change.", app_name: "<%= app_name %>")}
+    </p>
+    #{cta_button(dgettext("sigra", "Confirm new email address"), url)}
+    <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
+      #{dgettext("sigra", "Or confirm via this link:")} #{url}
+    </p>
+    <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "This link expires in 24 hours.")}
+    </p>
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Confirm Email Change")}
+
+    #{dgettext("sigra", "You requested to change your %{app_name} account email to this address. Click the button below to confirm the change.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "Confirm via this link:")} #{url}
+
+    #{dgettext("sigra", "This link expires in 24 hours.")}
+
+    ---
+    #{footer_text()}
+    """
+
+    base_email(new_email)
+    |> subject(dgettext("sigra", "Confirm your new email address"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a notification email sent to the OLD email address during email change."
+  def email_change_notification_email(user, new_email, cancel_url) do
+    escaped_new_email = html_escape_string(new_email)
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Email Change Requested")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.", app_name: "<%= app_name %>", new_email: escaped_new_email)}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #dc2626; font-weight: 600; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If you did not request this change, click below to cancel it immediately.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Cancel email change"), cancel_url)}
+    <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
+      #{dgettext("sigra", "Or cancel via this link:")} #{cancel_url}
+    </p>
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Email Change Requested")}
+
+    #{dgettext("sigra", "Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.", app_name: "<%= app_name %>", new_email: new_email)}
+
+    #{dgettext("sigra", "If you did not request this change, click below to cancel it immediately.")}
+
+    #{dgettext("sigra", "Cancel via this link:")} #{cancel_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Email change requested for your account"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a post-change confirmation email sent to the NEW email address after email change completes."
+  def email_changed_email(user) do
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Email Updated")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Your %{app_name} account email has been changed to this address. If you did not make this change, secure your account immediately.", app_name: "<%= app_name %>")}
+    </p>
+    #{cta_button(dgettext("sigra", "Secure your account"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Email Updated")}
+
+    #{dgettext("sigra", "Your %{app_name} account email has been changed to this address. If you did not make this change, secure your account immediately.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "Secure your account:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Your email has been updated"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  ## Account Deletion Templates (D-21)
+
+  @doc "Builds a deletion scheduled notification email."
+  def deletion_scheduled_email(user, scheduled_date, cancel_url) do
+    formatted_date = format_date(scheduled_date)
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Account Deletion Scheduled")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.", app_name: "<%= app_name %>", date: formatted_date)}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Changed your mind? You can cancel the deletion before the scheduled date.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Cancel account deletion"), cancel_url)}
+    <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
+      #{dgettext("sigra", "Or cancel via this link:")} #{cancel_url}
+    </p>
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Account Deletion Scheduled")}
+
+    #{dgettext("sigra", "Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.", app_name: "<%= app_name %>", date: formatted_date)}
+
+    #{dgettext("sigra", "Changed your mind? You can cancel the deletion before the scheduled date.")}
+
+    #{dgettext("sigra", "Cancel via this link:")} #{cancel_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Your account is scheduled for deletion"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a deletion cancelled confirmation email."
+  def deletion_cancelled_email(user, login_url) do
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Deletion Cancelled")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Your %{app_name} account deletion has been cancelled. Your account is active again. You can log in as usual.", app_name: "<%= app_name %>")}
+    </p>
+    #{cta_button(dgettext("sigra", "Log in to your account"), login_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Deletion Cancelled")}
+
+    #{dgettext("sigra", "Your %{app_name} account deletion has been cancelled. Your account is active again. You can log in as usual.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "Log in to your account:")} #{login_url}
+
+    ---
+    #{footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Account deletion cancelled"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  @doc "Builds a deletion finalized notification email. Accepts raw email since user may be anonymized."
+  def deletion_finalized_email(email) do
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Account Deleted")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
+    </p>
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Account Deleted")}
+
+    #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
+
+    ---
+    #{footer_text()}
+    """
+
+    base_email(email)
+    |> subject(dgettext("sigra", "Your account has been deleted"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
+  ## Password Change Template (D-37)
+
+  @doc "Builds a password changed notification email with login details."
+  def password_changed_email(user, details) do
+    ip = details |> Map.get(:ip, "Unknown") |> html_escape_string()
+    geo_city = Map.get(details, :geo_city)
+    geo_country = Map.get(details, :geo_country_code)
+
+    location =
+      if geo_city do
+        "#{html_escape_string(geo_city)}, #{html_escape_string(geo_country)}"
+      else
+        "Unknown"
+      end
+
+    device = details |> Map.get(:device, "Unknown device") |> html_escape_string()
+
+    time =
+      Map.get(details, :time, DateTime.utc_now())
+      |> Calendar.strftime("%Y-%m-%d %H:%M:%S UTC")
+
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "Password Changed")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Your %{app_name} account password was changed.", app_name: "<%= app_name %>")}
+    </p>
+    <div style="margin: 16px 0; padding: 16px; background-color: #f4f4f5; border-radius: 8px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "IP address:")}</strong> #{ip}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Location:")}</strong> #{location}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Device:")}</strong> #{device}
+      </p>
+      <p style="margin: 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Time:")}</strong> #{time}
+      </p>
+    </div>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #dc2626; font-weight: 600; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If this wasn't you, reset your password immediately.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Reset your password"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Password Changed")}
+
+    #{dgettext("sigra", "Your %{app_name} account password was changed.", app_name: "<%= app_name %>")}
+
+    #{dgettext("sigra", "IP address:")} #{ip}
+    #{dgettext("sigra", "Location:")} #{location}
+    #{dgettext("sigra", "Device:")} #{device}
+    #{dgettext("sigra", "Time:")} #{time}
+
+    #{dgettext("sigra", "If this wasn't you, reset your password immediately.")}
+
+    #{dgettext("sigra", "Reset your password:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Your password was changed"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
   # -- Private helpers --
 
   defp base_email(to) do
@@ -509,4 +788,12 @@ defmodule <%= context_module %>.Emails do
   end
 
   defp html_escape_string(value), do: html_escape_string(to_string(value))
+
+  defp format_date(%DateTime{} = datetime) do
+    Calendar.strftime(datetime, "%B %d, %Y")
+  end
+
+  defp format_date(%Date{} = date) do
+    Calendar.strftime(date, "%B %d, %Y")
+  end
 end
