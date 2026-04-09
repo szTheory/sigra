@@ -123,25 +123,45 @@ defmodule Sigra.Audit do
 
         case Keyword.get(opts, :repo) do
           nil ->
+            :telemetry.execute(
+              [:sigra, :audit, :log_safe_error],
+              %{count: 1},
+              %{action: action, reason: :missing_repo}
+            )
+
             :ok
 
           repo ->
-            case repo.insert(changeset) do
-              {:ok, event} ->
-                emit_telemetry(event)
-                :ok
+            if changeset.valid? do
+              case repo.insert(changeset) do
+                {:ok, event} ->
+                  emit_telemetry(event)
+                  :ok
 
-              {:error, %Ecto.Changeset{} = cs} ->
-                :telemetry.execute(
-                  [:sigra, :audit, :log_safe_error],
-                  %{count: 1},
-                  %{action: action, errors: cs.errors}
-                )
-
-                :ok
+                {:error, %Ecto.Changeset{} = cs} ->
+                  emit_log_safe_error(action, cs)
+                  :ok
+              end
+            else
+              emit_log_safe_error(action, changeset)
+              :ok
             end
         end
     end
+  end
+
+  # Emits log_safe_error telemetry with sanitized error metadata.
+  # CRITICAL: only key names (not values) are included, because changeset
+  # error context may echo the offending metadata value — and D-23 forbidden
+  # values must never leave the insert attempt.
+  defp emit_log_safe_error(action, %Ecto.Changeset{} = cs) do
+    error_fields = cs.errors |> Enum.map(fn {field, _} -> field end) |> Enum.uniq()
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{action: action, reason: :invalid_changeset, error_fields: error_fields}
+    )
   end
 
   @doc """
