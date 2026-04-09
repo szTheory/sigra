@@ -93,19 +93,27 @@ defmodule Sigra.Audit.Changeset do
           []
 
         m when is_map(m) ->
-          encoded = Jason.encode!(m)
+          try do
+            encoded = Jason.encode!(m)
 
-          case byte_size(encoded) do
-            n when n <= max_bytes ->
-              []
+            case byte_size(encoded) do
+              n when n <= max_bytes ->
+                []
 
-            n ->
-              [
-                {:metadata,
-                 {"serialized size #{n}B exceeds cap #{max_bytes}B",
-                  [validation: :max_metadata_bytes]}}
-              ]
+              n ->
+                [
+                  {:metadata,
+                   {"serialized size #{n}B exceeds cap #{max_bytes}B",
+                    [validation: :max_metadata_bytes]}}
+                ]
+            end
+          rescue
+            Protocol.UndefinedError ->
+              [{:metadata, {"contains unencodable values", [validation: :metadata_encodable]}}]
           end
+
+        _other ->
+          [{:metadata, {"must be a map", [validation: :metadata_shape]}}]
       end
     end)
   end
