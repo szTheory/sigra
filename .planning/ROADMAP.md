@@ -227,7 +227,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 **Goal:** Fix pre-existing library bugs and backport installer template fixes surfaced during phase 10 review/security/validation audits
 **Requirements**: Remediation (no new requirement IDs)
 **Depends on:** Phase 10
-**Plans:** 0 plans (run `/gsd-plan-phase 10.1` to break down)
+**Plans:** 7 plans
 
 **Scope (from phase 10 audits):**
 
@@ -247,4 +247,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 **Traceability:** `10-REVIEW.md` (CR-02, IN-01..IN-05), `10-REVIEW-FIX.md` (DEFERRED), `10-SECURITY.md` (AR-10-01, AR-10-02, IN-03), `10-VERIFICATION.md` (deferred items 1-6), `10-06-SUMMARY.md § Deviations`.
 
 Plans:
-- [ ] TBD (run `/gsd-plan-phase 10.1` to break down)
+- [ ] 10.1-01-PLAN.md — Fix auth.ex plain-map DoS bugs (D-01, D-02, D-03) with shared live-repo regression test
+- [ ] 10.1-02-PLAN.md — Backport 16 Rule-1 installer template fixes + drift test (D-04, D-05)
+- [ ] 10.1-03-PLAN.md — Eliminate 27 mix docs --warnings-as-errors @doc reference warnings (D-07)
+- [ ] 10.1-04-PLAN.md — Sigra.Env.current helper + SHA-pin actions + Dependabot + docs CI gate (D-08, D-09, D-10, D-11)
+- [ ] 10.1-05-PLAN.md — Code quality: MFA allow-list, mix.exs comment, scenario/2 ArgumentError, normalize_email doc (D-06, D-12, D-13, D-14)
+- [ ] 10.1-06-PLAN.md — Investigate + fix 3 pre-existing failing tests (D-15, D-16)
+- [ ] 10.1-07-PLAN.md — Mark test/example stub LiveViews with visible warnings (D-17)
