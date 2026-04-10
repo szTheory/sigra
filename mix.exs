@@ -70,10 +70,41 @@ defmodule Sigra.MixProject do
 
   defp docs do
     [
-      main: "Sigra",
+      main: "readme",
       source_ref: "v#{@version}",
+      source_url: @source_url,
       formatters: ["html"],
-      extras: ["CHANGELOG.md"]
+      extras: [
+        "README.md",
+        "CHANGELOG.md",
+        "guides/introduction/installation.md",
+        "guides/introduction/getting-started.md",
+        "guides/flows/registration.md",
+        "guides/flows/login-and-logout.md",
+        "guides/flows/password-reset.md",
+        "guides/flows/mfa.md",
+        "guides/flows/oauth.md",
+        "guides/flows/api-authentication.md",
+        "guides/flows/account-lifecycle.md",
+        "guides/flows/audit-logging.md",
+        "guides/recipes/testing.md",
+        "guides/recipes/subdomain-auth.md",
+        "guides/recipes/custom-user-fields.md",
+        "guides/recipes/multi-tenant.md",
+        "guides/recipes/deployment.md"
+      ],
+      groups_for_extras: [
+        Introduction: ~r{guides/introduction/.?},
+        Flows: ~r{guides/flows/.?},
+        Recipes: ~r{guides/recipes/.?}
+      ],
+      groups_for_modules: [
+        Core: [Sigra, Sigra.Auth, Sigra.Config, Sigra.Crypto],
+        Plugs: ~r{Sigra.Plug.*},
+        MFA: ~r{Sigra.MFA.*},
+        Audit: ~r{Sigra.Audit.*},
+        Testing: [Sigra.Testing]
+      ]
     ]
   end
 end
