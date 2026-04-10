@@ -221,3 +221,30 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. Account Lifecycle | 0/5 | Planning complete | - |
 | 9. Audit Logging | 0/5 | Planning complete | - |
 | 10. Developer Experience | 6/6 | Complete   | 2026-04-10 |
+
+### Phase 10.1: Installer and library fixes (INSERTED)
+
+**Goal:** Fix pre-existing library bugs and backport installer template fixes surfaced during phase 10 review/security/validation audits
+**Requirements**: Remediation (no new requirement IDs)
+**Depends on:** Phase 10
+**Plans:** 0 plans (run `/gsd-plan-phase 10.1` to break down)
+
+**Scope (from phase 10 audits):**
+
+1. **AR-10-01** — Fix `Sigra.Auth.request_password_reset/3` plain-map insert at `lib/sigra/auth.ex:828-835`. Build proper `%UserToken{}` struct via `config.token_schema`. Add live-repo regression test.
+2. **AR-10-02** — Fix magic-link twin at `lib/sigra/auth.ex:425-432` (same plain-map-to-`insert!/1` pattern). Share regression test with AR-10-01.
+3. **Installer template backport** — Merge 16 installer template fixes from `test/example/` copies into `priv/templates/sigra.install/*` (enumerated in `10-06-SUMMARY.md § Deviations > Rule 1`).
+4. **MFA API surface** — Ensure `Sigra.MFA.verify_backup/4` and `Sigra.MFA.enabled?/2` exist as the canonical names used by guides/flows/mfa.md post-WR-01 fix.
+5. **Docs strictness** — Clean up 27 pre-existing `mix docs --warnings-as-errors` `@doc` reference warnings so strict docs build passes in CI. Affected: OAuth strategy wrappers, `Sigra.Session`, `Sigra.Audit.Changeset`, `Sigra.RateLimiters.Hammer`.
+6. **IN-03 supply chain** — SHA-pin third-party GitHub Actions in `.github/workflows/ci.yml` (`actions/checkout`, `erlef/setup-beam`, `actions/cache`). Add Dependabot `github-actions` config.
+7. **IN-01** — Extract `Sigra.Env.current/0` helper for release-safe `Mix.env` guard (replaces duplicated `function_exported?(Mix, :env, 0)` pattern).
+8. **IN-02** — Add concrete example comment for `mix.exs` `test_load_filters` regex.
+9. **IN-04** — `AuthFixtures.scenario/2` should raise `ArgumentError` with the list of valid atoms instead of `FunctionClauseError` on typos.
+10. **IN-05** — Document or fix `Sigra.Auth.normalize_email/1` interior whitespace handling scope.
+11. **Pre-existing failing tests** — Fix `test/mix/tasks/sigra.install_test.exs` (2 failures) and `test/sigra/audit/cursor_portability_test.exs` (1 failure).
+12. **test/example stubs** — Replace or better-document stub `Settings`/`Reactivation` LiveViews in `test/example/lib/example_web/live/` so they don't mislead users copying from the example app.
+
+**Traceability:** `10-REVIEW.md` (CR-02, IN-01..IN-05), `10-REVIEW-FIX.md` (DEFERRED), `10-SECURITY.md` (AR-10-01, AR-10-02, IN-03), `10-VERIFICATION.md` (deferred items 1-6), `10-06-SUMMARY.md § Deviations`.
+
+Plans:
+- [ ] TBD (run `/gsd-plan-phase 10.1` to break down)

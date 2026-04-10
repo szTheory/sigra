@@ -74,6 +74,10 @@ Recent decisions affecting current work:
 - Foundation: Ecto-only data layer — no adapter abstraction
 - Foundation: Behaviours + callbacks at every extensibility point — no macros
 
+### Roadmap Evolution
+
+- Phase 10.1 inserted after Phase 10: Installer and library fixes — deferred items from phase 10 review/security/validation (URGENT)
+
 ### Pending Todos
 
 None yet.
