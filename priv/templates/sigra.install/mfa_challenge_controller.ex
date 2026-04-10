@@ -110,7 +110,7 @@ defmodule <%= web_module %>.MFAChallengeController do
         conn,
         Sigra.MFA.Trust.cookie_name(),
         cookie,
-        Sigra.MFA.Trust.cookie_opts() ++ [max_age: trust_ttl]
+        Sigra.MFA.Trust.cookie_opts(config) ++ [max_age: trust_ttl]
       )
     else
       conn

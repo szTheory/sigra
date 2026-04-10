@@ -56,7 +56,8 @@ defmodule Sigra.ApplicationCookieWarningTest do
     test "user_auth.ex defines a runtime remember_me_options/0 function" do
       source = File.read!(@user_auth_path)
       assert source =~ "defp remember_me_options"
-      assert source =~ "sigra_config().cookie_domain"
+      assert source =~ "sigra_config()"
+      assert source =~ "config.cookie_domain"
     end
 
     test "user_auth.ex no longer freezes the domain-less @remember_me_options into put_resp_cookie" do

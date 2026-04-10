@@ -20,9 +20,48 @@ defmodule Sigra.Application do
   @impl Application
   def start(_type, _args) do
     maybe_warn_audit_cleanup_fallback()
+    maybe_warn_missing_cookie_domain()
 
     Supervisor.start_link([], strategy: :one_for_one, name: Sigra.Supervisor)
   end
+
+  @doc false
+  def maybe_warn_missing_cookie_domain do
+    env = if function_exported?(Mix, :env, 0), do: Mix.env(), else: :prod
+    otp_app = Application.get_env(:sigra, :otp_app)
+
+    cookie_domain =
+      case otp_app && Application.get_env(otp_app, :sigra_config) do
+        opts when is_list(opts) -> Keyword.get(opts, :cookie_domain)
+        _ -> nil
+      end
+
+    maybe_warn_missing_cookie_domain(env, cookie_domain)
+  end
+
+  @doc false
+  def maybe_warn_missing_cookie_domain(:prod, nil) do
+    Logger.warning("""
+    [Sigra] cookie_domain is not set in :prod.
+
+    Sigra-managed cookies (remember-me, MFA trust) will be issued as host-only
+    cookies. If you use subdomain auth (e.g., app.example.com + api.example.com),
+    users will NOT stay signed in across subdomains.
+
+    Set it in your runtime config:
+
+        config :my_app, MyApp.Auth.Config,
+          cookie_domain: System.get_env("COOKIE_DOMAIN")
+
+    See guides/recipes/subdomain-auth.md for details. To silence this warning on
+    a single-domain deployment, set `cookie_domain: ""` explicitly (not
+    recommended) or ignore — host-only is the safer default for single-domain.
+    """)
+
+    :ok
+  end
+
+  def maybe_warn_missing_cookie_domain(_env, _cookie_domain), do: :ok
 
   @doc false
   def maybe_warn_audit_cleanup_fallback do

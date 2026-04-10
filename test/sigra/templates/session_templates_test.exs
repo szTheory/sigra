@@ -269,7 +269,9 @@ defmodule Sigra.Templates.SessionTemplatesTest do
     end
 
     test "remember-me has secure flag", %{content: content} do
-      assert content =~ "secure: Mix.env() == :prod"
+      # Phase 10 D-09: remember_me_options resolved at runtime; the :secure
+      # flag is injected via Keyword.put with the same Mix.env() == :prod guard.
+      assert content =~ ":secure, Mix.env() == :prod"
     end
   end
 end

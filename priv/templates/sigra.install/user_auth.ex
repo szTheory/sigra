@@ -18,13 +18,24 @@ defmodule <%= web_module %>.UserAuth do
   # the token expiry itself in UserToken.
   @max_age 60 * 60 * 24 * 60
   @remember_me_cookie "_<%= otp_app %>_user_remember_me"
-  @remember_me_options [
+  @remember_me_static_options [
     sign: true,
     max_age: @max_age,
     same_site: "Lax",
-    http_only: true,
-    secure: Mix.env() == :prod
+    http_only: true
   ]
+
+  # Resolve remember-me cookie options at RUNTIME so that the `:cookie_domain`
+  # config value is honored without recompiling this module. See Phase 10 D-09.
+  defp remember_me_options do
+    config = <%= context_module %>.sigra_config()
+    base = Keyword.put(@remember_me_static_options, :secure, Mix.env() == :prod)
+
+    case config.cookie_domain do
+      nil -> base
+      domain when is_binary(domain) -> Keyword.put(base, :domain, domain)
+    end
+  end
 
   @doc """
   Logs the user in.
@@ -49,7 +60,7 @@ defmodule <%= web_module %>.UserAuth do
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
-    put_resp_cookie(conn, @remember_me_cookie, token, @remember_me_options)
+    put_resp_cookie(conn, @remember_me_cookie, token, remember_me_options())
   end
 
   defp maybe_write_remember_me_cookie(conn, _token, _params) do
