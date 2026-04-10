@@ -1,6 +1,9 @@
 defmodule ExampleWeb.Router do
   use ExampleWeb, :router
 
+  # Sigra authentication — imported at top so pipelines can reference function plugs
+  import ExampleWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +11,7 @@ defmodule ExampleWeb.Router do
     plug :put_root_layout, html: {ExampleWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_scope
   end
 
   pipeline :api do
@@ -25,9 +29,6 @@ defmodule ExampleWeb.Router do
   #   pipe_through :api
   # end
 
-  # Sigra authentication
-  import ExampleWeb.UserAuth
-
   pipeline :require_authenticated do
     plug :require_authenticated_user
     plug :require_mfa
@@ -37,26 +38,28 @@ defmodule ExampleWeb.Router do
   scope "/users", ExampleWeb do
     pipe_through [:browser]
 
-    live "/mfa", MFAChallengeLive
-
+    live_session :mfa_challenge, on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
+      live "/mfa", MFAChallengeLive
+    end
   end
 
   scope "/users", ExampleWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    live "/register", RegistrationLive
-    live "/log_in", LoginLive
+    live_session :redirect_if_user_is_authenticated,
+      on_mount: [{ExampleWeb.UserAuth, :redirect_if_user_is_authenticated}] do
+      live "/register", RegistrationLive
+      live "/log_in", LoginLive
+
+      live "/confirm", ConfirmationLive
+      live "/confirm/:token", ConfirmationLive, :confirm
+
+      live "/reset-password", ResetPasswordLive
+      live "/reset-password/:token", ResetPasswordLive, :edit
+    end
 
     post "/log_in", SessionController, :create
     get "/log-in/:token", SessionController, :magic_link
-
-    live "/confirm", ConfirmationLive
-    live "/confirm/:token", ConfirmationLive, :confirm
-
-
-    live "/reset-password", ResetPasswordLive
-    live "/reset-password/:token", ResetPasswordLive, :edit
-
   end
 
   scope "/users", ExampleWeb do
@@ -64,15 +67,16 @@ defmodule ExampleWeb.Router do
 
     delete "/log_out", SessionController, :delete
 
-    live "/sessions", Auth.SessionLive, :index
+    get "/sudo", Auth.SudoController, :new
+    post "/sudo", Auth.SudoController, :create
 
-      get "/sudo", Auth.SudoController, :new
-      post "/sudo", Auth.SudoController, :create
-
-    live "/settings/mfa", MFASettingsLive
-    live "/settings", SettingsLive, :edit
-    live "/reactivation", ReactivationLive
-
+    live_session :require_authenticated,
+      on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
+      live "/sessions", Auth.SessionLive, :index
+      live "/settings/mfa", MFASettingsLive
+      live "/settings", SettingsLive, :edit
+      live "/reactivation", ReactivationLive
+    end
   end
 
   # Dev-only routes for local UAT — Swoosh local-mailbox preview at /dev/mailbox
