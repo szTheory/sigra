@@ -139,6 +139,21 @@ defmodule <%= web_module %>.ConfirmationLive do
     do_confirm(socket, code)
   end
 
+  def handle_event("resend", _params, socket) do
+    user = socket.assigns.current_scope.user
+
+    case Auth.deliver_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
+      {:ok, _} ->
+        {:noreply, put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
+
+      {:error, :already_confirmed} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
+         |> redirect(to: ~p"/")}
+    end
+  end
+
   defp do_confirm(socket, code) do
     user = socket.assigns.current_scope.user
 
@@ -161,21 +176,6 @@ defmodule <%= web_module %>.ConfirmationLive do
         {:noreply,
          socket
          |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))}
-
-      {:error, :already_confirmed} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
-         |> redirect(to: ~p"/")}
-    end
-  end
-
-  def handle_event("resend", _params, socket) do
-    user = socket.assigns.current_scope.user
-
-    case Auth.deliver_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
-      {:ok, _} ->
-        {:noreply, put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
 
       {:error, :already_confirmed} ->
         {:noreply,
