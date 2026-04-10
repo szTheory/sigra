@@ -23,6 +23,87 @@ defmodule Sigra.Auth do
   alias Ecto.Multi
   alias Sigra.{Audit, Crypto, Email, Telemetry, Token}
 
+  # Email regex used by both valid_email?/1 and the registration changeset.
+  # Matches a non-whitespace local part, an @, a non-whitespace domain, a dot,
+  # and a non-whitespace TLD. Deliberately loose — full RFC 5322 validation
+  # belongs in the DB (citext unique index) and at send-time, not at
+  # pre-validation time.
+  @email_regex ~r/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  @doc """
+  Normalizes an email address for storage and lookup.
+
+  Trims surrounding whitespace and downcases. Sigra stores emails in a
+  `citext` column so case-insensitive matching is already enforced at the
+  database level, but callers doing in-memory comparisons (login form
+  pre-flight, fixture setup, audit queries) should normalize first.
+
+  Returns a string on any binary input; passes through `nil` untouched so
+  callers can pipe through without nil-guarding.
+
+  ## Examples
+
+      iex> Sigra.Auth.normalize_email("Alice@Example.COM")
+      "alice@example.com"
+
+      iex> Sigra.Auth.normalize_email("  bob@example.com  ")
+      "bob@example.com"
+
+      iex> Sigra.Auth.normalize_email("")
+      ""
+
+      iex> Sigra.Auth.normalize_email(nil)
+      nil
+
+  """
+  @doc since: "0.10.0"
+  @spec normalize_email(String.t() | nil) :: String.t() | nil
+  def normalize_email(nil), do: nil
+
+  def normalize_email(email) when is_binary(email) do
+    email |> String.trim() |> String.downcase()
+  end
+
+  @doc """
+  Returns true if the given string looks like a valid email address.
+
+  Uses a deliberately loose regex — the goal is to catch obvious typos
+  (`alice@`, `@example.com`, `not-an-email`) before hitting the database,
+  not to enforce RFC 5322 compliance. Full validation happens when you
+  actually attempt to deliver the message.
+
+  Accepts only binaries. Non-binary input (including `nil`) returns
+  `false` rather than raising, so the helper composes inside pipelines.
+
+  ## Examples
+
+      iex> Sigra.Auth.valid_email?("alice@example.com")
+      true
+
+      iex> Sigra.Auth.valid_email?("bob@example.co.uk")
+      true
+
+      iex> Sigra.Auth.valid_email?("not-an-email")
+      false
+
+      iex> Sigra.Auth.valid_email?("alice@")
+      false
+
+      iex> Sigra.Auth.valid_email?("@example.com")
+      false
+
+      iex> Sigra.Auth.valid_email?(nil)
+      false
+
+  """
+  @doc since: "0.10.0"
+  @spec valid_email?(term()) :: boolean()
+  def valid_email?(email) when is_binary(email) do
+    Regex.match?(@email_regex, email)
+  end
+
+  def valid_email?(_), do: false
+
   @doc """
   Registers a user.
 

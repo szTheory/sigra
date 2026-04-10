@@ -1302,14 +1302,34 @@ defmodule Sigra.Config do
 
   Validates all options via `NimbleOptions` and raises
   `NimbleOptions.ValidationError` for invalid or missing required options.
+  Only `:repo` and `:user_schema` are required; all other options have
+  secure defaults.
 
   ## Examples
 
-      iex> Sigra.Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
-      %Sigra.Config{repo: MyApp.Repo, user_schema: MyApp.User, ...}
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User)
+      iex> config.repo
+      Fake.Repo
 
-      iex> Sigra.Config.new!([])
-      ** (NimbleOptions.ValidationError) ...
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User)
+      iex> config.cookie_domain
+      nil
+
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, cookie_domain: ".example.com")
+      iex> config.cookie_domain
+      ".example.com"
+
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, cookie_domain: nil)
+      iex> config.cookie_domain
+      nil
+
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, require_confirmation: true)
+      iex> config.require_confirmation
+      true
+
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, session_ttl: 86_400)
+      iex> config.session_ttl
+      86_400
 
   """
   @doc since: "0.1.0"
@@ -1324,7 +1344,11 @@ defmodule Sigra.Config do
 
   ## Examples
 
-      iex> config = Sigra.Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, oauth: [enabled: true])
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, oauth: [enabled: true])
+      iex> Sigra.Config.oauth_enabled?(config)
+      true
+
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User)
       iex> Sigra.Config.oauth_enabled?(config)
       true
 
@@ -1340,9 +1364,13 @@ defmodule Sigra.Config do
 
   ## Examples
 
-      iex> config = Sigra.Config.new!(repo: MyApp.Repo, user_schema: MyApp.User, oauth: [providers: [google: [client_id: "x"]]])
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, oauth: [providers: [google: [client_id: "x"]]])
       iex> Sigra.Config.oauth_providers(config)
       [google: [client_id: "x"]]
+
+      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User)
+      iex> Sigra.Config.oauth_providers(config)
+      []
 
   """
   @doc since: "0.1.0"

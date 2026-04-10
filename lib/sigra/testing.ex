@@ -108,12 +108,19 @@ defmodule Sigra.Testing do
   @doc """
   Extracts the confirmation token from a confirmation URL string.
 
-  Parses `/users/confirm/<token>` and returns the token portion.
+  Parses `/users/confirm/<token>` and returns the token portion. Works
+  with absolute URLs, URLs with query strings, and bare paths.
 
   ## Examples
 
       iex> Sigra.Testing.extract_confirmation_token("https://example.com/users/confirm/abc123")
       "abc123"
+
+      iex> Sigra.Testing.extract_confirmation_token("/users/confirm/abc123")
+      "abc123"
+
+      iex> Sigra.Testing.extract_confirmation_token("https://example.com/users/confirm/SFMyNTY.encoded-token")
+      "SFMyNTY.encoded-token"
 
   """
   @doc since: "0.3.0"
@@ -127,11 +134,18 @@ defmodule Sigra.Testing do
   Extracts the reset password token from a reset URL string.
 
   Parses `/users/reset-password/<token>` and returns the token portion.
+  Same path-tail semantics as `extract_confirmation_token/1`.
 
   ## Examples
 
       iex> Sigra.Testing.extract_reset_token("https://example.com/users/reset-password/xyz789")
       "xyz789"
+
+      iex> Sigra.Testing.extract_reset_token("/users/reset-password/xyz789")
+      "xyz789"
+
+      iex> Sigra.Testing.extract_reset_token("https://app.example.com/users/reset-password/SFMyNTY.tok")
+      "SFMyNTY.tok"
 
   """
   @doc since: "0.3.0"
@@ -532,9 +546,21 @@ defmodule Sigra.Testing do
   @doc """
   Adds a Bearer token header to a conn for API testing.
 
+  Overwrites any existing `authorization` header on the conn. The token is
+  wrapped in `"Bearer "` exactly — pass the raw `sigra_sk_...` value, not
+  a pre-formatted header.
+
   ## Examples
 
-      conn = Sigra.Testing.put_bearer_token(conn, raw_token)
+      iex> conn = Plug.Test.conn(:get, "/api/me")
+      iex> conn = Sigra.Testing.put_bearer_token(conn, "sigra_sk_abc123")
+      iex> Plug.Conn.get_req_header(conn, "authorization")
+      ["Bearer sigra_sk_abc123"]
+
+      iex> conn = Plug.Test.conn(:get, "/api/me")
+      iex> conn = Sigra.Testing.put_bearer_token(conn, "raw-token-value")
+      iex> Plug.Conn.get_req_header(conn, "authorization")
+      ["Bearer raw-token-value"]
 
   """
   @doc since: "0.7.0"
@@ -545,6 +571,14 @@ defmodule Sigra.Testing do
 
   @doc """
   Alias for `put_bearer_token/2`.
+
+  ## Examples
+
+      iex> conn = Plug.Test.conn(:get, "/api/me")
+      iex> conn = Sigra.Testing.put_api_token(conn, "sigra_sk_xyz")
+      iex> Plug.Conn.get_req_header(conn, "authorization")
+      ["Bearer sigra_sk_xyz"]
+
   """
   @doc since: "0.7.0"
   @spec put_api_token(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
