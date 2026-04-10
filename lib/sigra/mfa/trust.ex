@@ -28,17 +28,33 @@ defmodule Sigra.MFA.Trust do
   def cookie_name, do: @cookie_name
 
   @doc """
-  Returns the default trust cookie options (domain-unaware).
+  Removed: use `cookie_opts/1` with a `%Sigra.Config{}` so `:cookie_domain`
+  is honored.
 
-  Deprecated in favor of `cookie_opts/1`, which honors
-  `Sigra.Config.:cookie_domain`. Retained as a shim for backwards
-  compatibility.
+  Previously this arity-0 form returned domain-unaware cookie options as a
+  backwards-compatibility shim. It was removed because silently dropping
+  `:cookie_domain` reopens the subdomain-auth bug Phase 10 fixed: any
+  caller still using this form would write cookies without the configured
+  domain and break subdomain sign-in without a single compile error.
+
+  Call `cookie_opts/1` with your `%Sigra.Config{}` instead.
   """
   @doc since: "0.6.0"
   @doc deprecated: "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored."
   @deprecated "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored."
-  @spec cookie_opts() :: keyword()
-  def cookie_opts, do: @cookie_opts
+  @spec cookie_opts() :: no_return()
+  def cookie_opts do
+    raise """
+    Sigra.MFA.Trust.cookie_opts/0 was removed to guarantee :cookie_domain is honored.
+
+    Call Sigra.MFA.Trust.cookie_opts/1 with your %Sigra.Config{} instead:
+
+        config = MyApp.Auth.sigra_config()
+        Sigra.MFA.Trust.cookie_opts(config)
+
+    See CHANGELOG and guides/recipes/subdomain-auth.md for migration notes.
+    """
+  end
 
   @doc """
   Returns remember-me cookie options honoring `:cookie_domain` from the given config.

@@ -64,13 +64,22 @@ defmodule Sigra.MFA.TrustTest do
     end
   end
 
-  describe "cookie_opts/0" do
-    test "returns secure cookie options" do
-      opts = Trust.cookie_opts()
+  describe "cookie_opts/1" do
+    test "returns secure cookie options for a nil cookie_domain" do
+      opts = Trust.cookie_opts(%Sigra.Config{cookie_domain: nil})
 
       assert opts[:http_only] == true
       assert opts[:secure] == true
       assert opts[:same_site] == "Lax"
+      refute Keyword.has_key?(opts, :domain)
+    end
+  end
+
+  describe "cookie_opts/0 (removed)" do
+    test "raises with a migration message" do
+      assert_raise RuntimeError, ~r/cookie_opts\/0 was removed/, fn ->
+        apply(Trust, :cookie_opts, [])
+      end
     end
   end
 end

@@ -63,13 +63,14 @@ defmodule Sigra.CookieDomainTest do
     end
   end
 
-  describe "Sigra.MFA.Trust.cookie_opts/0 (deprecated shim)" do
-    test "still returns base opts without :domain" do
-      # Call via apply/3 to exercise the deprecated shim without tripping
-      # compile-time deprecation warnings (warnings-as-errors in CI).
-      opts = apply(Trust, :cookie_opts, [])
-      refute Keyword.has_key?(opts, :domain)
-      assert opts[:http_only] == true
+  describe "Sigra.MFA.Trust.cookie_opts/0 (removed)" do
+    test "raises a migration error directing callers to cookie_opts/1" do
+      # Call via apply/3 to avoid tripping compile-time deprecation warnings
+      # (warnings-as-errors in CI). The arity-0 form was removed because
+      # silently dropping :cookie_domain reopens the subdomain-auth bug.
+      assert_raise RuntimeError, ~r/cookie_opts\/0 was removed/, fn ->
+        apply(Trust, :cookie_opts, [])
+      end
     end
   end
 end
