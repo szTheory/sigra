@@ -126,7 +126,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Developer Experience
 
-- [ ] **DX-01**: Testing helpers (`log_in_user/2`, `register_user/1`, `setup_totp/1`, `create_api_key/2`)
+- [ ] **DX-01**: Testing helpers importable in ExUnit that set up auth state in one call: `YourAppWeb.ConnCase.log_in_user/3` (generated), `YourApp.Accounts.register_user/2` (generated), `Sigra.Testing.setup_totp/2`, and `Sigra.Testing.create_api_token/3`. Arities reflect real option needs (`:mfa`, `:config`); names follow phx.gen.auth convention (Phase 1 D-43) and Phase 7 D-63 (`create_api_token`, not `create_api_key`).
 - [ ] **DX-02**: Comprehensive documentation with copy-paste examples
 - [ ] **DX-03**: Scenario-based test fixtures for auth states
 - [ ] **DX-04**: Cookie domain configuration with sensible defaults and easy override
@@ -279,6 +279,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Unmapped: 0
 
 **Note:** REQUIREMENTS.md originally listed 80 requirements; actual count is 85 (SESS has 9, not grouped as 8; all categories counted individually at roadmap creation).
+
+*Last updated: 2026-04-09 — DX-01 wording reconciled with shipped helper signatures (Phase 10 D-01).*
 
 ---
 *Requirements defined: 2026-04-05*

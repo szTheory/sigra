@@ -18,6 +18,8 @@ defmodule Sigra.Testing do
   features are implemented.
   """
 
+  # --- Core Assertions ---
+
   @doc """
   Asserts that the given user struct has a properly hashed password.
 
@@ -73,6 +75,8 @@ defmodule Sigra.Testing do
   def assert_token_sent(to, _context) do
     assert_email_sent(to: to)
   end
+
+  # --- Email ---
 
   @doc """
   Asserts that an email was sent (via Swoosh test adapter).
@@ -136,6 +140,8 @@ defmodule Sigra.Testing do
     uri = URI.parse(url)
     uri.path |> String.split("/") |> List.last()
   end
+
+  # --- Lockout ---
 
   @doc """
   Simulate a locked out user by setting failed_login_attempts to threshold.
@@ -207,6 +213,7 @@ defmodule Sigra.Testing do
     fun.()
   end
 
+  # --- MFA ---
   # -- MFA Testing Helpers (Phase 6) --
 
   @doc """
@@ -495,6 +502,7 @@ defmodule Sigra.Testing do
     :crypto.strong_rand_bytes(64) |> Base.encode64()
   end
 
+  # --- API Tokens ---
   # -- API Token Testing Helpers (Phase 7) --
 
   @doc """
@@ -671,6 +679,7 @@ defmodule Sigra.Testing do
     generate_jwt(config, user, scopes: scopes)
   end
 
+  # --- Account Lifecycle ---
   # -- Account Lifecycle Testing Helpers (Phase 8) --
 
   @doc """
@@ -869,6 +878,8 @@ defmodule Sigra.Testing do
     true
   end
 
+  # --- Hooks ---
+
   @doc """
   Temporarily overrides a hook for a test block.
 
@@ -901,6 +912,7 @@ defmodule Sigra.Testing do
     end
   end
 
+  # --- OAuth ---
   # -- OAuth Testing Helpers (Phase 5) --
 
   @doc """
@@ -1005,5 +1017,142 @@ defmodule Sigra.Testing do
       )
 
     %{user: user, identity: identity}
+  end
+
+  # --- Audit (Phase 9) ---
+
+  @doc """
+  Inserts an audit event directly via the configured repo, bypassing
+  `Ecto.Multi` wrapping. Test-only — production audit writes go through
+  `Sigra.Audit.log/2` or `Sigra.Audit.log_multi/3`.
+
+  ## Options
+
+    * `:repo` (required) — the Ecto repo module
+    * `:audit_schema` (required) — the generated `audit_events` schema module
+    * `:action` (default `"test.event"`)
+    * `:outcome` (default `"success"`)
+    * `:actor_id`, `:actor_type` (default `"user"`), `:target_id`, `:target_type`
+    * `:metadata` (default `%{}`)
+    * `:occurred_at` (default `DateTime.utc_now/0`)
+
+  ## Examples
+
+      audit_event_fixture(repo: MyApp.Repo, audit_schema: MyApp.AuditEvent)
+
+      audit_event_fixture(
+        repo: MyApp.Repo,
+        audit_schema: MyApp.AuditEvent,
+        action: "billing.charge.created",
+        outcome: "failure",
+        metadata: %{amount: 99}
+      )
+
+  """
+  @doc since: "0.10.0"
+  @spec audit_event_fixture(keyword()) :: struct()
+  def audit_event_fixture(opts) when is_list(opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    audit_schema = Keyword.fetch!(opts, :audit_schema)
+
+    attrs = %{
+      action: Keyword.get(opts, :action, "test.event"),
+      outcome: Keyword.get(opts, :outcome, "success"),
+      actor_id: Keyword.get(opts, :actor_id),
+      actor_type: Keyword.get(opts, :actor_type, "user"),
+      target_id: Keyword.get(opts, :target_id),
+      target_type: Keyword.get(opts, :target_type),
+      metadata: Keyword.get(opts, :metadata, %{}),
+      occurred_at: Keyword.get(opts, :occurred_at, DateTime.utc_now())
+    }
+
+    audit_schema
+    |> struct()
+    |> Ecto.Changeset.change(attrs)
+    |> repo.insert!()
+  end
+
+  @doc """
+  Asserts that an audit event matches the given map.
+
+  By default checks the most recent event (ordered by `inserted_at` desc);
+  pass `:position` to check the Nth-most-recent (`0` is newest).
+
+  Top-level keys (`:action`, `:outcome`, `:actor_id`, etc.) are compared
+  with strict equality. The `:metadata` key, if present, deep-matches a
+  subset — keys present in the expected map must equal the corresponding
+  values on the event, but extra keys on the event are ignored. Both atom
+  and string metadata keys are tolerated.
+
+  Raises `ExUnit.AssertionError` with a diff-style message on mismatch.
+
+  ## Options
+
+    * `:repo` (required) — the Ecto repo module
+    * `:audit_schema` (required) — the audit_events schema module
+    * `:position` (default `0`) — 0-based offset from newest
+
+  ## Examples
+
+      assert_audit_event(
+        %{action: "billing.charge.created", outcome: "success"},
+        repo: MyApp.Repo,
+        audit_schema: MyApp.AuditEvent
+      )
+
+      assert_audit_event(
+        %{metadata: %{plan: "pro"}},
+        repo: MyApp.Repo,
+        audit_schema: MyApp.AuditEvent
+      )
+
+  """
+  @doc since: "0.10.0"
+  @spec assert_audit_event(map(), keyword()) :: true
+  def assert_audit_event(expected, opts) when is_map(expected) and is_list(opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    audit_schema = Keyword.fetch!(opts, :audit_schema)
+    position = Keyword.get(opts, :position, 0)
+
+    require Ecto.Query
+
+    query =
+      Ecto.Query.from(e in audit_schema,
+        order_by: [desc: e.inserted_at],
+        limit: 1,
+        offset: ^position
+      )
+
+    event = repo.one(query)
+
+    if is_nil(event) do
+      raise ExUnit.AssertionError,
+        message: "Expected an audit event at position #{position}, found none"
+    end
+
+    Enum.each(expected, fn
+      {:metadata, expected_meta} when is_map(expected_meta) ->
+        Enum.each(expected_meta, fn {k, v} ->
+          actual =
+            Map.get(event.metadata || %{}, to_string(k)) ||
+              Map.get(event.metadata || %{}, k)
+
+          unless actual == v do
+            raise ExUnit.AssertionError,
+              message:
+                "Expected metadata[#{inspect(k)}] == #{inspect(v)}, got #{inspect(actual)}"
+          end
+        end)
+
+      {key, expected_value} ->
+        actual = Map.get(event, key)
+
+        unless actual == expected_value do
+          raise ExUnit.AssertionError,
+            message: "Expected #{key} == #{inspect(expected_value)}, got #{inspect(actual)}"
+        end
+    end)
+
+    true
   end
 end
