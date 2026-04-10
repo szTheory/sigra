@@ -75,4 +75,14 @@ defmodule ExampleWeb.Router do
 
   end
 
+  # Dev-only routes for local UAT — Swoosh local-mailbox preview at /dev/mailbox
+  # so manual testers can inspect rendered emails (confirmation, password reset,
+  # lockout, suspicious login, account lifecycle). Compile-only gate ensures
+  # this scope is excluded from prod and test builds.
+  if Application.compile_env(:example, :dev_routes) do
+    scope "/dev" do
+      pipe_through :browser
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
 end
