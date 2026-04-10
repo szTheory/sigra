@@ -393,6 +393,7 @@ defmodule Sigra.Auth do
   ## Options
 
   - `:user_schema` - Required. The Ecto schema module for users.
+  - `:user_token_schema` - Required. The Ecto schema module for user tokens (e.g., `MyApp.Accounts.UserToken`).
   - `:url_fun` - Required. Function `(token -> url_string)`.
   - `:rate_limiter` - Module implementing `Sigra.RateLimiter`. Default: `nil` (no rate limiting).
   - `:max_requests` - Max magic link requests per window. Default: `3`.
@@ -403,6 +404,7 @@ defmodule Sigra.Auth do
           {:ok, {String.t(), String.t()}} | {:ok, :sent} | {:error, :rate_limited}
   def request_magic_link(repo, email, opts \\ []) do
     user_schema = Keyword.fetch!(opts, :user_schema)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
     url_fun = Keyword.fetch!(opts, :url_fun)
     rate_limiter = Keyword.get(opts, :rate_limiter)
     max_requests = Keyword.get(opts, :max_requests, 3)
@@ -422,12 +424,13 @@ defmodule Sigra.Auth do
       true ->
         {raw_token, hashed_token} = Token.generate_hashed_token()
 
-        token_struct = %{
-          token: hashed_token,
-          context: "magic_link",
-          sent_to: user.email,
-          user_id: user.id
-        }
+        token_struct =
+          struct!(user_token_schema, %{
+            token: hashed_token,
+            context: "magic_link",
+            sent_to: user.email,
+            user_id: user.id
+          })
 
         repo.insert!(token_struct)
         url = url_fun.(raw_token)
@@ -791,6 +794,7 @@ defmodule Sigra.Auth do
   ## Options
 
   - `:user_schema` - Required. The Ecto schema module for users.
+  - `:user_token_schema` - Required. The Ecto schema module for user tokens (e.g., `MyApp.Accounts.UserToken`).
   - `:secret_key_base` - Required. The host app's secret key base.
   - `:url_fun` - Required. Function `(token -> url_string)`.
   - `:rate_limiter` - Module implementing `Sigra.RateLimiter`. Default: `nil`.
@@ -802,6 +806,7 @@ defmodule Sigra.Auth do
           {:ok, {String.t(), String.t()}} | {:ok, :sent} | {:error, :rate_limited}
   def request_password_reset(repo, email, opts \\ []) do
     user_schema = Keyword.fetch!(opts, :user_schema)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
     secret_key_base = Keyword.fetch!(opts, :secret_key_base)
     url_fun = Keyword.fetch!(opts, :url_fun)
     rate_limiter = Keyword.get(opts, :rate_limiter)
@@ -825,12 +830,13 @@ defmodule Sigra.Auth do
         signed = Plug.Crypto.sign(secret_key_base, "sigra-reset-token", raw_token)
         encoded_token = Base.url_encode64(signed, padding: false)
 
-        token_struct = %{
-          token: hashed_token,
-          context: "reset_password",
-          sent_to: user.email,
-          user_id: user.id
-        }
+        token_struct =
+          struct!(user_token_schema, %{
+            token: hashed_token,
+            context: "reset_password",
+            sent_to: user.email,
+            user_id: user.id
+          })
 
         repo.insert!(token_struct)
         url = url_fun.(encoded_token)
