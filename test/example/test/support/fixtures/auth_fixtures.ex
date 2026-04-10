@@ -260,12 +260,26 @@ defmodule Example.AccountsFixtures do
     %{user: user}
   end
 
+  # Canonical list of valid scenario atoms. Lives next to its consumer
+  # (scenario/2) so the error message stays in sync with the clauses.
+  @valid_scenarios [
+    :anonymous,
+    :authenticated,
+    :mfa_pending,
+    :mfa_complete,
+    :sudo,
+    :locked,
+    :unconfirmed
+  ]
+
   @doc """
   Dispatcher for parametric test setup. Accepts one of:
   `:anonymous | :authenticated | :mfa_pending | :mfa_complete | :sudo | :locked | :unconfirmed`.
 
-  Raises `FunctionClauseError` on any other value, including string
-  scenario names.
+  Raises `ArgumentError` (with the full list of valid scenarios in the
+  message) on unknown atoms. Raises `FunctionClauseError` on non-atom
+  input — passing a string is a clear caller bug and the
+  FunctionClauseError preserves that signal.
   """
   def scenario(name, attrs \\ %{})
   def scenario(:anonymous, _attrs), do: anonymous_fixture()
@@ -275,4 +289,12 @@ defmodule Example.AccountsFixtures do
   def scenario(:sudo, attrs), do: sudo_fixture(attrs)
   def scenario(:locked, attrs), do: locked_fixture(attrs)
   def scenario(:unconfirmed, attrs), do: unconfirmed_fixture(attrs)
+
+  def scenario(other, _attrs) when is_atom(other) do
+    raise ArgumentError, """
+    unknown scenario #{inspect(other)}.
+
+    Valid scenarios: #{Enum.map_join(@valid_scenarios, ", ", &inspect/1)}.
+    """
+  end
 end

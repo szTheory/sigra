@@ -139,10 +139,14 @@ defmodule Sigra.AuthFixturesScenarioTest do
     end
   end
 
-  describe "scenario/2 dispatcher (D-03, Open Q5)" do
-    test "has a head plus 7 clauses (8 total def scenario)", %{content: content} do
+  describe "scenario/2 dispatcher (D-03, Open Q5, D-10.1-13)" do
+    test "has a head plus 7 atom clauses plus catch-all (9 total def scenario)", %{
+      content: content
+    } do
       count = Regex.scan(~r/def scenario\(/, content) |> length()
-      assert count == 8, "expected 8 def scenario occurrences (head + 7 clauses), got #{count}"
+
+      assert count == 9,
+             "expected 9 def scenario occurrences (head + 7 atom clauses + 1 is_atom catch-all), got #{count}"
     end
 
     test "dispatches all seven scenario atoms", %{content: content} do
@@ -156,6 +160,58 @@ defmodule Sigra.AuthFixturesScenarioTest do
     test "does NOT define a string-accepting clause (Open Q5)", %{content: content} do
       refute Regex.match?(~r/def scenario\([^)]*is_binary/, content),
              "scenario/2 must raise on string input, not define an is_binary clause"
+    end
+
+    test "defines @valid_scenarios module attribute with all seven atoms (D-10.1-13)", %{
+      content: content
+    } do
+      assert content =~ "@valid_scenarios",
+             "expected @valid_scenarios module attribute adjacent to scenario/2"
+
+      for atom <-
+            ~w(anonymous authenticated mfa_pending mfa_complete sudo locked unconfirmed) do
+        assert content =~ ":#{atom}",
+               "expected :#{atom} to appear in @valid_scenarios list"
+      end
+    end
+
+    test "@valid_scenarios appears before the first def scenario( head (D-10.1-13 placement)", %{
+      content: content
+    } do
+      attr_index =
+        case :binary.match(content, "@valid_scenarios") do
+          {i, _} -> i
+          :nomatch -> nil
+        end
+
+      def_index =
+        case :binary.match(content, "def scenario(") do
+          {i, _} -> i
+          :nomatch -> nil
+        end
+
+      assert is_integer(attr_index) and is_integer(def_index),
+             "expected both @valid_scenarios and def scenario( in template"
+
+      assert attr_index < def_index,
+             "expected @valid_scenarios to be declared before the first def scenario( head, " <>
+               "got attr@#{attr_index} vs def@#{def_index}"
+    end
+
+    test "catch-all clause uses is_atom guard and raises ArgumentError (D-10.1-13)", %{
+      content: content
+    } do
+      assert Regex.match?(~r/def scenario\(other, _attrs\) when is_atom\(other\)/, content),
+             "expected catch-all clause `def scenario(other, _attrs) when is_atom(other)`"
+
+      assert content =~ "raise ArgumentError",
+             "expected catch-all clause to raise ArgumentError"
+
+      assert content =~ "unknown scenario",
+             "expected ArgumentError message to start with `unknown scenario`"
+
+      assert content =~ "Valid scenarios:",
+             "expected ArgumentError message to list valid scenarios"
     end
   end
 
