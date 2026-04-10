@@ -43,9 +43,10 @@ created: 2026-04-09
 | 10-01-01 | 01 | 1 | DX-01 | T-10-08 | REQUIREMENTS.md DX-01 text matches shipped signatures | doc | `rg -n 'create_api_token/3' .planning/REQUIREMENTS.md` | ✅ existing | ⬜ pending |
 | 10-01-02 | 01 | 1 | DX-01/AUDIT-09* | T-10-06,07 | Sigra.Testing has 9 section headers + audit_event_fixture/1 + assert_audit_event/2 | unit | `mix test test/sigra/testing_audit_test.exs` | ❌ W0 | ⬜ pending |
 | 10-02-01 | 02 | 1 | DX-03 | T-10-05,09,10 | Seven scenario fixtures + scenario/2 dispatcher in AuthFixtures template | unit | `mix test test/sigra/auth_fixtures_scenario_test.exs` | ❌ W0 | ⬜ pending |
-| 10-03-01 | 03 | 1 | DX-04 | T-10-01,12,13 | :cookie_domain config validates; threads into MFA.Trust + FetchSession | unit | `mix test test/sigra/cookie_domain_test.exs` | ❌ W0 | ⬜ pending |
+| 10-03-01 | 03 | 1 | DX-04 | T-10-01,12,13 | :cookie_domain config validates; threads into MFA.Trust.cookie_opts/1; FetchSession grep-confirmed read-only (Open Q2 path b) | unit | `mix test test/sigra/cookie_domain_test.exs` | ❌ W0 | ⬜ pending |
 | 10-03-02 | 03 | 1 | DX-04 | T-10-02,11 | UserAuth runtime remember_me_options + mfa_challenge_controller + boot warning | unit | `mix test test/sigra/application_cookie_warning_test.exs` | ❌ W0 | ⬜ pending |
 | 10-04-01 | 04 | 2 | DX-02 | T-10-15 | ex_doc builds without warnings; 15 guides in grouped sidebar; subdomain-auth full content | doc/build | `mix docs --warnings-as-errors` | ❌ W0 | ⬜ pending |
+| 10-04-02 | 04 | 2 | DX-02 | T-10-15 | mix.exs :extras + :groups_for_extras + mix docs builds clean | build | mix docs --warnings-as-errors | ❌ W0 | ⬜ pending |
 | 10-05-01 | 05 | 3 | DX-02 | T-10-04,16 | 14 guide files filled with content; no banned vocabulary; mix docs clean | doc/build | `mix docs --warnings-as-errors` | ❌ W0 | ⬜ pending |
 | 10-05-02 | 05 | 3 | DX-02 | T-10-17 | Doctests on Sigra.Config / Sigra.Auth / Sigra.Testing pure helpers | unit | `mix test test/sigra/doctest_test.exs` | ❌ W0 | ⬜ pending |
 | 10-05-03 | 05 | 3 | DX-02 | — | Human verification of <30 min getting-started readthrough | manual | (checkpoint:human-verify) | n/a | ⬜ pending |
