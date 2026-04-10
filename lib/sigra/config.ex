@@ -1340,23 +1340,40 @@ defmodule Sigra.Config do
   end
 
   @doc """
-  Returns whether OAuth is enabled in the given config.
+  Returns whether OAuth is enabled AND has at least one configured provider.
+
+  Returns `true` only when `oauth[:enabled]` is not explicitly `false`
+  AND `oauth[:providers]` contains at least one entry. This prevents
+  callers from rendering an empty "Sign in with..." row on the default
+  config (which has no providers configured).
 
   ## Examples
 
-      iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User, oauth: [enabled: true])
+      iex> config = Sigra.Config.new!(
+      ...>   repo: Fake.Repo,
+      ...>   user_schema: Fake.User,
+      ...>   oauth: [enabled: true, providers: [google: [client_id: "x"]]]
+      ...> )
       iex> Sigra.Config.oauth_enabled?(config)
       true
 
       iex> config = Sigra.Config.new!(repo: Fake.Repo, user_schema: Fake.User)
       iex> Sigra.Config.oauth_enabled?(config)
-      true
+      false
+
+      iex> config = Sigra.Config.new!(
+      ...>   repo: Fake.Repo,
+      ...>   user_schema: Fake.User,
+      ...>   oauth: [enabled: false, providers: [google: [client_id: "x"]]]
+      ...> )
+      iex> Sigra.Config.oauth_enabled?(config)
+      false
 
   """
   @doc since: "0.1.0"
   @spec oauth_enabled?(t()) :: boolean()
   def oauth_enabled?(%__MODULE__{oauth: oauth}) do
-    Keyword.get(oauth, :enabled, true)
+    Keyword.get(oauth, :enabled, true) and Keyword.get(oauth, :providers, []) != []
   end
 
   @doc """

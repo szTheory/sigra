@@ -86,13 +86,33 @@ defmodule Sigra.OAuth.ConfigTest do
   end
 
   describe "oauth_enabled?/1" do
-    test "returns true when oauth is enabled" do
-      config = Config.new!(@base_opts ++ [oauth: [enabled: true]])
+    test "returns true when oauth is enabled AND at least one provider is configured" do
+      config =
+        Config.new!(
+          @base_opts ++
+            [oauth: [enabled: true, providers: [google: [client_id: "x", client_secret: "y"]]]]
+        )
+
       assert Config.oauth_enabled?(config) == true
     end
 
     test "returns false when oauth is disabled" do
-      config = Config.new!(@base_opts ++ [oauth: [enabled: false]])
+      config =
+        Config.new!(
+          @base_opts ++
+            [oauth: [enabled: false, providers: [google: [client_id: "x", client_secret: "y"]]]]
+        )
+
+      assert Config.oauth_enabled?(config) == false
+    end
+
+    test "returns false on the default config (no providers configured)" do
+      config = Config.new!(@base_opts)
+      assert Config.oauth_enabled?(config) == false
+    end
+
+    test "returns false when enabled but providers list is empty" do
+      config = Config.new!(@base_opts ++ [oauth: [enabled: true, providers: []]])
       assert Config.oauth_enabled?(config) == false
     end
   end
