@@ -222,12 +222,19 @@ defmodule Sigra.Templates.InstallerDriftTest do
     }
   ]
 
+  # Anchor fixture paths to the repo root resolved from __DIR__ rather than
+  # File.cwd!/0. When `mix test` is invoked from a subdirectory (e.g. inside
+  # an umbrella app or test/example/), File.cwd!/0 returns the caller's cwd,
+  # not the sigra repo root, and the fixture paths fail to resolve.
+  # Reviewed in 10.1 IN-04.
+  @repo_root Path.expand("../../..", __DIR__)
+
   describe "installer template drift" do
     for fixture <- @fixtures do
       @fixture fixture
       test "#{fixture.id}" do
-        template_path = Path.expand(@fixture.template, File.cwd!())
-        example_path = Path.expand(@fixture.example, File.cwd!())
+        template_path = Path.expand(@fixture.template, @repo_root)
+        example_path = Path.expand(@fixture.example, @repo_root)
 
         assert File.exists?(template_path),
                "template missing: #{@fixture.template}"
