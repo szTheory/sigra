@@ -195,7 +195,14 @@ Plans:
   3. Cookie domain is configurable with sensible defaults that work in development, test, and production without manual intervention
   4. Documentation includes copy-paste examples for every major flow; a developer can get from zero to working auth in an afternoon
 
-**Plans:** TBD
+**Plans:** 6 plans
+Plans:
+- [ ] 10-01-PLAN.md — REQUIREMENTS DX-01 reconciliation, Sigra.Testing section headers + audit helpers (D-01, D-18, D-19)
+- [ ] 10-02-PLAN.md — Seven scenario fixtures + scenario/2 dispatcher in generated AuthFixtures (D-02..D-07)
+- [ ] 10-03-PLAN.md — :cookie_domain config + runtime refactor across 3 cookie sites + prod boot warning (D-08..D-11)
+- [ ] 10-04-PLAN.md — ex_doc :extras + :groups_for_extras scaffold; subdomain-auth recipe (D-12, D-15)
+- [ ] 10-05-PLAN.md — Guide content (getting-started + flows + recipes) + doctests on Sigra.Testing/Auth/Config (D-13, D-14)
+- [ ] 10-06-PLAN.md — test/example/ Phoenix app + 6 D-17 smoke tests + example_app_smoke CI job (D-16, D-17)
 
 ## Progress
 
@@ -213,4 +220,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 7. API Authentication | 0/4 | Planning complete | - |
 | 8. Account Lifecycle | 0/5 | Planning complete | - |
 | 9. Audit Logging | 0/5 | Planning complete | - |
-| 10. Developer Experience | 0/TBD | Not started | - |
+| 10. Developer Experience | 0/6 | Planning complete | - |
