@@ -29,13 +29,13 @@ defmodule ExampleWeb.UserAuth do
   # Resolve remember-me cookie options at RUNTIME so that the `:cookie_domain`
   # config value is honored without recompiling this module. See Phase 10 D-09.
   #
-  # NOTE: `Mix.env/0` must be guarded with `function_exported?/3` because the
-  # `:mix` application is NOT included in production releases (`mix release`
+  # NOTE: `Sigra.Env.current/0` is used instead of `Mix.env/0` directly because
+  # the `:mix` application is NOT included in production releases (`mix release`
   # excludes it by design). Calling `Mix.env()` unguarded at runtime in a
   # release raises `UndefinedFunctionError` and breaks remember-me logins.
   defp remember_me_options do
     config = Example.Accounts.sigra_config()
-    env = if function_exported?(Mix, :env, 0), do: Mix.env(), else: :prod
+    env = Sigra.Env.current()
     base = Keyword.put(@remember_me_static_options, :secure, env == :prod)
 
     case config.cookie_domain do

@@ -27,7 +27,7 @@ defmodule Sigra.Application do
 
   @doc false
   def maybe_warn_missing_cookie_domain do
-    env = if function_exported?(Mix, :env, 0), do: Mix.env(), else: :prod
+    env = Sigra.Env.current()
     otp_app = Application.get_env(:sigra, :otp_app)
 
     cookie_domain =
