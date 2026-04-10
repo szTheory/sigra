@@ -81,7 +81,7 @@ After enrollment, every login request for that user enters the MFA challenge flo
 
 If the user cannot produce a TOTP code (lost phone), they can enter one of the 10 backup codes instead:
 
-    case Sigra.MFA.verify_backup_code(config(), user, input) do
+    case Sigra.MFA.verify_backup(config(), user, input) do
       {:ok, _} -> # mark this backup code as used; complete MFA
       {:error, :invalid_code} -> # fall through
     end
@@ -112,7 +112,7 @@ You can require MFA for all users, a subset (admins), or leave it opt-in:
     defp require_mfa_for_admins(conn, _opts) do
       user = conn.assigns.current_scope.user
 
-      if user.role == :admin and not Sigra.MFA.enrolled?(user) do
+      if user.role == :admin and not Sigra.MFA.enabled?(config(), user) do
         conn
         |> put_flash(:error, "Admins must enroll in MFA.")
         |> redirect(to: ~p"/users/settings/mfa")
@@ -145,6 +145,6 @@ You can require MFA for all users, a subset (admins), or leave it opt-in:
 
 - [Login and Logout](login-and-logout.html) — session token lifecycle that MFA plugs into.
 - [Subdomain Authentication](subdomain-auth.html) — trust cookie honors `cookie_domain`.
-- `Sigra.MFA` — enroll, verify_totp, verify_backup_code, enrolled?
+- `Sigra.MFA` — enroll, verify_totp, verify_backup, enabled?
 - `Sigra.MFA.BackupCodes` — generate, verify
 - `Sigra.MFA.Trust` — cookie_name, cookie_opts/1

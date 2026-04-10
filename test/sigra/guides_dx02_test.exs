@@ -48,15 +48,7 @@ defmodule Sigra.GuidesDx02Test do
   # IMPORTANT: Do not add to this list casually. Each entry is a known
   # guide-vs-code mismatch and should be resolved by fixing either the
   # guide or the library.
-  @known_library_drift [
-    # guides/flows/mfa.md: wrapper that combines TOTP verify with lockout
-    # bookkeeping. Today callers compose Sigra.MFA.verify_totp/4 with the
-    # backup-codes path; there is no single `verify_backup_code` entry.
-    {Sigra.MFA, :verify_backup_code},
-    # guides/flows/mfa.md: convenience predicate not currently exposed;
-    # callers check the mfa_credential association directly.
-    {Sigra.MFA, :enrolled?}
-  ]
+  @known_library_drift []
 
   # Generated-host-app helpers that guides reference via the `Sigra.Testing.`
   # prefix for illustrative purposes but which actually live in the
