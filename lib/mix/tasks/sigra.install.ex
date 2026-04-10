@@ -604,18 +604,18 @@ defmodule Mix.Tasks.Sigra.Install do
     ])
   end
 
-  defp api_token_timestamp do
-    # Offset by 1 second from the main migration timestamp to ensure ordering
-    {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
-    ss = min(ss + 1, 59)
-    "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
-  end
+  defp api_token_timestamp, do: offset_timestamp(1)
+  defp audit_migration_timestamp, do: offset_timestamp(2)
 
-  defp audit_migration_timestamp do
-    # Offset by 2 seconds from the main migration timestamp so the audit_events
-    # migration sorts after create_sigra_auth_tables and create_user_api_tokens.
-    {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
-    ss = min(ss + 2, 59)
+  # Generate a migration timestamp offset by `n` seconds from the current UTC
+  # time. Carries into minutes/hours/days via gregorian-seconds arithmetic so
+  # the three Sigra migration timestamps (primary + api_token + audit) never
+  # collide even when the wall clock is near the end of a minute. Previously
+  # used `min(ss + n, 59)` which clamped all offsets to :59 in the last ~3%
+  # of each minute, defeating the intended ordering. Reviewed in 10.1 IN-01.
+  defp offset_timestamp(n) do
+    now_secs = :calendar.datetime_to_gregorian_seconds(:calendar.universal_time())
+    {{y, m, d}, {hh, mm, ss}} = :calendar.gregorian_seconds_to_datetime(now_secs + n)
     "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
   end
 
@@ -719,8 +719,7 @@ defmodule Mix.Tasks.Sigra.Install do
     "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
   end
 
-  defp pad(i) when i < 10, do: <<?0, ?0 + i>>
-  defp pad(i), do: to_string(i)
+  defp pad(i), do: String.pad_leading(to_string(i), 2, "0")
 
   defp print_instructions(opts) do
     Mix.shell().info("""
