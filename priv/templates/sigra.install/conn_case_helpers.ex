@@ -17,9 +17,6 @@ defmodule <%= web_module %>.ConnCaseHelpers do
       config :argon2_elixir, t_cost: 1, m_cost: 8
   """
 
-  alias <%= context_module %>
-  alias <%= context_module %>Fixtures
-
   @doc """
   Sets up the connection with a logged-in user.
 
@@ -35,7 +32,7 @@ defmodule <%= web_module %>.ConnCaseHelpers do
 
   """
   def register_and_log_in_user(%{conn: conn}) do
-    user = Fixtures.user_fixture()
+    user = <%= app_module %>.<%= context_alias %>Fixtures.user_fixture()
     %{conn: log_in_user(conn, user), user: user}
   end
 

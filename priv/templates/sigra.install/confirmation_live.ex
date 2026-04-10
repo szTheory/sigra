@@ -92,7 +92,7 @@ defmodule <%= web_module %>.ConfirmationLive do
   end
 
   def handle_params(%{"token" => token}, _uri, socket) do
-    user = socket.assigns.current_scope.user
+    _user = socket.assigns.current_scope.user
 
     case Auth.confirm_user(token) do
       {:ok, _user} ->
@@ -172,9 +172,6 @@ defmodule <%= web_module %>.ConfirmationLive do
          socket
          |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
          |> redirect(to: ~p"/")}
-
-      {:error, :rate_limited} ->
-        {:noreply, put_flash(socket, :error, dgettext("sigra", "Please wait a few minutes before requesting another email."))}
     end
   end
 
