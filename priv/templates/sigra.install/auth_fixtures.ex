@@ -6,6 +6,9 @@ defmodule <%= context_module %>Fixtures do
   and extracting tokens from delivery functions.
   """
 
+  import Phoenix.ConnTest, only: [build_conn: 0]
+  import <%= web_module %>.ConnCaseHelpers, only: [log_in_user: 2, log_in_user: 3]
+
   alias <%= context_module %>
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
@@ -169,4 +172,104 @@ defmodule <%= context_module %>Fixtures do
       user
     )
   end
+
+  # --- Scenario Fixtures (Phase 10, DX-03) ---
+  #
+  # Named wrappers composing the primitives above. Each returns a
+  # non-uniform map containing only the keys the scenario needs (D-04).
+  # Scenarios representing pre-login or blocked state (mfa_pending,
+  # locked, unconfirmed) deliberately omit :conn (D-07).
+  #
+  # These are UNIT-level helpers — they bypass real CSRF, rate limiting,
+  # and session-renewal flows. Integration tests exercising auth gates
+  # must drive real register/log_in controllers, not these fixtures.
+
+  @doc """
+  Anonymous / unauthenticated scenario. Returns a fresh conn with no
+  session.
+  """
+  def anonymous_fixture do
+    %{conn: build_conn()}
+  end
+
+  @doc """
+  Authenticated scenario. Returns user, session, and a logged-in conn.
+  """
+  def authenticated_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs)
+    session = session_fixture(user)
+    %{user: user, session: session, conn: log_in_user(build_conn(), user)}
+  end
+
+  @doc """
+  MFA-pending scenario. User has TOTP enrolled; session type is
+  `"mfa_pending"`. Caller has NOT yet passed the challenge, so no
+  `:conn` is returned (D-07).
+  """
+  def mfa_pending_fixture(attrs \\ %{}) do
+    mfa_pending_session_fixture(attrs)
+  end
+
+  @doc """
+  MFA-complete scenario. User has TOTP enrolled AND has passed the
+  challenge.
+
+  Phase 6 transitions the session type from `"mfa_pending"` to
+  `"standard"` on successful verification rather than stamping a
+  separate timestamp; this fixture therefore returns a post-transition
+  standard session. Represents post-verification state only — real MFA
+  gate behavior is verified by integration tests that drive the
+  challenge controller.
+  """
+  def mfa_complete_fixture(attrs \\ %{}) do
+    %{user: user, totp_secret: secret} = mfa_user_fixture(attrs)
+    session = session_fixture(user, %{type: "standard"})
+    conn = log_in_user(build_conn(), user)
+    %{user: user, session: session, conn: conn, totp_secret: secret}
+  end
+
+  @doc """
+  Sudo scenario. Authenticated user whose session has a recent
+  `sudo_at`, suitable for testing sensitive operations that require
+  sudo mode.
+  """
+  def sudo_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs)
+    session = sudo_session_fixture(user)
+    %{user: user, session: session, conn: log_in_user(build_conn(), user)}
+  end
+
+  @doc """
+  Locked scenario. User with `failed_login_attempts == 5` and
+  `locked_at` set. No `:conn` — locked users cannot log in (D-07).
+  """
+  def locked_fixture(attrs \\ %{}) do
+    user = attrs |> user_fixture() |> locked_user_fixture()
+    %{user: user}
+  end
+
+  @doc """
+  Unconfirmed scenario. User exists but `confirmed_at` is nil (email
+  not yet confirmed per D-06). No `:conn` (D-07).
+  """
+  def unconfirmed_fixture(attrs \\ %{}) do
+    user = user_fixture(attrs)
+    %{user: user}
+  end
+
+  @doc """
+  Dispatcher for parametric test setup. Accepts one of:
+  `:anonymous | :authenticated | :mfa_pending | :mfa_complete | :sudo | :locked | :unconfirmed`.
+
+  Raises `FunctionClauseError` on any other value, including string
+  scenario names.
+  """
+  def scenario(name, attrs \\ %{})
+  def scenario(:anonymous, _attrs), do: anonymous_fixture()
+  def scenario(:authenticated, attrs), do: authenticated_fixture(attrs)
+  def scenario(:mfa_pending, attrs), do: mfa_pending_fixture(attrs)
+  def scenario(:mfa_complete, attrs), do: mfa_complete_fixture(attrs)
+  def scenario(:sudo, attrs), do: sudo_fixture(attrs)
+  def scenario(:locked, attrs), do: locked_fixture(attrs)
+  def scenario(:unconfirmed, attrs), do: unconfirmed_fixture(attrs)
 end
