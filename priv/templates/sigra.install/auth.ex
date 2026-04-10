@@ -424,8 +424,14 @@ defmodule <%= context_module %> do
     )
   end
 
-  # Legacy API accepting a user struct. Tokens are invalidated in a single
-  # transaction so the caller can create a fresh session after reset (D-29).
+  # Legacy API accepting a user struct. Test-only helper — bypasses the
+  # HMAC signature rewind, audit log row, and telemetry events that the
+  # signed-token clause above emits via `Sigra.Auth.reset_password/4`. Do
+  # NOT call this from controllers; production flows must use the signed
+  # token clause so security signals are preserved (10.1 IN-03). Tokens
+  # are invalidated in a single transaction so the caller can create a
+  # fresh session after reset (D-29).
+  @doc false
   def reset_user_password(%<%= schema_alias %>{} = user, attrs) do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, <%= schema_alias %>.password_changeset(user, attrs))

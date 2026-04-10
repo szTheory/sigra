@@ -58,7 +58,12 @@ defmodule ExampleWeb.ResetPasswordController do
         render(conn, :expired)
 
       user ->
-        case Example.Accounts.reset_user_password(user, password_params) do
+        # 10.1 IN-03: pass the signed `token` (not the user struct) so the
+        # reset routes through `Sigra.Auth.reset_password/4` — which rewinds
+        # the HMAC signature, emits `[:sigra, :reset, :completed]` telemetry,
+        # and writes the `auth.password_reset_complete` audit row. Passing a
+        # user struct would invoke the legacy clause which bypasses all three.
+        case Example.Accounts.reset_user_password(token, password_params) do
           {:ok, _user} ->
             conn
             |> put_flash(:info, dgettext("sigra", "Your password has been reset."))
