@@ -424,16 +424,25 @@ defmodule <%= web_module %>.MFASettingsLive do
 
   def handle_event("validate_enroll", %{"enroll" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code}, as: "enroll")
+    socket = assign(socket, enroll_form: form)
 
-    # Auto-submit when 6 digits entered (D-36)
+    # Auto-submit when 6 digits entered (D-36). 10.1 IN-06 follow-up:
+    # call the confirm path directly instead of dispatching via
+    # `send(self(), …)`. The mailbox round-trip allowed a stale 6-digit
+    # prefix to fire after the user typed a 7th character, wasting an
+    # attempt against the MFA lockout counter.
     if String.length(code) == 6 and Regex.match?(~r/^\d{6}$/, code) do
-      send(self(), {:auto_confirm_enrollment, code})
+      do_confirm_enrollment(socket, code)
+    else
+      {:noreply, socket}
     end
-
-    {:noreply, assign(socket, enroll_form: form)}
   end
 
   def handle_event("confirm_enrollment", %{"enroll" => %{"code" => code}}, socket) do
+    do_confirm_enrollment(socket, code)
+  end
+
+  defp do_confirm_enrollment(socket, code) do
     user = socket.assigns.current_scope.user
     raw_secret = socket.assigns.raw_secret
 
@@ -584,7 +593,4 @@ defmodule <%= web_module %>.MFASettingsLive do
      |> put_flash(:info, "All trusted browsers have been revoked.")}
   end
 
-  def handle_info({:auto_confirm_enrollment, code}, socket) do
-    handle_event("confirm_enrollment", %{"enroll" => %{"code" => code}}, socket)
-  end
 end
