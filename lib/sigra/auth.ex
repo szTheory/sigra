@@ -33,13 +33,23 @@ defmodule Sigra.Auth do
   @doc """
   Normalizes an email address for storage and lookup.
 
-  Trims surrounding whitespace and downcases. Sigra stores emails in a
-  `citext` column so case-insensitive matching is already enforced at the
-  database level, but callers doing in-memory comparisons (login form
-  pre-flight, fixture setup, audit queries) should normalize first.
+  Applies `String.trim/1` (leading/trailing whitespace) then
+  `String.downcase/1`. Sigra stores emails in a `citext` column so
+  case-insensitive matching is already enforced at the database level, but
+  callers doing in-memory comparisons (login form pre-flight, fixture
+  setup, audit queries) should normalize first.
 
   Returns a string on any binary input; passes through `nil` untouched so
   callers can pipe through without nil-guarding.
+
+  ## Scope (RFC 5321 §2.3.4 caveat)
+
+  This function does NOT strip interior whitespace from the local-part.
+  Quoted local-parts with embedded whitespace (extremely rare, technically
+  permitted by RFC 5321 §2.3.4) pass through unchanged. Callers MUST also
+  run `valid_email?/1` — which rejects interior whitespace via regex —
+  before persisting. Passing an unvalidated normalized value straight to a
+  `citext` column is a caller error.
 
   ## Examples
 
@@ -54,6 +64,13 @@ defmodule Sigra.Auth do
 
       iex> Sigra.Auth.normalize_email(nil)
       nil
+
+      # Interior whitespace is retained — run valid_email?/1 to reject.
+      iex> Sigra.Auth.normalize_email("Alice @example.com")
+      "alice @example.com"
+
+      iex> Sigra.Auth.valid_email?("alice @example.com")
+      false
 
   """
   @doc since: "0.10.0"
