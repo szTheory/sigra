@@ -314,11 +314,13 @@ defmodule Example.Accounts do
   Rate-limited to 5 attempts per user per 15 minutes.
   """
   def confirm_user_by_code(%User{} = user, code) when is_binary(code) do
+    # 10.1 IN-05: verify_confirmation_code/3 does NOT read :secret_key_base
+    # (codes are hashed and looked up directly, no signed token round-trip).
+    # Do not add it back unless the library signature changes.
     Sigra.Auth.verify_confirmation_code(Repo, code,
       user_id: user.id,
       user_schema: User,
-      user_token_schema: UserToken,
-      secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base)
+      user_token_schema: UserToken
     )
   end
 
