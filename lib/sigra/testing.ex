@@ -1171,9 +1171,15 @@ defmodule Sigra.Testing do
     Enum.each(expected, fn
       {:metadata, expected_meta} when is_map(expected_meta) ->
         Enum.each(expected_meta, fn {k, v} ->
+          metadata = event.metadata || %{}
+          string_key = to_string(k)
+
           actual =
-            Map.get(event.metadata || %{}, to_string(k)) ||
-              Map.get(event.metadata || %{}, k)
+            cond do
+              Map.has_key?(metadata, string_key) -> Map.get(metadata, string_key)
+              Map.has_key?(metadata, k) -> Map.get(metadata, k)
+              true -> nil
+            end
 
           unless actual == v do
             raise ExUnit.AssertionError,
