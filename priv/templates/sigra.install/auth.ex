@@ -123,6 +123,7 @@ defmodule <%= context_module %> do
   def request_magic_link(email, url_fun) when is_binary(email) and is_function(url_fun, 1) do
     SigraAuth.request_magic_link(Repo, email,
       user_schema: <%= schema_alias %>,
+      user_token_schema: UserToken,
       url_fun: url_fun
     )
   end
@@ -334,6 +335,7 @@ defmodule <%= context_module %> do
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
     case Sigra.Auth.request_password_reset(Repo, email,
       user_schema: <%= schema_alias %>,
+      user_token_schema: UserToken,
       secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
       url_fun: reset_password_url_fun
     ) do
@@ -420,15 +422,8 @@ defmodule <%= context_module %> do
     )
   end
 
-  @doc """
-  Resets the user password (legacy API accepting user struct).
-
-  ## Examples
-
-      iex> reset_user_password(user, %{password: "new long password", password_confirmation: "new long password"})
-      {:ok, %<%= schema_alias %>{}}
-
-  """
+  # Legacy API accepting a user struct. Tokens are invalidated in a single
+  # transaction so the caller can create a fresh session after reset (D-29).
   def reset_user_password(%<%= schema_alias %>{} = user, attrs) do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, <%= schema_alias %>.password_changeset(user, attrs))

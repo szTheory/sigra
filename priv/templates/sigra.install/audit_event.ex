@@ -17,7 +17,6 @@ defmodule <%= context_module %>.AuditEvent do
   """
 
   use Ecto.Schema
-  import Ecto.Changeset
 <%= if binary_id do %>
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id

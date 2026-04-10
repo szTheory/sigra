@@ -41,7 +41,7 @@ defmodule <%= context_module %>.UserToken do
   sessions and devices in the UI and allow users to
   explicitly expire any session they deem invalid.
   """
-  def build_session_token(user) do
+  def build_session_token(user, _opts \\ []) do
     token = :crypto.strong_rand_bytes(32)
     authenticated_at = DateTime.utc_now() |> DateTime.truncate(:second)
 

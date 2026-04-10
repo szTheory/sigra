@@ -189,7 +189,12 @@ defmodule Mix.Tasks.Sigra.Install do
       # Phase 9: Audit log schema and migration
       {:eex, "create_audit_events.exs", audit_migration_path},
       {:eex, "audit_event.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "audit_event.ex"])}
+       Path.join(["lib", otp_app_str, context_underscore, "audit_event.ex"])},
+      # Phase 10.1: Encrypted.Binary passthrough stub (replaces Cloak.Vault binding)
+      {:eex, "encrypted.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "encrypted.ex"])},
+      # Phase 10.1: Swoosh mailer wrapper (skipped if host already has one)
+      {:eex, "mailer.ex", Path.join(["lib", otp_app_str, "mailer.ex"])}
     ]
 
     # Check if API token migration already exists (prevent duplicates on re-run)

@@ -11,8 +11,6 @@ defmodule <%= web_module %>.ResetPasswordLive do
   """
   use <%= web_module %>, :live_view
 
-  alias <%= context_module %>
-
   def render(%{live_action: :new} = assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
