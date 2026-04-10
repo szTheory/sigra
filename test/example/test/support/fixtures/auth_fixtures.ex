@@ -75,7 +75,10 @@ defmodule Example.AccountsFixtures do
   """
   def locked_user_fixture(user) do
     user
-    |> Ecto.Changeset.change(%{failed_login_attempts: 5, locked_at: DateTime.utc_now()})
+    |> Ecto.Changeset.change(%{
+      failed_login_attempts: 5,
+      locked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+    })
     |> Example.Repo.update!()
   end
 

@@ -12,6 +12,11 @@ defmodule Sigra.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      # Exclude test/example/ -- it is a completely separate Mix project
+      # (plan 10-06) with its own deps and test suite. Root `mix test`
+      # must not walk into it (test/example/_build contains EEx template
+      # files that would fail to compile under the library test task).
+      test_load_filters: [~r"^test/(?!example/)"],
       name: "Sigra",
       description: "Comprehensive authentication library for Phoenix 1.8+",
       source_url: @source_url,

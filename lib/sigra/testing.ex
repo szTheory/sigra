@@ -287,14 +287,16 @@ defmodule Sigra.Testing do
 
     codes = Sigra.MFA.BackupCodes.generate(backup_count)
 
+    # Generated UserBackupCode schema uses `timestamps(updated_at: false)`,
+    # so only :inserted_at is a writable field. Including :updated_at here
+    # raises on insert_all.
     entries =
       Enum.map(codes, fn {_formatted, hashed} ->
         %{
           user_id: user.id,
           hashed_code: hashed,
           used_at: nil,
-          inserted_at: now,
-          updated_at: now
+          inserted_at: now
         }
       end)
 
@@ -345,14 +347,16 @@ defmodule Sigra.Testing do
     codes = Sigra.MFA.BackupCodes.generate(count)
     now = DateTime.utc_now()
 
+    # Generated UserBackupCode schema uses `timestamps(updated_at: false)`,
+    # so only :inserted_at is a writable field. Including :updated_at here
+    # raises on insert_all.
     entries =
       Enum.map(codes, fn {_formatted, hashed} ->
         %{
           user_id: user.id,
           hashed_code: hashed,
           used_at: nil,
-          inserted_at: now,
-          updated_at: now
+          inserted_at: now
         }
       end)
 
