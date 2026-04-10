@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: blocked_on_example_app_bugs
-stopped_at: UAT session — .planning/v1.0-UAT-RESULTS.md written, 7 DX bugs found in test/example (3 fixed uncommitted, 4 open)
-last_updated: "2026-04-10T23:35:00.000Z"
+status: executing
+stopped_at: Phase 10.1.1 context gathered
+last_updated: "2026-04-10T23:56:02.273Z"
 last_activity: 2026-04-10
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 11
   total_plans: 52
   completed_plans: 52
@@ -78,6 +78,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 10.1 inserted after Phase 10: Installer and library fixes — deferred items from phase 10 review/security/validation (URGENT)
+- Phase 10.1.1 inserted after Phase 10.1: example-app repair + CI install/usage smoke harness — 9 DX bugs found during v1.0 UAT session, see .planning/v1.0-UAT-RESULTS.md (URGENT, v1.0 blocker)
 
 ### Pending Todos
 
@@ -91,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-09T23:55:13.517Z
-Stopped at: Phase 10 context gathered
-Resume file: .planning/phases/10-developer-experience/10-CONTEXT.md
+Last session: 2026-04-10T23:56:02.267Z
+Stopped at: Phase 10.1.1 context gathered
+Resume file: .planning/phases/10.1.1-example-app-repair-ci-install-usage-smoke-harness/10.1.1-CONTEXT.md
