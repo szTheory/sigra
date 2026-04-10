@@ -269,11 +269,12 @@ defmodule Sigra.Templates.SessionTemplatesTest do
     end
 
     test "remember-me has secure flag", %{content: content} do
-      # Phase 10 D-09: remember_me_options is resolved at runtime; the :secure
-      # flag is injected via Keyword.put. Mix.env/0 is guarded with
-      # function_exported?/3 so the template is release-safe (mix is not
-      # loaded inside a production release). See REVIEW CR-01.
-      assert content =~ "function_exported?(Mix, :env, 0)"
+      # Phase 10 D-09 + Phase 10.1-04: remember_me_options is resolved at
+      # runtime; the :secure flag is injected via Keyword.put. Environment is
+      # read through `Sigra.Env.current/0` (release-safe helper that does not
+      # depend on Mix being loaded — :mix is excluded from production releases
+      # by design). See Phase 10.1-04 summary and REVIEW CR-01.
+      assert content =~ "Sigra.Env.current()"
       assert content =~ ":secure, env == :prod"
     end
   end
