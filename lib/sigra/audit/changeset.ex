@@ -53,7 +53,7 @@ defmodule Sigra.Audit.Changeset do
   Options:
 
     * `:allow_reserved` — when `true`, skips the reserved-prefix check (used
-      by `Sigra.Audit.__log_internal__/3` only). Default: `false`.
+      by `Sigra.Audit`'s internal `__log_internal__` writer only). Default: `false`.
     * `:max_metadata_bytes` — cap on JSON-encoded metadata byte size.
       Default: `8_192`.
     * `:reserved_prefixes` — override the default reserved prefix list.

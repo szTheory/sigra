@@ -81,6 +81,7 @@ defmodule Sigra.MixProject do
       formatters: ["html"],
       extras: [
         "README.md",
+        "LICENSE",
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",

@@ -12,7 +12,7 @@ defmodule Sigra.OAuth.Strategies.Github do
   @doc """
   Generates the authorization URL for GitHub OAuth.
 
-  Delegates to `Assent.Strategy.Github.authorize_url/1` with merged config.
+  Delegates to `Assent.Strategy.Github`'s `authorize_url` function with merged config.
   """
   @doc since: "0.1.0"
   @spec authorize_url(keyword()) :: {:ok, map()} | {:error, term()}
@@ -25,7 +25,7 @@ defmodule Sigra.OAuth.Strategies.Github do
   @doc """
   Handles the OAuth callback from GitHub.
 
-  Delegates to `Assent.Strategy.Github.callback/2` and normalizes the user info.
+  Delegates to `Assent.Strategy.Github`'s `callback` function and normalizes the user info.
   """
   @doc since: "0.1.0"
   @spec callback(keyword(), map(), map()) :: {:ok, map(), map()} | {:error, term()}

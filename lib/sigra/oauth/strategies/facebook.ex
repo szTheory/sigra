@@ -15,7 +15,7 @@ defmodule Sigra.OAuth.Strategies.Facebook do
   @doc """
   Generates the authorization URL for Facebook OAuth.
 
-  Delegates to `Assent.Strategy.Facebook.authorize_url/1` with merged config.
+  Delegates to `Assent.Strategy.Facebook`'s `authorize_url` function with merged config.
   """
   @doc since: "0.1.0"
   @spec authorize_url(keyword()) :: {:ok, map()} | {:error, term()}
@@ -28,7 +28,7 @@ defmodule Sigra.OAuth.Strategies.Facebook do
   @doc """
   Handles the OAuth callback from Facebook.
 
-  Delegates to `Assent.Strategy.Facebook.callback/2` and normalizes the user info.
+  Delegates to `Assent.Strategy.Facebook`'s `callback` function and normalizes the user info.
   """
   @doc since: "0.1.0"
   @spec callback(keyword(), map(), map()) :: {:ok, map(), map()} | {:error, term()}

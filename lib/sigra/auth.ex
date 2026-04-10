@@ -132,7 +132,7 @@ defmodule Sigra.Auth do
     Telemetry.span([:sigra, :auth, :register], %{}, fn ->
       changeset = changeset_fn.(attrs)
 
-      # D-26: audit integration. Uses Sigra.Audit.log_safe/3 (standalone, D-28)
+      # D-26: audit integration. Uses Sigra.Audit.log_safe/2 (standalone, D-28)
       # which no-ops if the host app has not configured :audit_schema, so
       # callers without audit config see unchanged behaviour. When audit is
       # enabled, the audit row is written in its own transaction after the
@@ -185,7 +185,7 @@ defmodule Sigra.Auth do
   # --- Audit integration helpers (Plan 09-03) ---
   #
   # The audit layer is opt-in: if the host app has not configured an audit
-  # schema, log_safe/3 no-ops. All integration sites pull opts from either
+  # schema, log_safe/2 no-ops. All integration sites pull opts from either
   # the per-call keyword list (non-config API) or from %Sigra.Config{} when
   # available. Reserved-prefix guard is bypassed for internal callers.
   #
@@ -354,7 +354,7 @@ defmodule Sigra.Auth do
           {:error, :invalid} ->
             if user do
               # D-26 + D-28: login failure is a standalone audit write.
-              # The call site uses Sigra.Audit.log_safe/3 (internal variant
+              # The call site uses Sigra.Audit.log_safe/2 (internal variant
               # that bypasses reserved-prefix guards for library-owned
               # actions). The equivalent developer-facing entry point is
               # `Sigra.Audit.log(action, opts)` for non-reserved actions.

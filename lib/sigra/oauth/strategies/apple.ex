@@ -14,7 +14,7 @@ defmodule Sigra.OAuth.Strategies.Apple do
   @doc """
   Generates the authorization URL for Apple OAuth.
 
-  Delegates to `Assent.Strategy.Apple.authorize_url/1` with merged config.
+  Delegates to `Assent.Strategy.Apple`'s `authorize_url` function with merged config.
   """
   @doc since: "0.1.0"
   @spec authorize_url(keyword()) :: {:ok, map()} | {:error, term()}
@@ -27,7 +27,7 @@ defmodule Sigra.OAuth.Strategies.Apple do
   @doc """
   Handles the OAuth callback from Apple.
 
-  Delegates to `Assent.Strategy.Apple.callback/2` and normalizes the user info.
+  Delegates to `Assent.Strategy.Apple`'s `callback` function and normalizes the user info.
   """
   @doc since: "0.1.0"
   @spec callback(keyword(), map(), map()) :: {:ok, map(), map()} | {:error, term()}

@@ -10,8 +10,8 @@ defmodule Sigra.RateLimiters.Hammer do
   ## Hammer 7.x API
 
   Hammer 7.x uses `hit(key, scale_ms, limit)` -- note that the window (scale)
-  comes before the limit. This wrapper adapts the `Sigra.RateLimiter.check_rate/3`
-  signature `(key, limit, window_ms)` to the correct Hammer parameter order.
+  comes before the limit. This wrapper adapts the `Sigra.RateLimiter` `check_rate/3`
+  callback signature `(key, limit, window_ms)` to the correct Hammer parameter order.
 
   ## Fail-Open Behavior
 

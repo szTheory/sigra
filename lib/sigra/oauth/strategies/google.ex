@@ -11,7 +11,7 @@ defmodule Sigra.OAuth.Strategies.Google do
   @doc """
   Generates the authorization URL for Google OAuth.
 
-  Delegates to `Assent.Strategy.Google.authorize_url/1` with merged config.
+  Delegates to `Assent.Strategy.Google`'s `authorize_url` function with merged config.
   """
   @doc since: "0.1.0"
   @spec authorize_url(keyword()) :: {:ok, map()} | {:error, term()}
@@ -24,7 +24,7 @@ defmodule Sigra.OAuth.Strategies.Google do
   @doc """
   Handles the OAuth callback from Google.
 
-  Delegates to `Assent.Strategy.Google.callback/2` and normalizes the user info.
+  Delegates to `Assent.Strategy.Google`'s `callback` function and normalizes the user info.
   """
   @doc since: "0.1.0"
   @spec callback(keyword(), map(), map()) :: {:ok, map(), map()} | {:error, term()}

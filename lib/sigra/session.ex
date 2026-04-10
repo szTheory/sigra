@@ -7,13 +7,13 @@ defmodule Sigra.Session do
   The audit events for session lifecycle operations are emitted from
   `Sigra.Auth` (which owns session orchestration in this codebase):
 
-    * `session.create` — via `Sigra.Audit.log_safe/3` in `Sigra.Auth.create_session/4`
+    * `session.create` — via `Sigra.Audit.log_safe/2` in `Sigra.Auth.create_session/4`
     * `session.delete` — via `Sigra.Audit` in `Sigra.Auth.delete_session/3`
     * `session.revoke_all` — via `Sigra.Audit` in `Sigra.Auth.delete_all_sessions/3`
     * `session.sudo_enter` / `session.sudo_expire` — split by result
-      in `Sigra.Auth.confirm_sudo/3` via `Sigra.Audit.log_safe/3`
+      in `Sigra.Auth.confirm_sudo/3` via `Sigra.Audit.log_safe/2`
 
-  See `Sigra.Audit` and `Sigra.Audit.__log_internal__/3` for the
+  See `Sigra.Audit` and its `__log_internal__` private writer for the
   library-internal write path.
 
 
