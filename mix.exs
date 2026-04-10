@@ -70,7 +70,7 @@ defmodule Sigra.MixProject do
 
   defp docs do
     [
-      main: "readme",
+      main: "getting-started",
       source_ref: "v#{@version}",
       source_url: @source_url,
       formatters: ["html"],
