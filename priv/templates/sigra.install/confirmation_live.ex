@@ -121,15 +121,25 @@ defmodule <%= web_module %>.ConfirmationLive do
 
   def handle_event("validate", %{"confirmation" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code}, as: "confirmation")
+    socket = assign(socket, form: form)
 
+    # 10.1 IN-06: call the confirm path directly when the user has typed a
+    # full 6-digit code instead of dispatching via `send(self(), …)`. The
+    # mailbox round-trip allowed a stale 6-digit prefix to fire after the
+    # user typed a 7th character, wasting an attempt against the rate
+    # limiter's max_code_attempts counter.
     if String.length(code) == 6 and Regex.match?(~r/^\d{6}$/, code) do
-      send(self(), {:auto_confirm, code})
+      do_confirm(socket, code)
+    else
+      {:noreply, socket}
     end
-
-    {:noreply, assign(socket, form: form)}
   end
 
   def handle_event("confirm", %{"confirmation" => %{"code" => code}}, socket) do
+    do_confirm(socket, code)
+  end
+
+  defp do_confirm(socket, code) do
     user = socket.assigns.current_scope.user
 
     case Auth.confirm_user_by_code(user, code) do
@@ -173,9 +183,5 @@ defmodule <%= web_module %>.ConfirmationLive do
          |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
          |> redirect(to: ~p"/")}
     end
-  end
-
-  def handle_info({:auto_confirm, code}, socket) do
-    handle_event("confirm", %{"confirmation" => %{"code" => code}}, socket)
   end
 end
