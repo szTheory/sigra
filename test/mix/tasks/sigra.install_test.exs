@@ -179,8 +179,11 @@ defmodule Mix.Tasks.Sigra.InstallTest do
     test "renders fixtures template" do
       binding = [
         context_module: "MyApp.Accounts",
+        context_alias: "Accounts",
         schema_alias: "User",
-        repo_module: "MyApp.Repo"
+        repo_module: "MyApp.Repo",
+        web_module: "MyAppWeb",
+        app_module: "MyApp"
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "auth_fixtures.ex"])
@@ -194,8 +197,11 @@ defmodule Mix.Tasks.Sigra.InstallTest do
     test "renders fixtures template with Phase 4 session fixtures" do
       binding = [
         context_module: "MyApp.Accounts",
+        context_alias: "Accounts",
         schema_alias: "User",
-        repo_module: "MyApp.Repo"
+        repo_module: "MyApp.Repo",
+        web_module: "MyAppWeb",
+        app_module: "MyApp"
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "auth_fixtures.ex"])
@@ -278,7 +284,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
     test "renders conn_case_helpers with session type options" do
       binding = [
         web_module: "MyAppWeb",
-        context_module: "MyApp.Accounts"
+        context_module: "MyApp.Accounts",
+        context_alias: "Accounts",
+        app_module: "MyApp"
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "conn_case_helpers.ex"])
