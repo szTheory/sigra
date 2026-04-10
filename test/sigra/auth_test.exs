@@ -320,7 +320,7 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-      |> expect(:insert!, fn %{token: _, context: "magic_link", sent_to: "user@example.com", user_id: 1} -> :ok end)
+      |> expect(:insert!, fn %TestUserToken{token: _, context: "magic_link", sent_to: "user@example.com", user_id: 1} = s -> s end)
 
       url_fun = fn token -> "https://example.com/magic/#{token}" end
 
@@ -329,6 +329,7 @@ defmodule Sigra.AuthTest do
           Sigra.MockRepo,
           "user@example.com",
           user_schema: TestUser,
+          user_token_schema: TestUserToken,
           url_fun: url_fun
         )
 
@@ -347,6 +348,7 @@ defmodule Sigra.AuthTest do
           Sigra.MockRepo,
           "nobody@example.com",
           user_schema: TestUser,
+          user_token_schema: TestUserToken,
           url_fun: fn _t -> "" end
         )
 
@@ -367,6 +369,7 @@ defmodule Sigra.AuthTest do
           Sigra.MockRepo,
           "user@example.com",
           user_schema: TestUser,
+          user_token_schema: TestUserToken,
           url_fun: fn _t -> "" end,
           rate_limiter: Sigra.MockRateLimiter
         )
@@ -718,7 +721,7 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-      |> expect(:insert!, fn token_struct ->
+      |> expect(:insert!, fn %TestUserToken{} = token_struct ->
         assert token_struct.context == "reset_password"
         assert token_struct.user_id == 1
         assert is_binary(token_struct.token)
@@ -730,6 +733,7 @@ defmodule Sigra.AuthTest do
       result =
         Auth.request_password_reset(Sigra.MockRepo, "user@example.com",
           user_schema: TestUser,
+          user_token_schema: TestUserToken,
           secret_key_base: @secret_key_base,
           url_fun: url_fun
         )
@@ -746,6 +750,7 @@ defmodule Sigra.AuthTest do
       result =
         Auth.request_password_reset(Sigra.MockRepo, "nobody@example.com",
           user_schema: TestUser,
+          user_token_schema: TestUserToken,
           secret_key_base: @secret_key_base,
           url_fun: fn _t -> "" end
         )
@@ -765,6 +770,7 @@ defmodule Sigra.AuthTest do
       result =
         Auth.request_password_reset(Sigra.MockRepo, "user@example.com",
           user_schema: TestUser,
+          user_token_schema: TestUserToken,
           secret_key_base: @secret_key_base,
           url_fun: fn _t -> "" end,
           rate_limiter: Sigra.MockRateLimiter
