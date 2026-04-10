@@ -123,6 +123,7 @@ defmodule Example.Accounts do
   def request_magic_link(email, url_fun) when is_binary(email) and is_function(url_fun, 1) do
     SigraAuth.request_magic_link(Repo, email,
       user_schema: User,
+      user_token_schema: UserToken,
       url_fun: url_fun
     )
   end
@@ -334,6 +335,7 @@ defmodule Example.Accounts do
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
     case Sigra.Auth.request_password_reset(Repo, email,
       user_schema: User,
+      user_token_schema: UserToken,
       secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
       url_fun: reset_password_url_fun
     ) do
