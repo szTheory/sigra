@@ -78,11 +78,6 @@ defmodule <%= web_module %>.ConfirmationController do
         conn
         |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
         |> redirect(to: ~p"/")
-
-      {:error, :rate_limited} ->
-        conn
-        |> put_flash(:error, dgettext("sigra", "Please wait a few minutes before requesting another email."))
-        |> redirect(to: ~p"/users/confirm")
     end
   end
 end

@@ -9,8 +9,6 @@ defmodule <%= web_module %>.ResetPasswordController do
   """
   use <%= web_module %>, :controller
 
-  alias <%= context_module %>
-
   @doc """
   Renders the "request reset" form where the user enters their email.
   """

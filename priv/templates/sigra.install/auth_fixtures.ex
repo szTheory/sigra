@@ -7,7 +7,7 @@ defmodule <%= context_module %>Fixtures do
   """
 
   import Phoenix.ConnTest, only: [build_conn: 0]
-  import <%= web_module %>.ConnCaseHelpers, only: [log_in_user: 2, log_in_user: 3]
+  import <%= web_module %>.ConnCaseHelpers, only: [log_in_user: 2]
 
   alias <%= context_module %>
 
@@ -75,7 +75,10 @@ defmodule <%= context_module %>Fixtures do
   """
   def locked_user_fixture(user) do
     user
-    |> Ecto.Changeset.change(%{failed_login_attempts: 5, locked_at: DateTime.utc_now()})
+    |> Ecto.Changeset.change(%{
+      failed_login_attempts: 5,
+      locked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+    })
     |> <%= repo_module %>.update!()
   end
 
@@ -96,9 +99,9 @@ defmodule <%= context_module %>Fixtures do
   """
   def mfa_user_fixture(attrs \\ %{}) do
     user = user_fixture(attrs)
-    config = Auth.sigra_config()
+    config = <%= context_alias %>.sigra_config()
 
-    %{totp_secret: secret, backup_codes: codes} =
+    %{secret: secret, backup_codes: codes} =
       Sigra.Testing.setup_totp(user,
         config: config,
         mfa_credential_schema: <%= context_module %>.UserMFACredential,
@@ -127,7 +130,7 @@ defmodule <%= context_module %>Fixtures do
   """
   def mfa_locked_fixture(attrs \\ %{}) do
     %{user: user} = mfa_user_fixture(attrs)
-    config = Auth.sigra_config()
+    config = <%= context_alias %>.sigra_config()
 
     credential =
       Sigra.Testing.simulate_mfa_lockout(user,

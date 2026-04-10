@@ -82,6 +82,7 @@ defmodule Mix.Tasks.Sigra.Install do
 
     binding = [
       context_module: inspect(Module.concat([base, context_name])),
+      context_alias: context_name,
       schema_module: inspect(Module.concat([base, context_name, schema_name])),
       schema_alias: schema_name,
       table_name: table_name,
@@ -189,7 +190,12 @@ defmodule Mix.Tasks.Sigra.Install do
       # Phase 9: Audit log schema and migration
       {:eex, "create_audit_events.exs", audit_migration_path},
       {:eex, "audit_event.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "audit_event.ex"])}
+       Path.join(["lib", otp_app_str, context_underscore, "audit_event.ex"])},
+      # Phase 10.1: Encrypted.Binary passthrough stub (replaces Cloak.Vault binding)
+      {:eex, "encrypted.ex",
+       Path.join(["lib", otp_app_str, context_underscore, "encrypted.ex"])},
+      # Phase 10.1: Swoosh mailer wrapper (skipped if host already has one)
+      {:eex, "mailer.ex", Path.join(["lib", otp_app_str, "mailer.ex"])}
     ]
 
     # Check if API token migration already exists (prevent duplicates on re-run)
@@ -253,7 +259,12 @@ defmodule Mix.Tasks.Sigra.Install do
           {:eex, "mfa_challenge_live.ex",
            Path.join(["lib", "#{otp_app_str}_web", "live", "mfa_challenge_live.ex"])},
           {:eex, "mfa_settings_live.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "live", "mfa_settings_live.ex"])}
+           Path.join(["lib", "#{otp_app_str}_web", "live", "mfa_settings_live.ex"])},
+          # Phase 8: Account lifecycle LiveView pages
+          {:eex, "settings_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "settings_live.ex"])},
+          {:eex, "reactivation_live.ex",
+           Path.join(["lib", "#{otp_app_str}_web", "live", "reactivation_live.ex"])}
         ]
       else
         [
@@ -401,6 +412,18 @@ defmodule Mix.Tasks.Sigra.Install do
           ""
         end
 
+      # Account lifecycle routes (settings + reactivation) — LiveView only
+      account_lifecycle_routes =
+        if binding[:live] do
+          """
+
+              live "/settings", SettingsLive, :edit
+              live "/reactivation", ReactivationLive
+          """
+        else
+          ""
+        end
+
       router_plug_code = """
         # Sigra authentication
         import #{web_module}.UserAuth
@@ -429,7 +452,7 @@ defmodule Mix.Tasks.Sigra.Install do
           pipe_through [:browser, :require_authenticated]
 
           delete "/log_out", SessionController, :delete
-      #{session_management_routes}#{sudo_routes}#{mfa_settings_routes}
+      #{session_management_routes}#{sudo_routes}#{mfa_settings_routes}#{account_lifecycle_routes}
         end
       """
 

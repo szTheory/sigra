@@ -10,6 +10,7 @@ defmodule <%= web_module %>.UserAuth do
 
   import Plug.Conn
   import Phoenix.Controller
+  use Gettext, backend: <%= web_module %>.Gettext
 
   alias <%= context_module %>.Scope
 
