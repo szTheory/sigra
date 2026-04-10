@@ -28,11 +28,31 @@ defmodule Sigra.MFA.Trust do
   def cookie_name, do: @cookie_name
 
   @doc """
-  Returns the default trust cookie options.
+  Returns the default trust cookie options (domain-unaware).
+
+  Deprecated in favor of `cookie_opts/1`, which honors
+  `Sigra.Config.:cookie_domain`. Retained as a shim for backwards
+  compatibility.
   """
   @doc since: "0.6.0"
+  @doc deprecated: "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored."
+  @deprecated "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored."
   @spec cookie_opts() :: keyword()
   def cookie_opts, do: @cookie_opts
+
+  @doc """
+  Returns remember-me cookie options honoring `:cookie_domain` from the given config.
+
+  When `config.cookie_domain` is `nil`, returns the base host-only options.
+  When it is a binary (e.g., `".example.com"`), appends `domain: <value>`.
+  """
+  @doc since: "0.10.0"
+  @spec cookie_opts(Sigra.Config.t()) :: keyword()
+  def cookie_opts(%Sigra.Config{cookie_domain: nil}), do: @cookie_opts
+
+  def cookie_opts(%Sigra.Config{cookie_domain: domain}) when is_binary(domain) do
+    Keyword.put(@cookie_opts, :domain, domain)
+  end
 
   @doc """
   Signs a trust cookie for the given user and epoch.

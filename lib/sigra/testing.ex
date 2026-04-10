@@ -479,13 +479,15 @@ defmodule Sigra.Testing do
     trust_epoch = Keyword.get(opts, :trust_epoch, 0)
     trust_ttl = Keyword.get(opts, :trust_ttl, 2_592_000)
 
+    config = Keyword.get(opts, :config, %Sigra.Config{})
+
     cookie_value = Sigra.MFA.Trust.sign(secret_key_base, user.id, trust_epoch, trust_ttl)
 
     Plug.Conn.put_resp_cookie(
       conn,
       Sigra.MFA.Trust.cookie_name(),
       cookie_value,
-      Sigra.MFA.Trust.cookie_opts() ++ [max_age: trust_ttl]
+      Sigra.MFA.Trust.cookie_opts(config) ++ [max_age: trust_ttl]
     )
   end
 

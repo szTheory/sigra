@@ -65,7 +65,9 @@ defmodule Sigra.CookieDomainTest do
 
   describe "Sigra.MFA.Trust.cookie_opts/0 (deprecated shim)" do
     test "still returns base opts without :domain" do
-      opts = Trust.cookie_opts()
+      # Call via apply/3 to exercise the deprecated shim without tripping
+      # compile-time deprecation warnings (warnings-as-errors in CI).
+      opts = apply(Trust, :cookie_opts, [])
       refute Keyword.has_key?(opts, :domain)
       assert opts[:http_only] == true
     end

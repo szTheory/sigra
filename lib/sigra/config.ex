@@ -575,6 +575,25 @@ defmodule Sigra.Config do
       default: nil,
       doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."
     ],
+    cookie_domain: [
+      type: {:or, [:string, nil]},
+      default: nil,
+      doc: """
+      The cookie domain applied to Sigra-managed cookies (remember-me, MFA trust).
+
+      Set to `nil` (the default) for host-only cookies — suitable for dev, test, and
+      single-domain prod deployments. Set to a string like `".example.com"` for
+      subdomain auth (recognized by `app.example.com`, `api.example.com`, etc.).
+
+      Recommended prod pattern:
+
+          config :my_app, MyApp.Auth.Config,
+            cookie_domain: System.get_env("COOKIE_DOMAIN")
+
+      A `Logger.warning` is emitted at application boot in the `:prod` environment
+      if this value is nil. See `guides/recipes/subdomain-auth.md`.
+      """
+    ],
     mfa: [
       type: :keyword_list,
       default: [],
@@ -1223,6 +1242,7 @@ defmodule Sigra.Config do
           secret_key_base: String.t() | nil,
           mailer: module() | nil,
           email_module: module() | nil,
+          cookie_domain: String.t() | nil,
           password: keyword(),
           password_policy: keyword(),
           magic_link: keyword(),
@@ -1253,6 +1273,7 @@ defmodule Sigra.Config do
     :secret_key_base,
     :mailer,
     :email_module,
+    cookie_domain: nil,
     password: [],
     password_policy: [],
     magic_link: [],

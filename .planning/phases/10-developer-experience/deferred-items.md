@@ -12,3 +12,4 @@ phase.
   (auth_fixtures template is not compiled by the library). Likely
   targeted by plan 10-03 (cookie_domain config) since that plan
   threads `%Sigra.Config{}` through cookie builders.
+- 2026-04-09 (10-03): Pre-existing test failures unrelated to 10-03 — Sigra.Audit.CursorPortabilityTest paginate cursor, Mix.Tasks.Sigra.InstallTest template rendering (fixtures). Confirmed pre-existing via stash bisect. Out of scope for cookie_domain plan.
