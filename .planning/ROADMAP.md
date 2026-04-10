@@ -12,16 +12,17 @@ Sigra is built in ten focused phases, each delivering a coherent, verifiable cap
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Establish hybrid lib+generator architecture, data layer, config, telemetry skeleton, and install generator scaffold
-- [ ] **Phase 2: Core Auth** - Email/password registration, login, logout, Argon2id hashing, and password policies
-- [ ] **Phase 3: Email Flows and Transactional Email** - Email confirmation, password reset, mailer behaviour, Swoosh templates, and Oban async delivery
-- [ ] **Phase 4: Session Management and Security Baseline** - Database-backed sessions, remember-me, revocation, timeouts, lockout, rate limiting, and suspicious login
-- [ ] **Phase 5: OAuth and Social Login** - Assent integration, tier 1-2 providers, account linking, user_identities, and OAuth token storage
-- [ ] **Phase 6: Multi-Factor Authentication** - TOTP full lifecycle, backup codes, trust-this-browser, MFA enforcement, and rate limiting
-- [ ] **Phase 7: API Authentication** - Bearer tokens, personal access tokens, JWT, dual-mode plug, and headless mode
-- [ ] **Phase 8: Account Lifecycle** - Email change, password change, account deletion, profile hooks, and sudo/re-authentication
-- [ ] **Phase 9: Audit Logging** - Security event table, event capture for all auth operations, queryable API, and custom hooks
+- [x] **Phase 1: Foundation** - Establish hybrid lib+generator architecture, data layer, config, telemetry skeleton, and install generator scaffold (completed 2026-04-05)
+- [x] **Phase 2: Core Auth** - Email/password registration, login, logout, Argon2id hashing, and password policies (completed 2026-04-06)
+- [x] **Phase 3: Email Flows and Transactional Email** - Email confirmation, password reset, mailer behaviour, Swoosh templates, and Oban async delivery (completed 2026-04-07)
+- [x] **Phase 4: Session Management and Security Baseline** - Database-backed sessions, remember-me, revocation, timeouts, lockout, rate limiting, and suspicious login (completed 2026-04-08)
+- [x] **Phase 5: OAuth and Social Login** - Assent integration, tier 1-2 providers, account linking, user_identities, and OAuth token storage (completed 2026-04-08)
+- [x] **Phase 6: Multi-Factor Authentication** - TOTP full lifecycle, backup codes, trust-this-browser, MFA enforcement, and rate limiting (completed 2026-04-08)
+- [x] **Phase 7: API Authentication** - Bearer tokens, personal access tokens, JWT, dual-mode plug, and headless mode (completed 2026-04-09)
+- [x] **Phase 8: Account Lifecycle** - Email change, password change, account deletion, profile hooks, and sudo/re-authentication (completed 2026-04-08)
+- [x] **Phase 9: Audit Logging** - Security event table, event capture for all auth operations, queryable API, and custom hooks (completed 2026-04-09)
 - [x] **Phase 10: Developer Experience** - Testing helpers, scenario fixtures, cookie config, and documentation (completed 2026-04-10)
+- [x] **Phase 10.1: Installer and Library Fixes** - Remediation: AR-10-01/02 plain-map insert DoS fixes, 16 installer template backports, docs gate, supply-chain SHA-pinning, Env helper, pre-existing test fixes (completed 2026-04-10)
 
 ## Phase Details
 
