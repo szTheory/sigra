@@ -9,6 +9,31 @@ This runbook walks through the **19 human verification items** the per-phase ver
 
 ## 0. Bring up the environment
 
+### Homebrew Postgres port-5432 collision (macOS)
+
+If you have `postgresql@14` installed via Homebrew, it may already be bound to
+`127.0.0.1:5432` and will collide with the Docker Postgres container that
+`scripts/uat/up.sh` starts. Check and stop it first:
+
+```bash
+lsof -i :5432  # should be empty; if brew postgres is listed, stop it:
+brew services stop postgresql@14
+scripts/uat/up.sh
+```
+
+After the UAT session, restore the Homebrew Postgres if you use it for other
+projects:
+
+```bash
+scripts/uat/down.sh
+brew services start postgresql@14
+```
+
+Discovered during the v1.0 UAT session (see `.planning/v1.0-UAT-RESULTS.md`
+§ "Environment / setup findings").
+
+### Start the stack
+
 ```bash
 # From the repo root:
 scripts/uat/up.sh
@@ -36,6 +61,7 @@ When you're done with the UAT session:
 ```bash
 scripts/uat/down.sh           # stop containers, keep DB
 scripts/uat/down.sh --purge   # also wipe the DB volume
+brew services start postgresql@14  # macOS only: restore brew Postgres if you stopped it above
 ```
 
 ---
