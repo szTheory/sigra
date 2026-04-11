@@ -11,7 +11,10 @@ defmodule <%= context_module %>.UserIdentity do
 
   use Ecto.Schema
   import Ecto.Changeset
-
+<%= if binary_id do %>
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+<% end %>
   schema "user_identities" do
     field :provider, :string
     field :provider_uid, :string

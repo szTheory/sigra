@@ -232,10 +232,21 @@ defmodule Sigra.Install.OAuthGeneratorTest do
 
     test "oauth_migration.exs template has correct table and indexes" do
       content = File.read!(Path.join(@template_dir, "oauth_migration.exs"))
-      assert String.contains?(content, "create table(:user_identities)")
+      # Plan 10.1.1-05 (D-10): binary_id default flipped to true; the table
+      # now has a `primary_key: false` EEx branch, so match on the prefix
+      # rather than the full `create table(:user_identities)` literal.
+      assert String.contains?(content, "create table(:user_identities")
       assert String.contains?(content, "unique_index(:user_identities, [:user_id, :provider])")
       assert String.contains?(content, "unique_index(:user_identities, [:provider, :provider_uid])")
       assert String.contains?(content, ":encrypted_access_token, :binary")
+    end
+
+    test "oauth_migration.exs template supports binary_id (uuid) primary keys" do
+      content = File.read!(Path.join(@template_dir, "oauth_migration.exs"))
+      # D-10: uuid is the default; the template must honor a binary_id binding.
+      assert String.contains?(content, "<%= if binary_id do %>, primary_key: false")
+      assert String.contains?(content, "add :id, :binary_id, primary_key: true")
+      assert String.contains?(content, "references(:users<%= if binary_id do %>, type: :binary_id")
     end
 
     test "oauth_controller.ex template delegates to Sigra.OAuth" do

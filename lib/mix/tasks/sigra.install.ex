@@ -16,14 +16,15 @@ defmodule Mix.Tasks.Sigra.Install do
   ## Options
 
     * `--live` / `--no-live` - Generate LiveView pages (default: true)
-    * `--binary-id` - Use binary IDs instead of integer IDs
+    * `--binary-id` / `--no-binary-id` - Use UUID (binary_id) primary keys
+      (default: true). Pass `--no-binary-id` to use bigint integer PKs instead.
     * `--table` - Override the table name
 
   ## Examples
 
       mix sigra.install Accounts User users
       mix sigra.install Accounts User users --no-live
-      mix sigra.install Accounts User users --binary-id
+      mix sigra.install Accounts User users --no-binary-id
 
   """
   @shortdoc "Generates Sigra authentication scaffold"
@@ -31,7 +32,7 @@ defmodule Mix.Tasks.Sigra.Install do
   use Mix.Task
 
   @switches [live: :boolean, binary_id: :boolean, table: :string, api: :boolean, jwt: :boolean]
-  @default_opts [live: true, api: false, jwt: false]
+  @default_opts [live: true, api: false, jwt: false, binary_id: true]
 
   @impl true
   def run(args) do
@@ -93,7 +94,7 @@ defmodule Mix.Tasks.Sigra.Install do
       log_in_url: log_in_url,
       otp_app: otp_app,
       repo_module: inspect(repo_module),
-      binary_id: opts[:binary_id] || false,
+      binary_id: Keyword.get(opts, :binary_id, true),
       live: opts[:live],
       api: opts[:api] || opts[:jwt] || false,
       jwt: opts[:jwt] || false,

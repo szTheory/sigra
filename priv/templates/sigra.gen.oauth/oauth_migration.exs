@@ -2,8 +2,9 @@ defmodule <%= context_module %>.Repo.Migrations.CreateUserIdentities do
   use Ecto.Migration
 
   def change do
-    create table(:user_identities) do
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+    create table(:user_identities<%= if binary_id do %>, primary_key: false<% end %>) do
+<%= if binary_id do %>      add :id, :binary_id, primary_key: true
+<% end %>      add :user_id, references(:users<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
       add :provider, :string, null: false
       add :provider_uid, :string, null: false
       add :encrypted_access_token, :binary

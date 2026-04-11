@@ -39,10 +39,11 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
   @switches [
     providers: :string,
     live: :boolean,
-    no_vault: :boolean
+    no_vault: :boolean,
+    binary_id: :boolean
   ]
 
-  @default_opts [live: false, no_vault: false]
+  @default_opts [live: false, no_vault: false, binary_id: true]
 
   @impl true
   def run(args) do
@@ -80,7 +81,8 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
       auth_path: auth_path,
       settings_path: settings_path,
       password_path: password_path,
-      otp_app: otp_app
+      otp_app: otp_app,
+      binary_id: Keyword.get(opts, :binary_id, true)
     ]
 
     context_underscore = Macro.underscore(context_name)
