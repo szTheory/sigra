@@ -282,7 +282,7 @@ defmodule ExampleWeb.MFASettingsLive do
             class="mt-2 bg-gray-50 p-3 rounded-lg border border-gray-200 text-center"
             style="user-select: all"
           >
-            <code class="text-sm font-mono break-all select-all">
+            <code data-testid="mfa-totp-secret" class="text-sm font-mono break-all select-all">
               {@base32_secret}
             </code>
           </div>
