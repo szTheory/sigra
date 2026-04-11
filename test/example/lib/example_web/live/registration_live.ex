@@ -79,7 +79,16 @@ defmodule ExampleWeb.RegistrationLive do
   def handle_event("save", %{"user" => user_params}, socket) do
     case Example.Accounts.register_user(user_params) do
       {:ok, user} ->
-        # Phase 3 will send confirmation email here
+        # D-05: deliver confirmation email (B5 repair; helper exists at Example.Accounts.deliver_user_confirmation_instructions/2)
+        confirmation_url_fun = fn token ->
+          url(socket, ~p"/users/confirm/#{token}")
+        end
+
+        case Example.Accounts.deliver_user_confirmation_instructions(user, confirmation_url_fun) do
+          {:ok, :sent} -> :ok
+          {:error, :already_confirmed} -> :ok
+        end
+
         changeset = Example.Accounts.change_user_registration(user)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
