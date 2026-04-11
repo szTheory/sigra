@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Oban.Worker) do
 defmodule Sigra.Workers.EmailDelivery do
   @moduledoc """
   Oban worker for asynchronous email delivery.
@@ -98,4 +99,5 @@ defmodule Sigra.Workers.EmailDelivery do
         {:cancel, "unknown email type: #{unknown}"}
     end
   end
+end
 end

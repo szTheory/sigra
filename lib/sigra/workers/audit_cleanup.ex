@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Oban.Worker) do
 defmodule Sigra.Workers.AuditCleanup do
   @moduledoc """
   Optional Oban worker that deletes audit rows older than the configured
@@ -52,4 +53,5 @@ defmodule Sigra.Workers.AuditCleanup do
   def cleanup(repo, audit_schema, retention_days) do
     Sigra.Audit.do_cleanup(repo, audit_schema, retention_days)
   end
+end
 end
