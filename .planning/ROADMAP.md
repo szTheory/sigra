@@ -272,3 +272,50 @@ Plans:
 - [x] 10.1.1-06-PLAN.md — CI install_smoke + example_http_smoke jobs + sigra.install --yes flag (D-13, D-15)
 - [x] 10.1.1-07-PLAN.md — Playwright golden-path harness + example_playwright_smoke CI job + MFA data-testid (D-13, D-14, D-15)
 - [x] 10.1.1-08-PLAN.md — Rename example_app_smoke → example_unit_smoke + branch protection note (D-13)
+
+## Backlog
+
+Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlog` when the triggering milestone is defined.
+
+### Phase 999.1: Retroactive Nyquist validation pass (BACKLOG)
+
+**Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
+**Requirements:** TBD (no new REQ-IDs; remediation phase)
+**Depends on:** v1.0 archived
+**Plans:** 0 plans — promote with `/gsd-review-backlog` or `/gsd-discuss-phase 999.1`
+
+**Scope (from v1.0 audit):**
+- Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 03 (email-flows) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 04 (session-mgmt) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 06 (mfa) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 07 (api-auth) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 09 (audit-logging) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 10.1 (installer-fixes) — no VALIDATION.md exists (remediation phase, never validated)
+
+**Traceability:** `.planning/v1.0-MILESTONE-AUDIT.md` Section 6 "Nyquist Compliance" table.
+
+**Notes:** Run `/gsd-validate-phase {N}` for each entry. Each phase should be a separate plan inside this single backlog phase. Total effort estimate: 3-5 hours. Not a v1.0 release blocker — the 1249-test suite + 5 CI smoke jobs + Playwright golden path provide functional coverage, this just closes out the formal sampling contracts.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.2: Dependabot major-version bumps cleanup (BACKLOG)
+
+**Goal:** Review and safely land the 3 open Dependabot PRs that bump major versions of SHA-pinned GitHub Actions used across the 5 CI jobs. Major bumps require per-job CI verification because they can change default Node runtime, cache semantics, or artifact behavior.
+**Requirements:** TBD
+**Depends on:** v1.0 archived
+**Plans:** 0 plans — promote with `/gsd-review-backlog` or handle as a v1.0.1 patch milestone
+
+**Scope (open PRs as of 2026-04-11):**
+- [szTheory/sigra#1](https://github.com/szTheory/sigra/pull/1) — actions/setup-node 4.0.4 → 6.3.0 (v5 dropped Node 16; v6 changed default cache behavior)
+- [szTheory/sigra#3](https://github.com/szTheory/sigra/pull/3) — actions/upload-artifact 4.4.3 → 7.0.1 (v5 removed "upload to same name twice"; v6 changed compression defaults — this is the riskiest one)
+- [szTheory/sigra#4](https://github.com/szTheory/sigra/pull/4) — actions/checkout 4.3.1 → 6.0.2 (v5 Node 20 default; v6 Node 22 default)
+
+**Traceability:** IN-03 (SHA-pinned Actions from phase 10.1), `.github/dependabot.yml` config, `.github/workflows/ci.yml` action pin sites.
+
+**Notes:** Do NOT merge blindly. Land each bump on its own commit, verify all 5 required CI checks pass on a PR, confirm upload-artifact behavior (failure trace upload in `example_playwright_smoke` is the most likely regression surface). Consider bundling into a v1.0.1 patch milestone alongside any post-GA hotfixes.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
