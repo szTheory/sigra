@@ -261,6 +261,21 @@ defmodule <%= context_module %> do
   hashed token in Sigra's canonical `user_sessions` store.
   """
   def get_user_by_session_token(raw_token) when is_binary(raw_token) do
+    case get_user_and_session_by_token(raw_token) do
+      {user, _session} -> user
+      nil -> nil
+    end
+  end
+
+  def get_user_by_session_token(_), do: nil
+
+  @doc """
+  Looks up both the user and the session record by raw session cookie
+  token. Returns `{user, session}` on success or `nil` on failure. Used
+  by code paths that need the session record itself — e.g. the sudo
+  controller needs `session.hashed_token` to mark sudo confirmation.
+  """
+  def get_user_and_session_by_token(raw_token) when is_binary(raw_token) do
     with {:ok, raw_bytes} <- Base.url_decode64(raw_token, padding: false) do
       hashed = Sigra.Token.hash_token(raw_bytes)
       config = sigra_config()
@@ -273,15 +288,21 @@ defmodule <%= context_module %> do
       ]
 
       case store.fetch(hashed, store_opts) do
-        {:ok, session} -> Repo.get(<%= schema_alias %>, session.user_id)
-        {:error, :not_found} -> nil
+        {:ok, session} ->
+          case Repo.get(<%= schema_alias %>, session.user_id) do
+            nil -> nil
+            user -> {user, session}
+          end
+
+        {:error, :not_found} ->
+          nil
       end
     else
       _ -> nil
     end
   end
 
-  def get_user_by_session_token(_), do: nil
+  def get_user_and_session_by_token(_), do: nil
 
   @doc """
   Deletes the session identified by the given raw token from
@@ -611,7 +632,10 @@ defmodule <%= context_module %> do
 
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
-    Sigra.MFA.status(sigra_config(), user)
+    Sigra.MFA.status(sigra_config(), user,
+      mfa_credential_schema: <%= context_module %>.UserMFACredential,
+      backup_code_schema: <%= context_module %>.UserBackupCode
+    )
   end
 
   ## Account Lifecycle

@@ -125,8 +125,31 @@ defmodule Sigra.DeliveryTest do
                )
     end
 
-    test "with delivery_mode: :auto detects Oban presence" do
-      # Oban is loaded in test env, so auto should route to async
+    test "with delivery_mode: :auto routes to :sync when Oban is not supervised" do
+      # Oban is loadable in test env (it's a library dep) but NOT supervised,
+      # so :auto must route to :sync — otherwise apps that add {:oban, ...} to
+      # deps without wiring the supervisor would crash on insert.
+      Sigra.MockMailer
+      |> expect(:deliver, fn "user@example.com", "Test", %{text: "body"} ->
+        {:ok, :sent}
+      end)
+
+      args = %{to: "user@example.com", subject: "Test", body: %{text: "body"}}
+
+      assert {:ok, :sent} =
+               Delivery.deliver(:test_email, args,
+                 delivery_mode: :auto,
+                 mailer: Sigra.MockMailer
+               )
+    end
+
+    test "with delivery_mode: :auto routes to :async when Oban process is registered" do
+      # Simulate a supervised Oban by registering a dummy process under the
+      # Oban name. Delivery.oban_running?/0 checks Process.whereis(Oban).
+      dummy = spawn(fn -> Process.sleep(:infinity) end)
+      Process.register(dummy, Oban)
+      on_exit(fn -> Process.exit(dummy, :kill) end)
+
       args = %{user_id: 1, token: "tok"}
 
       assert {:ok, _job} =

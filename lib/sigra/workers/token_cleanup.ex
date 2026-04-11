@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Oban.Worker) do
 defmodule Sigra.Workers.TokenCleanup do
   @moduledoc """
   Oban cron worker for cleaning up expired tokens.
@@ -218,4 +219,5 @@ defmodule Sigra.Workers.TokenCleanup do
 
   defp get_repo(%{"repo" => repo_string}), do: String.to_existing_atom(repo_string)
   defp get_token_schema(%{"token_schema" => schema_string}), do: String.to_existing_atom(schema_string)
+end
 end

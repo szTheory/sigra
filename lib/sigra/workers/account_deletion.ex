@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Oban.Worker) do
 defmodule Sigra.Workers.AccountDeletion do
   @moduledoc """
   Oban worker for executing scheduled account deletions.
@@ -79,4 +80,5 @@ defmodule Sigra.Workers.AccountDeletion do
     import Ecto.Query
     from(t in "user_tokens", where: t.user_id == ^user.id)
   end
+end
 end

@@ -102,8 +102,15 @@ defmodule Sigra.Delivery do
 
   defp delivery_mode(opts) do
     case Keyword.get(opts, :delivery_mode, :auto) do
-      :auto -> if Code.ensure_loaded?(Oban), do: :async, else: :sync
+      :auto -> if oban_running?(), do: :async, else: :sync
       mode -> mode
     end
+  end
+
+  # :auto must only route to :async when Oban is actually supervised in the
+  # host app — not merely compiled/loadable. Apps that add `{:oban, ...}` to
+  # mix.exs without wiring the supervisor would otherwise crash on insert.
+  defp oban_running? do
+    Code.ensure_loaded?(Oban) and Process.whereis(Oban) != nil
   end
 end

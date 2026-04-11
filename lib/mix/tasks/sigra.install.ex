@@ -539,8 +539,12 @@ defmodule Mix.Tasks.Sigra.Install do
     # Oban queue injection (per D-22)
     inject_oban_queue(otp_app)
 
-    # Swoosh config detection (per D-19/D-55)
-    inject_swoosh_config(otp_app, context_module)
+    # Swoosh config detection (per D-19/D-55). Adapter must be configured on
+    # the raw Swoosh.Mailer (`<AppModule>.Mailer`), NOT on the Sigra behaviour
+    # wrapper (`<ContextModule>.Mailer`), since the wrapper delegates to the
+    # raw mailer and only the raw mailer calls `Swoosh.Mailer.deliver/2`.
+    app_module = binding[:app_module]
+    inject_swoosh_config(otp_app, app_module)
   end
 
   defp inject_api_files(binding) do
@@ -681,7 +685,7 @@ defmodule Mix.Tasks.Sigra.Install do
     end
   end
 
-  defp inject_swoosh_config(otp_app, context_module) do
+  defp inject_swoosh_config(otp_app, app_module) do
     dev_config = Path.join(["config", "dev.exs"])
 
     if File.exists?(dev_config) do
@@ -692,8 +696,9 @@ defmodule Mix.Tasks.Sigra.Install do
       else
         swoosh_block = """
 
-        # Sigra email delivery (dev)
-        config :#{otp_app}, #{context_module}.Mailer,
+        # Sigra email delivery (dev) — adapter is set on the raw Swoosh.Mailer
+        # module, not the Sigra.Mailer behaviour wrapper.
+        config :#{otp_app}, #{app_module}.Mailer,
           adapter: Swoosh.Adapters.Local
 
         config :swoosh, :api_client, false

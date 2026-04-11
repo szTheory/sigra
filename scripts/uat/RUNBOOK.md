@@ -538,6 +538,67 @@ open doc/index.html            # macOS; xdg-open on Linux
 
 ---
 
+## Running CI locally with `act` (Phase 10.1.1)
+
+`act` runs the `.github/workflows/ci.yml` workflow inside Docker containers
+that closely mirror the real GitHub Actions runner. It's the fastest way to
+iterate on CI changes without the push → wait → red-build loop.
+
+### One-time setup
+
+```bash
+brew install act            # requires Docker Desktop running
+docker pull --platform linux/arm64 catthehacker/ubuntu:act-20.04  # M-series macs
+```
+
+An `.actrc` at the repo root pins `ubuntu-latest` (and `-20.04`, `-22.04`,
+`-24.04`) to `catthehacker/ubuntu:act-20.04`. **Do not change this without
+understanding the reason:** `erlef/setup-beam` only publishes arm64 Erlang/OTP
+prebuilts for Ubuntu 20.04 (libssl1.1). Newer Ubuntu images (22/24) break the
+`:crypto` NIF with `libcrypto.so.1.1: cannot open shared object file`, which
+in turn breaks `mix local.rebar` (can't make HTTPS requests).
+
+### Port 5432 collision
+
+Act's postgres service binds `0.0.0.0:5432`, so anything already listening
+there (Homebrew Postgres, UAT compose stack, stale Docker containers) will
+block the job setup:
+
+```bash
+lsof -i :5432                              # find who owns it
+docker stop sigra-uat-postgres 2>/dev/null # if that's the culprit
+brew services stop postgresql@14           # if Homebrew Postgres
+```
+
+Restart whatever you stopped when the act run finishes.
+
+### Common commands
+
+```bash
+act -l                                        # list jobs
+act -j library_tests                          # run one job
+act -j example_playwright_smoke --reuse       # --reuse keeps container warm
+act --graph                                   # draw the workflow graph
+act -j <job> --verbose                        # full stdout, not just grouped output
+```
+
+`--reuse` is the big performance win — without it, act rebuilds the container
+and re-fetches deps on every run. With it, the second run skips `mix deps.get`,
+`npm ci`, and the chromium download entirely, dropping a full Playwright run
+from ~12 minutes to ~90 seconds.
+
+### Troubleshooting
+
+- **`EACCES: permission denied, rmdir '/opt/hostedtoolcache/...'`** — The
+  image starts as a non-root user. Fix with `--container-options --user=0:0`
+  in `.actrc` (already set).
+- **`Bind for 0.0.0.0:5432 failed: port is already allocated`** — See the
+  Port 5432 collision section above.
+- **`Unable to load crypto library ... libcrypto.so.1.1`** — You're running
+  against an Ubuntu 22/24 image. Switch back to `act-20.04`.
+
+---
+
 ## Branch protection — required status checks (Phase 10.1.1)
 
 After merging phase 10.1.1 (example-app repair + CI smoke harness), update

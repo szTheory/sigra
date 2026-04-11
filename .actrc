@@ -1,0 +1,15 @@
+# Use native arm64 containers on M-series Macs. setup-beam auto-picks
+# the right Erlang/OTP prebuilt for the container arch; forcing amd64
+# emulation (act's default on arm64 hosts) can leave you with binaries
+# built for a different arch than the one actually running.
+#
+# Pin Ubuntu 20.04: setup-beam's arm64 Erlang/OTP prebuilds on
+# builds.hex.pm are ONLY built against Ubuntu 20.04 (libssl1.1) —
+# there is no arm64/ubuntu-22.04 variant at the time of writing.
+# Using a newer Ubuntu image (22.04/24.04) breaks OTP's :crypto NIF
+# with `libcrypto.so.1.1: cannot open shared object file`, which in
+# turn breaks `mix local.rebar` (can't make HTTPS requests).
+-P ubuntu-20.04=catthehacker/ubuntu:act-20.04
+-P ubuntu-22.04=catthehacker/ubuntu:act-20.04
+-P ubuntu-24.04=catthehacker/ubuntu:act-20.04
+-P ubuntu-latest=catthehacker/ubuntu:act-20.04
