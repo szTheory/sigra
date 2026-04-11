@@ -255,3 +255,20 @@ Plans:
 - [x] 10.1-05-PLAN.md — Code quality: MFA allow-list, mix.exs comment, scenario/2 ArgumentError, normalize_email doc (D-06, D-12, D-13, D-14)
 - [x] 10.1-06-PLAN.md — Investigate + fix 3 pre-existing failing tests (D-15, D-16)
 - [x] 10.1-07-PLAN.md — Mark test/example stub LiveViews with visible warnings (D-17)
+
+### Phase 10.1.1: example-app repair + CI install/usage smoke harness (INSERTED)
+
+**Goal:** Repair the 5 remaining UAT integration bugs (B5-B9) in test/example/ (registration confirmation email, dual session stores, sudo KeyError, audit actor_id type mismatch, LiveView login form swallowed), fix doc drift + llms.txt + RUNBOOK brew collision note, flip the library installer default to uuid primary keys, and add a four-job CI smoke harness (install_smoke, example_http_smoke, example_playwright_smoke, example_unit_smoke) that would catch the B1-B9 class of bugs automatically on every PR.
+**Requirements**: Remediation — CONTEXT.md decisions D-01 through D-15 (no new requirement IDs; traceability cleanup deferred)
+**Depends on:** Phase 10.1
+**Plans:** 8 plans
+
+Plans:
+- [ ] 10.1.1-01-PLAN.md — Doc drift + llms.txt + RUNBOOK brew note (D-02, D-03, D-04)
+- [ ] 10.1.1-02-PLAN.md — B5 confirmation email wiring + B7 sudo template fix + template sync (D-05, D-08)
+- [ ] 10.1.1-03-PLAN.md — B6 session store unification in test/example + template sync (D-06, D-07)
+- [ ] 10.1.1-04-PLAN.md — B9 LoginLive → plain controller + template sync (D-12)
+- [ ] 10.1.1-05-PLAN.md — B8 audit type mismatch + library uuid default flip + guides (D-09, D-10, D-11)
+- [ ] 10.1.1-06-PLAN.md — CI install_smoke + example_http_smoke jobs + sigra.install --yes flag (D-13, D-15)
+- [ ] 10.1.1-07-PLAN.md — Playwright golden-path harness + example_playwright_smoke CI job + MFA data-testid (D-13, D-14, D-15)
+- [ ] 10.1.1-08-PLAN.md — Rename example_app_smoke → example_unit_smoke + branch protection note (D-13)
