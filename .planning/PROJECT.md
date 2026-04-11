@@ -8,91 +8,96 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Current State
+
+**Shipped:** v1.0 Phoenix Auth Library — Initial Release (2026-04-11).
+
+Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/password with Argon2id, magic-link passwordless, email confirmation + password reset, database-backed sessions with sudo re-auth and rate limiting, OAuth via Assent (5 providers), TOTP MFA with backup codes, API auth with bearer tokens + JWT, full account lifecycle (email change, password change, scheduled deletion), audit logging, and a `mix sigra.install` generator backed by a 5-job PR-required CI smoke harness (library tests + unit smoke + install smoke + HTTP smoke + Playwright browser lifecycle).
+
+**Verification state:** 1249 tests + 33 doctests + 3 properties, 0 failures. 85/85 requirements satisfied. 5 required CI checks green on `main`. See `.planning/MILESTONES.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.
+
+**Known limitations carried forward (tracked, non-blocking):**
+- 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before GA public announcement.
+- Phase 9 audit logging uses a `log_safe/3` hybrid (non-atomic) at ~30 integration sites with only 3 fully atomic `Ecto.Multi` sites (confirm, verify, reset); accepted as caveat C-1 and captured in `SEED-002` for conversion when trigger conditions match.
+- 6 Nyquist VALIDATION.md files in `status: draft` + 1 missing (phase 10.1) — parked as backlog phase 999.1.
+- 3 Dependabot major-version bumps for SHA-pinned GitHub Actions — parked as backlog phase 999.2 (require per-bump CI verification).
+
 ## Requirements
 
-### Validated
+### Validated — v1.0
 
-- [x] `mix sigra.install` generator — Validated in Phase 1: Foundation
-- [x] Phoenix context pattern (`MyApp.Auth`) — Validated in Phase 1: Foundation
-- [x] Headless mode (all logic works without UI) — Validated in Phase 1: Foundation
-- [x] Telemetry events for auth operations — Validated in Phase 1: Foundation (stubs)
-- [x] Behaviour + callback architecture for extensibility — Validated in Phase 1: Foundation
-- [x] No macro magic hiding schema fields — Validated in Phase 1: Foundation
-- [x] Smart defaults with easy overrides — Validated in Phase 1: Foundation (NimbleOptions config)
-- [x] Email/password registration with Argon2id hashing — Validated in Phase 2: Core Auth
-- [x] Magic link / passwordless email authentication — Validated in Phase 2: Core Auth
-- [x] Login / logout with server-side database-backed sessions — Validated in Phase 2: Core Auth
-- [x] Password hash algorithm migration (transparent upgrade from bcrypt to Argon2id on login) — Validated in Phase 2: Core Auth
-- [x] Account lockout after N failed attempts (temporary, configurable duration) — Validated in Phase 2: Core Auth
-- [x] Email enumeration prevention by default (constant-time comparisons, generic messages) — Validated in Phase 2: Core Auth
+**Core authentication:**
+- ✓ `mix sigra.install` generator (migrations, schemas, context, routes, optional LiveView pages) — v1.0
+- ✓ Phoenix context pattern (`MyApp.Auth`) — v1.0
+- ✓ Headless mode (all logic works without UI) — v1.0
+- ✓ Behaviour + callback architecture for extensibility (no hidden macros) — v1.0
+- ✓ Smart defaults with easy overrides via NimbleOptions — v1.0
+- ✓ Email/password registration with Argon2id hashing — v1.0
+- ✓ Magic link / passwordless email authentication — v1.0
+- ✓ Login / logout with server-side database-backed sessions — v1.0
+- ✓ Password hash migration (bcrypt → Argon2id transparent upgrade on login) — v1.0
+- ✓ Email confirmation (link + 6-digit code verification) — v1.0
+- ✓ Password reset via HMAC-protected single-use time-limited email tokens — v1.0
+- ✓ Remember-me persistent sessions — v1.0
+- ✓ Sudo/re-authentication mode for sensitive operations — v1.0
 
-### Active
+**OAuth / Social login:**
+- ✓ OAuth integration via Assent (Google, GitHub, Apple, Facebook, Generic) — v1.0
+- ✓ Account linking (existing user adds OAuth provider, email-match handling) — v1.0
+- ✓ Multiple OAuth providers per user — v1.0
+- ✓ PKCE and OIDC support via Assent — v1.0
 
-#### Core Authentication
-- [ ] Email confirmation (link + code verification)
-- [ ] Password reset via secure email tokens (HMAC-protected, single-use, time-limited)
-- [ ] Remember-me persistent sessions (separate long-lived cookie)
-- [ ] Sudo/re-authentication mode for sensitive operations
+**MFA:**
+- ✓ TOTP enrollment, verification, and recovery (full lifecycle) — v1.0
+- ✓ Backup codes (SHA-256 hashed, single-use, regeneration) — v1.0
+- ✓ "Trust this browser" cookie to skip MFA on trusted devices — v1.0
+- ✓ MFA enforcement policies via plug — v1.0
 
-#### OAuth / Social Login
-- [ ] OAuth integration via Assent (Google, GitHub, Apple, Meta as tier 1)
-- [ ] Account linking (existing user adds OAuth provider, email-match handling)
-- [ ] Multiple OAuth providers per user
-- [ ] PKCE and OIDC support (via Assent)
+**Session management:**
+- ✓ Active session tracking (IP, user agent, last active, device) — v1.0
+- ✓ Session revocation (individual and log-out-everywhere) — v1.0
+- ✓ Session invalidation on password change — v1.0
+- ✓ Idle and absolute timeout (configurable) — v1.0
+- ✓ Secure cookie defaults (SameSite=Lax, HttpOnly, Secure) — v1.0
+- ✓ Account lockout after N failed attempts — v1.0
+- ✓ Email enumeration prevention — v1.0
 
-#### Multi-Factor Authentication
-- [ ] TOTP enrollment, verification, and recovery (full lifecycle)
-- [ ] Backup/recovery codes (8-10 single-use, hashed storage, regeneration)
-- [ ] WebAuthn/passkeys as second factor and primary passwordless method
-- [ ] "Trust this browser" cookie to skip MFA on trusted devices
-- [ ] MFA enforcement policies (per route or role)
+**API authentication:**
+- ✓ Bearer token authentication with human-readable prefix (`myapp_sk_*`) — v1.0
+- ✓ Personal access tokens (user-scoped, scopes + expiration) — v1.0
+- ✓ JWT support for stateless API use cases (opt-in, family-based refresh rotation) — v1.0
+- ✓ Dual-mode auth plug (session for browser, bearer for API, identical `current_scope`) — v1.0
 
-#### Session Management
-- [ ] Active session tracking (IP, user agent, last active)
-- [ ] Session revocation (individual and "log out everywhere")
-- [ ] Session invalidation on password change
-- [ ] Idle timeout and absolute timeout (configurable)
-- [ ] Secure cookie defaults (SameSite=Lax, HttpOnly, Secure)
+**Security:**
+- ✓ IP-based and account-based rate limiting via Hammer 7.x — v1.0
+- ✓ HMAC-protected tokens for all email flows — v1.0
+- ✓ Suspicious login detection with email notification — v1.0
 
-#### API Authentication — Validated in Phase 7: API Authentication
-- [x] Bearer token authentication (API keys with prefix format)
-- [x] Personal access tokens (user-scoped, with scopes and expiration)
-- [x] JWT support for stateless API use cases
-- [x] Dual-mode auth plug (session for browser, bearer for API)
+**Transactional email:**
+- ✓ Confirmation, password reset, lockout, suspicious-login, MFA, account lifecycle emails — v1.0
+- ✓ Swoosh integration with pluggable mailer — v1.0
+- ✓ HTML + text multipart with inline CSS — v1.0
+- ✓ Async delivery via Oban with inline fallback — v1.0
 
-#### Security
-- [ ] IP-based and account-based rate limiting
-- [ ] CSRF protection (integrated with Phoenix's existing infrastructure)
-- [ ] HMAC-protected tokens for all email flows
-- [ ] Suspicious login detection (new IP/device triggers email notification)
+**Account lifecycle:**
+- ✓ Email change with re-verification — v1.0
+- ✓ Password change with current password verification — v1.0
+- ✓ Account deletion (soft, hard, anonymize) with grace period — v1.0
+- ✓ Profile hooks engine with Ecto.Multi abort support — v1.0
 
-#### Transactional Email
-- [ ] Confirmation, password reset, lockout notification, suspicious login emails
-- [ ] Integration with Swoosh (or pluggable mailer interface)
-- [ ] HTML + text multipart emails with cross-client compatibility
-- [ ] Easy email template customization
-- [ ] Async delivery via Oban (with inline fallback)
+**Developer experience:**
+- ✓ Testing helpers (`log_in_user/2`, `register_user/1`, `setup_totp/1`, `create_api_key/2`, browser trust helpers) — v1.0
+- ✓ Telemetry events for all auth operations (24+ events across phases) — v1.0
+- ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
+- ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
-#### Account Lifecycle
-- [ ] Account deletion with configurable handling (soft delete, hard delete, anonymization)
-- [ ] Email change with re-verification
-- [ ] Password change with current password verification
-- [ ] Profile management hooks (callbacks for app-specific profile updates)
+### Active — Next Milestone (TBD)
 
-#### Developer Experience
-- [ ] `mix sigra.install` generator (migrations, schemas, context, routes, optional LiveView pages)
-- [ ] Phoenix context pattern (`MyApp.Auth`) following DDD boundaries
-- [ ] Works with standard controllers/Plug (LiveView components optional)
-- [ ] Headless mode (all logic works without UI)
-- [ ] Testing helpers (`log_in_user/2`, `register_user/1`, `setup_totp/1`, `create_api_key/2`)
-- [ ] Telemetry events for all auth operations
-- [ ] Audit logging (security events with user, IP, user agent, action, metadata)
+Run `/gsd-new-milestone` to scope. Likely candidates surfaced by v1.0 retrospective:
 
-#### Configuration
-- [ ] Smart defaults with easy overrides (confirmation required, lockout threshold, timeouts)
-- [ ] Configurable table names
-- [ ] Behaviour + callback architecture for extensibility
-- [ ] No macro magic hiding schema fields
+- [ ] WebAuthn / FIDO2 / passkeys as second factor and primary passwordless method (deferred from v1.0 MFA scope — `wax_` dep already evaluated in CLAUDE.md stack)
+- [ ] Complete v1.0 GA gating: run SEED-001 human UAT items, close SEED-002 audit log conversion (triggered work)
+- [ ] Clear 999.1 backlog (Nyquist retroactive) and 999.2 backlog (Dependabot major bumps) — likely as a v1.0.1 patch milestone
 
 ### Out of Scope
 
@@ -155,12 +160,20 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated Phase 1 |
-| Assent over Ueberauth for OAuth | Framework-agnostic, PKCE/OIDC built-in, single package vs N strategy deps, actively maintained. Ueberauth is Plug-coupled with lagging strategies. | — Pending |
-| Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent pattern. Single merged table breaks with OAuth. | — Pending |
-| Organizations deferred to v2 | Significant scope expansion. Core auth must be solid first. Identity layer designed to support org membership later. | — Pending |
-| SAML/OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending |
-| Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | ✓ Validated Phase 1 |
+| Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated v1.0 — no regret |
+| Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | ✓ Validated v1.0 — no regret |
+| Assent over Ueberauth for OAuth | Framework-agnostic, PKCE/OIDC built-in, single package vs N strategy deps, actively maintained. | ✓ Validated v1.0 — shipped 5 strategy wrappers (Google/GitHub/Apple/Facebook/Generic); Assent's PKCE + OIDC + single-package design paid off |
+| Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent. | ✓ Validated v1.0 — pattern held through registration/login/linking/unlink |
+| Argon2id default with bcrypt migration path | OWASP gold standard; memory-hard; transparent upgrade on login keeps migration invisible to users. | ✓ Validated v1.0 — `verify_with_upgrade/3` pattern works cleanly |
+| Database-backed session tokens (no JWT for browser) | Revocation requires server-side state; JWT-only for browser is an anti-pattern for session auth. | ✓ Validated v1.0 — JWT remains opt-in for stateless API paths only |
+| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ⚠️ Revisit — phase 9 shipped as hybrid (3 atomic sites + `log_safe/3` elsewhere), tracked as SEED-002 for conversion when subsystem tests go audit-aware |
+| D-10 installer default PK type = `binary_id` (uuid) | UUIDs are idiomatic for modern Phoenix; avoids enumeration of integer IDs; matches phx.gen.auth 1.8 convention. | ✓ Validated v1.0 (flipped in phase 10.1.1) — no integer-PK regressions downstream |
+| IN-03 SHA-pin all GitHub Actions | Supply-chain security: tag-based references allow the tag to be moved post-publish; SHA pins lock the exact code. | ✓ Validated v1.0 (phase 10.1 + 10.1.1) — Dependabot `github-actions` ecosystem handles upgrade churn |
+| D-15 no `continue-on-error` on any required CI check | Flakes must be fixed at root cause; masking them defeats the gate's purpose. | ✓ Validated v1.0 — all 5 CI jobs are strict-pass; no `continue-on-error` anywhere in `.github/workflows/ci.yml` |
+| Playwright over Cypress/WebdriverIO for browser smoke | Only runner with first-class frameLocator support for Swoosh dev-mailbox iframe; lowest-friction TypeScript setup. | ✓ Validated v1.0 (phase 10.1.1) — golden-path spec runs in ~90s on CI, zero flakes to date |
+| Organizations deferred to v2 | Significant scope expansion. Core auth must be solid first. Identity layer designed to support org membership later. | — Pending (still deferred) |
+| SAML / OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending (still out of scope) |
+| WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | — Pending — v1.1 candidate |
 
 ## Evolution
 
@@ -180,6 +193,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-10 after Phase 10.1 completion — Installer and library fixes (remediation): fixed AR-10-01/AR-10-02 plain-map insert DoS bugs in `Sigra.Auth.request_password_reset/3` and `request_magic_link/3` (now build proper `UserToken` structs via `struct!(user_token_schema, …)`), backported 16 Rule-1 installer template fixes from `test/example/` into `priv/templates/sigra.install/*` with a 17-pair drift-guard test, eliminated all `mix docs --warnings-as-errors` @doc reference warnings (docs CI gate now enforceable), SHA-pinned 6 GitHub Actions and added Dependabot `github-actions` ecosystem config, extracted release-safe `Sigra.Env.current/0` helper, tightened `AuthFixtures.scenario/2` to raise `ArgumentError` with valid-atom list, documented `normalize_email/1` RFC 5321 §2.3.4 scope, and fixed 5 pre-existing failing tests (stale assertions + aspirational stub). Full suite: 1249 tests + 33 doctests + 3 properties, 0 failures. Code review: 0 critical, 0 warning, 6 info (polish items, non-blocking).*
+*Last updated: 2026-04-11 after v1.0 milestone completion — Sigra v1.0 Phoenix Auth Library: 12 phases, 60 plans, 117 tasks. All 85 requirements validated. 1249 tests + 33 doctests + 3 properties, 0 failures. 5 required CI checks on main (library_tests + example_unit_smoke + install_smoke + example_http_smoke + example_playwright_smoke). 2 seeds planted for GA gating (SEED-001) and audit atomicity followup (SEED-002). 2 backlog items parked (999.1 Nyquist retro, 999.2 Dependabot major bumps). Tagged v1.0.*
 
 *Last updated: 2026-04-09 after Phase 8 completion — Account lifecycle: email change (request/confirm/cancel with token security), password change (with current password verification and configurable session invalidation), account deletion (soft_delete/hard_delete/anonymize with grace period via Oban worker), hooks engine (Ecto.Multi integration for profile update callbacks), DataExport behaviour, RequirePasswordChange plug, 24 telemetry events, 7 email templates, Settings LiveView, reactivation page, generator injector wiring, and 10 testing helpers. Human UAT pending for visual verification.*
