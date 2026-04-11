@@ -29,7 +29,7 @@ cd "$(dirname "${TMP_APP_DIR}")"
 
 # mix archive.install phx_new MUST already be in place (installed by the CI
 # step before this script runs).
-yes Y | mix phx.new "$(basename "${TMP_APP_DIR}")" \
+mix phx.new "$(basename "${TMP_APP_DIR}")" \
   --no-install \
   --no-dashboard \
   --no-gettext \
