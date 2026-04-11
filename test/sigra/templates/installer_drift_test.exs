@@ -58,13 +58,56 @@ defmodule Sigra.Templates.InstallerDriftTest do
       ]
     },
     %{
-      id: "fix #4 — UserToken.build_session_token/2 arity",
+      # Plan 10.1.1-03 (B6): session token helpers were REMOVED from both
+      # the template and the example. Sessions now live in Sigra's canonical
+      # `user_sessions` store via `Sigra.Auth.create_session/4`. The old
+      # `build_session_token/2` / `verify_session_token_query/1` helpers
+      # must NOT reappear in either file.
+      id: "fix #4 — UserToken session helpers removed (B6 unification)",
       template: "priv/templates/sigra.install/user_token.ex",
       example: "test/example/lib/example/accounts/user_token.ex",
+      must_not: [
+        {"build_session_token helper absent",
+         ~r/def build_session_token\(/,
+         ~r/def build_session_token\(/},
+        {"verify_session_token_query helper absent",
+         ~r/def verify_session_token_query\(/,
+         ~r/def verify_session_token_query\(/}
+      ]
+    },
+    %{
+      # Plan 10.1.1-03 (B6): mirror of the auth.ex session helper rewrite.
+      # generate_user_session_token must delegate to Sigra.Auth.create_session
+      # in both the template and the example, and the legacy
+      # UserToken.build_session_token call site must NOT reappear.
+      id: "fix #4b — auth.ex session helpers delegate to Sigra canonical store",
+      template: "priv/templates/sigra.install/auth.ex",
+      example: "test/example/lib/example/accounts.ex",
       must_have: [
-        {"build_session_token accepts opts",
-         ~r/def build_session_token\(user, _opts \\\\ \[\]\)/,
-         ~r/def build_session_token\(user, _opts \\\\ \[\]\)/}
+        {"generate_user_session_token calls Sigra.Auth.create_session",
+         ~r/Sigra\.Auth\.create_session\(sigra_config\(\)/,
+         ~r/Sigra\.Auth\.create_session\(sigra_config\(\)/}
+      ],
+      must_not: [
+        {"legacy UserToken.build_session_token call absent",
+         ~r/UserToken\.build_session_token/,
+         ~r/UserToken\.build_session_token/}
+      ]
+    },
+    %{
+      # Plan 10.1.1-03 (B6): log_in_user must capture IP + user-agent from
+      # conn and pass them into generate_user_session_token so the session
+      # row has connection metadata.
+      id: "fix #4c — user_auth.ex log_in_user captures IP + user-agent",
+      template: "priv/templates/sigra.install/user_auth.ex",
+      example: "test/example/lib/example_web/user_auth.ex",
+      must_have: [
+        {"ip extracted from conn.remote_ip via :inet.ntoa",
+         ~r/:inet\.ntoa\(conn\.remote_ip\)/,
+         ~r/:inet\.ntoa\(conn\.remote_ip\)/},
+        {"user_agent extracted via get_req_header",
+         ~r/get_req_header\(\s*"user-agent"\s*\)/,
+         ~r/get_req_header\(\s*"user-agent"\s*\)/}
       ]
     },
     %{

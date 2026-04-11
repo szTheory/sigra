@@ -227,29 +227,80 @@ defmodule Example.Accounts do
   ## Session
 
   @doc """
-  Generates a session token.
+  Generates a session token by writing a row to Sigra's canonical
+  `user_sessions` store via `Sigra.Auth.create_session/4`.
+
+  Returns the raw (Base64url-encoded) token to put in the session cookie.
+  The SHA-256 hash of the decoded raw bytes is what's persisted — never
+  the raw token itself.
+
+  ## Options
+
+    * `:ip` - client IP address captured at login (string)
+    * `:user_agent` - client user agent header at login (string)
+    * `:type` - session type atom (default `:standard`)
   """
   def generate_user_session_token(%User{} = user, opts \\ []) do
-    {token, user_token} = UserToken.build_session_token(user, opts)
-    Repo.insert!(user_token)
-    token
+    metadata = %{
+      type: Keyword.get(opts, :type, :standard),
+      ip: Keyword.get(opts, :ip),
+      user_agent: Keyword.get(opts, :user_agent)
+    }
+
+    case Sigra.Auth.create_session(sigra_config(), user, metadata, []) do
+      {:ok, session} ->
+        session.token
+
+      {:error, reason} ->
+        raise "Sigra.Auth.create_session failed: #{inspect(reason)}"
+    end
   end
 
   @doc """
-  Gets the user with the given signed token.
+  Gets the user for the given raw session token by looking up the
+  hashed token in Sigra's canonical `user_sessions` store.
   """
-  def get_user_by_session_token(token) do
-    {:ok, query} = UserToken.verify_session_token_query(token)
-    Repo.one(query)
+  def get_user_by_session_token(raw_token) when is_binary(raw_token) do
+    with {:ok, raw_bytes} <- Base.url_decode64(raw_token, padding: false) do
+      hashed = Sigra.Token.hash_token(raw_bytes)
+      config = sigra_config()
+      session_config = config.session
+      store = Keyword.fetch!(session_config, :store)
+
+      store_opts = [
+        repo: config.repo,
+        session_schema: Keyword.fetch!(session_config, :session_schema)
+      ]
+
+      case store.fetch(hashed, store_opts) do
+        {:ok, session} -> Repo.get(User, session.user_id)
+        {:error, :not_found} -> nil
+      end
+    else
+      _ -> nil
+    end
   end
 
+  def get_user_by_session_token(_), do: nil
+
   @doc """
-  Deletes the signed token with the given context.
+  Deletes the session identified by the given raw token from
+  Sigra's canonical `user_sessions` store. Idempotent — missing
+  tokens are no-ops.
   """
-  def delete_user_session_token(token) do
-    Repo.delete_all(UserToken.by_token_and_context_query(token, "session"))
-    :ok
+  def delete_user_session_token(raw_token) when is_binary(raw_token) do
+    case Base.url_decode64(raw_token, padding: false) do
+      {:ok, raw_bytes} ->
+        hashed = Sigra.Token.hash_token(raw_bytes)
+        Sigra.Auth.delete_session(sigra_config(), hashed, [])
+        :ok
+
+      :error ->
+        :ok
+    end
   end
+
+  def delete_user_session_token(_), do: :ok
 
   ## Confirmation
 

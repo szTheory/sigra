@@ -56,7 +56,12 @@ defmodule ExampleWeb.UserAuth do
   disconnected on log out.
   """
   def log_in_user(conn, user, params \\ %{}) do
-    token = Example.Accounts.generate_user_session_token(user)
+    ip = conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))
+    user_agent = conn |> get_req_header("user-agent") |> List.first() || ""
+
+    token =
+      Example.Accounts.generate_user_session_token(user, ip: ip, user_agent: user_agent)
+
     user_return_to = get_session(conn, :user_return_to)
 
     conn
