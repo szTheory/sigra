@@ -25,7 +25,7 @@ The server boots at <http://localhost:4000>. Leave it running in a separate term
 
 ## 2. Register your first user
 
-Visit <http://localhost:4000/users/register>. The generated `UserRegistrationLive` renders a form with two fields: email and password. Under the hood, submitting the form calls:
+Visit <http://localhost:4000/users/register>. The generated `RegistrationLive` renders a form with two fields: email and password. Under the hood, submitting the form calls:
 
     # lib/my_app_web/live/user_registration_live.ex
     def handle_event("save", %{"user" => user_params}, socket) do
@@ -40,7 +40,7 @@ Visit <http://localhost:4000/users/register>. The generated `UserRegistrationLiv
           {:noreply,
            socket
            |> put_flash(:info, "User created successfully.")
-           |> push_navigate(to: ~p"/users/log-in")}
+           |> push_navigate(to: ~p"/users/log_in")}
 
         {:error, %Ecto.Changeset{} = changeset} ->
           {:noreply, assign(socket, check_errors: true) |> assign_form(changeset)}
@@ -78,7 +78,7 @@ If you skip this step, the user can still log in unless you set `require_confirm
 
 ## 4. Log in
 
-Visit <http://localhost:4000/users/log-in>. Enter `alice@example.com` and the password you chose in step 2.
+Visit <http://localhost:4000/users/log_in>. Enter `alice@example.com` and the password you chose in step 2.
 
 The form posts to `SessionController.create/2`, which calls:
 
@@ -90,7 +90,7 @@ The form posts to `SessionController.create/2`, which calls:
       nil ->
         conn
         |> put_flash(:error, "Invalid email or password")
-        |> redirect(to: ~p"/users/log-in")
+        |> redirect(to: ~p"/users/log_in")
     end
 
 `UserAuth.log_in_user/3` generates a session token, writes it to the Phoenix session cookie, and (if `remember_me` is checked) sets a long-lived remember-me cookie with the Sigra-signed token. The user is redirected to `/` and you see their email rendered in the default layout.
@@ -109,7 +109,7 @@ Neither cookie contains the user's password or any reversible identifier.
 Open `lib/my_app_web/router.ex`. The generator added auth pipelines — find the one called `:require_authenticated_user`:
 
     pipeline :require_authenticated_user do
-      plug :fetch_current_scope_for_user
+      plug :fetch_current_scope
       plug :require_authenticated_user
     end
 
@@ -119,18 +119,18 @@ And the authenticated `live_session` block:
       pipe_through [:browser, :require_authenticated_user]
 
       live_session :require_authenticated_user,
-        on_mount: [{MyAppWeb.UserAuth, :require_authenticated}] do
+        on_mount: [{MyAppWeb.UserAuth, :ensure_authenticated}] do
         live "/dashboard", DashboardLive
       end
     end
 
-Any route inside this block rejects unauthenticated visitors and redirects them to `/users/log-in`. Add a route like `/dashboard` and visit it — you'll see the LiveView only because you're logged in. Log out (next section) and try again — you'll be bounced to the login page.
+Any route inside this block rejects unauthenticated visitors and redirects them to `/users/log_in`. Add a route like `/dashboard` and visit it — you'll see the LiveView only because you're logged in. Log out (next section) and try again — you'll be bounced to the login page.
 
 `UserAuth.require_authenticated_user/2` is a plug; `MyAppWeb.UserAuth.on_mount(:require_authenticated, ...)` is its LiveView counterpart. Both are in the generated `user_auth.ex` and both read the current user from the session cookie.
 
 ## 6. Log out
 
-The default layout includes a "Log out" link that posts to `DELETE /users/log-out`. That route calls:
+The default layout includes a "Log out" link that posts to `DELETE /users/log_out`. That route calls:
 
     # lib/my_app_web/user_auth.ex
     def log_out_user(conn) do
@@ -143,7 +143,7 @@ The default layout includes a "Log out" link that posts to `DELETE /users/log-ou
       |> redirect(to: ~p"/")
     end
 
-`delete_user_session_token/1` removes the row from `users_tokens`, `renew_session/1` rotates the Phoenix session ID to defeat session-fixation, and the remember-me cookie is cleared. After the redirect, the user is anonymous again and protected routes bounce them to `/users/log-in`.
+`delete_user_session_token/1` removes the row from `users_tokens`, `renew_session/1` rotates the Phoenix session ID to defeat session-fixation, and the remember-me cookie is cleared. After the redirect, the user is anonymous again and protected routes bounce them to `/users/log_in`.
 
 Confirm: open devtools → Cookies. The `_my_app_key` value should have changed (session renewed) and `_my_app_web_user_remember_me` should be gone.
 
