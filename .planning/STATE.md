@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 10.1.1-06-PLAN.md
-last_updated: "2026-04-11T01:35:33.844Z"
+stopped_at: Completed 10.1.1-07-PLAN.md
+last_updated: "2026-04-11T01:41:56.442Z"
 last_activity: 2026-04-11
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 60
-  completed_plans: 58
-  percent: 97
+  completed_plans: 59
+  percent: 98
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-05)
 ## Current Position
 
 Phase: 10.1.1 (example-app-repair-ci-install-usage-smoke-harness) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-04-11
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 10.1.1 P04 | 15min | 2 tasks | 7 files |
 | Phase 10.1.1 P05 | 8min | 3 tasks | 17 files |
 | Phase 10.1.1 P06 | 3min | 3 tasks | 4 files |
+| Phase 10.1.1 P07 | 11min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase 10.1.1]: Plan 10.1.1-05: D-10 installer default flipped to binary_id: true via Keyword.get(opts, :binary_id, true); sigra.gen.oauth aligned; D-11 respected — no --primary-key flag added
 - [Phase 10.1.1]: Plan 10.1.1-06: --yes on mix sigra.install is a no-op placeholder (grep confirmed no interactive surface) — accepted by OptionParser and discarded, documented in @moduledoc
 - [Phase 10.1.1]: Plan 10.1.1-06: install_smoke + example_http_smoke run parallel (no needs:) to keep PR wall clock at max(jobs) rather than sum; http-smoke gates on 5xx only so 302-to-login is success
+- [Phase 10.1.1]: Plan 10.1.1-07: Playwright Test chosen for browser smoke (frameLocator iframe support for Swoosh mailbox); otplib TOTP defaults align with NimbleTOTP defaults — no config drift
+- [Phase 10.1.1]: Plan 10.1.1-07: SHA-pinned actions/setup-node v4.0.4 + actions/upload-artifact v4.4.3 on introduction; D-15 honored — retries live in playwright.config.ts, never at the Actions layer
 
 ### Roadmap Evolution
 
@@ -108,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T01:35:33.841Z
-Stopped at: Completed 10.1.1-06-PLAN.md
+Last session: 2026-04-11T01:41:47.939Z
+Stopped at: Completed 10.1.1-07-PLAN.md
 Resume file: None
