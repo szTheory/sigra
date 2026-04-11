@@ -20,11 +20,11 @@ defmodule ExampleWeb.Auth.SudoHTML do
         <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
       </.header>
 
-      <.form for={%{}} action={~p"/users/sudo"} method="post" class="space-y-4">
+      <.form :let={f} for={@form} action={~p"/users/sudo"} method="post" class="space-y-4">
         <input type="hidden" name="sudo[return_to]" value={@return_to} />
         <.input
+          field={f[:password]}
           type="password"
-          name="sudo[password]"
           label="Password"
           autocomplete="current-password"
           autofocus

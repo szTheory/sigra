@@ -17,7 +17,8 @@ defmodule <%= web_module %>.Auth.SudoController do
   use <%= web_module %>, :controller
 
   def new(conn, _params) do
-    render(conn, :new, return_to: conn.params["return_to"] || ~p"/")
+    form = Phoenix.Component.to_form(%{"password" => ""}, as: "sudo")
+    render(conn, :new, return_to: conn.params["return_to"] || ~p"/", form: form)
   end
 
   def create(conn, %{"sudo" => %{"password" => password, "return_to" => return_to}}) do
