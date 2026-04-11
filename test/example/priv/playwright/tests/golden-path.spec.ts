@@ -28,7 +28,12 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   // LV event becomes a separate HTTP round-trip, and the full validate→
   // save→trigger_submit chain can exceed the default 5s expect timeout.
   const waitForLiveViewReady = async () => {
-    await expect(page.locator('body.phx-connected').first()).toBeVisible({
+    // Phoenix LiveView adds `.phx-connected` to the LV root element (the
+    // <div data-phx-session="...">), not to <body>. `.first()` + a DOM
+    // presence check avoids the default "visible" viewport gate, since
+    // the root div may be a wrapper with no direct paint area of its own.
+    await page.waitForSelector('[data-phx-session].phx-connected', {
+      state: 'attached',
       timeout: 15_000,
     });
   };
