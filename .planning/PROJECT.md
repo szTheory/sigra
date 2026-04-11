@@ -8,6 +8,16 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## Current Milestone: v1.1 Foundations
+
+**Goal:** Ship the architectural foundation that unlocks v1.2's admin dashboard — logical multi-tenancy (organizations + memberships, single DB, no PG schema-per-tenant) and passkey/WebAuthn authentication. No admin UI in this milestone; only the user-facing surface each feature needs to be usable end-to-end.
+
+**Target features:**
+- Organizations (logical multi-tenancy, default-on with `--no-organizations` opt-out): `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas, `Sigra.Organizations` context, `Sigra.Plug.RequireMembership`, Scope struct extension (`:active_organization`, `:membership`), sessions `active_organization_id` column, automatic `organization_id` in audit metadata, HMAC-protected invite flow with email acceptance, `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` / `InvitationAcceptLive`, generator conditional template pattern (first in codebase, load-bearing for v1.2 `--no-admin`)
+- Passkeys (WebAuthn via `wax_`, default-on with `--no-passkeys` opt-out): `UserPasskey` schema with `cloak_ecto`-encrypted public keys, `Sigra.Passkeys` / `Sigra.Passkeys.Registration` / `Sigra.Passkeys.Authentication` contexts, `Sigra.Plug.PasskeyChallenge`, passkey-as-2FA AND passkey-as-primary modes, `PasskeyEnrollmentLive` / `PasskeyAuthenticationLive`, `MfaSettingsLive` updates to list passkeys alongside TOTP, runtime RP ID / origin config, JS hooks for credential ceremonies
+
+**Deferred to v1.2 "Admin Dashboard"** (full direction captured in `.planning/v1.2-DIRECTION.md`): admin user-management LiveView UI (Django-admin-loved, mobile-first, light+dark mode, basic branding, default-on opt-out), admin impersonation (time-limited, audited, sudo-gated, locked-down sensitive ops, org-scoped for org admins), expanded audit views (per-user, per-org, global, impersonation feed, CSV export).
+
 ## Current State
 
 **Shipped:** v1.0 Phoenix Auth Library — Initial Release (2026-04-11).
@@ -91,13 +101,71 @@ Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/pa
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
-### Active — Next Milestone (TBD)
+### Active — v1.1 Foundations
 
-Run `/gsd-new-milestone` to scope. Likely candidates surfaced by v1.0 retrospective:
+**Organizations (logical multi-tenancy):**
+- [ ] `Organization` schema + migration (id, name, slug unique, settings jsonb, deleted_at, timestamps)
+- [ ] `OrganizationMembership` schema + migration (user_id, org_id, role enum, status enum, joined_at, invited_by_id)
+- [ ] `OrganizationInvitation` schema + migration (email, org_id, role, hashed_token, expires_at, accepted_at, revoked_at)
+- [ ] `Sigra.Organizations` context (CRUD, membership ops, invite token generation via `Sigra.Token` HMAC)
+- [ ] `Sigra.Organizations.Membership` query helpers (list for user, check role, last-owner guard)
+- [ ] `Sigra.Plug.RequireMembership`
+- [ ] `%Scope{}` struct extension (`:active_organization`, `:membership`)
+- [ ] `fetch_current_scope` plug loads active org from session; `on_mount` assigns to LiveView socket
+- [ ] Sessions table `active_organization_id` column (nullable); org persists + switchable
+- [ ] Audit integration: `organization_id` auto-attached to metadata when scope carries active org
+- [ ] `Sigra.Audit.query/1` `:organization_id` filter via jsonb metadata operator
+- [ ] Registration flow: optional "create org" step; invite-token query param → register-into-org
+- [ ] Login flow: 0/1/2+ orgs handling (0 = standard, 1 = auto-select, 2+ = last-active or picker)
+- [ ] `OrganizationSwitcherLive` (dropdown/modal)
+- [ ] `OrganizationSettingsLive` (owner-only: rename, slug change, delete)
+- [ ] `OrganizationMembersLive` (list, invite, remove, role change; owner/admin gated)
+- [ ] `InvitationAcceptLive` (existing user sign-in-and-accept; new user signup-then-accept with email locked)
+- [ ] `organization_invitation_email.ex` template
+- [ ] Invite token expiry (7d default) + revocation
+- [ ] `mix sigra.install --organizations` (default on) / `--no-organizations` opt-out
+- [ ] Conditional generator template pattern (first in codebase; load-bearing for v1.2 `--no-admin`)
+- [ ] Backfill migration: create "personal" orgs for existing users (skippable)
+- [ ] Testing helpers: `create_organization/1`, `add_membership/3`, `log_in_user_with_org/3`
 
-- [ ] WebAuthn / FIDO2 / passkeys as second factor and primary passwordless method (deferred from v1.0 MFA scope — `wax_` dep already evaluated in CLAUDE.md stack)
-- [ ] Complete v1.0 GA gating: run SEED-001 human UAT items, close SEED-002 audit log conversion (triggered work)
-- [ ] Clear 999.1 backlog (Nyquist retroactive) and 999.2 backlog (Dependabot major bumps) — likely as a v1.0.1 patch milestone
+**Passkeys (WebAuthn via `wax_`):**
+- [ ] Add `wax_ ~> 0.7` dependency
+- [ ] `UserPasskey` schema + migration (user_id, credential_id unique, public_key bytea encrypted, sign_count, aaguid, nickname, device_hint, last_used_at, transports array, timestamps)
+- [ ] `cloak_ecto` encryption for `public_key` field (reuse OAuth vault)
+- [ ] `Sigra.Passkeys` context (registration, authentication, credential CRUD)
+- [ ] `Sigra.Passkeys.Registration` (ceremony options + response verification)
+- [ ] `Sigra.Passkeys.Authentication` (ceremony options + response verification)
+- [ ] `Sigra.Plug.PasskeyChallenge` (short-lived server-side challenge storage)
+- [ ] Passkey-as-2FA mode: MFA prompt shows TOTP + passkey + backup codes
+- [ ] Passkey-as-primary mode: opt-in, email + passkey login (usernameless where supported)
+- [ ] `PasskeyEnrollmentLive` (JS hook → `navigator.credentials.create`)
+- [ ] `PasskeyAuthenticationLive` (JS hook → `navigator.credentials.get`)
+- [ ] `MfaSettingsLive` update: passkeys list with rename/delete alongside TOTP/backup codes
+- [ ] Runtime RP ID / RP name / origin / attestation preference config (`:none` default)
+- [ ] `passkey_hooks.js` LiveView hooks
+- [ ] `mix sigra.install --passkeys` (default on) / `--no-passkeys` opt-out
+- [ ] Testing helpers: `register_passkey/2`, `authenticate_with_passkey/2`
+- [ ] Router: passkey routes under MFA scope
+
+**Cross-cutting:**
+- [ ] Getting-started guide updates covering orgs + passkeys
+- [ ] CI smoke harness coverage for org flows + passkey ceremony (extend phase 10.1.1 harness)
+
+### Deferred to v1.2 "Admin Dashboard"
+
+Full direction: `.planning/v1.2-DIRECTION.md`.
+
+- [ ] Admin user-management LiveView UI (Django-admin-loved, mobile-first, light+dark mode, basic branding)
+- [ ] Admin impersonation (time-limited, non-nestable, dual-actor audit, banner, locked-down sensitive ops, org-scoped)
+- [ ] Expanded audit views (per-user, per-org, global, security event feed, CSV export)
+- [ ] Admin UI mobile + dark-mode polish pass
+
+### Other deferred items
+
+- [ ] SEED-001: 8 human-only UAT items before v1.0 GA public announcement
+- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion (trigger-conditioned)
+- [ ] 999.1 backlog: Nyquist retroactive validation pass
+- [ ] 999.2 backlog: Dependabot major-version bumps
 
 ### Out of Scope
 
@@ -193,6 +261,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
+
 *Last updated: 2026-04-11 after v1.0 milestone completion — Sigra v1.0 Phoenix Auth Library: 12 phases, 60 plans, 117 tasks. All 85 requirements validated. 1249 tests + 33 doctests + 3 properties, 0 failures. 5 required CI checks on main (library_tests + example_unit_smoke + install_smoke + example_http_smoke + example_playwright_smoke). 2 seeds planted for GA gating (SEED-001) and audit atomicity followup (SEED-002). 2 backlog items parked (999.1 Nyquist retro, 999.2 Dependabot major bumps). Tagged v1.0.*
 
 *Last updated: 2026-04-09 after Phase 8 completion — Account lifecycle: email change (request/confirm/cancel with token security), password change (with current password verification and configurable session invalidation), account deletion (soft_delete/hard_delete/anonymize with grace period via Oban worker), hooks engine (Ecto.Multi integration for profile update callbacks), DataExport behaviour, RequirePasswordChange plug, 24 telemetry events, 7 email templates, Settings LiveView, reactivation page, generator injector wiring, and 10 testing helpers. Human UAT pending for visual verification.*
