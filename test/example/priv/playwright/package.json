@@ -1,0 +1,14 @@
+{
+  "name": "sigra-example-playwright",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright browser smoke for test/example (phase 10.1.1)",
+  "scripts": {
+    "test": "playwright test",
+    "install-browsers": "playwright install --with-deps chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "otplib": "^12.0.1"
+  }
+}
