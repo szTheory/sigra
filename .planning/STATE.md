@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 10.1.1-01-PLAN.md (doc drift + llms.txt + UAT runbook)
-last_updated: "2026-04-11T01:00:17.090Z"
+stopped_at: Completed 10.1.1-02-PLAN.md (B5 confirmation email + B7 sudo KeyError)
+last_updated: "2026-04-11T01:04:35.012Z"
 last_activity: 2026-04-11
 progress:
   total_phases: 12
   completed_phases: 11
   total_plans: 60
-  completed_plans: 53
-  percent: 88
+  completed_plans: 54
+  percent: 90
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-05)
 ## Current Position
 
 Phase: 10.1.1 (example-app-repair-ci-install-usage-smoke-harness) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-04-11
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 10.1.1 P01 | 10min | 3 tasks | 3 files |
+| Phase 10.1.1 P02 | 12min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Recent decisions affecting current work:
 - Foundation: Behaviours + callbacks at every extensibility point — no macros
 - [Phase 10.1.1]: Restored ex_doc default formatters ['html','markdown'] in docs/0 rather than deleting the override — intent stays documented at the call site
 - [Phase 10.1.1]: UAT runbook brew Postgres restore command duplicated in prerequisite AND teardown sections — end-of-session operators are unlikely to scroll back
+- [Phase 10.1.1]: Phase 10.1.1: Used existing host-app helper deliver_user_confirmation_instructions/2 instead of non-existent Sigra.Auth.request_confirmation/2 that RESEARCH.md referenced
 
 ### Roadmap Evolution
 
@@ -95,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11T01:00:17.087Z
-Stopped at: Completed 10.1.1-01-PLAN.md (doc drift + llms.txt + UAT runbook)
+Last session: 2026-04-11T01:04:35.009Z
+Stopped at: Completed 10.1.1-02-PLAN.md (B5 confirmation email + B7 sudo KeyError)
 Resume file: None

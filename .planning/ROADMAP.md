@@ -261,11 +261,11 @@ Plans:
 **Goal:** Repair the 5 remaining UAT integration bugs (B5-B9) in test/example/ (registration confirmation email, dual session stores, sudo KeyError, audit actor_id type mismatch, LiveView login form swallowed), fix doc drift + llms.txt + RUNBOOK brew collision note, flip the library installer default to uuid primary keys, and add a four-job CI smoke harness (install_smoke, example_http_smoke, example_playwright_smoke, example_unit_smoke) that would catch the B1-B9 class of bugs automatically on every PR.
 **Requirements**: Remediation — CONTEXT.md decisions D-01 through D-15 (no new requirement IDs; traceability cleanup deferred)
 **Depends on:** Phase 10.1
-**Plans:** 1/8 plans executed
+**Plans:** 2/8 plans executed
 
 Plans:
 - [x] 10.1.1-01-PLAN.md — Doc drift + llms.txt + RUNBOOK brew note (D-02, D-03, D-04)
-- [ ] 10.1.1-02-PLAN.md — B5 confirmation email wiring + B7 sudo template fix + template sync (D-05, D-08)
+- [x] 10.1.1-02-PLAN.md — B5 confirmation email wiring + B7 sudo template fix + template sync (D-05, D-08)
 - [ ] 10.1.1-03-PLAN.md — B6 session store unification in test/example + template sync (D-06, D-07)
 - [ ] 10.1.1-04-PLAN.md — B9 LoginLive → plain controller + template sync (D-12)
 - [ ] 10.1.1-05-PLAN.md — B8 audit type mismatch + library uuid default flip + guides (D-09, D-10, D-11)
