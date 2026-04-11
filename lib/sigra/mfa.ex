@@ -152,14 +152,18 @@ defmodule Sigra.MFA do
 
         codes = BackupCodes.generate(backup_count)
 
+        # Backup codes are effectively write-once — only `used_at` ever
+        # changes when a code is consumed. The shipped schemas use
+        # `timestamps(updated_at: false)`, so we only populate inserted_at.
+        # Any consumer schema that DOES have updated_at will get it
+        # auto-populated via its own changeset path, not this bulk insert.
         entries =
           Enum.map(codes, fn {_formatted, hashed} ->
             %{
               user_id: user.id,
               hashed_code: hashed,
               used_at: nil,
-              inserted_at: now,
-              updated_at: now
+              inserted_at: now
             }
           end)
 

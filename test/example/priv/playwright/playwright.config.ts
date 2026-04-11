@@ -11,10 +11,25 @@ export default defineConfig({
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
+  // The example app boots in MIX_ENV=dev which falls back to :longpoll
+  // transport when the WebSocket handshake can't complete (common in
+  // headless-chromium + Node.js Playwright runners). Every LiveView event
+  // then costs a full HTTP round-trip — a single phx-change+phx-submit
+  // dance can approach the default 5s expect ceiling. Raise the per-
+  // assertion ceiling globally rather than sprinkling { timeout: N }
+  // overrides through every spec.
+  expect: {
+    timeout: 15_000,
+  },
+  timeout: 60_000,
   use: {
     baseURL: process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000',
     trace: 'on-first-retry',
     headless: true,
+    // Longpoll transport makes each LiveView action slower; widen the
+    // default action (click/fill) and navigation ceilings accordingly.
+    actionTimeout: 15_000,
+    navigationTimeout: 15_000,
   },
   projects: [
     {

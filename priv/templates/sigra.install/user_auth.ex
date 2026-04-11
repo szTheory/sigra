@@ -127,9 +127,18 @@ defmodule <%= web_module %>.UserAuth do
   """
   def fetch_current_scope(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
-    user = user_token && <%= context_module %>.get_user_by_session_token(user_token)
+
+    {user, session} =
+      case user_token && <%= context_module %>.get_user_and_session_by_token(user_token) do
+        {u, s} -> {u, s}
+        _ -> {nil, nil}
+      end
+
     scope = user && Scope.for_user(user)
-    assign(conn, :current_scope, scope)
+
+    conn
+    |> put_private(:sigra_session, session)
+    |> assign(:current_scope, scope)
   end
 
   defp ensure_user_token(conn) do
