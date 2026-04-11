@@ -19,6 +19,9 @@ defmodule Mix.Tasks.Sigra.Install do
     * `--binary-id` / `--no-binary-id` - Use UUID (binary_id) primary keys
       (default: true). Pass `--no-binary-id` to use bigint integer PKs instead.
     * `--table` - Override the table name
+    * `--yes` - Non-interactive mode (accept all defaults). No-op today because
+      the installer has no interactive prompts; reserved for future use and
+      required by CI smoke jobs (phase 10.1.1).
 
   ## Examples
 
@@ -31,7 +34,14 @@ defmodule Mix.Tasks.Sigra.Install do
 
   use Mix.Task
 
-  @switches [live: :boolean, binary_id: :boolean, table: :string, api: :boolean, jwt: :boolean]
+  @switches [
+    live: :boolean,
+    binary_id: :boolean,
+    table: :string,
+    api: :boolean,
+    jwt: :boolean,
+    yes: :boolean
+  ]
   @default_opts [live: true, api: false, jwt: false, binary_id: true]
 
   @impl true
