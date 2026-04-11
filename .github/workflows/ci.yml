@@ -257,15 +257,25 @@ jobs:
           PGHOST: localhost
           PHX_SERVER: "true"
         run: mix phx.server &
-      - name: Wait for app to respond
+      - name: Wait for app and warm up LiveView routes
         run: |
+          # Wait for root.
           for i in $(seq 1 30); do
             if curl -sf http://localhost:4000/ > /dev/null; then
-              echo "App responding after ${i}s"; exit 0
+              echo "App responding after ${i}s"
+              break
             fi
             sleep 1
           done
-          echo "FAIL: app did not respond within 30s"; exit 1
+          # Warm up the routes the test will hit. With `plug_init_mode:
+          # :runtime` in dev, first-touch of each route pays compile-on-
+          # demand latency — without this, Playwright's first toHaveURL
+          # check on /users/register races the first LiveView compile.
+          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa; do
+            curl -sf -o /dev/null "http://localhost:4000${path}" \
+              && echo "warmed ${path}" \
+              || echo "warmup miss ${path} (non-fatal)"
+          done
       - name: Run Playwright golden-path spec
         working-directory: test/example/priv/playwright
         env:

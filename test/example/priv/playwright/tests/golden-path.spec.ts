@@ -34,10 +34,11 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   // --- 2. Confirm via dev mailbox ---
   const confirmHref = await extractConfirmationLink(page, email);
   await page.goto(confirmHref);
-  // Confirmation LiveView auto-confirms via the token in the URL.
-  await expect(page.getByText(/confirmed|confirmation/i).first()).toBeVisible({
-    timeout: 5_000,
-  });
+  // ConfirmationLive auto-confirms via the token in handle_params and
+  // redirects away from /users/confirm/:token. We assert the redirect rather
+  // than any flash text — the flash message is styled as a toast and its
+  // lifecycle has shifted across Phoenix versions.
+  await expect(page).not.toHaveURL(/\/users\/confirm\//, { timeout: 10_000 });
 
   // --- 3. Login (if not already authed) ---
   await page.goto('/users/log_in');
