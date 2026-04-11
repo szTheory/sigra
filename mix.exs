@@ -10,6 +10,7 @@ defmodule Sigra.MixProject do
       version: @version,
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
+      elixirc_options: elixirc_options(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # test_load_filters: tells `mix test` which files to load via require.
@@ -39,6 +40,38 @@ defmodule Sigra.MixProject do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  # Silence undefined-function warnings for optional deps and for internal
+  # modules that are conditionally compiled behind optional-dep guards. When
+  # Sigra is pulled in by a consumer that doesn't add these deps to its own
+  # mix.exs, the compiler would otherwise warn on every reference and break
+  # `mix compile --warnings-as-errors` downstream.
+  defp elixirc_options do
+    [
+      no_warn_undefined: [
+        # Optional deps (mix.exs: optional: true)
+        Bcrypt,
+        Hammer,
+        Swoosh.Email,
+        Oban,
+        Oban.Worker,
+        Oban.Job,
+        Assent.Strategy.Apple,
+        Assent.Strategy.Facebook,
+        Assent.Strategy.Github,
+        Assent.Strategy.Google,
+        Joken,
+        Joken.Signer,
+        Joken.Config,
+        EQRCode,
+        # Internal modules defined only when an optional dep is loaded
+        Sigra.Workers.AccountDeletion,
+        Sigra.Workers.AuditCleanup,
+        Sigra.Workers.EmailDelivery,
+        Sigra.Workers.TokenCleanup
+      ]
+    ]
+  end
 
   defp deps do
     [
