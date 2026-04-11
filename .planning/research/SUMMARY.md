@@ -1,278 +1,148 @@
-# Project Research Summary
+# Project Research Summary — Sigra v1.1 Foundations
 
-**Project:** Sigra
-**Domain:** Elixir/Phoenix open-source authentication library (hybrid lib+generator)
-**Researched:** 2026-04-04
-**Confidence:** HIGH
+**Project:** Sigra — Phoenix authentication library
+**Domain:** Adding logical multi-tenancy (Organizations) + WebAuthn (Passkeys) to a shipped auth library (v1.0 → v1.1)
+**Researched:** 2026-04-11
+**Confidence:** HIGH (all four research tracks converge; remaining unknowns are bounded and enumerated)
+
+> **Milestone scope rule:** This summary covers v1.1 Foundations only. Admin UI, impersonation, and audit views are v1.2. Every v1.1 decision has been checked for v1.2 forward-compat — flagged under "v1.2 Load-Bearing Decisions" below.
+
+---
 
 ## Executive Summary
 
-Sigra is a production-grade Phoenix 1.8+ authentication library that fills the gap left by Pow's death and phx.gen.auth's limitations. The core insight from research across all four domains is that Sigra must be a **hybrid library**: security-critical operations (hashing, token generation, TOTP verification, WebAuthn ceremonies, rate limiting) live in the library dep so security patches propagate via `mix deps.update`, while customizable UX code (schemas, controllers, LiveViews, routes, context module) is generated into the developer's project so they own and can modify it freely. This hybrid model is the primary differentiator — not a feature, but an architectural property — and it must be established in Phase 1 before anything else.
+Sigra v1.1 is a **purely additive milestone** bolting two independent feature tracks onto a shipped auth library: logical multi-tenancy (organizations + memberships on a single DB) and WebAuthn passkeys (via `wax_`). All four research streams — stack, features, architecture, pitfalls — converge on a consistent picture and **no cross-researcher contradictions surfaced** except the backfill-default question (flagged for discuss-phase). The recommended approach: add exactly one library dep (`{:wax_, "~> 0.7"}`), reuse every v1.0 primitive (Scope, Session, Token HMAC, Cloak vault, Hammer, Audit, Oban workers, Swoosh), and introduce a subdirectory-based generator feature manifest pattern that is **load-bearing for v1.2's `--no-admin`** and must be implemented correctly the first time.
 
-The recommended approach builds on a well-understood stack: Elixir 1.18+/OTP 27/Phoenix 1.8 with Argon2id (argon2_elixir) for password hashing, Assent for OAuth/OIDC, NimbleTOTP for TOTP primitives, Wax for WebAuthn, Hammer for rate limiting, and Swoosh/Oban for async email delivery. The architecture is Rodauth-inspired: per-feature tables with narrow responsibilities, a per-request auth context struct (`Scope`) that models authentication as a progression of states (anonymous → authenticated → mfa_complete → sudo), and behaviours over macros at every extensibility point. The generator produces explicit, readable Ecto schemas with no hidden field injection.
+Organizations is built as row-level MT with an explicit `org_id` FK — no library (Triplex, Tenantex, Ash MT all rejected as wrong model or abandoned), no PG schema-per-tenant, no URL prefix routing in v1.1, no auto-created personal orgs. Users without an org see a "create your first organization" prompt; a backfill migration for v1.0 upgraders is opt-in via `--backfill-personal-orgs`. The single largest bug class is the cross-tenant query leak (Pitfall O-1), defended in three layers: a raising `Sigra.Organizations.Query.for_org/2` helper, a Credo custom check flagging raw `Repo.` calls in tenant-scoped contexts, and integration isolation tests. Passkeys use `wax_` for the FIDO2 ceremony, `@simplewebauthn/browser ~> 13` as the JS client (shipped via the generator template, not mix.exs), signed+encrypted Plug session for 60s challenge storage, and Cloak-encrypted `public_key` (reusing the v1.0 OAuth vault). Passkey enrollment is sudo-gated from day one; every registration emails the user (reusing the v1.0 suspicious-login shape); sign-count regression defaults to `:warn` not `:revoke` (false-positive-heavy signal).
 
-The key risks are all Phase 1 decisions that cannot be retrofit: macro-driven schema hiding (the Pow trap), pure-generator architecture with no security patch path (the phx.gen.auth trap), JWT for browser sessions (the Guardian trap), and database adapter abstraction (the Lucia trap). Each of these has caused a well-known auth library to fail or become unmaintainable. Research is unambiguous: get the library/generated boundary right, use opaque database-backed tokens for sessions, target Ecto exclusively, and use behaviours instead of macros. Everything downstream depends on these decisions holding.
+Key risks are well-understood and mitigable: (1) **cross-tenant leakage** (O-1, O-11) — layered prevention; (2) **invite hijack** (O-2, Jetstream #907 / CVE-2026-1529 class) — email-bound HMAC tokens with current-user email assertion; (3) **WebAuthn challenge replay** (P-1, OneUptime CVE) — server-stored challenge in Plug session, never from `clientDataJSON`; (4) **stolen-session passkey enrollment** (P-2) — `Sigra.Plug.RequireSudo` gate + email notification; (5) **generator partial-apply** (X-1) — feature manifest + subdirectory convention + combinatorial CI smoke test. Every critical pitfall traces to a concrete CVE / post-mortem / GitHub issue. **The organizations and passkeys tracks are independent and parallelizable after two foundation phases (generator feature system + scope/session extension) land.**
 
 ---
 
 ## Key Findings
 
-### Recommended Stack
+### Recommended Stack Additions (from STACK.md)
 
-The stack is Phoenix-native with no surprising choices. Argon2id via `argon2_elixir` is the OWASP-recommended password hashing algorithm (memory-hard, GPU-resistant); bcrypt support is kept as an optional migration path only. Assent replaces Ueberauth because it is framework-agnostic, has PKCE support, covers 20+ providers in one package, and is actively maintained. For MFA, NimbleTOTP provides the RFC 6238 cryptographic primitive but Sigra must build the full lifecycle on top (enrollment state machine, backup codes, trust-this-browser, enforcement policies). Wax is the only maintained WebAuthn library for Elixir; it passes all 170 official test suite tests and is deferred to v2. Hammer 7.x provides rate limiting with an ETS backend requiring no external dependency, with an optional Redis backend for multi-node deployments. Oban provides background email delivery with automatic inline fallback for apps not using Oban.
+**New mix.exs dep (exactly one):**
+- **`{:wax_, "~> 0.7"}` (v0.7.0, May 2025)** — only maintained WebAuthn RP library for Elixir; passes all 170 official FIDO2 test suite tests. Package name has a trailing underscore. Covers ES256/RS256/PS256/Ed25519. Clean on OTP 27 / Elixir 1.18.
 
-**Core technologies:**
-- `argon2_elixir ~> 4.1`: Password hashing — OWASP gold-standard Argon2id; wrap behind `Sigra.Password`, never expose directly
-- `comeonin ~> 5.3`: Password hashing behaviour — enables transparent bcrypt→Argon2id migration on login
-- `assent ~> 0.3`: OAuth 2.0 / OIDC / social login — framework-agnostic, PKCE, 20+ providers; preferred over Ueberauth
-- `nimble_totp ~> 1.0`: TOTP RFC 6238 primitive — cryptographic primitive only; full lifecycle built in Sigra
-- `wax_ ~> 0.7`: WebAuthn / FIDO2 / passkeys — only maintained Elixir WebAuthn library; deferred to v2
-- `swoosh ~> 1.5` (optional): Transactional email — Phoenix default mailer; expose `Sigra.Mailer` behaviour for swappability
-- `hammer ~> 7.3` (optional): Rate limiting — ETS backend, no Redis required; Hammer 7.x API is a breaking change from 6.x
-- `oban ~> 2.17` (optional): Background jobs — async email delivery with inline fallback; token cleanup jobs
-- `cloak_ecto ~> 1.3`: Field encryption — AES-256-GCM for OAuth tokens and TOTP secrets at rest
-- `nimble_options ~> 1.1`: Option validation — eliminates scattered config; auto-generates documentation
-- Elixir `~> 1.18`, OTP `~> 27`, Phoenix `~> 1.8`, Ecto `~> 3.12` — minimum version targets; Ecto 3.13 adds `:writable` field option and `Repo.transact/2`
+**New JS dep (generator template only, not mix.exs):**
+- **`@simplewebauthn/browser ~> 13`** — MasterKale, ~8 KB, handles base64url + AbortController + conditional mediation + error translation. "~30 lines vanilla JS" is a trap.
 
-**Critical version note:** Hammer 7.x has a completely different API from 6.x. Do not use 6.x patterns. `wax_` (note underscore) is the correct package name, not `wax`.
+**Reused v1.0 stack (zero version bumps):**
+- `cloak_ecto ~> 1.3` — reused for `UserPasskey.public_key` via `Cloak.Ecto.Binary` on `:binary` (bytea). Reuses OAuth-token vault. Known-unqueryable — lookups go by `credential_id` (unencrypted + indexed).
+- `Sigra.Token` HMAC helper — new context `:organization_invite`, zero code change.
+- `Hammer` — new keys: `"passkey_ceremony:#{user_id}"` (5/min), per-user invitation creation (20/day).
+- `Oban` (optional) — new workers: `PasskeyChallengeCleanup`, membership-change session cleanup.
+- `NimbleOptions` — new config groups `:organizations`, `:passkeys` (rp_id, rp_name, origins, attestation, challenge_ttl).
+- `Swoosh` — new `organization_invitation_email.ex`; existing emails grow optional `opts[:organization]`.
 
-### Expected Features
+**Explicitly NOT adopted:** no MT library (Triplex/Tenantex/Ash MT); no `webauthn_components` (wrong layer); no `Igniter` (scope creep — revisit v2.0); no custom WebAuthn reimplementation.
 
-The MVP (v1.0) is defined by what makes Sigra genuinely useful for production SaaS immediately: the standard auth lifecycle plus social login and security baseline that phx.gen.auth explicitly lacks. The install story — `mix sigra.install` — is as important as any auth feature because adoption is blocked without it.
+### Consolidated Feature Table Stakes / Differentiators / Anti-Features (from FEATURES.md)
 
-**Must have (v1.0 — table stakes):**
-- Email/password registration with Argon2id hashing
-- Login/logout with database-backed opaque sessions
-- Email confirmation with single-use HMAC tokens (48hr TTL)
-- Password reset via secure HMAC tokens (60min TTL)
-- Remember-me persistent session (60-day, separate token context)
-- `mix sigra.install` generator — schemas, context, routes, LiveViews, migrations
-- Route protection plugs for HTTP pipeline and LiveView `on_mount`
-- Social login via Assent (Google, GitHub minimum)
-- Account lockout (temporary, self-releasing after 15min) + IP-based rate limiting
-- Email enumeration prevention by default (identical responses for known/unknown email)
-- Session invalidation on password change
-- Telemetry events for all auth operations
-- Testing helpers (ExUnit: `log_in_user/2`, `register_user/1`, etc.)
+**Must have — Table Stakes:**
 
-**Should have (v1.x — production-grade completeness):**
-- TOTP full lifecycle: enrollment UI, QR code, backup codes (8 single-use, SHA-256 hashed), trust-this-browser, enforcement policies
-- API bearer token authentication with prefix-format keys (`myapp_live_abc...`), scopes, expiration
-- Active session tracking and revocation UI (IP + user agent + last active)
-- Audit logging (structured security event log, queryable API)
-- Sudo / re-authentication mode (`RequireSudo` plug, configurable window)
-- Email change with dual-notification (verify new, notify old with cancel link)
-- Magic link / passwordless email (15min TTL, rate-limited send)
-- Password hash migration (bcrypt → Argon2id transparent upgrade on login)
-- Personal access tokens (GitHub-style PATs with scopes)
-- Suspicious login detection (new IP/device triggers email)
-- JWT support (stateless API use cases only)
+*Organizations:* `Organization` (name + unique slug + JSONB settings + soft-delete), `OrganizationMembership` (owner/admin/member enum), `OrganizationInvitation` (HMAC token, hashed, 7d default expiry, accepted_at, revoked_at); `Sigra.Organizations` context + `Sigra.Plug.RequireMembership`; Scope struct + `user_sessions.active_organization_id` column; invite-by-email with email-locked acceptance; login handles 0/1/2+ org cases gracefully; `OrganizationSwitcherLive`/`OrganizationSettingsLive`/`OrganizationMembersLive`/`InvitationAcceptLive`; last-owner guard enforced **server-side inside an Ecto.Multi**; audit log auto-attaches `organization_id` (real column, not JSONB); `--no-organizations` opt-out; opt-in backfill migration.
 
-**Defer to v2+:**
-- WebAuthn / passkeys (high value, high complexity; Wax integration needs ceremony design)
-- Organizations / multi-tenancy with invitations (depends on stable identity layer)
-- Enterprise SSO per org (depends on Organizations)
-- SMS OTP (security concerns; NIST deprecated; ship with strong warnings only)
-- Admin impersonation (provide building blocks; defer built-in to v2)
-- OAuth2 server / acting as IdP (Boruta integration; separate concern)
-- SCIM directory sync (enterprise niche; future plugin)
+*Passkeys:* `UserPasskey` schema (Cloak-encrypted public key, unique `credential_id`, `sign_count`, `aaguid`, `nickname`, `transports`, `last_used_at`, **`rp_id`** for domain-rename safety); `Sigra.Passkeys`/`Registration`/`Authentication` contexts + `Sigra.Plug.PasskeyChallenge`; passkey-as-2FA (default, integrated into `MfaSettingsLive`); passkey-as-primary (opt-in, email-first); `PasskeyEnrollmentLive`/`PasskeyAuthenticationLive` + `passkey_hooks.js`; runtime RP ID / origin / RP name config (compile-time baking forbidden); attestation `:none`, UV `:preferred` defaults; multiple passkeys per user (soft cap 10), rename, delete (sudo-gated); AAGUID friendly-name bundle; Conditional UI / autofill (feature-detected); duplicate-device detection; email notification on registration; `--no-passkeys` opt-out.
 
-**Anti-features — explicitly exclude:**
-- Macro-based schema injection (`use Sigra.Schema` field injection)
-- Permanent account lockout (DoS vector)
-- Built-in RBAC/authorization (separate concern; Sigra provides identity context only)
-- SAML built-in (maintenance burden; architect for future plugin)
+*Cross-cutting:* generator feature-manifest subdirectory pattern (first use — load-bearing for v1.2); testing helpers `create_organization/1`, `add_membership/3`, `log_in_user_with_org/3`, `register_passkey/2`, `authenticate_with_passkey/2`.
 
-### Architecture Approach
+**Should have — Differentiators:** no auto-created personal org (deliberate Jetstream-mistake avoidance); invite token query-param → register-into-org frictionless flow; resume last-active org on login; email-locked invite acceptance; AAGUID-derived friendly device names; sync-credential transparency badges ("Synced to iCloud/Google/Windows"); unified MFA settings page (TOTP + passkeys + backup codes on one screen — Clerk pattern).
 
-Sigra follows a three-layer architecture: the library core (`Sigra.*` in the dep) contains all security-critical pure functions and process wrappers; the generated Phoenix context (`MyApp.Auth`) is the public API boundary that orchestrates library calls; and the web layer (controllers/LiveViews) never touches schemas or library functions directly. The generated `MyApp.Auth.Scope` struct carries progressive auth state (`:anonymous` → `:authenticated` → `:mfa_pending` → `:mfa_complete` → `:sudo`) through the request lifecycle on both `conn.assigns.current_scope` and `socket.assigns.current_scope`. This Rodauth-inspired approach with per-feature narrow tables (users, user_tokens, user_identities, mfa_credentials, api_keys, sessions, audit_log) provides clean schema evolution, clear ownership, and proven scalability.
+**Anti-features — explicitly NOT in v1.1:** auto-created "personal team" on signup; PostgreSQL-schema-per-tenant; full RBAC/permissions engine; "accept invitation as any logged-in user"; unbounded invite lifetime; passkey with no recovery fallback; attestation `:direct` default; `userVerification: required` default; admin cross-org management UI (v1.2); admin impersonation (v1.2).
 
-**Major components:**
-1. **`Sigra.Password`** — Argon2id hashing, bcrypt migration detection, constant-time comparison (library dep)
-2. **`Sigra.Token`** — HMAC-protected token generation/verification, single-use enforcement (library dep)
-3. **`Sigra.Session`** — Session lifecycle, idle/absolute timeouts, device tracking (library dep)
-4. **`Sigra.OAuth`** — Assent integration, callback handling, provider normalization (library dep)
-5. **`Sigra.MFA`** — TOTP via NimbleTOTP, backup codes, WebAuthn via Wax (library dep)
-6. **`Sigra.RateLimit`** — Per-IP and per-account lockout via ETS/Hammer (library dep)
-7. **`Sigra.Audit`** — Structured security event logging (library dep)
-8. **`MyApp.Auth`** — Generated Phoenix context: public API, orchestrates library calls (developer owns)
-9. **`MyApp.UserAuth`** — Generated plugs: `require_authenticated_user`, `fetch_current_scope_for_user`, `on_mount` hooks (developer owns)
-10. **Ecto schemas + migrations** — Generated per-feature; explicit fields, no library injection (developer owns)
+### Integration + Build Order (from ARCHITECTURE.md)
 
-**Key patterns:**
-- Behaviours + callbacks at every extensibility point (mailer, rate limiter, session store) — never macros
-- Dual-mode auth plug: session cookie or Bearer token → same `current_scope` shape downstream
-- `phx-trigger-action` for all session-mutating flows (login, logout, MFA verify) — never via LiveView events
-- Explicit dependency injection: `repo`, `mailer` passed as arguments, not read from `Application.get_env`
-- Index `user_tokens` on `(token_hash, context)` with partial indexes; Oban job for expired token cleanup
+Consolidated dependency-respecting phase structure (13 phases, two parallelizable tracks):
 
-### Critical Pitfalls
+| # | Phase | Depends on | Addresses pitfalls | Track |
+|---|-------|------------|--------------------|-------|
+| 1 | **Generator feature system** (subdirs + behaviour + `Features.Core` move) | — | X-1, X-3 | Foundation |
+| 2 | **Scope + session column extension** (`:active_organization`, `:membership`, reserved `:impersonating_from`; `user_sessions.active_organization_id`) | 1 | O-5, O-6 | Foundation |
+| 3 | **Organizations schemas + context** (`Query.for_org/2`, soft-delete FK design, reserved slug list) | 2 | O-1, O-4, O-9, O-10 | Org track |
+| 4 | **Org plugs + scope hydration** (`LoadActiveOrganization`, `RequireMembership`, `on_mount`) | 2, 3 | O-5, O-6 | Org track |
+| 5 | **Audit integration** (`metadata_from_scope`, `organization_id` real column, reserved `effective_user_id`, worker arg pattern) | 4 | O-7 (IMP+), O-11 | Org track |
+| 6 | **Org LiveViews + switcher** | 3, 4, 5 | O-5 | Org track |
+| 7 | **Invitation flow + email template** | 6 | O-2, O-3 | Org track |
+| 8 | **Backfill migration + `--organizations` generator wiring** | 7 | O-8, X-2 | Org track |
+| 9 | **Passkey schema + `Sigra.Passkeys.*` contexts** | 1 (parallel with 3+) | P-1, P-4, P-6, P-7 | Passkey track |
+| 10 | **`PasskeyChallenge` plug + runtime config + JS hooks infra** | 9 | P-1, P-3, P-8 | Passkey track |
+| 11 | **Passkey LiveViews + POST-auth controller** | 10 | P-2, P-5, P-9 | Passkey track |
+| 12 | **`--passkeys` generator wiring** | 11, 1 | X-1, X-3 | Passkey track |
+| 13 | **Docs + CI smoke extension + upgrade guide** | 8, 12 | P-3, P-10, P-11, X-4 | Cross-cut |
 
-1. **Macro-driven schema hiding (The Pow Trap)** — Avoid any `use Sigra.Schema` that injects fields. Generate real, readable Ecto schemas into the developer's project. Every field must be visible in their own files. This is a Phase 1 foundation decision; retrofitting requires a major version break.
+**Parallelization:** Phases 9–11 (passkey) run in parallel with 3–7 (org) after phases 1 + 2. Phases 8 and 12 are serialization points before phase 13.
 
-2. **Pure generator with no security patch path (The phx.gen.auth Trap)** — All cryptographic operations (HMAC, hash, token generation, TOTP verify, WebAuthn ceremony) must live in library modules, never in generated files. Generated code calls library functions. A changelog entry that says "update your generated files to fix X" is a failure mode. This boundary is the entire reason Sigra exists.
+### Watch Out For — Top 10 Pitfalls (from PITFALLS.md)
 
-3. **JWT for browser sessions (The Guardian Trap)** — Opaque database-backed tokens for all sessions. JWTs are appropriate only for stateless API use cases where instant revocation is not required. Database-backed tokens enable instant invalidation, "log out everywhere" as a single `DELETE`, and password change that truly ends all active sessions.
+| # | Pitfall | Severity | v1.2 impact | Prevention |
+|---|---------|----------|-------------|------------|
+| 1 | **O-1: Missing `organization_id` filter → cross-tenant leak** | CRITICAL | IMP+ | 3-layer: raising `for_org/2` + Credo custom check + integration isolation tests |
+| 2 | **O-2: Invite token redeemable by wrong logged-in user** (Jetstream #907, Keycloak CVE-2026-1529) | CRITICAL | IMP+ | Email-bound HMAC token + `current_user.email == invitation.email` assertion (citext) + mismatch page, no accept button |
+| 3 | **O-4: Last-owner lockout + admin-deletes-owner escalation** | CRITICAL | IMP+ | Server-side role gate + last-owner count **inside the same `Ecto.Multi`** + explicit `transfer_ownership` flow |
+| 4 | **P-1: Server accepts client-supplied challenge → WebAuthn replay** (OneUptime GHSA-gjjc-pcwp-c74m) | CRITICAL | — | Server-generated + server-stored (Plug session) + server-verified; delete on verify; 60s TTL |
+| 5 | **P-2: Passkey enrollment without re-auth → stolen-session perma-takeover** | CRITICAL | IMP+ | Gate `PasskeyEnrollmentLive` with `Sigra.Plug.RequireSudo`; email notification; audit event |
+| 6 | **O-7: Audit misattribution under impersonation (IMP+)** | MED v1.1 / CRIT v1.2 | **IMP+ core** | Add `effective_user_id` + `organization_id` as **real columns** in v1.1 migration; single assembly via `metadata_from_scope/2` |
+| 7 | **X-1: Generator partial-apply on first conditional templates** | HIGH | IMP+ | Subdir feature manifest + idempotent writes + pre-flight `Mix.Phoenix.check_*` + combinatorial CI smoke matrix |
+| 8 | **O-10: Organization deletion cascade wipes audit log** | HIGH | IMP+ | Soft-delete default; `audit_events.organization_id → on_delete: :nilify_all` + metadata copy of org name/slug |
+| 9 | **O-11: Background worker runs without tenant context** | HIGH | IMP+ | `Sigra.Workers` behaviour; every worker `args` carries `organization_id` + `actor_id`; `perform/1` reconstructs scope |
+| 10 | **P-3: RP ID / origin rotation kills all existing passkeys** | HIGH operational | — | Runtime config only; `NimbleOptions` boot validation; store `rp_id` on `UserPasskey`; document rename playbook |
 
-4. **Database adapter abstraction (The Lucia Trap)** — Ecto is the only supported data layer. Lucia's maintainer explicitly cited adapter complexity as the primary reason for deprecation. Ecto is already the adapter abstraction; adding a Sigra-level adapter on top creates fragility and constrains the API.
+**Honourable mentions:** O-3 invite replay (hashed storage + inside Multi), O-5 cross-org session confusion (server session authoritative), O-9 slug squatting (hardcoded reserved list including `admin`), P-4 sign-count false positives (`:warn` default), P-5 passkey-sole-factor lockout (mandatory fallback at enrollment), P-6 StrongKey credential-confusion (CVE-2025-26788 — verify returned credential_id belongs to requested user), P-8 JS hook abort/timeout (SimpleWebAuthn + `AbortController` in `destroyed()`), X-2 migration ordering (strictly ordered timestamps, idempotent batches), X-4 v1.0→v1.1 upgrade crashes (nil-guarded template accessors + upgrade test fixture).
 
-5. **MFA as a bolted-on function (The NimbleTOTP Trap)** — TOTP is a complete login state machine, not a function call. The `mfa_pending` session state must block route access, not just redirect. Rate limit MFA code attempts independently. Backup codes must be hashed (SHA-256), single-use, and consumed atomically. The TOTP window must be ±1 step maximum (the AuthQuake vulnerability used a wide window for 3% brute-force success per attempt).
+---
 
-6. **Email enumeration via inconsistent responses** — All email-accepting endpoints must return identical responses for known and unknown email addresses. This must be on by default, not opt-in. Includes dummy hash computation on login for nonexistent users to prevent timing-based enumeration.
+## v1.2 Load-Bearing Decisions (Forward-Compat)
 
-7. **OAuth auto-linking without confirmation** — When an OAuth callback matches an existing email-based account, require explicit user confirmation before linking. Auto-linking is an account takeover vector. Default to confirmation-required; make auto-link an explicit opt-in.
+Every item below is **chosen in v1.1 specifically to unblock v1.2** and must be implemented correctly the first time. Missing any one forces an expensive retrofit in v1.2.
+
+| Decision | Why it's load-bearing |
+|---|---|
+| **`%Scope{impersonating_from: nil}` reserved field** | v1.2 `Sigra.Plug.Impersonate` populates it; pattern matches stay additive |
+| **`audit_events.organization_id` as a real indexed column** (not JSONB) | v1.2 per-org audit views need index-friendly filtering |
+| **`audit_events.effective_user_id` column added in v1.1** (populated identically to `user_id`) | v1.2: `user_id` = impersonator, `effective_user_id` = target; v1.2 divergence is additive only |
+| **`metadata_from_scope/2` as single audit assembly point** with reserved comment block | v1.2 changes only the helper, not call sites |
+| **Subdirectory + feature manifest generator pattern** (`Sigra.Install.Feature` behaviour + `Features.{Core, Organizations, Passkeys}`) | v1.2's `--no-admin` = add `Features.Admin` + `admin/` subdir. No rework. |
+| **`admin` in hardcoded reserved slug list** | Prevents `/admin` route conflict when v1.2 admin dashboard lands |
+| **Session-only active-org storage** (no `/orgs/:slug/...` in v1.1) | v1.2 admin UI introduces `/admin/*` as separate scope with zero disruption |
+| **Oban `Sigra.Workers` behaviour: args carry `organization_id` + `actor_id`** | v1.2 worker audit writes need full scope reconstruction |
+| **Passkey enrollment in v1.2 "locked-down ops" list** | v1.2 impersonation must not allow impersonator to enroll their own passkey as target user |
+| **`user_sessions.active_organization_id` as single source of truth** (not cookie, not URL) | v1.2 impersonation also per-session; co-locates cleanly |
+| **Soft-delete orgs + `audit_events.organization_id → :nilify_all`** | v1.2 audit feed must survive org deletion for SOC2/GDPR |
+| **`UserPasskey.rp_id` stored at registration** | v1.2+ admin UI distinguishes credentials across RP ID eras |
 
 ---
 
 ## Implications for Roadmap
 
-Based on research, the component dependency graph and pitfall-to-phase mappings suggest a 6-phase structure:
+### Suggested Phase Structure (13 phases)
 
-### Phase 1: Foundation and Core Auth
+1. **Generator Feature System** — load-bearing for v1.2 `--no-admin`; mechanical refactor moving v1.0 flat templates into `core/` subdir.
+2. **Scope + Session Foundation** — `%Scope{}` gets `:active_organization`, `:membership`, reserved `:impersonating_from`; `user_sessions.active_organization_id`.
+3. **Organizations Schemas + Context** (org track begins) — `Query.for_org/2` raising helper, last-owner guard in Multi, reserved slugs, soft-delete + cascade.
+4. **Org Plugs + Scope Hydration** — `LoadActiveOrganization`, `RequireMembership`, stale-pointer handling.
+5. **Audit Integration** — `organization_id` + `effective_user_id` real columns, `metadata_from_scope/2`, `Sigra.Workers` behaviour.
+6. **Org LiveViews + Switcher** — dropdown in header, LiveComponent posting to plain controller.
+7. **Invitation Flow + Email** — email-locked acceptance, HMAC token, single-use + expiry + revoke.
+8. **Backfill Migration + `--organizations` Generator Wiring** (serialization point) — opt-in, idempotent, batched, adapter-branched.
+9. **Passkey Schema + Contexts** (passkey track, parallel to 3-7) — `wax_` dep, Cloak-encrypted public key, sign-count policy, credential-confusion prevention.
+10. **Passkey Challenge Plug + JS Hooks Infra** — Plug session challenge, runtime RP ID config, SimpleWebAuthn bridge.
+11. **Passkey LiveViews + POST-Auth Controller** — sudo-gated enrollment, email notification, duplicate-device detection, conditional UI.
+12. **`--passkeys` Generator Wiring** (serialization point) — validates feature manifest pattern on a second feature.
+13. **Docs + CI Smoke Extension + Upgrade Guide** — combinatorial matrix, `test/upgrade_test.exs` fixture, honest threat model, RP-ID rename playbook.
 
-**Rationale:** Every other feature depends on the library/generated boundary, schema design, session architecture, and config surface. These decisions cannot be changed without breaking user code. All four critical pitfalls (macro hiding, pure generator, JWT sessions, adapter abstraction) are Phase 1 concerns that must be addressed before writing a single feature.
-
-**Delivers:**
-- Hybrid lib+generator architecture with clear boundary established
-- Data layer: User, UserToken schemas + migrations
-- `Sigra.Password` and `Sigra.Token` modules (pure functions, highest test ROI)
-- `Sigra.Session` module (opaque database-backed tokens)
-- `MyApp.Auth` context generation pattern
-- `MyApp.UserAuth` plug + `on_mount` hook generation
-- `MyApp.Auth.Scope` struct with progressive auth states
-- Single flat config module validated at startup
-- Email/password registration + login + logout
-- Email enumeration prevention by default
-- Session invalidation on password change
-- Telemetry events skeleton
-- `mix sigra.install` generator (foundation; feature flags added per phase)
-
-**Avoids:** Macro schema hiding, JWT sessions, database adapter abstraction, config sprawl, LiveView session mutation
-
-**Research flag:** Standard Phoenix patterns — well-documented. No additional research needed beyond what is in ARCHITECTURE.md.
-
----
-
-### Phase 2: Email Flows and Security Baseline
-
-**Rationale:** Email confirmation and password reset complete the core auth lifecycle. Account lockout and rate limiting are the security baseline that phx.gen.auth lacks — they are listed as P1 must-haves and are required before social login (which creates additional registration paths that need the same protections).
-
-**Delivers:**
-- Email confirmation with single-use HMAC tokens (48hr TTL)
-- Password reset with secure HMAC tokens (60min TTL, invalidates all sessions)
-- Remember-me persistent session (separate token context, 60-day TTL)
-- Account lockout: temporary, self-releasing after 15min, never permanent
-- IP-based rate limiting via Hammer with ETS backend
-- Resend rate limiting on confirmation emails
-- Mailer behaviour + Swoosh default templates (confirmation, password reset)
-- Testing helpers for all flows (`log_in_user/2`, `register_user/1`)
-
-**Avoids:** Permanent lockout as DoS vector, enumeration via timing differences, synchronous email delivery blocking requests
-
-**Research flag:** Standard patterns — well-documented. Pitfalls research is the key resource for correctness details (single-use enforcement, HMAC token security).
-
----
-
-### Phase 3: Social Login and OAuth
-
-**Rationale:** Social login is the #1 community pain point for Elixir SaaS developers and the most immediate differentiator from phx.gen.auth. It depends on the core user and session infrastructure from Phases 1-2. Account linking logic is the hardest part and must be designed explicitly before implementation.
-
-**Delivers:**
-- Assent integration: `Sigra.OAuth` module
-- Google and GitHub providers (minimum); extensible to all Assent-supported providers
-- `user_identities` schema + migration
-- Three-case account linking: new user, existing user (email match requiring confirmation), existing user (already has provider)
-- OAuth state parameter CSRF validation on callbacks
-- Multiple OAuth providers per user (link/unlink from settings)
-- Provider access/refresh token encryption via cloak_ecto
-- Account linking confirmation flow (email to existing address)
-
-**Avoids:** OAuth auto-linking account takeover vulnerability, trusting provider email claims unconditionally, missing CSRF state validation
-
-**Research flag:** OAuth account linking edge cases (no email from provider, duplicate accounts) warrant careful design review. PITFALLS.md section 7 and the Doyensec/RFC 9700 sources are required reading before implementation.
-
----
-
-### Phase 4: MFA — TOTP Full Lifecycle
-
-**Rationale:** TOTP is the #2 community pain point and a B2B enterprise requirement. It depends on session state from Phase 1 (for `mfa_pending` state propagation) and email flows from Phase 2 (for backup code recovery via email). The session state machine must be fully modeled before any MFA code is written — this is the most common MFA implementation failure.
-
-**Delivers:**
-- `Sigra.MFA.TOTP` module (NimbleTOTP wrapper)
-- `mfa_credentials` schema + migration (TOTP secret encrypted via cloak_ecto)
-- Complete enrollment state machine: generate secret → show QR code → user confirms with valid code → enable
-- Backup codes: 8 single-use codes, SHA-256 hashed, atomically consumed
-- MFA enforcement policies: optional, required-for-role, org-level (org-level deferred to v2 orgs feature)
-- Rate limiting on MFA verify endpoint (independent from login rate limiting)
-- "Trust this browser" encrypted cookie (14-day default, user-specific HMAC)
-- Recovery via backup code path
-- `mfa_pending` → `mfa_complete` session state transition enforced in plugs
-
-**Avoids:** NimbleTOTP bolted-on-function trap, wide TOTP window (AuthQuake), plaintext backup codes, unrate-limited MFA verify endpoint, enrollment without confirmation code verification
-
-**Research flag:** The `mfa_pending` session state machine and the trust-this-browser cookie security design benefit from an explicit design review before coding. Patterns are documented in ARCHITECTURE.md and PITFALLS.md but the session state machine is complex enough to warrant drawing it out.
-
----
-
-### Phase 5: API Authentication
-
-**Rationale:** API bearer token authentication is required for Persona C (API builders) and unlocks a significant user segment that currently has no good integrated option in the Elixir ecosystem. It depends on the existing session and token infrastructure from Phase 1 (same `user_tokens` table with different `context` values). The dual-mode auth plug requires careful design to ensure session invalidation (password change, revoke-all) works uniformly for both auth paths.
-
-**Delivers:**
-- `Sigra.Plug.DualModeAuth`: detects Bearer header vs. session cookie; both paths produce same `current_scope` shape
-- API key schema + migration: `key_hash`, `key_prefix` (e.g., `sigra_sk_`), `scopes`, `expires_at`, `revoked_at`, `last_used_at`
-- API key issuance: raw key shown exactly once; hash stored; never retrievable again
-- Personal access tokens (GitHub-style PATs with scopes)
-- Bearer token endpoint for token-based issuance
-- Revoke all sessions (password change) covers both session tokens and API keys
-- JWT support as lightweight add-on (stateless API use cases only)
-- Headless mode: all logic works without LiveView/HTML components
-
-**Avoids:** Session-and-API as separate code paths with diverging security properties, API key prefix collision (32+ byte cryptographic suffix), showing API key more than once
-
-**Research flag:** Standard patterns. ARCHITECTURE.md dual-mode auth section and bearer token flow diagram are sufficient. No additional research needed.
-
----
-
-### Phase 6: Advanced Security Features
-
-**Rationale:** These features complete the "production-grade" story for compliance buyers and security-conscious users. They are all additive (no schema changes to earlier tables) and depend on the full auth lifecycle being stable. Audit logging is cross-cutting and designed to be added per-feature as each one stabilizes.
-
-**Delivers:**
-- Active session tracking UI: per-session IP, user agent, last active; LiveView revocation interface
-- Audit logging: `audit_log` table (user_id, action, IP, user agent, metadata JSONB); queryable API; async Oban writes
-- Sudo / re-authentication mode: `RequireSudo` plug, configurable window, triggered on sensitive operations
-- Email change with dual-notification: confirm new address, notify old address with cancel link
-- Magic link / passwordless email: single-use HMAC token, 15min TTL, rate-limited send
-- Password hash migration: transparent bcrypt → Argon2id upgrade on successful login
-- Suspicious login detection: new IP/device triggers email notification
-- Oban-backed async email delivery for all email flows (inline fallback if Oban not present)
-
-**Avoids:** Audit log blocking auth performance (async writes), session tracking N+1 queries, email change that only notifies new address
-
-**Research flag:** Oban integration for async email and audit log writes is well-documented. The `cloak_ecto` key rotation pattern for TOTP secrets should be verified against the cloak_ecto 1.3.0 API before implementation.
-
----
-
-### Phase Ordering Rationale
-
-- Phases 1-2 are non-negotiable prerequisites: the library/generated boundary, session architecture, and core token security cannot be retrofit without breaking changes
-- Phase 3 (OAuth) before Phase 4 (MFA) because OAuth creates new registration paths that must be protected by the rate limiting and lockout from Phase 2, but OAuth does not depend on MFA
-- Phase 4 (MFA) before Phase 5 (API) because the session state machine (`mfa_pending`, `mfa_complete`) must be complete before API tokens are added to the same session infrastructure; retrofitting MFA states after API auth exists is higher risk
-- Phase 5 (API Auth) before Phase 6 (Advanced Security) because the dual-mode plug and revoke-all semantics must be in place before audit logging captures revocation events
-- Phase 6 features are all additive and independent of each other; they can be shipped incrementally within the phase
+**Ordering rationale:** phases 1+2 are foundation (sequential); phases 3-8 (org) and 9-11 (passkey) run in parallel; phases 8 and 12 are serialization points; phase 13 gates the release with the upgrade test. Hazard-dense phases front-loaded (phase 3 last-owner/cascade, phase 5 IMP+ audit, phase 7 invite hijack, phase 9 challenge replay, phase 11 sudo gate) — each ships pitfall mitigations as phase requirements, not follow-ups.
 
 ### Research Flags
 
-**Phases needing deeper pre-implementation design review:**
-- **Phase 4 (MFA):** The session state machine for `mfa_pending` → `mfa_complete` and the trust-this-browser cookie security design are complex enough to warrant drawing out the state machine before coding. PITFALLS.md section 5 and ARCHITECTURE.md pattern 4 are the key references.
-- **Phase 3 (OAuth):** The account linking confirmation flow has security implications documented in PITFALLS.md section 7. The three account-linking cases should be explicitly designed (with tests for each case) before implementation begins.
+- **Phase 1:** MEDIUM — validate subdir pattern against `phx.gen.auth` 1.8.5 renderer before template move.
+- **Phase 3:** MEDIUM — time-boxed Credo custom check prototype (1 day); fall back to integration-test-only if >300 lines.
+- **Phase 9:** MEDIUM — two kickoff spikes: (a) verify `Wax.Challenge` struct + `aaguid` return type in `wax_ 0.7`, (b) validate `WaxJson` bridge end-to-end against SimpleWebAuthn vectors.
+- **Phase 10:** MEDIUM — Plug session cookie size sanity check (60s TTL, <4KB ceiling) + `app.js` injection target detection.
 
-**Phases with standard, well-documented patterns (no additional research needed):**
-- **Phase 1 (Foundation):** Phoenix 1.8 context patterns, phx.gen.auth architecture, and Rodauth-inspired design are all thoroughly documented in ARCHITECTURE.md.
-- **Phase 2 (Email Flows):** Token generation, HMAC security, and Swoosh mailer patterns are well-understood. PITFALLS.md "Looks Done But Isn't" checklist is the key reference for correctness.
-- **Phase 5 (API Auth):** Dual-mode auth plug pattern is documented in ARCHITECTURE.md. Bearer token flows are straightforward.
-- **Phase 6 (Advanced Security):** Individual features are well-documented. Oban async patterns are standard.
+Phases with standard patterns (no deep research): 2, 4, 6, 7, 11, 12.
 
 ---
 
@@ -280,59 +150,45 @@ Based on research, the component dependency graph and pitfall-to-phase mappings 
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All versions verified against hex.pm as of 2026-04-04. Alternatives explicitly evaluated. No speculative choices. |
-| Features | HIGH | Based on cross-ecosystem analysis (Rodauth, Better Auth, Django Allauth, Devise), State of Elixir surveys 2023–2025, and direct community feedback. MVP scope is well-justified. |
-| Architecture | HIGH | Grounded in Phoenix 1.8 official docs, phx.gen.auth source, Rodauth design documentation, and Elixir/Phoenix best practice research. Patterns are proven in production. |
-| Pitfalls | HIGH | Every pitfall is grounded in a real prior-art failure (Pow, phx.gen.auth, Guardian, Lucia) or security documentation (OWASP, NIST, RFC 9700, AuthQuake post-mortem). |
+| Stack | HIGH | hex.pm + upstream verified; MEDIUM only on 40-line `WaxJson` bridge estimate and Igniter non-adoption |
+| Features | HIGH | Clerk/Auth0/WorkOS/GitHub/Better Auth/Jetstream/FIDO Alliance/web.dev/Chrome team all verified |
+| Architecture | HIGH | Grounded in direct read of v1.0 code; MEDIUM only on `Wax.Challenge` struct + `aaguid` return type in `wax_ 0.7` (spike in phase 9) |
+| Pitfalls | HIGH | Every pitfall cites concrete CVE / GitHub advisory / post-mortem / spec clause |
 
-**Overall confidence:** HIGH
+**Overall: HIGH** — four research tracks converge with **no contradictions** except the backfill-default question (open question #1 below).
 
 ### Gaps to Address
 
-- **cloak_ecto key rotation API:** Research confirmed cloak_ecto 1.3.0 is the right choice for field encryption, but the specific key rotation workflow should be verified against current cloak_ecto docs during Phase 4 implementation, since the library is slow-moving and the 1.3.0 API may differ from older documentation.
+- Phase 9 kickoff spike (30 min): verify Wax 0.7 struct shapes.
+- Phase 9 kickoff spike (2-4 hours): validate `WaxJson` bridge end-to-end.
+- Phase 3 kickoff spike (1 day time-boxed): Credo tenant-scope check prototype.
+- Phase 1 kickoff spike: validate subdir pattern against `phx.gen.auth` 1.8.5 renderer.
+- Phase 10 spike: Plug session cookie size sanity check.
+- v1.0 → v1.1 upgrade test (`test/upgrade_test.exs`): required deliverable before phase 13 sign-off.
 
-- **nimble_totp copy-paste decision:** STACK.md notes that given NimbleTOTP's tiny surface area (4 functions) and stable-since-2023 status, it may be worth copying into the library to eliminate the transitive dependency. This is a minor dependency management decision to make at Phase 4 start.
+---
 
-- **Multi-database migration generation:** STACK.md recommends conditional migration generation for MySQL/SQLite (detecting adapter in the generator). The specific DDL differences (e.g., `citext` is PostgreSQL-only) should be mapped out before the generator is built in Phase 1.
+## Open Questions for `/gsd-discuss-phase` (resolve before phase planning)
 
-- **WebAuthn / Phase 7 scope:** Wax (WebAuthn) is deferred to v2, but the `passkey_credentials` table schema and the JavaScript ceremony module interface should be at least sketched during Phase 4 (MFA) so the data model doesn't need breaking changes when passkeys are added.
+1. **Backfill default: auto-create personal orgs or require explicit creation?** (ARCHITECTURE A7 vs FEATURES A.3 + PITFALLS O-8 — **the one cross-track contradiction**). Recommended resolution: no auto-creation on signup; opt-in backfill for v1.0 upgraders only via `--backfill-personal-orgs`.
+2. **Passkey-as-primary in v1.1: MVP, opt-in, or deferred?** Recommend opt-in (`:passkey_primary_enabled` config) with enforced fallback requirement.
+3. **Usernameless / discoverable-credential flow in v1.1 or later?** Recommend shipping Conditional UI / autofill (feature-detected) in v1.1; defer fully usernameless resident-key flow.
+4. **Challenge storage: Plug session vs DB vs ETS — cookie size OK at 60s TTL?** Recommend Plug session pending phase-9 empirical validation.
+5. **Credo custom tenant-scope check — prototype, ship, or defer?** Time-box spike in phase 3; ship if ≤300 lines.
+6. **`audit_events.organization_id`: NOT NULL or nullable?** Recommend nullable (library-emitted events outside org context need it); document "org-less" events explicitly.
+7. **`aaguid` column type: `:binary` 16 bytes or UUID string?** Spike-verify `wax_ 0.7` return shape at phase 9 kickoff.
+8. **JS hook injection: assume Phoenix 1.8 default `assets/js/app.js` or detect?** Recommend: only inject if marker present; otherwise print manual instructions. No silent failure.
+9. **Sign-count regression default policy: `:warn`, `:require_reauth`, or `:revoke`?** Recommend `:warn` default (ImperialViolet/Apple iCloud constant-zero consensus); configurable via NimbleOptions.
+10. **Last-active-org resume on login: per-user or per-session?** Recommend per-session (`user_sessions.active_organization_id`); last-active comes from most recent non-nil session row.
+11. **Invite token TTL configurable floor/ceiling?** Default 7d (consensus), configurable via NimbleOptions, document "longer TTL = phishing window," recommend against >30d.
+12. **Which passkey ceremony ships first — registration or authentication?** Registration first (required to test authentication), matches dependency order.
 
 ---
 
 ## Sources
 
-### Primary (HIGH confidence)
+**Primary (HIGH):** hex.pm (`wax_` v0.7.0, `cloak_ecto` v1.3.0); tanguilp/wax mix.exs; simplewebauthn.dev; MasterKale/SimpleWebAuthn; Clerk / Auth0 / WorkOS / Better Auth / Jetstream / GitHub / Bitwarden docs; FIDO Alliance + web.dev + Chrome team passkey guides; W3C WebAuthn Level 2 spec §5.4/§7.2/§13.4.3; OWASP Multi-Tenant Security Cheat Sheet; NIST SP 800-63B; CVEs: Jetstream #907, Keycloak CVE-2026-1529, OneUptime GHSA-gjjc-pcwp-c74m, StrongKey CVE-2025-26788, CVE-2024-9956, DEF CON 33 "Passkey Pwned" (SquareX labs); grounded v1.0 source reads at `lib/sigra/{session,audit,token}.ex`, `lib/sigra/plug/{fetch_session,require_sudo}.ex`, `lib/mix/tasks/sigra.install.ex`, `test/example/lib/example_web/{user_auth,router}.ex`, `test/example/lib/example_web/components/layouts.ex`, `test/example/lib/example/accounts/scope.ex`, `priv/templates/sigra.install/` (44 files).
 
-- `hex.pm` — all library versions verified (argon2_elixir 4.1.3, assent 0.3.1, nimble_totp 1.0.0, wax_ 0.7.0, swoosh 1.25.0, hammer 7.3.0, oban 2.21.1, cloak_ecto 1.3.0, nimble_options 1.1.1, ex_doc 0.40.1, phoenix 1.8.5, ecto 3.13.5)
-- `hexdocs.pm/phoenix` — Phoenix 1.8 auth patterns, Scope struct, `phx.gen.auth` architecture, LiveView security model
-- `hexdocs.pm/phoenix_live_view` — security model, `on_mount` patterns, `phx-trigger-action` pattern
-- Rodauth README and design documentation — per-feature tables, encapsulated auth object, HMAC tokens
-- OWASP Authentication Cheat Sheet — security baseline requirements
-- NIST SP 800-63B — password policy guidance (no composition rules, length requirements)
-- RFC 9700 — OAuth 2.0 security best current practice
-- AuthQuake research (WorkOS) — TOTP window vulnerability
-- Lucia deprecation discussion — adapter abstraction as primary failure mode
-- `prompts/Building the gold-standard Elixir:Phoenix authentication library.md` — comprehensive ecosystem analysis
-- `prompts/elixir-best-practices-deep-research.md` — library architecture patterns
-- `prompts/elixir-opensource-libs-best-practices-deep-research.md` — OSS library best practices
-- `prompts/ecto-best-practices-deep-research.md` — Ecto auth patterns
-- `prompts/elixir-oss-lib-ci-cd-best-practices-deep-research.md` — CI/CD stack
-- `prompts/Phoenix Auth Library — Jobs to Be Done, Personas & User Flows.md` — persona and priority framework
-- `prompts/Auth Domain Language — A Field Guide.md` — domain vocabulary
+**Secondary (MEDIUM):** Filip Pauco "Multi-Tenant Application Design with Elixir+Phoenix" (Mar 2026); Curiosum multi-tenancy guide; Alembic blog; Elixir Forum MT threads; InstaTunnel "Multi-Tenant Leakage" post-mortem (Jan 2026); Borabastab "Six Shades of Multi-Tenant Mayhem" (May 2025); Islam Ghandar admin-delete-owner bounty write-up; Rojan Rijal Luminate privilege escalation; Vishal Barot "Invitation Hijacking"; Corbado passkey guides; Ory troubleshooting docs; Authsignal/Mojoauth/Askleo passkey recovery articles; ImperialViolet "Signature counters" (Adam Langley, Aug 2023); tech.jkbx.live "Passkeys in Phoenix using SimpleWebAuthn".
 
-### Secondary (MEDIUM confidence)
-
-- Better Auth plugin architecture (deepwiki.com) — composable plugin design patterns
-- Django Allauth documentation — account linking with confirmation, email notification patterns
-- Devise modules and source — macro injection anti-pattern illustration
-- State of Elixir surveys 2023–2025 — community pain points and feature gaps
-
-### Tertiary (LOW confidence / needs validation at implementation)
-
-- cloak_ecto 1.3.0 key rotation API — stable but slow-moving; verify against current docs at Phase 4
-- nimble_totp copy-paste feasibility — minor decision; verify the 4-function surface area is still accurate
-
----
-
-*Research completed: 2026-04-04*
-*Ready for roadmap: yes*
+**Internal:** `.planning/PROJECT.md`, `.planning/v1.2-DIRECTION.md`, `.planning/research/{STACK,FEATURES,ARCHITECTURE,PITFALLS}.md`, `prompts/Building the gold-standard Elixir:Phoenix authentication library.md`.
