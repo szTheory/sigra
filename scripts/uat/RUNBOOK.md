@@ -538,6 +538,36 @@ open doc/index.html            # macOS; xdg-open on Linux
 
 ---
 
+## Branch protection — required status checks (Phase 10.1.1)
+
+After merging phase 10.1.1 (example-app repair + CI smoke harness), update
+GitHub branch protection so every PR must pass all five CI jobs before merge.
+This is a manual step in the GitHub UI — Actions can run the jobs but cannot
+configure branch protection via the workflow file.
+
+Settings path:
+GitHub → Repo → Settings → Branches → Branch protection rules →
+`main` → Require status checks to pass before merging → select the jobs below.
+
+Required checks:
+
+1. `library_tests` — library ExUnit + mix docs --warnings-as-errors
+2. `example_unit_smoke` — example app ExUnit + ConnTest (renamed from example_app_smoke in phase 10.1.1)
+3. `example_http_smoke` — curls critical routes against a booted example app
+4. `example_playwright_smoke` — Playwright browser lifecycle test (register → confirm → login → sudo → MFA → logout)
+5. `install_smoke` — fresh mix phx.new + mix sigra.install + compile with --warnings-as-errors
+
+IMPORTANT — rename migration: The old `example_app_smoke` required-check
+was renamed to `example_unit_smoke`. When editing branch protection, remove
+the stale `example_app_smoke` entry (which will show as "not reporting"
+after the rename merges) and add `example_unit_smoke` in its place.
+
+No continue-on-error discipline: All five jobs are PR-required. Flakes must
+be fixed at the root cause, not masked with continue-on-error or marked
+optional. See phase 10.1.1 CONTEXT.md D-15.
+
+---
+
 ## When you're done
 
 Total checked: ___ / 19
