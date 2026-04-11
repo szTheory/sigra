@@ -513,6 +513,14 @@ defmodule Example.Accounts do
       lockout: [
         threshold: 5,
         duration: 900
+      ],
+      # D-26 audit wiring (Plan 10.1.1-05, Rule 2): without audit_schema,
+      # Sigra.Audit.log_safe/2 is a silent no-op, so session.create,
+      # auth.login.*, and other audit rows were never written. Wiring the
+      # generated AuditEvent schema here activates the library's built-in
+      # audit integration via Sigra.Auth.create_session/4.
+      audit: [
+        audit_schema: Example.Accounts.AuditEvent
       ]
     )
   end

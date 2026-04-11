@@ -12,6 +12,9 @@ defmodule Example.Accounts.UserBackupCode do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "user_backup_codes" do
     belongs_to :user, Example.Accounts.User
     field :hashed_code, :string

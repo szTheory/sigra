@@ -12,6 +12,9 @@ defmodule Example.Accounts.UserMFACredential do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   schema "user_mfa_credentials" do
     belongs_to :user, Example.Accounts.User
     field :type, :string

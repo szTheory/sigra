@@ -4,7 +4,8 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
   def up do
     execute "CREATE EXTENSION IF NOT EXISTS citext"
 
-    create table(:users) do
+    create table(:users, primary_key: false) do
+      add :id, :binary_id, primary_key: true
       add :email, :citext, null: false
       add :hashed_password, :string
       add :confirmed_at, :utc_datetime
@@ -27,8 +28,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
     # Partial unique index on pending_email
     create unique_index(:users, [:pending_email], where: "pending_email IS NOT NULL", name: :users_pending_email_index)
 
-    create table(:user_tokens) do
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+    create table(:user_tokens, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :user_id, references(:users, type: :binary_id, on_delete: :delete_all), null: false
       add :token, :binary, null: false
       add :context, :string, null: false
       add :sent_to, :string
@@ -40,8 +42,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
     create index(:user_tokens, [:user_id])
     create unique_index(:user_tokens, [:context, :token])
 
-    create table(:user_sessions) do
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+    create table(:user_sessions, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :user_id, references(:users, type: :binary_id, on_delete: :delete_all), null: false
       add :hashed_token, :binary, null: false
       add :type, :string, null: false, default: "standard"
       add :ip, :string
@@ -60,8 +63,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
     create index(:user_sessions, [:inserted_at])
 
     # MFA Credentials (TOTP secrets, lockout tracking)
-    create table(:user_mfa_credentials) do
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+    create table(:user_mfa_credentials, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :user_id, references(:users, type: :binary_id, on_delete: :delete_all), null: false
       add :type, :string, null: false
       add :encrypted_secret, :binary, null: false
       add :last_used_at, :utc_datetime_usec
@@ -76,8 +80,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
     create unique_index(:user_mfa_credentials, [:user_id, :type])
 
     # Backup Codes (one row per code, atomic consumption)
-    create table(:user_backup_codes) do
-      add :user_id, references(:users, on_delete: :delete_all), null: false
+    create table(:user_backup_codes, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :user_id, references(:users, type: :binary_id, on_delete: :delete_all), null: false
       add :hashed_code, :string, null: false
       add :used_at, :utc_datetime_usec
 

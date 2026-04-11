@@ -17,6 +17,7 @@ defmodule ExampleWeb.AuditIntegrationTest do
   import Ecto.Query
 
   alias Example.Accounts
+  alias Example.Accounts.AuditEvent
   alias Example.Repo
 
   @moduletag :example_app
@@ -53,9 +54,8 @@ defmodule ExampleWeb.AuditIntegrationTest do
 
       row =
         Repo.one(
-          from(a in "audit_events",
+          from(a in AuditEvent,
             where: a.action == "session.create",
-            select: %{action: a.action, actor_id: a.actor_id},
             limit: 1
           )
         )
@@ -71,6 +71,6 @@ defmodule ExampleWeb.AuditIntegrationTest do
   end
 
   defp audit_count do
-    Repo.aggregate(from(a in "audit_events"), :count)
+    Repo.aggregate(AuditEvent, :count)
   end
 end

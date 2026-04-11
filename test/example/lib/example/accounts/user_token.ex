@@ -2,6 +2,9 @@ defmodule Example.Accounts.UserToken do
   use Ecto.Schema
   import Ecto.Query
 
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+
   @confirm_validity_in_days 2
   @reset_password_validity_in_days 1
   @change_email_validity_in_days 1
