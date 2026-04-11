@@ -635,7 +635,10 @@ defmodule Example.Accounts do
 
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
-    Sigra.MFA.status(sigra_config(), user)
+    Sigra.MFA.status(sigra_config(), user,
+      mfa_credential_schema: Example.Accounts.UserMFACredential,
+      backup_code_schema: Example.Accounts.UserBackupCode
+    )
   end
 
   ## Account Lifecycle

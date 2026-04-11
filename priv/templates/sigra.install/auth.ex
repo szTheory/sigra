@@ -632,7 +632,10 @@ defmodule <%= context_module %> do
 
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
-    Sigra.MFA.status(sigra_config(), user)
+    Sigra.MFA.status(sigra_config(), user,
+      mfa_credential_schema: <%= context_module %>.UserMFACredential,
+      backup_code_schema: <%= context_module %>.UserBackupCode
+    )
   end
 
   ## Account Lifecycle

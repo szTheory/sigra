@@ -553,10 +553,20 @@ defmodule Sigra.MFA do
 
   """
   @doc since: "0.6.0"
-  @spec status(Sigra.Config.t(), struct()) :: map()
-  def status(%Sigra.Config{} = config, user) do
-    mfa_credential_schema = Keyword.get(config.mfa, :mfa_credential_schema)
-    backup_code_schema = Keyword.get(config.mfa, :backup_code_schema)
+  @spec status(Sigra.Config.t(), struct(), keyword()) :: map()
+  def status(%Sigra.Config{} = config, user, opts \\ []) do
+    # The `config.mfa` keyword list is validated by NimbleOptions and does
+    # NOT accept `:mfa_credential_schema` or `:backup_code_schema` — those
+    # are per-call opts, the same pattern used by confirm_enrollment/3,
+    # verify/4, and disable/4. Fall back to config.mfa so callers that
+    # previously used an un-validated config still work.
+    mfa_credential_schema =
+      Keyword.get(opts, :mfa_credential_schema) ||
+        Keyword.get(config.mfa || [], :mfa_credential_schema)
+
+    backup_code_schema =
+      Keyword.get(opts, :backup_code_schema) ||
+        Keyword.get(config.mfa || [], :backup_code_schema)
 
     if mfa_credential_schema do
       case config.repo.get_by(mfa_credential_schema, user_id: user.id) do
