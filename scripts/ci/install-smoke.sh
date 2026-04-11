@@ -32,7 +32,6 @@ cd "$(dirname "${TMP_APP_DIR}")"
 mix phx.new "$(basename "${TMP_APP_DIR}")" \
   --no-install \
   --no-dashboard \
-  --no-gettext \
   --database postgres
 
 cd "${TMP_APP_DIR}"
