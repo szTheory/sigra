@@ -1,7 +1,20 @@
-defmodule ExampleWeb.LoginLive do
-  use ExampleWeb, :live_view
+defmodule ExampleWeb.SessionHTML do
+  @moduledoc """
+  Controller-mode login templates (non-LiveView).
 
-  def render(assigns) do
+  Per Phase 10.1.1 D-12 / B9, the login page is a plain controller + HEEx
+  template rather than a LiveView. This dodges `Phoenix.Component.form/1`'s
+  default `phx-submit` registration which was swallowing the browser form
+  submit during UAT — with no LiveView process on the page, `<.form>`
+  renders a plain `<form action="..." method="post">` and the browser
+  performs a real HTTP POST to `SessionController.create/2`.
+
+  Two separate form assigns (`@form` and `@magic_link_form`) isolate
+  validation/flash state so an error on one form does not corrupt the other.
+  """
+  use ExampleWeb, :html
+
+  def new(assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
       <.header>
@@ -15,7 +28,7 @@ defmodule ExampleWeb.LoginLive do
         </:subtitle>
       </.header>
 
-      <% # Magic link section %>
+      <%!-- Magic link section --%>
       <.form
         :let={f}
         for={@magic_link_form}
@@ -26,12 +39,12 @@ defmodule ExampleWeb.LoginLive do
         <input type="hidden" name="_action" value="magic_link" />
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
 
-        <.button phx-disable-with="Sending link..." class="btn btn-primary w-full">
+        <.button class="btn btn-primary w-full">
           Send magic link <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
 
-      <% # Divider %>
+      <%!-- Divider --%>
       <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
           <hr class="w-full" />
@@ -41,32 +54,29 @@ defmodule ExampleWeb.LoginLive do
         </div>
       </div>
 
-      <% # Password section %>
-      <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} phx-update="ignore">
+      <%!-- Password section --%>
+      <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post">
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-        <.input field={f[:password]} type="password" label="Password" autocomplete="current-password" required />
+        <.input
+          field={f[:password]}
+          type="password"
+          label="Password"
+          autocomplete="current-password"
+          required
+        />
 
         <div class="flex items-center justify-between">
           <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
+            <input type="checkbox" name="user[remember_me]" value="true" class="checkbox" />
             Keep me logged in
           </label>
         </div>
 
-        <.button phx-disable-with="Logging in..." class="btn btn-primary w-full">
+        <.button class="btn btn-primary w-full">
           Log in <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
     </div>
     """
-  end
-
-  def mount(_params, _session, socket) do
-    email = Phoenix.Flash.get(socket.assigns.flash, :email)
-    form = to_form(%{"email" => email}, as: "user")
-    magic_link_form = to_form(%{"email" => email}, as: "user")
-
-    {:ok, assign(socket, form: form, magic_link_form: magic_link_form),
-     temporary_assigns: [form: form, magic_link_form: magic_link_form]}
   end
 end

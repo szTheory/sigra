@@ -46,10 +46,15 @@ defmodule ExampleWeb.Router do
   scope "/users", ExampleWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
+    # Phase 10.1.1 B9: login page is a plain controller + HEEx render,
+    # NOT a LiveView. Keeping it outside the live_session ensures
+    # `Phoenix.Component.form/1` renders a plain `<form action=... method="post">`
+    # with no phx-submit interception.
+    get "/log_in", SessionController, :new
+
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{ExampleWeb.UserAuth, :redirect_if_user_is_authenticated}] do
       live "/register", RegistrationLive
-      live "/log_in", LoginLive
 
       live "/confirm", ConfirmationLive
       live "/confirm/:token", ConfirmationLive, :confirm
@@ -59,7 +64,7 @@ defmodule ExampleWeb.Router do
     end
 
     post "/log_in", SessionController, :create
-    get "/log-in/:token", SessionController, :magic_link
+    get "/log_in/:token", SessionController, :magic_link
   end
 
   scope "/users", ExampleWeb do

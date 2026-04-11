@@ -239,12 +239,22 @@ defmodule Mix.Tasks.Sigra.Install do
         []
       end
 
-    # Conditionally add LiveView or controller-mode templates
+    # Conditionally add LiveView or controller-mode templates.
+    #
+    # Phase 10.1.1 B9/D-12: the login page is ALWAYS emitted as a plain
+    # controller + SessionHTML (`login_html.ex` → `session_html.ex`),
+    # even in `--live` mode. LiveView's `<.form>` registers `phx-submit`
+    # by default and was swallowing the browser form submit during UAT;
+    # moving the login page out of LiveView entirely is the structural
+    # fix. All other --live pages continue to be LiveViews.
+    login_controller_file =
+      {:eex, "login_html.ex",
+       Path.join(["lib", "#{otp_app_str}_web", "controllers", "session_html.ex"])}
+
     ui_files =
       if opts[:live] do
         [
-          {:eex, "login_live.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "live", "login_live.ex"])},
+          login_controller_file,
           {:eex, "registration_live.ex",
            Path.join(["lib", "#{otp_app_str}_web", "live", "registration_live.ex"])},
           # Phase 3: LiveView email flow pages
@@ -268,8 +278,7 @@ defmodule Mix.Tasks.Sigra.Install do
         ]
       else
         [
-          {:eex, "login_html.ex",
-           Path.join(["lib", "#{otp_app_str}_web", "controllers", "session_html.ex"])},
+          login_controller_file,
           {:eex, "registration_html.ex",
            Path.join(["lib", "#{otp_app_str}_web", "controllers", "registration_html.ex"])},
           # Phase 6: MFA controller-mode settings page
@@ -320,19 +329,20 @@ defmodule Mix.Tasks.Sigra.Install do
     router_path = Path.join(["lib", "#{otp_app}_web", "router.ex"])
 
     if File.exists?(router_path) do
+      # Phase 10.1.1 B9/D-12: `get "/log_in"` routes to SessionController
+      # in BOTH modes. The LiveView login page was swallowing form submits
+      # in the browser, so login is now always a plain controller render.
       live_routes =
         if binding[:live] do
           """
 
               live "/register", RegistrationLive
-              live "/log_in", LoginLive
           """
         else
           """
 
               get "/register", RegistrationController, :new
               post "/register", RegistrationController, :create
-              get "/log_in", SessionController, :new
           """
         end
 
@@ -441,9 +451,12 @@ defmodule Mix.Tasks.Sigra.Install do
 
         scope "/users", #{web_module} do
           pipe_through [:browser, :redirect_if_user_is_authenticated]
+
+          # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
+          get "/log_in", SessionController, :new
       #{live_routes}
           post "/log_in", SessionController, :create
-          get "/log-in/:token", SessionController, :magic_link
+          get "/log_in/:token", SessionController, :magic_link
       #{confirmation_routes}
       #{reset_routes}
         end

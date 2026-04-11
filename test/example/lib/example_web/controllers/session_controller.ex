@@ -5,12 +5,14 @@ defmodule ExampleWeb.SessionController do
   alias ExampleWeb.UserAuth
 
   def new(conn, _params) do
-    form = Phoenix.Component.to_form(%{"email" => ""}, as: "user")
-    render(conn, :new, form: form)
+    email = Phoenix.Flash.get(conn.assigns.flash, :email) || ""
+    form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
+    magic_link_form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
+    render(conn, :new, form: form, magic_link_form: magic_link_form)
   end
 
   def create(conn, %{"_action" => "magic_link", "user" => %{"email" => email}}) do
-    url_fun = fn token -> url(conn, ~p"/users/log-in/#{token}") end
+    url_fun = fn token -> url(conn, ~p"/users/log_in/#{token}") end
 
     case Auth.request_magic_link(email, url_fun) do
       {:ok, _} -> :ok
