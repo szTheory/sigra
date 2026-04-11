@@ -1,7 +1,7 @@
 # Sigra v1.1 Foundations — Requirements
 
 **Milestone:** v1.1 "Foundations" — Organizations + Passkeys
-**Status:** Draft — awaiting roadmap mapping
+**Status:** Roadmap mapped — 79/79 requirements assigned to phases 11–23
 **Last updated:** 2026-04-11
 
 Requirements are written user-centric ("User/developer can X") and grouped
@@ -169,8 +169,86 @@ affect individual requirements.
 
 ## Traceability
 
-(Phase mapping populated by the roadmapper during roadmap creation.)
+All 79 v1.1 requirements mapped to exactly one phase. Coverage: 79/79 (100%).
 
 | REQ-ID | Phase |
 |--------|-------|
-| (pending roadmap) | |
+| ORG-01 | 13 |
+| ORG-02 | 18 |
+| ORG-03 | 13 |
+| ORG-04 | 13 |
+| ORG-05 | 13 |
+| ORG-06 | 13 |
+| ORG-07 | 13 |
+| ORG-08 | 13 |
+| ORG-SCOPE-01 | 12 |
+| ORG-SCOPE-02 | 12 |
+| ORG-SCOPE-03 | 14 |
+| ORG-SCOPE-04 | 14 |
+| ORG-SCOPE-05 | 14 |
+| ORG-SCOPE-06 | 14 |
+| ORG-UX-01 | 16 |
+| ORG-UX-02 | 16 |
+| ORG-UX-03 | 16 |
+| ORG-UX-04 | 16 |
+| ORG-UX-05 | 16 |
+| ORG-UX-06 | 16 |
+| ORG-UX-07 | 16 |
+| ORG-UX-08 | 16 |
+| ORG-UX-09 | 16 |
+| ORG-UPGRADE-01 | 18 |
+| ORG-UPGRADE-02 | 18 |
+| ORG-UPGRADE-03 | 18 |
+| INV-01 | 17 |
+| INV-02 | 17 |
+| INV-03 | 17 |
+| INV-04 | 17 |
+| INV-05 | 17 |
+| INV-06 | 17 |
+| INV-07 | 17 |
+| INV-08 | 17 |
+| INV-09 | 17 |
+| INV-10 | 17 |
+| AUD-01 | 15 |
+| AUD-02 | 15 |
+| AUD-03 | 15 |
+| AUD-04 | 15 |
+| AUD-05 | 15 |
+| PK-01 | 19 |
+| PK-02 | 22 |
+| PK-03 | 19 |
+| PK-04 | 19 |
+| PK-05 | 19 |
+| PK-06 | 20 |
+| PK-07 | 19 |
+| PK-08 | 19 |
+| PK-09 | 20 |
+| PK-10 | 20 |
+| PK-UX-01 | 21 |
+| PK-UX-02 | 21 |
+| PK-UX-03 | 21 |
+| PK-UX-04 | 21 |
+| PK-UX-05 | 21 |
+| PK-UX-06 | 21 |
+| PK-UX-07 | 21 |
+| PK-UX-08 | 21 |
+| PK-UX-09 | 21 |
+| PK-UX-10 | 21 |
+| PK-UX-11 | 21 |
+| PK-UX-12 | 21 |
+| GEN-01 | 11 |
+| GEN-02 | 11 |
+| GEN-03 | 18 |
+| GEN-04 | 11 |
+| GEN-05 | 11 |
+| GEN-06 | 20 |
+| GEN-07 | 11 |
+| DX-01 | 23 |
+| DX-02 | 23 |
+| DX-03 | 23 |
+| DX-04 | 23 |
+| DX-05 | 23 |
+| DX-06 | 23 |
+| DX-07 | 23 |
+| DX-08 | 23 |
+| DX-09 | 23 |

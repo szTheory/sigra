@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: defining_requirements
-stopped_at: Milestone v1.1 started — defining requirements
-last_updated: "2026-04-11T18:00:00.000Z"
+status: roadmap_ready
+stopped_at: Roadmap created — 13 phases (11–23), 79/79 requirements mapped
+last_updated: "2026-04-11T20:00:00.000Z"
 last_activity: 2026-04-11
 progress:
-  total_phases: 0
+  total_phases: 13
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** v1.1 Foundations — Organizations (logical multi-tenancy) + Passkeys (WebAuthn). Defining requirements.
+**Current focus:** v1.1 Foundations — Organizations (logical multi-tenancy) + Passkeys (WebAuthn). Roadmap complete; awaiting phase planning.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 11 (Generator Feature System) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-11 — v1.1 Foundations milestone started
+Status: Roadmap ready; next step is `/gsd-plan-phase 11`
+Last activity: 2026-04-11 — v1.1 roadmap drafted (phases 11–23)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 0% (0/13 phases complete)
 
 ## Accumulated Context
 
@@ -42,21 +42,27 @@ Recent decisions affecting current work:
 - v1.1 scope split decided 2026-04-11: Organizations + Passkeys in v1.1 "Foundations"; Admin UI + Impersonation + expanded Audit views deferred to v1.2 "Admin Dashboard". Reason: orgs is architecturally foundational and retrofitting it into an admin UI later would be painful. Rationale captured in `/Users/jon/.claude/plans/breezy-beaming-beacon.md`.
 - v1.1 Organizations: logical multi-tenancy only — single DB, single PG schema, `org_id` FK pattern. No PG-schema-per-tenant or DB-per-tenant modes. Document extension point for host apps that need physical isolation.
 - v1.1 Organizations: 3-enum role convention (`owner` / `admin` / `member`). Full RBAC / permission policies remain out of Sigra's scope per PROJECT.md Key Decisions.
-- v1.1 will introduce the first conditional generator template pattern (via `--organizations` / `--passkeys` flags). This pattern is load-bearing for v1.2's `--admin` / `--no-admin` and must be designed carefully.
+- v1.1 will introduce the first conditional generator template pattern (via `--organizations` / `--passkeys` flags). This pattern is load-bearing for v1.2's `--admin` / `--no-admin` and must be designed carefully — **locked into Phase 11 as foundation**.
 - v1.2 full direction earmarked in `.planning/v1.2-DIRECTION.md` (dormant). Reconfirm with user at v1.2 kick-off time; do not execute against it directly.
+- Roadmap numbering: v1.1 phases start at 11 (continuing from v1.0 phase 10.1.1). 999.x backlog phases retained in place.
+- Phase order respects the ARCHITECTURE.md Part D dependency graph: phase 11 + 12 are strict foundation; phases 13–18 (org track) and 19–21 (passkey track) run in parallel after foundation lands; phases 18 and 22 are serialization points; phase 23 gates the release.
+- Every v1.2 load-bearing decision is embedded in the phase that ships it: reserved `:impersonating_from` field (phase 12), real `effective_user_id` audit column (phase 15), subdir feature manifest (phase 11), `admin` in reserved slug list (phase 13), nilify-on-delete FK (phase 13), `Sigra.Workers` behaviour (phase 15), passkey enrollment sudo gate (phase 21).
 
 ### Pending Todos
 
-None yet. REQUIREMENTS will be written after research phase completes.
+- Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
+- Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
+- Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
+- Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
 
 ### Blockers/Concerns
 
-- Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before Phase 12+ build on top.
-- Existing-user backfill migration for orgs — "personal org" pattern needs user confirmation during discuss-phase.
-- Passkey challenge storage decision (session cookie vs ETS vs DB) — deferred to research + discuss-phase.
+- Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before phases 12+ build on top.
+- `test/upgrade_test.exs` fixture (phase 18) is a hard deliverable before the release gate in phase 23 — do not let it slip.
+- Phase 19 kickoff spikes are MEDIUM confidence; if `wax_ 0.7` struct shapes diverge from assumption, `Sigra.Passkeys.Registration` may need light reshape.
 
 ## Session Continuity
 
 Last session: 2026-04-11
-Stopped at: v1.1 Foundations — awaiting research completion
+Stopped at: v1.1 roadmap complete; awaiting `/gsd-plan-phase 11`
 Resume file: None
