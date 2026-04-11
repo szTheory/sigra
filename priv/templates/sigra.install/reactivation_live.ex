@@ -1,4 +1,4 @@
-defmodule <%= web_module %>.Auth.ReactivationLive do
+defmodule <%= web_module %>.ReactivationLive do
   @moduledoc """
   LiveView for account reactivation during the deletion grace period.
 

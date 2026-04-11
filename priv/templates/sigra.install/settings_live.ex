@@ -1,4 +1,4 @@
-defmodule <%= web_module %>.Auth.SettingsLive do
+defmodule <%= web_module %>.SettingsLive do
   @moduledoc """
   LiveView for account settings management.
 
