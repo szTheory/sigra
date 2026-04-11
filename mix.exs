@@ -82,7 +82,7 @@ defmodule Sigra.MixProject do
       main: "getting-started",
       source_ref: "v#{@version}",
       source_url: @source_url,
-      formatters: ["html"],
+      formatters: ["html", "markdown"],
       extras: [
         "README.md",
         "LICENSE",
