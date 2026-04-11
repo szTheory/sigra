@@ -44,8 +44,8 @@ jobs:
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
 
-  example_app_smoke:
-    name: Example app smoke tests
+  example_unit_smoke:
+    name: Example unit smoke (ExUnit + ConnTest)
     runs-on: ubuntu-latest
     services:
       postgres:
