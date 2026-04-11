@@ -21,15 +21,29 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   const email = `lifecycle-${Date.now()}@example.test`;
   const password = 'CorrectHorseBatteryStaple123!';
 
+  // Helper: wait until LiveView has finished its channel join so phx-change
+  // / phx-submit fire through the live channel rather than being queued
+  // while the client is still connecting. In CI, `example_playwright_smoke`
+  // runs with MIX_ENV=dev which can fall back to longpoll transport — each
+  // LV event becomes a separate HTTP round-trip, and the full validate→
+  // save→trigger_submit chain can exceed the default 5s expect timeout.
+  const waitForLiveViewReady = async () => {
+    await expect(page.locator('body.phx-connected').first()).toBeVisible({
+      timeout: 15_000,
+    });
+  };
+
   // --- 1. Register ---
   await page.goto('/users/register');
+  await waitForLiveViewReady();
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   await page.click('button:has-text("Create an account")');
   // After successful register, the form trigger_submit reposts to
   // /users/log_in?_action=registered which logs the user in. Expect to land
-  // somewhere non-register.
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  // somewhere non-register. Longpoll transport adds latency, so give this
+  // a generous ceiling.
+  await expect(page).not.toHaveURL(/\/users\/register/, { timeout: 15_000 });
 
   // --- 2. Confirm via dev mailbox ---
   const confirmHref = await extractConfirmationLink(page, email);
