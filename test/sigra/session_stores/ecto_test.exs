@@ -304,6 +304,104 @@ defmodule Sigra.SessionStores.EctoTest do
     end
   end
 
+  describe "update_active_organization/3" do
+    test "writes the column and returns refreshed Session for a valid session + org_id" do
+      hashed_token = :crypto.hash(:sha256, "org-write-session")
+      org_id = Ecto.UUID.generate()
+
+      session = %Session{
+        id: 1,
+        user_id: Ecto.UUID.generate(),
+        hashed_token: hashed_token,
+        type: :standard,
+        active_organization_id: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:update_all, fn query, set: updates ->
+        assert inspect(query) =~ "UserSession"
+        assert updates == [active_organization_id: org_id]
+        {1, nil}
+      end)
+
+      assert {:ok, %Session{active_organization_id: ^org_id}} =
+               EctoStore.update_active_organization(session, org_id, @opts)
+    end
+
+    test "clears the column when passed nil org_id" do
+      hashed_token = :crypto.hash(:sha256, "org-clear-session")
+      previous_org_id = Ecto.UUID.generate()
+
+      session = %Session{
+        id: 2,
+        user_id: Ecto.UUID.generate(),
+        hashed_token: hashed_token,
+        type: :standard,
+        active_organization_id: previous_org_id
+      }
+
+      Sigra.MockRepo
+      |> expect(:update_all, fn _query, set: updates ->
+        assert updates == [active_organization_id: nil]
+        {1, nil}
+      end)
+
+      assert {:ok, %Session{active_organization_id: nil}} =
+               EctoStore.update_active_organization(session, nil, @opts)
+    end
+
+    test "is a no-op when org_id equals the current value (no DB write)" do
+      hashed_token = :crypto.hash(:sha256, "noop-session")
+      org_id = Ecto.UUID.generate()
+
+      session = %Session{
+        id: 3,
+        user_id: Ecto.UUID.generate(),
+        hashed_token: hashed_token,
+        type: :standard,
+        active_organization_id: org_id
+      }
+
+      # MockRepo gets NO expect(:update_all, ...) call — if the impl tries to
+      # write, verify_on_exit! will fail the test.
+      assert {:ok, ^session} = EctoStore.update_active_organization(session, org_id, @opts)
+    end
+
+    test "no-op short-circuit also covers the nil → nil case" do
+      hashed_token = :crypto.hash(:sha256, "nil-noop-session")
+
+      session = %Session{
+        id: 4,
+        user_id: Ecto.UUID.generate(),
+        hashed_token: hashed_token,
+        type: :standard,
+        active_organization_id: nil
+      }
+
+      # No repo expectation — the short-circuit must skip the write.
+      assert {:ok, ^session} = EctoStore.update_active_organization(session, nil, @opts)
+    end
+
+    test "returns {:error, :not_found} when the underlying row is gone" do
+      hashed_token = :crypto.hash(:sha256, "gone-org-session")
+      org_id = Ecto.UUID.generate()
+
+      session = %Session{
+        id: 5,
+        user_id: Ecto.UUID.generate(),
+        hashed_token: hashed_token,
+        type: :standard,
+        active_organization_id: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:update_all, fn _query, _updates -> {0, nil} end)
+
+      assert {:error, :not_found} =
+               EctoStore.update_active_organization(session, org_id, @opts)
+    end
+  end
+
   describe "update_sudo/3" do
     test "updates sudo_at timestamp" do
       hashed_token = :crypto.hash(:sha256, "sudo-session")

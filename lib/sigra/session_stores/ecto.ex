@@ -144,6 +144,30 @@ defmodule Sigra.SessionStores.Ecto do
     end
   end
 
+  @impl true
+  def update_active_organization(%Sigra.Session{active_organization_id: current} = session, org_id, _opts)
+      when current == org_id do
+    # No-op-safe short-circuit (Phase 14 D-20): when the requested org_id
+    # matches the current value, skip the DB write entirely and return the
+    # session unchanged. Avoids an UPDATE on every authed request.
+    {:ok, session}
+  end
+
+  def update_active_organization(%Sigra.Session{hashed_token: hashed_token} = session, org_id, opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    schema = Keyword.fetch!(opts, :session_schema)
+
+    query = from(s in schema, where: s.hashed_token == ^hashed_token)
+
+    case repo.update_all(query, set: [active_organization_id: org_id]) do
+      {0, _} ->
+        {:error, :not_found}
+
+      {_count, _} ->
+        {:ok, %{session | active_organization_id: org_id}}
+    end
+  end
+
   defp to_session(record) do
     type =
       case record.type do
