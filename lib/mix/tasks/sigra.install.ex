@@ -68,11 +68,15 @@ defmodule Mix.Tasks.Sigra.Install do
 
   defp validate_args!(context_name, schema_name, table_name) do
     unless context_name =~ ~r/^[A-Z][A-Za-z0-9]*(\.[A-Z][A-Za-z0-9]*)*$/ do
-      Mix.raise("The context name must be a valid Elixir module name (e.g., Accounts), got: #{context_name}")
+      Mix.raise(
+        "The context name must be a valid Elixir module name (e.g., Accounts), got: #{context_name}"
+      )
     end
 
     unless schema_name =~ ~r/^[A-Z][A-Za-z0-9]*$/ do
-      Mix.raise("The schema name must be a valid Elixir module name (e.g., User), got: #{schema_name}")
+      Mix.raise(
+        "The schema name must be a valid Elixir module name (e.g., User), got: #{schema_name}"
+      )
     end
 
     unless table_name =~ ~r/^[a-z][a-z0-9_]*$/ do
@@ -146,34 +150,31 @@ defmodule Mix.Tasks.Sigra.Install do
       if existing_audit_migration do
         Path.join(["priv", "repo", "migrations", existing_audit_migration])
       else
-        Path.join(["priv", "repo", "migrations", "#{audit_migration_timestamp()}_create_audit_events.exs"])
+        Path.join([
+          "priv",
+          "repo",
+          "migrations",
+          "#{audit_migration_timestamp()}_create_audit_events.exs"
+        ])
       end
 
     files = [
       {:eex, "migration.exs", migration_path},
-      {:eex, "user.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "user.ex"])},
+      {:eex, "user.ex", Path.join(["lib", otp_app_str, context_underscore, "user.ex"])},
       {:eex, "user_token.ex",
        Path.join(["lib", otp_app_str, context_underscore, "user_token.ex"])},
-      {:eex, "scope.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "scope.ex"])},
-      {:eex, "auth.ex",
-       Path.join(["lib", otp_app_str, "#{context_underscore}.ex"])},
-      {:eex, "user_auth.ex",
-       Path.join(["lib", "#{otp_app_str}_web", "user_auth.ex"])},
+      {:eex, "scope.ex", Path.join(["lib", otp_app_str, context_underscore, "scope.ex"])},
+      {:eex, "auth.ex", Path.join(["lib", otp_app_str, "#{context_underscore}.ex"])},
+      {:eex, "user_auth.ex", Path.join(["lib", "#{otp_app_str}_web", "user_auth.ex"])},
       {:eex, "error_handler.ex",
        Path.join(["lib", "#{otp_app_str}_web", "auth_error_handler.ex"])},
       {:eex, "session_controller.ex",
        Path.join(["lib", "#{otp_app_str}_web", "controllers", "session_controller.ex"])},
-      {:eex, "auth_fixtures.ex",
-       Path.join(["test", "support", "fixtures", "auth_fixtures.ex"])},
-      {:eex, "conn_case_helpers.ex",
-       Path.join(["test", "support", "conn_case_helpers.ex"])},
+      {:eex, "auth_fixtures.ex", Path.join(["test", "support", "fixtures", "auth_fixtures.ex"])},
+      {:eex, "conn_case_helpers.ex", Path.join(["test", "support", "conn_case_helpers.ex"])},
       # Phase 3: Email flow templates
-      {:eex, "emails.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "emails.ex"])},
-      {:eex, "auth_mailer.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "mailer.ex"])},
+      {:eex, "emails.ex", Path.join(["lib", otp_app_str, context_underscore, "emails.ex"])},
+      {:eex, "auth_mailer.ex", Path.join(["lib", otp_app_str, context_underscore, "mailer.ex"])},
       {:eex, "confirmation_controller.ex",
        Path.join(["lib", "#{otp_app_str}_web", "controllers", "confirmation_controller.ex"])},
       {:eex, "confirmation_html.ex",
@@ -203,8 +204,7 @@ defmodule Mix.Tasks.Sigra.Install do
       {:eex, "audit_event.ex",
        Path.join(["lib", otp_app_str, context_underscore, "audit_event.ex"])},
       # Phase 10.1: Encrypted.Binary passthrough stub (replaces Cloak.Vault binding)
-      {:eex, "encrypted.ex",
-       Path.join(["lib", otp_app_str, context_underscore, "encrypted.ex"])},
+      {:eex, "encrypted.ex", Path.join(["lib", otp_app_str, context_underscore, "encrypted.ex"])},
       # Phase 10.1: Swoosh mailer wrapper (skipped if host already has one)
       {:eex, "mailer.ex", Path.join(["lib", otp_app_str, "mailer.ex"])}
     ]
@@ -222,7 +222,12 @@ defmodule Mix.Tasks.Sigra.Install do
       if existing_api_migration do
         Path.join(["priv", "repo", "migrations", existing_api_migration])
       else
-        Path.join(["priv", "repo", "migrations", "#{api_token_timestamp()}_create_user_api_tokens.exs"])
+        Path.join([
+          "priv",
+          "repo",
+          "migrations",
+          "#{api_token_timestamp()}_create_user_api_tokens.exs"
+        ])
       end
 
     # Conditionally add API token files (--api or --jwt flag)
@@ -319,13 +324,15 @@ defmodule Mix.Tasks.Sigra.Install do
   end
 
   defp find_template(name) do
-    # Check for user overrides first (per D-09)
-    user_override = Path.join([File.cwd!(), "priv", "templates", "sigra.install", name])
+    # Check for user overrides first (per D-09).
+    # Phase 11-03 (CD-01): overrides now live under `core/` subdir — BREAKING
+    # CHANGE for pre-1.0 override consumers. Documented in Phase 23 upgrade guide.
+    user_override = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", name])
 
     if File.exists?(user_override) do
       user_override
     else
-      Application.app_dir(:sigra, Path.join(["priv", "templates", "sigra.install", name]))
+      Application.app_dir(:sigra, Path.join(["priv", "templates", "sigra.install", "core", name]))
     end
   end
 
@@ -620,7 +627,10 @@ defmodule Mix.Tasks.Sigra.Install do
           ""
         end
 
-      inject_file(config_path, &Sigra.Install.Injector.inject_api_config(&1, api_config <> jwt_config))
+      inject_file(
+        config_path,
+        &Sigra.Install.Injector.inject_api_config(&1, api_config <> jwt_config)
+      )
     end
 
     # Print instructions for manual addition of auth_api_token.ex content
