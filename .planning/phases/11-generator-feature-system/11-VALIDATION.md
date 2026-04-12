@@ -1,10 +1,11 @@
 ---
 phase: 11
 slug: generator-feature-system
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-11
+updated: 2026-04-11
 ---
 
 # Phase 11 — Validation Strategy
@@ -21,62 +22,63 @@ created: 2026-04-11
 | **Config file** | `test/test_helper.exs` |
 | **Quick run command** | `mix test --stale` |
 | **Full suite command** | `mix test` |
-| **Estimated runtime** | ~30s quick; ~2m full (includes golden-diff harness) |
+| **Install-dir suite** | `mix test test/sigra/install/` |
+| **Estimated runtime** | ~30s quick; ~65s full install-dir suite (includes golden-diff byte gate) |
 
 ---
 
 ## Sampling Rate
 
 - **After every task commit:** Run `mix test --stale` (plus `mix compile --warnings-as-errors` on touched modules)
-- **After every plan wave:** Run `mix test` + `mix format --check-formatted` + `mix credo --strict`
-- **Before `/gsd-verify-work`:** Full suite green + golden-diff test green + `mix dialyzer` clean
+- **After every plan wave:** Run `mix test test/sigra/install/` + `mix format --check-formatted`
+- **Before `/gsd-verify-work`:** Full suite green + golden-diff test green + `mix credo --strict` + `mix dialyzer` clean
 - **Max feedback latency:** 120 seconds for quick loop
 
 ---
 
 ## Per-Task Verification Map
 
-> Populated during planning. Each task in PLAN.md gets a row mapping it to a requirement, a test type, and a mechanically-checkable command. Filled in by the planner from RESEARCH.md Validation Architecture section.
+> One row per task across Plans 11-01 through 11-06. Every automated command corresponds verbatim to the `<verify><automated>` block in its task.
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 11-01-01 | 01 | 0 | GEN-02 | — | N/A | golden-diff harness scaffold | `mix test test/sigra/install/golden_diff_test.exs` | ❌ W0 | ⬜ pending |
-| 11-01-02 | 01 | 0 | GEN-02 | — | N/A | pre-refactor snapshot captured | `mix test test/sigra/install/golden_diff_test.exs --only snapshot` | ❌ W0 | ⬜ pending |
-| 11-02-01 | 02 | 1 | GEN-01 | — | N/A | `Sigra.Install.Feature` behaviour compiles + `@callback` count == 5 | `mix test test/sigra/install/feature_test.exs` | ❌ W0 | ⬜ pending |
-| 11-02-02 | 02 | 1 | GEN-01 | — | N/A | `%Sigra.Install.Injection{}` struct defined | `mix test test/sigra/install/injection_test.exs` | ❌ W0 | ⬜ pending |
-| 11-03-01 | 03 | 2 | GEN-02 | — | N/A | 44 templates present under `priv/templates/sigra.install/core/` | `mix test test/sigra/install/templates_layout_test.exs` | ❌ W0 | ⬜ pending |
-| 11-04-01 | 04 | 2 | GEN-05 | — | N/A | `Sigra.Install.Report` records 4 categories | `mix test test/sigra/install/report_test.exs` | ❌ W0 | ⬜ pending |
-| 11-05-01 | 05 | 2 | GEN-07 | — | N/A | `MigrationTimestamps.allocate/2` deterministic ordering | `mix test test/sigra/install/migration_timestamps_test.exs` | ❌ W0 | ⬜ pending |
-| 11-06-01 | 06 | 3 | GEN-01, GEN-02 | — | N/A | `Features.Core` implements all 5 callbacks | `mix test test/sigra/install/features/core_test.exs` | ❌ W0 | ⬜ pending |
-| 11-06-02-postinstr | 06 | 3 | GEN-01 | T-11-14..18 | N/A | `Features.Core.post_instructions/2` Oban + Swoosh detection branches (ported from `inject_oban_queue/1` + `inject_swoosh_config/2`) | `mix test test/sigra/install/features/core_post_instructions_test.exs` | ❌ W0 | ⬜ pending |
-| 11-01-stdout | 01 | 0 | GEN-05 | — | N/A | Installer stdout matches `test/fixtures/install_golden/STDOUT.txt` byte gate (4-column summary + post_instructions content) | `mix test test/sigra/install/golden_diff_test.exs` | ❌ W0 | ⬜ pending |
-| 11-07-01 | 07 | 3 | GEN-01 | — | N/A | walker refactor; golden diff still zero | `mix test test/sigra/install/golden_diff_test.exs` | ❌ W0 | ⬜ pending |
-| 11-07-02 | 07 | 3 | GEN-04 | — | N/A | re-run idempotency (second invocation = no writes) | `mix test test/sigra/install/idempotency_test.exs` | ❌ W0 | ⬜ pending |
-| 11-08-01 | 08 | 4 | GEN-01 | — | N/A | V-PA-01 purely-additive: fake feature works with zero walker edits | `mix test test/sigra/install/purely_additive_test.exs` | ❌ W0 | ⬜ pending |
-| 11-08-02 | 08 | 4 | GEN-01 | — | N/A | V-ISOLATION-01: `Features.Core` contains no `Features.Organizations\|Passkeys\|Admin` refs | `mix test test/sigra/install/isolation_test.exs` | ❌ W0 | ⬜ pending |
-
-*Rows are a SKELETON. Planner will expand to match actual task IDs from PLAN.md files.*
+| Task ID  | Plan | Wave | Requirement    | Threat Ref  | Secure Behavior | Test Type              | Automated Command                                                                                                                                                                                          | File Exists | Status |
+|----------|------|------|----------------|-------------|-----------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|--------|
+| 11-01-01 | 01   | 0    | GEN-02         | T-11-01..05 | N/A refactor    | unit + structural      | `mix test test/sigra/install/templates_layout_test.exs && mix compile --warnings-as-errors`                                                                                                                | ✅          | ✅ green |
+| 11-01-02 | 01   | 0    | GEN-02, GEN-05 | T-11-01..05 | N/A refactor    | golden-diff harness    | `mix test test/sigra/install/golden_diff_test.exs`                                                                                                                                                         | ✅          | ✅ green |
+| 11-02-01 | 02   | 1    | GEN-01         | T-11-06..10 | N/A refactor    | unit                   | `mix test test/sigra/install/feature_test.exs test/sigra/install/injection_test.exs test/sigra/install/golden_diff_test.exs && mix compile --warnings-as-errors`                                           | ✅          | ✅ green |
+| 11-02-02 | 02   | 1    | GEN-05, GEN-07 | T-11-06..10 | N/A refactor    | unit                   | `mix test test/sigra/install/report_test.exs test/sigra/install/migration_timestamps_test.exs test/sigra/install/golden_diff_test.exs && mix compile --warnings-as-errors`                                 | ✅          | ✅ green |
+| 11-03-01 | 03   | 2    | GEN-02         | T-11-11..13 | N/A refactor    | structural (mv check)  | `test $(find priv/templates/sigra.install -maxdepth 1 -type f \| wc -l) -eq 0 && test $(find priv/templates/sigra.install/core -maxdepth 1 -type f \| wc -l) -eq 45`                                       | ✅          | ✅ green |
+| 11-03-02 | 03   | 2    | GEN-02         | T-11-11..13 | N/A refactor    | golden-diff regression | `mix test test/sigra/install/ && mix compile --warnings-as-errors`                                                                                                                                         | ✅          | ✅ green |
+| 11-04-01 | 04   | 3    | GEN-01, GEN-02 | T-11-14..18 | N/A refactor    | unit                   | `mix test test/sigra/install/features/core_test.exs test/sigra/install/golden_diff_test.exs && mix compile --warnings-as-errors`                                                                           | ✅          | ✅ green |
+| 11-04-02 | 04   | 3    | GEN-01         | T-11-14..18 | N/A refactor    | unit                   | `mix test test/sigra/install/features/core_test.exs test/sigra/install/features/core_post_instructions_test.exs test/sigra/install/golden_diff_test.exs && mix compile --warnings-as-errors`              | ✅          | ✅ green |
+| 11-05-01 | 05   | 4    | GEN-01, GEN-05, GEN-07 | T-11-19..23 | N/A refactor | golden-diff regression | `mix test test/sigra/install/golden_diff_test.exs && test $(wc -l < lib/mix/tasks/sigra.install.ex) -le 150 && mix compile --warnings-as-errors`                                                            | ✅          | ✅ green |
+| 11-05-02 | 05   | 4    | GEN-04         | T-11-19..23 | N/A refactor    | integration            | `mix test test/sigra/install/idempotency_test.exs`                                                                                                                                                         | ✅          | ✅ green |
+| 11-06-01 | 06   | 5    | GEN-01         | T-11-24..26 | N/A refactor    | custom guardrail       | `mix test test/sigra/install/purely_additive_test.exs test/sigra/install/isolation_test.exs && mix test test/sigra/install/`                                                                               | ✅          | ✅ green |
+| 11-06-02 | 06   | 5    | GEN-01         | T-11-24..26 | N/A refactor    | documentation          | `grep -c "nyquist_compliant: true" .planning/phases/11-generator-feature-system/11-VALIDATION.md`                                                                                                          | ✅          | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+
+Row count: **12** — matches Plans 01-06 × 2 tasks each.
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `test/sigra/install/golden_diff_test.exs` — bespoke harness using `String.myers_difference/2`, migration-filename normalization helper, fixture at `test/fixtures/install_golden/`
-- [ ] `test/sigra/install/feature_test.exs` — behaviour contract tests
-- [ ] `test/sigra/install/injection_test.exs` — `%Injection{}` struct + Injector adapter
-- [ ] `test/sigra/install/report_test.exs` — 4-category accumulator
-- [ ] `test/sigra/install/migration_timestamps_test.exs` — slot allocator determinism
-- [ ] `test/sigra/install/features/core_test.exs` — behaviour implementation
-- [ ] `test/sigra/install/idempotency_test.exs` — re-run no-op proof (GEN-04)
-- [ ] `test/sigra/install/purely_additive_test.exs` — V-PA-01 mechanical check
-- [ ] `test/sigra/install/isolation_test.exs` — V-ISOLATION-01 grep-based boundary check
-- [ ] `test/sigra/install/templates_layout_test.exs` — 44-file manifest under `core/`
-- [ ] `test/support/install_fixture.ex` — `mix phx.new` tmp-app setup helper
-- [ ] `test/fixtures/install_golden/` — committed golden snapshot (captured BEFORE refactor begins)
-- [ ] `test/fixtures/install_golden/STDOUT.txt` — committed normalized installer stdout fixture (GEN-05 byte gate)
-- [ ] `test/sigra/install/features/core_post_instructions_test.exs` — fixture-mode tests for the Oban + Swoosh post_instructions branches (revision §2)
+All Wave 0 artifacts shipped in Plans 11-01 / 11-02 (see 11-01-SUMMARY.md and 11-02-SUMMARY.md):
+
+- [x] `test/sigra/install/golden_diff_test.exs` — bespoke harness using `String.myers_difference/2`, migration-filename normalization helper, fixture at `test/fixtures/install_golden/`
+- [x] `test/sigra/install/feature_test.exs` — behaviour contract tests
+- [x] `test/sigra/install/injection_test.exs` — `%Injection{}` struct + Injector adapter
+- [x] `test/sigra/install/report_test.exs` — 4-category accumulator
+- [x] `test/sigra/install/migration_timestamps_test.exs` — slot allocator determinism
+- [x] `test/sigra/install/features/core_test.exs` — behaviour implementation
+- [x] `test/sigra/install/idempotency_test.exs` — re-run no-op proof (GEN-04)
+- [x] `test/sigra/install/purely_additive_test.exs` — V-PA-01 mechanical check
+- [x] `test/sigra/install/isolation_test.exs` — V-ISOLATION-01 grep-based boundary check
+- [x] `test/sigra/install/templates_layout_test.exs` — 45-file manifest under `core/`
+- [x] `test/support/install_fixture.ex` — `mix phx.new` tmp-app setup helper
+- [x] `test/fixtures/install_golden/` — committed golden snapshot (captured BEFORE refactor began)
+- [x] `test/fixtures/install_golden/STDOUT.txt` — committed normalized installer stdout fixture (GEN-05 byte gate)
+- [x] `test/sigra/install/features/core_post_instructions_test.exs` — fixture-mode tests for the Oban + Swoosh post_instructions branches
 
 ---
 
@@ -91,11 +93,11 @@ created: 2026-04-11
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (12 new test files + fixture dir)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 120s
-- [ ] `nyquist_compliant: true` set in frontmatter (flipped by planner after filling the per-task map)
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (12 new test files + fixture dir)
+- [x] No watch-mode flags
+- [x] Feedback latency < 120s (full install-dir suite ~65s)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved by planner (2026-04-11, Wave 5 completion)
