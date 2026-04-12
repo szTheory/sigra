@@ -48,6 +48,8 @@ created: 2026-04-11
 | 11-04-01 | 04 | 2 | GEN-05 | — | N/A | `Sigra.Install.Report` records 4 categories | `mix test test/sigra/install/report_test.exs` | ❌ W0 | ⬜ pending |
 | 11-05-01 | 05 | 2 | GEN-07 | — | N/A | `MigrationTimestamps.allocate/2` deterministic ordering | `mix test test/sigra/install/migration_timestamps_test.exs` | ❌ W0 | ⬜ pending |
 | 11-06-01 | 06 | 3 | GEN-01, GEN-02 | — | N/A | `Features.Core` implements all 5 callbacks | `mix test test/sigra/install/features/core_test.exs` | ❌ W0 | ⬜ pending |
+| 11-06-02-postinstr | 06 | 3 | GEN-01 | T-11-14..18 | N/A | `Features.Core.post_instructions/2` Oban + Swoosh detection branches (ported from `inject_oban_queue/1` + `inject_swoosh_config/2`) | `mix test test/sigra/install/features/core_post_instructions_test.exs` | ❌ W0 | ⬜ pending |
+| 11-01-stdout | 01 | 0 | GEN-05 | — | N/A | Installer stdout matches `test/fixtures/install_golden/STDOUT.txt` byte gate (4-column summary + post_instructions content) | `mix test test/sigra/install/golden_diff_test.exs` | ❌ W0 | ⬜ pending |
 | 11-07-01 | 07 | 3 | GEN-01 | — | N/A | walker refactor; golden diff still zero | `mix test test/sigra/install/golden_diff_test.exs` | ❌ W0 | ⬜ pending |
 | 11-07-02 | 07 | 3 | GEN-04 | — | N/A | re-run idempotency (second invocation = no writes) | `mix test test/sigra/install/idempotency_test.exs` | ❌ W0 | ⬜ pending |
 | 11-08-01 | 08 | 4 | GEN-01 | — | N/A | V-PA-01 purely-additive: fake feature works with zero walker edits | `mix test test/sigra/install/purely_additive_test.exs` | ❌ W0 | ⬜ pending |
@@ -73,6 +75,8 @@ created: 2026-04-11
 - [ ] `test/sigra/install/templates_layout_test.exs` — 44-file manifest under `core/`
 - [ ] `test/support/install_fixture.ex` — `mix phx.new` tmp-app setup helper
 - [ ] `test/fixtures/install_golden/` — committed golden snapshot (captured BEFORE refactor begins)
+- [ ] `test/fixtures/install_golden/STDOUT.txt` — committed normalized installer stdout fixture (GEN-05 byte gate)
+- [ ] `test/sigra/install/features/core_post_instructions_test.exs` — fixture-mode tests for the Oban + Swoosh post_instructions branches (revision §2)
 
 ---
 

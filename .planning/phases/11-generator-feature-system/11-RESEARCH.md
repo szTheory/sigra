@@ -472,22 +472,22 @@ end
 
 **Confirm-before-execute:** A3, A5, A7. The plan's Wave 0 must include investigation tasks for each.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Is there non-determinism in the current (pre-refactor) generator beyond migration timestamps?**
    - What we know: `offset_timestamp/1` is the only obvious source. `user.ex`, `auth.ex`, etc. templates don't reference `System.unique_integer` or `:rand` during EEx eval.
    - What's unclear: whether any template uses `Mix.Phoenix.base()` in a way that differs between runs (e.g., if `otp_app` changes case), or whether file ordering in `File.ls/1` on different filesystems produces different output.
-   - Recommendation: **Wave 0 investigative task** — run the installer twice on an identical fresh `phx.new` tree, diff, investigate any non-migration-filename differences. If any exist, they become additional `[D-05]` normalizations or get fixed in-place.
+   - **RESOLVED:** Plan 01 Task 2's capture protocol handles this mechanically. If the installer is run twice on identical fresh phx.new fixtures and produces non-migration-filename diffs, the golden-diff test will fail on the second run during capture — executor must triage before committing the fixture. No separate investigative task required; the two-run capture protocol IS the investigation.
 
 2. **Can the 5-callback behaviour really handle every current v1.0 quirk, or is a 6th callback needed?**
    - What we know: the current `inject_oban_queue/1` and `inject_swoosh_config/2` functions print instructions AND read host-app files without injecting — they are a hybrid "detect + report" that isn't cleanly in any of the 5 callbacks.
    - What's unclear: whether these belong in `injections/1` (with a new `:detect_only` anchor?) or in `post_instructions/2` (as conditional output computed from current file state).
-   - Recommendation: **Wave 0 investigative task** — map each current `inject_*` / `print_*` callsite to a callback. If `inject_oban_queue` and `inject_swoosh_config` don't fit, the planner proposes either (a) running them as custom logic inside `Features.Core.post_instructions/2` (they already have the host-app-reads baked in) or (b) widening `Injection.anchor` to include `:detect_and_report_only`. **Recommend (a)** — simpler, no contract widening.
+   - **RESOLVED:** Recommendation (a). Route both into `Features.Core.post_instructions/2`. That function reads host-app files directly (`config/config.exs` + `config/runtime.exs` for Oban queue detection; `config/dev.exs` for Swoosh dev-adapter detection) and returns conditional iodata instructions. Do NOT widen the `Injection` anchor enum. Plan 04 Task 2 revised to explicitly cover both functions with regression tests on the Oban and Swoosh branches. The helper functions may be private to `Features.Core` — copy verbatim from the monolith (`lib/mix/tasks/sigra.install.ex` lines 650-711); they don't need to go through `%Injection{}`.
 
 3. **How should the golden fixture handle `--live` vs `--no-live` divergence?**
    - What we know: the Phase 10.1.1 smoke suite runs at least one mode. ROADMAP.md doesn't specify which is canonical for byte-identity.
    - What's unclear: whether the golden fixture should snapshot ONE mode (simplest) or BOTH modes as separate fixtures (more coverage, more maintenance).
-   - Recommendation: **Phase 11 snapshots `--live` only** (the default, covers more code). `--no-live` is verified by existing compile-check smoke but not byte-golden. Phase 18 adds the combinatorial matrix per GEN-03 and can extend the golden harness if needed. Trade maintenance cost against coverage until we need it.
+   - **RESOLVED:** `--live` only for Phase 11 (the default, matches Plan 01 Task 2 canonical args `["Accounts", "User", "users", "--yes"]`). Combinatorial matrix including `--no-live` is deferred to Phase 18/22 per GEN-03. Do not extend the fixture scope without a formal Phase 11 amendment.
 
 ## Environment Availability
 

@@ -56,7 +56,14 @@
   2. Developer can re-run `mix sigra.install --yes` on an already-installed project and the generator skips existing files + already-present injections without erroring (idempotent per GEN-04).
   3. Post-install summary output shows a clear table of generated / modified / skipped / manual-action files (GEN-05), and migrations are emitted with strictly-ordered timestamps so cross-feature ordering hazards cannot arise at install or upgrade time (GEN-07).
   4. `priv/templates/sigra.install/core/` contains every v1.0 template file with zero content drift; `Sigra.Install.Feature` behaviour is implemented by `Sigra.Install.Features.Core` with `enabled?/1` always returning true.
-**Plans**: TBD
+**Plans:** 6 plans
+Plans:
+- [ ] 11-01-PLAN.md — Wave 0: Golden-diff harness + pre-refactor snapshot capture (GEN-02)
+- [ ] 11-02-PLAN.md — Wave 1: Feature behaviour + %Injection{} struct + Report + MigrationTimestamps primitives (GEN-01, GEN-05, GEN-07)
+- [ ] 11-03-PLAN.md — Wave 2: Mechanical template relocation into core/ subdirectory (GEN-02)
+- [ ] 11-04-PLAN.md — Wave 3: Features.Core extraction owning v1.0 files, injections, migrations, instructions (GEN-01, GEN-02)
+- [ ] 11-05-PLAN.md — Wave 4: Walker refactor + idempotency proof (GEN-01, GEN-04, GEN-05, GEN-07)
+- [ ] 11-06-PLAN.md — Wave 5: V-PA-01 purely-additive + V-ISOLATION-01 guardrails + VALIDATION.md finalize (GEN-01)
 
 ### Phase 12: Scope + Session Foundation
 **Goal**: `%Scope{}` and the `user_sessions` row carry the fields every org-aware and (v1.2) impersonation-aware plug needs, with zero business logic attached — a mechanical data-shape extension.
