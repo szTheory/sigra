@@ -410,4 +410,61 @@ defmodule Sigra.Install.Injector do
       end
     end
   end
+
+  @doc """
+  Applies a `%Sigra.Install.Injection{}` record, routing to the
+  appropriate marker-based injection function based on the anchor.
+
+  Returns `{:ok, :injected}` on first apply, `{:ok, :already_present}`
+  on subsequent applies (idempotency primitive behind GEN-04).
+
+  Features never call `Injector.inject_*` functions directly; they
+  return `%Injection{}` records from `Sigra.Install.Feature.injections/1`
+  and the walker passes them here.
+
+  This is a thin adapter layer added for Phase 11 Wave 1 primitives.
+  The legacy `inject_router_plugs/2` / `inject_config/2` / ...
+  functions above continue to serve the monolith until Wave 4 swaps
+  the monolith for the walker.
+  """
+  @spec apply(Sigra.Install.Injection.t(), keyword()) ::
+          {:ok, :injected | :already_present} | {:error, term()}
+  def apply(injection, opts \\ [])
+
+  def apply(%Sigra.Install.Injection{} = injection, opts) do
+    case File.read(injection.target) do
+      {:ok, content} ->
+        if String.contains?(content, injection.marker) do
+          {:ok, :already_present}
+        else
+          do_inject(injection, content, opts)
+        end
+
+      {:error, :enoent} ->
+        {:error, {:target_missing, injection.target}}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp do_inject(%Sigra.Install.Injection{} = inj, content, _opts) do
+    new_content = apply_anchor(inj.anchor, content, inj.content)
+    File.write!(inj.target, new_content)
+    {:ok, :injected}
+  end
+
+  defp apply_anchor(:before_last_end, content, payload) do
+    # Replace the FINAL `end` with payload <> "\nend"
+    String.replace(content, ~r/\nend\s*\z/, "\n#{payload}\nend\n")
+  end
+
+  defp apply_anchor(:after_use_block, content, payload) do
+    String.replace(content, ~r/(\n  use [A-Za-z.]+.*?\n)/s, "\\1\n  #{payload}\n", global: false)
+  end
+
+  defp apply_anchor(:at_top, content, payload), do: payload <> "\n" <> content
+
+  defp apply_anchor(other, _content, _payload),
+    do: raise(ArgumentError, "unsupported injection anchor: #{inspect(other)}")
 end
