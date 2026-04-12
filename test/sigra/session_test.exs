@@ -68,10 +68,10 @@ defmodule Sigra.SessionTest do
   end
 
   describe "SessionStore behaviour" do
-    test "defines 7 callbacks" do
+    test "defines 8 callbacks" do
       callbacks = Sigra.SessionStore.behaviour_info(:callbacks)
 
-      assert length(callbacks) == 7
+      assert length(callbacks) == 8
       assert {:create, 3} in callbacks
       assert {:fetch, 2} in callbacks
       assert {:delete, 2} in callbacks
@@ -79,6 +79,8 @@ defmodule Sigra.SessionTest do
       assert {:delete_all_for_user, 2} in callbacks
       assert {:update_activity, 3} in callbacks
       assert {:update_sudo, 3} in callbacks
+      # Phase 14 (Plan 14-01, D-20) — active organization write path.
+      assert {:update_active_organization, 3} in callbacks
     end
   end
 
