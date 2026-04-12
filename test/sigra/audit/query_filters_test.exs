@@ -27,7 +27,7 @@ defmodule Sigra.Audit.QueryFiltersTest do
     end
   end
 
-  @tag :skip
+
   test "build/2 filters by :organization_id equality" do
     id = Ecto.UUID.generate()
     q = Query.build(TestSchema, organization_id: id)
@@ -35,7 +35,7 @@ defmodule Sigra.Audit.QueryFiltersTest do
     assert s =~ "organization_id"
   end
 
-  @tag :skip
+
   test "build/2 filters by :organization_id nil => IS NULL" do
     q = Query.build(TestSchema, organization_id: nil)
     s = inspect(q)
@@ -43,7 +43,7 @@ defmodule Sigra.Audit.QueryFiltersTest do
     assert s =~ ~r/is_nil|IS NULL/i
   end
 
-  @tag :skip
+
   test "build/2 filters by :effective_user_id equality and nil" do
     id = Ecto.UUID.generate()
     q1 = Query.build(TestSchema, effective_user_id: id)
@@ -52,7 +52,7 @@ defmodule Sigra.Audit.QueryFiltersTest do
     assert inspect(q2) =~ ~r/is_nil|IS NULL/i
   end
 
-  @tag :skip
+
   test "build/2 :organization_scope {:only, org_id} filters strict" do
     id = Ecto.UUID.generate()
     q = Query.build(TestSchema, organization_scope: {:only, id})
@@ -61,7 +61,7 @@ defmodule Sigra.Audit.QueryFiltersTest do
     refute s =~ ~r/is_nil|IS NULL/i
   end
 
-  @tag :skip
+
   test "build/2 :organization_scope {:including_global, org_id} returns rows with matching org_id OR NULL org_id" do
     id = Ecto.UUID.generate()
     q = Query.build(TestSchema, organization_scope: {:including_global, id})
@@ -70,7 +70,7 @@ defmodule Sigra.Audit.QueryFiltersTest do
     assert s =~ ~r/is_nil|IS NULL/i
   end
 
-  @tag :skip
+
   test "build/2 raises ArgumentError on unknown filter key (breaking change per D-15)" do
     assert_raise ArgumentError, ~r/unknown filter key/, fn ->
       Query.build(TestSchema, actor: "wrong")

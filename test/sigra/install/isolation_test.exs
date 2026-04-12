@@ -78,9 +78,9 @@ defmodule Sigra.Install.IsolationTest do
       end)
     end
 
-    test "contains exactly 46 templates" do
+    test "contains exactly 47 templates" do
       files = File.ls!("priv/templates/sigra.install/core")
-      assert length(files) == 46
+      assert length(files) == 47
     end
   end
 

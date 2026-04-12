@@ -14,7 +14,7 @@ defmodule Sigra.Scope.BuildTest do
     defstruct [:user, :active_organization, :membership, :impersonating_from]
   end
 
-  @tag :skip
+
   test "Sigra.Scope.build/3 with minimal opts returns struct with user set and others nil" do
     user = %{id: Ecto.UUID.generate()}
     scope = Sigra.Scope.build(Scope, user)
@@ -26,7 +26,7 @@ defmodule Sigra.Scope.BuildTest do
     assert is_nil(scope.impersonating_from)
   end
 
-  @tag :skip
+
   test "Sigra.Scope.build/3 propagates :active_organization and :membership from opts" do
     user = %{id: Ecto.UUID.generate()}
     org = %{id: Ecto.UUID.generate()}
@@ -39,7 +39,7 @@ defmodule Sigra.Scope.BuildTest do
     assert scope.membership == membership
   end
 
-  @tag :skip
+
   test "Sigra.Scope.build/3 always sets :impersonating_from to nil in v1.1" do
     user = %{id: Ecto.UUID.generate()}
     # Even if a caller tries to pass :impersonating_from, v1.1 pins it to nil.
