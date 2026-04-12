@@ -407,6 +407,21 @@ defmodule Sigra.Install.Features.Core do
         plug :require_mfa
       end
 
+      # Phase 14 Plan 03: organization-aware pipelines (opt-in).
+      # Apps that want to gate routes by active organization membership
+      # pipe_through :require_org (any active membership) or
+      # :require_org_owner (owner role only). Phase 16 wires these to
+      # the organization picker + switcher.
+      pipeline :require_org do
+        plug Sigra.Plug.RequireMembership, error_handler: #{web_module}.AuthErrorHandler
+      end
+
+      pipeline :require_org_owner do
+        plug Sigra.Plug.RequireMembership,
+          error_handler: #{web_module}.AuthErrorHandler,
+          roles: [:owner]
+      end
+
       # MFA challenge (accessible with mfa_pending sessions, D-24)
       scope "/users", #{web_module} do
         pipe_through [:browser]
