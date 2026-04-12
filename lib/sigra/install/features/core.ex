@@ -85,6 +85,9 @@ defmodule Sigra.Install.Features.Core do
   def migrations(_binding) do
     [
       {:primary, "core/migration.exs", "create_sigra_auth_tables.exs"},
+      {:active_org_column,
+       "core/add_active_organization_id_to_user_sessions.exs",
+       "add_active_organization_id_to_user_sessions.exs"},
       {:api_token, "core/api_token_migration.exs", "create_user_api_tokens.exs"},
       {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"}
     ]
@@ -143,6 +146,11 @@ defmodule Sigra.Install.Features.Core do
       {:eex, "core/migration.exs",
        migration_target(binding, :primary, "create_sigra_auth_tables.exs")}
 
+    active_org_column_migration =
+      {:eex, "core/add_active_organization_id_to_user_sessions.exs",
+       migration_target(binding, :active_org_column,
+         "add_active_organization_id_to_user_sessions.exs")}
+
     audit_migration =
       {:eex, "core/create_audit_events.exs",
        migration_target(binding, :audit_events, "create_audit_events.exs")}
@@ -150,6 +158,9 @@ defmodule Sigra.Install.Features.Core do
     [
       # Primary migration (position 0 in monolith files list)
       primary_migration,
+
+      # Phase 12: active_organization_id ALTER migration (position 1, before core schemas)
+      active_org_column_migration,
 
       # Core schemas + context
       {:eex, "core/user.ex", Path.join(["lib", otp_app, ctx, "user.ex"])},
