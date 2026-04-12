@@ -32,6 +32,15 @@ jobs:
             deps
             _build
           key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      # phx_new archive is required by test/sigra/install/golden_diff_test.exs
+      # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
+      # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
       - name: Fetch library deps
         run: mix deps.get
       - name: Run library tests
