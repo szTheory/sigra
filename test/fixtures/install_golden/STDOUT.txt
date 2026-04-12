@@ -1,0 +1,75 @@
+* creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
+* creating lib/sigra_install_golden_tmp/accounts/user.ex
+* creating lib/sigra_install_golden_tmp/accounts/user_token.ex
+* creating lib/sigra_install_golden_tmp/accounts/scope.ex
+* creating lib/sigra_install_golden_tmp/accounts.ex
+* creating lib/sigra_install_golden_tmp_web/user_auth.ex
+* creating lib/sigra_install_golden_tmp_web/auth_error_handler.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/session_controller.ex
+* creating test/support/fixtures/auth_fixtures.ex
+* creating test/support/conn_case_helpers.ex
+* creating lib/sigra_install_golden_tmp/accounts/emails.ex
+* creating lib/sigra_install_golden_tmp/accounts/mailer.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/confirmation_controller.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/confirmation_html.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/reset_password_controller.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/reset_password_html.ex
+* creating lib/sigra_install_golden_tmp/accounts/user_session.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/auth/sudo_controller.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/auth/sudo_html.ex
+* creating lib/sigra_install_golden_tmp/accounts/user_mfa_credential.ex
+* creating lib/sigra_install_golden_tmp/accounts/user_backup_code.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_controller.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex
+* creating priv/repo/migrations/TIMESTAMP_create_audit_events.exs
+* creating lib/sigra_install_golden_tmp/accounts/audit_event.ex
+* creating lib/sigra_install_golden_tmp/accounts/encrypted.ex
+* creating lib/sigra_install_golden_tmp/mailer.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/session_html.ex
+* creating lib/sigra_install_golden_tmp_web/live/registration_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/confirmation_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/reset_password_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/auth/session_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/mfa_challenge_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/mfa_settings_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/settings_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/reactivation_live.ex
+* injecting lib/sigra_install_golden_tmp_web/router.ex
+* injecting config/config.exs
+* injecting config/test.exs
+* injecting test/support/conn_case.ex
+* detected Oban config in config/config.exs
+  Add the sigra_mailer queue to your Oban config:
+    config :sigra_install_golden_tmp, Oban, queues: [sigra_mailer: 10]
+
+* injecting Swoosh dev config into config/dev.exs
+
+Sigra authentication has been installed!
+
+Next steps:
+
+  1. Run the migration:
+
+         mix ecto.migrate
+
+  2. Add the authentication pipeline to your router:
+
+         # In lib/your_app_web/router.ex
+         # Routes were auto-injected if the router was found.
+
+  3. Review the generated configuration in config/config.exs
+
+  4. (Optional) Set up rate limiting with Hammer:
+
+         # In your application.ex children list:
+         {MyApp.RateLimit, clean_period: :timer.minutes(1)}
+
+         # Create lib/my_app/rate_limit.ex:
+         defmodule MyApp.RateLimit do
+           use Hammer, backend: :ets
+         end
+
+  LiveView pages were generated for login, registration, and session management.
+
+
+
