@@ -22,10 +22,16 @@ defmodule Sigra.Install.ScopeTemplateInvariantsTest do
     end
 
     test "compile-and-introspect — rendered Scope module struct has :impersonating_from key" do
-      # Pre-compile a dummy User module so the rendered scope can resolve
-      # `alias TestApp.Accounts.User` and the `%User{}` pattern matches.
+      # Pre-compile dummy User/Organization/OrganizationMembership modules so
+      # the rendered scope can resolve `alias TestApp.Accounts.User`, plus the
+      # Organization/OrganizationMembership references added in D-23 (Phase 13).
       # See Pitfall 7 in 12-RESEARCH.md.
       Code.compile_string("defmodule TestApp.Accounts.User, do: defstruct([:id])")
+      Code.compile_string("defmodule TestApp.Accounts.Organization, do: defstruct([:id])")
+
+      Code.compile_string(
+        "defmodule TestApp.Accounts.OrganizationMembership, do: defstruct([:id])"
+      )
 
       # The scope template uses PLAIN bindings (`<%= context_module %>`),
       # NOT @assigns. See Pitfall 6 in 12-RESEARCH.md. Pass a plain

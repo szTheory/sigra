@@ -28,11 +28,11 @@ defmodule Sigra.Install.ScopeTemplateFieldsTest do
     test "@type t includes all 4 fields" do
       source = File.read!(@scope_path)
 
-      assert source =~ "active_organization: struct() | nil",
-        "scope.ex @type must include active_organization"
+      assert source =~ "active_organization: %<%= context_module %>.Organization{} | nil",
+        "scope.ex @type must include active_organization with real Organization type (D-23)"
 
-      assert source =~ "membership: struct() | nil",
-        "scope.ex @type must include membership"
+      assert source =~ "membership: %<%= context_module %>.OrganizationMembership{} | nil",
+        "scope.ex @type must include membership with real OrganizationMembership type (D-23)"
 
       assert source =~ ~r/impersonating_from: %<%= schema_alias %>\{\} \| nil/,
         "scope.ex @type must include impersonating_from"

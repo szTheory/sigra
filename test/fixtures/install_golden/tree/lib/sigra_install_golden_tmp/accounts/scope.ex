@@ -27,8 +27,8 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
 
   @type t :: %__MODULE__{
           user: %User{} | nil,
-          active_organization: struct() | nil,
-          membership: struct() | nil,
+          active_organization: %SigraInstallGoldenTmp.Accounts.Organization{} | nil,
+          membership: %SigraInstallGoldenTmp.Accounts.OrganizationMembership{} | nil,
           impersonating_from: %User{} | nil
         }
 
