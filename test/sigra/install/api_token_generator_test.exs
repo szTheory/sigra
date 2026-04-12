@@ -419,58 +419,74 @@ defmodule Sigra.Install.APITokenGeneratorTest do
       config :my_app, :sigra_api, api_token: [prefix: "sigra_sk_"]
       """
 
-      assert {:already_injected, _} = Sigra.Install.Injector.inject_api_config(config, "new config")
+      assert {:already_injected, _} =
+               Sigra.Install.Injector.inject_api_config(config, "new config")
     end
   end
 
   describe "install task includes API flags" do
+    # Phase 11 Wave 4: --api/--jwt switches stay on the Mix task; the
+    # API file list + router pipeline moved into
+    # Sigra.Install.Features.Core.
+    @install_path Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"])
+    @features_core_path Path.join([
+                          File.cwd!(),
+                          "lib",
+                          "sigra",
+                          "install",
+                          "features",
+                          "core.ex"
+                        ])
+
     test "install task accepts --api flag" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@install_path)
       assert source =~ "api: :boolean"
     end
 
     test "install task accepts --jwt flag" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@install_path)
       assert source =~ "jwt: :boolean"
     end
 
-    test "install task includes api_token_migration in file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("api_token_migration.exs")
+    test "Features.Core includes api_token_migration in file list" do
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/api_token_migration.exs")
     end
 
-    test "install task includes user_api_token in file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("user_api_token.ex")
+    test "Features.Core includes user_api_token in file list" do
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/user_api_token.ex")
     end
 
-    test "install task includes api_token_controller in file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("api_token_controller.ex")
+    test "Features.Core includes api_token_controller in file list" do
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/api_token_controller.ex")
     end
 
-    test "install task includes token_controller in jwt file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("token_controller.ex")
+    test "Features.Core includes token_controller in jwt file list" do
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/token_controller.ex")
     end
 
-    test "install task has API route injection" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ "inject_api_files"
+    test "Features.Core has API router injection content" do
+      source = File.read!(@features_core_path)
+      assert source =~ "# Sigra API"
+      assert source =~ "APITokenController"
     end
 
-    test "install task has JWT route injection" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ "inject_jwt_routes"
+    test "Features.Core has JWT router injection content" do
+      source = File.read!(@features_core_path)
+      assert source =~ "# Sigra JWT"
+      assert source =~ "TokenController"
     end
 
-    test "install task generates API pipeline with FetchBearer" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+    test "Features.Core generates API pipeline with FetchBearer" do
+      source = File.read!(@features_core_path)
       assert source =~ "Sigra.Plug.FetchBearer"
     end
 
-    test "install task generates API pipeline with RequireAuthenticated" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+    test "Features.Core generates API pipeline with RequireAuthenticated" do
+      source = File.read!(@features_core_path)
       assert source =~ "Sigra.Plug.RequireAuthenticated"
     end
   end

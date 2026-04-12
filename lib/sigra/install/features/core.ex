@@ -67,6 +67,20 @@ defmodule Sigra.Install.Features.Core do
       jwt_files(binding, jwt?)
   end
 
+  @doc false
+  # Migration target path for a slot, using the allocated timestamp map
+  # threaded in under `binding[:migration_timestamps]` by the walker.
+  # Falls back to a deterministic `TIMESTAMP_` placeholder when no map
+  # is present (used in unit tests that do not go through the Runner).
+  def migration_target(binding, slot_key, basename) do
+    ts =
+      binding
+      |> Keyword.get(:migration_timestamps, %{})
+      |> Map.get(slot_key, "TIMESTAMP")
+
+    Path.join(["priv", "repo", "migrations", "#{ts}_#{basename}"])
+  end
+
   @impl true
   def migrations(_binding) do
     [
@@ -106,9 +120,14 @@ defmodule Sigra.Install.Features.Core do
     otp_app_str = otp_app_str(binding)
     app_module = fetch!(binding, :app_module)
 
-    base_instructions(opts) ++
-      oban_instructions(otp_app_str) ++
-      swoosh_instructions(otp_app_str, app_module)
+    # Chunk order mirrors the monolith's inject_into_files -> print_instructions
+    # flow: Oban detection, then Swoosh detection (+ possible file mutation),
+    # then the big "Sigra authentication has been installed!" heredoc.
+    # Each top-level element is one logical `Mix.shell().info` call so the
+    # trailing newlines line up with the pre-refactor STDOUT fixture.
+    oban_instructions(otp_app_str) ++
+      swoosh_instructions(otp_app_str, app_module) ++
+      [base_instruction_block(opts)]
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -120,7 +139,18 @@ defmodule Sigra.Install.Features.Core do
     ctx = context_underscore(binding)
     web = "#{otp_app}_web"
 
+    primary_migration =
+      {:eex, "core/migration.exs",
+       migration_target(binding, :primary, "create_sigra_auth_tables.exs")}
+
+    audit_migration =
+      {:eex, "core/create_audit_events.exs",
+       migration_target(binding, :audit_events, "create_audit_events.exs")}
+
     [
+      # Primary migration (position 0 in monolith files list)
+      primary_migration,
+
       # Core schemas + context
       {:eex, "core/user.ex", Path.join(["lib", otp_app, ctx, "user.ex"])},
       {:eex, "core/user_token.ex", Path.join(["lib", otp_app, ctx, "user_token.ex"])},
@@ -167,7 +197,10 @@ defmodule Sigra.Install.Features.Core do
       {:eex, "core/mfa_challenge_html.ex",
        Path.join(["lib", web, "controllers", "mfa_challenge_html.ex"])},
 
-      # Phase 9: audit schema (migration is in migrations/1)
+      # Phase 9: audit events migration (monolith position 23)
+      audit_migration,
+
+      # Phase 9: audit schema
       {:eex, "core/audit_event.ex", Path.join(["lib", otp_app, ctx, "audit_event.ex"])},
 
       # Phase 10.1: Encrypted.Binary passthrough stub
@@ -225,6 +258,9 @@ defmodule Sigra.Install.Features.Core do
     web = "#{otp_app}_web"
 
     [
+      # API token migration (monolith position 0 of api_files)
+      {:eex, "core/api_token_migration.exs",
+       migration_target(binding, :api_token, "create_user_api_tokens.exs")},
       {:eex, "core/user_api_token.ex", Path.join(["lib", otp_app, ctx, "user_api_token.ex"])},
       {:eex, "core/api_token_controller.ex",
        Path.join(["lib", web, "controllers", "api_token_controller.ex"])}
@@ -254,12 +290,15 @@ defmodule Sigra.Install.Features.Core do
   defp router_injection(otp_app, web_module, live?) do
     live_routes =
       if live? do
-        "\n        live \"/register\", RegistrationLive\n"
+        """
+
+            live "/register", RegistrationLive
+        """
       else
         """
 
-                get "/register", RegistrationController, :new
-                post "/register", RegistrationController, :create
+            get "/register", RegistrationController, :new
+            post "/register", RegistrationController, :create
         """
       end
 
@@ -267,16 +306,16 @@ defmodule Sigra.Install.Features.Core do
       if live? do
         """
 
-                live "/confirm", ConfirmationLive
-                live "/confirm/:token", ConfirmationLive, :confirm
+            live "/confirm", ConfirmationLive
+            live "/confirm/:token", ConfirmationLive, :confirm
         """
       else
         """
 
-                get "/confirm", ConfirmationController, :new
-                post "/confirm", ConfirmationController, :create
-                get "/confirm/:token", ConfirmationController, :confirm
-                post "/confirm/resend", ConfirmationController, :resend
+            get "/confirm", ConfirmationController, :new
+            post "/confirm", ConfirmationController, :create
+            get "/confirm/:token", ConfirmationController, :confirm
+            post "/confirm/resend", ConfirmationController, :resend
         """
       end
 
@@ -284,22 +323,25 @@ defmodule Sigra.Install.Features.Core do
       if live? do
         """
 
-                live "/reset-password", ResetPasswordLive
-                live "/reset-password/:token", ResetPasswordLive, :edit
+            live "/reset-password", ResetPasswordLive
+            live "/reset-password/:token", ResetPasswordLive, :edit
         """
       else
         """
 
-                get "/reset-password", ResetPasswordController, :new
-                post "/reset-password", ResetPasswordController, :create
-                get "/reset-password/:token", ResetPasswordController, :edit
-                put "/reset-password/:token", ResetPasswordController, :update
+            get "/reset-password", ResetPasswordController, :new
+            post "/reset-password", ResetPasswordController, :create
+            get "/reset-password/:token", ResetPasswordController, :edit
+            put "/reset-password/:token", ResetPasswordController, :update
         """
       end
 
     session_management_routes =
       if live? do
-        "\n        live \"/sessions\", Auth.SessionLive, :index\n"
+        """
+
+            live "/sessions", Auth.SessionLive, :index
+        """
       else
         ""
       end
@@ -312,18 +354,24 @@ defmodule Sigra.Install.Features.Core do
 
     mfa_challenge_routes =
       if live? do
-        "\n        live \"/mfa\", MFAChallengeLive\n"
+        """
+
+            live "/mfa", MFAChallengeLive
+        """
       else
         """
 
-                get "/mfa", MFAChallengeController, :new
-                post "/mfa", MFAChallengeController, :create
+            get "/mfa", MFAChallengeController, :new
+            post "/mfa", MFAChallengeController, :create
         """
       end
 
     mfa_settings_routes =
       if live? do
-        "\n        live \"/settings/mfa\", MFASettingsLive\n"
+        """
+
+            live "/settings/mfa", MFASettingsLive
+        """
       else
         ""
       end
@@ -332,8 +380,8 @@ defmodule Sigra.Install.Features.Core do
       if live? do
         """
 
-                live "/settings", SettingsLive, :edit
-                live "/reactivation", ReactivationLive
+            live "/settings", SettingsLive, :edit
+            live "/reactivation", ReactivationLive
         """
       else
         ""
@@ -401,7 +449,7 @@ defmodule Sigra.Install.Features.Core do
     %Injection{
       target: Path.join(["config", "config.exs"]),
       marker: "# Sigra authentication",
-      anchor: :before_last_end,
+      anchor: :elixir_config,
       content: content
     }
   end
@@ -417,7 +465,7 @@ defmodule Sigra.Install.Features.Core do
     %Injection{
       target: Path.join(["config", "test.exs"]),
       marker: "# Sigra authentication",
-      anchor: :before_last_end,
+      anchor: :append_eof,
       content: content
     }
   end
@@ -426,7 +474,7 @@ defmodule Sigra.Install.Features.Core do
     %Injection{
       target: Path.join(["test", "support", "conn_case.ex"]),
       marker: "#{web_module}.ConnCaseHelpers",
-      anchor: :before_last_end,
+      anchor: :conn_case_helpers,
       content: "      import #{web_module}.ConnCaseHelpers"
     }
   end
@@ -487,7 +535,7 @@ defmodule Sigra.Install.Features.Core do
       %Injection{
         target: config_target,
         marker: "api_token:",
-        anchor: :before_last_end,
+        anchor: :elixir_config,
         content: api_config_content <> jwt_config_tail
       }
     ]
@@ -523,7 +571,11 @@ defmodule Sigra.Install.Features.Core do
   # post_instructions/2 helpers
   # ──────────────────────────────────────────────────────────────────────────
 
-  defp base_instructions(opts) do
+  # Single-chunk base instruction block, ported verbatim from the v1.0
+  # monolith's `print_instructions/1` heredoc. Returns ONE binary (one
+  # `Mix.shell().info/1` call) so Mix.shell's automatic trailing-newline
+  # matches the pre-refactor STDOUT byte-for-byte.
+  defp base_instruction_block(opts) do
     live_line =
       if Keyword.get(opts, :live, true) do
         "  LiveView pages were generated for login, registration, and session management.\n"
@@ -545,45 +597,42 @@ defmodule Sigra.Install.Features.Core do
         ""
       end
 
-    [
-      """
+    """
 
-      Sigra authentication has been installed!
+    Sigra authentication has been installed!
 
-      Next steps:
+    Next steps:
 
-        1. Run the migration:
+      1. Run the migration:
 
-               mix ecto.migrate
+             mix ecto.migrate
 
-        2. Add the authentication pipeline to your router:
+      2. Add the authentication pipeline to your router:
 
-               # In lib/your_app_web/router.ex
-               # Routes were auto-injected if the router was found.
+             # In lib/your_app_web/router.ex
+             # Routes were auto-injected if the router was found.
 
-        3. Review the generated configuration in config/config.exs
+      3. Review the generated configuration in config/config.exs
 
-        4. (Optional) Set up rate limiting with Hammer:
+      4. (Optional) Set up rate limiting with Hammer:
 
-               # In your application.ex children list:
-               {MyApp.RateLimit, clean_period: :timer.minutes(1)}
+             # In your application.ex children list:
+             {MyApp.RateLimit, clean_period: :timer.minutes(1)}
 
-               # Create lib/my_app/rate_limit.ex:
-               defmodule MyApp.RateLimit do
-                 use Hammer, backend: :ets
-               end
+             # Create lib/my_app/rate_limit.ex:
+             defmodule MyApp.RateLimit do
+               use Hammer, backend: :ets
+             end
 
-      """,
-      live_line,
-      "\n",
-      api_line,
-      jwt_line,
-      "\n"
-    ]
+    #{live_line}
+    #{api_line}#{jwt_line}
+    """
   end
 
   # Ported verbatim from `Mix.Tasks.Sigra.Install.inject_oban_queue/1`.
   # Detection-and-report over host-app config files. No side effects.
+  # Returns a list of chunks; each chunk is ONE logical Mix.shell().info
+  # call so the monolith's trailing-newline topology is preserved.
   defp oban_instructions(otp_app) do
     runtime_config = Path.join(["config", "runtime.exs"])
     config_path = Path.join(["config", "config.exs"])
@@ -599,10 +648,10 @@ defmodule Sigra.Install.Features.Core do
       content = File.read!(target)
 
       if content =~ "sigra_mailer" do
-        [[:yellow, "* already configured ", :reset, "Oban sigra_mailer queue\n"]]
+        [[:yellow, "* already configured ", :reset, "Oban sigra_mailer queue"]]
       else
         [
-          [:green, "* detected Oban config in ", :reset, target, "\n"],
+          [:green, "* detected Oban config in ", :reset, target],
           [
             :yellow,
             "  Add the sigra_mailer queue to your Oban config:\n",
@@ -618,7 +667,7 @@ defmodule Sigra.Install.Features.Core do
           "* Oban not detected. ",
           :reset,
           "Email delivery will use synchronous mode.\n",
-          "  To enable async delivery, add Oban and configure the sigra_mailer queue.\n"
+          "  To enable async delivery, add Oban and configure the sigra_mailer queue."
         ]
       ]
     end
@@ -636,7 +685,7 @@ defmodule Sigra.Install.Features.Core do
       content = File.read!(dev_config)
 
       if content =~ "Swoosh" do
-        [[:yellow, "* already configured ", :reset, "Swoosh in ", dev_config, "\n"]]
+        [[:yellow, "* already configured ", :reset, "Swoosh in #{dev_config}"]]
       else
         swoosh_block = """
 
@@ -649,7 +698,7 @@ defmodule Sigra.Install.Features.Core do
         """
 
         File.write!(dev_config, content <> swoosh_block)
-        [[:green, "* injecting ", :reset, "Swoosh dev config into ", dev_config, "\n"]]
+        [[:green, "* injecting ", :reset, "Swoosh dev config into #{dev_config}"]]
       end
     else
       []

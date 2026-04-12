@@ -165,15 +165,21 @@ defmodule Sigra.Install.Features.CoreTest do
       refute "core/registration_html.ex" in sources
       refute "core/mfa_settings_html.ex" in sources
 
-      # Migration templates are NOT in files/1 — they live in migrations/1
-      refute "core/migration.exs" in sources
+      # Phase 11 Wave 4: migration templates are inlined into files/1 at
+      # fixed monolith positions so the walker's create_file loop emits
+      # them in byte-identical order to the v1.0 monolith. The slot
+      # metadata remains in migrations/1 for the MigrationTimestamps
+      # allocator.
+      assert "core/migration.exs" in sources
+      assert "core/create_audit_events.exs" in sources
+      # api_token migration is only included with --api/--jwt
       refute "core/api_token_migration.exs" in sources
-      refute "core/create_audit_events.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 34 files" do
-      # 25 base_files + 9 ui_files (live-mode)
-      assert length(Core.files(@binding)) == 34
+    test "default (live=true, api=false, jwt=false) returns exactly 36 files" do
+      # 25 base_files + 9 ui_files (live-mode) + 2 inlined migrations
+      # (primary + audit_events); api_token migration is --api-only.
+      assert length(Core.files(@binding)) == 36
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -193,9 +199,9 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 28 files (25 base + 3 controller-mode UI)" do
+    test "--no-live returns exactly 30 files (25 base + 3 controller-mode UI + 2 inlined migrations)" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 28
+      assert length(Core.files(binding)) == 30
     end
 
     test "--api includes api_files group" do
@@ -367,8 +373,20 @@ defmodule Sigra.Install.Features.CoreTest do
     end
 
     test "every injection anchor is supported by Sigra.Install.Injector.apply/2" do
-      # apply_anchor/3 in injector.ex currently handles these three.
-      supported = [:before_last_end, :after_use_block, :at_top]
+      # apply_anchor/3 in injector.ex handles these anchors. Phase 11
+      # Wave 4 added :elixir_config / :append_eof / :conn_case_helpers
+      # for non-Elixir-module targets (config.exs, test.exs, conn_case.ex)
+      # so byte output matches the v1.0 monolith's specialized
+      # inject_config / inject_test_config / inject_conn_case helpers.
+      supported = [
+        :before_last_end,
+        :after_use_block,
+        :at_top,
+        :elixir_config,
+        :append_eof,
+        :conn_case_helpers
+      ]
+
       anchors = @binding |> Core.injections() |> Enum.map(& &1.anchor) |> Enum.uniq()
 
       Enum.each(anchors, fn a ->
