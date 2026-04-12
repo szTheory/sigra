@@ -51,10 +51,10 @@ defmodule Sigra.Install.GoldenDiffTest do
     @describetag :integration
 
     test "generated tree matches committed fixture byte-for-byte (migration filenames normalized)" do
-      {:ok, %{app_dir: app_dir}} = run_installer()
+      {:ok, %{app_dir: app_dir, baseline_paths: baseline}} = run_installer()
 
       try do
-        actual = InstallFixture.normalize_tree(app_dir)
+        actual = InstallFixture.normalize_tree(app_dir, baseline)
         expected = read_fixture_tree()
 
         assert_tree_equal(actual, expected)

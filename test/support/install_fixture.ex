@@ -66,23 +66,63 @@ defmodule Sigra.Test.InstallFixture do
       System.cmd("mix", ["deps.get"], cd: app_dir, stderr_to_stdout: true)
 
     if deps_status != 0 do
-      raise "mix deps.get failed (status #{deps_status}):\n#{deps_out}"
+      raise "mix deps.get failed (status #{deps_out}):\n#{deps_out}"
     end
 
-    # 4. Run sigra.install and capture stdout
+    # 4. Pre-compile deps so the sigra.install run does not spew dep compile
+    #    noise into stdout. This keeps the captured install output focused on
+    #    what the installer itself writes.
+    {compile_out, compile_status} =
+      System.cmd("mix", ["compile"], cd: app_dir, stderr_to_stdout: true, env: [{"MIX_ENV", "dev"}])
+
+    if compile_status != 0 do
+      raise "pre-install mix compile failed:\n#{compile_out}"
+    end
+
+    # 5. Snapshot the baseline tree so we can compute the delta sigra.install
+    #    introduces. This cleanly separates installer-owned files from the
+    #    random bits phx.new sprinkles into config/*.exs.
+    baseline_paths = snapshot_paths(app_dir)
+
+    # 6. Run sigra.install and capture stdout
     {install_out, install_status} =
       System.cmd(
         "mix",
         ["sigra.install", "Accounts", "User", "users", "--yes"],
         cd: app_dir,
-        stderr_to_stdout: true
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
       )
 
     if install_status != 0 do
       raise "mix sigra.install failed (status #{install_status}):\n#{install_out}"
     end
 
-    {:ok, %{app_dir: app_dir, stdout: install_out}}
+    {:ok,
+     %{
+       app_dir: app_dir,
+       stdout: install_out,
+       baseline_paths: baseline_paths
+     }}
+  end
+
+  @doc """
+  Snapshot the set of {relative_path, content_hash} tuples under the tracked
+  directories. Used to compute the sigra.install delta.
+  """
+  @spec snapshot_paths(Path.t()) :: %{String.t() => binary()}
+  def snapshot_paths(app_dir) do
+    tracked_dirs = ["lib", "priv/repo/migrations", "config", "test/support"]
+
+    for sub <- tracked_dirs,
+        abs_sub = Path.join(app_dir, sub),
+        File.dir?(abs_sub),
+        abs_path <- Path.wildcard(Path.join(abs_sub, "**"), match_dot: true),
+        File.regular?(abs_path),
+        into: %{} do
+      rel = Path.relative_to(abs_path, app_dir)
+      {rel, :crypto.hash(:sha256, File.read!(abs_path))}
+    end
   end
 
   @doc """
@@ -97,8 +137,8 @@ defmodule Sigra.Test.InstallFixture do
   NOT normalized — per decision D-05, the inside of the file must be
   byte-identical.
   """
-  @spec normalize_tree(Path.t()) :: [{String.t(), binary()}]
-  def normalize_tree(app_dir) do
+  @spec normalize_tree(Path.t(), %{String.t() => binary()}) :: [{String.t(), binary()}]
+  def normalize_tree(app_dir, baseline \\ %{}) do
     tracked_dirs = [
       "lib",
       "priv/repo/migrations",
@@ -119,12 +159,37 @@ defmodule Sigra.Test.InstallFixture do
         []
       end
     end)
-    |> Enum.map(fn abs_path ->
+    |> Enum.flat_map(fn abs_path ->
       rel = Path.relative_to(abs_path, app_dir)
-      normalized = normalize_path(rel)
-      {normalized, File.read!(abs_path)}
+      content = File.read!(abs_path)
+      hash = :crypto.hash(:sha256, content)
+
+      # Drop files that are byte-identical to the pre-install baseline. Only
+      # files sigra.install created or modified contribute to the golden
+      # snapshot.
+      if Map.get(baseline, rel) == hash do
+        []
+      else
+        [{normalize_path(rel), normalize_content(rel, content)}]
+      end
     end)
     |> Enum.sort_by(&elem(&1, 0))
+  end
+
+  # Phoenix's `mix phx.new` generator sprinkles random secrets into
+  # config/*.exs (signing_salt, secret_key_base, live_view salt). Those are
+  # carried forward when sigra.install injects into the same file, so they
+  # pollute byte-level golden diffs even though sigra.install itself did not
+  # touch them. Replace each with a deterministic placeholder.
+  defp normalize_content(rel, content) do
+    if String.starts_with?(rel, "config/") do
+      content
+      |> String.replace(~r/signing_salt: "[^"]+"/, ~s(signing_salt: "<SIGNING_SALT>"))
+      |> String.replace(~r/secret_key_base: "[^"]+"/, ~s(secret_key_base: "<SECRET_KEY_BASE>"))
+      |> String.replace(~r/live_view: \[signing_salt: "[^"]+"\]/, ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"]))
+    else
+      content
+    end
   end
 
   @doc """
@@ -138,14 +203,37 @@ defmodule Sigra.Test.InstallFixture do
   """
   @spec normalize_stdout(binary(), Path.t()) :: binary()
   def normalize_stdout(raw, app_dir) do
+    # macOS resolves /tmp and /var/folders paths via /private/..., so the
+    # compile output sometimes contains the /private-prefixed variant of the
+    # app_dir while `app_dir` itself does not. Normalize both forms to <APP>.
+    private_app_dir = "/private" <> app_dir
+
     raw
     |> strip_ansi()
+    |> String.replace(private_app_dir, "<APP>")
     |> String.replace(app_dir, "<APP>")
     |> String.replace(~r/\b\d{14}_/, "TIMESTAMP_")
     |> String.replace("\r\n", "\n")
     |> String.split("\n")
     |> Enum.map(&String.trim_trailing/1)
+    |> Enum.reject(&dep_compile_noise?/1)
     |> Enum.join("\n")
+  end
+
+  # Lines that come from Mix's dep compile machinery — they vary by OS,
+  # Erlang version, and what's already cached in _build. Drop them from the
+  # golden snapshot so only installer-owned output survives.
+  defp dep_compile_noise?(line) do
+    cond do
+      String.starts_with?(line, "==> ") -> true
+      String.starts_with?(line, "===> ") -> true
+      String.match?(line, ~r/^Compiling \d+ files? \(\.ex\)$/) -> true
+      String.match?(line, ~r/^Generated .+ app$/) -> true
+      String.starts_with?(line, "cc ") -> true
+      String.starts_with?(line, "mkdir -p ") -> true
+      String.match?(line, ~r/^==> sigra(_| )/) -> true
+      true -> false
+    end
   end
 
   # -- internals --------------------------------------------------------------
