@@ -441,25 +441,26 @@ defmodule Sigra.Organizations do
     |> Ecto.Changeset.validate_required([:name, :slug])
     |> Ecto.Changeset.validate_length(:name, min: 1, max: 255)
     |> Slug.validate_slug(slug_config(config))
-    |> Ecto.Changeset.unique_constraint(:slug)
+    |> Ecto.Changeset.unique_constraint(:slug, name: :organizations_slug_active_index)
   end
 
   defp update_org_changeset(org, attrs, config) do
-    attrs = maybe_generate_slug(attrs)
-
+    # Intentionally do NOT call maybe_generate_slug on update. Auto-generating
+    # a slug from a renamed org would silently rewrite URLs. Host apps must
+    # pass an explicit `:slug` attr to change the slug.
     org
     |> Ecto.Changeset.cast(attrs, [:name, :slug])
     |> Ecto.Changeset.validate_required([:name, :slug])
     |> Ecto.Changeset.validate_length(:name, min: 1, max: 255)
     |> Slug.validate_slug(slug_config(config))
-    |> Ecto.Changeset.unique_constraint(:slug)
+    |> Ecto.Changeset.unique_constraint(:slug, name: :organizations_slug_active_index)
   end
 
   defp maybe_generate_slug(attrs) when is_map(attrs) do
     name = Map.get(attrs, :name) || Map.get(attrs, "name")
     slug = Map.get(attrs, :slug) || Map.get(attrs, "slug")
 
-    if is_nil(slug) && is_binary(name) do
+    if is_nil(slug) && is_binary(name) && name != "" do
       Map.put(attrs, :slug, Slug.generate_slug(name))
     else
       attrs
