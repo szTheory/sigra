@@ -974,9 +974,24 @@ defmodule Sigra.Auth do
   Creates a session via the configured SessionStore and emits a
   `[:sigra, :session, :create]` telemetry span.
 
+  ## Phase 14: organization selector (D-12, D-26, ORG-SCOPE-06)
+
+  When `config.organizations_module` is set, the function runs the
+  `Sigra.Organizations.select_active_organization/3` selector once per
+  login and writes the result (or `nil`) into the newly-created session
+  row via `SessionStore.update_active_organization/3`. The selector
+  call is wrapped in a `try/rescue` block and MUST NOT fail the login
+  — selector failures fall back to `active_organization_id: nil` and
+  the user sees the picker on their next `RequireMembership` hit
+  (T-14-13 mitigation).
+
   ## Options
 
   - `:session_store` - Override the session store from config.
+  - `:previous_active_organization_id` - Resume pointer passed to
+    `Sigra.Organizations.select_active_organization/3`. When a user
+    with 2+ memberships logs in, the selector uses this to pick up
+    where the user left off (D-12).
   """
   @doc since: "0.4.0"
   @spec create_session(Sigra.Config.t(), struct(), map(), keyword()) ::
@@ -990,25 +1005,73 @@ defmodule Sigra.Auth do
       end)
 
     # D-26: session.create audit row (standalone, D-28)
-    case result do
-      {:ok, session} ->
-        audit_opts = audit_opts_from_config(config,
-          ip_address: Map.get(metadata, :ip),
-          user_agent: Map.get(metadata, :user_agent)
-        )
-
-        Sigra.Audit.log_safe("session.create",
-          Keyword.merge(audit_opts,
-            actor_id: user.id,
-            metadata: %{type: Map.get(metadata, :type, :standard), session_id: session.id}
+    result =
+      case result do
+        {:ok, session} ->
+          audit_opts = audit_opts_from_config(config,
+            ip_address: Map.get(metadata, :ip),
+            user_agent: Map.get(metadata, :user_agent)
           )
-        )
 
-      _ ->
-        :ok
-    end
+          Sigra.Audit.log_safe("session.create",
+            Keyword.merge(audit_opts,
+              actor_id: user.id,
+              metadata: %{type: Map.get(metadata, :type, :standard), session_id: session.id}
+            )
+          )
+
+          # Phase 14: wire the 0/1/2+ organization selector (D-12).
+          # Fail-open on selector errors — login MUST NOT die if the
+          # selector raises (T-14-13). Hydration is fail-closed (D-01),
+          # but the login-time selector is fail-open by design.
+          maybe_assign_active_organization(config, user, session, session_store, store_opts, opts)
+
+        other ->
+          other
+      end
 
     result
+  end
+
+  @doc false
+  defp maybe_assign_active_organization(config, user, session, session_store, store_opts, opts) do
+    case config.organizations_module do
+      nil ->
+        {:ok, session}
+
+      organizations_module ->
+        active_org_id =
+          try do
+            org_config = organizations_module.__sigra_org_config__()
+
+            selector_opts = [
+              previous_active_organization_id:
+                Keyword.get(opts, :previous_active_organization_id)
+            ]
+
+            case Sigra.Organizations.select_active_organization(org_config, user, selector_opts) do
+              {:ok, org} -> org.id
+              _ -> nil
+            end
+          rescue
+            _ -> nil
+          catch
+            _kind, _reason -> nil
+          end
+
+        case active_org_id do
+          nil ->
+            {:ok, session}
+
+          id ->
+            case session_store.update_active_organization(session, id, store_opts) do
+              {:ok, updated_session} -> {:ok, updated_session}
+              # Failure to write the active_organization_id is non-fatal — login
+              # still succeeds; user sees the picker on next request.
+              {:error, _reason} -> {:ok, session}
+            end
+        end
+    end
   end
 
   @doc """

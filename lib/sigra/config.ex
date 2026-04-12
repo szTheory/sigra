@@ -566,6 +566,18 @@ defmodule Sigra.Config do
       default: nil,
       doc: "The host app's secret key base. Required for JWT HS256 signing and token operations."
     ],
+    scope_module: [
+      type: {:or, [:atom, nil]},
+      default: nil,
+      doc:
+        "The host app's generated Scope module (e.g. `MyApp.Accounts.Scope`). Required by Phase 14 organization plugs (`Sigra.Plug.PutActiveOrganization`) so the library can resolve the host's `put_active_organization/3` callback. Default: nil (legacy installs without organizations)."
+    ],
+    organizations_module: [
+      type: {:or, [:atom, nil]},
+      default: nil,
+      doc:
+        "The host app's generated Organizations wrapper module (e.g. `MyApp.Organizations`), built via `use Sigra.Organizations`. Required by Phase 14 login-time selector wiring in `Sigra.Auth.create_session/4`. Default: nil (legacy installs without organizations)."
+    ],
     mailer: [
       type: :atom,
       doc: "The mailer module implementing `Sigra.Mailer` behaviour."
@@ -1240,6 +1252,8 @@ defmodule Sigra.Config do
           user_schema: module(),
           otp_app: atom() | nil,
           secret_key_base: String.t() | nil,
+          scope_module: module() | nil,
+          organizations_module: module() | nil,
           mailer: module() | nil,
           email_module: module() | nil,
           cookie_domain: String.t() | nil,
@@ -1271,6 +1285,8 @@ defmodule Sigra.Config do
     :user_schema,
     :otp_app,
     :secret_key_base,
+    :scope_module,
+    :organizations_module,
     :mailer,
     :email_module,
     cookie_domain: nil,
