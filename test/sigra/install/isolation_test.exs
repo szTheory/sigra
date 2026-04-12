@@ -1,0 +1,83 @@
+defmodule Sigra.Install.IsolationTest do
+  @moduledoc """
+  V-ISOLATION-01: Pitfall X-1 / X-3 boundary enforcement.
+
+  `Sigra.Install.Features.Core` and every template under
+  `priv/templates/sigra.install/core/` must contain zero references
+  to future-feature symbols (`Features.Organizations`,
+  `Features.Passkeys`, `Features.Admin`, `UserPasskey`,
+  `OrganizationMembership`, `AdminUser`, etc.). This is what makes
+  `mix sigra.install --no-organizations` compile cleanly even when
+  future phases have not yet shipped those features.
+
+  Docstring content is stripped before scanning — the moduledoc of
+  `Features.Core` *should* explain the isolation invariant by name
+  (that's literally its documented contract); what we're checking
+  is that no executable code references a future feature symbol.
+  """
+  use ExUnit.Case, async: true
+
+  @moduletag :isolation
+
+  @forbidden_symbols [
+    "Features.Organizations",
+    "Features.Passkeys",
+    "Features.Admin",
+    "OrganizationMembership",
+    "OrganizationInvitation",
+    "UserPasskey",
+    "AdminUser",
+    "Sigra.Passkeys",
+    "Sigra.Organizations"
+  ]
+
+  describe "lib/sigra/install/features/core.ex (source)" do
+    test "has no forbidden future-feature references in executable code" do
+      source = File.read!("lib/sigra/install/features/core.ex")
+      code = strip_docstrings(source)
+
+      Enum.each(@forbidden_symbols, fn symbol ->
+        refute code =~ symbol,
+               "Features.Core executable code contains forbidden reference to " <>
+                 "#{inspect(symbol)} — Core must not know about other features " <>
+                 "(Pitfall X-1). Docstring references are allowed and stripped " <>
+                 "before this scan, so this failure means the symbol is in real code."
+      end)
+    end
+  end
+
+  describe "priv/templates/sigra.install/core/*" do
+    test "every template has no forbidden future-feature references" do
+      template_dir = "priv/templates/sigra.install/core"
+
+      template_dir
+      |> File.ls!()
+      |> Enum.each(fn filename ->
+        path = Path.join(template_dir, filename)
+        content = File.read!(path)
+
+        Enum.each(@forbidden_symbols, fn symbol ->
+          refute content =~ symbol,
+                 "Template #{filename} contains forbidden reference to " <>
+                   "#{inspect(symbol)} — core/ templates must compile with no " <>
+                   "other features enabled (Pitfall X-3: conditional template leakage)."
+        end)
+      end)
+    end
+
+    test "contains exactly 45 templates" do
+      files = File.ls!("priv/templates/sigra.install/core")
+      assert length(files) == 45
+    end
+  end
+
+  # Strips heredoc-based doc attributes so symbol checks target
+  # executable code only. Features.Core's moduledoc intentionally
+  # names the forbidden symbols to explain the isolation contract —
+  # we do not want that documentation to be a test failure.
+  defp strip_docstrings(source) do
+    source
+    |> String.replace(~r/@moduledoc\s+"""[\s\S]*?"""/m, "")
+    |> String.replace(~r/@doc\s+"""[\s\S]*?"""/m, "")
+  end
+end
