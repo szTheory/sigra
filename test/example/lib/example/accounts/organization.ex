@@ -24,6 +24,6 @@ defmodule Example.Accounts.Organization do
     |> validate_length(:name, min: 1, max: 255)
     |> validate_length(:slug, min: 3, max: 63)
     |> validate_format(:slug, ~r/^[a-z][a-z0-9-]*[a-z0-9]$/, message: "must be lowercase alphanumeric with hyphens")
-    |> unique_constraint(:slug)
+    |> unique_constraint(:slug, name: :organizations_slug_active_index)
   end
 end
