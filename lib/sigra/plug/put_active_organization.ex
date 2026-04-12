@@ -50,55 +50,78 @@ defmodule Sigra.Plug.PutActiveOrganization do
 
   alias Sigra.Organizations
 
-  @type call_error :: :not_a_member | term()
+  @type call_error :: :not_a_member | :no_session | :no_scope | term()
 
   @doc """
   Set, change, or clear the active organization on the caller's session.
   Returns `{:ok, updated_conn}` on success or `{:error, reason}` on failure.
+
+  Returns `{:error, :no_session}` if no `%Sigra.Session{}` has been stashed
+  at `conn.private[:sigra_session]` (the FetchSession plug has not run, or
+  the user is not logged in). Returns `{:error, :no_scope}` if
+  `conn.assigns[:current_scope]` is missing or has a nil `:user`. Both
+  errors are fail-closed: the request does not crash and no write is
+  performed.
   """
   @doc since: "0.8.0"
   @spec call(Plug.Conn.t(), struct() | nil, keyword()) ::
           {:ok, Plug.Conn.t()} | {:error, call_error()}
   def call(%Plug.Conn{} = conn, nil, opts) do
-    session = conn.private[:sigra_session]
-    scope = conn.assigns[:current_scope]
-    session_store = Keyword.fetch!(opts, :session_store)
-    scope_module = Keyword.fetch!(opts, :scope_module)
-    store_opts = Keyword.get(opts, :session_store_opts, [])
+    with {:ok, session} <- fetch_session(conn),
+         {:ok, scope} <- fetch_scope(conn) do
+      session_store = Keyword.fetch!(opts, :session_store)
+      scope_module = Keyword.fetch!(opts, :scope_module)
+      store_opts = Keyword.get(opts, :session_store_opts, [])
 
-    with {:ok, refreshed} <- session_store.update_active_organization(session, nil, store_opts) do
-      new_scope = scope_module.put_active_organization(scope, nil, nil)
+      with {:ok, refreshed} <- session_store.update_active_organization(session, nil, store_opts) do
+        new_scope = scope_module.put_active_organization(scope, nil, nil)
 
-      {:ok,
-       conn
-       |> Plug.Conn.put_private(:sigra_session, refreshed)
-       |> Plug.Conn.assign(:current_scope, new_scope)}
+        {:ok,
+         conn
+         |> Plug.Conn.put_private(:sigra_session, refreshed)
+         |> Plug.Conn.assign(:current_scope, new_scope)}
+      end
     end
   end
 
   def call(%Plug.Conn{} = conn, org, opts) when is_struct(org) do
-    session = conn.private[:sigra_session]
-    scope = conn.assigns[:current_scope]
-    organizations = Keyword.fetch!(opts, :organizations)
-    session_store = Keyword.fetch!(opts, :session_store)
-    scope_module = Keyword.fetch!(opts, :scope_module)
-    store_opts = Keyword.get(opts, :session_store_opts, [])
-    config = organizations.__sigra_org_config__()
+    with {:ok, session} <- fetch_session(conn),
+         {:ok, scope} <- fetch_scope(conn) do
+      organizations = Keyword.fetch!(opts, :organizations)
+      session_store = Keyword.fetch!(opts, :session_store)
+      scope_module = Keyword.fetch!(opts, :scope_module)
+      store_opts = Keyword.get(opts, :session_store_opts, [])
+      config = organizations.__sigra_org_config__()
 
-    case Organizations.get_membership(config, scope.user, org) do
-      nil ->
-        {:error, :not_a_member}
+      case Organizations.get_membership(config, scope.user, org) do
+        nil ->
+          {:error, :not_a_member}
 
-      membership ->
-        with {:ok, refreshed} <-
-               session_store.update_active_organization(session, org.id, store_opts) do
-          new_scope = scope_module.put_active_organization(scope, org, membership)
+        membership ->
+          with {:ok, refreshed} <-
+                 session_store.update_active_organization(session, org.id, store_opts) do
+            new_scope = scope_module.put_active_organization(scope, org, membership)
 
-          {:ok,
-           conn
-           |> Plug.Conn.put_private(:sigra_session, refreshed)
-           |> Plug.Conn.assign(:current_scope, new_scope)}
-        end
+            {:ok,
+             conn
+             |> Plug.Conn.put_private(:sigra_session, refreshed)
+             |> Plug.Conn.assign(:current_scope, new_scope)}
+          end
+      end
+    end
+  end
+
+  defp fetch_session(conn) do
+    case conn.private[:sigra_session] do
+      %Sigra.Session{} = session -> {:ok, session}
+      _ -> {:error, :no_session}
+    end
+  end
+
+  defp fetch_scope(conn) do
+    case conn.assigns[:current_scope] do
+      %{user: %_{}} = scope -> {:ok, scope}
+      _ -> {:error, :no_scope}
     end
   end
 end
