@@ -22,7 +22,7 @@ defmodule Sigra.GuidesDx02Test do
   @mfa_guide Path.join([@guides_root, "flows", "mfa.md"])
   @testing_guide Path.join([@guides_root, "recipes", "testing.md"])
   @subdomain_guide Path.join([@guides_root, "recipes", "subdomain-auth.md"])
-  @templates_root Path.join(["priv", "templates", "sigra.install"])
+  @templates_root Path.join(["priv", "templates", "sigra.install", "core"])
 
   # Technical-prose reading speed (words per minute). 200 wpm is a
   # conservative estimate for careful technical reading; code blocks are

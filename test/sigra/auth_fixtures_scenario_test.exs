@@ -35,7 +35,7 @@ defmodule Sigra.AuthFixturesScenarioTest do
   use ExUnit.Case, async: true
 
   @template_path Path.expand(
-                   "../../priv/templates/sigra.install/auth_fixtures.ex",
+                   "../../priv/templates/sigra.install/core/auth_fixtures.ex",
                    __DIR__
                  )
 

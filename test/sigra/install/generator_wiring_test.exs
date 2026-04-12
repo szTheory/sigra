@@ -1,7 +1,7 @@
 defmodule Sigra.Install.GeneratorWiringTest do
   use ExUnit.Case, async: true
 
-  @template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install"])
+  @template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core"])
 
   @base_binding [
     context_module: "MyApp.Auth",
