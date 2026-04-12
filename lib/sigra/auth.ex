@@ -1054,9 +1054,35 @@ defmodule Sigra.Auth do
               _ -> nil
             end
           rescue
-            _ -> nil
+            error ->
+              # WR-04: login is fail-open on selector errors (T-14-13), but it
+              # MUST leave a breadcrumb — otherwise a broken host selector
+              # silently degrades every login to "no active org" with no
+              # operator signal beyond user reports.
+              Telemetry.event(
+                [:sigra, :auth, :selector_error],
+                %{},
+                %{
+                  user_id: user.id,
+                  kind: :error,
+                  reason: inspect(error)
+                }
+              )
+
+              nil
           catch
-            _kind, _reason -> nil
+            kind, reason ->
+              Telemetry.event(
+                [:sigra, :auth, :selector_error],
+                %{},
+                %{
+                  user_id: user.id,
+                  kind: kind,
+                  reason: inspect(reason)
+                }
+              )
+
+              nil
           end
 
         case active_org_id do
