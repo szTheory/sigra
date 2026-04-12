@@ -455,8 +455,51 @@ defmodule Sigra.Install.Injector do
   end
 
   defp apply_anchor(:before_last_end, content, payload) do
-    # Replace the FINAL `end` with payload <> "\nend"
-    String.replace(content, ~r/\nend\s*\z/, "\n#{payload}\nend\n")
+    # Standard Elixir-module injection (router.ex, conn_case.ex, etc.).
+    # Delegate to the pre-existing inject_router_plugs/2 body so the
+    # bytes match the v1.0 monolith exactly.
+    case find_last_end(content) do
+      {:ok, position} ->
+        {before, rest} = String.split_at(content, position)
+        before <> "\n" <> payload <> "\n" <> rest
+
+      :error ->
+        content <> "\n" <> payload <> "\n"
+    end
+  end
+
+  # config.exs-style injection: insert before the `import_config` line if
+  # present, otherwise append. Matches the v1.0 monolith's
+  # `inject_config/2` byte semantics.
+  defp apply_anchor(:elixir_config, content, payload) do
+    case find_import_config(content) do
+      {:ok, position} ->
+        {before, rest} = String.split_at(content, position)
+        before <> payload <> "\n" <> rest
+
+      :error ->
+        content <> payload
+    end
+  end
+
+  # test.exs-style injection: append to the end of file. Matches the
+  # v1.0 monolith's `inject_test_config/2`.
+  defp apply_anchor(:append_eof, content, payload) do
+    content <> payload
+  end
+
+  # conn_case.ex-style injection: find `import Phoenix.ConnTest` (or
+  # `import Plug.Conn`) and insert the helper code on the line below.
+  # Falls back to before_last_end if no anchor line present. Matches
+  # the v1.0 monolith's `inject_conn_case/2`.
+  defp apply_anchor(:conn_case_helpers, content, payload) do
+    case find_conn_case_anchor(content) do
+      {:ok, anchor_line} ->
+        String.replace(content, anchor_line, anchor_line <> "\n" <> payload)
+
+      :error ->
+        apply_anchor(:before_last_end, content, payload)
+    end
   end
 
   defp apply_anchor(:after_use_block, content, payload) do

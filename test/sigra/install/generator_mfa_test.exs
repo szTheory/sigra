@@ -220,49 +220,63 @@ defmodule Sigra.Install.GeneratorMFATest do
     end
   end
 
-  describe "generator includes MFA routes" do
+  describe "generator includes MFA routes (via Features.Core)" do
+    # Phase 11 Wave 4: v1.0-specific content (router routes, file list)
+    # moved from the sigra.install.ex monolith into
+    # Sigra.Install.Features.Core. These tests grep Features.Core's
+    # source for the same assertions they used to make against the
+    # monolith.
+    @features_core_path Path.join([
+                          File.cwd!(),
+                          "lib",
+                          "sigra",
+                          "install",
+                          "features",
+                          "core.ex"
+                        ])
+
     test "generator has MFA challenge controller routes" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(MFAChallengeController, :new)
       assert source =~ ~s(MFAChallengeController, :create)
     end
 
     test "generator has MFA challenge LiveView route" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(live "/mfa", MFAChallengeLive)
     end
 
     test "generator has MFA settings LiveView route" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(live "/settings/mfa", MFASettingsLive)
     end
 
     test "generator injects require_mfa into authenticated pipeline" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ "plug :require_mfa"
     end
 
     test "generator includes MFA schema templates in file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("user_mfa_credential.ex")
-      assert source =~ ~s("user_backup_code.ex")
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/user_mfa_credential.ex")
+      assert source =~ ~s("core/user_backup_code.ex")
     end
 
     test "generator includes MFA challenge templates in file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("mfa_challenge_controller.ex")
-      assert source =~ ~s("mfa_challenge_html.ex")
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/mfa_challenge_controller.ex")
+      assert source =~ ~s("core/mfa_challenge_html.ex")
     end
 
     test "generator includes MFA LiveView templates in live file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("mfa_challenge_live.ex")
-      assert source =~ ~s("mfa_settings_live.ex")
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/mfa_challenge_live.ex")
+      assert source =~ ~s("core/mfa_settings_live.ex")
     end
 
     test "generator includes MFA settings HTML in non-live file list" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ ~s("mfa_settings_html.ex")
+      source = File.read!(@features_core_path)
+      assert source =~ ~s("core/mfa_settings_html.ex")
     end
   end
 
