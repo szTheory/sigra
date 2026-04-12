@@ -45,7 +45,13 @@ defmodule Sigra.Plug.LoadActiveOrganization do
 
     * `:audit_opts` — optional keyword list forwarded to `Sigra.Audit.log_safe/2`
       (e.g. `[audit_schema: MyApp.AuditEvent, repo: MyApp.Repo]`). Defaults to
-      `[]`. When empty, `log_safe/2` is a no-op (by design).
+      `[]`. When empty, the plug auto-derives `[repo: config.repo,
+      audit_schema: config.audit_schema]` from the host's
+      `__sigra_org_config__/0` so the documented
+      `"organization.active_auto_reassigned"` audit event is written
+      out-of-the-box whenever the host org config declares an
+      `:audit_schema`. If the host org config has `audit_schema: nil` (the
+      default), `log_safe/2` remains a no-op (by design).
   """
 
   @behaviour Plug
@@ -90,7 +96,7 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     stale_id = session.active_organization_id
     session_store = Keyword.fetch!(opts, :session_store)
     store_opts = Keyword.get(opts, :session_store_opts, [])
-    audit_opts = Keyword.get(opts, :audit_opts, [])
+    audit_opts = resolve_audit_opts(opts, config)
 
     # Step 1: clear the DB column (no-op-safe short-circuits if already nil).
     # WR-05: tolerate {:error, :not_found} — the session row can be deleted
@@ -172,5 +178,20 @@ defmodule Sigra.Plug.LoadActiveOrganization do
   defp apply_selection({:multiple, _orgs}, scope, cleared, _store, _opts) do
     # v1.1: leave nil; user sees the picker on the next RequireMembership hit.
     {cleared, %{scope | active_organization: nil, membership: nil}}
+  end
+
+  # IN-01: If the caller did not thread `:audit_opts`, derive `[repo:,
+  # audit_schema:]` from the host's org config so the documented
+  # `"organization.active_auto_reassigned"` event is written for out-of-the-box
+  # installs. If the host org config has `audit_schema: nil` (the default),
+  # this stays a no-op via `Audit.log_safe/2` — no behavior change.
+  defp resolve_audit_opts(opts, config) do
+    case Keyword.get(opts, :audit_opts, []) do
+      [] ->
+        [repo: config.repo, audit_schema: Map.get(config, :audit_schema)]
+
+      provided when is_list(provided) ->
+        provided
+    end
   end
 end
