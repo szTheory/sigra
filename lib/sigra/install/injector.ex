@@ -419,8 +419,8 @@ defmodule Sigra.Install.Injector do
   on subsequent applies (idempotency primitive behind GEN-04).
 
   Features never call `Injector.inject_*` functions directly; they
-  return `%Injection{}` records from `Sigra.Install.Feature.injections/1`
-  and the walker passes them here.
+  return `%Injection{}` records from the `injections/1` callback in
+  `Sigra.Install.Feature` and the walker passes them here.
 
   This is a thin adapter layer added for Phase 11 Wave 1 primitives.
   The legacy `inject_router_plugs/2` / `inject_config/2` / ...

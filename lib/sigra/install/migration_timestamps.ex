@@ -3,8 +3,9 @@ defmodule Sigra.Install.MigrationTimestamps do
   Deterministic slot-based timestamp allocator for installer
   migrations (GEN-07).
 
-  Replaces the old `Mix.Tasks.Sigra.Install.offset_timestamp/1` which
-  based timestamps on `:calendar.universal_time`, making re-runs
+  Replaces the old `offset_timestamp/1` helper that lived in
+  `Mix.Tasks.Sigra.Install` before Phase 11, which based timestamps
+  on `:calendar.universal_time`, making re-runs
   non-deterministic and cross-feature ordering implicit. The slot
   allocator:
 

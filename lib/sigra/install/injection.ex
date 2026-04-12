@@ -3,8 +3,9 @@ defmodule Sigra.Install.Injection do
   Structured injection descriptor for `Sigra.Install.Injector`.
 
   Features return a list of `%Sigra.Install.Injection{}` records from
-  `Sigra.Install.Feature.injections/1`; the walker passes each to
-  `Sigra.Install.Injector.apply/2`, which owns marker checking and
+  the `injections/1` callback in `Sigra.Install.Feature`; the walker
+  passes each to `Sigra.Install.Injector.apply/2`, which owns marker
+  checking and
   anchor resolution so every feature inherits idempotency (GEN-04)
   for free.
 

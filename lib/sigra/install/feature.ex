@@ -22,7 +22,7 @@ defmodule Sigra.Install.Feature do
   @doc """
   Returns true when this feature should run against the given opts.
 
-  `Sigra.Install.Features.Core.enabled?/1` always returns true per
+  In `Sigra.Install.Features.Core` this always returns true per
   Phase 11 Success Criterion #4.
   """
   @callback enabled?(opts :: keyword()) :: boolean()
@@ -49,8 +49,8 @@ defmodule Sigra.Install.Feature do
   The central `Sigra.Install.MigrationTimestamps` allocator assigns
   strictly-monotonic timestamps (GEN-07).
 
-  `Sigra.Install.Features.Core.migrations/1` returns slots
-  `:primary`, `:api_token`, `:audit_events`.
+  In `Sigra.Install.Features.Core` this returns slots `:primary`,
+  `:api_token`, `:audit_events`.
   """
   @callback migrations(binding :: keyword()) ::
               [{slot_key :: atom(), template :: String.t(), target_basename :: String.t()}]

@@ -20,7 +20,7 @@ defmodule Sigra.Install.Features.Core do
   ## Binding contract
 
   Features.Core expects a binding keyword list shaped like the one built
-  in `Mix.Tasks.Sigra.Install.generate/4`:
+  by `Mix.Tasks.Sigra.Install` before it invokes the walker:
 
     * `:otp_app` — atom or string (the host app's otp_app, e.g. `:my_app`)
     * `:context_alias` — string (the context's module suffix, e.g. `"Accounts"`)
