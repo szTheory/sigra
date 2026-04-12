@@ -126,24 +126,54 @@ defmodule Sigra.Organizations.Query do
 
   defp has_org_id_filter?(query) do
     Enum.any?(query.wheres, fn %Ecto.Query.BooleanExpr{expr: expr} ->
-      expr_references_org_id?(expr)
+      expr_pins_org_id?(expr)
     end)
   rescue
-    _ ->
-      Logger.warning(
+    error ->
+      # Fail CLOSED: if the AST cannot be walked, treat as missing filter.
+      # Previously this returned true (fail open), which is a security risk
+      # for a defense-in-depth tenant scope check.
+      Logger.error(
         "Sigra.Organizations.Query: could not inspect WHERE clauses for org_id filter. " <>
-          "Passing through to avoid false positive."
+          "Failing closed. error=#{inspect(error)}"
       )
 
-      true
+      false
   end
 
-  # Walk the expression AST to find references to :organization_id
-  defp expr_references_org_id?({{:., _, [{:&, _, _}, :organization_id]}, _, _}), do: true
-
-  defp expr_references_org_id?({_op, _, args}) when is_list(args) do
-    Enum.any?(args, &expr_references_org_id?/1)
+  # Walk the expression AST and return true only when we find an equality
+  # between `r.organization_id` and a PINNED value (`^org_id`) or a literal.
+  # We deliberately reject:
+  #   - `r.organization_id == r2.organization_id` (column-to-column join)
+  #   - `is_nil(r.organization_id)` (does not constrain to a tenant)
+  #   - references to `organization_id` on the SELECT or JOIN side only.
+  defp expr_pins_org_id?({:==, _, [lhs, rhs]}) do
+    (org_id_column?(lhs) and pinned_or_literal?(rhs)) or
+      (org_id_column?(rhs) and pinned_or_literal?(lhs))
   end
 
-  defp expr_references_org_id?(_), do: false
+  defp expr_pins_org_id?({:and, _, [lhs, rhs]}) do
+    expr_pins_org_id?(lhs) or expr_pins_org_id?(rhs)
+  end
+
+  defp expr_pins_org_id?({:or, _, [lhs, rhs]}) do
+    # OR must pin org_id on BOTH sides — otherwise one branch escapes tenancy.
+    expr_pins_org_id?(lhs) and expr_pins_org_id?(rhs)
+  end
+
+  defp expr_pins_org_id?({_op, _, args}) when is_list(args) do
+    Enum.any?(args, &expr_pins_org_id?/1)
+  end
+
+  defp expr_pins_org_id?(_), do: false
+
+  # A reference to `r.organization_id` from any binding (source or join).
+  defp org_id_column?({{:., _, [{:&, _, _}, :organization_id]}, _, _}), do: true
+  defp org_id_column?(_), do: false
+
+  # A pinned parameter (`^value`) or a literal binary/integer.
+  defp pinned_or_literal?({:^, _, _}), do: true
+  defp pinned_or_literal?(value) when is_binary(value), do: true
+  defp pinned_or_literal?(value) when is_integer(value), do: true
+  defp pinned_or_literal?(_), do: false
 end
