@@ -49,4 +49,30 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
   end
 
   def new(nil), do: nil
+
+  @doc """
+  Puts the given organization and membership on the scope.
+
+  Called by `Sigra.Plug.PutActiveOrganization` after a membership
+  check succeeds. This is the single authoritative scope-level
+  write path for active-organization transitions (Phase 14 D-15).
+  """
+  def put_active_organization(
+        %__MODULE__{} = scope,
+        %SigraInstallGoldenTmp.Accounts.Organization{} = org,
+        %SigraInstallGoldenTmp.Accounts.OrganizationMembership{} = membership
+      ) do
+    %{scope | active_organization: org, membership: membership}
+  end
+
+  @doc """
+  Clears the active organization and membership from the scope.
+
+  Called by `Sigra.Plug.PutActiveOrganization` on the clear path
+  and by `Sigra.Plug.LoadActiveOrganization`'s stale-pointer
+  recovery branch.
+  """
+  def put_active_organization(%__MODULE__{} = scope, nil, nil) do
+    %{scope | active_organization: nil, membership: nil}
+  end
 end

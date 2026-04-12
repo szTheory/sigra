@@ -221,12 +221,28 @@ defmodule <%= web_module %>.UserAuth do
 
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
-      user =
-        if user_token = session["user_token"] do
-          <%= context_module %>.get_user_by_session_token(user_token)
-        end
+      if user_token = session["user_token"] do
+        case <%= context_module %>.get_user_and_session_by_token(user_token) do
+          {user, sigra_session} when not is_nil(user) ->
+            scope = Scope.for_user(user)
 
-      user && Scope.for_user(user)
+            # Phase 14 D-23: LiveView path calls the SAME hydrator as the
+            # plug path (Sigra.Plug.LoadActiveOrganization) to guarantee
+            # byte-identical current_scope values. Stale-pointer recovery
+            # is intentionally NOT performed on the LV path — no conn to
+            # write to. The next Plug request recovers via the plug. See
+            # Phase 14 CONTEXT §D-23, §D-14.
+            org_config = <%= app_module %>.Organizations.__sigra_org_config__()
+
+            case Sigra.Scope.Hydration.hydrate(scope, org_config, sigra_session) do
+              {:ok, hydrated} -> hydrated
+              {:error, _reason} -> scope
+            end
+
+          _ ->
+            nil
+        end
+      end
     end)
   end
 

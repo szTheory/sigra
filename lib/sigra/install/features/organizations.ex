@@ -31,7 +31,18 @@ defmodule Sigra.Install.Features.Organizations do
   def enabled?(opts), do: Keyword.get(opts, :organizations, true)
 
   @impl true
-  def files(_binding), do: []
+  def files(binding) do
+    otp_app = Keyword.fetch!(binding, :otp_app) |> to_string()
+
+    [
+      # Phase 14 Plan 03 D-19: generated Organizations context wrapper.
+      # Exposes set_active_organization/2 via defdelegate, uses
+      # `use Sigra.Organizations` so hosts get __sigra_org_config__/0
+      # for free (consumed by Phase 14 LoadActiveOrganization plug +
+      # LiveView on_mount parity path).
+      {:eex, "organizations/organizations.ex", Path.join(["lib", otp_app, "organizations.ex"])}
+    ]
+  end
 
   @impl true
   def injections(_binding), do: []
