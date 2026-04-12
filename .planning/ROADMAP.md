@@ -31,7 +31,7 @@
 
 - [ ] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/`
 - [x] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column (completed 2026-04-12)
-- [ ] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard
+- [x] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard (completed 2026-04-12)
 - [ ] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling
 - [ ] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour
 - [ ] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
@@ -94,11 +94,11 @@ Plans:
   3. Creating an organization with a reserved slug (`admin`, `api`, `www`, `static`, and the ~20-entry reserved list) returns a changeset error; every reserved word has a regression test.
   4. Soft-deleting an organization sets `deleted_at`, leaves the row in-place, and audit rows referencing it survive with `organization_id` nilified via `on_delete: :nilify_all` FK config.
   5. The time-boxed Credo custom-check spike for tenant-scope discipline either ships (≤300 lines) or falls back to integration-test-only enforcement with a documented CONVENTIONS.md entry (DX-09).
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
-- [ ] 13-01-PLAN.md — Wave 1: Schema templates + migration template + Features.Organizations + Scope typespec (ORG-01, ORG-03, ORG-04)
-- [ ] 13-02-PLAN.md — Wave 2: for_org/2 tenant scoping + prepare_query/3 enforcement + Slug validation (ORG-06, ORG-07)
-- [ ] 13-03-PLAN.md — Wave 3: Sigra.Organizations context + use macro + NimbleOptions + last-owner guard + audit (ORG-05, ORG-08)
+- [x] 13-01-PLAN.md — Wave 1: Schema templates + migration template + Features.Organizations + Scope typespec (ORG-01, ORG-03, ORG-04)
+- [x] 13-02-PLAN.md — Wave 2: for_org/2 tenant scoping + prepare_query/3 enforcement + Slug validation (ORG-06, ORG-07)
+- [x] 13-03-PLAN.md — Wave 3: Sigra.Organizations context + use macro + NimbleOptions + last-owner guard + audit (ORG-05, ORG-08)
 
 ### Phase 14: Org Plugs + Scope Hydration
 **Goal**: Every authenticated request — Plug pipeline or LiveView — lands at its handler with `current_scope.active_organization` correctly populated, stale session pointers gracefully reset, and org-required routes blocked for non-members with a clear error.
@@ -239,7 +239,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 11. Generator Feature System | 0/? | Not started | — |
 | 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
-| 13. Organizations Schemas + Context | 0/3 | Planned    | — |
+| 13. Organizations Schemas + Context | 3/3 | Complete    | 2026-04-12 |
 | 14. Org Plugs + Scope Hydration | 0/? | Not started | — |
 | 15. Audit Integration | 0/? | Not started | — |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
