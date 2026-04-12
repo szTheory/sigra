@@ -50,7 +50,9 @@ defmodule Sigra.Install.Features.CoreTest do
     end
 
     test "declares @behaviour Sigra.Install.Feature" do
-      behaviours = Core.module_info(:attributes) |> Keyword.get_values(:behaviour) |> List.flatten()
+      behaviours =
+        Core.module_info(:attributes) |> Keyword.get_values(:behaviour) |> List.flatten()
+
       assert Sigra.Install.Feature in behaviours
     end
   end
@@ -236,7 +238,7 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "lib/my_app_web/controllers/session_controller.ex" in targets
       assert "lib/my_app_web/controllers/auth/sudo_controller.ex" in targets
       assert "lib/my_app_web/controllers/session_html.ex" in targets
-      assert "lib/my_app_web/live/session_live.ex" in targets
+      assert "lib/my_app_web/live/auth/session_live.ex" in targets
       assert "test/support/fixtures/auth_fixtures.ex" in targets
       assert "test/support/conn_case_helpers.ex" in targets
       assert "lib/my_app/mailer.ex" in targets
@@ -244,19 +246,28 @@ defmodule Sigra.Install.Features.CoreTest do
 
     test "file list has no duplicate source-target pairs" do
       tuples = Core.files(Keyword.put(@binding, :opts, live: true, api: true, jwt: true))
+
       assert length(tuples) == length(Enum.uniq(tuples)),
              "duplicate file entries: #{inspect(tuples -- Enum.uniq(tuples))}"
     end
   end
 
   describe "isolation invariant (Pitfall X-1)" do
-    test "Core module source contains no references to Organizations/Passkeys/Admin" do
+    test "Core module code contains no references to Organizations/Passkeys/Admin" do
+      # Strip the @moduledoc string so the isolation-boundary prose
+      # (which *describes* the isolation against Organizations/Passkeys)
+      # doesn't false-positive against its own documentation.
       source = File.read!("lib/sigra/install/features/core.ex")
-      refute source =~ "Features.Organizations"
-      refute source =~ "Features.Passkeys"
-      refute source =~ "Features.Admin"
-      refute source =~ ~r/\bOrganization\b/
-      refute source =~ ~r/\bPasskey\b/
+
+      code =
+        Regex.replace(~r/@moduledoc\s+"""[\s\S]*?"""\s*\n/m, source, "", global: false)
+
+      refute code =~ "Features.Organizations"
+      refute code =~ "Features.Passkeys"
+      refute code =~ "Features.Admin"
+      refute code =~ ~r/\bOrganization\b/
+      refute code =~ ~r/\bPasskey\b/
+      refute code =~ ~r/\bAdmin\b/
     end
   end
 
@@ -308,7 +319,9 @@ defmodule Sigra.Install.Features.CoreTest do
       referenced =
         (Core.files(live_binding) ++ Core.files(nolive_binding))
         |> Enum.map(fn {:eex, src, _} -> Path.basename(src) end)
-        |> Kernel.++(Enum.map(Core.migrations(live_binding), fn {_, src, _} -> Path.basename(src) end))
+        |> Kernel.++(
+          Enum.map(Core.migrations(live_binding), fn {_, src, _} -> Path.basename(src) end)
+        )
         |> Enum.uniq()
         |> Enum.sort()
 
