@@ -26,11 +26,13 @@ defmodule <%= app_module %>.Organizations do
 
   use Sigra.Organizations,
     repo: <%= repo_module %>,
-    organization: <%= app_module %>.Organization,
-    membership: <%= app_module %>.OrganizationMembership,
-    invitation: <%= app_module %>.OrganizationInvitation,
-    user: <%= context_module %>.<%= schema_alias %>,
-    scope: <%= context_module %>.Scope
+    schemas: [
+      organization: <%= app_module %>.Organization,
+      membership: <%= app_module %>.OrganizationMembership,
+      invitation: <%= app_module %>.OrganizationInvitation,
+      user: <%= context_module %>.<%= schema_alias %>,
+      scope: <%= context_module %>.Scope
+    ]
 
   @doc """
   Sets the active organization for the current request.

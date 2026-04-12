@@ -79,6 +79,101 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert organizations_template =~ "use Sigra.Organizations"
     end
 
+    test "organizations.ex template compiles against real Sigra.Organizations.__using__/1 (CR-01 regression)" do
+      # This test renders the EEx template against a set of stub schema
+      # modules and compiles the result end-to-end. It catches NimbleOptions
+      # schema/template drift that a simple =~ string-match test cannot see —
+      # e.g. the Phase 14 CR-01 bug where the template passed schemas flat
+      # instead of nested under `:schemas`.
+      suffix =
+        :erlang.unique_integer([:positive, :monotonic])
+        |> Integer.to_string()
+
+      app_module = "Sigra.Test.OrgsTemplateCompile#{suffix}"
+      context_module = "#{app_module}.Accounts"
+      repo_module = "#{app_module}.Repo"
+
+      bindings = [
+        app_module: app_module,
+        context_module: context_module,
+        repo_module: repo_module,
+        schema_alias: "User"
+      ]
+
+      # Define stub schema + scope modules so NimbleOptions `:atom` validation
+      # sees real, loaded modules.
+      Code.ensure_compiled!(Ecto.Schema)
+
+      schemas_source = """
+      defmodule #{app_module}.Repo do
+      end
+
+      defmodule #{app_module}.Organization do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organizations_template_compile_#{suffix}" do
+          field :name, :string
+          field :slug, :string
+          field :deleted_at, :utc_datetime
+          timestamps(type: :utc_datetime)
+        end
+      end
+
+      defmodule #{app_module}.OrganizationMembership do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organization_memberships_template_compile_#{suffix}" do
+          field :role, Ecto.Enum, values: [:owner, :admin, :member]
+          field :organization_id, :binary_id
+          field :user_id, :binary_id
+          timestamps(type: :utc_datetime)
+        end
+      end
+
+      defmodule #{app_module}.OrganizationInvitation do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organization_invitations_template_compile_#{suffix}" do
+          field :email, :string
+          timestamps(type: :utc_datetime)
+        end
+      end
+
+      defmodule #{context_module}.User do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "users_template_compile_#{suffix}" do
+          field :email, :string
+        end
+      end
+
+      defmodule #{context_module}.Scope do
+        defstruct [:user, :active_organization, :membership, :impersonating_from]
+      end
+      """
+
+      Code.compile_string(schemas_source)
+
+      rendered =
+        EEx.eval_string(
+          File.read!("priv/templates/sigra.install/organizations/organizations.ex"),
+          bindings
+        )
+
+      # Should compile cleanly — no NimbleOptions.ValidationError, no
+      # KeyError, no unknown-option error.
+      [{mod, _bin} | _] = Code.compile_string(rendered)
+      assert Code.ensure_loaded?(mod)
+
+      # Sanity-check that the generated wrapper exposes the Phase 14
+      # plug/on_mount accessor.
+      assert function_exported?(mod, :__sigra_org_config__, 0)
+      config = mod.__sigra_org_config__()
+      assert is_map(config)
+      assert is_map(config.schemas)
+      assert config.schemas.organization == Module.concat([app_module, "Organization"])
+    end
+
     test "user_auth.ex template mount_current_scope calls Sigra.Scope.Hydration.hydrate/3" do
       user_auth = File.read!("priv/templates/sigra.install/core/user_auth.ex")
       assert user_auth =~ "Sigra.Scope.Hydration.hydrate"
