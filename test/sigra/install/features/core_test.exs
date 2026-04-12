@@ -42,6 +42,7 @@ defmodule Sigra.Install.Features.CoreTest do
 
   describe "behaviour contract" do
     test "implements all 5 Feature callbacks with correct arities" do
+      Code.ensure_loaded!(Core)
       assert function_exported?(Core, :enabled?, 1)
       assert function_exported?(Core, :files, 1)
       assert function_exported?(Core, :injections, 1)
@@ -333,4 +334,123 @@ defmodule Sigra.Install.Features.CoreTest do
              """
     end
   end
+
+  describe "injections/1" do
+    test "returns a non-empty list of %Injection{} records" do
+      injections = Core.injections(@binding)
+      assert is_list(injections)
+      assert length(injections) >= 4
+      assert Enum.all?(injections, &match?(%Sigra.Install.Injection{}, &1))
+    end
+
+    test "markers are unique per target file" do
+      # Injector idempotency is per-file, so the (target, marker) pair must
+      # be unique. Matching the v1.0 monolith, multiple targets share the
+      # "# Sigra authentication" marker (router.ex, config.exs, test.exs);
+      # that's fine because each file is inspected independently.
+      binding = Keyword.put(@binding, :opts, live: true, api: true, jwt: true)
+
+      pairs =
+        binding
+        |> Core.injections()
+        |> Enum.map(&{&1.target, &1.marker})
+
+      uniq = Enum.uniq(pairs)
+
+      assert length(pairs) == length(uniq),
+             "duplicate (target, marker) pairs: #{inspect(pairs -- uniq)}"
+    end
+
+    test "every injection target is project-relative (no absolute paths)" do
+      targets = @binding |> Core.injections() |> Enum.map(& &1.target)
+      assert Enum.all?(targets, fn t -> not String.starts_with?(t, "/") end)
+    end
+
+    test "every injection anchor is supported by Sigra.Install.Injector.apply/2" do
+      # apply_anchor/3 in injector.ex currently handles these three.
+      supported = [:before_last_end, :after_use_block, :at_top]
+      anchors = @binding |> Core.injections() |> Enum.map(& &1.anchor) |> Enum.uniq()
+
+      Enum.each(anchors, fn a ->
+        assert a in supported, "Injector does not support anchor #{inspect(a)}"
+      end)
+    end
+
+    test "default opts emit the 4 base injections (router, config, test, conn_case)" do
+      targets = @binding |> Core.injections() |> Enum.map(& &1.target)
+
+      assert "lib/my_app_web/router.ex" in targets
+      assert "config/config.exs" in targets
+      assert "config/test.exs" in targets
+      assert "test/support/conn_case.ex" in targets
+    end
+
+    test "--api adds api-router + api-config injections" do
+      binding = Keyword.put(@binding, :opts, live: true, api: true, jwt: false)
+      injections = Core.injections(binding)
+      markers = Enum.map(injections, & &1.marker)
+
+      assert "# Sigra API" in markers
+      assert "api_token:" in markers
+      # --api alone: no JWT marker
+      refute "# Sigra JWT" in markers
+    end
+
+    test "--jwt adds jwt-router injection in addition to api-router" do
+      binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: true)
+      injections = Core.injections(binding)
+      markers = Enum.map(injections, & &1.marker)
+
+      assert "# Sigra API" in markers
+      assert "# Sigra JWT" in markers
+    end
+
+    test "router injection content contains the mandatory plug pipeline + routes" do
+      [router_inj] =
+        @binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "# Sigra authentication" and &1.target =~ "router.ex"))
+
+      assert router_inj.content =~ "import MyAppWeb.UserAuth"
+      assert router_inj.content =~ "pipeline :require_authenticated"
+      assert router_inj.content =~ "plug :require_authenticated_user"
+      assert router_inj.content =~ "plug :require_mfa"
+      assert router_inj.content =~ "get \"/log_in\", SessionController, :new"
+      assert router_inj.content =~ "post \"/log_in\", SessionController, :create"
+      # Default binding is --live: LiveView route is present
+      assert router_inj.content =~ "live \"/register\", RegistrationLive"
+    end
+
+    test "--no-live router injection emits controller-mode registration routes" do
+      binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
+
+      [router_inj] =
+        binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "# Sigra authentication" and &1.target =~ "router.ex"))
+
+      refute router_inj.content =~ "live \"/register\", RegistrationLive"
+      assert router_inj.content =~ "get \"/register\", RegistrationController, :new"
+      assert router_inj.content =~ "post \"/register\", RegistrationController, :create"
+    end
+
+    test "config injection contains Sigra config block with host otp_app" do
+      [config_inj] =
+        @binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "# Sigra authentication" and &1.target =~ "config.exs"))
+
+      assert config_inj.content =~ "config :my_app, :sigra"
+      assert config_inj.content =~ "repo: MyApp.Repo"
+      assert config_inj.content =~ "user_schema: MyApp.Accounts.User"
+      assert config_inj.content =~ "email_module: MyApp.Accounts.Emails"
+      assert config_inj.content =~ "mailer: MyApp.Accounts.Mailer"
+    end
+  end
+
+  # post_instructions/2 tests live in
+  # test/sigra/install/features/core_post_instructions_test.exs
+  # because that function reads (and mutates!) host-app config files,
+  # which requires async: false + a temp-dir cd. Running them inline
+  # here would pollute the Sigra repo's own config/dev.exs.
 end
