@@ -94,7 +94,11 @@ Plans:
   3. Creating an organization with a reserved slug (`admin`, `api`, `www`, `static`, and the ~20-entry reserved list) returns a changeset error; every reserved word has a regression test.
   4. Soft-deleting an organization sets `deleted_at`, leaves the row in-place, and audit rows referencing it survive with `organization_id` nilified via `on_delete: :nilify_all` FK config.
   5. The time-boxed Credo custom-check spike for tenant-scope discipline either ships (≤300 lines) or falls back to integration-test-only enforcement with a documented CONVENTIONS.md entry (DX-09).
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 13-01-PLAN.md — Wave 1: Schema templates + migration template + Features.Organizations + Scope typespec (ORG-01, ORG-03, ORG-04)
+- [ ] 13-02-PLAN.md — Wave 2: for_org/2 tenant scoping + prepare_query/3 enforcement + Slug validation (ORG-06, ORG-07)
+- [ ] 13-03-PLAN.md — Wave 3: Sigra.Organizations context + use macro + NimbleOptions + last-owner guard + audit (ORG-05, ORG-08)
 
 ### Phase 14: Org Plugs + Scope Hydration
 **Goal**: Every authenticated request — Plug pipeline or LiveView — lands at its handler with `current_scope.active_organization` correctly populated, stale session pointers gracefully reset, and org-required routes blocked for non-members with a clear error.
@@ -235,7 +239,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 11. Generator Feature System | 0/? | Not started | — |
 | 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
-| 13. Organizations Schemas + Context | 0/? | Not started | — |
+| 13. Organizations Schemas + Context | 0/3 | Planned    | — |
 | 14. Org Plugs + Scope Hydration | 0/? | Not started | — |
 | 15. Audit Integration | 0/? | Not started | — |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
