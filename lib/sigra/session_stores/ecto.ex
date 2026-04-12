@@ -34,6 +34,7 @@ defmodule Sigra.SessionStores.Ecto do
       user_agent: Map.get(metadata, :user_agent),
       geo_city: Map.get(metadata, :geo_city),
       geo_country_code: Map.get(metadata, :geo_country_code),
+      active_organization_id: Map.get(metadata, :active_organization_id),
       last_active_at: now,
       inserted_at: now
     }
@@ -163,6 +164,7 @@ defmodule Sigra.SessionStores.Ecto do
       geo_country_code: Map.get(record, :geo_country_code),
       last_active_at: Map.get(record, :last_active_at),
       sudo_at: Map.get(record, :sudo_at),
+      active_organization_id: Map.get(record, :active_organization_id),
       inserted_at: Map.get(record, :inserted_at)
     }
   end

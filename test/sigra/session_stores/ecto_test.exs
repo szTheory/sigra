@@ -48,6 +48,38 @@ defmodule Sigra.SessionStores.EctoTest do
     end
   end
 
+  describe "create/3 with active_organization_id" do
+    test "passes active_organization_id through to the stored record" do
+      user_id = Ecto.UUID.generate()
+      org_id = Ecto.UUID.generate()
+      metadata = %{type: :standard, ip: "10.0.0.1", active_organization_id: org_id}
+
+      Sigra.MockRepo
+      |> expect(:insert, fn struct ->
+        assert struct.__struct__ == Sigra.Test.UserSession
+        assert struct.active_organization_id == org_id
+        {:ok, Map.put(struct, :id, 99)}
+      end)
+
+      assert {:ok, %Session{} = session} = EctoStore.create(user_id, metadata, @opts)
+      assert session.active_organization_id == org_id
+    end
+
+    test "defaults active_organization_id to nil when not provided" do
+      user_id = Ecto.UUID.generate()
+      metadata = %{type: :standard, ip: "10.0.0.1"}
+
+      Sigra.MockRepo
+      |> expect(:insert, fn struct ->
+        assert struct.active_organization_id == nil
+        {:ok, Map.put(struct, :id, 100)}
+      end)
+
+      assert {:ok, %Session{} = session} = EctoStore.create(user_id, metadata, @opts)
+      assert session.active_organization_id == nil
+    end
+  end
+
   describe "fetch/2" do
     test "finds session by hashed_token, returns Session struct without raw token" do
       hashed_token = :crypto.hash(:sha256, "test-token")
@@ -80,6 +112,53 @@ defmodule Sigra.SessionStores.EctoTest do
       assert session.ip == "10.0.0.1"
       # Raw token is NOT present on fetch
       assert session.token == nil
+    end
+
+    test "round-trips active_organization_id through to_session" do
+      hashed_token = :crypto.hash(:sha256, "org-token")
+      org_id = Ecto.UUID.generate()
+      now = DateTime.utc_now()
+
+      record = %Sigra.Test.UserSession{
+        id: 10,
+        user_id: "user_org",
+        hashed_token: hashed_token,
+        type: "standard",
+        ip: "10.0.0.1",
+        user_agent: "Chrome/120",
+        active_organization_id: org_id,
+        last_active_at: now,
+        inserted_at: now
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn Sigra.Test.UserSession, [hashed_token: ^hashed_token] ->
+        record
+      end)
+
+      assert {:ok, %Session{} = session} = EctoStore.fetch(hashed_token, @opts)
+      assert session.active_organization_id == org_id
+    end
+
+    test "defaults active_organization_id to nil in to_session when not set" do
+      hashed_token = :crypto.hash(:sha256, "no-org-token")
+      now = DateTime.utc_now()
+
+      record = %Sigra.Test.UserSession{
+        id: 11,
+        user_id: "user_no_org",
+        hashed_token: hashed_token,
+        type: "standard",
+        inserted_at: now
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn Sigra.Test.UserSession, [hashed_token: ^hashed_token] ->
+        record
+      end)
+
+      assert {:ok, %Session{} = session} = EctoStore.fetch(hashed_token, @opts)
+      assert session.active_organization_id == nil
     end
 
     test "returns {:error, :not_found} for unknown token" do
