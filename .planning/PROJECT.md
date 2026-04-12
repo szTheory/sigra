@@ -26,6 +26,8 @@ Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/pa
 
 **Verification state:** 1249 tests + 33 doctests + 3 properties, 0 failures. 85/85 requirements satisfied. 5 required CI checks green on `main`. See `.planning/MILESTONES.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.
 
+**v1.1 progress:** Phase 13 complete (2026-04-12) — Organizations schemas, `Sigra.Organizations` context with CRUD, last-owner guard (`FOR UPDATE`), slug validation + reserved words, and two-layer tenant enforcement (`for_org/2` + `maybe_enforce_org_scope/4`) now ship. Full library suite at 1428 tests, 0 failures.
+
 **Known limitations carried forward (tracked, non-blocking):**
 - 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before GA public announcement.
 - Phase 9 audit logging uses a `log_safe/3` hybrid (non-atomic) at ~30 integration sites with only 3 fully atomic `Ecto.Multi` sites (confirm, verify, reset); accepted as caveat C-1 and captured in `SEED-002` for conversion when trigger conditions match.
@@ -104,11 +106,11 @@ Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/pa
 ### Active — v1.1 Foundations
 
 **Organizations (logical multi-tenancy):**
-- [ ] `Organization` schema + migration (id, name, slug unique, settings jsonb, deleted_at, timestamps)
-- [ ] `OrganizationMembership` schema + migration (user_id, org_id, role enum, status enum, joined_at, invited_by_id)
-- [ ] `OrganizationInvitation` schema + migration (email, org_id, role, hashed_token, expires_at, accepted_at, revoked_at)
-- [ ] `Sigra.Organizations` context (CRUD, membership ops, invite token generation via `Sigra.Token` HMAC)
-- [ ] `Sigra.Organizations.Membership` query helpers (list for user, check role, last-owner guard)
+- [x] `Organization` schema + migration (id, name, slug unique, settings jsonb, deleted_at, timestamps) — Phase 13
+- [x] `OrganizationMembership` schema + migration (user_id, org_id, role enum, status enum, joined_at, invited_by_id) — Phase 13
+- [x] `OrganizationInvitation` schema + migration (email, org_id, role, hashed_token, expires_at, accepted_at, revoked_at) — Phase 13
+- [x] `Sigra.Organizations` context (CRUD, membership ops, invite token generation via `Sigra.Token` HMAC) — Phase 13
+- [x] `Sigra.Organizations.Query` helpers (`for_org/2`, `maybe_enforce_org_scope/4`, last-owner guard) — Phase 13
 - [ ] `Sigra.Plug.RequireMembership`
 - [ ] `%Scope{}` struct extension (`:active_organization`, `:membership`)
 - [ ] `fetch_current_scope` plug loads active org from session; `on_mount` assigns to LiveView socket
