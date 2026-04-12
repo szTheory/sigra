@@ -40,21 +40,22 @@ Phase 12 is a **mechanical data-shape extension** that gives every downstream ph
 
   **Why:** (a) Phase 18's `mix sigra.upgrade --backfill-personal-orgs` must emit this exact column addition for v1.0 installs, and it can reuse this template verbatim — one canonical definition of "the active_organization_id migration" across fresh-install and upgrade codepaths. (b) `alter table ... add :col, :binary_id` is dialect-agnostic in Ecto, so the single template file works for PostgreSQL, MySQL, and SQLite without branching — whereas editing the `:primary` template would require 3× DB-dialect branch edits in `migration.exs`. (c) Phase 11's byte-identity invariant stays clean: the Phase 11 golden-diff fixture for `migration.exs` does not need re-baselining. (d) Matches the idiomatic Elixir library pattern (Oban `Oban.Migrations.up(version: N)`, Dashbit's "never edit released migrations" guidance).
 
-- **D-02:** **Feature-manifest ordering.** The new slot lands between `:primary` and `:api_token`:
+- **D-02:** **Feature-manifest ordering.** The new slot lands between `:primary` and `:api_token`. The `Sigra.Install.Feature` behaviour uses **3-tuples** `{slot, template_relpath, target_basename}` (not 2-tuples — the original draft here was a typo, corrected 2026-04-11 after Phase 12 research verified the actual `migrations/1` return shape in `lib/sigra/install/features/core.ex`):
 
   ```elixir
-  def migrations(_opts) do
+  def migrations(_binding) do
     [
-      {:primary, "priv/templates/sigra.install/core/migration.exs"},
+      {:primary, "core/migration.exs", "create_sigra_auth_tables.exs"},
       {:active_org_column,
-       "priv/templates/sigra.install/core/add_active_organization_id_to_user_sessions.exs"},
-      {:api_token, "priv/templates/sigra.install/core/api_token_migration.exs"},
-      {:audit_events, "priv/templates/sigra.install/core/create_audit_events.exs"}
+       "core/add_active_organization_id_to_user_sessions.exs",
+       "add_active_organization_id_to_user_sessions.exs"},
+      {:api_token, "core/api_token_migration.exs", "create_user_api_tokens.exs"},
+      {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"}
     ]
   end
   ```
 
-  Fresh install emits **4 migration files** instead of 3. `Sigra.Install.MigrationTimestamps.allocate/2` (Phase 11 D-04) handles the timestamp sequence automatically — slots are assigned sequential offsets in manifest order.
+  Fresh install emits **4 migration files** instead of 3. `Sigra.Install.MigrationTimestamps.allocate/2` (Phase 11 D-04) handles the timestamp sequence automatically — slots are assigned sequential offsets in manifest order. The new slot must also be added to the parallel `base_files/1` list (Phase 11's inlining pattern for byte-identity with the monolith) — see 12-RESEARCH.md for the exact insert point.
 
 - **D-03:** **No index in Phase 12.** The column is added nullable with no index. Phase 18 (`Features.Organizations`) or Phase 14 (Org Plugs) adds the FK reference + index when they ship the `organizations` table. ORG-SCOPE-02 is data-shape only.
 
@@ -135,6 +136,8 @@ Phase 12 is a **mechanical data-shape extension** that gives every downstream ph
 ### Verification
 
 - **D-14:** **End-to-end serialization round-trip test** (Success Criterion #3). A test boots a fresh generated app (or reuses the Phase 10.1.1 smoke fixture), logs a user in, writes `active_organization_id` onto the session via `Sigra.Session`, persists via the `SessionStore` behaviour, reloads, and asserts the value round-trips. The test also reads the value back via `Plug.Conn.get_session/2` at the web layer to prove the fresh-install Phoenix session + DB row stay consistent.
+
+  **D-14 clarification (2026-04-11, post-research):** "Pipeline survives new field" interpretation. `active_organization_id` lives on the DB row (`user_sessions.active_organization_id`), not in the Plug session cookie. The test proves: (a) login works unchanged, (b) the `%Sigra.Session{}` struct carries `active_organization_id` end-to-end through the `SessionStore` behaviour, (c) `Plug.Conn.get_session/2` still returns the `:user_token` cookie value unchanged — i.e., the Phase 12 additions do NOT break the existing Phoenix session pipeline. Phase 12 does **not** extend `Plug.FetchSession` to stash `active_organization_id` in the cookie itself; that stays out of scope for v1.1 (may change in a later phase).
 
 - **D-15:** **Golden-diff fixture update.** Phase 11's `test/fixtures/install_golden/` gains the new `add_active_organization_id_to_user_sessions.exs` file; the Phase 11 `migration.exs` fixture stays byte-identical. The Phase 11 CI golden-diff test should pass with zero changes to existing fixture files.
 
