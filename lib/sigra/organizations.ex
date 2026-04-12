@@ -488,16 +488,19 @@ defmodule Sigra.Organizations do
     Multi.run(multi, :guard_last_owner, fn repo, _changes ->
       owner_role = config.owner_role
 
-      count =
+      # SELECT id with FOR UPDATE to lock rows, then count in Elixir.
+      # PostgreSQL does not allow FOR UPDATE with aggregate functions.
+      other_owners =
         from(m in config.schemas.membership,
           where: m.organization_id == ^org_id,
           where: m.role == ^owner_role,
           where: m.id != ^membership_id,
+          select: m.id,
           lock: "FOR UPDATE"
         )
-        |> repo.aggregate(:count)
+        |> repo.all()
 
-      if count > 0, do: {:ok, :safe}, else: {:error, :last_owner}
+      if other_owners != [], do: {:ok, :safe}, else: {:error, :last_owner}
     end)
   end
 
