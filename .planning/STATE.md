@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Phase 14 context gathered
+stopped_at: Phase 14 complete (org plugs + scope hydration)
 last_updated: "2026-04-12T21:09:11.313Z"
 last_activity: 2026-04-12
 progress:
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 11 — generator-feature-system
+**Current focus:** Phase 15 — audit-integration (next)
 
 ## Current Position
 
-Phase: 999.1
+Phase: 15
 Plan: Not started
-Status: Executing Phase 11
+Status: Phase 14 complete — ready to discuss/plan Phase 15
 Last activity: 2026-04-12
 
-Progress: [░░░░░░░░░░] 0% (0/13 phases complete)
+Progress: [███░░░░░░░] 31% (4/13 phases complete)
 
 ## Accumulated Context
 
