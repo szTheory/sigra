@@ -20,6 +20,22 @@ defmodule Sigra.Plug.RequireMembershipTest do
     defstruct [:id]
   end
 
+  # IN-03: Host org module with an extended role list. `init/1` should read
+  # `__sigra_org_config__().roles` and accept custom atoms (`:viewer`,
+  # `:billing`) that are NOT in the canonical `[:owner, :admin, :member]`.
+  defmodule CustomRolesOrganizations do
+    @config %{
+      repo: Sigra.MockRepo,
+      schemas: %{},
+      roles: [:owner, :admin, :member, :viewer, :billing],
+      owner_role: :owner,
+      audit_schema: nil,
+      hooks: []
+    }
+
+    def __sigra_org_config__, do: @config
+  end
+
   # A test error handler that records every call and responds 403 so halt/1
   # works cleanly afterwards.
   defmodule FakeErrorHandler do
@@ -93,6 +109,33 @@ defmodule Sigra.Plug.RequireMembershipTest do
     test "raises ArgumentError when :roles is not a list of atoms" do
       assert_raise ArgumentError, ~r/must be a list of atoms/, fn ->
         RequireMembership.init(error_handler: FakeErrorHandler, roles: ["owner"])
+      end
+    end
+
+    test "accepts host-extended roles when :organizations is passed (IN-03)" do
+      opts =
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:viewer, :billing]
+        )
+
+      assert Keyword.fetch!(opts, :roles) == [:viewer, :billing]
+    end
+
+    test "rejects atoms absent from host org config roles (IN-03)" do
+      assert_raise ArgumentError, ~r/unknown atoms.*:superadmin/, fn ->
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:owner, :superadmin]
+        )
+      end
+    end
+
+    test "without :organizations, rejects custom roles against canonical universe" do
+      assert_raise ArgumentError, ~r/unknown atoms.*:viewer/, fn ->
+        RequireMembership.init(error_handler: FakeErrorHandler, roles: [:viewer])
       end
     end
   end
