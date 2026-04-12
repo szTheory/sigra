@@ -135,6 +135,17 @@ defmodule Sigra.Organizations do
 
       @behaviour Sigra.Organizations.Callbacks
 
+      @doc """
+      Returns the validated organization config map.
+
+      Exposed so Phase 14 plugs (`Sigra.Plug.LoadActiveOrganization`,
+      `Sigra.Plug.PutActiveOrganization`) and the generated `on_mount`
+      callback can reach into `Sigra.Organizations.select_active_organization/3`
+      and `Sigra.Scope.Hydration.hydrate/3` without duplicating config
+      plumbing.
+      """
+      def __sigra_org_config__, do: @sigra_org_config
+
       # Thin delegators
       def create_organization(scope, attrs),
         do: Sigra.Organizations.create_organization(@sigra_org_config, scope, attrs)
