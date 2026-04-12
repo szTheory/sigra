@@ -261,6 +261,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-12 — Phase 12 (Scope + Session Foundation) complete. `%Scope{}` extended to 4 fields (user, active_organization, membership, impersonating_from); `user_sessions.active_organization_id` column via standalone ALTER migration; reserved-field invariant test locks `:impersonating_from` for v1.2; UPGRADE-v1.2.md skeleton created. ORG-SCOPE-01 and ORG-SCOPE-02 satisfied. 7/7 must-haves verified, 29 regression tests green.*
+
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
 
 *Last updated: 2026-04-11 after v1.0 milestone completion — Sigra v1.0 Phoenix Auth Library: 12 phases, 60 plans, 117 tasks. All 85 requirements validated. 1249 tests + 33 doctests + 3 properties, 0 failures. 5 required CI checks on main (library_tests + example_unit_smoke + install_smoke + example_http_smoke + example_playwright_smoke). 2 seeds planted for GA gating (SEED-001) and audit atomicity followup (SEED-002). 2 backlog items parked (999.1 Nyquist retro, 999.2 Dependabot major bumps). Tagged v1.0.*
