@@ -125,7 +125,11 @@ Plans:
   3. `Sigra.Audit.Query` gains an `:organization_id` filter backed by the real column; an index hit-count test proves it uses the index.
   4. `Sigra.Workers` behaviour enforces that workers accept `args["organization_id"]` + `args["actor_id"]`, reconstruct a minimal `%Scope{}` in `perform/1`, and emit audits through `metadata_from_scope`; an existing v1.0 worker is refactored to the behaviour as the reference implementation.
   5. In v1.1, `effective_user_id` is populated identically to `user_id` on every audit row — v1.2 divergence (impersonator vs target) is purely additive.
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 15-01-schema-helper-sweep-PLAN.md — Wave 1: ALTER migration + log_safe/3 + Query extension + Sigra.Scope.build/3 + mechanical 79-site sweep (AUD-01..03, AUD-05)
+- [ ] 15-02-semantic-workers-credo-PLAN.md — Wave 2: session.create reorder + semantic enrichment + Sigra.Workers behaviour + AccountDeletion refactor + Credo check + assert_audit_logged (AUD-02..05)
+- [ ] 15-03-generator-fixtures-changelog-PLAN.md — Wave 3: Generator manifest + install-golden regen + example app regen + CHANGELOG + Postgres EXPLAIN index-hit test (AUD-01, AUD-03)
 
 ### Phase 16: Org LiveViews + Switcher
 **Goal**: User experiences the full organization UX end-to-end in the example app — switching orgs, creating them, managing settings, viewing members, changing roles, inviting pending members — with the last-owner guard and sudo gates enforced in the UI as tightly as they are in the context.
