@@ -17,8 +17,10 @@ defmodule Example.Accounts.OrganizationMembership do
 
   def changeset(membership, attrs) do
     membership
-    |> cast(attrs, [:role])
-    |> validate_required([:role])
+    |> cast(attrs, [:role, :user_id, :organization_id])
+    |> validate_required([:role, :user_id, :organization_id])
+    |> assoc_constraint(:user)
+    |> assoc_constraint(:organization)
     |> unique_constraint([:user_id, :organization_id])
   end
 end
