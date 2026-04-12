@@ -18,6 +18,8 @@ defmodule <%= context_module %>.Scope do
   """
 
   alias <%= context_module %>.<%= schema_alias %>
+  alias <%= context_module %>.Organization
+  alias <%= context_module %>.OrganizationMembership
 
   # Reserved for v1.2 impersonation. Do not remove — see UPGRADE-v1.2.md.
   defstruct user: nil,
@@ -27,8 +29,8 @@ defmodule <%= context_module %>.Scope do
 
   @type t :: %__MODULE__{
           user: %<%= schema_alias %>{} | nil,
-          active_organization: struct() | nil,
-          membership: struct() | nil,
+          active_organization: %<%= context_module %>.Organization{} | nil,
+          membership: %<%= context_module %>.OrganizationMembership{} | nil,
           impersonating_from: %<%= schema_alias %>{} | nil
         }
 
