@@ -145,6 +145,21 @@ defmodule Sigra.Scope.HydrationTest do
       assert returned.membership == nil
     end
 
+    test "returns scope unchanged when scope.user is nil even with an active_organization_id (WR-02)" do
+      # Regression: previously this path raised KeyError deep inside
+      # get_membership/3. The hydrator's contract says it NEVER raises.
+      scope = build_scope(nil)
+      session = build_session(Ecto.UUID.generate())
+
+      # No Repo calls expected — the nil-user clause short-circuits
+      # BEFORE touching fetch_organization/2 or get_membership/3.
+      assert {:ok, returned} = Hydration.hydrate(scope, @test_config, session)
+      assert returned == scope
+      assert returned.user == nil
+      assert returned.active_organization == nil
+      assert returned.membership == nil
+    end
+
     test "returns populated scope on valid session + live membership" do
       user = build_user()
       org = build_org()

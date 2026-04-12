@@ -55,6 +55,15 @@ defmodule Sigra.Scope.Hydration do
     {:ok, scope}
   end
 
+  def hydrate(%{user: nil} = scope, _config, %Sigra.Session{}) do
+    # Defensive: if a caller invokes hydrate/3 without a populated user
+    # (e.g. a scope wired in before the auth plug) return the scope
+    # unchanged rather than raising on `user.id` inside get_membership/3.
+    # The hydrator's contract is "NEVER raises" (PITFALLS O-6) and this
+    # is the one remaining path that would.
+    {:ok, scope}
+  end
+
   def hydrate(scope, config, %Sigra.Session{active_organization_id: org_id}) do
     user = scope.user
 
