@@ -38,6 +38,7 @@ defmodule Sigra.Session do
   - `:geo_country_code` - ISO 3166-1 alpha-2 country code (nil if disabled)
   - `:last_active_at` - Last activity timestamp (throttled updates)
   - `:sudo_at` - When sudo mode was last activated
+  - `:active_organization_id` - Active organization the session is currently scoped to. Nullable; populated by Phase 14 plugs.
   - `:inserted_at` - Session creation timestamp
   """
 
@@ -58,6 +59,7 @@ defmodule Sigra.Session do
           geo_country_code: String.t() | nil,
           last_active_at: DateTime.t() | nil,
           sudo_at: DateTime.t() | nil,
+          active_organization_id: binary() | nil,
           inserted_at: DateTime.t() | nil
         }
 
@@ -74,6 +76,7 @@ defmodule Sigra.Session do
     geo_country_code: nil,
     last_active_at: nil,
     sudo_at: nil,
+    active_organization_id: nil,
     inserted_at: nil
   ]
 end

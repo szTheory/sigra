@@ -22,6 +22,7 @@ defmodule Sigra.SessionTest do
         geo_country_code: "US",
         last_active_at: now,
         sudo_at: now,
+        active_organization_id: "0190b3a4-1234-7000-8000-000000000000",
         inserted_at: now
       }
 
@@ -37,6 +38,7 @@ defmodule Sigra.SessionTest do
       assert session.geo_country_code == "US"
       assert session.last_active_at == now
       assert session.sudo_at == now
+      assert session.active_organization_id == "0190b3a4-1234-7000-8000-000000000000"
       assert session.inserted_at == now
     end
 
@@ -60,6 +62,7 @@ defmodule Sigra.SessionTest do
       assert session.geo_country_code == nil
       assert session.last_active_at == nil
       assert session.sudo_at == nil
+      assert session.active_organization_id == nil
       assert session.inserted_at == nil
     end
   end
