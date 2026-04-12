@@ -93,7 +93,33 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     audit_opts = Keyword.get(opts, :audit_opts, [])
 
     # Step 1: clear the DB column (no-op-safe short-circuits if already nil).
-    {:ok, cleared_session} = session_store.update_active_organization(session, nil, store_opts)
+    # WR-05: tolerate {:error, :not_found} — the session row can be deleted
+    # concurrently by delete_all_for_user/2 during a forced logout cascade.
+    # A fail-closed MatchError here defeats the whole point of this plug.
+    case session_store.update_active_organization(session, nil, store_opts) do
+      {:ok, cleared_session} ->
+        continue_recovery(conn, scope, session, cleared_session, config, opts,
+          session_store: session_store,
+          store_opts: store_opts,
+          audit_opts: audit_opts,
+          stale_id: stale_id
+        )
+
+      {:error, _reason} ->
+        # Row is gone underneath us. Drop to a safe, empty-org scope and
+        # leave the request unhalted — the next request will re-hydrate
+        # cleanly (or the auth plug will redirect to login if the session
+        # is fully gone). Do NOT crash the request.
+        safe_scope = %{scope | active_organization: nil, membership: nil}
+        Plug.Conn.assign(conn, :current_scope, safe_scope)
+    end
+  end
+
+  defp continue_recovery(conn, scope, _session, cleared_session, config, _opts, state) do
+    session_store = Keyword.fetch!(state, :session_store)
+    store_opts = Keyword.fetch!(state, :store_opts)
+    audit_opts = Keyword.fetch!(state, :audit_opts)
+    stale_id = Keyword.fetch!(state, :stale_id)
 
     # Step 2: re-run the selector WITHOUT the stale pointer (D-14).
     # Use the _with_membership variant so the resume/single-org branches
@@ -127,10 +153,16 @@ defmodule Sigra.Plug.LoadActiveOrganization do
   end
 
   defp apply_selection({:ok, new_org, membership}, scope, cleared_session, session_store, store_opts) do
-    {:ok, refreshed} =
-      session_store.update_active_organization(cleared_session, new_org.id, store_opts)
+    # WR-05: tolerate {:error, _} on the set-to-new-org write too. If the
+    # row vanished between the clear and this write, fall through to a safe
+    # empty scope rather than MatchError'ing mid-pipeline.
+    case session_store.update_active_organization(cleared_session, new_org.id, store_opts) do
+      {:ok, refreshed} ->
+        {refreshed, %{scope | active_organization: new_org, membership: membership}}
 
-    {refreshed, %{scope | active_organization: new_org, membership: membership}}
+      {:error, _reason} ->
+        {cleared_session, %{scope | active_organization: nil, membership: nil}}
+    end
   end
 
   defp apply_selection({:none, :zero_orgs}, scope, cleared, _store, _opts) do
