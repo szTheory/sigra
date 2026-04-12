@@ -14,14 +14,16 @@ defmodule Sigra.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       # test_load_filters: tells `mix test` which files to load via require.
-      # We use a negative lookahead to keep root `mix test` out of the
-      # test/example/ subproject (plan 10-06) so it doesn't try to compile
-      # the example app's test files, which belong to a completely separate
-      # Mix project with its own deps and test suite.
+      # We use a negative lookahead to keep root `mix test` out of:
+      #   - test/example/ — the example app subproject (plan 10-06), its own Mix project
+      #   - test/fixtures/ — golden-diff snapshot trees (plan 11-01) that reference
+      #     ephemeral project modules like SigraInstallGoldenTmpWeb which don't exist
+      #     in the library compile env. Mix 1.19 auto-discovers .ex/.exs files under
+      #     test/ for compilation unless filtered out.
       #
       # Matches:   test/sigra/auth_test.exs, test/support/data_case.ex
-      # Excludes:  test/example/test/example_web/smoke/*.exs
-      test_load_filters: [~r"^test/(?!example/)"],
+      # Excludes:  test/example/**, test/fixtures/install_golden/**
+      test_load_filters: [~r"^test/(?!example/|fixtures/)"],
       name: "Sigra",
       description: "Comprehensive authentication library for Phoenix 1.8+",
       source_url: @source_url,
