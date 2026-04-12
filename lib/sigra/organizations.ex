@@ -488,19 +488,22 @@ defmodule Sigra.Organizations do
     Multi.run(multi, :guard_last_owner, fn repo, _changes ->
       owner_role = config.owner_role
 
-      # SELECT id with FOR UPDATE to lock rows, then count in Elixir.
-      # PostgreSQL does not allow FOR UPDATE with aggregate functions.
-      other_owners =
+      # Lock ALL owner rows for this org (including the row being acted on)
+      # with FOR UPDATE, then filter in Elixir. This serializes concurrent
+      # removals/demotions so two callers cannot each see the other as the
+      # surviving owner. PostgreSQL does not allow FOR UPDATE with aggregate
+      # functions, so we SELECT ids and filter.
+      owner_ids =
         from(m in config.schemas.membership,
           where: m.organization_id == ^org_id,
           where: m.role == ^owner_role,
-          where: m.id != ^membership_id,
           select: m.id,
           lock: "FOR UPDATE"
         )
         |> repo.all()
 
-      if other_owners != [], do: {:ok, :safe}, else: {:error, :last_owner}
+      others = Enum.reject(owner_ids, &(&1 == membership_id))
+      if others != [], do: {:ok, :safe}, else: {:error, :last_owner}
     end)
   end
 
