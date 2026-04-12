@@ -510,6 +510,69 @@ defmodule Sigra.Organizations do
     end
   end
 
+  @doc """
+  Variant of `select_active_organization/3` that also returns the membership
+  struct on the `{:ok, org}` branches, avoiding a second `get_membership/3`
+  roundtrip on the stale-pointer recovery path.
+
+  Internal to Phase 14+ plug recovery. Prefer `select_active_organization/3`
+  for callers that don't need the membership struct.
+
+  ## Returns
+
+    * `{:ok, org, membership}` — user has exactly one org, or resume pointer
+      matched.
+    * `{:none, :zero_orgs}` — user has no memberships.
+    * `{:multiple, orgs}` — 2+ memberships, no resume pointer match.
+      Membership is intentionally NOT returned on this branch because the
+      caller must still prompt the user; the picker doesn't know which org
+      will be chosen.
+
+  Added in Phase 14 (WR-03 fix). The single-query implementation joins the
+  membership table once and reuses the rows for both org listing and
+  membership resolution.
+  """
+  @spec select_active_organization_with_membership(map(), struct(), keyword()) ::
+          {:ok, struct(), struct()}
+          | {:none, :zero_orgs}
+          | {:multiple, [struct()]}
+  def select_active_organization_with_membership(config, user, opts \\ []) do
+    previous = Keyword.get(opts, :previous_active_organization_id)
+
+    case list_memberships_with_orgs_for_user(config, user) do
+      [] ->
+        {:none, :zero_orgs}
+
+      [{only_org, only_membership}] ->
+        {:ok, only_org, only_membership}
+
+      pairs when is_list(pairs) ->
+        sorted = Enum.sort_by(pairs, fn {org, _m} -> org.inserted_at end, {:desc, DateTime})
+
+        case previous && Enum.find(sorted, fn {org, _m} -> org.id == previous end) do
+          nil -> {:multiple, Enum.map(sorted, fn {org, _m} -> org end)}
+          {resumed_org, resumed_membership} -> {:ok, resumed_org, resumed_membership}
+        end
+    end
+  end
+
+  # Lists `[{org, membership}]` tuples for a user via a single joined query.
+  # Used by `select_active_organization_with_membership/3` to keep the
+  # stale-pointer recovery path to exactly one DB roundtrip for the list.
+  defp list_memberships_with_orgs_for_user(config, user) do
+    org_schema = config.schemas.organization
+    membership_schema = config.schemas.membership
+
+    from(o in org_schema,
+      join: m in ^membership_schema,
+      on: m.organization_id == o.id,
+      where: m.user_id == ^user.id,
+      where: is_nil(o.deleted_at),
+      select: {o, m}
+    )
+    |> config.repo.all()
+  end
+
   # -- Private Helpers --
 
   defp build_org_changeset(org_schema, attrs, config) do

@@ -96,13 +96,16 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     {:ok, cleared_session} = session_store.update_active_organization(session, nil, store_opts)
 
     # Step 2: re-run the selector WITHOUT the stale pointer (D-14).
+    # Use the _with_membership variant so the resume/single-org branches
+    # return the membership struct from the same join that listed the
+    # orgs — avoids a second get_membership/3 roundtrip (WR-03).
     selection =
-      Organizations.select_active_organization(config, scope.user,
+      Organizations.select_active_organization_with_membership(config, scope.user,
         previous_active_organization_id: nil
       )
 
     {new_session, new_scope} =
-      apply_selection(selection, config, scope, cleared_session, session_store, store_opts)
+      apply_selection(selection, scope, cleared_session, session_store, store_opts)
 
     # Step 3: emit one audit event (no-op when audit_schema is absent).
     Audit.log_safe(
@@ -123,19 +126,18 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     |> Plug.Conn.assign(:current_scope, new_scope)
   end
 
-  defp apply_selection({:ok, new_org}, config, scope, cleared_session, session_store, store_opts) do
+  defp apply_selection({:ok, new_org, membership}, scope, cleared_session, session_store, store_opts) do
     {:ok, refreshed} =
       session_store.update_active_organization(cleared_session, new_org.id, store_opts)
 
-    membership = Organizations.get_membership(config, scope.user, new_org)
     {refreshed, %{scope | active_organization: new_org, membership: membership}}
   end
 
-  defp apply_selection({:none, :zero_orgs}, _config, scope, cleared, _store, _opts) do
+  defp apply_selection({:none, :zero_orgs}, scope, cleared, _store, _opts) do
     {cleared, %{scope | active_organization: nil, membership: nil}}
   end
 
-  defp apply_selection({:multiple, _orgs}, _config, scope, cleared, _store, _opts) do
+  defp apply_selection({:multiple, _orgs}, scope, cleared, _store, _opts) do
     # v1.1: leave nil; user sees the picker on the next RequireMembership hit.
     {cleared, %{scope | active_organization: nil, membership: nil}}
   end

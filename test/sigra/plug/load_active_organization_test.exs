@@ -228,15 +228,17 @@ defmodule Sigra.Plug.LoadActiveOrganizationTest do
       scope = build_scope(user)
       conn = build_conn(scope, session)
 
+      remaining_membership = build_membership(user, remaining, :member)
+
       # 1. Hydration: fetch_organization returns the stale org (still exists),
       #    get_membership returns nil (user was removed).
       Sigra.MockRepo
       |> expect(:one, fn _query -> stale_org end)
       |> expect(:one, fn _query -> nil end)
-      # 2. list_organizations_for_user returns the one remaining org.
-      |> expect(:all, fn _query -> [remaining] end)
-      # 3. After selector picks `remaining`, get_membership is re-queried.
-      |> expect(:one, fn _query -> build_membership(user, remaining, :member) end)
+      # 2. WR-03: recovery uses select_active_organization_with_membership/3,
+      #    which selects `{org, membership}` tuples — no extra get_membership
+      #    roundtrip is performed on the recovery path.
+      |> expect(:all, fn _query -> [{remaining, remaining_membership}] end)
 
       # SessionStore expectations: first clear (nil), then set to remaining.id.
       cleared = %{session | active_organization_id: nil}
@@ -292,10 +294,13 @@ defmodule Sigra.Plug.LoadActiveOrganizationTest do
       scope = build_scope(user)
       conn = build_conn(scope, session)
 
+      ma = build_membership(user, a, :member)
+      mb = build_membership(user, b, :member)
+
       Sigra.MockRepo
       |> expect(:one, fn _query -> stale_org end)
       |> expect(:one, fn _query -> nil end)
-      |> expect(:all, fn _query -> [a, b] end)
+      |> expect(:all, fn _query -> [{a, ma}, {b, mb}] end)
 
       cleared = %{session | active_organization_id: nil}
 
