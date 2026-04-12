@@ -67,12 +67,15 @@ defmodule Sigra.Install.Features.CoreTest do
   end
 
   describe "migrations/1" do
-    test "returns exactly 3 slot entries in canonical order" do
+    test "returns exactly 4 slot entries in canonical order" do
       slots = Core.migrations(@binding)
-      assert length(slots) == 3
+      assert length(slots) == 4
 
       assert [
                {:primary, "core/migration.exs", _primary_basename},
+               {:active_org_column,
+                "core/add_active_organization_id_to_user_sessions.exs",
+                _active_org_basename},
                {:api_token, "core/api_token_migration.exs", _api_basename},
                {:audit_events, "core/create_audit_events.exs", _audit_basename}
              ] = slots
@@ -84,6 +87,15 @@ defmodule Sigra.Install.Features.CoreTest do
       assert Enum.any?(slots, fn {:primary, _, base} ->
                String.contains?(base, "create_sigra_auth_tables") and
                  String.ends_with?(base, ".exs")
+             end)
+
+      assert Enum.any?(slots, fn
+               {:active_org_column, _, base} ->
+                 String.contains?(base, "add_active_organization_id_to_user_sessions") and
+                   String.ends_with?(base, ".exs")
+
+               _ ->
+                 false
              end)
 
       assert Enum.any?(slots, fn
@@ -171,15 +183,16 @@ defmodule Sigra.Install.Features.CoreTest do
       # metadata remains in migrations/1 for the MigrationTimestamps
       # allocator.
       assert "core/migration.exs" in sources
+      assert "core/add_active_organization_id_to_user_sessions.exs" in sources
       assert "core/create_audit_events.exs" in sources
       # api_token migration is only included with --api/--jwt
       refute "core/api_token_migration.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 36 files" do
-      # 25 base_files + 9 ui_files (live-mode) + 2 inlined migrations
-      # (primary + audit_events); api_token migration is --api-only.
-      assert length(Core.files(@binding)) == 36
+    test "default (live=true, api=false, jwt=false) returns exactly 37 files" do
+      # 26 base_files + 9 ui_files (live-mode) + 3 inlined migrations
+      # (primary + active_org_column + audit_events); api_token migration is --api-only.
+      assert length(Core.files(@binding)) == 37
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -199,9 +212,9 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 30 files (25 base + 3 controller-mode UI + 2 inlined migrations)" do
+    test "--no-live returns exactly 31 files (26 base + 3 controller-mode UI + 3 inlined migrations)" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 30
+      assert length(Core.files(binding)) == 31
     end
 
     test "--api includes api_files group" do

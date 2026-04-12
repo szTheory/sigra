@@ -1,4 +1,5 @@
 * creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
+* creating priv/repo/migrations/TIMESTAMP_add_active_organization_id_to_user_sessions.exs
 * creating lib/sigra_install_golden_tmp/accounts/user.ex
 * creating lib/sigra_install_golden_tmp/accounts/user_token.ex
 * creating lib/sigra_install_golden_tmp/accounts/scope.ex
