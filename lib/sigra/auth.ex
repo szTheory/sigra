@@ -160,8 +160,7 @@ defmodule Sigra.Auth do
 
       case repo.insert(changeset) do
         {:ok, user} ->
-          Audit.log_safe(
-            "auth.register.success",
+          Audit.log_safe("auth.register.success", nil,
             Keyword.merge(audit_opts,
               actor_id: user.id,
               metadata: %{method: "password"}
@@ -173,8 +172,7 @@ defmodule Sigra.Auth do
 
         {:error, changeset} ->
           if email_taken_error?(changeset) do
-            Audit.log_safe(
-              "auth.register.failure",
+            Audit.log_safe("auth.register.failure", nil,
               Keyword.merge(audit_opts,
                 actor_id: nil,
                 outcome: "failure",
@@ -184,8 +182,7 @@ defmodule Sigra.Auth do
 
             {:error, :email_taken}
           else
-            Audit.log_safe(
-              "auth.register.failure",
+            Audit.log_safe("auth.register.failure", nil,
               Keyword.merge(audit_opts,
                 actor_id: nil,
                 outcome: "failure",
@@ -208,18 +205,18 @@ defmodule Sigra.Auth do
   #
   # D-26 dispatch table (auth.* operations in this module):
   #
-  #   register success    -> Sigra.Audit.log_safe("auth.register.success", ...)
+  #   register success    -> Sigra.Audit.log_safe("auth.register.success", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", ...)
-  #   login success       -> Sigra.Audit.log_safe("auth.login.success", ...)
+  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", nil, ...)
+  #   login success       -> Sigra.Audit.log_safe("auth.login.success", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", ...)
+  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", nil, ...)
   #                          (non-Multi, standalone per D-28)
-  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", ...)
+  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", ...)
+  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", ...)
+  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", nil, ...)
   #   password_reset done -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation link   -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation code   -> Sigra.Audit.__log_internal__ (Multi, atomic)
@@ -330,7 +327,7 @@ defmodule Sigra.Auth do
     case Sigra.Lockout.check(user, lockout_opts) do
       {:error, :account_locked, _remaining} ->
         # D-26: security audit row (standalone, D-28)
-        Audit.log_safe("security.lockout",
+        Audit.log_safe("security.lockout", nil,
           Keyword.merge(audit_opts,
             actor_id: user && user.id,
             outcome: "failure",
@@ -347,7 +344,7 @@ defmodule Sigra.Auth do
         case Crypto.verify_with_upgrade(password, hashed_password) do
           {:ok, :valid} ->
             # D-26: login success audit row
-            Audit.log_safe("auth.login.success",
+            Audit.log_safe("auth.login.success", nil,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
                 metadata: %{method: "password"}
@@ -359,7 +356,7 @@ defmodule Sigra.Auth do
           {:ok, :valid, new_hash} ->
             Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
 
-            Audit.log_safe("auth.login.success",
+            Audit.log_safe("auth.login.success", nil,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
                 metadata: %{method: "password", hash_upgraded: true}
@@ -375,7 +372,7 @@ defmodule Sigra.Auth do
               # that bypasses reserved-prefix guards for library-owned
               # actions). The equivalent developer-facing entry point is
               # `Sigra.Audit.log(action, opts)` for non-reserved actions.
-              Audit.log_safe("auth.login.failure",
+              Audit.log_safe("auth.login.failure", nil,
                 Keyword.merge(audit_opts,
                   actor_id: user.id,
                   outcome: "failure",
@@ -386,7 +383,7 @@ defmodule Sigra.Auth do
               handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts)
             else
               # D-26: login failure audit (unknown email) — standalone (D-28)
-              Audit.log_safe("auth.login.failure",
+              Audit.log_safe("auth.login.failure", nil,
                 Keyword.merge(audit_opts,
                   actor_id: nil,
                   outcome: "failure",
@@ -455,7 +452,7 @@ defmodule Sigra.Auth do
         # D-26: audit magic link request (standalone, always success)
         audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-        Audit.log_safe("auth.magic_link_request",
+        Audit.log_safe("auth.magic_link_request", nil,
           Keyword.merge(audit_opts, actor_id: user.id, metadata: %{})
         )
 
@@ -519,7 +516,7 @@ defmodule Sigra.Auth do
             # still persisted after the business op succeeds.
             audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-            Audit.log_safe("auth.magic_link_verify.success",
+            Audit.log_safe("auth.magic_link_verify.success", nil,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
                 metadata: %{}
@@ -863,7 +860,7 @@ defmodule Sigra.Auth do
         # D-26: audit password reset request (standalone, always success).
         audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-        Audit.log_safe("auth.password_reset_request",
+        Audit.log_safe("auth.password_reset_request", nil,
           Keyword.merge(audit_opts, actor_id: user.id, metadata: %{})
         )
 
@@ -1013,7 +1010,7 @@ defmodule Sigra.Auth do
             user_agent: Map.get(metadata, :user_agent)
           )
 
-          Sigra.Audit.log_safe("session.create",
+          Sigra.Audit.log_safe("session.create", nil,
             Keyword.merge(audit_opts,
               actor_id: user.id,
               metadata: %{type: Map.get(metadata, :type, :standard), session_id: session.id}
@@ -1119,7 +1116,7 @@ defmodule Sigra.Auth do
     # actor_id is resolved from the opts :user_id if provided; otherwise nil.
     audit_opts = audit_opts_from_config(config)
 
-    Sigra.Audit.log_safe("session.delete",
+    Sigra.Audit.log_safe("session.delete", nil,
       Keyword.merge(audit_opts,
         actor_id: Keyword.get(opts, :user_id),
         metadata: %{}
@@ -1173,7 +1170,7 @@ defmodule Sigra.Auth do
     # D-26: session.revoke_all audit row (standalone)
     audit_opts = audit_opts_from_config(config)
 
-    Sigra.Audit.log_safe("session.revoke_all",
+    Sigra.Audit.log_safe("session.revoke_all", nil,
       Keyword.merge(audit_opts,
         actor_id: user_id,
         metadata: %{count: count}
@@ -1237,7 +1234,7 @@ defmodule Sigra.Auth do
 
     outcome = if action == "session.sudo_enter", do: "success", else: "failure"
 
-    Sigra.Audit.log_safe(action,
+    Sigra.Audit.log_safe(action, nil,
       Keyword.merge(audit_opts,
         actor_id: Keyword.get(opts, :user_id),
         outcome: outcome,
@@ -1500,7 +1497,7 @@ defmodule Sigra.Auth do
     audit_opts = audit_opts_from_config(config, ip_address: login_ip)
 
     # D-26: invalid_credentials counter audit row (every failed attempt)
-    Sigra.Audit.log_safe("security.invalid_credentials",
+    Sigra.Audit.log_safe("security.invalid_credentials", nil,
       Keyword.merge(audit_opts,
         actor_id: user.id,
         outcome: "failure",
@@ -1517,7 +1514,7 @@ defmodule Sigra.Auth do
       })
 
       # D-26: security.lockout audit row
-      Sigra.Audit.log_safe("security.lockout",
+      Sigra.Audit.log_safe("security.lockout", nil,
         Keyword.merge(audit_opts,
           actor_id: user.id,
           outcome: "failure",

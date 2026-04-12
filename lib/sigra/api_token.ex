@@ -99,7 +99,7 @@ defmodule Sigra.APIToken do
         # D-26: api.token_create audit row (standalone, D-28). Metadata
         # never contains the raw token or hash — only name and scopes
         # (D-23 forbidden keys enforced by Sigra.Audit.Changeset).
-        Sigra.Audit.log_safe("api.token_create",
+        Sigra.Audit.log_safe("api.token_create", nil,
           api_token_audit_opts(config) ++ [
             actor_id: user.id,
             metadata: %{name: attrs.name, scopes: attrs.scopes}
@@ -156,7 +156,7 @@ defmodule Sigra.APIToken do
           # D-27: api.token_verify.failure only (success is NOT audited
           # because it would be too noisy; observability is covered by
           # telemetry).
-          Sigra.Audit.log_safe("api.token_verify.failure",
+          Sigra.Audit.log_safe("api.token_verify.failure", nil,
             api_token_audit_opts(config) ++ [
               actor_id: nil,
               outcome: "failure",
@@ -169,7 +169,7 @@ defmodule Sigra.APIToken do
         token ->
           cond do
             token.revoked_at != nil ->
-              Sigra.Audit.log_safe("api.token_verify.failure",
+              Sigra.Audit.log_safe("api.token_verify.failure", nil,
                 api_token_audit_opts(config) ++ [
                   actor_id: Map.get(token, :user_id),
                   outcome: "failure",
@@ -181,7 +181,7 @@ defmodule Sigra.APIToken do
 
             token.expires_at != nil and
                 DateTime.compare(token.expires_at, DateTime.utc_now()) == :lt ->
-              Sigra.Audit.log_safe("api.token_verify.failure",
+              Sigra.Audit.log_safe("api.token_verify.failure", nil,
                 api_token_audit_opts(config) ++ [
                   actor_id: Map.get(token, :user_id),
                   outcome: "failure",
@@ -231,7 +231,7 @@ defmodule Sigra.APIToken do
             })
 
             # D-26: api.token_revoke audit row
-            Sigra.Audit.log_safe("api.token_revoke",
+            Sigra.Audit.log_safe("api.token_revoke", nil,
               api_token_audit_opts(config) ++ [
                 actor_id: Map.get(token, :user_id),
                 metadata: %{token_id: to_string(token_id)}
@@ -256,7 +256,7 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh(config, user_id) do
-    Sigra.Audit.log_safe("api.jwt_refresh",
+    Sigra.Audit.log_safe("api.jwt_refresh", nil,
       api_token_audit_opts(config) ++ [
         actor_id: user_id,
         metadata: %{}
@@ -270,7 +270,7 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh_reuse(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh_reuse(config, user_id) do
-    Sigra.Audit.log_safe("api.jwt_refresh_reuse",
+    Sigra.Audit.log_safe("api.jwt_refresh_reuse", nil,
       api_token_audit_opts(config) ++ [
         actor_id: user_id,
         outcome: "failure",

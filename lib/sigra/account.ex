@@ -37,16 +37,16 @@ defmodule Sigra.Account do
   #
   # D-26 dispatch table for account.* operations:
   #
-  #   request_email_change  -> Sigra.Audit.log_safe("account.email_change_request")
-  #   confirm_email_change  -> Sigra.Audit.log_safe("account.email_change_confirm")
-  #   cancel_email_change   -> Sigra.Audit.log_safe("account.email_change_cancel")
-  #   change_password       -> Sigra.Audit.log_safe("account.password_change",
+  #   request_email_change  -> Sigra.Audit.log_safe("account.email_change_request", nil, ...)
+  #   confirm_email_change  -> Sigra.Audit.log_safe("account.email_change_confirm", nil, ...)
+  #   cancel_email_change   -> Sigra.Audit.log_safe("account.email_change_cancel", nil, ...)
+  #   change_password       -> Sigra.Audit.log_safe("account.password_change", nil,
   #                             metadata: %{forced: false})
-  #   forced password chg   -> Sigra.Audit.log_safe("account.password_change",
+  #   forced password chg   -> Sigra.Audit.log_safe("account.password_change", nil,
   #                             metadata: %{forced: true})
-  #   schedule_deletion     -> Sigra.Audit.log_safe("account.deletion_schedule")
-  #   cancel_deletion       -> Sigra.Audit.log_safe("account.deletion_cancel")
-  #   execute_deletion      -> Sigra.Audit.log_safe("account.deletion_execute")
+  #   schedule_deletion     -> Sigra.Audit.log_safe("account.deletion_schedule", nil, ...)
+  #   cancel_deletion       -> Sigra.Audit.log_safe("account.deletion_cancel", nil, ...)
+  #   execute_deletion      -> Sigra.Audit.log_safe("account.deletion_execute", nil, ...)
   #
   # Metadata: strings, IDs, flags only. NEVER passwords, hashes, or tokens.
   defp account_audit_opts(opts) when is_list(opts) do
@@ -65,7 +65,7 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.email_change_request",
+        Sigra.Audit.log_safe("account.email_change_request", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{}]
         )
@@ -84,7 +84,7 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, user} ->
-        Sigra.Audit.log_safe("account.email_change_confirm",
+        Sigra.Audit.log_safe("account.email_change_confirm", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{}]
         )
@@ -103,7 +103,7 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.email_change_cancel",
+        Sigra.Audit.log_safe("account.email_change_cancel", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{}]
         )
@@ -126,7 +126,7 @@ defmodule Sigra.Account do
       {:ok, _} ->
         # D-26: account.password_change. NEVER include password/hash in
         # metadata (D-23 enforced by Sigra.Audit.Changeset).
-        Sigra.Audit.log_safe("account.password_change",
+        Sigra.Audit.log_safe("account.password_change", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{forced: false}]
         )
@@ -145,7 +145,7 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.password_change",
+        Sigra.Audit.log_safe("account.password_change", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{forced: false, source: "oauth_set"}]
         )
@@ -174,7 +174,7 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.deletion_schedule",
+        Sigra.Audit.log_safe("account.deletion_schedule", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{}]
         )
@@ -193,7 +193,7 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.deletion_cancel",
+        Sigra.Audit.log_safe("account.deletion_cancel", nil,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, metadata: %{}]
         )
@@ -213,7 +213,7 @@ defmodule Sigra.Account do
     # preserves the forensic trail.
     user_id = user.id
 
-    Sigra.Audit.log_safe("account.deletion_execute",
+    Sigra.Audit.log_safe("account.deletion_execute", nil,
       (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
         [actor_id: user_id, metadata: %{}]
     )
@@ -239,7 +239,7 @@ defmodule Sigra.Account do
   @doc since: "0.9.0"
   @spec audit_forced_password_change(keyword(), term()) :: :ok
   def audit_forced_password_change(opts, user_id) do
-    Sigra.Audit.log_safe("account.password_change",
+    Sigra.Audit.log_safe("account.password_change", nil,
       account_audit_opts(opts) ++
         [actor_id: user_id, metadata: %{forced: true}]
     )

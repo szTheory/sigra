@@ -140,8 +140,7 @@ defmodule Sigra.Plug.LoadActiveOrganization do
       apply_selection(selection, scope, cleared_session, session_store, store_opts)
 
     # Step 3: emit one audit event (no-op when audit_schema is absent).
-    Audit.log_safe(
-      "organization.active_auto_reassigned",
+    Audit.log_safe("organization.active_auto_reassigned", nil,
       Keyword.merge(audit_opts,
         actor_id: scope.user.id,
         target_id: stale_id,

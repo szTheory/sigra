@@ -73,7 +73,7 @@ defmodule Sigra.OAuth do
 
         # D-26: oauth.authorize audit row. Never put tokens/secrets in
         # metadata (D-23); only the provider name.
-        Sigra.Audit.log_safe("oauth.authorize",
+        Sigra.Audit.log_safe("oauth.authorize", nil,
           oauth_audit_opts(config) ++ [
             actor_id: Keyword.get(opts, :user_id),
             metadata: %{provider: to_string(provider)}
@@ -145,14 +145,14 @@ defmodule Sigra.OAuth do
 
     case result do
       {:ok, :registered, user, _session} ->
-        Sigra.Audit.log_safe("oauth.callback.success",
+        Sigra.Audit.log_safe("oauth.callback.success", nil,
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider), outcome: "registered"}
           )
         )
 
-        Sigra.Audit.log_safe("oauth.register_via_oauth",
+        Sigra.Audit.log_safe("oauth.register_via_oauth", nil,
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider)}
@@ -160,14 +160,14 @@ defmodule Sigra.OAuth do
         )
 
       {:ok, :logged_in, user, _session} ->
-        Sigra.Audit.log_safe("oauth.callback.success",
+        Sigra.Audit.log_safe("oauth.callback.success", nil,
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider), outcome: "logged_in"}
           )
         )
 
-        Sigra.Audit.log_safe("oauth.login_via_oauth",
+        Sigra.Audit.log_safe("oauth.login_via_oauth", nil,
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider)}
@@ -175,7 +175,7 @@ defmodule Sigra.OAuth do
         )
 
       {:error, %OAuthError{} = err} ->
-        Sigra.Audit.log_safe("oauth.callback.failure",
+        Sigra.Audit.log_safe("oauth.callback.failure", nil,
           Keyword.merge(audit_opts,
             actor_id: nil,
             outcome: "failure",
@@ -293,7 +293,7 @@ defmodule Sigra.OAuth do
 
           # D-26: oauth.link audit row (standalone, D-28). Provider only,
           # never tokens or client_secret (D-23).
-          Sigra.Audit.log_safe("oauth.link",
+          Sigra.Audit.log_safe("oauth.link", nil,
             Keyword.merge(oauth_audit_opts(config),
               actor_id: user.id,
               metadata: %{provider: to_string(provider)}
@@ -372,7 +372,7 @@ defmodule Sigra.OAuth do
               })
 
               # D-26: oauth.unlink audit row
-              Sigra.Audit.log_safe("oauth.unlink",
+              Sigra.Audit.log_safe("oauth.unlink", nil,
                 Keyword.merge(oauth_audit_opts(config),
                   actor_id: user.id,
                   metadata: %{provider: provider_str}

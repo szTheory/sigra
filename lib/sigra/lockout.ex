@@ -137,7 +137,7 @@ defmodule Sigra.Lockout do
   @doc since: "0.9.0"
   @spec audit_lockout(keyword()) :: :ok
   def audit_lockout(opts) when is_list(opts) do
-    Sigra.Audit.log_safe("security.lockout",
+    Sigra.Audit.log_safe("security.lockout", nil,
       Keyword.merge(opts,
         outcome: "failure",
         metadata: Keyword.get(opts, :metadata, %{})
