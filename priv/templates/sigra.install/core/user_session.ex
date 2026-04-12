@@ -27,6 +27,7 @@ defmodule <%= context_module %>.UserSession do
     field :geo_country_code, :string
     field :last_active_at, :utc_datetime_usec
     field :sudo_at, :utc_datetime_usec
+    field :active_organization_id, :binary_id
 
     belongs_to :user, <%= context_module %>.<%= schema_alias %>
 
