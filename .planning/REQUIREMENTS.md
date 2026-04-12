@@ -1,287 +1,254 @@
-# Requirements: Sigra
+# Sigra v1.1 Foundations — Requirements
 
-**Defined:** 2026-04-05
-**Core Value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
+**Milestone:** v1.1 "Foundations" — Organizations + Passkeys
+**Status:** Roadmap mapped — 79/79 requirements assigned to phases 11–23
+**Last updated:** 2026-04-11
 
-## v1 Requirements
+Requirements are written user-centric ("User/developer can X") and grouped
+by category. Each maps to exactly one phase during roadmap creation.
+Answered discuss-phase questions are inlined as decision notes where they
+affect individual requirements.
 
-Requirements for initial release. Each maps to roadmap phases.
+---
 
-### Foundation
+## v1.1 Requirements
 
-- [x] **FOUND-01**: Library initializes via `mix sigra.install` generating migrations, schemas, context module, plugs, and optional LiveView pages
-- [x] **FOUND-02**: Generated code follows Phoenix context pattern (`MyApp.Auth`) with clean DDD boundaries
-- [x] **FOUND-03**: Security-critical code lives in Sigra library dep; customizable code is generated into user's project
-- [x] **FOUND-04**: No macro-based schema injection — generated schemas are plain Ecto schemas calling library functions
-- [x] **FOUND-05**: Configuration via explicit options with smart defaults (confirmation required, lockout threshold, timeouts, table names)
-- [x] **FOUND-06**: Behaviour + callback architecture for extensibility (mailer, rate limiter, session store)
-- [x] **FOUND-07**: Telemetry events emitted for all auth operations (login, logout, register, MFA, lockout, etc.)
-- [x] **FOUND-08**: Works with standard controllers/Plug without requiring LiveView
-- [x] **FOUND-09**: Optional LiveView components for login, registration, MFA, settings
-- [x] **FOUND-10**: Headless mode — all logic works without any UI components
+### Organizations — Foundation (ORG)
 
-### Email/Password Authentication
+- [ ] **ORG-01**: Developer can add organizations to a new Phoenix app via `mix sigra.install --organizations` (default on) generating `Organization`, `OrganizationMembership`, and `OrganizationInvitation` schemas with migrations.
+- [ ] **ORG-02**: Developer can disable organizations entirely via `mix sigra.install --no-organizations`; no org-related templates, schemas, or routes are generated.
+- [ ] **ORG-03**: User can be a member of multiple organizations simultaneously with different roles in each; the `users` table has no `organization_id` column (shared-user model).
+- [ ] **ORG-04**: User can hold one of three roles per organization: `owner`, `admin`, `member`. Roles are a convention; full RBAC/permission policies remain out of Sigra's scope.
+- [ ] **ORG-05**: System prevents the last `owner` of an organization from being removed, demoted, or deleting their own membership — enforced inside an `Ecto.Multi` with a fresh-count check, not via DB constraint (addresses pitfall O-4).
+- [ ] **ORG-06**: Developer can query users within an org via the library-provided `Sigra.Organizations.Query.for_org/2` helper that raises on missing `organization_id` (addresses pitfall O-1 — cross-tenant leak).
+- [ ] **ORG-07**: System blocks reserved slugs at creation time via a hardcoded reserved-word list including `admin`, `api`, `www`, `static`, and ~20 others (addresses pitfall O-9 + prevents v1.2 `/admin` route collision).
+- [ ] **ORG-08**: Organization deletion is soft-delete by default (sets `deleted_at`); hard-delete is a separate operator-only path. Audit rows referencing a deleted org survive via `ON DELETE NULLIFY` on `audit_events.organization_id` (addresses pitfall O-10).
 
-- [x] **AUTH-01**: User can register with email and password
-- [x] **AUTH-02**: Passwords hashed with Argon2id (OWASP standard, 200-500ms target)
-- [x] **AUTH-03**: Transparent password hash migration from bcrypt to Argon2id on login
-- [x] **AUTH-04**: User can log in with email and password
-- [x] **AUTH-05**: User can log out from any page
-- [x] **AUTH-06**: Magic link / passwordless email authentication
-- [x] **AUTH-07**: NIST-compliant password policies (min 8 chars with MFA, max 64+, no composition rules, no forced rotation)
+### Organizations — Scope + Session (ORG-SCOPE)
 
-### Email Confirmation
+- [ ] **ORG-SCOPE-01**: System extends `%Scope{}` with `:active_organization`, `:membership`, and (reserved, unused in v1.1) `:impersonating_from` fields — the reserved field exists so v1.2 impersonation is purely additive.
+- [ ] **ORG-SCOPE-02**: System stores `active_organization_id` on the `user_sessions` table (nullable). "Last active" for returning users comes from the most recent non-nil value across their sessions — per-session, not per-user.
+- [ ] **ORG-SCOPE-03**: System exposes `Sigra.Plug.LoadActiveOrganization` that runs after `fetch_current_scope` to hydrate `scope.active_organization` and `scope.membership` from the session; if the session's `active_organization_id` points at an org the user is no longer a member of (stale pointer), the plug resets the scope rather than 500ing (addresses pitfall O-6).
+- [ ] **ORG-SCOPE-04**: System exposes `Sigra.Plug.RequireMembership` for routes requiring org-scoped access, optionally filtered by role list.
+- [ ] **ORG-SCOPE-05**: LiveView `on_mount` hydrates `current_scope.active_organization` + `membership` from the serialized session map — matches the plug-path behavior.
+- [ ] **ORG-SCOPE-06**: User can log in when they belong to zero orgs, one org, or 2+ orgs without a dead-end: zero = prompt to create or accept invite; one = auto-select; 2+ = resume last-active or show picker.
 
-- [x] **CONF-01**: New registrations trigger confirmation email automatically (async via Oban)
-- [x] **CONF-02**: Confirmation via link click or code entry
-- [x] **CONF-03**: Configurable behavior for unconfirmed users (allow login with banner vs block login)
-- [x] **CONF-04**: Resend confirmation with rate limiting
-- [x] **CONF-05**: Token expiry with helpful error and resend link (default 48h TTL)
-- [x] **CONF-06**: Tokens are single-use, HMAC-protected, hashed before storage
+### Organizations — User-Facing (ORG-UX)
 
-### Password Reset
+- [ ] **ORG-UX-01**: User can create a new organization from the app UI, choosing a name; slug is auto-generated with a reserved-word check.
+- [ ] **ORG-UX-02**: User can view and switch their active organization via a dropdown in the header (daisyUI dropdown component). The switcher shows active org + role badge, other orgs, create-org link, and settings link for owners/admins.
+- [ ] **ORG-UX-03**: Switching organizations submits a POST to a plain controller (not a LiveView event) which rotates the Plug session's `active_organization_id` and redirects back to the referrer — matches v1.0's "sensitive-mutation-via-POST" convention.
+- [ ] **ORG-UX-04**: Organization owner can rename their organization and change the slug (slug change requires re-confirmation + history redirect for 7 days).
+- [ ] **ORG-UX-05**: Organization owner can delete their organization (soft-delete by default, sudo re-auth required, typed-confirmation of the org name).
+- [ ] **ORG-UX-06**: Organization owner or admin can view the member list showing email, role, status, joined date, and last-active timestamp.
+- [ ] **ORG-UX-07**: Organization owner or admin can change a member's role (owner/admin/member) with confirmation.
+- [ ] **ORG-UX-08**: Organization owner or admin can remove a member (which revokes the membership and force-logs-out that user's org-scoped sessions).
+- [ ] **ORG-UX-09**: No "personal organization" is auto-created on user registration. Signup flow offers an optional "create your first organization" step; users can also accept pending invites during signup. **(Decision: no auto-backfill on signup; opt-in flag for v1.0 upgraders only.)**
 
-- [x] **RESET-01**: User can request password reset via email
-- [x] **RESET-02**: Email enumeration prevention (generic message regardless of email existence)
-- [x] **RESET-03**: HMAC-protected, time-limited, single-use reset tokens (default 60min TTL)
-- [x] **RESET-04**: Password change invalidates all existing sessions except current
-- [x] **RESET-05**: Expired/used token shows helpful error with link to request new one
+### Organization Upgrade Path (ORG-UPGRADE)
 
-### Session Management
+- [ ] **ORG-UPGRADE-01**: Developer upgrading a v1.0 install can opt into `mix sigra.upgrade --backfill-personal-orgs` to generate a personal org per existing user. Idempotent, batched, adapter-branched (PG/MySQL/SQLite), safe to re-run.
+- [ ] **ORG-UPGRADE-02**: Developer upgrading without the backfill flag sees existing users land in the "create or accept invite" state on next login — no 500s, no dead ends.
+- [ ] **ORG-UPGRADE-03**: Repository ships a `test/upgrade_test.exs` fixture that boots a v1.0 install, runs the v1.1 upgrade, and asserts login still works in both the backfill-on and backfill-off paths (addresses pitfall X-4).
 
-- [x] **SESS-01**: Server-side database-backed sessions (opaque token in cookie, data in DB)
-- [x] **SESS-02**: Remember-me via separate long-lived cookie (default 60 days)
-- [x] **SESS-03**: Session invalidation on password change (all sessions except current)
-- [x] **SESS-04**: "Log out everywhere" — deletes all session tokens, broadcasts disconnect to LiveView sockets
-- [x] **SESS-05**: Active session tracking with IP, user agent, last-active timestamp
-- [x] **SESS-06**: Session management UI — users can view and revoke active sessions
-- [x] **SESS-07**: Configurable idle timeout and absolute timeout
-- [x] **SESS-08**: Secure cookie defaults (SameSite=Lax, HttpOnly, Secure)
-- [x] **SESS-09**: Sudo/re-authentication mode for sensitive operations (change email, delete account, manage MFA)
+---
 
-### OAuth / Social Login
+### Invitations (INV)
 
-- [x] **OAUTH-01**: OAuth integration via Assent with PKCE and OIDC support
-- [x] **OAUTH-02**: Google and GitHub as tier 1 providers (working in under 10 minutes)
-- [x] **OAUTH-03**: Apple and Meta as tier 2 providers
-- [x] **OAUTH-04**: Account linking — existing user links OAuth provider from settings
-- [x] **OAUTH-05**: Email-match account linking with configurable behavior (auto-link vs require confirmation)
-- [x] **OAUTH-06**: Multiple OAuth providers per user (user_identities table)
-- [x] **OAUTH-07**: OAuth token storage (encrypted access + refresh tokens)
-- [x] **OAUTH-08**: Graceful handling of edge cases (no email from provider, denied permissions, provider down, CSRF mismatch)
+- [ ] **INV-01**: Organization owner or admin can invite a user by email, optionally specifying the role the invitee will receive.
+- [ ] **INV-02**: System generates a single-use invite token via HMAC (reusing `Sigra.Token`); the token is stored hashed (SHA-256), never in plaintext.
+- [ ] **INV-03**: System sends an `organization_invitation_email.ex` containing the accept URL, org name, inviter name, and expiry. HTML + text multipart with inline CSS (matches v1.0 email conventions).
+- [ ] **INV-04**: Invitation expires after 7 days by default, configurable via NimbleOptions. Library raises a warning in dev if configured TTL exceeds 30 days (phishing window guidance).
+- [ ] **INV-05**: Invitee with no account can accept the invite by signing up; the signup form pre-fills and locks the email field, and membership is created atomically with the confirmed user in an `Ecto.Multi` (addresses pitfall O-2).
+- [ ] **INV-06**: Invitee with an existing account matching the invited email can accept the invite while signed in; system asserts `current_user.email == invitation.email` (case-insensitive via citext) and rejects with an explicit "this invitation is for [other-email]" mismatch page if they're signed in as a different user (addresses pitfall O-2 — Jetstream #907 / Keycloak CVE-2026-1529 class).
+- [ ] **INV-07**: Accepting an invite marks it `accepted_at` and prevents reuse; a replay attempt returns a clear "already accepted" flash (addresses pitfall O-3).
+- [ ] **INV-08**: Organization owner or admin can revoke a pending invite before acceptance; revoked invites show `revoked_at` and return "no longer valid" on accept attempts.
+- [ ] **INV-09**: Developer can rate-limit invitation creation (default 20/day per user via Hammer) to prevent invite-as-spam abuse.
+- [ ] **INV-10**: Invitation list shows pending invites with email, role, invited-by, expires-in, and a "revoke" button.
 
-### Multi-Factor Authentication
+---
 
-- [x] **MFA-01**: TOTP enrollment with QR code generation and manual entry code
-- [x] **MFA-02**: TOTP verification on login (6-digit code, 30s step, ±1 window)
-- [x] **MFA-03**: Progressive auth states — `mfa_pending` session state prevents MFA bypass
-- [x] **MFA-04**: Backup/recovery codes (8 single-use codes, hashed storage, shown once, regeneration)
-- [x] **MFA-05**: "Trust this browser" cookie to skip MFA on trusted devices (configurable TTL)
-- [x] **MFA-06**: MFA enforcement policies (per route or role)
-- [x] **MFA-07**: Disable MFA requires current TOTP code or backup code
-- [x] **MFA-08**: Rate-limited code attempts (5 attempts then 15-minute lockout)
-- [x] **MFA-09**: TOTP secrets encrypted at rest
+### Audit Integration (AUD)
 
-### API Authentication
+- [ ] **AUD-01**: System adds `organization_id :binary_id` as a real indexed column on `audit_events` (not jsonb metadata) — nullable, so library-emitted events outside org context (logged-out password reset, failed login, etc.) land cleanly. **(Load-bearing for v1.2 per-org audit views.)**
+- [ ] **AUD-02**: System adds `effective_user_id :binary_id` as a real column on `audit_events`, populated identically to `user_id` in v1.1 (addresses pitfall O-7). **(Load-bearing for v1.2 impersonation — v1.2 will make `user_id` = impersonator and `effective_user_id` = target.)**
+- [ ] **AUD-03**: System exposes `Sigra.Audit.metadata_from_scope/2` as a single assembly point for audit metadata. Helper pulls `organization_id` from scope; reserves (with a documented comment block) the future `effective_user_id` population from `scope.impersonating_from` in v1.2.
+- [ ] **AUD-04**: System extends `Sigra.Audit.Query` with an `:organization_id` filter backed by the real indexed column.
+- [ ] **AUD-05**: System defines a `Sigra.Workers` behaviour for Oban workers requiring tenant context; workers accept `args["organization_id"]` and `args["actor_id"]`, reconstruct a minimal `%Scope{}` in `perform/1`, and emit audits through the same helper (addresses pitfall O-11).
 
-- [x] **API-01**: Bearer token authentication via `Authorization: Bearer <token>` header
-- [x] **API-02**: API key format with human-readable prefix (`myapp_live_<random>`)
-- [x] **API-03**: API keys stored as SHA-256 hashes, shown only once at creation
-- [x] **API-04**: Personal access tokens — user-scoped with scopes and configurable expiration
-- [x] **API-05**: JWT support for stateless API use cases
-- [x] **API-06**: Dual-mode auth plug (tries session first, falls back to bearer)
-- [x] **API-07**: Token lifecycle — expiry, last-used tracking, revocation, listing active tokens
+---
 
-### Security
+### Passkeys — Foundation (PK)
 
-- [x] **SEC-01**: Account lockout after N failed attempts (default 5, temporary 15-30 min, never permanent)
-- [x] **SEC-02**: IP-based rate limiting (10 failed attempts/IP/minute → 429)
-- [x] **SEC-03**: Account-based rate limiting (failed attempts counter on user record)
-- [x] **SEC-04**: Email enumeration prevention by default (constant-time comparisons, generic messages, dummy hash for nonexistent accounts)
-- [x] **SEC-05**: CSRF protection integrated with Phoenix infrastructure
-- [x] **SEC-06**: HMAC-protected tokens for all email flows (useless without server secret)
-- [x] **SEC-07**: Suspicious login detection — new IP/device triggers email notification
+- [ ] **PK-01**: Developer can add passkeys to a new Phoenix app via `mix sigra.install --passkeys` (default on). Adds `{:wax_, "~> 0.7"}` to mix.exs; host app's `assets/package.json` gets `@simplewebauthn/browser ^13.0.0`.
+- [ ] **PK-02**: Developer can disable passkeys entirely via `mix sigra.install --no-passkeys`; no passkey templates, schemas, routes, or JS hooks are generated.
+- [ ] **PK-03**: System generates a `UserPasskey` schema (`user_id`, `credential_id` unique + unencrypted + indexed, `public_key` encrypted via the existing Cloak vault, `sign_count`, `aaguid`, `nickname`, `device_hint`, `transports` array, `rp_id`, `last_used_at`, timestamps).
+- [ ] **PK-04**: System stores `rp_id` on every `UserPasskey` row at registration time so later RP ID rotations can be detected and documented (addresses pitfall P-3).
+- [ ] **PK-05**: System exposes `Sigra.Passkeys` context with `register/3`, `authenticate/3`, `list_for_user/1`, `rename/2`, `delete/2` functions; ceremony primitives in `Sigra.Passkeys.Registration` and `Sigra.Passkeys.Authentication` wrapping `wax_`.
+- [ ] **PK-06**: System exposes `Sigra.Plug.PasskeyChallenge` that stores the WebAuthn challenge in the signed+encrypted Plug session via `Sigra.Token.generate/4` with `max_age: 60`. Challenge is server-generated, server-stored, server-verified; never accepted from `clientDataJSON` (addresses pitfall P-1 — OneUptime GHSA-gjjc-pcwp-c74m).
+- [ ] **PK-07**: System verifies the assertion response's returned `credential_id` matches a credential the requested user owns — rejects credential-confusion attacks (addresses pitfall P-6 — StrongKey CVE-2025-26788).
+- [ ] **PK-08**: System enforces sign-count monotonicity on authentication; regressions default to **`:warn`** (log + audit-event `:passkey_sign_count_regression` + banner on user's passkey list). `:require_reauth` and `:revoke` modes available via NimbleOptions config (addresses pitfall P-4). **(Decision: `:warn` default — matches Apple iCloud / Google sync credentials.)**
+- [ ] **PK-09**: System loads `rp_id`, `rp_name`, `origin`, `attestation` (default `:none`), `user_verification` (default `:preferred`), and `timeout_ms` from **runtime** config; `NimbleOptions` validates at first-use with fast-fail.
+- [ ] **PK-10**: System applies per-user rate limiting on passkey ceremony initiation via Hammer (default 5/min) to prevent ceremony-flood DoS.
 
-### Transactional Email
+### Passkeys — User-Facing (PK-UX)
 
-- [x] **EMAIL-01**: Confirmation, password reset, lockout notification, suspicious login emails
-- [x] **EMAIL-02**: Integration with Swoosh (or pluggable mailer behaviour)
-- [x] **EMAIL-03**: HTML + text multipart emails
-- [x] **EMAIL-04**: Easy email template customization (generated templates user can modify)
-- [x] **EMAIL-05**: Async delivery via Oban with inline fallback
+- [ ] **PK-UX-01**: User can enroll a passkey from account settings. Enrollment is gated by `Sigra.Plug.RequireSudo` — user must re-authenticate with password or TOTP before enrollment (addresses pitfall P-2 — stolen-session takeover).
+- [ ] **PK-UX-02**: System emails the user on every passkey registration (reusing the v1.0 suspicious-login email shape); email shows device hint, IP, city, time.
+- [ ] **PK-UX-03**: User can name (nickname) each enrolled passkey; nickname defaults to an AAGUID-derived friendly name ("iCloud Keychain", "Google Password Manager", "1Password", "Windows Hello") via a bundled AAGUID registry.
+- [ ] **PK-UX-04**: User can rename or delete a passkey (delete is sudo-gated). System maintains a soft cap of 10 passkeys per user, configurable.
+- [ ] **PK-UX-05**: User can log in via passkey as a second factor alongside TOTP on the MFA prompt (v1.1 default MFA mode for users with both). Backup codes remain available.
+- [ ] **PK-UX-06**: User can opt into passkey-as-primary login via a config-gated flag (`:passkey_primary_enabled`, default false). When enabled at the app level, users can enroll a passkey during signup and log in with email + passkey without a password. **(Decision: opt-in config with mandatory fallback.)**
+- [ ] **PK-UX-07**: Every passkey-as-primary user must have a confirmed email and magic-link recovery is always available (cannot be disabled). If passkey login fails, user can always recover via magic link (addresses pitfall P-5 — lost-device lockout).
+- [ ] **PK-UX-08**: System ships Conditional UI / passkey autofill where the browser supports it. Login email field gets `autocomplete="username webauthn"` + `navigator.credentials.get({mediation: 'conditional'})`. Feature-detected — unsupported browsers degrade gracefully to explicit-click flow. **(Decision: ship in v1.1, progressive enhancement.)**
+- [ ] **PK-UX-09**: System detects duplicate-device enrollment (credential_id collision for the same user) and returns "this passkey is already registered" rather than 500ing.
+- [ ] **PK-UX-10**: Passkey enrollment and authentication LiveViews use Phoenix JS hooks (`PasskeyRegister`, `PasskeyAuthenticate`) wrapping `@simplewebauthn/browser` — no vanilla base64url plumbing.
+- [ ] **PK-UX-11**: Passkey authentication completion POSTs to a plain controller (not a LiveView event) to rotate the Plug session, matching v1.0's "login is a plain controller" convention (D-29).
+- [ ] **PK-UX-12**: Passkey JS hooks handle browser abort, timeout, user-cancel, and AbortController scenarios cleanly — LiveView returns to a recoverable state with a clear error message (addresses pitfall P-8).
 
-### Account Lifecycle
+---
 
-- [x] **ACCT-01**: Email change with re-verification (send to new address, keep old until confirmed)
-- [x] **ACCT-02**: Password change with current password verification
-- [x] **ACCT-03**: Account deletion with configurable handling (soft delete, hard delete, anonymization)
-- [x] **ACCT-04**: Profile management hooks (callbacks for app-specific profile updates)
+### Generator Feature System (GEN)
 
-### Audit Logging
+- [ ] **GEN-01**: `mix sigra.install` uses a subdirectory-based feature manifest pattern where each feature (`core`, `organizations`, `passkeys`, future `admin`) lives under `priv/templates/sigra.install/{feature}/` and is represented by a module implementing a shared `Sigra.Install.Feature` behaviour (`enabled?/1`, `files/1`, `injections/1`). **(Load-bearing for v1.2 `--no-admin`.)**
+- [ ] **GEN-02**: v1.0 flat templates move into `priv/templates/sigra.install/core/` in a mechanical, content-preserving refactor as the first phase-1 task.
+- [ ] **GEN-03**: Generator supports combinatorial CI smoke testing: `mix sigra.install` with every combination of `--organizations`/`--no-organizations` and `--passkeys`/`--no-passkeys` produces a compiling Phoenix app (addresses pitfall X-1).
+- [ ] **GEN-04**: Generator is idempotent on re-run; injections use marker comments and skip if already present.
+- [ ] **GEN-05**: Generator prints a post-install summary showing generated / modified / skipped / manual-action files — developers see opt-outs were honored.
+- [ ] **GEN-06**: When `--passkeys` is enabled, generator detects the host app's `assets/js/app.js` injection target via a marker comment. If the marker is absent (custom esbuild/Vite/Webpack layout), generator writes the hook file, skips injection, and prints clear manual instructions with the exact import + registration lines to add. **(Decision: detect marker, never silently fail.)**
+- [ ] **GEN-07**: Migrations ship with strictly-ordered timestamps to prevent cross-feature ordering hazards during install and upgrade (addresses pitfall X-2).
 
-- [x] **AUDIT-01**: Automatic logging of all security-relevant auth events
-- [x] **AUDIT-02**: Event metadata includes user, IP, user agent, timestamp, outcome
-- [x] **AUDIT-03**: Queryable audit log API (by user, by org scope, by date range)
-- [x] **AUDIT-04**: Hook for custom events
+---
 
-### Developer Experience
+### Developer Experience (DX)
 
-- [x] **DX-01**: Testing helpers importable in ExUnit that set up auth state in one call: `YourAppWeb.ConnCase.log_in_user/3` (generated), `YourApp.Accounts.register_user/2` (generated), `Sigra.Testing.setup_totp/2`, and `Sigra.Testing.create_api_token/3`. Arities reflect real option needs (`:mfa`, `:config`); names follow phx.gen.auth convention (Phase 1 D-43) and Phase 7 D-63 (`create_api_token`, not `create_api_key`).
-- [x] **DX-02**: Comprehensive documentation with copy-paste examples
-- [x] **DX-03**: Scenario-based test fixtures for auth states
-- [x] **DX-04**: Cookie domain configuration with sensible defaults and easy override
+- [ ] **DX-01**: Testing helpers generated into `auth_fixtures.ex` and new `organization_fixtures.ex` / `passkey_fixtures.ex`: `create_organization/1`, `create_membership/3`, `log_in_user_with_org/3`, `register_passkey/2`, `authenticate_with_passkey/2`.
+- [ ] **DX-02**: Library test helpers in `Sigra.Testing`: `assert_scope_has_org/2`, `assert_membership/3`, `assert_audit_logged_for_org/2`.
+- [ ] **DX-03**: `getting-started.md` guide updated with an "Organizations & Passkeys" section covering the happy path from `mix phx.new` to a working multi-tenant app with passkey login in under 30 minutes.
+- [ ] **DX-04**: New guide `guides/introduction/upgrading-to-v1.1.md` covering the v1.0 → v1.1 upgrade path with both backfill modes, breaking-change callouts (none expected), and the upgrade test invocation.
+- [ ] **DX-05**: New guide `guides/how-to/multi-tenancy.md` explaining the logical MT model, the `for_org/2` discipline, and why Sigra rejects PG schema-per-tenant.
+- [ ] **DX-06**: New guide `guides/how-to/passkeys.md` covering enrollment flow, passkey-as-primary config, RP ID / origin / rename playbook, and recovery fallback guidance.
+- [ ] **DX-07**: CI smoke harness (existing from v1.0 phase 10.1.1) extends to cover org switcher + invitation accept + passkey registration + passkey authentication flows via Playwright.
+- [ ] **DX-08**: `mix docs --warnings-as-errors` stays clean after v1.1 additions.
+- [ ] **DX-09**: Optional Credo custom check for tenant-scope discipline: time-boxed 1-day spike in the first org phase. Ship the check if implementation stays under 300 lines; otherwise fall back to integration-test-only enforcement and document the decision in CONVENTIONS.md. **(Decision: time-box; ship if ≤300 lines.)**
 
-## v1.x Requirements
+---
 
-Deferred to follow-up releases after v1 core is solid.
+## Future Requirements (deferred to v1.2 or later)
 
-### WebAuthn / Passkeys
+- Admin user-management UI (LiveView, mobile-first, light+dark mode)
+- Admin impersonation with dual-actor audit trail
+- Expanded audit views (per-user, per-org, global, security event feed, CSV export)
+- Full usernameless resident-key-only passkey flow
+- FIDO metadata service integration (device trust scoring)
+- Cross-device passkey hand-off beyond OS/browser native support
+- Admin revocation of passkeys
+- Nested organizations / sub-orgs / workspaces
+- Full RBAC / permission policies
+- PG schema-per-tenant or DB-per-tenant modes (documented extension point only)
+- Cross-org user merging / data transfer
+- Org-level billing integration
+- SCIM directory sync
+- Organization-level branding / per-org theming
 
-- **PASSKEY-01**: Passkey registration from security settings (via Wax library)
-- **PASSKEY-02**: Passkey authentication as primary passwordless login
-- **PASSKEY-03**: Passkey as second factor (alternative to TOTP)
-- **PASSKEY-04**: Multiple passkeys per user with friendly names
+## Out of Scope (v1.1 explicit exclusions)
 
-### Additional Providers
+- **PG schema-per-tenant.** Logical MT only. Host apps needing physical isolation can layer their own adapter; Sigra documents the extension point but doesn't ship it.
+- **Auto-created "personal team" on signup.** Deliberately rejected based on Jetstream #117/#188 feedback. New signups start with zero orgs and a clear path to create or accept an invite.
+- **"Accept invitation as any logged-in user".** Email-bound HMAC + citext match assertion. Prevents SharePoint-class identity confusion.
+- **Unbounded invite lifetime.** Default 7d, recommended ceiling 30d.
+- **Passkey without recovery fallback.** Every passkey-as-primary user has mandatory magic-link recovery.
+- **Attestation `:direct` default.** Breaks consumer flows. `:none` default per FIDO Alliance consumer UX guidelines.
+- **`userVerification: required` default.** Use `:preferred` to avoid fingerprint-only lockouts on cheap authenticators.
+- **Custom role models beyond owner/admin/member.** Host apps layer on top.
+- **Full RBAC / permission policies.** Stays out of Sigra's scope per PROJECT.md Key Decisions.
+- **Admin cross-org management UI.** v1.2.
+- **Admin impersonation.** v1.2 (though v1.1 reserves the scope field + audit column so v1.2 is purely additive).
 
-- **PROV-01**: Additional OAuth providers beyond tier 1-2 (Discord, Slack, Twitter, etc.)
-
-## v2 Requirements
-
-Deferred to future milestone.
-
-### Organizations / Multi-Tenancy
-
-- **ORG-01**: Organizations with memberships join table and tenant-scoped roles
-- **ORG-02**: Invitation flow (signed token, email, role, expiration)
-- **ORG-03**: Organization context in auth (current_org, current_membership)
-- **ORG-04**: Role-based access (owner, admin, member, viewer + custom roles)
-- **ORG-05**: Verified domains for auto-join
-
-### Admin / Impersonation
-
-- **ADMIN-01**: Admin impersonation of other users (Scope struct carries `impersonated_by`)
-- **ADMIN-02**: Impersonation audit trail
-
-### Enterprise SSO
-
-- **SSO-01**: Enterprise SSO per organization (SAML 2.0 / OIDC per org)
-- **SSO-02**: JIT user provisioning from SSO assertion
-
-## Out of Scope
-
-| Feature | Reason |
-|---------|--------|
-| SAML support (v1) | Enterprise SSO protocol, high maintenance burden, low SaaS builder need. Architecture extensible for future plugin. |
-| Acting as OAuth/OIDC identity provider | Enterprise B2B concern, dramatically expands scope. Architecture should not prevent future addition. |
-| SCIM directory sync | Enterprise feature, extremely high scope. |
-| Authorization (RBAC, permissions, policies) | Separate concern. Sigra provides identity context; authorization builds on top. |
-| SMS OTP as primary MFA | NIST deprecated for primary factor. Document the pattern, leave integration to developer. |
-| Permanent account lockout | DoS vector. Always temporary with configurable duration. |
-| Macro-based schema injection | Explicitly anti-pattern (killed Pow). Generated schemas are plain Ecto. |
-| Database adapter abstraction | Killed Lucia. Sigra is Ecto-first, no adapter layer. |
+---
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+All 79 v1.1 requirements mapped to exactly one phase. Coverage: 79/79 (100%).
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| FOUND-01 | Phase 1 | Complete |
-| FOUND-02 | Phase 1 | Complete |
-| FOUND-03 | Phase 1 | Complete |
-| FOUND-04 | Phase 1 | Complete |
-| FOUND-05 | Phase 1 | Complete |
-| FOUND-06 | Phase 1 | Complete |
-| FOUND-07 | Phase 1 | Complete |
-| FOUND-08 | Phase 1 | Complete |
-| FOUND-09 | Phase 1 | Complete |
-| FOUND-10 | Phase 1 | Complete |
-| AUTH-01 | Phase 2 | Complete |
-| AUTH-02 | Phase 2 | Complete |
-| AUTH-03 | Phase 2 | Complete |
-| AUTH-04 | Phase 2 | Complete |
-| AUTH-05 | Phase 2 | Complete |
-| AUTH-06 | Phase 2 | Complete |
-| AUTH-07 | Phase 2 | Complete |
-| CONF-01 | Phase 3 | Complete |
-| CONF-02 | Phase 3 | Complete |
-| CONF-03 | Phase 3 | Complete |
-| CONF-04 | Phase 3 | Complete |
-| CONF-05 | Phase 3 | Complete |
-| CONF-06 | Phase 3 | Complete |
-| RESET-01 | Phase 3 | Complete |
-| RESET-02 | Phase 3 | Complete |
-| RESET-03 | Phase 3 | Complete |
-| RESET-04 | Phase 3 | Complete |
-| RESET-05 | Phase 3 | Complete |
-| EMAIL-01 | Phase 3 | Complete |
-| EMAIL-02 | Phase 3 | Complete |
-| EMAIL-03 | Phase 3 | Complete |
-| EMAIL-04 | Phase 3 | Complete |
-| EMAIL-05 | Phase 3 | Complete |
-| SESS-01 | Phase 4 | Complete |
-| SESS-02 | Phase 4 | Complete |
-| SESS-03 | Phase 4 | Complete |
-| SESS-04 | Phase 4 | Complete |
-| SESS-05 | Phase 4 | Complete |
-| SESS-06 | Phase 4 | Complete |
-| SESS-07 | Phase 4 | Complete |
-| SESS-08 | Phase 4 | Complete |
-| SEC-01 | Phase 4 | Complete |
-| SEC-02 | Phase 4 | Complete |
-| SEC-03 | Phase 4 | Complete |
-| SEC-04 | Phase 4 | Complete |
-| SEC-05 | Phase 4 | Complete |
-| SEC-06 | Phase 4 | Complete |
-| SEC-07 | Phase 4 | Complete |
-| OAUTH-01 | Phase 5 | Complete |
-| OAUTH-02 | Phase 5 | Complete |
-| OAUTH-03 | Phase 5 | Complete |
-| OAUTH-04 | Phase 5 | Complete |
-| OAUTH-05 | Phase 5 | Complete |
-| OAUTH-06 | Phase 5 | Complete |
-| OAUTH-07 | Phase 5 | Complete |
-| OAUTH-08 | Phase 5 | Complete |
-| MFA-01 | Phase 6 | Complete |
-| MFA-02 | Phase 6 | Complete |
-| MFA-03 | Phase 6 | Complete |
-| MFA-04 | Phase 6 | Complete |
-| MFA-05 | Phase 6 | Complete |
-| MFA-06 | Phase 6 | Complete |
-| MFA-07 | Phase 6 | Complete |
-| MFA-08 | Phase 6 | Complete |
-| MFA-09 | Phase 6 | Complete |
-| API-01 | Phase 7 | Complete |
-| API-02 | Phase 7 | Complete |
-| API-03 | Phase 7 | Complete |
-| API-04 | Phase 7 | Complete |
-| API-05 | Phase 7 | Complete |
-| API-06 | Phase 7 | Complete |
-| API-07 | Phase 7 | Complete |
-| ACCT-01 | Phase 8 | Complete |
-| ACCT-02 | Phase 8 | Complete |
-| ACCT-03 | Phase 8 | Complete |
-| ACCT-04 | Phase 8 | Complete |
-| SESS-09 | Phase 8 | Complete |
-| AUDIT-01 | Phase 9 | Complete |
-| AUDIT-02 | Phase 9 | Complete |
-| AUDIT-03 | Phase 9 | Complete |
-| AUDIT-04 | Phase 9 | Complete |
-| DX-01 | Phase 10 | Complete |
-| DX-02 | Phase 10 | Complete |
-| DX-03 | Phase 10 | Complete |
-| DX-04 | Phase 10 | Complete |
-
-**Coverage:**
-- v1 requirements: 85 total
-- Mapped to phases: 85
-- Unmapped: 0
-
-**Note:** REQUIREMENTS.md originally listed 80 requirements; actual count is 85 (SESS has 9, not grouped as 8; all categories counted individually at roadmap creation).
-
-*Last updated: 2026-04-10 — milestone v1.0 audit: all 85 v1 requirements verified by per-phase VERIFICATION.md, traceability table flipped Pending → Complete.*
-
----
-*Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after roadmap creation — full traceability added*
+| REQ-ID | Phase |
+|--------|-------|
+| ORG-01 | 13 |
+| ORG-02 | 18 |
+| ORG-03 | 13 |
+| ORG-04 | 13 |
+| ORG-05 | 13 |
+| ORG-06 | 13 |
+| ORG-07 | 13 |
+| ORG-08 | 13 |
+| ORG-SCOPE-01 | 12 |
+| ORG-SCOPE-02 | 12 |
+| ORG-SCOPE-03 | 14 |
+| ORG-SCOPE-04 | 14 |
+| ORG-SCOPE-05 | 14 |
+| ORG-SCOPE-06 | 14 |
+| ORG-UX-01 | 16 |
+| ORG-UX-02 | 16 |
+| ORG-UX-03 | 16 |
+| ORG-UX-04 | 16 |
+| ORG-UX-05 | 16 |
+| ORG-UX-06 | 16 |
+| ORG-UX-07 | 16 |
+| ORG-UX-08 | 16 |
+| ORG-UX-09 | 16 |
+| ORG-UPGRADE-01 | 18 |
+| ORG-UPGRADE-02 | 18 |
+| ORG-UPGRADE-03 | 18 |
+| INV-01 | 17 |
+| INV-02 | 17 |
+| INV-03 | 17 |
+| INV-04 | 17 |
+| INV-05 | 17 |
+| INV-06 | 17 |
+| INV-07 | 17 |
+| INV-08 | 17 |
+| INV-09 | 17 |
+| INV-10 | 17 |
+| AUD-01 | 15 |
+| AUD-02 | 15 |
+| AUD-03 | 15 |
+| AUD-04 | 15 |
+| AUD-05 | 15 |
+| PK-01 | 19 |
+| PK-02 | 22 |
+| PK-03 | 19 |
+| PK-04 | 19 |
+| PK-05 | 19 |
+| PK-06 | 20 |
+| PK-07 | 19 |
+| PK-08 | 19 |
+| PK-09 | 20 |
+| PK-10 | 20 |
+| PK-UX-01 | 21 |
+| PK-UX-02 | 21 |
+| PK-UX-03 | 21 |
+| PK-UX-04 | 21 |
+| PK-UX-05 | 21 |
+| PK-UX-06 | 21 |
+| PK-UX-07 | 21 |
+| PK-UX-08 | 21 |
+| PK-UX-09 | 21 |
+| PK-UX-10 | 21 |
+| PK-UX-11 | 21 |
+| PK-UX-12 | 21 |
+| GEN-01 | 11 |
+| GEN-02 | 11 |
+| GEN-03 | 18 |
+| GEN-04 | 11 |
+| GEN-05 | 11 |
+| GEN-06 | 20 |
+| GEN-07 | 11 |
+| DX-01 | 23 |
+| DX-02 | 23 |
+| DX-03 | 23 |
+| DX-04 | 23 |
+| DX-05 | 23 |
+| DX-06 | 23 |
+| DX-07 | 23 |
+| DX-08 | 23 |
+| DX-09 | 23 |

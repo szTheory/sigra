@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: awaiting-next-phase
-stopped_at: Phase 10.1.1 complete (all 8 plans + PR #5 merged as 3d24be8)
-last_updated: "2026-04-11T16:41:46.065Z"
-last_activity: 2026-04-11
+milestone: v1.1
+milestone_name: Foundations
+status: executing
+stopped_at: Phase 11 context gathered
+last_updated: "2026-04-12T02:01:39.533Z"
+last_activity: "2026-04-11 -- Phase 11 shipped (PR #7)"
 progress:
-  total_phases: 12
-  completed_phases: 12
-  total_plans: 60
-  completed_plans: 60
+  total_phases: 15
+  completed_phases: 1
+  total_plans: 6
+  completed_plans: 6
   percent: 100
 ---
 
@@ -18,56 +18,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-05)
+See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 10.1.1 — example-app-repair-ci-install-usage-smoke-harness
+**Current focus:** Phase 11 — generator-feature-system
 
 ## Current Position
 
-Phase: 10.1.1 (example-app-repair-ci-install-usage-smoke-harness) — EXECUTING
-Plan: 8 of 8
-Status: Ready to execute
-Last activity: 2026-04-11
+Phase: 11 (generator-feature-system) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 11
+Last activity: 2026-04-11 -- Phase 11 shipped (PR #7)
 
-Progress: [░░░░░░░░░░] 0%
-
-## Performance Metrics
-
-**Velocity:**
-
-- Total plans completed: 46
-- Average duration: -
-- Total execution time: 0 hours
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01 | 3 | - | - |
-| 02 | 2 | - | - |
-| 03 | 6 | - | - |
-| 04 | 6 | - | - |
-| 05 | 3 | - | - |
-| 06 | 5 | - | - |
-| 07 | 4 | - | - |
-| 08 | 5 | - | - |
-| 09 | 5 | - | - |
-| 10.1 | 7 | - | - |
-
-**Recent Trend:**
-
-- Last 5 plans: -
-- Trend: -
-
-*Updated after each plan completion*
-| Phase 10.1.1 P01 | 10min | 3 tasks | 3 files |
-| Phase 10.1.1 P02 | 12min | 2 tasks | 6 files |
-| Phase 10.1.1 P03 | 17min | 2 tasks | 7 files |
-| Phase 10.1.1 P04 | 15min | 2 tasks | 7 files |
-| Phase 10.1.1 P05 | 8min | 3 tasks | 17 files |
-| Phase 10.1.1 P06 | 3min | 3 tasks | 4 files |
-| Phase 10.1.1 P07 | 11min | 3 tasks | 9 files |
+Progress: [░░░░░░░░░░] 0% (0/13 phases complete)
 
 ## Accumulated Context
 
@@ -76,41 +39,30 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Foundation: Hybrid lib+generator boundary — security-critical code in library dep, customizable UX in generated code
-- Foundation: No macro-based schema injection — generated schemas are plain Ecto calling library functions
-- Foundation: Opaque database-backed tokens for sessions — no JWT for browser auth
-- Foundation: Ecto-only data layer — no adapter abstraction
-- Foundation: Behaviours + callbacks at every extensibility point — no macros
-- [Phase 10.1.1]: Restored ex_doc default formatters ['html','markdown'] in docs/0 rather than deleting the override — intent stays documented at the call site
-- [Phase 10.1.1]: UAT runbook brew Postgres restore command duplicated in prerequisite AND teardown sections — end-of-session operators are unlikely to scroll back
-- [Phase 10.1.1]: Phase 10.1.1: Used existing host-app helper deliver_user_confirmation_instructions/2 instead of non-existent Sigra.Auth.request_confirmation/2 that RESEARCH.md referenced
-- [Phase 10.1.1]: B6: picked Sigra.SessionStores.Ecto as single source of truth; legacy user_tokens context='session' path deleted from both example and installer template
-- [Phase 10.1.1]: Plan snippet bug fixed inline: Base.url_decode64 required before Sigra.Token.hash_token — raw session token is Base64url-encoded, stored hash is SHA-256 of raw bytes
-- [Phase 10.1.1]: B9/D-12: login page is a plain controller in BOTH --live and --no-live modes; LiveView's <.form> registers phx-submit and swallows browser submits
-- [Phase 10.1.1]: Plan 10.1.1-05: B8 root cause was two-layered — type mismatch AND audit_schema not wired; fixed both in example_app and installer template (Rule 2)
-- [Phase 10.1.1]: Plan 10.1.1-05: D-10 installer default flipped to binary_id: true via Keyword.get(opts, :binary_id, true); sigra.gen.oauth aligned; D-11 respected — no --primary-key flag added
-- [Phase 10.1.1]: Plan 10.1.1-06: --yes on mix sigra.install is a no-op placeholder (grep confirmed no interactive surface) — accepted by OptionParser and discarded, documented in @moduledoc
-- [Phase 10.1.1]: Plan 10.1.1-06: install_smoke + example_http_smoke run parallel (no needs:) to keep PR wall clock at max(jobs) rather than sum; http-smoke gates on 5xx only so 302-to-login is success
-- [Phase 10.1.1]: Plan 10.1.1-07: Playwright Test chosen for browser smoke (frameLocator iframe support for Swoosh mailbox); otplib TOTP defaults align with NimbleTOTP defaults — no config drift
-- [Phase 10.1.1]: Plan 10.1.1-07: SHA-pinned actions/setup-node v4.0.4 + actions/upload-artifact v4.4.3 on introduction; D-15 honored — retries live in playwright.config.ts, never at the Actions layer
-
-### Roadmap Evolution
-
-- Phase 10.1 inserted after Phase 10: Installer and library fixes — deferred items from phase 10 review/security/validation (URGENT)
-- Phase 10.1.1 inserted after Phase 10.1: example-app repair + CI install/usage smoke harness — 9 DX bugs found during v1.0 UAT session, see .planning/v1.0-UAT-RESULTS.md (URGENT, v1.0 blocker)
+- v1.1 scope split decided 2026-04-11: Organizations + Passkeys in v1.1 "Foundations"; Admin UI + Impersonation + expanded Audit views deferred to v1.2 "Admin Dashboard". Reason: orgs is architecturally foundational and retrofitting it into an admin UI later would be painful. Rationale captured in `/Users/jon/.claude/plans/breezy-beaming-beacon.md`.
+- v1.1 Organizations: logical multi-tenancy only — single DB, single PG schema, `org_id` FK pattern. No PG-schema-per-tenant or DB-per-tenant modes. Document extension point for host apps that need physical isolation.
+- v1.1 Organizations: 3-enum role convention (`owner` / `admin` / `member`). Full RBAC / permission policies remain out of Sigra's scope per PROJECT.md Key Decisions.
+- v1.1 will introduce the first conditional generator template pattern (via `--organizations` / `--passkeys` flags). This pattern is load-bearing for v1.2's `--admin` / `--no-admin` and must be designed carefully — **locked into Phase 11 as foundation**.
+- v1.2 full direction earmarked in `.planning/v1.2-DIRECTION.md` (dormant). Reconfirm with user at v1.2 kick-off time; do not execute against it directly.
+- Roadmap numbering: v1.1 phases start at 11 (continuing from v1.0 phase 10.1.1). 999.x backlog phases retained in place.
+- Phase order respects the ARCHITECTURE.md Part D dependency graph: phase 11 + 12 are strict foundation; phases 13–18 (org track) and 19–21 (passkey track) run in parallel after foundation lands; phases 18 and 22 are serialization points; phase 23 gates the release.
+- Every v1.2 load-bearing decision is embedded in the phase that ships it: reserved `:impersonating_from` field (phase 12), real `effective_user_id` audit column (phase 15), subdir feature manifest (phase 11), `admin` in reserved slug list (phase 13), nilify-on-delete FK (phase 13), `Sigra.Workers` behaviour (phase 15), passkey enrollment sudo gate (phase 21).
 
 ### Pending Todos
 
-None yet.
+- Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
+- Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
+- Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
+- Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
 
 ### Blockers/Concerns
 
-- Phase 4 (MFA): Session state machine for `mfa_pending` → `mfa_complete` is complex — draw out state diagram before coding (flagged in research)
-- Phase 3 (OAuth): Account linking confirmation flow has security implications — review PITFALLS.md section 7 before implementation
-- Phase 1: Multi-database migration generation for MySQL/SQLite — map DDL differences (citext, etc.) before generator is built
+- Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before phases 12+ build on top.
+- `test/upgrade_test.exs` fixture (phase 18) is a hard deliverable before the release gate in phase 23 — do not let it slip.
+- Phase 19 kickoff spikes are MEDIUM confidence; if `wax_ 0.7` struct shapes diverge from assumption, `Sigra.Passkeys.Registration` may need light reshape.
 
 ## Session Continuity
 
-Last session: 2026-04-11T01:41:47.939Z
-Stopped at: Completed 10.1.1-07-PLAN.md
-Resume file: None
+Last session: 2026-04-11T23:03:02.449Z
+Stopped at: Phase 11 context gathered
+Resume file: .planning/phases/11-generator-feature-system/11-CONTEXT.md

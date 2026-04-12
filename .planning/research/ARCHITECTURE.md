@@ -1,513 +1,475 @@
-# Architecture Research
+# Architecture Research — Sigra v1.1 Foundations Integration Plan
 
-**Domain:** Elixir/Phoenix authentication library (hybrid lib+generator)
-**Researched:** 2026-04-04
-**Confidence:** HIGH
-
-## Standard Architecture
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      INTEGRATION LAYER                           │
-│  ┌────────────────┐  ┌─────────────────┐  ┌──────────────────┐  │
-│  │ HTTP Plug      │  │ LiveView        │  │ API / Channel    │  │
-│  │ Pipeline       │  │ on_mount hooks  │  │ Plugs            │  │
-│  └───────┬────────┘  └────────┬────────┘  └────────┬─────────┘  │
-│          └────────────────────┼─────────────────────┘           │
-├───────────────────────────────┼─────────────────────────────────┤
-│                  AUTH CONTEXT (generated: MyApp.Auth)            │
-│          Phoenix context — the public API boundary               │
-│  register_user/1 · authenticate/2 · issue_session/1             │
-│  change_password/2 · enroll_totp/1 · verify_api_key/1 ...       │
-├───────────────────────────────┼─────────────────────────────────┤
-│                    LIBRARY CORE (Sigra.*) — in dep               │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐    │
-│  │  Password   │  │  Token       │  │  Session             │    │
-│  │  Hashing    │  │  Generation  │  │  Management          │    │
-│  └─────────────┘  └──────────────┘  └──────────────────────┘    │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐    │
-│  │  OAuth /    │  │  MFA / TOTP  │  │  WebAuthn            │    │
-│  │  Assent     │  │  NimbleTOTP  │  │  Wax                 │    │
-│  └─────────────┘  └──────────────┘  └──────────────────────┘    │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐    │
-│  │  Rate       │  │  Audit       │  │  Email               │    │
-│  │  Limiting   │  │  Logging     │  │  Delivery (Swoosh)   │    │
-│  └─────────────┘  └──────────────┘  └──────────────────────┘    │
-├───────────────────────────────────────────────────────────────── ┤
-│                      DATA LAYER (Ecto)                           │
-│  users · user_tokens · user_identities · mfa_credentials        │
-│  passkey_credentials · api_keys · sessions · audit_log          │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-The key architectural insight is the **boundary between library and generated code**:
-
-- **Library (dep):** All security-critical operations. Password hashing, HMAC token generation/verification, TOTP validation, WebAuthn ceremonies, rate limiting logic. Security patches propagate automatically via `mix deps.update sigra`.
-- **Generated (owned by dev):** Routes, controllers/LiveViews, Ecto schemas, the `MyApp.Auth` context module. Developers edit these freely without fighting framework internals.
-- **Contract:** The generated context module calls library functions for every security-sensitive operation. The library never touches `Plug.Conn` or schema structs directly — those are the developer's domain.
-
-### Component Responsibilities
-
-| Component | Responsibility | Hybrid Position |
-|-----------|----------------|-----------------|
-| `Sigra.Password` | Argon2id hashing, bcrypt migration, constant-time compare | Library (dep) |
-| `Sigra.Token` | HMAC-protected token generation, verification, single-use enforcement | Library (dep) |
-| `Sigra.Session` | Session lifecycle, idle/absolute timeouts, device tracking | Library (dep) |
-| `Sigra.OAuth` | Assent integration, callback handling, provider normalization | Library (dep) |
-| `Sigra.MFA` | TOTP via NimbleTOTP, backup codes, WebAuthn via Wax | Library (dep) |
-| `Sigra.RateLimit` | Per-IP and per-account lockout via ETS/Hammer | Library (dep) |
-| `Sigra.Audit` | Structured security event logging | Library (dep) |
-| `Sigra.Email` | Mailer behaviours, Swoosh templates | Library (dep) |
-| `MyApp.Auth` | Phoenix context — public API, orchestrates library calls | Generated |
-| `MyApp.UserAuth` | Plugs: `require_authenticated_user`, `fetch_current_scope`, etc. | Generated |
-| `MyApp.Auth.Scope` | Scope struct carrying user + org + metadata | Generated |
-| Ecto Schemas | `User`, `UserToken`, `UserIdentity`, `ApiKey`, etc. | Generated (migrations too) |
-| LiveView pages | Login, register, MFA setup, session list, OAuth flows | Generated (optional) |
-| Router | `live_session` blocks, pipeline definitions, OAuth callbacks | Generated |
-
-## Recommended Project Structure
-
-```
-lib/
-├── sigra/                        # Library — ships as dep
-│   ├── password.ex               # Argon2id hashing + migration logic
-│   ├── token.ex                  # HMAC token generation + verification
-│   ├── session.ex                # Session lifecycle helpers
-│   ├── rate_limit.ex             # ETS-backed IP + account limiter
-│   ├── audit.ex                  # Structured audit log writer
-│   ├── oauth/
-│   │   ├── assent.ex             # Assent adapter and normalization
-│   │   └── providers.ex          # Provider config helpers
-│   ├── mfa/
-│   │   ├── totp.ex               # NimbleTOTP wrapper + backup codes
-│   │   └── webauthn.ex           # Wax ceremony wrappers
-│   ├── email/
-│   │   ├── mailer_behaviour.ex   # @behaviour for swappable mailers
-│   │   └── templates/            # Default Swoosh email templates
-│   ├── plug/
-│   │   ├── require_auth.ex       # Reusable plug (devs can also use generated)
-│   │   └── dual_mode_auth.ex     # Session-or-bearer detection
-│   └── telemetry.ex              # :telemetry event definitions
-│
-# Generated into developer's project:
-lib/my_app/
-│   └── auth/
-│       ├── auth.ex               # Context module — the public API
-│       ├── scope.ex              # Scope struct
-│       ├── user.ex               # User schema
-│       ├── user_token.ex         # UserToken schema
-│       ├── user_identity.ex      # OAuth identity schema
-│       ├── mfa_credential.ex     # TOTP/WebAuthn credential schema
-│       └── api_key.ex            # API key schema
-│
-lib/my_app_web/
-│   ├── user_auth.ex              # Auth plugs + on_mount hooks
-│   └── live/auth/
-│       ├── login_live.ex
-│       ├── register_live.ex
-│       ├── confirm_live.ex
-│       ├── reset_password_live.ex
-│       ├── mfa_setup_live.ex
-│       └── sessions_live.ex      # Active session management UI
-│
-priv/repo/migrations/             # Generated per-feature migrations
-```
-
-### Structure Rationale
-
-- **`lib/sigra/`:** Everything that must stay in the dep for security patch propagation. No Phoenix-specific code here — pure functions or process wrappers only. Stays testable in isolation.
-- **`lib/my_app/auth/`:** The Phoenix context boundary. Developers own this code. It's the only place that orchestrates across schemas and library calls. Controllers and LiveViews never bypass this.
-- **`lib/my_app_web/user_auth.ex`:** Plug/LiveView integration layer generated into the app. Provides `on_mount` hooks for `live_session` blocks and `require_authenticated_user` plugs for router pipelines. Reads from `MyApp.Auth` context only.
-- **`priv/repo/migrations/`:** One migration per feature (Rodauth-inspired). Clean install generates only the tables needed for the features selected.
-
-## Architectural Patterns
-
-### Pattern 1: Per-Request Auth Context (Rodauth-Inspired)
-
-**What:** A lightweight struct (`Sigra.AuthContext`) is constructed at the start of each request and carried via `conn.assigns.current_scope` (HTTP) or `socket.assigns.current_scope` (LiveView). It holds the resolved user, organization, active session metadata, and MFA state. All auth operations in the request read from and return updated context structs — there is no global auth state.
-
-**When to use:** Everywhere in the request lifecycle. The context struct is the single source of truth for "who is this user and what do they have access to" during a request.
-
-**Trade-offs:** Slightly more plumbing at request boundaries vs. implicit current_user patterns. Major benefit: testable, inspectable, no process state leakage between requests.
-
-**Example:**
-```elixir
-# In the generated fetch_current_scope_for_user plug:
-defp fetch_current_scope_for_user(conn, _opts) do
-  token = get_session(conn, :user_token)
-  case Sigra.Session.verify_token(token, MyApp.Repo) do
-    {:ok, session} ->
-      scope = MyApp.Auth.Scope.for_session(session)
-      assign(conn, :current_scope, scope)
-    :error ->
-      assign(conn, :current_scope, nil)
-  end
-end
-
-# In a generated on_mount hook for LiveView:
-def on_mount(:require_authenticated_user, _params, session, socket) do
-  token = session["user_token"]
-  case Sigra.Session.verify_token(token, MyApp.Repo) do
-    {:ok, sess} ->
-      {:cont, assign(socket, :current_scope, MyApp.Auth.Scope.for_session(sess))}
-    :error ->
-      {:halt, redirect(socket, to: ~p"/login")}
-  end
-end
-```
-
-### Pattern 2: Dual-Mode Authentication (Browser + API)
-
-**What:** A plug that detects whether the request is browser-based (session cookie) or API-based (Bearer token) and runs the appropriate auth path. Both paths produce a `current_scope` assign of the same shape — downstream code never knows which path was used.
-
-**When to use:** Routes that must serve both browser sessions and programmatic API access. Implemented as `Sigra.Plug.DualModeAuth` in the library; devs include it in their `:api_and_browser` pipeline.
-
-**Trade-offs:** Slight complexity in the plug; avoids duplicating every route for browser vs API. Session-heavy endpoints get minimal overhead since the bearer check short-circuits.
-
-**Example:**
-```elixir
-defmodule MyAppWeb.Router do
-  pipeline :authenticated do
-    plug :fetch_session
-    plug MyAppWeb.UserAuth, :fetch_current_scope_for_user
-  end
-
-  pipeline :api_auth do
-    plug Sigra.Plug.DualModeAuth,
-      session_fn: &MyApp.Auth.get_user_by_session_token/1,
-      bearer_fn: &MyApp.Auth.get_user_by_api_key/1
-  end
-end
-```
-
-### Pattern 3: Behaviour + Callback Extensibility
-
-**What:** Each pluggable concern in Sigra (mailer, rate limiter, session store) is defined as an Elixir `@behaviour`. The library ships default implementations. Developers swap implementations by passing module references — no macro injection, no hidden overrides.
-
-**When to use:** Any place where the library must call outward into developer infrastructure (sending email, storing rate limit state, custom session backends).
-
-**Trade-offs:** Slightly more verbose configuration than "magic" DSLs. Benefit: compiler-checked callbacks, no hidden code generation, easy to mock in tests.
-
-**Example:**
-```elixir
-# In config/config.exs (generated):
-config :sigra,
-  mailer: MyApp.Mailer,          # implements Sigra.Mailer behaviour
-  rate_limiter: Sigra.RateLimit.ETS,  # or Sigra.RateLimit.Hammer
-  repo: MyApp.Repo
-
-# The mailer behaviour:
-defmodule Sigra.Mailer do
-  @callback deliver_confirmation(user :: map(), token :: String.t()) ::
-              {:ok, term()} | {:error, term()}
-  @callback deliver_password_reset(user :: map(), token :: String.t()) ::
-              {:ok, term()} | {:error, term()}
-end
-```
-
-### Pattern 4: Progressive Authentication States
-
-**What:** Authentication is not binary (authenticated / not). Sigra models a progression: anonymous → email-verified → password-authenticated → MFA-pending → fully-authenticated → sudo-mode. The `Scope` struct carries this state, and plugs/on_mount hooks match against specific states.
-
-**When to use:** Whenever a route needs more nuance than `require_authenticated_user`. For example, the MFA setup page requires `email-verified` but not `mfa-complete`. Sudo mode pages require `fully-authenticated` within the last N minutes.
-
-**Trade-offs:** More states to reason about, but prevents the common bug of bypassing MFA by navigating directly to a protected URL after email verification.
-
-**Example:**
-```elixir
-defmodule MyApp.Auth.Scope do
-  @type auth_state ::
-    :anonymous
-    | :email_verified
-    | :authenticated
-    | :mfa_pending        # authenticated but MFA step required
-    | :mfa_complete       # fully authenticated
-    | :sudo               # re-authenticated recently
-
-  defstruct [:user, :session, :auth_state, :organization, :ip, :user_agent]
-end
-
-# Plug usage:
-plug MyAppWeb.UserAuth, :require_mfa_complete  # enforces :mfa_complete state
-plug MyAppWeb.UserAuth, :require_sudo          # enforces :sudo state
-```
-
-### Pattern 5: Separate Tables Per Concern (Rodauth-Inspired)
-
-**What:** Auth-relevant data lives in purpose-specific tables rather than one fat `users` table. Each table has a narrow responsibility and its own migration.
-
-**When to use:** Default design. Every auth concept gets its own table.
-
-**Trade-offs:** More tables, more joins. Benefit: schema evolution per feature, clear ownership boundaries, Rodauth proved this at scale.
-
-**Core tables:**
-- `users` — stable identity anchor: id, email (citext), confirmed_at, locked_at
-- `user_tokens` — sessions + email flow tokens: user_id, token_hash, context, expires_at
-- `user_identities` — OAuth credentials: user_id, provider, uid, access_token (encrypted)
-- `mfa_credentials` — TOTP/WebAuthn: user_id, type, secret (encrypted), backup_code_hashes
-- `passkey_credentials` — WebAuthn passkeys: user_id, credential_id, public_key, sign_count
-- `api_keys` — API access: user_id, key_hash, key_prefix, scopes, expires_at, revoked_at
-- `sessions` — tracked sessions: user_id, token_hash, ip, user_agent, last_active_at
-- `audit_log` — security events: user_id, action, ip, user_agent, metadata (JSONB)
-
-## Data Flow
-
-### Browser Login Flow (Session-Based)
-
-```
-User submits login form (HTTP POST — not LiveView event)
-    ↓
-Router :browser pipeline → fetch_session plug → CSRF check
-    ↓
-MyApp.AuthController.create/2
-    ↓
-MyApp.Auth.authenticate(email, password)  [generated context fn]
-    ↓
-    ├── Sigra.Password.verify(input, hash)        [lib: constant-time]
-    ├── Sigra.RateLimit.check_attempt(ip, email)  [lib: ETS bucket]
-    └── {:ok, user} | {:error, reason}
-    ↓
-MyApp.Auth.issue_session_token(user)  [generated]
-    ↓
-Sigra.Token.generate_session(user_id, repo)  [lib: HMAC-protected]
-    ↓
-put_session(conn, :user_token, token)
-redirect(conn, to: ~p"/dashboard")
-```
-
-### LiveView Auth State Propagation
-
-```
-Browser connects WebSocket (session cookie carried)
-    ↓
-live_session :require_authenticated_user,
-  on_mount: [{MyAppWeb.UserAuth, :require_authenticated_user}]
-    ↓
-on_mount callback reads session["user_token"]
-    ↓
-Sigra.Session.verify_token(token, repo)  [lib]
-    ↓
-{:cont, assign(socket, :current_scope, scope)}
-    ↓
-All LiveViews in session block receive current_scope in assigns
-    ↓
-On logout: MyApp.Auth.log_out(socket)
-           Phoenix.Endpoint.broadcast("users_socket:#{id}", "disconnect", %{})
-```
-
-### API Bearer Token Flow
-
-```
-API client: GET /api/resource
-  Authorization: Bearer myapp_live_abc123...
-    ↓
-Router :api pipeline → Sigra.Plug.DualModeAuth
-    ↓
-Extract token from Authorization header
-    ↓
-MyApp.Auth.get_user_by_api_key(token)  [generated]
-    ↓
-Sigra.Token.verify_api_key(prefix, raw, repo)  [lib: hash lookup]
-    ↓
-{:ok, %Scope{user: user, auth_state: :authenticated}} | {:error, :unauthorized}
-    ↓
-Controller receives current_scope — same shape as browser flow
-```
-
-### OAuth Callback Flow
-
-```
-User clicks "Sign in with Google"
-    ↓
-MyApp.AuthController.oauth_request/2 (generated)
-    ↓
-Sigra.OAuth.authorize_url(provider, session_params)  [lib via Assent]
-    ↓
-Redirect to provider
-    ↓
-Provider callback: GET /auth/google/callback
-    ↓
-Sigra.OAuth.callback(provider, params, session_params)  [lib via Assent]
-    ↓
-{:ok, %{user: claims, token: oauth_token}}
-    ↓
-MyApp.Auth.find_or_create_from_oauth(provider, claims, oauth_token)  [generated]
-    ↓
-    ├── Upsert user_identities row
-    ├── Find or create users row
-    └── Issue session token
-    ↓
-put_session + redirect to dashboard
-```
-
-### MFA Step-Up Flow
-
-```
-User logs in with password → Scope: :authenticated
-    ↓
-Route has plug :require_mfa_complete
-    ↓
-Plug detects auth_state != :mfa_complete, redirects to /mfa/verify
-    ↓
-User submits TOTP code (HTTP POST)
-    ↓
-Sigra.MFA.verify_totp(secret_enc, code)  [lib via NimbleTOTP]
-    ↓
-{:ok, :valid} → update Scope: :mfa_complete → update session token
-    ↓
-Redirect to original destination
-```
-
-### Email Token Flow (Confirmation / Password Reset)
-
-```
-MyApp.Auth.deliver_confirmation_email(user)  [generated]
-    ↓
-Sigra.Token.generate_email_token(user_id, context: :confirm)  [lib]
-    ↓
-Store hashed token in user_tokens table, return raw token
-    ↓
-Sigra.Email.deliver_confirmation(user, raw_token)  [lib, via mailer behaviour]
-    ↓
-User clicks link: GET /confirm/:token
-    ↓
-Sigra.Token.verify_email_token(raw_token, :confirm, repo)  [lib]
-    ↓
-Single-use: delete token row in same transaction
-    ↓
-{:ok, user} → mark user confirmed_at
-```
-
-## Scaling Considerations
-
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| 0-1k users | Default setup. Single Postgres instance. ETS for rate limiting (per-node, good enough). Inline email delivery via Swoosh. |
-| 1k-100k users | Rate limiting via Redis/Hammer. Oban for async email delivery and session cleanup jobs. Session table indexed on user_id + context. Read replicas for token lookups if needed. |
-| 100k+ users | Postgres partitioning on `user_tokens` and `audit_log` by date. Distributed rate limiting via centralized counter. Consider caching session verification in ETS with TTL. Audit log may need separate archival store. |
-
-### Scaling Priorities
-
-1. **First bottleneck:** `user_tokens` table becomes hot on every request (session lookup). Fix: index on `(token_hash, context)`, add `expires_at` to allow bulk cleanup, consider a caching layer for session verification.
-2. **Second bottleneck:** `audit_log` grows unbounded. Fix: partition by month or stream to external log sink via Oban worker. Separate operational writes from archival reads.
-3. **Rate limiting state:** ETS is per-node. In multi-node deployments, an attacker can bypass account lockout by hitting different nodes. Fix: Hammer with Redis backend, or use DB-backed counters for account lockout (lower performance, higher correctness).
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Auth Logic in the Web Layer
-
-**What people do:** Put `Repo.get_by(User, email: email)` and `Argon2.verify_pass/2` calls directly in a controller or LiveView event handler.
-
-**Why it's wrong:** Security-critical code is now owned by the developer and won't receive patches. Also violates Phoenix context boundary — the web layer should never touch schemas or hashing directly.
-
-**Do this instead:** All auth operations go through the generated `MyApp.Auth` context, which delegates to `Sigra.*` library functions. The context is the seam — devs can add callbacks and hooks there without touching library internals.
-
-### Anti-Pattern 2: Logout via LiveView Events
-
-**What people do:** Implement logout as a LiveView `handle_event("logout", ...)` that tries to clear the session.
-
-**Why it's wrong:** `put_session/3` is not available in LiveView handlers because the WebSocket connection is already established. The session lives in the HTTP layer. LiveView event handlers cannot modify it.
-
-**Do this instead:** Use `phx-trigger-action` on a hidden form targeting `DELETE /logout`. The HTTP POST/DELETE handler clears the session and redirects. This is the pattern phx.gen.auth uses and Sigra must follow.
-
-### Anti-Pattern 3: Macros Injecting Schema Fields
-
-**What people do:** `use Sigra.Schema` that injects `field :hashed_password, :string` and `field :confirmed_at, :utc_datetime` into the user schema.
-
-**Why it's wrong:** Violates José's "own your code" principle. Devs can't see or understand their own schema. The macro-injected fields cause confusion when querying, introspecting, or migrating. Pow did this and it's the #1 reason people hate Pow.
-
-**Do this instead:** Generated schemas are plain `defmodule User` with explicit `field` declarations. Developers can read and edit every field. The library is never injected into schemas.
-
-### Anti-Pattern 4: Putting All Tokens in One Table with No Index Strategy
-
-**What people do:** Store sessions, magic links, confirmation tokens, password reset tokens, and API keys all in a single `tokens` table with a generic `type` column and no partial indexes.
-
-**Why it's wrong:** Token lookups must be O(1). Without an index on `(token_hash, context)`, a table with mixed token types forces a full scan or an index that doesn't selectably filter by type. Partial indexes on active tokens of specific contexts are orders of magnitude faster.
-
-**Do this instead:** Index `user_tokens` on `(token_hash, context)`. Use `WHERE revoked_at IS NULL` partial indexes for session and API key lookups. Run a periodic cleanup job (Oban) to delete expired tokens and keep the table lean.
-
-### Anti-Pattern 5: Session Auth and API Auth as Separate Code Paths
-
-**What people do:** Build separate route trees — `/web/` uses cookie sessions, `/api/` uses JWT. The same user resource has two different auth code paths with different bugs.
-
-**Why it's wrong:** Security inconsistencies creep in. A password change that invalidates web sessions may not invalidate API sessions. TOTP enforcement on web won't carry to API. Maintenance doubles.
-
-**Do this instead:** Use the dual-mode plug pattern. Both paths produce the same `current_scope` struct. Session invalidation logic runs once and applies to both. API keys and session tokens share the same `user_tokens` table with different `context` values. A single `revoke_all_sessions(user)` function revokes everything.
-
-### Anti-Pattern 6: Over-Relying on `Application.get_env` in Library Code
-
-**What people do:** Scatter `Application.get_env(:sigra, :repo)` calls throughout the library.
-
-**Why it's wrong:** This ties the library to the host app's config namespace, makes testing harder (must set global config in test setup), and violates the Elixir library best practice of passing dependencies explicitly. It also creates compile-time coupling if misconfigured.
-
-**Do this instead:** Library functions accept `repo`, `mailer`, and other dependencies as explicit arguments or via a narrow config struct. The generated context module handles wiring: `Sigra.Token.verify(token, repo: MyApp.Repo)`. Tests pass fakes without touching application config.
-
-## Integration Points
-
-### External Services
-
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| OAuth Providers (Google, GitHub, etc.) | Assent callbacks — fully managed by library | Provider config lives in developer's config.exs |
-| Swoosh / Mailer | `Sigra.Mailer` behaviour — developer's mailer module is passed in | Supports async delivery via Oban |
-| Oban | Library provides job modules; developer adds to Oban queues | Fallback to inline delivery if Oban not present |
-| Wax (WebAuthn) | Wrapped by `Sigra.MFA.WebAuthn` with ceremony state stored in `passkey_credentials` | FIDO2 compliant |
-| NimbleTOTP | Wrapped by `Sigra.MFA.TOTP` — no direct dependency on library internals | Secret encrypted at rest |
-| Hammer / ETS | `Sigra.RateLimit` behaviour — ETS default, Hammer optional | Multi-node deployments need Redis-backed Hammer |
-
-### Internal Boundaries
-
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| Library core ↔ Generated context | Explicit function calls with repo passed as argument | No compile-time coupling |
-| Generated context ↔ Web layer (controllers/LiveViews) | Context public API only — never bypass to schemas | Enforces DDD boundary |
-| Plug pipeline ↔ LiveView on_mount | Both read `current_scope` from session token | Must use HTTP POST for logout (not LiveView events) |
-| Session auth ↔ API bearer auth | Same `user_tokens` table, different `context` column | Dual-mode plug normalizes both to same Scope shape |
-| Auth context ↔ Email delivery | Via `Sigra.Mailer` behaviour — developer's mailer wired in config | Async via Oban when present |
-| Auth events ↔ Application code | Telemetry events (`:sigra, :auth, :login, :start/stop`) + optional PubSub broadcasts | Application hooks for custom logic |
-
-## Build Order Implications
-
-The component dependencies suggest this build sequence:
-
-1. **Data layer first** — Migrations, Ecto schemas (`User`, `UserToken`). Nothing else can be tested without these.
-
-2. **Core library: Password + Token** — `Sigra.Password` and `Sigra.Token` are depended on by everything. No I/O, pure functions. Highest test ROI.
-
-3. **Session management** — Builds on Token. Enables basic login/logout. Unblocks LiveView auth testing.
-
-4. **Generated context + Plug integration** — `MyApp.Auth` context, `UserAuth` plugs, `on_mount` hooks. This is where the hybrid boundary is established. All other features bolt on here.
-
-5. **Email flows** — Confirmation and password reset. Depends on Token + Session + Mailer behaviour.
-
-6. **OAuth** — Depends on context (for user creation) and session (for post-auth redirect). Assent does the heavy lifting.
-
-7. **MFA: TOTP + Backup Codes** — Self-contained feature. Depends on User schema and session (for MFA state propagation).
-
-8. **API Keys + Bearer Auth** — Dual-mode plug depends on Token. API key schema is standalone.
-
-9. **Rate Limiting + Account Lockout** — Can be added incrementally; sits in front of authenticate path.
-
-10. **WebAuthn / Passkeys** — Most complex ceremony flow. Depends on session state for challenge storage. Last core feature.
-
-11. **Session Management UI** — LiveView screens for device list, revocation. Depends on session tracking schema.
-
-12. **Audit Logging** — Cross-cutting; add after each feature stabilizes.
-
-## Sources
-
-- [mix phx.gen.auth — Phoenix v1.8.5](https://hexdocs.pm/phoenix/mix_phx_gen_auth.html) — Session/token architecture, Scope struct, plug organization
-- [API Authentication — Phoenix v1.8.5](https://hexdocs.pm/phoenix/api_authentication.html) — Bearer token coexistence with session auth
-- [Security considerations — Phoenix LiveView](https://hexdocs.pm/phoenix_live_view/security-model.html) — on_mount patterns, authorize on action
-- [Rodauth README](https://github.com/jeremyevans/rodauth/blob/master/README.rdoc) — Per-feature tables, encapsulated auth object, HMAC tokens
-- [Better Auth Plugin Architecture](https://deepwiki.com/better-auth/better-auth/5.1-plugin-architecture) — Composable plugin design, schema extension per plugin
-- Elixir best practices brief (prompts/) — behaviours over macros, narrow extension points, process use rules
-- Phoenix best practices brief (prompts/) — context boundary, LiveView patterns, security model
-- Ecto best practices brief (prompts/) — separate-table design, redact: true, load_in_query: false
-- Elixir OSS library brief (prompts/) — explicit config, no global app env, NimbleOptions
+**Confidence:** HIGH (grounded in read of v1.0 code at `/Users/jon/projects/sigra/`). Every recommendation references concrete v1.0 file:line.
+**Researched:** 2026-04-11
 
 ---
-*Architecture research for: Sigra — Elixir/Phoenix authentication library*
-*Researched: 2026-04-04*
+
+## Part A — Organizations
+
+### A1. `organization_id` travel through the request lifecycle
+
+**v1.0 baseline (grounded):**
+- `Sigra.Plug.FetchSession` (`lib/sigra/plug/fetch_session.ex:62-98`) reads `:user_token` from Plug session, fetches `%Sigra.Session{}`, assigns `current_scope` (built via `scope_module.new/1`), stashes session at `conn.private[:sigra_session]`.
+- Example's `fetch_current_scope/2` (`test/example/lib/example_web/user_auth.ex:128-142`) does equivalent directly against `Example.Accounts.get_user_and_session_by_token/1`.
+- LiveView `on_mount` (`user_auth.ex:193-231`) reconstructs scope from serialized `session["user_token"]` in `mount_current_scope/2`.
+- `Sigra.Plug.RequireSudo` (`lib/sigra/plug/require_sudo.ex:57-85`) reads `conn.private[:sigra_session]`, NOT the assign — canonical pattern for downstream plugs.
+
+**v1.1 extension — concrete changes:**
+
+**1. Scope struct extension** (`test/example/lib/example/accounts/scope.ex:15-38`):
+
+```elixir
+defstruct user: nil,
+          active_organization: nil,  # NEW v1.1
+          membership: nil,           # NEW v1.1 (role/status for active_organization)
+          impersonating_from: nil    # RESERVED for v1.2 — DO NOT populate in v1.1
+```
+
+Adding `impersonating_from: nil` in v1.1 makes v1.2 purely additive on pattern matches. Generator template at `priv/templates/sigra.install/scope.ex` must emit all three fields.
+
+**2. `Sigra.Session` schema extension** (`lib/sigra/session.ex:64-78`):
+
+Add ONE field: `field :active_organization_id, :binary_id  # nullable`
+
+New migration via install-injected `alter table(:user_sessions)`. See A4 for rationale.
+
+**3. New plug `Sigra.Plug.LoadActiveOrganization`** (library, new):
+
+```elixir
+def call(conn, opts) do
+  case conn.assigns[:current_scope] do
+    nil -> conn
+    scope ->
+      session = conn.private[:sigra_session]
+      scope = Organizations.hydrate_scope(scope, session, opts)
+      assign(conn, :current_scope, scope)
+  end
+end
+```
+
+Runs AFTER `fetch_current_scope`. Loads `active_organization` from `session.active_organization_id`, loads membership row, falls back to "first membership" if session pointer is stale. No DB hit if user has zero memberships.
+
+**4. `on_mount` hydration** — add to generated `user_auth.ex`. Store `active_organization_id` in the **Plug session** on org switch (mirrors how `:mfa_pending` is mirrored at `fetch_session.ex:90-94`) so LiveView mount receives it in serialized `session` map.
+
+**5. Audit auto-attach** — modify `Sigra.Audit.build_attrs/4` (`lib/sigra/audit.ex:384-404`). Add scope-aware helper:
+
+```elixir
+def metadata_from_scope(scope, extra \\ %{}) do
+  base = %{}
+  base = if scope && scope.active_organization,
+    do: Map.put(base, :organization_id, scope.active_organization.id),
+    else: base
+  # RESERVED for v1.2:
+  # base = if scope && scope.impersonating_from,
+  #   do: Map.put(base, :effective_user_id, scope.user.id),
+  #   else: base
+  Map.merge(base, extra)
+end
+```
+
+**Better long-term:** promote `organization_id` to a real column on `audit_events` in v1.1. Makes filtering index-friendly and v1.2 per-org audit views trivial. Recommend: **add `organization_id :binary_id` column + index**, populate from `metadata_from_scope`. Leave room for v1.2's `effective_user_id` column alongside.
+
+**6. Oban job args — org context preservation:** Pattern: every library-emitted worker accepts `args["organization_id"]` and `args["actor_id"]`. Enqueuer passes `metadata_from_scope(scope)` flattened. Workers reconstruct minimal `%Scope{}` (user + active_organization loaded from DB) for audit calls. **Explicit is better than automatic middleware.** Document as D-v1.1: Oban workers carry `organization_id` in args; reconstruct scope on perform.
+
+**7. Email delivery — org context:** Generated `emails.ex` template grows one optional parameter per builder: `build_password_reset_email(user, url, opts)` where `opts[:organization]` is optional. Template renders "Password reset for [email] in [org.name]" only when non-nil. Absent `:organization` renders v1.0 body verbatim. **No breaking change.**
+
+---
+
+### A2. Correct Ecto query pattern — `organization_id` does NOT live on `users`
+
+**WRONG (tempting, broken):**
+
+```elixir
+# DO NOT DO THIS
+schema "users" do
+  field :organization_id, :binary_id  # WRONG — users are shared across orgs
+end
+```
+
+Forces one-user-per-org, makes "same email at two companies" impossible — table-stakes B2B requirement.
+
+**RIGHT — many-to-many via memberships:**
+
+```elixir
+schema "organizations" do
+  field :name, :string
+  field :slug, :string          # unique
+  field :settings, :map         # jsonb
+  field :deleted_at, :utc_datetime
+  has_many :memberships, OrganizationMembership
+  many_to_many :users, User, join_through: OrganizationMembership
+  timestamps()
+end
+
+schema "organization_memberships" do
+  belongs_to :user, User
+  belongs_to :organization, Organization
+  field :role, Ecto.Enum, values: [:owner, :admin, :member]
+  field :status, Ecto.Enum, values: [:active, :invited, :suspended]
+  field :joined_at, :utc_datetime
+  belongs_to :invited_by, User, foreign_key: :invited_by_id
+  timestamps()
+end
+```
+
+Unique index on `(user_id, organization_id)`. Last-owner guard is **application-level** in `Sigra.Organizations.remove_membership/2`, not DB constraint.
+
+**Example queries:**
+
+```elixir
+# Users in an org
+from u in User,
+  join: m in OrganizationMembership, on: m.user_id == u.id,
+  where: m.organization_id == ^org_id and m.status == :active
+
+# Orgs for a user (for switcher)
+from o in Organization,
+  join: m in OrganizationMembership, on: m.organization_id == o.id,
+  where: m.user_id == ^user_id and m.status == :active and is_nil(o.deleted_at),
+  order_by: [asc: o.name]
+
+# Canonical scope-aware query: app resources embed organization_id
+from p in Post,
+  where: p.organization_id == ^scope.active_organization.id
+```
+
+---
+
+### A3. Org switcher placement in Phoenix 1.8 layouts
+
+**Current layout** (`test/example/lib/example_web/components/layouts.ex:36-70`) is `<header class="navbar">` with flex-1 brand + flex-none action list. Standard Phoenix 1.8 scaffold.
+
+**Insertion point:** Inside `<div class="flex-none">`, before existing `<ul>`, add a LiveComponent org switcher (daisyUI `dropdown`, already in use in v1.0 MFA pages).
+
+**NOT a modal** (wrong for frequent action). **NOT a sidebar** (doesn't exist; adding one clashes with v1.2 admin dashboard layout).
+
+**Dropdown shows:** active org name + role badge, separator, other orgs (click = switch), separator, "Create organization", "Organization settings" (owner/admin only).
+
+**Why LiveComponent not function component:** switching orgs needs to POST to a controller action (not LV event) to rotate the Plug session. Use `<.form action={~p"/orgs/switch"}>` inside the dropdown.
+
+---
+
+### A4. Active-org storage — recommendation: **session column**
+
+| Option | Pros | Cons |
+|---|---|---|
+| **`active_organization_id` on `user_sessions`** | Session-lifetime scope. Survives reloads. Atomic with rotation. One row write on switch. | One column per session row. |
+| `user_active_orgs` table (one per user) | Persists across logins. | Single global active org — wrong model. Race conditions. Extra table. |
+| Signed cookie | Zero DB writes. | Lost on logout. Tab-desynced. Cookie bloat. Can't invalidate remotely. |
+
+**Recommend: session column.** Matches v1.0 session-centric model (`lib/sigra/session.ex` already carries per-session state: `sudo_at`, `ip`, `geo_*`). Multi-tab: each tab has own Plug session. Aligns with v1.2 impersonation (also per-session).
+
+**Multi-tab nuance:** v1.1 scope is single active org per session. Per-tab isolation via LiveView `connect_params` — document as v1.2+ enhancement.
+
+---
+
+### A5. Route scoping — recommendation: **session-only, no URL prefix**
+
+| Option | Pros | Cons |
+|---|---|---|
+| **Session-only** | No route explosion. Zero changes to v1.0 routes. Bookmarks work. | URLs don't disclose active org. |
+| `/orgs/:slug/...` prefix | Shareable per-org links. Multi-tab coherent via URL. | Every v1.0 route needs sibling. LiveView plumbing. Conflicts with non-org resources. |
+
+**Recommend: session-only for v1.1.** Every v1.0 route stays byte-identical. `Sigra.Plug.RequireMembership` asserts session active org matches expected. v1.2's admin dashboard can introduce `/admin/orgs/:slug/...` as separate scope without disruption. Revisit v1.3 if users demand shareable org-scoped URLs.
+
+---
+
+### A6. v1.0 email templates — what changes
+
+| Email | v1.1 change |
+|---|---|
+| Password reset | Subject unchanged. Body adds `<p :if={@organization}>Account: [email] — member of [@organization.name]</p>` above reset link. |
+| Email confirmation | No change (user-identity, not org-bound). |
+| Suspicious login | Add active org to body. |
+| Account deletion | No change. |
+| **NEW** org invitation | New template `organization_invitation_email.ex` — invite link with HMAC token, org name, inviter name, expiry. |
+
+All additive via optional `opts[:organization]`. v1.0 call sites that don't pass it render unchanged.
+
+---
+
+### A7. Migration path — recommendation: **auto-backfill personal orgs**
+
+| Option | Pros | Cons |
+|---|---|---|
+| **Auto-backfill personal org per user** | Zero-friction upgrade. `scope.active_organization` never nil post-migration. Simplifies downstream code. | Users who didn't want MT get vestigial org. |
+| Require explicit create/join | Clean slate. | Breaking: v1.0 users log in post-upgrade with `nil` active org. Every LV needs "no org" branch. |
+
+**Recommend: auto-backfill, opt-out via `--no-backfill-personal-orgs`.** Generator emits idempotent migration. Adapter-branch for MySQL/SQLite per existing `sigra.install.ex:89` pattern. Users can rename/delete personal orgs post-backfill.
+
+**Backfill slug edge case:** users sharing email casing under citext. Slugify on lowercased email + 8-char hash for uniqueness.
+
+---
+
+## Part B — Passkeys
+
+### B1. Passkey challenge storage — recommendation: **signed+encrypted Plug session**
+
+| Option | Pros | Cons |
+|---|---|---|
+| **Plug session (signed+encrypted)** | Zero new infra. Uses `Plug.Crypto` (already in `Sigra.Token`). Auto-cleanup on session end. No TTL worker. Multi-node safe. | Cookie size (~50 bytes b64). |
+| ETS with TTL | Fast, no cookie. | Single-node only — breaks multi-node. Needs supervisor + cleanup timer. |
+| DB table with TTL | Multi-node safe. | Extra migration + schema + cleanup Oban job. Overkill for 60s ephemeral state. |
+
+**Recommend: Plug session under `:passkey_challenge`.** Phoenix's Plug session is already signed; wrap via `Sigra.Token.generate/4` with purpose `"sigra-passkey-challenge"`, `max_age: 60`. Matches how v1.0 stashes `:mfa_pending` (`fetch_session.ex:90`).
+
+**Store shape:** `%{challenge: binary, user_id: id | nil, mode: :registration | :authentication, inserted_at: iso8601}`.
+
+---
+
+### B2. RP ID + origin — **runtime configuration is mandatory**
+
+Compile-time forces separate build per environment (dev/staging/prod/PR-review apps). **Runtime is non-negotiable.** Follow v1.0 pattern at `user_auth.ex:36-45` which resolves `cookie_domain` at runtime.
+
+```elixir
+# config/runtime.exs
+config :sigra, :passkeys,
+  rp_id: System.get_env("PASSKEY_RP_ID", "localhost"),
+  rp_name: System.get_env("PASSKEY_RP_NAME", "MyApp"),
+  origin: System.get_env("PASSKEY_ORIGIN", "http://localhost:4000"),
+  attestation: :none,  # default per spec/OWASP
+  timeout_ms: 60_000
+```
+
+Validate via `NimbleOptions` inside `Sigra.Passkeys.config/0` for fast-fail at first use.
+
+---
+
+### B3. Passkey credentials — schema + ceremony trace
+
+**New generated schema** `user_passkeys`:
+
+```elixir
+schema "user_passkeys" do
+  belongs_to :user, User
+  field :credential_id, :binary           # unique — raw credential id bytes
+  field :public_key, MyApp.Accounts.Encrypted.Binary  # cloak_ecto encrypted
+  field :sign_count, :integer, default: 0
+  field :aaguid, :binary                  # authenticator model
+  field :nickname, :string                # user-facing name
+  field :device_hint, :string             # UA-derived
+  field :transports, {:array, :string}    # ["internal", "usb", "nfc"]
+  field :last_used_at, :utc_datetime
+  timestamps()
+end
+```
+
+Unique index on `credential_id`. `public_key` reuses existing Cloak vault at `priv/templates/sigra.install/encrypted.ex` (wired for OAuth tokens in v1.0 — zero-new-infra reuse).
+
+**End-to-end registration ceremony:**
+
+1. Client loads `PasskeyEnrollmentLive` → pushes `"init_registration"` event
+2. LiveView calls `Sigra.Passkeys.Registration.new_challenge(user, opts)`:
+   - `Wax.new_registration_challenge/1` produces `%Wax.Challenge{}`
+   - Signed via `Sigra.Token.generate/4` (`max_age: 60`), written to Plug session
+   - Client options map returned to JS hook
+3. JS hook invokes `navigator.credentials.create({publicKey: options})` → returns credential
+4. JS hook pushes `"complete_registration"` with credential JSON
+5. LiveView reads challenge from Plug session, calls `Sigra.Passkeys.Registration.verify/4`:
+   - `Wax.register/3` verifies attestation
+   - On success, `Sigra.Audit.log_multi_safe/3` with action `"passkey.register"` inside an `Ecto.Multi` that inserts the `UserPasskey` row (mirrors atomic-multi pattern at `Sigra.Auth.create_session/4`)
+6. Email notification via `emails.ex` "New passkey added" (reuses suspicious-login shape)
+
+**Authentication** mirrors steps with `Wax.authenticate_new_challenge/1` + `Wax.authenticate/5`, then delegates to `Example.Accounts.generate_user_session_token/2` path. Login remains POST per D-29 (never LiveView event) — see B5.
+
+---
+
+### B4. `Sigra.Plug.PasskeyChallenge` placement
+
+**After `fetch_current_scope`**, before route handler. Registration requires authenticated user; authentication uses `current_scope == nil` to decide passkey-as-primary vs passkey-as-2FA branches.
+
+**Better: scoped plug**, only in `/users/passkeys/*` scope, not pipeline-wide. Keeps cost zero for non-passkey requests.
+
+---
+
+### B5. JS hooks pattern — first in Sigra, propose the convention
+
+**v1.0 has zero JS hooks** (confirmed by `ls test/example/assets/js`). Propose:
+
+**Template layout (new):**
+
+```
+priv/templates/sigra.install/passkeys/assets/js/
+  passkey_hooks.js          # exports { PasskeyRegister, PasskeyAuthenticate }
+```
+
+Generator installs to `assets/js/passkey_hooks.js` and **injects into** `assets/js/app.js`:
+
+```javascript
+import { PasskeyRegister, PasskeyAuthenticate } from "./passkey_hooks"
+let Hooks = { PasskeyRegister, PasskeyAuthenticate }
+let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks, ... })
+```
+
+Injection uses same `inject_into_files/2` pattern already proven at `sigra.install.ex:332+` (router injection). Guard with marker comment for idempotent re-runs.
+
+**Hook shape (enrollment):**
+
+```javascript
+export const PasskeyRegister = {
+  mounted() {
+    this.handleEvent("passkey:create", async ({ options }) => {
+      try {
+        const publicKey = decodePublicKeyOptions(options)
+        const credential = await navigator.credentials.create({ publicKey })
+        this.pushEvent("passkey:registered", encodeCredential(credential))
+      } catch (err) {
+        this.pushEvent("passkey:error", { message: err.message })
+      }
+    })
+  }
+}
+```
+
+**Critical — D-29 (login via POST, not LV event):** authentication hook **cannot** complete login via `push_event` because logging in requires rotating the Plug session, which LV events cannot do (they run over the socket, not HTTP). Pattern: LiveView collects assertion, posts it to plain controller (`POST /users/passkeys/authenticate`) via hidden form auto-submitted from JS. Mirrors v1.0's "login is plain controller" (`sigra.install.ex:254-263`, `router.ex:53`). Document as **D-v1.1-passkey-login-post**.
+
+---
+
+## Part C — Cross-Cutting
+
+### C1. Conditional generator template pattern — **subdirectory + feature manifest hybrid**
+
+**Recommend: subdirectory convention + small Elixir feature manifest module.**
+
+```
+priv/templates/sigra.install/
+  core/           # always generated (v1.0 files move here)
+    user.ex
+    auth.ex
+    ...
+  organizations/  # generated when :organizations opt true
+    organization.ex
+    organization_membership.ex
+    organization_invitation.ex
+    organization_switcher_live.ex
+    ...
+  passkeys/       # generated when :passkeys opt true
+    user_passkey.ex
+    passkey_enrollment_live.ex
+    passkey_hooks.js
+    ...
+```
+
+Each subdir has tiny manifest module implementing shared behaviour:
+
+```elixir
+defmodule Sigra.Install.Features.Organizations do
+  @behaviour Sigra.Install.Feature
+
+  def enabled?(opts), do: Keyword.get(opts, :organizations, true)
+
+  def files(binding) do
+    otp = binding[:otp_app]
+    ctx = binding[:context_underscore]
+    [
+      {:eex, "organizations/organization.ex",
+       Path.join(["lib", otp, ctx, "organization.ex"])},
+      # ...
+    ]
+  end
+
+  def injections(binding), do: [...]
+end
+```
+
+`sigra.install.ex` walks `[Features.Core, Features.Organizations, Features.Passkeys, Features.Admin]`, collects files where `enabled?/1` true. Main `generate/4` (`sigra.install.ex:83-319`) shrinks — less duplication, clearer feature boundaries.
+
+**Why this unblocks v1.2:** adding `--no-admin` = add `Features.Admin` module + `admin/` subdir. No rework. **Load-bearing for v1.2.**
+
+**Migration plan for v1.1:** introduce feature behaviour + subdirs, move v1.0 flat templates into `core/` in one mechanical PR (paths only, no content changes). Then add organizations/passkeys as features on top.
+
+---
+
+### C2. New test helpers needed
+
+| Helper | Signature | Where |
+|---|---|---|
+| `create_organization/1` | `(attrs \\ %{}) :: %Organization{}` | `organization_fixtures.ex` (new) |
+| `create_membership/3` | `(user, org, attrs \\ %{role: :member}) :: %OrganizationMembership{}` | `organization_fixtures.ex` |
+| `log_in_user_with_org/3` | `(conn, user, org) :: conn` — wraps `log_in_user/2` + sets session `active_organization_id` | `conn_case_helpers.ex` |
+| `register_passkey/2` | `(user, opts \\ []) :: %UserPasskey{}` — inserts fake passkey via Wax test vectors | `passkey_fixtures.ex` (new) |
+| `authenticate_with_passkey/2` | `(conn, user) :: conn` — mimics POST-authenticate without browser | `conn_case_helpers.ex` |
+| `assert_scope_has_org/2` | `(conn_or_socket, org_or_id)` | `Sigra.Testing` library module |
+| `assert_membership/3` | `(user, org, role)` | `Sigra.Testing` |
+| `assert_audit_logged_for_org/2` | filters on metadata.organization_id | `Sigra.Testing` |
+
+---
+
+## Part D — Build Order (Dependency-Respecting)
+
+Hard deps:
+
+1. **Phase 1 — Generator feature system** (C1 subdirs + behaviour). Blocks everything. Skeleton + routing layer, no templates moved yet.
+2. **Phase 2 — Scope struct + session column extension**. `:active_organization`, `:membership`, `:impersonating_from` fields + `user_sessions.active_organization_id` column. Mechanical, no business logic. Unblocks all org-aware plugs/LVs.
+3. **Phase 3 — Organizations schemas + context** (`Organization`, `OrganizationMembership`, `OrganizationInvitation`, `Sigra.Organizations`). Pure data layer.
+4. **Phase 4 — Org plugs + scope hydration** (`LoadActiveOrganization`, `RequireMembership`, `on_mount` hydration). Needs 2 + 3.
+5. **Phase 5 — Audit integration** (`metadata_from_scope`, `organization_id` column, `:organization_id` query filter). Needs 4.
+6. **Phase 6 — Org LiveViews + switcher** (Switcher, Settings, Members, InvitationAccept). Needs 3, 4, 5.
+7. **Phase 7 — Org invitation flow + email template**. Uses `Sigra.Token.generate_hashed_token/0` unchanged. Needs 6.
+8. **Phase 8 — Backfill migration + generator wiring for `--organizations`**. Needs 7.
+9. **Phase 9 — Passkey schema + `Sigra.Passkeys.*` contexts**. Independent of orgs. Can start any time after phase 1. Depends on `wax_` dep addition.
+10. **Phase 10 — `PasskeyChallenge` plug + runtime config + JS hooks infra**. Needs 9.
+11. **Phase 11 — Passkey LiveViews + POST-auth controller**. Needs 10.
+12. **Phase 12 — Generator wiring for `--passkeys`**. Needs 11.
+13. **Phase 13 — Docs, CI smoke extension, guides**.
+
+**Parallelizable:** phases 9-11 (passkey track) can run in parallel with phases 3-7 (org track) once phase 1 + 2 land. Phases 8 and 12 are serialization points.
+
+---
+
+## Part E — v1.2 Forward-Compatibility Checklist
+
+Every recommendation checked against v1.2:
+
+| v1.1 decision | v1.2 impact | Forward-compatible? |
+|---|---|---|
+| `Scope.impersonating_from: nil` reserved | v1.2 populates in new `Sigra.Plug.Impersonate` | YES (additive) |
+| `audit_events.organization_id` as real column | v1.2 adds `effective_user_id` alongside | YES (additive migration) |
+| Active org on `user_sessions` | v1.2 impersonation also per-session; co-locates | YES |
+| Session-only routes (no `/orgs/:slug`) | v1.2 admin UI introduces `/admin/*` cleanly | YES |
+| Subdirectory generator feature pattern | v1.2 adds `admin/` feature module trivially | YES — **load-bearing** |
+| Dropdown org switcher in header | v1.2 admin UI can add second dropdown | YES |
+| `Sigra.Audit.Query` org filter via column | v1.2 audit views filter on real indexed columns | YES |
+
+**Zero v1.1 decisions require v1.2 to revisit.**
+
+---
+
+## Part F — Confidence & Open Questions
+
+**HIGH confidence** (grounded in read):
+- v1.0 plug ordering and scope mechanics (`fetch_session.ex`, `user_auth.ex`, `require_sudo.ex`)
+- Generator mechanics (`sigra.install.ex`, `priv/templates/sigra.install/`)
+- Audit composability (`audit.ex`, `audit/query.ex`)
+- Layout insertion point (`layouts.ex:36-70`)
+- Session struct extension site (`session.ex:64-78`)
+- Token + HMAC patterns (`token.ex`)
+
+**MEDIUM confidence** (ecosystem knowledge, not verified against wax_ 0.7 docs in this session):
+- Exact `Wax.Challenge` struct shape and API in 0.7 — phase 9 kickoff should include 30-min Context7 verify of `Wax.register/3`, `Wax.authenticate/5`, attestation options before writing `Sigra.Passkeys.Registration`
+- `aaguid` field type — `:binary` correct per WebAuthn spec; wax_ may return UUID string — verify at phase 9 start
+
+**Open questions for the planner:**
+1. **Phase 5 audit:** should `organization_id` on `audit_events` be `NOT NULL` or nullable? Library-emitted events with no active org (password reset from logged-out state) need nullable.
+2. **Phase 10 JS hooks:** does host app's `assets/js/app.js` always exist at known path? Phoenix 1.8 default yes, but esbuild vs Webpack vs Vite affects injection target. Propose: only inject if marker present; otherwise print manual instructions.
+3. **Phase 11 passkey-as-primary:** is usernameless resident-key flow worth the UX complexity for v1.1, or defer to v1.2? Discovery credentials need `residentKey: required` and different `allowCredentials` handling.
+4. **Backfill migration idempotency:** slug collision handling for users sharing email casing under citext — slugify on lowercased email + 8-char hash.
+
+---
+
+## Files referenced
+
+- `/Users/jon/projects/sigra/.planning/PROJECT.md`
+- `/Users/jon/projects/sigra/test/example/lib/example/accounts/scope.ex`
+- `/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex`
+- `/Users/jon/projects/sigra/test/example/lib/example_web/router.ex`
+- `/Users/jon/projects/sigra/test/example/lib/example_web/components/layouts.ex`
+- `/Users/jon/projects/sigra/lib/sigra/session.ex`
+- `/Users/jon/projects/sigra/lib/sigra/audit.ex`
+- `/Users/jon/projects/sigra/lib/sigra/audit/query.ex`
+- `/Users/jon/projects/sigra/lib/sigra/plug/fetch_session.ex`
+- `/Users/jon/projects/sigra/lib/sigra/plug/require_sudo.ex`
+- `/Users/jon/projects/sigra/lib/sigra/token.ex`
+- `/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex`
+- `/Users/jon/projects/sigra/priv/templates/sigra.install/` (44 files — to be restructured in Phase 1)

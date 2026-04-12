@@ -29,7 +29,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
   @fixtures [
     %{
       id: "fix #1 — user_auth uses Gettext",
-      template: "priv/templates/sigra.install/user_auth.ex",
+      template: "priv/templates/sigra.install/core/user_auth.ex",
       example: "test/example/lib/example_web/user_auth.ex",
       must_have: [
         {"use Gettext backend present",
@@ -39,7 +39,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #2 — Encrypted.Binary passthrough stub",
-      template: "priv/templates/sigra.install/encrypted.ex",
+      template: "priv/templates/sigra.install/core/encrypted.ex",
       example: "test/example/lib/example/accounts/encrypted.ex",
       must_have: [
         {"use Ecto.Type", ~r/use Ecto\.Type/, ~r/use Ecto\.Type/},
@@ -50,7 +50,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #3 — Swoosh Mailer stub wrapper",
-      template: "priv/templates/sigra.install/mailer.ex",
+      template: "priv/templates/sigra.install/core/mailer.ex",
       example: "test/example/lib/example/mailer.ex",
       must_have: [
         {"use Swoosh.Mailer", ~r/use Swoosh\.Mailer, otp_app:/,
@@ -64,7 +64,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       # `build_session_token/2` / `verify_session_token_query/1` helpers
       # must NOT reappear in either file.
       id: "fix #4 — UserToken session helpers removed (B6 unification)",
-      template: "priv/templates/sigra.install/user_token.ex",
+      template: "priv/templates/sigra.install/core/user_token.ex",
       example: "test/example/lib/example/accounts/user_token.ex",
       must_not: [
         {"build_session_token helper absent",
@@ -81,7 +81,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       # in both the template and the example, and the legacy
       # UserToken.build_session_token call site must NOT reappear.
       id: "fix #4b — auth.ex session helpers delegate to Sigra canonical store",
-      template: "priv/templates/sigra.install/auth.ex",
+      template: "priv/templates/sigra.install/core/auth.ex",
       example: "test/example/lib/example/accounts.ex",
       must_have: [
         {"generate_user_session_token calls Sigra.Auth.create_session",
@@ -99,7 +99,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       # conn and pass them into generate_user_session_token so the session
       # row has connection metadata.
       id: "fix #4c — user_auth.ex log_in_user captures IP + user-agent",
-      template: "priv/templates/sigra.install/user_auth.ex",
+      template: "priv/templates/sigra.install/core/user_auth.ex",
       example: "test/example/lib/example_web/user_auth.ex",
       must_have: [
         {"ip extracted from conn.remote_ip via :inet.ntoa",
@@ -112,7 +112,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #5 — auth.ex reset_user_password @doc de-duplicated",
-      template: "priv/templates/sigra.install/auth.ex",
+      template: "priv/templates/sigra.install/core/auth.ex",
       example: "test/example/lib/example/accounts.ex",
       must_have: [
         {"legacy reset_user_password has inline comment, not @doc",
@@ -127,7 +127,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #6 — audit_event drops unused import Ecto.Changeset",
-      template: "priv/templates/sigra.install/audit_event.ex",
+      template: "priv/templates/sigra.install/core/audit_event.ex",
       example: "test/example/lib/example/accounts/audit_event.ex",
       must_not: [
         {"import Ecto.Changeset removed",
@@ -137,7 +137,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #7 — reset_password_controller drops unused alias",
-      template: "priv/templates/sigra.install/reset_password_controller.ex",
+      template: "priv/templates/sigra.install/core/reset_password_controller.ex",
       example: "test/example/lib/example_web/controllers/reset_password_controller.ex",
       must_not: [
         {"bare alias <context_module> removed",
@@ -147,7 +147,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #8 — reset_password_live drops unused alias",
-      template: "priv/templates/sigra.install/reset_password_live.ex",
+      template: "priv/templates/sigra.install/core/reset_password_live.ex",
       example: "test/example/lib/example_web/live/reset_password_live.ex",
       must_not: [
         {"bare alias <context_module> removed",
@@ -157,7 +157,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #9 — confirmation_live unused var prefixed _user",
-      template: "priv/templates/sigra.install/confirmation_live.ex",
+      template: "priv/templates/sigra.install/core/confirmation_live.ex",
       example: "test/example/lib/example_web/live/confirmation_live.ex",
       must_have: [
         {"handle_params assigns _user",
@@ -167,7 +167,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #10 — unreachable :rate_limited clause removed from resend path",
-      template: "priv/templates/sigra.install/confirmation_controller.ex",
+      template: "priv/templates/sigra.install/core/confirmation_controller.ex",
       example: "test/example/lib/example_web/controllers/confirmation_controller.ex",
       must_not: [
         {"rate_limited clause absent in resend redirect",
@@ -177,7 +177,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #10b — confirmation_live rate_limited clause removed from resend",
-      template: "priv/templates/sigra.install/confirmation_live.ex",
+      template: "priv/templates/sigra.install/core/confirmation_live.ex",
       example: "test/example/lib/example_web/live/confirmation_live.ex",
       must_not: [
         {"rate_limited put_flash in resend absent",
@@ -187,7 +187,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #12 — auth_fixtures destructures :secret key from setup_totp",
-      template: "priv/templates/sigra.install/auth_fixtures.ex",
+      template: "priv/templates/sigra.install/core/auth_fixtures.ex",
       example: "test/example/test/support/fixtures/auth_fixtures.ex",
       must_have: [
         {"%{secret: secret, backup_codes: codes} destructure",
@@ -202,7 +202,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #13 — auth_fixtures uses context alias (not bare Auth)",
-      template: "priv/templates/sigra.install/auth_fixtures.ex",
+      template: "priv/templates/sigra.install/core/auth_fixtures.ex",
       example: "test/example/test/support/fixtures/auth_fixtures.ex",
       must_not: [
         {"no bare Auth.sigra_config reference",
@@ -212,7 +212,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #14 — auth_fixtures log_in_user import trimmed to arity 2",
-      template: "priv/templates/sigra.install/auth_fixtures.ex",
+      template: "priv/templates/sigra.install/core/auth_fixtures.ex",
       example: "test/example/test/support/fixtures/auth_fixtures.ex",
       must_have: [
         {"import only log_in_user: 2",
@@ -227,7 +227,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #15 — conn_case_helpers references <app>.<context>Fixtures",
-      template: "priv/templates/sigra.install/conn_case_helpers.ex",
+      template: "priv/templates/sigra.install/core/conn_case_helpers.ex",
       example: "test/example/test/support/conn_case_helpers.ex",
       must_have: [
         {"fully-qualified Fixtures call",
@@ -242,7 +242,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #16 — locked_user_fixture truncates DateTime to :second",
-      template: "priv/templates/sigra.install/auth_fixtures.ex",
+      template: "priv/templates/sigra.install/core/auth_fixtures.ex",
       example: "test/example/test/support/fixtures/auth_fixtures.ex",
       must_have: [
         {"locked_at uses DateTime.truncate(:second)",
@@ -252,7 +252,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
     },
     %{
       id: "fix #17 — auth.ex passes :user_token_schema at magic link + password reset call sites",
-      template: "priv/templates/sigra.install/auth.ex",
+      template: "priv/templates/sigra.install/core/auth.ex",
       example: "test/example/lib/example/accounts.ex",
       must_have: [
         {"request_magic_link passes user_token_schema",

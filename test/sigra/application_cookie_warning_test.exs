@@ -50,8 +50,8 @@ defmodule Sigra.ApplicationCookieWarningTest do
   end
 
   describe "generated templates reference cookie_domain at runtime" do
-    @user_auth_path "priv/templates/sigra.install/user_auth.ex"
-    @mfa_challenge_path "priv/templates/sigra.install/mfa_challenge_controller.ex"
+    @user_auth_path "priv/templates/sigra.install/core/user_auth.ex"
+    @mfa_challenge_path "priv/templates/sigra.install/core/mfa_challenge_controller.ex"
 
     test "user_auth.ex defines a runtime remember_me_options/0 function" do
       source = File.read!(@user_auth_path)

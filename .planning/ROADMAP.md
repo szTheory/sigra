@@ -1,274 +1,289 @@
 # Roadmap: Sigra
 
-## Overview
+## Milestones
 
-Sigra is built in ten focused phases, each delivering a coherent, verifiable capability. The sequence is dependency-driven: the hybrid lib+generator architecture and core session infrastructure must exist before any feature can be built on top of them. Email flows, OAuth, MFA, and API auth each stand on the foundation below them. Account lifecycle, audit logging, and developer experience complete the production-grade story. Every phase ends with observable user behaviors that can be verified against a running application.
+- ✅ **v1.0 Phoenix Auth Library — Initial Release** — Phases 1–10 + 10.1 + 10.1.1 (shipped 2026-04-11). See [v1.0 archive](milestones/v1.0-ROADMAP.md) and [MILESTONES.md](MILESTONES.md) for full details.
+- 🚧 **v1.1 Foundations** — Phases 11–23 (Organizations + Passkeys). Started 2026-04-11.
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+<details>
+<summary>✅ v1.0 Phoenix Auth Library — Initial Release (Phases 1–10.1.1) — SHIPPED 2026-04-11</summary>
 
-Decimal phases appear between their surrounding integers in numeric order.
+- [x] Phase 1: Foundation (3/3 plans) — completed 2026-04-05
+- [x] Phase 2: Core Auth (2/2 plans) — completed 2026-04-06
+- [x] Phase 3: Email Flows and Transactional Email (6/6 plans) — completed 2026-04-07
+- [x] Phase 4: Session Management and Security Baseline (6/6 plans) — completed 2026-04-08
+- [x] Phase 5: OAuth and Social Login (3/3 plans) — completed 2026-04-08
+- [x] Phase 6: Multi-Factor Authentication (5/5 plans) — completed 2026-04-08
+- [x] Phase 7: API Authentication (4/4 plans) — completed 2026-04-09
+- [x] Phase 8: Account Lifecycle (5/5 plans) — completed 2026-04-08
+- [x] Phase 9: Audit Logging (5/5 plans) — completed 2026-04-09 (PASS-WITH-CAVEATS; see SEED-002)
+- [x] Phase 10: Developer Experience (6/6 plans) — completed 2026-04-10
+- [x] Phase 10.1: Installer and Library Fixes (INSERTED, 7/7 plans) — completed 2026-04-10
+- [x] Phase 10.1.1: example-app repair + CI install/usage smoke harness (INSERTED, 8/8 plans) — completed 2026-04-11
 
-- [x] **Phase 1: Foundation** - Establish hybrid lib+generator architecture, data layer, config, telemetry skeleton, and install generator scaffold (completed 2026-04-05)
-- [x] **Phase 2: Core Auth** - Email/password registration, login, logout, Argon2id hashing, and password policies (completed 2026-04-06)
-- [x] **Phase 3: Email Flows and Transactional Email** - Email confirmation, password reset, mailer behaviour, Swoosh templates, and Oban async delivery (completed 2026-04-07)
-- [x] **Phase 4: Session Management and Security Baseline** - Database-backed sessions, remember-me, revocation, timeouts, lockout, rate limiting, and suspicious login (completed 2026-04-08)
-- [x] **Phase 5: OAuth and Social Login** - Assent integration, tier 1-2 providers, account linking, user_identities, and OAuth token storage (completed 2026-04-08)
-- [x] **Phase 6: Multi-Factor Authentication** - TOTP full lifecycle, backup codes, trust-this-browser, MFA enforcement, and rate limiting (completed 2026-04-08)
-- [x] **Phase 7: API Authentication** - Bearer tokens, personal access tokens, JWT, dual-mode plug, and headless mode (completed 2026-04-09)
-- [x] **Phase 8: Account Lifecycle** - Email change, password change, account deletion, profile hooks, and sudo/re-authentication (completed 2026-04-08)
-- [x] **Phase 9: Audit Logging** - Security event table, event capture for all auth operations, queryable API, and custom hooks (completed 2026-04-09)
-- [x] **Phase 10: Developer Experience** - Testing helpers, scenario fixtures, cookie config, and documentation (completed 2026-04-10)
-- [x] **Phase 10.1: Installer and Library Fixes** - Remediation: AR-10-01/02 plain-map insert DoS fixes, 16 installer template backports, docs gate, supply-chain SHA-pinning, Env helper, pre-existing test fixes (completed 2026-04-10)
+**Full details:** [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
+
+</details>
+
+### 🚧 v1.1 Foundations — Organizations + Passkeys
+
+- [ ] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/`
+- [ ] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column
+- [ ] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard
+- [ ] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling
+- [ ] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour
+- [ ] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
+- [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation
+- [ ] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture
+- [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
+- [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
+- [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection
+- [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
+- [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
 ## Phase Details
 
-### Phase 1: Foundation
-**Goal**: The hybrid lib+generator boundary is established, generated code is plain Ecto schemas calling library functions, and a developer can run `mix sigra.install` to get a working project scaffold
-**Depends on**: Nothing (first phase)
-**Requirements**: FOUND-01, FOUND-02, FOUND-03, FOUND-04, FOUND-05, FOUND-06, FOUND-07, FOUND-08, FOUND-09, FOUND-10
+### Phase 11: Generator Feature System
+**Goal**: Developer running `mix sigra.install` on a fresh Phoenix app gets v1.0 output byte-identical to 10.1.1, but the templates now live under a `core/` subdirectory driven by a `Sigra.Install.Feature` behaviour — the seam that makes organizations, passkeys, and (v1.2) admin purely additive.
+**Depends on**: Nothing (v1.1 foundation phase)
+**Requirements**: GEN-01, GEN-02, GEN-04, GEN-05, GEN-07
+**Pitfalls addressed**: X-1 (generator partial-apply), X-2 (migration ordering), X-3 (template drift)
+**v1.2 load-bearing**: subdir + feature manifest pattern is the exact seam v1.2 `--no-admin` consumes; getting it wrong forces a retrofit.
 **Success Criteria** (what must be TRUE):
-  1. Running `mix sigra.install` generates migrations, schemas, context module, plugs, and optional LiveView pages into the developer's project
-  2. Generated schemas are plain Ecto schemas with no `use Sigra.Schema` field injection — every field is visible in the developer's own files
-  3. Security-critical functions (hashing, token generation, HMAC verification) live in library modules; generated code calls into them
-  4. Configuration compiles without error using only smart defaults; every option has a documented override
-  5. Telemetry events are emitted for operations as stubs that will be filled in by later phases; `Sigra.Telemetry` module exists
-**Plans:** 3 plans
-Plans:
-- [x] 01-01-PLAN.md — Core library modules (config, crypto, token, behaviours, error handling)
-- [x] 01-02-PLAN.md — Telemetry and library plugs (event catalog, HTTP middleware)
-- [x] 01-03-PLAN.md — Generator (EEx templates, mix sigra.install task, injector)
-
-### Phase 2: Core Auth
-**Goal**: A developer's users can register with email/password, log in, and log out, with passwords hashed using Argon2id and enumeration prevention on by default
-**Depends on**: Phase 1
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07
-**Success Criteria** (what must be TRUE):
-  1. User can register with an email and password; password is stored as Argon2id hash, never plaintext
-  2. User can log in with correct email/password and receives a session
-  3. User can log out from any page and the session is invalidated
-  4. A user migrating from bcrypt transparently receives an Argon2id hash on their next successful login
-  5. User can request a magic link and authenticate via the emailed link without a password
-**Plans:** 2 plans
-Plans:
-- [x] 02-01-PLAN.md — Library modules (email normalization, password policy, bcrypt hasher, crypto upgrade detection)
-- [x] 02-02-PLAN.md — Auth orchestrator and generator templates (Sigra.Auth, dual-mode login, registration, controller templates)
-
-### Phase 3: Email Flows and Transactional Email
-**Goal**: All email-based auth flows work end to end — confirmation, password reset, and transactional delivery — with HMAC-protected single-use tokens, async delivery, and customizable templates
-**Depends on**: Phase 2
-**Requirements**: CONF-01, CONF-02, CONF-03, CONF-04, CONF-05, CONF-06, RESET-01, RESET-02, RESET-03, RESET-04, RESET-05, EMAIL-01, EMAIL-02, EMAIL-03, EMAIL-04, EMAIL-05
-**Success Criteria** (what must be TRUE):
-  1. New registrations automatically receive a confirmation email; user can confirm via link click or 6-digit code
-  2. Unconfirmed users experience configurable behavior (login allowed with banner, or login blocked) — both modes work
-  3. User can reset their password via email; the reset link expires after 60 minutes and works only once; using it invalidates all other sessions
-  4. All email flows return identical responses for known and unknown email addresses, preventing enumeration
-  5. Emails are delivered asynchronously via Oban when present, falling back to inline delivery; HTML + text multipart templates are generated into the project for customization
+  1. Developer can run `mix sigra.install --yes` on a fresh `mix phx.new` project and the resulting app compiles, boots, and passes the existing v1.0 HTTP smoke routes with zero content diff vs phase 10.1.1 output.
+  2. Developer can re-run `mix sigra.install --yes` on an already-installed project and the generator skips existing files + already-present injections without erroring (idempotent per GEN-04).
+  3. Post-install summary output shows a clear table of generated / modified / skipped / manual-action files (GEN-05), and migrations are emitted with strictly-ordered timestamps so cross-feature ordering hazards cannot arise at install or upgrade time (GEN-07).
+  4. `priv/templates/sigra.install/core/` contains every v1.0 template file with zero content drift; `Sigra.Install.Feature` behaviour is implemented by `Sigra.Install.Features.Core` with `enabled?/1` always returning true.
 **Plans:** 6 plans
 Plans:
-- [x] 03-01-PLAN.md — Email delivery infrastructure (Config, Delivery, Workers, Error, Mailer)
-- [x] 03-02-PLAN.md — Auth confirmation/reset functions, Telemetry, Testing helpers
-- [x] 03-03-PLAN.md — Generated email module, mailer wrapper, confirmation flow templates
-- [x] 03-04-PLAN.md — Generated reset password flow templates, unconfirmed access plug
-- [x] 03-05-PLAN.md — Auth context wiring, generator updates, test fixtures
-- [x] 03-06-PLAN.md — Gap closure: wire EmailDelivery Oban worker perform/1
+- [ ] 11-01-PLAN.md — Wave 0: Golden-diff harness + pre-refactor snapshot capture (GEN-02)
+- [ ] 11-02-PLAN.md — Wave 1: Feature behaviour + %Injection{} struct + Report + MigrationTimestamps primitives (GEN-01, GEN-05, GEN-07)
+- [ ] 11-03-PLAN.md — Wave 2: Mechanical template relocation into core/ subdirectory (GEN-02)
+- [ ] 11-04-PLAN.md — Wave 3: Features.Core extraction owning v1.0 files, injections, migrations, instructions (GEN-01, GEN-02)
+- [ ] 11-05-PLAN.md — Wave 4: Walker refactor + idempotency proof (GEN-01, GEN-04, GEN-05, GEN-07)
+- [ ] 11-06-PLAN.md — Wave 5: V-PA-01 purely-additive + V-ISOLATION-01 guardrails + VALIDATION.md finalize (GEN-01)
 
-### Phase 4: Session Management and Security Baseline
-**Goal**: Sessions are database-backed and fully controllable, with secure cookie defaults, configurable timeouts, account lockout, IP-based rate limiting, suspicious login detection, and sudo/re-authentication
-**Depends on**: Phase 3
-**Requirements**: SESS-01, SESS-02, SESS-03, SESS-04, SESS-05, SESS-06, SESS-07, SESS-08, SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06, SEC-07
+### Phase 12: Scope + Session Foundation
+**Goal**: `%Scope{}` and the `user_sessions` row carry the fields every org-aware and (v1.2) impersonation-aware plug needs, with zero business logic attached — a mechanical data-shape extension.
+**Depends on**: Phase 11
+**Requirements**: ORG-SCOPE-01, ORG-SCOPE-02
+**Pitfalls addressed**: O-5 (cross-org session confusion setup), O-6 (stale pointer prep)
+**v1.2 load-bearing**: reserved `%Scope{impersonating_from: nil}` field means v1.2 impersonation pattern matches are purely additive; `user_sessions.active_organization_id` is the single source of truth v1.2 impersonation also piggybacks on.
 **Success Criteria** (what must be TRUE):
-  1. Session tokens are opaque database-backed tokens in HttpOnly/SameSite=Lax/Secure cookies; no session data is in the cookie itself
-  2. User can opt into remember-me, receiving a separate long-lived cookie (60-day default) that survives browser restarts
-  3. User can view all active sessions (IP, user agent, last active) and revoke any individual session or all sessions at once
-  4. After 5 failed login attempts the account locks for 15 minutes; after 10 failed attempts from one IP in a minute the IP receives a 429 response
-  5. When a user logs in from a new IP or device, they receive an email notification
-**Plans:** 6 plans
-Plans:
-- [x] 04-01-PLAN.md — Session struct, SessionStore behaviour, GeoIP, UAParser, Ecto store, config extensions
-- [x] 04-02-PLAN.md — FetchSession plug overhaul, RequireSudo redesign, Auth session functions, telemetry
-- [x] 04-03-PLAN.md — Lockout module, Hammer wrapper, RateLimit plug, security testing helpers
-- [x] 04-04-PLAN.md — Suspicious login detection, Auth.authenticate integration, TokenCleanup extension
-- [x] 04-05-PLAN.md — Generator templates (migration, UserSession, sudo, emails, auth context)
-- [x] 04-06-PLAN.md — Session listing LiveView, generator wiring, test fixtures, final verification
+  1. Developer can pattern-match `%Scope{active_organization: org, membership: m, impersonating_from: from}` in generated `user_auth.ex` without a compile warning; generator template emits all three fields.
+  2. Running `mix sigra.install --yes` produces a migration that adds `active_organization_id :binary_id` nullable on `user_sessions`, and the example app's session fixture inserts succeed with the new column unset.
+  3. Fresh install's session serialization round-trips the new session column: logging in, writing an arbitrary `active_organization_id` via `Sigra.Session`, reading it back via `Plug.Conn.get_session/2` all work end-to-end.
+**Plans**: TBD
 
-### Phase 5: OAuth and Social Login
-**Goal**: Users can register and log in via Google, GitHub, Apple, and Meta; existing users can link and unlink OAuth providers; account linking requires explicit confirmation to prevent account takeover
-**Depends on**: Phase 4
-**Requirements**: OAUTH-01, OAUTH-02, OAUTH-03, OAUTH-04, OAUTH-05, OAUTH-06, OAUTH-07, OAUTH-08
+### Phase 13: Organizations Schemas + Context
+**Goal**: `Sigra.Organizations` is a complete, hazard-safe data layer — schemas, queries, context functions — with the cross-tenant leak, last-owner lockout, and cascade-destroys-audit-log pitfalls wired in as executable tests from day one.
+**Depends on**: Phase 12
+**Requirements**: ORG-01, ORG-03, ORG-04, ORG-05, ORG-06, ORG-07, ORG-08
+**Pitfalls addressed**: O-1 (cross-tenant leak), O-4 (last-owner lockout + admin-deletes-owner escalation), O-9 (slug squatting), O-10 (cascade wipes audit log)
+**v1.2 load-bearing**: `admin` in the hardcoded reserved slug list prevents `/admin` collision when v1.2 ships; soft-delete orgs + `audit_events.organization_id → :nilify_all` means v1.2 audit feed survives org deletion.
 **Success Criteria** (what must be TRUE):
-  1. User can register and log in with Google or GitHub in under 10 minutes of provider configuration; Apple and Meta work with additional setup
-  2. When an OAuth callback matches an existing email-based account, the user is shown a confirmation step before the provider is linked — auto-linking is opt-in
-  3. Authenticated user can link a new OAuth provider from settings and unlink it; a user with only one OAuth provider cannot unlink until a password is set
-  4. Multiple OAuth providers can be linked to one account; each stored with encrypted access and refresh tokens
-  5. Edge cases are handled gracefully: provider returns no email, user denies permissions, provider is down, CSRF state mismatch all produce clear error messages
-**Plans:** 3 plans
-Plans:
-- [x] 05-01-PLAN.md — Core types, config, Identity struct, Assent strategy wrappers
-- [x] 05-02-PLAN.md — OAuth orchestrator, callback processor, Auth integration, telemetry, testing
-- [x] 05-03-PLAN.md — Generator (mix sigra.gen.oauth), templates, route/config injection
+  1. Developer can call `Sigra.Organizations.Query.for_org(Post, scope)` and get a scoped query; calling it on a schema without `:organization_id` raises at compile or first-call time (layer 1 of the O-1 defense).
+  2. Attempting to remove, demote, or self-delete the last owner of an organization returns `{:error, :last_owner}` from inside a single `Ecto.Multi` (not a DB constraint) with a fresh-count read inside the same transaction.
+  3. Creating an organization with a reserved slug (`admin`, `api`, `www`, `static`, and the ~20-entry reserved list) returns a changeset error; every reserved word has a regression test.
+  4. Soft-deleting an organization sets `deleted_at`, leaves the row in-place, and audit rows referencing it survive with `organization_id` nilified via `on_delete: :nilify_all` FK config.
+  5. The time-boxed Credo custom-check spike for tenant-scope discipline either ships (≤300 lines) or falls back to integration-test-only enforcement with a documented CONVENTIONS.md entry (DX-09).
+**Plans**: TBD
+
+### Phase 14: Org Plugs + Scope Hydration
+**Goal**: Every authenticated request — Plug pipeline or LiveView — lands at its handler with `current_scope.active_organization` correctly populated, stale session pointers gracefully reset, and org-required routes blocked for non-members with a clear error.
+**Depends on**: Phase 12, Phase 13
+**Requirements**: ORG-SCOPE-03, ORG-SCOPE-04, ORG-SCOPE-05, ORG-SCOPE-06
+**Pitfalls addressed**: O-5 (cross-org session confusion), O-6 (stale pointer 500)
+**Success Criteria** (what must be TRUE):
+  1. User whose session `active_organization_id` points at an org they were removed from is silently reset to "no active org" (scope.active_organization = nil) instead of getting a 500 — stale-pointer regression test proves it.
+  2. User hitting a route guarded by `Sigra.Plug.RequireMembership` without an active org is redirected to the "pick or create an org" landing page; user with the wrong role (when `roles: [:owner]`) is redirected to an access-denied page.
+  3. LiveView `on_mount` and the Plug path produce byte-identical `current_scope` values for the same session state — parity test covers both login, switch, and stale-pointer cases.
+  4. User logging in with zero orgs lands on the create/accept landing page; one org is auto-selected; 2+ resumes the most-recent non-nil `active_organization_id` (per-session, not per-user) or shows the picker.
+**Plans**: TBD
 **UI hint**: yes
 
-### Phase 6: Multi-Factor Authentication
-**Goal**: Users can enroll TOTP, verify it on login via a `mfa_pending` session gate, use backup codes for recovery, and trust specific browsers; admins can enforce MFA per route or role
-**Depends on**: Phase 4
-**Requirements**: MFA-01, MFA-02, MFA-03, MFA-04, MFA-05, MFA-06, MFA-07, MFA-08, MFA-09
+### Phase 15: Audit Integration
+**Goal**: Every security-relevant write emitted through `Sigra.Audit.log/*` carries `organization_id` and `effective_user_id` on real indexed columns — not JSONB — so v1.2 per-org and impersonation audit views become trivial filter additions.
+**Depends on**: Phase 14
+**Requirements**: AUD-01, AUD-02, AUD-03, AUD-04, AUD-05
+**Pitfalls addressed**: O-7 (audit misattribution under IMP+), O-11 (worker runs without tenant context)
+**v1.2 load-bearing**: `audit_events.organization_id` and `effective_user_id` as real indexed columns (not JSONB) are the exact shape v1.2 views require; `metadata_from_scope/2` is the single assembly point v1.2 impersonation extends; `Sigra.Workers` behaviour is the contract v1.2 worker audits rely on.
 **Success Criteria** (what must be TRUE):
-  1. User can enroll TOTP by scanning a QR code (or entering the key manually), confirming with a valid code, and enabling it — enrollment is not complete until the confirmation code is verified
-  2. After login, a user with TOTP enabled is placed in `mfa_pending` state and cannot access protected routes until they submit a valid 6-digit code; the `mfa_pending` state blocks access, not just redirects
-  3. User is shown 8 backup codes exactly once at enrollment; using a code consumes it atomically; user can regenerate a fresh set
-  4. User can check "trust this browser" and skip MFA for a configurable period on that device; disabling MFA requires the current TOTP code or a backup code
-  5. After 5 failed TOTP attempts the TOTP endpoint locks for 15 minutes, independently of the main login lockout
-**Plans:** 5 plans
-Plans:
-- [x] 06-01-PLAN.md — MFA core library modules (Sigra.MFA, Credential, BackupCodes, Trust, Lockout, Config, Error)
-- [x] 06-02-PLAN.md — MFA session gate (Session :mfa_pending, RequireMFA/RequireMFAEnrolled plugs, Auth MFA flow)
-- [x] 06-03-PLAN.md — MFA telemetry, testing helpers, TokenCleanup extension
-- [x] 06-04-PLAN.md — Generated schemas, migration, email templates, Auth context delegation
-- [x] 06-05-PLAN.md — Generated UI templates, generator wiring, router injection
+  1. Generator emits a migration adding `organization_id :binary_id` (nullable, indexed, `on_delete: :nilify_all`) and `effective_user_id :binary_id` (nullable, indexed) as real columns on `audit_events`; library-emitted password-reset audits outside org context land cleanly with `organization_id` null.
+  2. Every existing v1.0 audit call site that assembled metadata routes through `Sigra.Audit.metadata_from_scope/2`; the helper has a documented reserved-comment block for v1.2 `effective_user_id = scope.impersonating_from` population.
+  3. `Sigra.Audit.Query` gains an `:organization_id` filter backed by the real column; an index hit-count test proves it uses the index.
+  4. `Sigra.Workers` behaviour enforces that workers accept `args["organization_id"]` + `args["actor_id"]`, reconstruct a minimal `%Scope{}` in `perform/1`, and emit audits through `metadata_from_scope`; an existing v1.0 worker is refactored to the behaviour as the reference implementation.
+  5. In v1.1, `effective_user_id` is populated identically to `user_id` on every audit row — v1.2 divergence (impersonator vs target) is purely additive.
+**Plans**: TBD
+
+### Phase 16: Org LiveViews + Switcher
+**Goal**: User experiences the full organization UX end-to-end in the example app — switching orgs, creating them, managing settings, viewing members, changing roles, inviting pending members — with the last-owner guard and sudo gates enforced in the UI as tightly as they are in the context.
+**Depends on**: Phase 13, Phase 14, Phase 15
+**Requirements**: ORG-UX-01, ORG-UX-02, ORG-UX-03, ORG-UX-04, ORG-UX-05, ORG-UX-06, ORG-UX-07, ORG-UX-08, ORG-UX-09
+**Pitfalls addressed**: O-5 (switcher-driven session confusion)
+**Success Criteria** (what must be TRUE):
+  1. User can create a new organization from the example app UI, get a slug auto-generated with reserved-word rejection, and land inside the org as an owner.
+  2. User can switch the active organization via the header dropdown; switching POSTs to a plain controller (not a LV event), rotates the Plug session's `active_organization_id`, and redirects to the referrer — matching v1.0's sensitive-mutation-via-POST D-29 convention.
+  3. Organization owner can rename, change the slug (with sudo + typed confirmation + 7-day redirect), and soft-delete the organization (sudo + typed org-name confirmation); non-owner attempts return 403 at the plug layer, not just the UI.
+  4. Organization owner/admin can view the member list, change a member's role with a confirmation step, and remove a member — which revokes the membership row and force-logs-out that user's org-scoped sessions in the same `Ecto.Multi`.
+  5. Signup flow offers an optional "create your first organization" step; no auto-personal-org is created on registration (ORG-UX-09 / Jetstream #117 lesson).
+**Plans**: TBD
 **UI hint**: yes
 
-
-
-### Phase 7: API Authentication
-**Goal**: API clients can authenticate via bearer tokens or personal access tokens; the same `current_scope` shape is produced for both session and bearer auth paths; headless mode works without any UI
-**Depends on**: Phase 4
-**Requirements**: API-01, API-02, API-03, API-04, API-05, API-06, API-07
+### Phase 17: Invitation Flow + Email
+**Goal**: Organization owners/admins can invite users by email through a replay-safe, email-bound HMAC flow that closes the Jetstream #907 / Keycloak CVE-2026-1529 class of invite-hijack bugs by construction, not by convention.
+**Depends on**: Phase 16
+**Requirements**: INV-01, INV-02, INV-03, INV-04, INV-05, INV-06, INV-07, INV-08, INV-09, INV-10
+**Pitfalls addressed**: O-2 (invite hijack), O-3 (invite replay)
 **Success Criteria** (what must be TRUE):
-  1. API client can authenticate via `Authorization: Bearer <token>` header and receives the same `current_scope` as a session-authenticated browser user
-  2. User can create an API key with a human-readable prefix (`myapp_live_<random>`); the raw key is shown exactly once at creation and is never retrievable again; it is stored as a SHA-256 hash
-  3. Personal access tokens can be scoped and given an expiration; they appear in a listing; any token can be revoked individually
-  4. JWT support works for stateless API use cases where instant revocation is not required; it is opt-in, not the default
-  5. All auth logic works in headless mode with no LiveView or HTML components present
-**Plans:** 4 plans
-Plans:
-- [x] 07-01-PLAN.md — Core API token modules (config, types, scopes, APIToken, RequireScopes, errors, telemetry)
-- [x] 07-02-PLAN.md — JWT library modules (Joken dep, JWT, Signer, ClaimsBuilder, RefreshToken)
-- [x] 07-03-PLAN.md — FetchBearer rewrite, Auth delegation, TokenCleanup, Testing helpers, Email
-- [x] 07-04-PLAN.md — Generator templates (migration, schema, controllers, router, install task)
-
-### Phase 8: Account Lifecycle
-**Goal**: Users can change email (with re-verification), change password, delete their account, and perform sensitive operations only after re-authenticating in sudo mode; profile update hooks integrate cleanly with app-specific schemas
-**Depends on**: Phase 3
-**Requirements**: ACCT-01, ACCT-02, ACCT-03, ACCT-04, SESS-09
-**Success Criteria** (what must be TRUE):
-  1. User can request an email change; the new address receives a confirmation link and the old address receives a notification with a cancel link; the change only takes effect after confirmation
-  2. User can change their password by providing the current password; all other sessions are invalidated after a successful change
-  3. User can delete their account; the deletion behavior (soft delete, hard delete, anonymization) is configurable by the developer
-  4. Sensitive operations (change email, delete account, manage MFA) prompt for re-authentication if the sudo window has expired; the sudo window is configurable
-  5. Application developers can register profile update callbacks that run within the same transaction as auth operations
-**Plans:** 5 plans
-Plans:
-- [x] 08-01-PLAN.md — Config extensions, EmailTemplates behaviour, Hooks engine, DataExport behaviour
-- [x] 08-02-PLAN.md — Account lifecycle library modules (EmailChange, PasswordChange, Deletion, Account orchestrator)
-- [x] 08-03-PLAN.md — RequirePasswordChange plug, AccountDeletion Oban worker, Telemetry, Auth delegation
-- [x] 08-04-PLAN.md — Generated templates (migration, user schema, auth context, hooks stub, email templates)
-- [x] 08-05-PLAN.md — Settings LiveView, reactivation page, generator/injector updates, testing helpers
+  1. Owner or admin can invite a user by email via `OrganizationMembersLive`; token is generated by `Sigra.Token` HMAC, SHA-256-hashed in storage, and expires at 7d (configurable via NimbleOptions with a dev-only warning above 30d).
+  2. Invitee with no account signs up through a form that pre-fills and locks the email; membership creation is atomic with user confirmation inside one `Ecto.Multi` (O-2 path A).
+  3. Invitee signed in as a different user (case-insensitive via citext) gets an explicit "this invitation is for [other-email]" mismatch page with no accept button — never a silent takeover (O-2 Jetstream #907 regression test covers this).
+  4. Accepting an invite marks `accepted_at` inside the Multi; replay attempts return a clear "already accepted" flash; revoked invites return "no longer valid"; rate-limited invite creation (20/day/user via Hammer) rejects abuse.
+  5. Pending-invite list shows email, role, invited-by, expires-in, and a revoke button that transitions the row to `revoked_at`.
+**Plans**: TBD
 **UI hint**: yes
 
-### Phase 9: Audit Logging
-**Goal**: All security-relevant auth events are automatically captured in a queryable audit log with structured metadata; developers can emit custom events; log writes do not block auth request performance
-**Depends on**: Phase 4
-**Requirements**: AUDIT-01, AUDIT-02, AUDIT-03, AUDIT-04
+### Phase 18: Backfill + `--organizations` Generator Wiring
+**Goal**: Developer upgrading a v1.0 app to v1.1 can run the upgrade with or without backfill and reach a working app on the other side, with a boot-tested upgrade fixture proving it; `--no-organizations` produces a zero-org install that compiles clean.
+**Depends on**: Phase 17
+**Requirements**: ORG-02, ORG-UPGRADE-01, ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03 (org-axis slice)
+**Pitfalls addressed**: O-8 (backfill idempotency), X-1 (combinatorial partial-apply — org axis), X-2 (migration ordering), X-4 (upgrade crashes)
 **Success Criteria** (what must be TRUE):
-  1. Every auth operation (login, logout, register, MFA, lockout, token creation, etc.) automatically writes an audit event without any developer action
-  2. Each audit event includes user ID, IP address, user agent, timestamp, operation name, and outcome; the full metadata is queryable via `Sigra.Audit` API
-  3. Developer can query the audit log by user, date range, or event type and receive structured results
-  4. Developer can emit a custom audit event from application code using the same API
-**Plans:** 5 plans
-Plans:
-- [x] 09-01-PLAN.md — Generator: audit_events migration + AuditEvent schema templates
-- [x] 09-02-PLAN.md — Sigra.Audit core module (log/log_multi/query/list/stream/count) + Changeset/Cursor/Query submodules + Config
-- [x] 09-03-PLAN.md — Integrate Sigra.Audit.__log_internal__ into auth/session/mfa/oauth/api/account/security subsystems (D-26 mapping)
-- [x] 09-04-PLAN.md — Sigra.Workers.AuditCleanup Oban worker + inline fallback startup warning
-- [x] 09-05-PLAN.md — Wave 0 test scaffolding (unit, integration, property, observability, sensitive-data, security, worker tests + fixtures)
+  1. `mix sigra.install --no-organizations` produces a Phoenix app that compiles, boots, and passes the HTTP smoke suite with zero org-related schemas, routes, templates, or context modules generated.
+  2. `mix sigra.upgrade --backfill-personal-orgs` on a v1.0 install is idempotent, batched, adapter-branched (PG/MySQL/SQLite), and safe to re-run; re-running does not create duplicate memberships.
+  3. `mix sigra.upgrade` without the flag leaves existing users in the "create or accept invite" state on next login — no 500s, no dead ends, nil-guarded template accessors verified by boot test.
+  4. Repository ships `test/upgrade_test.exs` that boots a v1.0 install, runs the v1.1 upgrade in both backfill-on and backfill-off paths, and asserts login still works in each path (X-4 regression lock).
+  5. CI org-axis matrix (install with `--organizations` and `--no-organizations`) compiles and boots clean on every PR.
+**Plans**: TBD
 
-### Phase 10: Developer Experience
-**Goal**: The library ships with testing helpers that make auth state easy to set up in tests, scenario fixtures covering all auth states, correct cookie domain config, and copy-paste documentation examples
-**Depends on**: Phase 1
-**Requirements**: DX-01, DX-02, DX-03, DX-04
+### Phase 19: Passkey Schema + Contexts
+**Goal**: `Sigra.Passkeys` is a correct, credential-confusion-safe, monotonic-sign-count data layer around `wax_ ~> 0.7`, with Cloak-encrypted public keys reusing the v1.0 OAuth vault — no new encryption infra, no new migration hazards.
+**Depends on**: Phase 11 (parallel with phase 13 onwards)
+**Requirements**: PK-01, PK-03, PK-04, PK-05, PK-07, PK-08
+**Pitfalls addressed**: P-4 (sign-count false positives), P-6 (StrongKey CVE-2025-26788 credential confusion)
+**Spike required at kickoff**: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`; 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors (research flag from SUMMARY.md).
 **Success Criteria** (what must be TRUE):
-  1. `log_in_user/2`, `register_user/1`, `setup_totp/1`, and `create_api_key/2` are importable in ExUnit tests and set up the described state in one call
-  2. Scenario-based fixtures cover all auth states (anonymous, authenticated, mfa_pending, mfa_complete, sudo, locked, unconfirmed) and can be used directly in test setup
-  3. Cookie domain is configurable with sensible defaults that work in development, test, and production without manual intervention
-  4. Documentation includes copy-paste examples for every major flow; a developer can get from zero to working auth in an afternoon
+  1. `mix.exs` adds `{:wax_, "~> 0.7"}` and `mix deps.compile` is clean on OTP 27 / Elixir 1.18; `UserPasskey` schema has `credential_id` unique+indexed (unencrypted) and `public_key` encrypted via the existing `Sigra.Vault` Cloak pipeline.
+  2. `Sigra.Passkeys.register/3` and `authenticate/3` wrap `wax_` correctly — register stores `rp_id` on the `UserPasskey` row at registration time (P-3 prep), authenticate verifies the returned `credential_id` belongs to the requested user (P-6 StrongKey defense) and rejects mismatch before any further processing.
+  3. Sign-count regression handling defaults to `:warn` (log + audit event `:passkey_sign_count_regression` + banner affordance); `:require_reauth` and `:revoke` modes are selectable via NimbleOptions and each has a regression test.
+  4. `Sigra.Passkeys.{list_for_user, rename, delete}` have passing unit tests covering the happy path + missing-credential error case.
+**Plans**: TBD
 
-**Plans:** 6/6 plans complete
-Plans:
-- [x] 10-01-PLAN.md — REQUIREMENTS DX-01 reconciliation, Sigra.Testing section headers + audit helpers (D-01, D-18, D-19)
-- [x] 10-02-PLAN.md — Seven scenario fixtures + scenario/2 dispatcher in generated AuthFixtures (D-02..D-07)
-- [x] 10-03-PLAN.md — :cookie_domain config + runtime refactor across 3 cookie sites + prod boot warning (D-08..D-11)
-- [x] 10-04-PLAN.md — ex_doc :extras + :groups_for_extras scaffold; subdomain-auth recipe (D-12, D-15)
-- [x] 10-05-PLAN.md — Guide content (getting-started + flows + recipes) + doctests on Sigra.Testing/Auth/Config (D-13, D-14)
-- [x] 10-06-PLAN.md — test/example/ Phoenix app + 6 D-17 smoke tests + example_app_smoke CI job (D-16, D-17)
+### Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra
+**Goal**: WebAuthn challenges are server-generated, server-stored in the signed+encrypted Plug session, and server-verified — making the OneUptime GHSA-gjjc-pcwp-c74m replay class impossible — and the JS hooks scaffolding that binds SimpleWebAuthn to LiveView ships with runtime-configured RP ID + graceful `app.js` injection.
+**Depends on**: Phase 19
+**Requirements**: PK-06, PK-09, PK-10, GEN-06
+**Pitfalls addressed**: P-1 (challenge replay — OneUptime CVE), P-3 (RP ID rotation), P-8 (JS hook abort/timeout/cancel)
+**Spike required at kickoff**: Plug session cookie size sanity check under 60s TTL with passkey challenge payload (<4KB ceiling) + `assets/js/app.js` injection-target detection on a non-default esbuild layout.
+**Success Criteria** (what must be TRUE):
+  1. Challenge is generated via `Sigra.Token.generate/4` with purpose `"sigra-passkey-challenge"` and `max_age: 60`, stored only in the Plug session, verified on response, and deleted on successful verify; `clientDataJSON` is never trusted as a challenge source (P-1 regression test covers the replay attempt).
+  2. `Sigra.Passkeys.config/0` loads `rp_id`, `rp_name`, `origin`, `attestation` (default `:none`), `user_verification` (default `:preferred`), and `timeout_ms` from runtime config; NimbleOptions fast-fails on first use if unset or malformed.
+  3. Per-user passkey ceremony rate limiter via Hammer (default 5/min) rejects the 6th attempt in the same minute with a clear error — regression test proves the key shape.
+  4. Generator injects `passkey_hooks.js` import + hook registration into `assets/js/app.js` when the marker comment is present; when absent (custom esbuild/Vite/Webpack), generator writes the hook file, skips injection, and prints exact manual instructions — no silent failure (GEN-06).
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 21: Passkey LiveViews + POST-Auth Controller
+**Goal**: User can enroll and authenticate with passkeys end-to-end in the example app — as a second factor today and optionally as a primary factor — with the stolen-session enrollment, lost-device lockout, and JS-abort-corruption classes of bugs closed at the plug and hook layers.
+**Depends on**: Phase 20
+**Requirements**: PK-UX-01, PK-UX-02, PK-UX-03, PK-UX-04, PK-UX-05, PK-UX-06, PK-UX-07, PK-UX-08, PK-UX-09, PK-UX-10, PK-UX-11, PK-UX-12
+**Pitfalls addressed**: P-2 (stolen-session enrollment takeover), P-5 (lost-device lockout), P-8 (JS abort/timeout), P-9 (duplicate-device 500)
+**v1.2 load-bearing**: passkey enrollment lives in the v1.2 "locked-down ops" list — the plug-layer `RequireSudo` gate here is what prevents v1.2 impersonator from enrolling their own passkey as the target.
+**Success Criteria** (what must be TRUE):
+  1. User can enroll a passkey from account settings only after passing `Sigra.Plug.RequireSudo` (password or TOTP re-auth); enrollment emits an audit event and sends the v1.0 suspicious-login-shaped email with device hint, IP, city, time (P-2 defense).
+  2. User can log in via passkey as a second factor alongside TOTP on `MfaSettingsLive`; passkey list shows AAGUID-derived friendly names (iCloud Keychain, Google Password Manager, 1Password, Windows Hello) from a bundled registry; user can rename or delete passkeys (delete sudo-gated), with a soft cap of 10 per user.
+  3. User with `:passkey_primary_enabled` config can log in with email + passkey without a password; every passkey-as-primary user has mandatory magic-link recovery that cannot be disabled (P-5 lockout defense).
+  4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 22: `--passkeys` Generator Wiring
+**Goal**: Developer running `mix sigra.install --no-passkeys` gets a zero-passkey install; combinatorial install matrix (orgs × passkeys) compiles clean — validating the Phase 11 feature-manifest pattern on its second consumer.
+**Depends on**: Phase 21, Phase 11
+**Requirements**: PK-02
+**Pitfalls addressed**: X-1 (partial-apply — passkey axis + combinatorial)
+**Success Criteria** (what must be TRUE):
+  1. `mix sigra.install --no-passkeys` produces a Phoenix app that compiles, boots, and passes the HTTP smoke suite with zero passkey schemas, contexts, plugs, LiveViews, JS hooks, or `wax_` runtime references generated (and no `@simplewebauthn/browser` added to `assets/package.json`).
+  2. CI combinatorial matrix runs the four `--(no-)organizations × --(no-)passkeys` combinations on every PR and each produces a compiling, booting app.
+  3. `Sigra.Install.Features.Passkeys` drops into the feature manifest alongside Core and Organizations with no special-casing in `sigra.install.ex` beyond registration — proving the Phase 11 pattern holds for a second feature.
+**Plans**: TBD
+
+### Phase 23: Docs, CI Smoke, Upgrade Guide
+**Goal**: Developer landing on `getting-started.md` fresh can go from `mix phx.new` to a working multi-tenant Phoenix app with passkey login in under 30 minutes; developer upgrading from v1.0 has a clear, tested path; CI catches regressions in org + passkey flows via Playwright.
+**Depends on**: Phase 18, Phase 22
+**Requirements**: DX-01, DX-02, DX-03, DX-04, DX-05, DX-06, DX-07, DX-08, DX-09
+**Pitfalls addressed**: X-4 (upgrade docs gap), P-3 (RP ID rename operational playbook), P-10 (ceremony rate DoS documentation), P-11 (recovery fallback docs)
+**Success Criteria** (what must be TRUE):
+  1. `getting-started.md` has an "Organizations & Passkeys" section that walks a developer from `mix phx.new` to a working multi-tenant app with passkey login; a human follow-along spike completes in under 30 minutes end-to-end.
+  2. Three new guides ship under `guides/`: `upgrading-to-v1.1.md` (both backfill modes + breaking-change callouts + upgrade test invocation), `how-to/multi-tenancy.md` (logical MT model + `for_org/2` discipline + why schema-per-tenant is rejected), and `how-to/passkeys.md` (enrollment + primary-mode config + RP ID rename playbook + recovery guidance). `mix docs --warnings-as-errors` stays clean.
+  3. Generated testing helpers (`create_organization/1`, `create_membership/3`, `log_in_user_with_org/3`, `register_passkey/2`, `authenticate_with_passkey/2`) and library helpers in `Sigra.Testing` (`assert_scope_has_org/2`, `assert_membership/3`, `assert_audit_logged_for_org/2`) are exercised by their own unit tests.
+  4. Playwright CI smoke harness extends to cover: organization switcher happy path, invitation-accept by both new signup and existing logged-in user, passkey registration, passkey authentication — all green on PRs.
+**Plans**: TBD
+**UI hint**: yes
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
-
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Planning complete | - |
-| 2. Core Auth | 0/2 | Planning complete | - |
-| 3. Email Flows and Transactional Email | 0/5 | Planning complete | - |
-| 4. Session Management and Security Baseline | 0/6 | Planning complete | - |
-| 5. OAuth and Social Login | 0/3 | Planning complete | - |
-| 6. Multi-Factor Authentication | 0/5 | Planning complete | - |
-| 7. API Authentication | 0/4 | Planning complete | - |
-| 8. Account Lifecycle | 0/5 | Planning complete | - |
-| 9. Audit Logging | 0/5 | Planning complete | - |
-| 10. Developer Experience | 6/6 | Complete   | 2026-04-10 |
+| 11. Generator Feature System | 0/? | Not started | — |
+| 12. Scope + Session Foundation | 0/? | Not started | — |
+| 13. Organizations Schemas + Context | 0/? | Not started | — |
+| 14. Org Plugs + Scope Hydration | 0/? | Not started | — |
+| 15. Audit Integration | 0/? | Not started | — |
+| 16. Org LiveViews + Switcher | 0/? | Not started | — |
+| 17. Invitation Flow + Email | 0/? | Not started | — |
+| 18. Backfill + `--organizations` Generator Wiring | 0/? | Not started | — |
+| 19. Passkey Schema + Contexts | 0/? | Not started | — |
+| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
+| 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
+| 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
+| 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
-### Phase 10.1: Installer and library fixes (INSERTED)
+## Backlog
 
-**Goal:** Fix pre-existing library bugs and backport installer template fixes surfaced during phase 10 review/security/validation audits
-**Requirements**: Remediation (no new requirement IDs)
-**Depends on:** Phase 10
-**Plans:** 7/7 plans complete
+Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlog` when the triggering milestone is defined.
 
-**Scope (from phase 10 audits):**
+### Phase 999.1: Retroactive Nyquist validation pass (BACKLOG)
 
-1. **AR-10-01** — Fix `Sigra.Auth.request_password_reset/3` plain-map insert at `lib/sigra/auth.ex:828-835`. Build proper `%UserToken{}` struct via `config.token_schema`. Add live-repo regression test.
-2. **AR-10-02** — Fix magic-link twin at `lib/sigra/auth.ex:425-432` (same plain-map-to-`insert!/1` pattern). Share regression test with AR-10-01.
-3. **Installer template backport** — Merge 16 installer template fixes from `test/example/` copies into `priv/templates/sigra.install/*` (enumerated in `10-06-SUMMARY.md § Deviations > Rule 1`).
-4. **MFA API surface** — Ensure `Sigra.MFA.verify_backup/4` and `Sigra.MFA.enabled?/2` exist as the canonical names used by guides/flows/mfa.md post-WR-01 fix.
-5. **Docs strictness** — Clean up 27 pre-existing `mix docs --warnings-as-errors` `@doc` reference warnings so strict docs build passes in CI. Affected: OAuth strategy wrappers, `Sigra.Session`, `Sigra.Audit.Changeset`, `Sigra.RateLimiters.Hammer`.
-6. **IN-03 supply chain** — SHA-pin third-party GitHub Actions in `.github/workflows/ci.yml` (`actions/checkout`, `erlef/setup-beam`, `actions/cache`). Add Dependabot `github-actions` config.
-7. **IN-01** — Extract `Sigra.Env.current/0` helper for release-safe `Mix.env` guard (replaces duplicated `function_exported?(Mix, :env, 0)` pattern).
-8. **IN-02** — Add concrete example comment for `mix.exs` `test_load_filters` regex.
-9. **IN-04** — `AuthFixtures.scenario/2` should raise `ArgumentError` with the list of valid atoms instead of `FunctionClauseError` on typos.
-10. **IN-05** — Document or fix `Sigra.Auth.normalize_email/1` interior whitespace handling scope.
-11. **Pre-existing failing tests** — Fix `test/mix/tasks/sigra.install_test.exs` (2 failures) and `test/sigra/audit/cursor_portability_test.exs` (1 failure).
-12. **test/example stubs** — Replace or better-document stub `Settings`/`Reactivation` LiveViews in `test/example/lib/example_web/live/` so they don't mislead users copying from the example app.
+**Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
+**Requirements:** TBD (no new REQ-IDs; remediation phase)
+**Depends on:** v1.0 archived
+**Plans:** 0 plans — promote with `/gsd-review-backlog` or `/gsd-discuss-phase 999.1`
 
-**Traceability:** `10-REVIEW.md` (CR-02, IN-01..IN-05), `10-REVIEW-FIX.md` (DEFERRED), `10-SECURITY.md` (AR-10-01, AR-10-02, IN-03), `10-VERIFICATION.md` (deferred items 1-6), `10-06-SUMMARY.md § Deviations`.
+**Scope (from v1.0 audit):**
+- Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 03 (email-flows) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 04 (session-mgmt) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 06 (mfa) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 07 (api-auth) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 09 (audit-logging) — VALIDATION.md draft, nyquist_compliant: false
+- Phase 10.1 (installer-fixes) — no VALIDATION.md exists (remediation phase, never validated)
 
-Plans:
-- [x] 10.1-01-PLAN.md — Fix auth.ex plain-map DoS bugs (D-01, D-02, D-03) with shared live-repo regression test
-- [x] 10.1-02-PLAN.md — Backport 16 Rule-1 installer template fixes + drift test (D-04, D-05)
-- [x] 10.1-03-PLAN.md — Eliminate 27 mix docs --warnings-as-errors @doc reference warnings (D-07)
-- [x] 10.1-04-PLAN.md — Sigra.Env.current helper + SHA-pin actions + Dependabot + docs CI gate (D-08, D-09, D-10, D-11)
-- [x] 10.1-05-PLAN.md — Code quality: MFA allow-list, mix.exs comment, scenario/2 ArgumentError, normalize_email doc (D-06, D-12, D-13, D-14)
-- [x] 10.1-06-PLAN.md — Investigate + fix 3 pre-existing failing tests (D-15, D-16)
-- [x] 10.1-07-PLAN.md — Mark test/example stub LiveViews with visible warnings (D-17)
+**Traceability:** `milestones/v1.0-MILESTONE-AUDIT.md` Section 6 "Nyquist Compliance" table.
 
-### Phase 10.1.1: example-app repair + CI install/usage smoke harness (INSERTED)
-
-**Goal:** Repair the 5 remaining UAT integration bugs (B5-B9) in test/example/ (registration confirmation email, dual session stores, sudo KeyError, audit actor_id type mismatch, LiveView login form swallowed), fix doc drift + llms.txt + RUNBOOK brew collision note, flip the library installer default to uuid primary keys, and add a four-job CI smoke harness (install_smoke, example_http_smoke, example_playwright_smoke, example_unit_smoke) that would catch the B1-B9 class of bugs automatically on every PR.
-**Requirements**: Remediation — CONTEXT.md decisions D-01 through D-15 (no new requirement IDs; traceability cleanup deferred)
-**Depends on:** Phase 10.1
-**Plans:** 8/8 plans complete
+**Notes:** Run `/gsd-validate-phase {N}` for each entry. Each phase should be a separate plan inside this single backlog phase. Total effort estimate: 3–5 hours. Not a v1.0 release blocker — the 1249-test suite + 5 CI smoke jobs + Playwright golden path provide functional coverage, this just closes out the formal sampling contracts.
 
 Plans:
-- [x] 10.1.1-01-PLAN.md — Doc drift + llms.txt + RUNBOOK brew note (D-02, D-03, D-04)
-- [x] 10.1.1-02-PLAN.md — B5 confirmation email wiring + B7 sudo template fix + template sync (D-05, D-08)
-- [x] 10.1.1-03-PLAN.md — B6 session store unification in test/example + template sync (D-06, D-07)
-- [x] 10.1.1-04-PLAN.md — B9 LoginLive → plain controller + template sync (D-12)
-- [x] 10.1.1-05-PLAN.md — B8 audit type mismatch + library uuid default flip + guides (D-09, D-10, D-11)
-- [x] 10.1.1-06-PLAN.md — CI install_smoke + example_http_smoke jobs + sigra.install --yes flag (D-13, D-15)
-- [x] 10.1.1-07-PLAN.md — Playwright golden-path harness + example_playwright_smoke CI job + MFA data-testid (D-13, D-14, D-15)
-- [x] 10.1.1-08-PLAN.md — Rename example_app_smoke → example_unit_smoke + branch protection note (D-13)
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.2: Dependabot major-version bumps cleanup (BACKLOG)
+
+**Goal:** Review and safely land the 3 open Dependabot PRs that bump major versions of SHA-pinned GitHub Actions used across the 5 CI jobs. Major bumps require per-job CI verification because they can change default Node runtime, cache semantics, or artifact behavior.
+**Requirements:** TBD
+**Depends on:** v1.0 archived
+**Plans:** 0 plans — promote with `/gsd-review-backlog` or handle as a v1.0.1 patch milestone
+
+**Scope (open PRs as of 2026-04-11):**
+- [szTheory/sigra#1](https://github.com/szTheory/sigra/pull/1) — actions/setup-node 4.0.4 → 6.3.0 (v5 dropped Node 16; v6 changed default cache behavior)
+- [szTheory/sigra#3](https://github.com/szTheory/sigra/pull/3) — actions/upload-artifact 4.4.3 → 7.0.1 (v5 removed "upload to same name twice"; v6 changed compression defaults — this is the riskiest one)
+- [szTheory/sigra#4](https://github.com/szTheory/sigra/pull/4) — actions/checkout 4.3.1 → 6.0.2 (v5 Node 20 default; v6 Node 22 default)
+
+**Traceability:** IN-03 (SHA-pinned Actions from phase 10.1), `.github/dependabot.yml` config, `.github/workflows/ci.yml` action pin sites.
+
+**Notes:** Do NOT merge blindly. Land each bump on its own commit, verify all 5 required CI checks pass on a PR, confirm upload-artifact behavior (failure trace upload in `example_playwright_smoke` is the most likely regression surface). Consider bundling into a v1.0.1 patch milestone alongside any post-GA hotfixes.
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)

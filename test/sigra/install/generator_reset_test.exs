@@ -10,7 +10,7 @@ defmodule Sigra.Install.GeneratorResetTest do
   """
   use ExUnit.Case, async: true
 
-  @templates_dir Path.expand("../../../priv/templates/sigra.install", __DIR__)
+  @templates_dir Path.expand("../../../priv/templates/sigra.install/core", __DIR__)
 
   @sample_assigns [
     web_module: "MyAppWeb",

@@ -1,7 +1,7 @@
 defmodule Sigra.Install.GeneratorWiringTest do
   use ExUnit.Case, async: true
 
-  @template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install"])
+  @template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core"])
 
   @base_binding [
     context_module: "MyApp.Auth",
@@ -148,10 +148,20 @@ defmodule Sigra.Install.GeneratorWiringTest do
     end
   end
 
-  describe "route injection produces correct routes" do
+  describe "route injection produces correct routes (via Features.Core)" do
+    # Phase 11 Wave 4: router route templates moved from sigra.install.ex
+    # to Sigra.Install.Features.Core.router_injection/3. Re-point asserts.
+    @features_core_path Path.join([
+                          File.cwd!(),
+                          "lib",
+                          "sigra",
+                          "install",
+                          "features",
+                          "core.ex"
+                        ])
+
     test "controller routes include confirmation paths" do
-      # Verify the generator task module includes the expected route patterns
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(get "/confirm", ConfirmationController, :new)
       assert source =~ ~s(post "/confirm", ConfirmationController, :create)
       assert source =~ ~s(get "/confirm/:token", ConfirmationController, :confirm)
@@ -159,7 +169,7 @@ defmodule Sigra.Install.GeneratorWiringTest do
     end
 
     test "controller routes include reset password paths" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(get "/reset-password", ResetPasswordController, :new)
       assert source =~ ~s(post "/reset-password", ResetPasswordController, :create)
       assert source =~ ~s(get "/reset-password/:token", ResetPasswordController, :edit)
@@ -167,30 +177,38 @@ defmodule Sigra.Install.GeneratorWiringTest do
     end
 
     test "LiveView routes include confirmation paths" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(live "/confirm", ConfirmationLive)
       assert source =~ ~s(live "/confirm/:token", ConfirmationLive, :confirm)
     end
 
     test "LiveView routes include reset password paths" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
+      source = File.read!(@features_core_path)
       assert source =~ ~s(live "/reset-password", ResetPasswordLive)
       assert source =~ ~s(live "/reset-password/:token", ResetPasswordLive, :edit)
     end
   end
 
   describe "Oban queue detection" do
-    test "generator contains Oban detection logic" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ "inject_oban_queue"
+    # Phase 11 Wave 4: moved from sigra.install.ex to
+    # Sigra.Install.Features.Core.oban_instructions/1.
+    test "Features.Core contains Oban detection logic" do
+      source =
+        File.read!(Path.join([File.cwd!(), "lib", "sigra", "install", "features", "core.ex"]))
+
+      assert source =~ "oban_instructions"
       assert source =~ "sigra_mailer"
     end
   end
 
   describe "Swoosh config detection" do
-    test "generator contains Swoosh detection logic" do
-      source = File.read!(Path.join([File.cwd!(), "lib", "mix", "tasks", "sigra.install.ex"]))
-      assert source =~ "inject_swoosh_config"
+    # Phase 11 Wave 4: moved from sigra.install.ex to
+    # Sigra.Install.Features.Core.swoosh_instructions/2.
+    test "Features.Core contains Swoosh detection logic" do
+      source =
+        File.read!(Path.join([File.cwd!(), "lib", "sigra", "install", "features", "core.ex"]))
+
+      assert source =~ "swoosh_instructions"
       assert source =~ "Swoosh.Adapters.Local"
     end
   end

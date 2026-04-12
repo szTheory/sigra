@@ -410,4 +410,104 @@ defmodule Sigra.Install.Injector do
       end
     end
   end
+
+  @doc """
+  Applies a `%Sigra.Install.Injection{}` record, routing to the
+  appropriate marker-based injection function based on the anchor.
+
+  Returns `{:ok, :injected}` on first apply, `{:ok, :already_present}`
+  on subsequent applies (idempotency primitive behind GEN-04).
+
+  Features never call `Injector.inject_*` functions directly; they
+  return `%Injection{}` records from the `injections/1` callback in
+  `Sigra.Install.Feature` and the walker passes them here.
+
+  This is a thin adapter layer added for Phase 11 Wave 1 primitives.
+  The legacy `inject_router_plugs/2` / `inject_config/2` / ...
+  functions above continue to serve the monolith until Wave 4 swaps
+  the monolith for the walker.
+  """
+  @spec apply(Sigra.Install.Injection.t(), keyword()) ::
+          {:ok, :injected | :already_present} | {:error, term()}
+  def apply(injection, opts \\ [])
+
+  def apply(%Sigra.Install.Injection{} = injection, opts) do
+    case File.read(injection.target) do
+      {:ok, content} ->
+        if String.contains?(content, injection.marker) do
+          {:ok, :already_present}
+        else
+          do_inject(injection, content, opts)
+        end
+
+      {:error, :enoent} ->
+        {:error, {:target_missing, injection.target}}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp do_inject(%Sigra.Install.Injection{} = inj, content, _opts) do
+    new_content = apply_anchor(inj.anchor, content, inj.content)
+    File.write!(inj.target, new_content)
+    {:ok, :injected}
+  end
+
+  defp apply_anchor(:before_last_end, content, payload) do
+    # Standard Elixir-module injection (router.ex, conn_case.ex, etc.).
+    # Delegate to the pre-existing inject_router_plugs/2 body so the
+    # bytes match the v1.0 monolith exactly.
+    case find_last_end(content) do
+      {:ok, position} ->
+        {before, rest} = String.split_at(content, position)
+        before <> "\n" <> payload <> "\n" <> rest
+
+      :error ->
+        content <> "\n" <> payload <> "\n"
+    end
+  end
+
+  # config.exs-style injection: insert before the `import_config` line if
+  # present, otherwise append. Matches the v1.0 monolith's
+  # `inject_config/2` byte semantics.
+  defp apply_anchor(:elixir_config, content, payload) do
+    case find_import_config(content) do
+      {:ok, position} ->
+        {before, rest} = String.split_at(content, position)
+        before <> payload <> "\n" <> rest
+
+      :error ->
+        content <> payload
+    end
+  end
+
+  # test.exs-style injection: append to the end of file. Matches the
+  # v1.0 monolith's `inject_test_config/2`.
+  defp apply_anchor(:append_eof, content, payload) do
+    content <> payload
+  end
+
+  # conn_case.ex-style injection: find `import Phoenix.ConnTest` (or
+  # `import Plug.Conn`) and insert the helper code on the line below.
+  # Falls back to before_last_end if no anchor line present. Matches
+  # the v1.0 monolith's `inject_conn_case/2`.
+  defp apply_anchor(:conn_case_helpers, content, payload) do
+    case find_conn_case_anchor(content) do
+      {:ok, anchor_line} ->
+        String.replace(content, anchor_line, anchor_line <> "\n" <> payload)
+
+      :error ->
+        apply_anchor(:before_last_end, content, payload)
+    end
+  end
+
+  defp apply_anchor(:after_use_block, content, payload) do
+    String.replace(content, ~r/(\n  use [A-Za-z.]+.*?\n)/s, "\\1\n  #{payload}\n", global: false)
+  end
+
+  defp apply_anchor(:at_top, content, payload), do: payload <> "\n" <> content
+
+  defp apply_anchor(other, _content, _payload),
+    do: raise(ArgumentError, "unsupported injection anchor: #{inspect(other)}")
 end
