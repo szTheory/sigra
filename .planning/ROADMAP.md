@@ -30,7 +30,7 @@
 ### 🚧 v1.1 Foundations — Organizations + Passkeys
 
 - [ ] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/`
-- [ ] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column
+- [x] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column (completed 2026-04-12)
 - [ ] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard
 - [ ] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling
 - [ ] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour
@@ -75,12 +75,12 @@ Plans:
   1. Developer can pattern-match `%Scope{active_organization: org, membership: m, impersonating_from: from}` in generated `user_auth.ex` without a compile warning; generator template emits all three fields.
   2. Running `mix sigra.install --yes` produces a migration that adds `active_organization_id :binary_id` nullable on `user_sessions`, and the example app's session fixture inserts succeed with the new column unset.
   3. Fresh install's session serialization round-trips the new session column: logging in, writing an arbitrary `active_organization_id` via `Sigra.Session`, reading it back via `Plug.Conn.get_session/2` all work end-to-end.
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 Plans:
-- [ ] 12-01-PLAN.md — Wave 1: Sigra.Session struct + SessionStore.Ecto round-trip (ORG-SCOPE-02 library half)
-- [ ] 12-02-PLAN.md — Wave 1: :active_org_column feature manifest slot + new ALTER migration template (ORG-SCOPE-02 generator half)
-- [ ] 12-03-PLAN.md — Wave 1: Generated Scope/UserSession templates + reserved-field invariant test + UPGRADE-v1.2.md (ORG-SCOPE-01)
-- [ ] 12-04-PLAN.md — Wave 2: Golden-diff rebase + example app mirror + D-14 end-to-end round-trip (integration gate)
+- [x] 12-01-PLAN.md — Wave 1: Sigra.Session struct + SessionStore.Ecto round-trip (ORG-SCOPE-02 library half)
+- [x] 12-02-PLAN.md — Wave 1: :active_org_column feature manifest slot + new ALTER migration template (ORG-SCOPE-02 generator half)
+- [x] 12-03-PLAN.md — Wave 1: Generated Scope/UserSession templates + reserved-field invariant test + UPGRADE-v1.2.md (ORG-SCOPE-01)
+- [x] 12-04-PLAN.md — Wave 2: Golden-diff rebase + example app mirror + D-14 end-to-end round-trip (integration gate)
 
 ### Phase 13: Organizations Schemas + Context
 **Goal**: `Sigra.Organizations` is a complete, hazard-safe data layer — schemas, queries, context functions — with the cross-tenant leak, last-owner lockout, and cascade-destroys-audit-log pitfalls wired in as executable tests from day one.
@@ -234,7 +234,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 11. Generator Feature System | 0/? | Not started | — |
-| 12. Scope + Session Foundation | 0/? | Not started | — |
+| 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
 | 13. Organizations Schemas + Context | 0/? | Not started | — |
 | 14. Org Plugs + Scope Hydration | 0/? | Not started | — |
 | 15. Audit Integration | 0/? | Not started | — |
