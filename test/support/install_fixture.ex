@@ -232,6 +232,12 @@ defmodule Sigra.Test.InstallFixture do
       String.starts_with?(line, "cc ") -> true
       String.starts_with?(line, "mkdir -p ") -> true
       String.match?(line, ~r/^==> sigra(_| )/) -> true
+      # OTP version warnings that Mix prints on some patch versions (e.g. OTP 28.0
+      # warns about regex recompilation). These are environment-dependent and not
+      # part of the installer's own output, so they must not affect byte-identity.
+      String.match?(line, ~r/^warning! Erlang\/OTP \S+ detected\./) -> true
+      String.starts_with?(line, "Regexes will be re-compiled from source at runtime") -> true
+      String.match?(line, ~r/^This can be fixed by using Erlang OTP /) -> true
       true -> false
     end
   end
