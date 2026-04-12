@@ -32,7 +32,7 @@
 - [ ] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/`
 - [x] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column (completed 2026-04-12)
 - [x] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard (completed 2026-04-12)
-- [ ] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling
+- [x] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling (completed 2026-04-12)
 - [ ] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour
 - [ ] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
 - [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation
@@ -240,7 +240,7 @@ Plans:
 | 11. Generator Feature System | 0/? | Not started | — |
 | 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
 | 13. Organizations Schemas + Context | 3/3 | Complete    | 2026-04-12 |
-| 14. Org Plugs + Scope Hydration | 0/? | Not started | — |
+| 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
 | 15. Audit Integration | 0/? | Not started | — |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
 | 17. Invitation Flow + Email | 0/? | Not started | — |
@@ -260,7 +260,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 0 plans — promote with `/gsd-review-backlog` or `/gsd-discuss-phase 999.1`
+**Plans:** 3/3 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
