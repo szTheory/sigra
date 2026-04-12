@@ -10,13 +10,27 @@ defmodule <%= context_module %>.Scope do
       scope = <%= context_module %>.Scope.for_user(user)
       scope.user #=> %<%= context_module %>.<%= schema_alias %>{}
 
+  ## Reserved fields
+
+  `:impersonating_from` is reserved for v1.2 impersonation support and must
+  not be removed. See `UPGRADE-v1.2.md` at the project root for the contract.
+
   """
 
   alias <%= context_module %>.<%= schema_alias %>
 
-  defstruct user: nil
+  # Reserved for v1.2 impersonation. Do not remove — see UPGRADE-v1.2.md.
+  defstruct user: nil,
+            active_organization: nil,
+            membership: nil,
+            impersonating_from: nil
 
-  @type t :: %__MODULE__{user: %<%= schema_alias %>{} | nil}
+  @type t :: %__MODULE__{
+          user: %<%= schema_alias %>{} | nil,
+          active_organization: struct() | nil,
+          membership: struct() | nil,
+          impersonating_from: %<%= schema_alias %>{} | nil
+        }
 
   @doc """
   Creates a scope for the given user.
