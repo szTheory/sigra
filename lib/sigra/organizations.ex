@@ -431,6 +431,74 @@ defmodule Sigra.Organizations do
     |> config.repo.one()
   end
 
+  @doc """
+  Fetches a non-deleted organization by id without raising.
+
+  Added in Phase 14 for the scope-hydration path, which must fail-closed on
+  stale session pointers rather than propagating `Ecto.NoResultsError` into
+  the request pipeline (PITFALLS O-6).
+
+  Returns `{:ok, org}` or `{:error, :not_found}`. Soft-deleted rows
+  (`deleted_at != nil`) are treated as not found.
+  """
+  @spec fetch_organization(map(), binary()) :: {:ok, struct()} | {:error, :not_found}
+  def fetch_organization(config, id) do
+    org_schema = config.schemas.organization
+
+    case from(o in org_schema, where: o.id == ^id and is_nil(o.deleted_at)) |> config.repo.one() do
+      nil -> {:error, :not_found}
+      org -> {:ok, org}
+    end
+  end
+
+  @doc """
+  Pure selector that returns the active organization to land a user on.
+
+  Called from login (`Sigra.Auth.create_session/4`) and from the stale-pointer
+  recovery path in `Sigra.Plug.LoadActiveOrganization`. No side effects — no
+  session writes, no audit, no DB writes beyond the reads required to list
+  memberships.
+
+  ## Options
+
+    * `:previous_active_organization_id` (binary_id | nil) — if the user has
+      2+ orgs and one matches this pointer, return `{:ok, that_org}` (resume
+      semantics). On stale recovery this is passed as `nil` — the stale
+      pointer must NOT be resumed.
+
+    * `:strategy` — reserved for v1.2, ignored in v1.1.
+
+  ## Returns
+
+    * `{:ok, org}` — user has exactly one org, or resume pointer matched.
+    * `{:none, :zero_orgs}` — user has no memberships.
+    * `{:multiple, orgs}` — 2+ memberships, no resume pointer match. `orgs`
+      is sorted by `inserted_at` descending for stable UI ordering (CD-04).
+
+  Added in Phase 14 (Plan 14-01, D-11). Covers ORG-SCOPE-06.
+  """
+  @spec select_active_organization(map(), struct(), keyword()) ::
+          {:ok, struct()} | {:none, :zero_orgs} | {:multiple, [struct()]}
+  def select_active_organization(config, user, opts \\ []) do
+    previous = Keyword.get(opts, :previous_active_organization_id)
+
+    case list_organizations_for_user(config, user) do
+      [] ->
+        {:none, :zero_orgs}
+
+      [only] ->
+        {:ok, only}
+
+      orgs when is_list(orgs) ->
+        sorted = Enum.sort_by(orgs, & &1.inserted_at, {:desc, DateTime})
+
+        case previous && Enum.find(sorted, &(&1.id == previous)) do
+          nil -> {:multiple, sorted}
+          resumed -> {:ok, resumed}
+        end
+    end
+  end
+
   # -- Private Helpers --
 
   defp build_org_changeset(org_schema, attrs, config) do

@@ -11,6 +11,16 @@ defmodule Sigra.Plug.ErrorHandler do
     * `:unauthenticated` - No authenticated user found
     * `:stale_sudo` - Sudo window has expired, re-authentication required
     * `:rate_limited` - Request rate limit exceeded
+    * `:insufficient_scope` - Bearer token lacks the required scope
+    * `:token_expired` - API token has expired
+    * `:token_revoked` - API token was revoked
+    * `:mfa_required` - MFA enrollment or challenge required
+    * `:no_active_org` - No active organization on the scope (Phase 14 / D-08);
+      the current request requires an org context but `scope.active_organization`
+      is nil. Typically reached when the user has zero memberships or the
+      stale-pointer recovery path left the scope unpopulated.
+    * `:insufficient_role` - Authenticated user's membership role is not in
+      the required list for the requested resource (Phase 14 / D-08).
 
   ## Example
 
@@ -48,6 +58,8 @@ defmodule Sigra.Plug.ErrorHandler do
           | :token_expired
           | :token_revoked
           | :mfa_required
+          | :no_active_org
+          | :insufficient_role
 
   @doc """
   Handle an authentication error.

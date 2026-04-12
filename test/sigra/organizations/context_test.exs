@@ -267,6 +267,143 @@ defmodule Sigra.Organizations.ContextTest do
     end
   end
 
+  describe "select_active_organization/3" do
+    test "returns {:none, :zero_orgs} when user has no memberships" do
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [] end)
+
+      assert {:none, :zero_orgs} =
+               Sigra.Organizations.select_active_organization(@test_config, build_user())
+    end
+
+    test "returns {:ok, org} when user has exactly one membership" do
+      only = build_org(%{name: "Solo Org"})
+
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [only] end)
+
+      assert {:ok, returned} =
+               Sigra.Organizations.select_active_organization(@test_config, build_user())
+
+      assert returned.id == only.id
+    end
+
+    test "returns {:ok, resumed_org} when 2+ memberships and resume pointer matches" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      older = build_org(%{name: "Older", inserted_at: DateTime.add(now, -3600)})
+      newer = build_org(%{name: "Newer", inserted_at: now})
+
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [older, newer] end)
+
+      assert {:ok, resumed} =
+               Sigra.Organizations.select_active_organization(
+                 @test_config,
+                 build_user(),
+                 previous_active_organization_id: older.id
+               )
+
+      assert resumed.id == older.id
+    end
+
+    test "returns {:multiple, orgs} when 2+ memberships and resume pointer does not match" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      older = build_org(%{name: "Older", inserted_at: DateTime.add(now, -3600)})
+      newer = build_org(%{name: "Newer", inserted_at: now})
+      forged = Ecto.UUID.generate()
+
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [older, newer] end)
+
+      assert {:multiple, orgs} =
+               Sigra.Organizations.select_active_organization(
+                 @test_config,
+                 build_user(),
+                 previous_active_organization_id: forged
+               )
+
+      # Only user's real orgs are returned — forged pointer cannot inject anything
+      assert Enum.map(orgs, & &1.id) |> Enum.sort() == Enum.sort([older.id, newer.id])
+    end
+
+    test "returns {:multiple, orgs} when 2+ memberships and no resume pointer" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      older = build_org(%{name: "Older", inserted_at: DateTime.add(now, -3600)})
+      newer = build_org(%{name: "Newer", inserted_at: now})
+
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [older, newer] end)
+
+      assert {:multiple, orgs} =
+               Sigra.Organizations.select_active_organization(@test_config, build_user())
+
+      assert length(orgs) == 2
+    end
+
+    test "{:multiple, orgs} is sorted by inserted_at descending (CD-04)" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      oldest = build_org(%{name: "Oldest", inserted_at: DateTime.add(now, -7200)})
+      middle = build_org(%{name: "Middle", inserted_at: DateTime.add(now, -3600)})
+      newest = build_org(%{name: "Newest", inserted_at: now})
+
+      # Query returns in arbitrary order (by name, per the query) — selector must re-sort
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [middle, newest, oldest] end)
+
+      assert {:multiple, [first, second, third]} =
+               Sigra.Organizations.select_active_organization(@test_config, build_user())
+
+      assert first.id == newest.id
+      assert second.id == middle.id
+      assert third.id == oldest.id
+    end
+
+    test "ignores unknown options silently (no raise)" do
+      only = build_org()
+
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [only] end)
+
+      # Passing a bogus opt should not crash — Organizations.ex has no
+      # NimbleOptions validation convention on per-call opts.
+      assert {:ok, _} =
+               Sigra.Organizations.select_active_organization(
+                 @test_config,
+                 build_user(),
+                 bogus_option: :nope
+               )
+    end
+  end
+
+  describe "fetch_organization/2" do
+    test "returns {:ok, org} for an existing non-deleted organization" do
+      org = build_org()
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+
+      assert {:ok, returned} = Sigra.Organizations.fetch_organization(@test_config, org.id)
+      assert returned.id == org.id
+    end
+
+    test "returns {:error, :not_found} when the org does not exist" do
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> nil end)
+
+      assert {:error, :not_found} =
+               Sigra.Organizations.fetch_organization(@test_config, Ecto.UUID.generate())
+    end
+
+    test "does not raise on missing id (fail-closed contract)" do
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> nil end)
+
+      # The whole point of fetch_organization vs get_organization! — must not raise
+      assert {:error, :not_found} =
+               Sigra.Organizations.fetch_organization(@test_config, Ecto.UUID.generate())
+    end
+  end
+
   describe "normalize_multi_result/1" do
     # These test the normalization indirectly via remove_member
     test "guard_last_owner error normalizes to {:error, :last_owner}" do
