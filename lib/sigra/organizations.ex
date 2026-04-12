@@ -410,7 +410,12 @@ defmodule Sigra.Organizations do
   @doc """
   Lists non-deleted organizations for a user via their memberships.
 
-  Returns organizations ordered by name.
+  Returns organizations in **unspecified order**. Callers that need a stable
+  UI listing (e.g. an org switcher) should sort the result themselves —
+  typically by `name` for display or by `inserted_at` for recency. The
+  library does not impose an order here because the only internal caller
+  (`select_active_organization/3`) re-sorts by `inserted_at desc` anyway, and
+  paying the DB sort cost twice is wasted work (IN-02).
   """
   @spec list_organizations_for_user(map(), struct()) :: [struct()]
   def list_organizations_for_user(config, user) do
@@ -421,8 +426,7 @@ defmodule Sigra.Organizations do
       join: m in ^membership_schema,
       on: m.organization_id == o.id,
       where: m.user_id == ^user.id,
-      where: is_nil(o.deleted_at),
-      order_by: [asc: o.name]
+      where: is_nil(o.deleted_at)
     )
     |> config.repo.all()
   end
