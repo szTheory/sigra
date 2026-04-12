@@ -46,7 +46,21 @@ defmodule <%= context_module %>.OrganizationInvitation do
   """
   def changeset(invitation, attrs) do
     invitation
-    |> cast(attrs, [:email, :role, :expires_at, :hashed_token, :accepted_at, :revoked_at])
-    |> validate_required([:email, :role, :expires_at])
+    |> cast(attrs, [
+      :email,
+      :role,
+      :expires_at,
+      :hashed_token,
+      :accepted_at,
+      :revoked_at,
+      :organization_id,
+      :invited_by_id,
+      :accepted_by_id
+    ])
+    |> validate_required([:email, :role, :expires_at, :organization_id])
+    |> assoc_constraint(:organization)
+    |> unique_constraint([:organization_id, :email],
+      name: :organization_invitations_pending_index
+    )
   end
 end
