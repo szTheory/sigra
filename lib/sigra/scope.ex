@@ -23,4 +23,50 @@ defmodule Sigra.Scope do
       impersonating_from: nil
     )
   end
+
+  @doc """
+  Builds a minimal user-only scope from a keyword opts list that may carry
+  `:scope_module`. Returns `nil` when `:scope_module` is absent or nil.
+
+  Intended for library integration sites (Plan 15-02 semantic enrichment) that
+  have a resolved user but no lexical `%Scope{}` — the call site can then pass
+  `Sigra.Scope.from_opts(opts, user)` as the second positional arg to
+  `Sigra.Audit.log_safe/3` without forcing every caller to thread a scope
+  through. `active_organization` is always `nil`: these sites fire pre- or
+  post-auth but BEFORE org selection (Phase 15 D-26..D-28).
+
+  ## Examples
+
+      iex> Sigra.Scope.from_opts([], %{id: "u"})
+      nil
+
+      iex> Sigra.Scope.from_opts([scope_module: nil], %{id: "u"})
+      nil
+  """
+  @spec from_opts(keyword(), struct() | map() | nil) :: struct() | nil
+  def from_opts(opts, user) when is_list(opts) do
+    case Keyword.get(opts, :scope_module) do
+      nil -> nil
+      mod when is_atom(mod) -> build(mod, user, active_organization: nil)
+    end
+  end
+
+  @doc """
+  Builds a minimal user-only scope from a `Sigra.Config` struct or plain map.
+  Returns `nil` when `config.scope_module` is unset or absent.
+
+  Used by library sites that accept a `%Sigra.Config{}` (as opposed to a raw
+  opts keyword list) — e.g. `Sigra.Auth.authenticate_with_config/2`,
+  `Sigra.MFA`, `Sigra.OAuth`, `Sigra.ApiToken`. Tolerates plain-map configs
+  used in fast unit tests (OAuth test suite) via `Map.get/3`.
+  """
+  @spec from_config(struct() | map(), struct() | map() | nil) :: struct() | nil
+  def from_config(config, user) when is_map(config) do
+    case Map.get(config, :scope_module) do
+      nil -> nil
+      mod when is_atom(mod) -> build(mod, user, active_organization: nil)
+    end
+  end
+
+  def from_config(_config, _user), do: nil
 end

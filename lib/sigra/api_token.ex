@@ -99,9 +99,18 @@ defmodule Sigra.APIToken do
         # D-26: api.token_create audit row (standalone, D-28). Metadata
         # never contains the raw token or hash — only name and scopes
         # (D-23 forbidden keys enforced by Sigra.Audit.Changeset).
-        Sigra.Audit.log_safe("api.token_create", nil,
+        # 15-02 Category 2: user resolved, config.scope_module available —
+        # build a user-only scope (org intentionally nil at token create).
+        scope =
+          case config.scope_module do
+            nil -> nil
+            mod -> Sigra.Scope.build(mod, user, active_organization: nil)
+          end
+
+        Sigra.Audit.log_safe("api.token_create", scope,
           api_token_audit_opts(config) ++ [
             actor_id: user.id,
+            target_id: user.id,
             metadata: %{name: attrs.name, scopes: attrs.scopes}
           ]
         )
@@ -159,6 +168,7 @@ defmodule Sigra.APIToken do
           Sigra.Audit.log_safe("api.token_verify.failure", nil,
             api_token_audit_opts(config) ++ [
               actor_id: nil,
+              target_id: nil,
               outcome: "failure",
               metadata: %{reason: "invalid_token"}
             ]
@@ -169,9 +179,12 @@ defmodule Sigra.APIToken do
         token ->
           cond do
             token.revoked_at != nil ->
-              Sigra.Audit.log_safe("api.token_verify.failure", nil,
+              Sigra.Audit.log_safe(
+                "api.token_verify.failure",
+                Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
                 api_token_audit_opts(config) ++ [
                   actor_id: Map.get(token, :user_id),
+                  target_id: Map.get(token, :user_id),
                   outcome: "failure",
                   metadata: %{reason: "token_revoked"}
                 ]
@@ -181,9 +194,12 @@ defmodule Sigra.APIToken do
 
             token.expires_at != nil and
                 DateTime.compare(token.expires_at, DateTime.utc_now()) == :lt ->
-              Sigra.Audit.log_safe("api.token_verify.failure", nil,
+              Sigra.Audit.log_safe(
+                "api.token_verify.failure",
+                Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
                 api_token_audit_opts(config) ++ [
                   actor_id: Map.get(token, :user_id),
+                  target_id: Map.get(token, :user_id),
                   outcome: "failure",
                   metadata: %{reason: "token_expired"}
                 ]
@@ -231,9 +247,12 @@ defmodule Sigra.APIToken do
             })
 
             # D-26: api.token_revoke audit row
-            Sigra.Audit.log_safe("api.token_revoke", nil,
+            Sigra.Audit.log_safe(
+              "api.token_revoke",
+              Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
               api_token_audit_opts(config) ++ [
                 actor_id: Map.get(token, :user_id),
+                target_id: Map.get(token, :user_id),
                 metadata: %{token_id: to_string(token_id)}
               ]
             )
@@ -256,9 +275,10 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh(config, user_id) do
-    Sigra.Audit.log_safe("api.jwt_refresh", nil,
+    Sigra.Audit.log_safe("api.jwt_refresh", Sigra.Scope.from_config(config, %{id: user_id}),
       api_token_audit_opts(config) ++ [
         actor_id: user_id,
+        target_id: user_id,
         metadata: %{}
       ]
     )
@@ -270,9 +290,10 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh_reuse(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh_reuse(config, user_id) do
-    Sigra.Audit.log_safe("api.jwt_refresh_reuse", nil,
+    Sigra.Audit.log_safe("api.jwt_refresh_reuse", Sigra.Scope.from_config(config, %{id: user_id}),
       api_token_audit_opts(config) ++ [
         actor_id: user_id,
+        target_id: user_id,
         outcome: "failure",
         metadata: %{reason: "refresh_token_reuse_detected"}
       ]

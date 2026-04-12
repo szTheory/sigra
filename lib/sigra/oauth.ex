@@ -73,9 +73,23 @@ defmodule Sigra.OAuth do
 
         # D-26: oauth.authorize audit row. Never put tokens/secrets in
         # metadata (D-23); only the provider name.
-        Sigra.Audit.log_safe("oauth.authorize", nil,
+        # 15-02 Category 2: resolve user from opts[:user_id] if present so the
+        # scope carries effective_user_id for logged-in re-link flows.
+        # Note: `config` can be a plain Map in tests or a %Sigra.Config{}; use
+        # Map.get/3 so a missing :scope_module field does not raise KeyError.
+        user_id_hint = Keyword.get(opts, :user_id)
+
+        scope =
+          case {Map.get(config, :scope_module), user_id_hint} do
+            {nil, _} -> nil
+            {_mod, nil} -> nil
+            {mod, uid} -> Sigra.Scope.build(mod, %{id: uid}, active_organization: nil)
+          end
+
+        Sigra.Audit.log_safe("oauth.authorize", scope,
           oauth_audit_opts(config) ++ [
-            actor_id: Keyword.get(opts, :user_id),
+            actor_id: user_id_hint,
+            target_id: user_id_hint,
             metadata: %{provider: to_string(provider)}
           ]
         )
@@ -145,14 +159,14 @@ defmodule Sigra.OAuth do
 
     case result do
       {:ok, :registered, user, _session} ->
-        Sigra.Audit.log_safe("oauth.callback.success", nil,
+        Sigra.Audit.log_safe("oauth.callback.success", Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider), outcome: "registered"}
           )
         )
 
-        Sigra.Audit.log_safe("oauth.register_via_oauth", nil,
+        Sigra.Audit.log_safe("oauth.register_via_oauth", Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider)}
@@ -160,14 +174,14 @@ defmodule Sigra.OAuth do
         )
 
       {:ok, :logged_in, user, _session} ->
-        Sigra.Audit.log_safe("oauth.callback.success", nil,
+        Sigra.Audit.log_safe("oauth.callback.success", Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider), outcome: "logged_in"}
           )
         )
 
-        Sigra.Audit.log_safe("oauth.login_via_oauth", nil,
+        Sigra.Audit.log_safe("oauth.login_via_oauth", Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider)}
@@ -175,9 +189,11 @@ defmodule Sigra.OAuth do
         )
 
       {:error, %OAuthError{} = err} ->
+        # 15-02 Category 3: OAuth callback failure has no resolved user.
         Sigra.Audit.log_safe("oauth.callback.failure", nil,
           Keyword.merge(audit_opts,
             actor_id: nil,
+            target_id: nil,
             outcome: "failure",
             metadata: %{provider: to_string(provider), reason: Atom.to_string(err.error_code)}
           )
@@ -293,7 +309,7 @@ defmodule Sigra.OAuth do
 
           # D-26: oauth.link audit row (standalone, D-28). Provider only,
           # never tokens or client_secret (D-23).
-          Sigra.Audit.log_safe("oauth.link", nil,
+          Sigra.Audit.log_safe("oauth.link", Sigra.Scope.from_config(config, user),
             Keyword.merge(oauth_audit_opts(config),
               actor_id: user.id,
               metadata: %{provider: to_string(provider)}
@@ -372,7 +388,7 @@ defmodule Sigra.OAuth do
               })
 
               # D-26: oauth.unlink audit row
-              Sigra.Audit.log_safe("oauth.unlink", nil,
+              Sigra.Audit.log_safe("oauth.unlink", Sigra.Scope.from_config(config, user),
                 Keyword.merge(oauth_audit_opts(config),
                   actor_id: user.id,
                   metadata: %{provider: provider_str}
