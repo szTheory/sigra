@@ -1,4 +1,4 @@
-defmodule <%= web_module %>.OrganizationMembersLive do
+defmodule ExampleWeb.OrganizationMembersLive do
   @moduledoc """
   Members list + per-row role-change + remove flows for the active organization.
 
@@ -32,9 +32,9 @@ defmodule <%= web_module %>.OrganizationMembersLive do
   action above the table. Look for the `Phase 17 fills this section` HEEx
   comment to find the fill-in point.
   """
-  use <%= web_module %>, :live_view
+  use ExampleWeb, :live_view
 
-  alias <%= app_module %>.Organizations
+  alias Example.Organizations
 
   @page_size 100
 
@@ -255,21 +255,21 @@ defmodule <%= web_module %>.OrganizationMembersLive do
 
     <section id="pending-invitations-section" class="mt-8">
       <h2 class="text-lg font-semibold">Pending invitations</h2>
-      <%!-- Phase 17 fills this section --%>
+      
       <div class="card bg-base-200 mt-2 p-6 text-center text-sm text-base-content/70">
         No pending invitations. Inviting members is coming in the next release.
       </div>
     </section>
 
     <dialog id="confirm-role-modal" class="modal" phx-hook="DialogModal">
-      <%%= if match?({:role, _}, @pending_action) do %>
-        <%% {:role, m} = @pending_action %>
+      <%= if match?({:role, _}, @pending_action) do %>
+        <% {:role, m} = @pending_action %>
         <div class="modal-box">
           <h3 class="text-lg font-semibold">Change {m.user.email}'s role?</h3>
 
-          <%%= if @role_modal_error do %>
+          <%= if @role_modal_error do %>
             <p class="text-error mt-2 text-sm" role="alert">{@role_modal_error}</p>
-          <%% end %>
+          <% end %>
 
           <form phx-submit="change_role" class="mt-4 space-y-4">
             <label class="form-control w-full">
@@ -290,12 +290,12 @@ defmodule <%= web_module %>.OrganizationMembersLive do
           </form>
         </div>
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
-      <%% end %>
+      <% end %>
     </dialog>
 
     <dialog id="confirm-remove-modal" class="modal" phx-hook="DialogModal">
-      <%%= if match?({:remove, _}, @pending_action) do %>
-        <%% {:remove, m} = @pending_action %>
+      <%= if match?({:remove, _}, @pending_action) do %>
+        <% {:remove, m} = @pending_action %>
         <div class="modal-box">
           <h3 class="text-lg font-semibold">
             Remove {m.user.email} from {@current_scope.active_organization.name}?
@@ -304,9 +304,9 @@ defmodule <%= web_module %>.OrganizationMembersLive do
             {m.user.email} will be signed out of this organization immediately. You can re-invite them later.
           </p>
 
-          <%%= if @remove_modal_error do %>
+          <%= if @remove_modal_error do %>
             <p class="text-error mt-2 text-sm" role="alert">{@remove_modal_error}</p>
-          <%% end %>
+          <% end %>
 
           <form phx-submit="remove_member">
             <div class="modal-action">
@@ -318,7 +318,7 @@ defmodule <%= web_module %>.OrganizationMembersLive do
           </form>
         </div>
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
-      <%% end %>
+      <% end %>
     </dialog>
     """
   end

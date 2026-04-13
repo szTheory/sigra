@@ -1,11 +1,11 @@
-defmodule <%= web_module %>.Components.OrgSwitcher do
+defmodule ExampleWeb.Components.OrgSwitcher do
   @moduledoc """
   Organization switcher function component.
 
   Paste `<.org_switcher current_scope={@current_scope}
   user_organizations={@user_organizations} return_to={@current_path} />`
   into your app layout (typically the `<header>` in
-  `lib/<%= otp_app %>_web/components/layouts.ex`).
+  `lib/example_web/components/layouts.ex`).
 
   The component renders a daisyUI `<details class="dropdown">` — click to
   open, click-outside to close, Esc closes via native `<details>` behaviour.
@@ -17,7 +17,7 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
   owned by your application.
   """
 
-  use <%= web_module %>, :html
+  use ExampleWeb, :html
 
   alias Plug.CSRFProtection
 
@@ -56,9 +56,9 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
           </span>
         </li>
 
-        <%%= if other_orgs(@user_organizations, @current_scope.active_organization) != [] do %>
+        <%= if other_orgs(@user_organizations, @current_scope.active_organization) != [] do %>
           <li class="menu-title text-xs uppercase">Switch to</li>
-          <%%= for {org, role} <- other_orgs(@user_organizations, @current_scope.active_organization) do %>
+          <%= for {org, role} <- other_orgs(@user_organizations, @current_scope.active_organization) do %>
             <li>
               <form action={~p"/organizations/switch"} method="post" class="w-full">
                 <input type="hidden" name="_csrf_token" value={CSRFProtection.get_csrf_token()} />
@@ -75,8 +75,8 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
                 </button>
               </form>
             </li>
-          <%% end %>
-        <%% end %>
+          <% end %>
+        <% end %>
 
         <li class="divider my-1"></li>
         <li>
@@ -84,13 +84,13 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
             <.icon name="hero-plus" class="w-4 h-4" /> Create organization
           </.link>
         </li>
-        <%%= if @current_scope.membership.role in [:owner, :admin] do %>
+        <%= if @current_scope.membership.role in [:owner, :admin] do %>
           <li>
             <.link navigate={~p"/organizations/#{@current_scope.active_organization}/settings"}>
               <.icon name="hero-cog-6-tooth" class="w-4 h-4" /> Organization settings
             </.link>
           </li>
-        <%% end %>
+        <% end %>
         <li>
           <.link navigate={~p"/organizations"}>
             <.icon name="hero-users" class="w-4 h-4" /> Manage organizations

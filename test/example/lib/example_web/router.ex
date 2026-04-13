@@ -94,4 +94,42 @@ defmodule ExampleWeb.Router do
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
+
+  # Sigra organizations (Phase 16)
+  pipeline :org_scoped do
+    plug Sigra.Plug.LoadOrganizationFromSlug
+    plug Sigra.Plug.RequireMembership, error_handler: ExampleWeb.AuthErrorHandler
+  end
+
+  scope "/", ExampleWeb do
+    pipe_through [:browser, :require_authenticated]
+
+    # POST /organizations/switch MUST be defined before the scoped block
+    # below so Phoenix's definition-order matching doesn't interpret
+    # "switch" as a slug (D-06).
+    post "/organizations/switch", OrganizationSwitchController, :update
+
+    live_session :organizations_unscoped,
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {ExampleWeb.UserAuth, :assign_user_organizations}
+      ] do
+      live "/organizations", OrganizationsLive.Index, :index
+      live "/organizations/new", OrganizationsLive.New, :new
+    end
+  end
+
+  scope "/organizations/:org", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :org_scoped]
+
+    live_session :organization_scoped,
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {ExampleWeb.UserAuth, :assign_user_organizations},
+        {Sigra.LiveView.OrganizationScope, []}
+      ] do
+      live "/settings", OrganizationSettingsLive, :edit
+      live "/members", OrganizationMembersLive, :index
+    end
+  end
 end
