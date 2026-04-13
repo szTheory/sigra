@@ -9,8 +9,8 @@ defmodule Sigra.Organizations.Slug do
 
   @default_reserved_slugs ~w(
     admin api app auth billing blog cdn dashboard docs help
-    login logout new oauth register settings signup static
-    status support system webhooks www
+    login logout new oauth orgs organizations register settings signup
+    static status support switch system webhooks www
   )
 
   @default_slug_format ~r/^[a-z][a-z0-9-]*[a-z0-9]$/

@@ -50,7 +50,9 @@ defmodule Sigra.Organizations do
         membership: [type: :atom, required: true, doc: "OrganizationMembership schema module."],
         invitation: [type: :atom, required: true, doc: "OrganizationInvitation schema module."],
         user: [type: :atom, required: true, doc: "User schema module."],
-        scope: [type: :atom, required: true, doc: "Scope struct module."]
+        scope: [type: :atom, required: true, doc: "Scope struct module."],
+        user_session: [type: {:or, [:atom, nil]}, default: nil, doc: "UserSession schema module. Required for `remove_member/3` force-logout (Phase 16 D-21)."],
+        organization_slug_alias: [type: {:or, [:atom, nil]}, default: nil, doc: "OrganizationSlugAlias schema module. Required for `update_slug/4` (Phase 16 D-13)."]
       ]
     ],
     roles: [
@@ -329,6 +331,7 @@ defmodule Sigra.Organizations do
     result =
       Multi.new()
       |> guard_last_owner(membership.organization_id, membership.id, config)
+      |> purge_org_sessions(membership, config)
       |> Multi.delete(:membership, membership)
       |> append_audit(config, "organization.member_remove", scope,
         metadata: %{user_id: membership.user_id}
@@ -652,6 +655,27 @@ defmodule Sigra.Organizations do
       others = Enum.reject(owner_ids, &(&1 == membership_id))
       if others != [], do: {:ok, :safe}, else: {:error, :last_owner}
     end)
+  end
+
+  # Phase 16 D-21 / SC-4: purge all user_sessions rows for the removed user
+  # whose active_organization_id == the org being left. Runs inside the same
+  # Multi as the membership delete so last-owner rollback also reverts the
+  # session purge. No-op if config.schemas.user_session is nil (pre-Phase 16
+  # config; the thin-wrapper template is updated in Plan 02).
+  defp purge_org_sessions(multi, membership, config) do
+    case Map.get(config.schemas, :user_session) do
+      nil ->
+        multi
+
+      user_session_schema ->
+        Multi.delete_all(multi, :purge_org_sessions, fn _ ->
+          from(s in user_session_schema,
+            where:
+              s.user_id == ^membership.user_id and
+                s.active_organization_id == ^membership.organization_id
+          )
+        end)
+    end
   end
 
   defp maybe_guard_last_owner_on_demote(multi, membership, new_role, config) do

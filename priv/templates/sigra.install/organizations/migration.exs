@@ -55,9 +55,31 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     )
 
     create index(:organization_invitations, [:hashed_token])
+
+    # ── Organization Slug Aliases ──────────────────────────────────────
+    # Tracks previous slugs for 7 days after a slug change so the
+    # `LoadOrganizationFromSlug` plug can redirect old URLs to the
+    # canonical slug (Phase 16 D-13). Old-slug uniqueness is enforced
+    # only while `expires_at > now()` so expired aliases can be
+    # reclaimed by another organization.
+    create table(:organization_slug_aliases<%= if binary_id do %>, primary_key: false<% end %>) do
+<%= if binary_id do %>      add :id, :binary_id, primary_key: true
+<% end %>      add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
+      add :old_slug, :citext, null: false
+      add :expires_at, :utc_datetime, null: false
+
+      timestamps(type: :utc_datetime, updated_at: false)
+    end
+
+    create index(:organization_slug_aliases, [:organization_id])
+    create unique_index(:organization_slug_aliases, [:old_slug],
+      where: "expires_at > now()",
+      name: :organization_slug_aliases_old_slug_active_idx
+    )
   end
 
   def down do
+    drop table(:organization_slug_aliases)
     drop table(:organization_invitations)
     drop table(:organization_memberships)
     drop table(:organizations)
@@ -110,9 +132,29 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     # MySQL/SQLite: no partial index. Composite unique index as fallback.
     create unique_index(:organization_invitations, [:organization_id, :email, :accepted_at, :revoked_at])
     create index(:organization_invitations, [:hashed_token])
+
+    # ── Organization Slug Aliases ──────────────────────────────────────
+    # Tracks previous slugs for 7 days after a slug change (Phase 16 D-13).
+    # MySQL/SQLite: no partial-index support — enforce uniqueness on
+    # `old_slug` alone. Application-level cleanup removes expired rows
+    # before the old_slug becomes reclaimable.
+    create table(:organization_slug_aliases<%= if binary_id do %>, primary_key: false<% end %>) do
+<%= if binary_id do %>      add :id, :binary_id, primary_key: true
+<% end %>      add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
+      add :old_slug, :string, null: false, size: 63
+      add :expires_at, :utc_datetime, null: false
+
+      timestamps(type: :utc_datetime, updated_at: false)
+    end
+
+    create index(:organization_slug_aliases, [:organization_id])
+    create unique_index(:organization_slug_aliases, [:old_slug],
+      name: :organization_slug_aliases_old_slug_active_idx
+    )
   end
 
   def down do
+    drop table(:organization_slug_aliases)
     drop table(:organization_invitations)
     drop table(:organization_memberships)
     drop table(:organizations)
