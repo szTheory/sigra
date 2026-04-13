@@ -181,17 +181,179 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # single-arg get_user_by_session_token which drops the session struct).
       assert user_auth =~ "get_user_and_session_by_token"
     end
+
+    @tag :phase16
+    test "Phase 16 org_switcher component template exists and exports org_switcher/1" do
+      template = File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
+
+      assert template =~ "defmodule <%= web_module %>.Components.OrgSwitcher"
+      assert template =~ "def org_switcher(assigns)"
+      # daisyUI dropdown + ARIA contract (UI-SPEC §Screen Anatomy 1)
+      assert template =~ ~s|<details class="dropdown dropdown-end"|
+      assert template =~ ~s|aria-label="Organization switcher"|
+      # Each "other org" row posts to /organizations/switch via a form
+      assert template =~ ~s|action={~p"/organizations/switch"}|
+      assert template =~ ~s|method="post"|
+      assert template =~ ~S|aria-label={"Switch to #{org.name}"}|
+      assert template =~ "CSRFProtection.get_csrf_token"
+      # Create org link always present
+      assert template =~ ~s|~p"/organizations/new"|
+      # Settings link ONLY for owner/admin
+      assert template =~ "role in [:owner, :admin]"
+      # Role badge variants (UI-SPEC §Color)
+      assert template =~ "badge-primary"
+      assert template =~ "badge-neutral"
+      assert template =~ "badge-ghost"
+    end
+
+    @tag :phase16
+    test "Phase 16 OrganizationSwitchController template exists with membership-before-write + local-path return_to" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/controllers/organization_switch_controller.ex"
+        )
+
+      assert template =~ "defmodule <%= web_module %>.OrganizationSwitchController"
+      assert template =~ "def update(conn,"
+      # Delegates to the thin wrapper's set_active_organization/2
+      assert template =~ "Organizations.set_active_organization(conn, org)"
+      # Local-path validation for return_to (same pattern as SudoController)
+      assert template =~ ~s|String.starts_with?(path, "/")|
+      assert template =~ ~s|not String.starts_with?(path, "//")|
+      # Unknown / cross-tenant org_id returns 404 (enumeration prevention D-04)
+      assert template =~ ~s|put_status(:not_found)|
+      assert template =~ "ErrorHTML"
+      assert template =~ ~s|render(:"404")|
+      # Flash on success
+      assert template =~ ~S|"Switched to #{org.name}."|
+    end
+
+    @tag :phase16
+    test "Phase 16 router_injection template defines POST /organizations/switch BEFORE scoped block (D-06)" do
+      template = File.read!("priv/templates/sigra.install/organizations/router_injection.ex")
+
+      # Both anchors present
+      assert template =~ ~s|post "/organizations/switch"|
+      assert template =~ ~s|scope "/organizations/:org"|
+
+      # Line-order assertion: switch MUST be defined before the scoped block
+      # so Phoenix's definition-order matching doesn't interpret "switch" as
+      # a slug (D-06).
+      switch_index =
+        template
+        |> String.split("\n")
+        |> Enum.find_index(&String.contains?(&1, ~s|post "/organizations/switch"|))
+
+      scope_index =
+        template
+        |> String.split("\n")
+        |> Enum.find_index(&String.contains?(&1, ~s|scope "/organizations/:org"|))
+
+      assert is_integer(switch_index)
+      assert is_integer(scope_index)
+
+      assert switch_index < scope_index,
+             "POST /organizations/switch must appear before scope \"/organizations/:org\" block (D-06)"
+
+      # :org_scoped pipeline uses LoadOrganizationFromSlug + RequireMembership
+      assert template =~ "Sigra.Plug.LoadOrganizationFromSlug"
+      assert template =~ "Sigra.Plug.RequireMembership"
+      # live_session on_mount wires :assign_user_organizations
+      assert template =~ ":assign_user_organizations"
+    end
+
+    @tag :phase16
+    test "Phase 16 user_auth on_mount template defines :assign_user_organizations clause" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex"
+        )
+
+      assert template =~ "on_mount(:assign_user_organizations"
+      assert template =~ "list_organizations_for_user"
+      assert template =~ ":user_organizations"
+    end
+
+    @tag :phase16
+    test "Phase 16 thin wrapper template exposes the 8 new defdelegates (Phase 16 Task 2 interfaces)" do
+      template = File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+
+      # Each Phase 16 LiveView / settings page needs to reach these through
+      # the host-owned context module. The thin wrapper either defdelegates
+      # to the library function or surfaces it via `use Sigra.Organizations`.
+      # We assert the wrapper explicitly names each function so it's
+      # discoverable via `MyApp.Organizations.<fun>`.
+      for name <- ~w(rename_organization update_slug soft_delete_organization
+                     list_members_with_activity count_members change_member_role
+                     remove_member list_organizations_for_user) do
+        assert template =~ name,
+               "thin wrapper template should expose #{name}/* (Phase 16 Task 2)"
+      end
+    end
   end
 
   describe "injections/1" do
-    test "returns empty list (Phase 18 fills this in)" do
-      assert Organizations.injections([]) == []
+    test "returns list of router + user_auth injections (Phase 16)" do
+      injections = Organizations.injections(otp_app: :my_app, web_module: "MyAppWeb")
+
+      assert is_list(injections)
+      # Phase 16 adds at least 2 injections: router scope block + user_auth on_mount
+      assert length(injections) >= 2
+
+      # Every entry is a %Sigra.Install.Injection{}
+      Enum.each(injections, fn injection ->
+        assert %Sigra.Install.Injection{} = injection
+      end)
+
+      targets = Enum.map(injections, & &1.target)
+      assert Enum.any?(targets, &String.ends_with?(&1, "router.ex"))
+      assert Enum.any?(targets, &String.ends_with?(&1, "user_auth.ex"))
+    end
+
+    @tag :phase16
+    test "router injection content contains the scope block and switch route" do
+      injections = Organizations.injections(otp_app: :my_app, web_module: "MyAppWeb")
+
+      router_injection =
+        Enum.find(injections, fn i -> String.ends_with?(i.target, "router.ex") end)
+
+      assert router_injection
+      assert router_injection.content =~ ~s|post "/organizations/switch"|
+      assert router_injection.content =~ ~s|scope "/organizations/:org"|
+      assert router_injection.content =~ "Sigra.Plug.LoadOrganizationFromSlug"
+    end
+  end
+
+  describe "files/1 (Phase 16)" do
+    @tag :phase16
+    test "files/1 includes the new Phase 16 templates when organizations are enabled" do
+      files = Organizations.files(otp_app: :my_app)
+      targets = Enum.map(files, fn {:eex, _template, target} -> target end)
+      sources = Enum.map(files, fn {:eex, template, _target} -> template end)
+
+      assert "organizations/components/org_switcher.ex" in sources
+      assert "organizations/controllers/organization_switch_controller.ex" in sources
+
+      assert Enum.any?(targets, &String.ends_with?(&1, "components/org_switcher.ex"))
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "controllers/organization_switch_controller.ex")
+             )
     end
   end
 
   describe "post_instructions/2" do
-    test "returns empty list (Phase 18 fills this in)" do
-      assert Organizations.post_instructions([], %Sigra.Install.Report{}) == []
+    @tag :phase16
+    test "Phase 16 post_instructions mention pasting org_switcher into layouts.ex" do
+      report = %Sigra.Install.Report{}
+      instructions = Organizations.post_instructions([otp_app: :my_app], report)
+
+      assert is_list(instructions)
+      flat = instructions |> List.flatten() |> Enum.map_join("\n", &to_string/1)
+
+      assert flat =~ "org_switcher"
+      assert flat =~ "layouts.ex"
     end
   end
 
