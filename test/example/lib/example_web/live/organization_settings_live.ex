@@ -48,6 +48,11 @@ defmodule ExampleWeb.OrganizationSettingsLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      user_organizations={@user_organizations}
+    >
     <div class="mx-auto max-w-2xl">
       <.header>
         Organization settings
@@ -149,6 +154,7 @@ defmodule ExampleWeb.OrganizationSettingsLive do
         <% end %>
       </section>
     </div>
+    </Layouts.app>
     """
   end
 
