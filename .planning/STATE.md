@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: completed
-stopped_at: Phase 15 context gathered
+status: in_progress
+stopped_at: Phase 15 complete — ready to discuss/plan Phase 16
 last_updated: "2026-04-13T00:22:08.356Z"
 last_activity: 2026-04-13
 progress:
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 15 — audit-integration (next)
+**Current focus:** Phase 16 — org-liveviews-switcher (next)
 
 ## Current Position
 
-Phase: 999.1
+Phase: 16
 Plan: Not started
-Status: Phase 14 complete — ready to discuss/plan Phase 15
+Status: Phase 15 complete — ready to discuss/plan Phase 16 (Org LiveViews + Switcher). Phase 11 (Generator Feature System) remains deliberately deferred per org-track sequencing.
 Last activity: 2026-04-13
 
 Progress: [███░░░░░░░] 31% (4/13 phases complete)
@@ -63,6 +63,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-12T22:07:51.032Z
-Stopped at: Phase 15 context gathered
-Resume file: .planning/phases/15-audit-integration/15-CONTEXT.md
+Last session: 2026-04-13
+Stopped at: Phase 15 complete — ready for Phase 16
+Resume file: .planning/phases/16-org-liveviews-switcher/ (to be created)
