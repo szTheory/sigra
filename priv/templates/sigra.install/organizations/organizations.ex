@@ -42,4 +42,60 @@ defmodule <%= app_module %>.Organizations do
   defdelegate set_active_organization(conn, org),
     to: Sigra.Plug.PutActiveOrganization,
     as: :call
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Phase 16 thin-wrapper delegates (settings page + members list)
+  #
+  # `use Sigra.Organizations` above already injects thin delegators for
+  # `list_organizations_for_user/1`, `remove_member/2`, and a 3-arg
+  # `change_role/3`. The wrappers below route the Phase 16 LiveView callers
+  # (settings page + members list) through Sigra.Organizations with the
+  # configured @sigra_org_config. See .planning/phases/16-org-liveviews-switcher/
+  # 16-CONTEXT.md D-10 / D-11 / D-16 for signatures.
+  #
+  # These call Sigra.Organizations functions added in Phase 16 Plan 01.
+  # ──────────────────────────────────────────────────────────────────────────
+
+  @doc "Rename an organization (D-10 — inline, no password required)."
+  def rename_organization(scope, params),
+    do:
+      Sigra.Organizations.rename_organization(
+        __sigra_org_config__(),
+        scope,
+        scope.active_organization,
+        params
+      )
+
+  @doc "Update an organization's slug (D-11 — requires inline password + typed confirm)."
+  def update_slug(scope, params),
+    do:
+      Sigra.Organizations.update_slug(
+        __sigra_org_config__(),
+        scope,
+        scope.active_organization,
+        params
+      )
+
+  @doc "Soft-delete an organization (D-11 — requires inline password + typed confirm)."
+  def soft_delete_organization(scope, params),
+    do:
+      Sigra.Organizations.soft_delete_organization(
+        __sigra_org_config__(),
+        scope,
+        scope.active_organization,
+        params
+      )
+
+  @doc "List members with last-active timestamps (D-16)."
+  def list_members_with_activity(scope, opts \\ []),
+    do: Sigra.Organizations.list_members_with_activity(__sigra_org_config__(), scope, opts)
+
+  @doc "Count active members of the active organization (D-16)."
+  def count_members(scope),
+    do: Sigra.Organizations.count_members(__sigra_org_config__(), scope)
+
+  @doc "Change a member's role with last-owner guard (D-18)."
+  def change_member_role(scope, membership, new_role),
+    do:
+      Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
 end

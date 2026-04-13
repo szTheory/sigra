@@ -38,14 +38,27 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     test "returns the generated Organizations context wrapper template (Phase 14 Plan 03)" do
       files = Organizations.files(otp_app: :my_app)
 
-      assert [{:eex, template, target}] = files
-      assert template == "organizations/organizations.ex"
+      # Phase 14 Plan 03 surfaces the thin wrapper; Phase 16 Plan 02 appends
+      # the switcher component + POST switch controller (see Phase 16 tests
+      # below). The wrapper template is still present at its Phase 14 path.
+      wrapper =
+        Enum.find(files, fn {:eex, template, _target} ->
+          template == "organizations/organizations.ex"
+        end)
+
+      assert {:eex, _, target} = wrapper
       assert target == Path.join(["lib", "my_app", "organizations.ex"])
     end
 
     test "renders target path relative to the host app's otp_app" do
       files = Organizations.files(otp_app: :acme)
-      assert [{:eex, _template, target}] = files
+
+      wrapper =
+        Enum.find(files, fn {:eex, template, _target} ->
+          template == "organizations/organizations.ex"
+        end)
+
+      assert {:eex, _, target} = wrapper
       assert target == Path.join(["lib", "acme", "organizations.ex"])
     end
 

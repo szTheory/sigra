@@ -11,11 +11,15 @@ defmodule Sigra.Install.Features.Organizations do
   organizations feature is enabled by default (ORG-01). Pass
   `--no-organizations` to the installer to disable.
 
-  ## Phase 18 completion
+  ## Phase 16 scope
 
-  In Phase 13 this module returns empty lists from `files/1`,
-  `injections/1`, and `post_instructions/2`. Phase 18 fills these in
-  when the generator wiring is implemented.
+  Phase 16 Plan 02 populates `files/1`, `injections/1`, and
+  `post_instructions/2` to ship the Phase 16 user-facing surface:
+  organization switcher function component, POST switch controller,
+  router scope block + route ordering (D-06), and the user_auth
+  `:assign_user_organizations` `on_mount` hook. The Phase 16 LiveView
+  templates (landing, settings, members) are added in Plans 03–05 and
+  simply append to the lists below.
 
   ## Isolation invariant (Pitfall X-3)
 
@@ -27,12 +31,15 @@ defmodule Sigra.Install.Features.Organizations do
 
   @behaviour Sigra.Install.Feature
 
+  alias Sigra.Install.Injection
+
   @impl true
   def enabled?(opts), do: Keyword.get(opts, :organizations, true)
 
   @impl true
   def files(binding) do
     otp_app = Keyword.fetch!(binding, :otp_app) |> to_string()
+    web = "#{otp_app}_web"
 
     [
       # Phase 14 Plan 03 D-19: generated Organizations context wrapper.
@@ -40,12 +47,31 @@ defmodule Sigra.Install.Features.Organizations do
       # `use Sigra.Organizations` so hosts get __sigra_org_config__/0
       # for free (consumed by Phase 14 LoadActiveOrganization plug +
       # LiveView on_mount parity path).
-      {:eex, "organizations/organizations.ex", Path.join(["lib", otp_app, "organizations.ex"])}
+      {:eex, "organizations/organizations.ex", Path.join(["lib", otp_app, "organizations.ex"])},
+
+      # Phase 16 Plan 02: organization switcher function component
+      # (generated + host-owned per D-24). Host pastes
+      # `<.org_switcher />` into their layouts.ex per post_instructions.
+      {:eex, "organizations/components/org_switcher.ex",
+       Path.join(["lib", web, "components", "org_switcher.ex"])},
+
+      # Phase 16 Plan 02: POST /organizations/switch controller
+      # (plain controller per D-05 / ORG-UX-03).
+      {:eex, "organizations/controllers/organization_switch_controller.ex",
+       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])}
     ]
   end
 
   @impl true
-  def injections(_binding), do: []
+  def injections(binding) do
+    otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
+    web = "#{otp_app}_web"
+
+    [
+      router_injection(otp_app),
+      user_auth_on_mount_injection(otp_app, web)
+    ]
+  end
 
   @impl true
   def migrations(_binding) do
@@ -53,5 +79,69 @@ defmodule Sigra.Install.Features.Organizations do
   end
 
   @impl true
-  def post_instructions(_binding, _report), do: []
+  def post_instructions(_binding, _report) do
+    [
+      """
+
+      Sigra organizations installed!
+
+      Next steps:
+
+        1. Add the organization switcher to your app layout.
+           In lib/<app>_web/components/layouts.ex, inside the <header>, add:
+
+               <.org_switcher
+                 current_scope={@current_scope}
+                 user_organizations={@user_organizations}
+                 return_to={@current_path}
+               />
+
+        2. Organization routes were injected into your router, including
+           the /organizations landing + scoped /organizations/:org block.
+
+        3. Run `mix ecto.migrate` to create the organizations tables.
+
+        4. Add `:require_org` gates to routes that should force org
+           selection:
+
+               pipe_through [:browser, :require_authenticated, :require_org]
+      """
+    ]
+  end
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Injection builders (Phase 16 Plan 02)
+  #
+  # Both injections are read from template files rather than being
+  # embedded inline so the golden-diff harness and the Phase 16 test suite
+  # can grep the template contents directly (router + user_auth content
+  # lives on disk as an .ex template).
+  # ──────────────────────────────────────────────────────────────────────────
+
+  defp router_injection(otp_app) do
+    content = read_template!("organizations/router_injection.ex")
+
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "# Sigra organizations",
+      anchor: :before_last_end,
+      content: content
+    }
+  end
+
+  defp user_auth_on_mount_injection(_otp_app, web) do
+    content = read_template!("organizations/user_auth_on_mount_assign_user_organizations.ex")
+
+    %Injection{
+      target: Path.join(["lib", web, "user_auth.ex"]),
+      marker: "on_mount(:assign_user_organizations",
+      anchor: :before_last_end,
+      content: content
+    }
+  end
+
+  defp read_template!(relative_path) do
+    Path.join(["priv", "templates", "sigra.install", relative_path])
+    |> File.read!()
+  end
 end
