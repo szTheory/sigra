@@ -474,6 +474,51 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     end
   end
 
+  describe "OrganizationsLive.New template content (Phase 16 Plan 03)" do
+    @new_template_path "priv/templates/sigra.install/organizations/live/organizations_live/new.ex"
+
+    @tag :phase16
+    test "exists and declares the expected module" do
+      assert File.exists?(@new_template_path)
+      template = File.read!(@new_template_path)
+      assert template =~ ~S|defmodule <%= web_module %>.OrganizationsLive.New|
+      assert template =~ ~S|use <%= web_module %>, :live_view|
+    end
+
+    @tag :phase16
+    test "renders the same form shape as Branch A with live slug preview" do
+      template = File.read!(@new_template_path)
+
+      assert template =~ ~s|phx-change="validate"|
+      assert template =~ ~s|phx-submit="create"|
+      assert template =~ ~S|aria-live="polite"|
+      assert template =~ ~s|phx-disable-with="Creating..."|
+      assert template =~ "Create organization"
+      assert template =~ "Sigra.Organizations.Slug.generate(name)"
+    end
+
+    @tag :phase16
+    test "Cancel link navigates back to /organizations" do
+      template = File.read!(@new_template_path)
+      assert template =~ ~S|navigate={~p"/organizations"}|
+      assert template =~ "Cancel"
+    end
+
+    @tag :phase16
+    test "create handler redirects to /organizations/:slug/members on success" do
+      template = File.read!(@new_template_path)
+      assert template =~ ~S|~p"/organizations/#{org.slug}/members"|
+      assert template =~ ~s|put_flash(:info, "Organization created.")|
+    end
+
+    @tag :phase16
+    test "maps reserved and collision changeset errors to exact UI-SPEC copy" do
+      template = File.read!(@new_template_path)
+      assert template =~ "That slug is reserved. Try another."
+      assert template =~ "That slug is already in use. Try another."
+    end
+  end
+
   describe "RegistrationLive untouched by Phase 16 Plan 03 (D-08 / D-09)" do
     @tag :phase16
     test "registration_live.ex template is byte-identical to its Phase 14 state" do
