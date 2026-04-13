@@ -50,7 +50,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Run `/gsd-plan-phase 17` to begin decomposing Phase 17 (Invitation Flow + Email). Phase 16 baked in the seam: `<section id="pending-invitations-section">` and the disabled "Invite member" button are intentional extension points; Phase 17 should mirror Plan 05's event-handler naming and Plan 04's error-remap helper shape (per VERIFICATION.md recommendation).
+- Run `/gsd-discuss-phase 17` first to lock decisions for Phase 17 (Invitation Flow + Email) — token storage shape, HMAC bind format, rate-limit budget, plug split vs reuse — then `/gsd-plan-phase 17`. Phase 16 baked in the seam: `<section id="pending-invitations-section">` and the disabled "Invite member" button are intentional extension points; Phase 17 should mirror Plan 05's event-handler naming and Plan 04's error-remap helper shape (per VERIFICATION.md recommendation).
 - Phase 16 follow-up (do NOT block Phase 17): library slug-alias migration template uses `now()` in a Postgres partial-unique index predicate — Postgres rejects non-IMMUTABLE functions in index predicates. Plan 06 worked around it in the example app with a plain unique index on `old_slug`, but the library template still ships the partial-index form and may hit the same error on real hosts. Fix in a small dedicated phase or fold into Phase 17 prep.
 - Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
 - Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
