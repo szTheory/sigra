@@ -303,6 +303,189 @@ defmodule Sigra.Install.Features.OrganizationsTest do
                "thin wrapper template should expose #{name}/* (Phase 16 Task 2)"
       end
     end
+
+    # ──────────────────────────────────────────────────────────────────────
+    # Phase 16 Plan 04: OrganizationSettingsLive template
+    # ──────────────────────────────────────────────────────────────────────
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive template exists with correct module name (D-10)" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      assert template =~ "defmodule <%= web_module %>.OrganizationSettingsLive"
+      assert template =~ "use <%= web_module %>, :live_view"
+      assert template =~ "alias <%= app_module %>.Organizations"
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive defines 7 phx event handlers (D-10/D-11/D-12)" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      for handler <- ~w(rename open_slug_form close_slug_form update_slug
+                        open_delete_form close_delete_form soft_delete) do
+        assert template =~ ~s|handle_event("#{handler}"|,
+               "settings LV must define handle_event(\"#{handler}\", ...) (Plan 16-04)"
+      end
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive has progressive disclosure state for destructive actions (D-12)" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # mount seeds both closed
+      assert template =~ ":slug_form_open?"
+      assert template =~ ":delete_form_open?"
+      # handlers flip open/closed
+      assert template =~ "assign(socket, :slug_form_open?, true)"
+      assert template =~ "assign(socket, :slug_form_open?, false)"
+      assert template =~ "assign(socket, :delete_form_open?, true)"
+      assert template =~ "assign(socket, :delete_form_open?, false)"
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive calls thin wrapper functions with scope + params" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # All three destructive handlers go through the host-owned Organizations wrapper
+      assert template =~ "Organizations.rename_organization(socket.assigns.current_scope"
+      assert template =~ "Organizations.update_slug(socket.assigns.current_scope"
+      assert template =~ "Organizations.soft_delete_organization(socket.assigns.current_scope"
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive renders exact UI-SPEC button labels" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # Buttons from UI-SPEC §Copywriting Contract + Plan 16-04 must_haves
+      assert template =~ "Save name"
+      assert template =~ "Change slug"
+      assert template =~ "Update slug"
+      assert template =~ "Delete organization"
+      assert template =~ "Delete organization permanently"
+      # phx-disable-with copy
+      assert template =~ ~s|phx-disable-with="Saving...|
+      assert template =~ ~s|phx-disable-with="Updating...|
+      assert template =~ ~s|phx-disable-with="Deleting...|
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive warning banner contains 7-day redirect copy" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # Exact copy anchor from Plan 16-04 Test 4 / UI-SPEC §Destructive Action Confirmations
+      assert template =~ "Your current slug"
+      assert template =~ "will redirect to the new slug for 7 days"
+      # Warning alert variant
+      assert template =~ "alert alert-warning"
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive Danger Zone uses red-zone treatment (D-10)" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # Per UI-SPEC §Screen Anatomy 4 + §Color "Destructive red zone treatment"
+      assert template =~ "border-l-4 border-l-error"
+      assert template =~ "Danger zone"
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive maps :invalid_password → exact UI copy for BOTH slug and delete handlers" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # Exact copy from UI-SPEC §Copywriting Contract Error States (line 142)
+      assert template =~ "That password is incorrect."
+      # Both destructive handlers must match {:error, :invalid_password}
+      invalid_password_matches =
+        template
+        |> String.split("\n")
+        |> Enum.count(&String.contains?(&1, "{:error, :invalid_password}"))
+
+      assert invalid_password_matches >= 2,
+             "expected at least 2 `{:error, :invalid_password}` clauses (slug + delete); got #{invalid_password_matches}"
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive maps typed-confirm errors to exact UI copy" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # Exact copy from UI-SPEC §Copywriting Contract Error States (lines 143-144)
+      # The library's validate_confirm emits "does not match current slug" /
+      # "does not match organization name" — the LV must remap to the typed-confirm copy.
+      assert template =~ "Type "
+      assert template =~ " exactly to confirm."
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive maps reserved + collision slug errors to UI-SPEC copy" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      assert template =~ "That slug is reserved. Try another."
+      assert template =~ "That slug is already in use. Try another."
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive emits exact flash + redirect copy on success" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # From UI-SPEC §Flash Copy (lines 182-184)
+      assert template =~ "Name updated."
+      assert template =~ "Slug updated. The old slug redirects for 7 days."
+      assert template =~ "Organization deleted."
+      # Redirect targets
+      assert template =~ ~S|~p"/organizations/#{|
+      assert template =~ ~S|~p"/organizations"|
+    end
+
+    @tag :phase16
+    test "Phase 16-04 OrganizationSettingsLive renders three sections with v1.0 styling hooks" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      # Three section headers (matches UI-SPEC §Screen Anatomy 4 layout)
+      assert template =~ "General"
+      assert template =~ ">Slug<"
+      assert template =~ "Danger zone"
+      # Uses the core_components <.header> and <.form> elements
+      assert template =~ "<.header>"
+      assert template =~ "phx-submit=\"rename\""
+      assert template =~ "phx-submit=\"update_slug\""
+      assert template =~ "phx-submit=\"soft_delete\""
+    end
   end
 
   describe "injections/1" do
@@ -353,6 +536,26 @@ defmodule Sigra.Install.Features.OrganizationsTest do
                targets,
                &String.ends_with?(&1, "controllers/organization_switch_controller.ex")
              )
+    end
+
+    @tag :phase16
+    test "files/1 includes the Phase 16-04 OrganizationSettingsLive template" do
+      files = Organizations.files(otp_app: :my_app)
+      targets = Enum.map(files, fn {:eex, _template, target} -> target end)
+      sources = Enum.map(files, fn {:eex, template, _target} -> template end)
+
+      assert "organizations/live/organization_settings_live.ex" in sources
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "live/organization_settings_live.ex")
+             )
+
+      # Target path is under lib/<web>/live/
+      settings_target =
+        Enum.find(targets, &String.ends_with?(&1, "organization_settings_live.ex"))
+
+      assert settings_target =~ ~r|lib/my_app_web/live/|
     end
   end
 
