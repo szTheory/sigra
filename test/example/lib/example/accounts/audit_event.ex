@@ -29,6 +29,8 @@ defmodule Example.Accounts.AuditEvent do
     field :actor_type, :string, default: "user"
     field :target_id, :binary_id
     field :target_type, :string
+    field :organization_id, :binary_id
+    field :effective_user_id, :binary_id
     field :ip_address, :string
     field :user_agent, :string
     field :metadata, :map, default: %{}
