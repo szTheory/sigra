@@ -97,7 +97,12 @@ defmodule Sigra.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.1", only: :test},
-      {:stream_data, "~> 1.1", only: [:dev, :test]}
+      {:stream_data, "~> 1.1", only: [:dev, :test]},
+      # Postgres driver used only by the opt-in `:postgres` tagged tests
+      # (e.g. `test/sigra/audit/query_index_test.exs`) that assert Query
+      # plans against a live Postgres repo. Excluded from default test runs
+      # via `ExUnit.start(exclude: [:postgres])` in test/test_helper.exs.
+      {:postgrex, "~> 0.17", only: :test}
     ]
   end
 

@@ -1,30 +1,115 @@
 defmodule Sigra.Audit.QueryIndexTest do
   @moduledoc """
   Postgres-only EXPLAIN check that the `(organization_id, inserted_at)`
-  composite index is hit for the org-scoped audit query.
+  composite index is hit for the org-scoped audit query built by
+  `Sigra.Audit.Query.build/2` with an `:organization_id` filter.
 
-  Wave 0 stub: skipped until a real Postgres sandbox repo fixture lands
-  in a later wave. Plan 15-01 Task 0 created this file; Plan 15-01 Task 1
-  does NOT un-skip it (no live repo in the library test suite).
+  This test is tagged `:postgres` at the module level and is excluded by
+  default in `test/test_helper.exs`. To run it:
+
+      # Boot a local Postgres (or rely on CI Postgres service)
+      docker run --rm -d -p 5432:5432 \\
+        -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=sigra_test \\
+        --name sigra-test-pg postgres:16
+
+      mix test --include postgres test/sigra/audit/query_index_test.exs
+
+  The test spins up a throwaway `Sigra.Test.PostgresRepo`, creates the
+  minimal `audit_events` + `organizations` schema inline (enough for the
+  FK target + composite index to exist), runs `EXPLAIN` on the query, and
+  asserts the plan text substring-matches
+  `audit_events_organization_id_inserted_at_index`.
+
+  Uses `SET LOCAL enable_seqscan = off` before the EXPLAIN so the planner
+  prefers the index even with an empty table — at zero rows Postgres
+  would otherwise pick a seq scan regardless of index presence (the
+  tiny-table heuristic). The `LOCAL` scope means the setting is
+  transaction-bound and never leaks to other tests.
   """
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   @moduletag :postgres
-  @moduletag :skip
 
-  @tag :skip
-  test "EXPLAIN shows (organization_id, inserted_at) index hit" do
-    # Stub for a future Postgres-backed test. When un-skipped, this should:
-    #
-    #   1. Acquire a Postgres-backed sandboxed TestRepo
-    #   2. Run:
-    #        EXPLAIN SELECT * FROM audit_events
-    #          WHERE organization_id = $1
-    #          ORDER BY inserted_at DESC LIMIT 50
-    #   3. Assert the plan text contains:
-    #        "Index Scan using audit_events_organization_id_inserted_at_index"
-    #
-    # Kept as a Wave 0 scaffold so the file exists when the fixture lands.
-    flunk("Wave 0 stub — un-skipped when Postgres sandbox repo is wired in")
+  alias Sigra.Audit.Query
+
+  @index_name "audit_events_organization_id_inserted_at_index"
+
+  setup_all do
+    repo = Sigra.Test.PostgresRepo
+    Application.put_env(:sigra, repo, repo.default_config())
+
+    # Drop + create the scratch database so repeated runs are idempotent.
+    _ = Ecto.Adapters.Postgres.storage_down(repo.default_config())
+    :ok = Ecto.Adapters.Postgres.storage_up(repo.default_config())
+
+    {:ok, _pid} = repo.start_link()
+
+    # Create the minimal schema inline: organizations (FK target) +
+    # audit_events with the same column set the generator template emits,
+    # plus the composite index under test. We do NOT run the installer's
+    # full migration set — just enough to reproduce the index-hit scenario.
+    exec!(repo, """
+    CREATE TABLE IF NOT EXISTS organizations (
+      id UUID PRIMARY KEY,
+      inserted_at TIMESTAMP NOT NULL DEFAULT now(),
+      updated_at TIMESTAMP NOT NULL DEFAULT now()
+    )
+    """)
+
+    exec!(repo, """
+    CREATE TABLE IF NOT EXISTS audit_events (
+      id UUID PRIMARY KEY,
+      occurred_at TIMESTAMP NOT NULL DEFAULT now(),
+      action VARCHAR(255) NOT NULL,
+      outcome VARCHAR(32) NOT NULL DEFAULT 'success',
+      actor_id UUID,
+      actor_type VARCHAR(64) NOT NULL DEFAULT 'user',
+      target_id UUID,
+      target_type VARCHAR(64),
+      ip_address VARCHAR(64),
+      user_agent VARCHAR(512),
+      metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+      organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
+      effective_user_id UUID,
+      inserted_at TIMESTAMP NOT NULL DEFAULT now()
+    )
+    """)
+
+    exec!(repo, """
+    CREATE INDEX IF NOT EXISTS #{@index_name}
+      ON audit_events (organization_id, inserted_at)
+    """)
+
+    on_exit(fn ->
+      _ = Ecto.Adapters.Postgres.storage_down(repo.default_config())
+    end)
+
+    {:ok, repo: repo}
   end
+
+  test "Query.build/2 with :organization_id hits the composite index under EXPLAIN",
+       %{repo: repo} do
+    org_id = Ecto.UUID.generate()
+
+    query = Query.build(Sigra.Test.AuditEvent, organization_id: org_id)
+    {sql, params} = Ecto.Adapters.SQL.to_sql(:all, repo, query)
+
+    # Force the planner to prefer the index even against an empty table
+    # (zero-row tables trigger the planner's seq-scan fallback regardless
+    # of index availability). LOCAL keeps the setting transaction-scoped.
+    repo.transaction(fn ->
+      Ecto.Adapters.SQL.query!(repo, "SET LOCAL enable_seqscan = off", [])
+
+      %Postgrex.Result{rows: rows} =
+        Ecto.Adapters.SQL.query!(repo, "EXPLAIN " <> sql, params)
+
+      plan_text = rows |> List.flatten() |> Enum.join("\n")
+
+      assert plan_text =~ @index_name,
+             "Expected (organization_id, inserted_at) composite index hit " <>
+               "(#{@index_name}) in the EXPLAIN plan, got:\n#{plan_text}"
+    end)
+  end
+
+  defp exec!(repo, sql), do: Ecto.Adapters.SQL.query!(repo, sql, [])
 end
