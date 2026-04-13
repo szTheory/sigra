@@ -786,4 +786,54 @@ defmodule Sigra.Organizations.ContextTest do
                Sigra.Organizations.get_active_slug_alias(@phase16_config, "old-slug")
     end
   end
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Phase 16 Plan 03: list_organizations_with_roles_for_user + pending invitations stub
+  # ──────────────────────────────────────────────────────────────────────────
+
+  describe "list_organizations_with_roles_for_user/2 (Phase 16 Plan 03)" do
+    @tag :phase16
+    test "returns [{org, role}] tuples ordered by membership.inserted_at DESC" do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      older = build_org(%{name: "Older"})
+      newer = build_org(%{name: "Newer"})
+
+      Sigra.MockRepo
+      |> expect(:all, fn _query ->
+        [{newer, :owner}, {older, :member}]
+      end)
+
+      result =
+        Sigra.Organizations.list_organizations_with_roles_for_user(
+          @test_config,
+          build_user()
+        )
+
+      assert [{^newer, :owner}, {^older, :member}] = result
+      _ = now
+    end
+
+    @tag :phase16
+    test "excludes soft-deleted orgs via query filter" do
+      Sigra.MockRepo
+      |> expect(:all, fn _query -> [] end)
+
+      assert [] =
+               Sigra.Organizations.list_organizations_with_roles_for_user(
+                 @test_config,
+                 build_user()
+               )
+    end
+  end
+
+  describe "list_pending_invitations_for_user/2 (Phase 16 Plan 03 STUB)" do
+    @tag :phase16
+    test "returns [] in Phase 16 (stub — Phase 17 wires the real query)" do
+      assert [] =
+               Sigra.Organizations.list_pending_invitations_for_user(
+                 @test_config,
+                 build_user()
+               )
+    end
+  end
 end
