@@ -189,7 +189,10 @@ defmodule Sigra.Organizations do
         do: Sigra.Organizations.get_organization_by_slug(@sigra_org_config, slug)
 
       def list_organizations_for_user(user),
-        do: Sigra.Organizations.list_organizations_for_user(@sigra_org_config, user)
+        do: Sigra.Organizations.list_organizations_with_roles_for_user(@sigra_org_config, user)
+
+      def list_pending_invitations_for_user(user),
+        do: Sigra.Organizations.list_pending_invitations_for_user(@sigra_org_config, user)
 
       def get_membership(user, org),
         do: Sigra.Organizations.get_membership(@sigra_org_config, user, org)
@@ -685,6 +688,50 @@ defmodule Sigra.Organizations do
     )
     |> config.repo.all()
   end
+
+  @doc """
+  Phase 16 Plan 03 variant that returns `{org, role}` tuples instead of bare
+  orgs, ordered by `membership.inserted_at DESC` (most recently joined first).
+
+  Used by:
+    * the generated `on_mount :assign_user_organizations` hook, which
+      assigns the tuple list as `@user_organizations` for the org switcher
+      component to render with role badges
+    * `OrganizationsLive.Index` Branch C (picker) to render each
+      membership row with its role badge
+    * the generated `/organizations/switch` controller to resolve a target
+      organization from the current user's memberships (membership-before-
+      write authz choke point)
+
+  Soft-deleted orgs are filtered via `is_nil(o.deleted_at)` — T-16-03-04.
+  """
+  @spec list_organizations_with_roles_for_user(map(), struct()) :: [{struct(), atom()}]
+  def list_organizations_with_roles_for_user(config, user) do
+    org_schema = config.schemas.organization
+    membership_schema = config.schemas.membership
+
+    from(m in membership_schema,
+      join: o in ^org_schema,
+      on: o.id == m.organization_id,
+      where: m.user_id == ^user.id,
+      where: is_nil(o.deleted_at),
+      order_by: [desc: m.inserted_at],
+      select: {o, m.role}
+    )
+    |> config.repo.all()
+  end
+
+  @doc """
+  Phase 16 Plan 03 STUB — Phase 17 fills in the real invitation query.
+
+  Returns `[]` unconditionally in Phase 16 so `OrganizationsLive.Index` can
+  call the function without conditional code or compile-time feature flags.
+  Phase 17 replaces the body with a real query over the `invitations`
+  schema scoped to `email == user.email AND accepted_at IS NULL AND
+  expires_at > now()`.
+  """
+  @spec list_pending_invitations_for_user(map(), struct()) :: [struct()]
+  def list_pending_invitations_for_user(_config, _user), do: []
 
   @doc """
   Gets a membership for a user in an organization.

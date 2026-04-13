@@ -23,6 +23,28 @@ defmodule Sigra.Organizations.SlugTest do
     }
   end
 
+  describe "generate/1 (Phase 16 Plan 03 alias for generate_slug/1)" do
+    @tag :phase16
+    test "returns the same result as generate_slug/1 for a typical name" do
+      assert Slug.generate("Acme Corp!") == "acme-corp"
+    end
+
+    @tag :phase16
+    test "returns empty string for input that is all non-alphanumeric" do
+      assert Slug.generate("!!!") == ""
+    end
+
+    @tag :phase16
+    test "returns empty string for empty input" do
+      assert Slug.generate("") == ""
+    end
+
+    @tag :phase16
+    test "is pure: returns same slug even for a reserved name (validation is separate)" do
+      assert Slug.generate("Admin") == "admin"
+    end
+  end
+
   describe "generate_slug/1" do
     test "converts name with special chars to slug" do
       assert Slug.generate_slug("Acme Corp!") == "acme-corp"

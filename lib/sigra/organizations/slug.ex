@@ -65,6 +65,17 @@ defmodule Sigra.Organizations.Slug do
 
   def generate_slug(nil), do: nil
 
+  @doc """
+  Phase 16 Plan 03 alias for `generate_slug/1`.
+
+  Pure slug generator used by `OrganizationsLive.Index` and
+  `OrganizationsLive.New` for live preview as the user types the org name.
+  Reservation and uniqueness checks live in `validate_slug/2` and the
+  changeset — this function never touches the database.
+  """
+  @spec generate(String.t() | nil) :: String.t() | nil
+  def generate(name), do: generate_slug(name)
+
   defp get_reserved(config) do
     base = Map.get(config, :reserved_slugs, @default_reserved_slugs)
     additional = Map.get(config, :additional_reserved_slugs, [])

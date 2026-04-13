@@ -354,6 +354,192 @@ defmodule Sigra.Install.Features.OrganizationsTest do
                &String.ends_with?(&1, "controllers/organization_switch_controller.ex")
              )
     end
+
+    @tag :phase16
+    test "files/1 (Phase 16 Plan 03) includes OrganizationsLive.Index and OrganizationsLive.New templates" do
+      files = Organizations.files(otp_app: :my_app)
+      targets = Enum.map(files, fn {:eex, _template, target} -> target end)
+      sources = Enum.map(files, fn {:eex, template, _target} -> template end)
+
+      assert "organizations/live/organizations_live/index.ex" in sources
+      assert "organizations/live/organizations_live/new.ex" in sources
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "live/organizations_live/index.ex")
+             )
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "live/organizations_live/new.ex")
+             )
+    end
+  end
+
+  describe "OrganizationsLive.Index template content (Phase 16 Plan 03)" do
+    @template_path "priv/templates/sigra.install/organizations/live/organizations_live/index.ex"
+
+    @tag :phase16
+    test "exists and declares the expected module" do
+      assert File.exists?(@template_path)
+      template = File.read!(@template_path)
+      assert template =~ ~S|defmodule <%= web_module %>.OrganizationsLive.Index|
+      assert template =~ ~S|use <%= web_module %>, :live_view|
+    end
+
+    @tag :phase16
+    test "mount loads memberships and pending invitations via the thin wrapper" do
+      template = File.read!(@template_path)
+      assert template =~ "Organizations.list_organizations_for_user(user)"
+      assert template =~ "Organizations.list_pending_invitations_for_user(user)"
+    end
+
+    @tag :phase16
+    test "has three render branches keyed on (memberships, pending_invitations)" do
+      template = File.read!(@template_path)
+
+      assert template =~ "defp render_branch_a"
+      assert template =~ "defp render_branch_b"
+      assert template =~ "defp render_branch_c"
+
+      # Branch selection arms
+      assert template =~ "pick_branch([], [])"
+      assert template =~ "pick_branch([], [_ | _])"
+      assert template =~ "pick_branch([_ | _]"
+    end
+
+    @tag :phase16
+    test "Branch A has zero-state hero copy + create form verbatim" do
+      template = File.read!(@template_path)
+
+      assert template =~ "Create your first organization"
+
+      assert template =~
+               "You don't belong to any organizations yet. Create one to get started."
+
+      assert template =~ ~s|phx-change="validate"|
+      assert template =~ ~s|phx-submit="create"|
+      assert template =~ ~S|aria-live="polite"|
+      assert template =~ ~s|phx-disable-with="Creating..."|
+      assert template =~ "Create organization"
+      assert template =~ "Skip for now"
+    end
+
+    @tag :phase16
+    test "Branch A uses Sigra.Organizations.Slug.generate/1 for live preview" do
+      template = File.read!(@template_path)
+      assert template =~ "Sigra.Organizations.Slug.generate(name)"
+    end
+
+    @tag :phase16
+    test "Branch A maps reserved and collision changeset errors to exact UI-SPEC copy" do
+      template = File.read!(@template_path)
+
+      assert template =~ "That slug is reserved. Try another."
+      assert template =~ "That slug is already in use. Try another."
+    end
+
+    @tag :phase16
+    test "Branch A create handler redirects to /organizations/:slug/members on success" do
+      template = File.read!(@template_path)
+      assert template =~ ~S|~p"/organizations/#{org.slug}/members"|
+      assert template =~ ~s|put_flash(:info, "Organization created.")|
+    end
+
+    @tag :phase16
+    test "Branch C renders per-row switch forms posting to /organizations/switch with CSRF + org id + return_to" do
+      template = File.read!(@template_path)
+
+      assert template =~ ~S|action={~p"/organizations/switch"}|
+      assert template =~ ~s|method="post"|
+      assert template =~ ~s|name="_csrf_token"|
+      assert template =~ ~s|name="organization_id"|
+      assert template =~ ~s|name="return_to"|
+    end
+
+    @tag :phase16
+    test "Branch C header contains '+ New organization' CTA linking to /organizations/new" do
+      template = File.read!(@template_path)
+      assert template =~ "Your organizations"
+      assert template =~ "+ New organization"
+      assert template =~ ~S|navigate={~p"/organizations/new"}|
+    end
+
+    @tag :phase16
+    test "Branch B renders pending invitations with disabled Accept buttons (Phase 17 wires)" do
+      template = File.read!(@template_path)
+      assert template =~ "pending invitation"
+      assert template =~ ~s|disabled|
+      assert template =~ "Available in the next release"
+    end
+  end
+
+  describe "OrganizationsLive.New template content (Phase 16 Plan 03)" do
+    @new_template_path "priv/templates/sigra.install/organizations/live/organizations_live/new.ex"
+
+    @tag :phase16
+    test "exists and declares the expected module" do
+      assert File.exists?(@new_template_path)
+      template = File.read!(@new_template_path)
+      assert template =~ ~S|defmodule <%= web_module %>.OrganizationsLive.New|
+      assert template =~ ~S|use <%= web_module %>, :live_view|
+    end
+
+    @tag :phase16
+    test "renders the same form shape as Branch A with live slug preview" do
+      template = File.read!(@new_template_path)
+
+      assert template =~ ~s|phx-change="validate"|
+      assert template =~ ~s|phx-submit="create"|
+      assert template =~ ~S|aria-live="polite"|
+      assert template =~ ~s|phx-disable-with="Creating..."|
+      assert template =~ "Create organization"
+      assert template =~ "Sigra.Organizations.Slug.generate(name)"
+    end
+
+    @tag :phase16
+    test "Cancel link navigates back to /organizations" do
+      template = File.read!(@new_template_path)
+      assert template =~ ~S|navigate={~p"/organizations"}|
+      assert template =~ "Cancel"
+    end
+
+    @tag :phase16
+    test "create handler redirects to /organizations/:slug/members on success" do
+      template = File.read!(@new_template_path)
+      assert template =~ ~S|~p"/organizations/#{org.slug}/members"|
+      assert template =~ ~s|put_flash(:info, "Organization created.")|
+    end
+
+    @tag :phase16
+    test "maps reserved and collision changeset errors to exact UI-SPEC copy" do
+      template = File.read!(@new_template_path)
+      assert template =~ "That slug is reserved. Try another."
+      assert template =~ "That slug is already in use. Try another."
+    end
+  end
+
+  describe "RegistrationLive untouched by Phase 16 Plan 03 (D-08 / D-09)" do
+    @tag :phase16
+    test "registration_live.ex template is byte-identical to its Phase 14 state" do
+      # ORG-UX-09 is a free structural lunch: Phase 16 MUST NOT touch
+      # registration_live.ex. The zero-org post-signup flow falls out of
+      # Phase 14's :no_active_org redirect path, not a new registration
+      # field or step.
+      expected_sha =
+        "c27d0b8993604ce2abd52f75331630dc5bab430ffe83b8f9d3d3f0e564b31140"
+
+      actual_sha =
+        "priv/templates/sigra.install/core/registration_live.ex"
+        |> File.read!()
+        |> then(&:crypto.hash(:sha256, &1))
+        |> Base.encode16(case: :lower)
+
+      assert actual_sha == expected_sha,
+             "registration_live.ex was modified in Phase 16 — " <>
+               "this violates D-08/D-09 (ORG-UX-09 is a zero-line structural free lunch). " <>
+               "Expected SHA256 #{expected_sha}, got #{actual_sha}."
+    end
   end
 
   describe "post_instructions/2" do
