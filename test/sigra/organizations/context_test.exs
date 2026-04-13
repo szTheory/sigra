@@ -207,10 +207,14 @@ defmodule Sigra.Organizations.ContextTest do
     end
   end
 
-  describe "soft_delete_organization/3" do
+  describe "soft_delete_organization/4" do
     test "sets deleted_at and returns {:ok, org}" do
+      # Phase 16 breaking change: soft_delete_organization now takes a
+      # params map requiring :password + :confirm_name.
+      hashed = Sigra.Crypto.hash_password("correct horse battery staple")
+      user = %TestUser{id: Ecto.UUID.generate(), email: "user@example.com"} |> Map.put(:hashed_password, hashed)
+      scope = %TestScope{user: user}
       org = build_org()
-      scope = test_scope()
       deleted_org = %{org | deleted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
 
       Sigra.MockRepo
@@ -218,7 +222,12 @@ defmodule Sigra.Organizations.ContextTest do
         {:ok, %{organization: deleted_org}}
       end)
 
-      assert {:ok, result} = Sigra.Organizations.soft_delete_organization(@test_config, scope, org)
+      assert {:ok, result} =
+               Sigra.Organizations.soft_delete_organization(@test_config, scope, org, %{
+                 password: "correct horse battery staple",
+                 confirm_name: org.name
+               })
+
       assert result.deleted_at != nil
     end
   end
