@@ -86,13 +86,9 @@ defmodule <%= app_module %>.Organizations do
         params
       )
 
-  @doc "List members with last-active timestamps (D-16)."
-  def list_members_with_activity(scope, opts \\ []),
-    do: Sigra.Organizations.list_members_with_activity(__sigra_org_config__(), scope, opts)
-
-  @doc "Count active members of the active organization (D-16)."
-  def count_members(scope),
-    do: Sigra.Organizations.count_members(__sigra_org_config__(), scope)
+  # `list_members_with_activity/2` and `count_members/1` are injected by
+  # `use Sigra.Organizations` above (Phase 16 Plan 01). Do not redeclare them
+  # here — same-arity duplicates collide because both sites declare defaults.
 
   @doc "Change a member's role with last-owner guard (D-18)."
   def change_member_role(scope, membership, new_role),
