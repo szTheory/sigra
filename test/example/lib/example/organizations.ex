@@ -42,7 +42,12 @@ defmodule Example.Organizations do
   See the moduledoc for the full contract.
   """
   def set_active_organization(conn, org) do
-    Sigra.Plug.PutActiveOrganization.call(conn, org, [])
+    Sigra.Plug.PutActiveOrganization.call(conn, org,
+      organizations: __MODULE__,
+      session_store: Sigra.SessionStores.Ecto,
+      session_store_opts: [repo: Example.Repo, session_schema: Example.Accounts.UserSession],
+      scope_module: Example.Accounts.Scope
+    )
   end
 
   # ──────────────────────────────────────────────────────────────────────────

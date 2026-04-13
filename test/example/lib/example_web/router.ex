@@ -97,7 +97,13 @@ defmodule ExampleWeb.Router do
 
   # Sigra organizations (Phase 16)
   pipeline :org_scoped do
-    plug Sigra.Plug.LoadOrganizationFromSlug
+    plug Sigra.Plug.LoadOrganizationFromSlug,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      organizations: Example.Organizations,
+      session_store: Sigra.SessionStores.Ecto,
+      session_store_opts: [repo: Example.Repo, session_schema: Example.Accounts.UserSession],
+      scope_module: Example.Accounts.Scope
+
     plug Sigra.Plug.RequireMembership, error_handler: ExampleWeb.AuthErrorHandler
   end
 
@@ -126,7 +132,8 @@ defmodule ExampleWeb.Router do
       on_mount: [
         {ExampleWeb.UserAuth, :ensure_authenticated},
         {ExampleWeb.UserAuth, :assign_user_organizations},
-        {Sigra.LiveView.OrganizationScope, []}
+        {Sigra.LiveView.OrganizationScope,
+         [organizations: Example.Organizations, scope_module: Example.Accounts.Scope]}
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
