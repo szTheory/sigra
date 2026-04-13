@@ -58,7 +58,21 @@ defmodule Sigra.Install.Features.Organizations do
       # Phase 16 Plan 02: POST /organizations/switch controller
       # (plain controller per D-05 / ORG-UX-03).
       {:eex, "organizations/controllers/organization_switch_controller.ex",
-       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])}
+       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])},
+
+      # Phase 16 Plan 03: unified landing / picker LiveView at /organizations.
+      # Three render branches keyed on (memberships, pending_invitations):
+      #   * zero-state hero + create form (also the post-signup destination
+      #     via ORG-UX-09's zero-line registration path)
+      #   * pending-invitations list (Phase 17 wires Accept)
+      #   * picker with per-row switch forms
+      {:eex, "organizations/live/organizations_live/index.ex",
+       Path.join(["lib", web, "live", "organizations_live", "index.ex"])},
+
+      # Phase 16 Plan 03: dedicated create-organization LiveView at
+      # /organizations/new (parallel to Branch A of the Index LV).
+      {:eex, "organizations/live/organizations_live/new.ex",
+       Path.join(["lib", web, "live", "organizations_live", "new.ex"])}
     ]
   end
 
