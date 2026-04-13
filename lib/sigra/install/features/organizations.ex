@@ -72,7 +72,13 @@ defmodule Sigra.Install.Features.Organizations do
       # Phase 16 Plan 03: dedicated create-organization LiveView at
       # /organizations/new (parallel to Branch A of the Index LV).
       {:eex, "organizations/live/organizations_live/new.ex",
-       Path.join(["lib", web, "live", "organizations_live", "new.ex"])}
+       Path.join(["lib", web, "live", "organizations_live", "new.ex"])},
+
+      # Phase 16 Plan 04: OrganizationSettingsLive — three-section single-page
+      # settings surface (General / Slug / Danger Zone) with progressive
+      # disclosure + inline sudo for destructive actions (D-10 / D-11 / D-12).
+      {:eex, "organizations/live/organization_settings_live.ex",
+       Path.join(["lib", web, "live", "organization_settings_live.ex"])}
     ]
   end
 
