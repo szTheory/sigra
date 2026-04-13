@@ -58,7 +58,13 @@ defmodule Sigra.Install.Features.Organizations do
       # Phase 16 Plan 02: POST /organizations/switch controller
       # (plain controller per D-05 / ORG-UX-03).
       {:eex, "organizations/controllers/organization_switch_controller.ex",
-       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])}
+       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])},
+
+      # Phase 16 Plan 04: OrganizationSettingsLive — three-section single-page
+      # settings surface (General / Slug / Danger Zone) with progressive
+      # disclosure + inline sudo for destructive actions (D-10 / D-11 / D-12).
+      {:eex, "organizations/live/organization_settings_live.ex",
+       Path.join(["lib", web, "live", "organization_settings_live.ex"])}
     ]
   end
 

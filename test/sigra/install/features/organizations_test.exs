@@ -344,11 +344,11 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # mount seeds both closed
       assert template =~ ":slug_form_open?"
       assert template =~ ":delete_form_open?"
-      # handlers flip open/closed
-      assert template =~ "assign(socket, :slug_form_open?, true)"
-      assert template =~ "assign(socket, :slug_form_open?, false)"
-      assert template =~ "assign(socket, :delete_form_open?, true)"
-      assert template =~ "assign(socket, :delete_form_open?, false)"
+      # handlers flip open/closed (either assign/3 or pipe-form assign/2)
+      assert template =~ ~r/assign\([^)]*:slug_form_open\?,\s*true\)/
+      assert template =~ ~r/assign\([^)]*:slug_form_open\?,\s*false\)/
+      assert template =~ ~r/assign\([^)]*:delete_form_open\?,\s*true\)/
+      assert template =~ ~r/assign\([^)]*:delete_form_open\?,\s*false\)/
     end
 
     @tag :phase16
