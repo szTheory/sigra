@@ -58,7 +58,13 @@ defmodule Sigra.Install.Features.Organizations do
       # Phase 16 Plan 02: POST /organizations/switch controller
       # (plain controller per D-05 / ORG-UX-03).
       {:eex, "organizations/controllers/organization_switch_controller.ex",
-       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])}
+       Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])},
+
+      # Phase 16 Plan 05: OrganizationMembersLive — members list, role-change
+      # modal, remove modal with force-logout, Phase 17 invitations seam.
+      # Host-owned per D-28 / D-29.
+      {:eex, "organizations/live/organization_members_live.ex",
+       Path.join(["lib", web, "live", "organization_members_live.ex"])}
     ]
   end
 
