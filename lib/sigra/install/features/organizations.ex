@@ -78,7 +78,13 @@ defmodule Sigra.Install.Features.Organizations do
       # settings surface (General / Slug / Danger Zone) with progressive
       # disclosure + inline sudo for destructive actions (D-10 / D-11 / D-12).
       {:eex, "organizations/live/organization_settings_live.ex",
-       Path.join(["lib", web, "live", "organization_settings_live.ex"])}
+       Path.join(["lib", web, "live", "organization_settings_live.ex"])},
+
+      # Phase 16 Plan 05: OrganizationMembersLive — members list, role-change
+      # modal, remove modal with force-logout, Phase 17 invitations seam.
+      # Host-owned per D-28 / D-29.
+      {:eex, "organizations/live/organization_members_live.ex",
+       Path.join(["lib", web, "live", "organization_members_live.ex"])}
     ]
   end
 

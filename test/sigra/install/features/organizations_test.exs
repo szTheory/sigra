@@ -529,6 +529,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert "organizations/components/org_switcher.ex" in sources
       assert "organizations/controllers/organization_switch_controller.ex" in sources
+      # Phase 16 Plan 05: OrganizationMembersLive template
+      assert "organizations/live/organization_members_live.ex" in sources
 
       assert Enum.any?(targets, &String.ends_with?(&1, "components/org_switcher.ex"))
 
@@ -536,6 +538,151 @@ defmodule Sigra.Install.Features.OrganizationsTest do
                targets,
                &String.ends_with?(&1, "controllers/organization_switch_controller.ex")
              )
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "live/organization_members_live.ex")
+             )
+    end
+
+    @tag :phase16
+    test "Phase 16 Plan 05 OrganizationMembersLive template exists with required structure" do
+      path = "priv/templates/sigra.install/organizations/live/organization_members_live.ex"
+      template = File.read!(path)
+
+      # Module declaration (D-14)
+      assert template =~ "defmodule <%= web_module %>.OrganizationMembersLive"
+      assert template =~ "use <%= web_module %>, :live_view"
+      assert template =~ "alias <%= app_module %>.Organizations"
+
+      # Mount seeds a LiveView stream + header stat (D-22).
+      assert template =~ "stream(:members"
+      assert template =~ "Organizations.list_members_with_activity"
+      assert template =~ "Organizations.count_members"
+
+      # Six distinct event handlers (load_more + 2 open + cancel + 2 mutate).
+      for handler <- [
+            ~S|handle_event("load_more"|,
+            ~S|handle_event("open_role_modal"|,
+            ~S|handle_event("open_remove_modal"|,
+            ~S|handle_event("cancel_action"|,
+            ~S|handle_event("change_role"|,
+            ~S|handle_event("remove_member"|
+          ] do
+        assert template =~ handler,
+               "OrganizationMembersLive template must define #{handler}"
+      end
+
+      # Native <dialog class="modal"> per CD-04 research (no stock <.modal>
+      # in core_components — core_components.ex ships no def modal).
+      assert template =~ ~S|<dialog id="confirm-role-modal" class="modal"|
+      assert template =~ ~S|<dialog id="confirm-remove-modal" class="modal"|
+
+      # Role change modal contains the role select + submit wired to
+      # phx-submit "change_role"
+      assert template =~ ~S|phx-submit="change_role"|
+      assert template =~ ~S|phx-submit="remove_member"|
+
+      # Exact UI-SPEC §Copywriting error copy for last-owner guards (D-20).
+      assert template =~
+               "Cannot demote the last owner. Promote another member to owner first."
+
+      assert template =~
+               "Cannot remove the last owner. Promote another member to owner first."
+
+      # Success flash copy (behavior test 8 + 12).
+      assert template =~ ~S|"Role updated."|
+      assert template =~ ~S|Removed #{email} from #{org_name}.|
+
+      # Remove-modal warning copy (UI-SPEC §Screen Anatomy 5 destructive copy).
+      assert template =~
+               "will be signed out of this organization immediately. You can re-invite them later."
+
+      # Header stat uses Members (N) with bound assign.
+      assert template =~ ~S|Members ({@total_count})|
+
+      # Disabled "Invite member" button with the exact tooltip copy
+      # (Phase 17 stub — D-23).
+      assert template =~ "Invite member"
+      assert template =~ ~S|disabled aria-disabled="true" title="Available in the next release"|
+
+      # Phase 17 seam: section id + HEEx comment marker so Phase 17 can grep
+      # the exact insertion point (D-23).
+      assert template =~ ~S|<section id="pending-invitations-section"|
+      assert template =~ "<%!-- Phase 17 fills this section --%>"
+      assert template =~
+               "No pending invitations. Inviting members is coming in the next release."
+
+      # Role badge variants per UI-SPEC §Color.
+      assert template =~ "badge-primary"
+      assert template =~ "badge-neutral"
+      assert template =~ "badge-ghost"
+
+      # Actions dropdown: <details class="dropdown dropdown-end"> matches the
+      # UI-SPEC anatomy without requiring a new library widget (D-29).
+      assert template =~ ~S|<details class="dropdown dropdown-end"|
+      assert template =~ ~S|phx-click="open_role_modal"|
+      assert template =~ ~S|phx-click="open_remove_modal"|
+
+      # Table uses the LiveStream-aware <.table> binding.
+      assert template =~ ~S|rows={@streams.members}|
+
+      # "Load more" button appears conditionally on @has_more (D-22).
+      assert template =~ ~S|:if={@has_more} phx-click="load_more"|
+
+      # "Last active" column branches on nil → "Never".
+      assert template =~ "Never"
+      assert template =~ "__last_active__"
+
+      # Sort order (CD-06): library call is the source of truth; the template
+      # does not re-sort. Assert it passes through list_members_with_activity
+      # with a limit/offset — the Plan 01 query already orders inserted_at DESC.
+      assert template =~ "limit: @page_size"
+      assert template =~ "offset: 0"
+
+      # Force-logout linkage: template calls Organizations.remove_member/2
+      # which (per Plan 01) runs the purge_org_sessions Multi step in the
+      # same transaction (SC-4 / D-21).
+      assert template =~ "Organizations.remove_member(scope, member)"
+    end
+
+    @tag :phase16
+    test "Phase 16 Plan 05 template handles {:error, :last_owner} for BOTH mutations (D-20)" do
+      template =
+        File.read!("priv/templates/sigra.install/organizations/live/organization_members_live.ex")
+
+      # Both mutation handlers branch on {:error, :last_owner} and route it
+      # to an inline modal error (modal stays open per D-20).
+      assert template =~ "{:error, :last_owner}"
+      assert template =~ ":role_modal_error"
+      assert template =~ ":remove_modal_error"
+
+      # Verify both error assigns are surfaced in the rendered dialog bodies
+      # inside a role="alert" paragraph so screen readers announce them.
+      assert template =~ ~S|role="alert"|
+
+      # The dialog bodies render the error assigns (not a literal string).
+      assert template =~ "{@role_modal_error}"
+      assert template =~ "{@remove_modal_error}"
+    end
+
+    @tag :phase16
+    test "Phase 16 Plan 05 template uses the standard <%= web_module %> / <%= app_module %> EEx vars" do
+      path = "priv/templates/sigra.install/organizations/live/organization_members_live.ex"
+      source = File.read!(path)
+
+      # Template uses the same EEx binding names the rest of
+      # priv/templates/sigra.install/organizations/** uses so the generator
+      # can interpolate them uniformly. A full `EEx.eval_string/2` is not
+      # viable here — the template contains a `~H"""..."""` HEEx sigil that
+      # references `assigns` at LiveView runtime; evaluating at test time
+      # would raise `undefined variable "assigns"`. So we assert on the
+      # literal EEx markers being present and no other binding names leaking
+      # in (e.g. the plan's original `<%= @web_namespace %>`).
+      assert source =~ "<%= web_module %>"
+      assert source =~ "<%= app_module %>"
+      refute source =~ "<%= @web_namespace %>"
+      refute source =~ "<%= web_namespace %>"
     end
 
     @tag :phase16
