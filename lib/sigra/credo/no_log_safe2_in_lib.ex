@@ -16,6 +16,24 @@ defmodule Sigra.Credo.NoLogSafe2InLib do
   The module is guarded behind `Code.ensure_loaded?(Credo.Check)` so
   downstream host apps that depend on Sigra as a hex package do not
   need Credo in their own dep graph — the check is dev-only tooling.
+
+  ## Known limitation
+
+  The walker matches alias parts against both the fully-qualified
+  `[:Sigra, :Audit]` form and the bare `[:Audit]` form (the latter
+  covers `alias Sigra.Audit` at the top of the calling file). If a
+  future module under `lib/sigra/**` aliases a non-Sigra `.Audit`
+  module (e.g. `alias MyApp.SomethingElse.Audit`) and then calls
+  `Audit.log_safe/2` on it, this check will false-positive on that
+  call because it does not resolve alias declarations against the
+  file's AST header.
+
+  Today there is nothing in `lib/sigra/**` that aliases a non-Sigra
+  `Audit` module, so the risk is latent. If you hit this case, the
+  escape hatch is a Credo disable comment above the call site:
+
+      # credo:disable-for-next-line Sigra.Credo.NoLogSafe2InLib
+      Audit.log_safe("my.event", opts)
   """
 
   use Credo.Check,
