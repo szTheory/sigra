@@ -33,7 +33,7 @@
 - [x] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column (completed 2026-04-12)
 - [x] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard (completed 2026-04-12)
 - [x] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling (completed 2026-04-12)
-- [ ] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour
+- [x] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour (completed 2026-04-13)
 - [ ] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
 - [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation
 - [ ] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture
@@ -125,11 +125,11 @@ Plans:
   3. `Sigra.Audit.Query` gains an `:organization_id` filter backed by the real column; an index hit-count test proves it uses the index.
   4. `Sigra.Workers` behaviour enforces that workers accept `args["organization_id"]` + `args["actor_id"]`, reconstruct a minimal `%Scope{}` in `perform/1`, and emit audits through `metadata_from_scope`; an existing v1.0 worker is refactored to the behaviour as the reference implementation.
   5. In v1.1, `effective_user_id` is populated identically to `user_id` on every audit row — v1.2 divergence (impersonator vs target) is purely additive.
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
-- [ ] 15-01-schema-helper-sweep-PLAN.md — Wave 1: ALTER migration + log_safe/3 + Query extension + Sigra.Scope.build/3 + mechanical 79-site sweep (AUD-01..03, AUD-05)
-- [ ] 15-02-semantic-workers-credo-PLAN.md — Wave 2: session.create reorder + semantic enrichment + Sigra.Workers behaviour + AccountDeletion refactor + Credo check + assert_audit_logged (AUD-02..05)
-- [ ] 15-03-generator-fixtures-changelog-PLAN.md — Wave 3: Generator manifest + install-golden regen + example app regen + CHANGELOG + Postgres EXPLAIN index-hit test (AUD-01, AUD-03)
+- [x] 15-01-schema-helper-sweep-PLAN.md — Wave 1: ALTER migration + log_safe/3 + Query extension + Sigra.Scope.build/3 + mechanical 79-site sweep (AUD-01..03, AUD-05)
+- [x] 15-02-semantic-workers-credo-PLAN.md — Wave 2: session.create reorder + semantic enrichment + Sigra.Workers behaviour + AccountDeletion refactor + Credo check + assert_audit_logged (AUD-02..05)
+- [x] 15-03-generator-fixtures-changelog-PLAN.md — Wave 3: Generator manifest + install-golden regen + example app regen + CHANGELOG + Postgres EXPLAIN index-hit test (AUD-01, AUD-03)
 
 ### Phase 16: Org LiveViews + Switcher
 **Goal**: User experiences the full organization UX end-to-end in the example app — switching orgs, creating them, managing settings, viewing members, changing roles, inviting pending members — with the last-owner guard and sudo gates enforced in the UI as tightly as they are in the context.
@@ -245,7 +245,7 @@ Plans:
 | 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
 | 13. Organizations Schemas + Context | 3/3 | Complete    | 2026-04-12 |
 | 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
-| 15. Audit Integration | 0/? | Not started | — |
+| 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
 | 17. Invitation Flow + Email | 0/? | Not started | — |
 | 18. Backfill + `--organizations` Generator Wiring | 0/? | Not started | — |
