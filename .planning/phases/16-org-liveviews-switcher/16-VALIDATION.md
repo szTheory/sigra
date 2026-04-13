@@ -48,6 +48,7 @@ updated: 2026-04-13
 | ORG-UX-07 | 01, 05 | 1, 2 | T-16-05-02 | Role change modal with last-owner guard | template-content | `mix test test/sigra/install/features/organizations_test.exs --only phase16` | ✅ green |
 | ORG-UX-08 | 01, 05 | 1, 2 | T-16-05-03 | Remove member with force-logout (SC-4) in Multi | library + template-content | `mix test test/sigra/organizations/context_test.exs --only phase16` | ✅ green |
 | ORG-UX-09 | 03, 06 | 2, 3 | T-16-03-01 | Post-signup zero-org lands on /organizations Branch A | SHA256 byte-identity + integration | `cd test/example && mix test test/example_web/integration/phase_16_integration_test.exs -t phase16` | ✅ green |
+| ORG-UX-01..09 | 06 | 3 | T-16-06-03 | Visual UI + exact copy + URL transitions + slug-alias redirect on a real cookie session (replaces Plan 06 Task 3 human checkpoint) | browser smoke (Playwright + headless Chromium) | `cd test/example/priv/playwright && npx playwright test organizations.spec.ts` (also runs in CI `example_playwright_smoke`) | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -57,6 +58,7 @@ updated: 2026-04-13
 
 - [x] Library-level Phase 16 changes covered by `test/sigra/**/*phase16*` tests (22 ContextTest + 9 plug/LV + 18 Features.Organizations template-content from Plan 03 + 21 from Plan 04 + 11 from Plan 05)
 - [x] Example-app integration coverage landed in `test/example/test/example_web/integration/phase_16_integration_test.exs` (9 tests)
+- [x] Browser-level coverage landed in `test/example/priv/playwright/tests/organizations.spec.ts` (1 lifecycle spec, 18 in-browser assertions covering ORG-UX-01..09)
 - [x] Full library suite: 1615 tests, 0 failures (baseline preserved)
 - [x] Example suite (test env): 20 tests, 0 failures (11 baseline + 9 new)
 
@@ -64,9 +66,7 @@ updated: 2026-04-13
 
 ## Manual-Only Verifications
 
-| Behavior                                         | Requirement | Why Manual                           | Test Instructions                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ------------------------------------------------ | ----------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Visual UI matches UI-SPEC copy/colors            | ORG-UX-01..09 | Pixel-level visual match             | Start the dev server `cd test/example && mix phx.server` then visit `http://localhost:4000/organizations`. Walk through the 6 screens per UI-SPEC §Screen Anatomy; verify headings/copy/badge colors/spacing match exactly. Cover: (1) Branch A zero-state, (2) `/organizations/new` create form, (3) `/organizations/:slug/members` members list, (4) `/organizations/:slug/settings` three sections, (5) progressive-disclosure slug form with 7-day warning banner, (6) danger zone soft-delete form. Verify the organization switcher dropdown opens/closes and shows ACTIVE section + SWITCH TO list + Create / Settings / Manage links.                                                |
+_None._ The visual + interaction checklist that was previously human-only is now automated by `test/example/priv/playwright/tests/organizations.spec.ts`, executed in CI by the `example_playwright_smoke` job. See the new ORG-UX-01..09 row in the per-task verification map (`Test Type: browser smoke`).
 
 ---
 

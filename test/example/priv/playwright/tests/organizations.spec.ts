@@ -1,0 +1,307 @@
+// Phase 16: organizations UX browser smoke. Automates the 15-step human
+// verification checklist from 16-06-PLAN.md:232-272 so the Phase 16 gate
+// is enforced in CI instead of on a live laptop.
+//
+// What this catches that the 9 Phoenix.LiveViewTest integration tests
+// under test/example/test/example_web/integration/phase_16_integration_test.exs
+// miss: exact DOM copy, daisyUI badge class presence, native <dialog>
+// modal behavior, URL transitions through real form POSTs (switcher +
+// settings), and the slug-alias redirect round-trip on a real cookie
+// session. Exact copy strings are hard-coded against 16-UI-SPEC.md
+// §Copywriting Contract — same discipline as the SHA256 byte-identity
+// test on registration_live.ex: UI-SPEC changes and this spec change in
+// the same PR.
+
+import { test, expect } from '@playwright/test';
+import { extractConfirmationLink } from '../fixtures/mailbox';
+
+test('phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch', async ({
+  page,
+}) => {
+  const suffix = Date.now();
+  const email = `orgs-${suffix}@example.test`;
+  const password = 'CorrectHorseBatteryStaple123!';
+  const firstOrgName = `Test Org ${suffix}`;
+  const firstOrgSlug = `test-org-${suffix}`;
+  const renamedOrgName = `Test Organization ${suffix}`;
+  const renamedSlug = `test-org-${suffix}-renamed`;
+  const secondOrgName = `Second Co ${suffix}`;
+  const secondOrgSlug = `second-co-${suffix}`;
+
+  // Same helper as tests/golden-path.spec.ts. Phoenix LiveView adds
+  // `.phx-connected` to the LV root `<div data-phx-session>` after the
+  // channel join completes. state: 'attached' avoids the default visible
+  // gate since the root div may be a layout-neutral wrapper.
+  const waitForLiveViewReady = async () => {
+    await page.waitForSelector('[data-phx-session].phx-connected', {
+      state: 'attached',
+    });
+  };
+
+  // The Phoenix flash toast (#flash-group [data-flash]) is a fixed-position
+  // toast-top toast-end overlay that intercepts pointer events on anything
+  // beneath it (notably the org switcher in the navbar). The example app's
+  // CoreComponents.flash/1 has no client-side dismiss handler, so the toast
+  // is sticky until the LV pushes a new state. For browser tests we yank it
+  // out of the DOM directly — purely a test-side workaround for an unrelated
+  // UX limitation.
+  const dismissFlash = async () => {
+    await page.evaluate(() => {
+      document
+        .querySelectorAll('#flash-group [data-flash]')
+        .forEach((el) => el.remove());
+    });
+  };
+
+  // --- Step 1: Register ---
+  await page.goto('/users/register');
+  await waitForLiveViewReady();
+  await page.fill('input[name="user[email]"]', email);
+  await page.fill('input[name="user[password]"]', password);
+  await page.click('button:has-text("Create an account")');
+  await expect(page).not.toHaveURL(/\/users\/register/);
+
+  // --- Step 2: Confirm via dev mailbox ---
+  const confirmHref = await extractConfirmationLink(page, email);
+  await page.goto(confirmHref);
+  await expect(page).not.toHaveURL(/\/users\/confirm\//);
+
+  // --- Step 3: Login if needed ---
+  await page.goto('/users/log_in');
+  if (page.url().includes('/users/log_in')) {
+    await page.fill('#login_form input[name="user[email]"]', email);
+    await page.fill('#login_form input[name="user[password]"]', password);
+    await page.click('#login_form button:has-text("Log in")');
+    await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
+  }
+
+  // --- Step 4: Navigate to Branch A (zero-org landing) ---
+  // ORG-UX-09 lands a zero-org user on /organizations via Phase 14's
+  // :no_active_org redirect. Navigate explicitly rather than rely on
+  // automatic post-login routing — the login destination depends on the
+  // example app's configured return path which may not be Branch A.
+  await page.goto('/organizations');
+  await waitForLiveViewReady();
+  await expect(page).toHaveURL(/\/organizations$/);
+  await expect(
+    page.getByRole('heading', { name: 'Create your first organization' }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "You don't belong to any organizations yet. Create one to get started.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'Skip for now' }),
+  ).toBeVisible();
+
+  // --- Step 5: Live slug preview on name field ---
+  // phx-change="validate" pushes each keystroke to the server, which
+  // updates @slug_preview via Sigra.Organizations.Slug.generate/1. The
+  // preview element has aria-live="polite" and id="slug-preview".
+  await page.fill('input[name="organization[name]"]', firstOrgName);
+  await expect(page.locator('#slug-preview')).toHaveText(firstOrgSlug);
+
+  // --- Step 6: Create the first organization ---
+  await page.click('button:has-text("Create organization")');
+  // The create handler redirects to /organizations/:slug/members.
+  await expect(page).toHaveURL(
+    new RegExp(`/organizations/${firstOrgSlug}/members$`),
+  );
+  await waitForLiveViewReady();
+
+  // --- Step 7: Switcher chip shows active org + Owner badge ---
+  // The switcher renders only when current_scope.active_organization is
+  // set, which is exactly the post-create state. The trigger is a
+  // <summary> with aria-label="Organization switcher" inside the
+  // <details id="org-switcher">. Chromium exposes <summary> as
+  // role=generic (not button), so target it via the parent details id.
+  const switcherDetails = page.locator('#org-switcher');
+  const switcherTrigger = switcherDetails.locator('summary');
+  await expect(switcherTrigger).toBeVisible();
+  await expect(switcherTrigger).toContainText(firstOrgName);
+  // Role badge is a <span class="badge badge-xs badge-primary">Owner</span>
+  // inside the trigger. The Elixir helper renders literal "Owner".
+  await expect(
+    switcherTrigger.locator('.badge.badge-primary').first(),
+  ).toContainText('Owner');
+
+  // --- Step 8: Open switcher dropdown, verify menu anatomy ---
+  // Dismiss the post-create "Organization created." toast first; the
+  // alert overlay intercepts pointer events on the switcher otherwise.
+  await dismissFlash();
+  await switcherTrigger.click();
+  const switcherMenu = page.locator('#org-switcher ul.menu');
+  await expect(switcherMenu).toBeVisible();
+  await expect(switcherMenu).toContainText('Active');
+  // "Switch to" section only exists when there's another org; at this
+  // point we only have one, so just check the action items are present.
+  await expect(
+    switcherMenu.getByRole('link', { name: /Create organization/ }),
+  ).toBeVisible();
+  await expect(
+    switcherMenu.getByRole('link', { name: /Organization settings/ }),
+  ).toBeVisible();
+  await expect(
+    switcherMenu.getByRole('link', { name: /Manage organizations/ }),
+  ).toBeVisible();
+  // Esc closes the native <details> via the JS hook described in the UI
+  // spec. Focus the trigger first so the keydown fires on the dropdown.
+  await switcherTrigger.focus();
+  await page.keyboard.press('Escape');
+
+  // --- Step 9: Navigate to settings, verify three-section layout ---
+  await page.goto(`/organizations/${firstOrgSlug}/settings`);
+  await waitForLiveViewReady();
+  const generalHeading = page.getByRole('heading', { name: 'General' });
+  const slugHeading = page.getByRole('heading', { name: 'Slug' });
+  const dangerHeading = page.getByRole('heading', { name: 'Danger zone' });
+  await expect(generalHeading).toBeVisible();
+  await expect(slugHeading).toBeVisible();
+  await expect(dangerHeading).toBeVisible();
+  // Danger zone is the third <section>; check it carries the
+  // border-l-error class from the UI-SPEC.
+  await expect(
+    page.locator('section', { has: dangerHeading }),
+  ).toHaveClass(/border-l-error/);
+
+  // --- Step 10: Rename the organization ---
+  await page.getByLabel('Organization name').fill(renamedOrgName);
+  await page.click('button:has-text("Save name")');
+  await expect(page.getByText('Name updated.')).toBeVisible();
+  await dismissFlash();
+
+  // --- Step 11: Slug progressive disclosure ---
+  await page.click('button:has-text("Change slug")');
+  // Use accessible-name (label) selectors — far more robust than guessing
+  // input name attributes generated by core_components.ex .input/1.
+  const slugInput = page.getByLabel('New slug');
+  const slugPasswordInput = page.getByLabel('Current password');
+  const slugConfirmInput = page.getByLabel(
+    `Type ${firstOrgSlug} to confirm`,
+  );
+  await expect(slugInput).toBeVisible();
+  await expect(slugPasswordInput).toBeVisible();
+  await expect(slugConfirmInput).toBeVisible();
+  // The warning banner references a 7-day redirect window.
+  await expect(page.getByRole('alert')).toContainText('7 days');
+  await expect(
+    page.getByRole('button', { name: 'Update slug' }),
+  ).toBeVisible();
+
+  // --- Step 12: Slug change error paths ---
+  // 12a: wrong password → "That password is incorrect."
+  await slugInput.fill(renamedSlug);
+  await slugPasswordInput.fill('wrong-password');
+  await slugConfirmInput.fill(firstOrgSlug);
+  await page.click('button:has-text("Update slug")');
+  await expect(page.getByText('That password is incorrect.')).toBeVisible();
+
+  // 12b: wrong typed-confirm → "Type {old-slug} exactly to confirm."
+  await slugPasswordInput.fill(password);
+  await slugConfirmInput.fill('nope');
+  await page.click('button:has-text("Update slug")');
+  await expect(
+    page.getByText(`Type ${firstOrgSlug} exactly to confirm.`),
+  ).toBeVisible();
+
+  // 12c: valid values → success flash + URL updates to new slug
+  await slugConfirmInput.fill(firstOrgSlug);
+  await page.click('button:has-text("Update slug")');
+  await expect(
+    page.getByText('Slug updated. The old slug redirects for 7 days.'),
+  ).toBeVisible();
+  await expect(page).toHaveURL(
+    new RegExp(`/organizations/${renamedSlug}/settings$`),
+  );
+  await dismissFlash();
+
+  // --- Step 13: Slug alias redirect (7-day window) ---
+  // Navigate to the old slug; the LoadOrganizationFromSlug plug should
+  // look up the OrganizationSlugAlias row and 302 to the new slug.
+  await page.goto(`/organizations/${firstOrgSlug}/settings`);
+  await expect(page).toHaveURL(
+    new RegExp(`/organizations/${renamedSlug}/settings$`),
+  );
+  await waitForLiveViewReady();
+
+  // --- Step 14: Danger zone disclosure (do NOT delete) ---
+  await page.click('button:has-text("Delete organization")');
+  const deletePasswordInput = page
+    .getByLabel('Current password')
+    .first();
+  const deleteConfirmInput = page.getByLabel(
+    `Type ${renamedOrgName} to confirm`,
+  );
+  await expect(deletePasswordInput).toBeVisible();
+  await expect(deleteConfirmInput).toBeVisible();
+  // Click Cancel — the organization must survive for the remaining steps.
+  await page.click('button:has-text("Cancel")');
+  await expect(deletePasswordInput).not.toBeVisible();
+
+  // --- Step 15: Members table ---
+  await page.goto(`/organizations/${renamedSlug}/members`);
+  await waitForLiveViewReady();
+  const membersSection = page.locator('#members-section');
+  await expect(membersSection).toContainText(email);
+  // Owner badge on the only row is badge-primary.
+  await expect(
+    membersSection.locator('.badge.badge-primary').first(),
+  ).toContainText('Owner');
+  // Invite member button is disabled with the Phase 17 tooltip.
+  const inviteButton = page.getByRole('button', { name: 'Invite member' });
+  await expect(inviteButton).toBeDisabled();
+  await expect(inviteButton).toHaveAttribute(
+    'title',
+    'Available in the next release',
+  );
+
+  // --- Step 16: Create a second organization ---
+  await page.goto('/organizations/new');
+  await waitForLiveViewReady();
+  await page.fill('input[name="organization[name]"]', secondOrgName);
+  await page.click('button:has-text("Create organization")');
+  await expect(page).toHaveURL(
+    new RegExp(`/organizations/${secondOrgSlug}/members$`),
+  );
+  await waitForLiveViewReady();
+
+  // --- Step 17: Switcher now shows SWITCH TO, use it to hop back ---
+  await dismissFlash();
+  await switcherTrigger.click();
+  // Active section shows the second org now.
+  await expect(switcherMenu).toContainText('Switch to');
+  await expect(switcherMenu).toContainText(renamedOrgName);
+  // Click the switch form button for the renamed (first) org.
+  await switcherMenu
+    .getByRole('button', { name: `Switch to ${renamedOrgName}` })
+    .click();
+  // POST /organizations/switch → 302 to return_to. The switcher form
+  // sends return_to=/ by default (see org_switcher.ex line 66), so we
+  // land on the root route. The home page is rendered by PageController
+  // which does NOT use Layouts.app, so the switcher isn't there. Navigate
+  // to a phase-16 LV under the new active org to verify the switch.
+  await expect(page).not.toHaveURL(
+    new RegExp(`/organizations/${secondOrgSlug}/`),
+  );
+  await page.goto(`/organizations/${renamedSlug}/members`);
+  await waitForLiveViewReady();
+  await expect(switcherTrigger).toContainText(renamedOrgName);
+  await expect(
+    switcherTrigger.locator('.badge.badge-primary').first(),
+  ).toContainText('Owner');
+
+  // --- Step 18: Copywriting contract spot-checks ---
+  // Re-verify three load-bearing strings from 16-UI-SPEC.md §Copywriting
+  // Contract. If these drift, the test points at the UI-SPEC as source
+  // of truth.
+  await page.goto(`/organizations/${renamedSlug}/settings`);
+  await waitForLiveViewReady();
+  await expect(
+    page.getByText('Soft-delete this organization. Members lose access immediately.'),
+  ).toBeVisible();
+  await page.click('button:has-text("Change slug")');
+  await expect(page.getByRole('alert')).toContainText(
+    'will redirect to the new slug for 7 days',
+  );
+});
