@@ -50,7 +50,9 @@ defmodule Sigra.Organizations do
         membership: [type: :atom, required: true, doc: "OrganizationMembership schema module."],
         invitation: [type: :atom, required: true, doc: "OrganizationInvitation schema module."],
         user: [type: :atom, required: true, doc: "User schema module."],
-        scope: [type: :atom, required: true, doc: "Scope struct module."]
+        scope: [type: :atom, required: true, doc: "Scope struct module."],
+        user_session: [type: {:or, [:atom, nil]}, default: nil, doc: "UserSession schema module. Required for `remove_member/3` force-logout (Phase 16 D-21)."],
+        organization_slug_alias: [type: {:or, [:atom, nil]}, default: nil, doc: "OrganizationSlugAlias schema module. Required for `update_slug/4` (Phase 16 D-13)."]
       ]
     ],
     roles: [
@@ -153,8 +155,23 @@ defmodule Sigra.Organizations do
       def update_organization(scope, org, attrs),
         do: Sigra.Organizations.update_organization(@sigra_org_config, scope, org, attrs)
 
-      def soft_delete_organization(scope, org),
-        do: Sigra.Organizations.soft_delete_organization(@sigra_org_config, scope, org)
+      def soft_delete_organization(scope, org, params),
+        do: Sigra.Organizations.soft_delete_organization(@sigra_org_config, scope, org, params)
+
+      def rename_organization(scope, org, params),
+        do: Sigra.Organizations.rename_organization(@sigra_org_config, scope, org, params)
+
+      def update_slug(scope, org, params),
+        do: Sigra.Organizations.update_slug(@sigra_org_config, scope, org, params)
+
+      def list_members_with_activity(scope, opts \\ []),
+        do: Sigra.Organizations.list_members_with_activity(@sigra_org_config, scope, opts)
+
+      def count_members(scope),
+        do: Sigra.Organizations.count_members(@sigra_org_config, scope)
+
+      def get_active_slug_alias(slug),
+        do: Sigra.Organizations.get_active_slug_alias(@sigra_org_config, slug)
 
       def add_member(scope, org, user, role),
         do: Sigra.Organizations.add_member(@sigra_org_config, scope, org, user, role)
@@ -262,16 +279,39 @@ defmodule Sigra.Organizations do
   @doc """
   Soft-deletes an organization by setting `deleted_at`.
 
+  Requires both the current user's password AND a typed-confirm of the
+  organization's name (Phase 16 D-11, D-15). Returns:
+
+    * `{:ok, organization}` — success
+    * `{:error, :invalid_password}` — password did not match
+    * `{:error, %Ecto.Changeset{}}` — confirm_name mismatch or other
+      validation failure
+
+  The caller is responsible for refreshing sudo state after success
+  (Phase 16 D-11, moved out of the library in 16-01 because the org
+  config does not carry the session token). LiveViews ship this in Plan
+  02 via `Sigra.Auth.confirm_sudo/3`.
+
   Runs `before_delete_organization` hook before the transaction and
-  `after_delete_organization` after successful commit. Returns
-  `{:ok, organization}` or `{:error, reason}`.
+  `after_delete_organization` after successful commit.
   """
-  @spec soft_delete_organization(map(), map(), struct()) :: {:ok, struct()} | {:error, term()}
-  def soft_delete_organization(config, scope, org) do
-    with :ok <- run_before_hook(config, :before_delete_organization, [org, scope]) do
+  @spec soft_delete_organization(map(), map(), struct(), map()) ::
+          {:ok, struct()} | {:error, :invalid_password | Ecto.Changeset.t() | term()}
+  def soft_delete_organization(config, scope, org, params) do
+    types = %{password: :string, confirm_name: :string}
+
+    changeset =
+      {%{}, types}
+      |> Ecto.Changeset.cast(normalize_params(params), Map.keys(types))
+      |> Ecto.Changeset.validate_required([:password, :confirm_name])
+      |> validate_confirm(:confirm_name, org.name, "does not match organization name")
+
+    with true <- changeset.valid? || {:error, changeset},
+         true <- verify_user_password(scope, changeset) || {:error, :invalid_password},
+         :ok <- run_before_hook(config, :before_delete_organization, [org, scope]) do
       result =
         Multi.new()
-        |> Multi.update(:organization, Ecto.Changeset.change(org, %{deleted_at: DateTime.utc_now()}))
+        |> Multi.update(:organization, Ecto.Changeset.change(org, %{deleted_at: DateTime.utc_now() |> DateTime.truncate(:second)}))
         |> append_audit(config, "organization.delete", scope)
         |> config.repo.transaction()
         |> normalize_multi_result()
@@ -284,6 +324,220 @@ defmodule Sigra.Organizations do
         error ->
           error
       end
+    else
+      {:error, _} = err -> err
+    end
+  end
+
+  @doc """
+  Renames an organization. Only `:name` is updatable via this function;
+  slug changes go through `update_slug/4` (Phase 16 D-15).
+
+  Returns `{:ok, org}` or `{:error, changeset}`.
+  """
+  @spec rename_organization(map(), map(), struct(), map()) ::
+          {:ok, struct()} | {:error, Ecto.Changeset.t()}
+  def rename_organization(config, scope, org, params) do
+    params = normalize_params(params)
+
+    changeset =
+      org
+      |> Ecto.Changeset.cast(params, [:name])
+      |> Ecto.Changeset.validate_required([:name])
+      |> Ecto.Changeset.validate_length(:name, min: 1, max: 100)
+
+    if changeset.valid? do
+      result =
+        Multi.new()
+        |> Multi.update(:organization, changeset)
+        |> append_audit(config, "organization.rename", scope,
+          metadata: %{old_name: org.name, new_name: Map.get(params, :name)}
+        )
+        |> config.repo.transaction()
+        |> normalize_multi_result()
+
+      case result do
+        {:ok, %{organization: updated}} -> {:ok, updated}
+        error -> error
+      end
+    else
+      {:error, %{changeset | action: :update}}
+    end
+  end
+
+  @doc """
+  Updates an organization's slug under sudo + typed-confirm gates.
+
+  Requires:
+    * `:slug` — new slug (must match slug_format + non-reserved + unique)
+    * `:password` — current user's password (sudo re-verification)
+    * `:confirm_slug` — typed-back copy of the CURRENT slug (so users
+      cannot slip and rename the wrong org)
+
+  On success, atomically:
+    1. Updates `org.slug`
+    2. Inserts an `OrganizationSlugAlias` row with the previous slug
+       and `expires_at = now + 7 days` so the load plug can redirect
+       old URLs for the grace window (Phase 16 D-13).
+    3. Appends audit event `"organization.slug_change"`.
+
+  Returns:
+    * `{:ok, org}`
+    * `{:error, :invalid_password}`
+    * `{:error, %Ecto.Changeset{}}`
+  """
+  @spec update_slug(map(), map(), struct(), map()) ::
+          {:ok, struct()} | {:error, :invalid_password | Ecto.Changeset.t()}
+  def update_slug(config, scope, org, params) do
+    params = normalize_params(params)
+    types = %{slug: :string, password: :string, confirm_slug: :string}
+    reserved = Slug.default_reserved_slugs() ++ Map.get(config, :additional_reserved_slugs, [])
+
+    changeset =
+      {%{}, types}
+      |> Ecto.Changeset.cast(params, Map.keys(types))
+      |> Ecto.Changeset.validate_required([:slug, :password, :confirm_slug])
+      |> Ecto.Changeset.validate_format(:slug, Map.get(config, :slug_format, ~r/^[a-z][a-z0-9-]*[a-z0-9]$/))
+      |> Ecto.Changeset.validate_exclusion(:slug, reserved, message: "is reserved")
+      |> validate_confirm(:confirm_slug, org.slug, "does not match current slug")
+
+    with true <- changeset.valid? || {:error, %{changeset | action: :update}},
+         true <- verify_user_password(scope, changeset) || {:error, :invalid_password} do
+      new_slug = Ecto.Changeset.get_change(changeset, :slug)
+      old_slug = org.slug
+      expires_at = DateTime.utc_now() |> DateTime.add(7, :day) |> DateTime.truncate(:second)
+      org_changeset = Ecto.Changeset.change(org, %{slug: new_slug})
+
+      alias_schema = Map.get(config.schemas, :organization_slug_alias)
+
+      multi =
+        Multi.new()
+        |> Multi.update(:organization, org_changeset)
+        |> maybe_insert_slug_alias(alias_schema, org.id, old_slug, expires_at)
+        |> append_audit(config, "organization.slug_change", scope,
+          metadata: %{old_slug: old_slug, new_slug: new_slug, alias_expires_at: DateTime.to_iso8601(expires_at)}
+        )
+
+      case multi |> config.repo.transaction() |> normalize_multi_result() do
+        {:ok, %{organization: updated}} -> {:ok, updated}
+        error -> error
+      end
+    else
+      {:error, _} = err -> err
+    end
+  end
+
+  @doc """
+  Lists memberships for the active organization with the user's most
+  recent session activity timestamp for that org (Phase 16 D-14, CD-06).
+
+  Returns a list of `{membership, last_active_at | nil}` tuples, sorted
+  by membership inserted_at descending. The `last_active_at` comes from
+  a LATERAL subquery against `user_sessions` scoped to the current org
+  (not a cross-org high-water mark).
+
+  ## Options
+
+    * `:limit` — default 100
+    * `:offset` — default 0
+
+  Raises `ArgumentError` if `scope.active_organization` is nil (source
+  of O-1 cross-tenant leak protection).
+  """
+  @spec list_members_with_activity(map(), map(), keyword()) ::
+          [{struct(), DateTime.t() | nil}]
+  def list_members_with_activity(config, scope, opts \\ []) do
+    org = scope.active_organization || raise ArgumentError,
+      "list_members_with_activity/3 requires scope.active_organization (cross-tenant leak guard)"
+
+    membership_schema = config.schemas.membership
+    user_schema = config.schemas.user
+    user_session_schema = Map.get(config.schemas, :user_session)
+    limit = Keyword.get(opts, :limit, 100)
+    offset = Keyword.get(opts, :offset, 0)
+
+    query =
+      if user_session_schema do
+        last_active_sub =
+          from(s in user_session_schema,
+            where:
+              s.user_id == parent_as(:membership).user_id and
+                s.active_organization_id == ^org.id,
+            order_by: [desc: s.last_active_at],
+            limit: 1,
+            select: %{last_active_at: s.last_active_at}
+          )
+
+        from(m in membership_schema,
+          as: :membership,
+          where: m.organization_id == ^org.id,
+          join: u in ^user_schema,
+          on: u.id == m.user_id,
+          left_lateral_join: la in subquery(last_active_sub),
+          on: true,
+          order_by: [desc: m.inserted_at],
+          limit: ^limit,
+          offset: ^offset,
+          preload: [user: u],
+          select: {m, la.last_active_at}
+        )
+      else
+        from(m in membership_schema,
+          where: m.organization_id == ^org.id,
+          join: u in ^user_schema,
+          on: u.id == m.user_id,
+          order_by: [desc: m.inserted_at],
+          limit: ^limit,
+          offset: ^offset,
+          preload: [user: u],
+          select: {m, nil}
+        )
+      end
+
+    config.repo.all(query)
+  end
+
+  @doc """
+  Returns the count of memberships in the current active organization.
+
+  Unaffected by `:limit` / `:offset` options passed to
+  `list_members_with_activity/3`.
+  """
+  @spec count_members(map(), map()) :: non_neg_integer()
+  def count_members(config, scope) do
+    org = scope.active_organization || raise ArgumentError,
+      "count_members/2 requires scope.active_organization"
+
+    membership_schema = config.schemas.membership
+
+    config.repo.aggregate(
+      from(m in membership_schema, where: m.organization_id == ^org.id),
+      :count
+    )
+  end
+
+  @doc """
+  Fetches a non-expired organization slug alias row for the given old
+  slug. Used by `Sigra.Plug.LoadOrganizationFromSlug` to follow 7-day
+  redirects from renamed-org URLs to the canonical slug.
+
+  Returns the alias row or `nil`. Soft-expired rows (expires_at <= now)
+  are treated as non-existent.
+  """
+  @spec get_active_slug_alias(map(), binary()) :: struct() | nil
+  def get_active_slug_alias(config, slug) do
+    case Map.get(config.schemas, :organization_slug_alias) do
+      nil ->
+        nil
+
+      alias_schema ->
+        now = DateTime.utc_now()
+
+        from(a in alias_schema,
+          where: a.old_slug == ^slug and a.expires_at > ^now,
+          limit: 1
+        )
+        |> config.repo.one()
     end
   end
 
@@ -329,6 +583,7 @@ defmodule Sigra.Organizations do
     result =
       Multi.new()
       |> guard_last_owner(membership.organization_id, membership.id, config)
+      |> purge_org_sessions(membership, config)
       |> Multi.delete(:membership, membership)
       |> append_audit(config, "organization.member_remove", scope,
         metadata: %{user_id: membership.user_id}
@@ -652,6 +907,82 @@ defmodule Sigra.Organizations do
       others = Enum.reject(owner_ids, &(&1 == membership_id))
       if others != [], do: {:ok, :safe}, else: {:error, :last_owner}
     end)
+  end
+
+  defp normalize_params(params) when is_map(params) do
+    Enum.into(params, %{}, fn
+      {k, v} when is_binary(k) -> {String.to_existing_atom(k), v}
+      {k, v} -> {k, v}
+    end)
+  rescue
+    ArgumentError -> params
+  end
+
+  defp normalize_params(params), do: params
+
+  defp validate_confirm(changeset, field, expected, message) do
+    Ecto.Changeset.validate_change(changeset, field, fn _, typed ->
+      if typed == expected, do: [], else: [{field, message}]
+    end)
+  end
+
+  # Returns true if verification succeeds; returns the sentinel false
+  # so the caller (a `with` expression) short-circuits to
+  # {:error, :invalid_password}. Uses the user's :hashed_password field.
+  defp verify_user_password(scope, changeset) do
+    password = Ecto.Changeset.get_change(changeset, :password) || Ecto.Changeset.get_field(changeset, :password)
+    user = scope.user
+    hashed = user && Map.get(user, :hashed_password)
+
+    cond do
+      is_nil(hashed) ->
+        Sigra.Crypto.no_user_verify()
+        false
+
+      is_binary(password) ->
+        Sigra.Crypto.verify_password(password, hashed)
+
+      true ->
+        false
+    end
+  end
+
+  defp maybe_insert_slug_alias(multi, nil, _org_id, _old_slug, _expires_at), do: multi
+
+  defp maybe_insert_slug_alias(multi, alias_schema, org_id, old_slug, expires_at) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    alias_attrs = %{
+      organization_id: org_id,
+      old_slug: old_slug,
+      expires_at: expires_at,
+      inserted_at: now
+    }
+
+    Multi.insert(multi, :slug_alias, fn _ ->
+      struct(alias_schema) |> Ecto.Changeset.change(alias_attrs)
+    end)
+  end
+
+  # Phase 16 D-21 / SC-4: purge all user_sessions rows for the removed user
+  # whose active_organization_id == the org being left. Runs inside the same
+  # Multi as the membership delete so last-owner rollback also reverts the
+  # session purge. No-op if config.schemas.user_session is nil (pre-Phase 16
+  # config; the thin-wrapper template is updated in Plan 02).
+  defp purge_org_sessions(multi, membership, config) do
+    case Map.get(config.schemas, :user_session) do
+      nil ->
+        multi
+
+      user_session_schema ->
+        Multi.delete_all(multi, :purge_org_sessions, fn _ ->
+          from(s in user_session_schema,
+            where:
+              s.user_id == ^membership.user_id and
+                s.active_organization_id == ^membership.organization_id
+          )
+        end)
+    end
   end
 
   defp maybe_guard_last_owner_on_demote(multi, membership, new_role, config) do

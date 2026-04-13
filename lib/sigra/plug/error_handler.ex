@@ -60,6 +60,7 @@ defmodule Sigra.Plug.ErrorHandler do
           | :mfa_required
           | :no_active_org
           | :insufficient_role
+          | :not_found
 
   @doc """
   Handle an authentication error.
