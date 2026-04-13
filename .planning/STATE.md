@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: completed
-stopped_at: Phase 16 context gathered
-last_updated: "2026-04-13T01:06:12.277Z"
-last_activity: 2026-04-13
+status: executing
+stopped_at: Phase 16 complete (verifier PASS) — ready for Phase 17
+last_updated: "2026-04-13T17:30:00.000Z"
+last_activity: 2026-04-13 -- Phase 16 verified complete (9/9 ORG-UX requirements)
 progress:
   total_phases: 15
-  completed_phases: 5
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
+  completed_phases: 6
+  total_plans: 31
+  completed_plans: 25
+  percent: 81
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 16 — org-liveviews-switcher (next)
+**Current focus:** Phase 17 — Invitation Flow + Email (next)
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
-Status: Phase 15 complete — ready to discuss/plan Phase 16 (Org LiveViews + Switcher). Phase 11 (Generator Feature System) remains deliberately deferred per org-track sequencing.
-Last activity: 2026-04-13
+Phase: 16 (org-liveviews-switcher) — ✅ COMPLETE (verifier PASS, 9/9 ORG-UX requirements, 5/5 Success Criteria)
+Plan: 6 of 6 (all complete)
+Status: Phase 16 verified complete — ready for Phase 17 planning
+Last activity: 2026-04-13 -- Phase 16 verified complete
 
-Progress: [███░░░░░░░] 31% (4/13 phases complete)
+Progress: [████░░░░░░] 40% (6/15 phases complete)
 
 ## Accumulated Context
 
@@ -50,6 +50,8 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
+- Run `/gsd-plan-phase 17` to begin decomposing Phase 17 (Invitation Flow + Email). Phase 16 baked in the seam: `<section id="pending-invitations-section">` and the disabled "Invite member" button are intentional extension points; Phase 17 should mirror Plan 05's event-handler naming and Plan 04's error-remap helper shape (per VERIFICATION.md recommendation).
+- Phase 16 follow-up (do NOT block Phase 17): library slug-alias migration template uses `now()` in a Postgres partial-unique index predicate — Postgres rejects non-IMMUTABLE functions in index predicates. Plan 06 worked around it in the example app with a plain unique index on `old_slug`, but the library template still ships the partial-index form and may hit the same error on real hosts. Fix in a small dedicated phase or fold into Phase 17 prep.
 - Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
 - Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
 - Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
@@ -63,6 +65,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-13T01:06:12.272Z
-Stopped at: Phase 16 context gathered
-Resume file: .planning/phases/16-org-liveviews-switcher/16-CONTEXT.md
+Last session: 2026-04-13T17:30:00.000Z
+Stopped at: Phase 16 complete (verifier PASS) — ready for Phase 17 planning
+Resume file: .planning/phases/16-org-liveviews-switcher/VERIFICATION.md
