@@ -148,6 +148,80 @@ jobs:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: scripts/ci/install-smoke.sh
 
+  install_matrix:
+    name: Install matrix (flag combinations)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Extensible — Phase 19+ will append:
+        #   - "--no-passkeys"
+        #   - "--no-organizations --no-passkeys"
+        flags:
+          - ""
+          - "--no-organizations"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Scaffold fresh Phoenix app
+        run: mix phx.new tmp_app --no-assets --no-mailer --no-install
+      - name: Patch tmp app mix.exs with sigra path dep
+        working-directory: tmp_app
+        run: |
+          # Mirrors InstallFixture.patch_mix_exs_with_path_dep! — insert
+          # `{:sigra, path: "..", override: true}` as the first entry of the
+          # deps/0 list. Perl -0777 for multiline match on `defp deps do\n    [`.
+          perl -i -0777 -pe 's/defp deps do\s*\n\s*\[/defp deps do\n    [\n      {:sigra, path: "..", override: true},/' mix.exs
+          grep -q "{:sigra, path:" mix.exs || { echo "failed to patch mix.exs"; exit 1; }
+      - name: Run sigra.install with matrix flags
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix sigra.install Accounts User users ${{ matrix.flags }} --yes
+      - name: Compile + migrate + test
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          mix deps.get
+          mix compile --warnings-as-errors
+          mix ecto.create
+          mix ecto.migrate
+          mix test
+
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
     runs-on: ubuntu-latest
