@@ -191,7 +191,10 @@ Plans:
   3. `mix sigra.upgrade` without the flag leaves existing users in the "create or accept invite" state on next login — no 500s, no dead ends, nil-guarded template accessors verified by boot test.
   4. Repository ships `test/upgrade_test.exs` that boots a v1.0 install, runs the v1.1 upgrade in both backfill-on and backfill-off paths, and asserts login still works in each path (X-4 regression lock).
   5. CI org-axis matrix (install with `--organizations` and `--no-organizations`) compiles and boots clean on every PR.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 18-01-foundation-schema-and-flag-PLAN.md — Wave 1: bake owner_user_id + personal into fresh-install organizations migration template; register Features.Organizations + forward organizations? binding; create_organization/3 sets owner_user_id (ORG-02)
+- [ ] 18-02-upgrade-task-and-backfill-PLAN.md — Wave 2: Sigra.Upgrade orchestrator + Sigra.Upgrade.Backfill library (keyset NOT EXISTS + insert_all on_conflict :nothing + telemetry) + mix sigra.upgrade Mix task + 3 upgrade templates + version sentinel injection (ORG-UPGRADE-01)
+- [ ] 18-03-upgrade-test-fixture-and-ci-matrix-PLAN.md — Wave 2: InstallFixture run_sigra_install/run_sigra_upgrade helpers + test/upgrade_test.exs (backfill-on + backfill-off) + CI install_matrix job (ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03)
 
 ### Phase 19: Passkey Schema + Contexts
 **Goal**: `Sigra.Passkeys` is a correct, credential-confusion-safe, monotonic-sign-count data layer around `wax_ ~> 0.7`, with Cloak-encrypted public keys reusing the v1.0 OAuth vault — no new encryption infra, no new migration hazards.
