@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: planning
-stopped_at: Phase 17 context gathered
-last_updated: "2026-04-13T17:44:53.307Z"
-last_activity: 2026-04-13 -- Phase 16 verified complete
+status: executing
+stopped_at: Phase 17 UI-SPEC approved
+last_updated: "2026-04-14T19:28:24.009Z"
+last_activity: 2026-04-14
 progress:
   total_phases: 15
-  completed_phases: 6
-  total_plans: 25
-  completed_plans: 25
+  completed_phases: 7
+  total_plans: 34
+  completed_plans: 34
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 17 — Invitation Flow + Email (next)
+**Current focus:** Phase 17 — invitation-flow-email
 
 ## Current Position
 
-Phase: 16 (org-liveviews-switcher) — ✅ COMPLETE (verifier PASS, 9/9 ORG-UX requirements, 5/5 Success Criteria)
-Plan: 6 of 6 (all complete)
-Status: Phase 16 verified complete — ready for Phase 17 planning
-Last activity: 2026-04-13 -- Phase 16 verified complete
+Phase: 18
+Plan: Not started
+Status: Executing Phase 17
+Last activity: 2026-04-14
 
 Progress: [████░░░░░░] 40% (6/15 phases complete)
 
@@ -65,6 +65,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-13T17:44:53.300Z
-Stopped at: Phase 17 context gathered
-Resume file: .planning/phases/17-invitation-flow-email/17-CONTEXT.md
+Last session: 2026-04-13T17:54:48.518Z
+Stopped at: Phase 17 UI-SPEC approved
+Resume file: .planning/phases/17-invitation-flow-email/17-UI-SPEC.md

@@ -35,7 +35,7 @@
 - [x] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling (completed 2026-04-12)
 - [x] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour (completed 2026-04-13)
 - [x] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
-- [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (gap_closure pending: INV-08 cross-tenant IDOR in `Sigra.Organizations.Invitations.revoke/3`)
+- [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (gap_closure pending: INV-08 cross-tenant IDOR in `Sigra.Organizations.Invitations.revoke/3`) (completed 2026-04-14)
 - [ ] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture
 - [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
 - [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
@@ -115,7 +115,7 @@ Plans:
 - [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
 - [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
 - [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
-- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
+- [x] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub) (completed 2026-04-14)
 - [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
 **UI hint**: yes
 
@@ -286,7 +286,7 @@ Plans:
 | 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
 | 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
-| 17. Invitation Flow + Email | 8/8 | Complete   | 2026-04-14 |
+| 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
 | 18. Backfill + `--organizations` Generator Wiring | 0/? | Not started | — |
 | 19. Passkey Schema + Contexts | 0/? | Not started | — |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
@@ -303,7 +303,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 8/8 plans complete
+**Plans:** 9/9 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
