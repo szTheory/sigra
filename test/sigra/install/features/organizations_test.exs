@@ -601,17 +601,20 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # Header stat uses Members (N) with bound assign.
       assert template =~ ~S|Members ({@total_count})|
 
-      # Disabled "Invite member" button with the exact tooltip copy
-      # (Phase 17 stub — D-23).
+      # "Invite member" button — Phase 17 Plan 17-06 replaced the Phase 16
+      # disabled stub with an owner/admin-gated enabled button that opens
+      # the invite-member modal. The non-admin branch still uses the
+      # `disabled aria-disabled="true"` pattern (UI gate only — library
+      # re-checks authorization).
       assert template =~ "Invite member"
-      assert template =~ ~S|disabled aria-disabled="true" title="Available in the next release"|
+      assert template =~ ~S|phx-click="open_invite_modal"|
+      assert template =~ ~S|aria-disabled="true"|
 
-      # Phase 17 seam: section id + HEEx comment marker so Phase 17 can grep
-      # the exact insertion point (D-23).
+      # Phase 17 Plan 17-06: section id preserved (additive constraint D-14);
+      # content filled with real pending-invitations list + empty state.
       assert template =~ ~S|<section id="pending-invitations-section"|
-      assert template =~ "<%!-- Phase 17 fills this section --%>"
-      assert template =~
-               "No pending invitations. Inviting members is coming in the next release."
+      assert template =~ "No pending invitations."
+      assert template =~ "Click <strong>Invite member</strong>"
 
       # Role badge variants per UI-SPEC §Color.
       assert template =~ "badge-primary"
