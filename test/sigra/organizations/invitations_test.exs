@@ -67,6 +67,7 @@ defmodule Sigra.Organizations.InvitationsTest do
       field :organization_id, :binary_id
       field :invited_by_id, :binary_id
       field :revoked_by_id, :binary_id
+      field :accepted_by_id, :binary_id
       timestamps(type: :utc_datetime)
     end
 
@@ -78,6 +79,7 @@ defmodule Sigra.Organizations.InvitationsTest do
         :hashed_token,
         :expires_at,
         :accepted_at,
+        :accepted_by_id,
         :revoked_at,
         :organization_id,
         :invited_by_id,
@@ -802,6 +804,633 @@ defmodule Sigra.Organizations.InvitationsTest do
       |> expect(:all, fn %Ecto.Query{} = _query -> [] end)
 
       assert Invitations.list_pending_for_user(config, user) == []
+    end
+  end
+
+  # ---------- accept/3 ----------
+
+  defp build_invitation(overrides) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    Map.merge(
+      %TestInvitation{
+        id: Ecto.UUID.generate(),
+        email: "bob@co.com",
+        role: :member,
+        organization_id: Ecto.UUID.generate(),
+        invited_by_id: Ecto.UUID.generate(),
+        hashed_token: :crypto.hash(:sha256, "fake-raw-token"),
+        expires_at: DateTime.add(now, 7, :day),
+        accepted_at: nil,
+        revoked_at: nil,
+        inserted_at: now,
+        updated_at: now
+      },
+      overrides
+    )
+  end
+
+  defp fresh_token_for(config, email) do
+    {encoded, hashed} = Sigra.Token.generate_invite_envelope(config.secret_key_base, email)
+    {encoded, hashed}
+  end
+
+  describe "accept/3" do
+    test "happy path: current_user email matches → {:ok, %{membership, invitation}}" do
+      org = build_org()
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      stamped_inv =
+        %{inv | accepted_at: DateTime.utc_now() |> DateTime.truncate(:second), accepted_by_id: bob.id}
+
+      membership = %TestMembership{
+        id: Ecto.UUID.generate(),
+        role: :member,
+        organization_id: org.id,
+        user_id: bob.id
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, [hashed_token: ^hashed] -> inv end)
+      |> expect(:get, fn TestOrg, id -> assert id == org.id; org end)
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _} -> name end)
+        assert :add_member_resolve_user in names
+        assert :membership in names
+        assert :accept_invitation in names
+
+        {:ok,
+         %{
+           add_member_resolve_user: bob,
+           membership: membership,
+           accept_invitation: stamped_inv
+         }}
+      end)
+
+      assert {:ok, %{membership: ^membership, invitation: ^stamped_inv}} =
+               Invitations.accept(config, encoded, bob)
+    end
+
+    test "citext — mixed-case user email matches lower-case invitation email" do
+      org = build_org()
+      bob = build_user(%{email: "Bob@Co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      stamped_inv = %{inv | accepted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+      |> expect(:get, fn TestOrg, _id -> org end)
+      |> expect(:transact, fn _multi ->
+        {:ok,
+         %{
+           add_member_resolve_user: bob,
+           membership: %TestMembership{id: Ecto.UUID.generate(), role: :member},
+           accept_invitation: stamped_inv
+         }}
+      end)
+
+      assert {:ok, _} = Invitations.accept(config, encoded, bob)
+    end
+
+    test "Jetstream #907 mismatch: current_user != invitation.email → {:error, :mismatch}, zero DB writes" do
+      org = build_org()
+      alice = build_user(%{email: "alice@co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      # :get_by is called during verify_and_load, BUT :get (org fetch) and
+      # :transact must NOT be called since mismatch short-circuits.
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :mismatch} = Invitations.accept(config, encoded, alice)
+    end
+
+    test "invalid token (garbage base64) → {:error, :invalid}, zero DB" do
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      # No Mox expectations — we must short-circuit before any DB call.
+      assert {:error, :invalid} = Invitations.accept(config, "not-valid-base64!!", bob)
+    end
+
+    test "tampered token → {:error, :invalid}, zero DB" do
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, _hashed} = fresh_token_for(config, "bob@co.com")
+      # Flip one byte inside the base64 blob.
+      <<first, rest::binary>> = encoded
+      tampered = <<Bitwise.bxor(first, 1), rest::binary>>
+
+      assert {:error, :invalid} = Invitations.accept(config, tampered, bob)
+    end
+
+    test "expired DB row → {:error, :expired}, no transact" do
+      org = build_org()
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      past = DateTime.utc_now() |> DateTime.add(-3600, :second) |> DateTime.truncate(:second)
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed,
+          expires_at: past
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :expired} = Invitations.accept(config, encoded, bob)
+    end
+
+    test "revoked DB row → {:error, :revoked}, no transact" do
+      org = build_org()
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed,
+          revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :revoked} = Invitations.accept(config, encoded, bob)
+    end
+
+    test "already-accepted (replay) → {:error, :already_accepted}, no transact" do
+      org = build_org()
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed,
+          accepted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :already_accepted} = Invitations.accept(config, encoded, bob)
+    end
+
+    test "get_by returns nil → {:error, :invalid}" do
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, _hashed} = fresh_token_for(config, "bob@co.com")
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> nil end)
+
+      assert {:error, :invalid} = Invitations.accept(config, encoded, bob)
+    end
+
+    test "Multi composition: :accept_invitation step present with accepted_at change" do
+      org = build_org()
+      bob = build_user(%{email: "bob@co.com"})
+      config = base_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+      |> expect(:get, fn TestOrg, _ -> org end)
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        ops = Ecto.Multi.to_list(multi)
+
+        {_, {:update, cs, _}} =
+          Enum.find(ops, fn
+            {:accept_invitation, _} -> true
+            _ -> false
+          end)
+
+        assert Map.has_key?(cs.changes, :accepted_at)
+        assert cs.changes.accepted_by_id == bob.id
+
+        {:ok,
+         %{
+           add_member_resolve_user: bob,
+           membership: %TestMembership{id: Ecto.UUID.generate()},
+           accept_invitation: %{inv | accepted_at: cs.changes.accepted_at, accepted_by_id: bob.id}
+         }}
+      end)
+
+      assert {:ok, _} = Invitations.accept(config, encoded, bob)
+    end
+  end
+
+  # ---------- accept_with_signup/3 ----------
+
+  defmodule TestUserWithConfirm do
+    use Ecto.Schema
+    import Ecto.Changeset
+
+    @primary_key {:id, :binary_id, autogenerate: true}
+
+    schema "users" do
+      field :email, :string
+      field :password, :string, virtual: true
+      field :confirmed_at, :utc_datetime
+    end
+
+    def registration_changeset(attrs) do
+      %__MODULE__{}
+      |> cast(attrs, [:email, :password])
+      |> validate_required([:email, :password])
+      |> validate_length(:password, min: 12)
+    end
+  end
+
+  defp signup_config(overrides \\ %{}) do
+    base_config(
+      Map.merge(
+        %{
+          user_registration_changeset_fn: &TestUserWithConfirm.registration_changeset/1,
+          schemas: %{
+            organization: TestOrg,
+            membership: TestMembership,
+            invitation: TestInvitation,
+            user: TestUserWithConfirm,
+            scope: TestScope
+          }
+        },
+        overrides
+      )
+    )
+  end
+
+  describe "accept_with_signup/3" do
+    test "happy path signup → {:ok, %{user, membership, invitation}}" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      new_user = %TestUserWithConfirm{
+        id: Ecto.UUID.generate(),
+        email: "newbie@co.com",
+        confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      stamped_inv = %{inv | accepted_at: new_user.confirmed_at, accepted_by_id: new_user.id}
+
+      membership = %TestMembership{
+        id: Ecto.UUID.generate(),
+        role: :member,
+        organization_id: org.id,
+        user_id: new_user.id
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+      |> expect(:get, fn TestOrg, _ -> org end)
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _} -> name end)
+        assert :user in names
+        assert :confirm_user in names
+        assert :add_member_resolve_user in names
+        assert :membership in names
+        assert :accept_invitation in names
+
+        user_idx = Enum.find_index(names, &(&1 == :user))
+        confirm_idx = Enum.find_index(names, &(&1 == :confirm_user))
+        member_idx = Enum.find_index(names, &(&1 == :membership))
+        accept_idx = Enum.find_index(names, &(&1 == :accept_invitation))
+
+        assert user_idx < confirm_idx
+        assert confirm_idx < member_idx
+        assert member_idx < accept_idx
+
+        {:ok,
+         %{
+           user: new_user,
+           confirm_user: new_user,
+           add_member_resolve_user: new_user,
+           membership: membership,
+           accept_invitation: stamped_inv
+         }}
+      end)
+
+      assert {:ok, %{user: ^new_user, membership: ^membership, invitation: ^stamped_inv}} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "newbie@co.com",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "email_mismatch server guard → {:error, :email_mismatch}, no transact" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :email_mismatch} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "attacker@evil.com",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "invalid token → {:error, :invalid}, zero DB" do
+      config = signup_config()
+
+      assert {:error, :invalid} =
+               Invitations.accept_with_signup(config, "garbage!!", %{
+                 "email" => "x@y.com",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "expired DB row → {:error, :expired}" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      past = DateTime.utc_now() |> DateTime.add(-3600, :second) |> DateTime.truncate(:second)
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed,
+          expires_at: past
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :expired} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "newbie@co.com",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "revoked DB row → {:error, :revoked}" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed,
+          revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :revoked} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "newbie@co.com",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "already-accepted (replay) → {:error, :already_accepted}" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed,
+          accepted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+
+      assert {:error, :already_accepted} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "newbie@co.com",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "changeset error at :user step (invalid password) → {:error, %Ecto.Changeset{}}" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      bad_cs =
+        %TestUserWithConfirm{}
+        |> Ecto.Changeset.cast(%{"email" => "newbie@co.com"}, [:email])
+        |> Ecto.Changeset.add_error(:password, "is too short")
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+      |> expect(:get, fn TestOrg, _ -> org end)
+      |> expect(:transact, fn _multi ->
+        {:error, :user, bad_cs, %{}}
+      end)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "newbie@co.com",
+                 "password" => "short"
+               })
+    end
+
+    test "Pow #534 regression: mid-Multi failure at :accept_invitation maps to {:error, %Ecto.Changeset{}}" do
+      # Rationale: the library Mox test suite has no real transaction — we
+      # stub `transact/1` at the unit-test boundary. The structural
+      # invariant we can verify is that when `config.repo.transact/1`
+      # returns the `{:error, :accept_invitation, changeset, prior_changes}`
+      # shape that Ecto produces on step failure, accept_with_signup/3
+      # surfaces it as {:error, %Ecto.Changeset{}}. Atomicity (zero orphan
+      # rows) is a guarantee of `Ecto.Multi` + `Repo.transact/1` itself —
+      # it is tested in Ecto's own suite and cannot fail in a Mox unit
+      # test because there is no real DB. The real-DB regression lives in
+      # the example_app integration suite (out of scope for library tests).
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "newbie@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "newbie@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      forced_error_cs =
+        Ecto.Changeset.add_error(
+          Ecto.Changeset.change(inv, %{accepted_at: DateTime.utc_now()}),
+          :accepted_at,
+          "forced test failure"
+        )
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+      |> expect(:get, fn TestOrg, _ -> org end)
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        # Verify the Multi composition: earlier steps must be present so
+        # Ecto would have attempted them in the running transaction before
+        # rolling back on the stubbed :accept_invitation failure.
+        names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _} -> name end)
+        assert :user in names
+        assert :confirm_user in names
+        assert :membership in names
+        assert :accept_invitation in names
+
+        {:error, :accept_invitation, forced_error_cs,
+         %{user: %TestUserWithConfirm{id: Ecto.UUID.generate()}}}
+      end)
+
+      assert {:error, %Ecto.Changeset{errors: errors}} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "newbie@co.com",
+                 "password" => "validpassword123"
+               })
+
+      assert {_, {"forced test failure", _}} =
+               Enum.find(errors, fn {field, _} -> field == :accepted_at end)
+    end
+
+    test "case-insensitive signup: user_params.email uppercase matches invitation" do
+      org = build_org()
+      config = signup_config()
+
+      {encoded, hashed} = fresh_token_for(config, "bob@co.com")
+
+      inv =
+        build_invitation(%{
+          email: "bob@co.com",
+          organization_id: org.id,
+          hashed_token: hashed
+        })
+
+      new_user = %TestUserWithConfirm{
+        id: Ecto.UUID.generate(),
+        email: "bob@co.com",
+        confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestInvitation, _ -> inv end)
+      |> expect(:get, fn TestOrg, _ -> org end)
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        # The locked-email belt-and-suspenders should force the registration
+        # :user step's changeset email to the invitation email (lowercase).
+        ops = Ecto.Multi.to_list(multi)
+        {_, {:insert, cs, _}} = Enum.find(ops, fn {name, _} -> name == :user end)
+        assert cs.changes.email == "bob@co.com"
+
+        {:ok,
+         %{
+           user: new_user,
+           confirm_user: new_user,
+           add_member_resolve_user: new_user,
+           membership: %TestMembership{id: Ecto.UUID.generate(), role: :member},
+           accept_invitation: %{inv | accepted_at: new_user.confirmed_at}
+         }}
+      end)
+
+      assert {:ok, _} =
+               Invitations.accept_with_signup(config, encoded, %{
+                 "email" => "BOB@CO.COM",
+                 "password" => "validpassword123"
+               })
+    end
+
+    test "nil user_registration_changeset_fn raises RuntimeError" do
+      config = signup_config(%{user_registration_changeset_fn: nil})
+
+      {encoded, _hashed} = fresh_token_for(config, "newbie@co.com")
+
+      assert_raise RuntimeError, ~r/user_registration_changeset_fn/, fn ->
+        Invitations.accept_with_signup(config, encoded, %{
+          "email" => "newbie@co.com",
+          "password" => "validpassword123"
+        })
+      end
     end
   end
 end
