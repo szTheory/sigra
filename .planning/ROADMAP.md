@@ -35,7 +35,7 @@
 - [x] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling (completed 2026-04-12)
 - [x] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour (completed 2026-04-13)
 - [x] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
-- [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation
+- [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (gap_closure pending: INV-08 cross-tenant IDOR in `Sigra.Organizations.Invitations.revoke/3`)
 - [ ] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture
 - [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
 - [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
@@ -170,14 +170,14 @@ Plans:
   4. Accepting an invite marks `accepted_at` inside the Multi; replay attempts return a clear "already accepted" flash; revoked invites return "no longer valid"; rate-limited invite creation (20/day/user via Hammer) rejects abuse.
   5. Pending-invite list shows email, role, invited-by, expires-in, and a revoke button that transitions the row to `revoked_at`.
 **Plans**: 8 plans
-- [ ] 17-01-PLAN.md — Wave 1: extract register_user_multi + add_member_multi + invitation fixtures + Swoosh test mailer config (Nyquist scaffolding)
-- [ ] 17-02-PLAN.md — Wave 2: Sigra.Token invite envelope helpers + @org_config_schema NimbleOptions keys (incl. url_builder) + hashed_token UNIQUE migration
-- [ ] 17-03-PLAN.md — Wave 3: Sigra.Organizations.Invitations module (create/2, revoke/3, list_pending/2, list_pending_for_user/2) + Hammer rate-limit wiring + CleanupExpiredInvitations Oban worker (D-11)
-- [ ] 17-04-PLAN.md — Wave 3: organization_invitation_email.ex generator template + emails.ex/auth_mailer.ex registration (HTML-escaped multipart)
-- [ ] 17-05-PLAN.md — Wave 4: verify_and_load/2 + accept/3 (signed-in-match path) + accept_with_signup/3 (composed Multi) + Pow #534 regression
-- [ ] 17-06-PLAN.md — Wave 4: fill OrganizationMembersLive invite modal + pending-invitations section + revoke modal/handlers (Phase 16 stub replacement)
-- [ ] 17-07-PLAN.md — Wave 5: InvitationAcceptLive 7 render branches + Jetstream #907 regression + replay + citext regression tests + 17-VALIDATION.md sign-off
-- [ ] 17-08-PLAN.md — Wave 2 (sidecar): Phase 16 slug-alias migration IMMUTABLE-safe hotfix (Open Q4 RESOLVED, independent of main path)
+- [x] 17-01-PLAN.md — Wave 1: extract register_user_multi + add_member_multi + invitation fixtures + Swoosh test mailer config (Nyquist scaffolding)
+- [x] 17-02-PLAN.md — Wave 2: Sigra.Token invite envelope helpers + @org_config_schema NimbleOptions keys (incl. url_builder) + hashed_token UNIQUE migration
+- [x] 17-03-PLAN.md — Wave 3: Sigra.Organizations.Invitations module (create/2, revoke/3, list_pending/2, list_pending_for_user/2) + Hammer rate-limit wiring + CleanupExpiredInvitations Oban worker (D-11)
+- [x] 17-04-PLAN.md — Wave 3: organization_invitation_email.ex generator template + emails.ex/auth_mailer.ex registration (HTML-escaped multipart)
+- [x] 17-05-PLAN.md — Wave 4: verify_and_load/2 + accept/3 (signed-in-match path) + accept_with_signup/3 (composed Multi) + Pow #534 regression
+- [x] 17-06-PLAN.md — Wave 4: fill OrganizationMembersLive invite modal + pending-invitations section + revoke modal/handlers (Phase 16 stub replacement)
+- [x] 17-07-PLAN.md — Wave 5: InvitationAcceptLive 7 render branches + Jetstream #907 regression + replay + citext regression tests + 17-VALIDATION.md sign-off
+- [x] 17-08-PLAN.md — Wave 2 (sidecar): Phase 16 slug-alias migration IMMUTABLE-safe hotfix (Open Q4 RESOLVED, independent of main path)
 **UI hint**: yes
 
 ### Phase 18: Backfill + `--organizations` Generator Wiring
@@ -286,7 +286,7 @@ Plans:
 | 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
 | 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
-| 17. Invitation Flow + Email | 0/? | Not started | — |
+| 17. Invitation Flow + Email | 8/8 | Complete   | 2026-04-14 |
 | 18. Backfill + `--organizations` Generator Wiring | 0/? | Not started | — |
 | 19. Passkey Schema + Contexts | 0/? | Not started | — |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
@@ -303,7 +303,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 3/3 plans complete
+**Plans:** 8/8 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
