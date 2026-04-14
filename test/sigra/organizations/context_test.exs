@@ -826,9 +826,12 @@ defmodule Sigra.Organizations.ContextTest do
     end
   end
 
-  describe "list_pending_invitations_for_user/2 (Phase 16 Plan 03 STUB)" do
-    @tag :phase16
-    test "returns [] in Phase 16 (stub — Phase 17 wires the real query)" do
+  describe "list_pending_invitations_for_user/2 (Phase 17 D-14 real delegation)" do
+    @tag :phase17
+    test "delegates to Sigra.Organizations.Invitations.list_pending_for_user/2" do
+      Sigra.MockRepo
+      |> expect(:all, fn %Ecto.Query{} = _query -> [] end)
+
       assert [] =
                Sigra.Organizations.list_pending_invitations_for_user(
                  @test_config,
