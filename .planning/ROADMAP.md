@@ -345,10 +345,10 @@ Plans:
 
 ### Phase 24: Repair Phase 16/17 organizations generator templates
 
-**Goal:** [To be planned]
+**Goal:** Fix pre-existing defects in Phase 16/17 organizations generator templates (DEF-18-01 and DEF-18-02) so that mix sigra.install --yes runs end-to-end without a template compile error, mix test test/sigra/install/ returns to a clean baseline, and Phase 18 Plan 18-03 (install CI matrix --yes leg) is unblocked.
 **Requirements**: TBD
 **Depends on:** Phase 23
-**Plans:** 0 plans
+**Plans:** 1 plan
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 24 to break down)
+- [ ] 24-01-repair-phase-16-17-org-templates-PLAN.md — DEF-18-01 dispatcher refactor + DEF-18-02 feature ownership move + 3 regression tests + golden rebless
