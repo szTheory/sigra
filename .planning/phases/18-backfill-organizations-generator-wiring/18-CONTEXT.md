@@ -3,7 +3,7 @@ phase: 18-backfill-organizations-generator-wiring
 captured: 2026-04-14
 requirements: [ORG-02, ORG-UPGRADE-01, ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03]
 depends_on: [17]
-locked_decisions: 8
+locked_decisions: 9
 ---
 
 # Phase 18: Backfill + `--organizations` Generator Wiring — Context
@@ -29,6 +29,30 @@ locked_decisions: 8
 ## Implementation Decisions
 
 ### Personal Org Identity & Naming
+
+- **D-00: Add `owner_user_id` column to `organizations` (sticky origin owner).**
+
+  The current schema has no `owner_user_id` on `organizations` — ownership is modeled only via `organization_memberships.role = :owner`. D-01's partial unique index `(owner_user_id) WHERE personal = true` requires the column to exist. Resolution (added 2026-04-14 after schema verification):
+
+  ```elixir
+  alter table(:organizations) do
+    add :owner_user_id, references(:users, on_delete: :nilify_all)
+  end
+  ```
+
+  **Semantics: origin owner, sticky.** Write-once on insert, never updated after creation. Matches Jetstream `teams.user_id` prior art cited in D-01. For existing team orgs backfilled on upgrade, derive from the earliest-created `:owner` membership:
+  ```sql
+  UPDATE organizations o SET owner_user_id = (
+    SELECT m.user_id FROM organization_memberships m
+    WHERE m.organization_id = o.id AND m.role = 'owner'
+    ORDER BY m.inserted_at ASC LIMIT 1
+  ) WHERE owner_user_id IS NULL;
+  ```
+  `on_delete: :nilify_all` — if the origin owner deletes their account, the org row survives (surviving members keep access via memberships); the origin history just goes null.
+
+  **Fresh install:** the `create_organizations` migration gains the column from day one. `Sigra.Organizations.create_organization/2` sets it from the creating user.
+
+  **Upgrade:** separate ALTER migration (runs before D-01's `personal` column migration). Backfill of `owner_user_id` for existing team orgs runs inside that same migration (fast, no batching needed — bounded by `organizations` row count which is typically small).
 
 - **D-01: Personal orgs are a first-class row flag on `organizations`, not a conventional inference.**
 
