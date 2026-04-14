@@ -99,8 +99,84 @@ defmodule Sigra.Organizations do
       type: :keyword_list,
       default: [],
       doc: "Runtime hooks as `{module, function}` tuples keyed by operation."
+    ],
+    invitation_ttl: [
+      type: :pos_integer,
+      default: :timer.hours(24 * 7),
+      doc: """
+      Lifetime of invitation tokens in milliseconds. Default 7 days
+      (`:timer.hours(24 * 7)`). A dev-mode warning is logged on first use if
+      the configured value exceeds 30 days (phishing window guidance).
+      Does not block runtime.
+      """
+    ],
+    invitation_rate_limit_per_user: [
+      type: {:or, [{:tuple, [:pos_integer, :pos_integer]}, {:in, [:infinity]}]},
+      default: {20, :timer.hours(24)},
+      doc: """
+      Per-user rate limit for invitation creation as `{limit, window_ms}` or
+      `:infinity` to disable. Default `{20, :timer.hours(24)}` — 20 invites
+      per 24-hour rolling window per user (INV-09).
+      """
+    ],
+    invitation_rate_limit_per_org: [
+      type: {:or, [{:tuple, [:pos_integer, :pos_integer]}, {:in, [:infinity]}]},
+      default: {50, :timer.hours(24)},
+      doc: """
+      Per-organization rate limit for invitation creation as
+      `{limit, window_ms}` or `:infinity` to disable. Default
+      `{50, :timer.hours(24)}` — 50 invites per 24-hour rolling window per
+      organization. Enforced independently of (and after) the per-user limit.
+      """
+    ],
+    invitation_cleanup_retention_days: [
+      type: :pos_integer,
+      default: 30,
+      doc: """
+      Days to retain expired/accepted/revoked invitations past their
+      `expires_at` before the optional
+      `Sigra.Workers.CleanupExpiredInvitations` Oban worker hard-deletes them.
+      Only consulted if the host app opts into the optional worker.
+      """
+    ],
+    emails_module: [
+      type: {:or, [:atom, nil]},
+      default: nil,
+      doc: """
+      Host-app module that implements the `organization_invitation/4`
+      callback (Phase 17 D-12). When nil, invitation rows still commit but
+      no email is sent and the admin sees a warning flash. Set by the
+      generator to the host's `{AppName}.Auth.Emails` module.
+      """
+    ],
+    secret_key_base: [
+      type: {:or, [:string, nil]},
+      default: nil,
+      doc: """
+      Host-app `secret_key_base` used by `Sigra.Token.generate_invite_envelope/2`
+      to sign invitation URLs. Required at runtime for Phase 17 invitation
+      creation and acceptance; NimbleOptions does not mark it required
+      because Phase 13–16 flows do not need it. First-use inside
+      `Sigra.Organizations.Invitations.create/2` raises a clear error if nil.
+      """
+    ],
+    url_builder: [
+      type: {:or, [{:fun, 1}, nil]},
+      default: nil,
+      doc: """
+      1-arity function that takes an encoded invitation envelope token
+      (`String.t()`) and returns the absolute accept URL (`String.t()`).
+      The host app generator wires this to a closure over the app's
+      `Phoenix.VerifiedRoutes` endpoint. Required at runtime for
+      `Sigra.Organizations.Invitations.create/2`; nil raises a clear error
+      at first-use. This avoids string concatenation against a
+      `public_base_url` config and keeps route generation in Phoenix's
+      blessed path (CLAUDE.md Stack).
+      """
     ]
   ]
+
+  @warn_ttl_threshold_ms :timer.hours(24 * 30)
 
   @doc false
   def __config_schema__, do: @org_config_schema
@@ -125,6 +201,23 @@ defmodule Sigra.Organizations do
     validated
     |> Map.new()
     |> Map.update!(:schemas, &Map.new/1)
+  end
+
+  @doc false
+  @spec __warn_long_invitation_ttl__(map()) :: :ok
+  def __warn_long_invitation_ttl__(config) do
+    if Map.get(config, :invitation_ttl, 0) > @warn_ttl_threshold_ms do
+      days = div(config.invitation_ttl, :timer.hours(24))
+      require Logger
+
+      Logger.warning(
+        "[Sigra] invitation_ttl configured to #{days} days, which exceeds " <>
+          "the 30-day recommended phishing-window ceiling. Long-lived invites " <>
+          "increase compromise risk. See Sigra.Organizations config docs."
+      )
+    end
+
+    :ok
   end
 
   # -- __using__ macro --
