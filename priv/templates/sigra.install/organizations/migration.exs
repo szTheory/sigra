@@ -72,9 +72,21 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     end
 
     create index(:organization_slug_aliases, [:organization_id])
+    # IMMUTABLE-safe slug-alias uniqueness (Phase 17 Plan 08 — Phase 16 hotfix).
+    # Postgres rejects `now()` inside partial index predicates because it is
+    # STABLE, not IMMUTABLE — a host running `mix ecto.migrate` would see
+    # `ERROR: functions in index predicate must be marked IMMUTABLE`.
+    #
+    # The consumer query (`Sigra.Plug.LoadOrganizationFromSlug` via
+    # `Sigra.Organizations.get_active_slug_alias/2`) already filters by
+    # `expires_at > ^DateTime.utc_now()` at the application layer, so the
+    # index-level partial predicate was structurally redundant. A full
+    # unique index enforces "at most one row per old_slug" and is the same
+    # shape the example app migration already uses (see
+    # test/example/priv/repo/migrations/*_create_organization_slug_aliases.exs).
+    # Cleanup of expired alias rows is application-level (hard-delete).
     create unique_index(:organization_slug_aliases, [:old_slug],
-      where: "expires_at > now()",
-      name: :organization_slug_aliases_old_slug_active_idx
+      name: :organization_slug_aliases_old_slug_idx
     )
   end
 
@@ -148,8 +160,12 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     end
 
     create index(:organization_slug_aliases, [:organization_id])
+    # Phase 17 Plan 08: rename to match the postgres branch (Option A).
+    # MySQL/SQLite already used a plain unique_index under the legacy
+    # `old_slug_active_idx` name — this rename only harmonizes the two
+    # adapter branches and introduces no behavior change.
     create unique_index(:organization_slug_aliases, [:old_slug],
-      name: :organization_slug_aliases_old_slug_active_idx
+      name: :organization_slug_aliases_old_slug_idx
     )
   end
 
