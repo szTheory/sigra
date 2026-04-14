@@ -836,4 +836,125 @@ defmodule Sigra.Organizations.ContextTest do
                )
     end
   end
+
+  describe "add_member/5" do
+    test "with direct user struct returns {:ok, membership}" do
+      user = build_user()
+      scope = test_scope(user)
+      org = build_org()
+      membership = build_membership(%{organization_id: org.id, user_id: user.id, role: :member})
+
+      Sigra.MockRepo
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:ok, %{add_member_resolve_user: user, membership: membership}}
+      end)
+
+      assert {:ok, ^membership} =
+               Sigra.Organizations.add_member(@test_config, scope, org, user, :member)
+    end
+
+    test "with unique constraint violation returns {:error, changeset}" do
+      user = build_user()
+      scope = test_scope(user)
+      org = build_org()
+
+      changeset =
+        %TestMembership{}
+        |> Ecto.Changeset.cast(%{role: :member}, [:role])
+        |> Ecto.Changeset.add_error(:user_id, "has already been taken",
+          constraint: :unique,
+          constraint_name: "organization_memberships_org_user_index"
+        )
+
+      Sigra.MockRepo
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:error, :membership, changeset, %{}}
+      end)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Sigra.Organizations.add_member(@test_config, scope, org, user, :member)
+    end
+  end
+
+  describe "add_member_multi/5" do
+    test "returns an Ecto.Multi struct" do
+      user = build_user()
+      scope = test_scope(user)
+      org = build_org()
+
+      multi = Sigra.Organizations.add_member_multi(@test_config, scope, org, user, :member)
+
+      assert %Ecto.Multi{} = multi
+    end
+
+    test "builder includes :add_member_resolve_user and :membership steps" do
+      user = build_user()
+      scope = test_scope(user)
+      org = build_org()
+
+      multi = Sigra.Organizations.add_member_multi(@test_config, scope, org, user, :member)
+
+      names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
+      assert :add_member_resolve_user in names
+      assert :membership in names
+    end
+
+    test "makes zero Repo calls during construction (direct user)" do
+      user = build_user()
+      scope = test_scope(user)
+      org = build_org()
+
+      # No Mox expectation set — construction must be pure.
+      multi = Sigra.Organizations.add_member_multi(@test_config, scope, org, user, :admin)
+
+      assert %Ecto.Multi{} = multi
+    end
+
+    test "accepts {:changes_key, atom} user reference for composition" do
+      scope = test_scope()
+      org = build_org()
+
+      multi =
+        Sigra.Organizations.add_member_multi(
+          @test_config,
+          scope,
+          org,
+          {:changes_key, :user},
+          :member
+        )
+
+      assert %Ecto.Multi{} = multi
+      names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
+      assert :add_member_resolve_user in names
+      assert :membership in names
+    end
+
+    test "composes via Ecto.Multi.append/2 with register_user_multi/1" do
+      scope = test_scope()
+      org = build_org()
+      user_changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
+
+      register_multi =
+        Sigra.Auth.register_user_multi(%{},
+          changeset_fn: fn _attrs -> user_changeset end
+        )
+
+      member_multi =
+        Sigra.Organizations.add_member_multi(
+          @test_config,
+          scope,
+          org,
+          {:changes_key, :user},
+          :member
+        )
+
+      composed = Ecto.Multi.append(register_multi, member_multi)
+
+      assert %Ecto.Multi{} = composed
+      names = Enum.map(Ecto.Multi.to_list(composed), fn {name, _op} -> name end)
+      assert :user in names
+      assert :add_member_resolve_user in names
+      assert :membership in names
+    end
+  end
 end
