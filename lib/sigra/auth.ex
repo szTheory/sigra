@@ -144,22 +144,18 @@ defmodule Sigra.Auth do
   @spec register(module(), map(), keyword()) ::
           {:ok, struct()} | {:error, Ecto.Changeset.t()} | {:error, :email_taken}
   def register(repo, attrs, opts \\ []) do
-    changeset_fn = Keyword.fetch!(opts, :changeset_fn)
-
     Telemetry.span([:sigra, :auth, :register], %{}, fn ->
-      changeset = changeset_fn.(attrs)
-
       # D-26: audit integration. Uses Sigra.Audit.log_safe/2 (standalone, D-28)
-      # which no-ops if the host app has not configured :audit_schema, so
-      # callers without audit config see unchanged behaviour. When audit is
-      # enabled, the audit row is written in its own transaction after the
-      # business op. Note: this is NOT fully atomic with the user insert; a
-      # future task may convert register to Multi-based once subsystem tests
-      # gain audit_schema awareness.
+      # which no-ops if the host app has not configured :audit_schema. When
+      # audit is enabled, the audit row is written in its own transaction
+      # after the business op. Not fully atomic with the user insert yet.
       audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-      case repo.insert(changeset) do
-        {:ok, user} ->
+      attrs
+      |> register_user_multi(opts)
+      |> repo.transact()
+      |> case do
+        {:ok, %{user: user}} ->
           # 15-02 Category 2: registered user is resolved — build user-only
           # scope (org intentionally nil; new accounts have no org yet).
           Audit.log_safe("auth.register.success", Sigra.Scope.from_opts(opts, user),
@@ -173,7 +169,7 @@ defmodule Sigra.Auth do
           Telemetry.event([:sigra, :auth, :register, :stop], %{}, %{user_id: user.id})
           {:ok, user}
 
-        {:error, changeset} ->
+        {:error, :user, %Ecto.Changeset{} = changeset, _changes} ->
           if email_taken_error?(changeset) do
             # 15-02 Category 3: no user resolved — nil scope + target_id: nil.
             Audit.log_safe("auth.register.failure", nil,
@@ -200,6 +196,38 @@ defmodule Sigra.Auth do
           end
       end
     end)
+  end
+
+  @doc """
+  Pure `Ecto.Multi` builder for user registration.
+
+  Returns a multi with a `:user` step that inserts the user via the
+  configured `:changeset_fn`. Makes ZERO Repo calls — composable via
+  `Ecto.Multi.append/2`. Intended for use by
+  `Sigra.Organizations.Invitations.accept_with_signup/3` (Phase 17 D-07)
+  to atomically compose signup + confirm + membership + accept.
+
+  ## Options
+
+    * `:changeset_fn` — REQUIRED. 1-arity function producing a user
+      changeset from `attrs`.
+
+  ## Example
+
+      Ecto.Multi.new()
+      |> Ecto.Multi.append(
+           Sigra.Auth.register_user_multi(attrs, changeset_fn: &User.registration_changeset/1)
+         )
+      |> MyApp.Repo.transact()
+
+  """
+  @doc since: "0.4.0"
+  @spec register_user_multi(map(), keyword()) :: Ecto.Multi.t()
+  def register_user_multi(attrs, opts) when is_map(attrs) and is_list(opts) do
+    changeset_fn = Keyword.fetch!(opts, :changeset_fn)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:user, changeset_fn.(attrs))
   end
 
   # --- Audit integration helpers (Plan 09-03) ---
