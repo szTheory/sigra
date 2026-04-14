@@ -34,7 +34,19 @@ defmodule Example.Organizations do
       organization_slug_alias: Example.Accounts.OrganizationSlugAlias,
       user: Example.Accounts.User,
       scope: Example.Accounts.Scope
-    ]
+    ],
+    emails_module: Example.Accounts.Emails,
+    secret_key_base:
+      Application.compile_env!(:example, ExampleWeb.Endpoint)[:secret_key_base],
+    url_builder: &Example.Organizations.__build_invite_url__/1,
+    rate_limiter: Sigra.RateLimiters.Noop
+
+  @doc false
+  def __build_invite_url__(encoded_token) do
+    # Phase 17 invitation accept path — uses ExampleWeb.Endpoint URL
+    # helpers resolved at runtime. Rewired by Plan 17-07 (accept route).
+    ExampleWeb.Endpoint.url() <> "/invitations/accept?token=" <> encoded_token
+  end
 
   @doc """
   Sets the active organization for the current request.
