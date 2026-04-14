@@ -57,6 +57,10 @@ Recent decisions affecting current work:
 - Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
 - Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
 
+### Roadmap Evolution
+
+- Phase 24 added: Repair Phase 16/17 organizations generator templates (addresses DEF-18-01 and DEF-18-02 — pre-existing Phase 16/17 org template bugs surfaced when Phase 18 Wave 1 registered `Features.Organizations`)
+
 ### Blockers/Concerns
 
 - Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before phases 12+ build on top.
