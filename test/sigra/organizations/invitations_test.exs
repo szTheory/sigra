@@ -636,4 +636,172 @@ defmodule Sigra.Organizations.InvitationsTest do
       end
     end
   end
+
+  # ---------- revoke/3 ----------
+
+  describe "revoke/3" do
+    test "happy path: owner revokes pending invitation → {:ok, inv} with revoked_at set" do
+      owner = build_user()
+      org = build_org()
+      scope = owner_scope(owner, org)
+      config = base_config()
+
+      inv_id = Ecto.UUID.generate()
+
+      inv = %TestInvitation{
+        id: inv_id,
+        email: "a@b.com",
+        role: :member,
+        organization_id: org.id,
+        invited_by_id: owner.id,
+        accepted_at: nil,
+        revoked_at: nil
+      }
+
+      revoked_inv = %{inv | revoked_at: DateTime.utc_now() |> DateTime.truncate(:second), revoked_by_id: owner.id}
+
+      Sigra.MockRepo
+      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:ok, %{invitation: revoked_inv}}
+      end)
+
+      assert {:ok, ^revoked_inv} = Invitations.revoke(config, inv_id, scope)
+    end
+
+    test "admin can revoke" do
+      admin = build_user()
+      org = build_org()
+      scope = admin_scope(admin, org)
+      config = base_config()
+
+      inv_id = Ecto.UUID.generate()
+
+      inv = %TestInvitation{
+        id: inv_id,
+        email: "a@b.com",
+        role: :member,
+        organization_id: org.id,
+        accepted_at: nil,
+        revoked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+      |> expect(:transact, fn _multi -> {:ok, %{invitation: inv}} end)
+
+      assert {:ok, _} = Invitations.revoke(config, inv_id, scope)
+    end
+
+    test "already-accepted invitation returns {:error, :not_pending}" do
+      owner = build_user()
+      org = build_org()
+      scope = owner_scope(owner, org)
+      config = base_config()
+
+      inv_id = Ecto.UUID.generate()
+
+      inv = %TestInvitation{
+        id: inv_id,
+        email: "a@b.com",
+        role: :member,
+        organization_id: org.id,
+        accepted_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        revoked_at: nil
+      }
+
+      Sigra.MockRepo
+      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+
+      # :transact NOT expected — guard rejects before Multi runs.
+      assert {:error, :not_pending} = Invitations.revoke(config, inv_id, scope)
+    end
+
+    test "already-revoked invitation returns {:error, :not_pending}" do
+      owner = build_user()
+      org = build_org()
+      scope = owner_scope(owner, org)
+      config = base_config()
+
+      inv_id = Ecto.UUID.generate()
+
+      inv = %TestInvitation{
+        id: inv_id,
+        email: "a@b.com",
+        role: :member,
+        organization_id: org.id,
+        accepted_at: nil,
+        revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      Sigra.MockRepo
+      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+
+      assert {:error, :not_pending} = Invitations.revoke(config, inv_id, scope)
+    end
+
+    test "member actor returns {:error, :unauthorized}, no DB call" do
+      member = build_user()
+      org = build_org()
+      scope = member_scope(member, org)
+      config = base_config()
+
+      inv_id = Ecto.UUID.generate()
+
+      # No :get and no :transact expected.
+      assert {:error, :unauthorized} = Invitations.revoke(config, inv_id, scope)
+    end
+
+    test "missing invitation returns {:error, :not_found}" do
+      owner = build_user()
+      org = build_org()
+      scope = owner_scope(owner, org)
+      config = base_config()
+
+      inv_id = Ecto.UUID.generate()
+
+      Sigra.MockRepo
+      |> expect(:get, fn TestInvitation, ^inv_id -> nil end)
+
+      assert {:error, :not_found} = Invitations.revoke(config, inv_id, scope)
+    end
+  end
+
+  # ---------- list_pending/2 ----------
+
+  describe "list_pending/2" do
+    test "delegates to config.repo.all/1 with a query" do
+      org = build_org()
+      config = base_config()
+
+      inv1 = %TestInvitation{id: Ecto.UUID.generate(), email: "a@b.com", organization_id: org.id}
+
+      Sigra.MockRepo
+      |> expect(:all, fn %Ecto.Query{} = _query -> [inv1] end)
+
+      assert Invitations.list_pending(config, org) == [inv1]
+    end
+
+    test "accepts a bare id" do
+      org = build_org()
+      config = base_config()
+
+      Sigra.MockRepo
+      |> expect(:all, fn %Ecto.Query{} = _query -> [] end)
+
+      assert Invitations.list_pending(config, org.id) == []
+    end
+  end
+
+  describe "list_pending_for_user/2" do
+    test "delegates to config.repo.all/1 with user email filter" do
+      user = build_user(%{email: "alice@example.com"})
+      config = base_config()
+
+      Sigra.MockRepo
+      |> expect(:all, fn %Ecto.Query{} = _query -> [] end)
+
+      assert Invitations.list_pending_for_user(config, user) == []
+    end
+  end
 end

@@ -290,6 +290,17 @@ defmodule Sigra.Organizations do
       def get_membership(user, org),
         do: Sigra.Organizations.get_membership(@sigra_org_config, user, org)
 
+      # Phase 17 invitation lifecycle delegators (accept/accept_with_signup
+      # land in Plan 17-05).
+      def create_invitation(attrs),
+        do: Sigra.Organizations.Invitations.create(@sigra_org_config, attrs)
+
+      def revoke_invitation(invitation_id, actor_scope),
+        do: Sigra.Organizations.Invitations.revoke(@sigra_org_config, invitation_id, actor_scope)
+
+      def list_pending_invitations(org),
+        do: Sigra.Organizations.Invitations.list_pending(@sigra_org_config, org)
+
       # Hook callbacks with no-op defaults (D-04)
       def before_create_organization(changeset, _scope), do: {:ok, changeset}
       def after_create_organization(_org, _scope), do: :ok
@@ -889,16 +900,15 @@ defmodule Sigra.Organizations do
   end
 
   @doc """
-  Phase 16 Plan 03 STUB — Phase 17 fills in the real invitation query.
+  Lists pending invitations for a user (by email, case-insensitive).
 
-  Returns `[]` unconditionally in Phase 16 so `OrganizationsLive.Index` can
-  call the function without conditional code or compile-time feature flags.
-  Phase 17 replaces the body with a real query over the `invitations`
-  schema scoped to `email == user.email AND accepted_at IS NULL AND
-  expires_at > now()`.
+  Delegates to `Sigra.Organizations.Invitations.list_pending_for_user/2`.
+  Phase 17 D-14 replaces the Phase 16 stub with the real query.
   """
   @spec list_pending_invitations_for_user(map(), struct()) :: [struct()]
-  def list_pending_invitations_for_user(_config, _user), do: []
+  def list_pending_invitations_for_user(config, user) do
+    Sigra.Organizations.Invitations.list_pending_for_user(config, user)
+  end
 
   @doc """
   Gets a membership for a user in an organization.
