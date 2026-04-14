@@ -94,7 +94,9 @@ defmodule Sigra.Workers.CleanupExpiredInvitationsTest do
         |> Keyword.get_values(:behaviour)
         |> List.flatten()
 
-      assert Sigra.Workers in behaviours
+      # Use fully-qualified Elixir.Sigra.Workers to bypass the nested
+      # Sigra.Test.* test-module aliasing within this test file.
+      assert Elixir.Sigra.Workers in behaviours
     end
   end
 end
