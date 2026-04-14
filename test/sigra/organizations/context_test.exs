@@ -13,6 +13,9 @@ defmodule Sigra.Organizations.ContextTest do
       field :name, :string
       field :slug, :string
       field :deleted_at, :utc_datetime
+      # Phase 18: Sticky origin owner + personal-workspace flag.
+      field :owner_user_id, :binary_id
+      field :personal, :boolean, default: false
       timestamps(type: :utc_datetime)
     end
   end
@@ -133,7 +136,12 @@ defmodule Sigra.Organizations.ContextTest do
         {:ok, %{organization: org, membership: membership}}
       end)
 
-      assert {:ok, returned_org} = Sigra.Organizations.create_organization(@test_config, scope, %{name: "Acme Corp", slug: "acme-corp"})
+      assert {:ok, returned_org} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{
+                 name: "Acme Corp",
+                 slug: "acme-corp"
+               })
+
       assert returned_org.id == org.id
     end
 
@@ -154,7 +162,8 @@ defmodule Sigra.Organizations.ContextTest do
         {:error, :organization, changeset, %{}}
       end)
 
-      assert {:error, %Ecto.Changeset{}} = Sigra.Organizations.create_organization(@test_config, scope, %{slug: "acme"})
+      assert {:error, %Ecto.Changeset{}} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{slug: "acme"})
     end
 
     test "with reserved slug returns {:error, changeset}" do
@@ -170,7 +179,12 @@ defmodule Sigra.Organizations.ContextTest do
         {:error, :organization, changeset, %{}}
       end)
 
-      assert {:error, %Ecto.Changeset{} = cs} = Sigra.Organizations.create_organization(@test_config, scope, %{name: "Admin Org", slug: "admin"})
+      assert {:error, %Ecto.Changeset{} = cs} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{
+                 name: "Admin Org",
+                 slug: "admin"
+               })
+
       assert cs.errors != []
     end
 
@@ -187,7 +201,103 @@ defmodule Sigra.Organizations.ContextTest do
         {:ok, %{organization: org, membership: membership}}
       end)
 
-      assert {:ok, _org} = Sigra.Organizations.create_organization(@test_config, scope, %{name: "My Cool Project"})
+      assert {:ok, _org} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{
+                 name: "My Cool Project"
+               })
+    end
+
+    # Phase 18 D-00 / D-01: sticky owner_user_id invariant tests.
+    test "Phase 18: sets owner_user_id from scope.user.id via put_change (never cast)" do
+      user = build_user("11111111-1111-1111-1111-111111111111")
+      scope = test_scope(user)
+      org = build_org(%{owner_user_id: user.id})
+      membership = build_membership(%{organization_id: org.id, user_id: user.id})
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn %Ecto.Multi{} = multi ->
+        # Pull the org changeset out of the Multi and assert owner_user_id
+        # was set by library code via put_change, not by cast from attrs.
+        {_name, {:insert, org_changeset, _opts}} =
+          multi |> Ecto.Multi.to_list() |> List.keyfind(:organization, 0)
+
+        assert Ecto.Changeset.get_change(org_changeset, :owner_user_id) == user.id
+        assert org_changeset.data.__struct__ == TestOrg
+        {:ok, %{organization: org, membership: membership}}
+      end)
+
+      assert {:ok, returned} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{
+                 name: "Acme Corp",
+                 slug: "acme-corp"
+               })
+
+      assert returned.owner_user_id == user.id
+    end
+
+    test "Phase 18: host-supplied owner_user_id in attrs is ignored (put_change wins)" do
+      user = build_user("22222222-2222-2222-2222-222222222222")
+      attacker_id = "99999999-9999-9999-9999-999999999999"
+      scope = test_scope(user)
+      org = build_org(%{owner_user_id: user.id})
+      membership = build_membership(%{organization_id: org.id, user_id: user.id})
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn %Ecto.Multi{} = multi ->
+        {_name, {:insert, org_changeset, _opts}} =
+          multi |> Ecto.Multi.to_list() |> List.keyfind(:organization, 0)
+
+        # Host attr attempting to spoof owner_user_id MUST be structurally
+        # ignored by build_org_changeset/3 (it's not in the cast list) and
+        # overridden by put_change to the scoped user id.
+        assert Ecto.Changeset.get_change(org_changeset, :owner_user_id) == user.id
+        refute Ecto.Changeset.get_change(org_changeset, :owner_user_id) == attacker_id
+        {:ok, %{organization: org, membership: membership}}
+      end)
+
+      assert {:ok, _returned} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{
+                 name: "Acme Corp",
+                 slug: "acme-corp",
+                 owner_user_id: attacker_id
+               })
+    end
+
+    test "Phase 18: personal stays false for team orgs created via create_organization/3" do
+      user = build_user()
+      scope = test_scope(user)
+      org = build_org(%{owner_user_id: user.id, personal: false})
+      membership = build_membership(%{organization_id: org.id, user_id: user.id})
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn %Ecto.Multi{} = multi ->
+        {_name, {:insert, org_changeset, _opts}} =
+          multi |> Ecto.Multi.to_list() |> List.keyfind(:organization, 0)
+
+        # personal must NOT be touched by create_organization/3 — Plan 18-02
+        # backfill is the only path that writes personal: true via insert_all.
+        assert Ecto.Changeset.get_change(org_changeset, :personal) == nil
+        {:ok, %{organization: org, membership: membership}}
+      end)
+
+      assert {:ok, returned} =
+               Sigra.Organizations.create_organization(@test_config, scope, %{
+                 name: "Acme Corp",
+                 slug: "acme-corp"
+               })
+
+      assert returned.personal == false
+    end
+
+    test "Phase 18: raises ArgumentError when scope.user is nil (no silent nil owner_user_id)" do
+      scope = %TestScope{user: nil}
+
+      assert_raise ArgumentError, ~r/requires a scope with a loaded user/, fn ->
+        Sigra.Organizations.create_organization(@test_config, scope, %{
+          name: "Acme Corp",
+          slug: "acme-corp"
+        })
+      end
     end
   end
 
@@ -202,7 +312,12 @@ defmodule Sigra.Organizations.ContextTest do
         {:ok, %{organization: updated_org}}
       end)
 
-      assert {:ok, result} = Sigra.Organizations.update_organization(@test_config, scope, org, %{name: "New Name", slug: "new-name"})
+      assert {:ok, result} =
+               Sigra.Organizations.update_organization(@test_config, scope, org, %{
+                 name: "New Name",
+                 slug: "new-name"
+               })
+
       assert result.name == "New Name"
     end
   end
@@ -212,7 +327,11 @@ defmodule Sigra.Organizations.ContextTest do
       # Phase 16 breaking change: soft_delete_organization now takes a
       # params map requiring :password + :confirm_name.
       hashed = Sigra.Crypto.hash_password("correct horse battery staple")
-      user = %TestUser{id: Ecto.UUID.generate(), email: "user@example.com"} |> Map.put(:hashed_password, hashed)
+
+      user =
+        %TestUser{id: Ecto.UUID.generate(), email: "user@example.com"}
+        |> Map.put(:hashed_password, hashed)
+
       scope = %TestScope{user: user}
       org = build_org()
       deleted_org = %{org | deleted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
@@ -423,7 +542,8 @@ defmodule Sigra.Organizations.ContextTest do
         {:error, :guard_last_owner, :last_owner, %{}}
       end)
 
-      assert {:error, :last_owner} = Sigra.Organizations.remove_member(@test_config, test_scope(), membership)
+      assert {:error, :last_owner} =
+               Sigra.Organizations.remove_member(@test_config, test_scope(), membership)
     end
 
     test "changeset error normalizes to {:error, changeset}" do
@@ -435,7 +555,8 @@ defmodule Sigra.Organizations.ContextTest do
         {:error, :membership, changeset, %{}}
       end)
 
-      assert {:error, %Ecto.Changeset{}} = Sigra.Organizations.remove_member(@test_config, test_scope(), membership)
+      assert {:error, %Ecto.Changeset{}} =
+               Sigra.Organizations.remove_member(@test_config, test_scope(), membership)
     end
   end
 
@@ -578,7 +699,9 @@ defmodule Sigra.Organizations.ContextTest do
       end)
 
       assert {:ok, returned} =
-               Sigra.Organizations.rename_organization(@phase16_config, scope, org, %{name: "New Name"})
+               Sigra.Organizations.rename_organization(@phase16_config, scope, org, %{
+                 name: "New Name"
+               })
 
       assert returned.name == "New Name"
     end

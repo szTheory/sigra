@@ -51,8 +51,18 @@ defmodule Sigra.Organizations do
         invitation: [type: :atom, required: true, doc: "OrganizationInvitation schema module."],
         user: [type: :atom, required: true, doc: "User schema module."],
         scope: [type: :atom, required: true, doc: "Scope struct module."],
-        user_session: [type: {:or, [:atom, nil]}, default: nil, doc: "UserSession schema module. Required for `remove_member/3` force-logout (Phase 16 D-21)."],
-        organization_slug_alias: [type: {:or, [:atom, nil]}, default: nil, doc: "OrganizationSlugAlias schema module. Required for `update_slug/4` (Phase 16 D-13)."]
+        user_session: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc:
+            "UserSession schema module. Required for `remove_member/3` force-logout (Phase 16 D-21)."
+        ],
+        organization_slug_alias: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc:
+            "OrganizationSlugAlias schema module. Required for `update_slug/4` (Phase 16 D-13)."
+        ]
       ]
     ],
     roles: [
@@ -210,11 +220,13 @@ defmodule Sigra.Organizations do
   end
 
   @doc false
-  def __validate_slug_length__({min, max}) when is_integer(min) and is_integer(max) and min > 0 and max >= min do
+  def __validate_slug_length__({min, max})
+      when is_integer(min) and is_integer(max) and min > 0 and max >= min do
     {:ok, {min, max}}
   end
 
-  def __validate_slug_length__(_), do: {:error, "expected a {min, max} tuple of positive integers"}
+  def __validate_slug_length__(_),
+    do: {:error, "expected a {min, max} tuple of positive integers"}
 
   @doc false
   @spec __validate_config__!(keyword()) :: map()
@@ -345,16 +357,14 @@ defmodule Sigra.Organizations do
       def before_role_change(_membership, _role, _scope), do: :ok
       def after_member_remove(_membership, _scope), do: :ok
 
-      defoverridable [
-        before_create_organization: 2,
-        after_create_organization: 2,
-        before_delete_organization: 2,
-        after_delete_organization: 2,
-        before_add_member: 4,
-        after_add_member: 3,
-        before_role_change: 3,
-        after_member_remove: 2
-      ]
+      defoverridable before_create_organization: 2,
+                     after_create_organization: 2,
+                     before_delete_organization: 2,
+                     after_delete_organization: 2,
+                     before_add_member: 4,
+                     after_add_member: 3,
+                     before_role_change: 3,
+                     after_member_remove: 2
     end
   end
 
@@ -368,12 +378,33 @@ defmodule Sigra.Organizations do
   """
   @spec create_organization(map(), map(), map()) :: {:ok, struct()} | {:error, term()}
   def create_organization(config, scope, attrs) do
+    # D-00 (Phase 18): owner_user_id is the sticky origin owner of the org.
+    # It must be set by library code via put_change/3 — NEVER from host-supplied
+    # attrs — so that the audit invariant "host cannot spoof origin owner" holds
+    # structurally. Raise loudly if scope.user is nil rather than silently
+    # defaulting owner_user_id to nil, which would leave a team org with no
+    # origin owner.
+    case scope do
+      %{user: %{id: user_id}} when not is_nil(user_id) ->
+        do_create_organization(config, scope, attrs, user_id)
+
+      _ ->
+        raise ArgumentError,
+              "create_organization/3 requires a scope with a loaded user (got: #{inspect(scope)})"
+    end
+  end
+
+  defp do_create_organization(config, scope, attrs, owner_user_id) do
     org_schema = config.schemas.organization
     membership_schema = config.schemas.membership
 
-    changeset = build_org_changeset(org_schema, attrs, config)
+    changeset =
+      org_schema
+      |> build_org_changeset(attrs, config)
+      |> Ecto.Changeset.put_change(:owner_user_id, owner_user_id)
 
-    with {:ok, changeset} <- run_before_hook(config, :before_create_organization, [changeset, scope]) do
+    with {:ok, changeset} <-
+           run_before_hook(config, :before_create_organization, [changeset, scope]) do
       result =
         Multi.new()
         |> Multi.insert(:organization, changeset)
@@ -452,7 +483,12 @@ defmodule Sigra.Organizations do
          :ok <- run_before_hook(config, :before_delete_organization, [org, scope]) do
       result =
         Multi.new()
-        |> Multi.update(:organization, Ecto.Changeset.change(org, %{deleted_at: DateTime.utc_now() |> DateTime.truncate(:second)}))
+        |> Multi.update(
+          :organization,
+          Ecto.Changeset.change(org, %{
+            deleted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          })
+        )
         |> append_audit(config, "organization.delete", scope)
         |> config.repo.transaction()
         |> normalize_multi_result()
@@ -538,7 +574,10 @@ defmodule Sigra.Organizations do
       {%{}, types}
       |> Ecto.Changeset.cast(params, Map.keys(types))
       |> Ecto.Changeset.validate_required([:slug, :password, :confirm_slug])
-      |> Ecto.Changeset.validate_format(:slug, Map.get(config, :slug_format, ~r/^[a-z][a-z0-9-]*[a-z0-9]$/))
+      |> Ecto.Changeset.validate_format(
+        :slug,
+        Map.get(config, :slug_format, ~r/^[a-z][a-z0-9-]*[a-z0-9]$/)
+      )
       |> Ecto.Changeset.validate_exclusion(:slug, reserved, message: "is reserved")
       |> validate_confirm(:confirm_slug, org.slug, "does not match current slug")
 
@@ -556,7 +595,11 @@ defmodule Sigra.Organizations do
         |> Multi.update(:organization, org_changeset)
         |> maybe_insert_slug_alias(alias_schema, org.id, old_slug, expires_at)
         |> append_audit(config, "organization.slug_change", scope,
-          metadata: %{old_slug: old_slug, new_slug: new_slug, alias_expires_at: DateTime.to_iso8601(expires_at)}
+          metadata: %{
+            old_slug: old_slug,
+            new_slug: new_slug,
+            alias_expires_at: DateTime.to_iso8601(expires_at)
+          }
         )
 
       case multi |> config.repo.transaction() |> normalize_multi_result() do
@@ -588,8 +631,10 @@ defmodule Sigra.Organizations do
   @spec list_members_with_activity(map(), map(), keyword()) ::
           [{struct(), DateTime.t() | nil}]
   def list_members_with_activity(config, scope, opts \\ []) do
-    org = scope.active_organization || raise ArgumentError,
-      "list_members_with_activity/3 requires scope.active_organization (cross-tenant leak guard)"
+    org =
+      scope.active_organization ||
+        raise ArgumentError,
+              "list_members_with_activity/3 requires scope.active_organization (cross-tenant leak guard)"
 
     membership_schema = config.schemas.membership
     user_schema = config.schemas.user
@@ -646,8 +691,10 @@ defmodule Sigra.Organizations do
   """
   @spec count_members(map(), map()) :: non_neg_integer()
   def count_members(config, scope) do
-    org = scope.active_organization || raise ArgumentError,
-      "count_members/2 requires scope.active_organization"
+    org =
+      scope.active_organization ||
+        raise ArgumentError,
+              "count_members/2 requires scope.active_organization"
 
     membership_schema = config.schemas.membership
 
@@ -973,7 +1020,8 @@ defmodule Sigra.Organizations do
   def fetch_organization(config, id) do
     org_schema = config.schemas.organization
 
-    case from(o in org_schema, where: o.id == ^id and is_nil(o.deleted_at)) |> config.repo.one() do
+    case from(o in org_schema, where: o.id == ^id and is_nil(o.deleted_at))
+         |> config.repo.one() do
       nil -> {:error, :not_found}
       org -> {:ok, org}
     end
@@ -1188,7 +1236,10 @@ defmodule Sigra.Organizations do
   # so the caller (a `with` expression) short-circuits to
   # {:error, :invalid_password}. Uses the user's :hashed_password field.
   defp verify_user_password(scope, changeset) do
-    password = Ecto.Changeset.get_change(changeset, :password) || Ecto.Changeset.get_field(changeset, :password)
+    password =
+      Ecto.Changeset.get_change(changeset, :password) ||
+        Ecto.Changeset.get_field(changeset, :password)
+
     user = scope.user
     hashed = user && Map.get(user, :hashed_password)
 
@@ -1252,7 +1303,10 @@ defmodule Sigra.Organizations do
   end
 
   defp normalize_multi_result({:ok, changes}), do: {:ok, changes}
-  defp normalize_multi_result({:error, :guard_last_owner, :last_owner, _}), do: {:error, :last_owner}
+
+  defp normalize_multi_result({:error, :guard_last_owner, :last_owner, _}),
+    do: {:error, :last_owner}
+
   defp normalize_multi_result({:error, _step, %Ecto.Changeset{} = cs, _}), do: {:error, cs}
   defp normalize_multi_result({:error, _step, reason, _}), do: {:error, reason}
 
