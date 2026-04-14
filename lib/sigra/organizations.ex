@@ -552,16 +552,11 @@ defmodule Sigra.Organizations do
   """
   @spec add_member(map(), map(), struct(), struct(), atom()) :: {:ok, struct()} | {:error, term()}
   def add_member(config, scope, org, user, role) do
-    membership_schema = config.schemas.membership
-
     with :ok <- run_before_hook(config, :before_add_member, [org, user, role, scope]) do
       result =
-        Multi.new()
-        |> Multi.insert(:membership, build_membership_changeset(membership_schema, org, user, role))
-        |> append_audit(config, "organization.member_add", scope,
-          metadata: %{role: to_string(role), user_id: user.id}
-        )
-        |> config.repo.transaction()
+        config
+        |> add_member_multi(scope, org, user, role)
+        |> config.repo.transact()
         |> normalize_multi_result()
 
       case result do
@@ -573,6 +568,85 @@ defmodule Sigra.Organizations do
           error
       end
     end
+  end
+
+  @doc """
+  Pure `Ecto.Multi` builder for adding a user to an organization.
+
+  Returns a multi with steps:
+
+    * `:add_member_resolve_user` — resolves the user reference
+    * `:membership` — inserts the membership changeset
+    * audit step (when `:audit_schema` is configured)
+
+  Accepts `user_ref` as either a `%User{}` struct or a
+  `{:changes_key, atom}` tuple referencing a prior step in a composed
+  multi. The `{:changes_key, _}` shape exists so this builder can be
+  composed via `Ecto.Multi.append/2` with
+  `Sigra.Auth.register_user_multi/2` inside
+  `Sigra.Organizations.Invitations.accept_with_signup/3` (Phase 17 D-07).
+
+  Makes ZERO Repo calls — construction is pure.
+
+  ## Example — direct user
+
+      config
+      |> Sigra.Organizations.add_member_multi(scope, org, user, :member)
+      |> config.repo.transact()
+
+  ## Example — composed with register_user_multi/2
+
+      register_multi =
+        Sigra.Auth.register_user_multi(attrs, changeset_fn: &User.registration_changeset/1)
+
+      member_multi =
+        Sigra.Organizations.add_member_multi(
+          config,
+          scope,
+          org,
+          {:changes_key, :user},
+          :member
+        )
+
+      register_multi
+      |> Ecto.Multi.append(member_multi)
+      |> config.repo.transact()
+
+  """
+  @doc since: "0.4.0"
+  @spec add_member_multi(map(), map(), struct(), struct() | {:changes_key, atom()}, atom()) ::
+          Ecto.Multi.t()
+  def add_member_multi(config, scope, org, user_ref, role) do
+    membership_schema = config.schemas.membership
+
+    Multi.new()
+    |> Multi.run(:add_member_resolve_user, fn _repo, changes ->
+      user =
+        case user_ref do
+          {:changes_key, key} -> Map.fetch!(changes, key)
+          %_{} = u -> u
+        end
+
+      {:ok, user}
+    end)
+    |> Multi.insert(:membership, fn %{add_member_resolve_user: user} ->
+      build_membership_changeset(membership_schema, org, user, role)
+    end)
+    |> append_audit(config, "organization.member_add", scope,
+      metadata: add_member_audit_metadata(user_ref, role)
+    )
+  end
+
+  # Audit metadata built at Multi-construction time. For direct %User{}
+  # references we can stamp user_id immediately; for {:changes_key, _}
+  # the user isn't resolved until run-time, so user_id is intentionally
+  # omitted (the membership row itself still carries user_id).
+  defp add_member_audit_metadata({:changes_key, _key}, role) do
+    %{role: to_string(role)}
+  end
+
+  defp add_member_audit_metadata(%_{} = user, role) do
+    %{role: to_string(role), user_id: Map.get(user, :id)}
   end
 
   @doc """
