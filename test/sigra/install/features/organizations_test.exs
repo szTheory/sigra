@@ -941,4 +941,67 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       refute code =~ "Features.Admin"
     end
   end
+
+  describe "migration template IMMUTABLE-safety (Phase 17 Plan 08 — Phase 16 hotfix)" do
+    # Postgres rejects non-IMMUTABLE functions (like `now()`) inside partial
+    # index predicates. The Phase 16 slug-alias migration shipped with
+    # `where: "expires_at > now()"` which breaks host-app `mix ecto.migrate`.
+    # Plan 17-08 replaces this with a plain unique index (Option A) because
+    # the `LoadOrganizationFromSlug` plug already filters by `expires_at > now`
+    # at the query layer, so the partial-index predicate was structurally
+    # redundant. See T-17-12.
+
+    @template_path "priv/templates/sigra.install/organizations/migration.exs"
+
+    test "migration template has ZERO `now()` inside any index `where:` predicate" do
+      template = File.read!(@template_path)
+
+      # Match any `create ... index(...)` whose options include
+      # `where: "... now() ..."` — across both postgres and mysql/sqlite
+      # branches. The pending-invitation partial index uses IS NULL
+      # (IMMUTABLE-safe) and must not match; the slug-alias index must not
+      # contain `now()` after this plan lands.
+      offenders =
+        Regex.scan(~r/where:\s*"[^"]*now\(\)[^"]*"/, template)
+
+      assert offenders == [],
+             "Migration template still contains `now()` inside an index where: predicate: #{inspect(offenders)}"
+    end
+
+    test "slug-alias unique index is present (Option A — full unique index)" do
+      template = File.read!(@template_path)
+
+      # Postgres branch: expect the renamed index name (Option A).
+      assert template =~ "organization_slug_aliases_old_slug_idx",
+             "Expected Option A slug-alias index name `organization_slug_aliases_old_slug_idx` to be present"
+
+      # Old broken predicate must be gone from the postgres branch (the
+      # mysql/sqlite branch already used a plain unique_index under the
+      # legacy name, so it does not emit `now()` — it is covered by the
+      # first test).
+      refute template =~ ~r/unique_index\(:organization_slug_aliases, \[:old_slug\],\s*\n\s*where:\s*"expires_at > now\(\)"/,
+             "Postgres slug-alias partial index with `now()` predicate must be removed"
+    end
+
+    test "Phase 17 Plan 02 unique_index on organization_invitations.hashed_token is preserved" do
+      template = File.read!(@template_path)
+
+      hashed_token_matches =
+        Regex.scan(~r/unique_index\(:organization_invitations, \[:hashed_token\]\)/, template)
+
+      # One occurrence per adapter branch (postgres + mysql/sqlite).
+      assert length(hashed_token_matches) == 2,
+             "Expected 2 `unique_index(:organization_invitations, [:hashed_token])` occurrences (one per adapter branch), got #{length(hashed_token_matches)}"
+    end
+
+    test "Phase 16 D-03 pending-invitation partial index (IS NULL predicate) is preserved" do
+      template = File.read!(@template_path)
+
+      assert template =~ "organization_invitations_pending_index",
+             "Phase 16 D-03 `organization_invitations_pending_index` must be preserved"
+
+      assert template =~ ~s(where: "accepted_at IS NULL AND revoked_at IS NULL"),
+             "Pending-invitation partial index must keep its IMMUTABLE-safe IS NULL predicate"
+    end
+  end
 end
