@@ -44,6 +44,7 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
       add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
       add :invited_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
       add :accepted_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
+      add :revoked_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
 
       timestamps(type: :utc_datetime)
     end
@@ -137,6 +138,7 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
       add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
       add :invited_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
       add :accepted_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
+      add :revoked_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
 
       timestamps(type: :utc_datetime)
     end

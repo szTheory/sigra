@@ -17,6 +17,7 @@ defmodule Example.Accounts.OrganizationInvitation do
     belongs_to :organization, Example.Accounts.Organization
     belongs_to :invited_by, Example.Accounts.User
     belongs_to :accepted_by, Example.Accounts.User
+    belongs_to :revoked_by, Example.Accounts.User
 
     timestamps(type: :utc_datetime)
   end
@@ -32,7 +33,8 @@ defmodule Example.Accounts.OrganizationInvitation do
       :revoked_at,
       :organization_id,
       :invited_by_id,
-      :accepted_by_id
+      :accepted_by_id,
+      :revoked_by_id
     ])
     |> validate_required([:email, :role, :expires_at, :organization_id])
     |> assoc_constraint(:organization)

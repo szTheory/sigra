@@ -33,6 +33,7 @@ defmodule <%= context_module %>.OrganizationInvitation do
     belongs_to :organization, <%= context_module %>.Organization
     belongs_to :invited_by, <%= context_module %>.<%= schema_alias %>
     belongs_to :accepted_by, <%= context_module %>.<%= schema_alias %>
+    belongs_to :revoked_by, <%= context_module %>.<%= schema_alias %>
 
     timestamps(type: :utc_datetime)
   end
@@ -55,7 +56,8 @@ defmodule <%= context_module %>.OrganizationInvitation do
       :revoked_at,
       :organization_id,
       :invited_by_id,
-      :accepted_by_id
+      :accepted_by_id,
+      :revoked_by_id
     ])
     |> validate_required([:email, :role, :expires_at, :organization_id])
     |> assoc_constraint(:organization)
