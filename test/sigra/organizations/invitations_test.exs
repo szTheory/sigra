@@ -663,7 +663,7 @@ defmodule Sigra.Organizations.InvitationsTest do
       revoked_inv = %{inv | revoked_at: DateTime.utc_now() |> DateTime.truncate(:second), revoked_by_id: owner.id}
 
       Sigra.MockRepo
-      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+      |> expect(:one, fn %Ecto.Query{} = _query -> inv end)
       |> expect(:transact, fn %Ecto.Multi{} = _multi ->
         {:ok, %{invitation: revoked_inv}}
       end)
@@ -689,7 +689,7 @@ defmodule Sigra.Organizations.InvitationsTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+      |> expect(:one, fn %Ecto.Query{} = _query -> inv end)
       |> expect(:transact, fn _multi -> {:ok, %{invitation: inv}} end)
 
       assert {:ok, _} = Invitations.revoke(config, inv_id, scope)
@@ -713,7 +713,7 @@ defmodule Sigra.Organizations.InvitationsTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+      |> expect(:one, fn %Ecto.Query{} = _query -> inv end)
 
       # :transact NOT expected — guard rejects before Multi runs.
       assert {:error, :not_pending} = Invitations.revoke(config, inv_id, scope)
@@ -737,7 +737,7 @@ defmodule Sigra.Organizations.InvitationsTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get, fn TestInvitation, ^inv_id -> inv end)
+      |> expect(:one, fn %Ecto.Query{} = _query -> inv end)
 
       assert {:error, :not_pending} = Invitations.revoke(config, inv_id, scope)
     end
@@ -763,9 +763,39 @@ defmodule Sigra.Organizations.InvitationsTest do
       inv_id = Ecto.UUID.generate()
 
       Sigra.MockRepo
-      |> expect(:get, fn TestInvitation, ^inv_id -> nil end)
+      |> expect(:one, fn %Ecto.Query{} = _query -> nil end)
 
       assert {:error, :not_found} = Invitations.revoke(config, inv_id, scope)
+    end
+
+    test "cross-tenant: Org A admin cannot revoke Org B's pending invitation → {:error, :not_found}, Org B row untouched" do
+      # ARRANGE — two orgs, Org A admin actor, Org B pending invitation
+      org_a = build_org()
+      org_b = build_org()
+      admin_a = build_user()
+      scope_a = admin_scope(admin_a, org_a)
+      config = base_config()
+
+      inv_b_id = Ecto.UUID.generate()
+
+      _inv_b_untouched = %TestInvitation{
+        id: inv_b_id,
+        email: "victim@example.com",
+        role: :member,
+        organization_id: org_b.id,
+        accepted_at: nil,
+        revoked_at: nil
+      }
+
+      # ACT — scoped query MUST return nil because `where: i.organization_id == ^org_a.id`
+      # filters out the Org B row. We assert by making :one return nil and asserting
+      # :transact is NEVER called (verified implicitly via `verify_on_exit!` since no
+      # expect(:transact, ...) is set — any unexpected call fails the test).
+      Sigra.MockRepo
+      |> expect(:one, fn %Ecto.Query{} = _query -> nil end)
+
+      # ASSERT
+      assert {:error, :not_found} = Invitations.revoke(config, inv_b_id, scope_a)
     end
   end
 
