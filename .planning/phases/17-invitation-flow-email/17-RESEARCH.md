@@ -1117,72 +1117,50 @@ end
 **Planner action required:** Confirm A1 + A2 + A6 before writing Wave 0.
 These are the decisions most likely to reshape the task breakdown.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should `hashed_token` be unique?**
-   - What we know: Migration currently has non-unique index on
-     `hashed_token` (line 57). SHA-256 collisions are cryptographically
-     infeasible.
-   - What's unclear: Whether there's a historical reason the library
-     chose non-unique (e.g., to allow resend-same-token semantics deferred
-     from CONTEXT §deferred).
-   - Recommendation: Make it unique. If the library later adds
-     resend-same-token, it becomes the natural invariant that each token
-     belongs to exactly one invitation row. Cost: one-line migration
-     change. If it proves wrong, the planner can revert before Wave 0
-     merges.
+1. **Q1: Should `hashed_token` be unique?**
+   - **RESOLVED:** YES. Planner makes `organization_invitations.hashed_token`
+     a unique index in Plan 17-02 Task 3. SHA-256 collisions are
+     cryptographically infeasible; the unique constraint is zero-cost
+     defense-in-depth against a hypothetical token-generation bug. See
+     Plan 17-02 frontmatter `must_haves.artifacts` → `migration.exs`.
 
-2. **Where does `secret_key_base` come from inside `Sigra.Organizations.Invitations.create/2`?**
-   - What we know: `Sigra.Token.generate/4` takes it as first argument;
-     other call sites pass it in via `opts` (see lib/sigra/auth.ex:578).
-   - What's unclear: Whether the Organizations config struct should
-     carry `secret_key_base` directly or the caller should fetch it
-     from endpoint config at each call.
-   - Recommendation: Add `secret_key_base` as a required NimbleOptions
-     key on `@org_config_schema` (matching how `Sigra.Auth` wires it).
-     Generated `use Sigra.Organizations` wrapper reads it from
+2. **Q2: Where does `secret_key_base` come from inside `Sigra.Organizations.Invitations.create/2`?**
+   - **RESOLVED:** Pass via `@org_config_schema` as a nilable NimbleOptions
+     key with a runtime first-use assertion. Added in Plan 17-02 Task 2
+     (`secret_key_base` key) and consumed by Plan 17-03's `create/2` via
+     `assert_secret_key_base!/1`. Host apps wire it from
      `Application.fetch_env!(:my_app, MyAppWeb.Endpoint)[:secret_key_base]`
-     at compile time.
+     in the generated `use Sigra.Organizations` wrapper.
 
-3. **Should the Oban cleanup worker implement `Sigra.Workers` behaviour
-   or be a simpler `Sigra.Workers.AuditCleanup`-style tenant-agnostic worker?**
-   - What we know: `Sigra.Workers` behaviour docstring (lib/sigra/workers.ex:22-27)
-     says "`Sigra.Workers.AuditCleanup`, `TokenCleanup`, and `EmailDelivery`
-     are genuinely tenant-agnostic and deliberately do NOT implement this
-     behaviour."
-   - What's unclear: Invitation cleanup hard-deletes rows that carry
-     `organization_id`. If the cleanup run emits an audit, that audit has
-     tenant context and DOES need `Sigra.Workers`.
-   - Recommendation: Implement `Sigra.Workers`. The cleanup run emits
-     one `organization.invitation.expired_pruned` audit per batch (or
-     one per row) with `organization_id` populated. This earns the
-     behaviour overhead.
+3. **Q3: Should the Oban cleanup worker implement `Sigra.Workers` behaviour
+   or be a simpler tenant-agnostic worker?**
+   - **RESOLVED:** Implement `Sigra.Workers` (tenant-aware). The cleanup
+     run operates on rows carrying `organization_id` and (optionally)
+     emits per-batch audit events with tenant context. Matches the
+     `Sigra.Workers.AccountDeletion` pattern (not the `AuditCleanup`/
+     `TokenCleanup` tenant-agnostic pattern). Delivered by Plan 17-03
+     Task 3 — `lib/sigra/workers/cleanup_expired_invitations.ex`.
 
-4. **Does the planner fold the Phase 16 slug-alias migration fix into Phase 17?**
-   - What we know: STATE.md flags it as pending follow-up; CONTEXT §Canonical
-     Refs gives explicit permission to include it as a sidecar; it is the
-     same bug class as D-03 (`now()` in IMMUTABLE context).
-   - Recommendation: Fold in as Plan 17-0X sidecar. The fix is
-     mechanical (drop `where: "expires_at > now()"` from the old-slug
-     partial index; enforce expiry via query filter). Same reasoning as
-     Phase 17 main path. Cost: one small plan, one small test, one
-     migration template edit. Leaving it for later means a future host
-     will trip the same Postgres error.
+4. **Q4: Does the planner fold the Phase 16 slug-alias migration fix into Phase 17?**
+   - **RESOLVED:** YES. Folded in as a small sidecar plan — Plan 17-08.
+     The fix replaces `where: "expires_at > now()"` on
+     `organization_slug_aliases_old_slug_active_idx` with an
+     IMMUTABLE-safe alternative (partial unique on all rows + query-time
+     expiry filter, OR drop the partial-unique predicate entirely and
+     rely on application-level reclamation). One migration edit, one
+     migration test. See Plan 17-08-PLAN.md.
 
-5. **Invitee-side decline action — include or defer?**
-   - What we know: UI-SPEC §Pending Invitations List for
-     `OrganizationsLive.Index` says "DEFERRED per CONTEXT deferred ideas".
-   - Recommendation: Defer. Adds invitee-side UX decisions (does it
-     email the inviter? does it emit an audit? does it free the
-     partial-unique invariant slot?) that are not worth the scope.
+5. **Q5: Invitee-side decline action — include or defer?**
+   - **DEFERRED:** Not in Phase 17 scope. Invitee decline adds UX
+     decisions (inviter notification, audit trail, partial-unique slot
+     reclamation) that are not worth the scope. Revisit post-v1.1.
 
-6. **`:require_active_organization` router macro.**
-   - What we know: Phase 16 D-23 deferred it to Phase 17 or 18; CONTEXT
-     marks it as Claude discretion.
-   - Recommendation: Defer to Phase 18. The accept LV at
-     `/invitations/:token/accept` is UNscoped by design — it must NOT
-     sit under a "require active org" pipeline. There is no Phase 17
-     route that would benefit from the macro.
+6. **Q6: `:require_active_organization` router macro.**
+   - **DEFERRED:** To Phase 18. The Phase 17 accept LV at
+     `/invitations/:token/accept` is intentionally UNscoped and would
+     not benefit from the macro. No other Phase 17 route needs it.
 
 ## Sources
 

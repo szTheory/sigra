@@ -169,13 +169,15 @@ Plans:
   3. Invitee signed in as a different user (case-insensitive via citext) gets an explicit "this invitation is for [other-email]" mismatch page with no accept button — never a silent takeover (O-2 Jetstream #907 regression test covers this).
   4. Accepting an invite marks `accepted_at` inside the Multi; replay attempts return a clear "already accepted" flash; revoked invites return "no longer valid"; rate-limited invite creation (20/day/user via Hammer) rejects abuse.
   5. Pending-invite list shows email, role, invited-by, expires-in, and a revoke button that transitions the row to `revoked_at`.
-**Plans**: 6 plans
-- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
-- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
-- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
-- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
-- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
-- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
+**Plans**: 8 plans
+- [ ] 17-01-PLAN.md — Wave 1: extract register_user_multi + add_member_multi + invitation fixtures + Swoosh test mailer config (Nyquist scaffolding)
+- [ ] 17-02-PLAN.md — Wave 2: Sigra.Token invite envelope helpers + @org_config_schema NimbleOptions keys (incl. url_builder) + hashed_token UNIQUE migration
+- [ ] 17-03-PLAN.md — Wave 3: Sigra.Organizations.Invitations module (create/2, revoke/3, list_pending/2, list_pending_for_user/2) + Hammer rate-limit wiring + CleanupExpiredInvitations Oban worker (D-11)
+- [ ] 17-04-PLAN.md — Wave 3: organization_invitation_email.ex generator template + emails.ex/auth_mailer.ex registration (HTML-escaped multipart)
+- [ ] 17-05-PLAN.md — Wave 4: verify_and_load/2 + accept/3 (signed-in-match path) + accept_with_signup/3 (composed Multi) + Pow #534 regression
+- [ ] 17-06-PLAN.md — Wave 4: fill OrganizationMembersLive invite modal + pending-invitations section + revoke modal/handlers (Phase 16 stub replacement)
+- [ ] 17-07-PLAN.md — Wave 5: InvitationAcceptLive 7 render branches + Jetstream #907 regression + replay + citext regression tests + 17-VALIDATION.md sign-off
+- [ ] 17-08-PLAN.md — Wave 2 (sidecar): Phase 16 slug-alias migration IMMUTABLE-safe hotfix (Open Q4 RESOLVED, independent of main path)
 **UI hint**: yes
 
 ### Phase 18: Backfill + `--organizations` Generator Wiring
