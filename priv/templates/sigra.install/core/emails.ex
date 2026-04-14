@@ -756,10 +756,12 @@ defmodule <%= context_module %>.Emails do
     </p>
     """
 
-    text_body = """
-    #{inviter_display} #{dgettext("sigra", "invited you to join")} #{org.name} #{dgettext("sigra", "as")} #{role_label} #{dgettext("sigra", "on")} #{product_name}.
+    org_name_plain = org.name
 
-    #{dgettext("sigra", "Organization:")} #{org.name}
+    text_body = """
+    #{inviter_display} #{dgettext("sigra", "invited you to join")} #{org_name_plain} #{dgettext("sigra", "as")} #{role_label} #{dgettext("sigra", "on")} #{product_name}.
+
+    #{dgettext("sigra", "Organization:")} #{org_name_plain}
     #{dgettext("sigra", "Role:")} #{role_label}
     #{dgettext("sigra", "Expires:")} #{expires_formatted}
 
