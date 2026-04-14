@@ -812,29 +812,36 @@ end
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does `owner_user_id` column already exist on `organizations`?** (See A2.)
+> Phase 18 revision 2026-04-14: all five open questions below were closed during planning. Resolutions are inline with each question and reference the plan+task that locked the decision.
+
+1. **Does `owner_user_id` column already exist on `organizations`?**
+   - **RESOLVED:** D-00 in 18-CONTEXT.md locks `owner_user_id` as a sticky origin pointer + Plan 18-01 Task 1 bakes it into the fresh-install organizations migration template. Existing orgs get the column via Plan 18-02's `alter_add_owner_user_id.exs` upgrade template (idempotent via `add_if_not_exists`). (See A2.)
    - What we know: D-01's partial unique index references `owner_user_id`, but the migration template I read has `memberships` as the user-org link, not a direct `owner_user_id` column.
    - What's unclear: whether a prior phase added `owner_user_id` as denormalization, or whether "owner" is conventionally "membership with role=owner".
    - Recommendation: Wave 1 kickoff task is "grep organizations/migration.exs for owner_user_id"; if absent, Plan 18-01 adds `owner_user_id :binary_id` column + FK + maintenance of it in `Sigra.Organizations.create/2`. This may be significant additional scope (existing orgs need backfilling from the oldest owner membership).
 
 2. **Which CI job in `.github/workflows/ci.yml` currently serves as precedent for the new `install_matrix` job?**
+   - **RESOLVED:** Plan 18-03 Task 3 copies the existing `install_smoke` job skeleton and parameterizes sigra.install via `strategy.matrix.flags` (list-of-flag-strings per D-07). The matrix shape is `["", "--no-organizations"]` and extends naturally for Phase 19+ passkey axis.
    - What we know: CLAUDE.md references `act local CI runner` memory; Phase 11's `golden_diff_test.exs` uses InstallFixture for regression.
    - What's unclear: whether CI already runs an install smoke test (and `install_matrix` is an extension) or whether this is greenfield CI work.
    - Recommendation: Plan 18-03's first task is "read `.github/workflows/ci.yml` and locate existing test job steps to anchor the new matrix job below."
 
 3. **Does the upgrade path generate `config/config.exs` injection on first run (v1.0 → v1.1), or only subsequent runs (v1.1 → v1.1.1)?**
+   - **RESOLVED:** Plan 18-02 Task 3 `detect_versions/1` defaults source version to `"1.0.0"` when `config :sigra, :schema_version` is absent (first-run degenerate path). A unit test under Task 3 acceptance criteria (INFO 8) locks this behavior.
    - What we know: CD-03 leaves this to planner discretion.
    - What's unclear: If we inject on v1.0 → v1.1, there's no prior sentinel, so Version.compare fails — the task must handle the "no sentinel found = assume 1.0.0" degenerate path.
    - Recommendation: Handle it. Default source version is `"1.0.0"` when sentinel absent. Inject the new sentinel as part of the v1.1 upgrade.
 
 4. **Should Phase 18's `add_personal_to_organizations.exs` migration be emitted as a separate schema migration OR folded into the existing `create_organizations.exs` template for fresh installs?**
+   - **RESOLVED:** D-00/D-01 fold the columns into the fresh-install migration template (Plan 18-01 Task 1). Plan 18-02 Task 2 ships separate upgrade-only ALTER templates (`alter_add_owner_user_id.exs`, `alter_add_personal.exs`) that use `add_if_not_exists` / `create_if_not_exists` so they are idempotent no-ops when the columns already exist (fresh-install shape).
    - What we know: For fresh installs, one migration creates the `personal` column from the start. For upgrades, the `personal` column is a net-new ALTER because the existing host already ran `create_organizations.exs` at Phase 13 time.
    - What's unclear: Do we need TWO templates (one for fresh, one for upgrade ALTER), or one template that the upgrade task emits conditionally?
    - Recommendation: **One template, folded into fresh install.** Fresh installs get `personal :boolean, null: false, default: false` inside `create_organizations.exs`. Upgrade path emits a separate `add_personal_to_organizations.exs` migration file that does `alter table(:organizations) do add :personal, :boolean, null: false, default: false end` + creates the partial unique index. Two template files, but no runtime-conditional emission logic — Plan 18-01 handles the fresh-install fold-in, Plan 18-02 adds the ALTER template consumed by the upgrade task.
 
 5. **What's the failure mode when `Sigra.Install.Injection.Injector.apply/2` encounters an `:elixir_config` anchor on a missing `import_config` line?**
+   - **RESOLVED:** Plan 18-02 Task 3 adds a regression test (acceptance criterion for BLOCKER 3 / Q5) that asserts the `:elixir_config` anchor fallback on a `config/config.exs` with no `import_config` line appends cleanly and produces valid Elixir (verified via `Code.string_to_quoted!/1`).
    - What we know: `apply_anchor(:elixir_config, content, payload)` falls back to `content <> payload` (appends to EOF).
    - What's unclear: Whether this is acceptable for version sentinel injection, or whether we should add a `:raise_on_anchor_missing` flag.
    - Recommendation: Accept current behavior for Phase 18 but add a regression test in Plan 18-02's injector tests that confirms the fallback produces compilable `config.exs`. If not, escalate to a stricter anchor mode.
