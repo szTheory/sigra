@@ -5,6 +5,8 @@ defmodule Sigra.MockRepo.Behaviour do
   @callback get_by(module(), keyword()) :: struct() | nil
   @callback get!(module(), term()) :: struct()
   @callback insert(Ecto.Changeset.t()) :: {:ok, struct()} | {:error, Ecto.Changeset.t()}
+  @callback insert_all(module() | String.t(), [map()], keyword()) ::
+              {non_neg_integer(), nil | [term()]}
   @callback insert!(struct()) :: struct()
   @callback update(Ecto.Changeset.t()) :: {:ok, struct()} | {:error, Ecto.Changeset.t()}
   @callback update!(Ecto.Changeset.t()) :: struct()
