@@ -19,6 +19,12 @@ defmodule <%= context_module %>.Organization do
     field :name, :string
     field :slug, :string
     field :deleted_at, :utc_datetime
+    # D-01: personal-workspace flag (Phase 18). Library-managed, NOT exposed via cast/3.
+    field :personal, :boolean, default: false
+
+    # D-00: sticky origin owner (Phase 18). Library sets via put_change/3 in
+    # Sigra.Organizations.create_organization/3; NEVER exposed via cast/3.
+    belongs_to :owner, <%= context_module %>.<%= schema_alias %>, foreign_key: :owner_user_id
 
     has_many :memberships, <%= context_module %>.OrganizationMembership
     has_many :invitations, <%= context_module %>.OrganizationInvitation
