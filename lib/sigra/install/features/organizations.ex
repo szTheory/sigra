@@ -84,7 +84,15 @@ defmodule Sigra.Install.Features.Organizations do
       # modal, remove modal with force-logout, Phase 17 invitations seam.
       # Host-owned per D-28 / D-29.
       {:eex, "organizations/live/organization_members_live.ex",
-       Path.join(["lib", web, "live", "organization_members_live.ex"])}
+       Path.join(["lib", web, "live", "organization_members_live.ex"])},
+
+      # Phase 17 Plan 07 (D-06): InvitationAcceptLive — single unscoped
+      # LiveView with 7 render branches (signup/accept/mismatch/invalid/
+      # expired/revoked/already_accepted). The :mismatch branch contains
+      # ZERO accept DOM controls by construction — structural Jetstream
+      # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
+      {:eex, "organizations/live/invitation_accept_live.ex",
+       Path.join(["lib", web, "live", "invitation_accept_live.ex"])}
     ]
   end
 

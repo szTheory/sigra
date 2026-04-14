@@ -1,3 +1,17 @@
+  # Phase 17 D-06: single unscoped InvitationAcceptLive at
+  # /invitations/:token/accept. This route MUST remain outside any
+  # `:require_authenticated` pipeline so both anonymous visitors
+  # (signup branch) and signed-in visitors (accept / mismatch branch)
+  # reach the same LiveView, which branches on `@branch` at mount.
+  scope "/", <%= web_module %> do
+    pipe_through [:browser]
+
+    live_session :invitations_public,
+      on_mount: [{<%= web_module %>.UserAuth, :mount_current_scope}] do
+      live "/invitations/:token/accept", InvitationAcceptLive
+    end
+  end
+
   # Sigra organizations
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug

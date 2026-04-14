@@ -350,6 +350,132 @@ defmodule Sigra.Organizations.Invitations do
 
   def accept_with_signup(_config, _signed_token, _params), do: {:error, :invalid}
 
+  # ---------- load_for_view/3 (Plan 17-07 InvitationAcceptLive mount helper) ----------
+
+  @doc """
+  Load an invitation and classify it into a render-branch tuple for
+  `InvitationAcceptLive` (Plan 17-07, D-06).
+
+  Does NOT run any Multi — the caller invokes `accept/3` or
+  `accept_with_signup/3` separately on user action. This function
+  performs the HMAC verify + DB lookup + optional org/inviter load and
+  returns a tuple the LV assigns directly to `:branch` + related assigns.
+
+  The `current_user` argument is `nil` for anonymous visitors (signup
+  branch) or a user struct for signed-in visitors (accept or mismatch
+  branch depending on email match).
+
+  Returned tuples:
+
+    * `{:signup, invitation, org, inviter}` — anonymous visitor, token valid + pending
+    * `{:accept, invitation, org, inviter, current_user}` — signed-in
+      user's email matches invitation email
+    * `{:mismatch, invitation, current_user}` — signed-in user's email
+      does NOT match invitation email (Jetstream #907 mismatch branch).
+      `org` and `inviter` are deliberately not returned — the mismatch
+      branch does not render them.
+    * `{:invalid, :invalid}` — HMAC verify fail, tampered token, garbage
+      base64, or invitation row missing. Uniformly `:invalid` for zero
+      info leakage.
+    * `{:expired, invitation_or_nil}` — envelope age > TTL or DB
+      `expires_at <= now()`. The row is reloaded without the pending
+      guard so the view can display inviter context.
+    * `{:revoked, invitation_or_nil}` — DB `revoked_at IS NOT NULL`.
+    * `{:already_accepted, invitation_or_nil, maybe_member?}` — DB
+      `accepted_at IS NOT NULL` (replay). The boolean is currently
+      always `false` — future work may use it to auto-redirect
+      members to their org dashboard.
+  """
+  @spec load_for_view(map(), String.t(), struct() | nil) ::
+          {:signup, struct(), struct(), struct()}
+          | {:accept, struct(), struct(), struct(), struct()}
+          | {:mismatch, struct(), struct()}
+          | {:invalid, :invalid}
+          | {:expired, struct() | nil}
+          | {:revoked, struct() | nil}
+          | {:already_accepted, struct() | nil, boolean()}
+  def load_for_view(config, signed_token, current_user)
+      when is_binary(signed_token) do
+    :ok = assert_secret_key_base!(config)
+
+    ttl_seconds = div(config.invitation_ttl, 1_000)
+
+    case Token.verify_invite_envelope(config.secret_key_base, signed_token, ttl_seconds) do
+      {:ok, envelope} ->
+        classify_envelope(config, envelope, current_user)
+
+      {:error, :invalid} ->
+        {:invalid, :invalid}
+
+      {:error, :expired} ->
+        # Envelope-age TTL blew; we cannot reach the DB row without the
+        # raw token, so inviter context is unavailable for this branch.
+        {:expired, nil}
+    end
+  end
+
+  def load_for_view(_config, _signed_token, _current_user), do: {:invalid, :invalid}
+
+  defp classify_envelope(config, envelope, current_user) do
+    schema = config.schemas.invitation
+
+    case config.repo.get_by(schema, hashed_token: envelope.hashed_token) do
+      nil ->
+        {:invalid, :invalid}
+
+      %{} = inv ->
+        # Belt-and-suspenders bound-email check. If it fails we collapse
+        # to :invalid (no info leak) even though the HMAC is valid.
+        if String.downcase(to_string(envelope.bound_email)) !=
+             String.downcase(to_string(inv.email)) do
+          {:invalid, :invalid}
+        else
+          classify_row(config, inv, current_user)
+        end
+    end
+  end
+
+  defp classify_row(_config, %{accepted_at: t} = inv, _user) when not is_nil(t),
+    do: {:already_accepted, inv, false}
+
+  defp classify_row(_config, %{revoked_at: t} = inv, _user) when not is_nil(t),
+    do: {:revoked, inv}
+
+  defp classify_row(config, %{expires_at: exp} = inv, user) do
+    if DateTime.compare(exp, DateTime.utc_now()) != :gt do
+      {:expired, inv}
+    else
+      classify_pending(config, inv, user)
+    end
+  end
+
+  defp classify_pending(config, invitation, nil) do
+    org = config.repo.get(config.schemas.organization, invitation.organization_id)
+    inviter = config.repo.get(config.schemas.user, invitation.invited_by_id)
+
+    if is_nil(org) or is_nil(inviter) do
+      {:invalid, :invalid}
+    else
+      {:signup, invitation, org, inviter}
+    end
+  end
+
+  defp classify_pending(config, invitation, %{email: user_email} = user) do
+    if String.downcase(to_string(user_email)) ==
+         String.downcase(to_string(invitation.email)) do
+      org = config.repo.get(config.schemas.organization, invitation.organization_id)
+      inviter = config.repo.get(config.schemas.user, invitation.invited_by_id)
+
+      if is_nil(org) or is_nil(inviter) do
+        {:invalid, :invalid}
+      else
+        {:accept, invitation, org, inviter, user}
+      end
+    else
+      {:mismatch, invitation, user}
+    end
+  end
+
   # ---------- verify_and_load/2 (private helper) ----------
 
   @spec verify_and_load(map(), String.t()) ::

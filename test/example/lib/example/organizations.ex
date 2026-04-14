@@ -39,13 +39,23 @@ defmodule Example.Organizations do
     secret_key_base:
       Application.compile_env!(:example, ExampleWeb.Endpoint)[:secret_key_base],
     url_builder: &Example.Organizations.__build_invite_url__/1,
-    rate_limiter: Sigra.RateLimiters.Noop
+    rate_limiter: Sigra.RateLimiters.Noop,
+    user_registration_changeset_fn: &Example.Organizations.__registration_changeset__/1
 
   @doc false
   def __build_invite_url__(encoded_token) do
-    # Phase 17 invitation accept path — uses ExampleWeb.Endpoint URL
-    # helpers resolved at runtime. Rewired by Plan 17-07 (accept route).
-    ExampleWeb.Endpoint.url() <> "/invitations/accept?token=" <> encoded_token
+    # Phase 17 Plan 07 — points at the unscoped InvitationAcceptLive
+    # route shipped in this plan's router_injection.ex update.
+    ExampleWeb.Endpoint.url() <> "/invitations/" <> encoded_token <> "/accept"
+  end
+
+  @doc false
+  def __registration_changeset__(attrs) do
+    # Wired into `Sigra.Organizations.Invitations.accept_with_signup/3`
+    # via the `:user_registration_changeset_fn` config key. The stringly-
+    # keyed `attrs` map is built from the InvitationAcceptLive signup
+    # form (the invitation.email is force-overwritten server-side).
+    Example.Accounts.User.registration_changeset(%Example.Accounts.User{}, attrs)
   end
 
   @doc """
