@@ -46,6 +46,8 @@ defmodule ExampleWeb.OrganizationMembersLive do
     total = Organizations.count_members(scope)
     decorated = decorate_rows(rows)
 
+    pending = Organizations.list_pending_invitations(scope.active_organization)
+
     {:ok,
      socket
      |> stream(:members, decorated)
@@ -54,7 +56,11 @@ defmodule ExampleWeb.OrganizationMembersLive do
      |> assign(:has_more, length(decorated) < total)
      |> assign(:pending_action, nil)
      |> assign(:role_modal_error, nil)
-     |> assign(:remove_modal_error, nil)}
+     |> assign(:remove_modal_error, nil)
+     |> assign(:invite_form, to_form(%{"email" => "", "role" => "member"}, as: :invitation))
+     |> assign(:revoking_invitation, nil)
+     |> stream(:pending_invitations, pending)
+     |> assign(:pending_count, length(pending))}
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -164,6 +170,136 @@ defmodule ExampleWeb.OrganizationMembersLive do
     end
   end
 
+  # ── Phase 17: Invite member flow ────────────────────────────────────────
+
+  def handle_event("open_invite_modal", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(
+       :invite_form,
+       to_form(%{"email" => "", "role" => "member"}, as: :invitation)
+     )
+     |> push_event("open-modal", %{id: "invite-member-modal"})}
+  end
+
+  def handle_event("cancel_invite", _params, socket) do
+    {:noreply, push_event(socket, "close-modal", %{id: "invite-member-modal"})}
+  end
+
+  def handle_event("invite_member", %{"invitation" => params}, socket) do
+    scope = socket.assigns.current_scope
+    org = scope.active_organization
+
+    attrs = %{
+      actor: scope,
+      organization_id: org.id,
+      email: params["email"],
+      role: safe_invite_role(params["role"]),
+      invited_by_id: scope.user.id
+    }
+
+    case Organizations.create_invitation(attrs) do
+      {:ok, invitation} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Invitation sent to #{invitation.email}.")
+         |> stream_insert(:pending_invitations, invitation, at: 0)
+         |> update(:pending_count, &(&1 + 1))
+         |> assign(
+           :invite_form,
+           to_form(%{"email" => "", "role" => "member"}, as: :invitation)
+         )
+         |> push_event("close-modal", %{id: "invite-member-modal"})}
+
+      {:error, %Ecto.Changeset{} = cs} ->
+        {:noreply, assign(socket, :invite_form, to_form(cs, as: :invitation))}
+
+      {:error, :already_member} ->
+        form =
+          to_form(
+            %{"email" => params["email"], "role" => params["role"]},
+            as: :invitation,
+            errors: [
+              email:
+                {"#{params["email"]} is already a member of this organization.", []}
+            ]
+          )
+
+        {:noreply, assign(socket, :invite_form, form)}
+
+      {:error, :rate_limited_user} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "You have invited too many people today. Try again tomorrow.")
+         |> push_event("close-modal", %{id: "invite-member-modal"})}
+
+      {:error, :rate_limited_org} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           "This organization has reached its daily invitation limit. Try again tomorrow."
+         )
+         |> push_event("close-modal", %{id: "invite-member-modal"})}
+
+      {:error, :unauthorized} ->
+        {:noreply,
+         put_flash(socket, :error, "You do not have permission to invite members.")}
+    end
+  end
+
+  # ── Phase 17: Revoke invitation flow ────────────────────────────────────
+
+  def handle_event("open_revoke_modal", %{"id" => id}, socket) do
+    case find_pending_invitation(socket, id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Invitation not found.")}
+
+      invitation ->
+        {:noreply,
+         socket
+         |> assign(:revoking_invitation, invitation)
+         |> push_event("open-modal", %{id: "revoke-invitation-modal"})}
+    end
+  end
+
+  def handle_event("cancel_revoke", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:revoking_invitation, nil)
+     |> push_event("close-modal", %{id: "revoke-invitation-modal"})}
+  end
+
+  def handle_event("confirm_revoke", %{"id" => id}, socket) do
+    case Organizations.revoke_invitation(id, socket.assigns.current_scope) do
+      {:ok, invitation} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Invitation for #{invitation.email} revoked.")
+         |> stream_delete(:pending_invitations, invitation)
+         |> update(:pending_count, &max(&1 - 1, 0))
+         |> assign(:revoking_invitation, nil)
+         |> push_event("close-modal", %{id: "revoke-invitation-modal"})}
+
+      {:error, :not_pending} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           "This invitation has already been accepted and cannot be revoked."
+         )
+         |> assign(:revoking_invitation, nil)
+         |> push_event("close-modal", %{id: "revoke-invitation-modal"})}
+
+      {:error, :unauthorized} ->
+        {:noreply,
+         put_flash(socket, :error, "You do not have permission to revoke invitations.")}
+
+      {:error, :not_found} ->
+        {:noreply, put_flash(socket, :error, "Invitation not found.")}
+    end
+  end
+
   def handle_event("remove_member", _params, socket) do
     {:remove, member} = socket.assigns.pending_action
     scope = socket.assigns.current_scope
@@ -207,7 +343,20 @@ defmodule ExampleWeb.OrganizationMembersLive do
     <.header>
       Members ({@total_count})
       <:actions>
-        <.button disabled aria-disabled="true" title="Available in the next release">
+        <.button
+          :if={owner_or_admin?(@current_scope)}
+          type="button"
+          phx-click="open_invite_modal"
+          id="invite-member-button"
+        >
+          Invite member
+        </.button>
+        <.button
+          :if={not owner_or_admin?(@current_scope)}
+          disabled
+          aria-disabled="true"
+          title="Only owners and admins can invite members"
+        >
           Invite member
         </.button>
       </:actions>
@@ -259,12 +408,131 @@ defmodule ExampleWeb.OrganizationMembersLive do
     </section>
 
     <section id="pending-invitations-section" class="mt-8">
-      <h2 class="text-lg font-semibold">Pending invitations</h2>
-      
-      <div class="card bg-base-200 mt-2 p-6 text-center text-sm text-base-content/70">
-        No pending invitations. Inviting members is coming in the next release.
-      </div>
+      <.header>
+        Pending invitations ({@pending_count})
+      </.header>
+
+      <%= if @pending_count == 0 do %>
+        <div class="card bg-base-200 p-6 text-center text-sm text-base-content/70">
+          No pending invitations. Click <strong>Invite member</strong>
+          above to invite someone.
+        </div>
+      <% else %>
+        <div class="overflow-x-auto">
+          <.table id="pending-invitations-table" rows={@streams.pending_invitations}>
+            <:col :let={{_dom_id, inv}} label="Email">{inv.email}</:col>
+            <:col :let={{_dom_id, inv}} label="Role">
+              <span class={["badge badge-sm", role_badge_class(inv.role)]}>
+                {humanize_role(inv.role)}
+              </span>
+            </:col>
+            <:col :let={{_dom_id, inv}} label="Invited by">
+              {invited_by_email(inv)}
+            </:col>
+            <:col :let={{_dom_id, inv}} label="Expires">
+              <span class="text-sm text-base-content/70">
+                {invitation_expires_relative(inv.expires_at)}
+              </span>
+            </:col>
+            <:action :let={{_dom_id, inv}}>
+              <button
+                :if={owner_or_admin?(@current_scope)}
+                type="button"
+                class="btn btn-ghost btn-xs text-error"
+                phx-click="open_revoke_modal"
+                phx-value-id={inv.id}
+                aria-label={"Revoke invitation for #{inv.email}"}
+              >
+                Revoke
+              </button>
+            </:action>
+          </.table>
+        </div>
+      <% end %>
     </section>
+
+    <dialog id="invite-member-modal" class="modal" phx-hook="DialogModal">
+      <div class="modal-box">
+        <h3 class="text-lg font-semibold">Invite a member</h3>
+        <p class="text-sm text-base-content/70 mt-2">
+          Send an invitation to join {@current_scope.active_organization.name}.
+          They will receive an email with a secure accept link.
+        </p>
+
+        <.form for={@invite_form} phx-submit="invite_member" class="mt-4 space-y-4">
+          <label class="form-control w-full">
+            <span class="label-text">Email address</span>
+            <input
+              type="email"
+              name="invitation[email]"
+              value={@invite_form[:email].value}
+              placeholder="teammate@example.com"
+              required
+              autocomplete="off"
+              phx-debounce="300"
+              class="input input-bordered w-full"
+            />
+          </label>
+
+          <label class="form-control w-full">
+            <span class="label-text">Role</span>
+            <select
+              name="invitation[role]"
+              class="select select-bordered w-full"
+            >
+              <option value="member">Member — can access the organization</option>
+              <option value="admin">Admin — can invite and manage members</option>
+              <option value="owner">Owner — full control, including deletion</option>
+            </select>
+          </label>
+
+          <div class="modal-action">
+            <button type="button" class="btn btn-ghost" phx-click="cancel_invite">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              phx-disable-with="Sending..."
+            >
+              Send invitation
+            </button>
+          </div>
+        </.form>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <dialog id="revoke-invitation-modal" class="modal" phx-hook="DialogModal">
+      <div class="modal-box">
+        <h3 class="text-lg font-semibold">Revoke invitation?</h3>
+
+        <%= if @revoking_invitation do %>
+          <p class="text-sm mt-2">
+            Revoke the invitation for
+            <strong>{@revoking_invitation.email}</strong>? They will no longer be able to join
+            <strong>{@current_scope.active_organization.name}</strong>
+            with this link. You can re-invite them later.
+          </p>
+        <% end %>
+
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost" phx-click="cancel_revoke">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-error"
+            phx-click="confirm_revoke"
+            phx-value-id={@revoking_invitation && @revoking_invitation.id}
+            phx-disable-with="Revoking..."
+          >
+            Revoke invitation
+          </button>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
 
     <dialog id="confirm-role-modal" class="modal" phx-hook="DialogModal">
       <%= if match?({:role, _}, @pending_action) do %>
@@ -364,6 +632,41 @@ defmodule ExampleWeb.OrganizationMembersLive do
     |> decorate_rows()
     |> Enum.find(fn m -> to_string(m.id) == to_string(id) end)
   end
+
+  # ── Phase 17 helpers ────────────────────────────────────────────────────
+
+  defp owner_or_admin?(%{membership: %{role: role}}) when role in [:owner, :admin],
+    do: true
+
+  defp owner_or_admin?(_), do: false
+
+  defp safe_invite_role("owner"), do: :owner
+  defp safe_invite_role("admin"), do: :admin
+  defp safe_invite_role(_), do: :member
+
+  defp find_pending_invitation(socket, id) do
+    org = socket.assigns.current_scope.active_organization
+
+    org
+    |> Organizations.list_pending_invitations()
+    |> Enum.find(fn inv -> to_string(inv.id) == to_string(id) end)
+  end
+
+  defp invited_by_email(%{invited_by: %{email: email}}) when is_binary(email), do: email
+  defp invited_by_email(_), do: "—"
+
+  defp invitation_expires_relative(%DateTime{} = dt) do
+    seconds = DateTime.diff(dt, DateTime.utc_now(), :second)
+
+    cond do
+      seconds <= 0 -> "expired"
+      seconds < 3600 -> "in #{div(seconds, 60)} minutes"
+      seconds < 86_400 -> "in #{div(seconds, 3600)} hours"
+      true -> "in #{div(seconds, 86_400)} days"
+    end
+  end
+
+  defp invitation_expires_relative(_), do: "—"
 
   # Accepts only the three known atoms. String.to_existing_atom/1 would also
   # work but would raise on an unknown string; returning an {:error, ...}

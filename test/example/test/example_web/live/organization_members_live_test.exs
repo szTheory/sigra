@@ -28,7 +28,7 @@ defmodule ExampleWeb.OrganizationMembersLiveTest do
   # Fixtures
   # ──────────────────────────────────────────────────────────────────────
 
-  defp create_org_with_role!(user, role, org_attrs \\ %{}) do
+  defp create_org_with_role!(user, role, org_attrs) do
     {:ok, org} =
       %Organization{}
       |> Organization.changeset(
