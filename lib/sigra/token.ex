@@ -17,6 +17,8 @@ defmodule Sigra.Token do
   `Plug.Crypto.secure_compare/2` to prevent timing attacks.
   """
 
+  @invite_purpose "sigra-org-invite-token"
+
   @doc """
   Generates a signed token for the given purpose and data.
 
@@ -111,6 +113,72 @@ defmodule Sigra.Token do
   @spec hash_token(binary()) :: binary()
   def hash_token(raw_token) when is_binary(raw_token) do
     :crypto.hash(:sha256, raw_token)
+  end
+
+  @doc """
+  Generates a signed invitation envelope binding email into the HMAC payload.
+
+  Returns `{encoded_signed_token, hashed_token_for_storage}`.
+
+  ## Why this diverges from `sigra-confirm-token`
+
+  Confirmation tokens sign the raw token only — the holder of the link IS
+  the user being confirmed, so identity is bound by convention at DB
+  compare time. Invitations are the exception: the holder of the link is
+  NOT yet the authenticated principal, so identity must be bound
+  cryptographically. This closes the Jetstream #907 / Keycloak
+  CVE-2026-1529 class of invite-hijack bugs by construction.
+
+  Payload shape uses STRING keys (`"t"`, `"e"`) to avoid atom-table growth
+  on decode.
+  """
+  @doc since: "0.4.0"
+  @spec generate_invite_envelope(String.t(), String.t()) :: {String.t(), binary()}
+  def generate_invite_envelope(secret_key_base, email)
+      when is_binary(secret_key_base) and is_binary(email) do
+    {raw, _raw_bytes_hash} = generate_hashed_token()
+    # Re-hash the base64 raw string so the stored hash matches
+    # `hash_token(raw)` computed by `verify_invite_envelope/3`.
+    hashed = hash_token(raw)
+    payload = %{"t" => raw, "e" => String.downcase(email)}
+    signed = Plug.Crypto.sign(secret_key_base, @invite_purpose, payload)
+    {Base.url_encode64(signed, padding: false), hashed}
+  end
+
+  @doc """
+  Verifies an invitation envelope and returns the raw token, bound email,
+  and hashed-token-for-DB-lookup.
+
+  Fails `{:error, :invalid}` if HMAC verify fails, base64 decode fails, or
+  the payload shape is wrong. Fails `{:error, :expired}` if the envelope is
+  older than `max_age_seconds`.
+
+  Distinguishing `:invalid` from other errors MUST NOT leak information to
+  the attacker — callers should treat both `:invalid` and `:expired` as
+  "invitation link is not valid" with the same user-facing copy.
+  """
+  @doc since: "0.4.0"
+  @spec verify_invite_envelope(String.t(), String.t(), pos_integer()) ::
+          {:ok, %{raw_token: binary(), bound_email: String.t(), hashed_token: binary()}}
+          | {:error, :invalid | :expired}
+  def verify_invite_envelope(secret_key_base, encoded, max_age_seconds)
+      when is_binary(secret_key_base) and is_binary(encoded) and is_integer(max_age_seconds) do
+    with {:ok, signed} <- url_decode(encoded),
+         {:ok, %{"t" => raw, "e" => email}} when is_binary(raw) and is_binary(email) <-
+           Plug.Crypto.verify(secret_key_base, @invite_purpose, signed, max_age: max_age_seconds) do
+      {:ok, %{raw_token: raw, bound_email: email, hashed_token: hash_token(raw)}}
+    else
+      {:ok, _other_shape} -> {:error, :invalid}
+      {:error, :expired} -> {:error, :expired}
+      _ -> {:error, :invalid}
+    end
+  end
+
+  defp url_decode(encoded) do
+    case Base.url_decode64(encoded, padding: false) do
+      {:ok, bytes} -> {:ok, bytes}
+      :error -> {:error, :invalid}
+    end
   end
 
   @doc """
