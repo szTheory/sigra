@@ -694,6 +694,10 @@ defmodule <%= context_module %>.Emails do
   end
 
   # -- Organization Invitation (Phase 17 D-12) --
+  #
+  # Canonical inline copy of the OrganizationInvitationEmail fragment
+  # shipped at priv/templates/sigra.install/core/organization_invitation_email.ex.
+  # Both must stay in sync — the fragment file is the documentation reference.
 
   @doc """
   Builds an organization-invitation email.
