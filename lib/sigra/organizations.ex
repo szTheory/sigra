@@ -160,6 +160,18 @@ defmodule Sigra.Organizations do
       `Sigra.Organizations.Invitations.create/2` raises a clear error if nil.
       """
     ],
+    rate_limiter: [
+      type: :atom,
+      default: Sigra.RateLimiters.Noop,
+      doc: """
+      Rate limiter module implementing the `Sigra.RateLimiter` behaviour.
+      Used by `Sigra.Organizations.Invitations.create/2` for dual-key
+      (per-user + per-org) rate limiting. Defaults to `Sigra.RateLimiters.Noop`
+      (always-allow) so host apps that have not wired Hammer still see a
+      functional — if unlimited — invitation flow. Production deployments
+      should set this to `Sigra.RateLimiters.Hammer` (optional Hammer dep).
+      """
+    ],
     url_builder: [
       type: {:or, [{:fun, 1}, nil]},
       default: nil,
