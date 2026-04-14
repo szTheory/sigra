@@ -36,7 +36,7 @@
 - [x] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour (completed 2026-04-13)
 - [x] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
 - [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (gap_closure pending: INV-08 cross-tenant IDOR in `Sigra.Organizations.Invitations.revoke/3`) (completed 2026-04-14)
-- [ ] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture
+- [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
 - [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
 - [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection
@@ -193,8 +193,8 @@ Plans:
   5. CI org-axis matrix (install with `--organizations` and `--no-organizations`) compiles and boots clean on every PR.
 **Plans**: 3 plans
 - [x] 18-01-foundation-schema-and-flag-PLAN.md — Wave 1: bake owner_user_id + personal into fresh-install organizations migration template; register Features.Organizations + forward organizations? binding; create_organization/3 sets owner_user_id (ORG-02)
-- [ ] 18-02-upgrade-task-and-backfill-PLAN.md — Wave 2: Sigra.Upgrade orchestrator + Sigra.Upgrade.Backfill library (keyset NOT EXISTS + insert_all on_conflict :nothing + telemetry) + mix sigra.upgrade Mix task + 3 upgrade templates + version sentinel injection (ORG-UPGRADE-01)
-- [ ] 18-03-upgrade-test-fixture-and-ci-matrix-PLAN.md — Wave 2: InstallFixture run_sigra_install/run_sigra_upgrade helpers + test/upgrade_test.exs (backfill-on + backfill-off) + CI install_matrix job (ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03)
+- [x] 18-02-upgrade-task-and-backfill-PLAN.md — Wave 2: Sigra.Upgrade orchestrator + Sigra.Upgrade.Backfill library (keyset NOT EXISTS + insert_all on_conflict :nothing + telemetry) + mix sigra.upgrade Mix task + 3 upgrade templates + version sentinel injection (ORG-UPGRADE-01)
+- [x] 18-03-upgrade-test-fixture-and-ci-matrix-PLAN.md — Wave 2: InstallFixture run_sigra_install/run_sigra_upgrade helpers + test/upgrade_test.exs (backfill-on + backfill-off) + CI install_matrix job (ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03)
 
 ### Phase 19: Passkey Schema + Contexts
 **Goal**: `Sigra.Passkeys` is a correct, credential-confusion-safe, monotonic-sign-count data layer around `wax_ ~> 0.7`, with Cloak-encrypted public keys reusing the v1.0 OAuth vault — no new encryption infra, no new migration hazards.
@@ -290,7 +290,7 @@ Plans:
 | 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
 | 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
-| 18. Backfill + `--organizations` Generator Wiring | 1/3 | In Progress|  |
+| 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 0/? | Not started | — |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
 | 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
@@ -306,7 +306,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
