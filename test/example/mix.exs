@@ -48,7 +48,11 @@ defmodule Example.MixProject do
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.1.0"},
-      # {:lazy_html, ">= 0.1.0", only: :test}, # omitted: requires cmake for source build
+      # Phase 17 Plan 07: lazy_html is required at test time by
+      # Phoenix.LiveViewTest (`live/3`, `render_click`, `form`). Ships
+      # precompiled NIFs via cc_precompiler on macOS/Linux, so no cmake
+      # toolchain is actually required at build time.
+      {:lazy_html, ">= 0.1.0", only: :test},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},

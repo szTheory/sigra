@@ -148,6 +148,20 @@ defmodule <%= web_module %>.InvitationAcceptLive do
       ) do
     %{token: token, organization: org, invitation: invitation} = socket.assigns
 
+    # The signup form locks `email` via `disabled + readonly`, which
+    # means browsers do NOT submit the field. Fill in the locked email
+    # here for the happy path so the library's
+    # `assert_signup_email_matches/2` sees it. If an attacker bypassed
+    # the disabled attribute and submitted a different email, it stays
+    # in user_params and the server-side guard will reject it as
+    # `:email_mismatch`.
+    user_params =
+      case Map.get(user_params, "email") do
+        nil -> Map.put(user_params, "email", invitation.email)
+        "" -> Map.put(user_params, "email", invitation.email)
+        _ -> user_params
+      end
+
     case Organizations.accept_invitation_with_signup(token, user_params) do
       {:ok, _result} ->
         {:noreply,
@@ -174,6 +188,31 @@ defmodule <%= web_module %>.InvitationAcceptLive do
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, accept_error_copy(reason))}
     end
+  end
+
+  # ──────────────────────────────────────────────────────────────────────
+  # Jetstream #907 structural defense — fallback raising clauses.
+  #
+  # Only the :accept branch handles "accept_invitation" and only the
+  # :signup branch handles "accept_with_signup". For any other branch
+  # these clauses raise ArgumentError explicitly. The mismatch / error
+  # branches render zero accept DOM controls, so these events cannot
+  # originate from a legitimate client — synthesized or tampered
+  # requests abort with ArgumentError before any DB write.
+  # ──────────────────────────────────────────────────────────────────────
+
+  def handle_event("accept_invitation", _params, %{assigns: %{branch: branch}}) do
+    raise ArgumentError,
+          "accept_invitation is not bound on branch=#{inspect(branch)} — " <>
+            "Jetstream #907 structural defense. This event should not " <>
+            "originate from a legitimate client."
+  end
+
+  def handle_event("accept_with_signup", _params, %{assigns: %{branch: branch}}) do
+    raise ArgumentError,
+          "accept_with_signup is not bound on branch=#{inspect(branch)} — " <>
+            "Jetstream #907 structural defense. This event should not " <>
+            "originate from a legitimate client."
   end
 
   defp accept_error_copy(:invalid), do: "This invitation link is not valid."
