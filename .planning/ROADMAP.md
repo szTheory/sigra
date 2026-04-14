@@ -192,7 +192,7 @@ Plans:
   4. Repository ships `test/upgrade_test.exs` that boots a v1.0 install, runs the v1.1 upgrade in both backfill-on and backfill-off paths, and asserts login still works in each path (X-4 regression lock).
   5. CI org-axis matrix (install with `--organizations` and `--no-organizations`) compiles and boots clean on every PR.
 **Plans**: 3 plans
-- [ ] 18-01-foundation-schema-and-flag-PLAN.md — Wave 1: bake owner_user_id + personal into fresh-install organizations migration template; register Features.Organizations + forward organizations? binding; create_organization/3 sets owner_user_id (ORG-02)
+- [x] 18-01-foundation-schema-and-flag-PLAN.md — Wave 1: bake owner_user_id + personal into fresh-install organizations migration template; register Features.Organizations + forward organizations? binding; create_organization/3 sets owner_user_id (ORG-02)
 - [ ] 18-02-upgrade-task-and-backfill-PLAN.md — Wave 2: Sigra.Upgrade orchestrator + Sigra.Upgrade.Backfill library (keyset NOT EXISTS + insert_all on_conflict :nothing + telemetry) + mix sigra.upgrade Mix task + 3 upgrade templates + version sentinel injection (ORG-UPGRADE-01)
 - [ ] 18-03-upgrade-test-fixture-and-ci-matrix-PLAN.md — Wave 2: InstallFixture run_sigra_install/run_sigra_upgrade helpers + test/upgrade_test.exs (backfill-on + backfill-off) + CI install_matrix job (ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03)
 
@@ -290,7 +290,7 @@ Plans:
 | 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
 | 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
-| 18. Backfill + `--organizations` Generator Wiring | 0/? | Not started | — |
+| 18. Backfill + `--organizations` Generator Wiring | 1/3 | In Progress|  |
 | 19. Passkey Schema + Contexts | 0/? | Not started | — |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
 | 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
@@ -306,7 +306,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 9/9 plans complete
+**Plans:** 1/3 plans executed
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
