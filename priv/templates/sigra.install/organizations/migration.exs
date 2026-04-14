@@ -54,7 +54,7 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
       name: :organization_invitations_pending_index
     )
 
-    create index(:organization_invitations, [:hashed_token])
+    create unique_index(:organization_invitations, [:hashed_token])
 
     # ── Organization Slug Aliases ──────────────────────────────────────
     # Tracks previous slugs for 7 days after a slug change so the
@@ -131,7 +131,7 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
 
     # MySQL/SQLite: no partial index. Composite unique index as fallback.
     create unique_index(:organization_invitations, [:organization_id, :email, :accepted_at, :revoked_at])
-    create index(:organization_invitations, [:hashed_token])
+    create unique_index(:organization_invitations, [:hashed_token])
 
     # ── Organization Slug Aliases ──────────────────────────────────────
     # Tracks previous slugs for 7 days after a slug change (Phase 16 D-13).
