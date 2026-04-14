@@ -763,7 +763,7 @@ end
 ```
 
 **Notes for the executor:**
-- `repo_module` binding format MUST use `inspect(repo)` because templates interpolate it as bare module name.
+- `repo_module` binding uses a bare module atom (e.g. `MyApp.Repo`); do NOT wrap in `inspect/1`. Templates interpolate it as a bare module name via `<%= repo_module %>` — matching the `lib/mix/tasks/sigra.install.ex` `build_binding/4` precedent.
 - The `upgrade_binding/0` helper is deliberately minimal; Plan 18-03's test fixture can extend it if additional fields become needed.
 - Do NOT make this module depend on any file that Plan 18-01 already created — depends_on chains are wave-level, not file-level.
 - `Injector.apply/2` is the existing Sigra.Install.Injector function — reuse it verbatim for the sentinel injection.
