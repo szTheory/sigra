@@ -656,16 +656,31 @@ defmodule Sigra.Organizations.Invitations do
   Requires the actor to carry a membership with role in
   `#{inspect(@auth_roles)}`. Already-accepted or already-revoked
   invitations return `{:error, :not_pending}` — the DB row is untouched.
-  Missing invitation id → `{:error, :not_found}`.
+  Missing invitation id → `{:error, :not_found}`. The lookup is scoped
+  to `actor_scope.active_organization.id`; cross-tenant ids are
+  collapsed to `{:error, :not_found}` to prevent enumeration.
   """
   @spec revoke(map(), integer() | binary(), map()) ::
           {:ok, struct()} | {:error, :not_pending | :unauthorized | :not_found}
-  def revoke(config, invitation_id, %{membership: %{role: role}} = actor_scope)
+  def revoke(
+        config,
+        invitation_id,
+        %{membership: %{role: role}, active_organization: %{id: org_id}} = actor_scope
+      )
       when role in @auth_roles do
     schema = config.schemas.invitation
 
-    case config.repo.get(schema, invitation_id) do
+    query =
+      from i in schema,
+        where: i.id == ^invitation_id and i.organization_id == ^org_id
+
+    case config.repo.one(query) do
       nil ->
+        # Collapses two cases onto one response to prevent cross-tenant
+        # enumeration: (a) id truly does not exist, (b) id exists in
+        # another org. Per CR-01 / INV-08 gap closure.
+        # No audit emission on the :not_found branch — cross-tenant
+        # probes are observable via future telemetry, tracked separately.
         {:error, :not_found}
 
       %{accepted_at: nil, revoked_at: nil} = inv ->
