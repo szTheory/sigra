@@ -8,6 +8,10 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
 <% end %>      add :name, :string, null: false, size: 255
       add :slug, :citext, null: false
       add :deleted_at, :utc_datetime
+      # D-00: sticky origin owner (added Phase 18). Write-once on insert; :nilify_all so the org row survives owner account deletion.
+      add :owner_user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
+      # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
+      add :personal, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
     end
@@ -17,6 +21,14 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     create unique_index(:organizations, [:slug],
       where: "deleted_at IS NULL",
       name: :organizations_slug_active_index
+    )
+
+    # D-01 / D-03: at-most-one-personal-org-per-user. Structural invariant AND
+    # insert-safety backstop for Sigra.Upgrade.Backfill (Plan 18-02). Postgres
+    # partial unique index — one row per owner_user_id where personal = true.
+    create unique_index(:organizations, [:owner_user_id],
+      where: "personal = true",
+      name: :organizations_personal_owner_uidx
     )
 
     # ── Organization Memberships ───────────────────────────────────────
@@ -105,6 +117,10 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
 <% end %>      add :name, :string, null: false, size: 255
       add :slug, :string, null: false, size: 63
       add :deleted_at, :utc_datetime
+      # D-00: sticky origin owner (added Phase 18). Write-once on insert; :nilify_all so the org row survives owner account deletion.
+      add :owner_user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
+      # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
+      add :personal, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
     end
@@ -112,6 +128,13 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     # MySQL/SQLite: no partial index support. Application-level handles
     # soft-delete slug reclamation.
     create unique_index(:organizations, [:slug])
+
+    # D-01: MySQL/SQLite lack partial unique indexes. Application-level guard
+    # in Sigra.Organizations enforces at-most-one-personal-org-per-user;
+    # this composite index provides a best-effort structural hint.
+    create unique_index(:organizations, [:owner_user_id, :personal],
+      name: :organizations_personal_owner_uidx
+    )
 
     # ── Organization Memberships ───────────────────────────────────────
     create table(:organization_memberships<%= if binary_id do %>, primary_key: false<% end %>) do
