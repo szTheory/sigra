@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: Foundations
 status: executing
 stopped_at: Phase 17 UI-SPEC approved
-last_updated: "2026-04-15T03:38:12.034Z"
+last_updated: "2026-04-15T09:50:47.566Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 16
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 18 — backfill-organizations-generator-wiring
+**Current focus:** Phase 19 — passkey-schema-and-contexts (next up; requires wax_ 0.7 spike)
 
 ## Current Position
 
-Phase: 999.1
+Phase: 19
 Plan: Not started
-Status: Executing Phase 18
-Last activity: 2026-04-15
+Status: Ready to plan Phase 19 (Passkeys track kickoff)
+Last activity: 2026-04-15 — Phase 11 ROADMAP bookkeeping closure
 
-Progress: [████░░░░░░] 40% (6/15 phases complete)
+Progress: [██████░░░░] 62% (9/14 v1.1 phases complete — 11–18 + 24 done, 19–23 remaining)
 
 ## Accumulated Context
 

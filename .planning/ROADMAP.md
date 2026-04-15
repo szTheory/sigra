@@ -29,13 +29,13 @@
 
 ### 🚧 v1.1 Foundations — Organizations + Passkeys
 
-- [ ] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/`
+- [x] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/` (completed 2026-04-11, verified 13/13 must-haves — PR #7 / commit 4efb4a5; ROADMAP checkbox retroactively ticked 2026-04-15)
 - [x] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column (completed 2026-04-12)
 - [x] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard (completed 2026-04-12)
 - [x] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling (completed 2026-04-12)
 - [x] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour (completed 2026-04-13)
 - [x] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
-- [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (gap_closure pending: INV-08 cross-tenant IDOR in `Sigra.Organizations.Invitations.revoke/3`) (completed 2026-04-14)
+- [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (INV-08 cross-tenant IDOR gap in `Sigra.Organizations.Invitations.revoke/3` closed by plan 17-09, re-verified 2026-04-14 status: passed 10/10) (completed 2026-04-14)
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
 - [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
@@ -56,14 +56,14 @@
   2. Developer can re-run `mix sigra.install --yes` on an already-installed project and the generator skips existing files + already-present injections without erroring (idempotent per GEN-04).
   3. Post-install summary output shows a clear table of generated / modified / skipped / manual-action files (GEN-05), and migrations are emitted with strictly-ordered timestamps so cross-feature ordering hazards cannot arise at install or upgrade time (GEN-07).
   4. `priv/templates/sigra.install/core/` contains every v1.0 template file with zero content drift; `Sigra.Install.Feature` behaviour is implemented by `Sigra.Install.Features.Core` with `enabled?/1` always returning true.
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 Plans:
-- [ ] 11-01-PLAN.md — Wave 0: Golden-diff harness + pre-refactor snapshot capture (GEN-02)
-- [ ] 11-02-PLAN.md — Wave 1: Feature behaviour + %Injection{} struct + Report + MigrationTimestamps primitives (GEN-01, GEN-05, GEN-07)
-- [ ] 11-03-PLAN.md — Wave 2: Mechanical template relocation into core/ subdirectory (GEN-02)
-- [ ] 11-04-PLAN.md — Wave 3: Features.Core extraction owning v1.0 files, injections, migrations, instructions (GEN-01, GEN-02)
-- [ ] 11-05-PLAN.md — Wave 4: Walker refactor + idempotency proof (GEN-01, GEN-04, GEN-05, GEN-07)
-- [ ] 11-06-PLAN.md — Wave 5: V-PA-01 purely-additive + V-ISOLATION-01 guardrails + VALIDATION.md finalize (GEN-01)
+- [x] 11-01-PLAN.md — Wave 0: Golden-diff harness + pre-refactor snapshot capture (GEN-02)
+- [x] 11-02-PLAN.md — Wave 1: Feature behaviour + %Injection{} struct + Report + MigrationTimestamps primitives (GEN-01, GEN-05, GEN-07)
+- [x] 11-03-PLAN.md — Wave 2: Mechanical template relocation into core/ subdirectory (GEN-02)
+- [x] 11-04-PLAN.md — Wave 3: Features.Core extraction owning v1.0 files, injections, migrations, instructions (GEN-01, GEN-02)
+- [x] 11-05-PLAN.md — Wave 4: Walker refactor + idempotency proof (GEN-01, GEN-04, GEN-05, GEN-07)
+- [x] 11-06-PLAN.md — Wave 5: V-PA-01 purely-additive + V-ISOLATION-01 guardrails + VALIDATION.md finalize (GEN-01)
 
 ### Phase 12: Scope + Session Foundation
 **Goal**: `%Scope{}` and the `user_sessions` row carry the fields every org-aware and (v1.2) impersonation-aware plug needs, with zero business logic attached — a mechanical data-shape extension.
@@ -169,7 +169,7 @@ Plans:
   3. Invitee signed in as a different user (case-insensitive via citext) gets an explicit "this invitation is for [other-email]" mismatch page with no accept button — never a silent takeover (O-2 Jetstream #907 regression test covers this).
   4. Accepting an invite marks `accepted_at` inside the Multi; replay attempts return a clear "already accepted" flash; revoked invites return "no longer valid"; rate-limited invite creation (20/day/user via Hammer) rejects abuse.
   5. Pending-invite list shows email, role, invited-by, expires-in, and a revoke button that transitions the row to `revoked_at`.
-**Plans**: 8 plans
+**Plans**: 9 plans
 - [x] 17-01-PLAN.md — Wave 1: extract register_user_multi + add_member_multi + invitation fixtures + Swoosh test mailer config (Nyquist scaffolding)
 - [x] 17-02-PLAN.md — Wave 2: Sigra.Token invite envelope helpers + @org_config_schema NimbleOptions keys (incl. url_builder) + hashed_token UNIQUE migration
 - [x] 17-03-PLAN.md — Wave 3: Sigra.Organizations.Invitations module (create/2, revoke/3, list_pending/2, list_pending_for_user/2) + Hammer rate-limit wiring + CleanupExpiredInvitations Oban worker (D-11)
@@ -178,6 +178,7 @@ Plans:
 - [x] 17-06-PLAN.md — Wave 4: fill OrganizationMembersLive invite modal + pending-invitations section + revoke modal/handlers (Phase 16 stub replacement)
 - [x] 17-07-PLAN.md — Wave 5: InvitationAcceptLive 7 render branches + Jetstream #907 regression + replay + citext regression tests + 17-VALIDATION.md sign-off
 - [x] 17-08-PLAN.md — Wave 2 (sidecar): Phase 16 slug-alias migration IMMUTABLE-safe hotfix (Open Q4 RESOLVED, independent of main path)
+- [x] 17-09-PLAN.md — Gap closure: INV-08 scope `revoke/3` lookup to `actor_scope.active_organization.id` via Ecto query; cross-tenant probes collapsed to `{:error, :not_found}` (re-verified passed 10/10 on 2026-04-14; ROADMAP checkbox retroactively ticked 2026-04-15)
 **UI hint**: yes
 
 ### Phase 18: Backfill + `--organizations` Generator Wiring
@@ -283,7 +284,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 11. Generator Feature System | 0/? | Not started | — |
+| 11. Generator Feature System | 6/6 | Complete    | 2026-04-15 |
 | 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
 | 13. Organizations Schemas + Context | 3/3 | Complete    | 2026-04-12 |
 | 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
