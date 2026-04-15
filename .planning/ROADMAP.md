@@ -247,7 +247,7 @@ Plans:
   4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
 **Plans**: 7 plans
 Plans:
-- [ ] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
+- [x] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
 - [ ] 21-02-PLAN.md — Wave 2: `/users/settings/mfa` passkeys card, enrollment hook, compact list, inline rename, and sudo-aware delete confirmation
 - [ ] 21-03-PLAN.md — Wave 2: passkey-first MFA challenge with TOTP/backup fallback and guided abort/timeout/unsupported recovery
 - [ ] 21-04-PLAN.md — Wave 2: passkey-primary identifier-first login, signup enrollment, confirmed-email invariant, and magic-link recovery invariant
@@ -277,13 +277,7 @@ Plans:
   2. Three new guides ship under `guides/`: `upgrading-to-v1.1.md` (both backfill modes + breaking-change callouts + upgrade test invocation), `how-to/multi-tenancy.md` (logical MT model + `for_org/2` discipline + why schema-per-tenant is rejected), and `how-to/passkeys.md` (enrollment + primary-mode config + RP ID rename playbook + recovery guidance). `mix docs --warnings-as-errors` stays clean.
   3. Generated testing helpers (`create_organization/1`, `create_membership/3`, `log_in_user_with_org/3`, `register_passkey/2`, `authenticate_with_passkey/2`) and library helpers in `Sigra.Testing` (`assert_scope_has_org/2`, `assert_membership/3`, `assert_audit_logged_for_org/2`) are exercised by their own unit tests.
   4. Playwright CI smoke harness extends to cover: organization switcher happy path, invitation-accept by both new signup and existing logged-in user, passkey registration, passkey authentication — all green on PRs.
-**Plans**: 6 plans
-- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
-- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
-- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
-- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
-- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
-- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
+**Plans**: TBD
 **UI hint**: yes
 
 ## Progress
@@ -295,12 +289,12 @@ Plans:
 | 13. Organizations Schemas + Context | 3/3 | Complete    | 2026-04-12 |
 | 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
 | 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
-| 16. Org LiveViews + Switcher | 0/? | Not started | — |
+| 16. Org LiveViews + Switcher | 6/6 | Complete | 2026-04-13 |
 | 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
+| 21. Passkey LiveViews + POST-Auth Controller | 1/7 | In Progress|  |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
@@ -313,7 +307,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 5/5 plans complete
+**Plans:** 1/7 plans executed
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false

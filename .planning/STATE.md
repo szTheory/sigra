@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Completed 20-05-PLAN.md
-last_updated: "2026-04-15T18:09:05.131Z"
+stopped_at: Completed 21-01-PLAN.md
+last_updated: "2026-04-15T21:49:40.004Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
   completed_phases: 12
-  total_plans: 49
-  completed_plans: 49
-  percent: 100
+  total_plans: 56
+  completed_plans: 50
+  percent: 89
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 20 — passkey-challenge-plug-runtime-config-js-hooks-infra
+**Current focus:** Phase 21 — passkey-liveviews-post-auth-controller
 
 ## Current Position
 
-Phase: 20 (passkey-challenge-plug-runtime-config-js-hooks-infra) — EXECUTING
-Plan: 3 of 5
+Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
 Last activity: 2026-04-15
 
-Progress: [████████░░] 79% (11/14 v1.1 phases complete — 11–19 + 24 + 25 done, 20–23 remaining)
+Progress: [█████████░] 86% (12/14 v1.1 phases complete — 11–20 + 24 + 25 done, 21–23 remaining)
 
 ## Accumulated Context
 
@@ -58,6 +58,11 @@ Recent decisions affecting current work:
 - [Phase 20]: Sigra.Plug.PasskeyChallenge.verify/5 now isolates signed-token verification before challenge reconstruction so invalid tokens exit unambiguously before callback execution.
 - [Phase 20]: Left installer fixtures unchanged because the default focused Phase 20 verifier subset passes once the timeout contract is explicit.
 - [Phase 20]: Scoped the slow passkeys JS installer coverage to a module-level timeout instead of widening repo-wide ExUnit defaults.
+- [Phase 20]: Browser WebAuthn hook verification is now automated with a Chromium Playwright spec using a virtual authenticator against the shipped generated templates.
+- [Phase 20]: Manual fallback verification is now automated with a fresh Phoenix app smoke harness that applies the printed `app.js` instructions, builds assets, and boots successfully.
+- [Phase 21]: Passkey login, MFA upgrade, enrollment completion, and delete completion finalize through plain SessionController POST actions, not LiveView events.
+- [Phase 21]: Discoverable passkey login resolves the owning UserPasskey row by credential_id before reusing the known-user Sigra.Passkeys.authenticate/4 path.
+- [Phase 21]: Passkey management mutation routes are injected only under the generated :require_sudo router pipeline.
 
 ### Pending Todos
 
@@ -65,7 +70,7 @@ Recent decisions affecting current work:
 - Phase 16 follow-up (do NOT block Phase 17): library slug-alias migration template uses `now()` in a Postgres partial-unique index predicate — Postgres rejects non-IMMUTABLE functions in index predicates. Plan 06 worked around it in the example app with a plain unique index on `old_slug`, but the library template still ships the partial-index form and may hit the same error on real hosts. Fix in a small dedicated phase or fold into Phase 17 prep.
 - Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
 - Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
-- Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
+- Plan Phase 21 next: passkey enrollment/authentication LiveViews, POST auth controller, sudo gate, duplicate detection, and generated host-app UI wiring. Context is captured in `.planning/phases/21-passkey-liveviews-post-auth-controller/21-CONTEXT.md`.
 
 ### Roadmap Evolution
 
@@ -76,10 +81,10 @@ Recent decisions affecting current work:
 
 - Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before phases 12+ build on top.
 - `test/upgrade_test.exs` fixture (phase 18) is a hard deliverable before the release gate in phase 23 — do not let it slip.
-- Phase 20 kickoff spike should confirm Plug-session challenge payload size stays comfortably below cookie limits and identify the safest `app.js` hook injection anchor for non-default Phoenix layouts.
+- Phase 21 should build strictly on the locked Phase 20 seam: `Sigra.Plug.PasskeyChallenge`, generated `passkey_browser.js` / `passkey_hooks.js`, and the explicit hook event contract.
 
 ## Session Continuity
 
-Last session: 2026-04-15T18:09:04.629Z
-Stopped at: Completed 20-05-PLAN.md
+Last session: 2026-04-15T21:49:32.602Z
+Stopped at: Completed 21-01-PLAN.md
 Resume file: None

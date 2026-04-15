@@ -94,16 +94,16 @@ affect individual requirements.
 ### Passkeys — User-Facing (PK-UX)
 
 - [ ] **PK-UX-01**: User can enroll a passkey from account settings. Enrollment is gated by `Sigra.Plug.RequireSudo` — user must re-authenticate with password or TOTP before enrollment (addresses pitfall P-2 — stolen-session takeover).
-- [ ] **PK-UX-02**: System emails the user on every passkey registration (reusing the v1.0 suspicious-login email shape); email shows device hint, IP, city, time.
-- [ ] **PK-UX-03**: User can name (nickname) each enrolled passkey; nickname defaults to an AAGUID-derived friendly name ("iCloud Keychain", "Google Password Manager", "1Password", "Windows Hello") via a bundled AAGUID registry.
-- [ ] **PK-UX-04**: User can rename or delete a passkey (delete is sudo-gated). System maintains a soft cap of 10 passkeys per user, configurable.
+- [x] **PK-UX-02**: System emails the user on every passkey registration (reusing the v1.0 suspicious-login email shape); email shows device hint, IP, city, time.
+- [x] **PK-UX-03**: User can name (nickname) each enrolled passkey; nickname defaults to an AAGUID-derived friendly name ("iCloud Keychain", "Google Password Manager", "1Password", "Windows Hello") via a bundled AAGUID registry.
+- [x] **PK-UX-04**: User can rename or delete a passkey (delete is sudo-gated). System maintains a soft cap of 10 passkeys per user, configurable.
 - [ ] **PK-UX-05**: User can log in via passkey as a second factor alongside TOTP on the MFA prompt (v1.1 default MFA mode for users with both). Backup codes remain available.
-- [ ] **PK-UX-06**: User can opt into passkey-as-primary login via a config-gated flag (`:passkey_primary_enabled`, default false). When enabled at the app level, users can enroll a passkey during signup and log in with email + passkey without a password. **(Decision: opt-in config with mandatory fallback.)**
-- [ ] **PK-UX-07**: Every passkey-as-primary user must have a confirmed email and magic-link recovery is always available (cannot be disabled). If passkey login fails, user can always recover via magic link (addresses pitfall P-5 — lost-device lockout).
-- [ ] **PK-UX-08**: System ships Conditional UI / passkey autofill where the browser supports it. Login email field gets `autocomplete="username webauthn"` + `navigator.credentials.get({mediation: 'conditional'})`. Feature-detected — unsupported browsers degrade gracefully to explicit-click flow. **(Decision: ship in v1.1, progressive enhancement.)**
-- [ ] **PK-UX-09**: System detects duplicate-device enrollment (credential_id collision for the same user) and returns "this passkey is already registered" rather than 500ing.
+- [x] **PK-UX-06**: User can opt into passkey-as-primary login via a config-gated flag (`:passkey_primary_enabled`, default false). When enabled at the app level, users can enroll a passkey during signup and log in with email + passkey without a password. **(Decision: opt-in config with mandatory fallback.)**
+- [x] **PK-UX-07**: Every passkey-as-primary user must have a confirmed email and magic-link recovery is always available (cannot be disabled). If passkey login fails, user can always recover via magic link (addresses pitfall P-5 — lost-device lockout).
+- [x] **PK-UX-08**: System ships Conditional UI / passkey autofill where the browser supports it. Login email field gets `autocomplete="username webauthn"` + `navigator.credentials.get({mediation: 'conditional'})`. Feature-detected — unsupported browsers degrade gracefully to explicit-click flow. **(Decision: ship in v1.1, progressive enhancement.)**
+- [x] **PK-UX-09**: System detects duplicate-device enrollment (credential_id collision for the same user) and returns "this passkey is already registered" rather than 500ing.
 - [ ] **PK-UX-10**: Passkey enrollment and authentication LiveViews use Phoenix JS hooks (`PasskeyRegister`, `PasskeyAuthenticate`) wrapping `@simplewebauthn/browser` — no vanilla base64url plumbing.
-- [ ] **PK-UX-11**: Passkey authentication completion POSTs to a plain controller (not a LiveView event) to rotate the Plug session, matching v1.0's "login is a plain controller" convention (D-29).
+- [x] **PK-UX-11**: Passkey authentication completion POSTs to a plain controller (not a LiveView event) to rotate the Plug session, matching v1.0's "login is a plain controller" convention (D-29).
 - [ ] **PK-UX-12**: Passkey JS hooks handle browser abort, timeout, user-cancel, and AbortController scenarios cleanly — LiveView returns to a recoverable state with a clear error message (addresses pitfall P-8).
 
 ---
