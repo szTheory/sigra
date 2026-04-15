@@ -151,6 +151,34 @@ defmodule Sigra.UpgradeTest do
     end
   end
 
+  describe "next_migration_timestamp/2" do
+    test "produces monotonically increasing prefixes when called twice in the same second" do
+      # Regression test for Phase 25 Bug B: mix sigra.install + mix sigra.upgrade
+      # ran back-to-back in the same second collided on migration version.
+      # Generator must scan priv/repo/migrations/ and bump past the highest extant
+      # timestamp, producing monotonically increasing 14-digit prefixes.
+      tmp_dir =
+        System.tmp_dir!()
+        |> Path.join("sigra_upgrade_ts_test_#{System.unique_integer([:positive])}")
+
+      File.mkdir_p!(tmp_dir)
+      on_exit(fn -> File.rm_rf!(tmp_dir) end)
+
+      # Seed with a known-high timestamp to force the scan-and-bump path
+      File.write!(Path.join(tmp_dir, "20260415102050_fake.exs"), "")
+
+      t1 = Sigra.Upgrade.next_migration_timestamp(tmp_dir, 0)
+      t2 = Sigra.Upgrade.next_migration_timestamp(tmp_dir, 1)
+
+      assert String.length(t1) == 14
+      assert String.length(t2) == 14
+      assert t1 =~ ~r/^\d{14}$/
+      assert t2 =~ ~r/^\d{14}$/
+      assert String.to_integer(t1) > 20_260_415_102_050
+      assert String.to_integer(t2) > String.to_integer(t1)
+    end
+  end
+
   describe "build_plan/3 regression coverage (WARNING 7 prep + INFO 8)" do
     test "produces an injection with config :sigra, :schema_version marker" do
       plan = Upgrade.build_plan([], "0.0.0", "0.1.0")
