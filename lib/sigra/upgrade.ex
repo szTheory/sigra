@@ -265,12 +265,14 @@ defmodule Sigra.Upgrade do
   end
 
   defp emit_migrations(migrations) do
-    Enum.each(migrations, fn {template, output_name} ->
-      write_migration(template, output_name)
+    migrations
+    |> Enum.with_index()
+    |> Enum.each(fn {{template, output_name}, counter} ->
+      write_migration(template, output_name, counter)
     end)
   end
 
-  defp write_migration(template, output_name) do
+  defp write_migration(template, output_name, counter) do
     dest_dir =
       if template == "data_migration.exs" do
         Path.join(["priv", "repo", "data_migrations"])
@@ -280,9 +282,14 @@ defmodule Sigra.Upgrade do
 
     File.mkdir_p!(dest_dir)
 
-    # Timestamp with a microsecond bump so two migrations emitted in
-    # the same second get distinct prefixes (shipped ALTER pair).
-    timestamp = Calendar.strftime(DateTime.utc_now(), "%Y%m%d%H%M%S")
+    # Scan priv/repo/migrations/ and bump past the highest extant
+    # timestamp so that `mix sigra.install` followed immediately by
+    # `mix sigra.upgrade` (same second) can't collide on version.
+    # The counter threads across the per-run migration list so the
+    # ALTER pair (and optional data-migration shim) get strictly
+    # monotonic 14-digit prefixes. (Phase 25 Bug B fix.)
+    migrations_dir = Path.join(["priv", "repo", "migrations"])
+    timestamp = next_migration_timestamp(migrations_dir, counter)
     dest = Path.join(dest_dir, "#{timestamp}_#{output_name}")
 
     template_path =
@@ -316,6 +323,46 @@ defmodule Sigra.Upgrade do
     case Application.get_env(otp_app, :ecto_repos, []) do
       [repo | _] -> repo
       [] -> Module.concat([Mix.Phoenix.base(), "Repo"])
+    end
+  end
+
+  # ── Migration timestamp generator (Phase 25 Bug B fix) ────────────
+
+  @doc false
+  @spec next_migration_timestamp(Path.t(), non_neg_integer()) :: String.t()
+  def next_migration_timestamp(migrations_dir, counter)
+      when is_binary(migrations_dir) and is_integer(counter) and counter >= 0 do
+    now_stamp =
+      DateTime.utc_now()
+      |> Calendar.strftime("%Y%m%d%H%M%S")
+      |> String.to_integer()
+
+    highest_existing =
+      if File.exists?(migrations_dir) do
+        migrations_dir
+        |> File.ls!()
+        |> Enum.map(&extract_migration_version/1)
+        |> Enum.reject(&is_nil/1)
+        |> case do
+          [] -> 0
+          versions -> Enum.max(versions)
+        end
+      else
+        0
+      end
+
+    next = max(now_stamp, highest_existing + 1) + counter
+
+    next
+    |> Integer.to_string()
+    |> String.pad_leading(14, "0")
+  end
+
+  @spec extract_migration_version(String.t()) :: non_neg_integer() | nil
+  defp extract_migration_version(filename) do
+    case Regex.run(~r/^(\d{14})_/, filename) do
+      [_, version] -> String.to_integer(version)
+      _ -> nil
     end
   end
 
