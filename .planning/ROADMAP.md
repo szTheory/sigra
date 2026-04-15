@@ -353,3 +353,29 @@ Plans:
 
 Plans:
 - [x] 24-01-repair-phase-16-17-org-templates-PLAN.md — DEF-18-01 dispatcher refactor + DEF-18-02 feature ownership move + 3 regression tests + golden rebless
+
+### Phase 25: fix Sigra.Upgrade duplicate-migration-version bug and restore upgrade integration tests
+
+**Goal:** Un-skip `Sigra.UpgradeIntegrationTest` (3 tests in `test/upgrade_test.exs`) by fixing the two latent bugs PR #9 (`63ea853`) surfaced when it renamed the shadowed integration module and unblocked its compilation.
+
+**Context:** For ~5 months both `test/upgrade_test.exs` (353-line integration) and `test/sigra/upgrade_test.exs` (170-line unit) defined `Sigra.UpgradeTest`. In a full `mix test`, Elixir silently replaced the first module with the second — CI reported green while the integration file was dead code. PR #9 renamed the integration module to `Sigra.UpgradeIntegrationTest`, removed `--no-mailer` from the install fixture, injected `--allow-dirty` into `run_sigra_upgrade/2`, added `ecto.drop --force` to `seed_users!/2`, and quarantined the 3 integration tests with `@moduletag skip:` pointing at Bugs A + B below. This phase fixes both and un-skips the module.
+
+**Requirements:**
+- **Bug A (test-only, ~10 lines):** `organizations_table_exists?/1` at `test/upgrade_test.exs:221` calls `:erlang.binary_to_integer/1` on what is actually the concatenation of the echoed SQL query string and its result, because `mix run -e` emits the query trace alongside the `IO.puts` output. Needs a parser that extracts the last numeric line from `mix run -e` output — or better, a pattern that pipes the SQL through `Postgrex.query!` directly without going through `IO.puts` string scraping. Applies to sibling helpers `count_personal_orgs!/1` and any other `mix run -e | binary_to_integer` paths in the same file.
+- **Bug B (real product bug in `Sigra.Upgrade`):** `mix sigra.upgrade` generates a migration file whose timestamp collides with the `mix sigra.install` migration when both tasks run back-to-back in the same second. Ecto rejects the resulting `priv/repo/migrations/` directory with `** (Ecto.MigrationError) migrations can't be executed, migration version NNNN is duplicated`. Fix requires reading `Sigra.Upgrade`'s migration-filename generator (`lib/sigra/upgrade.ex` or similar) and adding a monotonic tiebreaker — candidates: (1) use `System.unique_integer([:monotonic, :positive])` as a stable suffix; (2) inspect the existing `priv/repo/migrations/` directory and bump past the highest extant timestamp; (3) sleep until the next whole second before stamping. Option 2 is most robust (handles multi-task bursts without clock dependency) and mirrors how Ecto's own `mix ecto.gen.migration` picks timestamps.
+
+**Depends on:** Phase 24
+
+**Success criteria:**
+1. Remove `@moduletag skip:` from `test/upgrade_test.exs` (the skip reason added by PR #9).
+2. All 3 `Sigra.UpgradeIntegrationTest` tests pass locally against `sigra-uat-postgres` (zero-org path, default-org path, backfill path).
+3. All 3 tests pass in the CI `library_tests` job against its `postgres:15` service.
+4. New regression test in `test/sigra/upgrade_test.exs` (the unit file): running `Sigra.Upgrade`'s migration-timestamp generator twice in the same second produces two distinct, monotonically-increasing version prefixes.
+5. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test` reports `0 failures, 0 skipped` on `test/upgrade_test.exs`.
+6. Full `mix test` locally and in CI stays green on every existing test.
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 25-01-PLAN.md — Bug B fix: scan-and-bump migration timestamps + unit regression test
+- [ ] 25-02-PLAN.md — Bug A fix: SIGRA_TEST_RESULT sentinel parser + un-skip Sigra.UpgradeIntegrationTest
