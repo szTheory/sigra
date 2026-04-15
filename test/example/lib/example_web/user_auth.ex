@@ -71,6 +71,19 @@ defmodule ExampleWeb.UserAuth do
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
+  @doc """
+  Stores an already-created Sigra session token in the Plug session.
+
+  Use this from controller flows that upgrade an existing Sigra session,
+  such as completing MFA verification. It renews the Plug session before
+  writing the token, matching `log_in_user/3`'s fixation protection.
+  """
+  def put_user_session_token(conn, token) when is_binary(token) do
+    conn
+    |> renew_session()
+    |> put_token_in_session(token)
+  end
+
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
     put_resp_cookie(conn, @remember_me_cookie, token, remember_me_options())
   end
@@ -219,10 +232,11 @@ defmodule ExampleWeb.UserAuth do
     end
   end
 
-  # Phase 16 D-26: `on_mount` callback that assigns `@user_organizations`
-  # to the socket so the org switcher component can render the list of
-  # orgs the current user can switch into. Wired into `live_session`
-  # entries by the router injection.
+  # Phase 16 D-26: assigns `@user_organizations` to the socket for the
+  # org switcher component. Wired into `live_session` entries by the
+  # Sigra organizations router injection. Shape:
+  # `[{%Organization{}, role}]` — presentation-only data; security
+  # checks still go through the scope + membership plugs.
   def on_mount(:assign_user_organizations, _params, _session, socket) do
     socket =
       case socket.assigns[:current_scope] do
@@ -239,12 +253,28 @@ defmodule ExampleWeb.UserAuth do
 
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
-      user =
-        if user_token = session["user_token"] do
-          Example.Accounts.get_user_by_session_token(user_token)
-        end
+      if user_token = session["user_token"] do
+        case Example.Accounts.get_user_and_session_by_token(user_token) do
+          {user, sigra_session} when not is_nil(user) ->
+            scope = Scope.for_user(user)
 
-      user && Scope.for_user(user)
+            # Phase 14 D-23: LiveView path calls the SAME hydrator as the
+            # plug path (Sigra.Plug.LoadActiveOrganization) to guarantee
+            # byte-identical current_scope values. Stale-pointer recovery
+            # is intentionally NOT performed on the LV path — no conn to
+            # write to. The next Plug request recovers via the plug. See
+            # Phase 14 CONTEXT §D-23, §D-14.
+            org_config = Example.Organizations.__sigra_org_config__()
+
+            case Sigra.Scope.Hydration.hydrate(scope, org_config, sigra_session) do
+              {:ok, hydrated} -> hydrated
+              {:error, _reason} -> scope
+            end
+
+          _ ->
+            nil
+        end
+      end
     end)
   end
 
