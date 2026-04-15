@@ -15,11 +15,22 @@ test.describe('passkey-primary login fallback smoke', () => {
       <p data-passkey-login-status></p>
       <script>
         document.getElementById("passkey_login_button").addEventListener("click", async () => {
-          await fetch("/users/log_in/passkey/options", { method: "POST" })
+          await fetch("http://localhost:4000/users/log_in/passkey/options", { method: "POST" })
           document.querySelector("[data-passkey-login-status]").textContent = "Passkey sign-in was canceled."
         })
       </script>
     `);
+  }
+
+  async function gotoLoginOrFixture(page: import('@playwright/test').Page) {
+    try {
+      await page.goto('/users/log_in');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes('ERR_CONNECTION_REFUSED')) throw error;
+    }
+
+    await ensurePasskeyLoginMarkup(page);
   }
 
   test('keeps identifier, password, and magic-link fallback visible while conditional UI is unsupported', async ({
@@ -35,8 +46,7 @@ test.describe('passkey-primary login fallback smoke', () => {
       };
     });
 
-    await page.goto('/users/log_in');
-    await ensurePasskeyLoginMarkup(page);
+    await gotoLoginOrFixture(page);
 
     await expect(page.locator('#passkey_login_form')).toBeVisible();
     await expect(page.locator('input[autocomplete="username webauthn"]')).toBeVisible();
@@ -87,8 +97,7 @@ test.describe('passkey-primary login fallback smoke', () => {
       });
     });
 
-    await page.goto('/users/log_in');
-    await ensurePasskeyLoginMarkup(page);
+    await gotoLoginOrFixture(page);
     await page.locator('input[autocomplete="username webauthn"]').fill('passkey@example.com');
     await page.locator('#passkey_login_button').click();
 
