@@ -249,7 +249,7 @@ Plans:
 Plans:
 - [x] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
 - [x] 21-02-PLAN.md — Wave 2: `/users/settings/mfa` passkeys card, enrollment hook, compact list, inline rename, and sudo-aware delete confirmation
-- [ ] 21-03-PLAN.md — Wave 2: passkey-first MFA challenge with TOTP/backup fallback and guided abort/timeout/unsupported recovery
+- [x] 21-03-PLAN.md — Wave 2: passkey-first MFA challenge with TOTP/backup fallback and guided abort/timeout/unsupported recovery
 - [ ] 21-04-PLAN.md — Wave 2: passkey-primary identifier-first login, signup enrollment, confirmed-email invariant, and magic-link recovery invariant
 - [ ] 21-07-PLAN.md — Wave 3: conditional UI/autofill JS, `attachPasskeyLogin()` DOMContentLoaded binding, and abort-safe hook behavior
 - [ ] 21-05-PLAN.md — Wave 4: example app server/controller/context and UI/assets mirror with compile verification after each task
@@ -294,7 +294,7 @@ Plans:
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 2/7 | In Progress|  |
+| 21. Passkey LiveViews + POST-Auth Controller | 3/7 | In Progress|  |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
