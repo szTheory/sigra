@@ -39,7 +39,7 @@
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
-- [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection
+- [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (completed 2026-04-15)
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
@@ -253,7 +253,7 @@ Plans:
 - [x] 21-04-PLAN.md — Wave 2: passkey-primary identifier-first login, signup enrollment, confirmed-email invariant, and magic-link recovery invariant
 - [x] 21-07-PLAN.md — Wave 3: conditional UI/autofill JS, `attachPasskeyLogin()` DOMContentLoaded binding, and abort-safe hook behavior
 - [x] 21-05-PLAN.md — Wave 4: example app server/controller/context and UI/assets mirror with compile verification after each task
-- [ ] 21-06-PLAN.md — Wave 5: example integration tests, Playwright smoke, and final precommit gate
+- [x] 21-06-PLAN.md — Wave 5: example integration tests, Playwright smoke, and final precommit gate
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
@@ -294,7 +294,7 @@ Plans:
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 6/7 | In Progress|  |
+| 21. Passkey LiveViews + POST-Auth Controller | 7/7 | Complete   | 2026-04-15 |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
@@ -307,7 +307,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 4/7 plans executed
+**Plans:** 7/7 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false

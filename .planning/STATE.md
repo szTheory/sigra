@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: executing
-stopped_at: Completed 21-05-PLAN.md
-last_updated: "2026-04-15T22:39:30.398Z"
+status: verifying
+stopped_at: Completed 21-06-PLAN.md
+last_updated: "2026-04-15T22:59:01.334Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 56
-  completed_plans: 55
-  percent: 98
+  completed_plans: 56
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-15
 
 Progress: [█████████░] 86% (12/14 v1.1 phases complete — 11–20 + 24 + 25 done, 21–23 remaining)
@@ -77,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 21]: Passkey hook success can POST passkey[response] to controller completion URLs, preserving the controller-owned session mutation boundary. — LiveView hooks still own recoverable browser ceremony state, but session creation remains a plain controller POST.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Example.Accounts passkey registration and authentication delegate through Application.get_env(:example, :passkey_ceremony_module, Sigra.Passkeys) so Plan 21-06 can stub WebAuthn ceremonies without hardware.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Example UI keeps passkey endpoint strings as literal paths because router route injection is outside Plan 21-05's owned file set.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Kept router/config/schema fixes outside plan 21-06 because ownership was limited to test and fixture files.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Used fixture-local passkey persistence bootstrap so tests can exercise passkey rows without editing migrations or generated schemas.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Made the Playwright smoke fall back to static controller markup when the example server is not already running.
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T22:39:30.395Z
-Stopped at: Completed 21-05-PLAN.md
+Last session: 2026-04-15T22:59:01.330Z
+Stopped at: Completed 21-06-PLAN.md
 Resume file: None
