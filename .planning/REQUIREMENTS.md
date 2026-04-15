@@ -115,7 +115,7 @@ affect individual requirements.
 - [ ] **GEN-03**: Generator supports combinatorial CI smoke testing: `mix sigra.install` with every combination of `--organizations`/`--no-organizations` and `--passkeys`/`--no-passkeys` produces a compiling Phoenix app (addresses pitfall X-1).
 - [ ] **GEN-04**: Generator is idempotent on re-run; injections use marker comments and skip if already present.
 - [ ] **GEN-05**: Generator prints a post-install summary showing generated / modified / skipped / manual-action files — developers see opt-outs were honored.
-- [ ] **GEN-06**: When `--passkeys` is enabled, generator detects the host app's `assets/js/app.js` injection target via a marker comment. If the marker is absent (custom esbuild/Vite/Webpack layout), generator writes the hook file, skips injection, and prints clear manual instructions with the exact import + registration lines to add. **(Decision: detect marker, never silently fail.)**
+- [x] **GEN-06**: When `--passkeys` is enabled, generator detects the host app's `assets/js/app.js` injection target via a marker comment. If the marker is absent (custom esbuild/Vite/Webpack layout), generator writes the hook file, skips injection, and prints clear manual instructions with the exact import + registration lines to add. **(Decision: detect marker, never silently fail.)**
 - [ ] **GEN-07**: Migrations ship with strictly-ordered timestamps to prevent cross-feature ordering hazards during install and upgrade (addresses pitfall X-2).
 
 ---

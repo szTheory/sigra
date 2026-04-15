@@ -38,7 +38,7 @@
 - [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (INV-08 cross-tenant IDOR gap in `Sigra.Organizations.Invitations.revoke/3` closed by plan 17-09, re-verified 2026-04-14 status: passed 10/10) (completed 2026-04-14)
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
-- [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
+- [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection (completed 2026-04-15)
 - [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
@@ -230,7 +230,7 @@ Plans:
 Plans:
 - [x] 20-01-PLAN.md — Wave 1: `Sigra.Plug.PasskeyChallenge` session-slot issue/verify adapter with single-use replay protection (PK-06)
 - [x] 20-02-PLAN.md — Wave 1: strict runtime passkey config loader + per-user ceremony initiation limiter (PK-09, PK-10)
-- [ ] 20-03-PLAN.md — Wave 2: generated `passkey_hooks.js` plus deterministic `assets/js/app.js` wiring and manual fallback (GEN-06)
+- [x] 20-03-PLAN.md — Wave 2: generated `passkey_hooks.js` plus deterministic `assets/js/app.js` wiring and manual fallback (GEN-06)
 
 ### Phase 21: Passkey LiveViews + POST-Auth Controller
 **Goal**: User can enroll and authenticate with passkeys end-to-end in the example app — as a second factor today and optionally as a primary factor — with the stolen-session enrollment, lost-device lockout, and JS-abort-corruption classes of bugs closed at the plug and hook layers.
@@ -295,7 +295,7 @@ Plans:
 | 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
-| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 2/3 | In Progress|  |
+| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 3/3 | Complete   | 2026-04-15 |
 | 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
@@ -309,7 +309,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
