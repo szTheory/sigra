@@ -386,7 +386,13 @@ defmodule Sigra.UpgradeIntegrationTest do
         status_codes_seen: all_status_codes
       }
     after
-      System.cmd("pkill", ["-f", "phx.server"], stderr_to_stdout: true)
+      # Scope the kill pattern to this tmp app directory so we never
+      # touch unrelated `phx.server` processes on the developer's
+      # machine or shared CI runners.
+      System.cmd("pkill", ["-f", "phx.server.*#{Path.basename(app_dir)}"],
+        stderr_to_stdout: true
+      )
+
       Task.shutdown(server_task, :brutal_kill)
     end
   end
