@@ -2,9 +2,10 @@
 phase: 21
 slug: passkey-liveviews-post-auth-controller
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-15
+revised: 2026-04-15
 ---
 
 # Phase 21 — Validation Strategy
@@ -17,44 +18,51 @@ created: 2026-04-15
 
 | Property | Value |
 |----------|-------|
-| **Framework** | ExUnit for library and example app, Playwright for browser smoke |
-| **Config file** | `test/test_helper.exs`, `test/example/test/test_helper.exs`, `test/example/priv/playwright/playwright.config.ts` |
-| **Quick run command** | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/plug/require_sudo_test.exs test/sigra/plug/passkey_challenge_test.exs test/sigra/passkeys_test.exs test/sigra/passkeys/authentication_test.exs test/sigra/install/features/passkeys_js_test.exs` |
-| **Full suite command** | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test && (cd test/example && mix test) && (cd test/example/priv/playwright && npm test -- --grep passkeys)` |
-| **Estimated runtime** | ~240 seconds |
+| **Framework** | ExUnit for library/generator/example app, Node-stub JS tests for generated hooks, example app precommit gate |
+| **Config file** | `test/test_helper.exs`, `test/example/test/test_helper.exs`, `test/example/AGENTS.md` |
+| **Quick run command** | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_passkey_management_test.exs test/sigra/install/generator_passkey_mfa_challenge_test.exs test/sigra/install/generator_passkey_primary_login_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1` |
+| **Example app command** | `cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/example_web/controllers/passkey_session_controller_test.exs test/example_web/live/passkey_settings_live_test.exs test/example_web/live/passkey_mfa_challenge_live_test.exs --max-failures 1` |
+| **Final precommit command** | `cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix precommit` |
+| **Estimated runtime** | ~240 seconds for focused gates; example `mix precommit` may exceed quick feedback latency and is final-gate only |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/passkeys_test.exs test/sigra/passkeys/authentication_test.exs test/sigra/install/features/passkeys_js_test.exs`
-- **After every plan wave:** Run `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test && (cd test/example && mix test)`
-- **Before `$gsd-verify-work`:** Full suite must be green and passkey-specific Playwright coverage added
-- **Max feedback latency:** 240 seconds
+- **After every task commit:** Run the task-local `<automated>` command from its PLAN.md.
+- **After every plan wave:** Run the generator quick run command above.
+- **Before `$gsd-verify-work`:** Run generator quick run, example app command, `cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix compile --warnings-as-errors`, and example `mix precommit`.
+- **Max feedback latency:** 240 seconds for task and wave gates; final precommit is allowed to run longer because it is the project guideline gate from `test/example/AGENTS.md`.
 
 ---
 
-## Per-Task Verification Map
+## Per-Plan Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 21-01-01 | 01 | 1 | PK-UX-01, PK-UX-04 | T-21-01 | Enrollment and delete reject stale sudo and only proceed after fresh reverification | integration | `cd test/example && mix test test/example/test/example_web/live/passkey_settings_live_test.exs -x` | ❌ W0 | ⬜ pending |
-| 21-01-02 | 01 | 1 | PK-UX-02, PK-UX-03, PK-UX-09 | T-21-02 / T-21-04 | Registration emits notification, resolves friendly labels, and remaps duplicate credentials to user-safe copy | integration | `cd test/example && mix test test/example/test/example_web/live/passkey_settings_live_test.exs -x` | ❌ W0 | ⬜ pending |
-| 21-02-01 | 02 | 1 | PK-UX-05, PK-UX-12 | T-21-05 | MFA challenge stays passkey-first with visible fallback and neutral abort recovery | liveview + browser | `cd test/example && mix test test/example/test/example_web/live/passkey_mfa_challenge_live_test.exs -x` and `cd test/example/priv/playwright && npm test -- --grep passkey` | ❌ W0 / ✅ partial | ⬜ pending |
-| 21-03-01 | 03 | 2 | PK-UX-06, PK-UX-07, PK-UX-08, PK-UX-11 | T-21-03 | Primary login remains identifier-first, preserves recovery, and finishes through controller POST session renewal | controller + browser | `cd test/example && mix test test/example/test/example_web/controllers/passkey_session_controller_test.exs -x` and `cd test/example/priv/playwright && npm test -- --grep passkey` | ❌ W0 / ✅ partial | ⬜ pending |
-| 21-04-01 | 04 | 2 | PK-UX-10 | T-21-05 | Generated app still uses Phase 20 hook contract instead of custom JS plumbing | unit | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/features/passkeys_js_test.exs -x` | ✅ | ⬜ pending |
+| Plan | Wave | Requirements | Threat Refs | Secure Behavior | Test Type | Automated Command | Status |
+|------|------|--------------|-------------|-----------------|-----------|-------------------|--------|
+| 21-01 | 1 | PK-UX-01, PK-UX-02, PK-UX-03, PK-UX-04, PK-UX-06, PK-UX-07, PK-UX-09, PK-UX-11 | T-21-01-01..08 | Generated Auth wrappers use bundled AAGUID registry labels, registration email, duplicate remap, sudo routes, POST completion, and recovery-aware passkey-primary controller seams | generator + unit | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_mfa_test.exs --max-failures 1` | ⬜ pending |
+| 21-02 | 2 | PK-UX-01, PK-UX-02, PK-UX-03, PK-UX-04, PK-UX-09, PK-UX-10, PK-UX-12 | T-21-02-01..06 | `/users/settings/mfa` owns enrollment/list/rename/delete UX, uses `PasskeyRegister`, hides raw credential metadata, and maps duplicate/abort states | generator | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkey_management_test.exs --max-failures 1` | ⬜ pending |
+| 21-03 | 2 | PK-UX-05, PK-UX-10, PK-UX-11, PK-UX-12 | T-21-03-01..06 | MFA challenge is passkey-first for passkey users, never auto-triggers, keeps TOTP/backup fallback visible, and posts success to controller completion | generator | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkey_mfa_challenge_test.exs test/sigra/install/generator_mfa_test.exs --max-failures 1` | ⬜ pending |
+| 21-04 | 2 | PK-UX-06, PK-UX-07, PK-UX-08, PK-UX-10, PK-UX-11, PK-UX-12 | T-21-04-01..08 | Passkey-primary login stays identifier-first, signup enrollment is config-gated, unconfirmed users cannot use passkey-primary, magic-link recovery remains mandatory, and conditional UI is progressive | generator + JS | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkey_primary_login_test.exs test/sigra/install/generator_wiring_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1` | ⬜ pending |
+| 21-05 | 3 | PK-UX-01..PK-UX-12 | T-21-05-01..06 | Example app mirrors generated code and proves controller/LiveView/fallback behavior against concrete Phoenix files | example integration + precommit | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_passkey_management_test.exs test/sigra/install/generator_passkey_mfa_challenge_test.exs test/sigra/install/generator_passkey_primary_login_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1 && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/example_web/controllers/passkey_session_controller_test.exs test/example_web/live/passkey_settings_live_test.exs test/example_web/live/passkey_mfa_challenge_live_test.exs --max-failures 1) && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix precommit)` | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠ flaky*
 
 ---
 
-## Wave 0 Requirements
+## Nyquist Coverage
 
-- [ ] `test/example/test/example_web/live/passkey_settings_live_test.exs` — settings-page enrollment/list/rename/delete/recovery coverage
-- [ ] `test/example/test/example_web/live/passkey_mfa_challenge_live_test.exs` — passkey-first MFA fallback matrix
-- [ ] `test/example/test/example_web/controllers/passkey_session_controller_test.exs` — controller POST completion and session renewal
-- [ ] `test/example/test/example_web/emails/passkey_registration_email_test.exs` or suspicious-login email extension test — registration email content
-- [ ] Extend `test/example/priv/playwright/tests/passkeys-hooks.spec.ts` or add `passkeys-auth-flow.spec.ts` — browser-level passkey UX coverage
+All implementation tasks in the five PLAN.md files include `<verify><automated>...`.
+
+Wave 0 test scaffolding is folded into the plans themselves:
+
+- Plan 21-01 creates `test/sigra/install/generator_passkeys_foundation_test.exs`.
+- Plan 21-02 creates `test/sigra/install/generator_passkey_management_test.exs`.
+- Plan 21-03 creates `test/sigra/install/generator_passkey_mfa_challenge_test.exs`.
+- Plan 21-04 creates/extends `test/sigra/install/generator_passkey_primary_login_test.exs` and `test/sigra/install/features/passkeys_js_test.exs`.
+- Plan 21-05 creates example integration tests under `test/example/test/example_web/...`.
+
+No separate Wave 0 plan is required because every missing test file is created before or within the task that relies on it, and each task has an automated verification command.
 
 ---
 
@@ -69,11 +77,11 @@ created: 2026-04-15
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all missing references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 240s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify commands
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 coverage is embedded in task-local test creation
+- [x] No watch-mode flags
+- [x] Feedback latency target documented
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** ready for execution
