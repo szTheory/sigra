@@ -67,7 +67,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.Index do
     assigns = assign(assigns, :branch, pick_branch(assigns.memberships, assigns.pending_invitations))
 
     ~H"""
-    <.flash_group flash={@flash} />
+    <Layouts.flash_group flash={@flash} />
     <div :if={@branch == :a}>{render_branch_a(assigns)}</div>
     <div :if={@branch == :b}>{render_branch_b(assigns)}</div>
     <div :if={@branch == :c}>{render_branch_c(assigns)}</div>

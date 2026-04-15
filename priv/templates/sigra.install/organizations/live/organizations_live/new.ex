@@ -54,7 +54,7 @@ defmodule <%= web_module %>.OrganizationsLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <.flash_group flash={@flash} />
+    <Layouts.flash_group flash={@flash} />
 
     <div class="mx-auto max-w-md py-16">
       <.header>
