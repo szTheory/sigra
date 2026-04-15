@@ -45,8 +45,7 @@ defmodule Sigra.Plug.PasskeyChallenge do
 
     with {:ok, session_value} <- fetch_slot(conn, slot),
          {:ok, token} <- fetch_token(session_value),
-         {:ok, payload} <- Sigra.Token.verify(config.secret_key_base, @purpose, token, max_age: @max_age),
-         {:ok, challenge_bytes} <- decode_challenge_bytes(payload) do
+         {:ok, challenge_bytes} <- verify_challenge_bytes(config, token) do
       challenge = build_challenge(ceremony, config, Keyword.put(opts, :bytes, challenge_bytes))
 
       case callback.(challenge) do
@@ -74,6 +73,16 @@ defmodule Sigra.Plug.PasskeyChallenge do
 
   defp fetch_token(%{"token" => token}) when is_binary(token), do: {:ok, token}
   defp fetch_token(_session_value), do: {:error, :invalid}
+
+  defp verify_challenge_bytes(config, token) do
+    with {:ok, payload} <- Sigra.Token.verify(config.secret_key_base, @purpose, token, max_age: @max_age),
+         {:ok, challenge_bytes} <- decode_challenge_bytes(payload) do
+      {:ok, challenge_bytes}
+    else
+      {:ok, _payload} -> {:error, :invalid}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
   defp decode_challenge_bytes(%{"c" => encoded}) when is_binary(encoded) do
     case Base.url_decode64(encoded, padding: false) do
