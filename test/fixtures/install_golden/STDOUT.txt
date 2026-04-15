@@ -1,3 +1,24 @@
+    warning: Sigra.Test.InstallFixture.setup_tmp_app/0 is undefined (module Sigra.Test.InstallFixture is not available or is yet to be defined)
+    │
+ 48 │       InstallFixture.setup_tmp_app()
+    │                      ~
+    │
+    └─ (sigra 0.1.0) lib/mix/tasks/sigra.fixture.rebless_golden.ex:48:22: Mix.Tasks.Sigra.Fixture.ReblessGolden.run/1
+
+    warning: Sigra.Test.InstallFixture.normalize_tree/2 is undefined (module Sigra.Test.InstallFixture is not available or is yet to be defined)
+    │
+ 50 │     tree = InstallFixture.normalize_tree(tmp_dir, baseline)
+    │                           ~
+    │
+    └─ (sigra 0.1.0) lib/mix/tasks/sigra.fixture.rebless_golden.ex:50:27: Mix.Tasks.Sigra.Fixture.ReblessGolden.run/1
+
+    warning: Sigra.Test.InstallFixture.normalize_stdout/2 is undefined (module Sigra.Test.InstallFixture is not available or is yet to be defined)
+    │
+ 51 │     stdout = InstallFixture.normalize_stdout(raw, tmp_dir)
+    │                             ~
+    │
+    └─ (sigra 0.1.0) lib/mix/tasks/sigra.fixture.rebless_golden.ex:51:29: Mix.Tasks.Sigra.Fixture.ReblessGolden.run/1
+
 * creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
 * creating priv/repo/migrations/TIMESTAMP_add_active_organization_id_to_user_sessions.exs
 * creating lib/sigra_install_golden_tmp/accounts/user.ex
@@ -74,4 +95,39 @@ Next steps:
   LiveView pages were generated for login, registration, and session management.
 
 
+
+* creating lib/sigra_install_golden_tmp/organizations.ex
+* creating lib/sigra_install_golden_tmp_web/components/org_switcher.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex
+* creating lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex
+* creating lib/sigra_install_golden_tmp_web/live/organizations_live/new.ex
+* creating lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/organization_members_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_invitation_email.ex
+* injecting lib/sigra_install_golden_tmp_web/router.ex
+* injecting lib/sigra_install_golden_tmp_web/user_auth.ex
+
+Sigra organizations installed!
+
+Next steps:
+
+  1. Add the organization switcher to your app layout.
+     In lib/<app>_web/components/layouts.ex, inside the <header>, add:
+
+         <.org_switcher
+           current_scope={@current_scope}
+           user_organizations={@user_organizations}
+           return_to={@current_path}
+         />
+
+  2. Organization routes were injected into your router, including
+     the /organizations landing + scoped /organizations/:org block.
+
+  3. Run `mix ecto.migrate` to create the organizations tables.
+
+  4. Add `:require_org` gates to routes that should force org
+     selection:
+
+         pipe_through [:browser, :require_authenticated, :require_org]
 
