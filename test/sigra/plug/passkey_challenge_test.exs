@@ -166,19 +166,22 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
         PasskeyChallenge.issue(session_conn(), :authentication, cfg, bytes: "authentication-bytes")
 
       token = challenge_token(conn, @authentication_slot)
-      tampered = binary_part(token, 0, byte_size(token) - 1) <> "x"
+      mid = div(byte_size(token), 2)
+      <<prefix::binary-size(mid), byte, suffix::binary>> = token
+      tampered = <<prefix::binary, Bitwise.bxor(byte, 0x01)::8, suffix::binary>>
 
       tampered_conn =
         conn
         |> put_session(@authentication_slot, %{"token" => tampered})
         |> fetch_session()
 
-      assert {:error, verified_conn, reason} =
+      assert {:error, verified_conn, :invalid} =
                PasskeyChallenge.verify(tampered_conn, :authentication, cfg, [], fn _challenge ->
+                 send(self(), :tampered_callback_reached)
                  flunk("callback should not be invoked for tampered tokens")
                end)
 
-      assert reason in [:invalid, :expired]
+      refute_received :tampered_callback_reached
       assert get_session(verified_conn, @authentication_slot) == %{"token" => tampered}
     end
 
