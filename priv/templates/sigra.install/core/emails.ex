@@ -693,18 +693,19 @@ defmodule <%= context_module %>.Emails do
     |> text_body(text_body)
   end
 
-  # -- Organization Invitation (Phase 17 D-12) --
+  # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
   #
-  # Canonical inline copy of the OrganizationInvitationEmail fragment
-  # shipped at priv/templates/sigra.install/core/organization_invitation_email.ex.
+  # Canonical inline copy of the invitation email fragment shipped at
+  # priv/templates/sigra.install/organizations/organization_invitation_email.ex.
   # Both must stay in sync — the fragment file is the documentation reference.
-
+  # Wrapped in `<%%= if organizations? do %%>` so --no-organizations omits it.
+<%= if organizations? do %>
   @doc """
   Builds an organization-invitation email.
 
   ## Parameters
 
-  - `invitation` — `%OrganizationInvitation{email, role, expires_at}`
+  - `invitation` — invitation struct with `email`, `role`, `expires_at`
   - `org` — `%Organization{name}`
   - `inviter` — `%User{email, name}` (the `:name` field may not exist or may be nil)
   - `accept_url` — HMAC-signed accept URL (library-generated, never raw token)
@@ -799,6 +800,7 @@ defmodule <%= context_module %>.Emails do
   end
 
   defp humanize_role(role), do: role |> to_string() |> String.capitalize()
+<% end %>
 
   # -- Private helpers --
 

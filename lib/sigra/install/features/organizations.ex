@@ -183,7 +183,12 @@ defmodule Sigra.Install.Features.Organizations do
   end
 
   defp read_template!(relative_path) do
-    Path.join(["priv", "templates", "sigra.install", relative_path])
+    # Resolve via Application.app_dir/2 so the path works whether the
+    # installer runs from the sigra repo cwd or from a host app cwd
+    # (mix sigra.install runs with cwd=host_app, where a relative
+    # "priv/templates/..." path would not resolve).
+    :sigra
+    |> Application.app_dir(Path.join(["priv", "templates", "sigra.install", relative_path]))
     |> File.read!()
   end
 end
