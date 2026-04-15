@@ -27,8 +27,10 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
 
   @type t :: %__MODULE__{
           user: %User{} | nil,
+
           active_organization: %SigraInstallGoldenTmp.Accounts.Organization{} | nil,
           membership: %SigraInstallGoldenTmp.Accounts.OrganizationMembership{} | nil,
+
           impersonating_from: %User{} | nil
         }
 
@@ -64,6 +66,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
   This is the single authoritative scope-level write path for
   active-organization transitions (Phase 14 D-15).
   """
+
   def put_active_organization(
         %__MODULE__{} = scope,
         %SigraInstallGoldenTmp.Accounts.Organization{} = org,

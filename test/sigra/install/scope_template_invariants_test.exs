@@ -39,7 +39,12 @@ defmodule Sigra.Install.ScopeTemplateInvariantsTest do
       rendered =
         EEx.eval_file(@template_path,
           context_module: "TestApp.Accounts",
-          schema_alias: "User"
+          schema_alias: "User",
+          # Phase 24.1: scope.ex template gates its Organization / OrganizationMembership
+          # struct references on `<%= if organizations? do %>` so the
+          # --no-organizations install path compiles. Render this test
+          # with organizations? = true to exercise the default shape.
+          organizations?: true
         )
 
       # Compile the rendered scope module and introspect its struct keys.

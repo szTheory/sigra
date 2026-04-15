@@ -27,8 +27,13 @@ defmodule <%= context_module %>.Scope do
 
   @type t :: %__MODULE__{
           user: %<%= schema_alias %>{} | nil,
+<%= if organizations? do %>
           active_organization: %<%= context_module %>.Organization{} | nil,
           membership: %<%= context_module %>.OrganizationMembership{} | nil,
+<% else %>
+          active_organization: nil,
+          membership: nil,
+<% end %>
           impersonating_from: %<%= schema_alias %>{} | nil
         }
 
@@ -64,6 +69,7 @@ defmodule <%= context_module %>.Scope do
   This is the single authoritative scope-level write path for
   active-organization transitions (Phase 14 D-15).
   """
+<%= if organizations? do %>
   def put_active_organization(
         %__MODULE__{} = scope,
         %<%= context_module %>.Organization{} = org,
@@ -71,7 +77,7 @@ defmodule <%= context_module %>.Scope do
       ) do
     %{scope | active_organization: org, membership: membership}
   end
-
+<% end %>
   def put_active_organization(%__MODULE__{} = scope, nil, nil) do
     %{scope | active_organization: nil, membership: nil}
   end
