@@ -59,6 +59,58 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
     end
   end
 
+  describe "mfa_settings_live.ex passkey management rows" do
+    test "renders compact rows with friendly labels and limited metadata" do
+      content = read_core_template("mfa_settings_live.ex")
+
+      assert content =~ "Auth.passkey_label(passkey)"
+      assert content =~ "Added"
+      assert content =~ "Last used"
+      assert content =~ "Never used"
+
+      refute content =~ "passkey.aaguid"
+      refute content =~ "passkey.transports"
+      refute content =~ "passkey.rp_id"
+    end
+
+    test "supports row-local inline rename" do
+      content = read_core_template("mfa_settings_live.ex")
+
+      for expected <- [
+            "Rename",
+            "Save name",
+            ~s(def handle_event("open_passkey_rename"),
+            ~s(def handle_event("cancel_passkey_rename"),
+            ~s(def handle_event("save_passkey_name"),
+            "Auth.rename_passkey(user, credential_id, nickname || \"\")",
+            "Passkey name saved."
+          ] do
+        assert content =~ expected
+      end
+    end
+
+    test "uses row-local controller POST form for sudo-aware delete confirmation" do
+      content = read_core_template("mfa_settings_live.ex")
+
+      for expected <- [
+            "Delete",
+            "Delete this passkey?",
+            "Delete this passkey? You'll still need another sign-in method before removing your last recovery option.",
+            "You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.",
+            ~S(~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"),
+            ~s(method="post"),
+            "_csrf_token",
+            ~s(def handle_event("confirm_passkey_delete"),
+            ~s(def handle_event("cancel_passkey_delete")
+          ] do
+        assert content =~ expected
+      end
+
+      refute content =~ ~s(def handle_event("delete_passkey")
+      refute content =~ "Auth.delete_passkey("
+    end
+  end
+
   defp read_core_template(name) do
     File.read!(Path.join(@core_template_dir, name))
   end
