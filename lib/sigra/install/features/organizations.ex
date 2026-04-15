@@ -92,7 +92,15 @@ defmodule Sigra.Install.Features.Organizations do
       # ZERO accept DOM controls by construction — structural Jetstream
       # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
       {:eex, "organizations/live/invitation_accept_live.ex",
-       Path.join(["lib", web, "live", "invitation_accept_live.ex"])}
+       Path.join(["lib", web, "live", "invitation_accept_live.ex"])},
+
+      # Phase 17 D-12 / Phase 24 D-04: standalone organization-invitation
+      # email reference fragment. Mirrors the canonical inline
+      # implementation in core/emails.ex. Generated under the organizations
+      # feature so that `--no-organizations` cleanly omits it
+      # (Phase 11 CD-01 subdir ownership).
+      {:eex, "organizations/organization_invitation_email.ex",
+       Path.join(["lib", otp_app, "accounts", "organization_invitation_email.ex"])}
     ]
   end
 

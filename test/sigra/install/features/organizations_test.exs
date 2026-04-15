@@ -47,6 +47,15 @@ defmodule Sigra.Install.Features.OrganizationsTest do
   end
 
   describe "files/1" do
+    test "files/1 includes the moved organization_invitation_email.ex fragment" do
+      entries = Organizations.files(otp_app: :fixture_app)
+
+      sources = Enum.map(entries, fn {:eex, source, _target} -> source end)
+
+      assert "organizations/organization_invitation_email.ex" in sources,
+             "Features.Organizations.files/1 must register the moved email fragment (Phase 24 D-04.1)"
+    end
+
     test "returns the generated Organizations context wrapper template (Phase 14 Plan 03)" do
       files = Organizations.files(otp_app: :my_app)
 
