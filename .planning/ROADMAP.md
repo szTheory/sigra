@@ -39,7 +39,7 @@
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
-- [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (completed 2026-04-15)
+- [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure planned 2026-04-15)
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
@@ -245,7 +245,7 @@ Plans:
   2. User can log in via passkey as a second factor alongside TOTP on `MfaSettingsLive`; passkey list shows AAGUID-derived friendly names (iCloud Keychain, Google Password Manager, 1Password, Windows Hello) from a bundled registry; user can rename or delete passkeys (delete sudo-gated), with a soft cap of 10 per user.
   3. User with `:passkey_primary_enabled` config can log in with email + passkey without a password; every passkey-as-primary user has mandatory magic-link recovery that cannot be disabled (P-5 lockout defense).
   4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
-**Plans**: 7 plans
+**Plans**: 9 plans
 Plans:
 - [x] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
 - [x] 21-02-PLAN.md — Wave 2: `/users/settings/mfa` passkeys card, enrollment hook, compact list, inline rename, and sudo-aware delete confirmation
@@ -254,6 +254,8 @@ Plans:
 - [x] 21-07-PLAN.md — Wave 3: conditional UI/autofill JS, `attachPasskeyLogin()` DOMContentLoaded binding, and abort-safe hook behavior
 - [x] 21-05-PLAN.md — Wave 4: example app server/controller/context and UI/assets mirror with compile verification after each task
 - [x] 21-06-PLAN.md — Wave 5: example integration tests, Playwright smoke, and final precommit gate
+- [ ] 21-08-PLAN.md — Wave 6: gap closure for example passkey routes, runtime config, schema, and migration
+- [ ] 21-09-PLAN.md — Wave 7: gap closure for real route/session tests and real-server Playwright smoke
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
