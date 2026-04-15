@@ -27,6 +27,15 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
 
   use Mix.Task
 
+  # Sigra.Test.InstallFixture only compiles under :test env (test/support),
+  # but this mix task lives in lib/ and is therefore compiled in every env.
+  # Suppress the "function undefined" compile warning — the run/1 function
+  # refuses to proceed unless MIX_ENV=test, at which point the module is
+  # loaded. Without this attribute `mix docs --warnings-as-errors` fails
+  # on three distinct "module is not available" warnings from the doc-mode
+  # compile pass.
+  @compile {:no_warn_undefined, Sigra.Test.InstallFixture}
+
   alias Sigra.Test.InstallFixture
 
   @fixture_dir "test/fixtures/install_golden"
