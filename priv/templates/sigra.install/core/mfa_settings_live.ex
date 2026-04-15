@@ -292,9 +292,106 @@ defmodule <%= web_module %>.MFASettingsLive do
           </div>
         <%% else %>
           <div class="space-y-3">
-            <p class="text-sm text-gray-500">
-              Your saved passkeys appear here.
-            </p>
+            <div
+              :for={passkey <- @passkeys}
+              class="flex items-start justify-between p-4 bg-white rounded-lg border border-gray-200"
+            >
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <.icon name="hero-key" class="h-4 w-4 text-gray-400" />
+                  <p class="text-sm font-semibold text-gray-900">{Auth.passkey_label(passkey)}</p>
+                </div>
+
+                <p class="mt-1 text-sm text-gray-500">
+                  Added {relative_time(passkey.inserted_at)}
+                  &middot;
+                  <%%= if passkey.last_used_at do %>
+                    Last used {relative_time(passkey.last_used_at)}
+                  <%% else %>
+                    Never used
+                  <%% end %>
+                </p>
+
+                <div :if={@renaming_passkey_id == passkey.credential_id} class="mt-3">
+                  <.form
+                    for={@rename_form}
+                    phx-submit="save_passkey_name"
+                    class="flex flex-col gap-2 sm:flex-row sm:items-end"
+                  >
+                    <input type="hidden" name="passkey[id]" value={passkey.credential_id} />
+                    <div class="flex-1">
+                      <label for={"passkey-name-#{passkey.credential_id}"} class="block text-sm font-semibold">
+                        Passkey name
+                      </label>
+                      <input
+                        id={"passkey-name-#{passkey.credential_id}"}
+                        type="text"
+                        name="passkey[nickname]"
+                        value={@rename_form[:nickname].value}
+                        class="mt-1 block w-full rounded-lg text-base text-zinc-900 border-zinc-300 focus:border-zinc-400 focus:ring-0"
+                      />
+                    </div>
+                    <div class="flex gap-2">
+                      <button type="submit" class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md">
+                        Save name
+                      </button>
+                      <button
+                        type="button"
+                        phx-click="cancel_passkey_rename"
+                        class="text-sm text-gray-500 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </.form>
+                </div>
+
+                <div :if={@deleting_passkey_id == passkey.credential_id} class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+                  <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
+                  <p class="mt-1 text-sm text-red-700">
+                    Delete this passkey? You'll still need another sign-in method before removing your last recovery option.
+                  </p>
+                  <p :if={@passkey_count == 1} class="mt-2 text-sm text-red-700">
+                    You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
+                  </p>
+
+                  <div class="mt-3 flex items-center gap-2">
+                    <form action={~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"} method="post">
+                      <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+                      <button type="submit" class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md">
+                        Delete
+                      </button>
+                    </form>
+                    <button
+                      type="button"
+                      phx-click="cancel_passkey_delete"
+                      class="text-sm text-gray-500 hover:underline"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ml-4 flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  phx-click="open_passkey_rename"
+                  phx-value-id={passkey.credential_id}
+                  class="text-sm text-brand hover:underline"
+                >
+                  Rename
+                </button>
+                <button
+                  type="button"
+                  phx-click="confirm_passkey_delete"
+                  phx-value-id={passkey.credential_id}
+                  class="text-sm text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         <%% end %>
       </div>
@@ -590,6 +687,65 @@ defmodule <%= web_module %>.MFASettingsLive do
     {:noreply, assign(socket, passkey_status: :idle, passkey_notice: notice)}
   end
 
+  def handle_event("open_passkey_rename", %{"id" => credential_id}, socket) do
+    nickname =
+      socket
+      |> find_passkey(credential_id)
+      |> case do
+        nil -> ""
+        passkey -> passkey.nickname || ""
+      end
+
+    {:noreply,
+     assign(socket,
+       renaming_passkey_id: credential_id,
+       rename_form: to_form(%{"nickname" => nickname}, as: "passkey"),
+       deleting_passkey_id: nil
+     )}
+  end
+
+  def handle_event("cancel_passkey_rename", _params, socket) do
+    {:noreply,
+     assign(socket,
+       renaming_passkey_id: nil,
+       rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+     )}
+  end
+
+  def handle_event("save_passkey_name", %{"passkey" => params}, socket) do
+    user = socket.assigns.current_scope.user
+    credential_id = Map.get(params, "id")
+    nickname = Map.get(params, "nickname", "")
+
+    case Auth.rename_passkey(user, credential_id, nickname || "") do
+      {:ok, _passkey} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Passkey name saved.")
+         |> refresh_passkey_assigns()
+         |> assign(
+           renaming_passkey_id: nil,
+           rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+         )}
+
+      {:error, _reason} ->
+        {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+    end
+  end
+
+  def handle_event("confirm_passkey_delete", %{"id" => credential_id}, socket) do
+    {:noreply,
+     assign(socket,
+       deleting_passkey_id: credential_id,
+       renaming_passkey_id: nil,
+       rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+     )}
+  end
+
+  def handle_event("cancel_passkey_delete", _params, socket) do
+    {:noreply, assign(socket, deleting_passkey_id: nil)}
+  end
+
   def handle_event("show_disable", _params, socket) do
     {:noreply, assign(socket, show_disable: true)}
   end
@@ -744,4 +900,35 @@ defmodule <%= web_module %>.MFASettingsLive do
         :generic
     end
   end
+
+  defp refresh_passkey_assigns(socket) do
+    user = socket.assigns.current_scope.user
+
+    assign(socket,
+      passkeys: Auth.passkeys_for_user(user),
+      passkey_count: Auth.passkey_count_for_user(user)
+    )
+  end
+
+  defp find_passkey(socket, credential_id) do
+    Enum.find(socket.assigns.passkeys, &(to_string(&1.credential_id) == to_string(credential_id)))
+  end
+
+  defp relative_time(nil), do: "Never"
+
+  defp relative_time(%DateTime{} = dt) do
+    diff = DateTime.diff(DateTime.utc_now(), dt, :second)
+    format_relative_seconds(diff)
+  end
+
+  defp relative_time(%NaiveDateTime{} = ndt) do
+    ndt
+    |> DateTime.from_naive!("Etc/UTC")
+    |> relative_time()
+  end
+
+  defp format_relative_seconds(seconds) when seconds < 60, do: "just now"
+  defp format_relative_seconds(seconds) when seconds < 3600, do: "#{div(seconds, 60)}m ago"
+  defp format_relative_seconds(seconds) when seconds < 86_400, do: "#{div(seconds, 3600)}h ago"
+  defp format_relative_seconds(seconds), do: "#{div(seconds, 86_400)}d ago"
 end
