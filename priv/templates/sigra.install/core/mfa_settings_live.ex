@@ -25,10 +25,19 @@ defmodule <%= web_module %>.MFASettingsLive do
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
     mfa_status = Auth.mfa_status(user)
+    passkeys = Auth.passkeys_for_user(user)
+    passkey_count = Auth.passkey_count_for_user(user)
 
     {:ok,
      assign(socket,
        mfa_enabled: mfa_status.enabled,
+       passkeys: passkeys,
+       passkey_count: passkey_count,
+       passkey_status: :idle,
+       passkey_notice: nil,
+       renaming_passkey_id: nil,
+       rename_form: to_form(%{"nickname" => ""}, as: "passkey"),
+       deleting_passkey_id: nil,
        enrollment_step: nil,
        svg: nil,
        base32_secret: nil,
@@ -229,7 +238,67 @@ defmodule <%= web_module %>.MFASettingsLive do
             </div>
         <%% end %>
       <%% end %>
+
+      <%%= render_passkeys_section(assigns) %>
     </div>
+    """
+  end
+
+  defp render_passkeys_section(assigns) do
+    ~H"""
+    <section id="passkeys" class="mt-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold">Passkeys</h2>
+          <p class="mt-1 text-sm text-gray-600">
+            Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          id="add-passkey-button"
+          phx-click="begin_passkey_enrollment"
+          disabled={@passkey_status == :enrolling}
+          class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md disabled:opacity-50"
+        >
+          Add passkey
+        </button>
+      </div>
+
+      <div
+        id="passkey-registration-hook"
+        phx-hook="PasskeyRegister"
+        class="hidden"
+      />
+
+      <form id="passkey-registration-form" action={~p"/users/settings/mfa/passkeys"} method="post" class="hidden">
+        <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+        <input type="hidden" name="passkey[response]" id="passkey-registration-response" />
+      </form>
+
+      <div :if={@passkey_notice} class="mt-4 rounded-lg border border-gray-200 bg-white p-3">
+        <p class="text-sm font-semibold text-gray-900">{@passkey_notice.title}</p>
+        <p class="mt-1 text-sm text-gray-600">{@passkey_notice.body}</p>
+      </div>
+
+      <div class="mt-4">
+        <%%= if @passkeys == [] do %>
+          <div class="text-center py-8">
+            <p class="text-sm font-semibold text-gray-900">No passkeys added yet</p>
+            <p class="mt-1 text-sm text-gray-500">
+              Add a passkey to sign in faster on this device and keep a backup sign-in method available.
+            </p>
+          </div>
+        <%% else %>
+          <div class="space-y-3">
+            <p class="text-sm text-gray-500">
+              Your saved passkeys appear here.
+            </p>
+          </div>
+        <%% end %>
+      </div>
+    </section>
     """
   end
 
@@ -464,6 +533,63 @@ defmodule <%= web_module %>.MFASettingsLive do
     end
   end
 
+  def handle_event("begin_passkey_enrollment", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(passkey_status: :enrolling, passkey_notice: nil)
+     |> push_event("sigra:passkey-register:start", %{
+       optionsUrl: ~p"/users/settings/mfa/passkeys/options",
+       completeUrl: ~p"/users/settings/mfa/passkeys"
+     })}
+  end
+
+  def handle_event("sigra:passkey-register:success", _params, socket) do
+    {:noreply,
+     assign(socket,
+       passkey_status: :idle,
+       passkey_notice: %{
+         title: "Finishing passkey setup...",
+         body: "Keep this page open while we finish saving your passkey."
+       }
+     )}
+  end
+
+  def handle_event("sigra:passkey-register:aborted", _params, socket) do
+    {:noreply,
+     assign(socket,
+       passkey_status: :idle,
+       passkey_notice: %{
+         title: "Passkey sign-in was canceled.",
+         body: "Nothing changed. Try again or choose another way to continue."
+       }
+     )}
+  end
+
+  def handle_event("sigra:passkey-register:error", payload, socket) do
+    notice =
+      case passkey_error_bucket(payload) do
+        :timeout ->
+          %{
+            title: "That passkey request timed out.",
+            body: "Try again when you're ready, or use another sign-in method."
+          }
+
+        :unsupported ->
+          %{
+            title: "Passkeys aren't available in this browser.",
+            body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+          }
+
+        :generic ->
+          %{
+            title: "We couldn't finish passkey sign-in.",
+            body: "Try again or use another way to continue."
+          }
+      end
+
+    {:noreply, assign(socket, passkey_status: :idle, passkey_notice: notice)}
+  end
+
   def handle_event("show_disable", _params, socket) do
     {:noreply, assign(socket, show_disable: true)}
   end
@@ -590,6 +716,32 @@ defmodule <%= web_module %>.MFASettingsLive do
          socket
          |> put_flash(:error, "Invalid verification code. Please try again.")
          |> assign(enroll_form: form)}
+    end
+  end
+
+  defp passkey_error_bucket(payload) when is_map(payload) do
+    payload
+    |> Map.take(["code", "name", "message"])
+    |> Map.values()
+    |> Enum.map(&to_string/1)
+    |> Enum.join(" ")
+    |> String.downcase()
+    |> classify_passkey_error()
+  end
+
+  defp passkey_error_bucket(_payload), do: :generic
+
+  defp classify_passkey_error(text) do
+    cond do
+      String.contains?(text, "timeout") ->
+        :timeout
+
+      String.contains?(text, "unsupported") or String.contains?(text, "not_supported") or
+          String.contains?(text, "notallowed") ->
+        :unsupported
+
+      true ->
+        :generic
     end
   end
 end
