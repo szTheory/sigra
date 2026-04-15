@@ -248,12 +248,17 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await expect(
     membersSection.locator('.badge.badge-primary').first(),
   ).toContainText('Owner');
-  // Invite member button is disabled with the Phase 17 tooltip.
+  // Phase 17 invite flow is now implemented. The button is enabled for
+  // owners/admins (this test user is the owner of the org) and fires
+  // the open_invite_modal phx-click handler. Phase 24.1 updated this
+  // assertion — previously the test expected a gated-disabled state
+  // from a pre-Phase-17 snapshot, but the LiveView implements the
+  // full invite UI (modal, handler, stream-based pending invitations).
   const inviteButton = page.getByRole('button', { name: 'Invite member' });
-  await expect(inviteButton).toBeDisabled();
+  await expect(inviteButton).toBeEnabled();
   await expect(inviteButton).toHaveAttribute(
-    'title',
-    'Available in the next release',
+    'phx-click',
+    'open_invite_modal',
   );
 
   // --- Step 16: Create a second organization ---
