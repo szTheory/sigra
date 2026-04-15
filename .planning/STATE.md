@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: executing
-stopped_at: Completed 21-08-PLAN.md
-last_updated: "2026-04-15T23:26:49.417Z"
+status: verifying
+stopped_at: Completed 21-09-PLAN.md
+last_updated: "2026-04-15T23:41:50.894Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 58
-  completed_plans: 57
-  percent: 98
+  completed_plans: 58
+  percent: 100
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
 Plan: 9 of 9
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-15
 
-Progress: [██████████] 98% (57/58 plans complete)
+Progress: [██████████] 100% (58/58 plans complete)
 
 ## Accumulated Context
 
@@ -83,6 +83,9 @@ Recent decisions affecting current work:
 - [Phase 21-passkey-liveviews-post-auth-controller]: passkey_primary_enabled is a Sigra.Config passkeys option with a false default; host apps opt into passkey-primary separately from general passkey support.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Example enrollment and delete routes are sudo-gated, while primary-login and MFA passkey routes remain reachable without sudo.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Example passkey runtime config is present in both config.exs and Example.Accounts.sigra_config/0 so controller and context paths share the same concrete schema and RP settings.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Passkey fixture persistence now depends on the concrete Example.Accounts.UserPasskey schema and migrated user_passkeys table.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Route completion tests seed signed Plug-session challenges with explicit bytes because current option routes produce nil challenge bytes outside plan 21-09 ownership.
+- [Phase 21-passkey-liveviews-post-auth-controller]: MFA success mutation is proven at the controller boundary because the current Ecto session store maps persisted mfa_pending rows back to :standard before the route action.
 
 ### Pending Todos
 
@@ -105,6 +108,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T23:26:49.413Z
-Stopped at: Completed 21-08-PLAN.md
+Last session: 2026-04-15T23:41:50.890Z
+Stopped at: Completed 21-09-PLAN.md
 Resume file: None
