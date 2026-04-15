@@ -191,7 +191,12 @@ jobs:
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Scaffold fresh Phoenix app
-        run: mix phx.new tmp_app --no-assets --no-mailer --no-install
+        # --no-mailer removed: sigra.install generates accounts/mailer.ex
+        # which `use Swoosh.Mailer`; skipping the mailer scaffold drops
+        # Swoosh from the tmp app's deps and breaks `mix compile` with
+        # `module Swoosh.Mailer is not loaded`. scripts/ci/install-smoke.sh
+        # already scaffolds without --no-mailer for the same reason.
+        run: mix phx.new tmp_app --no-assets --no-install
       - name: Patch tmp app mix.exs with sigra path dep
         working-directory: tmp_app
         run: |
