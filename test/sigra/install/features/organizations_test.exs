@@ -517,8 +517,18 @@ defmodule Sigra.Install.Features.OrganizationsTest do
   end
 
   describe "injections/1" do
+    # The injection templates contain EEx tags that reference :web_module
+    # and :app_module from the binding (Phase 24 fix — the builders now
+    # EEx-eval the templates instead of splicing raw content that would
+    # fail `mix compile --warnings-as-errors` on the host app).
+    @injections_binding [
+      otp_app: :my_app,
+      web_module: "MyAppWeb",
+      app_module: "MyApp"
+    ]
+
     test "returns list of router + user_auth injections (Phase 16)" do
-      injections = Organizations.injections(otp_app: :my_app, web_module: "MyAppWeb")
+      injections = Organizations.injections(@injections_binding)
 
       assert is_list(injections)
       # Phase 16 adds at least 2 injections: router scope block + user_auth on_mount
@@ -536,7 +546,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
     @tag :phase16
     test "router injection content contains the scope block and switch route" do
-      injections = Organizations.injections(otp_app: :my_app, web_module: "MyAppWeb")
+      injections = Organizations.injections(@injections_binding)
 
       router_injection =
         Enum.find(injections, fn i -> String.ends_with?(i.target, "router.ex") end)

@@ -114,8 +114,8 @@ defmodule Sigra.Install.Features.Organizations do
     web = "#{otp_app}_web"
 
     [
-      router_injection(otp_app),
-      user_auth_on_mount_injection(otp_app, web)
+      router_injection(otp_app, binding),
+      user_auth_on_mount_injection(web, binding)
     ]
   end
 
@@ -162,10 +162,18 @@ defmodule Sigra.Install.Features.Organizations do
   # embedded inline so the golden-diff harness and the Phase 16 test suite
   # can grep the template contents directly (router + user_auth content
   # lives on disk as an .ex template).
+  #
+  # The templates contain EEx tags (`<%= web_module %>`, `<%= app_module %>`)
+  # that MUST be evaluated against the installer binding before the
+  # content is spliced into the target file. Splicing the raw file
+  # content into the host router leaves literal `<%= web_module %>`
+  # strings, which fail `mix compile` with `syntax error before: '<'`.
+  # (Other feature modules that build their injections as Elixir string
+  # heredocs with `#{var}` interpolation don't need this step.)
   # ──────────────────────────────────────────────────────────────────────────
 
-  defp router_injection(otp_app) do
-    content = read_template!("organizations/router_injection.ex")
+  defp router_injection(otp_app, binding) do
+    content = eval_template!("organizations/router_injection.ex", binding)
 
     %Injection{
       target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
@@ -175,8 +183,12 @@ defmodule Sigra.Install.Features.Organizations do
     }
   end
 
-  defp user_auth_on_mount_injection(_otp_app, web) do
-    content = read_template!("organizations/user_auth_on_mount_assign_user_organizations.ex")
+  defp user_auth_on_mount_injection(web, binding) do
+    content =
+      eval_template!(
+        "organizations/user_auth_on_mount_assign_user_organizations.ex",
+        binding
+      )
 
     %Injection{
       target: Path.join(["lib", web, "user_auth.ex"]),
@@ -184,6 +196,12 @@ defmodule Sigra.Install.Features.Organizations do
       anchor: :before_last_end,
       content: content
     }
+  end
+
+  defp eval_template!(relative_path, binding) do
+    relative_path
+    |> read_template!()
+    |> EEx.eval_string(binding, trim: false)
   end
 
   defp read_template!(relative_path) do
