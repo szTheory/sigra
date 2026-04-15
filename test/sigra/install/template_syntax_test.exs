@@ -5,9 +5,18 @@ defmodule Sigra.Install.TemplateSyntaxTest do
   For every `.ex` template under `priv/templates/sigra.install/**/`:
 
   1. Extract every `~H\"\"\"..\"\"\"` heredoc.
-  2. Assert the heredoc body contains NO raw `<%=` or `<%` EEx tags.
-     (Escaped `<%%=` and `<%%` are permitted — they render as literal
-     `<%=` / `<%` and bypass EEx evaluation.)
+  2. Assert the heredoc body contains NO raw `<%=` / `<%` EEx tag whose
+     body references an HEEx assigns variable (`@identifier`). The
+     DEF-18-01 fingerprint is `<%= case @branch do %>` — a raw EEx tag
+     inside `~H` referencing `@branch`, which EEx tries to expand to
+     `var!(assigns).branch` at generator-render time and fails because
+     `assigns` is not in the EEx binding.
+
+     Escaped `<%%=` / `<%%` tags are permitted (they render as literal
+     `<%=` / `<%` and bypass EEx evaluation). String-literal-only EEx
+     tags like `<%= \"{@field}\" %>` are also permitted — they evaluate
+     to a plain string at generator time and the literal `{@field}`
+     reaches HEEx at runtime.
 
   This is the narrowest possible guard for the exact DEF-18-01 bug
   (HEEx-inside-EEx evaluation collision). Catches the bug class at
@@ -22,9 +31,17 @@ defmodule Sigra.Install.TemplateSyntaxTest do
   # Matches a `~H\"\"\"..\"\"\"` heredoc. Captures the body.
   @heredoc_re ~r/~H"""(.*?)"""/s
 
-  # Matches any raw EEx tag: `<%=` or `<%` NOT preceded by a second `%`.
-  # Negative lookbehind `(?<!%)` allows `<%%=` / `<%%` (escaped) to pass.
-  @raw_eex_re ~r/(?<!%)<%=?/
+  # Matches a RAW EEx tag (not escaped `<%%`) whose body opens an Elixir
+  # control-flow construct (`case`, `if`, `unless`, `cond`, `for`, `with`)
+  # against an HEEx assigns variable like `@branch`. The negative
+  # lookbehind `(?<!%)` ensures escaped `<%%=` / `<%%` are NOT matched.
+  # This is the EXACT DEF-18-01 fingerprint: control-flow inside an EEx
+  # tag inside a `~H` heredoc, referencing an assigns variable that EEx
+  # cannot resolve at generator-render time. Excludes benign
+  # `<%= "literal" %>` patterns and bare `<%= @field %>` interpolations
+  # (which are still wrong but are caught by the render test, not this
+  # fast narrow guard).
+  @raw_eex_re ~r/(?<!%)<%=?\s*(case|if|unless|cond|for|with)\s+@[a-zA-Z_]/
 
   describe "HEEx-inside-EEx guard" do
     for path <- Path.wildcard(Path.join([@template_root, "**", "*.ex"])) do

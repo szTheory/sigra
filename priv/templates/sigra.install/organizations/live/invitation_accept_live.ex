@@ -222,7 +222,7 @@ defmodule <%= web_module %>.InvitationAcceptLive do
   defp accept_error_copy(_), do: "Unable to accept invitation."
 
   # ─────────────────────────────────────────────────────────────────────
-  # Render — branch-dispatched via case @branch.
+  # Render — thin dispatcher; `render_branch/1` pattern-matches on `:branch`.
   # ─────────────────────────────────────────────────────────────────────
 
   @impl true
@@ -231,26 +231,18 @@ defmodule <%= web_module %>.InvitationAcceptLive do
     <div id="invitation-accept-page">
       <.flash kind={:info} flash={@flash} />
       <.flash kind={:error} flash={@flash} />
-
-      <%= case @branch do %>
-        <% :signup -> %>
-          {render_signup(assigns)}
-        <% :accept -> %>
-          {render_accept(assigns)}
-        <% :mismatch -> %>
-          {render_mismatch(assigns)}
-        <% :invalid -> %>
-          {render_invalid(assigns)}
-        <% :expired -> %>
-          {render_expired(assigns)}
-        <% :revoked -> %>
-          {render_revoked(assigns)}
-        <% :already_accepted -> %>
-          {render_already_accepted(assigns)}
-      <% end %>
+      {render_branch(assigns)}
     </div>
     """
   end
+
+  defp render_branch(%{branch: :signup} = assigns), do: render_signup(assigns)
+  defp render_branch(%{branch: :accept} = assigns), do: render_accept(assigns)
+  defp render_branch(%{branch: :mismatch} = assigns), do: render_mismatch(assigns)
+  defp render_branch(%{branch: :invalid} = assigns), do: render_invalid(assigns)
+  defp render_branch(%{branch: :expired} = assigns), do: render_expired(assigns)
+  defp render_branch(%{branch: :revoked} = assigns), do: render_revoked(assigns)
+  defp render_branch(%{branch: :already_accepted} = assigns), do: render_already_accepted(assigns)
 
   defp render_signup(assigns) do
     ~H"""
