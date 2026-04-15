@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Phase 17 UI-SPEC approved
+stopped_at: Phase 25 complete — next is Phase 19 (Passkey Schema + Contexts)
 last_updated: "2026-04-15T11:43:59.128Z"
 last_activity: 2026-04-15
 progress:
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 25 — fix-sigra-upgrade-duplicate-migration-version-bug-and-restor
+**Current focus:** Phase 19 — Passkey Schema + Contexts (passkey track kickoff)
 
 ## Current Position
 
-Phase: 999.1
-Plan: Not started
-Status: Executing Phase 25
+Phase: 19
+Plan: Not started (needs /gsd-discuss-phase 19)
+Status: Ready to start Phase 19
 Last activity: 2026-04-15
 
-Progress: [██████░░░░] 62% (9/14 v1.1 phases complete — 11–18 + 24 done, 19–23 remaining)
+Progress: [███████░░░] 71% (10/14 v1.1 phases complete — 11–18 + 24 + 25 done, 19–23 remaining)
 
 ## Accumulated Context
 
@@ -70,6 +70,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-13T17:54:48.518Z
-Stopped at: Phase 17 UI-SPEC approved
-Resume file: .planning/phases/17-invitation-flow-email/17-UI-SPEC.md
+Last session: 2026-04-15
+Stopped at: Phase 25 complete (Sigra.Upgrade duplicate-migration fix + integration tests restored)
+Resume file: (none — start Phase 19 with /gsd-discuss-phase 19)
