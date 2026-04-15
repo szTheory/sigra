@@ -209,16 +209,18 @@ defmodule Sigra.UpgradeIntegrationTest do
         from(o in "organizations", where: o.personal == true),
         :count
       )
-    IO.puts(count)
+    IO.puts("SIGRA_TEST_RESULT:" <> Integer.to_string(count))
     """
 
     {:ok, out} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
 
-    out
-    |> String.trim()
-    |> String.split("\n")
-    |> List.last()
-    |> String.to_integer()
+    case Regex.run(~r/SIGRA_TEST_RESULT:(\d+)/, out) do
+      [_, value] ->
+        String.to_integer(value)
+
+      nil ->
+        flunk("count_personal_orgs!/1 did not find SIGRA_TEST_RESULT sentinel in output:\n#{out}")
+    end
   end
 
   defp organizations_table_exists?(app_dir) do
@@ -233,17 +235,20 @@ defmodule Sigra.UpgradeIntegrationTest do
         "SELECT 1 FROM information_schema.tables WHERE table_name = 'organizations'",
         []
       )
-    IO.puts(length(result.rows))
+    IO.puts("SIGRA_TEST_RESULT:" <> Integer.to_string(length(result.rows)))
     """
 
     case InstallFixture.run_mix(app_dir, ["run", "-e", script]) do
       {:ok, out} ->
-        out
-        |> String.trim()
-        |> String.split("\n")
-        |> List.last()
-        |> String.to_integer()
-        |> Kernel.>(0)
+        case Regex.run(~r/SIGRA_TEST_RESULT:(\d+)/, out) do
+          [_, value] ->
+            String.to_integer(value) > 0
+
+          nil ->
+            flunk(
+              "organizations_table_exists?/1 did not find SIGRA_TEST_RESULT sentinel in output:\n#{out}"
+            )
+        end
 
       _ ->
         false
