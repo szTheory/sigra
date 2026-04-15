@@ -9,7 +9,7 @@ defmodule Sigra.Plug.PutActiveOrganization do
   (Phase 18). No ad-hoc Plug-session writes. No direct ecto updates on
   `user_sessions`. No shortcuts.
 
-  This function is **not** a `Plug.call/2` — it is a function-call contract
+  This function is **not** a Plug `call/2` — it is a function-call contract
   invoked from controllers, other plugs, and the login entry point. It takes
   a `Plug.Conn`, an `Organization` struct (or `nil` to clear), and an opts
   keyword list, and returns `{:ok, updated_conn}` or `{:error, reason}`.
@@ -17,7 +17,8 @@ defmodule Sigra.Plug.PutActiveOrganization do
   ## Writes performed
 
     1. `user_sessions.active_organization_id` column (via the configured
-       `Sigra.SessionStore.update_active_organization/3`).
+       `Sigra.SessionStore` implementation's `update_active_organization/3`
+       callback).
     2. `conn.private[:sigra_session]` (refreshed with the updated struct).
     3. `conn.assigns[:current_scope]` (via the host scope module's
        `put_active_organization/3` — D-15).
@@ -33,9 +34,9 @@ defmodule Sigra.Plug.PutActiveOrganization do
 
   Before any write, `call/3` verifies the user's membership in the target
   organization via `Sigra.Organizations.get_membership/3`. If `nil`, the
-  function returns `{:error, :not_a_member}` **without** calling
-  `SessionStore.update_active_organization/3`. The SessionStore callback
-  itself does not enforce authz (see Phase 14 T-14-04).
+  function returns `{:error, :not_a_member}` **without** calling the
+  SessionStore's `update_active_organization/3` callback. The SessionStore
+  callback itself does not enforce authz (see Phase 14 T-14-04).
 
   ## Options
 

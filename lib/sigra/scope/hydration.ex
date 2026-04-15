@@ -45,7 +45,8 @@ defmodule Sigra.Scope.Hydration do
   session points at a hard-deleted or soft-deleted org.
 
   The `config` argument is the Sigra.Organizations config map (the same shape
-  produced by `Sigra.Organizations.__validate_config__!/1`), NOT the top-level
+  produced by the private `__validate_config__!` helper in Sigra.Organizations),
+  NOT the top-level
   `Sigra.Config.t()`. Callers in the plug/on_mount paths resolve this from
   the generated wrapper module.
   """

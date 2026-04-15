@@ -53,7 +53,7 @@ defmodule Sigra.Upgrade do
   @default_source_version "0.0.0"
 
   @doc """
-  Top-level entrypoint called from `Mix.Tasks.Sigra.Upgrade.run/1`.
+  Top-level entrypoint called from the `sigra.upgrade` mix task.
 
   Returns `:ok` on success, may halt via `System.halt/1` on user
   dissent at the interactive confirmation prompt, and raises via
