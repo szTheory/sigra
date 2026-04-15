@@ -10,6 +10,18 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
   alias Sigra.Install.Features.Organizations
 
+  describe "injection templates on disk" do
+    test "injection template files exist on disk for Features.Organizations" do
+      assert File.exists?("priv/templates/sigra.install/organizations/router_injection.ex"),
+             "organizations/router_injection.ex is referenced by Features.Organizations.router_injection/1 via read_template!/1"
+
+      assert File.exists?(
+               "priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex"
+             ),
+             "organizations/user_auth_on_mount_assign_user_organizations.ex is referenced by Features.Organizations.user_auth_on_mount_injection/2 via read_template!/1"
+    end
+  end
+
   describe "enabled?/1" do
     test "returns true by default (ORG-01)" do
       assert Organizations.enabled?([]) == true
