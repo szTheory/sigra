@@ -45,6 +45,7 @@ defmodule Sigra.Passkeys.ConfigTest do
     assert config.passkeys[:user_verification] == :preferred
     assert config.passkeys[:timeout_ms] == 60_000
     assert config.passkeys[:ceremony_rate_limit] == [limit: 5, window_ms: 60_000]
+    assert config.passkeys[:passkey_primary_enabled] == false
 
     Application.put_env(:sigra_test_app, :sigra_config, runtime_config(passkeys: [rp_id: "changed.test"]))
 
@@ -53,6 +54,28 @@ defmodule Sigra.Passkeys.ConfigTest do
     Passkeys.reset_cached_config()
 
     assert Passkeys.config().passkeys[:rp_id] == "changed.test"
+  end
+
+  test "config/0 preserves passkey primary flag" do
+    Application.put_env(
+      :sigra_test_app,
+      :sigra_config,
+      runtime_config(passkeys: [passkey_primary_enabled: true])
+    )
+
+    assert Passkeys.config().passkeys[:passkey_primary_enabled] == true
+  end
+
+  test "config/0 rejects non-boolean passkey primary flag" do
+    Application.put_env(
+      :sigra_test_app,
+      :sigra_config,
+      runtime_config(passkeys: [passkey_primary_enabled: "true"])
+    )
+
+    assert_raise NimbleOptions.ValidationError, ~r/passkey_primary_enabled.*boolean/, fn ->
+      Passkeys.config()
+    end
   end
 
   test "config/0 raises when rp_id is missing" do
