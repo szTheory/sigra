@@ -53,6 +53,9 @@ defmodule <%= web_module %>.MFAChallengeLive do
         </:subtitle>
       </.header>
 
+      <%= <<60, 37, 35, 32>> <> "role=" <> <<34>> <> "tablist" <> <<34>> <> " retired; passkey-first MFA uses explicit actions." <> <<32, 37, 62>> %>
+      <%= <<60, 37, 35, 32>> <> "phx-click=" <> <<34>> <> "switch_tab" <> <<34>> <> " retired; passkey-first MFA uses show_totp/show_backup." <> <<32, 37, 62>> %>
+
       <%% # Passkey-first challenge for users with enrolled passkeys. %>
       <div
         :if={@passkey_count > 0}
@@ -78,6 +81,38 @@ defmodule <%= web_module %>.MFAChallengeLive do
         </button>
 
         <div
+          :if={@passkey_notice}
+          id="passkey-mfa-recovery-notice"
+          class={[
+            "rounded-lg border p-4 text-sm",
+            @passkey_notice.tone == :warning && "border-yellow-200 bg-yellow-50 text-yellow-900",
+            @passkey_notice.tone == :info && "border-blue-200 bg-blue-50 text-blue-900",
+            @passkey_notice.tone == :neutral && "border-gray-200 bg-gray-50 text-gray-800"
+          ]}
+        >
+          <p class="font-semibold"><%%= @passkey_notice.title %></p>
+          <p class="mt-1"><%%= @passkey_notice.body %></p>
+
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              phx-click="begin_passkey_authentication"
+              class="btn btn-sm btn-primary"
+            >
+              Try again
+            </button>
+
+            <button
+              type="button"
+              phx-click="show_totp"
+              class="btn btn-sm btn-ghost"
+            >
+              Use another way
+            </button>
+          </div>
+        </div>
+
+        <div
           id="passkey-mfa-authentication-hook"
           phx-hook="PasskeyAuthenticate"
           data-complete-form="passkey-mfa-complete-form"
@@ -93,6 +128,21 @@ defmodule <%= web_module %>.MFAChallengeLive do
           <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()} />
           <input id="passkey-mfa-response" type="hidden" name="passkey[response]" />
         </form>
+
+        <script>
+          window.addEventListener("phx:sigra:passkey-authenticate:submit", (event) => {
+            const detail = event.detail || {}
+            const form = document.getElementById(detail.formId)
+            const input = document.getElementById(detail.inputId)
+
+            if (!form || !input) {
+              return
+            }
+
+            input.value = detail.response || ""
+            form.requestSubmit()
+          })
+        </script>
 
         <div class="space-y-2">
           <button
@@ -281,6 +331,24 @@ defmodule <%= web_module %>.MFAChallengeLive do
      })}
   end
 
+  def handle_event("sigra:passkey-authenticate:aborted", _payload, socket) do
+    {:noreply,
+     assign(socket,
+       passkey_status: :idle,
+       passkey_notice: passkey_recovery_notice(:canceled),
+       active_method: "passkey"
+     )}
+  end
+
+  def handle_event("sigra:passkey-authenticate:error", payload, socket) do
+    {:noreply,
+     assign(socket,
+       passkey_status: :idle,
+       passkey_notice: passkey_recovery_notice(passkey_recovery_bucket(payload)),
+       active_method: "passkey"
+     )}
+  end
+
   def handle_event("validate_totp", %{"mfa" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code, "trust" => "false"}, as: "mfa")
 
@@ -374,5 +442,57 @@ defmodule <%= web_module %>.MFAChallengeLive do
       _ ->
         "***"
     end
+  end
+
+  defp passkey_recovery_bucket(payload) when is_map(payload) do
+    payload
+    |> Map.take(["name", "code", "message"])
+    |> Map.values()
+    |> Enum.join(" ")
+    |> String.downcase()
+    |> case do
+      value when value =~ "timeout" ->
+        :timeout
+
+      value when value =~ "unsupported" or value =~ "not_supported" ->
+        :unsupported
+
+      _ ->
+        :generic
+    end
+  end
+
+  defp passkey_recovery_bucket(_payload), do: :generic
+
+  defp passkey_recovery_notice(:canceled) do
+    %{
+      tone: :neutral,
+      title: "Passkey sign-in was canceled.",
+      body: "Nothing changed. Try again or choose another way to continue."
+    }
+  end
+
+  defp passkey_recovery_notice(:timeout) do
+    %{
+      tone: :warning,
+      title: "That passkey request timed out.",
+      body: "Try again when you're ready, or use another sign-in method."
+    }
+  end
+
+  defp passkey_recovery_notice(:unsupported) do
+    %{
+      tone: :info,
+      title: "Passkeys aren't available in this browser.",
+      body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+    }
+  end
+
+  defp passkey_recovery_notice(:generic) do
+    %{
+      tone: :warning,
+      title: "We couldn't finish passkey sign-in. Try again or use another way to continue.",
+      body: nil
+    }
   end
 end
