@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Foundations
 status: executing
 stopped_at: Phase 17 UI-SPEC approved
-last_updated: "2026-04-15T09:50:47.566Z"
-last_activity: 2026-04-15
+last_updated: "2026-04-15T11:06:49.800Z"
+last_activity: 2026-04-15 -- Phase 25 execution started
 progress:
-  total_phases: 16
+  total_phases: 17
   completed_phases: 9
-  total_plans: 38
+  total_plans: 40
   completed_plans: 38
-  percent: 100
+  percent: 95
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 19 — passkey-schema-and-contexts (next up; requires wax_ 0.7 spike)
+**Current focus:** Phase 25 — fix-sigra-upgrade-duplicate-migration-version-bug-and-restor
 
 ## Current Position
 
-Phase: 19
-Plan: Not started
-Status: Ready to plan Phase 19 (Passkeys track kickoff)
-Last activity: 2026-04-15 — Phase 11 ROADMAP bookkeeping closure
+Phase: 25 (fix-sigra-upgrade-duplicate-migration-version-bug-and-restor) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 25
+Last activity: 2026-04-15 -- Phase 25 execution started
 
 Progress: [██████░░░░] 62% (9/14 v1.1 phases complete — 11–18 + 24 done, 19–23 remaining)
 
@@ -60,6 +60,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 24 added: Repair Phase 16/17 organizations generator templates (addresses DEF-18-01 and DEF-18-02 — pre-existing Phase 16/17 org template bugs surfaced when Phase 18 Wave 1 registered `Features.Organizations`)
+- Phase 25 added: Fix Sigra.Upgrade duplicate-migration-version bug + restore upgrade integration tests (surfaced by PR #9 module-shadow archaeology; Bug A = test-helper parser, Bug B = real product bug in `Sigra.Upgrade` migration-timestamp generator)
 
 ### Blockers/Concerns
 
