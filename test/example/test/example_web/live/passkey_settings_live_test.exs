@@ -6,9 +6,11 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
   import Swoosh.TestAssertions
 
   alias Example.Accounts
+  alias Example.Accounts.UserPasskey
+  alias Example.Accounts.UserSession
   alias Example.Repo
 
-  defp source(path), do: File.read!(Path.expand(path, File.cwd!()))
+  setup :ensure_passkey_config_secret
 
   describe "/users/settings/mfa passkey management" do
     test "logged-in user sees passkeys card, empty state, and no raw metadata", %{conn: conn} do
@@ -32,7 +34,6 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
 
     test "empty state renders No passkeys added yet", %{conn: conn} do
       user = user_fixture()
-      passkey_fixture(user) |> Repo.delete!()
 
       {:ok, _view, html} =
         conn
@@ -42,29 +43,60 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
       assert html =~ "No passkeys added yet"
     end
 
-    test "successful sudo-gated enrollment source path sends registration notification" do
+    test "stale sudo rejects enrollment options and completion without changing passkeys", %{
+      conn: conn
+    } do
       user = user_fixture()
-      passkey = passkey_fixture(user, nickname: "MacBook Touch ID")
+      before_count = Accounts.passkey_count_for_user(user)
+
+      conn =
+        conn
+        |> log_in_user(user)
+        |> post(~p"/users/settings/mfa/passkeys/options")
+
+      assert redirected_to(conn) == ~p"/users/log_in"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Please re-enter your password to continue."
+
+      assert Accounts.passkey_count_for_user(user) == before_count
+
+      conn =
+        build_conn()
+        |> log_in_user(user)
+        |> post(~p"/users/settings/mfa/passkeys", %{
+          "passkey" => %{"response" => encoded_passkey_response()}
+        })
+
+      assert redirected_to(conn) == ~p"/users/log_in"
+      assert Accounts.passkey_count_for_user(user) == before_count
+    end
+
+    test "fresh sudo enrollment completion inserts passkey and sends registration notification",
+         %{
+           conn: conn
+         } do
+      user = user_fixture()
+      before_count = Accounts.passkey_count_for_user(user)
+
+      conn =
+        conn
+        |> log_in_with_sudo(user)
+        |> issue_passkey_challenge(:registration)
 
       stub_passkey_ceremony(fn
         {:register, ^user, _response, _opts} ->
-          {:ok, passkey}
+          {:ok, passkey_fixture(user, nickname: "MacBook Touch ID")}
       end)
 
-      Example.Accounts.deliver_passkey_registration_notification(user, %{
-        passkey: passkey,
-        device: "MacBook Touch ID",
-        ip: "127.0.0.1",
-        city: "Unknown",
-        time: DateTime.utc_now()
-      })
+      conn =
+        post(conn, ~p"/users/settings/mfa/passkeys", %{
+          "passkey" => %{"response" => encoded_passkey_response()}
+        })
 
-      assert Accounts.passkey_count_for_user(user) == 1
-      assert "/users/settings/mfa#passkeys"
-      assert "/users/settings/mfa/passkeys"
-      assert "MacBook Touch ID"
-      assert "New passkey added"
-      assert "A new passkey was added to your account"
+      assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Passkey added."
+      assert Accounts.passkey_count_for_user(user) == before_count + 1
 
       assert_email_sent(fn email ->
         assert email.subject =~ "New passkey added"
@@ -72,51 +104,164 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
       end)
     end
 
-    test "duplicate enrollment preserves count and shows duplicate copy" do
+    test "duplicate enrollment through real route preserves count and shows duplicate copy", %{
+      conn: conn
+    } do
       user = user_fixture()
-
-      stub_passkey_ceremony(fn
-        {:register, ^user, _response, _opts} -> {:error, :duplicate_credential}
-      end)
-
-      passkey_fixture(user) |> Repo.delete!()
+      passkey_fixture(user)
       before_count = Accounts.passkey_count_for_user(user)
 
-      assert {:error, :duplicate_credential} =
-               Example.AccountsFixtures.PasskeyCeremonyStub
-               |> inspect()
-               |> then(fn _ -> {:error, :duplicate_credential} end)
+      conn =
+        conn
+        |> log_in_with_sudo(user)
+        |> issue_passkey_challenge(:registration)
+
+      stub_passkey_ceremony(fn
+        {:register, ^user, _response, _opts} -> {:error, :duplicate_passkey}
+      end)
+
+      conn =
+        post(conn, ~p"/users/settings/mfa/passkeys", %{
+          "passkey" => %{"response" => encoded_passkey_response()}
+        })
+
+      assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :warning) ==
+               "This passkey is already registered."
 
       assert Accounts.passkey_count_for_user(user) == before_count
-      assert "This passkey is already registered"
     end
 
-    test "stale sudo delete is rejected at request time by RequireSudo route contract" do
-      live_source = source("lib/example_web/live/mfa_settings_live.ex")
-      router_source = source("lib/example_web/router.ex")
+    test "fresh sudo cap rejection through completion route preserves count", %{conn: conn} do
+      user = user_fixture()
 
-      # stale sudo delete is rejected at request time; count stays unchanged;
-      # Sigra.Plug.RequireSudo protects /users/settings/mfa/passkeys/:id/delete.
-      assert live_source =~ "/users/settings/mfa/passkeys/"
-      assert live_source =~ "/delete"
-      assert "Passkey deleted"
-      assert "RequireSudo"
-      assert "count stays unchanged"
-      refute router_source =~ ~s(post "/settings/mfa/passkeys/:id/delete")
+      for index <- 1..10 do
+        passkey_fixture(user,
+          credential_id: "credential-cap-#{index}",
+          nickname: "Passkey #{index}"
+        )
+      end
+
+      before_count = Accounts.passkey_count_for_user(user)
+
+      conn =
+        conn
+        |> log_in_with_sudo(user)
+        |> issue_passkey_challenge(:registration)
+
+      stub_passkey_ceremony(fn
+        {:register, ^user, _response, _opts} ->
+          {:error, :passkey_cap_reached}
+      end)
+
+      conn =
+        post(conn, ~p"/users/settings/mfa/passkeys", %{
+          "passkey" => %{"response" => encoded_passkey_response()}
+        })
+
+      assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "We couldn't finish adding this passkey. Try again or use another way to continue."
+
+      assert Accounts.passkey_count_for_user(user) == before_count
     end
 
-    test "settings source keeps notification, duplicate, and metadata assertions visible" do
-      live_source = source("lib/example_web/live/mfa_settings_live.ex")
+    test "delete route rejects stale sudo and deletes row with fresh sudo", %{conn: conn} do
+      user = user_fixture()
+      passkey = passkey_fixture(user)
 
-      assert live_source =~ "/users/settings/mfa/passkeys"
-      assert live_source =~ "Passkeys"
-      assert "MacBook Touch ID"
-      assert "This passkey is already registered"
-      assert "New passkey added"
-      assert "A new passkey was added to your account"
-      assert "credential_id"
-      assert "rp_id"
-      assert "transports"
+      conn =
+        conn
+        |> log_in_user(user)
+        |> post(~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete")
+
+      assert redirected_to(conn) == ~p"/users/log_in"
+      assert Repo.get(UserPasskey, passkey.id)
+
+      conn =
+        build_conn()
+        |> log_in_with_sudo(user)
+        |> post(~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete")
+
+      assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Passkey deleted."
+      refute Repo.get(UserPasskey, passkey.id)
+    end
+
+    test "rename event saves the new passkey name in the database", %{conn: conn} do
+      user = user_fixture()
+      passkey = passkey_fixture(user, nickname: "Old name")
+
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user)
+        |> live("/users/settings/mfa")
+
+      assert render_click(view, "open_passkey_rename", %{"id" => passkey.credential_id}) =~
+               "Old name"
+
+      assert render_submit(view, "save_passkey_name", %{
+               "passkey" => %{"id" => passkey.credential_id, "nickname" => "Travel key"}
+             }) =~ "Travel key"
+
+      assert Repo.reload!(passkey).nickname == "Travel key"
     end
   end
+
+  defp log_in_with_sudo(conn, user) do
+    conn = log_in_user(conn, user)
+    token = Plug.Conn.get_session(conn, :user_token)
+    {^user, session} = Accounts.get_user_and_session_by_token(token)
+
+    UserSession
+    |> Repo.get_by!(hashed_token: session.hashed_token)
+    |> Ecto.Changeset.change(sudo_at: DateTime.utc_now())
+    |> Repo.update!()
+
+    conn
+  end
+
+  defp issue_passkey_challenge(conn, ceremony) do
+    conn =
+      if conn.private[:plug_session] do
+        conn
+      else
+        Phoenix.ConnTest.init_test_session(conn, %{})
+      end
+
+    bytes = "test-#{ceremony}-challenge"
+
+    {conn, _challenge} =
+      Sigra.Plug.PasskeyChallenge.issue(conn, ceremony, Sigra.Passkeys.config(), bytes: bytes)
+
+    conn
+  end
+
+  defp ensure_passkey_config_secret(_context) do
+    old_config = Application.get_env(:example, :sigra_config)
+    old_otp_app = Application.get_env(:sigra, :otp_app)
+
+    Application.put_env(:sigra, :otp_app, :example)
+
+    Application.put_env(
+      :example,
+      :sigra_config,
+      Keyword.put(old_config, :secret_key_base, ExampleWeb.Endpoint.config(:secret_key_base))
+    )
+
+    Sigra.Passkeys.reset_cached_config()
+
+    on_exit(fn ->
+      restore_env(:sigra, :otp_app, old_otp_app)
+      restore_env(:example, :sigra_config, old_config)
+      Sigra.Passkeys.reset_cached_config()
+    end)
+
+    :ok
+  end
+
+  defp restore_env(app, key, nil), do: Application.delete_env(app, key)
+  defp restore_env(app, key, value), do: Application.put_env(app, key, value)
 end
