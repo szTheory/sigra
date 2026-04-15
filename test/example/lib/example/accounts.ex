@@ -541,6 +541,17 @@ defmodule Example.Accounts do
       # written for session.create, auth.login.*, etc.
       audit: [
         audit_schema: Example.Accounts.AuditEvent
+      ],
+      passkeys: [
+        rp_id: "localhost",
+        rp_name: "Sigra Example",
+        origin: "http://localhost:4000",
+        timeout_ms: 60_000,
+        attestation: :none,
+        user_verification: :preferred,
+        ceremony_rate_limit: [limit: 5, window_ms: 60_000],
+        passkey_primary_enabled: true,
+        user_passkey_schema: Example.Accounts.UserPasskey
       ]
     )
   end

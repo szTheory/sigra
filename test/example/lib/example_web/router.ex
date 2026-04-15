@@ -44,9 +44,16 @@ defmodule ExampleWeb.Router do
     plug :require_mfa
   end
 
+  pipeline :require_sudo do
+    plug Sigra.Plug.RequireSudo, error_handler: ExampleWeb.AuthErrorHandler
+  end
+
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", ExampleWeb do
     pipe_through [:browser]
+
+    post "/mfa/passkey/options", SessionController, :passkey_mfa_options
+    post "/mfa/passkey", SessionController, :complete_mfa_passkey
 
     live_session :mfa_challenge, on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
       live "/mfa", MFAChallengeLive
@@ -74,6 +81,8 @@ defmodule ExampleWeb.Router do
     end
 
     post "/log_in", SessionController, :create
+    post "/log_in/passkey/options", SessionController, :passkey_authentication_options
+    post "/log_in/passkey", SessionController, :complete_passkey
     get "/log_in/:token", SessionController, :magic_link
   end
 
@@ -92,6 +101,14 @@ defmodule ExampleWeb.Router do
       live "/settings", SettingsLive, :edit
       live "/reactivation", ReactivationLive
     end
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :require_sudo]
+
+    post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
+    post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
+    post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
   end
 
   # Dev-only routes for local UAT — Swoosh local-mailbox preview at /dev/mailbox
