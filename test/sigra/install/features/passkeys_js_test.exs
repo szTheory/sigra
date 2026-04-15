@@ -37,12 +37,15 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       assert {:ok, _stdout} = InstallFixture.run_sigra_install(app_dir, ["--passkeys"])
 
       app_js = InstallFixture.read_asset_file(app_dir, "js/app.js")
+      browser_helper = InstallFixture.read_asset_file(app_dir, "js/passkey_browser.js")
 
       assert app_js =~ @passkey_start_marker
       assert app_js =~ @passkey_end_marker
       assert app_js =~ @passkey_import
       assert app_js =~ @passkey_hooks_line
       assert String.contains?(app_js, @passkey_start_marker)
+      assert browser_helper =~ "startRegistration"
+      assert browser_helper =~ "startAuthentication"
     end
 
     test "rerunning install keeps a single passkey marker block" do
@@ -84,12 +87,47 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
   end
 
   describe "passkey hook template contract" do
-    test "exports both passkey hook objects and the marker contract stays explicit" do
+    test "ships controller completion and conditional UI template contracts" do
+      hook_template = File.read!("priv/templates/sigra.install/passkeys/passkey_hooks.js")
+      browser_helper = File.read!("priv/templates/sigra.install/passkeys/passkey_browser.js")
+      injection = File.read!("priv/templates/sigra.install/passkeys/app_js_passkeys_injection.js")
+
+      for expected <- [
+            "optionsUrl",
+            "completeUrl",
+            "passkey[response]",
+            "JSON.stringify",
+            "x-csrf-token",
+            "useBrowserAutofill",
+            "isConditionalMediationAvailable",
+            ~s(mediation: "conditional"),
+            "ERROR_PASSKEY_UNSUPPORTED"
+          ] do
+        assert hook_template =~ expected or browser_helper =~ expected
+      end
+
+      for expected <- [
+            "attachPasskeyLogin",
+            "DOMContentLoaded",
+            "#passkey_login_form",
+            "#passkey_login_button",
+            "/users/log_in/passkey/options",
+            "/users/log_in/passkey"
+          ] do
+        assert browser_helper =~ expected or injection =~ expected
+      end
+    end
+
+    test "exports both passkey hook objects and ships the browser helper locally" do
       template_path = "priv/templates/sigra.install/passkeys/passkey_hooks.js"
+      browser_helper_path = "priv/templates/sigra.install/passkeys/passkey_browser.js"
       injection_path = "priv/templates/sigra.install/passkeys/app_js_passkeys_injection.js"
 
       assert File.read!(template_path) =~ "PasskeyRegister"
       assert File.read!(template_path) =~ "PasskeyAuthenticate"
+      assert File.read!(template_path) =~ ~s(from "./passkey_browser")
+      assert File.read!(browser_helper_path) =~ "startRegistration"
+      assert File.read!(browser_helper_path) =~ "startAuthentication"
       assert File.read!(injection_path) =~ @passkey_start_marker
       assert File.read!(injection_path) =~ @passkey_end_marker
     end
@@ -103,11 +141,10 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         on_exit(fn -> File.rm_rf!(tmp_dir) end)
 
         template_source = File.read!("priv/templates/sigra.install/passkeys/passkey_hooks.js")
-
         module_source =
           String.replace(
             template_source,
-            ~s(from "@simplewebauthn/browser"),
+            ~s(from "./passkey_browser"),
             ~s(from "./browser_stub.mjs")
           )
 
@@ -188,6 +225,135 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         flunk("node executable is required for passkey hook runtime coverage")
       end
     end
+
+    test "authenticate hook emits unsupported error from browser autofill" do
+      if node = System.find_executable("node") do
+        stdout =
+          run_node_script!(node, %{
+            "passkey_hooks_under_test.mjs" =>
+              File.read!("priv/templates/sigra.install/passkeys/passkey_hooks.js")
+              |> String.replace(~s(from "./passkey_browser"), ~s(from "./browser_stub.mjs")),
+            "browser_stub.mjs" => """
+            export class WebAuthnError extends Error {
+              constructor(message, code) {
+                super(message)
+                this.name = "WebAuthnError"
+                this.code = code
+              }
+            }
+
+            export const WebAuthnAbortService = { cancelCeremony() {} }
+
+            export function startRegistration() {
+              throw new Error("unused")
+            }
+
+            export function startAuthentication({ useBrowserAutofill }) {
+              if (useBrowserAutofill) {
+                throw new WebAuthnError("unsupported", "ERROR_PASSKEY_UNSUPPORTED")
+              }
+
+              return { id: "credential-id" }
+            }
+            """,
+            "runner.mjs" => """
+            import { PasskeyAuthenticate } from "./passkey_hooks_under_test.mjs"
+
+            const events = []
+            const hook = {
+              ...PasskeyAuthenticate,
+              handleEvent(_event, callback) {
+                this.startCallback = callback
+              },
+              pushEvent(event, payload) {
+                events.push({ event, payload })
+              }
+            }
+
+            hook.mounted()
+            await hook.startCallback({
+              options: { challenge: "abc" },
+              useBrowserAutofill: true
+            })
+            console.log(JSON.stringify(events))
+            """
+          })
+
+        assert Jason.decode!(stdout) == [
+                 %{
+                   "event" => "sigra:passkey-authenticate:error",
+                   "payload" => %{
+                     "code" => "ERROR_PASSKEY_UNSUPPORTED",
+                     "message" => "unsupported",
+                     "name" => "WebAuthnError"
+                   }
+                 }
+               ]
+      else
+        flunk("node executable is required for passkey hook runtime coverage")
+      end
+    end
+
+    test "controller login conditional UI fetches options without email and uses conditional mediation" do
+      if node = System.find_executable("node") do
+        stdout = run_browser_helper_node!(node, "conditional")
+        result = Jason.decode!(stdout)
+
+        assert result["attached"] == true
+        assert result["fetches"] == [
+                 %{
+                   "url" => "/users/log_in/passkey/options",
+                   "body" => %{"conditional" => "true"},
+                   "csrf" => "csrf-token"
+                 }
+               ]
+
+        assert result["credentialRequests"] == [%{"mediation" => "conditional"}]
+        assert result["submittedAction"] == "/users/log_in/passkey"
+        assert result["responseValue"] =~ "credential-id"
+        refute result["responseValue"] =~ "user@example.com"
+      else
+        flunk("node executable is required for passkey browser helper coverage")
+      end
+    end
+
+    test "controller login explicit click includes email and submits without conditional mediation" do
+      if node = System.find_executable("node") do
+        stdout = run_browser_helper_node!(node, "explicit")
+        result = Jason.decode!(stdout)
+
+        assert result["fetches"] == [
+                 %{
+                   "url" => "/users/log_in/passkey/options",
+                   "body" => %{"user" => %{"email" => "user@example.com"}},
+                   "csrf" => "csrf-token"
+                 }
+               ]
+
+        assert result["credentialRequests"] == [%{"mediation" => nil}]
+        assert result["submittedAction"] == "/users/log_in/passkey"
+        assert result["responseValue"] =~ "credential-id"
+      else
+        flunk("node executable is required for passkey browser helper coverage")
+      end
+    end
+
+    test "controller login maps unsupported abort and timeout to safe copy" do
+      if node = System.find_executable("node") do
+        for scenario <- ["unsupported", "abort", "timeout"] do
+          stdout = run_browser_helper_node!(node, scenario)
+          result = Jason.decode!(stdout)
+
+          assert result["status"] in ["unsupported", "canceled", "timeout"]
+          refute result["statusText"] =~ "AbortError"
+          refute result["statusText"] =~ "NotAllowedError"
+          refute result["statusText"] =~ "raw browser"
+          assert result["fallbackVisible"] == true
+        end
+      else
+        flunk("node executable is required for passkey browser helper coverage")
+      end
+    end
   end
 
   defp setup_tmp_app! do
@@ -210,5 +376,184 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     |> String.split(needle)
     |> length()
     |> Kernel.-(1)
+  end
+
+  defp run_node_script!(node, files) do
+    tmp_dir = Path.join(System.tmp_dir!(), "sigra_passkey_js_#{System.unique_integer([:positive])}")
+
+    File.mkdir_p!(tmp_dir)
+
+    try do
+      for {name, contents} <- files do
+        File.write!(Path.join(tmp_dir, name), contents)
+      end
+
+      {stdout, 0} = System.cmd(node, [Path.join(tmp_dir, "runner.mjs")], stderr_to_stdout: true)
+      stdout
+    after
+      File.rm_rf!(tmp_dir)
+    end
+  end
+
+  defp run_browser_helper_node!(node, scenario) do
+    browser_source = File.read!("priv/templates/sigra.install/passkeys/passkey_browser.js")
+
+    run_node_script!(node, %{
+      "passkey_browser_under_test.mjs" => browser_source,
+      "runner.mjs" => browser_helper_runner(scenario)
+    })
+  end
+
+  defp browser_helper_runner(scenario) do
+    """
+    import { attachPasskeyLogin } from "./passkey_browser_under_test.mjs"
+
+    const fetches = []
+    const credentialRequests = []
+
+    globalThis.btoa = value => Buffer.from(value, "binary").toString("base64")
+    globalThis.atob = value => Buffer.from(value, "base64").toString("binary")
+
+    class FakeForm {}
+    globalThis.HTMLFormElement = FakeForm
+    HTMLFormElement.prototype.submit = function() {
+      this.submitted = true
+      this.submittedAction = this.action
+    }
+
+    function makeInput(name, value = "") {
+      return {
+        name,
+        value,
+        hidden: false,
+        getAttribute(attribute) {
+          return attribute === "name" ? this.name : null
+        }
+      }
+    }
+
+    const emailInput = makeInput("user[email]", "user@example.com")
+    const responseInput = makeInput("passkey[response]", "")
+    const statusElement = { dataset: {}, textContent: "" }
+    const fallbackElement = { hidden: false }
+    const button = {
+      listeners: {},
+      addEventListener(event, callback) {
+        this.listeners[event] = callback
+      },
+      click() {
+        return this.listeners.click({ preventDefault() {} })
+      }
+    }
+
+    const form = new FakeForm()
+    form.action = "/users/log_in/passkey"
+    form.dataset = { optionsUrl: "/users/log_in/passkey/options" }
+    form.listeners = {}
+    form.addEventListener = function(event, callback) {
+      this.listeners[event] = callback
+    }
+    form.querySelector = function(selector) {
+      if (selector === "input[name='user[email]']") return emailInput
+      if (selector === "input[name='passkey[response]']") return responseInput
+      if (selector === "[data-passkey-login-status]") return statusElement
+      if (selector === "[data-passkey-fallback]") return fallbackElement
+      return null
+    }
+
+    const scenario = #{inspect(scenario)}
+
+    globalThis.window = {
+      PublicKeyCredential: {
+        isConditionalMediationAvailable() {
+          return scenario !== "unsupported"
+        }
+      }
+    }
+    globalThis.PublicKeyCredential = globalThis.window.PublicKeyCredential
+
+    globalThis.document = {
+      querySelector(selector) {
+        if (selector === "#passkey_login_form") return form
+        if (selector === "#passkey_login_button") return button
+        if (selector === "meta[name='csrf-token']") return { content: "csrf-token" }
+        return null
+      }
+    }
+
+    globalThis.fetch = async (url, options) => {
+      fetches.push({
+        url,
+        body: JSON.parse(options.body),
+        csrf: options.headers["x-csrf-token"]
+      })
+
+      return {
+        ok: true,
+        json: async () => ({
+          options: {
+            challenge: "AQID",
+            allowCredentials: [{ id: "BAUG", type: "public-key" }]
+          }
+        })
+      }
+    }
+
+    globalThis.navigator = {
+      credentials: {
+        async get(request) {
+          credentialRequests.push({ mediation: request.mediation ?? null })
+
+          if (scenario === "abort") {
+            const error = new Error("raw browser abort message")
+            error.name = "AbortError"
+            throw error
+          }
+
+          if (scenario === "timeout") {
+            const error = new Error("raw browser timeout message")
+            error.name = "TimeoutError"
+            throw error
+          }
+
+          return {
+            id: "credential-id",
+            rawId: new Uint8Array([1, 2, 3]),
+            type: "public-key",
+            authenticatorAttachment: null,
+            response: {
+              clientDataJSON: new Uint8Array([4, 5, 6]),
+              authenticatorData: new Uint8Array([7, 8, 9]),
+              signature: new Uint8Array([10, 11, 12]),
+              userHandle: null
+            },
+            getClientExtensionResults() {
+              return {}
+            }
+          }
+        }
+      }
+    }
+
+    const result = await attachPasskeyLogin({ enableConditionalUI: scenario !== "explicit" })
+
+    if (scenario === "explicit") {
+      await button.click()
+    }
+
+    await result.ready
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    console.log(JSON.stringify({
+      attached: result.attached,
+      fetches,
+      credentialRequests,
+      submittedAction: form.submittedAction ?? null,
+      responseValue: responseInput.value,
+      status: statusElement.dataset.passkeyStatus ?? null,
+      statusText: statusElement.textContent,
+      fallbackVisible: fallbackElement.hidden === false
+    }))
+    """
   end
 end
