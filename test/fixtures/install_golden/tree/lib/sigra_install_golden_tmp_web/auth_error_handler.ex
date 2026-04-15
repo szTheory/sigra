@@ -38,12 +38,14 @@ defmodule SigraInstallGoldenTmpWeb.AuthErrorHandler do
     |> send_resp(429, "Too many requests. Please try again later.")
   end
 
+
   @impl true
   def auth_error(conn, :no_active_org, _opts) do
     conn
     |> put_flash(:info, "Pick or create an organization to continue.")
     |> redirect(to: ~p"/organizations")
   end
+
 
   @impl true
   def auth_error(conn, :insufficient_role, _opts) do

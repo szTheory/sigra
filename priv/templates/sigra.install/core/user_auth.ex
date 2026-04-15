@@ -244,7 +244,7 @@ defmodule <%= web_module %>.UserAuth do
         case <%= context_module %>.get_user_and_session_by_token(user_token) do
           {user, sigra_session} when not is_nil(user) ->
             scope = Scope.for_user(user)
-
+<%= if organizations? do %>
             # Phase 14 D-23: LiveView path calls the SAME hydrator as the
             # plug path (Sigra.Plug.LoadActiveOrganization) to guarantee
             # byte-identical current_scope values. Stale-pointer recovery
@@ -257,7 +257,13 @@ defmodule <%= web_module %>.UserAuth do
               {:ok, hydrated} -> hydrated
               {:error, _reason} -> scope
             end
-
+<% else %>
+            # Phase 24.1: under --no-organizations the Organizations context
+            # module + scope hydration are skipped entirely. The scope is
+            # user-only with no active_organization / membership.
+            _ = sigra_session
+            scope
+<% end %>
           _ ->
             nil
         end
