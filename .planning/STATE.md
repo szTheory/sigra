@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Completed 21-04-PLAN.md
-last_updated: "2026-04-15T22:19:13.804Z"
+stopped_at: Completed 21-07-PLAN.md
+last_updated: "2026-04-15T22:31:50.588Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
   completed_phases: 12
   total_plans: 56
-  completed_plans: 53
-  percent: 95
+  completed_plans: 54
+  percent: 96
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-04-15
 
@@ -72,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 21]: Passkey-primary login remains one controller-rendered page with visible password and magic-link recovery. — Plan 21-04 implementation decision from SUMMARY.md key-decisions.
 - [Phase 21]: Signup-time passkey enrollment starts only after email confirmation, then routes through sudo before /users/settings/mfa#passkeys. — Plan 21-04 implementation decision from SUMMARY.md key-decisions.
 - [Phase 21]: Generated Auth owns the passkey-primary confirmed-email and magic-link recovery invariants. — Plan 21-04 implementation decision from SUMMARY.md key-decisions.
+- [Phase 21]: Conditional UI is a progressive enhancement: unsupported browsers retain explicit passkey click, password, and magic-link recovery. — Plan 21-07 preserved recovery-first login posture while adding browser autofill support.
+- [Phase 21]: Controller-rendered passkey-primary login uses attachPasskeyLogin({ enableConditionalUI: true }) on DOMContentLoaded instead of relying on LiveView hooks. — Controller pages have no LiveView process, so the generated static app.js binding owns passkey-primary page startup.
+- [Phase 21]: Passkey hook success can POST passkey[response] to controller completion URLs, preserving the controller-owned session mutation boundary. — LiveView hooks still own recoverable browser ceremony state, but session creation remains a plain controller POST.
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T22:19:01.644Z
-Stopped at: Completed 21-04-PLAN.md
+Last session: 2026-04-15T22:31:42.338Z
+Stopped at: Completed 21-07-PLAN.md
 Resume file: None
