@@ -371,17 +371,16 @@ try {
 |---|-------|---------|---------------|
 | A1 | Reusing the existing suspicious-login email template will be simpler than introducing a dedicated passkey-registration template. [ASSUMED] | Summary / Common patterns | Low-to-medium; planning may need one extra template task if current mailer shape is too rigid. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should passkey-primary success POST to the existing `SessionController` or a new passkey-specific controller action?**
-   - What we know: Controller POST completion is mandatory and the existing login boundary already lives in `SessionController`. [VERIFIED: codebase grep]
-   - What's unclear: Whether overloading the existing action would complicate current password/magic-link branching. [ASSUMED]
-   - Recommendation: Plan a thin dedicated controller action under the same controller unless routing review shows the existing action stays cleaner. [ASSUMED]
+   - Resolution: Keep passkey-primary completion in `SessionController`, but as dedicated passkey-specific actions such as `passkey_authentication_options/2` and `complete_passkey/2` rather than overloading the existing password or magic-link branches. This preserves the existing controller-owned auth boundary while avoiding branch sprawl in `create/2`. [VERIFIED: codebase grep]
 
 2. **Where should the AAGUID registry snapshot live in the generated app/library split?**
-   - What we know: The data is UI-facing naming data, not security metadata. [CITED: https://github.com/passkeydeveloper/passkey-authenticator-aaguids]
-   - What's unclear: Whether Sigra wants that JSON in the library for reuse or emitted into the host app for easy customization. [ASSUMED]
-   - Recommendation: Default to library-owned data with a narrow helper API so generated templates stay stable. [ASSUMED]
+   - Resolution: Store the bundled AAGUID registry snapshot in library-owned code/data with a narrow helper API that generated templates call for label resolution. This keeps generated app output stable, allows a single curated snapshot to satisfy PK-UX-03, and avoids copying large registry data into every generated app. [CITED: https://github.com/passkeydeveloper/passkey-authenticator-aaguids]
+
+3. **How should passkey-primary enrollment and recovery invariants be enforced?**
+   - Resolution: Phase 21 planning must include a config-gated signup enrollment path for `:passkey_primary_enabled`, plus server-side checks that passkey-primary can only be enabled/used for users with confirmed email and permanently available magic-link recovery. UI visibility alone is insufficient; the invariant has to be enforced in controller/context logic and covered by generator and example-app tests. [VERIFIED: .planning/REQUIREMENTS.md]
 
 ## Environment Availability
 
