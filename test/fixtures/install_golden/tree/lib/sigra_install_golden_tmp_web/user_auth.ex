@@ -442,7 +442,7 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
     socket =
       case socket.assigns[:current_scope] do
         %{user: %{} = user} ->
-          orgs_with_roles = <%= app_module %>.Organizations.list_organizations_for_user(user)
+          orgs_with_roles = SigraInstallGoldenTmp.Organizations.list_organizations_for_user(user)
           Phoenix.Component.assign(socket, :user_organizations, orgs_with_roles)
 
         _ ->

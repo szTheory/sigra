@@ -115,11 +115,11 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   # `:require_authenticated` pipeline so both anonymous visitors
   # (signup branch) and signed-in visitors (accept / mismatch branch)
   # reach the same LiveView, which branches on `@branch` at mount.
-  scope "/", <%= web_module %> do
+  scope "/", SigraInstallGoldenTmpWeb do
     pipe_through [:browser]
 
     live_session :invitations_public,
-      on_mount: [{<%= web_module %>.UserAuth, :mount_current_scope}] do
+      on_mount: [{SigraInstallGoldenTmpWeb.UserAuth, :mount_current_scope}] do
       live "/invitations/:token/accept", InvitationAcceptLive
     end
   end
@@ -128,10 +128,10 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug
     plug Sigra.Plug.RequireMembership,
-      error_handler: <%= web_module %>.AuthErrorHandler
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
   end
 
-  scope "/", <%= web_module %> do
+  scope "/", SigraInstallGoldenTmpWeb do
     pipe_through [:browser, :require_authenticated]
 
     # POST /organizations/switch MUST be defined before the scoped block
@@ -141,21 +141,21 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     live_session :organizations_unscoped,
       on_mount: [
-        {<%= web_module %>.UserAuth, :ensure_authenticated},
-        {<%= web_module %>.UserAuth, :assign_user_organizations}
+        {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
+        {SigraInstallGoldenTmpWeb.UserAuth, :assign_user_organizations}
       ] do
       live "/organizations", OrganizationsLive.Index, :index
       live "/organizations/new", OrganizationsLive.New, :new
     end
   end
 
-  scope "/organizations/:org", <%= web_module %> do
+  scope "/organizations/:org", SigraInstallGoldenTmpWeb do
     pipe_through [:browser, :require_authenticated, :org_scoped]
 
     live_session :organization_scoped,
       on_mount: [
-        {<%= web_module %>.UserAuth, :ensure_authenticated},
-        {<%= web_module %>.UserAuth, :assign_user_organizations},
+        {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
+        {SigraInstallGoldenTmpWeb.UserAuth, :assign_user_organizations},
         {Sigra.LiveView.OrganizationScope, []}
       ] do
       live "/settings", OrganizationSettingsLive, :edit
