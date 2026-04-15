@@ -208,7 +208,12 @@ Plans:
   2. `Sigra.Passkeys.register/3` and `authenticate/3` wrap `wax_` correctly — register stores `rp_id` on the `UserPasskey` row at registration time (P-3 prep), authenticate verifies the returned `credential_id` belongs to the requested user (P-6 StrongKey defense) and rejects mismatch before any further processing.
   3. Sign-count regression handling defaults to `:warn` (log + audit event `:passkey_sign_count_regression` + banner affordance); `:require_reauth` and `:revoke` modes are selectable via NimbleOptions and each has a regression test.
   4. `Sigra.Passkeys.{list_for_user, rename, delete}` have passing unit tests covering the happy path + missing-credential error case.
-**Plans**: TBD
+**Plans:** 4/4 plans planned
+Plans:
+- [ ] 19-01-PLAN.md — Wave 1: wax_ dep + UserPasskey schema/migration template + COSE serialization (ETF+:safe) + library struct + D-16 wax_ roundtrip smoke (PK-01, PK-03, PK-04)
+- [ ] 19-02-PLAN.md — Wave 2: config.passkeys slot + Sigra.Passkeys.Registration primitive + Sigra.Passkeys.register/4 with atomic cap enforcement + rp_id from config + audit-inside-transaction (PK-03, PK-04, PK-05)
+- [ ] 19-03-PLAN.md — Wave 2: Sigra.Passkeys.SignCountPolicy machine + Sigra.Passkeys.Authentication with StrongKey guard + authenticate/4 dispatch + D-10 audit payload (PK-04, PK-05, PK-07, PK-08)
+- [ ] 19-04-PLAN.md — Wave 3: rename/delete management API + Cloak vault promotion (D-13) + Features.Passkeys install feature + mix sigra.upgrade hook (D-14) + Sigra.Application boot-check (D-15) (PK-01, PK-07, PK-08)
 
 ### Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra
 **Goal**: WebAuthn challenges are server-generated, server-stored in the signed+encrypted Plug session, and server-verified — making the OneUptime GHSA-gjjc-pcwp-c74m replay class impossible — and the JS hooks scaffolding that binds SimpleWebAuthn to LiveView ships with runtime-configured RP ID + graceful `app.js` injection.

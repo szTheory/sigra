@@ -97,6 +97,18 @@
 
 - **D-16 (wax_ 0.7 API spike shape):** Planner agent resolves `wax_ 0.7` API shape inline during Plan 19-01 authoring (Context7 + hexdocs fetch), embeds verified `Wax.register/3`, `Wax.authenticate/5`, `%Wax.Challenge{}` field list, and attestation enum values into the plan's `<interfaces>` block. Executor builds against a verified contract. **Plus** Plan 19-01 Task 1 includes a 10-line round-trip smoke assertion (`register → authenticate` against wax_ test vectors) to catch semantic surprises static signature checks miss. No standalone Plan 19-00 — matches Sigra's 11-01/13-01 convention of baking verified interfaces into PLAN.md at authoring time.
 
+### Revision Addenda
+
+- **D-08a (2026-04-15 revision):** `rename/5` signature supersedes D-08's `rename/3` for the public management API. New signature:
+
+  ```elixir
+  @spec rename(Config.t(), User.t(), credential_id :: binary(), new_nickname :: String.t(), opts :: keyword()) ::
+          {:ok, Credential.t()} | {:error, :not_found | Ecto.Changeset.t()}
+  def rename(config, user, credential_id, new_nickname, opts \\ [])
+  ```
+
+  **Rationale:** PK-07 (credential-confusion / StrongKey CVE-2025-26788 class defense) applies to the management API just as much as to `authenticate/4`. Allowing a caller to rename a credential by `credential_id` alone — without scoping by `user_id` — reintroduces the exact bypass the authenticate path defends against: attacker with stolen `credential_id` mutates the owning user's credential nickname. The 5-arity signature takes `user` as a positional argument, and the implementation in Plan 19-04 Task 1 performs a `Repo.get_by(UserPasskey, user_id: user.id, credential_id: credential_id)` pre-lookup — same pattern as D-07 `authenticate/4`. `delete/4` already follows this pattern (`delete(config, user, credential_id, opts)`) so `rename/5` brings the two management functions into alignment. Plan 19-04's `<interfaces>` block references this addendum.
+
 ### Claude's Discretion
 
 - Exact NimbleOptions schema shapes for `@register_opts_schema` / `@authenticate_opts_schema` — planner decides minimal fields per call site.
