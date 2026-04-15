@@ -50,7 +50,9 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
       assert content =~ "Auth.ensure_passkey_primary_user_eligible(user)"
       assert content =~ "{:error, :email_not_confirmed}"
       assert content =~ "String.slice(to_string(email), 0, 160)"
-      assert content =~ "We couldn't finish passkey sign-in. Try again or use another way to continue."
+
+      assert content =~
+               "We couldn't finish passkey sign-in. Try again or use another way to continue."
     end
 
     test "registration LiveView carries signup-time passkey enrollment through confirmation" do

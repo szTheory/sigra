@@ -731,14 +731,21 @@ defmodule <%= context_module %> do
     Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
   end
 
+  @doc "Returns true when a user may use passkey-primary login."
+  def passkey_primary_user_eligible?(%<%= schema_alias %>{} = user) do
+    passkey_primary_enabled?() and user.confirmed_at != nil
+  end
+
+  def passkey_primary_user_eligible?(_user), do: false
+
   @doc "Checks whether a discovered user may use passkey-primary login."
   def ensure_passkey_primary_user_eligible(%<%= schema_alias %>{} = user) do
     cond do
       not passkey_primary_enabled?() ->
         {:error, :passkey_primary_disabled}
 
-      is_nil(user.confirmed_at) ->
-        {:error, :unconfirmed}
+      not passkey_primary_user_eligible?(user) ->
+        {:error, :email_not_confirmed}
 
       true ->
         :ok
@@ -746,6 +753,18 @@ defmodule <%= context_module %> do
   end
 
   def ensure_passkey_primary_user_eligible(_user), do: {:error, :invalid_user}
+
+  @doc "Returns whether magic-link recovery is available for login."
+  def magic_link_recovery_available?() do
+    # PK-UX-07 makes magic-link recovery mandatory for passkey-primary accounts.
+    if passkey_primary_enabled?() do
+      true
+    else
+      sigra_config()
+      |> Map.get(:magic_link, [])
+      |> Keyword.get(:enabled, true)
+    end
+  end
 
   @doc "Delivers a passkey registration notification email."
   def deliver_passkey_registration_notification(user, details) do

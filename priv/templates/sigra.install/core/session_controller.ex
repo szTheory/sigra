@@ -161,6 +161,9 @@ defmodule <%= web_module %>.SessionController do
       |> put_flash(:info, "Welcome back!")
       |> UserAuth.log_in_user(user, %{})
     else
+      {:error, :email_not_confirmed} ->
+        passkey_login_failed(conn, email)
+
       _ -> passkey_login_failed(conn, email)
     end
   end
@@ -179,6 +182,7 @@ defmodule <%= web_module %>.SessionController do
       |> put_flash(:info, "Welcome back!")
       |> UserAuth.log_in_user(user, %{})
     else
+      {:error, :email_not_confirmed} -> passkey_login_failed(conn, nil)
       _ -> passkey_login_failed(conn, nil)
     end
   end
