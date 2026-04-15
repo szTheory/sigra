@@ -22,6 +22,15 @@ config :sigra_install_golden_tmp, SigraInstallGoldenTmpWeb.Endpoint,
   pubsub_server: SigraInstallGoldenTmp.PubSub,
   live_view: [signing_salt: "<LIVE_VIEW_SALT>"]
 
+# Configure the mailer
+#
+# By default it uses the "Local" adapter which stores the emails
+# locally. You can see the emails in your browser, at "/dev/mailbox".
+#
+# For production it's recommended to configure a different adapter
+# at the `config/runtime.exs`.
+config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Mailer, adapter: Swoosh.Adapters.Local
+
 # Configure Elixir's Logger
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",

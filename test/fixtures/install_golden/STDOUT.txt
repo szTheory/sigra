@@ -25,7 +25,7 @@
 * creating priv/repo/migrations/TIMESTAMP_create_audit_events.exs
 * creating lib/sigra_install_golden_tmp/accounts/audit_event.ex
 * creating lib/sigra_install_golden_tmp/accounts/encrypted.ex
-* creating lib/sigra_install_golden_tmp/mailer.ex
+* skipping lib/sigra_install_golden_tmp/mailer.ex (already exists)
 * creating lib/sigra_install_golden_tmp_web/controllers/session_html.ex
 * creating lib/sigra_install_golden_tmp_web/live/registration_live.ex
 * creating lib/sigra_install_golden_tmp_web/live/confirmation_live.ex
