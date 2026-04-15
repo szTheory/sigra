@@ -170,6 +170,29 @@ Conventions not yet established. Will populate as patterns emerge during develop
 Architecture not yet mapped. Follow existing patterns found in the codebase.
 <!-- GSD:architecture-end -->
 
+## Local development prerequisites
+
+`mix test` requires a live Postgres at `localhost:5432` with credentials
+`postgres`/`postgres`. There is no `:postgres` tag exclusion — every test
+that runs in CI runs locally too, and a missing database fails fast
+instead of silently skipping.
+
+One-liner to start a disposable postgres container:
+
+```bash
+docker run -d --name sigra-test-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 postgres:16-alpine
+```
+
+Any already-running container on port 5432 with the same credentials
+(including the project's `sigra-uat-postgres`) is fine. Run the full
+suite with:
+
+```bash
+PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test
+```
+
 <!-- GSD:skills-start source:skills/ -->
 ## Project Skills
 

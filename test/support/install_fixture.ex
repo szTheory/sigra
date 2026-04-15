@@ -12,8 +12,11 @@ defmodule Sigra.Test.InstallFixture do
 
   ## Guarantees
 
-  - Uses `mix phx.new --no-assets --no-mailer --no-install` to avoid network
-    fetches and JS asset builds. Apps are generated under `System.tmp_dir!/0`
+  - Uses `mix phx.new --no-assets --no-install` to avoid network fetches and
+    JS asset builds. The mailer scaffold is kept so Swoosh is present as a
+    dep — `sigra.install`'s generated `core/auth_mailer.ex` template does
+    `import Swoosh.Email` unconditionally, so the tmp app must be able to
+    compile against Swoosh. Apps are generated under `System.tmp_dir!/0`
     inside a per-run subdirectory so parallel test runs do not collide.
   - `mix sigra.install` is invoked with `--yes` against the canonical trio
     `Accounts User users` (the default exercise path for the golden fixture).
@@ -47,7 +50,7 @@ defmodule Sigra.Test.InstallFixture do
     {phx_out, phx_status} =
       System.cmd(
         "mix",
-        ["phx.new", app_name, "--no-assets", "--no-mailer", "--no-install"],
+        ["phx.new", app_name, "--no-assets", "--no-install"],
         cd: tmp_root,
         stderr_to_stdout: true
       )
@@ -134,7 +137,7 @@ defmodule Sigra.Test.InstallFixture do
     {phx_out, phx_status} =
       System.cmd(
         "mix",
-        ["phx.new", app_name, "--no-assets", "--no-mailer", "--no-install"],
+        ["phx.new", app_name, "--no-assets", "--no-install"],
         cd: tmp_root,
         stderr_to_stdout: true
       )
@@ -210,7 +213,10 @@ defmodule Sigra.Test.InstallFixture do
   """
   @spec run_sigra_upgrade(Path.t(), [String.t()]) :: {:ok, String.t()}
   def run_sigra_upgrade(app_dir, flags) when is_list(flags) do
-    args = ["sigra.upgrade"] ++ flags ++ ["--yes"]
+    # `mix phx.new` runs `git init` without an initial commit, so the tmp app
+    # is always "dirty" from sigra.upgrade's perspective. The fixture owns the
+    # directory end-to-end, so --allow-dirty is always correct here.
+    args = ["sigra.upgrade"] ++ flags ++ ["--allow-dirty", "--yes"]
 
     {out, status} =
       System.cmd("mix", args,
