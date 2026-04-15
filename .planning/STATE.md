@@ -4,14 +4,14 @@ milestone: v1.1
 milestone_name: Foundations
 status: executing
 stopped_at: Phase 17 UI-SPEC approved
-last_updated: "2026-04-15T11:06:49.800Z"
-last_activity: 2026-04-15 -- Phase 25 execution started
+last_updated: "2026-04-15T11:43:59.128Z"
+last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 40
-  completed_plans: 38
-  percent: 95
+  completed_plans: 40
+  percent: 100
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 ## Current Position
 
-Phase: 25 (fix-sigra-upgrade-duplicate-migration-version-bug-and-restor) — EXECUTING
-Plan: 1 of 2
+Phase: 999.1
+Plan: Not started
 Status: Executing Phase 25
-Last activity: 2026-04-15 -- Phase 25 execution started
+Last activity: 2026-04-15
 
 Progress: [██████░░░░] 62% (9/14 v1.1 phases complete — 11–18 + 24 done, 19–23 remaining)
 
