@@ -110,6 +110,52 @@ defmodule Sigra.Audit do
   """
   @spec log_safe(String.t(), opts()) :: :ok
   def log_safe(action, opts) when is_binary(action) and is_list(opts) do
+    log_safe(action, nil, opts)
+  end
+
+  @doc """
+  Library-internal safe audit emission with optional scope.
+
+  `scope` is the second positional argument — mirrors the Phoenix 1.8
+  scopes idiom. Pass `nil` explicitly for pre-authentication or truly
+  anonymous call sites.
+
+  Scope is duck-typed on `%{user, active_organization, impersonating_from}` —
+  it does NOT pattern-match on `%Sigra.Scope{}` because that struct is
+  generated into the host app, not defined in the library.
+
+  `effective_user_id` is the authenticated principal (or v1.2 impersonation
+  target); `target_id` is the subject of the event. They diverge for
+  anonymous-actor events (failed login, magic link request) and for admin
+  actions on other users (v1.2).
+
+  Caller-supplied `:organization_id` / `:effective_user_id` / `:actor_id`
+  in `opts` always win over scope-derived values (D-06 caller-wins merge).
+  """
+  @spec log_safe(String.t(), scope :: term() | nil, opts()) :: :ok
+  def log_safe(action, scope, opts) when is_binary(action) and is_list(opts) do
+    scope_opts = scope_fields(scope)
+    merged = Keyword.merge(scope_opts, opts)
+    do_log_safe(action, merged)
+  end
+
+  defp scope_fields(nil) do
+    [organization_id: nil, effective_user_id: nil, actor_id: nil]
+  end
+
+  defp scope_fields(%{user: user} = scope) do
+    org = Map.get(scope, :active_organization)
+    # D-04: v1.2 impersonation diff is a single conditional added on this line.
+    [
+      organization_id: org && org.id,
+      effective_user_id: user && user.id,
+      actor_id: user && user.id
+    ]
+  end
+
+  defp scope_fields(_other), do: [organization_id: nil, effective_user_id: nil, actor_id: nil]
+
+  defp do_log_safe(action, opts) do
     case Keyword.get(opts, :audit_schema) do
       nil ->
         :ok
@@ -389,6 +435,7 @@ defmodule Sigra.Audit do
         Keyword.get(opts, :actor_id)
       end
 
+    # Top-level columns (D-07) — not nested in :metadata
     %{
       action: action,
       outcome: Keyword.get(opts, :outcome, "success"),
@@ -399,7 +446,9 @@ defmodule Sigra.Audit do
       ip_address: Keyword.get(opts, :ip_address),
       user_agent: Keyword.get(opts, :user_agent),
       metadata: Keyword.get(opts, :metadata, %{}),
-      occurred_at: Keyword.get(opts, :occurred_at, DateTime.utc_now())
+      occurred_at: Keyword.get(opts, :occurred_at, DateTime.utc_now()),
+      organization_id: Keyword.get(opts, :organization_id),
+      effective_user_id: Keyword.get(opts, :effective_user_id)
     }
   end
 end

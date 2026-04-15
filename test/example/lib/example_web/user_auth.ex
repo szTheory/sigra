@@ -219,6 +219,24 @@ defmodule ExampleWeb.UserAuth do
     end
   end
 
+  # Phase 16 D-26: `on_mount` callback that assigns `@user_organizations`
+  # to the socket so the org switcher component can render the list of
+  # orgs the current user can switch into. Wired into `live_session`
+  # entries by the router injection.
+  def on_mount(:assign_user_organizations, _params, _session, socket) do
+    socket =
+      case socket.assigns[:current_scope] do
+        %{user: %{} = user} ->
+          orgs_with_roles = Example.Organizations.list_organizations_for_user(user)
+          Phoenix.Component.assign(socket, :user_organizations, orgs_with_roles)
+
+        _ ->
+          Phoenix.Component.assign(socket, :user_organizations, [])
+      end
+
+    {:cont, socket}
+  end
+
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
       user =

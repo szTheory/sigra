@@ -18,7 +18,11 @@ defmodule Sigra.Install.GeneratorEmailTest do
     reset_password_url: "/users/reset_password",
     settings_url: "/users/settings",
     binary_id: false,
-    adapter: :postgres
+    adapter: :postgres,
+    # Phase 24 D-04.3: emails.ex now contains a conditional EEx block
+    # `<%= if organizations? do %>` around organization_invitation/4.
+    # Default leg includes the block.
+    organizations?: true
   ]
 
   describe "emails.ex template" do

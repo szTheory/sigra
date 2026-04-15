@@ -49,6 +49,21 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     plug :require_mfa
   end
 
+  # Phase 14 Plan 03: organization-aware pipelines (opt-in).
+  # Apps that want to gate routes by active organization membership
+  # pipe_through :require_org (any active membership) or
+  # :require_org_owner (owner role only). Phase 16 wires these to
+  # the organization picker + switcher.
+  pipeline :require_org do
+    plug Sigra.Plug.RequireMembership, error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
+  end
+
+  pipeline :require_org_owner do
+    plug Sigra.Plug.RequireMembership,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+      roles: [:owner]
+  end
+
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", SigraInstallGoldenTmpWeb do
     pipe_through [:browser]
@@ -92,6 +107,60 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     live "/settings", SettingsLive, :edit
     live "/reactivation", ReactivationLive
 
+  end
+
+
+  # Phase 17 D-06: single unscoped InvitationAcceptLive at
+  # /invitations/:token/accept. This route MUST remain outside any
+  # `:require_authenticated` pipeline so both anonymous visitors
+  # (signup branch) and signed-in visitors (accept / mismatch branch)
+  # reach the same LiveView, which branches on `@branch` at mount.
+  scope "/", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser]
+
+    live_session :invitations_public,
+      on_mount: [{SigraInstallGoldenTmpWeb.UserAuth, :mount_current_scope}] do
+      live "/invitations/:token/accept", InvitationAcceptLive
+    end
+  end
+
+  # Sigra organizations
+  pipeline :org_scoped do
+    plug Sigra.Plug.LoadOrganizationFromSlug
+    plug Sigra.Plug.RequireMembership,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
+  end
+
+  scope "/", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser, :require_authenticated]
+
+    # POST /organizations/switch MUST be defined before the scoped block
+    # below so Phoenix's definition-order matching doesn't interpret
+    # "switch" as a slug (D-06).
+    post "/organizations/switch", OrganizationSwitchController, :update
+
+    live_session :organizations_unscoped,
+      on_mount: [
+        {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
+        {SigraInstallGoldenTmpWeb.UserAuth, :assign_user_organizations}
+      ] do
+      live "/organizations", OrganizationsLive.Index, :index
+      live "/organizations/new", OrganizationsLive.New, :new
+    end
+  end
+
+  scope "/organizations/:org", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser, :require_authenticated, :org_scoped]
+
+    live_session :organization_scoped,
+      on_mount: [
+        {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
+        {SigraInstallGoldenTmpWeb.UserAuth, :assign_user_organizations},
+        {Sigra.LiveView.OrganizationScope, []}
+      ] do
+      live "/settings", OrganizationSettingsLive, :edit
+      live "/members", OrganizationMembersLive, :index
+    end
   end
 
 end

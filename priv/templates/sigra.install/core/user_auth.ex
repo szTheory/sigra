@@ -218,15 +218,56 @@ defmodule <%= web_module %>.UserAuth do
       {:cont, socket}
     end
   end
+<%= if organizations? do %>
+  # Phase 16 D-26: assigns `@user_organizations` to the socket for the
+  # org switcher component. Wired into `live_session` entries by the
+  # Sigra organizations router injection. Shape:
+  # `[{%Organization{}, role}]` — presentation-only data; security
+  # checks still go through the scope + membership plugs.
+  def on_mount(:assign_user_organizations, _params, _session, socket) do
+    socket =
+      case socket.assigns[:current_scope] do
+        %{user: %{} = user} ->
+          orgs_with_roles = <%= app_module %>.Organizations.list_organizations_for_user(user)
+          Phoenix.Component.assign(socket, :user_organizations, orgs_with_roles)
 
+        _ ->
+          Phoenix.Component.assign(socket, :user_organizations, [])
+      end
+
+    {:cont, socket}
+  end
+<% end %>
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
-      user =
-        if user_token = session["user_token"] do
-          <%= context_module %>.get_user_by_session_token(user_token)
-        end
+      if user_token = session["user_token"] do
+        case <%= context_module %>.get_user_and_session_by_token(user_token) do
+          {user, sigra_session} when not is_nil(user) ->
+            scope = Scope.for_user(user)
+<%= if organizations? do %>
+            # Phase 14 D-23: LiveView path calls the SAME hydrator as the
+            # plug path (Sigra.Plug.LoadActiveOrganization) to guarantee
+            # byte-identical current_scope values. Stale-pointer recovery
+            # is intentionally NOT performed on the LV path — no conn to
+            # write to. The next Plug request recovers via the plug. See
+            # Phase 14 CONTEXT §D-23, §D-14.
+            org_config = <%= app_module %>.Organizations.__sigra_org_config__()
 
-      user && Scope.for_user(user)
+            case Sigra.Scope.Hydration.hydrate(scope, org_config, sigra_session) do
+              {:ok, hydrated} -> hydrated
+              {:error, _reason} -> scope
+            end
+<% else %>
+            # Phase 24.1: under --no-organizations the Organizations context
+            # module + scope hydration are skipped entirely. The scope is
+            # user-only with no active_organization / membership.
+            _ = sigra_session
+            scope
+<% end %>
+          _ ->
+            nil
+        end
+      end
     end)
   end
 

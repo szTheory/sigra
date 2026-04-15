@@ -73,7 +73,11 @@ defmodule Sigra.Test.InstallFixture do
     #    noise into stdout. This keeps the captured install output focused on
     #    what the installer itself writes.
     {compile_out, compile_status} =
-      System.cmd("mix", ["compile"], cd: app_dir, stderr_to_stdout: true, env: [{"MIX_ENV", "dev"}])
+      System.cmd("mix", ["compile"],
+        cd: app_dir,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
 
     if compile_status != 0 do
       raise "pre-install mix compile failed:\n#{compile_out}"
@@ -104,6 +108,152 @@ defmodule Sigra.Test.InstallFixture do
        stdout: install_out,
        baseline_paths: baseline_paths
      }}
+  end
+
+  @doc """
+  Scaffolds a fresh Phoenix tmp app with the path-dep to in-tree sigra patched in,
+  deps fetched, and baseline compile done — but WITHOUT running `mix sigra.install`.
+
+  Use this when you want to drive the installer yourself via `run_sigra_install/2`
+  (e.g. to pass `--no-organizations` or other non-default flags), or to run the
+  upgrade task against a v1.0-shape install.
+
+  Preserves byte-identity with `setup_tmp_app/1` by mirroring its prep steps
+  (phx.new + path-dep patch + deps.get + compile) without touching the existing
+  function's body — golden_diff_test remains unaffected.
+
+  Returns `{:ok, %{app_dir: path}}` on success.
+  """
+  @spec setup_tmp_app_without_install(keyword()) :: {:ok, %{app_dir: Path.t()}}
+  def setup_tmp_app_without_install(opts \\ []) do
+    app_name = Keyword.get(opts, :app_name, @app_name)
+    tmp_root = Path.join(System.tmp_dir!(), "sigra_golden_#{:erlang.unique_integer([:positive])}")
+    File.rm_rf!(tmp_root)
+    File.mkdir_p!(tmp_root)
+
+    {phx_out, phx_status} =
+      System.cmd(
+        "mix",
+        ["phx.new", app_name, "--no-assets", "--no-mailer", "--no-install"],
+        cd: tmp_root,
+        stderr_to_stdout: true
+      )
+
+    if phx_status != 0 do
+      raise "mix phx.new failed (status #{phx_status}):\n#{phx_out}"
+    end
+
+    app_dir = Path.join(tmp_root, app_name)
+
+    patch_mix_exs_with_path_dep!(app_dir)
+
+    {deps_out, deps_status} =
+      System.cmd("mix", ["deps.get"], cd: app_dir, stderr_to_stdout: true)
+
+    if deps_status != 0 do
+      raise "mix deps.get failed (status #{deps_status}):\n#{deps_out}"
+    end
+
+    {compile_out, compile_status} =
+      System.cmd("mix", ["compile"],
+        cd: app_dir,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
+
+    if compile_status != 0 do
+      raise "pre-install mix compile failed:\n#{compile_out}"
+    end
+
+    {:ok, %{app_dir: app_dir}}
+  end
+
+  @doc """
+  Runs `mix sigra.install Accounts User users <flags> --yes` in an already-prepared
+  tmp app with the given extra flags.
+
+  Used by `test/upgrade_test.exs` to install with non-default flags (e.g.
+  `--no-organizations`) in a tmp app that was set up with
+  `setup_tmp_app_without_install/1`.
+
+  Returns `{:ok, stdout}` on success; raises with captured stdout on failure.
+  """
+  @spec run_sigra_install(Path.t(), [String.t()]) :: {:ok, String.t()}
+  def run_sigra_install(app_dir, flags) when is_list(flags) do
+    args = ["sigra.install", "Accounts", "User", "users"] ++ flags ++ ["--yes"]
+
+    {out, status} =
+      System.cmd("mix", args,
+        cd: app_dir,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
+
+    if status != 0 do
+      raise """
+      mix sigra.install #{Enum.join(flags, " ")} failed in #{app_dir}:
+
+      #{out}
+      """
+    end
+
+    {:ok, out}
+  end
+
+  @doc """
+  Runs `mix sigra.upgrade <flags> --yes` in a tmp app. Mirror of `run_sigra_install/2`.
+
+  Used by `test/upgrade_test.exs` to exercise the upgrade path after an initial
+  v1.0-shape install.
+
+  Returns `{:ok, stdout}` on success; raises with captured stdout on failure.
+  """
+  @spec run_sigra_upgrade(Path.t(), [String.t()]) :: {:ok, String.t()}
+  def run_sigra_upgrade(app_dir, flags) when is_list(flags) do
+    args = ["sigra.upgrade"] ++ flags ++ ["--yes"]
+
+    {out, status} =
+      System.cmd("mix", args,
+        cd: app_dir,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
+
+    if status != 0 do
+      raise """
+      mix sigra.upgrade #{Enum.join(flags, " ")} failed in #{app_dir}:
+
+      #{out}
+      """
+    end
+
+    {:ok, out}
+  end
+
+  @doc """
+  Runs a raw `mix` command in a tmp app — escape hatch for seed helpers,
+  `mix ecto.migrate`, etc. from `test/upgrade_test.exs`.
+
+  Returns `{:ok, stdout}` on success; raises with captured stdout on failure.
+  """
+  @spec run_mix(Path.t(), [String.t()]) :: {:ok, String.t()}
+  def run_mix(app_dir, args) when is_list(args) do
+    {out, status} =
+      System.cmd("mix", args,
+        cd: app_dir,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
+
+    if status != 0 do
+      raise """
+      mix #{Enum.join(args, " ")} failed in #{app_dir}:
+
+      #{out}
+      """
+    end
+
+    {:ok, out}
   end
 
   @doc """
@@ -186,7 +336,10 @@ defmodule Sigra.Test.InstallFixture do
       content
       |> String.replace(~r/signing_salt: "[^"]+"/, ~s(signing_salt: "<SIGNING_SALT>"))
       |> String.replace(~r/secret_key_base: "[^"]+"/, ~s(secret_key_base: "<SECRET_KEY_BASE>"))
-      |> String.replace(~r/live_view: \[signing_salt: "[^"]+"\]/, ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"]))
+      |> String.replace(
+        ~r/live_view: \[signing_salt: "[^"]+"\]/,
+        ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
+      )
     else
       content
     end

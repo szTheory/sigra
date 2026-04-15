@@ -5,6 +5,9 @@ defmodule ExampleWeb.Layouts do
   """
   use ExampleWeb, :html
 
+  # Phase 16 D-27: organization switcher function component.
+  import ExampleWeb.Components.OrgSwitcher
+
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
   # skeleton of your application, namely HTML headers
@@ -31,6 +34,10 @@ defmodule ExampleWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :user_organizations, :list,
+    default: [],
+    doc: "list of {organization, role} tuples for the current user (Phase 16 D-26)"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -43,6 +50,12 @@ defmodule ExampleWeb.Layouts do
         </a>
       </div>
       <div class="flex-none">
+        <.org_switcher
+          :if={@current_scope && @current_scope.active_organization}
+          current_scope={@current_scope}
+          user_organizations={@user_organizations}
+          return_to="/"
+        />
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
             <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>

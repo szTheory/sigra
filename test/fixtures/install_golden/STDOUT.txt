@@ -1,4 +1,5 @@
 * creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
+* creating priv/repo/migrations/TIMESTAMP_add_active_organization_id_to_user_sessions.exs
 * creating lib/sigra_install_golden_tmp/accounts/user.ex
 * creating lib/sigra_install_golden_tmp/accounts/user_token.ex
 * creating lib/sigra_install_golden_tmp/accounts/scope.ex
@@ -72,4 +73,43 @@ Next steps:
   LiveView pages were generated for login, registration, and session management.
 
 
+
+* creating lib/sigra_install_golden_tmp/accounts/organization.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_invitation.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_membership.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_slug_alias.ex
+* creating priv/repo/migrations/TIMESTAMP_create_organizations.exs
+* creating priv/repo/migrations/TIMESTAMP_alter_audit_events_add_org_columns.exs
+* creating lib/sigra_install_golden_tmp/organizations.ex
+* creating lib/sigra_install_golden_tmp_web/components/org_switcher.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex
+* creating lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex
+* creating lib/sigra_install_golden_tmp_web/live/organizations_live/new.ex
+* creating lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/organization_members_live.ex
+* creating lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex
+* injecting lib/sigra_install_golden_tmp_web/router.ex
+
+Sigra organizations installed!
+
+Next steps:
+
+  1. Add the organization switcher to your app layout.
+     In lib/<app>_web/components/layouts.ex, inside the <header>, add:
+
+         <.org_switcher
+           current_scope={@current_scope}
+           user_organizations={@user_organizations}
+           return_to={@current_path}
+         />
+
+  2. Organization routes were injected into your router, including
+     the /organizations landing + scoped /organizations/:org block.
+
+  3. Run `mix ecto.migrate` to create the organizations tables.
+
+  4. Add `:require_org` gates to routes that should force org
+     selection:
+
+         pipe_through [:browser, :require_authenticated, :require_org]
 

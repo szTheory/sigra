@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Sigra.Install do
 
   alias Sigra.Install.Runner
 
-  @features [Sigra.Install.Features.Core]
+  @features [Sigra.Install.Features.Core, Sigra.Install.Features.Organizations]
 
   @switches [
     live: :boolean,
@@ -40,9 +40,10 @@ defmodule Mix.Tasks.Sigra.Install do
     table: :string,
     api: :boolean,
     jwt: :boolean,
+    organizations: :boolean,
     yes: :boolean
   ]
-  @default_opts [live: true, api: false, jwt: false, binary_id: true]
+  @default_opts [live: true, api: false, jwt: false, binary_id: true, organizations: true]
 
   @impl true
   def run(args) do
@@ -110,6 +111,7 @@ defmodule Mix.Tasks.Sigra.Install do
       live: opts[:live],
       api: opts[:api] || opts[:jwt] || false,
       jwt: opts[:jwt] || false,
+      organizations?: Keyword.get(opts, :organizations, true),
       adapter: adapter,
       reset_password_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/reset-password",
       settings_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/settings",

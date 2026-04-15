@@ -18,6 +18,8 @@ defmodule Sigra.Test.AuditEvent do
     field(:user_agent, :string)
     field(:metadata, :map)
     field(:occurred_at, :utc_datetime_usec)
+    field(:organization_id, :binary_id)
+    field(:effective_user_id, :binary_id)
     timestamps(updated_at: false, type: :utc_datetime_usec)
   end
 end

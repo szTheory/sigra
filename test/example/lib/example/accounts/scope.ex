@@ -10,13 +10,27 @@ defmodule Example.Accounts.Scope do
       scope = Example.Accounts.Scope.for_user(user)
       scope.user #=> %Example.Accounts.User{}
 
+  ## Reserved fields
+
+  `:impersonating_from` is reserved for v1.2 impersonation support and must
+  not be removed. See `UPGRADE-v1.2.md` at the project root for the contract.
+
   """
 
   alias Example.Accounts.User
 
-  defstruct user: nil
+  # Reserved for v1.2 impersonation. Do not remove — see UPGRADE-v1.2.md.
+  defstruct user: nil,
+            active_organization: nil,
+            membership: nil,
+            impersonating_from: nil
 
-  @type t :: %__MODULE__{user: %User{} | nil}
+  @type t :: %__MODULE__{
+          user: %User{} | nil,
+          active_organization: struct() | nil,
+          membership: struct() | nil,
+          impersonating_from: %User{} | nil
+        }
 
   @doc """
   Creates a scope for the given user.
@@ -35,4 +49,15 @@ defmodule Example.Accounts.Scope do
   end
 
   def new(nil), do: nil
+
+  @doc """
+  Assigns the active organization and membership to the scope.
+
+  Phase 16 adds this contract so `Sigra.Plug.LoadOrganizationFromSlug`
+  and `Sigra.Plug.PutActiveOrganization` can hydrate the per-request
+  scope struct through the host's scope module (D-03).
+  """
+  def put_active_organization(%__MODULE__{} = scope, organization, membership) do
+    %__MODULE__{scope | active_organization: organization, membership: membership}
+  end
 end

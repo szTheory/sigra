@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Phase 11 context gathered
-last_updated: "2026-04-12T02:01:39.533Z"
-last_activity: "2026-04-11 -- Phase 11 shipped (PR #7)"
+stopped_at: Phase 17 UI-SPEC approved
+last_updated: "2026-04-15T03:38:12.034Z"
+last_activity: 2026-04-15
 progress:
-  total_phases: 15
-  completed_phases: 1
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 16
+  completed_phases: 9
+  total_plans: 38
+  completed_plans: 38
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 11 — generator-feature-system
+**Current focus:** Phase 18 — backfill-organizations-generator-wiring
 
 ## Current Position
 
-Phase: 11 (generator-feature-system) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 11
-Last activity: 2026-04-11 -- Phase 11 shipped (PR #7)
+Phase: 999.1
+Plan: Not started
+Status: Executing Phase 18
+Last activity: 2026-04-15
 
-Progress: [░░░░░░░░░░] 0% (0/13 phases complete)
+Progress: [████░░░░░░] 40% (6/15 phases complete)
 
 ## Accumulated Context
 
@@ -50,10 +50,16 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
+- Run `/gsd-discuss-phase 17` first to lock decisions for Phase 17 (Invitation Flow + Email) — token storage shape, HMAC bind format, rate-limit budget, plug split vs reuse — then `/gsd-plan-phase 17`. Phase 16 baked in the seam: `<section id="pending-invitations-section">` and the disabled "Invite member" button are intentional extension points; Phase 17 should mirror Plan 05's event-handler naming and Plan 04's error-remap helper shape (per VERIFICATION.md recommendation).
+- Phase 16 follow-up (do NOT block Phase 17): library slug-alias migration template uses `now()` in a Postgres partial-unique index predicate — Postgres rejects non-IMMUTABLE functions in index predicates. Plan 06 worked around it in the example app with a plain unique index on `old_slug`, but the library template still ships the partial-index form and may hit the same error on real hosts. Fix in a small dedicated phase or fold into Phase 17 prep.
 - Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
 - Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
 - Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
 - Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
+
+### Roadmap Evolution
+
+- Phase 24 added: Repair Phase 16/17 organizations generator templates (addresses DEF-18-01 and DEF-18-02 — pre-existing Phase 16/17 org template bugs surfaced when Phase 18 Wave 1 registered `Features.Organizations`)
 
 ### Blockers/Concerns
 
@@ -63,6 +69,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-11T23:03:02.449Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-generator-feature-system/11-CONTEXT.md
+Last session: 2026-04-13T17:54:48.518Z
+Stopped at: Phase 17 UI-SPEC approved
+Resume file: .planning/phases/17-invitation-flow-email/17-UI-SPEC.md

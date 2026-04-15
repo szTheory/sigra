@@ -22,6 +22,16 @@ defmodule ExampleWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    # Phase 17 D-06: single unscoped InvitationAcceptLive at
+    # /invitations/:token/accept. This route MUST remain outside any
+    # `:require_authenticated_user` pipeline so both anonymous visitors
+    # (signup branch) and signed-in visitors (accept / mismatch branch)
+    # reach the same LiveView, which branches on `@branch` at mount.
+    live_session :invitations_public,
+      on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
+      live "/invitations/:token/accept", InvitationAcceptLive
+    end
   end
 
   # Other scopes may use custom stacks.
@@ -92,6 +102,51 @@ defmodule ExampleWeb.Router do
     scope "/dev" do
       pipe_through :browser
       forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  # Sigra organizations (Phase 16)
+  pipeline :org_scoped do
+    plug Sigra.Plug.LoadOrganizationFromSlug,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      organizations: Example.Organizations,
+      session_store: Sigra.SessionStores.Ecto,
+      session_store_opts: [repo: Example.Repo, session_schema: Example.Accounts.UserSession],
+      scope_module: Example.Accounts.Scope
+
+    plug Sigra.Plug.RequireMembership, error_handler: ExampleWeb.AuthErrorHandler
+  end
+
+  scope "/", ExampleWeb do
+    pipe_through [:browser, :require_authenticated]
+
+    # POST /organizations/switch MUST be defined before the scoped block
+    # below so Phoenix's definition-order matching doesn't interpret
+    # "switch" as a slug (D-06).
+    post "/organizations/switch", OrganizationSwitchController, :update
+
+    live_session :organizations_unscoped,
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {ExampleWeb.UserAuth, :assign_user_organizations}
+      ] do
+      live "/organizations", OrganizationsLive.Index, :index
+      live "/organizations/new", OrganizationsLive.New, :new
+    end
+  end
+
+  scope "/organizations/:org", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :org_scoped]
+
+    live_session :organization_scoped,
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {ExampleWeb.UserAuth, :assign_user_organizations},
+        {Sigra.LiveView.OrganizationScope,
+         [organizations: Example.Organizations, scope_module: Example.Accounts.Scope]}
+      ] do
+      live "/settings", OrganizationSettingsLive, :edit
+      live "/members", OrganizationMembersLive, :index
     end
   end
 end

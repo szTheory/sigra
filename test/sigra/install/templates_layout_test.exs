@@ -12,6 +12,8 @@ defmodule Sigra.Install.TemplatesLayoutTest do
   use ExUnit.Case, async: true
 
   @manifest_post_move ~w(
+    add_active_organization_id_to_user_sessions.exs
+    alter_audit_events_add_org_columns.exs
     api_token_controller.ex
     api_token_created_email.ex
     api_token_migration.exs
@@ -64,7 +66,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
 
   test "templates have been relocated under core/ subdirectory" do
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 45
+    assert length(core_files) == 47
     assert core_files == Enum.sort(@manifest_post_move)
   end
 

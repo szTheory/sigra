@@ -37,7 +37,9 @@ defmodule Sigra.Audit.Changeset do
     :ip_address,
     :user_agent,
     :metadata,
-    :occurred_at
+    :occurred_at,
+    :organization_id,
+    :effective_user_id
   ]
 
   @doc """

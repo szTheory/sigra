@@ -132,7 +132,11 @@ defmodule Mix.Tasks.Sigra.InstallTest do
     test "renders scope template with defstruct" do
       binding = [
         context_module: "MyApp.Accounts",
-        schema_alias: "User"
+        schema_alias: "User",
+        # Phase 24.1: scope.ex gates Organization struct references on
+        # `<%= if organizations? do %>` so the --no-organizations install
+        # path compiles.
+        organizations?: true
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "scope.ex"])
@@ -164,7 +168,12 @@ defmodule Mix.Tasks.Sigra.InstallTest do
 
     test "renders error handler with Sigra.Plug.ErrorHandler behaviour" do
       binding = [
-        web_module: "MyAppWeb"
+        web_module: "MyAppWeb",
+        # Phase 24.1: error_handler.ex gates the :no_active_org branch
+        # on `<%= if organizations? do %>` so the --no-organizations
+        # install leg compiles (it avoids referencing the unverified
+        # ~p"/organizations" route).
+        organizations?: true
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "error_handler.ex"])

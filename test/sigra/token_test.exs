@@ -89,6 +89,82 @@ defmodule Sigra.TokenTest do
     end
   end
 
+  describe "generate_invite_envelope/2 + verify_invite_envelope/3" do
+    @invite_purpose "sigra-org-invite-token"
+
+    test "round-trips to {:ok, %{raw_token, bound_email, hashed_token}}" do
+      {encoded, hashed} = Token.generate_invite_envelope(@secret, "user@example.com")
+
+      assert is_binary(encoded)
+      assert byte_size(hashed) == 32
+
+      assert {:ok, %{raw_token: raw, bound_email: "user@example.com", hashed_token: got_hashed}} =
+               Token.verify_invite_envelope(@secret, encoded, 3600)
+
+      assert is_binary(raw)
+      assert got_hashed == hashed
+    end
+
+    test "downcases bound email on generate" do
+      {encoded, _} = Token.generate_invite_envelope(@secret, "USER@EXAMPLE.COM")
+
+      assert {:ok, %{bound_email: "user@example.com"}} =
+               Token.verify_invite_envelope(@secret, encoded, 3600)
+    end
+
+    test "rejects tampered payload with :invalid" do
+      {encoded, _} = Token.generate_invite_envelope(@secret, "user@example.com")
+
+      {:ok, signed} = Base.url_decode64(encoded, padding: false)
+      mid = div(byte_size(signed), 2)
+      <<prefix::binary-size(mid), byte, suffix::binary>> = signed
+      tampered_signed = <<prefix::binary, Bitwise.bxor(byte, 0x01)::8, suffix::binary>>
+      tampered = Base.url_encode64(tampered_signed, padding: false)
+
+      assert {:error, :invalid} = Token.verify_invite_envelope(@secret, tampered, 3600)
+    end
+
+    test "rejects wrong purpose with :invalid" do
+      {raw, _hashed} = Token.generate_hashed_token()
+      payload = %{"t" => raw, "e" => "user@example.com"}
+      signed = Plug.Crypto.sign(@secret, "wrong-purpose", payload)
+      encoded = Base.url_encode64(signed, padding: false)
+
+      assert {:error, :invalid} = Token.verify_invite_envelope(@secret, encoded, 3600)
+    end
+
+    test "returns :expired when max_age exceeded" do
+      {encoded, _} = Token.generate_invite_envelope(@secret, "user@example.com")
+      # Sleep ~1s and verify with max_age: 0 which is immediate expiry per Plug.Crypto
+      Process.sleep(1100)
+
+      assert {:error, :expired} = Token.verify_invite_envelope(@secret, encoded, 1)
+    end
+
+    test "returns :invalid for base64 garbage" do
+      assert {:error, :invalid} =
+               Token.verify_invite_envelope(@secret, "not-valid-base64!!!", 3600)
+    end
+
+    test "returns :invalid for wrong payload shape" do
+      # Sign a raw binary (not a string-keyed map) with the correct purpose
+      signed = Plug.Crypto.sign(@secret, @invite_purpose, "just-a-bare-binary")
+      encoded = Base.url_encode64(signed, padding: false)
+
+      assert {:error, :invalid} = Token.verify_invite_envelope(@secret, encoded, 3600)
+    end
+
+    test "decoded payload uses only string keys (atom-flood defense)" do
+      {encoded, _} = Token.generate_invite_envelope(@secret, "user@example.com")
+
+      assert {:ok, %{raw_token: raw, bound_email: email}} =
+               Token.verify_invite_envelope(@secret, encoded, 3600)
+
+      assert is_binary(raw)
+      assert is_binary(email)
+    end
+  end
+
   describe "secure_compare/2" do
     test "returns true for equal strings" do
       assert Token.secure_compare("abc", "abc") == true

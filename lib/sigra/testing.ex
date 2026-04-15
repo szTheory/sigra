@@ -1199,4 +1199,41 @@ defmodule Sigra.Testing do
 
     true
   end
+
+  @doc """
+  Asserts that the latest audit event matches the given field expectations.
+
+  Thin alias for `assert_audit_event/2` with a name aligned to REQ DX-02
+  (`assert_audit_logged_for_org/2` family naming). Takes a map of expected
+  fields and a keyword options list. See `assert_audit_event/2` for the
+  full option list (`:repo`, `:audit_schema`, `:position`).
+
+  ## Examples
+
+      assert_audit_logged(
+        %{
+          action: "auth.login.success",
+          actor_id: user.id,
+          effective_user_id: user.id,
+          organization_id: org.id
+        },
+        repo: MyApp.Repo,
+        audit_schema: MyApp.AuditEvent
+      )
+
+  ## Signature note
+
+  This helper intentionally takes `(map, keyword)` — NOT `(repo, fields)`. See
+  the `deviations` field in
+  `.planning/phases/15-audit-integration/15-02-semantic-workers-credo-PLAN.md`
+  for the D-31 refinement rationale (the `(repo, fields)` shape from
+  CONTEXT.md would require synthesizing `:audit_schema` via process-dict
+  magic and would no longer be a "thin alias" — it would either duplicate
+  the implementation or hide required options).
+  """
+  @doc since: "0.11.0"
+  @spec assert_audit_logged(map(), keyword()) :: true
+  def assert_audit_logged(expected, opts) when is_map(expected) and is_list(opts) do
+    assert_audit_event(expected, opts)
+  end
 end

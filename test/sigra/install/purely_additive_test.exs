@@ -125,15 +125,23 @@ defmodule Sigra.Install.PurelyAdditiveTest do
   test "sigra.install.ex contains no feature-specific branches (grep assertion)" do
     source = File.read!("lib/mix/tasks/sigra.install.ex")
 
-    # Forbidden patterns — any presence means the walker has
-    # feature-specific logic wired into the Mix task.
-    refute source =~ "Features.Organizations",
-           "sigra.install.ex must not mention Features.Organizations"
-
+    # Phase 18 (Plan 18-01) lifted the Features.Organizations refute:
+    # registering a feature by appending it to @features is the
+    # prescribed extensibility path. The architectural invariant is
+    # that the Mix task must NOT case-match on feature modules or
+    # have per-feature conditional code — only the @features list
+    # entry itself is allowed. Refutes for future features
+    # (Features.Passkeys, Features.Admin) remain as isolation locks
+    # until the phase that ships each one lands.
     refute source =~ "Features.Passkeys",
            "sigra.install.ex must not mention Features.Passkeys"
 
     refute source =~ "Features.Admin", "sigra.install.ex must not mention Features.Admin"
+
+    # Organizations must be declared *only* via the @features list entry,
+    # never via case-match or per-feature branching.
+    assert source =~ "Sigra.Install.Features.Organizations",
+           "sigra.install.ex must register Features.Organizations in @features (Phase 18 Plan 18-01)"
 
     # The Mix task must declare a @features module attribute — this is
     # the single extensibility point where future features are listed.

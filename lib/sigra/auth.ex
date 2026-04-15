@@ -144,26 +144,24 @@ defmodule Sigra.Auth do
   @spec register(module(), map(), keyword()) ::
           {:ok, struct()} | {:error, Ecto.Changeset.t()} | {:error, :email_taken}
   def register(repo, attrs, opts \\ []) do
-    changeset_fn = Keyword.fetch!(opts, :changeset_fn)
-
     Telemetry.span([:sigra, :auth, :register], %{}, fn ->
-      changeset = changeset_fn.(attrs)
-
       # D-26: audit integration. Uses Sigra.Audit.log_safe/2 (standalone, D-28)
-      # which no-ops if the host app has not configured :audit_schema, so
-      # callers without audit config see unchanged behaviour. When audit is
-      # enabled, the audit row is written in its own transaction after the
-      # business op. Note: this is NOT fully atomic with the user insert; a
-      # future task may convert register to Multi-based once subsystem tests
-      # gain audit_schema awareness.
+      # which no-ops if the host app has not configured :audit_schema. When
+      # audit is enabled, the audit row is written in its own transaction
+      # after the business op. Not fully atomic with the user insert yet.
       audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-      case repo.insert(changeset) do
-        {:ok, user} ->
-          Audit.log_safe(
-            "auth.register.success",
+      attrs
+      |> register_user_multi(opts)
+      |> repo.transact()
+      |> case do
+        {:ok, %{user: user}} ->
+          # 15-02 Category 2: registered user is resolved — build user-only
+          # scope (org intentionally nil; new accounts have no org yet).
+          Audit.log_safe("auth.register.success", Sigra.Scope.from_opts(opts, user),
             Keyword.merge(audit_opts,
               actor_id: user.id,
+              target_id: user.id,
               metadata: %{method: "password"}
             )
           )
@@ -171,12 +169,13 @@ defmodule Sigra.Auth do
           Telemetry.event([:sigra, :auth, :register, :stop], %{}, %{user_id: user.id})
           {:ok, user}
 
-        {:error, changeset} ->
+        {:error, :user, %Ecto.Changeset{} = changeset, _changes} ->
           if email_taken_error?(changeset) do
-            Audit.log_safe(
-              "auth.register.failure",
+            # 15-02 Category 3: no user resolved — nil scope + target_id: nil.
+            Audit.log_safe("auth.register.failure", nil,
               Keyword.merge(audit_opts,
                 actor_id: nil,
+                target_id: nil,
                 outcome: "failure",
                 metadata: %{reason: "email_taken"}
               )
@@ -184,10 +183,10 @@ defmodule Sigra.Auth do
 
             {:error, :email_taken}
           else
-            Audit.log_safe(
-              "auth.register.failure",
+            Audit.log_safe("auth.register.failure", nil,
               Keyword.merge(audit_opts,
                 actor_id: nil,
+                target_id: nil,
                 outcome: "failure",
                 metadata: %{reason: "validation"}
               )
@@ -199,6 +198,38 @@ defmodule Sigra.Auth do
     end)
   end
 
+  @doc """
+  Pure `Ecto.Multi` builder for user registration.
+
+  Returns a multi with a `:user` step that inserts the user via the
+  configured `:changeset_fn`. Makes ZERO Repo calls — composable via
+  `Ecto.Multi.append/2`. Intended for use by
+  `Sigra.Organizations.Invitations.accept_with_signup/3` (Phase 17 D-07)
+  to atomically compose signup + confirm + membership + accept.
+
+  ## Options
+
+    * `:changeset_fn` — REQUIRED. 1-arity function producing a user
+      changeset from `attrs`.
+
+  ## Example
+
+      Ecto.Multi.new()
+      |> Ecto.Multi.append(
+           Sigra.Auth.register_user_multi(attrs, changeset_fn: &User.registration_changeset/1)
+         )
+      |> MyApp.Repo.transact()
+
+  """
+  @doc since: "0.4.0"
+  @spec register_user_multi(map(), keyword()) :: Ecto.Multi.t()
+  def register_user_multi(attrs, opts) when is_map(attrs) and is_list(opts) do
+    changeset_fn = Keyword.fetch!(opts, :changeset_fn)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:user, changeset_fn.(attrs))
+  end
+
   # --- Audit integration helpers (Plan 09-03) ---
   #
   # The audit layer is opt-in: if the host app has not configured an audit
@@ -208,18 +239,18 @@ defmodule Sigra.Auth do
   #
   # D-26 dispatch table (auth.* operations in this module):
   #
-  #   register success    -> Sigra.Audit.log_safe("auth.register.success", ...)
+  #   register success    -> Sigra.Audit.log_safe("auth.register.success", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", ...)
-  #   login success       -> Sigra.Audit.log_safe("auth.login.success", ...)
+  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", nil, ...)
+  #   login success       -> Sigra.Audit.log_safe("auth.login.success", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", ...)
+  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", nil, ...)
   #                          (non-Multi, standalone per D-28)
-  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", ...)
+  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", ...)
+  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", nil, ...)
   #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", ...)
+  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", nil, ...)
   #   password_reset done -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation link   -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation code   -> Sigra.Audit.__log_internal__ (Multi, atomic)
@@ -329,10 +360,15 @@ defmodule Sigra.Auth do
     # Step 1: Check lockout BEFORE password verification (D-29)
     case Sigra.Lockout.check(user, lockout_opts) do
       {:error, :account_locked, _remaining} ->
-        # D-26: security audit row (standalone, D-28)
-        Audit.log_safe("security.lockout",
+        # D-26: security audit row (standalone, D-28).
+        # D-28 Category 2: known-user pre-org-selection — build a user-only
+        # scope (org intentionally nil) and set target_id: user.id.
+        user_scope = Sigra.Scope.from_config(config, user)
+
+        Audit.log_safe("security.lockout", user_scope,
           Keyword.merge(audit_opts,
             actor_id: user && user.id,
+            target_id: user && user.id,
             outcome: "failure",
             metadata: %{reason: "account_locked"}
           )
@@ -346,10 +382,14 @@ defmodule Sigra.Auth do
 
         case Crypto.verify_with_upgrade(password, hashed_password) do
           {:ok, :valid} ->
-            # D-26: login success audit row
-            Audit.log_safe("auth.login.success",
+            # D-26: login success audit row.
+            # 15-02 D-28 Category 2: pre-org-selection — user-only scope.
+            user_scope = Sigra.Scope.from_config(config, user)
+
+            Audit.log_safe("auth.login.success", user_scope,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
+                target_id: user.id,
                 metadata: %{method: "password"}
               )
             )
@@ -359,9 +399,12 @@ defmodule Sigra.Auth do
           {:ok, :valid, new_hash} ->
             Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
 
-            Audit.log_safe("auth.login.success",
+            user_scope = Sigra.Scope.from_config(config, user)
+
+            Audit.log_safe("auth.login.success", user_scope,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
+                target_id: user.id,
                 metadata: %{method: "password", hash_upgraded: true}
               )
             )
@@ -371,13 +414,14 @@ defmodule Sigra.Auth do
           {:error, :invalid} ->
             if user do
               # D-26 + D-28: login failure is a standalone audit write.
-              # The call site uses Sigra.Audit.log_safe/2 (internal variant
-              # that bypasses reserved-prefix guards for library-owned
-              # actions). The equivalent developer-facing entry point is
-              # `Sigra.Audit.log(action, opts)` for non-reserved actions.
-              Audit.log_safe("auth.login.failure",
+              # 15-02 D-28 Category 2: known-user pre-org-selection — user-only
+              # scope + target_id: user.id.
+              user_scope = Sigra.Scope.from_config(config, user)
+
+              Audit.log_safe("auth.login.failure", user_scope,
                 Keyword.merge(audit_opts,
                   actor_id: user.id,
+                  target_id: user.id,
                   outcome: "failure",
                   metadata: %{reason: "invalid_password"}
                 )
@@ -385,10 +429,15 @@ defmodule Sigra.Auth do
 
               handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts)
             else
-              # D-26: login failure audit (unknown email) — standalone (D-28)
-              Audit.log_safe("auth.login.failure",
+              # 15-02 D-26/D-29 Category 3: truly-anonymous unknown-email
+              # failed login — nil scope + target_id: nil. Metadata carries
+              # only the reason label (no email, no email hash — OWASP ASVS
+              # V7.1); IP / User-Agent are already in audit_opts as top-level
+              # columns, not metadata.
+              Audit.log_safe("auth.login.failure", nil,
                 Keyword.merge(audit_opts,
                   actor_id: nil,
+                  target_id: nil,
                   outcome: "failure",
                   metadata: %{reason: "unknown_email"}
                 )
@@ -455,8 +504,10 @@ defmodule Sigra.Auth do
         # D-26: audit magic link request (standalone, always success)
         audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-        Audit.log_safe("auth.magic_link_request",
-          Keyword.merge(audit_opts, actor_id: user.id, metadata: %{})
+        # 15-02 Category 2 (D-28): pre-auth magic link request with a
+        # resolved user — build user-only scope + target_id: user.id.
+        Audit.log_safe("auth.magic_link_request", Sigra.Scope.from_opts(opts, user),
+          Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
         )
 
         {:ok, {raw_token, url}}
@@ -519,9 +570,11 @@ defmodule Sigra.Auth do
             # still persisted after the business op succeeds.
             audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-            Audit.log_safe("auth.magic_link_verify.success",
+            # 15-02 Category 2: verified user resolved — user-only scope.
+            Audit.log_safe("auth.magic_link_verify.success", Sigra.Scope.from_opts(opts, user),
               Keyword.merge(audit_opts,
                 actor_id: user.id,
+                target_id: user.id,
                 metadata: %{}
               )
             )
@@ -863,8 +916,10 @@ defmodule Sigra.Auth do
         # D-26: audit password reset request (standalone, always success).
         audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
-        Audit.log_safe("auth.password_reset_request",
-          Keyword.merge(audit_opts, actor_id: user.id, metadata: %{})
+        # 15-02 Category 2 (D-28): pre-auth password reset request with a
+        # resolved user — build user-only scope + target_id: user.id.
+        Audit.log_safe("auth.password_reset_request", Sigra.Scope.from_opts(opts, user),
+          Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
         )
 
         {:ok, {encoded_token, url}}
@@ -974,9 +1029,24 @@ defmodule Sigra.Auth do
   Creates a session via the configured SessionStore and emits a
   `[:sigra, :session, :create]` telemetry span.
 
+  ## Phase 14: organization selector (D-12, D-26, ORG-SCOPE-06)
+
+  When `config.organizations_module` is set, the function runs the
+  `Sigra.Organizations.select_active_organization/3` selector once per
+  login and writes the result (or `nil`) into the newly-created session
+  row via `SessionStore.update_active_organization/3`. The selector
+  call is wrapped in a `try/rescue` block and MUST NOT fail the login
+  — selector failures fall back to `active_organization_id: nil` and
+  the user sees the picker on their next `RequireMembership` hit
+  (T-14-13 mitigation).
+
   ## Options
 
   - `:session_store` - Override the session store from config.
+  - `:previous_active_organization_id` - Resume pointer passed to
+    `Sigra.Organizations.select_active_organization/3`. When a user
+    with 2+ memberships logs in, the selector uses this to pick up
+    where the user left off (D-12).
   """
   @doc since: "0.4.0"
   @spec create_session(Sigra.Config.t(), struct(), map(), keyword()) ::
@@ -989,26 +1059,118 @@ defmodule Sigra.Auth do
         session_store.create(user.id, metadata, store_opts)
       end)
 
-    # D-26: session.create audit row (standalone, D-28)
-    case result do
-      {:ok, session} ->
-        audit_opts = audit_opts_from_config(config,
-          ip_address: Map.get(metadata, :ip),
-          user_agent: Map.get(metadata, :user_agent)
-        )
+    # D-26/D-27 (15-02): the `session.create` audit emission is deliberately
+    # NOT fired here — it now fires inside `maybe_assign_active_organization/6`
+    # AFTER the active organization has been selected, so the first audit row
+    # of a successful login carries the real `organization_id`. This is the
+    # v1.2 impersonation anchor. See plan 15-02 Task 1 §1 for the reorder.
+    result =
+      case result do
+        {:ok, session} ->
+          # Phase 14: wire the 0/1/2+ organization selector (D-12).
+          # Fail-open on selector errors — login MUST NOT die if the
+          # selector raises (T-14-13). Hydration is fail-closed (D-01),
+          # but the login-time selector is fail-open by design.
+          maybe_assign_active_organization(config, user, session, session_store, store_opts, opts, metadata)
 
-        Sigra.Audit.log_safe("session.create",
-          Keyword.merge(audit_opts,
-            actor_id: user.id,
-            metadata: %{type: Map.get(metadata, :type, :standard), session_id: session.id}
-          )
-        )
-
-      _ ->
-        :ok
-    end
+        other ->
+          other
+      end
 
     result
+  end
+
+  @doc false
+  defp maybe_assign_active_organization(config, user, session, session_store, store_opts, opts, metadata) do
+    # D-27 (15-02): resolve active org first, then emit `session.create` AFTER
+    # org selection so the first audit row of a successful login carries the
+    # real `organization_id`. This is the v1.2 impersonation anchor.
+    {final_session, active_org} =
+      case config.organizations_module do
+        nil -> {session, nil}
+        om -> resolve_and_assign_org(config, om, user, session, session_store, store_opts, opts)
+      end
+
+    scope =
+      case config.scope_module do
+        nil -> nil
+        mod -> Sigra.Scope.build(mod, user, active_organization: active_org)
+      end
+
+    audit_opts =
+      audit_opts_from_config(config,
+        ip_address: Map.get(metadata, :ip),
+        user_agent: Map.get(metadata, :user_agent)
+      )
+
+    Sigra.Audit.log_safe("session.create", scope,
+      Keyword.merge(audit_opts,
+        actor_id: user.id,
+        metadata: %{type: Map.get(metadata, :type, :standard), session_id: final_session.id}
+      )
+    )
+
+    {:ok, final_session}
+  end
+
+  defp resolve_and_assign_org(_config, organizations_module, user, session, session_store, store_opts, opts) do
+    active_org =
+      try do
+        org_config = organizations_module.__sigra_org_config__()
+
+        selector_opts = [
+          previous_active_organization_id:
+            Keyword.get(opts, :previous_active_organization_id)
+        ]
+
+        case Sigra.Organizations.select_active_organization(org_config, user, selector_opts) do
+          {:ok, org} -> org
+          _ -> nil
+        end
+      rescue
+        error ->
+          # WR-04: login is fail-open on selector errors (T-14-13), but it
+          # MUST leave a breadcrumb — otherwise a broken host selector
+          # silently degrades every login to "no active org" with no
+          # operator signal beyond user reports.
+          Telemetry.event(
+            [:sigra, :auth, :selector_error],
+            %{},
+            %{
+              user_id: user.id,
+              kind: :error,
+              reason: inspect(error)
+            }
+          )
+
+          nil
+      catch
+        kind, reason ->
+          Telemetry.event(
+            [:sigra, :auth, :selector_error],
+            %{},
+            %{
+              user_id: user.id,
+              kind: kind,
+              reason: inspect(reason)
+            }
+          )
+
+          nil
+      end
+
+    case active_org do
+      nil ->
+        {session, nil}
+
+      %{id: id} = org ->
+        case session_store.update_active_organization(session, id, store_opts) do
+          {:ok, updated_session} -> {updated_session, org}
+          # Failure to write the active_organization_id is non-fatal — login
+          # still succeeds; user sees the picker on next request.
+          {:error, _reason} -> {session, org}
+        end
+    end
   end
 
   @doc """
@@ -1030,9 +1192,15 @@ defmodule Sigra.Auth do
     # actor_id is resolved from the opts :user_id if provided; otherwise nil.
     audit_opts = audit_opts_from_config(config)
 
-    Sigra.Audit.log_safe("session.delete",
+    # 15-02 Category 2: build a minimal user-map scope from the known
+    # user_id so downstream audit extraction picks up actor/effective_user.
+    user_id = Keyword.get(opts, :user_id)
+    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+
+    Sigra.Audit.log_safe("session.delete", scope,
       Keyword.merge(audit_opts,
-        actor_id: Keyword.get(opts, :user_id),
+        actor_id: user_id,
+        target_id: user_id,
         metadata: %{}
       )
     )
@@ -1084,9 +1252,12 @@ defmodule Sigra.Auth do
     # D-26: session.revoke_all audit row (standalone)
     audit_opts = audit_opts_from_config(config)
 
-    Sigra.Audit.log_safe("session.revoke_all",
+    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+
+    Sigra.Audit.log_safe("session.revoke_all", scope,
       Keyword.merge(audit_opts,
         actor_id: user_id,
+        target_id: user_id,
         metadata: %{count: count}
       )
     )
@@ -1148,9 +1319,13 @@ defmodule Sigra.Auth do
 
     outcome = if action == "session.sudo_enter", do: "success", else: "failure"
 
-    Sigra.Audit.log_safe(action,
+    user_id = Keyword.get(opts, :user_id)
+    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+
+    Sigra.Audit.log_safe(action, scope,
       Keyword.merge(audit_opts,
-        actor_id: Keyword.get(opts, :user_id),
+        actor_id: user_id,
+        target_id: user_id,
         outcome: outcome,
         metadata: %{}
       )
@@ -1410,10 +1585,15 @@ defmodule Sigra.Auth do
     new_count = updated_user.failed_login_attempts
     audit_opts = audit_opts_from_config(config, ip_address: login_ip)
 
-    # D-26: invalid_credentials counter audit row (every failed attempt)
-    Sigra.Audit.log_safe("security.invalid_credentials",
+    # D-26: invalid_credentials counter audit row (every failed attempt).
+    # 15-02 D-26/D-29 Category 3: nil scope + target_id: nil. The attempt
+    # counter stays in metadata (operationally useful; not PII — it is a
+    # per-user counter value, not an identity claim). IP + User-Agent live
+    # in top-level columns via `audit_opts`, not in metadata.
+    Sigra.Audit.log_safe("security.invalid_credentials", nil,
       Keyword.merge(audit_opts,
         actor_id: user.id,
+        target_id: nil,
         outcome: "failure",
         metadata: %{attempts: new_count}
       )
@@ -1427,10 +1607,12 @@ defmodule Sigra.Auth do
         reason: :threshold_reached
       })
 
-      # D-26: security.lockout audit row
-      Sigra.Audit.log_safe("security.lockout",
+      # D-26: security.lockout audit row.
+      # 15-02 Category 2: known user — user-only scope, target_id: user.id.
+      Sigra.Audit.log_safe("security.lockout", Sigra.Scope.from_config(config, user),
         Keyword.merge(audit_opts,
           actor_id: user.id,
+          target_id: user.id,
           outcome: "failure",
           metadata: %{reason: "threshold_reached", attempts: new_count}
         )

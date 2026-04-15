@@ -46,6 +46,12 @@ defmodule Sigra.Install.IsolationTest do
     end
   end
 
+  # Per D-23, scope.ex contains forward-declared references to Organization
+  # and OrganizationMembership so its typespec is real (not `struct()`).
+  # Phase 18 will add conditionality for `--no-organizations`; until then,
+  # scope.ex is the documented exception to the core isolation rule.
+  @scope_allowed_symbols ["OrganizationMembership"]
+
   describe "priv/templates/sigra.install/core/*" do
     test "every template has no forbidden future-feature references" do
       template_dir = "priv/templates/sigra.install/core"
@@ -56,7 +62,14 @@ defmodule Sigra.Install.IsolationTest do
         path = Path.join(template_dir, filename)
         content = File.read!(path)
 
-        Enum.each(@forbidden_symbols, fn symbol ->
+        forbidden =
+          if filename == "scope.ex" do
+            @forbidden_symbols -- @scope_allowed_symbols
+          else
+            @forbidden_symbols
+          end
+
+        Enum.each(forbidden, fn symbol ->
           refute content =~ symbol,
                  "Template #{filename} contains forbidden reference to " <>
                    "#{inspect(symbol)} — core/ templates must compile with no " <>
@@ -65,9 +78,9 @@ defmodule Sigra.Install.IsolationTest do
       end)
     end
 
-    test "contains exactly 45 templates" do
+    test "contains exactly 47 templates" do
       files = File.ls!("priv/templates/sigra.install/core")
-      assert length(files) == 45
+      assert length(files) == 47
     end
   end
 

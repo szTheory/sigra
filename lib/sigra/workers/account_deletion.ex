@@ -7,12 +7,37 @@ defmodule Sigra.Workers.AccountDeletion do
   configured. The job fires at `scheduled_deletion_at` and applies the
   configured deletion strategy.
 
+  Implements `Sigra.Workers` so the perform callback receives a
+  reconstructed, audit-only `%Scope{}` built from the stringified args.
+
   ## Job Args
 
-    * `"user_id"` - The user ID to delete
-    * `"strategy"` - The deletion strategy as a string ("soft_delete", "hard_delete", "anonymize")
-    * `"repo"` - The repo module as a string (for runtime resolution)
-    * `"user_schema"` - The user schema module as a string
+  Required by `Sigra.Workers.new/3`:
+
+    * `"organization_id"` - May be `nil`. Resolves to `scope.active_organization`.
+    * `"actor_id"`        - May be `nil`. The user who enqueued the job.
+
+  Required by this worker's `perform/2` (belt + suspenders via
+  `Sigra.Workers.fetch_arg!/2`):
+
+    * `"user_id"`              - The user ID to delete.
+    * `"strategy"`             - Deletion strategy ("soft_delete", "hard_delete", "anonymize").
+    * `"repo"`                 - Repo module as a stringified module name.
+    * `"user_schema"`          - User schema as a stringified module name.
+    * `"scope_module"`         - Host scope module as a stringified module name.
+    * `"organization_schema"`  - Organization schema stringified, or `nil`.
+    * `"audit_schema"`         - Audit event schema as a stringified module name.
+                                 Required for `account.deletion_executed`
+                                 emission.
+
+  Optional:
+
+    * `"user_token_schema"`
+    * `"session_store"`
+    * `"identity_schema"`
+    * `"api_token_schema"`
+    * `"mfa_credential_schema"`
+    * `"backup_code_schema"`
 
   ## Queue
 
@@ -27,13 +52,63 @@ defmodule Sigra.Workers.AccountDeletion do
     max_attempts: 3,
     unique: [period: 300, keys: [:user_id]]
 
+  @behaviour Sigra.Workers
+
   alias Sigra.Account.Deletion
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"user_id" => user_id} = args}) do
+  def perform(%Oban.Job{args: args}) do
+    # 15-02 D-22/D-24: reconstruct a minimal, audit-only scope from the
+    # stringified args before delegating to the behaviour callback.
+
+    # Step 1: validate ALL required keys up front via fetch_arg!/2 so
+    # hand-built jobs fail with KeyError BEFORE any Module.safe_concat
+    # call that could mask the error as ArgumentError (belt + suspenders
+    # over Sigra.Workers.new/3 — D-20).
+    _organization_id_key = Sigra.Workers.fetch_arg!(args, "organization_id")
+    _actor_id_key = Sigra.Workers.fetch_arg!(args, "actor_id")
+    _audit_schema_key = Sigra.Workers.fetch_arg!(args, "audit_schema")
+    _scope_module_key = Sigra.Workers.fetch_arg!(args, "scope_module")
+    _organization_schema_key = Sigra.Workers.fetch_arg!(args, "organization_schema")
+    _repo_key = Sigra.Workers.fetch_arg!(args, "repo")
+    _user_schema_key = Sigra.Workers.fetch_arg!(args, "user_schema")
+    _user_id_key = Sigra.Workers.fetch_arg!(args, "user_id")
+
+    # Step 2: resolve stringified modules (safe for known good keys).
     repo = Module.safe_concat([args["repo"]])
     user_schema = Module.safe_concat([args["user_schema"]])
-    strategy = String.to_existing_atom(args["strategy"])
+    scope_module = Module.safe_concat([args["scope_module"]])
+
+    organization_schema =
+      case args["organization_schema"] do
+        nil -> nil
+        mod when is_binary(mod) -> Module.safe_concat([mod])
+      end
+
+    user_id = args["user_id"]
+    organization_id = args["organization_id"]
+
+    user = repo.get(user_schema, user_id)
+
+    active_org =
+      case {organization_schema, organization_id} do
+        {nil, _} -> nil
+        {_, nil} -> nil
+        {mod, id} -> repo.get(mod, id)
+      end
+
+    scope = Sigra.Scope.build(scope_module, user, active_organization: active_org)
+
+    perform(scope, args)
+  end
+
+  @impl Sigra.Workers
+  def perform(scope, args) do
+    repo = Module.safe_concat([Map.fetch!(args, "repo")])
+    user_schema = Module.safe_concat([Map.fetch!(args, "user_schema")])
+    audit_schema = Module.safe_concat([Map.fetch!(args, "audit_schema")])
+    user_id = Map.fetch!(args, "user_id")
+    strategy = String.to_existing_atom(Map.fetch!(args, "strategy"))
 
     case repo.get(user_schema, user_id) do
       nil ->
@@ -57,8 +132,22 @@ defmodule Sigra.Workers.AccountDeletion do
             |> maybe_add_opt(:backup_code_schema, args["backup_code_schema"])
 
           case Deletion.execute(repo, user, opts) do
-            {:ok, _strategy} -> :ok
-            {:error, reason} -> {:error, reason}
+            {:ok, _strategy} ->
+              # 15-02 D-22: emit account.deletion_executed with the
+              # reconstructed, audit-only scope. This is the canonical
+              # post-execution audit row — Sigra.Account.execute_deletion
+              # emits a pre-execution deletion_execute row via log_safe.
+              Sigra.Audit.log_safe("account.deletion_executed", scope,
+                repo: repo,
+                audit_schema: audit_schema,
+                target_id: user_id,
+                metadata: %{deleted_user_id: user_id, strategy: to_string(strategy)}
+              )
+
+              :ok
+
+            {:error, reason} ->
+              {:error, reason}
           end
         else
           {:ok, :not_scheduled}

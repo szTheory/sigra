@@ -15,6 +15,7 @@ defmodule Sigra.Test.UserSession do
     field :geo_country_code, :string
     field :last_active_at, :utc_datetime_usec
     field :sudo_at, :utc_datetime_usec
+    field :active_organization_id, :binary_id
     timestamps(type: :utc_datetime_usec, updated_at: false)
   end
 end

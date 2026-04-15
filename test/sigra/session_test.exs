@@ -22,6 +22,7 @@ defmodule Sigra.SessionTest do
         geo_country_code: "US",
         last_active_at: now,
         sudo_at: now,
+        active_organization_id: "0190b3a4-1234-7000-8000-000000000000",
         inserted_at: now
       }
 
@@ -37,6 +38,7 @@ defmodule Sigra.SessionTest do
       assert session.geo_country_code == "US"
       assert session.last_active_at == now
       assert session.sudo_at == now
+      assert session.active_organization_id == "0190b3a4-1234-7000-8000-000000000000"
       assert session.inserted_at == now
     end
 
@@ -60,15 +62,16 @@ defmodule Sigra.SessionTest do
       assert session.geo_country_code == nil
       assert session.last_active_at == nil
       assert session.sudo_at == nil
+      assert session.active_organization_id == nil
       assert session.inserted_at == nil
     end
   end
 
   describe "SessionStore behaviour" do
-    test "defines 7 callbacks" do
+    test "defines 8 callbacks" do
       callbacks = Sigra.SessionStore.behaviour_info(:callbacks)
 
-      assert length(callbacks) == 7
+      assert length(callbacks) == 8
       assert {:create, 3} in callbacks
       assert {:fetch, 2} in callbacks
       assert {:delete, 2} in callbacks
@@ -76,6 +79,8 @@ defmodule Sigra.SessionTest do
       assert {:delete_all_for_user, 2} in callbacks
       assert {:update_activity, 3} in callbacks
       assert {:update_sudo, 3} in callbacks
+      # Phase 14 (Plan 14-01, D-20) — active organization write path.
+      assert {:update_active_organization, 3} in callbacks
     end
   end
 

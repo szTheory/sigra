@@ -43,7 +43,7 @@ defmodule Sigra.AuthTest do
       changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
 
       Sigra.MockRepo
-      |> expect(:insert, fn ^changeset -> {:ok, user} end)
+      |> expect(:transact, fn %Ecto.Multi{} = _multi -> {:ok, %{user: user}} end)
 
       result =
         Auth.register(Sigra.MockRepo, %{"email" => "user@example.com", "password" => "long_enough_pw"}, changeset_fn: fn _attrs -> changeset end)
@@ -55,7 +55,9 @@ defmodule Sigra.AuthTest do
       changeset = %Ecto.Changeset{valid?: false, data: %TestUser{}, errors: [password: {"too short", []}]}
 
       Sigra.MockRepo
-      |> expect(:insert, fn ^changeset -> {:error, changeset} end)
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:error, :user, changeset, %{}}
+      end)
 
       result =
         Auth.register(Sigra.MockRepo, %{"email" => "u@e.com", "password" => "short"}, changeset_fn: fn _attrs -> changeset end)
@@ -64,12 +66,6 @@ defmodule Sigra.AuthTest do
     end
 
     test "with duplicate email returns {:error, :email_taken}" do
-      changeset = %Ecto.Changeset{
-        valid?: true,
-        data: %TestUser{},
-        errors: []
-      }
-
       error_changeset = %Ecto.Changeset{
         valid?: false,
         data: %TestUser{},
@@ -77,10 +73,16 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:insert, fn ^changeset -> {:error, error_changeset} end)
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:error, :user, error_changeset, %{}}
+      end)
 
       result =
-        Auth.register(Sigra.MockRepo, %{"email" => "dup@e.com", "password" => "long_enough_pw"}, changeset_fn: fn _attrs -> changeset end)
+        Auth.register(
+          Sigra.MockRepo,
+          %{"email" => "dup@e.com", "password" => "long_enough_pw"},
+          changeset_fn: fn _attrs -> %Ecto.Changeset{valid?: true, data: %TestUser{}} end
+        )
 
       assert {:error, :email_taken} = result
     end
@@ -92,12 +94,68 @@ defmodule Sigra.AuthTest do
       changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
 
       Sigra.MockRepo
-      |> expect(:insert, fn _cs -> {:ok, user} end)
+      |> expect(:transact, fn %Ecto.Multi{} = _multi -> {:ok, %{user: user}} end)
 
       Auth.register(Sigra.MockRepo, %{}, changeset_fn: fn _attrs -> changeset end)
 
       assert_received {[:sigra, :auth, :register, :stop], ^ref, _measurements, metadata}
       assert metadata.user_id == 42
+    end
+  end
+
+  describe "register_user_multi/1" do
+    test "returns an Ecto.Multi struct" do
+      changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
+
+      multi =
+        Auth.register_user_multi(%{"email" => "u@e.com"},
+          changeset_fn: fn _attrs -> changeset end
+        )
+
+      assert %Ecto.Multi{} = multi
+    end
+
+    test "includes a :user step" do
+      changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
+
+      multi =
+        Auth.register_user_multi(%{"email" => "u@e.com"},
+          changeset_fn: fn _attrs -> changeset end
+        )
+
+      names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
+      assert :user in names
+    end
+
+    test "makes zero Repo calls during construction" do
+      # Build the multi without any Mox expectation set — this will cause
+      # an UnexpectedCallError if register_user_multi/2 tried to touch the
+      # mock repo. Construction must be pure.
+      changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
+
+      multi =
+        Auth.register_user_multi(%{"email" => "u@e.com"},
+          changeset_fn: fn _attrs -> changeset end
+        )
+
+      assert %Ecto.Multi{} = multi
+      # No expectations verified — pure builder.
+    end
+
+    test "composes via Ecto.Multi.append/2" do
+      changeset = %Ecto.Changeset{valid?: true, data: %TestUser{}}
+      inner = Auth.register_user_multi(%{}, changeset_fn: fn _attrs -> changeset end)
+      outer = Ecto.Multi.new() |> Ecto.Multi.append(inner)
+
+      assert %Ecto.Multi{} = outer
+      names = Enum.map(Ecto.Multi.to_list(outer), fn {name, _op} -> name end)
+      assert :user in names
+    end
+
+    test "raises when :changeset_fn option is missing" do
+      assert_raise KeyError, fn ->
+        Auth.register_user_multi(%{"email" => "u@e.com"}, [])
+      end
     end
   end
 

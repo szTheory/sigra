@@ -87,7 +87,9 @@ defmodule Sigra.SuspiciousLogin do
         # configured. Metadata never contains tokens/secrets (D-23).
         audit_config = Map.get(config, :audit, [])
 
-        Sigra.Audit.log_safe("security.suspicious_login",
+        Sigra.Audit.log_safe(
+          "security.suspicious_login",
+          Sigra.Scope.from_config(config, %{id: user_id}),
           repo: config.repo,
           audit_schema: Keyword.get(audit_config, :audit_schema),
           actor_id: user_id,

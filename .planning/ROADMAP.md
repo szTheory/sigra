@@ -30,13 +30,13 @@
 ### 🚧 v1.1 Foundations — Organizations + Passkeys
 
 - [ ] **Phase 11: Generator Feature System** — subdirectory + behaviour manifest; mechanical move of v1.0 templates into `core/`
-- [ ] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column
-- [ ] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard
-- [ ] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling
-- [ ] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour
-- [ ] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
-- [ ] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation
-- [ ] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture
+- [x] **Phase 12: Scope + Session Foundation** — `%Scope{}` gets `:active_organization` + `:membership` + reserved `:impersonating_from`; `user_sessions.active_organization_id` column (completed 2026-04-12)
+- [x] **Phase 13: Organizations Schemas + Context** — `Organization` / `OrganizationMembership` / `OrganizationInvitation` schemas + `Sigra.Organizations` context with raising `for_org/2` helper + last-owner guard (completed 2026-04-12)
+- [x] **Phase 14: Org Plugs + Scope Hydration** — `LoadActiveOrganization` / `RequireMembership` plugs + LV `on_mount` hydration + stale-pointer handling (completed 2026-04-12)
+- [x] **Phase 15: Audit Integration** — real `organization_id` + `effective_user_id` columns on `audit_events`, `metadata_from_scope/2` assembly point, `Sigra.Workers` behaviour (completed 2026-04-13)
+- [x] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
+- [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (gap_closure pending: INV-08 cross-tenant IDOR in `Sigra.Organizations.Invitations.revoke/3`) (completed 2026-04-14)
+- [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
 - [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
 - [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection
@@ -75,7 +75,12 @@ Plans:
   1. Developer can pattern-match `%Scope{active_organization: org, membership: m, impersonating_from: from}` in generated `user_auth.ex` without a compile warning; generator template emits all three fields.
   2. Running `mix sigra.install --yes` produces a migration that adds `active_organization_id :binary_id` nullable on `user_sessions`, and the example app's session fixture inserts succeed with the new column unset.
   3. Fresh install's session serialization round-trips the new session column: logging in, writing an arbitrary `active_organization_id` via `Sigra.Session`, reading it back via `Plug.Conn.get_session/2` all work end-to-end.
-**Plans**: TBD
+**Plans:** 4/4 plans complete
+Plans:
+- [x] 12-01-PLAN.md — Wave 1: Sigra.Session struct + SessionStore.Ecto round-trip (ORG-SCOPE-02 library half)
+- [x] 12-02-PLAN.md — Wave 1: :active_org_column feature manifest slot + new ALTER migration template (ORG-SCOPE-02 generator half)
+- [x] 12-03-PLAN.md — Wave 1: Generated Scope/UserSession templates + reserved-field invariant test + UPGRADE-v1.2.md (ORG-SCOPE-01)
+- [x] 12-04-PLAN.md — Wave 2: Golden-diff rebase + example app mirror + D-14 end-to-end round-trip (integration gate)
 
 ### Phase 13: Organizations Schemas + Context
 **Goal**: `Sigra.Organizations` is a complete, hazard-safe data layer — schemas, queries, context functions — with the cross-tenant leak, last-owner lockout, and cascade-destroys-audit-log pitfalls wired in as executable tests from day one.
@@ -89,7 +94,11 @@ Plans:
   3. Creating an organization with a reserved slug (`admin`, `api`, `www`, `static`, and the ~20-entry reserved list) returns a changeset error; every reserved word has a regression test.
   4. Soft-deleting an organization sets `deleted_at`, leaves the row in-place, and audit rows referencing it survive with `organization_id` nilified via `on_delete: :nilify_all` FK config.
   5. The time-boxed Credo custom-check spike for tenant-scope discipline either ships (≤300 lines) or falls back to integration-test-only enforcement with a documented CONVENTIONS.md entry (DX-09).
-**Plans**: TBD
+**Plans:** 3/3 plans complete
+Plans:
+- [x] 13-01-PLAN.md — Wave 1: Schema templates + migration template + Features.Organizations + Scope typespec (ORG-01, ORG-03, ORG-04)
+- [x] 13-02-PLAN.md — Wave 2: for_org/2 tenant scoping + prepare_query/3 enforcement + Slug validation (ORG-06, ORG-07)
+- [x] 13-03-PLAN.md — Wave 3: Sigra.Organizations context + use macro + NimbleOptions + last-owner guard + audit (ORG-05, ORG-08)
 
 ### Phase 14: Org Plugs + Scope Hydration
 **Goal**: Every authenticated request — Plug pipeline or LiveView — lands at its handler with `current_scope.active_organization` correctly populated, stale session pointers gracefully reset, and org-required routes blocked for non-members with a clear error.
@@ -101,7 +110,13 @@ Plans:
   2. User hitting a route guarded by `Sigra.Plug.RequireMembership` without an active org is redirected to the "pick or create an org" landing page; user with the wrong role (when `roles: [:owner]`) is redirected to an access-denied page.
   3. LiveView `on_mount` and the Plug path produce byte-identical `current_scope` values for the same session state — parity test covers both login, switch, and stale-pointer cases.
   4. User logging in with zero orgs lands on the create/accept landing page; one org is auto-selected; 2+ resumes the most-recent non-nil `active_organization_id` (per-session, not per-user) or shows the picker.
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
+- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
+- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
+- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
+- [x] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub) (completed 2026-04-14)
+- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
 **UI hint**: yes
 
 ### Phase 15: Audit Integration
@@ -116,7 +131,11 @@ Plans:
   3. `Sigra.Audit.Query` gains an `:organization_id` filter backed by the real column; an index hit-count test proves it uses the index.
   4. `Sigra.Workers` behaviour enforces that workers accept `args["organization_id"]` + `args["actor_id"]`, reconstruct a minimal `%Scope{}` in `perform/1`, and emit audits through `metadata_from_scope`; an existing v1.0 worker is refactored to the behaviour as the reference implementation.
   5. In v1.1, `effective_user_id` is populated identically to `user_id` on every audit row — v1.2 divergence (impersonator vs target) is purely additive.
-**Plans**: TBD
+**Plans:** 3/3 plans complete
+Plans:
+- [x] 15-01-schema-helper-sweep-PLAN.md — Wave 1: ALTER migration + log_safe/3 + Query extension + Sigra.Scope.build/3 + mechanical 79-site sweep (AUD-01..03, AUD-05)
+- [x] 15-02-semantic-workers-credo-PLAN.md — Wave 2: session.create reorder + semantic enrichment + Sigra.Workers behaviour + AccountDeletion refactor + Credo check + assert_audit_logged (AUD-02..05)
+- [x] 15-03-generator-fixtures-changelog-PLAN.md — Wave 3: Generator manifest + install-golden regen + example app regen + CHANGELOG + Postgres EXPLAIN index-hit test (AUD-01, AUD-03)
 
 ### Phase 16: Org LiveViews + Switcher
 **Goal**: User experiences the full organization UX end-to-end in the example app — switching orgs, creating them, managing settings, viewing members, changing roles, inviting pending members — with the last-owner guard and sudo gates enforced in the UI as tightly as they are in the context.
@@ -129,8 +148,15 @@ Plans:
   3. Organization owner can rename, change the slug (with sudo + typed confirmation + 7-day redirect), and soft-delete the organization (sudo + typed org-name confirmation); non-owner attempts return 403 at the plug layer, not just the UI.
   4. Organization owner/admin can view the member list, change a member's role with a confirmation step, and remove a member — which revokes the membership row and force-logs-out that user's org-scoped sessions in the same `Ecto.Multi`.
   5. Signup flow offers an optional "create your first organization" step; no auto-personal-org is created on registration (ORG-UX-09 / Jetstream #117 lesson).
-**Plans**: TBD
+**Plans**: 6 plans
+- [x] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
+- [x] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
+- [x] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
+- [x] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
+- [x] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
+- [x] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + Playwright browser smoke (replaces human visual checkpoint) + 16-VALIDATION.md sign-off
 **UI hint**: yes
+**Status**: ✅ COMPLETE — verified 2026-04-13 (VERIFICATION.md PASS, 9/9 ORG-UX requirements, 5/5 Success Criteria)
 
 ### Phase 17: Invitation Flow + Email
 **Goal**: Organization owners/admins can invite users by email through a replay-safe, email-bound HMAC flow that closes the Jetstream #907 / Keycloak CVE-2026-1529 class of invite-hijack bugs by construction, not by convention.
@@ -143,7 +169,15 @@ Plans:
   3. Invitee signed in as a different user (case-insensitive via citext) gets an explicit "this invitation is for [other-email]" mismatch page with no accept button — never a silent takeover (O-2 Jetstream #907 regression test covers this).
   4. Accepting an invite marks `accepted_at` inside the Multi; replay attempts return a clear "already accepted" flash; revoked invites return "no longer valid"; rate-limited invite creation (20/day/user via Hammer) rejects abuse.
   5. Pending-invite list shows email, role, invited-by, expires-in, and a revoke button that transitions the row to `revoked_at`.
-**Plans**: TBD
+**Plans**: 8 plans
+- [x] 17-01-PLAN.md — Wave 1: extract register_user_multi + add_member_multi + invitation fixtures + Swoosh test mailer config (Nyquist scaffolding)
+- [x] 17-02-PLAN.md — Wave 2: Sigra.Token invite envelope helpers + @org_config_schema NimbleOptions keys (incl. url_builder) + hashed_token UNIQUE migration
+- [x] 17-03-PLAN.md — Wave 3: Sigra.Organizations.Invitations module (create/2, revoke/3, list_pending/2, list_pending_for_user/2) + Hammer rate-limit wiring + CleanupExpiredInvitations Oban worker (D-11)
+- [x] 17-04-PLAN.md — Wave 3: organization_invitation_email.ex generator template + emails.ex/auth_mailer.ex registration (HTML-escaped multipart)
+- [x] 17-05-PLAN.md — Wave 4: verify_and_load/2 + accept/3 (signed-in-match path) + accept_with_signup/3 (composed Multi) + Pow #534 regression
+- [x] 17-06-PLAN.md — Wave 4: fill OrganizationMembersLive invite modal + pending-invitations section + revoke modal/handlers (Phase 16 stub replacement)
+- [x] 17-07-PLAN.md — Wave 5: InvitationAcceptLive 7 render branches + Jetstream #907 regression + replay + citext regression tests + 17-VALIDATION.md sign-off
+- [x] 17-08-PLAN.md — Wave 2 (sidecar): Phase 16 slug-alias migration IMMUTABLE-safe hotfix (Open Q4 RESOLVED, independent of main path)
 **UI hint**: yes
 
 ### Phase 18: Backfill + `--organizations` Generator Wiring
@@ -157,7 +191,10 @@ Plans:
   3. `mix sigra.upgrade` without the flag leaves existing users in the "create or accept invite" state on next login — no 500s, no dead ends, nil-guarded template accessors verified by boot test.
   4. Repository ships `test/upgrade_test.exs` that boots a v1.0 install, runs the v1.1 upgrade in both backfill-on and backfill-off paths, and asserts login still works in each path (X-4 regression lock).
   5. CI org-axis matrix (install with `--organizations` and `--no-organizations`) compiles and boots clean on every PR.
-**Plans**: TBD
+**Plans**: 3 plans
+- [x] 18-01-foundation-schema-and-flag-PLAN.md — Wave 1: bake owner_user_id + personal into fresh-install organizations migration template; register Features.Organizations + forward organizations? binding; create_organization/3 sets owner_user_id (ORG-02)
+- [x] 18-02-upgrade-task-and-backfill-PLAN.md — Wave 2: Sigra.Upgrade orchestrator + Sigra.Upgrade.Backfill library (keyset NOT EXISTS + insert_all on_conflict :nothing + telemetry) + mix sigra.upgrade Mix task + 3 upgrade templates + version sentinel injection (ORG-UPGRADE-01)
+- [x] 18-03-upgrade-test-fixture-and-ci-matrix-PLAN.md — Wave 2: InstallFixture run_sigra_install/run_sigra_upgrade helpers + test/upgrade_test.exs (backfill-on + backfill-off) + CI install_matrix job (ORG-UPGRADE-02, ORG-UPGRADE-03, GEN-03)
 
 ### Phase 19: Passkey Schema + Contexts
 **Goal**: `Sigra.Passkeys` is a correct, credential-confusion-safe, monotonic-sign-count data layer around `wax_ ~> 0.7`, with Cloak-encrypted public keys reusing the v1.0 OAuth vault — no new encryption infra, no new migration hazards.
@@ -183,7 +220,13 @@ Plans:
   2. `Sigra.Passkeys.config/0` loads `rp_id`, `rp_name`, `origin`, `attestation` (default `:none`), `user_verification` (default `:preferred`), and `timeout_ms` from runtime config; NimbleOptions fast-fails on first use if unset or malformed.
   3. Per-user passkey ceremony rate limiter via Hammer (default 5/min) rejects the 6th attempt in the same minute with a clear error — regression test proves the key shape.
   4. Generator injects `passkey_hooks.js` import + hook registration into `assets/js/app.js` when the marker comment is present; when absent (custom esbuild/Vite/Webpack), generator writes the hook file, skips injection, and prints exact manual instructions — no silent failure (GEN-06).
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
+- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
+- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
+- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
+- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
+- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
 **UI hint**: yes
 
 ### Phase 21: Passkey LiveViews + POST-Auth Controller
@@ -197,7 +240,13 @@ Plans:
   2. User can log in via passkey as a second factor alongside TOTP on `MfaSettingsLive`; passkey list shows AAGUID-derived friendly names (iCloud Keychain, Google Password Manager, 1Password, Windows Hello) from a bundled registry; user can rename or delete passkeys (delete sudo-gated), with a soft cap of 10 per user.
   3. User with `:passkey_primary_enabled` config can log in with email + passkey without a password; every passkey-as-primary user has mandatory magic-link recovery that cannot be disabled (P-5 lockout defense).
   4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
+- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
+- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
+- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
+- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
+- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
@@ -221,7 +270,13 @@ Plans:
   2. Three new guides ship under `guides/`: `upgrading-to-v1.1.md` (both backfill modes + breaking-change callouts + upgrade test invocation), `how-to/multi-tenancy.md` (logical MT model + `for_org/2` discipline + why schema-per-tenant is rejected), and `how-to/passkeys.md` (enrollment + primary-mode config + RP ID rename playbook + recovery guidance). `mix docs --warnings-as-errors` stays clean.
   3. Generated testing helpers (`create_organization/1`, `create_membership/3`, `log_in_user_with_org/3`, `register_passkey/2`, `authenticate_with_passkey/2`) and library helpers in `Sigra.Testing` (`assert_scope_has_org/2`, `assert_membership/3`, `assert_audit_logged_for_org/2`) are exercised by their own unit tests.
   4. Playwright CI smoke harness extends to cover: organization switcher happy path, invitation-accept by both new signup and existing logged-in user, passkey registration, passkey authentication — all green on PRs.
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
+- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
+- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
+- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
+- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
+- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
 **UI hint**: yes
 
 ## Progress
@@ -229,13 +284,13 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 11. Generator Feature System | 0/? | Not started | — |
-| 12. Scope + Session Foundation | 0/? | Not started | — |
-| 13. Organizations Schemas + Context | 0/? | Not started | — |
-| 14. Org Plugs + Scope Hydration | 0/? | Not started | — |
-| 15. Audit Integration | 0/? | Not started | — |
+| 12. Scope + Session Foundation | 4/4 | Complete    | 2026-04-12 |
+| 13. Organizations Schemas + Context | 3/3 | Complete    | 2026-04-12 |
+| 14. Org Plugs + Scope Hydration | 3/3 | Complete    | 2026-04-12 |
+| 15. Audit Integration | 3/3 | Complete    | 2026-04-13 |
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
-| 17. Invitation Flow + Email | 0/? | Not started | — |
-| 18. Backfill + `--organizations` Generator Wiring | 0/? | Not started | — |
+| 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
+| 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 0/? | Not started | — |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
 | 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
@@ -251,7 +306,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 0 plans — promote with `/gsd-review-backlog` or `/gsd-discuss-phase 999.1`
+**Plans:** 3/3 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
@@ -287,3 +342,13 @@ Plans:
 
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 24: Repair Phase 16/17 organizations generator templates
+
+**Goal:** Fix pre-existing defects in Phase 16/17 organizations generator templates (DEF-18-01 and DEF-18-02) so that mix sigra.install --yes runs end-to-end without a template compile error, mix test test/sigra/install/ returns to a clean baseline, and Phase 18 Plan 18-03 (install CI matrix --yes leg) is unblocked.
+**Requirements**: TBD
+**Depends on:** Phase 23
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] 24-01-repair-phase-16-17-org-templates-PLAN.md — DEF-18-01 dispatcher refactor + DEF-18-02 feature ownership move + 3 regression tests + golden rebless

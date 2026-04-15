@@ -34,6 +34,7 @@ defmodule Sigra.SessionStores.Ecto do
       user_agent: Map.get(metadata, :user_agent),
       geo_city: Map.get(metadata, :geo_city),
       geo_country_code: Map.get(metadata, :geo_country_code),
+      active_organization_id: Map.get(metadata, :active_organization_id),
       last_active_at: now,
       inserted_at: now
     }
@@ -143,6 +144,30 @@ defmodule Sigra.SessionStores.Ecto do
     end
   end
 
+  @impl true
+  def update_active_organization(%Sigra.Session{active_organization_id: current} = session, org_id, _opts)
+      when current == org_id do
+    # No-op-safe short-circuit (Phase 14 D-20): when the requested org_id
+    # matches the current value, skip the DB write entirely and return the
+    # session unchanged. Avoids an UPDATE on every authed request.
+    {:ok, session}
+  end
+
+  def update_active_organization(%Sigra.Session{hashed_token: hashed_token} = session, org_id, opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    schema = Keyword.fetch!(opts, :session_schema)
+
+    query = from(s in schema, where: s.hashed_token == ^hashed_token)
+
+    case repo.update_all(query, set: [active_organization_id: org_id]) do
+      {0, _} ->
+        {:error, :not_found}
+
+      {_count, _} ->
+        {:ok, %{session | active_organization_id: org_id}}
+    end
+  end
+
   defp to_session(record) do
     type =
       case record.type do
@@ -163,6 +188,7 @@ defmodule Sigra.SessionStores.Ecto do
       geo_country_code: Map.get(record, :geo_country_code),
       last_active_at: Map.get(record, :last_active_at),
       sudo_at: Map.get(record, :sudo_at),
+      active_organization_id: Map.get(record, :active_organization_id),
       inserted_at: Map.get(record, :inserted_at)
     }
   end
