@@ -254,7 +254,7 @@ Plans:
 - [x] 21-07-PLAN.md — Wave 3: conditional UI/autofill JS, `attachPasskeyLogin()` DOMContentLoaded binding, and abort-safe hook behavior
 - [x] 21-05-PLAN.md — Wave 4: example app server/controller/context and UI/assets mirror with compile verification after each task
 - [x] 21-06-PLAN.md — Wave 5: example integration tests, Playwright smoke, and final precommit gate
-- [ ] 21-08-PLAN.md — Wave 6: gap closure for example passkey routes, runtime config, schema, and migration
+- [x] 21-08-PLAN.md — Wave 6: gap closure for example passkey routes, runtime config, schema, and migration
 - [ ] 21-09-PLAN.md — Wave 7: gap closure for real route/session tests and real-server Playwright smoke
 **UI hint**: yes
 
@@ -296,7 +296,7 @@ Plans:
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 7/7 | Complete   | 2026-04-15 |
+| 21. Passkey LiveViews + POST-Auth Controller | 8/9 | In Progress|  |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 

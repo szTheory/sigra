@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: verifying
-stopped_at: Completed 21-06-PLAN.md
-last_updated: "2026-04-15T22:59:01.334Z"
+status: executing
+stopped_at: Completed 21-08-PLAN.md
+last_updated: "2026-04-15T23:26:49.417Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 13
-  total_plans: 56
-  completed_plans: 56
-  percent: 100
+  completed_phases: 12
+  total_plans: 58
+  completed_plans: 57
+  percent: 98
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
+Plan: 9 of 9
+Status: Ready to execute
 Last activity: 2026-04-15
 
-Progress: [█████████░] 86% (12/14 v1.1 phases complete — 11–20 + 24 + 25 done, 21–23 remaining)
+Progress: [██████████] 98% (57/58 plans complete)
 
 ## Accumulated Context
 
@@ -80,6 +80,9 @@ Recent decisions affecting current work:
 - [Phase 21-passkey-liveviews-post-auth-controller]: Kept router/config/schema fixes outside plan 21-06 because ownership was limited to test and fixture files.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Used fixture-local passkey persistence bootstrap so tests can exercise passkey rows without editing migrations or generated schemas.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Made the Playwright smoke fall back to static controller markup when the example server is not already running.
+- [Phase 21-passkey-liveviews-post-auth-controller]: passkey_primary_enabled is a Sigra.Config passkeys option with a false default; host apps opt into passkey-primary separately from general passkey support.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Example enrollment and delete routes are sudo-gated, while primary-login and MFA passkey routes remain reachable without sudo.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Example passkey runtime config is present in both config.exs and Example.Accounts.sigra_config/0 so controller and context paths share the same concrete schema and RP settings.
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T22:59:01.330Z
-Stopped at: Completed 21-06-PLAN.md
+Last session: 2026-04-15T23:26:49.413Z
+Stopped at: Completed 21-08-PLAN.md
 Resume file: None
