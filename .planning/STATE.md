@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Completed 20-04-PLAN.md
-last_updated: "2026-04-15T18:01:50.398Z"
+stopped_at: Completed 20-05-PLAN.md
+last_updated: "2026-04-15T18:09:05.131Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 49
-  completed_plans: 48
-  percent: 98
+  completed_plans: 49
+  percent: 100
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 20 (passkey-challenge-plug-runtime-config-js-hooks-infra) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-15
 
@@ -56,6 +56,8 @@ Recent decisions affecting current work:
 - [Phase 20]: Surface custom app.js fallback through installer manual-action reporting so stdout shows exact import and hook merge lines.
 - [Phase 20]: PK-06 tamper coverage now flips a byte in the stored signed passkey challenge token and asserts the callback boundary is never reached.
 - [Phase 20]: Sigra.Plug.PasskeyChallenge.verify/5 now isolates signed-token verification before challenge reconstruction so invalid tokens exit unambiguously before callback execution.
+- [Phase 20]: Left installer fixtures unchanged because the default focused Phase 20 verifier subset passes once the timeout contract is explicit.
+- [Phase 20]: Scoped the slow passkeys JS installer coverage to a module-level timeout instead of widening repo-wide ExUnit defaults.
 
 ### Pending Todos
 
@@ -78,6 +80,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T18:01:50.394Z
-Stopped at: Completed 20-04-PLAN.md
+Last session: 2026-04-15T18:09:04.629Z
+Stopped at: Completed 20-05-PLAN.md
 Resume file: None
