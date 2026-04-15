@@ -200,6 +200,14 @@ jobs:
           # deps/0 list. Perl -0777 for multiline match on `defp deps do\n    [`.
           perl -i -0777 -pe 's/defp deps do\s*\n\s*\[/defp deps do\n    [\n      {:sigra, path: "..", override: true},/' mix.exs
           grep -q "{:sigra, path:" mix.exs || { echo "failed to patch mix.exs"; exit 1; }
+      - name: Fetch tmp app deps
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+        # `phx.new --no-install` skips deps fetch; mix refuses to run any
+        # task (including sigra.install) until deps are resolved. Must
+        # run before the install step. Mirrors install-smoke.sh:54.
+        run: mix deps.get
       - name: Run sigra.install with matrix flags
         working-directory: tmp_app
         env:
