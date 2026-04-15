@@ -545,18 +545,22 @@ The planner should author `24-01-repair-phase-16-17-org-templates-PLAN.md` with 
 
 All other claims are VERIFIED via file read or CITED from the CONTEXT.md / existing source.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Target path for the moved `organization_invitation_email.ex`**
    - What we know: The current file is an email fragment reference (a doc/comment-heavy copy of `organization_invitation/4`). Under `core/` it was orphaned.
    - What's unclear: Should it land in `lib/<otp>/<ctx>/organization_invitation_email.ex` (code path), or `priv/static/sigra/organization_invitation_email.ex.reference` (doc path), or nowhere at all (and instead just let the inline copy be the canonical)?
    - Recommendation: Keep it as a code-path file at `lib/<otp>/<ctx>/organization_invitation_email.ex` — matches the `api_token_created_email.ex` pattern. The file is short and harmless; having it under the org feature's ownership satisfies D-04.1 and makes the move mechanical. Planner decides in Task 5.
+   - **RESOLVED:** Target path is `lib/<otp_app>/accounts/organization_invitation_email.ex` (hardcoded `"accounts"` segment mirroring the existing `api_token_created_email.ex` precedent — no dynamic context segment). Implemented by Task **24-01-06** (D-04.1/.2 move + register in `Features.Organizations.files/1`).
 
 2. **Should the HEEx-inside-EEx guard (Task 2) scan `core/` too, or only `organizations/`?**
    - D-06 item 3 wording says "walk `priv/templates/sigra.install/**/*.ex`" — all files. The planner should follow the literal wording. Core templates already don't mix EEx and HEEx inside heredocs (Finding 2 scan); the test should pass immediately for core/ and would catch any future regression.
+   - **RESOLVED:** The coverage lint and the template-syntax guard both walk all of `priv/templates/sigra.install/**/*.ex` (including `core/`). Core already passes the guard at commit time, so the broader scope is free regression defense going forward. Implemented by Tasks **24-01-02** (coverage lint walks `core/` + `organizations/`) and **24-01-03** (HEEx-inside-EEx guard walks `**/*.ex`).
 
 3. **Does Task 7's coverage lint catch the `router_injection.ex` / `user_auth_on_mount_assign_user_organizations.ex` injection templates?**
    - Those two files are not in `Features.Organizations.files/1` — they are read via `read_template!/1` from within `injections/1`. The coverage lint must therefore either (a) inspect the `injections/1` return value and extract referenced paths from content, or (b) maintain a whitelist of "files read via injections". Option (b) is simpler; planner decides.
+   - **RESOLVED:** Option (b) — explicit `@injection_whitelist` map inside the coverage test, keyed on feature module. `Features.Organizations` whitelist contains `organizations/router_injection.ex` and `organizations/user_auth_on_mount_assign_user_organizations.ex`. `Features.Core` whitelist is empty (Core injections use inline strings, not `read_template!/1`). Implemented by Task **24-01-02**.
+
 
 ## Sources
 

@@ -2,7 +2,7 @@
 phase: 24-repair-phase-16-17-organizations-generator-templates
 plan: 01
 type: execute
-wave: 1
+wave: 0
 depends_on: []
 files_modified:
   - priv/templates/sigra.install/organizations/live/invitation_accept_live.ex
@@ -57,13 +57,26 @@ must_haves:
 ---
 
 <planner_notes>
-Task IDs match 24-VALIDATION.md skeleton (24-01-01..24-01-09) exactly. No deviations.
+**TDD-first wave ordering (Revision 1 — 2026-04-14, checker Blocker 1 fix):** The three regression-test-creation tasks (D-06.1/.2/.3) now land in Wave 0 BEFORE the fixes. Each Wave 0 task's `<automated>` verify is scoped to syntactic-only checks — file exists, `mix compile --warnings-as-errors` does not break, and grep confirms at least one `test "..."` / `describe "..."` macro. The Wave 0 tests are EXPECTED to be RED against the current buggy templates at Wave 0 execution time — that redness is the proof that the tests catch the DEF-18-01 / DEF-18-02 bug classes. The test pass/fail transition (RED → GREEN) is verified on the Wave 1 and Wave 2 fix tasks (24-01-04 and 24-01-07) via expanded acceptance criteria. This matches the Nyquist-8a + Nyquist-8d contract: no `<automated>` command references a test file that does not yet exist at its own wave's execution time.
 
-Wave assignment:
-- Wave 1: tasks 01 (D-01 dispatcher) and 02 (D-02 verification) — independent, parallelizable.
-- Wave 2: tasks 03 (move fragment + register), 04 (conditional wrap + comment reword in core/emails.ex). 04 depends on 03 only semantically (D-04.3's purpose is the post-move `--no-organizations` compile-clean). Gated behind Wave 1 by file ownership safety.
-- Wave 3: tasks 05 (render test), 06 (coverage lint), 07 (syntax guard) — parallelizable regression suite.
-- Wave 4: tasks 08 (golden rebless — CHECKPOINT), 09 (CI matrix leg verification — CHECKPOINT).
+**Task IDs (post-revision):**
+- Wave 0 (TDD regression guards — test files land red-first):
+  - 24-01-01 — D-06.1 template_render_test.exs (syntactic check; RED until 24-01-04)
+  - 24-01-02 — D-06.2 features/coverage_test.exs (syntactic check; RED until 24-01-07)
+  - 24-01-03 — D-06.3 template_syntax_test.exs (syntactic check; RED until 24-01-04)
+- Wave 1 (fix the DEF-18-01 compile bug + verify already-on-disk injection templates):
+  - 24-01-04 — D-01 dispatcher refactor of invitation_accept_live.ex — flips 24-01-01 + 24-01-03 RED → GREEN
+  - 24-01-05 — D-02 verify organizations/router_injection.ex + organizations/user_auth_on_mount_assign_user_organizations.ex exist on disk (no creation)
+- Wave 2 (fix the DEF-18-02 feature-ownership drift):
+  - 24-01-06 — D-04.1/.2 move organization_invitation_email.ex from core/ to organizations/ + register in Features.Organizations.files/1
+  - 24-01-07 — D-04.3 conditional-wrap organization_invitation/4 + helpers in core/emails.ex + reword # comment — flips 24-01-02 RED → GREEN
+- Wave 3 (integration + CI):
+  - 24-01-08 — D-05 regenerate golden fixture (CHECKPOINT — visual diff review)
+  - 24-01-09 — D-06.4 install_matrix CI leg verification (CHECKPOINT — PR-based or act-based)
+
+**Scope sanity (checker Warning 3):** 9 tasks in one plan exceeds the 2–3 target for a standard plan. Accepted per D-03 ("Plan shape — single repair plan") with checkpoint-based natural boundaries at Task 24-01-08 (golden rebless) and Task 24-01-09 (CI matrix verify). The single-plan constraint is load-bearing: DEF-18-01 and DEF-18-02 are interrelated (golden rebless is gated on the dispatcher fix), so splitting into 24-01/24-02 would force a dependency with no independent shipping value.
+
+**XML entity hygiene (checker Note 5):** All `<automated>` commands in this revision use plain grep patterns — no `&lt;` / `&gt;` entity escaping that would break at execute-plan shell-out time. Tag-collision detection relies on keyword-only grep (e.g., `grep -c "case @branch do"` instead of `grep -c "<%= case @branch do %>"`).
 
 Plan has checkpoints → `autonomous: false`.
 </planner_notes>
@@ -198,361 +211,7 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
 <tasks>
 
 <task type="auto" tdd="false">
-  <name>Task 24-01-01 (Wave 1): D-01 — Refactor invitation_accept_live.ex render/1 to dispatcher shape</name>
-  <files>priv/templates/sigra.install/organizations/live/invitation_accept_live.ex</files>
-  <read_first>
-    - priv/templates/sigra.install/organizations/live/invitation_accept_live.ex (full file — 416 lines; see lines 228-253 for the block being replaced, 255-412 for the helpers that must remain BYTE-IDENTICAL, 330-336 for the Jetstream #907 invariant comment block)
-    - priv/templates/sigra.install/core/user.ex (line 4 — EEx conditional precedent, confirms bare-key vs `@key` convention — NOT directly relevant to this task but confirms template engine shape)
-    - lib/sigra/install/runner.ex (line 81 — `EEx.eval_file(template_path, binding)` callsite)
-  </read_first>
-  <action>
-    Replace the `render/1` function at lines 228-253 of `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` with the thin dispatcher shape (Option A from 24-RESEARCH.md Finding 2).
-
-    EXACT BEFORE (lines 228-253):
-    ```elixir
-    @impl true
-    def render(assigns) do
-      ~H"""
-      <div id="invitation-accept-page">
-        <.flash kind={:info} flash={@flash} />
-        <.flash kind={:error} flash={@flash} />
-
-        <%= case @branch do %>
-          <% :signup -> %>
-            {render_signup(assigns)}
-          <% :accept -> %>
-            {render_accept(assigns)}
-          <% :mismatch -> %>
-            {render_mismatch(assigns)}
-          <% :invalid -> %>
-            {render_invalid(assigns)}
-          <% :expired -> %>
-            {render_expired(assigns)}
-          <% :revoked -> %>
-            {render_revoked(assigns)}
-          <% :already_accepted -> %>
-            {render_already_accepted(assigns)}
-        <% end %>
-      </div>
-      """
-    end
-    ```
-
-    EXACT AFTER (same offset):
-    ```elixir
-    @impl true
-    def render(assigns) do
-      ~H"""
-      <div id="invitation-accept-page">
-        <.flash kind={:info} flash={@flash} />
-        <.flash kind={:error} flash={@flash} />
-        {render_branch(assigns)}
-      </div>
-      """
-    end
-
-    defp render_branch(%{branch: :signup} = assigns), do: render_signup(assigns)
-    defp render_branch(%{branch: :accept} = assigns), do: render_accept(assigns)
-    defp render_branch(%{branch: :mismatch} = assigns), do: render_mismatch(assigns)
-    defp render_branch(%{branch: :invalid} = assigns), do: render_invalid(assigns)
-    defp render_branch(%{branch: :expired} = assigns), do: render_expired(assigns)
-    defp render_branch(%{branch: :revoked} = assigns), do: render_revoked(assigns)
-    defp render_branch(%{branch: :already_accepted} = assigns), do: render_already_accepted(assigns)
-    ```
-
-    Also update the section comment at lines 225-226:
-    - BEFORE: `# Render — branch-dispatched via case @branch.`
-    - AFTER: `# Render — thin dispatcher; `render_branch/1` pattern-matches on `:branch`.`
-
-    DO NOT:
-    - Touch any of the seven `render_<branch>/1` helpers at lines 255-412.
-    - Touch any `handle_event/3` clause at lines 118-216.
-    - Touch the Jetstream #907 invariant comment block at lines 330-336.
-    - Touch the `<div id="invitation-accept-page">` wrapper or the two `<.flash .../>` lines — they remain in `render/1` in the parent `~H` heredoc, unchanged.
-    - Add any `<%= %>` or `<%` EEx tags anywhere inside the `~H"""` heredoc.
-
-    The parent heredoc contains ONLY curly-brace HEEx interpolation (`{render_branch(assigns)}`). EEx passes `{...}` through untouched; HEEx dispatches at runtime.
-  </action>
-  <verify>
-    <automated>mix test test/sigra/install/template_render_test.exs test/sigra/install/template_syntax_test.exs 2>&1 | tail -20; echo "---"; grep -c "defp render_branch" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex; echo "---"; grep -c "&lt;%= case @branch do %&gt;" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex || true</automated>
-  </verify>
-  <acceptance_criteria>
-    - `grep -c "defp render_branch" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `7` (exactly seven clauses — one per branch).
-    - `grep -c "case @branch do" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `0`.
-    - `grep -c "{render_branch(assigns)}" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `1`.
-    - The seven `render_<branch>/1` helpers (render_signup, render_accept, render_mismatch, render_invalid, render_expired, render_revoked, render_already_accepted) all still exist: `grep -cE "defp render_(signup|accept|mismatch|invalid|expired|revoked|already_accepted)\\(assigns\\) do" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `7`.
-    - Jetstream #907 invariant holds: `perl -0777 -ne 'print if /defp render_mismatch.*?(?=defp render_invalid)/s' priv/templates/sigra.install/organizations/live/invitation_accept_live.ex | grep -cE 'phx-(click|submit)="accept'` returns `0`.
-    - An ad-hoc EEx render smoke call from `iex -S mix` succeeds:
-      `EEx.eval_file("priv/templates/sigra.install/organizations/live/invitation_accept_live.ex", [web_module: "FixtureAppWeb", app_module: "FixtureApp", app_name: "FixtureApp", otp_app: :fixture_app, context_module: "FixtureApp.Accounts", context_alias: "Accounts", schema_module: "FixtureApp.Accounts.User", schema_alias: "User", table_name: "users", from_email: "noreply@example.com", log_in_url: "/users/log_in", repo_module: "FixtureApp.Repo", binary_id: true, live: true, api: false, jwt: false, organizations?: true, adapter: :postgres, reset_password_url: "http://localhost:4000/reset", settings_url: "http://localhost:4000/settings", opts: [], migration_timestamps: %{}])` returns a binary without raising.
-    - After Task 24-01-05 lands, `mix test test/sigra/install/template_render_test.exs` exits 0 and covers this file.
-  </acceptance_criteria>
-  <done>
-    `invitation_accept_live.ex` has zero `<%=` / `<%` tags inside its `~H"""` heredoc. `render/1` is a thin parent heredoc that dispatches via `{render_branch(assigns)}` to a new seven-clause `defp render_branch/1`. Seven existing `render_<branch>/1` helpers are byte-identical. Jetstream #907 defense in `render_mismatch/1` is preserved.
-  </done>
-</task>
-
-<task type="auto" tdd="false">
-  <name>Task 24-01-02 (Wave 1): D-02 — Verify organizations injection templates exist on disk (no creation)</name>
-  <files>test/sigra/install/features/organizations_test.exs</files>
-  <read_first>
-    - test/sigra/install/features/organizations_test.exs (full file — current state of the Organizations feature contract test)
-    - lib/sigra/install/features/organizations.ex (lines 155-167 — `router_injection/1` + `user_auth_on_mount_injection/2` `read_template!` callsites)
-    - 24-RESEARCH.md Finding 4 (both files confirmed present on disk as of commit 1e918cb)
-  </read_first>
-  <action>
-    DO NOT CREATE either of the "missing" template files — both already exist on disk. This is a verification-only task.
-
-    Add a single test to `test/sigra/install/features/organizations_test.exs` inside the existing describe block (or create a new `describe "injection templates on disk"` block near the top of the module). Test body:
-
-    ```elixir
-    test "injection template files exist on disk for Features.Organizations" do
-      assert File.exists?("priv/templates/sigra.install/organizations/router_injection.ex"),
-             "organizations/router_injection.ex is referenced by Features.Organizations.router_injection/1 via read_template!/1"
-
-      assert File.exists?("priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex"),
-             "organizations/user_auth_on_mount_assign_user_organizations.ex is referenced by Features.Organizations.user_auth_on_mount_injection/2 via read_template!/1"
-    end
-    ```
-
-    Use `async: true` convention (matches existing tests in the file). Place the test at the top of the module so a regression surfaces immediately. Do not modify any other assertion in the file.
-
-    Justification: Features.Organizations reads both files via `read_template!/1` inside `injections/1`. If either file is missing, `mix sigra.install` crashes before even reaching the EEx render step. The test is the narrowest guard.
-  </action>
-  <verify>
-    <automated>mix test test/sigra/install/features/organizations_test.exs 2>&1 | tail -20; echo "---"; ls priv/templates/sigra.install/organizations/router_injection.ex priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex</automated>
-  </verify>
-  <acceptance_criteria>
-    - `test -f priv/templates/sigra.install/organizations/router_injection.ex` succeeds (exit 0).
-    - `test -f priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex` succeeds (exit 0).
-    - `grep -c "injection template files exist on disk" test/sigra/install/features/organizations_test.exs` returns `1`.
-    - `mix test test/sigra/install/features/organizations_test.exs` exits 0 and includes `"injection template files exist on disk for Features.Organizations"` in the passing test names.
-    - Neither file was created or modified during this task: `git status priv/templates/sigra.install/organizations/router_injection.ex priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex` shows both clean.
-  </acceptance_criteria>
-  <done>
-    One new test in `organizations_test.exs` asserts both injection template files exist. Test is green. Neither template file was created or edited.
-  </done>
-</task>
-
-<task type="auto" tdd="false">
-  <name>Task 24-01-03 (Wave 2): D-04.1/.2 — Move organization_invitation_email.ex from core/ to organizations/ + register in Features.Organizations.files/1</name>
-  <files>
-    priv/templates/sigra.install/core/organization_invitation_email.ex,
-    priv/templates/sigra.install/organizations/organization_invitation_email.ex,
-    lib/sigra/install/features/organizations.ex,
-    test/sigra/install/features/organizations_test.exs
-  </files>
-  <read_first>
-    - priv/templates/sigra.install/core/organization_invitation_email.ex (full file — 114 lines)
-    - lib/sigra/install/features/organizations.ex (full file — especially lines 40-97 `files/1` for the tuple placement pattern)
-    - lib/sigra/install/features/core.ex (grep for `organization_invitation_email` — confirms Finding 3: the file is NOT currently in Features.Core.files/1, so Core needs NO edit)
-    - test/sigra/install/features/organizations_test.exs (to know where to add the assertion for the new entry)
-  </read_first>
-  <action>
-    Three sub-steps. Execute in order. All land in ONE commit with message `feat(24-01): move organization_invitation_email.ex to organizations/ feature`.
-
-    Sub-step A — move the file on disk:
-    ```bash
-    git mv priv/templates/sigra.install/core/organization_invitation_email.ex priv/templates/sigra.install/organizations/organization_invitation_email.ex
-    ```
-    Do NOT edit the file contents during the move. The file is a standalone email reference fragment — its internal template bindings are orthogonal to its location.
-
-    Sub-step B — register the moved file in `Features.Organizations.files/1`.
-    Edit `lib/sigra/install/features/organizations.ex`. Append a new tuple entry to the list returned by `files/1` at line 96 (after the current last entry `{:eex, "organizations/live/invitation_accept_live.ex", ...}`):
-
-    EXACT BEFORE (lines 89-96):
-    ```elixir
-          # Phase 17 Plan 07 (D-06): InvitationAcceptLive — single unscoped
-          # LiveView with 7 render branches (signup/accept/mismatch/invalid/
-          # expired/revoked/already_accepted). The :mismatch branch contains
-          # ZERO accept DOM controls by construction — structural Jetstream
-          # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
-          {:eex, "organizations/live/invitation_accept_live.ex",
-           Path.join(["lib", web, "live", "invitation_accept_live.ex"])}
-        ]
-    ```
-
-    EXACT AFTER:
-    ```elixir
-          # Phase 17 Plan 07 (D-06): InvitationAcceptLive — single unscoped
-          # LiveView with 7 render branches (signup/accept/mismatch/invalid/
-          # expired/revoked/already_accepted). The :mismatch branch contains
-          # ZERO accept DOM controls by construction — structural Jetstream
-          # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
-          {:eex, "organizations/live/invitation_accept_live.ex",
-           Path.join(["lib", web, "live", "invitation_accept_live.ex"])},
-
-          # Phase 17 D-12 / Phase 24 D-04: standalone organization-invitation
-          # email reference fragment. Mirrors the canonical inline
-          # implementation in core/emails.ex. Generated under the organizations
-          # feature so that `--no-organizations` cleanly omits it
-          # (Phase 11 CD-01 subdir ownership).
-          {:eex, "organizations/organization_invitation_email.ex",
-           Path.join(["lib", otp_app, "accounts", "organization_invitation_email.ex"])}
-        ]
-    ```
-
-    Target path `lib/<otp_app>/accounts/organization_invitation_email.ex` matches the `api_token_created_email.ex` precedent (code-path, co-located with the host accounts context). The hardcoded `"accounts"` segment mirrors the standalone fragment convention — existing `files/1` entries use `Path.join(["lib", otp_app, ...])` without a dynamic context segment, so match that shape.
-
-    Sub-step C — add a coverage assertion in `test/sigra/install/features/organizations_test.exs`. Inside the existing `describe "files/1"` block (or the equivalent block that walks `Features.Organizations.files/1`), add:
-
-    ```elixir
-    test "files/1 includes the moved organization_invitation_email.ex fragment" do
-      entries = Sigra.Install.Features.Organizations.files(@binding)
-
-      sources = Enum.map(entries, fn {:eex, source, _target} -> source end)
-
-      assert "organizations/organization_invitation_email.ex" in sources,
-             "Features.Organizations.files/1 must register the moved email fragment (Phase 24 D-04.1)"
-    end
-    ```
-
-    (Use whatever `@binding` helper the test module already defines. If no `@binding` exists, construct a minimal keyword list matching `lib/mix/tasks/sigra.install.ex:97-119` with `otp_app: :fixture_app`.)
-
-    DO NOT:
-    - Edit `lib/sigra/install/features/core.ex` — the file was never registered there (24-RESEARCH.md Finding 3).
-    - Edit `test/sigra/install/isolation_test.exs` — the `== 47` assertion self-corrects after the move (24-RESEARCH.md Finding 5).
-    - Edit `test/sigra/install/templates_layout_test.exs` — the hardcoded 47-entry manifest already excludes this file (24-RESEARCH.md Finding 5).
-    - Touch the contents of `organization_invitation_email.ex` itself — plain `git mv`.
-  </action>
-  <verify>
-    <automated>mix test test/sigra/install/features/organizations_test.exs test/sigra/install/features/core_test.exs test/sigra/install/isolation_test.exs test/sigra/install/templates_layout_test.exs 2>&1 | tail -30; echo "---"; test ! -f priv/templates/sigra.install/core/organization_invitation_email.ex && test -f priv/templates/sigra.install/organizations/organization_invitation_email.ex && echo "MOVE OK"; echo "---"; ls priv/templates/sigra.install/core/ | wc -l</automated>
-  </verify>
-  <acceptance_criteria>
-    - `test ! -f priv/templates/sigra.install/core/organization_invitation_email.ex` succeeds (exit 0).
-    - `test -f priv/templates/sigra.install/organizations/organization_invitation_email.ex` succeeds (exit 0).
-    - `ls priv/templates/sigra.install/core/ | wc -l` returns `47` (was 48 before move).
-    - `grep -c "organizations/organization_invitation_email.ex" lib/sigra/install/features/organizations.ex` returns `1`.
-    - `grep -c "organization_invitation_email" lib/sigra/install/features/core.ex` returns `0` (Core was never touched and still does not mention the file).
-    - `mix test test/sigra/install/isolation_test.exs` exits 0 (the `"contains exactly 47 templates"` assertion passes without any edit to that file).
-    - `mix test test/sigra/install/templates_layout_test.exs` exits 0 (the hardcoded `@manifest_post_move` list already matches core/'s new state).
-    - `mix test test/sigra/install/features/organizations_test.exs` exits 0 and includes `"files/1 includes the moved organization_invitation_email.ex fragment"` in the passing test names.
-    - `git diff --stat test/sigra/install/isolation_test.exs test/sigra/install/templates_layout_test.exs` shows both files UNCHANGED.
-  </acceptance_criteria>
-  <done>
-    File moved via `git mv` (content byte-identical). `Features.Organizations.files/1` has a new tuple targeting `lib/<otp_app>/accounts/organization_invitation_email.ex`. `organizations_test.exs` has a coverage assertion. `isolation_test.exs`, `templates_layout_test.exs`, and `features/core.ex` are all unchanged. `core/` has exactly 47 files.
-  </done>
-</task>
-
-<task type="auto" tdd="false">
-  <name>Task 24-01-04 (Wave 2): D-04.3 — Conditional-wrap organization_invitation/4 + helpers in core/emails.ex + reword # comment</name>
-  <files>priv/templates/sigra.install/core/emails.ex</files>
-  <read_first>
-    - priv/templates/sigra.install/core/emails.ex (specifically lines 690-805 — the block being wrapped)
-    - priv/templates/sigra.install/core/user.ex (line 4 — confirms `<%= if organizations? do %>` bare-key precedent, NOT `@organizations?`)
-    - lib/mix/tasks/sigra.install.ex (line 114 — confirms binding key is `organizations?:` with trailing `?`)
-    - test/sigra/install/isolation_test.exs (lines 22-32 forbidden-symbol assertion + lines 91-95 `strip_docstrings/1` regex — proves `#` comments are NOT stripped)
-  </read_first>
-  <action>
-    Edit `priv/templates/sigra.install/core/emails.ex`. Perform TWO combined edits in a single pass:
-
-    (1) Reword the `#` comment at lines 696-700 to REMOVE the literal substring `OrganizationInvitationEmail` — it otherwise fails `IsolationTest`'s forbidden-symbol guard (the test strips `@doc`/`@moduledoc` heredocs but NOT `#` comments — 24-RESEARCH.md Finding 5 secondary).
-
-    EXACT BEFORE (lines 696-700):
-    ```elixir
-      # -- Organization Invitation (Phase 17 D-12) --
-      #
-      # Canonical inline copy of the OrganizationInvitationEmail fragment
-      # shipped at priv/templates/sigra.install/core/organization_invitation_email.ex.
-      # Both must stay in sync — the fragment file is the documentation reference.
-    ```
-
-    EXACT AFTER (lines 696-700):
-    ```elixir
-      # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
-      #
-      # Canonical inline copy of the invitation email fragment shipped at
-      # priv/templates/sigra.install/organizations/organization_invitation_email.ex.
-      # Both must stay in sync — the fragment file is the documentation reference.
-      # Wrapped in `<%%= if organizations? do %%>` so --no-organizations omits it.
-    ```
-
-    Note: the rewording replaces `OrganizationInvitationEmail` with `invitation email fragment` and updates the path to reflect the Task 24-01-03 move. The `<%%=` escape in the comment is intentional — it is a documentation reference to the EEx tag, and `<%%=` renders as literal `<%=` in the generated output (it must NOT be interpreted as an EEx tag at generator-render time).
-
-    (2) Wrap the entire `organization_invitation/4` function AND its two private helpers (`inviter_display_name/1` + `humanize_role/1`) in a single `<%= if organizations? do %> ... <% end %>` block.
-
-    EXACT BEFORE (lines 702-801 — the `@doc` + `def organization_invitation/4` + `defp inviter_display_name/1` + `defp humanize_role/1` triad):
-    ```elixir
-      @doc """
-      Builds an organization-invitation email.
-      ...
-      """
-      def organization_invitation(invitation, org, inviter, accept_url)
-          when is_binary(accept_url) do
-        ...
-        |> text_body(text_body)
-      end
-
-      defp inviter_display_name(inviter) do
-        case inviter do
-          %{name: name} when is_binary(name) and name != "" -> name
-          %{email: email} when is_binary(email) -> email
-          _ -> "Someone"
-        end
-      end
-
-      defp humanize_role(role), do: role |> to_string() |> String.capitalize()
-    ```
-
-    EXACT AFTER (same offset, wrapped in a single EEx conditional block):
-    ```elixir
-    <%= if organizations? do %>
-      @doc """
-      Builds an organization-invitation email.
-      ...
-      """
-      def organization_invitation(invitation, org, inviter, accept_url)
-          when is_binary(accept_url) do
-        ...
-        |> text_body(text_body)
-      end
-
-      defp inviter_display_name(inviter) do
-        case inviter do
-          %{name: name} when is_binary(name) and name != "" -> name
-          %{email: email} when is_binary(email) -> email
-          _ -> "Someone"
-        end
-      end
-
-      defp humanize_role(role), do: role |> to_string() |> String.capitalize()
-    <% end %>
-    ```
-
-    (The `...` ellipses above are shorthand for "byte-identical body content — do NOT rewrite the function body; only add the EEx wrapper lines around it.")
-
-    CRITICAL binding convention (24-RESEARCH.md Finding 1):
-    - Use `organizations?` (BARE key — no `@` prefix).
-    - NOT `@organizations?`. EEx.eval_file uses the default `EEx.Engine` which does not support `@key` sugar against a keyword binding.
-    - Precedent: `core/user.ex:4` uses `<%= if binary_id do %>`.
-
-    Critical scope rule: all THREE defs (public function + both private helpers) MUST be inside the same EEx conditional. If only the public function is wrapped, `mix compile --warnings-as-errors` in the `install_matrix --no-organizations` CI leg fails with "unused private function inviter_display_name/1" (24-RESEARCH.md Pitfall 3).
-
-    DO NOT:
-    - Introduce any new compile-time shape — no helper modules, no post-process strip, no AST rewrite. Use only `<%= if organizations? do %> ... <% end %>`.
-    - Use `@organizations?` anywhere.
-    - Wrap lines beyond 702-801 — the other email builders above (`password_changed/1` etc.) must remain unconditional.
-    - Touch the `base_email/1` / `base_layout/1` / `cta_button/2` / `footer_text/0` helpers elsewhere in the file — they are used by non-org emails too.
-  </action>
-  <verify>
-    <automated>mix test test/sigra/install/isolation_test.exs test/sigra/install/templates_layout_test.exs 2>&1 | tail -30; echo "---"; grep -c "&lt;%= if organizations? do %&gt;" priv/templates/sigra.install/core/emails.ex; echo "---"; grep -c "OrganizationInvitationEmail" priv/templates/sigra.install/core/emails.ex</automated>
-  </verify>
-  <acceptance_criteria>
-    - `grep -c "if organizations? do" priv/templates/sigra.install/core/emails.ex` returns at least `1`.
-    - `grep -c "@organizations?" priv/templates/sigra.install/core/emails.ex` returns `0` (bare key only, not `@key`).
-    - `grep -c "OrganizationInvitationEmail" priv/templates/sigra.install/core/emails.ex` returns `0` (literal substring removed from the `#` comment).
-    - The conditional wraps ALL THREE defs: `perl -0777 -ne 'if (/if organizations\\? do(.*?)&lt;% end %&gt;/s) { print $1 }' priv/templates/sigra.install/core/emails.ex | grep -c "def organization_invitation"` returns `1`, AND the same extracted block contains `defp inviter_display_name` AND `defp humanize_role` (run `grep -c` for each on the extracted output).
-    - `mix test test/sigra/install/isolation_test.exs` exits 0 (the forbidden-symbol guard for `core/*` now passes — 24-RESEARCH.md Finding 5 secondary is resolved).
-    - Default-leg render succeeds: from `iex -S mix`, `EEx.eval_file("priv/templates/sigra.install/core/emails.ex", [otp_app: :fixture_app, organizations?: true, app_name: "FixtureApp", web_module: "FixtureAppWeb", app_module: "FixtureApp", context_module: "FixtureApp.Accounts", context_alias: "Accounts", schema_module: "FixtureApp.Accounts.User", schema_alias: "User", table_name: "users", from_email: "noreply@example.com", log_in_url: "/users/log_in", repo_module: "FixtureApp.Repo", binary_id: true, live: true, api: false, jwt: false, adapter: :postgres, reset_password_url: "http://localhost:4000/reset", settings_url: "http://localhost:4000/settings", opts: [], migration_timestamps: %{}])` returns a binary containing `"def organization_invitation"`.
-    - No-orgs-leg render succeeds: same call with `organizations?: false` returns a binary that does NOT contain `"def organization_invitation"` (case-sensitive grep).
-    - Both rendered outputs parse as valid Elixir: `Code.string_to_quoted/1` returns `{:ok, _}` for each.
-  </acceptance_criteria>
-  <done>
-    `core/emails.ex` has the `#` comment reworded to remove `OrganizationInvitationEmail`. The public `organization_invitation/4` function + both private helpers (`inviter_display_name/1` + `humanize_role/1`) are wrapped in a single `<%= if organizations? do %> ... <% end %>` block using BARE `organizations?` (no `@`). `isolation_test.exs` forbidden-symbol guard passes. Both default-leg and `--no-organizations`-leg renders produce valid Elixir.
-  </done>
-</task>
-
-<task type="auto" tdd="false">
-  <name>Task 24-01-05 (Wave 3): D-06.1 — Create template_render_test.exs (generator-render unit test for organizations/**/*.ex)</name>
+  <name>Task 24-01-01 (Wave 0): D-06.1 — Create template_render_test.exs (generator-render unit test for organizations/**/*.ex)</name>
   <files>test/sigra/install/template_render_test.exs</files>
   <read_first>
     - lib/mix/tasks/sigra.install.ex (lines 97-119 — `build_binding/4` — canonical binding shape)
@@ -562,6 +221,8 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - test/sigra/install/isolation_test.exs (for conventions: `use ExUnit.Case, async: true`, flat module name under `Sigra.Install.*`)
   </read_first>
   <action>
+    **TDD-first (Wave 0):** This task lands the regression test BEFORE the fix (Task 24-01-04). The test file will be RED against the current buggy `invitation_accept_live.ex` — that redness is the proof that the test catches the DEF-18-01 bug class. This Wave 0 task ONLY asserts the test file exists, compiles, and defines at least one `test`/`describe` macro. The test pass/fail transition is verified on Task 24-01-04 (Wave 1).
+
     Create the new file `test/sigra/install/template_render_test.exs` with the following contents:
 
     ```elixir
@@ -651,7 +312,7 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - Use `Code.compile_string/1` — it pollutes the runtime ETS table. `Code.string_to_quoted/1` is the right tool.
   </action>
   <verify>
-    <automated>mix test test/sigra/install/template_render_test.exs 2>&1 | tail -30</automated>
+    <automated>test -f test/sigra/install/template_render_test.exs && mix compile --warnings-as-errors 2>&1 | tail -5 && grep -cE '^[[:space:]]*(test|describe) "' test/sigra/install/template_render_test.exs</automated>
   </verify>
   <acceptance_criteria>
     - File `test/sigra/install/template_render_test.exs` exists.
@@ -661,7 +322,7 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - `mix test test/sigra/install/template_render_test.exs` exits 0 AND the output shows at least 10 individual test cases passing (one per organizations template — the current tree has 10+ .ex files under `organizations/`).
     - The test for `invitation_accept_live.ex` specifically appears in the pass list: `mix test test/sigra/install/template_render_test.exs 2>&1 | grep "invitation_accept_live"` returns a passing line.
     - The test for the moved fragment appears: `mix test test/sigra/install/template_render_test.exs 2>&1 | grep "organization_invitation_email"` returns a passing line.
-    - Regression validation (one-shot): revert Task 24-01-01 locally in a scratch branch, run `mix test test/sigra/install/template_render_test.exs`, confirm the `invitation_accept_live` test FAILS with an `EEx.eval_file raised` message, then restore. (Document the result in the commit message.)
+    - Regression validation (one-shot, deferred until after Task 24-01-04 lands): revert Task 24-01-04 locally in a scratch branch, run `mix test test/sigra/install/template_render_test.exs`, confirm the `invitation_accept_live` test FAILS with an `EEx.eval_file raised` message, then restore. (This is a post-Wave-1 spot-check, not a Wave 0 acceptance. Document the result in the Wave 1 commit message for Task 24-01-04.)
   </acceptance_criteria>
   <done>
     `test/sigra/install/template_render_test.exs` exists, runs one test per `organizations/**/*.ex` template, renders via `EEx.eval_file/2` with the full binding, parses the output via `Code.string_to_quoted/1`. All tests pass. Regression spot-check confirms the test catches the DEF-18-01 bug class.
@@ -669,7 +330,7 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
 </task>
 
 <task type="auto" tdd="false">
-  <name>Task 24-01-06 (Wave 3): D-06.2 — Create features/coverage_test.exs (per-feature file-coverage lint)</name>
+  <name>Task 24-01-02 (Wave 0): D-06.2 — Create features/coverage_test.exs (per-feature file-coverage lint)</name>
   <files>test/sigra/install/features/coverage_test.exs</files>
   <read_first>
     - lib/sigra/install/features/core.ex (full file — especially `files/1` + `migrations/1` shape)
@@ -678,6 +339,8 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - 24-RESEARCH.md Open Question 3 (how coverage lint handles injection templates — use whitelist approach)
   </read_first>
   <action>
+    **TDD-first (Wave 0):** This task lands the regression test BEFORE the fix (Task 24-01-07). The test file will be RED against the current tree because `organization_invitation_email.ex` is orphaned under `core/` with no feature owner. This Wave 0 task ONLY asserts the test file exists, compiles, and defines at least one `test`/`describe` macro. The test pass/fail transition is verified on Task 24-01-07 (Wave 2, after the file move).
+
     Create `test/sigra/install/features/coverage_test.exs` with a data-driven test that walks each feature's subdir and asserts every on-disk `.ex`/`.exs` file is either registered in `feat.files/1`, referenced by `feat.migrations/1`, or on an explicit injection-template whitelist.
 
     ```elixir
@@ -800,7 +463,7 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - Extend the whitelist beyond the two injection templates. If a template shows up as orphan, the fix is to register it in `files/1` — not to whitelist it.
   </action>
   <verify>
-    <automated>mix test test/sigra/install/features/coverage_test.exs 2>&1 | tail -30</automated>
+    <automated>test -f test/sigra/install/features/coverage_test.exs && mix compile --warnings-as-errors 2>&1 | tail -5 && grep -cE '^[[:space:]]*(test|describe) "' test/sigra/install/features/coverage_test.exs</automated>
   </verify>
   <acceptance_criteria>
     - File `test/sigra/install/features/coverage_test.exs` exists.
@@ -817,14 +480,16 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
 </task>
 
 <task type="auto" tdd="false">
-  <name>Task 24-01-07 (Wave 3): D-06.3 — Create template_syntax_test.exs (HEEx-inside-EEx guard)</name>
+  <name>Task 24-01-03 (Wave 0): D-06.3 — Create template_syntax_test.exs (HEEx-inside-EEx guard)</name>
   <files>test/sigra/install/template_syntax_test.exs</files>
   <read_first>
     - test/sigra/install/isolation_test.exs (full file — conventions for walking the template tree, `strip_docstrings/1` as a reference for text-munging regexes)
-    - priv/templates/sigra.install/organizations/live/invitation_accept_live.ex (post Task 24-01-01 — confirms zero `<%=` / `<%` tags inside its `~H` heredoc)
+    - priv/templates/sigra.install/organizations/live/invitation_accept_live.ex (post Task 24-01-04 — confirms zero `<%=` / `<%` tags inside its `~H` heredoc)
     - 24-RESEARCH.md Finding 2 + Open Question 2 (confirms guard should walk ALL of `**/*.ex`, not just `organizations/`)
   </read_first>
   <action>
+    **TDD-first (Wave 0):** This task lands the regression test BEFORE the fix (Task 24-01-04). The test will be RED against the current `invitation_accept_live.ex` (which contains a raw `<%= case @branch do %>` inside a `~H` heredoc). That redness is the exact DEF-18-01 bug class guard. This Wave 0 task ONLY asserts the test file exists, compiles, and defines at least one `test`/`describe` macro. The test pass/fail transition is verified on Task 24-01-04 (Wave 1).
+
     Create `test/sigra/install/template_syntax_test.exs` with a narrow grep-based guard:
 
     ```elixir
@@ -893,7 +558,7 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - Use `describe` names that don't include the file path — per-file failure messaging is load-bearing.
   </action>
   <verify>
-    <automated>mix test test/sigra/install/template_syntax_test.exs 2>&1 | tail -30</automated>
+    <automated>test -f test/sigra/install/template_syntax_test.exs && mix compile --warnings-as-errors 2>&1 | tail -5 && grep -cE '^[[:space:]]*(test|describe) "' test/sigra/install/template_syntax_test.exs</automated>
   </verify>
   <acceptance_criteria>
     - File `test/sigra/install/template_syntax_test.exs` exists.
@@ -903,15 +568,371 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     - `mix test test/sigra/install/template_syntax_test.exs` exits 0.
     - The test for `invitation_accept_live.ex` appears and passes: `mix test test/sigra/install/template_syntax_test.exs 2>&1 | grep "invitation_accept_live"` shows a passing line.
     - Test count > 40 (one per `.ex` template, current tree has 47+ in `core/` + organizations templates).
-    - Regression spot-check: on a scratch branch, revert Task 24-01-01, run `mix test test/sigra/install/template_syntax_test.exs`, confirm the `invitation_accept_live` test FAILS with the offending heredoc body in the message, then restore.
+    - Regression spot-check (post-Wave-1, deferred): on a scratch branch, revert Task 24-01-04, run `mix test test/sigra/install/template_syntax_test.exs`, confirm the `invitation_accept_live` test FAILS with the offending heredoc body in the message, then restore. Not a Wave 0 acceptance — run after Task 24-01-04 lands.
   </acceptance_criteria>
   <done>
     `test/sigra/install/template_syntax_test.exs` exists, walks all `.ex` templates, extracts `~H"""..."""` heredocs, greps each body for raw `<%=`/`<%` tags (excluding escaped `<%%=`/`<%%`). All tests pass. Regression spot-check confirms it catches DEF-18-01.
   </done>
 </task>
 
+<task type="auto" tdd="false">
+  <name>Task 24-01-04 (Wave 1): D-01 — Refactor invitation_accept_live.ex render/1 to dispatcher shape</name>
+  <files>priv/templates/sigra.install/organizations/live/invitation_accept_live.ex</files>
+  <read_first>
+    - priv/templates/sigra.install/organizations/live/invitation_accept_live.ex (full file — 416 lines; see lines 228-253 for the block being replaced, 255-412 for the helpers that must remain BYTE-IDENTICAL, 330-336 for the Jetstream #907 invariant comment block)
+    - priv/templates/sigra.install/core/user.ex (line 4 — EEx conditional precedent, confirms bare-key vs `@key` convention — NOT directly relevant to this task but confirms template engine shape)
+    - lib/sigra/install/runner.ex (line 81 — `EEx.eval_file(template_path, binding)` callsite)
+  </read_first>
+  <action>
+    Replace the `render/1` function at lines 228-253 of `priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` with the thin dispatcher shape (Option A from 24-RESEARCH.md Finding 2).
+
+    EXACT BEFORE (lines 228-253):
+    ```elixir
+    @impl true
+    def render(assigns) do
+      ~H"""
+      <div id="invitation-accept-page">
+        <.flash kind={:info} flash={@flash} />
+        <.flash kind={:error} flash={@flash} />
+
+        <%= case @branch do %>
+          <% :signup -> %>
+            {render_signup(assigns)}
+          <% :accept -> %>
+            {render_accept(assigns)}
+          <% :mismatch -> %>
+            {render_mismatch(assigns)}
+          <% :invalid -> %>
+            {render_invalid(assigns)}
+          <% :expired -> %>
+            {render_expired(assigns)}
+          <% :revoked -> %>
+            {render_revoked(assigns)}
+          <% :already_accepted -> %>
+            {render_already_accepted(assigns)}
+        <% end %>
+      </div>
+      """
+    end
+    ```
+
+    EXACT AFTER (same offset):
+    ```elixir
+    @impl true
+    def render(assigns) do
+      ~H"""
+      <div id="invitation-accept-page">
+        <.flash kind={:info} flash={@flash} />
+        <.flash kind={:error} flash={@flash} />
+        {render_branch(assigns)}
+      </div>
+      """
+    end
+
+    defp render_branch(%{branch: :signup} = assigns), do: render_signup(assigns)
+    defp render_branch(%{branch: :accept} = assigns), do: render_accept(assigns)
+    defp render_branch(%{branch: :mismatch} = assigns), do: render_mismatch(assigns)
+    defp render_branch(%{branch: :invalid} = assigns), do: render_invalid(assigns)
+    defp render_branch(%{branch: :expired} = assigns), do: render_expired(assigns)
+    defp render_branch(%{branch: :revoked} = assigns), do: render_revoked(assigns)
+    defp render_branch(%{branch: :already_accepted} = assigns), do: render_already_accepted(assigns)
+    ```
+
+    Also update the section comment at lines 225-226:
+    - BEFORE: `# Render — branch-dispatched via case @branch.`
+    - AFTER: `# Render — thin dispatcher; `render_branch/1` pattern-matches on `:branch`.`
+
+    DO NOT:
+    - Touch any of the seven `render_<branch>/1` helpers at lines 255-412.
+    - Touch any `handle_event/3` clause at lines 118-216.
+    - Touch the Jetstream #907 invariant comment block at lines 330-336.
+    - Touch the `<div id="invitation-accept-page">` wrapper or the two `<.flash .../>` lines — they remain in `render/1` in the parent `~H` heredoc, unchanged.
+    - Add any `<%= %>` or `<%` EEx tags anywhere inside the `~H"""` heredoc.
+
+    The parent heredoc contains ONLY curly-brace HEEx interpolation (`{render_branch(assigns)}`). EEx passes `{...}` through untouched; HEEx dispatches at runtime.
+  </action>
+  <verify>
+    <automated>mix test test/sigra/install/template_render_test.exs test/sigra/install/template_syntax_test.exs 2>&1 | tail -20; echo "---"; grep -c "defp render_branch" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex; echo "---"; grep -c "case @branch do" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex || true</automated>
+  </verify>
+  <acceptance_criteria>
+    - `grep -c "defp render_branch" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `7` (exactly seven clauses — one per branch).
+    - `grep -c "case @branch do" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `0`.
+    - `grep -c "{render_branch(assigns)}" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `1`.
+    - The seven `render_<branch>/1` helpers (render_signup, render_accept, render_mismatch, render_invalid, render_expired, render_revoked, render_already_accepted) all still exist: `grep -cE "defp render_(signup|accept|mismatch|invalid|expired|revoked|already_accepted)\\(assigns\\) do" priv/templates/sigra.install/organizations/live/invitation_accept_live.ex` returns `7`.
+    - Jetstream #907 invariant holds: `perl -0777 -ne 'print if /defp render_mismatch.*?(?=defp render_invalid)/s' priv/templates/sigra.install/organizations/live/invitation_accept_live.ex | grep -cE 'phx-(click|submit)="accept'` returns `0`.
+    - An ad-hoc EEx render smoke call from `iex -S mix` succeeds:
+      `EEx.eval_file("priv/templates/sigra.install/organizations/live/invitation_accept_live.ex", [web_module: "FixtureAppWeb", app_module: "FixtureApp", app_name: "FixtureApp", otp_app: :fixture_app, context_module: "FixtureApp.Accounts", context_alias: "Accounts", schema_module: "FixtureApp.Accounts.User", schema_alias: "User", table_name: "users", from_email: "noreply@example.com", log_in_url: "/users/log_in", repo_module: "FixtureApp.Repo", binary_id: true, live: true, api: false, jwt: false, organizations?: true, adapter: :postgres, reset_password_url: "http://localhost:4000/reset", settings_url: "http://localhost:4000/settings", opts: [], migration_timestamps: %{}])` returns a binary without raising.
+    - **Wave 0 RED → GREEN transition (load-bearing, Nyquist-8d acceptance):** `mix test test/sigra/install/template_render_test.exs` exits 0 AND the specific test case for `invitation_accept_live.ex` transitions from RED (pre-Wave 1) to GREEN. Pre-Wave-1 expected failure: `EEx.eval_file raised ... undefined variable "assigns"` in the `invitation_accept_live.ex` test case.
+    - **Wave 0 RED → GREEN transition (load-bearing, Nyquist-8d acceptance):** `mix test test/sigra/install/template_syntax_test.exs` exits 0 AND the specific test case for `invitation_accept_live.ex` transitions from RED (pre-Wave 1) to GREEN. Pre-Wave-1 expected failure named the offending `<%= case @branch do %>` heredoc body.
+  </acceptance_criteria>
+  <done>
+    `invitation_accept_live.ex` has zero `<%=` / `<%` tags inside its `~H"""` heredoc. `render/1` is a thin parent heredoc that dispatches via `{render_branch(assigns)}` to a new seven-clause `defp render_branch/1`. Seven existing `render_<branch>/1` helpers are byte-identical. Jetstream #907 defense in `render_mismatch/1` is preserved.
+  </done>
+</task>
+
+<task type="auto" tdd="false">
+  <name>Task 24-01-05 (Wave 1): D-02 — Verify organizations injection templates exist on disk (no creation)</name>
+  <files>test/sigra/install/features/organizations_test.exs</files>
+  <read_first>
+    - test/sigra/install/features/organizations_test.exs (full file — current state of the Organizations feature contract test)
+    - lib/sigra/install/features/organizations.ex (lines 155-167 — `router_injection/1` + `user_auth_on_mount_injection/2` `read_template!` callsites)
+    - 24-RESEARCH.md Finding 4 (both files confirmed present on disk as of commit 1e918cb)
+  </read_first>
+  <action>
+    DO NOT CREATE either of the "missing" template files — both already exist on disk. This is a verification-only task.
+
+    Add a single test to `test/sigra/install/features/organizations_test.exs` inside the existing describe block (or create a new `describe "injection templates on disk"` block near the top of the module). Test body:
+
+    ```elixir
+    test "injection template files exist on disk for Features.Organizations" do
+      assert File.exists?("priv/templates/sigra.install/organizations/router_injection.ex"),
+             "organizations/router_injection.ex is referenced by Features.Organizations.router_injection/1 via read_template!/1"
+
+      assert File.exists?("priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex"),
+             "organizations/user_auth_on_mount_assign_user_organizations.ex is referenced by Features.Organizations.user_auth_on_mount_injection/2 via read_template!/1"
+    end
+    ```
+
+    Use `async: true` convention (matches existing tests in the file). Place the test at the top of the module so a regression surfaces immediately. Do not modify any other assertion in the file.
+
+    Justification: Features.Organizations reads both files via `read_template!/1` inside `injections/1`. If either file is missing, `mix sigra.install` crashes before even reaching the EEx render step. The test is the narrowest guard.
+  </action>
+  <verify>
+    <automated>mix test test/sigra/install/features/organizations_test.exs 2>&1 | tail -20; echo "---"; ls priv/templates/sigra.install/organizations/router_injection.ex priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex</automated>
+  </verify>
+  <acceptance_criteria>
+    - `test -f priv/templates/sigra.install/organizations/router_injection.ex` succeeds (exit 0).
+    - `test -f priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex` succeeds (exit 0).
+    - `grep -c "injection template files exist on disk" test/sigra/install/features/organizations_test.exs` returns `1`.
+    - `mix test test/sigra/install/features/organizations_test.exs` exits 0 and includes `"injection template files exist on disk for Features.Organizations"` in the passing test names.
+    - Neither file was created or modified during this task: `git status priv/templates/sigra.install/organizations/router_injection.ex priv/templates/sigra.install/organizations/user_auth_on_mount_assign_user_organizations.ex` shows both clean.
+  </acceptance_criteria>
+  <done>
+    One new test in `organizations_test.exs` asserts both injection template files exist. Test is green. Neither template file was created or edited.
+  </done>
+</task>
+
+<task type="auto" tdd="false">
+  <name>Task 24-01-06 (Wave 2): D-04.1/.2 — Move organization_invitation_email.ex from core/ to organizations/ + register in Features.Organizations.files/1</name>
+  <files>
+    priv/templates/sigra.install/core/organization_invitation_email.ex,
+    priv/templates/sigra.install/organizations/organization_invitation_email.ex,
+    lib/sigra/install/features/organizations.ex,
+    test/sigra/install/features/organizations_test.exs
+  </files>
+  <read_first>
+    - priv/templates/sigra.install/core/organization_invitation_email.ex (full file — 114 lines)
+    - lib/sigra/install/features/organizations.ex (full file — especially lines 40-97 `files/1` for the tuple placement pattern)
+    - lib/sigra/install/features/core.ex (grep for `organization_invitation_email` — confirms Finding 3: the file is NOT currently in Features.Core.files/1, so Core needs NO edit)
+    - test/sigra/install/features/organizations_test.exs (to know where to add the assertion for the new entry)
+  </read_first>
+  <action>
+    Three sub-steps. Execute in order. All land in ONE commit with message `feat(24-01): move organization_invitation_email.ex to organizations/ feature`.
+
+    Sub-step A — move the file on disk:
+    ```bash
+    git mv priv/templates/sigra.install/core/organization_invitation_email.ex priv/templates/sigra.install/organizations/organization_invitation_email.ex
+    ```
+    Do NOT edit the file contents during the move. The file is a standalone email reference fragment — its internal template bindings are orthogonal to its location.
+
+    Sub-step B — register the moved file in `Features.Organizations.files/1`.
+    Edit `lib/sigra/install/features/organizations.ex`. Append a new tuple entry to the list returned by `files/1` at line 96 (after the current last entry `{:eex, "organizations/live/invitation_accept_live.ex", ...}`):
+
+    EXACT BEFORE (lines 89-96):
+    ```elixir
+          # Phase 17 Plan 07 (D-06): InvitationAcceptLive — single unscoped
+          # LiveView with 7 render branches (signup/accept/mismatch/invalid/
+          # expired/revoked/already_accepted). The :mismatch branch contains
+          # ZERO accept DOM controls by construction — structural Jetstream
+          # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
+          {:eex, "organizations/live/invitation_accept_live.ex",
+           Path.join(["lib", web, "live", "invitation_accept_live.ex"])}
+        ]
+    ```
+
+    EXACT AFTER:
+    ```elixir
+          # Phase 17 Plan 07 (D-06): InvitationAcceptLive — single unscoped
+          # LiveView with 7 render branches (signup/accept/mismatch/invalid/
+          # expired/revoked/already_accepted). The :mismatch branch contains
+          # ZERO accept DOM controls by construction — structural Jetstream
+          # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
+          {:eex, "organizations/live/invitation_accept_live.ex",
+           Path.join(["lib", web, "live", "invitation_accept_live.ex"])},
+
+          # Phase 17 D-12 / Phase 24 D-04: standalone organization-invitation
+          # email reference fragment. Mirrors the canonical inline
+          # implementation in core/emails.ex. Generated under the organizations
+          # feature so that `--no-organizations` cleanly omits it
+          # (Phase 11 CD-01 subdir ownership).
+          {:eex, "organizations/organization_invitation_email.ex",
+           Path.join(["lib", otp_app, "accounts", "organization_invitation_email.ex"])}
+        ]
+    ```
+
+    Target path `lib/<otp_app>/accounts/organization_invitation_email.ex` matches the `api_token_created_email.ex` precedent (code-path, co-located with the host accounts context). The hardcoded `"accounts"` segment mirrors the standalone fragment convention — existing `files/1` entries use `Path.join(["lib", otp_app, ...])` without a dynamic context segment, so match that shape.
+
+    Sub-step C — add a coverage assertion in `test/sigra/install/features/organizations_test.exs`. Inside the existing `describe "files/1"` block (or the equivalent block that walks `Features.Organizations.files/1`), add:
+
+    ```elixir
+    test "files/1 includes the moved organization_invitation_email.ex fragment" do
+      entries = Sigra.Install.Features.Organizations.files(@binding)
+
+      sources = Enum.map(entries, fn {:eex, source, _target} -> source end)
+
+      assert "organizations/organization_invitation_email.ex" in sources,
+             "Features.Organizations.files/1 must register the moved email fragment (Phase 24 D-04.1)"
+    end
+    ```
+
+    (Use whatever `@binding` helper the test module already defines. If no `@binding` exists, construct a minimal keyword list matching `lib/mix/tasks/sigra.install.ex:97-119` with `otp_app: :fixture_app`.)
+
+    DO NOT:
+    - Edit `lib/sigra/install/features/core.ex` — the file was never registered there (24-RESEARCH.md Finding 3).
+    - Edit `test/sigra/install/isolation_test.exs` — the `== 47` assertion self-corrects after the move (24-RESEARCH.md Finding 5).
+    - Edit `test/sigra/install/templates_layout_test.exs` — the hardcoded 47-entry manifest already excludes this file (24-RESEARCH.md Finding 5).
+    - Touch the contents of `organization_invitation_email.ex` itself — plain `git mv`.
+  </action>
+  <verify>
+    <automated>mix test test/sigra/install/features/organizations_test.exs test/sigra/install/features/core_test.exs test/sigra/install/isolation_test.exs test/sigra/install/templates_layout_test.exs 2>&1 | tail -30; echo "---"; test ! -f priv/templates/sigra.install/core/organization_invitation_email.ex && test -f priv/templates/sigra.install/organizations/organization_invitation_email.ex && echo "MOVE OK"; echo "---"; ls priv/templates/sigra.install/core/ | wc -l</automated>
+  </verify>
+  <acceptance_criteria>
+    - `test ! -f priv/templates/sigra.install/core/organization_invitation_email.ex` succeeds (exit 0).
+    - `test -f priv/templates/sigra.install/organizations/organization_invitation_email.ex` succeeds (exit 0).
+    - `ls priv/templates/sigra.install/core/ | wc -l` returns `47` (was 48 before move).
+    - `grep -c "organizations/organization_invitation_email.ex" lib/sigra/install/features/organizations.ex` returns `1`.
+    - `grep -c "organization_invitation_email" lib/sigra/install/features/core.ex` returns `0` (Core was never touched and still does not mention the file).
+    - `mix test test/sigra/install/isolation_test.exs` exits 0 (the `"contains exactly 47 templates"` assertion passes without any edit to that file).
+    - `mix test test/sigra/install/templates_layout_test.exs` exits 0 (the hardcoded `@manifest_post_move` list already matches core/'s new state).
+    - `mix test test/sigra/install/features/organizations_test.exs` exits 0 and includes `"files/1 includes the moved organization_invitation_email.ex fragment"` in the passing test names.
+    - `git diff --stat test/sigra/install/isolation_test.exs test/sigra/install/templates_layout_test.exs` shows both files UNCHANGED.
+  </acceptance_criteria>
+  <done>
+    File moved via `git mv` (content byte-identical). `Features.Organizations.files/1` has a new tuple targeting `lib/<otp_app>/accounts/organization_invitation_email.ex`. `organizations_test.exs` has a coverage assertion. `isolation_test.exs`, `templates_layout_test.exs`, and `features/core.ex` are all unchanged. `core/` has exactly 47 files.
+  </done>
+</task>
+
+<task type="auto" tdd="false">
+  <name>Task 24-01-07 (Wave 2): D-04.3 — Conditional-wrap organization_invitation/4 + helpers in core/emails.ex + reword # comment</name>
+  <files>priv/templates/sigra.install/core/emails.ex</files>
+  <read_first>
+    - priv/templates/sigra.install/core/emails.ex (specifically lines 690-805 — the block being wrapped)
+    - priv/templates/sigra.install/core/user.ex (line 4 — confirms `<%= if organizations? do %>` bare-key precedent, NOT `@organizations?`)
+    - lib/mix/tasks/sigra.install.ex (line 114 — confirms binding key is `organizations?:` with trailing `?`)
+    - test/sigra/install/isolation_test.exs (lines 22-32 forbidden-symbol assertion + lines 91-95 `strip_docstrings/1` regex — proves `#` comments are NOT stripped)
+  </read_first>
+  <action>
+    Edit `priv/templates/sigra.install/core/emails.ex`. Perform TWO combined edits in a single pass:
+
+    (1) Reword the `#` comment at lines 696-700 to REMOVE the literal substring `OrganizationInvitationEmail` — it otherwise fails `IsolationTest`'s forbidden-symbol guard (the test strips `@doc`/`@moduledoc` heredocs but NOT `#` comments — 24-RESEARCH.md Finding 5 secondary).
+
+    EXACT BEFORE (lines 696-700):
+    ```elixir
+      # -- Organization Invitation (Phase 17 D-12) --
+      #
+      # Canonical inline copy of the OrganizationInvitationEmail fragment
+      # shipped at priv/templates/sigra.install/core/organization_invitation_email.ex.
+      # Both must stay in sync — the fragment file is the documentation reference.
+    ```
+
+    EXACT AFTER (lines 696-700):
+    ```elixir
+      # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
+      #
+      # Canonical inline copy of the invitation email fragment shipped at
+      # priv/templates/sigra.install/organizations/organization_invitation_email.ex.
+      # Both must stay in sync — the fragment file is the documentation reference.
+      # Wrapped in `<%%= if organizations? do %%>` so --no-organizations omits it.
+    ```
+
+    Note: the rewording replaces `OrganizationInvitationEmail` with `invitation email fragment` and updates the path to reflect the Task 24-01-06 move. The `<%%=` escape in the comment is intentional — it is a documentation reference to the EEx tag, and `<%%=` renders as literal `<%=` in the generated output (it must NOT be interpreted as an EEx tag at generator-render time).
+
+    (2) Wrap the entire `organization_invitation/4` function AND its two private helpers (`inviter_display_name/1` + `humanize_role/1`) in a single `<%= if organizations? do %> ... <% end %>` block.
+
+    EXACT BEFORE (lines 702-801 — the `@doc` + `def organization_invitation/4` + `defp inviter_display_name/1` + `defp humanize_role/1` triad):
+    ```elixir
+      @doc """
+      Builds an organization-invitation email.
+      ...
+      """
+      def organization_invitation(invitation, org, inviter, accept_url)
+          when is_binary(accept_url) do
+        ...
+        |> text_body(text_body)
+      end
+
+      defp inviter_display_name(inviter) do
+        case inviter do
+          %{name: name} when is_binary(name) and name != "" -> name
+          %{email: email} when is_binary(email) -> email
+          _ -> "Someone"
+        end
+      end
+
+      defp humanize_role(role), do: role |> to_string() |> String.capitalize()
+    ```
+
+    EXACT AFTER (same offset, wrapped in a single EEx conditional block):
+    ```elixir
+    <%= if organizations? do %>
+      @doc """
+      Builds an organization-invitation email.
+      ...
+      """
+      def organization_invitation(invitation, org, inviter, accept_url)
+          when is_binary(accept_url) do
+        ...
+        |> text_body(text_body)
+      end
+
+      defp inviter_display_name(inviter) do
+        case inviter do
+          %{name: name} when is_binary(name) and name != "" -> name
+          %{email: email} when is_binary(email) -> email
+          _ -> "Someone"
+        end
+      end
+
+      defp humanize_role(role), do: role |> to_string() |> String.capitalize()
+    <% end %>
+    ```
+
+    (The `...` ellipses above are shorthand for "byte-identical body content — do NOT rewrite the function body; only add the EEx wrapper lines around it.")
+
+    CRITICAL binding convention (24-RESEARCH.md Finding 1):
+    - Use `organizations?` (BARE key — no `@` prefix).
+    - NOT `@organizations?`. EEx.eval_file uses the default `EEx.Engine` which does not support `@key` sugar against a keyword binding.
+    - Precedent: `core/user.ex:4` uses `<%= if binary_id do %>`.
+
+    Critical scope rule: all THREE defs (public function + both private helpers) MUST be inside the same EEx conditional. If only the public function is wrapped, `mix compile --warnings-as-errors` in the `install_matrix --no-organizations` CI leg fails with "unused private function inviter_display_name/1" (24-RESEARCH.md Pitfall 3).
+
+    DO NOT:
+    - Introduce any new compile-time shape — no helper modules, no post-process strip, no AST rewrite. Use only `<%= if organizations? do %> ... <% end %>`.
+    - Use `@organizations?` anywhere.
+    - Wrap lines beyond 702-801 — the other email builders above (`password_changed/1` etc.) must remain unconditional.
+    - Touch the `base_email/1` / `base_layout/1` / `cta_button/2` / `footer_text/0` helpers elsewhere in the file — they are used by non-org emails too.
+  </action>
+  <verify>
+    <automated>mix test test/sigra/install/isolation_test.exs test/sigra/install/templates_layout_test.exs 2>&1 | tail -30; echo "---"; grep -c "if organizations? do" priv/templates/sigra.install/core/emails.ex; echo "---"; grep -c "OrganizationInvitationEmail" priv/templates/sigra.install/core/emails.ex</automated>
+  </verify>
+  <acceptance_criteria>
+    - `grep -c "if organizations? do" priv/templates/sigra.install/core/emails.ex` returns at least `1`.
+    - `grep -c "@organizations?" priv/templates/sigra.install/core/emails.ex` returns `0` (bare key only, not `@key`).
+    - `grep -c "OrganizationInvitationEmail" priv/templates/sigra.install/core/emails.ex` returns `0` (literal substring removed from the `#` comment).
+    - The conditional wraps ALL THREE defs: `perl -0777 -ne 'if (/if organizations\\? do(.*?)<% end %>/s) { print $1 }' priv/templates/sigra.install/core/emails.ex | grep -c "def organization_invitation"` returns `1`, AND the same extracted block contains `defp inviter_display_name` AND `defp humanize_role` (run `grep -c` for each on the extracted output).
+    - `mix test test/sigra/install/isolation_test.exs` exits 0 (the forbidden-symbol guard for `core/*` now passes — 24-RESEARCH.md Finding 5 secondary is resolved).
+    - **Wave 0 RED → GREEN transition (load-bearing, Nyquist-8d acceptance):** After this task lands (chained after Task 24-01-06 which moves the fragment), `mix test test/sigra/install/features/coverage_test.exs` exits 0 AND both per-feature test cases (`every file under core/ is owned` and `every file under organizations/ is owned`) transition from RED (pre-Wave-2) to GREEN. Pre-Wave-2 expected failure: `core/organization_invitation_email.ex` listed as orphan under `Features.Core`.
+    - Default-leg render succeeds: from `iex -S mix`, `EEx.eval_file("priv/templates/sigra.install/core/emails.ex", [otp_app: :fixture_app, organizations?: true, app_name: "FixtureApp", web_module: "FixtureAppWeb", app_module: "FixtureApp", context_module: "FixtureApp.Accounts", context_alias: "Accounts", schema_module: "FixtureApp.Accounts.User", schema_alias: "User", table_name: "users", from_email: "noreply@example.com", log_in_url: "/users/log_in", repo_module: "FixtureApp.Repo", binary_id: true, live: true, api: false, jwt: false, adapter: :postgres, reset_password_url: "http://localhost:4000/reset", settings_url: "http://localhost:4000/settings", opts: [], migration_timestamps: %{}])` returns a binary containing `"def organization_invitation"`.
+    - No-orgs-leg render succeeds: same call with `organizations?: false` returns a binary that does NOT contain `"def organization_invitation"` (case-sensitive grep).
+    - Both rendered outputs parse as valid Elixir: `Code.string_to_quoted/1` returns `{:ok, _}` for each.
+  </acceptance_criteria>
+  <done>
+    `core/emails.ex` has the `#` comment reworded to remove `OrganizationInvitationEmail`. The public `organization_invitation/4` function + both private helpers (`inviter_display_name/1` + `humanize_role/1`) are wrapped in a single `<%= if organizations? do %> ... <% end %>` block using BARE `organizations?` (no `@`). `isolation_test.exs` forbidden-symbol guard passes. Both default-leg and `--no-organizations`-leg renders produce valid Elixir.
+  </done>
+</task>
+
 <task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 24-01-08 (Wave 4): D-05 — Regenerate golden fixture + visual diff review (CHECKPOINT)</name>
+  <name>Task 24-01-08 (Wave 3): D-05 — Regenerate golden fixture + visual diff review (CHECKPOINT)</name>
   <files>test/fixtures/install_golden/tree/**, test/fixtures/install_golden/STDOUT.txt</files>
   <action>
     After Tasks 24-01-01 through 24-01-07 land, the generator output has drifted in three specific ways:
@@ -1008,13 +1029,13 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
 </task>
 
 <task type="checkpoint:human-verify" gate="blocking">
-  <name>Task 24-01-09 (Wave 4): D-06.4 — Verify install_matrix CI leg green on both flags (CHECKPOINT)</name>
+  <name>Task 24-01-09 (Wave 3): D-06.4 — Verify install_matrix CI leg green on both flags (CHECKPOINT)</name>
   <files>.github/workflows/ci.yml (read-only — verify both matrix legs green, no edits)</files>
   <action>
     Phase 24's final gate. After Tasks 24-01-01..24-01-08 land, the `install_matrix` job in `.github/workflows/ci.yml:151-223` MUST pass on both matrix legs:
 
-    - `flags: ""` (default, Features.Organizations enabled) — was failing on `mix sigra.install` with `CompileError: undefined variable "assigns"` before Task 24-01-01.
-    - `flags: "--no-organizations"` — was potentially failing on `mix compile --warnings-as-errors` because `core/emails.ex` referenced `OrganizationInvitation` in a `#` comment and defined `organization_invitation/4` unconditionally (triggering "unused private helper" warnings if the public function was ever removed). Now fixed by Task 24-01-04.
+    - `flags: ""` (default, Features.Organizations enabled) — was failing on `mix sigra.install` with `CompileError: undefined variable "assigns"` before Task 24-01-04.
+    - `flags: "--no-organizations"` — was potentially failing on `mix compile --warnings-as-errors` because `core/emails.ex` referenced `OrganizationInvitation` in a `#` comment and defined `organization_invitation/4` unconditionally (triggering "unused private helper" warnings if the public function was ever removed). Now fixed by Task 24-01-07.
 
     Phase 24 does NOT add YAML. The job already exists. This task is PASS/FAIL verification of the existing job.
   </action>
@@ -1052,6 +1073,14 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
     2. Repeat with `mix sigra.install Accounts User users --yes --no-organizations` in a fresh scratch app for the second leg.
     3. Both must complete without error.
 
+    Static-check hardening (non-blocking, run locally before declaring done — checker Warning 4):
+    - `grep -c 'install_matrix' .github/workflows/ci.yml` returns a value `>= 1` (confirms the matrix job is still wired into CI).
+    - The `install_matrix` job's `flags` matrix line contains both `""` and `"--no-organizations"`. Verify via:
+      ```bash
+      awk '/install_matrix:/,/^[a-zA-Z_-]+:$/' .github/workflows/ci.yml | grep -E 'flags:.*(\"\".*--no-organizations|--no-organizations.*\"\")'
+      ```
+      should return a non-empty line.
+
     BLOCKING acceptance: Phase 24 does not complete until BOTH matrix legs are confirmed green. Phase 18 Plan 18-03 remains blocked until this task passes.
   </verify>
   <resume-signal>Type `approved: both matrix legs green (PR link: &lt;url&gt;)` when both legs confirmed green on CI or local reproduction. Type `failed: &lt;details&gt;` if either leg fails, so the planner can triage whether to add a Wave 5 hotfix task or split into a new phase.</resume-signal>
@@ -1073,12 +1102,12 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
 
 | Threat ID | Category | Component | Disposition | Mitigation Plan |
 |-----------|----------|-----------|-------------|-----------------|
-| T-24-01 | Tampering | Template file content accidentally edited during dispatcher refactor — could alter `render_mismatch/1` markup to include accept controls | mitigate | Task 24-01-01 acceptance criterion: `perl -0777 -ne 'print if /defp render_mismatch.*?(?=defp render_invalid)/s' &lt;file&gt; | grep -cE 'phx-(click|submit)="accept'` returns `0`. Plan-checker grep enforces invariant. |
-| T-24-02 | Information Disclosure | `#` comment in `core/emails.ex` leaks feature-name substring into `--no-organizations` generated output, potentially hinting at a feature the host app opted out of | mitigate | Task 24-01-04 both reworders the `#` comment (removes `OrganizationInvitationEmail` literal) AND wraps the entire block in `&lt;%= if organizations? do %&gt;`, so the `--no-organizations` generated file contains neither the comment nor the function. |
-| T-24-03 | Denial of Service | A future template author adds a new `~H` heredoc with `<%= %>` tags inside, re-introducing the DEF-18-01 bug and breaking `mix sigra.install` for all host apps | mitigate | Task 24-01-07 (`template_syntax_test.exs`) grep-enforces the invariant across ALL templates in the tree, on every CI run. Task 24-01-05 (`template_render_test.exs`) render-tests each template to catch the class at install time. |
-| T-24-04 | Tampering | Orphan template file sits on disk but is not owned by any feature — could be edited without any test signal, drifting from the generated output | mitigate | Task 24-01-06 (`coverage_test.exs`) diffs the on-disk set against `Features.*.files/1` + `migrations/1` + injection whitelist. Any orphan fails CI immediately. |
+| T-24-01 | Tampering | Template file content accidentally edited during dispatcher refactor — could alter `render_mismatch/1` markup to include accept controls | mitigate | Task 24-01-04 acceptance criterion: `perl -0777 -ne 'print if /defp render_mismatch.*?(?=defp render_invalid)/s' &lt;file&gt; | grep -cE 'phx-(click|submit)="accept'` returns `0`. Plan-checker grep enforces invariant. |
+| T-24-02 | Information Disclosure | `#` comment in `core/emails.ex` leaks feature-name substring into `--no-organizations` generated output, potentially hinting at a feature the host app opted out of | mitigate | Task 24-01-07 both reworders the `#` comment (removes `OrganizationInvitationEmail` literal) AND wraps the entire block in `&lt;%= if organizations? do %&gt;`, so the `--no-organizations` generated file contains neither the comment nor the function. |
+| T-24-03 | Denial of Service | A future template author adds a new `~H` heredoc with `<%= %>` tags inside, re-introducing the DEF-18-01 bug and breaking `mix sigra.install` for all host apps | mitigate | Task 24-01-03 (`template_syntax_test.exs`) grep-enforces the invariant across ALL templates in the tree, on every CI run. Task 24-01-01 (`template_render_test.exs`) render-tests each template to catch the class at install time. Both land in Wave 0 so they guard against regression from the first commit of the phase. |
+| T-24-04 | Tampering | Orphan template file sits on disk but is not owned by any feature — could be edited without any test signal, drifting from the generated output | mitigate | Task 24-01-02 (`coverage_test.exs`) diffs the on-disk set against `Features.*.files/1` + `migrations/1` + injection whitelist. Any orphan fails CI immediately. |
 | T-24-05 | Information Disclosure | Golden fixture regenerated blindly without diff review — silent generator drift could be committed and pass CI on the next run | mitigate | Task 24-01-08 is a CHECKPOINT with explicit visual-diff acceptance. Rebless runbook inlined in the task body. Resume signal requires human `approved` on the diff shape. |
-| T-24-06 | Elevation of Privilege | `assigns.branch` atom is user-influenced via the invitation accept URL — if the dispatcher pattern-match catches-all, an attacker could force a branch transition to `:accept` while holding mismatch state | accept | Pre-existing mitigation in the (unchanged) `mount/3` logic derives `:branch` from HMAC-verified state ONLY. The dispatcher change at Task 24-01-01 does not alter the derivation — only the render dispatch. No new surface. |
+| T-24-06 | Elevation of Privilege | `assigns.branch` atom is user-influenced via the invitation accept URL — if the dispatcher pattern-match catches-all, an attacker could force a branch transition to `:accept` while holding mismatch state | accept | Pre-existing mitigation in the (unchanged) `mount/3` logic derives `:branch` from HMAC-verified state ONLY. The dispatcher change at Task 24-01-04 does not alter the derivation — only the render dispatch. No new surface. |
 
 </threat_model>
 
@@ -1102,7 +1131,7 @@ After all tasks land:
    - `test/sigra/install/features/coverage_test.exs` — one test case per feature.
    - (D-06.4 is CI verification, not a test file.)
 
-7. `ls priv/templates/sigra.install/core/ | wc -l` returns `47` (was 48 before Task 24-01-03).
+7. `ls priv/templates/sigra.install/core/ | wc -l` returns `47` (was 48 before Task 24-01-06).
 
 8. `git grep "OrganizationInvitationEmail" priv/templates/sigra.install/core/emails.ex` returns empty.
 
