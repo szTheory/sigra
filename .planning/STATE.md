@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: Ready to start Phase 19
-stopped_at: Phase 19 context gathered
-last_updated: "2026-04-15T12:09:47.108Z"
+status: executing
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-04-15T17:08:09.068Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 10
-  total_plans: 40
-  completed_plans: 40
-  percent: 100
+  completed_phases: 11
+  total_plans: 47
+  completed_plans: 45
+  percent: 96
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 19 — Passkey Schema + Contexts (passkey track kickoff)
+**Current focus:** Phase 20 — passkey-challenge-plug-runtime-config-js-hooks-infra
 
 ## Current Position
 
-Phase: 19
-Plan: Not started (needs /gsd-discuss-phase 19)
-Status: Ready to start Phase 19
+Phase: 20 (passkey-challenge-plug-runtime-config-js-hooks-infra) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-15
 
-Progress: [███████░░░] 71% (10/14 v1.1 phases complete — 11–18 + 24 + 25 done, 19–23 remaining)
+Progress: [████████░░] 79% (11/14 v1.1 phases complete — 11–19 + 24 + 25 done, 20–23 remaining)
 
 ## Accumulated Context
 
@@ -47,6 +47,8 @@ Recent decisions affecting current work:
 - Roadmap numbering: v1.1 phases start at 11 (continuing from v1.0 phase 10.1.1). 999.x backlog phases retained in place.
 - Phase order respects the ARCHITECTURE.md Part D dependency graph: phase 11 + 12 are strict foundation; phases 13–18 (org track) and 19–21 (passkey track) run in parallel after foundation lands; phases 18 and 22 are serialization points; phase 23 gates the release.
 - Every v1.2 load-bearing decision is embedded in the phase that ships it: reserved `:impersonating_from` field (phase 12), real `effective_user_id` audit column (phase 15), subdir feature manifest (phase 11), `admin` in reserved slug list (phase 13), nilify-on-delete FK (phase 13), `Sigra.Workers` behaviour (phase 15), passkey enrollment sudo gate (phase 21).
+- [Phase 20]: Passkey challenges are signed into ceremony-specific Plug session slots and reconstructed from the signed payload during verification.
+- [Phase 20]: Passkey challenge session slots are deleted only on callback success; callback and token failures preserve the slot.
 
 ### Pending Todos
 
@@ -54,7 +56,6 @@ Recent decisions affecting current work:
 - Phase 16 follow-up (do NOT block Phase 17): library slug-alias migration template uses `now()` in a Postgres partial-unique index predicate — Postgres rejects non-IMMUTABLE functions in index predicates. Plan 06 worked around it in the example app with a plain unique index on `old_slug`, but the library template still ships the partial-index form and may hit the same error on real hosts. Fix in a small dedicated phase or fold into Phase 17 prep.
 - Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
 - Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
-- Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
 - Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
 
 ### Roadmap Evolution
@@ -66,10 +67,10 @@ Recent decisions affecting current work:
 
 - Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before phases 12+ build on top.
 - `test/upgrade_test.exs` fixture (phase 18) is a hard deliverable before the release gate in phase 23 — do not let it slip.
-- Phase 19 kickoff spikes are MEDIUM confidence; if `wax_ 0.7` struct shapes diverge from assumption, `Sigra.Passkeys.Registration` may need light reshape.
+- Phase 20 kickoff spike should confirm Plug-session challenge payload size stays comfortably below cookie limits and identify the safest `app.js` hook injection anchor for non-default Phoenix layouts.
 
 ## Session Continuity
 
-Last session: 2026-04-15T12:09:47.100Z
-Stopped at: Phase 19 context gathered
-Resume file: .planning/phases/19-passkey-schema-contexts/19-CONTEXT.md
+Last session: 2026-04-15T17:08:09.064Z
+Stopped at: Completed 20-01-PLAN.md
+Resume file: None

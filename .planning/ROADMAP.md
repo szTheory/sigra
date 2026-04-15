@@ -37,7 +37,7 @@
 - [x] **Phase 16: Org LiveViews + Switcher** — `OrganizationSwitcherLive` / `OrganizationSettingsLive` / `OrganizationMembersLive` + POST-switch controller + 0/1/2+ org login handling
 - [x] **Phase 17: Invitation Flow + Email** — email-locked HMAC-bound invite acceptance + `organization_invitation_email` template + rate-limited creation (INV-08 cross-tenant IDOR gap in `Sigra.Organizations.Invitations.revoke/3` closed by plan 17-09, re-verified 2026-04-14 status: passed 10/10) (completed 2026-04-14)
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
-- [ ] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity
+- [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [ ] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection
 - [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
@@ -208,12 +208,12 @@ Plans:
   2. `Sigra.Passkeys.register/3` and `authenticate/3` wrap `wax_` correctly — register stores `rp_id` on the `UserPasskey` row at registration time (P-3 prep), authenticate verifies the returned `credential_id` belongs to the requested user (P-6 StrongKey defense) and rejects mismatch before any further processing.
   3. Sign-count regression handling defaults to `:warn` (log + audit event `:passkey_sign_count_regression` + banner affordance); `:require_reauth` and `:revoke` modes are selectable via NimbleOptions and each has a regression test.
   4. `Sigra.Passkeys.{list_for_user, rename, delete}` have passing unit tests covering the happy path + missing-credential error case.
-**Plans:** 4/4 plans planned
+**Plans:** 3/4 plans executed
 Plans:
-- [ ] 19-01-PLAN.md — Wave 1: wax_ dep + UserPasskey schema/migration template + COSE serialization (ETF+:safe) + library struct + D-16 wax_ roundtrip smoke (PK-01, PK-03, PK-04)
-- [ ] 19-02-PLAN.md — Wave 2: config.passkeys slot + Sigra.Passkeys.Registration primitive + Sigra.Passkeys.register/4 with atomic cap enforcement + rp_id from config + audit-inside-transaction (PK-03, PK-04, PK-05)
-- [ ] 19-03-PLAN.md — Wave 2: Sigra.Passkeys.SignCountPolicy machine + Sigra.Passkeys.Authentication with StrongKey guard + authenticate/4 dispatch + D-10 audit payload (PK-04, PK-05, PK-07, PK-08)
-- [ ] 19-04-PLAN.md — Wave 3: rename/delete management API + Cloak vault promotion (D-13) + Features.Passkeys install feature + mix sigra.upgrade hook (D-14) + Sigra.Application boot-check (D-15) (PK-01, PK-07, PK-08)
+- [x] 19-01-PLAN.md — Wave 1: wax_ dep + UserPasskey schema/migration template + COSE serialization (ETF+:safe) + library struct + D-16 wax_ roundtrip smoke (PK-01, PK-03, PK-04)
+- [x] 19-02-PLAN.md — Wave 2: config.passkeys slot + Sigra.Passkeys.Registration primitive + Sigra.Passkeys.register/4 with atomic cap enforcement + rp_id from config + audit-inside-transaction (PK-03, PK-04, PK-05)
+- [x] 19-03-PLAN.md — Wave 2: Sigra.Passkeys.SignCountPolicy machine + Sigra.Passkeys.Authentication with StrongKey guard + authenticate/4 dispatch + D-10 audit payload (PK-04, PK-05, PK-07, PK-08)
+- [x] 19-04-PLAN.md — Wave 3: rename/delete management API + Cloak vault promotion (D-13) + Features.Passkeys install feature + mix sigra.upgrade hook (D-14) + Sigra.Application boot-check (D-15) (PK-01, PK-07, PK-08)
 
 ### Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra
 **Goal**: WebAuthn challenges are server-generated, server-stored in the signed+encrypted Plug session, and server-verified — making the OneUptime GHSA-gjjc-pcwp-c74m replay class impossible — and the JS hooks scaffolding that binds SimpleWebAuthn to LiveView ships with runtime-configured RP ID + graceful `app.js` injection.
@@ -226,14 +226,11 @@ Plans:
   2. `Sigra.Passkeys.config/0` loads `rp_id`, `rp_name`, `origin`, `attestation` (default `:none`), `user_verification` (default `:preferred`), and `timeout_ms` from runtime config; NimbleOptions fast-fails on first use if unset or malformed.
   3. Per-user passkey ceremony rate limiter via Hammer (default 5/min) rejects the 6th attempt in the same minute with a clear error — regression test proves the key shape.
   4. Generator injects `passkey_hooks.js` import + hook registration into `assets/js/app.js` when the marker comment is present; when absent (custom esbuild/Vite/Webpack), generator writes the hook file, skips injection, and prints exact manual instructions — no silent failure (GEN-06).
-**Plans**: 6 plans
-- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
-- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
-- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
-- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
-- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
-- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
-**UI hint**: yes
+**Plans**: 3 plans
+Plans:
+- [x] 20-01-PLAN.md — Wave 1: `Sigra.Plug.PasskeyChallenge` session-slot issue/verify adapter with single-use replay protection (PK-06)
+- [ ] 20-02-PLAN.md — Wave 1: strict runtime passkey config loader + per-user ceremony initiation limiter (PK-09, PK-10)
+- [ ] 20-03-PLAN.md — Wave 2: generated `passkey_hooks.js` plus deterministic `assets/js/app.js` wiring and manual fallback (GEN-06)
 
 ### Phase 21: Passkey LiveViews + POST-Auth Controller
 **Goal**: User can enroll and authenticate with passkeys end-to-end in the example app — as a second factor today and optionally as a primary factor — with the stolen-session enrollment, lost-device lockout, and JS-abort-corruption classes of bugs closed at the plug and hook layers.
@@ -297,8 +294,8 @@ Plans:
 | 16. Org LiveViews + Switcher | 0/? | Not started | — |
 | 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
-| 19. Passkey Schema + Contexts | 0/? | Not started | — |
-| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 0/? | Not started | — |
+| 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
+| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 1/3 | In Progress|  |
 | 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
@@ -312,7 +309,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 3/3 plans complete
+**Plans:** 1/3 plans executed
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
