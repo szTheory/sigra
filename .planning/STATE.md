@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: verifying
-stopped_at: Completed 20-03-PLAN.md
-last_updated: "2026-04-15T17:28:41.223Z"
+status: executing
+stopped_at: Completed 20-04-PLAN.md
+last_updated: "2026-04-15T18:01:50.398Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
-  completed_phases: 12
-  total_plans: 47
-  completed_plans: 47
-  percent: 100
+  completed_phases: 11
+  total_plans: 49
+  completed_plans: 48
+  percent: 98
 ---
 
 # Project State
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 20 (passkey-challenge-plug-runtime-config-js-hooks-infra) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Plan: 2 of 5
+Status: Ready to execute
 Last activity: 2026-04-15
 
 Progress: [████████░░] 79% (11/14 v1.1 phases complete — 11–19 + 24 + 25 done, 20–23 remaining)
@@ -54,6 +54,8 @@ Recent decisions affecting current work:
 - [Phase 20]: Per-user passkey ceremony throttling uses the fixed sigra:passkeys:<ceremony>:user:<id> namespace with a stable rate-limited error contract.
 - [Phase 20]: Use // Sigra passkeys:start as the authoritative app.js idempotency gate and only mutate the standard colocated-hooks LiveSocket shape.
 - [Phase 20]: Surface custom app.js fallback through installer manual-action reporting so stdout shows exact import and hook merge lines.
+- [Phase 20]: PK-06 tamper coverage now flips a byte in the stored signed passkey challenge token and asserts the callback boundary is never reached.
+- [Phase 20]: Sigra.Plug.PasskeyChallenge.verify/5 now isolates signed-token verification before challenge reconstruction so invalid tokens exit unambiguously before callback execution.
 
 ### Pending Todos
 
@@ -76,6 +78,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T17:28:41.217Z
-Stopped at: Completed 20-03-PLAN.md
+Last session: 2026-04-15T18:01:50.394Z
+Stopped at: Completed 20-04-PLAN.md
 Resume file: None
