@@ -374,8 +374,8 @@ Plans:
 5. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test` reports `0 failures, 0 skipped` on `test/upgrade_test.exs`.
 6. Full `mix test` locally and in CI stays green on every existing test.
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 25-01-PLAN.md — Bug B fix: scan-and-bump migration timestamps + unit regression test
+- [x] 25-01-PLAN.md — Bug B fix: scan-and-bump migration timestamps + unit regression test
 - [ ] 25-02-PLAN.md — Bug A fix: SIGRA_TEST_RESULT sentinel parser + un-skip Sigra.UpgradeIntegrationTest
