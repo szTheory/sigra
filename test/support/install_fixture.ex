@@ -263,6 +263,35 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   @doc """
+  Reads an asset file from the tmp app's `assets/` directory.
+  """
+  @spec read_asset_file(Path.t(), String.t()) :: binary()
+  def read_asset_file(app_dir, relative_path) when is_binary(relative_path) do
+    app_dir
+    |> Path.join("assets")
+    |> Path.join(relative_path)
+    |> File.read!()
+  end
+
+  @doc """
+  Overwrites an asset file in the tmp app's `assets/` directory.
+  """
+  @spec write_asset_file(Path.t(), String.t(), iodata()) :: :ok
+  def write_asset_file(app_dir, relative_path, contents)
+      when is_binary(relative_path) and is_list(contents) or is_binary(contents) do
+    path =
+      app_dir
+      |> Path.join("assets")
+      |> Path.join(relative_path)
+
+    path
+    |> Path.dirname()
+    |> File.mkdir_p!()
+
+    File.write!(path, contents)
+  end
+
+  @doc """
   Snapshot the set of {relative_path, content_hash} tuples under the tracked
   directories. Used to compute the sigra.install delta.
   """
