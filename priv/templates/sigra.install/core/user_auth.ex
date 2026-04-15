@@ -71,6 +71,19 @@ defmodule <%= web_module %>.UserAuth do
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
+  @doc """
+  Stores an already-created Sigra session token in the Plug session.
+
+  Use this from controller flows that upgrade an existing Sigra session,
+  such as completing MFA verification. It renews the Plug session before
+  writing the token, matching `log_in_user/3`'s fixation protection.
+  """
+  def put_user_session_token(conn, token) when is_binary(token) do
+    conn
+    |> renew_session()
+    |> put_token_in_session(token)
+  end
+
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
     put_resp_cookie(conn, @remember_me_cookie, token, remember_me_options())
   end

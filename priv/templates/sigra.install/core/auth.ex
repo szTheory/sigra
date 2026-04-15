@@ -632,6 +632,11 @@ defmodule <%= context_module %> do
     Sigra.MFA.enabled?(sigra_config(), user)
   end
 
+  @doc "Upgrade an MFA-pending Sigra session after second-factor verification."
+  def complete_mfa_verification(user, old_session, opts \\ []) do
+    Sigra.Auth.complete_mfa_verification(sigra_config(), user, old_session, opts)
+  end
+
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
     Sigra.MFA.status(sigra_config(), user,
@@ -725,6 +730,22 @@ defmodule <%= context_module %> do
   def passkey_primary_enabled?() do
     Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
   end
+
+  @doc "Checks whether a discovered user may use passkey-primary login."
+  def ensure_passkey_primary_user_eligible(%<%= schema_alias %>{} = user) do
+    cond do
+      not passkey_primary_enabled?() ->
+        {:error, :passkey_primary_disabled}
+
+      is_nil(user.confirmed_at) ->
+        {:error, :unconfirmed}
+
+      true ->
+        :ok
+    end
+  end
+
+  def ensure_passkey_primary_user_eligible(_user), do: {:error, :invalid_user}
 
   @doc "Delivers a passkey registration notification email."
   def deliver_passkey_registration_notification(user, details) do

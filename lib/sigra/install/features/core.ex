@@ -422,6 +422,10 @@ defmodule Sigra.Install.Features.Core do
         plug :require_mfa
       end
 
+      pipeline :require_sudo do
+        plug Sigra.Plug.RequireSudo, error_handler: #{web_module}.AuthErrorHandler
+      end
+
       # Phase 14 Plan 03: organization-aware pipelines (opt-in).
       # Apps that want to gate routes by active organization membership
       # pipe_through :require_org (any active membership) or
@@ -441,6 +445,8 @@ defmodule Sigra.Install.Features.Core do
       scope "/users", #{web_module} do
         pipe_through [:browser]
     #{mfa_challenge_routes}
+        post "/mfa/passkey", SessionController, :complete_mfa_passkey
+        post "/mfa/passkey/options", SessionController, :passkey_mfa_options
       end
 
       scope "/users", #{web_module} do
@@ -448,6 +454,8 @@ defmodule Sigra.Install.Features.Core do
 
         # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
         get "/log_in", SessionController, :new
+        post "/log_in/passkey", SessionController, :complete_passkey
+        post "/log_in/passkey/options", SessionController, :passkey_authentication_options
     #{live_routes}
         post "/log_in", SessionController, :create
         get "/log_in/:token", SessionController, :magic_link
@@ -459,7 +467,15 @@ defmodule Sigra.Install.Features.Core do
         pipe_through [:browser, :require_authenticated]
 
         delete "/log_out", SessionController, :delete
-    #{session_management_routes}#{sudo_routes}#{mfa_settings_routes}#{account_lifecycle_routes}
+    #{session_management_routes}#{sudo_routes}#{account_lifecycle_routes}
+      end
+
+      scope "/users", #{web_module} do
+        pipe_through [:browser, :require_authenticated, :require_sudo]
+    #{mfa_settings_routes}
+        post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
+        post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
+        post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
       end
     """
 
