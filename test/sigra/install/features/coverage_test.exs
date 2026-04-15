@@ -104,7 +104,18 @@ defmodule Sigra.Install.Features.CoverageTest do
       "organizations/organization.ex",
       "organizations/organization_invitation.ex",
       "organizations/organization_membership.ex",
-      "organizations/organization_slug_alias.ex"
+      "organizations/organization_slug_alias.ex",
+      # Phase 24 D-04.1/.2: reference-only fragment mirroring the canonical
+      # organization_invitation/4 inlined into core/emails.ex. Intentionally
+      # NOT registered in files/1 — the fragment uses bare `@font_family`
+      # and `<%= app_name %>` interpolation that only resolve inside the
+      # host emails.ex module, so copying it breaks
+      # `mix compile --warnings-as-errors` with
+      # `(ArgumentError) cannot invoke @/1 outside module`. See
+      # lib/sigra/install/features/organizations.ex for the explicit
+      # non-registration rationale. This entry is NOT pending future
+      # repair — the fragment is meant to stay reference-only.
+      "organizations/organization_invitation_email.ex"
     ]
   }
 

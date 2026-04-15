@@ -92,15 +92,19 @@ defmodule Sigra.Install.Features.Organizations do
       # ZERO accept DOM controls by construction — structural Jetstream
       # #907 / CVE-2026-1529 defense. Host-owned per D-28 / D-29.
       {:eex, "organizations/live/invitation_accept_live.ex",
-       Path.join(["lib", web, "live", "invitation_accept_live.ex"])},
+       Path.join(["lib", web, "live", "invitation_accept_live.ex"])}
 
-      # Phase 17 D-12 / Phase 24 D-04: standalone organization-invitation
-      # email reference fragment. Mirrors the canonical inline
-      # implementation in core/emails.ex. Generated under the organizations
-      # feature so that `--no-organizations` cleanly omits it
-      # (Phase 11 CD-01 subdir ownership).
-      {:eex, "organizations/organization_invitation_email.ex",
-       Path.join(["lib", otp_app, "accounts", "organization_invitation_email.ex"])}
+      # NOTE: priv/templates/sigra.install/organizations/organization_invitation_email.ex
+      # is intentionally NOT listed in files/1. That file is a reference
+      # fragment — it mirrors the canonical inline organization_invitation/4
+      # implementation spliced into core/emails.ex at generator time, but
+      # it is not a valid standalone Elixir module (uses bare `@font_family`
+      # interpolation + unresolved `<%= app_name %>` markers, both of which
+      # resolve correctly only inside the emails.ex host module). Copying it
+      # into the host app breaks `mix compile --warnings-as-errors` with
+      # `(ArgumentError) cannot invoke @/1 outside module`. The fragment is
+      # kept under organizations/ for CD-01 subdir ownership and to give
+      # Phase 17/24 verifiers a grep anchor, but it is reference-only.
     ]
   end
 

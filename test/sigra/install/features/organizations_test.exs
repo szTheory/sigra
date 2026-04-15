@@ -47,13 +47,20 @@ defmodule Sigra.Install.Features.OrganizationsTest do
   end
 
   describe "files/1" do
-    test "files/1 includes the moved organization_invitation_email.ex fragment" do
+    test "files/1 intentionally omits the organization_invitation_email.ex reference fragment" do
       entries = Organizations.files(otp_app: :fixture_app)
 
       sources = Enum.map(entries, fn {:eex, source, _target} -> source end)
 
-      assert "organizations/organization_invitation_email.ex" in sources,
-             "Features.Organizations.files/1 must register the moved email fragment (Phase 24 D-04.1)"
+      # The fragment is a reference-only snippet — mirroring the canonical
+      # organization_invitation/4 function inlined into core/emails.ex. It
+      # references `@font_family` (a module attribute of the host emails.ex
+      # module) and unresolved `<%= app_name %>` markers, so it cannot
+      # compile as a standalone module. Registering it in files/1 would
+      # break `mix compile --warnings-as-errors` in the host app with
+      # `(ArgumentError) cannot invoke @/1 outside module`.
+      refute "organizations/organization_invitation_email.ex" in sources,
+             "Features.Organizations.files/1 must NOT register the reference fragment — see features/organizations.ex comment after invitation_accept_live.ex entry"
     end
 
     test "returns the generated Organizations context wrapper template (Phase 14 Plan 03)" do
