@@ -10,6 +10,12 @@ defmodule Example.Accounts.Organization do
     field :name, :string
     field :slug, :string
     field :deleted_at, :utc_datetime
+    # Phase 18 D-01: personal-workspace flag. Library-managed, NOT exposed via cast/3.
+    field :personal, :boolean, default: false
+
+    # Phase 18 D-00: sticky origin owner. Library sets via put_change/3 in
+    # Sigra.Organizations.create_organization/3; NEVER exposed via cast/3.
+    belongs_to :owner, Example.Accounts.User, foreign_key: :owner_user_id
 
     has_many :memberships, Example.Accounts.OrganizationMembership
     has_many :invitations, Example.Accounts.OrganizationInvitation
