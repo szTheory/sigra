@@ -29,6 +29,76 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
     end
   end
 
+  describe "passkey-primary signup and recovery invariants" do
+    test "auth template requires confirmed email and mandatory magic-link recovery" do
+      content = read_core_template("auth.ex")
+
+      for expected <- [
+            "passkey_primary_user_eligible?",
+            "ensure_passkey_primary_user_eligible",
+            "magic_link_recovery_available?",
+            "confirmed_at != nil",
+            "{:error, :email_not_confirmed}"
+          ] do
+        assert content =~ expected
+      end
+    end
+
+    test "session controller refuses unconfirmed passkey-primary login before authentication" do
+      content = read_core_template("session_controller.ex")
+
+      assert content =~ "Auth.ensure_passkey_primary_user_eligible(user)"
+      assert content =~ "{:error, :email_not_confirmed}"
+      assert content =~ "String.slice(to_string(email), 0, 160)"
+      assert content =~ "We couldn't finish passkey sign-in. Try again or use another way to continue."
+    end
+
+    test "registration LiveView carries signup-time passkey enrollment through confirmation" do
+      content = read_core_template("registration_live.ex")
+
+      for expected <- [
+            "passkey_primary_enabled",
+            "enroll_passkey_after_signup",
+            "user[enroll_passkey]",
+            "Add a passkey after creating your account",
+            "enroll_passkey = Map.get(user_params, \"enroll_passkey\") in [\"true\", true, \"on\", \"1\"]",
+            "?enroll_passkey=1"
+          ] do
+        assert content =~ expected
+      end
+    end
+
+    test "controller registration template exposes equivalent enrollment control" do
+      content = read_core_template("registration_html.ex")
+
+      for expected <- [
+            "@passkey_primary_enabled",
+            "user[enroll_passkey]",
+            "Add a passkey after creating your account"
+          ] do
+        assert content =~ expected
+      end
+    end
+
+    test "confirmation controller logs in confirmed users through sudo-gated enrollment return" do
+      content = read_core_template("confirmation_controller.ex")
+
+      for expected <- [
+            "alias <%= web_module %>.UserAuth",
+            "put_session(:user_return_to",
+            "UserAuth.log_in_user(user, %{})",
+            "/users/sudo?return_to=/users/settings/mfa#passkeys",
+            "/users/settings/mfa#passkeys",
+            "enroll_passkey"
+          ] do
+        assert content =~ expected
+      end
+
+      refute content =~ "return_to.*UserAuth.log_in_user"
+      refute content =~ "UserAuth.log_in_user(user, %{\"return_to\""
+    end
+  end
+
   defp read_core_template(name) do
     File.read!(Path.join(@core_template_dir, name))
   end
