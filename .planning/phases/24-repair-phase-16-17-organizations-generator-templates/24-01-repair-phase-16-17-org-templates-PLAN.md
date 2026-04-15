@@ -518,8 +518,8 @@ From priv/templates/sigra.install/core/emails.ex:696-801 (the block to wrap — 
       @heredoc_re ~r/~H"""(.*?)"""/s
 
       # Matches any raw EEx tag: `<%=` or `<%` NOT preceded by a second `%`.
-      # Negative lookbehind `(?&lt;!%)` allows `<%%=` / `<%%` (escaped) to pass.
-      @raw_eex_re ~r/(?&lt;!%)<%=?/
+      # Negative lookbehind `(?<!%)` allows `<%%=` / `<%%` (escaped) to pass.
+      @raw_eex_re ~r/(?<!%)<%=?/
 
       describe "HEEx-inside-EEx guard" do
         for path <- Path.wildcard(Path.join([@template_root, "**", "*.ex"])) do
