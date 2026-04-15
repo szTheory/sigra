@@ -245,13 +245,13 @@ Plans:
   2. User can log in via passkey as a second factor alongside TOTP on `MfaSettingsLive`; passkey list shows AAGUID-derived friendly names (iCloud Keychain, Google Password Manager, 1Password, Windows Hello) from a bundled registry; user can rename or delete passkeys (delete sudo-gated), with a soft cap of 10 per user.
   3. User with `:passkey_primary_enabled` config can log in with email + passkey without a password; every passkey-as-primary user has mandatory magic-link recovery that cannot be disabled (P-5 lockout defense).
   4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
-**Plans**: 6 plans
-- [ ] 16-01-PLAN.md — Wave 1: library foundations (rename/update_slug/soft_delete/list_members/count_members + force-logout Multi + slug_alias schema + LoadOrganizationFromSlug plug + OrganizationScope on_mount)
-- [ ] 16-02-PLAN.md — Wave 1: switcher component + POST switch controller + Features.Organizations manifest + router scope block + user_auth on_mount + thin wrapper
-- [ ] 16-03-PLAN.md — Wave 2: OrganizationsLive.Index (3 render branches) + OrganizationsLive.New + Slug.generate + signup→zero-org flow
-- [ ] 16-04-PLAN.md — Wave 2: OrganizationSettingsLive (General/Slug/Danger zone, inline sudo, progressive disclosure, typed-confirms)
-- [ ] 16-05-PLAN.md — Wave 2: OrganizationMembersLive (table + role/remove modals, last-owner surfacing, force-logout DB assertion, Phase 17 stub)
-- [ ] 16-06-PLAN.md — Wave 3: integration — instantiate templates + paste switcher + end-to-end integration test + 16-VALIDATION.md sign-off + human visual checkpoint
+**Plans**: 5 plans
+Plans:
+- [ ] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
+- [ ] 21-02-PLAN.md — Wave 2: `/users/settings/mfa` passkeys card, enrollment hook, compact list, inline rename, and sudo-aware delete confirmation
+- [ ] 21-03-PLAN.md — Wave 2: passkey-first MFA challenge with TOTP/backup fallback and guided abort/timeout/unsupported recovery
+- [ ] 21-04-PLAN.md — Wave 2: passkey-primary identifier-first login and conditional UI/autofill hook support
+- [ ] 21-05-PLAN.md — Wave 3: example app mirror plus focused controller/LiveView verification
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
