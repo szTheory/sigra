@@ -455,6 +455,12 @@ defmodule Sigra.Config do
           default: true,
           doc: "Enable passkey support. Default: true."
         ],
+        passkey_primary_enabled: [
+          type: :boolean,
+          default: false,
+          doc:
+            "Enable passkey-primary login. Passkey MFA and enrollment are still controlled by :enabled. Default: false."
+        ],
         sign_count_policy: [
           type: {:in, [:warn, :require_reauth, :revoke]},
           default: :warn,
@@ -1094,6 +1100,12 @@ defmodule Sigra.Config do
           type: :boolean,
           default: true,
           doc: "Enable passkey support. Default: true."
+        ],
+        passkey_primary_enabled: [
+          type: :boolean,
+          default: false,
+          doc:
+            "Enable passkey-primary login. Passkey MFA and enrollment are still controlled by :enabled. Default: false."
         ],
         sign_count_policy: [
           type: {:in, [:warn, :require_reauth, :revoke]},
