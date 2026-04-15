@@ -12,8 +12,8 @@ defmodule Sigra.Install.Injector do
   @oauth_marker "# Sigra OAuth"
   @api_marker "# Sigra API"
   @jwt_marker "# Sigra JWT"
-  @vault_marker "Vault"
-
+  @passkeys_start_marker "// Sigra passkeys:start"
+  @passkeys_end_marker "// Sigra passkeys:end"
   @doc """
   Injects authentication pipeline and routes into the router file.
 
@@ -117,6 +117,40 @@ defmodule Sigra.Install.Injector do
             :error ->
               {:ok, file_contents <> "\n" <> helper_code}
           end
+      end
+    end
+  end
+
+  @doc """
+  Injects the passkey hook import and merged hook registration into
+  `assets/js/app.js` when the standard Phoenix hook shape is present.
+
+  Marker detection is authoritative: once `// Sigra passkeys:start` exists,
+  the file is treated as already injected on re-runs.
+  """
+  @spec inject_app_js_passkeys(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()} | {:manual_action, String.t()}
+  def inject_app_js_passkeys(file_contents, injection_template) do
+    if String.contains?(file_contents, @passkeys_start_marker) do
+      {:already_injected, file_contents}
+    else
+      with {:ok, import_line, hooks_line} <- extract_passkey_injection_parts(injection_template),
+           {:ok, import_anchor} <- find_colocated_hooks_import(file_contents),
+           {:ok, hooks_anchor} <- find_colocated_hooks_line(file_contents) do
+        import_block = Enum.join([@passkeys_start_marker, import_line, @passkeys_end_marker], "\n")
+
+        injected_imports =
+          String.replace(file_contents, import_anchor, import_anchor <> "\n" <> import_block,
+            global: false
+          )
+
+        merged_hooks_line = hooks_line <> ","
+        injected_hooks = String.replace(injected_imports, hooks_anchor, merged_hooks_line, global: false)
+
+        {:ok, injected_hooks}
+      else
+        _ ->
+          {:manual_action, passkey_manual_instructions()}
       end
     end
   end
@@ -391,7 +425,7 @@ defmodule Sigra.Install.Injector do
   def inject_vault_child(file_contents, app_module) do
     vault_module = "#{app_module}.Vault"
 
-    if String.contains?(file_contents, @vault_marker) do
+    if String.contains?(file_contents, vault_module) do
       {:already_injected, file_contents}
     else
       # Find `children = [` and inject after it
@@ -449,9 +483,14 @@ defmodule Sigra.Install.Injector do
   end
 
   defp do_inject(%Sigra.Install.Injection{} = inj, content, _opts) do
-    new_content = apply_anchor(inj.anchor, content, inj.content)
-    File.write!(inj.target, new_content)
-    {:ok, :injected}
+    case apply_anchor(inj.anchor, content, inj.content) do
+      {:manual_action, message} ->
+        {:error, {:manual_action, message}}
+
+      new_content ->
+        File.write!(inj.target, new_content)
+        {:ok, :injected}
+    end
   end
 
   defp apply_anchor(:before_last_end, content, payload) do
@@ -506,8 +545,66 @@ defmodule Sigra.Install.Injector do
     String.replace(content, ~r/(\n  use [A-Za-z.]+.*?\n)/s, "\\1\n  #{payload}\n", global: false)
   end
 
+  defp apply_anchor(:vault_child, content, app_module) do
+    case inject_vault_child(content, app_module) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+    end
+  end
+
+  defp apply_anchor(:app_js_passkeys, content, payload) do
+    case inject_app_js_passkeys(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
   defp apply_anchor(:at_top, content, payload), do: payload <> "\n" <> content
 
   defp apply_anchor(other, _content, _payload),
     do: raise(ArgumentError, "unsupported injection anchor: #{inspect(other)}")
+
+  defp extract_passkey_injection_parts(template) do
+    lines =
+      template
+      |> String.split("\n", trim: true)
+      |> Enum.map(&String.trim/1)
+
+    with import_line when is_binary(import_line) <- Enum.find(lines, &String.starts_with?(&1, "import ")),
+         hooks_line when is_binary(hooks_line) <-
+           Enum.find(lines, &String.starts_with?(&1, "hooks: { ...colocatedHooks, ...PasskeyHooks }")) do
+      {:ok, import_line, hooks_line}
+    else
+      _ -> :error
+    end
+  end
+
+  defp find_colocated_hooks_import(content) do
+    case Regex.run(
+           ~r/^import\s+\{\s*hooks\s+as\s+colocatedHooks\s*\}\s+from\s+["'][^"']+["']\s*$/m,
+           content
+         ) do
+      [line] -> {:ok, line}
+      _ -> :error
+    end
+  end
+
+  defp find_colocated_hooks_line(content) do
+    case Regex.run(~r/^\s*hooks:\s*\{\s*\.\.\.colocatedHooks\s*\},?\s*$/m, content) do
+      [line] -> {:ok, line}
+      _ -> :error
+    end
+  end
+
+  defp passkey_manual_instructions do
+    """
+    Passkeys generated `assets/js/passkey_hooks.js`, but Sigra could not safely edit `assets/js/app.js`.
+
+    Add these lines manually to your LiveSocket setup:
+
+      import { PasskeyHooks } from "./passkey_hooks"
+      hooks: { ...colocatedHooks, ...PasskeyHooks }
+    """
+  end
 end
