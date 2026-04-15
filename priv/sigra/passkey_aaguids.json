@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "source": "https://github.com/passkeydeveloper/passkey-authenticator-aaguids",
+    "pinned_at": "2026-04-15",
+    "purpose": "Friendly display labels only; not security policy"
+  },
+  "aaguids": {
+    "fbfc3007-154e-4ecc-8c0b-6e020557d7bd": {
+      "name": "iCloud Keychain",
+      "provider": "Apple",
+      "device": "iCloud Keychain"
+    },
+    "ea9b8d66-4d01-1d21-3ce4-b6b48cb575d4": {
+      "name": "Google Password Manager",
+      "provider": "Google",
+      "device": "Google Password Manager"
+    },
+    "bada5566-a7aa-401f-bd96-45619a55120d": {
+      "name": "1Password",
+      "provider": "1Password",
+      "device": "1Password"
+    },
+    "6028b017-b1d4-4c02-b4b3-afcdafc96bb2": {
+      "name": "Windows Hello",
+      "provider": "Microsoft",
+      "device": "Windows Hello"
+    }
+  }
+}
