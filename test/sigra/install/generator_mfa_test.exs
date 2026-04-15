@@ -16,7 +16,12 @@ defmodule Sigra.Install.GeneratorMFATest do
     from_email: "noreply@example.com",
     log_in_url: "/users/log_in",
     binary_id: false,
-    adapter: :postgres
+    adapter: :postgres,
+    # Phase 24.1: core/user_auth.ex gates the :assign_user_organizations
+    # on_mount clause on `<%= if organizations? do %>`. Without this
+    # binding key the template compile fails with `undefined variable
+    # "organizations?"`.
+    organizations?: true
   ]
 
   describe "MFA template files exist" do

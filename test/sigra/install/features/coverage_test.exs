@@ -65,8 +65,7 @@ defmodule Sigra.Install.Features.CoverageTest do
   @injection_whitelist %{
     Sigra.Install.Features.Core => [],
     Sigra.Install.Features.Organizations => [
-      "organizations/router_injection.ex",
-      "organizations/user_auth_on_mount_assign_user_organizations.ex"
+      "organizations/router_injection.ex"
     ]
   }
 
@@ -98,13 +97,24 @@ defmodule Sigra.Install.Features.CoverageTest do
       "core/mfa_settings_html.ex",
       "core/registration_html.ex",
       "core/token_controller.ex",
-      "core/user_api_token.ex"
+      "core/user_api_token.ex",
+      # Phase 24.1: cross-feature ownership. This template lives under
+      # priv/templates/sigra.install/core/ alongside the other audit_events
+      # migrations, but it is owned by a later feature's files/1 +
+      # migrations/1 because it adds a hard FK to the organizations table
+      # and must be skipped under --no-organizations. Listed here to
+      # preserve the "every file has an owner" invariant without teaching
+      # the coverage lint to chase cross-feature ownership.
+      "core/alter_audit_events_add_org_columns.exs"
     ],
     Sigra.Install.Features.Organizations => [
-      "organizations/organization.ex",
-      "organizations/organization_invitation.ex",
-      "organizations/organization_membership.ex",
-      "organizations/organization_slug_alias.ex",
+      # Phase 24.1: on_mount clause was moved from an injection-fragment
+      # template into core/user_auth.ex directly (gated on
+      # `<%= if organizations? do %>`) to avoid the `clauses with the
+      # same name and arity should be grouped together` compile warning
+      # that --warnings-as-errors escalated. The fragment file remains on
+      # disk as an orphan reference; it is not injected or generated.
+      "organizations/user_auth_on_mount_assign_user_organizations.ex",
       # Phase 24 D-04.1/.2: reference-only fragment mirroring the canonical
       # organization_invitation/4 inlined into core/emails.ex. Intentionally
       # NOT registered in files/1 — the fragment uses bare `@font_family`

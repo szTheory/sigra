@@ -10,7 +10,7 @@ defmodule SigraInstallGoldenTmp.Organizations do
 
   `set_active_organization/2` is the single authoritative write path
   for changing the active organization on a request. It delegates to
-  `Sigra.Plug.PutActiveOrganization.call/2`, which:
+  `Sigra.Plug.PutActiveOrganization.call/3`, which:
 
     1. Verifies the current user is a member of the target organization
        (membership-before-write — T-14-06 authz choke point).
@@ -39,9 +39,9 @@ defmodule SigraInstallGoldenTmp.Organizations do
 
   See the moduledoc for the full contract.
   """
-  defdelegate set_active_organization(conn, org),
-    to: Sigra.Plug.PutActiveOrganization,
-    as: :call
+  def set_active_organization(conn, org) do
+    Sigra.Plug.PutActiveOrganization.call(conn, org, [])
+  end
 
   # ──────────────────────────────────────────────────────────────────────────
   # Phase 16 thin-wrapper delegates (settings page + members list)

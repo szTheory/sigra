@@ -40,8 +40,45 @@ defmodule Sigra.Install.Features.Organizations do
   def files(binding) do
     otp_app = Keyword.fetch!(binding, :otp_app) |> to_string()
     web = "#{otp_app}_web"
+    # `context_alias` defaults to "Accounts" so existing tests that pass
+    # only `otp_app: :foo` continue to work; the real installer binding
+    # always sets context_alias (via mix sigra.install <ctx> <schema> ...).
+    ctx = binding |> Keyword.get(:context_alias, "Accounts") |> Macro.underscore()
 
     [
+      # Phase 13 Plan 02 / Phase 24.1: v1.1 organization schema modules.
+      # These four schemas were created in Phase 13 but never registered
+      # in files/1 until Phase 24 absorbed Phase 18 Plan 18-03's charter
+      # to unblock install_matrix CI. Generated under the host app's
+      # accounts context directory alongside core/user.ex etc.
+      {:eex, "organizations/organization.ex",
+       Path.join(["lib", otp_app, ctx, "organization.ex"])},
+      {:eex, "organizations/organization_invitation.ex",
+       Path.join(["lib", otp_app, ctx, "organization_invitation.ex"])},
+      {:eex, "organizations/organization_membership.ex",
+       Path.join(["lib", otp_app, ctx, "organization_membership.ex"])},
+      {:eex, "organizations/organization_slug_alias.ex",
+       Path.join(["lib", otp_app, ctx, "organization_slug_alias.ex"])},
+
+      # Phase 24.1: organizations table migration. Must land BEFORE
+      # `audit_events_org_columns` (which references it via hard FK).
+      {:eex, "organizations/migration.exs",
+       migration_target(binding, :organizations, "create_organizations.exs")},
+
+      # Phase 24.1: audit_events_org_columns migration. Moved out of
+      # the Core feature because it `references(:organizations, ...)`
+      # and must land AFTER the organizations migration AND be skipped
+      # under --no-organizations. The template still lives under
+      # priv/templates/sigra.install/core/ because that's where the
+      # other audit-events migrations live and splitting it across
+      # subdirs would complicate the coverage lint.
+      {:eex, "core/alter_audit_events_add_org_columns.exs",
+       migration_target(
+         binding,
+         :audit_events_org_columns,
+         "alter_audit_events_add_org_columns.exs"
+       )},
+
       # Phase 14 Plan 03 D-19: generated Organizations context wrapper.
       # Exposes set_active_organization/2 via defdelegate, uses
       # `use Sigra.Organizations` so hosts get __sigra_org_config__/0
@@ -111,17 +148,30 @@ defmodule Sigra.Install.Features.Organizations do
   @impl true
   def injections(binding) do
     otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
-    web = "#{otp_app}_web"
 
     [
-      router_injection(otp_app, binding),
-      user_auth_on_mount_injection(web, binding)
+      # user_auth injection was removed in Phase 24.1: the
+      # :assign_user_organizations on_mount clause is now baked directly
+      # into core/user_auth.ex gated on `<%= if organizations? do %>`.
+      # Injecting a new on_mount clause at :before_last_end produced
+      # `clauses with the same name and arity should be grouped together`
+      # and `redefining @doc attribute` warnings under
+      # `mix compile --warnings-as-errors` because the clause landed far
+      # from the existing on_mount group.
+      router_injection(otp_app, binding)
     ]
   end
 
   @impl true
   def migrations(_binding) do
-    [{:organizations, "organizations/migration.exs", "create_organizations.exs"}]
+    [
+      {:organizations, "organizations/migration.exs", "create_organizations.exs"},
+      # Phase 24.1: moved out of the Core feature so the hard FK to the
+      # organizations table lands after that table is created AND is
+      # skipped entirely under --no-organizations.
+      {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
+       "alter_audit_events_add_org_columns.exs"}
+    ]
   end
 
   @impl true
@@ -183,25 +233,23 @@ defmodule Sigra.Install.Features.Organizations do
     }
   end
 
-  defp user_auth_on_mount_injection(web, binding) do
-    content =
-      eval_template!(
-        "organizations/user_auth_on_mount_assign_user_organizations.ex",
-        binding
-      )
-
-    %Injection{
-      target: Path.join(["lib", web, "user_auth.ex"]),
-      marker: "on_mount(:assign_user_organizations",
-      anchor: :before_last_end,
-      content: content
-    }
-  end
-
   defp eval_template!(relative_path, binding) do
     relative_path
     |> read_template!()
     |> EEx.eval_string(binding, trim: false)
+  end
+
+  # Local copy of the generic migration-target resolver. Duplicated from
+  # the sibling feature's private helper (rather than referenced across
+  # feature boundaries) to preserve the isolation invariant (Pitfall X-3):
+  # no cross-feature module references in Organizations source.
+  defp migration_target(binding, slot_key, basename) do
+    ts =
+      binding
+      |> Keyword.get(:migration_timestamps, %{})
+      |> Map.get(slot_key, "TIMESTAMP")
+
+    Path.join(["priv", "repo", "migrations", "#{ts}_#{basename}"])
   end
 
   defp read_template!(relative_path) do

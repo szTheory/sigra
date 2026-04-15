@@ -37,12 +37,21 @@ defmodule Sigra.Install.Features.OrganizationsTest do
   end
 
   describe "migrations/1" do
-    test "returns a list with one tuple matching {:organizations, _, _}" do
+    test "returns organizations + audit_events_org_columns slots in order" do
       slots = Organizations.migrations([])
-      assert length(slots) == 1
-      assert [{:organizations, template, basename}] = slots
-      assert template == "organizations/migration.exs"
-      assert String.ends_with?(basename, ".exs")
+
+      # Phase 24.1: Organizations now owns both its own `:organizations`
+      # migration AND the `:audit_events_org_columns` ALTER migration
+      # (moved from Features.Core so the hard FK to organizations
+      # lands after the organizations table is created, and is omitted
+      # entirely under --no-organizations).
+      assert length(slots) == 2
+
+      assert [
+               {:organizations, "organizations/migration.exs", "create_organizations.exs"},
+               {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
+                "alter_audit_events_add_org_columns.exs"}
+             ] = slots
     end
   end
 
@@ -112,11 +121,15 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert error_handler =~ "put_flash(:info, \"Pick or create an organization to continue.\")"
     end
 
-    test "organizations.ex template defdelegates set_active_organization/2 to Sigra.Plug.PutActiveOrganization" do
+    test "organizations.ex template defines set_active_organization/2 as a call/3 wrapper" do
+      # Phase 24.1: changed from defdelegate → def because
+      # Sigra.Plug.PutActiveOrganization.call has arity 3, not 2, and
+      # defdelegate matches arity — a defdelegate to :call would refer
+      # to `call/2` which does not exist and fails
+      # `mix compile --warnings-as-errors` on the host app.
       organizations_template = File.read!("priv/templates/sigra.install/organizations/organizations.ex")
-      assert organizations_template =~ "defdelegate set_active_organization"
-      assert organizations_template =~ "Sigra.Plug.PutActiveOrganization"
-      assert organizations_template =~ "as: :call"
+      assert organizations_template =~ "def set_active_organization(conn, org)"
+      assert organizations_template =~ "Sigra.Plug.PutActiveOrganization.call(conn, org, [])"
       assert organizations_template =~ "use Sigra.Organizations"
     end
 
@@ -527,21 +540,23 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       app_module: "MyApp"
     ]
 
-    test "returns list of router + user_auth injections (Phase 16)" do
+    test "returns list with router injection only (Phase 24.1: user_auth baked into template)" do
       injections = Organizations.injections(@injections_binding)
 
       assert is_list(injections)
-      # Phase 16 adds at least 2 injections: router scope block + user_auth on_mount
-      assert length(injections) >= 2
+      # Phase 24.1: the :assign_user_organizations on_mount clause was
+      # moved from an injection fragment into core/user_auth.ex directly
+      # (gated on `<%= if organizations? do %>`). Only the router
+      # injection remains.
+      assert length(injections) == 1
 
-      # Every entry is a %Sigra.Install.Injection{}
       Enum.each(injections, fn injection ->
         assert %Sigra.Install.Injection{} = injection
       end)
 
       targets = Enum.map(injections, & &1.target)
       assert Enum.any?(targets, &String.ends_with?(&1, "router.ex"))
-      assert Enum.any?(targets, &String.ends_with?(&1, "user_auth.ex"))
+      refute Enum.any?(targets, &String.ends_with?(&1, "user_auth.ex"))
     end
 
     @tag :phase16

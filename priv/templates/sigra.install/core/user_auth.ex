@@ -218,7 +218,26 @@ defmodule <%= web_module %>.UserAuth do
       {:cont, socket}
     end
   end
+<%= if organizations? do %>
+  # Phase 16 D-26: assigns `@user_organizations` to the socket for the
+  # org switcher component. Wired into `live_session` entries by the
+  # Sigra organizations router injection. Shape:
+  # `[{%Organization{}, role}]` — presentation-only data; security
+  # checks still go through the scope + membership plugs.
+  def on_mount(:assign_user_organizations, _params, _session, socket) do
+    socket =
+      case socket.assigns[:current_scope] do
+        %{user: %{} = user} ->
+          orgs_with_roles = <%= app_module %>.Organizations.list_organizations_for_user(user)
+          Phoenix.Component.assign(socket, :user_organizations, orgs_with_roles)
 
+        _ ->
+          Phoenix.Component.assign(socket, :user_organizations, [])
+      end
+
+    {:cont, socket}
+  end
+<% end %>
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
       if user_token = session["user_token"] do

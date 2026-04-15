@@ -89,9 +89,14 @@ defmodule Sigra.Install.Features.Core do
        "core/add_active_organization_id_to_user_sessions.exs",
        "add_active_organization_id_to_user_sessions.exs"},
       {:api_token, "core/api_token_migration.exs", "create_user_api_tokens.exs"},
-      {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"},
-      {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
-       "alter_audit_events_add_org_columns.exs"}
+      {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"}
+      # Phase 24.1: :audit_events_org_columns moved to a later feature
+      # that owns org-dependent resources. It adds a hard FK to the
+      # organizations table so it MUST run after that table is created,
+      # and MUST be skipped entirely when --no-organizations is passed.
+      # Keeping it here would give it an earlier timestamp than the
+      # later feature's own migration and fail with
+      # `relation "organizations" does not exist`.
     ]
   end
 
@@ -157,10 +162,8 @@ defmodule Sigra.Install.Features.Core do
       {:eex, "core/create_audit_events.exs",
        migration_target(binding, :audit_events, "create_audit_events.exs")}
 
-    audit_org_columns_migration =
-      {:eex, "core/alter_audit_events_add_org_columns.exs",
-       migration_target(binding, :audit_events_org_columns,
-         "alter_audit_events_add_org_columns.exs")}
+    # Phase 24.1: audit_org_columns_migration removed from Core —
+    # see the comment in migrations/1 for rationale.
 
     [
       # Primary migration (position 0 in monolith files list)
@@ -218,8 +221,10 @@ defmodule Sigra.Install.Features.Core do
       # Phase 9: audit events migration (monolith position 23)
       audit_migration,
 
-      # Phase 15: audit events ALTER migration adding org columns (D-11)
-      audit_org_columns_migration,
+      # Phase 24.1: audit_org_columns_migration moved to a later
+      # feature's files/1 so the hard FK to the organizations table
+      # lands AFTER that table is created and only when
+      # --no-organizations is NOT passed.
 
       # Phase 9: audit schema
       {:eex, "core/audit_event.ex", Path.join(["lib", otp_app, ctx, "audit_event.ex"])},

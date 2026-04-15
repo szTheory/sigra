@@ -1,24 +1,3 @@
-    warning: Sigra.Test.InstallFixture.setup_tmp_app/0 is undefined (module Sigra.Test.InstallFixture is not available or is yet to be defined)
-    │
- 48 │       InstallFixture.setup_tmp_app()
-    │                      ~
-    │
-    └─ (sigra 0.1.0) lib/mix/tasks/sigra.fixture.rebless_golden.ex:48:22: Mix.Tasks.Sigra.Fixture.ReblessGolden.run/1
-
-    warning: Sigra.Test.InstallFixture.normalize_tree/2 is undefined (module Sigra.Test.InstallFixture is not available or is yet to be defined)
-    │
- 50 │     tree = InstallFixture.normalize_tree(tmp_dir, baseline)
-    │                           ~
-    │
-    └─ (sigra 0.1.0) lib/mix/tasks/sigra.fixture.rebless_golden.ex:50:27: Mix.Tasks.Sigra.Fixture.ReblessGolden.run/1
-
-    warning: Sigra.Test.InstallFixture.normalize_stdout/2 is undefined (module Sigra.Test.InstallFixture is not available or is yet to be defined)
-    │
- 51 │     stdout = InstallFixture.normalize_stdout(raw, tmp_dir)
-    │                             ~
-    │
-    └─ (sigra 0.1.0) lib/mix/tasks/sigra.fixture.rebless_golden.ex:51:29: Mix.Tasks.Sigra.Fixture.ReblessGolden.run/1
-
 * creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
 * creating priv/repo/migrations/TIMESTAMP_add_active_organization_id_to_user_sessions.exs
 * creating lib/sigra_install_golden_tmp/accounts/user.ex
@@ -44,7 +23,6 @@
 * creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_controller.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex
 * creating priv/repo/migrations/TIMESTAMP_create_audit_events.exs
-* creating priv/repo/migrations/TIMESTAMP_alter_audit_events_add_org_columns.exs
 * creating lib/sigra_install_golden_tmp/accounts/audit_event.ex
 * creating lib/sigra_install_golden_tmp/accounts/encrypted.ex
 * creating lib/sigra_install_golden_tmp/mailer.ex
@@ -96,6 +74,12 @@ Next steps:
 
 
 
+* creating lib/sigra_install_golden_tmp/accounts/organization.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_invitation.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_membership.ex
+* creating lib/sigra_install_golden_tmp/accounts/organization_slug_alias.ex
+* creating priv/repo/migrations/TIMESTAMP_create_organizations.exs
+* creating priv/repo/migrations/TIMESTAMP_alter_audit_events_add_org_columns.exs
 * creating lib/sigra_install_golden_tmp/organizations.ex
 * creating lib/sigra_install_golden_tmp_web/components/org_switcher.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex
@@ -105,7 +89,6 @@ Next steps:
 * creating lib/sigra_install_golden_tmp_web/live/organization_members_live.ex
 * creating lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex
 * injecting lib/sigra_install_golden_tmp_web/router.ex
-* injecting lib/sigra_install_golden_tmp_web/user_auth.ex
 
 Sigra organizations installed!
 
