@@ -135,12 +135,16 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     test "destroyed teardown emits a single aborted event for the active ceremony" do
       if node = System.find_executable("node") do
         tmp_dir =
-          Path.join(System.tmp_dir!(), "sigra_passkey_hooks_#{System.unique_integer([:positive])}")
+          Path.join(
+            System.tmp_dir!(),
+            "sigra_passkey_hooks_#{System.unique_integer([:positive])}"
+          )
 
         File.mkdir_p!(tmp_dir)
         on_exit(fn -> File.rm_rf!(tmp_dir) end)
 
         template_source = File.read!("priv/templates/sigra.install/passkeys/passkey_hooks.js")
+
         module_source =
           String.replace(
             template_source,
@@ -300,6 +304,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         result = Jason.decode!(stdout)
 
         assert result["attached"] == true
+
         assert result["fetches"] == [
                  %{
                    "url" => "/users/log_in/passkey/options",
@@ -379,7 +384,8 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
   end
 
   defp run_node_script!(node, files) do
-    tmp_dir = Path.join(System.tmp_dir!(), "sigra_passkey_js_#{System.unique_integer([:positive])}")
+    tmp_dir =
+      Path.join(System.tmp_dir!(), "sigra_passkey_js_#{System.unique_integer([:positive])}")
 
     File.mkdir_p!(tmp_dir)
 
@@ -499,7 +505,9 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       }
     }
 
-    globalThis.navigator = {
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {
       credentials: {
         async get(request) {
           credentialRequests.push({ mediation: request.mediation ?? null })
@@ -533,7 +541,8 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
           }
         }
       }
-    }
+      }
+    })
 
     const result = await attachPasskeyLogin({ enableConditionalUI: scenario !== "explicit" })
 

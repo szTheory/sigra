@@ -3,12 +3,60 @@ import {
   WebAuthnError,
   startAuthentication,
   startRegistration,
-} from "@simplewebauthn/browser"
+} from "./passkey_browser"
 
 const CEREMONY_ABORTED = "ERROR_CEREMONY_ABORTED"
 
 function toPlainObject(payload) {
   return JSON.parse(JSON.stringify(payload))
+}
+
+function csrfToken() {
+  return document.querySelector("meta[name='csrf-token']")?.content || ""
+}
+
+async function fetchOptions(optionsUrl, body = {}) {
+  const response = await fetch(optionsUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json",
+      "x-csrf-token": csrfToken(),
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    throw new Error("passkey_options_failed")
+  }
+
+  const json = await response.json()
+  return json.options
+}
+
+function appendHiddenInput(form, name, value) {
+  const input = document.createElement("input")
+  input.type = "hidden"
+  input.name = name
+  input.value = value
+  form.appendChild(input)
+}
+
+function submitCompletion(completeUrl, response, extra = {}) {
+  const form = document.createElement("form")
+  form.method = "post"
+  form.action = completeUrl
+  form.hidden = true
+
+  appendHiddenInput(form, "_csrf_token", csrfToken())
+  appendHiddenInput(form, "passkey[response]", JSON.stringify(response))
+
+  for (const [name, value] of Object.entries(extra)) {
+    appendHiddenInput(form, name, value)
+  }
+
+  document.body.appendChild(form)
+  HTMLFormElement.prototype.submit.call(form)
 }
 
 function buildHook({
@@ -37,13 +85,30 @@ function buildHook({
         this.__sigraPasskeyAbortNotified = false
 
         try {
-          const response = await startCeremony(payload.options, abortController.signal)
+          const optionsJSON =
+            payload.options ||
+            (payload.optionsUrl
+              ? await fetchOptions(payload.optionsUrl, payload.optionsBody || {})
+              : null)
+
+          const response = await startCeremony(payload, optionsJSON, abortController.signal)
 
           if (!this.isLatestPasskeyOperation(operationId) || abortController.signal.aborted) {
             return
           }
 
           this.pushEvent(successEvent, { response: toPlainObject(response) })
+
+          if (payload.completeUrl) {
+            const extra = { ...(payload.extra || {}) }
+            const emailInput = document.querySelector("input[name='user[email]']")
+
+            if (emailInput?.value && !extra["user[email]"]) {
+              extra["user[email]"] = emailInput.value
+            }
+
+            submitCompletion(payload.completeUrl, response, extra)
+          }
         } catch (error) {
           if (!this.isLatestPasskeyOperation(operationId)) {
             return
@@ -114,7 +179,7 @@ export const PasskeyRegister = buildHook({
   successEvent: "sigra:passkey-register:success",
   errorEvent: "sigra:passkey-register:error",
   abortedEvent: "sigra:passkey-register:aborted",
-  startCeremony(optionsJSON, signal) {
+  startCeremony(_payload, optionsJSON, signal) {
     return startRegistration({ optionsJSON, signal })
   },
 })
@@ -124,8 +189,12 @@ export const PasskeyAuthenticate = buildHook({
   successEvent: "sigra:passkey-authenticate:success",
   errorEvent: "sigra:passkey-authenticate:error",
   abortedEvent: "sigra:passkey-authenticate:aborted",
-  startCeremony(optionsJSON, signal) {
-    return startAuthentication({ optionsJSON, signal })
+  startCeremony(payload, optionsJSON, signal) {
+    return startAuthentication({
+      optionsJSON,
+      signal,
+      useBrowserAutofill: payload.useBrowserAutofill === true,
+    })
   },
 })
 
