@@ -44,7 +44,8 @@ revised: 2026-04-15
 | 21-02 | 2 | PK-UX-01, PK-UX-02, PK-UX-03, PK-UX-04, PK-UX-09, PK-UX-10, PK-UX-12 | T-21-02-01..06 | `/users/settings/mfa` owns enrollment/list/rename/delete UX, uses `PasskeyRegister`, hides raw credential metadata, and maps duplicate/abort states | generator | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkey_management_test.exs --max-failures 1` | ⬜ pending |
 | 21-03 | 2 | PK-UX-05, PK-UX-10, PK-UX-11, PK-UX-12 | T-21-03-01..06 | MFA challenge is passkey-first for passkey users, never auto-triggers, keeps TOTP/backup fallback visible, and posts success to controller completion | generator | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkey_mfa_challenge_test.exs test/sigra/install/generator_mfa_test.exs --max-failures 1` | ⬜ pending |
 | 21-04 | 2 | PK-UX-06, PK-UX-07, PK-UX-08, PK-UX-10, PK-UX-11, PK-UX-12 | T-21-04-01..08 | Passkey-primary login stays identifier-first, signup enrollment is config-gated, unconfirmed users cannot use passkey-primary, magic-link recovery remains mandatory, and conditional UI is progressive | generator + JS | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkey_primary_login_test.exs test/sigra/install/generator_wiring_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1` | ⬜ pending |
-| 21-05 | 3 | PK-UX-01..PK-UX-12 | T-21-05-01..06 | Example app mirrors generated code and proves controller/LiveView/fallback behavior, including signup enrollment and confirmed-email sudo handoff, against concrete Phoenix files | example integration + precommit | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_passkey_management_test.exs test/sigra/install/generator_passkey_mfa_challenge_test.exs test/sigra/install/generator_passkey_primary_login_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1 && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/example_web/controllers/confirmation_controller_test.exs test/example_web/controllers/passkey_session_controller_test.exs test/example_web/live/registration_live_test.exs test/example_web/live/passkey_settings_live_test.exs test/example_web/live/passkey_mfa_challenge_live_test.exs --max-failures 1) && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix precommit)` | ⬜ pending |
+| 21-05 | 3 | PK-UX-01..PK-UX-12 | T-21-05-01..05 | Example app mirrors generated Phase 21 source into concrete Phoenix files, exposes the passkey ceremony seam, and compiles with warnings as errors | example source mirror + compile | `cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix compile --warnings-as-errors` | ⬜ pending |
+| 21-06 | 4 | PK-UX-01..PK-UX-12 | T-21-06-01..06 | Example app integration tests prove passkey-primary login success, MFA passkey success, sudo enrollment notification success, invalid/error paths, signup/confirmation handoff, and fallback UI | example integration + precommit | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_passkey_management_test.exs test/sigra/install/generator_passkey_mfa_challenge_test.exs test/sigra/install/generator_passkey_primary_login_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1 && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/example_web/controllers/confirmation_controller_test.exs test/example_web/controllers/passkey_session_controller_test.exs test/example_web/live/registration_live_test.exs test/example_web/live/passkey_settings_live_test.exs test/example_web/live/passkey_mfa_challenge_live_test.exs --max-failures 1) && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix compile --warnings-as-errors) && (cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix precommit)` | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠ flaky*
 
@@ -52,7 +53,7 @@ revised: 2026-04-15
 
 ## Nyquist Coverage
 
-All implementation tasks in the five PLAN.md files include `<verify><automated>...`.
+All implementation tasks in the six PLAN.md files include `<verify><automated>...`.
 
 Wave 0 test scaffolding is folded into the plans themselves:
 
@@ -60,7 +61,8 @@ Wave 0 test scaffolding is folded into the plans themselves:
 - Plan 21-02 creates `test/sigra/install/generator_passkey_management_test.exs`.
 - Plan 21-03 creates `test/sigra/install/generator_passkey_mfa_challenge_test.exs`.
 - Plan 21-04 creates/extends `test/sigra/install/generator_passkey_primary_login_test.exs` and `test/sigra/install/features/passkeys_js_test.exs`.
-- Plan 21-05 creates example integration tests under `test/example/test/example_web/...`.
+- Plan 21-05 mirrors generated source into the example app and compiles it.
+- Plan 21-06 creates example integration tests under `test/example/test/example_web/...` and passkey fixture/stub helpers under `test/example/test/support/fixtures/auth_fixtures.ex`.
 
 No separate Wave 0 plan is required because every missing test file is created before or within the task that relies on it, and each task has an automated verification command.
 
