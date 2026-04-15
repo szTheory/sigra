@@ -23,6 +23,7 @@ function buildHook({
       this.__sigraPasskeyAbortController = null
       this.__sigraPasskeyOperationId = 0
       this.__sigraPasskeyActive = false
+      this.__sigraPasskeyAbortNotified = false
 
       this.handleEvent(startEvent, async (payload = {}) => {
         this.cancelPasskeyCeremony("superseded", false)
@@ -33,6 +34,7 @@ function buildHook({
         this.__sigraPasskeyOperationId = operationId
         this.__sigraPasskeyAbortController = abortController
         this.__sigraPasskeyActive = true
+        this.__sigraPasskeyAbortNotified = false
 
         try {
           const response = await startCeremony(payload.options, abortController.signal)
@@ -48,7 +50,9 @@ function buildHook({
           }
 
           if (abortController.signal.aborted || isCeremonyAbort(error)) {
-            this.pushEvent(abortedEvent, { reason: "aborted" })
+            if (!this.__sigraPasskeyAbortNotified) {
+              this.pushEvent(abortedEvent, { reason: "aborted" })
+            }
           } else {
             this.pushEvent(errorEvent, normalizeError(error))
           }
@@ -56,6 +60,7 @@ function buildHook({
           if (this.isLatestPasskeyOperation(operationId)) {
             this.__sigraPasskeyAbortController = null
             this.__sigraPasskeyActive = false
+            this.__sigraPasskeyAbortNotified = false
           }
         }
       })
@@ -78,7 +83,8 @@ function buildHook({
       WebAuthnAbortService.cancelCeremony()
 
       if (notify && this.__sigraPasskeyActive) {
-        this.pushEvent(reason.includes("disconnect") ? abortedEvent : abortedEvent, { reason })
+        this.__sigraPasskeyAbortNotified = true
+        this.pushEvent(abortedEvent, { reason })
       }
 
       this.__sigraPasskeyAbortController = null

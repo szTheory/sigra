@@ -93,6 +93,101 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       assert File.read!(injection_path) =~ @passkey_start_marker
       assert File.read!(injection_path) =~ @passkey_end_marker
     end
+
+    test "destroyed teardown emits a single aborted event for the active ceremony" do
+      if node = System.find_executable("node") do
+        tmp_dir =
+          Path.join(System.tmp_dir!(), "sigra_passkey_hooks_#{System.unique_integer([:positive])}")
+
+        File.mkdir_p!(tmp_dir)
+        on_exit(fn -> File.rm_rf!(tmp_dir) end)
+
+        template_source = File.read!("priv/templates/sigra.install/passkeys/passkey_hooks.js")
+
+        module_source =
+          String.replace(
+            template_source,
+            ~s(from "@simplewebauthn/browser"),
+            ~s(from "./browser_stub.mjs")
+          )
+
+        File.write!(Path.join(tmp_dir, "passkey_hooks_under_test.mjs"), module_source)
+
+        File.write!(
+          Path.join(tmp_dir, "browser_stub.mjs"),
+          """
+          export class WebAuthnError extends Error {
+            constructor(message, code) {
+              super(message)
+              this.name = "WebAuthnError"
+              this.code = code
+            }
+          }
+
+          export const WebAuthnAbortService = {
+            cancelCeremony() {}
+          }
+
+          function rejectedOnAbort(signal) {
+            return new Promise((resolve, reject) => {
+              signal.addEventListener(
+                "abort",
+                () => reject(new WebAuthnError("aborted", "ERROR_CEREMONY_ABORTED")),
+                { once: true }
+              )
+            })
+          }
+
+          export function startRegistration({ signal }) {
+            return rejectedOnAbort(signal)
+          }
+
+          export function startAuthentication({ signal }) {
+            return rejectedOnAbort(signal)
+          }
+          """
+        )
+
+        File.write!(
+          Path.join(tmp_dir, "runner.mjs"),
+          """
+          import { PasskeyRegister } from "./passkey_hooks_under_test.mjs"
+
+          const events = []
+          const hook = {
+            ...PasskeyRegister,
+            handleEvent(_event, callback) {
+              this.startCallback = callback
+            },
+            pushEvent(event, payload) {
+              events.push({ event, payload })
+            }
+          }
+
+          hook.mounted()
+          const startPromise = hook.startCallback({ options: { challenge: "abc" } })
+          hook.destroyed()
+          await startPromise.catch(() => {})
+          await new Promise(resolve => setTimeout(resolve, 0))
+          console.log(JSON.stringify(events))
+          """
+        )
+
+        {stdout, 0} =
+          System.cmd(node, [Path.join(tmp_dir, "runner.mjs")], stderr_to_stdout: true)
+
+        events = Jason.decode!(stdout)
+
+        assert events == [
+                 %{
+                   "event" => "sigra:passkey-register:aborted",
+                   "payload" => %{"reason" => "destroyed"}
+                 }
+               ]
+      else
+        flunk("node executable is required for passkey hook runtime coverage")
+      end
+    end
   end
 
   defp setup_tmp_app! do
