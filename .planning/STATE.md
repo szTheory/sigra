@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Completed 21-01-PLAN.md
-last_updated: "2026-04-15T21:49:40.004Z"
+stopped_at: Completed 21-02-PLAN.md
+last_updated: "2026-04-15T21:56:34.288Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
   completed_phases: 12
   total_plans: 56
-  completed_plans: 50
-  percent: 89
+  completed_plans: 51
+  percent: 91
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-04-15
 
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 - [Phase 21]: Passkey login, MFA upgrade, enrollment completion, and delete completion finalize through plain SessionController POST actions, not LiveView events.
 - [Phase 21]: Discoverable passkey login resolves the owning UserPasskey row by credential_id before reusing the known-user Sigra.Passkeys.authenticate/4 path.
 - [Phase 21]: Passkey management mutation routes are injected only under the generated :require_sudo router pipeline.
+- [Phase 21]: Passkey deletion is not a LiveView event and posts to the sudo-protected controller route with CSRF.
+- [Phase 21]: Passkey enrollment and management live on /users/settings/mfa rather than a dedicated passkey page.
+- [Phase 21]: Passkey registration success in the LiveView is recovery-only; credential completion remains controller-owned.
 
 ### Pending Todos
 
@@ -85,6 +88,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T21:49:32.602Z
-Stopped at: Completed 21-01-PLAN.md
+Last session: 2026-04-15T21:56:33.850Z
+Stopped at: Completed 21-02-PLAN.md
 Resume file: None
