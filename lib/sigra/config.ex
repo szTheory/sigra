@@ -445,6 +445,81 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    passkeys: [
+      type: :keyword_list,
+      default: [],
+      doc: "Passkey (WebAuthn) options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable passkey support. Default: true."
+        ],
+        sign_count_policy: [
+          type: {:in, [:warn, :require_reauth, :revoke]},
+          default: :warn,
+          doc:
+            "Sign-count regression policy. Default: :warn to accommodate synced passkeys."
+        ],
+        max_per_user: [
+          type: :pos_integer,
+          default: 10,
+          doc: "Maximum passkeys per user. Enforced atomically. Default: 10."
+        ],
+        rp_id: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Relying party ID. Default: nil."
+        ],
+        rp_name: [
+          type: :string,
+          default: "Sigra",
+          doc: "Relying party display name. Default: \"Sigra\"."
+        ],
+        origin: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Relying party origin (https://...). Default: nil."
+        ],
+        attestation: [
+          type: {:in, [:none, :indirect, :direct]},
+          default: :none,
+          doc: "Attestation conveyance preference. Default: :none."
+        ],
+        user_verification: [
+          type: {:in, [:preferred, :required, :discouraged]},
+          default: :preferred,
+          doc: "User verification requirement. Default: :preferred."
+        ],
+        timeout_ms: [
+          type: :pos_integer,
+          default: 60_000,
+          doc: "Passkey ceremony timeout in milliseconds. Default: 60_000."
+        ],
+        ceremony_rate_limit: [
+          type: :keyword_list,
+          default: [],
+          doc: "Per-user ceremony initiation rate limit. Default: 5 per 60_000ms.",
+          keys: [
+            limit: [
+              type: :pos_integer,
+              default: 5,
+              doc: "Maximum ceremony initiations per user within the window. Default: 5."
+            ],
+            window_ms: [
+              type: :pos_integer,
+              default: 60_000,
+              doc: "Ceremony initiation window in milliseconds. Default: 60_000."
+            ]
+          ]
+        ],
+        user_passkey_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host UserPasskey schema module. Default: nil."
+        ]
+      ]
+    ],
     oauth: [
       type: :keyword_list,
       default: [],
@@ -540,7 +615,7 @@ defmodule Sigra.Config do
         audit_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated AuditEvent schema module. Default: nil."],
         retention_days: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Days to retain audit events. nil = keep forever (D-09). Default: nil."],
         max_metadata_bytes: [type: :pos_integer, default: 8_192, doc: "Cap on JSON-encoded metadata byte size (D-20). Default: 8192."],
-        reserved_prefixes: [type: {:list, :string}, default: ~w(auth. session. mfa. oauth. api. account. sigra.), doc: "Reserved action prefixes developers cannot use (D-17, D-18)."]
+        reserved_prefixes: [type: {:list, :string}, default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.), doc: "Reserved action prefixes developers cannot use (D-17, D-18)."]
       ]
     ]
   ])}
@@ -1010,6 +1085,81 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    passkeys: [
+      type: :keyword_list,
+      default: [],
+      doc: "Passkey (WebAuthn) options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: true,
+          doc: "Enable passkey support. Default: true."
+        ],
+        sign_count_policy: [
+          type: {:in, [:warn, :require_reauth, :revoke]},
+          default: :warn,
+          doc:
+            "Sign-count regression policy. Default: :warn to accommodate synced passkeys."
+        ],
+        max_per_user: [
+          type: :pos_integer,
+          default: 10,
+          doc: "Maximum passkeys per user. Enforced atomically. Default: 10."
+        ],
+        rp_id: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Relying party ID. Default: nil."
+        ],
+        rp_name: [
+          type: :string,
+          default: "Sigra",
+          doc: "Relying party display name. Default: \"Sigra\"."
+        ],
+        origin: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Relying party origin (https://...). Default: nil."
+        ],
+        attestation: [
+          type: {:in, [:none, :indirect, :direct]},
+          default: :none,
+          doc: "Attestation conveyance preference. Default: :none."
+        ],
+        user_verification: [
+          type: {:in, [:preferred, :required, :discouraged]},
+          default: :preferred,
+          doc: "User verification requirement. Default: :preferred."
+        ],
+        timeout_ms: [
+          type: :pos_integer,
+          default: 60_000,
+          doc: "Passkey ceremony timeout in milliseconds. Default: 60_000."
+        ],
+        ceremony_rate_limit: [
+          type: :keyword_list,
+          default: [],
+          doc: "Per-user ceremony initiation rate limit. Default: 5 per 60_000ms.",
+          keys: [
+            limit: [
+              type: :pos_integer,
+              default: 5,
+              doc: "Maximum ceremony initiations per user within the window. Default: 5."
+            ],
+            window_ms: [
+              type: :pos_integer,
+              default: 60_000,
+              doc: "Ceremony initiation window in milliseconds. Default: 60_000."
+            ]
+          ]
+        ],
+        user_passkey_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host UserPasskey schema module. Default: nil."
+        ]
+      ]
+    ],
     oauth: [
       type: :keyword_list,
       default: [],
@@ -1239,9 +1389,9 @@ defmodule Sigra.Config do
         ],
         reserved_prefixes: [
           type: {:list, :string},
-          default: ~w(auth. session. mfa. oauth. api. account. sigra.),
+          default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.),
           doc:
-            "Reserved action prefixes developers cannot use (D-17, D-18). Default: ~w(auth. session. mfa. oauth. api. account. sigra.)."
+            "Reserved action prefixes developers cannot use (D-17, D-18). Default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.)."
         ]
       ]
     ]
@@ -1272,6 +1422,7 @@ defmodule Sigra.Config do
           geo_ip: keyword(),
           suspicious_login: keyword(),
           mfa: keyword(),
+          passkeys: keyword(),
           oauth: keyword(),
           api_token: keyword(),
           jwt: keyword(),
@@ -1305,6 +1456,7 @@ defmodule Sigra.Config do
     geo_ip: [],
     suspicious_login: [],
     mfa: [],
+    passkeys: [],
     oauth: [],
     api_token: [],
     jwt: [],

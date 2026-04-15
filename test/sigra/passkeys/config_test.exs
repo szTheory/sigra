@@ -58,7 +58,7 @@ defmodule Sigra.Passkeys.ConfigTest do
   test "config/0 raises when rp_id is missing" do
     Application.put_env(:sigra_test_app, :sigra_config, runtime_config(passkeys: [rp_id: nil]))
 
-    assert_raise ArgumentError, ~r/passkeys\\[:rp_id\\].*required/, fn ->
+    assert_raise ArgumentError, ~r/passkeys\[:rp_id\].*required/, fn ->
       Passkeys.config()
     end
   end
@@ -66,22 +66,25 @@ defmodule Sigra.Passkeys.ConfigTest do
   test "config/0 raises when origin is missing" do
     Application.put_env(:sigra_test_app, :sigra_config, runtime_config(passkeys: [origin: nil]))
 
-    assert_raise ArgumentError, ~r/passkeys\\[:origin\\].*required/, fn ->
+    assert_raise ArgumentError, ~r/passkeys\[:origin\].*required/, fn ->
       Passkeys.config()
     end
   end
 
   defp runtime_config(overrides \\ []) do
-    Keyword.merge(
-      [
-        repo: Sigra.MockRepo,
-        user_schema: TestUser,
-        passkeys: [
-          rp_id: "sigra.test",
-          origin: "https://sigra.test"
-        ]
-      ],
-      overrides
-    )
+    base = [
+      repo: Sigra.MockRepo,
+      user_schema: TestUser,
+      passkeys: [
+        rp_id: "sigra.test",
+        origin: "https://sigra.test"
+      ]
+    ]
+
+    passkeys_overrides = Keyword.get(overrides, :passkeys, [])
+
+    base
+    |> Keyword.merge(Keyword.delete(overrides, :passkeys))
+    |> Keyword.update!(:passkeys, &Keyword.merge(&1, passkeys_overrides))
   end
 end
