@@ -10,6 +10,7 @@ defmodule Example.AccountsFixtures do
   import ExampleWeb.ConnCaseHelpers, only: [log_in_user: 2]
 
   alias Example.Accounts
+  alias Example.Repo
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!!"
@@ -68,6 +69,119 @@ defmodule Example.AccountsFixtures do
   """
   def remembered_session_fixture(user, attrs \\ %{}) do
     session_fixture(user, Map.put(attrs, :type, "remember_me"))
+  end
+
+  @doc """
+  Creates a passkey credential row for the given user.
+
+  Phase 21's example app source references `Example.Accounts.UserPasskey`,
+  but the example migration/schema mirror is not present in this worktree.
+  Tests bootstrap the minimal schema/table shape here so controller and
+  LiveView integration coverage can exercise the passkey flows without real
+  WebAuthn hardware or cross-file schema edits.
+  """
+  def passkey_fixture(user, attrs \\ %{}) do
+    ensure_passkey_test_support!()
+
+    now = DateTime.utc_now()
+
+    defaults = %{
+      id: Ecto.UUID.generate(),
+      user_id: user.id,
+      credential_id: "credential-" <> Integer.to_string(System.unique_integer([:positive])),
+      public_key: <<1, 2, 3, 4>>,
+      sign_count: 0,
+      aaguid: "00000000-0000-0000-0000-000000000000",
+      nickname: "Test passkey",
+      device_hint: "Test Device",
+      transports: ["internal"],
+      rp_id: "localhost",
+      last_used_at: nil,
+      inserted_at: now,
+      updated_at: now
+    }
+
+    attrs = Enum.into(attrs, %{})
+
+    struct(Example.Accounts.UserPasskey, Map.merge(defaults, attrs))
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Encodes a deterministic WebAuthn response JSON string for controller params.
+  """
+  def encoded_passkey_response(attrs \\ %{}) do
+    credential_id =
+      Map.get(attrs, :credential_id) || Map.get(attrs, "credential_id") || "credential-response"
+
+    encoded_credential_id = base64url(credential_id)
+    user_handle = Map.get(attrs, :user_handle) || Map.get(attrs, "user_handle")
+
+    response =
+      %{
+        "clientDataJSON" => base64url(~s({"type":"webauthn.get","challenge":"test"})),
+        "authenticatorData" => base64url("authenticator-data"),
+        "signature" => base64url("signature"),
+        "userHandle" => if(user_handle, do: base64url(to_string(user_handle)), else: nil),
+        "attestationObject" => base64url("attestation-object"),
+        "transports" => ["internal"]
+      }
+      |> Map.reject(fn {_key, value} -> is_nil(value) end)
+
+    %{
+      "id" => encoded_credential_id,
+      "rawId" => encoded_credential_id,
+      "type" => "public-key",
+      "response" => response
+    }
+    |> Map.merge(Map.get(attrs, :extra, %{}))
+    |> JSON.encode!()
+  end
+
+  @doc """
+  Stubs the passkey ceremony module used by `Example.Accounts`.
+  """
+  def stub_passkey_ceremony(result_fun) when is_function(result_fun, 1) do
+    module = Module.concat(__MODULE__, "PasskeyCeremonyStub#{System.unique_integer([:positive])}")
+    key = {module, :result_fun}
+    old_env = Application.get_env(:example, :passkey_ceremony_module)
+
+    :persistent_term.put(key, result_fun)
+
+    Module.create(
+      module,
+      quote do
+        def register(_config, user, response, opts), do: register_passkey(user, response, opts)
+
+        def authenticate(_config, email_or_user, response, opts),
+          do: authenticate_passkey(email_or_user, response, opts)
+
+        def register_passkey(user, response, opts) do
+          :persistent_term.get(unquote(Macro.escape(key))).({:register, user, response, opts})
+        end
+
+        def authenticate_passkey(email_or_user, response, opts) do
+          :persistent_term.get(unquote(Macro.escape(key))).(
+            {:authenticate, email_or_user, response, opts}
+          )
+        end
+      end,
+      Macro.Env.location(__ENV__)
+    )
+
+    Application.put_env(:example, :passkey_ceremony_module, module)
+
+    ExUnit.Callbacks.on_exit(fn ->
+      :persistent_term.erase(key)
+
+      if is_nil(old_env) do
+        Application.delete_env(:example, :passkey_ceremony_module)
+      else
+        Application.put_env(:example, :passkey_ceremony_module, old_env)
+      end
+    end)
+
+    :ok
   end
 
   @doc """
@@ -297,4 +411,104 @@ defmodule Example.AccountsFixtures do
     Valid scenarios: #{Enum.map_join(@valid_scenarios, ", ", &inspect/1)}.
     """
   end
+
+  defp ensure_passkey_test_support! do
+    ensure_passkey_schema_module!()
+    ensure_passkey_table!()
+  end
+
+  defp ensure_passkey_schema_module! do
+    unless Code.ensure_loaded?(Example.Accounts.UserPasskey) do
+      Module.create(
+        Example.Accounts.UserPasskey,
+        quote do
+          use Ecto.Schema
+          import Ecto.Changeset
+
+          @primary_key {:id, :binary_id, autogenerate: true}
+          @foreign_key_type :binary_id
+
+          schema "user_passkeys" do
+            belongs_to :user, Example.Accounts.User
+            field :credential_id, :binary
+            field :public_key, :binary
+            field :sign_count, :integer, default: 0
+            field :aaguid, Ecto.UUID
+            field :nickname, :string
+            field :device_hint, :string
+            field :transports, {:array, :string}, default: []
+            field :rp_id, :string
+            field :last_used_at, :utc_datetime_usec
+
+            timestamps(type: :utc_datetime_usec)
+          end
+
+          def create_changeset(passkey \\ %__MODULE__{}, attrs) do
+            passkey
+            |> cast(attrs, [
+              :user_id,
+              :credential_id,
+              :public_key,
+              :sign_count,
+              :aaguid,
+              :nickname,
+              :device_hint,
+              :transports,
+              :rp_id,
+              :last_used_at
+            ])
+            |> validate_required([:user_id, :credential_id, :public_key])
+            |> validate_number(:sign_count, greater_than_or_equal_to: 0)
+            |> validate_length(:transports, max: 8)
+            |> update_change(:transports, &Enum.uniq/1)
+            |> unique_constraint(:credential_id)
+            |> foreign_key_constraint(:user_id)
+          end
+
+          def update_changeset(passkey, attrs) do
+            passkey
+            |> cast(attrs, [
+              :sign_count,
+              :nickname,
+              :device_hint,
+              :transports,
+              :rp_id,
+              :last_used_at
+            ])
+            |> validate_number(:sign_count, greater_than_or_equal_to: 0)
+            |> validate_length(:transports, max: 8)
+            |> update_change(:transports, &Enum.uniq/1)
+          end
+        end,
+        Macro.Env.location(__ENV__)
+      )
+    end
+  end
+
+  defp ensure_passkey_table! do
+    Ecto.Adapters.SQL.query!(Repo, """
+    CREATE TABLE IF NOT EXISTS user_passkeys (
+      id uuid PRIMARY KEY,
+      user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      credential_id bytea NOT NULL UNIQUE,
+      public_key bytea NOT NULL,
+      sign_count integer NOT NULL DEFAULT 0,
+      aaguid uuid,
+      nickname varchar(255),
+      device_hint varchar(255),
+      transports varchar(255)[] DEFAULT '{}',
+      rp_id varchar(255),
+      last_used_at timestamp(6),
+      inserted_at timestamp(6) NOT NULL,
+      updated_at timestamp(6) NOT NULL
+    )
+    """)
+
+    Ecto.Adapters.SQL.query!(
+      Repo,
+      "CREATE INDEX IF NOT EXISTS user_passkeys_user_id_index ON user_passkeys (user_id)"
+    )
+  end
+
+  defp base64url(value) when is_binary(value), do: Base.url_encode64(value, padding: false)
 end
