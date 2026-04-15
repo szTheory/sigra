@@ -88,8 +88,8 @@ affect individual requirements.
 - [x] **PK-06**: System exposes `Sigra.Plug.PasskeyChallenge` that stores the WebAuthn challenge in the signed+encrypted Plug session via `Sigra.Token.generate/4` with `max_age: 60`. Challenge is server-generated, server-stored, server-verified; never accepted from `clientDataJSON` (addresses pitfall P-1 — OneUptime GHSA-gjjc-pcwp-c74m).
 - [ ] **PK-07**: System verifies the assertion response's returned `credential_id` matches a credential the requested user owns — rejects credential-confusion attacks (addresses pitfall P-6 — StrongKey CVE-2025-26788).
 - [ ] **PK-08**: System enforces sign-count monotonicity on authentication; regressions default to **`:warn`** (log + audit-event `:passkey_sign_count_regression` + banner on user's passkey list). `:require_reauth` and `:revoke` modes available via NimbleOptions config (addresses pitfall P-4). **(Decision: `:warn` default — matches Apple iCloud / Google sync credentials.)**
-- [ ] **PK-09**: System loads `rp_id`, `rp_name`, `origin`, `attestation` (default `:none`), `user_verification` (default `:preferred`), and `timeout_ms` from **runtime** config; `NimbleOptions` validates at first-use with fast-fail.
-- [ ] **PK-10**: System applies per-user rate limiting on passkey ceremony initiation via Hammer (default 5/min) to prevent ceremony-flood DoS.
+- [x] **PK-09**: System loads `rp_id`, `rp_name`, `origin`, `attestation` (default `:none`), `user_verification` (default `:preferred`), and `timeout_ms` from **runtime** config; `NimbleOptions` validates at first-use with fast-fail.
+- [x] **PK-10**: System applies per-user rate limiting on passkey ceremony initiation via Hammer (default 5/min) to prevent ceremony-flood DoS.
 
 ### Passkeys — User-Facing (PK-UX)
 

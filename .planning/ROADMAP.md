@@ -229,7 +229,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [x] 20-01-PLAN.md — Wave 1: `Sigra.Plug.PasskeyChallenge` session-slot issue/verify adapter with single-use replay protection (PK-06)
-- [ ] 20-02-PLAN.md — Wave 1: strict runtime passkey config loader + per-user ceremony initiation limiter (PK-09, PK-10)
+- [x] 20-02-PLAN.md — Wave 1: strict runtime passkey config loader + per-user ceremony initiation limiter (PK-09, PK-10)
 - [ ] 20-03-PLAN.md — Wave 2: generated `passkey_hooks.js` plus deterministic `assets/js/app.js` wiring and manual fallback (GEN-06)
 
 ### Phase 21: Passkey LiveViews + POST-Auth Controller
@@ -295,7 +295,7 @@ Plans:
 | 17. Invitation Flow + Email | 9/9 | Complete    | 2026-04-14 |
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
-| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 1/3 | In Progress|  |
+| 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 2/3 | In Progress|  |
 | 21. Passkey LiveViews + POST-Auth Controller | 0/? | Not started | — |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
@@ -309,7 +309,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false

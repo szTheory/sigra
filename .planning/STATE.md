@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Completed 20-01-PLAN.md
-last_updated: "2026-04-15T17:08:09.068Z"
+stopped_at: Completed 20-02-PLAN.md
+last_updated: "2026-04-15T17:15:06.308Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 17
   completed_phases: 11
   total_plans: 47
-  completed_plans: 45
-  percent: 96
+  completed_plans: 46
+  percent: 98
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 20 (passkey-challenge-plug-runtime-config-js-hooks-infra) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-15
 
@@ -49,6 +49,9 @@ Recent decisions affecting current work:
 - Every v1.2 load-bearing decision is embedded in the phase that ships it: reserved `:impersonating_from` field (phase 12), real `effective_user_id` audit column (phase 15), subdir feature manifest (phase 11), `admin` in reserved slug list (phase 13), nilify-on-delete FK (phase 13), `Sigra.Workers` behaviour (phase 15), passkey enrollment sudo gate (phase 21).
 - [Phase 20]: Passkey challenges are signed into ceremony-specific Plug session slots and reconstructed from the signed payload during verification.
 - [Phase 20]: Passkey challenge session slots are deleted only on callback success; callback and token failures preserve the slot.
+- [Phase 20]: Sigra.Passkeys.config/0 now caches validated runtime passkey config in :persistent_term and exposes reset_cached_config/0 for tests.
+- [Phase 20]: Passkey runtime config now fails fast on blank rp_id/origin and enforces timeout_ms bounds before any ceremony code runs.
+- [Phase 20]: Per-user passkey ceremony throttling uses the fixed sigra:passkeys:<ceremony>:user:<id> namespace with a stable rate-limited error contract.
 
 ### Pending Todos
 
@@ -71,6 +74,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T17:08:09.064Z
-Stopped at: Completed 20-01-PLAN.md
+Last session: 2026-04-15T17:15:06.305Z
+Stopped at: Completed 20-02-PLAN.md
 Resume file: None
