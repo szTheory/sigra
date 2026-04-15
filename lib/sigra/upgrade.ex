@@ -338,7 +338,7 @@ defmodule Sigra.Upgrade do
       |> String.to_integer()
 
     highest_existing =
-      if File.exists?(migrations_dir) do
+      if File.dir?(migrations_dir) do
         migrations_dir
         |> File.ls!()
         |> Enum.map(&extract_migration_version/1)
