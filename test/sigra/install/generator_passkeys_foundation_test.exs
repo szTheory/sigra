@@ -88,6 +88,109 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
     end
   end
 
+  describe "controller-owned passkey completion template foundation" do
+    test "user_auth exposes a public raw session token writer" do
+      content = read_core_template("user_auth.ex")
+
+      assert content =~ "def put_user_session_token"
+      assert content =~ "put_token_in_session(token)"
+    end
+
+    test "auth exposes MFA session upgrade wrapper" do
+      content = read_core_template("auth.ex")
+
+      assert content =~ "def complete_mfa_verification"
+      assert content =~ "Sigra.Auth.complete_mfa_verification"
+    end
+
+    test "session controller owns passkey options and completion actions" do
+      content = read_core_template("session_controller.ex")
+
+      for expected <- [
+            "def passkey_registration_options",
+            "def complete_passkey_registration",
+            "def passkey_authentication_options",
+            "%{\"conditional\" => \"true\"}",
+            "conditional_passkey_authentication_options_json",
+            "allowCredentials: []",
+            "useBrowserAutofill: true",
+            "def passkey_mfa_options",
+            "def complete_passkey",
+            "authenticate_discoverable_passkey",
+            "ensure_passkey_primary_user_eligible",
+            "def complete_mfa_passkey",
+            "def delete_passkey(conn, %{\"id\" => credential_id})",
+            "Auth.delete_passkey(user, credential_id)",
+            "decode_passkey_response",
+            "passkey[response]",
+            "JSON.decode",
+            "Sigra.Plug.PasskeyChallenge.issue",
+            "Sigra.Plug.PasskeyChallenge.verify",
+            "passkey_registration_options_json",
+            "passkey_authentication_options_json",
+            "UserAuth.log_in_user(user, %{})",
+            "UserAuth.put_user_session_token",
+            "delete_session(:mfa_pending)",
+            "delete_session(:mfa_return_to)",
+            "delete_session(:mfa_remember_me)",
+            "mfa_return_to",
+            "We couldn't finish passkey sign-in. Try again or use another way to continue."
+          ] do
+        assert content =~ expected
+      end
+    end
+  end
+
+  describe "router injection passkey controller routes" do
+    @features_core_path Path.join([
+                          File.cwd!(),
+                          "lib",
+                          "sigra",
+                          "install",
+                          "features",
+                          "core.ex"
+                        ])
+
+    test "injects sudo pipeline and passkey POST routes" do
+      source = File.read!(@features_core_path)
+
+      for expected <- [
+            "pipeline :require_sudo",
+            "Sigra.Plug.RequireSudo",
+            "pipe_through [:browser, :require_authenticated, :require_sudo]",
+            "post \"/log_in/passkey\", SessionController, :complete_passkey",
+            "post \"/log_in/passkey/options\", SessionController, :passkey_authentication_options",
+            "post \"/settings/mfa/passkeys/options\", SessionController, :passkey_registration_options",
+            "post \"/settings/mfa/passkeys\", SessionController, :complete_passkey_registration",
+            "post \"/settings/mfa/passkeys/:id/delete\", SessionController, :delete_passkey",
+            "post \"/mfa/passkey\", SessionController, :complete_mfa_passkey",
+            "post \"/mfa/passkey/options\", SessionController, :passkey_mfa_options"
+          ] do
+        assert source =~ expected
+      end
+    end
+
+    test "delete passkey route exists only in the sudo-protected scope" do
+      source = File.read!(@features_core_path)
+
+      [_, after_sudo_pipe] =
+        String.split(source, "pipe_through [:browser, :require_authenticated, :require_sudo]",
+          parts: 2
+        )
+
+      [ordinary_scope, _] =
+        String.split(source, "pipe_through [:browser, :require_authenticated, :require_sudo]",
+          parts: 2
+        )
+
+      assert after_sudo_pipe =~
+               "post \"/settings/mfa/passkeys/:id/delete\", SessionController, :delete_passkey"
+
+      refute ordinary_scope =~
+               "post \"/settings/mfa/passkeys/:id/delete\", SessionController, :delete_passkey"
+    end
+  end
+
   defp read_core_template(name) do
     File.read!(Path.join(@core_template_dir, name))
   end
