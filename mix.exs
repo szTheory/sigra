@@ -91,6 +91,8 @@ defmodule Sigra.MixProject do
       {:assent, "~> 0.3", optional: true},
       {:joken, "~> 2.6", optional: true},
       {:nimble_totp, "~> 1.0"},
+      {:cloak_ecto, "~> 1.3"},
+      {:wax_, "~> 0.7"},
       {:eqrcode, "~> 0.2.1", optional: true},
       # Dev/test
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
@@ -129,6 +131,7 @@ defmodule Sigra.MixProject do
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/upgrading-to-v1.1.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
         "guides/flows/password-reset.md",
@@ -141,6 +144,7 @@ defmodule Sigra.MixProject do
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
         "guides/recipes/multi-tenant.md",
+        "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md"
       ],
       groups_for_extras: [
