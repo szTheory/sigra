@@ -8,9 +8,10 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
   alias Example.Repo
 
   describe "Phase 28 admin user show contracts" do
-    test "detail sections render in the locked Identity Status Sessions Security Identities Organizations Recent Audit Danger Zone order", %{
-      conn: conn
-    } do
+    test "detail sections render in the locked Identity Status Sessions Security Identities Organizations Recent Audit Danger Zone order",
+         %{
+           conn: conn
+         } do
       platform_admin = platform_admin_fixture()
       target = user_fixture(%{email: "detail-order@example.com", display_name: "Detail Order"})
       org = create_organization(%{name: "Acme Detail", slug: "acme-detail"})
@@ -23,7 +24,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       {:ok, _view, html} =
         conn
         |> log_in_user(platform_admin)
-        |> live("/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=detail-order")}")
+        |> live(
+          "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=detail-order")}"
+        )
 
       positions =
         [
@@ -42,11 +45,14 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "/admin/users?q=detail-order"
     end
 
-    test "Revoke session and revoke all sessions keep the current scope and target identity visible in confirmations", %{
-      conn: conn
-    } do
+    test "Revoke session and revoke all sessions keep the current scope and target identity visible in confirmations",
+         %{
+           conn: conn
+         } do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "detail-confirm@example.com", display_name: "Detail Confirm"})
+
+      target =
+        user_fixture(%{email: "detail-confirm@example.com", display_name: "Detail Confirm"})
 
       session = session_fixture(target, %{ip: "10.2.2.2"})
       session_fixture(target, %{ip: "10.2.2.3"})
@@ -70,9 +76,10 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
                "Revoke every active session for #{target.email} in Global scope? This signs them out everywhere."
     end
 
-    test "platform admins can pivot from a global user detail page into an organization-scoped view", %{
-      conn: conn
-    } do
+    test "platform admins can pivot from a global user detail page into an organization-scoped view",
+         %{
+           conn: conn
+         } do
       platform_admin = platform_admin_fixture()
       target = user_fixture(%{email: "detail-pivot@example.com", display_name: "Detail Pivot"})
       org = create_organization(%{name: "Acme Pivot", slug: "acme-pivot"})
@@ -82,7 +89,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       {:ok, _view, html} =
         conn
         |> log_in_user(platform_admin)
-        |> live("/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=detail-pivot")}")
+        |> live(
+          "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=detail-pivot")}"
+        )
 
       assert html =~ "Open organization-scoped view for Acme Pivot"
 
@@ -98,6 +107,49 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
 
       assert org_html =~ "Organization-scoped user operations for Acme Pivot"
       assert org_html =~ target.email
+    end
+  end
+
+  describe "Phase 29 impersonation entry contracts" do
+    test "detail page renders the impersonation start action with preserved return_to near other guarded actions",
+         %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      target = user_fixture(%{email: "impersonate-target@example.com", display_name: "Impersonate Target"})
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live(
+          "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=impersonate-target")}"
+        )
+
+      assert html =~ "Danger Zone"
+      assert html =~ "Start impersonation"
+      assert html =~ "Support actions affect Impersonate Target"
+      assert html =~ "action=\"/admin/users/#{target.id}/impersonation\""
+      assert html =~ "name=\"return_to\""
+      assert html =~ "value=\"/admin/users?q=impersonate-target\""
+
+      assert html_offset(html, "Start impersonation") > html_offset(html, "Danger Zone")
+    end
+
+    test "detail page hides the impersonation start action while already impersonating", %{conn: conn} do
+      admin = platform_admin_fixture()
+      target = user_fixture(%{email: "hidden-impersonation@example.com", display_name: "Hidden Target"})
+
+      impersonation_token = impersonation_token_for(target)
+
+      {:ok, _view, html} =
+        conn
+        |> init_test_session(%{
+          user_token: impersonation_token,
+          impersonator_user_token: Example.Accounts.generate_user_session_token(admin),
+          impersonation_return_to: "/admin/users?q=restore"
+        })
+        |> live("/admin/users/#{target.id}")
+
+      refute html =~ "Start impersonation"
+      assert html =~ "End impersonation before starting another session."
     end
   end
 
@@ -136,5 +188,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       occurred_at: now,
       inserted_at: now
     })
+  end
+
+  defp impersonation_token_for(user) do
+    Example.Accounts.generate_user_session_token(user)
   end
 end
