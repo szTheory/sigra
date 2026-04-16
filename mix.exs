@@ -81,6 +81,8 @@ defmodule Sigra.MixProject do
       {:phoenix_live_view, "~> 1.1"},
       {:ecto, "~> 3.12"},
       {:ecto_sql, "~> 3.12"},
+      {:flop, "~> 0.26.3"},
+      {:flop_phoenix, "~> 0.26.0"},
       {:nimble_options, "~> 1.1"},
       {:argon2_elixir, "~> 4.1"},
       {:comeonin, "~> 5.3"},
