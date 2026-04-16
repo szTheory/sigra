@@ -40,8 +40,8 @@ created: 2026-04-16
 |------|------|--------------|-------------|-----------------|-----------|-------------------|--------|
 | 22-01 | 1 | PK-02 | T-22-01-01, T-22-01-02 | Installer defaults passkeys on, `--no-passkeys` disables cleanly, and `Features.Passkeys` remains a manifest-owned feature without runner special cases | unit + focused generator | `mix test test/sigra/install/features/passkeys_test.exs test/sigra/install/features/coverage_test.exs --max-failures 1` | ⬜ pending |
 | 22-02 | 2 | PK-02 | T-22-02-01, T-22-02-02, T-22-02-03 | Passkey-only files, route/config/dependency injections, and generated browser imports are owned by `Features.Passkeys`, so enabled installs consume `@simplewebauthn/browser` and disabled installs have no package-bound residue | feature wiring + JS generator | `mix test test/sigra/install/features/passkeys_test.exs test/sigra/install/features/passkeys_js_test.exs --max-failures 1` | ⬜ pending |
-| 22-03 | 3 | PK-02 | T-22-03-01, T-22-03-02, T-22-03-03 | Shared auth templates omit passkey-only regions under `--no-passkeys`, and the generated-app omission suite proves no passkey strings, files, routes, or deps leak through | generator omission + compile | `mix test test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_passkey_management_test.exs --max-failures 1` | ⬜ pending |
-| 22-04 | 4 | PK-02 | T-22-04-01, T-22-04-02, T-22-04-03 | Four-way organizations x passkeys install matrix compiles and boots, assets-enabled no-passkeys smoke proves `assets/package.json` and `assets/js/*` omission, and the final phase gate runs the required precommit mix alias | shell smoke + CI + phase gate | `bash scripts/ci/passkeys-opt-out-smoke.sh && mix precommit` | ⬜ pending |
+| 22-03 | 3 | PK-02 | T-22-03-01, T-22-03-02, T-22-03-03 | Shared auth templates omit passkey-only regions under both disabled combinations, and the generated-app omission suite proves no passkey strings, files, routes, or deps leak through on either leg | generator omission + compile | `mix test test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/generator_passkeys_foundation_test.exs test/sigra/install/generator_passkey_management_test.exs --max-failures 1` | ⬜ pending |
+| 22-04 | 4 | PK-02 | T-22-04-01, T-22-04-02, T-22-04-03 | Four-way organizations x passkeys install matrix compiles and boots, assets-enabled no-passkeys smoke proves `assets/package.json` and `assets/js/*` omission on both disabled legs, and the final phase gate runs the required precommit mix alias | shell smoke + CI + phase gate | `bash scripts/ci/install-matrix-local.sh` (task feedback), then `bash scripts/ci/passkeys-opt-out-smoke.sh && mix precommit` as the closing gate | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠ flaky*
 
@@ -51,8 +51,8 @@ created: 2026-04-16
 
 Wave 0 scaffolding is part of this phase and should land before broad rewiring:
 
-- `test/sigra/install/generator_passkeys_opt_out_test.exs` must prove omission of passkey routes, files, helper functions, migrations, config blocks, and dependency strings under `--no-passkeys`.
-- `scripts/ci/passkeys-opt-out-smoke.sh` must exercise an assets-enabled generated app so omission of `@simplewebauthn/browser`, `passkey_hooks.js`, and `passkey_browser.js` is tested outside the existing `--no-assets` CI harness.
+- `test/sigra/install/generator_passkeys_opt_out_test.exs` must prove omission of passkey routes, files, helper functions, migrations, config blocks, and dependency strings under both `--no-passkeys` and `--no-organizations --no-passkeys`.
+- `scripts/ci/passkeys-opt-out-smoke.sh` must exercise assets-enabled generated apps for both disabled combinations so omission of `@simplewebauthn/browser`, `passkey_hooks.js`, and `passkey_browser.js` is tested outside the existing `--no-assets` CI harness.
 - `.github/workflows/ci.yml` must expand install-matrix coverage to `""`, `--no-passkeys`, `--no-organizations`, and `--no-organizations --no-passkeys`.
 - The final execution plan must run `mix precommit` as the closing repository gate, matching `test/example/AGENTS.md`.
 
