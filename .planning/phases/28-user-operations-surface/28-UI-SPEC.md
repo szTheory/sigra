@@ -67,6 +67,20 @@ Accent reserved for: primary list/detail CTA, currently selected filter chips, a
 
 ---
 
+## Visual Hierarchy
+
+- Main user index hierarchy:
+  1. Search box plus current result count is the first visual anchor.
+  2. The user list itself is the second focal area and must dominate the page body.
+  3. Summary chips/counters stay visually secondary and serve orientation only.
+- User detail hierarchy:
+  1. Identity and current auth/support status is the first focal area at the top.
+  2. Session state and session actions are the second focal area.
+  3. Security, identities, organizations, recent audit, and danger-zone content follow in that priority order from CONTEXT.md.
+- Do not let summary chips, decorative badges, or low-priority metadata compete with the primary search/list or identity/session blocks for visual emphasis.
+
+---
+
 ## Copywriting Contract
 
 | Element | Copy |
@@ -76,6 +90,8 @@ Accent reserved for: primary list/detail CTA, currently selected filter chips, a
 | Empty state body | Try a different search or clear one or more filters to widen the result set. |
 | Error state | We couldn't load this user data. Refresh the page, then try again. If the problem continues, return to the user list and retry from the current scope. |
 | Destructive confirmation | Revoke session: Revoke this session for {user_email} in {scope_label}? The user will need to sign in again. Revoke all sessions: Revoke every active session for {user_email} in {scope_label}? This signs them out everywhere. |
+
+Icon-only controls must include a concrete accessible name via `aria-label` that matches the action text, for example `Open user`, `Copy user id`, `More actions`, `Previous page`, or `Next page`. If a control cannot carry a clear `aria-label`, it must render visible text instead of icon-only chrome.
 
 ---
 
