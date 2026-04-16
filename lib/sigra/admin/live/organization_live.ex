@@ -12,39 +12,8 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   @impl true
   def mount(_params, _session, socket) do
     admin_scope = socket.assigns.admin_scope
-    organization_name = admin_scope.organization && admin_scope.organization.name
+    slug = admin_scope.organization_slug || admin_scope.organization && admin_scope.organization.slug
 
-    {:ok,
-     socket
-     |> assign(:admin_scope, admin_scope)
-     |> assign(:page_title, organization_name || "Organization admin")
-     |> assign(:heading, organization_name || "Organization admin")
-     |> assign(
-       :body,
-       "This organization-scoped admin surface is ready for later user operations without losing the active scope."
-     )}
+    {:ok, redirect(socket, to: "/admin/organizations/#{slug}/users")}
   end
-
-  @impl true
-  def render(assigns) do
-    ~H"""
-    <section class="space-y-4">
-      <div class="space-y-2">
-        <h1 class="text-2xl font-semibold">{@heading}</h1>
-        <p class="text-sm text-base-content/70">{@body}</p>
-      </div>
-
-      <div class="rounded-lg border border-base-300 bg-base-100 p-4 shadow-sm">
-        <p class="text-sm font-semibold">Active scope</p>
-        <p class="mt-2 text-sm text-base-content/70">
-          {organization_scope_summary(@admin_scope)}
-        </p>
-      </div>
-    </section>
-    """
-  end
-
-  defp organization_scope_summary(%{organization: %{name: name}}), do: name
-  defp organization_scope_summary(%{organization_slug: slug}) when is_binary(slug), do: slug
-  defp organization_scope_summary(_), do: "Unknown organization"
 end

@@ -65,7 +65,14 @@ defmodule ExampleWeb.Components.AdminShell do
             <div class="rounded-lg bg-base-200 p-3">
               <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
               <ul class="menu gap-1 p-0">
-                <li><span class="text-base-content/60">Users</span></li>
+                <li>
+                  <a
+                    class={nav_item_class(users_active?(@admin_scope))}
+                    href={users_link(@admin_scope)}
+                  >
+                    Users
+                  </a>
+                </li>
                 <li><span class="text-base-content/60">Audit</span></li>
               </ul>
             </div>
@@ -83,6 +90,12 @@ defmodule ExampleWeb.Components.AdminShell do
       >
         <a href={~p"/admin"} class={bottom_nav_class(global_active?(@admin_scope))}>
           <span class="btm-nav-label">Global</span>
+        </a>
+        <a
+          href={users_link(@admin_scope)}
+          class={bottom_nav_class(users_active?(@admin_scope))}
+        >
+          <span class="btm-nav-label">Users</span>
         </a>
         <a
           :if={organization_link(@admin_scope)}
@@ -143,6 +156,13 @@ defmodule ExampleWeb.Components.AdminShell do
 
   defp organization_active?(%{mode: :organization}), do: true
   defp organization_active?(_), do: false
+
+  defp users_link(%{mode: :organization, organization_slug: slug}) when is_binary(slug),
+    do: ~p"/admin/organizations/#{slug}/users"
+
+  defp users_link(_admin_scope), do: ~p"/admin/users"
+
+  defp users_active?(_admin_scope), do: true
 
   defp nav_item_class(true), do: "active rounded-md"
   defp nav_item_class(false), do: "rounded-md"
