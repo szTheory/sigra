@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: executing
-stopped_at: Completed 21-10-PLAN.md
-last_updated: "2026-04-16T00:09:34.019Z"
+status: complete
+stopped_at: Completed 21-11-PLAN.md
+last_updated: "2026-04-16T00:18:14.324Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 17
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 60
-  completed_plans: 59
-  percent: 98
+  completed_plans: 60
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 ## Current Position
 
-Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
-Plan: 2 of 11
-Status: Ready to execute
+Phase: 21 (passkey-liveviews-post-auth-controller) — COMPLETE
+Plan: 11 of 11
+Status: Completed
 Last activity: 2026-04-16
 
-Progress: [██████████] 100% (58/58 plans complete)
+Progress: [██████████] 100% (60/60 plans complete)
 
 ## Accumulated Context
 
@@ -88,6 +88,8 @@ Recent decisions affecting current work:
 - [Phase 21-passkey-liveviews-post-auth-controller]: MFA success mutation is proven at the controller boundary because the current Ecto session store maps persisted mfa_pending rows back to :standard before the route action.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Passkey challenge byte fallback lives in the registration and authentication builders so Plug session signing never receives nil challenge bytes.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Session type hydration explicitly whitelists mfa_pending while keeping unknown persisted strings mapped to :standard.
+- [Phase 21]: Route-level ExUnit tests are the authoritative proof for passkey challenge JSON shape because the dev Playwright server lacks Sigra secret_key_base for challenge-producing paths.
+- [Phase 21]: Playwright keeps only a hardware-avoidance SigraPasskeys.authenticate shim and no longer intercepts or fulfills the passkey options route.
 
 ### Pending Todos
 
@@ -110,6 +112,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-16T00:09:34.016Z
-Stopped at: Completed 21-10-PLAN.md
+Last session: 2026-04-16T00:18:14.104Z
+Stopped at: Completed 21-11-PLAN.md
 Resume file: None

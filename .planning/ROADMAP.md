@@ -39,7 +39,7 @@
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
-- [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-11 planned 2026-04-15) (completed 2026-04-15)
+- [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-11 planned 2026-04-15) (completed 2026-04-16)
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
@@ -257,7 +257,7 @@ Plans:
 - [x] 21-08-PLAN.md — Wave 6: gap closure for example passkey routes, runtime config, schema, and migration
 - [x] 21-09-PLAN.md — Wave 7: gap closure for real route/session tests and real-server Playwright smoke
 - [x] 21-10-PLAN.md — Wave 8: gap closure for server-generated passkey challenge bytes and `mfa_pending` session hydration
-- [ ] 21-11-PLAN.md — Wave 9: gap closure for route-backed options/MFA proof and self-contained real-server Playwright smoke
+- [x] 21-11-PLAN.md — Wave 9: gap closure for route-backed options/MFA proof and self-contained real-server Playwright smoke
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
@@ -298,7 +298,7 @@ Plans:
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 10/11 | In Progress|  |
+| 21. Passkey LiveViews + POST-Auth Controller | 11/11 | Complete   | 2026-04-16 |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
