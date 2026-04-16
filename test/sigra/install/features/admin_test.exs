@@ -32,15 +32,41 @@ defmodule Sigra.Install.Features.AdminTest do
   end
 
   describe "injections/1" do
-    test "owns the admin router fragment with global and org-scoped mounts" do
-      [injection] = Admin.injections(otp_app: :my_app, web_module: "MyAppWeb")
+    test "owns the admin router, layout, and error-handler wiring" do
+      injections =
+        Admin.injections(otp_app: :my_app, web_module: "MyAppWeb", app_module: "MyApp")
 
-      assert injection.target == "lib/my_app_web/router.ex"
-      assert injection.marker == "# Sigra admin"
-      assert injection.anchor == :before_last_end
-      assert injection.content =~ ~s(live "/admin")
-      assert injection.content =~ ~s(scope "/admin/organizations/:org")
-      assert injection.content =~ "live_session"
+      assert Enum.map(injections, & &1.target) == [
+               "lib/my_app_web/router.ex",
+               "lib/my_app_web/components/layouts.ex",
+               "lib/my_app_web/components/layouts.ex",
+               "lib/my_app_web/auth_error_handler.ex"
+             ]
+
+      [router, layouts_import, layouts_admin, error_handler] = injections
+
+      assert router.marker == "# Sigra admin"
+      assert router.anchor == :before_last_end
+      assert router.content =~ "Sigra.Plug.RequireAdminAccess"
+      assert router.content =~ "Sigra.LiveView.AdminScope"
+      assert router.content =~ "MyApp.SigraAdminPolicy"
+      assert router.content =~ "{MyAppWeb.Layouts, :admin}"
+      assert router.content =~ ~s(live "/admin")
+      assert router.content =~ ~s(scope "/admin/organizations/:org")
+
+      assert layouts_import.marker == "import MyAppWeb.Components.AdminShell"
+      assert layouts_import.anchor == :after_use_block
+      assert layouts_import.content =~ "import MyAppWeb.Components.AdminShell"
+
+      assert layouts_admin.marker == "def admin(assigns) do"
+      assert layouts_admin.anchor == :before_last_end
+      assert layouts_admin.content =~ "<.admin_shell"
+      assert layouts_admin.content =~ "<.flash_group"
+
+      assert error_handler.marker == "def auth_error(conn, :insufficient_scope, _opts) do"
+      assert error_handler.anchor == :before_last_end
+      assert error_handler.content =~ ":insufficient_scope"
+      assert error_handler.content =~ ":not_found"
     end
   end
 
@@ -61,6 +87,13 @@ defmodule Sigra.Install.Features.AdminTest do
       assert source =~ "admin: true"
       assert source =~ "admin?: Keyword.get(opts, :admin, true)"
       assert source =~ "--no-admin"
+    end
+
+    test "requires phoenix_live_view because admin foundation ships LiveViews" do
+      source = File.read!("mix.exs")
+
+      assert source =~ ~s({:phoenix_live_view, "~> 1.1"})
+      refute source =~ ~s({:phoenix_live_view, "~> 1.1", optional: true})
     end
   end
 end

@@ -78,7 +78,7 @@ defmodule Sigra.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.8"},
-      {:phoenix_live_view, "~> 1.1", optional: true},
+      {:phoenix_live_view, "~> 1.1"},
       {:ecto, "~> 3.12"},
       {:ecto_sql, "~> 3.12"},
       {:nimble_options, "~> 1.1"},

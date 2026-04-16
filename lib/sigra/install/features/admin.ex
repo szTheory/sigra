@@ -9,8 +9,8 @@ defmodule Sigra.Install.Features.Admin do
   Phase 27 Plan 01 keeps admin additive and host-boundary focused:
   the feature generates a small host policy module, a host-owned shell
   component, and a router injection that mounts `/admin` plus
-  `/admin/organizations/:org` using normal Phoenix scopes and
-  `live_session`.
+  `/admin/organizations/:org` using normal Phoenix scopes,
+  `RequireAdminAccess`, and `AdminScope`.
 
   This module contains zero references to other install features.
   """
@@ -37,14 +37,14 @@ defmodule Sigra.Install.Features.Admin do
   @impl true
   def injections(binding) do
     otp_app = Keyword.fetch!(binding, :otp_app) |> to_string()
+    web_module = Keyword.fetch!(binding, :web_module)
+    app_module = Keyword.fetch!(binding, :app_module)
 
     [
-      %Injection{
-        target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
-        marker: "# Sigra admin",
-        anchor: :before_last_end,
-        content: eval_template!("admin/router_injection.ex", binding)
-      }
+      router_injection(otp_app, binding),
+      layouts_import_injection(otp_app, web_module),
+      layouts_admin_injection(otp_app),
+      error_handler_injection(otp_app, web_module, app_module)
     ]
   end
 
@@ -64,13 +64,86 @@ defmodule Sigra.Install.Features.Admin do
            and org-admin access explicitly for your host app.
 
         2. Review the injected admin router scopes at `/admin` and
-           `/admin/organizations/:org` before wiring runtime enforcement
-           in the next phase.
+           `/admin/organizations/:org`, which already enforce the admin
+           policy contract through Sigra's Plug and LiveView guards.
 
-        3. Use `lib/<app>_web/components/admin_shell.ex` as the host-owned
-           chrome seam for future admin pages.
+        3. Adjust `lib/<app>_web/components/admin_shell.ex` and the injected
+           `Layouts.admin/1` function to match your product chrome.
       """
     ]
+  end
+
+  defp router_injection(otp_app, binding) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "# Sigra admin",
+      anchor: :before_last_end,
+      content: eval_template!("admin/router_injection.ex", binding)
+    }
+  end
+
+  defp layouts_import_injection(otp_app, web_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "components", "layouts.ex"]),
+      marker: "import #{web_module}.Components.AdminShell",
+      anchor: :after_use_block,
+      content: "import #{web_module}.Components.AdminShell"
+    }
+  end
+
+  defp layouts_admin_injection(otp_app) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "components", "layouts.ex"]),
+      marker: "def admin(assigns) do",
+      anchor: :before_last_end,
+      content: """
+        attr :flash, :map, default: %{}, doc: "the map of flash messages"
+        attr :current_scope, :map, default: nil
+        attr :admin_scope, :map, default: nil
+        attr :inner_content, :any, default: nil
+
+        def admin(assigns) do
+          ~H\"\"\"
+          <.admin_shell admin_scope={@admin_scope} current_scope={@current_scope}>
+            {@inner_content}
+          </.admin_shell>
+
+          <.flash_group flash={@flash} />
+          \"\"\"
+        end
+      """
+    }
+  end
+
+  defp error_handler_injection(otp_app, _web_module, _app_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "auth_error_handler.ex"]),
+      marker: "def auth_error(conn, :insufficient_scope, _opts) do",
+      anchor: :before_last_end,
+      content: """
+        @impl true
+        def auth_error(conn, :insufficient_scope, _opts) do
+          conn
+          |> put_status(:forbidden)
+          |> put_resp_content_type("text/html")
+          |> send_resp(
+            403,
+            "Access denied. You do not have access to this admin scope."
+          )
+        end
+
+        @impl true
+        def auth_error(conn, :not_found, _opts) do
+          conn
+          |> put_status(:not_found)
+          |> put_resp_content_type("text/html")
+          |> send_resp(
+            404,
+            "Not found. This organization admin scope is unavailable."
+          )
+        end
+      """
+    }
   end
 
   defp eval_template!(relative_path, binding) do
