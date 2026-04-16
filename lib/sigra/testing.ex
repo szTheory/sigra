@@ -449,7 +449,8 @@ defmodule Sigra.Testing do
       true
     else
       raise ExUnit.AssertionError,
-        message: "Expected user #{inspect(user.id)} to have MFA enabled, but no enabled credential found"
+        message:
+          "Expected user #{inspect(user.id)} to have MFA enabled, but no enabled credential found"
     end
   end
 
@@ -482,7 +483,8 @@ defmodule Sigra.Testing do
       true
     else
       raise ExUnit.AssertionError,
-        message: "Expected user #{inspect(user.id)} to have MFA disabled, but found #{count} enabled credential(s)"
+        message:
+          "Expected user #{inspect(user.id)} to have MFA disabled, but found #{count} enabled credential(s)"
     end
   end
 
@@ -500,7 +502,9 @@ defmodule Sigra.Testing do
   @doc since: "0.6.0"
   @spec trust_browser(Plug.Conn.t(), struct(), keyword()) :: Plug.Conn.t()
   def trust_browser(conn, user, opts \\ []) do
-    secret_key_base = Keyword.get(opts, :secret_key_base, conn.secret_key_base || generate_test_secret())
+    secret_key_base =
+      Keyword.get(opts, :secret_key_base, conn.secret_key_base || generate_test_secret())
+
     trust_epoch = Keyword.get(opts, :trust_epoch, 0)
     trust_ttl = Keyword.get(opts, :trust_ttl, 2_592_000)
 
@@ -625,6 +629,42 @@ defmodule Sigra.Testing do
         message: "Expected conn to be halted"
     end
 
+    true
+  end
+
+  @doc """
+  Asserts that a scope has the expected active organization id.
+  """
+  @doc since: "0.11.0"
+  @spec assert_scope_has_org(map(), map() | binary()) :: true
+  def assert_scope_has_org(scope, expected_org) do
+    expected_org_id = id_for_assertion(expected_org)
+    actual_org_id = get_in(scope, [:active_organization, :id])
+
+    if actual_org_id == expected_org_id do
+      true
+    else
+      raise ExUnit.AssertionError,
+        message:
+          "Expected scope.active_organization.id == #{inspect(expected_org_id)}, got: #{inspect(actual_org_id)}"
+    end
+  end
+
+  @doc """
+  Asserts that a membership belongs to the expected user, organization, and role.
+  """
+  @doc since: "0.11.0"
+  @spec assert_membership(map(), map(), keyword()) :: true
+  def assert_membership(membership, user, opts)
+      when is_map(membership) and is_map(user) and is_list(opts) do
+    organization = Keyword.fetch!(opts, :organization)
+    expected_role = Keyword.fetch!(opts, :role)
+    expected_user_id = id_for_assertion(user)
+    expected_org_id = id_for_assertion(organization)
+
+    assert_membership_field(membership, :user_id, expected_user_id)
+    assert_membership_field(membership, :organization_id, expected_org_id)
+    assert_membership_field(membership, :role, expected_role)
     true
   end
 
@@ -798,7 +838,8 @@ defmodule Sigra.Testing do
   def assert_deletion_cancelled(user) do
     if user.deleted_at do
       raise ExUnit.AssertionError,
-        message: "Expected user #{inspect(user.id)} to have deleted_at cleared, got: #{inspect(user.deleted_at)}"
+        message:
+          "Expected user #{inspect(user.id)} to have deleted_at cleared, got: #{inspect(user.deleted_at)}"
     end
 
     if user.scheduled_deletion_at do
@@ -826,7 +867,8 @@ defmodule Sigra.Testing do
           true
         else
           raise ExUnit.AssertionError,
-            message: "Expected user #{inspect(user_id)} to be deleted or anonymized, but found active email: #{user.email}"
+            message:
+              "Expected user #{inspect(user_id)} to be deleted or anonymized, but found active email: #{user.email}"
         end
     end
   end
@@ -876,7 +918,8 @@ defmodule Sigra.Testing do
 
     if seconds_ago > 60 do
       raise ExUnit.AssertionError,
-        message: "Expected password_changed_at to be recent (within 60s), but it was #{seconds_ago}s ago"
+        message:
+          "Expected password_changed_at to be recent (within 60s), but it was #{seconds_ago}s ago"
     end
 
     true
@@ -933,7 +976,8 @@ defmodule Sigra.Testing do
   """
   @doc since: "0.8.0"
   @spec with_hook(atom(), {module(), atom()}, (-> term())) :: term()
-  def with_hook(operation, {mod, fun}, test_fn) when is_atom(operation) and is_function(test_fn, 0) do
+  def with_hook(operation, {mod, fun}, test_fn)
+      when is_atom(operation) and is_function(test_fn, 0) do
     original = Application.get_env(:sigra, :hooks, [])
     original_hook = Keyword.get(original, operation)
 
@@ -1008,8 +1052,7 @@ defmodule Sigra.Testing do
       id: Keyword.get(opts, :id, System.unique_integer([:positive])),
       user_id: Keyword.fetch!(opts, :user_id),
       provider: Keyword.get(opts, :provider, "google"),
-      provider_uid:
-        Keyword.get(opts, :provider_uid, "uid_#{System.unique_integer([:positive])}"),
+      provider_uid: Keyword.get(opts, :provider_uid, "uid_#{System.unique_integer([:positive])}"),
       provider_email: Keyword.get(opts, :email, "oauth@example.com"),
       provider_name: Keyword.get(opts, :name, "Test User"),
       metadata: %{},
@@ -1183,8 +1226,7 @@ defmodule Sigra.Testing do
 
           unless actual == v do
             raise ExUnit.AssertionError,
-              message:
-                "Expected metadata[#{inspect(k)}] == #{inspect(v)}, got #{inspect(actual)}"
+              message: "Expected metadata[#{inspect(k)}] == #{inspect(v)}, got #{inspect(actual)}"
           end
         end)
 
@@ -1236,4 +1278,27 @@ defmodule Sigra.Testing do
   def assert_audit_logged(expected, opts) when is_map(expected) and is_list(opts) do
     assert_audit_event(expected, opts)
   end
+
+  @doc """
+  Asserts that the latest audit event was logged for the expected organization.
+  """
+  @doc since: "0.11.0"
+  @spec assert_audit_logged_for_org(map() | binary(), keyword()) :: true
+  def assert_audit_logged_for_org(organization, opts) when is_list(opts) do
+    assert_audit_logged(%{organization_id: id_for_assertion(organization)}, opts)
+  end
+
+  defp assert_membership_field(membership, field, expected_value) do
+    actual_value = Map.get(membership, field)
+
+    unless actual_value == expected_value do
+      raise ExUnit.AssertionError,
+        message:
+          "Expected membership.#{field} == #{inspect(expected_value)}, got: #{inspect(actual_value)}"
+    end
+  end
+
+  defp id_for_assertion(%{id: id}) when is_binary(id), do: id
+  defp id_for_assertion(id) when is_binary(id), do: id
+  defp id_for_assertion(other), do: other
 end

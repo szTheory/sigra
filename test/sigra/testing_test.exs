@@ -145,7 +145,8 @@ defmodule Sigra.TestingTest do
       user = %{id: "user-1"}
       organization = %{id: "org-1"}
 
-      assert Testing.assert_membership(membership, user, organization, role: :owner) == true
+      assert Testing.assert_membership(membership, user, organization: organization, role: :owner) ==
+               true
     end
 
     test "raises with a clear message when the membership shape drifts" do
@@ -154,7 +155,7 @@ defmodule Sigra.TestingTest do
       organization = %{id: "org-1"}
 
       assert_raise ExUnit.AssertionError, ~r/Expected membership.organization_id/, fn ->
-        Testing.assert_membership(membership, user, organization, role: :owner)
+        Testing.assert_membership(membership, user, organization: organization, role: :owner)
       end
     end
   end
@@ -184,8 +185,8 @@ defmodule Sigra.TestingTest do
       assert function_exported?(Testing, :assert_scope_has_org, 2)
     end
 
-    test "assert_membership/4 is exported" do
-      assert function_exported?(Testing, :assert_membership, 4)
+    test "assert_membership/3 is exported" do
+      assert function_exported?(Testing, :assert_membership, 3)
     end
 
     test "expired_api_token_fixture/3 is exported" do
