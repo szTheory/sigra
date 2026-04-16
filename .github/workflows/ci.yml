@@ -148,18 +148,64 @@ jobs:
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: scripts/ci/install-smoke.sh
 
+  passkeys_manual_fallback_smoke:
+    name: Passkeys manual fallback smoke
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Cache Hex registry
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run passkeys manual fallback smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: scripts/ci/passkeys-manual-fallback-smoke.sh
+
   install_matrix:
     name: Install matrix (flag combinations)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # Extensible — Phase 19+ will append:
-        #   - "--no-passkeys"
-        #   - "--no-organizations --no-passkeys"
         flags:
           - ""
+          - "--no-passkeys"
           - "--no-organizations"
+          - "--no-organizations --no-passkeys"
     services:
       postgres:
         image: postgres:15
@@ -234,6 +280,79 @@ jobs:
           mix ecto.create
           mix ecto.migrate
           mix test
+      - name: Boot app and verify root responds
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          PHX_SERVER=true mix phx.server > /tmp/install-matrix-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill ${SERVER_PID} 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "tmp_app responded after ${i}s"
+              exit 0
+            fi
+
+            if [[ "${i}" -eq 30 ]]; then
+              echo "FAIL: tmp_app did not boot within 30 seconds"
+              cat /tmp/install-matrix-server.log
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+  passkeys_opt_out_smoke:
+    name: Passkeys opt-out smoke
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Cache Hex registry
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run passkeys opt-out smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: scripts/ci/passkeys-opt-out-smoke.sh
 
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)

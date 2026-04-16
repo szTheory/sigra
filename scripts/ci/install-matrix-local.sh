@@ -2,18 +2,22 @@
 # scripts/ci/install-matrix-local.sh
 #
 # Reproduces the GitHub Actions `install_matrix` job (.github/workflows/ci.yml:151)
-# locally via nektos/act, for both matrix legs:
+# locally via nektos/act, for all four matrix legs:
 #
-#   leg 1: flags=""                   (default, Features.Organizations enabled)
-#   leg 2: flags="--no-organizations"
+#   leg 1: flags=""                               (default)
+#   leg 2: flags="--no-passkeys"
+#   leg 3: flags="--no-organizations"
+#   leg 4: flags="--no-organizations --no-passkeys"
 #
 # Used to verify Phase 24 Task 24-01-09 (install_matrix D-06.4) without needing
 # to push to GitHub and wait for real CI.
 #
 # Usage:
-#     scripts/ci/install-matrix-local.sh                     # run both legs
+#     scripts/ci/install-matrix-local.sh                     # run all four legs
 #     scripts/ci/install-matrix-local.sh --leg ""            # run only the default leg
+#     scripts/ci/install-matrix-local.sh --leg --no-passkeys
 #     scripts/ci/install-matrix-local.sh --leg --no-organizations
+#     scripts/ci/install-matrix-local.sh --leg "--no-organizations --no-passkeys"
 #
 # Requirements:
 #   - Docker Desktop running
@@ -135,7 +139,7 @@ run_leg() {
 
 LEGS=()
 if [[ -z "${LEG_FILTER}" ]]; then
-  LEGS=("" "--no-organizations")
+  LEGS=("" "--no-passkeys" "--no-organizations" "--no-organizations --no-passkeys")
 else
   LEGS=("${LEG_FILTER}")
 fi
