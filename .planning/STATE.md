@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 28-01-PLAN.md
-last_updated: "2026-04-16T21:40:44.040Z"
+stopped_at: Completed 28-02-PLAN.md
+last_updated: "2026-04-16T22:01:44.294Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 7
-  completed_plans: 7
+  completed_plans: 8
   percent: 100
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 ## Current Position
 
 Phase: 28 (user-operations-surface) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-16
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
 | Phase 27 P2 | 4 min | 3 tasks | 8 files |
 | Phase 27 P3 | 8 min | 2 tasks | 12 files |
 | Phase 28 P1 | 5min | 3 tasks | 15 files |
+| Phase 28 P2 | 34 min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Recent decisions affecting current work:
 - [Phase 28]: Resolved admin user hooks from the configured accounts module when present, otherwise by deriving the accounts context from config.user_schema.
 - [Phase 28]: Kept the Phase 28 hook contract read-only and data-returning so host hooks cannot mutate scoped queries or bypass authorization.
 - [Phase 28]: Created skipped Wave 0 contract tests now so later plans turn named scenarios green instead of inventing surface requirements late.
+- [Phase 28]: The admin user list stays URL-driven through handle_params/3 and carries return_to state forward in rendered Open user links.
+- [Phase 28]: Organization membership lookup is constrained to the active admin scope so org routes cannot pivot into other organization memberships.
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-16T21:40:44.032Z
-Stopped at: Completed 28-01-PLAN.md
+Last session: 2026-04-16T22:01:44.291Z
+Stopped at: Completed 28-02-PLAN.md
 Resume file: None
