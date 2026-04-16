@@ -40,15 +40,16 @@ defmodule Sigra.Scope.BuildTest do
   end
 
 
-  test "Sigra.Scope.build/3 always sets :impersonating_from to nil in v1.1" do
+  test "Sigra.Scope.build/3 propagates :impersonating_from additively for impersonation-aware callers" do
     user = %{id: Ecto.UUID.generate()}
-    # Even if a caller tries to pass :impersonating_from, v1.1 pins it to nil.
+    admin = %{id: Ecto.UUID.generate()}
+
     scope =
       Sigra.Scope.build(Scope, user,
         active_organization: %{id: Ecto.UUID.generate()},
-        impersonating_from: %{id: Ecto.UUID.generate()}
+        impersonating_from: admin
       )
 
-    assert is_nil(scope.impersonating_from)
+    assert scope.impersonating_from == admin
   end
 end

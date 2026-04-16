@@ -49,7 +49,7 @@ defmodule Sigra.ImpersonationTest do
     }
   end
 
-  defp session(user_id, attrs \\ %{}) do
+  defp session(user_id, attrs) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     struct(

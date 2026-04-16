@@ -64,7 +64,32 @@ defmodule Sigra.Admin.Authorizer do
     end
   end
 
+  @spec authorize_impersonation_target!(Scope.t(), map() | struct()) :: :ok
+  def authorize_impersonation_target!(%Scope{} = admin_scope, target_user) do
+    cond do
+      Scope.global?(admin_scope) ->
+        :ok
+
+      Scope.organization?(admin_scope) and
+          admin_scope.organization_id in target_organization_ids(target_user) ->
+        :ok
+
+      true ->
+        raise UnauthorizedError,
+          reason: :not_found,
+          message: "admin scope cannot impersonate the requested user"
+    end
+  end
+
   defp organization_id(%{id: organization_id}), do: organization_id
   defp organization_id(organization_id) when is_binary(organization_id), do: organization_id
   defp organization_id(_), do: nil
+
+  defp target_organization_ids(%{organization_ids: ids}) when is_list(ids), do: ids
+
+  defp target_organization_ids(%{memberships: memberships}) when is_list(memberships) do
+    Enum.map(memberships, &Map.get(&1, :organization_id))
+  end
+
+  defp target_organization_ids(_target_user), do: []
 end

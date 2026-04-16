@@ -52,11 +52,16 @@ defmodule Sigra.Scope.Hydration do
   """
   @spec hydrate(scope :: struct(), config :: map(), session :: Sigra.Session.t()) ::
           {:ok, struct()} | {:error, hydrate_error()}
-  def hydrate(scope, _config, %Sigra.Session{active_organization_id: nil}) do
+  def hydrate(scope, config, %Sigra.Session{} = session) do
+    scope = hydrate_impersonation(scope, config, session)
+    do_hydrate(scope, config, session)
+  end
+
+  defp do_hydrate(scope, _config, %Sigra.Session{active_organization_id: nil}) do
     {:ok, scope}
   end
 
-  def hydrate(%{user: nil} = scope, _config, %Sigra.Session{}) do
+  defp do_hydrate(%{user: nil} = scope, _config, %Sigra.Session{}) do
     # Defensive: if a caller invokes hydrate/3 without a populated user
     # (e.g. a scope wired in before the auth plug) return the scope
     # unchanged rather than raising on `user.id` inside get_membership/3.
@@ -65,7 +70,7 @@ defmodule Sigra.Scope.Hydration do
     {:ok, scope}
   end
 
-  def hydrate(scope, config, %Sigra.Session{active_organization_id: org_id}) do
+  defp do_hydrate(scope, config, %Sigra.Session{active_organization_id: org_id}) do
     user = scope.user
 
     case Organizations.fetch_organization(config, org_id) do
@@ -81,5 +86,27 @@ defmodule Sigra.Scope.Hydration do
       {:error, :not_found} ->
         {:error, :org_not_found}
     end
+  end
+
+  defp hydrate_impersonation(scope, _config, %Sigra.Session{impersonator_user_id: nil}), do: scope
+
+  defp hydrate_impersonation(%{impersonating_from: impersonating_from} = scope, _config, %Sigra.Session{})
+       when not is_nil(impersonating_from),
+       do: scope
+
+  defp hydrate_impersonation(scope, config, %Sigra.Session{impersonator_user_id: user_id}) do
+    repo = Map.get(config, :repo)
+    user_schema = get_in(config, [:schemas, :user])
+
+    admin_user =
+      case {repo, user_schema, user_id} do
+        {repo, schema, id} when is_atom(repo) and is_atom(schema) and not is_nil(id) ->
+          repo.get(schema, id)
+
+        _ ->
+          nil
+      end
+
+    %{scope | impersonating_from: admin_user}
   end
 end

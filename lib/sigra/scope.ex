@@ -20,7 +20,7 @@ defmodule Sigra.Scope do
       user: user,
       active_organization: Keyword.get(opts, :active_organization),
       membership: Keyword.get(opts, :membership),
-      impersonating_from: nil
+      impersonating_from: Keyword.get(opts, :impersonating_from)
     )
   end
 

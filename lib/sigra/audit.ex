@@ -145,11 +145,12 @@ defmodule Sigra.Audit do
 
   defp scope_fields(%{user: user} = scope) do
     org = Map.get(scope, :active_organization)
+    actor = Map.get(scope, :impersonating_from) || user
     # D-04: v1.2 impersonation diff is a single conditional added on this line.
     [
       organization_id: org && org.id,
       effective_user_id: user && user.id,
-      actor_id: user && user.id
+      actor_id: actor && actor.id
     ]
   end
 
