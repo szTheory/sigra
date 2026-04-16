@@ -63,11 +63,12 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
     end
 
     test "remaps duplicate passkey registration to friendly error contract" do
-      content = read_core_template("auth.ex")
+      auth_content = read_core_template("auth.ex")
+      controller_content = read_core_template("session_controller.ex")
 
-      assert content =~ "This passkey is already registered."
-      assert content =~ ":duplicate_passkey"
-      assert content =~ "unique"
+      assert auth_content =~ ":duplicate_passkey"
+      assert auth_content =~ "unique"
+      assert controller_content =~ "This passkey is already registered."
     end
 
     test "delivers passkey registration notification through Sigra delivery" do

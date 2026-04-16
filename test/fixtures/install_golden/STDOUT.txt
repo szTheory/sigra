@@ -24,8 +24,9 @@
 * creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex
 * creating priv/repo/migrations/TIMESTAMP_create_audit_events.exs
 * creating lib/sigra_install_golden_tmp/accounts/audit_event.ex
-* creating lib/sigra_install_golden_tmp/accounts/encrypted.ex
 * skipping lib/sigra_install_golden_tmp/mailer.ex (already exists)
+* creating lib/sigra_install_golden_tmp/vault.ex
+* creating lib/sigra_install_golden_tmp/accounts/encrypted.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/session_html.ex
 * creating lib/sigra_install_golden_tmp_web/live/registration_live.ex
 * creating lib/sigra_install_golden_tmp_web/live/confirmation_live.ex
@@ -39,6 +40,7 @@
 * injecting config/config.exs
 * injecting config/test.exs
 * injecting test/support/conn_case.ex
+* injecting lib/sigra_install_golden_tmp/application.ex
 * detected Oban config in config/config.exs
   Add the sigra_mailer queue to your Oban config:
     config :sigra_install_golden_tmp, Oban, queues: [sigra_mailer: 10]
@@ -71,6 +73,7 @@ Next steps:
          end
 
   LiveView pages were generated for login, registration, and session management.
+  Passkeys: enabled (default)
 
 
 
@@ -112,4 +115,18 @@ Next steps:
      selection:
 
          pipe_through [:browser, :require_authenticated, :require_org]
+
+* creating lib/sigra_install_golden_tmp/accounts/user_passkey.ex
+* creating assets/js/passkey_browser.js
+* creating assets/js/passkey_hooks.js
+* creating assets/package.json
+* injecting lib/sigra_install_golden_tmp_web/router.ex
+* injecting config/config.exs
+* injecting mix.exs
+* already injected assets/package.json
+Passkeys generated browser assets, but Sigra could not safely edit `mix.exs` `assets.setup`.
+
+Add this step to your `"assets.setup"` alias manually:
+
+  "cmd --cd assets npm install"
 

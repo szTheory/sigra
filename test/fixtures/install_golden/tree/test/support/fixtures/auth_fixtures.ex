@@ -73,11 +73,14 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
   @doc """
   Creates an organization row for tests.
 
-  This helper accelerates unit and integration setup, but it bypasses real
-  controller, LiveView, and session boundaries. Keep route-backed coverage for
-  organization creation and switching flows.
+  This helper accelerates unit and integration setup, but it can bypass real
+  controller behavior, bypass real LiveView behavior, and bypass real session
+  boundaries. Keep route-backed coverage for organization creation and
+  switching flows.
   """
   def create_organization(attrs \\ %{}) do
+    organization_module = ensure_generated_module!(:Organization)
+
     defaults = %{
       name: "Organization #{System.unique_integer([:positive])}",
       slug: "organization-#{System.unique_integer([:positive])}"
@@ -85,21 +88,26 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
 
     attrs = Enum.into(attrs, defaults)
 
-    %SigraInstallGoldenTmp.Accounts.Organization{}
-    |> SigraInstallGoldenTmp.Accounts.Organization.changeset(attrs)
+    organization_module
+    |> struct()
+    |> organization_module.changeset(attrs)
     |> SigraInstallGoldenTmp.Repo.insert!()
   end
 
   @doc """
   Creates a membership row for the given user and organization.
 
-  This helper bypasses real controller, LiveView, and session boundaries so
-  tests can stage org-aware data quickly. Keep route-backed authorization
-  coverage for membership writes and active-organization changes.
+  This helper can bypass real controller behavior, bypass real LiveView
+  behavior, and bypass real session boundaries so tests can stage org-aware
+  data quickly. Keep route-backed authorization coverage for membership writes
+  and active-organization changes.
   """
   def create_membership(user, organization, role \\ :owner) do
-    %SigraInstallGoldenTmp.Accounts.OrganizationMembership{}
-    |> SigraInstallGoldenTmp.Accounts.OrganizationMembership.changeset(%{
+    membership_module = ensure_generated_module!(:OrganizationMembership)
+
+    membership_module
+    |> struct()
+    |> membership_module.changeset(%{
       user_id: user.id,
       organization_id: organization.id,
       role: role
@@ -110,19 +118,20 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
   @doc """
   Logs a user into a conn with an active organization staged on the session.
 
-  This bypasses real controller, LiveView, and session-renewal boundaries to
-  speed up focused tests. Keep route-backed coverage for login, org switching,
-  and scope hydration behavior.
+  This helper can bypass real controller behavior, bypass real LiveView
+  behavior, and bypass real session boundaries to speed up focused tests. Keep
+  route-backed coverage for login, org switching, and scope hydration
+  behavior.
   """
   def log_in_user_with_org(conn, user, organization) do
     membership =
-      SigraInstallGoldenTmp.Repo.get_by(SigraInstallGoldenTmp.Accounts.OrganizationMembership,
+      SigraInstallGoldenTmp.Repo.get_by(ensure_generated_module!(:OrganizationMembership),
         user_id: user.id,
         organization_id: organization.id
       ) || create_membership(user, organization)
 
-    token = Accounts.generate_user_session_token(user)
-    {_authed_user, session} = Accounts.get_user_and_session_by_token(token)
+    token = SigraInstallGoldenTmp.Accounts.generate_user_session_token(user)
+    {_authed_user, session} = SigraInstallGoldenTmp.Accounts.get_user_and_session_by_token(token)
 
     {:ok, session} =
       session
@@ -130,15 +139,72 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
       |> SigraInstallGoldenTmp.Repo.update()
 
     scope =
-      user
-      |> SigraInstallGoldenTmp.Accounts.Scope.for_user()
-      |> SigraInstallGoldenTmp.Accounts.Scope.put_active_organization(organization, membership)
+      ensure_generated_module!(:Scope)
+      |> apply(:for_user, [user])
+      |> apply(:put_active_organization, [organization, membership])
 
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
     |> Plug.Conn.put_session(:user_token, token)
     |> Plug.Conn.assign(:current_scope, scope)
     |> Plug.Conn.put_private(:sigra_session, session)
+  end
+
+  @doc """
+  Creates a passkey credential row for the given user.
+
+  This helper can bypass real controller behavior, bypass real LiveView
+  behavior, and bypass real session boundaries before the browser ceremony. Use
+  route-backed tests for actual WebAuthn registration flows.
+  """
+  def register_passkey(user, attrs \\ %{}) do
+    passkey_module = ensure_generated_module!(:UserPasskey)
+    now = DateTime.utc_now()
+
+    defaults = %{
+      id: Ecto.UUID.generate(),
+      user_id: user.id,
+      credential_id: "credential-" <> Integer.to_string(System.unique_integer([:positive])),
+      public_key: <<1, 2, 3, 4>>,
+      sign_count: 0,
+      aaguid: "00000000-0000-0000-0000-000000000000",
+      nickname: "Test passkey",
+      device_hint: "Test Device",
+      transports: ["internal"],
+      rp_id: "localhost",
+      last_used_at: nil,
+      inserted_at: now,
+      updated_at: now
+    }
+
+    attrs = Enum.into(attrs, defaults)
+
+    passkey_module
+    |> struct(attrs)
+    |> SigraInstallGoldenTmp.Repo.insert!()
+  end
+
+  @doc """
+  Builds deterministic passkey authentication test data.
+
+  This helper can bypass real controller behavior, bypass real LiveView
+  behavior, and bypass real session boundaries so focused tests can stage a
+  passkey assertion quickly. Keep route-backed coverage for end-to-end passkey
+  sign-in and MFA flows.
+  """
+  def authenticate_with_passkey(user, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{})
+    passkey = Map.get(attrs, :passkey) || register_passkey(user, attrs)
+
+    %{
+      user: user,
+      passkey: passkey,
+      response:
+        encoded_passkey_response(%{
+          credential_id: passkey.credential_id,
+          user_handle: user.id
+        })
+    }
   end
 
   @doc """
@@ -369,57 +435,6 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
     """
   end
 
-  @doc """
-  Creates a passkey credential row for the given user.
-
-  This helper bypasses real controller, LiveView, and browser ceremony
-  boundaries. Use route-backed tests for actual WebAuthn registration flows.
-  """
-  def register_passkey(user, attrs \\ %{}) do
-    now = DateTime.utc_now()
-
-    defaults = %{
-      id: Ecto.UUID.generate(),
-      user_id: user.id,
-      credential_id: "credential-" <> Integer.to_string(System.unique_integer([:positive])),
-      public_key: <<1, 2, 3, 4>>,
-      sign_count: 0,
-      aaguid: "00000000-0000-0000-0000-000000000000",
-      nickname: "Test passkey",
-      device_hint: "Test Device",
-      transports: ["internal"],
-      rp_id: "localhost",
-      last_used_at: nil,
-      inserted_at: now,
-      updated_at: now
-    }
-
-    struct(SigraInstallGoldenTmp.Accounts.UserPasskey, Map.merge(defaults, Enum.into(attrs, %{})))
-    |> SigraInstallGoldenTmp.Repo.insert!()
-  end
-
-  @doc """
-  Builds deterministic passkey authentication test data.
-
-  This bypasses real controller, LiveView, browser, and session boundaries so
-  focused tests can stage a passkey assertion quickly. Keep route-backed
-  coverage for end-to-end passkey sign-in and MFA flows.
-  """
-  def authenticate_with_passkey(user, attrs \\ %{}) do
-    attrs = Enum.into(attrs, %{})
-    passkey = Map.get(attrs, :passkey) || register_passkey(user, attrs)
-
-    %{
-      user: user,
-      passkey: passkey,
-      response:
-        encoded_passkey_response(%{
-          credential_id: passkey.credential_id,
-          user_handle: user.id
-        })
-    }
-  end
-
   defp encoded_passkey_response(attrs \\ %{}) do
     credential_id =
       Map.get(attrs, :credential_id) || Map.get(attrs, "credential_id") || "credential-response"
@@ -445,6 +460,18 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
       "response" => response
     }
     |> JSON.encode!()
+  end
+
+  defp ensure_generated_module!(suffix) do
+    module = Module.concat(SigraInstallGoldenTmp.Accounts, suffix)
+
+    if Code.ensure_loaded?(module) do
+      module
+    else
+      raise ArgumentError,
+        "AuthFixtures.#{Macro.underscore(to_string(suffix))} requires #{inspect(module)}. " <>
+          "Generate organizations/passkeys or keep route-backed coverage for that feature."
+    end
   end
 
   defp base64url(value) when is_binary(value), do: Base.url_encode64(value, padding: false)

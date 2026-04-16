@@ -8,7 +8,33 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.1 Foundations
+## Current Milestone
+
+No active milestone is currently open. v1.1 Foundations is shipped and archived; define the next milestone explicitly with `$gsd-new-milestone`.
+
+## Current State
+
+**Shipped:** v1.1 Foundations (2026-04-16).
+
+Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth stack plus v1.1 Foundations: logical multi-tenancy through organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey/WebAuthn registration and authentication, passkey MFA and optional passkey-primary login, generator opt-outs for organizations and passkeys, and updated guides plus CI/browser-smoke coverage for the shipped org and passkey flows.
+
+**Verification state:** 79/79 v1.1 requirements satisfied and verification-backed; milestone audit is archive-ready. See `.planning/MILESTONES.md`, `.planning/milestones/v1.1-ROADMAP.md`, and `.planning/milestones/v1.1-MILESTONE-AUDIT.md`.
+
+**Known limitations carried forward (tracked, non-blocking):**
+- 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before broader GA announcement.
+- Phase 9 audit logging still uses a `log_safe/3` hybrid (non-atomic) at ~30 integration sites with only 3 fully atomic `Ecto.Multi` sites (confirm, verify, reset); accepted as caveat C-1 and captured in `SEED-002`.
+- 6 Nyquist VALIDATION.md files in `status: draft` + 1 missing (phase 10.1) — parked as backlog phase 999.1.
+- 3 Dependabot major-version bumps for SHA-pinned GitHub Actions — parked as backlog phase 999.2.
+- `gsd-tools audit-open --json` still crashes with `ReferenceError: output is not defined`; the v1.1 archive audit used direct artifact scanning.
+
+## Next Milestone Goals
+
+- Define the next milestone explicitly with `$gsd-new-milestone`.
+- Reconfirm whether the next milestone should follow the archived `.planning/v1.2-DIRECTION.md` path or a different priority order.
+- Likely candidate themes from the archived direction: admin dashboard, impersonation, and expanded audit views.
+
+<details>
+<summary>Archived v1.1 milestone framing</summary>
 
 **Goal:** Ship the architectural foundation that unlocks v1.2's admin dashboard — logical multi-tenancy (organizations + memberships, single DB, no PG schema-per-tenant) and passkey/WebAuthn authentication. No admin UI in this milestone; only the user-facing surface each feature needs to be usable end-to-end.
 
@@ -18,21 +44,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 **Deferred to v1.2 "Admin Dashboard"** (full direction captured in `.planning/v1.2-DIRECTION.md`): admin user-management LiveView UI (Django-admin-loved, mobile-first, light+dark mode, basic branding, default-on opt-out), admin impersonation (time-limited, audited, sudo-gated, locked-down sensitive ops, org-scoped for org admins), expanded audit views (per-user, per-org, global, impersonation feed, CSV export).
 
-## Current State
-
-**Shipped:** v1.0 Phoenix Auth Library — Initial Release (2026-04-11).
-
-Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/password with Argon2id, magic-link passwordless, email confirmation + password reset, database-backed sessions with sudo re-auth and rate limiting, OAuth via Assent (5 providers), TOTP MFA with backup codes, API auth with bearer tokens + JWT, full account lifecycle (email change, password change, scheduled deletion), audit logging, and a `mix sigra.install` generator backed by a 5-job PR-required CI smoke harness (library tests + unit smoke + install smoke + HTTP smoke + Playwright browser lifecycle).
-
-**Verification state:** 1249 tests + 33 doctests + 3 properties, 0 failures. 85/85 requirements satisfied. 5 required CI checks green on `main`. See `.planning/MILESTONES.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.
-
-**v1.1 progress:** Phase 13 complete (2026-04-12) — Organizations schemas, `Sigra.Organizations` context with CRUD, last-owner guard (`FOR UPDATE`), slug validation + reserved words, and two-layer tenant enforcement (`for_org/2` + `maybe_enforce_org_scope/4`) now ship. Full library suite at 1428 tests, 0 failures.
-
-**Known limitations carried forward (tracked, non-blocking):**
-- 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before GA public announcement.
-- Phase 9 audit logging uses a `log_safe/3` hybrid (non-atomic) at ~30 integration sites with only 3 fully atomic `Ecto.Multi` sites (confirm, verify, reset); accepted as caveat C-1 and captured in `SEED-002` for conversion when trigger conditions match.
-- 6 Nyquist VALIDATION.md files in `status: draft` + 1 missing (phase 10.1) — parked as backlog phase 999.1.
-- 3 Dependabot major-version bumps for SHA-pinned GitHub Actions — parked as backlog phase 999.2 (require per-bump CI verification).
+</details>
 
 ## Requirements
 

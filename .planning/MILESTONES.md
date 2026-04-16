@@ -55,3 +55,38 @@
 - [v1.0 Milestone Audit](milestones/v1.0-MILESTONE-AUDIT.md) — final audit report
 
 ---
+
+## v1.1 Foundations (Shipped: 2026-04-16)
+
+**Scope:** 13 phases, 68 plans, 154 plan tasks.
+
+**What shipped:** Sigra v1.1 delivered logical multi-tenancy and passkeys end to end. The release now includes organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey registration and authentication, passkey MFA and passkey-primary login modes, generator opt-outs for both organizations and passkeys, updated guide set, org/passkey testing helpers, and CI/browser smoke coverage that exercises the release-gate flows.
+
+### Key Accomplishments
+
+1. **Generator feature system proved out** — the `core`/feature-manifest pattern shipped two real feature consumers, validating the additive generator architecture for future milestones.
+2. **Organizations shipped as the v1.1 multi-tenant foundation** — scoped queries, memberships, invites, switcher UX, org settings, member management, and upgrade/backfill paths all landed with current verification.
+3. **Passkeys shipped across the full stack** — data layer, challenge handling, runtime config, JS hooks, controller boundaries, example app flows, and generator opt-out coverage all landed.
+4. **Audit and scope foundations were upgraded for tenant-aware future work** — real `organization_id` and `effective_user_id` columns plus scope/session hydration now support later admin and audit views cleanly.
+5. **Docs and DX moved from aspirational to exercised** — guide set, upgrade runbook, org/passkey helpers, and Playwright smoke are all backed by current tests and workflow wiring.
+6. **Milestone verification debt was closed before archive** — Phase 26 wrote the missing verification artifacts for Phases 18, 19, 22, and 23, bringing v1.1 to 79/79 requirements satisfied.
+
+### Stats
+
+- **Requirements:** 79/79 satisfied
+- **Audit:** archive-ready
+- **Timeline:** 2026-04-05 -> 2026-04-16
+- **Git range:** `4efb4a5` -> `3fc8a6a`
+
+### Tech Debt Carried Forward
+
+- `gsd-tools audit-open --json` crashes during milestone close and still needs a tooling fix.
+- `Phase 999.1` Nyquist backfill remains parked.
+- `Phase 999.2` Dependabot major-version cleanup remains parked.
+
+**Archive:**
+- [v1.1 Roadmap](milestones/v1.1-ROADMAP.md)
+- [v1.1 Requirements](milestones/v1.1-REQUIREMENTS.md)
+- [v1.1 Milestone Audit](milestones/v1.1-MILESTONE-AUDIT.md)
+
+---

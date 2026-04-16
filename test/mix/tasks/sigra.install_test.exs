@@ -151,7 +151,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         context_module: "MyApp.Accounts",
         schema_alias: "User",
         repo_module: "MyApp.Repo",
-        web_module: "MyAppWeb"
+        web_module: "MyAppWeb",
+        organizations?: true,
+        passkeys?: false
       ]
 
       template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth.ex"])

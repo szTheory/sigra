@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: executing
-stopped_at: Preparing v1.1 milestone audit and closeout after Phases 23-25 completion
-last_updated: "2026-04-16T17:20:00.000Z"
-last_activity: 2026-04-16
+status: between_milestones
+stopped_at: v1.1 archived; awaiting next milestone definition
+last_updated: "2026-04-16T17:30:57Z"
+last_activity: 2026-04-16 -- v1.1 archived, no active milestone
 progress:
   total_phases: 17
-  completed_phases: 15
-  total_plans: 71
-  completed_plans: 71
+  completed_phases: 16
+  total_plans: 72
+  completed_plans: 72
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** v1.1 milestone audit and closeout
+**Current focus:** between milestones
 
 ## Current Position
 
-Phase: Milestone closeout — v1.1 Foundations
-Plan: Audit milestone readiness and archive if clean
-Status: Ready to audit
-Last activity: 2026-04-16
+Phase: none
+Plan: none
+Status: waiting for next milestone
+Last activity: 2026-04-16 -- v1.1 archived, no active milestone
 
 Progress: [██████████] 100% (13/13 mainline phases complete)
 

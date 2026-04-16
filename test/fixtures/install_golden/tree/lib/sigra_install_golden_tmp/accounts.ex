@@ -11,6 +11,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
   alias SigraInstallGoldenTmp.Repo, as: Repo
   alias SigraInstallGoldenTmp.Accounts.User
   alias SigraInstallGoldenTmp.Accounts.UserToken
+
+  alias SigraInstallGoldenTmp.Accounts.Emails
+
   alias Sigra.Auth, as: SigraAuth
 
   ## Database getters
@@ -587,6 +590,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
   alias SigraInstallGoldenTmp.Accounts.UserMFACredential
   alias SigraInstallGoldenTmp.Accounts.UserBackupCode
 
+  alias SigraInstallGoldenTmp.Accounts.UserPasskey
+
+
   @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
   def mfa_enroll(opts \\ []) do
     Sigra.MFA.enroll(sigra_config(), opts)
@@ -630,6 +636,11 @@ defmodule SigraInstallGoldenTmp.Accounts do
     Sigra.MFA.enabled?(sigra_config(), user)
   end
 
+  @doc "Upgrade an MFA-pending Sigra session after second-factor verification."
+  def complete_mfa_verification(user, old_session, opts \\ []) do
+    Sigra.Auth.complete_mfa_verification(sigra_config(), user, old_session, opts)
+  end
+
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
   def mfa_status(user) do
     Sigra.MFA.status(sigra_config(), user,
@@ -637,6 +648,224 @@ defmodule SigraInstallGoldenTmp.Accounts do
       backup_code_schema: SigraInstallGoldenTmp.Accounts.UserBackupCode
     )
   end
+
+
+  ## Passkeys
+
+  @doc "List passkeys for a user."
+  def passkeys_for_user(user) do
+    Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+  end
+
+  @doc "Count passkeys for a user."
+  def passkey_count_for_user(user) do
+    Sigra.Passkeys.count_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+  end
+
+  @doc "Return the user-facing label for a passkey."
+  def passkey_label(passkey) do
+    Sigra.Passkeys.DeviceName.label(passkey)
+  end
+
+  @doc "Register a new passkey for a user."
+  def register_passkey(user, attestation_params, details \\ %{}) do
+    with :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :registration),
+         {:ok, normalized_params} <- normalize_passkey_registration_params(attestation_params, Map.get(attestation_params, "challenge") || Map.get(attestation_params, :challenge)) do
+      case Sigra.Passkeys.register(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey) do
+        {:ok, credential} ->
+          deliver_passkey_registration_notification(user, Map.merge(details, %{passkey: credential}))
+          {:ok, credential}
+
+        {:error, %Ecto.Changeset{} = changeset} ->
+          if duplicate_passkey_changeset?(changeset) do
+            {:error, :duplicate_passkey}
+          else
+            {:error, changeset}
+          end
+
+        {:error, reason} ->
+          {:error, reason}
+      end
+    else
+      {:error, :rate_limited, _meta} -> {:error, :rate_limited}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc "Authenticate a passkey for a known user."
+  def authenticate_passkey(user, assertion_params) do
+    with :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
+         {:ok, normalized_params} <- normalize_passkey_assertion_params(assertion_params, Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)) do
+      Sigra.Passkeys.authenticate(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey)
+    else
+      {:error, :rate_limited, _meta} -> {:error, :invalid_passkey}
+      {:error, _reason} -> {:error, :invalid_passkey}
+    end
+  end
+
+  @doc "Authenticate a discoverable passkey without a typed email address."
+  def authenticate_discoverable_passkey(assertion_params) do
+    with {:ok, normalized_params} <- normalize_passkey_assertion_params(assertion_params, Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)),
+         credential_id when is_binary(credential_id) <- Map.get(normalized_params, :credential_id),
+         %UserPasskey{} = passkey <- Repo.get_by(UserPasskey, credential_id: credential_id),
+         %User{} = user <- Repo.get(User, passkey.user_id),
+         :ok <- verify_discoverable_user_handle(normalized_params, passkey),
+         :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
+         {:ok, credential} <- Sigra.Passkeys.authenticate(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey) do
+      {:ok, user, credential}
+    else
+      _ -> {:error, :invalid_passkey}
+    end
+  end
+
+  @doc "Rename a passkey."
+  def rename_passkey(user, credential_id, nickname) do
+    Sigra.Passkeys.rename(sigra_config(), user, credential_id, nickname || "", user_passkey_schema: UserPasskey)
+  end
+
+  @doc "Delete a passkey."
+  def delete_passkey(user, credential_id) do
+    Sigra.Passkeys.delete(sigra_config(), user, credential_id, user_passkey_schema: UserPasskey)
+  end
+
+  @doc "Returns true when passkey-primary login is enabled."
+  def passkey_primary_enabled?() do
+    Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
+  end
+
+  @doc "Returns true when a user may use passkey-primary login."
+  def passkey_primary_user_eligible?(%User{} = user) do
+    passkey_primary_enabled?() and user.confirmed_at != nil
+  end
+
+  def passkey_primary_user_eligible?(_user), do: false
+
+  @doc "Checks whether a discovered user may use passkey-primary login."
+  def ensure_passkey_primary_user_eligible(%User{} = user) do
+    cond do
+      not passkey_primary_enabled?() ->
+        {:error, :passkey_primary_disabled}
+
+      not passkey_primary_user_eligible?(user) ->
+        {:error, :email_not_confirmed}
+
+      true ->
+        :ok
+    end
+  end
+
+  def ensure_passkey_primary_user_eligible(_user), do: {:error, :invalid_user}
+
+
+  @doc "Returns whether magic-link recovery is available for login."
+  def magic_link_recovery_available?() do
+
+    # PK-UX-07 makes magic-link recovery mandatory for passkey-primary accounts.
+    if passkey_primary_enabled?() do
+      true
+    else
+      sigra_config()
+      |> Map.get(:magic_link, [])
+      |> Keyword.get(:enabled, true)
+    end
+
+  end
+
+
+  @doc "Delivers a passkey registration notification email."
+  def deliver_passkey_registration_notification(user, details) do
+    email = Emails.passkey_registration_email(user, details)
+
+    Sigra.Delivery.deliver(:passkey_registration, %{
+      user_id: user.id,
+      to: user.email,
+      subject: email.subject,
+      body: %{html: email.html_body, text: email.text_body},
+      details: details
+    }, delivery_opts())
+  end
+
+  defp normalize_passkey_registration_params(params, challenge) when is_map(params) do
+    response = Map.get(params, "response") || Map.get(params, :response) || %{}
+
+    with {:ok, credential_id} <- decode_base64url(Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") || Map.get(params, :id)),
+         {:ok, attestation_object} <- decode_base64url(Map.get(response, "attestationObject") || Map.get(response, :attestationObject)),
+         {:ok, client_data_json} <- decode_base64url(Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)),
+         {:ok, challenge_bytes} <- normalize_challenge(challenge) do
+      {:ok,
+       %{
+         credential_id: credential_id,
+         attestation_object: attestation_object,
+         client_data_json: client_data_json,
+         challenge: challenge_bytes,
+         nickname: blank_to_nil(Map.get(params, "nickname") || Map.get(params, :nickname)),
+         device_hint: blank_to_nil(Map.get(params, "device_hint") || Map.get(params, :device_hint) || Map.get(params, "deviceHint") || Map.get(params, :deviceHint)),
+         transports: Map.get(response, "transports") || Map.get(response, :transports) || []
+       }}
+    else
+      _ -> {:error, :invalid_passkey}
+    end
+  end
+
+  defp normalize_passkey_registration_params(_params, _challenge), do: {:error, :invalid_passkey}
+
+  defp normalize_passkey_assertion_params(params, challenge) when is_map(params) do
+    response = Map.get(params, "response") || Map.get(params, :response) || %{}
+
+    with {:ok, credential_id} <- decode_base64url(Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") || Map.get(params, :id)),
+         {:ok, authenticator_data} <- decode_base64url(Map.get(response, "authenticatorData") || Map.get(response, :authenticatorData)),
+         {:ok, signature} <- decode_base64url(Map.get(response, "signature") || Map.get(response, :signature)),
+         {:ok, client_data_json} <- decode_base64url(Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)),
+         {:ok, user_handle} <- decode_optional_base64url(Map.get(response, "userHandle") || Map.get(response, :userHandle)),
+         {:ok, challenge_bytes} <- normalize_challenge(challenge) do
+      {:ok,
+       %{
+         credential_id: credential_id,
+         authenticator_data: authenticator_data,
+         signature: signature,
+         client_data_json: client_data_json,
+         challenge: challenge_bytes,
+         user_handle: user_handle
+       }}
+    else
+      _ -> {:error, :invalid_passkey}
+    end
+  end
+
+  defp normalize_passkey_assertion_params(_params, _challenge), do: {:error, :invalid_passkey}
+
+  defp decode_base64url(value) when is_binary(value), do: Base.url_decode64(value, padding: false)
+  defp decode_base64url(_value), do: {:error, :invalid_passkey}
+
+  defp decode_optional_base64url(nil), do: {:ok, nil}
+  defp decode_optional_base64url(""), do: {:ok, nil}
+  defp decode_optional_base64url(value), do: decode_base64url(value)
+
+  defp normalize_challenge(%Wax.Challenge{bytes: bytes}) when is_binary(bytes), do: {:ok, bytes}
+  defp normalize_challenge(bytes) when is_binary(bytes), do: {:ok, bytes}
+  defp normalize_challenge(_challenge), do: {:error, :invalid_passkey}
+
+  defp blank_to_nil(value) when is_binary(value) do
+    case String.trim(value) do
+      "" -> nil
+      trimmed -> trimmed
+    end
+  end
+
+  defp blank_to_nil(_value), do: nil
+
+  defp duplicate_passkey_changeset?(%Ecto.Changeset{} = changeset) do
+    Enum.any?(changeset.errors, fn
+      {:credential_id, {_message, opts}} -> Keyword.get(opts, :constraint) == :unique or Keyword.has_key?(opts, :constraint_name)
+      _ -> false
+    end)
+  end
+
+  defp verify_discoverable_user_handle(%{user_handle: nil}, _passkey), do: :ok
+  defp verify_discoverable_user_handle(%{user_handle: user_handle}, passkey) do
+    if user_handle == to_string(passkey.user_id), do: :ok, else: {:error, :invalid_passkey}
+  end
+
 
   ## Account Lifecycle
 
