@@ -40,6 +40,7 @@ defmodule Sigra.Passkeys.Authentication do
           | {:error, term()}
   def verify(%Sigra.Config{} = config, user, assertion, opts \\ []) do
     validated = NimbleOptions.validate!(opts, @schema_opts)
+
     schema =
       Keyword.get(validated, :user_passkey_schema) || config.passkeys[:user_passkey_schema] ||
         raise ArgumentError,

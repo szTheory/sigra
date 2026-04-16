@@ -77,7 +77,10 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
       assert byte_size(challenge.bytes) >= 32
 
       assert {:ok, %{"c" => encoded_bytes}} =
-               Sigra.Token.verify(cfg.secret_key_base, @purpose, challenge_token(issued_conn, @authentication_slot), max_age: 60)
+               Sigra.Token.verify(
+                 cfg.secret_key_base,
+                 @purpose,
+                 challenge_token(issued_conn, @authentication_slot), max_age: 60)
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, challenge.bytes}
     end
@@ -91,11 +94,18 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
 
       assert %Wax.Challenge{} = challenge
       assert challenge.bytes == "registration-challenge"
-      assert get_session(issued_conn, @registration_slot) == %{"token" => challenge_token(issued_conn, @registration_slot)}
+
+      assert get_session(issued_conn, @registration_slot) == %{
+               "token" => challenge_token(issued_conn, @registration_slot)
+             }
+
       assert get_session(issued_conn, @authentication_slot) == nil
 
       assert {:ok, %{"c" => encoded_bytes}} =
-               Sigra.Token.verify(cfg.secret_key_base, @purpose, challenge_token(issued_conn, @registration_slot), max_age: 60)
+               Sigra.Token.verify(
+                 cfg.secret_key_base,
+                 @purpose,
+                 challenge_token(issued_conn, @registration_slot), max_age: 60)
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, "registration-challenge"}
     end
@@ -104,7 +114,8 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
       conn = session_conn()
       cfg = config()
 
-      {_issued_conn, challenge} = PasskeyChallenge.issue(conn, :authentication, cfg, bytes: "deterministic-bytes")
+      {_issued_conn, challenge} =
+        PasskeyChallenge.issue(conn, :authentication, cfg, bytes: "deterministic-bytes")
 
       assert challenge.bytes == "deterministic-bytes"
     end
@@ -118,11 +129,18 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
 
       assert %Wax.Challenge{} = challenge
       assert challenge.bytes == "authentication-challenge"
-      assert get_session(issued_conn, @authentication_slot) == %{"token" => challenge_token(issued_conn, @authentication_slot)}
+
+      assert get_session(issued_conn, @authentication_slot) == %{
+               "token" => challenge_token(issued_conn, @authentication_slot)
+             }
+
       assert get_session(issued_conn, @registration_slot) == nil
 
       assert {:ok, %{"c" => encoded_bytes}} =
-               Sigra.Token.verify(cfg.secret_key_base, @purpose, challenge_token(issued_conn, @authentication_slot), max_age: 60)
+               Sigra.Token.verify(
+                 cfg.secret_key_base,
+                 @purpose,
+                 challenge_token(issued_conn, @authentication_slot), max_age: 60)
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, "authentication-challenge"}
     end
@@ -133,7 +151,9 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
       cfg = config()
 
       {conn, _challenge} =
-        PasskeyChallenge.issue(session_conn(), :registration, cfg, bytes: "server-registration-bytes")
+        PasskeyChallenge.issue(session_conn(), :registration, cfg,
+          bytes: "server-registration-bytes"
+        )
 
       client_supplied_bytes = "browser-registration-bytes"
 
@@ -152,7 +172,9 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
       cfg = config()
 
       {conn, _challenge} =
-        PasskeyChallenge.issue(session_conn(), :registration, cfg, bytes: "retryable-registration-bytes")
+        PasskeyChallenge.issue(session_conn(), :registration, cfg,
+          bytes: "retryable-registration-bytes"
+        )
 
       stored_session = get_session(conn, @registration_slot)
 
@@ -167,7 +189,10 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
 
     test "registration verification does not consume the authentication slot" do
       cfg = config()
-      {conn, _registration_challenge, _authentication_challenge} = issue_both_slots(session_conn(), cfg)
+
+      {conn, _registration_challenge, _authentication_challenge} =
+        issue_both_slots(session_conn(), cfg)
+
       authentication_session = get_session(conn, @authentication_slot)
 
       assert {:ok, verified_conn, :registration_ok} =
@@ -182,7 +207,10 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
 
     test "authentication verification does not consume the registration slot" do
       cfg = config()
-      {conn, _registration_challenge, _authentication_challenge} = issue_both_slots(session_conn(), cfg)
+
+      {conn, _registration_challenge, _authentication_challenge} =
+        issue_both_slots(session_conn(), cfg)
+
       registration_session = get_session(conn, @registration_slot)
 
       assert {:ok, verified_conn, :authentication_ok} =
@@ -199,7 +227,9 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
       cfg = config()
 
       {conn, _challenge} =
-        PasskeyChallenge.issue(session_conn(), :authentication, cfg, bytes: "authentication-bytes")
+        PasskeyChallenge.issue(session_conn(), :authentication, cfg,
+          bytes: "authentication-bytes"
+        )
 
       token = challenge_token(conn, @authentication_slot)
       mid = div(byte_size(token), 2)

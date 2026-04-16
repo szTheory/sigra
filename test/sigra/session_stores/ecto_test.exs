@@ -15,7 +15,14 @@ defmodule Sigra.SessionStores.EctoTest do
   describe "create/3" do
     test "generates a token, stores with metadata, returns Session struct with raw token" do
       user_id = Ecto.UUID.generate()
-      metadata = %{type: :standard, ip: "192.168.1.1", user_agent: "Chrome/120", geo_city: "Portland", geo_country_code: "US"}
+
+      metadata = %{
+        type: :standard,
+        ip: "192.168.1.1",
+        user_agent: "Chrome/120",
+        geo_city: "Portland",
+        geo_country_code: "US"
+      }
 
       Sigra.MockRepo
       |> expect(:insert, fn struct ->
@@ -282,7 +289,8 @@ defmodule Sigra.SessionStores.EctoTest do
           hashed_token: <<1::256>>,
           type: "standard",
           ip: "10.0.0.1",
-          user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          user_agent:
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           inserted_at: now
         },
         %Sigra.Test.UserSession{
@@ -291,7 +299,8 @@ defmodule Sigra.SessionStores.EctoTest do
           hashed_token: <<2::256>>,
           type: "remember_me",
           ip: "10.0.0.2",
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+          user_agent:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
           inserted_at: DateTime.add(now, -3600)
         }
       ]
@@ -337,7 +346,11 @@ defmodule Sigra.SessionStores.EctoTest do
         {2, nil}
       end)
 
-      assert {2, nil} = EctoStore.delete_all_for_user(user_id, Keyword.merge(@opts, except_token: except_token))
+      assert {2, nil} =
+               EctoStore.delete_all_for_user(
+                 user_id,
+                 Keyword.merge(@opts, except_token: except_token)
+               )
     end
   end
 
