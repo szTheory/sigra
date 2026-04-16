@@ -39,7 +39,7 @@
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
-- [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-13 completed 2026-04-16; 21-14 planned to close remaining verification gaps)
+- [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-13 completed 2026-04-16; 21-14 planned to close remaining verification gaps) (completed 2026-04-16)
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
@@ -260,7 +260,7 @@ Plans:
 - [x] 21-11-PLAN.md — Wave 9: gap closure for route-backed options/MFA proof and self-contained real-server Playwright smoke
 - [x] 21-12-PLAN.md — Wave 10: gap closure for served example passkey runtime and login binding
 - [x] 21-13-PLAN.md — Wave 11: gap closure for app-owned browser runtime proof without Playwright injection
-- [ ] 21-14-PLAN.md — Wave 12: gap closure for passkey options-route negotiation and honest runtime proofs
+- [x] 21-14-PLAN.md — Wave 12: gap closure for passkey options-route negotiation and honest runtime proofs
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
@@ -301,7 +301,7 @@ Plans:
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 13/14 | In progress | 2026-04-16 |
+| 21. Passkey LiveViews + POST-Auth Controller | 14/14 | Complete    | 2026-04-16 |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 

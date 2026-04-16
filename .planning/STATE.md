@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: complete
-stopped_at: Completed 21-11-PLAN.md
-last_updated: "2026-04-16T00:18:14.324Z"
-last_activity: 2026-04-16
+stopped_at: Completed 21-14-PLAN.md
+last_updated: "2026-04-16T01:40:45Z"
+last_activity: 2026-04-16 -- Completed Phase 21 execution
 progress:
   total_phases: 17
   completed_phases: 13
-  total_plans: 60
-  completed_plans: 60
+  total_plans: 63
+  completed_plans: 63
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 21 — passkey-liveviews-post-auth-controller
+**Current focus:** Phase 24 — repair-phase-16-17-organizations-generator-templates
 
 ## Current Position
 
-Phase: 21 (passkey-liveviews-post-auth-controller) — COMPLETE
-Plan: 11 of 11
-Status: Completed
-Last activity: 2026-04-16
+Phase: 24 (repair-phase-16-17-organizations-generator-templates) — NOT STARTED
+Plan: Not started
+Status: Completed Phase 21 execution
+Last activity: 2026-04-16 -- Completed Phase 21 execution
 
-Progress: [██████████] 100% (60/60 plans complete)
+Progress: [██████████] 100% (63/63 plans complete)
 
 ## Accumulated Context
 
