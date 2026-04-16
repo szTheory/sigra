@@ -71,21 +71,35 @@ test("enrollment requests real passkey options from the served MFA settings page
     await expect(page).toHaveURL(/\/users\/settings\/mfa/);
     await waitForLiveViewReady(page);
 
-    const [optionsResponse] = await Promise.all([
+    const [optionsResponse, completionResponse] = await Promise.all([
       page.waitForResponse(
         (response) =>
           response.url().includes("/users/settings/mfa/passkeys/options") &&
+          response.request().method() === "POST",
+      ),
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/users/settings/mfa/passkeys") &&
+          !response.url().includes("/options") &&
           response.request().method() === "POST",
       ),
       page.locator("#add-passkey-button").click(),
     ]);
 
     expect(optionsResponse.status()).toBe(200);
+    expect(completionResponse.status()).toBe(302);
+    expect(optionsResponse.request().method()).toBe("POST");
+    expect(optionsResponse.headers()["content-type"] || "").toContain(
+      "application/json",
+    );
+    expect(completionResponse.request().method()).toBe("POST");
+    expect(completionResponse.headers()["location"] || "").toContain(
+      "/users/settings/mfa",
+    );
 
-    const optionsBody = await optionsResponse.json();
-    expect(optionsBody.options.challenge).toBeTruthy();
-    expect(optionsBody.options.rp.id).toBe("localhost");
-    expect(optionsBody.options.user.id).toBeTruthy();
+    await page.waitForURL(/\/users\/settings\/mfa/);
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("#passkeys")).not.toContainText("No passkeys added yet");
   } finally {
     await authenticator.close();
   }

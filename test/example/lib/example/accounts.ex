@@ -340,14 +340,7 @@ defmodule Example.Accounts do
     if user.confirmed_at do
       {:error, :already_confirmed}
     else
-      {signed_token, code, link_token, code_token} =
-        Sigra.Auth.generate_confirmation_token(Repo, user,
-          secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
-          user_token_schema: UserToken
-        )
-
-      Repo.insert!(link_token)
-      Repo.insert!(code_token)
+      {signed_token, code} = insert_confirmation_tokens!(user)
 
       url = confirmation_url_fun.(signed_token)
       email = Example.Accounts.Emails.confirmation_email(user, url, code)
@@ -364,6 +357,34 @@ defmodule Example.Accounts do
 
       {:ok, :sent}
     end
+  end
+
+  defp insert_confirmation_tokens!(user, attempts \\ 5)
+
+  defp insert_confirmation_tokens!(_user, 0) do
+    raise "unable to generate unique confirmation tokens after multiple attempts"
+  end
+
+  defp insert_confirmation_tokens!(user, attempts) do
+    {signed_token, code, link_token, code_token} =
+      Sigra.Auth.generate_confirmation_token(Repo, user,
+        secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
+        user_token_schema: UserToken
+      )
+
+    Repo.transaction(fn ->
+      Repo.insert!(link_token)
+      Repo.insert!(code_token)
+    end)
+
+    {signed_token, code}
+  rescue
+    error in Ecto.ConstraintError ->
+      if error.constraint == "user_tokens_context_token_index" do
+        insert_confirmation_tokens!(user, attempts - 1)
+      else
+        reraise error, __STACKTRACE__
+      end
   end
 
   @doc """

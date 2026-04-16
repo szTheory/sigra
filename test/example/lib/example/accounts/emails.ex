@@ -845,15 +845,19 @@ defmodule Example.Accounts.Emails do
     #{footer_text()}
     """
 
-    base_email(invitation.email)
-    |> subject(
-      dgettext("sigra", "%{inviter} invited you to join %{org}",
-        inviter: inviter_display,
-        org: org.name
+    email =
+      base_email(invitation.email)
+      |> subject(
+        dgettext("sigra", "%{inviter} invited you to join %{org}",
+          inviter: inviter_display,
+          org: org.name
+        )
       )
-    )
-    |> html_body(base_layout(html_content))
-    |> text_body(text_body)
+      |> html_body(base_layout(html_content))
+      |> text_body(text_body)
+
+    _ = Example.Mailer.deliver(email)
+    email
   end
 
   defp inviter_display_name(inviter) do

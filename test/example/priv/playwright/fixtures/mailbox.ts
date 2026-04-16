@@ -43,5 +43,9 @@ export async function extractConfirmationLink(
     throw new Error(`No confirmation link found in email for ${recipient}`);
   }
 
-  return href;
+  const normalized = new URL(href, page.url());
+  normalized.protocol = new URL(page.url()).protocol;
+  normalized.host = new URL(page.url()).host;
+
+  return normalized.toString();
 }

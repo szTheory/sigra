@@ -92,26 +92,28 @@ defmodule ExampleWeb.ConfirmationLive do
   end
 
   def handle_params(%{"token" => token}, _uri, socket) do
-    _user = socket.assigns.current_scope.user
+    if connected?(socket) do
+      case Auth.confirm_user(token) do
+        {:ok, _user} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
+           |> redirect(to: ~p"/")}
 
-    case Auth.confirm_user(token) do
-      {:ok, _user} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-         |> redirect(to: ~p"/")}
+        {:error, :already_confirmed} ->
+          {:noreply, assign(socket, live_action: :already_confirmed)}
 
-      {:error, :already_confirmed} ->
-        {:noreply, assign(socket, live_action: :already_confirmed)}
+        {:error, :token_expired} ->
+          {:noreply, assign(socket, live_action: :expired)}
 
-      {:error, :token_expired} ->
-        {:noreply, assign(socket, live_action: :expired)}
-
-      {:error, :token_invalid} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
-         |> assign(live_action: :new)}
+        {:error, :token_invalid} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+           |> assign(live_action: :new)}
+      end
+    else
+      {:noreply, socket}
     end
   end
 
