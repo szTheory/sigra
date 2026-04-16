@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
-status: verifying
-stopped_at: Completed 27-03-PLAN.md
-last_updated: "2026-04-16T19:26:47.500Z"
+status: executing
+stopped_at: Completed 28-01-PLAN.md
+last_updated: "2026-04-16T21:40:44.040Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 7
+  completed_plans: 7
   percent: 100
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Current focus:** Phase 27 — admin-access-foundation
+**Current focus:** Phase 28 — user-operations-surface
 
 ## Current Position
 
-Phase: 27 (admin-access-foundation) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 28 (user-operations-surface) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-04-16
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
 | Phase 27 P1 | 4 min | 2 tasks | 9 files |
 | Phase 27 P2 | 4 min | 3 tasks | 8 files |
 | Phase 27 P3 | 8 min | 2 tasks | 12 files |
+| Phase 28 P1 | 5min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - [Phase 27]: Example admin routes mount through dedicated global and organization live_session blocks with library-owned admin scope resolution.
 - [Phase 27]: ExampleWeb.Layouts.admin is the host-owned shell seam and keeps Admin plus the active global or organization scope visible across admin pages.
 - [Phase 27]: Example.SigraAdminPolicy uses explicit fixture-backed email prefixes for platform-admin and org-admin tests instead of bootstrap inference.
+- [Phase 28]: Resolved admin user hooks from the configured accounts module when present, otherwise by deriving the accounts context from config.user_schema.
+- [Phase 28]: Kept the Phase 28 hook contract read-only and data-returning so host hooks cannot mutate scoped queries or bypass authorization.
+- [Phase 28]: Created skipped Wave 0 contract tests now so later plans turn named scenarios green instead of inventing surface requirements late.
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-16T19:26:47.047Z
-Stopped at: Completed 27-03-PLAN.md
+Last session: 2026-04-16T21:40:44.032Z
+Stopped at: Completed 28-01-PLAN.md
 Resume file: None

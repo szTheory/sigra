@@ -56,7 +56,12 @@ Plans:
   3. Admin can open a user detail view that summarizes sessions, MFA/passkeys, linked identities, organizations, and recent audit activity in one place.
   4. Admin can revoke one session or all active sessions for a user from the admin UI with clear confirmation and recorded audit coverage.
   5. The core user-management workflows remain usable on mobile and desktop instead of collapsing into a desktop-only table.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 28-01-PLAN.md — Contracts, host hooks, example display-name support, and Wave-0 validation scaffolding
+- [ ] 28-02-PLAN.md — Scope-safe searchable user index plus admin routing and shell navigation handoff
+- [ ] 28-03-PLAN.md — User detail assembly and canonical session-revocation workflows
+- [ ] 28-04-PLAN.md — Responsive polish, browser operator journey, and finalized Phase 28 validation
 **UI hint**: yes
 
 ### Phase 29: Secure Impersonation
@@ -104,7 +109,7 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 27. Admin Access Foundation | 3/3 | Complete   | 2026-04-16 |
-| 28. User Operations Surface | 0/TBD | Not started | - |
+| 28. User Operations Surface | 1/4 | In Progress|  |
 | 29. Secure Impersonation | 0/TBD | Not started | - |
 | 30. Audit Exploration and Export | 0/TBD | Not started | - |
 | 31. Automation-First Verification | 0/TBD | Not started | - |
