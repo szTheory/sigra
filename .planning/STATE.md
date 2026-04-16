@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Phase 22 complete; Phase 23 context captured
-last_updated: "2026-04-16T15:28:29.971Z"
+stopped_at: Preparing v1.1 milestone audit and closeout after Phases 23-25 completion
+last_updated: "2026-04-16T17:20:00.000Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 17
-  completed_phases: 14
-  total_plans: 67
-  completed_plans: 67
+  completed_phases: 15
+  total_plans: 71
+  completed_plans: 71
   percent: 100
 ---
 
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 23 — docs-ci-smoke-upgrade-guide
+**Current focus:** v1.1 milestone audit and closeout
 
 ## Current Position
 
-Phase: 23
-Plan: Not started
-Status: Ready to plan
+Phase: Milestone closeout — v1.1 Foundations
+Plan: Audit milestone readiness and archive if clean
+Status: Ready to audit
 Last activity: 2026-04-16
 
-Progress: [█████████░] 92% (12/13 mainline phases complete)
+Progress: [██████████] 100% (13/13 mainline phases complete)
 
 ## Accumulated Context
 
@@ -93,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 22]: Passkeys default to true in the installer and bind through passkeys? as the single source of truth for later generator gating.
 - [Phase 22]: Install summary text now reports passkeys as enabled by default or explicitly disabled via --no-passkeys from the parsed CLI flag state.
 - [Phase 22]: Passkey coverage stays anchored at the feature manifest boundary without adding runner-specific logic.
+- [Phase 23-docs-ci-smoke-upgrade-guide]: Kept the new docs in the existing Introduction and Recipes HexDocs groups.
+- [Phase 23-docs-ci-smoke-upgrade-guide]: Documented only upgrade commands the repo exercises, including a plain mix compile step.
+- [Phase 23-docs-ci-smoke-upgrade-guide]: Locked guide claims in tests instead of relying on prose review alone.
 
 ### Pending Todos
 
@@ -115,6 +118,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-16T12:49:50.316Z
-Stopped at: Completed 22-01-PLAN.md
+Last session: 2026-04-16T16:15:53.377Z
+Stopped at: Completed 23-docs-ci-smoke-upgrade-guide-01-PLAN.md
 Resume file: None

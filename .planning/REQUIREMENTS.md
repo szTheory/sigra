@@ -1,7 +1,7 @@
 # Sigra v1.1 Foundations — Requirements
 
 **Milestone:** v1.1 "Foundations" — Organizations + Passkeys
-**Status:** Roadmap mapped — 79/79 requirements assigned to phases 11–23
+**Status:** Milestone audit in progress — 79/79 requirements assigned to phases 11–26
 **Last updated:** 2026-04-11
 
 Requirements are written user-centric ("User/developer can X") and grouped
@@ -81,7 +81,7 @@ affect individual requirements.
 ### Passkeys — Foundation (PK)
 
 - [ ] **PK-01**: Developer can add passkeys to a new Phoenix app via `mix sigra.install --passkeys` (default on). Adds `{:wax_, "~> 0.7"}` to mix.exs; host app's `assets/package.json` gets `@simplewebauthn/browser ^13.0.0`.
-- [x] **PK-02**: Developer can disable passkeys entirely via `mix sigra.install --no-passkeys`; no passkey templates, schemas, routes, or JS hooks are generated.
+- [ ] **PK-02**: Developer can disable passkeys entirely via `mix sigra.install --no-passkeys`; no passkey templates, schemas, routes, or JS hooks are generated.
 - [ ] **PK-03**: System generates a `UserPasskey` schema (`user_id`, `credential_id` unique + unencrypted + indexed, `public_key` encrypted via the existing Cloak vault, `sign_count`, `aaguid`, `nickname`, `device_hint`, `transports` array, `rp_id`, `last_used_at`, timestamps).
 - [ ] **PK-04**: System stores `rp_id` on every `UserPasskey` row at registration time so later RP ID rotations can be detected and documented (addresses pitfall P-3).
 - [ ] **PK-05**: System exposes `Sigra.Passkeys` context with `register/3`, `authenticate/3`, `list_for_user/1`, `rename/2`, `delete/2` functions; ceremony primitives in `Sigra.Passkeys.Registration` and `Sigra.Passkeys.Authentication` wrapping `wax_`.
@@ -174,7 +174,7 @@ All 79 v1.1 requirements mapped to exactly one phase. Coverage: 79/79 (100%).
 | REQ-ID | Phase |
 |--------|-------|
 | ORG-01 | 13 |
-| ORG-02 | 18 |
+| ORG-02 | 26 |
 | ORG-03 | 13 |
 | ORG-04 | 13 |
 | ORG-05 | 13 |
@@ -196,9 +196,9 @@ All 79 v1.1 requirements mapped to exactly one phase. Coverage: 79/79 (100%).
 | ORG-UX-07 | 16 |
 | ORG-UX-08 | 16 |
 | ORG-UX-09 | 16 |
-| ORG-UPGRADE-01 | 18 |
-| ORG-UPGRADE-02 | 18 |
-| ORG-UPGRADE-03 | 18 |
+| ORG-UPGRADE-01 | 26 |
+| ORG-UPGRADE-02 | 26 |
+| ORG-UPGRADE-03 | 26 |
 | INV-01 | 17 |
 | INV-02 | 17 |
 | INV-03 | 17 |
@@ -214,14 +214,14 @@ All 79 v1.1 requirements mapped to exactly one phase. Coverage: 79/79 (100%).
 | AUD-03 | 15 |
 | AUD-04 | 15 |
 | AUD-05 | 15 |
-| PK-01 | 19 |
-| PK-02 | 22 |
-| PK-03 | 19 |
-| PK-04 | 19 |
-| PK-05 | 19 |
+| PK-01 | 26 |
+| PK-02 | 26 |
+| PK-03 | 26 |
+| PK-04 | 26 |
+| PK-05 | 26 |
 | PK-06 | 20 |
-| PK-07 | 19 |
-| PK-08 | 19 |
+| PK-07 | 26 |
+| PK-08 | 26 |
 | PK-09 | 20 |
 | PK-10 | 20 |
 | PK-UX-01 | 21 |
@@ -238,17 +238,17 @@ All 79 v1.1 requirements mapped to exactly one phase. Coverage: 79/79 (100%).
 | PK-UX-12 | 21 |
 | GEN-01 | 11 |
 | GEN-02 | 11 |
-| GEN-03 | 18 |
+| GEN-03 | 26 |
 | GEN-04 | 11 |
 | GEN-05 | 11 |
 | GEN-06 | 20 |
 | GEN-07 | 11 |
-| DX-01 | 23 |
-| DX-02 | 23 |
-| DX-03 | 23 |
-| DX-04 | 23 |
-| DX-05 | 23 |
-| DX-06 | 23 |
-| DX-07 | 23 |
-| DX-08 | 23 |
-| DX-09 | 23 |
+| DX-01 | 26 |
+| DX-02 | 26 |
+| DX-03 | 26 |
+| DX-04 | 26 |
+| DX-05 | 26 |
+| DX-06 | 26 |
+| DX-07 | 26 |
+| DX-08 | 26 |
+| DX-09 | 26 |

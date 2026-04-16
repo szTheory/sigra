@@ -41,7 +41,16 @@
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
 - [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-13 completed 2026-04-16; 21-14 planned to close remaining verification gaps) (completed 2026-04-16)
 - [x] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern (completed 2026-04-16)
-- [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
+- [x] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers (completed 2026-04-16)
+**Goal**: Sigra's v1.1 docs, testing helpers, and browser smoke reflect the shipped organizations + passkeys surface end to end: developers can follow a fast getting-started path, execute a tested v1.0 -> v1.1 upgrade runbook, use focused org/passkey test helpers, and rely on CI to catch the load-bearing org and passkey browser regressions before release.
+**Depends on**: Phases 18, 21, 22
+**Requirements**: DX-01, DX-02, DX-03, DX-04, DX-05, DX-06, DX-07, DX-08, DX-09
+**Plans:** 4 plans
+Plans:
+- [x] 23-01-PLAN.md — docs set + HexDocs wiring + upgrade/runbook regression
+- [x] 23-02-PLAN.md — generated fixture helpers + `Sigra.Testing` org-aware assertions
+- [x] 23-03-PLAN.md — focused Playwright org/passkey browser smoke + CI lane
+- [x] 23-04-PLAN.md — DX-09 tenant-scope enforcement spike/fallback closeout
 
 ## Phase Details
 
@@ -308,7 +317,7 @@ Plans:
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
 | 21. Passkey LiveViews + POST-Auth Controller | 14/14 | Complete    | 2026-04-16 |
 | 22. `--passkeys` Generator Wiring | 4/4 | Complete    | 2026-04-16 |
-| 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
+| 23. Docs, CI Smoke, Upgrade Guide | 2/4 | In Progress|  |
 
 ## Backlog
 
@@ -319,7 +328,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 4/4 plans complete
+**Plans:** 2/4 plans executed
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
@@ -391,3 +400,26 @@ Plans:
 Plans:
 - [x] 25-01-PLAN.md — Bug B fix: scan-and-bump migration timestamps + unit regression test
 - [x] 25-02-PLAN.md — Bug A fix: SIGRA_TEST_RESULT sentinel parser + un-skip Sigra.UpgradeIntegrationTest
+
+### Phase 26: Retroactive v1.1 verification closeout
+
+**Goal:** Close the milestone-audit verification debt for v1.1 by producing milestone-grade verification artifacts for Phases 18, 19, 22, and 23, reconciling REQUIREMENTS.md with the verified outcome, and re-running the milestone audit so v1.1 can be archived cleanly.
+
+**Requirements:** ORG-02, ORG-UPGRADE-01, ORG-UPGRADE-02, ORG-UPGRADE-03, PK-01, PK-02, PK-03, PK-04, PK-05, PK-07, PK-08, GEN-03, DX-01, DX-02, DX-03, DX-04, DX-05, DX-06, DX-07, DX-08, DX-09
+
+**Depends on:** Phase 25
+
+**Gap Closure:** Closes the 21 partial requirements identified in `.planning/v1.1-MILESTONE-AUDIT.md`.
+
+**Success criteria:**
+1. Phase 18 has a verification artifact that closes `ORG-02`, `ORG-UPGRADE-01..03`, and `GEN-03` against current test evidence.
+2. Phase 19 has a verification artifact that closes `PK-01`, `PK-03..05`, `PK-07`, and `PK-08` against current test evidence.
+3. Phase 22 has a verification artifact that closes `PK-02` against current install/generator evidence.
+4. Phase 23 has a verification artifact that closes `DX-01..09` against current docs, helper, and browser-smoke evidence.
+5. `.planning/REQUIREMENTS.md` is reconciled to the verified v1.1 outcome.
+6. Re-running the milestone audit yields archive-ready results or a narrower follow-up list than the current 21-item gap set.
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 26-01-PLAN.md — verification closeout for phases 18, 19, 22, and 23 plus requirements reconciliation and milestone re-audit
