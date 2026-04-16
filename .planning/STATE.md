@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: complete
-stopped_at: Completed 21-14-PLAN.md
-last_updated: "2026-04-16T01:40:45Z"
-last_activity: 2026-04-16 -- Completed Phase 21 execution
+status: in_progress
+stopped_at: Completed Phase 21 verification; next mainline phase is 22
+last_updated: "2026-04-16T01:48:03Z"
+last_activity: 2026-04-16 -- Completed Phase 21 verification; ready for Phase 22 discuss
 progress:
-  total_phases: 17
-  completed_phases: 13
+  total_phases: 13
+  completed_phases: 11
   total_plans: 63
   completed_plans: 63
-  percent: 100
+  percent: 85
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 24 — repair-phase-16-17-organizations-generator-templates
+**Current focus:** Phase 22 — `--passkeys` generator wiring
 
 ## Current Position
 
-Phase: 24 (repair-phase-16-17-organizations-generator-templates) — NOT STARTED
+Phase: 22 (`--passkeys` generator wiring) — NOT STARTED
 Plan: Not started
-Status: Completed Phase 21 execution
-Last activity: 2026-04-16 -- Completed Phase 21 execution
+Status: Completed Phase 21 verification
+Last activity: 2026-04-16 -- Completed Phase 21 verification; ready for Phase 22 discuss
 
-Progress: [██████████] 100% (63/63 plans complete)
+Progress: [████████░░] 85% (11/13 mainline phases complete)
 
 ## Accumulated Context
 
@@ -101,8 +101,8 @@ Recent decisions affecting current work:
 
 ### Roadmap Evolution
 
-- Phase 24 added: Repair Phase 16/17 organizations generator templates (addresses DEF-18-01 and DEF-18-02 — pre-existing Phase 16/17 org template bugs surfaced when Phase 18 Wave 1 registered `Features.Organizations`)
-- Phase 25 added: Fix Sigra.Upgrade duplicate-migration-version bug + restore upgrade integration tests (surfaced by PR #9 module-shadow archaeology; Bug A = test-helper parser, Bug B = real product bug in `Sigra.Upgrade` migration-timestamp generator)
+- Phase 24 added: Repair Phase 16/17 organizations generator templates (addresses DEF-18-01 and DEF-18-02 — pre-existing Phase 16/17 org template bugs surfaced when Phase 18 Wave 1 registered `Features.Organizations`). This is outside the main 11-23 v1.1 sequence and can be prioritized separately.
+- Phase 25 added: Fix Sigra.Upgrade duplicate-migration-version bug + restore upgrade integration tests (surfaced by PR #9 module-shadow archaeology; Bug A = test-helper parser, Bug B = real product bug in `Sigra.Upgrade` migration-timestamp generator). This is outside the main 11-23 v1.1 sequence and can be prioritized separately.
 
 ### Blockers/Concerns
 
@@ -112,6 +112,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-16T00:18:14.104Z
-Stopped at: Completed 21-11-PLAN.md
+Last session: 2026-04-16T01:48:03Z
+Stopped at: Completed Phase 21 verification; ready for `gsd-discuss-phase 22`
 Resume file: None

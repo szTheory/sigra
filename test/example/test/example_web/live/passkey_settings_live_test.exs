@@ -208,6 +208,24 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
 
       assert Repo.reload!(passkey).nickname == "Travel key"
     end
+
+    test "delete confirmation warns when removing the last passkey", %{conn: conn} do
+      user = user_fixture()
+      passkey = passkey_fixture(user, nickname: "Laptop key")
+
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user)
+        |> live("/users/settings/mfa")
+
+      html =
+        render_click(view, "confirm_passkey_delete", %{"id" => passkey.credential_id})
+
+      assert html =~ "Delete this passkey?"
+      assert html =~ "last recovery option."
+      assert html =~ "You&#39;re removing your last passkey."
+      assert html =~ "password, authenticator code, backup code, or magic link."
+    end
   end
 
   defp log_in_with_sudo(conn, user) do
