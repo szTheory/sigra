@@ -846,7 +846,7 @@ defmodule Example.Accounts do
   defp decode_optional_base64url(""), do: {:ok, nil}
   defp decode_optional_base64url(value), do: decode_base64url(value)
 
-  defp normalize_challenge(%Wax.Challenge{bytes: bytes}) when is_binary(bytes), do: {:ok, bytes}
+  defp normalize_challenge(%Wax.Challenge{} = challenge), do: {:ok, challenge}
   defp normalize_challenge(bytes) when is_binary(bytes), do: {:ok, bytes}
   defp normalize_challenge(_challenge), do: {:error, :invalid_passkey}
 

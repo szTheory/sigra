@@ -217,6 +217,37 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
     end
   end
 
+  describe "passkey registration completion" do
+    test "successful passkey registration keeps the server challenge struct for verification", %{
+      conn: conn
+    } do
+      user = user_fixture()
+      credential = passkey_fixture(user)
+
+      conn =
+        conn
+        |> log_in_with_sudo(user)
+        |> issue_passkey_challenge(:registration)
+
+      stub_passkey_ceremony(fn
+        {:register, registered_user, response, _opts} ->
+          assert registered_user.id == user.id
+          assert %Wax.Challenge{} = response.challenge
+          {:ok, credential}
+      end)
+
+      conn =
+        post(conn, ~p"/users/settings/mfa/passkeys", %{
+          "passkey" => %{
+            "response" => encoded_passkey_response(%{credential_id: credential.credential_id})
+          }
+        })
+
+      assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Passkey added."
+    end
+  end
+
   describe "MFA passkey completion" do
     test "successful MFA passkey completion writes upgraded session and clears pending keys", %{
       conn: conn
