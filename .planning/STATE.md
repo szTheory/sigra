@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 28-03-PLAN.md
-last_updated: "2026-04-16T22:09:06.612Z"
-last_activity: 2026-04-16
+stopped_at: Completed 29-01-PLAN.md
+last_updated: "2026-04-16T23:18:54Z"
+last_activity: 2026-04-16 -- Completed 29-01 and advanced to 29-02
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 9
-  percent: 100
+  completed_phases: 2
+  total_plans: 12
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Current focus:** Phase 28 — user-operations-surface
+**Current focus:** Phase 29 — secure-impersonation
 
 ## Current Position
 
-Phase: 28 (user-operations-surface) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-04-16
+Phase: 29 (secure-impersonation) — EXECUTING
+Plan: 2 of 5
+Status: Executing Phase 29
+Last activity: 2026-04-16 -- Completed 29-01 and advanced to 29-02
 
-Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
+Progress: [██░░░░░░░░] 20% (1/5 plans complete)
 
 ## Performance Metrics
 
@@ -86,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 28]: Kept the user detail loader library-owned and scope-safe so both global and organization routes resolve the same target data contract.
 - [Phase 28]: Reused Sigra.Auth revoke APIs for revoke-one and revoke-all so audit logging and disconnect side effects remain centralized.
 - [Phase 28]: Preserved the global detail lens while making organization pivots explicit in link copy and destination URLs.
+- [Phase 29]: Impersonation start, stop, and timeout evaluation stay library-owned and reuse real Sigra session primitives.
+- [Phase 29]: Dual-actor attribution flows through `scope.impersonating_from` so `Sigra.Audit.scope_fields/1` remains the canonical assembly point.
 
 ### Pending Todos
 
@@ -108,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-16T22:09:06.609Z
-Stopped at: Completed 28-03-PLAN.md
+Last session: 2026-04-16T23:18:54Z
+Stopped at: Completed 29-01-PLAN.md
 Resume file: None
