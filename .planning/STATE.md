@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: verifying
-stopped_at: Completed 21-09-PLAN.md
-last_updated: "2026-04-15T23:41:50.894Z"
-last_activity: 2026-04-15
+status: executing
+stopped_at: Completed 21-10-PLAN.md
+last_updated: "2026-04-16T00:09:34.019Z"
+last_activity: 2026-04-16
 progress:
   total_phases: 17
-  completed_phases: 13
-  total_plans: 58
-  completed_plans: 58
-  percent: 100
+  completed_phases: 12
+  total_plans: 60
+  completed_plans: 59
+  percent: 98
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 ## Current Position
 
 Phase: 21 (passkey-liveviews-post-auth-controller) — EXECUTING
-Plan: 9 of 9
-Status: Phase complete — ready for verification
-Last activity: 2026-04-15
+Plan: 2 of 11
+Status: Ready to execute
+Last activity: 2026-04-16
 
 Progress: [██████████] 100% (58/58 plans complete)
 
@@ -86,6 +86,8 @@ Recent decisions affecting current work:
 - [Phase 21-passkey-liveviews-post-auth-controller]: Passkey fixture persistence now depends on the concrete Example.Accounts.UserPasskey schema and migrated user_passkeys table.
 - [Phase 21-passkey-liveviews-post-auth-controller]: Route completion tests seed signed Plug-session challenges with explicit bytes because current option routes produce nil challenge bytes outside plan 21-09 ownership.
 - [Phase 21-passkey-liveviews-post-auth-controller]: MFA success mutation is proven at the controller boundary because the current Ecto session store maps persisted mfa_pending rows back to :standard before the route action.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Passkey challenge byte fallback lives in the registration and authentication builders so Plug session signing never receives nil challenge bytes.
+- [Phase 21-passkey-liveviews-post-auth-controller]: Session type hydration explicitly whitelists mfa_pending while keeping unknown persisted strings mapped to :standard.
 
 ### Pending Todos
 
@@ -108,6 +110,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-15T23:41:50.890Z
-Stopped at: Completed 21-09-PLAN.md
+Last session: 2026-04-16T00:09:34.016Z
+Stopped at: Completed 21-10-PLAN.md
 Resume file: None
