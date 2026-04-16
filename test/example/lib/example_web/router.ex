@@ -58,6 +58,21 @@ defmodule ExampleWeb.Router do
     plug Sigra.Plug.RequireSudo, error_handler: ExampleWeb.AuthErrorHandler
   end
 
+  pipeline :admin_global do
+    plug Sigra.Plug.RequireAdminAccess,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      policy: Example.SigraAdminPolicy,
+      mode: :global
+  end
+
+  pipeline :admin_organization do
+    plug Sigra.Plug.RequireAdminAccess,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      policy: Example.SigraAdminPolicy,
+      mode: :organization,
+      organizations: Example.Organizations
+  end
+
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", ExampleWeb do
     pipe_through [:browser_passkey_options]
@@ -189,6 +204,40 @@ defmodule ExampleWeb.Router do
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
+    end
+  end
+
+  # Sigra admin
+  scope "/", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
+    live_session :admin_global,
+      layout: {ExampleWeb.Layouts, :admin},
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {Sigra.LiveView.AdminScope,
+         [mode: :global, policy: Example.SigraAdminPolicy, login_path: "/users/log_in"]}
+      ] do
+      live "/admin", Sigra.Admin.Live.IndexLive, :index
+    end
+  end
+
+  scope "/admin/organizations/:org", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    live_session :admin_organization,
+      layout: {ExampleWeb.Layouts, :admin},
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {Sigra.LiveView.AdminScope,
+         [
+           mode: :organization,
+           organizations: Example.Organizations,
+           policy: Example.SigraAdminPolicy,
+           login_path: "/users/log_in"
+         ]}
+      ] do
+      live "/", Sigra.Admin.Live.OrganizationLive, :show
     end
   end
 end

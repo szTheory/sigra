@@ -5,6 +5,7 @@ defmodule ExampleWeb.Layouts do
   """
   use ExampleWeb, :html
 
+  import ExampleWeb.Components.AdminShell
   # Phase 16 D-27: organization switcher function component.
   import ExampleWeb.Components.OrgSwitcher
 
@@ -77,6 +78,22 @@ defmodule ExampleWeb.Layouts do
         {render_slot(@inner_block)}
       </div>
     </main>
+
+    <.flash_group flash={@flash} />
+    """
+  end
+
+  attr :flash, :map, default: %{}, doc: "the map of flash messages"
+  attr :current_scope, :map, default: nil
+  attr :admin_scope, :map, default: nil
+
+  slot :inner_block, required: true
+
+  def admin(assigns) do
+    ~H"""
+    <.admin_shell admin_scope={@admin_scope} current_scope={@current_scope}>
+      {render_slot(@inner_block)}
+    </.admin_shell>
 
     <.flash_group flash={@flash} />
     """
