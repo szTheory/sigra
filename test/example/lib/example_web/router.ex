@@ -208,7 +208,7 @@ defmodule ExampleWeb.Router do
   end
 
   # Sigra admin
-  scope "/", ExampleWeb do
+  scope "/", alias: false do
     pipe_through [:browser, :require_authenticated, :admin_global]
 
     live_session :admin_global,
@@ -218,11 +218,11 @@ defmodule ExampleWeb.Router do
         {Sigra.LiveView.AdminScope,
          [mode: :global, policy: Example.SigraAdminPolicy, login_path: "/users/log_in"]}
       ] do
-      live "/admin", Sigra.Admin.Live.IndexLive, :index
+      live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
     end
   end
 
-  scope "/admin/organizations/:org", ExampleWeb do
+  scope "/admin/organizations/:org", alias: false do
     pipe_through [:browser, :require_authenticated, :admin_organization]
 
     live_session :admin_organization,
@@ -237,7 +237,7 @@ defmodule ExampleWeb.Router do
            login_path: "/users/log_in"
          ]}
       ] do
-      live "/", Sigra.Admin.Live.OrganizationLive, :show
+      live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show
     end
   end
 end
