@@ -74,6 +74,9 @@ defmodule Sigra.Install.Features.CoverageTest do
       "passkeys/config_injection.ex",
       "passkeys/mix_exs_injection.ex",
       "passkeys/router_injection.ex"
+    ],
+    Sigra.Install.Features.Admin => [
+      "admin/router_injection.ex"
     ]
   }
 
@@ -136,13 +139,15 @@ defmodule Sigra.Install.Features.CoverageTest do
       # repair — the fragment is meant to stay reference-only.
       "organizations/organization_invitation_email.ex"
     ],
-    Sigra.Install.Features.Passkeys => []
+    Sigra.Install.Features.Passkeys => [],
+    Sigra.Install.Features.Admin => []
   }
 
   @features [
     {Sigra.Install.Features.Core, "core"},
     {Sigra.Install.Features.Organizations, "organizations"},
-    {Sigra.Install.Features.Passkeys, "passkeys"}
+    {Sigra.Install.Features.Passkeys, "passkeys"},
+    {Sigra.Install.Features.Admin, "admin"}
   ]
 
   for {feature, subdir} <- @features do

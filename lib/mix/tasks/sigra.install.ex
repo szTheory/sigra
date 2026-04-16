@@ -7,6 +7,8 @@ defmodule Mix.Tasks.Sigra.Install do
       mix sigra.install Accounts User users
       mix sigra.install Accounts User users --no-live
       mix sigra.install Accounts User users --api --jwt
+      mix sigra.install Accounts User users --admin
+      mix sigra.install Accounts User users --no-admin
       mix sigra.install Accounts User users --no-passkeys
 
   Arguments: `context_name schema_name table_name`.
@@ -18,6 +20,7 @@ defmodule Mix.Tasks.Sigra.Install do
     * `--table` — Override the table name
     * `--api` — Generate API token controller (implied by `--jwt`)
     * `--jwt` — Generate JWT token controller
+    * `--admin` / `--no-admin` — Generate admin scaffolding (default: true)
     * `--passkeys` / `--no-passkeys` — Generate passkey scaffolding (default: true)
     * `--yes` — Non-interactive mode (reserved; required by CI smoke jobs)
 
@@ -37,7 +40,8 @@ defmodule Mix.Tasks.Sigra.Install do
   @features [
     Sigra.Install.Features.Core,
     Sigra.Install.Features.Organizations,
-    Sigra.Install.Features.Passkeys
+    Sigra.Install.Features.Passkeys,
+    Sigra.Install.Features.Admin
   ]
 
   @switches [
@@ -48,6 +52,7 @@ defmodule Mix.Tasks.Sigra.Install do
     jwt: :boolean,
     organizations: :boolean,
     passkeys: :boolean,
+    admin: :boolean,
     yes: :boolean
   ]
   @default_opts [
@@ -56,7 +61,8 @@ defmodule Mix.Tasks.Sigra.Install do
     jwt: false,
     binary_id: true,
     organizations: true,
-    passkeys: true
+    passkeys: true,
+    admin: true
   ]
 
   @impl true
@@ -127,6 +133,7 @@ defmodule Mix.Tasks.Sigra.Install do
       jwt: opts[:jwt] || false,
       organizations?: Keyword.get(opts, :organizations, true),
       passkeys?: Keyword.get(opts, :passkeys, true),
+      admin?: Keyword.get(opts, :admin, true),
       adapter: adapter,
       reset_password_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/reset-password",
       settings_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/settings",
