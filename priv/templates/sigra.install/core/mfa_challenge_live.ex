@@ -57,9 +57,6 @@ defmodule <%= web_module %>.MFAChallengeLive do
         </:subtitle>
       </.header>
 
-      <%= <<60, 37, 35, 32>> <> "role=" <> <<34>> <> "tablist" <> <<34>> <> " retired; passkey-first MFA uses explicit actions." <> <<32, 37, 62>> %>
-      <%= <<60, 37, 35, 32>> <> "phx-click=" <> <<34>> <> "switch_tab" <> <<34>> <> " retired; passkey-first MFA uses show_totp/show_backup." <> <<32, 37, 62>> %>
-
 <%= if passkeys? do %>
       <%% # Passkey-first challenge for users with enrolled passkeys. %>
       <div
