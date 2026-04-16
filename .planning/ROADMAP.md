@@ -109,7 +109,7 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 27. Admin Access Foundation | 3/3 | Complete   | 2026-04-16 |
-| 28. User Operations Surface | 2/4 | In Progress|  |
+| 28. User Operations Surface | 3/4 | In Progress|  |
 | 29. Secure Impersonation | 0/TBD | Not started | - |
 | 30. Audit Exploration and Export | 0/TBD | Not started | - |
 | 31. Automation-First Verification | 0/TBD | Not started | - |

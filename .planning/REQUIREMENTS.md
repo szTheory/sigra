@@ -17,8 +17,8 @@
 
 - [x] **USER-01**: Admin can find a user quickly by email, id, name, or organization membership through searchable, paginated admin views.
 - [x] **USER-02**: Admin can filter the user list by the auth and support states that matter operationally: confirmation, MFA/passkey status, lockout state, deletion state, provider mix, and registration date range.
-- [ ] **USER-03**: Admin can open a user detail surface that summarizes the user's current sign-in and security state, including sessions, MFA/passkeys, linked identities, organizations, and recent audit activity.
-- [ ] **USER-04**: Admin can revoke one session or all active sessions for a user from the admin UI with clear confirmation and audit coverage.
+- [x] **USER-03**: Admin can open a user detail surface that summarizes the user's current sign-in and security state, including sessions, MFA/passkeys, linked identities, organizations, and recent audit activity.
+- [x] **USER-04**: Admin can revoke one session or all active sessions for a user from the admin UI with clear confirmation and audit coverage.
 - [x] **USER-05**: The admin user-management surface works well on mobile and desktop for the main jobs-to-be-done, not just as a compressed desktop table.
 
 ### Impersonation
@@ -86,8 +86,8 @@
 | ADMIN-05 | Phase 27 | Complete |
 | USER-01 | Phase 28 | Complete |
 | USER-02 | Phase 28 | Complete |
-| USER-03 | Phase 28 | Pending |
-| USER-04 | Phase 28 | Pending |
+| USER-03 | Phase 28 | Complete |
+| USER-04 | Phase 28 | Complete |
 | USER-05 | Phase 28 | Complete |
 | IMPR-01 | Phase 29 | Pending |
 | IMPR-02 | Phase 29 | Pending |
