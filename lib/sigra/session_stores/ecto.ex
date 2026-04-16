@@ -173,6 +173,7 @@ defmodule Sigra.SessionStores.Ecto do
       case record.type do
         "standard" -> :standard
         "remember_me" -> :remember_me
+        "mfa_pending" -> :mfa_pending
         type when is_atom(type) -> type
         _ -> :standard
       end
