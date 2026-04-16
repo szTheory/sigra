@@ -1,475 +1,327 @@
-# Architecture Research — Sigra v1.1 Foundations Integration Plan
+# Architecture Patterns
 
-**Confidence:** HIGH (grounded in read of v1.0 code at `/Users/jon/projects/sigra/`). Every recommendation references concrete v1.0 file:line.
-**Researched:** 2026-04-11
+**Domain:** Sigra v1.2 Admin Dashboard integration
+**Researched:** 2026-04-16
+**Confidence:** HIGH
 
----
+## Recommended Architecture
 
-## Part A — Organizations
+Sigra v1.2 should extend the existing hybrid lib+generator split instead of introducing a separate "admin subsystem." Keep security-critical impersonation, scope/session hydration, and audit query primitives in the library. Keep admin LiveViews, route wiring, presentation queries, and UX-review artifacts in generated host code. That matches the current pattern: library owns durable security behavior; generated code owns app-facing Phoenix surface and can be customized safely.
 
-### A1. `organization_id` travel through the request lifecycle
+The cleanest shape is one new generator feature, `Sigra.Install.Features.Admin`, default-on with `--no-admin`, added additively beside Core, Organizations, and Passkeys. It should generate an admin surface that reuses the current request lifecycle:
 
-**v1.0 baseline (grounded):**
-- `Sigra.Plug.FetchSession` (`lib/sigra/plug/fetch_session.ex:62-98`) reads `:user_token` from Plug session, fetches `%Sigra.Session{}`, assigns `current_scope` (built via `scope_module.new/1`), stashes session at `conn.private[:sigra_session]`.
-- Example's `fetch_current_scope/2` (`test/example/lib/example_web/user_auth.ex:128-142`) does equivalent directly against `Example.Accounts.get_user_and_session_by_token/1`.
-- LiveView `on_mount` (`user_auth.ex:193-231`) reconstructs scope from serialized `session["user_token"]` in `mount_current_scope/2`.
-- `Sigra.Plug.RequireSudo` (`lib/sigra/plug/require_sudo.ex:57-85`) reads `conn.private[:sigra_session]`, NOT the assign — canonical pattern for downstream plugs.
+`router/live_session -> generated UserAuth + org scope hooks -> library scope hydration -> generated admin query wrapper -> Repo`
 
-**v1.1 extension — concrete changes:**
+Impersonation should be modeled as a session-state transition, not a parallel auth mode. The session row remains owned by the real admin actor, while the hydrated `%Scope{}` presents the effective user plus `impersonating_from`. Audit rows then naturally record `actor_id` as the real admin, `effective_user_id` as the impersonated user, and `organization_id` from the active org already established in v1.1.
 
-**1. Scope struct extension** (`test/example/lib/example/accounts/scope.ex:15-38`):
+## Component Boundaries
 
-```elixir
-defstruct user: nil,
-          active_organization: nil,  # NEW v1.1
-          membership: nil,           # NEW v1.1 (role/status for active_organization)
-          impersonating_from: nil    # RESERVED for v1.2 — DO NOT populate in v1.1
-```
+### New Library Components
 
-Adding `impersonating_from: nil` in v1.1 makes v1.2 purely additive on pattern matches. Generator template at `priv/templates/sigra.install/scope.ex` must emit all three fields.
+| Component | Responsibility | Communicates With |
+|-----------|---------------|-------------------|
+| `Sigra.Impersonation` | Start/stop impersonation, validate guardrails, create replacement session state, emit audit events | `Sigra.Auth`, session store, `Sigra.Audit`, generated wrapper context |
+| `Sigra.Plug.RequireNotImpersonating` | Block sensitive operations while impersonating | Generated router pipelines, existing controllers/LiveViews |
+| `Sigra.Admin.AuditFilters` or `Sigra.Audit.Query` extensions | Library-owned canonical filter semantics for admin audit exploration | Generated admin audit context/LiveViews |
+| `Sigra.Install.Features.Admin` | Generator feature for routes, LiveViews, controllers, tests, Playwright specs, asset hooks | `Mix.Tasks.Sigra.Install`, `Sigra.Install.Runner` |
 
-**2. `Sigra.Session` schema extension** (`lib/sigra/session.ex:64-78`):
+### Modified Library Components
 
-Add ONE field: `field :active_organization_id, :binary_id  # nullable`
+| Component | Change | Why |
+|-----------|--------|-----|
+| `Sigra.Scope.Hydration` | Extend from org-only hydration to full v1.2 scope hydration: effective user first, org/membership second | Existing docs already mark this as the single scope augmentation point |
+| `Sigra.Session` | Add impersonation/effective-user fields | Session row remains the durable source of truth |
+| `Sigra.Audit.scope_fields/1` in `lib/sigra/audit.ex` | Derive `actor_id` from `scope.impersonating_from` when present, keep `effective_user_id` as `scope.user.id` | Enables dual-actor audit without changing every caller |
+| `Sigra.Audit.Query` | Add impersonation-aware filters and indexes that support user/global/org audit views | Audit UI should build on library query primitives, not custom ad hoc SQL |
+| `Sigra.Testing` | Add helpers for impersonated-session setup and audit assertions | Keeps generated tests concise and repeatable |
+| Session-store update path | Support storing/restoring impersonation session attributes | Needed by controller-owned session transitions |
 
-New migration via install-injected `alter table(:user_sessions)`. See A4 for rationale.
+### New Generated Components
 
-**3. New plug `Sigra.Plug.LoadActiveOrganization`** (library, new):
+| Component | Responsibility | Communicates With |
+|-----------|---------------|-------------------|
+| `MyAppWeb.AdminAccess` | Host-owned admin authorization gate for platform admin routes | Router pipelines, LiveView `on_mount`, host user schema/policy |
+| `MyApp.Accounts.Admin` | Presentation/query wrapper for user list, user detail, audit search, CSV export | Repo, generated schemas, `Sigra.Audit.Query` |
+| `MyAppWeb.Admin.UsersLive.Index` | User list, search/filter, entry point to detail + impersonation | `Accounts.Admin` |
+| `MyAppWeb.Admin.UsersLive.Show` | Sessions, security state, identities, memberships, danger-zone actions | `Accounts.Admin`, generated `Accounts` delegates |
+| `MyAppWeb.Admin.AuditLive.Index` | Global/org/user audit exploration UI | `Accounts.Admin`, `Sigra.Audit.Query` |
+| `MyAppWeb.Admin.ImpersonationController` | POST start/stop endpoints that renew/replace browser session | `Accounts.start_impersonation/3`, `Accounts.stop_impersonation/2`, `UserAuth.put_user_session_token/2` |
+| Shared admin components/layout hooks | Banner, filters, tables, breadcrumbs, light/dark/branding hooks | Admin LiveViews and root layout |
+| Playwright admin specs + report scripts | UX verification, screenshots, video, HTML report generation | Existing Playwright project and CI scripts |
 
-```elixir
-def call(conn, opts) do
-  case conn.assigns[:current_scope] do
-    nil -> conn
-    scope ->
-      session = conn.private[:sigra_session]
-      scope = Organizations.hydrate_scope(scope, session, opts)
-      assign(conn, :current_scope, scope)
-  end
-end
-```
+### Modified Generated Components
 
-Runs AFTER `fetch_current_scope`. Loads `active_organization` from `session.active_organization_id`, loads membership row, falls back to "first membership" if session pointer is stale. No DB hit if user has zero memberships.
+| Component | Change | Why |
+|-----------|--------|-----|
+| `router.ex` | Add admin route scopes and pipelines | Admin surface needs explicit entry points, not route-by-route leakage |
+| `UserAuth` | Mount/assign impersonation banner state from hydrated scope; keep session mutation in controllers | Matches current controller-owned session model |
+| Generated `Scope` module | Add `put_impersonation/2` helper, keep reserved `impersonating_from` field | Makes scope mutation explicit instead of open-coded |
+| Generated `Accounts` context | Add thin delegates into library impersonation/session APIs | Preserve current Phoenix context API for callers |
+| Existing sensitive routes | Apply `RequireNotImpersonating` to account settings, MFA enrollment, API token creation, destructive account actions | Prevent target-user takeover while impersonating |
+| Example/fixture app | Add seeds/fixtures for platform admin, org admin, regular user, audit-heavy scenarios | Required for deterministic browser/system coverage |
 
-**4. `on_mount` hydration** — add to generated `user_auth.ex`. Store `active_organization_id` in the **Plug session** on org switch (mirrors how `:mfa_pending` is mirrored at `fetch_session.ex:90-94`) so LiveView mount receives it in serialized `session` map.
+## Route and Surface Shape
 
-**5. Audit auto-attach** — modify `Sigra.Audit.build_attrs/4` (`lib/sigra/audit.ex:384-404`). Add scope-aware helper:
+Use two route families that render the same admin LiveViews with different access constraints:
 
-```elixir
-def metadata_from_scope(scope, extra \\ %{}) do
-  base = %{}
-  base = if scope && scope.active_organization,
-    do: Map.put(base, :organization_id, scope.active_organization.id),
-    else: base
-  # RESERVED for v1.2:
-  # base = if scope && scope.impersonating_from,
-  #   do: Map.put(base, :effective_user_id, scope.user.id),
-  #   else: base
-  Map.merge(base, extra)
-end
-```
+1. `/admin/...`
+   Platform-admin surface. Global user search, global audit, cross-org impersonation.
 
-**Better long-term:** promote `organization_id` to a real column on `audit_events` in v1.1. Makes filtering index-friendly and v1.2 per-org audit views trivial. Recommend: **add `organization_id :binary_id` column + index**, populate from `metadata_from_scope`. Leave room for v1.2's `effective_user_id` column alongside.
+2. `/organizations/:org/admin/...`
+   Org-admin surface. Reuse existing `:org_scoped` pipeline and `Sigra.Plug.RequireMembership` with `[:owner, :admin]`. Queries are automatically constrained to `current_scope.active_organization`.
 
-**6. Oban job args — org context preservation:** Pattern: every library-emitted worker accepts `args["organization_id"]` and `args["actor_id"]`. Enqueuer passes `metadata_from_scope(scope)` flattened. Workers reconstruct minimal `%Scope{}` (user + active_organization loaded from DB) for audit calls. **Explicit is better than automatic middleware.** Document as D-v1.1: Oban workers carry `organization_id` in args; reconstruct scope on perform.
+This keeps platform admin and org admin visibility separate by construction while still sharing the same generated components and query layer. The distinction belongs in routing and query constraints, not in duplicated UI modules.
 
-**7. Email delivery — org context:** Generated `emails.ex` template grows one optional parameter per builder: `build_password_reset_email(user, url, opts)` where `opts[:organization]` is optional. Template renders "Password reset for [email] in [org.name]" only when non-nil. Absent `:organization` renders v1.0 body verbatim. **No breaking change.**
+## Data Flow
 
----
+### 1. Admin User List / Detail
 
-### A2. Correct Ecto query pattern — `organization_id` does NOT live on `users`
+1. Request enters admin route.
+2. Generated auth pipeline mounts `current_scope`.
+3. Library scope hydrator resolves effective user state, then active org/membership.
+4. Generated `AdminAccess` gate decides whether the request is platform-admin or org-admin authorized.
+5. Generated `Accounts.Admin` builds presentation queries using generated schemas plus library audit/query helpers.
+6. LiveView renders list/detail; mutations call generated `Accounts` delegates, which call Sigra library functions where security-sensitive.
 
-**WRONG (tempting, broken):**
+### 2. Start Impersonation
 
-```elixir
-# DO NOT DO THIS
-schema "users" do
-  field :organization_id, :binary_id  # WRONG — users are shared across orgs
-end
-```
+1. Admin clicks impersonate on user detail.
+2. Browser submits POST to generated `Admin.ImpersonationController`; do not start impersonation from a pure LiveView event because session rotation remains controller-owned in Sigra.
+3. Generated controller calls `Accounts.start_impersonation(current_scope, target_user, opts)`.
+4. Library `Sigra.Impersonation.start/4` validates:
+   - sudo freshness
+   - actor authorization
+   - target eligibility
+   - org boundary rules
+   - forbidden self/loop cases
+5. Library creates a replacement session state that preserves the real actor and sets the effective user/expiry metadata.
+6. Controller renews the Plug session and stores the returned token with `UserAuth.put_user_session_token/2`.
+7. Next request/mount hydrates `%Scope{user: target, impersonating_from: actor, active_organization: target_org}`.
+8. Audit row records `actor_id = actor.id`, `effective_user_id = target.id`, `target_id = target.id`, plus org/session metadata.
 
-Forces one-user-per-org, makes "same email at two companies" impossible — table-stakes B2B requirement.
+### 3. Stop Impersonation
 
-**RIGHT — many-to-many via memberships:**
+1. Banner "stop impersonating" submits POST to controller.
+2. Library restores a fresh non-impersonated session for the original admin actor, restoring the saved pre-impersonation org if still valid.
+3. Controller renews Plug session and swaps token.
+4. Scope hydrates back to the original admin user.
+5. Audit logs `admin.impersonation.stop`.
 
-```elixir
-schema "organizations" do
-  field :name, :string
-  field :slug, :string          # unique
-  field :settings, :map         # jsonb
-  field :deleted_at, :utc_datetime
-  has_many :memberships, OrganizationMembership
-  many_to_many :users, User, join_through: OrganizationMembership
-  timestamps()
-end
+### 4. Audit Exploration
 
-schema "organization_memberships" do
-  belongs_to :user, User
-  belongs_to :organization, Organization
-  field :role, Ecto.Enum, values: [:owner, :admin, :member]
-  field :status, Ecto.Enum, values: [:active, :invited, :suspended]
-  field :joined_at, :utc_datetime
-  belongs_to :invited_by, User, foreign_key: :invited_by_id
-  timestamps()
-end
-```
+1. Audit LiveView collects filters from UI.
+2. Generated `Accounts.Admin` translates UI params into library-owned `Sigra.Audit.Query` filters.
+3. Library query builder produces canonical Ecto query.
+4. Generated code may add joins/preloads for user email/name display, because that schema ownership is host-app specific.
+5. Same base query powers HTML list, CSV export, and impersonation-focused views.
 
-Unique index on `(user_id, organization_id)`. Last-owner guard is **application-level** in `Sigra.Organizations.remove_membership/2`, not DB constraint.
+### 5. UX Review Artifact Generation
 
-**Example queries:**
+1. Generator emits admin Playwright specs inside the existing `priv/playwright/tests/` tree.
+2. CI/local scripts run the existing browser stack, now with admin-specific flows.
+3. Artifacts stay generated/app-owned: HTML report, screenshots, traces, optional video.
+4. Route/controller shell smoke extends existing non-browser scripts to cover admin and impersonation endpoints outside the browser happy path.
 
-```elixir
-# Users in an org
-from u in User,
-  join: m in OrganizationMembership, on: m.user_id == u.id,
-  where: m.organization_id == ^org_id and m.status == :active
+## Scope and Session Model
 
-# Orgs for a user (for switcher)
-from o in Organization,
-  join: m in OrganizationMembership, on: m.organization_id == o.id,
-  where: m.user_id == ^user_id and m.status == :active and is_nil(o.deleted_at),
-  order_by: [asc: o.name]
+### Recommended Session Fields
 
-# Canonical scope-aware query: app resources embed organization_id
-from p in Post,
-  where: p.organization_id == ^scope.active_organization.id
-```
+Add these fields to generated `user_sessions` and `Sigra.Session`:
 
----
+| Field | Purpose |
+|-------|---------|
+| `effective_user_id` | Target user during impersonation; `nil` otherwise |
+| `impersonation_started_at` | Auditability and banner UX |
+| `impersonation_expires_at` | Hard time bound enforced in hydration/plug path |
+| `impersonator_active_organization_id` | Restore the admin's prior org on stop |
 
-### A3. Org switcher placement in Phoenix 1.8 layouts
+Keep `user_id` as the real authenticated actor. Do not overwrite it with the impersonated user. That preserves revocation semantics, actor identity, and audit consistency.
 
-**Current layout** (`test/example/lib/example_web/components/layouts.ex:36-70`) is `<header class="navbar">` with flex-1 brand + flex-none action list. Standard Phoenix 1.8 scaffold.
+### Recommended Scope Hydration Order
 
-**Insertion point:** Inside `<div class="flex-none">`, before existing `<ul>`, add a LiveComponent org switcher (daisyUI `dropdown`, already in use in v1.0 MFA pages).
+1. Base actor is loaded from `session.user_id`.
+2. If `effective_user_id` is present and unexpired:
+   - set `scope.user` to the effective user
+   - set `scope.impersonating_from` to the real actor
+3. If impersonation has expired:
+   - fail closed by clearing impersonation session state
+   - rehydrate as the original actor
+   - emit one expiration audit event
+4. Resolve `active_organization` and `membership` against `scope.user`, not the underlying actor.
 
-**NOT a modal** (wrong for frequent action). **NOT a sidebar** (doesn't exist; adding one clashes with v1.2 admin dashboard layout).
+This order matters. Org hydration against the wrong user would leak the actor's membership into an impersonated request.
 
-**Dropdown shows:** active org name + role badge, separator, other orgs (click = switch), separator, "Create organization", "Organization settings" (owner/admin only).
+## Schema and Migration Implications
 
-**Why LiveComponent not function component:** switching orgs needs to POST to a controller action (not LV event) to rotate the Plug session. Use `<.form action={~p"/orgs/switch"}>` inside the dropdown.
+### `user_sessions`
 
----
+Add the impersonation fields above plus these indexes:
 
-### A4. Active-org storage — recommendation: **session column**
+| Index | Reason |
+|-------|--------|
+| `(effective_user_id)` | Fast lookups for session invalidation / admin detail |
+| `(impersonation_expires_at)` | Cleanup / expiry checks |
 
-| Option | Pros | Cons |
-|---|---|---|
-| **`active_organization_id` on `user_sessions`** | Session-lifetime scope. Survives reloads. Atomic with rotation. One row write on switch. | One column per session row. |
-| `user_active_orgs` table (one per user) | Persists across logins. | Single global active org — wrong model. Race conditions. Extra table. |
-| Signed cookie | Zero DB writes. | Lost on logout. Tab-desynced. Cookie bloat. Can't invalidate remotely. |
+No separate impersonation table is needed for v1.2. The existing session table is already the durable per-browser state boundary.
 
-**Recommend: session column.** Matches v1.0 session-centric model (`lib/sigra/session.ex` already carries per-session state: `sudo_at`, `ip`, `geo_*`). Multi-tab: each tab has own Plug session. Aligns with v1.2 impersonation (also per-session).
+### `audit_events`
 
-**Multi-tab nuance:** v1.1 scope is single active org per session. Per-tab isolation via LiveView `connect_params` — document as v1.2+ enhancement.
+The v1.1 groundwork is correct: keep `organization_id` and `effective_user_id` on rows. Extend migration/index coverage with:
 
----
+| Index | Reason |
+|-------|--------|
+| `(effective_user_id, inserted_at)` | Per-user audit exploration and impersonation traces |
+| `(actor_id, inserted_at)` | Already present; keep as the actor-centric view |
+| `(organization_id, inserted_at)` | Already present; keep as org-admin audit view |
 
-### A5. Route scoping — recommendation: **session-only, no URL prefix**
+No new audit table is necessary. The missing piece is better query/filter support, not storage shape.
 
-| Option | Pros | Cons |
-|---|---|---|
-| **Session-only** | No route explosion. Zero changes to v1.0 routes. Bookmarks work. | URLs don't disclose active org. |
-| `/orgs/:slug/...` prefix | Shareable per-org links. Multi-tab coherent via URL. | Every v1.0 route needs sibling. LiveView plumbing. Conflicts with non-org resources. |
+## Audit Query Implications
 
-**Recommend: session-only for v1.1.** Every v1.0 route stays byte-identical. `Sigra.Plug.RequireMembership` asserts session active org matches expected. v1.2's admin dashboard can introduce `/admin/orgs/:slug/...` as separate scope without disruption. Revisit v1.3 if users demand shareable org-scoped URLs.
+Extend `Sigra.Audit.Query` with a small set of admin-facing filters instead of letting generated code invent query semantics:
 
----
+| Filter | Use |
+|--------|-----|
+| `:effective_user_id` | Existing per-target-user view |
+| `:organization_scope` | Existing org-admin view |
+| `:actor_id` | Existing actor-admin view |
+| `:impersonation` | New boolean filter for rows where actor and effective user diverge |
+| `:session_id` | Optional, if session id continues to be logged in metadata |
 
-### A6. v1.0 email templates — what changes
+Keep joins to host `users` tables out of the library. The library should own row semantics and portable filters; generated code should own display joins, labels, CSV column choices, and any app-specific search fields.
 
-| Email | v1.1 change |
-|---|---|
-| Password reset | Subject unchanged. Body adds `<p :if={@organization}>Account: [email] — member of [@organization.name]</p>` above reset link. |
-| Email confirmation | No change (user-identity, not org-bound). |
-| Suspicious login | Add active org to body. |
-| Account deletion | No change. |
-| **NEW** org invitation | New template `organization_invitation_email.ex` — invite link with HMAC token, org name, inviter name, expiry. |
+## Ownership Rules: Library vs Generated Code
 
-All additive via optional `opts[:organization]`. v1.0 call sites that don't pass it render unchanged.
+### Library Owns
 
----
+- Impersonation validation and session-state transitions
+- Scope hydration rules
+- Sensitive-operation blocking plugs
+- Audit field derivation and canonical audit filters
+- Generator feature plumbing and templates
+- Test helpers that validate audit/session behavior
 
-### A7. Migration path — recommendation: **auto-backfill personal orgs**
+### Generated Code Owns
 
-| Option | Pros | Cons |
-|---|---|---|
-| **Auto-backfill personal org per user** | Zero-friction upgrade. `scope.active_organization` never nil post-migration. Simplifies downstream code. | Users who didn't want MT get vestigial org. |
-| Require explicit create/join | Clean slate. | Breaking: v1.0 users log in post-upgrade with `nil` active org. Every LV needs "no org" branch. |
+- Route layout and admin shell organization
+- Platform-admin authorization policy
+- LiveView/HEEx UI, branding hooks, responsive behavior
+- User list/detail query shaping and CSV rendering
+- Browser/system smoke specs and review artifacts
+- Example app seeds, fixtures, and demoability
 
-**Recommend: auto-backfill, opt-out via `--no-backfill-personal-orgs`.** Generator emits idempotent migration. Adapter-branch for MySQL/SQLite per existing `sigra.install.ex:89` pattern. Users can rename/delete personal orgs post-backfill.
+### Boundary Rule
 
-**Backfill slug edge case:** users sharing email casing under citext. Slugify on lowercased email + 8-char hash for uniqueness.
+Do not put platform-admin policy in the library. Sigra already treats authorization as out of scope. The library can enforce impersonation invariants once a caller is authorized to attempt impersonation, but the definition of "platform admin" stays generated and host-editable.
 
----
+## Patterns to Follow
 
-## Part B — Passkeys
+### Pattern 1: Controller-Owned Session Transitions
 
-### B1. Passkey challenge storage — recommendation: **signed+encrypted Plug session**
+**What:** Start/stop impersonation through POST controller endpoints that rotate or replace browser session state.
 
-| Option | Pros | Cons |
-|---|---|---|
-| **Plug session (signed+encrypted)** | Zero new infra. Uses `Plug.Crypto` (already in `Sigra.Token`). Auto-cleanup on session end. No TTL worker. Multi-node safe. | Cookie size (~50 bytes b64). |
-| ETS with TTL | Fast, no cookie. | Single-node only — breaks multi-node. Needs supervisor + cleanup timer. |
-| DB table with TTL | Multi-node safe. | Extra migration + schema + cleanup Oban job. Overkill for 60s ephemeral state. |
+**When:** Any operation that changes who the browser is acting as.
 
-**Recommend: Plug session under `:passkey_challenge`.** Phoenix's Plug session is already signed; wrap via `Sigra.Token.generate/4` with purpose `"sigra-passkey-challenge"`, `max_age: 60`. Matches how v1.0 stashes `:mfa_pending` (`fetch_session.ex:90`).
+**Why:** Sigra already treats login/logout/session mutation as controller-owned and stores session truth in the DB-backed session row.
 
-**Store shape:** `%{challenge: binary, user_id: id | nil, mode: :registration | :authentication, inserted_at: iso8601}`.
+### Pattern 2: Shared LiveViews, Distinct Route Scopes
 
----
+**What:** Reuse the same admin LiveViews under `/admin` and `/organizations/:org/admin`.
 
-### B2. RP ID + origin — **runtime configuration is mandatory**
+**When:** Platform-admin and org-admin surfaces differ mostly by query scope, not by component tree.
 
-Compile-time forces separate build per environment (dev/staging/prod/PR-review apps). **Runtime is non-negotiable.** Follow v1.0 pattern at `user_auth.ex:36-45` which resolves `cookie_domain` at runtime.
+**Why:** Keeps one UI implementation while preserving explicit boundaries in routing.
 
-```elixir
-# config/runtime.exs
-config :sigra, :passkeys,
-  rp_id: System.get_env("PASSKEY_RP_ID", "localhost"),
-  rp_name: System.get_env("PASSKEY_RP_NAME", "MyApp"),
-  origin: System.get_env("PASSKEY_ORIGIN", "http://localhost:4000"),
-  attestation: :none,  # default per spec/OWASP
-  timeout_ms: 60_000
-```
+### Pattern 3: Library Query Primitive, Generated Presentation Query
 
-Validate via `NimbleOptions` inside `Sigra.Passkeys.config/0` for fast-fail at first use.
+**What:** Build audit filters in the library, then let generated code add joins/preloads/CSV formatting.
 
----
+**When:** Audit exploration and user-detail panes.
 
-### B3. Passkey credentials — schema + ceremony trace
+**Why:** The library owns audit semantics; the host app owns schema presentation.
 
-**New generated schema** `user_passkeys`:
+## Anti-Patterns to Avoid
 
-```elixir
-schema "user_passkeys" do
-  belongs_to :user, User
-  field :credential_id, :binary           # unique — raw credential id bytes
-  field :public_key, MyApp.Accounts.Encrypted.Binary  # cloak_ecto encrypted
-  field :sign_count, :integer, default: 0
-  field :aaguid, :binary                  # authenticator model
-  field :nickname, :string                # user-facing name
-  field :device_hint, :string             # UA-derived
-  field :transports, {:array, :string}    # ["internal", "usb", "nfc"]
-  field :last_used_at, :utc_datetime
-  timestamps()
-end
-```
+### Anti-Pattern 1: Impersonation via `session.user_id` overwrite
 
-Unique index on `credential_id`. `public_key` reuses existing Cloak vault at `priv/templates/sigra.install/encrypted.ex` (wired for OAuth tokens in v1.0 — zero-new-infra reuse).
+**Why bad:** Destroys actor identity, complicates revocation, and breaks dual-actor audit semantics.
 
-**End-to-end registration ceremony:**
+**Instead:** Keep actor in `user_id`, target in `effective_user_id`, and hydrate scope accordingly.
 
-1. Client loads `PasskeyEnrollmentLive` → pushes `"init_registration"` event
-2. LiveView calls `Sigra.Passkeys.Registration.new_challenge(user, opts)`:
-   - `Wax.new_registration_challenge/1` produces `%Wax.Challenge{}`
-   - Signed via `Sigra.Token.generate/4` (`max_age: 60`), written to Plug session
-   - Client options map returned to JS hook
-3. JS hook invokes `navigator.credentials.create({publicKey: options})` → returns credential
-4. JS hook pushes `"complete_registration"` with credential JSON
-5. LiveView reads challenge from Plug session, calls `Sigra.Passkeys.Registration.verify/4`:
-   - `Wax.register/3` verifies attestation
-   - On success, `Sigra.Audit.log_multi_safe/3` with action `"passkey.register"` inside an `Ecto.Multi` that inserts the `UserPasskey` row (mirrors atomic-multi pattern at `Sigra.Auth.create_session/4`)
-6. Email notification via `emails.ex` "New passkey added" (reuses suspicious-login shape)
+### Anti-Pattern 2: Pure LiveView impersonation toggles
 
-**Authentication** mirrors steps with `Wax.authenticate_new_challenge/1` + `Wax.authenticate/5`, then delegates to `Example.Accounts.generate_user_session_token/2` path. Login remains POST per D-29 (never LiveView event) — see B5.
+**Why bad:** Hides session mutation inside socket events and drifts from the current controller-owned session model.
 
----
+**Instead:** Use POST controller endpoints and then let LiveView consume the resulting session state.
 
-### B4. `Sigra.Plug.PasskeyChallenge` placement
+### Anti-Pattern 3: Library-owned admin authorization
 
-**After `fetch_current_scope`**, before route handler. Registration requires authenticated user; authentication uses `current_scope == nil` to decide passkey-as-primary vs passkey-as-2FA branches.
+**Why bad:** Reintroduces Sigra-owned authorization policy even though authorization is explicitly out of scope.
 
-**Better: scoped plug**, only in `/users/passkeys/*` scope, not pipeline-wide. Keeps cost zero for non-passkey requests.
+**Instead:** Generated platform-admin gate plus library-owned security invariants.
 
----
+### Anti-Pattern 4: Separate audit query implementations per UI
 
-### B5. JS hooks pattern — first in Sigra, propose the convention
+**Why bad:** Global, org, and per-user audit views will drift in filter semantics and pagination behavior.
 
-**v1.0 has zero JS hooks** (confirmed by `ls test/example/assets/js`). Propose:
+**Instead:** One canonical library query builder with generated presentation wrappers.
 
-**Template layout (new):**
+## Build Order
 
-```
-priv/templates/sigra.install/passkeys/assets/js/
-  passkey_hooks.js          # exports { PasskeyRegister, PasskeyAuthenticate }
-```
+1. **Session + scope groundwork**
+   - Add impersonation fields to `user_sessions` and `Sigra.Session`
+   - Extend scope hydration to resolve effective user before org membership
+   - Add `Scope.put_impersonation/2`
+   - This is the dependency floor for everything else
 
-Generator installs to `assets/js/passkey_hooks.js` and **injects into** `assets/js/app.js`:
+2. **Generator feature skeleton**
+   - Add `Sigra.Install.Features.Admin`
+   - Wire `--no-admin`
+   - Generate minimal router/admin access scaffolding and example app placeholders
+   - This keeps subsequent work inside the proven feature-manifest pattern
 
-```javascript
-import { PasskeyRegister, PasskeyAuthenticate } from "./passkey_hooks"
-let Hooks = { PasskeyRegister, PasskeyAuthenticate }
-let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks, ... })
-```
+3. **Admin query layer**
+   - Add generated `Accounts.Admin`
+   - Extend `Sigra.Audit.Query`
+   - Add migration indexes for `effective_user_id`
+   - This gives the UI stable read models before design polish
 
-Injection uses same `inject_into_files/2` pattern already proven at `sigra.install.ex:332+` (router injection). Guard with marker comment for idempotent re-runs.
+4. **Admin UI shell and user-management flows**
+   - Implement `/admin` and `/organizations/:org/admin` route families
+   - Build user index/detail, sessions/security/memberships panes
+   - Keep impersonation button present but disabled until step 5 lands
 
-**Hook shape (enrollment):**
+5. **Secure impersonation**
+   - Add library `Sigra.Impersonation`
+   - Add controller start/stop flow, banner state, and `RequireNotImpersonating`
+   - Update audit field derivation
+   - This depends on the session/scope model and is easier once the user detail page exists
 
-```javascript
-export const PasskeyRegister = {
-  mounted() {
-    this.handleEvent("passkey:create", async ({ options }) => {
-      try {
-        const publicKey = decodePublicKeyOptions(options)
-        const credential = await navigator.credentials.create({ publicKey })
-        this.pushEvent("passkey:registered", encodeCredential(credential))
-      } catch (err) {
-        this.pushEvent("passkey:error", { message: err.message })
-      }
-    })
-  }
-}
-```
+6. **Expanded audit UI**
+   - Add global/org/user audit exploration, impersonation filter, CSV export
+   - This should follow impersonation so the audit UI reflects the final row semantics
 
-**Critical — D-29 (login via POST, not LV event):** authentication hook **cannot** complete login via `push_event` because logging in requires rotating the Plug session, which LV events cannot do (they run over the socket, not HTTP). Pattern: LiveView collects assertion, posts it to plain controller (`POST /users/passkeys/authenticate`) via hidden form auto-submitted from JS. Mirrors v1.0's "login is plain controller" (`sigra.install.ex:254-263`, `router.ex:53`). Document as **D-v1.1-passkey-login-post**.
+7. **Automation and review artifacts**
+   - Extend Playwright with admin flows
+   - Extend shell/browser smoke to admin endpoints
+   - Add screenshot/report conventions and CI orchestration
+   - This lands last so tests track stable routes and copy, but start the fixture/seeding work earlier when step 4 begins
 
----
-
-## Part C — Cross-Cutting
-
-### C1. Conditional generator template pattern — **subdirectory + feature manifest hybrid**
-
-**Recommend: subdirectory convention + small Elixir feature manifest module.**
-
-```
-priv/templates/sigra.install/
-  core/           # always generated (v1.0 files move here)
-    user.ex
-    auth.ex
-    ...
-  organizations/  # generated when :organizations opt true
-    organization.ex
-    organization_membership.ex
-    organization_invitation.ex
-    organization_switcher_live.ex
-    ...
-  passkeys/       # generated when :passkeys opt true
-    user_passkey.ex
-    passkey_enrollment_live.ex
-    passkey_hooks.js
-    ...
-```
-
-Each subdir has tiny manifest module implementing shared behaviour:
-
-```elixir
-defmodule Sigra.Install.Features.Organizations do
-  @behaviour Sigra.Install.Feature
-
-  def enabled?(opts), do: Keyword.get(opts, :organizations, true)
-
-  def files(binding) do
-    otp = binding[:otp_app]
-    ctx = binding[:context_underscore]
-    [
-      {:eex, "organizations/organization.ex",
-       Path.join(["lib", otp, ctx, "organization.ex"])},
-      # ...
-    ]
-  end
-
-  def injections(binding), do: [...]
-end
-```
-
-`sigra.install.ex` walks `[Features.Core, Features.Organizations, Features.Passkeys, Features.Admin]`, collects files where `enabled?/1` true. Main `generate/4` (`sigra.install.ex:83-319`) shrinks — less duplication, clearer feature boundaries.
-
-**Why this unblocks v1.2:** adding `--no-admin` = add `Features.Admin` module + `admin/` subdir. No rework. **Load-bearing for v1.2.**
-
-**Migration plan for v1.1:** introduce feature behaviour + subdirs, move v1.0 flat templates into `core/` in one mechanical PR (paths only, no content changes). Then add organizations/passkeys as features on top.
-
----
-
-### C2. New test helpers needed
-
-| Helper | Signature | Where |
-|---|---|---|
-| `create_organization/1` | `(attrs \\ %{}) :: %Organization{}` | `organization_fixtures.ex` (new) |
-| `create_membership/3` | `(user, org, attrs \\ %{role: :member}) :: %OrganizationMembership{}` | `organization_fixtures.ex` |
-| `log_in_user_with_org/3` | `(conn, user, org) :: conn` — wraps `log_in_user/2` + sets session `active_organization_id` | `conn_case_helpers.ex` |
-| `register_passkey/2` | `(user, opts \\ []) :: %UserPasskey{}` — inserts fake passkey via Wax test vectors | `passkey_fixtures.ex` (new) |
-| `authenticate_with_passkey/2` | `(conn, user) :: conn` — mimics POST-authenticate without browser | `conn_case_helpers.ex` |
-| `assert_scope_has_org/2` | `(conn_or_socket, org_or_id)` | `Sigra.Testing` library module |
-| `assert_membership/3` | `(user, org, role)` | `Sigra.Testing` |
-| `assert_audit_logged_for_org/2` | filters on metadata.organization_id | `Sigra.Testing` |
-
----
-
-## Part D — Build Order (Dependency-Respecting)
-
-Hard deps:
-
-1. **Phase 1 — Generator feature system** (C1 subdirs + behaviour). Blocks everything. Skeleton + routing layer, no templates moved yet.
-2. **Phase 2 — Scope struct + session column extension**. `:active_organization`, `:membership`, `:impersonating_from` fields + `user_sessions.active_organization_id` column. Mechanical, no business logic. Unblocks all org-aware plugs/LVs.
-3. **Phase 3 — Organizations schemas + context** (`Organization`, `OrganizationMembership`, `OrganizationInvitation`, `Sigra.Organizations`). Pure data layer.
-4. **Phase 4 — Org plugs + scope hydration** (`LoadActiveOrganization`, `RequireMembership`, `on_mount` hydration). Needs 2 + 3.
-5. **Phase 5 — Audit integration** (`metadata_from_scope`, `organization_id` column, `:organization_id` query filter). Needs 4.
-6. **Phase 6 — Org LiveViews + switcher** (Switcher, Settings, Members, InvitationAccept). Needs 3, 4, 5.
-7. **Phase 7 — Org invitation flow + email template**. Uses `Sigra.Token.generate_hashed_token/0` unchanged. Needs 6.
-8. **Phase 8 — Backfill migration + generator wiring for `--organizations`**. Needs 7.
-9. **Phase 9 — Passkey schema + `Sigra.Passkeys.*` contexts**. Independent of orgs. Can start any time after phase 1. Depends on `wax_` dep addition.
-10. **Phase 10 — `PasskeyChallenge` plug + runtime config + JS hooks infra**. Needs 9.
-11. **Phase 11 — Passkey LiveViews + POST-auth controller**. Needs 10.
-12. **Phase 12 — Generator wiring for `--passkeys`**. Needs 11.
-13. **Phase 13 — Docs, CI smoke extension, guides**.
-
-**Parallelizable:** phases 9-11 (passkey track) can run in parallel with phases 3-7 (org track) once phase 1 + 2 land. Phases 8 and 12 are serialization points.
-
----
-
-## Part E — v1.2 Forward-Compatibility Checklist
-
-Every recommendation checked against v1.2:
-
-| v1.1 decision | v1.2 impact | Forward-compatible? |
-|---|---|---|
-| `Scope.impersonating_from: nil` reserved | v1.2 populates in new `Sigra.Plug.Impersonate` | YES (additive) |
-| `audit_events.organization_id` as real column | v1.2 adds `effective_user_id` alongside | YES (additive migration) |
-| Active org on `user_sessions` | v1.2 impersonation also per-session; co-locates | YES |
-| Session-only routes (no `/orgs/:slug`) | v1.2 admin UI introduces `/admin/*` cleanly | YES |
-| Subdirectory generator feature pattern | v1.2 adds `admin/` feature module trivially | YES — **load-bearing** |
-| Dropdown org switcher in header | v1.2 admin UI can add second dropdown | YES |
-| `Sigra.Audit.Query` org filter via column | v1.2 audit views filter on real indexed columns | YES |
-
-**Zero v1.1 decisions require v1.2 to revisit.**
-
----
-
-## Part F — Confidence & Open Questions
-
-**HIGH confidence** (grounded in read):
-- v1.0 plug ordering and scope mechanics (`fetch_session.ex`, `user_auth.ex`, `require_sudo.ex`)
-- Generator mechanics (`sigra.install.ex`, `priv/templates/sigra.install/`)
-- Audit composability (`audit.ex`, `audit/query.ex`)
-- Layout insertion point (`layouts.ex:36-70`)
-- Session struct extension site (`session.ex:64-78`)
-- Token + HMAC patterns (`token.ex`)
-
-**MEDIUM confidence** (ecosystem knowledge, not verified against wax_ 0.7 docs in this session):
-- Exact `Wax.Challenge` struct shape and API in 0.7 — phase 9 kickoff should include 30-min Context7 verify of `Wax.register/3`, `Wax.authenticate/5`, attestation options before writing `Sigra.Passkeys.Registration`
-- `aaguid` field type — `:binary` correct per WebAuthn spec; wax_ may return UUID string — verify at phase 9 start
-
-**Open questions for the planner:**
-1. **Phase 5 audit:** should `organization_id` on `audit_events` be `NOT NULL` or nullable? Library-emitted events with no active org (password reset from logged-out state) need nullable.
-2. **Phase 10 JS hooks:** does host app's `assets/js/app.js` always exist at known path? Phoenix 1.8 default yes, but esbuild vs Webpack vs Vite affects injection target. Propose: only inject if marker present; otherwise print manual instructions.
-3. **Phase 11 passkey-as-primary:** is usernameless resident-key flow worth the UX complexity for v1.1, or defer to v1.2? Discovery credentials need `residentKey: required` and different `allowCredentials` handling.
-4. **Backfill migration idempotency:** slug collision handling for users sharing email casing under citext — slugify on lowercased email + 8-char hash.
-
----
-
-## Files referenced
+## Sources
 
 - `/Users/jon/projects/sigra/.planning/PROJECT.md`
-- `/Users/jon/projects/sigra/test/example/lib/example/accounts/scope.ex`
-- `/Users/jon/projects/sigra/test/example/lib/example_web/user_auth.ex`
-- `/Users/jon/projects/sigra/test/example/lib/example_web/router.ex`
-- `/Users/jon/projects/sigra/test/example/lib/example_web/components/layouts.ex`
+- `/Users/jon/projects/sigra/lib/sigra/scope.ex`
+- `/Users/jon/projects/sigra/lib/sigra/scope/hydration.ex`
 - `/Users/jon/projects/sigra/lib/sigra/session.ex`
 - `/Users/jon/projects/sigra/lib/sigra/audit.ex`
 - `/Users/jon/projects/sigra/lib/sigra/audit/query.ex`
-- `/Users/jon/projects/sigra/lib/sigra/plug/fetch_session.ex`
-- `/Users/jon/projects/sigra/lib/sigra/plug/require_sudo.ex`
-- `/Users/jon/projects/sigra/lib/sigra/token.ex`
+- `/Users/jon/projects/sigra/lib/sigra/plug/load_active_organization.ex`
+- `/Users/jon/projects/sigra/lib/sigra/install/feature.ex`
 - `/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex`
-- `/Users/jon/projects/sigra/priv/templates/sigra.install/` (44 files — to be restructured in Phase 1)
+- `/Users/jon/projects/sigra/priv/templates/sigra.install/core/scope.ex`
+- `/Users/jon/projects/sigra/priv/templates/sigra.install/core/user_auth.ex`
+- `/Users/jon/projects/sigra/lib/sigra/install/features/organizations.ex`
+- `/Users/jon/projects/sigra/test/example/lib/example_web/router.ex`
+- `/Users/jon/projects/sigra/test/example/lib/example/accounts/audit_event.ex`
+- `/Users/jon/projects/sigra/test/example/priv/playwright/playwright.config.ts`
+- `/Users/jon/projects/sigra/scripts/ci/http-smoke.sh`
