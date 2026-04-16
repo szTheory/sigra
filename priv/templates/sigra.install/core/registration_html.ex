@@ -27,6 +27,7 @@ defmodule <%= web_module %>.RegistrationHTML do
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
         <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
 
+<%= if passkeys? do %>
         <%% # @passkey_primary_enabled gates signup-time passkey enrollment. %>
         <%%= if assigns[:passkey_primary_enabled] do %>
           <label class="mb-4 flex items-start gap-3 rounded border border-gray-200 bg-gray-50 p-3 text-sm">
@@ -39,6 +40,7 @@ defmodule <%= web_module %>.RegistrationHTML do
             </span>
           </label>
         <%% end %>
+<% end %>
 
         <.button class="btn btn-primary w-full">
           Create an account <span aria-hidden="true">&rarr;</span>

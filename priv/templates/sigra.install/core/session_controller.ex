@@ -11,7 +11,11 @@ defmodule <%= web_module %>.SessionController do
     render(conn, :new,
       form: form,
       magic_link_form: magic_link_form,
+<%= if passkeys? do %>
       passkey_primary_enabled: Auth.passkey_primary_enabled?()
+<% else %>
+      passkey_primary_enabled: false
+<% end %>
     )
   end
 
@@ -67,6 +71,7 @@ defmodule <%= web_module %>.SessionController do
     end
   end
 
+<%= if passkeys? do %>
   def passkey_registration_options(conn, _params) do
     user = conn.assigns.current_scope.user
     config = Sigra.Passkeys.config()
@@ -236,6 +241,7 @@ defmodule <%= web_module %>.SessionController do
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
     end
   end
+<% end %>
 
   def delete(conn, _params) do
     Sigra.Telemetry.event(
@@ -249,6 +255,7 @@ defmodule <%= web_module %>.SessionController do
     |> UserAuth.log_out_user()
   end
 
+<%= if passkeys? do %>
   defp passkey_registration_options_json(user, challenge, passkeys, config) do
     %{
       challenge: Base.url_encode64(challenge.bytes, padding: false),
@@ -325,4 +332,5 @@ defmodule <%= web_module %>.SessionController do
   end
 
   defp maybe_put_passkey_email(conn, _email), do: conn
+<% end %>
 end

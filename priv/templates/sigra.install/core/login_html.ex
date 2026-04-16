@@ -28,6 +28,7 @@ defmodule <%= web_module %>.SessionHTML do
         </:subtitle>
       </.header>
 
+<%= if passkeys? do %>
       <%%= if @passkey_primary_enabled do %>
         <%% # Passkey-primary section %>
         <.form
@@ -110,6 +111,7 @@ defmodule <%= web_module %>.SessionHTML do
           })
         </script>
       <%% else %>
+<% end %>
         <%% # Magic link section %>
         <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post">
           <input type="hidden" name="_action" value="magic_link" />
@@ -146,7 +148,9 @@ defmodule <%= web_module %>.SessionHTML do
             Log in <span aria-hidden="true">&rarr;</span>
           </.button>
         </.form>
+<%= if passkeys? do %>
       <%% end %>
+<% end %>
     </div>
     """
   end

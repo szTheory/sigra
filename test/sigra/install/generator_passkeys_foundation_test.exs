@@ -142,21 +142,28 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
   end
 
   describe "router injection passkey controller routes" do
-    @features_core_path Path.join([
-                          File.cwd!(),
-                          "lib",
-                          "sigra",
-                          "install",
-                          "features",
-                          "core.ex"
-                        ])
+    @features_core_path Path.join([File.cwd!(), "lib", "sigra", "install", "features", "core.ex"])
+    @features_passkeys_path Path.join([File.cwd!(), "lib", "sigra", "install", "features", "passkeys.ex"])
+    @passkeys_router_template Path.join([
+                              File.cwd!(),
+                              "priv",
+                              "templates",
+                              "sigra.install",
+                              "passkeys",
+                              "router_injection.ex"
+                            ])
 
-    test "injects sudo pipeline and passkey POST routes" do
-      source = File.read!(@features_core_path)
+    test "keeps require_sudo in core while passkey POST routes are feature-owned" do
+      core_source = File.read!(@features_core_path)
+      passkeys_source = File.read!(@features_passkeys_path)
+      router_template = File.read!(@passkeys_router_template)
+
+      assert core_source =~ "pipeline :require_sudo"
+      assert core_source =~ "Sigra.Plug.RequireSudo"
+      assert passkeys_source =~ "defp router_injection"
 
       for expected <- [
-            "pipeline :require_sudo",
-            "Sigra.Plug.RequireSudo",
+            "pipe_through [:browser, :redirect_if_user_is_authenticated]",
             "pipe_through [:browser, :require_authenticated, :require_sudo]",
             "post \"/log_in/passkey\", SessionController, :complete_passkey",
             "post \"/log_in/passkey/options\", SessionController, :passkey_authentication_options",
@@ -166,19 +173,14 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
             "post \"/mfa/passkey\", SessionController, :complete_mfa_passkey",
             "post \"/mfa/passkey/options\", SessionController, :passkey_mfa_options"
           ] do
-        assert source =~ expected
+        assert router_template =~ expected
       end
     end
 
     test "delete passkey route exists only in the sudo-protected scope" do
-      source = File.read!(@features_core_path)
+      source = File.read!(@passkeys_router_template)
 
-      [_, after_sudo_pipe] =
-        String.split(source, "pipe_through [:browser, :require_authenticated, :require_sudo]",
-          parts: 2
-        )
-
-      [ordinary_scope, _] =
+      [ordinary_scopes, after_sudo_pipe] =
         String.split(source, "pipe_through [:browser, :require_authenticated, :require_sudo]",
           parts: 2
         )
@@ -186,7 +188,7 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
       assert after_sudo_pipe =~
                "post \"/settings/mfa/passkeys/:id/delete\", SessionController, :delete_passkey"
 
-      refute ordinary_scope =~
+      refute ordinary_scopes =~
                "post \"/settings/mfa/passkeys/:id/delete\", SessionController, :delete_passkey"
     end
   end

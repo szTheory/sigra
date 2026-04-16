@@ -25,8 +25,13 @@ defmodule <%= web_module %>.MFASettingsLive do
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
     mfa_status = Auth.mfa_status(user)
+<%= if passkeys? do %>
     passkeys = Auth.passkeys_for_user(user)
     passkey_count = Auth.passkey_count_for_user(user)
+<% else %>
+    passkeys = []
+    passkey_count = 0
+<% end %>
 
     {:ok,
      assign(socket,
@@ -239,11 +244,14 @@ defmodule <%= web_module %>.MFASettingsLive do
         <%% end %>
       <%% end %>
 
+<%= if passkeys? do %>
       <%%= render_passkeys_section(assigns) %>
+<% end %>
     </div>
     """
   end
 
+<%= if passkeys? do %>
   defp render_passkeys_section(assigns) do
     ~H"""
     <section id="passkeys" class="mt-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -398,6 +406,7 @@ defmodule <%= web_module %>.MFASettingsLive do
     </section>
     """
   end
+<% end %>
 
   defp render_enrollment_start(assigns) do
     ~H"""
@@ -630,6 +639,7 @@ defmodule <%= web_module %>.MFASettingsLive do
     end
   end
 
+<%= if passkeys? do %>
   def handle_event("begin_passkey_enrollment", _params, socket) do
     {:noreply,
      socket
@@ -913,6 +923,7 @@ defmodule <%= web_module %>.MFASettingsLive do
   defp find_passkey(socket, credential_id) do
     Enum.find(socket.assigns.passkeys, &(to_string(&1.credential_id) == to_string(credential_id)))
   end
+<% end %>
 
   defp relative_time(nil), do: "Never"
 

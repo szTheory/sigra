@@ -46,6 +46,7 @@ defmodule <%= web_module %>.ConfirmationController do
     end
   end
 
+<%= if passkeys? do %>
   def confirm(conn, %{"token" => token, "enroll_passkey" => "1"}) do
     case Auth.confirm_user(token) do
       {:ok, user} ->
@@ -66,6 +67,7 @@ defmodule <%= web_module %>.ConfirmationController do
         |> redirect(to: ~p"/users/confirm")
     end
   end
+<% end %>
 
   def confirm(conn, %{"token" => token}) do
     case Auth.confirm_user(token) do

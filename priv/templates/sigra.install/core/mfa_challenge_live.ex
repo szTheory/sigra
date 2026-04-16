@@ -24,7 +24,11 @@ defmodule <%= web_module %>.MFAChallengeLive do
     else
       user = socket.assigns.current_scope.user
       masked_email = mask_email(user.email)
+<%= if passkeys? do %>
       passkey_count = Auth.passkey_count_for_user(user)
+<% else %>
+      passkey_count = 0
+<% end %>
 
       {:ok,
        assign(socket,
@@ -56,6 +60,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
       <%= <<60, 37, 35, 32>> <> "role=" <> <<34>> <> "tablist" <> <<34>> <> " retired; passkey-first MFA uses explicit actions." <> <<32, 37, 62>> %>
       <%= <<60, 37, 35, 32>> <> "phx-click=" <> <<34>> <> "switch_tab" <> <<34>> <> " retired; passkey-first MFA uses show_totp/show_backup." <> <<32, 37, 62>> %>
 
+<%= if passkeys? do %>
       <%% # Passkey-first challenge for users with enrolled passkeys. %>
       <div
         :if={@passkey_count > 0}
@@ -199,6 +204,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
           Use a backup code
         </button>
       </div>
+<% end %>
 
       <%% # TOTP Content %>
       <div
@@ -310,6 +316,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
     {:noreply, assign(socket, active_method: "backup")}
   end
 
+<%= if passkeys? do %>
   def handle_event("begin_passkey_authentication", _params, socket) do
     {:noreply,
      socket
@@ -348,6 +355,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
        active_method: "passkey"
      )}
   end
+<% end %>
 
   def handle_event("validate_totp", %{"mfa" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code, "trust" => "false"}, as: "mfa")
@@ -444,6 +452,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
     end
   end
 
+<%= if passkeys? do %>
   defp passkey_recovery_bucket(payload) when is_map(payload) do
     payload
     |> Map.take(["name", "code", "message"])
@@ -495,4 +504,5 @@ defmodule <%= web_module %>.MFAChallengeLive do
       body: nil
     }
   end
+<% end %>
 end

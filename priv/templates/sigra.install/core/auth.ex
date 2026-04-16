@@ -587,7 +587,9 @@ defmodule <%= context_module %> do
 
   alias <%= context_module %>.UserMFACredential
   alias <%= context_module %>.UserBackupCode
+<%= if passkeys? do %>
   alias <%= context_module %>.UserPasskey
+<% end %>
 
   @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
   def mfa_enroll(opts \\ []) do
@@ -645,6 +647,7 @@ defmodule <%= context_module %> do
     )
   end
 
+<%= if passkeys? do %>
   ## Passkeys
 
   @passkey_sign_in_error "We couldn't finish passkey sign-in. Try again or use another way to continue."
@@ -753,9 +756,11 @@ defmodule <%= context_module %> do
   end
 
   def ensure_passkey_primary_user_eligible(_user), do: {:error, :invalid_user}
+<% end %>
 
   @doc "Returns whether magic-link recovery is available for login."
   def magic_link_recovery_available?() do
+<%= if passkeys? do %>
     # PK-UX-07 makes magic-link recovery mandatory for passkey-primary accounts.
     if passkey_primary_enabled?() do
       true
@@ -764,8 +769,14 @@ defmodule <%= context_module %> do
       |> Map.get(:magic_link, [])
       |> Keyword.get(:enabled, true)
     end
+<% else %>
+    sigra_config()
+    |> Map.get(:magic_link, [])
+    |> Keyword.get(:enabled, true)
+<% end %>
   end
 
+<%= if passkeys? do %>
   @doc "Delivers a passkey registration notification email."
   def deliver_passkey_registration_notification(user, details) do
     email = Emails.passkey_registration_email(user, details)
@@ -859,6 +870,7 @@ defmodule <%= context_module %> do
   defp verify_discoverable_user_handle(%{user_handle: user_handle}, passkey) do
     if user_handle == to_string(passkey.user_id), do: :ok, else: {:error, :invalid_passkey}
   end
+<% end %>
 
   ## Account Lifecycle
 
