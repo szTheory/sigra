@@ -10,12 +10,8 @@ defmodule <%= web_module %>.SessionController do
     magic_link_form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
     render(conn, :new,
       form: form,
-      magic_link_form: magic_link_form,
-<%= if passkeys? do %>
-      passkey_primary_enabled: Auth.passkey_primary_enabled?()
-<% else %>
-      passkey_primary_enabled: false
-<% end %>
+      magic_link_form: magic_link_form<%= if passkeys? do %>,
+      passkey_primary_enabled: Auth.passkey_primary_enabled?()<% end %>
     )
   end
 

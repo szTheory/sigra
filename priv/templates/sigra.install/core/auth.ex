@@ -11,7 +11,9 @@ defmodule <%= context_module %> do
   alias <%= repo_module %>, as: Repo
   alias <%= context_module %>.<%= schema_alias %>
   alias <%= context_module %>.UserToken
+<%= if passkeys? do %>
   alias <%= context_module %>.Emails
+<% end %>
   alias Sigra.Auth, as: SigraAuth
 
   ## Database getters

@@ -639,6 +639,32 @@ defmodule <%= web_module %>.MFASettingsLive do
     end
   end
 
+  defp do_confirm_enrollment(socket, code) do
+    user = socket.assigns.current_scope.user
+    raw_secret = socket.assigns.raw_secret
+
+    case Auth.mfa_confirm_enrollment(user, raw_secret, code) do
+      {:ok, %{backup_codes: codes}} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Two-factor authentication has been enabled.")
+         |> assign(
+           enrollment_step: :backup_codes,
+           backup_codes: codes,
+           codes_acknowledged: false,
+           raw_secret: nil
+         )}
+
+      {:error, :invalid_code} ->
+        form = to_form(%{"code" => ""}, as: "enroll")
+
+        {:noreply,
+         socket
+         |> put_flash(:error, "Invalid verification code. Please try again.")
+         |> assign(enroll_form: form)}
+    end
+  end
+
 <%= if passkeys? do %>
   def handle_event("begin_passkey_enrollment", _params, socket) do
     {:noreply,
@@ -859,32 +885,6 @@ defmodule <%= web_module %>.MFASettingsLive do
      |> put_flash(:info, "All trusted browsers have been revoked.")}
   end
 
-  defp do_confirm_enrollment(socket, code) do
-    user = socket.assigns.current_scope.user
-    raw_secret = socket.assigns.raw_secret
-
-    case Auth.mfa_confirm_enrollment(user, raw_secret, code) do
-      {:ok, %{backup_codes: codes}} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Two-factor authentication has been enabled.")
-         |> assign(
-           enrollment_step: :backup_codes,
-           backup_codes: codes,
-           codes_acknowledged: false,
-           raw_secret: nil
-         )}
-
-      {:error, :invalid_code} ->
-        form = to_form(%{"code" => ""}, as: "enroll")
-
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(enroll_form: form)}
-    end
-  end
-
   defp passkey_error_bucket(payload) when is_map(payload) do
     payload
     |> Map.take(["code", "name", "message"])
@@ -925,6 +925,7 @@ defmodule <%= web_module %>.MFASettingsLive do
   end
 <% end %>
 
+<%= if passkeys? do %>
   defp relative_time(nil), do: "Never"
 
   defp relative_time(%DateTime{} = dt) do
@@ -942,4 +943,5 @@ defmodule <%= web_module %>.MFASettingsLive do
   defp format_relative_seconds(seconds) when seconds < 3600, do: "#{div(seconds, 60)}m ago"
   defp format_relative_seconds(seconds) when seconds < 86_400, do: "#{div(seconds, 3600)}h ago"
   defp format_relative_seconds(seconds), do: "#{div(seconds, 86_400)}d ago"
+<% end %>
 end

@@ -14,7 +14,9 @@ defmodule <%= web_module %>.ConfirmationController do
   use Gettext, backend: <%= web_module %>.Gettext
 
   alias <%= context_module %>, as: Auth
+<%= if passkeys? do %>
   alias <%= web_module %>.UserAuth
+<% end %>
 
   def new(conn, _params) do
     render(conn, :new)

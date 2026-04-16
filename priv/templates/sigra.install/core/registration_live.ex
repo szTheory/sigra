@@ -35,6 +35,7 @@ defmodule <%= web_module %>.RegistrationLive do
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
         <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
 
+<%= if passkeys? do %>
         <label
           :if={@passkey_primary_enabled}
           class="mb-4 flex items-start gap-3 rounded border border-gray-200 bg-gray-50 p-3 text-sm"
@@ -53,6 +54,7 @@ defmodule <%= web_module %>.RegistrationLive do
             </span>
           </span>
         </label>
+<% end %>
 
         <%% # Password strength indicator %>
         <div :if={@password_strength} class="mt-1 mb-4">
@@ -89,8 +91,10 @@ defmodule <%= web_module %>.RegistrationLive do
     socket =
       socket
       |> assign(trigger_submit: false, check_errors: false)
+<%= if passkeys? do %>
       |> assign(passkey_primary_enabled: <%= context_module %>.passkey_primary_enabled?())
       |> assign(enroll_passkey_after_signup: false)
+<% end %>
       |> assign(password_strength: nil, password_suggestions: [])
       |> assign_form(changeset)
 
@@ -98,17 +102,23 @@ defmodule <%= web_module %>.RegistrationLive do
   end
 
   def handle_event("save", %{"user" => user_params}, socket) do
+<%= if passkeys? do %>
     enroll_passkey = Map.get(user_params, "enroll_passkey") in ["true", true, "on", "1"]
+<% end %>
 
     case <%= context_module %>.register_user(user_params) do
       {:ok, user} ->
         # D-05: deliver confirmation email (B5 repair; helper exists at <%= context_module %>.deliver_user_confirmation_instructions/2)
         confirmation_url_fun = fn token ->
+<%= if passkeys? do %>
           if enroll_passkey do
             url(socket, ~p"/users/confirm/#{token}?enroll_passkey=1")
           else
             url(socket, ~p"/users/confirm/#{token}")
           end
+<% else %>
+          url(socket, ~p"/users/confirm/#{token}")
+<% end %>
         end
 
         case <%= context_module %>.deliver_user_confirmation_instructions(user, confirmation_url_fun) do
@@ -135,7 +145,9 @@ defmodule <%= web_module %>.RegistrationLive do
 
   def handle_event("validate", %{"user" => user_params}, socket) do
     changeset = <%= context_module %>.change_user_registration(%<%= schema_alias %>{}, user_params)
+<%= if passkeys? do %>
     enroll_passkey = Map.get(user_params, "enroll_passkey") in ["true", true, "on", "1"]
+<% end %>
 
     # Real-time password strength feedback
     {strength, suggestions} =
@@ -147,7 +159,9 @@ defmodule <%= web_module %>.RegistrationLive do
     {:noreply,
      socket
      |> assign(password_strength: strength, password_suggestions: suggestions)
+<%= if passkeys? do %>
      |> assign(enroll_passkey_after_signup: enroll_passkey)
+<% end %>
      |> assign_form(Map.put(changeset, :action, :validate))}
   end
 
