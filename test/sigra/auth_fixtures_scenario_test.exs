@@ -121,6 +121,7 @@ defmodule Sigra.AuthFixturesScenarioTest do
 
     test "mfa_pending_fixture does NOT build a conn (D-07)", %{content: content} do
       body = extract_function(content, "mfa_pending_fixture")
+
       refute body =~ "log_in_user",
              "mfa_pending_fixture must not log in a conn (caller hasn't passed the challenge)"
     end
@@ -139,7 +140,9 @@ defmodule Sigra.AuthFixturesScenarioTest do
       assert body =~ "log_in_user(build_conn()"
     end
 
-    test "locked_fixture composes locked_user_fixture and returns no conn (D-07)", %{content: content} do
+    test "locked_fixture composes locked_user_fixture and returns no conn (D-07)", %{
+      content: content
+    } do
       body = extract_function(content, "locked_fixture")
       assert body =~ "locked_user_fixture"
       refute body =~ "log_in_user"

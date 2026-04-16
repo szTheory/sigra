@@ -72,6 +72,77 @@ defmodule Example.AccountsFixtures do
   end
 
   @doc """
+  Creates an organization row for tests.
+
+  This helper accelerates unit and integration setup, but it bypasses real
+  controller, LiveView, and session boundaries. Keep route-backed coverage for
+  organization creation and switching flows.
+  """
+  def create_organization(attrs \\ %{}) do
+    defaults = %{
+      name: "Organization #{System.unique_integer([:positive])}",
+      slug: "organization-#{System.unique_integer([:positive])}"
+    }
+
+    attrs = Enum.into(attrs, defaults)
+
+    %Example.Accounts.Organization{}
+    |> Example.Accounts.Organization.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Creates a membership row for the given user and organization.
+
+  This helper bypasses real controller, LiveView, and session boundaries so
+  tests can stage org-aware data quickly. Keep route-backed authorization
+  coverage for membership writes and active-organization changes.
+  """
+  def create_membership(user, organization, role \\ :owner) do
+    %Example.Accounts.OrganizationMembership{}
+    |> Example.Accounts.OrganizationMembership.changeset(%{
+      user_id: user.id,
+      organization_id: organization.id,
+      role: role
+    })
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Logs a user into a conn with an active organization staged on the session.
+
+  This bypasses real controller, LiveView, and session-renewal boundaries to
+  speed up focused tests. Keep route-backed coverage for login, org switching,
+  and scope hydration behavior.
+  """
+  def log_in_user_with_org(conn, user, organization) do
+    membership =
+      Repo.get_by(Example.Accounts.OrganizationMembership,
+        user_id: user.id,
+        organization_id: organization.id
+      ) || create_membership(user, organization)
+
+    token = Accounts.generate_user_session_token(user)
+    {_authed_user, session} = Accounts.get_user_and_session_by_token(token)
+
+    {:ok, session} =
+      session
+      |> Ecto.Changeset.change(%{active_organization_id: organization.id})
+      |> Repo.update()
+
+    scope =
+      user
+      |> Example.Accounts.Scope.for_user()
+      |> Example.Accounts.Scope.put_active_organization(organization, membership)
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:user_token, token)
+    |> Plug.Conn.assign(:current_scope, scope)
+    |> Plug.Conn.put_private(:sigra_session, session)
+  end
+
+  @doc """
   Creates a passkey credential row for the given user.
   """
   def passkey_fixture(user, attrs \\ %{}) do
@@ -97,6 +168,16 @@ defmodule Example.AccountsFixtures do
 
     struct(Example.Accounts.UserPasskey, Map.merge(defaults, attrs))
     |> Repo.insert!()
+  end
+
+  @doc """
+  Creates a passkey credential row for the given user.
+
+  This helper bypasses real controller, LiveView, and browser ceremony
+  boundaries. Use route-backed tests for actual WebAuthn registration flows.
+  """
+  def register_passkey(user, attrs \\ %{}) do
+    passkey_fixture(user, attrs)
   end
 
   @doc """
@@ -128,6 +209,28 @@ defmodule Example.AccountsFixtures do
     }
     |> Map.merge(Map.get(attrs, :extra, %{}))
     |> JSON.encode!()
+  end
+
+  @doc """
+  Builds deterministic passkey authentication test data.
+
+  This bypasses real controller, LiveView, browser, and session boundaries so
+  focused tests can stage a passkey assertion quickly. Keep route-backed
+  coverage for end-to-end passkey sign-in and MFA flows.
+  """
+  def authenticate_with_passkey(user, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{})
+    passkey = Map.get(attrs, :passkey) || register_passkey(user, attrs)
+
+    %{
+      user: user,
+      passkey: passkey,
+      response:
+        encoded_passkey_response(%{
+          credential_id: passkey.credential_id,
+          user_handle: user.id
+        })
+    }
   end
 
   @doc """
