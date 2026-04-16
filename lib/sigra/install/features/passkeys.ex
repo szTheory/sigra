@@ -13,7 +13,7 @@ defmodule Sigra.Install.Features.Passkeys do
   alias Sigra.Install.Injection
 
   @impl true
-  def enabled?(opts), do: Keyword.get(opts, :passkeys, false)
+  def enabled?(opts), do: Keyword.get(opts, :passkeys, true)
 
   @impl true
   def files(binding) do
@@ -23,6 +23,7 @@ defmodule Sigra.Install.Features.Passkeys do
     [
       {:eex, "passkeys/user_passkey.ex",
        Path.join(["lib", otp_app, context_slug, "user_passkey.ex"])},
+      {:eex, "passkeys/passkey_browser.js", Path.join(["assets", "js", "passkey_browser.js"])},
       {:eex, "passkeys/passkey_hooks.js", Path.join(["assets", "js", "passkey_hooks.js"])}
     ]
   end
