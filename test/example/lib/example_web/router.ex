@@ -14,6 +14,16 @@ defmodule ExampleWeb.Router do
     plug :fetch_current_scope
   end
 
+  pipeline :browser_passkey_options do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {ExampleWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug :fetch_current_scope
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -50,14 +60,25 @@ defmodule ExampleWeb.Router do
 
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", ExampleWeb do
-    pipe_through [:browser]
+    pipe_through [:browser_passkey_options]
 
     post "/mfa/passkey/options", SessionController, :passkey_mfa_options
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser]
+
     post "/mfa/passkey", SessionController, :complete_mfa_passkey
 
     live_session :mfa_challenge, on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
       live "/mfa", MFAChallengeLive
     end
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser_passkey_options, :redirect_if_user_is_authenticated]
+
+    post "/log_in/passkey/options", SessionController, :passkey_authentication_options
   end
 
   scope "/users", ExampleWeb do
@@ -81,7 +102,6 @@ defmodule ExampleWeb.Router do
     end
 
     post "/log_in", SessionController, :create
-    post "/log_in/passkey/options", SessionController, :passkey_authentication_options
     post "/log_in/passkey", SessionController, :complete_passkey
     get "/log_in/:token", SessionController, :magic_link
   end
@@ -104,9 +124,14 @@ defmodule ExampleWeb.Router do
   end
 
   scope "/users", ExampleWeb do
-    pipe_through [:browser, :require_authenticated, :require_sudo]
+    pipe_through [:browser_passkey_options, :require_authenticated, :require_sudo]
 
     post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :require_sudo]
+
     post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
     post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
   end

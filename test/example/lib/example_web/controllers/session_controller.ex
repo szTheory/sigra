@@ -69,7 +69,7 @@ defmodule ExampleWeb.SessionController do
 
   def passkey_registration_options(conn, _params) do
     user = conn.assigns.current_scope.user
-    config = Sigra.Passkeys.config()
+    config = passkey_config(conn)
     {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :registration, config)
 
     json(conn, %{
@@ -78,14 +78,14 @@ defmodule ExampleWeb.SessionController do
   end
 
   def passkey_authentication_options(conn, %{"conditional" => "true"}) do
-    config = Sigra.Passkeys.config()
+    config = passkey_config(conn)
     {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :authentication, config)
 
     json(conn, %{options: conditional_passkey_authentication_options_json(challenge, config)})
   end
 
   def passkey_authentication_options(conn, %{"user" => %{"email" => email}}) do
-    config = Sigra.Passkeys.config()
+    config = passkey_config(conn)
 
     case Auth.get_user_by_email(email) do
       nil ->
@@ -105,7 +105,7 @@ defmodule ExampleWeb.SessionController do
   def passkey_mfa_options(conn, _params) do
     if get_session(conn, :mfa_pending) == true do
       user = conn.assigns.current_scope.user
-      config = Sigra.Passkeys.config()
+      config = passkey_config(conn)
       {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :authentication, config)
 
       json(conn, %{
@@ -121,7 +121,7 @@ defmodule ExampleWeb.SessionController do
 
     with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :registration, Sigra.Passkeys.config(), [], fn challenge ->
+           Sigra.Plug.PasskeyChallenge.verify(conn, :registration, passkey_config(conn), [], fn challenge ->
              Auth.register_passkey(user, Map.put(decoded_response, "challenge", challenge), passkey_registration_details(conn))
            end) do
       _ = credential
@@ -154,7 +154,7 @@ defmodule ExampleWeb.SessionController do
          %{} <- user,
          :ok <- Auth.ensure_passkey_primary_user_eligible(user),
          {:ok, conn, _credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, Sigra.Passkeys.config(), [], fn challenge ->
+           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, passkey_config(conn), [], fn challenge ->
              Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
            end) do
       conn
@@ -171,7 +171,7 @@ defmodule ExampleWeb.SessionController do
   def complete_passkey(conn, %{"passkey" => passkey_params}) do
     with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, {user, _credential}} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, Sigra.Passkeys.config(), [], fn challenge ->
+           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, passkey_config(conn), [], fn challenge ->
              case Auth.authenticate_discoverable_passkey(Map.put(decoded_response, "challenge", challenge)) do
                {:ok, user, credential} -> {:ok, {user, credential}}
                {:error, reason} -> {:error, reason}
@@ -202,7 +202,7 @@ defmodule ExampleWeb.SessionController do
          %{type: :mfa_pending} <- old_session,
          {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, _credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, Sigra.Passkeys.config(), [], fn challenge ->
+           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, passkey_config(conn), [], fn challenge ->
              Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
            end),
          {:ok, %{session: upgraded_session}} <- Auth.complete_mfa_verification(user, old_session, remember_me: remember_me) do
@@ -266,6 +266,10 @@ defmodule ExampleWeb.SessionController do
       },
       excludeCredentials: passkey_credentials_json(passkeys)
     }
+  end
+
+  defp passkey_config(conn) do
+    %{Sigra.Passkeys.config() | secret_key_base: conn.secret_key_base}
   end
 
   defp passkey_authentication_options_json(_user, challenge, passkeys, config) do
