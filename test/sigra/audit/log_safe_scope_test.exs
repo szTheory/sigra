@@ -85,6 +85,26 @@ defmodule Sigra.Audit.LogSafeScopeTest do
     assert changes.actor_id == user_id
   end
 
+  test "log_safe/3 with impersonation scope keeps actor_id on the real admin and effective_user_id on the impersonated user" do
+    admin_id = Ecto.UUID.generate()
+    user_id = Ecto.UUID.generate()
+    org_id = Ecto.UUID.generate()
+
+    scope = %Scope{
+      user: %{id: user_id},
+      active_organization: %{id: org_id},
+      membership: nil,
+      impersonating_from: %{id: admin_id}
+    }
+
+    assert :ok = Sigra.Audit.log_safe("test.impersonation_scope", scope, base_opts())
+
+    changes = captured_changes!()
+    assert changes.organization_id == org_id
+    assert changes.effective_user_id == user_id
+    assert changes.actor_id == admin_id
+  end
+
 
   test "log_safe/3 duck-types scope on %{user, active_organization, impersonating_from} keys (no Sigra.Scope struct match)" do
     user_id = Ecto.UUID.generate()

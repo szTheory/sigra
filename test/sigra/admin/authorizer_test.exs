@@ -108,4 +108,26 @@ defmodule Sigra.Admin.AuthorizerTest do
       end
     end
   end
+
+  describe "authorize_impersonation_target!/2" do
+    test "global admin may impersonate any target user" do
+      target = %{id: "user-9", organization_ids: ["org-1", "org-2"]}
+
+      assert :ok = Authorizer.authorize_impersonation_target!(global_admin_scope(), target)
+    end
+
+    test "org admin may impersonate a user reachable in the resolved organization scope" do
+      target = %{id: "user-9", organization_ids: ["org-1", "org-2"]}
+
+      assert :ok = Authorizer.authorize_impersonation_target!(org_admin_scope(), target)
+    end
+
+    test "org admin is denied for a target user outside the resolved organization scope" do
+      target = %{id: "user-9", organization_ids: ["org-2"]}
+
+      assert_raise UnauthorizedError, ~r/impersonate the requested user/, fn ->
+        Authorizer.authorize_impersonation_target!(org_admin_scope(), target)
+      end
+    end
+  end
 end
