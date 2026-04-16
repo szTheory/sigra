@@ -423,7 +423,10 @@ defmodule Sigra.Admin.Users.Query do
              %{
                organization_count: length(unique_names),
                organization_summary:
-                 if(unique_names == [], do: "No organizations", else: Enum.join(unique_names, ", "))
+                 if(unique_names == [],
+                   do: "No organizations",
+                   else: Enum.join(unique_names, ", ")
+                 )
              }}
           end)
 
@@ -574,6 +577,7 @@ defmodule Sigra.Admin.Users.Query do
   defp to_flop_params(params) do
     params
     |> Flop.nest_filters(@filter_fields, operators: @filter_ops)
+    |> stringify_deep()
     |> Map.update("order_by", nil, fn
       nil -> nil
       field -> [field]
@@ -616,6 +620,16 @@ defmodule Sigra.Admin.Users.Query do
     do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
 
   defp stringify_map(_), do: %{}
+
+  defp stringify_deep(value) when is_list(value), do: Enum.map(value, &stringify_deep/1)
+
+  defp stringify_deep(value) when is_map(value) do
+    value
+    |> Enum.map(fn {k, v} -> {to_string(k), stringify_deep(v)} end)
+    |> Map.new()
+  end
+
+  defp stringify_deep(value), do: value
 
   defp normalize_scalar(value) when is_binary(value), do: String.trim(value)
   defp normalize_scalar(value), do: value

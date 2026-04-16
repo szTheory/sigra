@@ -359,6 +359,14 @@ defmodule Sigra.Admin.UsersQueryTest do
 
     test "URL-addressable filtering and pagination remain scope-safe for global and organization admins",
          ctx do
+      assert {:ok, normalized} = Query.normalize_params(%{})
+      assert is_map(normalized)
+
+      assert {:ok, {_rows, meta, _params}} =
+               Query.list_users(ctx.config, ctx.global_scope, %{})
+
+      assert meta.current_page == 1
+
       assert {:ok, normalized} =
                Query.normalize_params(%{
                  "page" => "2",

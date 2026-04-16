@@ -12,9 +12,18 @@ defmodule ExampleWeb.AdminShellTest do
         })
 
       conn = build_conn() |> log_in_user(platform_admin) |> get(~p"/admin")
-      html = html_response(conn, 200)
+
+      assert redirected_to(conn) == "/admin/users"
+
+      html =
+        conn
+        |> recycle()
+        |> get(~p"/admin/users")
+        |> html_response(200)
+
       assert html =~ "Admin"
       assert html =~ "Global"
+      assert html =~ "Users"
     end
 
     test "renders Admin and the organization name for an organization scope" do
@@ -33,7 +42,14 @@ defmodule ExampleWeb.AdminShellTest do
         |> log_in_user(org_admin)
         |> get(~p"/admin/organizations/#{organization.slug}")
 
-      html = html_response(conn, 200)
+      assert redirected_to(conn) == "/admin/organizations/#{organization.slug}/users"
+
+      html =
+        conn
+        |> recycle()
+        |> get(~p"/admin/organizations/#{organization.slug}/users")
+        |> html_response(200)
+
       assert html =~ "Admin"
       assert html =~ "Acme Ops"
       assert html =~ "Organization"

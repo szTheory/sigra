@@ -11,10 +11,17 @@ defmodule ExampleWeb.Phase27IntegrationTest do
       platform_admin = platform_admin_fixture()
 
       conn = conn |> log_in_user(platform_admin) |> get(~p"/admin")
-      html = html_response(conn, 200)
+      assert redirected_to(conn) == "/admin/users"
+
+      html =
+        conn
+        |> recycle()
+        |> get(~p"/admin/users")
+        |> html_response(200)
+
       assert html =~ "Admin"
       assert html =~ "Global"
-      assert html =~ "Global admin"
+      assert html =~ "Users"
     end
 
     test "platform admin can intentionally enter /admin/organizations/:org", %{conn: conn} do
@@ -24,7 +31,14 @@ defmodule ExampleWeb.Phase27IntegrationTest do
       conn =
         conn |> log_in_user(platform_admin) |> get(~p"/admin/organizations/#{organization.slug}")
 
-      html = html_response(conn, 200)
+      assert redirected_to(conn) == "/admin/organizations/#{organization.slug}/users"
+
+      html =
+        conn
+        |> recycle()
+        |> get(~p"/admin/organizations/#{organization.slug}/users")
+        |> html_response(200)
+
       assert html =~ "Admin"
       assert html =~ organization.name
       assert html =~ "Organization"
@@ -53,10 +67,17 @@ defmodule ExampleWeb.Phase27IntegrationTest do
       AccountsFixtures.create_membership(org_admin, organization, :admin)
 
       conn = conn |> log_in_user(org_admin) |> get(~p"/admin/organizations/#{organization.slug}")
-      html = html_response(conn, 200)
+      assert redirected_to(conn) == "/admin/organizations/#{organization.slug}/users"
+
+      html =
+        conn
+        |> recycle()
+        |> get(~p"/admin/organizations/#{organization.slug}/users")
+        |> html_response(200)
+
       assert html =~ "Admin"
       assert html =~ organization.name
-      refute html =~ "Global admin"
+      assert html =~ "Users"
     end
 
     test "org admin gets a not found response on an out-of-scope organization slug", %{conn: conn} do

@@ -33,6 +33,10 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'mobile',
+      use: { ...devices['iPhone 13'] },
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
