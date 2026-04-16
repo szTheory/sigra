@@ -61,10 +61,6 @@ defmodule ExampleWeb.UserAuthTest do
       raw_token = Plug.Conn.get_session(logged_in_conn, :user_token)
       assert is_binary(raw_token)
 
-      # The raw_token from Sigra.SessionStores.Ecto.create/3 is
-      # Base.url_encode64(raw_bytes, padding: false) — the stored
-      # hashed_token is :crypto.hash(:sha256, raw_bytes). Round-trip via
-      # url_decode64 + hash_token to match the canonical store's lookup.
       {:ok, raw_bytes} = Base.url_decode64(raw_token, padding: false)
       expected_hash = Sigra.Token.hash_token(raw_bytes)
 
@@ -91,6 +87,98 @@ defmodule ExampleWeb.UserAuthTest do
     end
   end
 
+  describe "impersonation session lifecycle" do
+    test "begin_impersonation preserves only the restore keys across session renewal", %{
+      conn: conn,
+      user: admin
+    } do
+      target = register_user!("target")
+      admin_token = Accounts.generate_user_session_token(admin)
+      impersonation_token = Accounts.generate_user_session_token(target)
+
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{
+          user_token: admin_token,
+          user_return_to: "/users/settings",
+          transient: "drop-me"
+        })
+        |> UserAuth.begin_impersonation(impersonation_token, admin_token,
+          return_to: "/admin/users?q=restore"
+        )
+
+      assert get_session(conn, :user_token) == impersonation_token
+      assert get_session(conn, :impersonator_user_token) == admin_token
+      assert get_session(conn, :impersonation_return_to) == "/admin/users?q=restore"
+      refute get_session(conn, :user_return_to)
+      refute get_session(conn, :transient)
+    end
+
+    test "restore_impersonation rotates back to the preserved admin token and clears the restore keys",
+         %{conn: conn, user: admin} do
+      target = register_user!("target")
+      admin_token = Accounts.generate_user_session_token(admin)
+      impersonation_token = Accounts.generate_user_session_token(target)
+
+      conn =
+        conn
+        |> Plug.Test.init_test_session(%{
+          user_token: impersonation_token,
+          impersonator_user_token: admin_token,
+          impersonation_return_to: "/admin/users?q=restore",
+          transient: "drop-me"
+        })
+        |> UserAuth.restore_impersonation()
+
+      assert get_session(conn, :user_token) == admin_token
+      refute get_session(conn, :impersonator_user_token)
+      refute get_session(conn, :impersonation_return_to)
+      refute get_session(conn, :transient)
+    end
+
+    test "fetch_current_scope expires timed-out impersonation sessions and restores the admin session when possible",
+         %{user: admin} do
+      target = register_user!("target")
+      admin_token = Accounts.generate_user_session_token(admin)
+      impersonation_token = expired_impersonation_token_for(target)
+
+      conn =
+        Phoenix.ConnTest.build_conn()
+        |> Plug.Test.init_test_session(%{
+          user_token: impersonation_token,
+          impersonator_user_token: admin_token,
+          impersonation_return_to: "/admin/users?q=restore"
+        })
+        |> UserAuth.fetch_current_scope([])
+
+      assert get_session(conn, :user_token) == admin_token
+      refute get_session(conn, :impersonator_user_token)
+      assert conn.assigns.current_scope.user.id == admin.id
+      assert is_nil(conn.assigns.current_scope.impersonating_from)
+    end
+
+    test "fetch_current_scope fails closed when an expired impersonation session cannot restore the admin",
+         %{user: admin} do
+      target = register_user!("target")
+      _admin_token = Accounts.generate_user_session_token(admin)
+      impersonation_token = expired_impersonation_token_for(target)
+
+      conn =
+        Phoenix.ConnTest.build_conn()
+        |> Plug.Test.init_test_session(%{
+          user_token: impersonation_token,
+          impersonator_user_token: "not-a-real-token",
+          impersonation_return_to: "/admin/users?q=restore"
+        })
+        |> UserAuth.fetch_current_scope([])
+
+      refute get_session(conn, :user_token)
+      refute get_session(conn, :impersonator_user_token)
+      assert is_nil(conn.assigns.current_scope)
+      assert is_nil(conn.private[:sigra_session])
+    end
+  end
+
   describe "log_out_user/1" do
     test "deletes the user_sessions row", %{conn: conn, user: user} do
       logged_in_conn =
@@ -109,5 +197,37 @@ defmodule ExampleWeb.UserAuthTest do
 
       assert Repo.aggregate(UserSession, :count) == 0
     end
+  end
+
+  defp register_user!(prefix) do
+    {:ok, user} =
+      Accounts.register_user(%{
+        email: "#{prefix}-#{System.unique_integer([:positive])}@example.test",
+        password: "CorrectHorseBattery123!"
+      })
+
+    user
+  end
+
+  defp expired_impersonation_token_for(user) do
+    raw_token = Base.url_encode64(:crypto.strong_rand_bytes(32), padding: false)
+    {:ok, raw_bytes} = Base.url_decode64(raw_token, padding: false)
+    expired_at = DateTime.add(DateTime.utc_now(), -3_600, :second)
+
+    %UserSession{}
+    |> Ecto.Changeset.change(%{
+      user_id: user.id,
+      hashed_token: Sigra.Token.hash_token(raw_bytes),
+      type: "standard",
+      ip: "127.0.0.1",
+      user_agent: "ExUnit/1.0",
+      inserted_at: expired_at,
+      last_active_at: expired_at,
+      sudo_at: nil,
+      impersonator_user_id: "admin-user-id"
+    })
+    |> Repo.insert!()
+
+    raw_token
   end
 end
