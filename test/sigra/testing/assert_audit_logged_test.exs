@@ -5,7 +5,7 @@ defmodule Sigra.Testing.AssertAuditLoggedTest do
   # for `assert_audit_event/2` with signature `(map, keyword)` — NOT
   # `(repo, fields)` (see D-31 refinement in plan frontmatter).
 
-  import Sigra.Testing, only: [assert_audit_logged: 2]
+  import Sigra.Testing, only: [assert_audit_logged: 2, assert_audit_logged_for_org: 2]
 
   alias Sigra.Test.AuditEvent
 
@@ -81,6 +81,42 @@ defmodule Sigra.Testing.AssertAuditLoggedTest do
       # `Keyword.fetch!(opts, :audit_schema)`.
       assert_raise KeyError, fn ->
         assert_audit_logged(%{action: "test.event"}, repo: FakeRepo)
+      end
+    end
+  end
+
+  describe "assert_audit_logged_for_org/2" do
+    test "passes when the latest audit event matches the organization id" do
+      event = %AuditEvent{
+        action: "test.event",
+        actor_id: "actor-1",
+        organization_id: "org-1",
+        metadata: %{}
+      }
+
+      Process.put(:fake_repo_next_event, event)
+
+      assert assert_audit_logged_for_org("org-1",
+               repo: FakeRepo,
+               audit_schema: AuditEvent
+             ) == true
+    end
+
+    test "raises with a clear message when organization_id does not match" do
+      event = %AuditEvent{
+        action: "test.event",
+        actor_id: "actor-1",
+        organization_id: "org-1",
+        metadata: %{}
+      }
+
+      Process.put(:fake_repo_next_event, event)
+
+      assert_raise ExUnit.AssertionError, ~r/organization_id/, fn ->
+        assert_audit_logged_for_org("org-2",
+          repo: FakeRepo,
+          audit_schema: AuditEvent
+        )
       end
     end
   end
