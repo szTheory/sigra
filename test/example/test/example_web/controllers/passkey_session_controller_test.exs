@@ -19,6 +19,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       conn =
         conn
         |> log_in_with_sudo(user)
+        |> put_passkey_json_headers()
         |> post(~p"/users/settings/mfa/passkeys/options")
 
       options = json_response(conn, 200)["options"]
@@ -45,6 +46,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
         conn
         |> log_in_with_mfa_pending_session(user)
         |> put_session(:mfa_pending, true)
+        |> put_passkey_json_headers()
         |> post(~p"/users/mfa/passkey/options")
 
       options = json_response(conn, 200)["options"]
@@ -58,7 +60,11 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
     test "POST /users/log_in/passkey/options conditional flow returns autofill options", %{
       conn: conn
     } do
-      conn = post(conn, ~p"/users/log_in/passkey/options", %{"conditional" => "true"})
+      conn =
+        conn
+        |> put_passkey_json_headers()
+        |> post(~p"/users/log_in/passkey/options", %{"conditional" => "true"})
+
       options = json_response(conn, 200)["options"]
 
       assert_non_empty_challenge(options)
@@ -79,7 +85,9 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       credential_id = passkey.credential_id
 
       conn =
-        post(conn, ~p"/users/log_in/passkey/options", %{
+        conn
+        |> put_passkey_json_headers()
+        |> post(~p"/users/log_in/passkey/options", %{
           "user" => %{"email" => user.email}
         })
 
@@ -89,6 +97,33 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert options["rpId"] == "localhost"
       assert [%{"id" => encoded_id, "type" => "public-key"}] = options["allowCredentials"]
       assert {:ok, ^credential_id} = Base.url_decode64(encoded_id, padding: false)
+    end
+
+    test "POST /users/log_in/passkey/options unknown email stays on JSON unavailable branch", %{
+      conn: conn
+    } do
+      conn =
+        conn
+        |> put_passkey_json_headers()
+        |> post(~p"/users/log_in/passkey/options", %{
+          "user" => %{"email" => "missing@example.com"}
+        })
+
+      assert json_response(conn, 200) == %{"error" => "unavailable"}
+    end
+
+    test "POST /users/mfa/passkey/options without mfa_pending stays on JSON unavailable branch", %{
+      conn: conn
+    } do
+      user = user_fixture()
+
+      conn =
+        conn
+        |> log_in_user(user)
+        |> put_passkey_json_headers()
+        |> post(~p"/users/mfa/passkey/options")
+
+      assert json_response(conn, 200) == %{"error" => "unavailable"}
     end
   end
 
@@ -332,5 +367,11 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
   defp assert_non_empty_challenge(options) do
     assert is_binary(options["challenge"])
     assert byte_size(options["challenge"]) > 0
+  end
+
+  defp put_passkey_json_headers(conn) do
+    conn
+    |> put_req_header("accept", "application/json")
+    |> put_req_header("content-type", "application/json")
   end
 end
