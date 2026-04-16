@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 29-02-PLAN.md
-last_updated: "2026-04-16T23:30:09Z"
-last_activity: 2026-04-16 -- Completed 29-02 and advanced to 29-03
+stopped_at: Completed 29-03-PLAN.md
+last_updated: "2026-04-16T23:37:20Z"
+last_activity: 2026-04-16 -- Completed 29-03 and advanced to 29-04
 progress:
   total_phases: 5
   completed_phases: 2
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 ## Current Position
 
 Phase: 29 (secure-impersonation) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Executing Phase 29
-Last activity: 2026-04-16 -- Completed 29-02 and advanced to 29-03
+Last activity: 2026-04-16 -- Completed 29-03 and advanced to 29-04
 
-Progress: [████░░░░░░] 40% (2/5 plans complete)
+Progress: [██████░░░░] 60% (3/5 plans complete)
 
 ## Performance Metrics
 
@@ -91,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase 29]: The web layer preserves the original admin session token in Plug session keys and restores it through `UserAuth` rather than separate impersonation persistence.
 - [Phase 29]: Impersonation stop lives at `/impersonation` outside admin-only scopes so persistent chrome can end impersonation from any authenticated page.
 - [Phase 29]: The example app keeps the sudo redirect local to impersonation start and reuses `/users/sudo?return_to=...` without widening shared auth error handling.
+- [Phase 29]: The user detail danger zone is the single impersonation entry point; host-owned chrome only renders explicit state plus the app-wide stop action.
+- [Phase 29]: LiveView `mount_current_scope` must preserve `impersonating_from` from the saved admin token so connected pages keep the same impersonation banner contract as controller renders.
 
 ### Pending Todos
 
@@ -114,5 +116,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-16T23:30:09Z
-Stopped at: Completed 29-02-PLAN.md
+Stopped at: Completed 29-03-PLAN.md
 Resume file: None
