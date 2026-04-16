@@ -50,6 +50,18 @@ development and test even when Layer 1 is forgotten. Do not rely on it as
 the primary guard — the error message at a missing `for_org/2` call is
 much clearer than an error at the Repo.
 
+### DX-09 outcome
+
+Sigra shipped the DX-09 spike as a narrow custom Credo check:
+`Sigra.Credo.NoUnscopedOrgQueryInLib`.
+
+It flags obvious unscoped `Repo.all/one/get/get_by` calls on known
+org-scoped schemas inside `lib/sigra/**` when the call site skips
+`Sigra.Organizations.Query.for_org/2`. This is defense-in-depth, not a
+replacement for Layer 1. Contributors should still treat `for_org/2` as
+the primary scoping discipline and rely on the lint rule only to catch the
+most obvious drift.
+
 ### Escape hatch — `skip_org_check: true`
 
 Some queries are legitimately unscoped: admin dashboards, cross-tenant
