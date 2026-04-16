@@ -11,12 +11,16 @@
       # live in the normal lib/ tree and are compiled by `mix compile`,
       # but Credo does not load the host app automatically (runtime: false
       # in mix.exs), so we explicitly require the check source here.
-      requires: ["lib/sigra/credo/no_log_safe2_in_lib.ex"],
+      requires: [
+        "lib/sigra/credo/no_log_safe2_in_lib.ex",
+        "lib/sigra/credo/no_unscoped_org_query_in_lib.ex"
+      ],
       strict: true,
       color: true,
       checks: %{
         extra: [
-          {Sigra.Credo.NoLogSafe2InLib, []}
+          {Sigra.Credo.NoLogSafe2InLib, []},
+          {Sigra.Credo.NoUnscopedOrgQueryInLib, []}
         ]
       }
     }
