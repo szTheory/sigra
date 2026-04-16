@@ -272,11 +272,12 @@ Plans:
   1. `mix sigra.install --no-passkeys` produces a Phoenix app that compiles, boots, and passes the HTTP smoke suite with zero passkey schemas, contexts, plugs, LiveViews, JS hooks, or `wax_` runtime references generated (and no `@simplewebauthn/browser` added to `assets/package.json`).
   2. CI combinatorial matrix runs the four `--(no-)organizations × --(no-)passkeys` combinations on every PR and each produces a compiling, booting app.
   3. `Sigra.Install.Features.Passkeys` drops into the feature manifest alongside Core and Organizations with no special-casing in `sigra.install.ex` beyond registration — proving the Phase 11 pattern holds for a second feature.
-**Plans**: 3 plans
+**Plans**: 4 plans
 Plans:
 - [ ] 22-01-PLAN.md — Wave 1: default-on passkey flag semantics, binding propagation, and manifest-level contract tests
-- [ ] 22-02-PLAN.md — Wave 2: passkey-owned artifact/injection rewiring, guarded shared templates, and `--no-passkeys` omission tests
-- [ ] 22-03-PLAN.md — Wave 3: four-way CI matrix plus assets-enabled passkey opt-out smoke harness
+- [ ] 22-02-PLAN.md — Wave 2: passkey-owned route/config/dependency rewiring plus generated browser import alignment to `@simplewebauthn/browser`
+- [ ] 22-03-PLAN.md — Wave 3: guarded shared auth templates plus authoritative `--no-passkeys` omission regression coverage
+- [ ] 22-04-PLAN.md — Wave 4: four-way CI matrix, assets-enabled passkey opt-out smoke harness, and final `mix precommit` gate
 
 ### Phase 23: Docs, CI Smoke, Upgrade Guide
 **Goal**: Developer landing on `getting-started.md` fresh can go from `mix phx.new` to a working multi-tenant Phoenix app with passkey login in under 30 minutes; developer upgrading from v1.0 has a clear, tested path; CI catches regressions in org + passkey flows via Playwright.

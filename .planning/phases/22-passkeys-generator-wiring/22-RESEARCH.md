@@ -441,7 +441,7 @@ const credential = await startAuthentication({
 |--------------|------------------|--------------|--------|
 | Passkeys opt-in in local code | Passkeys default-on by roadmap and context | Locked before Phase 22 planning [VERIFIED: ROADMAP.md] | Phase 22 must reconcile implementation with product contract. [VERIFIED: codebase grep] |
 | Single org-axis matrix | Four-way org x passkeys matrix | Required by Phase 22 success criteria [VERIFIED: ROADMAP.md] | CI must cover both optional axes together to catch partial-apply regressions. [VERIFIED: 22-CONTEXT.md] |
-| Hand-rolled browser helper in templates | Requirement-level package presence/absence for `@simplewebauthn/browser` | PK-01 and Phase 22 success criteria [VERIFIED: REQUIREMENTS.md] [VERIFIED: ROADMAP.md] | Planner must decide whether Phase 22 introduces package wiring only, or also aligns template imports with that package in the same owned scope. [VERIFIED: codebase grep] |
+| Hand-rolled browser helper in templates | Requirement-level package presence/absence for `@simplewebauthn/browser` | PK-01 and Phase 22 success criteria [VERIFIED: REQUIREMENTS.md] [VERIFIED: ROADMAP.md] | Phase 22 must align generated browser imports with `@simplewebauthn/browser` so package presence/absence is behaviorally meaningful on enabled vs disabled installs. [VERIFIED: codebase grep] |
 
 **Deprecated/outdated:**
 
@@ -454,17 +454,15 @@ const credential = await startAuthentication({
 |---|-------|---------|---------------|
 | A1 | The router block may remain readable with local `passkeys?` guards instead of moving to a passkey-only injection fragment. | Open Questions | Low-to-medium; planning might underestimate template complexity and need an extra refactor step. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should Phase 22 also switch generated browser code to import `@simplewebauthn/browser` instead of the current hand-rolled helper?**
-   - What we know: The success criteria explicitly require `@simplewebauthn/browser` presence/absence handling, and current templates do not import it today. [VERIFIED: ROADMAP.md] [VERIFIED: codebase grep]
-   - What's unclear: Whether package wiring alone is enough for PK-01 continuity, or whether the generated JS must be refactored in the same phase to consume the package. [VERIFIED: codebase grep]
-   - Recommendation: Treat package wiring and import-site alignment as Phase 22 planning scope unless prior implementation artifacts prove another phase already satisfied PK-01 in generated output. [VERIFIED: REQUIREMENTS.md]
+   - Resolution: **Yes.** Phase 22 includes explicit import-site alignment in generated browser JS because current templates still import `./passkey_browser`, while the phase success criteria and requirement-level package contract make `@simplewebauthn/browser` presence/absence part of the generated app shape. [VERIFIED: ROADMAP.md] [VERIFIED: codebase grep] [VERIFIED: REQUIREMENTS.md]
+   - Implementation impact: The feature-owned rewiring plan must update the passkey browser templates and JS-focused generator tests so enabled installs actually consume `@simplewebauthn/browser`, and `--no-passkeys` omission tests can prove the package is absent because nothing imports it. [VERIFIED: codebase grep]
 
 2. **Where should passkey router routes live after the refactor?**
-   - What we know: Locked context allows either local guards in Core or moving whole passkey-only targets into `Features.Passkeys`, as long as readability drives the call. [VERIFIED: 22-CONTEXT.md]
-   - What's unclear: Whether the router block stays readable with local guards once dependency wiring and package edits are added. [ASSUMED]
-   - Recommendation: Decide during planning after a small route-block inventory; prefer local guards first, then move a discrete passkey fragment if Core gets noisy. [VERIFIED: 22-CONTEXT.md]
+   - Resolution: **Move passkey-only router fragments into `Features.Passkeys` unless a specific shared block stays trivially readable with a local `passkeys?` guard.** The revised plan takes the conservative ownership boundary: route/config/dependency/package fragments move into the passkeys feature, while shared auth templates remain canonical and use local guards. [VERIFIED: 22-CONTEXT.md]
+   - Implementation impact: Phase 22 splits feature-owned injection rewiring from shared-template gating so the ownership boundary and the shared-file cleanup can be verified independently. [VERIFIED: 22-CONTEXT.md]
 
 ## Environment Availability
 
