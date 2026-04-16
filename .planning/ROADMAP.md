@@ -245,7 +245,7 @@ Plans:
   2. User can log in via passkey as a second factor alongside TOTP on `MfaSettingsLive`; passkey list shows AAGUID-derived friendly names (iCloud Keychain, Google Password Manager, 1Password, Windows Hello) from a bundled registry; user can rename or delete passkeys (delete sudo-gated), with a soft cap of 10 per user.
   3. User with `:passkey_primary_enabled` config can log in with email + passkey without a password; every passkey-as-primary user has mandatory magic-link recovery that cannot be disabled (P-5 lockout defense).
   4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
-**Plans**: 11 plans
+**Plans**: 13 plans
 Plans:
 - [x] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
 - [x] 21-02-PLAN.md — Wave 2: `/users/settings/mfa` passkeys card, enrollment hook, compact list, inline rename, and sudo-aware delete confirmation
@@ -258,6 +258,8 @@ Plans:
 - [x] 21-09-PLAN.md — Wave 7: gap closure for real route/session tests and real-server Playwright smoke
 - [x] 21-10-PLAN.md — Wave 8: gap closure for server-generated passkey challenge bytes and `mfa_pending` session hydration
 - [x] 21-11-PLAN.md — Wave 9: gap closure for route-backed options/MFA proof and self-contained real-server Playwright smoke
+- [ ] 21-12-PLAN.md — Wave 10: gap closure for served example passkey runtime and login binding
+- [ ] 21-13-PLAN.md — Wave 11: gap closure for app-owned browser runtime proof without Playwright injection
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
