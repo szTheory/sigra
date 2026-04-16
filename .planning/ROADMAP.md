@@ -40,7 +40,7 @@
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
 - [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-13 completed 2026-04-16; 21-14 planned to close remaining verification gaps) (completed 2026-04-16)
-- [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
+- [x] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern (completed 2026-04-16)
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
 ## Phase Details
@@ -75,7 +75,7 @@ Plans:
   1. Developer can pattern-match `%Scope{active_organization: org, membership: m, impersonating_from: from}` in generated `user_auth.ex` without a compile warning; generator template emits all three fields.
   2. Running `mix sigra.install --yes` produces a migration that adds `active_organization_id :binary_id` nullable on `user_sessions`, and the example app's session fixture inserts succeed with the new column unset.
   3. Fresh install's session serialization round-trips the new session column: logging in, writing an arbitrary `active_organization_id` via `Sigra.Session`, reading it back via `Plug.Conn.get_session/2` all work end-to-end.
-**Plans:** 4/4 plans complete
+**Plans:** 1/4 plans executed
 Plans:
 - [x] 12-01-PLAN.md — Wave 1: Sigra.Session struct + SessionStore.Ecto round-trip (ORG-SCOPE-02 library half)
 - [x] 12-02-PLAN.md — Wave 1: :active_org_column feature manifest slot + new ALTER migration template (ORG-SCOPE-02 generator half)
@@ -275,9 +275,9 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [x] 22-01-PLAN.md — Wave 1: default-on passkey flag semantics, binding propagation, and manifest-level contract tests
-- [ ] 22-02-PLAN.md — Wave 2: passkey-owned route/config/dependency rewiring plus generated browser import alignment to `@simplewebauthn/browser`
-- [ ] 22-03-PLAN.md — Wave 3: guarded shared auth templates plus authoritative `--no-passkeys` omission regression coverage
-- [ ] 22-04-PLAN.md — Wave 4: four-way CI matrix, assets-enabled passkey opt-out smoke harness, and final `mix precommit` gate
+- [x] 22-02-PLAN.md — Wave 2: passkey-owned route/config/dependency rewiring plus generated browser import alignment to `@simplewebauthn/browser`
+- [x] 22-03-PLAN.md — Wave 3: guarded shared auth templates plus authoritative `--no-passkeys` omission regression coverage
+- [x] 22-04-PLAN.md — Wave 4: four-way CI matrix, assets-enabled passkey opt-out smoke harness, and final `mix precommit` gate
 
 ### Phase 23: Docs, CI Smoke, Upgrade Guide
 **Goal**: Developer landing on `getting-started.md` fresh can go from `mix phx.new` to a working multi-tenant Phoenix app with passkey login in under 30 minutes; developer upgrading from v1.0 has a clear, tested path; CI catches regressions in org + passkey flows via Playwright.
@@ -307,7 +307,7 @@ Plans:
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
 | 21. Passkey LiveViews + POST-Auth Controller | 14/14 | Complete    | 2026-04-16 |
-| 22. `--passkeys` Generator Wiring | 1/4 | In Progress|  |
+| 22. `--passkeys` Generator Wiring | 4/4 | Complete    | 2026-04-16 |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
 ## Backlog
@@ -319,7 +319,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 1/4 plans executed
+**Plans:** 4/4 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false

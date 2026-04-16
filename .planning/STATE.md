@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
 status: executing
-stopped_at: Completed 22-01-PLAN.md
-last_updated: "2026-04-16T12:49:50.319Z"
+stopped_at: Phase 22 complete; Phase 23 context captured
+last_updated: "2026-04-16T15:28:29.971Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 17
-  completed_phases: 13
+  completed_phases: 14
   total_plans: 67
-  completed_plans: 64
-  percent: 96
+  completed_plans: 67
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 22 — passkeys-generator-wiring
+**Current focus:** Phase 23 — docs-ci-smoke-upgrade-guide
 
 ## Current Position
 
-Phase: 22 (passkeys-generator-wiring) — EXECUTING
-Plan: 2 of 4
-Status: Ready to execute
+Phase: 23
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-04-16
 
-Progress: [████████░░] 85% (11/13 mainline phases complete)
+Progress: [█████████░] 92% (12/13 mainline phases complete)
 
 ## Accumulated Context
 
