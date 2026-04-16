@@ -10,11 +10,21 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current Milestone
 
-No active milestone is currently open. v1.1 Foundations is shipped and archived; define the next milestone explicitly with `$gsd-new-milestone`.
+## Current Milestone: v1.2 Admin Dashboard
+
+**Goal:** Ship a default-on admin surface that feels excellent to use: mobile-responsive LiveView user management, secure impersonation, and rich audit exploration on top of the v1.1 organizations and passkeys foundation.
+
+**Target features:**
+- Admin user-management UI in LiveView, default on with opt-out, mobile-friendly, light/dark, and basic branding hooks
+- Admin impersonation with strict guardrails, visible session state, and dual-actor audit trail
+- Expanded audit views across user, organization, and global admin workflows
+- Strong automated verification and review artifacts for user-facing flows: Playwright, screenshots/video, HTML reports, browser smoke, and CI-ready orchestration
 
 ## Current State
 
-**Shipped:** v1.1 Foundations (2026-04-16).
+**Current milestone:** v1.2 Admin Dashboard (started 2026-04-16).
+
+**Previously shipped:** v1.1 Foundations (2026-04-16).
 
 Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth stack plus v1.1 Foundations: logical multi-tenancy through organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey/WebAuthn registration and authentication, passkey MFA and optional passkey-primary login, generator opt-outs for organizations and passkeys, and updated guides plus CI/browser-smoke coverage for the shipped org and passkey flows.
 
@@ -29,9 +39,10 @@ Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth
 
 ## Next Milestone Goals
 
-- Define the next milestone explicitly with `$gsd-new-milestone`.
-- Reconfirm whether the next milestone should follow the archived `.planning/v1.2-DIRECTION.md` path or a different priority order.
-- Likely candidate themes from the archived direction: admin dashboard, impersonation, and expanded audit views.
+- Deliver an admin UI that is a joy to use for Sigra's core personas, especially on the highest-frequency user-management and support jobs-to-be-done.
+- Keep human UAT light by default: favor browser/system automation, deterministic smoke flows, screenshots/video, and review artifacts that make progress easy to inspect asynchronously.
+- Build admin, impersonation, and audit capabilities as one coherent surface instead of three disconnected subsystems.
+- Reuse the v1.1 foundations cleanly: org-aware scope, passkey/security state, sudo boundaries, and audit metadata must flow naturally into the admin experience.
 
 <details>
 <summary>Archived v1.1 milestone framing</summary>
@@ -115,64 +126,23 @@ Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
-### Active — v1.1 Foundations
+### Active — v1.2 Admin Dashboard
 
-**Organizations (logical multi-tenancy):**
-- [x] `Organization` schema + migration (id, name, slug unique, settings jsonb, deleted_at, timestamps) — Phase 13
-- [x] `OrganizationMembership` schema + migration (user_id, org_id, role enum, status enum, joined_at, invited_by_id) — Phase 13
-- [x] `OrganizationInvitation` schema + migration (email, org_id, role, hashed_token, expires_at, accepted_at, revoked_at) — Phase 13
-- [x] `Sigra.Organizations` context (CRUD, membership ops, invite token generation via `Sigra.Token` HMAC) — Phase 13
-- [x] `Sigra.Organizations.Query` helpers (`for_org/2`, `maybe_enforce_org_scope/4`, last-owner guard) — Phase 13
-- [ ] `Sigra.Plug.RequireMembership`
-- [ ] `%Scope{}` struct extension (`:active_organization`, `:membership`)
-- [ ] `fetch_current_scope` plug loads active org from session; `on_mount` assigns to LiveView socket
-- [ ] Sessions table `active_organization_id` column (nullable); org persists + switchable
-- [ ] Audit integration: `organization_id` auto-attached to metadata when scope carries active org
-- [ ] `Sigra.Audit.query/1` `:organization_id` filter via jsonb metadata operator
-- [ ] Registration flow: optional "create org" step; invite-token query param → register-into-org
-- [ ] Login flow: 0/1/2+ orgs handling (0 = standard, 1 = auto-select, 2+ = last-active or picker)
-- [ ] `OrganizationSwitcherLive` (dropdown/modal)
-- [ ] `OrganizationSettingsLive` (owner-only: rename, slug change, delete)
-- [ ] `OrganizationMembersLive` (list, invite, remove, role change; owner/admin gated)
-- [ ] `InvitationAcceptLive` (existing user sign-in-and-accept; new user signup-then-accept with email locked)
-- [ ] `organization_invitation_email.ex` template
-- [ ] Invite token expiry (7d default) + revocation
-- [ ] `mix sigra.install --organizations` (default on) / `--no-organizations` opt-out
-- [ ] Conditional generator template pattern (first in codebase; load-bearing for v1.2 `--no-admin`)
-- [ ] Backfill migration: create "personal" orgs for existing users (skippable)
-- [ ] Testing helpers: `create_organization/1`, `add_membership/3`, `log_in_user_with_org/3`
+**Admin user management UI:**
+- [ ] LiveView admin dashboard enabled by default with `--no-admin` opt-out
+- [ ] Mobile-responsive user list and user detail flows that cover the main support/operator jobs-to-be-done cleanly
+- [ ] Light/dark mode plus basic branding controls suitable for internal tooling
+- [ ] Org-aware admin scopes so platform admins and org admins see the right surface by construction
 
-**Passkeys (WebAuthn via `wax_`):**
-- [ ] Add `wax_ ~> 0.7` dependency
-- [ ] `UserPasskey` schema + migration (user_id, credential_id unique, public_key bytea encrypted, sign_count, aaguid, nickname, device_hint, last_used_at, transports array, timestamps)
-- [ ] `cloak_ecto` encryption for `public_key` field (reuse OAuth vault)
-- [ ] `Sigra.Passkeys` context (registration, authentication, credential CRUD)
-- [ ] `Sigra.Passkeys.Registration` (ceremony options + response verification)
-- [ ] `Sigra.Passkeys.Authentication` (ceremony options + response verification)
-- [ ] `Sigra.Plug.PasskeyChallenge` (short-lived server-side challenge storage)
-- [ ] Passkey-as-2FA mode: MFA prompt shows TOTP + passkey + backup codes
-- [ ] Passkey-as-primary mode: opt-in, email + passkey login (usernameless where supported)
-- [ ] `PasskeyEnrollmentLive` (JS hook → `navigator.credentials.create`)
-- [ ] `PasskeyAuthenticationLive` (JS hook → `navigator.credentials.get`)
-- [ ] `MfaSettingsLive` update: passkeys list with rename/delete alongside TOTP/backup codes
-- [ ] Runtime RP ID / RP name / origin / attestation preference config (`:none` default)
-- [ ] `passkey_hooks.js` LiveView hooks
-- [ ] `mix sigra.install --passkeys` (default on) / `--no-passkeys` opt-out
-- [ ] Testing helpers: `register_passkey/2`, `authenticate_with_passkey/2`
-- [ ] Router: passkey routes under MFA scope
+**Impersonation + audit:**
+- [ ] Secure admin impersonation with visible banner state, time bounds, dual-actor audit trail, and forbidden sensitive actions
+- [ ] Rich audit views for per-user, per-organization, and global exploration, including impersonation-aware filtering
+- [ ] Admin-side user detail views for sessions, security state, identities, API keys, memberships, and danger-zone actions
 
-**Cross-cutting:**
-- [ ] Getting-started guide updates covering orgs + passkeys
-- [ ] CI smoke harness coverage for org flows + passkey ceremony (extend phase 10.1.1 harness)
-
-### Deferred to v1.2 "Admin Dashboard"
-
-Full direction: `.planning/v1.2-DIRECTION.md`.
-
-- [ ] Admin user-management LiveView UI (Django-admin-loved, mobile-first, light+dark mode, basic branding)
-- [ ] Admin impersonation (time-limited, non-nestable, dual-actor audit, banner, locked-down sensitive ops, org-scoped)
-- [ ] Expanded audit views (per-user, per-org, global, security event feed, CSV export)
-- [ ] Admin UI mobile + dark-mode polish pass
+**Verification + review ergonomics:**
+- [ ] Browser and system automation for critical admin flows using Playwright and existing CI infrastructure
+- [ ] Review artifacts for user-facing/admin-facing work: screenshots, video where useful, and HTML reports so UX can be inspected without heavy manual walkthrough
+- [ ] Route, controller, and curl-style smoke coverage that proves the admin stack behaves correctly outside the browser happy path
 
 ### Other deferred items
 
@@ -185,10 +155,10 @@ Full direction: `.planning/v1.2-DIRECTION.md`.
 
 - SAML support — enterprise SSO protocol, high maintenance burden, low SaaS builder need. Leave architecture extensible for future plugin.
 - Acting as OAuth/OIDC identity provider — enterprise/B2B concern, dramatically expands scope. Architecture should not prevent future addition.
-- Organizations / multi-tenancy — deferred to v2 milestone. Design identity layer to support clean org membership later.
+- Rebuilding organizations or passkeys as standalone milestones — v1.1 shipped the foundation; v1.2 builds on top of it.
 - Authorization (RBAC, permissions, policies) — separate concern. Sigra provides identity context; authorization builds on top.
 - SCIM directory sync — enterprise feature, out of scope for v1.
-- Admin impersonation — nice-to-have, defer to v2.
+- Full theming engine or runtime UI builder — only basic branding hooks are in scope for the admin surface.
 
 ## Context
 
@@ -275,7 +245,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-12 — Phase 12 (Scope + Session Foundation) complete. `%Scope{}` extended to 4 fields (user, active_organization, membership, impersonating_from); `user_sessions.active_organization_id` column via standalone ALTER migration; reserved-field invariant test locks `:impersonating_from` for v1.2; UPGRADE-v1.2.md skeleton created. ORG-SCOPE-01 and ORG-SCOPE-02 satisfied. 7/7 must-haves verified, 29 regression tests green.*
+*Last updated: 2026-04-16 — started v1.2 Admin Dashboard milestone. Scope: admin user-management UI, secure impersonation, expanded audit exploration, and automation-first UX verification artifacts. Human UAT remains minimized by design; prefer Playwright, screenshots/video, HTML reports, CI/browser smoke, and other reviewable artifacts wherever possible.*
 
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
 

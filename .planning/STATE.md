@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Foundations
-status: between_milestones
-stopped_at: v1.1 archived; awaiting next milestone definition
-last_updated: "2026-04-16T17:30:57Z"
-last_activity: 2026-04-16 -- v1.1 archived, no active milestone
+milestone: v1.2
+milestone_name: Admin Dashboard
+status: defining_requirements
+stopped_at: v1.2 milestone initialized; defining requirements and roadmap
+last_updated: "2026-04-16T18:25:00Z"
+last_activity: 2026-04-16 -- v1.2 Admin Dashboard started
 progress:
-  total_phases: 17
-  completed_phases: 16
-  total_plans: 72
-  completed_plans: 72
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** between milestones
+**Current focus:** v1.2 Admin Dashboard
 
 ## Current Position
 
-Phase: none
-Plan: none
-Status: waiting for next milestone
-Last activity: 2026-04-16 -- v1.1 archived, no active milestone
+Phase: Not started
+Plan: -
+Status: Defining requirements
+Last activity: 2026-04-16 -- Milestone v1.2 started
 
-Progress: [██████████] 100% (13/13 mainline phases complete)
+Progress: [░░░░░░░░░░] 0% (roadmap not created yet)
 
 ## Accumulated Context
 
