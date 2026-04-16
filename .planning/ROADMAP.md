@@ -39,7 +39,7 @@
 - [x] **Phase 18: Backfill + `--organizations` Generator Wiring** — `mix sigra.upgrade --backfill-personal-orgs` + `--no-organizations` opt-out + combinatorial smoke test + upgrade test fixture (completed 2026-04-14)
 - [x] **Phase 19: Passkey Schema + Contexts** — `wax_` dep + `UserPasskey` Cloak-encrypted schema + `Sigra.Passkeys.{Registration,Authentication}` + credential-confusion + sign-count monotonicity (completed 2026-04-15)
 - [x] **Phase 20: Passkey Challenge Plug + Runtime Config + JS Hooks Infra** — `PasskeyChallenge` plug (Plug-session 60s TTL) + runtime RP ID config + `passkey_hooks.js` generator injection + gap-closure plans for PK-06 tamper determinism and GEN-06 installer verification reliability (completed 2026-04-15)
-- [x] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-11 planned 2026-04-15) (completed 2026-04-16)
+- [ ] **Phase 21: Passkey LiveViews + POST-Auth Controller** — sudo-gated `PasskeyEnrollmentLive` + `PasskeyAuthenticationLive` + POST login controller + registration email + conditional UI + duplicate detection (gap closure plans 21-08 through 21-13 completed 2026-04-16; 21-14 planned to close remaining verification gaps)
 - [ ] **Phase 22: `--passkeys` Generator Wiring** — `--no-passkeys` opt-out validated against feature manifest pattern
 - [ ] **Phase 23: Docs, CI Smoke, Upgrade Guide** — `getting-started.md` update + 3 new guides + Playwright org + passkey specs + `mix docs` clean + testing helpers
 
@@ -245,7 +245,7 @@ Plans:
   2. User can log in via passkey as a second factor alongside TOTP on `MfaSettingsLive`; passkey list shows AAGUID-derived friendly names (iCloud Keychain, Google Password Manager, 1Password, Windows Hello) from a bundled registry; user can rename or delete passkeys (delete sudo-gated), with a soft cap of 10 per user.
   3. User with `:passkey_primary_enabled` config can log in with email + passkey without a password; every passkey-as-primary user has mandatory magic-link recovery that cannot be disabled (P-5 lockout defense).
   4. Login completion POSTs to a plain controller (never a LV event) to rotate the Plug session, matching v1.0 D-29; Conditional UI / autofill ships feature-detected (unsupported browsers degrade to explicit click); duplicate-credential-id returns "already registered" instead of 500; JS hook cleanly handles browser abort, timeout, user cancel, and AbortController tear-down from LV `destroyed()`.
-**Plans**: 13 plans
+**Plans**: 14 plans
 Plans:
 - [x] 21-01-PLAN.md — Wave 1: generated Auth wrappers, passkey registration email, controller options/completion routes, and sudo route boundary
 - [x] 21-02-PLAN.md — Wave 2: `/users/settings/mfa` passkeys card, enrollment hook, compact list, inline rename, and sudo-aware delete confirmation
@@ -258,8 +258,9 @@ Plans:
 - [x] 21-09-PLAN.md — Wave 7: gap closure for real route/session tests and real-server Playwright smoke
 - [x] 21-10-PLAN.md — Wave 8: gap closure for server-generated passkey challenge bytes and `mfa_pending` session hydration
 - [x] 21-11-PLAN.md — Wave 9: gap closure for route-backed options/MFA proof and self-contained real-server Playwright smoke
-- [ ] 21-12-PLAN.md — Wave 10: gap closure for served example passkey runtime and login binding
-- [ ] 21-13-PLAN.md — Wave 11: gap closure for app-owned browser runtime proof without Playwright injection
+- [x] 21-12-PLAN.md — Wave 10: gap closure for served example passkey runtime and login binding
+- [x] 21-13-PLAN.md — Wave 11: gap closure for app-owned browser runtime proof without Playwright injection
+- [ ] 21-14-PLAN.md — Wave 12: gap closure for passkey options-route negotiation and honest runtime proofs
 **UI hint**: yes
 
 ### Phase 22: `--passkeys` Generator Wiring
@@ -300,7 +301,7 @@ Plans:
 | 18. Backfill + `--organizations` Generator Wiring | 3/3 | Complete   | 2026-04-14 |
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
-| 21. Passkey LiveViews + POST-Auth Controller | 11/11 | Complete   | 2026-04-16 |
+| 21. Passkey LiveViews + POST-Auth Controller | 13/14 | In progress | 2026-04-16 |
 | 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
@@ -313,7 +314,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 10/11 plans executed
+**Plans:** 13/13 plans complete
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false
