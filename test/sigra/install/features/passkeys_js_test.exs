@@ -99,8 +99,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
             "JSON.stringify",
             "x-csrf-token",
             "useBrowserAutofill",
-            "isConditionalMediationAvailable",
-            ~s(mediation: "conditional"),
+            "browserSupportsWebAuthnAutofill",
             "ERROR_PASSKEY_UNSUPPORTED"
           ] do
         assert hook_template =~ expected or browser_helper =~ expected
@@ -128,6 +127,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       assert File.read!(template_path) =~ ~s(from "./passkey_browser")
       assert File.read!(browser_helper_path) =~ "startRegistration"
       assert File.read!(browser_helper_path) =~ "startAuthentication"
+      assert File.read!(browser_helper_path) =~ ~s(from "@simplewebauthn/browser")
       assert File.read!(injection_path) =~ @passkey_start_marker
       assert File.read!(injection_path) =~ @passkey_end_marker
     end
@@ -236,7 +236,10 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
           run_node_script!(node, %{
             "passkey_hooks_under_test.mjs" =>
               File.read!("priv/templates/sigra.install/passkeys/passkey_hooks.js")
-              |> String.replace(~s(from "./passkey_browser"), ~s(from "./browser_stub.mjs")),
+              |> String.replace(
+                ~s(from "./passkey_browser"),
+                ~s(from "./browser_stub.mjs")
+              ),
             "browser_stub.mjs" => """
             export class WebAuthnError extends Error {
               constructor(message, code) {
@@ -402,12 +405,45 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
   end
 
   defp run_browser_helper_node!(node, scenario) do
-    browser_source = File.read!("priv/templates/sigra.install/passkeys/passkey_browser.js")
+    browser_source =
+      File.read!("priv/templates/sigra.install/passkeys/passkey_browser.js")
+      |> String.replace(
+        ~s(from "@simplewebauthn/browser"),
+        ~s(from "./browser_stub.mjs")
+      )
 
     run_node_script!(node, %{
       "passkey_browser_under_test.mjs" => browser_source,
+      "browser_stub.mjs" => browser_helper_browser_stub(),
       "runner.mjs" => browser_helper_runner(scenario)
     })
+  end
+
+  defp browser_helper_browser_stub do
+    """
+    export class WebAuthnError extends Error {
+      constructor(message, code) {
+        super(message)
+        this.name = "WebAuthnError"
+        this.code = code
+      }
+    }
+
+    export async function browserSupportsWebAuthnAutofill() {
+      return globalThis.__browserAutofillAvailable ?? false
+    }
+
+    export async function startRegistration({ optionsJSON }) {
+      return {
+        id: "registration-credential-id",
+        optionsJSON
+      }
+    }
+
+    export async function startAuthentication({ optionsJSON, useBrowserAutofill }) {
+      return globalThis.__browserStartAuthentication(optionsJSON, useBrowserAutofill)
+    }
+    """
   end
 
   defp browser_helper_runner(scenario) do
@@ -416,9 +452,6 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
 
     const fetches = []
     const credentialRequests = []
-
-    globalThis.btoa = value => Buffer.from(value, "binary").toString("base64")
-    globalThis.atob = value => Buffer.from(value, "base64").toString("binary")
 
     class FakeForm {}
     globalThis.HTMLFormElement = FakeForm
@@ -469,14 +502,35 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
 
     const scenario = #{inspect(scenario)}
 
-    globalThis.window = {
-      PublicKeyCredential: {
-        isConditionalMediationAvailable() {
-          return scenario !== "unsupported"
+    globalThis.__browserAutofillAvailable = scenario !== "unsupported"
+    globalThis.__browserStartAuthentication = async (_optionsJSON, useBrowserAutofill) => {
+      credentialRequests.push({ mediation: useBrowserAutofill ? "conditional" : null })
+
+      if (scenario === "abort") {
+        const error = new Error("raw browser abort message")
+        error.name = "AbortError"
+        throw error
+      }
+
+      if (scenario === "timeout") {
+        const error = new Error("raw browser timeout message")
+        error.name = "TimeoutError"
+        throw error
+      }
+
+      if (scenario === "unsupported") {
+        const error = new Error("raw browser unsupported message")
+        error.name = "NotSupportedError"
+        throw error
+      }
+
+      return {
+        id: "credential-id",
+        response: {
+          clientDataJSON: "client-data"
         }
       }
     }
-    globalThis.PublicKeyCredential = globalThis.window.PublicKeyCredential
 
     globalThis.document = {
       querySelector(selector) {
@@ -504,45 +558,6 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         })
       }
     }
-
-    Object.defineProperty(globalThis, "navigator", {
-      configurable: true,
-      value: {
-      credentials: {
-        async get(request) {
-          credentialRequests.push({ mediation: request.mediation ?? null })
-
-          if (scenario === "abort") {
-            const error = new Error("raw browser abort message")
-            error.name = "AbortError"
-            throw error
-          }
-
-          if (scenario === "timeout") {
-            const error = new Error("raw browser timeout message")
-            error.name = "TimeoutError"
-            throw error
-          }
-
-          return {
-            id: "credential-id",
-            rawId: new Uint8Array([1, 2, 3]),
-            type: "public-key",
-            authenticatorAttachment: null,
-            response: {
-              clientDataJSON: new Uint8Array([4, 5, 6]),
-              authenticatorData: new Uint8Array([7, 8, 9]),
-              signature: new Uint8Array([10, 11, 12]),
-              userHandle: null
-            },
-            getClientExtensionResults() {
-              return {}
-            }
-          }
-        }
-      }
-      }
-    })
 
     const result = await attachPasskeyLogin({ enableConditionalUI: scenario !== "explicit" })
 

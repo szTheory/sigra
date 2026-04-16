@@ -1,3 +1,9 @@
+import {
+  browserSupportsWebAuthnAutofill,
+  startAuthentication as browserStartAuthentication,
+  startRegistration as browserStartRegistration,
+} from "@simplewebauthn/browser"
+
 const CEREMONY_ABORTED = "ERROR_CEREMONY_ABORTED"
 const ERROR_PASSKEY_UNSUPPORTED = "ERROR_PASSKEY_UNSUPPORTED"
 
@@ -13,70 +19,6 @@ export const WebAuthnAbortService = {
   cancelCeremony() {},
 }
 
-function base64UrlEncode(bytes) {
-  let binary = ""
-
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte)
-  }
-
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")
-}
-
-function base64UrlDecode(value) {
-  const normalized = value.replace(/-/g, "+").replace(/_/g, "/")
-  const padding = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4))
-  const binary = atob(normalized + padding)
-  return Uint8Array.from(binary, char => char.charCodeAt(0))
-}
-
-function toUint8Array(value) {
-  if (value instanceof Uint8Array) {
-    return value
-  }
-
-  if (value instanceof ArrayBuffer) {
-    return new Uint8Array(value)
-  }
-
-  if (Array.isArray(value)) {
-    return Uint8Array.from(value)
-  }
-
-  if (typeof value === "string") {
-    return base64UrlDecode(value)
-  }
-
-  throw new Error("unsupported WebAuthn binary payload")
-}
-
-function serializeCredential(credential) {
-  const response = credential.response
-
-  return {
-    id: credential.id,
-    rawId: base64UrlEncode(new Uint8Array(credential.rawId)),
-    type: credential.type,
-    authenticatorAttachment: credential.authenticatorAttachment || null,
-    response: {
-      clientDataJSON: base64UrlEncode(new Uint8Array(response.clientDataJSON)),
-      attestationObject: response.attestationObject
-        ? base64UrlEncode(new Uint8Array(response.attestationObject))
-        : null,
-      authenticatorData: response.authenticatorData
-        ? base64UrlEncode(new Uint8Array(response.authenticatorData))
-        : null,
-      signature: response.signature
-        ? base64UrlEncode(new Uint8Array(response.signature))
-        : null,
-      userHandle: response.userHandle
-        ? base64UrlEncode(new Uint8Array(response.userHandle))
-        : null,
-    },
-    clientExtensionResults: credential.getClientExtensionResults(),
-  }
-}
-
 function normalizeAbort(error) {
   if (error && (error.name === "AbortError" || error.code === CEREMONY_ABORTED)) {
     return new WebAuthnError("aborted", CEREMONY_ABORTED)
@@ -85,12 +27,16 @@ function normalizeAbort(error) {
   return error
 }
 
+function buildWebAuthnError(message, code) {
+  return new WebAuthnError(message, code)
+}
+
 function csrfToken() {
   return document.querySelector("meta[name='csrf-token']")?.content || ""
 }
 
 function safeLoginStatus(error) {
-  if (error?.code === ERROR_PASSKEY_UNSUPPORTED) {
+  if (error?.code === ERROR_PASSKEY_UNSUPPORTED || error?.name === "NotSupportedError") {
     return {
       status: "unsupported",
       message: "Passkeys aren't available in this browser.",
@@ -163,34 +109,12 @@ function submitPasskeyLogin(form, completeUrl, responseInput, response) {
 }
 
 export async function conditionalMediationAvailable() {
-  const publicKeyCredential = window.PublicKeyCredential
-
-  if (!publicKeyCredential) {
-    return false
-  }
-
-  if (typeof publicKeyCredential.isConditionalMediationAvailable !== "function") {
-    return false
-  }
-
-  return publicKeyCredential.isConditionalMediationAvailable()
+  return browserSupportsWebAuthnAutofill()
 }
 
 export async function startRegistration({ optionsJSON, signal }) {
   try {
-    const credential = await navigator.credentials.create({
-      publicKey: {
-        ...optionsJSON,
-        challenge: toUint8Array(optionsJSON.challenge),
-        user: {
-          ...optionsJSON.user,
-          id: toUint8Array(optionsJSON.user.id),
-        },
-      },
-      signal,
-    })
-
-    return serializeCredential(credential)
+    return await browserStartRegistration({ optionsJSON, signal })
   } catch (error) {
     throw normalizeAbort(error)
   }
@@ -198,33 +122,13 @@ export async function startRegistration({ optionsJSON, signal }) {
 
 export async function startAuthentication({ optionsJSON, signal, useBrowserAutofill = false }) {
   try {
-    const request = {
-      publicKey: {
-        ...optionsJSON,
-        challenge: toUint8Array(optionsJSON.challenge),
-        allowCredentials: (optionsJSON.allowCredentials || []).map(credential => ({
-          ...credential,
-          id: toUint8Array(credential.id),
-        })),
-      },
-      signal,
-    }
-
     if (useBrowserAutofill) {
       if (!(await conditionalMediationAvailable())) {
-        throw new WebAuthnError("unsupported", ERROR_PASSKEY_UNSUPPORTED)
+        throw buildWebAuthnError("unsupported", ERROR_PASSKEY_UNSUPPORTED)
       }
-
-      Object.assign(request, { mediation: "conditional" })
     }
 
-    const credential = await navigator.credentials.get(request)
-
-    if (!credential) {
-      throw new WebAuthnError("canceled", CEREMONY_ABORTED)
-    }
-
-    return serializeCredential(credential)
+    return await browserStartAuthentication({ optionsJSON, signal, useBrowserAutofill })
   } catch (error) {
     throw normalizeAbort(error)
   }
@@ -286,7 +190,7 @@ export function attachPasskeyLogin(options = {}) {
       ? (async () => {
           try {
             if (!(await conditionalMediationAvailable())) {
-              throw new WebAuthnError("unsupported", ERROR_PASSKEY_UNSUPPORTED)
+              throw buildWebAuthnError("unsupported", ERROR_PASSKEY_UNSUPPORTED)
             }
 
             const optionsJSON = await fetchAuthenticationOptions(optionsUrl, {
