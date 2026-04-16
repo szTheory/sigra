@@ -17,6 +17,12 @@
   scope "/", alias: false do
     pipe_through [:browser, :require_authenticated, :admin_global]
 
+    post "/admin/users/:id/impersonation", <%= web_module %>.Admin.ImpersonationController, :create
+  end
+
+  scope "/", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
     live_session :admin_global,
       layout: {<%= web_module %>.Layouts, :admin},
       on_mount: [
@@ -26,6 +32,12 @@
       ] do
       live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
     end
+  end
+
+  scope "/admin/organizations/:org", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    post "/users/:id/impersonation", <%= web_module %>.Admin.ImpersonationController, :create
   end
 
   scope "/admin/organizations/:org", alias: false do
@@ -45,4 +57,10 @@
       ] do
       live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show
     end
+  end
+
+  scope "/", <%= web_module %> do
+    pipe_through [:browser, :require_authenticated]
+
+    delete "/impersonation", Admin.ImpersonationController, :delete
   end

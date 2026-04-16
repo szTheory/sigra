@@ -34,8 +34,8 @@ defmodule ExampleWeb.UserAuthTest do
         |> Plug.Test.init_test_session(%{})
         |> UserAuth.log_in_user(user)
 
-      assert Repo.aggregate(UserSession, :count) == 1
-      assert [session] = Repo.all(UserSession)
+      assert Repo.aggregate(from(s in UserSession, where: s.user_id == ^user.id), :count) == 1
+      assert [session] = Repo.all(from(s in UserSession, where: s.user_id == ^user.id))
       assert session.user_id == user.id
     end
 
@@ -64,7 +64,7 @@ defmodule ExampleWeb.UserAuthTest do
       {:ok, raw_bytes} = Base.url_decode64(raw_token, padding: false)
       expected_hash = Sigra.Token.hash_token(raw_bytes)
 
-      assert [session] = Repo.all(UserSession)
+      assert [session] = Repo.all(from(s in UserSession, where: s.user_id == ^user.id))
       assert session.hashed_token == expected_hash
     end
 
@@ -186,7 +186,7 @@ defmodule ExampleWeb.UserAuthTest do
         |> Plug.Test.init_test_session(%{})
         |> UserAuth.log_in_user(user)
 
-      assert Repo.aggregate(UserSession, :count) == 1
+      assert Repo.aggregate(from(s in UserSession, where: s.user_id == ^user.id), :count) == 1
 
       token = Plug.Conn.get_session(logged_in_conn, :user_token)
 
@@ -195,7 +195,7 @@ defmodule ExampleWeb.UserAuthTest do
         |> Plug.Test.init_test_session(%{user_token: token})
         |> UserAuth.log_out_user()
 
-      assert Repo.aggregate(UserSession, :count) == 0
+      assert Repo.aggregate(from(s in UserSession, where: s.user_id == ^user.id), :count) == 0
     end
   end
 
@@ -223,8 +223,7 @@ defmodule ExampleWeb.UserAuthTest do
       user_agent: "ExUnit/1.0",
       inserted_at: expired_at,
       last_active_at: expired_at,
-      sudo_at: nil,
-      impersonator_user_id: "admin-user-id"
+      sudo_at: nil
     })
     |> Repo.insert!()
 

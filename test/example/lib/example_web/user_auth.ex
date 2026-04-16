@@ -19,6 +19,8 @@ defmodule ExampleWeb.UserAuth do
   # the token expiry itself in UserToken.
   @max_age 60 * 60 * 24 * 60
   @remember_me_cookie "_example_user_remember_me"
+  @impersonator_user_token_key :impersonator_user_token
+  @impersonation_return_to_key :impersonation_return_to
   @remember_me_static_options [
     sign: true,
     max_age: @max_age,
@@ -84,6 +86,27 @@ defmodule ExampleWeb.UserAuth do
     |> put_token_in_session(token)
   end
 
+  def begin_impersonation(conn, impersonation_token, admin_token, opts \\ [])
+      when is_binary(impersonation_token) and is_binary(admin_token) do
+    conn
+    |> renew_session()
+    |> put_session(@impersonator_user_token_key, admin_token)
+    |> maybe_put_impersonation_return_to(Keyword.get(opts, :return_to))
+    |> put_token_in_session(impersonation_token)
+  end
+
+  def restore_impersonation(conn) do
+    case get_session(conn, @impersonator_user_token_key) do
+      admin_token when is_binary(admin_token) ->
+        conn
+        |> renew_session()
+        |> put_token_in_session(admin_token)
+
+      _ ->
+        clear_auth_session(conn)
+    end
+  end
+
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
     put_resp_cookie(conn, @remember_me_cookie, token, remember_me_options())
   end
@@ -140,14 +163,7 @@ defmodule ExampleWeb.UserAuth do
   """
   def fetch_current_scope(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
-
-    {user, session} =
-      case user_token && Example.Accounts.get_user_and_session_by_token(user_token) do
-        {u, s} -> {u, s}
-        _ -> {nil, nil}
-      end
-
-    scope = user && Scope.for_user(user)
+    {conn, _user, session, scope} = load_current_scope(conn, user_token)
 
     conn
     |> put_private(:sigra_session, session)
@@ -167,6 +183,95 @@ defmodule ExampleWeb.UserAuth do
       end
     end
   end
+
+  def impersonation_return_to(conn) do
+    get_session(conn, @impersonation_return_to_key)
+  end
+
+  defp load_current_scope(conn, nil), do: {conn, nil, nil, nil}
+
+  defp load_current_scope(conn, user_token) when is_binary(user_token) do
+    case Example.Accounts.get_user_and_session_by_token(user_token) do
+      {user, session} ->
+        maybe_handle_impersonation(conn, user, session)
+
+      _ ->
+        {conn, nil, nil, nil}
+    end
+  end
+
+  defp maybe_handle_impersonation(conn, user, session) do
+    admin_token = get_session(conn, @impersonator_user_token_key)
+    admin_user = admin_token && Example.Accounts.get_user_by_session_token(admin_token)
+    scope = build_current_scope(user, session, admin_user)
+
+    if is_binary(admin_token) do
+      case Sigra.Impersonation.evaluate_timeout(
+             Example.Accounts.sigra_config(),
+             timeout_scope(scope),
+             session,
+             admin_token: valid_admin_token(admin_token, admin_user)
+           ) do
+        {:ok, %{expired?: true, action: :restore_admin}} ->
+          restored_conn = restore_impersonation(conn)
+          load_current_scope(restored_conn, get_session(restored_conn, :user_token))
+
+        {:ok, %{expired?: true}} ->
+          cleared_conn = clear_auth_session(conn)
+          {cleared_conn, nil, nil, nil}
+
+        {:ok, _result} ->
+          {conn, user, session, scope}
+      end
+    else
+      {conn, user, session, scope}
+    end
+  end
+
+  defp build_current_scope(user, session, admin_user) do
+    user
+    |> Scope.for_user()
+    |> hydrate_scope(session)
+    |> maybe_put_impersonating_from(admin_user)
+  end
+
+  defp hydrate_scope(scope, session) do
+    org_config = Example.Organizations.__sigra_org_config__()
+
+    case Sigra.Scope.Hydration.hydrate(scope, org_config, session) do
+      {:ok, hydrated} -> hydrated
+      {:error, _reason} -> scope
+    end
+  end
+
+  defp maybe_put_impersonating_from(scope, nil), do: scope
+
+  defp maybe_put_impersonating_from(scope, admin_user),
+    do: %{scope | impersonating_from: admin_user}
+
+  defp valid_admin_token(admin_token, admin_user)
+       when is_binary(admin_token) and not is_nil(admin_user),
+       do: admin_token
+
+  defp valid_admin_token(_admin_token, _admin_user), do: nil
+
+  defp maybe_put_impersonation_return_to(conn, path) when is_binary(path) do
+    put_session(conn, @impersonation_return_to_key, path)
+  end
+
+  defp maybe_put_impersonation_return_to(conn, _path), do: conn
+
+  defp clear_auth_session(conn), do: renew_session(conn)
+
+  defp timeout_scope(scope) do
+    %{
+      user: plain_user(scope.user),
+      impersonating_from: plain_user(scope.impersonating_from)
+    }
+  end
+
+  defp plain_user(nil), do: nil
+  defp plain_user(user), do: %{id: user.id}
 
   @doc """
   Handles mounting and authenticating the current_scope in LiveViews.
@@ -256,20 +361,7 @@ defmodule ExampleWeb.UserAuth do
       if user_token = session["user_token"] do
         case Example.Accounts.get_user_and_session_by_token(user_token) do
           {user, sigra_session} when not is_nil(user) ->
-            scope = Scope.for_user(user)
-
-            # Phase 14 D-23: LiveView path calls the SAME hydrator as the
-            # plug path (Sigra.Plug.LoadActiveOrganization) to guarantee
-            # byte-identical current_scope values. Stale-pointer recovery
-            # is intentionally NOT performed on the LV path — no conn to
-            # write to. The next Plug request recovers via the plug. See
-            # Phase 14 CONTEXT §D-23, §D-14.
-            org_config = Example.Organizations.__sigra_org_config__()
-
-            case Sigra.Scope.Hydration.hydrate(scope, org_config, sigra_session) do
-              {:ok, hydrated} -> hydrated
-              {:error, _reason} -> scope
-            end
+            build_current_scope(user, sigra_session, nil)
 
           _ ->
             nil
@@ -347,7 +439,13 @@ defmodule ExampleWeb.UserAuth do
 
       unconfirmed_access_mode(opts) == :allow_with_banner ->
         conn
-        |> put_flash(:info, dgettext("sigra", "Please confirm your email. Check your inbox or request a new confirmation email."))
+        |> put_flash(
+          :info,
+          dgettext(
+            "sigra",
+            "Please confirm your email. Check your inbox or request a new confirmation email."
+          )
+        )
 
       unconfirmed_access_mode(opts) == :block ->
         # D-04: auto-resend confirmation on blocked login attempt
@@ -357,7 +455,13 @@ defmodule ExampleWeb.UserAuth do
         )
 
         conn
-        |> put_flash(:error, dgettext("sigra", "You must confirm your email before logging in. We've sent a new confirmation email."))
+        |> put_flash(
+          :error,
+          dgettext(
+            "sigra",
+            "You must confirm your email before logging in. We've sent a new confirmation email."
+          )
+        )
         |> redirect(to: ~p"/users/confirm")
         |> halt()
     end
@@ -423,7 +527,10 @@ defmodule ExampleWeb.UserAuth do
 
     if user && Map.get(user, :must_change_password, false) do
       conn
-      |> put_flash(:error, "You must change your password before you can continue using your account.")
+      |> put_flash(
+        :error,
+        "You must change your password before you can continue using your account."
+      )
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/settings#password")
       |> halt()

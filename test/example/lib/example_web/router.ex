@@ -121,6 +121,12 @@ defmodule ExampleWeb.Router do
     get "/log_in/:token", SessionController, :magic_link
   end
 
+  scope "/", ExampleWeb do
+    pipe_through [:browser, :require_authenticated]
+
+    delete "/impersonation", Admin.ImpersonationController, :delete
+  end
+
   scope "/users", ExampleWeb do
     pipe_through [:browser, :require_authenticated]
 
@@ -211,6 +217,12 @@ defmodule ExampleWeb.Router do
   scope "/", alias: false do
     pipe_through [:browser, :require_authenticated, :admin_global]
 
+    post "/admin/users/:id/impersonation", ExampleWeb.Admin.ImpersonationController, :create
+  end
+
+  scope "/", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
     live_session :admin_global,
       layout: {ExampleWeb.Layouts, :admin},
       on_mount: [
@@ -222,6 +234,12 @@ defmodule ExampleWeb.Router do
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
     end
+  end
+
+  scope "/admin/organizations/:org", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    post "/users/:id/impersonation", ExampleWeb.Admin.ImpersonationController, :create
   end
 
   scope "/admin/organizations/:org", alias: false do

@@ -91,7 +91,8 @@ defmodule ExampleWeb.ImpersonationControllerTest do
         })
         |> post("/admin/users/#{other_target.id}/impersonation")
 
-      assert redirected_to(conn) == "/"
+      assert conn.status == 403
+      assert html_response(conn, 403) =~ "Access denied"
 
       follow_up =
         conn
@@ -141,7 +142,8 @@ defmodule ExampleWeb.ImpersonationControllerTest do
     token = get_session(conn, :user_token)
     {_, session} = Example.Accounts.get_user_and_session_by_token(token)
 
-    session
+    Example.Accounts.UserSession
+    |> Repo.get_by!(hashed_token: session.hashed_token)
     |> Ecto.Changeset.change(sudo_at: DateTime.utc_now())
     |> Repo.update!()
 
@@ -152,7 +154,7 @@ defmodule ExampleWeb.ImpersonationControllerTest do
     Example.Accounts.generate_user_session_token(user)
   end
 
-  defp impersonation_token_for(user, admin) do
+  defp impersonation_token_for(user, _admin) do
     raw_token = Base.url_encode64(:crypto.strong_rand_bytes(32), padding: false)
     {:ok, raw_bytes} = Base.url_decode64(raw_token, padding: false)
     now = DateTime.utc_now()
@@ -166,8 +168,7 @@ defmodule ExampleWeb.ImpersonationControllerTest do
       user_agent: "ExUnit/1.0",
       inserted_at: now,
       last_active_at: now,
-      sudo_at: nil,
-      impersonator_user_id: admin.id
+      sudo_at: nil
     })
     |> Repo.insert!()
 
