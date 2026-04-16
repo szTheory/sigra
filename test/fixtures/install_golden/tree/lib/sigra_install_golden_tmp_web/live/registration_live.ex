@@ -35,6 +35,27 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
         <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
 
+
+        <label
+          :if={@passkey_primary_enabled}
+          class="mb-4 flex items-start gap-3 rounded border border-gray-200 bg-gray-50 p-3 text-sm"
+        >
+          <input
+            type="checkbox"
+            name="user[enroll_passkey]"
+            value="true"
+            checked={@enroll_passkey_after_signup}
+            class="checkbox mt-0.5"
+          />
+          <span>
+            <span class="font-semibold">Add a passkey after creating your account</span>
+            <span class="block text-gray-600">
+              After confirming your email, you will continue to passkey setup.
+            </span>
+          </span>
+        </label>
+
+
         <% # Password strength indicator %>
         <div :if={@password_strength} class="mt-1 mb-4">
           <div class="flex items-center gap-2">
@@ -70,6 +91,10 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
     socket =
       socket
       |> assign(trigger_submit: false, check_errors: false)
+
+      |> assign(passkey_primary_enabled: SigraInstallGoldenTmp.Accounts.passkey_primary_enabled?())
+      |> assign(enroll_passkey_after_signup: false)
+
       |> assign(password_strength: nil, password_suggestions: [])
       |> assign_form(changeset)
 
@@ -77,11 +102,21 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
   end
 
   def handle_event("save", %{"user" => user_params}, socket) do
+
+    enroll_passkey = Map.get(user_params, "enroll_passkey") in ["true", true, "on", "1"]
+
+
     case SigraInstallGoldenTmp.Accounts.register_user(user_params) do
       {:ok, user} ->
         # D-05: deliver confirmation email (B5 repair; helper exists at SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions/2)
         confirmation_url_fun = fn token ->
-          url(socket, ~p"/users/confirm/#{token}")
+
+          if enroll_passkey do
+            url(socket, ~p"/users/confirm/#{token}?enroll_passkey=1")
+          else
+            url(socket, ~p"/users/confirm/#{token}")
+          end
+
         end
 
         case SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions(user, confirmation_url_fun) do
@@ -109,6 +144,9 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
   def handle_event("validate", %{"user" => user_params}, socket) do
     changeset = SigraInstallGoldenTmp.Accounts.change_user_registration(%User{}, user_params)
 
+    enroll_passkey = Map.get(user_params, "enroll_passkey") in ["true", true, "on", "1"]
+
+
     # Real-time password strength feedback
     {strength, suggestions} =
       case Map.get(user_params, "password", "") do
@@ -119,6 +157,9 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
     {:noreply,
      socket
      |> assign(password_strength: strength, password_suggestions: suggestions)
+
+     |> assign(enroll_passkey_after_signup: enroll_passkey)
+
      |> assign_form(Map.put(changeset, :action, :validate))}
   end
 

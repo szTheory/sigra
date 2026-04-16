@@ -924,26 +924,17 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     end
   end
 
-  describe "RegistrationLive untouched by Phase 16 Plan 03 (D-08 / D-09)" do
+  describe "RegistrationLive keeps org flow out of signup (D-08 / D-09)" do
     @tag :phase16
-    test "registration_live.ex template is byte-identical to its Phase 14 state" do
-      # ORG-UX-09 is a free structural lunch: Phase 16 MUST NOT touch
-      # registration_live.ex. The zero-org post-signup flow falls out of
-      # Phase 14's :no_active_org redirect path, not a new registration
-      # field or step.
-      expected_sha =
-        "c27d0b8993604ce2abd52f75331630dc5bab430ffe83b8f9d3d3f0e564b31140"
+    test "registration_live.ex does not add organization-specific signup fields or routes" do
+      # ORG-UX-09 still needs to remain a structural free lunch even though
+      # later passkey work legitimately extended the registration template.
+      template = File.read!("priv/templates/sigra.install/core/registration_live.ex")
 
-      actual_sha =
-        "priv/templates/sigra.install/core/registration_live.ex"
-        |> File.read!()
-        |> then(&:crypto.hash(:sha256, &1))
-        |> Base.encode16(case: :lower)
-
-      assert actual_sha == expected_sha,
-             "registration_live.ex was modified in Phase 16 — " <>
-               "this violates D-08/D-09 (ORG-UX-09 is a zero-line structural free lunch). " <>
-               "Expected SHA256 #{expected_sha}, got #{actual_sha}."
+      refute template =~ "organization"
+      refute template =~ "organizations"
+      refute template =~ "invite"
+      refute template =~ ~S(~p"/organizations")
     end
   end
 

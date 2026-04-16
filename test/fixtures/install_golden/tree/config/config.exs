@@ -49,9 +49,25 @@ config :sigra_install_golden_tmp, :sigra,
 
 # Sigra worker runtime config (used by Oban workers)
 config :sigra,
+  otp_app: :sigra_install_golden_tmp,
   repo: SigraInstallGoldenTmp.Repo,
   user_schema: SigraInstallGoldenTmp.Accounts.User,
   email_module: SigraInstallGoldenTmp.Accounts.Emails,
   mailer: SigraInstallGoldenTmp.Accounts.Mailer
+
+
+# Sigra passkeys
+config :sigra_install_golden_tmp, :sigra_config,
+  passkeys: [
+    rp_id: "localhost",
+    rp_name: "SigraInstallGoldenTmp",
+    origin: "http://localhost:4000",
+    timeout_ms: 60_000,
+    attestation: :none,
+    user_verification: :preferred,
+    ceremony_rate_limit: [limit: 5, window_ms: 60_000],
+    passkey_primary_enabled: true,
+    user_passkey_schema: SigraInstallGoldenTmp.Accounts.UserPasskey
+  ]
 
 import_config "#{config_env()}.exs"

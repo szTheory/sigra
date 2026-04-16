@@ -57,7 +57,7 @@ defmodule Sigra.Scope do
 
   Used by library sites that accept a `%Sigra.Config{}` (as opposed to a raw
   opts keyword list) — e.g. `Sigra.Auth` (authenticate_with_config/2),
-  `Sigra.MFA`, `Sigra.OAuth`, `Sigra.ApiToken`. Tolerates plain-map configs
+  `Sigra.MFA`, `Sigra.OAuth`, `Sigra.APIToken`. Tolerates plain-map configs
   used in fast unit tests (OAuth test suite) via `Map.get/3`.
   """
   @spec from_config(struct() | map(), struct() | map() | nil) :: struct() | nil
