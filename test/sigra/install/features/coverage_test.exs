@@ -50,14 +50,17 @@ defmodule Sigra.Install.Features.CoverageTest do
   # the union of files/1 across all combinations and assert every
   # on-disk template is owned by AT LEAST ONE variant.
   @binding_variants for live <- [true, false],
-                       api <- [true, false],
-                       jwt <- [true, false],
-                       do:
-                         Keyword.merge(@base_binding,
-                           live: live,
-                           api: api,
-                           jwt: jwt
-                         )
+                        api <- [true, false],
+                        jwt <- [true, false],
+                        mfa <- [true, false],
+                        oauth <- [true, false],
+                        do:
+                          Keyword.merge(@base_binding,
+                            live: live,
+                            api: api,
+                            jwt: jwt,
+                            opts: [live: live, api: api, jwt: jwt, mfa: mfa, oauth: oauth]
+                          )
 
   # Templates read by Features.*.injections/1 via read_template!/1.
   # Whitelisted here because they are NOT returned by files/1 — they
@@ -66,7 +69,8 @@ defmodule Sigra.Install.Features.CoverageTest do
     Sigra.Install.Features.Core => [],
     Sigra.Install.Features.Organizations => [
       "organizations/router_injection.ex"
-    ]
+    ],
+    Sigra.Install.Features.Passkeys => []
   }
 
   # Pre-existing orphan templates that exist on disk but are NOT yet
@@ -88,6 +92,7 @@ defmodule Sigra.Install.Features.CoverageTest do
   # The test still catches NEW drift — any orphan that is NOT in this
   # allowlist fails immediately. New plans that wire these templates
   # in must shrink @known_drift accordingly.
+  # @known_drift keeps Sigra.Install.Features.Passkeys tightly scoped to [].
   @known_drift %{
     Sigra.Install.Features.Core => [
       "core/api_token_controller.ex",
@@ -126,12 +131,14 @@ defmodule Sigra.Install.Features.CoverageTest do
       # non-registration rationale. This entry is NOT pending future
       # repair — the fragment is meant to stay reference-only.
       "organizations/organization_invitation_email.ex"
-    ]
+    ],
+    Sigra.Install.Features.Passkeys => []
   }
 
   @features [
     {Sigra.Install.Features.Core, "core"},
-    {Sigra.Install.Features.Organizations, "organizations"}
+    {Sigra.Install.Features.Organizations, "organizations"},
+    {Sigra.Install.Features.Passkeys, "passkeys"}
   ]
 
   for {feature, subdir} <- @features do
