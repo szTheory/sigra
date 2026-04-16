@@ -206,6 +206,27 @@ defmodule Sigra.Admin.Live.UserShowLive do
         <p class="mt-2 text-sm text-base-content/70">
           Session revocation uses Sigra's canonical session APIs.
         </p>
+        <p class="mt-2 text-sm text-base-content/70">
+          Support actions affect {@detail.danger_zone.impersonation_target_label} in {@detail.scope_label}.
+        </p>
+
+        <form
+          :if={show_impersonation_start?(@current_scope)}
+          method="post"
+          action={impersonation_start_path(@admin_scope, @detail.user.id)}
+          class="mt-4 space-y-3"
+        >
+          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
+          <button type="submit" class="btn btn-warning min-h-11 w-full sm:w-auto">
+            Start impersonation
+          </button>
+        </form>
+
+        <p :if={!show_impersonation_start?(@current_scope)} class="mt-4 text-sm text-base-content/70">
+          End impersonation before starting another session.
+        </p>
+
         <button
           :if={@detail.danger_zone.revoke_all_sessions?}
           type="button"
@@ -270,6 +291,16 @@ defmodule Sigra.Admin.Live.UserShowLive do
     do: is_binary(organization.organization_slug)
 
   defp show_pivot_link?(_admin_scope, _organization), do: false
+
+  defp impersonation_start_path(%Scope{mode: :organization, organization_slug: slug}, user_id)
+       when is_binary(slug) do
+    "/admin/organizations/#{slug}/users/#{user_id}/impersonation"
+  end
+
+  defp impersonation_start_path(_admin_scope, user_id), do: "/admin/users/#{user_id}/impersonation"
+
+  defp show_impersonation_start?(%{impersonating_from: %_{}}), do: false
+  defp show_impersonation_start?(_current_scope), do: true
 
   defp revoke_session_copy(detail) do
     "Revoke this session for #{detail.user.email} in #{detail.scope_label}? The user will need to sign in again."

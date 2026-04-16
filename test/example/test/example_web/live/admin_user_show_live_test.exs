@@ -135,7 +135,12 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
 
     test "detail page hides the impersonation start action while already impersonating", %{conn: conn} do
       admin = platform_admin_fixture()
-      target = user_fixture(%{email: "hidden-impersonation@example.com", display_name: "Hidden Target"})
+
+      target =
+        user_fixture(%{
+          email: "platform-admin+impersonated-#{System.unique_integer([:positive])}@example.com",
+          display_name: "Hidden Target"
+        })
 
       impersonation_token = impersonation_token_for(target)
 

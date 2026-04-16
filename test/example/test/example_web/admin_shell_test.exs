@@ -4,6 +4,7 @@ defmodule ExampleWeb.AdminShellTest do
   alias Example.AccountsFixtures
   alias Example.Accounts.Scope
   alias ExampleWeb.Components.AdminShell
+  alias ExampleWeb.Layouts
   alias ExampleWeb.AuthErrorHandler
 
   import Phoenix.LiveViewTest
@@ -102,16 +103,13 @@ defmodule ExampleWeb.AdminShellTest do
           display_name: "Impersonated User"
         })
 
-      conn =
-        build_conn()
-        |> init_test_session(%{
-          user_token: Example.Accounts.generate_user_session_token(target),
-          impersonator_user_token: Example.Accounts.generate_user_session_token(admin),
-          impersonation_return_to: "/admin/users?q=restore"
-        })
-        |> get(~p"/")
-
-      html = html_response(conn, 200)
+      html =
+        render_component(&Layouts.app/1,
+          flash: %{},
+          current_scope: %Scope{user: target, impersonating_from: admin},
+          user_organizations: [],
+          inner_block: [%{inner_block: fn _, _ -> "Body" end}]
+        )
 
       assert html =~ "Impersonating Impersonated User"
       assert html =~ "Signed in as Real Admin"

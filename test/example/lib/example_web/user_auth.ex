@@ -359,9 +359,13 @@ defmodule ExampleWeb.UserAuth do
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
       if user_token = session["user_token"] do
+        admin_user =
+          session[@impersonator_user_token_key |> Atom.to_string()]
+          |> Example.Accounts.get_user_by_session_token()
+
         case Example.Accounts.get_user_and_session_by_token(user_token) do
           {user, sigra_session} when not is_nil(user) ->
-            build_current_scope(user, sigra_session, nil)
+            build_current_scope(user, sigra_session, admin_user)
 
           _ ->
             nil

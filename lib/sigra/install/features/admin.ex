@@ -67,8 +67,10 @@ defmodule Sigra.Install.Features.Admin do
            `/admin/organizations/:org`, which already enforce the admin
            policy contract through Sigra's Plug and LiveView guards.
 
-        3. Adjust `lib/<app>_web/components/admin_shell.ex` and the injected
-           `Layouts.admin/1` function to match your product chrome.
+        3. Adjust `lib/<app>_web/components/admin_shell.ex` and your layouts
+           so impersonation stays visibly persistent and the app-wide
+           `/impersonation` stop action remains reachable from host-owned
+           chrome.
       """
     ]
   end

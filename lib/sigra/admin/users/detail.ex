@@ -49,7 +49,8 @@ defmodule Sigra.Admin.Users.Detail do
       organizations: organizations,
       recent_audit: recent_audit,
       danger_zone: %{
-        revoke_all_sessions?: sessions != []
+        revoke_all_sessions?: sessions != [],
+        impersonation_target_label: display_name || user.email
       }
     }
   end

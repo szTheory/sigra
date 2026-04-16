@@ -18,9 +18,6 @@ defmodule ExampleWeb.Components.AdminShell do
           <div class="flex items-center gap-2">
             <span class="text-sm font-semibold">Admin</span>
             <span class={scope_chip_class(@admin_scope)}>{scope_label(@admin_scope)}</span>
-            <%= if render_special_session?(@special_session, @current_scope) do %>
-              <span class="badge badge-outline">{special_session_label(@current_scope)}</span>
-            <% end %>
           </div>
 
           <div class="flex items-center gap-2">
@@ -43,6 +40,8 @@ defmodule ExampleWeb.Components.AdminShell do
             </.scope_switch_link>
           </div>
         </div>
+
+        <.impersonation_banner :if={impersonating?(@current_scope)} current_scope={@current_scope} />
       </header>
 
       <div class="mx-auto flex max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:px-8">
@@ -79,7 +78,6 @@ defmodule ExampleWeb.Components.AdminShell do
                 </li>
               </ul>
             </div>
-
           </nav>
         </aside>
 
@@ -116,6 +114,31 @@ defmodule ExampleWeb.Components.AdminShell do
     """
   end
 
+  attr :current_scope, :map, required: true
+
+  def impersonation_banner(assigns) do
+    ~H"""
+    <section class="border-t border-base-300 bg-warning/15 text-warning-content">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <div class="space-y-1 text-sm">
+          <p class="font-semibold">
+            Impersonating {user_label(@current_scope.user)}
+          </p>
+          <p>
+            Signed in as {user_label(@current_scope.impersonating_from)}
+          </p>
+        </div>
+
+        <form method="post" action={~p"/impersonation"}>
+          <input type="hidden" name="_method" value="delete" />
+          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+          <button type="submit" class="btn btn-sm btn-warning">End impersonation</button>
+        </form>
+      </div>
+    </section>
+    """
+  end
+
   attr :href, :string, required: true
   attr :active, :boolean, default: false
   slot :inner_block, required: true
@@ -137,13 +160,13 @@ defmodule ExampleWeb.Components.AdminShell do
   defp scope_chip_class(%{mode: :organization}), do: "badge badge-secondary"
   defp scope_chip_class(_), do: "badge badge-ghost"
 
-  defp render_special_session?([], current_scope),
-    do: not is_nil(special_session_label(current_scope))
+  defp impersonating?(%{impersonating_from: %_{}}), do: true
+  defp impersonating?(_), do: false
 
-  defp render_special_session?(_slot, _current_scope), do: true
-
-  defp special_session_label(%{impersonating_from: %_{}}), do: "Special session"
-  defp special_session_label(_), do: nil
+  defp user_label(%{display_name: name}) when is_binary(name) and name != "", do: name
+  defp user_label(%{email: email}) when is_binary(email), do: email
+  defp user_label(%{id: id}) when is_binary(id), do: id
+  defp user_label(_user), do: "Unknown user"
 
   defp show_global_link?(%{mode: :global}), do: true
   defp show_global_link?(%{platform_admin?: true}), do: true
