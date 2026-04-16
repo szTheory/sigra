@@ -1,5 +1,4 @@
 import { test, expect, type Page } from '@playwright/test';
-import { extractConfirmationLink } from '../fixtures/mailbox';
 
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
@@ -20,7 +19,7 @@ async function logInIfNeeded(page: Page, email: string, password: string) {
   }
 }
 
-async function registerAndConfirmUser(page: Page, email: string, password: string) {
+async function registerUser(page: Page, email: string, password: string) {
   await page.goto('/users/register');
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
@@ -29,11 +28,6 @@ async function registerAndConfirmUser(page: Page, email: string, password: strin
     (form as HTMLFormElement).requestSubmit();
   });
   await expect(page).not.toHaveURL(/\/users\/register/);
-
-  const confirmHref = await extractConfirmationLink(page, email);
-  await page.goto(confirmHref);
-  await expect(page).not.toHaveURL(/\/users\/confirm\//);
-  await logInIfNeeded(page, email, password);
 }
 
 async function createOrganization(page: Page, name: string, slug: string) {
@@ -64,13 +58,12 @@ test.describe('Phase 28 admin user operations contracts', () => {
     const suffix = Date.now();
     const password = 'CorrectHorseBatteryStaple123!';
     const targetEmail = `operator-target-${suffix}@example.test`;
-    const targetName = `Operator Target ${suffix}`;
     const adminEmail = `platform-admin+${suffix}@example.test`;
 
-    await registerAndConfirmUser(page, targetEmail, password);
+    await registerUser(page, targetEmail, password);
 
     await clearBrowserSession(page);
-    await registerAndConfirmUser(page, adminEmail, password);
+    await registerUser(page, adminEmail, password);
 
     await page.goto('/admin/users');
     await waitForLiveViewReady(page);
@@ -124,11 +117,11 @@ test.describe('Phase 28 admin user operations contracts', () => {
     const orgName = `Pivot Org ${suffix}`;
     const orgSlug = `pivot-org-${suffix}`;
 
-    await registerAndConfirmUser(page, targetEmail, password);
+    await registerUser(page, targetEmail, password);
     await createOrganization(page, orgName, orgSlug);
 
     await clearBrowserSession(page);
-    await registerAndConfirmUser(page, adminEmail, password);
+    await registerUser(page, adminEmail, password);
 
     await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
     await waitForLiveViewReady(page);
