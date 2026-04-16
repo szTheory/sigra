@@ -11,7 +11,7 @@
 - [x] **ADMIN-02**: Host app can define who is a platform admin and who is an org admin through an explicit policy contract; Sigra never infers admin access from signup order or hidden defaults.
 - [x] **ADMIN-03**: Admin routes, LiveViews, exports, and mutation endpoints enforce admin access server-side; hiding UI controls alone is never the protection boundary.
 - [x] **ADMIN-04**: Org admins can only see and act on users, sessions, memberships, and audit data inside their allowed organization scope; platform admins can access cross-org views explicitly.
-- [ ] **ADMIN-05**: Admin navigation and page chrome make the active scope visible so operators can tell whether they are acting globally or within an organization.
+- [x] **ADMIN-05**: Admin navigation and page chrome make the active scope visible so operators can tell whether they are acting globally or within an organization.
 
 ### User Operations
 
@@ -83,7 +83,7 @@
 | ADMIN-02 | Phase 27 | Complete |
 | ADMIN-03 | Phase 27 | Complete |
 | ADMIN-04 | Phase 27 | Complete |
-| ADMIN-05 | Phase 27 | Pending |
+| ADMIN-05 | Phase 27 | Complete |
 | USER-01 | Phase 28 | Pending |
 | USER-02 | Phase 28 | Pending |
 | USER-03 | Phase 28 | Pending |

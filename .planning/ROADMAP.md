@@ -22,7 +22,7 @@
 - Integer phases continue from prior milestone work.
 - Decimal phases are reserved for urgent insertions.
 
-- [ ] **Phase 27: Admin Access Foundation** - Establish default-on admin wiring, explicit policy hooks, scope-safe route protection, and visible admin scope chrome.
+- [x] **Phase 27: Admin Access Foundation** - Establish default-on admin wiring, explicit policy hooks, scope-safe route protection, and visible admin scope chrome. (completed 2026-04-16)
 - [ ] **Phase 28: User Operations Surface** - Deliver searchable, filterable, mobile-friendly user management and detail flows for operator jobs-to-be-done.
 - [ ] **Phase 29: Secure Impersonation** - Add time-bounded impersonation with visible state, preserved admin actor context, and hard server-side restrictions.
 - [ ] **Phase 30: Audit Exploration and Export** - Provide global, per-user, and per-organization audit investigation with impersonation-aware filtering and CSV export.
@@ -103,7 +103,7 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 27. Admin Access Foundation | 2/3 | In Progress|  |
+| 27. Admin Access Foundation | 3/3 | Complete   | 2026-04-16 |
 | 28. User Operations Surface | 0/TBD | Not started | - |
 | 29. Secure Impersonation | 0/TBD | Not started | - |
 | 30. Audit Exploration and Export | 0/TBD | Not started | - |

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
-status: executing
-stopped_at: Completed 27-02-PLAN.md
-last_updated: "2026-04-16T19:16:47.700Z"
+status: verifying
+stopped_at: Completed 27-03-PLAN.md
+last_updated: "2026-04-16T19:26:47.500Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
-  percent: 67
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 
 Phase: 27 (admin-access-foundation) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-16
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
 
 | Phase 27 P1 | 4 min | 2 tasks | 9 files |
 | Phase 27 P2 | 4 min | 3 tasks | 8 files |
+| Phase 27 P3 | 8 min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 27]: Admin route intent resolves into a library-owned Sigra.Admin.Scope that distinguishes :global from :organization access.
 - [Phase 27]: Denied global admin access uses insufficient_scope, while unknown or out-of-scope organization routes collapse to not_found.
 - [Phase 27]: Direct-path admin queries must scope organization access through Sigra.Organizations.Query.for_org/2.
+- [Phase 27]: Example admin routes mount through dedicated global and organization live_session blocks with library-owned admin scope resolution.
+- [Phase 27]: ExampleWeb.Layouts.admin is the host-owned shell seam and keeps Admin plus the active global or organization scope visible across admin pages.
+- [Phase 27]: Example.SigraAdminPolicy uses explicit fixture-backed email prefixes for platform-admin and org-admin tests instead of bootstrap inference.
 
 ### Pending Todos
 
@@ -93,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-16T19:16:47.697Z
-Stopped at: Completed 27-02-PLAN.md
+Last session: 2026-04-16T19:26:47.047Z
+Stopped at: Completed 27-03-PLAN.md
 Resume file: None
