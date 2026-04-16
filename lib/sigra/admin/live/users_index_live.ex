@@ -49,7 +49,10 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       {:error, _meta} ->
         {:noreply,
          socket
-         |> put_flash(:error, "We couldn't load this user data. Refresh the page, then try again.")
+         |> put_flash(
+           :error,
+           "We couldn't load this user data. Refresh the page, then try again."
+         )
          |> assign(:rows, [])
          |> assign(:meta, nil)
          |> assign(:summary_counts, %{})
@@ -95,9 +98,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             />
           </label>
 
-          <div class="flex gap-2">
-            <button type="submit" class="btn btn-primary">Search</button>
-            <a href={index_path(@admin_scope)} class="btn btn-ghost">Clear</a>
+          <div class="grid grid-cols-2 gap-2 lg:flex">
+            <button type="submit" class="btn btn-primary min-h-11">Search</button>
+            <a href={index_path(@admin_scope)} class="btn btn-ghost min-h-11">Clear</a>
           </div>
         </div>
 
@@ -109,7 +112,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <button
             type="button"
             phx-click="toggle_filters"
-            class="btn btn-sm btn-ghost px-0"
+            class="btn btn-ghost min-h-11 justify-start px-0"
             aria-expanded={to_string(@filters_open?)}
           >
             More filters
@@ -166,7 +169,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       <div
         id="admin-users-desktop-results"
         data-testid="admin-users-desktop-results"
-        class="hidden overflow-x-auto lg:block"
+        class="hidden lg:block"
       >
         <table class="table w-full">
           <thead>
@@ -210,7 +213,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 </div>
               </td>
               <td class="align-top text-right">
-                <a class="btn btn-sm btn-primary" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+                <a class="btn btn-sm btn-primary min-h-11" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
                   Open user
                 </a>
               </td>
@@ -244,7 +247,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           </div>
 
           <div class="mt-4">
-            <a class="btn btn-sm btn-primary w-full" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+            <a class="btn btn-primary min-h-11 w-full" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
               Open user
             </a>
           </div>
@@ -256,21 +259,31 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <p class="mt-1">Try a different search or clear one or more filters to widen the result set.</p>
       </div>
 
-      <nav :if={@meta} class="flex items-center justify-between">
+      <nav :if={@meta} class="flex items-center justify-between gap-3">
         <a
-          class={["btn btn-sm", if(@meta.previous_page, do: "", else: "btn-disabled")]}
+          class={[
+            "btn btn-outline min-h-11 min-w-11 px-3",
+            if(@meta.previous_page, do: "", else: "btn-disabled")
+          ]}
           href={page_path(@admin_scope, @current_params, @meta.previous_page)}
           aria-disabled={to_string(is_nil(@meta.previous_page))}
+          aria-label="Previous page"
         >
-          Previous page
+          <span aria-hidden="true">&larr;</span>
+          <span class="sr-only">Previous page</span>
         </a>
         <span class="text-sm text-base-content/70">Page {(@meta.current_page || 1)}</span>
         <a
-          class={["btn btn-sm", if(@meta.next_page, do: "", else: "btn-disabled")]}
+          class={[
+            "btn btn-outline min-h-11 min-w-11 px-3",
+            if(@meta.next_page, do: "", else: "btn-disabled")
+          ]}
           href={page_path(@admin_scope, @current_params, @meta.next_page)}
           aria-disabled={to_string(is_nil(@meta.next_page))}
+          aria-label="Next page"
         >
-          Next page
+          <span aria-hidden="true">&rarr;</span>
+          <span class="sr-only">Next page</span>
         </a>
       </nav>
     </section>
@@ -294,7 +307,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   defp quick_filter(assigns) do
     ~H"""
-    <label class="label cursor-pointer gap-2 rounded-md border border-base-300 bg-base-100 px-3 py-2">
+    <label class="label min-h-11 cursor-pointer gap-2 rounded-md border border-base-300 bg-base-100 px-3 py-2">
       <input
         type="checkbox"
         name={@key}
@@ -331,7 +344,10 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   defp page_heading(_), do: "Users"
 
   defp scope_copy(%Scope{mode: :global}), do: "Global user operations"
-  defp scope_copy(%Scope{organization: %{name: name}}), do: "Organization-scoped user operations for #{name}"
+
+  defp scope_copy(%Scope{organization: %{name: name}}),
+    do: "Organization-scoped user operations for #{name}"
+
   defp scope_copy(_), do: "User operations"
 
   defp filters_open?(params), do: Enum.any?(@more_filter_keys, &present_param?(params, &1))
@@ -419,7 +435,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   end
 
   defp lock_label(row), do: "Lockout: " <> if(row.user.locked_at, do: "Locked", else: "Active")
-  defp deletion_label(row), do: "Deletion: " <> if(row.user.deleted_at, do: "Deleted", else: "Active")
+
+  defp deletion_label(row),
+    do: "Deletion: " <> if(row.user.deleted_at, do: "Deleted", else: "Active")
 
   defp activity_label(row) do
     case row.last_active_at do
@@ -436,8 +454,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   defp badge_text(badge) when is_binary(badge), do: badge
   defp badge_text(_badge), do: ""
 
-  defp column_text(%{label: label, value: value}, _user) when is_binary(label) and is_binary(value),
-    do: "#{label}: #{value}"
+  defp column_text(%{label: label, value: value}, _user)
+       when is_binary(label) and is_binary(value),
+       do: "#{label}: #{value}"
 
   defp column_text(%{label: label, field: field}, user) when is_binary(label) and is_atom(field),
     do: "#{label}: #{Map.get(user, field)}"

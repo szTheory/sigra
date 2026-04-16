@@ -88,7 +88,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
     ~H"""
     <section :if={@detail} class="space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <a class="btn btn-ghost btn-sm" href={@return_to}>Back to users</a>
+        <a class="btn btn-ghost min-h-11" href={@return_to}>Back to users</a>
         <span class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</span>
       </div>
 
@@ -117,7 +117,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
             :if={@detail.sessions != []}
             type="button"
             phx-click="open_revoke_all_sessions"
-            class="btn btn-sm btn-error"
+            class="btn btn-error min-h-11"
           >
             Revoke all sessions
           </button>
@@ -128,7 +128,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
             :for={session <- @detail.sessions}
             class="rounded-md border border-base-300 bg-base-200 p-4 text-sm"
           >
-            <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div class="space-y-1">
                 <p class="font-semibold">{session_label(session)}</p>
                 <p>{session.ip || "Unknown IP"}</p>
@@ -139,7 +139,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
                 type="button"
                 phx-click="open_revoke_session"
                 phx-value-token={Base.url_encode64(session.hashed_token, padding: false)}
-                class="btn btn-sm btn-error"
+                class="btn btn-error min-h-11 w-full sm:w-auto"
               >
                 Revoke session
               </button>
@@ -180,7 +180,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
             <p>Role: {organization.role}</p>
             <a
               :if={show_pivot_link?(@admin_scope, organization)}
-              class="btn btn-sm btn-outline mt-3"
+              class="btn btn-outline min-h-11 mt-3 w-full sm:w-auto"
               href={pivot_path(@admin_scope, @detail.user.id, organization, @return_to)}
             >
               Open organization-scoped view for {organization.organization_name}
@@ -210,7 +210,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
           :if={@detail.danger_zone.revoke_all_sessions?}
           type="button"
           phx-click="open_revoke_all_sessions"
-          class="btn btn-error btn-sm mt-4"
+          class="btn btn-error min-h-11 mt-4 w-full sm:w-auto"
         >
           Revoke all sessions
         </button>
@@ -226,8 +226,8 @@ defmodule Sigra.Admin.Live.UserShowLive do
           <p class="text-base font-semibold">Confirm action</p>
           <p class="mt-3 text-sm">{@confirm_action.copy}</p>
           <div class="modal-action">
-            <button type="button" phx-click="cancel_confirm" class="btn btn-ghost btn-sm">Cancel</button>
-            <button type="button" phx-click="confirm_action" class="btn btn-error btn-sm">Confirm</button>
+            <button type="button" phx-click="cancel_confirm" class="btn btn-ghost min-h-11">Cancel</button>
+            <button type="button" phx-click="confirm_action" class="btn btn-error min-h-11">Confirm</button>
           </div>
         </div>
       </dialog>
@@ -250,8 +250,9 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   defp sanitize_return_to(_path, admin_scope), do: default_return_to(admin_scope)
 
-  defp default_return_to(%Scope{mode: :organization, organization_slug: slug}) when is_binary(slug),
-    do: "/admin/organizations/#{slug}/users"
+  defp default_return_to(%Scope{mode: :organization, organization_slug: slug})
+       when is_binary(slug),
+       do: "/admin/organizations/#{slug}/users"
 
   defp default_return_to(_admin_scope), do: "/admin/users"
 
@@ -287,7 +288,9 @@ defmodule Sigra.Admin.Live.UserShowLive do
     do: "Confirmation: " <> if(identity.confirmed?, do: "Confirmed", else: "Unconfirmed")
 
   defp lock_label(identity), do: "Lockout: " <> if(identity.locked?, do: "Locked", else: "Active")
-  defp deletion_label(identity), do: "Deletion: " <> if(identity.deleted?, do: "Deleted", else: "Active")
+
+  defp deletion_label(identity),
+    do: "Deletion: " <> if(identity.deleted?, do: "Deleted", else: "Active")
 
   defp mfa_label(nil), do: "MFA: Not configured"
   defp mfa_label(%{enabled?: true}), do: "MFA: Enabled"
@@ -296,7 +299,9 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   defp session_label(%{type: type}), do: "Session type: " <> to_string(type)
 
-  defp activity_label(%DateTime{} = at), do: "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
+  defp activity_label(%DateTime{} = at),
+    do: "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
+
   defp activity_label(_), do: "Last activity: Not available"
 
   defp pluralize(1, label), do: "1 #{label}"

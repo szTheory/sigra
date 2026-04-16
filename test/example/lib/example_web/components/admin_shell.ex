@@ -24,6 +24,9 @@ defmodule ExampleWeb.Components.AdminShell do
           </div>
 
           <div class="flex items-center gap-2">
+            <.scope_switch_link href={users_link(@admin_scope)} active={users_active?(@admin_scope)}>
+              Users
+            </.scope_switch_link>
             <.scope_switch_link
               :if={show_global_link?(@admin_scope)}
               href={~p"/admin"}
@@ -46,6 +49,21 @@ defmodule ExampleWeb.Components.AdminShell do
         <aside class="hidden w-64 shrink-0 lg:block">
           <nav aria-label="Admin navigation" class="space-y-4">
             <div class="rounded-lg bg-base-200 p-3">
+              <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
+              <ul class="menu gap-1 p-0">
+                <li>
+                  <a
+                    class={nav_item_class(users_active?(@admin_scope))}
+                    href={users_link(@admin_scope)}
+                  >
+                    Users
+                  </a>
+                </li>
+                <li><span class="text-base-content/60">Audit</span></li>
+              </ul>
+            </div>
+
+            <div class="rounded-lg bg-base-200 p-3">
               <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Overview</p>
               <ul class="menu gap-1 p-0">
                 <li>
@@ -62,20 +80,6 @@ defmodule ExampleWeb.Components.AdminShell do
               </ul>
             </div>
 
-            <div class="rounded-lg bg-base-200 p-3">
-              <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
-              <ul class="menu gap-1 p-0">
-                <li>
-                  <a
-                    class={nav_item_class(users_active?(@admin_scope))}
-                    href={users_link(@admin_scope)}
-                  >
-                    Users
-                  </a>
-                </li>
-                <li><span class="text-base-content/60">Audit</span></li>
-              </ul>
-            </div>
           </nav>
         </aside>
 
@@ -88,14 +92,14 @@ defmodule ExampleWeb.Components.AdminShell do
         aria-label="Admin bottom nav"
         class="btm-nav border-t border-base-300 bg-base-200 lg:hidden"
       >
-        <a href={~p"/admin"} class={bottom_nav_class(global_active?(@admin_scope))}>
-          <span class="btm-nav-label">Global</span>
-        </a>
         <a
           href={users_link(@admin_scope)}
           class={bottom_nav_class(users_active?(@admin_scope))}
         >
           <span class="btm-nav-label">Users</span>
+        </a>
+        <a href={~p"/admin"} class={bottom_nav_class(global_active?(@admin_scope))}>
+          <span class="btm-nav-label">Global</span>
         </a>
         <a
           :if={organization_link(@admin_scope)}
