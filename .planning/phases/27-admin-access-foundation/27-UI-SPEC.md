@@ -1,10 +1,11 @@
 ---
 phase: 27
 slug: admin-access-foundation
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-04-16
+reviewed_at: 2026-04-16
 ---
 
 # Phase 27 — UI Design Contract
@@ -95,6 +96,7 @@ Additional copy rules for this phase:
 
 - Use the existing Phoenix app shell conventions and extend them into an admin shell rather than replacing them with a separate frontend.
 - The admin shell is a hybrid pattern from context decision `D-16`: sticky top scope bar plus conventional navigation.
+- On first load, the sticky scope bar is the primary visual anchor and the page header is the secondary hierarchy cue for the current task or destination.
 - The sticky scope bar stays visible on every admin page and contains, in this order: `Admin` label, active scope chip, optional special-session chip, and scope switch affordance when switching is permitted.
 - Desktop navigation uses a grouped sidebar for durable wayfinding.
 - Mobile navigation uses a bottom nav with 3-5 top destinations and a secondary drawer/menu for lower-frequency destinations.
@@ -175,4 +177,4 @@ Do not introduce data tables, analytics panels, or broad dashboard widgets in Ph
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved
