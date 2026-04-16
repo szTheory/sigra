@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 27-01-PLAN.md
-last_updated: "2026-04-16T19:09:03.888Z"
+stopped_at: Completed 27-02-PLAN.md
+last_updated: "2026-04-16T19:16:47.700Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 33
+  completed_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 ## Current Position
 
 Phase: 27 (admin-access-foundation) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-16
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0% (0/5 phases complete)
 - Trend: Not enough data
 
 | Phase 27 P1 | 4 min | 2 tasks | 9 files |
+| Phase 27 P2 | 4 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - [Phase 27]: Admin is a first-class installer feature enabled by default and omitted only via --no-admin.
 - [Phase 27]: The generated host app owns only the admin policy module and shell component; long-lived runtime stays library-owned.
 - [Phase 27]: Admin router wiring uses normal Phoenix scopes and live_session blocks rather than forward.
+- [Phase 27]: Admin route intent resolves into a library-owned Sigra.Admin.Scope that distinguishes :global from :organization access.
+- [Phase 27]: Denied global admin access uses insufficient_scope, while unknown or out-of-scope organization routes collapse to not_found.
+- [Phase 27]: Direct-path admin queries must scope organization access through Sigra.Organizations.Query.for_org/2.
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-16T19:09:03.885Z
-Stopped at: Completed 27-01-PLAN.md
+Last session: 2026-04-16T19:16:47.697Z
+Stopped at: Completed 27-02-PLAN.md
 Resume file: None
