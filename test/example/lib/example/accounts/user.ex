@@ -7,6 +7,7 @@ defmodule Example.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :display_name, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -45,8 +46,7 @@ defmodule Example.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    # Add custom fields here (e.g., :name, :company)
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :display_name, :password])
     |> validate_email(opts)
     |> validate_password(opts)
   end

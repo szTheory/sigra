@@ -68,6 +68,8 @@ defmodule Example.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def admin_user_hooks, do: Example.SigraAdminUsers
+
   ## User registration
 
   @doc """
