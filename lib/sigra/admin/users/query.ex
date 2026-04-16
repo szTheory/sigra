@@ -409,24 +409,21 @@ defmodule Sigra.Admin.Users.Query do
             membership in membership_schema,
             join: organization in assoc(membership, :organization),
             where: membership.user_id in ^user_ids,
-            group_by: membership.user_id,
             select: %{
               user_id: membership.user_id,
-              organization_count: count(membership.organization_id, :distinct),
-              organization_names:
-                fragment(
-                  "string_agg(distinct ?, ', ' order by ?)",
-                  organization.name,
-                  organization.name
-                )
+              organization_name: organization.name
             }
           )
           |> repo.all()
-          |> Map.new(fn summary ->
-            {summary.user_id,
+          |> Enum.group_by(& &1.user_id, & &1.organization_name)
+          |> Map.new(fn {user_id, names} ->
+            unique_names = names |> Enum.uniq() |> Enum.sort()
+
+            {user_id,
              %{
-               organization_count: summary.organization_count,
-               organization_summary: summary.organization_names || "No organizations"
+               organization_count: length(unique_names),
+               organization_summary:
+                 if(unique_names == [], do: "No organizations", else: Enum.join(unique_names, ", "))
              }}
           end)
 
