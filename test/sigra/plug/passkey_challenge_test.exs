@@ -55,6 +55,33 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
   end
 
   describe "issue/4" do
+    test "registration issue generates non-empty challenge bytes without explicit bytes" do
+      conn = session_conn()
+      cfg = config()
+
+      {_issued_conn, challenge} = PasskeyChallenge.issue(conn, :registration, cfg)
+
+      assert %Wax.Challenge{} = challenge
+      assert is_binary(challenge.bytes)
+      assert byte_size(challenge.bytes) >= 32
+    end
+
+    test "authentication issue signs generated challenge bytes into the session token" do
+      conn = session_conn()
+      cfg = config()
+
+      {issued_conn, challenge} = PasskeyChallenge.issue(conn, :authentication, cfg)
+
+      assert %Wax.Challenge{} = challenge
+      assert is_binary(challenge.bytes)
+      assert byte_size(challenge.bytes) >= 32
+
+      assert {:ok, %{"c" => encoded_bytes}} =
+               Sigra.Token.verify(cfg.secret_key_base, @purpose, challenge_token(issued_conn, @authentication_slot), max_age: 60)
+
+      assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, challenge.bytes}
+    end
+
     test "stores only the registration slot and returns a Wax.Challenge" do
       conn = session_conn()
       cfg = config()
@@ -71,6 +98,15 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
                Sigra.Token.verify(cfg.secret_key_base, @purpose, challenge_token(issued_conn, @registration_slot), max_age: 60)
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, "registration-challenge"}
+    end
+
+    test "explicit bytes remain respected for deterministic setup" do
+      conn = session_conn()
+      cfg = config()
+
+      {_issued_conn, challenge} = PasskeyChallenge.issue(conn, :authentication, cfg, bytes: "deterministic-bytes")
+
+      assert challenge.bytes == "deterministic-bytes"
     end
 
     test "stores only the authentication slot and returns a Wax.Challenge" do
