@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: verifying
-stopped_at: Completed Phase 22 discuss; next step is \-plan-phase 22
-last_updated: "2026-04-16T11:16:47.917Z"
-last_activity: 2026-04-16 -- Completed Phase 22 discuss; context captured and ready for \-plan-phase 22
+status: executing
+stopped_at: Completed 22-01-PLAN.md
+last_updated: "2026-04-16T12:49:50.319Z"
+last_activity: 2026-04-16
 progress:
   total_phases: 17
   completed_phases: 13
-  total_plans: 63
-  completed_plans: 63
-  percent: 100
+  total_plans: 67
+  completed_plans: 64
+  percent: 96
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 
 **Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 22 — `--passkeys` generator wiring
+**Current focus:** Phase 22 — passkeys-generator-wiring
 
 ## Current Position
 
-Phase: 22 (`--passkeys` generator wiring) — NOT STARTED
-Plan: Not started
-Status: Completed Phase 21 verification
-Last activity: 2026-04-16 -- Completed Phase 22 discuss; context captured and ready for \-plan-phase 22
+Phase: 22 (passkeys-generator-wiring) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-04-16
 
 Progress: [████████░░] 85% (11/13 mainline phases complete)
 
@@ -90,6 +90,9 @@ Recent decisions affecting current work:
 - [Phase 21-passkey-liveviews-post-auth-controller]: Session type hydration explicitly whitelists mfa_pending while keeping unknown persisted strings mapped to :standard.
 - [Phase 21]: Route-level ExUnit tests are the authoritative proof for passkey challenge JSON shape because the dev Playwright server lacks Sigra secret_key_base for challenge-producing paths.
 - [Phase 21]: Playwright keeps only a hardware-avoidance SigraPasskeys.authenticate shim and no longer intercepts or fulfills the passkey options route.
+- [Phase 22]: Passkeys default to true in the installer and bind through passkeys? as the single source of truth for later generator gating.
+- [Phase 22]: Install summary text now reports passkeys as enabled by default or explicitly disabled via --no-passkeys from the parsed CLI flag state.
+- [Phase 22]: Passkey coverage stays anchored at the feature manifest boundary without adding runner-specific logic.
 
 ### Pending Todos
 
@@ -112,6 +115,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-16T01:48:03Z
-Stopped at: Completed Phase 22 discuss; next step is \-plan-phase 22
+Last session: 2026-04-16T12:49:50.316Z
+Stopped at: Completed 22-01-PLAN.md
 Resume file: None

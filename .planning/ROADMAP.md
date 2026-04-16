@@ -274,7 +274,7 @@ Plans:
   3. `Sigra.Install.Features.Passkeys` drops into the feature manifest alongside Core and Organizations with no special-casing in `sigra.install.ex` beyond registration — proving the Phase 11 pattern holds for a second feature.
 **Plans**: 4 plans
 Plans:
-- [ ] 22-01-PLAN.md — Wave 1: default-on passkey flag semantics, binding propagation, and manifest-level contract tests
+- [x] 22-01-PLAN.md — Wave 1: default-on passkey flag semantics, binding propagation, and manifest-level contract tests
 - [ ] 22-02-PLAN.md — Wave 2: passkey-owned route/config/dependency rewiring plus generated browser import alignment to `@simplewebauthn/browser`
 - [ ] 22-03-PLAN.md — Wave 3: guarded shared auth templates plus authoritative `--no-passkeys` omission regression coverage
 - [ ] 22-04-PLAN.md — Wave 4: four-way CI matrix, assets-enabled passkey opt-out smoke harness, and final `mix precommit` gate
@@ -307,7 +307,7 @@ Plans:
 | 19. Passkey Schema + Contexts | 4/4 | Complete | 2026-04-15 |
 | 20. Passkey Challenge Plug + Runtime Config + JS Hooks | 5/5 | Complete   | 2026-04-15 |
 | 21. Passkey LiveViews + POST-Auth Controller | 14/14 | Complete    | 2026-04-16 |
-| 22. `--passkeys` Generator Wiring | 0/? | Not started | — |
+| 22. `--passkeys` Generator Wiring | 1/4 | In Progress|  |
 | 23. Docs, CI Smoke, Upgrade Guide | 0/? | Not started | — |
 
 ## Backlog
@@ -319,7 +319,7 @@ Unsequenced ideas parked for a future milestone. Promote via `/gsd-review-backlo
 **Goal:** Complete Nyquist validation contracts for the 6 phases whose `*-VALIDATION.md` files are still in `status: draft` with `nyquist_compliant: false`, and create the missing VALIDATION.md for phase 10.1. Produces audit-grade records for any future compliance review without blocking v1.0 shipment.
 **Requirements:** TBD (no new REQ-IDs; remediation phase)
 **Depends on:** v1.0 archived
-**Plans:** 13/13 plans complete
+**Plans:** 1/4 plans executed
 
 **Scope (from v1.0 audit):**
 - Phase 02 (core-auth) — VALIDATION.md draft, nyquist_compliant: false

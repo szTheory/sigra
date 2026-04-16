@@ -81,7 +81,7 @@ affect individual requirements.
 ### Passkeys — Foundation (PK)
 
 - [ ] **PK-01**: Developer can add passkeys to a new Phoenix app via `mix sigra.install --passkeys` (default on). Adds `{:wax_, "~> 0.7"}` to mix.exs; host app's `assets/package.json` gets `@simplewebauthn/browser ^13.0.0`.
-- [ ] **PK-02**: Developer can disable passkeys entirely via `mix sigra.install --no-passkeys`; no passkey templates, schemas, routes, or JS hooks are generated.
+- [x] **PK-02**: Developer can disable passkeys entirely via `mix sigra.install --no-passkeys`; no passkey templates, schemas, routes, or JS hooks are generated.
 - [ ] **PK-03**: System generates a `UserPasskey` schema (`user_id`, `credential_id` unique + unencrypted + indexed, `public_key` encrypted via the existing Cloak vault, `sign_count`, `aaguid`, `nickname`, `device_hint`, `transports` array, `rp_id`, `last_used_at`, timestamps).
 - [ ] **PK-04**: System stores `rp_id` on every `UserPasskey` row at registration time so later RP ID rotations can be detected and documented (addresses pitfall P-3).
 - [ ] **PK-05**: System exposes `Sigra.Passkeys` context with `register/3`, `authenticate/3`, `list_for_user/1`, `rename/2`, `delete/2` functions; ceremony primitives in `Sigra.Passkeys.Registration` and `Sigra.Passkeys.Authentication` wrapping `wax_`.
