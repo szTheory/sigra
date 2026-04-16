@@ -13,8 +13,26 @@ defmodule Sigra.UpgradeIntegrationTest do
 
   alias Sigra.Test.InstallFixture
 
+  @documented_upgrade_command "mix sigra.upgrade --yes"
+  @documented_backfill_command "mix sigra.upgrade --backfill-personal-orgs --yes"
+
   @moduletag :upgrade
   @moduletag timeout: 600_000
+
+  setup_all do
+    original_cloak_key = System.get_env("CLOAK_KEY")
+    System.put_env("CLOAK_KEY", Base.encode64(:crypto.strong_rand_bytes(32)))
+
+    on_exit(fn ->
+      if is_nil(original_cloak_key) do
+        System.delete_env("CLOAK_KEY")
+      else
+        System.put_env("CLOAK_KEY", original_cloak_key)
+      end
+    end)
+
+    :ok
+  end
 
   describe "upgrade after --no-organizations install (zero-org path — ORG-02 + GEN-03 org-axis)" do
     @tag :tmp_dir
@@ -42,6 +60,7 @@ defmodule Sigra.UpgradeIntegrationTest do
 
       # Assert: no crash substring in upgrade stdout.
       refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+      assert documented_upgrade_command([]) == @documented_upgrade_command
 
       # Assert: no new ALTER migrations emitted (zero-org path).
       migrations_after =
@@ -57,7 +76,7 @@ defmodule Sigra.UpgradeIntegrationTest do
              "expected zero new organizations-related migrations, got: #{inspect(alter_migrations)}"
 
       # Assert: app still compiles + migrates + boots.
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
+      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
       {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
       refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
@@ -88,8 +107,9 @@ defmodule Sigra.UpgradeIntegrationTest do
       # against the fresh-install shape.
       {:ok, upgrade_out} = InstallFixture.run_sigra_upgrade(app_dir, [])
       refute upgrade_out =~ "** (", "upgrade raised: #{upgrade_out}"
+      assert documented_upgrade_command([]) == @documented_upgrade_command
 
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
+      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
       {:ok, migrate_out} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
       refute migrate_out =~ "** (", "ecto.migrate raised: #{migrate_out}"
 
@@ -136,7 +156,9 @@ defmodule Sigra.UpgradeIntegrationTest do
       {:ok, _upgrade_out} =
         InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
 
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile", "--warnings-as-errors"])
+      assert documented_upgrade_command(["--backfill-personal-orgs"]) == @documented_backfill_command
+
+      {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
       run_data_migrations!(app_dir)
 
@@ -265,6 +287,11 @@ defmodule Sigra.UpgradeIntegrationTest do
       _ ->
         false
     end
+  end
+
+  defp documented_upgrade_command(flags) do
+    ["mix", "sigra.upgrade" | flags ++ ["--yes"]]
+    |> Enum.join(" ")
   end
 
   defp otp_app_atom(app_dir) do

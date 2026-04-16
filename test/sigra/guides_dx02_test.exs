@@ -19,8 +19,11 @@ defmodule Sigra.GuidesDx02Test do
 
   @guides_root "guides"
   @getting_started Path.join([@guides_root, "introduction", "getting-started.md"])
+  @upgrade_guide Path.join([@guides_root, "introduction", "upgrading-to-v1.1.md"])
   @mfa_guide Path.join([@guides_root, "flows", "mfa.md"])
   @testing_guide Path.join([@guides_root, "recipes", "testing.md"])
+  @multi_tenant_guide Path.join([@guides_root, "recipes", "multi-tenant.md"])
+  @passkeys_guide Path.join([@guides_root, "recipes", "passkeys.md"])
   @subdomain_guide Path.join([@guides_root, "recipes", "subdomain-auth.md"])
   @templates_root Path.join(["priv", "templates", "sigra.install", "core"])
 
@@ -157,7 +160,14 @@ defmodule Sigra.GuidesDx02Test do
     end
 
     test "Sigra.* references in measured guides match shipped code (or known drift)" do
-      guides = [@getting_started, @mfa_guide, @testing_guide]
+      guides = [
+        @getting_started,
+        @upgrade_guide,
+        @mfa_guide,
+        @testing_guide,
+        @multi_tenant_guide,
+        @passkeys_guide
+      ]
 
       references =
         guides
@@ -210,11 +220,12 @@ defmodule Sigra.GuidesDx02Test do
              "mix.exs must set docs main: \"getting-started\" (plan 10-05 Task 1 Step F)"
     end
 
-    test "all 15 expected guide files exist" do
+    test "all 17 expected guide files exist" do
       expected =
         [
           "introduction/getting-started.md",
           "introduction/installation.md",
+          "introduction/upgrading-to-v1.1.md",
           "flows/registration.md",
           "flows/login-and-logout.md",
           "flows/password-reset.md",
@@ -226,6 +237,7 @@ defmodule Sigra.GuidesDx02Test do
           "recipes/testing.md",
           "recipes/custom-user-fields.md",
           "recipes/multi-tenant.md",
+          "recipes/passkeys.md",
           "recipes/deployment.md",
           "recipes/subdomain-auth.md"
         ]
@@ -236,7 +248,7 @@ defmodule Sigra.GuidesDx02Test do
       assert missing == [],
              "Missing expected guide files: #{Enum.join(missing, ", ")}"
 
-      assert length(expected) == 15
+      assert length(expected) == 17
     end
 
     test "subdomain-auth.md mentions cookie_domain (10-03 -> 10-04 consistency)" do
@@ -245,6 +257,44 @@ defmodule Sigra.GuidesDx02Test do
       assert raw =~ "cookie_domain",
              "guides/recipes/subdomain-auth.md must reference cookie_domain " <>
                "(cross-plan consistency with plan 10-03)"
+    end
+
+    test "getting-started keeps the organizations and passkeys continuation concise and default-on" do
+      raw = File.read!(@getting_started)
+
+      assert raw =~ "## 10. Organizations & Passkeys"
+      assert raw =~ "mix sigra.install"
+      assert raw =~ "--no-organizations"
+      assert raw =~ "--no-passkeys"
+      assert raw =~ "Sigra.Organizations.Query.for_org/2"
+    end
+
+    test "upgrade guide documents the exercised command paths" do
+      raw = File.read!(@upgrade_guide)
+
+      assert raw =~ "mix sigra.upgrade --yes"
+      assert raw =~ "mix sigra.upgrade --backfill-personal-orgs --yes"
+      assert raw =~ "mix test test/upgrade_test.exs"
+      assert raw =~ "passkey_primary_enabled: true"
+    end
+
+    test "multi-tenant guide matches the shipped logical-org posture" do
+      raw = File.read!(@multi_tenant_guide)
+
+      assert raw =~ "logical multi-tenancy"
+      assert raw =~ "Sigra.Organizations.Query.for_org/2"
+      assert raw =~ "PG schema-per-tenant"
+      refute raw =~ "Sigra does not ship multi-tenancy as a first-class feature"
+    end
+
+    test "passkeys guide covers config, rename, and recovery posture" do
+      raw = File.read!(@passkeys_guide)
+
+      assert raw =~ "passkey_primary_enabled"
+      assert raw =~ "RP ID"
+      assert raw =~ "origin"
+      assert raw =~ "rename"
+      assert raw =~ "magic link"
     end
   end
 

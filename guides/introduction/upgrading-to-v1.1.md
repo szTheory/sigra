@@ -41,7 +41,7 @@ The test fixture appends `--allow-dirty` because `mix phx.new` leaves a fresh tm
 After the upgrade task writes migrations and generated code updates:
 
     mix ecto.migrate
-    mix compile --warnings-as-errors
+    mix compile
 
 If you used `--backfill-personal-orgs`, run any generated data migrations your app expects as part of deployment. The repo's upgrade harness explicitly runs the data-migration path after `mix ecto.migrate`.
 
