@@ -137,7 +137,8 @@ defmodule Sigra.Install.Injector do
       with {:ok, import_line, hooks_line} <- extract_passkey_injection_parts(injection_template),
            {:ok, import_anchor} <- find_colocated_hooks_import(file_contents),
            {:ok, hooks_anchor} <- find_colocated_hooks_line(file_contents) do
-        import_block = Enum.join([@passkeys_start_marker, import_line, @passkeys_end_marker], "\n")
+        import_block =
+          Enum.join([@passkeys_start_marker, import_line, @passkeys_end_marker], "\n")
 
         injected_imports =
           String.replace(file_contents, import_anchor, import_anchor <> "\n" <> import_block,
@@ -145,7 +146,9 @@ defmodule Sigra.Install.Injector do
           )
 
         merged_hooks_line = hooks_line <> ","
-        injected_hooks = String.replace(injected_imports, hooks_anchor, merged_hooks_line, global: false)
+
+        injected_hooks =
+          String.replace(injected_imports, hooks_anchor, merged_hooks_line, global: false)
 
         {:ok, injected_hooks}
       else
@@ -560,6 +563,22 @@ defmodule Sigra.Install.Injector do
     end
   end
 
+  defp apply_anchor(:mix_deps, content, payload) do
+    case inject_mix_dependency(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
+  defp apply_anchor(:package_json_dependencies, content, payload) do
+    case inject_package_json_dependency(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
   defp apply_anchor(:at_top, content, payload), do: payload <> "\n" <> content
 
   defp apply_anchor(other, _content, _payload),
@@ -571,9 +590,13 @@ defmodule Sigra.Install.Injector do
       |> String.split("\n", trim: true)
       |> Enum.map(&String.trim/1)
 
-    with import_line when is_binary(import_line) <- Enum.find(lines, &String.starts_with?(&1, "import ")),
+    with import_line when is_binary(import_line) <-
+           Enum.find(lines, &String.starts_with?(&1, "import ")),
          hooks_line when is_binary(hooks_line) <-
-           Enum.find(lines, &String.starts_with?(&1, "hooks: { ...colocatedHooks, ...PasskeyHooks }")) do
+           Enum.find(
+             lines,
+             &String.starts_with?(&1, "hooks: { ...colocatedHooks, ...PasskeyHooks }")
+           ) do
       {:ok, import_line, hooks_line}
     else
       _ -> :error
@@ -605,6 +628,76 @@ defmodule Sigra.Install.Injector do
 
       import { PasskeyHooks } from "./passkey_hooks"
       hooks: { ...colocatedHooks, ...PasskeyHooks }
+    """
+  end
+
+  defp inject_mix_dependency(file_contents, dependency_source) do
+    dependency_line = String.trim(dependency_source)
+
+    cond do
+      String.contains?(file_contents, dependency_line) ->
+        {:already_injected, file_contents}
+
+      true ->
+        patched =
+          Regex.replace(
+            ~r/defp deps do\s*\n(\s*)\[/,
+            file_contents,
+            "defp deps do\n\\1[\n\\1  #{dependency_line}",
+            global: false
+          )
+
+        if patched == file_contents do
+          {:manual_action, mix_exs_manual_instructions(dependency_line)}
+        else
+          {:ok, patched}
+        end
+    end
+  end
+
+  defp inject_package_json_dependency(file_contents, dependency_source) do
+    with {:ok, dependency_map} <- Jason.decode(dependency_source),
+         {:ok, package_json} <- Jason.decode(file_contents),
+         {:ok, patched} <- merge_package_dependencies(package_json, dependency_map) do
+      if patched == package_json do
+        {:already_injected, file_contents}
+      else
+        encoded = patched |> Jason.encode_to_iodata!(pretty: true) |> IO.iodata_to_binary()
+        {:ok, encoded <> "\n"}
+      end
+    else
+      _ ->
+        {:manual_action, package_json_manual_instructions(dependency_source)}
+    end
+  end
+
+  defp merge_package_dependencies(%{"dependencies" => deps} = package_json, dependency_map)
+       when is_map(deps) do
+    {:ok, Map.put(package_json, "dependencies", Map.merge(deps, dependency_map))}
+  end
+
+  defp merge_package_dependencies(_package_json, _dependency_map), do: :error
+
+  defp mix_exs_manual_instructions(dependency_line) do
+    """
+    Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `mix.exs`.
+
+    Add this dependency to your `deps/0` list manually:
+
+      #{dependency_line}
+    """
+  end
+
+  defp package_json_manual_instructions(dependency_source) do
+    {:ok, dependency_map} = Jason.decode(dependency_source)
+    [{package_name, version}] = Map.to_list(dependency_map)
+
+    """
+    Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `assets/package.json`.
+
+    Add this dependency under `"dependencies"` manually:
+
+      "#{package_name}": "#{version}"
     """
   end
 end

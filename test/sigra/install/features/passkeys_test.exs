@@ -33,15 +33,49 @@ defmodule Sigra.Install.Features.PasskeysTest do
     end
   end
 
-  test "owns app.js passkey injection and echoes manual fallback instructions from the report" do
-    [injection] = Passkeys.injections([])
+  test "owns passkey-only router, config, dependency, and app.js injections" do
+    injections =
+      Passkeys.injections(
+        otp_app: :my_app,
+        web_module: "MyAppWeb",
+        app_name: "My App",
+        context_module: "MyApp.Accounts"
+      )
 
-    assert injection.target == "assets/js/app.js"
-    assert injection.marker == "// Sigra passkeys:start"
-    assert injection.anchor == :app_js_passkeys
-    assert injection.content =~ ~s(import { PasskeyHooks } from "./passkey_hooks")
+    assert Enum.any?(injections, fn injection ->
+             injection.target == "lib/my_app_web/router.ex" and
+               injection.marker == "# Sigra passkeys" and
+               injection.content =~ ~s(post "/log_in/passkey")
+           end)
 
-    report =
+    assert Enum.any?(injections, fn injection ->
+             injection.target == "config/config.exs" and
+               injection.marker == "# Sigra passkeys" and
+               injection.content =~ "user_passkey_schema: MyApp.Accounts.UserPasskey"
+           end)
+
+    assert Enum.any?(injections, fn injection ->
+             injection.target == "mix.exs" and
+               injection.marker == ~s({:wax_, "~> 0.7"}) and
+               injection.anchor == :mix_deps
+           end)
+
+    assert Enum.any?(injections, fn injection ->
+             injection.target == "assets/package.json" and
+               injection.marker == ~s("@simplewebauthn/browser") and
+               injection.anchor == :package_json_dependencies
+           end)
+
+    assert Enum.any?(injections, fn injection ->
+             injection.target == "assets/js/app.js" and
+               injection.marker == "// Sigra passkeys:start" and
+               injection.anchor == :app_js_passkeys and
+               injection.content =~ ~s(import { PasskeyHooks } from "./passkey_hooks")
+           end)
+  end
+
+  test "echoes manual fallback instructions for app.js, mix.exs, and assets/package.json" do
+    instructions =
       %Sigra.Install.Report{}
       |> Sigra.Install.Report.record_manual_action("""
       Passkeys generated `assets/js/passkey_hooks.js`, but Sigra could not safely edit `assets/js/app.js`.
@@ -51,13 +85,33 @@ defmodule Sigra.Install.Features.PasskeysTest do
         import { PasskeyHooks } from "./passkey_hooks"
         hooks: { ...colocatedHooks, ...PasskeyHooks }
       """)
+      |> Sigra.Install.Report.record_manual_action("""
+      Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `mix.exs`.
 
-    assert [
-             instructions
-           ] = Passkeys.post_instructions([], report)
+      Add this dependency to your `deps/0` list manually:
 
-    assert instructions =~ ~s(import { PasskeyHooks } from "./passkey_hooks")
-    assert instructions =~ ~s(hooks: { ...colocatedHooks, ...PasskeyHooks })
+        {:wax_, "~> 0.7"}
+      """)
+      |> Sigra.Install.Report.record_manual_action("""
+      Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `assets/package.json`.
+
+      Add this dependency under `"dependencies"` manually:
+
+        "@simplewebauthn/browser": "^13.0.0"
+      """)
+      |> then(&Passkeys.post_instructions([], &1))
+
+    assert Enum.any?(
+             instructions,
+             &String.contains?(&1, ~s(import { PasskeyHooks } from "./passkey_hooks"))
+           )
+
+    assert Enum.any?(instructions, &String.contains?(&1, ~s({:wax_, "~> 0.7"})))
+
+    assert Enum.any?(
+             instructions,
+             &String.contains?(&1, ~s("@simplewebauthn/browser": "^13.0.0"))
+           )
   end
 
   test "keeps passkey-only artifacts and manual action reporting inside the feature manifest boundary" do
@@ -72,18 +126,19 @@ defmodule Sigra.Install.Features.PasskeysTest do
     assert [{:user_passkeys, "passkeys/create_user_passkeys.exs", "create_user_passkeys.exs"}] =
              Passkeys.migrations([])
 
-    report =
-      %Sigra.Install.Report{}
-      |> Sigra.Install.Report.record_manual_action("""
-      Passkeys generated `assets/js/passkey_hooks.js`, but Sigra could not safely edit `assets/js/app.js`.
+    injection_targets =
+      Passkeys.injections(
+        otp_app: :my_app,
+        web_module: "MyAppWeb",
+        app_name: "My App",
+        context_module: "MyApp.Accounts"
+      )
+      |> Enum.map(& &1.target)
 
-      Add these lines manually to your LiveSocket setup:
-
-        import { PasskeyHooks } from "./passkey_hooks"
-        hooks: { ...colocatedHooks, ...PasskeyHooks }
-      """)
-
-    assert [instructions] = Passkeys.post_instructions([], report)
-    assert instructions =~ "passkey_hooks.js"
+    assert "lib/my_app_web/router.ex" in injection_targets
+    assert "config/config.exs" in injection_targets
+    assert "mix.exs" in injection_targets
+    assert "assets/package.json" in injection_targets
+    assert "assets/js/app.js" in injection_targets
   end
 end

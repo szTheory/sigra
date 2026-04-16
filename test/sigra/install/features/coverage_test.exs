@@ -70,7 +70,11 @@ defmodule Sigra.Install.Features.CoverageTest do
     Sigra.Install.Features.Organizations => [
       "organizations/router_injection.ex"
     ],
-    Sigra.Install.Features.Passkeys => []
+    Sigra.Install.Features.Passkeys => [
+      "passkeys/config_injection.ex",
+      "passkeys/mix_exs_injection.ex",
+      "passkeys/router_injection.ex"
+    ]
   }
 
   # Pre-existing orphan templates that exist on disk but are NOT yet

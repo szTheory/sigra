@@ -36,8 +36,14 @@ defmodule Sigra.Install.Features.Passkeys do
   end
 
   @impl true
-  def injections(_binding) do
+  def injections(binding) do
+    otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
+
     [
+      router_injection(otp_app, binding),
+      config_injection(binding),
+      mix_exs_injection(),
+      package_json_injection(),
       %Injection{
         target: Path.join(["assets", "js", "app.js"]),
         marker: "// Sigra passkeys:start",
@@ -50,7 +56,56 @@ defmodule Sigra.Install.Features.Passkeys do
   @impl true
   def post_instructions(_binding, report) do
     report.manual_actions
-    |> Enum.filter(&String.contains?(&1, ~s(import { PasskeyHooks } from "./passkey_hooks")))
+    |> Enum.filter(fn instruction ->
+      String.contains?(instruction, ~s(import { PasskeyHooks } from "./passkey_hooks")) or
+        String.contains?(instruction, "`mix.exs`") or
+        String.contains?(instruction, "`assets/package.json`")
+    end)
+  end
+
+  defp router_injection(otp_app, binding) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "# Sigra passkeys",
+      anchor: :before_last_end,
+      content: eval_template!("passkeys/router_injection.ex", binding)
+    }
+  end
+
+  defp config_injection(binding) do
+    otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
+
+    %Injection{
+      target: Path.join(["config", "config.exs"]),
+      marker: "# Sigra passkeys",
+      anchor: :elixir_config,
+      content:
+        eval_template!("passkeys/config_injection.ex", binding |> Keyword.put(:otp_app, otp_app))
+    }
+  end
+
+  defp mix_exs_injection do
+    %Injection{
+      target: "mix.exs",
+      marker: ~s({:wax_, "~> 0.7"}),
+      anchor: :mix_deps,
+      content: read_template!("passkeys/mix_exs_injection.ex")
+    }
+  end
+
+  defp package_json_injection do
+    %Injection{
+      target: Path.join(["assets", "package.json"]),
+      marker: ~s("@simplewebauthn/browser"),
+      anchor: :package_json_dependencies,
+      content: read_template!("passkeys/package_json_injection.json")
+    }
+  end
+
+  defp eval_template!(relative_path, binding) do
+    relative_path
+    |> read_template!()
+    |> EEx.eval_string(binding, trim: false)
   end
 
   defp read_template!(relative_path) do
