@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Foundations
-status: in_progress
-stopped_at: Completed Phase 21 verification; next mainline phase is 22
-last_updated: "2026-04-16T01:48:03Z"
-last_activity: 2026-04-16 -- Completed Phase 21 verification; ready for Phase 22 discuss
+status: verifying
+stopped_at: Completed Phase 22 discuss; next step is \-plan-phase 22
+last_updated: "2026-04-16T11:16:47.917Z"
+last_activity: 2026-04-16 -- Completed Phase 22 discuss; context captured and ready for \-plan-phase 22
 progress:
-  total_phases: 13
-  completed_phases: 11
+  total_phases: 17
+  completed_phases: 13
   total_plans: 63
   completed_plans: 63
-  percent: 85
+  percent: 100
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
 Phase: 22 (`--passkeys` generator wiring) — NOT STARTED
 Plan: Not started
 Status: Completed Phase 21 verification
-Last activity: 2026-04-16 -- Completed Phase 21 verification; ready for Phase 22 discuss
+Last activity: 2026-04-16 -- Completed Phase 22 discuss; context captured and ready for \-plan-phase 22
 
 Progress: [████████░░] 85% (11/13 mainline phases complete)
 
@@ -113,5 +113,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-04-16T01:48:03Z
-Stopped at: Completed Phase 21 verification; ready for `gsd-discuss-phase 22`
+Stopped at: Completed Phase 22 discuss; next step is \-plan-phase 22
 Resume file: None
