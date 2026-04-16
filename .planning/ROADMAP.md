@@ -39,7 +39,11 @@
   2. Host app can declare platform-admin and org-admin policy decisions explicitly, and Sigra enforces those decisions server-side for admin pages, exports, and mutations.
   3. Org admins only see data and actions inside their allowed organization scope, while platform admins can enter cross-org views intentionally.
   4. Admin navigation and page chrome keep the active global or organization scope visible so operators can tell where actions apply.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 27-01-PLAN.md — Default-on admin installer feature and host boundary scaffolding
+- [ ] 27-02-PLAN.md — Library-owned admin policy, scope resolution, and Plug/LiveView enforcement
+- [ ] 27-03-PLAN.md — Example-app router/shell wiring and integration coverage for visible scope chrome
 **UI hint**: yes
 
 ### Phase 28: User Operations Surface
