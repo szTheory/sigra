@@ -1,7 +1,6 @@
 defmodule ExampleWeb.PasskeySessionControllerTest do
   use ExampleWeb.ConnCase, async: false
 
-  import Ecto.Query, only: [from: 2]
   import Example.AccountsFixtures
 
   alias Example.Accounts
@@ -9,6 +8,89 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
   alias Example.Repo
 
   setup :ensure_passkey_config_secret
+
+  describe "passkey options routes" do
+    test "POST /users/settings/mfa/passkeys/options returns registration options and stores signed challenge",
+         %{
+           conn: conn
+         } do
+      user = user_fixture()
+
+      conn =
+        conn
+        |> log_in_with_sudo(user)
+        |> post(~p"/users/settings/mfa/passkeys/options")
+
+      options = json_response(conn, 200)["options"]
+
+      assert_non_empty_challenge(options)
+      assert options["rp"]["id"] == "localhost"
+      assert options["user"]["name"] == user.email
+      assert is_list(options["excludeCredentials"])
+
+      assert %{"token" => token} =
+               Plug.Conn.get_session(conn, "sigra_passkey_registration_challenge")
+
+      assert is_binary(token)
+    end
+
+    test "POST /users/mfa/passkey/options returns MFA authentication options with credentials", %{
+      conn: conn
+    } do
+      %{user: user} = mfa_pending_session_fixture()
+      passkey = passkey_fixture(user)
+      credential_id = passkey.credential_id
+
+      conn =
+        conn
+        |> log_in_with_mfa_pending_session(user)
+        |> put_session(:mfa_pending, true)
+        |> post(~p"/users/mfa/passkey/options")
+
+      options = json_response(conn, 200)["options"]
+
+      assert_non_empty_challenge(options)
+      assert options["rpId"] == "localhost"
+      assert [%{"id" => encoded_id, "type" => "public-key"}] = options["allowCredentials"]
+      assert {:ok, ^credential_id} = Base.url_decode64(encoded_id, padding: false)
+    end
+
+    test "POST /users/log_in/passkey/options conditional flow returns autofill options", %{
+      conn: conn
+    } do
+      conn = post(conn, ~p"/users/log_in/passkey/options", %{"conditional" => "true"})
+      options = json_response(conn, 200)["options"]
+
+      assert_non_empty_challenge(options)
+      assert options["rpId"] == "localhost"
+      assert options["allowCredentials"] == []
+      assert options["useBrowserAutofill"] == true
+    end
+
+    test "POST /users/log_in/passkey/options email flow returns credential allow list", %{
+      conn: conn
+    } do
+      user =
+        user_fixture()
+        |> Ecto.Changeset.change(confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second))
+        |> Repo.update!()
+
+      passkey = passkey_fixture(user)
+      credential_id = passkey.credential_id
+
+      conn =
+        post(conn, ~p"/users/log_in/passkey/options", %{
+          "user" => %{"email" => user.email}
+        })
+
+      options = json_response(conn, 200)["options"]
+
+      assert_non_empty_challenge(options)
+      assert options["rpId"] == "localhost"
+      assert [%{"id" => encoded_id, "type" => "public-key"}] = options["allowCredentials"]
+      assert {:ok, ^credential_id} = Base.url_decode64(encoded_id, padding: false)
+    end
+  end
 
   describe "passkey-primary login page" do
     test "GET /users/log_in remains a dead controller render with fallback controls", %{
@@ -110,13 +192,10 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       conn =
         conn
         |> log_in_with_mfa_pending_session(user)
-        |> assign(:current_scope, Example.Accounts.Scope.for_user(user))
-        |> put_private(:sigra_session, mfa_pending_sigra_session(user))
         |> put_session(:mfa_pending, true)
         |> put_session(:mfa_return_to, "/users/settings")
         |> put_session(:mfa_remember_me, true)
-        |> issue_passkey_challenge(:authentication)
-        |> Phoenix.Controller.fetch_flash()
+        |> post(~p"/users/mfa/passkey/options")
 
       stub_passkey_ceremony(fn
         {:authenticate, authenticated_user, _response, _opts} ->
@@ -125,7 +204,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       end)
 
       conn =
-        ExampleWeb.SessionController.complete_mfa_passkey(conn, %{
+        post(conn, ~p"/users/mfa/passkey", %{
           "passkey" => %{
             "response" => encoded_passkey_response(%{credential_id: passkey.credential_id})
           }
@@ -211,27 +290,6 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
     |> put_session(:user_token, session_token)
   end
 
-  defp mfa_pending_sigra_session(user) do
-    db_session =
-      from(s in UserSession,
-        where: s.user_id == ^user.id and s.type == "mfa_pending",
-        order_by: [desc: s.inserted_at],
-        limit: 1
-      )
-      |> Repo.one!()
-
-    %Sigra.Session{
-      id: db_session.id,
-      user_id: user.id,
-      hashed_token: db_session.hashed_token,
-      type: :mfa_pending,
-      ip: db_session.ip,
-      user_agent: db_session.user_agent,
-      last_active_at: db_session.last_active_at,
-      inserted_at: db_session.inserted_at
-    }
-  end
-
   defp ensure_passkey_config_secret(_context) do
     old_config = Application.get_env(:example, :sigra_config)
     old_otp_app = Application.get_env(:sigra, :otp_app)
@@ -257,4 +315,22 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
 
   defp restore_env(app, key, nil), do: Application.delete_env(app, key)
   defp restore_env(app, key, value), do: Application.put_env(app, key, value)
+
+  defp log_in_with_sudo(conn, user) do
+    conn = log_in_user(conn, user)
+    token = Plug.Conn.get_session(conn, :user_token)
+    {^user, session} = Accounts.get_user_and_session_by_token(token)
+
+    UserSession
+    |> Repo.get_by!(hashed_token: session.hashed_token)
+    |> Ecto.Changeset.change(sudo_at: DateTime.utc_now())
+    |> Repo.update!()
+
+    conn
+  end
+
+  defp assert_non_empty_challenge(options) do
+    assert is_binary(options["challenge"])
+    assert byte_size(options["challenge"]) > 0
+  end
 end
