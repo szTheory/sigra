@@ -63,4 +63,70 @@ echo "==> install-smoke: creating + migrating fresh DB"
 mix ecto.create
 mix ecto.migrate
 
+# mix sigra.gen.oauth checks direct deps only — add cloak_ecto even though
+# Sigra pulls it transitively, so the generator's check_cloak_ecto!/0 passes.
+if ! grep -q '{:cloak_ecto' mix.exs; then
+  echo "==> install-smoke: injecting {:cloak_ecto, \"~> 1.3\"} for mix sigra.gen.oauth"
+  elixir -e '
+    path = "mix.exs"
+    content = File.read!(path)
+    anchor = "      {:sigra, path: System.get_env(\"SIGRA_REPO\")},\n"
+    unless String.contains?(content, anchor) do
+      IO.puts(:stderr, "FAIL: expected sigra path dep anchor in mix.exs")
+      System.halt(1)
+    end
+    cloak = "      {:cloak_ecto, \"~> 1.3\"},\n"
+    new = String.replace(content, anchor, anchor <> cloak, global: false)
+    File.write!(path, new)
+  '
+  mix deps.get
+  mix compile --warnings-as-errors
+fi
+
+echo "==> install-smoke: mix sigra.gen.oauth (greenfield generator contract)"
+mix sigra.gen.oauth --providers google,github
+mix ecto.migrate
+mix compile --warnings-as-errors
+
+APP="$(basename "$(pwd)")"
+WEB_LIB="lib/${APP}_web"
+CTX="lib/${APP}/accounts"
+
+oauth_paths=(
+  "${CTX}/user_identity.ex"
+  "${WEB_LIB}/controllers/oauth_controller.ex"
+  "${WEB_LIB}/controllers/oauth_html.ex"
+  "${WEB_LIB}/controllers/oauth_buttons.html.heex"
+  "${CTX}/emails/provider_linked.ex"
+  "${CTX}/emails/provider_unlinked.ex"
+  "lib/${APP}/vault.ex"
+  "lib/${APP}/encrypted/binary.ex"
+  "${WEB_LIB}/controllers/oauth_settings.html.heex"
+  "test/support/oauth_test_helpers.ex"
+)
+
+missing=0
+for f in "${oauth_paths[@]}"; do
+  if [[ ! -f "${f}" ]]; then
+    echo "FAIL: expected generated file missing: ${f}"
+    missing=1
+  fi
+done
+[[ "${missing}" -eq 0 ]] || exit 1
+
+shopt -s nullglob
+migs=(priv/repo/migrations/*create_user_identities*.exs)
+shopt -u nullglob
+if [[ ${#migs[@]} -lt 1 ]]; then
+  echo "FAIL: expected create_user_identities migration under priv/repo/migrations/"
+  exit 1
+fi
+
+grep -q "# Sigra OAuth" "${WEB_LIB}/router.ex" || {
+  echo "FAIL: OAuth route marker missing in router"
+  exit 1
+}
+
+echo "==> install-smoke: oauth generator contract OK (>=11 generated paths + migration + router inject)"
+
 echo "==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean"

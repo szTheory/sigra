@@ -22,7 +22,7 @@ jobs:
     name: Milestone VERIFICATION.md gate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run milestone verification gate
         run: bash scripts/ci/milestone-verification-gate.sh
 
@@ -30,7 +30,7 @@ jobs:
     name: Installer milestone audit (INT-01..03)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           fetch-depth: 0
       - name: Detect installer-related changes (PRs only)
@@ -67,7 +67,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -113,7 +113,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -161,7 +161,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -210,7 +210,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -268,7 +268,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -381,7 +381,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -428,7 +428,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -492,12 +492,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6  # v4.0.4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903  # v6.0.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -611,6 +611,8 @@ jobs:
         # checkpoint specs per wave 1 partitioning.
         run: |
           npx playwright test \
+            tests/golden-path.spec.ts \
+            tests/passkeys-hooks.spec.ts \
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts
@@ -664,7 +666,7 @@ jobs:
       # Actions expression evaluation rules.
       - name: Upload admin example review bundle (main, 14d retention)
         if: always() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: admin-example-report
           path: |
@@ -673,7 +675,7 @@ jobs:
           retention-days: 14
       - name: Upload admin example review bundle (PR/push, 7d retention)
         if: always() && github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: admin-example-report
           path: |
@@ -687,14 +689,14 @@ jobs:
       # stays lightweight. Retention mirrors the review bundle policy.
       - name: Upload admin example failure diagnostics (main, 14d retention)
         if: failure() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: admin-example-failure-diagnostics
           path: test/example/priv/playwright/test-results/
           retention-days: 14
       - name: Upload admin example failure diagnostics (PR/push, 7d retention)
         if: failure() && github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: admin-example-failure-diagnostics
           path: test/example/priv/playwright/test-results/
@@ -716,12 +718,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6  # v4.0.4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903  # v6.0.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -783,7 +785,7 @@ jobs:
       # auditable from the workflow file.
       - name: Upload generated admin review bundle (main, 14d retention)
         if: always() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: generated-admin-report
           path: |
@@ -792,7 +794,7 @@ jobs:
           retention-days: 14
       - name: Upload generated admin review bundle (PR/push, 7d retention)
         if: always() && github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: generated-admin-report
           path: |
@@ -806,14 +808,14 @@ jobs:
       # successful-run artifact policy lightweight per D-22.
       - name: Upload generated admin failure diagnostics (main, 14d retention)
         if: failure() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: generated-admin-failure-diagnostics
           path: test/example/priv/playwright/test-results/
           retention-days: 14
       - name: Upload generated admin failure diagnostics (PR/push, 7d retention)
         if: failure() && github.ref != 'refs/heads/main'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
           name: generated-admin-failure-diagnostics
           path: test/example/priv/playwright/test-results/
@@ -825,6 +827,6 @@ jobs:
     name: Phase 34 UAT contracts (28-VERIFICATION + smoke bash)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run Phase 34 mechanical UAT contracts
         run: scripts/ci/phase34-uat-contracts.sh
