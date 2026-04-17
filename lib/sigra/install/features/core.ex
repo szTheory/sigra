@@ -113,6 +113,8 @@ defmodule Sigra.Install.Features.Core do
 
     base =
       [
+        router_import_injection(otp_app_str, web_module),
+        browser_pipeline_injection(otp_app_str, web_module),
         router_injection(otp_app_str, web_module, live?),
         config_injection(otp_app_str, context_module, schema_alias, repo_module),
         test_config_injection(),
@@ -439,7 +441,6 @@ defmodule Sigra.Install.Features.Core do
 
     content = """
       # Sigra authentication
-      import #{web_module}.UserAuth
 
       pipeline :require_authenticated do
         plug :require_authenticated_user
@@ -504,6 +505,24 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
+  defp router_import_injection(otp_app, web_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "import #{web_module}.UserAuth",
+      anchor: :after_use_block,
+      content: "import #{web_module}.UserAuth"
+    }
+  end
+
+  defp browser_pipeline_injection(otp_app, _web_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "plug :fetch_current_scope",
+      anchor: :browser_pipeline,
+      content: "    plug :fetch_current_scope"
+    }
+  end
+
   defp config_injection(otp_app, context_module, schema_alias, repo_module) do
     content = """
 
@@ -511,6 +530,19 @@ defmodule Sigra.Install.Features.Core do
     config :#{otp_app}, :sigra,
       repo: #{repo_module},
       user_schema: #{context_module}.#{schema_alias}
+
+    # Runtime keyword consumed by Sigra admin LiveViews (UsersIndexLive, etc.)
+    # via Application.get_env/2 — keep in sync with #{context_module}.sigra_config/0.
+    config :#{otp_app}, :sigra_config,
+      repo: #{repo_module},
+      user_schema: #{context_module}.#{schema_alias},
+      session: [
+        store: Sigra.SessionStores.Ecto,
+        session_schema: #{context_module}.UserSession
+      ],
+      audit: [
+        audit_schema: #{context_module}.AuditEvent
+      ]
 
     # Sigra worker runtime config (used by Oban workers)
     config :sigra,

@@ -10,39 +10,40 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current Milestone
 
-## Current Milestone: v1.2 Admin Dashboard
-
-**Goal:** Ship a default-on admin surface that feels excellent to use: mobile-responsive LiveView user management, secure impersonation, and rich audit exploration on top of the v1.1 organizations and passkeys foundation.
-
-**Target features:**
-- Admin user-management UI in LiveView, default on with opt-out, mobile-friendly, light/dark, and basic branding hooks
-- Admin impersonation with strict guardrails, visible session state, and dual-actor audit trail
-- Expanded audit views across user, organization, and global admin workflows
-- Strong automated verification and review artifacts for user-facing flows: Playwright, screenshots/video, HTML reports, browser smoke, and CI-ready orchestration
+The next shipped increment after v1.2 is **not defined in `.planning/` yet**. Run `/gsd-new-milestone` to capture product intent, a fresh `.planning/REQUIREMENTS.md`, and phased roadmap work.
 
 ## Current State
 
-**Current milestone:** v1.2 Admin Dashboard (started 2026-04-16).
+**Shipped:** **v1.2 Admin Dashboard** (2026-04-17) — Phases 27-35 (27-31 core; 32-35 closed generated-installer integration gaps INT-01..05, added generated-host Playwright and smoke, retroactive `28-VERIFICATION.md`, and shift-left CI gates). Archives: `.planning/milestones/v1.2-ROADMAP.md`, `v1.2-REQUIREMENTS.md`, `v1.2-MILESTONE-AUDIT.md`.
 
-**Previously shipped:** v1.1 Foundations (2026-04-16).
+**Previously shipped:** v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
 
-Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth stack plus v1.1 Foundations: logical multi-tenancy through organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey/WebAuthn registration and authentication, passkey MFA and optional passkey-primary login, generator opt-outs for organizations and passkeys, and updated guides plus CI/browser-smoke coverage for the shipped org and passkey flows.
+Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1.1 organizations and passkeys, and v1.2 admin: default-on admin installer feature, explicit host policy for platform vs org admins, scope-safe admin routes and LiveViews, searchable user operations, time-bounded impersonation with dual-actor audit and forbidden sensitive mutations during impersonation, global/org/user audit exploration with CSV export, Playwright plus direct-path smoke and CI artifacts (including mobile and dark checkpoints), and generator emission parity so `mix sigra.install` hosts match the example application for admin surfaces.
 
-**Verification state:** 79/79 v1.1 requirements satisfied and verification-backed; milestone audit is archive-ready. Phase 30 of v1.2 is verification-backed (global, organization, and per-user audit exploration plus scoped CSV export). Phase 32 closes the three CRITICAL v1.2 milestone-audit blockers (INT-01/02/03) at the generator layer: a freshly installed host now mounts UsersIndexLive/UserShowLive in both global and org-scoped admin `live_session` blocks, emits a parameterized `ImpersonationController` template, and registers the previously-orphaned `audit_export_controller` template. See `.planning/MILESTONES.md`, `.planning/milestones/v1.1-ROADMAP.md`, `.planning/milestones/v1.1-MILESTONE-AUDIT.md`, `.planning/phases/30-audit-exploration-and-export/30-VERIFICATION.md`, and `.planning/phases/32-generated-installer-admin-surface-parity/32-VERIFICATION.md`.
+**Verification:** v1.2 milestone audit **passed** (2026-04-17); v1.2 requirements archive **23/23** satisfied; v1.1 remains **79/79** in its archive.
 
 **Known limitations carried forward (tracked, non-blocking):**
-- 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before broader GA announcement.
-- Phase 9 audit logging still uses a `log_safe/3` hybrid (non-atomic) at ~30 integration sites with only 3 fully atomic `Ecto.Multi` sites (confirm, verify, reset); accepted as caveat C-1 and captured in `SEED-002`.
-- 6 Nyquist VALIDATION.md files in `status: draft` + 1 missing (phase 10.1) — parked as backlog phase 999.1.
-- 3 Dependabot major-version bumps for SHA-pinned GitHub Actions — parked as backlog phase 999.2.
-- `gsd-tools audit-open --json` still crashes with `ReferenceError: output is not defined`; the v1.1 archive audit used direct artifact scanning.
+- 8 human-only UAT items — `SEED-001` (before broader GA announcement).
+- Phase 9 audit `log_safe/3` hybrid vs full `Ecto.Multi` atomicity — `SEED-002` / C-1 caveat.
+- Backlog phases **999.1** (Nyquist retro validation) and **999.2** (Dependabot major bumps on SHA-pinned Actions).
+- `gsd-tools audit-open --json` still reported broken in prior milestone notes; CLI `audit-open` text mode was used successfully at v1.2 close.
 
 ## Next Milestone Goals
 
-- Deliver an admin UI that is a joy to use for Sigra's core personas, especially on the highest-frequency user-management and support jobs-to-be-done.
-- Keep human UAT light by default: favor browser/system automation, deterministic smoke flows, screenshots/video, and review artifacts that make progress easy to inspect asynchronously.
-- Build admin, impersonation, and audit capabilities as one coherent surface instead of three disconnected subsystems.
-- Reuse the v1.1 foundations cleanly: org-aware scope, passkey/security state, sudo boundaries, and audit metadata must flow naturally into the admin experience.
+Unset until `/gsd-new-milestone`. Likely themes: GA hardening (SEED-001), audit atomicity follow-up (SEED-002), Nyquist/Dependabot backlog, or a new product slice with its own requirements.
+
+<details>
+<summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
+
+**Goal:** Ship a default-on admin surface that feels excellent to use: mobile-responsive LiveView user management, secure impersonation, and rich audit exploration on top of the v1.1 organizations and passkeys foundation.
+
+**Target features (shipped in v1.2):**
+- Admin user-management UI in LiveView, default on with `--no-admin` opt-out, mobile-friendly, light/dark, and basic branding hooks
+- Admin impersonation with strict guardrails, visible session state, dual-actor audit trail, and blocked sensitive mutations while impersonating
+- Expanded audit views across user, organization, and global admin workflows with scope-respecting CSV export
+- Automation-first verification: Playwright, screenshots/video where useful, HTML reports, browser and curl-style smoke, CI jobs including generated-host parity and shift-left gates (Phases 31-35)
+
+</details>
 
 <details>
 <summary>Archived v1.1 milestone framing</summary>
@@ -126,23 +127,27 @@ Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
-### Active — v1.2 Admin Dashboard
+### Validated — v1.2 Admin Dashboard
 
 **Admin user management UI:**
-- [ ] LiveView admin dashboard enabled by default with `--no-admin` opt-out
-- [ ] Mobile-responsive user list and user detail flows that cover the main support/operator jobs-to-be-done cleanly
-- [ ] Light/dark mode plus basic branding controls suitable for internal tooling
-- [ ] Org-aware admin scopes so platform admins and org admins see the right surface by construction
+- ✓ LiveView admin dashboard enabled by default with `--no-admin` opt-out — v1.2
+- ✓ Mobile-responsive user list and user detail flows for core operator jobs — v1.2
+- ✓ Light/dark mode plus basic branding controls suitable for internal tooling — v1.2
+- ✓ Org-aware admin scopes so platform admins and org admins see the right surface by construction — v1.2
 
 **Impersonation + audit:**
-- [ ] Secure admin impersonation with visible banner state, time bounds, dual-actor audit trail, and forbidden sensitive actions
-- [x] Rich audit views for per-user, per-organization, and global exploration, including impersonation-aware filtering — Validated in Phase 30: audit-exploration-and-export
-- [ ] Admin-side user detail views for sessions, security state, identities, API keys, memberships, and danger-zone actions
+- ✓ Secure admin impersonation with visible banner state, time bounds, dual-actor audit trail, and forbidden sensitive actions — v1.2
+- ✓ Rich audit views for per-user, per-organization, and global exploration, including impersonation-aware filtering — v1.2 (Phase 30; polish Phase 33)
+- ✓ Admin-side user detail views for sessions, security state, identities, organizations, memberships, and danger-zone actions — v1.2
 
 **Verification + review ergonomics:**
-- [x] Browser and system automation for critical admin flows using Playwright and existing CI infrastructure — Validated in Phase 30: audit-exploration-and-export
-- [ ] Review artifacts for user-facing/admin-facing work: screenshots, video where useful, and HTML reports so UX can be inspected without heavy manual walkthrough
-- [x] Route, controller, and curl-style smoke coverage that proves the admin stack behaves correctly outside the browser happy path — Validated in Phase 30: audit-exploration-and-export
+- ✓ Browser and system automation for critical admin flows using Playwright and CI — v1.2 (Phases 31, 34-35)
+- ✓ Review artifacts (Playwright HTML, screenshots/traces/video where configured, curated PNG baselines) — v1.2
+- ✓ Route, controller, and curl-style smoke coverage outside the browser happy path — v1.2
+
+### Active — next milestone
+
+Requirements for the next shipped increment are intentionally absent until `/gsd-new-milestone` recreates `.planning/REQUIREMENTS.md`.
 
 ### Other deferred items
 
@@ -223,9 +228,11 @@ Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth
 | IN-03 SHA-pin all GitHub Actions | Supply-chain security: tag-based references allow the tag to be moved post-publish; SHA pins lock the exact code. | ✓ Validated v1.0 (phase 10.1 + 10.1.1) — Dependabot `github-actions` ecosystem handles upgrade churn |
 | D-15 no `continue-on-error` on any required CI check | Flakes must be fixed at root cause; masking them defeats the gate's purpose. | ✓ Validated v1.0 — all 5 CI jobs are strict-pass; no `continue-on-error` anywhere in `.github/workflows/ci.yml` |
 | Playwright over Cypress/WebdriverIO for browser smoke | Only runner with first-class frameLocator support for Swoosh dev-mailbox iframe; lowest-friction TypeScript setup. | ✓ Validated v1.0 (phase 10.1.1) — golden-path spec runs in ~90s on CI, zero flakes to date |
-| Organizations deferred to v2 | Significant scope expansion. Core auth must be solid first. Identity layer designed to support org membership later. | — Pending (still deferred) |
+| Organizations as first-class multi-tenancy | Logical tenants without schema-per-tenant; scope + membership + invitations. | ✓ Shipped v1.1 — org switcher, plugs, audit columns; superseded the old “defer to v2” note |
 | SAML / OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending (still out of scope) |
-| WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | — Pending — v1.1 candidate |
+| WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | ✓ Shipped v1.1 — passkeys + orgs foundations |
+| v1.2 admin is default-on installer feature with library-owned enforcement | Keeps security semantics in the dep while host owns policy module + shell chrome; matches hybrid architecture. | ✓ Validated v1.2 — plugs, `Sigra.Admin.*`, generator parity phases 32-33 |
+| Shift-left gates for installer + verification docs | Prevents INT-01..04 recurrence: emission audit, drift dead-text nav guard, milestone VERIFICATION.md gate, installer-scoped milestone audit CI, artifact bundle contract. | ✓ Validated v1.2 — Phase 35 |
 
 ## Evolution
 
@@ -245,7 +252,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-17 — Phase 32 completed the generated-installer admin-surface parity slice. `mix sigra.install` now emits a parameterized `ImpersonationController` template, registers the `audit_export_controller` template, and mounts `UsersIndexLive`/`UserShowLive` in both admin `live_session` blocks — closing the three CRITICAL v1.2 milestone-audit blockers (INT-01/02/03) at the generator layer. Remaining v1.2 work continues with Phase 33 (admin shell navigation + audit preview polish).*
+*Last updated: 2026-04-17 after v1.2 milestone completion — Admin Dashboard shipped as Phases 27-35. Planning artifacts archived to `.planning/milestones/v1.2-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define v1.3+ scope.*
 
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
 

@@ -29,8 +29,11 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Admin"
       assert html =~ "Global"
       assert html =~ "Users"
+      assert html =~ "href=\"/admin/users\""
       assert html =~ "Audit"
       assert html =~ "href=\"/admin/audit\""
+      assert sidebar_operations_before_overview?(html)
+      assert bottom_nav_users_before_global?(html)
     end
 
     test "renders Admin and the organization name for an organization scope" do
@@ -60,8 +63,12 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Admin"
       assert html =~ "Acme Ops"
       assert html =~ "Organization"
+      assert html =~ "Users"
+      assert html =~ "href=\"/admin/organizations/#{organization.slug}/users\""
       assert html =~ "Audit"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/audit\""
+      assert sidebar_operations_before_overview?(html)
+      assert bottom_nav_users_before_global?(html)
     end
 
     test "renders explicit impersonation chrome with real admin, effective user, and app-wide stop path" do
@@ -121,6 +128,36 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "action=\"/impersonation\""
       refute html =~ "Dismiss"
       refute html =~ "Hide banner"
+    end
+  end
+
+  defp sidebar_operations_before_overview?(html) do
+    op = html_offset(html, "uppercase text-base-content/60\">Operations</p>")
+    ov = html_offset(html, "uppercase text-base-content/60\">Overview</p>")
+    is_integer(op) and is_integer(ov) and op < ov
+  end
+
+  defp bottom_nav_users_before_global?(html) do
+    case :binary.match(html, "aria-label=\"Admin bottom nav\"") do
+      {start, _} ->
+        len = min(2500, byte_size(html) - start)
+        fragment = binary_part(html, start, len)
+
+        case {:binary.match(fragment, "btm-nav-label\">Users<"),
+              :binary.match(fragment, "btm-nav-label\">Global<")} do
+          {{u0, _}, {g0, _}} when u0 < g0 -> true
+          _ -> false
+        end
+
+      :nomatch ->
+        false
+    end
+  end
+
+  defp html_offset(html, needle) do
+    case :binary.match(html, needle) do
+      {offset, _length} -> offset
+      :nomatch -> nil
     end
   end
 

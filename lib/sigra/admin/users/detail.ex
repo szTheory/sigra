@@ -55,7 +55,27 @@ defmodule Sigra.Admin.Users.Detail do
     }
   end
 
-  @spec recent_audit_preview(map(), Scope.t(), binary()) :: [struct()]
+  @spec recent_audit_preview(map(), Scope.t(), binary()) :: [map()]
+  @doc """
+  Returns up to `@audit_preview_limit` most-recent audit events for `user_id`,
+  already shaped by `Sigra.Admin.Audit.Presenter.present/2`.
+
+  Each returned row is a map with the guaranteed keys:
+
+    * `:id` — audit event id (binary)
+    * `:inserted_at` — `DateTime.t()`
+    * `:action` — raw action string (e.g. `"admin.impersonation.start"`)
+    * `:action_label` — human-readable label (e.g. `"Impersonation started"`)
+    * `:action_badge` — `"Impersonation"` when the row represents impersonation activity, otherwise `nil`
+    * `:actor_label`, `:effective_user_label` — individual user labels for the full explorer
+    * `:actor_summary` — combined label preferred by compact previews
+    * `:outcome` — `event.outcome || "success"`
+
+  Preview renderers MUST NOT introduce fields outside this set (see D-07 in the
+  Phase 33 context). If a new preview field is needed, add it to
+  `Sigra.Admin.Audit.Presenter` first so the preview and the full explorer stay
+  coherent.
+  """
   def recent_audit_preview(config, %Scope{} = admin_scope, user_id) when is_binary(user_id) do
     case audit_schema(config) do
       nil ->
@@ -66,11 +86,31 @@ defmodule Sigra.Admin.Users.Detail do
           [subject_user_id: user_id]
           |> maybe_put_audit_scope(admin_scope)
 
-        audit_schema
-        |> Sigra.Admin.Audit.Query.build(filters)
-        |> order_by([event], desc: event.inserted_at, desc: event.id)
-        |> limit(^@audit_preview_limit)
-        |> config.repo.all()
+        events =
+          audit_schema
+          |> Sigra.Admin.Audit.Query.build(filters)
+          |> order_by([event], desc: event.inserted_at, desc: event.id)
+          |> limit(^@audit_preview_limit)
+          |> config.repo.all()
+
+        users_by_id = load_audit_users(config, events)
+        Sigra.Admin.Audit.Presenter.present(events, users_by_id)
+    end
+  end
+
+  defp load_audit_users(config, events) do
+    ids =
+      events
+      |> Enum.flat_map(fn event -> [event.actor_id, event.effective_user_id, event.target_id] end)
+      |> Enum.filter(&is_binary/1)
+      |> Enum.uniq()
+
+    if ids == [] do
+      %{}
+    else
+      from(user in config.user_schema, where: user.id in ^ids)
+      |> config.repo.all()
+      |> Map.new(&{&1.id, &1})
     end
   end
 

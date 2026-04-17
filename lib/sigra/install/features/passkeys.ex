@@ -24,7 +24,8 @@ defmodule Sigra.Install.Features.Passkeys do
       {:eex, "passkeys/user_passkey.ex",
        Path.join(["lib", otp_app, context_slug, "user_passkey.ex"])},
       {:eex, "passkeys/passkey_browser.js", Path.join(["assets", "js", "passkey_browser.js"])},
-      {:eex, "passkeys/passkey_hooks.js", Path.join(["assets", "js", "passkey_hooks.js"])}
+      {:eex, "passkeys/passkey_hooks.js", Path.join(["assets", "js", "passkey_hooks.js"])},
+      {:eex, "passkeys/package.json", Path.join(["assets", "package.json"])}
     ]
   end
 
@@ -43,6 +44,7 @@ defmodule Sigra.Install.Features.Passkeys do
       router_injection(otp_app, binding),
       config_injection(binding),
       mix_exs_injection(),
+      assets_setup_injection(),
       package_json_injection(),
       %Injection{
         target: Path.join(["assets", "js", "app.js"]),
@@ -59,6 +61,7 @@ defmodule Sigra.Install.Features.Passkeys do
     |> Enum.filter(fn instruction ->
       String.contains?(instruction, ~s(import { PasskeyHooks } from "./passkey_hooks")) or
         String.contains?(instruction, "`mix.exs`") or
+        String.contains?(instruction, "`assets.setup`") or
         String.contains?(instruction, "`assets/package.json`")
     end)
   end
@@ -99,6 +102,15 @@ defmodule Sigra.Install.Features.Passkeys do
       marker: ~s("@simplewebauthn/browser"),
       anchor: :package_json_dependencies,
       content: read_template!("passkeys/package_json_injection.json")
+    }
+  end
+
+  defp assets_setup_injection do
+    %Injection{
+      target: "mix.exs",
+      marker: ~s(cmd --cd assets npm install),
+      anchor: :mix_assets_setup,
+      content: ~s(cmd --cd assets npm install)
     }
   end
 

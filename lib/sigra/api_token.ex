@@ -527,13 +527,16 @@ defmodule Sigra.APIToken do
   defp extract_scopes(_), do: []
 
   defp maybe_update_last_used(config, token) do
+    schema = Keyword.fetch!(config.api_token, :api_token_schema)
     threshold = Keyword.get(config.api_token, :activity_update_threshold, 300)
 
     should_update =
       is_nil(token.last_used_at) or
         DateTime.diff(DateTime.utc_now(), token.last_used_at, :second) > threshold
 
-    if should_update do
+    # `repo.get_by/2` normally returns a schema struct; test doubles may return
+    # plain maps. `Ecto.Changeset.change/2` requires a struct or changeset.
+    if should_update and match?(%{__struct__: ^schema}, token) do
       Task.start(fn ->
         changeset = Ecto.Changeset.change(token, last_used_at: DateTime.utc_now())
         config.repo.update(changeset)

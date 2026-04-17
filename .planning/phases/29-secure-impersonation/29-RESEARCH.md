@@ -426,16 +426,16 @@ This keeps Phase 15's single-seam design intact. [VERIFIED: 15-CONTEXT.md] [VERI
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | Stop and timeout restoration should use a route outside admin-only scopes so the end action remains reachable while the effective user is non-admin. | Architecture Patterns / Pitfalls | The operator could get stuck in impersonation on non-admin pages. |
+| A1 | Resolved in revision 1: stop and timeout restoration use a dedicated app-wide impersonation stop route outside admin-only scopes so the end action remains reachable while the effective user is non-admin. | Architecture Patterns / Pitfalls | The operator could get stuck in impersonation on non-admin pages. |
 | A2 | The safest browser behavior is to clear any remember-me cookie on start and restore the admin token on stop, to avoid silent admin rehydration in a new tab while impersonation is active. | Session strategy | Parallel admin and impersonated contexts could become confusing or bypass visible banner expectations. |
 | A3 | Pairing the plug with a runtime helper in generated Accounts wrappers is necessary because not every blocked operation is controller-only today. | Common Pitfalls | A direct-path call could bypass the forbidden-operation boundary. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should Phase 29 add `Sigra.Audit.Query` sugar for `:impersonation_only` now, or leave it for Phase 30?**
-   - What we know: Existing canonical columns already support `actor_id`, `effective_user_id`, and `organization_id` filtering today. [VERIFIED: lib/sigra/audit/query.ex]
-   - What's unclear: Whether Phase 29 needs the convenience filter for tests before the Phase 30 explorer exists. [ASSUMED]
-   - Recommendation: Keep Phase 29 correctness on the column writes; add `:impersonation_only` only if a concrete Phase 29 test becomes noisy without it. [VERIFIED: 29-CONTEXT.md]
+   - Resolution: Leave the convenience filter for Phase 30 and keep Phase 29 focused on writing correct canonical columns. [VERIFIED: lib/sigra/audit/query.ex] [VERIFIED: 29-CONTEXT.md]
+   - Why this is sufficient now: IMPR-01 through IMPR-05 only require correct actor/effective-user/organization attribution and auditable deny/start/stop/timeout events. Existing query filters over canonical columns already support those assertions without adding a new query abstraction in this phase. [VERIFIED: REQUIREMENTS.md] [VERIFIED: lib/sigra/audit/query.ex]
+   - Explicit defer: `:impersonation_only` query sugar is deferred to Phase 30 audit exploration, where the explorer UX will consume it directly. It is intentionally out of scope for Phase 29. [VERIFIED: ROADMAP.md]
 
 ## Environment Availability
 
@@ -465,11 +465,11 @@ This keeps Phase 15's single-seam design intact. [VERIFIED: 15-CONTEXT.md] [VERI
 ### Phase Requirements → Test Map
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
-| IMPR-01 | Start impersonation rotates into effective-user session while preserving admin raw token | integration | `mix test test/example/test/example_web/controllers/admin_impersonation_controller_test.exs -x` | ❌ Wave 0 |
-| IMPR-02 | Org admin cannot impersonate out-of-scope user; denied attempts audit | integration | `mix test test/example/test/example_web/controllers/admin_impersonation_controller_test.exs -x` | ❌ Wave 0 |
-| IMPR-03 | Banner appears on admin and app layouts; timeout restores or logs out safely | liveview/integration | `mix test test/example/test/example_web/live/impersonation_banner_live_test.exs -x` | ❌ Wave 0 |
-| IMPR-04 | Password/MFA/passkey/API-key/account-deletion paths are blocked during impersonation | controller + direct-path | `mix test test/example/test/example_web/controllers/impersonation_forbidden_ops_test.exs -x` | ❌ Wave 0 |
-| IMPR-05 | Stop returns to preserved admin context and prior `return_to` path | integration | `mix test test/example/test/example_web/controllers/admin_impersonation_controller_test.exs -x` | ❌ Wave 0 |
+| IMPR-01 | Start impersonation rotates into effective-user session while preserving admin raw token | integration | `cd test/example && mix test test/example_web/controllers/impersonation_controller_test.exs --max-failures 1` | ✅ planned |
+| IMPR-02 | Org admin cannot impersonate out-of-scope user; denied attempts audit | unit + integration | `mix test test/sigra/impersonation_test.exs test/sigra/admin/authorizer_test.exs --max-failures 1 && cd test/example && mix test test/example_web/controllers/impersonation_controller_test.exs --max-failures 1` | ✅ planned |
+| IMPR-03 | Banner appears in persistent app/admin chrome, hydration stays Plug/LiveView-parity, and stop remains reachable outside admin-only routes | unit + liveview/integration | `mix test test/sigra/scope/hydration_impersonation_test.exs --max-failures 1 && cd test/example && mix test test/example_web/user_auth_test.exs test/example_web/live/admin_user_show_live_test.exs test/example_web/admin_shell_test.exs --max-failures 1` | ✅ planned |
+| IMPR-04 | Password/MFA/passkey/API-key/account-deletion paths are blocked during impersonation | plug + controller + direct-path | `mix test test/sigra/plug/forbid_during_impersonation_test.exs --max-failures 1 && cd test/example && mix test test/example_web/impersonation_blocked_ops_test.exs --max-failures 1 && mix test test/example_web/impersonation_api_token_blocked_ops_test.exs --max-failures 1` | ✅ planned |
+| IMPR-05 | Stop returns to preserved admin context and prior `return_to` path without requiring admin-only routing | integration | `cd test/example && mix test test/example_web/controllers/impersonation_controller_test.exs test/example_web/user_auth_test.exs --max-failures 1` | ✅ planned |
 
 ### Sampling Rate
 - **Per task commit:** targeted ExUnit file(s) for the touched boundary. [VERIFIED: repo test layout]
@@ -479,10 +479,11 @@ This keeps Phase 15's single-seam design intact. [VERIFIED: 15-CONTEXT.md] [VERI
 ### Wave 0 Gaps
 - [ ] `test/sigra/impersonation_test.exs` — library orchestration, non-nesting, timeout policy, audit action names.
 - [ ] `test/sigra/plug/forbid_during_impersonation_test.exs` — shared blocked-operation plug behavior.
-- [ ] `test/sigra/scope/hydration_impersonation_test.exs` — Plug/LiveView parity for `impersonating_from`.
-- [ ] `test/example/test/example_web/controllers/admin_impersonation_controller_test.exs` — start/stop flows, sudo enforcement, return-to restoration.
-- [ ] `test/example/test/example_web/controllers/impersonation_forbidden_ops_test.exs` — blocked controller endpoints.
-- [ ] `test/example/test/example_web/live/impersonation_banner_live_test.exs` — persistent visible state on app/admin layouts.
+- [ ] `test/sigra/scope/hydration_impersonation_test.exs` — dedicated impersonation hydration parity coverage for `Sigra.Scope.Hydration`.
+- [ ] `test/example/test/example_web/controllers/impersonation_controller_test.exs` — start/stop flows, sudo enforcement, non-admin stop route, and return-to restoration.
+- [ ] `test/example/test/example_web/impersonation_blocked_ops_test.exs` — blocked controller, LiveView, and direct-path security mutations.
+- [ ] `test/example/test/example_web/impersonation_api_token_blocked_ops_test.exs` — generated API-token wrapper/controller coverage for blocked create/revoke flows.
+- [ ] `test/example/test/example_web/live/admin_user_show_live_test.exs` and `test/example/test/example_web/admin_shell_test.exs` — persistent visible state on detail/app/admin layouts.
 
 ## Security Domain
 

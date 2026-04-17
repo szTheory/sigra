@@ -51,7 +51,11 @@ defmodule ExampleWeb.SessionControllerTest do
   end
 
   describe "POST /users/log_in (password path)" do
-    test "valid credentials return 302 + set session cookie", %{conn: conn, user: user, password: password} do
+    test "valid credentials return 302 + set session cookie", %{
+      conn: conn,
+      user: user,
+      password: password
+    } do
       conn =
         post(conn, ~p"/users/log_in", %{
           "user" => %{"email" => user.email, "password" => password}

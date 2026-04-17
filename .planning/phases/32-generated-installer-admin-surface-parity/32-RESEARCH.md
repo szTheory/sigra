@@ -933,8 +933,8 @@ These directives from `./CLAUDE.md` constrain the plan:
 ### Secondary (HIGH confidence — project documentation)
 
 - `.planning/ROADMAP.md` — Phase 32 success criteria and dependency chain
-- `.planning/REQUIREMENTS.md` — USER-01..04, IMPR-01/03/05, AUD-04 reassignment rationale
-- `.planning/v1.2-MILESTONE-AUDIT.md` — INT-01/02/03 root-cause analysis
+- `.planning/milestones/v1.2-REQUIREMENTS.md` — USER-01..04, IMPR-01/03/05, AUD-04 reassignment rationale
+- `.planning/milestones/v1.2-MILESTONE-AUDIT.md` — INT-01/02/03 root-cause analysis
 - `CLAUDE.md` — project tech stack, constraints, testing philosophy, local dev prerequisites
 - `.planning/phases/29-secure-impersonation/29-02-PLAN.md` — prior plan that touched
   `admin/router_injection.ex` and `core/user_auth.ex` for impersonation wiring but did NOT

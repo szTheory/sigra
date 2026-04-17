@@ -205,9 +205,13 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
 
         <div class="mt-4 space-y-2 text-sm">
-          <div :for={event <- @detail.recent_audit} class="rounded-md border border-base-300 bg-base-200 p-3">
-            <p class="font-semibold">{event.action}</p>
-            <p>{Calendar.strftime(event.inserted_at, "%Y-%m-%d %H:%M")}</p>
+          <div :for={row <- @detail.recent_audit} class="rounded-md border border-base-300 bg-base-200 p-3">
+            <div class="space-y-1">
+              <span :if={row.action_badge} class="badge badge-warning badge-sm">{row.action_badge}</span>
+              <p class="font-semibold">{row.action_label}</p>
+              <p class="text-sm text-base-content/70">{row.actor_summary}</p>
+              <p class="text-xs text-base-content/60">{Calendar.strftime(row.inserted_at, "%Y-%m-%d %H:%M")}</p>
+            </div>
           </div>
           <p :if={@detail.recent_audit == []}>No recent audit activity.</p>
         </div>

@@ -163,9 +163,9 @@ Close two cross-phase integration gaps surfaced by the v1.2 milestone audit:
 ### Phase + milestone anchors
 - `.planning/ROADMAP.md` — Phase 33 goal, dependencies, success criteria, and
   adjacent Phase 34 / Phase 35 scope that this phase must NOT swallow.
-- `.planning/v1.2-MILESTONE-AUDIT.md` § INT-04 (lines 84-89, 204-209, 222) and
+- `.planning/milestones/v1.2-MILESTONE-AUDIT.md` § INT-04 (lines 84-89, 204-209, 222) and
   § INT-05 (lines 90-95, 211-216) — the authoritative defect descriptions.
-- `.planning/REQUIREMENTS.md` — USER-01, USER-03, USER-05, AUD-03, ADMIN-05.
+- `.planning/milestones/v1.2-REQUIREMENTS.md` — USER-01, USER-03, USER-05, AUD-03, ADMIN-05.
 - `.planning/PROJECT.md` — hybrid lib+generator architecture, "generated host
   must ship a functional admin surface" invariant.
 

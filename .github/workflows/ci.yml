@@ -13,7 +13,45 @@ on:
 permissions:
   contents: read
 
+# Note: Repository secret HEX_API_KEY (Hex.pm) is not read by this workflow unless
+# you add an explicit publish job with `env: HEX_API_KEY: ${{ secrets.HEX_API_KEY }}`.
+# Library/install failures are unrelated to that secret.
+
 jobs:
+  milestone_verification_gate:
+    name: Milestone VERIFICATION.md gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - name: Run milestone verification gate
+        run: bash scripts/ci/milestone-verification-gate.sh
+
+  installer_milestone_audit:
+    name: Installer milestone audit (INT-01..03)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+        with:
+          fetch-depth: 0
+      - name: Detect installer-related changes (PRs only)
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^priv/templates/sigra\.install/|^lib/sigra/install/'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run installer milestone audit
+        if: steps.detect.outputs.run == 'true'
+        run: bash scripts/ci/installer-milestone-audit.sh
+
   library_tests:
     name: Library tests
     runs-on: ubuntu-latest
@@ -22,6 +60,8 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
+          # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+          POSTGRES_DB: sigra_test
         ports: ['5432:5432']
         options: >-
           --health-cmd pg_isready --health-interval 10s
@@ -153,6 +193,8 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
+          # Fresh tmp_app includes Cloak.Vault; compile/boot needs a dummy key (same as admin-acceptance-smoke.sh).
+          CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: scripts/ci/install-smoke.sh
 
   passkeys_manual_fallback_smoke:
@@ -205,6 +247,9 @@ jobs:
   install_matrix:
     name: Install matrix (flag combinations)
     runs-on: ubuntu-latest
+    env:
+      # tmp_app runs mix test + phx.server with Sigra-generated Cloak.Vault (decode_env!("CLOAK_KEY")).
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     strategy:
       fail-fast: false
       matrix:
@@ -604,6 +649,9 @@ jobs:
           fi
           echo "curated admin checkpoint screenshots:"
           ls -la artifacts/admin-checkpoints/ || true
+      - name: Admin artifact bundle contract (Phase 35)
+        if: success()
+        run: bash scripts/ci/admin-artifact-bundle-contract.sh test/example/priv/playwright/artifacts/admin-checkpoints
       # D-19, D-22: green-run reviewer bundle scoped to this dedicated admin
       # job. Published on every run (success or failure) so the Playwright
       # HTML report plus the curated checkpoint PNGs are always available;
@@ -655,6 +703,9 @@ jobs:
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
+    # Cold mix phx.new + compile + Playwright can exceed 30m on busy runners;
+    # 45–60m is the tuned band for this job.
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:15
@@ -693,6 +744,7 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
+          PLAYWRIGHT_RETRIES: 1
         # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
         # seam runs the full acceptance target (`--test all` — both the
         # desktop/mobile shell and the denial-response assertions) so
@@ -766,3 +818,13 @@ jobs:
           name: generated-admin-failure-diagnostics
           path: test/example/priv/playwright/test-results/
           retention-days: 7
+
+  # Phase 34 /gsd-verify-work shift-left: machine-closed UAT items that do not
+  # need Playwright/Postgres (see 34-UAT.md tests 2–3).
+  phase_34_uat_contract:
+    name: Phase 34 UAT contracts (28-VERIFICATION + smoke bash)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - name: Run Phase 34 mechanical UAT contracts
+        run: scripts/ci/phase34-uat-contracts.sh

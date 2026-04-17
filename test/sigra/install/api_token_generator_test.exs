@@ -19,7 +19,9 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     binary_id: false,
     adapter: :postgres,
     api: true,
-    jwt: false
+    jwt: false,
+    organizations?: true,
+    passkeys?: true
   ]
 
   describe "API token template files exist" do

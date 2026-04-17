@@ -1,6 +1,6 @@
 ---
 id: SEED-002
-status: dormant
+status: deferred
 planted: 2026-04-11
 planted_during: v1.0 milestone completion
 trigger_when: When subsystem tests become audit-aware OR when a customer reports a missing audit row for a successful business op

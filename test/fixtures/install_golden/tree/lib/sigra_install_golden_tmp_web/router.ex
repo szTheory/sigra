@@ -1,6 +1,8 @@
 defmodule SigraInstallGoldenTmpWeb.Router do
   use SigraInstallGoldenTmpWeb, :router
 
+  import SigraInstallGoldenTmpWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     plug :put_root_layout, html: {SigraInstallGoldenTmpWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_scope
   end
 
   pipeline :api do
@@ -43,7 +46,6 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   end
 
   # Sigra authentication
-  import SigraInstallGoldenTmpWeb.UserAuth
 
   pipeline :require_authenticated do
     plug :require_authenticated_user
@@ -196,5 +198,85 @@ scope "/users", SigraInstallGoldenTmpWeb do
   post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
   post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
 end
+
+
+  pipeline :admin_global do
+    plug Sigra.Plug.RequireAdminAccess,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+      policy: SigraInstallGoldenTmp.SigraAdminPolicy,
+      mode: :global
+  end
+
+  pipeline :admin_organization do
+    plug Sigra.Plug.RequireAdminAccess,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+      policy: SigraInstallGoldenTmp.SigraAdminPolicy,
+      mode: :organization,
+      organizations: SigraInstallGoldenTmp.Organizations
+  end
+
+  # Sigra admin
+  scope "/", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
+    post "/admin/users/:id/impersonation", SigraInstallGoldenTmpWeb.Admin.ImpersonationController, :create
+    get "/admin/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
+    get "/admin/users/:id/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
+  end
+
+  scope "/", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
+    live_session :admin_global,
+      layout: {SigraInstallGoldenTmpWeb.Layouts, :admin},
+      on_mount: [
+        {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
+        {Sigra.LiveView.AdminScope,
+         [mode: :global, policy: SigraInstallGoldenTmp.SigraAdminPolicy, login_path: "/users/log_in"]}
+      ] do
+      live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
+      live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
+      live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
+      live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
+      live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+    end
+  end
+
+  scope "/admin/organizations/:org", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    post "/users/:id/impersonation", SigraInstallGoldenTmpWeb.Admin.ImpersonationController, :create
+    get "/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
+    get "/users/:id/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
+  end
+
+  scope "/admin/organizations/:org", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    live_session :admin_organization,
+      layout: {SigraInstallGoldenTmpWeb.Layouts, :admin},
+      on_mount: [
+        {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
+        {Sigra.LiveView.AdminScope,
+         [
+           mode: :organization,
+           organizations: SigraInstallGoldenTmp.Organizations,
+           policy: SigraInstallGoldenTmp.SigraAdminPolicy,
+           login_path: "/users/log_in"
+         ]}
+      ] do
+      live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show
+      live "/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
+      live "/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
+      live "/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
+      live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+    end
+  end
+
+  scope "/", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser, :require_authenticated]
+
+    delete "/impersonation", Admin.ImpersonationController, :delete
+  end
 
 end

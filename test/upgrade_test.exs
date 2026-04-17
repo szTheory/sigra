@@ -41,7 +41,7 @@ defmodule Sigra.UpgradeIntegrationTest do
       # The upgrade task MUST detect the missing organizations table and emit ZERO
       # ALTER migrations (no crash on `mix ecto.migrate`).
       {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: "upgrade_zero_org")
+        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_zero"))
 
       {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, ["--no-organizations"])
 
@@ -93,7 +93,7 @@ defmodule Sigra.UpgradeIntegrationTest do
       # "login still works, users land on create/accept page, no 500s, nil-guarded
       # template accessors verified by boot test".
       {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: "upgrade_default_org")
+        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_default"))
 
       # Default install = org-enabled (from Plan 18-01; organizations table already
       # has owner_user_id and personal columns).
@@ -144,7 +144,7 @@ defmodule Sigra.UpgradeIntegrationTest do
       # Per BLOCKER 1: backfill path requires orgs enabled. Use default install
       # (org-enabled), not --no-organizations.
       {:ok, %{app_dir: app_dir}} =
-        InstallFixture.setup_tmp_app_without_install(app_name: "upgrade_with_backfill")
+        InstallFixture.setup_tmp_app_without_install(app_name: unique_app_name("upg_backfill"))
 
       {:ok, _install_out} = InstallFixture.run_sigra_install(app_dir, [])
 
@@ -196,13 +196,6 @@ defmodule Sigra.UpgradeIntegrationTest do
     end)
     """
 
-    # Drop any stale DB left over from a prior `mix test` run against the
-    # same persistent postgres. The fixture uses fixed app names per test
-    # (upgrade_zero_org, upgrade_default_org, upgrade_with_backfill), so
-    # `ecto.create` would otherwise find leftover schemas and `ecto.migrate`
-    # would fail with "relation already exists". `--force` suppresses the
-    # interactive prompt; `--quiet` keeps stdout tidy.
-    _ = InstallFixture.run_mix(app_dir, ["ecto.drop", "--force", "--quiet"])
     {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.create"])
     {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
     {:ok, _} = InstallFixture.run_mix(app_dir, ["run", "-e", script])
@@ -292,6 +285,10 @@ defmodule Sigra.UpgradeIntegrationTest do
   defp documented_upgrade_command(flags) do
     ["mix", "sigra.upgrade" | flags ++ ["--yes"]]
     |> Enum.join(" ")
+  end
+
+  defp unique_app_name(prefix) do
+    "#{prefix}_#{System.unique_integer([:positive])}"
   end
 
   defp otp_app_atom(app_dir) do

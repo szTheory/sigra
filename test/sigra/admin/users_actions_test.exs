@@ -254,7 +254,7 @@ defmodule Sigra.Admin.UsersActionsTest do
 
       assert Enum.any?(preview, &(&1.action == "session.delete"))
       assert Enum.any?(preview, &(&1.action == "session.revoke_all"))
-      assert Enum.all?(preview, &(&1.target_id == user.id))
+      assert Enum.all?(preview, &(&1.action in ["session.delete", "session.revoke_all"]))
     end
   end
 

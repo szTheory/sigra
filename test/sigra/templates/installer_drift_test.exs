@@ -262,6 +262,50 @@ defmodule Sigra.Templates.InstallerDriftTest do
          ~r/Sigra\.Auth\.request_password_reset\(Repo, email,[\s\S]*?user_token_schema:/,
          ~r/Sigra\.Auth\.request_password_reset\([\s\S]*?user_token_schema:/}
       ]
+    },
+    %{
+      # Phase 33 — INT-04 fix + guard: the generator's admin shell template must
+      # expose a live Users link (desktop sidebar + top-bar + mobile bottom-nav)
+      # matching the example-app shell. Catches the "dead <span>Users</span>"
+      # class of navigation drift (WCAG SC 1.3.1).
+      id: "fix #18 — admin_shell users nav + mobile bottom-nav",
+      template: "priv/templates/sigra.install/admin/components/admin_shell.ex",
+      example: "test/example/lib/example_web/components/admin_shell.ex",
+      must_have: [
+        {"users_link/1 helper defined",
+         ~r/defp users_link\(/,
+         ~r/defp users_link\(/},
+        {"at least one href={users_link(@admin_scope)} usage",
+         ~r/href=\{users_link\(@admin_scope\)\}/,
+         ~r/href=\{users_link\(@admin_scope\)\}/},
+        {"mobile bottom-nav Users label present",
+         ~r/btm-nav-label">Users</,
+         ~r/btm-nav-label">Users</}
+      ],
+      must_not: [
+        {"dead <span>Users</span> navigation item absent",
+         ~r/<li>\s*<span[^>]*>Users<\/span>\s*<\/li>/,
+         ~r/<li>\s*<span[^>]*>Users<\/span>\s*<\/li>/}
+      ]
+    },
+    %{
+      # Phase 35 — INT-04 generalization: same dead `<li><span>Label</span></li>`
+      # anti-pattern as fix #18, but for the other desktop sidebar / nav labels so
+      # regressions cannot reintroduce inert span-only rows for Organization, Global,
+      # or Audit (WCAG 1.3.1). Users remains covered by fix #18.
+      id: "fix #19 — admin_shell no inert span nav labels (generalized INT-04)",
+      template: "priv/templates/sigra.install/admin/components/admin_shell.ex",
+      example: "test/example/lib/example_web/components/admin_shell.ex",
+      must_not:
+        for label <- ["Organization", "Global", "Audit"], into: [] do
+          escaped = Regex.escape(label)
+
+          {
+            "dead <span>#{label}</span> inert sidebar nav row absent",
+            Regex.compile!("<li>\\s*<span[^>]*>#{escaped}</span>\\s*</li>"),
+            Regex.compile!("<li>\\s*<span[^>]*>#{escaped}</span>\\s*</li>")
+          }
+        end
     }
   ]
 

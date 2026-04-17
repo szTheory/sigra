@@ -4,6 +4,25 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
   alias SigraInstallGoldenTmp.Accounts, as: Auth
   alias SigraInstallGoldenTmpWeb.UserAuth
 
+  @impersonation_denial_message "You can't change account security settings while impersonating."
+
+  plug Sigra.Plug.ForbidDuringImpersonation,
+       [
+         message: @impersonation_denial_message,
+         redirect_to: "/users/settings/mfa#passkeys",
+         audit_action: "admin.impersonation.denied",
+         audit_metadata: %{operation: "account_security_mutation"},
+         audit_opts_fun: &__MODULE__.impersonation_denial_audit_opts/2
+       ]
+       when action in [:complete_passkey_registration, :delete_passkey]
+
+  def impersonation_denial_audit_opts(conn, _scope) do
+    Sigra.Auth.audit_opts_from_config(Auth.sigra_config(),
+      ip_address: client_ip(conn),
+      user_agent: client_user_agent(conn)
+    )
+  end
+
   def new(conn, _params) do
     email = Phoenix.Flash.get(conn.assigns.flash, :email) || ""
     form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
@@ -249,6 +268,14 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
     conn
     |> put_flash(:info, "Logged out successfully.")
     |> UserAuth.log_out_user()
+  end
+
+  defp client_ip(conn) do
+    conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))
+  end
+
+  defp client_user_agent(conn) do
+    conn |> get_req_header("user-agent") |> List.first() || ""
   end
 
 

@@ -730,7 +730,7 @@ defmodule <%= web_module %>.MFASettingsLive do
     if impersonating?(socket) do
       {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
     else
-      case Auth.rename_passkey(user, credential_id, nickname || "", scope: socket.assigns.current_scope) do
+      case Auth.rename_passkey(user, credential_id, nickname || "") do
         {:ok, _passkey} ->
           {:noreply,
            socket
@@ -740,9 +740,6 @@ defmodule <%= web_module %>.MFASettingsLive do
              renaming_passkey_id: nil,
              rename_form: to_form(%{"nickname" => ""}, as: "passkey")
            )}
-
-        {:error, :impersonation_forbidden} ->
-          {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
 
         {:error, _reason} ->
           {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}

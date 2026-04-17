@@ -154,7 +154,9 @@ defmodule Example.Organizations.LastOwnerTest do
       failures = Enum.count(results, &match?({:error, :last_owner}, &1))
 
       assert successes == 1, "Expected exactly 1 success, got #{successes}: #{inspect(results)}"
-      assert failures == 1, "Expected exactly 1 :last_owner failure, got #{failures}: #{inspect(results)}"
+
+      assert failures == 1,
+             "Expected exactly 1 :last_owner failure, got #{failures}: #{inspect(results)}"
     end
   end
 end

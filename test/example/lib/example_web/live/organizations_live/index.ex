@@ -64,7 +64,8 @@ defmodule ExampleWeb.OrganizationsLive.Index do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :branch, pick_branch(assigns.memberships, assigns.pending_invitations))
+    assigns =
+      assign(assigns, :branch, pick_branch(assigns.memberships, assigns.pending_invitations))
 
     ~H"""
     <div :if={@branch == :a}>{render_branch_a(assigns)}</div>

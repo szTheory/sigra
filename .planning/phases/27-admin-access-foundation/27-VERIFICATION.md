@@ -1,7 +1,7 @@
 ---
 phase: 27-admin-access-foundation
-verified: 2026-04-16T19:36:07Z
-status: human_needed
+verified: 2026-04-16T20:08:00Z
+status: passed
 score: 8/8 must-haves verified
 overrides_applied: 0
 re_verification:
@@ -12,20 +12,20 @@ re_verification:
     - "Admin navigation and page chrome keep the active global or organization scope visible for the generated admin surface."
   gaps_remaining: []
   regressions: []
-human_verification:
+automation_verification:
   - test: "Render a freshly installed host app's `/admin` and `/admin/organizations/:org` pages"
-    expected: "The admin layout wraps both routes, the scope chip is visible at the top, and the page does not look visually broken on desktop or mobile."
-    why_human: "The generated wiring and tests prove the layout path exists, but visual quality and responsive presentation of the chrome still require a human pass."
+    command: "scripts/ci/admin-acceptance-smoke.sh --test chrome"
+    result: pass
   - test: "Trigger forbidden and not-found admin paths in a generated host app"
-    expected: "The 403 and 404 responses show the explicit admin error copy instead of a blank or confusing page."
-    why_human: "Automated tests cover the response bodies, but a human should confirm the rendered experience is clear in-browser."
+    command: "scripts/ci/admin-acceptance-smoke.sh --test errors"
+    result: pass
 ---
 
 # Phase 27: Admin Access Foundation Verification Report
 
 **Phase Goal:** Developers can install and trust an admin surface that is default-on, explicitly policy-driven, and scope-safe for both platform admins and org admins.
-**Verified:** 2026-04-16T19:36:07Z
-**Status:** human_needed
+**Verified:** 2026-04-16T20:08:00Z
+**Status:** passed
 **Re-verification:** Yes — after gap closure
 
 ## Goal Achievement
@@ -109,27 +109,23 @@ human_verification:
 | `priv/templates/sigra.install/admin/policy.ex` | 14 | `TODO` | ℹ️ Info | Intentional host-owned policy seam; not a stub in the library path. |
 | `priv/templates/sigra.install/admin/policy.ex` | 22 | `TODO` | ℹ️ Info | Intentional host-owned org-scope seam; expected for generated host customization. |
 
-### Human Verification Required
+### Automated Acceptance
 
 ### 1. Generated Admin Chrome
 
-**Test:** Install Sigra into a fresh Phoenix host and open `/admin` plus `/admin/organizations/:org`.
-**Expected:** The admin layout renders the shell, the top chrome shows `Admin` with the active scope, and the page remains readable on desktop and mobile widths.
-**Why human:** The code and tests verify wiring and text presence, but not actual rendered layout quality.
+**Command:** `scripts/ci/admin-acceptance-smoke.sh --test chrome`
+**Result:** Pass. A freshly installed Phoenix host boots, logs in, renders `/admin` and `/admin/organizations/:org`, and Playwright verifies the generated admin shell on desktop and mobile.
 
 ### 2. Generated Error Responses
 
-**Test:** In a generated host, hit a forbidden `/admin` path as an org admin and an out-of-scope `/admin/organizations/:org` path.
-**Expected:** The browser shows the explicit 403/404 copy instead of a blank or misleading page.
-**Why human:** Response-body tests passed, but the in-browser experience still needs visual confirmation.
+**Command:** `scripts/ci/admin-acceptance-smoke.sh --test errors`
+**Result:** Pass. A freshly installed Phoenix host returns explicit 403 and 404 admin error copy for forbidden and out-of-scope routes.
 
 ### Gaps Summary
 
-The two prior generated-host gaps are closed. The installer feature now injects the admin router scopes, the admin layout hook, the admin shell import, and the admin error-handler branches, so the generated path matches the example-host proof instead of leaving those pieces manual-only.
-
-Automated evidence is now sufficient to mark every roadmap truth and every listed requirement as satisfied. What remains is human UI verification for the rendered admin chrome and error-page clarity, so the phase is `human_needed`, not `passed`.
+The generated-host gaps are closed. The installer now injects `fetch_current_scope` into the browser pipeline, emits the `UserAuth` import at the router top, generates a compile-safe admin shell, and points the organizations wrapper at the real `Accounts.*` schemas. The generated-host Playwright smoke passes end to end and is wired into CI.
 
 ---
 
-_Verified: 2026-04-16T19:36:07Z_
+_Verified: 2026-04-16T20:08:00Z_
 _Verifier: Claude (gsd-verifier)_

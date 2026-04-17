@@ -154,7 +154,8 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_challenge_controller.ex" in sources
       assert "core/mfa_challenge_html.ex" in sources
       assert "core/audit_event.ex" in sources
-      assert "core/encrypted.ex" in sources
+      assert "core/vault.ex" in sources
+      assert "core/encrypted_binary.ex" in sources
       assert "core/mailer.ex" in sources
 
       # login_html is ALWAYS generated (Phase 10.1.1 B9/D-12)
@@ -193,12 +194,12 @@ defmodule Sigra.Install.Features.CoreTest do
       refute "core/api_token_migration.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 37 files" do
-      # 27 base_files + 9 ui_files (live-mode) + 3 inlined migrations
+    test "default (live=true, api=false, jwt=false) returns exactly 38 files" do
+      # 28 base_files + 9 ui_files (live-mode) + 3 inlined migrations
       # (primary + active_org_column + audit_events); api_token migration
       # is --api-only; audit_events_org_columns moved to the Organizations
       # feature in Phase 24.1 (was previously in Core's files/1).
-      assert length(Core.files(@binding)) == 37
+      assert length(Core.files(@binding)) == 38
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -218,9 +219,18 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 31 files (27 base + 3 controller-mode UI + 3 inlined migrations minus the audit_events_org_columns migration moved to Organizations in Phase 24.1)" do
+    test "--no-live returns exactly 32 files" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 31
+      assert length(Core.files(binding)) == 32
+    end
+
+    test "falls back to the plaintext stub when encryption-requiring features are disabled" do
+      binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: false, mfa: false, oauth: false)
+      sources = binding |> Core.files() |> Enum.map(fn {:eex, src, _} -> src end)
+
+      assert "core/encrypted.ex" in sources
+      refute "core/vault.ex" in sources
+      refute "core/encrypted_binary.ex" in sources
     end
 
     test "--api includes api_files group" do
@@ -338,7 +348,8 @@ defmodule Sigra.Install.Features.CoreTest do
       # feature owns emission of this migration so the hard FK to the
       # organizations table lands AFTER that table is created and is
       # omitted entirely under --no-organizations.
-      orphans = ~w(auth_api_token.ex auth_hooks.ex api_token_created_email.ex alter_audit_events_add_org_columns.exs)
+      orphans =
+        ~w(auth_api_token.ex auth_hooks.ex api_token_created_email.ex alter_audit_events_add_org_columns.exs)
 
       on_disk =
         "priv/templates/sigra.install/core"
@@ -346,11 +357,12 @@ defmodule Sigra.Install.Features.CoreTest do
         |> Enum.reject(&(&1 in orphans))
         |> Enum.sort()
 
-      live_binding = Keyword.put(@binding, :opts, live: true, api: true, jwt: true)
-      nolive_binding = Keyword.put(@binding, :opts, live: false, api: true, jwt: true)
+      live_binding = Keyword.put(@binding, :opts, live: true, api: true, jwt: true, mfa: true, oauth: true)
+      nolive_binding = Keyword.put(@binding, :opts, live: false, api: true, jwt: true, mfa: true, oauth: true)
+      stub_binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: false, mfa: false, oauth: false)
 
       referenced =
-        (Core.files(live_binding) ++ Core.files(nolive_binding))
+        (Core.files(live_binding) ++ Core.files(nolive_binding) ++ Core.files(stub_binding))
         |> Enum.map(fn {:eex, src, _} -> Path.basename(src) end)
         |> Kernel.++(
           Enum.map(Core.migrations(live_binding), fn {_, src, _} -> Path.basename(src) end)
@@ -408,9 +420,11 @@ defmodule Sigra.Install.Features.CoreTest do
         :before_last_end,
         :after_use_block,
         :at_top,
+        :browser_pipeline,
         :elixir_config,
         :append_eof,
-        :conn_case_helpers
+        :conn_case_helpers,
+        :vault_child
       ]
 
       anchors = @binding |> Core.injections() |> Enum.map(& &1.anchor) |> Enum.uniq()
@@ -422,11 +436,39 @@ defmodule Sigra.Install.Features.CoreTest do
 
     test "default opts emit the 4 base injections (router, config, test, conn_case)" do
       targets = @binding |> Core.injections() |> Enum.map(& &1.target)
+      router_markers =
+        @binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.target == "lib/my_app_web/router.ex"))
+        |> Enum.map(& &1.marker)
 
       assert "lib/my_app_web/router.ex" in targets
       assert "config/config.exs" in targets
       assert "config/test.exs" in targets
       assert "test/support/conn_case.ex" in targets
+      assert "import MyAppWeb.UserAuth" in router_markers
+      assert "plug :fetch_current_scope" in router_markers
+      assert "# Sigra authentication" in router_markers
+    end
+
+    test "browser pipeline injection hydrates current_scope before auth gates" do
+      [browser_inj] =
+        @binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "plug :fetch_current_scope" and &1.target =~ "router.ex"))
+
+      assert browser_inj.anchor == :browser_pipeline
+      assert browser_inj.content == "    plug :fetch_current_scope"
+    end
+
+    test "router import injection makes auth plugs available to the browser pipeline" do
+      [import_inj] =
+        @binding
+        |> Core.injections()
+        |> Enum.filter(&(&1.marker == "import MyAppWeb.UserAuth" and &1.target =~ "router.ex"))
+
+      assert import_inj.anchor == :after_use_block
+      assert import_inj.content == "import MyAppWeb.UserAuth"
     end
 
     test "--api adds api-router + api-config injections" do
@@ -455,7 +497,6 @@ defmodule Sigra.Install.Features.CoreTest do
         |> Core.injections()
         |> Enum.filter(&(&1.marker == "# Sigra authentication" and &1.target =~ "router.ex"))
 
-      assert router_inj.content =~ "import MyAppWeb.UserAuth"
       assert router_inj.content =~ "pipeline :require_authenticated"
       assert router_inj.content =~ "plug :require_authenticated_user"
       assert router_inj.content =~ "plug :require_mfa"

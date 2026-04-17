@@ -396,22 +396,16 @@ await client.send("WebAuthn.addVirtualAuthenticator", {
 |---|-------|---------|---------------|
 | None | All substantial claims in this research were verified from the codebase, local environment, package registries, or official docs. [VERIFIED: codebase grep] | — | — |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Is `DX-09` still intended to ship code in Phase 23, or is documentation + integration enforcement the accepted fallback?**
-   - What we know: `CONVENTIONS.md` documents `for_org/2` discipline, but no custom tenant-scope Credo check was found. [VERIFIED: codebase grep]
-   - What's unclear: Whether the spike was already intentionally resolved off-phase or still must be attempted here. [VERIFIED: codebase grep]
-   - Recommendation: Put this in Wave 0 planning as a binary decision with an explicit done condition. [VERIFIED: codebase grep]
+1. **DX-09 disposition**
+   - Resolution: Phase 23 will treat DX-09 as an explicit spike-or-fallback deliverable, not an implicit omission. Plan `23-04` owns the decision and requires an automated proof for either branch: ship a narrow custom Credo rule if it stays within the locked 300-line budget, otherwise record the fallback to conventions plus integration enforcement in `CONVENTIONS.md`.
 
-2. **Should the old `guides/recipes/multi-tenant.md` be replaced wholesale or heavily rewritten in place?**
-   - What we know: Locked decision D-01 keeps the existing taxonomy, and the current file is semantically stale. [VERIFIED: codebase grep]
-   - What's unclear: Whether the planner wants a preserve-path rewrite or a new file path plus redirect/sidebar change. [VERIFIED: codebase grep]
-   - Recommendation: Prefer rewriting in place unless the final title/topic no longer matches the path. [VERIFIED: codebase grep]
+2. **`guides/recipes/multi-tenant.md` handling**
+   - Resolution: Rewrite the existing file in place. Locked decision D-01 keeps the current HexDocs taxonomy, and the current path is still semantically correct once the stale pre-v1.1 posture is replaced with the shipped logical multi-tenancy model and `for_org/2` discipline.
 
-3. **Do any Phase 23 docs need an executable "follow along against generated scaffold" smoke beyond existing tests?**
-   - What we know: `guides_dx02_test.exs` checks structure/time budget, and `test/example` already exercises real flows. [VERIFIED: codebase grep]
-   - What's unclear: Whether a dedicated docs-followalong smoke is needed for the new org/passkey continuation. [VERIFIED: codebase grep]
-   - Recommendation: Only add one if prose introduces a new command path not already covered by existing example or upgrade automation. [VERIFIED: codebase grep]
+3. **Docs follow-along smoke**
+   - Resolution: No separate docs-followalong harness is required at planning time. The phase will rely on the existing guide regression checks, upgrade automation, and example-app/browser flows. A new executable smoke is only justified if implementation introduces a command path not already covered by those existing rails.
 
 ## Environment Availability
 

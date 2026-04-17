@@ -9,6 +9,11 @@
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test chrome
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test errors
+#   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test audit-export
+#   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test impersonation-controller
+#
+# Every --test target (including slices above) runs the bash HTTP parity probes
+# first, then the filtered or full Playwright suite — probes are never skipped.
 
 set -euo pipefail
 
@@ -42,6 +47,7 @@ export SIGRA_ADMIN_PASSWORD="${SIGRA_ADMIN_PASSWORD:-CorrectHorseBatteryStaple12
 export SIGRA_ALLOWED_ORG_SLUG="${SIGRA_ALLOWED_ORG_SLUG:-allowed-org}"
 export SIGRA_ALLOWED_ORG_NAME="${SIGRA_ALLOWED_ORG_NAME:-Allowed Org}"
 export SIGRA_OTHER_ORG_SLUG="${SIGRA_OTHER_ORG_SLUG:-other-scope}"
+export SIGRA_IMPERSONATION_TARGET_EMAIL="${SIGRA_IMPERSONATION_TARGET_EMAIL:-impersonation-target@example.test}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -50,7 +56,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --help|-h)
-      sed -n '2,24p' "${BASH_SOURCE[0]}"
+      sed -n '2,48p' "${BASH_SOURCE[0]}"
       exit 0
       ;;
     *)
@@ -165,6 +171,7 @@ password = System.fetch_env!("SIGRA_ADMIN_PASSWORD")
 allowed_org_slug = System.fetch_env!("SIGRA_ALLOWED_ORG_SLUG")
 allowed_org_name = System.fetch_env!("SIGRA_ALLOWED_ORG_NAME")
 other_org_slug = System.fetch_env!("SIGRA_OTHER_ORG_SLUG")
+impersonation_target_email = System.fetch_env!("SIGRA_IMPERSONATION_TARGET_EMAIL")
 
 confirm! = fn user ->
   user
@@ -200,7 +207,17 @@ _other_org =
 })
 |> Repo.insert!()
 
-IO.puts("seeded #{platform_admin.email}, #{org_admin.email}, #{allowed_org.slug}, #{other_org_slug}")
+{:ok, impersonation_target} =
+  Accounts.register_user(%{
+    "email" => impersonation_target_email,
+    "password" => password
+  })
+
+impersonation_target = confirm!.(impersonation_target)
+
+IO.puts(
+  "seeded #{platform_admin.email}, #{org_admin.email}, #{impersonation_target.email}, #{allowed_org.slug}, #{other_org_slug}"
+)
 EOF
 
 mix run "${SEED_FILE}"
@@ -325,6 +342,20 @@ case "${TEST_TARGET}" in
     ;;
   errors)
     PLAYWRIGHT_ARGS=("${PLAYWRIGHT_SPEC}" "-g" "generated host admin denial responses show explicit copy")
+    ;;
+  audit-export)
+    PLAYWRIGHT_ARGS=(
+      "${PLAYWRIGHT_SPEC}"
+      "-g"
+      "VFY-01 generated host audit CSV export"
+    )
+    ;;
+  impersonation-controller)
+    PLAYWRIGHT_ARGS=(
+      "${PLAYWRIGHT_SPEC}"
+      "-g"
+      "VFY-01 generated host impersonation start"
+    )
     ;;
   *)
     echo "unknown --test target: ${TEST_TARGET}" >&2

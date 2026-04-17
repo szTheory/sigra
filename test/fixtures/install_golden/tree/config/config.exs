@@ -47,6 +47,19 @@ config :sigra_install_golden_tmp, :sigra,
   repo: SigraInstallGoldenTmp.Repo,
   user_schema: SigraInstallGoldenTmp.Accounts.User
 
+# Runtime keyword consumed by Sigra admin LiveViews (UsersIndexLive, etc.)
+# via Application.get_env/2 — keep in sync with SigraInstallGoldenTmp.Accounts.sigra_config/0.
+config :sigra_install_golden_tmp, :sigra_config,
+  repo: SigraInstallGoldenTmp.Repo,
+  user_schema: SigraInstallGoldenTmp.Accounts.User,
+  session: [
+    store: Sigra.SessionStores.Ecto,
+    session_schema: SigraInstallGoldenTmp.Accounts.UserSession
+  ],
+  audit: [
+    audit_schema: SigraInstallGoldenTmp.Accounts.AuditEvent
+  ]
+
 # Sigra worker runtime config (used by Oban workers)
 config :sigra,
   otp_app: :sigra_install_golden_tmp,

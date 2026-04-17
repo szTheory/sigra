@@ -188,8 +188,10 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
         )
 
       assert html =~ "Recent Audit"
-      assert html =~ "session.create"
-      assert html =~ "session.revoke_all"
+      # Phase 33: preview rows are Presenter-shaped (action_label), not raw `event.action` headings.
+      assert html =~ "Session Create"
+      assert html =~ "Session Revoke_all"
+      refute html =~ ~r/<p class="font-semibold">session\.(create|revoke_all)</
       assert html =~ "View full audit"
       assert html =~ "/admin/users/#{target.id}/audit"
       assert html =~ "return_to=%2Fadmin%2Fusers%3Fq%3Dpreview-target"
@@ -219,7 +221,34 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "View full audit"
       assert html =~ "/admin/organizations/#{org.slug}/users/#{target.id}/audit"
       assert html =~ "return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dorg-preview"
-      assert html =~ "session.create"
+      assert html =~ "Session Create"
+    end
+
+    test "recent audit preview uses Presenter labels and impersonation badge when applicable",
+         %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      actor = user_fixture(%{email: "imp-actor@example.com", display_name: "Imp Actor"})
+
+      target =
+        user_fixture(%{email: "imp-target@example.com", display_name: "Imp Target"})
+
+      insert_subject_audit_event(%{
+        action: "admin.impersonation.start",
+        actor_id: actor.id,
+        effective_user_id: target.id,
+        target_id: target.id
+      })
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live("/admin/users/#{target.id}")
+
+      assert html =~ "Recent Audit"
+      assert html =~ "badge-warning"
+      assert html =~ "Impersonation"
+      assert html =~ "Impersonation started"
+      refute html =~ ~r/<p class="font-semibold">admin\.impersonation\.start</
     end
   end
 

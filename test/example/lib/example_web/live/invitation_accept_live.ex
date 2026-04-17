@@ -174,8 +174,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
             %{"email" => invitation.email, "password" => ""},
             as: :user,
             errors: [
-              email:
-                {"This invitation is locked to #{invitation.email}.", []}
+              email: {"This invitation is locked to #{invitation.email}.", []}
             ]
           )
 
@@ -259,8 +258,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
       <div class="text-center mb-8">
         <h1 class="text-2xl font-semibold">Join {@organization.name}</h1>
         <p class="text-base mt-2">
-          {@inviter.email} invited you to join
-          <strong>{@organization.name}</strong>
+          {@inviter.email} invited you to join <strong>{@organization.name}</strong>
           as <span class="font-semibold">{humanize_role(@invitation.role)}</span>.
           Create your account to accept.
         </p>
@@ -350,8 +348,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
 
       <div class="mt-6 text-center text-sm">
         <p class="text-base-content/70">
-          To accept this invitation, sign out and sign in as
-          <strong>{@invitation.email}</strong>, or ask the person who
+          To accept this invitation, sign out and sign in as <strong>{@invitation.email}</strong>, or ask the person who
           invited you to resend it.
         </p>
         <p class="mt-4">

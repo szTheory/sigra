@@ -636,32 +636,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     end
   end
 
-  defp do_confirm_enrollment(socket, code) do
-    user = socket.assigns.current_scope.user
-    raw_secret = socket.assigns.raw_secret
-
-    case Auth.mfa_confirm_enrollment(user, raw_secret, code) do
-      {:ok, %{backup_codes: codes}} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Two-factor authentication has been enabled.")
-         |> assign(
-           enrollment_step: :backup_codes,
-           backup_codes: codes,
-           codes_acknowledged: false,
-           raw_secret: nil
-         )}
-
-      {:error, :invalid_code} ->
-        form = to_form(%{"code" => ""}, as: "enroll")
-
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(enroll_form: form)}
-    end
-  end
-
 
   def handle_event("begin_passkey_enrollment", _params, socket) do
     {:noreply,
@@ -750,19 +724,23 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     credential_id = Map.get(params, "id")
     nickname = Map.get(params, "nickname", "")
 
-    case Auth.rename_passkey(user, credential_id, nickname || "") do
-      {:ok, _passkey} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Passkey name saved.")
-         |> refresh_passkey_assigns()
-         |> assign(
-           renaming_passkey_id: nil,
-           rename_form: to_form(%{"nickname" => ""}, as: "passkey")
-         )}
+    if impersonating?(socket) do
+      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+    else
+      case Auth.rename_passkey(user, credential_id, nickname || "") do
+        {:ok, _passkey} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Passkey name saved.")
+           |> refresh_passkey_assigns()
+           |> assign(
+             renaming_passkey_id: nil,
+             rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+           )}
 
-      {:error, _reason} ->
-        {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+        {:error, _reason} ->
+          {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+      end
     end
   end
 
@@ -779,6 +757,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     {:noreply, assign(socket, deleting_passkey_id: nil)}
   end
 
+
   def handle_event("show_disable", _params, socket) do
     {:noreply, assign(socket, show_disable: true)}
   end
@@ -790,43 +769,51 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   def handle_event("disable_mfa", %{"disable" => %{"code" => code}}, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.mfa_disable(user, code) do
-      {:ok, :disabled} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Two-factor authentication has been disabled.")
-         |> put_flash(:warning, "Consider changing your password for additional security.")
-         |> assign(
-           mfa_enabled: false,
-           show_disable: false,
-           enrollment_step: nil,
-           backup_remaining: 0,
-           disable_form: to_form(%{"code" => ""}, as: "disable")
-         )}
+    if impersonating?(socket) do
+      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+    else
+      case Auth.mfa_disable(user, code, scope: socket.assigns.current_scope) do
+        {:ok, :disabled} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Two-factor authentication has been disabled.")
+           |> put_flash(:warning, "Consider changing your password for additional security.")
+           |> assign(
+             mfa_enabled: false,
+             show_disable: false,
+             enrollment_step: nil,
+             backup_remaining: 0,
+             disable_form: to_form(%{"code" => ""}, as: "disable")
+           )}
 
-      {:error, :invalid_code, _remaining} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
+        {:error, :invalid_code, _remaining} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
-      {:error, :invalid_backup_code, _remaining} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
+        {:error, :invalid_backup_code, _remaining} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
-      {:error, :lockout, seconds} ->
-        minutes = div(seconds + 59, 60)
+        {:error, :lockout, seconds} ->
+          minutes = div(seconds + 59, 60)
 
-        {:noreply,
-         socket
-         |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+          {:noreply,
+           socket
+           |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
 
-      {:error, _reason} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+        {:error, :impersonation_forbidden} ->
+          {:noreply,
+           put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+
+        {:error, _reason} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+      end
     end
   end
 
@@ -881,6 +868,37 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
      socket
      |> put_flash(:info, "All trusted browsers have been revoked.")}
   end
+
+  defp do_confirm_enrollment(socket, code) do
+    user = socket.assigns.current_scope.user
+    raw_secret = socket.assigns.raw_secret
+
+    case Auth.mfa_confirm_enrollment(user, raw_secret, code) do
+      {:ok, %{backup_codes: codes}} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Two-factor authentication has been enabled.")
+         |> assign(
+           enrollment_step: :backup_codes,
+           backup_codes: codes,
+           codes_acknowledged: false,
+           raw_secret: nil
+         )}
+
+      {:error, :invalid_code} ->
+        form = to_form(%{"code" => ""}, as: "enroll")
+
+        {:noreply,
+         socket
+         |> put_flash(:error, "Invalid verification code. Please try again.")
+         |> assign(enroll_form: form)}
+    end
+  end
+
+  defp impersonating?(socket) do
+    match?(%{impersonating_from: impersonator} when not is_nil(impersonator), socket.assigns.current_scope)
+  end
+
 
   defp passkey_error_bucket(payload) when is_map(payload) do
     payload

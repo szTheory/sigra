@@ -90,7 +90,8 @@ defmodule Sigra.Install.Features.AdminTest do
       otp_app: :my_app,
       web_module: "MyAppWeb",
       app_module: "MyApp",
-      context_module: "MyApp.Accounts"
+      context_module: "MyApp.Accounts",
+      organizations?: true
     ]
 
     test "renders with no literal Example references (parameterization complete)" do

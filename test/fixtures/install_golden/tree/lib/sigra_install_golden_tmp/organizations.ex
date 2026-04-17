@@ -27,9 +27,9 @@ defmodule SigraInstallGoldenTmp.Organizations do
   use Sigra.Organizations,
     repo: SigraInstallGoldenTmp.Repo,
     schemas: [
-      organization: SigraInstallGoldenTmp.Organization,
-      membership: SigraInstallGoldenTmp.OrganizationMembership,
-      invitation: SigraInstallGoldenTmp.OrganizationInvitation,
+      organization: SigraInstallGoldenTmp.Accounts.Organization,
+      membership: SigraInstallGoldenTmp.Accounts.OrganizationMembership,
+      invitation: SigraInstallGoldenTmp.Accounts.OrganizationInvitation,
       user: SigraInstallGoldenTmp.Accounts.User,
       scope: SigraInstallGoldenTmp.Accounts.Scope
     ]

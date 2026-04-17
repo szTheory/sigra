@@ -22,7 +22,8 @@ defmodule Sigra.Install.GeneratorEmailTest do
     # Phase 24 D-04.3: emails.ex now contains a conditional EEx block
     # `<%= if organizations? do %>` around organization_invitation/4.
     # Default leg includes the block.
-    organizations?: true
+    organizations?: true,
+    passkeys?: true
   ]
 
   describe "emails.ex template" do

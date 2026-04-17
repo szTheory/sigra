@@ -21,11 +21,12 @@ defmodule ExampleWeb.Auth.SessionLive do
     sessions = Auth.list_sessions(user)
     current_token = get_connect_params(socket)["_sigra_token"]
 
-    {:ok, assign(socket,
-      sessions: sessions,
-      current_token: current_token,
-      page_title: "Active Sessions"
-    )}
+    {:ok,
+     assign(socket,
+       sessions: sessions,
+       current_token: current_token,
+       page_title: "Active Sessions"
+     )}
   end
 
   def render(assigns) do
@@ -44,7 +45,7 @@ defmodule ExampleWeb.Auth.SessionLive do
           <div class="flex-1">
             <div class="flex items-center gap-2">
               <span class="text-sm font-semibold">
-                <%= device_name(session) %>
+                {device_name(session)}
               </span>
               <span
                 :if={current_session?(session, @current_token)}
@@ -54,12 +55,12 @@ defmodule ExampleWeb.Auth.SessionLive do
               </span>
             </div>
             <div class="mt-1 text-sm text-gray-500">
-              <span><%= session.ip || "Unknown IP" %></span>
+              <span>{session.ip || "Unknown IP"}</span>
               <span class="mx-1">&middot;</span>
-              <span><%= location(session) %></span>
+              <span>{location(session)}</span>
             </div>
             <div class="mt-1 text-sm text-gray-500">
-              <%= relative_time(session.last_active_at) %>
+              {relative_time(session.last_active_at)}
             </div>
           </div>
           <div>

@@ -16,7 +16,9 @@ defmodule Sigra.Install.GeneratorWiringTest do
     from_email: "noreply@example.com",
     log_in_url: "/users/log_in",
     binary_id: false,
-    adapter: :postgres
+    adapter: :postgres,
+    organizations?: true,
+    passkeys?: true
   ]
 
   describe "generator file list includes Phase 3 templates" do

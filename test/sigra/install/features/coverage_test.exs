@@ -38,6 +38,7 @@ defmodule Sigra.Install.Features.CoverageTest do
     repo_module: "FixtureApp.Repo",
     binary_id: true,
     organizations?: true,
+    passkeys?: true,
     adapter: :postgres,
     reset_password_url: "http://localhost:4000/users/reset-password",
     settings_url: "http://localhost:4000/users/settings",
@@ -76,7 +77,8 @@ defmodule Sigra.Install.Features.CoverageTest do
       "passkeys/router_injection.ex"
     ],
     Sigra.Install.Features.Admin => [
-      "admin/router_injection.ex"
+      "admin/router_injection.ex",
+      "admin/layouts_admin_injection.ex"
     ]
   }
 

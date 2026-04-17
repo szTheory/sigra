@@ -220,8 +220,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
             %{"email" => params["email"], "role" => params["role"]},
             as: :invitation,
             errors: [
-              email:
-                {"#{params["email"]} is already a member of this organization.", []}
+              email: {"#{params["email"]} is already a member of this organization.", []}
             ]
           )
 
@@ -243,8 +242,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
          |> push_event("close-modal", %{id: "invite-member-modal"})}
 
       {:error, :unauthorized} ->
-        {:noreply,
-         put_flash(socket, :error, "You do not have permission to invite members.")}
+        {:noreply, put_flash(socket, :error, "You do not have permission to invite members.")}
     end
   end
 
@@ -292,8 +290,7 @@ defmodule ExampleWeb.OrganizationMembersLive do
          |> push_event("close-modal", %{id: "revoke-invitation-modal"})}
 
       {:error, :unauthorized} ->
-        {:noreply,
-         put_flash(socket, :error, "You do not have permission to revoke invitations.")}
+        {:noreply, put_flash(socket, :error, "You do not have permission to revoke invitations.")}
 
       {:error, :not_found} ->
         {:noreply, put_flash(socket, :error, "Invitation not found.")}
@@ -340,259 +337,257 @@ defmodule ExampleWeb.OrganizationMembersLive do
       current_scope={@current_scope}
       user_organizations={@user_organizations}
     >
-    <.header>
-      Members ({@total_count})
-      <:actions>
-        <.button
-          :if={owner_or_admin?(@current_scope)}
-          type="button"
-          phx-click="open_invite_modal"
-          id="invite-member-button"
-        >
-          Invite member
-        </.button>
-        <.button
-          :if={not owner_or_admin?(@current_scope)}
-          disabled
-          aria-disabled="true"
-          title="Only owners and admins can invite members"
-        >
-          Invite member
-        </.button>
-      </:actions>
-    </.header>
-
-    <section id="members-section" class="overflow-x-auto">
-      <.table id="members-table" rows={@streams.members}>
-        <:col :let={{_dom_id, m}} label="Email">{m.user.email}</:col>
-        <:col :let={{_dom_id, m}} label="Role">
-          <span class={["badge", role_badge_class(m.role)]}>{humanize_role(m.role)}</span>
-        </:col>
-        <:col :let={{_dom_id, _m}} label="Status">
-          <span class="badge badge-ghost">Active</span>
-        </:col>
-        <:col :let={{_dom_id, m}} label="Joined">{relative_time(m.inserted_at)}</:col>
-        <:col :let={{_dom_id, m}} label="Last active">
-          {if m.__last_active__, do: relative_time(m.__last_active__), else: "Never"}
-        </:col>
-        <:action :let={{_dom_id, m}}>
-          <details class="dropdown dropdown-end">
-            <summary class="btn btn-ghost btn-xs">
-              <.icon name="hero-ellipsis-horizontal" class="size-4" />
-              <span class="sr-only">Member actions</span>
-            </summary>
-            <ul class="menu dropdown-content bg-base-100 rounded-box z-10 w-40 p-1 shadow">
-              <li>
-                <button type="button" phx-click="open_role_modal" phx-value-id={m.id}>
-                  Change role
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  class="text-error"
-                  phx-click="open_remove_modal"
-                  phx-value-id={m.id}
-                >
-                  Remove
-                </button>
-              </li>
-            </ul>
-          </details>
-        </:action>
-      </.table>
-
-      <.button :if={@has_more} phx-click="load_more" class="mt-4">
-        Load more
-      </.button>
-    </section>
-
-    <section id="pending-invitations-section" class="mt-8">
       <.header>
-        Pending invitations ({@pending_count})
+        Members ({@total_count})
+        <:actions>
+          <.button
+            :if={owner_or_admin?(@current_scope)}
+            type="button"
+            phx-click="open_invite_modal"
+            id="invite-member-button"
+          >
+            Invite member
+          </.button>
+          <.button
+            :if={not owner_or_admin?(@current_scope)}
+            disabled
+            aria-disabled="true"
+            title="Only owners and admins can invite members"
+          >
+            Invite member
+          </.button>
+        </:actions>
       </.header>
 
-      <%= if @pending_count == 0 do %>
-        <div class="card bg-base-200 p-6 text-center text-sm text-base-content/70">
-          No pending invitations. Click <strong>Invite member</strong>
-          above to invite someone.
-        </div>
-      <% else %>
-        <div class="overflow-x-auto">
-          <.table id="pending-invitations-table" rows={@streams.pending_invitations}>
-            <:col :let={{_dom_id, inv}} label="Email">{inv.email}</:col>
-            <:col :let={{_dom_id, inv}} label="Role">
-              <span class={["badge badge-sm", role_badge_class(inv.role)]}>
-                {humanize_role(inv.role)}
-              </span>
-            </:col>
-            <:col :let={{_dom_id, inv}} label="Invited by">
-              {invited_by_email(inv)}
-            </:col>
-            <:col :let={{_dom_id, inv}} label="Expires">
-              <span class="text-sm text-base-content/70">
-                {invitation_expires_relative(inv.expires_at)}
-              </span>
-            </:col>
-            <:action :let={{_dom_id, inv}}>
-              <button
-                :if={owner_or_admin?(@current_scope)}
-                type="button"
-                class="btn btn-ghost btn-xs text-error"
-                phx-click="open_revoke_modal"
-                phx-value-id={inv.id}
-                aria-label={"Revoke invitation for #{inv.email}"}
-              >
-                Revoke
-              </button>
-            </:action>
-          </.table>
-        </div>
-      <% end %>
-    </section>
+      <section id="members-section" class="overflow-x-auto">
+        <.table id="members-table" rows={@streams.members}>
+          <:col :let={{_dom_id, m}} label="Email">{m.user.email}</:col>
+          <:col :let={{_dom_id, m}} label="Role">
+            <span class={["badge", role_badge_class(m.role)]}>{humanize_role(m.role)}</span>
+          </:col>
+          <:col :let={{_dom_id, _m}} label="Status">
+            <span class="badge badge-ghost">Active</span>
+          </:col>
+          <:col :let={{_dom_id, m}} label="Joined">{relative_time(m.inserted_at)}</:col>
+          <:col :let={{_dom_id, m}} label="Last active">
+            {if m.__last_active__, do: relative_time(m.__last_active__), else: "Never"}
+          </:col>
+          <:action :let={{_dom_id, m}}>
+            <details class="dropdown dropdown-end">
+              <summary class="btn btn-ghost btn-xs">
+                <.icon name="hero-ellipsis-horizontal" class="size-4" />
+                <span class="sr-only">Member actions</span>
+              </summary>
+              <ul class="menu dropdown-content bg-base-100 rounded-box z-10 w-40 p-1 shadow">
+                <li>
+                  <button type="button" phx-click="open_role_modal" phx-value-id={m.id}>
+                    Change role
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="text-error"
+                    phx-click="open_remove_modal"
+                    phx-value-id={m.id}
+                  >
+                    Remove
+                  </button>
+                </li>
+              </ul>
+            </details>
+          </:action>
+        </.table>
 
-    <dialog id="invite-member-modal" class="modal" phx-hook="DialogModal">
-      <div class="modal-box">
-        <h3 class="text-lg font-semibold">Invite a member</h3>
-        <p class="text-sm text-base-content/70 mt-2">
-          Send an invitation to join {@current_scope.active_organization.name}.
-          They will receive an email with a secure accept link.
-        </p>
+        <.button :if={@has_more} phx-click="load_more" class="mt-4">
+          Load more
+        </.button>
+      </section>
 
-        <.form for={@invite_form} phx-submit="invite_member" class="mt-4 space-y-4">
-          <label class="form-control w-full">
-            <span class="label-text">Email address</span>
-            <input
-              type="email"
-              name="invitation[email]"
-              value={@invite_form[:email].value}
-              placeholder="teammate@example.com"
-              required
-              autocomplete="off"
-              phx-debounce="300"
-              class="input input-bordered w-full"
-            />
-          </label>
+      <section id="pending-invitations-section" class="mt-8">
+        <.header>
+          Pending invitations ({@pending_count})
+        </.header>
 
-          <label class="form-control w-full">
-            <span class="label-text">Role</span>
-            <select
-              name="invitation[role]"
-              class="select select-bordered w-full"
-            >
-              <option value="member">Member — can access the organization</option>
-              <option value="admin">Admin — can invite and manage members</option>
-              <option value="owner">Owner — full control, including deletion</option>
-            </select>
-          </label>
-
-          <div class="modal-action">
-            <button type="button" class="btn btn-ghost" phx-click="cancel_invite">
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              phx-disable-with="Sending..."
-            >
-              Send invitation
-            </button>
+        <%= if @pending_count == 0 do %>
+          <div class="card bg-base-200 p-6 text-center text-sm text-base-content/70">
+            No pending invitations. Click <strong>Invite member</strong> above to invite someone.
           </div>
-        </.form>
-      </div>
-      <form method="dialog" class="modal-backdrop"><button>close</button></form>
-    </dialog>
-
-    <dialog id="revoke-invitation-modal" class="modal" phx-hook="DialogModal">
-      <div class="modal-box">
-        <h3 class="text-lg font-semibold">Revoke invitation?</h3>
-
-        <%= if @revoking_invitation do %>
-          <p class="text-sm mt-2">
-            Revoke the invitation for
-            <strong>{@revoking_invitation.email}</strong>? They will no longer be able to join
-            <strong>{@current_scope.active_organization.name}</strong>
-            with this link. You can re-invite them later.
-          </p>
+        <% else %>
+          <div class="overflow-x-auto">
+            <.table id="pending-invitations-table" rows={@streams.pending_invitations}>
+              <:col :let={{_dom_id, inv}} label="Email">{inv.email}</:col>
+              <:col :let={{_dom_id, inv}} label="Role">
+                <span class={["badge badge-sm", role_badge_class(inv.role)]}>
+                  {humanize_role(inv.role)}
+                </span>
+              </:col>
+              <:col :let={{_dom_id, inv}} label="Invited by">
+                {invited_by_email(inv)}
+              </:col>
+              <:col :let={{_dom_id, inv}} label="Expires">
+                <span class="text-sm text-base-content/70">
+                  {invitation_expires_relative(inv.expires_at)}
+                </span>
+              </:col>
+              <:action :let={{_dom_id, inv}}>
+                <button
+                  :if={owner_or_admin?(@current_scope)}
+                  type="button"
+                  class="btn btn-ghost btn-xs text-error"
+                  phx-click="open_revoke_modal"
+                  phx-value-id={inv.id}
+                  aria-label={"Revoke invitation for #{inv.email}"}
+                >
+                  Revoke
+                </button>
+              </:action>
+            </.table>
+          </div>
         <% end %>
+      </section>
 
-        <div class="modal-action">
-          <button type="button" class="btn btn-ghost" phx-click="cancel_revoke">
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="btn btn-error"
-            phx-click="confirm_revoke"
-            phx-value-id={@revoking_invitation && @revoking_invitation.id}
-            phx-disable-with="Revoking..."
-          >
-            Revoke invitation
-          </button>
-        </div>
-      </div>
-      <form method="dialog" class="modal-backdrop"><button>close</button></form>
-    </dialog>
-
-    <dialog id="confirm-role-modal" class="modal" phx-hook="DialogModal">
-      <%= if match?({:role, _}, @pending_action) do %>
-        <% {:role, m} = @pending_action %>
+      <dialog id="invite-member-modal" class="modal" phx-hook="DialogModal">
         <div class="modal-box">
-          <h3 class="text-lg font-semibold">Change {m.user.email}'s role?</h3>
+          <h3 class="text-lg font-semibold">Invite a member</h3>
+          <p class="text-sm text-base-content/70 mt-2">
+            Send an invitation to join {@current_scope.active_organization.name}.
+            They will receive an email with a secure accept link.
+          </p>
 
-          <%= if @role_modal_error do %>
-            <p class="text-error mt-2 text-sm" role="alert">{@role_modal_error}</p>
-          <% end %>
-
-          <form phx-submit="change_role" class="mt-4 space-y-4">
+          <.form for={@invite_form} phx-submit="invite_member" class="mt-4 space-y-4">
             <label class="form-control w-full">
-              <span class="label-text">New role</span>
-              <select name="role" class="select select-bordered w-full">
-                <option value="owner" selected={m.role == :owner}>Owner</option>
-                <option value="admin" selected={m.role == :admin}>Admin</option>
-                <option value="member" selected={m.role == :member}>Member</option>
+              <span class="label-text">Email address</span>
+              <input
+                type="email"
+                name="invitation[email]"
+                value={@invite_form[:email].value}
+                placeholder="teammate@example.com"
+                required
+                autocomplete="off"
+                phx-debounce="300"
+                class="input input-bordered w-full"
+              />
+            </label>
+
+            <label class="form-control w-full">
+              <span class="label-text">Role</span>
+              <select
+                name="invitation[role]"
+                class="select select-bordered w-full"
+              >
+                <option value="member">Member — can access the organization</option>
+                <option value="admin">Admin — can invite and manage members</option>
+                <option value="owner">Owner — full control, including deletion</option>
               </select>
             </label>
 
             <div class="modal-action">
-              <button type="submit" class="btn btn-primary">Change role</button>
-              <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+              <button type="button" class="btn btn-ghost" phx-click="cancel_invite">
                 Cancel
               </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                phx-disable-with="Sending..."
+              >
+                Send invitation
+              </button>
             </div>
-          </form>
+          </.form>
         </div>
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
-      <% end %>
-    </dialog>
+      </dialog>
 
-    <dialog id="confirm-remove-modal" class="modal" phx-hook="DialogModal">
-      <%= if match?({:remove, _}, @pending_action) do %>
-        <% {:remove, m} = @pending_action %>
+      <dialog id="revoke-invitation-modal" class="modal" phx-hook="DialogModal">
         <div class="modal-box">
-          <h3 class="text-lg font-semibold">
-            Remove {m.user.email} from {@current_scope.active_organization.name}?
-          </h3>
-          <p class="py-2 text-sm">
-            {m.user.email} will be signed out of this organization immediately. You can re-invite them later.
-          </p>
+          <h3 class="text-lg font-semibold">Revoke invitation?</h3>
 
-          <%= if @remove_modal_error do %>
-            <p class="text-error mt-2 text-sm" role="alert">{@remove_modal_error}</p>
+          <%= if @revoking_invitation do %>
+            <p class="text-sm mt-2">
+              Revoke the invitation for <strong>{@revoking_invitation.email}</strong>? They will no longer be able to join
+              <strong>{@current_scope.active_organization.name}</strong>
+              with this link. You can re-invite them later.
+            </p>
           <% end %>
 
-          <form phx-submit="remove_member">
-            <div class="modal-action">
-              <button type="submit" class="btn btn-error">Remove member</button>
-              <button type="button" class="btn btn-ghost" phx-click="cancel_action">
-                Cancel
-              </button>
-            </div>
-          </form>
+          <div class="modal-action">
+            <button type="button" class="btn btn-ghost" phx-click="cancel_revoke">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-error"
+              phx-click="confirm_revoke"
+              phx-value-id={@revoking_invitation && @revoking_invitation.id}
+              phx-disable-with="Revoking..."
+            >
+              Revoke invitation
+            </button>
+          </div>
         </div>
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
-      <% end %>
-    </dialog>
+      </dialog>
+
+      <dialog id="confirm-role-modal" class="modal" phx-hook="DialogModal">
+        <%= if match?({:role, _}, @pending_action) do %>
+          <% {:role, m} = @pending_action %>
+          <div class="modal-box">
+            <h3 class="text-lg font-semibold">Change {m.user.email}'s role?</h3>
+
+            <%= if @role_modal_error do %>
+              <p class="text-error mt-2 text-sm" role="alert">{@role_modal_error}</p>
+            <% end %>
+
+            <form phx-submit="change_role" class="mt-4 space-y-4">
+              <label class="form-control w-full">
+                <span class="label-text">New role</span>
+                <select name="role" class="select select-bordered w-full">
+                  <option value="owner" selected={m.role == :owner}>Owner</option>
+                  <option value="admin" selected={m.role == :admin}>Admin</option>
+                  <option value="member" selected={m.role == :member}>Member</option>
+                </select>
+              </label>
+
+              <div class="modal-action">
+                <button type="submit" class="btn btn-primary">Change role</button>
+                <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+          <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        <% end %>
+      </dialog>
+
+      <dialog id="confirm-remove-modal" class="modal" phx-hook="DialogModal">
+        <%= if match?({:remove, _}, @pending_action) do %>
+          <% {:remove, m} = @pending_action %>
+          <div class="modal-box">
+            <h3 class="text-lg font-semibold">
+              Remove {m.user.email} from {@current_scope.active_organization.name}?
+            </h3>
+            <p class="py-2 text-sm">
+              {m.user.email} will be signed out of this organization immediately. You can re-invite them later.
+            </p>
+
+            <%= if @remove_modal_error do %>
+              <p class="text-error mt-2 text-sm" role="alert">{@remove_modal_error}</p>
+            <% end %>
+
+            <form phx-submit="remove_member">
+              <div class="modal-action">
+                <button type="submit" class="btn btn-error">Remove member</button>
+                <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+          <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        <% end %>
+      </dialog>
     </Layouts.app>
     """
   end

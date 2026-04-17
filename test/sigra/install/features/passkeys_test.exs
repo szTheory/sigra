@@ -20,7 +20,8 @@ defmodule Sigra.Install.Features.PasskeysTest do
       assert [
                {:eex, "passkeys/user_passkey.ex", "lib/my_app/accounts/user_passkey.ex"},
                {:eex, "passkeys/passkey_browser.js", "assets/js/passkey_browser.js"},
-               {:eex, "passkeys/passkey_hooks.js", "assets/js/passkey_hooks.js"}
+               {:eex, "passkeys/passkey_hooks.js", "assets/js/passkey_hooks.js"},
+               {:eex, "passkeys/package.json", "assets/package.json"}
              ] = Passkeys.files(otp_app: :my_app, context_alias: "Accounts")
     end
   end
@@ -61,6 +62,12 @@ defmodule Sigra.Install.Features.PasskeysTest do
            end)
 
     assert Enum.any?(injections, fn injection ->
+             injection.target == "mix.exs" and
+               injection.marker == ~s(cmd --cd assets npm install) and
+               injection.anchor == :mix_assets_setup
+           end)
+
+    assert Enum.any?(injections, fn injection ->
              injection.target == "assets/package.json" and
                injection.marker == ~s("@simplewebauthn/browser") and
                injection.anchor == :package_json_dependencies
@@ -74,7 +81,7 @@ defmodule Sigra.Install.Features.PasskeysTest do
            end)
   end
 
-  test "echoes manual fallback instructions for app.js, mix.exs, and assets/package.json" do
+  test "echoes manual fallback instructions for app.js, mix.exs, assets.setup, and assets/package.json" do
     instructions =
       %Sigra.Install.Report{}
       |> Sigra.Install.Report.record_manual_action("""
@@ -93,6 +100,13 @@ defmodule Sigra.Install.Features.PasskeysTest do
         {:wax_, "~> 0.7"}
       """)
       |> Sigra.Install.Report.record_manual_action("""
+      Passkeys generated browser assets, but Sigra could not safely edit `mix.exs` `assets.setup`.
+
+      Add this step to your `"assets.setup"` alias manually:
+
+        "cmd --cd assets npm install"
+      """)
+      |> Sigra.Install.Report.record_manual_action("""
       Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `assets/package.json`.
 
       Add this dependency under `"dependencies"` manually:
@@ -107,6 +121,7 @@ defmodule Sigra.Install.Features.PasskeysTest do
            )
 
     assert Enum.any?(instructions, &String.contains?(&1, ~s({:wax_, "~> 0.7"})))
+    assert Enum.any?(instructions, &String.contains?(&1, ~s(cmd --cd assets npm install)))
 
     assert Enum.any?(
              instructions,
@@ -122,6 +137,7 @@ defmodule Sigra.Install.Features.PasskeysTest do
     assert "passkeys/user_passkey.ex" in file_sources
     assert "passkeys/passkey_browser.js" in file_sources
     assert "passkeys/passkey_hooks.js" in file_sources
+    assert "passkeys/package.json" in file_sources
 
     assert [{:user_passkeys, "passkeys/create_user_passkeys.exs", "create_user_passkeys.exs"}] =
              Passkeys.migrations([])

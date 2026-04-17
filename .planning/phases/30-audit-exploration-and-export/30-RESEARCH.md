@@ -340,17 +340,17 @@ query
 | A1 | A plain GET controller export endpoint is the best fit over LiveView download helpers for evidence URLs. | Alternatives Considered | Low — the planner could switch to LiveView download mechanics without changing the core query/export architecture. |
 | A2 | Offset pagination is the main legacy alternative for audit pages in comparable stacks. | State of the Art | Low — it does not affect the repo-specific recommendation to reuse the existing keyset cursor. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should per-user org-scoped explorer pages include global rows for the same user?**
    - What we know: The current user-detail preview uses `organization_scope: {:including_global, org_id}`. [VERIFIED: lib/sigra/admin/users/detail.ex] [VERIFIED: lib/sigra/audit/query.ex]
-   - What's unclear: Whether that preview behavior should expand into the full explorer, or whether the dedicated explorer should be stricter for org admins.
-   - Recommendation: Lock this in planning. If operator continuity matters more, preserve `including_global` only on user-scoped org views; keep org index views `{:only, org_id}`.
+   - Resolution: **Yes, but only for org-scoped per-user views and previews.** Keep org index views strict with `{:only, org_id}` so org-wide exploration never widens into unrelated global history, while preserving operator continuity on one-user investigation paths.
+   - Planning impact: Phase 30 should encode `{:including_global, org_id}` explicitly in the per-user org explorer and preview alignment work, and keep the org index explorer on `{:only, org_id}`.
 
 2. **Should CSV include raw `metadata` at all in v1?**
    - What we know: The requirement emphasizes canonical fields and non-metadata impersonation visibility. [VERIFIED: .planning/REQUIREMENTS.md] [VERIFIED: user prompt]
-   - What's unclear: Whether reviewers need raw metadata for evidence bundles or whether stable fixed columns are enough.
-   - Recommendation: Default to fixed canonical and derived columns only; add `metadata_json` last only if a concrete evidence consumer requires it.
+   - Resolution: **No.** Phase 30 CSV should ship a fixed canonical-and-derived schema only: actor/effective-user/organization ids and human-readable labels, action, outcome, timestamps, target identity, and derived impersonation state. Raw `metadata` stays out of the v1 export surface.
+   - Planning impact: The CSV mapper and controller tests should assert a stable column order without `metadata_json`, and the UI should continue to surface impersonation from canonical fields and action names.
 
 ## Environment Availability
 

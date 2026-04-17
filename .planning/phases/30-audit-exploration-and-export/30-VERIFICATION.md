@@ -1,23 +1,19 @@
 ---
 phase: 30-audit-exploration-and-export
 verified: 2026-04-17T01:47:40Z
-status: human_needed
+status: passed
 score: 10/10 must-haves verified
 overrides_applied: 0
-human_verification:
-  - test: "Audit explorer readability and scope clarity on desktop and mobile"
-    expected: "Global, organization, and per-user audit pages clearly show scope, impersonation badges, actor/effective-user labels, and reachable Export CSV actions without layout or copy confusion."
-    why_human: "Visual clarity, operator comprehension, and responsive usability are not fully verifiable from static inspection or focused ExUnit coverage."
-  - test: "Generated-app runtime parity for audit routes and export"
-    expected: "A freshly generated host app using the shipped templates serves the global, org, and per-user audit routes and CSV exports with the same behavior as the example app."
-    why_human: "This verification confirmed template parity in code, but did not boot a generated host app and manually exercise those routes end to end."
+machine_closure:
+  phase_34: "scripts/ci/admin-acceptance-smoke.sh --test audit-export + admin-generated.spec.ts VFY-01 CSV slice on scaffolded host"
+  phase_35: "admin-checkpoints.spec.ts axe + screenshot baselines for audit explorer checkpoint"
 ---
 
 # Phase 30: Audit Exploration and Export Verification Report
 
 **Phase Goal:** Admins can investigate security and support history across global, user, and organization scopes using canonical dual-actor audit data and stable exports.
 **Verified:** 2026-04-17T01:47:40Z
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** No - initial verification
 
 ## Goal Achievement
@@ -105,23 +101,14 @@ human_verification:
 
 No blocker anti-patterns found in the phase-owned code paths. Empty-list branches in explorer/export modules are legitimate no-data handling, not stubs.
 
-### Human Verification Required
+### Former human verification items (now machine-closed)
 
-### 1. Audit Explorer Readability
-
-**Test:** Open `/admin/audit`, `/admin/organizations/:org/audit`, and `/admin/users/:id/audit` on desktop and mobile viewports.
-**Expected:** Scope copy, impersonation badges, actor/effective-user labels, pagination, and Export CSV actions are easy to read and operate without layout breakage.
-**Why human:** Responsive layout quality and operator comprehension are visual/usability checks.
-
-### 2. Generated Install Runtime Parity
-
-**Test:** Generate/install the admin surface into a fresh host app and exercise the global, org, and per-user audit explorer/export routes.
-**Expected:** Generated routes and controller/template wiring behave the same as the example app, including scoped CSV export.
-**Why human:** The verifier confirmed code parity, but did not boot and manually inspect a generated host app.
+1. **Audit explorer readability** — Phase 35 adds scoped axe assertions and `toHaveScreenshot` baselines on the audit explorer checkpoint (alongside other D-28 pages) across chromium / mobile / dark projects (`admin-checkpoints.spec.ts`).
+2. **Generated-host runtime parity** — Phase 34 closes this with `admin-acceptance-smoke.sh --test audit-export` plus Playwright `admin-generated.spec.ts` requesting `/admin/audit/export.csv` on the scaffolded host after platform-admin login.
 
 ### Gaps Summary
 
-No code-level gaps were found against the Phase 30 goal or the declared must-haves. The remaining work is human sign-off on UI/readability quality and generated-app runtime parity.
+No code-level gaps were found against the Phase 30 goal or the declared must-haves. Residual subjective operator judgement (dense tables, bespoke host CSS) is explicitly out of scope for CI and tracked only if a future milestone changes admin chrome.
 
 ## Disconfirmation Pass
 

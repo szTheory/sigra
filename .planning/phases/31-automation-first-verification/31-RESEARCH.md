@@ -406,17 +406,17 @@ export default defineConfig({
 
 All substantive claims in this research were verified against repo files, local commands, or official docs in this session. No user confirmation gates were introduced.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the generated-host job publish dark-mode screenshots too, or only desktop/mobile shell parity?**
    - What we know: The context requires generated-host browser coverage to stay narrow and parity-focused. [VERIFIED: .planning/phases/31-automation-first-verification/31-CONTEXT.md]
-   - What's unclear: Whether the generated host needs dark-mode reviewer evidence or whether example-app dark checkpoints are sufficient.
-   - Recommendation: Default to example-app dark checkpoints only; add generated-host dark screenshots only if the shipped templates diverge materially by theme.
+   - **Resolved:** Generated-host reviewer artifacts stay at desktop/mobile shell parity only; dark-mode reviewer evidence is owned by the example-app checkpoint suite.
+   - Why: Per D-03, D-05, and D-27 through D-29, the generated host proves shipped seam parity while the example app carries rich browser UX review. Example-app `dark-chromium` checkpoints are sufficient to make dark-mode regressions visible without creating a second generated-host dark artifact lane.
 
 2. **Should admin runtime smoke stay pure bash/curl or use a tiny Elixir helper for authenticated requests?**
    - What we know: The discretion area explicitly allows either, provided the layer stays process-external and minimal. [VERIFIED: .planning/phases/31-automation-first-verification/31-CONTEXT.md]
-   - What's unclear: Which approach yields the lowest maintenance for authenticated admin export checks.
-   - Recommendation: Prefer bash + curl cookie jar first; move to a small helper only if login/export session handling becomes awkward.
+   - **Resolved:** Admin runtime smoke stays pure bash plus `curl` cookie jars for Phase 31; do not introduce an Elixir or Req helper.
+   - Why: Per D-08, D-09, D-16, and D-18, this layer exists only to prove boot, route, cookie continuity, and a few admin-critical success/denial seams. The existing shell harnesses already match the repo shape and keep the process-external boundary obvious.
 
 ## Environment Availability
 

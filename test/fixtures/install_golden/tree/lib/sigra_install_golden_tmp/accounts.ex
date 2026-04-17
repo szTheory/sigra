@@ -949,9 +949,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   Returns `{:ok, user}` or `{:error, reason}`.
   """
-  def cancel_deletion(user) do
+  def cancel_deletion(user, opts \\ []) do
     Sigra.Auth.cancel_deletion(sigra_config(), user,
-      changeset_fn: &User.deletion_changeset/2
+      Keyword.merge([changeset_fn: &User.deletion_changeset/2], opts)
     )
   end
 

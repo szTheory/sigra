@@ -112,9 +112,10 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert json_response(conn, 200) == %{"error" => "unavailable"}
     end
 
-    test "POST /users/mfa/passkey/options without mfa_pending stays on JSON unavailable branch", %{
-      conn: conn
-    } do
+    test "POST /users/mfa/passkey/options without mfa_pending stays on JSON unavailable branch",
+         %{
+           conn: conn
+         } do
       user = user_fixture()
 
       conn =

@@ -29,7 +29,7 @@ defmodule Sigra.Install.Injection do
   @enforce_keys [:target, :marker, :anchor, :content]
   defstruct [:target, :marker, :anchor, :content]
 
-  @type anchor :: :before_last_end | :after_use_block | :at_top | atom()
+  @type anchor :: :before_last_end | :after_use_block | :at_top | :browser_pipeline | atom()
   @type t :: %__MODULE__{
           target: Path.t(),
           marker: String.t(),

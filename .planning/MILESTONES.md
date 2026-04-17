@@ -90,3 +90,37 @@
 - [v1.1 Milestone Audit](milestones/v1.1-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.2 Admin Dashboard (Shipped: 2026-04-17)
+
+**Scope:** 9 phases, 32 plans (Phases 27-31 plus gap-closure 32-35).
+
+**What shipped:** A default-on, Phoenix/LiveView-first admin surface on top of v1.1: explicit host policy for platform vs organization admins, scope-safe routing and `Sigra.Admin` enforcement, searchable and filterable user operations with session revocation, time-bounded impersonation with dual-actor audit and blocked sensitive mutations, global and organization and per-user audit exploration with CSV export, automation-first verification (Playwright, smoke scripts, CI artifacts including mobile and dark checkpoints), and generator/installer parity so freshly generated hosts mount user admin LiveViews, emit impersonation and audit export controllers, ship usable admin shell navigation, and prove flows on the generated host. Shift-left CI gates (emission audit, drift guard for dead nav labels, milestone `VERIFICATION.md` presence, installer-scoped milestone audit, artifact bundle contract) reduce recurrence of the integration defects caught in the mid-milestone audit.
+
+### Key Accomplishments
+
+1. **Admin access foundation (Phase 27)** — Default-on `--no-admin` opt-out, library-owned admin scope resolution, plugs and LiveView `on_mount`, example and template wiring with visible global vs organization chrome.
+2. **User operations (Phase 28)** — Scope-safe user index and detail, host hooks contract, session revoke-one and revoke-all with audit, responsive operator journeys; retroactively verified in `28-VERIFICATION.md` (Phase 34).
+3. **Secure impersonation (Phase 29)** — Controller-owned start/stop, preserved admin session restoration, persistent banner, shared forbid plug across controllers and LiveViews, generated API-token guards.
+4. **Audit exploration and export (Phase 30)** — Normalized query contract, global/org/user explorers, impersonation-aware presentation, scope-respecting CSV export endpoints.
+5. **Automation-first verification (Phases 31, 34-35)** — Partitioned Playwright harness, example and generated-host specs, direct-path smoke, HTML and visual artifacts; generated-host E2E for users, impersonation, and audit export; shift-left machine gates.
+6. **Installer parity and polish (Phases 32-33)** — Router injection and template emission closing INT-01..03; admin shell Users navigation and mobile bottom nav; recent audit preview aligned with `Presenter`.
+
+### Stats
+
+- **Requirements:** 23/23 v1.2 IDs satisfied (archived traceability in `milestones/v1.2-REQUIREMENTS.md`)
+- **Milestone audit:** passed (see `milestones/v1.2-MILESTONE-AUDIT.md` front matter; body retains morning gap narrative for archaeology)
+- **Timeline:** 2026-04-16 → 2026-04-17 (core delivery and gap closure)
+
+### Tech Debt Carried Forward
+
+- `SEED-001` human-only GA UAT items; `SEED-002` audit atomicity hybrid; backlog **999.1** / **999.2** unchanged from prior milestones.
+- Residual subjective reviewer items called out in phase VERIFICATION/HUMAN-UAT docs where automation cannot fully substitute judgment.
+
+**Archive:**
+
+- [v1.2 Roadmap](milestones/v1.2-ROADMAP.md)
+- [v1.2 Requirements](milestones/v1.2-REQUIREMENTS.md)
+- [v1.2 Milestone Audit](milestones/v1.2-MILESTONE-AUDIT.md)
+
+---

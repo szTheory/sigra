@@ -297,17 +297,17 @@ end
 | A1 | A forwarded admin mount is likely to be considered because it superficially resembles other library-owned dashboards. [ASSUMED] | Common Pitfalls | Low; the official docs still settle the decision against `forward`. |
 | A2 | Developers may be tempted to reuse global admin queries for org-admin pages and trim later in the UI. [ASSUMED] | Common Pitfalls | Medium; if not anticipated, the plan may miss query-layer verification tasks. |
 
-## Open Questions
+## Resolved Questions
 
-1. **Should the generated host policy module include a default helper that maps org-admin to `[:owner, :admin]` memberships?**
-   - What we know: The helper is allowed, but only as explicit helper behavior rather than inference. [VERIFIED: 27-CONTEXT.md]
-   - What's unclear: Whether Phase 27 should generate that helper by default or only document it. [VERIFIED: 27-CONTEXT.md]
-   - Recommendation: Plan the behaviour and one optional helper in the library, but keep the generated host policy explicit and reviewable. [VERIFIED: 27-CONTEXT.md][VERIFIED: codebase grep]
+1. **Generated host policy helper shape**
+   - Decision: Keep the generated host policy explicit and reviewable. Ship the behaviour plus an optional library helper for the common `[:owner, :admin]` membership-role mapping, but do not generate implicit membership logic into the host policy by default. [VERIFIED: 27-CONTEXT.md][VERIFIED: codebase grep]
+   - Planning impact: Phase 27 should create `Sigra.Admin.Policy` and may expose an explicit helper API, while the generated `sigra_admin_policy.ex` remains a thin host-owned seam with no hidden fallback grants. [VERIFIED: 27-CONTEXT.md]
 
-2. **Should admin shell hooks live in generated `layouts.ex` or in a dedicated generated admin component module?**
-   - What we know: Current shell precedent extends `layouts.ex`, while locked decisions want only small host-owned chrome hooks. [VERIFIED: codebase grep][VERIFIED: 27-CONTEXT.md]
-   - What's unclear: The smallest seam that avoids churn in host-owned layouts across upgrades. [VERIFIED: codebase grep]
-   - Recommendation: Plan one dedicated generated admin shell component imported by `layouts.ex`, so future admin chrome changes stay localized. [ASSUMED]
+2. **Admin shell seam placement**
+   - Decision: Use one dedicated generated admin shell component imported by `layouts.ex`, rather than embedding all admin chrome directly inside `layouts.ex`. [VERIFIED: codebase grep][VERIFIED: 27-CONTEXT.md]
+   - Planning impact: The shell contract stays localized for upgrades, while the host layout change remains small and consistent with existing component-based shell patterns such as `org_switcher.ex`. [VERIFIED: codebase grep]
+
+**Status:** All planning-time questions are resolved enough for execution. No open research blockers remain.
 
 ## Environment Availability
 

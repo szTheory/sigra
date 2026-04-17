@@ -35,3 +35,14 @@ sigra-*.tar
 # mix.lock is committed so CI cache keys are deterministic.
 test/example/_build/
 test/example/deps/
+
+# Local tooling / agent state (never ship in commits).
+.claude/
+.cursor/
+.playwright-mcp/
+
+# Playwright MCP or ad-hoc runs at repo root (not example subproject).
+/test-results/
+
+# Local research prompts (not part of the library release).
+/prompts/

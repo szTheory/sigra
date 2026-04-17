@@ -435,7 +435,7 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
     """
   end
 
-  defp encoded_passkey_response(attrs \\ %{}) do
+  defp encoded_passkey_response(attrs) do
     credential_id =
       Map.get(attrs, :credential_id) || Map.get(attrs, "credential_id") || "credential-response"
 

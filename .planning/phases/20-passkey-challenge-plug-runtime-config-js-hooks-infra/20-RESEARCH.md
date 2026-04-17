@@ -360,17 +360,16 @@ const verification = await verifyAuthenticationResponse({
 |---|-------|---------|---------------|
 | A1 | A new JS-specific injector helper or anchor should be added instead of overloading existing Elixir-only anchors. | Architecture Patterns | Low: if another clean path already exists, the implementation plan can swap it in without changing user-visible behavior. [ASSUMED] |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Where should the Sigra-owned `app.js` marker live for first install?**
-   - What we know: fresh Phoenix 1.8.5 `assets/js/app.js` contains no Sigra marker and already includes `hooks: {...colocatedHooks}`. [VERIFIED: mix phx.new probe 2026-04-15]
-   - What's unclear: whether the first install should anchor off the current Phoenix line shape and insert a marker-owned block, or whether another Sigra phase already intends to own `app.js`. [VERIFIED: lib/sigra/install/injector.ex]
-   - Recommendation: plan an explicit Wave 0 decision and lock the exact marker string before implementation starts. [VERIFIED: 20-CONTEXT.md]
+   - Resolution: Phase 20 owns a passkey-specific marker block in `assets/js/app.js` using the exact pair `// Sigra passkeys:start` and `// Sigra passkeys:end`.
+   - Placement rule: the installer may use the standard Phoenix 1.8 `hooks: { ...colocatedHooks }` shape only as the one-time placement path that creates the marker block on first install; after that, the marker comment is the authoritative detection and idempotency guard for all re-runs.
+   - Fallback rule: if the host `assets/js/app.js` does not contain the standard placement shape and therefore cannot receive the Sigra marker block safely, the file is left untouched and the installer emits exact manual instructions instead. This preserves the locked GEN-06 behavior: marker-comment detection governs mutation, and missing marker on non-standard layouts means manual fallback. [VERIFIED: mix phx.new probe 2026-04-15] [VERIFIED: lib/sigra/install/injector.ex] [VERIFIED: 20-CONTEXT.md]
 
 2. **Should passkey runtime config return a keyword list or a dedicated struct?**
-   - What we know: current Sigra config surfaces mostly expose validated keyword lists inside `%Sigra.Config{}`. [VERIFIED: lib/sigra/config.ex]
-   - What's unclear: whether Phase 20 wants only `Sigra.Passkeys.config/0` convenience or a broader runtime-config refactor.
-   - Recommendation: keep Phase 20 narrow and return normalized keyword config compatible with existing `config.passkeys` call sites. [VERIFIED: 20-CONTEXT.md]
+   - Resolution: keep Phase 20 narrow and return normalized keyword config inside `%Sigra.Config{}` compatibility, exposed through `Sigra.Passkeys.config/0`.
+   - Reason: current Sigra config surfaces already use validated keyword subtrees under `%Sigra.Config{}`; introducing a new dedicated struct here would expand scope without changing any locked requirement. [VERIFIED: lib/sigra/config.ex] [VERIFIED: 20-CONTEXT.md]
 
 ## Environment Availability
 

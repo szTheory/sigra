@@ -120,7 +120,7 @@ Phase 28 browser coverage is complete and validation can stay green. Repository-
 
 ## Self-Check
 
-PENDING
+PASSED
 
 ---
 *Phase: 28-user-operations-surface*

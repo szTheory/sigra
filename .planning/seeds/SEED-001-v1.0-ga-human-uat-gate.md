@@ -1,6 +1,6 @@
 ---
 id: SEED-001
-status: dormant
+status: deferred
 planted: 2026-04-11
 planted_during: v1.0 milestone completion
 trigger_when: Before Sigra v1.0 GA public announcement (tagged v1.0 → blog post / Hex.pm release / HN post)

@@ -90,8 +90,8 @@ defmodule ExampleWeb.MFAChallengeLive do
             @passkey_notice.tone == :neutral && "border-gray-200 bg-gray-50 text-gray-800"
           ]}
         >
-          <p class="font-semibold"><%= @passkey_notice.title %></p>
-          <p class="mt-1"><%= @passkey_notice.body %></p>
+          <p class="font-semibold">{@passkey_notice.title}</p>
+          <p class="mt-1">{@passkey_notice.body}</p>
 
           <div class="mt-3 flex flex-wrap gap-2">
             <button
@@ -121,7 +121,7 @@ defmodule ExampleWeb.MFAChallengeLive do
 
         <form
           id="passkey-mfa-complete-form"
-          action={"/users/mfa/passkey"}
+          action="/users/mfa/passkey"
           method="post"
           class="hidden"
         >
@@ -214,7 +214,10 @@ defmodule ExampleWeb.MFAChallengeLive do
         >
           <div class="space-y-4">
             <div>
-              <label for="mfa_totp_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label
+                for="mfa_totp_code"
+                class="block text-sm font-semibold leading-normal text-zinc-800"
+              >
                 Authenticator code
               </label>
               <input
@@ -239,8 +242,7 @@ defmodule ExampleWeb.MFAChallengeLive do
                 name="mfa[trust]"
                 value="true"
                 class="rounded border-gray-300"
-              />
-              Trust this browser for 30 days
+              /> Trust this browser for 30 days
             </label>
 
             <.button phx-disable-with="Verifying..." class="w-full">
@@ -263,7 +265,10 @@ defmodule ExampleWeb.MFAChallengeLive do
         >
           <div class="space-y-4">
             <div>
-              <label for="mfa_backup_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label
+                for="mfa_backup_code"
+                class="block text-sm font-semibold leading-normal text-zinc-800"
+              >
                 Backup code
               </label>
               <input
@@ -453,13 +458,13 @@ defmodule ExampleWeb.MFAChallengeLive do
     |> then(fn value ->
       cond do
         String.contains?(value, "timeout") ->
-        :timeout
+          :timeout
 
         String.contains?(value, "unsupported") or String.contains?(value, "not_supported") ->
-        :unsupported
+          :unsupported
 
         true ->
-        :generic
+          :generic
       end
     end)
   end
@@ -486,7 +491,8 @@ defmodule ExampleWeb.MFAChallengeLive do
     %{
       tone: :info,
       title: "Passkeys aren't available in this browser.",
-      body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+      body:
+        "Use your password or a magic link here, or switch to a device that supports passkeys."
     }
   end
 

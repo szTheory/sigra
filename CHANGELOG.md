@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-04-17
+
+First release on [Hex.pm](https://hex.pm/packages/sigra).
+
+### Fixed
+
+- Hex package `files` list includes `priv/` (installer, upgrade, and OAuth generator templates) so `mix sigra.install` / `mix sigra.upgrade` work when the dependency is pulled from Hex.
+
 ### Added
 
 - `Sigra.Audit.log_safe/3` accepts a scope as the second positional argument.

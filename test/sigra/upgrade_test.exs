@@ -195,4 +195,63 @@ defmodule Sigra.UpgradeTest do
       _ = Code.string_to_quoted!(injection.content)
     end
   end
+
+  describe "promote_vault/1" do
+    test "rewrites the plaintext stub and injects vault support when the stub is present" do
+      File.mkdir_p!(Path.join(["lib", "sigra", "accounts"]))
+      File.mkdir_p!(Path.join(["lib", "sigra"]))
+
+      File.write!(
+        Path.join(["lib", "sigra", "accounts", "encrypted.ex"]),
+        """
+        defmodule Sigra.Accounts.Encrypted.Binary do
+          use Ecto.Type
+          def type, do: :binary
+        end
+        """
+      )
+
+      promotion = Upgrade.promote_vault([])
+
+      assert promotion.enabled?
+      assert Enum.any?(promotion.files, &String.ends_with?(&1.target, "lib/sigra/vault.ex"))
+      assert Enum.any?(promotion.files, &String.ends_with?(&1.target, "lib/sigra/accounts/encrypted.ex"))
+
+      plan = Upgrade.build_plan([], "0.0.0", "0.1.0")
+      assert Enum.any?(plan.injections, &(&1.anchor == :vault_child))
+    end
+  end
+
+  describe "verify_vault!/1" do
+    defmodule VerifyVaultStub.Encrypted.Binary do
+      def __sigra_encryption_mode__, do: :stub
+    end
+
+    defmodule VerifyVaultReal.Encrypted.Binary do
+      def __sigra_encryption_mode__, do: :vault
+    end
+
+    defmodule VerifyVaultStub.User do
+    end
+
+    defmodule VerifyVaultReal.User do
+    end
+
+    test "raises when passkeys are enabled but the stub encryption module is loaded" do
+      assert_raise RuntimeError, ~r/passkeys are enabled/, fn ->
+        Sigra.Application.verify_vault!(
+          user_schema: VerifyVaultStub.User,
+          passkeys: [enabled: true]
+        )
+      end
+    end
+
+    test "passes when the real vault-backed encryption module is loaded" do
+      assert :ok =
+               Sigra.Application.verify_vault!(
+                 user_schema: VerifyVaultReal.User,
+                 passkeys: [enabled: true]
+               )
+    end
+  end
 end

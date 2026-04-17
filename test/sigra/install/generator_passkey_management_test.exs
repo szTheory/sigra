@@ -79,9 +79,9 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
       for expected <- [
             "Rename",
             "Save name",
-            ~s(def handle_event("open_passkey_rename"),
-            ~s(def handle_event("cancel_passkey_rename"),
-            ~s(def handle_event("save_passkey_name"),
+            ~s(def handle_event("open_passkey_rename", %),
+            ~s(def handle_event("cancel_passkey_rename", _params),
+            ~s(def handle_event("save_passkey_name", %),
             "Auth.rename_passkey(user, credential_id, nickname || \"\")",
             "Passkey name saved."
           ] do

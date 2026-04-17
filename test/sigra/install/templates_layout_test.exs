@@ -30,6 +30,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     create_audit_events.exs
     emails.ex
     encrypted.ex
+    encrypted_binary.ex
     error_handler.ex
     login_html.ex
     mailer.ex
@@ -59,6 +60,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     user_mfa_credential.ex
     user_session.ex
     user_token.ex
+    vault.ex
   )
 
   @core_dir "priv/templates/sigra.install/core"
@@ -66,7 +68,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
 
   test "templates have been relocated under core/ subdirectory" do
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 47
+    assert length(core_files) == 49
     assert core_files == Enum.sort(@manifest_post_move)
   end
 

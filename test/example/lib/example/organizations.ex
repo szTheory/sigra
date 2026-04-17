@@ -36,8 +36,7 @@ defmodule Example.Organizations do
       scope: Example.Accounts.Scope
     ],
     emails_module: Example.Accounts.Emails,
-    secret_key_base:
-      Application.compile_env!(:example, ExampleWeb.Endpoint)[:secret_key_base],
+    secret_key_base: Application.compile_env!(:example, ExampleWeb.Endpoint)[:secret_key_base],
     url_builder: &Example.Organizations.__build_invite_url__/1,
     rate_limiter: Sigra.RateLimiters.Noop,
     user_registration_changeset_fn: &Example.Organizations.__registration_changeset__/1
@@ -121,6 +120,5 @@ defmodule Example.Organizations do
 
   @doc "Change a member's role with last-owner guard (D-18)."
   def change_member_role(scope, membership, new_role),
-    do:
-      Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
+    do: Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
 end

@@ -36,7 +36,10 @@ defmodule ExampleWeb.ConfirmationController do
 
       {:error, :rate_limited} ->
         conn
-        |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
+        |> put_flash(
+          :error,
+          dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again.")
+        )
         |> render(:new)
 
       {:error, :already_confirmed} ->
@@ -62,7 +65,10 @@ defmodule ExampleWeb.ConfirmationController do
 
       {:error, :token_invalid} ->
         conn
-        |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+        |> put_flash(
+          :error,
+          dgettext("sigra", "This confirmation link is invalid or has expired.")
+        )
         |> redirect(to: ~p"/users/confirm")
     end
   end
@@ -82,7 +88,10 @@ defmodule ExampleWeb.ConfirmationController do
 
       {:error, :token_invalid} ->
         conn
-        |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+        |> put_flash(
+          :error,
+          dgettext("sigra", "This confirmation link is invalid or has expired.")
+        )
         |> redirect(to: ~p"/users/confirm")
     end
   end

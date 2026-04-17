@@ -356,6 +356,44 @@ defmodule Sigra.Admin.Users.Query do
 
   defp apply_filter(query, _filter, _helpers), do: query
 
+  defp select_row(query, %{passkey_schema: nil} = helpers) do
+    display_name_field = helpers.display_name_field
+
+    if display_name_field do
+      select(
+        query,
+        [user: user, session_state: session, mfa_state: mfa],
+        %{
+          user: user,
+          display_name_field: field(user, ^display_name_field),
+          last_active_at: session.last_active_at,
+          has_mfa: not is_nil(mfa.user_id),
+          passkey_count: 0,
+          organization_count: 0,
+          organization_summary: "",
+          extra_badges: [],
+          extra_columns: []
+        }
+      )
+    else
+      select(
+        query,
+        [user: user, session_state: session, mfa_state: mfa],
+        %{
+          user: user,
+          display_name_field: nil,
+          last_active_at: session.last_active_at,
+          has_mfa: not is_nil(mfa.user_id),
+          passkey_count: 0,
+          organization_count: 0,
+          organization_summary: "",
+          extra_badges: [],
+          extra_columns: []
+        }
+      )
+    end
+  end
+
   defp select_row(query, helpers) do
     display_name_field = helpers.display_name_field
 

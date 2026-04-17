@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
-status: executing
-stopped_at: Phase 33 context gathered
-last_updated: "2026-04-17T15:45:10.806Z"
-last_activity: 2026-04-17 -- Phase 33 planning complete
+status: archived
+stopped_at: v1.2 milestone archived — ROADMAP collapsed; REQUIREMENTS.md removed for next milestone
+last_updated: "2026-04-17T23:59:59.000Z"
+last_activity: 2026-04-17 -- Milestone close: milestones/v1.2-* archives, audit moved under milestones/, planning reconciled
 progress:
   total_phases: 9
-  completed_phases: 6
-  total_plans: 24
-  completed_plans: 25
+  completed_phases: 9
+  total_plans: 32
+  completed_plans: 32
   percent: 100
 ---
 
@@ -18,19 +18,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-16)
+See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Current focus:** Phase 32 — generated-installer-admin-surface-parity
+**Current focus:** v1.2 shipped and archived — run `/gsd-new-milestone` to open the next planning cycle (fresh REQUIREMENTS + roadmap).
 
 ## Current Position
 
-Phase: 33
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-04-17 -- Phase 33 planning complete
+Phase: 35 (shift-left verification automation) — COMPLETE
+Plan: 6 of 6 complete; see `35-*-SUMMARY.md` and `35-VERIFICATION.md`
+Status: ROADMAP v1.2 checkbox shipped; new CI jobs `milestone_verification_gate`, `installer_milestone_audit`, and admin artifact bundle contract on `example_playwright_smoke`.
+Last activity: 2026-04-17 -- Phase 35 implementation + verification
 
-Progress: [██████████] 100% (4/4 Phase 31 plans complete)
+Progress: [█████████] 100% (9/9 v1.2 gap-closure phases complete)
 
 ### Phase 31 artifacts
 
@@ -126,9 +126,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 27 planning needs to lock the smallest host-owned admin policy contract that covers platform-admin and org-admin access cleanly.
-- Phase 29 planning needs careful timeout and return-context handling because impersonation semantics are security-critical.
-- Phase 31 must preserve the milestone's automation-first intent with mobile and dark-mode artifact gates, not just happy-path browser tests.
+- None for v1.2 closeout. Next milestone scoping is the open item.
 
 ## Deferred Items
 
@@ -141,6 +139,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T15:19:05.805Z
-Stopped at: Phase 33 context gathered
-Resume file: .planning/phases/33-admin-shell-navigation-and-audit-preview-polish/33-CONTEXT.md
+Last session: 2026-04-17T23:59:59.000Z
+Stopped at: v1.2 planning archived — `.planning/ROADMAP.md` points to `milestones/v1.2-*`; `.planning/REQUIREMENTS.md` deleted pending `/gsd-new-milestone`
+Resume file: `.planning/ROADMAP.md` (Next milestone section)

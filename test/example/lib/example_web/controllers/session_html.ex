@@ -34,12 +34,25 @@ defmodule ExampleWeb.SessionHTML do
           :let={f}
           for={@form}
           id="passkey_login_form"
-          action={"/users/log_in/passkey"}
+          action="/users/log_in/passkey"
           method="post"
-          data-options-path={"/users/log_in/passkey/options"}
+          data-options-path="/users/log_in/passkey/options"
         >
-          <.input field={f[:email]} type="email" label="Email" autocomplete="username webauthn" required />
+          <.input
+            field={f[:email]}
+            type="email"
+            label="Email"
+            autocomplete="username webauthn"
+            required
+          />
           <input type="hidden" name="passkey[response]" id="passkey_login_response" />
+          <p
+            data-passkey-login-status
+            data-passkey-status=""
+            class="min-h-5 text-sm text-base-content/70"
+            aria-live="polite"
+          >
+          </p>
 
           <.button type="button" id="passkey_login_button" class="btn btn-primary w-full">
             Continue with passkey
@@ -51,9 +64,22 @@ defmodule ExampleWeb.SessionHTML do
         </div>
 
         <% # Magic link recovery remains visible in passkey-primary mode. %>
-        <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="mt-3">
+        <.form
+          :let={f}
+          for={@magic_link_form}
+          id="magic_link_form"
+          action={~p"/users/log_in"}
+          method="post"
+          class="mt-3"
+        >
           <input type="hidden" name="_action" value="magic_link" />
-          <.input field={f[:email]} type="email" label="Email for recovery link" autocomplete="username" required />
+          <.input
+            field={f[:email]}
+            type="email"
+            label="Email for recovery link"
+            autocomplete="username"
+            required
+          />
 
           <.button class="btn btn-outline w-full">
             Email me a magic link
@@ -72,7 +98,13 @@ defmodule ExampleWeb.SessionHTML do
 
         <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post">
           <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-          <.input field={f[:password]} type="password" label="Password" autocomplete="current-password" required />
+          <.input
+            field={f[:password]}
+            type="password"
+            label="Password"
+            autocomplete="current-password"
+            required
+          />
 
           <div class="flex items-center justify-between">
             <label class="flex items-center gap-2 text-sm">
@@ -85,33 +117,15 @@ defmodule ExampleWeb.SessionHTML do
             Log in <span aria-hidden="true">&rarr;</span>
           </.button>
         </.form>
-
-        <script>
-          document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("passkey_login_form")
-            const button = document.getElementById("passkey_login_button")
-            const response = document.getElementById("passkey_login_response")
-
-            if (!form || !button || !response) return
-
-            button.addEventListener("click", async () => {
-              if (!window.SigraPasskeys || !window.SigraPasskeys.authenticate) return
-
-              const result = await window.SigraPasskeys.authenticate({
-                optionsUrl: form.dataset.optionsPath,
-                email: new FormData(form).get("user[email]")
-              })
-
-              if (result && result.response) {
-                response.value = JSON.stringify(result.response)
-                form.requestSubmit()
-              }
-            })
-          })
-        </script>
       <% else %>
         <% # Magic link section %>
-        <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post">
+        <.form
+          :let={f}
+          for={@magic_link_form}
+          id="magic_link_form"
+          action={~p"/users/log_in"}
+          method="post"
+        >
           <input type="hidden" name="_action" value="magic_link" />
           <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
 
@@ -133,7 +147,13 @@ defmodule ExampleWeb.SessionHTML do
         <% # Password section %>
         <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post">
           <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-          <.input field={f[:password]} type="password" label="Password" autocomplete="current-password" required />
+          <.input
+            field={f[:password]}
+            type="password"
+            label="Password"
+            autocomplete="current-password"
+            required
+          />
 
           <div class="flex items-center justify-between">
             <label class="flex items-center gap-2 text-sm">

@@ -56,4 +56,27 @@ defmodule SigraInstallGoldenTmpWeb.AuthErrorHandler do
     |> render(:"403")
     |> halt()
   end
+
+  @impl true
+  def auth_error(conn, :insufficient_scope, _opts) do
+    conn
+    |> put_status(:forbidden)
+    |> put_resp_content_type("text/html")
+    |> send_resp(
+      403,
+      "Access denied. You do not have access to this admin scope."
+    )
+  end
+
+  @impl true
+  def auth_error(conn, :not_found, _opts) do
+    conn
+    |> put_status(:not_found)
+    |> put_resp_content_type("text/html")
+    |> send_resp(
+      404,
+      "Not found. This organization admin scope is unavailable."
+    )
+  end
+
 end

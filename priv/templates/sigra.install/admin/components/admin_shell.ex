@@ -21,6 +21,9 @@ defmodule <%= web_module %>.Components.AdminShell do
           </div>
 
           <div class="flex items-center gap-2">
+            <.scope_switch_link href={users_link(@admin_scope)} active={users_active?(@admin_scope)}>
+              Users
+            </.scope_switch_link>
             <.scope_switch_link
               :if={show_global_link?(@admin_scope)}
               href={~p"/admin"}
@@ -45,6 +48,25 @@ defmodule <%= web_module %>.Components.AdminShell do
         <aside class="hidden w-64 shrink-0 lg:block">
           <nav aria-label="Admin navigation" class="space-y-4">
             <div class="rounded-lg bg-base-200 p-3">
+              <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
+              <ul class="menu gap-1 p-0">
+                <li>
+                  <a
+                    class={nav_item_class(users_active?(@admin_scope))}
+                    href={users_link(@admin_scope)}
+                  >
+                    Users
+                  </a>
+                </li>
+                <li>
+                  <a class={nav_item_class(false)} href={audit_link(@admin_scope)}>
+                    Audit
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="rounded-lg bg-base-200 p-3">
               <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Overview</p>
               <ul class="menu gap-1 p-0">
                 <li>
@@ -56,18 +78,6 @@ defmodule <%= web_module %>.Components.AdminShell do
                     href={organization_link(@admin_scope)}
                   >
                     Organization
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div class="rounded-lg bg-base-200 p-3">
-              <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
-              <ul class="menu gap-1 p-0">
-                <li><span class="text-base-content/60">Users</span></li>
-                <li>
-                  <a class={nav_item_class(false)} href={audit_link(@admin_scope)}>
-                    Audit
                   </a>
                 </li>
               </ul>
@@ -84,6 +94,12 @@ defmodule <%= web_module %>.Components.AdminShell do
         aria-label="Admin bottom nav"
         class="btm-nav border-t border-base-300 bg-base-200 lg:hidden"
       >
+        <a
+          href={users_link(@admin_scope)}
+          class={bottom_nav_class(users_active?(@admin_scope))}
+        >
+          <span class="btm-nav-label">Users</span>
+        </a>
         <a href={~p"/admin"} class={bottom_nav_class(global_active?(@admin_scope))}>
           <span class="btm-nav-label">Global</span>
         </a>
@@ -162,10 +178,17 @@ defmodule <%= web_module %>.Components.AdminShell do
 
   defp organization_link(_), do: nil
 
+  defp users_link(%{mode: :organization, organization_slug: slug}) when is_binary(slug),
+    do: ~p"/admin/organizations/#{slug}/users"
+
+  defp users_link(_admin_scope), do: ~p"/admin/users"
+
   defp audit_link(%{mode: :organization, organization_slug: slug}) when is_binary(slug),
     do: "/admin/organizations/#{slug}/audit"
 
   defp audit_link(_admin_scope), do: "/admin/audit"
+
+  defp users_active?(_admin_scope), do: true
 
   defp global_active?(%{mode: :global}), do: true
   defp global_active?(_), do: false

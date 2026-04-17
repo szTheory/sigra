@@ -31,4 +31,6 @@ defmodule <%= context_module %>.Encrypted.Binary do
   def load(value) when is_binary(value), do: {:ok, value}
   def load(nil), do: {:ok, nil}
   def load(_), do: :error
+
+  def __sigra_encryption_mode__, do: :stub
 end

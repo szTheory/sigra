@@ -102,22 +102,7 @@ defmodule Sigra.Install.Features.Admin do
       target: Path.join(["lib", "#{otp_app}_web", "components", "layouts.ex"]),
       marker: "def admin(assigns) do",
       anchor: :before_last_end,
-      content: """
-        attr :flash, :map, default: %{}, doc: "the map of flash messages"
-        attr :current_scope, :map, default: nil
-        attr :admin_scope, :map, default: nil
-        attr :inner_content, :any, default: nil
-
-        def admin(assigns) do
-          ~H\"\"\"
-          <.admin_shell admin_scope={@admin_scope} current_scope={@current_scope}>
-            {@inner_content}
-          </.admin_shell>
-
-          <.flash_group flash={@flash} />
-          \"\"\"
-        end
-      """
+      content: read_template!("admin/layouts_admin_injection.ex")
     }
   end
 

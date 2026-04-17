@@ -33,7 +33,13 @@ defmodule ExampleWeb.RegistrationLive do
 
         <% # Add custom fields here (e.g., :name, :company) %>
         <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-        <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
+        <.input
+          field={f[:password]}
+          type="password"
+          label="Password"
+          autocomplete="new-password"
+          required
+        />
 
         <label
           :if={@passkey_primary_enabled}
@@ -70,7 +76,10 @@ defmodule ExampleWeb.RegistrationLive do
               {password_strength_label(@password_strength)}
             </span>
           </div>
-          <ul :if={@password_suggestions != []} class="mt-1 text-xs text-gray-500 list-disc list-inside">
+          <ul
+            :if={@password_suggestions != []}
+            class="mt-1 text-xs text-gray-500 list-disc list-inside"
+          >
             <li :for={suggestion <- @password_suggestions}>{suggestion}</li>
           </ul>
         </div>
@@ -125,7 +134,10 @@ defmodule ExampleWeb.RegistrationLive do
 
         {:noreply,
          socket
-         |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
+         |> put_flash(
+           :info,
+           "If this email is available, your account has been created. Please check your email."
+         )
          |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

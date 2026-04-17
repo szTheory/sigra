@@ -21,6 +21,7 @@ defmodule Sigra.Application do
   def start(_type, _args) do
     maybe_warn_audit_cleanup_fallback()
     maybe_warn_missing_cookie_domain()
+    verify_vault!()
 
     Supervisor.start_link([], strategy: :one_for_one, name: Sigra.Supervisor)
   end
@@ -83,6 +84,67 @@ defmodule Sigra.Application do
         """)
 
         :ok
+    end
+  end
+
+  @doc false
+  def verify_vault! do
+    otp_app = Application.get_env(:sigra, :otp_app)
+
+    host_sigra =
+      case otp_app && Application.get_env(otp_app, :sigra_config) do
+        opts when is_list(opts) -> opts
+        _ -> []
+      end
+
+    verify_vault!(host_sigra)
+  end
+
+  @doc false
+  def verify_vault!(host_sigra) when is_list(host_sigra) do
+    if passkeys_enabled?(host_sigra) do
+      case encrypted_binary_module(host_sigra) do
+        nil ->
+          :ok
+
+        module ->
+          Code.ensure_loaded?(module)
+
+          if function_exported?(module, :__sigra_encryption_mode__, 0) and
+               module.__sigra_encryption_mode__() == :stub do
+            raise """
+            [Sigra] passkeys are enabled but #{inspect(module)} is still the plaintext stub.
+
+            Promote the app to a real Cloak vault before booting with passkeys:
+
+                mix sigra.upgrade --yes
+
+            Then set a Base64-encoded 32-byte CLOAK_KEY in your environment.
+            """
+          end
+      end
+    end
+
+    :ok
+  end
+
+  defp passkeys_enabled?(host_sigra) do
+    host_sigra
+    |> Keyword.get(:passkeys, [])
+    |> Keyword.get(:enabled, true)
+  end
+
+  defp encrypted_binary_module(host_sigra) do
+    case Keyword.get(host_sigra, :user_schema) do
+      module when is_atom(module) and not is_nil(module) ->
+        module
+        |> Module.split()
+        |> Enum.drop(-1)
+        |> Kernel.++(["Encrypted", "Binary"])
+        |> Module.concat()
+
+      _ ->
+        nil
     end
   end
 end

@@ -162,7 +162,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       defmodule #{app_module}.Repo do
       end
 
-      defmodule #{app_module}.Organization do
+      defmodule #{context_module}.Organization do
         use Ecto.Schema
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "organizations_template_compile_#{suffix}" do
@@ -173,7 +173,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
         end
       end
 
-      defmodule #{app_module}.OrganizationMembership do
+      defmodule #{context_module}.OrganizationMembership do
         use Ecto.Schema
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "organization_memberships_template_compile_#{suffix}" do
@@ -184,7 +184,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
         end
       end
 
-      defmodule #{app_module}.OrganizationInvitation do
+      defmodule #{context_module}.OrganizationInvitation do
         use Ecto.Schema
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "organization_invitations_template_compile_#{suffix}" do
@@ -225,7 +225,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       config = mod.__sigra_org_config__()
       assert is_map(config)
       assert is_map(config.schemas)
-      assert config.schemas.organization == Module.concat([app_module, "Organization"])
+      assert config.schemas.organization == Module.concat([context_module, "Organization"])
+      assert config.schemas.membership == Module.concat([context_module, "OrganizationMembership"])
+      assert config.schemas.invitation == Module.concat([context_module, "OrganizationInvitation"])
     end
 
     test "user_auth.ex template mount_current_scope calls Sigra.Scope.Hydration.hydrate/3" do

@@ -1,4 +1,5 @@
 import { statSync } from 'node:fs';
+import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { captureAdminCheckpoint } from '../helpers/adminArtifacts';
 import { TEST_PASSWORD } from '../helpers/fixtures';
@@ -108,6 +109,36 @@ async function captureAndVerify(
   ).toBeGreaterThan(0);
 }
 
+/** Phase 35: axe a11y gate paired with each curated checkpoint capture. */
+async function assertNoAxeViolations(page: Page, label: string) {
+  // Scope to WCAG A/AA tags so best-practice rules like `region` (full-page
+  // landmark wrapping) do not fail on the admin shell’s `<header>` layout,
+  // which is intentional Phoenix/LiveView structure rather than a shipped
+  // WCAG regression signal for this lane.
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa'])
+    .analyze();
+  const detail =
+    violations.length === 0 ? '' : JSON.stringify(violations).slice(0, 2000);
+  expect(violations, `${label}: axe violations\n${detail}`).toHaveLength(0);
+}
+
+/**
+ * Phase 35: committed `toHaveScreenshot` baselines (5 checkpoints × 3 projects).
+ * Snapshots live under `admin-checkpoints.spec.ts-snapshots/` (Playwright default).
+ */
+async function assertCheckpointScreenshot(page: Page, testInfo: TestInfo, slug: string) {
+  await assertNoAxeViolations(page, `axe:${slug}`);
+  // Name excludes project — Playwright appends project + platform to the file path.
+  // Viewport-only: full-page captures vary in height run-to-run (audit rows,
+  // LiveView hydration) and break baselines across CI vs local.
+  await expect(page).toHaveScreenshot(`${slug}.png`, {
+    fullPage: false,
+    maxDiffPixels: 30_000,
+    maxDiffPixelRatio: 0.06,
+  });
+}
+
 test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
   test('captures curated admin review pages across desktop/mobile/dark', async ({
     page,
@@ -144,6 +175,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
       page.locator('#admin-users-mobile-results').getByText(targetEmail).first(),
     ).toBeVisible();
     await captureAndVerify(page, testInfo, 'global-user-index');
+    await assertCheckpointScreenshot(page, testInfo, 'global-user-index');
 
     // --- Checkpoint 2: User detail (/admin/users/:id) ----------------------
     // D-28: "user detail" — proves action context (revoke / start
@@ -158,6 +190,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
       page.getByRole('button', { name: 'Start impersonation' }),
     ).toBeVisible();
     await captureAndVerify(page, testInfo, 'user-detail');
+    await assertCheckpointScreenshot(page, testInfo, 'user-detail');
 
     // --- Checkpoint 3: Organization-scoped admin page ----------------------
     // D-28: "organization-scoped admin page" — proves the scope chrome
@@ -169,6 +202,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(page.locator('header').first()).toContainText('Admin');
     await expect(page.locator('header').first()).toContainText(orgName);
     await captureAndVerify(page, testInfo, 'org-scoped-admin');
+    await assertCheckpointScreenshot(page, testInfo, 'org-scoped-admin');
 
     // --- Impersonate so the banner checkpoint has real state to render ----
     await openUserDetail(page, targetEmail);
@@ -194,6 +228,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
       banner.getByRole('button', { name: 'End impersonation' }),
     ).toBeVisible();
     await captureAndVerify(page, testInfo, 'impersonation-banner');
+    await assertCheckpointScreenshot(page, testInfo, 'impersonation-banner');
 
     // Stop impersonation before the audit checkpoint so the audit page
     // renders from the admin session (not the impersonated user) and
@@ -212,5 +247,6 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByRole('link', { name: 'Export CSV' })).toBeVisible();
     await captureAndVerify(page, testInfo, 'audit-explorer');
+    await assertCheckpointScreenshot(page, testInfo, 'audit-explorer');
   });
 });

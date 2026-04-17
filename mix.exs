@@ -24,6 +24,14 @@ defmodule Sigra.MixProject do
       # Matches:   test/sigra/auth_test.exs, test/support/data_case.ex
       # Excludes:  test/example/**, test/fixtures/install_golden/**
       test_load_filters: [~r"^test/(?!example/|fixtures/)"],
+      # Mix 1.19 warns on every `*.{ex,exs}` under `test/` that is neither
+      # loaded nor explicitly ignored. The example subproject and fixture trees
+      # contain compiled copies under `test/example/_build/` etc.; ignore the
+      # whole subtrees so `mix test` at the library root stays warning-clean.
+      test_ignore_filters: [
+        &String.starts_with?(&1, "test/example/"),
+        &String.starts_with?(&1, "test/fixtures/")
+      ],
       name: "Sigra",
       description: "Comprehensive authentication library for Phoenix 1.8+",
       source_url: @source_url,
@@ -118,7 +126,7 @@ defmodule Sigra.MixProject do
         "GitHub" => @source_url,
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
       },
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
+      files: ~w(lib priv .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
   end
 

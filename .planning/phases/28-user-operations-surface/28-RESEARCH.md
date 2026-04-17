@@ -431,17 +431,13 @@ end
 | A2 | The linked-identities detail section should degrade gracefully when OAuth is not installed, instead of making OAuth generation a hidden prerequisite for Phase 28. | Summary / Common Pitfalls | Planner may either over-scope the phase or ship a broken detail page in the example app. |
 | A3 | A small `Sigra.Admin.Users.Hooks`-style customization seam is the right expression of D-31 for extra fields/sections. | Architecture Patterns | Planner may choose the wrong extension API shape. |
 
-## Open Questions
+## Resolved Questions
 
 1. **How will Phase 28 satisfy locked "name search" in a library that does not own a canonical name field?**
-   - What we know: The example app's generated `User` schema has no `name` column today. [VERIFIED: codebase grep]
-   - What's unclear: Whether Phase 28 should add example-app display-name data, define a host callback for search expressions, or narrow the example implementation separately from the library contract. [ASSUMED]
-   - Recommendation: Resolve this in planning as a first-wave contract task, not an implementation afterthought.
+   - Resolution: Phase 28 will add a narrow `Sigra.Admin.Users.Hooks` contract plus example-app `display_name` support in Plan `28-01`, then the canonical list query in Plan `28-02` will search `users.email`, `users.id`, the hook-provided display-name field, and an explicit organization-membership lookup param. This keeps the library runtime generic while still satisfying D-16 and USER-01. [RESOLVED: planning decisions 28-01 + 28-02]
 
 2. **Should linked identities be conditional in the first cut?**
-   - What we know: The library exposes OAuth identity support, but the example app does not currently have `UserIdentity` installed. [VERIFIED: codebase grep]
-   - What's unclear: Whether the milestone expects the example app to install OAuth before or during Phase 28. [ASSUMED]
-   - Recommendation: Treat identity support as conditional unless planning explicitly inserts OAuth prerequisite work.
+   - Resolution: Yes. Plan `28-03` will make linked identities conditional in the detail assembler: when no identity schema/config is present, the detail surface returns `identities: []` plus `identities_available?: false` and renders the section without treating OAuth as a hidden prerequisite. This preserves USER-03 without inserting unrelated OAuth install work into Phase 28. [RESOLVED: planning decision 28-03]
 
 ## Environment Availability
 
