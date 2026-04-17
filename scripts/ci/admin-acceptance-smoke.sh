@@ -145,7 +145,8 @@ mix ecto.create
 mix ecto.migrate
 
 echo "==> admin-acceptance: seeding deterministic admin fixtures"
-cat > /tmp/sigra_admin_acceptance_seed.exs <<'EOF'
+SEED_FILE="${TMP_APP_DIR}/sigra_admin_acceptance_seed.exs"
+cat > "${SEED_FILE}" <<'EOF'
 alias SigraAdminSmoke.Repo
 alias SigraAdminSmoke.Accounts
 alias SigraAdminSmoke.Accounts.User
@@ -196,7 +197,7 @@ _other_org =
 IO.puts("seeded #{platform_admin.email}, #{org_admin.email}, #{allowed_org.slug}, #{other_org_slug}")
 EOF
 
-mix run /tmp/sigra_admin_acceptance_seed.exs
+mix run "${SEED_FILE}"
 
 if [[ ! -d "${PLAYWRIGHT_DIR}/node_modules" ]]; then
   echo "==> admin-acceptance: installing Playwright npm deps"
