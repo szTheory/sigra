@@ -1,5 +1,20 @@
 import { test, expect, type Page } from '@playwright/test';
 
+// Phase 31 Plan 2: canonical admin impersonation browser contract.
+//
+// Per D-01, D-02, D-04 (3), D-19, D-20, and D-26 this spec owns:
+//   * stale sudo -> password confirmation redirect
+//   * fresh sudo -> start impersonation -> persistent banner on non-admin /
+//     org-scoped pages -> stop -> return to admin context
+//
+// Per D-06 this spec does NOT absorb denied-impersonation / blocked-mutation
+// matrices; those stay in ExUnit
+// (test/sigra/plug/forbid_during_impersonation_test.exs and
+// test/example/test/example_web/impersonation_blocked_ops_test.exs). Per D-27
+// this spec only runs on the `chromium` behavior-truth lane; mobile and
+// dark-mode coverage of the persistent banner lives in
+// `tests/admin-checkpoints.spec.ts`.
+
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
@@ -47,7 +62,7 @@ async function confirmSudo(page: Page, password: string) {
   await page.getByRole('button', { name: 'Confirm password' }).click();
 }
 
-test.describe('Phase 29 impersonation browser contracts', () => {
+test.describe('Phase 31 admin impersonation browser contract (D-04 3)', () => {
   test('stale sudo redirects the impersonation start action through password confirmation', async ({
     page,
   }) => {

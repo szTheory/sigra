@@ -1,5 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
 
+// Phase 31 Plan 2: canonical admin user-operations browser contract.
+//
+// Per D-01, D-02, D-04 (1) and (2), D-19, D-20, and D-26 this spec owns:
+//   * /admin/users search + filter
+//   * /admin/users/:id detail + revoke session (scope remains visible)
+//   * global -> organization-scoped pivot (org scope remains explicit)
+//
+// Per D-06 this spec does NOT absorb the denied-mutation / malformed-param /
+// authorization-permutation matrix; those stay in ExUnit (D-07, D-13, D-14,
+// D-15). Per D-27 this spec only runs on the `chromium` behavior-truth lane;
+// mobile and dark-mode coverage for the same pages lives in
+// `tests/admin-checkpoints.spec.ts`.
+
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
@@ -51,7 +64,7 @@ async function expectScopeChrome(page: Page, scopeLabel: string) {
   await expect(header.getByText(scopeLabel, { exact: true }).first()).toBeVisible();
 }
 
-test.describe('Phase 28 admin user operations contracts', () => {
+test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () => {
   test('@smoke search -> filter -> open user -> revoke session keeps scope visible', async ({
     page,
   }) => {

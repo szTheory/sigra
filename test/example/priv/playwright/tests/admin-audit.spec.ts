@@ -1,6 +1,24 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect, type Download, type Page } from '@playwright/test';
 
+// Phase 31 Plan 2: canonical admin audit browser contract.
+//
+// Per D-01, D-02, D-04 (4), D-19, D-20, and D-26 this spec owns:
+//   * /admin/audit filter + visible impersonation semantics
+//   * /admin/audit/export.csv global CSV download
+//   * /admin/organizations/:slug/users/:id/audit filter alignment + per-user
+//     scoped CSV download
+//
+// Per D-06 this spec does NOT absorb the malformed-param, scope-safe export,
+// audit attribution, or authorization-permutation matrices; those stay in
+// ExUnit (test/sigra/admin/audit/query_test.exs,
+// test/example/test/example_web/controllers/admin/audit_export_controller_test.exs).
+// Download contents are asserted for semantic markers only — not exact
+// file bodies — per the `admin-audit` download/assert pattern documented in
+// `.planning/phases/31-automation-first-verification/31-PATTERNS.md`. Per
+// D-27 this spec only runs on the `chromium` behavior-truth lane; curated
+// audit explorer screenshots live in `tests/admin-checkpoints.spec.ts`.
+
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
@@ -53,7 +71,7 @@ async function readDownload(download: Download) {
   return await readFile(path as string, 'utf8');
 }
 
-test.describe('Phase 30 admin audit browser contracts', () => {
+test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
   test('global investigation and org-scoped per-user export keep filter semantics aligned', async ({
     page,
   }) => {
