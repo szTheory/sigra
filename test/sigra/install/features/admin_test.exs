@@ -138,6 +138,52 @@ defmodule Sigra.Install.Features.AdminTest do
     end
   end
 
+  describe "router_injection.ex template (Phase 32 route mounts)" do
+    @router_binding [
+      otp_app: :my_app,
+      web_module: "MyAppWeb",
+      app_module: "MyApp",
+      context_module: "MyApp.Accounts"
+    ]
+
+    test "mounts UsersIndexLive in global admin live_session" do
+      assert render_router_template() =~
+               ~s|live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index|
+    end
+
+    test "mounts UserShowLive in global admin live_session" do
+      assert render_router_template() =~
+               ~s|live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show|
+    end
+
+    test "mounts UsersIndexLive in organization-scoped live_session" do
+      assert render_router_template() =~
+               ~s|live "/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index|
+    end
+
+    test "mounts UserShowLive in organization-scoped live_session" do
+      assert render_router_template() =~
+               ~s|live "/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show|
+    end
+
+    test "preserves existing mounts (no regression on audit or admin index lines)" do
+      content = render_router_template()
+
+      assert content =~ ~s|live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index|
+      assert content =~ ~s|live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index|
+      assert content =~ ~s|live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show|
+      assert content =~ ~s|live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show|
+      assert content =~ ~s|live "/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index|
+      assert content =~ ~s|live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show|
+    end
+
+    defp render_router_template do
+      "priv/templates/sigra.install/admin/router_injection.ex"
+      |> File.read!()
+      |> EEx.eval_string(@router_binding)
+    end
+  end
+
   describe "template ownership guards" do
     test "admin templates exist on disk" do
       assert File.exists?("priv/templates/sigra.install/admin/policy.ex")
