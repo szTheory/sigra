@@ -158,6 +158,71 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
     end
   end
 
+  describe "Phase 30 per-user audit handoff contracts" do
+    test "recent audit preview stays aligned with effective_user rows and exposes a scoped full-audit path",
+         %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      actor = user_fixture(%{email: "preview-actor@example.com", display_name: "Preview Actor"})
+
+      target =
+        user_fixture(%{email: "preview-target@example.com", display_name: "Preview Target"})
+
+      insert_subject_audit_event(%{
+        action: "session.create",
+        actor_id: target.id,
+        effective_user_id: target.id
+      })
+
+      insert_subject_audit_event(%{
+        action: "session.revoke_all",
+        actor_id: actor.id,
+        effective_user_id: target.id,
+        target_id: target.id
+      })
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live(
+          "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=preview-target")}"
+        )
+
+      assert html =~ "Recent Audit"
+      assert html =~ "session.create"
+      assert html =~ "session.revoke_all"
+      assert html =~ "View full audit"
+      assert html =~ "/admin/users/#{target.id}/audit"
+      assert html =~ "return_to=%2Fadmin%2Fusers%3Fq%3Dpreview-target"
+    end
+
+    test "organization-scoped detail page links into the same scoped full-audit surface", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      target = user_fixture(%{email: "org-preview-target@example.com", display_name: "Org Preview Target"})
+      org = create_organization(%{name: "Preview Org", slug: "preview-org"})
+
+      create_membership(target, org, :member)
+
+      insert_subject_audit_event(%{
+        action: "session.create",
+        actor_id: target.id,
+        effective_user_id: target.id,
+        organization_id: nil
+      })
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live(
+          "/admin/organizations/#{org.slug}/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/organizations/#{org.slug}/users?q=org-preview")}"
+        )
+
+      assert html =~ "View full audit"
+      assert html =~ "/admin/organizations/#{org.slug}/users/#{target.id}/audit"
+      assert html =~ "return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dorg-preview"
+      assert html =~ "session.create"
+    end
+  end
+
   defp ordered?(positions) do
     positions
     |> Enum.map(fn {_label, position} -> position end)
@@ -193,6 +258,23 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       occurred_at: now,
       inserted_at: now
     })
+  end
+
+  defp insert_subject_audit_event(attrs) do
+    now = DateTime.utc_now() |> DateTime.truncate(:microsecond)
+
+    defaults = %{
+      actor_type: "user",
+      target_type: "user",
+      outcome: "success",
+      occurred_at: now,
+      inserted_at: now,
+      metadata: %{}
+    }
+
+    %AuditEvent{}
+    |> Ecto.Changeset.change(Map.merge(defaults, attrs))
+    |> Repo.insert!()
   end
 
   defp impersonation_token_for(user) do
