@@ -38,7 +38,7 @@ created: 2026-04-17
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 32-01-01 | 01 | 1 | USER-01/02/03/04 | — | UsersIndexLive + UserShowLive mounted in global + org live_session blocks | unit | `mix test test/sigra/install/router_injection_test.exs` | ❌ W0 | ⬜ pending |
+| 32-01-01 | 01 | 1 | USER-01/02/03/04 | — | UsersIndexLive + UserShowLive mounted in global + org live_session blocks | unit | `mix test test/sigra/install/features/admin_test.exs` | ❌ W0 | ⬜ pending |
 | 32-01-02 | 01 | 1 | IMPR-01/03/05 | T-IMPR-ESCALATION | impersonation_controller.ex template exists + is emitted by Admin.files/1 | unit | `mix test test/sigra/install/features/admin_test.exs` | ❌ W0 | ⬜ pending |
 | 32-01-03 | 01 | 1 | AUD-04 | — | audit_export_controller.ex listed in Admin.files/1 (not orphaned) | unit | `mix test test/sigra/install/features/admin_test.exs` | ❌ W0 | ⬜ pending |
 | 32-01-04 | 01 | 1 | USER-01, IMPR-01, AUD-04 | — | generator test asserts all three emissions + fails on regression | unit | `mix test test/sigra/install/features/admin_test.exs` | ❌ W0 | ⬜ pending |

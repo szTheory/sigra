@@ -852,7 +852,7 @@ These directives from `./CLAUDE.md` constrain the plan:
 **The Assumptions table is empty.** Every factual claim in sections above is tagged
 `[VERIFIED: …]` against a specific file/line or cited from `.planning/` or `CLAUDE.md`.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the POST impersonation probe be added to `admin-acceptance-smoke.sh` in Phase 32
    or deferred to Phase 34 (generated-host E2E)?**
@@ -862,11 +862,11 @@ These directives from `./CLAUDE.md` constrain the plan:
      THIS phase or whether the Phase 32 smoke only needs to prove `mix compile
      --warnings-as-errors` passes (which it does NOT catch for the undeclared
      `ImpersonationController` in aliased scope — see Pitfall 1).
-   - Recommendation: Include a minimal probe in `admin-acceptance-smoke.sh` that at least
+   - **RESOLVED:** Include a minimal probe in `admin-acceptance-smoke.sh` that at least
      requests `POST /admin/users/<bogus-id>/impersonation` without auth and asserts status
      is `302` (redirect to login) or `403` — NOT `500`. This distinguishes "controller
      exists and authorization runs" from "controller module missing → 500." Full-path
-     impersonation testing can wait for Phase 34. Flag this as a discuss-phase decision.
+     impersonation testing waits for Phase 34. Implemented in Plan 02 Task 1.
 
 2. **Should the `#  Sigra admin` marker in the router injection be bumped to force
    re-injection on existing hosts?**
@@ -875,10 +875,10 @@ These directives from `./CLAUDE.md` constrain the plan:
    - What's unclear: Whether Phase 32's scope includes an upgrade path for existing hosts,
      or whether this is punted to `mix sigra.upgrade` (Phase 23 artifact) or the upgrade
      guide (Phase 23).
-   - Recommendation: Punt to upgrade-guide documentation. Mention explicitly in the phase
-     SUMMARY so the next phase that touches upgrade docs (Phase 33 or 35) can pick it up.
-     Do NOT bump the marker — that would break idempotency for users who ARE on the new
-     version.
+   - **RESOLVED:** Do NOT bump the marker — that would break idempotency for users who ARE
+     on the new version. Punt existing-host upgrade path to upgrade-guide documentation
+     (Phase 33 or 35 pickup). Implemented in Plan 01 Task 2 (router_injection.ex marker
+     left untouched; "Do NOT touch" section explicitly enumerated).
 
 3. **Should the `<%= app_module %>.Organizations` references in the new
    `impersonation_controller.ex` be guarded with `<%= if organizations? do %>`?**
@@ -887,10 +887,11 @@ These directives from `./CLAUDE.md` constrain the plan:
      organizations is present.
    - What's unclear: Whether `--no-admin --no-organizations` was ever a supported combo,
      or whether admin has always been org-dependent.
-   - Recommendation: Match existing admin convention — no guard. This keeps the "admin
-     implies organizations" invariant consistent. If a future phase needs to support
+   - **RESOLVED:** No guard. Match existing admin convention — "admin implies
+     organizations" is the codebase invariant. If a future phase needs to support
      `--no-organizations --admin`, it becomes that phase's problem to solve across all of
-     admin, not just the new impersonation controller.
+     admin, not just the new impersonation controller. Implemented in Plan 01 Task 1
+     critical invariant #5 ("Zero `<%= if organizations? do %>` guards").
 
 ## Sources
 
