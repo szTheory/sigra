@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege default for GITHUB_TOKEN: CI only reads the repo and
+# uploads artifacts (via actions/upload-artifact, which does not require
+# contents: write). Any job that needs additional scopes must override
+# `permissions:` at the job level.
+permissions:
+  contents: read
+
 jobs:
   library_tests:
     name: Library tests
