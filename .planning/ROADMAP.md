@@ -5,7 +5,7 @@
 - ✅ **v1.0 Phoenix Auth Library - Initial Release** - Phases 1-10 + 10.1 + 10.1.1 (shipped 2026-04-11). See [v1.0 archive](milestones/v1.0-ROADMAP.md) and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.1 Foundations** - Phases 11-23 (shipped 2026-04-16). See [v1.1 archive](milestones/v1.1-ROADMAP.md), [v1.1 requirements](milestones/v1.1-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **Post-v1.1 Closeout** - Phases 24-26 (completed 2026-04-16).
-- 🚧 **v1.2 Admin Dashboard** - Phases 27-31 (planned).
+- 🚧 **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (in progress — audit-found gaps).
 
 ## Backlog
 
@@ -27,6 +27,10 @@
 - [x] **Phase 29: Secure Impersonation** - Add time-bounded impersonation with visible state, preserved admin actor context, and hard server-side restrictions. (completed 2026-04-17)
 - [x] **Phase 30: Audit Exploration and Export** - Provide global, per-user, and per-organization audit investigation with impersonation-aware filtering and CSV export. (completed 2026-04-17)
 - [x] **Phase 31: Automation-First Verification** - Ship browser, system, and artifact coverage for the admin milestone across desktop, mobile, and dark mode. (completed 2026-04-17)
+- [ ] **Phase 32: Generated Installer Admin Surface Parity** - Close critical generator gaps so a freshly installed host ships a functional admin surface (closes INT-01/02/03 from v1.2 audit).
+- [ ] **Phase 33: Admin Shell Navigation and Audit Preview Polish** - Port users nav + mobile bottom-nav to the generated shell and align Phase 28 recent-audit preview with Phase 30's Presenter (closes INT-04/05).
+- [ ] **Phase 34: Generated-Host E2E Coverage and Phase 28 Retroactive Verification** - Produce the missing Phase 28 VERIFICATION.md and extend Playwright + smoke coverage to the generated host (closes VFY-01 generated-host gap + Phase 30 human-UAT #2).
+- [ ] **Phase 35: Shift-Left Verification Automation** - Install machine gates for the classes of defects that caused v1.2 audit gaps: generator-emission drift, dead-reference detection, a11y + visual regression baselines, phase-VERIFICATION.md gate, installer-scoped pre-merge audit, and artifact-bundle contract.
 
 ## Phase Details
 
@@ -117,15 +121,66 @@ Plans:
 - [ ] 31-04-PLAN.md — Publish dedicated admin review artifacts and retention in CI
 **UI hint**: yes
 
+### Phase 32: Generated Installer Admin Surface Parity
+**Goal**: A freshly generated host ships a functional admin surface. Generator emits UsersIndexLive/UserShowLive router mounts, an ImpersonationController template, and wires the orphaned audit_export_controller template — closing the three CRITICAL integration blockers surfaced by the v1.2 milestone audit.
+**Depends on**: Phase 31
+**Requirements**: USER-01, USER-02, USER-03, USER-04, IMPR-01, IMPR-03, IMPR-05, AUD-04 (reassigned from Phases 28/29/30 for generated-host reachability)
+**Gap Closure**: Closes INT-01, INT-02, INT-03 from v1.2-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `router_injection.ex` mounts UsersIndexLive + UserShowLive in both global and organization-scoped live_session blocks, mirroring `test/example/lib/example_web/router.ex:237-272`.
+  2. `priv/templates/sigra.install/admin/impersonation_controller.ex` exists as a parameterized template and is emitted by `Sigra.Install.Features.Admin.files/1`.
+  3. `priv/templates/sigra.install/admin/audit_export_controller.ex` is listed in `Sigra.Install.Features.Admin.files/1` (currently orphaned).
+  4. Generator test asserts all three emissions and fails if any regresses.
+**UI hint**: no
+
+### Phase 33: Admin Shell Navigation and Audit Preview Polish
+**Goal**: The generated admin shell's Users navigation becomes a live link with a mobile bottom-nav entry (matching the example app), and Phase 28's recent-audit preview renders consistently with Phase 30's explorer via the shared Presenter.
+**Depends on**: Phase 32
+**Requirements**: USER-05 (mobile bottom-nav), supports USER-01/03 UX parity
+**Gap Closure**: Closes INT-04 (dead Users nav) and INT-05 (preview bypasses Presenter) from v1.2-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. Generated `admin_shell.ex` template includes `users_link/1` helper, top-bar Users entry, and mobile bottom-nav entry ported from `test/example/lib/example_web/components/admin_shell.ex:52-60,98-102`.
+  2. `Sigra.Admin.Users.Detail.recent_audit_preview/*` pipes events through `Sigra.Admin.Audit.Presenter.present/2` so impersonation badges and actor labels match the Phase 30 explorer rendering.
+**UI hint**: yes
+
+### Phase 34: Generated-Host E2E Coverage and Phase 28 Retroactive Verification
+**Goal**: Produce the missing Phase 28 VERIFICATION.md and extend generated-host E2E coverage to include user operations, impersonation, and audit export — closing the VFY-01 generated-host parity gap and automating Phase 30 human-UAT item #2.
+**Depends on**: Phase 33
+**Requirements**: VFY-01 (generated-host coverage portion; reassigned from Phase 31)
+**Gap Closure**: Closes the Phase 28 VERIFICATION.md gap + Phase 30 human-UAT item #2 (generated-app runtime parity for audit routes and CSV export)
+**Success Criteria** (what must be TRUE):
+  1. `28-VERIFICATION.md` exists and documents Phase 28 goal achievement against the live codebase.
+  2. `admin-generated.spec.ts` exercises `GET /admin/users`, `POST /impersonation`, and `GET /admin/audit/export.csv` on the freshly generated host with strict status expectations.
+  3. `admin-acceptance-smoke.sh` grows `--test audit-export` and `--test impersonation-controller` cases, wired into the `generated_admin_playwright_smoke` CI job.
+**UI hint**: no (test/artifact work)
+
+### Phase 35: Shift-Left Verification Automation
+**Goal**: Install the machine gates that would have caught INT-01/02/03/04 before the audit. Automate the remaining mechanically-verifiable human-verification items so future milestone audits surface only genuinely subjective review items.
+**Depends on**: Phase 34
+**Requirements**: None reassigned — adds net new coverage on top of existing VFY reqs
+**Gap Closure**: Prevents future recurrence of INT-01..04 defect classes; closes Phase 30 human-UAT item #1 (audit explorer readability) and Phase 31 human-UAT item #1 (artifact bundle usefulness)
+**Success Criteria** (what must be TRUE):
+  1. `generator_emission_audit_test.exs` scans all `priv/templates/sigra.install/**` for `<%= web_module %>.*` references and asserts every referenced module is in its feature's `files/1` emission list.
+  2. Extended `installer_drift_test.exs` catches dead-text navigation labels (INT-04 class).
+  3. axe-core accessibility assertions + Playwright `toHaveScreenshot()` baselines exist for the 5 curated checkpoint views across chromium/mobile/dark.
+  4. `scripts/ci/milestone-verification-gate.sh` blocks PRs that leave a phase in the active milestone without a `{N}-VERIFICATION.md`.
+  5. Installer-scoped milestone-audit CI job runs on PRs touching `priv/templates/sigra.install/` or `lib/sigra/install/` and fails on CRITICAL integration blockers.
+  6. Artifact-bundle contract asserts all 15 expected PNGs (5 views × 3 projects) exist above a size floor; reviewer checklist documented in `CONTRIBUTING.md`.
+**UI hint**: no (CI + test infrastructure)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
+Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33 -> 34 -> 35
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 27. Admin Access Foundation | 3/3 | Complete   | 2026-04-16 |
-| 28. User Operations Surface | 3/4 | In Progress|  |
+| 28. User Operations Surface | 4/4 | In Progress (gap closure pending) |  |
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
 | 31. Automation-First Verification | 4/4 | Complete   | 2026-04-17 |
+| 32. Generated Installer Admin Surface Parity | 0/0 | Pending |  |
+| 33. Admin Shell Navigation and Audit Preview Polish | 0/0 | Pending |  |
+| 34. Generated-Host E2E Coverage and Phase 28 Retroactive Verification | 0/0 | Pending |  |
+| 35. Shift-Left Verification Automation | 0/0 | Pending |  |

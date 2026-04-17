@@ -15,16 +15,16 @@
 
 ### User Operations
 
-- [x] **USER-01**: Admin can find a user quickly by email, id, name, or organization membership through searchable, paginated admin views.
-- [x] **USER-02**: Admin can filter the user list by the auth and support states that matter operationally: confirmation, MFA/passkey status, lockout state, deletion state, provider mix, and registration date range.
-- [x] **USER-03**: Admin can open a user detail surface that summarizes the user's current sign-in and security state, including sessions, MFA/passkeys, linked identities, organizations, and recent audit activity.
-- [x] **USER-04**: Admin can revoke one session or all active sessions for a user from the admin UI with clear confirmation and audit coverage.
-- [x] **USER-05**: The admin user-management surface works well on mobile and desktop for the main jobs-to-be-done, not just as a compressed desktop table.
+- [ ] **USER-01**: Admin can find a user quickly by email, id, name, or organization membership through searchable, paginated admin views.
+- [ ] **USER-02**: Admin can filter the user list by the auth and support states that matter operationally: confirmation, MFA/passkey status, lockout state, deletion state, provider mix, and registration date range.
+- [ ] **USER-03**: Admin can open a user detail surface that summarizes the user's current sign-in and security state, including sessions, MFA/passkeys, linked identities, organizations, and recent audit activity.
+- [ ] **USER-04**: Admin can revoke one session or all active sessions for a user from the admin UI with clear confirmation and audit coverage.
+- [ ] **USER-05**: The admin user-management surface works well on mobile and desktop for the main jobs-to-be-done, not just as a compressed desktop table.
 
 ### Impersonation
 
 - [ ] **IMPR-01**: Platform admin can start an impersonation session for an allowed user through a controller-owned flow that rotates session state and preserves the real admin as the actor.
-- [ ] **IMPR-02**: Org admin can impersonate only users within their allowed organization scope; out-of-scope impersonation attempts fail server-side and audit as denied.
+- [x] **IMPR-02**: Org admin can impersonate only users within their allowed organization scope; out-of-scope impersonation attempts fail server-side and audit as denied.
 - [ ] **IMPR-03**: Every impersonation session is time-bounded, non-nestable, and visibly marked with a persistent banner plus an always-available end-session action.
 - [x] **IMPR-04**: While impersonating, Sigra forbids sensitive account-security mutations server-side, including password changes, MFA/passkey management, API-key management, and account deletion.
 - [ ] **IMPR-05**: Ending impersonation returns the admin to their original context without destroying the original admin session.
@@ -34,14 +34,14 @@
 - [x] **AUD-01**: Audit records generated during admin and impersonation workflows preserve the real actor, effective user, organization scope, and impersonation context as canonical queryable fields.
 - [x] **AUD-02**: Admin can investigate audit history from global, per-user, and per-organization views using URL-addressable filters for actor, effective user, organization, action family, and time range.
 - [x] **AUD-03**: Admin can distinguish impersonation activity from normal user activity in the audit explorer without reading raw metadata blobs.
-- [x] **AUD-04**: Admin can export the currently filtered audit slice as evidence in a stable, scope-respecting format such as CSV.
+- [ ] **AUD-04**: Admin can export the currently filtered audit slice as evidence in a stable, scope-respecting format such as CSV.
 
 ### Verification and Review Artifacts
 
 - [ ] **VFY-01**: Sigra ships automated browser/system coverage for critical admin flows, including user search/detail, session revocation, impersonation start/stop, and audit filtering/export.
-- [ ] **VFY-02**: The admin milestone produces review artifacts that make UX progress easy to inspect asynchronously, including Playwright HTML reports plus screenshots, traces, and retained video where useful.
-- [ ] **VFY-03**: Automated verification covers both browser and direct-path behavior so authorization, scope, impersonation, and export rules are proven outside the browser happy path.
-- [ ] **VFY-04**: Automated review coverage includes mobile and dark-mode checkpoints for the admin UI so responsive and low-light usability regressions are visible in CI artifacts.
+- [x] **VFY-02**: The admin milestone produces review artifacts that make UX progress easy to inspect asynchronously, including Playwright HTML reports plus screenshots, traces, and retained video where useful.
+- [x] **VFY-03**: Automated verification covers both browser and direct-path behavior so authorization, scope, impersonation, and export rules are proven outside the browser happy path.
+- [x] **VFY-04**: Automated review coverage includes mobile and dark-mode checkpoints for the admin UI so responsive and low-light usability regressions are visible in CI artifacts.
 
 ## Future Requirements
 
@@ -84,30 +84,31 @@
 | ADMIN-03 | Phase 27 | Complete |
 | ADMIN-04 | Phase 27 | Complete |
 | ADMIN-05 | Phase 27 | Complete |
-| USER-01 | Phase 28 | Complete |
-| USER-02 | Phase 28 | Complete |
-| USER-03 | Phase 28 | Complete |
-| USER-04 | Phase 28 | Complete |
-| USER-05 | Phase 28 | Complete |
-| IMPR-01 | Phase 29 | Pending |
-| IMPR-02 | Phase 29 | Pending |
-| IMPR-03 | Phase 29 | Pending |
+| USER-01 | Phase 28 → Phase 32 (gap closure: generated-host reachability) | Pending |
+| USER-02 | Phase 28 → Phase 32 (gap closure: generated-host reachability) | Pending |
+| USER-03 | Phase 28 → Phase 32 (gap closure: generated-host reachability) | Pending |
+| USER-04 | Phase 28 → Phase 32 (gap closure: generated-host reachability) | Pending |
+| USER-05 | Phase 28 → Phase 33 (gap closure: generated shell mobile nav) | Pending |
+| IMPR-01 | Phase 29 → Phase 32 (gap closure: generated-host controller emission) | Pending |
+| IMPR-02 | Phase 29 | Complete |
+| IMPR-03 | Phase 29 → Phase 32 (gap closure: generated-host controller emission) | Pending |
 | IMPR-04 | Phase 29 | Complete |
-| IMPR-05 | Phase 29 | Pending |
+| IMPR-05 | Phase 29 → Phase 32 (gap closure: generated-host controller emission) | Pending |
 | AUD-01 | Phase 30 | Complete |
 | AUD-02 | Phase 30 | Complete |
 | AUD-03 | Phase 30 | Complete |
-| AUD-04 | Phase 30 | Complete |
-| VFY-01 | Phase 31 | Pending |
-| VFY-02 | Phase 31 | Pending |
-| VFY-03 | Phase 31 | Pending |
-| VFY-04 | Phase 31 | Pending |
+| AUD-04 | Phase 30 → Phase 32 (gap closure: orphaned template emission) | Pending |
+| VFY-01 | Phase 31 → Phase 34 (gap closure: generated-host E2E coverage) | Pending |
+| VFY-02 | Phase 31 | Complete |
+| VFY-03 | Phase 31 | Complete |
+| VFY-04 | Phase 31 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 23 total
 - Mapped to phases: 23
 - Unmapped: 0 ✓
+- Satisfied: 14 · Pending (gap closure): 9
 
 ---
 *Requirements defined: 2026-04-16*
-*Last updated: 2026-04-16 after v1.2 research synthesis*
+*Last updated: 2026-04-17 after v1.2-MILESTONE-AUDIT.md gap closure phase assignment (phases 32-35 added)*
