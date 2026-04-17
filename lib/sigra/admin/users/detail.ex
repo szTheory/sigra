@@ -63,11 +63,11 @@ defmodule Sigra.Admin.Users.Detail do
 
       audit_schema ->
         filters =
-          [target_id: user_id]
+          [subject_user_id: user_id]
           |> maybe_put_audit_scope(admin_scope)
 
         audit_schema
-        |> Sigra.Audit.Query.build(filters)
+        |> Sigra.Admin.Audit.Query.build(filters)
         |> order_by([event], desc: event.inserted_at, desc: event.id)
         |> limit(^@audit_preview_limit)
         |> config.repo.all()

@@ -191,7 +191,19 @@ defmodule Sigra.Admin.Live.UserShowLive do
       </section>
 
       <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Recent Audit</h2>
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold">Recent Audit</h2>
+            <p class="mt-1 text-sm text-base-content/70">
+              Recent activity stays aligned with the full scoped audit history for this user.
+            </p>
+          </div>
+
+          <a class="btn btn-outline min-h-11" href={full_audit_path(@admin_scope, @detail.user.id, @return_to)}>
+            View full audit
+          </a>
+        </div>
+
         <div class="mt-4 space-y-2 text-sm">
           <div :for={event <- @detail.recent_audit} class="rounded-md border border-base-300 bg-base-200 p-3">
             <p class="font-semibold">{event.action}</p>
@@ -292,12 +304,27 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   defp show_pivot_link?(_admin_scope, _organization), do: false
 
+  defp full_audit_path(%Scope{mode: :organization, organization_slug: slug}, user_id, return_to)
+       when is_binary(slug) do
+    with_return_to("/admin/organizations/#{slug}/users/#{user_id}/audit", return_to)
+  end
+
+  defp full_audit_path(_admin_scope, user_id, return_to) do
+    with_return_to("/admin/users/#{user_id}/audit", return_to)
+  end
+
   defp impersonation_start_path(%Scope{mode: :organization, organization_slug: slug}, user_id)
        when is_binary(slug) do
     "/admin/organizations/#{slug}/users/#{user_id}/impersonation"
   end
 
   defp impersonation_start_path(_admin_scope, user_id), do: "/admin/users/#{user_id}/impersonation"
+
+  defp with_return_to(path, return_to) when is_binary(return_to) and return_to != "" do
+    path <> "?return_to=" <> URI.encode_www_form(return_to)
+  end
+
+  defp with_return_to(path, _return_to), do: path
 
   defp show_impersonation_start?(%{impersonating_from: %_{}}), do: false
   defp show_impersonation_start?(_current_scope), do: true

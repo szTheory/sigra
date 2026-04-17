@@ -18,48 +18,14 @@ defmodule Sigra.Admin.Audit.Explorer do
   @spec list_events(map(), Scope.t(), map() | keyword() | nil) ::
           {:ok, {[map()], map(), map()}} | {:error, term()}
   def list_events(config, %Scope{} = admin_scope, params \\ %{}) do
-    params = stringify_map(params)
-    filter_params = Map.drop(params, ["order_by", "order_direction"])
+    list(config, admin_scope, params, [])
+  end
 
-    with {:ok, normalized} <- QueryParams.normalize(filter_params, admin_scope) do
-      order_by = normalize_order_field(Map.get(params, "order_by"))
-      order_direction = normalize_order_direction(Map.get(params, "order_direction"))
-      limit = normalized.limit
-      cursor = normalized.cursor
-      filters = normalized |> Map.drop([:cursor, :limit]) |> Enum.into([])
-      audit_schema = audit_schema!(config)
-
-      query =
-        audit_schema
-        |> Query.build(filters)
-        |> paginate(order_by, order_direction, cursor, limit)
-
-      events = config.repo.all(query)
-      {page_events, next_cursor} = split_page(events, limit)
-      users_by_id = load_users(config, page_events)
-      rows = Presenter.present(page_events, users_by_id)
-
-      current_params =
-        filter_params
-        |> sanitize_params()
-        |> Map.put("order_by", order_by)
-        |> Map.put("order_direction", order_direction)
-
-      meta = %{
-        current_page: if(cursor, do: 2, else: 1),
-        previous_page: nil,
-        next_page: encode_cursor(next_cursor)
-      }
-
-      {:ok, {rows, meta, current_params}}
-    else
-      {:error, {:organization, :out_of_scope}} ->
-        {:ok,
-         {[], %{current_page: 1, previous_page: nil, next_page: nil}, sanitize_params(params)}}
-
-      {:error, reason} ->
-        {:error, reason}
-    end
+  @spec list_subject_events(map(), Scope.t(), binary(), map() | keyword() | nil) ::
+          {:ok, {[map()], map(), map()}} | {:error, term()}
+  def list_subject_events(config, %Scope{} = admin_scope, user_id, params \\ %{})
+      when is_binary(user_id) do
+    list(config, admin_scope, params, subject_user_id: user_id)
   end
 
   defp paginate(query, _order_by, "desc", nil, limit), do: Query.paginate(query, nil, limit)
@@ -145,4 +111,73 @@ defmodule Sigra.Admin.Audit.Explorer do
     do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
 
   defp stringify_map(_params), do: %{}
+
+  defp list(config, %Scope{} = admin_scope, params, extra_filters) do
+    params = stringify_map(params)
+    filter_params = Map.drop(params, ["order_by", "order_direction", "return_to"])
+
+    with {:ok, normalized} <- QueryParams.normalize(filter_params, admin_scope) do
+      order_by = normalize_order_field(Map.get(params, "order_by"))
+      order_direction = normalize_order_direction(Map.get(params, "order_direction"))
+      limit = normalized.limit
+      cursor = normalized.cursor
+      filters = build_filters(normalized, admin_scope, extra_filters)
+      audit_schema = audit_schema!(config)
+
+      query =
+        audit_schema
+        |> Query.build(filters)
+        |> paginate(order_by, order_direction, cursor, limit)
+
+      events = config.repo.all(query)
+      {page_events, next_cursor} = split_page(events, limit)
+      users_by_id = load_users(config, page_events)
+      rows = Presenter.present(page_events, users_by_id)
+
+      current_params =
+        params
+        |> sanitize_params()
+        |> Map.put("order_by", order_by)
+        |> Map.put("order_direction", order_direction)
+
+      meta = %{
+        current_page: if(cursor, do: 2, else: 1),
+        previous_page: nil,
+        next_page: encode_cursor(next_cursor)
+      }
+
+      {:ok, {rows, meta, current_params}}
+    else
+      {:error, {:organization, :out_of_scope}} ->
+        {:ok,
+         {[], %{current_page: 1, previous_page: nil, next_page: nil}, sanitize_params(params)}}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp build_filters(normalized, %Scope{mode: :organization, organization_id: org_id}, extra_filters)
+       when is_binary(org_id) do
+    normalized
+    |> Map.drop([:cursor, :limit, :organization_scope])
+    |> Map.put(:organization_scope, organization_scope(extra_filters, org_id))
+    |> Map.to_list()
+    |> Keyword.merge(extra_filters)
+  end
+
+  defp build_filters(normalized, _admin_scope, extra_filters) do
+    normalized
+    |> Map.drop([:cursor, :limit])
+    |> Map.to_list()
+    |> Keyword.merge(extra_filters)
+  end
+
+  defp organization_scope(extra_filters, org_id) do
+    if Keyword.has_key?(extra_filters, :subject_user_id) do
+      {:including_global, org_id}
+    else
+      {:only, org_id}
+    end
+  end
 end

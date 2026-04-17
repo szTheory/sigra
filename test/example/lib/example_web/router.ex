@@ -234,6 +234,7 @@ defmodule ExampleWeb.Router do
       live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
+      live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
     end
   end
 
@@ -264,6 +265,7 @@ defmodule ExampleWeb.Router do
       live "/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       # Mounted at /admin/organizations/:org/users/:id
       live "/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
+      live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
     end
   end
 end
