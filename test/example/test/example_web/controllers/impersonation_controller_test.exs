@@ -80,7 +80,7 @@ defmodule ExampleWeb.ImpersonationControllerTest do
       target = user_fixture()
       other_target = user_fixture()
       admin_token = session_token_for(admin)
-      impersonation_token = impersonation_token_for(target, admin)
+      impersonation_token = impersonation_token_for(target)
 
       conn =
         conn
@@ -111,7 +111,7 @@ defmodule ExampleWeb.ImpersonationControllerTest do
       admin = platform_admin_fixture()
       target = user_fixture()
       admin_token = session_token_for(admin)
-      impersonation_token = impersonation_token_for(target, admin)
+      impersonation_token = impersonation_token_for(target)
 
       conn =
         conn
@@ -238,7 +238,7 @@ defmodule ExampleWeb.ImpersonationControllerTest do
     Example.Accounts.generate_user_session_token(user)
   end
 
-  defp impersonation_token_for(user, _admin) do
+  defp impersonation_token_for(user) do
     raw_token = Base.url_encode64(:crypto.strong_rand_bytes(32), padding: false)
     {:ok, raw_bytes} = Base.url_decode64(raw_token, padding: false)
     now = DateTime.utc_now()
