@@ -50,8 +50,7 @@ created: 2026-04-17
 
 ## Wave 0 Requirements
 
-- [ ] `test/sigra/install/router_injection_test.exs` — new test file asserting UsersIndexLive + UserShowLive live mounts in both live_session blocks
-- [ ] `test/sigra/install/features/admin_test.exs` — new/extended test asserting Admin.files/1 includes audit_export_controller + impersonation_controller templates
+- [ ] `test/sigra/install/features/admin_test.exs` — extend with new `describe` blocks asserting UsersIndexLive + UserShowLive live mounts in both live_session blocks (Plan 01 Task 2) AND asserting Admin.files/1 includes audit_export_controller + impersonation_controller templates (Plan 01 Task 1). Per PATTERNS.md line 18: no standalone `router_injection_test.exs` — convention is to extend `admin_test.exs`.
 - [ ] Existing fixtures: `test/example/` (reference host), `test/sigra/install/` helpers — no new framework install required
 
 ---
@@ -68,7 +67,7 @@ created: 2026-04-17
 
 - [ ] All tasks have `<automated>` verify or Wave 0 dependencies
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (router_injection_test.exs, admin_test.exs extensions)
+- [ ] Wave 0 covers all MISSING references (admin_test.exs extensions for Phase 32 router-mount + template-emission tests)
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 120s
 - [ ] `nyquist_compliant: true` set in frontmatter
