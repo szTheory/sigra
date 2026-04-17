@@ -569,7 +569,17 @@ jobs:
         run: |
           mkdir -p artifacts/admin-checkpoints/
           if compgen -G "test-results/**/admin-*.png" > /dev/null; then
-            find test-results -type f -name 'admin-*.png' -exec cp {} artifacts/admin-checkpoints/ \;
+            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
+            # cp warnings instead of silently overwriting an earlier
+            # checkpoint with a later one. adminArtifactName embeds the
+            # project slug so distinct lanes should not collide today, but
+            # if a test ever calls captureAdminCheckpoint twice with the
+            # same name, the second copy is skipped rather than eating the
+            # first. Pair with the source count below so reviewers can
+            # eyeball expected-vs-collected from the step log.
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "source admin-*.png count under test-results/: ${src_count}"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
           fi
           echo "curated admin checkpoint screenshots:"
           ls -la artifacts/admin-checkpoints/ || true
@@ -678,7 +688,14 @@ jobs:
         run: |
           mkdir -p artifacts/admin-checkpoints/
           if compgen -G "test-results/**/admin-*.png" > /dev/null; then
-            find test-results -type f -name 'admin-*.png' -exec cp {} artifacts/admin-checkpoints/ \;
+            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
+            # cp warnings instead of silently overwriting an earlier
+            # checkpoint. See the matching block in the example_playwright
+            # _smoke job for the full rationale. Visible src_count pairs
+            # "expected" with ls -la's "collected" under this step's log.
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "source admin-*.png count under test-results/: ${src_count}"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
           fi
           echo "curated generated-host admin screenshots:"
           ls -la artifacts/admin-checkpoints/ || true
