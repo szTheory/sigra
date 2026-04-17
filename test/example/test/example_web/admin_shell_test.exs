@@ -29,6 +29,8 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Admin"
       assert html =~ "Global"
       assert html =~ "Users"
+      assert html =~ "Audit"
+      assert html =~ "href=\"/admin/audit\""
     end
 
     test "renders Admin and the organization name for an organization scope" do
@@ -58,6 +60,8 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Admin"
       assert html =~ "Acme Ops"
       assert html =~ "Organization"
+      assert html =~ "Audit"
+      assert html =~ "href=\"/admin/organizations/#{organization.slug}/audit\""
     end
 
     test "renders explicit impersonation chrome with real admin, effective user, and app-wide stop path" do
