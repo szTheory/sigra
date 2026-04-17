@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { captureAdminCheckpoint } from "../helpers/adminArtifacts";
+import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 // Phase 31 Plan 1: generated-host admin parity smoke.
@@ -188,10 +189,7 @@ test.describe("VFY-01 generated host impersonation start", () => {
     );
     await waitForLiveViewReady(page);
     await expect(
-      page
-        .locator("#admin-users-mobile-results")
-        .getByText(impersonationTargetEmail)
-        .first(),
+      adminUsersEmailLocator(page, impersonationTargetEmail),
     ).toBeVisible();
     await page.getByRole("link", { name: "Open user" }).first().click();
     await waitForLiveViewReady(page);

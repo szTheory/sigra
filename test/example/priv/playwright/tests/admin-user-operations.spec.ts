@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: canonical admin user-operations browser contract.
@@ -93,7 +94,7 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
 
     await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
     await waitForLiveViewReady(page);
-    await expect(page.locator('#admin-users-mobile-results').getByText(targetEmail).first()).toBeVisible();
+    await expect(adminUsersEmailLocator(page, targetEmail)).toBeVisible();
     await expect(page.getByRole('link', { name: 'Open user' }).first()).toBeVisible();
 
     await page.getByRole('link', { name: 'Open user' }).first().click();

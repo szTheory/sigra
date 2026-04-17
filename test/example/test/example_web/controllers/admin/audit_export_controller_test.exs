@@ -142,6 +142,39 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
       refute first_row =~ "metadata"
     end
 
+    test "organization-scoped subject export annotates org-less rows with the active organization label",
+         %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      org = create_organization(%{name: "Scoped Org Label Org", slug: "scoped-org-label-org"})
+
+      subject =
+        user_fixture(%{
+          email: "scoped-org-label-subject@example.com",
+          display_name: "Scoped Org Label Subject"
+        })
+
+      create_membership(subject, org, :member)
+
+      insert_audit_event(%{
+        action: "session.create",
+        actor_id: subject.id,
+        effective_user_id: subject.id,
+        organization_id: nil
+      })
+
+      conn =
+        conn
+        |> log_in_user(platform_admin)
+        |> get(
+          "/admin/organizations/#{org.slug}/users/#{subject.id}/audit/export.csv?action_prefix=session&page_size=10"
+        )
+
+      assert response_content_type(conn, :csv) =~ "text/csv"
+      assert conn.resp_body =~ "session.create"
+      assert conn.resp_body =~ "Scoped Org Label Org"
+      assert conn.resp_body =~ org.id
+    end
+
     test "export escapes dangerous spreadsheet prefixes in derived label cells", %{conn: conn} do
       platform_admin = platform_admin_fixture()
       org = create_organization(%{name: "@Audit Formula Org", slug: "audit-formula-org"})

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: canonical admin impersonation browser contract.
@@ -50,7 +51,7 @@ async function createOrganization(page: Page, name: string, slug: string) {
 async function openUserDetail(page: Page, targetEmail: string) {
   await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
   await waitForLiveViewReady(page);
-  await expect(page.locator('#admin-users-mobile-results').getByText(targetEmail).first()).toBeVisible();
+  await expect(adminUsersEmailLocator(page, targetEmail)).toBeVisible();
   await page.getByRole('link', { name: 'Open user' }).first().click();
   await waitForLiveViewReady(page);
   await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);

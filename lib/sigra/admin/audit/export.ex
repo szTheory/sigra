@@ -48,7 +48,10 @@ defmodule Sigra.Admin.Audit.Export do
 
       users_by_id = load_users(config, events)
       orgs_by_id = load_organizations(config, events)
-      rows = Enum.map(events, &CSVExport.row(&1, users_by_id, orgs_by_id))
+      csv_opts = csv_row_opts(admin_scope, extra_filters)
+
+      rows =
+        Enum.map(events, &CSVExport.row(&1, users_by_id, orgs_by_id, csv_opts))
 
       {:ok, CSVExport.dump(rows)}
     else
@@ -215,4 +218,21 @@ defmodule Sigra.Admin.Audit.Export do
     do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
 
   defp stringify_map(_params), do: %{}
+
+  # When exporting a subject user's audit from an organization admin route,
+  # rows that predate org attribution (nil organization_id) still need a
+  # stable organization_label column so CSV evidence matches the org lens.
+  defp csv_row_opts(
+         %Scope{mode: :organization, organization: %{id: _} = org},
+         extra_filters
+       )
+       when is_map(org) and is_list(extra_filters) do
+    if Keyword.has_key?(extra_filters, :subject_user_id) do
+      [scope_organization: org]
+    else
+      []
+    end
+  end
+
+  defp csv_row_opts(_admin_scope, _extra_filters), do: []
 end

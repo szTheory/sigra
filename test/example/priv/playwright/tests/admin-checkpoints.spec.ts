@@ -2,6 +2,7 @@ import { statSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { captureAdminCheckpoint } from '../helpers/adminArtifacts';
+import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: curated admin checkpoint spec.
@@ -70,9 +71,7 @@ async function createOrganization(page: Page, name: string, slug: string) {
 async function openUserDetail(page: Page, targetEmail: string) {
   await page.goto(`/admin/users?q=${encodeURIComponent(targetEmail)}`);
   await waitForLiveViewReady(page);
-  await expect(
-    page.locator('#admin-users-mobile-results').getByText(targetEmail).first(),
-  ).toBeVisible();
+  await expect(adminUsersEmailLocator(page, targetEmail)).toBeVisible();
   await page.getByRole('link', { name: 'Open user' }).first().click();
   await waitForLiveViewReady(page);
   await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);
@@ -171,9 +170,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await waitForLiveViewReady(page);
     await expect(page.locator('header').first()).toContainText('Admin');
     await expect(page.locator('header').first()).toContainText('Global');
-    await expect(
-      page.locator('#admin-users-mobile-results').getByText(targetEmail).first(),
-    ).toBeVisible();
+    await expect(adminUsersEmailLocator(page, targetEmail)).toBeVisible();
     await captureAndVerify(page, testInfo, 'global-user-index');
     await assertCheckpointScreenshot(page, testInfo, 'global-user-index');
 

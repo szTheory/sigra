@@ -31,11 +31,28 @@ defmodule Sigra.Admin.Audit.CSVExport do
     |> Kernel.<>("\r\n")
   end
 
-  @spec row(struct(), map(), map()) :: map()
-  def row(event, users_by_id, orgs_by_id) do
+  @spec row(struct(), map(), map(), keyword()) :: map()
+  def row(event, users_by_id, orgs_by_id, opts \\ []) do
     actor = Map.get(users_by_id, event.actor_id)
     effective_user = Map.get(users_by_id, event.effective_user_id)
-    organization = Map.get(orgs_by_id, event.organization_id)
+    scope_org = Keyword.get(opts, :scope_organization)
+
+    organization =
+      if is_binary(event.organization_id) do
+        Map.get(orgs_by_id, event.organization_id)
+      else
+        if is_map(scope_org), do: scope_org, else: nil
+      end
+
+    organization_id_cell =
+      if is_binary(event.organization_id) do
+        event.organization_id
+      else
+        case organization do
+          %{id: id} when is_binary(id) -> id
+          _ -> ""
+        end
+      end
 
     %{
       "occurred_at" => iso8601(event.occurred_at || event.inserted_at),
@@ -48,7 +65,7 @@ defmodule Sigra.Admin.Audit.CSVExport do
       "effective_user_label" => user_label(effective_user, event.effective_user_id),
       "target_id" => event.target_id,
       "target_type" => event.target_type,
-      "organization_id" => event.organization_id,
+      "organization_id" => organization_id_cell,
       "organization_label" => organization_label(organization, event.organization_id),
       "impersonation_state" => impersonation_state(event)
     }

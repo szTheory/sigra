@@ -19,7 +19,7 @@
 |----------|----------------|
 | **Evaluating** | Skim **Where code lives** (diagram), **What ships**, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
 | **Integrating** | Run **First integration** (diagram + commands), read **Prerequisites**, then follow [Installation](guides/introduction/installation.md) and [Getting started](guides/introduction/getting-started.md). |
-| **Contributing** | Match [`.tool-versions`](.tool-versions), run Postgres-backed tests per [`CLAUDE.md`](CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use [`test/example/`](test/example/) as the reference host. |
+| **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
 
 ---
 
@@ -86,7 +86,7 @@ Branching installer flags (`--no-live`, `--admin`, `--api`, …) are summarized 
 
 | Requirement | Notes |
 |-------------|--------|
-| **Elixir** | `~> 1.18` (see [`mix.exs`](mix.exs)); align local toolchains with [`.tool-versions`](.tool-versions). |
+| **Elixir** | `~> 1.18` (see [`mix.exs`](mix.exs)); align local toolchains with [`.tool-versions` on GitHub](https://github.com/sztheory/sigra/blob/main/.tool-versions). |
 | **Phoenix** | 1.8.x baseline the library targets. |
 | **Database** | Ecto + typical Postgres setup for the happy path; other adapters are handled in generated migrations where applicable. |
 | **Mailer** | Email flows expect Swoosh (or compatible) wiring — see [Installation](guides/introduction/installation.md). |
@@ -164,14 +164,14 @@ For threat-model detail and per-flow guarantees, use **HexDocs** and the verific
 
 ## Reference host: `test/example`
 
-The [`test/example/`](test/example/) tree is a **real Phoenix app** living inside this repo: it tracks what `mix sigra.install` (and friends) emit, compiles under `--warnings-as-errors` in CI, and backs **Playwright** browser smoke (golden path, org flows, admin checkpoints, GA shift-left specs). It is not a second product — it is the executable contract that installer drift tests and reviewer artifacts refer to. When in doubt about “what does the generator actually produce?”, read that tree or the HexDocs task reference.
+The [`test/example`](https://github.com/sztheory/sigra/tree/main/test/example) tree is a **real Phoenix app** living inside this repo: it tracks what `mix sigra.install` (and friends) emit, compiles under `--warnings-as-errors` in CI, and backs **Playwright** browser smoke (golden path, org flows, admin checkpoints, GA shift-left specs). It is not a second product — it is the executable contract that installer drift tests and reviewer artifacts refer to. When in doubt about “what does the generator actually produce?”, read that tree or the HexDocs task reference.
 
 ---
 
 ## Contributing & issues
 
 - **Workflow & CI** — [`CONTRIBUTING.md`](CONTRIBUTING.md) (Playwright artifacts, installer audit jobs, Pages mirror).
-- **Local parity** — [`CLAUDE.md`](CLAUDE.md) (Postgres one-liner, `mix test` expectations).
+- **Local parity** — [`CLAUDE.md` on GitHub](https://github.com/sztheory/sigra/blob/main/CLAUDE.md) (Postgres one-liner, `mix test` expectations).
 - **Bugs & ideas** — [GitHub Issues](https://github.com/szTheory/sigra/issues).
 
 ---
