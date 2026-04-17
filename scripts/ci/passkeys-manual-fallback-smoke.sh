@@ -112,6 +112,10 @@ grep -Fq "${PASSKEY_HOOKS_LINE}" "${APP_JS}" || {
 
 echo "==> passkeys-manual-fallback: compiling and building assets"
 MIX_ENV=dev mix compile --warnings-as-errors
+# sigra.install adds `@simplewebauthn/browser` to `assets/package.json`; run the
+# same `assets.setup` step as the default passkeys smoke harness so esbuild can
+# resolve the WebAuthn client before `assets.deploy`.
+MIX_ENV=dev mix assets.setup
 MIX_ENV=dev mix assets.deploy
 
 echo "==> passkeys-manual-fallback: creating + migrating DB"
