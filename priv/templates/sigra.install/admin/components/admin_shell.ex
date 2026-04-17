@@ -65,7 +65,11 @@ defmodule <%= web_module %>.Components.AdminShell do
               <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
               <ul class="menu gap-1 p-0">
                 <li><span class="text-base-content/60">Users</span></li>
-                <li><span class="text-base-content/60">Audit</span></li>
+                <li>
+                  <a class={nav_item_class(false)} href={audit_link(@admin_scope)}>
+                    Audit
+                  </a>
+                </li>
               </ul>
             </div>
           </nav>
@@ -90,7 +94,7 @@ defmodule <%= web_module %>.Components.AdminShell do
         >
           <span class="btm-nav-label">Organization</span>
         </a>
-        <a class="pointer-events-none text-base-content/50">
+        <a href={audit_link(@admin_scope)} class={bottom_nav_class(false)}>
           <span class="btm-nav-label">Audit</span>
         </a>
       </nav>
@@ -157,6 +161,11 @@ defmodule <%= web_module %>.Components.AdminShell do
   end
 
   defp organization_link(_), do: nil
+
+  defp audit_link(%{mode: :organization, organization_slug: slug}) when is_binary(slug),
+    do: "/admin/organizations/#{slug}/audit"
+
+  defp audit_link(_admin_scope), do: "/admin/audit"
 
   defp global_active?(%{mode: :global}), do: true
   defp global_active?(_), do: false

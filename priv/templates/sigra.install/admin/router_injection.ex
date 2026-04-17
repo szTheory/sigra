@@ -31,6 +31,7 @@
          [mode: :global, policy: <%= app_module %>.SigraAdminPolicy, login_path: "/users/log_in"]}
       ] do
       live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
+      live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
     end
   end
 
@@ -56,6 +57,7 @@
          ]}
       ] do
       live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show
+      live "/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
     end
   end
 

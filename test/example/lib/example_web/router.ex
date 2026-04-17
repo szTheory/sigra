@@ -231,6 +231,7 @@ defmodule ExampleWeb.Router do
          [mode: :global, policy: Example.SigraAdminPolicy, login_path: "/users/log_in"]}
       ] do
       live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
+      live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
     end
@@ -258,6 +259,7 @@ defmodule ExampleWeb.Router do
          ]}
       ] do
       live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show
+      live "/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
       # Mounted at /admin/organizations/:org/users
       live "/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       # Mounted at /admin/organizations/:org/users/:id
