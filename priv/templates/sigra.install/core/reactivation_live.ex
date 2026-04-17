@@ -64,12 +64,20 @@ defmodule <%= web_module %>.ReactivationLive do
   def handle_event("cancel_deletion", _params, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.cancel_deletion(user) do
+    case Auth.cancel_deletion(user, scope: socket.assigns.current_scope) do
       {:ok, _user} ->
         {:noreply,
          socket
          |> put_flash(:info, "Account deletion cancelled. Your account is active again.")
          |> push_navigate(to: ~p"/users/settings")}
+
+      {:error, :impersonation_forbidden} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "You can't change account security settings while impersonating."
+         )}
 
       {:error, _reason} ->
         {:noreply,

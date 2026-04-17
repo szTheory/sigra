@@ -753,7 +753,10 @@ defmodule <%= web_module %>.MFASettingsLive do
     credential_id = Map.get(params, "id")
     nickname = Map.get(params, "nickname", "")
 
-    case Auth.rename_passkey(user, credential_id, nickname || "") do
+    if impersonating?(socket) do
+      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+    else
+      case Auth.rename_passkey(user, credential_id, nickname || "", scope: socket.assigns.current_scope) do
       {:ok, _passkey} ->
         {:noreply,
          socket
@@ -764,8 +767,12 @@ defmodule <%= web_module %>.MFASettingsLive do
            rename_form: to_form(%{"nickname" => ""}, as: "passkey")
          )}
 
-      {:error, _reason} ->
-        {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+        {:error, :impersonation_forbidden} ->
+          {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+
+        {:error, _reason} ->
+          {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+      end
     end
   end
 
@@ -793,7 +800,10 @@ defmodule <%= web_module %>.MFASettingsLive do
   def handle_event("disable_mfa", %{"disable" => %{"code" => code}}, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.mfa_disable(user, code) do
+    if impersonating?(socket) do
+      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+    else
+      case Auth.mfa_disable(user, code, scope: socket.assigns.current_scope) do
       {:ok, :disabled} ->
         {:noreply,
          socket
@@ -826,10 +836,14 @@ defmodule <%= web_module %>.MFASettingsLive do
          socket
          |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
 
-      {:error, _reason} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+        {:error, :impersonation_forbidden} ->
+          {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+
+        {:error, _reason} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+      end
     end
   end
 
@@ -918,6 +932,10 @@ defmodule <%= web_module %>.MFASettingsLive do
       passkeys: Auth.passkeys_for_user(user),
       passkey_count: Auth.passkey_count_for_user(user)
     )
+  end
+
+  defp impersonating?(socket) do
+    match?(%{impersonating_from: impersonator} when not is_nil(impersonator), socket.assigns.current_scope)
   end
 
   defp find_passkey(socket, credential_id) do

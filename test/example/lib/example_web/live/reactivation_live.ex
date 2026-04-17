@@ -1,58 +1,84 @@
 defmodule ExampleWeb.ReactivationLive do
   @moduledoc """
-  ⚠️  STUB — NOT FOR PRODUCTION ⚠️
-
-  This is a scaffolding placeholder created during Phase 10 plan 10-06 to
-  unblock compilation of the Sigra-generated router. It does NOT implement
-  account-reactivation functionality.
-
-  DO NOT COPY THIS FILE INTO A REAL APPLICATION.
-
-  The real reactivation LiveView template ships with `mix sigra.install` and
-  lives at `priv/templates/sigra.install/reactivation_live.ex`. That template
-  implements the account-deletion undo flow (token verification, restore
-  confirmation, and user feedback). A fresh `mix sigra.install` run will emit
-  the real LiveView, not this stub.
-
-  This stub exists ONLY so that `test/example/` can compile and smoke-test
-  the happy-path register/login/logout flows without wiring the full
-  reactivation UI.
+  LiveView for account reactivation during the deletion grace period.
   """
   use ExampleWeb, :live_view
-  require Logger
+
+  alias Example.Accounts, as: Auth
 
   @impl true
   def mount(_params, _session, socket) do
-    maybe_warn_stub()
-    {:ok, assign(socket, page_title: "Reactivation (stub)")}
+    user = socket.assigns.current_scope.user
+
+    scheduled_deletion_date =
+      if user.scheduled_deletion_at do
+        Calendar.strftime(user.scheduled_deletion_at, "%B %d, %Y")
+      else
+        "unknown"
+      end
+
+    {:ok,
+     assign(socket,
+       page_title: "Account Scheduled for Deletion",
+       scheduled_deletion_date: scheduled_deletion_date
+     )}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="stub-warning">
-      <h1>Reactivate your account (stub)</h1>
-      <p>
-        <strong>STUB — NOT FOR PRODUCTION.</strong>
-        This is a test/example scaffold placeholder. See the module docs.
-      </p>
+    <div class="mx-auto max-w-md mt-16">
+      <.header>
+        Your account is scheduled for deletion
+      </.header>
+
+      <div class="mt-6 text-sm text-gray-700">
+        <p>
+          Your account and data will be permanently removed on {@scheduled_deletion_date}.
+        </p>
+        <p class="mt-4">
+          If you'd like to keep your account, you can cancel the deletion now.
+        </p>
+      </div>
+
+      <div class="mt-8 space-y-3">
+        <.button phx-click="cancel_deletion" class="w-full">
+          Cancel deletion and keep my account
+        </.button>
+        <.link
+          navigate={~p"/users/log_out"}
+          class="block text-center text-sm text-gray-500 hover:underline"
+        >
+          I understand, sign me out
+        </.link>
+      </div>
     </div>
     """
   end
 
-  defp maybe_warn_stub do
-    if env() != :test do
-      Logger.warning("""
-      ExampleWeb.ReactivationLive is a STUB and was rendered outside :test env.
-      This module is test/example scaffolding and must NOT be used in
-      production. Replace with the real Sigra reactivation LiveView from
-      priv/templates/sigra.install/reactivation_live.ex.
-      """)
-    end
-  end
+  @impl true
+  def handle_event("cancel_deletion", _params, socket) do
+    user = socket.assigns.current_scope.user
 
-  # Release-safe env detection (mirrors Sigra.Env.current/0 from plan 10.1-04)
-  defp env do
-    if function_exported?(Mix, :env, 0), do: Mix.env(), else: :prod
+    case Auth.cancel_deletion(user, scope: socket.assigns.current_scope) do
+      {:ok, _user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Account deletion cancelled. Your account is active again.")
+         |> push_navigate(to: ~p"/users/settings")}
+
+      {:error, :impersonation_forbidden} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "You can't change account security settings while impersonating."
+         )}
+
+      {:error, _reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Something went wrong while processing your request. Please try again.")}
+    end
   end
 end

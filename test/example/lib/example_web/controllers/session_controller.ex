@@ -4,10 +4,30 @@ defmodule ExampleWeb.SessionController do
   alias Example.Accounts, as: Auth
   alias ExampleWeb.UserAuth
 
+  @impersonation_denial_message "You can't change account security settings while impersonating."
+
+  plug Sigra.Plug.ForbidDuringImpersonation,
+       [
+         message: @impersonation_denial_message,
+         redirect_to: "/users/settings/mfa#passkeys",
+         audit_action: "admin.impersonation.denied",
+         audit_metadata: %{operation: "account_security_mutation"},
+         audit_opts_fun: &__MODULE__.impersonation_denial_audit_opts/2
+       ]
+       when action in [:complete_passkey_registration, :delete_passkey]
+
+  def impersonation_denial_audit_opts(conn, _scope) do
+    Sigra.Auth.audit_opts_from_config(Auth.sigra_config(),
+      ip_address: client_ip(conn),
+      user_agent: client_user_agent(conn)
+    )
+  end
+
   def new(conn, _params) do
     email = Phoenix.Flash.get(conn.assigns.flash, :email) || ""
     form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
     magic_link_form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
+
     render(conn, :new,
       form: form,
       magic_link_form: magic_link_form,
@@ -73,7 +93,8 @@ defmodule ExampleWeb.SessionController do
     {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :registration, config)
 
     json(conn, %{
-      options: passkey_registration_options_json(user, challenge, Auth.passkeys_for_user(user), config)
+      options:
+        passkey_registration_options_json(user, challenge, Auth.passkeys_for_user(user), config)
     })
   end
 
@@ -95,7 +116,13 @@ defmodule ExampleWeb.SessionController do
         {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :authentication, config)
 
         json(conn, %{
-          options: passkey_authentication_options_json(user, challenge, Auth.passkeys_for_user(user), config)
+          options:
+            passkey_authentication_options_json(
+              user,
+              challenge,
+              Auth.passkeys_for_user(user),
+              config
+            )
         })
     end
   end
@@ -109,7 +136,13 @@ defmodule ExampleWeb.SessionController do
       {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :authentication, config)
 
       json(conn, %{
-        options: passkey_authentication_options_json(user, challenge, Auth.passkeys_for_user(user), config)
+        options:
+          passkey_authentication_options_json(
+            user,
+            challenge,
+            Auth.passkeys_for_user(user),
+            config
+          )
       })
     else
       json(conn, %{error: "unavailable"})
@@ -121,9 +154,19 @@ defmodule ExampleWeb.SessionController do
 
     with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :registration, passkey_config(conn), [], fn challenge ->
-             Auth.register_passkey(user, Map.put(decoded_response, "challenge", challenge), passkey_registration_details(conn))
-           end) do
+           Sigra.Plug.PasskeyChallenge.verify(
+             conn,
+             :registration,
+             passkey_config(conn),
+             [],
+             fn challenge ->
+               Auth.register_passkey(
+                 user,
+                 Map.put(decoded_response, "challenge", challenge),
+                 passkey_registration_details(conn)
+               )
+             end
+           ) do
       _ = credential
 
       conn
@@ -142,7 +185,10 @@ defmodule ExampleWeb.SessionController do
 
       _ ->
         conn
-        |> put_flash(:error, "We couldn't finish adding this passkey. Try again or use another way to continue.")
+        |> put_flash(
+          :error,
+          "We couldn't finish adding this passkey. Try again or use another way to continue."
+        )
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
     end
   end
@@ -154,9 +200,15 @@ defmodule ExampleWeb.SessionController do
          %{} <- user,
          :ok <- Auth.ensure_passkey_primary_user_eligible(user),
          {:ok, conn, _credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, passkey_config(conn), [], fn challenge ->
-             Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
-           end) do
+           Sigra.Plug.PasskeyChallenge.verify(
+             conn,
+             :authentication,
+             passkey_config(conn),
+             [],
+             fn challenge ->
+               Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
+             end
+           ) do
       conn
       |> put_flash(:info, "Welcome back!")
       |> UserAuth.log_in_user(user, %{})
@@ -164,19 +216,28 @@ defmodule ExampleWeb.SessionController do
       {:error, :email_not_confirmed} ->
         passkey_login_failed(conn, email)
 
-      _ -> passkey_login_failed(conn, email)
+      _ ->
+        passkey_login_failed(conn, email)
     end
   end
 
   def complete_passkey(conn, %{"passkey" => passkey_params}) do
     with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, {user, _credential}} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, passkey_config(conn), [], fn challenge ->
-             case Auth.authenticate_discoverable_passkey(Map.put(decoded_response, "challenge", challenge)) do
-               {:ok, user, credential} -> {:ok, {user, credential}}
-               {:error, reason} -> {:error, reason}
+           Sigra.Plug.PasskeyChallenge.verify(
+             conn,
+             :authentication,
+             passkey_config(conn),
+             [],
+             fn challenge ->
+               case Auth.authenticate_discoverable_passkey(
+                      Map.put(decoded_response, "challenge", challenge)
+                    ) do
+                 {:ok, user, credential} -> {:ok, {user, credential}}
+                 {:error, reason} -> {:error, reason}
+               end
              end
-           end),
+           ),
          :ok <- Auth.ensure_passkey_primary_user_eligible(user) do
       conn
       |> put_flash(:info, "Welcome back!")
@@ -202,10 +263,17 @@ defmodule ExampleWeb.SessionController do
          %{type: :mfa_pending} <- old_session,
          {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, _credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, passkey_config(conn), [], fn challenge ->
-             Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
-           end),
-         {:ok, %{session: upgraded_session}} <- Auth.complete_mfa_verification(user, old_session, remember_me: remember_me) do
+           Sigra.Plug.PasskeyChallenge.verify(
+             conn,
+             :authentication,
+             passkey_config(conn),
+             [],
+             fn challenge ->
+               Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
+             end
+           ),
+         {:ok, %{session: upgraded_session}} <-
+           Auth.complete_mfa_verification(user, old_session, remember_me: remember_me) do
       conn
       |> UserAuth.put_user_session_token(upgraded_session.token)
       |> delete_session(:mfa_pending)
@@ -216,7 +284,10 @@ defmodule ExampleWeb.SessionController do
     else
       _ ->
         conn
-        |> put_flash(:error, "We couldn't finish passkey sign-in. Try again or use another way to continue.")
+        |> put_flash(
+          :error,
+          "We couldn't finish passkey sign-in. Try again or use another way to continue."
+        )
         |> redirect(to: ~p"/users/mfa")
     end
   end
@@ -247,6 +318,14 @@ defmodule ExampleWeb.SessionController do
     conn
     |> put_flash(:info, "Logged out successfully.")
     |> UserAuth.log_out_user()
+  end
+
+  defp client_ip(conn) do
+    conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))
+  end
+
+  defp client_user_agent(conn) do
+    conn |> get_req_header("user-agent") |> List.first() || ""
   end
 
   defp passkey_registration_options_json(user, challenge, passkeys, config) do
@@ -319,7 +398,10 @@ defmodule ExampleWeb.SessionController do
 
   defp passkey_login_failed(conn, email) do
     conn
-    |> put_flash(:error, "We couldn't finish passkey sign-in. Try again or use another way to continue.")
+    |> put_flash(
+      :error,
+      "We couldn't finish passkey sign-in. Try again or use another way to continue."
+    )
     |> maybe_put_passkey_email(email)
     |> redirect(to: ~p"/users/log_in")
   end

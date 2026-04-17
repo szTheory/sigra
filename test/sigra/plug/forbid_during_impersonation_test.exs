@@ -47,7 +47,7 @@ defmodule Sigra.Plug.ForbidDuringImpersonationTest do
     assert conn.halted
     assert conn.status == 403
     assert conn.resp_body == "blocked"
-    assert conn.assigns.error_type == :forbidden
+    assert conn.assigns.error_type == :insufficient_scope
     assert conn.assigns.error_opts[:message] ==
              "You can't change account security settings while impersonating."
 
