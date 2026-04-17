@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Admin Dashboard
-status: archived
-stopped_at: v1.2 milestone archived — ROADMAP collapsed; REQUIREMENTS.md removed for next milestone
+milestone: v1.3
+milestone_name: Cleanup & Hardening
+status: active
+stopped_at: v1.3 opened — REQUIREMENTS.md + ROADMAP Phases 36–40 (no new product features)
 last_updated: "2026-04-17T23:59:59.000Z"
-last_activity: 2026-04-17 -- Milestone close: milestones/v1.2-* archives, audit moved under milestones/, planning reconciled
+last_activity: 2026-04-17 -- `/gsd-new-milestone` substance: hardening scope only
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 32
-  completed_plans: 32
-  percent: 100
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 2
+  percent: 0
 ---
 
 # Project State
@@ -21,56 +21,38 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-17)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Current focus:** v1.2 shipped and archived — run `/gsd-new-milestone` to open the next planning cycle (fresh REQUIREMENTS + roadmap).
+**Current focus:** **v1.3 Cleanup & Hardening** — Phases 36–40 per `REQUIREMENTS.md` / `ROADMAP.md` (999.x + seeds + tooling; no feature work).
 
 ## Current Position
 
-Phase: 35 (shift-left verification automation) — COMPLETE
-Plan: 6 of 6 complete; see `35-*-SUMMARY.md` and `35-VERIFICATION.md`
-Status: ROADMAP v1.2 checkbox shipped; new CI jobs `milestone_verification_gate`, `installer_milestone_audit`, and admin artifact bundle contract on `example_playwright_smoke`.
-Last activity: 2026-04-17 -- Phase 35 implementation + verification
+Phase: **38** (Human GA UAT gate) — **partial** (`gsd-sdk` unavailable; `/gsd-execute-phase 38` inline).
+Plans: **`38-01` complete** (SUMMARY + REVIEW; UAT-02 scaffold: `.planning/v1.3-HUMAN-UAT.md`, `.planning/uat-evidence/v1.3.0/`). **`38-02` not started** — `autonomous: false`; needs human runs per `38-02-PLAN.md` and `scripts/uat/RUNBOOK.md` (mail clients, OAuth, browser flows, getting-started timing) before flipping UAT-01/UAT-02 in `REQUIREMENTS.md` and the CHANGELOG pointer.
+Last activity: 2026-04-17 -- Phase 38 Wave 1: UAT-02 scaffolding commits landed.
 
-Progress: [█████████] 100% (9/9 v1.2 gap-closure phases complete)
+Progress: [░░░░░░░░░] 0% (0/5 v1.3 phases formally closed via `phase.complete`) — Phase 38 blocked on human execution for plan 02; re-run `/gsd-execute-phase 38` after captures to resume Wave 2.
 
-### Phase 31 artifacts
+### v1.3 kickoff
 
-- 4 plans complete (31-01, 31-02, 31-03, 31-04)
-- `31-REVIEW.md` — 0 critical, 4 warnings, 6 info (advisory)
-- `31-VERIFICATION.md` — 4/4 must-haves verified, 1 human-verification item (reviewer usefulness of admin artifact bundle — inherently non-automatable)
+- `REQUIREMENTS.md` — REQ-IDs VAL / CI / UAT / AUD / TOOL / REL mapped to Phases 36–40 (**VAL-01..03** checked when satisfied)
+- `ROADMAP.md` — “Next milestone” table is the live phase list until v1.3 archives
 
 ## Performance Metrics
 
-**Velocity:**
+**Velocity (v1.3):**
 
-- Total plans completed: 16 in v1.2
-- Average duration: -
-- Total execution time: 0.0 hours
+- Total plans completed: 0
+- Average duration: —
+- Total execution time: —
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 27-31 | 0 | 0 | - |
-| 29 | 5 | - | - |
-| 30 | 4 | - | - |
-| 32 | 2 | - | - |
+| 36–40 | — | — | — |
 
-**Recent Trend:**
+**Recent Trend:** v1.3 not started — metrics populate as plans land.
 
-- Last 5 plans: -
-- Trend: Not enough data
-
-| Phase 27 P1 | 4 min | 2 tasks | 9 files |
-| Phase 27 P2 | 4 min | 3 tasks | 8 files |
-| Phase 27 P3 | 8 min | 2 tasks | 12 files |
-| Phase 28 P1 | 5min | 3 tasks | 15 files |
-| Phase 28 P2 | 34 min | 2 tasks | 9 files |
-| Phase 28 P3 | 7min | 2 tasks | 6 files |
-| Phase 29 P04 | 44min | 2 tasks | 10 files |
-| Phase 30 P01 | 4 min | 2 tasks | 6 files |
-| Phase 30 P02 | 9 min | 2 tasks | 9 files |
-| Phase 30 P03 | 2 min | 2 tasks | 8 files |
-| Phase 30 P04 | 8 min | 2 tasks | 12 files |
+_v1.2 execution timings retained in git history / milestone archive if needed._
 
 ## Accumulated Context
 
@@ -126,19 +108,16 @@ None yet.
 
 ### Blockers/Concerns
 
-- None for v1.2 closeout. Next milestone scoping is the open item.
+- None. gsd-sdk `query init.new-milestone` unavailable in this environment — planning updated manually.
 
 ## Deferred Items
 
-| Category | Item | Status | Deferred At |
-|----------|------|--------|-------------|
-| Seed | SEED-001 human-only GA UAT items | Deferred | v1.1 closeout |
-| Seed | SEED-002 atomic audit conversion follow-up | Deferred | v1.1 closeout |
-| Backlog | Phase 999.1 Nyquist retroactive validation pass | Deferred | v1.1 closeout |
-| Backlog | Phase 999.2 Dependabot major-version cleanup | Deferred | v1.1 closeout |
+| Category | Item | Status | Notes |
+|----------|------|--------|-------|
+| — | (empty) | — | **999.x**, **SEED-001**, **SEED-002** promoted into v1.3 Phases 36–39 |
 
 ## Session Continuity
 
 Last session: 2026-04-17T23:59:59.000Z
-Stopped at: v1.2 planning archived — `.planning/ROADMAP.md` points to `milestones/v1.2-*`; `.planning/REQUIREMENTS.md` deleted pending `/gsd-new-milestone`
-Resume file: `.planning/ROADMAP.md` (Next milestone section)
+Stopped at: v1.3 opened — live `REQUIREMENTS.md`, `ROADMAP.md` Phases 36–40, `STATE.md` active
+Resume file: `.planning/REQUIREMENTS.md` (REQ checklist) and `.planning/ROADMAP.md` (phase table)
