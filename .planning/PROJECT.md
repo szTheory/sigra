@@ -28,7 +28,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth stack plus v1.1 Foundations: logical multi-tenancy through organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey/WebAuthn registration and authentication, passkey MFA and optional passkey-primary login, generator opt-outs for organizations and passkeys, and updated guides plus CI/browser-smoke coverage for the shipped org and passkey flows.
 
-**Verification state:** 79/79 v1.1 requirements satisfied and verification-backed; milestone audit is archive-ready. See `.planning/MILESTONES.md`, `.planning/milestones/v1.1-ROADMAP.md`, and `.planning/milestones/v1.1-MILESTONE-AUDIT.md`.
+**Verification state:** 79/79 v1.1 requirements satisfied and verification-backed; milestone audit is archive-ready. Phase 30 of v1.2 is now verification-backed as well, adding global, organization, and per-user audit exploration plus scoped CSV export. See `.planning/MILESTONES.md`, `.planning/milestones/v1.1-ROADMAP.md`, `.planning/milestones/v1.1-MILESTONE-AUDIT.md`, and `.planning/phases/30-audit-exploration-and-export/30-VERIFICATION.md`.
 
 **Known limitations carried forward (tracked, non-blocking):**
 - 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before broader GA announcement.
@@ -136,13 +136,13 @@ Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth
 
 **Impersonation + audit:**
 - [ ] Secure admin impersonation with visible banner state, time bounds, dual-actor audit trail, and forbidden sensitive actions
-- [ ] Rich audit views for per-user, per-organization, and global exploration, including impersonation-aware filtering
+- [x] Rich audit views for per-user, per-organization, and global exploration, including impersonation-aware filtering — Validated in Phase 30: audit-exploration-and-export
 - [ ] Admin-side user detail views for sessions, security state, identities, API keys, memberships, and danger-zone actions
 
 **Verification + review ergonomics:**
-- [ ] Browser and system automation for critical admin flows using Playwright and existing CI infrastructure
+- [x] Browser and system automation for critical admin flows using Playwright and existing CI infrastructure — Validated in Phase 30: audit-exploration-and-export
 - [ ] Review artifacts for user-facing/admin-facing work: screenshots, video where useful, and HTML reports so UX can be inspected without heavy manual walkthrough
-- [ ] Route, controller, and curl-style smoke coverage that proves the admin stack behaves correctly outside the browser happy path
+- [x] Route, controller, and curl-style smoke coverage that proves the admin stack behaves correctly outside the browser happy path — Validated in Phase 30: audit-exploration-and-export
 
 ### Other deferred items
 
@@ -245,7 +245,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-16 — started v1.2 Admin Dashboard milestone. Scope: admin user-management UI, secure impersonation, expanded audit exploration, and automation-first UX verification artifacts. Human UAT remains minimized by design; prefer Playwright, screenshots/video, HTML reports, CI/browser smoke, and other reviewable artifacts wherever possible.*
+*Last updated: 2026-04-17 — Phase 30 completed the v1.2 audit exploration and export slice. Sigra now ships global, organization, and per-user audit explorers plus scoped CSV export, while remaining v1.2 work stays focused on deeper admin user-detail polish and broader review artifacts.*
 
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
 
