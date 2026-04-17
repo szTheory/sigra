@@ -1192,15 +1192,17 @@ defmodule Sigra.Auth do
     # actor_id is resolved from the opts :user_id if provided; otherwise nil.
     audit_opts = audit_opts_from_config(config)
 
-    # 15-02 Category 2: build a minimal user-map scope from the known
-    # user_id so downstream audit extraction picks up actor/effective_user.
     user_id = Keyword.get(opts, :user_id)
-    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+    actor_id = Keyword.get(opts, :actor_id, user_id)
+    target_id = Keyword.get(opts, :target_id, user_id)
+    effective_user_id = Keyword.get(opts, :effective_user_id, user_id)
+    scope = audit_scope_from_opts(config, opts, effective_user_id)
 
     Sigra.Audit.log_safe("session.delete", scope,
       Keyword.merge(audit_opts,
-        actor_id: user_id,
-        target_id: user_id,
+        actor_id: actor_id,
+        target_id: target_id,
+        effective_user_id: effective_user_id,
         metadata: %{}
       )
     )
@@ -1252,12 +1254,16 @@ defmodule Sigra.Auth do
     # D-26: session.revoke_all audit row (standalone)
     audit_opts = audit_opts_from_config(config)
 
-    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+    actor_id = Keyword.get(opts, :actor_id, user_id)
+    target_id = Keyword.get(opts, :target_id, user_id)
+    effective_user_id = Keyword.get(opts, :effective_user_id, user_id)
+    scope = audit_scope_from_opts(config, opts, effective_user_id)
 
     Sigra.Audit.log_safe("session.revoke_all", scope,
       Keyword.merge(audit_opts,
-        actor_id: user_id,
-        target_id: user_id,
+        actor_id: actor_id,
+        target_id: target_id,
+        effective_user_id: effective_user_id,
         metadata: %{count: count}
       )
     )
@@ -1289,6 +1295,13 @@ defmodule Sigra.Auth do
   @spec revoke_session(Sigra.Config.t(), binary(), keyword()) :: :ok
   def revoke_session(config, hashed_token, opts \\ []) do
     delete_session(config, hashed_token, opts)
+  end
+
+  defp audit_scope_from_opts(config, opts, effective_user_id) do
+    case Keyword.get(opts, :audit_scope) do
+      nil -> effective_user_id && Sigra.Scope.from_config(config, %{id: effective_user_id})
+      scope -> scope
+    end
   end
 
   @doc """
