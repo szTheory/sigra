@@ -557,32 +557,53 @@ jobs:
           fi
           echo "curated admin checkpoint screenshots:"
           ls -la artifacts/admin-checkpoints/ || true
-      - name: Upload admin example review bundle
-        if: always()
+      # D-19, D-22: green-run reviewer bundle scoped to this dedicated admin
+      # job. Published on every run (success or failure) so the Playwright
+      # HTML report plus the curated checkpoint PNGs are always available;
+      # D-21's richer diagnostics upload is separate.
+      #
+      # D-23: branch-aware retention is expressed as two mutually exclusive
+      # upload steps — 14 days for main/release runs, 7 days for PR/push
+      # runs. Keeping the retention values literal makes the policy grep-
+      # auditable from the workflow file without having to read GitHub
+      # Actions expression evaluation rules.
+      - name: Upload admin example review bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         with:
-          # D-19, D-22: green-run reviewer bundle scoped to this dedicated
-          # admin job. Published on every run (success or failure) so the
-          # Playwright HTML report plus the curated checkpoint PNGs are
-          # always available; D-21's richer diagnostics upload is separate.
           name: admin-example-report
           path: |
             test/example/priv/playwright/playwright-report/
             test/example/priv/playwright/artifacts/admin-checkpoints/
-          # D-23: branch-aware retention — 14 days for main, 7 days for PR/push.
-          retention-days: ${{ github.ref == 'refs/heads/main' && 14 || 7 }}
-      - name: Upload admin example failure diagnostics
-        if: failure()
+          retention-days: 14
+      - name: Upload admin example review bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main'
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         with:
-          # D-21, D-24: traces, failure screenshots, and retained videos
-          # (from the selective `video: 'retain-on-failure'` on checkpoint
-          # and admin-generated projects) land under test-results/. This
-          # bundle uploads only on failure per D-20/D-22 so the success
-          # review bundle stays lightweight.
+          name: admin-example-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 7
+      # D-21, D-24: traces, failure screenshots, and retained videos (from
+      # the selective `video: 'retain-on-failure'` on checkpoint and
+      # admin-generated projects) land under test-results/. This bundle
+      # uploads only on failure per D-20/D-22 so the success review bundle
+      # stays lightweight. Retention mirrors the review bundle policy.
+      - name: Upload admin example failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
           name: admin-example-failure-diagnostics
           path: test/example/priv/playwright/test-results/
-          retention-days: ${{ github.ref == 'refs/heads/main' && 14 || 7 }}
+          retention-days: 14
+      - name: Upload admin example failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
+          name: admin-example-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 7
 
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
@@ -625,11 +646,69 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
-        run: scripts/ci/admin-acceptance-smoke.sh
-      - name: Upload generated admin Playwright trace on failure
-        if: failure()
+        # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
+        # seam runs the full acceptance target (`--test all` — both the
+        # desktop/mobile shell and the denial-response assertions) so
+        # generated-host admin parity stays explicit and narrow rather
+        # than collapsing into a single monolithic verification job.
+        run: scripts/ci/admin-acceptance-smoke.sh --test all
+      - name: Collect curated generated-host admin screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        # D-19, D-20, D-25: curated reviewer PNGs for the generated-host
+        # admin checkpoints live alongside the example-app bundle so
+        # reviewers can diff generated vs example parity with the same
+        # artifact naming convention.
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            find test-results -type f -name 'admin-*.png' -exec cp {} artifacts/admin-checkpoints/ \;
+          fi
+          echo "curated generated-host admin screenshots:"
+          ls -la artifacts/admin-checkpoints/ || true
+      # D-19, D-22: green-run generated-host reviewer bundle scoped to this
+      # dedicated admin parity job. Always uploaded so the Playwright HTML
+      # report and curated PNGs are available without needing the richer
+      # diagnostic bundle on successful runs.
+      #
+      # D-23: branch-aware retention expressed as two mutually exclusive
+      # upload steps — 14 days for main/release runs, 7 days for PR/push
+      # runs. Keeping the retention values literal makes the policy grep-
+      # auditable from the workflow file.
+      - name: Upload generated admin review bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         with:
-          name: generated-admin-playwright-report
-          path: test/example/priv/playwright/playwright-report/
+          name: generated-admin-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 14
+      - name: Upload generated admin review bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
+          name: generated-admin-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 7
+      # D-21, D-24: failure bundle publishes test-results/ so retained
+      # video (selective `retain-on-failure` on the `admin-generated`
+      # project), traces, and failure screenshots are published alongside
+      # the HTML report only when this job fails — keeping the seam's
+      # successful-run artifact policy lightweight per D-22.
+      - name: Upload generated admin failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
+          name: generated-admin-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 14
+      - name: Upload generated admin failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
+          name: generated-admin-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
           retention-days: 7
