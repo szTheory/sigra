@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test';
+import { statSync } from 'node:fs';
+import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { captureAdminCheckpoint } from '../helpers/adminArtifacts';
 
 // Phase 31 Plan 2: curated admin checkpoint spec.
@@ -81,6 +82,31 @@ async function confirmSudo(page: Page, password: string) {
   await page.getByRole('button', { name: 'Confirm password' }).click();
 }
 
+/**
+ * Capture a curated admin checkpoint AND assert the artifact was actually
+ * written to disk and is non-empty. The assertion turns D-19/D-20 from an
+ * implicit promise ("we call the helper") into an explicit contract
+ * ("the reviewer artifact exists for every shipped checkpoint page"),
+ * catching regressions in the helper, project partitioning, or Playwright
+ * output plumbing before they ship as silently-missing attachments.
+ */
+async function captureAndVerify(
+  page: Page,
+  testInfo: TestInfo,
+  name: string,
+): Promise<void> {
+  const filePath = await captureAdminCheckpoint(page, testInfo, { name });
+  const stats = statSync(filePath);
+  expect(
+    stats.isFile(),
+    `Expected curated checkpoint ${name} to land at ${filePath}`,
+  ).toBe(true);
+  expect(
+    stats.size,
+    `Expected curated checkpoint ${name} to be a non-empty PNG`,
+  ).toBeGreaterThan(0);
+}
+
 test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
   test('captures curated admin review pages across desktop/mobile/dark', async ({
     page,
@@ -116,9 +142,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(
       page.locator('#admin-users-mobile-results').getByText(targetEmail).first(),
     ).toBeVisible();
-    await captureAdminCheckpoint(page, testInfo, {
-      name: 'global-user-index',
-    });
+    await captureAndVerify(page, testInfo, 'global-user-index');
 
     // --- Checkpoint 2: User detail (/admin/users/:id) ----------------------
     // D-28: "user detail" — proves action context (revoke / start
@@ -132,9 +156,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(
       page.getByRole('button', { name: 'Start impersonation' }),
     ).toBeVisible();
-    await captureAdminCheckpoint(page, testInfo, {
-      name: 'user-detail',
-    });
+    await captureAndVerify(page, testInfo, 'user-detail');
 
     // --- Checkpoint 3: Organization-scoped admin page ----------------------
     // D-28: "organization-scoped admin page" — proves the scope chrome
@@ -145,9 +167,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await waitForLiveViewReady(page);
     await expect(page.locator('header').first()).toContainText('Admin');
     await expect(page.locator('header').first()).toContainText(orgName);
-    await captureAdminCheckpoint(page, testInfo, {
-      name: 'org-scoped-admin',
-    });
+    await captureAndVerify(page, testInfo, 'org-scoped-admin');
 
     // --- Impersonate so the banner checkpoint has real state to render ----
     await openUserDetail(page, targetEmail);
@@ -172,9 +192,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(
       banner.getByRole('button', { name: 'End impersonation' }),
     ).toBeVisible();
-    await captureAdminCheckpoint(page, testInfo, {
-      name: 'impersonation-banner',
-    });
+    await captureAndVerify(page, testInfo, 'impersonation-banner');
 
     // Stop impersonation before the audit checkpoint so the audit page
     // renders from the admin session (not the impersonated user) and
@@ -192,8 +210,6 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(page.getByRole('heading', { name: 'Audit' })).toBeVisible();
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByRole('link', { name: 'Export CSV' })).toBeVisible();
-    await captureAdminCheckpoint(page, testInfo, {
-      name: 'audit-explorer',
-    });
+    await captureAndVerify(page, testInfo, 'audit-explorer');
   });
 });
