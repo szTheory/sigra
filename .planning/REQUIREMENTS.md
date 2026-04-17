@@ -26,7 +26,7 @@
 - [ ] **IMPR-01**: Platform admin can start an impersonation session for an allowed user through a controller-owned flow that rotates session state and preserves the real admin as the actor.
 - [ ] **IMPR-02**: Org admin can impersonate only users within their allowed organization scope; out-of-scope impersonation attempts fail server-side and audit as denied.
 - [ ] **IMPR-03**: Every impersonation session is time-bounded, non-nestable, and visibly marked with a persistent banner plus an always-available end-session action.
-- [ ] **IMPR-04**: While impersonating, Sigra forbids sensitive account-security mutations server-side, including password changes, MFA/passkey management, API-key management, and account deletion.
+- [x] **IMPR-04**: While impersonating, Sigra forbids sensitive account-security mutations server-side, including password changes, MFA/passkey management, API-key management, and account deletion.
 - [ ] **IMPR-05**: Ending impersonation returns the admin to their original context without destroying the original admin session.
 
 ### Audit Exploration
@@ -92,7 +92,7 @@
 | IMPR-01 | Phase 29 | Pending |
 | IMPR-02 | Phase 29 | Pending |
 | IMPR-03 | Phase 29 | Pending |
-| IMPR-04 | Phase 29 | Pending |
+| IMPR-04 | Phase 29 | Complete |
 | IMPR-05 | Phase 29 | Pending |
 | AUD-01 | Phase 30 | Pending |
 | AUD-02 | Phase 30 | Pending |

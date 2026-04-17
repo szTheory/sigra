@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 29-03-PLAN.md
-last_updated: "2026-04-16T23:37:20Z"
-last_activity: 2026-04-16 -- Completed 29-03 and advanced to 29-04
+stopped_at: Completed 29-04-PLAN.md
+last_updated: "2026-04-17T00:22:28.935Z"
+last_activity: 2026-04-17
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_plans: 14
+  percent: 100
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 ## Current Position
 
 Phase: 29 (secure-impersonation) — EXECUTING
-Plan: 4 of 5
-Status: Executing Phase 29
-Last activity: 2026-04-16 -- Completed 29-03 and advanced to 29-04
+Plan: 5 of 5
+Status: Ready to execute
+Last activity: 2026-04-17
 
 Progress: [██████░░░░] 60% (3/5 plans complete)
 
@@ -57,6 +57,7 @@ Progress: [██████░░░░] 60% (3/5 plans complete)
 | Phase 28 P1 | 5min | 3 tasks | 15 files |
 | Phase 28 P2 | 34 min | 2 tasks | 9 files |
 | Phase 28 P3 | 7min | 2 tasks | 6 files |
+| Phase 29 P04 | 44min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ Recent decisions affecting current work:
 - [Phase 29]: The example app keeps the sudo redirect local to impersonation start and reuses `/users/sudo?return_to=...` without widening shared auth error handling.
 - [Phase 29]: The user detail danger zone is the single impersonation entry point; host-owned chrome only renders explicit state plus the app-wide stop action.
 - [Phase 29]: LiveView `mount_current_scope` must preserve `impersonating_from` from the saved admin token so connected pages keep the same impersonation banner contract as controller renders.
+- [Phase 29]: The controller boundary uses a reusable plug, while LiveView handlers fail closed through explicit impersonation checks and Accounts scope guards.
+- [Phase 29]: Denied sensitive operations reuse the existing audit pipeline with admin.impersonation.denied rows instead of a separate logging path.
 
 ### Pending Todos
 
@@ -115,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-16T23:30:09Z
-Stopped at: Completed 29-03-PLAN.md
+Last session: 2026-04-17T00:22:28.516Z
+Stopped at: Completed 29-04-PLAN.md
 Resume file: None
