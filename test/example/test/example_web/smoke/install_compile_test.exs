@@ -23,6 +23,10 @@ defmodule Example.InstallCompileTest do
   end
 
   test "Accounts context exposes canonical Sigra public API" do
+    # ExUnit may run this before other tests in the module; `function_exported?/3`
+    # returns false until the module is actually loaded (see Kernel docs).
+    {:module, _} = Code.ensure_loaded(Example.Accounts)
+
     assert function_exported?(Example.Accounts, :register_user, 1)
     assert function_exported?(Example.Accounts, :get_user_by_email, 1)
     assert function_exported?(Example.Accounts, :generate_user_session_token, 1)
