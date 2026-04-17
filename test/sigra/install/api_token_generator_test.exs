@@ -281,17 +281,17 @@ defmodule Sigra.Install.APITokenGeneratorTest do
   describe "auth_api_token.ex template" do
     test "defines create_api_token function" do
       content = render_api_auth_template()
-      assert content =~ "def create_api_token(user, attrs)"
+      assert content =~ "def create_api_token(user, attrs, opts \\\\ [])"
     end
 
     test "defines revoke_api_token function" do
       content = render_api_auth_template()
-      assert content =~ "def revoke_api_token(token_id)"
+      assert content =~ "def revoke_api_token(token_id, opts \\\\ [])"
     end
 
     test "defines revoke_all_api_tokens function" do
       content = render_api_auth_template()
-      assert content =~ "def revoke_all_api_tokens(user)"
+      assert content =~ "def revoke_all_api_tokens(user, opts \\\\ [])"
     end
 
     test "defines list_api_tokens function" do

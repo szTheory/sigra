@@ -21,7 +21,9 @@ defmodule Sigra.Install.GeneratorMFATest do
     # on_mount clause on `<%= if organizations? do %>`. Without this
     # binding key the template compile fails with `undefined variable
     # "organizations?"`.
-    organizations?: true
+    organizations?: true,
+    # Core templates gate passkey-related branches on `passkeys?` (EEx assigns).
+    passkeys?: true
   ]
 
   describe "MFA template files exist" do
@@ -142,9 +144,9 @@ defmodule Sigra.Install.GeneratorMFATest do
       assert content =~ "phx-submit"
     end
 
-    test "contains phx-click for tab switching" do
+    test "contains phx-click to switch from passkey flow to TOTP" do
       content = render_template("mfa_challenge_live.ex")
-      assert content =~ "phx-click=\"switch_tab\""
+      assert content =~ "phx-click=\"show_totp\""
     end
 
     test "contains auto-submit logic at 6 digits" do
@@ -158,9 +160,10 @@ defmodule Sigra.Install.GeneratorMFATest do
       assert content =~ "Trust this browser for 30 days"
     end
 
-    test "contains accessible tabs" do
+    test "contains passkey-first MFA challenge surface" do
       content = render_template("mfa_challenge_live.ex")
-      assert content =~ ~s(role="tablist")
+      assert content =~ ~s(id="mfa-passkey-panel")
+      assert content =~ "PasskeyAuthenticate"
     end
   end
 
