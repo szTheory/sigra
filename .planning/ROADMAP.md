@@ -184,7 +184,7 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33 -> 34 ->
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
 | 31. Automation-First Verification | 4/4 | Complete   | 2026-04-17 |
-| 32. Generated Installer Admin Surface Parity | 2/2 | Complete   | 2026-04-17 |
+| 32. Generated Installer Admin Surface Parity | 2/2 | Complete    | 2026-04-17 |
 | 33. Admin Shell Navigation and Audit Preview Polish | 0/0 | Pending |  |
 | 34. Generated-Host E2E Coverage and Phase 28 Retroactive Verification | 0/0 | Pending |  |
 | 35. Shift-Left Verification Automation | 0/0 | Pending |  |
