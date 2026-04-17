@@ -109,7 +109,12 @@ Plans:
   2. Reviewers can inspect Playwright HTML reports, screenshots, traces, and retained video artifacts to assess admin UX progress without heavy manual walkthroughs.
   3. Authorization, scope, impersonation, and export rules are verified through direct-path smoke coverage outside the browser happy path.
   4. CI artifacts make mobile and dark-mode regressions visible for the admin UI before release.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 31-01-PLAN.md — Partition the Playwright admin harness and generated-host parity smoke
+- [ ] 31-02-PLAN.md — Complete example-app admin browser journeys and curated checkpoint artifacts
+- [ ] 31-03-PLAN.md — Extend direct-path verification and thin runtime parity smoke
+- [ ] 31-04-PLAN.md — Publish dedicated admin review artifacts and retention in CI
 **UI hint**: yes
 
 ## Progress
@@ -123,4 +128,4 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 | 28. User Operations Surface | 3/4 | In Progress|  |
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
-| 31. Automation-First Verification | 0/TBD | Not started | - |
+| 31. Automation-First Verification | 2/4 | In Progress|  |
