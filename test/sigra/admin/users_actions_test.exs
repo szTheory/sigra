@@ -200,7 +200,7 @@ defmodule Sigra.Admin.UsersActionsTest do
   end
 
   describe "Phase 28 action contracts" do
-    test "revoke_session emits audit coverage and keeps scope checks in the library action layer", %{
+    test "revoke_session records the acting admin separately from the target user", %{
       config: config,
       target_user: user,
       global_scope: global_scope,
@@ -214,14 +214,15 @@ defmodule Sigra.Admin.UsersActionsTest do
       audit = @repo.get_by(AuditEvent, action: "session.delete")
       assert audit
       assert audit.target_id == user.id
-      assert audit.actor_id == user.id
+      assert audit.actor_id == global_scope.scope.user.id
+      assert audit.effective_user_id == user.id
 
       assert_raise Authorizer.UnauthorizedError, fn ->
         Actions.revoke_session(config, outside_scope, user.id, random_hashed_token())
       end
     end
 
-    test "revoke_all_sessions emits audit coverage and uses the canonical session APIs", %{
+    test "revoke_all_sessions preserves actor, target, and effective user attribution", %{
       config: config,
       target_user: user,
       org_scope: org_scope
@@ -235,6 +236,8 @@ defmodule Sigra.Admin.UsersActionsTest do
       audit = @repo.get_by(AuditEvent, action: "session.revoke_all")
       assert audit
       assert audit.target_id == user.id
+      assert audit.actor_id == org_scope.scope.user.id
+      assert audit.effective_user_id == user.id
       assert audit.metadata["count"] == 2
     end
 
