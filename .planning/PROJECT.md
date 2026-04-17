@@ -28,7 +28,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 Sigra now ships a Phoenix authentication platform that covers the full v1.0 auth stack plus v1.1 Foundations: logical multi-tenancy through organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey/WebAuthn registration and authentication, passkey MFA and optional passkey-primary login, generator opt-outs for organizations and passkeys, and updated guides plus CI/browser-smoke coverage for the shipped org and passkey flows.
 
-**Verification state:** 79/79 v1.1 requirements satisfied and verification-backed; milestone audit is archive-ready. Phase 30 of v1.2 is now verification-backed as well, adding global, organization, and per-user audit exploration plus scoped CSV export. See `.planning/MILESTONES.md`, `.planning/milestones/v1.1-ROADMAP.md`, `.planning/milestones/v1.1-MILESTONE-AUDIT.md`, and `.planning/phases/30-audit-exploration-and-export/30-VERIFICATION.md`.
+**Verification state:** 79/79 v1.1 requirements satisfied and verification-backed; milestone audit is archive-ready. Phase 30 of v1.2 is verification-backed (global, organization, and per-user audit exploration plus scoped CSV export). Phase 32 closes the three CRITICAL v1.2 milestone-audit blockers (INT-01/02/03) at the generator layer: a freshly installed host now mounts UsersIndexLive/UserShowLive in both global and org-scoped admin `live_session` blocks, emits a parameterized `ImpersonationController` template, and registers the previously-orphaned `audit_export_controller` template. See `.planning/MILESTONES.md`, `.planning/milestones/v1.1-ROADMAP.md`, `.planning/milestones/v1.1-MILESTONE-AUDIT.md`, `.planning/phases/30-audit-exploration-and-export/30-VERIFICATION.md`, and `.planning/phases/32-generated-installer-admin-surface-parity/32-VERIFICATION.md`.
 
 **Known limitations carried forward (tracked, non-blocking):**
 - 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before broader GA announcement.
@@ -245,7 +245,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-17 — Phase 30 completed the v1.2 audit exploration and export slice. Sigra now ships global, organization, and per-user audit explorers plus scoped CSV export, while remaining v1.2 work stays focused on deeper admin user-detail polish and broader review artifacts.*
+*Last updated: 2026-04-17 — Phase 32 completed the generated-installer admin-surface parity slice. `mix sigra.install` now emits a parameterized `ImpersonationController` template, registers the `audit_export_controller` template, and mounts `UsersIndexLive`/`UserShowLive` in both admin `live_session` blocks — closing the three CRITICAL v1.2 milestone-audit blockers (INT-01/02/03) at the generator layer. Remaining v1.2 work continues with Phase 33 (admin shell navigation + audit preview polish).*
 
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
 
