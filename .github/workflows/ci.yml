@@ -491,19 +491,98 @@ jobs:
               && echo "warmed ${path}" \
               || echo "warmup miss ${path} (non-fatal)"
           done
-      - name: Run focused Playwright browser smoke
+      # Phase 31 Plan 4 (D-19..D-25, D-26..D-30): run admin browser truth,
+      # admin checkpoints, and non-admin browser smoke as separate seams
+      # within a single job so each failure surfaces against its seam while
+      # keeping one shared booted example app.
+      - name: Run admin behavior browser truth (chromium)
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        run: npx playwright test tests/organizations.spec.ts tests/passkey-login.spec.ts tests/passkey-options.spec.ts tests/impersonation.spec.ts
-      - name: Upload Playwright trace on failure
+        # D-04, D-27: the three admin behavior specs are the canonical
+        # Phase 31 browser contract. They run only on the `chromium`
+        # project per wave 1's partitioning (playwright.config.ts).
+        run: |
+          npx playwright test \
+            tests/admin-user-operations.spec.ts \
+            tests/impersonation.spec.ts \
+            tests/admin-audit.spec.ts \
+            --project=chromium
+      - name: Run admin checkpoints (chromium, mobile, dark-chromium)
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        # D-26..D-30: the admin-checkpoints.spec.ts fan-out runs once per
+        # project — `admin-checkpoints-chromium` (desktop), `admin-checkpoints-mobile`
+        # (mobile viewport), and `admin-checkpoints-dark` (the dark-chromium
+        # checkpoint lane using `colorScheme: 'dark'`). Mobile and dark-mode
+        # admin regressions therefore surface from this seam alone without
+        # rerunning the full behavior suite across every theme and viewport.
+        run: |
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark
+      - name: Run non-admin example browser smoke
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        # Keeps non-admin coverage (golden-path, organizations, passkey-*)
+        # in its own step so admin failures isolate cleanly. These run on
+        # the default `chromium` project; mobile coverage for these specs
+        # runs on the `mobile` project which excludes admin behavior/
+        # checkpoint specs per wave 1 partitioning.
+        run: |
+          npx playwright test \
+            tests/organizations.spec.ts \
+            tests/passkey-login.spec.ts \
+            tests/passkey-options.spec.ts
+      - name: Collect curated admin checkpoint screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        # D-19, D-20, D-25: curated reviewer screenshots for passing admin
+        # runs come from explicit test-authored PNGs (adminArtifactName),
+        # not indiscriminate whole-run directories. Gather them under a
+        # predictable path so `admin-example-report` can always publish the
+        # reviewer bundle without shipping traces or retained video from
+        # every passing run.
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            find test-results -type f -name 'admin-*.png' -exec cp {} artifacts/admin-checkpoints/ \;
+          fi
+          echo "curated admin checkpoint screenshots:"
+          ls -la artifacts/admin-checkpoints/ || true
+      - name: Upload admin example review bundle
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        with:
+          # D-19, D-22: green-run reviewer bundle scoped to this dedicated
+          # admin job. Published on every run (success or failure) so the
+          # Playwright HTML report plus the curated checkpoint PNGs are
+          # always available; D-21's richer diagnostics upload is separate.
+          name: admin-example-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          # D-23: branch-aware retention — 14 days for main, 7 days for PR/push.
+          retention-days: ${{ github.ref == 'refs/heads/main' && 14 || 7 }}
+      - name: Upload admin example failure diagnostics
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
         with:
-          name: playwright-report
-          path: test/example/priv/playwright/playwright-report/
-          retention-days: 7
+          # D-21, D-24: traces, failure screenshots, and retained videos
+          # (from the selective `video: 'retain-on-failure'` on checkpoint
+          # and admin-generated projects) land under test-results/. This
+          # bundle uploads only on failure per D-20/D-22 so the success
+          # review bundle stays lightweight.
+          name: admin-example-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: ${{ github.ref == 'refs/heads/main' && 14 || 7 }}
 
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
