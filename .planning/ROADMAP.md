@@ -92,7 +92,12 @@ Plans:
   2. Admin can investigate audit history from global, per-user, and per-organization views with URL-addressable filters for actor, effective user, organization, action family, and time range.
   3. Admin can distinguish impersonation activity from normal user activity in the audit explorer without reading raw metadata blobs.
   4. Admin can export the currently filtered audit slice as stable, scope-respecting CSV evidence.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 30-01-PLAN.md — Canonical audit attribution fixes and shared normalized query contract
+- [ ] 30-02-PLAN.md — Global and organization audit explorer surfaces plus generated/example navigation wiring
+- [ ] 30-03-PLAN.md — Per-user audit explorer routes and Phase 28 recent-audit preview alignment
+- [ ] 30-04-PLAN.md — Scope-safe CSV export plus controller and browser verification
 **UI hint**: yes
 
 ### Phase 31: Automation-First Verification
@@ -117,5 +122,5 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 | 27. Admin Access Foundation | 3/3 | Complete   | 2026-04-16 |
 | 28. User Operations Surface | 3/4 | In Progress|  |
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
-| 30. Audit Exploration and Export | 0/TBD | Not started | - |
+| 30. Audit Exploration and Export | 2/4 | In Progress|  |
 | 31. Automation-First Verification | 0/TBD | Not started | - |

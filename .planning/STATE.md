@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
-status: planning
-stopped_at: Completed 29-05-PLAN.md
-last_updated: "2026-04-17T00:51:18.079Z"
+status: executing
+stopped_at: Completed 30-02-PLAN.md
+last_updated: "2026-04-17T01:29:32.052Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 12
-  completed_plans: 15
+  total_plans: 16
+  completed_plans: 17
   percent: 100
 ---
 
@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 
 ## Current Position
 
-Phase: 30
-Plan: Not started
-Status: Ready to plan
+Phase: 30 (audit-exploration-and-export) — EXECUTING
+Plan: 3 of 4
+Status: Ready to execute
 Last activity: 2026-04-17
 
 Progress: [██████████] 100% (5/5 plans complete)
@@ -59,6 +59,8 @@ Progress: [██████████] 100% (5/5 plans complete)
 | Phase 28 P2 | 34 min | 2 tasks | 9 files |
 | Phase 28 P3 | 7min | 2 tasks | 6 files |
 | Phase 29 P04 | 44min | 2 tasks | 10 files |
+| Phase 30 P01 | 4 min | 2 tasks | 6 files |
+| Phase 30 P02 | 9 min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -98,6 +100,10 @@ Recent decisions affecting current work:
 - [Phase 29]: The controller boundary uses a reusable plug, while LiveView handlers fail closed through explicit impersonation checks and Accounts scope guards.
 - [Phase 29]: Denied sensitive operations reuse the existing audit pipeline with admin.impersonation.denied rows instead of a separate logging path.
 - [Phase 29]: Generated API-token mutations now guard the wrapper seam directly and translate impersonation-forbidden tuples into explicit 403 JSON responses.
+- [Phase 30]: Kept subject-user semantics in Sigra.Admin.Audit.Query so later audit surfaces reuse the canonical lower-level filter builder unchanged.
+- [Phase 30]: Extended Sigra.Auth session revoke audit opts for explicit actor, effective user, target, and scope instead of creating an admin-only audit path.
+- [Phase 30]: Kept audit filtering on the existing order_by and order_direction query-string pattern instead of inventing a second sort contract for admin list surfaces.
+- [Phase 30]: Returned an empty organization-scoped audit view for out-of-scope organization filter params so the route stays fail-closed without widening into cross-org data.
 
 ### Pending Todos
 
@@ -120,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T00:22:28.516Z
-Stopped at: Completed 29-05-PLAN.md
+Last session: 2026-04-17T01:29:32.049Z
+Stopped at: Completed 30-02-PLAN.md
 Resume file: None
