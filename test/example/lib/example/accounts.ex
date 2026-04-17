@@ -881,7 +881,13 @@ defmodule Example.Accounts do
 
   @doc "Returns true when passkey-primary login is enabled."
   def passkey_primary_enabled?() do
-    Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
+    case Application.fetch_env(:example, :passkey_primary_enabled) do
+      {:ok, bool} when is_boolean(bool) ->
+        bool
+
+      _ ->
+        Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
+    end
   end
 
   @doc "Returns true when a user may use passkey-primary login."

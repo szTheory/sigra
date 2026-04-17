@@ -21,6 +21,17 @@ defmodule ExampleWeb.RegistrationLiveTest do
     test "render keeps password signup fields when passkey enrollment is unavailable", %{
       conn: conn
     } do
+      previous = Application.get_env(:example, :passkey_primary_enabled)
+      Application.put_env(:example, :passkey_primary_enabled, false)
+
+      on_exit(fn ->
+        if previous == nil do
+          Application.delete_env(:example, :passkey_primary_enabled)
+        else
+          Application.put_env(:example, :passkey_primary_enabled, previous)
+        end
+      end)
+
       {:ok, view, html} = live(conn, "/users/register")
 
       assert html =~ "Email"
