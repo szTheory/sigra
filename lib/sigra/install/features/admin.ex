@@ -30,7 +30,11 @@ defmodule Sigra.Install.Features.Admin do
     [
       {:eex, "admin/policy.ex", Path.join(["lib", otp_app, "sigra_admin_policy.ex"])},
       {:eex, "admin/components/admin_shell.ex",
-       Path.join(["lib", web, "components", "admin_shell.ex"])}
+       Path.join(["lib", web, "components", "admin_shell.ex"])},
+      {:eex, "admin/impersonation_controller.ex",
+       Path.join(["lib", web, "controllers", "admin", "impersonation_controller.ex"])},
+      {:eex, "admin/audit_export_controller.ex",
+       Path.join(["lib", web, "controllers", "admin", "audit_export_controller.ex"])}
     ]
   end
 
