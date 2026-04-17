@@ -256,19 +256,44 @@ gen_expect_non_5xx() {
   fi
 }
 
-# Admin-critical audit + export routes must be mounted and reachable on
-# the generated host, matching example-app wiring. Authorization policy
-# truth stays in ExUnit; these checks only prove route shape + no 5xx.
+# Admin-critical routes must be mounted and reachable on the generated
+# host, matching example-app wiring. The original four entries prove
+# Phase 30 audit + export reachability; the two `/users` entries prove
+# Phase 32 INT-01 closure (UsersIndexLive in global + organization
+# live_session blocks). Authorization policy truth stays in ExUnit;
+# these checks only prove route shape + no 5xx.
 GENERATED_HOST_AUDIT_ROUTES=(
   "/admin/audit"
   "/admin/audit/export.csv"
+  "/admin/users"
   "/admin/organizations/${SIGRA_ALLOWED_ORG_SLUG}/audit"
   "/admin/organizations/${SIGRA_ALLOWED_ORG_SLUG}/audit/export.csv"
+  "/admin/organizations/${SIGRA_ALLOWED_ORG_SLUG}/users"
 )
 
 for path in "${GENERATED_HOST_AUDIT_ROUTES[@]}"; do
   gen_expect_non_5xx "${path}"
 done
+
+# Phase 32 INT-02 closure: prove the ImpersonationController template is
+# emitted by the installer and reachable as a routed controller module in
+# the generated host. `mix compile --warnings-as-errors` does NOT catch
+# undefined-module route references (Phoenix resolves controllers at
+# dispatch time, not compile time) — so a missing template would produce
+# a runtime 500 on POST, not a compile error. This unauthenticated probe
+# hits the route with a bogus UUID and asserts the response is NOT 5xx;
+# any non-5xx status (302 login redirect, 403, 404, 422) proves the
+# controller module loaded and authorization ran. Full authenticated
+# impersonation flow stays in Phase 34 Playwright.
+echo "==> admin-acceptance: probing generated-host impersonation controller emission (INT-02)"
+imp_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+  "http://localhost:${PORT}/admin/users/00000000-0000-0000-0000-000000000000/impersonation")
+if [[ "${imp_code}" -ge 500 ]]; then
+  echo "FAIL: POST /admin/users/.../impersonation returned ${imp_code} (controller module likely missing — INT-02 regressed)"
+  GEN_PARITY_FAIL=1
+else
+  echo "OK:   POST /admin/users/.../impersonation -> ${imp_code}"
+fi
 
 # Per D-12/D-13, also assert one explicit denial-semantic probe: unknown
 # organization slug must NOT return a 200 on the generated host, so a
