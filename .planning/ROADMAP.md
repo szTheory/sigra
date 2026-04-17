@@ -133,7 +133,7 @@ Plans:
   4. Generator test asserts all three emissions and fails if any regresses.
 **Plans**: 2 plans
 Plans:
-- [ ] 32-01-PLAN.md — Template emission + router injection (INT-01/02/03 unit-level closure)
+- [x] 32-01-PLAN.md — Template emission + router injection (INT-01/02/03 unit-level closure)
 - [ ] 32-02-PLAN.md — admin-acceptance-smoke.sh runtime probes (Nyquist integration gate)
 **UI hint**: no
 
@@ -184,7 +184,7 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33 -> 34 ->
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
 | 31. Automation-First Verification | 4/4 | Complete   | 2026-04-17 |
-| 32. Generated Installer Admin Surface Parity | 0/2 | Planned |  |
+| 32. Generated Installer Admin Surface Parity | 1/2 | In Progress|  |
 | 33. Admin Shell Navigation and Audit Preview Polish | 0/0 | Pending |  |
 | 34. Generated-Host E2E Coverage and Phase 28 Retroactive Verification | 0/0 | Pending |  |
 | 35. Shift-Left Verification Automation | 0/0 | Pending |  |
