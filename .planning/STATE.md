@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
-status: executing
-stopped_at: Completed 30-03-PLAN.md
-last_updated: "2026-04-17T01:34:24.016Z"
+status: verifying
+stopped_at: Completed 30-04-PLAN.md
+last_updated: "2026-04-17T01:43:52.020Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 18
+  completed_plans: 19
   percent: 100
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 
 Phase: 30 (audit-exploration-and-export) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-17
 
 Progress: [██████████] 100% (5/5 plans complete)
@@ -62,6 +62,7 @@ Progress: [██████████] 100% (5/5 plans complete)
 | Phase 30 P01 | 4 min | 2 tasks | 6 files |
 | Phase 30 P02 | 9 min | 2 tasks | 9 files |
 | Phase 30 P03 | 2 min | 2 tasks | 8 files |
+| Phase 30 P04 | 8 min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [Phase 30]: Returned an empty organization-scoped audit view for out-of-scope organization filter params so the route stays fail-closed without widening into cross-org data.
 - [Phase 30]: Per-user org-scoped audit routes intentionally widen only to organization_scope {:including_global, org_id} so the same user's global support rows stay visible without changing org-wide explorer behavior.
 - [Phase 30]: Recent Audit on user detail now delegates to the same admin subject-user query contract as the full explorer, closing the old target-only drift.
+- [Phase 30]: Kept audit CSV export on the same normalized query-param contract as the explorer routes.
+- [Phase 30]: Used explicit apostrophe prefix escaping plus CSV quoting for dangerous spreadsheet prefixes instead of a new dependency.
+- [Phase 30]: Mounted GET export endpoints beside global, organization, and per-user explorer routes so evidence URLs stay reproducible.
 
 ### Pending Todos
 
@@ -129,6 +133,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T01:34:24.013Z
-Stopped at: Completed 30-03-PLAN.md
+Last session: 2026-04-17T01:43:52.017Z
+Stopped at: Completed 30-04-PLAN.md
 Resume file: None

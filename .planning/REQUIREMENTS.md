@@ -34,7 +34,7 @@
 - [x] **AUD-01**: Audit records generated during admin and impersonation workflows preserve the real actor, effective user, organization scope, and impersonation context as canonical queryable fields.
 - [x] **AUD-02**: Admin can investigate audit history from global, per-user, and per-organization views using URL-addressable filters for actor, effective user, organization, action family, and time range.
 - [x] **AUD-03**: Admin can distinguish impersonation activity from normal user activity in the audit explorer without reading raw metadata blobs.
-- [ ] **AUD-04**: Admin can export the currently filtered audit slice as evidence in a stable, scope-respecting format such as CSV.
+- [x] **AUD-04**: Admin can export the currently filtered audit slice as evidence in a stable, scope-respecting format such as CSV.
 
 ### Verification and Review Artifacts
 
@@ -97,7 +97,7 @@
 | AUD-01 | Phase 30 | Complete |
 | AUD-02 | Phase 30 | Complete |
 | AUD-03 | Phase 30 | Complete |
-| AUD-04 | Phase 30 | Pending |
+| AUD-04 | Phase 30 | Complete |
 | VFY-01 | Phase 31 | Pending |
 | VFY-02 | Phase 31 | Pending |
 | VFY-03 | Phase 31 | Pending |
