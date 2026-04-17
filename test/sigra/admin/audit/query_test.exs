@@ -102,6 +102,17 @@ defmodule Sigra.Admin.Audit.QueryTest do
 
       assert Enum.map(results, & &1.action) |> Enum.sort() == ["session.create", "session.delete"]
     end
+
+    test "do not leak rows where the user is neither effective nor target" do
+      uninvolved_user_id = Ecto.UUID.generate()
+
+      results =
+        AuditEvent
+        |> Query.for_subject_user(uninvolved_user_id)
+        |> @repo.all()
+
+      assert results == []
+    end
   end
 
   describe "normalize/2" do
@@ -150,6 +161,88 @@ defmodule Sigra.Admin.Audit.QueryTest do
                cursor: nil,
                limit: 25
              }
+    end
+
+    test "rejects malformed actor UUIDs instead of widening to all actors", %{global_scope: global_scope} do
+      assert {:error, {:actor_id, :invalid}} =
+               QueryParams.normalize(%{"actor" => "not-a-uuid"}, global_scope)
+    end
+
+    test "rejects malformed effective_user UUIDs instead of widening", %{global_scope: global_scope} do
+      assert {:error, {:effective_user_id, :invalid}} =
+               QueryParams.normalize(%{"effective_user" => "nope"}, global_scope)
+    end
+
+    test "rejects malformed organization UUIDs at the global scope", %{global_scope: global_scope} do
+      assert {:error, {:organization_id, :invalid}} =
+               QueryParams.normalize(%{"organization" => "bogus"}, global_scope)
+    end
+
+    test "rejects malformed subject_user UUIDs rather than silently ignoring them", %{global_scope: global_scope} do
+      assert {:error, {:subject_user_id, :invalid}} =
+               QueryParams.normalize(%{"subject_user" => "??"}, global_scope)
+    end
+
+    test "rejects malformed ISO-8601 date ranges on `from`", %{global_scope: global_scope} do
+      assert {:error, {:from, :invalid}} =
+               QueryParams.normalize(%{"from" => "yesterday"}, global_scope)
+    end
+
+    test "rejects malformed ISO-8601 date ranges on `to`", %{global_scope: global_scope} do
+      assert {:error, {:to, :invalid}} =
+               QueryParams.normalize(%{"to" => "never"}, global_scope)
+    end
+
+    test "rejects zero or negative page_size rather than treating it as a default", %{global_scope: global_scope} do
+      assert {:error, {:page_size, :invalid}} =
+               QueryParams.normalize(%{"page_size" => "0"}, global_scope)
+
+      assert {:error, {:page_size, :invalid}} =
+               QueryParams.normalize(%{"page_size" => "-10"}, global_scope)
+    end
+
+    test "rejects page_size above the maximum even if it parses as an integer", %{global_scope: global_scope} do
+      assert {:error, {:page_size, :invalid}} =
+               QueryParams.normalize(%{"page_size" => "101"}, global_scope)
+    end
+
+    test "rejects non-integer page_size instead of silently falling back to default", %{global_scope: global_scope} do
+      assert {:error, {:page_size, :invalid}} =
+               QueryParams.normalize(%{"page_size" => "ten"}, global_scope)
+    end
+
+    test "collapses org-admin scope onto the resolved organization id regardless of missing param", %{org_scope: org_scope} do
+      assert {:ok, normalized} = QueryParams.normalize(%{"actor" => nil}, org_scope)
+
+      assert normalized.organization_scope == {:only, org_scope.organization_id}
+      refute Map.has_key?(normalized, :organization_id)
+    end
+
+    test "denies an org admin attempt to cross-scope by supplying a different organization filter", %{org_scope: org_scope} do
+      other_org_id = Ecto.UUID.generate()
+
+      assert {:error, {:organization, :out_of_scope}} =
+               QueryParams.normalize(%{"organization" => other_org_id}, org_scope)
+    end
+
+    test "strips empty-string filters so empty inputs do not widen or constrain queries", %{global_scope: global_scope} do
+      params = %{
+        "actor" => "",
+        "effective_user" => "",
+        "organization" => "",
+        "action" => "",
+        "action_prefix" => "",
+        "outcome" => "",
+        "from" => "",
+        "to" => "",
+        "cursor" => "",
+        "page_size" => "",
+        "subject_user" => ""
+      }
+
+      assert {:ok, normalized} = QueryParams.normalize(params, global_scope)
+
+      assert normalized == %{cursor: nil, limit: 25}
     end
   end
 

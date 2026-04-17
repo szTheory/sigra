@@ -182,6 +182,113 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
     end
   end
 
+  describe "Phase 31 direct-path negative cases (D-12/D-13/D-15)" do
+    test "export with a malformed cursor returns a bad-request response, not a widened CSV", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+
+      conn =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/audit/export.csv?cursor=not-a-valid-cursor")
+
+      # Malformed filter params must fail cleanly. They must not fall through
+      # to a successful CSV response because that would hide the filter
+      # regression while still emitting (potentially wrong) rows.
+      refute conn.status == 200
+
+      assert conn.status in [302, 303, 400, 422]
+      assert get_resp_header(conn, "content-type")
+             |> Enum.all?(&(not (&1 =~ "text/csv")))
+    end
+
+    test "export with a malformed page_size returns a bad-request response", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+
+      conn =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/audit/export.csv?page_size=0")
+
+      refute conn.status == 200
+      assert get_resp_header(conn, "content-type")
+             |> Enum.all?(&(not (&1 =~ "text/csv")))
+    end
+
+    test "export with a malformed UUID param (actor) returns a bad-request response", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+
+      conn =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/audit/export.csv?actor=not-a-uuid")
+
+      refute conn.status == 200
+      assert get_resp_header(conn, "content-type")
+             |> Enum.all?(&(not (&1 =~ "text/csv")))
+    end
+
+    test "unauthenticated export request is redirected, not served", %{conn: conn} do
+      conn = get(conn, "/admin/audit/export.csv")
+
+      # Must never respond with 200 text/csv for an unauthenticated caller.
+      refute conn.status == 200
+      assert get_resp_header(conn, "content-type")
+             |> Enum.all?(&(not (&1 =~ "text/csv")))
+    end
+
+    test "non-admin user requesting the global export is denied before CSV is served", %{conn: conn} do
+      non_admin = user_fixture()
+
+      conn =
+        conn
+        |> log_in_user(non_admin)
+        |> get("/admin/audit/export.csv")
+
+      refute conn.status == 200
+      assert get_resp_header(conn, "content-type")
+             |> Enum.all?(&(not (&1 =~ "text/csv")))
+    end
+
+    test "organization-scoped export is denied for an out-of-scope organization slug", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      _org = create_organization(%{name: "Scoped Org", slug: "scoped-org"})
+
+      conn =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/organizations/does-not-exist/audit/export.csv")
+
+      # Unknown org slug must collapse to not_found per Phase 27 contract,
+      # never to a widened global CSV.
+      refute conn.status == 200
+      assert get_resp_header(conn, "content-type")
+             |> Enum.all?(&(not (&1 =~ "text/csv")))
+    end
+
+    test "global export with no audit events returns a header-only CSV, not an error", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+
+      conn =
+        conn
+        |> log_in_user(platform_admin)
+        |> get(
+          "/admin/audit/export.csv?action_prefix=zzz.definitely.does.not.match.anything&page_size=10"
+        )
+
+      assert conn.status == 200
+      assert response_content_type(conn, :csv) =~ "text/csv"
+
+      lines = csv_lines(conn.resp_body)
+
+      # Header row must always be present so downstream consumers can depend
+      # on schema stability even when the filtered slice is empty.
+      assert length(lines) == 1
+      assert csv_cells(hd(lines)) == @expected_header
+    end
+  end
+
   defp platform_admin_fixture do
     user_fixture(%{
       email: "platform-admin+#{System.unique_integer([:positive])}@example.com",

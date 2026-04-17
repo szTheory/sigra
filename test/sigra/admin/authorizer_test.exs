@@ -129,5 +129,70 @@ defmodule Sigra.Admin.AuthorizerTest do
         Authorizer.authorize_impersonation_target!(org_admin_scope(), target)
       end
     end
+
+    test "org admin is denied when target exposes no organization association at all" do
+      target = %{id: "user-9"}
+
+      assert_raise UnauthorizedError, ~r/impersonate the requested user/, fn ->
+        Authorizer.authorize_impersonation_target!(org_admin_scope(), target)
+      end
+    end
+
+    test "org admin is denied when memberships list does not include the resolved org" do
+      target = %{
+        id: "user-9",
+        memberships: [%{organization_id: "org-2"}, %{organization_id: "org-7"}]
+      }
+
+      assert_raise UnauthorizedError, ~r/impersonate the requested user/, fn ->
+        Authorizer.authorize_impersonation_target!(org_admin_scope(), target)
+      end
+    end
+
+    test "org admin may impersonate when memberships list includes the resolved org" do
+      target = %{
+        id: "user-9",
+        memberships: [%{organization_id: "org-1"}, %{organization_id: "org-9"}]
+      }
+
+      assert :ok = Authorizer.authorize_impersonation_target!(org_admin_scope(), target)
+    end
+  end
+
+  describe "negative-case boundary enforcement (Phase 31 direct-path truth per D-07/D-13)" do
+    test "authorize_organization!/2 denies even when an org admin targets an org by id map with a different id" do
+      other_org = %TestOrg{id: "org-9", slug: "widgets", name: "Widgets"}
+
+      assert_raise UnauthorizedError, ~r/does not allow access/, fn ->
+        Authorizer.authorize_organization!(org_admin_scope(), other_org)
+      end
+    end
+
+    test "authorize_organization!/2 fails closed when organization map has no id" do
+      orphan_org = %{slug: "orphan", name: "Orphan"}
+
+      assert_raise UnauthorizedError, ~r/organization context is required/, fn ->
+        Authorizer.authorize_organization!(org_admin_scope(), orphan_org)
+      end
+    end
+
+    test "scope_query/2 never widens when admin_org_ids include stale values but organization_id is nil" do
+      stale_scope = %Scope{org_admin_scope() | organization_id: nil, admin_org_ids: ["org-1"]}
+
+      assert_raise UnauthorizedError, ~r/require a resolved organization/, fn ->
+        Authorizer.scope_query(TestRecord, stale_scope)
+      end
+    end
+
+    test "scope_query/2 preserves the caller-supplied where clauses when scoping for org admin" do
+      query = from(record in TestRecord, where: record.name == "sentinel")
+      scoped = Authorizer.scope_query(query, org_admin_scope())
+
+      # The original where clause survives alongside the organization narrowing.
+      assert length(scoped.wheres) >= 2
+
+      assert Enum.any?(scoped.wheres, fn expr -> inspect(expr.expr) =~ "sentinel" end)
+      assert Enum.any?(scoped.wheres, fn expr -> inspect(expr.expr) =~ "organization_id" end)
+    end
   end
 end
