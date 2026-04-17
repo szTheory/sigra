@@ -80,6 +80,9 @@ test.describe('Phase 30 admin audit browser contracts', () => {
     await page.getByRole('button', { name: 'Start impersonation' }).click();
     await expect(page).toHaveURL('/');
 
+    await page.goto(`/organizations/${orgSlug}/members`);
+    await waitForLiveViewReady(page);
+    await expect(page.getByRole('button', { name: 'End impersonation' })).toBeVisible();
     await page.getByRole('button', { name: 'End impersonation' }).click();
     await expect(page).toHaveURL(/\/admin\/users\?.*q=/);
     await waitForLiveViewReady(page);

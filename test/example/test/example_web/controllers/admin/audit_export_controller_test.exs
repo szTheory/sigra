@@ -23,7 +23,9 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
   ]
 
   describe "Phase 30 audit CSV export contracts" do
-    test "global export returns text/csv for the filtered slice with fixed v1 columns", %{conn: conn} do
+    test "global export returns text/csv for the filtered slice with fixed v1 columns", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
 
       actor =
@@ -60,6 +62,7 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
         )
 
       assert response_content_type(conn, :csv) =~ "text/csv"
+
       assert get_resp_header(conn, "content-disposition") == [
                ~s(attachment; filename="audit-export.csv")
              ]

@@ -43,7 +43,10 @@ defmodule Sigra.Admin.Live.AuditUserLive do
       {:error, _reason} ->
         {:noreply,
          socket
-         |> put_flash(:error, "We couldn't load this user's audit history. Refresh the page, then try again.")
+         |> put_flash(
+           :error,
+           "We couldn't load this user's audit history. Refresh the page, then try again."
+         )
          |> assign(:detail, detail)
          |> assign(:rows, [])
          |> assign(:meta, nil)
@@ -93,6 +96,9 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         <div class="flex flex-wrap gap-2">
           <button type="submit" class="btn btn-primary min-h-11">Apply filters</button>
           <a href={clear_path(@admin_scope, @detail.user.id, @return_to)} class="btn btn-ghost min-h-11">Clear</a>
+          <a href={export_path(@admin_scope, @detail.user.id, export_params(@current_params, @return_to))} class="btn btn-outline min-h-11">
+            Export CSV
+          </a>
         </div>
 
         <input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
@@ -201,7 +207,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     end
   end
 
-  defp sanitize_return_to(_path, admin_scope, user_id), do: default_return_to(admin_scope, user_id)
+  defp sanitize_return_to(_path, admin_scope, user_id),
+    do: default_return_to(admin_scope, user_id)
 
   defp default_return_to(%Scope{mode: :organization, organization_slug: slug}, user_id)
        when is_binary(slug),
@@ -209,13 +216,23 @@ defmodule Sigra.Admin.Live.AuditUserLive do
 
   defp default_return_to(_admin_scope, user_id), do: "/admin/users/#{user_id}"
 
-  defp index_path(%Scope{mode: :organization, organization_slug: slug}, user_id) when is_binary(slug),
-    do: "/admin/organizations/#{slug}/users/#{user_id}/audit"
+  defp index_path(%Scope{mode: :organization, organization_slug: slug}, user_id)
+       when is_binary(slug),
+       do: "/admin/organizations/#{slug}/users/#{user_id}/audit"
 
   defp index_path(_admin_scope, user_id), do: "/admin/users/#{user_id}/audit"
 
   defp clear_path(admin_scope, user_id, return_to) do
     append_query(index_path(admin_scope, user_id), %{"return_to" => return_to})
+  end
+
+  defp export_path(%Scope{mode: :organization, organization_slug: slug}, user_id, params)
+       when is_binary(slug) do
+    append_query("/admin/organizations/#{slug}/users/#{user_id}/audit/export.csv", params)
+  end
+
+  defp export_path(_admin_scope, user_id, params) do
+    append_query("/admin/users/#{user_id}/audit/export.csv", params)
   end
 
   defp sort_path(admin_scope, user_id, params, field) do
@@ -258,6 +275,11 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     do: "Organization-scoped audit explorer for #{name}"
 
   defp scope_copy(_admin_scope), do: "Global audit explorer"
+
+  defp export_params(current_params, return_to) do
+    current_params
+    |> Map.put_new("return_to", return_to)
+  end
 
   defp param_value(params, key, default \\ ""), do: Map.get(params, key, default)
 

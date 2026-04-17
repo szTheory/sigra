@@ -78,6 +78,9 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <div class="flex flex-wrap gap-2">
           <button type="submit" class="btn btn-primary min-h-11">Apply filters</button>
           <a href={index_path(@admin_scope)} class="btn btn-ghost min-h-11">Clear</a>
+          <a href={export_path(@admin_scope, @current_params)} class="btn btn-outline min-h-11">
+            Export CSV
+          </a>
         </div>
 
         <input type="hidden" name="page_size" value={param_value(@current_params, "page_size", "25")} />
@@ -220,6 +223,13 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
     do: "/admin/organizations/#{slug}/audit"
 
   defp index_path(_admin_scope), do: "/admin/audit"
+
+  defp export_path(%Scope{mode: :organization, organization_slug: slug}, params)
+       when is_binary(slug) do
+    append_query("/admin/organizations/#{slug}/audit/export.csv", params)
+  end
+
+  defp export_path(_admin_scope, params), do: append_query("/admin/audit/export.csv", params)
 
   defp append_query(path, params) do
     cleaned =

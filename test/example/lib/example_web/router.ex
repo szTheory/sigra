@@ -218,6 +218,8 @@ defmodule ExampleWeb.Router do
     pipe_through [:browser, :require_authenticated, :admin_global]
 
     post "/admin/users/:id/impersonation", ExampleWeb.Admin.ImpersonationController, :create
+    get "/admin/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
+    get "/admin/users/:id/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
   end
 
   scope "/", alias: false do
@@ -242,6 +244,8 @@ defmodule ExampleWeb.Router do
     pipe_through [:browser, :require_authenticated, :admin_organization]
 
     post "/users/:id/impersonation", ExampleWeb.Admin.ImpersonationController, :create
+    get "/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
+    get "/users/:id/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
   end
 
   scope "/admin/organizations/:org", alias: false do
