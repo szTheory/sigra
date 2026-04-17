@@ -24,7 +24,7 @@
 
 - [x] **Phase 27: Admin Access Foundation** - Establish default-on admin wiring, explicit policy hooks, scope-safe route protection, and visible admin scope chrome. (completed 2026-04-16)
 - [ ] **Phase 28: User Operations Surface** - Deliver searchable, filterable, mobile-friendly user management and detail flows for operator jobs-to-be-done.
-- [ ] **Phase 29: Secure Impersonation** - Add time-bounded impersonation with visible state, preserved admin actor context, and hard server-side restrictions.
+- [x] **Phase 29: Secure Impersonation** - Add time-bounded impersonation with visible state, preserved admin actor context, and hard server-side restrictions. (completed 2026-04-17)
 - [ ] **Phase 30: Audit Exploration and Export** - Provide global, per-user, and per-organization audit investigation with impersonation-aware filtering and CSV export.
 - [ ] **Phase 31: Automation-First Verification** - Ship browser, system, and artifact coverage for the admin milestone across desktop, mobile, and dark mode.
 
@@ -74,7 +74,13 @@ Plans:
   3. Every impersonation session is time-bounded, non-nestable, visibly marked with a persistent banner, and can always be ended from the UI.
   4. While impersonating, sensitive account-security mutations remain blocked server-side, including password, MFA/passkey, API-key, and account-deletion actions.
   5. Ending impersonation returns the admin to the original admin context without destroying the original admin session.
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 29-01-PLAN.md — Library-owned impersonation runtime, dual-actor audit, and direct-path authorization
+- [ ] 29-02-PLAN.md — Controller-owned start flow plus app-wide stop/restore routing and timeout handling in generated/example web code
+- [ ] 29-03-PLAN.md — User-detail entry point plus persistent impersonation chrome in generated/example layouts
+- [ ] 29-04-PLAN.md — Shared impersonation gate for blocked non-API-token sensitive operations across controllers, LiveViews, and direct-path calls
+- [ ] 29-05-PLAN.md — Generated API-token seam guards and blocked-operation coverage during impersonation
 **UI hint**: yes
 
 ### Phase 30: Audit Exploration and Export
@@ -110,6 +116,6 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 |-------|----------------|--------|-----------|
 | 27. Admin Access Foundation | 3/3 | Complete   | 2026-04-16 |
 | 28. User Operations Surface | 3/4 | In Progress|  |
-| 29. Secure Impersonation | 0/TBD | Not started | - |
+| 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 0/TBD | Not started | - |
 | 31. Automation-First Verification | 0/TBD | Not started | - |
