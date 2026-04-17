@@ -27,7 +27,7 @@
 - [x] **Phase 29: Secure Impersonation** - Add time-bounded impersonation with visible state, preserved admin actor context, and hard server-side restrictions. (completed 2026-04-17)
 - [x] **Phase 30: Audit Exploration and Export** - Provide global, per-user, and per-organization audit investigation with impersonation-aware filtering and CSV export. (completed 2026-04-17)
 - [x] **Phase 31: Automation-First Verification** - Ship browser, system, and artifact coverage for the admin milestone across desktop, mobile, and dark mode. (completed 2026-04-17)
-- [ ] **Phase 32: Generated Installer Admin Surface Parity** - Close critical generator gaps so a freshly installed host ships a functional admin surface (closes INT-01/02/03 from v1.2 audit).
+- [x] **Phase 32: Generated Installer Admin Surface Parity** - Close critical generator gaps so a freshly installed host ships a functional admin surface (closes INT-01/02/03 from v1.2 audit). (completed 2026-04-17)
 - [ ] **Phase 33: Admin Shell Navigation and Audit Preview Polish** - Port users nav + mobile bottom-nav to the generated shell and align Phase 28 recent-audit preview with Phase 30's Presenter (closes INT-04/05).
 - [ ] **Phase 34: Generated-Host E2E Coverage and Phase 28 Retroactive Verification** - Produce the missing Phase 28 VERIFICATION.md and extend Playwright + smoke coverage to the generated host (closes VFY-01 generated-host gap + Phase 30 human-UAT #2).
 - [ ] **Phase 35: Shift-Left Verification Automation** - Install machine gates for the classes of defects that caused v1.2 audit gaps: generator-emission drift, dead-reference detection, a11y + visual regression baselines, phase-VERIFICATION.md gate, installer-scoped pre-merge audit, and artifact-bundle contract.
@@ -134,7 +134,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 32-01-PLAN.md — Template emission + router injection (INT-01/02/03 unit-level closure)
-- [ ] 32-02-PLAN.md — admin-acceptance-smoke.sh runtime probes (Nyquist integration gate)
+- [x] 32-02-PLAN.md — admin-acceptance-smoke.sh runtime probes (Nyquist integration gate)
 **UI hint**: no
 
 ### Phase 33: Admin Shell Navigation and Audit Preview Polish
@@ -184,7 +184,7 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33 -> 34 ->
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
 | 31. Automation-First Verification | 4/4 | Complete   | 2026-04-17 |
-| 32. Generated Installer Admin Surface Parity | 1/2 | In Progress|  |
+| 32. Generated Installer Admin Surface Parity | 2/2 | Complete   | 2026-04-17 |
 | 33. Admin Shell Navigation and Audit Preview Polish | 0/0 | Pending |  |
 | 34. Generated-Host E2E Coverage and Phase 28 Retroactive Verification | 0/0 | Pending |  |
 | 35. Shift-Left Verification Automation | 0/0 | Pending |  |
