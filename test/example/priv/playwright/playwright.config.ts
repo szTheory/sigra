@@ -26,6 +26,11 @@ const ADMIN_BEHAVIOR_SPECS =
 const ADMIN_CHECKPOINTS_SPEC = /admin-checkpoints\.spec\.ts/;
 const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
 
+// GitHub Pages publish job sets SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1 so reviewer
+// videos are retained on green runs (default CI keeps video on failure only).
+const pagesPublish = process.env.SIGRA_PLAYWRIGHT_PAGES_PUBLISH === '1';
+const checkpointVideo = pagesPublish ? 'on' : 'retain-on-failure';
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,
@@ -88,7 +93,7 @@ export default defineConfig({
       testMatch: ADMIN_CHECKPOINTS_SPEC,
       use: {
         ...devices['Desktop Chrome'],
-        video: 'retain-on-failure',
+        video: checkpointVideo,
       },
     },
     // Admin checkpoint lane (mobile): reviewer-facing mobile checkpoints
@@ -99,7 +104,7 @@ export default defineConfig({
       testMatch: ADMIN_CHECKPOINTS_SPEC,
       use: {
         ...devices['iPhone 13'],
-        video: 'retain-on-failure',
+        video: checkpointVideo,
       },
     },
     // Admin checkpoint lane (dark theme): dark-mode reviewer artifacts come
@@ -112,7 +117,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         colorScheme: 'dark',
-        video: 'retain-on-failure',
+        video: checkpointVideo,
       },
     },
     // Generated-host parity lane: proves installer/template/runtime parity
@@ -124,7 +129,7 @@ export default defineConfig({
       testMatch: ADMIN_GENERATED_SPEC,
       use: {
         ...devices['Desktop Chrome'],
-        video: 'retain-on-failure',
+        video: checkpointVideo,
       },
     },
   ],
