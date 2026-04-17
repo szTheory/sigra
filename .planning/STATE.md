@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 29-04-PLAN.md
-last_updated: "2026-04-17T00:22:28.935Z"
+stopped_at: Completed 29-05-PLAN.md
+last_updated: "2026-04-17T00:27:21.000Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 5
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 
 Phase: 29 (secure-impersonation) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Completed 29-05
 Last activity: 2026-04-17
 
-Progress: [██████░░░░] 60% (3/5 plans complete)
+Progress: [██████████] 100% (5/5 plans complete)
 
 ## Performance Metrics
 
@@ -96,6 +96,7 @@ Recent decisions affecting current work:
 - [Phase 29]: LiveView `mount_current_scope` must preserve `impersonating_from` from the saved admin token so connected pages keep the same impersonation banner contract as controller renders.
 - [Phase 29]: The controller boundary uses a reusable plug, while LiveView handlers fail closed through explicit impersonation checks and Accounts scope guards.
 - [Phase 29]: Denied sensitive operations reuse the existing audit pipeline with admin.impersonation.denied rows instead of a separate logging path.
+- [Phase 29]: Generated API-token mutations now guard the wrapper seam directly and translate impersonation-forbidden tuples into explicit 403 JSON responses.
 
 ### Pending Todos
 
@@ -119,5 +120,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-17T00:22:28.516Z
-Stopped at: Completed 29-04-PLAN.md
+Stopped at: Completed 29-05-PLAN.md
 Resume file: None
