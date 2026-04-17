@@ -17,11 +17,26 @@ defmodule Sigra.Install.Features.AdminTest do
 
   describe "files/1" do
     test "owns the generated admin policy and shell boundary files" do
-      assert [
-               {:eex, "admin/policy.ex", "lib/my_app/sigra_admin_policy.ex"},
-               {:eex, "admin/components/admin_shell.ex",
-                "lib/my_app_web/components/admin_shell.ex"}
-             ] = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
+      files = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
+
+      assert {:eex, "admin/policy.ex", "lib/my_app/sigra_admin_policy.ex"} in files
+
+      assert {:eex, "admin/components/admin_shell.ex",
+              "lib/my_app_web/components/admin_shell.ex"} in files
+    end
+
+    test "emits impersonation_controller template to host controllers/admin/ directory" do
+      files = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
+
+      assert {:eex, "admin/impersonation_controller.ex",
+              "lib/my_app_web/controllers/admin/impersonation_controller.ex"} in files
+    end
+
+    test "emits audit_export_controller template to host controllers/admin/ directory" do
+      files = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
+
+      assert {:eex, "admin/audit_export_controller.ex",
+              "lib/my_app_web/controllers/admin/audit_export_controller.ex"} in files
     end
   end
 
@@ -70,11 +85,66 @@ defmodule Sigra.Install.Features.AdminTest do
     end
   end
 
+  describe "impersonation_controller template (Phase 32)" do
+    @binding [
+      otp_app: :my_app,
+      web_module: "MyAppWeb",
+      app_module: "MyApp",
+      context_module: "MyApp.Accounts"
+    ]
+
+    test "renders with no literal Example references (parameterization complete)" do
+      content = render_impersonation_controller_template()
+
+      refute content =~ "Example", "template still contains literal 'Example' reference"
+      refute content =~ "ExampleWeb", "template still contains literal 'ExampleWeb' reference"
+      assert content =~ "defmodule MyAppWeb.Admin.ImpersonationController"
+    end
+
+    test "renders with all Sigra runtime integration points wired" do
+      content = render_impersonation_controller_template()
+
+      assert content =~ "Sigra.Impersonation.start("
+      assert content =~ "Sigra.Impersonation.stop("
+      assert content =~ "UserAuth.begin_impersonation"
+      assert content =~ "UserAuth.restore_impersonation"
+      assert content =~ ":impersonator_user_token"
+    end
+
+    test "preserves enumeration-prevention mapping (:not_allowed -> :not_found)" do
+      content = render_impersonation_controller_template()
+
+      # T-IMPR-ESCALATION mitigation: the library returns {:error, :not_allowed}
+      # but the controller surfaces :not_found (404) so attackers cannot
+      # distinguish "user exists but you can't impersonate" from "user does
+      # not exist." Do NOT change this to :forbidden.
+      assert content =~ "{:error, :not_allowed} ->"
+      assert content =~ "AuthErrorHandler.auth_error(:not_found, [])"
+    end
+
+    test "substitutes app_module and context_module per 5-rule EEx table" do
+      content = render_impersonation_controller_template()
+
+      # app_module substitution for Organizations reference
+      assert content =~ "MyApp.Organizations.list_organizations_for_user"
+      # context_module.Scope substitution for impersonation_config
+      assert content =~ "MyApp.Accounts.Scope"
+    end
+
+    defp render_impersonation_controller_template do
+      "priv/templates/sigra.install/admin/impersonation_controller.ex"
+      |> File.read!()
+      |> EEx.eval_string(@binding)
+    end
+  end
+
   describe "template ownership guards" do
     test "admin templates exist on disk" do
       assert File.exists?("priv/templates/sigra.install/admin/policy.ex")
       assert File.exists?("priv/templates/sigra.install/admin/router_injection.ex")
       assert File.exists?("priv/templates/sigra.install/admin/components/admin_shell.ex")
+      assert File.exists?("priv/templates/sigra.install/admin/impersonation_controller.ex")
+      assert File.exists?("priv/templates/sigra.install/admin/audit_export_controller.ex")
     end
   end
 
