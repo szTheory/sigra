@@ -421,9 +421,18 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           PHX_SERVER: "true"
-        run: mix phx.server &
+        # WR-04: redirect stdout+stderr so boot output is not interleaved
+        # with later step output and is recoverable via a dedicated failure
+        # step. install_matrix:291 and admin-acceptance-smoke.sh:207 already
+        # follow this pattern — this step missed it.
+        run: mix phx.server > /tmp/example-http-server.log 2>&1 &
       - name: Run HTTP smoke harness
         run: scripts/ci/http-smoke.sh
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-http-server.log ---"
+          cat /tmp/example-http-server.log || echo "(no log file)"
 
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
@@ -487,7 +496,10 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           PHX_SERVER: "true"
-        run: mix phx.server &
+        # WR-04: redirect stdout+stderr so boot output is not interleaved
+        # with later step output and is recoverable via a dedicated failure
+        # step. See also: install_matrix:291, admin-acceptance-smoke.sh:207.
+        run: mix phx.server > /tmp/example-playwright-server.log 2>&1 &
       - name: Wait for app and warm up LiveView routes
         run: |
           # Wait for root.
@@ -557,6 +569,15 @@ jobs:
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts
+      - name: Dump example app log (on failure)
+        if: failure()
+        # WR-04: surface the backgrounded server log directly in the
+        # failure step so investigators do not need to pull the retained-
+        # video artifact to see why boot or a runtime exception killed a
+        # Playwright run.
+        run: |
+          echo "--- /tmp/example-playwright-server.log ---"
+          cat /tmp/example-playwright-server.log || echo "(no log file)"
       - name: Collect curated admin checkpoint screenshots
         if: always()
         working-directory: test/example/priv/playwright
