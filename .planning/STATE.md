@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
 status: executing
-stopped_at: Completed 30-02-PLAN.md
-last_updated: "2026-04-17T01:29:32.052Z"
+stopped_at: Completed 30-03-PLAN.md
+last_updated: "2026-04-17T01:34:24.016Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 16
-  completed_plans: 17
+  completed_plans: 18
   percent: 100
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-16)
 ## Current Position
 
 Phase: 30 (audit-exploration-and-export) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-04-17
 
@@ -61,6 +61,7 @@ Progress: [██████████] 100% (5/5 plans complete)
 | Phase 29 P04 | 44min | 2 tasks | 10 files |
 | Phase 30 P01 | 4 min | 2 tasks | 6 files |
 | Phase 30 P02 | 9 min | 2 tasks | 9 files |
+| Phase 30 P03 | 2 min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Recent decisions affecting current work:
 - [Phase 30]: Extended Sigra.Auth session revoke audit opts for explicit actor, effective user, target, and scope instead of creating an admin-only audit path.
 - [Phase 30]: Kept audit filtering on the existing order_by and order_direction query-string pattern instead of inventing a second sort contract for admin list surfaces.
 - [Phase 30]: Returned an empty organization-scoped audit view for out-of-scope organization filter params so the route stays fail-closed without widening into cross-org data.
+- [Phase 30]: Per-user org-scoped audit routes intentionally widen only to organization_scope {:including_global, org_id} so the same user's global support rows stay visible without changing org-wide explorer behavior.
+- [Phase 30]: Recent Audit on user detail now delegates to the same admin subject-user query contract as the full explorer, closing the old target-only drift.
 
 ### Pending Todos
 
@@ -126,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T01:29:32.049Z
-Stopped at: Completed 30-02-PLAN.md
+Last session: 2026-04-17T01:34:24.013Z
+Stopped at: Completed 30-03-PLAN.md
 Resume file: None
