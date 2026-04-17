@@ -228,16 +228,20 @@ defmodule <%= web_module %>.UserAuth do
     end
   end
 
+<%= if organizations? do %>
   defp build_current_scope(user, session, admin_user) do
     user
     |> Scope.for_user()
-<%= if organizations? do %>
     |> hydrate_scope(session)
-<% else %>
-    |> then(fn scope -> scope end)
-<% end %>
     |> maybe_put_impersonating_from(admin_user)
   end
+<% else %>
+  defp build_current_scope(user, _session, admin_user) do
+    user
+    |> Scope.for_user()
+    |> maybe_put_impersonating_from(admin_user)
+  end
+<% end %>
 <%= if organizations? do %>
   defp hydrate_scope(scope, session) do
     org_config = <%= app_module %>.Organizations.__sigra_org_config__()

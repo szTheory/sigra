@@ -456,16 +456,18 @@ defmodule <%= web_module %>.MFAChallengeLive do
     |> Map.values()
     |> Enum.join(" ")
     |> String.downcase()
-    |> case do
-      value when value =~ "timeout" ->
-        :timeout
+    |> then(fn value ->
+      cond do
+        String.contains?(value, "timeout") ->
+          :timeout
 
-      value when value =~ "unsupported" or value =~ "not_supported" ->
-        :unsupported
+        String.contains?(value, "unsupported") or String.contains?(value, "not_supported") ->
+          :unsupported
 
-      _ ->
-        :generic
-    end
+        true ->
+          :generic
+      end
+    end)
   end
 
   defp passkey_recovery_bucket(_payload), do: :generic

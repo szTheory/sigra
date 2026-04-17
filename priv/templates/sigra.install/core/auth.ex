@@ -652,9 +652,6 @@ defmodule <%= context_module %> do
 <%= if passkeys? do %>
   ## Passkeys
 
-  @passkey_sign_in_error "We couldn't finish passkey sign-in. Try again or use another way to continue."
-  @duplicate_passkey_error "This passkey is already registered."
-
   @doc "List passkeys for a user."
   def passkeys_for_user(user) do
     Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
@@ -956,9 +953,9 @@ defmodule <%= context_module %> do
 
   Returns `{:ok, user}` or `{:error, reason}`.
   """
-  def cancel_deletion(user) do
+  def cancel_deletion(user, opts \\ []) do
     Sigra.Auth.cancel_deletion(sigra_config(), user,
-      changeset_fn: &<%= schema_alias %>.deletion_changeset/2
+      Keyword.merge([changeset_fn: &<%= schema_alias %>.deletion_changeset/2], opts)
     )
   end
 

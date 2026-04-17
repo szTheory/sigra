@@ -101,9 +101,13 @@ defmodule <%= web_module %>.Admin.ImpersonationController do
     user = Accounts.get_user!(user_id)
 
     organization_ids =
+<%= if organizations? do %>
       user
       |> <%= app_module %>.Organizations.list_organizations_for_user()
       |> Enum.map(fn {organization, _role} -> organization.id end)
+<% else %>
+      []
+<% end %>
 
     Map.put(user, :organization_ids, organization_ids)
   end
