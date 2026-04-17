@@ -145,6 +145,10 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Generated `admin_shell.ex` template includes `users_link/1` helper, top-bar Users entry, and mobile bottom-nav entry ported from `test/example/lib/example_web/components/admin_shell.ex:52-60,98-102`.
   2. `Sigra.Admin.Users.Detail.recent_audit_preview/*` pipes events through `Sigra.Admin.Audit.Presenter.present/2` so impersonation badges and actor labels match the Phase 30 explorer rendering.
+**Plans**: 2 plans
+Plans:
+- [ ] 33-01-PLAN.md — INT-04 admin shell Users navigation port (template + drift-guard fixture)
+- [ ] 33-02-PLAN.md — INT-05 recent-audit Presenter re-wire (Detail loader + UserShowLive render + assertion update)
 **UI hint**: yes
 
 ### Phase 34: Generated-Host E2E Coverage and Phase 28 Retroactive Verification
@@ -185,6 +189,6 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33 -> 34 ->
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
 | 31. Automation-First Verification | 4/4 | Complete   | 2026-04-17 |
 | 32. Generated Installer Admin Surface Parity | 2/2 | Complete    | 2026-04-17 |
-| 33. Admin Shell Navigation and Audit Preview Polish | 0/0 | Pending |  |
+| 33. Admin Shell Navigation and Audit Preview Polish | 0/2 | Pending |  |
 | 34. Generated-Host E2E Coverage and Phase 28 Retroactive Verification | 0/0 | Pending |  |
 | 35. Shift-Left Verification Automation | 0/0 | Pending |  |
