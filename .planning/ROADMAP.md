@@ -26,7 +26,7 @@
 - [ ] **Phase 28: User Operations Surface** - Deliver searchable, filterable, mobile-friendly user management and detail flows for operator jobs-to-be-done.
 - [x] **Phase 29: Secure Impersonation** - Add time-bounded impersonation with visible state, preserved admin actor context, and hard server-side restrictions. (completed 2026-04-17)
 - [x] **Phase 30: Audit Exploration and Export** - Provide global, per-user, and per-organization audit investigation with impersonation-aware filtering and CSV export. (completed 2026-04-17)
-- [ ] **Phase 31: Automation-First Verification** - Ship browser, system, and artifact coverage for the admin milestone across desktop, mobile, and dark mode.
+- [x] **Phase 31: Automation-First Verification** - Ship browser, system, and artifact coverage for the admin milestone across desktop, mobile, and dark mode. (completed 2026-04-17)
 
 ## Phase Details
 
@@ -128,4 +128,4 @@ Phases execute in numeric order: 27 -> 28 -> 29 -> 30 -> 31
 | 28. User Operations Surface | 3/4 | In Progress|  |
 | 29. Secure Impersonation | 5/5 | Complete    | 2026-04-17 |
 | 30. Audit Exploration and Export | 4/4 | Complete    | 2026-04-17 |
-| 31. Automation-First Verification | 3/4 | In Progress|  |
+| 31. Automation-First Verification | 4/4 | Complete   | 2026-04-17 |
