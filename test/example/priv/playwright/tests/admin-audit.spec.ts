@@ -143,6 +143,9 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
 
     expect(scopedCsv).toContain('session.create');
     expect(scopedCsv).toContain(targetEmail);
-    expect(scopedCsv).toContain('organization_label');
+    // Assert the actual organization_label row content (not the header),
+    // so the test notices an empty CSV body where `organization_label`
+    // is a fixed column header that would otherwise pass tautologically.
+    expect(scopedCsv).toContain(orgName);
   });
 });
