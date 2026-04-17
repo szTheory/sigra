@@ -3,79 +3,176 @@
 [![Hex version](https://img.shields.io/hexpm/v/sigra.svg)](https://hex.pm/packages/sigra)
 [![Docs](https://img.shields.io/badge/hexdocs-api%20%26%20guides-5865F2)](https://hexdocs.pm/sigra)
 
-**Production-minded authentication for Phoenix 1.8+** — sessions, passwords, email flows, OAuth, MFA, passkeys, optional organizations and admin tooling — without betting your security story on copy-pasted app code that never gets patched.
+**Production-minded authentication for Phoenix 1.8+** — sessions, passwords, email flows, OAuth, MFA, passkeys, optional organizations and admin tooling — without treating security-sensitive code as throwaway scaffolding.
 
-Pow does not support Phoenix 1.8+. Sigra does, deliberately: **critical crypto and auth logic stay in the library** (you `mix deps.update`), while **schemas, routes, and LiveViews live in your repo** so you own the seam to your product.
+**TL;DR**
+
+- **Problem:** Pow does not support Phoenix 1.8+. Rolling your own auth across crypto, sessions, MFA, and OAuth is slow and risky.
+- **What Sigra is:** A **library** of hardened primitives plus **generators** that emit normal Phoenix modules into *your* repo — you patch UX and policy; you `mix deps.update` the sensitive core.
+- **When to leave:** You want a hosted identity product (Auth0-as-app) or a framework that hides all auth code from the repo entirely — different tradeoffs.
 
 ---
 
-## Start here (90 seconds)
+## Pick your lane
 
-1. **Add the dependency** in `mix.exs`:
+| You are… | Do this first |
+|----------|----------------|
+| **Evaluating** | Skim **Where code lives** (diagram), **What ships**, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
+| **Integrating** | Run **First integration** (diagram + commands), read **Prerequisites**, then follow [Installation](guides/introduction/installation.md) and [Getting started](guides/introduction/getting-started.md). |
+| **Contributing** | Match [`.tool-versions`](.tool-versions), run Postgres-backed tests per [`CLAUDE.md`](CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use [`test/example/`](test/example/) as the reference host. |
+
+---
+
+## Where code lives
+
+```mermaid
+flowchart LR
+  subgraph SigraPkg [Sigra_hex_package]
+    directionTB
+    LibCore[Crypto_tokens_MFA_OAuth_plugs]
+    LibBehaviours[Behaviours_and_options]
+  end
+  subgraph HostRepo [Your_application]
+    directionTB
+    GenCtx[Generated_contexts_schemas]
+    GenWeb[Generated_routes_LiveViews]
+  end
+  SigraPkg -->|"call_into_Sigra"| GenCtx
+  SigraPkg -->|"call_into_Sigra"| GenWeb
+  GenWeb -->|"you_edit_copy_and_policy"| GenWeb
+```
+
+- **Left:** ships on Hex; security fixes ride **`mix deps.update`**.
+- **Right:** plain Elixir under `lib/my_app/` and `lib/my_app_web/` — code review and product iteration happen there.
+
+---
+
+## First integration
+
+```mermaid
+flowchart TD
+  A[mix_deps_get]
+  B["mix_sigra_install_Context_Schema_table"]
+  C[mix_ecto_migrate]
+  D[mix_phx_server]
+  A --> B --> C --> D
+```
+
+1. **Dependency** (`mix.exs`):
 
    ```elixir
    {:sigra, "~> 0.1.0"}
    ```
 
-2. **Fetch and install** into a Phoenix app that already has Ecto + Postgres wired the usual way:
+2. **Scaffold** (from app root; names must match your domain):
 
    ```bash
    mix deps.get
    mix sigra.install Accounts User users
    ```
 
-   Adjust module names to match your app (`Accounts` / `User` / `users` table are the common defaults from the docs).
-
-3. **Migrate and run**:
+3. **Database + run**:
 
    ```bash
    mix ecto.migrate
    mix phx.server
    ```
 
-You now have register / log in / confirmation / reset-password style flows (exact surface depends on the flags you passed to `mix sigra.install`). **Full API and options** live on [HexDocs](https://hexdocs.pm/sigra).
+Branching installer flags (`--no-live`, `--admin`, `--api`, …) are summarized below; **every switch and default** is documented in source (`lib/mix/tasks/`) and, when published, on [HexDocs](https://hexdocs.pm/sigra) alongside the API reference.
 
 ---
 
-## Why Sigra feels different
+## Prerequisites
 
-| You get | Why it matters |
-|--------|----------------|
-| **Library-owned security** | Token signing, MFA verification, OAuth callback handling, rate-limit hooks — the boring places bugs become CVEs. |
-| **Generator-owned UI seams** | LiveViews and controllers are *your* files: customize copy, layout, and policy without forking a black-box dep. |
-| **Phoenix 1.8 as the baseline** | Built for `live_session`, modern endpoints, and the post-Pow ecosystem — not a layer fighting the framework. |
+| Requirement | Notes |
+|-------------|--------|
+| **Elixir** | `~> 1.18` (see [`mix.exs`](mix.exs)); align local toolchains with [`.tool-versions`](.tool-versions). |
+| **Phoenix** | 1.8.x baseline the library targets. |
+| **Database** | Ecto + typical Postgres setup for the happy path; other adapters are handled in generated migrations where applicable. |
+| **Mailer** | Email flows expect Swoosh (or compatible) wiring — see [Installation](guides/introduction/installation.md). |
+
+---
+
+## Installer at a glance
+
+| Intent | Example flags | Read more |
+|--------|----------------|-----------|
+| **Controllers only** (no LiveView UI) | `--no-live` | [`mix sigra.install` source](lib/mix/tasks/sigra.install.ex), [HexDocs](https://hexdocs.pm/sigra) |
+| **API / JWT surface** | `--api`, or `--jwt` (implies API pieces) | [API authentication](guides/flows/api-authentication.md), [`sigra.install` source](lib/mix/tasks/sigra.install.ex) |
+| **Admin LiveView suite** | default on; **`--no-admin`** to omit | [`sigra.install` source](lib/mix/tasks/sigra.install.ex) |
+| **Passkeys** | default on; **`--no-passkeys`** to omit | [Passkeys recipe](guides/recipes/passkeys.md) |
+| **Organizations** | default on; **`--no-organizations`** to omit | [Multi-tenant recipe](guides/recipes/multi-tenant.md) |
+| **UUID primary keys** | default on; **`--no-binary-id`** for bigint IDs | [`sigra.install` source](lib/mix/tasks/sigra.install.ex) |
+| **OAuth slice only** (existing install) | `mix sigra.gen.oauth …` | [OAuth flow](guides/flows/oauth.md), [`sigra.gen.oauth` source](lib/mix/tasks/sigra.gen.oauth.ex) |
 
 ---
 
 ## What ships in the box
 
-Rough mental map (see HexDocs for the full matrix and flags):
+One clause each — depth lives in HexDocs and the guides linked in the next section.
 
-- **Identity** — Argon2id passwords, optional bcrypt transparent upgrade on login, remember-me, sudo / step-up.
-- **Email** — Registration, confirmation (link + code), magic link, password reset, lifecycle mailers (Swoosh-shaped).
-- **Sessions** — Database-backed sessions with scope-friendly metadata (IPs, devices, optional geo hooks).
-- **MFA** — TOTP (NimbleTOTP), backup codes, trust-this-device patterns the example app demonstrates.
-- **OAuth** — Assent-backed strategies; `mix sigra.gen.oauth` for a focused OAuth slice when you do not want a full re-install.
-- **Passkeys & orgs** — Optional installer flags for WebAuthn (`wax_`) and multi-tenant-style organizations when you need them.
-- **Admin (optional)** — Installer-gated LiveView admin, impersonation guardrails, audit exploration — off the happy path until you opt in.
-
-If you only remember one thing: **Sigra is the security core + generators; your `lib/my_app_web/` is the product chrome.**
-
----
-
-## Read next
-
-- **[Installation & first-time setup](guides/introduction/installation.md)** — deps, env, mailer, and the “does it compile?” checklist.
-- **[Getting started walkthrough](guides/introduction/getting-started.md)** — register → confirm → log in → protect a route in small, ordered steps.
-- **[HexDocs](https://hexdocs.pm/sigra)** — module reference, behaviours, installer options, upgrade notes.
+| Area | You get |
+|------|---------|
+| **Identity** | Argon2id passwords, optional bcrypt → Argon2id upgrade on login, remember-me, sudo / step-up hooks. |
+| **Sessions** | Database-backed sessions, device/IP metadata hooks, revocation patterns the generators wire up. |
+| **Email** | Registration, confirmation (link + code), magic link, reset, lifecycle mailers — Swoosh-shaped templates in the host. |
+| **MFA** | TOTP (NimbleTOTP), backup codes, lockout-aware verification; trust-this-device patterns in the example app. |
+| **OAuth** | Assent-backed strategies, encrypted token fields when Cloak is in play; optional `mix sigra.gen.oauth` for incremental adoption. |
+| **Passkeys** | WebAuthn via `wax_` when enabled — registration + authentication ceremonies with host-owned credential rows. |
+| **Organizations** | Logical multi-tenancy (memberships, invitations, scoped plugs) when enabled — not “separate DB per tenant”. |
+| **Admin** | Optional installer-generated admin LiveView (global + org lenses), impersonation guardrails, audit surfaces when enabled. |
+| **Audit** | Structured audit logging hooks feeding explorer/export flows where the installer emitted them. |
 
 ---
 
-## For contributors & maintainers
+## Topic map → guides
 
-- **Elixir / OTP** versions live in [`.tool-versions`](.tool-versions); match them in CI and locally.
-- **Tests** expect Postgres; `CLAUDE.md` has a copy-paste Docker one-liner. The **`test/example`** tree is the canonical “generated host” we compile and drive in Playwright / installer drift tests.
-- **Hacking workflow** — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for CI lanes, Playwright artifacts, and review expectations.
+| Topic | Guide |
+|-------|--------|
+| Installation & env | [introduction/installation.md](guides/introduction/installation.md) |
+| First happy path | [introduction/getting-started.md](guides/introduction/getting-started.md) |
+| Upgrade notes | [introduction/upgrading-to-v1.1.md](guides/introduction/upgrading-to-v1.1.md) |
+| Registration | [flows/registration.md](guides/flows/registration.md) |
+| Login / logout | [flows/login-and-logout.md](guides/flows/login-and-logout.md) |
+| Password reset | [flows/password-reset.md](guides/flows/password-reset.md) |
+| Account lifecycle | [flows/account-lifecycle.md](guides/flows/account-lifecycle.md) |
+| OAuth | [flows/oauth.md](guides/flows/oauth.md) |
+| MFA | [flows/mfa.md](guides/flows/mfa.md) |
+| API / JWT | [flows/api-authentication.md](guides/flows/api-authentication.md) |
+| Audit logging | [flows/audit-logging.md](guides/flows/audit-logging.md) |
+| Deployment | [recipes/deployment.md](guides/recipes/deployment.md) |
+| Testing | [recipes/testing.md](guides/recipes/testing.md) |
+| Passkeys | [recipes/passkeys.md](guides/recipes/passkeys.md) |
+| Multi-tenant patterns | [recipes/multi-tenant.md](guides/recipes/multi-tenant.md) |
+| Custom user fields | [recipes/custom-user-fields.md](guides/recipes/custom-user-fields.md) |
+| Subdomain auth | [recipes/subdomain-auth.md](guides/recipes/subdomain-auth.md) |
+
+---
+
+## Security posture (headlines)
+
+| Topic | Default stance |
+|-------|----------------|
+| **Passwords** | Argon2id via configured hasher; bcrypt verify-and-upgrade path when enabled. |
+| **Tokens** | HMAC-protected, time-bounded patterns for magic links, reset, confirmation — stored references, not “guessable IDs only”. |
+| **Enumeration** | Safer defaults on account discovery flows (details in HexDocs per flow). |
+| **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
+
+For threat-model detail and per-flow guarantees, use **HexDocs** and the verification narratives shipped with each release milestone — the README stays a map, not a spec.
+
+---
+
+## Reference host: `test/example`
+
+The [`test/example/`](test/example/) tree is a **real Phoenix app** living inside this repo: it tracks what `mix sigra.install` (and friends) emit, compiles under `--warnings-as-errors` in CI, and backs **Playwright** browser smoke (golden path, org flows, admin checkpoints, GA shift-left specs). It is not a second product — it is the executable contract that installer drift tests and reviewer artifacts refer to. When in doubt about “what does the generator actually produce?”, read that tree or the HexDocs task reference.
+
+---
+
+## Contributing & issues
+
+- **Workflow & CI** — [`CONTRIBUTING.md`](CONTRIBUTING.md) (Playwright artifacts, installer audit jobs, Pages mirror).
+- **Local parity** — [`CLAUDE.md`](CLAUDE.md) (Postgres one-liner, `mix test` expectations).
+- **Bugs & ideas** — [GitHub Issues](https://github.com/szTheory/sigra/issues).
 
 ---
 
