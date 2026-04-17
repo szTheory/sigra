@@ -62,6 +62,12 @@ for i in $(seq 1 30); do
 done
 
 fail=0
+# EXTRA_CHECKS counts non-array runtime seam probes (cookie warmup,
+# cookie presence, cookie reuse, admin denial) so the final summary
+# line stays accurate when checks are added or removed. Previously
+# this was a magic `+ 4` literal at the summary line that silently
+# drifted if anyone edited the probes without touching the math.
+EXTRA_CHECKS=0
 
 check_non_5xx() {
   local path="$1"
@@ -93,6 +99,7 @@ echo "==> http-smoke: probing session-cookie continuity"
 
 first_code=$(curl -s -o /dev/null -w "%{http_code}" \
   -c "${COOKIE_JAR}" -L --max-redirs 5 "${HOST}/users/log_in")
+EXTRA_CHECKS=$((EXTRA_CHECKS + 1))
 if [[ "${first_code}" -ge 500 ]]; then
   echo "FAIL: initial cookie-jar fetch returned ${first_code}"
   fail=1
@@ -100,6 +107,7 @@ else
   echo "OK:   cookie-jar warmup /users/log_in -> ${first_code}"
 fi
 
+EXTRA_CHECKS=$((EXTRA_CHECKS + 1))
 if [[ ! -s "${COOKIE_JAR}" ]]; then
   echo "FAIL: session cookie was not set on /users/log_in"
   fail=1
@@ -109,6 +117,7 @@ fi
 
 second_code=$(curl -s -o /dev/null -w "%{http_code}" \
   -b "${COOKIE_JAR}" -c "${COOKIE_JAR}" -L --max-redirs 5 "${HOST}/")
+EXTRA_CHECKS=$((EXTRA_CHECKS + 1))
 if [[ "${second_code}" -ge 500 ]]; then
   echo "FAIL: cookie reuse GET / returned ${second_code}"
   fail=1
@@ -123,6 +132,7 @@ fi
 # full denial matrix stays in ExUnit.
 echo "==> http-smoke: probing unauthenticated /admin denial semantics"
 denial_code=$(curl -s -o /dev/null -w "%{http_code}" "${HOST}/admin")
+EXTRA_CHECKS=$((EXTRA_CHECKS + 1))
 if [[ "${denial_code}" == "200" ]]; then
   echo "FAIL: /admin returned 200 without authentication; admin pipeline is misrouted"
   fail=1
@@ -135,5 +145,5 @@ if [[ "${fail}" -eq 1 ]]; then
   exit 1
 fi
 
-total_checks=$(( ${#PUBLIC_ROUTES[@]} + ${#ADMIN_ROUTES_UNAUTH[@]} + 4 ))
+total_checks=$(( ${#PUBLIC_ROUTES[@]} + ${#ADMIN_ROUTES_UNAUTH[@]} + EXTRA_CHECKS ))
 echo "==> http-smoke: all ${total_checks} runtime seam checks passed"
