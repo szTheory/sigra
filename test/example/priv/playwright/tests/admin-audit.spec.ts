@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect, type Download, type Page } from '@playwright/test';
+import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: canonical admin audit browser contract.
 //
@@ -76,7 +77,7 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     page,
   }) => {
     const suffix = Date.now();
-    const password = 'CorrectHorseBatteryStaple123!';
+    const password = TEST_PASSWORD;
     const targetEmail = `audit-target-${suffix}@example.test`;
     const adminEmail = `platform-admin+audit-${suffix}@example.test`;
     const orgName = `Audit Org ${suffix}`;

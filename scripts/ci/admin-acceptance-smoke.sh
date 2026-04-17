@@ -28,10 +28,16 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export MIX_ENV="${MIX_ENV:-dev}"
+# test-only: deterministic Cloak key for the ephemeral smoke DB; NEVER
+# reuse in any non-test environment. The default value only takes effect
+# when CLOAK_KEY is unset, so CI / local runs can override.
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
 
 export SIGRA_PLATFORM_ADMIN_EMAIL="${SIGRA_PLATFORM_ADMIN_EMAIL:-platform-admin@example.test}"
 export SIGRA_ORG_ADMIN_EMAIL="${SIGRA_ORG_ADMIN_EMAIL:-org-admin@example.test}"
+# test-only: deterministic smoke admin password; NEVER reuse in any
+# non-test environment. Matches the shared Playwright TEST_PASSWORD
+# fixture so the scaffolded admin user can log in from the spec side.
 export SIGRA_ADMIN_PASSWORD="${SIGRA_ADMIN_PASSWORD:-CorrectHorseBatteryStaple123!}"
 export SIGRA_ALLOWED_ORG_SLUG="${SIGRA_ALLOWED_ORG_SLUG:-allowed-org}"
 export SIGRA_ALLOWED_ORG_NAME="${SIGRA_ALLOWED_ORG_NAME:-Allowed Org}"

@@ -1,6 +1,7 @@
 import { statSync } from 'node:fs';
 import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { captureAdminCheckpoint } from '../helpers/adminArtifacts';
+import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: curated admin checkpoint spec.
 //
@@ -112,7 +113,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     page,
   }, testInfo) => {
     const suffix = Date.now();
-    const password = 'CorrectHorseBatteryStaple123!';
+    const password = TEST_PASSWORD;
     const targetEmail = `checkpoint-target-${suffix}@example.test`;
     // Example.SigraAdminPolicy grants platform-admin to users whose email
     // starts with the `platform-admin+` prefix — match that convention so

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: canonical admin impersonation browser contract.
 //
@@ -67,7 +68,7 @@ test.describe('Phase 31 admin impersonation browser contract (D-04 3)', () => {
     page,
   }) => {
     const suffix = Date.now();
-    const password = 'CorrectHorseBatteryStaple123!';
+    const password = TEST_PASSWORD;
     const targetEmail = `impersonation-target-${suffix}@example.test`;
     const adminEmail = `platform-admin+impersonation-${suffix}@example.test`;
 
@@ -88,7 +89,7 @@ test.describe('Phase 31 admin impersonation browser contract (D-04 3)', () => {
     page,
   }) => {
     const suffix = Date.now();
-    const password = 'CorrectHorseBatteryStaple123!';
+    const password = TEST_PASSWORD;
     const targetEmail = `org-admin+impersonation-target-${suffix}@example.test`;
     const adminEmail = `platform-admin+impersonation-${suffix}@example.test`;
     const orgName = `Impersonation Org ${suffix}`;

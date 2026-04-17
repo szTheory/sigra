@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { captureAdminCheckpoint } from "../helpers/adminArtifacts";
+import { TEST_PASSWORD } from "../helpers/fixtures";
 
 // Phase 31 Plan 1: generated-host admin parity smoke.
 //
@@ -22,8 +23,7 @@ import { captureAdminCheckpoint } from "../helpers/adminArtifacts";
 const platformAdminEmail =
   process.env.SIGRA_PLATFORM_ADMIN_EMAIL ?? "platform-admin@example.test";
 const orgAdminEmail = process.env.SIGRA_ORG_ADMIN_EMAIL ?? "org-admin@example.test";
-const adminPassword =
-  process.env.SIGRA_ADMIN_PASSWORD ?? "CorrectHorseBatteryStaple123!";
+const adminPassword = process.env.SIGRA_ADMIN_PASSWORD ?? TEST_PASSWORD;
 const allowedOrgSlug = process.env.SIGRA_ALLOWED_ORG_SLUG ?? "allowed-org";
 const allowedOrgName = process.env.SIGRA_ALLOWED_ORG_NAME ?? "Allowed Org";
 const otherOrgSlug = process.env.SIGRA_OTHER_ORG_SLUG ?? "other-scope";

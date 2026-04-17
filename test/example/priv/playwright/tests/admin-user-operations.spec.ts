@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 31 Plan 2: canonical admin user-operations browser contract.
 //
@@ -69,7 +70,7 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     page,
   }) => {
     const suffix = Date.now();
-    const password = 'CorrectHorseBatteryStaple123!';
+    const password = TEST_PASSWORD;
     const targetEmail = `operator-target-${suffix}@example.test`;
     const adminEmail = `platform-admin+${suffix}@example.test`;
 
@@ -124,7 +125,7 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     page,
   }) => {
     const suffix = Date.now();
-    const password = 'CorrectHorseBatteryStaple123!';
+    const password = TEST_PASSWORD;
     const targetEmail = `pivot-target-${suffix}@example.test`;
     const adminEmail = `platform-admin+pivot-${suffix}@example.test`;
     const orgName = `Pivot Org ${suffix}`;
