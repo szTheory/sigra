@@ -273,7 +273,16 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: mix sigra.install Accounts User users ${{ matrix.flags }} --yes
+          # WR-02: pipe matrix.flags through an env var instead of direct
+          # ${{ }} expansion into the shell string. Today `matrix.flags`
+          # comes from the repo itself (safe), but env-var-indirection is
+          # the pattern GitHub recommends because it prevents a future
+          # maintainer from unknowingly inheriting command-injection if
+          # the matrix value ever gets sourced from `github.event.*`.
+          MATRIX_FLAGS: ${{ matrix.flags }}
+        # shellcheck disable=SC2086 -- MATRIX_FLAGS is an intentional
+        # space-separated list of install flags; word-splitting is desired.
+        run: mix sigra.install Accounts User users $MATRIX_FLAGS --yes
       - name: Compile + migrate + test
         working-directory: tmp_app
         env:
