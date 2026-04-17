@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Admin Dashboard
-status: phase_verified
-stopped_at: Completed 31-04-PLAN.md + phase verification
-last_updated: "2026-04-17T04:54:00.000Z"
-last_activity: 2026-04-17 -- Phase 31 execution complete; verified with 1 human-verification item
+status: executing
+stopped_at: Completed 30-04-PLAN.md
+last_updated: "2026-04-17T14:17:34.429Z"
+last_activity: 2026-04-17 -- Phase 32 execution started
 progress:
-  total_phases: 5
+  total_phases: 9
   completed_phases: 5
-  total_plans: 23
+  total_plans: 22
   completed_plans: 23
   percent: 100
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Current focus:** v1.2 milestone audit + human-verification item on Phase 31 artifact review
+**Current focus:** Phase 32 — generated-installer-admin-surface-parity
 
 ## Current Position
 
-Phase: 31 (automation-first-verification) — VERIFIED (1 human-verification item open)
-Plan: 4 of 4 (all complete)
-Status: Phase 31 verified; ready for milestone audit
-Last activity: 2026-04-17 -- Phase 31 execution complete; code review + verification done
+Phase: 32 (generated-installer-admin-surface-parity) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 32
+Last activity: 2026-04-17 -- Phase 32 execution started
 
 Progress: [██████████] 100% (4/4 Phase 31 plans complete)
 
