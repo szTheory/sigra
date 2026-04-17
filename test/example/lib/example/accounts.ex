@@ -644,6 +644,39 @@ defmodule Example.Accounts do
     ]
   end
 
+  ## API tokens
+
+  @impersonation_api_token_denial_message "You can't manage API tokens while impersonating."
+
+  @doc "Parity helper for generated API-token wrapper behavior."
+  def create_api_token(user, attrs, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, opts, "api_token.create") do
+      token = %{
+        id: Ecto.UUID.generate(),
+        name: Map.get(attrs, :name) || Map.get(attrs, "name"),
+        scopes: Map.get(attrs, :scopes) || Map.get(attrs, "scopes") || [],
+        expires_at: Map.get(attrs, :expires_at) || Map.get(attrs, "expires_at"),
+        prefix: "sigra_sk_test"
+      }
+
+      {:ok, "sigra_sk_test_raw", token}
+    end
+  end
+
+  @doc "Parity helper for generated API-token revoke behavior."
+  def revoke_api_token(user, token_id, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, opts, "api_token.revoke") do
+      {:ok, %{id: token_id}}
+    end
+  end
+
+  @doc "Parity helper for generated API-token bulk revoke behavior."
+  def revoke_all_api_tokens(user, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, opts, "api_token.revoke_all") do
+      {:ok, 1}
+    end
+  end
+
   ## MFA
 
   alias Example.Accounts.UserMFACredential
@@ -1177,6 +1210,25 @@ defmodule Example.Accounts do
         )
 
         {:error, :impersonation_forbidden}
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp forbid_api_token_operation(user, opts_or_details, operation) do
+    case extract_scope(opts_or_details) do
+      %{impersonating_from: impersonator} = scope when not is_nil(impersonator) ->
+        Sigra.Audit.log_safe("admin.impersonation.denied", scope,
+          audit_schema: Example.Accounts.AuditEvent,
+          repo: Repo,
+          actor_id: impersonator.id,
+          target_id: user.id,
+          outcome: "failure",
+          metadata: %{operation: operation}
+        )
+
+        {:error, :impersonation_forbidden, @impersonation_api_token_denial_message}
 
       _ ->
         :ok

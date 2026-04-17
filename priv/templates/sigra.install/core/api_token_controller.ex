@@ -20,10 +20,13 @@ defmodule <%= web_module %>.APITokenController do
 
   alias <%= context_module %>, as: Auth
 
+  @impersonation_denial_message "You can't manage API tokens while impersonating."
+
   @doc "Lists active API tokens for the current user (paginated)."
   def index(conn, params) do
     config = Auth.sigra_config()
-    user = conn.assigns.current_scope
+    scope = conn.assigns.current_scope
+    user = scope_user(scope)
 
     opts = [
       cursor: params["cursor"],
@@ -41,7 +44,8 @@ defmodule <%= web_module %>.APITokenController do
   @doc "Creates a new API token. Returns the raw key only in this response."
   def create(conn, %{"token" => token_params}) do
     config = Auth.sigra_config()
-    user = conn.assigns.current_scope
+    scope = conn.assigns.current_scope
+    user = scope_user(scope)
 
     attrs = %{
       name: token_params["name"],
@@ -49,11 +53,14 @@ defmodule <%= web_module %>.APITokenController do
       expires_at: parse_expires_at(token_params["expires_at"])
     }
 
-    case Auth.create_api_token(user, attrs) do
+    case Auth.create_api_token(user, attrs, scope: scope) do
       {:ok, raw_key, token} ->
         conn
         |> put_status(:created)
         |> json(%{data: Map.merge(token_json(token), %{raw_key: raw_key})})
+
+      {:error, :impersonation_forbidden, message} ->
+        impersonation_forbidden(conn, message)
 
       {:error, changeset} when is_struct(changeset, Ecto.Changeset) ->
         conn
@@ -69,9 +76,12 @@ defmodule <%= web_module %>.APITokenController do
 
   @doc "Revokes a specific API token by ID."
   def delete(conn, %{"id" => id}) do
-    case Auth.revoke_api_token(id) do
+    case Auth.revoke_api_token(id, scope: conn.assigns.current_scope) do
       {:ok, _token} ->
         json(conn, %{ok: true})
+
+      {:error, :impersonation_forbidden, message} ->
+        impersonation_forbidden(conn, message)
 
       {:error, :not_found} ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -80,12 +90,28 @@ defmodule <%= web_module %>.APITokenController do
 
   @doc "Revokes all API tokens for the current user."
   def delete_all(conn, _params) do
-    user = conn.assigns.current_scope
-    {:ok, count} = Auth.revoke_all_api_tokens(user)
-    json(conn, %{ok: true, revoked_count: count})
+    scope = conn.assigns.current_scope
+    user = scope_user(scope)
+
+    case Auth.revoke_all_api_tokens(user, scope: scope) do
+      {:ok, count} ->
+        json(conn, %{ok: true, revoked_count: count})
+
+      {:error, :impersonation_forbidden, message} ->
+        impersonation_forbidden(conn, message)
+    end
   end
 
   # -- Private helpers --
+
+  defp impersonation_forbidden(conn, message \\ @impersonation_denial_message) do
+    conn
+    |> put_status(:forbidden)
+    |> json(%{error: "impersonation_forbidden", message: message})
+  end
+
+  defp scope_user(%{user: user}), do: user
+  defp scope_user(user), do: user
 
   defp token_json(token) do
     %{
