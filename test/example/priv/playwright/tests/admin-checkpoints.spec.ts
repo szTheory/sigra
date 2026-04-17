@@ -46,7 +46,7 @@ async function registerUser(page: Page, email: string, password: string) {
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
-  await page.locator('form').first().evaluate((form) => {
+  await page.locator('form:has(input[name="user[password]"])').first().evaluate((form) => {
     (form as HTMLFormElement).requestSubmit();
   });
   await expect(page).not.toHaveURL(/\/users\/register/);
