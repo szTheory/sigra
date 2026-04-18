@@ -4,14 +4,14 @@ milestone: v1.3
 milestone_name: Cleanup & Hardening
 status: active
 stopped_at: v1.3 opened — REQUIREMENTS.md + ROADMAP Phases 36–40 (no new product features)
-last_updated: "2026-04-17T23:59:59.000Z"
-last_activity: 2026-04-17 -- `/gsd-new-milestone` substance: hardening scope only
+last_updated: "2026-04-18T12:00:00.000Z"
+last_activity: 2026-04-18 -- Phase 38 closed via machine UAT path (`38-02-SUMMARY.md`, `38-VERIFICATION.md`); next milestone work **Phase 39** (AUD-01–03)
 progress:
   total_phases: 5
-  completed_phases: 0
-  total_plans: 2
-  completed_plans: 2
-  percent: 0
+  completed_phases: 3
+  total_plans: 4
+  completed_plans: 4
+  percent: 60
 ---
 
 # Project State
@@ -25,11 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: **38** (Human GA UAT gate) — **partial** (`gsd-sdk` unavailable; `/gsd-execute-phase 38` inline).
-Plans: **`38-01` complete** (SUMMARY + REVIEW; UAT-02 scaffold: `.planning/v1.3-HUMAN-UAT.md`, `.planning/uat-evidence/v1.3.0/`). **`38-02` not started** — `autonomous: false`; needs human runs per `38-02-PLAN.md` and `scripts/uat/RUNBOOK.md` (mail clients, OAuth, browser flows, getting-started timing) before flipping UAT-01/UAT-02 in `REQUIREMENTS.md` and the CHANGELOG pointer.
-Last activity: 2026-04-17 -- Phase 38 Wave 1: UAT-02 scaffolding commits landed.
+Phase: **39** (Audit trail completeness) — **next** per `ROADMAP.md` / `REQUIREMENTS.md`.
+Plans: Phase **38** complete on disk — `38-01-SUMMARY.md`, `38-02-SUMMARY.md`, `38-VERIFICATION.md`; UAT-01/UAT-02 checked; machine closure documented in `v1.3-HUMAN-UAT.md` + `docs/uat-ci-coverage.md`.
+Phases **36–38** on disk: plan/summary pairs complete for 36–37; phase 38 verifier passed.
+Last activity: 2026-04-18 -- Phase 38 machine UAT closure landed (CI + evidence tree).
 
-Progress: [░░░░░░░░░] 0% (0/5 v1.3 phases formally closed via `phase.complete`) — Phase 38 blocked on human execution for plan 02; re-run `/gsd-execute-phase 38` after captures to resume Wave 2.
+Progress: [██████░░░] 60% (3/5 v1.3 phases with execution artifacts complete on disk for 36–38 — use `/gsd-progress` for routing); **next focus:** Phase 39 AUD requirements.
 
 ### v1.3 kickoff
 
@@ -118,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-17T23:59:59.000Z
-Stopped at: v1.3 opened — live `REQUIREMENTS.md`, `ROADMAP.md` Phases 36–40, `STATE.md` active
+Last session: 2026-04-18T12:00:00.000Z
+Stopped at: Phase **39** ready — `/gsd-discuss-phase 39` or `/gsd-plan-phase 39` then `/gsd-execute-phase 39`; Phase 38 UAT machine path complete
 Resume file: `.planning/REQUIREMENTS.md` (REQ checklist) and `.planning/ROADMAP.md` (phase table)

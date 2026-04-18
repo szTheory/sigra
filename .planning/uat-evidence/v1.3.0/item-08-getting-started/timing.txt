@@ -1,0 +1,11 @@
+# SEED-8 — Getting started (machine closure)
+
+Structural contract: typically under 2 minutes on GitHub Actions
+(`getting_started_uat_contract` job — checkout + bash only).
+
+The `scripts/ci/getting-started-contract.sh` script alone usually finishes in
+a few seconds on a developer laptop.
+
+Human clean-machine wall-clock (under 30 min target) is **residual** per
+`docs/uat-ci-coverage.md`; merge-blocking automation does not replace prose
+friction review.

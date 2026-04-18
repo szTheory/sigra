@@ -149,6 +149,8 @@ jobs:
         run: mix test --include example_app
 
   install_smoke:
+    # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
+    # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
     runs-on: ubuntu-latest
     services:
@@ -612,6 +614,7 @@ jobs:
         run: |
           npx playwright test \
             tests/golden-path.spec.ts \
+            tests/ga-uat-shift-left.spec.ts \
             tests/passkeys-hooks.spec.ts \
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
@@ -820,6 +823,14 @@ jobs:
           name: generated-admin-failure-diagnostics
           path: test/example/priv/playwright/test-results/
           retention-days: 7
+
+  getting_started_uat_contract:
+    name: Getting started doc contract (SEED-8 shift-left)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Run getting-started structural checks
+        run: bash scripts/ci/getting-started-contract.sh
 
   # Phase 34 /gsd-verify-work shift-left: machine-closed UAT items that do not
   # need Playwright/Postgres (see 34-UAT.md tests 2–3).

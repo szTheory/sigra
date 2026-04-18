@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Human GA matrix in `v1.3-HUMAN-UAT.md` closed via machine substitutes; see
+  `.planning/uat-evidence/v1.3.0/INDEX.md` for CI anchors and per-item evidence.
+- **GA UAT shift-left:** `docs/uat-ci-coverage.md` maps SEED-001 items to CI and
+  documents residual human checks; `test/example/priv/playwright/tests/ga-uat-shift-left.spec.ts`
+  covers invitation email-lock and MFA regenerate UI reachability; example app
+  gains `EmailsLifecycleHtmlTest`; `scripts/ci/getting-started-contract.sh` plus
+  `getting_started_uat_contract` CI job validate getting-started links/commands.
+- Generated and example `MFASettingsLive` regenerate form uses an explicit
+  `type="submit"` on the regenerate button so LiveView `phx-submit` fires reliably.
+
 ## [0.1.0] - 2026-04-17
 
 First release on [Hex.pm](https://hex.pm/packages/sigra).
