@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-19
+
 ### Added
 
 - `docs/NEXT-STEPS-MANUAL.md` — short post-merge checklist (PR merge, Hex,
@@ -30,10 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `getting_started_uat_contract` CI job validate getting-started links/commands.
 - Generated and example `MFASettingsLive` regenerate form uses an explicit
   `type="submit"` on the regenerate button so LiveView `phx-submit` fires reliably.
+- Published to [Hex.pm](https://hex.pm/packages/sigra) as **0.2.0** (initial package listing).
 
 ## [0.1.0] - 2026-04-17
 
-First release on [Hex.pm](https://hex.pm/packages/sigra).
+First library version line with Hex-oriented `mix.exs` packaging; upgrade to **0.2.0** for the Hex listing and additions above.
 
 ### Fixed
 

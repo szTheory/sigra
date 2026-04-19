@@ -62,7 +62,7 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 0.1.0"}
+   {:sigra, "~> 0.2.0"}
    ```
 
 2. **Scaffold** (from app root; names must match your domain):

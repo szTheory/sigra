@@ -22,7 +22,7 @@ gh pr merge 13 --merge
 
 After **`main`** contains the merge at the commit you intend to ship:
 
-1. Confirm **`mix.exs`** `@version` is the version you want on Hex (today: **`0.1.0`** — see **`MAINTAINING.md`** if you need **`0.2.0`** for new public API since last publish).
+1. Confirm **`mix.exs`** `@version` is the version you want on Hex (see **`MAINTAINING.md`** for pre-1.0 semver when adding new supported public `lib/` API).
 2. From a clean **`main`** checkout with **`HEX_API_KEY`** set:
 
    ```bash
