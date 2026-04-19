@@ -13,7 +13,9 @@ scope: Medium
 
 The v1.0 milestone audit (`.planning/milestones/v1.0-MILESTONE-AUDIT.md` after archival, currently at `.planning/v1.0-MILESTONE-AUDIT.md`) identified 19 HUMAN-UAT items that required a real browser / real email client / real OAuth credentials to verify. Phase 10.1.1 closed 7 of them by adding the Playwright golden-path harness and 3 new CI smoke jobs. Another 4 are partially automated.
 
-**8 items remain that cannot be automated in CI** and need a human with a browser and real credentials before Sigra is publicly pitched as "production ready." Shipping without these being run doesn't mean v1.0 is broken — the library code is test-covered and integration-verified — but it means the first external user might hit a visual or flow bug that nobody saw because no human ever ran it end-to-end in the style a real adopter would.
+**Shift-left (2026-04):** Merge-blocking CI + tests now cover **structure and behavior** for most of the eight rows — see **`docs/uat-ci-coverage.md`** (ExUnit HTML contracts, `install_smoke` for `mix sigra.gen.oauth`, OAuth mock/Assent OIDC contracts, Playwright `ga-uat-shift-left.spec.ts`, getting-started doc contract). **Residual human (or Litmus-class) work** is mainly: real consumer mail clients (Gmail/Outlook/Apple), live Google consent UX, subjective clean-machine timing/friction, and proving backup-code **rotation semantics** once `mfa_regenerate_backup_codes` is wired.
+
+**8 items remain** as GA-risk topics; most are **partially machine-closed** per `docs/uat-ci-coverage.md`. A human with a browser is still valuable before a loud public announcement — especially for client-specific email rendering — but the project no longer depends on an all-manual matrix for the same coverage depth.
 
 ### The 8 items
 
@@ -61,12 +63,13 @@ Related code and docs:
 - `.planning/phases/08-account-lifecycle/08-VERIFICATION.md` — settings and email template items
 - `.planning/phases/10-developer-experience/10-VERIFICATION.md` — docs + UX items
 - `test/example/priv/playwright/tests/golden-path.spec.ts` — what IS automated; use as baseline when deciding what MUST still be human
+- `docs/uat-ci-coverage.md` — SEED row → CI job / test mapping and explicit residual policy
 - `guides/introduction/getting-started.md` — the doc to read clean-machine-style
 - `scripts/uat/RUNBOOK.md` — existing UAT runbook pattern; the GA UAT should follow the same format
 
 ## Notes
 
-- The audit verdict was `passed` despite these 8 items remaining, because all are genuinely UX-level human verification that cannot be faked in CI. The v1.0 tag was allowed to go up because the library code is verified, not because the 8 items don't exist.
+- The audit verdict was `passed` despite these 8 items remaining, because the remaining risk was primarily **UX-level** (client mail, live IdP chrome) rather than missing automated tests. CI now fakes much of the **same intent** (HTML structure, generator paths, mock OAuth, browser flows); see `docs/uat-ci-coverage.md`.
 - When this seed surfaces, the right output is a single one-day task, not a new phase. Capture as `/gsd-add-todo` or a tiny 999.x backlog item; do not over-engineer.
 - If item 7 (backup code regeneration) turns out to have a real wiring bug, that IS a bug-fix phase in v1.0.1 — not a UAT item.
 - Counterpart seed SEED-002 tracks the phase 9 `log_safe/3` atomicity followup which has a different trigger.
