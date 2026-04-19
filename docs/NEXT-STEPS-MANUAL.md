@@ -1,20 +1,21 @@
 # Next steps (manual only)
 
-Everything else (clean tree, tests, docs, `mix hex.build`, remote branch, `v1.3` tag) is already done. You only need to:
+Everything else (clean tree, tests, docs, `mix hex.build`, remote branch, `v1.3` tag, **PR opened**) is already done.
+
+**Open PR:** https://github.com/szTheory/sigra/pull/13  
+
+---
 
 ## 1. Merge into `main`
 
-Branch **`chore/main-release-sync-2026-04-18`** is pushed and should have an open PR into **`main`** (repo rules block direct pushes to `main`).
-
-- Open the PR: https://github.com/szTheory/sigra/compare/main...chore/main-release-sync-2026-04-18  
-- Wait until **all required checks** are green.  
+- Wait until **all required checks** are green on the PR.  
 - **Merge** the PR (squash or merge — match your team norm).
 
-CLI alternative after review:
+CLI (after review):
 
 ```bash
-gh pr merge <PR_NUMBER> --merge
-# or: gh pr merge <PR_NUMBER> --squash
+gh pr merge 13 --merge
+# or: gh pr merge 13 --squash
 ```
 
 ## 2. Publish Hex (first or next version)
@@ -32,7 +33,7 @@ After **`main`** contains the merge at the commit you intend to ship:
 
 ## 3. GitHub Release
 
-In **GitHub → Releases**: create a release from tag **`v1.3`** (or from the **Hex** version tag if you tag `v0.1.1` etc. separately — keep tag story aligned with **`MAINTAINING.md`**).
+In **GitHub → Releases**: create a release from tag **`v1.3`** (or align tags with the Hex version you publish — see **`MAINTAINING.md`**).
 
 Paste the relevant **`CHANGELOG.md`** section into the release notes.
 
@@ -40,13 +41,3 @@ Paste the relevant **`CHANGELOG.md`** section into the release notes.
 
 - https://hex.pm/packages/sigra  
 - https://hexdocs.pm/sigra  
-
----
-
-If no PR exists yet, create it with:
-
-```bash
-gh pr create --base main --head chore/main-release-sync-2026-04-18 \
-  --title "chore: sync main — release prep, v1.3 planning close, Hex/docs" \
-  --body "Automated release-prep branch. See docs/NEXT-STEPS-MANUAL.md for post-merge steps."
-```
