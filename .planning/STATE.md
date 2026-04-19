@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Cleanup & Hardening
 status: active
-stopped_at: v1.3 opened — REQUIREMENTS.md + ROADMAP Phases 36–40 (no new product features)
-last_updated: "2026-04-18T12:00:00.000Z"
-last_activity: 2026-04-18 -- Phase 38 closed via machine UAT path (`38-02-SUMMARY.md`, `38-VERIFICATION.md`); next milestone work **Phase 39** (AUD-01–03)
+stopped_at: Phase 39 discuss complete — `39-CONTEXT.md` + `39-DISCUSSION-LOG.md` on disk; next `/gsd-plan-phase 39`
+last_updated: "2026-04-18T18:30:00.000Z"
+last_activity: 2026-04-18 -- Phase 39 context captured (AUD-01–03 + SEED-002 / C-1); ready for plan-phase
 progress:
   total_phases: 5
   completed_phases: 3
@@ -25,12 +25,13 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: **39** (Audit trail completeness) — **next** per `ROADMAP.md` / `REQUIREMENTS.md`.
+Phase: **39** (Audit trail completeness) — **context gathered**; implementation not started until plan/execute.
 Plans: Phase **38** complete on disk — `38-01-SUMMARY.md`, `38-02-SUMMARY.md`, `38-VERIFICATION.md`; UAT-01/UAT-02 checked; machine closure documented in `v1.3-HUMAN-UAT.md` + `docs/uat-ci-coverage.md`.
 Phases **36–38** on disk: plan/summary pairs complete for 36–37; phase 38 verifier passed.
-Last activity: 2026-04-18 -- Phase 38 machine UAT closure landed (CI + evidence tree).
+Phase **39** on disk: `39-CONTEXT.md`, `39-DISCUSSION-LOG.md` (no plans yet).
+Last activity: 2026-04-18 -- Phase 39 discuss-phase bookkeeping committed.
 
-Progress: [██████░░░] 60% (3/5 v1.3 phases with execution artifacts complete on disk for 36–38 — use `/gsd-progress` for routing); **next focus:** Phase 39 AUD requirements.
+Progress: [██████░░░] 60% (3/5 v1.3 phases with **execution** complete for 36–38; Phase 39 has **planning context** only — use `/gsd-progress` for routing); **next focus:** `/gsd-plan-phase 39` then `/gsd-execute-phase 39`.
 
 ### v1.3 kickoff
 
@@ -102,6 +103,7 @@ Recent decisions affecting current work:
 - [Phase 30]: Kept audit CSV export on the same normalized query-param contract as the explorer routes.
 - [Phase 30]: Used explicit apostrophe prefix escaping plus CSV quoting for dangerous spreadsheet prefixes instead of a new dependency.
 - [Phase 30]: Mounted GET export endpoints beside global, organization, and per-user explorer routes so evidence URLs stay reproducible.
+- [Phase 39 context]: AUD-01 — plain-function audit test helpers with partial-field asserts and explicit `repo`; optional host `DataCase` snippet for Sandbox. AUD-02 — **`Sigra.APIToken` `do_create/4`** as first `Ecto.Multi` + `__log_internal__` conversion (fallback: bounded phased plan). AUD-03 — audit-aware integration tests for **token create**, **login/lockout**, **MFA or OAuth link** (planner picks third if cost differs). Docs — anchor C-1 story in **`REQUIREMENTS.md` + `CHANGELOG` + SEED-002**; optional `docs/audit-semantics.md`.
 
 ### Pending Todos
 
@@ -119,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-18T12:00:00.000Z
-Stopped at: Phase **39** ready — `/gsd-discuss-phase 39` or `/gsd-plan-phase 39` then `/gsd-execute-phase 39`; Phase 38 UAT machine path complete
-Resume file: `.planning/REQUIREMENTS.md` (REQ checklist) and `.planning/ROADMAP.md` (phase table)
+Last session: 2026-04-18T18:30:00.000Z
+Stopped at: Phase **39** context complete — run **`/gsd-plan-phase 39`** (then execute)
+Resume file: `.planning/phases/39-audit-trail-completeness/39-CONTEXT.md`
