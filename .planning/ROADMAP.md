@@ -20,7 +20,7 @@
 | **37** | Actions & dependency hygiene | Land **999.2** Dependabot/Actions upgrades with green CI | CI-01–CI-03 |
 | **38** | Human GA UAT gate | Execute or waive **SEED-001** eight items with evidence | UAT-01–UAT-02 |
 | **39** | Audit trail completeness | **Done (2026-04-19):** `Sigra.Audit.Assertions`, atomic `api.token_create`, example login/MFA audit smoke + docs — see `39-VERIFICATION.md` | AUD-01–AUD-03 |
-| **40** | Tooling & release ergonomics | `gsd-tools audit-open` + Hex/release maintainer checklist | TOOL-01, REL-01 |
+| **40** | Tooling & release ergonomics | **Done (2026-04-19):** `MAINTAINING.md`, optional `hex-publish.yml`, planning hygiene script + doc supersession — see `40-VERIFICATION.md` | TOOL-01, REL-01 |
 
 **Success (milestone):** All REQ checkboxes in `REQUIREMENTS.md` satisfied or explicitly waived with owner/date; `MILESTONES.md` records v1.3 ship; seeds **999.1**/**999.2** satisfied or folded into archived rationale.
 

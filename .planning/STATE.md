@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Cleanup & Hardening
 status: active
-stopped_at: Phase 40 discuss-phase complete — `40-CONTEXT.md` + `40-DISCUSSION-LOG.md`; next `/gsd-plan-phase 40`
-last_updated: "2026-04-18T12:00:00.000Z"
-last_activity: 2026-04-18 -- Phase 40 context gathered (TOOL-01 / REL-01 decisions + research synthesis)
+stopped_at: Phase 40 executed — `40-01-SUMMARY.md`, `40-02-SUMMARY.md`, `40-VERIFICATION.md`; v1.3 phases 36–40 complete on disk — next `/gsd-complete-milestone` (or archive) when ready
+last_updated: "2026-04-19T12:00:00.000Z"
+last_activity: 2026-04-19 -- Phase 40 execute-phase (REL-01 + TOOL-01)
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
-  percent: 64
+  completed_phases: 5
+  total_plans: 6
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,11 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: **40** (Tooling & release ergonomics) — **context gathered**; see `.planning/phases/40-tooling-release-ergonomics/40-CONTEXT.md`. Phase **39** remains **executed** (`39-VERIFICATION.md` **passed**).
-Plans: Phase **38** complete on disk — `38-01-SUMMARY.md`, `38-02-SUMMARY.md`, `38-VERIFICATION.md`; UAT-01/UAT-02 checked; machine closure documented in `v1.3-HUMAN-UAT.md` + `docs/uat-ci-coverage.md`.
-Phases **36–40** on disk: phase **40** adds discuss-phase **CONTEXT** + **DISCUSSION-LOG** (plans not yet created).
-Last activity: 2026-04-18 -- Phase 40 discuss-phase + research synthesis committed to planning artifacts.
+Phase: **40** (Tooling & release ergonomics) — **executed** (`40-VERIFICATION.md` **passed**); plans **40-02** then **40-01** landed per dependency order.
+Plans: Phases **36–40** executed on disk (see each phase `*-VERIFICATION.md`). Phase **38** human UAT evidence remains in `v1.3-HUMAN-UAT.md` + `docs/uat-ci-coverage.md` as applicable.
+Last activity: 2026-04-19 -- Phase 40 execution (maintainer runbook + planning hygiene supersession).
 
-Progress: [█████████░] 82% (execution complete for **36–39**; **40** planned next); **next focus:** `/gsd-plan-phase 40` then execute.
+Progress: [██████████] 100% for **v1.3 phased roadmap (36–40)** on planning artifacts; **next focus:** milestone archive (`/gsd-complete-milestone`) when ship criteria met, or address any branch-local CI failures before merge.
 
 ### v1.3 kickoff
 

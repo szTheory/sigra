@@ -26,7 +26,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - 8 human-only UAT items — `SEED-001` (before broader GA announcement).
 - Phase 9 audit `log_safe/3` hybrid vs full `Ecto.Multi` atomicity — `SEED-002` / C-1 caveat.
 - Backlog phases **999.1** (Nyquist retro validation) and **999.2** (Dependabot major bumps on SHA-pinned Actions).
-- `gsd-tools audit-open --json` still reported broken in prior milestone notes; CLI `audit-open` text mode was used successfully at v1.2 close.
+- **TOOL-01** — Deprecated reliance on JSON audit helpers from external planning toolchains; **supported path:** [`MAINTAINING.md`](../MAINTAINING.md) (see **Planning hygiene (without gsd-tools JSON)**) and optional [`scripts/maintainers/planning-audit-hygiene.sh`](../scripts/maintainers/planning-audit-hygiene.sh) (Phase 40).
 
 ## Next Milestone Goals
 

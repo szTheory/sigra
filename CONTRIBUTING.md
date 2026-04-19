@@ -6,6 +6,8 @@
 - Library tests require PostgreSQL (`PGUSER` / `PGPASSWORD` / `PGHOST`); see `CLAUDE.md` for a Docker one-liner.
 - The `test/example` app is the generated-host fixture used by installer drift tests and Playwright smoke runs.
 
+**Releases:** If you are cutting a Hex or GitHub release, follow [`MAINTAINING.md`](MAINTAINING.md) for the ordered checklist and semver rules. Routine `mix test` and CI do not require Node.js or external planning audit tooling.
+
 ## CI overview
 
 - **Library tests** — full `mix test` for the Hex package.

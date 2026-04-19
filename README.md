@@ -20,6 +20,7 @@
 | **Evaluating** | Skim **Where code lives** (diagram), **What ships**, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
 | **Integrating** | Run **First integration** (diagram + commands), read **Prerequisites**, then follow [Installation](guides/introduction/installation.md) and [Getting started](guides/introduction/getting-started.md). |
 | **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
+| **Maintaining / releasing** | See [`MAINTAINING.md`](MAINTAINING.md) for version bumps, Hex and GitHub releases, and planning hygiene for maintainers. |
 
 ---
 

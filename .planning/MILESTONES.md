@@ -80,7 +80,7 @@
 
 ### Tech Debt Carried Forward
 
-- `gsd-tools audit-open --json` crashes during milestone close and still needs a tooling fix.
+- **`gsd-tools audit-open --json` is deprecated** for Sigra maintainers; the **supported path** is [`MAINTAINING.md`](../MAINTAINING.md) section **Planning hygiene (without gsd-tools JSON)** plus optional [`scripts/maintainers/planning-audit-hygiene.sh`](../scripts/maintainers/planning-audit-hygiene.sh).
 - `Phase 999.1` Nyquist backfill remains parked.
 - `Phase 999.2` Dependabot major-version cleanup remains parked.
 

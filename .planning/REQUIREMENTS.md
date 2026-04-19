@@ -52,8 +52,8 @@ Traceability: each REQ maps to exactly one phase in `.planning/ROADMAP.md` (v1.3
 
 ## Tooling & release ergonomics
 
-- [ ] **TOOL-01**: Fix or formally **deprecate** `gsd-tools audit-open --json` (per `PROJECT.md` known limitation); if deprecated, document the supported path and remove broken references from scripts/docs.
-- [ ] **REL-01**: Add a **maintainer checklist** for Hex + GitHub release (optional: sample workflow snippet showing `HEX_API_KEY` only in an explicit publish job, not assumed by compile/test CI).
+- [x] **TOOL-01**: Fix or formally **deprecate** `gsd-tools audit-open --json` (per `PROJECT.md` known limitation); if deprecated, document the supported path and remove broken references from scripts/docs.
+- [x] **REL-01**: Add a **maintainer checklist** for Hex + GitHub release (optional: sample workflow snippet showing `HEX_API_KEY` only in an explicit publish job, not assumed by compile/test CI).
 
 **Phase:** 40
 

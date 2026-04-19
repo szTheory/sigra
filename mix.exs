@@ -139,6 +139,7 @@ defmodule Sigra.MixProject do
       extras: [
         "README.md",
         "CONTRIBUTING.md",
+        "MAINTAINING.md",
         "LICENSE",
         "CHANGELOG.md",
         "guides/introduction/installation.md",
