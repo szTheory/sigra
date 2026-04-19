@@ -181,7 +181,7 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await openUserDetail(page, targetEmail);
     await expect(page.getByText('Global user operations')).toBeVisible();
     await expect(
-      page.getByRole('button', { name: 'Revoke session' }),
+      page.getByRole('button', { name: 'Revoke session' }).first(),
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Start impersonation' }),

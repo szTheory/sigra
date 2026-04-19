@@ -106,8 +106,11 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
       /return_to|\/admin\/users\?/,
     );
 
-    await expect(page.getByRole('button', { name: 'Revoke session' })).toBeVisible();
-    await page.getByRole('button', { name: 'Revoke session' }).click();
+    // Target user can legitimately show >1 session row (e.g. registration + reconnect);
+    // strict mode requires a single match — exercise the first revoke control.
+    const revokeSession = page.getByRole('button', { name: 'Revoke session' }).first();
+    await expect(revokeSession).toBeVisible();
+    await revokeSession.click();
 
     await expect(
       page.getByText(
