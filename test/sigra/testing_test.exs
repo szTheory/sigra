@@ -3,6 +3,13 @@ defmodule Sigra.TestingTest do
 
   alias Sigra.Testing
 
+  # `function_exported?/3` is false for not-yet-loaded modules; async tests can
+  # schedule export-only checks before any call forces autoload of Sigra.Testing.
+  setup_all do
+    Code.ensure_loaded!(Sigra.Testing)
+    :ok
+  end
+
   describe "generate_totp_code/1" do
     test "generates a 6-digit TOTP code from a raw secret" do
       secret = NimbleTOTP.secret()
