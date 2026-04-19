@@ -106,21 +106,23 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
       /return_to|\/admin\/users\?/,
     );
 
-    // Target user can legitimately show >1 session row (e.g. registration + reconnect);
-    // strict mode requires a single match — exercise the first revoke control.
-    const revokeSession = page.getByRole('button', { name: 'Revoke session' }).first();
-    await expect(revokeSession).toBeVisible();
-    await revokeSession.click();
+    // Target user can show >1 active session (e.g. registration + reconnect). Revoke each:
+    // strict mode forbids ambiguous `getByRole` clicks, and a single revoke must not assume
+    // the list is empty afterward.
+    const revokeSession = page.getByRole('button', { name: 'Revoke session' });
+    const confirmPrompt = page.getByText(
+      `Revoke this session for ${targetEmail} in Global scope? The user will need to sign in again.`,
+    );
 
-    await expect(
-      page.getByText(
-        `Revoke this session for ${targetEmail} in Global scope? The user will need to sign in again.`,
-      ),
-    ).toBeVisible();
+    while ((await revokeSession.count()) > 0) {
+      const before = await revokeSession.count();
+      await revokeSession.first().click();
+      await expect(confirmPrompt).toBeVisible();
+      await page.getByRole('button', { name: 'Confirm' }).click();
+      await expect(page.getByText('Session revoked.')).toBeVisible();
+      await expect(revokeSession).toHaveCount(before - 1);
+    }
 
-    await page.getByRole('button', { name: 'Confirm' }).click();
-
-    await expect(page.getByText('Session revoked.')).toBeVisible();
     await expect(page.getByText('No active sessions.')).toBeVisible();
     await expectScopeChrome(page, 'Global');
   });
