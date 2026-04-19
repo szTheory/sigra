@@ -90,6 +90,7 @@ config :swoosh, :api_client, false
 
 # Sigra email delivery (dev) — adapter is set on the raw Swoosh.Mailer
 # module, not the Sigra.Mailer behaviour wrapper.
-config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Mailer, adapter: Swoosh.Adapters.Local
+config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Mailer,
+  adapter: Swoosh.Adapters.Local
 
 config :swoosh, :api_client, false

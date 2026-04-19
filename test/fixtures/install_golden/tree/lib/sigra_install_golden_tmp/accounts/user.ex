@@ -148,9 +148,7 @@ defmodule SigraInstallGoldenTmp.Accounts.User do
   def pending_email_changeset(user, attrs) do
     user
     |> cast(attrs, [:pending_email])
-    |> validate_format(:pending_email, ~r/^[^\s]+@[^\s]+$/,
-      message: "must have the @ sign and no spaces"
-    )
+    |> validate_format(:pending_email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> unsafe_validate_unique(:pending_email, SigraInstallGoldenTmp.Repo)
     |> unique_constraint(:pending_email)
   end
@@ -160,14 +158,7 @@ defmodule SigraInstallGoldenTmp.Accounts.User do
   """
   def deletion_changeset(user, attrs) do
     user
-    |> cast(attrs, [
-      :deleted_at,
-      :scheduled_deletion_at,
-      :original_email,
-      :pending_email,
-      :email,
-      :hashed_password
-    ])
+    |> cast(attrs, [:deleted_at, :scheduled_deletion_at, :original_email, :pending_email, :email, :hashed_password])
   end
 
   @doc """
