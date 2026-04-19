@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/NEXT-STEPS-MANUAL.md` — short post-merge checklist (PR merge, Hex,
+  GitHub Release) for maintainers.
 - `docs/audit-semantics.md` — public note on `log` / `log_multi` / `log_safe`, C-1
   hybrid status, and pointers to testing helpers (linked from README).
 - `Sigra.Audit.Assertions` — ordered `latest_audit_event/3` + `assert_audit_fields/3`

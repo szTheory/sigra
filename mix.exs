@@ -154,6 +154,7 @@ defmodule Sigra.MixProject do
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",
         "docs/audit-semantics.md",
+        "docs/NEXT-STEPS-MANUAL.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
