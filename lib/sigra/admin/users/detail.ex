@@ -16,7 +16,10 @@ defmodule Sigra.Admin.Users.Detail do
     hooks = Hooks.resolve(config)
     helpers = helpers(config)
     user = load_user!(config, admin_scope, user_id, helpers)
-    display_name = safe_apply(hooks, :display_name, [user]) || Map.get(user, :display_name) || user.email
+
+    display_name =
+      safe_apply(hooks, :display_name, [user]) || Map.get(user, :display_name) || user.email
+
     organizations = list_organizations(config, admin_scope, user, helpers)
     {identities, identities_available?} = identities_with_flag(config, user, helpers)
     sessions = Sigra.Auth.list_sessions(config, user.id)
@@ -146,7 +149,8 @@ defmodule Sigra.Admin.Users.Detail do
           Authorizer.authorize_organization!(admin_scope, org_id)
 
           from(user in user_schema,
-            where: user.id in subquery(membership_user_ids_query(helpers.membership_schema, org_id))
+            where:
+              user.id in subquery(membership_user_ids_query(helpers.membership_schema, org_id))
           )
       end
 
@@ -231,7 +235,8 @@ defmodule Sigra.Admin.Users.Detail do
     %{
       user_schema: Map.fetch!(config, :user_schema),
       membership_schema:
-        Map.get(config, :membership_schema) || optional_schema(accounts_module, :OrganizationMembership),
+        Map.get(config, :membership_schema) ||
+          optional_schema(accounts_module, :OrganizationMembership),
       organization_schema:
         Map.get(config, :organization_schema) || optional_schema(accounts_module, :Organization),
       identity_schema: identity_schema(config, accounts_module),
@@ -280,7 +285,8 @@ defmodule Sigra.Admin.Users.Detail do
     do: optional_schema(accounts_module, :UserPasskey)
 
   defp mfa_schema(%{mfa: mfa}, accounts_module) when is_list(mfa) do
-    Keyword.get(mfa, :mfa_credential_schema) || optional_schema(accounts_module, :UserMFACredential)
+    Keyword.get(mfa, :mfa_credential_schema) ||
+      optional_schema(accounts_module, :UserMFACredential)
   end
 
   defp mfa_schema(_config, accounts_module),

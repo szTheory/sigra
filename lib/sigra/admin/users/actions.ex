@@ -10,6 +10,7 @@ defmodule Sigra.Admin.Users.Actions do
   def revoke_session(config, %Scope{} = admin_scope, user_id, hashed_token)
       when is_binary(user_id) and is_binary(hashed_token) do
     user = Detail.load_user!(config, admin_scope, user_id)
+
     Sigra.Auth.revoke_session(config, hashed_token,
       user_id: user.id,
       actor_id: admin_scope.scope.user.id,
@@ -22,6 +23,7 @@ defmodule Sigra.Admin.Users.Actions do
   @spec revoke_all_sessions(map(), Scope.t(), binary()) :: {non_neg_integer(), nil}
   def revoke_all_sessions(config, %Scope{} = admin_scope, user_id) when is_binary(user_id) do
     user = Detail.load_user!(config, admin_scope, user_id)
+
     Sigra.Auth.delete_all_sessions(config, user.id,
       user_id: user.id,
       actor_id: admin_scope.scope.user.id,

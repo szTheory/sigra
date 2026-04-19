@@ -232,6 +232,7 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
       refute conn.status == 200
 
       assert conn.status in [302, 303, 400, 422]
+
       assert get_resp_header(conn, "content-type")
              |> Enum.all?(&(not (&1 =~ "text/csv")))
     end
@@ -245,11 +246,14 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
         |> get("/admin/audit/export.csv?page_size=0")
 
       refute conn.status == 200
+
       assert get_resp_header(conn, "content-type")
              |> Enum.all?(&(not (&1 =~ "text/csv")))
     end
 
-    test "export with a malformed UUID param (actor) returns a bad-request response", %{conn: conn} do
+    test "export with a malformed UUID param (actor) returns a bad-request response", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
 
       conn =
@@ -258,6 +262,7 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
         |> get("/admin/audit/export.csv?actor=not-a-uuid")
 
       refute conn.status == 200
+
       assert get_resp_header(conn, "content-type")
              |> Enum.all?(&(not (&1 =~ "text/csv")))
     end
@@ -267,11 +272,14 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
 
       # Must never respond with 200 text/csv for an unauthenticated caller.
       refute conn.status == 200
+
       assert get_resp_header(conn, "content-type")
              |> Enum.all?(&(not (&1 =~ "text/csv")))
     end
 
-    test "non-admin user requesting the global export is denied before CSV is served", %{conn: conn} do
+    test "non-admin user requesting the global export is denied before CSV is served", %{
+      conn: conn
+    } do
       non_admin = user_fixture()
 
       conn =
@@ -280,11 +288,14 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
         |> get("/admin/audit/export.csv")
 
       refute conn.status == 200
+
       assert get_resp_header(conn, "content-type")
              |> Enum.all?(&(not (&1 =~ "text/csv")))
     end
 
-    test "organization-scoped export is denied for an out-of-scope organization slug", %{conn: conn} do
+    test "organization-scoped export is denied for an out-of-scope organization slug", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
       _org = create_organization(%{name: "Scoped Org", slug: "scoped-org"})
 
@@ -296,11 +307,14 @@ defmodule ExampleWeb.Admin.AuditExportControllerTest do
       # Unknown org slug must collapse to not_found per Phase 27 contract,
       # never to a widened global CSV.
       refute conn.status == 200
+
       assert get_resp_header(conn, "content-type")
              |> Enum.all?(&(not (&1 =~ "text/csv")))
     end
 
-    test "global export with no audit events returns a header-only CSV, not an error", %{conn: conn} do
+    test "global export with no audit events returns a header-only CSV, not an error", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
 
       conn =

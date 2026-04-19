@@ -35,7 +35,11 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
      )}
   end
 
-  def handle_params(%{"token" => token}, _uri, %{assigns: %{live_action: :confirm_email}} = socket) do
+  def handle_params(
+        %{"token" => token},
+        _uri,
+        %{assigns: %{live_action: :confirm_email}} = socket
+      ) do
     case Auth.confirm_email_change(token) do
       {:ok, _user} ->
         {:noreply,
@@ -46,7 +50,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       :error ->
         {:noreply,
          socket
-         |> put_flash(:error, "This confirmation link is invalid or has expired. Request a new email change from your settings.")
+         |> put_flash(
+           :error,
+           "This confirmation link is invalid or has expired. Request a new email change from your settings."
+         )
          |> push_navigate(to: ~p"/users/settings")}
     end
   end
@@ -197,7 +204,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:ok, _user, _token} ->
         {:noreply,
          socket
-         |> put_flash(:info, "We sent a confirmation link to #{new_email}. Your current email stays active until you confirm.")
+         |> put_flash(
+           :info,
+           "We sent a confirmation link to #{new_email}. Your current email stays active until you confirm."
+         )
          |> assign(pending_email_change?: true)}
 
       {:error, changeset} ->
@@ -220,7 +230,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:error, _changeset} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Something went wrong while processing your request. Please try again.")}
+         |> put_flash(
+           :error,
+           "Something went wrong while processing your request. Please try again."
+         )}
     end
   end
 
@@ -233,7 +246,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your password has been changed. All other sessions have been signed out.")
+         |> put_flash(
+           :info,
+           "Your password has been changed. All other sessions have been signed out."
+         )
          |> assign(
            force_password_change?: false,
            password_form: to_form(%{}, as: "password")
@@ -254,7 +270,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Password set successfully. You can now sign in with email and password.")
+         |> put_flash(
+           :info,
+           "Password set successfully. You can now sign in with email and password."
+         )
          |> assign(
            has_password?: true,
            password_form: to_form(%{}, as: "password")
@@ -274,7 +293,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:ok, _user, scheduled_date} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.")
+         |> put_flash(
+           :info,
+           "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings."
+         )
          |> assign(
            deletion_status: Auth.deletion_status(user),
            scheduled_deletion_date: to_string(scheduled_date)
@@ -283,9 +305,14 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:error, reason} ->
         message =
           case reason do
-            :already_scheduled -> "Your account is already scheduled for deletion."
-            :cooldown -> "You recently cancelled a deletion request. Please wait before requesting again."
-            _ -> "Something went wrong while processing your request. Please try again."
+            :already_scheduled ->
+              "Your account is already scheduled for deletion."
+
+            :cooldown ->
+              "You recently cancelled a deletion request. Please wait before requesting again."
+
+            _ ->
+              "Something went wrong while processing your request. Please try again."
           end
 
         {:noreply, socket |> put_flash(:error, message)}
@@ -308,7 +335,10 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
       {:error, _reason} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Something went wrong while processing your request. Please try again.")}
+         |> put_flash(
+           :error,
+           "Something went wrong while processing your request. Please try again."
+         )}
     end
   end
 

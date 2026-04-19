@@ -114,7 +114,10 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert error_handler =~ ":no_active_org"
       assert error_handler =~ ":insufficient_role"
       assert error_handler =~ "Pick or create an organization to continue."
-      assert error_handler =~ "You don't have permission to access this page in the current organization."
+
+      assert error_handler =~
+               "You don't have permission to access this page in the current organization."
+
       # Copy Rules non-negotiable: no role-name leak in the insufficient_role message.
       refute error_handler =~ "This page requires the"
       # :no_active_org uses :info (not :error) per UI-SPEC (non-blaming).
@@ -127,7 +130,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # defdelegate matches arity — a defdelegate to :call would refer
       # to `call/2` which does not exist and fails
       # `mix compile --warnings-as-errors` on the host app.
-      organizations_template = File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+      organizations_template =
+        File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+
       assert organizations_template =~ "def set_active_organization(conn, org)"
       assert organizations_template =~ "Sigra.Plug.PutActiveOrganization.call(conn, org, [])"
       assert organizations_template =~ "use Sigra.Organizations"
@@ -226,8 +231,12 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert is_map(config)
       assert is_map(config.schemas)
       assert config.schemas.organization == Module.concat([context_module, "Organization"])
-      assert config.schemas.membership == Module.concat([context_module, "OrganizationMembership"])
-      assert config.schemas.invitation == Module.concat([context_module, "OrganizationInvitation"])
+
+      assert config.schemas.membership ==
+               Module.concat([context_module, "OrganizationMembership"])
+
+      assert config.schemas.invitation ==
+               Module.concat([context_module, "OrganizationInvitation"])
     end
 
     test "user_auth.ex template mount_current_scope calls Sigra.Scope.Hydration.hydrate/3" do
@@ -240,7 +249,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
     @tag :phase16
     test "Phase 16 org_switcher component template exists and exports org_switcher/1" do
-      template = File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
+      template =
+        File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
 
       assert template =~ "defmodule <%= web_module %>.Components.OrgSwitcher"
       assert template =~ "def org_switcher(assigns)"
@@ -1028,7 +1038,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # mysql/sqlite branch already used a plain unique_index under the
       # legacy name, so it does not emit `now()` — it is covered by the
       # first test).
-      refute template =~ ~r/unique_index\(:organization_slug_aliases, \[:old_slug\],\s*\n\s*where:\s*"expires_at > now\(\)"/,
+      refute template =~
+               ~r/unique_index\(:organization_slug_aliases, \[:old_slug\],\s*\n\s*where:\s*"expires_at > now\(\)"/,
              "Postgres slug-alias partial index with `now()` predicate must be removed"
     end
 

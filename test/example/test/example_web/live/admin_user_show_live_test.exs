@@ -114,7 +114,12 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
     test "detail page renders the impersonation start action with preserved return_to near other guarded actions",
          %{conn: conn} do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "impersonate-target@example.com", display_name: "Impersonate Target"})
+
+      target =
+        user_fixture(%{
+          email: "impersonate-target@example.com",
+          display_name: "Impersonate Target"
+        })
 
       {:ok, _view, html} =
         conn
@@ -133,7 +138,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html_offset(html, "Start impersonation") > html_offset(html, "Danger Zone")
     end
 
-    test "detail page hides the impersonation start action while already impersonating", %{conn: conn} do
+    test "detail page hides the impersonation start action while already impersonating", %{
+      conn: conn
+    } do
       admin = platform_admin_fixture()
 
       target =
@@ -188,6 +195,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
         )
 
       assert html =~ "Recent Audit"
+
       # Phase 33: preview rows are Presenter-shaped (action_label), not raw `event.action` headings.
       assert html =~ "Session Create"
       assert html =~ "Session Revoke_all"
@@ -197,9 +205,17 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "return_to=%2Fadmin%2Fusers%3Fq%3Dpreview-target"
     end
 
-    test "organization-scoped detail page links into the same scoped full-audit surface", %{conn: conn} do
+    test "organization-scoped detail page links into the same scoped full-audit surface", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "org-preview-target@example.com", display_name: "Org Preview Target"})
+
+      target =
+        user_fixture(%{
+          email: "org-preview-target@example.com",
+          display_name: "Org Preview Target"
+        })
+
       org = create_organization(%{name: "Preview Org", slug: "preview-org"})
 
       create_membership(target, org, :member)

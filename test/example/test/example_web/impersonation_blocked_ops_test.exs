@@ -59,7 +59,10 @@ defmodule ExampleWeb.ImpersonationBlockedOpsTest do
       %{admin: admin, user: user}
     end
 
-    test "rejects password, MFA, passkey, and reactivation operations", %{admin: admin, user: user} do
+    test "rejects password, MFA, passkey, and reactivation operations", %{
+      admin: admin,
+      user: user
+    } do
       scope = %{user: user, impersonating_from: admin}
 
       assert {:error, :impersonation_forbidden} =

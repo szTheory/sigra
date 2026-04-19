@@ -77,8 +77,7 @@ defmodule Sigra.Install.Features.CoreTest do
 
       assert [
                {:primary, "core/migration.exs", _primary_basename},
-               {:active_org_column,
-                "core/add_active_organization_id_to_user_sessions.exs",
+               {:active_org_column, "core/add_active_organization_id_to_user_sessions.exs",
                 _active_org_basename},
                {:api_token, "core/api_token_migration.exs", _api_basename},
                {:audit_events, "core/create_audit_events.exs", _audit_basename}
@@ -225,7 +224,9 @@ defmodule Sigra.Install.Features.CoreTest do
     end
 
     test "falls back to the plaintext stub when encryption-requiring features are disabled" do
-      binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: false, mfa: false, oauth: false)
+      binding =
+        Keyword.put(@binding, :opts, live: true, api: false, jwt: false, mfa: false, oauth: false)
+
       sources = binding |> Core.files() |> Enum.map(fn {:eex, src, _} -> src end)
 
       assert "core/encrypted.ex" in sources
@@ -357,9 +358,14 @@ defmodule Sigra.Install.Features.CoreTest do
         |> Enum.reject(&(&1 in orphans))
         |> Enum.sort()
 
-      live_binding = Keyword.put(@binding, :opts, live: true, api: true, jwt: true, mfa: true, oauth: true)
-      nolive_binding = Keyword.put(@binding, :opts, live: false, api: true, jwt: true, mfa: true, oauth: true)
-      stub_binding = Keyword.put(@binding, :opts, live: true, api: false, jwt: false, mfa: false, oauth: false)
+      live_binding =
+        Keyword.put(@binding, :opts, live: true, api: true, jwt: true, mfa: true, oauth: true)
+
+      nolive_binding =
+        Keyword.put(@binding, :opts, live: false, api: true, jwt: true, mfa: true, oauth: true)
+
+      stub_binding =
+        Keyword.put(@binding, :opts, live: true, api: false, jwt: false, mfa: false, oauth: false)
 
       referenced =
         (Core.files(live_binding) ++ Core.files(nolive_binding) ++ Core.files(stub_binding))
@@ -436,6 +442,7 @@ defmodule Sigra.Install.Features.CoreTest do
 
     test "default opts emit the 4 base injections (router, config, test, conn_case)" do
       targets = @binding |> Core.injections() |> Enum.map(& &1.target)
+
       router_markers =
         @binding
         |> Core.injections()

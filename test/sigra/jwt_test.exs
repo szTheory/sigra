@@ -61,11 +61,16 @@ defmodule Sigra.JWTTest do
         {:ok, Map.put(struct, :id, 1)}
       end)
 
-      {:ok, tokens} = JWT.generate_tokens(config(), user, ["read:users", "write:users"], token_opts())
+      {:ok, tokens} =
+        JWT.generate_tokens(config(), user, ["read:users", "write:users"], token_opts())
 
       # Verify the JWT by decoding it
-      signer = Joken.Signer.create("HS256",
-        :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key"))
+      signer =
+        Joken.Signer.create(
+          "HS256",
+          :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key")
+        )
+
       {:ok, claims} = Joken.verify(tokens.access_token, signer)
 
       assert claims["sub"] == "42"
@@ -89,15 +94,27 @@ defmodule Sigra.JWTTest do
       end
 
       user = test_user(%{role: "admin"})
-      cfg = config(jwt: [
-        enabled: true, algorithm: "HS256", issuer: "test",
-        access_ttl: 900, refresh: false, claims_builder: TestClaimsBuilder
-      ])
+
+      cfg =
+        config(
+          jwt: [
+            enabled: true,
+            algorithm: "HS256",
+            issuer: "test",
+            access_ttl: 900,
+            refresh: false,
+            claims_builder: TestClaimsBuilder
+          ]
+        )
 
       {:ok, tokens} = JWT.generate_tokens(cfg, user, [], token_opts())
 
-      signer = Joken.Signer.create("HS256",
-        :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key"))
+      signer =
+        Joken.Signer.create(
+          "HS256",
+          :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key")
+        )
+
       {:ok, claims} = Joken.verify(tokens.access_token, signer)
 
       assert claims["role"] == "admin"
@@ -122,10 +139,18 @@ defmodule Sigra.JWTTest do
       cfg = config()
 
       # Generate a token first (no refresh)
-      cfg_no_refresh = config(jwt: [
-        enabled: true, algorithm: "HS256", issuer: "test_issuer",
-        access_ttl: 900, refresh: false, verify_epoch: true
-      ])
+      cfg_no_refresh =
+        config(
+          jwt: [
+            enabled: true,
+            algorithm: "HS256",
+            issuer: "test_issuer",
+            access_ttl: 900,
+            refresh: false,
+            verify_epoch: true
+          ]
+        )
+
       {:ok, tokens} = JWT.generate_tokens(cfg_no_refresh, user, ["read:users"], token_opts())
 
       # Mock the repo.get for epoch verification
@@ -141,8 +166,12 @@ defmodule Sigra.JWTTest do
 
     test "returns {:error, :token_expired} for expired token" do
       # Create a token with exp in the past
-      signer = Joken.Signer.create("HS256",
-        :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key"))
+      signer =
+        Joken.Signer.create(
+          "HS256",
+          :crypto.mac(:hmac, :sha256, @secret_key_base, "sigra-jwt-signing-key")
+        )
+
       now = DateTime.utc_now() |> DateTime.to_unix()
       claims = %{"sub" => "42", "iat" => now - 2000, "exp" => now - 1000, "epoch" => 0}
       {:ok, jwt, _} = Joken.generate_and_sign(%{}, claims, signer)
@@ -156,10 +185,18 @@ defmodule Sigra.JWTTest do
 
     test "with verify_epoch: true checks user.token_epoch matches claim" do
       user = test_user(%{token_epoch: 5})
-      cfg = config(jwt: [
-        enabled: true, algorithm: "HS256", issuer: "test_issuer",
-        access_ttl: 900, refresh: false, verify_epoch: true
-      ])
+
+      cfg =
+        config(
+          jwt: [
+            enabled: true,
+            algorithm: "HS256",
+            issuer: "test_issuer",
+            access_ttl: 900,
+            refresh: false,
+            verify_epoch: true
+          ]
+        )
 
       {:ok, tokens} = JWT.generate_tokens(cfg, user, [], token_opts())
 
@@ -174,10 +211,18 @@ defmodule Sigra.JWTTest do
 
     test "returns {:error, :epoch_mismatch} when epoch doesn't match" do
       user = test_user(%{token_epoch: 5})
-      cfg = config(jwt: [
-        enabled: true, algorithm: "HS256", issuer: "test_issuer",
-        access_ttl: 900, refresh: false, verify_epoch: true
-      ])
+
+      cfg =
+        config(
+          jwt: [
+            enabled: true,
+            algorithm: "HS256",
+            issuer: "test_issuer",
+            access_ttl: 900,
+            refresh: false,
+            verify_epoch: true
+          ]
+        )
 
       {:ok, tokens} = JWT.generate_tokens(cfg, user, [], token_opts())
 
@@ -192,10 +237,18 @@ defmodule Sigra.JWTTest do
 
     test "returns {:error, :invalid_token} when user not found (deleted)" do
       user = test_user()
-      cfg = config(jwt: [
-        enabled: true, algorithm: "HS256", issuer: "test_issuer",
-        access_ttl: 900, refresh: false, verify_epoch: true
-      ])
+
+      cfg =
+        config(
+          jwt: [
+            enabled: true,
+            algorithm: "HS256",
+            issuer: "test_issuer",
+            access_ttl: 900,
+            refresh: false,
+            verify_epoch: true
+          ]
+        )
 
       {:ok, tokens} = JWT.generate_tokens(cfg, user, [], token_opts())
 
@@ -220,7 +273,8 @@ defmodule Sigra.JWTTest do
       {:ok, initial} = JWT.generate_tokens(cfg, user, ["read:users"], token_opts())
 
       # Set up mocks for rotate: get_by (find old token), update! (supersede), insert (new token), get! (user for claims)
-      old_metadata = Jason.encode!(%{family_id: "fam-1", scopes: ["read:users"], superseded_at: nil})
+      old_metadata =
+        Jason.encode!(%{family_id: "fam-1", scopes: ["read:users"], superseded_at: nil})
 
       Sigra.MockRepo
       |> expect(:get_by, fn Sigra.TestUserToken, [token: _, context: "api_refresh"] ->
@@ -253,11 +307,12 @@ defmodule Sigra.JWTTest do
     test "reuse of superseded token triggers reuse detection and revokes family" do
       cfg = config()
 
-      superseded_metadata = Jason.encode!(%{
-        family_id: "fam-1",
-        scopes: ["read:users"],
-        superseded_at: "2026-01-01T00:00:00Z"
-      })
+      superseded_metadata =
+        Jason.encode!(%{
+          family_id: "fam-1",
+          scopes: ["read:users"],
+          superseded_at: "2026-01-01T00:00:00Z"
+        })
 
       Sigra.MockRepo
       |> expect(:get_by, fn Sigra.TestUserToken, [token: _, context: "api_refresh"] ->

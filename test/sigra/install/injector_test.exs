@@ -260,7 +260,9 @@ defmodule Sigra.Install.InjectorTest do
       """
 
       assert {:ok, first_inject} = Injector.inject_lifecycle_routes(router_content, route_code)
-      assert {:already_injected, ^first_inject} = Injector.inject_lifecycle_routes(first_inject, route_code)
+
+      assert {:already_injected, ^first_inject} =
+               Injector.inject_lifecycle_routes(first_inject, route_code)
     end
   end
 

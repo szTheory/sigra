@@ -57,8 +57,8 @@ defmodule Sigra.Passkeys.AuthenticationTest do
   defp user, do: %TestUser{id: Ecto.UUID.generate(), email: "user@example.com"}
 
   defp assertion_fixture(overrides \\ %{}) do
-    {authenticator_data, client_data_json, signature, origin, rp_id, challenge_bytes, credential_id,
-     cose_key_cbor} = PasskeyFixtures.simplewebauthn_assertion_fixture()
+    {authenticator_data, client_data_json, signature, origin, rp_id, challenge_bytes,
+     credential_id, cose_key_cbor} = PasskeyFixtures.simplewebauthn_assertion_fixture()
 
     challenge = Authentication.new_challenge(config(), bytes: challenge_bytes)
     {:ok, cose_key, ""} = Wax.Utils.CBOR.decode(cose_key_cbor)
@@ -126,7 +126,11 @@ defmodule Sigra.Passkeys.AuthenticationTest do
     end)
 
     assert {:error, :credential_not_owned} =
-             Authentication.verify(config(), current_user, Map.put(assertion, :user_handle, "different-user"))
+             Authentication.verify(
+               config(),
+               current_user,
+               Map.put(assertion, :user_handle, "different-user")
+             )
   end
 
   test "authenticate/4 updates sign_count and last_used_at on success" do
@@ -166,7 +170,9 @@ defmodule Sigra.Passkeys.AuthenticationTest do
     end)
     |> expect(:transact, fn %Ecto.Multi{} = multi ->
       assert Enum.map(Ecto.Multi.to_list(multi), fn {name, _} -> name end) == [:passkey, :audit]
-      {:ok, %{passkey: updated, audit: %Sigra.Test.AuditEvent{action: "passkey.sign_count_regression"}}}
+
+      {:ok,
+       %{passkey: updated, audit: %Sigra.Test.AuditEvent{action: "passkey.sign_count_regression"}}}
     end)
 
     assert {:ok, %Credential{sign_count: 200}} =
@@ -192,7 +198,14 @@ defmodule Sigra.Passkeys.AuthenticationTest do
 
     assert {:error, :sign_count_regression} =
              Sigra.Passkeys.authenticate(
-               config(passkeys: [origin: "https://dev.dontneeda.pw", rp_id: "dev.dontneeda.pw", sign_count_policy: :require_reauth, user_passkey_schema: TestUserPasskey]),
+               config(
+                 passkeys: [
+                   origin: "https://dev.dontneeda.pw",
+                   rp_id: "dev.dontneeda.pw",
+                   sign_count_policy: :require_reauth,
+                   user_passkey_schema: TestUserPasskey
+                 ]
+               ),
                current_user,
                assertion
              )
@@ -212,12 +225,21 @@ defmodule Sigra.Passkeys.AuthenticationTest do
     end)
     |> expect(:transact, fn %Ecto.Multi{} = multi ->
       assert Enum.map(Ecto.Multi.to_list(multi), fn {name, _} -> name end) == [:audit, :passkey]
-      {:ok, %{audit: %Sigra.Test.AuditEvent{action: "passkey.sign_count_regression"}, passkey: row}}
+
+      {:ok,
+       %{audit: %Sigra.Test.AuditEvent{action: "passkey.sign_count_regression"}, passkey: row}}
     end)
 
     assert {:error, :sign_count_regression} =
              Sigra.Passkeys.authenticate(
-               config(passkeys: [origin: "https://dev.dontneeda.pw", rp_id: "dev.dontneeda.pw", sign_count_policy: :revoke, user_passkey_schema: TestUserPasskey]),
+               config(
+                 passkeys: [
+                   origin: "https://dev.dontneeda.pw",
+                   rp_id: "dev.dontneeda.pw",
+                   sign_count_policy: :revoke,
+                   user_passkey_schema: TestUserPasskey
+                 ]
+               ),
                current_user,
                assertion
              )

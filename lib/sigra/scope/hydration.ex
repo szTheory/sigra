@@ -90,7 +90,11 @@ defmodule Sigra.Scope.Hydration do
 
   defp hydrate_impersonation(scope, _config, %Sigra.Session{impersonator_user_id: nil}), do: scope
 
-  defp hydrate_impersonation(%{impersonating_from: impersonating_from} = scope, _config, %Sigra.Session{})
+  defp hydrate_impersonation(
+         %{impersonating_from: impersonating_from} = scope,
+         _config,
+         %Sigra.Session{}
+       )
        when not is_nil(impersonating_from),
        do: scope
 

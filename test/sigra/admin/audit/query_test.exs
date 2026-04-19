@@ -116,7 +116,10 @@ defmodule Sigra.Admin.Audit.QueryTest do
   end
 
   describe "normalize/2" do
-    test "keeps only the shared explorer/export filter contract", %{actor_id: actor_id, org_scope: org_scope} do
+    test "keeps only the shared explorer/export filter contract", %{
+      actor_id: actor_id,
+      org_scope: org_scope
+    } do
       params = %{
         "actor" => actor_id,
         "effective_user" => Ecto.UUID.generate(),
@@ -150,7 +153,10 @@ defmodule Sigra.Admin.Audit.QueryTest do
                QueryParams.normalize(%{"cursor" => "not-a-valid-cursor"}, global_scope)
     end
 
-    test "reuses the same normalized output for explorer and export callers", %{actor_id: actor_id, global_scope: global_scope} do
+    test "reuses the same normalized output for explorer and export callers", %{
+      actor_id: actor_id,
+      global_scope: global_scope
+    } do
       params = %{"actor" => actor_id, "page_size" => "25", "action_prefix" => "session."}
 
       assert {:ok, normalized} = QueryParams.normalize(params, global_scope)
@@ -163,12 +169,16 @@ defmodule Sigra.Admin.Audit.QueryTest do
              }
     end
 
-    test "rejects malformed actor UUIDs instead of widening to all actors", %{global_scope: global_scope} do
+    test "rejects malformed actor UUIDs instead of widening to all actors", %{
+      global_scope: global_scope
+    } do
       assert {:error, {:actor_id, :invalid}} =
                QueryParams.normalize(%{"actor" => "not-a-uuid"}, global_scope)
     end
 
-    test "rejects malformed effective_user UUIDs instead of widening", %{global_scope: global_scope} do
+    test "rejects malformed effective_user UUIDs instead of widening", %{
+      global_scope: global_scope
+    } do
       assert {:error, {:effective_user_id, :invalid}} =
                QueryParams.normalize(%{"effective_user" => "nope"}, global_scope)
     end
@@ -178,7 +188,9 @@ defmodule Sigra.Admin.Audit.QueryTest do
                QueryParams.normalize(%{"organization" => "bogus"}, global_scope)
     end
 
-    test "rejects malformed subject_user UUIDs rather than silently ignoring them", %{global_scope: global_scope} do
+    test "rejects malformed subject_user UUIDs rather than silently ignoring them", %{
+      global_scope: global_scope
+    } do
       assert {:error, {:subject_user_id, :invalid}} =
                QueryParams.normalize(%{"subject_user" => "??"}, global_scope)
     end
@@ -193,7 +205,9 @@ defmodule Sigra.Admin.Audit.QueryTest do
                QueryParams.normalize(%{"to" => "never"}, global_scope)
     end
 
-    test "rejects zero or negative page_size rather than treating it as a default", %{global_scope: global_scope} do
+    test "rejects zero or negative page_size rather than treating it as a default", %{
+      global_scope: global_scope
+    } do
       assert {:error, {:page_size, :invalid}} =
                QueryParams.normalize(%{"page_size" => "0"}, global_scope)
 
@@ -201,31 +215,39 @@ defmodule Sigra.Admin.Audit.QueryTest do
                QueryParams.normalize(%{"page_size" => "-10"}, global_scope)
     end
 
-    test "rejects page_size above the maximum even if it parses as an integer", %{global_scope: global_scope} do
+    test "rejects page_size above the maximum even if it parses as an integer", %{
+      global_scope: global_scope
+    } do
       assert {:error, {:page_size, :invalid}} =
                QueryParams.normalize(%{"page_size" => "101"}, global_scope)
     end
 
-    test "rejects non-integer page_size instead of silently falling back to default", %{global_scope: global_scope} do
+    test "rejects non-integer page_size instead of silently falling back to default", %{
+      global_scope: global_scope
+    } do
       assert {:error, {:page_size, :invalid}} =
                QueryParams.normalize(%{"page_size" => "ten"}, global_scope)
     end
 
-    test "collapses org-admin scope onto the resolved organization id regardless of missing param", %{org_scope: org_scope} do
+    test "collapses org-admin scope onto the resolved organization id regardless of missing param",
+         %{org_scope: org_scope} do
       assert {:ok, normalized} = QueryParams.normalize(%{"actor" => nil}, org_scope)
 
       assert normalized.organization_scope == {:only, org_scope.organization_id}
       refute Map.has_key?(normalized, :organization_id)
     end
 
-    test "denies an org admin attempt to cross-scope by supplying a different organization filter", %{org_scope: org_scope} do
+    test "denies an org admin attempt to cross-scope by supplying a different organization filter",
+         %{org_scope: org_scope} do
       other_org_id = Ecto.UUID.generate()
 
       assert {:error, {:organization, :out_of_scope}} =
                QueryParams.normalize(%{"organization" => other_org_id}, org_scope)
     end
 
-    test "strips empty-string filters so empty inputs do not widen or constrain queries", %{global_scope: global_scope} do
+    test "strips empty-string filters so empty inputs do not widen or constrain queries", %{
+      global_scope: global_scope
+    } do
       params = %{
         "actor" => "",
         "effective_user" => "",

@@ -7,7 +7,10 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
   @cases [
     %{label: "passkeys disabled", flags: ["--no-passkeys"]},
-    %{label: "passkeys disabled with organizations disabled", flags: ["--no-organizations", "--no-passkeys"]}
+    %{
+      label: "passkeys disabled with organizations disabled",
+      flags: ["--no-organizations", "--no-passkeys"]
+    }
   ]
 
   @forbidden_strings [
@@ -38,14 +41,23 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
 
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_hooks.js"))
         refute File.exists?(Path.join(app_dir, "assets/js/passkey_browser.js"))
-        refute File.exists?(Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts/user_passkey.ex"))
+
+        refute File.exists?(
+                 Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts/user_passkey.ex")
+               )
+
         refute migration_present?(app_dir, "*_create_user_passkeys.exs")
 
         router = File.read!(Path.join(app_dir, "lib/#{otp_app(app_dir)}_web/router.ex"))
         mix_exs = File.read!(Path.join(app_dir, "mix.exs"))
         config_exs = File.read!(Path.join(app_dir, "config/config.exs"))
         auth_ex = File.read!(Path.join(app_dir, "lib/#{otp_app(app_dir)}/accounts.ex"))
-        session_controller = File.read!(Path.join(app_dir, "lib/#{otp_app(app_dir)}_web/controllers/session_controller.ex"))
+
+        session_controller =
+          File.read!(
+            Path.join(app_dir, "lib/#{otp_app(app_dir)}_web/controllers/session_controller.ex")
+          )
+
         refute router =~ "/users/log_in/passkey"
         refute router =~ "/users/mfa/passkey"
         refute router =~ "/users/settings/mfa/passkeys"
@@ -57,7 +69,8 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
         refute session_controller =~ "passkey_primary_enabled"
 
         for forbidden <- @forbidden_strings do
-          refute tree_contains?(app_dir, forbidden), "unexpected residue #{inspect(forbidden)} in generated app"
+          refute tree_contains?(app_dir, forbidden),
+                 "unexpected residue #{inspect(forbidden)} in generated app"
         end
       end
     end

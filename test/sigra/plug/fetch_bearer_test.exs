@@ -19,11 +19,12 @@ defmodule Sigra.Plug.FetchBearerTest do
       user_schema: Sigra.TestUser,
       otp_app: :test_app,
       secret_key_base: String.duplicate("a", 64),
-      api_token: Keyword.get(overrides, :api_token, [
-        prefix: "test_app_sk_",
-        api_token_schema: Sigra.TestAPIToken
-      ]),
-      jwt: Keyword.get(overrides, :jwt, [enabled: false])
+      api_token:
+        Keyword.get(overrides, :api_token,
+          prefix: "test_app_sk_",
+          api_token_schema: Sigra.TestAPIToken
+        ),
+      jwt: Keyword.get(overrides, :jwt, enabled: false)
     }
   end
 
@@ -121,10 +122,12 @@ defmodule Sigra.Plug.FetchBearerTest do
 
     test "prefix match checked FIRST before eyJ check (D-38)" do
       # Token starts with prefix AND would match eyJ check -- prefix wins
-      jwt_opts = default_opts(
-        jwt: [enabled: true],
-        api_token: [prefix: "test_app_sk_", api_token_schema: Sigra.TestAPIToken]
-      )
+      jwt_opts =
+        default_opts(
+          jwt: [enabled: true],
+          api_token: [prefix: "test_app_sk_", api_token_schema: Sigra.TestAPIToken]
+        )
+
       opts = FetchBearer.init(jwt_opts)
 
       conn =
@@ -163,7 +166,7 @@ defmodule Sigra.Plug.FetchBearerTest do
         jwt: [enabled: false]
       }
 
-      opts = FetchBearer.init([config: config, scope_module: TestScope])
+      opts = FetchBearer.init(config: config, scope_module: TestScope)
 
       # Token with derived prefix "my_app_sk_" should route to opaque
       conn =

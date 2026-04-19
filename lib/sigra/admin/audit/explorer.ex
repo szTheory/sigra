@@ -157,7 +157,11 @@ defmodule Sigra.Admin.Audit.Explorer do
     end
   end
 
-  defp build_filters(normalized, %Scope{mode: :organization, organization_id: org_id}, extra_filters)
+  defp build_filters(
+         normalized,
+         %Scope{mode: :organization, organization_id: org_id},
+         extra_filters
+       )
        when is_binary(org_id) do
     normalized
     |> Map.drop([:cursor, :limit, :organization_scope])

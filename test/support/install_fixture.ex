@@ -278,7 +278,7 @@ defmodule Sigra.Test.InstallFixture do
   """
   @spec write_asset_file(Path.t(), String.t(), iodata()) :: :ok
   def write_asset_file(app_dir, relative_path, contents)
-      when is_binary(relative_path) and is_list(contents) or is_binary(contents) do
+      when (is_binary(relative_path) and is_list(contents)) or is_binary(contents) do
     path =
       app_dir
       |> Path.join("assets")

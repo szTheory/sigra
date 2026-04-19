@@ -14,7 +14,8 @@ defmodule Example.Accounts.EmailsLifecycleHtmlTest do
 
   describe "confirmation_email/3" do
     test "includes code block, CTA, and footer" do
-      html = Emails.confirmation_email(user(), "https://example.test/confirm/tok", "123456").html_body
+      html =
+        Emails.confirmation_email(user(), "https://example.test/confirm/tok", "123456").html_body
 
       assert html =~ "Confirm email address"
       assert html =~ "1 2 3 4 5 6"
@@ -97,7 +98,8 @@ defmodule Example.Accounts.EmailsLifecycleHtmlTest do
 
   describe "email change + deletion lifecycle" do
     test "email_change_confirmation_email/3" do
-      html = Emails.email_change_confirmation_email(user(), "new@example.test", "https://ex.test/c").html_body
+      html =
+        Emails.email_change_confirmation_email(user(), "new@example.test", "https://ex.test/c").html_body
 
       assert html =~ "Confirm Email Change"
       assert html =~ "https://ex.test/c"
@@ -106,7 +108,11 @@ defmodule Example.Accounts.EmailsLifecycleHtmlTest do
 
     test "email_change_notification_email/3" do
       html =
-        Emails.email_change_notification_email(user(), "new@example.test", "https://ex.test/cancel").html_body
+        Emails.email_change_notification_email(
+          user(),
+          "new@example.test",
+          "https://ex.test/cancel"
+        ).html_body
 
       assert html =~ "Email Change Requested"
       assert html =~ "Cancel email change"

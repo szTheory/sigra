@@ -52,7 +52,10 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
     Mix.Task.run("compile")
     ensure_test_support_loaded!()
 
-    Mix.shell().info("==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture")
+    Mix.shell().info(
+      "==> sigra.fixture.rebless_golden: scaffolding fresh tmp app via InstallFixture"
+    )
+
     {:ok, %{app_dir: tmp_dir, stdout: raw, baseline_paths: baseline}} =
       InstallFixture.setup_tmp_app()
 
@@ -133,7 +136,10 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
       true ->
         Mix.shell().error("DRIFT DETECTED:")
         if tree_diff != "", do: Mix.shell().error(tree_diff)
-        unless stdout_equal?, do: Mix.shell().error("  STDOUT.txt differs from regenerated output")
+
+        unless stdout_equal?,
+          do: Mix.shell().error("  STDOUT.txt differs from regenerated output")
+
         exit({:shutdown, 2})
     end
   end

@@ -7,7 +7,9 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
   alias Example.Repo
 
   describe "Phase 30 per-user audit explorer contracts" do
-    test "global per-user audit route loads and preserves filter context in the URL", %{conn: conn} do
+    test "global per-user audit route loads and preserves filter context in the URL", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
       actor = user_fixture(%{email: "user-audit-actor@example.com", display_name: "Audit Actor"})
 
@@ -30,7 +32,9 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
       html =
         conn
         |> log_in_user(platform_admin)
-        |> get("/admin/users/#{subject.id}/audit?action_prefix=session&page_size=1&return_to=%2Fadmin%2Fusers%3Fq%3Duser-audit")
+        |> get(
+          "/admin/users/#{subject.id}/audit?action_prefix=session&page_size=1&return_to=%2Fadmin%2Fusers%3Fq%3Duser-audit"
+        )
         |> html_response(200)
 
       assert html =~ "Audit Subject"
@@ -43,9 +47,10 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
       assert html =~ "/admin/users/#{subject.id}/audit?"
     end
 
-    test "organization-scoped per-user audit route intentionally includes the user's global support rows", %{
-      conn: conn
-    } do
+    test "organization-scoped per-user audit route intentionally includes the user's global support rows",
+         %{
+           conn: conn
+         } do
       platform_admin = platform_admin_fixture()
       org = create_organization(%{name: "Scoped Audit Org", slug: "scoped-audit-org"})
       actor = user_fixture(%{email: "scoped-actor@example.com", display_name: "Scoped Actor"})
@@ -73,7 +78,9 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
       html =
         conn
         |> log_in_user(platform_admin)
-        |> get("/admin/organizations/#{org.slug}/users/#{subject.id}/audit?return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dscoped")
+        |> get(
+          "/admin/organizations/#{org.slug}/users/#{subject.id}/audit?return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dscoped"
+        )
         |> html_response(200)
 
       assert html =~ "Scoped Subject"

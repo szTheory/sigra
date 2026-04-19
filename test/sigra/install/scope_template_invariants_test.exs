@@ -2,23 +2,23 @@ defmodule Sigra.Install.ScopeTemplateInvariantsTest do
   use ExUnit.Case, async: true
 
   @template_path Path.expand(
-    "../../../priv/templates/sigra.install/core/scope.ex",
-    __DIR__
-  )
+                   "../../../priv/templates/sigra.install/core/scope.ex",
+                   __DIR__
+                 )
 
   describe "reserved :impersonating_from field (D-11)" do
     test "source-level grep — template defstruct mentions impersonating_from: nil" do
       source = File.read!(@template_path)
 
       assert source =~ ~r/impersonating_from:\s*nil/,
-        """
-        The generated Scope template at #{@template_path} must reserve
-        the :impersonating_from field for v1.2 impersonation support.
+             """
+             The generated Scope template at #{@template_path} must reserve
+             the :impersonating_from field for v1.2 impersonation support.
 
-        See UPGRADE-v1.2.md at the project root for the contract. If
-        you intentionally removed this field, you are about to break
-        the v1.1 -> v1.2 upgrade path for every Sigra-generated app.
-        """
+             See UPGRADE-v1.2.md at the project root for the contract. If
+             you intentionally removed this field, you are about to break
+             the v1.1 -> v1.2 upgrade path for every Sigra-generated app.
+             """
     end
 
     test "compile-and-introspect — rendered Scope module struct has :impersonating_from key" do
@@ -52,13 +52,13 @@ defmodule Sigra.Install.ScopeTemplateInvariantsTest do
       struct_keys = mod.__struct__() |> Map.keys()
 
       assert :impersonating_from in struct_keys,
-        """
-        The rendered Scope struct must contain :impersonating_from.
-        Got keys: #{inspect(struct_keys)}.
+             """
+             The rendered Scope struct must contain :impersonating_from.
+             Got keys: #{inspect(struct_keys)}.
 
-        This field is reserved for v1.2 impersonation. See
-        UPGRADE-v1.2.md at the project root for the contract.
-        """
+             This field is reserved for v1.2 impersonation. See
+             UPGRADE-v1.2.md at the project root for the contract.
+             """
     end
   end
 end

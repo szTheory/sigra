@@ -38,17 +38,38 @@ defmodule Sigra.Admin.Audit.QueryParams do
     |> Map.take(@allowed_params)
     |> Enum.reject(fn {_key, value} -> blank?(value) end)
     |> Enum.reduce_while({:ok, %{}}, fn
-      {"actor", value}, {:ok, acc} -> put_uuid(acc, :actor_id, value)
-      {"effective_user", value}, {:ok, acc} -> put_uuid(acc, :effective_user_id, value)
-      {"organization", value}, {:ok, acc} -> put_uuid(acc, :organization_id, value)
-      {"subject_user", value}, {:ok, acc} -> put_uuid(acc, :subject_user_id, value)
-      {"action", value}, {:ok, acc} -> {:cont, {:ok, Map.put(acc, :action, String.trim(value))}}
-      {"action_prefix", value}, {:ok, acc} -> {:cont, {:ok, Map.put(acc, :action_prefix, String.trim(value))}}
-      {"outcome", value}, {:ok, acc} -> {:cont, {:ok, Map.put(acc, :outcome, String.trim(value))}}
-      {"from", value}, {:ok, acc} -> put_datetime(acc, :from, value)
-      {"to", value}, {:ok, acc} -> put_datetime(acc, :to, value)
-      {"cursor", value}, {:ok, acc} -> {:cont, {:ok, Map.put(acc, :cursor, String.trim(value))}}
-      {"page_size", value}, {:ok, acc} -> {:cont, {:ok, Map.put(acc, :page_size, value)}}
+      {"actor", value}, {:ok, acc} ->
+        put_uuid(acc, :actor_id, value)
+
+      {"effective_user", value}, {:ok, acc} ->
+        put_uuid(acc, :effective_user_id, value)
+
+      {"organization", value}, {:ok, acc} ->
+        put_uuid(acc, :organization_id, value)
+
+      {"subject_user", value}, {:ok, acc} ->
+        put_uuid(acc, :subject_user_id, value)
+
+      {"action", value}, {:ok, acc} ->
+        {:cont, {:ok, Map.put(acc, :action, String.trim(value))}}
+
+      {"action_prefix", value}, {:ok, acc} ->
+        {:cont, {:ok, Map.put(acc, :action_prefix, String.trim(value))}}
+
+      {"outcome", value}, {:ok, acc} ->
+        {:cont, {:ok, Map.put(acc, :outcome, String.trim(value))}}
+
+      {"from", value}, {:ok, acc} ->
+        put_datetime(acc, :from, value)
+
+      {"to", value}, {:ok, acc} ->
+        put_datetime(acc, :to, value)
+
+      {"cursor", value}, {:ok, acc} ->
+        {:cont, {:ok, Map.put(acc, :cursor, String.trim(value))}}
+
+      {"page_size", value}, {:ok, acc} ->
+        {:cont, {:ok, Map.put(acc, :page_size, value)}}
     end)
   end
 
@@ -85,10 +106,16 @@ defmodule Sigra.Admin.Audit.QueryParams do
        when is_binary(org_id) do
     case Map.get(normalized, :organization_id) do
       nil ->
-        {:ok, normalized |> Map.delete(:organization_id) |> Map.put(:organization_scope, {:only, org_id})}
+        {:ok,
+         normalized
+         |> Map.delete(:organization_id)
+         |> Map.put(:organization_scope, {:only, org_id})}
 
       ^org_id ->
-        {:ok, normalized |> Map.delete(:organization_id) |> Map.put(:organization_scope, {:only, org_id})}
+        {:ok,
+         normalized
+         |> Map.delete(:organization_id)
+         |> Map.put(:organization_scope, {:only, org_id})}
 
       _other ->
         {:error, {:organization, :out_of_scope}}
@@ -111,8 +138,12 @@ defmodule Sigra.Admin.Audit.QueryParams do
     end
   end
 
-  defp stringify_map(params) when is_list(params), do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
-  defp stringify_map(params) when is_map(params), do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
+  defp stringify_map(params) when is_list(params),
+    do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
+
+  defp stringify_map(params) when is_map(params),
+    do: Map.new(params, fn {k, v} -> {to_string(k), v} end)
+
   defp stringify_map(_params), do: %{}
 
   defp blank?(value), do: value in [nil, "", []]

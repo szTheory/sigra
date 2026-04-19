@@ -48,6 +48,7 @@ defmodule Sigra.Plug.ForbidDuringImpersonationTest do
     assert conn.status == 403
     assert conn.resp_body == "blocked"
     assert conn.assigns.error_type == :insufficient_scope
+
     assert conn.assigns.error_opts[:message] ==
              "You can't change account security settings while impersonating."
 
@@ -70,7 +71,10 @@ defmodule Sigra.Plug.ForbidDuringImpersonationTest do
 
     assert conn.halted
     assert conn.status == 403
-    assert conn.assigns.error_opts[:message] == "You can't perform this action while impersonating."
+
+    assert conn.assigns.error_opts[:message] ==
+             "You can't perform this action while impersonating."
+
     assert conn.assigns.error_opts[:audit][:action] == "admin.impersonation.denied"
     # Default metadata is an empty map so downstream audit logging stays deterministic.
     assert conn.assigns.error_opts[:audit][:metadata] == %{}

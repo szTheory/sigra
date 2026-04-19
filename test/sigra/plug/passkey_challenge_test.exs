@@ -80,7 +80,9 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
                Sigra.Token.verify(
                  cfg.secret_key_base,
                  @purpose,
-                 challenge_token(issued_conn, @authentication_slot), max_age: 60)
+                 challenge_token(issued_conn, @authentication_slot),
+                 max_age: 60
+               )
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, challenge.bytes}
     end
@@ -105,7 +107,9 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
                Sigra.Token.verify(
                  cfg.secret_key_base,
                  @purpose,
-                 challenge_token(issued_conn, @registration_slot), max_age: 60)
+                 challenge_token(issued_conn, @registration_slot),
+                 max_age: 60
+               )
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, "registration-challenge"}
     end
@@ -140,7 +144,9 @@ defmodule Sigra.Plug.PasskeyChallengeTest do
                Sigra.Token.verify(
                  cfg.secret_key_base,
                  @purpose,
-                 challenge_token(issued_conn, @authentication_slot), max_age: 60)
+                 challenge_token(issued_conn, @authentication_slot),
+                 max_age: 60
+               )
 
       assert Base.url_decode64(encoded_bytes, padding: false) == {:ok, "authentication-challenge"}
     end

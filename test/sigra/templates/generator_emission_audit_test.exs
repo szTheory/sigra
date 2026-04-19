@@ -40,12 +40,12 @@ defmodule Sigra.Templates.GeneratorEmissionAuditTest do
   @web_module_ref ~r/<%= web_module %>\.((?:[A-Z][A-Za-z0-9_]*)(?:\.[A-Z][A-Za-z0-9_]*)*)/
 
   @host_only_suffixes MapSet.new([
-                          "Layouts",
-                          "Endpoint",
-                          "PubSub",
-                          "ErrorHTML",
-                          "Gettext"
-                        ])
+                        "Layouts",
+                        "Endpoint",
+                        "PubSub",
+                        "ErrorHTML",
+                        "Gettext"
+                      ])
 
   defp canonical_binding do
     [

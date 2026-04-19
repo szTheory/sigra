@@ -118,8 +118,7 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
        Path.join(["lib", otp_app_str, context_underscore, "emails", "provider_linked.ex"])},
       {:eex, "provider_unlinked_email.ex",
        Path.join(["lib", otp_app_str, context_underscore, "emails", "provider_unlinked.ex"])},
-      {:eex, "oauth_test_helpers.ex",
-       Path.join(["test", "support", "oauth_test_helpers.ex"])}
+      {:eex, "oauth_test_helpers.ex", Path.join(["test", "support", "oauth_test_helpers.ex"])}
     ]
 
     # Vault files (conditional on --no-vault)

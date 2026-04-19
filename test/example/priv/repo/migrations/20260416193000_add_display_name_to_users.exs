@@ -3,9 +3,9 @@ defmodule Example.Repo.Migrations.AddDisplayNameToUsers do
 
   def change do
     alter table(:users) do
-      add :display_name, :string
+      add(:display_name, :string)
     end
 
-    create index(:users, [:display_name])
+    create(index(:users, [:display_name]))
   end
 end

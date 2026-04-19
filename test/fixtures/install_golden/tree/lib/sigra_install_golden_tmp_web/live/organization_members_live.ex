@@ -220,8 +220,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
             %{"email" => params["email"], "role" => params["role"]},
             as: :invitation,
             errors: [
-              email:
-                {"#{params["email"]} is already a member of this organization.", []}
+              email: {"#{params["email"]} is already a member of this organization.", []}
             ]
           )
 
@@ -243,8 +242,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
          |> push_event("close-modal", %{id: "invite-member-modal"})}
 
       {:error, :unauthorized} ->
-        {:noreply,
-         put_flash(socket, :error, "You do not have permission to invite members.")}
+        {:noreply, put_flash(socket, :error, "You do not have permission to invite members.")}
     end
   end
 
@@ -292,8 +290,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
          |> push_event("close-modal", %{id: "revoke-invitation-modal"})}
 
       {:error, :unauthorized} ->
-        {:noreply,
-         put_flash(socket, :error, "You do not have permission to revoke invitations.")}
+        {:noreply, put_flash(socket, :error, "You do not have permission to revoke invitations.")}
 
       {:error, :not_found} ->
         {:noreply, put_flash(socket, :error, "Invitation not found.")}

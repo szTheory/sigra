@@ -11,7 +11,8 @@ defmodule SigraInstallGoldenTmp.Application do
       {SigraInstallGoldenTmp.Vault, []},
       SigraInstallGoldenTmpWeb.Telemetry,
       SigraInstallGoldenTmp.Repo,
-      {DNSCluster, query: Application.get_env(:sigra_install_golden_tmp, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:sigra_install_golden_tmp, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SigraInstallGoldenTmp.PubSub},
       # Start a worker by calling: SigraInstallGoldenTmp.Worker.start_link(arg)
       # {SigraInstallGoldenTmp.Worker, arg},

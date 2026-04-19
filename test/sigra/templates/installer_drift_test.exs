@@ -32,8 +32,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/user_auth.ex",
       example: "test/example/lib/example_web/user_auth.ex",
       must_have: [
-        {"use Gettext backend present",
-         ~r/use Gettext, backend: <%= web_module %>\.Gettext/,
+        {"use Gettext backend present", ~r/use Gettext, backend: <%= web_module %>\.Gettext/,
          ~r/use Gettext, backend: ExampleWeb\.Gettext/}
       ]
     },
@@ -67,11 +66,9 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/user_token.ex",
       example: "test/example/lib/example/accounts/user_token.ex",
       must_not: [
-        {"build_session_token helper absent",
-         ~r/def build_session_token\(/,
+        {"build_session_token helper absent", ~r/def build_session_token\(/,
          ~r/def build_session_token\(/},
-        {"verify_session_token_query helper absent",
-         ~r/def verify_session_token_query\(/,
+        {"verify_session_token_query helper absent", ~r/def verify_session_token_query\(/,
          ~r/def verify_session_token_query\(/}
       ]
     },
@@ -89,8 +86,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
          ~r/Sigra\.Auth\.create_session\(sigra_config\(\)/}
       ],
       must_not: [
-        {"legacy UserToken.build_session_token call absent",
-         ~r/UserToken\.build_session_token/,
+        {"legacy UserToken.build_session_token call absent", ~r/UserToken\.build_session_token/,
          ~r/UserToken\.build_session_token/}
       ]
     },
@@ -102,11 +98,9 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/user_auth.ex",
       example: "test/example/lib/example_web/user_auth.ex",
       must_have: [
-        {"ip extracted from conn.remote_ip via :inet.ntoa",
-         ~r/:inet\.ntoa\(conn\.remote_ip\)/,
+        {"ip extracted from conn.remote_ip via :inet.ntoa", ~r/:inet\.ntoa\(conn\.remote_ip\)/,
          ~r/:inet\.ntoa\(conn\.remote_ip\)/},
-        {"user_agent extracted via get_req_header",
-         ~r/get_req_header\(\s*"user-agent"\s*\)/,
+        {"user_agent extracted via get_req_header", ~r/get_req_header\(\s*"user-agent"\s*\)/,
          ~r/get_req_header\(\s*"user-agent"\s*\)/}
       ]
     },
@@ -116,8 +110,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       example: "test/example/lib/example/accounts.ex",
       must_have: [
         {"legacy reset_user_password has inline comment, not @doc",
-         ~r/# Legacy API accepting a user struct/,
-         ~r/# Legacy API accepting a user struct/}
+         ~r/# Legacy API accepting a user struct/, ~r/# Legacy API accepting a user struct/}
       ],
       must_not: [
         {"second @doc block absent",
@@ -130,8 +123,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/audit_event.ex",
       example: "test/example/lib/example/accounts/audit_event.ex",
       must_not: [
-        {"import Ecto.Changeset removed",
-         ~r/^\s*import Ecto\.Changeset\s*$/m,
+        {"import Ecto.Changeset removed", ~r/^\s*import Ecto\.Changeset\s*$/m,
          ~r/^\s*import Ecto\.Changeset\s*$/m}
       ]
     },
@@ -140,8 +132,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/reset_password_controller.ex",
       example: "test/example/lib/example_web/controllers/reset_password_controller.ex",
       must_not: [
-        {"bare alias <context_module> removed",
-         ~r/^\s*alias <%= context_module %>\s*$/m,
+        {"bare alias <context_module> removed", ~r/^\s*alias <%= context_module %>\s*$/m,
          ~r/^\s*alias Example\.Accounts\s*$/m}
       ]
     },
@@ -150,8 +141,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/reset_password_live.ex",
       example: "test/example/lib/example_web/live/reset_password_live.ex",
       must_not: [
-        {"bare alias <context_module> removed",
-         ~r/^\s*alias <%= context_module %>\s*$/m,
+        {"bare alias <context_module> removed", ~r/^\s*alias <%= context_module %>\s*$/m,
          ~r/^\s*alias Example\.Accounts\s*$/m}
       ]
     },
@@ -160,8 +150,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/confirmation_live.ex",
       example: "test/example/lib/example_web/live/confirmation_live.ex",
       must_have: [
-        {"handle_params assigns _user",
-         ~r/_user = socket\.assigns\.current_scope\.user/,
+        {"handle_params assigns _user", ~r/_user = socket\.assigns\.current_scope\.user/,
          ~r/_user = socket\.assigns\.current_scope\.user/}
       ]
     },
@@ -205,8 +194,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/auth_fixtures.ex",
       example: "test/example/test/support/fixtures/auth_fixtures.ex",
       must_not: [
-        {"no bare Auth.sigra_config reference",
-         ~r/\bAuth\.sigra_config\(\)/,
+        {"no bare Auth.sigra_config reference", ~r/\bAuth\.sigra_config\(\)/,
          ~r/\bAuth\.sigra_config\(\)/}
       ]
     },
@@ -215,14 +203,10 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/core/auth_fixtures.ex",
       example: "test/example/test/support/fixtures/auth_fixtures.ex",
       must_have: [
-        {"import only log_in_user: 2",
-         ~r/only: \[log_in_user: 2\]/,
-         ~r/only: \[log_in_user: 2\]/}
+        {"import only log_in_user: 2", ~r/only: \[log_in_user: 2\]/, ~r/only: \[log_in_user: 2\]/}
       ],
       must_not: [
-        {"log_in_user: 3 not imported",
-         ~r/log_in_user: 3/,
-         ~r/log_in_user: 3/}
+        {"log_in_user: 3 not imported", ~r/log_in_user: 3/, ~r/log_in_user: 3/}
       ]
     },
     %{
@@ -235,8 +219,7 @@ defmodule Sigra.Templates.InstallerDriftTest do
          ~r/Example\.AccountsFixtures\.user_fixture\(\)/}
       ],
       must_not: [
-        {"no bare Fixtures reference",
-         ~r/^\s*user = Fixtures\.user_fixture\(\)/m,
+        {"no bare Fixtures reference", ~r/^\s*user = Fixtures\.user_fixture\(\)/m,
          ~r/^\s*user = Fixtures\.user_fixture\(\)/m}
       ]
     },
@@ -272,14 +255,10 @@ defmodule Sigra.Templates.InstallerDriftTest do
       template: "priv/templates/sigra.install/admin/components/admin_shell.ex",
       example: "test/example/lib/example_web/components/admin_shell.ex",
       must_have: [
-        {"users_link/1 helper defined",
-         ~r/defp users_link\(/,
-         ~r/defp users_link\(/},
+        {"users_link/1 helper defined", ~r/defp users_link\(/, ~r/defp users_link\(/},
         {"at least one href={users_link(@admin_scope)} usage",
-         ~r/href=\{users_link\(@admin_scope\)\}/,
-         ~r/href=\{users_link\(@admin_scope\)\}/},
-        {"mobile bottom-nav Users label present",
-         ~r/btm-nav-label">Users</,
+         ~r/href=\{users_link\(@admin_scope\)\}/, ~r/href=\{users_link\(@admin_scope\)\}/},
+        {"mobile bottom-nav Users label present", ~r/btm-nav-label">Users</,
          ~r/btm-nav-label">Users</}
       ],
       must_not: [

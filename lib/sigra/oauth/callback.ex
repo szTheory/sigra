@@ -86,11 +86,12 @@ defmodule Sigra.OAuth.Callback do
 
         if existing_user do
           # D-01: Email match requires login confirmation
-          {:link_confirmation_required, %{
-            provider: provider,
-            provider_uid: user_info["sub"],
-            email: email
-          }}
+          {:link_confirmation_required,
+           %{
+             provider: provider,
+             provider_uid: user_info["sub"],
+             email: email
+           }}
         else
           # New user registration
           register_oauth_user(config, provider, provider_str, user_info, token)

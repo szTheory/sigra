@@ -198,7 +198,7 @@ defmodule ExampleWeb.MFASettingsLive do
               </div>
 
               <div class="flex items-center gap-3">
-                <.button>Regenerate codes</.button>
+                <.button type="submit">Regenerate codes</.button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"
@@ -743,16 +743,18 @@ defmodule ExampleWeb.MFASettingsLive do
          "You can't change account security settings while impersonating."
        )}
     else
-      case Auth.rename_passkey(user, credential_id, nickname || "", scope: socket.assigns.current_scope) do
-      {:ok, _passkey} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Passkey name saved.")
-         |> refresh_passkey_assigns()
-         |> assign(
-           renaming_passkey_id: nil,
-           rename_form: to_form(%{"nickname" => ""}, as: "passkey")
-         )}
+      case Auth.rename_passkey(user, credential_id, nickname || "",
+             scope: socket.assigns.current_scope
+           ) do
+        {:ok, _passkey} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Passkey name saved.")
+           |> refresh_passkey_assigns()
+           |> assign(
+             renaming_passkey_id: nil,
+             rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+           )}
 
         {:error, :impersonation_forbidden} ->
           {:noreply,
@@ -802,37 +804,37 @@ defmodule ExampleWeb.MFASettingsLive do
        )}
     else
       case Auth.mfa_disable(user, code, scope: socket.assigns.current_scope) do
-      {:ok, :disabled} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Two-factor authentication has been disabled.")
-         |> put_flash(:warning, "Consider changing your password for additional security.")
-         |> assign(
-           mfa_enabled: false,
-           show_disable: false,
-           enrollment_step: nil,
-           backup_remaining: 0,
-           disable_form: to_form(%{"code" => ""}, as: "disable")
-         )}
+        {:ok, :disabled} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Two-factor authentication has been disabled.")
+           |> put_flash(:warning, "Consider changing your password for additional security.")
+           |> assign(
+             mfa_enabled: false,
+             show_disable: false,
+             enrollment_step: nil,
+             backup_remaining: 0,
+             disable_form: to_form(%{"code" => ""}, as: "disable")
+           )}
 
-      {:error, :invalid_code, _remaining} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
+        {:error, :invalid_code, _remaining} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
-      {:error, :invalid_backup_code, _remaining} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
+        {:error, :invalid_backup_code, _remaining} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
-      {:error, :lockout, seconds} ->
-        minutes = div(seconds + 59, 60)
+        {:error, :lockout, seconds} ->
+          minutes = div(seconds + 59, 60)
 
-        {:noreply,
-         socket
-         |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+          {:noreply,
+           socket
+           |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
 
         {:error, :impersonation_forbidden} ->
           {:noreply,
@@ -968,7 +970,10 @@ defmodule ExampleWeb.MFASettingsLive do
   end
 
   defp impersonating?(socket) do
-    match?(%{impersonating_from: impersonator} when not is_nil(impersonator), socket.assigns.current_scope)
+    match?(
+      %{impersonating_from: impersonator} when not is_nil(impersonator),
+      socket.assigns.current_scope
+    )
   end
 
   defp find_passkey(socket, credential_id) do

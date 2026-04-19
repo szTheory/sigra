@@ -42,7 +42,9 @@ defmodule Sigra.LiveView.AdminScope do
         config = organizations.__sigra_org_config__()
         org_param = Keyword.get(opts, :org_param, "org")
         slug = params[org_param] || params[to_string(org_param)]
-        requested_org = if is_binary(slug), do: Organizations.get_organization_by_slug(config, slug), else: nil
+
+        requested_org =
+          if is_binary(slug), do: Organizations.get_organization_by_slug(config, slug), else: nil
 
         Scope.resolve(scope, requested_org || slug, Keyword.fetch!(opts, :policy))
     end

@@ -61,7 +61,9 @@ defmodule Sigra.Plug.PasskeyChallenge do
   end
 
   defp build_challenge(:registration, config, opts), do: Registration.new_challenge(config, opts)
-  defp build_challenge(:authentication, config, opts), do: Authentication.new_challenge(config, opts)
+
+  defp build_challenge(:authentication, config, opts),
+    do: Authentication.new_challenge(config, opts)
 
   defp fetch_slot(conn, slot) do
     case Plug.Conn.get_session(conn, slot) do
@@ -75,7 +77,8 @@ defmodule Sigra.Plug.PasskeyChallenge do
   defp fetch_token(_session_value), do: {:error, :invalid}
 
   defp verify_challenge_bytes(config, token) do
-    with {:ok, payload} <- Sigra.Token.verify(config.secret_key_base, @purpose, token, max_age: @max_age),
+    with {:ok, payload} <-
+           Sigra.Token.verify(config.secret_key_base, @purpose, token, max_age: @max_age),
          {:ok, challenge_bytes} <- decode_challenge_bytes(payload) do
       {:ok, challenge_bytes}
     else
@@ -95,5 +98,7 @@ defmodule Sigra.Plug.PasskeyChallenge do
 
   defp slot_for!(:registration), do: @registration_slot
   defp slot_for!(:authentication), do: @authentication_slot
-  defp slot_for!(other), do: raise(ArgumentError, "unsupported passkey ceremony: #{inspect(other)}")
+
+  defp slot_for!(other),
+    do: raise(ArgumentError, "unsupported passkey ceremony: #{inspect(other)}")
 end

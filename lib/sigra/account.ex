@@ -73,7 +73,9 @@ defmodule Sigra.Account do
             mod -> Sigra.Scope.build(mod, user, active_organization: nil)
           end
 
-        Sigra.Audit.log_safe("account.email_change_request", scope,
+        Sigra.Audit.log_safe(
+          "account.email_change_request",
+          scope,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, target_id: user.id, metadata: %{}]
         )
@@ -92,7 +94,9 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, user} ->
-        Sigra.Audit.log_safe("account.email_change_confirm", Sigra.Scope.from_opts(opts, user),
+        Sigra.Audit.log_safe(
+          "account.email_change_confirm",
+          Sigra.Scope.from_opts(opts, user),
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, target_id: user.id, metadata: %{}]
         )
@@ -111,7 +115,9 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.email_change_cancel", Sigra.Scope.from_opts(opts, user),
+        Sigra.Audit.log_safe(
+          "account.email_change_cancel",
+          Sigra.Scope.from_opts(opts, user),
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, target_id: user.id, metadata: %{}]
         )
@@ -142,7 +148,9 @@ defmodule Sigra.Account do
             mod -> Sigra.Scope.build(mod, user, active_organization: nil)
           end
 
-        Sigra.Audit.log_safe("account.password_change", scope,
+        Sigra.Audit.log_safe(
+          "account.password_change",
+          scope,
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, target_id: user.id, metadata: %{forced: false}]
         )
@@ -161,9 +169,15 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.password_change", Sigra.Scope.from_opts(opts, user),
+        Sigra.Audit.log_safe(
+          "account.password_change",
+          Sigra.Scope.from_opts(opts, user),
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{forced: false, source: "oauth_set"}]
+            [
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{forced: false, source: "oauth_set"}
+            ]
         )
 
       _ ->
@@ -190,7 +204,9 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.deletion_schedule", Sigra.Scope.from_opts(opts, user),
+        Sigra.Audit.log_safe(
+          "account.deletion_schedule",
+          Sigra.Scope.from_opts(opts, user),
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, target_id: user.id, metadata: %{}]
         )
@@ -209,7 +225,9 @@ defmodule Sigra.Account do
 
     case result do
       {:ok, _} ->
-        Sigra.Audit.log_safe("account.deletion_cancel", Sigra.Scope.from_opts(opts, user),
+        Sigra.Audit.log_safe(
+          "account.deletion_cancel",
+          Sigra.Scope.from_opts(opts, user),
           (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
             [actor_id: user.id, target_id: user.id, metadata: %{}]
         )
@@ -229,7 +247,9 @@ defmodule Sigra.Account do
     # preserves the forensic trail.
     user_id = user.id
 
-    Sigra.Audit.log_safe("account.deletion_execute", Sigra.Scope.from_opts(opts, user),
+    Sigra.Audit.log_safe(
+      "account.deletion_execute",
+      Sigra.Scope.from_opts(opts, user),
       (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
         [actor_id: user_id, target_id: user_id, metadata: %{}]
     )
@@ -259,7 +279,9 @@ defmodule Sigra.Account do
     # user-map scope so downstream audit extraction still works.
     scope = user_id && Sigra.Scope.from_opts(opts, %{id: user_id})
 
-    Sigra.Audit.log_safe("account.password_change", scope,
+    Sigra.Audit.log_safe(
+      "account.password_change",
+      scope,
       account_audit_opts(opts) ++
         [actor_id: user_id, target_id: user_id, metadata: %{forced: true}]
     )

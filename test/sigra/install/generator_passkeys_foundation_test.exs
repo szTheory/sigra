@@ -144,15 +144,22 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
 
   describe "router injection passkey controller routes" do
     @features_core_path Path.join([File.cwd!(), "lib", "sigra", "install", "features", "core.ex"])
-    @features_passkeys_path Path.join([File.cwd!(), "lib", "sigra", "install", "features", "passkeys.ex"])
-    @passkeys_router_template Path.join([
+    @features_passkeys_path Path.join([
                               File.cwd!(),
-                              "priv",
-                              "templates",
-                              "sigra.install",
-                              "passkeys",
-                              "router_injection.ex"
+                              "lib",
+                              "sigra",
+                              "install",
+                              "features",
+                              "passkeys.ex"
                             ])
+    @passkeys_router_template Path.join([
+                                File.cwd!(),
+                                "priv",
+                                "templates",
+                                "sigra.install",
+                                "passkeys",
+                                "router_injection.ex"
+                              ])
 
     test "keeps require_sudo in core while passkey POST routes are feature-owned" do
       core_source = File.read!(@features_core_path)

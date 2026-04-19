@@ -29,7 +29,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     passkeys = Auth.passkeys_for_user(user)
     passkey_count = Auth.passkey_count_for_user(user)
 
-
     {:ok,
      assign(socket,
        mfa_enabled: mfa_status.enabled,
@@ -200,7 +199,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
               </div>
 
               <div class="flex items-center gap-3">
-                <.button>Regenerate codes</.button>
+                <.button type="submit">Regenerate codes</.button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"
@@ -247,7 +246,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     </div>
     """
   end
-
 
   defp render_passkeys_section(assigns) do
     ~H"""
@@ -403,7 +401,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     </section>
     """
   end
-
 
   defp render_enrollment_start(assigns) do
     ~H"""
@@ -636,7 +633,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     end
   end
 
-
   def handle_event("begin_passkey_enrollment", _params, socket) do
     {:noreply,
      socket
@@ -681,7 +677,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         :unsupported ->
           %{
             title: "Passkeys aren't available in this browser.",
-            body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+            body:
+              "Use your password or a magic link here, or switch to a device that supports passkeys."
           }
 
         :generic ->
@@ -725,7 +722,12 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     nickname = Map.get(params, "nickname", "")
 
     if impersonating?(socket) do
-      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "You can't change account security settings while impersonating."
+       )}
     else
       case Auth.rename_passkey(user, credential_id, nickname || "") do
         {:ok, _passkey} ->
@@ -757,20 +759,25 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     {:noreply, assign(socket, deleting_passkey_id: nil)}
   end
 
-
   def handle_event("show_disable", _params, socket) do
     {:noreply, assign(socket, show_disable: true)}
   end
 
   def handle_event("cancel_disable", _params, socket) do
-    {:noreply, assign(socket, show_disable: false, disable_form: to_form(%{"code" => ""}, as: "disable"))}
+    {:noreply,
+     assign(socket, show_disable: false, disable_form: to_form(%{"code" => ""}, as: "disable"))}
   end
 
   def handle_event("disable_mfa", %{"disable" => %{"code" => code}}, socket) do
     user = socket.assigns.current_scope.user
 
     if impersonating?(socket) do
-      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "You can't change account security settings while impersonating."
+       )}
     else
       case Auth.mfa_disable(user, code, scope: socket.assigns.current_scope) do
         {:ok, :disabled} ->
@@ -807,7 +814,11 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
 
         {:error, :impersonation_forbidden} ->
           {:noreply,
-           put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+           put_flash(
+             socket,
+             :error,
+             "You can't change account security settings while impersonating."
+           )}
 
         {:error, _reason} ->
           {:noreply,
@@ -822,7 +833,11 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   end
 
   def handle_event("cancel_regenerate", _params, socket) do
-    {:noreply, assign(socket, show_regenerate: false, regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
+    {:noreply,
+     assign(socket,
+       show_regenerate: false,
+       regenerate_form: to_form(%{"code" => ""}, as: "regenerate")
+     )}
   end
 
   def handle_event("regenerate_codes", %{"regenerate" => %{"code" => code}}, socket) do
@@ -896,9 +911,11 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   end
 
   defp impersonating?(socket) do
-    match?(%{impersonating_from: impersonator} when not is_nil(impersonator), socket.assigns.current_scope)
+    match?(
+      %{impersonating_from: impersonator} when not is_nil(impersonator),
+      socket.assigns.current_scope
+    )
   end
-
 
   defp passkey_error_bucket(payload) when is_map(payload) do
     payload
@@ -939,8 +956,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     Enum.find(socket.assigns.passkeys, &(to_string(&1.credential_id) == to_string(credential_id)))
   end
 
-
-
   defp relative_time(nil), do: "Never"
 
   defp relative_time(%DateTime{} = dt) do
@@ -958,5 +973,4 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   defp format_relative_seconds(seconds) when seconds < 3600, do: "#{div(seconds, 60)}m ago"
   defp format_relative_seconds(seconds) when seconds < 86_400, do: "#{div(seconds, 3600)}h ago"
   defp format_relative_seconds(seconds), do: "#{div(seconds, 86_400)}d ago"
-
 end

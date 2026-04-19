@@ -79,11 +79,11 @@ defmodule Sigra.LiveView.OrganizationScope do
 
   defp resolve(config, scope, slug) do
     with org when not is_nil(org) <- Organizations.get_organization_by_slug(config, slug),
-         membership when not is_nil(membership) <- Organizations.get_membership(config, scope.user, org) do
+         membership when not is_nil(membership) <-
+           Organizations.get_membership(config, scope.user, org) do
       {:ok, org, membership}
     else
       _ -> :not_found
     end
   end
-
 end

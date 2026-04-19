@@ -15,7 +15,6 @@ defmodule SigraInstallGoldenTmp.Accounts.UserPasskey do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
-
   schema "user_passkeys" do
     belongs_to :user, SigraInstallGoldenTmp.Accounts.User
     field :credential_id, :binary

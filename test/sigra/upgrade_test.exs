@@ -215,7 +215,11 @@ defmodule Sigra.UpgradeTest do
 
       assert promotion.enabled?
       assert Enum.any?(promotion.files, &String.ends_with?(&1.target, "lib/sigra/vault.ex"))
-      assert Enum.any?(promotion.files, &String.ends_with?(&1.target, "lib/sigra/accounts/encrypted.ex"))
+
+      assert Enum.any?(
+               promotion.files,
+               &String.ends_with?(&1.target, "lib/sigra/accounts/encrypted.ex")
+             )
 
       plan = Upgrade.build_plan([], "0.0.0", "0.1.0")
       assert Enum.any?(plan.injections, &(&1.anchor == :vault_child))

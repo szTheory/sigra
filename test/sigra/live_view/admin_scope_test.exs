@@ -113,7 +113,14 @@ defmodule Sigra.LiveView.AdminScopeTest do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     Map.merge(
-      %TestOrg{id: Ecto.UUID.generate(), name: "Acme", slug: "acme", deleted_at: nil, inserted_at: now, updated_at: now},
+      %TestOrg{
+        id: Ecto.UUID.generate(),
+        name: "Acme",
+        slug: "acme",
+        deleted_at: nil,
+        inserted_at: now,
+        updated_at: now
+      },
       attrs
     )
   end
@@ -125,7 +132,10 @@ defmodule Sigra.LiveView.AdminScopeTest do
   end
 
   defp org_opts(overrides \\ []) do
-    Keyword.merge([policy: OrgAdminPolicy, organizations: TestOrganizations, mode: :organization], overrides)
+    Keyword.merge(
+      [policy: OrgAdminPolicy, organizations: TestOrganizations, mode: :organization],
+      overrides
+    )
   end
 
   setup :verify_on_exit!
@@ -157,9 +167,15 @@ defmodule Sigra.LiveView.AdminScopeTest do
       socket = fake_socket(%{current_scope: build_scope(user)})
 
       assert {:cont, cont_socket} =
-               AdminScope.on_mount(org_opts(policy: PlatformAdminPolicy), %{"org" => "acme"}, %{}, socket)
+               AdminScope.on_mount(
+                 org_opts(policy: PlatformAdminPolicy),
+                 %{"org" => "acme"},
+                 %{},
+                 socket
+               )
 
-      assert %Scope{mode: :organization, organization_slug: "acme"} = cont_socket.assigns[:admin_scope]
+      assert %Scope{mode: :organization, organization_slug: "acme"} =
+               cont_socket.assigns[:admin_scope]
     end
 
     test "out-of-scope denial for live_session routes returns not_found" do
@@ -192,7 +208,12 @@ defmodule Sigra.LiveView.AdminScopeTest do
       assert halted_global.assigns[:sigra_admin_forbidden] == true
 
       assert {:halt, halted_org} =
-               AdminScope.on_mount(org_opts(policy: NoAdminPolicy), %{"org" => "acme"}, %{}, socket)
+               AdminScope.on_mount(
+                 org_opts(policy: NoAdminPolicy),
+                 %{"org" => "acme"},
+                 %{},
+                 socket
+               )
 
       assert halted_org.assigns[:sigra_not_found] == true
     end

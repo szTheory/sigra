@@ -40,7 +40,12 @@ defmodule Sigra.ImpersonationTest do
 
     %AdminScope{
       mode: mode,
-      scope: %TestScope{user: admin_user, active_organization: nil, membership: nil, impersonating_from: nil},
+      scope: %TestScope{
+        user: admin_user,
+        active_organization: nil,
+        membership: nil,
+        impersonating_from: nil
+      },
       organization: organization,
       organization_id: organization_id,
       organization_slug: organization && organization.slug,
@@ -64,7 +69,16 @@ defmodule Sigra.ImpersonationTest do
         active_organization_id: Map.get(attrs, :active_organization_id),
         sudo_at: Map.get(attrs, :sudo_at)
       },
-      Map.drop(attrs, [:id, :token, :hashed_token, :type, :last_active_at, :inserted_at, :active_organization_id, :sudo_at])
+      Map.drop(attrs, [
+        :id,
+        :token,
+        :hashed_token,
+        :type,
+        :last_active_at,
+        :inserted_at,
+        :active_organization_id,
+        :sudo_at
+      ])
     )
   end
 
@@ -73,7 +87,13 @@ defmodule Sigra.ImpersonationTest do
       admin = %TestUser{id: "admin-1", email: "admin@example.com"}
       target = %TestUser{id: "user-1", email: "user@example.com"}
       admin_session = session(admin.id, %{id: 11, hashed_token: "admin-hash"})
-      impersonation_session = session(target.id, %{id: 22, token: "impersonation-raw", hashed_token: "impersonation-hash"})
+
+      impersonation_session =
+        session(target.id, %{
+          id: 22,
+          token: "impersonation-raw",
+          hashed_token: "impersonation-hash"
+        })
 
       Sigra.MockSessionStore
       |> expect(:create, fn user_id, metadata, _opts ->
@@ -102,7 +122,13 @@ defmodule Sigra.ImpersonationTest do
       admin = %TestUser{id: "admin-2", email: "org-admin@example.com"}
       target = %TestUser{id: "user-2", email: "member@example.com", organization_ids: ["org-1"]}
       admin_session = session(admin.id, %{id: 12, hashed_token: "org-admin-hash"})
-      impersonation_session = session(target.id, %{id: 23, token: "impersonation-raw", hashed_token: "impersonation-hash"})
+
+      impersonation_session =
+        session(target.id, %{
+          id: 23,
+          token: "impersonation-raw",
+          hashed_token: "impersonation-hash"
+        })
 
       Sigra.MockSessionStore
       |> expect(:create, fn user_id, metadata, _opts ->
@@ -139,6 +165,7 @@ defmodule Sigra.ImpersonationTest do
     test "denies nested impersonation when the current scope already carries impersonating_from" do
       admin = %TestUser{id: "admin-4", email: "admin@example.com"}
       target = %TestUser{id: "user-4", email: "user@example.com"}
+
       already_impersonating_scope = %AdminScope{
         admin_scope(:global, admin)
         | scope: %TestScope{
@@ -164,8 +191,20 @@ defmodule Sigra.ImpersonationTest do
     test "stops impersonation by deleting the effective-user session and returning an explicit restore decision" do
       target = %TestUser{id: "user-5", email: "user@example.com"}
       admin = %TestUser{id: "admin-5", email: "admin@example.com"}
-      impersonation_session = session(target.id, %{id: 25, hashed_token: "impersonation-hash", impersonator_user_id: admin.id})
-      scope = %TestScope{user: target, active_organization: nil, membership: nil, impersonating_from: admin}
+
+      impersonation_session =
+        session(target.id, %{
+          id: 25,
+          hashed_token: "impersonation-hash",
+          impersonator_user_id: admin.id
+        })
+
+      scope = %TestScope{
+        user: target,
+        active_organization: nil,
+        membership: nil,
+        impersonating_from: admin
+      }
 
       Sigra.MockSessionStore
       |> expect(:delete, fn "impersonation-hash", _opts -> :ok end)
@@ -194,9 +233,19 @@ defmodule Sigra.ImpersonationTest do
           inserted_at: DateTime.utc_now() |> DateTime.add(-1_000, :second)
         })
 
-      scope = %TestScope{user: target, active_organization: nil, membership: nil, impersonating_from: admin}
+      scope = %TestScope{
+        user: target,
+        active_organization: nil,
+        membership: nil,
+        impersonating_from: admin
+      }
 
-      assert {:ok, %{expired?: true, action: :restore_admin, restore: {:admin_session, "admin-raw-token"}}} =
+      assert {:ok,
+              %{
+                expired?: true,
+                action: :restore_admin,
+                restore: {:admin_session, "admin-raw-token"}
+              }} =
                Impersonation.evaluate_timeout(
                  @config,
                  scope,

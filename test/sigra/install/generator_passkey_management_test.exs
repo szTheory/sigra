@@ -9,10 +9,12 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
 
       assert content =~ ~s(id="passkeys")
       assert content =~ "Passkeys"
+
       assert content =~
                "Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code."
 
       assert content =~ "No passkeys added yet"
+
       assert content =~
                "Add a passkey to sign in faster on this device and keep a backup sign-in method available."
 
@@ -51,6 +53,7 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
       assert content =~ "That passkey request timed out."
       assert content =~ "Try again when you're ready, or use another sign-in method."
       assert content =~ "Passkeys aren't available in this browser."
+
       assert content =~
                "Use your password or a magic link here, or switch to a device that supports passkeys."
 

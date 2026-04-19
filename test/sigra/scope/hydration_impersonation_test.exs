@@ -132,7 +132,12 @@ defmodule Sigra.Scope.HydrationImpersonationTest do
       inserted_at: DateTime.utc_now()
     }
 
-    scope = %TestScope{user: user, active_organization: nil, membership: nil, impersonating_from: nil}
+    scope = %TestScope{
+      user: user,
+      active_organization: nil,
+      membership: nil,
+      impersonating_from: nil
+    }
 
     Sigra.MockRepo
     |> expect(:one, fn _query -> org end)

@@ -147,7 +147,11 @@ defmodule Sigra.CryptoTest do
       t_cost = Application.get_env(:argon2_elixir, :t_cost, 3)
       parallelism = Application.get_env(:argon2_elixir, :parallelism, 4)
 
-      refute Crypto.needs_rehash?(hashed, m_cost: m_cost, t_cost: t_cost, parallelism: parallelism)
+      refute Crypto.needs_rehash?(hashed,
+               m_cost: m_cost,
+               t_cost: t_cost,
+               parallelism: parallelism
+             )
     end
 
     test "returns true when t_cost differs" do

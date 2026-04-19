@@ -12,7 +12,13 @@ defmodule Sigra.Impersonation do
 
   @spec start(Sigra.Config.t(), Admin.Scope.t(), Session.t(), struct() | map(), keyword()) ::
           {:ok, map()} | {:error, :already_impersonating | :not_allowed | term()}
-  def start(config, %Admin.Scope{} = admin_scope, %Session{} = admin_session, target_user, opts \\ []) do
+  def start(
+        config,
+        %Admin.Scope{} = admin_scope,
+        %Session{} = admin_session,
+        target_user,
+        opts \\ []
+      ) do
     admin_user = admin_scope.scope.user
     admin_token = Keyword.get(opts, :admin_token)
 
@@ -40,11 +46,18 @@ defmodule Sigra.Impersonation do
                 impersonating_from: admin_user
               )
 
-            Audit.log_safe("admin.impersonation.start", impersonation_scope, audit_opts(config, opts, %{
-              actor_id: admin_user.id,
-              target_id: target_user.id,
-              metadata: %{impersonation_session_id: session.id, admin_session_id: admin_session.id}
-            }))
+            Audit.log_safe(
+              "admin.impersonation.start",
+              impersonation_scope,
+              audit_opts(config, opts, %{
+                actor_id: admin_user.id,
+                target_id: target_user.id,
+                metadata: %{
+                  impersonation_session_id: session.id,
+                  admin_session_id: admin_session.id
+                }
+              })
+            )
 
             {:ok,
              %{
@@ -66,11 +79,15 @@ defmodule Sigra.Impersonation do
 
     :ok = Auth.delete_session(config, session.hashed_token, opts)
 
-    Audit.log_safe("admin.impersonation.stop", scope, audit_opts(config, opts, %{
-      actor_id: actor_id,
-      target_id: session.user_id,
-      metadata: %{impersonation_session_id: session.id}
-    }))
+    Audit.log_safe(
+      "admin.impersonation.stop",
+      scope,
+      audit_opts(config, opts, %{
+        actor_id: actor_id,
+        target_id: session.user_id,
+        metadata: %{impersonation_session_id: session.id}
+      })
+    )
 
     {:ok, %{restore: restore, session_deleted?: true}}
   end
@@ -81,11 +98,15 @@ defmodule Sigra.Impersonation do
     restore = restore_decision(Keyword.get(opts, :admin_token))
 
     if expired? do
-      Audit.log_safe("admin.impersonation.timeout_expire", scope, audit_opts(config, opts, %{
-        actor_id: actor_id(scope),
-        target_id: session.user_id,
-        metadata: %{impersonation_session_id: session.id}
-      }))
+      Audit.log_safe(
+        "admin.impersonation.timeout_expire",
+        scope,
+        audit_opts(config, opts, %{
+          actor_id: actor_id(scope),
+          target_id: session.user_id,
+          metadata: %{impersonation_session_id: session.id}
+        })
+      )
     end
 
     {:ok,
@@ -120,7 +141,9 @@ defmodule Sigra.Impersonation do
   defp actor_id(_scope), do: nil
 
   defp restore_decision(nil), do: :login_required
-  defp restore_decision(admin_token) when is_binary(admin_token), do: {:admin_session, admin_token}
+
+  defp restore_decision(admin_token) when is_binary(admin_token),
+    do: {:admin_session, admin_token}
 
   defp restore_action({:admin_session, _token}), do: :restore_admin
   defp restore_action(:login_required), do: :force_login
@@ -157,11 +180,15 @@ defmodule Sigra.Impersonation do
   defp log_denied(config, admin_scope, target_user, reason, opts) do
     scope = admin_scope.scope
 
-    Audit.log_safe("admin.impersonation.denied", scope, audit_opts(config, opts, %{
-      actor_id: admin_scope.scope.user.id,
-      target_id: Map.get(target_user, :id),
-      outcome: "failure",
-      metadata: %{reason: reason, organization_id: admin_scope.organization_id}
-    }))
+    Audit.log_safe(
+      "admin.impersonation.denied",
+      scope,
+      audit_opts(config, opts, %{
+        actor_id: admin_scope.scope.user.id,
+        target_id: Map.get(target_user, :id),
+        outcome: "failure",
+        metadata: %{reason: reason, organization_id: admin_scope.organization_id}
+      })
+    )
   end
 end

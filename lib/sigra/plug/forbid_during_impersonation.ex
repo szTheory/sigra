@@ -86,6 +86,7 @@ defmodule Sigra.Plug.ForbidDuringImpersonation do
     case Keyword.get(opts, :redirect_to) do
       nil ->
         error_handler = Keyword.fetch!(opts, :error_handler)
+
         error_handler.auth_error(
           conn,
           :insufficient_scope,

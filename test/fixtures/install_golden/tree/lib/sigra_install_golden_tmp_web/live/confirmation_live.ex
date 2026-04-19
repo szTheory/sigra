@@ -110,7 +110,10 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
       {:error, :token_invalid} ->
         {:noreply,
          socket
-         |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+         |> put_flash(
+           :error,
+           dgettext("sigra", "This confirmation link is invalid or has expired.")
+         )
          |> assign(live_action: :new)}
     end
   end
@@ -144,7 +147,8 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
 
     case Auth.deliver_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
       {:ok, _} ->
-        {:noreply, put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
+        {:noreply,
+         put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
 
       {:error, :already_confirmed} ->
         {:noreply,
@@ -175,7 +179,10 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
       {:error, :rate_limited} ->
         {:noreply,
          socket
-         |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))}
+         |> put_flash(
+           :error,
+           dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again.")
+         )}
 
       {:error, :already_confirmed} ->
         {:noreply,

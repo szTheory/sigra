@@ -193,12 +193,20 @@ defmodule Sigra.JWT.RefreshTokenTest do
       |> expect(:all, fn _query ->
         [
           %Sigra.TestUserToken{
-            id: 1, user_id: 42, token: "t1", context: "api_refresh",
-            sent_to: active_meta, inserted_at: DateTime.utc_now()
+            id: 1,
+            user_id: 42,
+            token: "t1",
+            context: "api_refresh",
+            sent_to: active_meta,
+            inserted_at: DateTime.utc_now()
           },
           %Sigra.TestUserToken{
-            id: 2, user_id: 42, token: "t2", context: "api_refresh",
-            sent_to: active_meta, inserted_at: DateTime.utc_now()
+            id: 2,
+            user_id: 42,
+            token: "t2",
+            context: "api_refresh",
+            sent_to: active_meta,
+            inserted_at: DateTime.utc_now()
           }
         ]
       end)

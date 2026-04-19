@@ -43,7 +43,10 @@ defmodule Sigra.Passkeys.WaxRoundtripTest do
     {:ok, decoded_assertion_public_key, ""} = Wax.Utils.CBOR.decode(assertion_public_key)
 
     credentials =
-      [{assertion_credential_id, CoseKey.deserialize(CoseKey.serialize(decoded_assertion_public_key))}]
+      [
+        {assertion_credential_id,
+         CoseKey.deserialize(CoseKey.serialize(decoded_assertion_public_key))}
+      ]
 
     assert {:ok, %Wax.AuthenticatorData{}} =
              Wax.authenticate(

@@ -14,7 +14,6 @@ defmodule Sigra.Scope.BuildTest do
     defstruct [:user, :active_organization, :membership, :impersonating_from]
   end
 
-
   test "Sigra.Scope.build/3 with minimal opts returns struct with user set and others nil" do
     user = %{id: Ecto.UUID.generate()}
     scope = Sigra.Scope.build(Scope, user)
@@ -25,7 +24,6 @@ defmodule Sigra.Scope.BuildTest do
     assert is_nil(scope.membership)
     assert is_nil(scope.impersonating_from)
   end
-
 
   test "Sigra.Scope.build/3 propagates :active_organization and :membership from opts" do
     user = %{id: Ecto.UUID.generate()}
@@ -38,7 +36,6 @@ defmodule Sigra.Scope.BuildTest do
     assert scope.active_organization == org
     assert scope.membership == membership
   end
-
 
   test "Sigra.Scope.build/3 propagates :impersonating_from additively for impersonation-aware callers" do
     user = %{id: Ecto.UUID.generate()}

@@ -47,7 +47,11 @@ defmodule Sigra.Passkeys.ConfigTest do
     assert config.passkeys[:ceremony_rate_limit] == [limit: 5, window_ms: 60_000]
     assert config.passkeys[:passkey_primary_enabled] == false
 
-    Application.put_env(:sigra_test_app, :sigra_config, runtime_config(passkeys: [rp_id: "changed.test"]))
+    Application.put_env(
+      :sigra_test_app,
+      :sigra_config,
+      runtime_config(passkeys: [rp_id: "changed.test"])
+    )
 
     assert Passkeys.config().passkeys[:rp_id] == "sigra.test"
 

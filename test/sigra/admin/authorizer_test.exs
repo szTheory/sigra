@@ -97,7 +97,7 @@ defmodule Sigra.Admin.AuthorizerTest do
       scoped = Authorizer.scope_query(TestRecord, org_admin_scope())
 
       assert [%Ecto.Query.BooleanExpr{}] = scoped.wheres
-      assert Enum.any?(scoped.wheres, &inspect(&1.expr) =~ "organization_id")
+      assert Enum.any?(scoped.wheres, &(inspect(&1.expr) =~ "organization_id"))
     end
 
     test "scope_query fails closed for org admin without a resolved organization" do

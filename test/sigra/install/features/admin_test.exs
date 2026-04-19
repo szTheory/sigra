@@ -21,8 +21,7 @@ defmodule Sigra.Install.Features.AdminTest do
 
       assert {:eex, "admin/policy.ex", "lib/my_app/sigra_admin_policy.ex"} in files
 
-      assert {:eex, "admin/components/admin_shell.ex",
-              "lib/my_app_web/components/admin_shell.ex"} in files
+      assert {:eex, "admin/components/admin_shell.ex", "lib/my_app_web/components/admin_shell.ex"} in files
     end
 
     test "emits impersonation_controller template to host controllers/admin/ directory" do
@@ -172,7 +171,10 @@ defmodule Sigra.Install.Features.AdminTest do
 
       assert content =~ ~s|live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index|
       assert content =~ ~s|live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index|
-      assert content =~ ~s|live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show|
+
+      assert content =~
+               ~s|live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show|
+
       assert content =~ ~s|live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show|
       assert content =~ ~s|live "/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index|
       assert content =~ ~s|live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show|

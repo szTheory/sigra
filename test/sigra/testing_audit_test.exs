@@ -19,7 +19,9 @@ defmodule Sigra.TestingAuditTest do
     # order_by/limit/offset of the query passed in.
 
     def start(pid) do
-      Agent.start_link(fn -> [] end, name: {:via, Registry, {Sigra.TestingAuditTest.Registry, pid}})
+      Agent.start_link(fn -> [] end,
+        name: {:via, Registry, {Sigra.TestingAuditTest.Registry, pid}}
+      )
     end
 
     defp agent do

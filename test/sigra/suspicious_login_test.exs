@@ -17,7 +17,7 @@ defmodule Sigra.SuspiciousLoginTest do
         session_schema: Sigra.SuspiciousLoginTest.TestUser
       ],
       geo_ip: Keyword.get(overrides, :geo_ip, []),
-      suspicious_login: Keyword.get(overrides, :suspicious_login, [enabled: true, notify: true])
+      suspicious_login: Keyword.get(overrides, :suspicious_login, enabled: true, notify: true)
     }
 
     struct(defaults, Keyword.drop(overrides, [:geo_ip, :suspicious_login]))
@@ -120,7 +120,9 @@ defmodule Sigra.SuspiciousLoginTest do
     end
 
     test "emits [:sigra, :security, :suspicious_login] telemetry event when suspicious" do
-      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :security, :suspicious_login]])
+      ref =
+        :telemetry_test.attach_event_handlers(self(), [[:sigra, :security, :suspicious_login]])
+
       config = build_config()
 
       Sigra.MockSessionStore
@@ -136,7 +138,9 @@ defmodule Sigra.SuspiciousLoginTest do
     end
 
     test "telemetry metadata includes user_id, ip, geo_city, geo_country_code per D-57" do
-      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :security, :suspicious_login]])
+      ref =
+        :telemetry_test.attach_event_handlers(self(), [[:sigra, :security, :suspicious_login]])
+
       config = build_config(geo_ip: [module: Sigra.MockGeoIP])
 
       Sigra.MockSessionStore

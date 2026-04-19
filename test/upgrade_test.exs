@@ -156,7 +156,8 @@ defmodule Sigra.UpgradeIntegrationTest do
       {:ok, _upgrade_out} =
         InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
 
-      assert documented_upgrade_command(["--backfill-personal-orgs"]) == @documented_backfill_command
+      assert documented_upgrade_command(["--backfill-personal-orgs"]) ==
+               @documented_backfill_command
 
       {:ok, _} = InstallFixture.run_mix(app_dir, ["compile"])
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
@@ -413,9 +414,7 @@ defmodule Sigra.UpgradeIntegrationTest do
       # Scope the kill pattern to this tmp app directory so we never
       # touch unrelated `phx.server` processes on the developer's
       # machine or shared CI runners.
-      System.cmd("pkill", ["-f", "phx.server.*#{Path.basename(app_dir)}"],
-        stderr_to_stdout: true
-      )
+      System.cmd("pkill", ["-f", "phx.server.*#{Path.basename(app_dir)}"], stderr_to_stdout: true)
 
       Task.shutdown(server_task, :brutal_kill)
     end

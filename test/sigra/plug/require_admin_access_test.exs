@@ -117,7 +117,14 @@ defmodule Sigra.Plug.RequireAdminAccessTest do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     Map.merge(
-      %TestOrg{id: Ecto.UUID.generate(), name: "Acme", slug: "acme", deleted_at: nil, inserted_at: now, updated_at: now},
+      %TestOrg{
+        id: Ecto.UUID.generate(),
+        name: "Acme",
+        slug: "acme",
+        deleted_at: nil,
+        inserted_at: now,
+        updated_at: now
+      },
       attrs
     )
   end
@@ -165,7 +172,11 @@ defmodule Sigra.Plug.RequireAdminAccessTest do
   describe "init/1" do
     test "requires organizations for organization mode" do
       assert_raise KeyError, fn ->
-        RequireAdminAccess.init(error_handler: FakeErrorHandler, policy: OrgAdminPolicy, mode: :organization)
+        RequireAdminAccess.init(
+          error_handler: FakeErrorHandler,
+          policy: OrgAdminPolicy,
+          mode: :organization
+        )
       end
     end
   end

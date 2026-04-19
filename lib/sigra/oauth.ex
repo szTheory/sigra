@@ -86,12 +86,15 @@ defmodule Sigra.OAuth do
             {mod, uid} -> Sigra.Scope.build(mod, %{id: uid}, active_organization: nil)
           end
 
-        Sigra.Audit.log_safe("oauth.authorize", scope,
-          oauth_audit_opts(config) ++ [
-            actor_id: user_id_hint,
-            target_id: user_id_hint,
-            metadata: %{provider: to_string(provider)}
-          ]
+        Sigra.Audit.log_safe(
+          "oauth.authorize",
+          scope,
+          oauth_audit_opts(config) ++
+            [
+              actor_id: user_id_hint,
+              target_id: user_id_hint,
+              metadata: %{provider: to_string(provider)}
+            ]
         )
 
         result
@@ -159,14 +162,18 @@ defmodule Sigra.OAuth do
 
     case result do
       {:ok, :registered, user, _session} ->
-        Sigra.Audit.log_safe("oauth.callback.success", Sigra.Scope.from_config(config, user),
+        Sigra.Audit.log_safe(
+          "oauth.callback.success",
+          Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider), outcome: "registered"}
           )
         )
 
-        Sigra.Audit.log_safe("oauth.register_via_oauth", Sigra.Scope.from_config(config, user),
+        Sigra.Audit.log_safe(
+          "oauth.register_via_oauth",
+          Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider)}
@@ -174,14 +181,18 @@ defmodule Sigra.OAuth do
         )
 
       {:ok, :logged_in, user, _session} ->
-        Sigra.Audit.log_safe("oauth.callback.success", Sigra.Scope.from_config(config, user),
+        Sigra.Audit.log_safe(
+          "oauth.callback.success",
+          Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider), outcome: "logged_in"}
           )
         )
 
-        Sigra.Audit.log_safe("oauth.login_via_oauth", Sigra.Scope.from_config(config, user),
+        Sigra.Audit.log_safe(
+          "oauth.login_via_oauth",
+          Sigra.Scope.from_config(config, user),
           Keyword.merge(audit_opts,
             actor_id: user.id,
             metadata: %{provider: to_string(provider)}
@@ -190,7 +201,9 @@ defmodule Sigra.OAuth do
 
       {:error, %OAuthError{} = err} ->
         # 15-02 Category 3: OAuth callback failure has no resolved user.
-        Sigra.Audit.log_safe("oauth.callback.failure", nil,
+        Sigra.Audit.log_safe(
+          "oauth.callback.failure",
+          nil,
           Keyword.merge(audit_opts,
             actor_id: nil,
             target_id: nil,
@@ -236,7 +249,11 @@ defmodule Sigra.OAuth do
     else
       # Identity fields are named encrypted_* for the DB column, but Cloak
       # transparently decrypts when loaded through Ecto, so these are plaintext.
-      {:ok, %{access_token: identity.encrypted_access_token, refresh_token: identity.encrypted_refresh_token}}
+      {:ok,
+       %{
+         access_token: identity.encrypted_access_token,
+         refresh_token: identity.encrypted_refresh_token
+       }}
     end
   end
 
@@ -309,7 +326,9 @@ defmodule Sigra.OAuth do
 
           # D-26: oauth.link audit row (standalone, D-28). Provider only,
           # never tokens or client_secret (D-23).
-          Sigra.Audit.log_safe("oauth.link", Sigra.Scope.from_config(config, user),
+          Sigra.Audit.log_safe(
+            "oauth.link",
+            Sigra.Scope.from_config(config, user),
             Keyword.merge(oauth_audit_opts(config),
               actor_id: user.id,
               metadata: %{provider: to_string(provider)}
@@ -388,7 +407,9 @@ defmodule Sigra.OAuth do
               })
 
               # D-26: oauth.unlink audit row
-              Sigra.Audit.log_safe("oauth.unlink", Sigra.Scope.from_config(config, user),
+              Sigra.Audit.log_safe(
+                "oauth.unlink",
+                Sigra.Scope.from_config(config, user),
                 Keyword.merge(oauth_audit_opts(config),
                   actor_id: user.id,
                   metadata: %{provider: provider_str}
@@ -454,10 +475,13 @@ defmodule Sigra.OAuth do
   defp generate_state(secret_key_base, provider) do
     nonce = :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
 
-    Token.generate(secret_key_base, @oauth_state_purpose, %{
-      provider: to_string(provider),
-      nonce: nonce
-    }, max_age: @oauth_state_max_age)
+    Token.generate(
+      secret_key_base,
+      @oauth_state_purpose,
+      %{
+        provider: to_string(provider),
+        nonce: nonce
+      }, max_age: @oauth_state_max_age)
   end
 
   defp verify_state(params, session_params, secret_key_base) do
@@ -472,7 +496,9 @@ defmodule Sigra.OAuth do
         {:error, %OAuthError{provider: nil, error_code: :state_mismatch}}
 
       true ->
-        case Token.verify(secret_key_base, @oauth_state_purpose, state, max_age: @oauth_state_max_age) do
+        case Token.verify(secret_key_base, @oauth_state_purpose, state,
+               max_age: @oauth_state_max_age
+             ) do
           {:ok, _data} -> :ok
           {:error, _} -> {:error, %OAuthError{provider: nil, error_code: :state_mismatch}}
         end
@@ -533,7 +559,9 @@ defmodule Sigra.OAuth do
 
   def compute_token_expires_at(token) when is_map(token) do
     case token["expires_in"] do
-      nil -> nil
+      nil ->
+        nil
+
       seconds when is_integer(seconds) ->
         DateTime.utc_now()
         |> DateTime.add(seconds, :second)

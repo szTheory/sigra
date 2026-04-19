@@ -8,6 +8,7 @@ defmodule Sigra.Admin.Authorizer do
   """
 
   alias Sigra.Admin.Scope
+
   defmodule UnauthorizedError do
     defexception [:message, :reason]
   end

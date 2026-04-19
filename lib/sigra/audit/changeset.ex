@@ -129,8 +129,7 @@ defmodule Sigra.Audit.Changeset do
         keys ->
           [
             {:metadata,
-             {"contains forbidden keys: #{inspect(keys)}",
-              [validation: :forbidden_metadata_keys]}}
+             {"contains forbidden keys: #{inspect(keys)}", [validation: :forbidden_metadata_keys]}}
           ]
       end
     end)

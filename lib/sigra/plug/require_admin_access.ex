@@ -70,7 +70,9 @@ defmodule Sigra.Plug.RequireAdminAccess do
         slug = params[org_param] || params[to_string(org_param)]
         organizations = Keyword.fetch!(opts, :organizations)
         config = organizations.__sigra_org_config__()
-        requested_org = if is_binary(slug), do: Organizations.get_organization_by_slug(config, slug), else: nil
+
+        requested_org =
+          if is_binary(slug), do: Organizations.get_organization_by_slug(config, slug), else: nil
 
         Scope.resolve(scope, requested_org || slug, Keyword.fetch!(opts, :policy))
     end

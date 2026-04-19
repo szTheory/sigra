@@ -78,7 +78,10 @@ defmodule ExampleWeb.ReactivationLive do
       {:error, _reason} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Something went wrong while processing your request. Please try again.")}
+         |> put_flash(
+           :error,
+           "Something went wrong while processing your request. Please try again."
+         )}
     end
   end
 end

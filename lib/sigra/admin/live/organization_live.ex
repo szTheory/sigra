@@ -12,7 +12,9 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   @impl true
   def mount(_params, _session, socket) do
     admin_scope = socket.assigns.admin_scope
-    slug = admin_scope.organization_slug || admin_scope.organization && admin_scope.organization.slug
+
+    slug =
+      admin_scope.organization_slug || (admin_scope.organization && admin_scope.organization.slug)
 
     {:ok, redirect(socket, to: "/admin/organizations/#{slug}/users")}
   end

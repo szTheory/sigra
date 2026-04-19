@@ -46,13 +46,21 @@ defmodule Sigra.AuthTest do
       |> expect(:transact, fn %Ecto.Multi{} = _multi -> {:ok, %{user: user}} end)
 
       result =
-        Auth.register(Sigra.MockRepo, %{"email" => "user@example.com", "password" => "long_enough_pw"}, changeset_fn: fn _attrs -> changeset end)
+        Auth.register(
+          Sigra.MockRepo,
+          %{"email" => "user@example.com", "password" => "long_enough_pw"},
+          changeset_fn: fn _attrs -> changeset end
+        )
 
       assert {:ok, ^user} = result
     end
 
     test "with invalid attrs returns {:error, changeset}" do
-      changeset = %Ecto.Changeset{valid?: false, data: %TestUser{}, errors: [password: {"too short", []}]}
+      changeset = %Ecto.Changeset{
+        valid?: false,
+        data: %TestUser{},
+        errors: [password: {"too short", []}]
+      }
 
       Sigra.MockRepo
       |> expect(:transact, fn %Ecto.Multi{} = _multi ->
@@ -60,7 +68,9 @@ defmodule Sigra.AuthTest do
       end)
 
       result =
-        Auth.register(Sigra.MockRepo, %{"email" => "u@e.com", "password" => "short"}, changeset_fn: fn _attrs -> changeset end)
+        Auth.register(Sigra.MockRepo, %{"email" => "u@e.com", "password" => "short"},
+          changeset_fn: fn _attrs -> changeset end
+        )
 
       assert {:error, %Ecto.Changeset{}} = result
     end
@@ -69,7 +79,11 @@ defmodule Sigra.AuthTest do
       error_changeset = %Ecto.Changeset{
         valid?: false,
         data: %TestUser{},
-        errors: [email: {"has already been taken", [constraint: :unique, constraint_name: "users_email_index"]}]
+        errors: [
+          email:
+            {"has already been taken",
+             [constraint: :unique, constraint_name: "users_email_index"]}
+        ]
       }
 
       Sigra.MockRepo
@@ -222,6 +236,7 @@ defmodule Sigra.AuthTest do
     test "with non-existent email returns {:error, :invalid_credentials} without DB write" do
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "nobody@example.com"] -> nil end)
+
       # No update call expected - verified by Mox verify_on_exit!
 
       result =
@@ -378,7 +393,14 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-      |> expect(:insert!, fn %TestUserToken{token: _, context: "magic_link", sent_to: "user@example.com", user_id: 1} = s -> s end)
+      |> expect(:insert!, fn %TestUserToken{
+                               token: _,
+                               context: "magic_link",
+                               sent_to: "user@example.com",
+                               user_id: 1
+                             } = s ->
+        s
+      end)
 
       url_fun = fn token -> "https://example.com/magic/#{token}" end
 
@@ -399,6 +421,7 @@ defmodule Sigra.AuthTest do
     test "for non-existent email returns {:ok, :sent} without DB write" do
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "nobody@example.com"] -> nil end)
+
       # No insert! call expected
 
       result =
@@ -451,7 +474,9 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] -> token_struct end)
+      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
+        token_struct
+      end)
       |> expect(:get!, fn TestUser, 1 -> user end)
       |> expect(:delete!, fn ^token_struct -> :ok end)
 
@@ -470,7 +495,8 @@ defmodule Sigra.AuthTest do
     test "expired token returns {:error, :expired}" do
       {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
       # Token inserted 20 minutes ago (past 10-minute TTL)
-      inserted_at = DateTime.utc_now() |> DateTime.add(-1200, :second) |> DateTime.truncate(:second)
+      inserted_at =
+        DateTime.utc_now() |> DateTime.add(-1200, :second) |> DateTime.truncate(:second)
 
       token_struct = %TestUserToken{
         token: hashed_token,
@@ -481,7 +507,9 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] -> token_struct end)
+      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
+        token_struct
+      end)
 
       result =
         Auth.verify_magic_link(
@@ -499,7 +527,9 @@ defmodule Sigra.AuthTest do
       {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] -> nil end)
+      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
+        nil
+      end)
 
       result =
         Auth.verify_magic_link(
@@ -527,7 +557,9 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] -> token_struct end)
+      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
+        token_struct
+      end)
       |> expect(:get!, fn TestUser, 1 -> user end)
       |> expect(:delete!, fn ^token_struct -> :ok end)
       |> expect(:update, fn changeset ->
@@ -599,8 +631,13 @@ defmodule Sigra.AuthTest do
       # Mock get_by for token lookup, then transaction for atomic confirm
       Sigra.MockRepo
       |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
-        %TestUserToken{id: 1, token: link_struct.token, context: "confirm", user_id: 1,
-                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        %TestUserToken{
+          id: 1,
+          token: link_struct.token,
+          context: "confirm",
+          user_id: 1,
+          inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }
       end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
@@ -630,8 +667,13 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
-        %TestUserToken{id: 1, token: link_struct.token, context: "confirm", user_id: 1,
-                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        %TestUserToken{
+          id: 1,
+          token: link_struct.token,
+          context: "confirm",
+          user_id: 1,
+          inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }
       end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
@@ -690,8 +732,13 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
-        %TestUserToken{id: 1, token: link_struct.token, context: "confirm", user_id: 1,
-                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        %TestUserToken{
+          id: 1,
+          token: link_struct.token,
+          context: "confirm",
+          user_id: 1,
+          inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }
       end)
       |> expect(:transaction, fn _multi ->
         {:error, :confirm_user, :already_confirmed, %{}}
@@ -720,8 +767,13 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm_code"] ->
-        %TestUserToken{id: 2, token: code_struct.token, context: "confirm_code", user_id: 1,
-                       inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)}
+        %TestUserToken{
+          id: 2,
+          token: code_struct.token,
+          context: "confirm_code",
+          user_id: 1,
+          inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }
       end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
@@ -857,7 +909,9 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] -> token_record end)
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] ->
+        token_record
+      end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
         updated_user = %{user | hashed_password: "new_argon2_hash"}
@@ -973,7 +1027,8 @@ defmodule Sigra.AuthTest do
 
   describe "delete_all_sessions/3" do
     test "deletes all sessions, returns count, broadcasts PubSub disconnect" do
-      ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :revoke_all, :stop]])
+      ref =
+        :telemetry_test.attach_event_handlers(self(), [[:sigra, :session, :revoke_all, :stop]])
 
       session1 = build_session(%{hashed_token: "hash1"})
       session2 = build_session(%{hashed_token: "hash2"})
@@ -1019,10 +1074,11 @@ defmodule Sigra.AuthTest do
       topic1 = "users_sessions:#{Base.url_encode64("hash1")}"
       Phoenix.PubSub.subscribe(:test_pubsub_except, topic1)
 
-      result = Auth.delete_all_sessions(@session_config, 1,
-        except_token: "hash1",
-        pubsub: :test_pubsub_except
-      )
+      result =
+        Auth.delete_all_sessions(@session_config, 1,
+          except_token: "hash1",
+          pubsub: :test_pubsub_except
+        )
 
       assert {1, nil} = result
       # hash2 should get disconnect
@@ -1102,6 +1158,7 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
+
       # No password verification should happen -- Mox will fail if Crypto is called
 
       result =
@@ -1238,7 +1295,11 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockEmailTemplates
       |> expect(:lockout_notification_email, fn ^user, %{ip: nil} ->
-        %{to: user.email, subject: "Account locked", body: %{html: "<p>Locked</p>", text: "Locked"}}
+        %{
+          to: user.email,
+          subject: "Account locked",
+          body: %{html: "<p>Locked</p>", text: "Locked"}
+        }
       end)
 
       Sigra.MockMailer
@@ -1277,7 +1338,14 @@ defmodule Sigra.AuthTest do
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [] end)
       |> expect(:create, fn 1, _metadata, _opts ->
-        {:ok, %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, inserted_at: DateTime.utc_now()}}
+        {:ok,
+         %Sigra.Session{
+           id: 1,
+           user_id: 1,
+           hashed_token: "h",
+           type: :standard,
+           inserted_at: DateTime.utc_now()
+         }}
       end)
 
       result =
@@ -1306,12 +1374,25 @@ defmodule Sigra.AuthTest do
       |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
 
       # Has prior sessions from different IP
-      session = %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, ip: "1.2.3.4"}
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "h",
+        type: :standard,
+        ip: "1.2.3.4"
+      }
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [session] end)
       |> expect(:create, fn 1, _metadata, _opts ->
-        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+        {:ok,
+         %Sigra.Session{
+           id: 2,
+           user_id: 1,
+           hashed_token: "h2",
+           type: :standard,
+           inserted_at: DateTime.utc_now()
+         }}
       end)
 
       # Expect suspicious login email
@@ -1352,12 +1433,25 @@ defmodule Sigra.AuthTest do
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
       |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
 
-      session = %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, ip: "1.2.3.4"}
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "h",
+        type: :standard,
+        ip: "1.2.3.4"
+      }
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [session] end)
       |> expect(:create, fn 1, _metadata, _opts ->
-        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+        {:ok,
+         %Sigra.Session{
+           id: 2,
+           user_id: 1,
+           hashed_token: "h2",
+           type: :standard,
+           inserted_at: DateTime.utc_now()
+         }}
       end)
 
       Sigra.MockEmailTemplates
@@ -1394,12 +1488,25 @@ defmodule Sigra.AuthTest do
       |> expect(:update!, fn changeset -> struct(user, changeset.changes) end)
 
       # Known IP -- no suspicion
-      session = %Sigra.Session{id: 1, user_id: 1, hashed_token: "h", type: :standard, ip: "1.2.3.4"}
+      session = %Sigra.Session{
+        id: 1,
+        user_id: 1,
+        hashed_token: "h",
+        type: :standard,
+        ip: "1.2.3.4"
+      }
 
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [session] end)
       |> expect(:create, fn 1, _metadata, _opts ->
-        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+        {:ok,
+         %Sigra.Session{
+           id: 2,
+           user_id: 1,
+           hashed_token: "h2",
+           type: :standard,
+           inserted_at: DateTime.utc_now()
+         }}
       end)
 
       # No email template or mailer calls expected (Mox will fail if called)
@@ -1468,7 +1575,14 @@ defmodule Sigra.AuthTest do
       Sigra.MockSessionStore
       |> expect(:list_by_user, fn 1, _opts -> [] end)
       |> expect(:create, fn 1, _metadata, _opts ->
-        {:ok, %Sigra.Session{id: 2, user_id: 1, hashed_token: "h2", type: :standard, inserted_at: DateTime.utc_now()}}
+        {:ok,
+         %Sigra.Session{
+           id: 2,
+           user_id: 1,
+           hashed_token: "h2",
+           type: :standard,
+           inserted_at: DateTime.utc_now()
+         }}
       end)
 
       result =
@@ -1487,6 +1601,7 @@ defmodule Sigra.AuthTest do
       # We need a real (non-embedded) schema for Ecto.Query, so we define one inline.
       defmodule TestSessionSchema do
         use Ecto.Schema
+
         schema "user_sessions" do
           field :type, :string
           field :inserted_at, :utc_datetime
@@ -1561,7 +1676,11 @@ defmodule Sigra.AuthTest do
         {:ok, session}
       end)
 
-      result = Auth.authenticate(config, %{"email" => "mfa_user@example.com", "password" => "correct_password"})
+      result =
+        Auth.authenticate(config, %{
+          "email" => "mfa_user@example.com",
+          "password" => "correct_password"
+        })
 
       assert {:ok, _user, %{session: returned_session, mfa_required: true}} = result
       assert returned_session.type == :mfa_pending
@@ -1615,7 +1734,11 @@ defmodule Sigra.AuthTest do
         {:ok, session}
       end)
 
-      result = Auth.authenticate(config, %{"email" => "normal_user@example.com", "password" => "correct_password"})
+      result =
+        Auth.authenticate(config, %{
+          "email" => "normal_user@example.com",
+          "password" => "correct_password"
+        })
 
       assert {:ok, _user, %{session: returned_session}} = result
       assert returned_session.type == :standard

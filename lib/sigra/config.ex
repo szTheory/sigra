@@ -15,616 +15,34 @@ defmodule Sigra.Config do
 
   ## Options
 
-  #{NimbleOptions.docs([
-    repo: [
-      type: :atom,
-      required: true,
-      doc: "The Ecto Repo module for database operations."
-    ],
-    user_schema: [
-      type: :atom,
-      required: true,
-      doc: "The Ecto schema module for users."
-    ],
-    otp_app: [
-      type: :atom,
-      doc: "The OTP application name. Used for config.exs convenience layer."
-    ],
-    secret_key_base: [
-      type: {:or, [:string, nil]},
-      default: nil,
-      doc: "The host app's secret key base. Required for JWT HS256 signing and token operations."
-    ],
-    mailer: [
-      type: :atom,
-      doc: "The mailer module implementing `Sigra.Mailer` behaviour."
-    ],
-    email_module: [
-      type: {:or, [:atom, nil]},
-      default: nil,
-      doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."
-    ],
-    password: [
-      type: :keyword_list,
-      default: [],
-      doc: "Password hashing and validation options.",
-      keys: [
-        min_length: [
-          type: :pos_integer,
-          default: 8,
-          doc: "Minimum password length. NIST SP 800-63B recommends at least 8."
-        ],
-        max_length: [
-          type: :pos_integer,
-          default: 72,
-          doc:
-            "Maximum password length. Set to 72 to match bcrypt's limit for migration compatibility."
-        ],
-        hasher: [
-          type: :atom,
-          default: Sigra.Hashers.Argon2,
-          doc: "Module implementing the `Sigra.Hasher` behaviour."
-        ],
-        notify_on_change: [
-          type: :boolean,
-          default: true,
-          doc: "Send notification email when password is changed. Default: true."
-        ],
-        invalidate_sessions_on_change: [
-          type: :boolean,
-          default: true,
-          doc: "Invalidate all other sessions on password change. Default: true."
-        ]
-      ]
-    ],
-    password_policy: [
-      type: :keyword_list,
-      default: [],
-      doc: "Password validation policy options for `Sigra.PasswordPolicy`.",
-      keys: [
-        min_length: [
-          type: :pos_integer,
-          default: 8,
-          doc: "Minimum password length. Default: 8 (NIST SP 800-63B)."
-        ],
-        max_bytes: [
-          type: :pos_integer,
-          default: 72,
-          doc: "Maximum password byte size. Default: 72 (bcrypt compatibility)."
-        ],
-        require_uppercase: [
-          type: :boolean,
-          default: false,
-          doc: "Require at least one uppercase letter. Default: false."
-        ],
-        require_digit: [
-          type: :boolean,
-          default: false,
-          doc: "Require at least one digit. Default: false."
-        ],
-        require_special: [
-          type: :boolean,
-          default: false,
-          doc: "Require at least one special character. Default: false."
-        ],
-        check_common: [
-          type: :boolean,
-          default: true,
-          doc: "Check against the embedded common passwords list. Default: true."
-        ],
-        check_breached: [
-          type: :boolean,
-          default: false,
-          doc: "Check against the HIBP breached passwords API. Default: false."
-        ],
-        password_max_age: [
-          type: {:or, [:pos_integer, nil]},
-          default: nil,
-          doc: "Maximum password age in seconds before forced rotation. Default: nil (disabled)."
-        ]
-      ]
-    ],
-    magic_link: [
-      type: :keyword_list,
-      default: [],
-      doc: "Magic link authentication options.",
-      keys: [
-        ttl: [
-          type: :pos_integer,
-          default: 600,
-          doc: "Magic link token TTL in seconds. Default: 600 (10 minutes)."
-        ],
-        max_requests: [
-          type: :pos_integer,
-          default: 3,
-          doc: "Maximum magic link requests within the rate limit window. Default: 3."
-        ],
-        window_seconds: [
-          type: :pos_integer,
-          default: 900,
-          doc: "Rate limit window for magic link requests in seconds. Default: 900 (15 minutes)."
-        ]
-      ]
-    ],
-    require_confirmation: [
-      type: :boolean,
-      default: false,
-      doc: "Whether email confirmation is required before login. Default: false."
-    ],
-    session_ttl: [
-      type: :pos_integer,
-      default: 5_184_000,
-      doc: "Session time-to-live in seconds. Default: 5,184,000 (60 days)."
-    ],
-    session: [
-      type: :keyword_list,
-      default: [],
-      doc: "Session management options.",
-      keys: [
-        remember_me_max_age: [
-          type: :pos_integer,
-          default: 60 * 24 * 60 * 60,
-          doc: "Max age for remember-me cookies in seconds. Default: 60 days (5,184,000s)."
-        ],
-        reissue_age: [
-          type: :pos_integer,
-          default: 7 * 24 * 60 * 60,
-          doc: "Age after which session tokens are reissued. Default: 7 days."
-        ],
-        store: [
-          type: :atom,
-          default: Sigra.SessionStores.Ecto,
-          doc: "Module implementing the `Sigra.SessionStore` behaviour."
-        ],
-        idle_timeout: [
-          type: :pos_integer,
-          default: 1_800,
-          doc: "Idle timeout in seconds. Default: 1800 (30 minutes)."
-        ],
-        absolute_timeout: [
-          type: :pos_integer,
-          default: 86_400,
-          doc: "Absolute session timeout in seconds. Default: 86400 (24 hours)."
-        ],
-        activity_update_threshold: [
-          type: :pos_integer,
-          default: 300,
-          doc: "Minimum seconds between last_active_at DB writes. Default: 300 (5 minutes)."
-        ],
-        sudo_timeout: [
-          type: :pos_integer,
-          default: 300,
-          doc: "Sudo mode window in seconds. Default: 300 (5 minutes)."
-        ],
-        session_schema: [
-          type: :atom,
-          doc: "The generated UserSession Ecto schema module."
-        ]
-      ]
-    ],
-    token_ttl: [
-      type: :keyword_list,
-      default: [],
-      doc: "Token time-to-live values in seconds.",
-      keys: [
-        confirm: [
-          type: :pos_integer,
-          default: 48 * 60 * 60,
-          doc: "Email confirmation token TTL. Default: 48 hours."
-        ],
-        reset_password: [
-          type: :pos_integer,
-          default: 60 * 60,
-          doc: "Password reset token TTL. Default: 1 hour."
-        ],
-        magic_link: [
-          type: :pos_integer,
-          default: 15 * 60,
-          doc: "Magic link token TTL. Default: 15 minutes."
-        ],
-        email_change: [
-          type: :pos_integer,
-          default: 24 * 60 * 60,
-          doc: "Email change token TTL in seconds. Default: 24 hours."
-        ]
-      ]
-    ],
-    rate_limiting: [
-      type: :keyword_list,
-      default: [],
-      doc: "Rate limiting options.",
-      keys: [
-        limiter: [
-          type: {:or, [:atom, nil]},
-          default: nil,
-          doc:
-            "Module implementing the `Sigra.RateLimiter` behaviour. Nil disables rate limiting."
-        ],
-        ip_limit: [
-          type: :pos_integer,
-          default: 10,
-          doc: "Maximum requests per IP within the window. Default: 10."
-        ],
-        ip_window_ms: [
-          type: :pos_integer,
-          default: 60_000,
-          doc: "IP rate limiting window in milliseconds. Default: 60 seconds."
-        ],
-        account_limit: [
-          type: :pos_integer,
-          default: 5,
-          doc: "Maximum failed attempts per account before lockout. Default: 5."
-        ]
-      ]
-    ],
-    confirmation: [
-      type: :keyword_list,
-      default: [],
-      doc: "Email confirmation options.",
-      keys: [
-        unconfirmed_access: [
-          type: {:in, [:allow_with_banner, :block]},
-          default: :allow_with_banner,
-          doc: "Behavior for unconfirmed users. :allow_with_banner shows a reminder, :block prevents login."
-        ],
-        code_length: [
-          type: :pos_integer,
-          default: 6,
-          doc: "Length of the numeric confirmation code. Default: 6."
-        ],
-        max_resends: [
-          type: :pos_integer,
-          default: 3,
-          doc: "Maximum confirmation resend requests per window. Default: 3."
-        ],
-        resend_window_seconds: [
-          type: :pos_integer,
-          default: 900,
-          doc: "Rate limit window for confirmation resend in seconds. Default: 900 (15 minutes)."
-        ],
-        code_max_attempts: [
-          type: :pos_integer,
-          default: 5,
-          doc: "Maximum code entry attempts per window. Default: 5."
-        ],
-        code_window_seconds: [
-          type: :pos_integer,
-          default: 900,
-          doc: "Rate limit window for code entry in seconds. Default: 900 (15 minutes)."
-        ]
-      ]
-    ],
-    reset: [
-      type: :keyword_list,
-      default: [],
-      doc: "Password reset options.",
-      keys: [
-        max_requests: [
-          type: :pos_integer,
-          default: 3,
-          doc: "Maximum reset requests per email per window. Default: 3."
-        ],
-        window_seconds: [
-          type: :pos_integer,
-          default: 900,
-          doc: "Rate limit window for reset requests in seconds. Default: 900 (15 minutes)."
-        ]
-      ]
-    ],
-    email: [
-      type: :keyword_list,
-      default: [],
-      doc: "Email delivery options.",
-      keys: [
-        from_address: [
-          type: :string,
-          doc: "From address for transactional emails. Default derived from endpoint config."
-        ],
-        delivery_mode: [
-          type: {:in, [:auto, :async, :sync]},
-          default: :auto,
-          doc: "Email delivery mode. :auto detects Oban presence. Default: :auto."
-        ],
-        oban_queue: [
-          type: :string,
-          default: "sigra_mailer",
-          doc: "Oban queue name for async email delivery. Default: \"sigra_mailer\"."
-        ],
-        oban_concurrency: [
-          type: :pos_integer,
-          default: 10,
-          doc: "Maximum concurrent email delivery workers. Default: 10."
-        ]
-      ]
-    ],
-    lockout: [
-      type: :keyword_list,
-      default: [],
-      doc: "Account lockout options.",
-      keys: [
-        threshold: [
-          type: :pos_integer,
-          default: 5,
-          doc: "Failed attempts before lockout. Default: 5."
-        ],
-        duration: [
-          type: :pos_integer,
-          default: 900,
-          doc: "Lockout duration in seconds. Default: 900 (15 minutes)."
-        ],
-        notify: [
-          type: :boolean,
-          default: true,
-          doc: "Send lockout notification email. Default: true."
-        ]
-      ]
-    ],
-    geo_ip: [
-      type: :keyword_list,
-      default: [],
-      doc: "GeoIP lookup options.",
-      keys: [
-        module: [
-          type: {:or, [:atom, nil]},
-          default: nil,
-          doc: "Module implementing Sigra.GeoIP behaviour. Default: nil (disabled)."
-        ]
-      ]
-    ],
-    suspicious_login: [
-      type: :keyword_list,
-      default: [],
-      doc: "Suspicious login detection options.",
-      keys: [
-        enabled: [
-          type: :boolean,
-          default: true,
-          doc: "Enable suspicious login detection. Default: true."
-        ],
-        notify: [
-          type: :boolean,
-          default: true,
-          doc: "Send suspicious login notification email. Default: true."
-        ]
-      ]
-    ],
-    mfa: [
-      type: :keyword_list,
-      default: [],
-      doc: "Multi-factor authentication options.",
-      keys: [
-        enabled: [
-          type: :boolean,
-          default: true,
-          doc: "Enable MFA support. Default: true."
-        ],
-        totp_issuer: [
-          type: {:or, [:string, nil]},
-          default: nil,
-          doc: "TOTP issuer name for authenticator apps. Falls back to humanized otp_app. Default: nil."
-        ],
-        totp_drift_steps: [
-          type: :non_neg_integer,
-          default: 1,
-          doc: "TOTP drift window in 30-second steps. Default: 1."
-        ],
-        backup_code_count: [
-          type: :pos_integer,
-          default: 8,
-          doc: "Number of backup codes generated per enrollment. Default: 8."
-        ],
-        trust_enabled: [
-          type: :boolean,
-          default: true,
-          doc: "Enable trust-this-browser cookies. Default: true."
-        ],
-        trust_ttl: [
-          type: :pos_integer,
-          default: 2_592_000,
-          doc: "Trust cookie TTL in seconds (default 30 days). Default: 2,592,000."
-        ],
-        lockout_threshold: [
-          type: :pos_integer,
-          default: 5,
-          doc: "Failed MFA attempts before lockout. Default: 5."
-        ],
-        lockout_duration: [
-          type: :pos_integer,
-          default: 900,
-          doc: "MFA lockout duration in seconds (default 15 min). Default: 900."
-        ],
-        pending_timeout: [
-          type: :pos_integer,
-          default: 300,
-          doc: "MFA pending session timeout in seconds (default 5 min). Default: 300."
-        ],
-        show_trust_option: [
-          type: :boolean,
-          default: true,
-          doc: "Show trust-this-browser checkbox on MFA challenge. Default: true."
-        ]
-      ]
-    ],
-    passkeys: [
-      type: :keyword_list,
-      default: [],
-      doc: "Passkey (WebAuthn) options.",
-      keys: [
-        enabled: [
-          type: :boolean,
-          default: true,
-          doc: "Enable passkey support. Default: true."
-        ],
-        passkey_primary_enabled: [
-          type: :boolean,
-          default: false,
-          doc:
-            "Enable passkey-primary login. Passkey MFA and enrollment are still controlled by :enabled. Default: false."
-        ],
-        sign_count_policy: [
-          type: {:in, [:warn, :require_reauth, :revoke]},
-          default: :warn,
-          doc:
-            "Sign-count regression policy. Default: :warn to accommodate synced passkeys."
-        ],
-        max_per_user: [
-          type: :pos_integer,
-          default: 10,
-          doc: "Maximum passkeys per user. Enforced atomically. Default: 10."
-        ],
-        rp_id: [
-          type: {:or, [:string, nil]},
-          default: nil,
-          doc: "Relying party ID. Default: nil."
-        ],
-        rp_name: [
-          type: :string,
-          default: "Sigra",
-          doc: "Relying party display name. Default: \"Sigra\"."
-        ],
-        origin: [
-          type: {:or, [:string, nil]},
-          default: nil,
-          doc: "Relying party origin (https://...). Default: nil."
-        ],
-        attestation: [
-          type: {:in, [:none, :indirect, :direct]},
-          default: :none,
-          doc: "Attestation conveyance preference. Default: :none."
-        ],
-        user_verification: [
-          type: {:in, [:preferred, :required, :discouraged]},
-          default: :preferred,
-          doc: "User verification requirement. Default: :preferred."
-        ],
-        timeout_ms: [
-          type: :pos_integer,
-          default: 60_000,
-          doc: "Passkey ceremony timeout in milliseconds. Default: 60_000."
-        ],
-        ceremony_rate_limit: [
-          type: :keyword_list,
-          default: [],
-          doc: "Per-user ceremony initiation rate limit. Default: 5 per 60_000ms.",
-          keys: [
-            limit: [
-              type: :pos_integer,
-              default: 5,
-              doc: "Maximum ceremony initiations per user within the window. Default: 5."
-            ],
-            window_ms: [
-              type: :pos_integer,
-              default: 60_000,
-              doc: "Ceremony initiation window in milliseconds. Default: 60_000."
-            ]
-          ]
-        ],
-        user_passkey_schema: [
-          type: {:or, [:atom, nil]},
-          default: nil,
-          doc: "Generated host UserPasskey schema module. Default: nil."
-        ]
-      ]
-    ],
-    oauth: [
-      type: :keyword_list,
-      default: [],
-      doc: "OAuth / social login options.",
-      keys: [
-        enabled: [
-          type: :boolean,
-          default: true,
-          doc: "Master switch for OAuth. When false, OAuth routes are disabled and buttons hidden (D-63)."
-        ],
-        providers: [
-          type: :keyword_list,
-          default: [],
-          doc: "Provider configurations. Each key is a provider atom, value is a keyword list with :client_id, :client_secret, :redirect_uri, and optional :strategy, :scopes."
-        ],
-        session_type: [
-          type: {:in, [:standard, :remember_me]},
-          default: :remember_me,
-          doc: "Session type for OAuth logins. Default: :remember_me (D-43)."
-        ],
-        link_confirmation: [
-          type: {:in, [:required, :auto]},
-          default: :required,
-          doc: "Account linking behavior when OAuth email matches existing account. Default: :required (D-01)."
-        ],
-        trust_provider_email: [
-          type: :boolean,
-          default: true,
-          doc: "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."
-        ]
-      ]
-    ],
-    api_token: [
-      type: :keyword_list,
-      default: [],
-      doc: "API token options.",
-      keys: [
-        prefix: [type: {:or, [:string, nil]}, default: nil, doc: "Token prefix. Nil derives from otp_app: {otp_app}_sk_. Must match ^[a-z0-9_]+$ and not start with eyJ."],
-        custom_scopes: [type: {:list, :string}, default: [], doc: "Custom scope strings in resource:action format."],
-        write_implies_read: [type: :boolean, default: false, doc: "Whether write scope implies read. Default: false."],
-        require_expiry: [type: :boolean, default: false, doc: "Whether expiration is required. Default: false."],
-        max_ttl: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Maximum TTL in seconds. Nil = no limit."],
-        cleanup_retention: [type: :pos_integer, default: 90 * 24 * 60 * 60, doc: "Retention period for revoked/expired tokens in seconds. Default: 90 days."],
-        activity_update_threshold: [type: :pos_integer, default: 300, doc: "Minimum seconds between last_used_at writes. Default: 300."],
-        default_page_size: [type: :pos_integer, default: 50, doc: "Default page size for token listing. Default: 50."],
-        max_page_size: [type: :pos_integer, default: 200, doc: "Maximum page size. Default: 200."],
-        api_token_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated UserAPIToken schema module."]
-      ]
-    ],
-    jwt: [
-      type: :keyword_list,
-      default: [],
-      doc: "JWT options (requires Joken ~> 2.6 as optional dependency).",
-      keys: [
-        enabled: [type: :boolean, default: false, doc: "Enable JWT support. Default: false."],
-        algorithm: [type: {:in, ["HS256", "RS256", "ES256"]}, default: "HS256", doc: "Signing algorithm. Default: HS256."],
-        issuer: [type: {:or, [:string, nil]}, default: nil, doc: "JWT issuer claim. Nil = otp_app name."],
-        access_ttl: [type: :pos_integer, default: 900, doc: "Access token TTL in seconds. Default: 900 (15 min)."],
-        refresh_ttl: [type: :pos_integer, default: 30 * 24 * 60 * 60, doc: "Refresh token TTL in seconds. Default: 30 days."],
-        refresh: [type: :boolean, default: true, doc: "Enable refresh tokens. Default: true."],
-        claims_builder: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing Sigra.JWT.ClaimsBuilder behaviour."],
-        verify_epoch: [type: :boolean, default: true, doc: "Verify user token_epoch on every JWT request. Default: true."],
-        private_key: [type: {:or, [:string, nil]}, default: nil, doc: "PEM private key for RS256/ES256."]
-      ]
-    ],
-    deletion: [
-      type: :keyword_list,
-      default: [],
-      doc: "Account deletion options.",
-      keys: [
-        strategy: [type: {:in, [:soft_delete, :hard_delete, :anonymize]}, default: :soft_delete, doc: "Deletion strategy. :soft_delete preserves row with deleted_at, :hard_delete removes row, :anonymize strips PII. Default: :soft_delete."],
-        grace_period_days: [type: {:or, [:non_neg_integer, nil]}, default: 14, doc: "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."],
-        cooldown_hours: [type: :pos_integer, default: 24, doc: "Hours after cancelling deletion before re-requesting is allowed. Default: 24."],
-        notify: [type: :boolean, default: true, doc: "Send email notifications for deletion events. Default: true."]
-      ]
-    ],
-    hooks: [
-      type: :keyword_list,
-      default: [],
-      doc: "Lifecycle hook callbacks. Each is a {module, function} tuple or nil.",
-      keys: [
-        on_register: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after user registration. Receives (multi, context_map). Default: nil."],
-        on_email_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after email change confirmation. Receives (multi, context_map). Default: nil."],
-        on_password_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after password change. Receives (multi, context_map). Default: nil."],
-        on_delete: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."]
-      ]
-    ],
-    audit: [
-      type: :keyword_list,
-      default: [],
-      doc: "Structured audit logging options (Phase 9). See `Sigra.Audit`.",
-      keys: [
-        audit_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated AuditEvent schema module. Default: nil."],
-        retention_days: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Days to retain audit events. nil = keep forever (D-09). Default: nil."],
-        max_metadata_bytes: [type: :pos_integer, default: 8_192, doc: "Cap on JSON-encoded metadata byte size (D-20). Default: 8192."],
-        reserved_prefixes: [type: {:list, :string}, default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.), doc: "Reserved action prefixes developers cannot use (D-17, D-18)."]
-      ]
-    ]
-  ])}
+  #{NimbleOptions.docs(repo: [type: :atom, required: true, doc: "The Ecto Repo module for database operations."],
+  user_schema: [type: :atom, required: true, doc: "The Ecto schema module for users."],
+  otp_app: [type: :atom, doc: "The OTP application name. Used for config.exs convenience layer."],
+  secret_key_base: [type: {:or, [:string, nil]}, default: nil, doc: "The host app's secret key base. Required for JWT HS256 signing and token operations."],
+  mailer: [type: :atom, doc: "The mailer module implementing `Sigra.Mailer` behaviour."],
+  email_module: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."],
+  password: [type: :keyword_list, default: [], doc: "Password hashing and validation options.", keys: [min_length: [type: :pos_integer, default: 8, doc: "Minimum password length. NIST SP 800-63B recommends at least 8."], max_length: [type: :pos_integer, default: 72, doc: "Maximum password length. Set to 72 to match bcrypt's limit for migration compatibility."], hasher: [type: :atom, default: Sigra.Hashers.Argon2, doc: "Module implementing the `Sigra.Hasher` behaviour."], notify_on_change: [type: :boolean, default: true, doc: "Send notification email when password is changed. Default: true."], invalidate_sessions_on_change: [type: :boolean, default: true, doc: "Invalidate all other sessions on password change. Default: true."]]],
+  password_policy: [type: :keyword_list, default: [], doc: "Password validation policy options for `Sigra.PasswordPolicy`.", keys: [min_length: [type: :pos_integer, default: 8, doc: "Minimum password length. Default: 8 (NIST SP 800-63B)."], max_bytes: [type: :pos_integer, default: 72, doc: "Maximum password byte size. Default: 72 (bcrypt compatibility)."], require_uppercase: [type: :boolean, default: false, doc: "Require at least one uppercase letter. Default: false."], require_digit: [type: :boolean, default: false, doc: "Require at least one digit. Default: false."], require_special: [type: :boolean, default: false, doc: "Require at least one special character. Default: false."], check_common: [type: :boolean, default: true, doc: "Check against the embedded common passwords list. Default: true."], check_breached: [type: :boolean, default: false, doc: "Check against the HIBP breached passwords API. Default: false."], password_max_age: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Maximum password age in seconds before forced rotation. Default: nil (disabled)."]]],
+  magic_link: [type: :keyword_list, default: [], doc: "Magic link authentication options.", keys: [ttl: [type: :pos_integer, default: 600, doc: "Magic link token TTL in seconds. Default: 600 (10 minutes)."], max_requests: [type: :pos_integer, default: 3, doc: "Maximum magic link requests within the rate limit window. Default: 3."], window_seconds: [type: :pos_integer, default: 900, doc: "Rate limit window for magic link requests in seconds. Default: 900 (15 minutes)."]]],
+  require_confirmation: [type: :boolean, default: false, doc: "Whether email confirmation is required before login. Default: false."],
+  session_ttl: [type: :pos_integer, default: 5_184_000, doc: "Session time-to-live in seconds. Default: 5,184,000 (60 days)."],
+  session: [type: :keyword_list, default: [], doc: "Session management options.", keys: [remember_me_max_age: [type: :pos_integer, default: 60 * 24 * 60 * 60, doc: "Max age for remember-me cookies in seconds. Default: 60 days (5,184,000s)."], reissue_age: [type: :pos_integer, default: 7 * 24 * 60 * 60, doc: "Age after which session tokens are reissued. Default: 7 days."], store: [type: :atom, default: Sigra.SessionStores.Ecto, doc: "Module implementing the `Sigra.SessionStore` behaviour."], idle_timeout: [type: :pos_integer, default: 1_800, doc: "Idle timeout in seconds. Default: 1800 (30 minutes)."], absolute_timeout: [type: :pos_integer, default: 86_400, doc: "Absolute session timeout in seconds. Default: 86400 (24 hours)."], activity_update_threshold: [type: :pos_integer, default: 300, doc: "Minimum seconds between last_active_at DB writes. Default: 300 (5 minutes)."], sudo_timeout: [type: :pos_integer, default: 300, doc: "Sudo mode window in seconds. Default: 300 (5 minutes)."], session_schema: [type: :atom, doc: "The generated UserSession Ecto schema module."]]],
+  token_ttl: [type: :keyword_list, default: [], doc: "Token time-to-live values in seconds.", keys: [confirm: [type: :pos_integer, default: 48 * 60 * 60, doc: "Email confirmation token TTL. Default: 48 hours."], reset_password: [type: :pos_integer, default: 60 * 60, doc: "Password reset token TTL. Default: 1 hour."], magic_link: [type: :pos_integer, default: 15 * 60, doc: "Magic link token TTL. Default: 15 minutes."], email_change: [type: :pos_integer, default: 24 * 60 * 60, doc: "Email change token TTL in seconds. Default: 24 hours."]]],
+  rate_limiting: [type: :keyword_list, default: [], doc: "Rate limiting options.", keys: [limiter: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing the `Sigra.RateLimiter` behaviour. Nil disables rate limiting."], ip_limit: [type: :pos_integer, default: 10, doc: "Maximum requests per IP within the window. Default: 10."], ip_window_ms: [type: :pos_integer, default: 60_000, doc: "IP rate limiting window in milliseconds. Default: 60 seconds."], account_limit: [type: :pos_integer, default: 5, doc: "Maximum failed attempts per account before lockout. Default: 5."]]],
+  confirmation: [type: :keyword_list, default: [], doc: "Email confirmation options.", keys: [unconfirmed_access: [type: {:in, [:allow_with_banner, :block]}, default: :allow_with_banner, doc: "Behavior for unconfirmed users. :allow_with_banner shows a reminder, :block prevents login."], code_length: [type: :pos_integer, default: 6, doc: "Length of the numeric confirmation code. Default: 6."], max_resends: [type: :pos_integer, default: 3, doc: "Maximum confirmation resend requests per window. Default: 3."], resend_window_seconds: [type: :pos_integer, default: 900, doc: "Rate limit window for confirmation resend in seconds. Default: 900 (15 minutes)."], code_max_attempts: [type: :pos_integer, default: 5, doc: "Maximum code entry attempts per window. Default: 5."], code_window_seconds: [type: :pos_integer, default: 900, doc: "Rate limit window for code entry in seconds. Default: 900 (15 minutes)."]]],
+  reset: [type: :keyword_list, default: [], doc: "Password reset options.", keys: [max_requests: [type: :pos_integer, default: 3, doc: "Maximum reset requests per email per window. Default: 3."], window_seconds: [type: :pos_integer, default: 900, doc: "Rate limit window for reset requests in seconds. Default: 900 (15 minutes)."]]],
+  email: [type: :keyword_list, default: [], doc: "Email delivery options.", keys: [from_address: [type: :string, doc: "From address for transactional emails. Default derived from endpoint config."], delivery_mode: [type: {:in, [:auto, :async, :sync]}, default: :auto, doc: "Email delivery mode. :auto detects Oban presence. Default: :auto."], oban_queue: [type: :string, default: "sigra_mailer", doc: "Oban queue name for async email delivery. Default: \"sigra_mailer\"."], oban_concurrency: [type: :pos_integer, default: 10, doc: "Maximum concurrent email delivery workers. Default: 10."]]],
+  lockout: [type: :keyword_list, default: [], doc: "Account lockout options.", keys: [threshold: [type: :pos_integer, default: 5, doc: "Failed attempts before lockout. Default: 5."], duration: [type: :pos_integer, default: 900, doc: "Lockout duration in seconds. Default: 900 (15 minutes)."], notify: [type: :boolean, default: true, doc: "Send lockout notification email. Default: true."]]],
+  geo_ip: [type: :keyword_list, default: [], doc: "GeoIP lookup options.", keys: [module: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing Sigra.GeoIP behaviour. Default: nil (disabled)."]]],
+  suspicious_login: [type: :keyword_list, default: [], doc: "Suspicious login detection options.", keys: [enabled: [type: :boolean, default: true, doc: "Enable suspicious login detection. Default: true."], notify: [type: :boolean, default: true, doc: "Send suspicious login notification email. Default: true."]]],
+  mfa: [type: :keyword_list, default: [], doc: "Multi-factor authentication options.", keys: [enabled: [type: :boolean, default: true, doc: "Enable MFA support. Default: true."], totp_issuer: [type: {:or, [:string, nil]}, default: nil, doc: "TOTP issuer name for authenticator apps. Falls back to humanized otp_app. Default: nil."], totp_drift_steps: [type: :non_neg_integer, default: 1, doc: "TOTP drift window in 30-second steps. Default: 1."], backup_code_count: [type: :pos_integer, default: 8, doc: "Number of backup codes generated per enrollment. Default: 8."], trust_enabled: [type: :boolean, default: true, doc: "Enable trust-this-browser cookies. Default: true."], trust_ttl: [type: :pos_integer, default: 2_592_000, doc: "Trust cookie TTL in seconds (default 30 days). Default: 2,592,000."], lockout_threshold: [type: :pos_integer, default: 5, doc: "Failed MFA attempts before lockout. Default: 5."], lockout_duration: [type: :pos_integer, default: 900, doc: "MFA lockout duration in seconds (default 15 min). Default: 900."], pending_timeout: [type: :pos_integer, default: 300, doc: "MFA pending session timeout in seconds (default 5 min). Default: 300."], show_trust_option: [type: :boolean, default: true, doc: "Show trust-this-browser checkbox on MFA challenge. Default: true."]]],
+  passkeys: [type: :keyword_list, default: [], doc: "Passkey (WebAuthn) options.", keys: [enabled: [type: :boolean, default: true, doc: "Enable passkey support. Default: true."], passkey_primary_enabled: [type: :boolean, default: false, doc: "Enable passkey-primary login. Passkey MFA and enrollment are still controlled by :enabled. Default: false."], sign_count_policy: [type: {:in, [:warn, :require_reauth, :revoke]}, default: :warn, doc: "Sign-count regression policy. Default: :warn to accommodate synced passkeys."], max_per_user: [type: :pos_integer, default: 10, doc: "Maximum passkeys per user. Enforced atomically. Default: 10."], rp_id: [type: {:or, [:string, nil]}, default: nil, doc: "Relying party ID. Default: nil."], rp_name: [type: :string, default: "Sigra", doc: "Relying party display name. Default: \"Sigra\"."], origin: [type: {:or, [:string, nil]}, default: nil, doc: "Relying party origin (https://...). Default: nil."], attestation: [type: {:in, [:none, :indirect, :direct]}, default: :none, doc: "Attestation conveyance preference. Default: :none."], user_verification: [type: {:in, [:preferred, :required, :discouraged]}, default: :preferred, doc: "User verification requirement. Default: :preferred."], timeout_ms: [type: :pos_integer, default: 60_000, doc: "Passkey ceremony timeout in milliseconds. Default: 60_000."], ceremony_rate_limit: [type: :keyword_list, default: [], doc: "Per-user ceremony initiation rate limit. Default: 5 per 60_000ms.", keys: [limit: [type: :pos_integer, default: 5, doc: "Maximum ceremony initiations per user within the window. Default: 5."], window_ms: [type: :pos_integer, default: 60_000, doc: "Ceremony initiation window in milliseconds. Default: 60_000."]]], user_passkey_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "Generated host UserPasskey schema module. Default: nil."]]],
+  oauth: [type: :keyword_list, default: [], doc: "OAuth / social login options.", keys: [enabled: [type: :boolean, default: true, doc: "Master switch for OAuth. When false, OAuth routes are disabled and buttons hidden (D-63)."], providers: [type: :keyword_list, default: [], doc: "Provider configurations. Each key is a provider atom, value is a keyword list with :client_id, :client_secret, :redirect_uri, and optional :strategy, :scopes."], session_type: [type: {:in, [:standard, :remember_me]}, default: :remember_me, doc: "Session type for OAuth logins. Default: :remember_me (D-43)."], link_confirmation: [type: {:in, [:required, :auto]}, default: :required, doc: "Account linking behavior when OAuth email matches existing account. Default: :required (D-01)."], trust_provider_email: [type: :boolean, default: true, doc: "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."]]],
+  api_token: [type: :keyword_list, default: [], doc: "API token options.", keys: [prefix: [type: {:or, [:string, nil]}, default: nil, doc: "Token prefix. Nil derives from otp_app: {otp_app}_sk_. Must match ^[a-z0-9_]+$ and not start with eyJ."], custom_scopes: [type: {:list, :string}, default: [], doc: "Custom scope strings in resource:action format."], write_implies_read: [type: :boolean, default: false, doc: "Whether write scope implies read. Default: false."], require_expiry: [type: :boolean, default: false, doc: "Whether expiration is required. Default: false."], max_ttl: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Maximum TTL in seconds. Nil = no limit."], cleanup_retention: [type: :pos_integer, default: 90 * 24 * 60 * 60, doc: "Retention period for revoked/expired tokens in seconds. Default: 90 days."], activity_update_threshold: [type: :pos_integer, default: 300, doc: "Minimum seconds between last_used_at writes. Default: 300."], default_page_size: [type: :pos_integer, default: 50, doc: "Default page size for token listing. Default: 50."], max_page_size: [type: :pos_integer, default: 200, doc: "Maximum page size. Default: 200."], api_token_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated UserAPIToken schema module."]]],
+  jwt: [type: :keyword_list, default: [], doc: "JWT options (requires Joken ~> 2.6 as optional dependency).", keys: [enabled: [type: :boolean, default: false, doc: "Enable JWT support. Default: false."], algorithm: [type: {:in, ["HS256", "RS256", "ES256"]}, default: "HS256", doc: "Signing algorithm. Default: HS256."], issuer: [type: {:or, [:string, nil]}, default: nil, doc: "JWT issuer claim. Nil = otp_app name."], access_ttl: [type: :pos_integer, default: 900, doc: "Access token TTL in seconds. Default: 900 (15 min)."], refresh_ttl: [type: :pos_integer, default: 30 * 24 * 60 * 60, doc: "Refresh token TTL in seconds. Default: 30 days."], refresh: [type: :boolean, default: true, doc: "Enable refresh tokens. Default: true."], claims_builder: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing Sigra.JWT.ClaimsBuilder behaviour."], verify_epoch: [type: :boolean, default: true, doc: "Verify user token_epoch on every JWT request. Default: true."], private_key: [type: {:or, [:string, nil]}, default: nil, doc: "PEM private key for RS256/ES256."]]],
+  deletion: [type: :keyword_list, default: [], doc: "Account deletion options.", keys: [strategy: [type: {:in, [:soft_delete, :hard_delete, :anonymize]}, default: :soft_delete, doc: "Deletion strategy. :soft_delete preserves row with deleted_at, :hard_delete removes row, :anonymize strips PII. Default: :soft_delete."], grace_period_days: [type: {:or, [:non_neg_integer, nil]}, default: 14, doc: "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."], cooldown_hours: [type: :pos_integer, default: 24, doc: "Hours after cancelling deletion before re-requesting is allowed. Default: 24."], notify: [type: :boolean, default: true, doc: "Send email notifications for deletion events. Default: true."]]],
+  hooks: [type: :keyword_list, default: [], doc: "Lifecycle hook callbacks. Each is a {module, function} tuple or nil.", keys: [on_register: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after user registration. Receives (multi, context_map). Default: nil."], on_email_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after email change confirmation. Receives (multi, context_map). Default: nil."], on_password_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after password change. Receives (multi, context_map). Default: nil."], on_delete: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."]]],
+  audit: [type: :keyword_list, default: [], doc: "Structured audit logging options (Phase 9). See `Sigra.Audit`.", keys: [audit_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated AuditEvent schema module. Default: nil."], retention_days: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Days to retain audit events. nil = keep forever (D-09). Default: nil."], max_metadata_bytes: [type: :pos_integer, default: 8_192, doc: "Cap on JSON-encoded metadata byte size (D-20). Default: 8192."], reserved_prefixes: [type: {:list, :string}, default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.), doc: "Reserved action prefixes developers cannot use (D-17, D-18)."]]])}
   """
 
   @schema [
@@ -982,8 +400,7 @@ defmodule Sigra.Config do
         resend_window_seconds: [
           type: :pos_integer,
           default: 900,
-          doc:
-            "Rate limit window for confirmation resend in seconds. Default: 900 (15 minutes)."
+          doc: "Rate limit window for confirmation resend in seconds. Default: 900 (15 minutes)."
         ],
         code_max_attempts: [
           type: :pos_integer,
@@ -1110,8 +527,7 @@ defmodule Sigra.Config do
         sign_count_policy: [
           type: {:in, [:warn, :require_reauth, :revoke]},
           default: :warn,
-          doc:
-            "Sign-count regression policy. Default: :warn to accommodate synced passkeys."
+          doc: "Sign-count regression policy. Default: :warn to accommodate synced passkeys."
         ],
         max_per_user: [
           type: :pos_integer,
@@ -1332,14 +748,12 @@ defmodule Sigra.Config do
         grace_period_days: [
           type: {:or, [:non_neg_integer, nil]},
           default: 14,
-          doc:
-            "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."
+          doc: "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."
         ],
         cooldown_hours: [
           type: :pos_integer,
           default: 24,
-          doc:
-            "Hours after cancelling deletion before re-requesting is allowed. Default: 24."
+          doc: "Hours after cancelling deletion before re-requesting is allowed. Default: 24."
         ],
         notify: [
           type: :boolean,
@@ -1356,8 +770,7 @@ defmodule Sigra.Config do
         on_register: [
           type: {:or, [{:tuple, [:atom, :atom]}, nil]},
           default: nil,
-          doc:
-            "Called after user registration. Receives (multi, context_map). Default: nil."
+          doc: "Called after user registration. Receives (multi, context_map). Default: nil."
         ],
         on_email_change: [
           type: {:or, [{:tuple, [:atom, :atom]}, nil]},
@@ -1368,14 +781,12 @@ defmodule Sigra.Config do
         on_password_change: [
           type: {:or, [{:tuple, [:atom, :atom]}, nil]},
           default: nil,
-          doc:
-            "Called after password change. Receives (multi, context_map). Default: nil."
+          doc: "Called after password change. Receives (multi, context_map). Default: nil."
         ],
         on_delete: [
           type: {:or, [{:tuple, [:atom, :atom]}, nil]},
           default: nil,
-          doc:
-            "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."
+          doc: "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."
         ]
       ]
     ],

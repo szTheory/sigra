@@ -322,7 +322,8 @@ defmodule Sigra.Admin.Live.UserShowLive do
     "/admin/organizations/#{slug}/users/#{user_id}/impersonation"
   end
 
-  defp impersonation_start_path(_admin_scope, user_id), do: "/admin/users/#{user_id}/impersonation"
+  defp impersonation_start_path(_admin_scope, user_id),
+    do: "/admin/users/#{user_id}/impersonation"
 
   defp with_return_to(path, return_to) when is_binary(return_to) and return_to != "" do
     path <> "?return_to=" <> URI.encode_www_form(return_to)

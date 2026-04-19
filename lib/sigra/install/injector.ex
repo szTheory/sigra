@@ -222,8 +222,7 @@ defmodule Sigra.Install.Injector do
             "byte_split_at!/2: offset #{byte_offset} out of range for binary of #{total} bytes"
     end
 
-    {:binary.part(binary, 0, byte_offset),
-     :binary.part(binary, byte_offset, total - byte_offset)}
+    {:binary.part(binary, 0, byte_offset), :binary.part(binary, byte_offset, total - byte_offset)}
   end
 
   # Find an anchor line to inject after in ConnCase

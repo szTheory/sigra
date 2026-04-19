@@ -91,10 +91,10 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
     socket =
       socket
       |> assign(trigger_submit: false, check_errors: false)
-
-      |> assign(passkey_primary_enabled: SigraInstallGoldenTmp.Accounts.passkey_primary_enabled?())
+      |> assign(
+        passkey_primary_enabled: SigraInstallGoldenTmp.Accounts.passkey_primary_enabled?()
+      )
       |> assign(enroll_passkey_after_signup: false)
-
       |> assign(password_strength: nil, password_suggestions: [])
       |> assign_form(changeset)
 
@@ -102,24 +102,23 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
   end
 
   def handle_event("save", %{"user" => user_params}, socket) do
-
     enroll_passkey = Map.get(user_params, "enroll_passkey") in ["true", true, "on", "1"]
-
 
     case SigraInstallGoldenTmp.Accounts.register_user(user_params) do
       {:ok, user} ->
         # D-05: deliver confirmation email (B5 repair; helper exists at SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions/2)
         confirmation_url_fun = fn token ->
-
           if enroll_passkey do
             url(socket, ~p"/users/confirm/#{token}?enroll_passkey=1")
           else
             url(socket, ~p"/users/confirm/#{token}")
           end
-
         end
 
-        case SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions(user, confirmation_url_fun) do
+        case SigraInstallGoldenTmp.Accounts.deliver_user_confirmation_instructions(
+               user,
+               confirmation_url_fun
+             ) do
           {:ok, :sent} -> :ok
           {:error, :already_confirmed} -> :ok
         end
@@ -133,7 +132,10 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
 
         {:noreply,
          socket
-         |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
+         |> put_flash(
+           :info,
+           "If this email is available, your account has been created. Please check your email."
+         )
          |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -146,7 +148,6 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
 
     enroll_passkey = Map.get(user_params, "enroll_passkey") in ["true", true, "on", "1"]
 
-
     # Real-time password strength feedback
     {strength, suggestions} =
       case Map.get(user_params, "password", "") do
@@ -157,9 +158,7 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
     {:noreply,
      socket
      |> assign(password_strength: strength, password_suggestions: suggestions)
-
      |> assign(enroll_passkey_after_signup: enroll_passkey)
-
      |> assign_form(Map.put(changeset, :action, :validate))}
   end
 

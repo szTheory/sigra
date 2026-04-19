@@ -152,7 +152,8 @@ defmodule Sigra.Upgrade do
     base = [version_sentinel_injection(target_version)]
 
     if vault_promotion.enabled? do
-      base ++ [vault_child_injection(vault_promotion.application_path, vault_promotion.app_module)]
+      base ++
+        [vault_child_injection(vault_promotion.application_path, vault_promotion.app_module)]
     else
       base
     end

@@ -61,7 +61,8 @@ defmodule Sigra.Templates.SessionTemplatesTest do
       # Each adapter section should have user_sessions
       sections = String.split(content, "create table(:user_sessions")
       # Original + 3 adapter sections = 4 parts
-      assert length(sections) == 4, "Expected user_sessions in postgres, mysql, and sqlite sections"
+      assert length(sections) == 4,
+             "Expected user_sessions in postgres, mysql, and sqlite sections"
     end
   end
 

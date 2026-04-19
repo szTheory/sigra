@@ -41,7 +41,14 @@ defmodule Sigra.Install.TemplateRenderTest do
     adapter: :postgres,
     reset_password_url: "http://localhost:4000/users/reset-password",
     settings_url: "http://localhost:4000/users/settings",
-    opts: [live: true, api: false, jwt: false, binary_id: true, organizations: true, passkeys: true],
+    opts: [
+      live: true,
+      api: false,
+      jwt: false,
+      binary_id: true,
+      organizations: true,
+      passkeys: true
+    ],
     migration_timestamps: %{}
   ]
 

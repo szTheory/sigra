@@ -15,17 +15,17 @@ defmodule Sigra.Passkeys do
   ]
 
   @register_opts_schema @schema_opts ++
-                         [
-                           max_per_user: [type: :pos_integer, required: false]
-                         ]
+                          [
+                            max_per_user: [type: :pos_integer, required: false]
+                          ]
 
   @authenticate_opts_schema @schema_opts ++
-                             [
-                               sign_count_policy: [
-                                 type: {:in, [:warn, :require_reauth, :revoke]},
-                                 required: false
-                               ]
-                             ]
+                              [
+                                sign_count_policy: [
+                                  type: {:in, [:warn, :require_reauth, :revoke]},
+                                  required: false
+                                ]
+                              ]
 
   @rename_opts_schema @schema_opts
 
@@ -143,7 +143,9 @@ defmodule Sigra.Passkeys do
   def authenticate(%Sigra.Config{} = config, user, assertion, opts \\ []) do
     validated = NimbleOptions.validate!(opts, @authenticate_opts_schema)
     schema = resolve_user_passkey_schema!(config, validated)
-    policy = Keyword.get(validated, :sign_count_policy, config.passkeys[:sign_count_policy] || :warn)
+
+    policy =
+      Keyword.get(validated, :sign_count_policy, config.passkeys[:sign_count_policy] || :warn)
 
     Sigra.Telemetry.span([:sigra, :passkeys, :authenticate], %{user_id: user.id}, fn ->
       with {:ok, row, auth_data} <-
@@ -153,8 +155,17 @@ defmodule Sigra.Passkeys do
     end)
   end
 
-  @spec rename(Sigra.Config.t(), user :: map(), credential_id :: binary(), new_nickname :: String.t(), keyword()) ::
-          {:ok, Credential.t()} | {:error, :not_found} | {:error, Ecto.Changeset.t()} | {:error, term()}
+  @spec rename(
+          Sigra.Config.t(),
+          user :: map(),
+          credential_id :: binary(),
+          new_nickname :: String.t(),
+          keyword()
+        ) ::
+          {:ok, Credential.t()}
+          | {:error, :not_found}
+          | {:error, Ecto.Changeset.t()}
+          | {:error, term()}
   def rename(%Sigra.Config{} = config, user, credential_id, new_nickname, opts \\ []) do
     validated = NimbleOptions.validate!(opts, @rename_opts_schema)
     schema = resolve_user_passkey_schema!(config, validated)
@@ -255,10 +266,16 @@ defmodule Sigra.Passkeys do
     rp_id = Keyword.get(passkeys, :rp_id)
     origin = Keyword.get(passkeys, :origin)
     timeout_ms = Keyword.get(passkeys, :timeout_ms)
-    ceremony_rate_limit = normalize_ceremony_rate_limit(Keyword.get(passkeys, :ceremony_rate_limit, []))
+
+    ceremony_rate_limit =
+      normalize_ceremony_rate_limit(Keyword.get(passkeys, :ceremony_rate_limit, []))
 
     ensure_present!(rp_id, "passkeys[:rp_id] is required for passkeys; set it to your RP ID")
-    ensure_present!(origin, "passkeys[:origin] is required for passkeys; set it to your HTTPS origin")
+
+    ensure_present!(
+      origin,
+      "passkeys[:origin] is required for passkeys; set it to your HTTPS origin"
+    )
 
     if timeout_ms not in @runtime_timeout_range do
       raise ArgumentError,
@@ -287,7 +304,10 @@ defmodule Sigra.Passkeys do
   end
 
   defp normalize_rate_limit_user_id(user_id) when is_binary(user_id), do: user_id
-  defp normalize_rate_limit_user_id(user_id) when is_integer(user_id), do: Integer.to_string(user_id)
+
+  defp normalize_rate_limit_user_id(user_id) when is_integer(user_id),
+    do: Integer.to_string(user_id)
+
   defp normalize_rate_limit_user_id(user_id) when is_atom(user_id), do: Atom.to_string(user_id)
   defp normalize_rate_limit_user_id(user_id), do: inspect(user_id)
 
@@ -360,7 +380,12 @@ defmodule Sigra.Passkeys do
     stored = row.sign_count || 0
     presented = auth_data.sign_count
 
-    case Authentication.handle_sign_count(stored, presented, policy, sign_count_metadata(row, presented, policy)) do
+    case Authentication.handle_sign_count(
+           stored,
+           presented,
+           policy,
+           sign_count_metadata(row, presented, policy)
+         ) do
       :ok ->
         apply_authentication_multi(config, row, presented, audit_metadata: nil)
 

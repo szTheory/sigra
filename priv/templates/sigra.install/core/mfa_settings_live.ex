@@ -203,7 +203,7 @@ defmodule <%= web_module %>.MFASettingsLive do
               </div>
 
               <div class="flex items-center gap-3">
-                <.button>Regenerate codes</.button>
+                <.button type="submit">Regenerate codes</.button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"

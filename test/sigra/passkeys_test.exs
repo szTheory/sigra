@@ -102,7 +102,13 @@ defmodule Sigra.PasskeysTest do
     |> expect(:transact, fn %Ecto.Multi{} = multi ->
       names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
       assert names == [:cap_check, :passkey, :audit]
-      {:ok, %{cap_check: :ok, passkey: row, audit: %Sigra.Test.AuditEvent{action: "passkey.register.success"}}}
+
+      {:ok,
+       %{
+         cap_check: :ok,
+         passkey: row,
+         audit: %Sigra.Test.AuditEvent{action: "passkey.register.success"}
+       }}
     end)
 
     assert {:ok, credential} =
@@ -125,12 +131,19 @@ defmodule Sigra.PasskeysTest do
 
   test "list_for_user/2 maps schema rows to credentials" do
     current_user = user()
-    rows = [build_row(current_user.id, nickname: "Desktop"), build_row(current_user.id, nickname: "Phone")]
+
+    rows = [
+      build_row(current_user.id, nickname: "Desktop"),
+      build_row(current_user.id, nickname: "Phone")
+    ]
 
     Sigra.MockRepo
     |> expect(:all, fn %Ecto.Query{} -> rows end)
 
-    assert [%Sigra.Passkeys.Credential{nickname: "Desktop"}, %Sigra.Passkeys.Credential{nickname: "Phone"}] =
+    assert [
+             %Sigra.Passkeys.Credential{nickname: "Desktop"},
+             %Sigra.Passkeys.Credential{nickname: "Phone"}
+           ] =
              Passkeys.list_for_user(config(), current_user)
   end
 

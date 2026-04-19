@@ -151,10 +151,11 @@ defmodule Sigra.MFATest do
       ]
     ]
 
-    merged = Keyword.merge(defaults, overrides, fn
-      :mfa, v1, v2 -> Keyword.merge(v1, v2)
-      _k, _v1, v2 -> v2
-    end)
+    merged =
+      Keyword.merge(defaults, overrides, fn
+        :mfa, v1, v2 -> Keyword.merge(v1, v2)
+        _k, _v1, v2 -> v2
+      end)
 
     Sigra.Config.new!(merged)
   end
