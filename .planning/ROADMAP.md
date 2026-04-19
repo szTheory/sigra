@@ -6,23 +6,12 @@
 - ✅ **v1.1 Foundations** - Phases 11-23 (shipped 2026-04-16). See [v1.1 archive](milestones/v1.1-ROADMAP.md), [v1.1 requirements](milestones/v1.1-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **Post-v1.1 Closeout** - Phases 24-26 (completed 2026-04-16).
 - ✅ **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (shipped 2026-04-17). See [v1.2 archive](milestones/v1.2-ROADMAP.md), [v1.2 requirements](milestones/v1.2-REQUIREMENTS.md), [v1.2 milestone audit](milestones/v1.2-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- **v1.3 Cleanup & Hardening** — Phases 36-40 (active). Live [REQUIREMENTS.md](REQUIREMENTS.md) and **Next milestone** section below.
+- ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- **Next** — No active phased roadmap slice after v1.3. Run `/gsd-new-milestone` to author the next `.planning/REQUIREMENTS.md`, milestones table, and phase list.
 
-## Next milestone — v1.3 Cleanup & Hardening (active)
+## Phases
 
-**Goal:** Close deferred validation, CI/supply-chain, human UAT, audit completeness, and tooling gaps — **no new product features**.
-
-**Requirements:** `.planning/REQUIREMENTS.md`
-
-| Phase | Name | Goal | REQ IDs |
-|-------|------|------|---------|
-| **36** | Retroactive Nyquist validation | Backfill or waive `*-VALIDATION.md` gaps (**999.1**) | VAL-01–VAL-03 |
-| **37** | Actions & dependency hygiene | Land **999.2** Dependabot/Actions upgrades with green CI | CI-01–CI-03 |
-| **38** | Human GA UAT gate | Execute or waive **SEED-001** eight items with evidence | UAT-01–UAT-02 |
-| **39** | Audit trail completeness | **Done (2026-04-19):** `Sigra.Audit.Assertions`, atomic `api.token_create`, example login/MFA audit smoke + docs — see `39-VERIFICATION.md` | AUD-01–AUD-03 |
-| **40** | Tooling & release ergonomics | **Done (2026-04-19):** `MAINTAINING.md`, optional `hex-publish.yml`, planning hygiene script + doc supersession — see `40-VERIFICATION.md` | TOOL-01, REL-01 |
-
-**Success (milestone):** All REQ checkboxes in `REQUIREMENTS.md` satisfied or explicitly waived with owner/date; `MILESTONES.md` records v1.3 ship; seeds **999.1**/**999.2** satisfied or folded into archived rationale.
+_No live milestone phases._ Historical execution remains under `.planning/phases/`; shipped intent is summarized in `.planning/milestones/v*-ROADMAP.md` and `.planning/MILESTONES.md`.
 
 ## Backlog (parking lot — not v1.3 unless promoted)
 

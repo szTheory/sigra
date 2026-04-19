@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Cleanup & Hardening
-status: active
-stopped_at: Phase 40 executed — `40-01-SUMMARY.md`, `40-02-SUMMARY.md`, `40-VERIFICATION.md`; v1.3 phases 36–40 complete on disk — next `/gsd-complete-milestone` (or archive) when ready
-last_updated: "2026-04-19T12:00:00.000Z"
-last_activity: 2026-04-19 -- Phase 40 execute-phase (REL-01 + TOOL-01)
+status: shipped
+stopped_at: Milestone closed via `/gsd-complete-milestone` — archives under `.planning/milestones/v1.3-*`, live `REQUIREMENTS.md` removed; next `/gsd-new-milestone`
+last_updated: "2026-04-19T18:00:00.000Z"
+last_activity: 2026-04-19 -- Milestone archive + planning doc refresh
 progress:
   total_phases: 5
   completed_phases: 5
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 11
+  completed_plans: 11
   percent: 100
 ---
 
@@ -18,41 +18,40 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-17)
+See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Current focus:** **v1.3 Cleanup & Hardening** — Phases 36–40 per `REQUIREMENTS.md` / `ROADMAP.md` (999.x + seeds + tooling; no feature work).
+**Current focus:** **Planning gap** — run `/gsd-new-milestone` to author the next `.planning/REQUIREMENTS.md` and active roadmap slice (v1.3 shipped 2026-04-19).
 
 ## Current Position
 
-Phase: **40** (Tooling & release ergonomics) — **executed** (`40-VERIFICATION.md` **passed**); plans **40-02** then **40-01** landed per dependency order.
-Plans: Phases **36–40** executed on disk (see each phase `*-VERIFICATION.md`). Phase **38** human UAT evidence remains in `v1.3-HUMAN-UAT.md` + `docs/uat-ci-coverage.md` as applicable.
-Last activity: 2026-04-19 -- Phase 40 execution (maintainer runbook + planning hygiene supersession).
+Milestone **v1.3 Cleanup & Hardening** is **shipped** and archived. Phases **36–40** are complete on disk with passing `*-VERIFICATION.md` where applicable; consolidated evidence lives under `.planning/v1.3-HUMAN-UAT.md`, `.planning/uat-evidence/v1.3.0/`, and `docs/uat-ci-coverage.md`.
 
-Progress: [██████████] 100% for **v1.3 phased roadmap (36–40)** on planning artifacts; **next focus:** milestone archive (`/gsd-complete-milestone`) when ship criteria met, or address any branch-local CI failures before merge.
+Last activity: 2026-04-19 — `/gsd-complete-milestone` archival pass (milestones + `ROADMAP.md` + `MILESTONES.md` + `PROJECT.md` + `RETROSPECTIVE.md`).
 
-### v1.3 kickoff
+Progress: [██████████] 100% **v1.3**; **next focus:** `/gsd-new-milestone` when ready to define the next shipped increment.
 
-- `REQUIREMENTS.md` — REQ-IDs VAL / CI / UAT / AUD / TOOL / REL mapped to Phases 36–40 (**VAL-01..03** checked when satisfied)
-- `ROADMAP.md` — “Next milestone” table is the live phase list until v1.3 archives
+### v1.3 closure
+
+- Archives: `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`
+- Live `.planning/REQUIREMENTS.md` removed at close (per GSD complete-milestone workflow)
+- Git tag `v1.3` records the planning + code state at ship (see `git show v1.3`)
 
 ## Performance Metrics
 
 **Velocity (v1.3):**
 
-- Total plans completed: 0
+- Total plans completed: 11 / 11
 - Average duration: —
-- Total execution time: —
+- Total execution time: 2026-04-17 → 2026-04-19 (calendar span for planning artifacts)
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 36–40 | — | — | — |
+| Phase | Plans | Notes |
+|-------|-------|-------|
+| 36–40 | 2+2+2+3+2 | See each phase directory for plan-level timing |
 
-**Recent Trend:** v1.3 not started — metrics populate as plans land.
-
-_v1.2 execution timings retained in git history / milestone archive if needed._
+**Recent Trend:** v1.3 closed as a hardening milestone (no net-new product surface).
 
 ## Accumulated Context
 
@@ -115,10 +114,11 @@ None yet.
 
 | Category | Item | Status | Notes |
 |----------|------|--------|-------|
-| — | (empty) | — | **999.x**, **SEED-001**, **SEED-002** promoted into v1.3 Phases 36–39 |
+| seed | SEED-001 residuals | open | Real mail clients / live OAuth UX / clean-machine / backup-code rotation — see `PROJECT.md` |
+| seed | SEED-002 remainder | open | Broader `log_safe/3` → `Ecto.Multi` audit conversion beyond `api.token_create` |
 
 ## Session Continuity
 
-Last session: 2026-04-18T18:30:00.000Z
-Stopped at: Phase **39** planned — run **`/gsd-execute-phase 39`**
-Resume file: `.planning/phases/39-audit-trail-completeness/39-01-PLAN.md`
+Last session: 2026-04-19 (milestone close)
+Stopped at: **v1.3 shipped** — next `/gsd-new-milestone`
+Resume file: _none — start a new milestone when requirements exist_

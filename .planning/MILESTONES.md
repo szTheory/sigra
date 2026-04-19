@@ -124,3 +124,38 @@
 - [v1.2 Milestone Audit](milestones/v1.2-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.3 Cleanup & Hardening (Shipped: 2026-04-19)
+
+**Scope:** 5 phases, 11 plans (Phases 36–40).
+
+**What shipped:** Planning and engineering hardening without new product features: retroactive Nyquist validation inventory plus explicit waivers for historical draft validation debt (**999.1**), SHA-pinned first-party GitHub Actions upgrades with Dependabot triage notes (**999.2** / CI-01–03), a defensible GA UAT posture for **SEED-001** via shift-left automation (`docs/uat-ci-coverage.md`, Playwright `ga-uat-shift-left.spec.ts`, expanded CI gates) plus consolidated human-UAT tables and evidence scaffolding, audit-testability primitives (`Sigra.Audit.Assertions`) and an atomic audited `api.token_create` path when audit schema is configured (**SEED-002** partial), and maintainer-facing release plus planning-hygiene docs (`MAINTAINING.md`, optional `hex-publish.yml`, `scripts/maintainers/planning-audit-hygiene.sh`) superseding the broken JSON `audit-open` path.
+
+### Key accomplishments
+
+1. **Phase 36 — Nyquist debt made legible** — `36-INVENTORY.md`, `36-WAIVERS.md`, `verify-phase36.sh`, and traceability updates closed VAL-01–VAL-03.
+2. **Phase 37 — Supply-chain hygiene** — `checkout` / `setup-node` / `upload-artifact` majors landed as SHA-pinned pins across primary workflows with recorded triage vs Dependabot.
+3. **Phase 38 — GA UAT gate** — `v1.3-HUMAN-UAT.md`, versioned evidence tree, and automation-first mapping so merge-blocking CI substitutes subjective “trust me” for most SEED-001 rows.
+4. **Phase 39 — Audit completeness** — Plain-function audit assertions for tests, `Ecto.Multi` + audit for API token creation, example-app smoke for login and MFA enrollment audit rows.
+5. **Phase 40 — Maintainer ergonomics** — Release checklist, optional isolated Hex publish workflow pattern, and bash-first planning hygiene without unsupported JSON audit tooling.
+
+### Stats
+
+- **Requirements:** 13/13 v1.3 REQ IDs satisfied in archived `milestones/v1.3-REQUIREMENTS.md`
+- **Milestone audit:** passed at close (see `milestones/v1.3-MILESTONE-AUDIT.md`)
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-19)
+- **Timeline:** 2026-04-17 → 2026-04-19 (planning + execution on disk)
+
+### Tech debt carried forward
+
+- **SEED-002 remainder:** convert remaining hybrid `log_safe/3` sites to audited `Ecto.Multi` flows beyond `api.token_create` when subsystems grow audit-aware tests.
+- **SEED-001 residuals:** real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code **rotation** proof — still human- or product-dependent until explicit features land (`mfa_regenerate_backup_codes`, etc.).
+- **AUD-03 boundary:** OAuth ceremony audit assertions intentionally not claimed in v1.3.
+
+**Archive:**
+
+- [v1.3 Roadmap](milestones/v1.3-ROADMAP.md)
+- [v1.3 Requirements](milestones/v1.3-REQUIREMENTS.md)
+- [v1.3 Milestone Audit](milestones/v1.3-MILESTONE-AUDIT.md)
+
+---

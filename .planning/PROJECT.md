@@ -10,27 +10,25 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current Milestone
 
-The next shipped increment after v1.2 is **not defined in `.planning/` yet**. Run `/gsd-new-milestone` to capture product intent, a fresh `.planning/REQUIREMENTS.md`, and phased roadmap work.
+The next shipped increment after v1.3 is **not defined in `.planning/` yet**. Run `/gsd-new-milestone` to capture product intent, a fresh `.planning/REQUIREMENTS.md`, and phased roadmap work.
 
 ## Current State
 
-**Shipped:** **v1.2 Admin Dashboard** (2026-04-17) — Phases 27-35 (27-31 core; 32-35 closed generated-installer integration gaps INT-01..05, added generated-host Playwright and smoke, retroactive `28-VERIFICATION.md`, and shift-left CI gates). Archives: `.planning/milestones/v1.2-ROADMAP.md`, `v1.2-REQUIREMENTS.md`, `v1.2-MILESTONE-AUDIT.md`.
+**Shipped:** **v1.3 Cleanup & Hardening** (2026-04-19) — Phases 36–40: Nyquist inventory + waivers (**999.1**), SHA-pinned first-party Actions upgrades + triage (**999.2**), GA UAT gate with shift-left CI evidence and consolidated `v1.3-HUMAN-UAT.md`, `Sigra.Audit.Assertions` plus atomic audited `api.token_create`, example login/MFA audit smoke, and maintainer release + planning hygiene (`MAINTAINING.md`, optional `hex-publish.yml`, `scripts/maintainers/planning-audit-hygiene.sh`). Archives: `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`.
 
-**Previously shipped:** v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
+**Previously shipped:** v1.2 Admin Dashboard (2026-04-17); v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
 
-Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1.1 organizations and passkeys, and v1.2 admin: default-on admin installer feature, explicit host policy for platform vs org admins, scope-safe admin routes and LiveViews, searchable user operations, time-bounded impersonation with dual-actor audit and forbidden sensitive mutations during impersonation, global/org/user audit exploration with CSV export, Playwright plus direct-path smoke and CI artifacts (including mobile and dark checkpoints), and generator emission parity so `mix sigra.install` hosts match the example application for admin surfaces.
+Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1.1 organizations and passkeys, v1.2 admin (default-on installer admin surface, impersonation, audit exploration, automation-first verification, generator parity), and v1.3 hardening that closes deferred validation, CI, UAT evidence, audit testability for a critical API path, and maintainer tooling — without expanding end-user product scope.
 
-**Verification:** v1.2 milestone audit **passed** (2026-04-17); v1.2 requirements archive **23/23** satisfied; v1.1 remains **79/79** in its archive.
+**Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
 **Known limitations carried forward (tracked, non-blocking):**
-- 8 human-only UAT items — `SEED-001` (before broader GA announcement).
-- Phase 9 audit `log_safe/3` hybrid vs full `Ecto.Multi` atomicity — `SEED-002` / C-1 caveat.
-- Backlog phases **999.1** (Nyquist retro validation) and **999.2** (Dependabot major bumps on SHA-pinned Actions).
-- **TOOL-01** — Deprecated reliance on JSON audit helpers from external planning toolchains; **supported path:** [`MAINTAINING.md`](../MAINTAINING.md) (see **Planning hygiene (without gsd-tools JSON)**) and optional [`scripts/maintainers/planning-audit-hygiene.sh`](../scripts/maintainers/planning-audit-hygiene.sh) (Phase 40).
+- Residual **SEED-001** items that still need real mail clients, live Google OAuth UX, clean-machine wall-clock, or backup-code **rotation** proof (`mfa_regenerate_backup_codes` not shipped).
+- **SEED-002** remainder — Phase 9 hybrid `log_safe/3` outside the v1.3 `api.token_create` atomic site still wants phased `Ecto.Multi` conversion as tests go audit-aware.
 
 ## Next Milestone Goals
 
-Unset until `/gsd-new-milestone`. Likely themes: GA hardening (SEED-001), audit atomicity follow-up (SEED-002), Nyquist/Dependabot backlog, or a new product slice with its own requirements.
+Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, deeper audit atomicity (SEED-002), new product slices (APIs, admin, orgs), or installer/DX work — each should start with a fresh requirements file and roadmap slice.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -127,6 +125,15 @@ Unset until `/gsd-new-milestone`. Likely themes: GA hardening (SEED-001), audit 
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
+### Validated — v1.3 Cleanup & Hardening
+
+**Planning, CI, UAT, audit, tooling:**
+- ✓ Nyquist retro inventory + waivers for historical validation debt (**999.1**) — v1.3
+- ✓ SHA-pinned first-party Actions upgrades with Dependabot triage notes (**999.2**) — v1.3
+- ✓ GA UAT gate evidence + shift-left automation map for **SEED-001** posture — v1.3
+- ✓ `Sigra.Audit.Assertions` + atomic audited `api.token_create` + example login/MFA audit smoke — v1.3
+- ✓ Maintainer release checklist + planning hygiene supersession (`MAINTAINING.md`, optional Hex publish job pattern) — v1.3
+
 ### Validated — v1.2 Admin Dashboard
 
 **Admin user management UI:**
@@ -151,10 +158,8 @@ Requirements for the next shipped increment are intentionally absent until `/gsd
 
 ### Other deferred items
 
-- [ ] SEED-001: 8 human-only UAT items before v1.0 GA public announcement
-- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion (trigger-conditioned)
-- [ ] 999.1 backlog: Nyquist retroactive validation pass
-- [ ] 999.2 backlog: Dependabot major-version bumps
+- [ ] SEED-001: residual human-only UAT items (real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code rotation) after v1.3 shift-left coverage
+- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion beyond the v1.3 `api.token_create` site (trigger-conditioned)
 
 ### Out of Scope
 
@@ -223,7 +228,7 @@ Requirements for the next shipped increment are intentionally absent until `/gsd
 | Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent. | ✓ Validated v1.0 — pattern held through registration/login/linking/unlink |
 | Argon2id default with bcrypt migration path | OWASP gold standard; memory-hard; transparent upgrade on login keeps migration invisible to users. | ✓ Validated v1.0 — `verify_with_upgrade/3` pattern works cleanly |
 | Database-backed session tokens (no JWT for browser) | Revocation requires server-side state; JWT-only for browser is an anti-pattern for session auth. | ✓ Validated v1.0 — JWT remains opt-in for stateless API paths only |
-| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ⚠️ Revisit — phase 9 shipped as hybrid (3 atomic sites + `log_safe/3` elsewhere), tracked as SEED-002 for conversion when subsystem tests go audit-aware |
+| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ⚠️ Revisit — v1.3 added atomic `api.token_create` + `Sigra.Audit.Assertions`; broader hybrid `log_safe/3` conversion remains SEED-002 |
 | D-10 installer default PK type = `binary_id` (uuid) | UUIDs are idiomatic for modern Phoenix; avoids enumeration of integer IDs; matches phx.gen.auth 1.8 convention. | ✓ Validated v1.0 (flipped in phase 10.1.1) — no integer-PK regressions downstream |
 | IN-03 SHA-pin all GitHub Actions | Supply-chain security: tag-based references allow the tag to be moved post-publish; SHA pins lock the exact code. | ✓ Validated v1.0 (phase 10.1 + 10.1.1) — Dependabot `github-actions` ecosystem handles upgrade churn |
 | D-15 no `continue-on-error` on any required CI check | Flakes must be fixed at root cause; masking them defeats the gate's purpose. | ✓ Validated v1.0 — all 5 CI jobs are strict-pass; no `continue-on-error` anywhere in `.github/workflows/ci.yml` |
@@ -233,6 +238,7 @@ Requirements for the next shipped increment are intentionally absent until `/gsd
 | WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | ✓ Shipped v1.1 — passkeys + orgs foundations |
 | v1.2 admin is default-on installer feature with library-owned enforcement | Keeps security semantics in the dep while host owns policy module + shell chrome; matches hybrid architecture. | ✓ Validated v1.2 — plugs, `Sigra.Admin.*`, generator parity phases 32-33 |
 | Shift-left gates for installer + verification docs | Prevents INT-01..04 recurrence: emission audit, drift dead-text nav guard, milestone VERIFICATION.md gate, installer-scoped milestone audit CI, artifact bundle contract. | ✓ Validated v1.2 — Phase 35 |
+| v1.3 audit assertions + partial Multi conversion | Give hosts test-grade audit helpers and prove one high-risk API path can commit business + audit rows atomically without inventing audit macros. | ✓ Validated v1.3 — Assertions module + `api.token_create` Multi; OAuth smoke out of scope |
 
 ## Evolution
 
@@ -252,6 +258,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-19 after v1.3 milestone completion — Cleanup & Hardening shipped as Phases 36-40. Planning artifacts archived to `.planning/milestones/v1.3-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define the next scope.*
+
 *Last updated: 2026-04-17 after v1.2 milestone completion — Admin Dashboard shipped as Phases 27-35. Planning artifacts archived to `.planning/milestones/v1.2-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define v1.3+ scope.*
 
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
