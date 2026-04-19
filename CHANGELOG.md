@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `Sigra.Audit.Assertions` — ordered `latest_audit_event/3` + `assert_audit_fields/3`
+  for tests; see `guides/recipes/testing.md`.
+- Atomic `api.token_create` audit via `Ecto.Multi` / `Sigra.Audit.log_multi_safe/3` in
+  `Sigra.APIToken` (telemetry from `emit_telemetry_from_changes/1` on successful
+  commit only).
+- Example app smoke tests assert login and MFA enrollment audit rows; host
+  `get_user_by_email_and_password/2` now delegates to `Sigra.Auth.authenticate/2`
+  with full `Sigra.Config` so `auth.login.*` audit runs.
 - Human GA matrix in `v1.3-HUMAN-UAT.md` closed via machine substitutes; see
   `.planning/uat-evidence/v1.3.0/INDEX.md` for CI anchors and per-item evidence.
 - **GA UAT shift-left:** `docs/uat-ci-coverage.md` maps SEED-001 items to CI and

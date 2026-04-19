@@ -13,6 +13,9 @@ defmodule Example.RegisterLoginLogoutTest do
   @moduletag :example_app
 
   alias Example.Accounts
+  alias Example.Accounts.AuditEvent
+  alias Example.Repo
+  alias Sigra.Audit.Assertions
 
   test "register_user creates a user with hashed password" do
     attrs = valid_user_attributes()
@@ -39,12 +42,25 @@ defmodule Example.RegisterLoginLogoutTest do
              Accounts.get_user_by_email_and_password(attrs.email, attrs.password)
 
     assert id == user.id
+
+    Assertions.assert_audit_fields(Repo, AuditEvent, %{
+      action: "auth.login.success",
+      target_id: user.id,
+      metadata: %{method: "password"}
+    })
   end
 
-  test "get_user_by_email_and_password returns nil for wrong password" do
+  test "get_user_by_email_and_password logs auth.login.failure for bad password" do
     attrs = valid_user_attributes()
-    {:ok, _user} = Accounts.register_user(attrs)
+    {:ok, user} = Accounts.register_user(attrs)
     assert is_nil(Accounts.get_user_by_email_and_password(attrs.email, "wrong-password"))
+
+    Assertions.assert_audit_fields(Repo, AuditEvent, %{
+      action: "auth.login.failure",
+      target_id: user.id,
+      outcome: "failure",
+      metadata: %{reason: "invalid_password"}
+    })
   end
 
   test "generate_user_session_token issues a usable token" do

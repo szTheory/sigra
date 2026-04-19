@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Cleanup & Hardening
 status: active
-stopped_at: Phase 39 discuss complete — `39-CONTEXT.md` + `39-DISCUSSION-LOG.md` on disk; next `/gsd-plan-phase 39`
-last_updated: "2026-04-18T18:30:00.000Z"
-last_activity: 2026-04-18 -- Phase 39 context captured (AUD-01–03 + SEED-002 / C-1); ready for plan-phase
+stopped_at: Phase 39 executed — `39-01`..`39-03` SUMMARY + `39-VERIFICATION.md`; library + example audit work landed; next milestone phase **40** or `/gsd-progress`
+last_updated: "2026-04-19T01:05:00.000Z"
+last_activity: 2026-04-19 -- Phase 39 execute-phase completed inline (Assertions, atomic api.token_create, example smoke + docs)
 progress:
   total_phases: 5
   completed_phases: 3
@@ -25,13 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-17)
 
 ## Current Position
 
-Phase: **39** (Audit trail completeness) — **context gathered**; implementation not started until plan/execute.
+Phase: **39** (Audit trail completeness) — **executed** (`39-VERIFICATION.md` **passed**); implementation: `Sigra.Audit.Assertions`, atomic `api.token_create`, example login/MFA audit smoke, docs trio + `docs/audit-semantics.md`.
 Plans: Phase **38** complete on disk — `38-01-SUMMARY.md`, `38-02-SUMMARY.md`, `38-VERIFICATION.md`; UAT-01/UAT-02 checked; machine closure documented in `v1.3-HUMAN-UAT.md` + `docs/uat-ci-coverage.md`.
-Phases **36–38** on disk: plan/summary pairs complete for 36–37; phase 38 verifier passed.
-Phase **39** on disk: `39-CONTEXT.md`, `39-DISCUSSION-LOG.md` (no plans yet).
-Last activity: 2026-04-18 -- Phase 39 discuss-phase bookkeeping committed.
+Phases **36–39** on disk: phase **39** adds `39-01`..`39-03` **SUMMARY** + verifier artifact.
+Last activity: 2026-04-19 -- Phase 39 execution + verification written.
 
-Progress: [██████░░░] 60% (3/5 v1.3 phases with **execution** complete for 36–38; Phase 39 has **planning context** only — use `/gsd-progress` for routing); **next focus:** `/gsd-plan-phase 39` then `/gsd-execute-phase 39`.
+Progress: [████████░░] 80% (4/5 v1.3 phases with execution complete for **36–39**); **next focus:** Phase **40** (tooling & release ergonomics) or `/gsd-progress`.
 
 ### v1.3 kickoff
 
@@ -122,5 +121,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-18T18:30:00.000Z
-Stopped at: Phase **39** context complete — run **`/gsd-plan-phase 39`** (then execute)
-Resume file: `.planning/phases/39-audit-trail-completeness/39-CONTEXT.md`
+Stopped at: Phase **39** planned — run **`/gsd-execute-phase 39`**
+Resume file: `.planning/phases/39-audit-trail-completeness/39-01-PLAN.md`

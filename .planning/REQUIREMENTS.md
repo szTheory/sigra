@@ -42,9 +42,9 @@ Traceability: each REQ maps to exactly one phase in `.planning/ROADMAP.md` (v1.3
 
 ## Audit trail completeness (SEED-002 / Phase 9 C-1)
 
-- [ ] **AUD-01**: Add an **audit-aware** test helper pattern in the library test suite (e.g. shared helper or case template) that asserts business success **and** expected audit row where tests already touch audited flows.
-- [ ] **AUD-02**: Land **one** end-to-end conversion of a non-trivial `log_safe/3` site to atomic `Ecto.Multi` **or** produce a bounded phased plan with explicit “done for v1.3” scope if full conversion exceeds this milestone — either outcome must downgrade ambiguity in `09-03-SUMMARY.md` / verification narrative.
-- [ ] **AUD-03**: Extend audit-aware tests to at least **three** additional integration sites **or** document why three is deferred (with next milestone hook).
+- [x] **AUD-01**: **Implemented** — `Sigra.Audit.Assertions` (`lib/sigra/audit/assertions.ex`) provides plain-function `latest_audit_event/3` and `assert_audit_fields/3` with explicit `repo`, plus `guides/recipes/testing.md` coverage for Sandbox / ordering.
+- [x] **AUD-02**: **Implemented (v1.3 scope)** — `Sigra.APIToken.do_create/4` uses `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` + `emit_telemetry_from_changes/1` for atomic `api.token_create` when `audit_schema` is configured; Postgres-backed proof in `test/sigra/api_token_audit_atomic_test.exs`.
+- [x] **AUD-03**: **Implemented** — example-app smoke asserts `auth.login.success` / `auth.login.failure` (`register_login_logout_test.exs`) and `mfa.enroll.success` (`mfa_totp_test.exs` via `mfa_confirm_enrollment`); **OAuth** path not claimed (no OAuth smoke assertion in this milestone).
 
 **Phase:** 39
 

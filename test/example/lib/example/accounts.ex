@@ -46,10 +46,11 @@ defmodule Example.Accounts do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password},
-           user_schema: User
-         ) do
+    # Pass full Sigra.Config so lockout + audit (`auth.login.*`) run on the
+    # same paths as HTTP authentication (repo-only overload skips audit).
+    case SigraAuth.authenticate(sigra_config(), %{"email" => email, "password" => password}) do
       {:ok, user} -> user
+      {:ok, user, _session_meta} -> user
       {:error, _} -> nil
     end
   end

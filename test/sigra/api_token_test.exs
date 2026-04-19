@@ -21,7 +21,14 @@ defmodule Sigra.APITokenTest do
 
     def changeset(struct, attrs) do
       struct
-      |> Ecto.Changeset.cast(attrs, [:user_id, :hashed_token, :prefix, :name, :scopes, :expires_at])
+      |> Ecto.Changeset.cast(attrs, [
+        :user_id,
+        :hashed_token,
+        :prefix,
+        :name,
+        :scopes,
+        :expires_at
+      ])
       |> Ecto.Changeset.validate_required([:user_id, :hashed_token, :prefix, :name, :scopes])
       |> Ecto.Changeset.validate_length(:name, max: 255)
     end
@@ -31,13 +38,36 @@ defmodule Sigra.APITokenTest do
   defmodule MockRepo do
     @behaviour Sigra.APITokenTest.RepoBehaviour
 
-    def insert(changeset) do
+    def insert(changeset, opts \\ [])
+
+    def insert(changeset, _opts) do
       if changeset.valid? do
         token = Ecto.Changeset.apply_changes(changeset)
         token = Map.put(token, :id, System.unique_integer([:positive]))
         {:ok, token}
       else
         {:error, changeset}
+      end
+    end
+
+    def transaction(%Ecto.Multi{} = multi) do
+      return = fn err -> throw({:mock_multi_abort, err}) end
+      wrap = fn fun -> fun.() end
+
+      try do
+        case Ecto.Multi.__apply__(multi, __MODULE__, wrap, return) do
+          {:ok, result} ->
+            {:ok, result}
+
+          result when is_map(result) ->
+            {:ok, result}
+
+          {:error, {name, val, acc}} ->
+            {:error, name, val, acc}
+        end
+      catch
+        :throw, {:mock_multi_abort, {name, val, acc}} ->
+          {:error, name, val, acc}
       end
     end
 
@@ -53,6 +83,7 @@ defmodule Sigra.APITokenTest do
 
     def get(_schema, id) do
       send(self(), {:repo_get, id})
+
       receive do
         {:mock_get_result, result} -> result
       after
@@ -91,7 +122,8 @@ defmodule Sigra.APITokenTest do
       repo: MockRepo,
       user_schema: MyApp.User,
       otp_app: :my_app,
-      api_token: Keyword.merge([api_token_schema: MockAPITokenSchema], Keyword.get(opts, :api_token, []))
+      api_token:
+        Keyword.merge([api_token_schema: MockAPITokenSchema], Keyword.get(opts, :api_token, []))
     ]
 
     opts_without_api_token = Keyword.delete(opts, :api_token)
@@ -107,7 +139,8 @@ defmodule Sigra.APITokenTest do
       cfg = config()
       user = mock_user()
 
-      {:ok, raw_key, token} = APIToken.create(cfg, user, %{name: "CI Key", scopes: ["profile:read"]})
+      {:ok, raw_key, token} =
+        APIToken.create(cfg, user, %{name: "CI Key", scopes: ["profile:read"]})
 
       assert String.starts_with?(raw_key, "my_app_sk_")
       assert token.name == "CI Key"
@@ -118,7 +151,8 @@ defmodule Sigra.APITokenTest do
       cfg = config(api_token: [prefix: "test_sk_", api_token_schema: MockAPITokenSchema])
       user = mock_user()
 
-      {:ok, raw_key, _token} = APIToken.create(cfg, user, %{name: "Test", scopes: ["profile:read"]})
+      {:ok, raw_key, _token} =
+        APIToken.create(cfg, user, %{name: "Test", scopes: ["profile:read"]})
 
       assert String.starts_with?(raw_key, "test_sk_")
     end
@@ -127,7 +161,8 @@ defmodule Sigra.APITokenTest do
       cfg = config()
       user = mock_user()
 
-      {:ok, raw_key, token} = APIToken.create(cfg, user, %{name: "Hash Test", scopes: ["profile:read"]})
+      {:ok, raw_key, token} =
+        APIToken.create(cfg, user, %{name: "Hash Test", scopes: ["profile:read"]})
 
       expected_hash = :crypto.hash(:sha256, raw_key)
       assert token.hashed_token == expected_hash
@@ -137,7 +172,8 @@ defmodule Sigra.APITokenTest do
       cfg = config()
       user = mock_user()
 
-      assert {:error, :scopes_required} = APIToken.create(cfg, user, %{name: "No Scopes", scopes: []})
+      assert {:error, :scopes_required} =
+               APIToken.create(cfg, user, %{name: "No Scopes", scopes: []})
     end
 
     test "validates scopes against registry, rejects unregistered" do
@@ -160,7 +196,8 @@ defmodule Sigra.APITokenTest do
       user = mock_user()
       long_name = String.duplicate("a", 256)
 
-      assert {:error, _} = APIToken.create(cfg, user, %{name: long_name, scopes: ["profile:read"]})
+      assert {:error, _} =
+               APIToken.create(cfg, user, %{name: long_name, scopes: ["profile:read"]})
     end
 
     test "with require_expiry: true rejects nil expires_at" do
@@ -177,7 +214,11 @@ defmodule Sigra.APITokenTest do
       too_far = DateTime.add(DateTime.utc_now(), 7200, :second)
 
       assert {:error, :ttl_exceeded} =
-               APIToken.create(cfg, user, %{name: "Too Long", scopes: ["profile:read"], expires_at: too_far})
+               APIToken.create(cfg, user, %{
+                 name: "Too Long",
+                 scopes: ["profile:read"],
+                 expires_at: too_far
+               })
     end
 
     test "validates prefix does not start with eyJ" do
@@ -199,10 +240,13 @@ defmodule Sigra.APITokenTest do
     test "returns {:ok, token} for valid active token" do
       cfg = config()
       user = mock_user()
-      {:ok, raw_key, _token} = APIToken.create(cfg, user, %{name: "Valid", scopes: ["profile:read"]})
+
+      {:ok, raw_key, _token} =
+        APIToken.create(cfg, user, %{name: "Valid", scopes: ["profile:read"]})
 
       # Provide the token via mock message
       hashed = :crypto.hash(:sha256, raw_key)
+
       mock_token = %{
         id: 1,
         hashed_token: hashed,
@@ -211,6 +255,7 @@ defmodule Sigra.APITokenTest do
         last_used_at: nil,
         scopes: ["profile:read"]
       }
+
       send(self(), {:mock_get_by_result, mock_token})
 
       assert {:ok, ^mock_token} = APIToken.verify(cfg, raw_key)
@@ -219,6 +264,7 @@ defmodule Sigra.APITokenTest do
     test "returns {:error, :token_revoked} for revoked token" do
       cfg = config()
       hashed = :crypto.hash(:sha256, "my_app_sk_test")
+
       mock_token = %{
         id: 1,
         hashed_token: hashed,
@@ -226,6 +272,7 @@ defmodule Sigra.APITokenTest do
         expires_at: nil,
         last_used_at: nil
       }
+
       send(self(), {:mock_get_by_result, mock_token})
 
       assert {:error, :token_revoked} = APIToken.verify(cfg, "my_app_sk_test")
@@ -234,6 +281,7 @@ defmodule Sigra.APITokenTest do
     test "returns {:error, :token_expired} for expired token" do
       cfg = config()
       hashed = :crypto.hash(:sha256, "my_app_sk_test")
+
       mock_token = %{
         id: 1,
         hashed_token: hashed,
@@ -241,6 +289,7 @@ defmodule Sigra.APITokenTest do
         expires_at: DateTime.add(DateTime.utc_now(), -3600, :second),
         last_used_at: nil
       }
+
       send(self(), {:mock_get_by_result, mock_token})
 
       assert {:error, :token_expired} = APIToken.verify(cfg, "my_app_sk_test")

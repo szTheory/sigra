@@ -16,6 +16,9 @@ defmodule Example.MfaTotpTest do
   @moduletag :example_app
 
   alias Example.Accounts
+  alias Example.Accounts.AuditEvent
+  alias Example.Repo
+  alias Sigra.Audit.Assertions
   alias Sigra.Testing
 
   test "setup_totp returns a raw secret and backup codes" do
@@ -33,6 +36,20 @@ defmodule Example.MfaTotpTest do
     assert is_binary(result.secret)
     assert is_list(result.backup_codes)
     assert length(result.backup_codes) == 8
+  end
+
+  test "mfa_confirm_enrollment writes mfa.enroll.success audit row" do
+    {:ok, user} = Accounts.register_user(valid_user_attributes())
+    {:ok, enroll} = Accounts.mfa_enroll(account: user.email)
+    code = Testing.generate_totp_code(enroll.raw_secret)
+
+    assert {:ok, _} = Accounts.mfa_confirm_enrollment(user, enroll.raw_secret, code)
+
+    Assertions.assert_audit_fields(Repo, AuditEvent, %{
+      action: "mfa.enroll.success",
+      target_id: user.id,
+      metadata: %{method: "totp"}
+    })
   end
 
   test "generate_totp_code produces a 6-digit numeric code" do

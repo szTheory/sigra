@@ -152,6 +152,44 @@ The generated `AuthFixtures` module provides seven named fixtures — one per do
       assert is_binary(token)
     end
 
+## Audit assertions and Ecto Sandbox
+
+When you assert on rows in `audit_events`, prefer `Sigra.Audit.Assertions` from the
+library (`lib/sigra/audit/assertions.ex`) so both the main Sigra test suite and
+`test/example` subprojects can share the same helpers. See that module’s
+`@moduledoc` for the full API (`latest_audit_event/3`, `assert_audit_fields/3`).
+
+- Use **`order_by` on audit queries** when multiple rows can exist — the
+  assertion helpers already apply `ORDER BY inserted_at DESC, id DESC` before
+  taking the latest row; when writing your own queries, keep an explicit
+  ordering so `Repo.all/1` results are deterministic.
+- **`async: true`** tests may need **`Ecto.Adapters.SQL.Sandbox.allow/3`** when
+  audit runs in another process (for example a `Task` or a Plug pipeline that
+  hands work to another PID). Allow the owner of the DB connection to the
+  process that performs the insert before asserting.
+- Copy-paste `DataCase` setup snippet (adjust module names; paths follow your
+  host app). The goal is a single Sandbox checkout for the test PID, then
+  explicit `allow/3` from that owner to any child process that hits the DB:
+
+      setup tags do
+        :ok = Ecto.Adapters.SQL.Sandbox.checkout(MyApp.Repo)
+
+        unless tags[:async] do
+          Ecto.Adapters.SQL.Sandbox.mode(MyApp.Repo, {:shared, self()})
+        end
+
+        {:ok, conn: Phoenix.ConnTest.build_conn()}
+      end
+
+      # In tests that spawn work (Task, LiveView, etc.):
+      parent = self()
+
+      Task.async(fn ->
+        Ecto.Adapters.SQL.Sandbox.allow(MyApp.Repo, parent, self())
+        # ... code that inserts into audit_events via MyApp.Repo ...
+      end)
+      |> Task.await()
+
 ## Audit helpers
 
     test "login is audited" do

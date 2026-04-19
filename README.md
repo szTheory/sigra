@@ -139,7 +139,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | OAuth | [flows/oauth.md](guides/flows/oauth.md) |
 | MFA | [flows/mfa.md](guides/flows/mfa.md) |
 | API / JWT | [flows/api-authentication.md](guides/flows/api-authentication.md) |
-| Audit logging | [flows/audit-logging.md](guides/flows/audit-logging.md) |
+| Audit logging | [flows/audit-logging.md](guides/flows/audit-logging.md), [audit semantics](docs/audit-semantics.md) |
 | Deployment | [recipes/deployment.md](guides/recipes/deployment.md) |
 | Testing | [recipes/testing.md](guides/recipes/testing.md) |
 | Passkeys | [recipes/passkeys.md](guides/recipes/passkeys.md) |
