@@ -46,6 +46,13 @@ export default defineConfig({
   // overrides through every spec.
   expect: {
     timeout: 15_000,
+    // Baselines under `*-snapshots/` omit Playwright’s default `{snapshotSuffix}`
+    // (`-linux`, `-darwin`). CI is Linux; local dev is often macOS — one filename
+    // per project keeps a single 5×3 PNG set instead of duplicating per OS.
+    toHaveScreenshot: {
+      snapshotPathTemplate:
+        '{testDir}/{testFilePath}-snapshots/{arg}{-projectName}{ext}',
+    },
   },
   timeout: 60_000,
   use: {

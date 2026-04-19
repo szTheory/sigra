@@ -91,7 +91,7 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: Boot example app in background
         working-directory: test/example
         env:
