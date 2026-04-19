@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/audit-semantics.md` — public note on `log` / `log_multi` / `log_safe`, C-1
+  hybrid status, and pointers to testing helpers (linked from README).
 - `Sigra.Audit.Assertions` — ordered `latest_audit_event/3` + `assert_audit_fields/3`
   for tests; see `guides/recipes/testing.md`.
 - Atomic `api.token_create` audit via `Ecto.Multi` / `Sigra.Audit.log_multi_safe/3` in

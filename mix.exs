@@ -126,7 +126,7 @@ defmodule Sigra.MixProject do
         "GitHub" => @source_url,
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
       },
-      files: ~w(lib priv .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
+      files: ~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
   end
 
@@ -153,6 +153,7 @@ defmodule Sigra.MixProject do
         "guides/flows/api-authentication.md",
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",
+        "docs/audit-semantics.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
@@ -163,7 +164,8 @@ defmodule Sigra.MixProject do
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
         Flows: ~r{guides/flows/.?},
-        Recipes: ~r{guides/recipes/.?}
+        Recipes: ~r{guides/recipes/.?},
+        Docs: ~r{^docs/}
       ],
       groups_for_modules: [
         Core: [Sigra, Sigra.Auth, Sigra.Config, Sigra.Crypto],
