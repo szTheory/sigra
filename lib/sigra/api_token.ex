@@ -13,10 +13,15 @@ defmodule Sigra.APIToken do
      stores the SHA-256 hash. The raw token is returned once and never stored.
 
   2. **Verify** -- `verify/2` hashes the submitted token and looks up the hash.
-     Revoked and expired tokens are rejected.
+     Revoked and expired tokens are rejected. Successful verification does not
+     write a durable audit row (D-27); `maybe_update_last_used/2` bumps
+     `last_used_at` asynchronously via `Task.start/1` so the hot path stays
+     low-latency while telemetry covers observability.
 
   3. **Revoke** -- `revoke/2` soft-deletes a token by setting `revoked_at`.
-     `revoke_all/2` revokes all active tokens for a user.
+     `revoke_all/2` revokes all active tokens for a user. With `:audit_schema`
+     configured, both operations append `api.token_revoke` /
+     `api.token_revoke_all` on the same `Ecto.Multi` as the DB write (AUD-07).
 
   ## Scope System
 
@@ -260,7 +265,8 @@ defmodule Sigra.APIToken do
 
   """
   @doc since: "0.7.0"
-  @spec revoke(Sigra.Config.t(), term()) :: {:ok, map()} | {:error, :not_found}
+  @spec revoke(Sigra.Config.t(), term()) ::
+          {:ok, map()} | {:error, :not_found} | {:error, Ecto.Changeset.t()}
   def revoke(config, token_id) do
     schema = Keyword.fetch!(config.api_token, :api_token_schema)
 
@@ -269,30 +275,43 @@ defmodule Sigra.APIToken do
         {:error, :not_found}
 
       token ->
-        changeset = Ecto.Changeset.change(token, revoked_at: DateTime.utc_now())
+        user_id = Map.get(token, :user_id)
+        scope = Sigra.Scope.from_config(config, %{id: user_id})
 
-        case config.repo.update(changeset) do
-          {:ok, updated} ->
+        merged_scope_fields =
+          Keyword.merge(api_token_scope_fields(scope), actor_id: user_id, target_id: user_id)
+
+        audit_opts =
+          api_token_audit_opts(config)
+          |> Keyword.merge(merged_scope_fields)
+          |> Keyword.merge(metadata: %{token_id: to_string(token_id)})
+
+        changeset =
+          Ecto.Changeset.change(token,
+            revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          )
+
+        multi =
+          Multi.new()
+          |> Multi.update(:token, changeset)
+          |> Audit.log_multi_safe("api.token_revoke", audit_opts)
+
+        case config.repo.transaction(multi) do
+          {:ok, %{token: updated} = changes} ->
+            Audit.emit_telemetry_from_changes(changes)
+
             Telemetry.event([:sigra, :api_token, :revoke, :stop], %{}, %{
               token_id: token_id
             })
 
-            # D-26: api.token_revoke audit row
-            Sigra.Audit.log_safe(
-              "api.token_revoke",
-              Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
-              api_token_audit_opts(config) ++
-                [
-                  actor_id: Map.get(token, :user_id),
-                  target_id: Map.get(token, :user_id),
-                  metadata: %{token_id: to_string(token_id)}
-                ]
-            )
-
             {:ok, updated}
 
-          error ->
-            error
+          {:error, :token, %Ecto.Changeset{} = cs, _} ->
+            {:error, cs}
+
+          {:error, failed, reason, _} ->
+            raise "unexpected Ecto.Multi failure from Sigra.APIToken.revoke/2: " <>
+                    "#{inspect(failed)} => #{inspect(reason)}"
         end
     end
   end
@@ -355,7 +374,7 @@ defmodule Sigra.APIToken do
     import Ecto.Query
 
     schema = Keyword.fetch!(config.api_token, :api_token_schema)
-    now = DateTime.utc_now()
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     query =
       from(t in schema,
@@ -363,13 +382,54 @@ defmodule Sigra.APIToken do
         update: [set: [revoked_at: ^now]]
       )
 
-    {count, _} = config.repo.update_all(query, [])
+    audit_schema = Keyword.get(api_token_audit_opts(config), :audit_schema)
 
-    Telemetry.event([:sigra, :api_token, :revoke_all, :stop], %{count: count}, %{
-      user_id: user.id
-    })
+    if audit_schema do
+      scope = Sigra.Scope.from_config(config, user)
 
-    {:ok, count}
+      merged_scope_fields =
+        Keyword.merge(api_token_scope_fields(scope), actor_id: user.id, target_id: user.id)
+
+      audit_opts =
+        api_token_audit_opts(config)
+        |> Keyword.merge(merged_scope_fields)
+        |> Keyword.merge(
+          metadata_resolver: fn changes ->
+            %{count: changes.revoke_bulk}
+          end
+        )
+
+      multi =
+        Multi.new()
+        |> Multi.run(:revoke_bulk, fn repo, _ ->
+          {count, _} = repo.update_all(query, [])
+          {:ok, count}
+        end)
+        |> Audit.log_multi_safe("api.token_revoke_all", audit_opts)
+
+      case config.repo.transaction(multi) do
+        {:ok, %{revoke_bulk: count} = changes} ->
+          Audit.emit_telemetry_from_changes(changes)
+
+          Telemetry.event([:sigra, :api_token, :revoke_all, :stop], %{count: count}, %{
+            user_id: user.id
+          })
+
+          {:ok, count}
+
+        {:error, failed, reason, _} ->
+          raise "unexpected Ecto.Multi failure from Sigra.APIToken.revoke_all/2: " <>
+                  "#{inspect(failed)} => #{inspect(reason)}"
+      end
+    else
+      {count, _} = config.repo.update_all(query, [])
+
+      Telemetry.event([:sigra, :api_token, :revoke_all, :stop], %{count: count}, %{
+        user_id: user.id
+      })
+
+      {:ok, count}
+    end
   end
 
   @doc """
