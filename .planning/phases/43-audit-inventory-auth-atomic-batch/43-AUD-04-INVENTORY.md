@@ -66,3 +66,5 @@ $ rg -n "Audit\.log_safe|Sigra\.Audit\.log_safe" lib/sigra/auth.ex
 ```
 
 Forward pointers: **Phase 44–45** own remaining `lib/sigra/*` `log_safe` sites (MFA, Account, OAuth, etc.) per ROADMAP — this inventory is **Auth + session helpers colocated in `auth.ex` only**.
+
+MFA, `Sigra.Account`, and `Sigra.APIToken` audit rows continue in **`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`** starting at **AUD-04-020** (same **AUD-04** program; REQ batches **AUD-06** / **AUD-07**).
