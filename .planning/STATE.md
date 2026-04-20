@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: unless promoted)
-status: **Ready to discuss or plan Phase 43**
-stopped_at: Phase 43 context gathered
-last_updated: "2026-04-20T16:39:24.108Z"
-last_activity: 2026-04-20 — Phase 42 verified; v1.4 GA UAT matrix and evidence scaffolds landed
+milestone_name: GA readiness & audit trail completeness
+status: planning
+stopped_at: Phase 43 complete — next Phase 44 (MFA + Account/API atomic batches)
+last_updated: "2026-04-20T18:15:00.000Z"
+last_activity: 2026-04-20 — Phase 43 complete (plans 43-01–43-04)
 progress:
   total_phases: 36
-  completed_phases: 32
-  total_plans: 126
-  completed_plans: 126
-  percent: 100
+  completed_phases: 33
+  total_plans: 130
+  completed_plans: 130
+  percent: 92
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md` (updated 2026-04-20)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase **43** — Audit inventory + Auth atomic batch (next)
+**Current focus:** Phase 44 — MFA + Account/API atomic batches (per ROADMAP)
 
 ## Current Position
 
-Phase: **43**
+Phase: **43** — COMPLETE
 
-Plan: —
+Plan: **44** (next milestone phase; plans TBD from phase folder)
 
-Status: **Ready to discuss or plan Phase 43**
+Status: Phase 43 shipped — AUD-04 inventory + AUD-05 Auth B1–B3 (`register`, magic-link / reset request+verify, password `login.success` with lockout reset) use `Ecto.Multi` + `log_multi_safe` when `:audit_schema` is set.
 
-Last activity: 2026-04-20 — Phase 42 verified; v1.4 GA UAT matrix and evidence scaffolds landed
+Last activity: 2026-04-20 — Phase 43 complete (plans 43-01–43-04)
 
-Progress: [████░░░░░░] **v1.4** (2 / 5 milestone phases closed: **41–42**)
+Progress: [█████░░░░░] **v1.4** (3 / 5 milestone phases closed: **41–43**)
 
 ## Performance Metrics
 
@@ -56,12 +56,12 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: 2026-04-20
 
-Stopped at: Phase 43 context gathered
+Stopped at: Phase 43 complete; begin Phase 44 planning or execution.
 
-Resume file: --resume-file
+Resume file: _none_
 
-**Next phase:** 43 (Audit inventory + Auth atomic batch)
+**Next phase:** 44 (MFA + Account/API atomic batches)
 
-**Planned Phase:** 43 (audit-inventory-auth-atomic-batch) — 4 plans — 2026-04-20T16:39:24.101Z
+**Planned Phase:** 44 — see [.planning/ROADMAP.md](ROADMAP.md) row **44**.
