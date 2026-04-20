@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: unless promoted)
-status: **Ready to discuss or plan Phase 42**
-stopped_at: Phase 42 context gathered
-last_updated: "2026-04-20T15:43:03.434Z"
-last_activity: 2026-04-20 — Phase 41 verified; GA-01 rotation shipped in library + example + templates
+status: ready_to_plan
+stopped_at: Phase 42 complete — v1.4 GA matrix + evidence tree shipped
+last_updated: "2026-04-20T16:00:00.000Z"
+last_activity: 2026-04-20 — Phase 42 executed (matrix, uat-evidence v1.4, coverage + changelog pointers)
 progress:
   total_phases: 35
-  completed_phases: 31
-  total_plans: 122
-  completed_plans: 123
-  percent: 100
+  completed_phases: 33
+  total_plans: 125
+  completed_plans: 126
+  percent: 91
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md` (updated 2026-04-20)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase **42** — Human GA matrix & evidence (next)
+**Current focus:** Phase **43** — Audit inventory + Auth atomic batch (next)
 
 ## Current Position
 
-Phase: **42** (not started)
+Phase: **43**
 
 Plan: —
 
-Status: **Ready to discuss or plan Phase 42**
+Status: **Ready to discuss or plan Phase 43**
 
-Last activity: 2026-04-20 — Phase 41 verified; GA-01 rotation shipped in library + example + templates
+Last activity: 2026-04-20 — Phase 42 verified; v1.4 GA UAT matrix and evidence scaffolds landed
 
-Progress: [███░░░░░░░] ~9% **v1.4** (1 / 5 milestone phases started and closed: 41)
+Progress: [████░░░░░░] **v1.4** (2 / 5 milestone phases closed: **41–42**)
 
 ## Performance Metrics
 
@@ -56,12 +56,12 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: Phase 42 execution
 
-Stopped at: Phase 42 context gathered
+Stopped at: Phase 42 complete
 
-Resume file: --resume-file
+Resume file: —
 
-**Next phase:** 42 (Human GA matrix & evidence)
+**Next phase:** 43 (Audit inventory + Auth atomic batch)
 
-**Planned Phase:** 42 (Human GA matrix & evidence) — 3 plans — 2026-04-20T15:43:03.428Z
+**Planned Phase:** —
