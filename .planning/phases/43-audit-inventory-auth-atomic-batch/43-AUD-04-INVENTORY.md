@@ -8,16 +8,16 @@
 
 | ID | Boundary | action | mechanism | tier | AUD-05 tag | notes |
 |----|------------|--------|-----------|------|------------|-------|
-| AUD-04-001 | `register/3` success | `auth.register.success` | `log_safe` (post-`repo.transact`) | 6 | **B1** | Target: compose into `register_user_multi` + `log_multi_safe` / `__log_internal__` (Phase 43 plan 02). |
+| AUD-04-001 | `register/3` success | `auth.register.success` | **Multi (`log_multi_safe`)** when `:audit_schema` set | 6 | **B1 — done** | Composed on `register_user_multi/2` (Phase 43 plan 02). |
 | AUD-04-002 | `register/3` failure | `auth.register.failure` | `log_safe` | 6 | **B1** | Enumeration-safe failure paths; optional Multi move only where changeset context exists without regressing `{:error, :email_taken}`. |
 | AUD-04-003 | `authenticate_with_config/2` | `security.lockout` | `log_safe` | 4 | **B3** | Pre-password lockout check (`Lockout.check/2` path). |
-| AUD-04-004 | `authenticate_with_config/2` | `auth.login.success` | `log_safe` | 3 | **B3** | Password OK, before `handle_valid_login_with_security` / session mint. |
-| AUD-04-005 | `authenticate_with_config/2` | `auth.login.success` | `log_safe` | 1 | **B3** | Same as AUD-04-004 with `metadata.hash_upgraded: true` (credential mutation narrative per D-43-02). |
+| AUD-04-004 | `authenticate_with_config/2` | `auth.login.success` | **Multi (`log_multi_safe`)** when `:audit_schema` + confirmed; else `log_safe` (unconfirmed pre-check path) | 3 | **B3 — done** | Same Repo transaction as `Lockout.reset!/2` + optional hash upgrade (Plan 04). |
+| AUD-04-005 | `authenticate_with_config/2` | `auth.login.success` | **Multi (`log_multi_safe`)** when `:audit_schema` + confirmed; else `log_safe` | 1 | **B3 — done** | Same as AUD-04-004 with `metadata.hash_upgraded: true`. |
 | AUD-04-006 | `authenticate_with_config/2` | `auth.login.failure` | `log_safe` | 9 | **B3** | Known user, wrong password — **intentional hybrid** until AUD-08 (D-43-02 tier 9). |
 | AUD-04-007 | `authenticate_with_config/2` | `auth.login.failure` | `log_safe` | 9 | **B3** | Unknown email — **intentional hybrid** (tier 9). |
-| AUD-04-008 | `request_magic_link/3` | `auth.magic_link_request` | `log_safe` (after `insert!`) | 5 | **B2** | Token insert + audit not single transaction (plan 03). |
-| AUD-04-009 | `verify_magic_link/3` | `auth.magic_link_verify.success` | `log_safe` | 5 | **B2** | Token delete + user update + audit (plan 03). |
-| AUD-04-010 | `request_password_reset/4` | `auth.password_reset_request` | `log_safe` (after `insert!`) | 7 | **B2** | Token issuance (plan 03). |
+| AUD-04-008 | `request_magic_link/3` | `auth.magic_link_request` | **Multi (`log_multi_safe`)** when `:audit_schema` | 5 | **B2 — done** | Token insert + audit in one `repo.transact/1` (plan 03). |
+| AUD-04-009 | `verify_magic_link/3` | `auth.magic_link_verify.success` | **Multi (`log_multi_safe`)** when `:audit_schema` | 5 | **B2 — done** | Token delete + confirm + audit (plan 03). |
+| AUD-04-010 | `request_password_reset/4` | `auth.password_reset_request` | **Multi (`log_multi_safe`)** when `:audit_schema` | 7 | **B2 — done** | Token insert + audit (plan 03). |
 | AUD-04-011 | `reset_password/4` | `auth.password_reset_complete` | **Multi (`__log_internal__`)** | — | **— (done)** | Template for B2 conversions (`reset_password/4`). |
 | AUD-04-012 | `confirm_user/3` | `auth.confirmation_verify.success` | **Multi (`__log_internal__`)** | — | **— (done)** | `metadata.method: "link"`. |
 | AUD-04-013 | `verify_confirmation_code/3` | `auth.confirmation_verify.success` | **Multi (`__log_internal__`)** | — | **— (done)** | `metadata.method: "code"`. |
@@ -27,6 +27,16 @@
 | AUD-04-017 | `confirm_sudo/3` | `session.sudo_enter` / `session.sudo_expire` | `log_safe` | 8 | **defer-45** | Dynamic `action` from store result; SessionStore-backed. |
 | AUD-04-018 | `handle_failed_login_with_lockout/5` | `security.invalid_credentials` | `log_safe` | 9 | **B3 hybrid** | Per-attempt counter metadata; **tier 9 intentional hybrid** (D-43-02). |
 | AUD-04-019 | `handle_failed_login_with_lockout/5` | `security.lockout` | `log_safe` | 4 | **B3** | Emitted when threshold reached (after `Lockout.increment!/3`). |
+
+## Scope cut (Plan 04)
+
+**Converted in code (B3 / Plan 04):** `auth.login.success` on the **confirmed** `authenticate_with_config/2` path is **`Ecto.Multi` + `Audit.log_multi_safe/3`** together with **`Lockout.reset!/2`** and optional **password hash upgrade** `repo.update/2`, then `emit_telemetry_from_changes/1`. **Unconfirmed** users (`require_confirmation` + `confirmed_at` nil) still use standalone **`Audit.log_safe/3`** before `handle_valid_login_with_security/6` returns `{:error, :unconfirmed}` — preserving the pre-existing ordering where a success audit could emit even when login is ultimately rejected.
+
+**Explicit hybrid / defer (not converted in Plan 04):**
+
+- **`session.create`** and the rest of the **session helper cluster** (`session.delete`, `session.revoke_all`, `session.sudo_*`) — **SessionStore is not guaranteed to be plain Ecto** per `43-RESEARCH.md`; remain **`log_safe`** with **defer-45** or **B3 hybrid** as already marked in the table.
+- **`auth.login.failure`**, **`security.invalid_credentials`** — **tier 9 intentional hybrid** (EX-43-01); no `Lockout.increment!` promotion in this phase.
+- **`security.lockout`** rows (pre-auth + threshold) — remain **`log_safe`**; threshold path shares fate with `increment!` but email side-effects and telemetry stay outside a single DB transaction by design.
 
 ## Exclusions appendix
 
@@ -38,32 +48,21 @@
 
 ```text
 $ rg -n "Audit\.log_safe|Sigra\.Audit\.log_safe" lib/sigra/auth.ex
-148:      # D-26: audit integration. Uses Sigra.Audit.log_safe/2 (standalone, D-28)
-161:          Audit.log_safe(
-177:            Audit.log_safe(
-190:            Audit.log_safe(
-248:  #   register success    -> Sigra.Audit.log_safe("auth.register.success", nil, ...)
-250:  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", nil, ...)
-251:  #   login success       -> Sigra.Audit.log_safe("auth.login.success", nil, ...)
-253:  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", nil, ...)
-255:  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", nil, ...)
-257:  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", nil, ...)
-259:  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", nil, ...)
-375:        Audit.log_safe(
-398:            Audit.log_safe(
-422:            Audit.log_safe(
-448:              Audit.log_safe(
-466:              Audit.log_safe(
-541:        Audit.log_safe(
-602:            # Standalone write (Sigra.Audit.log_safe) because the delete +
-608:            Audit.log_safe(
-962:        Audit.log_safe(
-1170:    Sigra.Audit.log_safe(
-1274:    Sigra.Audit.log_safe(
-1337:    Sigra.Audit.log_safe(
-1415:    Sigra.Audit.log_safe(
-1695:    Sigra.Audit.log_safe(
-1716:      Sigra.Audit.log_safe(
+167:            Audit.log_safe(
+180:            Audit.log_safe(
+260:  #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", nil, ...)
+261:  #   login success       -> Sigra.Audit.log_safe("auth.login.success", nil, ...)
+263:  #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", nil, ...)
+421:        Audit.log_safe(
+502:        Audit.log_safe(
+553:              Audit.log_safe(
+571:              Audit.log_safe(
+1332:    Sigra.Audit.log_safe(
+1436:    Sigra.Audit.log_safe(
+1499:    Sigra.Audit.log_safe(
+1577:    Sigra.Audit.log_safe(
+1872:    Sigra.Audit.log_safe(
+1893:      Sigra.Audit.log_safe(
 ```
 
 Forward pointers: **Phase 44–45** own remaining `lib/sigra/*` `log_safe` sites (MFA, Account, OAuth, etc.) per ROADMAP — this inventory is **Auth + session helpers colocated in `auth.ex` only**.
