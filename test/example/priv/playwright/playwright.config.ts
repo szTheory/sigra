@@ -25,6 +25,10 @@ const ADMIN_BEHAVIOR_SPECS =
   /(admin-user-operations|admin-audit|impersonation)\.spec\.ts/;
 const ADMIN_CHECKPOINTS_SPEC = /admin-checkpoints\.spec\.ts/;
 const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
+// Virtual WebAuthn authenticator uses Chrome DevTools Protocol — Chromium only
+// (Playwright mobile preset is WebKit).
+const WEBAUTHN_CDP_SPECS =
+  /passkeys-hooks\.spec\.ts|passkey-options\.spec\.ts|passkey-login\.spec\.ts/;
 
 // GitHub Pages publish job sets SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1 so reviewer
 // videos are retained on green runs (default CI keeps video on failure only).
@@ -87,6 +91,7 @@ export default defineConfig({
         ADMIN_BEHAVIOR_SPECS,
         ADMIN_CHECKPOINTS_SPEC,
         ADMIN_GENERATED_SPEC,
+        WEBAUTHN_CDP_SPECS,
       ],
       use: { ...devices['iPhone 13'] },
     },
