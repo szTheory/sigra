@@ -10,7 +10,7 @@ This document maps the eight **SEED-001** human GA items to **merge-blocking CI*
 | **4** | Google OAuth E2E | **`Sigra.OAuthTest`** (+ related) — `MockStrategy` round-trip: authorize URL, HMAC state, `handle_callback/4` without HTTP | Google consent UX, token refresh against live Google |
 | **5** | Provider linking / last-method unlink | **`Sigra.OAuth.OAuthSettingsTemplateContractTest`** — template strings for D-03 last-provider + “Set a password first” | Live tooltip timing, exact disabled-button styling in host CSS |
 | **6** | Email-match confirmation / invitation lock | **`ga-uat-shift-left.spec.ts`** — invitation signup path: tamper locked email → server-side `email_mismatch` form error | Other email-match surfaces (non-invitation) if added later |
-| **7** | Backup code regenerate wiring | **`ga-uat-shift-left.spec.ts`** — regenerate confirmation panel reachable after MFA enroll; **submit/rotate** still blocked on `Auth.mfa_regenerate_backup_codes/2` (`MFASettingsLive` TODO) | Proof that **old** codes invalidate after real regeneration |
+| **7** | Backup code regenerate wiring | **`example_unit_smoke`** (`ci.yml`) runs `mix test --include example_app`, including **`test/example/test/example_web/smoke/backup_code_rotation_test.exs`** — proves old backup plaintext fails after `Accounts.mfa_regenerate_backup_codes/3` with a valid TOTP. **`ga-uat-shift-left.spec.ts`** (same workflow’s Playwright job) covers MFA settings UX shell only. | Live browser timing, copy tweaks |
 | **8** | Clean-machine getting started | **`scripts/ci/getting-started-contract.sh`** — internal doc links + required command strings | Wall-clock “&lt; 30 min” for unfamiliar human; prose friction |
 
 ## Where to run this
@@ -20,5 +20,5 @@ This document maps the eight **SEED-001** human GA items to **merge-blocking CI*
 
 ## Policy
 
-- **Merge-blocking:** Rows SEED-1–2, 3, 4, 5, 6, 7 (UI shell), and 8 (doc contract) are considered **machine-closed** for GA posture when the jobs above are green.
+- **Merge-blocking:** Rows SEED-1–2, 3, 4, 5, 6, 7 (example smoke + Playwright UX), and 8 (doc contract) are considered **machine-closed** for GA posture when the jobs above are green.
 - **Residual:** Real mail clients and live Google OAuth remain **optional** pre-announcement spot checks; track separately (e.g. quarterly) if desired.

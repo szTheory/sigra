@@ -509,9 +509,158 @@ defmodule Sigra.MFA do
   end
 
   @doc """
-  Record an mfa.backup_codes_regenerate audit row. Exposed so callers
-  that regenerate backup codes (currently MFA.BackupCodes) can emit
-  consistent audit rows.
+  Regenerates backup codes after verifying a TOTP code (`{:totp, code}`).
+
+  Backup codes **cannot** authorize rotation — only a valid TOTP proof is
+  accepted.
+
+  Replacement runs in a single `Repo.transaction/1` (`delete_all` + `insert_all`
+  + optional audit). When `:audit_schema` is configured, an
+  `mfa.backup_codes_regenerate` row is written via `Sigra.Audit.log_multi_safe/3`
+  on the same `Ecto.Multi` as the replace (atomic with persistence).
+
+  On success, lockout counters are cleared and `last_verified_step` /
+  `last_used_at` are updated like `verify/4`, but this path intentionally
+  **does not** emit `mfa.verify.success` — rotation is covered by
+  `mfa.backup_codes_regenerate` when audit is enabled.
+
+  ## Options
+
+  - `:mfa_credential_schema` (required)
+  - `:backup_code_schema` (required)
+
+  ## Returns
+
+  Same error shapes as `verify/4` for `:not_enrolled`, `:lockout`, and
+  `:invalid_code` (with remaining attempts).
+  """
+  @doc since: "0.6.0"
+  @spec regenerate_backup_codes(Sigra.Config.t(), struct(), {:totp, String.t()}, keyword()) ::
+          {:ok, %{backup_codes: [String.t()]}}
+          | {:error, :invalid_code, non_neg_integer()}
+          | {:error, :lockout, non_neg_integer()}
+          | {:error, :not_enrolled}
+  def regenerate_backup_codes(%Sigra.Config{} = config, user, {:totp, code}, opts)
+      when is_binary(code) do
+    Sigra.Telemetry.span([:sigra, :mfa, :backup_codes, :regenerate], %{user_id: user.id}, fn ->
+      repo = config.repo
+      mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
+      backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
+      backup_count = Keyword.get(config.mfa, :backup_code_count, 8)
+
+      case repo.get_by(mfa_credential_schema, user_id: user.id) do
+        nil ->
+          {:error, :not_enrolled}
+
+        db_credential ->
+          credential = Credential.from_schema(db_credential)
+
+          case Lockout.check(credential, config) do
+            {:error, :lockout, remaining} ->
+              {:error, :lockout, remaining}
+
+            :ok ->
+              drift_steps = Keyword.get(config.mfa, :totp_drift_steps, 1)
+              last_step = credential.last_verified_step || 0
+
+              case verify_totp(credential.encrypted_secret, code, last_step, drift_steps) do
+                {:ok, step} ->
+                  now = DateTime.utc_now()
+
+                  {multi, formatted_codes} =
+                    BackupCodes.append_replace_steps(
+                      Ecto.Multi.new(),
+                      backup_code_schema,
+                      user.id,
+                      backup_count,
+                      now
+                    )
+
+                  import Ecto.Query
+
+                  multi =
+                    multi
+                    |> Ecto.Multi.run(:sync_credential, fn repo, _changes ->
+                      {_, _} =
+                        from(c in mfa_credential_schema, where: c.id == ^credential.id)
+                        |> repo.update_all(
+                          set: [
+                            failed_attempts: 0,
+                            locked_until: nil,
+                            last_verified_step: step,
+                            last_used_at: now
+                          ]
+                        )
+
+                      {:ok, :updated}
+                    end)
+                    |> Sigra.Audit.log_multi_safe(
+                      "mfa.backup_codes_regenerate",
+                      Keyword.merge(
+                        mfa_audit_opts(config),
+                        actor_id: user.id,
+                        target_id: user.id,
+                        metadata: %{count: backup_count}
+                      )
+                    )
+
+                  case repo.transaction(multi) do
+                    {:ok, changes} ->
+                      Sigra.Audit.emit_telemetry_from_changes(changes)
+                      {:ok, %{backup_codes: formatted_codes}}
+
+                    {:error, failed, reason, _changes} ->
+                      raise "Sigra.MFA.regenerate_backup_codes/4 unexpected transaction failure " <>
+                              "at #{inspect(failed)}: #{inspect(reason)}"
+                  end
+
+                {:error, _reason} ->
+                  {:ok, %{failed_attempts: count, locked: locked}} =
+                    Lockout.increment(repo, mfa_credential_schema, credential.id, config)
+
+                  threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
+
+                  Sigra.Audit.log_safe(
+                    "mfa.verify.failure",
+                    Sigra.Scope.from_config(config, user),
+                    Keyword.merge(mfa_audit_opts(config),
+                      actor_id: user.id,
+                      outcome: "failure",
+                      metadata: %{method: "totp", attempts: count}
+                    )
+                  )
+
+                  if locked do
+                    duration = Keyword.get(config.mfa, :lockout_duration, 900)
+                    Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
+
+                    Sigra.Audit.log_safe(
+                      "mfa.lockout",
+                      Sigra.Scope.from_config(config, user),
+                      Keyword.merge(mfa_audit_opts(config),
+                        actor_id: user.id,
+                        outcome: "failure",
+                        metadata: %{method: "totp", duration: duration}
+                      )
+                    )
+
+                    {:error, :lockout, duration}
+                  else
+                    {:error, :invalid_code, max(threshold - count, 0)}
+                  end
+              end
+          end
+      end
+    end)
+  end
+
+  @doc """
+  Record an `mfa.backup_codes_regenerate` audit row via `log_safe/2`.
+
+  This is **not** the authoritative audit path when audit is enabled for
+  library-driven rotation — use `regenerate_backup_codes/4`, which appends
+  the same action to the rotation `Ecto.Multi`. This function remains for
+  ad-hoc or legacy call sites.
   """
   @spec audit_backup_codes_regenerate(Sigra.Config.t(), struct(), non_neg_integer()) :: :ok
   def audit_backup_codes_regenerate(%Sigra.Config{} = config, user, count) do

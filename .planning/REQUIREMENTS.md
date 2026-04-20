@@ -9,7 +9,7 @@ This milestone intentionally **promotes** planted seeds **SEED-001** (residual h
 
 ## GA residuals (SEED-001)
 
-- [ ] **GA-01**: User with MFA can **rotate backup codes** end-to-end (invalidate old hashes, issue new set, audit events as applicable) — library + generated/example surfaces wired; no stale TODO-only path; automated regression covers happy path + at least one failure class.
+- [x] **GA-01**: User with MFA can **rotate backup codes** end-to-end (invalidate old hashes, issue new set, audit events as applicable) — library + generated/example surfaces wired; no stale TODO-only path; automated regression covers happy path + at least one failure class. *(Validated in Phase 41.)*
 - [ ] **GA-02**: **Email visual QA** — lockout + suspicious-login templates (Phase 04 family) and account-lifecycle templates (Phase 08 family) reviewed in **Gmail, Outlook, and Apple Mail** (or documented waiver with compensation — e.g. Litmus snapshot, screenshot bundle, or explicit “deferred with owner” row) with pass/fail recorded in the v1.4 GA artifact.
 - [ ] **GA-03**: **Live Google OAuth** — register + login + provider linking / email-match confirmation exercised with **real** Google developer credentials; outcomes and any UX defects logged in the v1.4 GA artifact (link to CI mock coverage where it substitutes intent).
 - [ ] **GA-04**: **Clean-machine getting-started** — a reviewer **not** on the core team follows `guides/introduction/getting-started.md` on a fresh Phoenix app within the agreed time budget (target ≤30 minutes wall-clock); friction notes captured in the v1.4 GA artifact.
@@ -52,7 +52,7 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GA-01 | 41 | Pending |
+| GA-01 | 41 | Complete (2026-04-20) |
 | GA-02 | 42 | Pending |
 | GA-03 | 42 | Pending |
 | GA-04 | 42 | Pending |
