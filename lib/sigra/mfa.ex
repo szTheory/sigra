@@ -473,6 +473,12 @@ defmodule Sigra.MFA do
 
   - `:mfa_credential_schema` - The generated MFA credential Ecto schema module
   - `:backup_code_schema` - The generated backup code Ecto schema module
+
+  When `:audit_schema` is set, a failed cleanup transaction returns
+  `{:error, :mfa_audit_failed}` (audit insert changeset) or
+  `{:error, :mfa_disable_failed}` (other `Ecto.Multi` steps). Database constraint
+  violations on the audit row may still raise `Ecto.ConstraintError` (same as
+  other audited MFA transactions) after the repo rolls back.
   """
   @doc since: "0.6.0"
   @spec disable(Sigra.Config.t(), struct(), String.t(), keyword()) ::
@@ -492,16 +498,20 @@ defmodule Sigra.MFA do
 
       case verified do
         :ok ->
-          cleanup_mfa(
-            repo,
-            config.user_schema,
-            mfa_credential_schema,
-            backup_code_schema,
-            user.id,
-            {:mfa_disable, config, user, false}
-          )
+          case cleanup_mfa(
+                 repo,
+                 config.user_schema,
+                 mfa_credential_schema,
+                 backup_code_schema,
+                 user.id,
+                 {:mfa_disable, config, user, false}
+               ) do
+            :ok ->
+              {:ok, :disabled}
 
-          {:ok, :disabled}
+            {:error, failed, reason} ->
+              {:error, cleanup_disable_transaction_error(failed, reason)}
+          end
 
         error ->
           error
@@ -513,6 +523,10 @@ defmodule Sigra.MFA do
   Force-disables MFA for a user without code verification (admin action).
 
   Same cleanup as `disable/4` but skips code verification (D-65).
+
+  Raises `RuntimeError` when the cleanup `Ecto.Multi` returns an error tuple
+  (after rollback). Database constraint violations on the audit insert may
+  instead raise `Ecto.ConstraintError`, matching other audited MFA paths.
 
   ## Options
 
@@ -527,16 +541,22 @@ defmodule Sigra.MFA do
       mfa_credential_schema = Keyword.fetch!(opts, :mfa_credential_schema)
       backup_code_schema = Keyword.fetch!(opts, :backup_code_schema)
 
-      cleanup_mfa(
-        repo,
-        config.user_schema,
-        mfa_credential_schema,
-        backup_code_schema,
-        user.id,
-        {:mfa_disable, config, user, true}
-      )
+      case cleanup_mfa(
+             repo,
+             config.user_schema,
+             mfa_credential_schema,
+             backup_code_schema,
+             user.id,
+             {:mfa_disable, config, user, true}
+           ) do
+        :ok ->
+          {:ok, :disabled}
 
-      {:ok, :disabled}
+        {:error, failed, reason} ->
+          raise RuntimeError,
+                "Sigra.MFA.disable!/4 cleanup transaction failed at #{inspect(failed)}: " <>
+                  "#{inspect(reason)}"
+      end
     end)
   end
 
@@ -947,16 +967,23 @@ defmodule Sigra.MFA do
           multi
       end
 
-    {:ok, changes} = repo.transaction(multi)
+    case repo.transaction(multi) do
+      {:ok, changes} ->
+        case audit do
+          {:mfa_disable, _, _, _} ->
+            Sigra.Audit.emit_telemetry_from_changes(changes)
 
-    case audit do
-      {:mfa_disable, _, _, _} ->
-        Sigra.Audit.emit_telemetry_from_changes(changes)
+          _ ->
+            :ok
+        end
 
-      _ ->
         :ok
-    end
 
-    :ok
+      {:error, failed, reason, _} ->
+        {:error, failed, reason}
+    end
   end
+
+  defp cleanup_disable_transaction_error(:audit, %Ecto.Changeset{}), do: :mfa_audit_failed
+  defp cleanup_disable_transaction_error(_, _), do: :mfa_disable_failed
 end

@@ -58,15 +58,36 @@ defmodule Sigra.MFAAuditAtomicityTest do
     end
   end
 
+  defmodule UserStub do
+    @moduledoc false
+    use Ecto.Schema
+
+    @primary_key {:id, :binary_id, autogenerate: false}
+    schema "users" do
+      field(:mfa_trust_epoch, :integer, default: 0)
+    end
+  end
+
   setup do
     start_supervised!({PostgresRepo, PostgresRepo.default_config()})
     repo = PostgresRepo
 
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
 
-    for t <- ["user_mfa_backup_codes", "user_mfa_credentials", "audit_events"] do
+    for t <- ["user_mfa_backup_codes", "user_mfa_credentials", "audit_events", "users"] do
       Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS #{t} CASCADE", [])
     end
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      CREATE TABLE users (
+        id uuid PRIMARY KEY,
+        mfa_trust_epoch integer NOT NULL DEFAULT 0
+      )
+      """,
+      []
+    )
 
     Ecto.Adapters.SQL.query!(
       repo,
@@ -127,7 +148,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
 
     Ecto.Adapters.SQL.query!(
       repo,
-      "TRUNCATE TABLE user_mfa_backup_codes, user_mfa_credentials, audit_events RESTART IDENTITY CASCADE",
+      "TRUNCATE TABLE user_mfa_backup_codes, user_mfa_credentials, audit_events, users RESTART IDENTITY CASCADE",
       []
     )
 
@@ -141,7 +162,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
       Keyword.merge(
         [
           repo: repo,
-          user_schema: MyApp.User,
+          user_schema: UserStub,
           otp_app: :sigra,
           mfa: [
             totp_drift_steps: 1,
@@ -217,6 +238,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
     config = cfg(repo)
     raw = NimbleTOTP.secret()
     now = DateTime.utc_now()
+
     {:ok, _} =
       repo.insert(
         MfaCredential.changeset(%MfaCredential{}, %{
@@ -282,6 +304,58 @@ defmodule Sigra.MFAAuditAtomicityTest do
 
     actions = Enum.map(rows, fn [a] -> a end)
     assert actions == ["mfa.verify.success", "mfa.backup_code_used"]
+  end
+
+  test "disable rolls back when audit insert is rejected by database guard", %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+
+    {:ok, _} = repo.insert(%UserStub{id: user.id, mfa_trust_epoch: 0})
+
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+
+    {:ok, _} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_disable_atomicity_guard CHECK (action <> 'mfa.disable')
+      """,
+      []
+    )
+
+    try do
+      code = NimbleTOTP.verification_code(raw, time: System.system_time(:second))
+
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.disable(config, user, code,
+          mfa_credential_schema: MfaCredential,
+          backup_code_schema: BackupCode
+        )
+      end
+
+      assert count(repo, "user_mfa_credentials") == 1
+      assert count_where(repo, "audit_events", "action = 'mfa.disable'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_disable_atomicity_guard",
+        []
+      )
+    end
   end
 
   defp count(repo, table) do
