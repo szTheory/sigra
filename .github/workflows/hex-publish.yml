@@ -59,6 +59,10 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
 
+      # Matches library_tests in ci.yml: InstallFixture shells out to mix phx.new.
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+
       - name: Verify release version in mix.exs
         run: grep -n "@version \"${{ inputs.release_version }}\"" mix.exs
 
