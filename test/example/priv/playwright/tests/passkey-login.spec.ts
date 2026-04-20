@@ -199,34 +199,45 @@ test.describe("passkey-primary login fallback smoke", () => {
 
       await page.locator('input[autocomplete="username webauthn"]').fill(email);
 
-      // Read JSON inside the response predicate (same tick as Playwright's
-      // internal handling) so CDP does not drop the body before
-      // `Network.getResponseBody` runs — a short delay after `waitForResponse`
-      // resolves is still flaky on busy CI runners.
-      let optionsBody!: {
+      const [optionsResponse] = await Promise.all([
+        page.waitForResponse(
+          (response) =>
+            response.url().includes("/users/log_in/passkey/options") &&
+            response.request().method() === "POST" &&
+            response.request().postData()?.includes(email) === true,
+        ),
+        page.locator("#passkey_login_button").click(),
+      ]);
+
+      expect(optionsResponse.status()).toBe(200);
+      expect(optionsResponse.request().postData()).toContain(email);
+
+      // Never call `optionsResponse.json()` for UI-driven fetches: Chromium CDP
+      // intermittently loses `Network.getResponseBody` after the promise
+      // resolves. Re-fetch with `page.request` (same storage state + CSRF).
+      const origin = new URL(optionsResponse.url()).origin;
+      const csrf =
+        (await page.locator('meta[name="csrf-token"]').getAttribute("content")) ??
+        "";
+      const apiResponse = await page.request.post(
+        `${origin}/users/log_in/passkey/options`,
+        {
+          data: { user: { email } },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "x-csrf-token": csrf,
+          },
+        },
+      );
+      expect(apiResponse.ok(), await apiResponse.text()).toBeTruthy();
+      const optionsBody = (await apiResponse.json()) as {
         options: {
           challenge: string;
           rpId: string;
           allowCredentials: unknown[];
         };
       };
-
-      await Promise.all([
-        page.waitForResponse(async (response) => {
-          if (
-            !response.url().includes("/users/log_in/passkey/options") ||
-            response.request().method() !== "POST" ||
-            response.request().postData()?.includes(email) !== true
-          ) {
-            return false;
-          }
-          expect(response.status()).toBe(200);
-          expect(response.request().postData()).toContain(email);
-          optionsBody = (await response.json()) as typeof optionsBody;
-          return true;
-        }),
-        page.locator("#passkey_login_button").click(),
-      ]);
 
       expect(optionsBody.options.challenge).toBeTruthy();
       expect(optionsBody.options.rpId).toBe("localhost");
