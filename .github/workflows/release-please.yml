@@ -87,6 +87,10 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
 
+      # Matches library_tests in ci.yml: InstallFixture shells out to mix phx.new.
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+
       - name: Fetch library deps
         run: mix deps.get
 
