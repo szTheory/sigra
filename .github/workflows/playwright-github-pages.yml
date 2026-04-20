@@ -131,6 +131,15 @@ jobs:
             --project=admin-checkpoints-chromium \
             --project=admin-checkpoints-mobile \
             --project=admin-checkpoints-dark
+      - name: Stage admin checkpoint PNGs (before non-admin run clears test-results)
+        if: success()
+        working-directory: test/example/priv/playwright
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          ls -la artifacts/admin-checkpoints/ || true
       - name: Run non-admin example browser smoke
         working-directory: test/example/priv/playwright
         run: |
