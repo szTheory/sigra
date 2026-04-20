@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **AUD-04:** Auth `log_safe` → `Ecto.Multi` migration inventory for `Sigra.Auth`
   (prioritized `AUD-05` batches **B1–B3**, exclusions, grep evidence) in
   [`.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md`](.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md).
+- **AUD-05 (Auth):** When `:audit_schema` is configured, success audits for
+  `auth.register.success`, magic-link and password-reset request/verify flows,
+  and confirmed-password `auth.login.success` (including lockout reset and
+  optional hash upgrade) are written in the same `Repo` transaction as the
+  associated data changes via `Ecto.Multi` and `Sigra.Audit.log_multi_safe/3`.
 
 ## [0.2.0] - 2026-04-19
 
