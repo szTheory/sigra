@@ -199,24 +199,35 @@ test.describe("passkey-primary login fallback smoke", () => {
 
       await page.locator('input[autocomplete="username webauthn"]').fill(email);
 
-      const optionsResponsePromise = page.waitForResponse(
-        (response) =>
-          response.url().includes("/users/log_in/passkey/options") &&
-          response.request().method() === "POST" &&
-          response.request().postData()?.includes(email) === true,
-      );
+      // Read JSON inside the response predicate (same tick as Playwright's
+      // internal handling) so CDP does not drop the body before
+      // `Network.getResponseBody` runs — a short delay after `waitForResponse`
+      // resolves is still flaky on busy CI runners.
+      let optionsBody!: {
+        options: {
+          challenge: string;
+          rpId: string;
+          allowCredentials: unknown[];
+        };
+      };
 
-      await page.locator("#passkey_login_button").click();
+      await Promise.all([
+        page.waitForResponse(async (response) => {
+          if (
+            !response.url().includes("/users/log_in/passkey/options") ||
+            response.request().method() !== "POST" ||
+            response.request().postData()?.includes(email) !== true
+          ) {
+            return false;
+          }
+          expect(response.status()).toBe(200);
+          expect(response.request().postData()).toContain(email);
+          optionsBody = (await response.json()) as typeof optionsBody;
+          return true;
+        }),
+        page.locator("#passkey_login_button").click(),
+      ]);
 
-      const optionsResponse = await optionsResponsePromise;
-      expect(optionsResponse.status()).toBe(200);
-      expect(optionsResponse.request().method()).toBe("POST");
-      expect(optionsResponse.request().postData()).toContain(email);
-
-      // CDP can briefly report "No resource with given identifier" for
-      // `getResponseBody` if we read the body immediately on busy CI runners.
-      await new Promise((r) => setTimeout(r, 250));
-      const optionsBody = await optionsResponse.json();
       expect(optionsBody.options.challenge).toBeTruthy();
       expect(optionsBody.options.rpId).toBe("localhost");
       expect(optionsBody.options.allowCredentials.length).toBeGreaterThan(0);
