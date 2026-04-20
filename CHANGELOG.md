@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Human GA (v1.4): see .planning/v1.4-GA-UAT.md
+- **AUD-04:** Auth `log_safe` → `Ecto.Multi` migration inventory for `Sigra.Auth`
+  (prioritized `AUD-05` batches **B1–B3**, exclusions, grep evidence) in
+  [`.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md`](.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md).
 
 ## [0.2.0] - 2026-04-19
 
