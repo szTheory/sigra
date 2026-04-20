@@ -111,10 +111,52 @@ defmodule Sigra.MFA.BackupCodes do
   end
 
   @doc """
+  Appends backup-code replacement steps (`delete_all` + `insert_all`) to an
+  `Ecto.Multi`.
+
+  Returns `{multi, formatted_codes}` so callers can wrap the operation in
+  `repo.transaction/1` alongside other steps (for example audit rows).
+
+  `now` defaults to `DateTime.utc_now/0` and is used for each row's
+  `inserted_at`, matching `confirm_enrollment/5` bulk inserts.
+  """
+  @doc since: "0.6.0"
+  @spec append_replace_steps(Ecto.Multi.t(), module(), term(), pos_integer()) ::
+          {Ecto.Multi.t(), [String.t()]}
+  @spec append_replace_steps(Ecto.Multi.t(), module(), term(), pos_integer(), DateTime.t()) ::
+          {Ecto.Multi.t(), [String.t()]}
+  def append_replace_steps(%Ecto.Multi{} = multi, backup_code_schema, user_id, count, now \\ DateTime.utc_now()) do
+    codes = generate(count)
+
+    entries =
+      Enum.map(codes, fn {_formatted, hashed} ->
+        %{
+          user_id: user_id,
+          hashed_code: hashed,
+          used_at: nil,
+          inserted_at: now
+        }
+      end)
+
+    formatted_codes = Enum.map(codes, &elem(&1, 0))
+
+    multi =
+      multi
+      |> Ecto.Multi.delete_all(
+        :delete_backup_codes,
+        from(bc in backup_code_schema, where: bc.user_id == ^user_id)
+      )
+      |> Ecto.Multi.insert_all(:insert_backup_codes, backup_code_schema, entries)
+
+    {multi, formatted_codes}
+  end
+
+  @doc """
   Regenerates backup codes for a user.
 
-  Deletes all existing codes and inserts fresh ones. Returns the raw
-  formatted codes for display (shown once, never retrievable again).
+  Deletes all existing codes and inserts fresh ones inside a single
+  `Repo.transaction/1`. Returns the raw formatted codes for display (shown
+  once, never retrievable again).
 
   ## Parameters
 
@@ -128,29 +170,17 @@ defmodule Sigra.MFA.BackupCodes do
           {:ok, [String.t()]}
   def regenerate(repo, backup_code_schema, user_id, count) do
     Sigra.Telemetry.span([:sigra, :mfa, :backup_codes, :regenerate], %{user_id: user_id}, fn ->
-      # Delete all existing codes for this user
-      from(bc in backup_code_schema, where: bc.user_id == ^user_id)
-      |> repo.delete_all()
-
-      # Generate and insert new codes
-      codes = generate(count)
       now = DateTime.utc_now()
+      {multi, formatted_codes} = append_replace_steps(Ecto.Multi.new(), backup_code_schema, user_id, count, now)
 
-      entries =
-        Enum.map(codes, fn {_formatted, hashed} ->
-          %{
-            user_id: user_id,
-            hashed_code: hashed,
-            used_at: nil,
-            inserted_at: now,
-            updated_at: now
-          }
-        end)
+      case repo.transaction(multi) do
+        {:ok, _} ->
+          {:ok, formatted_codes}
 
-      repo.insert_all(backup_code_schema, entries)
-
-      formatted_codes = Enum.map(codes, &elem(&1, 0))
-      {:ok, formatted_codes}
+        {:error, failed, reason, _changes} ->
+          raise "Sigra.MFA.BackupCodes.regenerate/4 unexpected transaction failure " <>
+                  "at #{inspect(failed)}: #{inspect(reason)}"
+      end
     end)
   end
 

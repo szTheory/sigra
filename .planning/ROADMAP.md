@@ -13,7 +13,7 @@
 
 | Phase | Name | Goal | Requirements | Success criteria (observable) |
 |-------|------|------|--------------|------------------------------|
-| **41** | Backup codes & GA product closure | Ship and prove **backup-code rotation** so SEED-001 item 7 is a product fact, not a TODO | GA-01 | (1) User completes backup-code rotation in example or generated host. (2) Automated test fails if old codes work after rotation. (3) Audit rows (if configured) match success path. |
+| **41** ✅ (2026-04-20) | Backup codes & GA product closure | Ship and prove **backup-code rotation** so SEED-001 item 7 is a product fact, not a TODO | GA-01 | (1) User completes backup-code rotation in example or generated host. (2) Automated test fails if old codes work after rotation. (3) Audit rows (if configured) match success path. |
 | **42** | Human GA matrix & evidence | Execute residual human checks and consolidate **GA-05** artifact | GA-02, GA-03, GA-04, GA-05 | (1) `v1.4-GA-UAT.md` exists with Executed/Waived/Blocked per row. (2) Each row links to evidence or waiver rationale. (3) `docs/uat-ci-coverage.md` cross-links updated if rows moved machine-side. |
 | **43** | Audit inventory + Auth atomic batch | **AUD-04** inventory gates **AUD-05**; convert prioritized `Sigra.Auth` `log_safe/3` sites to audited `Ecto.Multi` | AUD-04, AUD-05 | (1) Inventory doc checked in under `.planning/phases/43-*` or `.planning/`. (2) Each converted Auth path has audit-aware test. (3) Full library CI green. |
 | **44** | MFA + Account/API atomic batches | Close MFA and account-layer hybrid sites per inventory | AUD-06, AUD-07 | (1) Listed MFA success paths use Multi + tests. (2) Account + agreed API token paths converted with tests. (3) CI green. |

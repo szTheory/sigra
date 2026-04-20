@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: unless promoted)
-status: **Ready to discuss or plan Phase 41**
-stopped_at: Phase 41 context gathered (research synthesis)
-last_updated: "2026-04-20T15:03:17.470Z"
-last_activity: 2026-04-20 — `/gsd-new-milestone` confirmed; `.planning/REQUIREMENTS.md` + `.planning/ROADMAP.md` created; phase numbering continues **41–45** after v1.3’s **40**.
+status: ready_to_discuss_or_plan
+stopped_at: Phase 41 execution complete (backup code rotation)
+last_updated: "2026-04-20T16:30:00.000Z"
+last_activity: 2026-04-20 — Phase 41 verified; GA-01 rotation shipped in library + example + templates
 progress:
   total_phases: 34
-  completed_phases: 30
-  total_plans: 119
-  completed_plans: 119
-  percent: 100
+  completed_phases: 31
+  total_plans: 123
+  completed_plans: 123
+  percent: 91
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md` (updated 2026-04-20)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **v1.4** — close SEED-001 GA residuals (human evidence + backup-code rotation) and SEED-002 audit atomicity (additional `log_safe/3` → `Ecto.Multi` batches with audit-aware tests).
+**Current focus:** Phase **42** — Human GA matrix & evidence (next)
 
 ## Current Position
 
-Phase: **Not started** (roadmap ready — begin Phase 41)
+Phase: **42** (not started)
 
 Plan: —
 
-Status: **Ready to discuss or plan Phase 41**
+Status: **Ready to discuss or plan Phase 42**
 
-Last activity: 2026-04-20 — `/gsd-new-milestone` confirmed; `.planning/REQUIREMENTS.md` + `.planning/ROADMAP.md` created; phase numbering continues **41–45** after v1.3’s **40**.
+Last activity: 2026-04-20 — Phase 41 verified; GA-01 rotation shipped in library + example + templates
 
-Progress: [░░░░░░░░░░] 0% **v1.4**
+Progress: [███░░░░░░░] ~9% **v1.4** (1 / 5 milestone phases started and closed: 41)
 
 ## Performance Metrics
 
@@ -56,10 +56,10 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: 2026-04-20
 
-Stopped at: Phase 41 context gathered (research synthesis)
+Stopped at: Phase 41 complete — proceed with Phase 42 when ready
 
-Resume file: --resume-file
+Resume file: —
 
-**Planned Phase:** 41 (Backup codes & GA product closure) — 4 plans — 2026-04-20T15:03:17.460Z
+**Next phase:** 42 (Human GA matrix & evidence)

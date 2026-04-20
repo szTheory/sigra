@@ -27,7 +27,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-**In flight (v1.4):** SEED-001 residuals and SEED-002 `log_safe/3` → atomic `Ecto.Multi` batches are **active** in `.planning/REQUIREMENTS.md` with phased execution starting at **Phase 41**.
+**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Remaining SEED-001 human matrix + **SEED-002** audit batches track in `.planning/REQUIREMENTS.md` / **Phases 42–45**.
 
 ## Next Milestone Goals
 
@@ -127,6 +127,10 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - ✓ Telemetry events for all auth operations (24+ events across phases) — v1.0
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
+
+### Validated — v1.4 (partial)
+
+- ✓ **GA-01** — Backup-code rotation: `Sigra.MFA.regenerate_backup_codes/4`, example `Accounts` + `MFASettingsLive`, install templates, SEED-7 regression in `test/example/.../backup_code_rotation_test.exs` — **Phase 41** (2026-04-20)
 
 ### Validated — v1.3 Cleanup & Hardening
 
@@ -262,6 +266,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-20 — Phase **41** complete: GA-01 backup-code rotation + SEED-7 doc/test trace; next roadmap focus **42**.*
+
 *Last updated: 2026-04-20 — `/gsd-new-milestone`: **v1.4** started (SEED-001 GA residuals + SEED-002 audit atomicity); live `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md` authored; phases continue from **41**.*
 
 *Last updated: 2026-04-19 after v1.3 milestone completion — Cleanup & Hardening shipped as Phases 36-40. Planning artifacts archived to `.planning/milestones/v1.3-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define the next scope.*

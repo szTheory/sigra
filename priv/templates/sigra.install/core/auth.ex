@@ -631,6 +631,19 @@ defmodule <%= context_module %> do
       ], opts))
   end
 
+  @doc """
+  Regenerates backup codes after verifying a TOTP code.
+
+  Requires `{:totp, code}` — backup codes **cannot** authorize rotation.
+  """
+  def mfa_regenerate_backup_codes(user, {:totp, _} = verification, opts \\ []) do
+    Sigra.MFA.regenerate_backup_codes(sigra_config(), user, verification,
+      Keyword.merge([
+        mfa_credential_schema: UserMFACredential,
+        backup_code_schema: UserBackupCode
+      ], opts))
+  end
+
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
     Sigra.MFA.enabled?(sigra_config(), user)
