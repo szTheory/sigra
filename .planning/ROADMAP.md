@@ -7,12 +7,21 @@
 - ✅ **Post-v1.1 Closeout** - Phases 24-26 (completed 2026-04-16).
 - ✅ **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (shipped 2026-04-17). See [v1.2 archive](milestones/v1.2-ROADMAP.md), [v1.2 requirements](milestones/v1.2-REQUIREMENTS.md), [v1.2 milestone audit](milestones/v1.2-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- **Next** — No active phased roadmap slice after v1.3. Run `/gsd-new-milestone` to author the next `.planning/REQUIREMENTS.md`, milestones table, and phase list.
+- **v1.4 GA readiness & audit trail completeness** — Phases **41–45** (in progress). Requirements: [.planning/REQUIREMENTS.md](REQUIREMENTS.md).
 
-## Phases
+## Phases (v1.4)
 
-_No live milestone phases._ Historical execution remains under `.planning/phases/`; shipped intent is summarized in `.planning/milestones/v*-ROADMAP.md` and `.planning/MILESTONES.md`.
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|------------------------------|
+| **41** | Backup codes & GA product closure | Ship and prove **backup-code rotation** so SEED-001 item 7 is a product fact, not a TODO | GA-01 | (1) User completes backup-code rotation in example or generated host. (2) Automated test fails if old codes work after rotation. (3) Audit rows (if configured) match success path. |
+| **42** | Human GA matrix & evidence | Execute residual human checks and consolidate **GA-05** artifact | GA-02, GA-03, GA-04, GA-05 | (1) `v1.4-GA-UAT.md` exists with Executed/Waived/Blocked per row. (2) Each row links to evidence or waiver rationale. (3) `docs/uat-ci-coverage.md` cross-links updated if rows moved machine-side. |
+| **43** | Audit inventory + Auth atomic batch | **AUD-04** inventory gates **AUD-05**; convert prioritized `Sigra.Auth` `log_safe/3` sites to audited `Ecto.Multi` | AUD-04, AUD-05 | (1) Inventory doc checked in under `.planning/phases/43-*` or `.planning/`. (2) Each converted Auth path has audit-aware test. (3) Full library CI green. |
+| **44** | MFA + Account/API atomic batches | Close MFA and account-layer hybrid sites per inventory | AUD-06, AUD-07 | (1) Listed MFA success paths use Multi + tests. (2) Account + agreed API token paths converted with tests. (3) CI green. |
+| **45** | OAuth, ops paths & C-1 sign-off | Remaining high-value sites or explicit deferrals; update Phase 9 C-1 narrative | AUD-08 | (1) `09-03-SUMMARY.md` / `09-VERIFICATION.md` reflect post-v1.4 reality. (2) Any deferred `log_safe/3` sites listed with trigger. (3) CI green. |
 
-## Backlog (parking lot — not v1.3 unless promoted)
+**Numbering:** continues from v1.3 phase **40** → **41** (no `--reset-phase-numbers`).
 
-- Items not mapped above stay here until a future milestone selects them.
+## Backlog (parking lot — not v1.4 unless promoted)
+
+- **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
+- Items not mapped in [REQUIREMENTS.md](REQUIREMENTS.md) stay here until a future milestone selects them.
