@@ -487,6 +487,12 @@ defmodule Sigra.Audit do
         _ -> Keyword.get(opts, :target_id)
       end
 
+    metadata =
+      case Keyword.get(opts, :metadata_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :metadata, %{})
+      end
+
     # Top-level columns (D-07) — not nested in :metadata
     %{
       action: action,
@@ -497,7 +503,7 @@ defmodule Sigra.Audit do
       target_type: Keyword.get(opts, :target_type),
       ip_address: Keyword.get(opts, :ip_address),
       user_agent: Keyword.get(opts, :user_agent),
-      metadata: Keyword.get(opts, :metadata, %{}),
+      metadata: metadata,
       occurred_at: Keyword.get(opts, :occurred_at, DateTime.utc_now()),
       organization_id: Keyword.get(opts, :organization_id),
       effective_user_id: Keyword.get(opts, :effective_user_id)
