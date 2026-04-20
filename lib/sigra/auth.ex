@@ -262,11 +262,9 @@ defmodule Sigra.Auth do
   #                          Sigra.Audit.__log_internal__ (future Multi form)
   #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", nil, ...)
   #                          (non-Multi, standalone per D-28)
-  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", nil, ...)
-  #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", nil, ...)
-  #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", nil, ...)
+  #   magic_link_request  -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set
+  #   magic_link_verify   -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set
+  #   password_reset_req  -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set
   #   password_reset done -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation link   -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation code   -> Sigra.Audit.__log_internal__ (Multi, atomic)
@@ -292,6 +290,22 @@ defmodule Sigra.Auth do
       user_agent: Keyword.get(extra, :user_agent)
     ]
   end
+
+  defp audit_scope_column_opts(nil),
+    do: [organization_id: nil, effective_user_id: nil, actor_id: nil]
+
+  defp audit_scope_column_opts(%{user: user} = scope) do
+    org = Map.get(scope, :active_organization)
+    actor = Map.get(scope, :impersonating_from) || user
+
+    [
+      organization_id: org && org.id,
+      effective_user_id: user && user.id,
+      actor_id: actor && actor.id
+    ]
+  end
+
+  defp audit_scope_column_opts(_), do: audit_scope_column_opts(nil)
 
   @doc """
   Authenticates a user by email and password.
@@ -540,21 +554,40 @@ defmodule Sigra.Auth do
             user_id: user.id
           })
 
-        repo.insert!(token_struct)
-        url = url_fun.(raw_token)
+        audit_opts =
+          audit_opts_from_keyword(opts)
+          |> Keyword.put(:repo, repo)
+          |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
 
-        # D-26: audit magic link request (standalone, always success)
-        audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+        multi =
+          Multi.new()
+          |> Multi.insert(:magic_link_token, token_struct)
 
-        # 15-02 Category 2 (D-28): pre-auth magic link request with a
-        # resolved user — build user-only scope + target_id: user.id.
-        Audit.log_safe(
-          "auth.magic_link_request",
-          Sigra.Scope.from_opts(opts, user),
-          Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
-        )
+        multi =
+          if Keyword.get(audit_opts, :audit_schema) do
+            Audit.log_multi_safe(
+              multi,
+              "auth.magic_link_request",
+              Keyword.merge(audit_opts,
+                actor_resolver: fn %{magic_link_token: t} -> t.user_id end,
+                target_resolver: fn %{magic_link_token: t} -> t.user_id end,
+                metadata: %{}
+              )
+            )
+          else
+            multi
+          end
 
-        {:ok, {raw_token, url}}
+        case repo.transact(multi) do
+          {:ok, changes} ->
+            Audit.emit_telemetry_from_changes(changes)
+            url = url_fun.(raw_token)
+            {:ok, {raw_token, url}}
+
+          {:error, failed, reason, _changes} ->
+            raise "unexpected Ecto.Multi failure from Sigra.Auth.request_magic_link/3: " <>
+                    "#{inspect(failed)} => #{inspect(reason)}"
+        end
     end
   end
 
@@ -594,38 +627,58 @@ defmodule Sigra.Auth do
           {:error, :invalid}
 
         token_record ->
-          # Check TTL
-          age_seconds = DateTime.diff(DateTime.utc_now(), token_record.inserted_at, :second)
+          # Check TTL (DB adapters may return :utc_datetime or :naive_datetime)
+          inserted_at =
+            case token_record.inserted_at do
+              %DateTime{} = dt -> dt
+              %NaiveDateTime{} = ndt -> DateTime.from_naive!(ndt, "Etc/UTC")
+            end
+
+          age_seconds = DateTime.diff(DateTime.utc_now(), inserted_at, :second)
 
           if age_seconds > magic_link_ttl do
             {:error, :expired}
           else
-            user = repo.get!(user_schema, token_record.user_id)
+            scope_user = repo.get!(user_schema, token_record.user_id)
 
-            # Single-use: delete token
-            repo.delete!(token_record)
+            audit_opts =
+              audit_opts_from_keyword(opts)
+              |> Keyword.put(:repo, repo)
+              |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, scope_user)))
 
-            # Auto-confirm unconfirmed users
-            user = maybe_confirm_user(repo, user)
+            multi =
+              Multi.new()
+              |> Multi.run(:magic_link_user, fn r, _changes ->
+                u = r.get!(user_schema, token_record.user_id)
+                _ = r.delete!(token_record)
+                u = maybe_confirm_user(r, u)
+                {:ok, u}
+              end)
 
-            # D-26: audit magic link verify success.
-            # Standalone write (Sigra.Audit.log_safe) because the delete +
-            # update above are not yet in a single Multi; the audit row is
-            # still persisted after the business op succeeds.
-            audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+            multi =
+              if Keyword.get(audit_opts, :audit_schema) do
+                Audit.log_multi_safe(
+                  multi,
+                  "auth.magic_link_verify.success",
+                  Keyword.merge(audit_opts,
+                    actor_resolver: fn %{magic_link_user: u} -> u.id end,
+                    target_resolver: fn %{magic_link_user: u} -> u.id end,
+                    metadata: %{}
+                  )
+                )
+              else
+                multi
+              end
 
-            # 15-02 Category 2: verified user resolved — user-only scope.
-            Audit.log_safe(
-              "auth.magic_link_verify.success",
-              Sigra.Scope.from_opts(opts, user),
-              Keyword.merge(audit_opts,
-                actor_id: user.id,
-                target_id: user.id,
-                metadata: %{}
-              )
-            )
+            case repo.transact(multi) do
+              {:ok, %{magic_link_user: user} = changes} ->
+                Audit.emit_telemetry_from_changes(changes)
+                {:ok, user}
 
-            {:ok, user}
+              {:error, failed, reason, _changes} ->
+                raise "unexpected Ecto.Multi failure from Sigra.Auth.verify_magic_link/3: " <>
+                        "#{inspect(failed)} => #{inspect(reason)}"
+            end
           end
       end
     end
@@ -959,23 +1012,41 @@ defmodule Sigra.Auth do
             user_id: user.id
           })
 
-        repo.insert!(token_struct)
-        url = url_fun.(encoded_token)
+        audit_opts =
+          audit_opts_from_keyword(opts)
+          |> Keyword.put(:repo, repo)
+          |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
 
-        Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
+        multi =
+          Multi.new()
+          |> Multi.insert(:password_reset_token, token_struct)
 
-        # D-26: audit password reset request (standalone, always success).
-        audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+        multi =
+          if Keyword.get(audit_opts, :audit_schema) do
+            Audit.log_multi_safe(
+              multi,
+              "auth.password_reset_request",
+              Keyword.merge(audit_opts,
+                actor_resolver: fn %{password_reset_token: t} -> t.user_id end,
+                target_resolver: fn %{password_reset_token: t} -> t.user_id end,
+                metadata: %{}
+              )
+            )
+          else
+            multi
+          end
 
-        # 15-02 Category 2 (D-28): pre-auth password reset request with a
-        # resolved user — build user-only scope + target_id: user.id.
-        Audit.log_safe(
-          "auth.password_reset_request",
-          Sigra.Scope.from_opts(opts, user),
-          Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
-        )
+        case repo.transact(multi) do
+          {:ok, changes} ->
+            Audit.emit_telemetry_from_changes(changes)
+            Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
+            url = url_fun.(encoded_token)
+            {:ok, {encoded_token, url}}
 
-        {:ok, {encoded_token, url}}
+          {:error, failed, reason, _changes} ->
+            raise "unexpected Ecto.Multi failure from Sigra.Auth.request_password_reset/3: " <>
+                    "#{inspect(failed)} => #{inspect(reason)}"
+        end
     end
   end
 
