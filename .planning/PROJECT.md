@@ -8,9 +8,14 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone
+## Current Milestone: v1.4 GA readiness & audit trail completeness
 
-The next shipped increment after v1.3 is **not defined in `.planning/` yet**. Run `/gsd-new-milestone` to capture product intent, a fresh `.planning/REQUIREMENTS.md`, and phased roadmap work.
+**Goal:** Close **SEED-001** residuals (honest GA posture: human matrix + backup-code rotation proof) and **SEED-002** (retire Phase 9 C-1 hybrid by converting additional `log_safe/3` sites to atomic audited `Ecto.Multi` with audit-aware tests), so production-ready messaging and audit completeness claims are defensible.
+
+**Target features:**
+- **SEED-001 / GA readiness:** Wire and prove **backup-code rotation** (`mfa_regenerate_backup_codes` or equivalent end-to-end); execute and record residual human checks (real mail clients for critical templates, live Google OAuth UX, clean-machine `getting-started.md`); consolidate outcomes in a milestone-visible artifact aligned with `docs/uat-ci-coverage.md` and existing UAT runbook patterns.
+- **SEED-002 / audit atomicity:** Extend Phase 39 patterns — prioritize high-risk `Sigra.Audit.log_safe/3` integration sites (beyond v1.3 `api.token_create`), convert to `Ecto.Multi` + `__log_internal__/3` (or `log_multi_safe/3`) in coherent batches with **audit-aware** tests using `Sigra.Audit.Assertions`; update Phase 9 verification/summary so C-1 is resolved or explicitly narrowed with traceable coverage.
+- **Cross-cutting:** No silent scope — each requirement maps to a phase with observable acceptance criteria.
 
 ## Current State
 
@@ -22,13 +27,11 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-**Known limitations carried forward (tracked, non-blocking):**
-- Residual **SEED-001** items that still need real mail clients, live Google OAuth UX, clean-machine wall-clock, or backup-code **rotation** proof (`mfa_regenerate_backup_codes` not shipped).
-- **SEED-002** remainder — Phase 9 hybrid `log_safe/3` outside the v1.3 `api.token_create` atomic site still wants phased `Ecto.Multi` conversion as tests go audit-aware.
+**In flight (v1.4):** SEED-001 residuals and SEED-002 `log_safe/3` → atomic `Ecto.Multi` batches are **active** in `.planning/REQUIREMENTS.md` with phased execution starting at **Phase 41**.
 
 ## Next Milestone Goals
 
-Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, deeper audit atomicity (SEED-002), new product slices (APIs, admin, orgs), or installer/DX work — each should start with a fresh requirements file and roadmap slice.
+**Active (v1.4):** See `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md` — SEED-001 GA residuals + SEED-002 audit atomicity batches.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -152,14 +155,15 @@ Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, d
 - ✓ Review artifacts (Playwright HTML, screenshots/traces/video where configured, curated PNG baselines) — v1.2
 - ✓ Route, controller, and curl-style smoke coverage outside the browser happy path — v1.2
 
-### Active — next milestone
+### Active — v1.4 GA readiness & audit trail completeness
 
-Requirements for the next shipped increment are intentionally absent until `/gsd-new-milestone` recreates `.planning/REQUIREMENTS.md`.
+See live `.planning/REQUIREMENTS.md` for checkable REQ-IDs (GA-* and AUD-*). Prior v1.3 audit IDs (AUD-01..03, UAT-01..02 as framed for v1.3) remain **validated in v1.3**; v1.4 extends closure where v1.3 explicitly deferred residuals.
 
 ### Other deferred items
 
-- [ ] SEED-001: residual human-only UAT items (real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code rotation) after v1.3 shift-left coverage
-- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion beyond the v1.3 `api.token_create` site (trigger-conditioned)
+_SEED-001 and SEED-002 are promoted into **v1.4** (see Active section and live requirements). Use this list for ideas **not** selected for v1.4._
+
+- (none — seeds promoted)
 
 ### Out of Scope
 
@@ -258,6 +262,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-20 — `/gsd-new-milestone`: **v1.4** started (SEED-001 GA residuals + SEED-002 audit atomicity); live `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md` authored; phases continue from **41**.*
+
 *Last updated: 2026-04-19 after v1.3 milestone completion — Cleanup & Hardening shipped as Phases 36-40. Planning artifacts archived to `.planning/milestones/v1.3-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define the next scope.*
 
 *Last updated: 2026-04-17 after v1.2 milestone completion — Admin Dashboard shipped as Phases 27-35. Planning artifacts archived to `.planning/milestones/v1.2-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define v1.3+ scope.*
