@@ -1,0 +1,131 @@
+# Release Please opens/updates a Release PR from conventional commits on main.
+# When that PR is merged, Release Please creates the GitHub Release + v* tag, then
+# publish-hex runs the same Postgres-backed test bar as CI and publishes with HEX_API_KEY.
+#
+# Requires repository secret: HEX_API_KEY (Actions secrets).
+# If the default GITHUB_TOKEN cannot open Release PRs (rare branch rules), add a
+# fine-grained PAT as RELEASE_PLEASE_TOKEN and pass it to the action (see scrypath).
+
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: release-please-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          # Optional: set secret RELEASE_PLEASE_TOKEN (fine-grained PAT) if the
+          # default token cannot open Release PRs; otherwise github.token suffices.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish-hex:
+    name: Publish to Hex.pm
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sigra_test
+        ports:
+          - '5432:5432'
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93 # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Cache library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      - name: Fetch library deps
+        run: mix deps.get
+
+      - name: Compile (warnings as errors)
+        run: mix compile --warnings-as-errors
+
+      - name: Verify release version in mix.exs
+        run: grep -n "@version \"${{ needs.release-please.outputs.version }}\"" mix.exs
+
+      - name: Run library tests
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix test
+
+      - name: Dry run Hex publish
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --dry-run --yes
+
+      - name: Publish to Hex
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --yes
+
+      - name: Verify version on Hex.pm
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 36); do
+            if curl -fsS "https://hex.pm/api/packages/sigra/releases/${VERSION}" | grep -q "\"version\""; then
+              echo "Hex.pm lists sigra ${VERSION}"
+              exit 0
+            fi
+            echo "waiting for Hex index... (${i}/36)"
+            sleep 10
+          done
+          echo "Timed out waiting for https://hex.pm/api/packages/sigra/releases/${VERSION}"
+          exit 1

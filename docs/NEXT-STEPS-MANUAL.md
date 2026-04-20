@@ -1,41 +1,32 @@
 # Next steps (manual only)
 
-Everything else (clean tree, tests, docs, `mix hex.build`, remote branch, `v1.3` tag, **PR opened**) is already done.
+Use this when something **cannot** be driven by GitHub Actions (credentials outside GitHub, one-off maintainer tasks).
 
-**Open PR:** https://github.com/szTheory/sigra/pull/13  
+**Default Hex + GitHub releases:** see **`MAINTAINING.md` → Release automation**. On `main`, [Release Please](https://github.com/googleapis/release-please) opens a **Release PR** from conventional commits; **merging that PR** creates the **GitHub Release + `v*` tag** and runs **`publish-hex`** with **`HEX_API_KEY`**. Recovery: **Actions → Hex publish (manual recovery)**.
 
 ---
 
-## 1. Merge into `main`
+## 1. Merge work into `main`
 
-- Wait until **all required checks** are green on the PR.  
-- **Merge** the PR (squash or merge — match your team norm).
-
-CLI (after review):
+- Wait until **required checks** are green on the PR, then merge (squash or merge — team norm).
 
 ```bash
-gh pr merge 13 --merge
-# or: gh pr merge 13 --squash
+gh pr merge <N> --merge
 ```
 
-## 2. Publish Hex (first or next version)
+## 2. Ship a Hex version (if not using Release Please)
 
-After **`main`** contains the merge at the commit you intend to ship:
+After **`main`** has the commit you intend to ship:
 
-1. Confirm **`mix.exs`** `@version` is the version you want on Hex (see **`MAINTAINING.md`** for pre-1.0 semver when adding new supported public `lib/` API).
-2. From a clean **`main`** checkout with **`HEX_API_KEY`** set:
-
-   ```bash
-   mix hex.publish --yes
-   ```
-
-   Or use **Actions → Hex publish (manual)** (`workflow_dispatch`) per **`MAINTAINING.md`**.
+1. Confirm **`mix.exs`** `@version` and **`MAINTAINING.md`** semver notes.
+2. **`HEX_API_KEY`** in **Settings → Secrets → Actions**, then either:
+   - merge the **Release PR** from Release Please (preferred), or
+   - **Actions → Hex publish (manual recovery)** with tag/SHA + version string, or
+   - local: `mix hex.publish --yes`
 
 ## 3. GitHub Release
 
-In **GitHub → Releases**: create a release from tag **`v1.3`** (or align tags with the Hex version you publish — see **`MAINTAINING.md`**).
-
-Paste the relevant **`CHANGELOG.md`** section into the release notes.
+Release Please creates the release when the Release PR merges. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and paste the matching **`CHANGELOG.md`** section.
 
 ## 4. Sanity check
 

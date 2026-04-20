@@ -2,9 +2,21 @@
 
 This document is for **maintainers** who cut Hex releases and GitHub releases. **Drive-by contributors** should start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for tests, CI expectations, and review norms.
 
-## Release checklist
+## Release automation (default)
 
-Before publishing, work through these steps in order (adjust version strings to match `mix.exs`).
+Sigra follows the same pattern as sibling libraries (**Release Please** + **Hex on merge**):
+
+1. **Conventional commits on `main`** — Release Please reads history and opens/updates a **Release PR** that bumps `mix.exs` / `CHANGELOG.md` (see [release-please](https://github.com/googleapis/release-please) and config in `release-please-config.json`).
+2. **Merge the Release PR** when you are ready to ship. On merge, **`.github/workflows/release-please.yml`** creates the **GitHub Release** and **`v<version>` tag**, then runs **Postgres-backed `mix test`**, **`mix hex.publish --yes`** with **`HEX_API_KEY`**, and polls **hex.pm** until the new version is visible.
+3. **Secrets** — configure **`HEX_API_KEY`** under **GitHub → Settings → Secrets and variables → Actions**. If the default `GITHUB_TOKEN` cannot open Release PRs (branch protections), add a fine-grained PAT as **`RELEASE_PLEASE_TOKEN`** with `contents` + `pull-requests` write; the workflow uses `RELEASE_PLEASE_TOKEN` when set, otherwise `github.token`.
+4. **Released version anchor** — `.release-please-manifest.json` records the last shipped version for Release Please. After an exceptional manual publish, bump that file in the same commit as `mix.exs` so automation stays aligned.
+5. **Changelog shape** — Release Please’s `elixir` release type expects to own `CHANGELOG.md` entries for automated releases. The first Release PR may normalize headings; resolve merge conflicts in favor of a single coherent history, then keep using **conventional commits** on `main`.
+
+**Recovery / one-off publish:** **Actions → Hex publish (manual recovery)** — supply the **tag or SHA** and the **expected `@version`** string; it runs the same compile + test + dry-run + publish path without Release Please.
+
+## Manual release checklist (emergency or pre-automation)
+
+Use only when not using the Release PR flow. Adjust version strings to match `mix.exs`.
 
 1. Confirm `mix.exs` `@version` matches the release you intend to ship.
 2. Update `CHANGELOG.md` with everything notable since the last tag.
@@ -31,12 +43,11 @@ Before publishing, work through these steps in order (adjust version strings to 
    git push origin v0.2.0
    ```
 
-8. Publish to Hex from a trusted machine with `HEX_API_KEY` configured, or use the optional GitHub workflow (see below). Non-interactive automation should use `mix hex.publish --yes` as documented in [Hex publish](https://hex.pm/docs/publish).
+8. Publish to Hex from a trusted machine with `HEX_API_KEY` configured, or run **Actions → Hex publish (manual recovery)**. Non-interactive automation should use `mix hex.publish --yes` as documented in [Hex publish](https://hex.pm/docs/publish).
 
-9. Open **GitHub → Releases** and publish a release notes entry from the tag (link the changelog section).
+9. Open **GitHub → Releases** if you still need a release entry not created by Release Please.
 10. Verify the [Hex version badge](https://hex.pm/packages/sigra) reflects the new version and that [HexDocs](https://hexdocs.pm/sigra) `source_ref` matches the tag you published (`mix.exs` `docs/0` uses `source_ref: "v#{@version}"`).
-11. Optional: run **Actions → Hex publish (manual)** (`workflow_dispatch`) if you prefer CI-attested publish instead of a local `mix hex.publish`.
-12. After publish, smoke-check a fresh `mix deps.get` consumer app or the example app pinned to the new requirement range.
+11. After publish, smoke-check a fresh `mix deps.get` consumer app or the example app pinned to the new requirement range.
 
 ## Semver for Sigra (pre-1.0)
 
@@ -70,8 +81,13 @@ For full release mechanics and secret handling, see [Hex publish](https://hex.pm
 
 ## Optional GitHub Environment for Hex
 
-For extra guardrails, configure a GitHub **Environment** named **`hex`** with **required reviewers** so manual `workflow_dispatch` runs need an explicit approval before `mix hex.publish` executes. This is optional; local publish with a scoped `HEX_API_KEY` remains valid.
+For extra guardrails, configure a GitHub **Environment** (e.g. **`hex`**) with **required reviewers** and attach it to the **`publish-hex`** job in **`.github/workflows/release-please.yml`** and/or **`hex-publish.yml`** so publish steps need an explicit approval. This is optional; the default workflow uses repository secrets only.
 
-## Optional CI-attested publish
+## Workflows
 
-See `.github/workflows/hex-publish.yml`. It runs only on **`workflow_dispatch`**, runs tests with Postgres like CI, and passes **`HEX_API_KEY`** only to the publish step. Configure the **`HEX_API_KEY`** repository secret before use; never add that secret to `ci.yml` or unrelated jobs.
+| File | Trigger | Purpose |
+|------|---------|---------|
+| `.github/workflows/release-please.yml` | push to **`main`**, `workflow_dispatch` | Release PR + tag + GitHub Release + **Hex publish** when a release is created |
+| `.github/workflows/hex-publish.yml` | **`workflow_dispatch`** only | **Manual recovery** publish from a chosen tag/SHA + version string |
+
+Configure **`HEX_API_KEY`** (and optionally **`RELEASE_PLEASE_TOKEN`**) under **Settings → Secrets and variables → Actions**. Never add those secrets to `ci.yml` or unrelated jobs.
