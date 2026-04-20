@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: unless promoted)
-status: verifying
+status: executing
 stopped_at: Phase 44 context gathered
-last_updated: "2026-04-20T17:20:01.976Z"
-last_activity: 2026-04-20 — Phase 43 complete (plans 43-01–43-04)
+last_updated: "2026-04-20T17:29:14.871Z"
+last_activity: 2026-04-20 -- Phase 44 execution started
 progress:
   total_phases: 37
   completed_phases: 33
-  total_plans: 126
+  total_plans: 131
   completed_plans: 130
-  percent: 100
+  percent: 99
 ---
 
 # Project State
@@ -22,17 +22,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-20)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 44 — MFA + Account/API atomic batches (per ROADMAP)
+**Current focus:** Phase 44 — mfa-account-api-atomic-batches
 
 ## Current Position
 
-Phase: **43** — COMPLETE
+Phase: 44 (mfa-account-api-atomic-batches) — EXECUTING
 
-Plan: **44** (next milestone phase; plans TBD from phase folder)
+Plan: 1 of 5
 
-Status: Phase 43 shipped — AUD-04 inventory + AUD-05 Auth B1–B3 (`register`, magic-link / reset request+verify, password `login.success` with lockout reset) use `Ecto.Multi` + `log_multi_safe` when `:audit_schema` is set.
+Status: Executing Phase 44
 
-Last activity: 2026-04-20 — Phase 43 complete (plans 43-01–43-04)
+Last activity: 2026-04-20 -- Phase 44 execution started
 
 Progress: [█████░░░░░] **v1.4** (3 / 5 milestone phases closed: **41–43**)
 
@@ -64,4 +64,4 @@ Resume file: --resume-file
 
 **Next phase:** 44 (MFA + Account/API atomic batches)
 
-**Planned Phase:** 44 — see [.planning/ROADMAP.md](ROADMAP.md) row **44**.
+**Planned Phase:** 44 (mfa-account-api-atomic-batches) — 5 plans — 2026-04-20T17:24:45.377Z
