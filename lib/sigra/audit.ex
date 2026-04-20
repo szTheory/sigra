@@ -216,6 +216,10 @@ defmodule Sigra.Audit do
 
   Returns the multi unchanged when `:audit_schema` is nil or absent.
   Otherwise appends an `:audit` step via `__log_internal__/3`.
+
+  Optional `:target_resolver` — arity-1 callback receiving the Multi `changes`
+  map (same as `:actor_resolver`) to populate `target_id` when it cannot be
+  known at composition time.
   """
   @spec log_multi_safe(Ecto.Multi.t(), String.t(), opts()) :: Ecto.Multi.t()
   def log_multi_safe(%Ecto.Multi{} = multi, action, opts)
@@ -436,13 +440,19 @@ defmodule Sigra.Audit do
         Keyword.get(opts, :actor_id)
       end
 
+    target_id =
+      case Keyword.get(opts, :target_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :target_id)
+      end
+
     # Top-level columns (D-07) — not nested in :metadata
     %{
       action: action,
       outcome: Keyword.get(opts, :outcome, "success"),
       actor_id: actor_id,
       actor_type: Keyword.get(opts, :actor_type, "user"),
-      target_id: Keyword.get(opts, :target_id),
+      target_id: target_id,
       target_type: Keyword.get(opts, :target_type),
       ip_address: Keyword.get(opts, :ip_address),
       user_agent: Keyword.get(opts, :user_agent),
