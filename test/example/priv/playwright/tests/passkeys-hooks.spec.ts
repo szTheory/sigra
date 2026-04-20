@@ -72,6 +72,16 @@ test('generated passkey hooks complete real browser registration and authenticat
 
     await page.goto('/');
     await page.addScriptTag({ content: inlinedHookSource });
+    await page.waitForFunction(() => {
+      const w = window as unknown as {
+        PasskeyRegister?: { mounted?: unknown };
+        PasskeyAuthenticate?: { mounted?: unknown };
+      };
+      return (
+        typeof w.PasskeyRegister?.mounted === 'function' &&
+        typeof w.PasskeyAuthenticate?.mounted === 'function'
+      );
+    });
 
     await page.evaluate(() => {
       const win = window as any;
@@ -96,7 +106,13 @@ test('generated passkey hooks complete real browser registration and authenticat
           },
         };
 
-        hook.mounted();
+        const mount = hookDef?.mounted;
+        if (typeof mount !== 'function') {
+          throw new Error(
+            `Passkey hook missing mounted (kind=${kind}); keys=${Object.keys(hookDef ?? {}).join(',')}`,
+          );
+        }
+        mount.call(hook);
         win.__sigraCurrentHook = hook;
         win.__sigraTrigger = (payload: unknown) => listeners[startEvent](payload);
       };

@@ -213,6 +213,9 @@ test.describe("passkey-primary login fallback smoke", () => {
       expect(optionsResponse.request().method()).toBe("POST");
       expect(optionsResponse.request().postData()).toContain(email);
 
+      // CDP can briefly report "No resource with given identifier" for
+      // `getResponseBody` if we read the body immediately on busy CI runners.
+      await new Promise((r) => setTimeout(r, 250));
       const optionsBody = await optionsResponse.json();
       expect(optionsBody.options.challenge).toBeTruthy();
       expect(optionsBody.options.rpId).toBe("localhost");
