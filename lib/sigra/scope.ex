@@ -20,7 +20,7 @@ defmodule Sigra.Scope do
       user: user,
       active_organization: Keyword.get(opts, :active_organization),
       membership: Keyword.get(opts, :membership),
-      impersonating_from: nil
+      impersonating_from: Keyword.get(opts, :impersonating_from)
     )
   end
 
@@ -57,7 +57,7 @@ defmodule Sigra.Scope do
 
   Used by library sites that accept a `%Sigra.Config{}` (as opposed to a raw
   opts keyword list) — e.g. `Sigra.Auth` (authenticate_with_config/2),
-  `Sigra.MFA`, `Sigra.OAuth`, `Sigra.ApiToken`. Tolerates plain-map configs
+  `Sigra.MFA`, `Sigra.OAuth`, `Sigra.APIToken`. Tolerates plain-map configs
   used in fast unit tests (OAuth test suite) via `Map.get/3`.
   """
   @spec from_config(struct() | map(), struct() | map() | nil) :: struct() | nil

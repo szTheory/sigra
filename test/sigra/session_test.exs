@@ -23,6 +23,8 @@ defmodule Sigra.SessionTest do
         last_active_at: now,
         sudo_at: now,
         active_organization_id: "0190b3a4-1234-7000-8000-000000000000",
+        impersonator_user_id: "admin_789",
+        impersonator_session_id: "sess_admin_123",
         inserted_at: now
       }
 
@@ -39,6 +41,8 @@ defmodule Sigra.SessionTest do
       assert session.last_active_at == now
       assert session.sudo_at == now
       assert session.active_organization_id == "0190b3a4-1234-7000-8000-000000000000"
+      assert session.impersonator_user_id == "admin_789"
+      assert session.impersonator_session_id == "sess_admin_123"
       assert session.inserted_at == now
     end
 
@@ -63,6 +67,8 @@ defmodule Sigra.SessionTest do
       assert session.last_active_at == nil
       assert session.sudo_at == nil
       assert session.active_organization_id == nil
+      assert session.impersonator_user_id == nil
+      assert session.impersonator_session_id == nil
       assert session.inserted_at == nil
     end
   end

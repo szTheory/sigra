@@ -1,6 +1,6 @@
 ---
 id: SEED-002
-status: dormant
+status: deferred
 planted: 2026-04-11
 planted_during: v1.0 milestone completion
 trigger_when: When subsystem tests become audit-aware OR when a customer reports a missing audit row for a successful business op
@@ -55,6 +55,17 @@ Could be done as one larger phase if the team has appetite. The scope estimate a
 - `.planning/phases/09-audit-logging/09-VERIFICATION.md` — frontmatter `caveats: - id: C-1` with `accepted_by: documented-in-summary`
 - `.planning/phases/09-audit-logging/09-CONTEXT.md` — D-01 "universal atomic Multi" decision (this is what C-1 deviated from)
 - Threat model reference: T-9-05 in phase 9 PLAN.md threat_model
+
+## Phase 39 resolution (2026-04-18)
+
+Partial closure in milestone v1.3 — see phase artifacts:
+
+- `.planning/phases/39-audit-trail-completeness/39-01-SUMMARY.md` — `Sigra.Audit.Assertions` + testing recipe
+- `.planning/phases/39-audit-trail-completeness/39-02-SUMMARY.md` — atomic `api.token_create`
+- `.planning/phases/39-audit-trail-completeness/39-03-SUMMARY.md` — example smoke + docs trio
+
+**Residual:** most other `log_safe/3` library sites remain intentionally hybrid
+until a future phase converts them with matching audit-aware tests.
 
 ## Notes
 

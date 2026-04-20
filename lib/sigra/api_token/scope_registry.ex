@@ -97,7 +97,11 @@ defmodule Sigra.APIToken.ScopeRegistry do
   """
   @doc since: "0.7.0"
   @spec validate_scopes(Sigra.Config.t(), [String.t()]) ::
-          :ok | {:error, :scopes_required | {:invalid_format, [String.t()]} | {:unregistered_scopes, [String.t()]}}
+          :ok
+          | {:error,
+             :scopes_required
+             | {:invalid_format, [String.t()]}
+             | {:unregistered_scopes, [String.t()]}}
   def validate_scopes(_config, []), do: {:error, :scopes_required}
 
   def validate_scopes(config, scopes) when is_list(scopes) do

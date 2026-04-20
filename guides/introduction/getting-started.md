@@ -8,7 +8,7 @@ If you have not installed Sigra yet, read [Installation](installation.html) firs
 
 - Phoenix 1.8+ app named `MyApp` (substitute your app name throughout)
 - PostgreSQL running
-- `{:sigra, "~> 0.1"}` in `mix.exs` and `mix deps.get` already run
+- `{:sigra, "~> 0.2"}` in `mix.exs` and `mix deps.get` already run
 - `mix sigra.install && mix ecto.migrate` already run (Sigra generates `uuid` / binary_id primary keys by default; pass `--no-binary-id` to `mix sigra.install` if you need bigint integer IDs instead)
 
 Verify the install by checking for the generated `Accounts` context and `UserAuth` plug:
@@ -183,7 +183,85 @@ You're redirected to the login page with a "Password reset successfully" flash.
 
 Enter `alice@example.com` and the new password. You're logged in again, and a brand-new session token is written to the cookie. The old tokens are gone forever.
 
-## 10. What you just built
+## 10. Organizations & Passkeys
+
+The default `mix sigra.install` flow now gives you logical organizations and passkeys out of the box. Keep the app from steps 1-9 running and continue on the same happy path.
+
+If you intentionally want the old posture, install with `--no-organizations` or `--no-passkeys`. Treat those as exceptions. The mainline install remains:
+
+    mix sigra.install
+
+### 10.1 Check the generated organizations surface
+
+Look for the generated organization-aware modules:
+
+    ls \
+      lib/my_app/organizations.ex \
+      lib/my_app/accounts/organization.ex \
+      lib/my_app/accounts/organization_membership.ex \
+      lib/my_app/accounts/user_session.ex
+
+On the default install, a newly registered user gets a personal organization and the session can track an `active_organization_id`. You will also see organization routes such as `/organizations`, `/organizations/:slug/settings`, and `/organizations/:slug/members`.
+
+### 10.2 Sign in and confirm the org-aware redirect
+
+Log in with the user you created earlier. On a fresh default install the post-login landing page is either:
+
+- `/` when the user already has an active personal organization
+- `/organizations` when the user needs to create or accept one
+
+That behavior is intentional. The generated app keeps you on an org-safe path instead of letting tenant-aware pages render without an active organization.
+
+### 10.3 Scope tenant-owned queries with `for_org/2`
+
+Sigra ships logical multi-tenancy, not schema-per-tenant. Tenant-owned data stays in the same database and is scoped by `organization_id`.
+
+When you add your own org-owned schemas, scope them explicitly:
+
+    def list_projects(scope) do
+      Project
+      |> Sigra.Organizations.Query.for_org(scope)
+      |> MyApp.Repo.all()
+    end
+
+`for_org/2` accepts either the current scope or a raw organization ID and raises if the schema has no `organization_id` column. Keep that explicit discipline in app code; it is the main guard against cross-org leaks.
+
+### 10.4 Enroll a passkey from MFA settings
+
+Visit <http://localhost:4000/users/settings/mfa>. The generated settings page includes a **Passkeys** section with an **Add passkey** button.
+
+The default config injected by `mix sigra.install` looks like:
+
+    config :my_app, :sigra_config,
+      passkeys: [
+        rp_id: "localhost",
+        rp_name: "My App",
+        origin: "http://localhost:4000",
+        passkey_primary_enabled: true
+      ]
+
+When you click **Add passkey**, the app posts to `/users/settings/mfa/passkeys/options`, the browser completes the WebAuthn ceremony, and the generated controller finishes registration at `/users/settings/mfa/passkeys`.
+
+### 10.5 Try the passkey-primary login path
+
+Open a private window and visit <http://localhost:4000/users/log_in>. With `passkey_primary_enabled: true`, the generated page keeps all three entry points visible:
+
+- **Continue with passkey**
+- **Use password instead**
+- **Email me a magic link**
+
+That fallback mix is deliberate. Passkeys can be primary without removing recovery paths for devices that do not support WebAuthn or users who lose a credential.
+
+### 10.6 Know the two production values you will eventually rename
+
+Before production, update the passkey RP values in `config/runtime.exs`:
+
+- `rp_id` must match the relying-party domain the browser should trust
+- `origin` must match the full browser origin, including scheme
+
+For local dev, `localhost` and `http://localhost:4000` are correct. For production, use your real hostnames and update both values together when you rename domains.
+
+## 11. What you just built
 
 In under 30 minutes you:
 
@@ -195,13 +273,18 @@ In under 30 minutes you:
 6. Delivered a password reset email with `deliver_user_reset_password_instructions/2`.
 7. Reset the password with `reset_user_password/2` — all sessions invalidated.
 
-Every one of those calls is in the generated `Accounts` and `UserAuth` modules. You own that code: read it, edit it, extend it. Security-critical primitives (hashing, HMAC, TOTP, WebAuthn) live in the library and update via `mix deps.update sigra`.
+8. Continued into the default organizations + passkeys surface.
+9. Scoped tenant-owned queries with `Sigra.Organizations.Query.for_org/2`.
+10. Enrolled a passkey and verified the passkey-primary login posture keeps password and magic link recovery available.
+
+Every one of those calls is in the generated `Accounts`, `Organizations`, and `UserAuth` modules. You own that code: read it, edit it, extend it. Security-critical primitives (hashing, HMAC, TOTP, WebAuthn) live in the library and update via `mix deps.update sigra`.
 
 ## What's next
 
 You've covered the core session auth flow. Most apps need one or more of:
 
 - **[Multi-factor authentication](mfa.html)** — TOTP enrollment, backup codes, trust-this-browser.
+- **[Upgrading to v1.1](upgrading-to-v1.1.html)** — the tested `mix sigra.upgrade` path from v1.0.
 - **[OAuth and social login](oauth.html)** — Google, GitHub, Apple via Assent.
 - **[API authentication](api-authentication.html)** — Bearer tokens and JWT for non-browser clients.
 - **[Account lifecycle](account-lifecycle.html)** — email change, password change, scheduled deletion.
@@ -210,8 +293,10 @@ You've covered the core session auth flow. Most apps need one or more of:
 And a few cross-cutting recipes:
 
 - **[Testing auth flows](testing.html)** — fixtures, scenario setup, `Sigra.Testing` helpers.
+- **[Passkeys](passkeys.html)** — enrollment, passkey-primary config, RP ID/origin operations, recovery.
 - **[Subdomain authentication](subdomain-auth.html)** — `cookie_domain` for `app.example.com` + `api.example.com`.
 - **[Custom user fields](custom-user-fields.html)** — adding columns to the generated schema.
+- **[Multi-tenant apps](multi-tenant.html)** — shipped logical-org posture and `for_org/2` discipline.
 - **[Deployment](deployment.html)** — env vars, Fly.io, cookie config in production.
 
 ## Troubleshooting

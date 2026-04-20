@@ -220,6 +220,71 @@ defmodule <%= context_module %>.Emails do
     |> text_body(text_body)
   end
 
+  @doc "Builds a notification email when a passkey is registered on an account."
+  def passkey_registration_email(user, details) do
+    ip = details |> Map.get(:ip, "Unknown") |> html_escape_string()
+    city = details |> Map.get(:city, Map.get(details, :geo_city, "Unknown")) |> html_escape_string()
+    device = details |> Map.get(:device, "Unknown device") |> html_escape_string()
+
+    time =
+      details
+      |> Map.get(:time, DateTime.utc_now())
+      |> format_security_time()
+      |> html_escape_string()
+
+    reset_url = "<%= reset_password_url %>"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "New Passkey Added")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "A new passkey was added to your account.")}
+    </p>
+    <div style="margin: 16px 0; padding: 16px; background-color: #f4f4f5; border-radius: 8px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Device:")}</strong> #{device}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "IP address:")}</strong> #{ip}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Location:")}</strong> #{city}
+      </p>
+      <p style="margin: 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Time:")}</strong> #{time}
+      </p>
+    </div>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "New Passkey Added")}
+
+    #{dgettext("sigra", "A new passkey was added to your account.")}
+
+    #{dgettext("sigra", "Device:")} #{device}
+    #{dgettext("sigra", "IP address:")} #{ip}
+    #{dgettext("sigra", "Location:")} #{city}
+    #{dgettext("sigra", "Time:")} #{time}
+
+    #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
+
+    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "New passkey added to your account"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
   @doc "Builds a lockout notification email."
   def lockout_notification_email(user, _details) do
     reset_url = "<%= reset_password_url %>"
@@ -897,6 +962,13 @@ defmodule <%= context_module %>.Emails do
   end
 
   defp html_escape_string(value), do: html_escape_string(to_string(value))
+
+  defp format_security_time(%DateTime{} = datetime) do
+    Calendar.strftime(datetime, "%Y-%m-%d %H:%M:%S UTC")
+  end
+
+  defp format_security_time(value) when is_binary(value), do: value
+  defp format_security_time(value), do: to_string(value)
 
   defp format_date(%DateTime{} = datetime) do
     Calendar.strftime(datetime, "%B %d, %Y")

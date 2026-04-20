@@ -38,10 +38,25 @@ defmodule Sigra.AuthFixturesScenarioTest do
                    "../../priv/templates/sigra.install/core/auth_fixtures.ex",
                    __DIR__
                  )
+  @example_fixture_path Path.expand(
+                          "../example/test/support/fixtures/auth_fixtures.ex",
+                          __DIR__
+                        )
+  @install_golden_fixture_path Path.expand(
+                                 "../fixtures/install_golden/tree/test/support/fixtures/auth_fixtures.ex",
+                                 __DIR__
+                               )
 
   setup do
     content = File.read!(@template_path)
-    %{content: content}
+    example_content = File.read!(@example_fixture_path)
+    install_golden_content = File.read!(@install_golden_fixture_path)
+
+    %{
+      content: content,
+      example_content: example_content,
+      install_golden_content: install_golden_content
+    }
   end
 
   describe "scenario fixture function definitions" do
@@ -106,6 +121,7 @@ defmodule Sigra.AuthFixturesScenarioTest do
 
     test "mfa_pending_fixture does NOT build a conn (D-07)", %{content: content} do
       body = extract_function(content, "mfa_pending_fixture")
+
       refute body =~ "log_in_user",
              "mfa_pending_fixture must not log in a conn (caller hasn't passed the challenge)"
     end
@@ -124,7 +140,9 @@ defmodule Sigra.AuthFixturesScenarioTest do
       assert body =~ "log_in_user(build_conn()"
     end
 
-    test "locked_fixture composes locked_user_fixture and returns no conn (D-07)", %{content: content} do
+    test "locked_fixture composes locked_user_fixture and returns no conn (D-07)", %{
+      content: content
+    } do
       body = extract_function(content, "locked_fixture")
       assert body =~ "locked_user_fixture"
       refute body =~ "log_in_user"
@@ -235,6 +253,56 @@ defmodule Sigra.AuthFixturesScenarioTest do
 
     test "no mfa_verified_at field references (Pitfall 3)", %{content: content} do
       refute content =~ "mfa_verified_at"
+    end
+  end
+
+  describe "organization and passkey helper contract (Phase 23, DX-01)" do
+    test "template defines the required helper functions", %{content: content} do
+      for helper <- [
+            "create_organization",
+            "create_membership",
+            "log_in_user_with_org",
+            "register_passkey",
+            "authenticate_with_passkey"
+          ] do
+        assert content =~ "def #{helper}(",
+               "expected template to define #{helper}/"
+      end
+    end
+
+    test "template caveats state the bypassed boundaries explicitly", %{content: content} do
+      assert content =~ "bypass real controller"
+      assert content =~ "bypass real LiveView"
+      assert content =~ "bypass real session"
+      assert content =~ "route-backed"
+    end
+
+    test "example fixture mirrors the required helper names", %{example_content: content} do
+      for helper <- [
+            "create_organization",
+            "create_membership",
+            "log_in_user_with_org",
+            "register_passkey",
+            "authenticate_with_passkey"
+          ] do
+        assert content =~ "def #{helper}(",
+               "expected example fixture to define #{helper}/"
+      end
+    end
+
+    test "install golden fixture mirrors the required helper names", %{
+      install_golden_content: content
+    } do
+      for helper <- [
+            "create_organization",
+            "create_membership",
+            "log_in_user_with_org",
+            "register_passkey",
+            "authenticate_with_passkey"
+          ] do
+        assert content =~ "def #{helper}(",
+               "expected install golden fixture to define #{helper}/"
+      end
     end
   end
 

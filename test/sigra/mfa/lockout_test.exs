@@ -70,7 +70,8 @@ defmodule Sigra.MFA.LockoutTest do
         locked_until: DateTime.add(DateTime.utc_now(), 600, :second)
       }
 
-      assert {:error, :lockout, _remaining} = Lockout.check(credential, config(lockout_threshold: 3))
+      assert {:error, :lockout, _remaining} =
+               Lockout.check(credential, config(lockout_threshold: 3))
     end
   end
 end

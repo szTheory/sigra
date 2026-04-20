@@ -60,7 +60,10 @@ defmodule ExampleWeb.MFAChallengeHTML do
 
           <div class="space-y-4">
             <div>
-              <label for="mfa_totp_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label
+                for="mfa_totp_code"
+                class="block text-sm font-semibold leading-normal text-zinc-800"
+              >
                 Authenticator code
               </label>
               <input
@@ -102,7 +105,10 @@ defmodule ExampleWeb.MFAChallengeHTML do
 
           <div class="space-y-4">
             <div>
-              <label for="mfa_backup_code" class="block text-sm font-semibold leading-normal text-zinc-800">
+              <label
+                for="mfa_backup_code"
+                class="block text-sm font-semibold leading-normal text-zinc-800"
+              >
                 Backup code
               </label>
               <input

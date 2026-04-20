@@ -69,9 +69,16 @@ defmodule Sigra.Plug.RequireScopesTest do
 
   describe "call/2 - scope enforcement" do
     test "passes when token has all required scopes (AND mode)" do
-      opts = RequireScopes.init(scopes: ["profile:read", "sessions:read"], error_handler: TestErrorHandler)
+      opts =
+        RequireScopes.init(
+          scopes: ["profile:read", "sessions:read"],
+          error_handler: TestErrorHandler
+        )
 
-      scope = %{auth_method: :api_token, token_scopes: ["profile:read", "sessions:read", "mfa:read"]}
+      scope = %{
+        auth_method: :api_token,
+        token_scopes: ["profile:read", "sessions:read", "mfa:read"]
+      }
 
       conn =
         conn(:get, "/api/resource")
@@ -82,7 +89,12 @@ defmodule Sigra.Plug.RequireScopesTest do
     end
 
     test "passes when token has any required scope (OR mode)" do
-      opts = RequireScopes.init(scopes: ["profile:read", "sessions:read"], error_handler: TestErrorHandler, match: :any)
+      opts =
+        RequireScopes.init(
+          scopes: ["profile:read", "sessions:read"],
+          error_handler: TestErrorHandler,
+          match: :any
+        )
 
       scope = %{auth_method: :api_token, token_scopes: ["profile:read"]}
 

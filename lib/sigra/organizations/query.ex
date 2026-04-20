@@ -31,7 +31,7 @@ defmodule Sigra.Organizations.Query do
 
   def for_org(_queryable, %{active_organization: nil}) do
     raise ArgumentError,
-      "for_org/2 requires a scope with an active organization, but active_organization is nil"
+          "for_org/2 requires a scope with an active organization, but active_organization is nil"
   end
 
   def for_org(queryable, org_id) when is_binary(org_id) do
@@ -40,8 +40,8 @@ defmodule Sigra.Organizations.Query do
 
     unless :organization_id in schema.__schema__(:fields) do
       raise ArgumentError,
-        "#{inspect(schema)} does not have an :organization_id field. " <>
-          "for_org/2 can only scope schemas with an :organization_id column."
+            "#{inspect(schema)} does not have an :organization_id field. " <>
+              "for_org/2 can only scope schemas with an :organization_id column."
     end
 
     where(query, [r], r.organization_id == ^org_id)
@@ -94,9 +94,9 @@ defmodule Sigra.Organizations.Query do
             {query, opts}
           else
             raise ArgumentError,
-              "Query on #{inspect(schema)} is missing an organization_id filter. " <>
-                "Use Sigra.Organizations.Query.for_org/2 to scope the query, or " <>
-                "pass skip_org_check: true to bypass enforcement."
+                  "Query on #{inspect(schema)} is missing an organization_id filter. " <>
+                    "Use Sigra.Organizations.Query.for_org/2 to scope the query, or " <>
+                    "pass skip_org_check: true to bypass enforcement."
           end
         else
           {query, opts}
@@ -111,7 +111,7 @@ defmodule Sigra.Organizations.Query do
 
       _ ->
         raise ArgumentError,
-          "for_org/2 requires a schema-based query, but got a query without a schema source."
+              "for_org/2 requires a schema-based query, but got a query without a schema source."
     end
   end
 

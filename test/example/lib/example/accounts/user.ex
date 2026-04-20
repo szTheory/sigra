@@ -7,6 +7,7 @@ defmodule Example.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :display_name, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -45,8 +46,7 @@ defmodule Example.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    # Add custom fields here (e.g., :name, :company)
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :display_name, :password])
     |> validate_email(opts)
     |> validate_password(opts)
   end
@@ -148,7 +148,9 @@ defmodule Example.Accounts.User do
   def pending_email_changeset(user, attrs) do
     user
     |> cast(attrs, [:pending_email])
-    |> validate_format(:pending_email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_format(:pending_email, ~r/^[^\s]+@[^\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
     |> unsafe_validate_unique(:pending_email, Example.Repo)
     |> unique_constraint(:pending_email)
   end
@@ -158,7 +160,14 @@ defmodule Example.Accounts.User do
   """
   def deletion_changeset(user, attrs) do
     user
-    |> cast(attrs, [:deleted_at, :scheduled_deletion_at, :original_email, :pending_email, :email, :hashed_password])
+    |> cast(attrs, [
+      :deleted_at,
+      :scheduled_deletion_at,
+      :original_email,
+      :pending_email,
+      :email,
+      :hashed_password
+    ])
   end
 
   @doc """

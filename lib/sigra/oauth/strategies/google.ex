@@ -83,6 +83,9 @@ defmodule Sigra.OAuth.Strategies.Google do
 
     provider_config
     |> Keyword.put_new(:authorization_params, [])
-    |> Keyword.update!(:authorization_params, &Keyword.put_new(&1, :scope, Enum.join(scopes, " ")))
+    |> Keyword.update!(
+      :authorization_params,
+      &Keyword.put_new(&1, :scope, Enum.join(scopes, " "))
+    )
   end
 end

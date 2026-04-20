@@ -26,6 +26,7 @@ defmodule Example.GettingStartedFlowTest do
     # Step 2: Look up by email + password (login)
     assert %Example.Accounts.User{id: uid} =
              Accounts.get_user_by_email_and_password(attrs.email, attrs.password)
+
     assert uid == user.id
 
     # Step 3: Generate session token (issue a session)

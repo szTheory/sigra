@@ -145,7 +145,11 @@ defmodule Sigra.SessionStores.Ecto do
   end
 
   @impl true
-  def update_active_organization(%Sigra.Session{active_organization_id: current} = session, org_id, _opts)
+  def update_active_organization(
+        %Sigra.Session{active_organization_id: current} = session,
+        org_id,
+        _opts
+      )
       when current == org_id do
     # No-op-safe short-circuit (Phase 14 D-20): when the requested org_id
     # matches the current value, skip the DB write entirely and return the
@@ -153,7 +157,11 @@ defmodule Sigra.SessionStores.Ecto do
     {:ok, session}
   end
 
-  def update_active_organization(%Sigra.Session{hashed_token: hashed_token} = session, org_id, opts) do
+  def update_active_organization(
+        %Sigra.Session{hashed_token: hashed_token} = session,
+        org_id,
+        opts
+      ) do
     repo = Keyword.fetch!(opts, :repo)
     schema = Keyword.fetch!(opts, :session_schema)
 
@@ -173,6 +181,7 @@ defmodule Sigra.SessionStores.Ecto do
       case record.type do
         "standard" -> :standard
         "remember_me" -> :remember_me
+        "mfa_pending" -> :mfa_pending
         type when is_atom(type) -> type
         _ -> :standard
       end

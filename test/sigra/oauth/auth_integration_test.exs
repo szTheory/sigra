@@ -22,7 +22,12 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
       config = build_config()
 
       assert {:error, %OAuthError{error_code: :no_email}} =
-               Auth.register_oauth(config, :google, mock_user_info(%{"email" => nil}), mock_token())
+               Auth.register_oauth(
+                 config,
+                 :google,
+                 mock_user_info(%{"email" => nil}),
+                 mock_token()
+               )
     end
   end
 
@@ -53,12 +58,15 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
 
       # MockRepo returns existing identity for google+user_id
       assert {:error, :already_linked} =
-               Auth.link_provider(config, user, %{
-                 provider: :google,
-                 provider_uid: "uid_123",
-                 user_info: mock_user_info(),
-                 token: mock_token()
-               }, session: %Sigra.Session{sudo_at: DateTime.utc_now()})
+               Auth.link_provider(
+                 config,
+                 user,
+                 %{
+                   provider: :google,
+                   provider_uid: "uid_123",
+                   user_info: mock_user_info(),
+                   token: mock_token()
+                 }, session: %Sigra.Session{sudo_at: DateTime.utc_now()})
     end
   end
 
@@ -68,7 +76,9 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
       user = %{id: 1, email: "user@example.com", hashed_password: nil}
 
       assert {:error, :last_provider} =
-               Auth.unlink_provider(config, user, :google, session: %Sigra.Session{sudo_at: DateTime.utc_now()})
+               Auth.unlink_provider(config, user, :google,
+                 session: %Sigra.Session{sudo_at: DateTime.utc_now()}
+               )
     end
   end
 
@@ -149,7 +159,8 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
     end
 
     test "create_identity/1 accepts overrides" do
-      identity = Sigra.Testing.create_identity(user_id: 1, provider: "github", email: "gh@example.com")
+      identity =
+        Sigra.Testing.create_identity(user_id: 1, provider: "github", email: "gh@example.com")
 
       assert identity.provider == "github"
       assert identity.provider_email == "gh@example.com"

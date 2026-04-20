@@ -17,7 +17,10 @@ defmodule ExampleWeb.ConfirmationHTML do
       <.header>
         {dgettext("sigra", "Confirm your email")}
         <:subtitle>
-          {dgettext("sigra", "Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link.")}
+          {dgettext(
+            "sigra",
+            "Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link."
+          )}
         </:subtitle>
       </.header>
 
@@ -40,7 +43,11 @@ defmodule ExampleWeb.ConfirmationHTML do
       </.form>
 
       <p class="mt-4 text-center text-sm">
-        <.link href={~p"/users/confirm/resend"} method="post" class="font-semibold text-brand hover:underline">
+        <.link
+          href={~p"/users/confirm/resend"}
+          method="post"
+          class="font-semibold text-brand hover:underline"
+        >
           {dgettext("sigra", "Didn't receive a code?")}
         </.link>
       </p>

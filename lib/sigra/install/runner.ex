@@ -105,6 +105,9 @@ defmodule Sigra.Install.Runner do
               Mix.shell().info([:yellow, "* already injected ", :reset, injection.target])
               Report.record_skipped(r, injection.target, "already injected")
 
+            {:error, {:manual_action, instruction}} ->
+              Report.record_manual_action(r, instruction)
+
             {:error, reason} ->
               Report.record_manual_action(
                 r,

@@ -38,6 +38,30 @@ config :example, :sigra,
   repo: Example.Repo,
   user_schema: Example.Accounts.User
 
+config :sigra, :otp_app, :example
+
+config :example, :sigra_config,
+  repo: Example.Repo,
+  user_schema: Example.Accounts.User,
+  session: [
+    store: Sigra.SessionStores.Ecto,
+    session_schema: Example.Accounts.UserSession
+  ],
+  audit: [
+    audit_schema: Example.Accounts.AuditEvent
+  ],
+  passkeys: [
+    rp_id: "localhost",
+    rp_name: "Sigra Example",
+    origin: "http://localhost:4000",
+    timeout_ms: 60_000,
+    attestation: :none,
+    user_verification: :preferred,
+    ceremony_rate_limit: [limit: 5, window_ms: 60_000],
+    passkey_primary_enabled: true,
+    user_passkey_schema: Example.Accounts.UserPasskey
+  ]
+
 # Sigra worker runtime config (used by Oban workers)
 config :sigra,
   repo: Example.Repo,

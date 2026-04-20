@@ -11,8 +11,10 @@ defmodule Example.Repo.Migrations.AddRevokedByIdToOrganizationInvitations do
 
   def change do
     alter table(:organization_invitations) do
-      add :revoked_by_id,
-          references(:users, type: :binary_id, on_delete: :nilify_all)
+      add(
+        :revoked_by_id,
+        references(:users, type: :binary_id, on_delete: :nilify_all)
+      )
     end
   end
 end

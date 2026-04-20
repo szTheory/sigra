@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-19
+
+### Added
+
+- `docs/NEXT-STEPS-MANUAL.md` — short post-merge checklist (PR merge, Hex,
+  GitHub Release) for maintainers.
+- `docs/audit-semantics.md` — public note on `log` / `log_multi` / `log_safe`, C-1
+  hybrid status, and pointers to testing helpers (linked from README).
+- `Sigra.Audit.Assertions` — ordered `latest_audit_event/3` + `assert_audit_fields/3`
+  for tests; see `guides/recipes/testing.md`.
+- Atomic `api.token_create` audit via `Ecto.Multi` / `Sigra.Audit.log_multi_safe/3` in
+  `Sigra.APIToken` (telemetry from `emit_telemetry_from_changes/1` on successful
+  commit only).
+- Example app smoke tests assert login and MFA enrollment audit rows; host
+  `get_user_by_email_and_password/2` now delegates to `Sigra.Auth.authenticate/2`
+  with full `Sigra.Config` so `auth.login.*` audit runs.
+- Human GA matrix in `v1.3-HUMAN-UAT.md` closed via machine substitutes; see
+  `.planning/uat-evidence/v1.3.0/INDEX.md` for CI anchors and per-item evidence.
+- **GA UAT shift-left:** `docs/uat-ci-coverage.md` maps SEED-001 items to CI and
+  documents residual human checks; `test/example/priv/playwright/tests/ga-uat-shift-left.spec.ts`
+  covers invitation email-lock and MFA regenerate UI reachability; example app
+  gains `EmailsLifecycleHtmlTest`; `scripts/ci/getting-started-contract.sh` plus
+  `getting_started_uat_contract` CI job validate getting-started links/commands.
+- Generated and example `MFASettingsLive` regenerate form uses an explicit
+  `type="submit"` on the regenerate button so LiveView `phx-submit` fires reliably.
+- Published to [Hex.pm](https://hex.pm/packages/sigra) as **0.2.0** (initial package listing).
+
+## [0.1.0] - 2026-04-17
+
+First library version line with Hex-oriented `mix.exs` packaging; upgrade to **0.2.0** for the Hex listing and additions above.
+
+### Fixed
+
+- Hex package `files` list includes `priv/` (installer, upgrade, and OAuth generator templates) so `mix sigra.install` / `mix sigra.upgrade` work when the dependency is pulled from Hex.
+
 ### Added
 
 - `Sigra.Audit.log_safe/3` accepts a scope as the second positional argument.

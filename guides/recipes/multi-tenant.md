@@ -1,173 +1,139 @@
 # Multi-Tenant Apps
 
-Sigra does not ship multi-tenancy as a first-class feature, but the hybrid lib+generator architecture makes it easy to add. This recipe covers the two common models — **row-based tenancy** (everything in one database, `tenant_id` column) and **schema-based tenancy** (one Postgres schema per tenant, using `Ecto.Adapters.SQL.query/4` with a dynamic `search_path`) — and where Sigra's sessions, tokens, and audit events plug in.
+Sigra now ships logical multi-tenancy through organizations. The model is row-based: one database, shared tables, explicit `organization_id` scoping, and a current scope that carries the active organization and membership for the signed-in user.
 
-> **Roadmap note:** true multi-tenant org membership (one user in many organizations with distinct roles per org) is planned for a future Sigra release. This recipe covers what you can build today with primitives.
+This guide is about the posture Sigra actually ships. It does not ask you to build PG schema-per-tenant around Sigra itself.
 
-## Model 1: Row-based tenancy
+## The shipped model: logical multi-tenancy
 
-Every row carries a `tenant_id`. Queries filter by it. Simple, flexible, good for SaaS apps where users belong to exactly one tenant.
+The default install gives you:
 
-### Step 1: Add tenant_id to users
+- `organizations`
+- `organization_memberships`
+- `organization_invitations`
+- `active_organization_id` on the session row
+- `%Scope{active_organization: ..., membership: ...}`
 
-    mix ecto.gen.migration add_tenant_id_to_users
+The working rule is simple: data owned by an organization gets an `organization_id` column, and application queries must scope through the active organization before they hit the repo.
 
-    defmodule MyApp.Repo.Migrations.AddTenantIdToUsers do
-      use Ecto.Migration
+## Scope queries with `for_org/2`
 
-      def change do
-        alter table(:users) do
-          add :tenant_id, references(:tenants, type: :binary_id), null: false
-        end
+`Sigra.Organizations.Query.for_org/2` is the primary query helper:
 
-        create index(:users, [:tenant_id])
-        create unique_index(:users, [:email, :tenant_id])
-        drop unique_index(:users, [:email])
+    def list_projects(scope) do
+      Project
+      |> Sigra.Organizations.Query.for_org(scope)
+      |> Repo.all()
+    end
+
+It also accepts a raw organization ID:
+
+    def list_projects_for(org_id) do
+      Project
+      |> Sigra.Organizations.Query.for_org(org_id)
+      |> Repo.all()
+    end
+
+Use it on every org-owned schema. If a schema does not have an `organization_id` field, `for_org/2` raises immediately instead of silently pretending the query is safe.
+
+## What "logical multi-tenancy" means in Sigra
+
+Logical multi-tenancy means:
+
+- one Postgres database
+- one shared schema for Sigra's auth tables
+- org ownership represented by rows and foreign keys
+- per-request access controlled by membership plus scoped queries
+
+That is the default and recommended posture for Sigra-powered SaaS apps. It keeps the generated auth system, audit trail, and sessions in one coherent runtime model.
+
+## Why Sigra rejects PG schema-per-tenant for itself
+
+PG schema-per-tenant can be a valid architecture for some products, but Sigra does not treat it as its own multi-tenant primitive.
+
+Reasons:
+
+- the generated auth surface assumes one shared auth schema
+- per-tenant schema migration orchestration is operationally heavier
+- cross-org membership, invitations, passkeys, and audit workflows are simpler in a shared-schema model
+- a missed `search_path` or prefix edge can create confusing partial isolation
+
+In other words: Sigra supports logical multi-tenancy directly. If your product later needs PG schema-per-tenant for app-specific data, layer that on deliberately in your own code instead of expecting Sigra to run that model for auth.
+
+## Add `organization_id` to your own schemas
+
+For app-owned tenant data, add an `organization_id` foreign key and index it:
+
+    def change do
+      create table(:projects, primary_key: false) do
+        add :id, :binary_id, primary_key: true
+        add :organization_id, references(:organizations, type: :binary_id), null: false
+        add :name, :string, null: false
+
+        timestamps(type: :utc_datetime)
       end
+
+      create index(:projects, [:organization_id])
     end
 
-Note the composite unique index: the same email can now exist in two tenants. Drop the old single-column unique index if it exists.
+Then keep repo access behind scope-aware functions:
 
-### Step 2: Add tenant_id to the User schema
-
-    schema "users" do
-      field :email, :string
-      field :tenant_id, Ecto.UUID
-      # ...
+    def create_project(scope, attrs) do
+      %Project{}
+      |> Project.changeset(Map.put(attrs, :organization_id, scope.active_organization.id))
+      |> Repo.insert()
     end
 
-    def registration_changeset(user, attrs) do
-      user
-      |> cast(attrs, [:email, :password, :tenant_id])
-      |> validate_required([:tenant_id])
-      |> Sigra.User.registration_changeset(attrs)
+    def list_projects(scope) do
+      Project
+      |> Sigra.Organizations.Query.for_org(scope)
+      |> Repo.all()
     end
 
-### Step 3: Propagate through session tokens
+## Membership is authorization, `for_org/2` is data isolation
 
-Session tokens reference the user by ID, so they naturally carry the tenant. But when you look up a token, you must also filter by tenant to prevent cross-tenant token reuse (if an attacker gets a token from tenant A, it must not validate in tenant B).
+Keep those jobs separate:
 
-Extend `get_user_by_session_token/1` in the generated `Accounts` context:
+- membership and role checks decide who is allowed to act
+- `for_org/2` decides which rows a query can see
 
-    def get_user_by_session_token(token, tenant_id) do
-      {:ok, query} = UserToken.verify_session_token_query(token)
-      query
-      |> where([t, u], u.tenant_id == ^tenant_id)
-      |> Repo.one()
-    end
+Do not rely on controller params, slugs, or UI state alone. The active organization in scope should drive both authorization and query scoping.
 
-And thread `tenant_id` through `UserAuth.fetch_current_scope/2`:
+## Audit and session implications
 
-    def fetch_current_scope(conn, _opts) do
-      tenant_id = get_tenant_from_host(conn)
-      {user_token, conn} = ensure_user_token(conn)
-      user = user_token && Accounts.get_user_by_session_token(user_token, tenant_id)
+Sigra's org-aware runtime can carry `active_organization_id` in the session and attach `organization_id` to audit metadata. That gives you a consistent tenant story across:
 
-      assign(conn, :current_scope, %Scope{user: user, tenant_id: tenant_id})
-    end
+- browser sessions
+- organization switching
+- invitation acceptance
+- org-scoped audit review
 
-### Step 4: Resolve tenant from the request
-
-Common patterns:
-
-- **Subdomain:** `acme.myapp.com` → `tenant_slug = "acme"`
-- **Path prefix:** `/t/acme/...`
-- **Custom domain:** `app.acme.com` → lookup by host
-
-    defp get_tenant_from_host(conn) do
-      [subdomain | _] = String.split(conn.host, ".")
-      Repo.get_by!(Tenant, slug: subdomain).id
-    end
-
-### Step 5: Scope all queries
-
-Use `Sigra.Scope` (or a plain Ecto query helper) to scope every subsequent query:
-
-    defmodule MyApp.Scope do
-      def for_tenant(query, tenant_id) do
-        from x in query, where: x.tenant_id == ^tenant_id
-      end
-    end
-
-    Project
-    |> MyApp.Scope.for_tenant(current_scope.tenant_id)
-    |> Repo.all()
-
-Forgetting the scope is a data leak. Consider using Ecto's `prepare_query` callback to inject the scope automatically — but be careful: the auto-scope must not break Sigra's own queries against `users`, `users_tokens`, and `audit_events` (those already filter by `user_id`).
-
-### Step 6: Audit events
-
-Add `tenant_id` to your generated `AuditEvent` schema so audit queries can be scoped:
-
-    def audit_for_tenant(tenant_id, opts) do
-      Sigra.Audit.query(config(), opts)
-      |> where([e], e.tenant_id == ^tenant_id)
-    end
-
-Pass `tenant_id` through `metadata` in `Sigra.Audit.log/2` calls (or extend the schema with a first-class column).
-
-## Model 2: Schema-based tenancy
-
-One Postgres schema per tenant. The connection's `search_path` determines which schema queries hit. Strong isolation, good for compliance-heavy apps, harder to operate (schema migrations must run per tenant).
-
-### The Ecto setup
-
-Use a prefix-aware repo:
-
-    defmodule MyApp.Repo do
-      use Ecto.Repo, otp_app: :my_app, adapter: Ecto.Adapters.Postgres
-
-      @impl true
-      def default_options(_operation) do
-        [prefix: Process.get(:tenant_schema) || "public"]
-      end
-    end
-
-Then in a plug before `fetch_current_scope`:
-
-    defp set_tenant_schema(conn, _opts) do
-      tenant = Tenants.resolve(conn.host)
-      Process.put(:tenant_schema, "tenant_#{tenant.id}")
-      conn
-    end
-
-Every query (including Sigra's `users`, `users_tokens`, `audit_events`) now hits the tenant's schema. Run migrations per tenant with `Ecto.Migrator.run/4` and `:prefix`.
-
-### Caveats
-
-- Sigra's `:repo` config option is a module, not a repo+prefix pair. If you need per-request prefix override, set it via `Process.put(:tenant_schema, ...)` before the plug chain reaches Sigra, or run a custom repo wrapper.
-- Cross-tenant queries (admin dashboards, aggregate metrics) require explicit `prefix: "tenant_..."` on every call.
-- `mix sigra.install` generates a single migration for the `public` schema. For N tenants, you must replay the migration against each schema.
-
-## Which model to choose
-
-| Criterion | Row-based | Schema-based |
-|-----------|-----------|--------------|
-| Operational simplicity | Simple (one schema, one migration) | Complex (N schemas, N migrations) |
-| Query ergonomics | Must scope every query | Automatic via `search_path` |
-| Isolation strength | Weaker — one missed scope leaks data | Stronger — schema boundary is hard |
-| Backup / restore per tenant | Hard | Easy (`pg_dump -n tenant_42`) |
-| Good fit | Most SaaS apps | Compliance-heavy, per-tenant backups |
-
-Start with row-based unless you have a specific compliance or backup requirement. You can always migrate later.
+Keep your app-owned audit queries aligned with the same org boundary.
 
 ## Testing
 
-    test "users from tenant A cannot log in to tenant B" do
-      tenant_a = tenant_fixture(slug: "alpha")
-      tenant_b = tenant_fixture(slug: "beta")
-      user = user_fixture(tenant_id: tenant_a.id)
+Add direct regression around the scoping helper:
 
-      conn =
-        build_conn()
-        |> Map.put(:host, "beta.myapp.test")
-        |> post(~p"/users/log-in", %{"user" => %{"email" => user.email, "password" => "password1234"}})
+    test "for_org/2 only returns rows for the active organization" do
+      org_a = organization_fixture()
+      org_b = organization_fixture()
+      scope = scope_fixture(active_organization: org_a)
 
-      assert get_flash(conn, :error) =~ "Invalid"
+      project_fixture(organization_id: org_a.id, name: "visible")
+      project_fixture(organization_id: org_b.id, name: "hidden")
+
+      projects =
+        Project
+        |> Sigra.Organizations.Query.for_org(scope)
+        |> Repo.all()
+
+      assert Enum.map(projects, & &1.name) == ["visible"]
     end
+
+Also keep route-level tests for membership requirements. Query helpers make data isolation shorter to express; they do not replace full request coverage.
 
 ## Related
 
-- [Custom User Fields](custom-user-fields.html) — adding `tenant_id` is a custom-field workflow.
-- [Subdomain Authentication](subdomain-auth.html) — subdomain-based tenant resolution needs `cookie_domain`.
-- [Audit Logging](audit-logging.html) — scoping audit queries by tenant.
+- [Getting Started](getting-started.html) — the default organizations and passkeys walkthrough.
+- [Passkeys](passkeys.html) — passkey-primary login and recovery posture inside an org-aware app.
+- [Testing Auth Flows](testing.html) — fixtures and helpers for auth-heavy integration tests.

@@ -31,7 +31,9 @@ defmodule Sigra.APIToken do
   - All operations emit telemetry events for observability
   """
 
+  alias Ecto.Multi
   alias Sigra.APIToken.ScopeRegistry
+  alias Sigra.Audit
   alias Sigra.Telemetry
   alias Sigra.Token
 
@@ -94,32 +96,56 @@ defmodule Sigra.APIToken do
         expires_at: Map.get(attrs, :expires_at)
       })
 
-    case config.repo.insert(changeset) do
-      {:ok, token_record} ->
-        # D-26: api.token_create audit row (standalone, D-28). Metadata
-        # never contains the raw token or hash — only name and scopes
-        # (D-23 forbidden keys enforced by Sigra.Audit.Changeset).
-        # 15-02 Category 2: user resolved, config.scope_module available —
-        # build a user-only scope (org intentionally nil at token create).
-        scope =
-          case config.scope_module do
-            nil -> nil
-            mod -> Sigra.Scope.build(mod, user, active_organization: nil)
-          end
+    scope =
+      case config.scope_module do
+        nil -> nil
+        mod -> Sigra.Scope.build(mod, user, active_organization: nil)
+      end
 
-        Sigra.Audit.log_safe("api.token_create", scope,
-          api_token_audit_opts(config) ++ [
-            actor_id: user.id,
-            target_id: user.id,
-            metadata: %{name: attrs.name, scopes: attrs.scopes}
-          ]
-        )
+    merged_scope_fields =
+      Keyword.merge(api_token_scope_fields(scope), actor_id: user.id, target_id: user.id)
 
+    audit_opts =
+      api_token_audit_opts(config)
+      |> Keyword.merge(merged_scope_fields)
+      |> Keyword.merge(metadata: %{name: attrs.name, scopes: attrs.scopes})
+
+    multi =
+      Multi.new()
+      |> Multi.insert(:api_token, changeset)
+      |> Audit.log_multi_safe("api.token_create", audit_opts)
+
+    case config.repo.transaction(multi) do
+      {:ok, %{api_token: token_record} = changes} ->
+        Audit.emit_telemetry_from_changes(changes)
         {:ok, raw_key, token_record}
 
-      {:error, changeset} ->
-        {:error, changeset}
+      {:error, :api_token, %Ecto.Changeset{} = cs, _} ->
+        {:error, cs}
+
+      {:error, failed, reason, _} ->
+        raise "unexpected Ecto.Multi failure from Sigra.APIToken.do_create/4: " <>
+                "#{inspect(failed)} => #{inspect(reason)}"
     end
+  end
+
+  defp api_token_scope_fields(nil) do
+    [organization_id: nil, effective_user_id: nil, actor_id: nil]
+  end
+
+  defp api_token_scope_fields(%{user: user} = scope) do
+    org = Map.get(scope, :active_organization)
+    actor = Map.get(scope, :impersonating_from) || user
+
+    [
+      organization_id: org && org.id,
+      effective_user_id: user && user.id,
+      actor_id: actor && actor.id
+    ]
+  end
+
+  defp api_token_scope_fields(_other) do
+    [organization_id: nil, effective_user_id: nil, actor_id: nil]
   end
 
   # --- Audit integration helpers (Plan 09-03) ---
@@ -165,13 +191,16 @@ defmodule Sigra.APIToken do
           # D-27: api.token_verify.failure only (success is NOT audited
           # because it would be too noisy; observability is covered by
           # telemetry).
-          Sigra.Audit.log_safe("api.token_verify.failure", nil,
-            api_token_audit_opts(config) ++ [
-              actor_id: nil,
-              target_id: nil,
-              outcome: "failure",
-              metadata: %{reason: "invalid_token"}
-            ]
+          Sigra.Audit.log_safe(
+            "api.token_verify.failure",
+            nil,
+            api_token_audit_opts(config) ++
+              [
+                actor_id: nil,
+                target_id: nil,
+                outcome: "failure",
+                metadata: %{reason: "invalid_token"}
+              ]
           )
 
           {:error, :invalid_token}
@@ -182,12 +211,13 @@ defmodule Sigra.APIToken do
               Sigra.Audit.log_safe(
                 "api.token_verify.failure",
                 Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
-                api_token_audit_opts(config) ++ [
-                  actor_id: Map.get(token, :user_id),
-                  target_id: Map.get(token, :user_id),
-                  outcome: "failure",
-                  metadata: %{reason: "token_revoked"}
-                ]
+                api_token_audit_opts(config) ++
+                  [
+                    actor_id: Map.get(token, :user_id),
+                    target_id: Map.get(token, :user_id),
+                    outcome: "failure",
+                    metadata: %{reason: "token_revoked"}
+                  ]
               )
 
               {:error, :token_revoked}
@@ -197,12 +227,13 @@ defmodule Sigra.APIToken do
               Sigra.Audit.log_safe(
                 "api.token_verify.failure",
                 Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
-                api_token_audit_opts(config) ++ [
-                  actor_id: Map.get(token, :user_id),
-                  target_id: Map.get(token, :user_id),
-                  outcome: "failure",
-                  metadata: %{reason: "token_expired"}
-                ]
+                api_token_audit_opts(config) ++
+                  [
+                    actor_id: Map.get(token, :user_id),
+                    target_id: Map.get(token, :user_id),
+                    outcome: "failure",
+                    metadata: %{reason: "token_expired"}
+                  ]
               )
 
               {:error, :token_expired}
@@ -250,11 +281,12 @@ defmodule Sigra.APIToken do
             Sigra.Audit.log_safe(
               "api.token_revoke",
               Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
-              api_token_audit_opts(config) ++ [
-                actor_id: Map.get(token, :user_id),
-                target_id: Map.get(token, :user_id),
-                metadata: %{token_id: to_string(token_id)}
-              ]
+              api_token_audit_opts(config) ++
+                [
+                  actor_id: Map.get(token, :user_id),
+                  target_id: Map.get(token, :user_id),
+                  metadata: %{token_id: to_string(token_id)}
+                ]
             )
 
             {:ok, updated}
@@ -275,12 +307,15 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh(config, user_id) do
-    Sigra.Audit.log_safe("api.jwt_refresh", Sigra.Scope.from_config(config, %{id: user_id}),
-      api_token_audit_opts(config) ++ [
-        actor_id: user_id,
-        target_id: user_id,
-        metadata: %{}
-      ]
+    Sigra.Audit.log_safe(
+      "api.jwt_refresh",
+      Sigra.Scope.from_config(config, %{id: user_id}),
+      api_token_audit_opts(config) ++
+        [
+          actor_id: user_id,
+          target_id: user_id,
+          metadata: %{}
+        ]
     )
   end
 
@@ -290,13 +325,16 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh_reuse(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh_reuse(config, user_id) do
-    Sigra.Audit.log_safe("api.jwt_refresh_reuse", Sigra.Scope.from_config(config, %{id: user_id}),
-      api_token_audit_opts(config) ++ [
-        actor_id: user_id,
-        target_id: user_id,
-        outcome: "failure",
-        metadata: %{reason: "refresh_token_reuse_detected"}
-      ]
+    Sigra.Audit.log_safe(
+      "api.jwt_refresh_reuse",
+      Sigra.Scope.from_config(config, %{id: user_id}),
+      api_token_audit_opts(config) ++
+        [
+          actor_id: user_id,
+          target_id: user_id,
+          outcome: "failure",
+          metadata: %{reason: "refresh_token_reuse_detected"}
+        ]
     )
   end
 
@@ -527,13 +565,16 @@ defmodule Sigra.APIToken do
   defp extract_scopes(_), do: []
 
   defp maybe_update_last_used(config, token) do
+    schema = Keyword.fetch!(config.api_token, :api_token_schema)
     threshold = Keyword.get(config.api_token, :activity_update_threshold, 300)
 
     should_update =
       is_nil(token.last_used_at) or
         DateTime.diff(DateTime.utc_now(), token.last_used_at, :second) > threshold
 
-    if should_update do
+    # `repo.get_by/2` normally returns a schema struct; test doubles may return
+    # plain maps. `Ecto.Changeset.change/2` requires a struct or changeset.
+    if should_update and match?(%{__struct__: ^schema}, token) do
       Task.start(fn ->
         changeset = Ecto.Changeset.change(token, last_used_at: DateTime.utc_now())
         config.repo.update(changeset)

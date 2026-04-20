@@ -28,7 +28,9 @@ defmodule Sigra.Account.DeletionTest do
     Keyword.merge(
       [
         changeset_fn: fn user, attrs ->
-          known = ~w(deleted_at scheduled_deletion_at original_email pending_email email hashed_password)a
+          known =
+            ~w(deleted_at scheduled_deletion_at original_email pending_email email hashed_password)a
+
           filtered = Map.take(attrs, known)
           Ecto.Changeset.change(user, filtered)
         end,
@@ -57,7 +59,13 @@ defmodule Sigra.Account.DeletionTest do
 
         {:ok,
          %{
-           user: %{user | deleted_at: now, scheduled_deletion_at: scheduled, original_email: user.email, pending_email: nil}
+           user: %{
+             user
+             | deleted_at: now,
+               scheduled_deletion_at: scheduled,
+               original_email: user.email,
+               pending_email: nil
+           }
          }}
       end)
 
@@ -75,10 +83,11 @@ defmodule Sigra.Account.DeletionTest do
     end
 
     test "returns {:error, :already_scheduled} when deletion is already scheduled" do
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+        })
 
       result = Deletion.schedule(Sigra.MockRepo, user, base_opts())
 
@@ -90,11 +99,12 @@ defmodule Sigra.Account.DeletionTest do
 
   describe "cancel/3" do
     test "returns {:ok, user} when deletion is scheduled" do
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: ~U[2026-01-15 00:00:00Z],
-        original_email: "user@example.com"
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z],
+          original_email: "user@example.com"
+        })
 
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
@@ -122,10 +132,11 @@ defmodule Sigra.Account.DeletionTest do
 
   describe "execute/3" do
     test "returns {:ok, :soft_delete} for soft delete strategy" do
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+        })
 
       # Soft delete: just clear MFA data, no row deletion
       Sigra.MockRepo
@@ -140,10 +151,11 @@ defmodule Sigra.Account.DeletionTest do
     end
 
     test "returns {:ok, :hard_delete} and deletes user row" do
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+        })
 
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
@@ -157,10 +169,11 @@ defmodule Sigra.Account.DeletionTest do
     end
 
     test "returns {:ok, :anonymize} and clears PII" do
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+        })
 
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
@@ -186,10 +199,11 @@ defmodule Sigra.Account.DeletionTest do
 
   describe "scheduled?/1" do
     test "returns true when both timestamps are set" do
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+        })
 
       assert Deletion.scheduled?(user) == true
     end
@@ -211,12 +225,14 @@ defmodule Sigra.Account.DeletionTest do
 
   describe "status/1" do
     test "returns {:scheduled, days} when scheduled" do
-      scheduled_at = DateTime.utc_now() |> DateTime.add(7 * 86400, :second) |> DateTime.truncate(:second)
+      scheduled_at =
+        DateTime.utc_now() |> DateTime.add(7 * 86400, :second) |> DateTime.truncate(:second)
 
-      user = build_user(%{
-        deleted_at: ~U[2026-01-01 00:00:00Z],
-        scheduled_deletion_at: scheduled_at
-      })
+      user =
+        build_user(%{
+          deleted_at: ~U[2026-01-01 00:00:00Z],
+          scheduled_deletion_at: scheduled_at
+        })
 
       assert {:scheduled, days} = Deletion.status(user)
       assert days >= 6 and days <= 7
@@ -239,13 +255,15 @@ defmodule Sigra.Account.DeletionTest do
 
   describe "within_cooldown?/2" do
     test "returns true when cancelled_at is within cooldown hours" do
-      cancelled_at = DateTime.utc_now() |> DateTime.add(-3600, :second) |> DateTime.truncate(:second)
+      cancelled_at =
+        DateTime.utc_now() |> DateTime.add(-3600, :second) |> DateTime.truncate(:second)
 
       assert Deletion.within_cooldown?(cancelled_at, 24) == true
     end
 
     test "returns false when cancelled_at is beyond cooldown hours" do
-      cancelled_at = DateTime.utc_now() |> DateTime.add(-25 * 3600, :second) |> DateTime.truncate(:second)
+      cancelled_at =
+        DateTime.utc_now() |> DateTime.add(-25 * 3600, :second) |> DateTime.truncate(:second)
 
       assert Deletion.within_cooldown?(cancelled_at, 24) == false
     end

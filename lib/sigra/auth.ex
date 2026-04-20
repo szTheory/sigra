@@ -158,7 +158,9 @@ defmodule Sigra.Auth do
         {:ok, %{user: user}} ->
           # 15-02 Category 2: registered user is resolved — build user-only
           # scope (org intentionally nil; new accounts have no org yet).
-          Audit.log_safe("auth.register.success", Sigra.Scope.from_opts(opts, user),
+          Audit.log_safe(
+            "auth.register.success",
+            Sigra.Scope.from_opts(opts, user),
             Keyword.merge(audit_opts,
               actor_id: user.id,
               target_id: user.id,
@@ -172,7 +174,9 @@ defmodule Sigra.Auth do
         {:error, :user, %Ecto.Changeset{} = changeset, _changes} ->
           if email_taken_error?(changeset) do
             # 15-02 Category 3: no user resolved — nil scope + target_id: nil.
-            Audit.log_safe("auth.register.failure", nil,
+            Audit.log_safe(
+              "auth.register.failure",
+              nil,
               Keyword.merge(audit_opts,
                 actor_id: nil,
                 target_id: nil,
@@ -183,7 +187,9 @@ defmodule Sigra.Auth do
 
             {:error, :email_taken}
           else
-            Audit.log_safe("auth.register.failure", nil,
+            Audit.log_safe(
+              "auth.register.failure",
+              nil,
               Keyword.merge(audit_opts,
                 actor_id: nil,
                 target_id: nil,
@@ -343,6 +349,7 @@ defmodule Sigra.Auth do
     repo = config.repo
     user_schema = config.user_schema
     require_confirmation = config.require_confirmation
+
     lockout_opts = [
       threshold: Keyword.get(config.lockout, :threshold, 5),
       duration: Keyword.get(config.lockout, :duration, 900)
@@ -365,7 +372,9 @@ defmodule Sigra.Auth do
         # scope (org intentionally nil) and set target_id: user.id.
         user_scope = Sigra.Scope.from_config(config, user)
 
-        Audit.log_safe("security.lockout", user_scope,
+        Audit.log_safe(
+          "security.lockout",
+          user_scope,
           Keyword.merge(audit_opts,
             actor_id: user && user.id,
             target_id: user && user.id,
@@ -386,7 +395,9 @@ defmodule Sigra.Auth do
             # 15-02 D-28 Category 2: pre-org-selection — user-only scope.
             user_scope = Sigra.Scope.from_config(config, user)
 
-            Audit.log_safe("auth.login.success", user_scope,
+            Audit.log_safe(
+              "auth.login.success",
+              user_scope,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
                 target_id: user.id,
@@ -394,14 +405,23 @@ defmodule Sigra.Auth do
               )
             )
 
-            handle_valid_login_with_security(config, repo, user, require_confirmation, %{}, login_ip)
+            handle_valid_login_with_security(
+              config,
+              repo,
+              user,
+              require_confirmation,
+              %{},
+              login_ip
+            )
 
           {:ok, :valid, new_hash} ->
             Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
 
             user_scope = Sigra.Scope.from_config(config, user)
 
-            Audit.log_safe("auth.login.success", user_scope,
+            Audit.log_safe(
+              "auth.login.success",
+              user_scope,
               Keyword.merge(audit_opts,
                 actor_id: user.id,
                 target_id: user.id,
@@ -409,7 +429,14 @@ defmodule Sigra.Auth do
               )
             )
 
-            handle_valid_login_with_security(config, repo, user, require_confirmation, %{hashed_password: new_hash}, login_ip)
+            handle_valid_login_with_security(
+              config,
+              repo,
+              user,
+              require_confirmation,
+              %{hashed_password: new_hash},
+              login_ip
+            )
 
           {:error, :invalid} ->
             if user do
@@ -418,7 +445,9 @@ defmodule Sigra.Auth do
               # scope + target_id: user.id.
               user_scope = Sigra.Scope.from_config(config, user)
 
-              Audit.log_safe("auth.login.failure", user_scope,
+              Audit.log_safe(
+                "auth.login.failure",
+                user_scope,
                 Keyword.merge(audit_opts,
                   actor_id: user.id,
                   target_id: user.id,
@@ -434,7 +463,9 @@ defmodule Sigra.Auth do
               # only the reason label (no email, no email hash — OWASP ASVS
               # V7.1); IP / User-Agent are already in audit_opts as top-level
               # columns, not metadata.
-              Audit.log_safe("auth.login.failure", nil,
+              Audit.log_safe(
+                "auth.login.failure",
+                nil,
                 Keyword.merge(audit_opts,
                   actor_id: nil,
                   target_id: nil,
@@ -484,7 +515,8 @@ defmodule Sigra.Auth do
         # Enumeration-safe: return generic response without DB write
         {:ok, :sent}
 
-      rate_limiter && rate_limited?(rate_limiter, "magic_link:#{normalized_email}", max_requests, window_ms) ->
+      rate_limiter &&
+          rate_limited?(rate_limiter, "magic_link:#{normalized_email}", max_requests, window_ms) ->
         {:error, :rate_limited}
 
       true ->
@@ -506,7 +538,9 @@ defmodule Sigra.Auth do
 
         # 15-02 Category 2 (D-28): pre-auth magic link request with a
         # resolved user — build user-only scope + target_id: user.id.
-        Audit.log_safe("auth.magic_link_request", Sigra.Scope.from_opts(opts, user),
+        Audit.log_safe(
+          "auth.magic_link_request",
+          Sigra.Scope.from_opts(opts, user),
           Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
         )
 
@@ -571,7 +605,9 @@ defmodule Sigra.Auth do
             audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
             # 15-02 Category 2: verified user resolved — user-only scope.
-            Audit.log_safe("auth.magic_link_verify.success", Sigra.Scope.from_opts(opts, user),
+            Audit.log_safe(
+              "auth.magic_link_verify.success",
+              Sigra.Scope.from_opts(opts, user),
               Keyword.merge(audit_opts,
                 actor_id: user.id,
                 target_id: user.id,
@@ -616,22 +652,25 @@ defmodule Sigra.Auth do
     code =
       (uniform_random(900_000) + 100_000)
       |> Integer.to_string()
+
     hashed_code = Token.hash_token(code)
 
     # Build token structs
-    link_struct = struct!(user_token_schema, %{
-      token: hashed_token,
-      context: "confirm",
-      sent_to: user.email,
-      user_id: user.id
-    })
+    link_struct =
+      struct!(user_token_schema, %{
+        token: hashed_token,
+        context: "confirm",
+        sent_to: user.email,
+        user_id: user.id
+      })
 
-    code_struct = struct!(user_token_schema, %{
-      token: hashed_code,
-      context: "confirm_code",
-      sent_to: user.email,
-      user_id: user.id
-    })
+    code_struct =
+      struct!(user_token_schema, %{
+        token: hashed_code,
+        context: "confirm_code",
+        sent_to: user.email,
+        user_id: user.id
+      })
 
     {encoded_token, code, link_struct, code_struct}
   end
@@ -664,7 +703,8 @@ defmodule Sigra.Auth do
 
     # Decode base64, then verify HMAC
     with {:ok, signed} <- Base.url_decode64(encoded_token, padding: false),
-         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-confirm-token", signed, max_age: ttl) do
+         {:ok, raw_token} <-
+           Plug.Crypto.verify(secret_key_base, "sigra-confirm-token", signed, max_age: ttl) do
       hashed_token = Token.hash_token(raw_token)
 
       # Look up token in DB
@@ -892,7 +932,8 @@ defmodule Sigra.Auth do
         Crypto.hash_password("dummy_password_for_timing")
         {:ok, :sent}
 
-      rate_limiter && rate_limited?(rate_limiter, "sigra:reset:#{normalized_email}", max_requests, window_ms) ->
+      rate_limiter &&
+          rate_limited?(rate_limiter, "sigra:reset:#{normalized_email}", max_requests, window_ms) ->
         {:error, :rate_limited}
 
       true ->
@@ -918,7 +959,9 @@ defmodule Sigra.Auth do
 
         # 15-02 Category 2 (D-28): pre-auth password reset request with a
         # resolved user — build user-only scope + target_id: user.id.
-        Audit.log_safe("auth.password_reset_request", Sigra.Scope.from_opts(opts, user),
+        Audit.log_safe(
+          "auth.password_reset_request",
+          Sigra.Scope.from_opts(opts, user),
           Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
         )
 
@@ -953,7 +996,8 @@ defmodule Sigra.Auth do
 
     # Decode base64, then verify HMAC
     with {:ok, signed} <- Base.url_decode64(encoded_token, padding: false),
-         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: ttl) do
+         {:ok, raw_token} <-
+           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: ttl) do
       hashed_token = Token.hash_token(raw_token)
 
       case repo.get_by(user_token_schema, token: hashed_token, context: "reset_password") do
@@ -1055,9 +1099,13 @@ defmodule Sigra.Auth do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
     result =
-      Telemetry.span([:sigra, :session, :create], %{user_id: user.id, type: Map.get(metadata, :type, :standard)}, fn ->
-        session_store.create(user.id, metadata, store_opts)
-      end)
+      Telemetry.span(
+        [:sigra, :session, :create],
+        %{user_id: user.id, type: Map.get(metadata, :type, :standard)},
+        fn ->
+          session_store.create(user.id, metadata, store_opts)
+        end
+      )
 
     # D-26/D-27 (15-02): the `session.create` audit emission is deliberately
     # NOT fired here — it now fires inside `maybe_assign_active_organization/6`
@@ -1071,7 +1119,15 @@ defmodule Sigra.Auth do
           # Fail-open on selector errors — login MUST NOT die if the
           # selector raises (T-14-13). Hydration is fail-closed (D-01),
           # but the login-time selector is fail-open by design.
-          maybe_assign_active_organization(config, user, session, session_store, store_opts, opts, metadata)
+          maybe_assign_active_organization(
+            config,
+            user,
+            session,
+            session_store,
+            store_opts,
+            opts,
+            metadata
+          )
 
         other ->
           other
@@ -1081,7 +1137,15 @@ defmodule Sigra.Auth do
   end
 
   @doc false
-  defp maybe_assign_active_organization(config, user, session, session_store, store_opts, opts, metadata) do
+  defp maybe_assign_active_organization(
+         config,
+         user,
+         session,
+         session_store,
+         store_opts,
+         opts,
+         metadata
+       ) do
     # D-27 (15-02): resolve active org first, then emit `session.create` AFTER
     # org selection so the first audit row of a successful login carries the
     # real `organization_id`. This is the v1.2 impersonation anchor.
@@ -1103,7 +1167,9 @@ defmodule Sigra.Auth do
         user_agent: Map.get(metadata, :user_agent)
       )
 
-    Sigra.Audit.log_safe("session.create", scope,
+    Sigra.Audit.log_safe(
+      "session.create",
+      scope,
       Keyword.merge(audit_opts,
         actor_id: user.id,
         metadata: %{type: Map.get(metadata, :type, :standard), session_id: final_session.id}
@@ -1113,14 +1179,21 @@ defmodule Sigra.Auth do
     {:ok, final_session}
   end
 
-  defp resolve_and_assign_org(_config, organizations_module, user, session, session_store, store_opts, opts) do
+  defp resolve_and_assign_org(
+         _config,
+         organizations_module,
+         user,
+         session,
+         session_store,
+         store_opts,
+         opts
+       ) do
     active_org =
       try do
         org_config = organizations_module.__sigra_org_config__()
 
         selector_opts = [
-          previous_active_organization_id:
-            Keyword.get(opts, :previous_active_organization_id)
+          previous_active_organization_id: Keyword.get(opts, :previous_active_organization_id)
         ]
 
         case Sigra.Organizations.select_active_organization(org_config, user, selector_opts) do
@@ -1192,15 +1265,19 @@ defmodule Sigra.Auth do
     # actor_id is resolved from the opts :user_id if provided; otherwise nil.
     audit_opts = audit_opts_from_config(config)
 
-    # 15-02 Category 2: build a minimal user-map scope from the known
-    # user_id so downstream audit extraction picks up actor/effective_user.
     user_id = Keyword.get(opts, :user_id)
-    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+    actor_id = Keyword.get(opts, :actor_id, user_id)
+    target_id = Keyword.get(opts, :target_id, user_id)
+    effective_user_id = Keyword.get(opts, :effective_user_id, user_id)
+    scope = audit_scope_from_opts(config, opts, effective_user_id)
 
-    Sigra.Audit.log_safe("session.delete", scope,
+    Sigra.Audit.log_safe(
+      "session.delete",
+      scope,
       Keyword.merge(audit_opts,
-        actor_id: user_id,
-        target_id: user_id,
+        actor_id: actor_id,
+        target_id: target_id,
+        effective_user_id: effective_user_id,
         metadata: %{}
       )
     )
@@ -1252,12 +1329,18 @@ defmodule Sigra.Auth do
     # D-26: session.revoke_all audit row (standalone)
     audit_opts = audit_opts_from_config(config)
 
-    scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
+    actor_id = Keyword.get(opts, :actor_id, user_id)
+    target_id = Keyword.get(opts, :target_id, user_id)
+    effective_user_id = Keyword.get(opts, :effective_user_id, user_id)
+    scope = audit_scope_from_opts(config, opts, effective_user_id)
 
-    Sigra.Audit.log_safe("session.revoke_all", scope,
+    Sigra.Audit.log_safe(
+      "session.revoke_all",
+      scope,
       Keyword.merge(audit_opts,
-        actor_id: user_id,
-        target_id: user_id,
+        actor_id: actor_id,
+        target_id: target_id,
+        effective_user_id: effective_user_id,
         metadata: %{count: count}
       )
     )
@@ -1291,6 +1374,13 @@ defmodule Sigra.Auth do
     delete_session(config, hashed_token, opts)
   end
 
+  defp audit_scope_from_opts(config, opts, effective_user_id) do
+    case Keyword.get(opts, :audit_scope) do
+      nil -> effective_user_id && Sigra.Scope.from_config(config, %{id: effective_user_id})
+      scope -> scope
+    end
+  end
+
   @doc """
   Confirm sudo mode by updating sudo_at timestamp.
 
@@ -1322,7 +1412,9 @@ defmodule Sigra.Auth do
     user_id = Keyword.get(opts, :user_id)
     scope = user_id && Sigra.Scope.from_config(config, %{id: user_id})
 
-    Sigra.Audit.log_safe(action, scope,
+    Sigra.Audit.log_safe(
+      action,
+      scope,
       Keyword.merge(audit_opts,
         actor_id: user_id,
         target_id: user_id,
@@ -1362,7 +1454,9 @@ defmodule Sigra.Auth do
   """
   @doc since: "0.5.0"
   @spec login_oauth(Sigra.Config.t() | map(), atom(), map(), map()) ::
-          {:ok, :logged_in, map(), map()} | {:link_confirmation_required, map()} | {:error, term()}
+          {:ok, :logged_in, map(), map()}
+          | {:link_confirmation_required, map()}
+          | {:error, term()}
   def login_oauth(config, provider, user_info, token) do
     Sigra.OAuth.Callback.process_callback(config, provider, user_info, token)
   end
@@ -1524,7 +1618,14 @@ defmodule Sigra.Auth do
 
   # -- Config-based authenticate helpers (Phase 4 Plan 04) --
 
-  defp handle_valid_login_with_security(config, repo, user, require_confirmation, extra_changes, login_ip) do
+  defp handle_valid_login_with_security(
+         config,
+         repo,
+         user,
+         require_confirmation,
+         extra_changes,
+         login_ip
+       ) do
     if require_confirmation and is_nil(Map.get(user, :confirmed_at)) do
       {:error, :unconfirmed}
     else
@@ -1535,6 +1636,7 @@ defmodule Sigra.Auth do
       updated_user =
         if map_size(extra_changes) > 0 do
           changeset = Ecto.Changeset.change(updated_user, extra_changes)
+
           case repo.update(changeset) do
             {:ok, u} -> u
             {:error, _} -> updated_user
@@ -1590,7 +1692,9 @@ defmodule Sigra.Auth do
     # counter stays in metadata (operationally useful; not PII — it is a
     # per-user counter value, not an identity claim). IP + User-Agent live
     # in top-level columns via `audit_opts`, not in metadata.
-    Sigra.Audit.log_safe("security.invalid_credentials", nil,
+    Sigra.Audit.log_safe(
+      "security.invalid_credentials",
+      nil,
       Keyword.merge(audit_opts,
         actor_id: user.id,
         target_id: nil,
@@ -1609,7 +1713,9 @@ defmodule Sigra.Auth do
 
       # D-26: security.lockout audit row.
       # 15-02 Category 2: known user — user-only scope, target_id: user.id.
-      Sigra.Audit.log_safe("security.lockout", Sigra.Scope.from_config(config, user),
+      Sigra.Audit.log_safe(
+        "security.lockout",
+        Sigra.Scope.from_config(config, user),
         Keyword.merge(audit_opts,
           actor_id: user.id,
           target_id: user.id,
@@ -1822,9 +1928,10 @@ defmodule Sigra.Auth do
               :error -> nil
             end
           end,
-          changeset_fn: Keyword.get_lazy(opts, :changeset_fn, fn ->
-            fn user, attrs -> Ecto.Changeset.change(user, attrs) end
-          end),
+          changeset_fn:
+            Keyword.get_lazy(opts, :changeset_fn, fn ->
+              fn user, attrs -> Ecto.Changeset.change(user, attrs) end
+            end),
           token_query_fn: fn user, contexts ->
             user_token_schema.by_user_and_contexts_query(user, contexts)
           end

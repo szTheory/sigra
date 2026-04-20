@@ -209,13 +209,25 @@ defmodule Sigra.PasswordPolicy do
 
   defp validate_composition(changeset, password, opts) do
     changeset
-    |> maybe_require(:uppercase, password, opts[:require_uppercase], ~r/[A-Z]/,
+    |> maybe_require(
+      :uppercase,
+      password,
+      opts[:require_uppercase],
+      ~r/[A-Z]/,
       "must contain at least one uppercase letter"
     )
-    |> maybe_require(:digit, password, opts[:require_digit], ~r/[0-9]/,
+    |> maybe_require(
+      :digit,
+      password,
+      opts[:require_digit],
+      ~r/[0-9]/,
       "must contain at least one digit"
     )
-    |> maybe_require(:special, password, opts[:require_special], ~r/[^a-zA-Z0-9]/,
+    |> maybe_require(
+      :special,
+      password,
+      opts[:require_special],
+      ~r/[^a-zA-Z0-9]/,
       "must contain at least one special character"
     )
   end
@@ -232,9 +244,7 @@ defmodule Sigra.PasswordPolicy do
 
   defp validate_common(changeset, password, true) do
     if CommonPasswords.common?(password) do
-      add_error(changeset, :password, "is too common",
-        validation: :exclusion
-      )
+      add_error(changeset, :password, "is too common", validation: :exclusion)
     else
       changeset
     end

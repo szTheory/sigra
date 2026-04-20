@@ -1,6 +1,7 @@
 defmodule Sigra.Install.InjectorTest do
   use ExUnit.Case, async: true
 
+  alias Sigra.Install.Injection
   alias Sigra.Install.Injector
 
   describe "inject_router_plugs/2" do
@@ -74,6 +75,40 @@ defmodule Sigra.Install.InjectorTest do
     end
   end
 
+  describe "apply/2 with :browser_pipeline anchor" do
+    test "injects fetch_current_scope into the browser pipeline" do
+      tmp = Path.join(System.tmp_dir!(), "sigra-router-#{System.unique_integer([:positive])}.ex")
+
+      File.write!(
+        tmp,
+        """
+        defmodule MyAppWeb.Router do
+          use MyAppWeb, :router
+
+          pipeline :browser do
+            plug :accepts, ["html"]
+            plug :fetch_session
+          end
+        end
+        """
+      )
+
+      on_exit(fn -> File.rm_rf(tmp) end)
+
+      injection = %Injection{
+        target: tmp,
+        marker: "plug :fetch_current_scope",
+        anchor: :browser_pipeline,
+        content: "    plug :fetch_current_scope"
+      }
+
+      assert {:ok, :injected} = Injector.apply(injection, [])
+
+      injected = File.read!(tmp)
+      assert injected =~ "plug :fetch_session\n    plug :fetch_current_scope\n  end"
+    end
+  end
+
   describe "inject_config/2" do
     test "injects config when marker is absent" do
       config_content = """
@@ -96,6 +131,17 @@ defmodule Sigra.Install.InjectorTest do
       assert {:ok, injected} = Injector.inject_config(config_content, config_block)
       assert String.contains?(injected, "# Sigra authentication")
       assert String.contains?(injected, ":sigra")
+    end
+
+    test "injects config before import_config on CRLF line endings without splitting the token" do
+      config_content =
+        "import Config\r\n\r\nconfig :my_app,\r\n  mode: :dev\r\n\r\nimport_config \"\#{config_env()}.exs\"\r\n"
+
+      config_block = "\r\n# Sigra authentication\r\nconfig :my_app, :sigra, repo: MyApp.Repo\r\n"
+
+      assert {:ok, injected} = Injector.inject_config(config_content, config_block)
+      assert String.contains?(injected, "import_config \"\#{config_env()}.exs\"")
+      refute String.contains?(injected, "\nport_config")
     end
 
     test "returns :already_injected when marker is present" do
@@ -214,7 +260,9 @@ defmodule Sigra.Install.InjectorTest do
       """
 
       assert {:ok, first_inject} = Injector.inject_lifecycle_routes(router_content, route_code)
-      assert {:already_injected, ^first_inject} = Injector.inject_lifecycle_routes(first_inject, route_code)
+
+      assert {:already_injected, ^first_inject} =
+               Injector.inject_lifecycle_routes(first_inject, route_code)
     end
   end
 

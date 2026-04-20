@@ -20,8 +20,20 @@ defmodule ExampleWeb.ResetPasswordHTML do
         </:subtitle>
       </.header>
 
-      <.form for={%{}} as={:user} id="reset_password_request_form" action={~p"/users/reset-password"} method="post">
-        <.input name="user[email]" type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+      <.form
+        for={%{}}
+        as={:user}
+        id="reset_password_request_form"
+        action={~p"/users/reset-password"}
+        method="post"
+      >
+        <.input
+          name="user[email]"
+          type="email"
+          label={dgettext("sigra", "Email")}
+          autocomplete="username"
+          required
+        />
 
         <.button class="btn btn-primary w-full">
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
@@ -50,9 +62,27 @@ defmodule ExampleWeb.ResetPasswordHTML do
         </:subtitle>
       </.header>
 
-      <.form :let={f} for={@changeset} id="reset_password_form" action={~p"/users/reset-password/#{@token}"} method="put">
-        <.input field={f[:password]} type="password" label={dgettext("sigra", "New password")} autocomplete="new-password" required />
-        <.input field={f[:password_confirmation]} type="password" label={dgettext("sigra", "Confirm new password")} autocomplete="new-password" required />
+      <.form
+        :let={f}
+        for={@changeset}
+        id="reset_password_form"
+        action={~p"/users/reset-password/#{@token}"}
+        method="put"
+      >
+        <.input
+          field={f[:password]}
+          type="password"
+          label={dgettext("sigra", "New password")}
+          autocomplete="new-password"
+          required
+        />
+        <.input
+          field={f[:password_confirmation]}
+          type="password"
+          label={dgettext("sigra", "Confirm new password")}
+          autocomplete="new-password"
+          required
+        />
 
         <.button class="btn btn-primary w-full">
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>

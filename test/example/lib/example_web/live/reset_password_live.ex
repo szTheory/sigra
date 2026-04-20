@@ -26,7 +26,13 @@ defmodule ExampleWeb.ResetPasswordLive do
         id="reset_password_request_form"
         phx-submit="send_instructions"
       >
-        <.input field={@email_form[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+        <.input
+          field={@email_form[:email]}
+          type="email"
+          label={dgettext("sigra", "Email")}
+          autocomplete="username"
+          required
+        />
 
         <.button phx-disable-with={dgettext("sigra", "Sending...")} class="btn btn-primary w-full">
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
@@ -68,8 +74,8 @@ defmodule ExampleWeb.ResetPasswordLive do
       </div>
 
       <.form
-        :if={!@token_invalid?}
         :let={f}
+        :if={!@token_invalid?}
         for={@form}
         id="reset_password_form"
         phx-submit="reset"
@@ -82,7 +88,13 @@ defmodule ExampleWeb.ResetPasswordLive do
           {dgettext("sigra", "Oops, something went wrong! Please check the errors below.")}
         </p>
 
-        <.input field={f[:password]} type="password" label={dgettext("sigra", "New password")} autocomplete="new-password" required />
+        <.input
+          field={f[:password]}
+          type="password"
+          label={dgettext("sigra", "New password")}
+          autocomplete="new-password"
+          required
+        />
 
         <% # Password strength indicator (reused from registration, D-34) %>
         <div :if={@password_strength} class="mt-1 mb-4">
@@ -100,12 +112,21 @@ defmodule ExampleWeb.ResetPasswordLive do
               {password_strength_label(@password_strength)}
             </span>
           </div>
-          <ul :if={@password_suggestions != []} class="mt-1 text-xs text-gray-500 list-disc list-inside">
+          <ul
+            :if={@password_suggestions != []}
+            class="mt-1 text-xs text-gray-500 list-disc list-inside"
+          >
             <li :for={suggestion <- @password_suggestions}>{suggestion}</li>
           </ul>
         </div>
 
-        <.input field={f[:password_confirmation]} type="password" label={dgettext("sigra", "Confirm new password")} autocomplete="new-password" required />
+        <.input
+          field={f[:password_confirmation]}
+          type="password"
+          label={dgettext("sigra", "Confirm new password")}
+          autocomplete="new-password"
+          required
+        />
 
         <.button phx-disable-with={dgettext("sigra", "Resetting...")} class="btn btn-primary w-full">
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
@@ -155,7 +176,13 @@ defmodule ExampleWeb.ResetPasswordLive do
 
     {:noreply,
      socket
-     |> put_flash(:info, dgettext("sigra", "If your email is in our system, you will receive reset instructions shortly."))
+     |> put_flash(
+       :info,
+       dgettext(
+         "sigra",
+         "If your email is in our system, you will receive reset instructions shortly."
+       )
+     )
      |> redirect(to: ~p"/users/log_in")}
   end
 

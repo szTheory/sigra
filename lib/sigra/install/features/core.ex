@@ -85,8 +85,7 @@ defmodule Sigra.Install.Features.Core do
   def migrations(_binding) do
     [
       {:primary, "core/migration.exs", "create_sigra_auth_tables.exs"},
-      {:active_org_column,
-       "core/add_active_organization_id_to_user_sessions.exs",
+      {:active_org_column, "core/add_active_organization_id_to_user_sessions.exs",
        "add_active_organization_id_to_user_sessions.exs"},
       {:api_token, "core/api_token_migration.exs", "create_user_api_tokens.exs"},
       {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"}
@@ -107,16 +106,20 @@ defmodule Sigra.Install.Features.Core do
     schema_alias = fetch!(binding, :schema_alias)
     repo_module = fetch!(binding, :repo_module)
     otp_app_str = otp_app_str(binding)
+    app_module = fetch!(binding, :app_module)
     api? = api_enabled?(binding)
     jwt? = jwt_enabled?(binding)
     live? = live_enabled?(binding)
 
     base =
       [
+        router_import_injection(otp_app_str, web_module),
+        browser_pipeline_injection(otp_app_str, web_module),
         router_injection(otp_app_str, web_module, live?),
         config_injection(otp_app_str, context_module, schema_alias, repo_module),
         test_config_injection(),
-        conn_case_injection(web_module)
+        conn_case_injection(web_module),
+        vault_injection(binding, app_module)
       ]
 
     base
@@ -155,8 +158,11 @@ defmodule Sigra.Install.Features.Core do
 
     active_org_column_migration =
       {:eex, "core/add_active_organization_id_to_user_sessions.exs",
-       migration_target(binding, :active_org_column,
-         "add_active_organization_id_to_user_sessions.exs")}
+       migration_target(
+         binding,
+         :active_org_column,
+         "add_active_organization_id_to_user_sessions.exs"
+       )}
 
     audit_migration =
       {:eex, "core/create_audit_events.exs",
@@ -165,76 +171,96 @@ defmodule Sigra.Install.Features.Core do
     # Phase 24.1: audit_org_columns_migration removed from Core —
     # see the comment in migrations/1 for rationale.
 
-    [
-      # Primary migration (position 0 in monolith files list)
-      primary_migration,
+    base =
+      [
+        # Primary migration (position 0 in monolith files list)
+        primary_migration,
 
-      # Phase 12: active_organization_id ALTER migration (position 1, before core schemas)
-      active_org_column_migration,
+        # Phase 12: active_organization_id ALTER migration (position 1, before core schemas)
+        active_org_column_migration,
 
-      # Core schemas + context
-      {:eex, "core/user.ex", Path.join(["lib", otp_app, ctx, "user.ex"])},
-      {:eex, "core/user_token.ex", Path.join(["lib", otp_app, ctx, "user_token.ex"])},
-      {:eex, "core/scope.ex", Path.join(["lib", otp_app, ctx, "scope.ex"])},
-      {:eex, "core/auth.ex", Path.join(["lib", otp_app, "#{ctx}.ex"])},
+        # Core schemas + context
+        {:eex, "core/user.ex", Path.join(["lib", otp_app, ctx, "user.ex"])},
+        {:eex, "core/user_token.ex", Path.join(["lib", otp_app, ctx, "user_token.ex"])},
+        {:eex, "core/scope.ex", Path.join(["lib", otp_app, ctx, "scope.ex"])},
+        {:eex, "core/auth.ex", Path.join(["lib", otp_app, "#{ctx}.ex"])},
 
-      # Plug + error handler
-      {:eex, "core/user_auth.ex", Path.join(["lib", web, "user_auth.ex"])},
-      {:eex, "core/error_handler.ex", Path.join(["lib", web, "auth_error_handler.ex"])},
+        # Plug + error handler
+        {:eex, "core/user_auth.ex", Path.join(["lib", web, "user_auth.ex"])},
+        {:eex, "core/error_handler.ex", Path.join(["lib", web, "auth_error_handler.ex"])},
 
-      # Session controller (always — Phase 10.1.1 B9/D-12)
-      {:eex, "core/session_controller.ex",
-       Path.join(["lib", web, "controllers", "session_controller.ex"])},
+        # Session controller (always — Phase 10.1.1 B9/D-12)
+        {:eex, "core/session_controller.ex",
+         Path.join(["lib", web, "controllers", "session_controller.ex"])},
 
-      # Test support
-      {:eex, "core/auth_fixtures.ex",
-       Path.join(["test", "support", "fixtures", "auth_fixtures.ex"])},
-      {:eex, "core/conn_case_helpers.ex", Path.join(["test", "support", "conn_case_helpers.ex"])},
+        # Test support
+        {:eex, "core/auth_fixtures.ex",
+         Path.join(["test", "support", "fixtures", "auth_fixtures.ex"])},
+        {:eex, "core/conn_case_helpers.ex",
+         Path.join(["test", "support", "conn_case_helpers.ex"])},
 
-      # Phase 3: email flow
-      {:eex, "core/emails.ex", Path.join(["lib", otp_app, ctx, "emails.ex"])},
-      {:eex, "core/auth_mailer.ex", Path.join(["lib", otp_app, ctx, "mailer.ex"])},
-      {:eex, "core/confirmation_controller.ex",
-       Path.join(["lib", web, "controllers", "confirmation_controller.ex"])},
-      {:eex, "core/confirmation_html.ex",
-       Path.join(["lib", web, "controllers", "confirmation_html.ex"])},
-      {:eex, "core/reset_password_controller.ex",
-       Path.join(["lib", web, "controllers", "reset_password_controller.ex"])},
-      {:eex, "core/reset_password_html.ex",
-       Path.join(["lib", web, "controllers", "reset_password_html.ex"])},
+        # Phase 3: email flow
+        {:eex, "core/emails.ex", Path.join(["lib", otp_app, ctx, "emails.ex"])},
+        {:eex, "core/auth_mailer.ex", Path.join(["lib", otp_app, ctx, "mailer.ex"])},
+        {:eex, "core/confirmation_controller.ex",
+         Path.join(["lib", web, "controllers", "confirmation_controller.ex"])},
+        {:eex, "core/confirmation_html.ex",
+         Path.join(["lib", web, "controllers", "confirmation_html.ex"])},
+        {:eex, "core/reset_password_controller.ex",
+         Path.join(["lib", web, "controllers", "reset_password_controller.ex"])},
+        {:eex, "core/reset_password_html.ex",
+         Path.join(["lib", web, "controllers", "reset_password_html.ex"])},
 
-      # Phase 4: session management + sudo
-      {:eex, "core/user_session.ex", Path.join(["lib", otp_app, ctx, "user_session.ex"])},
-      {:eex, "core/sudo_controller.ex",
-       Path.join(["lib", web, "controllers", "auth", "sudo_controller.ex"])},
-      {:eex, "core/sudo_html.ex", Path.join(["lib", web, "controllers", "auth", "sudo_html.ex"])},
+        # Phase 4: session management + sudo
+        {:eex, "core/user_session.ex", Path.join(["lib", otp_app, ctx, "user_session.ex"])},
+        {:eex, "core/sudo_controller.ex",
+         Path.join(["lib", web, "controllers", "auth", "sudo_controller.ex"])},
+        {:eex, "core/sudo_html.ex",
+         Path.join(["lib", web, "controllers", "auth", "sudo_html.ex"])},
 
-      # Phase 6: MFA (always generated — gated at runtime by user opt-in)
-      {:eex, "core/user_mfa_credential.ex",
-       Path.join(["lib", otp_app, ctx, "user_mfa_credential.ex"])},
-      {:eex, "core/user_backup_code.ex", Path.join(["lib", otp_app, ctx, "user_backup_code.ex"])},
-      {:eex, "core/mfa_challenge_controller.ex",
-       Path.join(["lib", web, "controllers", "mfa_challenge_controller.ex"])},
-      {:eex, "core/mfa_challenge_html.ex",
-       Path.join(["lib", web, "controllers", "mfa_challenge_html.ex"])},
+        # Phase 6: MFA (always generated — gated at runtime by user opt-in)
+        {:eex, "core/user_mfa_credential.ex",
+         Path.join(["lib", otp_app, ctx, "user_mfa_credential.ex"])},
+        {:eex, "core/user_backup_code.ex",
+         Path.join(["lib", otp_app, ctx, "user_backup_code.ex"])},
+        {:eex, "core/mfa_challenge_controller.ex",
+         Path.join(["lib", web, "controllers", "mfa_challenge_controller.ex"])},
+        {:eex, "core/mfa_challenge_html.ex",
+         Path.join(["lib", web, "controllers", "mfa_challenge_html.ex"])},
 
-      # Phase 9: audit events migration (monolith position 23)
-      audit_migration,
+        # Phase 9: audit events migration (monolith position 23)
+        audit_migration,
 
-      # Phase 24.1: audit_org_columns_migration moved to a later
-      # feature's files/1 so the hard FK to the organizations table
-      # lands AFTER that table is created and only when
-      # --no-organizations is NOT passed.
+        # Phase 24.1: audit_org_columns_migration moved to a later
+        # feature's files/1 so the hard FK to the organizations table
+        # lands AFTER that table is created and only when
+        # --no-organizations is NOT passed.
 
-      # Phase 9: audit schema
-      {:eex, "core/audit_event.ex", Path.join(["lib", otp_app, ctx, "audit_event.ex"])},
+        # Phase 9: audit schema
+        {:eex, "core/audit_event.ex", Path.join(["lib", otp_app, ctx, "audit_event.ex"])},
 
-      # Phase 10.1: Encrypted.Binary passthrough stub
-      {:eex, "core/encrypted.ex", Path.join(["lib", otp_app, ctx, "encrypted.ex"])},
+        # Phase 10.1: Swoosh mailer wrapper (skipped if host already has one)
+        {:eex, "core/mailer.ex", Path.join(["lib", otp_app, "mailer.ex"])}
+      ]
 
-      # Phase 10.1: Swoosh mailer wrapper (skipped if host already has one)
-      {:eex, "core/mailer.ex", Path.join(["lib", otp_app, "mailer.ex"])}
-    ]
+    base
+    |> Kernel.++(vault_files(binding))
+  end
+
+  defp vault_files(binding) do
+    otp_app = otp_app_str(binding)
+    ctx = context_underscore(binding)
+
+    if encrypts_anything?(binding) do
+      [
+        {:eex, "core/vault.ex", Path.join(["lib", otp_app, "vault.ex"])},
+        {:eex, "core/encrypted_binary.ex", Path.join(["lib", otp_app, ctx, "encrypted.ex"])}
+      ]
+    else
+      [
+        {:eex, "core/encrypted.ex", Path.join(["lib", otp_app, ctx, "encrypted.ex"])}
+      ]
+    end
   end
 
   defp ui_files(binding, true) do
@@ -415,11 +441,14 @@ defmodule Sigra.Install.Features.Core do
 
     content = """
       # Sigra authentication
-      import #{web_module}.UserAuth
 
       pipeline :require_authenticated do
         plug :require_authenticated_user
         plug :require_mfa
+      end
+
+      pipeline :require_sudo do
+        plug Sigra.Plug.RequireSudo, error_handler: #{web_module}.AuthErrorHandler
       end
 
       # Phase 14 Plan 03: organization-aware pipelines (opt-in).
@@ -459,7 +488,12 @@ defmodule Sigra.Install.Features.Core do
         pipe_through [:browser, :require_authenticated]
 
         delete "/log_out", SessionController, :delete
-    #{session_management_routes}#{sudo_routes}#{mfa_settings_routes}#{account_lifecycle_routes}
+    #{session_management_routes}#{sudo_routes}#{account_lifecycle_routes}
+      end
+
+      scope "/users", #{web_module} do
+        pipe_through [:browser, :require_authenticated, :require_sudo]
+    #{mfa_settings_routes}
       end
     """
 
@@ -471,6 +505,24 @@ defmodule Sigra.Install.Features.Core do
     }
   end
 
+  defp router_import_injection(otp_app, web_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "import #{web_module}.UserAuth",
+      anchor: :after_use_block,
+      content: "import #{web_module}.UserAuth"
+    }
+  end
+
+  defp browser_pipeline_injection(otp_app, _web_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "router.ex"]),
+      marker: "plug :fetch_current_scope",
+      anchor: :browser_pipeline,
+      content: "    plug :fetch_current_scope"
+    }
+  end
+
   defp config_injection(otp_app, context_module, schema_alias, repo_module) do
     content = """
 
@@ -479,8 +531,22 @@ defmodule Sigra.Install.Features.Core do
       repo: #{repo_module},
       user_schema: #{context_module}.#{schema_alias}
 
+    # Runtime keyword consumed by Sigra admin LiveViews (UsersIndexLive, etc.)
+    # via Application.get_env/2 — keep in sync with #{context_module}.sigra_config/0.
+    config :#{otp_app}, :sigra_config,
+      repo: #{repo_module},
+      user_schema: #{context_module}.#{schema_alias},
+      session: [
+        store: Sigra.SessionStores.Ecto,
+        session_schema: #{context_module}.UserSession
+      ],
+      audit: [
+        audit_schema: #{context_module}.AuditEvent
+      ]
+
     # Sigra worker runtime config (used by Oban workers)
     config :sigra,
+      otp_app: :#{otp_app},
       repo: #{repo_module},
       user_schema: #{context_module}.#{schema_alias},
       email_module: #{context_module}.Emails,
@@ -518,6 +584,17 @@ defmodule Sigra.Install.Features.Core do
       anchor: :conn_case_helpers,
       content: "      import #{web_module}.ConnCaseHelpers"
     }
+  end
+
+  defp vault_injection(binding, app_module) do
+    if encrypts_anything?(binding) do
+      %Injection{
+        target: Path.join(["lib", otp_app_str(binding), "application.ex"]),
+        marker: "#{app_module}.Vault",
+        anchor: :vault_child,
+        content: app_module
+      }
+    end
   end
 
   defp api_injections(otp_app, web_module, jwt?) do
@@ -638,6 +715,13 @@ defmodule Sigra.Install.Features.Core do
         ""
       end
 
+    passkeys_line =
+      if Keyword.get(opts, :passkeys, true) do
+        "  Passkeys: enabled (default)\n"
+      else
+        "  Passkeys: disabled via --no-passkeys\n"
+      end
+
     """
 
     Sigra authentication has been installed!
@@ -665,7 +749,7 @@ defmodule Sigra.Install.Features.Core do
                use Hammer, backend: :ets
              end
 
-    #{live_line}
+    #{live_line}#{passkeys_line}
     #{api_line}#{jwt_line}
     """
   end
@@ -768,6 +852,14 @@ defmodule Sigra.Install.Features.Core do
     binding
     |> fetch!(:context_alias)
     |> Macro.underscore()
+  end
+
+  defp encrypts_anything?(binding) do
+    opts = Keyword.get(binding, :opts, [])
+
+    Keyword.get(opts, :passkeys, false) or
+      Keyword.get(opts, :mfa, true) or
+      Keyword.get(opts, :oauth, true)
   end
 
   defp api_enabled?(binding) do

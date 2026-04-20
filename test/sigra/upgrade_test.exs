@@ -151,6 +151,34 @@ defmodule Sigra.UpgradeTest do
     end
   end
 
+  describe "next_migration_timestamp/2" do
+    test "produces monotonically increasing prefixes when called twice in the same second" do
+      # Regression test for Phase 25 Bug B: mix sigra.install + mix sigra.upgrade
+      # ran back-to-back in the same second collided on migration version.
+      # Generator must scan priv/repo/migrations/ and bump past the highest extant
+      # timestamp, producing monotonically increasing 14-digit prefixes.
+      tmp_dir =
+        System.tmp_dir!()
+        |> Path.join("sigra_upgrade_ts_test_#{System.unique_integer([:positive])}")
+
+      File.mkdir_p!(tmp_dir)
+      on_exit(fn -> File.rm_rf!(tmp_dir) end)
+
+      # Seed with a known-high timestamp to force the scan-and-bump path
+      File.write!(Path.join(tmp_dir, "20260415102050_fake.exs"), "")
+
+      t1 = Sigra.Upgrade.next_migration_timestamp(tmp_dir, 0)
+      t2 = Sigra.Upgrade.next_migration_timestamp(tmp_dir, 1)
+
+      assert String.length(t1) == 14
+      assert String.length(t2) == 14
+      assert t1 =~ ~r/^\d{14}$/
+      assert t2 =~ ~r/^\d{14}$/
+      assert String.to_integer(t1) > 20_260_415_102_050
+      assert String.to_integer(t2) > String.to_integer(t1)
+    end
+  end
+
   describe "build_plan/3 regression coverage (WARNING 7 prep + INFO 8)" do
     test "produces an injection with config :sigra, :schema_version marker" do
       plan = Upgrade.build_plan([], "0.0.0", "0.1.0")
@@ -165,6 +193,69 @@ defmodule Sigra.UpgradeTest do
       [injection] = plan.injections
       # Must not raise.
       _ = Code.string_to_quoted!(injection.content)
+    end
+  end
+
+  describe "promote_vault/1" do
+    test "rewrites the plaintext stub and injects vault support when the stub is present" do
+      File.mkdir_p!(Path.join(["lib", "sigra", "accounts"]))
+      File.mkdir_p!(Path.join(["lib", "sigra"]))
+
+      File.write!(
+        Path.join(["lib", "sigra", "accounts", "encrypted.ex"]),
+        """
+        defmodule Sigra.Accounts.Encrypted.Binary do
+          use Ecto.Type
+          def type, do: :binary
+        end
+        """
+      )
+
+      promotion = Upgrade.promote_vault([])
+
+      assert promotion.enabled?
+      assert Enum.any?(promotion.files, &String.ends_with?(&1.target, "lib/sigra/vault.ex"))
+
+      assert Enum.any?(
+               promotion.files,
+               &String.ends_with?(&1.target, "lib/sigra/accounts/encrypted.ex")
+             )
+
+      plan = Upgrade.build_plan([], "0.0.0", "0.1.0")
+      assert Enum.any?(plan.injections, &(&1.anchor == :vault_child))
+    end
+  end
+
+  describe "verify_vault!/1" do
+    defmodule VerifyVaultStub.Encrypted.Binary do
+      def __sigra_encryption_mode__, do: :stub
+    end
+
+    defmodule VerifyVaultReal.Encrypted.Binary do
+      def __sigra_encryption_mode__, do: :vault
+    end
+
+    defmodule VerifyVaultStub.User do
+    end
+
+    defmodule VerifyVaultReal.User do
+    end
+
+    test "raises when passkeys are enabled but the stub encryption module is loaded" do
+      assert_raise RuntimeError, ~r/passkeys are enabled/, fn ->
+        Sigra.Application.verify_vault!(
+          user_schema: VerifyVaultStub.User,
+          passkeys: [enabled: true]
+        )
+      end
+    end
+
+    test "passes when the real vault-backed encryption module is loaded" do
+      assert :ok =
+               Sigra.Application.verify_vault!(
+                 user_schema: VerifyVaultReal.User,
+                 passkeys: [enabled: true]
+               )
     end
   end
 end

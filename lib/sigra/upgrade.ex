@@ -134,19 +134,29 @@ defmodule Sigra.Upgrade do
 
   @doc false
   def build_plan(opts, source, target) do
+    vault_promotion = promote_vault(opts)
+
     %{
       source: source,
       target: target,
-      files: files_to_emit(opts),
-      injections: injections_to_apply(target),
-      migrations: migrations_to_emit(opts)
+      files: files_to_emit(opts, vault_promotion),
+      injections: injections_to_apply(target, vault_promotion),
+      migrations: migrations_to_emit(opts),
+      vault_promotion: vault_promotion
     }
   end
 
-  defp files_to_emit(_opts), do: []
+  defp files_to_emit(_opts, vault_promotion), do: vault_promotion.files
 
-  defp injections_to_apply(target_version) do
-    [version_sentinel_injection(target_version)]
+  defp injections_to_apply(target_version, vault_promotion) do
+    base = [version_sentinel_injection(target_version)]
+
+    if vault_promotion.enabled? do
+      base ++
+        [vault_child_injection(vault_promotion.application_path, vault_promotion.app_module)]
+    else
+      base
+    end
   end
 
   @doc false
@@ -206,6 +216,15 @@ defmodule Sigra.Upgrade do
     }
   end
 
+  defp vault_child_injection(application_path, app_module) do
+    %Injection{
+      target: application_path,
+      marker: "#{app_module}.Vault",
+      anchor: :vault_child,
+      content: app_module
+    }
+  end
+
   # ── Interactive confirmation ─────────────────────────────────────
 
   defp maybe_confirm(plan, opts) do
@@ -244,11 +263,21 @@ defmodule Sigra.Upgrade do
       print_plan(plan)
       :ok
     else
+      emit_files(plan.files)
       Enum.each(plan.injections, &apply_injection/1)
       emit_migrations(plan.migrations)
       print_summary(plan)
       :ok
     end
+  end
+
+  defp emit_files(files) do
+    Enum.each(files, fn file ->
+      content = EEx.eval_file(file.template_path, file.binding)
+      File.mkdir_p!(Path.dirname(file.target))
+      File.write!(file.target, content)
+      Mix.shell().info("* creating #{file.target}")
+    end)
   end
 
   defp apply_injection(injection) do
@@ -265,12 +294,14 @@ defmodule Sigra.Upgrade do
   end
 
   defp emit_migrations(migrations) do
-    Enum.each(migrations, fn {template, output_name} ->
-      write_migration(template, output_name)
+    migrations
+    |> Enum.with_index()
+    |> Enum.each(fn {{template, output_name}, counter} ->
+      write_migration(template, output_name, counter)
     end)
   end
 
-  defp write_migration(template, output_name) do
+  defp write_migration(template, output_name, counter) do
     dest_dir =
       if template == "data_migration.exs" do
         Path.join(["priv", "repo", "data_migrations"])
@@ -280,9 +311,14 @@ defmodule Sigra.Upgrade do
 
     File.mkdir_p!(dest_dir)
 
-    # Timestamp with a microsecond bump so two migrations emitted in
-    # the same second get distinct prefixes (shipped ALTER pair).
-    timestamp = Calendar.strftime(DateTime.utc_now(), "%Y%m%d%H%M%S")
+    # Scan priv/repo/migrations/ and bump past the highest extant
+    # timestamp so that `mix sigra.install` followed immediately by
+    # `mix sigra.upgrade` (same second) can't collide on version.
+    # The counter threads across the per-run migration list so the
+    # ALTER pair (and optional data-migration shim) get strictly
+    # monotonic 14-digit prefixes. (Phase 25 Bug B fix.)
+    migrations_dir = Path.join(["priv", "repo", "migrations"])
+    timestamp = next_migration_timestamp(migrations_dir, counter)
     dest = Path.join(dest_dir, "#{timestamp}_#{output_name}")
 
     template_path =
@@ -300,6 +336,8 @@ defmodule Sigra.Upgrade do
     repo = repo_module(otp_app)
 
     [
+      otp_app: otp_app,
+      app_module: inspect(Module.concat([base])),
       # Match `Mix.Tasks.Sigra.Install.build_binding/4` precedent
       # exactly: `inspect/1` on a module atom renders as the bare
       # `MyApp.Repo` identifier (EEx `<%= repo_module %>` would
@@ -312,6 +350,64 @@ defmodule Sigra.Upgrade do
     ]
   end
 
+  @doc false
+  def promote_vault(_opts) do
+    binding = upgrade_binding()
+    otp_app = binding[:otp_app] |> to_string()
+    app_module = binding[:app_module]
+    encrypted_path = Path.join(["lib", otp_app, "accounts", "encrypted.ex"])
+    vault_path = Path.join(["lib", otp_app, "vault.ex"])
+    application_path = Path.join(["lib", otp_app, "application.ex"])
+
+    enabled? =
+      File.exists?(encrypted_path) and
+        encrypted_stub?(File.read!(encrypted_path))
+
+    files =
+      if enabled? do
+        [
+          maybe_promoted_vault_file(vault_path, binding),
+          %{
+            target: encrypted_path,
+            template_path: install_template_path("core/encrypted_binary.ex"),
+            binding: binding
+          }
+        ]
+        |> Enum.reject(&is_nil/1)
+      else
+        []
+      end
+
+    %{
+      enabled?: enabled?,
+      files: files,
+      application_path: application_path,
+      app_module: app_module
+    }
+  end
+
+  defp maybe_promoted_vault_file(vault_path, binding) do
+    if File.exists?(vault_path) do
+      nil
+    else
+      %{
+        target: vault_path,
+        template_path: install_template_path("core/vault.ex"),
+        binding: binding
+      }
+    end
+  end
+
+  defp encrypted_stub?(content) do
+    String.contains?(content, "PASSTHROUGH STUB") or
+      String.contains?(content, "__sigra_encryption_mode__, do: :stub") or
+      String.contains?(content, "use Ecto.Type")
+  end
+
+  defp install_template_path(template) do
+    Path.join([:code.priv_dir(:sigra), "templates", "sigra.install", template])
+  end
+
   defp repo_module(otp_app) do
     case Application.get_env(otp_app, :ecto_repos, []) do
       [repo | _] -> repo
@@ -319,7 +415,58 @@ defmodule Sigra.Upgrade do
     end
   end
 
+  # ── Migration timestamp generator (Phase 25 Bug B fix) ────────────
+
+  @doc false
+  @spec next_migration_timestamp(Path.t(), non_neg_integer()) :: String.t()
+  def next_migration_timestamp(migrations_dir, counter)
+      when is_binary(migrations_dir) and is_integer(counter) and counter >= 0 do
+    now_stamp =
+      DateTime.utc_now()
+      |> Calendar.strftime("%Y%m%d%H%M%S")
+      |> String.to_integer()
+
+    highest_existing =
+      if File.dir?(migrations_dir) do
+        migrations_dir
+        |> File.ls!()
+        |> Enum.map(&extract_migration_version/1)
+        |> Enum.reject(&is_nil/1)
+        |> case do
+          [] -> 0
+          versions -> Enum.max(versions)
+        end
+      else
+        0
+      end
+
+    next = max(now_stamp, highest_existing + 1) + counter
+
+    next
+    |> Integer.to_string()
+    |> String.pad_leading(14, "0")
+  end
+
+  @spec extract_migration_version(String.t()) :: non_neg_integer() | nil
+  defp extract_migration_version(filename) do
+    case Regex.run(~r/^(\d{14})_/, filename) do
+      [_, version] -> String.to_integer(version)
+      _ -> nil
+    end
+  end
+
   defp print_summary(plan) do
+    banner =
+      if plan.vault_promotion.enabled? do
+        """
+
+          → Generate and export CLOAK_KEY before boot:
+            iex> 32 |> :crypto.strong_rand_bytes() |> Base.encode64()
+        """
+      else
+        ""
+      end
+
     Mix.shell().info("""
 
     Applied:
@@ -331,6 +478,7 @@ defmodule Sigra.Upgrade do
       → Run: mix ecto.migrate
 
     Next steps:
+    #{banner}
       📖 See: https://hexdocs.pm/sigra/upgrade-v1.1.html
     """)
   end

@@ -91,4 +91,7 @@ defmodule Mix.Tasks.Sigra.Upgrade do
     validated = NimbleOptions.validate!(opts, @options_schema)
     Sigra.Upgrade.run(validated)
   end
+
+  @doc false
+  def promote_vault(opts), do: Sigra.Upgrade.promote_vault(opts)
 end

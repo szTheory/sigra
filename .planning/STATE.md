@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Foundations
-status: executing
-stopped_at: Phase 17 UI-SPEC approved
-last_updated: "2026-04-15T09:50:47.566Z"
-last_activity: 2026-04-15
+milestone: v1.3
+milestone_name: Cleanup & Hardening
+status: shipped
+stopped_at: Milestone closed via `/gsd-complete-milestone` — archives under `.planning/milestones/v1.3-*`, live `REQUIREMENTS.md` removed; next `/gsd-new-milestone`
+last_updated: "2026-04-19T18:00:00.000Z"
+last_activity: 2026-04-19 -- Milestone archive + planning doc refresh
 progress:
-  total_phases: 16
-  completed_phases: 9
-  total_plans: 38
-  completed_plans: 38
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 11
+  completed_plans: 11
   percent: 100
 ---
 
@@ -18,19 +18,40 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-11 — v1.1 Foundations milestone)
+See: .planning/PROJECT.md (updated 2026-04-19)
 
-**Core value:** Authentication that works out of the box with great DX — so developers can ship SaaS apps fast and grow with confidence.
-**Current focus:** Phase 19 — passkey-schema-and-contexts (next up; requires wax_ 0.7 spike)
+**Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
+**Current focus:** **Planning gap** — run `/gsd-new-milestone` to author the next `.planning/REQUIREMENTS.md` and active roadmap slice (v1.3 shipped 2026-04-19).
 
 ## Current Position
 
-Phase: 19
-Plan: Not started
-Status: Ready to plan Phase 19 (Passkeys track kickoff)
-Last activity: 2026-04-15 — Phase 11 ROADMAP bookkeeping closure
+Milestone **v1.3 Cleanup & Hardening** is **shipped** and archived. Phases **36–40** are complete on disk with passing `*-VERIFICATION.md` where applicable; consolidated evidence lives under `.planning/v1.3-HUMAN-UAT.md`, `.planning/uat-evidence/v1.3.0/`, and `docs/uat-ci-coverage.md`.
 
-Progress: [██████░░░░] 62% (9/14 v1.1 phases complete — 11–18 + 24 done, 19–23 remaining)
+Last activity: 2026-04-19 — `/gsd-complete-milestone` archival pass (milestones + `ROADMAP.md` + `MILESTONES.md` + `PROJECT.md` + `RETROSPECTIVE.md`).
+
+Progress: [██████████] 100% **v1.3**; **next focus:** `/gsd-new-milestone` when ready to define the next shipped increment.
+
+### v1.3 closure
+
+- Archives: `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`
+- Live `.planning/REQUIREMENTS.md` removed at close (per GSD complete-milestone workflow)
+- Git tag `v1.3` records the planning + code state at ship (see `git show v1.3`)
+
+## Performance Metrics
+
+**Velocity (v1.3):**
+
+- Total plans completed: 11 / 11
+- Average duration: —
+- Total execution time: 2026-04-17 → 2026-04-19 (calendar span for planning artifacts)
+
+**By Phase:**
+
+| Phase | Plans | Notes |
+|-------|-------|-------|
+| 36–40 | 2+2+2+3+2 | See each phase directory for plan-level timing |
+
+**Recent Trend:** v1.3 closed as a hardening milestone (no net-new product surface).
 
 ## Accumulated Context
 
@@ -39,36 +60,65 @@ Progress: [██████░░░░] 62% (9/14 v1.1 phases complete — 11
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- v1.1 scope split decided 2026-04-11: Organizations + Passkeys in v1.1 "Foundations"; Admin UI + Impersonation + expanded Audit views deferred to v1.2 "Admin Dashboard". Reason: orgs is architecturally foundational and retrofitting it into an admin UI later would be painful. Rationale captured in `/Users/jon/.claude/plans/breezy-beaming-beacon.md`.
-- v1.1 Organizations: logical multi-tenancy only — single DB, single PG schema, `org_id` FK pattern. No PG-schema-per-tenant or DB-per-tenant modes. Document extension point for host apps that need physical isolation.
-- v1.1 Organizations: 3-enum role convention (`owner` / `admin` / `member`). Full RBAC / permission policies remain out of Sigra's scope per PROJECT.md Key Decisions.
-- v1.1 will introduce the first conditional generator template pattern (via `--organizations` / `--passkeys` flags). This pattern is load-bearing for v1.2's `--admin` / `--no-admin` and must be designed carefully — **locked into Phase 11 as foundation**.
-- v1.2 full direction earmarked in `.planning/v1.2-DIRECTION.md` (dormant). Reconfirm with user at v1.2 kick-off time; do not execute against it directly.
-- Roadmap numbering: v1.1 phases start at 11 (continuing from v1.0 phase 10.1.1). 999.x backlog phases retained in place.
-- Phase order respects the ARCHITECTURE.md Part D dependency graph: phase 11 + 12 are strict foundation; phases 13–18 (org track) and 19–21 (passkey track) run in parallel after foundation lands; phases 18 and 22 are serialization points; phase 23 gates the release.
-- Every v1.2 load-bearing decision is embedded in the phase that ships it: reserved `:impersonating_from` field (phase 12), real `effective_user_id` audit column (phase 15), subdir feature manifest (phase 11), `admin` in reserved slug list (phase 13), nilify-on-delete FK (phase 13), `Sigra.Workers` behaviour (phase 15), passkey enrollment sudo gate (phase 21).
+- v1.2 starts at Phase 27 to continue after the Phase 24-26 closeout work rather than resetting milestone numbering.
+- v1.2 is grouped into five delivery phases: admin access foundation, user operations, secure impersonation, audit exploration/export, and automation-first verification.
+- The milestone remains auth-first on Phoenix/LiveView; no separate SPA stack or generic admin framework is introduced.
+- Verification artifacts are milestone scope, not release hardening after feature work.
+- [Phase 27]: Admin is a first-class installer feature enabled by default and omitted only via --no-admin.
+- [Phase 27]: The generated host app owns only the admin policy module and shell component; long-lived runtime stays library-owned.
+- [Phase 27]: Admin router wiring uses normal Phoenix scopes and live_session blocks rather than forward.
+- [Phase 27]: Admin route intent resolves into a library-owned Sigra.Admin.Scope that distinguishes :global from :organization access.
+- [Phase 27]: Denied global admin access uses insufficient_scope, while unknown or out-of-scope organization routes collapse to not_found.
+- [Phase 27]: Direct-path admin queries must scope organization access through Sigra.Organizations.Query.for_org/2.
+- [Phase 27]: Example admin routes mount through dedicated global and organization live_session blocks with library-owned admin scope resolution.
+- [Phase 27]: ExampleWeb.Layouts.admin is the host-owned shell seam and keeps Admin plus the active global or organization scope visible across admin pages.
+- [Phase 27]: Example.SigraAdminPolicy uses explicit fixture-backed email prefixes for platform-admin and org-admin tests instead of bootstrap inference.
+- [Phase 28]: Resolved admin user hooks from the configured accounts module when present, otherwise by deriving the accounts context from config.user_schema.
+- [Phase 28]: Kept the Phase 28 hook contract read-only and data-returning so host hooks cannot mutate scoped queries or bypass authorization.
+- [Phase 28]: Created skipped Wave 0 contract tests now so later plans turn named scenarios green instead of inventing surface requirements late.
+- [Phase 28]: The admin user list stays URL-driven through handle_params/3 and carries return_to state forward in rendered Open user links.
+- [Phase 28]: Organization membership lookup is constrained to the active admin scope so org routes cannot pivot into other organization memberships.
+- [Phase 28]: Kept the user detail loader library-owned and scope-safe so both global and organization routes resolve the same target data contract.
+- [Phase 28]: Reused Sigra.Auth revoke APIs for revoke-one and revoke-all so audit logging and disconnect side effects remain centralized.
+- [Phase 28]: Preserved the global detail lens while making organization pivots explicit in link copy and destination URLs.
+- [Phase 29]: Impersonation start, stop, and timeout evaluation stay library-owned and reuse real Sigra session primitives.
+- [Phase 29]: Dual-actor attribution flows through `scope.impersonating_from` so `Sigra.Audit.scope_fields/1` remains the canonical assembly point.
+- [Phase 29]: The web layer preserves the original admin session token in Plug session keys and restores it through `UserAuth` rather than separate impersonation persistence.
+- [Phase 29]: Impersonation stop lives at `/impersonation` outside admin-only scopes so persistent chrome can end impersonation from any authenticated page.
+- [Phase 29]: The example app keeps the sudo redirect local to impersonation start and reuses `/users/sudo?return_to=...` without widening shared auth error handling.
+- [Phase 29]: The user detail danger zone is the single impersonation entry point; host-owned chrome only renders explicit state plus the app-wide stop action.
+- [Phase 29]: LiveView `mount_current_scope` must preserve `impersonating_from` from the saved admin token so connected pages keep the same impersonation banner contract as controller renders.
+- [Phase 29]: The controller boundary uses a reusable plug, while LiveView handlers fail closed through explicit impersonation checks and Accounts scope guards.
+- [Phase 29]: Denied sensitive operations reuse the existing audit pipeline with admin.impersonation.denied rows instead of a separate logging path.
+- [Phase 29]: Generated API-token mutations now guard the wrapper seam directly and translate impersonation-forbidden tuples into explicit 403 JSON responses.
+- [Phase 30]: Kept subject-user semantics in Sigra.Admin.Audit.Query so later audit surfaces reuse the canonical lower-level filter builder unchanged.
+- [Phase 30]: Extended Sigra.Auth session revoke audit opts for explicit actor, effective user, target, and scope instead of creating an admin-only audit path.
+- [Phase 30]: Kept audit filtering on the existing order_by and order_direction query-string pattern instead of inventing a second sort contract for admin list surfaces.
+- [Phase 30]: Returned an empty organization-scoped audit view for out-of-scope organization filter params so the route stays fail-closed without widening into cross-org data.
+- [Phase 30]: Per-user org-scoped audit routes intentionally widen only to organization_scope {:including_global, org_id} so the same user's global support rows stay visible without changing org-wide explorer behavior.
+- [Phase 30]: Recent Audit on user detail now delegates to the same admin subject-user query contract as the full explorer, closing the old target-only drift.
+- [Phase 30]: Kept audit CSV export on the same normalized query-param contract as the explorer routes.
+- [Phase 30]: Used explicit apostrophe prefix escaping plus CSV quoting for dangerous spreadsheet prefixes instead of a new dependency.
+- [Phase 30]: Mounted GET export endpoints beside global, organization, and per-user explorer routes so evidence URLs stay reproducible.
+- [Phase 39 context]: AUD-01 — plain-function audit test helpers with partial-field asserts and explicit `repo`; optional host `DataCase` snippet for Sandbox. AUD-02 — **`Sigra.APIToken` `do_create/4`** as first `Ecto.Multi` + `__log_internal__` conversion (fallback: bounded phased plan). AUD-03 — audit-aware integration tests for **token create**, **login/lockout**, **MFA or OAuth link** (planner picks third if cost differs). Docs — anchor C-1 story in **`REQUIREMENTS.md` + `CHANGELOG` + SEED-002**; optional `docs/audit-semantics.md`.
 
 ### Pending Todos
 
-- Run `/gsd-discuss-phase 17` first to lock decisions for Phase 17 (Invitation Flow + Email) — token storage shape, HMAC bind format, rate-limit budget, plug split vs reuse — then `/gsd-plan-phase 17`. Phase 16 baked in the seam: `<section id="pending-invitations-section">` and the disabled "Invite member" button are intentional extension points; Phase 17 should mirror Plan 05's event-handler naming and Plan 04's error-remap helper shape (per VERIFICATION.md recommendation).
-- Phase 16 follow-up (do NOT block Phase 17): library slug-alias migration template uses `now()` in a Postgres partial-unique index predicate — Postgres rejects non-IMMUTABLE functions in index predicates. Plan 06 worked around it in the example app with a plain unique index on `old_slug`, but the library template still ships the partial-index form and may hit the same error on real hosts. Fix in a small dedicated phase or fold into Phase 17 prep.
-- Run `/gsd-plan-phase 11` to begin decomposing Phase 11 (Generator Feature System).
-- Before Phase 11 planning: spike the subdir pattern against `phx.gen.auth` 1.8.5 renderer (SUMMARY.md research flag).
-- Before Phase 19 planning: 30-min Context7 verify of `Wax.Challenge` struct shape + `aaguid` return type in `wax_ 0.7`, and 2-4 hour `WaxJson` bridge validation against SimpleWebAuthn vectors.
-- Before Phase 20 planning: Plug session cookie size sanity check under 60s TTL + `app.js` injection-target detection.
-
-### Roadmap Evolution
-
-- Phase 24 added: Repair Phase 16/17 organizations generator templates (addresses DEF-18-01 and DEF-18-02 — pre-existing Phase 16/17 org template bugs surfaced when Phase 18 Wave 1 registered `Features.Organizations`)
+None yet.
 
 ### Blockers/Concerns
 
-- Conditional template generator pattern design must be right the first time — v1.2 depends on it. Lock pattern in Phase 11 before phases 12+ build on top.
-- `test/upgrade_test.exs` fixture (phase 18) is a hard deliverable before the release gate in phase 23 — do not let it slip.
-- Phase 19 kickoff spikes are MEDIUM confidence; if `wax_ 0.7` struct shapes diverge from assumption, `Sigra.Passkeys.Registration` may need light reshape.
+- None. gsd-sdk `query init.new-milestone` unavailable in this environment — planning updated manually.
+
+## Deferred Items
+
+| Category | Item | Status | Notes |
+|----------|------|--------|-------|
+| seed | SEED-001 residuals | open | Real mail clients / live OAuth UX / clean-machine / backup-code rotation — see `PROJECT.md` |
+| seed | SEED-002 remainder | open | Broader `log_safe/3` → `Ecto.Multi` audit conversion beyond `api.token_create` |
 
 ## Session Continuity
 
-Last session: 2026-04-13T17:54:48.518Z
-Stopped at: Phase 17 UI-SPEC approved
-Resume file: .planning/phases/17-invitation-flow-email/17-UI-SPEC.md
+Last session: 2026-04-19 (milestone close)
+Stopped at: **v1.3 shipped** — next `/gsd-new-milestone`
+Resume file: _none — start a new milestone when requirements exist_

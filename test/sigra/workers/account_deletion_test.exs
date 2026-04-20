@@ -158,14 +158,14 @@ defmodule Sigra.Workers.AccountDeletionTest do
     test "checks both deleted_at and scheduled_deletion_at" do
       # Directly test the Deletion.scheduled? function the worker depends on
       assert Sigra.Account.Deletion.scheduled?(%{
-        deleted_at: DateTime.utc_now(),
-        scheduled_deletion_at: DateTime.add(DateTime.utc_now(), 86400, :second)
-      })
+               deleted_at: DateTime.utc_now(),
+               scheduled_deletion_at: DateTime.add(DateTime.utc_now(), 86400, :second)
+             })
 
       refute Sigra.Account.Deletion.scheduled?(%{
-        deleted_at: nil,
-        scheduled_deletion_at: nil
-      })
+               deleted_at: nil,
+               scheduled_deletion_at: nil
+             })
     end
   end
 end

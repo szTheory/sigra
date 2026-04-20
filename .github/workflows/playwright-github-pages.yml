@@ -1,0 +1,196 @@
+# Publishes Playwright HTML reports (with videos on checkpoint/generated lanes when
+# SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1) to the gh-pages branch for GitHub Pages.
+#
+# One static site update per run: merges prior runs/ from gh-pages, appends this
+# run, prunes folders with YYYYMMDD- prefix older than 7 days, force-pushes a
+# single orphan commit (keeps binary history from growing without bound).
+#
+# After a successful push, scripts/ci/ensure-github-pages-legacy-branch.sh calls
+# the REST API to create/update the Pages site to legacy + gh-pages / so you
+# normally do not open Settings → Pages manually.
+
+name: Playwright reports (GitHub Pages)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily UTC; adjust if you want a different window.
+    - cron: '45 6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/playwright-github-pages.yml'
+      - 'scripts/ci/assemble-playwright-gh-pages-site.sh'
+      - 'scripts/ci/ensure-github-pages-legacy-branch.sh'
+      - 'test/example/priv/playwright/**'
+
+concurrency:
+  group: playwright-gh-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish Playwright site
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pages: write
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    env:
+      CI: 'true'
+      SIGRA_EXAMPLE_URL: 'http://localhost:4000'
+      SIGRA_PLAYWRIGHT_PAGES_PUBLISH: '1'
+      RETENTION_DAYS: '7'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903  # v6.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache example deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium webkit
+      - name: Boot example app in background
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PHX_SERVER: 'true'
+        run: mix phx.server > /tmp/example-playwright-pages.log 2>&1 &
+      - name: Wait for app and warm up LiveView routes
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "App responding after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
+            curl -sf -o /dev/null "http://localhost:4000${path}" \
+              && echo "warmed ${path}" \
+              || echo "warmup miss ${path} (non-fatal)"
+          done
+      - name: Run admin behavior browser truth (chromium)
+        working-directory: test/example/priv/playwright
+        run: |
+          npx playwright test \
+            tests/admin-user-operations.spec.ts \
+            tests/impersonation.spec.ts \
+            tests/admin-audit.spec.ts \
+            --project=chromium
+      - name: Run admin checkpoints (chromium, mobile, dark-chromium)
+        working-directory: test/example/priv/playwright
+        run: |
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark
+      - name: Stage admin checkpoint PNGs (before non-admin run clears test-results)
+        if: success()
+        working-directory: test/example/priv/playwright
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          ls -la artifacts/admin-checkpoints/ || true
+      - name: Run non-admin example browser smoke
+        working-directory: test/example/priv/playwright
+        run: |
+          npx playwright test \
+            tests/golden-path.spec.ts \
+            tests/passkeys-hooks.spec.ts \
+            tests/organizations.spec.ts \
+            tests/passkey-login.spec.ts \
+            tests/passkey-options.spec.ts
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-playwright-pages.log ---"
+          cat /tmp/example-playwright-pages.log || echo "(no log file)"
+      - name: Collect curated admin checkpoint screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          ls -la artifacts/admin-checkpoints/ || true
+      - name: Assemble GitHub Pages site
+        id: pages_site
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ ! -f test/example/priv/playwright/playwright-report/index.html ]]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          export PW_ROOT="$GITHUB_WORKSPACE/test/example/priv/playwright"
+          bash "$GITHUB_WORKSPACE/scripts/ci/assemble-playwright-gh-pages-site.sh"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - name: Publish to gh-pages branch
+        id: gh_pages_push
+        if: >
+          github.ref == 'refs/heads/main' &&
+          steps.pages_site.outputs.ready == 'true'
+        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e  # v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _sigra_playwright_site
+          force_orphan: true
+      - name: Point GitHub Pages at gh-pages (REST API)
+        # gh_pages_push is always present; outcome is skipped when not on main or no site.
+        if: steps.gh_pages_push.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash "$GITHUB_WORKSPACE/scripts/ci/ensure-github-pages-legacy-branch.sh"

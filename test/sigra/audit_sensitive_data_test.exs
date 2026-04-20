@@ -73,7 +73,7 @@ defmodule Sigra.AuditSensitiveDataTest do
       )
 
     assert cs.valid?,
-      "expected metadata #{inspect(metadata)} to pass Sigra.Audit.Changeset; errors: #{inspect(cs.errors)}"
+           "expected metadata #{inspect(metadata)} to pass Sigra.Audit.Changeset; errors: #{inspect(cs.errors)}"
   end
 
   @tag :sensitive_data

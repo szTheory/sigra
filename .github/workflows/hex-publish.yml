@@ -1,0 +1,87 @@
+# Manual recovery: publish an already-tagged (or pinned SHA) revision to Hex when
+# automation did not run or needs a one-off retry. Default path is **Release Please**
+# (`.github/workflows/release-please.yml`) on merge of the Release PR.
+#
+# Requires repository secret: HEX_API_KEY (Actions secrets).
+
+name: Hex publish (manual recovery)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag or commit SHA to publish from (e.g. v0.2.1).'
+        required: true
+        type: string
+      release_version:
+        description: 'Expected @version string in mix.exs at that ref (e.g. 0.2.1).'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to Hex.pm
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sigra_test
+        ports:
+          - '5432:5432'
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93 # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Cache library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      - name: Verify release version in mix.exs
+        run: grep -n "@version \"${{ inputs.release_version }}\"" mix.exs
+
+      - name: Fetch library deps
+        run: mix deps.get
+
+      - name: Compile (warnings as errors)
+        run: mix compile --warnings-as-errors
+
+      - name: Run library tests
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix test
+
+      - name: Dry run Hex publish
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --dry-run --yes
+
+      - name: Publish to Hex
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --yes

@@ -158,7 +158,12 @@ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
   def get_by(Sigra.Test.MockUser, _), do: nil
 
   def get!(Sigra.Test.MockUser, 42) do
-    %{id: 42, email: "oauth@example.com", hashed_password: nil, confirmed_at: ~U[2026-01-01 00:00:00Z]}
+    %{
+      id: 42,
+      email: "oauth@example.com",
+      hashed_password: nil,
+      confirmed_at: ~U[2026-01-01 00:00:00Z]
+    }
   end
 
   def update(changeset) do

@@ -1,0 +1,22 @@
+# SEED-3 — Fresh Phoenix + mix sigra.gen.oauth (machine closure)
+
+Full stdout from a greenfield run lives in merge-blocking CI logs for job:
+
+  **Install smoke (fresh phx.new + sigra.install)** → `scripts/ci/install-smoke.sh`
+
+Contract (abbreviated from install-smoke.sh):
+
+1. `mix phx.new` (tmp tree) + path dep on Sigra checkout
+2. `mix sigra.install --yes Accounts User users`
+3. `mix sigra.gen.oauth --providers google,github`
+4. `mix ecto.migrate` + `mix compile --warnings-as-errors`
+5. Asserts generated files including `user_identity.ex`, `oauth_controller.ex`,
+   `oauth_settings.html.heex`, vault + encrypted binary modules, migration
+   `*create_user_identities*`, etc.
+
+## Local reproduction
+
+```bash
+PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost \
+  GITHUB_WORKSPACE=$(pwd) scripts/ci/install-smoke.sh
+```

@@ -114,7 +114,10 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert error_handler =~ ":no_active_org"
       assert error_handler =~ ":insufficient_role"
       assert error_handler =~ "Pick or create an organization to continue."
-      assert error_handler =~ "You don't have permission to access this page in the current organization."
+
+      assert error_handler =~
+               "You don't have permission to access this page in the current organization."
+
       # Copy Rules non-negotiable: no role-name leak in the insufficient_role message.
       refute error_handler =~ "This page requires the"
       # :no_active_org uses :info (not :error) per UI-SPEC (non-blaming).
@@ -127,7 +130,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # defdelegate matches arity — a defdelegate to :call would refer
       # to `call/2` which does not exist and fails
       # `mix compile --warnings-as-errors` on the host app.
-      organizations_template = File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+      organizations_template =
+        File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+
       assert organizations_template =~ "def set_active_organization(conn, org)"
       assert organizations_template =~ "Sigra.Plug.PutActiveOrganization.call(conn, org, [])"
       assert organizations_template =~ "use Sigra.Organizations"
@@ -162,7 +167,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       defmodule #{app_module}.Repo do
       end
 
-      defmodule #{app_module}.Organization do
+      defmodule #{context_module}.Organization do
         use Ecto.Schema
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "organizations_template_compile_#{suffix}" do
@@ -173,7 +178,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
         end
       end
 
-      defmodule #{app_module}.OrganizationMembership do
+      defmodule #{context_module}.OrganizationMembership do
         use Ecto.Schema
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "organization_memberships_template_compile_#{suffix}" do
@@ -184,7 +189,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
         end
       end
 
-      defmodule #{app_module}.OrganizationInvitation do
+      defmodule #{context_module}.OrganizationInvitation do
         use Ecto.Schema
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "organization_invitations_template_compile_#{suffix}" do
@@ -225,7 +230,13 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       config = mod.__sigra_org_config__()
       assert is_map(config)
       assert is_map(config.schemas)
-      assert config.schemas.organization == Module.concat([app_module, "Organization"])
+      assert config.schemas.organization == Module.concat([context_module, "Organization"])
+
+      assert config.schemas.membership ==
+               Module.concat([context_module, "OrganizationMembership"])
+
+      assert config.schemas.invitation ==
+               Module.concat([context_module, "OrganizationInvitation"])
     end
 
     test "user_auth.ex template mount_current_scope calls Sigra.Scope.Hydration.hydrate/3" do
@@ -238,7 +249,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
     @tag :phase16
     test "Phase 16 org_switcher component template exists and exports org_switcher/1" do
-      template = File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
+      template =
+        File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
 
       assert template =~ "defmodule <%= web_module %>.Components.OrgSwitcher"
       assert template =~ "def org_switcher(assigns)"
@@ -924,26 +936,17 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     end
   end
 
-  describe "RegistrationLive untouched by Phase 16 Plan 03 (D-08 / D-09)" do
+  describe "RegistrationLive keeps org flow out of signup (D-08 / D-09)" do
     @tag :phase16
-    test "registration_live.ex template is byte-identical to its Phase 14 state" do
-      # ORG-UX-09 is a free structural lunch: Phase 16 MUST NOT touch
-      # registration_live.ex. The zero-org post-signup flow falls out of
-      # Phase 14's :no_active_org redirect path, not a new registration
-      # field or step.
-      expected_sha =
-        "c27d0b8993604ce2abd52f75331630dc5bab430ffe83b8f9d3d3f0e564b31140"
+    test "registration_live.ex does not add organization-specific signup fields or routes" do
+      # ORG-UX-09 still needs to remain a structural free lunch even though
+      # later passkey work legitimately extended the registration template.
+      template = File.read!("priv/templates/sigra.install/core/registration_live.ex")
 
-      actual_sha =
-        "priv/templates/sigra.install/core/registration_live.ex"
-        |> File.read!()
-        |> then(&:crypto.hash(:sha256, &1))
-        |> Base.encode16(case: :lower)
-
-      assert actual_sha == expected_sha,
-             "registration_live.ex was modified in Phase 16 — " <>
-               "this violates D-08/D-09 (ORG-UX-09 is a zero-line structural free lunch). " <>
-               "Expected SHA256 #{expected_sha}, got #{actual_sha}."
+      refute template =~ "organization"
+      refute template =~ "organizations"
+      refute template =~ "invite"
+      refute template =~ ~S(~p"/organizations")
     end
   end
 
@@ -1035,7 +1038,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # mysql/sqlite branch already used a plain unique_index under the
       # legacy name, so it does not emit `now()` — it is covered by the
       # first test).
-      refute template =~ ~r/unique_index\(:organization_slug_aliases, \[:old_slug\],\s*\n\s*where:\s*"expires_at > now\(\)"/,
+      refute template =~
+               ~r/unique_index\(:organization_slug_aliases, \[:old_slug\],\s*\n\s*where:\s*"expires_at > now\(\)"/,
              "Postgres slug-alias partial index with `now()` predicate must be removed"
     end
 

@@ -1,0 +1,1 @@
+- installer_drift_test fix #9 is failing outside Phase 27 admin ownership: test/example/lib/example_web/live/confirmation_live.ex is missing the `_user = socket.assigns.current_scope.user` marker expected by test/sigra/templates/installer_drift_test.exs.

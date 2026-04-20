@@ -188,16 +188,13 @@ defmodule Sigra.Error do
     do: "Authentication expired. Please try again."
 
   def safe_message(:oauth_no_email),
-    do:
-      "We need your email to create an account. Please grant email permission and try again."
+    do: "We need your email to create an account. Please grant email permission and try again."
 
   def safe_message(:oauth_provider_error),
-    do:
-      "Could not sign in with the selected provider. Please try again or use another method."
+    do: "Could not sign in with the selected provider. Please try again or use another method."
 
   def safe_message(:oauth_token_exchange_failed),
-    do:
-      "Could not sign in with the selected provider. Please try again or use another method."
+    do: "Could not sign in with the selected provider. Please try again or use another method."
 
   def safe_message(:oauth_link_conflict),
     do: "Could not complete sign in."
@@ -206,8 +203,7 @@ defmodule Sigra.Error do
     do: "Could not complete sign in."
 
   def safe_message(:oauth_authorize_failed),
-    do:
-      "Could not sign in with the selected provider. Please try again or use another method."
+    do: "Could not sign in with the selected provider. Please try again or use another method."
 
   # API token / JWT error codes
   def safe_message(:token_revoked), do: "This token has been revoked."

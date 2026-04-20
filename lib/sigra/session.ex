@@ -39,6 +39,8 @@ defmodule Sigra.Session do
   - `:last_active_at` - Last activity timestamp (throttled updates)
   - `:sudo_at` - When sudo mode was last activated
   - `:active_organization_id` - Active organization the session is currently scoped to. Nullable; populated by Phase 14 plugs.
+  - `:impersonator_user_id` - Real admin user id when this is an impersonation session.
+  - `:impersonator_session_id` - Original admin session id preserved for restoration.
   - `:inserted_at` - Session creation timestamp
   """
 
@@ -60,6 +62,8 @@ defmodule Sigra.Session do
           last_active_at: DateTime.t() | nil,
           sudo_at: DateTime.t() | nil,
           active_organization_id: binary() | nil,
+          impersonator_user_id: term() | nil,
+          impersonator_session_id: term() | nil,
           inserted_at: DateTime.t() | nil
         }
 
@@ -77,6 +81,8 @@ defmodule Sigra.Session do
     last_active_at: nil,
     sudo_at: nil,
     active_organization_id: nil,
+    impersonator_user_id: nil,
+    impersonator_session_id: nil,
     inserted_at: nil
   ]
 end

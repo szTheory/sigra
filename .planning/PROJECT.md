@@ -8,7 +8,43 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.1 Foundations
+## Current Milestone
+
+The next shipped increment after v1.3 is **not defined in `.planning/` yet**. Run `/gsd-new-milestone` to capture product intent, a fresh `.planning/REQUIREMENTS.md`, and phased roadmap work.
+
+## Current State
+
+**Shipped:** **v1.3 Cleanup & Hardening** (2026-04-19) — Phases 36–40: Nyquist inventory + waivers (**999.1**), SHA-pinned first-party Actions upgrades + triage (**999.2**), GA UAT gate with shift-left CI evidence and consolidated `v1.3-HUMAN-UAT.md`, `Sigra.Audit.Assertions` plus atomic audited `api.token_create`, example login/MFA audit smoke, and maintainer release + planning hygiene (`MAINTAINING.md`, optional `hex-publish.yml`, `scripts/maintainers/planning-audit-hygiene.sh`). Archives: `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`.
+
+**Previously shipped:** v1.2 Admin Dashboard (2026-04-17); v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
+
+Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1.1 organizations and passkeys, v1.2 admin (default-on installer admin surface, impersonation, audit exploration, automation-first verification, generator parity), and v1.3 hardening that closes deferred validation, CI, UAT evidence, audit testability for a critical API path, and maintainer tooling — without expanding end-user product scope.
+
+**Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
+
+**Known limitations carried forward (tracked, non-blocking):**
+- Residual **SEED-001** items that still need real mail clients, live Google OAuth UX, clean-machine wall-clock, or backup-code **rotation** proof (`mfa_regenerate_backup_codes` not shipped).
+- **SEED-002** remainder — Phase 9 hybrid `log_safe/3` outside the v1.3 `api.token_create` atomic site still wants phased `Ecto.Multi` conversion as tests go audit-aware.
+
+## Next Milestone Goals
+
+Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, deeper audit atomicity (SEED-002), new product slices (APIs, admin, orgs), or installer/DX work — each should start with a fresh requirements file and roadmap slice.
+
+<details>
+<summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
+
+**Goal:** Ship a default-on admin surface that feels excellent to use: mobile-responsive LiveView user management, secure impersonation, and rich audit exploration on top of the v1.1 organizations and passkeys foundation.
+
+**Target features (shipped in v1.2):**
+- Admin user-management UI in LiveView, default on with `--no-admin` opt-out, mobile-friendly, light/dark, and basic branding hooks
+- Admin impersonation with strict guardrails, visible session state, dual-actor audit trail, and blocked sensitive mutations while impersonating
+- Expanded audit views across user, organization, and global admin workflows with scope-respecting CSV export
+- Automation-first verification: Playwright, screenshots/video where useful, HTML reports, browser and curl-style smoke, CI jobs including generated-host parity and shift-left gates (Phases 31-35)
+
+</details>
+
+<details>
+<summary>Archived v1.1 milestone framing</summary>
 
 **Goal:** Ship the architectural foundation that unlocks v1.2's admin dashboard — logical multi-tenancy (organizations + memberships, single DB, no PG schema-per-tenant) and passkey/WebAuthn authentication. No admin UI in this milestone; only the user-facing surface each feature needs to be usable end-to-end.
 
@@ -18,21 +54,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 **Deferred to v1.2 "Admin Dashboard"** (full direction captured in `.planning/v1.2-DIRECTION.md`): admin user-management LiveView UI (Django-admin-loved, mobile-first, light+dark mode, basic branding, default-on opt-out), admin impersonation (time-limited, audited, sudo-gated, locked-down sensitive ops, org-scoped for org admins), expanded audit views (per-user, per-org, global, impersonation feed, CSV export).
 
-## Current State
-
-**Shipped:** v1.0 Phoenix Auth Library — Initial Release (2026-04-11).
-
-Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/password with Argon2id, magic-link passwordless, email confirmation + password reset, database-backed sessions with sudo re-auth and rate limiting, OAuth via Assent (5 providers), TOTP MFA with backup codes, API auth with bearer tokens + JWT, full account lifecycle (email change, password change, scheduled deletion), audit logging, and a `mix sigra.install` generator backed by a 5-job PR-required CI smoke harness (library tests + unit smoke + install smoke + HTTP smoke + Playwright browser lifecycle).
-
-**Verification state:** 1249 tests + 33 doctests + 3 properties, 0 failures. 85/85 requirements satisfied. 5 required CI checks green on `main`. See `.planning/MILESTONES.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.
-
-**v1.1 progress:** Phase 13 complete (2026-04-12) — Organizations schemas, `Sigra.Organizations` context with CRUD, last-owner guard (`FOR UPDATE`), slug validation + reserved words, and two-layer tenant enforcement (`for_org/2` + `maybe_enforce_org_scope/4`) now ship. Full library suite at 1428 tests, 0 failures.
-
-**Known limitations carried forward (tracked, non-blocking):**
-- 8 human-only UAT items (email visual rendering, OAuth real-credential flows, backup code regen verification, clean-machine docs read) — captured in `SEED-001`, to run before GA public announcement.
-- Phase 9 audit logging uses a `log_safe/3` hybrid (non-atomic) at ~30 integration sites with only 3 fully atomic `Ecto.Multi` sites (confirm, verify, reset); accepted as caveat C-1 and captured in `SEED-002` for conversion when trigger conditions match.
-- 6 Nyquist VALIDATION.md files in `status: draft` + 1 missing (phase 10.1) — parked as backlog phase 999.1.
-- 3 Dependabot major-version bumps for SHA-pinned GitHub Actions — parked as backlog phase 999.2 (require per-bump CI verification).
+</details>
 
 ## Requirements
 
@@ -103,80 +125,50 @@ Sigra v1.0 delivers a complete authentication library for Phoenix 1.8+: email/pa
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
-### Active — v1.1 Foundations
+### Validated — v1.3 Cleanup & Hardening
 
-**Organizations (logical multi-tenancy):**
-- [x] `Organization` schema + migration (id, name, slug unique, settings jsonb, deleted_at, timestamps) — Phase 13
-- [x] `OrganizationMembership` schema + migration (user_id, org_id, role enum, status enum, joined_at, invited_by_id) — Phase 13
-- [x] `OrganizationInvitation` schema + migration (email, org_id, role, hashed_token, expires_at, accepted_at, revoked_at) — Phase 13
-- [x] `Sigra.Organizations` context (CRUD, membership ops, invite token generation via `Sigra.Token` HMAC) — Phase 13
-- [x] `Sigra.Organizations.Query` helpers (`for_org/2`, `maybe_enforce_org_scope/4`, last-owner guard) — Phase 13
-- [ ] `Sigra.Plug.RequireMembership`
-- [ ] `%Scope{}` struct extension (`:active_organization`, `:membership`)
-- [ ] `fetch_current_scope` plug loads active org from session; `on_mount` assigns to LiveView socket
-- [ ] Sessions table `active_organization_id` column (nullable); org persists + switchable
-- [ ] Audit integration: `organization_id` auto-attached to metadata when scope carries active org
-- [ ] `Sigra.Audit.query/1` `:organization_id` filter via jsonb metadata operator
-- [ ] Registration flow: optional "create org" step; invite-token query param → register-into-org
-- [ ] Login flow: 0/1/2+ orgs handling (0 = standard, 1 = auto-select, 2+ = last-active or picker)
-- [ ] `OrganizationSwitcherLive` (dropdown/modal)
-- [ ] `OrganizationSettingsLive` (owner-only: rename, slug change, delete)
-- [ ] `OrganizationMembersLive` (list, invite, remove, role change; owner/admin gated)
-- [ ] `InvitationAcceptLive` (existing user sign-in-and-accept; new user signup-then-accept with email locked)
-- [ ] `organization_invitation_email.ex` template
-- [ ] Invite token expiry (7d default) + revocation
-- [ ] `mix sigra.install --organizations` (default on) / `--no-organizations` opt-out
-- [ ] Conditional generator template pattern (first in codebase; load-bearing for v1.2 `--no-admin`)
-- [ ] Backfill migration: create "personal" orgs for existing users (skippable)
-- [ ] Testing helpers: `create_organization/1`, `add_membership/3`, `log_in_user_with_org/3`
+**Planning, CI, UAT, audit, tooling:**
+- ✓ Nyquist retro inventory + waivers for historical validation debt (**999.1**) — v1.3
+- ✓ SHA-pinned first-party Actions upgrades with Dependabot triage notes (**999.2**) — v1.3
+- ✓ GA UAT gate evidence + shift-left automation map for **SEED-001** posture — v1.3
+- ✓ `Sigra.Audit.Assertions` + atomic audited `api.token_create` + example login/MFA audit smoke — v1.3
+- ✓ Maintainer release checklist + planning hygiene supersession (`MAINTAINING.md`, optional Hex publish job pattern) — v1.3
 
-**Passkeys (WebAuthn via `wax_`):**
-- [ ] Add `wax_ ~> 0.7` dependency
-- [ ] `UserPasskey` schema + migration (user_id, credential_id unique, public_key bytea encrypted, sign_count, aaguid, nickname, device_hint, last_used_at, transports array, timestamps)
-- [ ] `cloak_ecto` encryption for `public_key` field (reuse OAuth vault)
-- [ ] `Sigra.Passkeys` context (registration, authentication, credential CRUD)
-- [ ] `Sigra.Passkeys.Registration` (ceremony options + response verification)
-- [ ] `Sigra.Passkeys.Authentication` (ceremony options + response verification)
-- [ ] `Sigra.Plug.PasskeyChallenge` (short-lived server-side challenge storage)
-- [ ] Passkey-as-2FA mode: MFA prompt shows TOTP + passkey + backup codes
-- [ ] Passkey-as-primary mode: opt-in, email + passkey login (usernameless where supported)
-- [ ] `PasskeyEnrollmentLive` (JS hook → `navigator.credentials.create`)
-- [ ] `PasskeyAuthenticationLive` (JS hook → `navigator.credentials.get`)
-- [ ] `MfaSettingsLive` update: passkeys list with rename/delete alongside TOTP/backup codes
-- [ ] Runtime RP ID / RP name / origin / attestation preference config (`:none` default)
-- [ ] `passkey_hooks.js` LiveView hooks
-- [ ] `mix sigra.install --passkeys` (default on) / `--no-passkeys` opt-out
-- [ ] Testing helpers: `register_passkey/2`, `authenticate_with_passkey/2`
-- [ ] Router: passkey routes under MFA scope
+### Validated — v1.2 Admin Dashboard
 
-**Cross-cutting:**
-- [ ] Getting-started guide updates covering orgs + passkeys
-- [ ] CI smoke harness coverage for org flows + passkey ceremony (extend phase 10.1.1 harness)
+**Admin user management UI:**
+- ✓ LiveView admin dashboard enabled by default with `--no-admin` opt-out — v1.2
+- ✓ Mobile-responsive user list and user detail flows for core operator jobs — v1.2
+- ✓ Light/dark mode plus basic branding controls suitable for internal tooling — v1.2
+- ✓ Org-aware admin scopes so platform admins and org admins see the right surface by construction — v1.2
 
-### Deferred to v1.2 "Admin Dashboard"
+**Impersonation + audit:**
+- ✓ Secure admin impersonation with visible banner state, time bounds, dual-actor audit trail, and forbidden sensitive actions — v1.2
+- ✓ Rich audit views for per-user, per-organization, and global exploration, including impersonation-aware filtering — v1.2 (Phase 30; polish Phase 33)
+- ✓ Admin-side user detail views for sessions, security state, identities, organizations, memberships, and danger-zone actions — v1.2
 
-Full direction: `.planning/v1.2-DIRECTION.md`.
+**Verification + review ergonomics:**
+- ✓ Browser and system automation for critical admin flows using Playwright and CI — v1.2 (Phases 31, 34-35)
+- ✓ Review artifacts (Playwright HTML, screenshots/traces/video where configured, curated PNG baselines) — v1.2
+- ✓ Route, controller, and curl-style smoke coverage outside the browser happy path — v1.2
 
-- [ ] Admin user-management LiveView UI (Django-admin-loved, mobile-first, light+dark mode, basic branding)
-- [ ] Admin impersonation (time-limited, non-nestable, dual-actor audit, banner, locked-down sensitive ops, org-scoped)
-- [ ] Expanded audit views (per-user, per-org, global, security event feed, CSV export)
-- [ ] Admin UI mobile + dark-mode polish pass
+### Active — next milestone
+
+Requirements for the next shipped increment are intentionally absent until `/gsd-new-milestone` recreates `.planning/REQUIREMENTS.md`.
 
 ### Other deferred items
 
-- [ ] SEED-001: 8 human-only UAT items before v1.0 GA public announcement
-- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion (trigger-conditioned)
-- [ ] 999.1 backlog: Nyquist retroactive validation pass
-- [ ] 999.2 backlog: Dependabot major-version bumps
+- [ ] SEED-001: residual human-only UAT items (real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code rotation) after v1.3 shift-left coverage
+- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion beyond the v1.3 `api.token_create` site (trigger-conditioned)
 
 ### Out of Scope
 
 - SAML support — enterprise SSO protocol, high maintenance burden, low SaaS builder need. Leave architecture extensible for future plugin.
 - Acting as OAuth/OIDC identity provider — enterprise/B2B concern, dramatically expands scope. Architecture should not prevent future addition.
-- Organizations / multi-tenancy — deferred to v2 milestone. Design identity layer to support clean org membership later.
+- Rebuilding organizations or passkeys as standalone milestones — v1.1 shipped the foundation; v1.2 builds on top of it.
 - Authorization (RBAC, permissions, policies) — separate concern. Sigra provides identity context; authorization builds on top.
 - SCIM directory sync — enterprise feature, out of scope for v1.
-- Admin impersonation — nice-to-have, defer to v2.
+- Full theming engine or runtime UI builder — only basic branding hooks are in scope for the admin surface.
 
 ## Context
 
@@ -236,14 +228,17 @@ Full direction: `.planning/v1.2-DIRECTION.md`.
 | Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent. | ✓ Validated v1.0 — pattern held through registration/login/linking/unlink |
 | Argon2id default with bcrypt migration path | OWASP gold standard; memory-hard; transparent upgrade on login keeps migration invisible to users. | ✓ Validated v1.0 — `verify_with_upgrade/3` pattern works cleanly |
 | Database-backed session tokens (no JWT for browser) | Revocation requires server-side state; JWT-only for browser is an anti-pattern for session auth. | ✓ Validated v1.0 — JWT remains opt-in for stateless API paths only |
-| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ⚠️ Revisit — phase 9 shipped as hybrid (3 atomic sites + `log_safe/3` elsewhere), tracked as SEED-002 for conversion when subsystem tests go audit-aware |
+| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ⚠️ Revisit — v1.3 added atomic `api.token_create` + `Sigra.Audit.Assertions`; broader hybrid `log_safe/3` conversion remains SEED-002 |
 | D-10 installer default PK type = `binary_id` (uuid) | UUIDs are idiomatic for modern Phoenix; avoids enumeration of integer IDs; matches phx.gen.auth 1.8 convention. | ✓ Validated v1.0 (flipped in phase 10.1.1) — no integer-PK regressions downstream |
 | IN-03 SHA-pin all GitHub Actions | Supply-chain security: tag-based references allow the tag to be moved post-publish; SHA pins lock the exact code. | ✓ Validated v1.0 (phase 10.1 + 10.1.1) — Dependabot `github-actions` ecosystem handles upgrade churn |
 | D-15 no `continue-on-error` on any required CI check | Flakes must be fixed at root cause; masking them defeats the gate's purpose. | ✓ Validated v1.0 — all 5 CI jobs are strict-pass; no `continue-on-error` anywhere in `.github/workflows/ci.yml` |
 | Playwright over Cypress/WebdriverIO for browser smoke | Only runner with first-class frameLocator support for Swoosh dev-mailbox iframe; lowest-friction TypeScript setup. | ✓ Validated v1.0 (phase 10.1.1) — golden-path spec runs in ~90s on CI, zero flakes to date |
-| Organizations deferred to v2 | Significant scope expansion. Core auth must be solid first. Identity layer designed to support org membership later. | — Pending (still deferred) |
+| Organizations as first-class multi-tenancy | Logical tenants without schema-per-tenant; scope + membership + invitations. | ✓ Shipped v1.1 — org switcher, plugs, audit columns; superseded the old “defer to v2” note |
 | SAML / OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending (still out of scope) |
-| WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | — Pending — v1.1 candidate |
+| WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | ✓ Shipped v1.1 — passkeys + orgs foundations |
+| v1.2 admin is default-on installer feature with library-owned enforcement | Keeps security semantics in the dep while host owns policy module + shell chrome; matches hybrid architecture. | ✓ Validated v1.2 — plugs, `Sigra.Admin.*`, generator parity phases 32-33 |
+| Shift-left gates for installer + verification docs | Prevents INT-01..04 recurrence: emission audit, drift dead-text nav guard, milestone VERIFICATION.md gate, installer-scoped milestone audit CI, artifact bundle contract. | ✓ Validated v1.2 — Phase 35 |
+| v1.3 audit assertions + partial Multi conversion | Give hosts test-grade audit helpers and prove one high-risk API path can commit business + audit rows atomically without inventing audit macros. | ✓ Validated v1.3 — Assertions module + `api.token_create` Multi; OAuth smoke out of scope |
 
 ## Evolution
 
@@ -263,7 +258,9 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-12 — Phase 12 (Scope + Session Foundation) complete. `%Scope{}` extended to 4 fields (user, active_organization, membership, impersonating_from); `user_sessions.active_organization_id` column via standalone ALTER migration; reserved-field invariant test locks `:impersonating_from` for v1.2; UPGRADE-v1.2.md skeleton created. ORG-SCOPE-01 and ORG-SCOPE-02 satisfied. 7/7 must-haves verified, 29 regression tests green.*
+*Last updated: 2026-04-19 after v1.3 milestone completion — Cleanup & Hardening shipped as Phases 36-40. Planning artifacts archived to `.planning/milestones/v1.3-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define the next scope.*
+
+*Last updated: 2026-04-17 after v1.2 milestone completion — Admin Dashboard shipped as Phases 27-35. Planning artifacts archived to `.planning/milestones/v1.2-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define v1.3+ scope.*
 
 *Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
 

@@ -55,7 +55,8 @@ defmodule ExampleWeb.AuditIntegrationTest do
       row =
         Repo.one(
           from(a in AuditEvent,
-            where: a.action == "session.create",
+            where: a.action == "session.create" and a.actor_id == ^user.id,
+            order_by: [desc: a.inserted_at],
             limit: 1
           )
         )

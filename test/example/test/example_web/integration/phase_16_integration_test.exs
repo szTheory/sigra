@@ -15,7 +15,6 @@ defmodule ExampleWeb.Phase16IntegrationTest do
   """
   use ExampleWeb.ConnCase, async: false
 
-
   alias Example.Accounts.Organization
   alias Example.Accounts.OrganizationMembership
   alias Example.Accounts.OrganizationSlugAlias

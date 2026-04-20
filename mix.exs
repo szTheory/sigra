@@ -1,7 +1,7 @@
 defmodule Sigra.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
   @source_url "https://github.com/sztheory/sigra"
 
   def project do
@@ -24,6 +24,14 @@ defmodule Sigra.MixProject do
       # Matches:   test/sigra/auth_test.exs, test/support/data_case.ex
       # Excludes:  test/example/**, test/fixtures/install_golden/**
       test_load_filters: [~r"^test/(?!example/|fixtures/)"],
+      # Mix 1.19 warns on every `*.{ex,exs}` under `test/` that is neither
+      # loaded nor explicitly ignored. The example subproject and fixture trees
+      # contain compiled copies under `test/example/_build/` etc.; ignore the
+      # whole subtrees so `mix test` at the library root stays warning-clean.
+      test_ignore_filters: [
+        &String.starts_with?(&1, "test/example/"),
+        &String.starts_with?(&1, "test/fixtures/")
+      ],
       name: "Sigra",
       description: "Comprehensive authentication library for Phoenix 1.8+",
       source_url: @source_url,
@@ -78,8 +86,11 @@ defmodule Sigra.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.8"},
+      {:phoenix_live_view, "~> 1.1"},
       {:ecto, "~> 3.12"},
       {:ecto_sql, "~> 3.12"},
+      {:flop, "~> 0.26.3"},
+      {:flop_phoenix, "~> 0.26.0"},
       {:nimble_options, "~> 1.1"},
       {:argon2_elixir, "~> 4.1"},
       {:comeonin, "~> 5.3"},
@@ -91,6 +102,8 @@ defmodule Sigra.MixProject do
       {:assent, "~> 0.3", optional: true},
       {:joken, "~> 2.6", optional: true},
       {:nimble_totp, "~> 1.0"},
+      {:cloak_ecto, "~> 1.3"},
+      {:wax_, "~> 0.7"},
       {:eqrcode, "~> 0.2.1", optional: true},
       # Dev/test
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
@@ -113,7 +126,7 @@ defmodule Sigra.MixProject do
         "GitHub" => @source_url,
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
       },
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
+      files: ~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
   end
 
@@ -125,10 +138,13 @@ defmodule Sigra.MixProject do
       formatters: ["html", "markdown"],
       extras: [
         "README.md",
+        "CONTRIBUTING.md",
+        "MAINTAINING.md",
         "LICENSE",
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/upgrading-to-v1.1.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
         "guides/flows/password-reset.md",
@@ -137,16 +153,20 @@ defmodule Sigra.MixProject do
         "guides/flows/api-authentication.md",
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",
+        "docs/audit-semantics.md",
+        "docs/NEXT-STEPS-MANUAL.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
         "guides/recipes/multi-tenant.md",
+        "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md"
       ],
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
         Flows: ~r{guides/flows/.?},
-        Recipes: ~r{guides/recipes/.?}
+        Recipes: ~r{guides/recipes/.?},
+        Docs: ~r{^docs/}
       ],
       groups_for_modules: [
         Core: [Sigra, Sigra.Auth, Sigra.Config, Sigra.Crypto],

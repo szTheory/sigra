@@ -6,7 +6,52 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege default for GITHUB_TOKEN: CI only reads the repo and
+# uploads artifacts (via actions/upload-artifact, which does not require
+# contents: write). Any job that needs additional scopes must override
+# `permissions:` at the job level.
+permissions:
+  contents: read
+
+# Note: Repository secret HEX_API_KEY (Hex.pm) is not read by this workflow unless
+# you add an explicit publish job with `env: HEX_API_KEY: ${{ secrets.HEX_API_KEY }}`.
+# Library/install failures are unrelated to that secret.
+
 jobs:
+  milestone_verification_gate:
+    name: Milestone VERIFICATION.md gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Run milestone verification gate
+        run: bash scripts/ci/milestone-verification-gate.sh
+
+  installer_milestone_audit:
+    name: Installer milestone audit (INT-01..03)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Detect installer-related changes (PRs only)
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^priv/templates/sigra\.install/|^lib/sigra/install/'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run installer milestone audit
+        if: steps.detect.outputs.run == 'true'
+        run: bash scripts/ci/installer-milestone-audit.sh
+
   library_tests:
     name: Library tests
     runs-on: ubuntu-latest
@@ -15,12 +60,14 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
+          # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+          POSTGRES_DB: sigra_test
         ports: ['5432:5432']
         options: >-
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -66,7 +113,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -102,6 +149,8 @@ jobs:
         run: mix test --include example_app
 
   install_smoke:
+    # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
+    # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
     runs-on: ubuntu-latest
     services:
@@ -114,7 +163,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -146,20 +195,13 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
+          # Fresh tmp_app includes Cloak.Vault; compile/boot needs a dummy key (same as admin-acceptance-smoke.sh).
+          CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: scripts/ci/install-smoke.sh
 
-  install_matrix:
-    name: Install matrix (flag combinations)
+  passkeys_manual_fallback_smoke:
+    name: Passkeys manual fallback smoke
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Extensible — Phase 19+ will append:
-        #   - "--no-passkeys"
-        #   - "--no-organizations --no-passkeys"
-        flags:
-          - ""
-          - "--no-organizations"
     services:
       postgres:
         image: postgres:15
@@ -170,7 +212,65 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Cache Hex registry
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run passkeys manual fallback smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: scripts/ci/passkeys-manual-fallback-smoke.sh
+
+  install_matrix:
+    name: Install matrix (flag combinations)
+    runs-on: ubuntu-latest
+    env:
+      # tmp_app runs mix test + phx.server with Sigra-generated Cloak.Vault (decode_env!("CLOAK_KEY")).
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+    strategy:
+      fail-fast: false
+      matrix:
+        flags:
+          - ""
+          - "--no-passkeys"
+          - "--no-organizations"
+          - "--no-organizations --no-passkeys"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -220,7 +320,16 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: mix sigra.install Accounts User users ${{ matrix.flags }} --yes
+          # WR-02: pipe matrix.flags through an env var instead of direct
+          # ${{ }} expansion into the shell string. Today `matrix.flags`
+          # comes from the repo itself (safe), but env-var-indirection is
+          # the pattern GitHub recommends because it prevents a future
+          # maintainer from unknowingly inheriting command-injection if
+          # the matrix value ever gets sourced from `github.event.*`.
+          MATRIX_FLAGS: ${{ matrix.flags }}
+        # shellcheck disable=SC2086 -- MATRIX_FLAGS is an intentional
+        # space-separated list of install flags; word-splitting is desired.
+        run: mix sigra.install Accounts User users $MATRIX_FLAGS --yes
       - name: Compile + migrate + test
         working-directory: tmp_app
         env:
@@ -234,6 +343,79 @@ jobs:
           mix ecto.create
           mix ecto.migrate
           mix test
+      - name: Boot app and verify root responds
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          PHX_SERVER=true mix phx.server > /tmp/install-matrix-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill ${SERVER_PID} 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "tmp_app responded after ${i}s"
+              exit 0
+            fi
+
+            if [[ "${i}" -eq 30 ]]; then
+              echo "FAIL: tmp_app did not boot within 30 seconds"
+              cat /tmp/install-matrix-server.log
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+  passkeys_opt_out_smoke:
+    name: Passkeys opt-out smoke
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Cache Hex registry
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run passkeys opt-out smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: scripts/ci/passkeys-opt-out-smoke.sh
 
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
@@ -248,7 +430,7 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
@@ -286,9 +468,18 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           PHX_SERVER: "true"
-        run: mix phx.server &
+        # WR-04: redirect stdout+stderr so boot output is not interleaved
+        # with later step output and is recoverable via a dedicated failure
+        # step. install_matrix:291 and admin-acceptance-smoke.sh:207 already
+        # follow this pattern — this step missed it.
+        run: mix phx.server > /tmp/example-http-server.log 2>&1 &
       - name: Run HTTP smoke harness
         run: scripts/ci/http-smoke.sh
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-http-server.log ---"
+          cat /tmp/example-http-server.log || echo "(no log file)"
 
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
@@ -303,12 +494,12 @@ jobs:
           --health-cmd pg_isready --health-interval 10s
           --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
         with:
           version-file: .tool-versions
           version-type: strict
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6  # v4.0.4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903  # v6.0.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -343,7 +534,7 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         working-directory: test/example/priv/playwright
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: Boot example app in background
         working-directory: test/example
         env:
@@ -352,7 +543,10 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
           PHX_SERVER: "true"
-        run: mix phx.server &
+        # WR-04: redirect stdout+stderr so boot output is not interleaved
+        # with later step output and is recoverable via a dedicated failure
+        # step. See also: install_matrix:291, admin-acceptance-smoke.sh:207.
+        run: mix phx.server > /tmp/example-playwright-server.log 2>&1 &
       - name: Wait for app and warm up LiveView routes
         run: |
           # Wait for root.
@@ -367,21 +561,299 @@ jobs:
           # :runtime` in dev, first-touch of each route pays compile-on-
           # demand latency — without this, Playwright's first toHaveURL
           # check on /users/register races the first LiveView compile.
-          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa; do
+          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
             curl -sf -o /dev/null "http://localhost:4000${path}" \
               && echo "warmed ${path}" \
               || echo "warmup miss ${path} (non-fatal)"
           done
-      - name: Run Playwright golden-path spec
+      # Phase 31 Plan 4 (D-19..D-25, D-26..D-30): run admin browser truth,
+      # admin checkpoints, and non-admin browser smoke as separate seams
+      # within a single job so each failure surfaces against its seam while
+      # keeping one shared booted example app.
+      - name: Run admin behavior browser truth (chromium)
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        run: npx playwright test
-      - name: Upload Playwright trace on failure
+        # D-04, D-27: the three admin behavior specs are the canonical
+        # Phase 31 browser contract. They run only on the `chromium`
+        # project per wave 1's partitioning (playwright.config.ts).
+        run: |
+          npx playwright test \
+            tests/admin-user-operations.spec.ts \
+            tests/impersonation.spec.ts \
+            tests/admin-audit.spec.ts \
+            --project=chromium
+      - name: Run admin checkpoints (chromium, mobile, dark-chromium)
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        # D-26..D-30: the admin-checkpoints.spec.ts fan-out runs once per
+        # project — `admin-checkpoints-chromium` (desktop), `admin-checkpoints-mobile`
+        # (mobile viewport), and `admin-checkpoints-dark` (the dark-chromium
+        # checkpoint lane using `colorScheme: 'dark'`). Mobile and dark-mode
+        # admin regressions therefore surface from this seam alone without
+        # rerunning the full behavior suite across every theme and viewport.
+        run: |
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark
+      # Playwright clears test-results/ at the start of each `playwright test`
+      # invocation. Stage curated admin PNGs now so the later non-admin wave
+      # does not wipe them before the artifact bundle contract runs.
+      - name: Stage admin checkpoint PNGs (before non-admin run clears test-results)
+        if: success()
+        working-directory: test/example/priv/playwright
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "staging ${src_count} admin-*.png file(s) from test-results/"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          else
+            echo "warning: no admin-*.png under test-results/ after admin checkpoints"
+          fi
+          ls -la artifacts/admin-checkpoints/ || true
+      - name: Run non-admin example browser smoke
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        # Keeps non-admin coverage (golden-path, organizations, passkey-*)
+        # in its own step so admin failures isolate cleanly. These run on
+        # the default `chromium` project; mobile coverage for these specs
+        # runs on the `mobile` project which excludes admin behavior/
+        # checkpoint specs per wave 1 partitioning.
+        run: |
+          npx playwright test \
+            tests/golden-path.spec.ts \
+            tests/ga-uat-shift-left.spec.ts \
+            tests/passkeys-hooks.spec.ts \
+            tests/organizations.spec.ts \
+            tests/passkey-login.spec.ts \
+            tests/passkey-options.spec.ts
+      - name: Dump example app log (on failure)
         if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882  # v4.4.3
+        # WR-04: surface the backgrounded server log directly in the
+        # failure step so investigators do not need to pull the retained-
+        # video artifact to see why boot or a runtime exception killed a
+        # Playwright run.
+        run: |
+          echo "--- /tmp/example-playwright-server.log ---"
+          cat /tmp/example-playwright-server.log || echo "(no log file)"
+      - name: Collect curated admin checkpoint screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        # D-19, D-20, D-25: curated reviewer screenshots for passing admin
+        # runs come from explicit test-authored PNGs (adminArtifactName),
+        # not indiscriminate whole-run directories. Gather them under a
+        # predictable path so `admin-example-report` can always publish the
+        # reviewer bundle without shipping traces or retained video from
+        # every passing run.
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
+            # cp warnings instead of silently overwriting an earlier
+            # checkpoint with a later one. adminArtifactName embeds the
+            # project slug so distinct lanes should not collide today, but
+            # if a test ever calls captureAdminCheckpoint twice with the
+            # same name, the second copy is skipped rather than eating the
+            # first. Pair with the source count below so reviewers can
+            # eyeball expected-vs-collected from the step log.
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "source admin-*.png count under test-results/: ${src_count}"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          echo "curated admin checkpoint screenshots:"
+          ls -la artifacts/admin-checkpoints/ || true
+      - name: Admin artifact bundle contract (Phase 35)
+        if: success()
+        run: bash scripts/ci/admin-artifact-bundle-contract.sh test/example/priv/playwright/artifacts/admin-checkpoints
+      # D-19, D-22: green-run reviewer bundle scoped to this dedicated admin
+      # job. Published on every run (success or failure) so the Playwright
+      # HTML report plus the curated checkpoint PNGs are always available;
+      # D-21's richer diagnostics upload is separate.
+      #
+      # D-23: branch-aware retention is expressed as two mutually exclusive
+      # upload steps — 14 days for main/release runs, 7 days for PR/push
+      # runs. Keeping the retention values literal makes the policy grep-
+      # auditable from the workflow file without having to read GitHub
+      # Actions expression evaluation rules.
+      - name: Upload admin example review bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
         with:
-          name: playwright-report
-          path: test/example/priv/playwright/playwright-report/
+          name: admin-example-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 14
+      - name: Upload admin example review bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: admin-example-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
           retention-days: 7
+      # D-21, D-24: traces, failure screenshots, and retained videos (from
+      # the selective `video: 'retain-on-failure'` on checkpoint and
+      # admin-generated projects) land under test-results/. This bundle
+      # uploads only on failure per D-20/D-22 so the success review bundle
+      # stays lightweight. Retention mirrors the review bundle policy.
+      - name: Upload admin example failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: admin-example-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 14
+      - name: Upload admin example failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: admin-example-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 7
+
+  generated_admin_playwright_smoke:
+    name: Generated admin Playwright smoke
+    runs-on: ubuntu-latest
+    # Cold mix phx.new + compile + Playwright can exceed 30m on busy runners;
+    # 45–60m is the tuned band for this job.
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903  # v6.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium webkit
+      - name: Run generated admin acceptance smoke
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          PLAYWRIGHT_RETRIES: 1
+        # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
+        # seam runs the full acceptance target (`--test all` — both the
+        # desktop/mobile shell and the denial-response assertions) so
+        # generated-host admin parity stays explicit and narrow rather
+        # than collapsing into a single monolithic verification job.
+        run: scripts/ci/admin-acceptance-smoke.sh --test all
+      - name: Collect curated generated-host admin screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        # D-19, D-20, D-25: curated reviewer PNGs for the generated-host
+        # admin checkpoints live alongside the example-app bundle so
+        # reviewers can diff generated vs example parity with the same
+        # artifact naming convention.
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
+            # cp warnings instead of silently overwriting an earlier
+            # checkpoint. See the matching block in the example_playwright
+            # _smoke job for the full rationale. Visible src_count pairs
+            # "expected" with ls -la's "collected" under this step's log.
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "source admin-*.png count under test-results/: ${src_count}"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          echo "curated generated-host admin screenshots:"
+          ls -la artifacts/admin-checkpoints/ || true
+      # D-19, D-22: green-run generated-host reviewer bundle scoped to this
+      # dedicated admin parity job. Always uploaded so the Playwright HTML
+      # report and curated PNGs are available without needing the richer
+      # diagnostic bundle on successful runs.
+      #
+      # D-23: branch-aware retention expressed as two mutually exclusive
+      # upload steps — 14 days for main/release runs, 7 days for PR/push
+      # runs. Keeping the retention values literal makes the policy grep-
+      # auditable from the workflow file.
+      - name: Upload generated admin review bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: generated-admin-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 14
+      - name: Upload generated admin review bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: generated-admin-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 7
+      # D-21, D-24: failure bundle publishes test-results/ so retained
+      # video (selective `retain-on-failure` on the `admin-generated`
+      # project), traces, and failure screenshots are published alongside
+      # the HTML report only when this job fails — keeping the seam's
+      # successful-run artifact policy lightweight per D-22.
+      - name: Upload generated admin failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: generated-admin-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 14
+      - name: Upload generated admin failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
+        with:
+          name: generated-admin-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 7
+
+  getting_started_uat_contract:
+    name: Getting started doc contract (SEED-8 shift-left)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Run getting-started structural checks
+        run: bash scripts/ci/getting-started-contract.sh
+
+  # Phase 34 /gsd-verify-work shift-left: machine-closed UAT items that do not
+  # need Playwright/Postgres (see 34-UAT.md tests 2–3).
+  phase_34_uat_contract:
+    name: Phase 34 UAT contracts (28-VERIFICATION + smoke bash)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Run Phase 34 mechanical UAT contracts
+        run: scripts/ci/phase34-uat-contracts.sh

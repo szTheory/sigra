@@ -8,7 +8,10 @@ defmodule Sigra.MFA.BackupCodesTest do
       codes = BackupCodes.generate(8)
 
       assert length(codes) == 8
-      assert Enum.all?(codes, fn {formatted, hashed} -> is_binary(formatted) and is_binary(hashed) end)
+
+      assert Enum.all?(codes, fn {formatted, hashed} ->
+               is_binary(formatted) and is_binary(hashed)
+             end)
     end
 
     test "codes match XXXX-XXXX format" do

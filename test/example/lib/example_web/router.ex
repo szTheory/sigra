@@ -14,6 +14,16 @@ defmodule ExampleWeb.Router do
     plug :fetch_current_scope
   end
 
+  pipeline :browser_passkey_options do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {ExampleWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug :fetch_current_scope
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -44,13 +54,46 @@ defmodule ExampleWeb.Router do
     plug :require_mfa
   end
 
+  pipeline :require_sudo do
+    plug Sigra.Plug.RequireSudo, error_handler: ExampleWeb.AuthErrorHandler
+  end
+
+  pipeline :admin_global do
+    plug Sigra.Plug.RequireAdminAccess,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      policy: Example.SigraAdminPolicy,
+      mode: :global
+  end
+
+  pipeline :admin_organization do
+    plug Sigra.Plug.RequireAdminAccess,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      policy: Example.SigraAdminPolicy,
+      mode: :organization,
+      organizations: Example.Organizations
+  end
+
   # MFA challenge (accessible with mfa_pending sessions, D-24)
   scope "/users", ExampleWeb do
+    pipe_through [:browser_passkey_options]
+
+    post "/mfa/passkey/options", SessionController, :passkey_mfa_options
+  end
+
+  scope "/users", ExampleWeb do
     pipe_through [:browser]
+
+    post "/mfa/passkey", SessionController, :complete_mfa_passkey
 
     live_session :mfa_challenge, on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
       live "/mfa", MFAChallengeLive
     end
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser_passkey_options, :redirect_if_user_is_authenticated]
+
+    post "/log_in/passkey/options", SessionController, :passkey_authentication_options
   end
 
   scope "/users", ExampleWeb do
@@ -74,7 +117,14 @@ defmodule ExampleWeb.Router do
     end
 
     post "/log_in", SessionController, :create
+    post "/log_in/passkey", SessionController, :complete_passkey
     get "/log_in/:token", SessionController, :magic_link
+  end
+
+  scope "/", ExampleWeb do
+    pipe_through [:browser, :require_authenticated]
+
+    delete "/impersonation", Admin.ImpersonationController, :delete
   end
 
   scope "/users", ExampleWeb do
@@ -92,6 +142,19 @@ defmodule ExampleWeb.Router do
       live "/settings", SettingsLive, :edit
       live "/reactivation", ReactivationLive
     end
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser_passkey_options, :require_authenticated, :require_sudo]
+
+    post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :require_sudo]
+
+    post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
+    post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
   end
 
   # Dev-only routes for local UAT — Swoosh local-mailbox preview at /dev/mailbox
@@ -147,6 +210,66 @@ defmodule ExampleWeb.Router do
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
+    end
+  end
+
+  # Sigra admin
+  scope "/", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
+    post "/admin/users/:id/impersonation", ExampleWeb.Admin.ImpersonationController, :create
+    get "/admin/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
+    get "/admin/users/:id/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
+  end
+
+  scope "/", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_global]
+
+    live_session :admin_global,
+      layout: {ExampleWeb.Layouts, :admin},
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {Sigra.LiveView.AdminScope,
+         [mode: :global, policy: Example.SigraAdminPolicy, login_path: "/users/log_in"]}
+      ] do
+      live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
+      live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
+      live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
+      live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
+      live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
+    end
+  end
+
+  scope "/admin/organizations/:org", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    post "/users/:id/impersonation", ExampleWeb.Admin.ImpersonationController, :create
+    get "/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
+    get "/users/:id/audit/export.csv", ExampleWeb.Admin.AuditExportController, :index
+  end
+
+  scope "/admin/organizations/:org", alias: false do
+    pipe_through [:browser, :require_authenticated, :admin_organization]
+
+    live_session :admin_organization,
+      layout: {ExampleWeb.Layouts, :admin},
+      on_mount: [
+        {ExampleWeb.UserAuth, :ensure_authenticated},
+        {Sigra.LiveView.AdminScope,
+         [
+           mode: :organization,
+           organizations: Example.Organizations,
+           policy: Example.SigraAdminPolicy,
+           login_path: "/users/log_in"
+         ]}
+      ] do
+      live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show
+      live "/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
+      # Mounted at /admin/organizations/:org/users
+      live "/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
+      # Mounted at /admin/organizations/:org/users/:id
+      live "/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
+      live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
     end
   end
 end

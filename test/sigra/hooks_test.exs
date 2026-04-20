@@ -31,7 +31,7 @@ defmodule Sigra.HooksTest do
         |> Hooks.maybe_run_hook(
           :register,
           %{user: %{id: 1}},
-          [hooks: [on_register: {__MODULE__.SuccessHook, :on_register}]]
+          hooks: [on_register: {__MODULE__.SuccessHook, :on_register}]
         )
 
       # Verify the multi has the hook step named correctly
@@ -47,7 +47,7 @@ defmodule Sigra.HooksTest do
         |> Hooks.maybe_run_hook(
           :password_change,
           %{user: %{id: 1}},
-          [hooks: [on_password_change: {__MODULE__.FailHook, :on_password_change}]]
+          hooks: [on_password_change: {__MODULE__.FailHook, :on_password_change}]
         )
 
       steps = Multi.to_list(multi)

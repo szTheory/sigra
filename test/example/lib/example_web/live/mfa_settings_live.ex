@@ -25,10 +25,19 @@ defmodule ExampleWeb.MFASettingsLive do
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
     mfa_status = Auth.mfa_status(user)
+    passkeys = Auth.passkeys_for_user(user)
+    passkey_count = Auth.passkey_count_for_user(user)
 
     {:ok,
      assign(socket,
        mfa_enabled: mfa_status.enabled,
+       passkeys: passkeys,
+       passkey_count: passkey_count,
+       passkey_status: :idle,
+       passkey_notice: nil,
+       renaming_passkey_id: nil,
+       rename_form: to_form(%{"nickname" => ""}, as: "passkey"),
+       deleting_passkey_id: nil,
        enrollment_step: nil,
        svg: nil,
        base32_secret: nil,
@@ -189,7 +198,7 @@ defmodule ExampleWeb.MFASettingsLive do
               </div>
 
               <div class="flex items-center gap-3">
-                <.button>Regenerate codes</.button>
+                <.button type="submit">Regenerate codes</.button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"
@@ -204,21 +213,17 @@ defmodule ExampleWeb.MFASettingsLive do
 
         <% # Backup codes display (after regeneration) %>
         <div :if={@enrollment_step == :backup_codes} class="mt-6">
-          <%= render_backup_codes(assigns) %>
+          {render_backup_codes(assigns)}
         </div>
-
       <% else %>
         <% # Surface 2: TOTP Enrollment %>
         <%= case @enrollment_step do %>
           <% nil -> %>
-            <%= render_enrollment_start(assigns) %>
-
+            {render_enrollment_start(assigns)}
           <% :qr -> %>
-            <%= render_enrollment_qr(assigns) %>
-
+            {render_enrollment_qr(assigns)}
           <% :backup_codes -> %>
-            <%= render_enrollment_backup_codes(assigns) %>
-
+            {render_enrollment_backup_codes(assigns)}
           <% :done -> %>
             <div class="text-center py-8">
               <.icon name="hero-check-circle" class="h-12 w-12 text-green-500 mx-auto" />
@@ -229,7 +234,187 @@ defmodule ExampleWeb.MFASettingsLive do
             </div>
         <% end %>
       <% end %>
+
+      {render_passkeys_section(assigns)}
     </div>
+    """
+  end
+
+  defp render_passkeys_section(assigns) do
+    ~H"""
+    <section id="passkeys" class="mt-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold">Passkeys</h2>
+          <p class="mt-1 text-sm text-gray-600">
+            Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          id="add-passkey-button"
+          phx-click="begin_passkey_enrollment"
+          disabled={@passkey_status == :enrolling}
+          class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md disabled:opacity-50"
+        >
+          Add passkey
+        </button>
+      </div>
+
+      <div
+        id="passkey-registration-hook"
+        phx-hook="PasskeyRegister"
+        class="hidden"
+      />
+
+      <form
+        id="passkey-registration-form"
+        action="/users/settings/mfa/passkeys"
+        method="post"
+        class="hidden"
+      >
+        <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+        <input type="hidden" name="passkey[response]" id="passkey-registration-response" />
+      </form>
+
+      <div :if={@passkey_notice} class="mt-4 rounded-lg border border-gray-200 bg-white p-3">
+        <p class="text-sm font-semibold text-gray-900">{@passkey_notice.title}</p>
+        <p class="mt-1 text-sm text-gray-600">{@passkey_notice.body}</p>
+      </div>
+
+      <div class="mt-4">
+        <%= if @passkeys == [] do %>
+          <div class="text-center py-8">
+            <p class="text-sm font-semibold text-gray-900">No passkeys added yet</p>
+            <p class="mt-1 text-sm text-gray-500">
+              Add a passkey to sign in faster on this device and keep a backup sign-in method available.
+            </p>
+          </div>
+        <% else %>
+          <div class="space-y-3">
+            <div
+              :for={passkey <- @passkeys}
+              class="flex items-start justify-between p-4 bg-white rounded-lg border border-gray-200"
+            >
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <.icon name="hero-key" class="h-4 w-4 text-gray-400" />
+                  <p class="text-sm font-semibold text-gray-900">{Auth.passkey_label(passkey)}</p>
+                </div>
+
+                <p class="mt-1 text-sm text-gray-500">
+                  Added {relative_time(passkey.inserted_at)} &middot;
+                  <%= if passkey.last_used_at do %>
+                    Last used {relative_time(passkey.last_used_at)}
+                  <% else %>
+                    Never used
+                  <% end %>
+                </p>
+
+                <div :if={@renaming_passkey_id == passkey.credential_id} class="mt-3">
+                  <.form
+                    for={@rename_form}
+                    phx-submit="save_passkey_name"
+                    class="flex flex-col gap-2 sm:flex-row sm:items-end"
+                  >
+                    <input type="hidden" name="passkey[id]" value={passkey.credential_id} />
+                    <div class="flex-1">
+                      <label
+                        for={"passkey-name-#{passkey.credential_id}"}
+                        class="block text-sm font-semibold"
+                      >
+                        Passkey name
+                      </label>
+                      <input
+                        id={"passkey-name-#{passkey.credential_id}"}
+                        type="text"
+                        name="passkey[nickname]"
+                        value={@rename_form[:nickname].value}
+                        class="mt-1 block w-full rounded-lg text-base text-zinc-900 border-zinc-300 focus:border-zinc-400 focus:ring-0"
+                      />
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        type="submit"
+                        class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md"
+                      >
+                        Save name
+                      </button>
+                      <button
+                        type="button"
+                        phx-click="cancel_passkey_rename"
+                        class="text-sm text-gray-500 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </.form>
+                </div>
+
+                <div
+                  :if={@deleting_passkey_id == passkey.credential_id}
+                  class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3"
+                >
+                  <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
+                  <p class="mt-1 text-sm text-red-700">
+                    Delete this passkey? You'll still need another sign-in method before removing your last recovery option.
+                  </p>
+                  <p :if={@passkey_count == 1} class="mt-2 text-sm text-red-700">
+                    You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
+                  </p>
+
+                  <div class="mt-3 flex items-center gap-2">
+                    <form
+                      action={"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"}
+                      method="post"
+                    >
+                      <input
+                        type="hidden"
+                        name="_csrf_token"
+                        value={Phoenix.Controller.get_csrf_token()}
+                      />
+                      <button
+                        type="submit"
+                        class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                    <button
+                      type="button"
+                      phx-click="cancel_passkey_delete"
+                      class="text-sm text-gray-500 hover:underline"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ml-4 flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  phx-click="open_passkey_rename"
+                  phx-value-id={passkey.credential_id}
+                  class="text-sm text-brand hover:underline"
+                >
+                  Rename
+                </button>
+                <button
+                  type="button"
+                  phx-click="confirm_passkey_delete"
+                  phx-value-id={passkey.credential_id}
+                  class="text-sm text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </section>
     """
   end
 
@@ -330,7 +515,7 @@ defmodule ExampleWeb.MFASettingsLive do
   defp render_enrollment_backup_codes(assigns) do
     ~H"""
     <div>
-      <%= render_backup_codes(assigns) %>
+      {render_backup_codes(assigns)}
     </div>
     """
   end
@@ -373,8 +558,7 @@ defmodule ExampleWeb.MFASettingsLive do
           data-codes={Enum.join(@backup_codes, "\n")}
           class="inline-flex items-center gap-1 text-sm text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-md"
         >
-          <.icon name="hero-arrow-down-tray" class="h-4 w-4" />
-          Download .txt
+          <.icon name="hero-arrow-down-tray" class="h-4 w-4" /> Download .txt
         </button>
       </div>
 
@@ -386,8 +570,7 @@ defmodule ExampleWeb.MFASettingsLive do
             phx-click="toggle_acknowledge"
             checked={@codes_acknowledged}
             class="rounded border-gray-300"
-          />
-          I have saved these backup codes in a safe place
+          /> I have saved these backup codes in a safe place
         </label>
       </div>
 
@@ -464,54 +647,208 @@ defmodule ExampleWeb.MFASettingsLive do
     end
   end
 
+  def handle_event("begin_passkey_enrollment", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(passkey_status: :enrolling, passkey_notice: nil)
+     |> push_event("sigra:passkey-register:start", %{
+       optionsUrl: "/users/settings/mfa/passkeys/options",
+       completeUrl: "/users/settings/mfa/passkeys"
+     })}
+  end
+
+  def handle_event("sigra:passkey-register:success", _params, socket) do
+    {:noreply,
+     assign(socket,
+       passkey_status: :idle,
+       passkey_notice: %{
+         title: "Finishing passkey setup...",
+         body: "Keep this page open while we finish saving your passkey."
+       }
+     )}
+  end
+
+  def handle_event("sigra:passkey-register:aborted", _params, socket) do
+    {:noreply,
+     assign(socket,
+       passkey_status: :idle,
+       passkey_notice: %{
+         title: "Passkey sign-in was canceled.",
+         body: "Nothing changed. Try again or choose another way to continue."
+       }
+     )}
+  end
+
+  def handle_event("sigra:passkey-register:error", payload, socket) do
+    notice =
+      case passkey_error_bucket(payload) do
+        :timeout ->
+          %{
+            title: "That passkey request timed out.",
+            body: "Try again when you're ready, or use another sign-in method."
+          }
+
+        :unsupported ->
+          %{
+            title: "Passkeys aren't available in this browser.",
+            body:
+              "Use your password or a magic link here, or switch to a device that supports passkeys."
+          }
+
+        :generic ->
+          %{
+            title: "We couldn't finish passkey sign-in.",
+            body: "Try again or use another way to continue."
+          }
+      end
+
+    {:noreply, assign(socket, passkey_status: :idle, passkey_notice: notice)}
+  end
+
+  def handle_event("open_passkey_rename", %{"id" => credential_id}, socket) do
+    nickname =
+      socket
+      |> find_passkey(credential_id)
+      |> case do
+        nil -> ""
+        passkey -> passkey.nickname || ""
+      end
+
+    {:noreply,
+     assign(socket,
+       renaming_passkey_id: credential_id,
+       rename_form: to_form(%{"nickname" => nickname}, as: "passkey"),
+       deleting_passkey_id: nil
+     )}
+  end
+
+  def handle_event("cancel_passkey_rename", _params, socket) do
+    {:noreply,
+     assign(socket,
+       renaming_passkey_id: nil,
+       rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+     )}
+  end
+
+  def handle_event("save_passkey_name", %{"passkey" => params}, socket) do
+    user = socket.assigns.current_scope.user
+    credential_id = Map.get(params, "id")
+    nickname = Map.get(params, "nickname", "")
+
+    if impersonating?(socket) do
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "You can't change account security settings while impersonating."
+       )}
+    else
+      case Auth.rename_passkey(user, credential_id, nickname || "",
+             scope: socket.assigns.current_scope
+           ) do
+        {:ok, _passkey} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Passkey name saved.")
+           |> refresh_passkey_assigns()
+           |> assign(
+             renaming_passkey_id: nil,
+             rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+           )}
+
+        {:error, :impersonation_forbidden} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             "You can't change account security settings while impersonating."
+           )}
+
+        {:error, _reason} ->
+          {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+      end
+    end
+  end
+
+  def handle_event("confirm_passkey_delete", %{"id" => credential_id}, socket) do
+    {:noreply,
+     assign(socket,
+       deleting_passkey_id: credential_id,
+       renaming_passkey_id: nil,
+       rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+     )}
+  end
+
+  def handle_event("cancel_passkey_delete", _params, socket) do
+    {:noreply, assign(socket, deleting_passkey_id: nil)}
+  end
+
   def handle_event("show_disable", _params, socket) do
     {:noreply, assign(socket, show_disable: true)}
   end
 
   def handle_event("cancel_disable", _params, socket) do
-    {:noreply, assign(socket, show_disable: false, disable_form: to_form(%{"code" => ""}, as: "disable"))}
+    {:noreply,
+     assign(socket, show_disable: false, disable_form: to_form(%{"code" => ""}, as: "disable"))}
   end
 
   def handle_event("disable_mfa", %{"disable" => %{"code" => code}}, socket) do
     user = socket.assigns.current_scope.user
 
-    case Auth.mfa_disable(user, code) do
-      {:ok, :disabled} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Two-factor authentication has been disabled.")
-         |> put_flash(:warning, "Consider changing your password for additional security.")
-         |> assign(
-           mfa_enabled: false,
-           show_disable: false,
-           enrollment_step: nil,
-           backup_remaining: 0,
-           disable_form: to_form(%{"code" => ""}, as: "disable")
-         )}
+    if impersonating?(socket) do
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "You can't change account security settings while impersonating."
+       )}
+    else
+      case Auth.mfa_disable(user, code, scope: socket.assigns.current_scope) do
+        {:ok, :disabled} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, "Two-factor authentication has been disabled.")
+           |> put_flash(:warning, "Consider changing your password for additional security.")
+           |> assign(
+             mfa_enabled: false,
+             show_disable: false,
+             enrollment_step: nil,
+             backup_remaining: 0,
+             disable_form: to_form(%{"code" => ""}, as: "disable")
+           )}
 
-      {:error, :invalid_code, _remaining} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
+        {:error, :invalid_code, _remaining} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
-      {:error, :invalid_backup_code, _remaining} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
-         |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
+        {:error, :invalid_backup_code, _remaining} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
-      {:error, :lockout, seconds} ->
-        minutes = div(seconds + 59, 60)
+        {:error, :lockout, seconds} ->
+          minutes = div(seconds + 59, 60)
 
-        {:noreply,
-         socket
-         |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+          {:noreply,
+           socket
+           |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
 
-      {:error, _reason} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+        {:error, :impersonation_forbidden} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             "You can't change account security settings while impersonating."
+           )}
+
+        {:error, _reason} ->
+          {:noreply,
+           socket
+           |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+      end
     end
   end
 
@@ -520,7 +857,11 @@ defmodule ExampleWeb.MFASettingsLive do
   end
 
   def handle_event("cancel_regenerate", _params, socket) do
-    {:noreply, assign(socket, show_regenerate: false, regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
+    {:noreply,
+     assign(socket,
+       show_regenerate: false,
+       regenerate_form: to_form(%{"code" => ""}, as: "regenerate")
+     )}
   end
 
   def handle_event("regenerate_codes", %{"regenerate" => %{"code" => code}}, socket) do
@@ -592,4 +933,68 @@ defmodule ExampleWeb.MFASettingsLive do
          |> assign(enroll_form: form)}
     end
   end
+
+  defp passkey_error_bucket(payload) when is_map(payload) do
+    payload
+    |> Map.take(["code", "name", "message"])
+    |> Map.values()
+    |> Enum.map(&to_string/1)
+    |> Enum.join(" ")
+    |> String.downcase()
+    |> classify_passkey_error()
+  end
+
+  defp passkey_error_bucket(_payload), do: :generic
+
+  defp classify_passkey_error(text) do
+    cond do
+      String.contains?(text, "timeout") ->
+        :timeout
+
+      String.contains?(text, "unsupported") or String.contains?(text, "not_supported") or
+          String.contains?(text, "notallowed") ->
+        :unsupported
+
+      true ->
+        :generic
+    end
+  end
+
+  defp refresh_passkey_assigns(socket) do
+    user = socket.assigns.current_scope.user
+
+    assign(socket,
+      passkeys: Auth.passkeys_for_user(user),
+      passkey_count: Auth.passkey_count_for_user(user)
+    )
+  end
+
+  defp impersonating?(socket) do
+    match?(
+      %{impersonating_from: impersonator} when not is_nil(impersonator),
+      socket.assigns.current_scope
+    )
+  end
+
+  defp find_passkey(socket, credential_id) do
+    Enum.find(socket.assigns.passkeys, &(to_string(&1.credential_id) == to_string(credential_id)))
+  end
+
+  defp relative_time(nil), do: "Never"
+
+  defp relative_time(%DateTime{} = dt) do
+    diff = DateTime.diff(DateTime.utc_now(), dt, :second)
+    format_relative_seconds(diff)
+  end
+
+  defp relative_time(%NaiveDateTime{} = ndt) do
+    ndt
+    |> DateTime.from_naive!("Etc/UTC")
+    |> relative_time()
+  end
+
+  defp format_relative_seconds(seconds) when seconds < 60, do: "just now"
+  defp format_relative_seconds(seconds) when seconds < 3600, do: "#{div(seconds, 60)}m ago"
+  defp format_relative_seconds(seconds) when seconds < 86_400, do: "#{div(seconds, 3600)}h ago"
+  defp format_relative_seconds(seconds), do: "#{div(seconds, 86_400)}d ago"
 end

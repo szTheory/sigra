@@ -17,7 +17,15 @@ defmodule Sigra.PasswordPolicy.CommonPasswords do
   Lookups are case-insensitive.
   """
 
-  @external_resource Path.join([__DIR__, "..", "..", "..", "priv", "data", "common_passwords.txt"])
+  @external_resource Path.join([
+                       __DIR__,
+                       "..",
+                       "..",
+                       "..",
+                       "priv",
+                       "data",
+                       "common_passwords.txt"
+                     ])
 
   @passwords @external_resource
              |> File.read!()

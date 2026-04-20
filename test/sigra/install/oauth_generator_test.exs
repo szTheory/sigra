@@ -73,6 +73,7 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       """
 
       assert {:ok, first_inject} = Injector.inject_oauth_routes(router_content, oauth_routes)
+
       assert {:already_injected, ^first_inject} =
                Injector.inject_oauth_routes(first_inject, oauth_routes)
     end
@@ -200,6 +201,7 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       """
 
       assert {:ok, first_inject} = Injector.inject_vault_child(app_content, "MyApp")
+
       assert {:already_injected, ^first_inject} =
                Injector.inject_vault_child(first_inject, "MyApp")
     end
@@ -237,7 +239,12 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       # rather than the full `create table(:user_identities)` literal.
       assert String.contains?(content, "create table(:user_identities")
       assert String.contains?(content, "unique_index(:user_identities, [:user_id, :provider])")
-      assert String.contains?(content, "unique_index(:user_identities, [:provider, :provider_uid])")
+
+      assert String.contains?(
+               content,
+               "unique_index(:user_identities, [:provider, :provider_uid])"
+             )
+
       assert String.contains?(content, ":encrypted_access_token, :binary")
     end
 
@@ -246,7 +253,11 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       # D-10: uuid is the default; the template must honor a binary_id binding.
       assert String.contains?(content, "<%= if binary_id do %>, primary_key: false")
       assert String.contains?(content, "add :id, :binary_id, primary_key: true")
-      assert String.contains?(content, "references(:users<%= if binary_id do %>, type: :binary_id")
+
+      assert String.contains?(
+               content,
+               "references(:users<%= if binary_id do %>, type: :binary_id"
+             )
     end
 
     test "oauth_controller.ex template delegates to Sigra.OAuth" do

@@ -27,9 +27,9 @@ defmodule <%= app_module %>.Organizations do
   use Sigra.Organizations,
     repo: <%= repo_module %>,
     schemas: [
-      organization: <%= app_module %>.Organization,
-      membership: <%= app_module %>.OrganizationMembership,
-      invitation: <%= app_module %>.OrganizationInvitation,
+      organization: <%= context_module %>.Organization,
+      membership: <%= context_module %>.OrganizationMembership,
+      invitation: <%= context_module %>.OrganizationInvitation,
       user: <%= context_module %>.<%= schema_alias %>,
       scope: <%= context_module %>.Scope
     ]

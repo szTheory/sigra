@@ -11,6 +11,7 @@ defmodule Example.Accounts do
   alias Example.Repo, as: Repo
   alias Example.Accounts.User
   alias Example.Accounts.UserToken
+  alias Example.Accounts.Emails
   alias Sigra.Auth, as: SigraAuth
 
   ## Database getters
@@ -45,8 +46,11 @@ defmodule Example.Accounts do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password}, user_schema: User) do
+    # Pass full Sigra.Config so lockout + audit (`auth.login.*`) run on the
+    # same paths as HTTP authentication (repo-only overload skips audit).
+    case SigraAuth.authenticate(sigra_config(), %{"email" => email, "password" => password}) do
       {:ok, user} -> user
+      {:ok, user, _session_meta} -> user
       {:error, _} -> nil
     end
   end
@@ -66,6 +70,8 @@ defmodule Example.Accounts do
 
   """
   def get_user!(id), do: Repo.get!(User, id)
+
+  def admin_user_hooks, do: Example.SigraAdminUsers
 
   ## User registration
 
@@ -94,8 +100,11 @@ defmodule Example.Accounts do
 
         {:ok, user}
 
-      {:error, :email_taken} -> {:error, :email_taken}
-      {:error, changeset} -> {:error, changeset}
+      {:error, :email_taken} ->
+        {:error, :email_taken}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -169,7 +178,9 @@ defmodule Example.Accounts do
     with {:ok, query} <- UserToken.verify_email_token_query(token, context),
          %User{} = user_from_token <- Repo.one(query),
          true <- user.id == user_from_token.id || :token_user_mismatch do
-      user_changeset = user |> User.email_changeset(%{email: user_from_token.email}) |> User.confirm_changeset()
+      user_changeset =
+        user |> User.email_changeset(%{email: user_from_token.email}) |> User.confirm_changeset()
+
       Ecto.Multi.new()
       |> Ecto.Multi.update(:user, user_changeset)
       |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, [context]))
@@ -208,7 +219,13 @@ defmodule Example.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_user_password(%User{} = user, password, attrs) do
+  def update_user_password(%User{} = user, password, attrs, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "account.password_change") do
+      do_update_user_password(user, password, attrs)
+    end
+  end
+
+  defp do_update_user_password(%User{} = user, password, attrs) do
     changeset =
       user
       |> User.password_changeset(attrs)
@@ -271,10 +288,9 @@ defmodule Example.Accounts do
 
   @doc """
   Looks up both the user and the session record by raw session cookie
-  token. Returns `{user, session}` on success or `nil` on failure. This
-  is the companion to `get_user_by_session_token/1` used by code paths
-  (like `SudoController.create/2`) that need the session's hashed_token
-  to mark sudo confirmation.
+  token. Returns `{user, session}` on success or `nil` on failure. Used
+  by code paths that need the session record itself — e.g. the sudo
+  controller needs `session.hashed_token` to mark sudo confirmation.
   """
   def get_user_and_session_by_token(raw_token) when is_binary(raw_token) do
     with {:ok, raw_bytes} <- Base.url_decode64(raw_token, padding: false) do
@@ -340,30 +356,55 @@ defmodule Example.Accounts do
     if user.confirmed_at do
       {:error, :already_confirmed}
     else
-      {signed_token, code, link_token, code_token} =
-        Sigra.Auth.generate_confirmation_token(Repo, user,
-          secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
-          user_token_schema: UserToken
-        )
-
-      Repo.insert!(link_token)
-      Repo.insert!(code_token)
+      {signed_token, code} = insert_confirmation_tokens!(user)
 
       url = confirmation_url_fun.(signed_token)
       email = Example.Accounts.Emails.confirmation_email(user, url, code)
 
-      Sigra.Delivery.deliver(:confirmation, %{
-        user_id: user.id,
-        to: user.email,
-        subject: email.subject,
-        body: %{html: email.html_body, text: email.text_body},
-        token: signed_token,
-        code: code,
-        url: url
-      }, delivery_opts())
+      Sigra.Delivery.deliver(
+        :confirmation,
+        %{
+          user_id: user.id,
+          to: user.email,
+          subject: email.subject,
+          body: %{html: email.html_body, text: email.text_body},
+          token: signed_token,
+          code: code,
+          url: url
+        },
+        delivery_opts()
+      )
 
       {:ok, :sent}
     end
+  end
+
+  defp insert_confirmation_tokens!(user, attempts \\ 5)
+
+  defp insert_confirmation_tokens!(_user, 0) do
+    raise "unable to generate unique confirmation tokens after multiple attempts"
+  end
+
+  defp insert_confirmation_tokens!(user, attempts) do
+    {signed_token, code, link_token, code_token} =
+      Sigra.Auth.generate_confirmation_token(Repo, user,
+        secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
+        user_token_schema: UserToken
+      )
+
+    Repo.transaction(fn ->
+      Repo.insert!(link_token)
+      Repo.insert!(code_token)
+    end)
+
+    {signed_token, code}
+  rescue
+    error in Ecto.ConstraintError ->
+      if error.constraint == "user_tokens_context_token_index" do
+        insert_confirmation_tokens!(user, attempts - 1)
+      else
+        reraise error, __STACKTRACE__
+      end
   end
 
   @doc """
@@ -409,25 +450,29 @@ defmodule Example.Accounts do
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
     case Sigra.Auth.request_password_reset(Repo, email,
-      user_schema: User,
-      user_token_schema: UserToken,
-      secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
-      url_fun: reset_password_url_fun
-    ) do
+           user_schema: User,
+           user_token_schema: UserToken,
+           secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
+           url_fun: reset_password_url_fun
+         ) do
       {:ok, {signed_token, url}} ->
         user = get_user_by_email(email)
 
         if user do
           email_struct = Example.Accounts.Emails.reset_password_email(user, url)
 
-          Sigra.Delivery.deliver(:reset_password, %{
-            user_id: user.id,
-            to: user.email,
-            subject: email_struct.subject,
-            body: %{html: email_struct.html_body, text: email_struct.text_body},
-            token: signed_token,
-            url: url
-          }, delivery_opts())
+          Sigra.Delivery.deliver(
+            :reset_password,
+            %{
+              user_id: user.id,
+              to: user.email,
+              subject: email_struct.subject,
+              body: %{html: email_struct.html_body, text: email_struct.text_body},
+              token: signed_token,
+              url: url
+            },
+            delivery_opts()
+          )
         end
 
         {:ok, :sent}
@@ -459,7 +504,8 @@ defmodule Example.Accounts do
     secret_key_base = ExampleWeb.Endpoint.config(:secret_key_base)
 
     with {:ok, signed} <- Base.url_decode64(signed_token, padding: false),
-         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
+         {:ok, raw_token} <-
+           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
       hashed_token = Sigra.Token.hash_token(raw_token)
 
       Repo.one(
@@ -536,13 +582,22 @@ defmodule Example.Accounts do
         threshold: 5,
         duration: 900
       ],
-      # D-26 audit wiring (Plan 10.1.1-05, Rule 2): without audit_schema,
-      # Sigra.Audit.log_safe/2 is a silent no-op, so session.create,
-      # auth.login.*, and other audit rows were never written. Wiring the
-      # generated AuditEvent schema here activates the library's built-in
-      # audit integration via Sigra.Auth.create_session/4.
+      # Activate Sigra's built-in audit integration. Without this wiring,
+      # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
+      # written for session.create, auth.login.*, etc.
       audit: [
         audit_schema: Example.Accounts.AuditEvent
+      ],
+      passkeys: [
+        rp_id: "localhost",
+        rp_name: "Sigra Example",
+        origin: "http://localhost:4000",
+        timeout_ms: 60_000,
+        attestation: :none,
+        user_verification: :preferred,
+        ceremony_rate_limit: [limit: 5, window_ms: 60_000],
+        passkey_primary_enabled: true,
+        user_passkey_schema: Example.Accounts.UserPasskey
       ]
     )
   end
@@ -559,7 +614,11 @@ defmodule Example.Accounts do
 
   @doc "Revoke all sessions for a user. Broadcasts PubSub disconnect."
   def revoke_all_sessions(user, opts \\ []) do
-    Sigra.Auth.delete_all_sessions(sigra_config(), user.id, Keyword.put(opts, :pubsub, ExampleWeb.PubSub))
+    Sigra.Auth.delete_all_sessions(
+      sigra_config(),
+      user.id,
+      Keyword.put(opts, :pubsub, ExampleWeb.PubSub)
+    )
   end
 
   @doc "Confirm sudo mode for a session."
@@ -579,16 +638,51 @@ defmodule Example.Accounts do
 
   defp lockout_opts do
     config = sigra_config()
+
     [
       threshold: Keyword.get(config.lockout, :threshold, 5),
       duration: Keyword.get(config.lockout, :duration, 900)
     ]
   end
 
+  ## API tokens
+
+  @impersonation_api_token_denial_message "You can't manage API tokens while impersonating."
+
+  @doc "Parity helper for generated API-token wrapper behavior."
+  def create_api_token(user, attrs, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, opts, "api_token.create") do
+      token = %{
+        id: Ecto.UUID.generate(),
+        name: Map.get(attrs, :name) || Map.get(attrs, "name"),
+        scopes: Map.get(attrs, :scopes) || Map.get(attrs, "scopes") || [],
+        expires_at: Map.get(attrs, :expires_at) || Map.get(attrs, "expires_at"),
+        prefix: "sigra_sk_test"
+      }
+
+      {:ok, "sigra_sk_test_raw", token}
+    end
+  end
+
+  @doc "Parity helper for generated API-token revoke behavior."
+  def revoke_api_token(user, token_id, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, opts, "api_token.revoke") do
+      {:ok, %{id: token_id}}
+    end
+  end
+
+  @doc "Parity helper for generated API-token bulk revoke behavior."
+  def revoke_all_api_tokens(user, opts \\ []) do
+    with :ok <- forbid_api_token_operation(user, opts, "api_token.revoke_all") do
+      {:ok, 1}
+    end
+  end
+
   ## MFA
 
   alias Example.Accounts.UserMFACredential
   alias Example.Accounts.UserBackupCode
+  alias Example.Accounts.UserPasskey
 
   @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
   def mfa_enroll(opts \\ []) do
@@ -597,40 +691,73 @@ defmodule Example.Accounts do
 
   @doc "Confirm MFA enrollment with a TOTP code. Creates credential and backup codes."
   def mfa_confirm_enrollment(user, raw_secret, code, opts \\ []) do
-    Sigra.MFA.confirm_enrollment(sigra_config(), user, raw_secret, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    Sigra.MFA.confirm_enrollment(
+      sigra_config(),
+      user,
+      raw_secret,
+      code,
+      Keyword.merge(
+        [
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ],
+        opts
+      )
+    )
   end
 
   @doc "Verify a TOTP code for MFA challenge."
   def mfa_verify(user, code, opts \\ []) do
-    Sigra.MFA.verify(sigra_config(), user, code,
-      Keyword.merge([mfa_credential_schema: UserMFACredential], opts))
+    Sigra.MFA.verify(
+      sigra_config(),
+      user,
+      code,
+      Keyword.merge([mfa_credential_schema: UserMFACredential], opts)
+    )
   end
 
   @doc "Verify a backup code for MFA challenge."
   def mfa_verify_backup(user, code, opts \\ []) do
-    Sigra.MFA.verify_backup(sigra_config(), user, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    Sigra.MFA.verify_backup(
+      sigra_config(),
+      user,
+      code,
+      Keyword.merge(
+        [
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ],
+        opts
+      )
+    )
   end
 
   @doc "Disable MFA for a user. Requires valid TOTP or backup code."
   def mfa_disable(user, code, opts \\ []) do
-    Sigra.MFA.disable(sigra_config(), user, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    with :ok <- forbid_sensitive_operation(opts, user, "mfa.disable") do
+      Sigra.MFA.disable(
+        sigra_config(),
+        user,
+        code,
+        Keyword.merge(
+          [
+            mfa_credential_schema: UserMFACredential,
+            backup_code_schema: UserBackupCode
+          ],
+          opts
+        )
+      )
+    end
   end
 
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
     Sigra.MFA.enabled?(sigra_config(), user)
+  end
+
+  @doc "Upgrade an MFA-pending Sigra session after second-factor verification."
+  def complete_mfa_verification(user, old_session, opts \\ []) do
+    Sigra.Auth.complete_mfa_verification(sigra_config(), user, old_session, opts)
   end
 
   @doc "Get MFA status for a user (enrollment state, backup code count, etc.)."
@@ -639,6 +766,307 @@ defmodule Example.Accounts do
       mfa_credential_schema: Example.Accounts.UserMFACredential,
       backup_code_schema: Example.Accounts.UserBackupCode
     )
+  end
+
+  ## Passkeys
+
+  @doc "List passkeys for a user."
+  def passkeys_for_user(user) do
+    Sigra.Passkeys.list_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+  end
+
+  @doc "Count passkeys for a user."
+  def passkey_count_for_user(user) do
+    Sigra.Passkeys.count_for_user(sigra_config(), user, user_passkey_schema: UserPasskey)
+  end
+
+  @doc "Return the user-facing label for a passkey."
+  def passkey_label(passkey) do
+    Sigra.Passkeys.DeviceName.label(passkey)
+  end
+
+  @doc "Register a new passkey for a user."
+  def register_passkey(user, attestation_params, details \\ %{}) do
+    with :ok <- forbid_sensitive_operation(details, user, "passkey.register"),
+         :ok <-
+           Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :registration),
+         {:ok, normalized_params} <-
+           normalize_passkey_registration_params(
+             attestation_params,
+             Map.get(attestation_params, "challenge") || Map.get(attestation_params, :challenge)
+           ) do
+      case passkey_ceremony_module().register(sigra_config(), user, normalized_params,
+             user_passkey_schema: UserPasskey
+           ) do
+        {:ok, credential} ->
+          deliver_passkey_registration_notification(
+            user,
+            Map.merge(details, %{passkey: credential})
+          )
+
+          {:ok, credential}
+
+        {:error, %Ecto.Changeset{} = changeset} ->
+          if duplicate_passkey_changeset?(changeset) do
+            {:error, :duplicate_passkey}
+          else
+            {:error, changeset}
+          end
+
+        {:error, reason} ->
+          {:error, reason}
+      end
+    else
+      {:error, :rate_limited, _meta} -> {:error, :rate_limited}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc "Authenticate a passkey for a known user."
+  def authenticate_passkey(user, assertion_params) do
+    with :ok <-
+           Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
+         {:ok, normalized_params} <-
+           normalize_passkey_assertion_params(
+             assertion_params,
+             Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)
+           ) do
+      case passkey_ceremony_module().authenticate(sigra_config(), user, normalized_params,
+             user_passkey_schema: UserPasskey
+           ) do
+        {:ok, ^user, credential} -> {:ok, credential}
+        other -> other
+      end
+    else
+      {:error, :rate_limited, _meta} -> {:error, :invalid_passkey}
+      {:error, _reason} -> {:error, :invalid_passkey}
+    end
+  end
+
+  @doc "Authenticate a discoverable passkey without a typed email address."
+  def authenticate_discoverable_passkey(assertion_params) do
+    with {:ok, normalized_params} <-
+           normalize_passkey_assertion_params(
+             assertion_params,
+             Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)
+           ),
+         credential_id when is_binary(credential_id) <- Map.get(normalized_params, :credential_id),
+         %{user_id: user_id} = passkey <- Repo.get_by(UserPasskey, credential_id: credential_id),
+         %User{} = user <- Repo.get(User, user_id),
+         :ok <- verify_discoverable_user_handle(normalized_params, passkey),
+         :ok <-
+           Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
+         {:ok, credential} <-
+           authenticate_discoverable_passkey_with_ceremony(user, normalized_params) do
+      {:ok, user, credential}
+    else
+      _ -> {:error, :invalid_passkey}
+    end
+  end
+
+  @doc "Rename a passkey."
+  def rename_passkey(user, credential_id, nickname, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "passkey.rename") do
+      Sigra.Passkeys.rename(sigra_config(), user, credential_id, nickname || "",
+        user_passkey_schema: UserPasskey
+      )
+    end
+  end
+
+  @doc "Delete a passkey."
+  def delete_passkey(user, credential_id, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "passkey.delete") do
+      Sigra.Passkeys.delete(sigra_config(), user, credential_id, user_passkey_schema: UserPasskey)
+    end
+  end
+
+  @doc "Returns true when passkey-primary login is enabled."
+  def passkey_primary_enabled?() do
+    case Application.fetch_env(:example, :passkey_primary_enabled) do
+      {:ok, bool} when is_boolean(bool) ->
+        bool
+
+      _ ->
+        Keyword.get(sigra_config().passkeys, :passkey_primary_enabled, false)
+    end
+  end
+
+  @doc "Returns true when a user may use passkey-primary login."
+  def passkey_primary_user_eligible?(%User{} = user) do
+    passkey_primary_enabled?() and user.confirmed_at != nil
+  end
+
+  def passkey_primary_user_eligible?(_user), do: false
+
+  @doc "Checks whether a discovered user may use passkey-primary login."
+  def ensure_passkey_primary_user_eligible(%User{} = user) do
+    cond do
+      not passkey_primary_enabled?() ->
+        {:error, :passkey_primary_disabled}
+
+      not passkey_primary_user_eligible?(user) ->
+        {:error, :email_not_confirmed}
+
+      true ->
+        :ok
+    end
+  end
+
+  def ensure_passkey_primary_user_eligible(_user), do: {:error, :invalid_user}
+
+  @doc "Returns whether magic-link recovery is available for login."
+  def magic_link_recovery_available?() do
+    # PK-UX-07 makes magic-link recovery mandatory for passkey-primary accounts.
+    if passkey_primary_enabled?() do
+      true
+    else
+      sigra_config()
+      |> Map.get(:magic_link, [])
+      |> Keyword.get(:enabled, true)
+    end
+  end
+
+  @doc "Delivers a passkey registration notification email."
+  def deliver_passkey_registration_notification(user, details) do
+    email = Emails.passkey_registration_email(user, details)
+
+    Sigra.Delivery.deliver(
+      :passkey_registration,
+      %{
+        user_id: user.id,
+        to: user.email,
+        subject: email.subject,
+        body: %{html: email.html_body, text: email.text_body},
+        details: details
+      },
+      delivery_opts()
+    )
+  end
+
+  defp normalize_passkey_registration_params(params, challenge) when is_map(params) do
+    response = Map.get(params, "response") || Map.get(params, :response) || %{}
+
+    with {:ok, credential_id} <-
+           decode_base64url(
+             Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") ||
+               Map.get(params, :id)
+           ),
+         {:ok, attestation_object} <-
+           decode_base64url(
+             Map.get(response, "attestationObject") || Map.get(response, :attestationObject)
+           ),
+         {:ok, client_data_json} <-
+           decode_base64url(
+             Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)
+           ),
+         {:ok, challenge_bytes} <- normalize_challenge(challenge) do
+      {:ok,
+       %{
+         credential_id: credential_id,
+         attestation_object: attestation_object,
+         client_data_json: client_data_json,
+         challenge: challenge_bytes,
+         nickname: blank_to_nil(Map.get(params, "nickname") || Map.get(params, :nickname)),
+         device_hint:
+           blank_to_nil(
+             Map.get(params, "device_hint") || Map.get(params, :device_hint) ||
+               Map.get(params, "deviceHint") || Map.get(params, :deviceHint)
+           ),
+         transports: Map.get(response, "transports") || Map.get(response, :transports) || []
+       }}
+    else
+      _ -> {:error, :invalid_passkey}
+    end
+  end
+
+  defp normalize_passkey_registration_params(_params, _challenge), do: {:error, :invalid_passkey}
+
+  defp normalize_passkey_assertion_params(params, challenge) when is_map(params) do
+    response = Map.get(params, "response") || Map.get(params, :response) || %{}
+
+    with {:ok, credential_id} <-
+           decode_base64url(
+             Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") ||
+               Map.get(params, :id)
+           ),
+         {:ok, authenticator_data} <-
+           decode_base64url(
+             Map.get(response, "authenticatorData") || Map.get(response, :authenticatorData)
+           ),
+         {:ok, signature} <-
+           decode_base64url(Map.get(response, "signature") || Map.get(response, :signature)),
+         {:ok, client_data_json} <-
+           decode_base64url(
+             Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)
+           ),
+         {:ok, user_handle} <-
+           decode_optional_base64url(
+             Map.get(response, "userHandle") || Map.get(response, :userHandle)
+           ),
+         {:ok, challenge_bytes} <- normalize_challenge(challenge) do
+      {:ok,
+       %{
+         credential_id: credential_id,
+         authenticator_data: authenticator_data,
+         signature: signature,
+         client_data_json: client_data_json,
+         challenge: challenge_bytes,
+         user_handle: user_handle
+       }}
+    else
+      _ -> {:error, :invalid_passkey}
+    end
+  end
+
+  defp normalize_passkey_assertion_params(_params, _challenge), do: {:error, :invalid_passkey}
+
+  defp decode_base64url(value) when is_binary(value), do: Base.url_decode64(value, padding: false)
+  defp decode_base64url(_value), do: {:error, :invalid_passkey}
+
+  defp decode_optional_base64url(nil), do: {:ok, nil}
+  defp decode_optional_base64url(""), do: {:ok, nil}
+  defp decode_optional_base64url(value), do: decode_base64url(value)
+
+  defp normalize_challenge(%Wax.Challenge{} = challenge), do: {:ok, challenge}
+  defp normalize_challenge(bytes) when is_binary(bytes), do: {:ok, bytes}
+  defp normalize_challenge(_challenge), do: {:error, :invalid_passkey}
+
+  defp blank_to_nil(value) when is_binary(value) do
+    case String.trim(value) do
+      "" -> nil
+      trimmed -> trimmed
+    end
+  end
+
+  defp blank_to_nil(_value), do: nil
+
+  defp duplicate_passkey_changeset?(%Ecto.Changeset{} = changeset) do
+    Enum.any?(changeset.errors, fn
+      {:credential_id, {_message, opts}} ->
+        Keyword.get(opts, :constraint) == :unique or Keyword.has_key?(opts, :constraint_name)
+
+      _ ->
+        false
+    end)
+  end
+
+  defp passkey_ceremony_module do
+    Application.get_env(:example, :passkey_ceremony_module, Sigra.Passkeys)
+  end
+
+  defp authenticate_discoverable_passkey_with_ceremony(user, normalized_params) do
+    case passkey_ceremony_module().authenticate(sigra_config(), user, normalized_params,
+           user_passkey_schema: UserPasskey
+         ) do
+      {:ok, ^user, credential} -> {:ok, credential}
+      other -> other
+    end
+  end
+
+  defp verify_discoverable_user_handle(%{user_handle: nil}, _passkey), do: :ok
+
+  defp verify_discoverable_user_handle(%{user_handle: user_handle}, passkey) do
+    if user_handle == to_string(passkey.user_id), do: :ok, else: {:error, :invalid_passkey}
   end
 
   ## Account Lifecycle
@@ -662,12 +1090,17 @@ defmodule Example.Accounts do
   Returns `{:ok, user}` or `:error`.
   """
   def confirm_email_change(encoded_token, opts \\ []) do
-    Sigra.Auth.confirm_email_change(sigra_config(), encoded_token,
-      Keyword.merge([
-        user_token_schema: UserToken,
-        user_schema: User,
-        session_store: Sigra.SessionStores.Ecto
-      ], opts)
+    Sigra.Auth.confirm_email_change(
+      sigra_config(),
+      encoded_token,
+      Keyword.merge(
+        [
+          user_token_schema: UserToken,
+          user_schema: User,
+          session_store: Sigra.SessionStores.Ecto
+        ],
+        opts
+      )
     )
   end
 
@@ -701,9 +1134,7 @@ defmodule Example.Accounts do
   Requires sudo mode. Returns `{:ok, user}` or `{:error, changeset}`.
   """
   def set_password(user, attrs) do
-    Sigra.Auth.set_password(sigra_config(), user, attrs,
-      changeset_fn: &User.password_changeset/3
-    )
+    Sigra.Auth.set_password(sigra_config(), user, attrs, changeset_fn: &User.password_changeset/3)
   end
 
   @doc """
@@ -711,11 +1142,20 @@ defmodule Example.Accounts do
 
   Returns `{:ok, user, scheduled_date}` or `{:error, reason}`.
   """
-  def schedule_deletion(user) do
-    Sigra.Auth.schedule_deletion(sigra_config(), user,
-      user_token_schema: UserToken,
-      session_store: Sigra.SessionStores.Ecto
-    )
+  def schedule_deletion(user, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "account.deletion_schedule") do
+      Sigra.Auth.schedule_deletion(
+        sigra_config(),
+        user,
+        Keyword.merge(
+          [
+            user_token_schema: UserToken,
+            session_store: Sigra.SessionStores.Ecto
+          ],
+          opts
+        )
+      )
+    end
   end
 
   @doc """
@@ -723,10 +1163,14 @@ defmodule Example.Accounts do
 
   Returns `{:ok, user}` or `{:error, reason}`.
   """
-  def cancel_deletion(user) do
-    Sigra.Auth.cancel_deletion(sigra_config(), user,
-      changeset_fn: &User.deletion_changeset/2
-    )
+  def cancel_deletion(user, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "account.deletion_cancel") do
+      Sigra.Auth.cancel_deletion(
+        sigra_config(),
+        user,
+        Keyword.merge([changeset_fn: &User.deletion_changeset/2], opts)
+      )
+    end
   end
 
   @doc """
@@ -759,4 +1203,46 @@ defmodule Example.Accounts do
       oban_queue: "sigra_mailer"
     ]
   end
+
+  defp forbid_sensitive_operation(opts_or_details, user, operation) do
+    case extract_scope(opts_or_details) do
+      %{impersonating_from: impersonator} = scope when not is_nil(impersonator) ->
+        Sigra.Audit.log_safe("admin.impersonation.denied", scope,
+          audit_schema: Example.Accounts.AuditEvent,
+          repo: Repo,
+          actor_id: impersonator.id,
+          target_id: user.id,
+          outcome: "failure",
+          metadata: %{operation: operation}
+        )
+
+        {:error, :impersonation_forbidden}
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp forbid_api_token_operation(user, opts_or_details, operation) do
+    case extract_scope(opts_or_details) do
+      %{impersonating_from: impersonator} = scope when not is_nil(impersonator) ->
+        Sigra.Audit.log_safe("admin.impersonation.denied", scope,
+          audit_schema: Example.Accounts.AuditEvent,
+          repo: Repo,
+          actor_id: impersonator.id,
+          target_id: user.id,
+          outcome: "failure",
+          metadata: %{operation: operation}
+        )
+
+        {:error, :impersonation_forbidden, @impersonation_api_token_denial_message}
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp extract_scope(opts) when is_list(opts), do: Keyword.get(opts, :scope)
+  defp extract_scope(%{} = opts), do: Map.get(opts, :scope)
+  defp extract_scope(_other), do: nil
 end

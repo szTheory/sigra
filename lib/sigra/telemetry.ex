@@ -155,50 +155,50 @@ defmodule Sigra.Telemetry do
   ]
 
   @logged_events [
-    # Authentication
-    [:sigra, :auth, :login, :stop],
-    [:sigra, :auth, :logout, :stop],
-    [:sigra, :auth, :register, :stop],
-    # Token
-    [:sigra, :token, :generate, :stop],
-    [:sigra, :token, :verify, :stop],
-    # Session lifecycle
-    [:sigra, :session, :create, :stop],
-    [:sigra, :session, :delete, :stop],
-    [:sigra, :session, :sudo, :stop],
-    [:sigra, :session, :revoke_all, :stop],
-    # Security signals
-    [:sigra, :security, :rate_limited],
-    [:sigra, :security, :lockout],
-    [:sigra, :security, :suspicious_login],
-    [:sigra, :security, :invalid_credentials],
-    # OAuth
-    [:sigra, :oauth, :authorize, :stop],
-    [:sigra, :oauth, :callback, :stop],
-    [:sigra, :oauth, :link, :stop],
-    [:sigra, :oauth, :unlink, :stop],
-    [:sigra, :oauth, :refresh, :stop],
-    [:sigra, :oauth, :register, :stop],
-    [:sigra, :oauth, :login, :stop],
-    # MFA
-    [:sigra, :mfa, :enroll, :stop],
-    [:sigra, :mfa, :verify, :stop],
-    [:sigra, :mfa, :disable, :stop],
-    [:sigra, :mfa, :backup_codes, :regenerate, :stop],
-    [:sigra, :mfa, :lockout],
-    [:sigra, :mfa, :pending_expired],
-    [:sigra, :mfa, :trust, :granted],
-    [:sigra, :mfa, :trust, :revoked_all],
-    # Email
-    [:sigra, :email, :deliver, :stop],
-    [:sigra, :email, :deliver, :exception],
-    # Confirmation & Reset
-    [:sigra, :confirmation, :verify, :stop],
-    [:sigra, :confirmation, :sent],
-    [:sigra, :reset, :requested],
-    [:sigra, :reset, :completed],
-    [:sigra, :token, :expired]
-  ] ++ @api_token_events ++ @jwt_events ++ @account_events ++ @hook_events
+                   # Authentication
+                   [:sigra, :auth, :login, :stop],
+                   [:sigra, :auth, :logout, :stop],
+                   [:sigra, :auth, :register, :stop],
+                   # Token
+                   [:sigra, :token, :generate, :stop],
+                   [:sigra, :token, :verify, :stop],
+                   # Session lifecycle
+                   [:sigra, :session, :create, :stop],
+                   [:sigra, :session, :delete, :stop],
+                   [:sigra, :session, :sudo, :stop],
+                   [:sigra, :session, :revoke_all, :stop],
+                   # Security signals
+                   [:sigra, :security, :rate_limited],
+                   [:sigra, :security, :lockout],
+                   [:sigra, :security, :suspicious_login],
+                   [:sigra, :security, :invalid_credentials],
+                   # OAuth
+                   [:sigra, :oauth, :authorize, :stop],
+                   [:sigra, :oauth, :callback, :stop],
+                   [:sigra, :oauth, :link, :stop],
+                   [:sigra, :oauth, :unlink, :stop],
+                   [:sigra, :oauth, :refresh, :stop],
+                   [:sigra, :oauth, :register, :stop],
+                   [:sigra, :oauth, :login, :stop],
+                   # MFA
+                   [:sigra, :mfa, :enroll, :stop],
+                   [:sigra, :mfa, :verify, :stop],
+                   [:sigra, :mfa, :disable, :stop],
+                   [:sigra, :mfa, :backup_codes, :regenerate, :stop],
+                   [:sigra, :mfa, :lockout],
+                   [:sigra, :mfa, :pending_expired],
+                   [:sigra, :mfa, :trust, :granted],
+                   [:sigra, :mfa, :trust, :revoked_all],
+                   # Email
+                   [:sigra, :email, :deliver, :stop],
+                   [:sigra, :email, :deliver, :exception],
+                   # Confirmation & Reset
+                   [:sigra, :confirmation, :verify, :stop],
+                   [:sigra, :confirmation, :sent],
+                   [:sigra, :reset, :requested],
+                   [:sigra, :reset, :completed],
+                   [:sigra, :token, :expired]
+                 ] ++ @api_token_events ++ @jwt_events ++ @account_events ++ @hook_events
 
   @doc """
   Execute a function within a telemetry span.
@@ -215,7 +215,8 @@ defmodule Sigra.Telemetry do
   """
   @doc since: "0.1.0"
   @spec span([atom()], map(), (-> result)) :: result when result: term()
-  def span(event_prefix, metadata, fun) when is_list(event_prefix) and is_map(metadata) and is_function(fun, 0) do
+  def span(event_prefix, metadata, fun)
+      when is_list(event_prefix) and is_map(metadata) and is_function(fun, 0) do
     :telemetry.span(event_prefix, metadata, fn ->
       result = fun.()
       {result, metadata}

@@ -511,6 +511,7 @@ defmodule ExampleWeb.InvitationAcceptLiveTest do
 
       # First acceptance — success
       {:ok, view1, _html} = live(conn, accept_path(inv.__encoded_token__))
+
       {:error, {:redirect, %{to: redirect_path}}} =
         view1 |> element("#accept-invitation-button") |> render_click()
 

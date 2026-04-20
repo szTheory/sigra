@@ -31,6 +31,12 @@ defmodule Sigra.Install.IsolationTest do
     "Sigra.Organizations"
   ]
 
+  # Passkey wiring lives in core templates behind `<%= if passkeys? do %>` so
+  # `--no-passkeys` omits those branches at render time; the source still
+  # names `UserPasskey` / `Sigra.Passkeys`. Cross-feature *installer* coupling
+  # is what we ban — not the host passkey API surface itself.
+  @forbidden_template_symbols @forbidden_symbols -- ["UserPasskey", "Sigra.Passkeys"]
+
   describe "lib/sigra/install/features/core.ex (source)" do
     test "has no forbidden future-feature references in executable code" do
       source = File.read!("lib/sigra/install/features/core.ex")
@@ -50,7 +56,10 @@ defmodule Sigra.Install.IsolationTest do
   # and OrganizationMembership so its typespec is real (not `struct()`).
   # Phase 18 will add conditionality for `--no-organizations`; until then,
   # scope.ex is the documented exception to the core isolation rule.
-  @scope_allowed_symbols ["OrganizationMembership"]
+  @file_symbol_exceptions %{
+    "scope.ex" => ["OrganizationMembership"],
+    "auth_fixtures.ex" => ["OrganizationMembership"]
+  }
 
   describe "priv/templates/sigra.install/core/*" do
     test "every template has no forbidden future-feature references" do
@@ -62,12 +71,8 @@ defmodule Sigra.Install.IsolationTest do
         path = Path.join(template_dir, filename)
         content = File.read!(path)
 
-        forbidden =
-          if filename == "scope.ex" do
-            @forbidden_symbols -- @scope_allowed_symbols
-          else
-            @forbidden_symbols
-          end
+        allowed = Map.get(@file_symbol_exceptions, filename, [])
+        forbidden = @forbidden_template_symbols -- allowed
 
         Enum.each(forbidden, fn symbol ->
           refute content =~ symbol,
@@ -78,9 +83,9 @@ defmodule Sigra.Install.IsolationTest do
       end)
     end
 
-    test "contains exactly 47 templates" do
+    test "contains exactly 49 templates" do
       files = File.ls!("priv/templates/sigra.install/core")
-      assert length(files) == 47
+      assert length(files) == 49
     end
   end
 

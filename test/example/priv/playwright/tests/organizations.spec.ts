@@ -15,6 +15,141 @@
 import { test, expect } from '@playwright/test';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 
+const EXAMPLE_BASE_URL = process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000';
+
+async function waitForLiveViewReady(
+  page: Parameters<typeof test>[0]['page'],
+) {
+  await page.waitForSelector('[data-phx-session].phx-connected', {
+    state: 'attached',
+  });
+}
+
+async function dismissFlash(page: Parameters<typeof test>[0]['page']) {
+  await page.evaluate(() => {
+    document
+      .querySelectorAll('#flash-group [data-flash]')
+      .forEach((el) => el.remove());
+  });
+}
+
+async function registerAndConfirmUser(
+  page: Parameters<typeof test>[0]['page'],
+  email: string,
+  password: string,
+) {
+  await page.goto('/users/register');
+  await waitForLiveViewReady(page);
+  await page.fill('input[name="user[email]"]', email);
+  await page.fill('input[name="user[password]"]', password);
+  await page.click('button:has-text("Create an account")');
+  await expect(page).not.toHaveURL(/\/users\/register/);
+  await logInIfNeeded(page, email, password);
+}
+
+async function logInIfNeeded(
+  page: Parameters<typeof test>[0]['page'],
+  email: string,
+  password: string,
+) {
+  await page.goto('/users/log_in');
+  if (page.url().includes('/users/log_in')) {
+    await page.fill('#login_form input[name="user[email]"]', email);
+    await page.fill('#login_form input[name="user[password]"]', password);
+    await page.click('#login_form button:has-text("Log in")');
+    await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
+  }
+}
+
+async function createOrganizationFromZeroState(
+  page: Parameters<typeof test>[0]['page'],
+  orgName: string,
+  expectedSlug: string,
+) {
+  await page.goto('/organizations');
+  await waitForLiveViewReady(page);
+  await page.fill('input[name="organization[name]"]', orgName);
+  await expect(page.locator('#slug-preview')).toHaveText(expectedSlug);
+  await page.click('button:has-text("Create organization")');
+  await expect(page).toHaveURL(
+    new RegExp(`/organizations/${expectedSlug}/members$`),
+  );
+  await waitForLiveViewReady(page);
+}
+
+async function sendInvitation(
+  page: Parameters<typeof test>[0]['page'],
+  inviteeEmail: string,
+  role: 'member' | 'admin' | 'owner' = 'member',
+) {
+  const modal = page.locator('#invite-member-modal');
+  const emailInput = modal.locator('input[name="invitation[email]"]');
+  const inviteButton = page.locator('#invite-member-button');
+  await expect(inviteButton).toBeEnabled();
+  await inviteButton.click({ force: true });
+  await page.evaluate(() => {
+    const dialog = document.getElementById('invite-member-modal');
+
+    if (dialog instanceof HTMLDialogElement && !dialog.open) {
+      dialog.showModal();
+    }
+  });
+  await expect(modal).toHaveJSProperty('open', true);
+  await emailInput.fill(inviteeEmail, { force: true });
+  await modal
+    .locator('select[name="invitation[role]"]')
+    .selectOption(role, { force: true });
+  await modal.locator('button[type="submit"]').click({ force: true });
+
+  await expect(page.getByText(`Invitation sent to ${inviteeEmail}.`)).toBeVisible();
+  await expect(page.locator('#pending-invitations-section')).toContainText(
+    inviteeEmail,
+  );
+}
+
+async function extractInvitationLink(
+  page: Parameters<typeof test>[0]['page'],
+  recipient: string,
+) {
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const mailbox = (await page.evaluate(async () => {
+      const response = await fetch('/dev/mailbox/json');
+
+      return response.json();
+    })) as {
+      data: Array<{
+        to: string[];
+        html_body: string | null;
+        text_body: string | null;
+      }>;
+    };
+
+    const invitationEmail = mailbox.data.find((email) => {
+      const recipients = email.to.join(' ');
+      const body = [email.html_body || '', email.text_body || ''].join('\n');
+
+      return recipients.includes(recipient) && body.includes('/invitations/');
+    });
+
+    if (invitationEmail) {
+      const body = [invitationEmail.html_body || '', invitationEmail.text_body || ''].join('\n');
+      const match = body.match(/https?:\/\/[^\s"'<>]*\/invitations\/[^\s"'<>]*\/accept/);
+
+      if (match) {
+        const normalized = new URL(match[0], page.url());
+        normalized.protocol = new URL(page.url()).protocol;
+        normalized.host = new URL(page.url()).host;
+
+        return normalized.toString();
+      }
+    }
+
+    await page.waitForTimeout(1_000);
+  }
+
+  throw new Error(`No invitation link found in mailbox JSON for ${recipient}`);
+}
+
 test('phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch', async ({
   page,
 }) => {
@@ -28,34 +163,9 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   const secondOrgName = `Second Co ${suffix}`;
   const secondOrgSlug = `second-co-${suffix}`;
 
-  // Same helper as tests/golden-path.spec.ts. Phoenix LiveView adds
-  // `.phx-connected` to the LV root `<div data-phx-session>` after the
-  // channel join completes. state: 'attached' avoids the default visible
-  // gate since the root div may be a layout-neutral wrapper.
-  const waitForLiveViewReady = async () => {
-    await page.waitForSelector('[data-phx-session].phx-connected', {
-      state: 'attached',
-    });
-  };
-
-  // The Phoenix flash toast (#flash-group [data-flash]) is a fixed-position
-  // toast-top toast-end overlay that intercepts pointer events on anything
-  // beneath it (notably the org switcher in the navbar). The example app's
-  // CoreComponents.flash/1 has no client-side dismiss handler, so the toast
-  // is sticky until the LV pushes a new state. For browser tests we yank it
-  // out of the DOM directly — purely a test-side workaround for an unrelated
-  // UX limitation.
-  const dismissFlash = async () => {
-    await page.evaluate(() => {
-      document
-        .querySelectorAll('#flash-group [data-flash]')
-        .forEach((el) => el.remove());
-    });
-  };
-
   // --- Step 1: Register ---
   await page.goto('/users/register');
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   await page.click('button:has-text("Create an account")');
@@ -81,7 +191,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // automatic post-login routing — the login destination depends on the
   // example app's configured return path which may not be Branch A.
   await page.goto('/organizations');
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   await expect(page).toHaveURL(/\/organizations$/);
   await expect(
     page.getByRole('heading', { name: 'Create your first organization' }),
@@ -108,7 +218,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await expect(page).toHaveURL(
     new RegExp(`/organizations/${firstOrgSlug}/members$`),
   );
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
 
   // --- Step 7: Switcher chip shows active org + Owner badge ---
   // The switcher renders only when current_scope.active_organization is
@@ -129,7 +239,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // --- Step 8: Open switcher dropdown, verify menu anatomy ---
   // Dismiss the post-create "Organization created." toast first; the
   // alert overlay intercepts pointer events on the switcher otherwise.
-  await dismissFlash();
+  await dismissFlash(page);
   await switcherTrigger.click();
   const switcherMenu = page.locator('#org-switcher ul.menu');
   await expect(switcherMenu).toBeVisible();
@@ -152,7 +262,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
 
   // --- Step 9: Navigate to settings, verify three-section layout ---
   await page.goto(`/organizations/${firstOrgSlug}/settings`);
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   const generalHeading = page.getByRole('heading', { name: 'General' });
   const slugHeading = page.getByRole('heading', { name: 'Slug' });
   const dangerHeading = page.getByRole('heading', { name: 'Danger zone' });
@@ -169,7 +279,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await page.getByLabel('Organization name').fill(renamedOrgName);
   await page.click('button:has-text("Save name")');
   await expect(page.getByText('Name updated.')).toBeVisible();
-  await dismissFlash();
+  await dismissFlash(page);
 
   // --- Step 11: Slug progressive disclosure ---
   await page.click('button:has-text("Change slug")');
@@ -214,7 +324,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await expect(page).toHaveURL(
     new RegExp(`/organizations/${renamedSlug}/settings$`),
   );
-  await dismissFlash();
+  await dismissFlash(page);
 
   // --- Step 13: Slug alias redirect (7-day window) ---
   // Navigate to the old slug; the LoadOrganizationFromSlug plug should
@@ -223,7 +333,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await expect(page).toHaveURL(
     new RegExp(`/organizations/${renamedSlug}/settings$`),
   );
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
 
   // --- Step 14: Danger zone disclosure (do NOT delete) ---
   await page.click('button:has-text("Delete organization")');
@@ -241,7 +351,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
 
   // --- Step 15: Members table ---
   await page.goto(`/organizations/${renamedSlug}/members`);
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   const membersSection = page.locator('#members-section');
   await expect(membersSection).toContainText(email);
   // Owner badge on the only row is badge-primary.
@@ -263,16 +373,16 @@ test('phase 16 organizations UX: register → branch A → create → settings �
 
   // --- Step 16: Create a second organization ---
   await page.goto('/organizations/new');
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   await page.fill('input[name="organization[name]"]', secondOrgName);
   await page.click('button:has-text("Create organization")');
   await expect(page).toHaveURL(
     new RegExp(`/organizations/${secondOrgSlug}/members$`),
   );
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
 
   // --- Step 17: Switcher now shows SWITCH TO, use it to hop back ---
-  await dismissFlash();
+  await dismissFlash(page);
   await switcherTrigger.click();
   // Active section shows the second org now.
   await expect(switcherMenu).toContainText('Switch to');
@@ -290,7 +400,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
     new RegExp(`/organizations/${secondOrgSlug}/`),
   );
   await page.goto(`/organizations/${renamedSlug}/members`);
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   await expect(switcherTrigger).toContainText(renamedOrgName);
   await expect(
     switcherTrigger.locator('.badge.badge-primary').first(),
@@ -301,7 +411,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // Contract. If these drift, the test points at the UI-SPEC as source
   // of truth.
   await page.goto(`/organizations/${renamedSlug}/settings`);
-  await waitForLiveViewReady();
+  await waitForLiveViewReady(page);
   await expect(
     page.getByText('Soft-delete this organization. Members lose access immediately.'),
   ).toBeVisible();
@@ -309,4 +419,100 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await expect(page.getByRole('alert')).toContainText(
     'will redirect to the new slug for 7 days',
   );
+});
+
+test('organization invitations: new user accepts through the mailbox signup path', async ({
+  page,
+  browser,
+}) => {
+  const suffix = Date.now();
+  const ownerEmail = `org-owner-${suffix}@example.test`;
+  const ownerPassword = 'CorrectHorseBatteryStaple123!';
+  const inviteeEmail = `org-invitee-${suffix}@example.test`;
+  const inviteePassword = 'CorrectHorseBatteryStaple123!';
+  const orgName = `Invite Org ${suffix}`;
+  const orgSlug = `invite-org-${suffix}`;
+
+  await registerAndConfirmUser(page, ownerEmail, ownerPassword);
+  await logInIfNeeded(page, ownerEmail, ownerPassword);
+  await createOrganizationFromZeroState(page, orgName, orgSlug);
+  await sendInvitation(page, inviteeEmail);
+  const invitationHref = await extractInvitationLink(page, inviteeEmail);
+
+  const inviteeContext = await browser.newContext({
+    baseURL: EXAMPLE_BASE_URL,
+  });
+  const inviteePage = await inviteeContext.newPage();
+
+  try {
+    await inviteePage.goto(invitationHref);
+    await waitForLiveViewReady(inviteePage);
+    await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();
+    await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);
+    await expect(inviteePage.getByLabel('Email')).toBeDisabled();
+    await inviteePage.getByLabel('Password').fill(inviteePassword);
+    await inviteePage
+      .getByRole('button', { name: `Create account & join ${orgName}` })
+      .click();
+
+    await expect(inviteePage).toHaveURL(/\/users\/log_in/);
+    await inviteePage.fill('#login_form input[name="user[email]"]', inviteeEmail);
+    await inviteePage.fill('#login_form input[name="user[password]"]', inviteePassword);
+    await inviteePage.click('#login_form button:has-text("Log in")');
+    await expect(inviteePage).not.toHaveURL(/\/users\/log_in(\?|$)/);
+
+    await inviteePage.goto(`/organizations/${orgSlug}/members`);
+    await waitForLiveViewReady(inviteePage);
+    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);
+    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(
+      inviteeEmail,
+    );
+  } finally {
+    await inviteeContext.close();
+  }
+});
+
+test('organization invitations: signed-in matching user accepts through the mailbox link', async ({
+  page,
+  browser,
+}) => {
+  const suffix = Date.now();
+  const ownerEmail = `org-owner-match-${suffix}@example.test`;
+  const ownerPassword = 'CorrectHorseBatteryStaple123!';
+  const inviteeEmail = `org-member-match-${suffix}@example.test`;
+  const inviteePassword = 'CorrectHorseBatteryStaple123!';
+  const orgName = `Match Org ${suffix}`;
+  const orgSlug = `match-org-${suffix}`;
+
+  await registerAndConfirmUser(page, ownerEmail, ownerPassword);
+  await logInIfNeeded(page, ownerEmail, ownerPassword);
+  await createOrganizationFromZeroState(page, orgName, orgSlug);
+  await sendInvitation(page, inviteeEmail);
+  const invitationHref = await extractInvitationLink(page, inviteeEmail);
+
+  const inviteeContext = await browser.newContext({
+    baseURL: EXAMPLE_BASE_URL,
+  });
+  const inviteePage = await inviteeContext.newPage();
+
+  try {
+    await registerAndConfirmUser(inviteePage, inviteeEmail, inviteePassword);
+    await logInIfNeeded(inviteePage, inviteeEmail, inviteePassword);
+
+    await inviteePage.goto(invitationHref);
+    await waitForLiveViewReady(inviteePage);
+    await expect(inviteePage.locator('#invitation-accept-accept')).toBeVisible();
+    await inviteePage
+      .getByRole('button', { name: `Accept & join ${orgName}` })
+      .click();
+
+    await expect(inviteePage).toHaveURL(new RegExp(`/organizations/${orgSlug}/members$`));
+    await waitForLiveViewReady(inviteePage);
+    await expect(inviteePage.locator('#members-section')).toContainText(inviteeEmail);
+    await expect(inviteePage.locator('#pending-invitations-section')).not.toContainText(
+      inviteeEmail,
+    );
+  } finally {
+    await inviteeContext.close();
+  }
 });

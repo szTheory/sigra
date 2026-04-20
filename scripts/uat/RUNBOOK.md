@@ -1,5 +1,16 @@
 # Sigra v1.0 UAT Runbook
 
+## CI vs manual (shift-left)
+
+Many checklist items are now duplicated or superseded by **merge-blocking CI** and **ExUnit/Playwright** contracts. Before spending human time on a row, see **[`docs/uat-ci-coverage.md`](../../docs/uat-ci-coverage.md)** for the SEED-001 / v1.3 mapping (which jobs close which SEED, and what is still residual).
+
+| Work type | Use this runbook when… |
+|-----------|-------------------------|
+| **CI already covers it** | You only need a release paper trail — link workflow run URLs + commit SHA in `.planning/uat-evidence/` instead of re-running every click. |
+| **Residual row** | You care about real Gmail/Outlook/Apple rendering or live Google OAuth UX — run the relevant section below. |
+
+---
+
 This runbook walks through the **19 human verification items** the per-phase verifiers deferred during phases 4, 5, 6, 8, 9, and 10. Once all are checked off, milestone v1.0 is GA-ready.
 
 **Estimated time:** 90-150 minutes for all 19 items in one focused session.

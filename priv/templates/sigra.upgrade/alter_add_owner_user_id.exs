@@ -15,12 +15,64 @@ defmodule <%= repo_module %>.Migrations.AddOwnerUserIdToOrganizations do
   use Ecto.Migration
 
   def up do
-    alter table(:organizations) do
-      add_if_not_exists :owner_user_id,
-                        references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
+    # Idempotent column + FK add. On Postgres we use a PL/pgSQL DO
+    # block because Ecto's `add_if_not_exists :col, references(...)`
+    # suppresses the ADD COLUMN when the column exists but still
+    # emits a separate ALTER TABLE ADD CONSTRAINT, which crashes
+    # with `ERROR 42710 duplicate_object` on a fresh v1.1+ install
+    # where the column and FK were already created by
+    # `mix sigra.install`. Postgres has no
+    # `ADD CONSTRAINT IF NOT EXISTS` form, so we check
+    # `information_schema.columns` and `pg_constraint` explicitly.
+    #
+    # On non-Postgres adapters (MySQL / SQLite) we fall back to the
+    # Ecto DSL's `add_if_not_exists/3`. The duplicate-constraint
+    # crash path is Postgres-specific, so the DSL is sufficient
+    # there. CLAUDE.md requires MySQL/SQLite support via conditional
+    # migrations — this branch keeps the upgrade path correct on
+    # non-Postgres hosts.
+    if repo().__adapter__() == Ecto.Adapters.Postgres do
+      execute(
+        """
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'organizations' AND column_name = 'owner_user_id'
+          ) THEN
+            ALTER TABLE organizations
+              ADD COLUMN owner_user_id <%= if binary_id do %>uuid<% else %>bigint<% end %>;
+          END IF;
+
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint
+            WHERE conname = 'organizations_owner_user_id_fkey'
+          ) THEN
+            ALTER TABLE organizations
+              ADD CONSTRAINT organizations_owner_user_id_fkey
+              FOREIGN KEY (owner_user_id)
+              REFERENCES <%= table_name %>(id)
+              ON DELETE SET NULL;
+          END IF;
+        END$$;
+        """,
+        ""
+      )
+    else
+      alter table(:organizations) do
+        add_if_not_exists(
+          :owner_user_id,
+          references(<%= inspect(table_name) %>,
+            on_delete: :nilify_all,
+            type: <%= if binary_id, do: ":binary_id", else: ":id" %>
+          )
+        )
+      end
     end
 
     # Populate from the earliest :owner membership per org.
+    # Idempotent: WHERE owner_user_id IS NULL means a second run that
+    # already populated from a prior backfill is a no-op.
     execute(
       """
       UPDATE organizations o SET owner_user_id = (
@@ -35,8 +87,34 @@ defmodule <%= repo_module %>.Migrations.AddOwnerUserIdToOrganizations do
   end
 
   def down do
-    alter table(:organizations) do
-      remove_if_exists :owner_user_id, references(:<%= table_name %>)
+    if repo().__adapter__() == Ecto.Adapters.Postgres do
+      execute(
+        """
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM pg_constraint
+            WHERE conname = 'organizations_owner_user_id_fkey'
+          ) THEN
+            ALTER TABLE organizations
+              DROP CONSTRAINT organizations_owner_user_id_fkey;
+          END IF;
+
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'organizations' AND column_name = 'owner_user_id'
+          ) THEN
+            ALTER TABLE organizations
+              DROP COLUMN owner_user_id;
+          END IF;
+        END$$;
+        """,
+        ""
+      )
+    else
+      alter table(:organizations) do
+        remove_if_exists(:owner_user_id)
+      end
     end
   end
 end

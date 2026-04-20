@@ -143,7 +143,9 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     # 15-02 Category 1: `new_scope` is the post-reassignment scope and carries
     # the resolved org — pass it directly so the audit row picks up the new
     # organization_id + effective_user_id.
-    Audit.log_safe("organization.active_auto_reassigned", new_scope,
+    Audit.log_safe(
+      "organization.active_auto_reassigned",
+      new_scope,
       Keyword.merge(audit_opts,
         actor_id: scope.user.id,
         target_id: stale_id,
@@ -160,7 +162,13 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     |> Plug.Conn.assign(:current_scope, new_scope)
   end
 
-  defp apply_selection({:ok, new_org, membership}, scope, cleared_session, session_store, store_opts) do
+  defp apply_selection(
+         {:ok, new_org, membership},
+         scope,
+         cleared_session,
+         session_store,
+         store_opts
+       ) do
     # WR-05: tolerate {:error, _} on the set-to-new-org write too. If the
     # row vanished between the clear and this write, fall through to a safe
     # empty scope rather than MatchError'ing mid-pipeline.

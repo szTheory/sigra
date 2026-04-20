@@ -8,7 +8,9 @@
     "install-browsers": "playwright install --with-deps chromium"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.48.0",
+    "@simplewebauthn/browser": "^13.3.0",
     "otplib": "^12.0.1"
   }
 }

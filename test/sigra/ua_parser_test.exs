@@ -7,7 +7,8 @@ defmodule Sigra.UAParserTest do
 
   describe "parse/1" do
     test "parses Chrome on macOS" do
-      ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      ua =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
       result = UAParser.parse(ua)
 
@@ -27,7 +28,8 @@ defmodule Sigra.UAParserTest do
     end
 
     test "parses Safari on macOS" do
-      ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+      ua =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
 
       result = UAParser.parse(ua)
 
@@ -37,7 +39,8 @@ defmodule Sigra.UAParserTest do
     end
 
     test "parses Edge on Windows" do
-      ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
+      ua =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
 
       result = UAParser.parse(ua)
 
@@ -47,7 +50,8 @@ defmodule Sigra.UAParserTest do
     end
 
     test "parses Opera on Linux" do
-      ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 OPR/106.0.0.0"
+      ua =
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 OPR/106.0.0.0"
 
       result = UAParser.parse(ua)
 
@@ -57,7 +61,8 @@ defmodule Sigra.UAParserTest do
     end
 
     test "parses Samsung Internet on Android" do
-      ua = "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36"
+      ua =
+        "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36"
 
       result = UAParser.parse(ua)
 
@@ -67,7 +72,8 @@ defmodule Sigra.UAParserTest do
     end
 
     test "parses Chrome on iOS" do
-      ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1"
+      ua =
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1"
 
       result = UAParser.parse(ua)
 
@@ -77,7 +83,8 @@ defmodule Sigra.UAParserTest do
     end
 
     test "parses Chrome on Chrome OS" do
-      ua = "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      ua =
+        "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
       result = UAParser.parse(ua)
 

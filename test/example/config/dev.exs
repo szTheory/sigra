@@ -88,7 +88,6 @@ config :phoenix_live_view,
 # Sigra email delivery (dev) — adapter is set on the raw Swoosh.Mailer module
 # (`Example.Mailer`), not the Sigra.Mailer behaviour wrapper
 # (`Example.Accounts.Mailer`), which delegates to `Example.Mailer.deliver/1`.
-config :example, Example.Mailer,
-  adapter: Swoosh.Adapters.Local
+config :example, Example.Mailer, adapter: Swoosh.Adapters.Local
 
 config :swoosh, :api_client, false

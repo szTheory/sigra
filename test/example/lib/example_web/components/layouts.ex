@@ -5,6 +5,7 @@ defmodule ExampleWeb.Layouts do
   """
   use ExampleWeb, :html
 
+  import ExampleWeb.Components.AdminShell
   # Phase 16 D-27: organization switcher function component.
   import ExampleWeb.Components.OrgSwitcher
 
@@ -45,7 +46,7 @@ defmodule ExampleWeb.Layouts do
     <header class="navbar px-4 sm:px-6 lg:px-8">
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
+          <img src={~p"/images/logo.svg"} width="36" alt="" />
           <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
         </a>
       </div>
@@ -72,11 +73,28 @@ defmodule ExampleWeb.Layouts do
       </div>
     </header>
 
+    <.impersonation_banner :if={@current_scope && @current_scope.impersonating_from} current_scope={@current_scope} />
+
     <main class="px-4 py-20 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-2xl space-y-4">
         {render_slot(@inner_block)}
       </div>
     </main>
+
+    <.flash_group flash={@flash} />
+    """
+  end
+
+  attr :flash, :map, default: %{}, doc: "the map of flash messages"
+  attr :current_scope, :map, default: nil
+  attr :admin_scope, :map, default: nil
+  attr :inner_content, :any, default: nil
+
+  def admin(assigns) do
+    ~H"""
+    <.admin_shell admin_scope={@admin_scope} current_scope={@current_scope}>
+      {@inner_content}
+    </.admin_shell>
 
     <.flash_group flash={@flash} />
     """

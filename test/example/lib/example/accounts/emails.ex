@@ -220,6 +220,74 @@ defmodule Example.Accounts.Emails do
     |> text_body(text_body)
   end
 
+  @doc "Builds a notification email when a passkey is registered on an account."
+  def passkey_registration_email(user, details) do
+    ip = details |> Map.get(:ip, "Unknown") |> html_escape_string()
+
+    city =
+      details |> Map.get(:city, Map.get(details, :geo_city, "Unknown")) |> html_escape_string()
+
+    device = details |> Map.get(:device, "Unknown device") |> html_escape_string()
+
+    time =
+      details
+      |> Map.get(:time, DateTime.utc_now())
+      |> format_security_time()
+      |> html_escape_string()
+
+    reset_url = "#{ExampleWeb.Endpoint.url()}/users/reset-password"
+
+    html_content = """
+    <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
+      #{dgettext("sigra", "New Passkey Added")}
+    </p>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "A new passkey was added to your account.")}
+    </p>
+    <div style="margin: 16px 0; padding: 16px; background-color: #f4f4f5; border-radius: 8px;">
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Device:")}</strong> #{device}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "IP address:")}</strong> #{ip}
+      </p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Location:")}</strong> #{city}
+      </p>
+      <p style="margin: 0; font-size: 14px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+        <strong>#{dgettext("sigra", "Time:")}</strong> #{time}
+      </p>
+    </div>
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
+    </p>
+    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
+    """
+
+    text_body = """
+    #{dgettext("sigra", "New Passkey Added")}
+
+    #{dgettext("sigra", "A new passkey was added to your account.")}
+
+    #{dgettext("sigra", "Device:")} #{device}
+    #{dgettext("sigra", "IP address:")} #{ip}
+    #{dgettext("sigra", "Location:")} #{city}
+    #{dgettext("sigra", "Time:")} #{time}
+
+    #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
+
+    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
+
+    ---
+    #{security_footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "New passkey added to your account"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
   @doc "Builds a lockout notification email."
   def lockout_notification_email(user, _details) do
     reset_url = "#{ExampleWeb.Endpoint.url()}/users/reset-password"
@@ -693,18 +761,19 @@ defmodule Example.Accounts.Emails do
     |> text_body(text_body)
   end
 
-  # -- Organization Invitation (Phase 17 D-12) --
+  # -- Org-invite block (Phase 17 D-12 / Phase 24 D-04) --
   #
-  # Canonical inline copy of the OrganizationInvitationEmail fragment
-  # shipped at priv/templates/sigra.install/core/organization_invitation_email.ex.
+  # Canonical inline copy of the invitation email fragment shipped at
+  # priv/templates/sigra.install/organizations/organization_invitation_email.ex.
   # Both must stay in sync — the fragment file is the documentation reference.
+  # Wrapped in `<%= if organizations? do %%>` so --no-organizations omits it.
 
   @doc """
   Builds an organization-invitation email.
 
   ## Parameters
 
-  - `invitation` — `%OrganizationInvitation{email, role, expires_at}`
+  - `invitation` — invitation struct with `email`, `role`, `expires_at`
   - `org` — `%Organization{name}`
   - `inviter` — `%User{email, name}` (the `:name` field may not exist or may be nil)
   - `accept_url` — HMAC-signed accept URL (library-generated, never raw token)
@@ -779,15 +848,19 @@ defmodule Example.Accounts.Emails do
     #{footer_text()}
     """
 
-    base_email(invitation.email)
-    |> subject(
-      dgettext("sigra", "%{inviter} invited you to join %{org}",
-        inviter: inviter_display,
-        org: org.name
+    email =
+      base_email(invitation.email)
+      |> subject(
+        dgettext("sigra", "%{inviter} invited you to join %{org}",
+          inviter: inviter_display,
+          org: org.name
+        )
       )
-    )
-    |> html_body(base_layout(html_content))
-    |> text_body(text_body)
+      |> html_body(base_layout(html_content))
+      |> text_body(text_body)
+
+    _ = Example.Mailer.deliver(email)
+    email
   end
 
   defp inviter_display_name(inviter) do
@@ -895,6 +968,13 @@ defmodule Example.Accounts.Emails do
   end
 
   defp html_escape_string(value), do: html_escape_string(to_string(value))
+
+  defp format_security_time(%DateTime{} = datetime) do
+    Calendar.strftime(datetime, "%Y-%m-%d %H:%M:%S UTC")
+  end
+
+  defp format_security_time(value) when is_binary(value), do: value
+  defp format_security_time(value), do: to_string(value)
 
   defp format_date(%DateTime{} = datetime) do
     Calendar.strftime(datetime, "%B %d, %Y")

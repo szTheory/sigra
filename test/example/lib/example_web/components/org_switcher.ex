@@ -31,7 +31,8 @@ defmodule ExampleWeb.Components.OrgSwitcher do
       <summary
         aria-label="Organization switcher"
         aria-expanded="false"
-        class="btn btn-ghost gap-2 normal-case">
+        class="btn btn-ghost gap-2 normal-case"
+      >
         <span class="avatar placeholder bg-primary/10 text-primary-content rounded w-6 h-6 text-xs">
           {initials(@current_scope.active_organization.name)}
         </span>
@@ -67,7 +68,8 @@ defmodule ExampleWeb.Components.OrgSwitcher do
                 <button
                   type="submit"
                   aria-label={"Switch to #{org.name}"}
-                  class="flex w-full items-center justify-between">
+                  class="flex w-full items-center justify-between"
+                >
                   <span>{org.name}</span>
                   <span class={["badge badge-xs", role_badge_class(role)]}>
                     {humanize_role(role)}

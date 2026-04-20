@@ -32,8 +32,11 @@ defmodule Sigra.TelemetryTest do
 
       assert result == {:ok, "result"}
 
-      assert_receive {:telemetry_event, [:sigra, :auth, :login, :start], %{system_time: _}, %{user_id: 1}}
-      assert_receive {:telemetry_event, [:sigra, :auth, :login, :stop], %{duration: _}, %{user_id: 1}}
+      assert_receive {:telemetry_event, [:sigra, :auth, :login, :start], %{system_time: _},
+                      %{user_id: 1}}
+
+      assert_receive {:telemetry_event, [:sigra, :auth, :login, :stop], %{duration: _},
+                      %{user_id: 1}}
     end
 
     test "emits :exception event when function raises" do
@@ -56,7 +59,7 @@ defmodule Sigra.TelemetryTest do
       end
 
       assert_receive {:telemetry_event, [:sigra, :auth, :login, :exception], %{duration: _},
-                       %{user_id: 1, kind: :error, reason: %RuntimeError{}, stacktrace: _}}
+                      %{user_id: 1, kind: :error, reason: %RuntimeError{}, stacktrace: _}}
     end
   end
 
@@ -79,7 +82,7 @@ defmodule Sigra.TelemetryTest do
       Telemetry.event([:sigra, :security, :rate_limited], %{count: 1}, %{key: "ip:1.2.3.4"})
 
       assert_receive {:telemetry_event, [:sigra, :security, :rate_limited], %{count: 1},
-                       %{key: "ip:1.2.3.4"}}
+                      %{key: "ip:1.2.3.4"}}
     end
 
     test "emits event with default empty measurements and metadata" do

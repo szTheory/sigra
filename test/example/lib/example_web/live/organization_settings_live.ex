@@ -53,107 +53,106 @@ defmodule ExampleWeb.OrganizationSettingsLive do
       current_scope={@current_scope}
       user_organizations={@user_organizations}
     >
-    <div class="mx-auto max-w-2xl">
-      <.header>
-        Organization settings
-        <:subtitle>{@org.name}</:subtitle>
-      </.header>
+      <div class="mx-auto max-w-2xl">
+        <.header>
+          Organization settings
+          <:subtitle>{@org.name}</:subtitle>
+        </.header>
 
-      <%= # General (rename) — D-10 %>
-      <section class="bg-base-200 p-6 rounded-lg mt-6">
-        <h2 class="text-lg font-semibold">General</h2>
-        <.form for={@rename_form} phx-submit="rename" class="mt-4">
-          <.input field={@rename_form[:name]} label="Organization name" required />
-          <.button type="submit" phx-disable-with="Saving...">Save name</.button>
-        </.form>
-      </section>
-
-      <%= # Slug (progressive disclosure + sudo + typed-confirm + 7-day alias) — D-11, D-12 %>
-      <section class="bg-base-200 p-6 rounded-lg mt-8">
-        <h2 class="text-lg font-semibold">Slug</h2>
-        <p class="text-sm text-base-content/70 mt-1">
-          Current: <code>{@org.slug}</code>
-        </p>
-
-        <%= if @slug_form_open? do %>
-          <.form for={@slug_form} phx-submit="update_slug" class="mt-4 space-y-3">
-            <.input field={@slug_form[:slug]} label="New slug" required />
-            <.input
-              field={@slug_form[:password]}
-              type="password"
-              label="Current password"
-              autocomplete="current-password"
-              required
-            />
-            <.input
-              field={@slug_form[:confirm_slug]}
-              label={"Type " <> @org.slug <> " to confirm"}
-              required
-            />
-
-            <div role="alert" class="alert alert-warning alert-soft">
-              <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
-              <span>
-                Your current slug <code>{@org.slug}</code>
-                will redirect to the new slug for 7 days, after which it becomes
-                available to other organizations. Links and bookmarks using
-                <code>{@org.slug}</code>
-                will continue to work during that window.
-              </span>
-            </div>
-
-            <div class="flex gap-2">
-              <.button type="submit" class="btn btn-error" phx-disable-with="Updating...">
-                Update slug
-              </.button>
-              <.button type="button" phx-click="close_slug_form" class="btn btn-ghost">
-                Cancel
-              </.button>
-            </div>
+        {# General (rename) — D-10}
+        <section class="bg-base-200 p-6 rounded-lg mt-6">
+          <h2 class="text-lg font-semibold">General</h2>
+          <.form for={@rename_form} phx-submit="rename" class="mt-4">
+            <.input field={@rename_form[:name]} label="Organization name" required />
+            <.button type="submit" phx-disable-with="Saving...">Save name</.button>
           </.form>
-        <% else %>
-          <.button phx-click="open_slug_form" class="mt-4">Change slug</.button>
-        <% end %>
-      </section>
+        </section>
 
-      <%= # Danger zone (soft-delete) — D-10 red-zone treatment, D-11 inline sudo %>
-      <section class="mt-8 rounded-lg border border-error/40 border-l-4 border-l-error bg-base-100 p-6">
-        <h2 class="text-lg font-semibold text-error">Danger zone</h2>
-        <p class="text-sm mt-1">
-          Soft-delete this organization. Members lose access immediately.
-        </p>
+        {# Slug (progressive disclosure + sudo + typed-confirm + 7-day alias) — D-11, D-12}
+        <section class="bg-base-200 p-6 rounded-lg mt-8">
+          <h2 class="text-lg font-semibold">Slug</h2>
+          <p class="text-sm text-base-content/70 mt-1">
+            Current: <code>{@org.slug}</code>
+          </p>
 
-        <%= if @delete_form_open? do %>
-          <.form for={@delete_form} phx-submit="soft_delete" class="mt-4 space-y-3">
-            <.input
-              field={@delete_form[:password]}
-              type="password"
-              label="Current password"
-              autocomplete="current-password"
-              required
-            />
-            <.input
-              field={@delete_form[:confirm_name]}
-              label={"Type " <> @org.name <> " to confirm"}
-              required
-            />
+          <%= if @slug_form_open? do %>
+            <.form for={@slug_form} phx-submit="update_slug" class="mt-4 space-y-3">
+              <.input field={@slug_form[:slug]} label="New slug" required />
+              <.input
+                field={@slug_form[:password]}
+                type="password"
+                label="Current password"
+                autocomplete="current-password"
+                required
+              />
+              <.input
+                field={@slug_form[:confirm_slug]}
+                label={"Type " <> @org.slug <> " to confirm"}
+                required
+              />
 
-            <div class="flex gap-2">
-              <.button type="submit" class="btn btn-error" phx-disable-with="Deleting...">
-                Delete organization permanently
-              </.button>
-              <.button type="button" phx-click="close_delete_form" class="btn btn-ghost">
-                Cancel
-              </.button>
-            </div>
-          </.form>
-        <% else %>
-          <.button phx-click="open_delete_form" class="btn btn-error btn-soft mt-4">
-            Delete organization
-          </.button>
-        <% end %>
-      </section>
-    </div>
+              <div role="alert" class="alert alert-warning alert-soft">
+                <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+                <span>
+                  Your current slug <code>{@org.slug}</code>
+                  will redirect to the new slug for 7 days, after which it becomes
+                  available to other organizations. Links and bookmarks using <code>{@org.slug}</code>
+                  will continue to work during that window.
+                </span>
+              </div>
+
+              <div class="flex gap-2">
+                <.button type="submit" class="btn btn-error" phx-disable-with="Updating...">
+                  Update slug
+                </.button>
+                <.button type="button" phx-click="close_slug_form" class="btn btn-ghost">
+                  Cancel
+                </.button>
+              </div>
+            </.form>
+          <% else %>
+            <.button phx-click="open_slug_form" class="mt-4">Change slug</.button>
+          <% end %>
+        </section>
+
+        {# Danger zone (soft-delete) — D-10 red-zone treatment, D-11 inline sudo}
+        <section class="mt-8 rounded-lg border border-error/40 border-l-4 border-l-error bg-base-100 p-6">
+          <h2 class="text-lg font-semibold text-error">Danger zone</h2>
+          <p class="text-sm mt-1">
+            Soft-delete this organization. Members lose access immediately.
+          </p>
+
+          <%= if @delete_form_open? do %>
+            <.form for={@delete_form} phx-submit="soft_delete" class="mt-4 space-y-3">
+              <.input
+                field={@delete_form[:password]}
+                type="password"
+                label="Current password"
+                autocomplete="current-password"
+                required
+              />
+              <.input
+                field={@delete_form[:confirm_name]}
+                label={"Type " <> @org.name <> " to confirm"}
+                required
+              />
+
+              <div class="flex gap-2">
+                <.button type="submit" class="btn btn-error" phx-disable-with="Deleting...">
+                  Delete organization permanently
+                </.button>
+                <.button type="button" phx-click="close_delete_form" class="btn btn-ghost">
+                  Cancel
+                </.button>
+              </div>
+            </.form>
+          <% else %>
+            <.button phx-click="open_delete_form" class="btn btn-error btn-soft mt-4">
+              Delete organization
+            </.button>
+          <% end %>
+        </section>
+      </div>
     </Layouts.app>
     """
   end

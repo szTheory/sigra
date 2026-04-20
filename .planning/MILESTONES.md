@@ -55,3 +55,107 @@
 - [v1.0 Milestone Audit](milestones/v1.0-MILESTONE-AUDIT.md) — final audit report
 
 ---
+
+## v1.1 Foundations (Shipped: 2026-04-16)
+
+**Scope:** 13 phases, 68 plans, 154 plan tasks.
+
+**What shipped:** Sigra v1.1 delivered logical multi-tenancy and passkeys end to end. The release now includes organizations, memberships, invitations, active-organization scope/session hydration, tenant-aware audit columns, passkey registration and authentication, passkey MFA and passkey-primary login modes, generator opt-outs for both organizations and passkeys, updated guide set, org/passkey testing helpers, and CI/browser smoke coverage that exercises the release-gate flows.
+
+### Key Accomplishments
+
+1. **Generator feature system proved out** — the `core`/feature-manifest pattern shipped two real feature consumers, validating the additive generator architecture for future milestones.
+2. **Organizations shipped as the v1.1 multi-tenant foundation** — scoped queries, memberships, invites, switcher UX, org settings, member management, and upgrade/backfill paths all landed with current verification.
+3. **Passkeys shipped across the full stack** — data layer, challenge handling, runtime config, JS hooks, controller boundaries, example app flows, and generator opt-out coverage all landed.
+4. **Audit and scope foundations were upgraded for tenant-aware future work** — real `organization_id` and `effective_user_id` columns plus scope/session hydration now support later admin and audit views cleanly.
+5. **Docs and DX moved from aspirational to exercised** — guide set, upgrade runbook, org/passkey helpers, and Playwright smoke are all backed by current tests and workflow wiring.
+6. **Milestone verification debt was closed before archive** — Phase 26 wrote the missing verification artifacts for Phases 18, 19, 22, and 23, bringing v1.1 to 79/79 requirements satisfied.
+
+### Stats
+
+- **Requirements:** 79/79 satisfied
+- **Audit:** archive-ready
+- **Timeline:** 2026-04-05 -> 2026-04-16
+- **Git range:** `4efb4a5` -> `3fc8a6a`
+
+### Tech Debt Carried Forward
+
+- **`gsd-tools audit-open --json` is deprecated** for Sigra maintainers; the **supported path** is [`MAINTAINING.md`](../MAINTAINING.md) section **Planning hygiene (without gsd-tools JSON)** plus optional [`scripts/maintainers/planning-audit-hygiene.sh`](../scripts/maintainers/planning-audit-hygiene.sh).
+- `Phase 999.1` Nyquist backfill remains parked.
+- `Phase 999.2` Dependabot major-version cleanup remains parked.
+
+**Archive:**
+- [v1.1 Roadmap](milestones/v1.1-ROADMAP.md)
+- [v1.1 Requirements](milestones/v1.1-REQUIREMENTS.md)
+- [v1.1 Milestone Audit](milestones/v1.1-MILESTONE-AUDIT.md)
+
+---
+
+## v1.2 Admin Dashboard (Shipped: 2026-04-17)
+
+**Scope:** 9 phases, 32 plans (Phases 27-31 plus gap-closure 32-35).
+
+**What shipped:** A default-on, Phoenix/LiveView-first admin surface on top of v1.1: explicit host policy for platform vs organization admins, scope-safe routing and `Sigra.Admin` enforcement, searchable and filterable user operations with session revocation, time-bounded impersonation with dual-actor audit and blocked sensitive mutations, global and organization and per-user audit exploration with CSV export, automation-first verification (Playwright, smoke scripts, CI artifacts including mobile and dark checkpoints), and generator/installer parity so freshly generated hosts mount user admin LiveViews, emit impersonation and audit export controllers, ship usable admin shell navigation, and prove flows on the generated host. Shift-left CI gates (emission audit, drift guard for dead nav labels, milestone `VERIFICATION.md` presence, installer-scoped milestone audit, artifact bundle contract) reduce recurrence of the integration defects caught in the mid-milestone audit.
+
+### Key Accomplishments
+
+1. **Admin access foundation (Phase 27)** — Default-on `--no-admin` opt-out, library-owned admin scope resolution, plugs and LiveView `on_mount`, example and template wiring with visible global vs organization chrome.
+2. **User operations (Phase 28)** — Scope-safe user index and detail, host hooks contract, session revoke-one and revoke-all with audit, responsive operator journeys; retroactively verified in `28-VERIFICATION.md` (Phase 34).
+3. **Secure impersonation (Phase 29)** — Controller-owned start/stop, preserved admin session restoration, persistent banner, shared forbid plug across controllers and LiveViews, generated API-token guards.
+4. **Audit exploration and export (Phase 30)** — Normalized query contract, global/org/user explorers, impersonation-aware presentation, scope-respecting CSV export endpoints.
+5. **Automation-first verification (Phases 31, 34-35)** — Partitioned Playwright harness, example and generated-host specs, direct-path smoke, HTML and visual artifacts; generated-host E2E for users, impersonation, and audit export; shift-left machine gates.
+6. **Installer parity and polish (Phases 32-33)** — Router injection and template emission closing INT-01..03; admin shell Users navigation and mobile bottom nav; recent audit preview aligned with `Presenter`.
+
+### Stats
+
+- **Requirements:** 23/23 v1.2 IDs satisfied (archived traceability in `milestones/v1.2-REQUIREMENTS.md`)
+- **Milestone audit:** passed (see `milestones/v1.2-MILESTONE-AUDIT.md` front matter; body retains morning gap narrative for archaeology)
+- **Timeline:** 2026-04-16 → 2026-04-17 (core delivery and gap closure)
+
+### Tech Debt Carried Forward
+
+- `SEED-001` human-only GA UAT items; `SEED-002` audit atomicity hybrid; backlog **999.1** / **999.2** unchanged from prior milestones.
+- Residual subjective reviewer items called out in phase VERIFICATION/HUMAN-UAT docs where automation cannot fully substitute judgment.
+
+**Archive:**
+
+- [v1.2 Roadmap](milestones/v1.2-ROADMAP.md)
+- [v1.2 Requirements](milestones/v1.2-REQUIREMENTS.md)
+- [v1.2 Milestone Audit](milestones/v1.2-MILESTONE-AUDIT.md)
+
+---
+
+## v1.3 Cleanup & Hardening (Shipped: 2026-04-19)
+
+**Scope:** 5 phases, 11 plans (Phases 36–40).
+
+**What shipped:** Planning and engineering hardening without new product features: retroactive Nyquist validation inventory plus explicit waivers for historical draft validation debt (**999.1**), SHA-pinned first-party GitHub Actions upgrades with Dependabot triage notes (**999.2** / CI-01–03), a defensible GA UAT posture for **SEED-001** via shift-left automation (`docs/uat-ci-coverage.md`, Playwright `ga-uat-shift-left.spec.ts`, expanded CI gates) plus consolidated human-UAT tables and evidence scaffolding, audit-testability primitives (`Sigra.Audit.Assertions`) and an atomic audited `api.token_create` path when audit schema is configured (**SEED-002** partial), and maintainer-facing release plus planning-hygiene docs (`MAINTAINING.md`, optional `hex-publish.yml`, `scripts/maintainers/planning-audit-hygiene.sh`) superseding the broken JSON `audit-open` path.
+
+### Key accomplishments
+
+1. **Phase 36 — Nyquist debt made legible** — `36-INVENTORY.md`, `36-WAIVERS.md`, `verify-phase36.sh`, and traceability updates closed VAL-01–VAL-03.
+2. **Phase 37 — Supply-chain hygiene** — `checkout` / `setup-node` / `upload-artifact` majors landed as SHA-pinned pins across primary workflows with recorded triage vs Dependabot.
+3. **Phase 38 — GA UAT gate** — `v1.3-HUMAN-UAT.md`, versioned evidence tree, and automation-first mapping so merge-blocking CI substitutes subjective “trust me” for most SEED-001 rows.
+4. **Phase 39 — Audit completeness** — Plain-function audit assertions for tests, `Ecto.Multi` + audit for API token creation, example-app smoke for login and MFA enrollment audit rows.
+5. **Phase 40 — Maintainer ergonomics** — Release checklist, optional isolated Hex publish workflow pattern, and bash-first planning hygiene without unsupported JSON audit tooling.
+
+### Stats
+
+- **Requirements:** 13/13 v1.3 REQ IDs satisfied in archived `milestones/v1.3-REQUIREMENTS.md`
+- **Milestone audit:** passed at close (see `milestones/v1.3-MILESTONE-AUDIT.md`)
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-19)
+- **Timeline:** 2026-04-17 → 2026-04-19 (planning + execution on disk)
+
+### Tech debt carried forward
+
+- **SEED-002 remainder:** convert remaining hybrid `log_safe/3` sites to audited `Ecto.Multi` flows beyond `api.token_create` when subsystems grow audit-aware tests.
+- **SEED-001 residuals:** real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code **rotation** proof — still human- or product-dependent until explicit features land (`mfa_regenerate_backup_codes`, etc.).
+- **AUD-03 boundary:** OAuth ceremony audit assertions intentionally not claimed in v1.3.
+
+**Archive:**
+
+- [v1.3 Roadmap](milestones/v1.3-ROADMAP.md)
+- [v1.3 Requirements](milestones/v1.3-REQUIREMENTS.md)
+- [v1.3 Milestone Audit](milestones/v1.3-MILESTONE-AUDIT.md)
+
+---

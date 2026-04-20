@@ -60,7 +60,15 @@ defmodule Example.FixturesTest do
   end
 
   test "scenario/2 dispatches to all seven atoms" do
-    for name <- [:anonymous, :authenticated, :mfa_pending, :mfa_complete, :sudo, :locked, :unconfirmed] do
+    for name <- [
+          :anonymous,
+          :authenticated,
+          :mfa_pending,
+          :mfa_complete,
+          :sudo,
+          :locked,
+          :unconfirmed
+        ] do
       assert scenario(name)
     end
   end

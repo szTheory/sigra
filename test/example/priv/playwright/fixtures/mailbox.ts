@@ -1,47 +1,52 @@
-// Helper to scrape the Swoosh dev mailbox (Plug.Swoosh.MailboxPreview) for the
-// most-recent confirmation link.
-//
-// Swoosh's MailboxPreview renders a two-pane UI: a list of emails on the left,
-// and the selected email body inside an <iframe id="html-mail"> on the right.
-// We use Playwright's frameLocator targeting that exact ID to reach into the
-// iframe and pull the first /users/confirm/ link out of the rendered email.
-//
-// The ID selector matters: Phoenix Live Reload injects a hidden iframe at
-// `/phoenix/live_reload/frame` in MIX_ENV=dev, so a bare `iframe` selector
-// resolves to 2 elements and fails strict-mode. Matching `iframe#html-mail`
-// is unambiguous regardless of live reload state.
-//
-// If a future Swoosh release changes the rendering to inline HTML (no iframe),
-// swap frameLocator for page.locator(...) directly.
+import { Page } from '@playwright/test';
 
-import { Page, expect } from '@playwright/test';
+type MailboxEmail = {
+  html_body: string | null;
+  inserted_at?: string | null;
+  text_body: string | null;
+  to: string[];
+};
 
-/**
- * Open /dev/mailbox, click the most-recent email to `recipient`, and return
- * the href of the first confirmation link inside the email body iframe.
- */
-export async function extractConfirmationLink(
-  page: Page,
-  recipient: string,
-): Promise<string> {
-  await page.goto('/dev/mailbox');
+function extractConfirmationHref(email: MailboxEmail): string | null {
+  const body = [email.html_body || '', email.text_body || ''].join('\n');
+  const hrefMatch = body.match(/https?:\/\/[^\s"'<>]+\/users\/confirm\/[A-Za-z0-9._~-]+/);
 
-  // The mailbox lists emails; the recipient address appears in each row.
-  const emailLink = page.getByText(recipient).first();
-  await expect(emailLink).toBeVisible({ timeout: 5_000 });
-  await emailLink.click();
-
-  // Swoosh renders the email body in `iframe#html-mail`. Phoenix LiveReload
-  // also injects a hidden iframe in dev — use the exact ID to disambiguate.
-  const href = await page
-    .frameLocator('iframe#html-mail')
-    .locator('a[href*="/users/confirm/"]')
-    .first()
-    .getAttribute('href');
-
-  if (!href) {
-    throw new Error(`No confirmation link found in email for ${recipient}`);
+  if (hrefMatch?.[0]) {
+    return hrefMatch[0];
   }
 
-  return href;
+  const pathMatch = body.match(/\/users\/confirm\/[A-Za-z0-9._~-]+/);
+  return pathMatch?.[0] ?? null;
+}
+
+export async function extractConfirmationLink(page: Page, recipient: string): Promise<string> {
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const mailbox = (await page.evaluate(async () => {
+      const response = await fetch('/dev/mailbox/json');
+      return response.json();
+    })) as { data: MailboxEmail[] };
+
+    const confirmationEmail = mailbox.data
+      .filter((email) => email.to.join(' ').includes(recipient))
+      .sort((left, right) => {
+        const leftTime = left.inserted_at ? Date.parse(left.inserted_at) : 0;
+        const rightTime = right.inserted_at ? Date.parse(right.inserted_at) : 0;
+        return rightTime - leftTime;
+      })
+      .find((email) => extractConfirmationHref(email));
+
+    if (confirmationEmail) {
+      const href = extractConfirmationHref(confirmationEmail);
+
+      if (!href) {
+        throw new Error(`Confirmation email for ${recipient} did not include a link`);
+      }
+
+      return new URL(href, page.url()).toString();
+    }
+
+    await page.waitForTimeout(1_000);
+  }
+
+  throw new Error(`No confirmation email found in mailbox JSON for ${recipient}`);
 }

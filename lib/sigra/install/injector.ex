@@ -12,8 +12,8 @@ defmodule Sigra.Install.Injector do
   @oauth_marker "# Sigra OAuth"
   @api_marker "# Sigra API"
   @jwt_marker "# Sigra JWT"
-  @vault_marker "Vault"
-
+  @passkeys_start_marker "// Sigra passkeys:start"
+  @passkeys_end_marker "// Sigra passkeys:end"
   @doc """
   Injects authentication pipeline and routes into the router file.
 
@@ -54,7 +54,7 @@ defmodule Sigra.Install.Injector do
       # Insert before import_config if present, otherwise append
       case find_import_config(file_contents) do
         {:ok, position} ->
-          {before, rest} = String.split_at(file_contents, position)
+          {before, rest} = byte_split_at!(file_contents, position)
           {:ok, before <> config_block <> "\n" <> rest}
 
         :error ->
@@ -121,6 +121,43 @@ defmodule Sigra.Install.Injector do
     end
   end
 
+  @doc """
+  Injects the passkey hook import and merged hook registration into
+  `assets/js/app.js` when the standard Phoenix hook shape is present.
+
+  Marker detection is authoritative: once `// Sigra passkeys:start` exists,
+  the file is treated as already injected on re-runs.
+  """
+  @spec inject_app_js_passkeys(String.t(), String.t()) ::
+          {:ok, String.t()} | {:already_injected, String.t()} | {:manual_action, String.t()}
+  def inject_app_js_passkeys(file_contents, injection_template) do
+    if String.contains?(file_contents, @passkeys_start_marker) do
+      {:already_injected, file_contents}
+    else
+      with {:ok, import_line, hooks_line} <- extract_passkey_injection_parts(injection_template),
+           {:ok, import_anchor} <- find_colocated_hooks_import(file_contents),
+           {:ok, hooks_anchor} <- find_colocated_hooks_line(file_contents) do
+        import_block =
+          Enum.join([@passkeys_start_marker, import_line, @passkeys_end_marker], "\n")
+
+        injected_imports =
+          String.replace(file_contents, import_anchor, import_anchor <> "\n" <> import_block,
+            global: false
+          )
+
+        merged_hooks_line = hooks_line <> ","
+
+        injected_hooks =
+          String.replace(injected_imports, hooks_anchor, merged_hooks_line, global: false)
+
+        {:ok, injected_hooks}
+      else
+        _ ->
+          {:manual_action, passkey_manual_instructions()}
+      end
+    end
+  end
+
   # Find the position of the last `end` on its own line
   defp find_last_end(content) do
     lines = String.split(content, "\n")
@@ -150,12 +187,42 @@ defmodule Sigra.Install.Injector do
     end
   end
 
-  # Find the position of `import_config` line
+  # Byte offset of the host `import_config "#{config_env()}.exs"` line (start
+  # of the `import_config` token). Phoenix may indent the line or use CRLF;
+  # avoid `^import_config` / single-byte splits that can land inside the word.
   defp find_import_config(content) do
-    case Regex.run(~r/^import_config\s/m, content, return: :index) do
-      [{pos, _len}] -> {:ok, pos}
-      _ -> :error
+    case :binary.match(content, "\r\nimport_config ") do
+      {pos, _} ->
+        {:ok, pos + 2}
+
+      :nomatch ->
+        case :binary.match(content, "\nimport_config ") do
+          {pos, _} ->
+            {:ok, pos + 1}
+
+          :nomatch ->
+            if String.starts_with?(content, "import_config ") do
+              {:ok, 0}
+            else
+              :error
+            end
+        end
     end
+  end
+
+  # `find_import_config/1` and `Regex.run(..., return: :index)` return byte
+  # offsets, while `String.split_at/2` indexes graphemes. On CRLF
+  # `config.exs` that mismatch splices inside `import_config` (orphan
+  # `im` + `port_config`).
+  defp byte_split_at!(binary, byte_offset) when is_binary(binary) and is_integer(byte_offset) do
+    total = byte_size(binary)
+
+    if byte_offset < 0 or byte_offset > total do
+      raise ArgumentError,
+            "byte_split_at!/2: offset #{byte_offset} out of range for binary of #{total} bytes"
+    end
+
+    {:binary.part(binary, 0, byte_offset), :binary.part(binary, byte_offset, total - byte_offset)}
   end
 
   # Find an anchor line to inject after in ConnCase
@@ -214,7 +281,7 @@ defmodule Sigra.Install.Injector do
       # Insert before import_config if present, otherwise append
       case find_import_config(file_contents) do
         {:ok, position} ->
-          {before, rest} = String.split_at(file_contents, position)
+          {before, rest} = byte_split_at!(file_contents, position)
           {:ok, before <> config_block <> "\n" <> rest}
 
         :error ->
@@ -291,7 +358,7 @@ defmodule Sigra.Install.Injector do
     else
       case find_import_config(file_contents) do
         {:ok, position} ->
-          {before, rest} = String.split_at(file_contents, position)
+          {before, rest} = byte_split_at!(file_contents, position)
           {:ok, before <> config_block <> "\n" <> rest}
 
         :error ->
@@ -391,7 +458,7 @@ defmodule Sigra.Install.Injector do
   def inject_vault_child(file_contents, app_module) do
     vault_module = "#{app_module}.Vault"
 
-    if String.contains?(file_contents, @vault_marker) do
+    if String.contains?(file_contents, vault_module) do
       {:already_injected, file_contents}
     else
       # Find `children = [` and inject after it
@@ -399,7 +466,7 @@ defmodule Sigra.Install.Injector do
         [{pos, len}] ->
           insert_at = pos + len
           vault_child = "\n      {#{vault_module}, []},"
-          {before, rest} = String.split_at(file_contents, insert_at)
+          {before, rest} = byte_split_at!(file_contents, insert_at)
           {:ok, before <> vault_child <> rest}
 
         _ ->
@@ -449,9 +516,14 @@ defmodule Sigra.Install.Injector do
   end
 
   defp do_inject(%Sigra.Install.Injection{} = inj, content, _opts) do
-    new_content = apply_anchor(inj.anchor, content, inj.content)
-    File.write!(inj.target, new_content)
-    {:ok, :injected}
+    case apply_anchor(inj.anchor, content, inj.content) do
+      {:manual_action, message} ->
+        {:error, {:manual_action, message}}
+
+      new_content ->
+        File.write!(inj.target, new_content)
+        {:ok, :injected}
+    end
   end
 
   defp apply_anchor(:before_last_end, content, payload) do
@@ -474,7 +546,7 @@ defmodule Sigra.Install.Injector do
   defp apply_anchor(:elixir_config, content, payload) do
     case find_import_config(content) do
       {:ok, position} ->
-        {before, rest} = String.split_at(content, position)
+        {before, rest} = byte_split_at!(content, position)
         before <> payload <> "\n" <> rest
 
       :error ->
@@ -506,8 +578,225 @@ defmodule Sigra.Install.Injector do
     String.replace(content, ~r/(\n  use [A-Za-z.]+.*?\n)/s, "\\1\n  #{payload}\n", global: false)
   end
 
+  defp apply_anchor(:browser_pipeline, content, payload) do
+    if Regex.match?(~r/^\s*pipeline :browser do$/m, content) do
+      Regex.replace(
+        ~r/^(\s*pipeline :browser do\n)(.*?)(^\s*end$)/ms,
+        content,
+        "\\1\\2#{payload}\n\\3",
+        global: false
+      )
+    else
+      {:manual_action,
+       "Could not find `pipeline :browser do` in router.ex. Add `plug :fetch_current_scope` to the browser pipeline manually."}
+    end
+  end
+
+  defp apply_anchor(:vault_child, content, app_module) do
+    case inject_vault_child(content, app_module) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+    end
+  end
+
+  defp apply_anchor(:app_js_passkeys, content, payload) do
+    case inject_app_js_passkeys(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
+  defp apply_anchor(:mix_deps, content, payload) do
+    case inject_mix_dependency(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
+  defp apply_anchor(:mix_assets_setup, content, payload) do
+    case inject_assets_setup_command(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
+  defp apply_anchor(:package_json_dependencies, content, payload) do
+    case inject_package_json_dependency(content, payload) do
+      {:ok, new_content} -> new_content
+      {:already_injected, new_content} -> new_content
+      {:manual_action, message} -> {:manual_action, message}
+    end
+  end
+
   defp apply_anchor(:at_top, content, payload), do: payload <> "\n" <> content
 
   defp apply_anchor(other, _content, _payload),
     do: raise(ArgumentError, "unsupported injection anchor: #{inspect(other)}")
+
+  defp extract_passkey_injection_parts(template) do
+    lines =
+      template
+      |> String.split("\n", trim: true)
+      |> Enum.map(&String.trim/1)
+
+    with import_line when is_binary(import_line) <-
+           Enum.find(lines, &String.starts_with?(&1, "import ")),
+         hooks_line when is_binary(hooks_line) <-
+           Enum.find(
+             lines,
+             &String.starts_with?(&1, "hooks: { ...colocatedHooks, ...PasskeyHooks }")
+           ) do
+      {:ok, import_line, hooks_line}
+    else
+      _ -> :error
+    end
+  end
+
+  defp find_colocated_hooks_import(content) do
+    case Regex.run(
+           ~r/^import\s+\{\s*hooks\s+as\s+colocatedHooks\s*\}\s+from\s+["'][^"']+["']\s*$/m,
+           content
+         ) do
+      [line] -> {:ok, line}
+      _ -> :error
+    end
+  end
+
+  defp find_colocated_hooks_line(content) do
+    case Regex.run(~r/^\s*hooks:\s*\{\s*\.\.\.colocatedHooks\s*\},?\s*$/m, content) do
+      [line] -> {:ok, line}
+      _ -> :error
+    end
+  end
+
+  defp passkey_manual_instructions do
+    """
+    Passkeys generated `assets/js/passkey_hooks.js`, but Sigra could not safely edit `assets/js/app.js`.
+
+    Add these lines manually to your LiveSocket setup:
+
+      import { PasskeyHooks } from "./passkey_hooks"
+      hooks: { ...colocatedHooks, ...PasskeyHooks }
+    """
+  end
+
+  defp inject_mix_dependency(file_contents, dependency_source) do
+    dependency_line = String.trim(dependency_source)
+
+    cond do
+      String.contains?(file_contents, dependency_line) ->
+        {:already_injected, file_contents}
+
+      true ->
+        patched =
+          Regex.replace(
+            ~r/defp deps do\s*\n(\s*)\[/,
+            file_contents,
+            "defp deps do\n\\1[\n\\1  #{dependency_line}",
+            global: false
+          )
+
+        if patched == file_contents do
+          {:manual_action, mix_exs_manual_instructions(dependency_line)}
+        else
+          {:ok, patched}
+        end
+    end
+  end
+
+  defp inject_package_json_dependency(file_contents, dependency_source) do
+    with {:ok, dependency_map} <- Jason.decode(dependency_source),
+         {:ok, package_json} <- Jason.decode(file_contents),
+         {:ok, patched} <- merge_package_dependencies(package_json, dependency_map) do
+      if patched == package_json do
+        {:already_injected, file_contents}
+      else
+        encoded = patched |> Jason.encode_to_iodata!(pretty: true) |> IO.iodata_to_binary()
+        {:ok, encoded <> "\n"}
+      end
+    else
+      _ ->
+        {:manual_action, package_json_manual_instructions(dependency_source)}
+    end
+  end
+
+  defp inject_assets_setup_command(file_contents, command) do
+    trimmed = String.trim(command)
+
+    cond do
+      String.contains?(file_contents, trimmed) ->
+        {:already_injected, file_contents}
+
+      true ->
+        patched =
+          Regex.replace(
+            ~r/"assets\.setup":\s*\[(.*?)\]/s,
+            file_contents,
+            fn _match, entries ->
+              inner =
+                entries
+                |> String.trim()
+
+              inserted =
+                if inner == "" do
+                  ~s("#{trimmed}")
+                else
+                  ~s(#{inner}, "#{trimmed}")
+                end
+
+              ~s("assets.setup": [#{inserted}])
+            end,
+            global: false
+          )
+
+        if patched == file_contents do
+          {:manual_action, assets_setup_manual_instructions(trimmed)}
+        else
+          {:ok, patched}
+        end
+    end
+  end
+
+  defp merge_package_dependencies(%{"dependencies" => deps} = package_json, dependency_map)
+       when is_map(deps) do
+    {:ok, Map.put(package_json, "dependencies", Map.merge(deps, dependency_map))}
+  end
+
+  defp merge_package_dependencies(_package_json, _dependency_map), do: :error
+
+  defp mix_exs_manual_instructions(dependency_line) do
+    """
+    Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `mix.exs`.
+
+    Add this dependency to your `deps/0` list manually:
+
+      #{dependency_line}
+    """
+  end
+
+  defp package_json_manual_instructions(dependency_source) do
+    {:ok, dependency_map} = Jason.decode(dependency_source)
+    [{package_name, version}] = Map.to_list(dependency_map)
+
+    """
+    Passkeys generated passkey routes and browser assets, but Sigra could not safely edit `assets/package.json`.
+
+    Add this dependency under `"dependencies"` manually:
+
+      "#{package_name}": "#{version}"
+    """
+  end
+
+  defp assets_setup_manual_instructions(command) do
+    """
+    Passkeys generated browser assets, but Sigra could not safely edit `mix.exs` `assets.setup`.
+
+    Add this step to your `"assets.setup"` alias manually:
+
+      "#{command}"
+    """
+  end
 end

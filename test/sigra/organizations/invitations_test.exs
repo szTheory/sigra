@@ -258,7 +258,9 @@ defmodule Sigra.Organizations.InvitationsTest do
         assert byte_size(cs.changes.hashed_token) == 32
         # The raw token must not appear anywhere in the changeset's changes.
         refute Map.has_key?(cs.changes, :raw_token)
-        {:ok, %{invitation: struct!(TestInvitation, cs.changes), revoke_prior: %{revoked_count: 0}}}
+
+        {:ok,
+         %{invitation: struct!(TestInvitation, cs.changes), revoke_prior: %{revoked_count: 0}}}
       end)
 
       assert {:ok, _} =
@@ -287,7 +289,9 @@ defmodule Sigra.Organizations.InvitationsTest do
         # 7 days - small drift
         assert delta_s >= 7 * 86_400 - 5
         assert delta_s <= 7 * 86_400 + 5
-        {:ok, %{invitation: struct!(TestInvitation, cs.changes), revoke_prior: %{revoked_count: 0}}}
+
+        {:ok,
+         %{invitation: struct!(TestInvitation, cs.changes), revoke_prior: %{revoked_count: 0}}}
       end)
 
       assert {:ok, _} =
@@ -316,7 +320,9 @@ defmodule Sigra.Organizations.InvitationsTest do
         delta_s = DateTime.diff(cs.changes.expires_at, now, :second)
         assert delta_s >= div(ttl_ms, 1000) - 5
         assert delta_s <= div(ttl_ms, 1000) + 5
-        {:ok, %{invitation: struct!(TestInvitation, cs.changes), revoke_prior: %{revoked_count: 0}}}
+
+        {:ok,
+         %{invitation: struct!(TestInvitation, cs.changes), revoke_prior: %{revoked_count: 0}}}
       end)
 
       assert {:ok, _} =
@@ -337,7 +343,11 @@ defmodule Sigra.Organizations.InvitationsTest do
 
       Sigra.MockRepo
       |> expect(:transact, fn %Ecto.Multi{} = _multi ->
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 0}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 0}
+         }}
       end)
 
       log =
@@ -381,7 +391,11 @@ defmodule Sigra.Organizations.InvitationsTest do
 
       Sigra.MockRepo
       |> expect(:transact, fn _multi ->
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 0}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 0}
+         }}
       end)
 
       assert {:ok, _} =
@@ -402,7 +416,11 @@ defmodule Sigra.Organizations.InvitationsTest do
 
       Sigra.MockRepo
       |> expect(:transact, fn _multi ->
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 0}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 0}
+         }}
       end)
 
       assert {:ok, _} =
@@ -477,10 +495,12 @@ defmodule Sigra.Organizations.InvitationsTest do
       owner = build_user()
       org = build_org()
       scope = owner_scope(owner, org)
-      config = base_config(%{
-        allow_rate_limiter?: false,
-        invitation_rate_limit_per_user: :infinity
-      })
+
+      config =
+        base_config(%{
+          allow_rate_limiter?: false,
+          invitation_rate_limit_per_user: :infinity
+        })
 
       # Only the org key should be checked — user layer is skipped entirely.
       Sigra.MockRateLimiter
@@ -491,7 +511,11 @@ defmodule Sigra.Organizations.InvitationsTest do
 
       Sigra.MockRepo
       |> expect(:transact, fn _multi ->
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 0}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 0}
+         }}
       end)
 
       assert {:ok, _} =
@@ -508,16 +532,22 @@ defmodule Sigra.Organizations.InvitationsTest do
       owner = build_user()
       org = build_org()
       scope = owner_scope(owner, org)
-      config = base_config(%{
-        allow_rate_limiter?: false,
-        invitation_rate_limit_per_user: :infinity,
-        invitation_rate_limit_per_org: :infinity
-      })
+
+      config =
+        base_config(%{
+          allow_rate_limiter?: false,
+          invitation_rate_limit_per_user: :infinity,
+          invitation_rate_limit_per_org: :infinity
+        })
 
       # Rate limiter stub should see ZERO calls.
       Sigra.MockRepo
       |> expect(:transact, fn _multi ->
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 0}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 0}
+         }}
       end)
 
       assert {:ok, _} =
@@ -545,7 +575,11 @@ defmodule Sigra.Organizations.InvitationsTest do
         insert_idx = Enum.find_index(names, &(&1 == :invitation))
         assert revoke_idx < insert_idx
 
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 1}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 1}
+         }}
       end)
 
       assert {:ok, _} =
@@ -606,7 +640,11 @@ defmodule Sigra.Organizations.InvitationsTest do
 
       Sigra.MockRepo
       |> expect(:transact, fn _multi ->
-        {:ok, %{invitation: %TestInvitation{id: Ecto.UUID.generate()}, revoke_prior: %{revoked_count: 0}}}
+        {:ok,
+         %{
+           invitation: %TestInvitation{id: Ecto.UUID.generate()},
+           revoke_prior: %{revoked_count: 0}
+         }}
       end)
 
       assert {:ok, _} =
@@ -660,7 +698,11 @@ defmodule Sigra.Organizations.InvitationsTest do
         revoked_at: nil
       }
 
-      revoked_inv = %{inv | revoked_at: DateTime.utc_now() |> DateTime.truncate(:second), revoked_by_id: owner.id}
+      revoked_inv = %{
+        inv
+        | revoked_at: DateTime.utc_now() |> DateTime.truncate(:second),
+          revoked_by_id: owner.id
+      }
 
       Sigra.MockRepo
       |> expect(:one, fn %Ecto.Query{} = _query -> inv end)
@@ -881,7 +923,11 @@ defmodule Sigra.Organizations.InvitationsTest do
         })
 
       stamped_inv =
-        %{inv | accepted_at: DateTime.utc_now() |> DateTime.truncate(:second), accepted_by_id: bob.id}
+        %{
+          inv
+          | accepted_at: DateTime.utc_now() |> DateTime.truncate(:second),
+            accepted_by_id: bob.id
+        }
 
       membership = %TestMembership{
         id: Ecto.UUID.generate(),
@@ -892,7 +938,10 @@ defmodule Sigra.Organizations.InvitationsTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestInvitation, [hashed_token: ^hashed] -> inv end)
-      |> expect(:get, fn TestOrg, id -> assert id == org.id; org end)
+      |> expect(:get, fn TestOrg, id ->
+        assert id == org.id
+        org
+      end)
       |> expect(:transact, fn %Ecto.Multi{} = multi ->
         names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _} -> name end)
         assert :add_member_resolve_user in names

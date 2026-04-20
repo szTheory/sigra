@@ -2,26 +2,28 @@
 # scripts/ci/install-matrix-local.sh
 #
 # Reproduces the GitHub Actions `install_matrix` job (.github/workflows/ci.yml:151)
-# locally via nektos/act, for both matrix legs:
+# locally via nektos/act, for all four matrix legs:
 #
-#   leg 1: flags=""                   (default, Features.Organizations enabled)
-#   leg 2: flags="--no-organizations"
+#   leg 1: flags=""                               (default)
+#   leg 2: flags="--no-passkeys"
+#   leg 3: flags="--no-organizations"
+#   leg 4: flags="--no-organizations --no-passkeys"
 #
 # Used to verify Phase 24 Task 24-01-09 (install_matrix D-06.4) without needing
 # to push to GitHub and wait for real CI.
 #
 # Usage:
-#     scripts/ci/install-matrix-local.sh                     # run both legs
+#     scripts/ci/install-matrix-local.sh                     # run all four legs
 #     scripts/ci/install-matrix-local.sh --leg ""            # run only the default leg
+#     scripts/ci/install-matrix-local.sh --leg --no-passkeys
 #     scripts/ci/install-matrix-local.sh --leg --no-organizations
+#     scripts/ci/install-matrix-local.sh --leg "--no-organizations --no-passkeys"
 #
 # Requirements:
 #   - Docker Desktop running
 #   - act installed (`brew install act`)
 #   - .actrc present in repo root with the pinned catthehacker image
 #     (load-bearing — see .actrc header for why)
-#   - No other postgres listening on :5432 (act starts its own inside the
-#     service container; a host postgres causes port collisions)
 #
 # Caveats (from memory reference_act_local_ci.md):
 #   - First run pulls the pinned ubuntu:act-20.04 image (~2 GB)
@@ -77,24 +79,34 @@ if ! grep -q 'catthehacker/ubuntu:act-20.04' .actrc; then
   preflight_fail ".actrc does not pin catthehacker/ubuntu:act-20.04 — setup-beam arm64 OTP prebuilds require Ubuntu 20.04 (libssl1.1). See .actrc header."
 fi
 
-# Host postgres on :5432 clashes with act's postgres service container.
-# Detect before act spins up, so the user sees a clear hint instead of a
-# cryptic connection-refused 3 minutes in.
-if command -v lsof >/dev/null 2>&1 && lsof -iTCP:5432 -sTCP:LISTEN >/dev/null 2>&1; then
-  cat <<'EOF' >&2
-[preflight] something is already listening on TCP :5432
+ACT_WORKFLOW=""
 
-If it is docker, stop the offender (common suspect: sigra-uat-postgres):
-    docker stop sigra-uat-postgres
+make_act_workflow() {
+  local tmp_workflow
+  tmp_workflow="$(mktemp "${TMPDIR:-/tmp}/sigra-install-matrix-act-XXXXXX.yml")"
 
-If it is a host-installed postgres:
-    brew services stop postgresql@14
+  node - "$REPO_ROOT/.github/workflows/ci.yml" "$tmp_workflow" <<'NODE'
+const fs = require('fs');
 
-Then rerun this script. (Act will start its own postgres inside the
-install_matrix job's service container.)
-EOF
-  exit 1
-fi
+const src = process.argv[2];
+const dst = process.argv[3];
+const content = fs.readFileSync(src, 'utf8');
+const start = content.indexOf('  install_matrix:\n');
+const end = content.indexOf('\n  passkeys_opt_out_smoke:\n');
+
+if (start === -1 || end === -1 || end <= start) {
+  throw new Error('Could not isolate install_matrix job in .github/workflows/ci.yml');
+}
+
+const jobBlock = content.slice(start, end)
+  .replace(/^\s+ports:\s*\['5432:5432'\]\n/mg, '')
+  .replace(/PGHOST:\s*localhost/g, 'PGHOST: postgres');
+
+fs.writeFileSync(dst, content.slice(0, start) + jobBlock + content.slice(end));
+NODE
+
+  ACT_WORKFLOW="$tmp_workflow"
+}
 
 # ---- leg runner -------------------------------------------------------------
 
@@ -121,7 +133,7 @@ run_leg() {
   # workflow matrix.
   local matrix_arg="flags:${flags_value}"
 
-  if act -j install_matrix --matrix "${matrix_arg}"; then
+  if act -W "${ACT_WORKFLOW}" -j install_matrix --matrix "${matrix_arg}"; then
     echo "[leg ${label}] PASS"
     return 0
   else
@@ -135,13 +147,16 @@ run_leg() {
 
 LEGS=()
 if [[ -z "${LEG_FILTER}" ]]; then
-  LEGS=("" "--no-organizations")
+  LEGS=("" "--no-passkeys" "--no-organizations" "--no-organizations --no-passkeys")
 else
   LEGS=("${LEG_FILTER}")
 fi
 
 declare -a RESULTS=()
 OVERALL_RC=0
+
+make_act_workflow
+trap 'rm -f "${ACT_WORKFLOW}"' EXIT
 
 for leg in "${LEGS[@]}"; do
   if run_leg "${leg}"; then

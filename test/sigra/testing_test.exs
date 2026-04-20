@@ -3,6 +3,13 @@ defmodule Sigra.TestingTest do
 
   alias Sigra.Testing
 
+  # `function_exported?/3` is false for not-yet-loaded modules; async tests can
+  # schedule export-only checks before any call forces autoload of Sigra.Testing.
+  setup_all do
+    Code.ensure_loaded!(Sigra.Testing)
+    :ok
+  end
+
   describe "generate_totp_code/1" do
     test "generates a 6-digit TOTP code from a raw secret" do
       secret = NimbleTOTP.secret()
@@ -123,6 +130,43 @@ defmodule Sigra.TestingTest do
     end
   end
 
+  describe "assert_scope_has_org/2" do
+    test "passes when scope.active_organization.id matches the expected org id" do
+      scope = %{active_organization: %{id: "org-123"}}
+
+      assert Testing.assert_scope_has_org(scope, "org-123") == true
+    end
+
+    test "raises when scope.active_organization.id does not match" do
+      scope = %{active_organization: %{id: "org-123"}}
+
+      assert_raise ExUnit.AssertionError, ~r/Expected scope.active_organization.id/, fn ->
+        Testing.assert_scope_has_org(scope, "org-999")
+      end
+    end
+  end
+
+  describe "assert_membership/3" do
+    test "passes when membership matches user, organization, and role" do
+      membership = %{user_id: "user-1", organization_id: "org-1", role: :owner}
+      user = %{id: "user-1"}
+      organization = %{id: "org-1"}
+
+      assert Testing.assert_membership(membership, user, organization: organization, role: :owner) ==
+               true
+    end
+
+    test "raises with a clear message when the membership shape drifts" do
+      membership = %{user_id: "user-1", organization_id: "org-2", role: :member}
+      user = %{id: "user-1"}
+      organization = %{id: "org-1"}
+
+      assert_raise ExUnit.AssertionError, ~r/Expected membership.organization_id/, fn ->
+        Testing.assert_membership(membership, user, organization: organization, role: :owner)
+      end
+    end
+  end
+
   describe "module exports API token helpers" do
     test "create_api_token/3 is exported" do
       assert function_exported?(Testing, :create_api_token, 3)
@@ -142,6 +186,14 @@ defmodule Sigra.TestingTest do
 
     test "assert_scope_denied/1 is exported" do
       assert function_exported?(Testing, :assert_scope_denied, 1)
+    end
+
+    test "assert_scope_has_org/2 is exported" do
+      assert function_exported?(Testing, :assert_scope_has_org, 2)
+    end
+
+    test "assert_membership/3 is exported" do
+      assert function_exported?(Testing, :assert_membership, 3)
     end
 
     test "expired_api_token_fixture/3 is exported" do

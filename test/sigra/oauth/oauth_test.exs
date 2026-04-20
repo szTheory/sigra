@@ -179,12 +179,15 @@ defmodule Sigra.OAuthTest do
       user = %{id: 1, email: "user@example.com"}
 
       assert {:error, :already_linked} =
-               OAuth.link_provider(config, user, %{
-                 provider: :google,
-                 provider_uid: "uid_123",
-                 user_info: mock_user_info(),
-                 token: mock_token()
-               }, session: sudo_session())
+               OAuth.link_provider(
+                 config,
+                 user,
+                 %{
+                   provider: :google,
+                   provider_uid: "uid_123",
+                   user_info: mock_user_info(),
+                   token: mock_token()
+                 }, session: sudo_session())
     end
 
     test "returns error without sudo session" do
@@ -214,7 +217,8 @@ defmodule Sigra.OAuthTest do
       config = build_config()
       user = %{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
 
-      assert {:ok, :unlinked} = OAuth.unlink_provider(config, user, :google, session: sudo_session())
+      assert {:ok, :unlinked} =
+               OAuth.unlink_provider(config, user, :google, session: sudo_session())
     end
 
     test "returns error without sudo session" do
@@ -297,10 +301,10 @@ defmodule Sigra.OAuthTest do
 
   defp build_config(overrides \\ []) do
     providers =
-      Keyword.get(overrides, :providers, [
+      Keyword.get(overrides, :providers,
         mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy],
         google: [client_id: "test_id", client_secret: "test_secret"]
-      ])
+      )
 
     %{
       repo: Sigra.Test.MockRepo,

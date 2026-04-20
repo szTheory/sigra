@@ -31,7 +31,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
 
   describe "template rendering" do
     setup do
-      tmp_dir = Path.join(System.tmp_dir!(), "sigra_install_test_#{System.unique_integer([:positive])}")
+      tmp_dir =
+        Path.join(System.tmp_dir!(), "sigra_install_test_#{System.unique_integer([:positive])}")
+
       File.mkdir_p!(tmp_dir)
       on_exit(fn -> File.rm_rf!(tmp_dir) end)
       %{tmp_dir: tmp_dir}
@@ -50,7 +52,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         adapter: :postgres
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "user.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "user.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyApp.Accounts.User do")
@@ -75,7 +79,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         adapter: :postgres
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "user.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "user.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "@primary_key {:id, :binary_id, autogenerate: true}")
@@ -90,7 +96,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         adapter: :postgres
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "CREATE EXTENSION IF NOT EXISTS citext")
@@ -107,7 +115,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         adapter: :mysql
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "size: 160")
@@ -122,7 +132,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         adapter: :sqlite
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "collate: :nocase")
@@ -139,7 +151,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         organizations?: true
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "scope.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "scope.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defstruct user: nil")
@@ -151,10 +165,15 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         context_module: "MyApp.Accounts",
         schema_alias: "User",
         repo_module: "MyApp.Repo",
-        web_module: "MyAppWeb"
+        web_module: "MyAppWeb",
+        otp_app: :my_app,
+        organizations?: true,
+        passkeys?: false
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyApp.Accounts do")
@@ -176,7 +195,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         organizations?: true
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "error_handler.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "error_handler.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "@behaviour Sigra.Plug.ErrorHandler")
@@ -195,7 +216,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         app_module: "MyApp"
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth_fixtures.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth_fixtures.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "def user_fixture(")
@@ -213,7 +236,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         app_module: "MyApp"
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth_fixtures.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "auth_fixtures.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "def session_fixture(")
@@ -230,7 +255,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         context_module: "MyApp.Accounts"
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "session_live.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "session_live.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyAppWeb.Auth.SessionLive do")
@@ -253,7 +280,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         binary_id: false
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "user_session.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "user_session.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyApp.Accounts.UserSession do")
@@ -268,7 +297,16 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         context_module: "MyApp.Accounts"
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "sudo_controller.ex"])
+      template_path =
+        Path.join([
+          File.cwd!(),
+          "priv",
+          "templates",
+          "sigra.install",
+          "core",
+          "sudo_controller.ex"
+        ])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyAppWeb.Auth.SudoController do")
@@ -282,7 +320,9 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         web_module: "MyAppWeb"
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "sudo_html.ex"])
+      template_path =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "sudo_html.ex"])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "defmodule MyAppWeb.Auth.SudoHTML do")
@@ -298,7 +338,16 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         app_module: "MyApp"
       ]
 
-      template_path = Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "conn_case_helpers.ex"])
+      template_path =
+        Path.join([
+          File.cwd!(),
+          "priv",
+          "templates",
+          "sigra.install",
+          "core",
+          "conn_case_helpers.ex"
+        ])
+
       content = EEx.eval_file(template_path, binding)
 
       assert String.contains?(content, "def log_in_user(conn, user, opts \\\\ [])")

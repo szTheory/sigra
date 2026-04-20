@@ -21,14 +21,18 @@ defmodule Sigra.Audit.ChangesetTest do
   describe "changeset/3 action regex (D-19)" do
     test "accepts valid namespaced snake_case actions" do
       for action <- ~w(auth.login.success billing.charge_failed.retry a.b foo_bar.baz_qux) do
-        cs = Changeset.changeset(%TestEvent{}, base_attrs(%{action: action}), allow_reserved: true)
+        cs =
+          Changeset.changeset(%TestEvent{}, base_attrs(%{action: action}), allow_reserved: true)
+
         assert cs.valid?, "expected #{action} to be valid, got #{inspect(cs.errors)}"
       end
     end
 
     test "rejects invalid actions" do
       for action <- ~w(Auth.Login foo foo. .foo foo..bar FOO.BAR 1foo.bar) ++ [""] do
-        cs = Changeset.changeset(%TestEvent{}, base_attrs(%{action: action}), allow_reserved: true)
+        cs =
+          Changeset.changeset(%TestEvent{}, base_attrs(%{action: action}), allow_reserved: true)
+
         refute cs.valid?, "expected #{inspect(action)} to be invalid"
       end
     end
@@ -37,7 +41,9 @@ defmodule Sigra.Audit.ChangesetTest do
   describe "outcome validation" do
     test "accepts success/failure/error" do
       for outcome <- ~w(success failure error) do
-        cs = Changeset.changeset(%TestEvent{}, base_attrs(%{outcome: outcome}), allow_reserved: true)
+        cs =
+          Changeset.changeset(%TestEvent{}, base_attrs(%{outcome: outcome}), allow_reserved: true)
+
         assert cs.valid?
       end
     end

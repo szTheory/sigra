@@ -7,6 +7,9 @@ defmodule Mix.Tasks.Sigra.Install do
       mix sigra.install Accounts User users
       mix sigra.install Accounts User users --no-live
       mix sigra.install Accounts User users --api --jwt
+      mix sigra.install Accounts User users --admin
+      mix sigra.install Accounts User users --no-admin
+      mix sigra.install Accounts User users --no-passkeys
 
   Arguments: `context_name schema_name table_name`.
 
@@ -17,6 +20,8 @@ defmodule Mix.Tasks.Sigra.Install do
     * `--table` — Override the table name
     * `--api` — Generate API token controller (implied by `--jwt`)
     * `--jwt` — Generate JWT token controller
+    * `--admin` / `--no-admin` — Generate admin scaffolding (default: true)
+    * `--passkeys` / `--no-passkeys` — Generate passkey scaffolding (default: true)
     * `--yes` — Non-interactive mode (reserved; required by CI smoke jobs)
 
   ## Architecture (Phase 11)
@@ -32,7 +37,12 @@ defmodule Mix.Tasks.Sigra.Install do
 
   alias Sigra.Install.Runner
 
-  @features [Sigra.Install.Features.Core, Sigra.Install.Features.Organizations]
+  @features [
+    Sigra.Install.Features.Core,
+    Sigra.Install.Features.Organizations,
+    Sigra.Install.Features.Passkeys,
+    Sigra.Install.Features.Admin
+  ]
 
   @switches [
     live: :boolean,
@@ -41,9 +51,19 @@ defmodule Mix.Tasks.Sigra.Install do
     api: :boolean,
     jwt: :boolean,
     organizations: :boolean,
+    passkeys: :boolean,
+    admin: :boolean,
     yes: :boolean
   ]
-  @default_opts [live: true, api: false, jwt: false, binary_id: true, organizations: true]
+  @default_opts [
+    live: true,
+    api: false,
+    jwt: false,
+    binary_id: true,
+    organizations: true,
+    passkeys: true,
+    admin: true
+  ]
 
   @impl true
   def run(args) do
@@ -112,6 +132,8 @@ defmodule Mix.Tasks.Sigra.Install do
       api: opts[:api] || opts[:jwt] || false,
       jwt: opts[:jwt] || false,
       organizations?: Keyword.get(opts, :organizations, true),
+      passkeys?: Keyword.get(opts, :passkeys, true),
+      admin?: Keyword.get(opts, :admin, true),
       adapter: adapter,
       reset_password_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/reset-password",
       settings_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/settings",

@@ -10,6 +10,7 @@ defmodule Example.AccountsFixtures do
   import ExampleWeb.ConnCaseHelpers, only: [log_in_user: 2]
 
   alias Example.Accounts
+  alias Example.Repo
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!!"
@@ -68,6 +69,211 @@ defmodule Example.AccountsFixtures do
   """
   def remembered_session_fixture(user, attrs \\ %{}) do
     session_fixture(user, Map.put(attrs, :type, "remember_me"))
+  end
+
+  @doc """
+  Creates an organization row for tests.
+
+  This helper accelerates unit and integration setup, but it bypasses real
+  controller, LiveView, and session boundaries. Keep route-backed coverage for
+  organization creation and switching flows.
+  """
+  def create_organization(attrs \\ %{}) do
+    defaults = %{
+      name: "Organization #{System.unique_integer([:positive])}",
+      slug: "organization-#{System.unique_integer([:positive])}"
+    }
+
+    attrs = Enum.into(attrs, defaults)
+
+    %Example.Accounts.Organization{}
+    |> Example.Accounts.Organization.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Creates a membership row for the given user and organization.
+
+  This helper bypasses real controller, LiveView, and session boundaries so
+  tests can stage org-aware data quickly. Keep route-backed authorization
+  coverage for membership writes and active-organization changes.
+  """
+  def create_membership(user, organization, role \\ :owner) do
+    %Example.Accounts.OrganizationMembership{}
+    |> Example.Accounts.OrganizationMembership.changeset(%{
+      user_id: user.id,
+      organization_id: organization.id,
+      role: role
+    })
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Logs a user into a conn with an active organization staged on the session.
+
+  This bypasses real controller, LiveView, and session-renewal boundaries to
+  speed up focused tests. Keep route-backed coverage for login, org switching,
+  and scope hydration behavior.
+  """
+  def log_in_user_with_org(conn, user, organization) do
+    membership =
+      Repo.get_by(Example.Accounts.OrganizationMembership,
+        user_id: user.id,
+        organization_id: organization.id
+      ) || create_membership(user, organization)
+
+    token = Accounts.generate_user_session_token(user)
+    {_authed_user, session} = Accounts.get_user_and_session_by_token(token)
+
+    {:ok, session} =
+      session
+      |> Ecto.Changeset.change(%{active_organization_id: organization.id})
+      |> Repo.update()
+
+    scope =
+      user
+      |> Example.Accounts.Scope.for_user()
+      |> Example.Accounts.Scope.put_active_organization(organization, membership)
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:user_token, token)
+    |> Plug.Conn.assign(:current_scope, scope)
+    |> Plug.Conn.put_private(:sigra_session, session)
+  end
+
+  @doc """
+  Creates a passkey credential row for the given user.
+  """
+  def passkey_fixture(user, attrs \\ %{}) do
+    now = DateTime.utc_now()
+
+    defaults = %{
+      id: Ecto.UUID.generate(),
+      user_id: user.id,
+      credential_id: "credential-" <> Integer.to_string(System.unique_integer([:positive])),
+      public_key: <<1, 2, 3, 4>>,
+      sign_count: 0,
+      aaguid: "00000000-0000-0000-0000-000000000000",
+      nickname: "Test passkey",
+      device_hint: "Test Device",
+      transports: ["internal"],
+      rp_id: "localhost",
+      last_used_at: nil,
+      inserted_at: now,
+      updated_at: now
+    }
+
+    attrs = Enum.into(attrs, %{})
+
+    struct(Example.Accounts.UserPasskey, Map.merge(defaults, attrs))
+    |> Repo.insert!()
+  end
+
+  @doc """
+  Creates a passkey credential row for the given user.
+
+  This helper bypasses real controller, LiveView, and browser ceremony
+  boundaries. Use route-backed tests for actual WebAuthn registration flows.
+  """
+  def register_passkey(user, attrs \\ %{}) do
+    passkey_fixture(user, attrs)
+  end
+
+  @doc """
+  Encodes a deterministic WebAuthn response JSON string for controller params.
+  """
+  def encoded_passkey_response(attrs \\ %{}) do
+    credential_id =
+      Map.get(attrs, :credential_id) || Map.get(attrs, "credential_id") || "credential-response"
+
+    encoded_credential_id = base64url(credential_id)
+    user_handle = Map.get(attrs, :user_handle) || Map.get(attrs, "user_handle")
+
+    response =
+      %{
+        "clientDataJSON" => base64url(~s({"type":"webauthn.get","challenge":"test"})),
+        "authenticatorData" => base64url("authenticator-data"),
+        "signature" => base64url("signature"),
+        "userHandle" => if(user_handle, do: base64url(to_string(user_handle)), else: nil),
+        "attestationObject" => base64url("attestation-object"),
+        "transports" => ["internal"]
+      }
+      |> Map.reject(fn {_key, value} -> is_nil(value) end)
+
+    %{
+      "id" => encoded_credential_id,
+      "rawId" => encoded_credential_id,
+      "type" => "public-key",
+      "response" => response
+    }
+    |> Map.merge(Map.get(attrs, :extra, %{}))
+    |> JSON.encode!()
+  end
+
+  @doc """
+  Builds deterministic passkey authentication test data.
+
+  This bypasses real controller, LiveView, browser, and session boundaries so
+  focused tests can stage a passkey assertion quickly. Keep route-backed
+  coverage for end-to-end passkey sign-in and MFA flows.
+  """
+  def authenticate_with_passkey(user, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{})
+    passkey = Map.get(attrs, :passkey) || register_passkey(user, attrs)
+
+    %{
+      user: user,
+      passkey: passkey,
+      response:
+        encoded_passkey_response(%{
+          credential_id: passkey.credential_id,
+          user_handle: user.id
+        })
+    }
+  end
+
+  @doc """
+  Stubs the passkey ceremony module used by `Example.Accounts`.
+  """
+  def stub_passkey_ceremony(result_fun) when is_function(result_fun, 1) do
+    key = {__MODULE__.PasskeyCeremonyStub, :result_fun}
+    old_env = Application.get_env(:example, :passkey_ceremony_module)
+
+    :persistent_term.put(key, result_fun)
+
+    Application.put_env(:example, :passkey_ceremony_module, __MODULE__.PasskeyCeremonyStub)
+
+    ExUnit.Callbacks.on_exit(fn ->
+      :persistent_term.erase(key)
+
+      if is_nil(old_env) do
+        Application.delete_env(:example, :passkey_ceremony_module)
+      else
+        Application.put_env(:example, :passkey_ceremony_module, old_env)
+      end
+    end)
+
+    :ok
+  end
+
+  defmodule PasskeyCeremonyStub do
+    @moduledoc false
+
+    @key {__MODULE__, :result_fun}
+
+    def register(_config, user, response, opts), do: register_passkey(user, response, opts)
+
+    def authenticate(_config, email_or_user, response, opts),
+      do: authenticate_passkey(email_or_user, response, opts)
+
+    def register_passkey(user, response, opts) do
+      :persistent_term.get(@key).({:register, user, response, opts})
+    end
+
+    def authenticate_passkey(email_or_user, response, opts) do
+      :persistent_term.get(@key).({:authenticate, email_or_user, response, opts})
+    end
   end
 
   @doc """
@@ -297,4 +503,6 @@ defmodule Example.AccountsFixtures do
     Valid scenarios: #{Enum.map_join(@valid_scenarios, ", ", &inspect/1)}.
     """
   end
+
+  defp base64url(value) when is_binary(value), do: Base.url_encode64(value, padding: false)
 end

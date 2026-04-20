@@ -1,218 +1,205 @@
-# Stack Research — Sigra v1.1 Foundations (Organizations + Passkeys)
+# Technology Stack
 
-**Scope:** Incremental additions to the shipped v1.0 stack. Nothing in v1.0 needs to change.
-**Researched:** 2026-04-11
-**Overall confidence:** HIGH (primary claims verified on hex.pm / upstream repos; LOW/MEDIUM flags called out inline)
+**Project:** Sigra v1.2 Admin Dashboard
+**Researched:** 2026-04-16
 
----
+## Recommended Stack
 
-## TL;DR — What to add, what to skip
+### Core Framework
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Phoenix | `~> 1.8` (current: 1.8.5) | Web/runtime foundation | Reuse. v1.2 does not need a framework change. Sigra already targets Phoenix 1.8, and the example app is already on 1.8.5. |
+| Phoenix LiveView | `~> 1.1` (current: 1.1.28) | Default-on admin UI | Reuse and lean in harder. `live_session`, `on_mount`, `handle_params/3`, `stream/4`, and `start_async/3` cover the admin dashboard without adding a JS SPA layer. |
+| Phoenix.Component / HEEx | bundled with Phoenix/LiveView | Admin pages, tables, filter forms, banners | Keep the existing component model. The admin surface should be generated HEEx plus a small set of reusable admin components, not a second frontend stack. |
 
-| Concern | Recommendation | Confidence |
-|---|---|---|
-| WebAuthn server | Add `{:wax_, "~> 0.7"}` (v0.7.0, May 18 2025) | HIGH |
-| WebAuthn browser JS | Ship `@simplewebauthn/browser ~> 13` via LiveView hook (esbuild-bundled). Do NOT hand-roll. | HIGH |
-| Multi-tenancy library | **None.** Build logical MT directly on Ecto with `org_id` FK + `Scope` struct. Confirmed as the current community consensus for row-level MT. | HIGH |
-| Passkey public-key encryption | Reuse existing `cloak_ecto` vault via `Cloak.Ecto.Binary` on a `:binary` column. One real gotcha (below). | HIGH |
-| Conditional generator templates | No library. Follow the `phx.gen.auth` + Ash `Igniter`-style pattern (EEx templates + opt-out flags). Do NOT pull in Igniter as a dep. | MEDIUM |
-| Optional: `Igniter` for installer | **Skip for v1.1.** Noted as a watch item only. | LOW |
+### Database
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Ecto / Ecto SQL | `~> 3.12` in library, `~> 3.13` in example app | Queries, transactions, admin/audit data access | Reuse. Impersonation, admin user management, and audit exploration fit the existing context + query-module pattern. No ORM or query-builder addition is warranted. |
+| PostgreSQL | existing primary target | Audit exploration and admin search/filter workloads | Reuse. Rich audit exploration should continue to use Postgres indexes + cursor-style query shapes, not a search engine or analytics store. |
 
-**No breaking changes to any v1.0 dependency.** All additions are additive and pair with the existing Ecto ~> 3.13 / Phoenix ~> 1.8 / cloak_ecto 1.3 surface.
+### Infrastructure
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Bandit | keep adapter; current latest: 1.10.4 | HTTP/WebSocket serving for example app and smoke envs | Reuse. No adapter swap is needed for v1.2. A routine bump from the example app's `~> 1.5` to a current `~> 1.10` is reasonable when touching dependency maintenance, but it is not a gating change for the milestone. |
+| Oban | existing `~> 2.17` optional dep | Background cleanup / export jobs if needed | Reuse only where already justified. Do not introduce new workers unless v1.2 actually ships async admin exports or cleanup tasks. |
+| Swoosh | existing `~> 1.5` optional dep | Existing email flows | Reuse. v1.2 does not need new mail infrastructure. |
 
----
+### Supporting Libraries
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| `lazy_html` | `>= 0.1.11` test-only | Required by `Phoenix.LiveViewTest` in the example app | Keep exactly as the LiveView test helper dependency. Needed for admin LiveView tests; do not promote it beyond test scope. |
+| `@playwright/test` | current: 1.59.1 | Browser automation, screenshots, video, traces, HTML report | Keep the existing Playwright harness and extend it for admin flows. This is the right stack for automation-first UX review artifacts. |
+| Playwright built-in HTML reporter | bundled with Playwright | Human-reviewable artifacts in CI | Required. Sigra already uses HTML reporting; keep it and make it the default review artifact. |
+| Playwright trace viewer | bundled with Playwright | Failure debugging | Required. Keep `trace: "on-first-retry"` or tighten to `retain-on-failure` only if retries are removed. |
+| Playwright screenshots | bundled with Playwright | Quick visual review of failed admin flows | Add `screenshot: "only-on-failure"` to the existing config. Low cost, directly useful in review. |
+| Playwright video | bundled with Playwright | Asynchronous UX inspection for failures/flaky browser-only issues | Add `video: "retain-on-failure"` in CI-oriented runs. This matches the milestone's review-artifact goal without extra tooling. |
 
-## 1. WebAuthn / Passkeys — server library
+## Required Stack Changes For v1.2
 
-### Recommendation: `{:wax_, "~> 0.7"}`
+### 1. Keep the admin UI in LiveView; do not add a frontend framework
 
-- **Current version:** v0.7.0, released **2025-05-18** on hex.pm. Apache-2.0, maintained by `tanguilp`.
-- **Package name gotcha:** hex package and application name is `:wax_` (trailing underscore). Dep line: `{:wax_, "~> 0.7"}`; module namespace is `Wax`.
-- **Elixir/OTP compatibility:** `elixir: "~> 1.12"`, no OTP floor. Runtime deps `:inets`, `:logger`, `cbor ~> 1.0`, `jason ~> 1.1`, `x509 ~> 0.8`. All compile cleanly on OTP 27 / Elixir 1.18.
-- **Feature coverage:** Attestation (`none`, `packed`, `tpm`, `android-key`, `android-safetynet`, `fido-u2f`, `apple`), assertion, credential-storage callbacks. Passes the 170-case FIDO2 official test suite. Supports Ed25519, ES256, RS256, PS256 — covers every current passkey provider.
-- **Why still the right call in 2026:** No new server-side WebAuthn library has emerged since v1.0 research. Alternatives `web_authn_ex` (low activity, incomplete) and `webauthn_components` 0.8.0 (wrong layer — LiveComponent UX bundle, not server primitive) remain unsuitable.
+Use the existing Phoenix 1.8 + LiveView stack for the whole admin surface:
 
-### Attention points for v1.1
+- Route admin screens behind dedicated `live_session` boundaries.
+- Reuse `on_mount` for admin scope hydration, impersonation state, and org-aware gating.
+- Use `handle_params/3` for filter/sort/tab state so audit exploration is URL-addressable.
+- Use `stream/4` for user lists and audit feeds where rows change over time.
+- Use `start_async/3` only for expensive secondary loads, such as loading side panels or aggregate counts, not for baseline page correctness.
 
-- **Challenge storage:** `Wax` returns a challenge struct Sigra must persist for the duration of the ceremony. Options: ETS, DB row, signed cookie. Recommend **Plug session** (see ARCHITECTURE.md B1) — signed+encrypted, short TTL, multi-node safe.
-- **RP ID runtime-configurable:** cannot be a full URL — only effective domain. Add `Sigra.Config` keys `:rp_id`, `:rp_name`, `:origins` (list), `:attestation` (`:none` default).
-- **Sign counter handling:** Wax returns new sign count; Sigra must persist and enforce monotonicity. A decrease = cloned authenticator → revoke credential + audit `:passkey_clone_suspected`. Build into `Sigra.Passkeys.Authentication` from day one.
-- **`aaguid` metadata:** store raw 16-byte AAGUID from registration. Do NOT map to provider names in v1.1 (defer FIDO MDS integration).
+This fits Sigra's existing architecture. The example app already uses `live_session`, `on_mount`, and `stream/3`, so v1.2 should extend that pattern instead of introducing React, Alpine, Surface, or a datagrid framework.
 
----
+### 2. No new impersonation library; implement impersonation inside Sigra's session/scope model
 
-## 2. Passkey public-key encryption — reuse `cloak_ecto`
+Impersonation is not a library problem. It is a session, audit, and authorization problem.
 
-### Recommendation: Reuse existing v1.0 vault via `Cloak.Ecto.Binary` on a `:binary` column
+Required stack-level choice:
 
-- **`cloak_ecto` 1.3.0** (Apr 6 2024) is current. Slow-moving but stable.
-- **Binary field type:** `Cloak.Ecto.Binary` is purpose-built. DB column type **must be `:binary`** (PostgreSQL `bytea`). Schema field uses host app's existing vault module (the generator detects it — reuses v1.0's OAuth token vault).
+- Reuse Sigra's database-backed session model.
+- Reuse `Sigra.Scope` hydration and add impersonation metadata there.
+- Reuse existing sudo boundaries and audit metadata flow.
+- Keep impersonation state server-side in the session row / scope hydration path, not in signed browser-only state and not in a separate token system.
 
-### Real gotchas
+That means:
 
-1. **Encrypted columns NOT queryable.** Random IV per write. Can't `WHERE public_key = ?`. Fine for passkeys — server looks up by `credential_id`, which MUST remain unencrypted and indexed. **Migration checklist:** `credential_id` = `:binary` unencrypted + unique index. `public_key` = `:binary` encrypted.
-2. **Cannot use per-user keys.** Cloak's Ecto type is module-level → vault is application-wide. Correct model for WebAuthn public keys (they aren't secrets anyway).
-3. **Public keys don't strictly need encryption.** WebAuthn public keys are by definition public. Sigra encrypts anyway for (a) v1.0 precedent consistency, (b) uniform key-rotation surface, (c) defense-in-depth against log/backup leakage. **Document in PITFALLS** that this is belt-and-suspenders, not a security requirement.
-4. **Key rotation works for bytea.** `mix cloak.migrate.ecto` streams rows and re-encrypts — identical behavior for `:binary` fields.
+- no `Phoenix.Token`-based impersonation mode,
+- no separate JWT just for impersonation,
+- no third-party masquerade package.
 
-**Bottom line:** zero new dep, zero v1.0 breakage, proven pattern.
+The only v1.2 change here is schema/config/code in Sigra itself, not a dependency addition.
 
----
+### 3. Rich audit exploration should stay on Ecto + existing audit modules
 
-## 3. Multi-tenancy — no new library
+Sigra already has `Sigra.Audit`, `Sigra.Audit.Query`, and `Sigra.Audit.Cursor`. Build on those.
 
-### Recommendation: **Do NOT add a multi-tenancy library.** Build `org_id` FK + `Scope` struct extension directly on Ecto.
+Recommended pattern:
 
-Ecosystem survey:
+- keep filtering and pagination in query modules,
+- use cursor-based exploration for audit feeds,
+- use URL params to drive filters,
+- add the necessary DB indexes and denormalized columns in Sigra's own tables,
+- render results in LiveView.
 
-| Library | Status | Fit for Sigra |
-|---|---|---|
-| **Triplex** | PostgreSQL schema-per-tenant. Last meaningful release 2023. | Wrong model — rejected by PROJECT.md constraint. |
-| **Tenantex / apartmentex** | Schema/DB-per-tenant. Abandoned since 2019. | Wrong model + dead. |
-| **Ash Framework multi-tenancy** | Attribute-based in Ash resources. | Wrong ecosystem. Coupling cost >> benefit. |
-| **Ecto `prefix:` option** | Built-in, schema-per-tenant. | Wrong model. |
-| **Manual `org_id` FK** | No library — Ecto + query helpers. | **Correct.** |
+Do not add:
 
-**What "logical MT via `org_id` FK" needs, none library-shaped:**
+- Elasticsearch / Meilisearch / Typesense,
+- a BI/reporting tool,
+- a general-purpose table/query DSL just for admin pages.
 
-1. Schema design — `organizations`, `organization_memberships`, `organization_invitations`. Pure Ecto.
-2. Query scoping — `Sigra.Organizations.Query.for_org(query, scope)` helper + discipline. **Explicit > implicit.**
-3. Scope struct extension — `:active_organization`, `:membership` fields. Zero-dep.
-4. `fetch_current_scope` plug update — read `active_organization_id` from session, load org + membership. ~30 lines.
-5. `Sigra.Plug.RequireMembership` — ~20 lines.
-6. Audit metadata auto-attachment — one field, no new dep.
-7. Invite token flow — reuses v1.0's `Sigra.Token` HMAC helper.
+That would be a disproportionate stack jump for v1.2.
 
-**Confirmed:** matches 2026 community consensus (Filip Pauco Medium Mar 2026, Alembic blog, Curiosum guide).
+### 4. Expand the existing Playwright stack instead of adding browser-test/reporting products
 
-### Guardrails for PITFALLS.md
+The current harness is already close to the target. Keep it in `test/example/priv/playwright` and extend it.
 
-- **N+1 tenant leaks:** enforce via (a) query helper convention, (b) Credo custom check (~30 lines) warning on `Repo.` calls in tenant-scoped contexts without `for_org/2`, (c) integration tests asserting cross-tenant isolation.
-- **Last-owner guard:** `Sigra.Organizations.remove_member/2` must check `count(owners) > 1` in the same Multi transaction as the delete.
-- **Stale `active_organization_id`:** user removed from currently-active org → next request must reset scope, not 500. Handle in `fetch_current_scope`.
-- **Backfill migration ordering:** "personal orgs" migration must run before any code reads `scope.active_organization`.
+Recommended baseline config changes:
 
----
+```ts
+reporter: [['list'], ['html', { open: 'never' }]],
+use: {
+  trace: 'on-first-retry',
+  screenshot: 'only-on-failure',
+  video: process.env.CI ? 'retain-on-failure' : 'off',
+}
+```
 
-## 4. Conditional generator templates — no library
+Keep:
 
-### Recommendation: Hand-roll EEx with opt-out flags. Watch Igniter; do not adopt for v1.1.
+- one Chromium project for smoke and review flows,
+- serial execution where DB state is intentionally shared,
+- HTML report upload in CI,
+- trace artifacts for retried failures.
 
-1. **`phx.gen.auth` pattern (1.8):** `Mix.Phoenix.Schema` + `eex_render/2` + opt-out flags (`--no-live`, `--binary-id`). No runtime dep — compile-time `Mix.Task` machinery. **Closest analogue for Sigra's `--no-organizations` / `--no-passkeys`.**
-2. **`Igniter` (ash-project):** semantic-code-patching library with Elixir AST awareness. Would genuinely make cross-file installer patching safer. **BUT:** (a) load-bearing generator dep = philosophical shift, (b) Sigra v1.0 already ships a working installer with string-injection patches, (c) adopting mid-milestone is scope creep. **Decision: skip for v1.1, flag for v2.0 installer overhaul.**
-3. **Ash's generator conventions worth stealing (pattern only):** task opts → struct → template dispatch → post-generate patches → summary output showing created/modified/skipped. v1.1 should add the "skipped" line when `--no-organizations` is passed.
+Optional only if CI consumers need machine-readable summaries:
 
-### Pattern for conditional templates
+- add Playwright's built-in `junit` reporter.
 
-**Load-bearing because v1.2 needs the same pattern for `--no-admin`.** See ARCHITECTURE.md C1 for full design — recommends subdirectory convention + small feature manifest module per feature (`Sigra.Install.Features.Organizations`, etc.) implementing a shared behaviour.
+Do not add Allure, Cypress, Wallaby, Hound, or another screenshot/video service. Playwright already covers the requirement.
 
-**No new dep.** `nimble_options` (already in v1.0) covers flag parsing/docs.
+### 5. Reuse the example-app stack for verification, not a second demo app
 
----
+The existing `test/example` app already exercises generated Sigra behavior under Phoenix + LiveView + Bandit. Extend that app for:
 
-## 5. JS hooks for WebAuthn ceremonies
+- admin user list/detail flows,
+- impersonation banner and exit flow,
+- audit exploration filters,
+- curl/HTTP smoke coverage for non-LiveView endpoints around impersonation and exports.
 
-### Recommendation: Bundle `@simplewebauthn/browser ~> 13`. Do NOT hand-roll.
+That preserves one blessed integration target instead of fragmenting verification across multiple apps.
 
-| Dimension | SimpleWebAuthn/browser | Vanilla ~30 lines |
-|---|---|---|
-| Raw code | ~5 lines (`startRegistration()` / `startAuthentication()`) | ~30-60 lines |
-| Error handling | Named error codes, passkey-aware | You write these; miss edge cases |
-| Base64url encoding | Handled | You debug off-by-one bugs |
-| Browser compat | Handled (conditional mediation, transports, hints) | Safari-vs-Chrome quirks yourself |
-| Size | ~8 KB minified | 0 KB, higher maintenance |
-| Maintenance | Active (MasterKale), TS-first | Sigra owns bug reports |
+## Optional Nice-to-Haves
 
-The "~30 lines vanilla JS" estimate is misleading — it becomes 100+ lines with base64url encoding both ways, `PublicKeyCredential.toJSON()` fallback, conditional mediation, error translation. SimpleWebAuthn exists specifically because everyone hand-rolling 30 lines ends up rewriting them.
+| Addition | Recommendation | Why it is optional |
+|----------|----------------|--------------------|
+| Bandit bump in example app | Move from `~> 1.5` to a current `~> 1.10` during routine dependency maintenance | Good hygiene, but not required to unlock admin/dashboard work. |
+| Playwright JUnit reporter | Add only if CI or external tooling wants XML summaries | Useful for CI dashboards, not needed for review artifacts themselves. |
+| Playwright blob reporter | Add only if Sigra later shards tests across CI jobs | Helpful for report merging, unnecessary for the current single-project harness. |
 
-### Integration approach
+## Reuse From Existing Stack
 
-1. Add `@simplewebauthn/browser` to **generator template** `assets/package.json`, not library mix.exs.
-2. `passkey_hooks.js` exports two LiveView hooks: `PasskeyRegistration`, `PasskeyAuthentication`.
-3. Each listens for `phx:passkey:start-*` with Wax-generated options, calls `startRegistration()` / `startAuthentication()`, pushes `passkey:response` back.
-4. LiveView receives and calls `Sigra.Passkeys.Registration.verify/2` → `Wax.register/2`.
-5. Server-side `Sigra.Passkeys.WaxJson` bridges Wax (raw WebAuthn bytes) ↔ SimpleWebAuthn (base64url strings). ~40 lines — the **one real integration cost**.
+These should be treated as fixed points, not reopened decisions:
 
-**Version to pin:** `^13.0.0` in generator template.
+| Existing piece | Reuse in v1.2 |
+|----------------|---------------|
+| `Sigra.Scope` + hydration pipeline | Carry admin role/org/impersonation state through the same mechanism. |
+| `Sigra.Plug.RequireSudo` | Gate impersonation start/stop and sensitive admin actions. |
+| Existing audit schema/query modules | Extend for dual-actor and richer filters; do not replace. |
+| Phoenix router + `live_session` | Separate public, authenticated, org-scoped, and admin-scoped surfaces cleanly. |
+| Example app Playwright harness | Add admin specs and richer artifacts there. |
+| `lazy_html` test dependency | Keep for LiveView test coverage on new admin LiveViews. |
+| Bandit example adapter | Keep the same serving model for local and CI smoke runs. |
 
-**Alternative fallback:** hand-roll base64url plumbing inline, skip SimpleWebAuthn. Estimated +2 days + ongoing bug maintenance. Not recommended but viable if integration sideways.
+## Alternatives Considered
 
----
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| Admin UI | Phoenix LiveView | React/Vue SPA | Adds a second frontend architecture, more generated code complexity, and more asset/test surface without solving a real v1.2 problem. |
+| Admin toolkit | Hand-rolled LiveView components | Backpex / Phoenix LiveDashboard / generic admin packages | Sigra needs shipped generator-owned auth/admin UX, not a runtime dev dashboard or a heavyweight admin abstraction. |
+| Impersonation | First-class Sigra session/scope mode | Token-only masquerade library | Wrong trust boundary; weakens auditability and session control. |
+| Audit exploration | Ecto queries + LiveView + indexes | Search engine / analytics store | Operationally expensive and unnecessary for v1.2 scale. |
+| Browser automation | Playwright | Wallaby / Hound / Cypress | Playwright already exists in-repo and natively provides HTML report, traces, screenshots, and video. |
+| UI interactions | `Phoenix.LiveView.JS` + small hooks | Alpine.js / extra client framework | LiveView already covers the needed interaction model; extra client state is more surface area to maintain. |
 
-## Integration map with existing v1.0 stack
+## Explicitly Do Not Add
 
-| v1.0 component | v1.1 reuse |
-|---|---|
-| `Sigra.Scope` struct | Extended with `:active_organization`, `:membership`. No break if new fields default `nil`. |
-| `Sigra.Token` HMAC helper | New context: `:organization_invite`. Zero code change. |
-| `Sigra.Audit` | `log/3` enriched with `organization_id` from scope. Additive. |
-| `cloak_ecto` vault | Reused for `UserPasskey.public_key`. No new vault. |
-| `fetch_current_scope` plug | Extended to load active org — one extra query, gated on `current_user` being present. |
-| `Hammer` | New rate limit key: `"passkey_ceremony:#{user_id}"` (5/min) to prevent flood DoS. |
-| `Oban` | Optional `Sigra.Workers.PasskeyChallengeCleanup` worker. Inline fallback if Oban absent. |
-| `NimbleOptions` | New config groups: `:organizations`, `:passkeys` (rp_id, rp_name, origins, attestation, challenge_ttl). |
-| `mix sigra.install` | Extended with `--no-organizations` / `--no-passkeys` flags + conditional template dispatch. First load-bearing use. |
+1. A JS SPA framework for the admin dashboard.
+2. A third-party impersonation or masquerade library.
+3. A new search/reporting backend for audit exploration.
+4. Wallaby, Hound, Cypress, Allure, Percy, or any separate browser-artifact vendor.
+5. A generic admin framework as a core dependency.
+6. A second example/demo app just for admin verification.
 
-**No v1.0 dependency needs to be bumped for v1.1.** `wax_ ~> 0.7` is the only mix.exs addition.
+## Installation
 
----
+```bash
+# No new Elixir dependency is required for the admin dashboard itself.
+# Keep the existing Phoenix/LiveView/Ecto stack.
 
-## What NOT to add
+# Browser review artifacts: extend the existing Playwright workspace
+cd test/example/priv/playwright
+npm install
 
-| Avoid | Why |
-|---|---|
-| `webauthn_components` | Wrong layer — LiveComponent UX bundle. Sigra needs the server primitive to drive its own LiveViews. |
-| `Triplex` / `Tenantex` / `apartmentex` | Schema-per-tenant. Rejected by PROJECT.md. Also abandoned. |
-| `Ash` / `Ash.Multitenancy` | Wrong framework ecosystem. Coupling cost >> benefit. |
-| `Igniter` | Tempting for installer quality; scope creep for v1.1. Revisit in v2.0. |
-| Custom WebAuthn reimplementation | FIDO2 spec is a minefield. `wax_` passes the official test suite; rolling our own is strictly worse. |
-| Vanilla JS for navigator.credentials | Underestimates base64url + error surface. |
-| Separate vault for passkeys | Two keys, two rotations, two env vars. Reuse OAuth vault. |
+# Optional only if you add CI XML summaries
+# npm install remains enough; use Playwright's built-in junit reporter in config
+```
 
----
+## Version-Sensitive Cautions
 
-## Version compatibility matrix (additions only)
-
-| Package | Version | Compatible with | Notes |
-|---|---|---|---|
-| wax_ | ~> 0.7 (0.7.0, May 2025) | Elixir ~> 1.12, OTP 22+ | Runtime deps clean on OTP 27 |
-| @simplewebauthn/browser | ^13.0.0 | Modern evergreen browsers | Generator-only, not mix.exs |
-| cloak_ecto | ~> 1.3 (already installed) | Ecto ~> 3.0 | Binary field via `Cloak.Ecto.Binary` |
-
----
-
-## Confidence Assessment
-
-| Area | Level | Reason |
-|---|---|---|
-| `wax_` version + compat | HIGH | hex.pm verified, mix.exs verified on GH |
-| Multi-tenancy: no lib needed | HIGH | Ecosystem survey confirms row-level MT is hand-rolled |
-| `cloak_ecto` binary pattern | HIGH | Source verified, semantics confirmed |
-| SimpleWebAuthn for browser | HIGH | Official docs + Phoenix+SimpleWebAuthn blog precedent |
-| Igniter non-adoption | MEDIUM | Right for v1.1; long-term depends on installer trajectory |
-| Wax↔SimpleWebAuthn JSON bridging | MEDIUM | 40-line estimate not verified against working spike |
-
----
-
-## Open questions to resolve during Phase 1 spikes
-
-1. **Challenge storage: Plug session vs DB vs ETS?** Plug session recommended but worth confirming no cookie size issues at 60s TTL.
-2. **Wax↔SimpleWebAuthn JSON encoder** — throwaway spike in phase 9 to verify 40-line bridge estimate.
-3. **Credo custom check for tenant-scope discipline** — prototype before committing; if >300 lines, fall back to integration-test enforcement.
-4. **Conditional template rendering** — validate subdir pattern against `phx.gen.auth`'s actual renderer in Phoenix 1.8.5.
-
----
+- **Phoenix / LiveView:** Phoenix is currently `1.8.5` and Phoenix LiveView is currently `1.1.28`. Sigra should stay within those lines for v1.2; do not turn this milestone into a framework migration.
+- **Bandit:** latest is `1.10.4`, but the example app is still on `~> 1.5`. That is a maintenance bump, not a new-capability requirement.
+- **Playwright:** current `@playwright/test` is `1.59.1`, which matches the checked-in lockfile. Keep the harness current, but do not add parallel browser matrices until the admin flows are stable.
+- **`lazy_html`:** current `0.1.11`. Keep it test-only. It is there to support LiveView tests, not to solve any runtime concern.
 
 ## Sources
 
-- [hex.pm/packages/wax_](https://hex.pm/packages/wax_) — v0.7.0, May 18 2025 (HIGH)
-- [github.com/tanguilp/wax mix.exs](https://github.com/tanguilp/wax/blob/master/mix.exs) (HIGH)
-- [hex.pm/packages/cloak_ecto](https://hex.pm/packages/cloak_ecto) — v1.3.0, Apr 2024 (HIGH)
-- [hexdocs.pm/cloak_ecto/Cloak.Ecto.Binary](https://hexdocs.pm/cloak_ecto/Cloak.Ecto.Binary.html) (HIGH)
-- [hex.pm/packages/webauthn_components](https://hex.pm/packages/webauthn_components) — v0.8.0 (context only; not recommended) (HIGH)
-- [simplewebauthn.dev/docs/packages/browser](https://simplewebauthn.dev/docs/packages/browser/) (HIGH)
-- [github.com/MasterKale/SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn) (HIGH)
-- [tech.jkbx.live — Passkeys in Phoenix using SimpleWebAuthn](https://tech.jkbx.live/passkeys-in-phoenix-using-simplewebauthn/) (MEDIUM)
-- [elixirforum — Implementing multi-tenancy in Phoenix 1.8](https://elixirforum.com/t/implementing-multi-tenancy-in-phoenix-1-8-single-vs-multi-organization-approaches/70301) (MEDIUM)
-- [medium.com — Multi-Tenant Application Design with Elixir+Phoenix (Mar 2026)](https://medium.com/@ffpauco/multi-tenant-application-design-with-elixir-phoenix-266074514b4a) (MEDIUM)
-- [curiosum.com/blog/multitenancy-in-elixir](https://www.curiosum.com/blog/multitenancy-in-elixir) (MEDIUM)
-- [github.com/ateliware/triplex](https://github.com/ateliware/triplex) (HIGH — not recommended)
+- https://hex.pm/packages/phoenix
+- https://hex.pm/packages/phoenix_live_view
+- https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html
+- https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.Router.html
+- https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.JS.html
+- https://hex.pm/packages/bandit
+- https://hex.pm/packages/lazy_html
+- https://playwright.dev/docs/test-use-options
+- https://playwright.dev/docs/test-reporters
+- https://playwright.dev/docs/trace-viewer
+- https://www.npmjs.com/package/@playwright/test

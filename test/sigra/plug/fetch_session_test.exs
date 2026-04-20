@@ -231,6 +231,7 @@ defmodule Sigra.Plug.FetchSessionTest do
 
       Sigra.MockSessionStore
       |> expect(:fetch, fn _token, _opts -> {:ok, session} end)
+
       # No update_activity expectation — Mox will fail if called
 
       opts = FetchSession.init(@default_opts)

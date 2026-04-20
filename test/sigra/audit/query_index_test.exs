@@ -7,12 +7,15 @@ defmodule Sigra.Audit.QueryIndexTest do
   This test is tagged `:postgres` at the module level and is excluded by
   default in `test/test_helper.exs`. To run it:
 
-      # Boot a local Postgres (or rely on CI Postgres service)
+      # Boot a local Postgres (or rely on CI Postgres service). The test
+      # creates/drops an isolated DB named `sigra_audit_query_index_scratch`
+      # via `storage_up` / `storage_down` — not the shared `sigra_test` DB.
+
       docker run --rm -d -p 5432:5432 \\
-        -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=sigra_test \\
+        -e POSTGRES_PASSWORD=postgres \\
         --name sigra-test-pg postgres:16
 
-      mix test --include postgres test/sigra/audit/query_index_test.exs
+      mix test test/sigra/audit/query_index_test.exs
 
   The test spins up a throwaway `Sigra.Test.PostgresRepo`, creates the
   minimal `audit_events` + `organizations` schema inline (enough for the
@@ -33,14 +36,24 @@ defmodule Sigra.Audit.QueryIndexTest do
   alias Sigra.Audit.Query
 
   @index_name "audit_events_organization_id_inserted_at_index"
+  # Never run storage_up/storage_down against the shared `sigra_test` DB used
+  # by Sigra.Test.PostgresRepo in other modules — `mix test` runs files in
+  # parallel by default, so dropping `sigra_test` here would race admin/audit
+  # integration tests and invalidate their pools mid-suite.
+  @scratch_database "sigra_audit_query_index_scratch"
 
   setup_all do
     repo = Sigra.Test.PostgresRepo
-    Application.put_env(:sigra, repo, repo.default_config())
 
-    # Drop + create the scratch database so repeated runs are idempotent.
-    _ = Ecto.Adapters.Postgres.storage_down(repo.default_config())
-    :ok = Ecto.Adapters.Postgres.storage_up(repo.default_config())
+    config =
+      repo.default_config()
+      |> Keyword.put(:database, @scratch_database)
+
+    Application.put_env(:sigra, repo, config)
+
+    # Drop + create an isolated scratch database so repeated runs are idempotent.
+    _ = Ecto.Adapters.Postgres.storage_down(config)
+    :ok = Ecto.Adapters.Postgres.storage_up(config)
 
     {:ok, _pid} = repo.start_link()
 
@@ -81,7 +94,7 @@ defmodule Sigra.Audit.QueryIndexTest do
     """)
 
     on_exit(fn ->
-      _ = Ecto.Adapters.Postgres.storage_down(repo.default_config())
+      _ = Ecto.Adapters.Postgres.storage_down(config)
     end)
 
     {:ok, repo: repo}

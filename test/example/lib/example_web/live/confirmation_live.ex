@@ -22,7 +22,10 @@ defmodule ExampleWeb.ConfirmationLive do
           <.header>
             {dgettext("sigra", "Confirm your email")}
             <:subtitle>
-              {dgettext("sigra", "Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link.")}
+              {dgettext(
+                "sigra",
+                "Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link."
+              )}
             </:subtitle>
           </.header>
 
@@ -44,7 +47,10 @@ defmodule ExampleWeb.ConfirmationLive do
               required
             />
 
-            <.button phx-disable-with={dgettext("sigra", "Confirming...")} class="btn btn-primary w-full">
+            <.button
+              phx-disable-with={dgettext("sigra", "Confirming...")}
+              class="btn btn-primary w-full"
+            >
               {dgettext("sigra", "Confirm email")} <span aria-hidden="true">&rarr;</span>
             </.button>
           </.form>
@@ -54,7 +60,6 @@ defmodule ExampleWeb.ConfirmationLive do
               {dgettext("sigra", "Didn't receive a code?")}
             </.link>
           </p>
-
         <% :already_confirmed -> %>
           <.header>
             {dgettext("sigra", "Email already confirmed")}
@@ -68,7 +73,6 @@ defmodule ExampleWeb.ConfirmationLive do
               {dgettext("sigra", "Log in")}
             </.link>
           </p>
-
         <% :expired -> %>
           <.header>
             {dgettext("sigra", "Confirmation link expired")}
@@ -77,7 +81,11 @@ defmodule ExampleWeb.ConfirmationLive do
             </:subtitle>
           </.header>
 
-          <.button phx-click="resend" phx-disable-with={dgettext("sigra", "Sending...")} class="btn btn-primary w-full">
+          <.button
+            phx-click="resend"
+            phx-disable-with={dgettext("sigra", "Sending...")}
+            class="btn btn-primary w-full"
+          >
             {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
           </.button>
       <% end %>
@@ -92,26 +100,33 @@ defmodule ExampleWeb.ConfirmationLive do
   end
 
   def handle_params(%{"token" => token}, _uri, socket) do
-    _user = socket.assigns.current_scope.user
+    if connected?(socket) do
+      _user = socket.assigns.current_scope.user
 
-    case Auth.confirm_user(token) do
-      {:ok, _user} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-         |> redirect(to: ~p"/")}
+      case Auth.confirm_user(token) do
+        {:ok, _user} ->
+          {:noreply,
+           socket
+           |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
+           |> redirect(to: ~p"/")}
 
-      {:error, :already_confirmed} ->
-        {:noreply, assign(socket, live_action: :already_confirmed)}
+        {:error, :already_confirmed} ->
+          {:noreply, assign(socket, live_action: :already_confirmed)}
 
-      {:error, :token_expired} ->
-        {:noreply, assign(socket, live_action: :expired)}
+        {:error, :token_expired} ->
+          {:noreply, assign(socket, live_action: :expired)}
 
-      {:error, :token_invalid} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
-         |> assign(live_action: :new)}
+        {:error, :token_invalid} ->
+          {:noreply,
+           socket
+           |> put_flash(
+             :error,
+             dgettext("sigra", "This confirmation link is invalid or has expired.")
+           )
+           |> assign(live_action: :new)}
+      end
+    else
+      {:noreply, socket}
     end
   end
 
@@ -144,7 +159,8 @@ defmodule ExampleWeb.ConfirmationLive do
 
     case Auth.deliver_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
       {:ok, _} ->
-        {:noreply, put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
+        {:noreply,
+         put_flash(socket, :info, dgettext("sigra", "A new confirmation email has been sent."))}
 
       {:error, :already_confirmed} ->
         {:noreply,
@@ -175,7 +191,10 @@ defmodule ExampleWeb.ConfirmationLive do
       {:error, :rate_limited} ->
         {:noreply,
          socket
-         |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))}
+         |> put_flash(
+           :error,
+           dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again.")
+         )}
 
       {:error, :already_confirmed} ->
         {:noreply,
