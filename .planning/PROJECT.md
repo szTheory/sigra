@@ -27,7 +27,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Phase **46** (2026-04-21) closed the canonical **GA-02..GA-05** matrix in `.planning/v1.4-GA-UAT.md` with dated **Waived** / **Executed** records and machine baselines where cited. **SEED-002** audit batches (**43–45**) and verification gap phases (**47–50**) remain in `.planning/REQUIREMENTS.md` / **ROADMAP**.
+**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Phase **46** (2026-04-21) closed the canonical **GA-02..GA-05** matrix in `.planning/v1.4-GA-UAT.md` with dated **Waived** / **Executed** records and machine baselines where cited. Phase **47** (2026-04-21) published `43-VERIFICATION.md` and reconciled **AUD-04** / **AUD-05** in `.planning/REQUIREMENTS.md` against that evidence. Remaining **SEED-002** work: audit batches **44–45** and verification phases **48–50** (see **ROADMAP**).
 
 ## Next Milestone Goals
 
@@ -267,6 +267,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-21 — Phase **47** complete: phase **43** verification artifact (`43-VERIFICATION.md`) + `43-VALIDATION.md` refresh; **AUD-04** / **AUD-05** marked complete in live requirements. Next roadmap execution focus: **44** (MFA + Account/API batches) / **48** (verification).*
+
 *Last updated: 2026-04-21 — Phase **46** complete: GA-02..GA-05 matrix gap closure in `v1.4-GA-UAT.md`; next roadmap focus **47** (phase 43 verification / AUD-04..05 closure).*
 
 *Last updated: 2026-04-20 — Phase **41** complete: GA-01 backup-code rotation + SEED-7 doc/test trace; next roadmap focus **42**.*
