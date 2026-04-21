@@ -23,8 +23,8 @@ This milestone intentionally **promotes** planted seeds **SEED-001** (residual h
 
 _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, atomic `api.token_create`, example login/MFA smoke). v1.4 continues **AUD-04+** below._
 
-- [ ] **AUD-04**: **Inventory + batching plan** — documented list of remaining `Sigra.Audit.log_safe/3` production integration sites (grouped by module: Auth, MFA, Account, OAuth, API tokens, plugs, workers), with **priority order** and explicit “won’t convert in v1.4” exclusions (if any) justified against D-01 / C-1.
-- [ ] **AUD-05**: **Auth core batch** — convert the agreed highest-priority `Sigra.Auth` `log_safe/3` sites (excluding the three already-atomic confirm/verify/reset paths from Phase 9) to audited `Ecto.Multi` (or established `log_multi_safe/3` pattern); every changed site gains or extends **audit-aware** tests (`Sigra.Audit.Assertions` or equivalent explicit repo assertions).
+- [x] **AUD-04**: **Inventory + batching plan** — documented list of remaining `Sigra.Audit.log_safe/3` production integration sites (grouped by module: Auth, MFA, Account, OAuth, API tokens, plugs, workers), with **priority order** and explicit “won’t convert in v1.4” exclusions (if any) justified against D-01 / C-1. *(Closed in Phase 47 — see `.planning/phases/43-audit-inventory-auth-atomic-batch/43-VERIFICATION.md`.)*
+- [x] **AUD-05**: **Auth core batch** — convert the agreed highest-priority `Sigra.Auth` `log_safe/3` sites (excluding the three already-atomic confirm/verify/reset paths from Phase 9) to audited `Ecto.Multi` (or established `log_multi_safe/3` pattern); every changed site gains or extends **audit-aware** tests (`Sigra.Audit.Assertions` or equivalent explicit repo assertions). *(Closed in Phase 47 — see `.planning/phases/43-audit-inventory-auth-atomic-batch/43-VERIFICATION.md`.)*
 - [ ] **AUD-06**: **MFA batch** — convert `Sigra.Mfa` audit emissions on success paths identified in AUD-04 to atomic Multi + matching tests (minimum: enrollment verify / backup-code consumption / disable flows agreed in planning).
 - [ ] **AUD-07**: **Account + API remainder batch** — convert `Sigra.Account` and remaining `Sigra.ApiToken` `log_safe/3` sites per AUD-04 inventory; tests prove audit row durability on `{:ok, _}` paths.
 - [ ] **AUD-08**: **OAuth + operational paths** — convert selected `Sigra.OAuth`, lockout/suspicious-login, impersonation, and worker-related audit sites **or** document compliance-acceptable deferral with trigger to reopen; update `.planning/phases/09-audit-logging/09-03-SUMMARY.md` (and `09-VERIFICATION.md` caveat C-1) so the hybrid status matches reality post-v1.4.
@@ -57,8 +57,8 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 | GA-03 | 46 | Waived (2026-04-21) |
 | GA-04 | 46 | Waived (2026-04-21) |
 | GA-05 | 46 | Complete (2026-04-21) |
-| AUD-04 | 47 | Pending |
-| AUD-05 | 47 | Pending |
+| AUD-04 | 47 | Complete (2026-04-21) |
+| AUD-05 | 47 | Complete (2026-04-21) |
 | AUD-06 | 48 | Pending |
 | AUD-07 | 48 | Pending |
 | AUD-08 | 49 | Pending |
