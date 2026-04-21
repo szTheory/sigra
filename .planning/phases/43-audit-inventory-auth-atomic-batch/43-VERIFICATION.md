@@ -1,6 +1,7 @@
 ---
-status: draft
+status: passed
 phase: "43"
+verified: 2026-04-21
 ---
 
 # Phase 43 verification — AUD-04 inventory + AUD-05 Auth atomicity
@@ -23,7 +24,10 @@ Compound proof (Postgres at `localhost:5432`, `postgres`/`postgres` per `CLAUDE.
 1. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix compile`
 2. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/auth/register_audit_atomicity_test.exs test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs test/sigra/auth_test.exs`
 
-*(Results recorded under **Automated checks run** after Task 3.)*
+## Automated checks run
+
+1. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix compile` — **PASS** (exit 0).
+2. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/auth/register_audit_atomicity_test.exs test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs test/sigra/auth_test.exs` — **PASS** (exit 0), 70 tests, 0 failures.
 
 ## Release attestation (optional)
 
@@ -32,4 +36,4 @@ Full root `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix
 ## Notes
 
 - Full Nyquist batch **41–44** remains **phase 50** ownership; this verification closes falsifiable AUD-04/AUD-05 evidence for phase **43** only.
-- Git SHA at verification time: *(recorded when merge gate completes — Task 3.)*
+- Git SHA at verification time: `7d9e1671260e34d8ab860f4d0ae8cbac0e1d56b7` (tree on which merge gate commands were executed).
