@@ -26,6 +26,7 @@ Human vs machine boundaries for **v1.4** are recorded in **`.planning/v1.4-GA-UA
 ## Where to run this
 
 - **GitHub Actions:** `.github/workflows/ci.yml` — jobs `library_tests`, `example_unit_smoke`, `example_playwright_smoke` (includes `ga-uat-shift-left.spec.ts`), `install_smoke`, `getting_started_uat_contract`.
+- **Installer golden / idempotency contract:** locally run **`mix ci.install_golden`** (see [`MAINTAINING.md`](../MAINTAINING.md)); CI mirrors it with job **`install_golden_contract`** in [`.github/workflows/ci.yml`](https://github.com/szTheory/sigra/blob/main/.github/workflows/ci.yml) (path-filtered on PRs, always on `main` pushes).
 - **Local:** same as CI: `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost` for Elixir tests; Playwright from `test/example/priv/playwright` with example app on port 4000.
 
 ## Policy
