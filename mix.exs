@@ -13,6 +13,7 @@ defmodule Sigra.MixProject do
       elixirc_options: elixirc_options(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      aliases: aliases(),
       # test_load_filters: tells `mix test` which files to load via require.
       # We use a negative lookahead to keep root `mix test` out of:
       #   - test/example/ — the example app subproject (plan 10-06), its own Mix project
@@ -116,6 +117,26 @@ defmodule Sigra.MixProject do
       # plans against a live Postgres repo. Excluded from default test runs
       # via `ExUnit.start(exclude: [:postgres])` in test/test_helper.exs.
       {:postgrex, "~> 0.17", only: :test}
+    ]
+  end
+
+  defp aliases do
+    [
+      ci: [
+        audit_45: [
+          "test",
+          "test/sigra/oauth/",
+          "test/sigra/workers/account_deletion_test.exs",
+          "test/sigra/account/deletion_test.exs",
+          "test/sigra/account_audit_atomicity_test.exs",
+          "test/sigra/auth/login_and_lockout_audit_atomicity_test.exs",
+          "test/sigra/impersonation_test.exs",
+          "test/sigra/suspicious_login_test.exs",
+          "test/sigra/lockout_test.exs",
+          "test/sigra/mfa_audit_atomicity_test.exs",
+          "test/sigra/api_token_audit_atomic_test.exs"
+        ]
+      ]
     ]
   end
 
