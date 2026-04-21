@@ -132,6 +132,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 - ✓ **GA-01** — Backup-code rotation: `Sigra.MFA.regenerate_backup_codes/4`, example `Accounts` + `MFASettingsLive`, install templates, SEED-7 regression in `test/example/.../backup_code_rotation_test.exs` — **Phase 41** (2026-04-20)
 - ✓ **GA-02..GA-05** — Milestone-visible matrix `.planning/v1.4-GA-UAT.md` + evidence under `.planning/uat-evidence/v1.4/` (GA-02/03/04 **Waived** with compensating CI language; GA-05 **Executed** with Hex + Git SHA header) — **Phase 46** (2026-04-21)
+- ✓ **AUD-08** — OAuth/ops/worker audit surfaces: `45-VERIFICATION.md` + `mix ci.audit_45` merge gate; Phase 9 **C-1** row-level matrices in `09-VERIFICATION.md` — **Phase 49** (2026-04-21)
 
 ### Validated — v1.3 Cleanup & Hardening
 
@@ -267,7 +268,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 — Phase **48** complete: `44-VERIFICATION.md` + `44-VALIDATION.md` refresh; **AUD-06** / **AUD-07** marked complete in live requirements. Next roadmap execution focus: **49** (phase 45 verification / AUD-08).*
+*Last updated: 2026-04-21 — Phase **49** complete: `45-VERIFICATION.md`, `mix ci.audit_45`, exhaustive **C-1** in `09-VERIFICATION.md`, **AUD-08** closed in `REQUIREMENTS.md`. Next roadmap execution focus: **50** (Nyquist **41–44** + CI gate hygiene).*
 
 *Last updated: 2026-04-21 — Phase **47** complete: phase **43** verification artifact (`43-VERIFICATION.md`) + `43-VALIDATION.md` refresh; **AUD-04** / **AUD-05** marked complete in live requirements. Next roadmap execution focus: **44** (MFA + Account/API batches) / **48** (verification).*
 
