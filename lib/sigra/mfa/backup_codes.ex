@@ -125,7 +125,13 @@ defmodule Sigra.MFA.BackupCodes do
           {Ecto.Multi.t(), [String.t()]}
   @spec append_replace_steps(Ecto.Multi.t(), module(), term(), pos_integer(), DateTime.t()) ::
           {Ecto.Multi.t(), [String.t()]}
-  def append_replace_steps(%Ecto.Multi{} = multi, backup_code_schema, user_id, count, now \\ DateTime.utc_now()) do
+  def append_replace_steps(
+        %Ecto.Multi{} = multi,
+        backup_code_schema,
+        user_id,
+        count,
+        now \\ DateTime.utc_now()
+      ) do
     codes = generate(count)
 
     entries =
@@ -171,7 +177,9 @@ defmodule Sigra.MFA.BackupCodes do
   def regenerate(repo, backup_code_schema, user_id, count) do
     Sigra.Telemetry.span([:sigra, :mfa, :backup_codes, :regenerate], %{user_id: user_id}, fn ->
       now = DateTime.utc_now()
-      {multi, formatted_codes} = append_replace_steps(Ecto.Multi.new(), backup_code_schema, user_id, count, now)
+
+      {multi, formatted_codes} =
+        append_replace_steps(Ecto.Multi.new(), backup_code_schema, user_id, count, now)
 
       case repo.transaction(multi) do
         {:ok, _} ->

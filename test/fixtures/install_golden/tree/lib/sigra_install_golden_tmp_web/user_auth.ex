@@ -62,7 +62,10 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
     user_agent = conn |> get_req_header("user-agent") |> List.first() || ""
 
     token =
-      SigraInstallGoldenTmp.Accounts.generate_user_session_token(user, ip: ip, user_agent: user_agent)
+      SigraInstallGoldenTmp.Accounts.generate_user_session_token(user,
+        ip: ip,
+        user_agent: user_agent
+      )
 
     user_return_to = get_session(conn, :user_return_to)
 
@@ -202,7 +205,10 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
 
   defp maybe_handle_impersonation(conn, user, session) do
     admin_token = get_session(conn, @impersonator_user_token_key)
-    admin_user = admin_token && SigraInstallGoldenTmp.Accounts.get_user_by_session_token(admin_token)
+
+    admin_user =
+      admin_token && SigraInstallGoldenTmp.Accounts.get_user_by_session_token(admin_token)
+
     scope = build_current_scope(user, session, admin_user)
 
     if is_binary(admin_token) do
@@ -228,14 +234,12 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
     end
   end
 
-
   defp build_current_scope(user, session, admin_user) do
     user
     |> Scope.for_user()
     |> hydrate_scope(session)
     |> maybe_put_impersonating_from(admin_user)
   end
-
 
   defp hydrate_scope(scope, session) do
     org_config = SigraInstallGoldenTmp.Organizations.__sigra_org_config__()
@@ -247,7 +251,9 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
   end
 
   defp maybe_put_impersonating_from(scope, nil), do: scope
-  defp maybe_put_impersonating_from(scope, admin_user), do: %{scope | impersonating_from: admin_user}
+
+  defp maybe_put_impersonating_from(scope, admin_user),
+    do: %{scope | impersonating_from: admin_user}
 
   defp valid_admin_token(admin_token, admin_user)
        when is_binary(admin_token) and not is_nil(admin_user),
@@ -366,6 +372,7 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
         case SigraInstallGoldenTmp.Accounts.get_user_and_session_by_token(user_token) do
           {user, sigra_session} when not is_nil(user) ->
             build_current_scope(user, sigra_session, admin_user)
+
           _ ->
             nil
         end
@@ -442,7 +449,13 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
 
       unconfirmed_access_mode(opts) == :allow_with_banner ->
         conn
-        |> put_flash(:info, dgettext("sigra", "Please confirm your email. Check your inbox or request a new confirmation email."))
+        |> put_flash(
+          :info,
+          dgettext(
+            "sigra",
+            "Please confirm your email. Check your inbox or request a new confirmation email."
+          )
+        )
 
       unconfirmed_access_mode(opts) == :block ->
         # D-04: auto-resend confirmation on blocked login attempt
@@ -452,7 +465,13 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
         )
 
         conn
-        |> put_flash(:error, dgettext("sigra", "You must confirm your email before logging in. We've sent a new confirmation email."))
+        |> put_flash(
+          :error,
+          dgettext(
+            "sigra",
+            "You must confirm your email before logging in. We've sent a new confirmation email."
+          )
+        )
         |> redirect(to: ~p"/users/confirm")
         |> halt()
     end
@@ -518,7 +537,10 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
 
     if user && Map.get(user, :must_change_password, false) do
       conn
-      |> put_flash(:error, "You must change your password before you can continue using your account.")
+      |> put_flash(
+        :error,
+        "You must change your password before you can continue using your account."
+      )
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/settings#password")
       |> halt()

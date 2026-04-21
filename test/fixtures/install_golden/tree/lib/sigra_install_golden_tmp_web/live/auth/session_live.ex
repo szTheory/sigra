@@ -21,11 +21,12 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
     sessions = Auth.list_sessions(user)
     current_token = get_connect_params(socket)["_sigra_token"]
 
-    {:ok, assign(socket,
-      sessions: sessions,
-      current_token: current_token,
-      page_title: "Active Sessions"
-    )}
+    {:ok,
+     assign(socket,
+       sessions: sessions,
+       current_token: current_token,
+       page_title: "Active Sessions"
+     )}
   end
 
   def render(assigns) do

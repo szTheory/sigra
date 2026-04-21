@@ -54,7 +54,7 @@ if Code.ensure_loaded?(Oban.Worker) do
 
     @behaviour Sigra.Workers
 
-    alias Sigra.Account.Deletion
+    alias Sigra.{Account, Account.Deletion}
 
     @impl Oban.Worker
     def perform(%Oban.Job{args: args}) do
@@ -103,10 +103,11 @@ if Code.ensure_loaded?(Oban.Worker) do
     end
 
     @impl Sigra.Workers
-    def perform(scope, args) do
+    def perform(_scope, args) do
       repo = Module.safe_concat([Map.fetch!(args, "repo")])
       user_schema = Module.safe_concat([Map.fetch!(args, "user_schema")])
       audit_schema = Module.safe_concat([Map.fetch!(args, "audit_schema")])
+      scope_module = Module.safe_concat([Map.fetch!(args, "scope_module")])
       user_id = Map.fetch!(args, "user_id")
       strategy = String.to_existing_atom(Map.fetch!(args, "strategy"))
 
@@ -116,14 +117,16 @@ if Code.ensure_loaded?(Oban.Worker) do
 
         user ->
           if Deletion.scheduled?(user) do
-            opts = [
+            exec_opts = [
               config: %{deletion: %{strategy: strategy}},
               changeset_fn: &default_changeset_fn/2,
-              token_query_fn: &default_token_query_fn/2
+              token_query_fn: &default_token_query_fn/2,
+              audit_schema: audit_schema,
+              scope_module: scope_module
             ]
 
-            opts =
-              opts
+            exec_opts =
+              exec_opts
               |> maybe_add_opt(:user_token_schema, args["user_token_schema"])
               |> maybe_add_opt(:session_store, args["session_store"])
               |> maybe_add_opt(:identity_schema, args["identity_schema"])
@@ -131,19 +134,8 @@ if Code.ensure_loaded?(Oban.Worker) do
               |> maybe_add_opt(:mfa_credential_schema, args["mfa_credential_schema"])
               |> maybe_add_opt(:backup_code_schema, args["backup_code_schema"])
 
-            case Deletion.execute(repo, user, opts) do
+            case Account.execute_deletion(repo, user, exec_opts) do
               {:ok, _strategy} ->
-                # 15-02 D-22: emit account.deletion_executed with the
-                # reconstructed, audit-only scope. This is the canonical
-                # post-execution audit row — Sigra.Account.execute_deletion
-                # emits a pre-execution deletion_execute row via log_safe.
-                Sigra.Audit.log_safe("account.deletion_executed", scope,
-                  repo: repo,
-                  audit_schema: audit_schema,
-                  target_id: user_id,
-                  metadata: %{deleted_user_id: user_id, strategy: to_string(strategy)}
-                )
-
                 :ok
 
               {:error, reason} ->

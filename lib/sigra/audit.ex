@@ -247,6 +247,9 @@ defmodule Sigra.Audit do
   - `:target_resolver` — arity-1 callback receiving the Multi `changes`
     map (same as `:actor_resolver`) to populate `target_id` when it cannot be
     known at composition time.
+  - `:organization_id_resolver` / `:effective_user_id_resolver` — same arity-1
+    `changes` callbacks for scope-derived columns when the subject row is only
+    known after an earlier Multi step (e.g. email-change confirm).
   """
   @spec log_multi_safe(Ecto.Multi.t(), String.t(), opts()) :: Ecto.Multi.t()
   def log_multi_safe(%Ecto.Multi{} = multi, action, opts)
@@ -493,6 +496,18 @@ defmodule Sigra.Audit do
         _ -> Keyword.get(opts, :metadata, %{})
       end
 
+    organization_id =
+      case Keyword.get(opts, :organization_id_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :organization_id)
+      end
+
+    effective_user_id =
+      case Keyword.get(opts, :effective_user_id_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :effective_user_id)
+      end
+
     # Top-level columns (D-07) — not nested in :metadata
     %{
       action: action,
@@ -505,8 +520,8 @@ defmodule Sigra.Audit do
       user_agent: Keyword.get(opts, :user_agent),
       metadata: metadata,
       occurred_at: Keyword.get(opts, :occurred_at, DateTime.utc_now()),
-      organization_id: Keyword.get(opts, :organization_id),
-      effective_user_id: Keyword.get(opts, :effective_user_id)
+      organization_id: organization_id,
+      effective_user_id: effective_user_id
     }
   end
 end

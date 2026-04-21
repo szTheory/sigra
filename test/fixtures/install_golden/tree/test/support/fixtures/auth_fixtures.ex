@@ -469,8 +469,8 @@ defmodule SigraInstallGoldenTmp.AccountsFixtures do
       module
     else
       raise ArgumentError,
-        "AuthFixtures.#{Macro.underscore(to_string(suffix))} requires #{inspect(module)}. " <>
-          "Generate organizations/passkeys or keep route-backed coverage for that feature."
+            "AuthFixtures.#{Macro.underscore(to_string(suffix))} requires #{inspect(module)}. " <>
+              "Generate organizations/passkeys or keep route-backed coverage for that feature."
     end
   end
 

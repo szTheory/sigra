@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **Chore:** Root `.formatter.exs` no longer scans `test/example/_build` (and
+  other generated trees) where Hex-copied `*.ex` install templates are not
+  valid Elixir — restores reliable `mix format --check-formatted` for contributors.
 - Human GA (v1.4): see .planning/v1.4-GA-UAT.md
 - **AUD-04:** Auth `log_safe` → `Ecto.Multi` migration inventory for `Sigra.Auth`
   (prioritized `AUD-05` batches **B1–B3**, exclusions, grep evidence) in
@@ -14,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **AUD-04 (continuation):** MFA + Account + API token inventory (**AUD-04-020+**,
   `AUD-06` / `AUD-07` batches) in
   [`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`](.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md).
+- **AUD-08 / Phase 45:** OAuth + ops + worker **AUD-04** slice (**AUD-04-050+**) in
+  [`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`](.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md).
 - **AUD-05 (Auth):** When `:audit_schema` is configured, success audits for
   `auth.register.success`, magic-link and password-reset request/verify flows,
   and confirmed-password `auth.login.success` (including lockout reset and
