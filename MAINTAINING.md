@@ -2,6 +2,18 @@
 
 This document is for **maintainers** who cut Hex releases and GitHub releases. **Drive-by contributors** should start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for tests, CI expectations, and review norms.
 
+## Installer golden CI contract (phase 50)
+
+The installer subprocess harness (`mix phx.new` + generated app) is expensive; do not rely on “it passed locally once.” Run the scoped merge gate the same way CI does:
+
+```bash
+PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.install_golden
+```
+
+That alias runs **`test/sigra/install/golden_diff_test.exs`** and **`test/sigra/install/idempotency_test.exs`** only. **`golden_diff_test.exs`** sets **`@moduletag timeout: 300_000`** (five-minute module budget) because archive install + scaffold work can exceed the default ExUnit timeout.
+
+GitHub Actions runs the same two paths on every push to **`main`** and on PRs that touch installer paths, via the **`install_golden_contract`** job in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
 ## GitHub Actions repository settings (runbook)
 
 These are **repository** (or org) settings on GitHub, not files in this repo. A maintainer with **admin** access must apply them once so **Release Please** can open and update release PRs using the default `GITHUB_TOKEN`.
