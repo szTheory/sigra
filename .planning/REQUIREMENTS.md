@@ -27,7 +27,7 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 - [x] **AUD-05**: **Auth core batch** — convert the agreed highest-priority `Sigra.Auth` `log_safe/3` sites (excluding the three already-atomic confirm/verify/reset paths from Phase 9) to audited `Ecto.Multi` (or established `log_multi_safe/3` pattern); every changed site gains or extends **audit-aware** tests (`Sigra.Audit.Assertions` or equivalent explicit repo assertions). *(Closed in Phase 47 — see `.planning/phases/43-audit-inventory-auth-atomic-batch/43-VERIFICATION.md`.)*
 - [x] **AUD-06**: **MFA batch** — convert `Sigra.Mfa` audit emissions on success paths identified in AUD-04 to atomic Multi + matching tests (minimum: enrollment verify / backup-code consumption / disable flows agreed in planning). *(Closed in Phase 48 — see `.planning/phases/44-mfa-account-api-atomic-batches/44-VERIFICATION.md`.)*
 - [x] **AUD-07**: **Account + API remainder batch** — convert `Sigra.Account` and remaining `Sigra.ApiToken` `log_safe/3` sites per AUD-04 inventory; tests prove audit row durability on `{:ok, _}` paths. *(Closed in Phase 48 — see `.planning/phases/44-mfa-account-api-atomic-batches/44-VERIFICATION.md`.)*
-- [ ] **AUD-08**: **OAuth + operational paths** — convert selected `Sigra.OAuth`, lockout/suspicious-login, impersonation, and worker-related audit sites **or** document compliance-acceptable deferral with trigger to reopen; update `.planning/phases/09-audit-logging/09-03-SUMMARY.md` (and `09-VERIFICATION.md` caveat C-1) so the hybrid status matches reality post-v1.4.
+- [x] **AUD-08**: **OAuth + operational paths** — convert selected `Sigra.OAuth`, lockout/suspicious-login, impersonation, and worker-related audit sites **or** document compliance-acceptable deferral with trigger to reopen; update `.planning/phases/09-audit-logging/09-03-SUMMARY.md` (and `09-VERIFICATION.md` caveat C-1) so the hybrid status matches reality post-v1.4. *(Closed in Phase **49** — see `.planning/phases/45-oauth-ops-c1-signoff/45-VERIFICATION.md` merge gate `mix ci.audit_45` + exhaustive **C-1** matrices in `09-VERIFICATION.md`.)*
 
 **Primary phase mapping:** **43–45** (AUD-04..AUD-08 implementation batches); **47–49** (gap closure: formal `*-VERIFICATION.md` for phases 43–45 + REQUIREMENTS / ROADMAP reconciliation); **50** (Nyquist **41–44** + CI long-test gate hygiene). Adjust in ROADMAP if execution merges batches.
 
@@ -61,7 +61,7 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 | AUD-05 | 47 | Complete (2026-04-21) |
 | AUD-06 | 48 | Complete (2026-04-21) |
 | AUD-07 | 48 | Complete (2026-04-21) |
-| AUD-08 | 49 | Pending |
+| AUD-08 | 49 | Complete (2026-04-21) |
 
 **Milestone process (no discrete REQ-ID):** Phase **50** — Nyquist validation sweep (**41–44**) and CI gate hygiene from `v1.4-MILESTONE-AUDIT.md` tech_debt (golden_diff / long `mix test` policy).
 

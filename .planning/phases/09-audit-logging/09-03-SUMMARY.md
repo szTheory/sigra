@@ -19,3 +19,7 @@ Row counts drift with code — treat the linked inventories as canonical.
 - **Oban / session store:** job bookkeeping and `SessionStore` behaviour are orthogonal to audit **Multi** composition unless explicitly wrapped (see **EX-*** rows in phase **45** inventory).
 
 Normative vocabulary: [`docs/audit-semantics.md`](../../../docs/audit-semantics.md).
+
+## C-1 row-level matrices
+
+Per-**`AUD-04-xxx`** rows for phases **43**, **44**, and **45** (mechanism, tier, verdict, evidence pointer) live in **[`09-VERIFICATION.md`](./09-VERIFICATION.md)** under **C-1** — exhaustive sub-inventories, not a high-level rollup alone.
