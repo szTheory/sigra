@@ -1,6 +1,7 @@
 ---
-status: draft
+status: passed
 phase: "44"
+verified: 2026-04-21
 ---
 
 # Phase 44 verification — AUD-06 MFA + AUD-07 Account / API token atomicity
@@ -36,10 +37,11 @@ Full root `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix
 
 ## Automated checks run
 
-_Pending merge gate (Task 3)._
+1. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix compile` — **PASS** (exit 0).
+2. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/mfa_audit_atomicity_test.exs test/sigra/account_audit_atomicity_test.exs test/sigra/api_token_audit_atomic_test.exs test/sigra/audit_multi_step_test.exs` — **PASS** (exit 0), 16 tests, 0 failures.
 
 ## Notes
 
 - Full Nyquist batch **41–44** remains **phase 50** ownership; this verification closes falsifiable **AUD-06** / **AUD-07** evidence for phase **44** only (**D-48-03**).
 - No Mix alias in this closure — raw compound `mix test` is canonical.
-- Git SHA at verification time: _pending Task 3._
+- Git SHA at verification time: `e1fe0336fac2b44b34cbce9ce054ee8c8cfefa0a` (tree on which merge gate commands were executed).
