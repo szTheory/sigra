@@ -1,5 +1,7 @@
 # GA-04 — Getting-started witness steps
 
+**GA-04 status:** **Waived** — formal **reason** and compensating controls are in [`waiver.md`](./waiver.md). Ordered command log / outcome below was not used for this waived closure.
+
 **Sole doc under test:** `guides/introduction/getting-started.md` — every command and file path in the friction table must trace to this guide (**D-42-03**).
 
 ## Session metadata
