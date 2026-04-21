@@ -39,10 +39,10 @@ created: 2026-04-20
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 44-01-01 | 01 | 1 | AUD-04 | T-44-01 | Inventory completeness (no silent omission) | doc + rg | `rg -n "log_safe|log_multi" lib/sigra/mfa.ex lib/sigra/account.ex lib/sigra/api_token.ex` | ⬜ | ⬜ pending |
-| 44-02-01 | 02 | 2 | AUD-06 / AUD-07 | T-44-02 | Named Multi audit steps + telemetry on commit only | unit | `mix test test/sigra/audit_test.exs` (extend or add focused module) | ✅ | ⬜ pending |
-| 44-03-xx | 03 | 3 | AUD-06 | T-44-03 | MFA domain + audit share transaction | integration | `mix test test/sigra/mfa_audit_atomicity_test.exs` | ❌ W0 | ⬜ pending |
-| 44-04-xx | 04 | 3 | AUD-07 | T-44-04 | Account mutations + audit share transaction | integration | `mix test test/sigra/account_audit_atomicity_test.exs` | ❌ W0 | ⬜ pending |
-| 44-05-xx | 05 | 3 | AUD-07 | T-44-05 | Token revoke / revoke_all + audit | integration | `mix test test/sigra/api_token_audit_atomic_test.exs` | ✅ | ⬜ pending |
+| 44-02-01 | 02 | 2 | AUD-06 / AUD-07 | T-44-02 | Named Multi audit steps + telemetry on commit only | unit | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/audit_multi_step_test.exs` | ✅ | ✅ green |
+| 44-03-xx | 03 | 3 | AUD-06 | T-44-03 | MFA domain + audit share transaction | integration | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/mfa_audit_atomicity_test.exs` | ✅ | ✅ green |
+| 44-04-xx | 04 | 3 | AUD-07 | T-44-04 | Account mutations + audit share transaction | integration | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/account_audit_atomicity_test.exs` | ✅ | ✅ green |
+| 44-05-xx | 05 | 3 | AUD-07 | T-44-05 | Token revoke / revoke_all + audit | integration | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/api_token_audit_atomic_test.exs` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,7 +51,7 @@ created: 2026-04-20
 ## Wave 0 Requirements
 
 - [x] Existing Postgres-backed audit tests cover `api.token_create` pattern (`test/sigra/api_token_audit_atomic_test.exs`).
-- [ ] New files created by plans **44-03** / **44-04** as listed in PLAN acceptance criteria.
+- [x] New files created by plans **44-03** / **44-04** as listed in PLAN acceptance criteria (`mfa_audit_atomicity_test.exs`, `account_audit_atomicity_test.exs`).
 
 ---
 
@@ -65,6 +65,12 @@ created: 2026-04-20
 
 ---
 
+## Nyquist deferral
+
+Full Nyquist batch **41–44** is owned by **phase 50**. Phase **48** publishes scoped evidence in **`44-VERIFICATION.md`** and refreshes this map; it does **not** assert global Nyquist completion on **`44-VALIDATION.md`**. Keep **`nyquist_compliant: false`** here unless `.planning/STATE.md` records **`nyquist_escalation_authorized`**.
+
+---
+
 ## Validation Sign-Off
 
 - [ ] All tasks have `<automated>` verify or Wave 0 dependencies
@@ -72,6 +78,6 @@ created: 2026-04-20
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 600s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [ ] `nyquist_compliant: false` remains until phase 50 (or explicit `nyquist_escalation_authorized` in STATE.md)
 
 **Approval:** pending
