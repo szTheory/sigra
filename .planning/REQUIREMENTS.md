@@ -15,7 +15,7 @@ This milestone intentionally **promotes** planted seeds **SEED-001** (residual h
 - [ ] **GA-04**: **Clean-machine getting-started** — a reviewer **not** on the core team follows `guides/introduction/getting-started.md` on a fresh Phoenix app within the agreed time budget (target ≤30 minutes wall-clock); friction notes captured in the v1.4 GA artifact.
 - [ ] **GA-05**: **Consolidated GA evidence** — publish `.planning/v1.4-GA-UAT.md` (name may vary if merged into an INDEX) mapping each SEED-001 row to **Executed / Waived / Blocked**, with pointers to `docs/uat-ci-coverage.md`, CI job names, and human-run evidence (screenshots, URLs, dates).
 
-**Primary phase mapping:** **41** (GA-01 product work); **42** (GA-02..05 evidence capture). See traceability table.
+**Primary phase mapping:** **41** (GA-01 product work); **42** (GA matrix scaffolding); **46** (gap closure: execute and record **GA-02..GA-05** per `v1.4-MILESTONE-AUDIT.md`). See traceability table.
 
 ---
 
@@ -29,7 +29,7 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 - [ ] **AUD-07**: **Account + API remainder batch** — convert `Sigra.Account` and remaining `Sigra.ApiToken` `log_safe/3` sites per AUD-04 inventory; tests prove audit row durability on `{:ok, _}` paths.
 - [ ] **AUD-08**: **OAuth + operational paths** — convert selected `Sigra.OAuth`, lockout/suspicious-login, impersonation, and worker-related audit sites **or** document compliance-acceptable deferral with trigger to reopen; update `.planning/phases/09-audit-logging/09-03-SUMMARY.md` (and `09-VERIFICATION.md` caveat C-1) so the hybrid status matches reality post-v1.4.
 
-**Primary phase mapping:** **43** (AUD-04 inventory + AUD-05 Auth batch), **44** (AUD-06 MFA + AUD-07 Account/API), **45** (AUD-08 OAuth/ops + C-1 sign-off). Adjust in ROADMAP if execution merges batches.
+**Primary phase mapping:** **43–45** (AUD-04..AUD-08 implementation batches); **47–49** (gap closure: formal `*-VERIFICATION.md` for phases 43–45 + REQUIREMENTS / ROADMAP reconciliation); **50** (Nyquist **41–44** + CI long-test gate hygiene). Adjust in ROADMAP if execution merges batches.
 
 ---
 
@@ -53,21 +53,24 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | GA-01 | 41 | Complete (2026-04-20) |
-| GA-02 | 42 | Pending |
-| GA-03 | 42 | Pending |
-| GA-04 | 42 | Pending |
-| GA-05 | 42 | Pending |
-| AUD-04 | 43 | Pending |
-| AUD-05 | 43 | Pending |
-| AUD-06 | 44 | Pending |
-| AUD-07 | 44 | Pending |
-| AUD-08 | 45 | Pending |
+| GA-02 | 46 | Pending |
+| GA-03 | 46 | Pending |
+| GA-04 | 46 | Pending |
+| GA-05 | 46 | Pending |
+| AUD-04 | 47 | Pending |
+| AUD-05 | 47 | Pending |
+| AUD-06 | 48 | Pending |
+| AUD-07 | 48 | Pending |
+| AUD-08 | 49 | Pending |
+
+**Milestone process (no discrete REQ-ID):** Phase **50** — Nyquist validation sweep (**41–44**) and CI gate hygiene from `v1.4-MILESTONE-AUDIT.md` tech_debt (golden_diff / long `mix test` policy).
 
 **Coverage:**
 
 - v1.4 requirements: **10** total  
 - Mapped to phases: **10**  
-- Unmapped: **0**
+- Unmapped: **0**  
+- Gap-closure process phases: **50** (see above)
 
 ---
 
