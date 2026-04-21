@@ -1,6 +1,7 @@
 ---
-status: draft
+status: passed
 phase: "45"
+verified: 2026-04-21
 ---
 
 # Phase 45 verification — AUD-08 (OAuth + ops + workers)
@@ -30,12 +31,10 @@ Full root `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix
 
 ## Automated checks run
 
-*(Filled after merge gate — see plan 49-01 Task 3.)*
-
-1. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix compile` — **PENDING**
-2. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.audit_45` — **PENDING**
+1. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix compile` — **PASS** (exit 0).
+2. `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.audit_45` — **PASS** (exit 0), 161 tests, 0 failures.
 
 ## Notes
 
 - Full Nyquist batch **41–44** remains **phase 50** ownership; this verification closes falsifiable **AUD-08** evidence for phase **45** only.
-- Git SHA at verification time: *(pending merge gate)*
+- Git SHA at verification time: `e8d676e1510c2bf9e836b3ffe3ceca5c783b97ab` (tree on which merge gate commands were executed).
