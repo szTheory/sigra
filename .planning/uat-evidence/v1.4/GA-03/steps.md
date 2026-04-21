@@ -1,5 +1,7 @@
 # GA-03 — Live Google OAuth checklist
 
+**GA-03 status:** **Waived** — formal rationale and compensating machine baseline are recorded in [`waiver.md`](./waiver.md). Live Google checklist items below were not executed for this closure.
+
 **Redaction:** Use env var **names** (e.g. `GOOGLE_CLIENT_ID`) — never paste client secrets, refresh tokens, or auth codes into git (**D-38-P04**).
 
 ## Preconditions

@@ -27,7 +27,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Remaining SEED-001 human matrix + **SEED-002** audit batches track in `.planning/REQUIREMENTS.md` / **Phases 42–45**.
+**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Phase **46** (2026-04-21) closed the canonical **GA-02..GA-05** matrix in `.planning/v1.4-GA-UAT.md` with dated **Waived** / **Executed** records and machine baselines where cited. **SEED-002** audit batches (**43–45**) and verification gap phases (**47–50**) remain in `.planning/REQUIREMENTS.md` / **ROADMAP**.
 
 ## Next Milestone Goals
 
@@ -131,6 +131,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 ### Validated — v1.4 (partial)
 
 - ✓ **GA-01** — Backup-code rotation: `Sigra.MFA.regenerate_backup_codes/4`, example `Accounts` + `MFASettingsLive`, install templates, SEED-7 regression in `test/example/.../backup_code_rotation_test.exs` — **Phase 41** (2026-04-20)
+- ✓ **GA-02..GA-05** — Milestone-visible matrix `.planning/v1.4-GA-UAT.md` + evidence under `.planning/uat-evidence/v1.4/` (GA-02/03/04 **Waived** with compensating CI language; GA-05 **Executed** with Hex + Git SHA header) — **Phase 46** (2026-04-21)
 
 ### Validated — v1.3 Cleanup & Hardening
 
@@ -266,6 +267,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-21 — Phase **46** complete: GA-02..GA-05 matrix gap closure in `v1.4-GA-UAT.md`; next roadmap focus **47** (phase 43 verification / AUD-04..05 closure).*
+
 *Last updated: 2026-04-20 — Phase **41** complete: GA-01 backup-code rotation + SEED-7 doc/test trace; next roadmap focus **42**.*
 
 *Last updated: 2026-04-20 — `/gsd-new-milestone`: **v1.4** started (SEED-001 GA residuals + SEED-002 audit atomicity); live `.planning/REQUIREMENTS.md` and `.planning/ROADMAP.md` authored; phases continue from **41**.*

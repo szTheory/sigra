@@ -1,5 +1,7 @@
 # GA-02 — Human mail client checklist
 
+**GA-02 status:** **Waived** — formal compensating-controls record is in [`waiver.md`](./waiver.md). Human triple-client checklists below were not executed for this closure.
+
 **Redaction:** Do not paste live tokens, magic links with secrets, or full mailbox exports — short notes and screenshots with redaction per **D-38-P04**.
 
 ## Preconditions
