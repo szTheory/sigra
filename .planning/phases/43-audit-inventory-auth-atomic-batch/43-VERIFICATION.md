@@ -37,3 +37,4 @@ Full root `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix
 
 - Full Nyquist batch **41–44** remains **phase 50** ownership; this verification closes falsifiable AUD-04/AUD-05 evidence for phase **43** only.
 - Git SHA at verification time: `7d9e1671260e34d8ab860f4d0ae8cbac0e1d56b7` (tree on which merge gate commands were executed).
+- No Mix alias in this closure — raw compound `mix test` is canonical.
