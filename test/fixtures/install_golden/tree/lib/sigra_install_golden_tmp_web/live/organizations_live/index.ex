@@ -64,7 +64,8 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.Index do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :branch, pick_branch(assigns.memberships, assigns.pending_invitations))
+    assigns =
+      assign(assigns, :branch, pick_branch(assigns.memberships, assigns.pending_invitations))
 
     ~H"""
     <Layouts.flash_group flash={@flash} />

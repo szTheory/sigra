@@ -1862,51 +1862,127 @@ defmodule Sigra.Auth do
 
   defp handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts) do
     threshold = Keyword.get(lockout_opts, :threshold, 5)
-    updated_user = Sigra.Lockout.increment!(repo, user, lockout_opts)
-    new_count = updated_user.failed_login_attempts
+    new_count = (user.failed_login_attempts || 0) + 1
+    lockout_step? = new_count >= threshold && is_nil(user.locked_at)
+
+    changes =
+      if lockout_step? do
+        %{
+          failed_login_attempts: new_count,
+          locked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }
+      else
+        %{failed_login_attempts: new_count}
+      end
+
+    user_cs = Ecto.Changeset.change(user, changes)
     audit_opts = audit_opts_from_config(config, ip_address: login_ip)
 
-    # D-26: invalid_credentials counter audit row (every failed attempt).
-    # 15-02 D-26/D-29 Category 3: nil scope + target_id: nil. The attempt
-    # counter stays in metadata (operationally useful; not PII — it is a
-    # per-user counter value, not an identity claim). IP + User-Agent live
-    # in top-level columns via `audit_opts`, not in metadata.
-    Sigra.Audit.log_safe(
-      "security.invalid_credentials",
-      nil,
-      Keyword.merge(audit_opts,
-        actor_id: user.id,
-        target_id: nil,
-        outcome: "failure",
-        metadata: %{attempts: new_count}
-      )
-    )
+    if Keyword.get(audit_opts, :audit_schema) do
+      multi =
+        Multi.new()
+        |> Multi.update(:user, user_cs)
+        |> Audit.log_multi_safe(
+          "security.invalid_credentials",
+          Keyword.merge(audit_opts,
+            audit_multi_step: :audit_failed_invalid_credentials,
+            actor_resolver: fn %{user: u} -> u.id end,
+            target_resolver: fn _ -> nil end,
+            outcome: "failure",
+            metadata_resolver: fn %{user: u} ->
+              %{attempts: u.failed_login_attempts}
+            end
+          )
+        )
 
-    if new_count >= threshold do
-      # Lockout just triggered
-      Telemetry.event([:sigra, :security, :lockout], %{}, %{
-        user_id: user.id,
-        ip: login_ip,
-        reason: :threshold_reached
-      })
+      multi =
+        if lockout_step? do
+          Audit.log_multi_safe(
+            multi,
+            "security.lockout",
+            Keyword.merge(audit_opts,
+              audit_multi_step: :audit_failed_security_lockout,
+              actor_resolver: fn %{user: u} -> u.id end,
+              target_resolver: fn %{user: u} -> u.id end,
+              effective_user_id_resolver: fn %{user: u} -> u.id end,
+              outcome: "failure",
+              metadata_resolver: fn %{user: u} ->
+                %{reason: "threshold_reached", attempts: u.failed_login_attempts}
+              end
+            )
+          )
+        else
+          multi
+        end
 
-      # D-26: security.lockout audit row.
-      # 15-02 Category 2: known user — user-only scope, target_id: user.id.
+      case repo.transaction(multi) do
+        {:ok, %{user: updated_user} = ch} ->
+          telemetry_steps =
+            if lockout_step? do
+              [:audit_failed_invalid_credentials, :audit_failed_security_lockout]
+            else
+              [:audit_failed_invalid_credentials]
+            end
+
+          Audit.emit_telemetry_from_changes(ch, telemetry_steps)
+
+          cond do
+            lockout_step? ->
+              Telemetry.event([:sigra, :security, :lockout], %{}, %{
+                user_id: user.id,
+                ip: login_ip,
+                reason: :threshold_reached
+              })
+
+              maybe_deliver_lockout_email(config, updated_user, %{ip: login_ip})
+              {:error, :account_locked}
+
+            true ->
+              {:error, :invalid_credentials}
+          end
+
+        {:error, _step, reason, _} ->
+          {:error, reason}
+      end
+    else
+      updated_user = Sigra.Lockout.increment!(repo, user, lockout_opts)
+      new_count = updated_user.failed_login_attempts
+      audit_opts = audit_opts_from_config(config, ip_address: login_ip)
+
       Sigra.Audit.log_safe(
-        "security.lockout",
-        Sigra.Scope.from_config(config, user),
+        "security.invalid_credentials",
+        nil,
         Keyword.merge(audit_opts,
           actor_id: user.id,
-          target_id: user.id,
+          target_id: nil,
           outcome: "failure",
-          metadata: %{reason: "threshold_reached", attempts: new_count}
+          metadata: %{attempts: new_count}
         )
       )
 
-      maybe_deliver_lockout_email(config, user, %{ip: login_ip})
-      {:error, :account_locked}
-    else
-      {:error, :invalid_credentials}
+      if new_count >= threshold do
+        Telemetry.event([:sigra, :security, :lockout], %{}, %{
+          user_id: user.id,
+          ip: login_ip,
+          reason: :threshold_reached
+        })
+
+        Sigra.Audit.log_safe(
+          "security.lockout",
+          Sigra.Scope.from_config(config, user),
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            target_id: user.id,
+            outcome: "failure",
+            metadata: %{reason: "threshold_reached", attempts: new_count}
+          )
+        )
+
+        maybe_deliver_lockout_email(config, user, %{ip: login_ip})
+        {:error, :account_locked}
+      else
+        {:error, :invalid_credentials}
+      end
     end
   end
 

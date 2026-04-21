@@ -223,7 +223,10 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
   @doc "Builds a notification email when a passkey is registered on an account."
   def passkey_registration_email(user, details) do
     ip = details |> Map.get(:ip, "Unknown") |> html_escape_string()
-    city = details |> Map.get(:city, Map.get(details, :geo_city, "Unknown")) |> html_escape_string()
+
+    city =
+      details |> Map.get(:city, Map.get(details, :geo_city, "Unknown")) |> html_escape_string()
+
     device = details |> Map.get(:device, "Unknown device") |> html_escape_string()
 
     time =
@@ -865,7 +868,6 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
   end
 
   defp humanize_role(role), do: role |> to_string() |> String.capitalize()
-
 
   # -- Private helpers --
 

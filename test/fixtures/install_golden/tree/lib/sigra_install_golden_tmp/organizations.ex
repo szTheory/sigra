@@ -92,6 +92,5 @@ defmodule SigraInstallGoldenTmp.Organizations do
 
   @doc "Change a member's role with last-owner guard (D-18)."
   def change_member_role(scope, membership, new_role),
-    do:
-      Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
+    do: Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
 end

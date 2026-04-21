@@ -68,7 +68,6 @@ config :sigra,
   email_module: SigraInstallGoldenTmp.Accounts.Emails,
   mailer: SigraInstallGoldenTmp.Accounts.Mailer
 
-
 # Sigra passkeys
 config :sigra_install_golden_tmp, :sigra_config,
   passkeys: [
