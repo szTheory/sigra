@@ -128,6 +128,39 @@ Sigra follows the same pattern as sibling libraries (**Release Please** + **Hex 
 
 **Recovery / one-off publish:** **Actions → Hex publish (manual recovery)** — supply the **tag or SHA** and the **expected `@version`** string; it runs the same compile + test + dry-run + publish path without Release Please.
 
+## First public launch (announcement checklist)
+
+Relative links in this file are for **in-repo navigation and HexDocs-packaged paths only**. Evidence that lives **outside** the Hex tarball (anything under **`.planning/`** on GitHub) must use **pinned tag** URLs matching the published **`mix.exs` `@version`** / `docs` `source_ref` — never `main` blob URLs, which break reproducibility when someone copies a link during a launch thread.
+
+### Assignment
+
+The **Release captain** opens **one** tracking issue (or equivalent single surface) for the launch run and keeps a **Roster** table for **this run only** — typical columns: **Role**, **Person / handle (off-repo)**, **Notes**. Checklist rows below reference **roles** (for example **Comms DRI**, **Security / evidence reviewer**); assign real people in the roster, not inline `@github-handle` strings in `MAINTAINING.md` (staleness and accidental pings under load).
+
+### Ship (artifact truth)
+
+| Step | Owner | What to verify |
+|------|-------|----------------|
+| Default ship path | Release captain | Follow [Release automation (default)](#release-automation-default) end-to-end; use [Manual release checklist (emergency or pre-automation)](#manual-release-checklist-emergency-or-pre-automation) only if you are outside Release Please. |
+| Installer + merge gate | Security / evidence reviewer | Confirm [Installer golden CI contract (phase 50)](#installer-golden-ci-contract-phase-50) expectations; branch protection must require `` `Install golden + idempotency contract (subprocess harness)` `` on **`main`**. |
+| GA matrix honesty | Security / evidence reviewer | Read Executed vs Waived in [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md) — human **GA-02..GA-05** rows may remain **waived** for v1.4; do **not** imply those humans re-ran for a forum post. |
+| Milestone closure narrative | Security / evidence reviewer | [v1.4 milestone requirements (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md) for what “closed” meant for that cut. |
+| CI substitution semantics | Security / evidence reviewer | Packaged doc: [docs/uat-ci-coverage.md](docs/uat-ci-coverage.md). |
+| Integrator-facing GA hub | Comms DRI (see roster) | Packaged doc: [docs/ga-evidence.md](docs/ga-evidence.md); repo entry point [README.md](README.md) (see **Production readiness & GA evidence** there) — link only, do not paste matrix bodies into launch threads. |
+
+### Announce (attention budget — optional by default)
+
+These rows widen concurrent skeptics; treat every channel below as **optional** unless the roster explicitly commits bandwidth. Prefer accurate **CHANGELOG** + upgrade notes + links to **Ship** evidence over performative hype.
+
+| Channel | Owner | Notes |
+|---------|-------|-------|
+| Elixir Forum | Comms DRI | **Optional** — shorter factual thread beats a manifesto; link **Ship** artifacts instead of re-stating them. |
+| Slack / Discord | Comms DRI | **Optional** — good for existing communities; avoid implying universal GA pass for consumer deployments. |
+| Blog or long-form | Comms DRI | **Optional** — skip if a tight forum post plus docs is enough. |
+| HN or similar | Comms DRI | **Optional** — only if you can reserve careful, non-heated reply time. |
+| Short social posts | Comms DRI | **Optional** — one-line pointers to Hex + docs beat slogan contests. |
+
+**Do not** in public copy: security-theater phrasing, comparative trash-talk of other libraries, implied warranty or “we certify your deployment,” or getting drawn into heated realtime debate — precision over slogans.
+
 ## Manual release checklist (emergency or pre-automation)
 
 Use only when not using the Release PR flow. Adjust version strings to match `mix.exs`.
