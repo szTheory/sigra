@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.5
-milestone_name: Public release narrative & community readiness
-status: defining_requirements
-stopped_at: Milestone v1.5 — roadmap authored; pick phase 53 to execute
-last_updated: "2026-04-22T20:00:00.000Z"
+milestone_name: unless promoted)
+status: executing
+stopped_at: Phase 53 context gathered (PUB-01)
+last_updated: "2026-04-22T03:59:41.940Z"
 last_activity: 2026-04-22
 progress:
-  total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 47
+  completed_phases: 42
+  total_plans: 153
+  completed_plans: 158
+  percent: 100
 ---
 
 # Project State
@@ -56,11 +56,11 @@ _None._
 
 ## Session Continuity
 
-Last session: `/gsd-new-milestone`
+Last session: --stopped-at
 
-Stopped at: Requirements + roadmap written for **v1.5**.
+Stopped at: Phase 53 context gathered (PUB-01)
 
-Resume file: —
+Resume file: --resume-file
 
 **Next phase:** **53** — Package & Hex metadata (**PUB-01**)
 
