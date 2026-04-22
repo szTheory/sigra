@@ -67,7 +67,7 @@ created: 2026-04-20
 
 ## Nyquist deferral
 
-Full Nyquist batch **41–44** is owned by **phase 50**. Phase **48** publishes scoped evidence in **`44-VERIFICATION.md`** and refreshes this map; it does **not** assert global Nyquist completion on **`44-VALIDATION.md`**. Keep **`nyquist_compliant: false`** here unless `.planning/STATE.md` records **`nyquist_escalation_authorized`**.
+Phase **50** closed the batch policy narrative: see **`MAINTAINING.md`** (**`## Nyquist policy (phases 41-44)`**) for the **41-44** table and the **`install_golden_contract` / `mix ci.install_golden`** hook for installer-heavy drift. Phase **48** scoped evidence stays in **`44-VERIFICATION.md`**; this **`44-VALIDATION.md`** file does **not** assert global Nyquist completion for the whole batch. Keep **`nyquist_compliant: false`** unless every checklist row is backed by the scoped merge gate with explicit rationale (not **`install_golden_contract`** theater alone).
 
 ---
 
@@ -78,6 +78,6 @@ Full Nyquist batch **41–44** is owned by **phase 50**. Phase **48** publishes 
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 600s
-- [ ] `nyquist_compliant: false` remains until phase 50 (or explicit `nyquist_escalation_authorized` in STATE.md)
+- [x] **`nyquist_compliant: false`** remains until row-level automated closure is demonstrated; batch policy + installer contract now live in **`MAINTAINING.md`** after phase **50** (escalation path: **`nyquist_escalation_authorized`** in **`STATE.md`** if ever used).
 
 **Approval:** pending

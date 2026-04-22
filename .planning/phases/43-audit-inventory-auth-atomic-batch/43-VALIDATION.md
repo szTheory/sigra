@@ -63,15 +63,15 @@ created: 2026-04-20
 
 ## Nyquist deferral
 
-Full Nyquist-style batch coverage for phases **41–44** is owned by **phase 50** (see `.planning/ROADMAP.md`). Phase **47** updates this map and publishes `43-VERIFICATION.md` as falsifiable evidence for AUD-04/AUD-05 only; it does **not** assert repo-wide Nyquist completion for **41–44**. This file keeps `nyquist_compliant: false` in frontmatter unless `.planning/STATE.md` records an explicit maintainer escalation (`nyquist_escalation_authorized`).
+Phase **50** published the consolidated policy table in **`MAINTAINING.md`** under **`## Nyquist policy (phases 41-44)`** and wired the installer subprocess merge gate (**`mix ci.install_golden`**, GitHub Actions job **`install_golden_contract`**). Scoped automated evidence for AUD-04/AUD-05 remains **`.planning/phases/43-audit-inventory-auth-atomic-batch/43-VERIFICATION.md`** (phase **47**). This **`43-VALIDATION.md`** map stays **`nyquist_compliant: false`** until every per-row checkbox is honestly satisfied with rationale tied to that verification merge gate — not merely because batch prose moved.
 
 ---
 
 ## Validation Sign-Off
 
 - [x] Per-task map rows reference literal test paths (no glob placeholders) and honest Status markers (phase **47** refresh).
-- [ ] Full Nyquist batch **41–44** — tracked under **phase 50**, not closed here.
+- [x] Batch **41-44** policy + installer drift class — see **`MAINTAINING.md`** (**Nyquist policy** + **Installer golden CI contract**); scoped AUD-04/05 closure remains **`43-VERIFICATION.md`**, not a silent Nyquist flip here.
 - [ ] No watch-mode flags in verify commands
-- [ ] Plan-level `nyquist_compliant` in individual `43-0x-PLAN.md` files follows planner/reviewer gates; **this** validation file defers batch Nyquist to **phase 50**.
+- [ ] Plan-level `nyquist_compliant` in individual `43-0x-PLAN.md` files follows planner/reviewer gates; **`nyquist_compliant: false`** here stays honest until row-level automated closure is demonstrated.
 
 **Approval:** pending
