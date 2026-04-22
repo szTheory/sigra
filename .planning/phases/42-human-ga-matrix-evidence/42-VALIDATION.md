@@ -62,6 +62,12 @@ created: 2026-04-20
 
 ---
 
+## Nyquist deferral
+
+**Waiver (owner `maintainers`, date `2026-04-21`).** Human GA evidence for **GA-02..GA-05** is intentionally owned by **`.planning/v1.4-GA-UAT.md`** (real MUAs, live Google, witnessed getting-started, matrix bookkeeping) — not by a full automated ExUnit Nyquist blanket for this scaffolding phase. **Full automated Nyquist is not claimed for phase 42.** Reopen when **`v1.4-GA-UAT.md`** GA-02..GA-05 rows change state away from the documented baseline (Pending → Executed/Waived) or when human GA protocols materially change.
+
+---
+
 ## Validation Sign-Off
 
 - [ ] All tasks have `<automated>` verify or Wave 0 dependencies
