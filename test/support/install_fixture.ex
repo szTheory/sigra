@@ -390,6 +390,9 @@ defmodule Sigra.Test.InstallFixture do
         |> String.split("\n")
         |> Enum.map(&String.trim_trailing/1)
         |> Enum.join("\n")
+        # Collapse "blank" lines that contain only a single space (phx.new
+        # drift shows up as `\n \n` in Myers diffs).
+        |> collapse_newline_space_newlines()
       else
         content
       end
@@ -457,6 +460,11 @@ defmodule Sigra.Test.InstallFixture do
 
   @doc false
   def normalize_path_for_golden(rel), do: normalize_path(rel)
+
+  defp collapse_newline_space_newlines(content) do
+    collapsed = String.replace(content, ~r/\n +\n/m, "\n\n")
+    if collapsed == content, do: content, else: collapse_newline_space_newlines(collapsed)
+  end
 
   defp normalize_path(rel) do
     rel
