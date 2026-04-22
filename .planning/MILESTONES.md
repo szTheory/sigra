@@ -159,3 +159,39 @@
 - [v1.3 Milestone Audit](milestones/v1.3-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.4 GA readiness & audit trail completeness (Shipped: 2026-04-22)
+
+**Scope:** 12 phases (41–52), 38 plans.
+
+**What shipped:** **SEED-001** closure with **TOTP-gated backup-code rotation** (`Sigra.MFA.regenerate_backup_codes/4`), example and install parity, and regression tests; a canonical **GA matrix** (`.planning/v1.4-GA-UAT.md`) with **Executed / Waived / Blocked** rows, dated evidence under `.planning/uat-evidence/v1.4/`, and machine substitutes where explicitly waived. **SEED-002** continuation: **AUD-04** inventory plus prioritized **`log_safe/3` → `Ecto.Multi`** conversions across **Auth**, **MFA**, **Account/API**, and **OAuth/ops** batches with **audit-aware** tests; formal **43/44/45 `*-VERIFICATION.md`** merge gates (**47–49**) including **`mix ci.audit_45`** and refreshed **Phase 9 C-1** matrices. **Phase 50** documented **Nyquist policy for 41–44** in **`MAINTAINING.md`**, **`mix ci.install_golden`**, and **`install_golden_contract`**. **Phase 51** widened CI path detection for installer-golden jobs and locked **GA waiver ↔ install-golden attestation** cross-links in contract tests. **Phase 52** aligned ROADMAP presentation (implementation vs verification phases) and added milestone-honesty contract coverage.
+
+### Key accomplishments
+
+1. **Phase 41 — GA-01 product fact** — Library backup-code rotation with optional audit on the same `Ecto.Multi`, generator/example wiring, and automated rotation regression.
+2. **Phases 42 + 46 — defensible GA posture** — Matrix scaffold plus gap closure so **GA-02..GA-05** are not “silent Pending” at close.
+3. **Phases 43–45 + 47–49 — audit atomicity + honest verification** — Inventory-driven batches, merge-gated verification docs, and **AUD-04..AUD-08** traceability reconciled with implementation reality.
+4. **Phase 50 — Nyquist + expensive CI as policy** — Explicit batch posture for **41–44** and documented **install golden** / CI truth on `main`.
+5. **Phase 51 — CI merge coupling** — Path filters and structural tests so **`install_golden_contract`** stays coupled to relevant PRs and waived GA rows point at attestations.
+6. **Phase 52 — planning honesty** — ROADMAP reader clarity for **44/45 vs 48/49** and contract tests guarding milestone narrative drift.
+
+### Stats
+
+- **Requirements:** 10/10 GA + AUD IDs in archived `milestones/v1.4-REQUIREMENTS.md` (mix of **Complete** and **Waived** with documented substitutes).
+- **Milestone audit:** early **`gaps_found`** snapshot preserved under `milestones/v1.4-MILESTONE-AUDIT.md` with an archive note; gaps were closed by phases **46–52** before ship.
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-22).
+- **Timeline:** 2026-04-20 → 2026-04-22 (execution on disk + verification closure).
+
+### Tech debt carried forward
+
+- **Nyquist `nyquist_compliant: false` on 41–44** remains intentional unless policy elevates it (`MAINTAINING.md`).
+- **Explicitly deferred `log_safe/3` rows** under **AUD-08** must stay listed with reopen triggers (see post-close **C-1** matrices).
+- **`gsd-sdk query milestone.complete`** did not complete archival in this environment; maintainers used the same manual archive path as v1.3.
+
+**Archive:**
+
+- [v1.4 Roadmap](milestones/v1.4-ROADMAP.md)
+- [v1.4 Requirements](milestones/v1.4-REQUIREMENTS.md)
+- [v1.4 Milestone Audit](milestones/v1.4-MILESTONE-AUDIT.md)
+
+---

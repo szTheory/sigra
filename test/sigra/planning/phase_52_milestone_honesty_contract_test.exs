@@ -13,10 +13,18 @@ defmodule Sigra.Planning.Phase52MilestoneHonestyContractTest do
     root() |> Path.join(rel) |> File.read!()
   end
 
-  test "ROADMAP: reader note and completed 44/45 rows" do
+  test "ROADMAP: v1.4 shipped and defers detail table to archive" do
     md = read!(".planning/ROADMAP.md")
 
-    assert md =~ "## Reader note: phases 44–45 vs 47–49 (AUD closure)"
+    assert md =~ "v1.4 GA readiness"
+    assert md =~ "SHIPPED 2026-04-22"
+    assert md =~ "milestones/v1.4-ROADMAP.md"
+  end
+
+  test "archived v1.4 ROADMAP retains reader note and completed 44/45 rows" do
+    md = read!(".planning/milestones/v1.4-ROADMAP.md")
+
+    assert md =~ "## Reader note (AUD closure)"
     assert md =~ "| **44** ✅ (2026-04-21) |"
     assert md =~ "| **45** ✅ (2026-04-21) |"
   end
@@ -32,7 +40,7 @@ defmodule Sigra.Planning.Phase52MilestoneHonestyContractTest do
   end
 
   test "milestone audit disposition heading present" do
-    md = read!(".planning/v1.4-MILESTONE-AUDIT.md")
+    md = read!(".planning/milestones/v1.4-MILESTONE-AUDIT.md")
     assert md =~ "## Tech debt disposition (phase 52)"
   end
 end

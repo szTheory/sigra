@@ -7,32 +7,24 @@
 - ✅ **Post-v1.1 Closeout** - Phases 24-26 (completed 2026-04-16).
 - ✅ **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (shipped 2026-04-17). See [v1.2 archive](milestones/v1.2-ROADMAP.md), [v1.2 requirements](milestones/v1.2-REQUIREMENTS.md), [v1.2 milestone audit](milestones/v1.2-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (complete **2026-04-22**; **46–52** included gap-closure work from [.planning/v1.4-MILESTONE-AUDIT.md](v1.4-MILESTONE-AUDIT.md)). Requirements: [.planning/REQUIREMENTS.md](REQUIREMENTS.md).
+- ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
-## Phases (v1.4)
+## Phases
 
-| Phase | Name | Goal | Requirements | Success criteria (observable) |
-|-------|------|------|--------------|------------------------------|
-| **41** ✅ (2026-04-20) | Backup codes & GA product closure | Ship and prove **backup-code rotation** so SEED-001 item 7 is a product fact, not a TODO | GA-01 | (1) User completes backup-code rotation in example or generated host. (2) Automated test fails if old codes work after rotation. (3) Audit rows (if configured) match success path. |
-| **42** ✅ (2026-04-20) | Human GA matrix & evidence | Execute residual human checks and consolidate **GA-05** artifact | GA-02, GA-03, GA-04, GA-05 | (1) `v1.4-GA-UAT.md` exists with Executed/Waived/Blocked per row. (2) Each row links to evidence or waiver rationale. (3) `docs/uat-ci-coverage.md` cross-links updated if rows moved machine-side. |
-| **43** ✅ (2026-04-20) | Audit inventory + Auth atomic batch | **AUD-04** inventory gates **AUD-05**; convert prioritized `Sigra.Auth` `log_safe/3` sites to audited `Ecto.Multi` | AUD-04, AUD-05 | (1) Inventory doc checked in under `.planning/phases/43-*` or `.planning/`. (2) Each converted Auth path has audit-aware test. (3) Full library CI green. |
-| **44** ✅ (2026-04-21) | MFA + Account/API atomic batches | Close MFA and account-layer hybrid sites per inventory | AUD-06, AUD-07 | (1) Listed MFA success paths use Multi + tests. (2) Account + agreed API token paths converted with tests. (3) CI green. |
-| **45** ✅ (2026-04-21) | OAuth, ops paths & C-1 sign-off | Remaining high-value sites or explicit deferrals; update Phase 9 C-1 narrative | AUD-08 | (1) `09-03-SUMMARY.md` / `09-VERIFICATION.md` reflect post-v1.4 reality. (2) Any deferred `log_safe/3` sites listed with trigger. (3) CI green. |
-| **46** ✅ (2026-04-21) | Human GA matrix gap closure | Close **GA-02..GA-05** in the canonical matrix with dated evidence or waivers; reconcile ROADMAP / REQUIREMENTS vs `v1.4-GA-UAT.md` | GA-02, GA-03, GA-04, GA-05 | (1) Each GA row is **Executed / Waived / Blocked** with pointer under `.planning/uat-evidence/v1.4/` (or documented path). (2) `v1.4-GA-UAT.md` matches reality. (3) ROADMAP narrative matches matrix (no “complete” drift while rows stay Pending). |
-| **47** ✅ (2026-04-21) | Phase 43 verification & AUD-04/05 closure | Publish **43** `*-VERIFICATION.md` and reconcile **AUD-04..AUD-05** with inventories + summaries | AUD-04, AUD-05 | (1) `43-VERIFICATION.md` exists and passes project merge gate. (2) REQUIREMENTS traceability updated when satisfied. (3) Full Nyquist batch **41–44** stays **phase 50**; phase **47** publishes scoped verification + `43-VALIDATION.md` honesty (not a batch Nyquist sign-off for **43** alone). |
-| **48** ✅ (2026-04-21) | Phase 44 verification & AUD-06/07 closure | Publish **44** `*-VERIFICATION.md` and reconcile **AUD-06..AUD-07** | AUD-06, AUD-07 | (1) `44-VERIFICATION.md` exists and passes gate. (2) REQUIREMENTS + ROADMAP updated when satisfied. (3) Full Nyquist batch **41–44** stays **phase 50**; phase **48** publishes scoped **`44-VERIFICATION.md`** merge gate + deferral text (not a batch Nyquist sign-off for **44** alone). |
-| **49** ✅ (2026-04-21) | Phase 45 verification, AUD-08 & C-1 reconciliation | Publish **45** `*-VERIFICATION.md`; close **AUD-08**; reconcile **09-VERIFICATION.md** C-1 with **43/44/45** inventories | AUD-08 | (1) `45-VERIFICATION.md` exists and passes gate (`mix ci.audit_45`). (2) C-1 narrative ties to row-level inventories (exhaustive subsections). (3) REQUIREMENTS updated; full Nyquist batch **41–44** remains **phase 50**. |
-| **50** ✅ (2026-04-21) | Nyquist validation & CI gate hygiene | Run `/gsd-validate-phase` for **41–44** if Nyquist sign-off required; address long-budget / flake-class notes (e.g. full `golden_diff_test.exs`, installer golden `mix test`) with CI policy or docs | _(process)_ | (1) `41-44` validation artifacts updated per Nyquist policy. (2) Release/CI posture for expensive suites documented or wired. (3) No silent “green locally only” assumptions at milestone close. |
-| **51** ✅ (2026-04-22) | Install golden receipt & CI merge coupling | Close audit gaps **PHASE-50-INSTALL-GOLDEN**, **CI-PATH-COUPLING**, **GA-WAIVERS-vs-INSTALL-RECEIPT**; define **`mix ci.install_golden`** / **`install_golden_contract`** attestation in **`50-VERIFICATION.md`**; align path filters / job chaining so non-installer PRs still run **`install_golden_contract`** when appropriate | _(process)_ + attestation for GA-03/GA-04 substitutes | (1) **`50-VERIFICATION.md`** documents **CI-as-truth** on **`main`** (required **`install_golden_contract`** check); no pasted **PASS** row as proof. (2) CI matrix does not skip installer golden on PRs that only touch MFA/Account/OAuth/lib paths relevant to GA posture. (3) Short doc note links waived GA rows to the install-golden substitute. |
-| **52** ✅ (2026-04-21) | ROADMAP / Nyquist milestone presentation honesty | Close **ROADMAP-44-45-vs-48-49** and **Nyquist / milestone honesty** flow for batch **41–44**; execute **`/gsd-validate-phase` 41–44** per policy or publish waiver table consistent with phase **50** decisions | _(process)_ | (1) ROADMAP rows **44–45** vs **48–49** present a single honest story for **AUD-06..AUD-08** scope (checkmarks and/or explicit supersession footnote). (2) **`41-44` `VALIDATION.md`** and phase **50** artifacts stay aligned with REQUIREMENTS + audit YAML. (3) Flake / long-budget notes from audit `tech_debt` are dispositioned (policy, timeout, or tracked follow-up). |
+<details>
+<summary>✅ v1.4 GA readiness & audit trail completeness (Phases 41–52) — SHIPPED 2026-04-22</summary>
 
-## Reader note: phases 44–45 vs 47–49 (AUD closure)
+The live phase table, success criteria, and the **44/45 vs 47–49** reader note are archived in [`milestones/v1.4-ROADMAP.md`](milestones/v1.4-ROADMAP.md).
 
-Phases **47–49** published the formal **`*-VERIFICATION.md`** merge gates and reconciled **REQUIREMENTS.md** for **AUD-04..AUD-08** (scoped work in phases **43–45**). Rows **44** and **45** above name the *implementation* batches (MFA/account/API and OAuth/C-1); the matching *verification + REQ closure* milestones are **48** and **49**. **Nyquist** sampling posture for historical batch **41–44** remains owned by phase **50** and **`MAINTAINING.md`** → **`## Nyquist policy (phases 41-44)`** — per-phase **`nyquist_compliant: false`** in **41–44 `*-VALIDATION.md`** is intentional unless the team explicitly elevates it.
+At a glance: **41** backup-code rotation (**GA-01**); **42** GA matrix scaffold; **43–45** audit inventory + Auth / MFA–Account–API / OAuth–ops batches (**AUD-04..AUD-08** implementation); **46** GA matrix gap closure (**GA-02..GA-05**); **47–49** formal `*-VERIFICATION.md` gates + requirements reconciliation; **50** Nyquist policy + **`mix ci.install_golden`** / **`install_golden_contract`**; **51** CI path coupling for installer golden; **52** roadmap and milestone-honesty contract tests.
 
-**Numbering:** continues from v1.3 phase **40** → **41** (no `--reset-phase-numbers`).
+</details>
 
-## Backlog (parking lot — not v1.4 unless promoted)
+### Next milestone
+
+Planning starts with `/gsd-new-milestone` (creates a fresh `.planning/REQUIREMENTS.md`). Continue phase numbering from **53** unless you explicitly reset.
+
+## Backlog (parking lot — not promoted until the next milestone selects them)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
-- Items not mapped in [REQUIREMENTS.md](REQUIREMENTS.md) stay here until a future milestone selects them.
+- Items not mapped in the [v1.4 requirements archive](milestones/v1.4-REQUIREMENTS.md) stay here until a future milestone selects them.

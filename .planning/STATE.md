@@ -1,28 +1,28 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: unless promoted)
+milestone: null
+milestone_name: null
 status: ready_to_plan
-stopped_at: Phase 51 complete — v1.4 roadmap phases 41–52 all checked
-last_updated: "2026-04-22T12:00:00.000Z"
+stopped_at: v1.4 milestone archived — use /gsd-new-milestone
+last_updated: "2026-04-22T18:00:00.000Z"
 last_activity: 2026-04-22
 progress:
-  total_phases: 46
-  completed_phases: 44
-  total_plans: 153
-  completed_plans: 158
-  percent: 96
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-21)
+See: `.planning/PROJECT.md` (updated 2026-04-22)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Milestone **v1.4** — roadmap phases **41–52** complete; next is milestone closeout or backlog promotion (see **`.planning/ROADMAP.md`**).
+**Current focus:** **v1.4 shipped** (2026-04-22). Next planning entry point: **`/gsd-new-milestone`**.
 
 ## Current Position
 
@@ -34,7 +34,7 @@ Status: Ready to plan
 
 Last activity: 2026-04-22
 
-Progress: [██████████] 96%
+Progress: [░░░░░░░░░░] 0% _(reset at milestone boundary — no active phase until `/gsd-new-milestone`)_
 
 ## Performance Metrics
 
@@ -42,9 +42,7 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
-Prior milestone (v1.3) archives: `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`. Shift-left GA mapping: `docs/uat-ci-coverage.md`. Audit testing recipe: `guides/recipes/testing.md`, `Sigra.Audit.Assertions`.
-
-**Note:** `gsd-sdk query phases.clear` was **not** reapplied after restore — historical `.planning/phases/*` directories remain the canonical archive for shipped work; v1.4 execution will add new phase folders **41–45** alongside them.
+v1.4 archives: `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`. GA matrix: `.planning/v1.4-GA-UAT.md`. Install golden / CI truth: `MAINTAINING.md`, `50-VERIFICATION.md`, `.github/workflows/ci.yml`.
 
 ### Pending Todos
 
@@ -56,18 +54,16 @@ _None._
 
 ## Session Continuity
 
-Last session: `/gsd-execute-phase 51`
+Last session: `/gsd-complete-milestone` (v1.4)
 
-Stopped at: Phase **51** bookkeeping — ROADMAP checkmark + STATE reconciled after plans were already executed.
+Stopped at: Milestone archived; live `REQUIREMENTS.md` removed per GSD close workflow.
 
 Resume file: —
 
-**Next phase:** None on the v1.4 table — run **`/gsd-milestone-summary`** or **`/gsd-complete-milestone`** when you are ready to archive **v1.4**.
+**Next phase:** Define with **`/gsd-new-milestone`** (expect numbering from **53** unless reset).
 
-**Completed Phase:** **51** (install-golden-ci-merge-gate) — 2 plans — verified **2026-04-22**
+**Completed milestone:** **v1.4** — Phases **41–52**, **38** plans, shipped **2026-04-22**
 
-**Prior:** **52** (roadmap-nyquist-milestone-honesty) — already complete on ROADMAP **2026-04-21**
+**Planned focus:** Backlog section on `.planning/ROADMAP.md`
 
-**Planned focus:** Optional backlog from **`.planning/ROADMAP.md`** → **Backlog** section.
-
-**Planned Phase:** — (milestone phases **41–52** complete)
+**Planned Phase:** —
