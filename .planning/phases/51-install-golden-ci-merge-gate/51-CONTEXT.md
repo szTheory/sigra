@@ -1,7 +1,7 @@
 # Phase 51: Install golden receipt & CI merge coupling — Context
 
 **Created:** 2026-04-21 (gap closure from `/gsd-plan-milestone-gaps` on `v1.4-MILESTONE-AUDIT.md`)  
-**Status:** Ready for planning
+**Status:** Ready to execute (2× `*-PLAN.md`; `50-VERIFICATION.md` uses CI-as-truth — do not resurrect pasted **PASS** rows)
 
 ## Scope
 

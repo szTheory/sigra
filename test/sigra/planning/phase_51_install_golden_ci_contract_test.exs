@@ -27,4 +27,18 @@ defmodule Sigra.Planning.Phase51InstallGoldenCiContractTest do
     assert yml =~ "install_golden_contract:"
     assert yml =~ "installer_milestone_audit:"
   end
+
+  test "51-02: GA waiver docs tie waived rows to installer golden attestation" do
+    maintaining = read!("MAINTAINING.md")
+    ga_uat = read!(".planning/v1.4-GA-UAT.md")
+
+    assert maintaining =~ "v1.4-GA-UAT.md"
+    assert maintaining =~ "50-VERIFICATION.md"
+    assert maintaining =~ "install_golden_contract"
+    assert maintaining =~ "mix ci.install_golden"
+
+    assert ga_uat =~ "50-VERIFICATION.md"
+    assert ga_uat =~ "install_golden_contract"
+    assert ga_uat =~ "mix ci.install_golden"
+  end
 end
