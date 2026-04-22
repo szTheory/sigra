@@ -22,7 +22,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**v1.5 (in progress):** Phases **53–55** complete (2026-04-22) — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), and README / ExDoc GA entry paths (**DOC-01**, **DOC-02**). Next: maintainer announcement checklist (**56**, **MAINT-01**).
+**v1.5 (narrative + maintainer readiness):** Phases **53–56** complete (2026-04-22) — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**).
 
 **Shipped:** **v1.4 GA readiness & audit trail completeness** (2026-04-22) — Phases **41–52**: backup-code rotation (**GA-01**), GA matrix with executed/waived rows and evidence (**GA-02..GA-05**), audit inventory + prioritized **`log_safe/3` → `Ecto.Multi`** batches through **OAuth/ops** (**AUD-04..AUD-08**) with formal **43/44/45 `*-VERIFICATION.md`** gates, **Nyquist + install-golden CI** policy (**50–51**), and **ROADMAP / milestone honesty** guardrails (**52**). Archives: `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`.
 
@@ -287,4 +287,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **v1.5**: phases **53–55** executed (**PUB-01**, **PUB-02**, **DOC-01** / **DOC-02** README + HexDocs hub); next **56** (**MAINT-01**). Tag **`v1.4`** on `origin`.*
+*Last updated: 2026-04-22 — **v1.5**: phases **53–56** executed (**PUB-01**, **PUB-02**, **DOC-01** / **DOC-02**, **MAINT-01** announcement checklist). Tag **`v1.4`** on `origin`.*
