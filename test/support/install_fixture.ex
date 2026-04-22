@@ -387,12 +387,16 @@ defmodule Sigra.Test.InstallFixture do
         )
         # Phoenix generator output occasionally drifts on trailing spaces per
         # line; strip so golden bytes stay stable across patch releases.
+        |> String.replace("\r\n", "\n")
+        |> String.replace("\r", "")
         |> String.split("\n")
         |> Enum.map(&String.trim_trailing/1)
         |> Enum.join("\n")
         # Collapse "blank" lines that contain only a single space (phx.new
         # drift shows up as `\n \n` in Myers diffs).
         |> collapse_newline_space_newlines()
+        # Comma then spaces before newline — occasional generator drift.
+        |> String.replace(~r/, +\n/, ",\n")
       else
         content
       end
