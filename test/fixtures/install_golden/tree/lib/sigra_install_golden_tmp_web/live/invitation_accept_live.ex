@@ -175,7 +175,8 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
             %{"email" => invitation.email, "password" => ""},
             as: :user,
             errors: [
-              email: {"This invitation is locked to #{invitation.email}.", []}
+              email:
+                {"This invitation is locked to #{invitation.email}.", []}
             ]
           )
 

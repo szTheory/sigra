@@ -8,12 +8,7 @@ defmodule SigraInstallGoldenTmpWeb.Admin.AuditExportController do
   alias SigraInstallGoldenTmp.Accounts
 
   def index(conn, %{"id" => user_id} = params) do
-    case Sigra.Admin.Audit.Export.subject_csv(
-           export_config(),
-           conn.assigns.admin_scope,
-           user_id,
-           params
-         ) do
+    case Sigra.Admin.Audit.Export.subject_csv(export_config(), conn.assigns.admin_scope, user_id, params) do
       {:ok, csv} ->
         send_csv(conn, csv)
 

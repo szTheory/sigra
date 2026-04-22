@@ -38,6 +38,7 @@ defmodule SigraInstallGoldenTmpWeb.AuthErrorHandler do
     |> send_resp(429, "Too many requests. Please try again later.")
   end
 
+
   @impl true
   def auth_error(conn, :no_active_org, _opts) do
     conn
@@ -45,13 +46,11 @@ defmodule SigraInstallGoldenTmpWeb.AuthErrorHandler do
     |> redirect(to: ~p"/organizations")
   end
 
+
   @impl true
   def auth_error(conn, :insufficient_role, _opts) do
     conn
-    |> put_flash(
-      :error,
-      "You don't have permission to access this page in the current organization."
-    )
+    |> put_flash(:error, "You don't have permission to access this page in the current organization.")
     |> put_status(:forbidden)
     |> put_view(SigraInstallGoldenTmpWeb.ErrorHTML)
     |> render(:"403")
@@ -79,4 +78,5 @@ defmodule SigraInstallGoldenTmpWeb.AuthErrorHandler do
       "Not found. This organization admin scope is unavailable."
     )
   end
+
 end
