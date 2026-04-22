@@ -37,14 +37,14 @@ Deliver **DOC-01** and **DOC-02** from `.planning/REQUIREMENTS.md`: **README** (
 
 - **D-08 (keep `main: "getting-started"`):** Default HexDocs landing stays **integrator-first** (install + first success path). **Do not** switch `main` to `README` or raw **`Sigra`** module doc for this phase — research consensus: README-as-main duplicates Hex/GitHub and under-serves generator workflows; module-first matches **Ecto/Oban** but not **Phoenix/LiveView**-style generator libs without a heavy moduledoc rewrite.
 - **D-09 (new packaged hub page):** Add **`docs/ga-evidence.md`** (filename fixed for planning; executor may tweak if a better name fits `docs/` naming) to **`extras`** in `mix.exs`, under the existing **`Docs`** `groups_for_extras` regex. Content is **thin by design**: purpose of the page, one-paragraph **Executed vs Waived** glossary, **navigational bullets** only (tag-scoped GitHub URLs per **D-05** + relative link to **`docs/uat-ci-coverage.md`**), **no** full GA matrix copy-paste.
-- **D-10 (≤2 hops from landing):** At the **top** of **`guides/introduction/getting-started.md`** (before or after the first paragraph — executor picks least disruption), add a **short “Reading map”** callout: links to **`docs/ga-evidence.html`** path as rendered, **`MAINTAINING.md`**, **`docs/audit-semantics.md`**, **`CONTRIBUTING.md`**, and **`SECURITY.md`** (or issue tracker for vulns per repo policy). Satisfies DOC-02 without changing `:main`.
+- **D-10 (≤2 hops from landing):** At the **top** of **`guides/introduction/getting-started.md`** (before or after the first paragraph — executor picks least disruption), add a **short “Reading map”** callout: links to **`docs/ga-evidence.html`** path as rendered, **`MAINTAINING.md`**, **`docs/audit-semantics.md`**, **`CONTRIBUTING.md`**, and **coordinated vulnerability reporting** — today that means the repo’s **GitHub Security** advisories / maintainer contact path; **if `SECURITY.md` is added in this phase or already exists**, link it here and from the README GA block (CNCF / GitHub hygiene norm).
 - **D-11 (README → HexDocs bridge):** In the new README GA block, include **one line** pointing readers to **HexDocs** for the **hub page** (e.g. “On HexDocs: … **GA evidence** …”) so GitHub-first readers discover the same path.
 
 ### “Executed vs Waived” — depth, tone, liability (DOC-01 copy shape)
 
 - **D-12 (shape — paragraph + bullets, not matrix):** Use **one honest paragraph** (library + generated code; integration/deployment risk stays with the host; **not** a compliance certification) plus **3–5 bullets** — each bullet **either** a single-line pointer **or** a factual scope line. **Do not** paste the GA matrix, per-row waiver rationale, owners, or SHAs into README.
 - **D-13 (define terms once):** In that paragraph or the first bullet, define **Executed** vs **Waived** in **plain language** (e.g. Waived = human/matrix item not re-run for this milestone with a documented substitute such as CI — **link** to `v1.4-GA-UAT.md` for the full table).
-- **D-14 (SECURITY.md split):** The README block (or hub page) should **prominently link `SECURITY.md`** for **coordinated disclosure** — aligns with CNCF / GitHub / npm hygiene patterns from research; keep **routine bugs** pointed at Issues / `CONTRIBUTING.md`.
+- **D-14 (Disclosure split):** The README block (or hub page) must give a **clear coordinated-disclosure path** (GitHub **Security** tab / private advisory channel). **Prefer adding `SECURITY.md`** in this phase if absent — then link it from README, hub, and reading map; keep **routine bugs** pointed at Issues / `CONTRIBUTING.md`.
 - **D-15 (anti-patterns):** Avoid warranty-adjacent phrases (“GA passed”, “audit-certified”, “SOC2-ready”), competitor trash-talk, and **any** wording that implies optional features are universally on — consistent with phase **53** metadata discipline applied to README tone.
 
 ### Coherence across deliverables
@@ -88,6 +88,7 @@ Deliver **DOC-01** and **DOC-02** from `.planning/REQUIREMENTS.md`: **README** (
 - `mix.exs` — `package/0`, `docs/0` (`main`, `extras`, `groups_for_extras`, `source_ref`, `source_url`).
 - `guides/introduction/getting-started.md` — DOC-02 landing hop.
 - `MAINTAINING.md`, `CONTRIBUTING.md`, `docs/audit-semantics.md` — linked from reading map / hub.
+- `SECURITY.md` — **add in phase 55 if missing** (coordinated disclosure); link from README + hub + reading map.
 
 ### External patterns (verify URLs if cited in commits)
 
