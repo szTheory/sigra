@@ -405,7 +405,11 @@ defmodule Sigra.Test.InstallFixture do
       # Strip trailing format chars (e.g. U+200B), separators, and ASCII
       # whitespace — phx.new / editor drift occasionally leaves these after
       # the logical end of `config/*.exs`.
-      Regex.replace(~r/[\p{Cf}\p{Zs}\s]+\z/u, content, "") <> "\n"
+      content =
+        Regex.replace(~r/[\p{Cf}\p{Zs}\s]+\z/u, content, "")
+        |> strip_ascii_eof_noise()
+
+      content <> "\n"
     else
       String.trim_trailing(content, "\n") <> "\n"
     end
@@ -465,6 +469,22 @@ defmodule Sigra.Test.InstallFixture do
 
   @doc false
   def normalize_path_for_golden(rel), do: normalize_path(rel)
+
+  defp strip_ascii_eof_noise(content) do
+    stripped =
+      cond do
+        String.ends_with?(content, "\r\n ") ->
+          binary_part(content, 0, byte_size(content) - 4)
+
+        String.ends_with?(content, "\n ") ->
+          binary_part(content, 0, byte_size(content) - 2)
+
+        true ->
+          content
+      end
+
+    if stripped == content, do: content, else: strip_ascii_eof_noise(stripped)
+  end
 
   defp collapse_newline_space_newlines(content) do
     collapsed = String.replace(content, ~r/\n +\n/m, "\n\n")
