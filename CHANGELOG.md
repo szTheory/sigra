@@ -17,12 +17,12 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Human GA (v1.4): see .planning/v1.4-GA-UAT.md
 - **AUD-04:** Auth `log_safe` → `Ecto.Multi` migration inventory for `Sigra.Auth`
   (prioritized `AUD-05` batches **B1–B3**, exclusions, grep evidence) in
-  [`.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md`](.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md).
+  [`43-AUD-04-INVENTORY.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md).
 - **AUD-04 (continuation):** MFA + Account + API token inventory (**AUD-04-020+**,
   `AUD-06` / `AUD-07` batches) in
-  [`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`](.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md).
+  [`44-AUD-04-INVENTORY.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md).
 - **AUD-08 / Phase 45:** OAuth + ops + worker **AUD-04** slice (**AUD-04-050+**) in
-  [`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`](.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md).
+  [`45-AUD-04-INVENTORY.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md).
 - **AUD-05 (Auth):** When `:audit_schema` is configured, success audits for
   `auth.register.success`, magic-link and password-reset request/verify flows,
   and confirmed-password `auth.login.success` (including lockout reset and

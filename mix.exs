@@ -162,6 +162,7 @@ defmodule Sigra.MixProject do
       extras: [
         "README.md",
         "CONTRIBUTING.md",
+        "SECURITY.md",
         "MAINTAINING.md",
         "LICENSE",
         "CHANGELOG.md",
@@ -177,6 +178,8 @@ defmodule Sigra.MixProject do
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",
         "docs/audit-semantics.md",
+        "docs/uat-ci-coverage.md",
+        "docs/ga-evidence.md",
         "docs/NEXT-STEPS-MANUAL.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
@@ -189,7 +192,7 @@ defmodule Sigra.MixProject do
         Introduction: ~r{guides/introduction/.?},
         Flows: ~r{guides/flows/.?},
         Recipes: ~r{guides/recipes/.?},
-        Docs: ~r{^docs/}
+        Docs: ~r{^docs/|^SECURITY\.md$}
       ],
       groups_for_modules: [
         Core: [Sigra, Sigra.Auth, Sigra.Config, Sigra.Crypto],

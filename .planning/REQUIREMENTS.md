@@ -18,8 +18,8 @@ This milestone **does not** expand core auth product scope. It prepares **Hex/RE
 
 ## Docs & entry paths (DOC)
 
-- [ ] **DOC-01**: **Top-level `README.md`** (or agreed primary entry) includes a short **“production / GA posture”** paragraph with links to **v1.4** evidence (e.g. `.planning/milestones/v1.4-REQUIREMENTS.md`, `.planning/v1.4-GA-UAT.md`, `docs/uat-ci-coverage.md`) so OSS readers understand **Executed vs Waived** language.
-- [ ] **DOC-02**: **ExDoc landing** — `mix docs` output has a clear path from the default landing page to **maintainer-facing** GA/audit narrative (extra page, section in `README.md` surfaced in docs, or `guides/` index cross-link — pick one approach and document it in the phase plan).
+- [x] **DOC-01**: **Top-level `README.md`** (or agreed primary entry) includes a short **“production / GA posture”** paragraph with links to **v1.4** evidence (e.g. `.planning/milestones/v1.4-REQUIREMENTS.md`, `.planning/v1.4-GA-UAT.md`, `docs/uat-ci-coverage.md`) so OSS readers understand **Executed vs Waived** language.
+- [x] **DOC-02**: **ExDoc landing** — `mix docs` output has a clear path from the default landing page to **maintainer-facing** GA/audit narrative (extra page, section in `README.md` surfaced in docs, or `guides/` index cross-link — pick one approach and document it in the phase plan).
 
 ---
 
@@ -51,8 +51,8 @@ This milestone **does not** expand core auth product scope. It prepares **Hex/RE
 |-------------|-------|--------|
 | PUB-01 | 53 | Complete |
 | PUB-02 | 54 | Complete |
-| DOC-01 | 55 | Pending |
-| DOC-02 | 55 | Pending |
+| DOC-01 | 55 | Complete (2026-04-22) |
+| DOC-02 | 55 | Complete (2026-04-22) |
 | MAINT-01 | 56 | Pending |
 
 **Coverage:**
