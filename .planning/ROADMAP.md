@@ -8,7 +8,7 @@
 - ✅ **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (shipped 2026-04-17). See [v1.2 archive](milestones/v1.2-ROADMAP.md), [v1.2 requirements](milestones/v1.2-REQUIREMENTS.md), [v1.2 milestone audit](milestones/v1.2-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- **v1.5 Public release narrative & community readiness** — Phases **53–56** (in progress). Requirements: [.planning/REQUIREMENTS.md](REQUIREMENTS.md).
+- ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (complete **2026-04-22**). Requirements: [.planning/REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## Phases
 
@@ -28,7 +28,7 @@ At a glance: **41** backup-code rotation (**GA-01**); **42** GA matrix scaffold;
 | ✅ **53** | Package & Hex metadata | Align **Hex / mix.exs** public surface with shipped **v1.0–v1.4** reality | PUB-01 | **Complete 2026-04-22** — `mix.exs` description + links; see [`phases/053-package-hex-metadata/053-01-SUMMARY.md`](phases/053-package-hex-metadata/053-01-SUMMARY.md). (3) Maintainer sign-off via PR or `/gsd-verify-work`. |
 | ✅ **54** | Changelog & milestone anchors | **`CHANGELOG.md`** tells a coherent version story through **v1.4** | PUB-02 | **Complete 2026-04-22** — milestone glossary, per-release roadmap traceability (v1.2–v1.4), 0.1.0 section order, compare links; see [`phases/054-changelog-milestone-anchors/054-01-SUMMARY.md`](phases/054-changelog-milestone-anchors/054-01-SUMMARY.md). (3) `mix compile --warnings-as-errors` clean. |
 | ✅ **55** | README & ExDoc entry paths | Readers find **GA / audit posture** from repo + docs home | DOC-01, DOC-02 | **Complete 2026-04-22** — README GA block + `SECURITY.md` + `docs/ga-evidence.md` + ExDoc extras + getting-started reading map; `mix docs --warnings-as-errors` clean; see [`055-01-SUMMARY.md`](phases/055-readme-exdoc-entry-paths/055-01-SUMMARY.md) and [`055-02-SUMMARY.md`](phases/055-readme-exdoc-entry-paths/055-02-SUMMARY.md). |
-| **56** | Maintainer announcement checklist | **`MAINTAINING.md`** runbook for first loud public push | MAINT-01 | (1) Ordered checklist with owners. (2) References install-golden / GA matrix where relevant. (3) Optional human rows clearly marked optional. |
+| ✅ **56** | Maintainer announcement checklist | **`MAINTAINING.md`** runbook for first loud public push | MAINT-01 | **Complete 2026-04-22** — First public launch section + intro pointer; tag-scoped `.planning/` evidence URLs; optional comms rows; see [`56-01-SUMMARY.md`](phases/56-maintainer-announcement-checklist/56-01-SUMMARY.md). |
 
 ### Phase 56: Maintainer announcement checklist
 
