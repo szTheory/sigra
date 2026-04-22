@@ -318,9 +318,10 @@ defmodule Sigra.Test.InstallFixture do
 
   Migration filenames under `priv/repo/migrations/<14-digit>_*.exs` have their
   14-digit timestamp prefix replaced with the literal string `TIMESTAMP` so
-  wall-clock time does not pollute the diff. Migration file **contents** are
-  NOT normalized — per decision D-05, the inside of the file must be
-  byte-identical.
+  wall-clock time does not pollute the diff. Migration bodies stay
+  byte-identical aside from a single canonical trailing newline (same as all
+  tracked files); `config/*.exs` additionally get deterministic salt
+  placeholders via `normalize_content_for_golden/2`.
   """
   @spec normalize_tree(Path.t(), %{String.t() => binary()}) :: [{String.t(), binary()}]
   def normalize_tree(app_dir, baseline \\ %{}) do
@@ -355,7 +356,7 @@ defmodule Sigra.Test.InstallFixture do
       if Map.get(baseline, rel) == hash do
         []
       else
-        [{normalize_path(rel), normalize_content(rel, content)}]
+        [{normalize_path(rel), normalize_content_for_golden(rel, content)}]
       end
     end)
     |> Enum.sort_by(&elem(&1, 0))
@@ -366,18 +367,29 @@ defmodule Sigra.Test.InstallFixture do
   # carried forward when sigra.install injects into the same file, so they
   # pollute byte-level golden diffs even though sigra.install itself did not
   # touch them. Replace each with a deterministic placeholder.
-  defp normalize_content(rel, content) do
-    if String.starts_with?(rel, "config/") do
-      content
-      |> String.replace(~r/signing_salt: "[^"]+"/, ~s(signing_salt: "<SIGNING_SALT>"))
-      |> String.replace(~r/secret_key_base: "[^"]+"/, ~s(secret_key_base: "<SECRET_KEY_BASE>"))
-      |> String.replace(
-        ~r/live_view: \[signing_salt: "[^"]+"\]/,
-        ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
-      )
-    else
-      content
-    end
+  @doc """
+  Normalizes installer-owned file contents for golden-diff comparison.
+
+  Applies deterministic `config/*.exs` salt placeholders and canonicalizes
+  trailing newlines so Phoenix / installer drift in final `\\n` count does not
+  break byte-stable fixtures.
+  """
+  @spec normalize_content_for_golden(String.t(), binary()) :: binary()
+  def normalize_content_for_golden(rel, content) do
+    content =
+      if String.starts_with?(rel, "config/") do
+        content
+        |> String.replace(~r/signing_salt: "[^"]+"/, ~s(signing_salt: "<SIGNING_SALT>"))
+        |> String.replace(~r/secret_key_base: "[^"]+"/, ~s(secret_key_base: "<SECRET_KEY_BASE>"))
+        |> String.replace(
+          ~r/live_view: \[signing_salt: "[^"]+"\]/,
+          ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
+        )
+      else
+        content
+      end
+
+    String.trim_trailing(content, "\n") <> "\n"
   end
 
   @doc """
@@ -431,6 +443,9 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   # -- internals --------------------------------------------------------------
+
+  @doc false
+  def normalize_path_for_golden(rel), do: normalize_path(rel)
 
   defp normalize_path(rel) do
     rel

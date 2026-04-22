@@ -138,7 +138,9 @@ defmodule Sigra.Install.GoldenDiffTest do
     |> Enum.filter(&File.regular?/1)
     |> Enum.map(fn abs_path ->
       rel = Path.relative_to(abs_path, @fixture_tree_dir)
-      {rel, File.read!(abs_path)}
+      raw = File.read!(abs_path)
+      norm_rel = InstallFixture.normalize_path_for_golden(rel)
+      {norm_rel, InstallFixture.normalize_content_for_golden(norm_rel, raw)}
     end)
     |> Enum.sort_by(&elem(&1, 0))
   end
