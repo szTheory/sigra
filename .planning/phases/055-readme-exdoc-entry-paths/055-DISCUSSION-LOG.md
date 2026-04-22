@@ -33,7 +33,7 @@
 | `main` URLs for GA evidence | Drift risk vs installed version | |
 
 **User's choice:** **Tag-scoped GitHub + packaged `docs/ga-evidence.md` hub** + relative links among shipped extras.  
-**Notes:** Coherent with **053** (no `.planning` in `package[:links]`) and **054** (link hygiene).
+**Notes:** Coherent with **053** (no `.planning` in `package[:links]`) and **054** (link hygiene). Repo had **no `SECURITY.md`** at context time — **055-CONTEXT** D-14: add it in phase 55 if still absent.
 
 ---
 
