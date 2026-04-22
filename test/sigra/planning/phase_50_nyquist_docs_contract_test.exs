@@ -79,10 +79,15 @@ defmodule Sigra.Planning.Phase50NyquistDocsContractTest do
     assert p44 =~ "44-VERIFICATION"
   end
 
-  test "50-02 plan: 50-VERIFICATION exists with merge gate block and draft posture until run" do
+  test "50-02 plan: 50-VERIFICATION merge gate receipt vs passed posture" do
     body = read!(".planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md")
     assert body =~ "mix ci.install_golden"
     assert body =~ "git rev-parse HEAD"
-    assert body =~ "status: draft"
+
+    if body =~ ~r/^status: passed/m do
+      assert body =~ "PASS"
+    else
+      assert body =~ ~r/^status: draft/m
+    end
   end
 end
