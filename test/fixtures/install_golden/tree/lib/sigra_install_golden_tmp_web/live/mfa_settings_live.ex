@@ -25,7 +25,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
     mfa_status = Auth.mfa_status(user)
-
     passkeys = Auth.passkeys_for_user(user)
     passkey_count = Auth.passkey_count_for_user(user)
 
@@ -214,21 +213,17 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
 
         <% # Backup codes display (after regeneration) %>
         <div :if={@enrollment_step == :backup_codes} class="mt-6">
-          <%= render_backup_codes(assigns) %>
+          {render_backup_codes(assigns)}
         </div>
-
       <% else %>
         <% # Surface 2: TOTP Enrollment %>
         <%= case @enrollment_step do %>
           <% nil -> %>
-            <%= render_enrollment_start(assigns) %>
-
+            {render_enrollment_start(assigns)}
           <% :qr -> %>
-            <%= render_enrollment_qr(assigns) %>
-
+            {render_enrollment_qr(assigns)}
           <% :backup_codes -> %>
-            <%= render_enrollment_backup_codes(assigns) %>
-
+            {render_enrollment_backup_codes(assigns)}
           <% :done -> %>
             <div class="text-center py-8">
               <.icon name="hero-check-circle" class="h-12 w-12 text-green-500 mx-auto" />
@@ -240,9 +235,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         <% end %>
       <% end %>
 
-
-      <%= render_passkeys_section(assigns) %>
-
+      {render_passkeys_section(assigns)}
     </div>
     """
   end
@@ -275,7 +268,12 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
         class="hidden"
       />
 
-      <form id="passkey-registration-form" action={~p"/users/settings/mfa/passkeys"} method="post" class="hidden">
+      <form
+        id="passkey-registration-form"
+        action="/users/settings/mfa/passkeys"
+        method="post"
+        class="hidden"
+      >
         <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
         <input type="hidden" name="passkey[response]" id="passkey-registration-response" />
       </form>
@@ -306,8 +304,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                 </div>
 
                 <p class="mt-1 text-sm text-gray-500">
-                  Added {relative_time(passkey.inserted_at)}
-                  &middot;
+                  Added {relative_time(passkey.inserted_at)} &middot;
                   <%= if passkey.last_used_at do %>
                     Last used {relative_time(passkey.last_used_at)}
                   <% else %>
@@ -323,7 +320,10 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                   >
                     <input type="hidden" name="passkey[id]" value={passkey.credential_id} />
                     <div class="flex-1">
-                      <label for={"passkey-name-#{passkey.credential_id}"} class="block text-sm font-semibold">
+                      <label
+                        for={"passkey-name-#{passkey.credential_id}"}
+                        class="block text-sm font-semibold"
+                      >
                         Passkey name
                       </label>
                       <input
@@ -335,7 +335,10 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                       />
                     </div>
                     <div class="flex gap-2">
-                      <button type="submit" class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md">
+                      <button
+                        type="submit"
+                        class="text-sm text-white bg-brand hover:bg-brand/90 px-3 py-1.5 rounded-md"
+                      >
                         Save name
                       </button>
                       <button
@@ -349,7 +352,10 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                   </.form>
                 </div>
 
-                <div :if={@deleting_passkey_id == passkey.credential_id} class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+                <div
+                  :if={@deleting_passkey_id == passkey.credential_id}
+                  class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3"
+                >
                   <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
                   <p class="mt-1 text-sm text-red-700">
                     Delete this passkey? You'll still need another sign-in method before removing your last recovery option.
@@ -359,9 +365,19 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                   </p>
 
                   <div class="mt-3 flex items-center gap-2">
-                    <form action={~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"} method="post">
-                      <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
-                      <button type="submit" class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md">
+                    <form
+                      action={"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"}
+                      method="post"
+                    >
+                      <input
+                        type="hidden"
+                        name="_csrf_token"
+                        value={Phoenix.Controller.get_csrf_token()}
+                      />
+                      <button
+                        type="submit"
+                        class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md"
+                      >
                         Delete
                       </button>
                     </form>
@@ -499,7 +515,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   defp render_enrollment_backup_codes(assigns) do
     ~H"""
     <div>
-      <%= render_backup_codes(assigns) %>
+      {render_backup_codes(assigns)}
     </div>
     """
   end
@@ -542,8 +558,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
           data-codes={Enum.join(@backup_codes, "\n")}
           class="inline-flex items-center gap-1 text-sm text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 px-3 py-1.5 rounded-md"
         >
-          <.icon name="hero-arrow-down-tray" class="h-4 w-4" />
-          Download .txt
+          <.icon name="hero-arrow-down-tray" class="h-4 w-4" /> Download .txt
         </button>
       </div>
 
@@ -555,8 +570,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
             phx-click="toggle_acknowledge"
             checked={@codes_acknowledged}
             class="rounded border-gray-300"
-          />
-          I have saved these backup codes in a safe place
+          /> I have saved these backup codes in a safe place
         </label>
       </div>
 
@@ -638,8 +652,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
      socket
      |> assign(passkey_status: :enrolling, passkey_notice: nil)
      |> push_event("sigra:passkey-register:start", %{
-       optionsUrl: ~p"/users/settings/mfa/passkeys/options",
-       completeUrl: ~p"/users/settings/mfa/passkeys"
+       optionsUrl: "/users/settings/mfa/passkeys/options",
+       completeUrl: "/users/settings/mfa/passkeys"
      })}
   end
 
@@ -729,7 +743,9 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
          "You can't change account security settings while impersonating."
        )}
     else
-      case Auth.rename_passkey(user, credential_id, nickname || "") do
+      case Auth.rename_passkey(user, credential_id, nickname || "",
+             scope: socket.assigns.current_scope
+           ) do
         {:ok, _passkey} ->
           {:noreply,
            socket
@@ -738,6 +754,14 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
            |> assign(
              renaming_passkey_id: nil,
              rename_form: to_form(%{"nickname" => ""}, as: "passkey")
+           )}
+
+        {:error, :impersonation_forbidden} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             "You can't change account security settings while impersonating."
            )}
 
         {:error, _reason} ->
@@ -932,13 +956,6 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     end
   end
 
-  defp impersonating?(socket) do
-    match?(
-      %{impersonating_from: impersonator} when not is_nil(impersonator),
-      socket.assigns.current_scope
-    )
-  end
-
   defp passkey_error_bucket(payload) when is_map(payload) do
     payload
     |> Map.take(["code", "name", "message"])
@@ -971,6 +988,13 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
     assign(socket,
       passkeys: Auth.passkeys_for_user(user),
       passkey_count: Auth.passkey_count_for_user(user)
+    )
+  end
+
+  defp impersonating?(socket) do
+    match?(
+      %{impersonating_from: impersonator} when not is_nil(impersonator),
+      socket.assigns.current_scope
     )
   end
 

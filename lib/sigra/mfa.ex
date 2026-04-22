@@ -318,12 +318,12 @@ defmodule Sigra.MFA do
                         end
                       )
                     )
-                    |> Multi.merge(fn m, %{lockout_inc: inc} ->
+                    |> Multi.merge(fn %{lockout_inc: inc} ->
                       if inc.locked do
                         duration = Keyword.get(config.mfa, :lockout_duration, 900)
 
                         Sigra.Audit.log_multi_safe(
-                          m,
+                          Multi.new(),
                           "mfa.lockout",
                           Keyword.merge(mfa_audit_opts(config),
                             actor_id: user.id,
@@ -334,7 +334,7 @@ defmodule Sigra.MFA do
                           )
                         )
                       else
-                        m
+                        Multi.new()
                       end
                     end)
 
@@ -686,12 +686,12 @@ defmodule Sigra.MFA do
                         end
                       )
                     )
-                    |> Multi.merge(fn m, %{lockout_inc: inc} ->
+                    |> Multi.merge(fn %{lockout_inc: inc} ->
                       if inc.locked do
                         duration = Keyword.get(config.mfa, :lockout_duration, 900)
 
                         Sigra.Audit.log_multi_safe(
-                          m,
+                          Multi.new(),
                           "mfa.lockout",
                           Keyword.merge(mfa_audit_opts(config),
                             actor_id: user.id,
@@ -702,7 +702,7 @@ defmodule Sigra.MFA do
                           )
                         )
                       else
-                        m
+                        Multi.new()
                       end
                     end)
 
