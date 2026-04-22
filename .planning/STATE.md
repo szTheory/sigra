@@ -22,7 +22,7 @@ See: `.planning/PROJECT.md` (updated 2026-04-21)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 50 — Nyquist validation and CI gate hygiene
+**Current focus:** Phase 51 — Install golden receipt & CI merge coupling
 
 ## Current Position
 
@@ -62,12 +62,12 @@ Stopped at: Phase 50 context gathered
 
 Resume file: --resume-file
 
-**Next phase:** **50** — Nyquist validation and CI gate hygiene (see `.planning/ROADMAP.md`)
+**Next phase:** **51** — Install golden receipt & CI merge coupling (see `.planning/ROADMAP.md`)
 
-**Completed Phase:** 52 (roadmap-nyquist-milestone-honesty) — 2 plans — execution 2026-04-22
+**Completed Phase:** 50 (nyquist-ci-gate-hygiene) — 2 plans — bookkeeping close 2026-04-21
 
-**Prior:** 49 (phase-45-verification-aud08-c1) — 2026-04-21
+**Prior:** 52 (roadmap-nyquist-milestone-honesty) — 2026-04-22
 
-**Planned focus:** Phases **50–51** open on ROADMAP — Nyquist batch **41–44**, install-golden / CI coupling.
+**Planned focus:** Phase **51** on ROADMAP — install-golden / CI coupling and **`50-VERIFICATION.md`** attestation alignment.
 
-**Planned Phase:** 50 (Nyquist validation & CI gate hygiene) — 2 plans — 2026-04-22T03:10:16.272Z
+**Planned Phase:** 51 (install-golden-ci-merge-gate) — see `.planning/ROADMAP.md`
