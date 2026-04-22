@@ -11,7 +11,7 @@ This milestone **does not** expand core auth product scope. It prepares **Hex/RE
 
 ## Package & Hex (PUB)
 
-- [ ] **PUB-01**: **`mix.exs`** package description, links, and maintainers metadata accurately reflect **shipped** capabilities through **v1.4** (no dead claims; optional deps called out honestly).
+- [x] **PUB-01**: **`mix.exs`** package description, links, and maintainers metadata accurately reflect **shipped** capabilities through **v1.4** (no dead claims; optional deps called out honestly). *Shipped in phase 53 (2026-04-22); `:maintainers` omitted per Hex deprecation; announcement-safe copy sign-off is human (PR / `/gsd-verify-work`).*
 - [ ] **PUB-02**: **`CHANGELOG.md`** includes readable **milestone anchors** for **v1.3**, **v1.4**, and prior major lines (or explicit “see git tags / MILESTONES” pointer if changelog stays minimal — must be a deliberate maintainer choice, not drift).
 
 ---
@@ -49,7 +49,7 @@ This milestone **does not** expand core auth product scope. It prepares **Hex/RE
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PUB-01 | 53 | Pending |
+| PUB-01 | 53 | Complete |
 | PUB-02 | 54 | Pending |
 | DOC-01 | 55 | Pending |
 | DOC-02 | 55 | Pending |

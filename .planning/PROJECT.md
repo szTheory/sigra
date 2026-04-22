@@ -22,6 +22,8 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
+**v1.5 (in progress):** Phase **53** complete (2026-04-22) — **`mix.exs`** Hex `description`, `package[:links]` (including hexdocs), and ExDoc publish note (**PUB-01**). Next: changelog anchors (**54**), README/docs entry (**55**), announcement checklist (**56**).
+
 **Shipped:** **v1.4 GA readiness & audit trail completeness** (2026-04-22) — Phases **41–52**: backup-code rotation (**GA-01**), GA matrix with executed/waived rows and evidence (**GA-02..GA-05**), audit inventory + prioritized **`log_safe/3` → `Ecto.Multi`** batches through **OAuth/ops** (**AUD-04..AUD-08**) with formal **43/44/45 `*-VERIFICATION.md`** gates, **Nyquist + install-golden CI** policy (**50–51**), and **ROADMAP / milestone honesty** guardrails (**52**). Archives: `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`.
 
 **Previously shipped:** v1.3 Cleanup & Hardening (2026-04-19); v1.2 Admin Dashboard (2026-04-17); v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
@@ -285,4 +287,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **`/gsd-new-milestone`**: started **v1.5 Public release narrative & community readiness** (phases **53–56** on `.planning/ROADMAP.md`). Tag **`v1.4`** pushed to `origin`.*
+*Last updated: 2026-04-22 — **v1.5**: phase **53** (PUB-01 Hex metadata) executed; **`/gsd-new-milestone`** previously started v1.5 (phases **53–56**). Tag **`v1.4`** on `origin`.*

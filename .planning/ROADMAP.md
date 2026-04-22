@@ -25,7 +25,7 @@ At a glance: **41** backup-code rotation (**GA-01**); **42** GA matrix scaffold;
 
 | Phase | Name | Goal | Requirements | Success criteria (observable) |
 |-------|------|------|--------------|------------------------------|
-| **53** | Package & Hex metadata | Align **Hex / mix.exs** public surface with shipped **v1.0–v1.4** reality | PUB-01 | (1) Package description + links audited vs feature list. (2) Optional vs core deps called out. (3) Maintainer agrees text is announcement-safe. |
+| ✅ **53** | Package & Hex metadata | Align **Hex / mix.exs** public surface with shipped **v1.0–v1.4** reality | PUB-01 | **Complete 2026-04-22** — `mix.exs` description + links; see [`phases/053-package-hex-metadata/053-01-SUMMARY.md`](phases/053-package-hex-metadata/053-01-SUMMARY.md). (3) Maintainer sign-off via PR or `/gsd-verify-work`. |
 | **54** | Changelog & milestone anchors | **`CHANGELOG.md`** tells a coherent version story through **v1.4** | PUB-02 | (1) Entries or explicit pointers for v1.3 / v1.4 ship boundaries. (2) No contradictory claims vs `MILESTONES.md`. (3) CI/docs unchanged or greener. |
 | **55** | README & ExDoc entry paths | Readers find **GA / audit posture** from repo + docs home | DOC-01, DOC-02 | (1) README links v1.4 evidence bundle with honest **Executed/Waived** framing. (2) `mix docs` landing path documented in phase summary. (3) `mix docs --warnings-as-errors` clean if touched. |
 | **56** | Maintainer announcement checklist | **`MAINTAINING.md`** runbook for first loud public push | MAINT-01 | (1) Ordered checklist with owners. (2) References install-golden / GA matrix where relevant. (3) Optional human rows clearly marked optional. |
