@@ -68,5 +68,6 @@ created: 2026-04-20
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
 - [ ] `nyquist_compliant: true` set in frontmatter when phase verified
+- Post **phase 50**, the root Mix alias **`mix ci.install_golden`** (see **`mix.exs`** → **`ci.install_golden`**) is the cited contract for the installer subprocess harness covering **`test/sigra/install/golden_diff_test.exs`** and **`test/sigra/install/idempotency_test.exs`**; CI mirrors it via job **`install_golden_contract`** (see **`MAINTAINING.md`**).
 
 **Approval:** pending
