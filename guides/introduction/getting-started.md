@@ -1,4 +1,4 @@
-> **Reading map:** [GA evidence & audit posture](ga-evidence.html) · [Maintaining & releasing](maintaining.html) · [Audit semantics](audit-semantics.html) · [Contributing](contributing.html) · [Security policy](security.html)
+> **Reading map:** [GA evidence & audit posture](../../docs/ga-evidence.md) · [Maintaining & releasing](../../MAINTAINING.md) · [Audit semantics](../../docs/audit-semantics.md) · [Contributing](../../CONTRIBUTING.md) · [Security policy](../../SECURITY.md)
 
 # Getting Started
 
