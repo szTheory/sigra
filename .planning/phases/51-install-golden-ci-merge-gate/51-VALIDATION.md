@@ -32,10 +32,10 @@ created: 2026-04-21
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 51-01-01 | 01 | 1 | ROADMAP (2) CI coupling | T-51-01 | Path gate cannot silently shrink vs documented regex | unit | `mix test test/sigra/planning/phase_51_install_golden_ci_contract_test.exs` | ✅ | ⬜ pending |
-| 51-01-02 | 01 | 1 | ROADMAP (2) parity | T-51-02 | Both jobs use identical diff detector | unit | same | ✅ | ⬜ pending |
-| 51-02-01 | 02 | 1 | ROADMAP (1) receipt | T-51-03 | Verification doc cannot claim PASS without grep token | unit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs` (updated) | ✅ | ⬜ pending |
-| 51-02-02 | 02 | 1 | ROADMAP (3) GA cross-link | T-51-04 | Waived GA rows reference installer substitute | grep | `rg -n "install_golden|ci.install_golden" MAINTAINING.md .planning/v1.4-GA-UAT.md` | ✅ | ⬜ pending |
+| 51-01-01 | 01 | 1 | ROADMAP (2) CI coupling | T-51-01 | Path gate cannot silently shrink vs documented regex | unit | `mix test test/sigra/planning/phase_51_install_golden_ci_contract_test.exs` | ✅ | ✅ |
+| 51-01-02 | 01 | 1 | ROADMAP (2) parity | T-51-02 | Both jobs use identical diff detector | unit | same | ✅ | ✅ |
+| 51-02-01 | 02 | 1 | ROADMAP (1) receipt | T-51-03 | Verification doc cannot claim PASS without grep token | unit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs` (updated) | ✅ | ✅ |
+| 51-02-02 | 02 | 1 | ROADMAP (3) GA cross-link | T-51-04 | Waived GA rows reference installer substitute | grep | `rg -n "install_golden|ci.install_golden" MAINTAINING.md .planning/v1.4-GA-UAT.md` | ✅ | ✅ |
 
 ## Wave 0 Requirements
 
@@ -49,9 +49,9 @@ Existing infrastructure covers all phase requirements — no Wave 0 stubs.
 
 ## Validation Sign-Off
 
-- [ ] All tasks have automated verify or documented manual merge gate
-- [ ] Sampling continuity: structural tests after YAML edits
+- [x] All tasks have automated verify or documented manual merge gate (structural + docs delivered; merge gate receipt **open** — see `51-VERIFICATION.md` gaps)
+- [x] Sampling continuity: structural tests after YAML edits
 - [ ] `50-VERIFICATION.md` **PASS** line present before `status: passed`
 - [ ] `nyquist_compliant: true` set in frontmatter only when map above is ✅
 
-**Approval:** pending
+**Approval:** partial — merge gate **draft** until maintainer records **PASS** or CI receipt
