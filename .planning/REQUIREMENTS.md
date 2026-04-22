@@ -63,14 +63,14 @@ _v1.3 delivered **AUD-01..03** in the archived sense (`Sigra.Audit.Assertions`, 
 | AUD-07 | 48 | Complete (2026-04-21) |
 | AUD-08 | 49 | Complete (2026-04-21) |
 
-**Milestone process (no discrete REQ-ID):** Phase **50** — Nyquist validation sweep (**41–44**) and CI gate hygiene from `v1.4-MILESTONE-AUDIT.md` tech_debt (golden_diff / long `mix test` policy).
+**Milestone process (no discrete REQ-ID):** Phases **50–52** — Phase **50** owns Nyquist + long-budget CI hygiene; **51–52** close integration/flow gaps from **`/gsd-plan-milestone-gaps`** on `v1.4-MILESTONE-AUDIT.md` (install golden receipt + CI coupling in **51**; ROADMAP / Nyquist presentation honesty in **52**). Discrete REQ-IDs **GA-01..AUD-08** remain **Complete** / **Waived** as already recorded above.
 
 **Coverage:**
 
 - v1.4 requirements: **10** total  
 - Mapped to phases: **10**  
 - Unmapped: **0**  
-- Gap-closure process phases: **50** (see above)
+- Gap-closure process phases: **50–52** (see above)
 
 ---
 
