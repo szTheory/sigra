@@ -34,7 +34,15 @@ defmodule Sigra.MixProject do
         &String.starts_with?(&1, "test/fixtures/")
       ],
       name: "Sigra",
-      description: "Comprehensive authentication library for Phoenix 1.8+",
+      description: """
+      Authentication library for Phoenix 1.8+ and Ecto with Mix generators for host-owned schemas, routes, and LiveViews.
+
+      Passwords (Argon2id), database-backed sessions, TOTP (NimbleTOTP), WebAuthn/passkeys (wax_), field encryption (cloak_ecto), and audit-oriented APIs ship with the default dependency set.
+
+      OAuth/social strategies (Assent), mailers (Swoosh), background workers (Oban), rate limiting (Hammer), JWT helpers (Joken), bcrypt-hash verification (bcrypt_elixir), and QR enrollment helpers (eqrcode) are available only when the host application adds those optional dependencies to its own mix.exs.
+
+      See https://hexdocs.pm/sigra and the repository README for installation options and threat-model nuance.
+      """,
       source_url: @source_url,
       homepage_url: @source_url,
       package: package(),
