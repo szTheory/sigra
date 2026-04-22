@@ -144,8 +144,9 @@ defmodule Sigra.MixProject do
     [
       licenses: ["MIT"],
       links: %{
-        "GitHub" => @source_url,
-        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md",
+        "Documentation" => "https://hexdocs.pm/sigra",
+        "GitHub" => @source_url
       },
       files: ~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
@@ -154,6 +155,7 @@ defmodule Sigra.MixProject do
   defp docs do
     [
       main: "getting-started",
+      # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
       formatters: ["html", "markdown"],
