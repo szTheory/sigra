@@ -36,6 +36,6 @@ PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/
 
 ## Notes
 
-- Git SHA for this update: `git rev-parse HEAD` → `d785d3a3c4315dd9195505c0937f37c1664e28ca`.
+- Phase 51 executor: `git rev-parse HEAD` at verification edit time should be read from the branch tip (this file intentionally does not embed a self-referential commit id).
 - **Draft reason (Phase 51):** Same local stall class as the prior note. No fabricated **PASS** — maintainer should rerun the merge gate locally with a warm Hex cache **or** paste a successful GitHub Actions **`install_golden_contract`** run link + run id once that job is present on the default branch workflow.
 
