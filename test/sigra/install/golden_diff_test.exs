@@ -177,11 +177,40 @@ defmodule Sigra.Install.GoldenDiffTest do
         Content differs at #{path}:
 
         #{render_diff(expected_content, actual_content)}
+
+        sizes: expected #{byte_size(expected_content)} bytes, actual #{byte_size(actual_content)} bytes
+        first_mismatch: #{first_mismatch_offset(expected_content, actual_content)}
         """)
       end
     end
 
     :ok
+  end
+
+  defp first_mismatch_offset(a, b) do
+    max_i = min(byte_size(a), byte_size(b)) - 1
+
+    case max_i do
+      x when x < 0 ->
+        "n/a (one side empty)"
+
+      _ ->
+        case Enum.find(0..max_i, fn i -> binary_part(a, i, 1) != binary_part(b, i, 1) end) do
+          nil ->
+            "eof (one side longer)"
+
+          i ->
+            lo = max(0, i - 12)
+            la = min(byte_size(a), i + 12) - lo
+            lb = min(byte_size(b), i + 12) - lo
+
+            """
+            byte offset #{i}
+              expected: #{inspect(binary_part(a, lo, la), binaries: :as_binaries)}
+              actual:   #{inspect(binary_part(b, lo, lb), binaries: :as_binaries)}
+            """
+        end
+    end
   end
 
   defp render_diff(expected, actual) do
