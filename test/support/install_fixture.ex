@@ -371,8 +371,8 @@ defmodule Sigra.Test.InstallFixture do
   Normalizes installer-owned file contents for golden-diff comparison.
 
   Applies deterministic `config/*.exs` salt placeholders, strips trailing
-  whitespace on each line (Phoenix template drift), then trims trailing
-  Unicode whitespace on the whole file and ends with exactly one `\\n`.
+  whitespace on each line (Phoenix template drift),   then strips trailing format chars / separators / whitespace with
+  `~r/[\\p{Cf}\\p{Zs}\\s]+\\z/u` and ends with exactly one `\\n`.
   """
   @spec normalize_content_for_golden(String.t(), binary()) :: binary()
   def normalize_content_for_golden(rel, content) do
@@ -402,9 +402,10 @@ defmodule Sigra.Test.InstallFixture do
       end
 
     if String.starts_with?(rel, "config/") do
-      # Strip all trailing Unicode whitespace (phx.new occasionally leaves
-      # stray spaces after the final newline).
-      String.trim_trailing(content) <> "\n"
+      # Strip trailing format chars (e.g. U+200B), separators, and ASCII
+      # whitespace — phx.new / editor drift occasionally leaves these after
+      # the logical end of `config/*.exs`.
+      Regex.replace(~r/[\p{Cf}\p{Zs}\s]+\z/u, content, "") <> "\n"
     else
       String.trim_trailing(content, "\n") <> "\n"
     end
