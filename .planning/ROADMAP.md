@@ -30,6 +30,20 @@ At a glance: **41** backup-code rotation (**GA-01**); **42** GA matrix scaffold;
 | ✅ **55** | README & ExDoc entry paths | Readers find **GA / audit posture** from repo + docs home | DOC-01, DOC-02 | **Complete 2026-04-22** — README GA block + `SECURITY.md` + `docs/ga-evidence.md` + ExDoc extras + getting-started reading map; `mix docs --warnings-as-errors` clean; see [`055-01-SUMMARY.md`](phases/055-readme-exdoc-entry-paths/055-01-SUMMARY.md) and [`055-02-SUMMARY.md`](phases/055-readme-exdoc-entry-paths/055-02-SUMMARY.md). |
 | **56** | Maintainer announcement checklist | **`MAINTAINING.md`** runbook for first loud public push | MAINT-01 | (1) Ordered checklist with owners. (2) References install-golden / GA matrix where relevant. (3) Optional human rows clearly marked optional. |
 
+### Phase 56: Maintainer announcement checklist
+
+**Goal:** Add a concise **“First public announcement”** checklist to **`MAINTAINING.md`** (MAINT-01) — ordered steps with owners, aligned with shipped GA / audit evidence.
+
+**Requirements:** MAINT-01 (see `.planning/REQUIREMENTS.md`)
+
+**Success Criteria:**
+
+1. Ordered checklist with owners.
+2. References **install-golden** / **GA matrix** evidence where relevant (`install_golden_contract`, `.planning/v1.4-GA-UAT.md`, related docs).
+3. Optional human rows clearly marked **optional** when v1.4 waivers still apply.
+
+**Canonical refs:** `.planning/REQUIREMENTS.md`, `.planning/v1.4-GA-UAT.md`, `MAINTAINING.md`, `.planning/milestones/v1.4-REQUIREMENTS.md`
+
 ## Backlog (parking lot — not v1.5 unless promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
