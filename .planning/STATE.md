@@ -4,12 +4,12 @@ milestone: v1.5
 milestone_name: unless promoted)
 status: planning
 stopped_at: Phase 055 context gathered
-last_updated: "2026-04-22T12:04:02.925Z"
+last_updated: "2026-04-22T12:16:42.244Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 49
   completed_phases: 44
-  total_plans: 155
+  total_plans: 157
   completed_plans: 160
   percent: 100
 ---
@@ -70,4 +70,4 @@ Resume file: --resume-file
 
 **Planned focus:** See `.planning/ROADMAP.md` → **Phases (v1.5)**
 
-**Planned Phase:** 55 (README & ExDoc entry paths) — see ROADMAP for plan count when planned
+**Planned Phase:** 55 (README & ExDoc entry paths) — 2 plans — 2026-04-22T12:16:42.236Z
