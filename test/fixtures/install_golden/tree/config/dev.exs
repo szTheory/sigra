@@ -88,7 +88,6 @@ config :phoenix_live_view,
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
-
 # Sigra email delivery (dev) — adapter is set on the raw Swoosh.Mailer
 # module, not the Sigra.Mailer behaviour wrapper.
 config :sigra_install_golden_tmp, SigraInstallGoldenTmp.Mailer, adapter: Swoosh.Adapters.Local

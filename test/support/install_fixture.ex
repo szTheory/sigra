@@ -370,9 +370,9 @@ defmodule Sigra.Test.InstallFixture do
   @doc """
   Normalizes installer-owned file contents for golden-diff comparison.
 
-  Applies deterministic `config/*.exs` salt placeholders and canonicalizes
-  trailing newlines so Phoenix / installer drift in final `\\n` count does not
-  break byte-stable fixtures.
+  Applies deterministic `config/*.exs` salt placeholders, strips trailing
+  whitespace on each line (Phoenix template drift), and canonicalizes the
+  final newline so installer comparisons stay byte-stable.
   """
   @spec normalize_content_for_golden(String.t(), binary()) :: binary()
   def normalize_content_for_golden(rel, content) do
@@ -385,6 +385,11 @@ defmodule Sigra.Test.InstallFixture do
           ~r/live_view: \[signing_salt: "[^"]+"\]/,
           ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
         )
+        # Phoenix generator output occasionally drifts on trailing spaces per
+        # line; strip so golden bytes stay stable across patch releases.
+        |> String.split("\n")
+        |> Enum.map(&String.trim_trailing/1)
+        |> Enum.join("\n")
       else
         content
       end
