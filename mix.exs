@@ -13,6 +13,7 @@ defmodule Sigra.MixProject do
       elixirc_options: elixirc_options(),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      aliases: aliases(),
       # test_load_filters: tells `mix test` which files to load via require.
       # We use a negative lookahead to keep root `mix test` out of:
       #   - test/example/ — the example app subproject (plan 10-06), its own Mix project
@@ -33,7 +34,15 @@ defmodule Sigra.MixProject do
         &String.starts_with?(&1, "test/fixtures/")
       ],
       name: "Sigra",
-      description: "Comprehensive authentication library for Phoenix 1.8+",
+      description: """
+      Authentication library for Phoenix 1.8+ and Ecto with Mix generators for host-owned schemas, routes, and LiveViews.
+
+      Passwords (Argon2id), database-backed sessions, TOTP (NimbleTOTP), WebAuthn/passkeys (wax_), field encryption (cloak_ecto), and audit-oriented APIs ship with the default dependency set.
+
+      OAuth/social strategies (Assent), mailers (Swoosh), background workers (Oban), rate limiting (Hammer), JWT helpers (Joken), bcrypt-hash verification (bcrypt_elixir), and QR enrollment helpers (eqrcode) are available only when the host application adds those optional dependencies to its own mix.exs.
+
+      See https://hexdocs.pm/sigra and the repository README for installation options and threat-model nuance.
+      """,
       source_url: @source_url,
       homepage_url: @source_url,
       package: package(),
@@ -119,12 +128,25 @@ defmodule Sigra.MixProject do
     ]
   end
 
+  # ci: audit_45 — single scoped `mix test …` bundle (matches 45-06-SUMMARY; no bare root `mix test`).
+  defp aliases do
+    [
+      "ci.audit_45": [
+        "test test/sigra/oauth/ test/sigra/workers/account_deletion_test.exs test/sigra/account/deletion_test.exs test/sigra/account_audit_atomicity_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs test/sigra/impersonation_test.exs test/sigra/suspicious_login_test.exs test/sigra/lockout_test.exs test/sigra/mfa_audit_atomicity_test.exs test/sigra/api_token_audit_atomic_test.exs"
+      ],
+      "ci.install_golden": [
+        "test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs"
+      ]
+    ]
+  end
+
   defp package do
     [
       licenses: ["MIT"],
       links: %{
-        "GitHub" => @source_url,
-        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md",
+        "Documentation" => "https://hexdocs.pm/sigra",
+        "GitHub" => @source_url
       },
       files: ~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
@@ -133,12 +155,14 @@ defmodule Sigra.MixProject do
   defp docs do
     [
       main: "getting-started",
+      # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
       formatters: ["html", "markdown"],
       extras: [
         "README.md",
         "CONTRIBUTING.md",
+        "SECURITY.md",
         "MAINTAINING.md",
         "LICENSE",
         "CHANGELOG.md",
@@ -154,6 +178,8 @@ defmodule Sigra.MixProject do
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",
         "docs/audit-semantics.md",
+        "docs/uat-ci-coverage.md",
+        "docs/ga-evidence.md",
         "docs/NEXT-STEPS-MANUAL.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
@@ -166,7 +192,7 @@ defmodule Sigra.MixProject do
         Introduction: ~r{guides/introduction/.?},
         Flows: ~r{guides/flows/.?},
         Recipes: ~r{guides/recipes/.?},
-        Docs: ~r{^docs/}
+        Docs: ~r{^docs/|^SECURITY\.md$}
       ],
       groups_for_modules: [
         Core: [Sigra, Sigra.Auth, Sigra.Config, Sigra.Crypto],

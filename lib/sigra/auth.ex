@@ -145,28 +145,18 @@ defmodule Sigra.Auth do
           {:ok, struct()} | {:error, Ecto.Changeset.t()} | {:error, :email_taken}
   def register(repo, attrs, opts \\ []) do
     Telemetry.span([:sigra, :auth, :register], %{}, fn ->
-      # D-26: audit integration. Uses Sigra.Audit.log_safe/2 (standalone, D-28)
-      # which no-ops if the host app has not configured :audit_schema. When
-      # audit is enabled, the audit row is written in its own transaction
-      # after the business op. Not fully atomic with the user insert yet.
+      # D-26: audit integration. When `:audit_schema` is present in opts,
+      # `auth.register.success` is appended to `register_user_multi/2` via
+      # `Audit.log_multi_safe/3` so the audit row shares the same transaction
+      # as the `:user` insert. Failure paths remain standalone `log_safe/3`.
       audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
 
       attrs
       |> register_user_multi(opts)
       |> repo.transact()
       |> case do
-        {:ok, %{user: user}} ->
-          # 15-02 Category 2: registered user is resolved — build user-only
-          # scope (org intentionally nil; new accounts have no org yet).
-          Audit.log_safe(
-            "auth.register.success",
-            Sigra.Scope.from_opts(opts, user),
-            Keyword.merge(audit_opts,
-              actor_id: user.id,
-              target_id: user.id,
-              metadata: %{method: "password"}
-            )
-          )
+        {:ok, %{user: user} = changes} ->
+          Audit.emit_telemetry_from_changes(changes)
 
           Telemetry.event([:sigra, :auth, :register, :stop], %{}, %{user_id: user.id})
           {:ok, user}
@@ -208,8 +198,10 @@ defmodule Sigra.Auth do
   Pure `Ecto.Multi` builder for user registration.
 
   Returns a multi with a `:user` step that inserts the user via the
-  configured `:changeset_fn`. Makes ZERO Repo calls — composable via
-  `Ecto.Multi.append/2`. Intended for use by
+  configured `:changeset_fn`. When `:audit_schema` is set (see
+  `audit_opts_from_keyword/1`), appends `auth.register.success` via
+  `Audit.log_multi_safe/3` in the same Multi. Makes ZERO Repo calls during
+  construction — composable via `Ecto.Multi.append/2`. Intended for use by
   `Sigra.Organizations.Invitations.accept_with_signup/3` (Phase 17 D-07)
   to atomically compose signup + confirm + membership + accept.
 
@@ -231,9 +223,27 @@ defmodule Sigra.Auth do
   @spec register_user_multi(map(), keyword()) :: Ecto.Multi.t()
   def register_user_multi(attrs, opts) when is_map(attrs) and is_list(opts) do
     changeset_fn = Keyword.fetch!(opts, :changeset_fn)
+    audit_opts = audit_opts_from_keyword(opts)
 
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:user, changeset_fn.(attrs))
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.insert(:user, changeset_fn.(attrs))
+
+    case Keyword.get(audit_opts, :audit_schema) do
+      nil ->
+        multi
+
+      _ ->
+        Audit.log_multi_safe(
+          multi,
+          "auth.register.success",
+          Keyword.merge(audit_opts,
+            actor_resolver: fn %{user: u} -> u.id end,
+            target_resolver: fn %{user: u} -> u.id end,
+            metadata: %{method: "password"}
+          )
+        )
+    end
   end
 
   # --- Audit integration helpers (Plan 09-03) ---
@@ -245,18 +255,17 @@ defmodule Sigra.Auth do
   #
   # D-26 dispatch table (auth.* operations in this module):
   #
-  #   register success    -> Sigra.Audit.log_safe("auth.register.success", nil, ...)
-  #                          Sigra.Audit.__log_internal__ (future Multi form)
+  #   register success    -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set;
+  #                          otherwise no success audit row from register/3
   #   register failure    -> Sigra.Audit.log_safe("auth.register.failure", nil, ...)
-  #   login success       -> Sigra.Audit.log_safe("auth.login.success", nil, ...)
+  #   login success       -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema + confirmed;
+  #                          else log_safe for unconfirmed pre-check path
   #                          Sigra.Audit.__log_internal__ (future Multi form)
   #   login failure       -> Sigra.Audit.log_safe("auth.login.failure", nil, ...)
   #                          (non-Multi, standalone per D-28)
-  #   magic_link_request  -> Sigra.Audit.log_safe("auth.magic_link_request", nil, ...)
-  #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   magic_link_verify   -> Sigra.Audit.log_safe("auth.magic_link_verify.success", nil, ...)
-  #                          Sigra.Audit.__log_internal__ (future Multi form)
-  #   password_reset_req  -> Sigra.Audit.log_safe("auth.password_reset_request", nil, ...)
+  #   magic_link_request  -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set
+  #   magic_link_verify   -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set
+  #   password_reset_req  -> Sigra.Audit.log_multi_safe (Multi) when :audit_schema set
   #   password_reset done -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation link   -> Sigra.Audit.__log_internal__ (Multi, atomic)
   #   confirmation code   -> Sigra.Audit.__log_internal__ (Multi, atomic)
@@ -282,6 +291,22 @@ defmodule Sigra.Auth do
       user_agent: Keyword.get(extra, :user_agent)
     ]
   end
+
+  defp audit_scope_column_opts(nil),
+    do: [organization_id: nil, effective_user_id: nil, actor_id: nil]
+
+  defp audit_scope_column_opts(%{user: user} = scope) do
+    org = Map.get(scope, :active_organization)
+    actor = Map.get(scope, :impersonating_from) || user
+
+    [
+      organization_id: org && org.id,
+      effective_user_id: user && user.id,
+      actor_id: actor && actor.id
+    ]
+  end
+
+  defp audit_scope_column_opts(_), do: audit_scope_column_opts(nil)
 
   @doc """
   Authenticates a user by email and password.
@@ -345,6 +370,110 @@ defmodule Sigra.Auth do
     end
   end
 
+  defp login_success_repo_and_audit_multi(config, user, extra_changes, audit_opts, metadata) do
+    base_audit =
+      Keyword.merge(
+        audit_opts,
+        audit_scope_column_opts(Sigra.Scope.from_config(config, user))
+      )
+
+    Multi.new()
+    |> Multi.run(:login_repo_work, fn r, _changes ->
+      u = Sigra.Lockout.reset!(r, user)
+
+      if map_size(extra_changes) > 0 do
+        cs = Ecto.Changeset.change(u, extra_changes)
+
+        case r.update(cs) do
+          {:ok, u2} -> {:ok, u2}
+          {:error, _} -> {:ok, u}
+        end
+      else
+        {:ok, u}
+      end
+    end)
+    |> Audit.log_multi_safe(
+      "auth.login.success",
+      Keyword.merge(base_audit,
+        actor_resolver: fn %{login_repo_work: u} -> u.id end,
+        target_resolver: fn %{login_repo_work: u} -> u.id end,
+        metadata: metadata
+      )
+    )
+  end
+
+  defp login_success_password_path(
+         config,
+         repo,
+         user,
+         require_confirmation,
+         audit_opts,
+         login_ip,
+         extra_changes,
+         metadata
+       ) do
+    maybe_unconfirmed =
+      require_confirmation && is_nil(Map.get(user, :confirmed_at))
+
+    cond do
+      maybe_unconfirmed ->
+        user_scope = Sigra.Scope.from_config(config, user)
+
+        Audit.log_safe(
+          "auth.login.success",
+          user_scope,
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            target_id: user.id,
+            metadata: metadata
+          )
+        )
+
+        handle_valid_login_with_security(
+          config,
+          repo,
+          user,
+          require_confirmation,
+          extra_changes,
+          login_ip
+        )
+
+      Keyword.get(audit_opts, :audit_schema) ->
+        multi =
+          login_success_repo_and_audit_multi(config, user, extra_changes, audit_opts, metadata)
+
+        case repo.transact(multi) do
+          {:ok, %{login_repo_work: u_after} = ch} ->
+            Audit.emit_telemetry_from_changes(ch)
+
+            handle_valid_login_with_security(
+              config,
+              repo,
+              u_after,
+              require_confirmation,
+              %{},
+              login_ip,
+              skip_lockout_reset: true,
+              skip_extra_hash: true
+            )
+
+          {:error, failed, reason, _changes} ->
+            raise "unexpected Ecto.Multi failure from Sigra.Auth login success path: " <>
+                    "#{inspect(failed)} => #{inspect(reason)}"
+        end
+
+      true ->
+        handle_valid_login_with_security(
+          config,
+          repo,
+          user,
+          require_confirmation,
+          extra_changes,
+          login_ip
+        )
+    end
+  end
+
   defp authenticate_with_config(config, params) do
     repo = config.repo
     user_schema = config.user_schema
@@ -391,51 +520,29 @@ defmodule Sigra.Auth do
 
         case Crypto.verify_with_upgrade(password, hashed_password) do
           {:ok, :valid} ->
-            # D-26: login success audit row.
-            # 15-02 D-28 Category 2: pre-org-selection — user-only scope.
-            user_scope = Sigra.Scope.from_config(config, user)
-
-            Audit.log_safe(
-              "auth.login.success",
-              user_scope,
-              Keyword.merge(audit_opts,
-                actor_id: user.id,
-                target_id: user.id,
-                metadata: %{method: "password"}
-              )
-            )
-
-            handle_valid_login_with_security(
+            login_success_password_path(
               config,
               repo,
               user,
               require_confirmation,
+              audit_opts,
+              login_ip,
               %{},
-              login_ip
+              %{method: "password"}
             )
 
           {:ok, :valid, new_hash} ->
             Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
 
-            user_scope = Sigra.Scope.from_config(config, user)
-
-            Audit.log_safe(
-              "auth.login.success",
-              user_scope,
-              Keyword.merge(audit_opts,
-                actor_id: user.id,
-                target_id: user.id,
-                metadata: %{method: "password", hash_upgraded: true}
-              )
-            )
-
-            handle_valid_login_with_security(
+            login_success_password_path(
               config,
               repo,
               user,
               require_confirmation,
+              audit_opts,
+              login_ip,
               %{hashed_password: new_hash},
-              login_ip
+              %{method: "password", hash_upgraded: true}
             )
 
           {:error, :invalid} ->
@@ -530,21 +637,40 @@ defmodule Sigra.Auth do
             user_id: user.id
           })
 
-        repo.insert!(token_struct)
-        url = url_fun.(raw_token)
+        audit_opts =
+          audit_opts_from_keyword(opts)
+          |> Keyword.put(:repo, repo)
+          |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
 
-        # D-26: audit magic link request (standalone, always success)
-        audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+        multi =
+          Multi.new()
+          |> Multi.insert(:magic_link_token, token_struct)
 
-        # 15-02 Category 2 (D-28): pre-auth magic link request with a
-        # resolved user — build user-only scope + target_id: user.id.
-        Audit.log_safe(
-          "auth.magic_link_request",
-          Sigra.Scope.from_opts(opts, user),
-          Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
-        )
+        multi =
+          if Keyword.get(audit_opts, :audit_schema) do
+            Audit.log_multi_safe(
+              multi,
+              "auth.magic_link_request",
+              Keyword.merge(audit_opts,
+                actor_resolver: fn %{magic_link_token: t} -> t.user_id end,
+                target_resolver: fn %{magic_link_token: t} -> t.user_id end,
+                metadata: %{}
+              )
+            )
+          else
+            multi
+          end
 
-        {:ok, {raw_token, url}}
+        case repo.transact(multi) do
+          {:ok, changes} ->
+            Audit.emit_telemetry_from_changes(changes)
+            url = url_fun.(raw_token)
+            {:ok, {raw_token, url}}
+
+          {:error, failed, reason, _changes} ->
+            raise "unexpected Ecto.Multi failure from Sigra.Auth.request_magic_link/3: " <>
+                    "#{inspect(failed)} => #{inspect(reason)}"
+        end
     end
   end
 
@@ -584,38 +710,58 @@ defmodule Sigra.Auth do
           {:error, :invalid}
 
         token_record ->
-          # Check TTL
-          age_seconds = DateTime.diff(DateTime.utc_now(), token_record.inserted_at, :second)
+          # Check TTL (DB adapters may return :utc_datetime or :naive_datetime)
+          inserted_at =
+            case token_record.inserted_at do
+              %DateTime{} = dt -> dt
+              %NaiveDateTime{} = ndt -> DateTime.from_naive!(ndt, "Etc/UTC")
+            end
+
+          age_seconds = DateTime.diff(DateTime.utc_now(), inserted_at, :second)
 
           if age_seconds > magic_link_ttl do
             {:error, :expired}
           else
-            user = repo.get!(user_schema, token_record.user_id)
+            scope_user = repo.get!(user_schema, token_record.user_id)
 
-            # Single-use: delete token
-            repo.delete!(token_record)
+            audit_opts =
+              audit_opts_from_keyword(opts)
+              |> Keyword.put(:repo, repo)
+              |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, scope_user)))
 
-            # Auto-confirm unconfirmed users
-            user = maybe_confirm_user(repo, user)
+            multi =
+              Multi.new()
+              |> Multi.run(:magic_link_user, fn r, _changes ->
+                u = r.get!(user_schema, token_record.user_id)
+                _ = r.delete!(token_record)
+                u = maybe_confirm_user(r, u)
+                {:ok, u}
+              end)
 
-            # D-26: audit magic link verify success.
-            # Standalone write (Sigra.Audit.log_safe) because the delete +
-            # update above are not yet in a single Multi; the audit row is
-            # still persisted after the business op succeeds.
-            audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+            multi =
+              if Keyword.get(audit_opts, :audit_schema) do
+                Audit.log_multi_safe(
+                  multi,
+                  "auth.magic_link_verify.success",
+                  Keyword.merge(audit_opts,
+                    actor_resolver: fn %{magic_link_user: u} -> u.id end,
+                    target_resolver: fn %{magic_link_user: u} -> u.id end,
+                    metadata: %{}
+                  )
+                )
+              else
+                multi
+              end
 
-            # 15-02 Category 2: verified user resolved — user-only scope.
-            Audit.log_safe(
-              "auth.magic_link_verify.success",
-              Sigra.Scope.from_opts(opts, user),
-              Keyword.merge(audit_opts,
-                actor_id: user.id,
-                target_id: user.id,
-                metadata: %{}
-              )
-            )
+            case repo.transact(multi) do
+              {:ok, %{magic_link_user: user} = changes} ->
+                Audit.emit_telemetry_from_changes(changes)
+                {:ok, user}
 
-            {:ok, user}
+              {:error, failed, reason, _changes} ->
+                raise "unexpected Ecto.Multi failure from Sigra.Auth.verify_magic_link/3: " <>
+                        "#{inspect(failed)} => #{inspect(reason)}"
+            end
           end
       end
     end
@@ -949,23 +1095,41 @@ defmodule Sigra.Auth do
             user_id: user.id
           })
 
-        repo.insert!(token_struct)
-        url = url_fun.(encoded_token)
+        audit_opts =
+          audit_opts_from_keyword(opts)
+          |> Keyword.put(:repo, repo)
+          |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
 
-        Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
+        multi =
+          Multi.new()
+          |> Multi.insert(:password_reset_token, token_struct)
 
-        # D-26: audit password reset request (standalone, always success).
-        audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+        multi =
+          if Keyword.get(audit_opts, :audit_schema) do
+            Audit.log_multi_safe(
+              multi,
+              "auth.password_reset_request",
+              Keyword.merge(audit_opts,
+                actor_resolver: fn %{password_reset_token: t} -> t.user_id end,
+                target_resolver: fn %{password_reset_token: t} -> t.user_id end,
+                metadata: %{}
+              )
+            )
+          else
+            multi
+          end
 
-        # 15-02 Category 2 (D-28): pre-auth password reset request with a
-        # resolved user — build user-only scope + target_id: user.id.
-        Audit.log_safe(
-          "auth.password_reset_request",
-          Sigra.Scope.from_opts(opts, user),
-          Keyword.merge(audit_opts, actor_id: user.id, target_id: user.id, metadata: %{})
-        )
+        case repo.transact(multi) do
+          {:ok, changes} ->
+            Audit.emit_telemetry_from_changes(changes)
+            Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
+            url = url_fun.(encoded_token)
+            {:ok, {encoded_token, url}}
 
-        {:ok, {encoded_token, url}}
+          {:error, failed, reason, _changes} ->
+            raise "unexpected Ecto.Multi failure from Sigra.Auth.request_password_reset/3: " <>
+                    "#{inspect(failed)} => #{inspect(reason)}"
+        end
     end
   end
 
@@ -1624,25 +1788,40 @@ defmodule Sigra.Auth do
          user,
          require_confirmation,
          extra_changes,
-         login_ip
+         login_ip,
+         opts \\ []
        ) do
+    skip_reset = Keyword.get(opts, :skip_lockout_reset, false)
+    skip_extra = Keyword.get(opts, :skip_extra_hash, false)
+
     if require_confirmation and is_nil(Map.get(user, :confirmed_at)) do
       {:error, :unconfirmed}
     else
-      # Reset lockout state on successful login (D-26)
-      updated_user = Sigra.Lockout.reset!(repo, user)
-
-      # Apply any extra changes (hash upgrade)
+      # Reset lockout state on successful login (D-26), unless a caller
+      # Multi already applied it (AUD-05 B3 / config-based authenticate).
       updated_user =
-        if map_size(extra_changes) > 0 do
-          changeset = Ecto.Changeset.change(updated_user, extra_changes)
-
-          case repo.update(changeset) do
-            {:ok, u} -> u
-            {:error, _} -> updated_user
-          end
+        if skip_reset do
+          user
         else
-          updated_user
+          Sigra.Lockout.reset!(repo, user)
+        end
+
+      # Apply any extra changes (hash upgrade), unless already applied upstream.
+      updated_user =
+        cond do
+          skip_extra ->
+            updated_user
+
+          map_size(extra_changes) > 0 ->
+            changeset = Ecto.Changeset.change(updated_user, extra_changes)
+
+            case repo.update(changeset) do
+              {:ok, u} -> u
+              {:error, _} -> updated_user
+            end
+
+          true ->
+            updated_user
         end
 
       Telemetry.event([:sigra, :auth, :login, :stop], %{}, %{
@@ -1683,51 +1862,127 @@ defmodule Sigra.Auth do
 
   defp handle_failed_login_with_lockout(config, repo, user, login_ip, lockout_opts) do
     threshold = Keyword.get(lockout_opts, :threshold, 5)
-    updated_user = Sigra.Lockout.increment!(repo, user, lockout_opts)
-    new_count = updated_user.failed_login_attempts
+    new_count = (user.failed_login_attempts || 0) + 1
+    lockout_step? = new_count >= threshold && is_nil(user.locked_at)
+
+    changes =
+      if lockout_step? do
+        %{
+          failed_login_attempts: new_count,
+          locked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }
+      else
+        %{failed_login_attempts: new_count}
+      end
+
+    user_cs = Ecto.Changeset.change(user, changes)
     audit_opts = audit_opts_from_config(config, ip_address: login_ip)
 
-    # D-26: invalid_credentials counter audit row (every failed attempt).
-    # 15-02 D-26/D-29 Category 3: nil scope + target_id: nil. The attempt
-    # counter stays in metadata (operationally useful; not PII — it is a
-    # per-user counter value, not an identity claim). IP + User-Agent live
-    # in top-level columns via `audit_opts`, not in metadata.
-    Sigra.Audit.log_safe(
-      "security.invalid_credentials",
-      nil,
-      Keyword.merge(audit_opts,
-        actor_id: user.id,
-        target_id: nil,
-        outcome: "failure",
-        metadata: %{attempts: new_count}
-      )
-    )
+    if Keyword.get(audit_opts, :audit_schema) do
+      multi =
+        Multi.new()
+        |> Multi.update(:user, user_cs)
+        |> Audit.log_multi_safe(
+          "security.invalid_credentials",
+          Keyword.merge(audit_opts,
+            audit_multi_step: :audit_failed_invalid_credentials,
+            actor_resolver: fn %{user: u} -> u.id end,
+            target_resolver: fn _ -> nil end,
+            outcome: "failure",
+            metadata_resolver: fn %{user: u} ->
+              %{attempts: u.failed_login_attempts}
+            end
+          )
+        )
 
-    if new_count >= threshold do
-      # Lockout just triggered
-      Telemetry.event([:sigra, :security, :lockout], %{}, %{
-        user_id: user.id,
-        ip: login_ip,
-        reason: :threshold_reached
-      })
+      multi =
+        if lockout_step? do
+          Audit.log_multi_safe(
+            multi,
+            "security.lockout",
+            Keyword.merge(audit_opts,
+              audit_multi_step: :audit_failed_security_lockout,
+              actor_resolver: fn %{user: u} -> u.id end,
+              target_resolver: fn %{user: u} -> u.id end,
+              effective_user_id_resolver: fn %{user: u} -> u.id end,
+              outcome: "failure",
+              metadata_resolver: fn %{user: u} ->
+                %{reason: "threshold_reached", attempts: u.failed_login_attempts}
+              end
+            )
+          )
+        else
+          multi
+        end
 
-      # D-26: security.lockout audit row.
-      # 15-02 Category 2: known user — user-only scope, target_id: user.id.
+      case repo.transaction(multi) do
+        {:ok, %{user: updated_user} = ch} ->
+          telemetry_steps =
+            if lockout_step? do
+              [:audit_failed_invalid_credentials, :audit_failed_security_lockout]
+            else
+              [:audit_failed_invalid_credentials]
+            end
+
+          Audit.emit_telemetry_from_changes(ch, telemetry_steps)
+
+          cond do
+            lockout_step? ->
+              Telemetry.event([:sigra, :security, :lockout], %{}, %{
+                user_id: user.id,
+                ip: login_ip,
+                reason: :threshold_reached
+              })
+
+              maybe_deliver_lockout_email(config, updated_user, %{ip: login_ip})
+              {:error, :account_locked}
+
+            true ->
+              {:error, :invalid_credentials}
+          end
+
+        {:error, _step, reason, _} ->
+          {:error, reason}
+      end
+    else
+      updated_user = Sigra.Lockout.increment!(repo, user, lockout_opts)
+      new_count = updated_user.failed_login_attempts
+      audit_opts = audit_opts_from_config(config, ip_address: login_ip)
+
       Sigra.Audit.log_safe(
-        "security.lockout",
-        Sigra.Scope.from_config(config, user),
+        "security.invalid_credentials",
+        nil,
         Keyword.merge(audit_opts,
           actor_id: user.id,
-          target_id: user.id,
+          target_id: nil,
           outcome: "failure",
-          metadata: %{reason: "threshold_reached", attempts: new_count}
+          metadata: %{attempts: new_count}
         )
       )
 
-      maybe_deliver_lockout_email(config, user, %{ip: login_ip})
-      {:error, :account_locked}
-    else
-      {:error, :invalid_credentials}
+      if new_count >= threshold do
+        Telemetry.event([:sigra, :security, :lockout], %{}, %{
+          user_id: user.id,
+          ip: login_ip,
+          reason: :threshold_reached
+        })
+
+        Sigra.Audit.log_safe(
+          "security.lockout",
+          Sigra.Scope.from_config(config, user),
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            target_id: user.id,
+            outcome: "failure",
+            metadata: %{reason: "threshold_reached", attempts: new_count}
+          )
+        )
+
+        maybe_deliver_lockout_email(config, user, %{ip: login_ip})
+        {:error, :account_locked}
+      else
+        {:error, :invalid_credentials}
+      end
     end
   end
 

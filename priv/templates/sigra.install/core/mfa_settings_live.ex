@@ -831,18 +831,20 @@ defmodule <%= web_module %>.MFASettingsLive do
   def handle_event("regenerate_codes", %{"regenerate" => %{"code" => code}}, socket) do
     user = socket.assigns.current_scope.user
 
-    # First verify TOTP code, then regenerate
-    case Auth.mfa_verify(user, code) do
-      {:ok, _} ->
-        # TODO: Wire to Auth.mfa_regenerate_backup_codes/2 when available
-        # For now, show success and refresh status
+    case Auth.mfa_regenerate_backup_codes(user, {:totp, code},
+           scope: socket.assigns.current_scope
+         ) do
+      {:ok, %{backup_codes: codes}} ->
         mfa_status = Auth.mfa_status(user)
 
         {:noreply,
          socket
-         |> put_flash(:info, "Backup codes have been regenerated.")
+         |> put_flash(:info, "Your backup codes were regenerated. Save your new backup codes.")
          |> assign(
            show_regenerate: false,
+           backup_codes: codes,
+           enrollment_step: :backup_codes,
+           codes_acknowledged: false,
            backup_remaining: mfa_status.backup_codes_remaining,
            regenerate_form: to_form(%{"code" => ""}, as: "regenerate")
          )}
@@ -859,6 +861,22 @@ defmodule <%= web_module %>.MFASettingsLive do
         {:noreply,
          socket
          |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+
+      {:error, :not_enrolled} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Two-factor authentication is not enabled for this account.")
+         |> assign(regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
+
+      {:error, :impersonation_forbidden} ->
+        {:noreply,
+         put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+
+      {:error, _reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Could not regenerate backup codes. Please try again.")
+         |> assign(regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
     end
   end
 

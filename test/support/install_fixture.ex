@@ -64,13 +64,10 @@ defmodule Sigra.Test.InstallFixture do
     # 2. Point the generated app at the in-tree sigra via a :path dependency
     patch_mix_exs_with_path_dep!(app_dir)
 
-    # 3. Fetch deps locally (offline where possible)
-    {deps_out, deps_status} =
-      System.cmd("mix", ["deps.get"], cd: app_dir, stderr_to_stdout: true)
-
-    if deps_status != 0 do
-      raise "mix deps.get failed (status #{deps_out}):\n#{deps_out}"
-    end
+    # 3. Fetch deps locally (offline where possible). Hex may prompt for
+    # interactive re-auth when a saved API token expired — subprocess harnesses
+    # have no TTY, so pipe "n" to continue as anonymous fetch (public packages).
+    mix_deps_get_noninteractive!(app_dir)
 
     # 4. Pre-compile deps so the sigra.install run does not spew dep compile
     #    noise into stdout. This keeps the captured install output focused on
@@ -150,12 +147,7 @@ defmodule Sigra.Test.InstallFixture do
 
     patch_mix_exs_with_path_dep!(app_dir)
 
-    {deps_out, deps_status} =
-      System.cmd("mix", ["deps.get"], cd: app_dir, stderr_to_stdout: true)
-
-    if deps_status != 0 do
-      raise "mix deps.get failed (status #{deps_status}):\n#{deps_out}"
-    end
+    mix_deps_get_noninteractive!(app_dir)
 
     {compile_out, compile_status} =
       System.cmd("mix", ["compile"],
@@ -169,6 +161,20 @@ defmodule Sigra.Test.InstallFixture do
     end
 
     {:ok, %{app_dir: app_dir}}
+  end
+
+  defp mix_deps_get_noninteractive!(app_dir) do
+    {out, status} =
+      System.cmd(
+        "sh",
+        ["-c", "echo n | mix deps.get"],
+        cd: app_dir,
+        stderr_to_stdout: true
+      )
+
+    if status != 0 do
+      raise "mix deps.get failed (status #{status}):\n#{out}"
+    end
   end
 
   @doc """
@@ -318,9 +324,10 @@ defmodule Sigra.Test.InstallFixture do
 
   Migration filenames under `priv/repo/migrations/<14-digit>_*.exs` have their
   14-digit timestamp prefix replaced with the literal string `TIMESTAMP` so
-  wall-clock time does not pollute the diff. Migration file **contents** are
-  NOT normalized — per decision D-05, the inside of the file must be
-  byte-identical.
+  wall-clock time does not pollute the diff. Migration bodies stay
+  byte-identical aside from a single canonical trailing newline (same as all
+  tracked files); `config/*.exs` additionally get deterministic salt
+  placeholders via `normalize_content_for_golden/2`.
   """
   @spec normalize_tree(Path.t(), %{String.t() => binary()}) :: [{String.t(), binary()}]
   def normalize_tree(app_dir, baseline \\ %{}) do
@@ -355,7 +362,7 @@ defmodule Sigra.Test.InstallFixture do
       if Map.get(baseline, rel) == hash do
         []
       else
-        [{normalize_path(rel), normalize_content(rel, content)}]
+        [{normalize_path(rel), normalize_content_for_golden(rel, content)}]
       end
     end)
     |> Enum.sort_by(&elem(&1, 0))
@@ -366,17 +373,51 @@ defmodule Sigra.Test.InstallFixture do
   # carried forward when sigra.install injects into the same file, so they
   # pollute byte-level golden diffs even though sigra.install itself did not
   # touch them. Replace each with a deterministic placeholder.
-  defp normalize_content(rel, content) do
+  @doc """
+  Normalizes installer-owned file contents for golden-diff comparison.
+
+  Applies deterministic `config/*.exs` salt placeholders, strips trailing
+  whitespace on each line (Phoenix template drift),   then strips trailing format chars / separators / whitespace with
+  `~r/[\\p{Cf}\\p{Zs}\\s]+\\z/u` and ends with exactly one `\\n`.
+  """
+  @spec normalize_content_for_golden(String.t(), binary()) :: binary()
+  def normalize_content_for_golden(rel, content) do
+    content =
+      if String.starts_with?(rel, "config/") do
+        content
+        |> String.replace(~r/signing_salt: "[^"]+"/, ~s(signing_salt: "<SIGNING_SALT>"))
+        |> String.replace(~r/secret_key_base: "[^"]+"/, ~s(secret_key_base: "<SECRET_KEY_BASE>"))
+        |> String.replace(
+          ~r/live_view: \[signing_salt: "[^"]+"\]/,
+          ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
+        )
+        # Phoenix generator output occasionally drifts on trailing spaces per
+        # line; strip so golden bytes stay stable across patch releases.
+        |> String.replace("\r\n", "\n")
+        |> String.replace("\r", "")
+        |> String.split("\n")
+        |> Enum.map(&String.trim_trailing/1)
+        |> Enum.join("\n")
+        # Collapse "blank" lines that contain only a single space (phx.new
+        # drift shows up as `\n \n` in Myers diffs).
+        |> collapse_newline_space_newlines()
+        # Comma then spaces before newline — occasional generator drift.
+        |> String.replace(~r/, +\n/, ",\n")
+      else
+        content
+      end
+
     if String.starts_with?(rel, "config/") do
-      content
-      |> String.replace(~r/signing_salt: "[^"]+"/, ~s(signing_salt: "<SIGNING_SALT>"))
-      |> String.replace(~r/secret_key_base: "[^"]+"/, ~s(secret_key_base: "<SECRET_KEY_BASE>"))
-      |> String.replace(
-        ~r/live_view: \[signing_salt: "[^"]+"\]/,
-        ~s(live_view: [signing_salt: "<LIVE_VIEW_SALT>"])
-      )
+      # Strip trailing format chars (e.g. U+200B), separators, and ASCII
+      # whitespace — phx.new / editor drift occasionally leaves these after
+      # the logical end of `config/*.exs`.
+      content =
+        Regex.replace(~r/[\p{Cf}\p{Zs}\s]+\z/u, content, "")
+        |> strip_ascii_eof_noise()
+
+      content <> "\n"
     else
-      content
+      String.trim_trailing(content, "\n") <> "\n"
     end
   end
 
@@ -431,6 +472,30 @@ defmodule Sigra.Test.InstallFixture do
   end
 
   # -- internals --------------------------------------------------------------
+
+  @doc false
+  def normalize_path_for_golden(rel), do: normalize_path(rel)
+
+  defp strip_ascii_eof_noise(content) do
+    stripped =
+      cond do
+        String.ends_with?(content, "\r\n ") ->
+          binary_part(content, 0, byte_size(content) - 4)
+
+        String.ends_with?(content, "\n ") ->
+          binary_part(content, 0, byte_size(content) - 2)
+
+        true ->
+          content
+      end
+
+    if stripped == content, do: content, else: strip_ascii_eof_noise(stripped)
+  end
+
+  defp collapse_newline_space_newlines(content) do
+    collapsed = String.replace(content, ~r/\n +\n/m, "\n\n")
+    if collapsed == content, do: content, else: collapse_newline_space_newlines(collapsed)
+  end
 
   defp normalize_path(rel) do
     rel

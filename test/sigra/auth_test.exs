@@ -393,13 +393,18 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-      |> expect(:insert!, fn %TestUserToken{
-                               token: _,
-                               context: "magic_link",
-                               sent_to: "user@example.com",
-                               user_id: 1
-                             } = s ->
-        s
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert %Ecto.Multi{} = multi
+        assert :magic_link_token in Enum.map(Ecto.Multi.to_list(multi), fn {n, _} -> n end)
+
+        inserted = %TestUserToken{
+          token: <<1>>,
+          context: "magic_link",
+          sent_to: "user@example.com",
+          user_id: 1
+        }
+
+        {:ok, %{magic_link_token: inserted}}
       end)
 
       url_fun = fn token -> "https://example.com/magic/#{token}" end
@@ -478,7 +483,9 @@ defmodule Sigra.AuthTest do
         token_struct
       end)
       |> expect(:get!, fn TestUser, 1 -> user end)
-      |> expect(:delete!, fn ^token_struct -> :ok end)
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:ok, %{magic_link_user: user}}
+      end)
 
       result =
         Auth.verify_magic_link(
@@ -556,15 +563,16 @@ defmodule Sigra.AuthTest do
         inserted_at: now
       }
 
+      confirmed_at = DateTime.utc_now() |> DateTime.truncate(:second)
+      confirmed_user = Map.put(user, :confirmed_at, confirmed_at)
+
       Sigra.MockRepo
       |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
         token_struct
       end)
       |> expect(:get!, fn TestUser, 1 -> user end)
-      |> expect(:delete!, fn ^token_struct -> :ok end)
-      |> expect(:update, fn changeset ->
-        assert changeset.changes.confirmed_at
-        {:ok, Map.put(user, :confirmed_at, changeset.changes.confirmed_at)}
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:ok, %{magic_link_user: confirmed_user}}
       end)
 
       result =
@@ -831,11 +839,17 @@ defmodule Sigra.AuthTest do
 
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-      |> expect(:insert!, fn %TestUserToken{} = token_struct ->
-        assert token_struct.context == "reset_password"
-        assert token_struct.user_id == 1
-        assert is_binary(token_struct.token)
-        token_struct
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert :password_reset_token in Enum.map(Ecto.Multi.to_list(multi), fn {n, _} -> n end)
+
+        inserted = %TestUserToken{
+          token: <<1>>,
+          context: "reset_password",
+          sent_to: "user@example.com",
+          user_id: 1
+        }
+
+        {:ok, %{password_reset_token: inserted}}
       end)
 
       url_fun = fn token -> "https://example.com/reset/#{token}" end

@@ -31,24 +31,23 @@ defmodule Sigra.Account do
       Sigra.Account.execute_deletion(repo, user, opts)
   """
 
+  alias Ecto.Multi
   alias Sigra.Account.{Deletion, EmailChange, PasswordChange}
 
-  # --- Audit integration helpers (Plan 09-03) ---
+  # D-26 dispatch table (Phase 44 AUD-07 — `Ecto.Multi` + `Sigra.Audit.log_multi_safe`
+  # when `:audit_schema` is set in opts; without it, domain-only — no audit insert):
   #
-  # D-26 dispatch table for account.* operations:
+  #   request_email_change  -> `Multi` + `log_multi_safe("account.email_change_request", …)` + `emit_telemetry_from_changes/1`
+  #   confirm_email_change  -> `Multi` + `log_multi_safe("account.email_change_confirm", …)` + telemetry
+  #   cancel_email_change   -> `Multi` + `log_multi_safe("account.email_change_cancel", …)` + telemetry
+  #   change_password       -> `Multi` + `log_multi_safe("account.password_change", …)` + telemetry
+  #   set_password          -> `Multi` + `log_multi_safe("account.password_change", …)` + telemetry
+  #   schedule_deletion     -> `Multi` + `log_multi_safe("account.deletion_schedule", …)` + telemetry
+  #   cancel_deletion       -> `Multi` + `log_multi_safe("account.deletion_cancel", …)` + telemetry
+  #   execute_deletion      -> `Multi.run(Deletion.execute)` then `log_multi_safe("account.deletion_execute", …)` + telemetry
   #
-  #   request_email_change  -> Sigra.Audit.log_safe("account.email_change_request", nil, ...)
-  #   confirm_email_change  -> Sigra.Audit.log_safe("account.email_change_confirm", nil, ...)
-  #   cancel_email_change   -> Sigra.Audit.log_safe("account.email_change_cancel", nil, ...)
-  #   change_password       -> Sigra.Audit.log_safe("account.password_change", nil,
-  #                             metadata: %{forced: false})
-  #   forced password chg   -> Sigra.Audit.log_safe("account.password_change", nil,
-  #                             metadata: %{forced: true})
-  #   schedule_deletion     -> Sigra.Audit.log_safe("account.deletion_schedule", nil, ...)
-  #   cancel_deletion       -> Sigra.Audit.log_safe("account.deletion_cancel", nil, ...)
-  #   execute_deletion      -> Sigra.Audit.log_safe("account.deletion_execute", nil, ...)
-  #
-  # Metadata: strings, IDs, flags only. NEVER passwords, hashes, or tokens.
+  # `audit_forced_password_change/2` remains `Sigra.Audit.log_safe/3` (audit-only helper).
+
   defp account_audit_opts(opts) when is_list(opts) do
     [
       repo: Keyword.get(opts, :repo),
@@ -56,77 +55,188 @@ defmodule Sigra.Account do
     ]
   end
 
+  defp audit_enabled?(opts), do: Keyword.get(opts, :audit_schema) != nil
+
+  defp audit_repo_opts(repo, opts) do
+    account_audit_opts(opts) |> Keyword.put(:repo, repo)
+  end
+
+  defp scope_to_audit_kw(nil), do: [organization_id: nil, effective_user_id: nil]
+
+  defp scope_to_audit_kw(%{user: u} = scope) do
+    org = Map.get(scope, :active_organization)
+    actor = Map.get(scope, :impersonating_from) || u
+
+    [
+      organization_id: org && org.id,
+      effective_user_id: u && u.id,
+      actor_id: actor && actor.id
+    ]
+  end
+
+  defp scope_to_audit_kw(_), do: scope_to_audit_kw(nil)
+
+  defp email_request_scope_kw(opts, user) do
+    scope =
+      case Keyword.get(opts, :scope_module) do
+        nil -> nil
+        mod -> Sigra.Scope.build(mod, user, active_organization: nil)
+      end
+
+    scope_to_audit_kw(scope)
+  end
+
+  defp password_change_scope_kw(opts, user), do: email_request_scope_kw(opts, user)
+
+  defp finish_audit_multi(repo, multi) do
+    case repo.transaction(multi) do
+      {:ok, changes} ->
+        Sigra.Audit.emit_telemetry_from_changes(changes)
+        {:ok, changes}
+
+      {:error, failed, reason, changes} ->
+        {:error, failed, reason, changes}
+    end
+  end
+
+  defp unexpected_account_multi!(failed, reason) do
+    raise RuntimeError,
+          "unexpected Sigra.Account Ecto.Multi failure #{inspect(failed)} => #{inspect(reason)}"
+  end
+
   # --- Email Change (per D-28 context API) ---
 
   @doc "Request an email change. Sends verification to new address."
   @doc since: "0.8.0"
   def request_email_change(repo, user, new_email, opts) do
-    result = EmailChange.request(repo, user, new_email, opts)
+    if audit_enabled?(opts) do
+      scope_kw = email_request_scope_kw(opts, user)
 
-    case result do
-      {:ok, _} ->
-        # 15-02 acceptance: inline Sigra.Scope.build at this site so the
-        # semantic-sweep acceptance grep finds the literal constructor.
-        scope =
-          case Keyword.get(opts, :scope_module) do
-            nil -> nil
-            mod -> Sigra.Scope.build(mod, user, active_organization: nil)
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ ->
+          case EmailChange.request(r, user, new_email, opts) do
+            {:ok, u, tok} -> {:ok, %{user: u, token: tok}}
+            err -> err
           end
-
-        Sigra.Audit.log_safe(
+        end)
+        |> Sigra.Audit.log_multi_safe(
           "account.email_change_request",
-          scope,
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{}]
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{}
+            )
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: %{user: u, token: tok}}} ->
+          {:ok, u, tok}
 
-    result
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      EmailChange.request(repo, user, new_email, opts)
+    end
   end
 
   @doc "Confirm an email change via token from verification email."
   @doc since: "0.8.0"
   def confirm_email_change(repo, encoded_token, opts) do
-    result = EmailChange.confirm(repo, encoded_token, opts)
-
-    case result do
-      {:ok, user} ->
-        Sigra.Audit.log_safe(
+    if audit_enabled?(opts) do
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ ->
+          case EmailChange.confirm(r, encoded_token, opts) do
+            {:ok, user} -> {:ok, user}
+            :error -> {:error, :email_change_confirm_failed}
+            {:error, %Ecto.Changeset{} = cs} -> {:error, cs}
+          end
+        end)
+        |> Sigra.Audit.log_multi_safe(
           "account.email_change_confirm",
-          Sigra.Scope.from_opts(opts, user),
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{}]
+          Keyword.merge(audit_repo_opts(repo, opts),
+            actor_resolver: fn ch -> ch.domain.id end,
+            target_resolver: fn ch -> ch.domain.id end,
+            organization_id_resolver: fn ch ->
+              case Sigra.Scope.from_opts(opts, ch.domain) do
+                nil -> nil
+                s -> s.active_organization && s.active_organization.id
+              end
+            end,
+            effective_user_id_resolver: fn ch ->
+              case Sigra.Scope.from_opts(opts, ch.domain) do
+                nil -> nil
+                s -> s.user && s.user.id
+              end
+            end,
+            metadata: %{}
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: user}} ->
+          {:ok, user}
 
-    result
+        {:error, :domain, :email_change_confirm_failed, _} ->
+          :error
+
+        {:error, :domain, %Ecto.Changeset{} = cs, _} ->
+          {:error, cs}
+
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      EmailChange.confirm(repo, encoded_token, opts)
+    end
   end
 
   @doc "Cancel a pending email change."
   @doc since: "0.8.0"
   def cancel_email_change(repo, user, opts) do
-    result = EmailChange.cancel(repo, user, opts)
+    if audit_enabled?(opts) do
+      scope = Sigra.Scope.from_opts(opts, user)
+      scope_kw = scope_to_audit_kw(scope)
 
-    case result do
-      {:ok, _} ->
-        Sigra.Audit.log_safe(
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ -> EmailChange.cancel(r, user, opts) end)
+        |> Sigra.Audit.log_multi_safe(
           "account.email_change_cancel",
-          Sigra.Scope.from_opts(opts, user),
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{}]
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{}
+            )
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: u}} ->
+          {:ok, u}
 
-    result
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      EmailChange.cancel(repo, user, opts)
+    end
   end
 
   # --- Password Change (per D-40 context API) ---
@@ -134,57 +244,78 @@ defmodule Sigra.Account do
   @doc "Change password with current password verification."
   @doc since: "0.8.0"
   def change_password(repo, user, current_password, attrs, opts) do
-    result = PasswordChange.change(repo, user, current_password, attrs, opts)
+    if audit_enabled?(opts) do
+      scope_kw = password_change_scope_kw(opts, user)
 
-    case result do
-      {:ok, _} ->
-        # D-26: account.password_change. NEVER include password/hash in
-        # metadata (D-23 enforced by Sigra.Audit.Changeset).
-        # 15-02 acceptance: inline Sigra.Scope.build for the password-change
-        # site so the semantic sweep finds a second literal constructor.
-        scope =
-          case Keyword.get(opts, :scope_module) do
-            nil -> nil
-            mod -> Sigra.Scope.build(mod, user, active_organization: nil)
-          end
-
-        Sigra.Audit.log_safe(
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ ->
+          PasswordChange.change(r, user, current_password, attrs, opts)
+        end)
+        |> Sigra.Audit.log_multi_safe(
           "account.password_change",
-          scope,
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{forced: false}]
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{forced: false}
+            )
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: u}} ->
+          {:ok, u}
 
-    result
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      PasswordChange.change(repo, user, current_password, attrs, opts)
+    end
   end
 
   @doc "Set password for OAuth-only user (no current password). Requires sudo."
   @doc since: "0.8.0"
   def set_password(repo, user, attrs, opts) do
-    result = PasswordChange.set_for_oauth_user(repo, user, attrs, opts)
+    if audit_enabled?(opts) do
+      scope = Sigra.Scope.from_opts(opts, user)
+      scope_kw = scope_to_audit_kw(scope)
 
-    case result do
-      {:ok, _} ->
-        Sigra.Audit.log_safe(
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ ->
+          PasswordChange.set_for_oauth_user(r, user, attrs, opts)
+        end)
+        |> Sigra.Audit.log_multi_safe(
           "account.password_change",
-          Sigra.Scope.from_opts(opts, user),
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
               actor_id: user.id,
               target_id: user.id,
               metadata: %{forced: false, source: "oauth_set"}
-            ]
+            )
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: u}} ->
+          {:ok, u}
 
-    result
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      PasswordChange.set_for_oauth_user(repo, user, attrs, opts)
+    end
   end
 
   @doc "Check if user must change their password."
@@ -200,61 +331,147 @@ defmodule Sigra.Account do
   @doc "Schedule account deletion with grace period."
   @doc since: "0.8.0"
   def schedule_deletion(repo, user, opts) do
-    result = Deletion.schedule(repo, user, opts)
+    if audit_enabled?(opts) do
+      scope = Sigra.Scope.from_opts(opts, user)
+      scope_kw = scope_to_audit_kw(scope)
 
-    case result do
-      {:ok, _} ->
-        Sigra.Audit.log_safe(
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ ->
+          case Deletion.schedule(r, user, opts) do
+            {:ok, u, scheduled_at} -> {:ok, %{user: u, scheduled_at: scheduled_at}}
+            err -> err
+          end
+        end)
+        |> Sigra.Audit.log_multi_safe(
           "account.deletion_schedule",
-          Sigra.Scope.from_opts(opts, user),
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{}]
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{}
+            )
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: %{user: u, scheduled_at: at}}} ->
+          {:ok, u, at}
 
-    result
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      Deletion.schedule(repo, user, opts)
+    end
   end
 
   @doc "Cancel scheduled deletion and reactivate account."
   @doc since: "0.8.0"
   def cancel_deletion(repo, user, opts) do
-    result = Deletion.cancel(repo, user, opts)
+    if audit_enabled?(opts) do
+      scope = Sigra.Scope.from_opts(opts, user)
+      scope_kw = scope_to_audit_kw(scope)
 
-    case result do
-      {:ok, _} ->
-        Sigra.Audit.log_safe(
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ -> Deletion.cancel(r, user, opts) end)
+        |> Sigra.Audit.log_multi_safe(
           "account.deletion_cancel",
-          Sigra.Scope.from_opts(opts, user),
-          (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-            [actor_id: user.id, target_id: user.id, metadata: %{}]
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{}
+            )
+          )
         )
 
-      _ ->
-        :ok
-    end
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: u}} ->
+          {:ok, u}
 
-    result
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      Deletion.cancel(repo, user, opts)
+    end
   end
 
   @doc "Execute deletion (called by Oban worker or manual task)."
   @doc since: "0.8.0"
   def execute_deletion(repo, user, opts) do
-    # D-11 / D-26: the execute_deletion audit row may reference a user_id
-    # that no longer exists after hard delete — this is intentional and
-    # preserves the forensic trail.
     user_id = user.id
 
-    Sigra.Audit.log_safe(
-      "account.deletion_execute",
-      Sigra.Scope.from_opts(opts, user),
-      (account_audit_opts(opts) |> Keyword.put(:repo, repo)) ++
-        [actor_id: user_id, target_id: user_id, metadata: %{}]
-    )
+    if audit_enabled?(opts) do
+      scope = Sigra.Scope.from_opts(opts, user)
+      scope_kw = scope_to_audit_kw(scope)
 
-    Deletion.execute(repo, user, opts)
+      multi =
+        Multi.new()
+        |> Multi.run(:deletion, fn r, _ ->
+          case Deletion.execute(r, user, opts) do
+            {:ok, strategy} -> {:ok, %{strategy: strategy, user_id: user_id}}
+            err -> err
+          end
+        end)
+        |> Sigra.Audit.log_multi_safe(
+          "account.deletion_execute",
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              audit_multi_step: :audit_deletion_execute,
+              actor_resolver: fn ch -> ch.deletion.user_id end,
+              target_resolver: fn ch -> ch.deletion.user_id end,
+              metadata: %{}
+            )
+          )
+        )
+        |> Sigra.Audit.log_multi_safe(
+          "account.deletion_executed",
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              audit_multi_step: :audit_deletion_executed,
+              actor_resolver: fn ch -> ch.deletion.user_id end,
+              target_resolver: fn ch -> ch.deletion.user_id end,
+              metadata_resolver: fn ch ->
+                %{
+                  deleted_user_id: ch.deletion.user_id,
+                  strategy: to_string(ch.deletion.strategy)
+                }
+              end
+            )
+          )
+        )
+
+      case repo.transaction(multi) do
+        {:ok, %{deletion: %{strategy: strategy}} = changes} ->
+          Sigra.Audit.emit_telemetry_from_changes(changes, [
+            :audit_deletion_execute,
+            :audit_deletion_executed
+          ])
+
+          {:ok, strategy}
+
+        {:error, :deletion, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      Deletion.execute(repo, user, opts)
+    end
   end
 
   @doc "Check if deletion is scheduled."

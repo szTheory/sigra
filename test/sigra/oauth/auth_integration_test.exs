@@ -66,7 +66,9 @@ defmodule Sigra.OAuth.AuthIntegrationTest do
                    provider_uid: "uid_123",
                    user_info: mock_user_info(),
                    token: mock_token()
-                 }, session: %Sigra.Session{sudo_at: DateTime.utc_now()})
+                 },
+                 session: %Sigra.Session{sudo_at: DateTime.utc_now()}
+               )
     end
   end
 

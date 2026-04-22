@@ -161,6 +161,20 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 
 For threat-model detail and per-flow guarantees, use **HexDocs** and the verification narratives shipped with each release milestone — the README stays a map, not a spec.
 
+
+## Production readiness & GA evidence
+
+Sigra's **Executed** items are procedures or artifacts we actually ran for the v1.4 milestone; **Waived** items are matrix rows we consciously did not re-run for that cut, with documented substitutes where applicable. Integration, deployment, and product-specific threats remain with the **host application**—this narrative is **not a compliance certification**, only an honest map to evidence.
+
+- [v1.4 requirements closure (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md)
+- [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md)
+- [Milestone index (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/MILESTONES.md)
+- [How UAT rows relate to CI substitutes](uat-ci-coverage.md) (source: `docs/uat-ci-coverage.md`)
+
+On **hexdocs.pm/sigra**, the packaged hub lives at [`ga-evidence` for 0.2.0](https://hexdocs.pm/sigra/0.2.0/ga-evidence.html) so GitHub-first readers and HexDocs readers see the same pointers.
+
+Coordinated disclosure: [SECURITY.md](SECURITY.md).
+
 ---
 
 ## Reference host: `test/example`

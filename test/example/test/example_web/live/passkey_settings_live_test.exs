@@ -19,7 +19,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
 
       {:ok, _view, html} =
         conn
-        |> log_in_user(user)
+        |> log_in_with_sudo(user)
         |> live("/users/settings/mfa")
 
       assert html =~ ~s(id="passkeys")
@@ -37,7 +37,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
 
       {:ok, _view, html} =
         conn
-        |> log_in_user(user)
+        |> log_in_with_sudo(user)
         |> live("/users/settings/mfa")
 
       assert html =~ "No passkeys added yet"
@@ -196,7 +196,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
 
       {:ok, view, _html} =
         conn
-        |> log_in_user(user)
+        |> log_in_with_sudo(user)
         |> live("/users/settings/mfa")
 
       assert render_click(view, "open_passkey_rename", %{"id" => passkey.credential_id}) =~
@@ -215,7 +215,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
 
       {:ok, view, _html} =
         conn
-        |> log_in_user(user)
+        |> log_in_with_sudo(user)
         |> live("/users/settings/mfa")
 
       html =

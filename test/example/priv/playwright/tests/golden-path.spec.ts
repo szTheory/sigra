@@ -145,6 +145,10 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   //   (a) password login still works after enrollment
   //   (b) MFA state survives logout — i.e. the credential row persists
   //       and /users/settings/mfa still shows the Disable button
+  //
+  // MFA settings LiveView is behind RequireSudo; a fresh login clears sudo,
+  // so re-confirm the password before asserting on that page (same pattern as
+  // passkey-login.spec.ts).
   await page.goto('/users/log_in');
   await page.fill('#login_form input[name="user[email]"]', email);
   await page.fill('#login_form input[name="user[password]"]', password);
@@ -152,7 +156,10 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
 
   // Confirm MFA is still enabled after the logout/login round-trip.
-  await page.goto('/users/settings/mfa');
+  await page.goto('/users/sudo?return_to=%2Fusers%2Fsettings%2Fmfa');
+  await page.fill('input[name="sudo[password]"]', password);
+  await page.click('button:has-text("Confirm password")');
+  await expect(page).toHaveURL(/\/users\/settings\/mfa/);
   await waitForLiveViewReady();
   await expect(
     page.getByRole('button', { name: /^Disable$/i }).first(),

@@ -1,3 +1,5 @@
+> **Reading map:** [GA evidence & audit posture](../../docs/ga-evidence.md) · [Maintaining & releasing](../../MAINTAINING.md) · [Audit semantics](../../docs/audit-semantics.md) · [Contributing](../../CONTRIBUTING.md) · [Security policy](../../SECURITY.md)
+
 # Getting Started
 
 This guide takes you from a fresh Phoenix app with Sigra installed to a working auth experience: register a user, log in, protect a route, log out, request a password reset, click the reset link, and log in again with the new password. **Budget: under 30 minutes of reading.** Every code block here runs against the scaffolding `mix sigra.install` generates.
