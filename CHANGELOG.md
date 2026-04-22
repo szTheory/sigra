@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Planning milestones vs Hex releases
 
-This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.2.0]`** for **published Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.0–v1.4** in **`.planning/MILESTONES.md`** — those **v1.x** labels describe shipped *tranches* of work, **not** a second installable version axis on Hex (this repo remains **0.x** on Hex until a real **1.0.0**). Each dated release below may include a **`### Roadmap traceability`** subsection linking back to the milestone narrative. When in doubt, treat **`MILESTONES.md`** as canonical for dates and archive paths.
+This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.2.0]`** for **published Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.0–v1.4** in **`.planning/MILESTONES.md`** — those **v1.x** labels describe shipped *tranches* of work, **not** a second installable version axis on Hex (this repo remains **0.x** on Hex until a real **1.0.0**). Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When in doubt, treat **`MILESTONES.md`** as canonical for dates and archive paths.
 
 ## [Unreleased]
 
@@ -29,7 +29,15 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   optional hash upgrade) are written in the same `Repo` transaction as the
   associated data changes via `Ecto.Multi` and `Sigra.Audit.log_multi_safe/3`.
 
+### Roadmap traceability
+
+Planning milestone **v1.4** (GA readiness & audit trail completeness; **not** a Hex version): shipped **2026-04-22** per `.planning/MILESTONES.md` — see `.planning/milestones/v1.4-ROADMAP.md`, `.planning/milestones/v1.4-REQUIREMENTS.md`, `.planning/milestones/v1.4-MILESTONE-AUDIT.md`, and the GA matrix framing in `.planning/v1.4-GA-UAT.md` (Executed / Waived language; do not duplicate the matrix here).
+
 ## [0.2.0] - 2026-04-19
+
+### Roadmap traceability
+
+Planning milestone **v1.3** (cleanup & hardening tranche; **not** a Hex version): shipped **2026-04-19** per `.planning/MILESTONES.md` — see `.planning/milestones/v1.3-ROADMAP.md`, `.planning/milestones/v1.3-REQUIREMENTS.md`, and `.planning/milestones/v1.3-MILESTONE-AUDIT.md`.
 
 ### Added
 
@@ -59,6 +67,36 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [0.1.0] - 2026-04-17
 
 First library version line with Hex-oriented `mix.exs` packaging; upgrade to **0.2.0** for the Hex listing and additions above.
+
+### Roadmap traceability
+
+Planning milestone **v1.2** (admin dashboard tranche; **not** a Hex version): shipped **2026-04-17** per `.planning/MILESTONES.md` — see `.planning/milestones/v1.2-ROADMAP.md`, `.planning/milestones/v1.2-REQUIREMENTS.md`, and `.planning/milestones/v1.2-MILESTONE-AUDIT.md`.
+
+### Changed
+
+- **BREAKING (behavior):** `session.create` audit now fires AFTER
+  `select_active_organization` during login, so the very first audit event
+  of a successful login carries the real `organization_id` rather than a
+  `nil` one. Previously, `session.create` fired before the active-org
+  selection step and always had a null org, meaning the v1.2 impersonation
+  anchor would have no tenant to pin against. If you were relying on the
+  old ordering (e.g. a log scraper keyed on null-org events for login
+  detection), update your consumers to match the new ordering.
+- **BREAKING (API):** `Sigra.Audit.Query.build/2` now raises
+  `ArgumentError` on unknown filter keys instead of silently ignoring them.
+  If your host app was passing an unknown key (e.g. `actor:` instead of
+  `actor_id:`) the query previously returned unfiltered results — now it
+  fails loudly. Rationale: silent-ignore on an audit query is a
+  security-adjacent bug; audit systems must be loud about
+  misconfiguration.
+- **BREAKING (installer):** `Sigra.Workers.AccountDeletion` job args now
+  require five additional stringified keys at enqueue time:
+  `"organization_id"`, `"actor_id"`, `"scope_module"`, `"organization_schema"`,
+  and `"audit_schema"`. Host apps that use the Sigra installer to generate
+  the account-deletion Oban enqueue site should regenerate that site (or
+  manually add the new args). The worker validates presence of all five
+  via `fetch_arg!/2` up front BEFORE any `Module.safe_concat` call so the
+  `KeyError` surfaces with the actual missing key.
 
 ### Fixed
 
@@ -104,30 +142,4 @@ First library version line with Hex-oriented `mix.exs` packaging; upgrade to **0
   `@disable_ddl_transaction true` + `create index(..., concurrently: true)`
   for zero-downtime deploy on production audit tables. On SQLite/MySQL, a
   plain `change/0` migration emits the same shape non-concurrently.
-
-### Changed
-
-- **BREAKING (behavior):** `session.create` audit now fires AFTER
-  `select_active_organization` during login, so the very first audit event
-  of a successful login carries the real `organization_id` rather than a
-  `nil` one. Previously, `session.create` fired before the active-org
-  selection step and always had a null org, meaning the v1.2 impersonation
-  anchor would have no tenant to pin against. If you were relying on the
-  old ordering (e.g. a log scraper keyed on null-org events for login
-  detection), update your consumers to match the new ordering.
-- **BREAKING (API):** `Sigra.Audit.Query.build/2` now raises
-  `ArgumentError` on unknown filter keys instead of silently ignoring them.
-  If your host app was passing an unknown key (e.g. `actor:` instead of
-  `actor_id:`) the query previously returned unfiltered results — now it
-  fails loudly. Rationale: silent-ignore on an audit query is a
-  security-adjacent bug; audit systems must be loud about
-  misconfiguration.
-- **BREAKING (installer):** `Sigra.Workers.AccountDeletion` job args now
-  require five additional stringified keys at enqueue time:
-  `"organization_id"`, `"actor_id"`, `"scope_module"`, `"organization_schema"`,
-  and `"audit_schema"`. Host apps that use the Sigra installer to generate
-  the account-deletion Oban enqueue site should regenerate that site (or
-  manually add the new args). The worker validates presence of all five
-  via `fetch_arg!/2` up front BEFORE any `Module.safe_concat` call so the
-  `KeyError` surfaces with the actual missing key.
 
