@@ -8,7 +8,7 @@
 - ✅ **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (shipped 2026-04-17). See [v1.2 archive](milestones/v1.2-ROADMAP.md), [v1.2 requirements](milestones/v1.2-REQUIREMENTS.md), [v1.2 milestone audit](milestones/v1.2-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (complete **2026-04-22**). Requirements: [.planning/REQUIREMENTS.md](REQUIREMENTS.md).
+- ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (shipped **2026-04-22**). See [v1.5 archive](milestones/v1.5-ROADMAP.md), [v1.5 requirements](milestones/v1.5-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Phases
 
@@ -21,30 +21,20 @@ At a glance: **41** backup-code rotation (**GA-01**); **42** GA matrix scaffold;
 
 </details>
 
-## Phases (v1.5)
+<details>
+<summary>✅ v1.5 Public release narrative & community readiness (Phases 53–56) — SHIPPED 2026-04-22</summary>
 
-| Phase | Name | Goal | Requirements | Success criteria (observable) |
-|-------|------|------|--------------|------------------------------|
-| ✅ **53** | Package & Hex metadata | Align **Hex / mix.exs** public surface with shipped **v1.0–v1.4** reality | PUB-01 | **Complete 2026-04-22** — `mix.exs` description + links; see [`phases/053-package-hex-metadata/053-01-SUMMARY.md`](phases/053-package-hex-metadata/053-01-SUMMARY.md). (3) Maintainer sign-off via PR or `/gsd-verify-work`. |
-| ✅ **54** | Changelog & milestone anchors | **`CHANGELOG.md`** tells a coherent version story through **v1.4** | PUB-02 | **Complete 2026-04-22** — milestone glossary, per-release roadmap traceability (v1.2–v1.4), 0.1.0 section order, compare links; see [`phases/054-changelog-milestone-anchors/054-01-SUMMARY.md`](phases/054-changelog-milestone-anchors/054-01-SUMMARY.md). (3) `mix compile --warnings-as-errors` clean. |
-| ✅ **55** | README & ExDoc entry paths | Readers find **GA / audit posture** from repo + docs home | DOC-01, DOC-02 | **Complete 2026-04-22** — README GA block + `SECURITY.md` + `docs/ga-evidence.md` + ExDoc extras + getting-started reading map; `mix docs --warnings-as-errors` clean; see [`055-01-SUMMARY.md`](phases/055-readme-exdoc-entry-paths/055-01-SUMMARY.md) and [`055-02-SUMMARY.md`](phases/055-readme-exdoc-entry-paths/055-02-SUMMARY.md). |
-| ✅ **56** | Maintainer announcement checklist | **`MAINTAINING.md`** runbook for first loud public push | MAINT-01 | **Complete 2026-04-22** — First public launch section + intro pointer; tag-scoped `.planning/` evidence URLs; optional comms rows; see [`56-01-SUMMARY.md`](phases/56-maintainer-announcement-checklist/56-01-SUMMARY.md). |
+Full phase table, goals, and canonical refs are archived in [`milestones/v1.5-ROADMAP.md`](milestones/v1.5-ROADMAP.md).
 
-### Phase 56: Maintainer announcement checklist
+At a glance: **53** Hex / `mix.exs` metadata (**PUB-01**); **54** `CHANGELOG.md` milestone anchors (**PUB-02**); **55** README + ExDoc GA entry paths (**DOC-01**, **DOC-02**); **56** maintainer **First public launch** checklist in `MAINTAINING.md` (**MAINT-01**).
 
-**Goal:** Add a concise **“First public announcement”** checklist to **`MAINTAINING.md`** (MAINT-01) — ordered steps with owners, aligned with shipped GA / audit evidence.
+</details>
 
-**Requirements:** MAINT-01 (see `.planning/REQUIREMENTS.md`)
+## Next milestone
 
-**Success Criteria:**
+_No active phases — open the next planning cycle with `/gsd-new-milestone`._
 
-1. Ordered checklist with owners.
-2. References **install-golden** / **GA matrix** evidence where relevant (`install_golden_contract`, `.planning/v1.4-GA-UAT.md`, related docs).
-3. Optional human rows clearly marked **optional** when v1.4 waivers still apply.
-
-**Canonical refs:** `.planning/REQUIREMENTS.md`, `.planning/v1.4-GA-UAT.md`, `MAINTAINING.md`, `.planning/milestones/v1.4-REQUIREMENTS.md`
-
-## Backlog (parking lot — not v1.5 unless promoted)
+## Backlog (parking lot — not in the active roadmap until promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
 - Items not mapped in the [v1.4 requirements archive](milestones/v1.4-REQUIREMENTS.md) stay here until a future milestone selects them.

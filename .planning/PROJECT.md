@@ -8,21 +8,13 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.5 Public release narrative & community readiness
+## Current milestone
 
-**Goal:** Make Sigra’s **public story** (Hex, README, changelog, docs landing) match what v1.0–v1.4 actually shipped and the **v1.4 GA / audit evidence** bundle — so maintainers can point outsiders at one coherent narrative without re-opening waived GA rows as silent claims.
-
-**Target features:**
-- **Package surface:** `mix.exs` / Hex description / links aligned with current capabilities and support matrix.
-- **Release hygiene:** `CHANGELOG.md` carries major milestone boundaries (at least through v1.4); tagging guidance stays in `MAINTAINING.md`.
-- **Docs entry:** README + docs home briefly explain GA posture (machine substitutes + where human proof lives) with pointers to `.planning/milestones/v1.4-*` and `v1.4-GA-UAT.md` as appropriate for OSS readers.
-- **Announcement readiness:** Short maintainer checklist (blog / forums / HN) — execution optional; artifact is the checklist and owners, not mandatory posts.
-
-**Seeds surfaced:** **SEED-001** (trigger: first public announcement / Hex push) — this milestone prepares narrative and links; it does **not** re-litigate waived GA matrix rows unless maintainers explicitly add human-proof phases later.
+**Between milestones** — **v1.5** shipped **2026-04-22** (archives under `.planning/milestones/v1.5-*`). Open the next cycle with **`/gsd-new-milestone`** (fresh `.planning/REQUIREMENTS.md` and roadmap phases).
 
 ## Current State
 
-**v1.5 (narrative + maintainer readiness):** Phases **53–56** complete (2026-04-22) — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**).
+**v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
 **Shipped:** **v1.4 GA readiness & audit trail completeness** (2026-04-22) — Phases **41–52**: backup-code rotation (**GA-01**), GA matrix with executed/waived rows and evidence (**GA-02..GA-05**), audit inventory + prioritized **`log_safe/3` → `Ecto.Multi`** batches through **OAuth/ops** (**AUD-04..AUD-08**) with formal **43/44/45 `*-VERIFICATION.md`** gates, **Nyquist + install-golden CI** policy (**50–51**), and **ROADMAP / milestone honesty** guardrails (**52**). Archives: `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`.
 
@@ -130,6 +122,14 @@ After **v1.5**, candidate themes include optional **OAuth ceremony audit smoke**
 - ✓ Telemetry events for all auth operations (24+ events across phases) — v1.0
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
+
+### Validated — v1.5 Public release narrative & community readiness
+
+- ✓ **PUB-01** — `mix.exs` package description and links aligned with shipped **v1.0–v1.4** capabilities; optional deps called out honestly — **Phase 53** (2026-04-22)
+- ✓ **PUB-02** — `CHANGELOG.md` milestone anchors, roadmap traceability (**v1.2–v1.4**), compare links — **Phase 54** (2026-04-22)
+- ✓ **DOC-01** — README GA / production-readiness paragraph with pointers to **v1.4** evidence — **Phase 55** (2026-04-22)
+- ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
+- ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
 
 ### Validated — v1.4 GA readiness & audit trail completeness
 
@@ -275,8 +275,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.4 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.5 execution log)</summary>
 
+- **2026-04-22** — **v1.5** phases **53–56** complete; `/gsd-complete-milestone` archived planning + tag **`v1.5`**.
 - **2026-04-22** — v1.4 phases **41–52** complete on ROADMAP; milestone wrap via `/gsd-complete-milestone`.
 - **2026-04-21** — Phases **50** (Nyquist + `install_golden_contract`), **49** (`45-VERIFICATION.md`, **AUD-08**), **48** / **47** (44/43 verification), **46** (GA matrix gap closure).
 - **2026-04-20** — Phase **41** (**GA-01**); `/gsd-new-milestone` opened v1.4.
@@ -287,4 +288,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **v1.5**: phases **53–56** executed (**PUB-01**, **PUB-02**, **DOC-01** / **DOC-02**, **MAINT-01** announcement checklist). Tag **`v1.4`** on `origin`.*
+*Last updated: 2026-04-22 — **v1.5** milestone closed via `/gsd-complete-milestone` (archives + tag **`v1.5`**). Tag **`v1.4`** on `origin`.*

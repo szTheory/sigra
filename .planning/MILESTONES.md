@@ -195,3 +195,34 @@
 - [v1.4 Milestone Audit](milestones/v1.4-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.5 Public release narrative & community readiness (Shipped: 2026-04-22)
+
+**Scope:** 4 phases (53–56), 5 plans.
+
+**What shipped:** **PUB-01** — `mix.exs` / Hex description and `package[:links]` aligned with shipped **v1.0–v1.4** capabilities and optional deps. **PUB-02** — `CHANGELOG.md` milestone glossary, roadmap traceability for **v1.2–v1.4**, ordered **0.1.0** sections, and Keep a Changelog compare links. **DOC-01** / **DOC-02** — README **Production readiness & GA evidence** block, new **`SECURITY.md`**, **`docs/ga-evidence.md`**, ExDoc extras, and clean `mix docs --warnings-as-errors`. **MAINT-01** — **First public launch** checklist in **`MAINTAINING.md`** with owners, tag-scoped `.planning` evidence URLs, and explicitly optional comms rows where **v1.4** waivers apply.
+
+### Key accomplishments
+
+1. **Phase 53 — honest Hex surface** — Core vs optional integrations reflected in public package metadata without dead claims.
+2. **Phase 54 — changelog as narrative spine** — Planning milestones and SemVer releases are distinguishable; traceability blocks link roadmap archives and compare URLs.
+3. **Phase 55 — OSS entry to GA evidence** — README and ExDoc give a short path to **Executed / Waived** language and **v1.4** artifacts.
+4. **Phase 56 — shippable announcement runbook** — Maintainer checklist orders **tag → Hex → announce → monitor** with pointers to **install golden** and **v1.4-GA-UAT** evidence.
+
+### Stats
+
+- **Requirements:** 5/5 Complete in archived [`milestones/v1.5-REQUIREMENTS.md`](milestones/v1.5-REQUIREMENTS.md).
+- **Milestone audit:** none filed for v1.5; closure used requirements traceability + phase summaries.
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-22).
+- **Timeline:** 2026-04-22 (single-day milestone execution on disk).
+
+### Tech debt carried forward
+
+- **`gsd-sdk query milestone.complete`** returned `version required for phases archive`; archival followed the same manual path as **v1.3** / **v1.4**.
+
+**Archive:**
+
+- [v1.5 Roadmap](milestones/v1.5-ROADMAP.md)
+- [v1.5 Requirements](milestones/v1.5-REQUIREMENTS.md)
+
+---

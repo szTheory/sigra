@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: unless promoted)
-status: milestone_complete
-stopped_at: Phase 56 executed — MAINT-01
-last_updated: "2026-04-22T14:55:51Z"
+milestone: null
+milestone_name: null
+status: between_milestones
+stopped_at: v1.5 archived — use /gsd-new-milestone
+last_updated: "2026-04-22T15:11:12Z"
 last_activity: 2026-04-22
 progress:
-  total_phases: 1
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md` (updated 2026-04-22)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **v1.5** narrative + maintainer readiness (**53–56**) — complete; pick next work with **`/gsd-new-milestone`** or **`/gsd-progress`**.
+**Current focus:** **Between milestones** — **v1.5** shipped and archived; use **`/gsd-new-milestone`** to define the next requirements + roadmap slice.
 
 ## Current Position
 
-Phase: **56** (complete)
+Phase: _none queued_
 
-Plan: **56-01** (complete)
+Plan: _none_
 
-Status: Milestone complete — v1.5 phases **53–56** shipped
+Status: Between milestones (v1.5 complete, `REQUIREMENTS.md` removed for next cycle)
 
 Last activity: 2026-04-22
 
-Progress: v1.5 phase table **53–56** complete (**MAINT-01** delivered)
+Progress: Awaiting **`/gsd-new-milestone`**
 
 ## Performance Metrics
 
@@ -42,13 +42,7 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
-v1.4 shipped **2026-04-22**; archives under `.planning/milestones/v1.4-*`. GA matrix: `.planning/v1.4-GA-UAT.md`. CI / install golden: `MAINTAINING.md`, `50-VERIFICATION.md`.
-
-**Phase 53:** `mix.exs` Hex description + `package[:links]` + ExDoc publish note — see `phases/053-package-hex-metadata/053-01-SUMMARY.md`.
-
-**Phase 54:** `CHANGELOG.md` milestone glossary, roadmap traceability (v1.2–v1.4), 0.1.0 section order, compare links — see `phases/054-changelog-milestone-anchors/054-01-SUMMARY.md`.
-
-**Phase 56:** `MAINTAINING.md` first public launch checklist (**MAINT-01**) — see `phases/56-maintainer-announcement-checklist/56-01-SUMMARY.md`.
+**v1.5** closed **2026-04-22** — archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`. Summary: `.planning/MILESTONES.md`.
 
 **Note:** GSD **`phases.clear`** is **not** used in this repo — `.planning/phases/` retains historical milestone directories as archaeology.
 
@@ -62,14 +56,14 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: v1.5 milestone close
 
-Stopped at: Phase 56 complete — MAINT-01
+Stopped at: Planning vacuum after archive — **`/gsd-new-milestone`**
 
 Resume file: --resume-file
 
-**Next phase:** None queued for v1.5 — use **`/gsd-new-milestone`** to open the next cycle.
+**Next phase:** TBD by next milestone requirements
 
-**Planned focus:** Between milestones — see **`/gsd-progress`**.
+**Planned focus:** See **`/gsd-progress`** after **`/gsd-new-milestone`**
 
-**Planned Phase:** — (v1.5 table complete)
+**Planned Phase:** —
