@@ -12,8 +12,8 @@ Scoped to phase deliverables: `.github/workflows/ci.yml` path detector parity, p
 ## Findings
 
 - **CI:** Extended `grep -qE` pattern is identical in both jobs; YAML structure unchanged aside from comments and one `run:` line per job.
-- **Tests:** `Phase50` verification test correctly branches on `status: passed` vs draft; `Phase51` test uses `Regex.escape` for a literal substring count — appropriate for locking YAML contents.
-- **Docs:** No secrets; `50-VERIFICATION.md` honestly records draft when local merge gate cannot complete.
+- **Tests:** `Phase50` verification test locks **CI-as-truth** strings in `50-VERIFICATION.md`; `Phase51` test uses `Regex.escape` for YAML path detector parity.
+- **Docs:** No secrets; `50-VERIFICATION.md` defines canonical attestation via required **`install_golden_contract`** on `main`.
 
 ## Self-Check: PASSED
 

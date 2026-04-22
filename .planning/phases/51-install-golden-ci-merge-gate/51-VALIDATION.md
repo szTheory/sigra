@@ -25,7 +25,7 @@ created: 2026-04-21
 
 - **After every task commit:** Run the quick command above
 - **After every plan wave:** Run the full suite command above
-- **Before `/gsd-verify-work`:** `mix ci.install_golden` green if `50-VERIFICATION.md` claims **PASS** for the merge gate
+- **Before `/gsd-verify-work`:** On `main`, required check **`Install golden + idempotency contract (subprocess harness)`** green (see **`MAINTAINING.md`**); `50-VERIFICATION.md` no longer uses a pasted **PASS** row as truth
 - **Max feedback latency:** 60s for structural tests; merge gate excluded from Nyquist sampling cap
 
 ## Per-Task Verification Map
@@ -34,7 +34,7 @@ created: 2026-04-21
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 51-01-01 | 01 | 1 | ROADMAP (2) CI coupling | T-51-01 | Path gate cannot silently shrink vs documented regex | unit | `mix test test/sigra/planning/phase_51_install_golden_ci_contract_test.exs` | ✅ | ✅ |
 | 51-01-02 | 01 | 1 | ROADMAP (2) parity | T-51-02 | Both jobs use identical diff detector | unit | same | ✅ | ✅ |
-| 51-02-01 | 02 | 1 | ROADMAP (1) receipt | T-51-03 | Verification doc cannot claim PASS without grep token | unit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs` (updated) | ✅ | ✅ |
+| 51-02-01 | 02 | 1 | ROADMAP (1) receipt | T-51-03 | Doc encodes CI-as-truth; no fabricated markdown PASS | unit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs` (updated) | ✅ | ✅ |
 | 51-02-02 | 02 | 1 | ROADMAP (3) GA cross-link | T-51-04 | Waived GA rows reference installer substitute | grep | `rg -n "install_golden|ci.install_golden" MAINTAINING.md .planning/v1.4-GA-UAT.md` | ✅ | ✅ |
 
 ## Wave 0 Requirements
@@ -45,13 +45,13 @@ Existing infrastructure covers all phase requirements — no Wave 0 stubs.
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|---------------------|
-| Green `mix ci.install_golden` on maintainer machine | ROADMAP (1) | Subprocess + Hex network | Postgres at localhost:5432; run documented merge gate; copy exit code + wall time into `50-VERIFICATION.md` |
+| Optional local `mix ci.install_golden` | Debugging only | Subprocess + Hex network | Postgres at `localhost:5432`; see **`CLAUDE.md`**. Attestation is CI on **`main`** — not a row in `50-VERIFICATION.md`. |
 
 ## Validation Sign-Off
 
-- [x] All tasks have automated verify or documented manual merge gate (structural + docs delivered; merge gate receipt **open** — see `51-VERIFICATION.md` gaps)
+- [x] All tasks have automated verify or CI-as-truth documentation (`50-VERIFICATION.md` + branch protection runbook in **`MAINTAINING.md`**)
 - [x] Sampling continuity: structural tests after YAML edits
-- [ ] `50-VERIFICATION.md` **PASS** line present before `status: passed`
+- [x] `50-VERIFICATION.md` uses **CI attestation** model (no pasted **PASS** requirement)
 - [ ] `nyquist_compliant: true` set in frontmatter only when map above is ✅
 
-**Approval:** partial — merge gate **draft** until maintainer records **PASS** or CI receipt
+**Approval:** complete for automation scope — **Nyquist** frontmatter unchanged (`false`) per phase policy

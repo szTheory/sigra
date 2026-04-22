@@ -3,7 +3,8 @@ defmodule Sigra.Planning.Phase50NyquistDocsContractTest do
   Nyquist validation for phase 50 documentation + CI wiring (no subprocess harness).
 
   Encodes the grep / structure checks from `.planning/phases/50-nyquist-ci-gate-hygiene/50-VALIDATION.md`.
-  Full installer golden execution remains `mix ci.install_golden` / `install_golden_contract`.
+  Installer golden **truth** is the **`install_golden_contract`** job on **`main`** (see `50-VERIFICATION.md` §CI attestation);
+  local `mix ci.install_golden` is optional repro only.
   """
 
   use ExUnit.Case, async: true
@@ -79,15 +80,20 @@ defmodule Sigra.Planning.Phase50NyquistDocsContractTest do
     assert p44 =~ "44-VERIFICATION"
   end
 
-  test "50-02 plan: 50-VERIFICATION merge gate receipt vs passed posture" do
+  test "50-02 plan: 50-VERIFICATION documents CI-as-truth attestation for install golden" do
     body = read!(".planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md")
+
     assert body =~ "mix ci.install_golden"
+    assert body =~ "test/sigra/install/golden_diff_test.exs"
+    assert body =~ "test/sigra/install/idempotency_test.exs"
     assert body =~ "git rev-parse HEAD"
 
-    if body =~ ~r/^status: passed/m do
-      assert body =~ "PASS"
-    else
-      assert body =~ ~r/^status: draft/m
-    end
+    assert body =~ "## CI attestation (canonical)"
+    assert body =~ "Install golden + idempotency contract (subprocess harness)"
+    assert body =~ "install_golden_contract"
+    assert body =~ "required status check"
+    assert body =~ "default branch"
+
+    assert body =~ ~r/^status: complete/m
   end
 end

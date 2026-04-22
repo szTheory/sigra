@@ -25,7 +25,11 @@ PR diffs that touch any of the following path classes run both **`install_golden
 - **`lib/sigra/account`**
 - **`lib/sigra/passkeys`**
 
-Waived **GA-03** / **GA-04** rows in **`.planning/v1.4-GA-UAT.md`** document OAuth mock and getting-started CI substitutes; those waivers do **not** replace **`mix ci.install_golden`** / **`install_golden_contract`** for **`priv/templates/sigra.install/`** template drift — see **`.planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md`** for the installer merge-gate receipt.
+Waived **GA-03** / **GA-04** rows in **`.planning/v1.4-GA-UAT.md`** document OAuth mock and getting-started CI substitutes; those waivers do **not** replace **`mix ci.install_golden`** / **`install_golden_contract`** for **`priv/templates/sigra.install/`** template drift — see **`.planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md`** for how installer attestation is defined (CI on **`main`**, not a pasted markdown row).
+
+### Troubleshooting slow or hung local `mix ci.install_golden`
+
+The harness shells out to **`mix deps.get`** inside a generated tmp Phoenix app (`Sigra.Test.InstallFixture`). Long stalls are almost always **Hex / registry network I/O**, not Sigra compile errors. Prefer running the same work in CI (**`install_golden_contract`**) or use a warm local Hex cache and stable network. For Hex client tuning, see your installed Hex version’s docs (`mix help hex.config`); there is no separate Sigra knob beyond normal Mix/Hex environment.
 
 ## Nyquist policy (phases 41-44)
 
@@ -65,6 +69,25 @@ Pick the **least privilege** your org policy allows while still running third-pa
 ### Fork pull request workflows
 
 Unrelated to Release Please on `main`. A common balance is **Require approval for first-time contributors**; stricter orgs use **Require approval for all external contributors**.
+
+### Branch protection — required check for install golden (shift-left)
+
+**Goal:** Treat installer subprocess health as machine-enforced on **`main`**, with zero ongoing human edits to **`.planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md`** for “PASS” proof.
+
+**Prerequisite:** The workflow file on **`main`** must define job id **`install_golden_contract`** (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Until that commit is merged to the default branch, the check will not appear in GitHub’s branch protection picker.
+
+**Where:** [Repository → Settings → Branches](https://github.com/szTheory/sigra/settings/branches) → **Branch protection rules** → **Add rule** (or edit the rule for **`main`**).
+
+**What to enable**
+
+1. **Require a pull request before merging** — if your org already mandates this on `main`, keep it.
+2. Under **Status checks that are required**, search for and enable exactly this check name (copy/paste — it must match the `name:` field under `install_golden_contract` in `ci.yml`):
+
+   `Install golden + idempotency contract (subprocess harness)`
+
+3. Save the rule. New pushes to **`main`** (and PRs that run the job per path rules) must stay green on that check before merge.
+
+**Why this string:** GitHub displays the job’s `name:` string, not the YAML key `install_golden_contract`, in the branch protection UI.
 
 ### Artifact, log, and cache retention
 
