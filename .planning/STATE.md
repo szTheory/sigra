@@ -4,14 +4,14 @@ milestone: v1.4
 milestone_name: unless promoted)
 status: planning
 stopped_at: Phase 50 context gathered
-last_updated: "2026-04-22T02:56:52.187Z"
-last_activity: 2026-04-21
+last_updated: "2026-04-22T03:05:00.000Z"
+last_activity: 2026-04-22
 progress:
   total_phases: 46
-  completed_phases: 41
+  completed_phases: 42
   total_plans: 153
   completed_plans: 156
-  percent: 100
+  percent: 91
 ---
 
 # Project State
@@ -22,7 +22,7 @@ See: `.planning/PROJECT.md` (updated 2026-04-21)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase --phase — 49
+**Current focus:** Phase 50 — Nyquist validation and CI gate hygiene
 
 ## Current Position
 
@@ -32,7 +32,7 @@ Plan: Not started
 
 Status: Ready to plan
 
-Last activity: 2026-04-21
+Last activity: 2026-04-22
 
 Progress: [████████░░] 86%
 
@@ -62,12 +62,12 @@ Stopped at: Phase 50 context gathered
 
 Resume file: --resume-file
 
-**Next phase:** **49** — phase-45-verification-aud08-c1 (see `.planning/ROADMAP.md`)
+**Next phase:** **50** — Nyquist validation and CI gate hygiene (see `.planning/ROADMAP.md`)
 
-**Completed Phase:** 48 (phase-44-verification-aud0607) — 2 plans — execution 2026-04-21
+**Completed Phase:** 52 (roadmap-nyquist-milestone-honesty) — 2 plans — execution 2026-04-22
 
-**Prior:** 47 (phase-43-verification-aud0405) — 2 plans — 2026-04-21
+**Prior:** 49 (phase-45-verification-aud08-c1) — 2026-04-21
 
-**Planned focus:** Phase **49** — publish `45-VERIFICATION.md`, close **AUD-08**, reconcile C-1 narrative.
+**Planned focus:** Phases **50–51** open on ROADMAP — Nyquist batch **41–44**, install-golden / CI coupling.
 
-**Planned Phase:** 52 (roadmap-nyquist-milestone-honesty) — 2 plans — 2026-04-22T02:56:52.163Z
+**Planned Phase:** _(see ROADMAP v1.4 table for **50** / **51**)_
