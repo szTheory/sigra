@@ -29,8 +29,8 @@ created: 2026-04-21
 ## Sampling Rate
 
 - **After Wave 1 commits (VALIDATION edits):** `mix format --check-formatted` on touched Elixir files if any; otherwise doc-only greps from plan acceptance.
-- **After Wave 2 commits (`mix.exs` / CI):** Run **`mix ci.install_golden`** as defined in **`mix.exs`** after the alias lands.
-- **Before `/gsd-verify-work`:** Merge gate block in **`50-VERIFICATION.md`** green on recorded SHA.
+- **After Wave 2 commits (`mix.exs` / CI):** Optional local **`mix ci.install_golden`**; authoritative green is **`install_golden_contract`** on **`main`** (required check — see **`MAINTAINING.md`**).
+- **Before `/gsd-verify-work`:** Required **`Install golden + idempotency contract (subprocess harness)`** check green on **`main`**; **`50-VERIFICATION.md`** documents CI-as-truth (no pasted PASS row).
 
 ---
 
@@ -43,13 +43,13 @@ created: 2026-04-21
 | 50-01-03 | 01 | 1 | ROADMAP (1) | T-50-01 | Same | ExUnit | same file/line as **50-01-01** | ✅ | ✅ green |
 | 50-01-04 | 01 | 1 | ROADMAP (1) | T-50-01 | Same | ExUnit | same file/line as **50-01-01** | ✅ | ✅ green |
 | 50-01-05 | 01 | 1 | D-50-01 | T-50-02 | Policy table public | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:34` | ✅ | ✅ green |
-| 50-02-01 | 02 | 2 | ROADMAP (2) | T-50-03 | CI runs cited command | ExUnit + mix | Structure: `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:41`; **full subprocess harness:** `mix ci.install_golden` (see `50-VERIFICATION.md`) | ✅ | ✅ green (structure) / ⬜ merge gate open |
+| 50-02-01 | 02 | 2 | ROADMAP (2) | T-50-03 | CI runs cited command | ExUnit + mix | Structure: `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:41`; **full subprocess harness:** `mix ci.install_golden` / `install_golden_contract` (see `50-VERIFICATION.md` §CI attestation) | ✅ | ✅ green |
 | 50-02-02 | 02 | 2 | D-50-02 | T-50-04 | Timeouts documented | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:55` | ✅ | ✅ green |
 | 50-02-41 | 02 | 2 | D-50-01 | T-50-10 | 41 cites installer contract | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:60` | ✅ | ✅ green |
 | 50-02-42 | 02 | 2 | D-50-01 | T-50-10 | 42 waiver + `nyquist_compliant: false` | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:65` | ✅ | ✅ green |
 | 50-02-43 | 02 | 2 | D-50-01 | T-50-10 | 43/44 MAINTAINING + VERIFICATION pointers | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:72` | ✅ | ✅ green |
-| 50-02-50v | 02 | 2 | D-50-04 | T-50-11 | `50-VERIFICATION.md` merge gate template | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:82` | ✅ | ✅ green |
-| 50-03-01 | 03 | 3 | ROADMAP (3) | T-50-05 | Receipts not fabricated | manual+log | Merge gate in `50-VERIFICATION.md` | ⬜ W0 | ⬜ pending |
+| 50-02-50v | 02 | 2 | D-50-04 | T-50-11 | `50-VERIFICATION.md` CI attestation template | ExUnit | `mix test test/sigra/planning/phase_50_nyquist_docs_contract_test.exs:83` | ✅ | ✅ green |
+| 50-03-01 | 03 | 3 | ROADMAP (3) | T-50-05 | Receipts not fabricated | policy + CI | `50-VERIFICATION.md` + branch protection runbook (`MAINTAINING.md`) | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red*
 
@@ -67,7 +67,7 @@ created: 2026-04-21
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| **`50-VERIFICATION.md` merge gate** | ROADMAP (3) | Records human-attested SHA at close | Run printed commands; paste exit lines into **Automated checks run**; set `verified` date. |
+| **`50-VERIFICATION.md` merge gate** | ROADMAP (3) | CI-as-truth on `main` | Enable required check per **`MAINTAINING.md`**; optional local **`mix ci.install_golden`** for debugging only. |
 
 ---
 
@@ -83,10 +83,10 @@ created: 2026-04-21
 
 ## Validation Sign-Off
 
-- [x] All tasks have `<verify>` / grep acceptance or Wave 0 deps (automated slice via ExUnit; **50-03-01** still manual)
-- [x] `mix ci.install_golden` exists and matches **`50-VERIFICATION.md`** (structure asserted in ExUnit; **PASS** receipt still pending in verification doc)
+- [x] All tasks have `<verify>` / grep acceptance or Wave 0 deps (automated slice via ExUnit; **50-03-01** satisfied by CI-as-truth policy)
+- [x] `mix ci.install_golden` / **`install_golden_contract`** documented in **`50-VERIFICATION.md`** and asserted in ExUnit
 - [x] No watch-mode flags in merge gate
 - [x] **`50-RESEARCH.md`** §4 constraint respected in **`mix.exs`** alias body (two explicit test paths only)
-- [ ] `nyquist_compliant: true` in **50-VALIDATION.md** frontmatter only when **`50-VERIFICATION.md`** is honestly green
+- [ ] `nyquist_compliant: true` in **50-VALIDATION.md** frontmatter only when team elevates phase Nyquist posture
 
-**Approval:** pending (blocked on **50-03-01** merge gate + `status: passed` flip)
+**Approval:** complete for verification-doc refresh — machine attestation is **required `install_golden_contract`** on `main` (see **`MAINTAINING.md`**)
