@@ -41,3 +41,4 @@ Local runs are **optional** for attestation; CI on `main` is authoritative when 
 
 - For debugging local failures, record `git rev-parse HEAD` in your own notes or CI logs — this file does not track per-run SHAs.
 - PRs: the same job runs when the PR diff matches the path rules documented in **`MAINTAINING.md`** (installer + GA-adjacent `lib/sigra` paths).
+- **Phase 52:** ROADMAP reader honesty for phases **44–45** vs **47–49** — see `.planning/ROADMAP.md` reader note and `test/sigra/planning/phase_52_milestone_honesty_contract_test.exs`.
