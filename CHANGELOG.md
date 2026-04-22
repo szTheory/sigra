@@ -143,3 +143,6 @@ Planning milestone **v1.2** (admin dashboard tranche; **not** a Hex version): sh
   for zero-downtime deploy on production audit tables. On SQLite/MySQL, a
   plain `change/0` migration emits the same shape non-concurrently.
 
+[Unreleased]: https://github.com/sztheory/sigra/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/sztheory/sigra/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/sztheory/sigra/releases/tag/v0.1.0
