@@ -110,25 +110,7 @@ defmodule Sigra.Test.MockRepo do
     {:ok, struct}
   end
 
-  def transaction(%Ecto.Multi{} = multi) do
-    steps = Ecto.Multi.to_list(multi)
-
-    Enum.reduce_while(steps, {:ok, %{}}, fn
-      {name, {:run, fun}}, {:ok, acc} ->
-        case fun.(__MODULE__, acc) do
-          {:ok, result} -> {:cont, {:ok, Map.put(acc, name, result)}}
-          {:error, reason} -> {:halt, {:error, name, reason, acc}}
-        end
-
-      {name, {:insert, changeset, _opts}}, {:ok, acc} ->
-        result =
-          changeset
-          |> Ecto.Changeset.apply_changes()
-          |> Map.put(:id, System.unique_integer([:positive]))
-
-        {:cont, {:ok, Map.put(acc, name, result)}}
-    end)
-  end
+  def transaction(%Ecto.Multi{} = multi), do: Sigra.Test.MultiStub.run(__MODULE__, multi)
 
   def delete_all(_query), do: {0, nil}
 
@@ -168,6 +150,15 @@ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
 
   def update(changeset) do
     {:ok, Ecto.Changeset.apply_changes(changeset)}
+  end
+
+  def transaction(%Ecto.Multi{} = multi), do: Sigra.Test.MultiStub.run(__MODULE__, multi)
+
+  def insert(%Ecto.Changeset{} = changeset) do
+    {:ok,
+     changeset
+     |> Ecto.Changeset.apply_changes()
+     |> Map.put(:id, System.unique_integer([:positive]))}
   end
 
   def insert(_struct), do: {:ok, %{id: 1}}
@@ -222,35 +213,7 @@ defmodule Sigra.Test.CallbackRepo.NewUser do
   def get_by(Sigra.Test.MockIdentity, _), do: nil
   def get_by(Sigra.Test.MockUser, _), do: nil
 
-  def transaction(%Ecto.Multi{} = multi) do
-    steps = Ecto.Multi.to_list(multi)
-
-    Enum.reduce_while(steps, {:ok, %{}}, fn
-      {name, {:run, fun}}, {:ok, acc} ->
-        case fun.(__MODULE__, acc) do
-          {:ok, result} -> {:cont, {:ok, Map.put(acc, name, result)}}
-          {:error, reason} -> {:halt, {:error, name, reason, acc}}
-        end
-
-      {name, {:insert, changeset, _opts}}, {:ok, acc} ->
-        result =
-          changeset
-          |> Ecto.Changeset.apply_changes()
-          |> Map.put(:id, System.unique_integer([:positive]))
-
-        {:cont, {:ok, Map.put(acc, name, result)}}
-
-      {name, {:changeset, changeset_fn, _opts}}, {:ok, acc} ->
-        changeset = changeset_fn.(acc)
-
-        result =
-          changeset
-          |> Ecto.Changeset.apply_changes()
-          |> Map.put(:id, System.unique_integer([:positive]))
-
-        {:cont, {:ok, Map.put(acc, name, result)}}
-    end)
-  end
+  def transaction(%Ecto.Multi{} = multi), do: Sigra.Test.MultiStub.run(__MODULE__, multi)
 
   def insert(%Ecto.Changeset{} = changeset) do
     result =

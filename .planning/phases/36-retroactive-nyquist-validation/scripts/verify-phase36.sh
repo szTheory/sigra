@@ -9,8 +9,14 @@ test -f "$P36/36-INVENTORY.md"
 test -f "$P36/36-WAIVERS.md"
 grep -q "v1.2-MILESTONE-AUDIT" "$P36/36-WAIVERS.md"
 
-grep -q "36-INVENTORY" .planning/REQUIREMENTS.md || { echo "VAL-03: REQUIREMENTS must reference 36-INVENTORY" >&2; exit 1; }
-grep -q "36-WAIVERS" .planning/REQUIREMENTS.md || { echo "VAL-03: REQUIREMENTS must reference 36-WAIVERS" >&2; exit 1; }
+# Live REQUIREMENTS is removed between milestones; fall back to the v1.3 archive
+# where VAL-03 traceability for phase 36 still lives.
+REQ=.planning/REQUIREMENTS.md
+if [ ! -f "$REQ" ]; then
+  REQ=.planning/milestones/v1.3-REQUIREMENTS.md
+fi
+grep -q "36-INVENTORY" "$REQ" || { echo "VAL-03: requirements doc must reference 36-INVENTORY ($REQ)" >&2; exit 1; }
+grep -q "36-WAIVERS" "$REQ" || { echo "VAL-03: requirements doc must reference 36-WAIVERS ($REQ)" >&2; exit 1; }
 
 for vf in \
   ".planning/phases/10.1.1-example-app-repair-ci-install-usage-smoke-harness/10.1.1-VALIDATION.md" \

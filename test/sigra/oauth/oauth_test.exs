@@ -187,7 +187,9 @@ defmodule Sigra.OAuthTest do
                    provider_uid: "uid_123",
                    user_info: mock_user_info(),
                    token: mock_token()
-                 }, session: sudo_session())
+                 },
+                 session: sudo_session()
+               )
     end
 
     test "returns error without sudo session" do

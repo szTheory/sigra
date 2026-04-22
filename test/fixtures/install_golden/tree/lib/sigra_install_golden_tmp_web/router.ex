@@ -76,7 +76,6 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     pipe_through [:browser]
 
     live "/mfa", MFAChallengeLive
-
   end
 
   scope "/users", SigraInstallGoldenTmpWeb do
@@ -93,10 +92,8 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     live "/confirm", ConfirmationLive
     live "/confirm/:token", ConfirmationLive, :confirm
 
-
     live "/reset-password", ResetPasswordLive
     live "/reset-password/:token", ResetPasswordLive, :edit
-
   end
 
   scope "/users", SigraInstallGoldenTmpWeb do
@@ -106,21 +103,18 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
     live "/sessions", Auth.SessionLive, :index
 
-      get "/sudo", Auth.SudoController, :new
-      post "/sudo", Auth.SudoController, :create
+    get "/sudo", Auth.SudoController, :new
+    post "/sudo", Auth.SudoController, :create
 
     live "/settings", SettingsLive, :edit
     live "/reactivation", ReactivationLive
-
   end
 
   scope "/users", SigraInstallGoldenTmpWeb do
     pipe_through [:browser, :require_authenticated, :require_sudo]
 
     live "/settings/mfa", MFASettingsLive
-
   end
-
 
   # Phase 17 D-06: single unscoped InvitationAcceptLive at
   # /invitations/:token/accept. This route MUST remain outside any
@@ -139,6 +133,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   # Sigra organizations
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug
+
     plug Sigra.Plug.RequireMembership,
       error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
   end
@@ -175,30 +170,28 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     end
   end
 
+  # Sigra passkeys
+  scope "/users", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser]
 
-# Sigra passkeys
-scope "/users", SigraInstallGoldenTmpWeb do
-  pipe_through [:browser]
+    post "/mfa/passkey", SessionController, :complete_mfa_passkey
+    post "/mfa/passkey/options", SessionController, :passkey_mfa_options
+  end
 
-  post "/mfa/passkey", SessionController, :complete_mfa_passkey
-  post "/mfa/passkey/options", SessionController, :passkey_mfa_options
-end
+  scope "/users", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-scope "/users", SigraInstallGoldenTmpWeb do
-  pipe_through [:browser, :redirect_if_user_is_authenticated]
+    post "/log_in/passkey", SessionController, :complete_passkey
+    post "/log_in/passkey/options", SessionController, :passkey_authentication_options
+  end
 
-  post "/log_in/passkey", SessionController, :complete_passkey
-  post "/log_in/passkey/options", SessionController, :passkey_authentication_options
-end
+  scope "/users", SigraInstallGoldenTmpWeb do
+    pipe_through [:browser, :require_authenticated, :require_sudo]
 
-scope "/users", SigraInstallGoldenTmpWeb do
-  pipe_through [:browser, :require_authenticated, :require_sudo]
-
-  post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
-  post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
-  post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
-end
-
+    post "/settings/mfa/passkeys/options", SessionController, :passkey_registration_options
+    post "/settings/mfa/passkeys", SessionController, :complete_passkey_registration
+    post "/settings/mfa/passkeys/:id/delete", SessionController, :delete_passkey
+  end
 
   pipeline :admin_global do
     plug Sigra.Plug.RequireAdminAccess,
@@ -219,9 +212,15 @@ end
   scope "/", alias: false do
     pipe_through [:browser, :require_authenticated, :admin_global]
 
-    post "/admin/users/:id/impersonation", SigraInstallGoldenTmpWeb.Admin.ImpersonationController, :create
+    post "/admin/users/:id/impersonation",
+         SigraInstallGoldenTmpWeb.Admin.ImpersonationController,
+         :create
+
     get "/admin/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
-    get "/admin/users/:id/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
+
+    get "/admin/users/:id/audit/export.csv",
+        SigraInstallGoldenTmpWeb.Admin.AuditExportController,
+        :index
   end
 
   scope "/", alias: false do
@@ -232,7 +231,11 @@ end
       on_mount: [
         {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
         {Sigra.LiveView.AdminScope,
-         [mode: :global, policy: SigraInstallGoldenTmp.SigraAdminPolicy, login_path: "/users/log_in"]}
+         [
+           mode: :global,
+           policy: SigraInstallGoldenTmp.SigraAdminPolicy,
+           login_path: "/users/log_in"
+         ]}
       ] do
       live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
       live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
@@ -245,9 +248,15 @@ end
   scope "/admin/organizations/:org", alias: false do
     pipe_through [:browser, :require_authenticated, :admin_organization]
 
-    post "/users/:id/impersonation", SigraInstallGoldenTmpWeb.Admin.ImpersonationController, :create
+    post "/users/:id/impersonation",
+         SigraInstallGoldenTmpWeb.Admin.ImpersonationController,
+         :create
+
     get "/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
-    get "/users/:id/audit/export.csv", SigraInstallGoldenTmpWeb.Admin.AuditExportController, :index
+
+    get "/users/:id/audit/export.csv",
+        SigraInstallGoldenTmpWeb.Admin.AuditExportController,
+        :index
   end
 
   scope "/admin/organizations/:org", alias: false do
@@ -278,5 +287,4 @@ end
 
     delete "/impersonation", Admin.ImpersonationController, :delete
   end
-
 end

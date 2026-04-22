@@ -138,9 +138,17 @@ defmodule ExampleWeb.Router do
     live_session :require_authenticated,
       on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
       live "/sessions", Auth.SessionLive, :index
-      live "/settings/mfa", MFASettingsLive
       live "/settings", SettingsLive, :edit
       live "/reactivation", ReactivationLive
+    end
+  end
+
+  scope "/users", ExampleWeb do
+    pipe_through [:browser, :require_authenticated, :require_sudo]
+
+    live_session :require_authenticated_sudo_mfa,
+      on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
+      live "/settings/mfa", MFASettingsLive
     end
   end
 

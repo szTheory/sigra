@@ -12,15 +12,22 @@ defmodule Sigra.Audit do
   - Cursor pagination, no offset, or-expanded tiebreak (D-13)
   - Telemetry passthrough `[:sigra, :audit, :log]` on successful commit (D-24)
 
-  ## Telemetry responsibility for `log_multi/3`
+  ## Telemetry responsibility for `log_multi/3` and `log_multi_safe/3`
 
   Standalone `log/3` fires telemetry automatically from its `{:ok, _}` branch.
 
-  Callers of `log_multi/3` own their own `repo.transaction/1` call and are
-  responsible for invoking `Sigra.Audit.emit_telemetry_from_changes/1` inside
-  their `{:ok, changes}` branch. This guarantees telemetry NEVER fires when
-  the enclosing transaction rolls back. See Plan 03 integration sites for
-  examples.
+  Callers of `log_multi/3` / `log_multi_safe/3` / `__log_internal__/3` own the
+  enclosing `repo.transaction/1` and must invoke
+  `Sigra.Audit.emit_telemetry_from_changes/2` from the `{:ok, changes}` branch.
+  This guarantees telemetry NEVER fires when the enclosing transaction rolls
+  back. See Plan 03 integration sites for examples.
+
+  By default `emit_telemetry_from_changes/2` looks for the `:audit` step only
+  (the default `Ecto.Multi` operation name used when `:audit_multi_step` is
+  omitted). When you append **multiple** internal audit inserts, pass a distinct
+  `:audit_multi_step` atom per `log_multi_safe/3` / `__log_internal__/3` call,
+  then pass the same atoms as the second argument to `emit_telemetry_from_changes/2`
+  so each committed audit row emits `[:sigra, :audit, :log]` exactly once.
   """
 
   alias Sigra.Audit.{Changeset, Cursor, Query}
@@ -215,7 +222,34 @@ defmodule Sigra.Audit do
   Safe Multi-append for library-internal integration sites.
 
   Returns the multi unchanged when `:audit_schema` is nil or absent.
-  Otherwise appends an `:audit` step via `__log_internal__/3`.
+  Otherwise appends an audit insert step via `__log_internal__/3`.
+
+  ## Options
+
+  - `:audit_multi_step` — `Ecto.Multi` operation name for this insert (default
+    `:audit`). Use distinct atoms when composing **multiple** audit rows in one
+    transaction (for example `mfa.verify.success` + `mfa.backup_code_used`).
+
+        multi =
+          Ecto.Multi.new()
+          |> Sigra.Audit.log_multi_safe(
+            "mfa.verify.success",
+            Keyword.merge(opts, audit_multi_step: :audit_mfa_verify)
+          )
+          |> Sigra.Audit.log_multi_safe(
+            "mfa.backup_code_used",
+            Keyword.merge(opts, audit_multi_step: :audit_mfa_backup)
+          )
+
+        {:ok, changes} = repo.transaction(multi)
+        Sigra.Audit.emit_telemetry_from_changes(changes, [:audit_mfa_verify, :audit_mfa_backup])
+
+  - `:target_resolver` — arity-1 callback receiving the Multi `changes`
+    map (same as `:actor_resolver`) to populate `target_id` when it cannot be
+    known at composition time.
+  - `:organization_id_resolver` / `:effective_user_id_resolver` — same arity-1
+    `changes` callbacks for scope-derived columns when the subject row is only
+    known after an earlier Multi step (e.g. email-change confirm).
   """
   @spec log_multi_safe(Ecto.Multi.t(), String.t(), opts()) :: Ecto.Multi.t()
   def log_multi_safe(%Ecto.Multi{} = multi, action, opts)
@@ -230,28 +264,42 @@ defmodule Sigra.Audit do
     audit_schema = Keyword.fetch!(opts, :audit_schema)
     resolver = Keyword.get(opts, :actor_resolver)
     cs_opts = changeset_opts(opts, allow_reserved?)
+    step = Keyword.get(opts, :audit_multi_step, :audit)
 
-    Ecto.Multi.insert(multi, :audit, fn changes ->
+    Ecto.Multi.insert(multi, step, fn changes ->
       attrs = build_attrs(action, opts, resolver, changes)
       Changeset.changeset(struct(audit_schema), attrs, cs_opts)
     end)
   end
 
   @doc """
-  Emits `[:sigra, :audit, :log]` telemetry for the `:audit` step of an
-  `Ecto.Multi` changes map.
+  Emits `[:sigra, :audit, :log]` telemetry for committed audit rows in an
+  `Ecto.Multi` success `changes` map.
 
-  Callers of `log_multi/3` must invoke this from the `{:ok, changes}` branch
-  of their own `repo.transaction/1` call, so telemetry is guaranteed to fire
-  only after a successful commit.
+  `audit_steps` is the ordered list of `Ecto.Multi` operation names used with
+  `:audit_multi_step` (defaulting to a single `:audit` insert). For each step
+  that resolves to a struct in `changes`, emits one telemetry event.
+
+  Callers must invoke this only from the `{:ok, changes}` branch of their own
+  `repo.transaction/1` so telemetry never fires on rollback.
   """
-  @spec emit_telemetry_from_changes(map()) :: :ok
-  def emit_telemetry_from_changes(%{audit: %_{} = event}) do
-    emit_telemetry(event)
-    :ok
-  end
+  @spec emit_telemetry_from_changes(map(), [atom()]) :: :ok
+  def emit_telemetry_from_changes(changes, audit_steps \\ [:audit]) do
+    case {changes, audit_steps} do
+      {m, steps} when is_map(m) and is_list(steps) ->
+        Enum.each(steps, fn step ->
+          case Map.get(m, step) do
+            %_{} = event -> emit_telemetry(event)
+            _ -> :ok
+          end
+        end)
 
-  def emit_telemetry_from_changes(_), do: :ok
+        :ok
+
+      _ ->
+        :ok
+    end
+  end
 
   defp emit_telemetry(event) do
     :telemetry.execute(
@@ -436,20 +484,44 @@ defmodule Sigra.Audit do
         Keyword.get(opts, :actor_id)
       end
 
+    target_id =
+      case Keyword.get(opts, :target_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :target_id)
+      end
+
+    metadata =
+      case Keyword.get(opts, :metadata_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :metadata, %{})
+      end
+
+    organization_id =
+      case Keyword.get(opts, :organization_id_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :organization_id)
+      end
+
+    effective_user_id =
+      case Keyword.get(opts, :effective_user_id_resolver) do
+        fun when is_function(fun, 1) -> fun.(changes)
+        _ -> Keyword.get(opts, :effective_user_id)
+      end
+
     # Top-level columns (D-07) — not nested in :metadata
     %{
       action: action,
       outcome: Keyword.get(opts, :outcome, "success"),
       actor_id: actor_id,
       actor_type: Keyword.get(opts, :actor_type, "user"),
-      target_id: Keyword.get(opts, :target_id),
+      target_id: target_id,
       target_type: Keyword.get(opts, :target_type),
       ip_address: Keyword.get(opts, :ip_address),
       user_agent: Keyword.get(opts, :user_agent),
-      metadata: Keyword.get(opts, :metadata, %{}),
+      metadata: metadata,
       occurred_at: Keyword.get(opts, :occurred_at, DateTime.utc_now()),
-      organization_id: Keyword.get(opts, :organization_id),
-      effective_user_id: Keyword.get(opts, :effective_user_id)
+      organization_id: organization_id,
+      effective_user_id: effective_user_id
     }
   end
 end

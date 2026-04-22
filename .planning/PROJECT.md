@@ -8,27 +8,25 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone
+## Current milestone
 
-The next shipped increment after v1.3 is **not defined in `.planning/` yet**. Run `/gsd-new-milestone` to capture product intent, a fresh `.planning/REQUIREMENTS.md`, and phased roadmap work.
+**Between milestones** — **v1.5** shipped **2026-04-22** (archives under `.planning/milestones/v1.5-*`). Open the next cycle with **`/gsd-new-milestone`** (fresh `.planning/REQUIREMENTS.md` and roadmap phases).
 
 ## Current State
 
-**Shipped:** **v1.3 Cleanup & Hardening** (2026-04-19) — Phases 36–40: Nyquist inventory + waivers (**999.1**), SHA-pinned first-party Actions upgrades + triage (**999.2**), GA UAT gate with shift-left CI evidence and consolidated `v1.3-HUMAN-UAT.md`, `Sigra.Audit.Assertions` plus atomic audited `api.token_create`, example login/MFA audit smoke, and maintainer release + planning hygiene (`MAINTAINING.md`, optional `hex-publish.yml`, `scripts/maintainers/planning-audit-hygiene.sh`). Archives: `.planning/milestones/v1.3-ROADMAP.md`, `v1.3-REQUIREMENTS.md`, `v1.3-MILESTONE-AUDIT.md`.
+**v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
-**Previously shipped:** v1.2 Admin Dashboard (2026-04-17); v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
+**Shipped:** **v1.4 GA readiness & audit trail completeness** (2026-04-22) — Phases **41–52**: backup-code rotation (**GA-01**), GA matrix with executed/waived rows and evidence (**GA-02..GA-05**), audit inventory + prioritized **`log_safe/3` → `Ecto.Multi`** batches through **OAuth/ops** (**AUD-04..AUD-08**) with formal **43/44/45 `*-VERIFICATION.md`** gates, **Nyquist + install-golden CI** policy (**50–51**), and **ROADMAP / milestone honesty** guardrails (**52**). Archives: `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`.
 
-Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1.1 organizations and passkeys, v1.2 admin (default-on installer admin surface, impersonation, audit exploration, automation-first verification, generator parity), and v1.3 hardening that closes deferred validation, CI, UAT evidence, audit testability for a critical API path, and maintainer tooling — without expanding end-user product scope.
+**Previously shipped:** v1.3 Cleanup & Hardening (2026-04-19); v1.2 Admin Dashboard (2026-04-17); v1.1 Foundations (2026-04-16); v1.0 Phoenix Auth Library (2026-04-11).
 
-**Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
+Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1.1 organizations and passkeys, v1.2 admin (default-on installer admin surface, impersonation, audit exploration, automation-first verification, generator parity), v1.3 hardening (validation/CI/UAT/audit-testability/maintainer tooling), and **v1.4 GA + audit-trail closure** (defensible GA substitutes where waived, broader atomic audit writes with merge-gated verification, CI truth for installer golden).
 
-**Known limitations carried forward (tracked, non-blocking):**
-- Residual **SEED-001** items that still need real mail clients, live Google OAuth UX, clean-machine wall-clock, or backup-code **rotation** proof (`mfa_regenerate_backup_codes` not shipped).
-- **SEED-002** remainder — Phase 9 hybrid `log_safe/3` outside the v1.3 `api.token_create` atomic site still wants phased `Ecto.Multi` conversion as tests go audit-aware.
+**Verification:** v1.4 requirements **10/10** satisfied in archive (Complete or Waived with documented substitutes); v1.3 milestone audit **passed** at close (2026-04-19); v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
 ## Next Milestone Goals
 
-Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, deeper audit atomicity (SEED-002), new product slices (APIs, admin, orgs), or installer/DX work — each should start with a fresh requirements file and roadmap slice.
+After **v1.5**, candidate themes include optional **OAuth ceremony audit smoke** (v1.4 “Future”), deeper **Nyquist elevation** for historical phases **41–44**, or product features promoted from **`.planning/ROADMAP.md` → Backlog** — pick with **`/gsd-new-milestone`**.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -125,6 +123,26 @@ Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, d
 - ✓ Audit logging (security events with user, IP, user agent, action, metadata) — v1.0 (with C-1 caveat)
 - ✓ `getting-started.md` guide + 15 additional guides + `llms.txt` — v1.0
 
+### Validated — v1.5 Public release narrative & community readiness
+
+- ✓ **PUB-01** — `mix.exs` package description and links aligned with shipped **v1.0–v1.4** capabilities; optional deps called out honestly — **Phase 53** (2026-04-22)
+- ✓ **PUB-02** — `CHANGELOG.md` milestone anchors, roadmap traceability (**v1.2–v1.4**), compare links — **Phase 54** (2026-04-22)
+- ✓ **DOC-01** — README GA / production-readiness paragraph with pointers to **v1.4** evidence — **Phase 55** (2026-04-22)
+- ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
+- ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
+
+### Validated — v1.4 GA readiness & audit trail completeness
+
+- ✓ **GA-01** — Backup-code rotation: `Sigra.MFA.regenerate_backup_codes/4`, example `Accounts` + `MFASettingsLive`, install templates, regression in `test/example/.../backup_code_rotation_test.exs` — **Phase 41** (2026-04-20)
+- ✓ **GA-02** — Email visual QA row **Waived** with machine baseline + evidence pointers — **Phase 46** (2026-04-21)
+- ✓ **GA-03** — Live Google OAuth row **Waived** with `Sigra.OAuthTest` substitute — **Phase 46** (2026-04-21)
+- ✓ **GA-04** — Clean-machine getting-started row **Waived** with CI contract substitute — **Phase 46** (2026-04-21)
+- ✓ **GA-05** — Consolidated matrix `.planning/v1.4-GA-UAT.md` + cross-links — **Phase 46** (2026-04-21)
+- ✓ **AUD-04** / **AUD-05** — Inventory + Auth `Ecto.Multi` batch + `43-VERIFICATION.md` — **Phase 47** (2026-04-21)
+- ✓ **AUD-06** / **AUD-07** — MFA + Account/API batch + `44-VERIFICATION.md` — **Phase 48** (2026-04-21)
+- ✓ **AUD-08** — OAuth/ops batch + `45-VERIFICATION.md` + `mix ci.audit_45`; Phase 9 **C-1** matrices refreshed — **Phase 49** (2026-04-21)
+- ✓ **Process closure** — Nyquist policy + **`mix ci.install_golden`** + **`install_golden_contract`** (**50**), CI path coupling + GA↔installer attestation tests (**51**), ROADMAP honesty + contract tests (**52**) — **2026-04-21–22**
+
 ### Validated — v1.3 Cleanup & Hardening
 
 **Planning, CI, UAT, audit, tooling:**
@@ -152,14 +170,11 @@ Unset until `/gsd-new-milestone`. Likely themes: broader GA announcement prep, d
 - ✓ Review artifacts (Playwright HTML, screenshots/traces/video where configured, curated PNG baselines) — v1.2
 - ✓ Route, controller, and curl-style smoke coverage outside the browser happy path — v1.2
 
-### Active — next milestone
-
-Requirements for the next shipped increment are intentionally absent until `/gsd-new-milestone` recreates `.planning/REQUIREMENTS.md`.
-
 ### Other deferred items
 
-- [ ] SEED-001: residual human-only UAT items (real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code rotation) after v1.3 shift-left coverage
-- [ ] SEED-002: Phase 9 `log_safe/3` → atomic `Ecto.Multi` conversion beyond the v1.3 `api.token_create` site (trigger-conditioned)
+_SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/milestones/v1.4-REQUIREMENTS.md`). Use this list for ideas **not** selected for the next milestone._
+
+- (none captured — add here when `/gsd-new-milestone` promotes new seeds)
 
 ### Out of Scope
 
@@ -228,7 +243,7 @@ Requirements for the next shipped increment are intentionally absent until `/gsd
 | Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent. | ✓ Validated v1.0 — pattern held through registration/login/linking/unlink |
 | Argon2id default with bcrypt migration path | OWASP gold standard; memory-hard; transparent upgrade on login keeps migration invisible to users. | ✓ Validated v1.0 — `verify_with_upgrade/3` pattern works cleanly |
 | Database-backed session tokens (no JWT for browser) | Revocation requires server-side state; JWT-only for browser is an anti-pattern for session auth. | ✓ Validated v1.0 — JWT remains opt-in for stateless API paths only |
-| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ⚠️ Revisit — v1.3 added atomic `api.token_create` + `Sigra.Audit.Assertions`; broader hybrid `log_safe/3` conversion remains SEED-002 |
+| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ✓ Advanced in v1.4 — prioritized Auth/MFA/Account/OAuth batches + merge-gated verification; remaining deferrals are explicitly listed under post–v1.4 **C-1** matrices |
 | D-10 installer default PK type = `binary_id` (uuid) | UUIDs are idiomatic for modern Phoenix; avoids enumeration of integer IDs; matches phx.gen.auth 1.8 convention. | ✓ Validated v1.0 (flipped in phase 10.1.1) — no integer-PK regressions downstream |
 | IN-03 SHA-pin all GitHub Actions | Supply-chain security: tag-based references allow the tag to be moved post-publish; SHA pins lock the exact code. | ✓ Validated v1.0 (phase 10.1 + 10.1.1) — Dependabot `github-actions` ecosystem handles upgrade churn |
 | D-15 no `continue-on-error` on any required CI check | Flakes must be fixed at root cause; masking them defeats the gate's purpose. | ✓ Validated v1.0 — all 5 CI jobs are strict-pass; no `continue-on-error` anywhere in `.github/workflows/ci.yml` |
@@ -258,12 +273,19 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-19 after v1.3 milestone completion — Cleanup & Hardening shipped as Phases 36-40. Planning artifacts archived to `.planning/milestones/v1.3-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define the next scope.*
 
-*Last updated: 2026-04-17 after v1.2 milestone completion — Admin Dashboard shipped as Phases 27-35. Planning artifacts archived to `.planning/milestones/v1.2-*`; live `.planning/REQUIREMENTS.md` removed for the next milestone. Use `/gsd-new-milestone` to define v1.3+ scope.*
+<details>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.5 execution log)</summary>
 
-*Last updated: 2026-04-11 — started v1.1 Foundations milestone. Scope: Organizations (logical multi-tenancy) + Passkeys (WebAuthn). No admin UI. v1.2 Admin Dashboard direction fully earmarked in `.planning/v1.2-DIRECTION.md`.*
+- **2026-04-22** — **v1.5** phases **53–56** complete; `/gsd-complete-milestone` archived planning + tag **`v1.5`**.
+- **2026-04-22** — v1.4 phases **41–52** complete on ROADMAP; milestone wrap via `/gsd-complete-milestone`.
+- **2026-04-21** — Phases **50** (Nyquist + `install_golden_contract`), **49** (`45-VERIFICATION.md`, **AUD-08**), **48** / **47** (44/43 verification), **46** (GA matrix gap closure).
+- **2026-04-20** — Phase **41** (**GA-01**); `/gsd-new-milestone` opened v1.4.
+- **2026-04-19** — v1.3 shipped; live `REQUIREMENTS.md` removed for next milestone.
+- **2026-04-17** — v1.2 shipped.
+- **2026-04-11** — v1.0 shipped + v1.1 milestone start notes.
+- **2026-04-09** — Phase 8 account lifecycle completion notes.
 
-*Last updated: 2026-04-11 after v1.0 milestone completion — Sigra v1.0 Phoenix Auth Library: 12 phases, 60 plans, 117 tasks. All 85 requirements validated. 1249 tests + 33 doctests + 3 properties, 0 failures. 5 required CI checks on main (library_tests + example_unit_smoke + install_smoke + example_http_smoke + example_playwright_smoke). 2 seeds planted for GA gating (SEED-001) and audit atomicity followup (SEED-002). 2 backlog items parked (999.1 Nyquist retro, 999.2 Dependabot major bumps). Tagged v1.0.*
+</details>
 
-*Last updated: 2026-04-09 after Phase 8 completion — Account lifecycle: email change (request/confirm/cancel with token security), password change (with current password verification and configurable session invalidation), account deletion (soft_delete/hard_delete/anonymize with grace period via Oban worker), hooks engine (Ecto.Multi integration for profile update callbacks), DataExport behaviour, RequirePasswordChange plug, 24 telemetry events, 7 email templates, Settings LiveView, reactivation page, generator injector wiring, and 10 testing helpers. Human UAT pending for visual verification.*
+*Last updated: 2026-04-22 — **v1.5** milestone closed via `/gsd-complete-milestone` (archives + tag **`v1.5`**). Tag **`v1.4`** on `origin`.*

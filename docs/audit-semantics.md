@@ -14,6 +14,8 @@ Where a business operation and its audit row must commit together, prefer **`Ect
 
 Sigra historically shipped a **hybrid**: a few hot paths use `Ecto.Multi`, while others still call `log_safe/3` after the fact. Converting remaining sites is tracked as **SEED-002**; v1.3 proves the pattern on the API token create path in `Sigra.APIToken` with Postgres-backed tests.
 
+**C-1 matrix (post–v1.4 inventories):** the authoritative “which boundary is T1 vs intentional T2 (`EX-*`)” table lives in [`09-VERIFICATION.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/09-audit-logging/09-VERIFICATION.md) — keep that file aligned with `43-` / `44-` / `45-` **AUD-04** inventories when audit mechanics change.
+
 ## Testing
 
 - **`Sigra.Audit.Assertions`** — Plain functions for ordering-safe assertions against a real repo (see `guides/recipes/testing.md`).

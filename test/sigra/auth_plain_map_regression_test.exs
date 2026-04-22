@@ -91,6 +91,25 @@ defmodule Sigra.AuthPlainMapRegressionTest do
       struct
     end
 
+    def transact(%Ecto.Multi{} = multi) do
+      ops = Ecto.Multi.to_list(multi)
+
+      case ops do
+        [{step, {:insert, %Ecto.Changeset{} = cs, _}}] ->
+          struct = Ecto.Changeset.apply_changes(cs)
+          inserted = insert!(struct)
+          {:ok, %{step => inserted}}
+
+        [{step, {:insert, %_{} = struct, _}}] ->
+          inserted = insert!(struct)
+          {:ok, %{step => inserted}}
+
+        _ ->
+          raise ArgumentError,
+                "StubRepo.transact/1 only supports single-insert multis in this regression harness; got #{inspect(ops)}"
+      end
+    end
+
     def all(_schema) do
       Process.get(:stub_repo_rows, []) |> Enum.reverse()
     end

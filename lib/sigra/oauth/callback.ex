@@ -23,6 +23,7 @@ defmodule Sigra.OAuth.Callback do
   require Logger
 
   alias Ecto.Multi
+  alias Sigra.Audit
   alias Sigra.Error.OAuthError
   alias Sigra.Telemetry
 
@@ -126,20 +127,6 @@ defmodule Sigra.OAuth.Callback do
   defp do_login_with_identity_update(config, repo, identity, user, user_info, token, provider) do
     # D-31: Update identity fields on every login. D-34: Update last_used_at.
     # Pitfall 2: Only update non-nil fields (Apple name is nil on re-auth).
-    update_identity_fields(repo, identity, user_info, token)
-
-    # Create session with OAuth metadata (D-48)
-    session_metadata = build_session_metadata(config, provider)
-
-    Telemetry.event([:sigra, :oauth, :login, :stop], %{}, %{
-      user_id: user.id,
-      provider: to_string(provider)
-    })
-
-    {:ok, :logged_in, user, session_metadata}
-  end
-
-  defp update_identity_fields(repo, identity, user_info, token) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     updates =
@@ -152,7 +139,54 @@ defmodule Sigra.OAuth.Callback do
       |> put_token_expires_at(token)
 
     changeset = Ecto.Changeset.change(identity, updates)
-    repo.update(changeset)
+    provider_label = to_string(provider)
+
+    audit_base =
+      oauth_audit_base_opts(config)
+      |> Keyword.merge(
+        actor_resolver: fn _ -> user.id end,
+        target_resolver: fn _ -> user.id end,
+        effective_user_id_resolver: fn _ -> user.id end
+      )
+
+    multi =
+      Multi.new()
+      |> Multi.update(:identity, changeset)
+      |> Audit.log_multi_safe(
+        "oauth.callback.success",
+        Keyword.merge(audit_base,
+          audit_multi_step: :audit_oauth_login_success,
+          outcome: "success",
+          metadata_resolver: fn _ -> %{provider: provider_label, outcome: "logged_in"} end
+        )
+      )
+      |> Audit.log_multi_safe(
+        "oauth.login_via_oauth",
+        Keyword.merge(audit_base,
+          audit_multi_step: :audit_oauth_login,
+          metadata_resolver: fn _ -> %{provider: provider_label} end
+        )
+      )
+
+    case repo.transaction(multi) do
+      {:ok, changes} ->
+        Audit.emit_telemetry_from_changes(changes, [
+          :audit_oauth_login_success,
+          :audit_oauth_login
+        ])
+
+        session_metadata = build_session_metadata(config, provider)
+
+        Telemetry.event([:sigra, :oauth, :login, :stop], %{}, %{
+          user_id: user.id,
+          provider: provider_label
+        })
+
+        {:ok, :logged_in, user, session_metadata}
+
+      {:error, _step, _reason, _changes} ->
+        {:error, %OAuthError{provider: provider, error_code: :provider_error}}
+    end
   end
 
   defp register_oauth_user(config, provider, provider_str, user_info, token) do
@@ -171,6 +205,14 @@ defmodule Sigra.OAuth.Callback do
       else
         nil
       end
+
+    audit_base =
+      oauth_audit_base_opts(config)
+      |> Keyword.merge(
+        actor_resolver: fn %{user: u} -> u.id end,
+        target_resolver: fn %{user: u} -> u.id end,
+        effective_user_id_resolver: fn %{user: u} -> u.id end
+      )
 
     # Ecto.Multi for race condition safety (Pitfall 6)
     multi =
@@ -210,9 +252,29 @@ defmodule Sigra.OAuth.Callback do
 
         repo.insert(changeset)
       end)
+      |> Audit.log_multi_safe(
+        "oauth.callback.success",
+        Keyword.merge(audit_base,
+          audit_multi_step: :audit_oauth_registered_success,
+          outcome: "success",
+          metadata_resolver: fn _ -> %{provider: provider_str, outcome: "registered"} end
+        )
+      )
+      |> Audit.log_multi_safe(
+        "oauth.register_via_oauth",
+        Keyword.merge(audit_base,
+          audit_multi_step: :audit_oauth_registered_register,
+          metadata_resolver: fn _ -> %{provider: provider_str} end
+        )
+      )
 
     case repo.transaction(multi) do
-      {:ok, %{user: user}} ->
+      {:ok, %{user: user} = changes} ->
+        Audit.emit_telemetry_from_changes(changes, [
+          :audit_oauth_registered_success,
+          :audit_oauth_registered_register
+        ])
+
         session_metadata = build_session_metadata(config, provider)
 
         Telemetry.event([:sigra, :oauth, :register, :stop], %{}, %{
@@ -230,6 +292,15 @@ defmodule Sigra.OAuth.Callback do
         Logger.error("OAuth registration failed at #{step}: #{inspect(reason)}")
         {:error, %OAuthError{provider: provider, error_code: :provider_error}}
     end
+  end
+
+  defp oauth_audit_base_opts(config) do
+    audit_config = Map.get(config, :audit, [])
+
+    [
+      repo: config.repo,
+      audit_schema: Keyword.get(audit_config, :audit_schema)
+    ]
   end
 
   defp build_session_metadata(config, provider) do

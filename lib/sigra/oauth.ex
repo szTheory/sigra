@@ -32,6 +32,8 @@ defmodule Sigra.OAuth do
 
   require Logger
 
+  alias Ecto.Multi
+  alias Sigra.Audit
   alias Sigra.Error.OAuthError
   alias Sigra.OAuth.{Callback, Strategies}
   alias Sigra.{Identity, Telemetry, Token}
@@ -161,43 +163,11 @@ defmodule Sigra.OAuth do
     audit_opts = oauth_audit_opts(config)
 
     case result do
-      {:ok, :registered, user, _session} ->
-        Sigra.Audit.log_safe(
-          "oauth.callback.success",
-          Sigra.Scope.from_config(config, user),
-          Keyword.merge(audit_opts,
-            actor_id: user.id,
-            metadata: %{provider: to_string(provider), outcome: "registered"}
-          )
-        )
+      {:ok, :registered, _user, _session} ->
+        :ok
 
-        Sigra.Audit.log_safe(
-          "oauth.register_via_oauth",
-          Sigra.Scope.from_config(config, user),
-          Keyword.merge(audit_opts,
-            actor_id: user.id,
-            metadata: %{provider: to_string(provider)}
-          )
-        )
-
-      {:ok, :logged_in, user, _session} ->
-        Sigra.Audit.log_safe(
-          "oauth.callback.success",
-          Sigra.Scope.from_config(config, user),
-          Keyword.merge(audit_opts,
-            actor_id: user.id,
-            metadata: %{provider: to_string(provider), outcome: "logged_in"}
-          )
-        )
-
-        Sigra.Audit.log_safe(
-          "oauth.login_via_oauth",
-          Sigra.Scope.from_config(config, user),
-          Keyword.merge(audit_opts,
-            actor_id: user.id,
-            metadata: %{provider: to_string(provider)}
-          )
-        )
+      {:ok, :logged_in, _user, _session} ->
+        :ok
 
       {:error, %OAuthError{} = err} ->
         # 15-02 Category 3: OAuth callback failure has no resolved user.
@@ -317,28 +287,35 @@ defmodule Sigra.OAuth do
 
       changeset = identity_schema |> struct() |> Ecto.Changeset.change(identity_attrs)
 
-      case repo.insert(changeset) do
-        {:ok, identity} ->
+      multi =
+        Multi.new()
+        |> Multi.insert(:identity, changeset)
+        |> Audit.log_multi_safe(
+          "oauth.link",
+          Keyword.merge(oauth_audit_opts(config),
+            audit_multi_step: :audit_oauth_link,
+            actor_id: user.id,
+            target_id: user.id,
+            metadata: %{provider: to_string(provider)}
+          )
+        )
+
+      case repo.transaction(multi) do
+        {:ok, %{identity: identity} = changes} ->
+          Audit.emit_telemetry_from_changes(changes, [:audit_oauth_link])
+
           Telemetry.event([:sigra, :oauth, :link, :stop], %{}, %{
             user_id: user.id,
             provider: provider
           })
 
-          # D-26: oauth.link audit row (standalone, D-28). Provider only,
-          # never tokens or client_secret (D-23).
-          Sigra.Audit.log_safe(
-            "oauth.link",
-            Sigra.Scope.from_config(config, user),
-            Keyword.merge(oauth_audit_opts(config),
-              actor_id: user.id,
-              metadata: %{provider: to_string(provider)}
-            )
-          )
-
           {:ok, identity}
 
-        {:error, changeset} ->
-          {:error, changeset}
+        {:error, _step, %Ecto.Changeset{} = err_cs, _} ->
+          {:error, err_cs}
+
+        {:error, _step, reason, _} ->
+          {:error, reason}
       end
     end
   end
@@ -399,26 +376,31 @@ defmodule Sigra.OAuth do
           {:error, :not_found}
 
         identity ->
-          case repo.delete(identity) do
-            {:ok, _} ->
+          multi =
+            Multi.new()
+            |> Multi.delete(:identity, identity)
+            |> Audit.log_multi_safe(
+              "oauth.unlink",
+              Keyword.merge(oauth_audit_opts(config),
+                audit_multi_step: :audit_oauth_unlink,
+                actor_id: user.id,
+                target_id: user.id,
+                metadata: %{provider: provider_str}
+              )
+            )
+
+          case repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [:audit_oauth_unlink])
+
               Telemetry.event([:sigra, :oauth, :unlink, :stop], %{}, %{
                 user_id: user.id,
                 provider: provider_str
               })
 
-              # D-26: oauth.unlink audit row
-              Sigra.Audit.log_safe(
-                "oauth.unlink",
-                Sigra.Scope.from_config(config, user),
-                Keyword.merge(oauth_audit_opts(config),
-                  actor_id: user.id,
-                  metadata: %{provider: provider_str}
-                )
-              )
-
               {:ok, :unlinked}
 
-            {:error, reason} ->
+            {:error, _step, reason, _} ->
               {:error, reason}
           end
       end
@@ -481,7 +463,9 @@ defmodule Sigra.OAuth do
       %{
         provider: to_string(provider),
         nonce: nonce
-      }, max_age: @oauth_state_max_age)
+      },
+      max_age: @oauth_state_max_age
+    )
   end
 
   defp verify_state(params, session_params, secret_key_base) do

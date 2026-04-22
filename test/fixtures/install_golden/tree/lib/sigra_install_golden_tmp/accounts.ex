@@ -48,7 +48,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password}, user_schema: User) do
+    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password},
+           user_schema: User
+         ) do
       {:ok, user} -> user
       {:error, _} -> nil
     end
@@ -97,8 +99,11 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
         {:ok, user}
 
-      {:error, :email_taken} -> {:error, :email_taken}
-      {:error, changeset} -> {:error, changeset}
+      {:error, :email_taken} ->
+        {:error, :email_taken}
+
+      {:error, changeset} ->
+        {:error, changeset}
     end
   end
 
@@ -172,7 +177,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
     with {:ok, query} <- UserToken.verify_email_token_query(token, context),
          %User{} = user_from_token <- Repo.one(query),
          true <- user.id == user_from_token.id || :token_user_mismatch do
-      user_changeset = user |> User.email_changeset(%{email: user_from_token.email}) |> User.confirm_changeset()
+      user_changeset =
+        user |> User.email_changeset(%{email: user_from_token.email}) |> User.confirm_changeset()
+
       Ecto.Multi.new()
       |> Ecto.Multi.update(:user, user_changeset)
       |> Ecto.Multi.delete_all(:tokens, UserToken.by_user_and_contexts_query(user, [context]))
@@ -354,15 +361,19 @@ defmodule SigraInstallGoldenTmp.Accounts do
       url = confirmation_url_fun.(signed_token)
       email = SigraInstallGoldenTmp.Accounts.Emails.confirmation_email(user, url, code)
 
-      Sigra.Delivery.deliver(:confirmation, %{
-        user_id: user.id,
-        to: user.email,
-        subject: email.subject,
-        body: %{html: email.html_body, text: email.text_body},
-        token: signed_token,
-        code: code,
-        url: url
-      }, delivery_opts())
+      Sigra.Delivery.deliver(
+        :confirmation,
+        %{
+          user_id: user.id,
+          to: user.email,
+          subject: email.subject,
+          body: %{html: email.html_body, text: email.text_body},
+          token: signed_token,
+          code: code,
+          url: url
+        },
+        delivery_opts()
+      )
 
       {:ok, :sent}
     end
@@ -411,25 +422,29 @@ defmodule SigraInstallGoldenTmp.Accounts do
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
     case Sigra.Auth.request_password_reset(Repo, email,
-      user_schema: User,
-      user_token_schema: UserToken,
-      secret_key_base: SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base),
-      url_fun: reset_password_url_fun
-    ) do
+           user_schema: User,
+           user_token_schema: UserToken,
+           secret_key_base: SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base),
+           url_fun: reset_password_url_fun
+         ) do
       {:ok, {signed_token, url}} ->
         user = get_user_by_email(email)
 
         if user do
           email_struct = SigraInstallGoldenTmp.Accounts.Emails.reset_password_email(user, url)
 
-          Sigra.Delivery.deliver(:reset_password, %{
-            user_id: user.id,
-            to: user.email,
-            subject: email_struct.subject,
-            body: %{html: email_struct.html_body, text: email_struct.text_body},
-            token: signed_token,
-            url: url
-          }, delivery_opts())
+          Sigra.Delivery.deliver(
+            :reset_password,
+            %{
+              user_id: user.id,
+              to: user.email,
+              subject: email_struct.subject,
+              body: %{html: email_struct.html_body, text: email_struct.text_body},
+              token: signed_token,
+              url: url
+            },
+            delivery_opts()
+          )
         end
 
         {:ok, :sent}
@@ -461,7 +476,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
     secret_key_base = SigraInstallGoldenTmpWeb.Endpoint.config(:secret_key_base)
 
     with {:ok, signed} <- Base.url_decode64(signed_token, padding: false),
-         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
+         {:ok, raw_token} <-
+           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
       hashed_token = Sigra.Token.hash_token(raw_token)
 
       Repo.one(
@@ -559,7 +575,11 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Revoke all sessions for a user. Broadcasts PubSub disconnect."
   def revoke_all_sessions(user, opts \\ []) do
-    Sigra.Auth.delete_all_sessions(sigra_config(), user.id, Keyword.put(opts, :pubsub, SigraInstallGoldenTmpWeb.PubSub))
+    Sigra.Auth.delete_all_sessions(
+      sigra_config(),
+      user.id,
+      Keyword.put(opts, :pubsub, SigraInstallGoldenTmpWeb.PubSub)
+    )
   end
 
   @doc "Confirm sudo mode for a session."
@@ -579,6 +599,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   defp lockout_opts do
     config = sigra_config()
+
     [
       threshold: Keyword.get(config.lockout, :threshold, 5),
       duration: Keyword.get(config.lockout, :duration, 900)
@@ -592,7 +613,6 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   alias SigraInstallGoldenTmp.Accounts.UserPasskey
 
-
   @doc "Begin MFA enrollment. Returns secret, otpauth URI, and QR code SVG."
   def mfa_enroll(opts \\ []) do
     Sigra.MFA.enroll(sigra_config(), opts)
@@ -600,35 +620,81 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Confirm MFA enrollment with a TOTP code. Creates credential and backup codes."
   def mfa_confirm_enrollment(user, raw_secret, code, opts \\ []) do
-    Sigra.MFA.confirm_enrollment(sigra_config(), user, raw_secret, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    Sigra.MFA.confirm_enrollment(
+      sigra_config(),
+      user,
+      raw_secret,
+      code,
+      Keyword.merge(
+        [
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ],
+        opts
+      )
+    )
   end
 
   @doc "Verify a TOTP code for MFA challenge."
   def mfa_verify(user, code, opts \\ []) do
-    Sigra.MFA.verify(sigra_config(), user, code,
-      Keyword.merge([mfa_credential_schema: UserMFACredential], opts))
+    Sigra.MFA.verify(
+      sigra_config(),
+      user,
+      code,
+      Keyword.merge([mfa_credential_schema: UserMFACredential], opts)
+    )
   end
 
   @doc "Verify a backup code for MFA challenge."
   def mfa_verify_backup(user, code, opts \\ []) do
-    Sigra.MFA.verify_backup(sigra_config(), user, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    Sigra.MFA.verify_backup(
+      sigra_config(),
+      user,
+      code,
+      Keyword.merge(
+        [
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ],
+        opts
+      )
+    )
   end
 
   @doc "Disable MFA for a user. Requires valid TOTP or backup code."
   def mfa_disable(user, code, opts \\ []) do
-    Sigra.MFA.disable(sigra_config(), user, code,
-      Keyword.merge([
-        mfa_credential_schema: UserMFACredential,
-        backup_code_schema: UserBackupCode
-      ], opts))
+    Sigra.MFA.disable(
+      sigra_config(),
+      user,
+      code,
+      Keyword.merge(
+        [
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ],
+        opts
+      )
+    )
+  end
+
+  @doc """
+  Regenerates backup codes after verifying a TOTP code.
+
+  Requires `{:totp, code}` — backup codes **cannot** authorize rotation.
+  """
+  def mfa_regenerate_backup_codes(user, {:totp, _} = verification, opts \\ []) do
+    Sigra.MFA.regenerate_backup_codes(
+      sigra_config(),
+      user,
+      verification,
+      Keyword.merge(
+        [
+          mfa_credential_schema: UserMFACredential,
+          backup_code_schema: UserBackupCode
+        ],
+        opts
+      )
+    )
   end
 
   @doc "Check if a user has MFA enabled."
@@ -649,7 +715,6 @@ defmodule SigraInstallGoldenTmp.Accounts do
     )
   end
 
-
   ## Passkeys
 
   @doc "List passkeys for a user."
@@ -669,11 +734,22 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Register a new passkey for a user."
   def register_passkey(user, attestation_params, details \\ %{}) do
-    with :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :registration),
-         {:ok, normalized_params} <- normalize_passkey_registration_params(attestation_params, Map.get(attestation_params, "challenge") || Map.get(attestation_params, :challenge)) do
-      case Sigra.Passkeys.register(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey) do
+    with :ok <-
+           Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :registration),
+         {:ok, normalized_params} <-
+           normalize_passkey_registration_params(
+             attestation_params,
+             Map.get(attestation_params, "challenge") || Map.get(attestation_params, :challenge)
+           ) do
+      case Sigra.Passkeys.register(sigra_config(), user, normalized_params,
+             user_passkey_schema: UserPasskey
+           ) do
         {:ok, credential} ->
-          deliver_passkey_registration_notification(user, Map.merge(details, %{passkey: credential}))
+          deliver_passkey_registration_notification(
+            user,
+            Map.merge(details, %{passkey: credential})
+          )
+
           {:ok, credential}
 
         {:error, %Ecto.Changeset{} = changeset} ->
@@ -694,9 +770,16 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Authenticate a passkey for a known user."
   def authenticate_passkey(user, assertion_params) do
-    with :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
-         {:ok, normalized_params} <- normalize_passkey_assertion_params(assertion_params, Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)) do
-      Sigra.Passkeys.authenticate(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey)
+    with :ok <-
+           Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
+         {:ok, normalized_params} <-
+           normalize_passkey_assertion_params(
+             assertion_params,
+             Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)
+           ) do
+      Sigra.Passkeys.authenticate(sigra_config(), user, normalized_params,
+        user_passkey_schema: UserPasskey
+      )
     else
       {:error, :rate_limited, _meta} -> {:error, :invalid_passkey}
       {:error, _reason} -> {:error, :invalid_passkey}
@@ -705,13 +788,21 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Authenticate a discoverable passkey without a typed email address."
   def authenticate_discoverable_passkey(assertion_params) do
-    with {:ok, normalized_params} <- normalize_passkey_assertion_params(assertion_params, Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)),
+    with {:ok, normalized_params} <-
+           normalize_passkey_assertion_params(
+             assertion_params,
+             Map.get(assertion_params, "challenge") || Map.get(assertion_params, :challenge)
+           ),
          credential_id when is_binary(credential_id) <- Map.get(normalized_params, :credential_id),
          %UserPasskey{} = passkey <- Repo.get_by(UserPasskey, credential_id: credential_id),
          %User{} = user <- Repo.get(User, passkey.user_id),
          :ok <- verify_discoverable_user_handle(normalized_params, passkey),
-         :ok <- Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
-         {:ok, credential} <- Sigra.Passkeys.authenticate(sigra_config(), user, normalized_params, user_passkey_schema: UserPasskey) do
+         :ok <-
+           Sigra.Passkeys.rate_limit_ceremony(Sigra.Passkeys.config(), user.id, :authentication),
+         {:ok, credential} <-
+           Sigra.Passkeys.authenticate(sigra_config(), user, normalized_params,
+             user_passkey_schema: UserPasskey
+           ) do
       {:ok, user, credential}
     else
       _ -> {:error, :invalid_passkey}
@@ -720,7 +811,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Rename a passkey."
   def rename_passkey(user, credential_id, nickname) do
-    Sigra.Passkeys.rename(sigra_config(), user, credential_id, nickname || "", user_passkey_schema: UserPasskey)
+    Sigra.Passkeys.rename(sigra_config(), user, credential_id, nickname || "",
+      user_passkey_schema: UserPasskey
+    )
   end
 
   @doc "Delete a passkey."
@@ -762,10 +855,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   def ensure_passkey_primary_user_eligible(_user), do: {:error, :invalid_user}
 
-
   @doc "Returns whether magic-link recovery is available for login."
   def magic_link_recovery_available?() do
-
     # PK-UX-07 makes magic-link recovery mandatory for passkey-primary accounts.
     if passkey_primary_enabled?() do
       true
@@ -774,29 +865,41 @@ defmodule SigraInstallGoldenTmp.Accounts do
       |> Map.get(:magic_link, [])
       |> Keyword.get(:enabled, true)
     end
-
   end
-
 
   @doc "Delivers a passkey registration notification email."
   def deliver_passkey_registration_notification(user, details) do
     email = Emails.passkey_registration_email(user, details)
 
-    Sigra.Delivery.deliver(:passkey_registration, %{
-      user_id: user.id,
-      to: user.email,
-      subject: email.subject,
-      body: %{html: email.html_body, text: email.text_body},
-      details: details
-    }, delivery_opts())
+    Sigra.Delivery.deliver(
+      :passkey_registration,
+      %{
+        user_id: user.id,
+        to: user.email,
+        subject: email.subject,
+        body: %{html: email.html_body, text: email.text_body},
+        details: details
+      },
+      delivery_opts()
+    )
   end
 
   defp normalize_passkey_registration_params(params, challenge) when is_map(params) do
     response = Map.get(params, "response") || Map.get(params, :response) || %{}
 
-    with {:ok, credential_id} <- decode_base64url(Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") || Map.get(params, :id)),
-         {:ok, attestation_object} <- decode_base64url(Map.get(response, "attestationObject") || Map.get(response, :attestationObject)),
-         {:ok, client_data_json} <- decode_base64url(Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)),
+    with {:ok, credential_id} <-
+           decode_base64url(
+             Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") ||
+               Map.get(params, :id)
+           ),
+         {:ok, attestation_object} <-
+           decode_base64url(
+             Map.get(response, "attestationObject") || Map.get(response, :attestationObject)
+           ),
+         {:ok, client_data_json} <-
+           decode_base64url(
+             Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)
+           ),
          {:ok, challenge_bytes} <- normalize_challenge(challenge) do
       {:ok,
        %{
@@ -805,7 +908,11 @@ defmodule SigraInstallGoldenTmp.Accounts do
          client_data_json: client_data_json,
          challenge: challenge_bytes,
          nickname: blank_to_nil(Map.get(params, "nickname") || Map.get(params, :nickname)),
-         device_hint: blank_to_nil(Map.get(params, "device_hint") || Map.get(params, :device_hint) || Map.get(params, "deviceHint") || Map.get(params, :deviceHint)),
+         device_hint:
+           blank_to_nil(
+             Map.get(params, "device_hint") || Map.get(params, :device_hint) ||
+               Map.get(params, "deviceHint") || Map.get(params, :deviceHint)
+           ),
          transports: Map.get(response, "transports") || Map.get(response, :transports) || []
        }}
     else
@@ -818,11 +925,25 @@ defmodule SigraInstallGoldenTmp.Accounts do
   defp normalize_passkey_assertion_params(params, challenge) when is_map(params) do
     response = Map.get(params, "response") || Map.get(params, :response) || %{}
 
-    with {:ok, credential_id} <- decode_base64url(Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") || Map.get(params, :id)),
-         {:ok, authenticator_data} <- decode_base64url(Map.get(response, "authenticatorData") || Map.get(response, :authenticatorData)),
-         {:ok, signature} <- decode_base64url(Map.get(response, "signature") || Map.get(response, :signature)),
-         {:ok, client_data_json} <- decode_base64url(Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)),
-         {:ok, user_handle} <- decode_optional_base64url(Map.get(response, "userHandle") || Map.get(response, :userHandle)),
+    with {:ok, credential_id} <-
+           decode_base64url(
+             Map.get(params, "rawId") || Map.get(params, :rawId) || Map.get(params, "id") ||
+               Map.get(params, :id)
+           ),
+         {:ok, authenticator_data} <-
+           decode_base64url(
+             Map.get(response, "authenticatorData") || Map.get(response, :authenticatorData)
+           ),
+         {:ok, signature} <-
+           decode_base64url(Map.get(response, "signature") || Map.get(response, :signature)),
+         {:ok, client_data_json} <-
+           decode_base64url(
+             Map.get(response, "clientDataJSON") || Map.get(response, :clientDataJSON)
+           ),
+         {:ok, user_handle} <-
+           decode_optional_base64url(
+             Map.get(response, "userHandle") || Map.get(response, :userHandle)
+           ),
          {:ok, challenge_bytes} <- normalize_challenge(challenge) do
       {:ok,
        %{
@@ -862,16 +983,19 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   defp duplicate_passkey_changeset?(%Ecto.Changeset{} = changeset) do
     Enum.any?(changeset.errors, fn
-      {:credential_id, {_message, opts}} -> Keyword.get(opts, :constraint) == :unique or Keyword.has_key?(opts, :constraint_name)
-      _ -> false
+      {:credential_id, {_message, opts}} ->
+        Keyword.get(opts, :constraint) == :unique or Keyword.has_key?(opts, :constraint_name)
+
+      _ ->
+        false
     end)
   end
 
   defp verify_discoverable_user_handle(%{user_handle: nil}, _passkey), do: :ok
+
   defp verify_discoverable_user_handle(%{user_handle: user_handle}, passkey) do
     if user_handle == to_string(passkey.user_id), do: :ok, else: {:error, :invalid_passkey}
   end
-
 
   ## Account Lifecycle
 
@@ -894,12 +1018,17 @@ defmodule SigraInstallGoldenTmp.Accounts do
   Returns `{:ok, user}` or `:error`.
   """
   def confirm_email_change(encoded_token, opts \\ []) do
-    Sigra.Auth.confirm_email_change(sigra_config(), encoded_token,
-      Keyword.merge([
-        user_token_schema: UserToken,
-        user_schema: User,
-        session_store: Sigra.SessionStores.Ecto
-      ], opts)
+    Sigra.Auth.confirm_email_change(
+      sigra_config(),
+      encoded_token,
+      Keyword.merge(
+        [
+          user_token_schema: UserToken,
+          user_schema: User,
+          session_store: Sigra.SessionStores.Ecto
+        ],
+        opts
+      )
     )
   end
 
@@ -933,9 +1062,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
   Requires sudo mode. Returns `{:ok, user}` or `{:error, changeset}`.
   """
   def set_password(user, attrs) do
-    Sigra.Auth.set_password(sigra_config(), user, attrs,
-      changeset_fn: &User.password_changeset/3
-    )
+    Sigra.Auth.set_password(sigra_config(), user, attrs, changeset_fn: &User.password_changeset/3)
   end
 
   @doc """
@@ -956,7 +1083,9 @@ defmodule SigraInstallGoldenTmp.Accounts do
   Returns `{:ok, user}` or `{:error, reason}`.
   """
   def cancel_deletion(user, opts \\ []) do
-    Sigra.Auth.cancel_deletion(sigra_config(), user,
+    Sigra.Auth.cancel_deletion(
+      sigra_config(),
+      user,
       Keyword.merge([changeset_fn: &User.deletion_changeset/2], opts)
     )
   end

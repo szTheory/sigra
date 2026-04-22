@@ -147,6 +147,80 @@ defmodule Sigra.APITokenAuditAtomicTest do
     assert count(repo, "audit_events") == 0
   end
 
+  test "revoke sets revoked_at and writes api.token_revoke in one transaction", %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    cfg = sigra_config(repo)
+
+    assert {:ok, _raw, token} =
+             APIToken.create(cfg, user, %{name: "to-revoke", scopes: ["profile:read"]})
+
+    assert {:ok, revoked} = APIToken.revoke(cfg, token.id)
+    assert revoked.revoked_at != nil
+
+    assert count_where(repo, "audit_events", "action = 'api.token_revoke'") == 1
+  end
+
+  test "revoke rolls back token update when api.token_revoke audit insert is rejected", %{
+    repo: repo
+  } do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT api_token_revoke_audit_guard CHECK (action <> 'api.token_revoke')
+      """,
+      []
+    )
+
+    try do
+      user = %{id: Ecto.UUID.generate()}
+      cfg = sigra_config(repo)
+
+      assert {:ok, _raw, token} =
+               APIToken.create(cfg, user, %{name: "revoke-guard", scopes: ["profile:read"]})
+
+      assert_raise Ecto.ConstraintError, fn ->
+        APIToken.revoke(cfg, token.id)
+      end
+
+      reloaded = repo.get(ApiTokenRow, token.id)
+      assert is_nil(reloaded.revoked_at)
+      assert count_where(repo, "audit_events", "action = 'api.token_revoke'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS api_token_revoke_audit_guard",
+        []
+      )
+    end
+  end
+
+  test "revoke_all updates rows and emits one api.token_revoke_all with count metadata", %{
+    repo: repo
+  } do
+    user = %{id: Ecto.UUID.generate()}
+    cfg = sigra_config(repo)
+
+    assert {:ok, _, _} =
+             APIToken.create(cfg, user, %{name: "a", scopes: ["profile:read"]})
+
+    assert {:ok, _, _} =
+             APIToken.create(cfg, user, %{name: "b", scopes: ["profile:read"]})
+
+    assert {:ok, 2} = APIToken.revoke_all(cfg, user)
+
+    assert count_where(repo, "audit_events", "action = 'api.token_revoke_all'") == 1
+
+    %{rows: [[meta]]} =
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "SELECT metadata FROM audit_events WHERE action = 'api.token_revoke_all' LIMIT 1",
+        []
+      )
+
+    assert meta["count"] == 2
+  end
+
   defp count(repo, table) do
     %{rows: [[n]]} = Ecto.Adapters.SQL.query!(repo, "SELECT count(*)::bigint FROM #{table}", [])
     n

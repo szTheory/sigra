@@ -52,7 +52,10 @@ defmodule SigraInstallGoldenTmpWeb.Admin.ImpersonationController do
 
         {:error, :already_impersonating} ->
           conn
-          |> put_flash(:error, "End the current impersonation session before starting another one.")
+          |> put_flash(
+            :error,
+            "End the current impersonation session before starting another one."
+          )
           |> redirect(to: ~p"/")
 
         {:error, _reason} ->
@@ -101,11 +104,9 @@ defmodule SigraInstallGoldenTmpWeb.Admin.ImpersonationController do
     user = Accounts.get_user!(user_id)
 
     organization_ids =
-
       user
       |> SigraInstallGoldenTmp.Organizations.list_organizations_for_user()
       |> Enum.map(fn {organization, _role} -> organization.id end)
-
 
     Map.put(user, :organization_ids, organization_ids)
   end
