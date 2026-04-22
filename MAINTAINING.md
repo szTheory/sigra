@@ -25,6 +25,8 @@ PR diffs that touch any of the following path classes run both **`install_golden
 - **`lib/sigra/account`**
 - **`lib/sigra/passkeys`**
 
+Waived **GA-03** / **GA-04** rows in **`.planning/v1.4-GA-UAT.md`** document OAuth mock and getting-started CI substitutes; those waivers do **not** replace **`mix ci.install_golden`** / **`install_golden_contract`** for **`priv/templates/sigra.install/`** template drift — see **`.planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md`** for the installer merge-gate receipt.
+
 ## Nyquist policy (phases 41-44)
 
 Single place to read how **Nyquist-style** evidence applies across the **41-44** GA / audit batch. Rows use only **`Full Nyquist`** or **`Waiver + superseding evidence`** as the mode label.
