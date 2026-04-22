@@ -27,7 +27,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.3 milestone audit **passed** at close (2026-04-19); archived requirements **13/13** satisfied; v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Phase **46** (2026-04-21) closed the canonical **GA-02..GA-05** matrix in `.planning/v1.4-GA-UAT.md` with dated **Waived** / **Executed** records and machine baselines where cited. Phase **47** (2026-04-21) published `43-VERIFICATION.md` and reconciled **AUD-04** / **AUD-05** in `.planning/REQUIREMENTS.md` against that evidence. Phase **48** (2026-04-21) published `44-VERIFICATION.md`, refreshed `44-VALIDATION.md`, and reconciled **AUD-06** / **AUD-07**. Remaining **SEED-002** work: audit batch **45** + verification phases **49–50** (see **ROADMAP**).
+**In flight (v1.4):** Phase **41** closed **GA-01** (TOTP-gated backup-code rotation, example + install parity, `backup_code_rotation_test.exs`). Phase **46** (2026-04-21) closed the canonical **GA-02..GA-05** matrix in `.planning/v1.4-GA-UAT.md` with dated **Waived** / **Executed** records and machine baselines where cited. Phase **47** (2026-04-21) published `43-VERIFICATION.md` and reconciled **AUD-04** / **AUD-05** in `.planning/REQUIREMENTS.md` against that evidence. Phase **48** (2026-04-21) published `44-VERIFICATION.md`, refreshed `44-VALIDATION.md`, and reconciled **AUD-06** / **AUD-07**. Phase **52** (2026-04-21) aligned **ROADMAP** presentation for batches **44–45** vs verification **47–49**, dispositioned **`v1.4-MILESTONE-AUDIT.md`** `tech_debt` narrative in prose, and added `phase_52_milestone_honesty_contract_test.exs`. Remaining **SEED-002** posture: see open **ROADMAP** rows **50–51** (Nyquist batch **41–44**, install-golden / CI coupling).
 
 ## Next Milestone Goals
 
@@ -268,6 +268,8 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
+*Last updated: 2026-04-22 — Phase **52** complete: ROADMAP reader note + **44/45** completion markers vs **47–49** verification; `v1.4-MILESTONE-AUDIT.md` tech-debt disposition; `phase_52_milestone_honesty_contract_test.exs`. Next roadmap execution focus: **50–51** (Nyquist **41–44**, install-golden / CI coupling).*
+
 *Last updated: 2026-04-21 — Phase **49** complete: `45-VERIFICATION.md`, `mix ci.audit_45`, exhaustive **C-1** in `09-VERIFICATION.md`, **AUD-08** closed in `REQUIREMENTS.md`. Next roadmap execution focus: **50** (Nyquist **41–44** + CI gate hygiene).*
 
 *Last updated: 2026-04-21 — Phase **47** complete: phase **43** verification artifact (`43-VERIFICATION.md`) + `43-VALIDATION.md` refresh; **AUD-04** / **AUD-05** marked complete in live requirements. Next roadmap execution focus: **44** (MFA + Account/API batches) / **48** (verification).*
