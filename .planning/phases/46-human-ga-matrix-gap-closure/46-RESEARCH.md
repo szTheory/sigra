@@ -6,7 +6,7 @@
 
 ## Executive summary
 
-Phase **46** closes **GA-02..GA-05** per [.planning/v1.4-MILESTONE-AUDIT.md](../../v1.4-MILESTONE-AUDIT.md): each row in [`.planning/v1.4-GA-UAT.md`](../../v1.4-GA-UAT.md) must reach **Executed**, **Waived**, or **Blocked** with a durable **Evidence_link** under [`.planning/uat-evidence/v1.4/`](../../uat-evidence/v1.4/) (or documented equivalent), and [.planning/REQUIREMENTS.md](../../REQUIREMENTS.md) / [.planning/ROADMAP.md](../../ROADMAP.md) must match that truth.
+Phase **46** closes **GA-02..GA-05** per [`.planning/milestones/v1.4-MILESTONE-AUDIT.md`](../../milestones/v1.4-MILESTONE-AUDIT.md) (archived at v1.4 ship): each row in [`.planning/v1.4-GA-UAT.md`](../../v1.4-GA-UAT.md) must reach **Executed**, **Waived**, or **Blocked** with a durable **Evidence_link** under [`.planning/uat-evidence/v1.4/`](../../uat-evidence/v1.4/) (or documented equivalent), and archived [v1.4 requirements](../../milestones/v1.4-REQUIREMENTS.md) / [`.planning/ROADMAP.md`](../../ROADMAP.md) must match that truth.
 
 **Already in place (Phase 42):**
 
@@ -22,10 +22,10 @@ Phase **46** closes **GA-02..GA-05** per [.planning/v1.4-MILESTONE-AUDIT.md](../
 | `.planning/v1.4-GA-UAT.md` | Single canonical GA table (**D-38-08** / **D-42-01**) |
 | `docs/uat-ci-coverage.md` | Machine baseline / SEED ↔ CI map — not duplicated in GA-05 notes |
 | `.planning/uat-evidence/v1.4/*` | Human runbooks, steps, waivers (**D-38-01**) |
-| `.planning/REQUIREMENTS.md` | GA-02..GA-05 definitions and phase mapping |
+| `.planning/milestones/v1.4-REQUIREMENTS.md` (archived) | GA-02..GA-05 definitions and phase mapping at v1.4 close |
 | `.planning/ROADMAP.md` | Phase 46 goal and success criteria |
 | `.planning/phases/42-human-ga-matrix-evidence/*` | Prior phase patterns for matrix + evidence layout |
-| `.planning/v1.4-MILESTONE-AUDIT.md` | Declared gaps for GA-02..GA-05 |
+| `.planning/milestones/v1.4-MILESTONE-AUDIT.md` (archived) | Declared gaps for GA-02..GA-05 (historical snapshot) |
 
 ## GA-by-GA closure mechanics
 
