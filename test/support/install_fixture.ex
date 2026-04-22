@@ -64,13 +64,10 @@ defmodule Sigra.Test.InstallFixture do
     # 2. Point the generated app at the in-tree sigra via a :path dependency
     patch_mix_exs_with_path_dep!(app_dir)
 
-    # 3. Fetch deps locally (offline where possible)
-    {deps_out, deps_status} =
-      System.cmd("mix", ["deps.get"], cd: app_dir, stderr_to_stdout: true)
-
-    if deps_status != 0 do
-      raise "mix deps.get failed (status #{deps_out}):\n#{deps_out}"
-    end
+    # 3. Fetch deps locally (offline where possible). Hex may prompt for
+    # interactive re-auth when a saved API token expired — subprocess harnesses
+    # have no TTY, so pipe "n" to continue as anonymous fetch (public packages).
+    mix_deps_get_noninteractive!(app_dir)
 
     # 4. Pre-compile deps so the sigra.install run does not spew dep compile
     #    noise into stdout. This keeps the captured install output focused on
@@ -150,12 +147,7 @@ defmodule Sigra.Test.InstallFixture do
 
     patch_mix_exs_with_path_dep!(app_dir)
 
-    {deps_out, deps_status} =
-      System.cmd("mix", ["deps.get"], cd: app_dir, stderr_to_stdout: true)
-
-    if deps_status != 0 do
-      raise "mix deps.get failed (status #{deps_status}):\n#{deps_out}"
-    end
+    mix_deps_get_noninteractive!(app_dir)
 
     {compile_out, compile_status} =
       System.cmd("mix", ["compile"],
@@ -169,6 +161,20 @@ defmodule Sigra.Test.InstallFixture do
     end
 
     {:ok, %{app_dir: app_dir}}
+  end
+
+  defp mix_deps_get_noninteractive!(app_dir) do
+    {out, status} =
+      System.cmd(
+        "sh",
+        ["-c", "echo n | mix deps.get"],
+        cd: app_dir,
+        stderr_to_stdout: true
+      )
+
+    if status != 0 do
+      raise "mix deps.get failed (status #{status}):\n#{out}"
+    end
   end
 
   @doc """
