@@ -25,7 +25,7 @@ This milestone **does not** expand core auth product scope. It prepares **Hex/RE
 
 ## Maintainer process (MAINT)
 
-- [ ] **MAINT-01**: **`MAINTAINING.md`** gains a concise **“First public announcement”** checklist (owners, order: tag → Hex → post → monitor), referencing **`install_golden_contract`** / **`v1.4-GA-UAT.md`** where relevant — checklist may mark human rows as **optional** if v1.4 waivers still apply.
+- [x] **MAINT-01**: **`MAINTAINING.md`** gains a concise **“First public announcement”** checklist (owners, order: tag → Hex → post → monitor), referencing **`install_golden_contract`** / **`v1.4-GA-UAT.md`** where relevant — checklist may mark human rows as **optional** if v1.4 waivers still apply.
 
 ---
 
@@ -53,7 +53,7 @@ This milestone **does not** expand core auth product scope. It prepares **Hex/RE
 | PUB-02 | 54 | Complete |
 | DOC-01 | 55 | Complete (2026-04-22) |
 | DOC-02 | 55 | Complete (2026-04-22) |
-| MAINT-01 | 56 | Pending |
+| MAINT-01 | 56 | Complete |
 
 **Coverage:**
 
