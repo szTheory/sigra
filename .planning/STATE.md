@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
-milestone: null
-milestone_name: null
-status: ready_to_plan
-stopped_at: v1.4 milestone archived — use /gsd-new-milestone
-last_updated: "2026-04-22T18:00:00.000Z"
+milestone: v1.5
+milestone_name: Public release narrative & community readiness
+status: defining_requirements
+stopped_at: Milestone v1.5 — roadmap authored; pick phase 53 to execute
+last_updated: "2026-04-22T20:00:00.000Z"
 last_activity: 2026-04-22
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md` (updated 2026-04-22)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **v1.4 shipped** (2026-04-22). Next planning entry point: **`/gsd-new-milestone`**.
+**Current focus:** **v1.5** — public narrative, Hex/changelog/docs alignment, announcement checklist (**`.planning/ROADMAP.md`** phases **53–56**).
 
 ## Current Position
 
-Phase: —
+Phase: Not started (execution)
 
-Plan: Not started (no active GSD phase on this branch)
+Plan: —
 
-Status: Ready to plan
+Status: Ready to execute — use `/gsd-discuss-phase 53` or `/gsd-plan-phase 53`
 
 Last activity: 2026-04-22
 
-Progress: [░░░░░░░░░░] 0% _(reset at milestone boundary — no active phase until `/gsd-new-milestone`)_
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -42,7 +42,9 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
-v1.4 archives: `.planning/milestones/v1.4-ROADMAP.md`, `v1.4-REQUIREMENTS.md`, `v1.4-MILESTONE-AUDIT.md`. GA matrix: `.planning/v1.4-GA-UAT.md`. Install golden / CI truth: `MAINTAINING.md`, `50-VERIFICATION.md`, `.github/workflows/ci.yml`.
+v1.4 shipped **2026-04-22**; archives under `.planning/milestones/v1.4-*`. GA matrix: `.planning/v1.4-GA-UAT.md`. CI / install golden: `MAINTAINING.md`, `50-VERIFICATION.md`.
+
+**Note:** GSD **`phases.clear`** is **not** used in this repo — `.planning/phases/` retains historical milestone directories as archaeology.
 
 ### Pending Todos
 
@@ -54,16 +56,12 @@ _None._
 
 ## Session Continuity
 
-Last session: `/gsd-complete-milestone` (v1.4)
+Last session: `/gsd-new-milestone`
 
-Stopped at: Milestone archived; live `REQUIREMENTS.md` removed per GSD close workflow.
+Stopped at: Requirements + roadmap written for **v1.5**.
 
 Resume file: —
 
-**Next phase:** Define with **`/gsd-new-milestone`** (expect numbering from **53** unless reset).
+**Next phase:** **53** — Package & Hex metadata (**PUB-01**)
 
-**Completed milestone:** **v1.4** — Phases **41–52**, **38** plans, shipped **2026-04-22**
-
-**Planned focus:** Backlog section on `.planning/ROADMAP.md`
-
-**Planned Phase:** —
+**Planned focus:** See `.planning/ROADMAP.md` → **Phases (v1.5)**

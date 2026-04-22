@@ -8,6 +8,7 @@
 - ✅ **v1.2 Admin Dashboard** - Phases 27-31 + gap closure 32-35 (shipped 2026-04-17). See [v1.2 archive](milestones/v1.2-ROADMAP.md), [v1.2 requirements](milestones/v1.2-REQUIREMENTS.md), [v1.2 milestone audit](milestones/v1.2-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- **v1.5 Public release narrative & community readiness** — Phases **53–56** (in progress). Requirements: [.planning/REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## Phases
 
@@ -20,11 +21,16 @@ At a glance: **41** backup-code rotation (**GA-01**); **42** GA matrix scaffold;
 
 </details>
 
-### Next milestone
+## Phases (v1.5)
 
-Planning starts with `/gsd-new-milestone` (creates a fresh `.planning/REQUIREMENTS.md`). Continue phase numbering from **53** unless you explicitly reset.
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|------------------------------|
+| **53** | Package & Hex metadata | Align **Hex / mix.exs** public surface with shipped **v1.0–v1.4** reality | PUB-01 | (1) Package description + links audited vs feature list. (2) Optional vs core deps called out. (3) Maintainer agrees text is announcement-safe. |
+| **54** | Changelog & milestone anchors | **`CHANGELOG.md`** tells a coherent version story through **v1.4** | PUB-02 | (1) Entries or explicit pointers for v1.3 / v1.4 ship boundaries. (2) No contradictory claims vs `MILESTONES.md`. (3) CI/docs unchanged or greener. |
+| **55** | README & ExDoc entry paths | Readers find **GA / audit posture** from repo + docs home | DOC-01, DOC-02 | (1) README links v1.4 evidence bundle with honest **Executed/Waived** framing. (2) `mix docs` landing path documented in phase summary. (3) `mix docs --warnings-as-errors` clean if touched. |
+| **56** | Maintainer announcement checklist | **`MAINTAINING.md`** runbook for first loud public push | MAINT-01 | (1) Ordered checklist with owners. (2) References install-golden / GA matrix where relevant. (3) Optional human rows clearly marked optional. |
 
-## Backlog (parking lot — not promoted until the next milestone selects them)
+## Backlog (parking lot — not v1.5 unless promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
 - Items not mapped in the [v1.4 requirements archive](milestones/v1.4-REQUIREMENTS.md) stay here until a future milestone selects them.

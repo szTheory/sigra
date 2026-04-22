@@ -8,9 +8,17 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current milestone
+## Current Milestone: v1.5 Public release narrative & community readiness
 
-**None on disk** — v1.4 shipped **2026-04-22**. Use `/gsd-new-milestone` to author the next scope (creates a fresh `.planning/REQUIREMENTS.md`); see **`.planning/ROADMAP.md`** for backlog promotion and suggested phase start (**53**).
+**Goal:** Make Sigra’s **public story** (Hex, README, changelog, docs landing) match what v1.0–v1.4 actually shipped and the **v1.4 GA / audit evidence** bundle — so maintainers can point outsiders at one coherent narrative without re-opening waived GA rows as silent claims.
+
+**Target features:**
+- **Package surface:** `mix.exs` / Hex description / links aligned with current capabilities and support matrix.
+- **Release hygiene:** `CHANGELOG.md` carries major milestone boundaries (at least through v1.4); tagging guidance stays in `MAINTAINING.md`.
+- **Docs entry:** README + docs home briefly explain GA posture (machine substitutes + where human proof lives) with pointers to `.planning/milestones/v1.4-*` and `v1.4-GA-UAT.md` as appropriate for OSS readers.
+- **Announcement readiness:** Short maintainer checklist (blog / forums / HN) — execution optional; artifact is the checklist and owners, not mandatory posts.
+
+**Seeds surfaced:** **SEED-001** (trigger: first public announcement / Hex push) — this milestone prepares narrative and links; it does **not** re-litigate waived GA matrix rows unless maintainers explicitly add human-proof phases later.
 
 ## Current State
 
@@ -24,7 +32,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next Milestone Goals
 
-Run **`/gsd-new-milestone`** to capture goals for **v1.5+**. Until then, only **`.planning/ROADMAP.md` → Backlog** is the canonical unpromoted parking lot (no live `REQUIREMENTS.md` on disk immediately after close).
+After **v1.5**, candidate themes include optional **OAuth ceremony audit smoke** (v1.4 “Future”), deeper **Nyquist elevation** for historical phases **41–44**, or product features promoted from **`.planning/ROADMAP.md` → Backlog** — pick with **`/gsd-new-milestone`**.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -277,4 +285,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 after **v1.4** milestone completion — archives under `.planning/milestones/v1.4-*`; live `.planning/REQUIREMENTS.md` removed; git tag **`v1.4`**. Next: `/gsd-new-milestone`.*
+*Last updated: 2026-04-22 — **`/gsd-new-milestone`**: started **v1.5 Public release narrative & community readiness** (phases **53–56** on `.planning/ROADMAP.md`). Tag **`v1.4`** pushed to `origin`.*
