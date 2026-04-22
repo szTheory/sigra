@@ -19,12 +19,14 @@ tech-stack:
 
 key-files:
   created:
+    - .planning/phases/51-install-golden-ci-merge-gate/51-VERIFICATION.md
     - .planning/phases/51-install-golden-ci-merge-gate/51-REVIEW.md
   modified:
     - .planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md
     - test/sigra/planning/phase_50_nyquist_docs_contract_test.exs
     - MAINTAINING.md
     - .planning/v1.4-GA-UAT.md
+    - .planning/phases/51-install-golden-ci-merge-gate/51-VALIDATION.md
 
 key-decisions:
   - "Local mix ci.install_golden did not complete; do not fabricate PASS — keep status: draft until CI or local receipt."
