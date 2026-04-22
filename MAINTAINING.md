@@ -14,6 +14,17 @@ That alias runs **`test/sigra/install/golden_diff_test.exs`** and **`test/sigra/
 
 GitHub Actions runs the same two paths on every push to **`main`** and on PRs that touch installer paths, via the **`install_golden_contract`** job in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
+### PR paths that run install_golden_contract (phase 51)
+
+PR diffs that touch any of the following path classes run both **`install_golden_contract`** and **`installer_milestone_audit`** (same diff rule in CI):
+
+- **`priv/templates/sigra.install/`**
+- **`lib/sigra/install/`**
+- **`lib/sigra/mfa`** (top-level **`mfa.ex`** or **`mfa/`** subtree)
+- **`lib/sigra/oauth`**
+- **`lib/sigra/account`**
+- **`lib/sigra/passkeys`**
+
 ## Nyquist policy (phases 41-44)
 
 Single place to read how **Nyquist-style** evidence applies across the **41-44** GA / audit batch. Rows use only **`Full Nyquist`** or **`Waiver + superseding evidence`** as the mode label.
