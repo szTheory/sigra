@@ -32,9 +32,10 @@ PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/
 
 | Step | Result |
 |------|--------|
-| `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.install_golden` | **Not recorded yet** (`status: draft`) — flip to **PASS** (exit 0) + timing when run on a clean tree before marking `status: passed`. |
+| `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.install_golden` | **Not recorded** (`status: draft`) — Phase 51 executor: local **`mix ci.install_golden`** did not finish in bounded time (hung >33m at **`Running ExUnit`** with no case output; likely tmp-app **`mix deps.get`** / network as in prior note). **`install_golden_contract`** is not yet visible as a named job on recent **`origin/main`** Actions listings for this repo snapshot — record a green **`install_golden_contract`** run **URL + database id** here (or a local **PASS (Ns)** timing) before flipping to **`status: passed`**. |
 
 ## Notes
 
-- Git SHA when this draft was written (documentation slice landed; merge gate still open): `git rev-parse HEAD` → `7b30ae4dc9bd00ab4054bb0b8a4fadc7904d0eb5`.
-- **Draft reason:** Local merge-gate attempts in this workspace stalled for extended periods inside the tmp-app **`mix deps.get`** step (no Hex timeout hit; likely environment/network). CI job **`install_golden_contract`** is the intended visibility path on **`push` to `main`** and on PRs touching installer paths — run the merge gate there (or locally with a warm Hex cache) before setting **`status: passed`**.
+- Git SHA for this update: `git rev-parse HEAD` → `73260295f1baa1dc36042f1fe64eb7e58a28d078`.
+- **Draft reason (Phase 51):** Same local stall class as the prior note. No fabricated **PASS** — maintainer should rerun the merge gate locally with a warm Hex cache **or** paste a successful GitHub Actions **`install_golden_contract`** run link + run id once that job is present on the default branch workflow.
+
