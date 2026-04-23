@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.2.0]`** for **published Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.0–v1.4** in **`.planning/MILESTONES.md`** — those **v1.x** labels describe shipped *tranches* of work, **not** a second installable version axis on Hex (this repo remains **0.x** on Hex until a real **1.0.0**). Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When in doubt, treat **`MILESTONES.md`** as canonical for dates and archive paths.
 
+## [0.2.3](https://github.com/szTheory/sigra/compare/v0.2.2...v0.2.3) (2026-04-23)
+
+
+### Bug Fixes
+
+* **ci:** document RELEASE_PLEASE_TOKEN for downstream CI on release PRs ([#24](https://github.com/szTheory/sigra/issues/24)) ([324b036](https://github.com/szTheory/sigra/commit/324b03652a9da5c8c0332ddc4193a716acf5e175))
+
 ## [0.2.2](https://github.com/szTheory/sigra/compare/v0.2.1...v0.2.2) (2026-04-23)
 
 
