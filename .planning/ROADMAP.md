@@ -20,7 +20,7 @@
 
 | Phase | Name | Goal | Requirements | Success criteria |
 |-------|------|------|--------------|------------------|
-| **66** | **SEED-002 bounded batch** | Convert the next **C-1** deferral slice to **`Ecto.Multi`** + **`log_multi_safe`** (or documented substitute) with audit-aware tests. | AUD-09 | 1) Inventory row(s) for this batch identified and linked in phase planning. 2) Production path(s) co-fate audit with business writes per **T1** semantics in **`docs/audit-semantics.md`**. 3) New or extended tests assert audit row(s) on success and absence/rollback on intentional failure. 4) CI green (`library_tests` + any scoped contracts touched). |
+| **66** ✅ **2026-04-23** | **SEED-002 bounded batch** | Convert the next **C-1** deferral slice to **`Ecto.Multi`** + **`log_multi_safe`** (or documented substitute) with audit-aware tests. | AUD-09 | 1) Inventory row(s) for this batch identified and linked in phase planning. 2) Production path(s) co-fate audit with business writes per **T1** semantics in **`docs/audit-semantics.md`**. 3) New or extended tests assert audit row(s) on success and absence/rollback on intentional failure. 4) CI green (`library_tests` + any scoped contracts touched). |
 | **67** | **C-1 planning closure** | Align Phase **9** executive summary + **C-1** matrix with post-batch truth. | AUD-10 | 1) **`09-03-SUMMARY.md`** lists phase **66** batch with mechanism pointer. 2) **`09-VERIFICATION.md`** updated for any row whose verdict/tier/mechanism changed; otherwise explicit rationale for no edit. 3) Cross-links to inventories remain valid. |
 
 <details>
