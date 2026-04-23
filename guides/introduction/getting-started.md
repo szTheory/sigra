@@ -287,6 +287,8 @@ Every one of those calls is in the generated `Accounts`, `Organizations`, and `U
 
 You've covered the core session auth flow. Most apps need one or more of:
 
+- **[Generator and install options](../reference/generator-options.html)** — canonical `mix sigra.install` switches and defaults.
+- **[After the first hour: toward solo production](intermediate-production-path.html)** — ordered path toward solo production confidence (links out to deployment + flows).
 - **[Multi-factor authentication](mfa.html)** — TOTP enrollment, backup codes, trust-this-browser.
 - **[Upgrading to v1.1](upgrading-to-v1.1.html)** — the tested `mix sigra.upgrade` path from v1.0.
 - **[OAuth and social login](oauth.html)** — Google, GitHub, Apple via Assent.
