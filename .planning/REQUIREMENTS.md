@@ -9,15 +9,15 @@ This milestone **does not** ship Sigra as an OAuth/OIDC **identity provider** (t
 
 ## Adoption & documentation (ADOPT)
 
-- [ ] **ADOPT-01**: A **first-hour** guide exists under `guides/introduction/` and is linked from `getting-started.md` / ExDoc extras so a new adopter can complete a minimal happy path without tribal knowledge.
-- [ ] **ADOPT-02**: **`guides/introduction/upgrading-to-v1.7.md`** documents post-**v1.6** maintainer-facing changes (Nyquist/OA narrative, CI expectations) and points to archives under `.planning/milestones/`.
-- [ ] **ADOPT-03**: **`guides/introduction/troubleshooting-install.md`** lists the top install / compile / test failures with fixes (Postgres, env, optional deps, install golden pointers).
+- [x] **ADOPT-01**: A **first-hour** guide exists under `guides/introduction/` and is linked from `getting-started.md` / ExDoc extras so a new adopter can complete a minimal happy path without tribal knowledge.
+- [x] **ADOPT-02**: **`guides/introduction/upgrading-to-v1.7.md`** documents post-**v1.6** maintainer-facing changes (Nyquist/OA narrative, CI expectations) and points to archives under `.planning/milestones/`.
+- [x] **ADOPT-03**: **`guides/introduction/troubleshooting-install.md`** lists the top install / compile / test failures with fixes (Postgres, env, optional deps, install golden pointers).
 
 ---
 
 ## Companion OAuth provider (INTG)
 
-- [ ] **INTG-01**: **`guides/recipes/companion-oauth-provider.md`** explains the **clean boundary**: Sigra = end-user / RP login; companion = embedded OAuth/OIDC **authorization server** for third-party clients; **no** Hex dependency between the two cores; host-owned `AccountResolver` seam.
+- [x] **INTG-01**: **`guides/recipes/companion-oauth-provider.md`** explains the **clean boundary**: Sigra = end-user / RP login; companion = embedded OAuth/OIDC **authorization server** for third-party clients; **no** Hex dependency between the two cores; host-owned `AccountResolver` seam.
 
 ---
 
@@ -49,10 +49,10 @@ This milestone **does not** ship Sigra as an OAuth/OIDC **identity provider** (t
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ADOPT-01 | 60 | Pending |
-| ADOPT-02 | 60 | Pending |
-| ADOPT-03 | 60 | Pending |
-| INTG-01 | 60 | Pending |
+| ADOPT-01 | 60 | Complete |
+| ADOPT-02 | 60 | Complete |
+| ADOPT-03 | 60 | Complete |
+| INTG-01 | 60 | Complete |
 | AUD-01 | 61 | Pending |
 | AUD-02 | 62 | Pending |
 
