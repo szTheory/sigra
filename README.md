@@ -23,6 +23,8 @@
 | **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
 | **Maintaining / releasing** | See [`MAINTAINING.md`](MAINTAINING.md) for version bumps, Hex and GitHub releases, and planning hygiene for maintainers. |
 
+**Milestone planning (maintainers):** Product north star and scope boundaries for GSD live in [`.planning/PROJECT.md`](.planning/PROJECT.md) under **North Star (milestones)** (with **Core Value** and **Out of Scope**).
+
 ---
 
 ## Where code lives

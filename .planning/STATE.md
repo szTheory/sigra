@@ -22,6 +22,8 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
+**North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX; defer untargeted polish unless tied to adoption or risk.
+
 **Current focus:** **Next milestone** — run **`/gsd-new-milestone`** (requirements → roadmap → execution). **v1.8** shipped **2026-04-23** (archives under **`.planning/milestones/v1.8-*`**; tag **`v1.8`**).
 
 ## Current Position

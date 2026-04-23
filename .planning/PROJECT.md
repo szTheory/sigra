@@ -8,6 +8,16 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## North Star (milestones)
+
+Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefer work that advances these outcomes; defer open-ended polish unless it is tied to adoption, operator trust, or concrete risk.
+
+- **Production-viable by default** — Optional integrations and limitations stay honest in package metadata and docs; merge-blocking CI and documented evidence (README production readiness, `MAINTAINING.md`, GA / audit artifacts) are the trust surface, not marketing claims.
+- **Clear integration path** — `mix sigra.install`, generator output, introductory guides, upgrade stubs, and companion seams (with explicit non-goals where Sigra stops) so teams can adopt without reverse-engineering the library.
+- **Great DX on happy path and rough edges** — First-run success, predictable errors, migrations, audit expectations, and maintainer operations are first-class, not afterthoughts.
+
+**GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
+
 ## Current Milestone: Next
 
 **Status:** Planning surface cleared after **v1.8** ship (**2026-04-23**). Run **`/gsd-new-milestone`** to define requirements, roadmap, and phases for the next shipped version.
@@ -319,4 +329,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 after **`/gsd-complete-milestone`** — archived **v1.8**; removed live **`.planning/REQUIREMENTS.md`** for the next milestone; git tag **`v1.8`**. Prior: **`/gsd-new-milestone`** opened **v1.8**; **`v1.7`** shipped same day.*
+*Last updated: 2026-04-23 — added **North Star (milestones)** (GSD milestone scoping). Prior: **`/gsd-complete-milestone`** archived **v1.8**; removed live **`.planning/REQUIREMENTS.md`**; git tag **`v1.8`**.*
