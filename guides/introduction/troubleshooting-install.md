@@ -32,6 +32,19 @@ Common failures when adding Sigra to a Phoenix 1.8+ app and how to fix them.
 
 **Fix:** Ensure CI starts Postgres and sets `PG*` (or your repo’s convention). Sigra’s own workflows use strict jobs — mirror the same services block for host apps.
 
+## Upgrading between Sigra versions
+
+**Symptom:** You are on an older **`{:sigra, ...}`** line and want a safe bump.
+
+**Fix:**
+
+1. Read **`CHANGELOG.md`** for breaking or behavioral changes on the Hex line you target.
+2. Use the planning-milestone upgrade pages for **maintainer / docs context**, not as a substitute for SemVer:
+   - **[Upgrading notes — toward v1.7](upgrading-to-v1.7.html)** — post–v1.6 Nyquist **41–44**, OAuth↔audit CI, docs hub pointers.
+   - **[Upgrading notes — toward v1.8](upgrading-to-v1.8.html)** — post–v1.7 **adopter polish** framing + host checklist.
+
+Then bump the dependency, **`mix deps.get`**, and re-run **`mix test`** (and **`mix sigra.upgrade --yes`** only when **`CHANGELOG.md`** or release notes tell you to).
+
 ## Still stuck
 
 - Search existing issues on the Sigra repository.

@@ -7,6 +7,7 @@
 1. [Installation](installation.html) — add the dependency and run the installer.
 2. [Getting started](getting-started.html) — happy-path walkthrough this guide assumes you will run.
 3. If something breaks: [Troubleshooting install](troubleshooting-install.html).
+4. Upgrading an existing Sigra host: [Upgrading toward v1.7](upgrading-to-v1.7.html) (Nyquist / OAuth audit / CI context) · [Upgrading toward v1.8](upgrading-to-v1.8.html) (post–v1.7 doc polish + Hex bump checklist).
 
 ## Checklist
 

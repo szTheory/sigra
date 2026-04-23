@@ -16,4 +16,5 @@ Always take **`CHANGELOG.md`** and Hex release notes as the source of truth for 
 
 - [First hour with Sigra](first-hour.html)
 - [Troubleshooting install](troubleshooting-install.html)
+- [Upgrading notes — toward v1.8](upgrading-to-v1.8.html) — post–v1.7 doc polish + Hex bump checklist
 - Archived planning: `.planning/milestones/v1.6-ROADMAP.md`

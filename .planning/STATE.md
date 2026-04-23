@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: pending
-milestone_name: (next — use /gsd-new-milestone)
-status: v1.7 shipped and archived 2026-04-23 — live REQUIREMENTS.md removed; awaiting next milestone definition
-stopped_at: Milestone close (/gsd-complete-milestone)
-last_updated: "2026-04-23T20:00:00.000Z"
+milestone: v1.8
+milestone_name: Adopter polish (diminishing returns)
+status: v1.8 doc deliverables landed in-repo (phases 63–65); use /gsd-transition when closing phases formally
+stopped_at: Milestone start (/gsd-new-milestone)
+last_updated: "2026-04-23T23:59:59.000Z"
 last_activity: 2026-04-23
 progress:
-  total_phases: 55
-  completed_phases: 51
-  total_plans: 167
-  completed_plans: 172
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 0
+  completed_plans: 0
   percent: 100
 ---
 
@@ -22,17 +22,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Run **`/gsd-new-milestone`** — candidate seeds include **999.1** (Nyquist retroactive validation pass) when scheduled
+**Current focus:** **v1.8** — phases **63–65** (docs + companion recipe polish). Requirements: **`.planning/REQUIREMENTS.md`**.
 
 ## Current Position
 
-Phase: _None (active milestone closed)_
+Phase: **65** (implementation landed — verify in CI; then /gsd-transition per phase if desired)
 
-Plan: _N/A_
+Plan: —
 
-Status: **v1.7** archived **2026-04-23** — see **`.planning/milestones/v1.7-*`** and **`.planning/MILESTONES.md`**
+Status: **Milestone v1.8** — ADOPT-04/05 + INTG-02 doc work merged in working tree
 
-Last activity: 2026-04-23
+Last activity: 2026-04-23 — **v1.8** planning artifacts + guide updates
 
 ## Performance Metrics
 
@@ -40,9 +40,9 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
-**v1.7** closed **2026-04-23** — archives: **`.planning/milestones/v1.7-ROADMAP.md`**, **`v1.7-REQUIREMENTS.md`**, **`v1.7-MILESTONE-AUDIT.md`**; live **`.planning/REQUIREMENTS.md`** removed for the next cycle.
+**v1.8** opened **2026-04-23** — intentionally small scope (ADOPT-04, ADOPT-05, INTG-02); **no** default **SEED-002** / **SEED-001** work.
 
-**v1.6** closed **2026-04-23** — archives: **`.planning/milestones/v1.6-ROADMAP.md`**, **`v1.6-REQUIREMENTS.md`**.
+**v1.7** closed **2026-04-23** — archives: **`.planning/milestones/v1.7-ROADMAP.md`**, **`v1.7-REQUIREMENTS.md`**, **`v1.7-MILESTONE-AUDIT.md`**.
 
 **Note:** **`.planning/phases/`** retains historical directories; **`phases.clear`** is not used in this repo.
 
@@ -56,14 +56,12 @@ _None._
 
 ## Session Continuity
 
-Last session: phase **62** execution
+Last session: Milestone **v1.8** planning
 
-Stopped at: Phase **62** complete — **`062-01-SUMMARY.md`** and **`062-VERIFICATION.md`** recorded
+Stopped at: Roadmap created — ready for **Phase 63**
 
 Resume file: —
 
-**Next phase (tooling suggestion):** **999.1** — Nyquist retroactive validation pass — confirm with **`.planning/ROADMAP.md`** before planning
+**Next phase:** Maintainer choice — **`/gsd-discuss-phase 63`** (formal closeout) or ship as a batch when milestone completes.
 
-**Shipped Phase 61:** **`verify_backup/4`** failure **`Multi`** + **`mfa_audit_atomicity_test.exs`**; **`44-AUD-04-INVENTORY.md`** + **`09-VERIFICATION.md`** (**AUD-04-067**, **026/027** refresh, Phase 61 note).
-
-**Shipped Phase 62:** **`09-03-SUMMARY.md`** document status + bounded-batch narrative aligned to **`09-VERIFICATION.md`**; **AUD-02** closed in live **`.planning/REQUIREMENTS.md`** (now archived to **`milestones/v1.7-REQUIREMENTS.md`**); **`09-VERIFICATION.md`** unchanged under D-06.
+**Prior shipped:** **v1.7** phases **60–62** (adoption guides + bounded **AUD-01** / **AUD-02**).

@@ -8,11 +8,21 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current milestone: (none — plan next)
+## Current Milestone: v1.8 Adopter polish (diminishing returns)
 
-**Next step:** Run **`/gsd-new-milestone`** to open the next requirements + roadmap cycle. Until then, active work items live in the [Backlog](ROADMAP.md) section of **`.planning/ROADMAP.md`**.
+**Goal:** Reduce remaining **first-week** friction for real adopters with **documentation and light recipe polish** — without reopening large **SEED-002** audit sweeps, **SEED-001** launch-only human matrices, or **`sigra_lockspire`** glue.
+
+**Target features:**
+
+- **ADOPT-04** — **`guides/introduction/upgrading-to-v1.8.md`** plus ExDoc extras wiring; honest **planning v1.8** vs **Hex SemVer** framing and pointers back to **v1.7** upgrade context.
+- **ADOPT-05** — Cross-links among **`getting-started`**, **`first-hour`**, **`troubleshooting-install`**, and the upgrading guides so adopters do not dead-end.
+- **INTG-02** — Small **`companion-oauth-provider`** clarity pass (prerequisites, when-not-to-use, **See also** navigation).
+
+**Execution:** Phases **63–65** on **`.planning/ROADMAP.md`**; requirements in **`.planning/REQUIREMENTS.md`**.
 
 ## Current State
+
+**v1.8 (in progress):** Phases **63–65** — adopter-facing docs polish (see **`.planning/REQUIREMENTS.md`**).
 
 **v1.7 (shipped 2026-04-23):** **Phases 60–62** — archives: [`.planning/milestones/v1.7-ROADMAP.md`](milestones/v1.7-ROADMAP.md), [`v1.7-REQUIREMENTS.md`](milestones/v1.7-REQUIREMENTS.md), [`v1.7-MILESTONE-AUDIT.md`](milestones/v1.7-MILESTONE-AUDIT.md). **Phase 61:** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed. **Phase 62:** **`AUD-02`** — **`09-03-SUMMARY.md`** carries **v1.7** document status + Phase **61** bounded-batch narrative keyed to **`AUD-04-067`**; **D-06** left **`09-VERIFICATION.md`** unchanged. **Phase 60:** adoption + companion recipe guides under **`guides/introduction/`** and **`guides/recipes/companion-oauth-provider.md`** (no discrete **`060-*`** phase directory — see milestone audit).
 
@@ -30,7 +40,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-Post–**v1.7** candidates: further **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, backlog items from `.planning/ROADMAP.md` (e.g. **999.1** Nyquist retroactive validation), or optional **`sigra_lockspire`**-class glue only after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
+**Active:** **v1.8** — adopter polish (this section mirrors **Current Milestone** above).
+
+**Post–v1.8 candidates:** further bounded **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -308,4 +320,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`/gsd-complete-milestone`**: **v1.7** archived (**milestones/** + **`REQUIREMENTS.md`** removed for a fresh next milestone); git tag **`v1.7`**. Prior: **Phase 62** **AUD-02**; **Phase 61** **AUD-01**; **`v1.6`** tagged.*
+*Last updated: 2026-04-23 — **`/gsd-new-milestone`**: opened **v1.8** (adopter polish); live **`.planning/REQUIREMENTS.md`** + **ROADMAP** phases **63–65**. Prior: **`/gsd-complete-milestone`** archived **v1.7**; git tag **`v1.7`**.*

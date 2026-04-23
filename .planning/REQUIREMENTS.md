@@ -1,0 +1,53 @@
+# Requirements: Sigra v1.8
+
+**Defined:** 2026-04-23  
+**Core Value (from PROJECT.md):** Authentication that works out of the box with great DX on the happy path **and** on the rough edges — including **credible adoption paths** with **diminishing-returns polish** after v1.7 (no large **SEED-002** sweep or **SEED-001** launch matrix in this milestone).
+
+---
+
+## Adoption & documentation (ADOPT)
+
+- [x] **ADOPT-04**: **`guides/introduction/upgrading-to-v1.8.md`** exists, is listed in **`mix.exs`** ExDoc extras (after **`upgrading-to-v1.7.md`**), and states the **planning v1.8** focus (adopter polish), **Hex SemVer** truth (**`CHANGELOG.md`**), and **pointers** to **`upgrading-to-v1.7.md`** for post–v1.6 maintainer context (Nyquist / OA / CI expectations).
+- [x] **ADOPT-05**: **Cross-links:** **`guides/introduction/getting-started.md`** “Faster path” includes **v1.8** upgrading; **`guides/introduction/first-hour.md`** reading map points adopters at **troubleshooting** + **upgrading** docs; **`guides/introduction/troubleshooting-install.md`** has a short **“Upgrading between Sigra versions”** section linking **`CHANGELOG.md`**, **`upgrading-to-v1.7.html`**, and **`upgrading-to-v1.8.html`**.
+
+---
+
+## Companion OAuth provider (INTG)
+
+- [x] **INTG-02**: **`guides/recipes/companion-oauth-provider.md`** gains at least one **prerequisite** callout (host must have working Sigra session/login before wiring **AccountResolver**), tightens **“when not to use”** with an explicit **B2C-only** / **no third-party clients** example, and **See also** links **`upgrading-to-v1.8.html`** for maintainer-facing doc navigation.
+
+---
+
+## Out of scope (v1.8)
+
+- Full **SEED-002** `log_safe/3` → **`Ecto.Multi`** conversion beyond any explicitly scheduled later milestone.
+- **SEED-001** human-only GA matrix (reserve for a **public launch** milestone).
+- New **`sigra_lockspire`** Hex package or mandatory companion dependency (see **`.planning/decisions/001-defer-sigra-lockspire-glue-package.md`**).
+
+---
+
+## Future (post-v1.8)
+
+- Further bounded **SEED-002** batches when compliance or refactors demand them.
+- **SEED-001** when marketing / GA loud-launch work is scheduled.
+
+---
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ADOPT-04 | 63 | Complete |
+| ADOPT-05 | 64 | Complete |
+| INTG-02 | 65 | Complete |
+
+**Coverage**
+
+- v1.8 requirements: **3** total  
+- Mapped to phases: **3**  
+- Unmapped: **0**  
+- **Complete:** 3
+
+---
+
+*Requirements defined: 2026-04-23 after v1.8 adopter-polish plan.*

@@ -166,6 +166,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/first-hour.md",
         "guides/introduction/troubleshooting-install.md",
         "guides/introduction/upgrading-to-v1.7.md",
+        "guides/introduction/upgrading-to-v1.8.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
