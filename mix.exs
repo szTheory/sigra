@@ -149,6 +149,9 @@ defmodule Sigra.MixProject do
 
   defp docs do
     [
+      # ExDoc only autolinks extras by basename; maintainer paths under `.planning/`
+      # are intentionally relative from this guide for repo navigation.
+      skip_undefined_reference_warnings_on: ["guides/introduction/upgrading-to-v1.10.md"],
       main: "getting-started",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
@@ -169,6 +172,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/troubleshooting-install.md",
         "guides/introduction/upgrading-to-v1.7.md",
         "guides/introduction/upgrading-to-v1.8.md",
+        "guides/introduction/upgrading-to-v1.10.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
