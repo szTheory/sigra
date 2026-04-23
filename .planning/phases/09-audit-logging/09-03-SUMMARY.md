@@ -5,7 +5,7 @@
 - **Last materially updated for:** **v1.9** (planning text **2026-04-23** — phase **67** / **AUD-10**).
 - **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02) → Phase 66 (AUD-09) → Phase 67 (AUD-10).
 - **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
-- **Requirement:** [**AUD-10**](../../REQUIREMENTS.md) (live **`.planning/REQUIREMENTS.md`**).
+- **Requirement:** [**AUD-10**](../../milestones/v1.9-REQUIREMENTS.md) (archived **v1.9** requirements at milestone close).
 - **C-1 verification note (phase 67 / AUD-10):** No edit to 09-VERIFICATION.md rows AUD-04-020..022 after D-06 reconciliation (hybrid D-06 / AUD-02 class).
 
 ## Recent bounded batches
