@@ -1,6 +1,45 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.5 section added at ship (2026-04-22).*
+*Living document updated at milestone boundaries. v1.6 section added at ship (2026-04-23).*
+
+## Milestone: v1.6 — Nyquist closure + OAuth audit depth
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (57–59) | **Plans:** 6 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **NYQ-01 / NYQ-02** — Canonical `.planning/nyquist-phases-41-44-matrix.md` plus `MAINTAINING.md` index; explicit disposition + reopen triggers for historical **41–44** rows; optional **`Phase57NyquistMatrixContractTest`** guard.
+- **OA-01** — **`Sigra.OAuthCeremonyAuditTest`** (registration + `authorize_url` audit assertions on Postgres) and **`phase_58_oauth_oa01_ci_contract_test`** to keep `library_tests` honest about OAuth exclude drift.
+- **OA-02** — **`docs/uat-ci-coverage.md`** hub for machine vs human OAuth proof; GA-03 / waiver / evidence **INDEX** / **`docs/ga-evidence.md`** / **PROJECT** alignment (Phase 59).
+
+### What worked
+
+- **Narrow verification milestone** closed planning truth gaps without shipping new end-user auth surface area.
+- **Dedicated ceremony test module** separated merge-blocking OAuth audit proof from rollback-only atomicity tests.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again (`version required for phases archive`); manual archival duplicated v1.3–v1.5 toil.
+- No **`v1.6-MILESTONE-AUDIT.md`** artifact — acceptable given **4/4** reqs + summaries, but audits remain the gold standard when time allows.
+
+### Patterns established
+
+- **Two-tier maintainer docs:** short index in `MAINTAINING.md`, canonical matrix under `.planning/`.
+- **Grep-first OA-02 maintenance:** subsection titles carry literal module / job names for quick CI↔docs consistency checks.
+
+### Key lessons
+
+1. When **v1.3** explicitly deferred OAuth ceremony audit assertions, schedule a **small follow-on milestone** rather than letting the waiver live forever without machine proof.
+2. **Nyquist honesty** is mostly **disposition visibility** — matrices + triggers beat silent `nyquist_compliant: false` rows.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: High leverage per line changed; mostly tests + maintainer-facing docs.
+
+---
 
 ## Milestone: v1.5 — Public release narrative & community readiness
 
@@ -132,6 +171,7 @@
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
 | v1.5 | n/a | 4 | Public narrative + Hex/changelog/README/MAINTAINING alignment with v1.4 GA evidence |
 | v1.4 | n/a | 12 | GA matrix honesty + audit Multi batches + merge-gated verification + install-golden CI coupling |
 | v1.3 | n/a | 5 | Shift-left UAT + explicit planning archive at close |
@@ -140,6 +180,7 @@
 
 | Milestone | Tests | Coverage | Zero-dep additions |
 |-----------|-------|----------|---------------------|
+| v1.6 | `Sigra.OAuthCeremonyAuditTest` + planning/CI contract tests | n/a | None |
 | v1.5 | Docs compile gates (`mix compile` / `mix docs --warnings-as-errors`) | n/a | None |
 | v1.4 | Planning contract tests + `verify-phase36` path fix | n/a | None in this milestone close commit |
 | v1.3 | Library + example suites extended via new audit tests / smoke | n/a | Optional workflow snippets only |

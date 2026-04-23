@@ -2,7 +2,7 @@ defmodule Sigra.OAuthCeremonyAuditTest do
   @moduledoc """
   Merge-blocking OAuth ceremony + audit proofs for **OA-01** (registration and
   authorize flows) using a real `PostgresRepo` and Sandbox. Requirement trace:
-  `.planning/REQUIREMENTS.md` (OA-01).
+  `.planning/milestones/v1.6-REQUIREMENTS.md` (OA-01).
   """
 
   use ExUnit.Case, async: false

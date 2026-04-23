@@ -226,3 +226,34 @@
 - [v1.5 Requirements](milestones/v1.5-REQUIREMENTS.md)
 
 ---
+
+## v1.6 Nyquist closure + OAuth audit depth (Shipped: 2026-04-23)
+
+**Scope:** 3 phases (57–59), 6 plans.
+
+**What shipped:** Maintainer-facing **41–44** Nyquist posture matrix (`.planning/nyquist-phases-41-44-matrix.md`) indexed from **`MAINTAINING.md`** with explicit per-row disposition and reopen triggers (**NYQ-01**, **NYQ-02**); **`Sigra.OAuthCeremonyAuditTest`** proving OAuth registration and `authorize_url` paths emit expected audit rows on Postgres (**OA-01**); CI contract **`phase_58_oauth_oa01_ci_contract_test`** keeping `library_tests` on plain `mix test` without OAuth-related excludes drift; **`docs/uat-ci-coverage.md`** as the OA-01/OA-02 machine-vs-human hub with GA-03 / waiver / evidence **INDEX** / **`docs/ga-evidence.md`** / **PROJECT** narrative alignment (**OA-02**). Optional **`Sigra.Planning.Phase57NyquistMatrixContractTest`** guards matrix anchors.
+
+### Key accomplishments
+
+1. **Phase 57 — honest Nyquist posture for 41–44** — Canonical matrix under `.planning/` plus `MAINTAINING.md` index and contract test so disposition cannot silently regress.
+2. **Phase 58 — OA-01 machine proof** — Dedicated OAuth ceremony audit tests separate from rollback-only atomicity coverage; CI structure locked for merge-blocking OAuth audit work.
+3. **Phase 59 — OA-02 narrative closure** — UAT coverage doc, GA evidence router, and planning surfaces consistently describe what is proven in CI vs what remains human/live-provider only.
+
+### Stats
+
+- **Requirements:** 4/4 Complete in archived [`milestones/v1.6-REQUIREMENTS.md`](milestones/v1.6-REQUIREMENTS.md).
+- **Milestone audit:** none filed for v1.6; closure used requirements traceability + phase summaries + pre-close **`audit-open`** all clear (2026-04-22).
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-22).
+- **Timeline:** 2026-04-22 → 2026-04-23 (execution on disk + milestone archival).
+
+### Tech debt carried forward
+
+- **`gsd-sdk query milestone.complete`** returned `version required for phases archive`; archival followed the same manual path as **v1.3** / **v1.4** / **v1.5**.
+- **SEED-002** breadth (`log_safe/3` → `Ecto.Multi`) remains backlog-triggered, not this milestone.
+
+**Archive:**
+
+- [v1.6 Roadmap](milestones/v1.6-ROADMAP.md)
+- [v1.6 Requirements](milestones/v1.6-REQUIREMENTS.md)
+
+---

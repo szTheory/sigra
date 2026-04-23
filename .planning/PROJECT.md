@@ -8,19 +8,13 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.6 Nyquist closure + OAuth audit depth
+## Current milestone
 
-**Goal:** Make the **41–44** verification story honest and actionable at the Nyquist layer, and land **merge-worthy automated coverage** for OAuth ceremonies with **audit expectations**, without unrelated product scope creep.
-
-**Target features:**
-- **Nyquist / verification uplift (41–44):** inventory intentional `nyquist_compliant: false` posture, align `MAINTAINING.md` / phase artifacts so maintainers see reopen triggers and canonical pointers — optional mechanical elevation only where it directly supports honesty (no cosmetic “green”).
-- **OAuth ceremony + audit smoke:** **OA-01** merge-blocking assertions in **`Sigra.OAuthCeremonyAuditTest`** plus **OA-02** maintainer narrative in **`docs/uat-ci-coverage.md`**. Archived **v1.3 AUD-03 integration smoke** explicitly deferred OAuth ceremony audit assertions per **`milestones/v1.3-REQUIREMENTS.md`**; **v1.6** lands that machine proof without implying full live-provider CI.
-
-**SEED-002** (`log_safe/3` → `Ecto.Multi` breadth) is **out of this milestone** unless promoted explicitly later.
+**None — v1.6 shipped 2026-04-23.** Define the next milestone with `/gsd-new-milestone` (fresh `.planning/REQUIREMENTS.md`, phased roadmap, and scope).
 
 ## Current State
 
-**v1.6 (complete):** **Phases 57–59** shipped **2026-04-22–23** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers.
+**v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`.
 
 **v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
@@ -32,9 +26,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.4 requirements **10/10** satisfied in archive (Complete or Waived with documented substitutes); v1.3 milestone audit **passed** at close (2026-04-19); v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-## Next Milestone Goals
+## Next milestone goals
 
-After **v1.6**, candidate themes include **SEED-002** remainder (broad `log_safe/3` → `Ecto.Multi`), **SEED-001** residuals if a loud public push needs fresh human matrix rows, product features promoted from **Backlog**, or **999.x** hygiene — pick with **`/gsd-new-milestone`**.
+Candidate themes for the **next** milestone include **SEED-002** remainder (broad `log_safe/3` → `Ecto.Multi`), **SEED-001** residuals if a loud public push needs fresh human matrix rows, product features promoted from **Backlog** in `.planning/ROADMAP.md`, or **999.x** hygiene — capture scope and requirements with **`/gsd-new-milestone`**.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -289,8 +283,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.5 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.6 execution log)</summary>
 
+- **2026-04-23** — **v1.6** phases **57–59** complete; `/gsd-complete-milestone` archived planning + tag **`v1.6`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-22** — **v1.5** phases **53–56** complete; `/gsd-complete-milestone` archived planning + tag **`v1.5`**.
 - **2026-04-22** — v1.4 phases **41–52** complete on ROADMAP; milestone wrap via `/gsd-complete-milestone`.
 - **2026-04-21** — Phases **50** (Nyquist + `install_golden_contract`), **49** (`45-VERIFICATION.md`, **AUD-08**), **48** / **47** (44/43 verification), **46** (GA matrix gap closure).
@@ -302,4 +297,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **Phase 59** (UAT + GA narrative alignment, **OA-02**) complete; **v1.6** requirements (**NYQ-01**, **NYQ-02**, **OA-01**, **OA-02**) satisfied.*
+*Last updated: 2026-04-23 — **`/gsd-complete-milestone`**: **v1.6** archived (`milestones/v1.6-*`), live `.planning/REQUIREMENTS.md` removed; tag **`v1.6`**.*
