@@ -309,3 +309,7 @@ And a few cross-cutting recipes:
 - **Reset email never arrives in dev** — Swoosh dev mailer stores emails in memory at `/dev/mailbox`. For prod, configure a real adapter (Postmark, Mailgun, SES) in `config/runtime.exs`.
 - **Remember-me cookie not persisting across browser restart** — verify you checked the box on the login form, then check devtools → Cookies for `_my_app_web_user_remember_me`. If it's missing, check your Phoenix endpoint's `secure_browser_headers` config.
 - **Password reset link shows "Reset password link is invalid or it has expired"** — the token is older than 60 minutes, or the password has already been reset (tokens are single-use), or the URL was copied incorrectly.
+
+## Before you ship to production
+
+Skim the **[Production checklist (read first)](../recipes/deployment.html#production-checklist-read-first)** for HTTPS, cookies, and origin alignment. For mail queues and retries, read **[Mail delivery: inline vs Oban (TL;DR)](../recipes/deployment.html#mail-delivery-inline-vs-oban-tl-dr)**.

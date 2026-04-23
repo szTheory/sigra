@@ -23,6 +23,13 @@
 | **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
 | **Maintaining / releasing** | See [`MAINTAINING.md`](MAINTAINING.md) for version bumps, Hex and GitHub releases, and planning hygiene for maintainers. |
 
+## Before production
+
+Public HTTPS hosts need aligned origins, proxy-forwarded TLS, session cookies, and a deliberate mail-delivery posture before you take real traffic. Treat the deployment recipe as the single checklist hub — skim it once per environment.
+
+- **[Production checklist (read first)](guides/recipes/deployment.md#production-checklist-read-first)** — scheme, cookies, LiveView origins, staging parity.
+- **[Mail: inline vs Oban (TL;DR)](guides/recipes/deployment.md#mail-delivery-inline-vs-oban-tl-dr)** — when background delivery is worth the operational cost.
+
 **Milestone planning (maintainers):** Product north star and scope boundaries for GSD live in `.planning/PROJECT.md` under **North Star (milestones)** (with **Core Value** and **Out of Scope**).
 
 ---

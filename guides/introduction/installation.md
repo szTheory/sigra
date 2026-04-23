@@ -36,6 +36,21 @@ Fetch it:
 
     mix sigra.install
 
+### mix sigra.install flags (reference)
+
+| Flag | Effect |
+|------|--------|
+| `--live` / `--no-live` | Generate LiveView pages (default: `--live`). |
+| `--binary-id` / `--no-binary-id` | UUID vs bigint primary keys (default: binary IDs on). |
+| `--table` | Override the generated table name. |
+| `--api` | Generate API token controller (implied by `--jwt`). |
+| `--jwt` | Generate JWT token controller. |
+| `--admin` / `--no-admin` | Admin scaffolding (default: on). |
+| `--passkeys` / `--no-passkeys` | Passkey scaffolding (default: on). |
+| `--yes` | Non-interactive mode (CI / scripts). |
+
+Before production, work through the **[Production checklist (read first)](../recipes/deployment.html#production-checklist-read-first)** on the same deployment recipe. Mail and background delivery tradeoffs are in **[Mail delivery: inline vs Oban (TL;DR)](../recipes/deployment.html#mail-delivery-inline-vs-oban-tl-dr)**. For a CI-backed host that mirrors recommended wiring, browse **`test/example/`** in the Sigra repo.
+
 Sigra generates `uuid` (binary_id) primary keys by default — no flag required. If your app is already on bigint integer IDs and you want to stay on them, pass `--no-binary-id`:
 
     mix sigra.install Accounts User users --no-binary-id

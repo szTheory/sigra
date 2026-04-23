@@ -2,6 +2,8 @@
 
 This document is for **maintainers** who cut Hex releases and GitHub releases. **Drive-by contributors** should start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for tests, CI expectations, and review norms.
 
+Hex releases exercise the library and templates — they do **not** validate an adopter’s production TLS termination, reverse proxy, session cookies, or mail delivery. Point application teams at the **[production checklist in the deployment recipe](guides/recipes/deployment.md#production-checklist-read-first)** before they go live.
+
 On your **first public Hex release**, follow **`Release automation`** for the mechanical ship path; when you are ready to coordinate evidence and optional comms around that ship, use **`First public launch (announcement checklist)`** later in this file.
 
 ## Installer golden CI contract (phase 50)
