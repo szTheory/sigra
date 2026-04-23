@@ -1,13 +1,14 @@
-defmodule Sigra.OAuthAuditAtomicityTest do
+defmodule Sigra.OAuthCeremonyAuditTest do
   @moduledoc """
-  Rollback and constraint-rejection proofs for OAuth audit integration (phase 45
-  narrative). Happy-path ceremony coverage lives in `Sigra.OAuthCeremonyAuditTest`
-  (OA-01).
+  Merge-blocking OAuth ceremony + audit proofs for **OA-01** (registration and
+  authorize flows) using a real `PostgresRepo` and Sandbox. Requirement trace:
+  `.planning/milestones/v1.6-REQUIREMENTS.md` (OA-01).
   """
+
   use ExUnit.Case, async: false
 
-  import Ecto.Query
-
+  alias Sigra.Audit.Assertions
+  alias Sigra.OAuth
   alias Sigra.OAuth.Callback
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
   alias Sigra.Test.PostgresRepo
@@ -42,6 +43,35 @@ defmodule Sigra.OAuthAuditAtomicityTest do
       field(:metadata, :map, default: %{})
       field(:last_used_at, :utc_datetime)
       timestamps()
+    end
+  end
+
+  defmodule MockStrategy do
+    @moduledoc false
+    def authorize_url(_config) do
+      {:ok,
+       %{
+         url: "https://provider.example.com/auth?state=original&scope=email",
+         session_params: %{code_verifier: "pkce_verifier"}
+       }}
+    end
+
+    def callback(_config, _params) do
+      {:ok,
+       %{
+         user: %{
+           "sub" => "uid_123",
+           "email" => "test@example.com",
+           "name" => "Test",
+           "picture" => nil,
+           "email_verified" => true
+         },
+         token: %{
+           "access_token" => "tok",
+           "refresh_token" => "ref",
+           "expires_in" => 3600
+         }
+       }}
     end
   end
 
@@ -141,6 +171,21 @@ defmodule Sigra.OAuthAuditAtomicityTest do
     }
   end
 
+  defp authorize_oauth_config(repo) do
+    repo
+    |> oauth_config()
+    |> Map.put(:secret_key_base, String.duplicate("a", 64))
+    |> Map.put(:oauth, [
+      enabled: true,
+      providers: [
+        mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy]
+      ],
+      session_type: :remember_me,
+      link_confirmation: :required,
+      trust_provider_email: true
+    ])
+  end
+
   defp token do
     %{
       "access_token" => "a",
@@ -149,7 +194,7 @@ defmodule Sigra.OAuthAuditAtomicityTest do
     }
   end
 
-  defp user_info(email \\ "new-oauth@example.com") do
+  defp user_info(email) do
     %{
       "sub" => "sub-#{:erlang.unique_integer([:positive])}",
       "email" => email,
@@ -159,36 +204,36 @@ defmodule Sigra.OAuthAuditAtomicityTest do
     }
   end
 
-  test "rolls back registration when oauth.register_via_oauth audit insert is rejected", %{
-    repo: repo
-  } do
-    Ecto.Adapters.SQL.query!(
-      repo,
-      """
-      ALTER TABLE audit_events
-      ADD CONSTRAINT oauth_audit_reg_guard CHECK (action <> 'oauth.register_via_oauth')
-      """,
-      []
-    )
+  describe "registration" do
+    test "persists oauth.register_via_oauth after successful registration", %{repo: repo} do
+      assert {:ok, :registered, user, _} =
+               Callback.process_callback(
+                 oauth_config(repo),
+                 :google,
+                 user_info("persist@example.com"),
+                 token()
+               )
 
-    try do
-      assert_raise Ecto.ConstraintError, fn ->
-        Callback.process_callback(
-          oauth_config(repo),
-          :google,
-          user_info(),
-          token()
-        )
-      end
+      assert user.email == "persist@example.com"
 
-      assert [] == repo.all(OAuthUser)
-      assert [] == repo.all(from(a in AuditTestEvent, where: like(a.action, "oauth.%")))
-    after
-      Ecto.Adapters.SQL.query!(
-        repo,
-        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS oauth_audit_reg_guard",
-        []
-      )
+      Assertions.assert_audit_fields(repo, AuditTestEvent, %{
+        action: "oauth.register_via_oauth",
+        actor_id: user.id,
+        target_id: user.id
+      })
+    end
+  end
+
+  describe "authorize" do
+    test "persists oauth.authorize after successful authorize_url", %{repo: repo} do
+      config = authorize_oauth_config(repo)
+
+      assert {:ok, _url, _} = OAuth.authorize_url(config, :mock, [])
+
+      Assertions.assert_audit_fields(repo, AuditTestEvent, %{
+        action: "oauth.authorize",
+        metadata: %{"provider" => "mock"}
+      })
     end
   end
 end

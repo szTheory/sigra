@@ -10,9 +10,11 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current milestone
 
-**Between milestones** — **v1.5** shipped **2026-04-22** (archives under `.planning/milestones/v1.5-*`). Open the next cycle with **`/gsd-new-milestone`** (fresh `.planning/REQUIREMENTS.md` and roadmap phases).
+**None — v1.6 shipped 2026-04-23.** Define the next milestone with `/gsd-new-milestone` (fresh `.planning/REQUIREMENTS.md`, phased roadmap, and scope).
 
 ## Current State
+
+**v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`, `v1.6-MILESTONE-AUDIT.md` (audit filed retroactively on 2026-04-23).
 
 **v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
@@ -24,9 +26,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.4 requirements **10/10** satisfied in archive (Complete or Waived with documented substitutes); v1.3 milestone audit **passed** at close (2026-04-19); v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-## Next Milestone Goals
+## Next milestone goals
 
-After **v1.5**, candidate themes include optional **OAuth ceremony audit smoke** (v1.4 “Future”), deeper **Nyquist elevation** for historical phases **41–44**, or product features promoted from **`.planning/ROADMAP.md` → Backlog** — pick with **`/gsd-new-milestone`**.
+Candidate themes for the **next** milestone include **SEED-002** remainder (broad `log_safe/3` → `Ecto.Multi`), **SEED-001** residuals if a loud public push needs fresh human matrix rows, product features promoted from **Backlog** in `.planning/ROADMAP.md`, or **999.x** hygiene — capture scope and requirements with **`/gsd-new-milestone`**.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -130,6 +132,12 @@ After **v1.5**, candidate themes include optional **OAuth ceremony audit smoke**
 - ✓ **DOC-01** — README GA / production-readiness paragraph with pointers to **v1.4** evidence — **Phase 55** (2026-04-22)
 - ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
 - ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
+
+### Validated — v1.6 Nyquist closure + OAuth audit depth
+
+- ✓ **NYQ-01** / **NYQ-02** — Maintainer-facing **41–44** posture matrix under **`.planning/`** with **`MAINTAINING.md`** entry point + precedence rule; optional **D-11** contract test — **Phase 57** (2026-04-23)
+- ✓ **OA-01** — Postgres-backed **`Sigra.OAuthCeremonyAuditTest`** (registration + **`authorize_url`** audit rows) and **`phase_58_oauth_oa01_ci_contract_test`** CI honesty for **`library_tests`** — **Phase 58** (2026-04-22)
+- ✓ **OA-02** — **`docs/uat-ci-coverage.md`** machine vs human hub plus **GA-03** matrix / waiver / evidence **INDEX** / **`docs/ga-evidence.md`** alignment — **Phase 59** (2026-04-23)
 
 ### Validated — v1.4 GA readiness & audit trail completeness
 
@@ -275,8 +283,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.5 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.6 execution log)</summary>
 
+- **2026-04-23** — **v1.6** phases **57–59** complete; `/gsd-complete-milestone` archived planning + tag **`v1.6`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-22** — **v1.5** phases **53–56** complete; `/gsd-complete-milestone` archived planning + tag **`v1.5`**.
 - **2026-04-22** — v1.4 phases **41–52** complete on ROADMAP; milestone wrap via `/gsd-complete-milestone`.
 - **2026-04-21** — Phases **50** (Nyquist + `install_golden_contract`), **49** (`45-VERIFICATION.md`, **AUD-08**), **48** / **47** (44/43 verification), **46** (GA matrix gap closure).
@@ -288,4 +297,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **v1.5** milestone closed via `/gsd-complete-milestone` (archives + tag **`v1.5`**). Tag **`v1.4`** on `origin`.*
+*Last updated: 2026-04-23 — **`v1.6-MILESTONE-AUDIT.md`** added (retroactive **passed** verdict); **`/gsd-complete-milestone`** had archived `milestones/v1.6-*`, removed live **`REQUIREMENTS.md`**, and tagged **`v1.6`**.*

@@ -35,14 +35,11 @@ The harness shells out to **`mix deps.get`** inside a generated tmp Phoenix app 
 
 ## Nyquist policy (phases 41-44)
 
-Single place to read how **Nyquist-style** evidence applies across the **41-44** GA / audit batch. Rows use only **`Full Nyquist`** or **`Waiver + superseding evidence`** as the mode label.
+This section is the **maintainer front door** for how **Nyquist-style** evidence is read across GA phases **41-backup-codes** through **44-mfa-account-api**. It states what the posture matrix **does** guarantee (honest disposition + repo-relative evidence pointers + reopen triggers) and what it **does not** (it does not replace each phase’s **`*-VALIDATION.md`** / **`*-VERIFICATION.md`** as the source of **`nyquist_compliant:`** and waiver text).
 
-| Phase | Mode | Primary evidence path | Reopen trigger |
-|-------|------|----------------------|----------------|
-| **41** — backup codes GA closure | Waiver + superseding evidence | [`41-VERIFICATION.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/41-backup-codes-ga-product-closure/41-VERIFICATION.md) (GA-01 scoped) + [`41-VALIDATION.md`](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/41-backup-codes-ga-product-closure/41-VALIDATION.md) | Changes under **`priv/templates/sigra.install/`** or **`lib/sigra/install/`** → re-run **`mix ci.install_golden`**; GA-01 rows in **`41-VALIDATION.md`** → re-verify per that map. |
-| **42** — human GA matrix | Waiver + superseding evidence | [`v1.4-GA-UAT.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md) (GA-02..GA-05 human rows) + [`42-VERIFICATION.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/42-human-ga-matrix-evidence/42-VERIFICATION.md) | GA-02..GA-05 in **`v1.4-GA-UAT.md`** flip from **Pending** / protocol text changes → refresh human evidence and this row. |
-| **43** — audit inventory + auth atomicity | Waiver + superseding evidence | [`43-VERIFICATION.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/43-audit-inventory-auth-atomic-batch/43-VERIFICATION.md) + [`43-VALIDATION.md`](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/43-audit-inventory-auth-atomic-batch/43-VALIDATION.md) | Same installer path rule as **41** → **`mix ci.install_golden`**; AUD-04/05 map edits → re-run scoped merge gate in **`43-VERIFICATION.md`**. |
-| **44** — MFA + account API atomic batches | Waiver + superseding evidence | [`44-VERIFICATION.md` (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/44-mfa-account-api-atomic-batches/44-VERIFICATION.md) + [`44-VALIDATION.md`](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/phases/44-mfa-account-api-atomic-batches/44-VALIDATION.md) | Same installer path rule as **41** → **`mix ci.install_golden`**; atomicity test bundle touched → re-run scoped merge gate in **`44-VERIFICATION.md`**. |
+**Canonical detail** — full table, paths, and **v1.5** `ref:` block — lives in **[`.planning/nyquist-phases-41-44-matrix.md`](.planning/nyquist-phases-41-44-matrix.md)**. If this **`MAINTAINING.md`** summary ever disagrees with that file, **the matrix file wins**.
+
+**Reopen (installer-class drift):** when **`priv/templates/sigra.install/`** or **`lib/sigra/install/`** change, re-run the same scoped gate CI uses: **`PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.install_golden`**. Phase-specific scoped tests remain defined in each phase’s **`41-backup-codes`** / **`44-mfa-account-api`** **`*-VERIFICATION.md`** files (see the matrix).
 
 ## GitHub Actions repository settings (runbook)
 

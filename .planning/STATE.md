@@ -1,40 +1,38 @@
 ---
 gsd_state_version: 1.0
-milestone: null
-milestone_name: null
-status: between_milestones
-stopped_at: v1.5 archived — use /gsd-new-milestone
-last_updated: "2026-04-22T15:11:12Z"
-last_activity: 2026-04-22
+milestone: v1.6
+milestone_name: Nyquist closure + OAuth audit depth
+status: milestone_archived
+stopped_at: Milestone v1.6 closed via /gsd-complete-milestone
+last_updated: "2026-04-23T12:00:00.000Z"
+last_activity: 2026-04-23 -- v1.6 archival + REQUIREMENTS.md removed
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-22)
+See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **Between milestones** — **v1.5** shipped and archived; use **`/gsd-new-milestone`** to define the next requirements + roadmap slice.
+**Current focus:** Between milestones — run `/gsd-new-milestone` to open v1.7+ scope.
 
 ## Current Position
 
-Phase: _none queued_
+Phase: v1.6 complete (57–59 archived)
 
-Plan: _none_
+Plan: n/a
 
-Status: Between milestones (v1.5 complete, `REQUIREMENTS.md` removed for next cycle)
+Status: Milestone archived; live `.planning/REQUIREMENTS.md` removed at close
 
-Last activity: 2026-04-22
-
-Progress: Awaiting **`/gsd-new-milestone`**
+Last activity: 2026-04-23
 
 ## Performance Metrics
 
@@ -42,9 +40,11 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
+**v1.6** closed **2026-04-23** — archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`. Summary: `.planning/MILESTONES.md`.
+
 **v1.5** closed **2026-04-22** — archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`. Summary: `.planning/MILESTONES.md`.
 
-**Note:** GSD **`phases.clear`** is **not** used in this repo — `.planning/phases/` retains historical milestone directories as archaeology.
+**Note:** `.planning/phases/` retains historical directories; **`phases.clear`** is not used in this repo.
 
 ### Pending Todos
 
@@ -56,14 +56,14 @@ _None._
 
 ## Session Continuity
 
-Last session: v1.5 milestone close
+Last session: --stopped-at
 
-Stopped at: Planning vacuum after archive — **`/gsd-new-milestone`**
+Stopped at: Phase 59 context gathered
 
 Resume file: --resume-file
 
-**Next phase:** TBD by next milestone requirements
+**Next phase:** Use **`/gsd-new-milestone`** to author the next milestone’s requirements and phased roadmap.
 
-**Planned focus:** See **`/gsd-progress`** after **`/gsd-new-milestone`**
+**Planned focus:** TBD until the next milestone is opened.
 
-**Planned Phase:** —
+**Planned Phase:** n/a
