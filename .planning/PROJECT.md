@@ -20,7 +20,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**v1.6 (executing):** **Phase 57** complete **2026-04-23** — canonical **`.planning/nyquist-phases-41-44-matrix.md`**, **`MAINTAINING.md`** index, and **`phase_57_nyquist_matrix_contract_test`** (**NYQ-01**, **NYQ-02**). Next: **Phase 58** (OAuth ceremony + audit smoke).
+**v1.6 (executing):** **Phases 57–58** complete **2026-04-22–23** — Nyquist **41–44** matrix (**NYQ-01**, **NYQ-02**) plus **`Sigra.OAuthCeremonyAuditTest`** and **`phase_58_oauth_oa01_ci_contract_test`** (**OA-01**, **D-58-11**). Next: **Phase 59** (UAT + GA narrative alignment, **OA-02**).
 
 **v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
@@ -142,6 +142,7 @@ After **v1.6**, candidate themes include **SEED-002** remainder (broad `log_safe
 ### Validated — v1.6 Nyquist closure + OAuth audit depth (partial)
 
 - ✓ **NYQ-01** / **NYQ-02** — Maintainer-facing **41–44** posture matrix under **`.planning/`** with **`MAINTAINING.md`** entry point + precedence rule; optional **D-11** contract test — **Phase 57** (2026-04-23)
+- ✓ **OA-01** — Postgres-backed **`Sigra.OAuthCeremonyAuditTest`** (registration + **`authorize_url`** audit rows) and **`phase_58_oauth_oa01_ci_contract_test`** CI honesty for **`library_tests`** — **Phase 58** (2026-04-22)
 
 ### Validated — v1.4 GA readiness & audit trail completeness
 
@@ -300,4 +301,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **Phase 57** (Nyquist **41–44** matrix + maintainer index) complete; **v1.6** execution continues with **Phase 58**.*
+*Last updated: 2026-04-22 — **Phase 58** (OAuth ceremony + audit smoke, **OA-01**) complete; **v1.6** continues with **Phase 59** (**OA-02**).*

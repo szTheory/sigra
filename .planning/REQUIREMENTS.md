@@ -16,7 +16,7 @@ This milestone **does not** ship net-new end-user auth features. It tightens **p
 
 ## OAuth ceremony & audit smoke (OA)
 
-- [ ] **OA-01**: **Merge-blocking** tests exercise at least one **OAuth ceremony** path the library owns (mocked HTTP / in-process strategy is fine) and **assert audit outcomes** where production code already emits audit on success — **or** assert an explicitly documented substitute (telemetry-only, etc.) with a **code comment** referencing **OA-01** so the absence of an audit row is not an accident.
+- [x] **OA-01**: **Merge-blocking** tests exercise at least one **OAuth ceremony** path the library owns (mocked HTTP / in-process strategy is fine) and **assert audit outcomes** where production code already emits audit on success — **or** assert an explicitly documented substitute (telemetry-only, etc.) with a **code comment** referencing **OA-01** so the absence of an audit row is not an accident.
 - [ ] **OA-02**: **`docs/uat-ci-coverage.md`** (and, if applicable, a **GA-03** pointer note in `.planning/v1.4-GA-UAT.md` or evidence index) names the **OA-01** test module(s) and states what machine proof **now** covers vs what remains **human / live-provider** only.
 
 ---
@@ -43,7 +43,7 @@ This milestone **does not** ship net-new end-user auth features. It tightens **p
 |-------------|-------|--------|
 | NYQ-01 | 57 | Complete |
 | NYQ-02 | 57 | Complete |
-| OA-01 | 58 | Pending |
+| OA-01 | 58 | Complete |
 | OA-02 | 59 | Pending |
 
 **Coverage**
