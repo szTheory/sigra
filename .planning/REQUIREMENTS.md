@@ -23,9 +23,9 @@
 
 ### Release boundary and explicit non-goals
 
-- [ ] **ACF-05**: **`guides/introduction/upgrading-to-v1.10.md`** exists, is listed in ExDoc extras after **`upgrading-to-v1.8.md`**, and explains planning **v1.10** vs Hex SemVer / pin expectations for adopters coming from **v1.9** (and pointers back to **v1.8** / **v1.7** upgrade pages as needed).
+- [x] **ACF-05**: **`guides/introduction/upgrading-to-v1.10.md`** exists, is listed in ExDoc extras after **`upgrading-to-v1.8.md`**, and explains planning **v1.10** vs Hex SemVer / pin expectations for adopters coming from **v1.9** (and pointers back to **v1.8** / **v1.7** upgrade pages as needed).
 
-- [ ] **ACF-06**: **`REQUIREMENTS.md`** Out of Scope table (below) and **`PROJECT.md`** Current Milestone section explicitly defer **`sigra_lockspire`** / mandatory Lockspire coupling and **full SEED-002** conversion, with pointers to [`.planning/decisions/001-defer-sigra-lockspire-glue-package.md`](decisions/001-defer-sigra-lockspire-glue-package.md) and [`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`](seeds/SEED-002-phase-9-log-safe-atomicity-followup.md). **ACF-06** is satisfied when those cross-links are present and accurate at milestone close.
+- [x] **ACF-06**: **`REQUIREMENTS.md`** Out of Scope table (below) and **`PROJECT.md`** Current Milestone section explicitly defer **`sigra_lockspire`** / mandatory Lockspire coupling and **full SEED-002** conversion, with pointers to [`.planning/decisions/001-defer-sigra-lockspire-glue-package.md`](decisions/001-defer-sigra-lockspire-glue-package.md) and [`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`](seeds/SEED-002-phase-9-log-safe-atomicity-followup.md). **ACF-06** is satisfied when those cross-links are present and accurate at milestone close.
 
 ---
 
@@ -41,8 +41,8 @@
 
 | Item | Reason |
 |------|--------|
-| **`sigra_lockspire` / Lockspire glue package** | ADR **001** — separate packages; host-generated seams only until Lockspire **Phase 6** + stable APIs + reference CI. |
-| **Full SEED-002** hybrid → `Multi` conversion | Large blast radius; not required for intermediate production confidence. |
+| **`sigra_lockspire` / Lockspire glue package** | [ADR 001](decisions/001-defer-sigra-lockspire-glue-package.md) — ADR **001** — separate packages; host-generated seams only until Lockspire **Phase 6** + stable APIs + reference CI. |
+| **Full SEED-002** hybrid → `Multi` conversion | [SEED-002](seeds/SEED-002-phase-9-log-safe-atomicity-followup.md) — large blast radius; not required for intermediate production confidence. |
 | **SEED-001** loud-launch human matrix | Marketing / GA milestone, not solo dogfood. |
 | **Net-new auth features** | Out of scope unless a doc task discovers a **bug-level** gap opened as a separate tracked item. |
 
@@ -56,8 +56,8 @@
 | ACF-04 | 68 | Pending |
 | ACF-02 | 69 | Validated |
 | ACF-03 | 69 | Validated |
-| ACF-05 | 70 | Pending |
-| ACF-06 | 70 | Pending |
+| ACF-05 | 70 | Validated |
+| ACF-06 | 70 | Validated |
 
 **Coverage:** v1.10 requirements **6** total · mapped **6** · unmapped **0**
 

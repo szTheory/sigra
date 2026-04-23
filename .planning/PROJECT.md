@@ -25,7 +25,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Target features:**
 - Production **HTTPS / proxy / session cookie** checklist and **Oban vs inline mail** guidance — **shipped phase 68 (2026-04-23)** — **`ACF-01`**, **`ACF-04`** (hub: `guides/recipes/deployment.md`; intro + README + `MAINTAINING` cross-links).
 - One **intermediate dogfood** narrative plus a single **optional generator features** index cross-linked from intro guides — **shipped phase 69 (2026-04-23)** — **`ACF-02`**, **`ACF-03`** (`guides/introduction/intermediate-production-path.md`, `guides/reference/generator-options.md`).
-- **`upgrading-to-v1.10.md`** plus explicit milestone **non-goals**: **no** **`sigra_lockspire`** / mandatory Lockspire coupling (**ADR 001**); **no** full-library **SEED-002** conversion (phase **70** — **`ACF-05`**, **`ACF-06`**).
+- **`upgrading-to-v1.10.md`** plus explicit milestone **non-goals**: **no** **`sigra_lockspire`** / mandatory Lockspire coupling ([**ADR 001**](decisions/001-defer-sigra-lockspire-glue-package.md)); **no** full-library **SEED-002** conversion (phase **70** — **`ACF-05`**, **`ACF-06`**).
 
 **Assumed first-production bundle (edit if your app differs):** [`.planning/v1.10-ADOPTER-SCOPE.md`](v1.10-ADOPTER-SCOPE.md).
 
