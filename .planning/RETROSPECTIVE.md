@@ -21,7 +21,7 @@
 ### What was inefficient
 
 - **`gsd-sdk query milestone.complete`** failed again (`version required for phases archive`); manual archival duplicated v1.3–v1.5 toil.
-- No **`v1.6-MILESTONE-AUDIT.md`** artifact — acceptable given **4/4** reqs + summaries, but audits remain the gold standard when time allows.
+- Milestone audit file landed **after** the **`v1.6`** tag (retroactive **`v1.6-MILESTONE-AUDIT.md`**); prefer **`/gsd-audit-milestone`** pre-close next time so the tag and audit commit align.
 
 ### Patterns established
 

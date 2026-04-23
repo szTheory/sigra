@@ -242,7 +242,7 @@
 ### Stats
 
 - **Requirements:** 4/4 Complete in archived [`milestones/v1.6-REQUIREMENTS.md`](milestones/v1.6-REQUIREMENTS.md).
-- **Milestone audit:** none filed for v1.6; closure used requirements traceability + phase summaries + pre-close **`audit-open`** all clear (2026-04-22).
+- **Milestone audit:** **passed** (retroactive file: [`milestones/v1.6-MILESTONE-AUDIT.md`](milestones/v1.6-MILESTONE-AUDIT.md)); closure already used **4/4** requirements + phase summaries + pre-close **`audit-open`** all clear (2026-04-22).
 - **Pre-close `audit-open`:** all artifact types clear (2026-04-22).
 - **Timeline:** 2026-04-22 → 2026-04-23 (execution on disk + milestone archival).
 
@@ -255,5 +255,6 @@
 
 - [v1.6 Roadmap](milestones/v1.6-ROADMAP.md)
 - [v1.6 Requirements](milestones/v1.6-REQUIREMENTS.md)
+- [v1.6 Milestone Audit](milestones/v1.6-MILESTONE-AUDIT.md)
 
 ---
