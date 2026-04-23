@@ -1,6 +1,45 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.6 section added at ship (2026-04-23).*
+*Living document updated at milestone boundaries. v1.7 section added at ship (2026-04-23).*
+
+## Milestone: v1.7 — Adoption readiness & audit durability
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (60–62) | **Plans (with on-disk summaries):** 3 (**061**–**062**) | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **ADOPT / INTG (Phase 60)** — First-hour, upgrade, troubleshooting guides plus **`companion-oauth-provider`** recipe with explicit non-coupling (no IdP in Sigra core).
+- **AUD-01 (Phase 61)** — `verify_backup/4` failure path on **`Ecto.Multi`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 / inventory alignment.
+- **AUD-02 (Phase 62)** — **`09-03-SUMMARY.md`** carries honest post-batch narrative; **D-06** confirmed **`09-VERIFICATION.md`** unchanged.
+
+### What worked
+
+- **Tiny code + heavy truth** — one subsystem batch plus doc alignment closed a real audit durability gap without boiling the ocean.
+- **D-06 discipline** — avoided churning verification files when the matrix already matched the summary.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again; manual archival repeated v1.3–v1.6 toil.
+- **No `060-*` phase directory** — Phase **60** is harder to grep as execution history; prefer creating doc phases on disk up front.
+
+### Patterns established
+
+- **Document status blocks** on planning-facing audit summaries for time-bounded narrative patches.
+- **Companion recipe** as architecture doc, not a new core dependency surface.
+
+### Key lessons
+
+1. Ship **adoption** milestones with the same traceability table discipline as code milestones — even when most work is prose.
+2. When **`roadmap.analyze`** returns empty for this roadmap shape, rely on **`REQUIREMENTS.md`** + filesystem checks before close.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Very small product diff; highest leverage was MFA audit atomicity + C-1 honesty.
+
+---
 
 ## Milestone: v1.6 — Nyquist closure + OAuth audit depth
 

@@ -10,9 +10,20 @@
 - ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (shipped **2026-04-22**). See [v1.5 archive](milestones/v1.5-ROADMAP.md), [v1.5 requirements](milestones/v1.5-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.6 Nyquist closure + OAuth audit depth** — Phases **57–59** (shipped **2026-04-23**). See [v1.6 archive](milestones/v1.6-ROADMAP.md), [v1.6 requirements](milestones/v1.6-REQUIREMENTS.md), [v1.6 milestone audit](milestones/v1.6-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- ✅ **v1.7 Adoption readiness & audit durability** — Phases **60–62** (shipped **2026-04-23**). Live [REQUIREMENTS.md](REQUIREMENTS.md).
+- ✅ **v1.7 Adoption readiness & audit durability** — Phases **60–62** (shipped **2026-04-23**). See [v1.7 archive](milestones/v1.7-ROADMAP.md), [v1.7 requirements](milestones/v1.7-REQUIREMENTS.md), [v1.7 milestone audit](milestones/v1.7-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Phases
+
+_No active milestone — open the next scope with `/gsd-new-milestone`._
+
+<details>
+<summary>✅ v1.7 Adoption readiness & audit durability (Phases 60–62) — SHIPPED 2026-04-23</summary>
+
+Full phase table, success criteria, and Phase **60** directory note are archived in [`milestones/v1.7-ROADMAP.md`](milestones/v1.7-ROADMAP.md).
+
+**At a glance:** **60** adoption + companion recipe (**ADOPT-01..03**, **INTG-01**); **61** bounded **SEED-002** batch — `verify_backup/4` failure **`Multi`** + **`mfa_audit_atomicity_test.exs`** + **AUD-04-067** (**AUD-01**); **62** **`09-03-SUMMARY.md`** + **AUD-02** closure.
+
+</details>
 
 <details>
 <summary>✅ v1.4 GA readiness & audit trail completeness (Phases 41–52) — SHIPPED 2026-04-22</summary>
@@ -31,23 +42,6 @@ Full phase table, goals, and canonical refs are archived in [`milestones/v1.5-RO
 At a glance: **53** Hex / `mix.exs` metadata (**PUB-01**); **54** `CHANGELOG.md` milestone anchors (**PUB-02**); **55** README + ExDoc GA entry paths (**DOC-01**, **DOC-02**); **56** maintainer **First public launch** checklist in `MAINTAINING.md` (**MAINT-01**).
 
 </details>
-
-### v1.7 Adoption readiness & audit durability (Phases 60–62)
-
-**Goal:** Make first adoption **legible and fast** (docs + troubleshooting + upgrade path), document the **Sigra + embedded OAuth provider** pattern without core coupling, and continue **SEED-002** in **one** bounded audit-aware batch with honest C-1 narrative updates.
-
-| Phase | Name | Goal | Requirements |
-|-------|------|------|----------------|
-| **60** | Adoption docs & companion narrative | First-hour path, v1.7 upgrade stub, install troubleshooting, Lockspire layering recipe | ADOPT-01, ADOPT-02, ADOPT-03, INTG-01 |
-| **61** ✅ **2026-04-23** | SEED-002 bounded batch | One C-1 subsystem moves to atomic Multi + audit-aware tests | AUD-01 |
-| **62** ✅ **2026-04-23** | C-1 narrative alignment | Phase 9 summary / verification reflects post-batch truth | AUD-02 |
-
-**Success criteria (milestone):**
-
-1. A new maintainer can follow **ADOPT-01** and land a green local test run without undocumented steps.
-2. **INTG-01** is published in ExDoc and states non-goals (no IdP inside Sigra; no mandatory companion dep).
-3. **AUD-01** ships with tests that would fail if audit rows drop on successful ops in the touched subsystem.
-4. **AUD-02** leaves no silent drift between code and C-1 documentation.
 
 <details>
 <summary>✅ v1.6 Nyquist closure + OAuth audit depth (Phases 57–59) — SHIPPED 2026-04-23</summary>

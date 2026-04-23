@@ -8,19 +8,13 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current milestone: v1.7 Adoption readiness & audit durability (**shipped 2026-04-23**)
+## Current milestone: (none — plan next)
 
-**Goal (achieved):** Improve **first adoption** clarity (first-hour path, troubleshooting, honest upgrade notes) and continue **SEED-002** audit atomicity in **bounded** batches while documenting how hosts pair Sigra with a **separate** embedded OAuth/OIDC provider library when they need a developer API — **without** folding IdP concerns into Sigra core.
-
-**Target features:**
-
-- Curated **introduction docs** (first hour, troubleshooting, post–v1.6 upgrade stub) wired into ExDoc.
-- **Companion OAuth provider** recipe: architectural layering, subject/claims expectations, explicit non-coupling (no mandatory Hex dependency on companion libs).
-- **One** merge-gated **C-1 / SEED-002** subsystem batch toward atomic audited `Ecto.Multi` + **honest** Phase 9 narrative updates.
+**Next step:** Run **`/gsd-new-milestone`** to open the next requirements + roadmap cycle. Until then, active work items live in the [Backlog](ROADMAP.md) section of **`.planning/ROADMAP.md`**.
 
 ## Current State
 
-**v1.7 (shipped 2026-04-23):** **Phases 60–62** — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md). **Phase 61:** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed. **Phase 62:** **`AUD-02`** — **`09-03-SUMMARY.md`** carries **v1.7** document status + Phase **61** bounded-batch narrative keyed to **`AUD-04-067`**; **D-06** left **`09-VERIFICATION.md`** unchanged.
+**v1.7 (shipped 2026-04-23):** **Phases 60–62** — archives: [`.planning/milestones/v1.7-ROADMAP.md`](milestones/v1.7-ROADMAP.md), [`v1.7-REQUIREMENTS.md`](milestones/v1.7-REQUIREMENTS.md), [`v1.7-MILESTONE-AUDIT.md`](milestones/v1.7-MILESTONE-AUDIT.md). **Phase 61:** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed. **Phase 62:** **`AUD-02`** — **`09-03-SUMMARY.md`** carries **v1.7** document status + Phase **61** bounded-batch narrative keyed to **`AUD-04-067`**; **D-06** left **`09-VERIFICATION.md`** unchanged. **Phase 60:** adoption + companion recipe guides under **`guides/introduction/`** and **`guides/recipes/companion-oauth-provider.md`** (no discrete **`060-*`** phase directory — see milestone audit).
 
 **v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`, `v1.6-MILESTONE-AUDIT.md` (audit filed retroactively on 2026-04-23).
 
@@ -299,8 +293,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.6 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.7 execution log)</summary>
 
+- **2026-04-23** — **v1.7** phases **60–62** complete; `/gsd-complete-milestone` archived planning + tag **`v1.7`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.6** phases **57–59** complete; `/gsd-complete-milestone` archived planning + tag **`v1.6`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-22** — **v1.5** phases **53–56** complete; `/gsd-complete-milestone` archived planning + tag **`v1.5`**.
 - **2026-04-22** — v1.4 phases **41–52** complete on ROADMAP; milestone wrap via `/gsd-complete-milestone`.
@@ -313,4 +308,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **v1.7** closed: **Phase 62** landed **AUD-02** (**`09-03-SUMMARY.md`** narrative + **REQUIREMENTS**). Prior: **Phase 61** **AUD-01**; **`v1.6-MILESTONE-AUDIT.md`** (retro **passed**); **`v1.6`** tagged.*
+*Last updated: 2026-04-23 — **`/gsd-complete-milestone`**: **v1.7** archived (**milestones/** + **`REQUIREMENTS.md`** removed for a fresh next milestone); git tag **`v1.7`**. Prior: **Phase 62** **AUD-02**; **Phase 61** **AUD-01**; **`v1.6`** tagged.*

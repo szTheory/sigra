@@ -259,10 +259,36 @@
 
 ---
 
-## v1.7 Adoption readiness & audit durability (Planning opened: 2026-04-23)
+## v1.7 Adoption readiness & audit durability (Shipped: 2026-04-23)
 
-**Scope (planned):** 3 phases (**60–62**) — adoption docs + companion OAuth provider narrative (**ADOPT***, **INTG-01**), one bounded **SEED-002** audit batch (**AUD-01**), C-1 narrative alignment (**AUD-02**).
+**Scope:** 3 phases (**60–62**), **3** plans with on-disk **`*-SUMMARY.md`** under **061** / **062**; **Phase 60** satisfied via shipped guides + recipe without a discrete **`060-*`** phase directory (see [`milestones/v1.7-MILESTONE-AUDIT.md`](milestones/v1.7-MILESTONE-AUDIT.md)).
 
-**Live artifacts:** [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md), [`.planning/ROADMAP.md`](ROADMAP.md) (active phase table). Companion integration is **documentation + host stubs** only until a future optional glue package is reconsidered (`.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
+**What shipped:** **ADOPT-01..03** + **INTG-01** — `guides/introduction/first-hour.md`, `upgrading-to-v1.7.md`, `troubleshooting-install.md`, and `guides/recipes/companion-oauth-provider.md` wired for ExDoc with explicit non-coupling to a companion authorization server. **AUD-01** — `verify_backup/4` wrong-code path now runs in **`Ecto.Multi`** with co-fated audit rows; **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix / inventory updates (**061**). **AUD-02** — **`09-03-SUMMARY.md`** carries v1.7 document status + Phase **61** bounded-batch narrative; **D-06** required no **`09-VERIFICATION.md`** edit (**062**).
+
+### Key accomplishments
+
+1. **Adoption path clarity (Phase 60)** — First-hour, upgrade, troubleshooting, and companion recipe docs land without folding IdP scope into Sigra core.
+2. **AUD-01 bounded SEED-002 batch (Phase 61)** — Invalid backup verification matches atomic audit semantics with merge-gated regression tests.
+3. **AUD-02 C-1 honesty (Phase 62)** — Phase 9 executive summary reflects post-batch truth; requirements closed traceably.
+
+### Stats
+
+- **Requirements:** 6/6 Complete in archived [`milestones/v1.7-REQUIREMENTS.md`](milestones/v1.7-REQUIREMENTS.md).
+- **Milestone audit:** **passed** ([`milestones/v1.7-MILESTONE-AUDIT.md`](milestones/v1.7-MILESTONE-AUDIT.md)).
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-23).
+- **Git (since `v1.6`):** ~32 commits; **47** files touched (**1986** insertions / **82** deletions in `git diff --stat v1.6..HEAD` summary).
+- **Timeline:** 2026-04-23 (single-day execution on disk for **61–62**; Phase **60** docs pre-existed the formal milestone window).
+
+### Tech debt carried forward
+
+- **`gsd-sdk query milestone.complete`** returned `version required for phases archive`; archival followed the same manual path as **v1.3**–**v1.6**.
+- **SEED-002** remainder — further `log_safe/3` → **`Ecto.Multi`** batches remain backlog-triggered.
+- **Optional:** add a retro **`060-*`** phase pack if stricter per-phase disk history is desired.
+
+**Archive:**
+
+- [v1.7 Roadmap](milestones/v1.7-ROADMAP.md)
+- [v1.7 Requirements](milestones/v1.7-REQUIREMENTS.md)
+- [v1.7 Milestone Audit](milestones/v1.7-MILESTONE-AUDIT.md)
 
 ---

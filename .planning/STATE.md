@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.7
-milestone_name: Adoption readiness & audit durability
-status: Phase **62** (C-1 narrative alignment, **AUD-02**) shipped **2026-04-23** — v1.7 requirements complete
-stopped_at: Phase 62 execution complete (AUD-02)
-last_updated: "2026-04-23T18:45:00.000Z"
+milestone: pending
+milestone_name: (next — use /gsd-new-milestone)
+status: v1.7 shipped and archived 2026-04-23 — live REQUIREMENTS.md removed; awaiting next milestone definition
+stopped_at: Milestone close (/gsd-complete-milestone)
+last_updated: "2026-04-23T20:00:00.000Z"
 last_activity: 2026-04-23
 progress:
   total_phases: 55
@@ -22,15 +22,15 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.7 milestone closed — next backlog item **999.1** (Nyquist retroactive validation pass) when scheduled
+**Current focus:** Run **`/gsd-new-milestone`** — candidate seeds include **999.1** (Nyquist retroactive validation pass) when scheduled
 
 ## Current Position
 
-Phase: **999.1** — nyquist-retroactive-validation-pass (backlog / not started)
+Phase: _None (active milestone closed)_
 
-Plan: Not started
+Plan: _N/A_
 
-Status: Phase **62** shipped **2026-04-23**; all **v1.7** requirements in **`.planning/REQUIREMENTS.md`** are **Complete**
+Status: **v1.7** archived **2026-04-23** — see **`.planning/milestones/v1.7-*`** and **`.planning/MILESTONES.md`**
 
 Last activity: 2026-04-23
 
@@ -40,7 +40,7 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
-**v1.7** opened **2026-04-23** — live **`.planning/REQUIREMENTS.md`**; phases **60–62** on **`.planning/ROADMAP.md`**.
+**v1.7** closed **2026-04-23** — archives: **`.planning/milestones/v1.7-ROADMAP.md`**, **`v1.7-REQUIREMENTS.md`**, **`v1.7-MILESTONE-AUDIT.md`**; live **`.planning/REQUIREMENTS.md`** removed for the next cycle.
 
 **v1.6** closed **2026-04-23** — archives: **`.planning/milestones/v1.6-ROADMAP.md`**, **`v1.6-REQUIREMENTS.md`**.
 
