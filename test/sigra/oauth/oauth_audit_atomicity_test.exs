@@ -1,9 +1,13 @@
 defmodule Sigra.OAuthAuditAtomicityTest do
+  @moduledoc """
+  Rollback and constraint-rejection proofs for OAuth audit integration (phase 45
+  narrative). Happy-path ceremony coverage lives in `Sigra.OAuthCeremonyAuditTest`
+  (OA-01).
+  """
   use ExUnit.Case, async: false
 
   import Ecto.Query
 
-  alias Sigra.Audit.Assertions
   alias Sigra.OAuth.Callback
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
   alias Sigra.Test.PostgresRepo
@@ -186,23 +190,5 @@ defmodule Sigra.OAuthAuditAtomicityTest do
         []
       )
     end
-  end
-
-  test "persists oauth.register_via_oauth after successful registration", %{repo: repo} do
-    assert {:ok, :registered, user, _} =
-             Callback.process_callback(
-               oauth_config(repo),
-               :google,
-               user_info("persist@example.com"),
-               token()
-             )
-
-    assert user.email == "persist@example.com"
-
-    Assertions.assert_audit_fields(repo, AuditTestEvent, %{
-      action: "oauth.register_via_oauth",
-      actor_id: user.id,
-      target_id: user.id
-    })
   end
 end
