@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.9
-milestone_name: Audit atomicity (bounded SEED-002)
-status: Milestone v1.9 complete — phases **66–67** shipped (**AUD-09**, **AUD-10**).
-stopped_at: Phase 67 complete (AUD-10)
-last_updated: "2026-04-23T22:00:00.000Z"
-last_activity: 2026-04-23 — Phase **67** complete (**AUD-10**); **v1.9** roadmap closed.
+milestone: (none — planning next)
+milestone_name: —
+status: Milestone **v1.9** archived (2026-04-23); **`.planning/REQUIREMENTS.md`** removed for next milestone.
+stopped_at: /gsd-complete-milestone v1.9
+last_updated: "2026-04-23T23:59:00.000Z"
+last_activity: 2026-04-23 — **v1.9** milestone close: archives + tag **`v1.9`**.
 progress:
   total_phases: 57
   completed_phases: 53
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX; defer untargeted polish unless tied to adoption or risk.
 
-**Current focus:** **Milestone v1.9** shipped **2026-04-23** — **AUD-09** (phase **66**) + **AUD-10** (phase **67** / **`09-03-SUMMARY.md`** + D-06 attestation). Next milestone not selected in this update.
+**Current focus:** **Next milestone not selected** — run **`/gsd-new-milestone`** when priorities are set. **v1.9** archives: **`.planning/milestones/v1.9-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`**.
 
 ## Current Position
 
-Phase: **67** complete (**C-1 planning closure**)
+Phase: **—** (no active milestone)
 
-Plan: **067-01** complete
+Plan: **—**
 
-Status: **v1.9** requirements **AUD-09** / **AUD-10** satisfied; **`09-03-SUMMARY.md`** + **`REQUIREMENTS.md`** updated.
+Status: **v1.9** archived; pick next work via **`/gsd-new-milestone`** or **`/gsd-progress`**.
 
-Last activity: 2026-04-23 — **`/gsd-execute-phase 67`** (inline; GSD SDK phase path uses **`067-*`** slug).
+Last activity: 2026-04-23 — **`/gsd-complete-milestone`** (**v1.9**).
 
 ## Performance Metrics
 

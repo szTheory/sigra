@@ -1,6 +1,43 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.8 section added at ship (2026-04-23).*
+*Living document updated at milestone boundaries. v1.9 section added at ship (2026-04-23).*
+
+## Milestone: v1.9 — Audit atomicity (bounded SEED-002)
+
+**Shipped:** 2026-04-23  
+**Phases:** 2 (66–67) | **Plans (on-disk):** 3 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-09 (Phase 66)** — **`confirm_enrollment/5`** **AUD-04-020..021** on **`Ecto.Multi`** with **`log_multi_safe`**; **`mfa_audit_atomicity_test.exs`** for success + rollback/failure signals.
+- **AUD-10 (Phase 67)** — **`09-03-SUMMARY.md`** post–phase-66 narrative; **D-06** inventory cross-check; explicit **no `09-VERIFICATION.md` edit** where rows already matched intent.
+
+### What worked
+
+- **Mirror v1.7 pattern** — one bounded code batch plus honest planning closure closed the milestone without boiling the ocean.
+- **Merge-gated audit tests** — kept **T1** semantics provable in CI for the touched subsystem.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again; manual archival repeated the v1.3–v1.8 pattern.
+- **`roadmap.analyze`** returned empty JSON for this roadmap shape; closure relied on **REQUIREMENTS.md** + on-disk **`*-SUMMARY.md`** checks.
+
+### Patterns established
+
+- **Failure-path `Multi`** for enrollment audit parity with success-path co-fated writes where **C-1** demands it.
+
+### Key lessons
+
+1. Keep **bounded SEED-002** milestones to **one production batch + one planning closure** per ship window when possible.
+2. File a short **milestone audit** at close when prior milestones used the same honesty gate.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Very small phase count; highest leverage was MFA audit atomicity + **C-1** narrative alignment.
+
+---
 
 ## Milestone: v1.8 — Adopter polish (diminishing returns)
 

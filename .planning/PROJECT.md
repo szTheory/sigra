@@ -20,13 +20,13 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current Milestone: (none selected)
 
-**Last closed:** **v1.9 Audit atomicity (bounded SEED-002)** — shipped **2026-04-23** (**phases 66–67**; **`AUD-09`** + **`AUD-10`**). Archives: live **`.planning/ROADMAP.md`** row + **`.planning/REQUIREMENTS.md`** at close.
+**Last closed:** **v1.9 Audit atomicity (bounded SEED-002)** — shipped **2026-04-23** (**phases 66–67**; **`AUD-09`** + **`AUD-10`**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
 
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
 
-**v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..022** batch (**AUD-09**) plus **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). See **`.planning/REQUIREMENTS.md`** / **`.planning/ROADMAP.md`**.
+**v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
 
 **v1.8 (shipped 2026-04-23):** Phases **63–65** — **ADOPT-04** / **ADOPT-05** / **INTG-02** doc polish (archives: [`.planning/milestones/v1.8-ROADMAP.md`](milestones/v1.8-ROADMAP.md), [`v1.8-REQUIREMENTS.md`](milestones/v1.8-REQUIREMENTS.md)).
 
@@ -46,7 +46,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.9 shipped:** **AUD-09** / **AUD-10** closed **2026-04-23** — open the next arc with **`/gsd-new-milestone`** when priorities are set.
+**v1.9 shipped and archived (2026-04-23):** **AUD-09** / **AUD-10** — open the next arc with **`/gsd-new-milestone`** when priorities are set (fresh **`.planning/REQUIREMENTS.md`** is created by that flow).
 
 **Later candidates:** further **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
 
@@ -322,8 +322,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.8 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.9 execution log)</summary>
 
+- **2026-04-23** — **v1.9** phases **66–67** complete; `/gsd-complete-milestone` archived planning + tag **`v1.9`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.8** phases **63–65** complete; `/gsd-complete-milestone` archived planning + tag **`v1.8`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.7** phases **60–62** complete; `/gsd-complete-milestone` archived planning + tag **`v1.7`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.6** phases **57–59** complete; `/gsd-complete-milestone` archived planning + tag **`v1.6`**; live **`REQUIREMENTS.md`** removed.
@@ -338,4 +339,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`/gsd-execute-phase 67`** closed **v1.9** (**AUD-10** / **`09-03-SUMMARY.md`** + **`067-01-SUMMARY.md`**). Prior: **`/gsd-new-milestone`** opened **v1.9**; phases **66–67** on roadmap.*
+*Last updated: 2026-04-23 — **`/gsd-complete-milestone`** archived **v1.9** (milestones + **`MILESTONES.md`** + **`ROADMAP.md`** collapse); tag **`v1.9`**. Prior: **`/gsd-execute-phase 67`** closed **AUD-10**.*

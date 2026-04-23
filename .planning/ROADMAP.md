@@ -12,16 +12,20 @@
 - ✅ **v1.6 Nyquist closure + OAuth audit depth** — Phases **57–59** (shipped **2026-04-23**). See [v1.6 archive](milestones/v1.6-ROADMAP.md), [v1.6 requirements](milestones/v1.6-REQUIREMENTS.md), [v1.6 milestone audit](milestones/v1.6-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.7 Adoption readiness & audit durability** — Phases **60–62** (shipped **2026-04-23**). See [v1.7 archive](milestones/v1.7-ROADMAP.md), [v1.7 requirements](milestones/v1.7-REQUIREMENTS.md), [v1.7 milestone audit](milestones/v1.7-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.8 Adopter polish (diminishing returns)** — Phases **63–65** (shipped **2026-04-23**). See [v1.8 archive](milestones/v1.8-ROADMAP.md), [v1.8 requirements](milestones/v1.8-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
-- ✅ **v1.9 Audit atomicity (bounded SEED-002)** — Phases **66–67** (shipped **2026-04-23**). Live [REQUIREMENTS.md](REQUIREMENTS.md); **AUD-09** / **AUD-10** complete.
+- ✅ **v1.9 Audit atomicity (bounded SEED-002)** — Phases **66–67** (shipped **2026-04-23**). See [v1.9 archive](milestones/v1.9-ROADMAP.md), [v1.9 requirements](milestones/v1.9-REQUIREMENTS.md), [v1.9 milestone audit](milestones/v1.9-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Phases
 
-### v1.9 — Audit atomicity (bounded SEED-002)
+_No in-flight milestone._ Use **`/gsd-new-milestone`** to open the next arc; **Backlog** is preserved at the end of this file.
 
-| Phase | Name | Goal | Requirements | Success criteria |
-|-------|------|------|--------------|------------------|
-| **66** ✅ **2026-04-23** | **SEED-002 bounded batch** | Convert the next **C-1** deferral slice to **`Ecto.Multi`** + **`log_multi_safe`** (or documented substitute) with audit-aware tests. | AUD-09 | 1) Inventory row(s) for this batch identified and linked in phase planning. 2) Production path(s) co-fate audit with business writes per **T1** semantics in **`docs/audit-semantics.md`**. 3) New or extended tests assert audit row(s) on success and absence/rollback on intentional failure. 4) CI green (`library_tests` + any scoped contracts touched). |
-| **67** ✅ **2026-04-23** | **C-1 planning closure** | Align Phase **9** executive summary + **C-1** matrix with post-batch truth. | AUD-10 | 1) **`09-03-SUMMARY.md`** lists phase **66** batch with mechanism pointer. 2) **`09-VERIFICATION.md`** updated for any row whose verdict/tier/mechanism changed; otherwise explicit rationale for no edit. 3) Cross-links to inventories remain valid. |
+<details>
+<summary>✅ v1.9 Audit atomicity (Phases 66–67) — SHIPPED 2026-04-23</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md).
+
+**At a glance:** **66** **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **67** **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**).
+
+</details>
 
 <details>
 <summary>✅ v1.8 Adopter polish (Phases 63–65) — SHIPPED 2026-04-23</summary>

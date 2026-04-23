@@ -324,3 +324,35 @@
 - [v1.8 Requirements](milestones/v1.8-REQUIREMENTS.md)
 
 ---
+
+## v1.9 Audit atomicity (bounded SEED-002) (Shipped: 2026-04-23)
+
+**Scope:** 2 phases (**66–67**), **3** on-disk plans (**066-01**, **066-02**, **067-01**) under **`.planning/phases/066-*`** / **`067-*`**.
+
+**What shipped:** **AUD-09** — **`Sigra.MFA.confirm_enrollment/5`** **AUD-04-020..021** batch on **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** with **`mfa_audit_atomicity_test.exs`** merge-gated coverage. **AUD-10** — **`09-03-SUMMARY.md`** carries post–phase-**66** bounded-batch narrative; **D-06** reconciliation for **AUD-04-020..022** vs **44** inventory with explicit **no `09-VERIFICATION.md` edit** attestation.
+
+### Key accomplishments
+
+1. **Phase 66 — bounded SEED-002 batch** — Enrollment **`insert_failed`** audit path co-fated with business writes; Postgrex-aware failure handling; audit atomicity tests.
+2. **Phase 67 — C-1 planning closure** — Phase **9** executive summary aligned to post-batch truth without unnecessary verification churn.
+
+### Stats
+
+- **Requirements:** 2/2 Complete in archived [`milestones/v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md).
+- **Milestone audit:** **passed** ([`milestones/v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md)).
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-23).
+- **Git (since `v1.8`):** ~18 commits; **27** files touched (**1616** insertions / **53** deletions in `git diff --stat v1.8..HEAD` summary).
+- **Timeline:** 2026-04-23 (same-day execution on disk for **66–67**).
+
+### Tech debt carried forward
+
+- **`gsd-sdk query milestone.complete`** returned `version required for phases archive`; archival followed the same manual path as **v1.3**–**v1.8**.
+- **SEED-002** remainder — further **`log_safe/3` → `Ecto.Multi`** batches remain backlog-triggered (see **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`**).
+
+**Archive:**
+
+- [v1.9 Roadmap](milestones/v1.9-ROADMAP.md)
+- [v1.9 Requirements](milestones/v1.9-REQUIREMENTS.md)
+- [v1.9 Milestone Audit](milestones/v1.9-MILESTONE-AUDIT.md)
+
+---
