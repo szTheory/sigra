@@ -23,7 +23,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Goal:** Shorten the path from “installer golden path works in dev” to “my real Phoenix host runs Sigra through **intermediate** usage (sessions, email flows, OAuth, MFA, default generator options) **without surprises**,” using docs and checklists—not new auth primitives.
 
 **Target features:**
-- Production **HTTPS / proxy / session cookie** checklist and **Oban vs inline mail** guidance for maintainers (phases **68** — **`ACF-01`**, **`ACF-04`**).
+- Production **HTTPS / proxy / session cookie** checklist and **Oban vs inline mail** guidance — **shipped phase 68 (2026-04-23)** — **`ACF-01`**, **`ACF-04`** (hub: `guides/recipes/deployment.md`; intro + README + `MAINTAINING` cross-links).
 - One **intermediate dogfood** narrative plus a single **optional generator features** index cross-linked from intro guides (phase **69** — **`ACF-02`**, **`ACF-03`**).
 - **`upgrading-to-v1.10.md`** plus explicit milestone **non-goals**: **no** **`sigra_lockspire`** / mandatory Lockspire coupling (**ADR 001**); **no** full-library **SEED-002** conversion (phase **70** — **`ACF-05`**, **`ACF-06`**).
 
@@ -348,4 +348,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.10** (Adopter confidence): **`PROJECT.md`**, **`STATE.md`**, **`REQUIREMENTS.md`**, **`ROADMAP.md`** phases **68–70**, **`v1.10-ADOPTER-SCOPE.md`**, **`v1.10-RESEARCH-DECISION.md`**. Prior: **`/gsd-complete-milestone`** archived **v1.9**.*
+*Last updated: 2026-04-23 — Phase **68** (`ACF-01`, **`ACF-04`**) shipped: deployment checklist hub + mail/install docs + cross-links. Prior: **`/gsd-new-milestone`** opened **v1.10** (phases **68–70**).*

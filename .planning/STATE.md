@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.10
 milestone_name: — Adopter confidence for solo production
-status: Milestone opened — requirements and roadmap written; execution not started.
-stopped_at: Phase 68 context gathered (research synthesis)
-last_updated: "2026-04-23T20:16:18.045Z"
-last_activity: 2026-04-23 — **`/gsd-new-milestone`** implementation (**v1.10**).
+status: Milestone in progress — phase 68 complete; phase 69 next.
+stopped_at: null
+last_updated: "2026-04-23T21:00:00.000Z"
+last_activity: 2026-04-23 — Phase **68** (Deploy and mail confidence) executed — production checklist + mail/install docs.
 progress:
   total_phases: 58
-  completed_phases: 53
+  completed_phases: 54
   total_plans: 172
-  completed_plans: 175
-  percent: 100
+  completed_plans: 177
+  percent: 95
 ---
 
 # Project State
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.10** — Adopter confidence for solo production (`ACF-01`..`ACF-06`, phases **68–70**). Assumed bundle: `.planning/v1.10-ADOPTER-SCOPE.md`. Research skipped: `.planning/v1.10-RESEARCH-DECISION.md`.
+**Current focus:** **v1.10** — Adopter confidence for solo production; next execution phase **69** (Intermediate path + optional features).
 
 ## Current Position
 
-Phase: **Not started** (next: **68** — Deploy and mail confidence)
+Phase: **69** — Intermediate path + optional features (not started)
 
 Plan: **—**
 
-Status: Milestone opened — requirements and roadmap written; execution not started.
+Status: Phase **68** shipped — docs and cross-links only (`068-VERIFICATION.md`).
 
-Last activity: 2026-04-23 — **`/gsd-new-milestone`** implementation (**v1.10**).
+Last activity: 2026-04-23 — **`/gsd-execute-phase 68`** (use padded **`068`** with `gsd-sdk`).
 
 ## Performance Metrics
 
@@ -58,16 +58,16 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: phase 68 execution
 
-Stopped at: Phase 68 context gathered (research synthesis)
+Stopped at: Phase 68 complete
 
-Resume file: --resume-file
+Resume file: —
 
-**Next:** **`/gsd-discuss-phase 68`** or **`/gsd-plan-phase 68`**.
+**Next:** **`/gsd-discuss-phase 69`** or **`/gsd-plan-phase 69`** (or **`068`** / **`69`** per tool — phase directory is **`068-*`**).
 
 **Active requirements:** `.planning/REQUIREMENTS.md` (**6** × **`ACF-*`**).
 
-**Completed Phase:** _none for v1.10 yet_
+**Completed Phase (v1.10):** **68** — Deploy and mail confidence — **2026-04-23**
 
-**Planned Phase:** 68 (Deploy and mail confidence) — 2 plans — 2026-04-23T20:16:18.030Z
+**Planned Phase:** **69** — Intermediate path + optional features
