@@ -150,7 +150,7 @@
 
 - **SEED-002 remainder:** convert remaining hybrid `log_safe/3` sites to audited `Ecto.Multi` flows beyond `api.token_create` when subsystems grow audit-aware tests.
 - **SEED-001 residuals:** real mail clients, live Google OAuth UX, clean-machine wall-clock, backup-code **rotation** proof — still human- or product-dependent until explicit features land (`mfa_regenerate_backup_codes`, etc.).
-- **AUD-03 boundary:** OAuth ceremony audit assertions intentionally not claimed in v1.3.
+- **AUD-03 boundary:** OAuth ceremony audit assertions intentionally not claimed in v1.3. **As of v1.6 (OA-01):** merge-blocking ceremony audit assertions exist; see **`docs/uat-ci-coverage.md`** for the machine vs human baseline.
 
 **Archive:**
 
