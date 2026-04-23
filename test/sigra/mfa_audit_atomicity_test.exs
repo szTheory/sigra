@@ -427,6 +427,103 @@ defmodule Sigra.MFAAuditAtomicityTest do
     end
   end
 
+  test "confirm_enrollment insert_failed writes durable mfa.enroll.failure after enrollment rolls back",
+       %{repo: repo} do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE user_mfa_backup_codes
+      ADD CONSTRAINT mfa_enroll_backup_guard CHECK (false)
+      """,
+      []
+    )
+
+    try do
+      user = %{id: Ecto.UUID.generate()}
+      config = cfg(repo)
+      {:ok, %{raw_secret: raw}} = MFA.enroll(config, account: "u@example.com")
+      now = System.system_time(:second)
+      code = NimbleTOTP.verification_code(raw, time: now)
+
+      assert {:error, %Ecto.Changeset{}} =
+               MFA.confirm_enrollment(config, user, raw, code,
+                 mfa_credential_schema: MfaCredential,
+                 backup_code_schema: BackupCode
+               )
+
+      assert count(repo, "user_mfa_credentials") == 0
+      assert count(repo, "user_mfa_backup_codes") == 0
+
+      assert count_where(repo, "audit_events", "action = 'mfa.enroll.failure'") >= 1
+
+      %{rows: [[meta]]} =
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "SELECT metadata::text FROM audit_events WHERE action = 'mfa.enroll.failure' ORDER BY inserted_at DESC LIMIT 1",
+          []
+        )
+
+      assert meta =~ "insert_failed"
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE user_mfa_backup_codes DROP CONSTRAINT IF EXISTS mfa_enroll_backup_guard",
+        []
+      )
+    end
+  end
+
+  test "confirm_enrollment insert_failed failure-audit rolls back when audit row is blocked",
+       %{repo: repo} do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE user_mfa_backup_codes
+      ADD CONSTRAINT mfa_enroll_backup_guard_insert_failed CHECK (false)
+      """,
+      []
+    )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_enroll_failure_audit_guard CHECK (action <> 'mfa.enroll.failure')
+      """,
+      []
+    )
+
+    try do
+      user = %{id: Ecto.UUID.generate()}
+      config = cfg(repo)
+      {:ok, %{raw_secret: raw}} = MFA.enroll(config, account: "u@example.com")
+      now = System.system_time(:second)
+      code = NimbleTOTP.verification_code(raw, time: now)
+
+      assert {:error, %Ecto.Changeset{}} =
+               MFA.confirm_enrollment(config, user, raw, code,
+                 mfa_credential_schema: MfaCredential,
+                 backup_code_schema: BackupCode
+               )
+
+      assert count(repo, "user_mfa_credentials") == 0
+      assert count(repo, "user_mfa_backup_codes") == 0
+      assert count_where(repo, "audit_events", "action = 'mfa.enroll.failure'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_enroll_failure_audit_guard",
+        []
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE user_mfa_backup_codes DROP CONSTRAINT IF EXISTS mfa_enroll_backup_guard_insert_failed",
+        []
+      )
+    end
+  end
+
   test "disable rolls back when audit insert is rejected by database guard", %{repo: repo} do
     user = %{id: Ecto.UUID.generate()}
     config = cfg(repo)
