@@ -164,6 +164,8 @@ defmodule Sigra.MixProject do
         "CONTRIBUTING.md",
         "SECURITY.md",
         "MAINTAINING.md",
+        # Maintainer-only; linked from MAINTAINING.md — must be an extra so ExDoc validates the path under --warnings-as-errors.
+        ".planning/nyquist-phases-41-44-matrix.md",
         "LICENSE",
         "CHANGELOG.md",
         "guides/introduction/installation.md",
@@ -192,7 +194,7 @@ defmodule Sigra.MixProject do
         Introduction: ~r{guides/introduction/.?},
         Flows: ~r{guides/flows/.?},
         Recipes: ~r{guides/recipes/.?},
-        Docs: ~r{^docs/|^SECURITY\.md$}
+        Docs: ~r{^docs/|^SECURITY\.md$|^\.planning/nyquist-phases-41-44-matrix\.md$}
       ],
       groups_for_modules: [
         Core: [Sigra, Sigra.Auth, Sigra.Config, Sigra.Crypto],
