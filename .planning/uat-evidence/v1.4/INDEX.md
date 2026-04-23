@@ -16,6 +16,7 @@ This folder holds **text-first** evidence, steps, and waivers for **v1.4 GA** it
 - [GA-03](GA-03/README.md) — GA-03: live Google OAuth vs library contract tests
 - [GA-04](GA-04/README.md) — GA-04: clean-machine getting-started witness protocol
 - [GA-05](GA-05/README.md) — GA-05: consolidation / matrix ownership (pointers, not duplicate CI lists)
+- **GA-03 + OA-01/OA-02:** For live Google vs machine substitutes, read **`docs/uat-ci-coverage.md`** (§ **OA-01 / OA-02 — `library_tests` + `oauth_ceremony` machine baseline**) and the **GA-03** row in **`.planning/v1.4-GA-UAT.md`** — no duplicated requirement tables here.
 
 ## Waiver records
 
