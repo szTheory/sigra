@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: (none — planning next)
-milestone_name: —
-status: Milestone **v1.9** archived (2026-04-23); **`.planning/REQUIREMENTS.md`** removed for next milestone.
-stopped_at: /gsd-complete-milestone v1.9
-last_updated: "2026-04-23T23:59:00.000Z"
-last_activity: 2026-04-23 — **v1.9** milestone close: archives + tag **`v1.9`**.
+milestone: v1.10
+milestone_name: Adopter confidence for solo production
+status: Defining requirements complete — phases 68–70 ready to discuss/plan
+stopped_at: /gsd-new-milestone v1.10
+last_updated: "2026-04-23T12:00:00.000Z"
+last_activity: 2026-04-23 — Opened milestone v1.10 (planning artifacts + roadmap).
 progress:
-  total_phases: 57
-  completed_phases: 53
-  total_plans: 171
-  completed_plans: 175
-  percent: 100
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX; defer untargeted polish unless tied to adoption or risk.
+**North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **Next milestone not selected** — run **`/gsd-new-milestone`** when priorities are set. **v1.9** archives: **`.planning/milestones/v1.9-{ROADMAP,REQUIREMENTS,MILESTONE-AUDIT}.md`**.
+**Current focus:** **v1.10** — Adopter confidence for solo production (`ACF-01`..`ACF-06`, phases **68–70**). Assumed bundle: `.planning/v1.10-ADOPTER-SCOPE.md`. Research skipped: `.planning/v1.10-RESEARCH-DECISION.md`.
 
 ## Current Position
 
-Phase: **—** (no active milestone)
+Phase: **Not started** (next: **68** — Deploy and mail confidence)
 
 Plan: **—**
 
-Status: **v1.9** archived; pick next work via **`/gsd-new-milestone`** or **`/gsd-progress`**.
+Status: Milestone opened — requirements and roadmap written; execution not started.
 
-Last activity: 2026-04-23 — **`/gsd-complete-milestone`** (**v1.9**).
+Last activity: 2026-04-23 — **`/gsd-new-milestone`** implementation (**v1.10**).
 
 ## Performance Metrics
 
@@ -42,11 +42,9 @@ _Velocity metrics populate as phases complete._
 
 ## Accumulated Context
 
-**v1.9** opened **2026-04-23** after **v1.8** close — engineering milestone (audit **Multi** batch + planning closure), not an adoption-doc milestone.
+**v1.10** opened **2026-04-23** — docs-first milestone for intermediate production confidence; **Lockspire** glue explicitly out of scope (**ADR 001**).
 
-**v1.8** closed **2026-04-23** — **ADOPT-04** / **ADOPT-05** / **INTG-02** (doc-only). Archives: **`.planning/milestones/v1.8-ROADMAP.md`**, **`v1.8-REQUIREMENTS.md`**.
-
-**v1.7** shipped **AUD-01** / **AUD-02** in phases **61–62** (`verify_backup/4` wrong-code path + **09-03-SUMMARY** alignment); pattern to mirror for **AUD-09** / **AUD-10**.
+**v1.9** shipped **AUD-09** / **AUD-10** (phases **66–67**); archives under **`.planning/milestones/v1.9-*`**.
 
 **Note:** **`.planning/phases/`** retains historical directories; **`phases.clear`** is not used in this repo.
 
@@ -60,14 +58,14 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: /gsd-new-milestone v1.10
 
-Stopped at: Phase 67 execution complete
+Stopped at: Milestone initialized — ready for `/gsd-discuss-phase 68` or `/gsd-plan-phase 68`
 
 Resume file: --resume-file
 
-**Next:** **`/gsd-new-milestone`** or **`/gsd-progress`** — pick the next engineering arc when ready.
+**Next:** **`/gsd-discuss-phase 68`** or **`/gsd-plan-phase 68`**.
 
-**Prior shipped:** **v1.8** phases **63–65**; **v1.9** phases **66–67** (**AUD-09**, **AUD-10**).
+**Active requirements:** `.planning/REQUIREMENTS.md` (**6** × **`ACF-*`**).
 
-**Completed Phase:** **67** (C-1 planning closure) — plan **067-01** — **2026-04-23**
+**Completed Phase:** _none for v1.10 yet_
