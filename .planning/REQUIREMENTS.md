@@ -60,7 +60,8 @@ This milestone **does not** ship Sigra as an OAuth/OIDC **identity provider** (t
 
 - v1.7 requirements: **6** total  
 - Mapped to phases: **6**  
-- Unmapped: **0**
+- Unmapped: **0**  
+- **Complete (docs slice):** 4 (**ADOPT***, **INTG-01**) — **Pending:** **AUD-01**, **AUD-02** (Phases **61–62**)
 
 ---
 
