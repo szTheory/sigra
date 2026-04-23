@@ -66,4 +66,4 @@ Resume file: —
 
 **Shipped Phase 61:** **`verify_backup/4`** failure **`Multi`** + **`mfa_audit_atomicity_test.exs`**; **`44-AUD-04-INVENTORY.md`** + **`09-VERIFICATION.md`** (**AUD-04-067**, **026/027** refresh, Phase 61 note).
 
-**Shipped Phase 62:** **`09-03-SUMMARY.md`** document status + bounded-batch narrative aligned to **`09-VERIFICATION.md`**; **AUD-02** closed in **`.planning/REQUIREMENTS.md`**; **`09-VERIFICATION.md`** unchanged under D-06.
+**Shipped Phase 62:** **`09-03-SUMMARY.md`** document status + bounded-batch narrative aligned to **`09-VERIFICATION.md`**; **AUD-02** closed in live **`.planning/REQUIREMENTS.md`** (now archived to **`milestones/v1.7-REQUIREMENTS.md`**); **`09-VERIFICATION.md`** unchanged under D-06.

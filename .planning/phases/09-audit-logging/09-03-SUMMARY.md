@@ -2,10 +2,10 @@
 
 ## Document status
 
-- **Last materially updated for:** v1.7 (milestone in progress).
+- **Last materially updated for:** v1.7 (milestone shipped **2026-04-23**).
 - **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02).
 - **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
-- **Requirement:** [AUD-02](../../REQUIREMENTS.md).
+- **Requirement:** [AUD-02](../../milestones/v1.7-REQUIREMENTS.md) (archived milestone requirements).
 
 ## Recent bounded batches
 
