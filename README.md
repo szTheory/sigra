@@ -2,6 +2,7 @@
 
 [![Hex version](https://img.shields.io/hexpm/v/sigra.svg)](https://hex.pm/packages/sigra)
 [![Docs](https://img.shields.io/badge/hexdocs-api%20%26%20guides-5865F2)](https://hexdocs.pm/sigra)
+[![CI](https://github.com/szTheory/sigra/actions/workflows/ci.yml/badge.svg)](https://github.com/szTheory/sigra/actions/workflows/ci.yml)
 
 **Production-minded authentication for Phoenix 1.8+** — sessions, passwords, email flows, OAuth, MFA, passkeys, optional organizations and admin tooling — without treating security-sensitive code as throwaway scaffolding.
 
@@ -62,7 +63,7 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 0.2.0"}
+   {:sigra, "~> 0.2"}
    ```
 
 2. **Scaffold** (from app root; names must match your domain):
@@ -159,19 +160,14 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | **Enumeration** | Safer defaults on account discovery flows (details in HexDocs per flow). |
 | **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
 
-For threat-model detail and per-flow guarantees, use **HexDocs** and the verification narratives shipped with each release milestone — the README stays a map, not a spec.
+For threat-model detail and per-flow guarantees, use **HexDocs** and the guides above — the README stays a map, not a spec.
 
+## Release evidence (maintainers and auditors)
 
-## Production readiness & GA evidence
+Sigra keeps an **evidence hub** (what we ran versus waived for GA cuts, how CI maps to human UAT rows, and pointers to planning artifacts on GitHub). That material is **not** a compliance certificate for your application — integration and deployment risk stay with the **host**.
 
-Sigra's **Executed** items are procedures or artifacts we actually ran for the v1.4 milestone; **Waived** items are matrix rows we consciously did not re-run for that cut, with documented substitutes where applicable. Integration, deployment, and product-specific threats remain with the **host application**—this narrative is **not a compliance certification**, only an honest map to evidence.
-
-- [v1.4 requirements closure (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md)
-- [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md)
-- [Milestone index (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/MILESTONES.md)
-- [How UAT rows relate to CI substitutes](uat-ci-coverage.md) (source: `docs/uat-ci-coverage.md`)
-
-On **hexdocs.pm/sigra**, the packaged hub lives at [`ga-evidence` for 0.2.0](https://hexdocs.pm/sigra/0.2.0/ga-evidence.html) so GitHub-first readers and HexDocs readers see the same pointers.
+- **[GA evidence and audit posture](docs/ga-evidence.md)** — router page; same content ships on [HexDocs](https://hexdocs.pm/sigra/ga-evidence.html).
+- **[UAT versus CI coverage](docs/uat-ci-coverage.md)** — machine versus human boundaries.
 
 Coordinated disclosure: [SECURITY.md](SECURITY.md).
 
