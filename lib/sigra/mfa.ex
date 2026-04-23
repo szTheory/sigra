@@ -34,7 +34,7 @@ defmodule Sigra.MFA do
   #
   # D-26 dispatch table (Phase 44 AUD-06 — Multi + `log_multi_safe` when `:audit_schema`):
   #   enroll success          -> `Multi` + `Sigra.Audit.log_multi_safe("mfa.enroll.success", …)` (+ telemetry on `{:ok, changes}`)
-  #   enroll failure          -> Sigra.Audit.log_safe("mfa.enroll.failure", …) (post-rollback / invalid code)
+  #   enroll failure          -> `insert_failed`: follow-up `repo.transaction/1` on `Multi` + `log_multi_safe("mfa.enroll.failure", …)` after enrollment `Multi` rolls back; `invalid_code` still `log_safe/3` (AUD-04-022 / EX-44-02 default)
   #   verify success (totp)   -> `Multi` + `log_multi_safe("mfa.verify.success", …)`
   #   verify success (backup) -> dual `log_multi_safe` with `:audit_mfa_verify` / `:audit_mfa_backup` + paired telemetry
   #   verify failure          -> `Multi` (`Lockout.increment` + `log_multi_safe` + optional lockout audit)
@@ -180,25 +180,45 @@ defmodule Sigra.MFA do
             )
           )
 
-        case repo.transaction(multi) do
-          {:ok, %{credential: db_credential} = changes} ->
+        enrollment_txn =
+          try do
+            {:completed, repo.transaction(multi)}
+          rescue
+            e ->
+              if enroll_txn_postgrex_insert_failed?(e) do
+                {:persist_error, insert_failed_return_changeset(backup_code_schema)}
+              else
+                reraise(e, __STACKTRACE__)
+              end
+          end
+
+        case enrollment_txn do
+          {:completed, {:ok, %{credential: db_credential} = changes}} ->
             credential = Credential.from_schema(db_credential)
             formatted_codes = Enum.map(codes, &elem(&1, 0))
             Sigra.Audit.emit_telemetry_from_changes(changes)
 
             {:ok, %{credential: credential, backup_codes: formatted_codes}}
 
-          {:error, _step, changeset, _changes} ->
-            Sigra.Audit.log_safe(
-              "mfa.enroll.failure",
-              Sigra.Scope.from_config(config, user),
-              Keyword.merge(mfa_audit_opts(config),
-                actor_id: user.id,
-                target_id: user.id,
-                outcome: "failure",
-                metadata: %{method: "totp", reason: "insert_failed"}
-              )
-            )
+          {:completed, {:error, step, changeset, _changes}} ->
+            case step do
+              s when s in [:credential, :backup_codes] ->
+                emit_enroll_insert_failed_audit(repo, config, user)
+                {:error, changeset}
+
+              _ ->
+                raise Ecto.ConstraintError,
+                  type: :check,
+                  constraint: "mfa_enroll_audit",
+                  message:
+                    "check constraint violation on MFA enrollment audit step #{inspect(step)}",
+                  source: nil,
+                  changeset: changeset,
+                  repo: repo
+            end
+
+          {:persist_error, changeset} ->
+            emit_enroll_insert_failed_audit(repo, config, user)
 
             {:error, changeset}
         end
@@ -1035,4 +1055,107 @@ defmodule Sigra.MFA do
 
   defp cleanup_disable_transaction_error(:audit, %Ecto.Changeset{}), do: :mfa_audit_failed
   defp cleanup_disable_transaction_error(_, _), do: :mfa_disable_failed
+
+  # Mirrors `Sigra.Audit` private `emit_log_safe_error/2` — enrollment must not
+  # depend on Audit internals, but operators need the same `log_safe_error`
+  # signal when the post-rollback failure-audit transaction does not commit.
+  defp emit_enroll_failure_audit_error_telemetry(action, %Ecto.Changeset{} = cs) do
+    error_fields = cs.errors |> Enum.map(fn {field, _} -> field end) |> Enum.uniq()
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{action: action, reason: :invalid_changeset, error_fields: error_fields}
+    )
+  end
+
+  defp enroll_txn_postgrex_insert_failed?(e) do
+    with true <- is_exception(e),
+         %{table: table} <- Map.get(e, :postgres) do
+      table in ["user_mfa_backup_codes", "user_mfa_credentials"]
+    else
+      _ -> false
+    end
+  end
+
+  defp failure_audit_followup_rescue?(e) do
+    match?(%Ecto.ConstraintError{}, e) or
+      (is_exception(e) and match?(%{table: _}, Map.get(e, :postgres)))
+  end
+
+  defp insert_failed_return_changeset(backup_code_schema) do
+    backup_code_schema.__struct__()
+    |> Ecto.Changeset.change(%{})
+    |> Ecto.Changeset.add_error(:base, "insert_failed")
+  end
+
+  defp enroll_insert_failed_opts(config, user) do
+    scope = Sigra.Scope.from_config(config, user)
+
+    scope_opts =
+      case scope do
+        %{user: scope_user} = s ->
+          org = Map.get(s, :active_organization)
+          actor = Map.get(s, :impersonating_from) || scope_user
+
+          [
+            organization_id: org && org.id,
+            effective_user_id: scope_user && scope_user.id,
+            actor_id: actor && actor.id
+          ]
+
+        _ ->
+          [organization_id: nil, effective_user_id: nil, actor_id: nil]
+      end
+
+    caller_opts =
+      Keyword.merge(mfa_audit_opts(config),
+        actor_id: user.id,
+        target_id: user.id,
+        outcome: "failure",
+        metadata: %{method: "totp", reason: "insert_failed"}
+      )
+
+    Keyword.merge(scope_opts, caller_opts)
+  end
+
+  defp emit_enroll_insert_failed_audit(repo, config, user) do
+    failure_opts = enroll_insert_failed_opts(config, user)
+
+    failure_multi =
+      Multi.new()
+      |> Sigra.Audit.log_multi_safe(
+        "mfa.enroll.failure",
+        Keyword.merge(failure_opts, audit_multi_step: :audit_mfa_enroll_insert_failed)
+      )
+
+    try do
+      case repo.transaction(failure_multi) do
+        {:ok, audit_changes} ->
+          Sigra.Audit.emit_telemetry_from_changes(audit_changes, [
+            :audit_mfa_enroll_insert_failed
+          ])
+
+        {:error, _failed_step, failed_value, _audit_changes} ->
+          case failed_value do
+            %Ecto.Changeset{} = failed_cs ->
+              emit_enroll_failure_audit_error_telemetry("mfa.enroll.failure", failed_cs)
+
+            _ ->
+              :ok
+          end
+      end
+    rescue
+      e ->
+        if failure_audit_followup_rescue?(e) do
+          :telemetry.execute(
+            [:sigra, :audit, :log_safe_error],
+            %{count: 1},
+            %{action: "mfa.enroll.failure", reason: :constraint_violation}
+          )
+        else
+          reraise(e, __STACKTRACE__)
+        end
+    end
+  end
 end
