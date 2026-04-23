@@ -67,8 +67,9 @@ lib/sigra/mfa.ex:683:    Sigra.Audit.log_safe(
 | AUD-04-023 | `Sigra.MFA.verify/4` | `mfa.verify.success` | `log_safe` (after `update_all` + lockout reset) | 3 | AUD-06 | 44 | Target **Multi** per **D-44-03** ordering #1 (plan **44-03**). |
 | AUD-04-024 | `Sigra.MFA.verify/4` | `mfa.verify.failure` | `log_safe` (after `Lockout.increment`) | 5 | AUD-06 | 44 | Target **Multi** (counter + audit share fate) per **D-44-03** #5. |
 | AUD-04-025 | `Sigra.MFA.verify/4` | `mfa.lockout` | `log_safe` (threshold reached) | 4 | AUD-06 | 44 | Target **Multi** with verify-failure row or merged metadata per **D-44-03**. |
-| AUD-04-026 | `Sigra.MFA.verify_backup/4` | `mfa.verify.success` | `log_safe` | 3 | AUD-06 | 44 | Second row **AUD-04-027** in same success path — requires **D-44-02** named steps then **Multi** (plan **44-03**). |
-| AUD-04-027 | `Sigra.MFA.verify_backup/4` | `mfa.backup_code_used` | `log_safe` | 3 | AUD-06 | 44 | Paired with **AUD-04-026**; dual audit in one txn (plan **44-03**). |
+| AUD-04-026 | `Sigra.MFA.verify_backup/4` | `mfa.verify.success` | **`Multi` + `log_multi_safe`** | 3 | AUD-06 | 44 | Paired **AUD-04-027**; dual audit in consume txn (**44-03**). |
+| AUD-04-027 | `Sigra.MFA.verify_backup/4` | `mfa.backup_code_used` | **`Multi` + `log_multi_safe`** | 3 | AUD-06 | 44 | Paired with **AUD-04-026**. |
+| AUD-04-067 | `Sigra.MFA.verify_backup/4` | `mfa.verify.failure` | **`Multi` + `log_multi_safe`** (invalid backup / `:consume` miss); optional **`mfa.lockout`** in same txn at threshold | 5 | AUD-01 | 61 | **Phase 61** — parity with **`verify/4`** failure **`Multi`** (**AUD-01**). |
 | AUD-04-028 | `Sigra.MFA.disable/4` | `mfa.disable` | `log_safe` (after `cleanup_mfa/5`) | 6 | AUD-06 | 44 | Target audit on **`cleanup_mfa`** **Multi** per **D-44-03** #4. |
 | AUD-04-029 | `Sigra.MFA.disable!/4` | `mfa.disable` | `log_safe` (after `cleanup_mfa/5`) | 6 | AUD-06 | 44 | Admin path; same **Multi** pattern as **AUD-04-028**. |
 | AUD-04-030 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.backup_codes_regenerate` | **Multi (`log_multi_safe`)** | 5 | AUD-06 | 44 | Already atomic with rotation (**Phase 41**); verify telemetry still correct after **44-02**. |
@@ -118,3 +119,5 @@ lib/sigra/mfa.ex:683:    Sigra.Audit.log_safe(
 Release notes should reference this file when **AUD-06 / AUD-07** land for MFA + Account + API token; see repository `CHANGELOG.md` under **[Unreleased]** for the continuation bullet from phase **43**.
 
 OAuth, operational security helpers (`Lockout`, `SuspiciousLogin`, `Impersonation`), and the account-deletion worker continue in [`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`](../45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md) (**AUD-04-050+**, **AUD-08** batch).
+
+**Note — Phase 61 (2026-04-23):** **`verify_backup/4`** invalid-backup / wrong-code path (**`AUD-04-067`**) now shares **`Lockout.increment`** fate with **`mfa.verify.failure`** (+ optional **`mfa.lockout`**) via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (**AUD-01**). Evidence: **`test/sigra/mfa_audit_atomicity_test.exs`**.

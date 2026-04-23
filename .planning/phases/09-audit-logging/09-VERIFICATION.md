@@ -16,14 +16,14 @@ Normative vocabulary: [`docs/audit-semantics.md`](../../../docs/audit-semantics.
 Mechanical inventory totals (pipe rows whose first cell is an **AUD-04-** id):
 
 - `rg -c '^\| AUD-04-' .planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md` → **19**
-- `rg -c '^\| AUD-04-' .planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md` → **30**
+- `rg -c '^\| AUD-04-' .planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md` → **31**
 - `rg -c '^\| AUD-04-' .planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md` → **12**
 
 **45** inventory also documents **AUD-04-050** / **AUD-04-051** under *Callback mutation inventory* without duplicating them as extra `| AUD-04-050 |` pipe rows in that file. The **Phase 45** subsection below adds explicit **050** / **051** matrix rows so **050+** coverage stays row-complete.
 
 Mechanical check on this document (after the tables are present):
 
-- `rg -c '^\| AUD-04-[0-9]+' .planning/phases/09-audit-logging/09-VERIFICATION.md` must be **≥ 61** (inventory pipe sum). Current row count: **63** (19 + 30 + 14, where 14 = 12 + **050** + **051**).
+- `rg -c '^\| AUD-04-[0-9]+' .planning/phases/09-audit-logging/09-VERIFICATION.md` must be **≥ 61** (inventory pipe sum). Current row count: **64** (19 + 31 + 14, where 14 = 12 + **050** + **051**).
 
 **Intentional delta / excluded populations:** none (empty); **EX-*** compensating controls remain authoritative in the phase inventory files.
 
@@ -61,8 +61,9 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-023 | `log_safe` (after `update_all` + lockout reset) | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-024 | `log_safe` (after `Lockout.increment`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-025 | `log_safe` (threshold reached) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-026 | `log_safe` | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-027 | `log_safe` | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-026 | **`Multi` + `log_multi_safe`** | tier 3 | T1 (Multi-bound; phase **44-03**) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-027 | **`Multi` + `log_multi_safe`** | tier 3 | T1 (Multi-bound; phase **44-03**) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-067 | **`Multi` + `log_multi_safe`** | tier 5 | T1 (**AUD-01**, phase **61**) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-028 | `log_safe` (after `cleanup_mfa/5`) | tier 6 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-029 | `log_safe` (after `cleanup_mfa/5`) | tier 6 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-030 | **Multi (`log_multi_safe`)** | tier 5 | T1 (Multi-bound) | `test/sigra/mfa_audit_atomicity_test.exs` |
@@ -85,6 +86,8 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-047 | `log_safe` (after `repo.update`) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/api_token_audit_atomic_test.exs` |
 | AUD-04-048 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
 | AUD-04-049 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
+
+**Phase 61 (2026-04-23):** **`verify_backup/4`** wrong-code / invalid-backup attempts emit **`mfa.verify.failure`** via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (and **`mfa.lockout`** in the same transaction when the lockout threshold is reached), matching **`verify/4`** failure semantics. Matrix row **`AUD-04-067`**; tests in **`test/sigra/mfa_audit_atomicity_test.exs`**.
 
 ### C-1 — Phase 45 inventory
 
