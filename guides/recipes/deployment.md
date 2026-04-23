@@ -2,6 +2,31 @@
 
 This recipe covers what changes when you move Sigra from `dev` to `prod`: required environment variables, cookie and session configuration, Oban setup for background jobs, rate limit tuning, and platform-specific notes for Fly.io and Gigalixir.
 
+## Production checklist (read first)
+
+Use this as a **pre-flight verification** list for your own public HTTPS deployment. It highlights common misconfigurations; it is **not** regulatory sign-off or a promise about your threat model.
+
+| Check | Why | Knob / where |
+|-------|-----|----------------|
+| Public origin matches what users type | Wrong host or scheme breaks redirects, links, and CSRF checks | `PHX_HOST`, `Endpoint.url:` host/scheme/port, TLS certs |
+| TLS terminates with correct forwarded scheme | Apps behind a proxy often see `http://` unless `X-Forwarded-Proto` is honored | Reverse proxy / load balancer → Phoenix [`url:`](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html) and forwarded headers |
+| No redirect loops between HTTP and HTTPS | Mixed termination causes infinite redirects | Proxy HTTPS-only + app `force_ssl`, or terminate TLS at proxy consistently |
+| `Endpoint.url:` scheme/host/port match the browser | Mismatched `url:` breaks generated URLs and WebSocket URLs | [`Phoenix.Endpoint`](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html) `url:` in `config/runtime.exs` |
+| Session cookie domain aligns with app host(s) | Domain drift logs users out or leaks cookies to wrong hosts | [`Plug.Session`](https://hexdocs.pm/plug/Plug.Session.html) / `endpoint` `session_options`, `COOKIE_DOMAIN` |
+| Session flags suit cross-site traffic | `SameSite` / `secure` wrong for your layout breaks auth | `Plug.Session` options, HTTPS-only in prod |
+| LiveView / WebSocket `check_origin` matches real origins | Rejects valid clients or accepts wrong hosts | [`check_origin`](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html) on endpoint |
+| Staging mirrors prod cookie and URL settings | “Works in staging, breaks in prod” usually means env drift | Same keys and patterns in staging `runtime.exs` |
+| Sigra `cookie_domain` matches Phoenix session domain | Subdomain auth needs both stacks aligned | [`Subdomain Authentication`](subdomain-auth.html) + `UserAuth` / `Sigra.Config` |
+
+### Symptom triage
+
+- **Infinite redirects or “too many redirects”** → likely **scheme / HTTP vs HTTPS** mismatch between proxy and app.
+- **Wrong hostname in emails or generated URLs** → likely **Endpoint url host/scheme/port** drift (see `Phoenix.Endpoint` `url:`).
+- **LiveView disconnects or WS 403 in prod** → likely **check_origin / WebSocket origin** mismatch.
+- **Cookie present but session “lost” across subdomains** → likely **cookie flags / domain** misalignment (`COOKIE_DOMAIN`, Phoenix session domain).
+
+For mechanics beyond this table, read the official guides: [Phoenix deployment](https://hexdocs.pm/phoenix/deployment.html), [`Phoenix.Endpoint`](https://hexdocs.pm/phoenix/Phoenix.Endpoint.html), [`Plug.Session`](https://hexdocs.pm/plug/Plug.Session.html), and the OWASP [Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
+
 ## Required environment variables
 
 Sigra and Phoenix together need these in `:prod`. Set them in your platform's secret store — **never** commit them to the repo.
@@ -99,6 +124,18 @@ Then in `runtime.exs` append the domain:
       ]
 
 Keep `COOKIE_DOMAIN` in sync across Sigra, Phoenix, and any other stacks that read cookies.
+
+## Mail delivery: inline vs Oban (TL;DR)
+
+- **Local dev and automated tests** — delivering via your Swoosh adapter inline (or the test adapter) is normal; no background queue required.
+- **Tiny single-node production** — inline delivery can work if you accept weaker backpressure and less visibility; watch SMTP rate limits and timeouts.
+- **Remote SMTP, multiple nodes, bursty mail, or clearer SLAs** — run mail through **Oban** so jobs retry, shed load, and show up in telemetry; this is the path the CI **example** app exercises.
+- **Token and security mail** — treat messages as **at-least-once**: Oban retries can **double-send** unless your templates and tokens stay **idempotent** (see token handling in [`test/example/lib/example/accounts.ex`](../../test/example/lib/example/accounts.ex)).
+- **Need queue tuning or plugins** — read the upstream docs at [Oban](https://hexdocs.pm/oban).
+
+`mix sigra.install` flags (from `mix help sigra.install`): `--live` / `--no-live`, `--binary-id` / `--no-binary-id`, `--table`, `--api`, `--jwt`, `--admin` / `--no-admin`, `--passkeys` / `--no-passkeys`, `--yes`.
+
+The next section expands on Oban queues and workers for Sigra — read it after you pick inline vs queued delivery above.
 
 ## Oban for background jobs
 
