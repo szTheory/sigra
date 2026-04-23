@@ -39,6 +39,48 @@ At a glance: **53** Hex / `mix.exs` metadata (**PUB-01**); **54** `CHANGELOG.md`
 | **58** | OAuth ceremony + audit smoke | Automated proof that OAuth ceremonies emit expected audit (or documented substitute) | OA-01 | (1) New or extended test module(s) run in an existing required CI job (or a new job wired into required checks). (2) At least one ceremony path + assertion satisfies **OA-01**. (3) No live-provider secrets in repo. |
 | **59** | UAT + GA narrative alignment | Docs point at machine proof; humans know residual gap | OA-02 | (1) `docs/uat-ci-coverage.md` updated per **OA-02**. (2) GA-03 / AUD-03 wording does not over-claim vs tests. (3) Link from `.planning/v1.4-GA-UAT.md` or `uat-evidence` index if a pointer row is needed. |
 
+### Phase 57: Nyquist 41–44 posture matrix
+
+**Goal:** Single maintainer-facing source of truth for historical GA-phase Nyquist debt (phases **41–44**).
+
+**Requirements:** NYQ-01, NYQ-02
+
+**Success Criteria:**
+
+1. Matrix exists in **`MAINTAINING.md`** or one linked maintainer doc under **`.planning/`** referenced from it per **NYQ-01** (phase slug, disposition, canonical evidence paths, reopen trigger per row).
+2. Each **41–44** row has explicit milestone disposition per **NYQ-02** — no silent blank cells.
+3. `mix compile --warnings-as-errors` remains green.
+
+**Canonical refs:** `.planning/REQUIREMENTS.md`, `.planning/phases/57-nyquist-41-44-posture-matrix/57-CONTEXT.md`, `MAINTAINING.md`, `.planning/phases/41-backup-codes-ga-product-closure/`, `.planning/phases/42-human-ga-matrix-evidence/`, `.planning/phases/43-audit-inventory-auth-atomic-batch/`, `.planning/phases/44-mfa-account-api-atomic-batches/`, `.planning/v1.4-GA-UAT.md`
+
+### Phase 58: OAuth ceremony + audit smoke
+
+**Goal:** Automated proof that OAuth ceremonies emit expected audit (or documented substitute) per **OA-01**.
+
+**Requirements:** OA-01
+
+**Success Criteria:**
+
+1. New or extended test module(s) run in an existing required CI job (or a new job wired into required checks).
+2. At least one ceremony path plus assertion satisfies **OA-01**.
+3. No live-provider secrets in repo.
+
+**Canonical refs:** `.planning/REQUIREMENTS.md`, `.planning/PROJECT.md`, `.github/workflows/ci.yml`
+
+### Phase 59: UAT + GA narrative alignment
+
+**Goal:** Docs point at machine proof; humans know residual gap (**OA-02**).
+
+**Requirements:** OA-02
+
+**Success Criteria:**
+
+1. `docs/uat-ci-coverage.md` updated per **OA-02**.
+2. GA-03 / AUD-03 wording does not over-claim vs tests.
+3. Link from `.planning/v1.4-GA-UAT.md` or `uat-evidence` index if a pointer row is needed.
+
+**Canonical refs:** `.planning/REQUIREMENTS.md`, `docs/uat-ci-coverage.md`, `.planning/v1.4-GA-UAT.md`, `docs/ga-evidence.md`
+
 ## Reader note: phases 41–44 vs v1.6
 
 Phases **41–44** shipped implementation and verification **artifacts** under v1.4; **v1.6** does **not** re-litigate those releases — it makes **Nyquist posture** and **OAuth↔audit machine proof** legible for maintainers going forward. Formal `nyquist_compliant: true` for a row is optional; **honest disposition** is mandatory.
