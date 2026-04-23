@@ -3,8 +3,9 @@
 # publish-hex runs the same Postgres-backed test bar as CI and publishes with HEX_API_KEY.
 #
 # Requires repository secret: HEX_API_KEY (Actions secrets).
-# If the default GITHUB_TOKEN cannot open Release PRs (rare branch rules), add a
-# fine-grained PAT as RELEASE_PLEASE_TOKEN and pass it to the action (see scrypath).
+# RELEASE_PLEASE_TOKEN: optional fine-grained PAT. Using it for Release Please
+# makes release-branch pushes and PRs run required CI (GITHUB_TOKEN does not
+# chain-trigger other workflows). Also use if branch rules block the default token.
 
 name: Release Please
 
