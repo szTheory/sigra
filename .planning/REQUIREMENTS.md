@@ -23,7 +23,7 @@ This milestone **does not** ship Sigra as an OAuth/OIDC **identity provider** (t
 
 ## Audit durability — SEED-002 continuation (AUD)
 
-- [ ] **AUD-01**: At least **one** bounded subsystem batch from the Phase **9** **C-1** deferral set moves from hybrid `log_safe/3` post-commit audit to **`Ecto.Multi`-atomic** audit writes (or an explicitly documented substitute), with **audit-aware** tests merged under the same phase gate as the production change.
+- [x] **AUD-01**: At least **one** bounded subsystem batch from the Phase **9** **C-1** deferral set moves from hybrid `log_safe/3` post-commit audit to **`Ecto.Multi`-atomic** audit writes (or an explicitly documented substitute), with **audit-aware** tests merged under the same phase gate as the production change. **Shipped Phase 61 (2026-04-23):** `verify_backup/4` invalid-backup path + **`mfa_audit_atomicity_test.exs`** + **AUD-04-067** / C-1 updates.
 - [ ] **AUD-02**: **`.planning/phases/09-audit-logging/09-03-SUMMARY.md`** (and, if applicable, **09-VERIFICATION.md** caveat rows) reflects the **post-batch** reality so C-1 narrative cannot silently drift.
 
 ---
@@ -53,7 +53,7 @@ This milestone **does not** ship Sigra as an OAuth/OIDC **identity provider** (t
 | ADOPT-02 | 60 | Complete |
 | ADOPT-03 | 60 | Complete |
 | INTG-01 | 60 | Complete |
-| AUD-01 | 61 | Pending |
+| AUD-01 | 61 | Complete |
 | AUD-02 | 62 | Pending |
 
 **Coverage**
@@ -61,7 +61,7 @@ This milestone **does not** ship Sigra as an OAuth/OIDC **identity provider** (t
 - v1.7 requirements: **6** total  
 - Mapped to phases: **6**  
 - Unmapped: **0**  
-- **Complete (docs slice):** 4 (**ADOPT***, **INTG-01**) — **Pending:** **AUD-01**, **AUD-02** (Phases **61–62**)
+- **Complete:** 5 (**ADOPT***, **INTG-01**, **AUD-01**) — **Pending:** **AUD-02** (Phase **62**)
 
 ---
 

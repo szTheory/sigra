@@ -39,7 +39,7 @@ At a glance: **53** Hex / `mix.exs` metadata (**PUB-01**); **54** `CHANGELOG.md`
 | Phase | Name | Goal | Requirements |
 |-------|------|------|----------------|
 | **60** | Adoption docs & companion narrative | First-hour path, v1.7 upgrade stub, install troubleshooting, Lockspire layering recipe | ADOPT-01, ADOPT-02, ADOPT-03, INTG-01 |
-| **61** | SEED-002 bounded batch | One C-1 subsystem moves to atomic Multi + audit-aware tests | AUD-01 |
+| **61** ✅ **2026-04-23** | SEED-002 bounded batch | One C-1 subsystem moves to atomic Multi + audit-aware tests | AUD-01 |
 | **62** | C-1 narrative alignment | Phase 9 summary / verification reflects post-batch truth | AUD-02 |
 
 **Success criteria (milestone):**

@@ -22,7 +22,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**v1.7 (active):** **Phases 60–62** — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md).
+**v1.7 (active):** **Phases 60–62** — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md). **Phase 61 (2026-04-23):** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed.
 
 **v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`, `v1.6-MILESTONE-AUDIT.md` (audit filed retroactively on 2026-04-23).
 
@@ -142,6 +142,10 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - ✓ **DOC-01** — README GA / production-readiness paragraph with pointers to **v1.4** evidence — **Phase 55** (2026-04-22)
 - ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
 - ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
+
+### Validated — v1.7 Adoption readiness & audit durability (in progress)
+
+- ✓ **AUD-01** — Bounded **`verify_backup/4`** failure-path **`Multi`** + audit-aware tests + honest **AUD-04** / **C-1** rows — **Phase 61** (2026-04-23)
 
 ### Validated — v1.6 Nyquist closure + OAuth audit depth
 
@@ -308,4 +312,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — Opened **v1.7** planning (**REQUIREMENTS.md**, ROADMAP phases **60–62**, adoption + companion + bounded **SEED-002**). Prior: **`v1.6-MILESTONE-AUDIT.md`** (retro **passed**); **`v1.6`** tagged.*
+*Last updated: 2026-04-23 — **Phase 61** landed **AUD-01** (`verify_backup` failure **`Multi`** + tests + C-1 / **AUD-04-067**). Prior: Opened **v1.7** planning; **`v1.6-MILESTONE-AUDIT.md`** (retro **passed**); **`v1.6`** tagged.*
