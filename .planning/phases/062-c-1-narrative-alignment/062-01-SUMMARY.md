@@ -59,7 +59,7 @@ completed: 2026-04-23
 
 1. **Task 1: Executive summary** — `7fa4a6d` (docs)
 2. **Task 2: D-06 reconciliation** — `7d22149` (docs; empty commit — no verification file changes)
-3. **Task 3: REQUIREMENTS + summary** — _(this commit)_
+3. **Task 3: REQUIREMENTS + summary** — `b5e6422` (docs)
 
 ## Plan-level verification
 

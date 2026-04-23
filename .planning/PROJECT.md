@@ -8,11 +8,9 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current milestone
+## Current milestone: v1.7 Adoption readiness & audit durability (**shipped 2026-04-23**)
 
-## Current Milestone: v1.7 Adoption readiness & audit durability
-
-**Goal:** Improve **first adoption** clarity (first-hour path, troubleshooting, honest upgrade notes) and continue **SEED-002** audit atomicity in **bounded** batches while documenting how hosts pair Sigra with a **separate** embedded OAuth/OIDC provider library when they need a developer API — **without** folding IdP concerns into Sigra core.
+**Goal (achieved):** Improve **first adoption** clarity (first-hour path, troubleshooting, honest upgrade notes) and continue **SEED-002** audit atomicity in **bounded** batches while documenting how hosts pair Sigra with a **separate** embedded OAuth/OIDC provider library when they need a developer API — **without** folding IdP concerns into Sigra core.
 
 **Target features:**
 
@@ -22,7 +20,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**v1.7 (active):** **Phases 60–62** — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md). **Phase 61 (2026-04-23):** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed.
+**v1.7 (shipped 2026-04-23):** **Phases 60–62** — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md). **Phase 61:** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed. **Phase 62:** **`AUD-02`** — **`09-03-SUMMARY.md`** carries **v1.7** document status + Phase **61** bounded-batch narrative keyed to **`AUD-04-067`**; **D-06** left **`09-VERIFICATION.md`** unchanged.
 
 **v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`, `v1.6-MILESTONE-AUDIT.md` (audit filed retroactively on 2026-04-23).
 
@@ -38,7 +36,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.7** is open (adoption docs + **INTG** companion narrative + bounded **AUD**). Post–v1.7 candidates: further **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, backlog items from `.planning/ROADMAP.md`, or optional **`sigra_lockspire`**-class glue only after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
+Post–**v1.7** candidates: further **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, backlog items from `.planning/ROADMAP.md` (e.g. **999.1** Nyquist retroactive validation), or optional **`sigra_lockspire`**-class glue only after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -143,9 +141,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
 - ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
 
-### Validated — v1.7 Adoption readiness & audit durability (in progress)
+### Validated — v1.7 Adoption readiness & audit durability (shipped 2026-04-23)
 
+- ✓ **ADOPT-01** / **ADOPT-02** / **ADOPT-03** — First-hour guide, **v1.7** upgrade stub, install troubleshooting wired into ExDoc — **Phase 60**
+- ✓ **INTG-01** — Companion embedded OAuth/OIDC provider recipe (non-coupled seam) — **Phase 60**
 - ✓ **AUD-01** — Bounded **`verify_backup/4`** failure-path **`Multi`** + audit-aware tests + honest **AUD-04** / **C-1** rows — **Phase 61** (2026-04-23)
+- ✓ **AUD-02** — **`09-03-SUMMARY.md`** aligned to post–**phase-61** **C-1** truth with explicit planning trace; **D-06** required no **`09-VERIFICATION.md`** edit — **Phase 62** (2026-04-23)
 
 ### Validated — v1.6 Nyquist closure + OAuth audit depth
 
@@ -312,4 +313,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **Phase 61** landed **AUD-01** (`verify_backup` failure **`Multi`** + tests + C-1 / **AUD-04-067**). Prior: Opened **v1.7** planning; **`v1.6-MILESTONE-AUDIT.md`** (retro **passed**); **`v1.6`** tagged.*
+*Last updated: 2026-04-23 — **v1.7** closed: **Phase 62** landed **AUD-02** (**`09-03-SUMMARY.md`** narrative + **REQUIREMENTS**). Prior: **Phase 61** **AUD-01**; **`v1.6-MILESTONE-AUDIT.md`** (retro **passed**); **`v1.6`** tagged.*
