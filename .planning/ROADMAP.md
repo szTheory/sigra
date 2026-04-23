@@ -13,19 +13,21 @@
 - ✅ **v1.7 Adoption readiness & audit durability** — Phases **60–62** (shipped **2026-04-23**). See [v1.7 archive](milestones/v1.7-ROADMAP.md), [v1.7 requirements](milestones/v1.7-REQUIREMENTS.md), [v1.7 milestone audit](milestones/v1.7-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.8 Adopter polish (diminishing returns)** — Phases **63–65** (shipped **2026-04-23**). See [v1.8 archive](milestones/v1.8-ROADMAP.md), [v1.8 requirements](milestones/v1.8-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.9 Audit atomicity (bounded SEED-002)** — Phases **66–67** (shipped **2026-04-23**). See [v1.9 archive](milestones/v1.9-ROADMAP.md), [v1.9 requirements](milestones/v1.9-REQUIREMENTS.md), [v1.9 milestone audit](milestones/v1.9-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- **v1.10 Adopter confidence for solo production** — Phases **68–70** (*active*). Live [REQUIREMENTS.md](REQUIREMENTS.md); assumed feature bundle: [v1.10-ADOPTER-SCOPE.md](v1.10-ADOPTER-SCOPE.md).
+- ✅ **v1.10 Adopter confidence for solo production** — Phases **68–70** (shipped **2026-04-23**). See [v1.10 archive](milestones/v1.10-ROADMAP.md), [v1.10 requirements](milestones/v1.10-REQUIREMENTS.md), [v1.10 milestone audit](milestones/v1.10-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- 📋 **Next milestone** — Not opened on the roadmap until **`/gsd-new-milestone`** defines the next version’s requirements and phase table. Reader bundle for the shipped v1.10 docs milestone: [v1.10-ADOPTER-SCOPE.md](v1.10-ADOPTER-SCOPE.md).
 
 ## Phases
 
-### v1.10 — Adopter confidence for solo production (active)
+_No active phased work._ After **`/gsd-new-milestone`**, the next version’s phase table will appear here.
 
-| Phase | Name | Goal | Requirements | Success criteria (observable) |
-|-------|------|------|----------------|-----------------------------|
-| **68** | Deploy and mail confidence | Public hosts configure sessions + mail predictably. | ACF-01, ACF-04 | (1) Checklist published and linked from maintainer or intro path. (2) Oban vs inline mail path documented with install/example pointers. |
-| **69** | Intermediate path + optional features | One dogfood narrative + one optional-feature index reduce guesswork. | ACF-02, ACF-03 | (1) Intermediate path states generator assumptions and links **`.planning/v1.10-ADOPTER-SCOPE.md`**. (2) Optional-feature index linked from **getting-started** and **first-hour**. |
-| **70** | Upgrade stub + non-goal attestation | Planning **v1.10** vs Hex SemVer is legible; Lockspire / SEED-002 deferrals explicit. | ACF-05, ACF-06 | (1) **`guides/introduction/upgrading-to-v1.10.md`** ships and is listed in **`mix.exs`** ExDoc extras. (2) **`PROJECT.md`** + **`REQUIREMENTS.md`** cite ADR **001** and **SEED-002** seed for deferred work. |
+<details>
+<summary>✅ v1.10 Adopter confidence for solo production (Phases 68–70) — SHIPPED 2026-04-23</summary>
 
-**v1.10 progress:** Phase **68** shipped **2026-04-23** — deployment production checklist hub, mail inline vs Oban TL;DR, `mix sigra.install` flag reference, and five-file cross-link mesh (**`068-VERIFICATION.md`**). Phase **69** shipped **2026-04-23** — intermediate production path + canonical **`generator-options`** reference, ExDoc **Reference** group, `@moduledoc` organizations line, intro cross-links (**`069-VERIFICATION.md`**). Phase **70** shipped **2026-04-23** — **`upgrading-to-v1.10.md`** + ExDoc wiring + **`ACF-06`** attestation rows (**`070-VERIFICATION.md`**).
+Full phase table, goals, and success criteria are archived in [`milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md).
+
+**At a glance:** **68** deployment + mail confidence hub (**`068-VERIFICATION.md`**, **ACF-01** / **ACF-04**); **69** intermediate path + **`generator-options`** index (**`069-VERIFICATION.md`**, **ACF-02** / **ACF-03**); **70** **`upgrading-to-v1.10.md`** + non-goal attestation (**`070-VERIFICATION.md`**, **ACF-05** / **ACF-06**).
+
+</details>
 
 <details>
 <summary>✅ v1.9 Audit atomicity (Phases 66–67) — SHIPPED 2026-04-23</summary>

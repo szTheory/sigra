@@ -1,6 +1,44 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.9 section added at ship (2026-04-23).*
+*Living document updated at milestone boundaries. v1.10 section added at ship (2026-04-23).*
+
+## Milestone: v1.10 — Adopter confidence for solo production
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (68–70) | **Plans (on-disk):** 5 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **ACF-01 / ACF-04 (Phase 68)** — **`guides/recipes/deployment.md`** production checklist hub + mail inline vs Oban TL;DR; cross-links from README, intro guides, **MAINTAINING**, and install flag anchors.
+- **ACF-02 / ACF-03 (Phase 69)** — **`intermediate-production-path.md`**, canonical **`generator-options.md`**, ExDoc **Reference** group, **`Mix.Tasks.Sigra.Install`** `@moduledoc` bullet, intro mesh.
+- **ACF-05 / ACF-06 (Phase 70)** — **`upgrading-to-v1.10.md`** + ExDoc extras; explicit **ADR 001** / **SEED-002** deferrals in planning surfaces.
+
+### What worked
+
+- **Verification-first closure** — **`068-VERIFICATION.md`** **passed** gave a clean signal for **ACF-01** / **ACF-04** even when live requirement rows briefly lagged.
+- **Same-day phases** — three small doc phases shipped without scope creep into new auth primitives.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** unavailable; manual archival repeated the **v1.3**–**v1.9** pattern.
+- **`roadmap.analyze`** empty JSON for this roadmap shape; relied on filesystem + **VERIFICATION** artifacts.
+
+### Patterns established
+
+- **Planning-label upgrade stubs** — **`upgrading-to-v1.x.md`** files disambiguate GSD / planning milestones from Hex SemVer for adopters.
+
+### Key lessons
+
+1. Reconcile **`.planning/REQUIREMENTS.md`** traceability at ship so **Pending** rows never contradict **`*-VERIFICATION.md` passed**.
+2. Keep **adopter-confidence** milestones doc-only but still milestone-audited when the prior ship window used the same honesty gate.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: **28** commits since **`v1.9`** tag on the measured range; **47** files in **`git diff --stat v1.9..HEAD`** summary.
+
+---
 
 ## Milestone: v1.9 — Audit atomicity (bounded SEED-002)
 

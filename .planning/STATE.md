@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.10
-milestone_name: — Adopter confidence for solo production
-status: ready_to_plan
-stopped_at: Phase 70 complete
-last_updated: "2026-04-23T22:30:00.000Z"
-last_activity: 2026-04-23 — **`/gsd-execute-phase 70`** (padded **`070`** for `gsd-sdk` queries).
+milestone: none
+milestone_name: —
+status: milestone_complete
+stopped_at: v1.10 archived
+last_updated: "2026-04-23T23:59:00.000Z"
+last_activity: 2026-04-23 — **`/gsd-complete-milestone`** (**v1.10**).
 progress:
-  total_phases: 60
-  completed_phases: 56
-  total_plans: 175
-  completed_plans: 180
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.10** — Adopter confidence for solo production; GSD next suggested phase **999.1** (Nyquist retroactive validation pass).
+**Current focus:** **Planning next milestone** — run **`/gsd-new-milestone`** to recreate **`.planning/REQUIREMENTS.md`** and active roadmap phases.
 
 ## Current Position
 
-Phase: **999.1** — Nyquist retroactive validation pass (not started)
+Phase: **—** (no active GSD phase until next milestone is opened)
 
 Plan: **—**
 
-Status: Phase **70** shipped — v1.10 upgrade stub + non-goal attestation (`070-VERIFICATION.md`).
+Status: **v1.10** shipped and archived (**2026-04-23**). Live **`.planning/REQUIREMENTS.md`** removed at milestone close.
 
-Last activity: 2026-04-23 — **`/gsd-execute-phase 70`**.
+Last activity: 2026-04-23 — **`/gsd-complete-milestone`** (**v1.10**).
 
 ## Performance Metrics
 
@@ -42,11 +42,9 @@ _Velocity metrics populate during phase work._
 
 ## Accumulated Context
 
-**v1.10** opened **2026-04-23** — docs-first milestone for intermediate production confidence; **Lockspire** glue explicitly out of scope (**ADR 001**).
+**v1.10** closed **2026-04-23** — docs-first **ACF-*** milestone (**68–70**); archives under **`.planning/milestones/v1.10-*`**.
 
-**v1.9** shipped **AUD-09** / **AUD-10** (phases **66–67**); archives under **`.planning/milestones/v1.9-*`**.
-
-**Note:** **`.planning/phases/`** retains historical directories; **`phases.clear`** is not used in this repo.
+**`.planning/phases/`** retains historical directories; **`phases.clear`** is not used in this repo.
 
 ### Pending Todos
 
@@ -60,14 +58,14 @@ _None._
 
 Last session: 2026-04-23
 
-Stopped at: Phase 70 execution complete
+Stopped at: **v1.10** milestone archive complete
 
 Resume file: —
 
-**Next:** **`/gsd-discuss-phase 999.1`** or **`/gsd-plan-phase 999.1`** (padded as required by `gsd-sdk`). Remaining **v1.10** requirement rows **ACF-01** / **ACF-04** (phase **68**) — see **`.planning/REQUIREMENTS.md`** traceability.
+**Next:** **`/gsd-new-milestone`** — define the next version’s requirements and roadmap slice.
 
-**Active requirements:** `.planning/REQUIREMENTS.md` (**6** × **`ACF-*`**; **ACF-02** / **ACF-03** / **ACF-05** / **ACF-06** validated; **ACF-01** / **ACF-04** still **Pending** in traceability).
+**Archived requirements (v1.10):** `.planning/milestones/v1.10-REQUIREMENTS.md` (live **`.planning/REQUIREMENTS.md`** removed at close).
 
-**Completed Phase (v1.10):** **70** — Upgrade stub + non-goal attestation — **2026-04-23**
+**Completed milestone:** **v1.10** — Adopter confidence for solo production — **2026-04-23**
 
-**Planned Phase:** **999.1** — Nyquist retroactive validation pass — not started
+**Planned work:** _None until next milestone is opened._

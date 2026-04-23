@@ -18,24 +18,21 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-## Current Milestone: v1.10 Adopter confidence for solo production
+## Current milestone
 
-**Goal:** Shorten the path from “installer golden path works in dev” to “my real Phoenix host runs Sigra through **intermediate** usage (sessions, email flows, OAuth, MFA, default generator options) **without surprises**,” using docs and checklists—not new auth primitives.
+**Next version:** Not opened until **`/gsd-new-milestone`** recreates **`.planning/REQUIREMENTS.md`** and an active phase table in **`.planning/ROADMAP.md`**.
 
-**Target features:**
-- Production **HTTPS / proxy / session cookie** checklist and **Oban vs inline mail** guidance — **shipped phase 68 (2026-04-23)** — **`ACF-01`**, **`ACF-04`** (hub: `guides/recipes/deployment.md`; intro + README + `MAINTAINING` cross-links).
-- One **intermediate dogfood** narrative plus a single **optional generator features** index cross-linked from intro guides — **shipped phase 69 (2026-04-23)** — **`ACF-02`**, **`ACF-03`** (`guides/introduction/intermediate-production-path.md`, `guides/reference/generator-options.md`).
-- **`upgrading-to-v1.10.md`** plus explicit milestone **non-goals**: **no** **`sigra_lockspire`** / mandatory Lockspire coupling ([**ADR 001**](decisions/001-defer-sigra-lockspire-glue-package.md)); **no** full-library **SEED-002** conversion (phase **70** — **`ACF-05`**, **`ACF-06`**).
+**Last closed:** **v1.10 Adopter confidence for solo production** — shipped **2026-04-23** (**phases 68–70**; **`ACF-01`**..**`ACF-06`**). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md), [`v1.10-MILESTONE-AUDIT.md`](milestones/v1.10-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
 
-**Assumed first-production bundle (edit if your app differs):** [`.planning/v1.10-ADOPTER-SCOPE.md`](v1.10-ADOPTER-SCOPE.md).
+**Reader bundle (v1.10 planning label):** [`.planning/v1.10-ADOPTER-SCOPE.md`](v1.10-ADOPTER-SCOPE.md).
 
-**Last closed:** **v1.9 Audit atomicity (bounded SEED-002)** — shipped **2026-04-23** (**phases 66–67**; **`AUD-09`** + **`AUD-10`**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
+**Previously closed:** **v1.9 Audit atomicity (bounded SEED-002)** — shipped **2026-04-23** (**phases 66–67**; **`AUD-09`** + **`AUD-10`**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
 
-**Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled (not v1.10 scope).
+**Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
 
-**v1.10 (in progress):** Phase **70** shipped **2026-04-23** — **`upgrading-to-v1.10.md`** + ExDoc extras + **`ACF-06`** Out of Scope / Current Milestone links (**`070-VERIFICATION.md`**). Phase **69** shipped **2026-04-23** — intermediate production path + **`generator-options`** canonical index, ExDoc **Reference** group, `@moduledoc` organizations line, intro cross-links (**`069-VERIFICATION.md`**).
+**v1.10 (shipped 2026-04-23):** Phases **68–70** — **`ACF-01`**..**`ACF-06`** adopter-confidence documentation (deployment + mail hub, intermediate path + **`generator-options`** index, **`upgrading-to-v1.10.md`** + **ADR 001** / **SEED-002** non-goal attestation). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md).
 
 **v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
 
@@ -57,7 +54,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.10 (active):** Adopter confidence for solo production — live **`.planning/REQUIREMENTS.md`**, **`.planning/ROADMAP.md`** phases **68–70**, scope bundle **`.planning/v1.10-ADOPTER-SCOPE.md`**.
+**Open the next planning cycle** with **`/gsd-new-milestone`** (fresh **`.planning/REQUIREMENTS.md`** + active roadmap phases).
 
 **Later candidates:** further **bounded SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after Lockspire and `AccountResolver` seams meet ADR **001** revisit triggers.
 
@@ -174,6 +171,15 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 - ✓ **AUD-09** — **`Sigra.MFA.confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **022** remains **T2** / **`EX-44-02`** — **Phase 66**
 - ✓ **AUD-10** — **`09-03-SUMMARY.md`** post–**phase-66** trace + bounded-batch narrative; **D-06** reconciliation **AUD-04-020..022** vs **44** inventory with explicit **no `09-VERIFICATION.md` edit`** attestation — **Phase 67**
+
+### Validated — v1.10 Adopter confidence for solo production (shipped 2026-04-23)
+
+- ✓ **ACF-01** — Production **HTTPS / proxy / session cookie** checklist hub in **`guides/recipes/deployment.md`** with maintainer + intro discovery links — **Phase 68**
+- ✓ **ACF-04** — **Oban-backed vs inline** Swoosh delivery TL;DR + install flags + example pointers — **Phase 68**
+- ✓ **ACF-02** — **`guides/introduction/intermediate-production-path.md`** intermediate dogfood spine + **`.planning/v1.10-ADOPTER-SCOPE.md`** link — **Phase 69**
+- ✓ **ACF-03** — **`guides/reference/generator-options.md`** optional-feature index + intro cross-links — **Phase 69**
+- ✓ **ACF-05** — **`guides/introduction/upgrading-to-v1.10.md`** + **`mix.exs`** ExDoc extras — **Phase 70**
+- ✓ **ACF-06** — Archived **v1.10** requirements + **`PROJECT.md`** explicit deferrals for **`sigra_lockspire`** and full **SEED-002** with **ADR 001** + seed pointers — **Phase 70**
 
 ### Validated — v1.7 Adoption readiness & audit durability (shipped 2026-04-23)
 
@@ -333,8 +339,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.9 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.10 execution log)</summary>
 
+- **2026-04-23** — **v1.10** phases **68–70** complete; `/gsd-complete-milestone` archived planning + tag **`v1.10`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.9** phases **66–67** complete; `/gsd-complete-milestone` archived planning + tag **`v1.9`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.8** phases **63–65** complete; `/gsd-complete-milestone` archived planning + tag **`v1.8`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.7** phases **60–62** complete; `/gsd-complete-milestone` archived planning + tag **`v1.7`**; live **`REQUIREMENTS.md`** removed.
@@ -350,4 +357,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — Phase **70** (`ACF-05`, **`ACF-06`**) shipped: v1.10 upgrade stub + deferral attestation. Prior: phase **68** (`ACF-01`, **`ACF-04`**) deployment checklist hub + mail/install docs + cross-links; **`/gsd-new-milestone`** opened **v1.10** (phases **68–70**).*
+*Last updated: 2026-04-23 after **v1.10** milestone close — adopter-confidence phases **68–70** archived; live **`REQUIREMENTS.md`** removed pending **`/gsd-new-milestone`**.*

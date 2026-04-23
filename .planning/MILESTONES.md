@@ -356,3 +356,36 @@
 - [v1.9 Milestone Audit](milestones/v1.9-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.10 Adopter confidence for solo production (Shipped: 2026-04-23)
+
+**Scope:** 3 phases (**68–70**), **5** on-disk plans (**068-01**, **068-02**, **069-01**, **070-01**, **070-02**) under **`.planning/phases/068-*`**, **`069-*`**, **`070-*`**.
+
+**What shipped:** **ACF-01** / **ACF-04** — production HTTPS / proxy / session checklist hub plus **Oban vs inline** mail TL;DR in **`guides/recipes/deployment.md`** with intro + maintainer cross-links and install flag anchors. **ACF-02** / **ACF-03** — **`guides/introduction/intermediate-production-path.md`** and **`guides/reference/generator-options.md`** with ExDoc **Reference** group wiring. **ACF-05** / **ACF-06** — **`guides/introduction/upgrading-to-v1.10.md`** plus explicit **ADR 001** / **SEED-002** deferrals in planning surfaces.
+
+### Key accomplishments
+
+1. **Phase 68 — deploy + mail confidence** — Single deployment recipe hub for session + mail semantics hosts hit in production.
+2. **Phase 69 — intermediate path + optional features** — One dogfood narrative and one canonical generator flag index linked from first-week intro docs.
+3. **Phase 70 — upgrade stub + non-goals** — Planning **v1.10** vs Hex framing without pretending Lockspire or full **SEED-002** shipped.
+
+### Stats
+
+- **Requirements:** 6/6 **Validated** in archived [`milestones/v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md) (live traceability for **ACF-01** / **ACF-04** reconciled at close to match **`068-VERIFICATION.md` passed**).
+- **Milestone audit:** **passed** ([`milestones/v1.10-MILESTONE-AUDIT.md`](milestones/v1.10-MILESTONE-AUDIT.md)).
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-23).
+- **Git (since `v1.9`):** ~28 commits; **47** files touched (**2424** insertions / **35** deletions in `git diff --stat v1.9..HEAD` summary).
+- **Timeline:** 2026-04-23 (same-day execution on disk for **68–70**).
+
+### Tech debt carried forward
+
+- **`gsd-sdk query milestone.complete`** not used; archival followed the same manual path as **v1.3**–**v1.9**.
+- **SEED-002** remainder — further **`log_safe/3` → `Ecto.Multi`** batches remain backlog-triggered (see **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`**).
+
+**Archive:**
+
+- [v1.10 Roadmap](milestones/v1.10-ROADMAP.md)
+- [v1.10 Requirements](milestones/v1.10-REQUIREMENTS.md)
+- [v1.10 Milestone Audit](milestones/v1.10-MILESTONE-AUDIT.md)
+
+---
