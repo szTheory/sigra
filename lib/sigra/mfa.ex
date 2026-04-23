@@ -38,6 +38,7 @@ defmodule Sigra.MFA do
   #   verify success (totp)   -> `Multi` + `log_multi_safe("mfa.verify.success", …)`
   #   verify success (backup) -> dual `log_multi_safe` with `:audit_mfa_verify` / `:audit_mfa_backup` + paired telemetry
   #   verify failure          -> `Multi` (`Lockout.increment` + `log_multi_safe` + optional lockout audit)
+  #   verify_backup failure   -> same `Multi` + `log_multi_safe` pattern as verify failure (invalid backup / consume miss)
   #   disable                 -> `cleanup_mfa/6` Multi + `log_multi_safe("mfa.disable", …)`
   #   lockout                 -> (bundled on verify / regen failure Multis where applicable)
 
@@ -441,17 +442,65 @@ defmodule Sigra.MFA do
                   {:ok, :consumed, changes.remaining}
 
                 {:error, :consume, :invalid_backup_code, _changes} ->
-                  {:ok, %{failed_attempts: count, locked: locked}} =
-                    Lockout.increment(repo, mfa_credential_schema, credential.id, config)
-
                   threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
 
-                  if locked do
-                    duration = Keyword.get(config.mfa, :lockout_duration, 900)
-                    Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
-                    {:error, :lockout, duration}
-                  else
-                    {:error, :invalid_backup_code, max(threshold - count, 0)}
+                  failure_multi =
+                    Multi.new()
+                    |> Multi.run(:lockout_inc, fn r, _ ->
+                      Lockout.increment(r, mfa_credential_schema, credential.id, config)
+                    end)
+                    |> Sigra.Audit.log_multi_safe(
+                      "mfa.verify.failure",
+                      Keyword.merge(mfa_audit_opts(config),
+                        actor_id: user.id,
+                        target_id: user.id,
+                        outcome: "failure",
+                        audit_multi_step: :audit_mfa_backup_verify_failure,
+                        metadata_resolver: fn ch ->
+                          %{method: "backup_code", attempts: ch.lockout_inc.failed_attempts}
+                        end
+                      )
+                    )
+                    |> Multi.merge(fn %{lockout_inc: inc} ->
+                      if inc.locked do
+                        duration = Keyword.get(config.mfa, :lockout_duration, 900)
+
+                        Sigra.Audit.log_multi_safe(
+                          Multi.new(),
+                          "mfa.lockout",
+                          Keyword.merge(mfa_audit_opts(config),
+                            actor_id: user.id,
+                            target_id: user.id,
+                            outcome: "failure",
+                            audit_multi_step: :audit_mfa_backup_lockout,
+                            metadata: %{method: "backup_code", duration: duration}
+                          )
+                        )
+                      else
+                        Multi.new()
+                      end
+                    end)
+
+                  case repo.transaction(failure_multi) do
+                    {:ok, changes} ->
+                      Sigra.Audit.emit_telemetry_from_changes(changes, [
+                        :audit_mfa_backup_verify_failure,
+                        :audit_mfa_backup_lockout
+                      ])
+
+                      %{failed_attempts: count, locked: locked} = changes.lockout_inc
+
+                      if locked do
+                        duration = Keyword.get(config.mfa, :lockout_duration, 900)
+                        Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
+                        {:error, :lockout, duration}
+                      else
+                        {:error, :invalid_backup_code, max(threshold - count, 0)}
+                      end
+
+                    {:error, failed, reason, _changes} ->
+                      raise "Sigra.MFA.verify_backup/4 unexpected transaction failure " <>
+                              "at #{inspect(failed)}: #{inspect(reason)}"
                   end
 
                 {:error, failed, reason, _changes} ->

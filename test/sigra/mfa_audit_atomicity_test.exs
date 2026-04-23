@@ -306,6 +306,127 @@ defmodule Sigra.MFAAuditAtomicityTest do
     assert actions == ["mfa.verify.success", "mfa.backup_code_used"]
   end
 
+  test "verify_backup wrong code emits mfa.verify.failure with backup_code metadata", %{
+    repo: repo
+  } do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+    [{plain, hashed}] = Sigra.MFA.BackupCodes.generate(1)
+
+    {:ok, _} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    {:ok, _} =
+      repo.insert(%BackupCode{
+        id: Ecto.UUID.generate(),
+        user_id: user.id,
+        hashed_code: hashed,
+        used_at: nil,
+        inserted_at: now
+      })
+
+    wrong = plain <> "x"
+
+    assert {:error, :invalid_backup_code, _} =
+             MFA.verify_backup(config, user, wrong,
+               mfa_credential_schema: MfaCredential,
+               backup_code_schema: BackupCode
+             )
+
+    assert count_where(repo, "audit_events", "action = 'mfa.verify.failure'") >= 1
+
+    %{rows: [[meta]]} =
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "SELECT metadata::text FROM audit_events WHERE action = 'mfa.verify.failure' ORDER BY inserted_at DESC LIMIT 1",
+        []
+      )
+
+    assert meta =~ "backup_code"
+  end
+
+  test "verify_backup wrong code rolls back lockout increment when audit insert is blocked", %{
+    repo: repo
+  } do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+    [{plain, hashed}] = Sigra.MFA.BackupCodes.generate(1)
+
+    {:ok, cred} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    {:ok, _} =
+      repo.insert(%BackupCode{
+        id: Ecto.UUID.generate(),
+        user_id: user.id,
+        hashed_code: hashed,
+        used_at: nil,
+        inserted_at: now
+      })
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_backup_verify_failure_guard CHECK (action <> 'mfa.verify.failure')
+      """,
+      []
+    )
+
+    try do
+      wrong = plain <> "0"
+
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.verify_backup(config, user, wrong,
+          mfa_credential_schema: MfaCredential,
+          backup_code_schema: BackupCode
+        )
+      end
+
+      {:ok, id_bin} = Ecto.UUID.dump(cred.id)
+
+      %{rows: [[attempts]]} =
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "SELECT failed_attempts FROM user_mfa_credentials WHERE id = $1",
+          [id_bin]
+        )
+
+      assert attempts == 0
+      assert count_where(repo, "audit_events", "action = 'mfa.verify.failure'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_backup_verify_failure_guard",
+        []
+      )
+    end
+  end
+
   test "disable rolls back when audit insert is rejected by database guard", %{repo: repo} do
     user = %{id: Ecto.UUID.generate()}
     config = cfg(repo)
