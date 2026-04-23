@@ -9,8 +9,8 @@ This milestone **does not** ship net-new end-user auth features. It tightens **p
 
 ## Nyquist & verification (NYQ)
 
-- [ ] **NYQ-01**: **`MAINTAINING.md`** (or one linked maintainer doc under `.planning/` referenced from it) contains a **matrix of phases 41–44** with: phase slug, current `nyquist_compliant` disposition, canonical path to `*-VERIFICATION.md` / `*-VALIDATION.md` (or explicit “none”), and a **one-line reopen trigger** per row.
-- [ ] **NYQ-02**: Each **41–44** row in that matrix has an explicit **milestone disposition**: *elevated to compliant* (with evidence), *unchanged with recorded rationale*, or *deferred with trigger + date* — no silent blank cells.
+- [x] **NYQ-01**: **`MAINTAINING.md`** (or one linked maintainer doc under `.planning/` referenced from it) contains a **matrix of phases 41–44** with: phase slug, current `nyquist_compliant` disposition, canonical path to `*-VERIFICATION.md` / `*-VALIDATION.md` (or explicit “none”), and a **one-line reopen trigger** per row.
+- [x] **NYQ-02**: Each **41–44** row in that matrix has an explicit **milestone disposition**: *elevated to compliant* (with evidence), *unchanged with recorded rationale*, or *deferred with trigger + date* — no silent blank cells.
 
 ---
 
@@ -41,8 +41,8 @@ This milestone **does not** ship net-new end-user auth features. It tightens **p
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NYQ-01 | 57 | Pending |
-| NYQ-02 | 57 | Pending |
+| NYQ-01 | 57 | Complete |
+| NYQ-02 | 57 | Complete |
 | OA-01 | 58 | Pending |
 | OA-02 | 59 | Pending |
 

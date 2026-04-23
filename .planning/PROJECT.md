@@ -20,7 +20,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**v1.6 (in planning):** Requirements and roadmap opened **2026-04-22** — execution not started.
+**v1.6 (executing):** **Phase 57** complete **2026-04-23** — canonical **`.planning/nyquist-phases-41-44-matrix.md`**, **`MAINTAINING.md`** index, and **`phase_57_nyquist_matrix_contract_test`** (**NYQ-01**, **NYQ-02**). Next: **Phase 58** (OAuth ceremony + audit smoke).
 
 **v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
@@ -138,6 +138,10 @@ After **v1.6**, candidate themes include **SEED-002** remainder (broad `log_safe
 - ✓ **DOC-01** — README GA / production-readiness paragraph with pointers to **v1.4** evidence — **Phase 55** (2026-04-22)
 - ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
 - ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
+
+### Validated — v1.6 Nyquist closure + OAuth audit depth (partial)
+
+- ✓ **NYQ-01** / **NYQ-02** — Maintainer-facing **41–44** posture matrix under **`.planning/`** with **`MAINTAINING.md`** entry point + precedence rule; optional **D-11** contract test — **Phase 57** (2026-04-23)
 
 ### Validated — v1.4 GA readiness & audit trail completeness
 
@@ -296,4 +300,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **`/gsd-new-milestone`**: **v1.6** (Nyquist **41–44** + OAuth audit smoke) requirements + roadmap opened.*
+*Last updated: 2026-04-23 — **Phase 57** (Nyquist **41–44** matrix + maintainer index) complete; **v1.6** execution continues with **Phase 58**.*
