@@ -18,11 +18,20 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-## Current Milestone: Next
+## Current Milestone: v1.9 Audit atomicity (bounded SEED-002)
 
-**Status:** Planning surface cleared after **v1.8** ship (**2026-04-23**). Run **`/gsd-new-milestone`** to define requirements, roadmap, and phases for the next shipped version.
+**Goal:** Ship the next **inventory-driven** slice of Phase **9** **C-1** deferrals — hybrid **`log_safe/3`** post-commit audit → **`Ecto.Multi`** + **`log_multi_safe`** (or documented equivalent) with **merge-gated audit-aware tests**, plus honest planning updates so **D-01** narrative cannot drift.
+
+**Target features:**
+
+- **AUD-09** — At least **one** bounded subsystem batch from the **C-1** matrix (canonical rows in **`.planning/phases/09-audit-logging/09-VERIFICATION.md`**; inventories under phases **43–45**) moves to **T1** co-fated audit writes where rows still claim hybrid / deferred disposition, with tests merged under the same gate as production code.
+- **AUD-10** — **`.planning/phases/09-audit-logging/09-03-SUMMARY.md`** and applicable **C-1** / inventory rows reflect **post-phase-66** reality (same closure pattern as v1.7 **AUD-02**; **`09-VERIFICATION.md`** edits only when a row materially changes).
+
+**Reference:** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`**.
 
 ## Current State
+
+**v1.9 (in progress):** Phases **66–67** — **AUD-09** / **AUD-10** bounded **SEED-002** continuation (live **`.planning/REQUIREMENTS.md`**, **`.planning/ROADMAP.md`**).
 
 **v1.8 (shipped 2026-04-23):** Phases **63–65** — **ADOPT-04** / **ADOPT-05** / **INTG-02** doc polish (archives: [`.planning/milestones/v1.8-ROADMAP.md`](milestones/v1.8-ROADMAP.md), [`v1.8-REQUIREMENTS.md`](milestones/v1.8-REQUIREMENTS.md)).
 
@@ -42,9 +51,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**Active:** _None until **`/gsd-new-milestone`** recreates **`.planning/REQUIREMENTS.md`** and roadmap phases._
+**Active (v1.9):** Close the next bounded **SEED-002** / **C-1** batch (**AUD-09**) and planning truth (**AUD-10**); see **`.planning/REQUIREMENTS.md`**.
 
-**Candidates:** further bounded **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
+**Later candidates:** further **SEED-002** batches after v1.9, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -329,4 +338,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — added **North Star (milestones)** (GSD milestone scoping). Prior: **`/gsd-complete-milestone`** archived **v1.8**; removed live **`.planning/REQUIREMENTS.md`**; git tag **`v1.8`**.*
+*Last updated: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.9** (bounded **SEED-002**); live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** phases **66–67**. Prior: **North Star (milestones)**; **`/gsd-complete-milestone`** archived **v1.8**; tag **`v1.8`**.*
