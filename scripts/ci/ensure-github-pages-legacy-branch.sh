@@ -52,7 +52,9 @@ if [[ "$branch" == "gh-pages" && "$path" == "/" ]]; then
 fi
 
 echo "ensure-github-pages-legacy-branch: updating Pages source -> gh-pages / (was: ${branch} ${path})"
-gh api "repos/${REPO}/pages" --method PUT --input - <<'JSON'
+put_body="$(mktemp)"
+trap 'rm -f "${put_body}"' EXIT
+cat >"${put_body}" <<'JSON'
 {
   "build_type": "legacy",
   "source": {
@@ -61,5 +63,13 @@ gh api "repos/${REPO}/pages" --method PUT --input - <<'JSON'
   }
 }
 JSON
+if ! put_out=$(gh api "repos/${REPO}/pages" --method PUT --input "${put_body}" 2>&1); then
+  if echo "${put_out}" | grep -qE '403|Resource not accessible by integration'; then
+    echo "ensure-github-pages-legacy-branch: Pages API PUT returned 403 (default GITHUB_TOKEN often cannot change Pages source). gh-pages push already ran; set repo Pages → branch gh-pages / manually if needed." >&2
+    exit 0
+  fi
+  echo "${put_out}" >&2
+  exit 1
+fi
 echo "ensure-github-pages-legacy-branch: updated."
 gh api "repos/${REPO}/pages/builds" --method POST >/dev/null 2>&1 || true
