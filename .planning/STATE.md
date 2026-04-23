@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
-milestone: null
-milestone_name: null
-status: between_milestones
-stopped_at: v1.5 archived — use /gsd-new-milestone
-last_updated: "2026-04-22T15:11:12Z"
+milestone: v1.6
+milestone_name: Nyquist closure + OAuth audit depth
+status: defining_requirements
+stopped_at: null
+last_updated: "2026-04-22T00:00:00Z"
 last_activity: 2026-04-22
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -22,19 +22,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-22)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **Between milestones** — **v1.5** shipped and archived; use **`/gsd-new-milestone`** to define the next requirements + roadmap slice.
+**Current focus:** **v1.6** — Nyquist honesty for phases **41–44** + OAuth ceremony tests with audit assertions.
 
 ## Current Position
 
-Phase: _none queued_
+Phase: Not started (roadmap defined — start **57**)
 
-Plan: _none_
+Plan: —
 
-Status: Between milestones (v1.5 complete, `REQUIREMENTS.md` removed for next cycle)
+Status: Ready to discuss / plan phase 57
 
-Last activity: 2026-04-22
-
-Progress: Awaiting **`/gsd-new-milestone`**
+Last activity: 2026-04-22 — Milestone **v1.6** opened via `/gsd-new-milestone`
 
 ## Performance Metrics
 
@@ -44,7 +42,7 @@ _Velocity metrics populate as phases complete._
 
 **v1.5** closed **2026-04-22** — archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`. Summary: `.planning/MILESTONES.md`.
 
-**Note:** GSD **`phases.clear`** is **not** used in this repo — `.planning/phases/` retains historical milestone directories as archaeology.
+**Note:** `.planning/phases/` retains historical directories; **`phases.clear`** is not used in this repo.
 
 ### Pending Todos
 
@@ -56,14 +54,14 @@ _None._
 
 ## Session Continuity
 
-Last session: v1.5 milestone close
+Last session: `/gsd-new-milestone` v1.6
 
-Stopped at: Planning vacuum after archive — **`/gsd-new-milestone`**
+Stopped at: Roadmap approved inline; first execution phase **57**
 
 Resume file: --resume-file
 
-**Next phase:** TBD by next milestone requirements
+**Next phase:** **57** — Nyquist **41–44** posture matrix + per-phase disposition
 
-**Planned focus:** See **`/gsd-progress`** after **`/gsd-new-milestone`**
+**Planned focus:** See `.planning/ROADMAP.md`
 
-**Planned Phase:** —
+**Planned Phase:** 57

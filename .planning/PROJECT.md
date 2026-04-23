@@ -8,11 +8,19 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-## Current milestone
+## Current Milestone: v1.6 Nyquist closure + OAuth audit depth
 
-**Between milestones** — **v1.5** shipped **2026-04-22** (archives under `.planning/milestones/v1.5-*`). Open the next cycle with **`/gsd-new-milestone`** (fresh `.planning/REQUIREMENTS.md` and roadmap phases).
+**Goal:** Make the **41–44** verification story honest and actionable at the Nyquist layer, and land **merge-worthy automated coverage** for OAuth ceremonies with **audit expectations**, without unrelated product scope creep.
+
+**Target features:**
+- **Nyquist / verification uplift (41–44):** inventory intentional `nyquist_compliant: false` posture, align `MAINTAINING.md` / phase artifacts so maintainers see reopen triggers and canonical pointers — optional mechanical elevation only where it directly supports honesty (no cosmetic “green”).
+- **OAuth ceremony + audit smoke:** automated tests (minimal harness glue if needed) on OAuth ceremony paths with audit assertions where the codebase already promises them — closing the **AUD-03 / OAuth ceremony not claimed** class of gap without pretending full live-provider CI.
+
+**SEED-002** (`log_safe/3` → `Ecto.Multi` breadth) is **out of this milestone** unless promoted explicitly later.
 
 ## Current State
+
+**v1.6 (in planning):** Requirements and roadmap opened **2026-04-22** — execution not started.
 
 **v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
@@ -26,7 +34,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next Milestone Goals
 
-After **v1.5**, candidate themes include optional **OAuth ceremony audit smoke** (v1.4 “Future”), deeper **Nyquist elevation** for historical phases **41–44**, or product features promoted from **`.planning/ROADMAP.md` → Backlog** — pick with **`/gsd-new-milestone`**.
+After **v1.6**, candidate themes include **SEED-002** remainder (broad `log_safe/3` → `Ecto.Multi`), **SEED-001** residuals if a loud public push needs fresh human matrix rows, product features promoted from **Backlog**, or **999.x** hygiene — pick with **`/gsd-new-milestone`**.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -288,4 +296,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **v1.5** milestone closed via `/gsd-complete-milestone` (archives + tag **`v1.5`**). Tag **`v1.4`** on `origin`.*
+*Last updated: 2026-04-22 — **`/gsd-new-milestone`**: **v1.6** (Nyquist **41–44** + OAuth audit smoke) requirements + roadmap opened.*
