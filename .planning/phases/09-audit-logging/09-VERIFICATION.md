@@ -55,9 +55,9 @@ Mechanical check on this document (after the tables are present):
 
 | AUD-04-id | mechanism | tier | verdict | evidence pointer |
 |-----------|-----------|------|---------|-------------------|
-| AUD-04-020 | `log_safe` (post `Repo.transaction`) | tier 6 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-021 | `log_safe` (after failed credential insert) | tier 7 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-022 | `log_safe` (invalid TOTP before DB) | tier 9 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-020 | **`Multi` + `log_multi_safe`** (`mfa.enroll.success` inside enrollment `Repo.transaction/1`) | tier 5 | T1 (**AUD-09**, phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-021 | **`Multi` + `log_multi_safe`** (follow-up `Repo.transaction/1` for `insert_failed` / `mfa.enroll.failure`) | tier 5 | T1 (**AUD-09**, phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-022 | **`log_safe`** (invalid TOTP; no DB writes) | tier 9 | T2 / **EX-44-02** (hybrid; unchanged phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
 | AUD-04-023 | `log_safe` (after `update_all` + lockout reset) | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-024 | `log_safe` (after `Lockout.increment`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-025 | `log_safe` (threshold reached) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
