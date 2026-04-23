@@ -17,9 +17,9 @@
 
 ### Intermediate journey and optional features
 
-- [ ] **ACF-02**: A single documented **intermediate dogfood path** (install → email confirmation → session login → at least one sensitive flow such as password change or MFA enrollment) states which generator options are assumed; it links to **`.planning/v1.10-ADOPTER-SCOPE.md`** for customization.
+- [x] **ACF-02**: A single documented **intermediate dogfood path** (install → email confirmation → session login → at least one sensitive flow such as password change or MFA enrollment) states which generator options are assumed; it links to **`.planning/v1.10-ADOPTER-SCOPE.md`** for customization.
 
-- [ ] **ACF-03**: A single **index** (new or existing intro doc) summarizes **generator optional features** (`--no-admin`, `--no-organizations`, `--no-passkeys`, API/JWT flags) and links from **getting-started** / **first-hour** so intermediate hosts do not reverse-engineer the matrix from scattered guides.
+- [x] **ACF-03**: A single **index** (new or existing intro doc) summarizes **generator optional features** (`--no-admin`, `--no-organizations`, `--no-passkeys`, API/JWT flags) and links from **getting-started** / **first-hour** so intermediate hosts do not reverse-engineer the matrix from scattered guides.
 
 ### Release boundary and explicit non-goals
 
@@ -54,8 +54,8 @@
 |-------------|-------|--------|
 | ACF-01 | 68 | Pending |
 | ACF-04 | 68 | Pending |
-| ACF-02 | 69 | Pending |
-| ACF-03 | 69 | Pending |
+| ACF-02 | 69 | Validated |
+| ACF-03 | 69 | Validated |
 | ACF-05 | 70 | Pending |
 | ACF-06 | 70 | Pending |
 

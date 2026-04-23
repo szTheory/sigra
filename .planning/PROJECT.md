@@ -24,7 +24,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **Target features:**
 - Production **HTTPS / proxy / session cookie** checklist and **Oban vs inline mail** guidance — **shipped phase 68 (2026-04-23)** — **`ACF-01`**, **`ACF-04`** (hub: `guides/recipes/deployment.md`; intro + README + `MAINTAINING` cross-links).
-- One **intermediate dogfood** narrative plus a single **optional generator features** index cross-linked from intro guides (phase **69** — **`ACF-02`**, **`ACF-03`**).
+- One **intermediate dogfood** narrative plus a single **optional generator features** index cross-linked from intro guides — **shipped phase 69 (2026-04-23)** — **`ACF-02`**, **`ACF-03`** (`guides/introduction/intermediate-production-path.md`, `guides/reference/generator-options.md`).
 - **`upgrading-to-v1.10.md`** plus explicit milestone **non-goals**: **no** **`sigra_lockspire`** / mandatory Lockspire coupling (**ADR 001**); **no** full-library **SEED-002** conversion (phase **70** — **`ACF-05`**, **`ACF-06`**).
 
 **Assumed first-production bundle (edit if your app differs):** [`.planning/v1.10-ADOPTER-SCOPE.md`](v1.10-ADOPTER-SCOPE.md).
@@ -34,6 +34,8 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled (not v1.10 scope).
 
 ## Current State
+
+**v1.10 (in progress):** Phase **69** shipped **2026-04-23** — intermediate production path + **`generator-options`** canonical index, ExDoc **Reference** group, `@moduledoc` organizations line, intro cross-links (**`069-VERIFICATION.md`**).
 
 **v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
 
