@@ -93,7 +93,7 @@ jobs:
           version-type: strict
       - name: Cache library deps
         if: steps.detect.outputs.run == 'true'
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
@@ -140,7 +140,7 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache library deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
@@ -186,7 +186,7 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             test/example/deps
@@ -236,14 +236,14 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
           key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
       - name: Cache Hex registry
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -285,14 +285,14 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
           key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
       - name: Cache Hex registry
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -343,7 +343,7 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
@@ -456,14 +456,14 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
           key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
       - name: Cache Hex registry
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: ~/.hex
           key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
@@ -503,7 +503,7 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             test/example/deps
@@ -572,7 +572,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             test/example/deps
