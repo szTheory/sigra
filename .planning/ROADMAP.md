@@ -11,17 +11,20 @@
 - ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (shipped **2026-04-22**). See [v1.5 archive](milestones/v1.5-ROADMAP.md), [v1.5 requirements](milestones/v1.5-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.6 Nyquist closure + OAuth audit depth** — Phases **57–59** (shipped **2026-04-23**). See [v1.6 archive](milestones/v1.6-ROADMAP.md), [v1.6 requirements](milestones/v1.6-REQUIREMENTS.md), [v1.6 milestone audit](milestones/v1.6-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.7 Adoption readiness & audit durability** — Phases **60–62** (shipped **2026-04-23**). See [v1.7 archive](milestones/v1.7-ROADMAP.md), [v1.7 requirements](milestones/v1.7-REQUIREMENTS.md), [v1.7 milestone audit](milestones/v1.7-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- 🚧 **v1.8 Adopter polish (diminishing returns)** — Phases **63–65** (in progress). Requirements: [REQUIREMENTS.md](REQUIREMENTS.md).
+- ✅ **v1.8 Adopter polish (diminishing returns)** — Phases **63–65** (shipped **2026-04-23**). See [v1.8 archive](milestones/v1.8-ROADMAP.md), [v1.8 requirements](milestones/v1.8-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Phases
 
-| # | Phase | Goal | Requirements | Success criteria |
-|---|-------|------|--------------|------------------|
-| **63** | **Upgrade doc — v1.8** | Adopters and maintainers have a single honest **v1.8** upgrade entry that does not contradict **Hex SemVer** or **v1.7** maintainer context. | ADOPT-04 | **`guides/introduction/upgrading-to-v1.8.md`** exists; documents planning **v1.8** vs **`CHANGELOG.md`**; links **v1.7** upgrade guide for Nyquist/OA/CI; file appears in **`mix.exs`** `docs` extras immediately after **`upgrading-to-v1.7.md`**. |
-| **64** | **Cross-link adoption path** | First-week readers can move between install, walkthrough, troubleshooting, and upgrade docs without hunting. | ADOPT-05 | **`getting-started.md`** faster path lists **v1.8** upgrade; **`first-hour.md`** reading map includes troubleshooting + both **v1.7** and **v1.8** upgrade links; **`troubleshooting-install.md`** has **“Upgrading between Sigra versions”** with **CHANGELOG** + both upgrade pages. |
-| **65** | **Companion recipe polish** | Embedded-provider recipe states prerequisites and anti-patterns clearly. | INTG-02 | **`companion-oauth-provider.md`**: prerequisite block (Sigra login/session green before **AccountResolver**); **when not to use** includes explicit **B2C-only / no third-party API clients** line; **See also** includes **`upgrading-to-v1.8.html`**. |
+Run **`/gsd-new-milestone`** to define requirements, roadmap, and execution for the next shipped version.
 
-**Coverage:** 3 requirements → 3 phases. Phase numbering continues from **v1.7** (last phase **62**).
+<details>
+<summary>✅ v1.8 Adopter polish (Phases 63–65) — SHIPPED 2026-04-23</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.8-ROADMAP.md`](milestones/v1.8-ROADMAP.md).
+
+**At a glance:** **63** **`upgrading-to-v1.8.md`** + ExDoc extras + SemVer framing (**ADOPT-04**); **64** cross-links among getting-started, first-hour, troubleshooting, and upgrade paths (**ADOPT-05**); **65** companion recipe prerequisite / when-not-to-use / See also polish (**INTG-02**).
+
+</details>
 
 <details>
 <summary>✅ v1.7 Adoption readiness & audit durability (Phases 60–62) — SHIPPED 2026-04-23</summary>

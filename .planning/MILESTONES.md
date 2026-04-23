@@ -292,3 +292,35 @@
 - [v1.7 Milestone Audit](milestones/v1.7-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.8 Adopter polish (diminishing returns) (Shipped: 2026-04-23)
+
+**Scope:** 3 phases (**63–65**), **0** on-disk plan packs — all scope satisfied via **shipped guides** + **`mix.exs`** ExDoc wiring (no discrete `.planning/phases/063-*` … `065-*` directories; see archived traceability).
+
+**What shipped:** **ADOPT-04** — **`guides/introduction/upgrading-to-v1.8.md`** plus honest **planning v1.8** vs **Hex SemVer** framing and pointers back to **`upgrading-to-v1.7.md`**. **ADOPT-05** — cross-links among **`getting-started.md`**, **`first-hour.md`**, **`troubleshooting-install.md`**, **`CHANGELOG.md`**, and both upgrade guides. **INTG-02** — **`companion-oauth-provider.md`** prerequisite callout, explicit **B2C-only / no third-party API clients** anti-pattern line, and **See also** link to **`upgrading-to-v1.8.html`**.
+
+### Key accomplishments
+
+1. **Phase 63 — v1.8 upgrade spine** — Single maintainer-facing upgrade page ordered after **v1.7** in ExDoc extras.
+2. **Phase 64 — navigation mesh** — First-week readers can traverse install → walkthrough → troubleshooting → upgrades without dead ends.
+3. **Phase 65 — companion recipe honesty** — Prerequisites and non-goals are explicit before hosts wire **AccountResolver**.
+
+### Stats
+
+- **Requirements:** 3/3 Complete in archived [`milestones/v1.8-REQUIREMENTS.md`](milestones/v1.8-REQUIREMENTS.md).
+- **Milestone audit:** none filed for v1.8; closure used requirements traceability + shipped docs (same posture as **v1.5**).
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-23).
+- **Git (since `v1.7`):** ~1 commit on the measured range; **12** files touched (**147** insertions / **30** deletions in `git diff --stat v1.7..HEAD` summary).
+- **Timeline:** 2026-04-23 (same-day doc closure on disk).
+
+### Tech debt carried forward
+
+- **`gsd-sdk query milestone.complete`** returned `version required for phases archive`; archival followed the same manual path as **v1.3**–**v1.7**.
+- **No `063-*` / `064-*` / `065-*` phase directories** — optional retro packs if stricter per-phase execution history is desired.
+
+**Archive:**
+
+- [v1.8 Roadmap](milestones/v1.8-ROADMAP.md)
+- [v1.8 Requirements](milestones/v1.8-REQUIREMENTS.md)
+
+---

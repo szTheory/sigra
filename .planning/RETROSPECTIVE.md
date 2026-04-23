@@ -1,6 +1,44 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.7 section added at ship (2026-04-23).*
+*Living document updated at milestone boundaries. v1.8 section added at ship (2026-04-23).*
+
+## Milestone: v1.8 — Adopter polish (diminishing returns)
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (63–65) | **Plans (on-disk):** 0 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **ADOPT-04 (Phase 63)** — **`upgrading-to-v1.8.md`** with honest **planning vs SemVer** framing, **`mix.exs`** extras ordering, and pointers back to **v1.7** maintainer context.
+- **ADOPT-05 (Phase 64)** — Cross-links so **getting-started → first-hour → troubleshooting → upgrades** reads as one mesh.
+- **INTG-02 (Phase 65)** — **`companion-oauth-provider.md`** prerequisites, explicit **B2C-only / no third-party API clients** anti-pattern, and **See also** navigation to **v1.8** upgrades.
+
+### What worked
+
+- **Doc-only milestone with full traceability** — three requirements mapped to three phases without inventing fake execution packs.
+- **Small diff, high leverage** — most churn was prose + navigation, not security-sensitive code paths.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again; manual archival repeated the v1.3–v1.7 pattern.
+- **No `063-*` / `064-*` / `065-*` phase directories** — harder to grep execution history; prefer lightweight doc phase dirs if Nyquist strictness matters later.
+
+### Patterns established
+
+- **Upgrade guide per planning focus** — when “v1.x” is planning language, ship a dedicated upgrade page that does not pretend SemVer is the same thing.
+
+### Key lessons
+
+1. Ship **adopter polish** milestones with the same **REQUIREMENTS.md** traceability discipline as code-heavy milestones.
+2. When **`roadmap.analyze`** returns empty JSON for this roadmap shape, rely on **`.planning/REQUIREMENTS.md`** + filesystem checks before close.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Single-day closure; git range since **`v1.7`** was intentionally tiny.
+
+---
 
 ## Milestone: v1.7 — Adoption readiness & audit durability
 
