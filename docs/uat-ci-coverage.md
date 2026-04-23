@@ -13,6 +13,24 @@ This document maps the eight **SEED-001** human GA items to **merge-blocking CI*
 | **7** | Backup code regenerate wiring | **`example_unit_smoke`** (`ci.yml`) runs `mix test --include example_app`, including **`test/example/test/example_web/smoke/backup_code_rotation_test.exs`** — proves old backup plaintext fails after `Accounts.mfa_regenerate_backup_codes/3` with a valid TOTP. **`ga-uat-shift-left.spec.ts`** (same workflow’s Playwright job) covers MFA settings UX shell only. | Live browser timing, copy tweaks |
 | **8** | Clean-machine getting started | **`scripts/ci/getting-started-contract.sh`** — internal doc links + required command strings | Wall-clock “&lt; 30 min” for unfamiliar human; prose friction |
 
+## OA-01 / OA-02 — `library_tests` + `oauth_ceremony` machine baseline
+
+This subsection is the **grep-friendly** hub for **OA-01** (merge-blocking ceremony audit assertions) and **OA-02** (how we describe machine vs human coverage). It complements the SEED table row **SEED-4** and the **GA-03** bullet under **v1.4 GA** — those stay scannable; depth lives here.
+
+### Machine (merge-blocking)
+
+- **`Sigra.OAuthCeremonyAuditTest`** (`test/sigra/oauth/oauth_ceremony_audit_test.exs`) proves persisted `audit_events` for **`oauth.register_via_oauth`** (registration ceremony) and **`oauth.authorize`** on the successful **`Sigra.OAuth.authorize_url/3`** path, using **Postgres + Sandbox**, an in-process mock strategy, and **no live IdP HTTP**.
+- **`Sigra.Planning.Phase58OauthOa01CiContractTest`** (`test/sigra/planning/phase_58_oauth_oa01_ci_contract_test.exs`) is a **structural** CI gate: the **`library_tests`** GitHub Actions job runs plain `mix test` and asserts the OA-01 modules stay wired into CI — it does **not** replace the integration assertions in the audit test.
+- **`Sigra.OAuthTest`** (`test/sigra/oauth/oauth_test.exs`) covers the authorize/callback **contract** with Assent-shaped mock behavior (complement to the audit persistence proof above, not a duplicate).
+
+Discoverability: see **`.github/workflows/ci.yml`** job **`library_tests`** (“Run library tests”).
+
+### Human / live-provider residual
+
+- **Live Google** (consent UX, refresh flows, tenant-specific policy) is **not** asserted by the modules above.
+- Anything outside those named contracts remains occasional human or vendor-assisted verification.
+- Machine proofs above are **scoped** to the named tests; IdP-specific end-to-end behavior is **not** exhaustively automated in CI.
+
 ## v1.4 GA (GA-02..GA-05)
 
 Human vs machine boundaries for **v1.4** are recorded in **`.planning/v1.4-GA-UAT.md`** (canonical **Executed / Waived / Blocked** table). This section **cross-links** that matrix only — it does **not** replace the SEED-1..8 table above or duplicate merge-blocking job lists.
