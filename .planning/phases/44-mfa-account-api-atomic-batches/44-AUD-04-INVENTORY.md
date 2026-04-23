@@ -61,9 +61,9 @@ lib/sigra/mfa.ex:683:    Sigra.Audit.log_safe(
 
 | ID | Boundary (module.function) | action string | mechanism today | tier | REQ batch | Phase | notes |
 |----|----------------------------|-----------------|-----------------|------|-----------|-------|-------|
-| AUD-04-020 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.success` | `log_safe` (post `Repo.transaction`) | 6 | AUD-06 | 44 | Target **Multi** + `log_multi_safe` / `__log_internal__` per **D-44-03** (plan **44-03**). |
-| AUD-04-021 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` | `log_safe` (after failed credential insert) | 7 | AUD-06 | 44 | Failure path after rolled-back txn; evaluate **Multi** vs intentional **log_safe** during **44-03** (no paired success commit). |
-| AUD-04-022 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` | `log_safe` (invalid TOTP before DB) | 9 | AUD-06 | 44 | Pure validation — see **EX-44-02** if retained as hybrid. |
+| AUD-04-020 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.success` | **`Multi` + `log_multi_safe`** (same enrollment `Repo.transaction/1` as credential + backup codes) | 5 | AUD-06 | 66 | **Phase 66** — **`AUD-09`** / **SEED-002**; evidence **`test/sigra/mfa_audit_atomicity_test.exs`**. |
+| AUD-04-021 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` (`insert_failed`) | **`Multi` + `log_multi_safe`** (dedicated follow-up `Repo.transaction/1` after enrollment `Multi` rolls back or credential/backup persistence raises) | 5 | AUD-06 | 66 | **Phase 66** — **`AUD-09`**; failure audit not co-fated with rolled-back enrollment writes by design. |
+| AUD-04-022 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` | **`log_safe`** (invalid TOTP before DB) | 9 | AUD-06 | 44 | **EX-44-02** — unchanged in phase **66** (**066-CONTEXT D-02**). |
 | AUD-04-023 | `Sigra.MFA.verify/4` | `mfa.verify.success` | `log_safe` (after `update_all` + lockout reset) | 3 | AUD-06 | 44 | Target **Multi** per **D-44-03** ordering #1 (plan **44-03**). |
 | AUD-04-024 | `Sigra.MFA.verify/4` | `mfa.verify.failure` | `log_safe` (after `Lockout.increment`) | 5 | AUD-06 | 44 | Target **Multi** (counter + audit share fate) per **D-44-03** #5. |
 | AUD-04-025 | `Sigra.MFA.verify/4` | `mfa.lockout` | `log_safe` (threshold reached) | 4 | AUD-06 | 44 | Target **Multi** with verify-failure row or merged metadata per **D-44-03**. |
@@ -121,3 +121,5 @@ Release notes should reference this file when **AUD-06 / AUD-07** land for MFA +
 OAuth, operational security helpers (`Lockout`, `SuspiciousLogin`, `Impersonation`), and the account-deletion worker continue in [`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`](../45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md) (**AUD-04-050+**, **AUD-08** batch).
 
 **Note — Phase 61 (2026-04-23):** **`verify_backup/4`** invalid-backup / wrong-code path (**`AUD-04-067`**) now shares **`Lockout.increment`** fate with **`mfa.verify.failure`** (+ optional **`mfa.lockout`**) via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (**AUD-01**). Evidence: **`test/sigra/mfa_audit_atomicity_test.exs`**.
+
+**Note — Phase 66 (2026-04-23):** **`confirm_enrollment/5`** — **`AUD-04-020`** success audit is **`Multi` + `log_multi_safe`** inside the enrollment transaction; **`AUD-04-021`** **`mfa.enroll.failure`** / **`insert_failed`** uses a follow-up **`Repo.transaction(Multi + log_multi_safe)`** after the enrollment **`Multi`** rolls back (**AUD-09**). **`AUD-04-022`** remains **`log_safe`** under **EX-44-02**. Evidence: **`test/sigra/mfa_audit_atomicity_test.exs`**.
