@@ -164,6 +164,8 @@ defmodule Sigra.MixProject do
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
         "guides/introduction/first-hour.md",
+        "guides/introduction/intermediate-production-path.md",
+        "guides/reference/generator-options.md",
         "guides/introduction/troubleshooting-install.md",
         "guides/introduction/upgrading-to-v1.7.md",
         "guides/introduction/upgrading-to-v1.8.md",
@@ -191,6 +193,7 @@ defmodule Sigra.MixProject do
       ],
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
+        Reference: ~r{guides/reference/.?},
         Flows: ~r{guides/flows/.?},
         Recipes: ~r{guides/recipes/.?},
         Docs: ~r{^docs/|^SECURITY\.md$}
