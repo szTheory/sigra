@@ -2,7 +2,7 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Nyquist closure + OAuth audit depth
-status: defining_requirements
+status: ready_to_execute
 stopped_at: null
 last_updated: "2026-04-22T00:00:00Z"
 last_activity: 2026-04-22
@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md` (updated 2026-04-22)
 
 ## Current Position
 
-Phase: Not started (roadmap defined — start **57**)
+Phase: **57** (next)
 
 Plan: —
 
-Status: Ready to discuss / plan phase 57
+Status: Roadmap defined — start `/gsd-discuss-phase 57` or `/gsd-plan-phase 57`
 
 Last activity: 2026-04-22 — Milestone **v1.6** opened via `/gsd-new-milestone`
 

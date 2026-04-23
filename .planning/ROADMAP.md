@@ -9,6 +9,7 @@
 - ✅ **v1.3 Cleanup & Hardening** — Phases 36-40 (shipped 2026-04-19). See [v1.3 archive](milestones/v1.3-ROADMAP.md), [v1.3 requirements](milestones/v1.3-REQUIREMENTS.md), [v1.3 milestone audit](milestones/v1.3-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (shipped **2026-04-22**). See [v1.5 archive](milestones/v1.5-ROADMAP.md), [v1.5 requirements](milestones/v1.5-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
+- **v1.6 Nyquist closure + OAuth audit depth** — Phases **57–59** (active). Requirements: [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## Phases
 
@@ -30,11 +31,20 @@ At a glance: **53** Hex / `mix.exs` metadata (**PUB-01**); **54** `CHANGELOG.md`
 
 </details>
 
-## Next milestone
+### v1.6 Nyquist closure + OAuth audit depth (Phases 57–59) — ACTIVE
 
-_No active phases — open the next planning cycle with `/gsd-new-milestone`._
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|------------------------------|
+| **57** | Nyquist 41–44 posture matrix | Single maintainer-facing source of truth for historical GA-phase Nyquist debt | NYQ-01, NYQ-02 | (1) Matrix exists in `MAINTAINING.md` or linked doc per **NYQ-01**. (2) All four rows have explicit disposition per **NYQ-02**. (3) `mix compile --warnings-as-errors` unchanged green. |
+| **58** | OAuth ceremony + audit smoke | Automated proof that OAuth ceremonies emit expected audit (or documented substitute) | OA-01 | (1) New or extended test module(s) run in an existing required CI job (or a new job wired into required checks). (2) At least one ceremony path + assertion satisfies **OA-01**. (3) No live-provider secrets in repo. |
+| **59** | UAT + GA narrative alignment | Docs point at machine proof; humans know residual gap | OA-02 | (1) `docs/uat-ci-coverage.md` updated per **OA-02**. (2) GA-03 / AUD-03 wording does not over-claim vs tests. (3) Link from `.planning/v1.4-GA-UAT.md` or `uat-evidence` index if a pointer row is needed. |
+
+## Reader note: phases 41–44 vs v1.6
+
+Phases **41–44** shipped implementation and verification **artifacts** under v1.4; **v1.6** does **not** re-litigate those releases — it makes **Nyquist posture** and **OAuth↔audit machine proof** legible for maintainers going forward. Formal `nyquist_compliant: true` for a row is optional; **honest disposition** is mandatory.
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
-- Items not mapped in the [v1.4 requirements archive](milestones/v1.4-REQUIREMENTS.md) stay here until a future milestone selects them.
+- **SEED-002** — broad `log_safe/3` → `Ecto.Multi` conversion; trigger when audit-aware refactors are scheduled or compliance demands it.
+- Items not mapped in archived requirements stay here until a future milestone selects them.
