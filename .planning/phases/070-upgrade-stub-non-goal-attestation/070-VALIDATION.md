@@ -39,7 +39,7 @@ created: 2026-04-23
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 70-01-01 | 01 | 1 | ACF-05 | T-70-01 | No false “guaranteed secure upgrade” claims | grep + docs | `test -f guides/introduction/upgrading-to-v1.10.md` | ✅ | ⬜ pending |
-| 70-01-02 | 01 | 1 | ACF-05 | — | `extras` order after v1.8 path | grep | `grep -A2 'upgrading-to-v1.8.md' mix.exs \| grep -F 'upgrading-to-v1.10.md'` | ✅ | ⬜ pending |
+| 70-01-02 | 01 | 1 | ACF-05 | — | `extras` order after v1.8 path | ruby | `ruby -e 't=File.read(%q{mix.exs}); i=t.index(%q{guides/introduction/upgrading-to-v1.8.md}); j=t.index(%q{guides/introduction/upgrading-to-v1.10.md}); exit(i && j && j>i ? 0 : 1)'` | ✅ | ⬜ pending |
 | 70-02-01 | 02 | 1 | ACF-06 | — | Out of scope links ADR + SEED paths | grep | `grep -F 'decisions/001-defer-sigra-lockspire-glue-package.md' .planning/REQUIREMENTS.md` AND `grep -F 'seeds/SEED-002-phase-9-log-safe-atomicity-followup.md' .planning/REQUIREMENTS.md` | ✅ | ⬜ pending |
 | 70-02-02 | 02 | 1 | ACF-06 | — | PROJECT milestone cites both artifacts | grep | `grep -F '001-defer-sigra-lockspire' .planning/PROJECT.md` AND `grep -F 'SEED-002-phase-9' .planning/PROJECT.md` | ✅ | ⬜ pending |
 
