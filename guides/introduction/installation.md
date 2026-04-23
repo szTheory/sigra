@@ -58,7 +58,7 @@ The generator also patches your router with the auth pipelines and scopes. Re-ru
 
     mix ecto.migrate
 
-This creates the `users` and `users_tokens` tables (plus any optional tables like `audit_events` if you enabled Phase 9 audit logging).
+This creates the `users` and `users_tokens` tables (plus any optional tables such as `audit_events` if you enabled **audit logging** in the installer).
 
 ## Smoke test
 

@@ -37,7 +37,7 @@ The harness shells out to **`mix deps.get`** inside a generated tmp Phoenix app 
 
 This section is the **maintainer front door** for how **Nyquist-style** evidence is read across GA phases **41-backup-codes** through **44-mfa-account-api**. It states what the posture matrix **does** guarantee (honest disposition + repo-relative evidence pointers + reopen triggers) and what it **does not** (it does not replace each phase’s **`*-VALIDATION.md`** / **`*-VERIFICATION.md`** as the source of **`nyquist_compliant:`** and waiver text).
 
-**Canonical detail** — full table, paths, and **v1.5** `ref:` block — lives in **[`.planning/nyquist-phases-41-44-matrix.md`](.planning/nyquist-phases-41-44-matrix.md)**. If this **`MAINTAINING.md`** summary ever disagrees with that file, **the matrix file wins**.
+**Canonical detail** — full table, paths, and **v1.5** `ref:` block — lives in **[`.planning/nyquist-phases-41-44-matrix.md`](https://github.com/szTheory/sigra/blob/main/.planning/nyquist-phases-41-44-matrix.md)** on GitHub (not shipped in the Hex package tarball). A short HexDocs-facing overview is **[`docs/nyquist-posture-matrix.md`](docs/nyquist-posture-matrix.md)**. If this **`MAINTAINING.md`** summary ever disagrees with the **`.planning/`** matrix file, **the matrix file wins**.
 
 **Reopen (installer-class drift):** when **`priv/templates/sigra.install/`** or **`lib/sigra/install/`** change, re-run the same scoped gate CI uses: **`PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci.install_golden`**. Phase-specific scoped tests remain defined in each phase’s **`41-backup-codes`** / **`44-mfa-account-api`** **`*-VERIFICATION.md`** files (see the matrix).
 
