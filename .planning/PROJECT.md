@@ -20,9 +20,11 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**Next version:** Not opened until **`/gsd-new-milestone`** recreates **`.planning/REQUIREMENTS.md`** and an active phase table in **`.planning/ROADMAP.md`**.
+**Next version:** Not opened until **`/gsd-new-milestone`** recreates **`.planning/REQUIREMENTS.md`** and an active phase table in **`.planning/ROADMAP.md`**. After **v1.11**, prefer **Hex-only** releases until an event warrants a new tranche (**`MAINTAINING.md`** → *Milestone cadence and pause*).
 
-**Last closed:** **v1.10 Adopter confidence for solo production** — shipped **2026-04-23** (**phases 68–70**; **`ACF-01`**..**`ACF-06`**). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md), [`v1.10-MILESTONE-AUDIT.md`](milestones/v1.10-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
+**Last closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
+
+**Previously closed:** **v1.10 Adopter confidence for solo production** — shipped **2026-04-23** (**phases 68–70**; **`ACF-01`**..**`ACF-06`**). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md), [`v1.10-MILESTONE-AUDIT.md`](milestones/v1.10-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
 
 **Reader bundle (v1.10 planning label):** [`.planning/v1.10-ADOPTER-SCOPE.md`](v1.10-ADOPTER-SCOPE.md).
 
@@ -31,6 +33,8 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
+
+**v1.11 (shipped 2026-04-23):** Phases **71–72** — **`STAB-01`**..**`STAB-04`** adoption stabilization (triage log, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`** + ExDoc, intro cross-links). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
 
 **v1.10 (shipped 2026-04-23):** Phases **68–70** — **`ACF-01`**..**`ACF-06`** adopter-confidence documentation (deployment + mail hub, intermediate path + **`generator-options`** index, **`upgrading-to-v1.10.md`** + **ADR 001** / **SEED-002** non-goal attestation). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md).
 
@@ -54,7 +58,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**Open the next planning cycle** with **`/gsd-new-milestone`** (fresh **`.planning/REQUIREMENTS.md`** + active roadmap phases).
+**Default posture (post–v1.11):** **Pause `/gsd-new-milestone` cycles** unless an **event** warrants a scoped tranche — use **Hex-only** releases (`CHANGELOG.md` + tag) when work is patch-sized. Criteria and resume triggers: **`MAINTAINING.md`** → *Milestone cadence and pause*.
+
+**Re-evaluate North Star** before opening **v1.12+**: confirm no **P0/P1** adoption or security gaps (issues + dogfood + README vs guides).
 
 **Later candidates:** further **bounded SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after Lockspire and `AccountResolver` seams meet ADR **001** revisit triggers.
 
@@ -85,6 +91,13 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Validated — v1.11 Adoption stabilization (shipped 2026-04-23)
+
+- ✓ **STAB-01** — **`.planning/v1.11-TRIAGE.md`** records triage + week-one path notes — **Phase 71**
+- ✓ **STAB-03** — **`MAINTAINING.md`** *Milestone cadence and pause* section — **Phase 71**
+- ✓ **STAB-02** — **`guides/introduction/upgrading-to-v1.11.md`** + **`mix.exs`** ExDoc extras — **Phase 72**
+- ✓ **STAB-04** — **getting-started** + **upgrading-to-v1.10** cross-links — **Phase 72**
 
 ### Validated — v1.0
 
@@ -341,6 +354,7 @@ This document evolves at phase transitions and milestone boundaries.
 <details>
 <summary>Archived milestone “Last updated” footers (v1.0–v1.10 execution log)</summary>
 
+- **2026-04-23** — **v1.11** phases **71–72** complete; archived **`v1.11-REQUIREMENTS.md`** + **`v1.11-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.10** phases **68–70** complete; `/gsd-complete-milestone` archived planning + tag **`v1.10`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.9** phases **66–67** complete; `/gsd-complete-milestone` archived planning + tag **`v1.9`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.8** phases **63–65** complete; `/gsd-complete-milestone` archived planning + tag **`v1.8`**; live **`REQUIREMENTS.md`** removed.
@@ -357,4 +371,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 after **v1.10** milestone close — adopter-confidence phases **68–70** archived; live **`REQUIREMENTS.md`** removed pending **`/gsd-new-milestone`**.*
+*Last updated: 2026-04-23 — **v1.11** adoption stabilization shipped (**71–72**); live **`.planning/REQUIREMENTS.md`** removed; archives under **`.planning/milestones/v1.11-*`**.*

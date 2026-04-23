@@ -6,6 +6,18 @@ Hex releases exercise the library and templates — they do **not** validate an 
 
 On your **first public Hex release**, follow **`Release automation`** for the mechanical ship path; when you are ready to coordinate evidence and optional comms around that ship, use **`First public launch (announcement checklist)`** later in this file.
 
+## Milestone cadence and pause (v1.11+)
+
+GSD milestones (**`/gsd-new-milestone`**, **`.planning/REQUIREMENTS.md`**, phased **`.planning/ROADMAP.md`**) are for **coordinated tranches** that move **North Star** outcomes in **`.planning/PROJECT.md`**. They are **not** required for every Hex publish.
+
+**Pause full milestone cycles** (ship **patch/minor** via **`CHANGELOG.md` + tag + Hex** only) when all of the following are true:
+
+1. **No P0/P1** adoption or security items remain from maintainer triage (issues, dogfood runs, README vs guides consistency).
+2. The next candidate milestone would mostly duplicate **docs-only polish** without a new **trust signal** (merge-blocking CI change, honest scope boundary, or materially new integrator path) — same “diminishing returns” bar used for **v1.8** adopter polish.
+3. **Hex releases** can carry fixes with conventional commits and **`CHANGELOG.md`** entries without remapping **REQ-IDs**.
+
+**Resume `/gsd-new-milestone`** when an **event** warrants a scoped tranche, for example: public launch prep + **SEED-001** human matrix; compliance or customer evidence forcing **SEED-002** batches; **ADR 001** revisit for **`sigra_lockspire`** / Lockspire glue; or a **documented adoption gap** that does not fit a single patch.
+
 ## Installer golden CI contract (phase 50)
 
 The installer subprocess harness (`mix phx.new` + generated app) is expensive; do not rely on “it passed locally once.” Run the scoped merge gate the same way CI does:

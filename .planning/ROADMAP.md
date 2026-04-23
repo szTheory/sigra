@@ -14,11 +14,24 @@
 - ✅ **v1.8 Adopter polish (diminishing returns)** — Phases **63–65** (shipped **2026-04-23**). See [v1.8 archive](milestones/v1.8-ROADMAP.md), [v1.8 requirements](milestones/v1.8-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.9 Audit atomicity (bounded SEED-002)** — Phases **66–67** (shipped **2026-04-23**). See [v1.9 archive](milestones/v1.9-ROADMAP.md), [v1.9 requirements](milestones/v1.9-REQUIREMENTS.md), [v1.9 milestone audit](milestones/v1.9-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.10 Adopter confidence for solo production** — Phases **68–70** (shipped **2026-04-23**). See [v1.10 archive](milestones/v1.10-ROADMAP.md), [v1.10 requirements](milestones/v1.10-REQUIREMENTS.md), [v1.10 milestone audit](milestones/v1.10-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- 📋 **Next milestone** — Not opened on the roadmap until **`/gsd-new-milestone`** defines the next version’s requirements and phase table. Reader bundle for the shipped v1.10 docs milestone: [v1.10-ADOPTER-SCOPE.md](v1.10-ADOPTER-SCOPE.md).
+- ✅ **v1.11 Adoption stabilization** — Phases **71–72** (shipped **2026-04-23**). See [v1.11 archive](milestones/v1.11-ROADMAP.md), [v1.11 requirements](milestones/v1.11-REQUIREMENTS.md), and triage [v1.11-TRIAGE.md](v1.11-TRIAGE.md).
+- 📋 **Next milestone** — Not opened until **`/gsd-new-milestone`**; default posture after **v1.11** is **Hex-only** releases until an event warrants a tranche (**`MAINTAINING.md`** → *Milestone cadence and pause*).
 
 ## Phases
 
-_No active phased work._ After **`/gsd-new-milestone`**, the next version’s phase table will appear here.
+_No active phased work._ Open **`/gsd-new-milestone`** when a scoped tranche is warranted.
+
+<details>
+<summary>✅ v1.11 Adoption stabilization (Phases 71–72) — SHIPPED 2026-04-23</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|----------------------------|
+| **71** | Triage + maintainer pause guidance | Record adoption signals; document when to pause GSD milestones. | STAB-01, STAB-03 | (1) **`.planning/v1.11-TRIAGE.md`** is complete and linked from **`upgrading-to-v1.11.md`**. (2) **`MAINTAINING.md`** contains **Milestone cadence and pause** with pause/resume criteria. |
+| **72** | Upgrade stub + intro cross-links | Planning **v1.11** vs Hex is legible; intro docs surface upgrade pages. | STAB-02, STAB-04 | (1) **`guides/introduction/upgrading-to-v1.11.md`** ships and appears in **`mix.exs`** ExDoc extras after **v1.10** upgrade page. (2) **getting-started** faster path lists **v1.10** and **v1.11** upgrade links; **upgrading-to-v1.10** See also links **v1.11**. |
+
+**Coverage:** 4 requirements → 2 phases. Phase numbering continues from **v1.10** (last phase **70**).
+
+</details>
 
 <details>
 <summary>✅ v1.10 Adopter confidence for solo production (Phases 68–70) — SHIPPED 2026-04-23</summary>

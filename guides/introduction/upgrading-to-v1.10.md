@@ -20,6 +20,7 @@ Unless **`CHANGELOG.md`** documents a **breaking** change for your line, **no ne
 
 ## See also
 
+- [Upgrading notes — toward v1.11](upgrading-to-v1.11.html)
 - [Upgrading notes — toward v1.8](upgrading-to-v1.8.html)
 - [Upgrading notes — toward v1.7](upgrading-to-v1.7.html)
 - [First hour with Sigra](first-hour.html)

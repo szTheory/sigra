@@ -389,3 +389,25 @@
 - [v1.10 Milestone Audit](milestones/v1.10-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.11 Adoption stabilization (Shipped: 2026-04-23)
+
+**Scope:** 2 phases (**71–72**), docs + planning only (no discrete **`071-*`** / **`072-*`** phase directories).
+
+**What shipped:** **STAB-01** — **`.planning/v1.11-TRIAGE.md`** adoption triage log. **STAB-03** — **`MAINTAINING.md`** *Milestone cadence and pause* (Hex-only vs `/gsd-new-milestone`). **STAB-02** — **`guides/introduction/upgrading-to-v1.11.md`** + **`mix.exs`** ExDoc extras. **STAB-04** — **getting-started** + **upgrading-to-v1.10** cross-links.
+
+### Stats
+
+- **Requirements:** 4/4 **Validated** in archived [`milestones/v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
+- **Timeline:** 2026-04-23.
+
+### Tech debt carried forward
+
+- **SEED-002** / **SEED-001** / **Lockspire** — unchanged deferral posture (**ADR 001**, seed triggers).
+
+**Archive:**
+
+- [v1.11 Roadmap](milestones/v1.11-ROADMAP.md)
+- [v1.11 Requirements](milestones/v1.11-REQUIREMENTS.md)
+
+---

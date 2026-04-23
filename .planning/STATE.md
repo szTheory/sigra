@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: none
-milestone_name: —
+milestone: v1.11
+milestone_name: Adoption stabilization
 status: milestone_complete
-stopped_at: v1.10 archived
-last_updated: "2026-04-23T23:59:00.000Z"
-last_activity: 2026-04-23 — **`/gsd-complete-milestone`** (**v1.10**).
+stopped_at: v1.11 planning artifacts landed
+last_updated: "2026-04-23T12:00:00.000Z"
+last_activity: 2026-04-23 — **v1.11** phases **71–72** (STAB) closed in planning.
 progress:
-  total_phases: 0
-  completed_phases: 0
+  total_phases: 2
+  completed_phases: 2
   total_plans: 0
   completed_plans: 0
-  percent: 0
+  percent: 100
 ---
 
 # Project State
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **Planning next milestone** — run **`/gsd-new-milestone`** to recreate **`.planning/REQUIREMENTS.md`** and active roadmap phases.
+**Current focus:** **Post–v1.11** — default **Hex-only** releases until **`/gsd-new-milestone`** is justified (**`MAINTAINING.md`** → *Milestone cadence and pause*).
 
 ## Current Position
 
-Phase: **—** (no active GSD phase until next milestone is opened)
+Phase: **—** (no active GSD phase; **v1.11** shipped **2026-04-23**)
 
 Plan: **—**
 
-Status: **v1.10** shipped and archived (**2026-04-23**). Live **`.planning/REQUIREMENTS.md`** removed at milestone close.
+Status: **v1.11** adoption stabilization complete (**STAB-01**..**STAB-04**).
 
-Last activity: 2026-04-23 — **`/gsd-complete-milestone`** (**v1.10**).
+Last activity: 2026-04-23 — **v1.11** roadmap + requirements satisfied.
 
 ## Performance Metrics
 
@@ -42,7 +42,7 @@ _Velocity metrics populate during phase work._
 
 ## Accumulated Context
 
-**v1.10** closed **2026-04-23** — docs-first **ACF-*** milestone (**68–70**); archives under **`.planning/milestones/v1.10-*`**.
+**v1.11** closed **2026-04-23** — docs + planning only (**71–72**); triage **`.planning/v1.11-TRIAGE.md`**, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`**, intro cross-links.
 
 **`.planning/phases/`** retains historical directories; **`phases.clear`** is not used in this repo.
 
@@ -58,14 +58,14 @@ _None._
 
 Last session: 2026-04-23
 
-Stopped at: **v1.10** milestone archive complete
+Stopped at: **v1.11** planning + doc deliverables landed
 
 Resume file: —
 
-**Next:** **`/gsd-new-milestone`** — define the next version’s requirements and roadmap slice.
+**Next:** **`/gsd-new-milestone`** only when an event warrants a tranche; otherwise **`CHANGELOG.md`** + Hex for patch/minor work.
 
-**Archived requirements (v1.10):** `.planning/milestones/v1.10-REQUIREMENTS.md` (live **`.planning/REQUIREMENTS.md`** removed at close).
+**Archived requirements (v1.11):** `.planning/milestones/v1.11-REQUIREMENTS.md` (live **`.planning/REQUIREMENTS.md`** removed at close).
 
-**Completed milestone:** **v1.10** — Adopter confidence for solo production — **2026-04-23**
+**Completed milestone:** **v1.11** — Adoption stabilization — **2026-04-23**
 
 **Planned work:** _None until next milestone is opened._
