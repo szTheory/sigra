@@ -35,7 +35,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.10 (in progress):** Phase **69** shipped **2026-04-23** — intermediate production path + **`generator-options`** canonical index, ExDoc **Reference** group, `@moduledoc` organizations line, intro cross-links (**`069-VERIFICATION.md`**).
+**v1.10 (in progress):** Phase **70** shipped **2026-04-23** — **`upgrading-to-v1.10.md`** + ExDoc extras + **`ACF-06`** Out of Scope / Current Milestone links (**`070-VERIFICATION.md`**). Phase **69** shipped **2026-04-23** — intermediate production path + **`generator-options`** canonical index, ExDoc **Reference** group, `@moduledoc` organizations line, intro cross-links (**`069-VERIFICATION.md`**).
 
 **v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
 
@@ -350,4 +350,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — Phase **68** (`ACF-01`, **`ACF-04`**) shipped: deployment checklist hub + mail/install docs + cross-links. Prior: **`/gsd-new-milestone`** opened **v1.10** (phases **68–70**).*
+*Last updated: 2026-04-23 — Phase **70** (`ACF-05`, **`ACF-06`**) shipped: v1.10 upgrade stub + deferral attestation. Prior: phase **68** (`ACF-01`, **`ACF-04`**) deployment checklist hub + mail/install docs + cross-links; **`/gsd-new-milestone`** opened **v1.10** (phases **68–70**).*

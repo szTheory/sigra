@@ -28,6 +28,8 @@ completed: 2026-04-23
 - `MIX_ENV=dev mix compile --warnings-as-errors`
 - Plan acceptance `grep` commands from `070-01-PLAN.md` and `070-02-PLAN.md`
 
+Full `MIX_ENV=test mix test` was not re-run in the execution environment (no local `postgres` DB role); this phase touched documentation and `mix.exs` docs config only — run the suite with Postgres per **`CLAUDE.md`** before merge if desired.
+
 ## Human verification
 
 None required.
