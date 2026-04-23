@@ -16,6 +16,7 @@ defmodule Mix.Tasks.Sigra.Install do
   ## Options
 
     * `--live` / `--no-live` — Generate LiveView pages (default: true)
+    * `--organizations` / `--no-organizations` — Generate organizations scaffolding (default: true)
     * `--binary-id` / `--no-binary-id` — UUID vs bigint PKs (default: true)
     * `--table` — Override the table name
     * `--api` — Generate API token controller (implied by `--jwt`)
