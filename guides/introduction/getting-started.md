@@ -6,6 +6,8 @@ This guide takes you from a fresh Phoenix app with Sigra installed to a working 
 
 If you have not installed Sigra yet, read [Installation](installation.html) first.
 
+**Faster path:** [First hour with Sigra](first-hour.html) · [Troubleshooting install](troubleshooting-install.html) · [Upgrading notes — v1.7](upgrading-to-v1.7.html)
+
 ## Prerequisites
 
 - Phoenix 1.8+ app named `MyApp` (substitute your app name throughout)

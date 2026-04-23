@@ -258,3 +258,11 @@
 - [v1.6 Milestone Audit](milestones/v1.6-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.7 Adoption readiness & audit durability (Planning opened: 2026-04-23)
+
+**Scope (planned):** 3 phases (**60–62**) — adoption docs + companion OAuth provider narrative (**ADOPT***, **INTG-01**), one bounded **SEED-002** audit batch (**AUD-01**), C-1 narrative alignment (**AUD-02**).
+
+**Live artifacts:** [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md), [`.planning/ROADMAP.md`](ROADMAP.md) (active phase table). Companion integration is **documentation + host stubs** only until a future optional glue package is reconsidered (`.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
+
+---

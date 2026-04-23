@@ -10,9 +10,19 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current milestone
 
-**None — v1.6 shipped 2026-04-23.** Define the next milestone with `/gsd-new-milestone` (fresh `.planning/REQUIREMENTS.md`, phased roadmap, and scope).
+## Current Milestone: v1.7 Adoption readiness & audit durability
+
+**Goal:** Improve **first adoption** clarity (first-hour path, troubleshooting, honest upgrade notes) and continue **SEED-002** audit atomicity in **bounded** batches while documenting how hosts pair Sigra with a **separate** embedded OAuth/OIDC provider library when they need a developer API — **without** folding IdP concerns into Sigra core.
+
+**Target features:**
+
+- Curated **introduction docs** (first hour, troubleshooting, post–v1.6 upgrade stub) wired into ExDoc.
+- **Companion OAuth provider** recipe: architectural layering, subject/claims expectations, explicit non-coupling (no mandatory Hex dependency on companion libs).
+- **One** merge-gated **C-1 / SEED-002** subsystem batch toward atomic audited `Ecto.Multi` + **honest** Phase 9 narrative updates.
 
 ## Current State
+
+**v1.7 (active):** **Phases 60–62** — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md).
 
 **v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`, `v1.6-MILESTONE-AUDIT.md` (audit filed retroactively on 2026-04-23).
 
@@ -28,7 +38,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-Candidate themes for the **next** milestone include **SEED-002** remainder (broad `log_safe/3` → `Ecto.Multi`), **SEED-001** residuals if a loud public push needs fresh human matrix rows, product features promoted from **Backlog** in `.planning/ROADMAP.md`, or **999.x** hygiene — capture scope and requirements with **`/gsd-new-milestone`**.
+**v1.7** is open (adoption docs + **INTG** companion narrative + bounded **AUD**). Post–v1.7 candidates: further **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, backlog items from `.planning/ROADMAP.md`, or optional **`sigra_lockspire`**-class glue only after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -258,6 +268,7 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | Playwright over Cypress/WebdriverIO for browser smoke | Only runner with first-class frameLocator support for Swoosh dev-mailbox iframe; lowest-friction TypeScript setup. | ✓ Validated v1.0 (phase 10.1.1) — golden-path spec runs in ~90s on CI, zero flakes to date |
 | Organizations as first-class multi-tenancy | Logical tenants without schema-per-tenant; scope + membership + invitations. | ✓ Shipped v1.1 — org switcher, plugs, audit columns; superseded the old “defer to v2” note |
 | SAML / OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending (still out of scope) |
+| Optional `sigra_lockspire` glue package | Keeps Sigra core deps minimal; companion OAuth servers integrate via **host-generated** seams (`AccountResolver`); glue only after both APIs stable. | — Deferred — see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md` |
 | WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | ✓ Shipped v1.1 — passkeys + orgs foundations |
 | v1.2 admin is default-on installer feature with library-owned enforcement | Keeps security semantics in the dep while host owns policy module + shell chrome; matches hybrid architecture. | ✓ Validated v1.2 — plugs, `Sigra.Admin.*`, generator parity phases 32-33 |
 | Shift-left gates for installer + verification docs | Prevents INT-01..04 recurrence: emission audit, drift dead-text nav guard, milestone VERIFICATION.md gate, installer-scoped milestone audit CI, artifact bundle contract. | ✓ Validated v1.2 — Phase 35 |
@@ -297,4 +308,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`v1.6-MILESTONE-AUDIT.md`** added (retroactive **passed** verdict); **`/gsd-complete-milestone`** had archived `milestones/v1.6-*`, removed live **`REQUIREMENTS.md`**, and tagged **`v1.6`**.*
+*Last updated: 2026-04-23 — Opened **v1.7** planning (**REQUIREMENTS.md**, ROADMAP phases **60–62**, adoption + companion + bounded **SEED-002**). Prior: **`v1.6-MILESTONE-AUDIT.md`** (retro **passed**); **`v1.6`** tagged.*
