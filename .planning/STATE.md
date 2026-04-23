@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 ## Current Position
 
-Phase: Not started (execute **60** first)
+Phase: **60** — documentation slice **landed** (ADOPT-01..03, INTG-01); formal `/gsd-transition` pending maintainer verification
 
 Plan: n/a
 
-Status: Requirements and roadmap defined; Phase 60 docs largely landed in-repo
+Status: Phase **61–62** (AUD) not started
 
 Last activity: 2026-04-23
 
