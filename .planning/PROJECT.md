@@ -14,7 +14,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 **Target features:**
 - **Nyquist / verification uplift (41–44):** inventory intentional `nyquist_compliant: false` posture, align `MAINTAINING.md` / phase artifacts so maintainers see reopen triggers and canonical pointers — optional mechanical elevation only where it directly supports honesty (no cosmetic “green”).
-- **OAuth ceremony + audit smoke:** automated tests (minimal harness glue if needed) on OAuth ceremony paths with audit assertions where the codebase already promises them — closing the **AUD-03 / OAuth ceremony not claimed** class of gap without pretending full live-provider CI.
+- **OAuth ceremony + audit smoke:** **OA-01** merge-blocking assertions in **`Sigra.OAuthCeremonyAuditTest`** plus **OA-02** maintainer narrative in **`docs/uat-ci-coverage.md`**. Archived **v1.3 AUD-03 integration smoke** explicitly deferred OAuth ceremony audit assertions per **`milestones/v1.3-REQUIREMENTS.md`**; **v1.6** lands that machine proof without implying full live-provider CI.
 
 **SEED-002** (`log_safe/3` → `Ecto.Multi` breadth) is **out of this milestone** unless promoted explicitly later.
 
