@@ -20,7 +20,7 @@ Authentication that works out of the box with great DX on the happy path AND on 
 
 ## Current State
 
-**v1.6 (executing):** **Phases 57–58** complete **2026-04-22–23** — Nyquist **41–44** matrix (**NYQ-01**, **NYQ-02**) plus **`Sigra.OAuthCeremonyAuditTest`** and **`phase_58_oauth_oa01_ci_contract_test`** (**OA-01**, **D-58-11**). Next: **Phase 59** (UAT + GA narrative alignment, **OA-02**).
+**v1.6 (complete):** **Phases 57–59** shipped **2026-04-22–23** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers.
 
 **v1.5 (narrative + maintainer readiness):** Shipped **2026-04-22** — **`mix.exs`** Hex metadata (**PUB-01**), **`CHANGELOG.md`** milestone anchors (**PUB-02**), README / ExDoc GA entry paths (**DOC-01**, **DOC-02**), and maintainer **First public launch** checklist in **`MAINTAINING.md`** (**MAINT-01**). Archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`.
 
@@ -139,10 +139,11 @@ After **v1.6**, candidate themes include **SEED-002** remainder (broad `log_safe
 - ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
 - ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
 
-### Validated — v1.6 Nyquist closure + OAuth audit depth (partial)
+### Validated — v1.6 Nyquist closure + OAuth audit depth
 
 - ✓ **NYQ-01** / **NYQ-02** — Maintainer-facing **41–44** posture matrix under **`.planning/`** with **`MAINTAINING.md`** entry point + precedence rule; optional **D-11** contract test — **Phase 57** (2026-04-23)
 - ✓ **OA-01** — Postgres-backed **`Sigra.OAuthCeremonyAuditTest`** (registration + **`authorize_url`** audit rows) and **`phase_58_oauth_oa01_ci_contract_test`** CI honesty for **`library_tests`** — **Phase 58** (2026-04-22)
+- ✓ **OA-02** — **`docs/uat-ci-coverage.md`** machine vs human hub plus **GA-03** matrix / waiver / evidence **INDEX** / **`docs/ga-evidence.md`** alignment — **Phase 59** (2026-04-23)
 
 ### Validated — v1.4 GA readiness & audit trail completeness
 
@@ -301,4 +302,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-22 — **Phase 58** (OAuth ceremony + audit smoke, **OA-01**) complete; **v1.6** continues with **Phase 59** (**OA-02**).*
+*Last updated: 2026-04-23 — **Phase 59** (UAT + GA narrative alignment, **OA-02**) complete; **v1.6** requirements (**NYQ-01**, **NYQ-02**, **OA-01**, **OA-02**) satisfied.*

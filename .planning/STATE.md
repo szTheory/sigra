@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.6
 milestone_name: Nyquist closure + OAuth audit depth
-status: planning
+status: milestone_complete
 stopped_at: Phase 59 context gathered
-last_updated: "2026-04-23T01:42:29.860Z"
-last_activity: 2026-04-23
+last_updated: "2026-04-23T01:50:07.155Z"
+last_activity: 2026-04-23 -- Phase 59 execution started
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
   percent: 100
 ---
 
@@ -22,15 +22,15 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** **v1.6** — Nyquist honesty for phases **41–44** + OAuth ceremony tests with audit assertions.
+**Current focus:** Phase 59 — uat-ga-narrative-alignment
 
 ## Current Position
 
-Phase: 59
+Phase: 59 (complete — last phase of v1.6)
 
-Plan: Not started
+Plan: 2 of 2 complete
 
-Status: Ready to plan
+Status: Milestone complete
 
 Last activity: 2026-04-23
 
@@ -60,8 +60,8 @@ Stopped at: Phase 59 context gathered
 
 Resume file: --resume-file
 
-**Next phase:** **57** — Nyquist **41–44** posture matrix + per-phase disposition
+**Next phase:** Use **`/gsd-new-milestone`** to start the next milestone cycle (v1.6 phases **57–59** are complete).
 
 **Planned focus:** See `.planning/ROADMAP.md`
 
-**Planned Phase:** 57
+**Planned Phase:** 59 (UAT + GA narrative alignment) — 2 plans — 2026-04-23T01:48:38.284Z
