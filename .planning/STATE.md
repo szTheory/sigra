@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.7
 milestone_name: Adoption readiness & audit durability
-status: defining_requirements
-stopped_at: Milestone v1.7 opened from trajectory + Lockspire integration plan
-last_updated: "2026-04-23T18:00:00.000Z"
-last_activity: 2026-04-23 -- v1.7 REQUIREMENTS + ROADMAP phases 60-62 + adoption guides
+status: Phase **61–62** (AUD) not started
+stopped_at: Phase 61 context gathered
+last_updated: "2026-04-23T16:58:01.247Z"
+last_activity: 2026-04-23
 progress:
-  total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 54
+  completed_phases: 49
+  total_plans: 164
+  completed_plans: 169
+  percent: 100
 ---
 
 # Project State
@@ -56,11 +56,11 @@ _None._
 
 ## Session Continuity
 
-Last session: 2026-04-23
+Last session: --stopped-at
 
-Stopped at: Milestone planning artifacts written; `/gsd-discuss-phase 60` or `/gsd-plan-phase 60` next
+Stopped at: Phase 61 context gathered
 
-Resume file: None
+Resume file: --resume-file
 
 **Next phase:** **60** — Adoption docs & companion narrative (**ADOPT***, **INTG-01**)
 
