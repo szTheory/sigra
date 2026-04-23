@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Audit atomicity (bounded SEED-002)
-status: Roadmap defined — use **`/gsd-discuss-phase 67`** or **`/gsd-plan-phase 67`**
-stopped_at: Phase 67 context gathered (AUD-10)
-last_updated: "2026-04-23T19:45:32.782Z"
-last_activity: 2026-04-23 — Phase **66** complete (**AUD-09**); next **67** (**AUD-10**).
+status: Milestone v1.9 complete — phases **66–67** shipped (**AUD-09**, **AUD-10**).
+stopped_at: Phase 67 complete (AUD-10)
+last_updated: "2026-04-23T22:00:00.000Z"
+last_activity: 2026-04-23 — Phase **67** complete (**AUD-10**); **v1.9** roadmap closed.
 progress:
   total_phases: 57
-  completed_phases: 52
-  total_plans: 169
-  completed_plans: 174
+  completed_phases: 53
+  total_plans: 171
+  completed_plans: 175
   percent: 100
 ---
 
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX; defer untargeted polish unless tied to adoption or risk.
 
-**Current focus:** **Milestone v1.9** — bounded **SEED-002** / Phase **9** **C-1** audit atomicity (**AUD-09**, **AUD-10**); phases **66–67** on **`.planning/ROADMAP.md`**.
+**Current focus:** **Milestone v1.9** shipped **2026-04-23** — **AUD-09** (phase **66**) + **AUD-10** (phase **67** / **`09-03-SUMMARY.md`** + D-06 attestation). Next milestone not selected in this update.
 
 ## Current Position
 
-Phase: Not started (execution)
+Phase: **67** complete (**C-1 planning closure**)
 
-Plan: —
+Plan: **067-01** complete
 
-Status: Roadmap defined — use **`/gsd-discuss-phase 67`** or **`/gsd-plan-phase 67`**
+Status: **v1.9** requirements **AUD-09** / **AUD-10** satisfied; **`09-03-SUMMARY.md`** + **`REQUIREMENTS.md`** updated.
 
-Last activity: 2026-04-23 — Phase **66** complete (**AUD-09**); next **67** (**AUD-10**).
+Last activity: 2026-04-23 — **`/gsd-execute-phase 67`** (inline; GSD SDK phase path uses **`067-*`** slug).
 
 ## Performance Metrics
 
@@ -62,12 +62,12 @@ _None._
 
 Last session: --stopped-at
 
-Stopped at: Phase 67 context gathered (AUD-10)
+Stopped at: Phase 67 execution complete
 
 Resume file: --resume-file
 
-**Next:** **`/gsd-discuss-phase 67`** or **`/gsd-plan-phase 67`** (**AUD-10** / **`09-03-SUMMARY.md`**)
+**Next:** **`/gsd-new-milestone`** or **`/gsd-progress`** — pick the next engineering arc when ready.
 
-**Prior shipped:** **v1.8** phases **63–65**; **v1.9** phase **66** (**AUD-09**).
+**Prior shipped:** **v1.8** phases **63–65**; **v1.9** phases **66–67** (**AUD-09**, **AUD-10**).
 
-**Planned Phase:** 67 (C-1 planning closure) — **`09-03-SUMMARY.md`** + any residual **C-1** alignment.
+**Completed Phase:** **67** (C-1 planning closure) — plan **067-01** — **2026-04-23**

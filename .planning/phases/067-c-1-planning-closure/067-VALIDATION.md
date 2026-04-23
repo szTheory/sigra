@@ -37,10 +37,10 @@ created: 2026-04-23
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 67-01-01 | 01 | 1 | AUD-10 | T-67-01 | Summary matches matrix for **020..022** | grep | `rg -n 'Phase 66|AUD-04-021|AUD-10' .planning/phases/09-audit-logging/09-03-SUMMARY.md` | ✅ | ⬜ pending |
-| 67-01-02 | 01 | 1 | AUD-10 | T-67-02 | D-06 reconciliation recorded | manual+grep | `git diff --stat -- .planning/phases/09-audit-logging/09-VERIFICATION.md` | ✅ | ⬜ pending |
-| 67-01-03 | 01 | 1 | AUD-10 | T-67-03 | Relative links resolve | grep | `rg -nF '../43-audit' .planning/phases/09-audit-logging/09-03-SUMMARY.md` | ✅ | ⬜ pending |
-| 67-01-04 | 01 | 1 | AUD-10 | T-67-04 | REQ trace complete | grep | `rg 'AUD-10.*Complete' .planning/REQUIREMENTS.md` | ✅ | ⬜ pending |
+| 67-01-01 | 01 | 1 | AUD-10 | T-67-01 | Summary matches matrix for **020..022** | grep | `rg -n 'Phase 66|AUD-04-021|AUD-10' .planning/phases/09-audit-logging/09-03-SUMMARY.md` | ✅ | ✅ done |
+| 67-01-02 | 01 | 1 | AUD-10 | T-67-02 | D-06 reconciliation recorded | manual+grep | `git diff --stat -- .planning/phases/09-audit-logging/09-VERIFICATION.md` | ✅ | ✅ done |
+| 67-01-03 | 01 | 1 | AUD-10 | T-67-03 | Relative links resolve | grep | `rg -nF '../43-audit' .planning/phases/09-audit-logging/09-03-SUMMARY.md` | ✅ | ✅ done |
+| 67-01-04 | 01 | 1 | AUD-10 | T-67-04 | REQ trace complete | grep | `rg 'AUD-10.*Complete' .planning/REQUIREMENTS.md` | ✅ | ✅ done |
 
 ---
 
@@ -62,9 +62,9 @@ created: 2026-04-23
 
 ## Validation Sign-Off
 
-- [ ] All tasks have grep-verifiable acceptance criteria
-- [ ] **D-06** row list recorded in **`067-01-SUMMARY.md`**
-- [ ] **`09-03`** carries **C-1 verification note** (phase **67**) per **067-CONTEXT D-10**
-- [ ] `nyquist_compliant: true` set in frontmatter when executor signs off
+- [x] All tasks have grep-verifiable acceptance criteria
+- [x] **D-06** row list recorded in **`067-01-SUMMARY.md`**
+- [x] **`09-03`** carries **C-1 verification note** (phase **67**) per **067-CONTEXT D-10**
+- [x] Phase remains **`nyquist_compliant: false`** per **067-01-PLAN** (explicit waiver)
 
-**Approval:** pending
+**Approval:** **2026-04-23** — phase **67** execution complete

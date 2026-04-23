@@ -2,14 +2,17 @@
 
 ## Document status
 
-- **Last materially updated for:** v1.7 (milestone shipped **2026-04-23**).
-- **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02).
+- **Last materially updated for:** **v1.9** (planning text **2026-04-23** — phase **67** / **AUD-10**).
+- **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02) → Phase 66 (AUD-09) → Phase 67 (AUD-10).
 - **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
-- **Requirement:** [AUD-02](../../milestones/v1.7-REQUIREMENTS.md) (archived milestone requirements).
+- **Requirement:** [**AUD-10**](../../REQUIREMENTS.md) (live **`.planning/REQUIREMENTS.md`**).
+- **C-1 verification note (phase 67 / AUD-10):** No edit to 09-VERIFICATION.md rows AUD-04-020..022 after D-06 reconciliation (hybrid D-06 / AUD-02 class).
 
 ## Recent bounded batches
 
 Phase **61** shipped **AUD-01** for **`Sigra.MFA.verify_backup/4`** invalid-backup and wrong-code attempts. **`verify_backup/4`** wrong-code / invalid-backup attempts emit **`mfa.verify.failure`** via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (and **`mfa.lockout`** in the same transaction when the lockout threshold is reached), matching **`verify/4`** failure semantics. For mechanism, tier, and verdict, see the C-1 row for **`AUD-04-067`** in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
+
+Phase **66** shipped **AUD-09** for **`Sigra.MFA.confirm_enrollment/5`**, covering **`AUD-04-020`–`022`**; **`AUD-04-022`** stays on **`log_safe`** as **T2** under **`EX-44-02`** (invalid TOTP before DB writes). The primary story is **`AUD-04-021`**: **`Multi`** + **`log_multi_safe`** with a dedicated follow-up **`Repo.transaction/1`** when enrollment persistence fails after DB work—so failure audit does not disagree with rolled-back enrollment effects. For mechanism, tier, and verdict, see the C-1 row for **`AUD-04-021`** in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
 
 ## Inventory pointers
 

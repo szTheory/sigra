@@ -11,7 +11,7 @@ This milestone continues **SEED-002** in **bounded** batches (not a whole-librar
 
 - [x] **AUD-09**: At least **one** bounded subsystem batch from the Phase **9** **C-1** deferral set (canonical disposition in **`.planning/phases/09-audit-logging/09-VERIFICATION.md`**; row IDs trace to inventories under **`.planning/phases/43-*`**, **`44-*`**, **`45-*`**) moves from hybrid **`log_safe/3`** post-commit audit to **`Ecto.Multi`**-co-fated audit writes using **`Sigra.Audit.log_multi_safe/3`** (or an explicitly documented substitute approved in phase planning), with **audit-aware** regression tests merged under the **same** phase gate as the production change. **Phase 66** — shipped **2026-04-23** (`confirm_enrollment/5` **AUD-04-020..021**).
 
-- [ ] **AUD-10**: **`.planning/phases/09-audit-logging/09-03-SUMMARY.md`** reflects the **post-phase-66** batch (planning trace, “Recent bounded batches”, pointers). **`09-VERIFICATION.md`** is updated **only** when a **C-1** row’s mechanism, tier, or verdict materially changes; otherwise carry an explicit “no **`09-VERIFICATION.md`** edit required” rationale (same class as v1.7 **D-06** for **AUD-02**). **Phase 67.**
+- [x] **AUD-10**: **`.planning/phases/09-audit-logging/09-03-SUMMARY.md`** reflects the **post-phase-66** batch (planning trace, “Recent bounded batches”, pointers). **`09-VERIFICATION.md`** is updated **only** when a **C-1** row’s mechanism, tier, or verdict materially changes; otherwise carry an explicit “no **`09-VERIFICATION.md`** edit required” rationale (same class as v1.7 **D-06** for **AUD-02**). **Phase 67.**
 
 ---
 
@@ -36,13 +36,14 @@ This milestone continues **SEED-002** in **bounded** batches (not a whole-librar
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUD-09 | 66 | Complete (2026-04-23) |
-| AUD-10 | 67 | Pending |
+| AUD-10 | 67 | Complete (2026-04-23) |
 
 **Coverage**
 
 - v1.9 requirements: **2** total  
 - Mapped to phases: **2**  
 - Unmapped: **0**
+- **Complete:** 2 / 2 v1.9 requirements (**AUD-09**, **AUD-10**).
 
 ---
 

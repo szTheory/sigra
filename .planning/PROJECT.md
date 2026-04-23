@@ -18,20 +18,15 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-## Current Milestone: v1.9 Audit atomicity (bounded SEED-002)
+## Current Milestone: (none selected)
 
-**Goal:** Ship the next **inventory-driven** slice of Phase **9** **C-1** deferrals — hybrid **`log_safe/3`** post-commit audit → **`Ecto.Multi`** + **`log_multi_safe`** (or documented equivalent) with **merge-gated audit-aware tests**, plus honest planning updates so **D-01** narrative cannot drift.
+**Last closed:** **v1.9 Audit atomicity (bounded SEED-002)** — shipped **2026-04-23** (**phases 66–67**; **`AUD-09`** + **`AUD-10`**). Archives: live **`.planning/ROADMAP.md`** row + **`.planning/REQUIREMENTS.md`** at close.
 
-**Target features:**
-
-- **AUD-09** — At least **one** bounded subsystem batch from the **C-1** matrix (canonical rows in **`.planning/phases/09-audit-logging/09-VERIFICATION.md`**; inventories under phases **43–45**) moves to **T1** co-fated audit writes where rows still claim hybrid / deferred disposition, with tests merged under the same gate as production code.
-- **AUD-10** — **`.planning/phases/09-audit-logging/09-03-SUMMARY.md`** and applicable **C-1** / inventory rows reflect **post-phase-66** reality (same closure pattern as v1.7 **AUD-02**; **`09-VERIFICATION.md`** edits only when a row materially changes).
-
-**Reference:** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`**.
+**Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
 
-**v1.9 (in progress):** Phases **66–67** — **AUD-09** / **AUD-10** bounded **SEED-002** continuation (live **`.planning/REQUIREMENTS.md`**, **`.planning/ROADMAP.md`**).
+**v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..022** batch (**AUD-09**) plus **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). See **`.planning/REQUIREMENTS.md`** / **`.planning/ROADMAP.md`**.
 
 **v1.8 (shipped 2026-04-23):** Phases **63–65** — **ADOPT-04** / **ADOPT-05** / **INTG-02** doc polish (archives: [`.planning/milestones/v1.8-ROADMAP.md`](milestones/v1.8-ROADMAP.md), [`v1.8-REQUIREMENTS.md`](milestones/v1.8-REQUIREMENTS.md)).
 
@@ -51,9 +46,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**Active (v1.9):** Close the next bounded **SEED-002** / **C-1** batch (**AUD-09**) and planning truth (**AUD-10**); see **`.planning/REQUIREMENTS.md`**.
+**v1.9 shipped:** **AUD-09** / **AUD-10** closed **2026-04-23** — open the next arc with **`/gsd-new-milestone`** when priorities are set.
 
-**Later candidates:** further **SEED-002** batches after v1.9, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
+**Later candidates:** further **SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after companion seams stabilize (see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md`).
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -163,6 +158,11 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 - ✓ **ADOPT-04** — **`guides/introduction/upgrading-to-v1.8.md`**, **`mix.exs`** ExDoc extras ordering, **planning v1.8** vs **Hex SemVer** framing, pointers to **v1.7** upgrade context — **Phase 63**
 - ✓ **ADOPT-05** — Cross-links across **`getting-started`**, **`first-hour`**, **`troubleshooting-install`**, **`CHANGELOG`**, and both upgrade guides — **Phase 64**
 - ✓ **INTG-02** — **`companion-oauth-provider.md`** prerequisites, **B2C-only / no third-party clients** anti-pattern clarity, **See also** → **`upgrading-to-v1.8.html`** — **Phase 65**
+
+### Validated — v1.9 Audit atomicity (bounded SEED-002) (shipped 2026-04-23)
+
+- ✓ **AUD-09** — **`Sigra.MFA.confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **022** remains **T2** / **`EX-44-02`** — **Phase 66**
+- ✓ **AUD-10** — **`09-03-SUMMARY.md`** post–**phase-66** trace + bounded-batch narrative; **D-06** reconciliation **AUD-04-020..022** vs **44** inventory with explicit **no `09-VERIFICATION.md` edit`** attestation — **Phase 67**
 
 ### Validated — v1.7 Adoption readiness & audit durability (shipped 2026-04-23)
 
@@ -338,4 +338,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.9** (bounded **SEED-002**); live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** phases **66–67**. Prior: **North Star (milestones)**; **`/gsd-complete-milestone`** archived **v1.8**; tag **`v1.8`**.*
+*Last updated: 2026-04-23 — **`/gsd-execute-phase 67`** closed **v1.9** (**AUD-10** / **`09-03-SUMMARY.md`** + **`067-01-SUMMARY.md`**). Prior: **`/gsd-new-milestone`** opened **v1.9**; phases **66–67** on roadmap.*
