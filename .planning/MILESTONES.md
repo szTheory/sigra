@@ -489,3 +489,35 @@
 - [v1.14 Requirements](milestones/v1.14-REQUIREMENTS.md)
 
 ---
+
+## v1.15 Account + API C-1 planning truth (Shipped: 2026-04-24)
+
+**Scope:** 1 phase (**78**), library tests + planning truth (**AUD-14**..**AUD-14-05**).
+
+**What shipped:** **`44-AUD-04-INVENTORY.md`** rows **035–042** and **047** aligned to **`Multi` + `log_multi_safe`** in **`lib/sigra/account.ex`** and **`lib/sigra/api_token.ex`**; **`09-VERIFICATION.md`** C-1 **T1**/**T2** honesty for those rows; **`09-03-SUMMARY.md`** bounded-batch note for **phase 78** / **AUD-14**; **`CHANGELOG.md` [Unreleased]** trace bullet; **`test/sigra/account_audit_atomicity_test.exs`** **`change_password`** success + CHECK-guard rollback.
+
+### Key accomplishments
+
+1. **AUD-14-01 / AUD-14-02** — Inventory rows match code for **Account** paths and **`APIToken.revoke/2`**, preserving **EX-44-01** / **EX-44-05** hybrid rows.
+2. **AUD-14-03** — **09-VERIFICATION** Phase **44** table carries defensible **T1**/**T2** labels for **035–042**, **043**, **044–046**, **047**, **048–049**.
+3. **AUD-14-04 / AUD-14-05** — Summary + changelog trace; Postgres-backed atomicity tests for **`change_password`**.
+
+### Stats
+
+- **Requirements:** 5/5 **Validated** in archived [`milestones/v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** same day — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** failed (`version required for phases archive`); archival manual (same pattern as **v1.12**–**v1.14**).
+- **Git (since `v1.14` tag):** ~4 commits; **13** files (**282** insertions / **72** deletions in `git diff --shortstat v1.14..HEAD` at close).
+
+### Tech debt carried forward
+
+- **SEED-002** — remaining **`log_safe/3`** clusters per **44** / phase **45** inventory; backlog-triggered.
+- **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+**Archive:**
+
+- [v1.15 Roadmap](milestones/v1.15-ROADMAP.md)
+- [v1.15 Requirements](milestones/v1.15-REQUIREMENTS.md)
+
+---

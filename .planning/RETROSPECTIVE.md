@@ -1,6 +1,44 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.14 section added at milestone archive (2026-04-24).*
+*Living document updated at milestone boundaries. v1.15 section added at milestone archive (2026-04-24).*
+
+## Milestone: v1.15 — Account + API C-1 planning truth
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (78) | **Plans (on-disk):** 0 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-14-01 / AUD-14-02** — **44-AUD-04-INVENTORY** rows **035–042** and **047** aligned to **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; hybrid **044–046** and **043** deferrals preserved (**EX-44-01**, **EX-44-05**).
+- **AUD-14-03** — **09-VERIFICATION** C-1 table honesty for the same row IDs.
+- **AUD-14-04 / AUD-14-05** — **09-03-SUMMARY** bounded-batch note; **CHANGELOG [Unreleased]** trace; **`account_audit_atomicity_test.exs`** **`change_password`** success + CHECK-guard rollback.
+
+### What worked
+
+- **Verification-first single phase** — **`78-VERIFICATION.md`** gave a tight checklist against inventory + matrix + tests.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still failed (`version required for phases archive`); manual **`milestones/v1.15-*`** writes repeated the established pattern.
+- **No on-disk `78-SUMMARY.md`** — closure relied on **VERIFICATION** + requirements traceability (same shape as other micro-ships).
+
+### Patterns established
+
+- **Planning truth before the next SEED-002 batch** — when code already matched **Multi**, the milestone was mostly honest **C-1** labeling + test evidence.
+
+### Key lessons
+
+1. Keep **EX-44-01** / **EX-44-05** explicit whenever **Account**/**API** rows mix **`log_safe`** and **`log_multi_safe`**.
+2. **`change_password`** audit atomicity belongs in **`account_audit_atomicity_test.exs`** alongside **`set_password`** for symmetric confidence.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Small diff since **`v1.14`** tag; highest leverage was matrix + inventory alignment + one focused test file.
+
+---
 
 ## Milestone: v1.14 — Bounded audit trust closure
 
