@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.11
-milestone_name: Adoption stabilization
-status: milestone_complete
-stopped_at: v1.11 planning artifacts landed
-last_updated: "2026-04-23T12:00:00.000Z"
-last_activity: 2026-04-23 — **v1.11** phases **71–72** (STAB) closed in planning.
+milestone: v1.12
+milestone_name: Trust, evidence, and adoption polish
+status: defining_requirements
+stopped_at: milestone opened via /gsd-new-milestone
+last_updated: "2026-04-23T18:00:00.000Z"
+last_activity: 2026-04-23 — v1.12 planning landed (phases 73–75)
 progress:
-  total_phases: 2
-  completed_phases: 2
+  total_phases: 3
+  completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 100
+  percent: 0
 ---
 
 # Project State
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **Post–v1.11** — default **Hex-only** releases until **`/gsd-new-milestone`** is justified (**`MAINTAINING.md`** → *Milestone cadence and pause*).
+**Current focus:** **v1.12** — bounded **SEED-002** audit batch, **SEED-001** evidence index, triage-driven adoption/docs polish.
 
 ## Current Position
 
-Phase: **—** (no active GSD phase; **v1.11** shipped **2026-04-23**)
+Phase: **Not started** (next: **73** — bounded audit atomicity batch)
 
 Plan: **—**
 
-Status: **v1.11** adoption stabilization complete (**STAB-01**..**STAB-04**).
+Status: Defining requirements → roadmap ready; execute with **`/gsd-plan-phase 73`**.
 
-Last activity: 2026-04-23 — **v1.11** roadmap + requirements satisfied.
+Last activity: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.12**; **`.planning/phases/`** cleared via **`gsd-sdk query phases.clear --confirm`** (historical phase dirs archived/moved per SDK).
 
 ## Performance Metrics
 
@@ -42,9 +42,9 @@ _Velocity metrics populate during phase work._
 
 ## Accumulated Context
 
-**v1.11** closed **2026-04-23** — docs + planning only (**71–72**); triage **`.planning/v1.11-TRIAGE.md`**, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`**, intro cross-links.
+**v1.11** closed **2026-04-23** — adoption stabilization only (**71–72**).
 
-**`.planning/phases/`** retains historical directories; **`phases.clear`** is not used in this repo.
+**v1.12** bundles **SEED-002** (one more bounded **C-1** batch + **09-03** truth), **SEED-001** (evidence file + **`docs/uat-ci-coverage.md`** alignment), and **TRN** adoption polish (**`upgrading-to-v1.12.md`**, intro/maintainer pointers, triage follow-up).
 
 ### Pending Todos
 
@@ -58,14 +58,12 @@ _None._
 
 Last session: 2026-04-23
 
-Stopped at: **v1.11** planning + doc deliverables landed
+Stopped at: **v1.12** roadmap + requirements written
 
 Resume file: —
 
-**Next:** **`/gsd-new-milestone`** only when an event warrants a tranche; otherwise **`CHANGELOG.md`** + Hex for patch/minor work.
+**Next:** **`/gsd-discuss-phase 73`** or **`/gsd-plan-phase 73`**
 
-**Archived requirements (v1.11):** `.planning/milestones/v1.11-REQUIREMENTS.md` (live **`.planning/REQUIREMENTS.md`** removed at close).
+**Live requirements:** `.planning/REQUIREMENTS.md`
 
-**Completed milestone:** **v1.11** — Adoption stabilization — **2026-04-23**
-
-**Planned work:** _None until next milestone is opened._
+**Planned work:** Phases **73–75** on **`.planning/ROADMAP.md`**

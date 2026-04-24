@@ -20,7 +20,16 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**Next version:** Not opened until **`/gsd-new-milestone`** recreates **`.planning/REQUIREMENTS.md`** and an active phase table in **`.planning/ROADMAP.md`**. After **v1.11**, prefer **Hex-only** releases until an event warrants a new tranche (**`MAINTAINING.md`** → *Milestone cadence and pause*).
+**v1.12 — Trust, evidence, and adoption polish** (phases **73–75**)
+
+**Goal:** Ship one coherent **trust** tranche: another **bounded SEED-002** audit-atomicity batch with honest planning updates, a **SEED-001**-aligned **evidence index** so machine vs human UAT is legible before a loud launch, and **small triage-driven** adoption/docs polish (upgrade stub, intro/maintainer pointers).
+
+**Target features:**
+- **Bounded audit work** — One **C-1** deferral batch → **`Ecto.Multi`** + **`log_multi_safe`** + audit-aware tests; **09-03-SUMMARY** (+ **09-VERIFICATION** rationale per **D-06** class).
+- **Launch evidence** — **`.planning/v1.12-UAT-EVIDENCE.md`** for eight SEED-001 rows; **`docs/uat-ci-coverage.md`** aligned with that story.
+- **Adoption polish** — **`upgrading-to-v1.12.md`** + ExDoc extras; getting-started / **MAINTAINING** or **CHANGELOG** surfacing; at least one **v1.11-TRIAGE** (or issue-linked) doc outcome or explicit “no triage deltas”.
+
+**Selected seeds (this milestone):** **SEED-002** (bounded batch + planning truth) and **SEED-001** (evidence packaging; residual human rows documented, not implied).
 
 **Last closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
@@ -33,6 +42,8 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
+
+**v1.12 (in planning):** Phases **73–75** — trust / evidence / adoption polish; see **`.planning/REQUIREMENTS.md`** and **`.planning/ROADMAP.md`**.
 
 **v1.11 (shipped 2026-04-23):** Phases **71–72** — **`STAB-01`**..**`STAB-04`** adoption stabilization (triage log, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`** + ExDoc, intro cross-links). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
 
@@ -58,11 +69,11 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**Default posture (post–v1.11):** **Pause `/gsd-new-milestone` cycles** unless an **event** warrants a scoped tranche — use **Hex-only** releases (`CHANGELOG.md` + tag) when work is patch-sized. Criteria and resume triggers: **`MAINTAINING.md`** → *Milestone cadence and pause*.
+**v1.12 (active):** See **Current milestone** above — **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** phases **73–75**.
 
-**Re-evaluate North Star** before opening **v1.12+**: confirm no **P0/P1** adoption or security gaps (issues + dogfood + README vs guides).
+**Default posture (post–v1.12):** Return to **Hex-only** releases when work is patch-sized unless an **event** warrants another tranche — **`MAINTAINING.md`** → *Milestone cadence and pause*.
 
-**Later candidates:** further **bounded SEED-002** batches, **SEED-001** if a loud public push needs fresh human matrix rows, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after Lockspire and `AccountResolver` seams meet ADR **001** revisit triggers.
+**Later candidates:** further **bounded SEED-002** batches (beyond **v1.12**), fresh **SEED-001** human matrix runs when scheduling a **loud** launch, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after Lockspire and `AccountResolver` seams meet ADR **001** revisit triggers.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -91,6 +102,16 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Active — v1.12 Trust, evidence, and adoption polish
+
+- [ ] **AUD-11** — Bounded **SEED-002** **`Multi`** + **`log_multi_safe`** batch + audit-aware tests — **Phase 73**
+- [ ] **AUD-12** — **09-03-SUMMARY** (+ **09-VERIFICATION** rationale) — **Phase 74**
+- [ ] **UAT-01** — **`.planning/v1.12-UAT-EVIDENCE.md`** (eight SEED-001 rows) — **Phase 74**
+- [ ] **UAT-02** — **`docs/uat-ci-coverage.md`** aligned with **v1.12** evidence — **Phase 74**
+- [ ] **TRN-01** — **`upgrading-to-v1.12.md`** + **`mix.exs`** ExDoc extras — **Phase 75**
+- [ ] **TRN-02** — Intro + **MAINTAINING** or **CHANGELOG** pointers — **Phase 75**
+- [ ] **TRN-03** — Triage/issue-derived polish or explicit “no triage deltas” — **Phase 75**
 
 ### Validated — v1.11 Adoption stabilization (shipped 2026-04-23)
 
@@ -371,4 +392,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **v1.11** adoption stabilization shipped (**71–72**); live **`.planning/REQUIREMENTS.md`** removed; archives under **`.planning/milestones/v1.11-*`**.*
+*Last updated: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.12** (**73–75**); live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** active phases restored.*
