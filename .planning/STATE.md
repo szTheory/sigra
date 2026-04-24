@@ -2,7 +2,7 @@
 gsd_state_version: 1.0
 milestone: v1.14
 milestone_name: Bounded audit trust closure
-status: phase_complete
+status: milestone_archived
 stopped_at: null
 last_updated: "2026-04-24T12:00:00.000Z"
 last_activity: 2026-04-24 — Phase 77 / AUD-13 MFA ad-hoc audit Multi closure
@@ -18,13 +18,13 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-24 — v1.14 Phase 77)
+See: `.planning/PROJECT.md` (updated 2026-04-24 — post–v1.14 archive)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.14** closed in-repo — **`/gsd-complete-milestone`** when ready to archive + optional Hex tag.
+**Current focus:** **v1.14** archived — **`/gsd-new-milestone`** when a trust-signal opens **v1.15+**; else **CHANGELOG + Hex** patch cadence per **`MAINTAINING.md`**.
 
 ## Current Position
 
@@ -56,7 +56,7 @@ _None._
 
 ## Session Continuity
 
-**Next:** **`/gsd-complete-milestone`** when maintainers want **`milestones/v1.14-*.md`** archives + cleared live requirements; else **CHANGELOG + Hex** patch cadence per **`MAINTAINING.md`**.
+**Next:** **`/gsd-new-milestone`** for coordinated **v1.15+** work, or routine **CHANGELOG + Hex** patches without a new planning milestone.
 
 **Live requirements:** `.planning/REQUIREMENTS.md` (**v1.14**)
 

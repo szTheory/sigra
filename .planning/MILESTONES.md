@@ -473,14 +473,19 @@
 
 ### Stats
 
-- **Requirements:** 4/4 **Validated** in live [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) (archive at **`/gsd-complete-milestone`**).
-- **Timeline:** **2026-04-24**.
+- **Requirements:** 4/4 **Validated** in archived [`milestones/v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** same day — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** failed (`version required for phases archive`); archival manual (same pattern as **v1.12**–**v1.13**).
 
 ### Tech debt carried forward
 
 - **SEED-002** — **Account** / **API token** / OAuth rows in **`44-AUD-04-INVENTORY.md`** and phase **45** inventory remain backlog-triggered.
 - **AUD-04-022** — **`log_safe`** invalid enrollment code path unchanged (**EX-44-02**).
 
-**Archive:** _Pending **`/gsd-complete-milestone`**_ — will add **`milestones/v1.14-ROADMAP.md`** + **`milestones/v1.14-REQUIREMENTS.md`**.
+**Archive:**
+
+- [v1.14 Roadmap](milestones/v1.14-ROADMAP.md)
+- [v1.14 Requirements](milestones/v1.14-REQUIREMENTS.md)
 
 ---

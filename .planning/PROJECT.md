@@ -20,19 +20,13 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**v1.14 — Bounded audit trust closure (SEED-002 slice)** (**Phase 77**, **AUD-13**..**AUD-13-04**).
+_No coordinated GSD milestone open._ Use **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* triggers fire; otherwise ship small fixes via **CHANGELOG + Hex** without a new planning milestone.
 
-**Goal:** Close the last **MFA** **`log_safe`** ad-hoc audit helpers (**AUD-04-033** / **034**) with **`Multi` + `log_multi_safe`** + **`Repo.transaction/1`**, machine tests, and honest C-1 / inventory / summary alignment — a tangible **operator-trust** increment without opening **SEED-001** or broad **Account**/**API** batches.
+**Last closed:** **v1.14 — Bounded audit trust closure (SEED-002 slice)** (**Phase 77**, **AUD-13**..**AUD-13-04**, **2026-04-24**). **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** use **`commit_ad_hoc_mfa_audit/5`**; **`mfa_audit_atomicity_test.exs`**; planning truth on **09** / **44** / **CHANGELOG**. Archives: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md), [`.planning/milestones/v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md). Verification: **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
 
-**Delivered (Phase 77):**
+**Previously closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
-- **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** use **`commit_ad_hoc_mfa_audit/5`** (transactional audit insert; failure telemetry parity with former **`log_safe/3`**).
-- **Postgres audit atomicity tests** for success, no-audit-schema no-op, and CHECK-guard rollback.
-- **Planning truth:** **`09-VERIFICATION.md`**, **`09-03-SUMMARY.md`**, **`44-AUD-04-INVENTORY.md`**, **`CHANGELOG` [Unreleased]**, **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
-
-**Last closed (previous):** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
-
-**Last shipped code milestone:** **v1.12 — Trust, evidence, and adoption polish** (**phases 73–75**, **2026-04-24**). Archives: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
+**Last shipped code milestone:** **v1.14 — Bounded audit trust closure** (**Phase 77**, **2026-04-24**; **`AUD-13`**). Archives: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md), [`v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md). _(Prior multi-phase doc ship: **v1.12** — phases **73–75**.)_
 
 **Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
@@ -46,7 +40,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.14 (shipped 2026-04-24):** Phase **77** — **AUD-13**..**AUD-13-04** MFA ad-hoc audit **`Multi`** closure. Live **`REQUIREMENTS.md`** + **`ROADMAP.md`**; verification **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
+**v1.14 (archived 2026-04-24):** Phase **77** — **AUD-13**..**AUD-13-04** MFA ad-hoc audit **`Multi`** closure. Archives: **`milestones/v1.14-ROADMAP.md`**, **`milestones/v1.14-REQUIREMENTS.md`**; verification **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**. Live **`.planning/REQUIREMENTS.md`** removed at milestone close — recreate via **`/gsd-new-milestone`**.
 
 **v1.13 (planning shipped 2026-04-24):** Phase **76** — **CAD-01**..**CAD-03** cadence lock-in. Archives: **`milestones/v1.13-ROADMAP.md`**, **`milestones/v1.13-REQUIREMENTS.md`**; verification **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
@@ -75,8 +69,6 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 **Verification:** v1.4 requirements **10/10** satisfied in archive (Complete or Waived with documented substitutes); v1.3 milestone audit **passed** at close (2026-04-19); v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
 ## Next milestone goals
-
-**v1.14:** Shipped **2026-04-24** — **Phase 77** (**AUD-13**); live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** until **`/gsd-complete-milestone`** archives them.
 
 **When to open v1.15+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
 
@@ -397,6 +389,7 @@ This document evolves at phase transitions and milestone boundaries.
 <details>
 <summary>Archived milestone “Last updated” footers (v1.0–v1.13 execution log)</summary>
 
+- **2026-04-24** — **`/gsd-complete-milestone` v1.14**: archived **`v1.14-REQUIREMENTS.md`**, **`v1.14-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.14`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.13** (planning-only): archived **`v1.13-REQUIREMENTS.md`**, **`v1.13-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; no Hex tag (no library version bump).
 - **2026-04-24** — **`/gsd-complete-milestone` v1.12**: archived **`v1.12-REQUIREMENTS.md`**, **`v1.12-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.12`**.
 - **2026-04-23** — **v1.11** phases **71–72** complete; archived **`v1.11-REQUIREMENTS.md`** + **`v1.11-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed.
@@ -416,4 +409,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-new-milestone` v1.14**: **Phase 77** / **AUD-13** bounded **SEED-002** MFA ad-hoc audit closure; live **`REQUIREMENTS.md`** + roadmap row.*
+*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.14**: archived **`v1.14-ROADMAP.md`** + **`v1.14-REQUIREMENTS.md`**; live **`REQUIREMENTS.md`** removed; git tag **`v1.14`**; **`77-01-SUMMARY.md`** added.*

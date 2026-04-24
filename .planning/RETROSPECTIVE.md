@@ -1,6 +1,44 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.12 section added at milestone archive (2026-04-24).*
+*Living document updated at milestone boundaries. v1.14 section added at milestone archive (2026-04-24).*
+
+## Milestone: v1.14 — Bounded audit trust closure
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (77) | **Plans (on-disk):** 1 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-13-01 / AUD-13-02** — **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** routed through **`commit_ad_hoc_mfa_audit/5`** (**`Repo.transaction/1`** + **`Ecto.Multi`** + **`log_multi_safe`**).
+- **AUD-13-03** — **`mfa_audit_atomicity_test.exs`** success, audit-disabled no-op, and CHECK-guard rollback coverage on Postgres.
+- **AUD-13-04** — **09-VERIFICATION** / **09-03-SUMMARY** / **44-AUD-04-INVENTORY** / **CHANGELOG [Unreleased]** aligned to **T1** for **033**/**034** with **phase 77** pointer.
+
+### What worked
+
+- **Single-phase bounded batch** — closed a discrete **C-1** pair without scope bleed into **Account**/**API** or **SEED-001**.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still failed (`version required for phases archive`); manual **`milestones/v1.14-*`** writes repeated the established pattern.
+- **No `v1.14-MILESTONE-AUDIT.md`** — optional; honesty gate was **77-VERIFICATION.md** + requirements traceability.
+
+### Patterns established
+
+- **Shared `commit_ad_hoc_mfa_audit/5`** — one helper for ad-hoc MFA audit inserts preserves telemetry parity with legacy **`log_safe/3`** swallowing.
+
+### Key lessons
+
+1. Add an on-disk **`*-SUMMARY.md`** for single-phase ships so milestone close and **MILESTONES** extraction stay uniform (**77-01-SUMMARY** added at archive).
+2. Keep **AUD-04-022** explicitly out of hybrid **Multi** batches when there is no durable business row to co-fate (**EX-44-02**).
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Tight **SEED-002** slice; highest leverage was Postgres rollback tests + inventory row honesty.
+
+---
 
 ## Milestone: v1.12 — Trust, evidence, and adoption polish
 
@@ -361,6 +399,7 @@
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |
 | v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
 | v1.5 | n/a | 4 | Public narrative + Hex/changelog/README/MAINTAINING alignment with v1.4 GA evidence |
 | v1.4 | n/a | 12 | GA matrix honesty + audit Multi batches + merge-gated verification + install-golden CI coupling |
