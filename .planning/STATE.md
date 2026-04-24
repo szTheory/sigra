@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.19
 milestone_name: — in progress
-status: phase_82_complete_next_83
-last_updated: "2026-04-24T17:30:00.000Z"
-last_activity: /gsd-execute-phase 82 — AUD-19 library + tests + planning truth
+status: verifying
+last_updated: "2026-04-24T17:47:52.414Z"
+last_activity: **`/gsd-execute-phase 82`** — co-fate **`Sigra.JWT.refresh/3`**, **`jwt_refresh_audit_cofate_test.exs`**, planning truth (**44** / **45** / **09** / **`CHANGELOG`**).
 progress:
-  total_phases: 70
-  completed_phases: 63
+  total_phases: 71
+  completed_phases: 62
   total_plans: 190
   completed_plans: 196
-  percent: 90
+  percent: 100
 ---
 
 # Project State
@@ -58,7 +58,7 @@ _None._
 
 **Next:** **`/gsd-plan-phase 83`** — MFA **`AUD-04-022`** (or **`/gsd-discuss-phase 83`**)
 
-**Resume file:** `.planning/phases/83-*/` (once planned) or **`.planning/ROADMAP.md`**
+**Resume file:** --resume-file
 
 **Artifacts:** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`**
 
