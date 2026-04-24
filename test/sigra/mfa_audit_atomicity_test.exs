@@ -260,6 +260,321 @@ defmodule Sigra.MFAAuditAtomicityTest do
     assert count_where(repo, "audit_events", "action = 'mfa.verify.success'") == 1
   end
 
+  test "verify TOTP success rolls back credential updates when mfa.verify.success audit is blocked",
+       %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+
+    {:ok, cred} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    code = NimbleTOTP.verification_code(raw, time: System.system_time(:second))
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_verify_success_audit_guard CHECK (action <> 'mfa.verify.success')
+      """,
+      []
+    )
+
+    try do
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.verify(config, user, code, mfa_credential_schema: MfaCredential)
+      end
+
+      assert count_where(repo, "audit_events", "action = 'mfa.verify.success'") == 0
+      {:ok, id_bin} = Ecto.UUID.dump(cred.id)
+
+      %{rows: [[step]]} =
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "SELECT last_verified_step FROM user_mfa_credentials WHERE id = $1",
+          [id_bin]
+        )
+
+      assert step == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_verify_success_audit_guard",
+        []
+      )
+    end
+  end
+
+  test "verify wrong TOTP rolls back lockout increment when mfa.verify.failure audit is blocked",
+       %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+
+    {:ok, cred} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_totp_verify_failure_guard CHECK (action <> 'mfa.verify.failure')
+      """,
+      []
+    )
+
+    try do
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.verify(config, user, "000000", mfa_credential_schema: MfaCredential)
+      end
+
+      {:ok, id_bin} = Ecto.UUID.dump(cred.id)
+
+      %{rows: [[attempts]]} =
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "SELECT failed_attempts FROM user_mfa_credentials WHERE id = $1",
+          [id_bin]
+        )
+
+      assert attempts == 0
+      assert count_where(repo, "audit_events", "action = 'mfa.verify.failure'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_totp_verify_failure_guard",
+        []
+      )
+    end
+  end
+
+  test "verify wrong TOTP at threshold 1 rolls back when mfa.lockout audit is blocked",
+       %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+
+    config =
+      Config.new!(
+        Keyword.merge(
+          [
+            repo: repo,
+            user_schema: UserStub,
+            otp_app: :sigra,
+            mfa: [
+              totp_drift_steps: 1,
+              backup_code_count: 2,
+              lockout_threshold: 1,
+              lockout_duration: 900
+            ]
+          ],
+          audit: [audit_schema: AuditTestEvent]
+        )
+      )
+
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+
+    {:ok, cred} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_totp_lockout_guard CHECK (action <> 'mfa.lockout')
+      """,
+      []
+    )
+
+    try do
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.verify(config, user, "000000", mfa_credential_schema: MfaCredential)
+      end
+
+      {:ok, id_bin} = Ecto.UUID.dump(cred.id)
+
+      %{rows: [[attempts]]} =
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "SELECT failed_attempts FROM user_mfa_credentials WHERE id = $1",
+          [id_bin]
+        )
+
+      assert attempts == 0
+      assert count_where(repo, "audit_events", "action = 'mfa.verify.failure'") == 0
+      assert count_where(repo, "audit_events", "action = 'mfa.lockout'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_totp_lockout_guard",
+        []
+      )
+    end
+  end
+
+  test "regenerate backup codes success rolls back when mfa.backup_codes_regenerate audit is blocked",
+       %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+    good = NimbleTOTP.verification_code(raw, time: System.system_time(:second))
+    codes = Sigra.MFA.BackupCodes.generate(2)
+
+    {:ok, _} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    for {_plain, hashed} <- codes do
+      {:ok, _} =
+        repo.insert(%BackupCode{
+          id: Ecto.UUID.generate(),
+          user_id: user.id,
+          hashed_code: hashed,
+          used_at: nil,
+          inserted_at: now
+        })
+    end
+
+    backup_count_before = count(repo, "user_mfa_backup_codes")
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_regen_success_guard CHECK (action <> 'mfa.backup_codes_regenerate')
+      """,
+      []
+    )
+
+    try do
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.regenerate_backup_codes(config, user, {:totp, good},
+          mfa_credential_schema: MfaCredential,
+          backup_code_schema: BackupCode
+        )
+      end
+
+      assert count(repo, "user_mfa_backup_codes") == backup_count_before
+      assert count_where(repo, "audit_events", "action = 'mfa.backup_codes_regenerate'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_regen_success_guard",
+        []
+      )
+    end
+  end
+
+  test "regenerate backup codes wrong TOTP rolls back when mfa.verify.failure audit is blocked",
+       %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    raw = NimbleTOTP.secret()
+    now = DateTime.utc_now()
+    codes = Sigra.MFA.BackupCodes.generate(2)
+
+    {:ok, cred} =
+      repo.insert(
+        MfaCredential.changeset(%MfaCredential{}, %{
+          user_id: user.id,
+          type: "totp",
+          encrypted_secret: raw,
+          last_verified_step: 0,
+          failed_attempts: 0,
+          locked_until: nil,
+          enabled_at: now
+        })
+      )
+
+    for {_plain, hashed} <- codes do
+      {:ok, _} =
+        repo.insert(%BackupCode{
+          id: Ecto.UUID.generate(),
+          user_id: user.id,
+          hashed_code: hashed,
+          used_at: nil,
+          inserted_at: now
+        })
+    end
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_regen_verify_failure_guard CHECK (action <> 'mfa.verify.failure')
+      """,
+      []
+    )
+
+    try do
+      assert_raise Ecto.ConstraintError, fn ->
+        MFA.regenerate_backup_codes(config, user, {:totp, "000000"},
+          mfa_credential_schema: MfaCredential,
+          backup_code_schema: BackupCode
+        )
+      end
+
+      {:ok, id_bin} = Ecto.UUID.dump(cred.id)
+
+      %{rows: [[attempts]]} =
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "SELECT failed_attempts FROM user_mfa_credentials WHERE id = $1",
+          [id_bin]
+        )
+
+      assert attempts == 0
+      assert count_where(repo, "audit_events", "action = 'mfa.verify.failure'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_regen_verify_failure_guard",
+        []
+      )
+    end
+  end
+
   test "verify_backup success writes two audit rows ordered by id", %{repo: repo} do
     user = %{id: Ecto.UUID.generate()}
     config = cfg(repo)
