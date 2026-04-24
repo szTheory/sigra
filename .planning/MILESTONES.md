@@ -443,17 +443,24 @@
 
 ---
 
-## v1.13 Post–v1.12 operational cadence (Planning shipped: 2026-04-24)
+## v1.13 Post–v1.12 operational cadence (Shipped: 2026-04-24)
 
 **Scope:** 1 phase (**76**), planning artifacts only (no library code tranche).
 
-**What shipped:** **CAD-01**..**CAD-03** — **`.planning/PROJECT.md`**, **`.planning/STATE.md`**, **`.planning/ROADMAP.md`**, **`.planning/REQUIREMENTS.md`**, and **`.planning/phases/76-post-v1-12-cadence-lock-in/*`** record the **default Hex patch cadence** and **trust-signal event** lanes for resuming full **`/gsd-new-milestone`** (**SEED-001**, **SEED-002**, adoption gap, **ADR 001**), per post–v1.12 production-confidence prioritization.
+**What shipped:** **CAD-01**..**CAD-03** — **`.planning/PROJECT.md`**, **`.planning/STATE.md`**, **`.planning/ROADMAP.md`**, live **`.planning/REQUIREMENTS.md`** (now archived), and **`.planning/phases/76-post-v1-12-cadence-lock-in/*`** record the **default Hex patch cadence** and **trust-signal event** lanes for resuming full **`/gsd-new-milestone`** (**SEED-001**, **SEED-002**, adoption gap, **ADR 001**), per post–v1.12 production-confidence prioritization.
 
 ### Stats
 
-- **Requirements:** 3/3 in live [REQUIREMENTS.md](REQUIREMENTS.md) (superseded when **v1.14+** opens).
-- **Timeline:** single session **2026-04-24**.
+- **Requirements:** 3/3 **Validated** in archived [`milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md).
+- **Timeline:** single session **2026-04-24**; **`/gsd-complete-milestone`** same day — live **`REQUIREMENTS.md`** removed.
 
-**Archive:** _none yet_ — live **REQUIREMENTS.md** carries **v1.13** until **`/gsd-complete-milestone`** archives it to **`milestones/v1.13-REQUIREMENTS.md`**.
+### Tech debt carried forward
+
+- Unchanged — **SEED-002** / **SEED-001** / **ADR 001** deferral posture (see **`MAINTAINING.md`** *Resume `/gsd-new-milestone`*).
+
+**Archive:**
+
+- [v1.13 Roadmap](milestones/v1.13-ROADMAP.md)
+- [v1.13 Requirements](milestones/v1.13-REQUIREMENTS.md)
 
 ---

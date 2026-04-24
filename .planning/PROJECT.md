@@ -20,9 +20,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**Between coordinated code milestones — default Hex patch cadence** (**2026-04-24**). Ship **patch/minor** via **`CHANGELOG.md` + tag + Hex** unless a **trust-signal event** warrants **`/gsd-new-milestone`** ([`MAINTAINING.md`](MAINTAINING.md) → *Milestone cadence and pause*).
+**None — awaiting `/gsd-new-milestone`.** Default posture until then: **Hex patch/minor** from **`CHANGELOG.md` + tag + Hex** unless a **trust-signal event** warrants a coordinated tranche ([`MAINTAINING.md`](MAINTAINING.md) → *Milestone cadence and pause*).
 
-**Last closed (planning-only):** **v1.13 — Post–v1.12 operational cadence** — **Phase 76** (**CAD-01**..**CAD-03**): locks default ops lane vs **SEED-001** (loud launch), **SEED-002** (compliance / audit-row evidence), **documented adoption gap**, or **ADR 001** / **`sigra_lockspire`**.
+**Last closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
 **Last shipped code milestone:** **v1.12 — Trust, evidence, and adoption polish** (**phases 73–75**, **2026-04-24**). Archives: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
 
@@ -37,6 +37,8 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
+
+**v1.13 (planning shipped 2026-04-24):** Phase **76** — **CAD-01**..**CAD-03** cadence lock-in. Archives: **`milestones/v1.13-ROADMAP.md`**, **`milestones/v1.13-REQUIREMENTS.md`**; verification **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
 **v1.12 (shipped 2026-04-24):** Phases **73–75** complete — bounded **SEED-002** batch + **09-03** truth (**73**), launch evidence + **`docs/uat-ci-coverage.md`** alignment (**74**), and upgrade continuity + triage reconciliation (**75**). Planning archives: **`milestones/v1.12-ROADMAP.md`**, **`milestones/v1.12-REQUIREMENTS.md`**; verification **`.planning/phases/75-upgrade-continuity-triage-polish/75-VERIFICATION.md`**.
 
@@ -64,7 +66,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.13 (closed 2026-04-24):** Operational cadence lock-in — **Phase 76**, **CAD-01**..**CAD-03** (see **`.planning/REQUIREMENTS.md`**).
+**v1.13:** Milestone archived **2026-04-24** (`/gsd-complete-milestone`); live **`.planning/REQUIREMENTS.md`** removed — recreate via **`/gsd-new-milestone`**.
 
 **When to open v1.14+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + **SEED-002**, documented adoption gap, **ADR 001** glue).
 
@@ -102,9 +104,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ### Validated — v1.13 Post–v1.12 operational cadence (planning shipped 2026-04-24)
 
-- ✓ **CAD-01** — **`.planning/PROJECT.md`** current milestone states **v1.13**, default ops lane, and event lanes (**SEED-001**, **SEED-002**, adoption gap, **ADR 001**) — **Phase 76**
-- ✓ **CAD-02** — **`.planning/STATE.md`** reflects **v1.13** / Phase **76** and default cadence — **Phase 76**
-- ✓ **CAD-03** — **`.planning/ROADMAP.md`** lists **v1.13** + Phase **76**; **`.planning/REQUIREMENTS.md`** + traceability — **Phase 76**
+- ✓ **CAD-01** — **`.planning/PROJECT.md`** + archive **[`milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md)** — default ops lane and event lanes — **Phase 76**
+- ✓ **CAD-02** — **`.planning/STATE.md`** (at close) reflected **v1.13** / Phase **76** — **Phase 76**
+- ✓ **CAD-03** — **`.planning/ROADMAP.md`** + **[`milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md)** traceability — **Phase 76**
 
 ### Validated — v1.12 Trust, evidence, and adoption polish (shipped 2026-04-24)
 
@@ -376,8 +378,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.12 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.13 execution log)</summary>
 
+- **2026-04-24** — **`/gsd-complete-milestone` v1.13** (planning-only): archived **`v1.13-REQUIREMENTS.md`**, **`v1.13-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; no Hex tag (no library version bump).
 - **2026-04-24** — **`/gsd-complete-milestone` v1.12**: archived **`v1.12-REQUIREMENTS.md`**, **`v1.12-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.12`**.
 - **2026-04-23** — **v1.11** phases **71–72** complete; archived **`v1.11-REQUIREMENTS.md`** + **`v1.11-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.10** phases **68–70** complete; `/gsd-complete-milestone` archived planning + tag **`v1.10`**; live **`REQUIREMENTS.md`** removed.
@@ -396,4 +399,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **v1.13** operational cadence (**Phase 76**): **`REQUIREMENTS.md`** + **`ROADMAP.md`** + **`STATE.md`** locked to default Hex patch cadence; full milestone cycles resume on **trust-signal events** per **`MAINTAINING.md`**.*
+*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.13**: planning archives **`milestones/v1.13-*.md`**; live **`REQUIREMENTS.md`** cleared; **`/gsd-new-milestone`** recreates requirements for **v1.14+**.*
