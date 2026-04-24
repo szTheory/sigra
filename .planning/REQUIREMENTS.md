@@ -14,9 +14,9 @@
 
 ### MFA — AUD-04-022 / EX-44-02
 
-- [ ] **AUD-20-01** — **`Sigra.MFA.confirm_enrollment/5`** invalid-TOTP (**pre-persistence**) path upgraded from standalone **`log_safe/3`** to **`Repo.transaction/1` + `Multi` + `log_multi_safe`** **or** explicit milestone waiver with updated **EX-44-02** rationale (must be captured in **83** discuss/plan if waived).
-- [ ] **AUD-20-02** — **`test/sigra/mfa_audit_atomicity_test.exs`** covers the **022** mechanism + rollback / audit-off parity with prior MFA atomicity phases.
-- [ ] **AUD-20-03** — **44** inventory row **022**, **09-VERIFICATION** C-1 **022**, **09-03-SUMMARY**, **`CHANGELOG` [Unreleased]**; **`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`** merge gate.
+- [x] **AUD-20-01** — **`Sigra.MFA.confirm_enrollment/5`** invalid-TOTP (**pre-persistence**) path upgraded from standalone **`log_safe/3`** to **`Repo.transaction/1` + `Multi` + `log_multi_safe`** **or** explicit milestone waiver with updated **EX-44-02** rationale (must be captured in **83** discuss/plan if waived).
+- [x] **AUD-20-02** — **`test/sigra/mfa_audit_atomicity_test.exs`** covers the **022** mechanism + rollback / audit-off parity with prior MFA atomicity phases.
+- [x] **AUD-20-03** — **44** inventory row **022**, **09-VERIFICATION** C-1 **022**, **09-03-SUMMARY**, **`CHANGELOG` [Unreleased]**; **`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`** merge gate.
 
 ## Future requirements
 

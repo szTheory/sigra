@@ -26,13 +26,20 @@
 
 ## Phases
 
-### v1.19 — in progress (Phase 83 remaining)
+### v1.19 — shipped **2026-04-24** (Phases **82–83**)
+
+**Coverage:** 7 requirements → 2 phases (**AUD-19** + **AUD-20**). Numbering continues from **v1.18** (last phase **81**).
+
+<details>
+<summary>✅ v1.19 MFA **`AUD-04-022`** closure (Phase **83**) — SHIPPED **2026-04-24**</summary>
 
 | Phase | Name | Goal | Requirements | Success criteria (observable) |
 |-------|------|------|--------------|----------------------------|
-| **83** | MFA **`AUD-04-022`** closure | Remove **`log_safe`** hybrid for invalid pre-DB TOTP on **`confirm_enrollment/5`** **or** document explicit waiver. | AUD-20-01, AUD-20-02, AUD-20-03 | (1) **`lib/sigra/mfa.ex`** matches chosen mechanism. (2) **`mfa_audit_atomicity_test.exs`** covers **022**. (3) **44** / **09** / **09-03** / **`CHANGELOG`** + **`83-VERIFICATION.md`**. |
+| **83** | MFA **`AUD-04-022`** closure | Promote invalid pre-DB TOTP on **`confirm_enrollment/5`** to **`commit_ad_hoc_mfa_audit/5`** when `:audit_schema` is set. | AUD-20-01, AUD-20-02, AUD-20-03 | (1) **`lib/sigra/mfa.ex`** uses transactional **`log_multi_safe`** for **`mfa.enroll.failure`**. (2) **`mfa_audit_atomicity_test.exs`** invalid-code matrix. (3) **44** / **09** / **09-03** / **`CHANGELOG`** + **`83-VERIFICATION.md`**. |
 
-**Coverage:** 7 requirements → 2 phases (**82** shipped **2026-04-24**). Numbering continues from **v1.18** (last phase **81**).
+**At a glance:** **`Sigra.MFA.confirm_enrollment/5`**; **`test/sigra/mfa_audit_atomicity_test.exs`**; **44-AUD-04-INVENTORY** row **022** + **EX-44-02** appendix; **09-VERIFICATION** C-1 **022** → **T1**. Verification: [`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`](phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md).
+
+</details>
 
 <details>
 <summary>✅ v1.19 JWT refresh persistence + audit co-fate (Phase 82) — SHIPPED 2026-04-24</summary>

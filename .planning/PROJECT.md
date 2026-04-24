@@ -48,7 +48,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.19 (in progress):** Phases **82–83** — **AUD-19** (JWT refresh **persistence** + **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** co-fate) + **AUD-20** (**`AUD-04-022`** / **`EX-44-02`**). Live **`REQUIREMENTS.md`** / **`ROADMAP.md`**.
+**v1.19 (shipped 2026-04-24):** Phases **82–83** — **AUD-19** (JWT **`user_tokens`** persistence + **`api.jwt_refresh*`** co-fate) + **AUD-20** (**`AUD-04-022`** invalid-code → **`commit_ad_hoc_mfa_audit/5`**). **`83-VERIFICATION.md`** / **`82-VERIFICATION.md`** merge gates; live **`REQUIREMENTS.md`** / **`ROADMAP.md`**.
 
 **v1.18 (shipped 2026-04-24):** Phase **81** — **AUD-18-01**..**AUD-18-04** — **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** transactional **`log_multi_safe`** (audit-only txn); **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **persistence co-fate** → **v1.19**. Verification: **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
 
@@ -88,7 +88,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.19** is **active** (**Phases 82–83**). After ship: prefer **CHANGELOG + Hex** for small fixes; **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (e.g. loud launch + **SEED-001**, documented adoption gap, **ADR 001** glue).
+**v1.19** is **shipped** (**Phases 82–83**, **2026-04-24**). Prefer **CHANGELOG + Hex** for small fixes; **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (e.g. loud launch + **SEED-001**, documented adoption gap, **ADR 001** glue).
 
 **Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
 
@@ -122,15 +122,17 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.19 JWT persistence + audit co-fate & MFA enrollment failure (in progress)
+### Active — _(none — **v1.19** Phases **82–83** shipped **2026-04-24**; next planning: **`999.1`** / backlog)_
 
-- [ ] **AUD-19-01** — **`Sigra.JWT` / `RefreshToken.rotate`** success path: refresh-token **DB** supersede + insert and **`api.jwt_refresh`** audit share one **`Repo.transaction`** (or documented equivalent) when `:audit_schema` is set — **Phase 82**
-- [ ] **AUD-19-02** — **Reuse-detected** path: family revocation persistence + **`api.jwt_refresh_reuse`** audit share one transactional boundary when audit is on — **Phase 82**
-- [ ] **AUD-19-03** — **Tests** — extend or add audit-aware coverage (e.g. **`api_token_audit_atomic_test.exs`** / JWT integration) proving co-fate + rollback / fault injection posture — **Phase 82**
-- [ ] **AUD-19-04** — **Planning truth** — **09-VERIFICATION** rows **048–049** footnotes, **44** / **45** inventories, **09-03-SUMMARY**, **`CHANGELOG` [Unreleased]** state **persistence + audit** co-fate; **`82-VERIFICATION.md`** merge gate — **Phase 82**
-- [ ] **AUD-20-01** — **`Sigra.MFA.confirm_enrollment/5`** — **`AUD-04-022`** invalid-TOTP path uses agreed **`Multi` + `log_multi_safe`** (or honest retained **T2** with revised **EX-44-02** rationale only if discuss-phase waives) — **Phase 83**
-- [ ] **AUD-20-02** — **`mfa_audit_atomicity_test.exs`** covers **022** mechanism + rollback — **Phase 83**
-- [ ] **AUD-20-03** — **44** inventory + **09** C-1 row **022** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]**; close **EX-44-02** if promoted — **Phase 83**
+### Validated — v1.19 JWT persistence + audit co-fate & MFA invalid-code audit (shipped in-repo 2026-04-24)
+
+- ✓ **AUD-19-01** — **`Sigra.JWT` / `RefreshToken.rotate`** success path co-fates **`user_tokens`** + **`api.jwt_refresh`** when `:audit_schema` is set — **Phase 82**
+- ✓ **AUD-19-02** — Reuse-detected path co-fates family revocation + **`api.jwt_refresh_reuse`** — **Phase 82**
+- ✓ **AUD-19-03** — **`jwt_refresh_audit_cofate_test.exs`** (+ related) proves co-fate, audit-off, fault injection — **Phase 82**
+- ✓ **AUD-19-04** — **09-VERIFICATION** / **44** / **45** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]** + **`82-VERIFICATION.md`** — **Phase 82**
+- ✓ **AUD-20-01** — **`Sigra.MFA.confirm_enrollment/5`** invalid-TOTP path → **`commit_ad_hoc_mfa_audit/5`** — **Phase 83**
+- ✓ **AUD-20-02** — **`mfa_audit_atomicity_test.exs`** invalid-code matrix — **Phase 83**
+- ✓ **AUD-20-03** — **44** inventory **022** + **EX-44-02**, **09** C-1 **022**, **09-03-SUMMARY**, **`CHANGELOG` [Unreleased]**, **`83-VERIFICATION.md`** — **Phase 83**
 
 ### Validated — v1.18 JWT refresh / reuse audit atomicity (shipped in-repo 2026-04-24)
 
@@ -469,4 +471,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-new-milestone`**: **v1.19** (**Phases 82–83**) opened; **`REQUIREMENTS.md`** + **`ROADMAP.md`** + **`PROJECT.md`** + **`STATE.md`** aligned for execution.*
+*Last updated: 2026-04-24 — **`v1.19`** Phases **82–83** shipped (**AUD-19** + **AUD-20**); **`REQUIREMENTS.md`**, **`ROADMAP.md`**, **`PROJECT.md`**, **`STATE.md`** aligned.*
