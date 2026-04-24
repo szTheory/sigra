@@ -14,6 +14,7 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Documentation
 
 * **planning:** **v1.11** adoption stabilization — triage notes (`.planning/v1.11-TRIAGE.md`), **`upgrading-to-v1.11.md`**, ExDoc extras, intro upgrade cross-links, and **`MAINTAINING.md`** milestone pause guidance (**STAB-01**..**STAB-04**).
+* **planning:** **v1.12** trust bundle — [upgrading-to-v1.12.md](guides/introduction/upgrading-to-v1.12.md) (ExDoc extra), [docs/uat-ci-coverage.md](docs/uat-ci-coverage.md) (**v1.12 launch evidence** subsection), and [milestone UAT index](https://github.com/sztheory/sigra/blob/main/.planning/v1.12-UAT-EVIDENCE.md) on GitHub (**TRN-01**..**TRN-03** doc polish).
 
 ## [0.2.3](https://github.com/szTheory/sigra/compare/v0.2.2...v0.2.3) (2026-04-23)
 
