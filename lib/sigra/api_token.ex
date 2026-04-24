@@ -26,6 +26,11 @@ defmodule Sigra.APIToken do
      configured, both operations append `api.token_revoke` /
      `api.token_revoke_all` on the same `Ecto.Multi` as the DB write (AUD-07).
 
+  4. **JWT refresh auditing** -- `audit_jwt_refresh/2` and `audit_jwt_refresh_reuse/2`
+     emit `api.jwt_refresh` / `api.jwt_refresh_reuse` rows when `:audit_schema` is
+     set, using **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Audit.log_multi_safe/3`**
+     (audit-only transaction; AUD-18).
+
   ## Scope System
 
   Tokens carry a list of scopes in `resource:action` format (e.g., `"profile:read"`).
@@ -237,6 +242,64 @@ defmodule Sigra.APIToken do
     end
   end
 
+  defp commit_api_token_jwt_audit(config, action, opts)
+       when is_binary(action) and is_list(opts) do
+    case Keyword.get(opts, :audit_schema) do
+      nil ->
+        :ok
+
+      _ ->
+        audit_step = Keyword.fetch!(opts, :audit_multi_step)
+
+        multi =
+          Multi.new()
+          |> Audit.log_multi_safe(action, opts)
+
+        try do
+          case config.repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [audit_step])
+
+            {:error, failed_step, %Ecto.Changeset{} = cs, _}
+            when failed_step == audit_step ->
+              jwt_audit_emit_invalid_changeset(action, cs)
+
+            {:error, failed, reason, _} ->
+              raise "unexpected Ecto.Multi failure from Sigra.APIToken jwt audit: " <>
+                      "#{inspect(failed)} => #{inspect(reason)}"
+          end
+        rescue
+          e ->
+            if verify_failure_audit_rescue?(e) do
+              :telemetry.execute(
+                [:sigra, :audit, :log_safe_error],
+                %{count: 1},
+                %{action: action, reason: :constraint_violation}
+              )
+            else
+              reraise(e, __STACKTRACE__)
+            end
+        end
+    end
+  end
+
+  defp jwt_audit_emit_invalid_changeset(action, %Ecto.Changeset{} = cs) do
+    error_fields =
+      cs.errors
+      |> Enum.map(fn {field, _} -> field end)
+      |> Enum.uniq()
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{
+        action: action,
+        reason: :invalid_changeset,
+        error_fields: error_fields
+      }
+    )
+  end
+
   defp verify_failure_audit_rescue?(e) do
     match?(%Ecto.ConstraintError{}, e) or
       (is_exception(e) and match?(%{table: _}, Map.get(e, :postgres)))
@@ -405,44 +468,68 @@ defmodule Sigra.APIToken do
   end
 
   @doc """
-  Emit api.jwt_refresh audit row (called from Sigra.JWT refresh flow).
+  Emit **api.jwt_refresh** audit row (called from Sigra.JWT refresh flow).
 
-  This is exposed so the JWT refresh implementation (potentially a
-  separate module) can write a consistent audit row through this
-  module's helpers.
+  When **`:audit_schema`** is configured, the row is written inside
+  **`Repo.transaction/1`** via audit-only **`Ecto.Multi`** + **`Audit.log_multi_safe/3`**
+  (same durability posture as verify-failure auditing).
+
+  Returns **`:ok`** even when auditing is disabled or when the audit insert is
+  rejected or rolled back after the host transaction has already committed elsewhere.
+  **`:ok` does not prove** the audit row exists; monitor **`[:sigra, :audit, :log_safe_error]`**
+  for **`reason: :invalid_changeset`** or **`:constraint_violation`**.
+
+  This is exposed so the JWT refresh implementation (potentially a separate module)
+  can write a consistent audit row through this module's helpers.
   """
   @doc since: "0.9.0"
   @spec audit_jwt_refresh(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh(config, user_id) do
-    Sigra.Audit.log_safe(
-      "api.jwt_refresh",
-      Sigra.Scope.from_config(config, %{id: user_id}),
-      api_token_audit_opts(config) ++
-        [
-          actor_id: user_id,
-          target_id: user_id,
-          metadata: %{}
-        ]
-    )
+    scope = Sigra.Scope.from_config(config, %{id: user_id})
+
+    merged =
+      Keyword.merge(
+        api_token_scope_fields(scope),
+        api_token_audit_opts(config) ++
+          [
+            actor_id: user_id,
+            target_id: user_id,
+            metadata: %{},
+            audit_multi_step: :audit_api_token_jwt_refresh
+          ]
+      )
+
+    commit_api_token_jwt_audit(config, "api.jwt_refresh", merged)
   end
 
   @doc """
-  Emit api.jwt_refresh_reuse audit row (detected refresh-token reuse).
+  Emit **api.jwt_refresh_reuse** audit row (detected refresh-token reuse).
+
+  When **`:audit_schema`** is configured, uses the same transactional **`Multi`** +
+  **`log_multi_safe`** path as **`audit_jwt_refresh/2`**.
+
+  Returns **`:ok`** regardless of whether a durable audit row was persisted; see
+  **`audit_jwt_refresh/2`** and **`[:sigra, :audit, :log_safe_error]`** for operational honesty.
   """
   @doc since: "0.9.0"
   @spec audit_jwt_refresh_reuse(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh_reuse(config, user_id) do
-    Sigra.Audit.log_safe(
-      "api.jwt_refresh_reuse",
-      Sigra.Scope.from_config(config, %{id: user_id}),
-      api_token_audit_opts(config) ++
-        [
-          actor_id: user_id,
-          target_id: user_id,
-          outcome: "failure",
-          metadata: %{reason: "refresh_token_reuse_detected"}
-        ]
-    )
+    scope = Sigra.Scope.from_config(config, %{id: user_id})
+
+    merged =
+      Keyword.merge(
+        api_token_scope_fields(scope),
+        api_token_audit_opts(config) ++
+          [
+            actor_id: user_id,
+            target_id: user_id,
+            outcome: "failure",
+            metadata: %{reason: "refresh_token_reuse_detected"},
+            audit_multi_step: :audit_api_token_jwt_refresh_reuse
+          ]
+      )
+
+    commit_api_token_jwt_audit(config, "api.jwt_refresh_reuse", merged)
   end
 
   @doc """
