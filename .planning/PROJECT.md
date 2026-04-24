@@ -20,9 +20,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**No active versioned milestone** — **v1.18** shipped **2026-04-24** (**Phase 81**, **AUD-18**). Next: optional backlog phase **999.1** (Nyquist retroactive validation) or **`/gsd-new-milestone`** when **`MAINTAINING.md`** resume criteria match.
+**v1.19 — JWT refresh persistence + audit co-fate & MFA enrollment failure (SEED-002)** — **Phases 82–83** (opened **2026-04-24**). Closes the **v1.18** footnote deferral: **JWT `user_tokens` rotation** (`Sigra.JWT.RefreshToken` / **`Sigra.JWT.refresh/3`**) must share a **single transactional boundary** with **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit rows when `:audit_schema` is set (no successful persistence with a missing audit row, and no audit row for a rolled-back rotation). Second tranche: **`AUD-04-022`** / **`EX-44-02`** — invalid pre-DB TOTP on **`Sigra.MFA.confirm_enrollment/5`** promoted to the same **`Multi` + `log_multi_safe`** discipline where semantics allow. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.
 
-**Previously closed:** **v1.18 — JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049 / AUD-18)** (**Phase 81**, **AUD-18-01**..**AUD-18-04**, **2026-04-24**). **`Sigra.APIToken.audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set; **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **AUD-08** not claimed closed. Verification: **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
+**Previously closed:** **v1.18 — JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049 / AUD-18)** (**Phase 81**, **AUD-18-01**..**AUD-18-04**, **2026-04-24**). **`Sigra.APIToken.audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set; **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **JWT persistence co-fate** explicitly deferred to **v1.19**. Verification: **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
 
 **Previously closed:** **v1.17 — Forced password change audit atomicity (SEED-002 / AUD-04-043)** (**Phase 80**, **AUD-17-01**..**AUD-17-04**, **2026-04-24**). **`Sigra.Account.clear_password_change_requirement/3`** **`Multi` + `log_multi_safe`**; **`audit_forced_password_change/2`** **`@deprecated`**; **`account_audit_atomicity_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed. Archives: [`.planning/milestones/v1.17-ROADMAP.md`](milestones/v1.17-ROADMAP.md), [`.planning/milestones/v1.17-REQUIREMENTS.md`](milestones/v1.17-REQUIREMENTS.md). Verification: **`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`**.
 
@@ -48,7 +48,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.18 (shipped 2026-04-24):** Phase **81** — **AUD-18-01**..**AUD-18-04** — **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** transactional **`log_multi_safe`**; **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **AUD-08** deferred. Live **`REQUIREMENTS.md`**; verification **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
+**v1.19 (in progress):** Phases **82–83** — **AUD-19** (JWT refresh **persistence** + **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** co-fate) + **AUD-20** (**`AUD-04-022`** / **`EX-44-02`**). Live **`REQUIREMENTS.md`** / **`ROADMAP.md`**.
+
+**v1.18 (shipped 2026-04-24):** Phase **81** — **AUD-18-01**..**AUD-18-04** — **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** transactional **`log_multi_safe`** (audit-only txn); **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **persistence co-fate** → **v1.19**. Verification: **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
 
 **v1.17 (archived 2026-04-24):** Phase **80** — **AUD-17-01**..**AUD-17-04** — **`clear_password_change_requirement/3`** + **`account_audit_atomicity_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed. Archives **`milestones/v1.17-ROADMAP.md`**, **`milestones/v1.17-REQUIREMENTS.md`**; verification **`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`**.
 
@@ -86,11 +88,11 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.18** is **closed** (**Phase 81** shipped **2026-04-24**). Prefer **CHANGELOG + Hex** for small fixes. Open **`/gsd-new-milestone`** again when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
+**v1.19** is **active** (**Phases 82–83**). After ship: prefer **CHANGELOG + Hex** for small fixes; **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (e.g. loud launch + **SEED-001**, documented adoption gap, **ADR 001** glue).
 
 **Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
 
-**Later candidates:** further bounded **SEED-002** rows (**AUD-04-022** / **EX-44-02**, OAuth **45** **T2** clusters unless promoted), **SEED-001** human matrix before megaphone launch, **999.x** only if promoted, **`sigra_lockspire`** per ADR **001** triggers.
+**Later candidates (post–v1.19):** **SEED-001** human matrix before megaphone launch; Phase **45** **T2** clusters (**052–056**, **058**, **063**) only if promoted with owner + trigger; **999.x** only if promoted; **`sigra_lockspire`** per ADR **001** triggers.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -119,6 +121,16 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Active — v1.19 JWT persistence + audit co-fate & MFA enrollment failure (in progress)
+
+- [ ] **AUD-19-01** — **`Sigra.JWT` / `RefreshToken.rotate`** success path: refresh-token **DB** supersede + insert and **`api.jwt_refresh`** audit share one **`Repo.transaction`** (or documented equivalent) when `:audit_schema` is set — **Phase 82**
+- [ ] **AUD-19-02** — **Reuse-detected** path: family revocation persistence + **`api.jwt_refresh_reuse`** audit share one transactional boundary when audit is on — **Phase 82**
+- [ ] **AUD-19-03** — **Tests** — extend or add audit-aware coverage (e.g. **`api_token_audit_atomic_test.exs`** / JWT integration) proving co-fate + rollback / fault injection posture — **Phase 82**
+- [ ] **AUD-19-04** — **Planning truth** — **09-VERIFICATION** rows **048–049** footnotes, **44** / **45** inventories, **09-03-SUMMARY**, **`CHANGELOG` [Unreleased]** state **persistence + audit** co-fate; **`82-VERIFICATION.md`** merge gate — **Phase 82**
+- [ ] **AUD-20-01** — **`Sigra.MFA.confirm_enrollment/5`** — **`AUD-04-022`** invalid-TOTP path uses agreed **`Multi` + `log_multi_safe`** (or honest retained **T2** with revised **EX-44-02** rationale only if discuss-phase waives) — **Phase 83**
+- [ ] **AUD-20-02** — **`mfa_audit_atomicity_test.exs`** covers **022** mechanism + rollback — **Phase 83**
+- [ ] **AUD-20-03** — **44** inventory + **09** C-1 row **022** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]**; close **EX-44-02** if promoted — **Phase 83**
 
 ### Validated — v1.18 JWT refresh / reuse audit atomicity (shipped in-repo 2026-04-24)
 
@@ -457,4 +469,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **Phase 81** / **v1.18** (**AUD-18**) shipped; **`REQUIREMENTS.md`** + **`ROADMAP.md`** + **`PROJECT.md`** aligned. Next backlog: **999.1** or **`/gsd-new-milestone`** per **`MAINTAINING.md`**.*
+*Last updated: 2026-04-24 — **`/gsd-new-milestone`**: **v1.19** (**Phases 82–83**) opened; **`REQUIREMENTS.md`** + **`ROADMAP.md`** + **`PROJECT.md`** + **`STATE.md`** aligned for execution.*

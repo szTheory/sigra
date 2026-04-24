@@ -21,9 +21,19 @@
 - ✅ **v1.15 Account + API C-1 planning truth** — Phase **78** (shipped **2026-04-24**). See [v1.15 archive](milestones/v1.15-ROADMAP.md), [v1.15 requirements](milestones/v1.15-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **AUD-14**..**AUD-14-05**.
 - ✅ **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). See [v1.16 archive](milestones/v1.16-ROADMAP.md), [v1.16 requirements](milestones/v1.16-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (shipped **2026-04-24**). See [v1.17 requirements](milestones/v1.17-REQUIREMENTS.md), [milestone archive](milestones/v1.17-ROADMAP.md), and [MILESTONES.md](MILESTONES.md).
-- ✅ **v1.18 JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049)** — Phase **81** (shipped **2026-04-24**). Live [REQUIREMENTS.md](REQUIREMENTS.md); [MILESTONES.md](MILESTONES.md); verification [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
+- ✅ **v1.18 JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049)** — Phase **81** (shipped **2026-04-24**). [MILESTONES.md](MILESTONES.md); verification [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
+- **v1.19 JWT refresh persistence + audit co-fate & MFA enrollment failure** — Phases **82–83** (opened **2026-04-24**). Live [REQUIREMENTS.md](REQUIREMENTS.md); phases **82** then **83** below.
 
 ## Phases
+
+### v1.19 — in progress (Phases 82–83)
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **82** | JWT refresh persistence + audit co-fate | Single transactional boundary for **`user_tokens`** rotation / reuse revocation and **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** when audit is on. | AUD-19-01, AUD-19-02, AUD-19-03, AUD-19-04 | (1) **`Sigra.JWT.refresh/3`** (and **`RefreshToken.rotate`**) do not commit refresh-token DB effects unless audit succeeds when `:audit_schema` set. (2) Reuse path matches same discipline. (3) Tests prove rollback / audit-off. (4) **09** / **44** / **45** / **09-03** / **`CHANGELOG`** + **`82-VERIFICATION.md`**. |
+| **83** | MFA **`AUD-04-022`** closure | Remove **`log_safe`** hybrid for invalid pre-DB TOTP on **`confirm_enrollment/5`** **or** document explicit waiver. | AUD-20-01, AUD-20-02, AUD-20-03 | (1) **`lib/sigra/mfa.ex`** matches chosen mechanism. (2) **`mfa_audit_atomicity_test.exs`** covers **022**. (3) **44** / **09** / **09-03** / **`CHANGELOG`** + **`83-VERIFICATION.md`**. |
+
+**Coverage:** 7 requirements → 2 phases. Numbering continues from **v1.18** (last phase **81**).
 
 <details>
 <summary>✅ v1.18 JWT refresh / reuse audit atomicity (Phase 81) — SHIPPED 2026-04-24</summary>
