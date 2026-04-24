@@ -61,4 +61,4 @@ _None._
 
 **Resume file:** —
 
-**Artifacts:** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `.planning/PROJECT.md`, **`.planning/milestones/v1.17-ROADMAP.md`**, **`.planning/milestones/v1.17-REQUIREMENTS.md`**, **`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`**
+**Artifacts:** `.planning/ROADMAP.md`, `.planning/PROJECT.md`, **`.planning/milestones/v1.17-ROADMAP.md`**, **`.planning/milestones/v1.17-REQUIREMENTS.md`**, **`.planning/MILESTONES.md`**, **`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`**

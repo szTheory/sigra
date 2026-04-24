@@ -490,6 +490,38 @@
 
 ---
 
+## v1.17 Forced password change audit atomicity (Shipped: 2026-04-24)
+
+**Scope:** 1 phase (**80**), **`Sigra.Account.clear_password_change_requirement/3`** + planning truth (**AUD-17-01**..**AUD-17-04**).
+
+**What shipped:** **`clear_password_change_requirement/3`** co-fates **`must_change_password: false`** with **`account.password_change`** (`metadata: %{forced: true}`) via **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **`audit_forced_password_change/2`** **`@deprecated`**; **`test/sigra/account_audit_atomicity_test.exs`** forced-clear + CHECK rollback; **44** inventory + **09-VERIFICATION** C-1 **043** **T1** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]**; **EX-44-05** closed.
+
+### Key accomplishments
+
+1. **AUD-17-01** — Forced-clear path matches atomic audit pattern used elsewhere on **Account**.
+2. **AUD-17-02** — Standalone post-commit **`log_safe`** for that completion path retired (**deprecation**).
+3. **AUD-17-03 / AUD-17-04** — Postgres-backed atomicity tests + planning truth aligned to **AUD-04-043**.
+
+### Stats
+
+- **Requirements:** 4/4 **Validated** in archived [`milestones/v1.17-REQUIREMENTS.md`](milestones/v1.17-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** failed (`version required for phases archive`); manual **`milestones/v1.17-*`** archival (same pattern as **v1.12**–**v1.16**).
+- **Git (since `v1.16` tag):** 9 commits; **24** files (**1288** insertions / **50** deletions in `git diff --shortstat v1.16..HEAD` at close).
+
+### Tech debt carried forward
+
+- **SEED-002** — remaining **`log_safe/3`** clusters (**048–049**, OAuth phase **45**, etc.).
+- **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+**Archive:**
+
+- [v1.17 Roadmap](milestones/v1.17-ROADMAP.md)
+- [v1.17 Requirements](milestones/v1.17-REQUIREMENTS.md)
+
+---
+
 ## v1.16 API verify failure audit atomicity (Shipped: 2026-04-24)
 
 **Scope:** 1 phase (**79**), **`Sigra.APIToken.verify/2`** failure audits + planning truth (**AUD-16-01**..**AUD-16-04**).

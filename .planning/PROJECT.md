@@ -423,8 +423,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.16 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.17 execution log)</summary>
 
+- **2026-04-24** — **`/gsd-complete-milestone` v1.17**: **`MILESTONES.md`** + **`RETROSPECTIVE.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.17`**; **`ROADMAP`** link → **`milestones/v1.17-REQUIREMENTS.md`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.16**: archived **`v1.16-REQUIREMENTS.md`**, **`v1.16-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.16`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.15**: archived **`v1.15-REQUIREMENTS.md`**, **`v1.15-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.15`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.14**: archived **`v1.14-REQUIREMENTS.md`**, **`v1.14-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.14`**.
@@ -447,4 +448,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-execute-phase 80`** — **v1.17** / **AUD-17** shipped; **`.planning/milestones/v1.17-ROADMAP.md`**. Prior: **v1.16** — **Phase 79** / **AUD-16**.*
+*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.17** — live **`REQUIREMENTS.md`** removed; tag **`v1.17`**; **`MILESTONES.md`** + **`RETROSPECTIVE.md`**. Prior: **`/gsd-execute-phase 80`** — **AUD-17** shipped.*

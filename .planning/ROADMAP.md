@@ -20,7 +20,7 @@
 - ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). See [v1.14 archive](milestones/v1.14-ROADMAP.md), [v1.14 requirements](milestones/v1.14-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
 - ✅ **v1.15 Account + API C-1 planning truth** — Phase **78** (shipped **2026-04-24**). See [v1.15 archive](milestones/v1.15-ROADMAP.md), [v1.15 requirements](milestones/v1.15-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **AUD-14**..**AUD-14-05**.
 - ✅ **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). See [v1.16 archive](milestones/v1.16-ROADMAP.md), [v1.16 requirements](milestones/v1.16-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
-- ✅ **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (shipped **2026-04-24**). See [REQUIREMENTS.md](REQUIREMENTS.md), [milestone archive](milestones/v1.17-ROADMAP.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (shipped **2026-04-24**). See [v1.17 requirements](milestones/v1.17-REQUIREMENTS.md), [milestone archive](milestones/v1.17-ROADMAP.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Phases
 

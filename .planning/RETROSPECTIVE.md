@@ -1,6 +1,44 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.16 section added at milestone archive (2026-04-24).*
+*Living document updated at milestone boundaries. v1.17 section added at milestone close (2026-04-24).*
+
+## Milestone: v1.17 — Forced password change audit atomicity
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (80) | **Plans (on-disk):** 2 (`80-01`, `80-02`) | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-17-01** — **`clear_password_change_requirement/3`** wraps **`PasswordChange.clear_force_change/2`** semantics in **`Repo.transaction/1`** with **`Multi` + `log_multi_safe`** when audit is enabled.
+- **AUD-17-02** — **`audit_forced_password_change/2`** **`@deprecated`** for the path now covered by the **`Multi`**.
+- **AUD-17-03** — **`account_audit_atomicity_test.exs`** forced-clear happy path + audit **`CHECK`** rollback.
+- **AUD-17-04** — **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed.
+
+### What worked
+
+- **Verification gate** — **`80-VERIFICATION.md`** mapped 1:1 to code, tests, and planning surfaces.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still fails (`version required for phases archive`); manual **`milestones/v1.17-*`** + **`/gsd-complete-milestone`** finish (same as **v1.12**–**v1.16**).
+
+### Patterns established
+
+- **Account forced-clear** follows the same transactional audit pattern as **`change_password`** in **`account_audit_atomicity_test.exs`**.
+
+### Key lessons
+
+1. Close **EX-44-05** in the same milestone as **043** **T1** to avoid dangling inventory appendix rows.
+2. Deprecation on the old helper keeps semver-safe migration for any host callers.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Tight scope (one public API + tests + planning); highest leverage was **`account.ex`** + atomic tests.
+
+---
 
 ## Milestone: v1.16 — API verify failure audit atomicity
 
