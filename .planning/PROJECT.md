@@ -20,7 +20,11 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**None — awaiting `/gsd-new-milestone`.** Last shipped: **v1.12 — Trust, evidence, and adoption polish** (**phases 73–75**, **2026-04-24**) — bounded **SEED-002** batch (**73**), launch evidence + **`docs/uat-ci-coverage.md`** (**74**), upgrade continuity + triage polish (**75**). Archives: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
+**Between coordinated code milestones — default Hex patch cadence** (**2026-04-24**). Ship **patch/minor** via **`CHANGELOG.md` + tag + Hex** unless a **trust-signal event** warrants **`/gsd-new-milestone`** ([`MAINTAINING.md`](MAINTAINING.md) → *Milestone cadence and pause*).
+
+**Last closed (planning-only):** **v1.13 — Post–v1.12 operational cadence** — **Phase 76** (**CAD-01**..**CAD-03**): locks default ops lane vs **SEED-001** (loud launch), **SEED-002** (compliance / audit-row evidence), **documented adoption gap**, or **ADR 001** / **`sigra_lockspire`**.
+
+**Last shipped code milestone:** **v1.12 — Trust, evidence, and adoption polish** (**phases 73–75**, **2026-04-24**). Archives: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
 
 **Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
@@ -60,13 +64,13 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.12:** Milestone archived **2026-04-24** (`/gsd-complete-milestone`); live **`.planning/REQUIREMENTS.md`** removed — recreate via **`/gsd-new-milestone`**.
+**v1.13 (closed 2026-04-24):** Operational cadence lock-in — **Phase 76**, **CAD-01**..**CAD-03** (see **`.planning/REQUIREMENTS.md`**).
 
-**Backlog / hygiene:** Phase **999.1** (*Nyquist retroactive validation pass*) and other **999.x** items remain optional archaeology — see **`.planning/ROADMAP.md`** for the canonical queue. **`.planning/STATE.md`** is session handoff only (not a second roadmap); **999.1** tombstones: **`phases/999.1-*/999.1-CONTEXT.md`** + **`999.1-VALIDATION.md`**. **Planning precedence:** if `STATE.md` disagrees with **`ROADMAP.md`** or a phase’s **`*-VALIDATION.md` / `*-VERIFICATION.md`**, trust **ROADMAP + phase attestation** first.
+**When to open v1.14+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + **SEED-002**, documented adoption gap, **ADR 001** glue).
 
-**Default posture (post–v1.12):** Return to **Hex-only** releases when work is patch-sized unless an **event** warrants another tranche — **`MAINTAINING.md`** → *Milestone cadence and pause*.
+**Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
 
-**Later candidates:** further **bounded SEED-002** batches (beyond **v1.12**), fresh **SEED-001** human matrix runs when scheduling a **loud** launch, historical **999.x** archaeology under **`.planning/phases/`** only if explicitly promoted, or optional **`sigra_lockspire`**-class glue after Lockspire and `AccountResolver` seams meet ADR **001** revisit triggers.
+**Later candidates:** bounded **SEED-002** batches, **SEED-001** human matrix before megaphone launch, **999.x** only if promoted, **`sigra_lockspire`** per ADR **001** triggers.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -95,6 +99,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Validated — v1.13 Post–v1.12 operational cadence (planning shipped 2026-04-24)
+
+- ✓ **CAD-01** — **`.planning/PROJECT.md`** current milestone states **v1.13**, default ops lane, and event lanes (**SEED-001**, **SEED-002**, adoption gap, **ADR 001**) — **Phase 76**
+- ✓ **CAD-02** — **`.planning/STATE.md`** reflects **v1.13** / Phase **76** and default cadence — **Phase 76**
+- ✓ **CAD-03** — **`.planning/ROADMAP.md`** lists **v1.13** + Phase **76**; **`.planning/REQUIREMENTS.md`** + traceability — **Phase 76**
 
 ### Validated — v1.12 Trust, evidence, and adoption polish (shipped 2026-04-24)
 
@@ -386,4 +396,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.12**: planning archived; live **`REQUIREMENTS.md`** cleared for next tranche. Next: **`/gsd-new-milestone`** (canonical queue: **`.planning/ROADMAP.md`**).*
+*Last updated: 2026-04-24 — **v1.13** operational cadence (**Phase 76**): **`REQUIREMENTS.md`** + **`ROADMAP.md`** + **`STATE.md`** locked to default Hex patch cadence; full milestone cycles resume on **trust-signal events** per **`MAINTAINING.md`**.*

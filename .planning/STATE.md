@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: null
-milestone_name: null
-status: between_milestones
-stopped_at: Milestone v1.12 archived (`/gsd-complete-milestone`)
-last_updated: "2026-04-24T12:00:00.000Z"
-last_activity: 2026-04-24 — **v1.12** milestone archived; live **`.planning/REQUIREMENTS.md`** removed; next **`/gsd-new-milestone`**.
+milestone: v1.13
+milestone_name: Post–v1.12 operational cadence
+status: between_coordinated_code_milestones
+stopped_at: Phase 76 planning complete — default Hex patch cadence; resume `/gsd-new-milestone` on trust-signal events only
+last_updated: "2026-04-24T18:00:00.000Z"
+last_activity: 2026-04-24 — **v1.13** Phase **76** closed (**CAD-01**..**CAD-03**); live **`.planning/REQUIREMENTS.md`** active.
 progress:
-  total_phases: 63
-  completed_phases: 59
+  total_phases: 64
+  completed_phases: 60
   total_plans: 182
   completed_plans: 187
   percent: 94
@@ -18,23 +18,23 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-24)
+See: `.planning/PROJECT.md` (updated 2026-04-24 — v1.13 cadence lock-in)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **None (idle).** **999.1** is **superseded** (see **`phases/999.1-*/999.1-VALIDATION.md`** and **`999.1-CONTEXT.md`**). Next promoted work: **`.planning/ROADMAP.md`** (not `STATE.md`).
+**Current focus:** **Default ops lane** — issue-driven **Hex** patch/minor releases unless a **trust-signal event** opens **v1.14+** (`MAINTAINING.md`). **999.1** superseded; canonical queue **`.planning/ROADMAP.md`**.
 
 ## Current Position
 
-Phase: _idle — canonical queue is **ROADMAP.md**_
+Phase: **76** — Complete (**v1.13** planning lock-in)
 
 Plan: N/A
 
-Status: Between milestones (**v1.12** archived)
+Status: Between **coordinated code** milestones (**v1.13** planning closed **2026-04-24**)
 
-Last activity: 2026-04-24 — **v1.12** milestone archived; live **`.planning/REQUIREMENTS.md`** removed; next **`/gsd-new-milestone`**.
+Last activity: 2026-04-24 — **Phase 76** **CAD-01**..**CAD-03**; **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** + **76-VERIFICATION.md** record cadence posture.
 
 ## Performance Metrics
 
@@ -68,10 +68,10 @@ Stopped at: Phase 999.1 context gathered (tombstone)
 
 Resume file: `.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`
 
-**Next:** Pick next work from **`.planning/ROADMAP.md`** (e.g. new milestone or promoted backlog). Do **not** **`/gsd-plan-phase 999.1`** for implementation — scope shipped as **Phase 36**.
+**Next:** Patch/minor via **CHANGELOG + Hex**, or **`/gsd-new-milestone`** when an event matches **`MAINTAINING.md`** *Resume* list. Do **not** **`/gsd-plan-phase 999.1`** — superseded (**Phase 36**).
 
-**Live requirements:** _none — recreate with **`/gsd-new-milestone`**_
+**Live requirements:** **`.planning/REQUIREMENTS.md`** — **v1.13** **CAD-01**..**CAD-03** (complete); supersede on next **`/gsd-new-milestone`** for **v1.14+**.
 
-**Planned work:** See **ROADMAP** — **999.1** is archaeology only
+**Planned work:** **ROADMAP** backlog + event triggers; no mandatory code tranche until chosen.
 
-**Planned Phase:** _TBD from ROADMAP when a new tranche starts_
+**Planned Phase:** _none until next milestone_

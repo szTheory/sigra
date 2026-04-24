@@ -16,8 +16,17 @@
 - ✅ **v1.10 Adopter confidence for solo production** — Phases **68–70** (shipped **2026-04-23**). See [v1.10 archive](milestones/v1.10-ROADMAP.md), [v1.10 requirements](milestones/v1.10-REQUIREMENTS.md), [v1.10 milestone audit](milestones/v1.10-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.11 Adoption stabilization** — Phases **71–72** (shipped **2026-04-23**). See [v1.11 archive](milestones/v1.11-ROADMAP.md), [v1.11 requirements](milestones/v1.11-REQUIREMENTS.md), and triage [v1.11-TRIAGE.md](v1.11-TRIAGE.md).
 - ✅ **v1.12 Trust, evidence, and adoption polish** — Phases **73–75** (shipped **2026-04-24**). See [v1.12 archive](milestones/v1.12-ROADMAP.md), [v1.12 requirements](milestones/v1.12-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Bounded **SEED-002** batch + **SEED-001** evidence index + triage-driven doc polish.
+- ✅ **v1.13 Post–v1.12 operational cadence** — Phase **76** (planning **2026-04-24**). Default Hex patch cadence vs event-driven full milestones (**CAD-01**..**CAD-03**). Live [REQUIREMENTS.md](REQUIREMENTS.md); phase attestation: [phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md](phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md).
 
 ## Phases
+
+### v1.13 — Post–v1.12 operational cadence (Phase 76)
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **76** | Cadence lock-in | Record default ops lane and event triggers in planning surfaces. | CAD-01, CAD-02, CAD-03 | (1) **PROJECT.md** states between-milestones posture and event lanes. (2) **STATE.md** points to Phase **76** and cadence. (3) **REQUIREMENTS.md** + this table + **76-VERIFICATION.md** exist. |
+
+**Coverage:** 3 requirements → 1 phase. Phase numbering continues from **v1.12** (last phase **75**).
 
 <details>
 <summary>✅ v1.12 Trust, evidence, and adoption polish (Phases 73–75) — SHIPPED 2026-04-24</summary>

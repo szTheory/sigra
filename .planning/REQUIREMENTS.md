@@ -1,0 +1,39 @@
+# Requirements: Sigra — v1.13 operational cadence
+
+**Defined:** 2026-04-24  
+**Core value:** (from `.planning/PROJECT.md`) Authentication that works out of the box with great DX on the happy path and on the rough edges.
+
+**Named trigger:** Default ops lane — post–v1.12 production-confidence prioritization: Hex patch cadence; coordinated milestones only on trust-signal events per `MAINTAINING.md`.
+
+## v1.13 Requirements (planning only)
+
+### Cadence (CAD)
+
+- [x] **CAD-01**: `.planning/PROJECT.md` documents **between-milestones default posture**, last closed **v1.13 / Phase 76**, and **event lanes** (SEED-001, SEED-002, adoption gap, ADR 001 / sigra_lockspire).
+- [x] **CAD-02**: `.planning/STATE.md` reflects **v1.13**, Phase **76**, and default cadence (not “idle awaiting milestone” without context).
+- [x] **CAD-03**: `.planning/ROADMAP.md` includes **v1.13** + Phase **76** row; traceability below matches **Phase 76**.
+
+## Future requirements
+
+_Deferred until a trust-signal event opens **v1.14+**._
+
+## Out of scope (v1.13)
+
+| Item | Reason |
+|------|--------|
+| Library or template code changes | v1.13 is planning lock-in only |
+| Full SEED-002 conversion | Bounded batches only when triggered |
+| SEED-001 human matrix | Loud-launch / announcement event only |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CAD-01 | 76 | Complete |
+| CAD-02 | 76 | Complete |
+| CAD-03 | 76 | Complete |
+
+**Coverage:** v1.13 requirements: 3 total; mapped to phases: 3; unmapped: 0.
+
+---
+*Requirements defined: 2026-04-24 — v1.13 operational cadence (default ops lane)*
