@@ -2,7 +2,7 @@
 
 **Purpose:** Capture **default engineering choices** for bounded **SEED-002**–style phases and `/gsd-discuss-phase` so planners rarely re-open settled tradeoffs. **Override** in phase CONTEXT when a requirement truly demands an exception (call that out explicitly).
 
-**Status:** Established **2026-04-24** (Phase 80 research synthesis).
+**Status:** Established **2026-04-24** (Phase 80 research synthesis); extended **D-AUD-05..07** **2026-04-24** (Phase 81 JWT audit-only slice + discuss shift-left).
 
 ## Defaults
 
@@ -27,6 +27,19 @@
 - **MockRepo / unit:** API contracts, branches, error tuples, composition (no second Postgres copy of every branch).
 - **Postgres + fault injection (`CHECK` / similar):** **one** happy path + **one** rollback proof per atomic story in `*_audit_atomicity_test.exs` (or equivalent), mirroring existing `change_password` patterns.
 
+### D-AUD-05 — Audit-only `Multi` (no domain step)
+
+- Helpers that **only** persist an audit row (e.g. **`api.jwt_refresh`**, **`api.jwt_refresh_reuse`**) still use **`Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set — same **durability class** as token verify failure audits — with a **single private `commit_*`** owning the transaction shell and **thin `def` wrappers** for action-specific opts.
+- **Do not** imply **shared fate** with unrelated domain tables unless a future phase explicitly joins them in the same `Multi` (**AUD-08**-class work stays out of bounded SEED-002 slices unless scoped).
+
+### D-AUD-06 — Caller contract when audit insert fails (audit-only paths)
+
+- Public functions that today return **`:ok`** and use **`log_safe`/`log_multi_safe`** for **side-channel audit** keep **`:ok`** on audit subsystem failure; emit **`[:sigra, :audit, :log_safe_error]`** (or the same telemetry contract as `emit_log_safe_error`) so operators can alert; **raise** only on programmer-wiring errors. **`@doc`** must state **`:ok` does not guarantee** the audit row exists.
+
+### D-AUD-07 — ExUnit layout for audit fault injection
+
+- **Separate named tests** per action × fault story (no parametrized loops for fault paths). Reuse **only** small private helpers for `ALTER … CHECK` + `try/after` + telemetry attach; **unique** handler IDs per test; **`async: false`**; action-scoped SQL counts.
+
 ## When to still run discuss-phase
 
-Use `/gsd-discuss-phase` when any of: new **external** contract (HTTP, host generator output), **semver exception**, **cross-cutting** audit API change (e.g. new `log_multi_safe` step names), or **explicit** stakeholder preference. Otherwise planners may treat **D-AUD-01..04** as locked unless phase SPEC says otherwise.
+Use `/gsd-discuss-phase` when any of: new **external** contract (HTTP, host generator output), **semver exception**, **cross-cutting** audit API change (e.g. new `log_multi_safe` step names), or **explicit** stakeholder preference. Otherwise planners may treat **D-AUD-01..07** as locked unless phase SPEC says otherwise.
