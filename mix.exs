@@ -149,6 +149,12 @@ defmodule Sigra.MixProject do
 
   defp docs do
     [
+      # ExDoc only autolinks extras by basename; maintainer paths under `.planning/`
+      # are intentionally relative from this guide for repo navigation.
+      skip_undefined_reference_warnings_on: [
+        "guides/introduction/upgrading-to-v1.10.md",
+        "guides/introduction/upgrading-to-v1.11.md"
+      ],
       main: "getting-started",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
@@ -163,6 +169,15 @@ defmodule Sigra.MixProject do
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/first-hour.md",
+        "guides/introduction/intermediate-production-path.md",
+        "guides/reference/generator-options.md",
+        "guides/introduction/troubleshooting-install.md",
+        "guides/introduction/upgrading-to-v1.7.md",
+        "guides/introduction/upgrading-to-v1.8.md",
+        "guides/introduction/upgrading-to-v1.10.md",
+        "guides/introduction/upgrading-to-v1.11.md",
+        "guides/introduction/upgrading-to-v1.12.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
@@ -182,10 +197,12 @@ defmodule Sigra.MixProject do
         "guides/recipes/custom-user-fields.md",
         "guides/recipes/multi-tenant.md",
         "guides/recipes/passkeys.md",
-        "guides/recipes/deployment.md"
+        "guides/recipes/deployment.md",
+        "guides/recipes/companion-oauth-provider.md"
       ],
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
+        Reference: ~r{guides/reference/.?},
         Flows: ~r{guides/flows/.?},
         Recipes: ~r{guides/recipes/.?},
         Docs: ~r{^docs/|^SECURITY\.md$}

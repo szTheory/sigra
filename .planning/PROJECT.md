@@ -8,11 +8,53 @@ Sigra is a comprehensive authentication library for Elixir/Phoenix that fills th
 
 Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
+## North Star (milestones)
+
+Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefer work that advances these outcomes; defer open-ended polish unless it is tied to adoption, operator trust, or concrete risk.
+
+- **Production-viable by default** — Optional integrations and limitations stay honest in package metadata and docs; merge-blocking CI and documented evidence (README production readiness, `MAINTAINING.md`, GA / audit artifacts) are the trust surface, not marketing claims.
+- **Clear integration path** — `mix sigra.install`, generator output, introductory guides, upgrade stubs, and companion seams (with explicit non-goals where Sigra stops) so teams can adopt without reverse-engineering the library.
+- **Great DX on happy path and rough edges** — First-run success, predictable errors, migrations, audit expectations, and maintainer operations are first-class, not afterthoughts.
+
+**GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
+
 ## Current milestone
 
-**None — v1.6 shipped 2026-04-23.** Define the next milestone with `/gsd-new-milestone` (fresh `.planning/REQUIREMENTS.md`, phased roadmap, and scope).
+_No coordinated GSD milestone open._ Use **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* triggers fire; otherwise ship small fixes via **CHANGELOG + Hex** without a new planning milestone.
+
+**Last closed:** **v1.14 — Bounded audit trust closure (SEED-002 slice)** (**Phase 77**, **AUD-13**..**AUD-13-04**, **2026-04-24**). **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** use **`commit_ad_hoc_mfa_audit/5`**; **`mfa_audit_atomicity_test.exs`**; planning truth on **09** / **44** / **CHANGELOG**. Archives: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md), [`.planning/milestones/v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md). Verification: **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
+
+**Previously closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
+
+**Last shipped code milestone:** **v1.14 — Bounded audit trust closure** (**Phase 77**, **2026-04-24**; **`AUD-13`**). Archives: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md), [`v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md). _(Prior multi-phase doc ship: **v1.12** — phases **73–75**.)_
+
+**Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
+
+**Previously closed:** **v1.10 Adopter confidence for solo production** — shipped **2026-04-23** (**phases 68–70**; **`ACF-01`**..**`ACF-06`**). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md), [`v1.10-MILESTONE-AUDIT.md`](milestones/v1.10-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
+
+**Reader bundle (v1.10 planning label):** [`.planning/v1.10-ADOPTER-SCOPE.md`](v1.10-ADOPTER-SCOPE.md).
+
+**Previously closed:** **v1.9 Audit atomicity (bounded SEED-002)** — shipped **2026-04-23** (**phases 66–67**; **`AUD-09`** + **`AUD-10`**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
+
+**Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
+
+**v1.14 (archived 2026-04-24):** Phase **77** — **AUD-13**..**AUD-13-04** MFA ad-hoc audit **`Multi`** closure. Archives: **`milestones/v1.14-ROADMAP.md`**, **`milestones/v1.14-REQUIREMENTS.md`**; verification **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**. Live **`.planning/REQUIREMENTS.md`** removed at milestone close — recreate via **`/gsd-new-milestone`**.
+
+**v1.13 (planning shipped 2026-04-24):** Phase **76** — **CAD-01**..**CAD-03** cadence lock-in. Archives: **`milestones/v1.13-ROADMAP.md`**, **`milestones/v1.13-REQUIREMENTS.md`**; verification **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
+
+**v1.12 (shipped 2026-04-24):** Phases **73–75** complete — bounded **SEED-002** batch + **09-03** truth (**73**), launch evidence + **`docs/uat-ci-coverage.md`** alignment (**74**), and upgrade continuity + triage reconciliation (**75**). Planning archives: **`milestones/v1.12-ROADMAP.md`**, **`milestones/v1.12-REQUIREMENTS.md`**; verification **`.planning/phases/75-upgrade-continuity-triage-polish/75-VERIFICATION.md`**.
+
+**v1.11 (shipped 2026-04-23):** Phases **71–72** — **`STAB-01`**..**`STAB-04`** adoption stabilization (triage log, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`** + ExDoc, intro cross-links). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
+
+**v1.10 (shipped 2026-04-23):** Phases **68–70** — **`ACF-01`**..**`ACF-06`** adopter-confidence documentation (deployment + mail hub, intermediate path + **`generator-options`** index, **`upgrading-to-v1.10.md`** + **ADR 001** / **SEED-002** non-goal attestation). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md).
+
+**v1.9 (shipped 2026-04-23):** Phases **66–67** — **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**). Archives: [`.planning/milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md), [`v1.9-REQUIREMENTS.md`](milestones/v1.9-REQUIREMENTS.md), [`v1.9-MILESTONE-AUDIT.md`](milestones/v1.9-MILESTONE-AUDIT.md).
+
+**v1.8 (shipped 2026-04-23):** Phases **63–65** — **ADOPT-04** / **ADOPT-05** / **INTG-02** doc polish (archives: [`.planning/milestones/v1.8-ROADMAP.md`](milestones/v1.8-ROADMAP.md), [`v1.8-REQUIREMENTS.md`](milestones/v1.8-REQUIREMENTS.md)).
+
+**v1.7 (shipped 2026-04-23):** **Phases 60–62** — archives: [`.planning/milestones/v1.7-ROADMAP.md`](milestones/v1.7-ROADMAP.md), [`v1.7-REQUIREMENTS.md`](milestones/v1.7-REQUIREMENTS.md), [`v1.7-MILESTONE-AUDIT.md`](milestones/v1.7-MILESTONE-AUDIT.md). **Phase 61:** **`AUD-01`** — `verify_backup/4` wrong-code failures are **`Ecto.Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 matrix refreshed. **Phase 62:** **`AUD-02`** — **`09-03-SUMMARY.md`** carries **v1.7** document status + Phase **61** bounded-batch narrative keyed to **`AUD-04-067`**; **D-06** left **`09-VERIFICATION.md`** unchanged. **Phase 60:** adoption + companion recipe guides under **`guides/introduction/`** and **`guides/recipes/companion-oauth-provider.md`** (no discrete **`060-*`** phase directory — see milestone audit).
 
 **v1.6 (shipped):** **Phases 57–59** — **NYQ-01** / **NYQ-02** Nyquist posture matrix for **41–44**, **OA-01** merge-blocking OAuth ceremony audit coverage (**`Sigra.OAuthCeremonyAuditTest`**, **`phase_58_oauth_oa01_ci_contract_test`**), and **OA-02** documentation alignment across **`docs/uat-ci-coverage.md`**, **GA-03** planning surfaces, and maintainer routers. Archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`, `v1.6-MILESTONE-AUDIT.md` (audit filed retroactively on 2026-04-23).
 
@@ -28,7 +70,11 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-Candidate themes for the **next** milestone include **SEED-002** remainder (broad `log_safe/3` → `Ecto.Multi`), **SEED-001** residuals if a loud public push needs fresh human matrix rows, product features promoted from **Backlog** in `.planning/ROADMAP.md`, or **999.x** hygiene — capture scope and requirements with **`/gsd-new-milestone`**.
+**When to open v1.15+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
+
+**Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
+
+**Later candidates:** bounded **SEED-002** batches, **SEED-001** human matrix before megaphone launch, **999.x** only if promoted, **`sigra_lockspire`** per ADR **001** triggers.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -57,6 +103,36 @@ Candidate themes for the **next** milestone include **SEED-002** remainder (broa
 </details>
 
 ## Requirements
+
+### Validated — v1.14 Bounded audit trust closure (shipped 2026-04-24)
+
+- ✓ **AUD-13-01** — **`audit_backup_codes_regenerate/3`** **`Multi` + `log_multi_safe`** — **Phase 77**
+- ✓ **AUD-13-02** — **`audit_trust_browser/2`** same pattern — **Phase 77**
+- ✓ **AUD-13-03** — **`mfa_audit_atomicity_test.exs`** coverage — **Phase 77**
+- ✓ **AUD-13-04** — C-1 matrix + inventory + summary + **CHANGELOG** — **Phase 77**
+
+### Validated — v1.13 Post–v1.12 operational cadence (planning shipped 2026-04-24)
+
+- ✓ **CAD-01** — **`.planning/PROJECT.md`** + archive **[`milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md)** — default ops lane and event lanes — **Phase 76**
+- ✓ **CAD-02** — **`.planning/STATE.md`** (at close) reflected **v1.13** / Phase **76** — **Phase 76**
+- ✓ **CAD-03** — **`.planning/ROADMAP.md`** + **[`milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md)** traceability — **Phase 76**
+
+### Validated — v1.12 Trust, evidence, and adoption polish (shipped 2026-04-24)
+
+- ✓ **AUD-11** — Bounded **SEED-002** **`Multi`** + **`log_multi_safe`** batch + audit-aware tests — **Phase 73**
+- ✓ **AUD-12** — **09-03-SUMMARY** (+ **09-VERIFICATION** rationale) — **Phase 74**
+- ✓ **UAT-01** — **`.planning/v1.12-UAT-EVIDENCE.md`** (eight SEED-001 rows) — **Phase 74**
+- ✓ **UAT-02** — **`docs/uat-ci-coverage.md`** aligned with **v1.12** evidence — **Phase 74**
+- ✓ **TRN-01** — **`upgrading-to-v1.12.md`** + **`mix.exs`** ExDoc extras — **Phase 75**
+- ✓ **TRN-02** — Intro + **MAINTAINING** or **CHANGELOG** pointers — **Phase 75**
+- ✓ **TRN-03** — Triage/issue-derived polish or explicit “no triage deltas” — **Phase 75**
+
+### Validated — v1.11 Adoption stabilization (shipped 2026-04-23)
+
+- ✓ **STAB-01** — **`.planning/v1.11-TRIAGE.md`** records triage + week-one path notes — **Phase 71**
+- ✓ **STAB-03** — **`MAINTAINING.md`** *Milestone cadence and pause* section — **Phase 71**
+- ✓ **STAB-02** — **`guides/introduction/upgrading-to-v1.11.md`** + **`mix.exs`** ExDoc extras — **Phase 72**
+- ✓ **STAB-04** — **getting-started** + **upgrading-to-v1.10** cross-links — **Phase 72**
 
 ### Validated — v1.0
 
@@ -132,6 +208,33 @@ Candidate themes for the **next** milestone include **SEED-002** remainder (broa
 - ✓ **DOC-01** — README GA / production-readiness paragraph with pointers to **v1.4** evidence — **Phase 55** (2026-04-22)
 - ✓ **DOC-02** — ExDoc landing path to maintainer GA / audit narrative — **Phase 55** (2026-04-22)
 - ✓ **MAINT-01** — `MAINTAINING.md` **First public launch** checklist with owners and evidence links — **Phase 56** (2026-04-22)
+
+### Validated — v1.8 Adopter polish (shipped 2026-04-23)
+
+- ✓ **ADOPT-04** — **`guides/introduction/upgrading-to-v1.8.md`**, **`mix.exs`** ExDoc extras ordering, **planning v1.8** vs **Hex SemVer** framing, pointers to **v1.7** upgrade context — **Phase 63**
+- ✓ **ADOPT-05** — Cross-links across **`getting-started`**, **`first-hour`**, **`troubleshooting-install`**, **`CHANGELOG`**, and both upgrade guides — **Phase 64**
+- ✓ **INTG-02** — **`companion-oauth-provider.md`** prerequisites, **B2C-only / no third-party clients** anti-pattern clarity, **See also** → **`upgrading-to-v1.8.html`** — **Phase 65**
+
+### Validated — v1.9 Audit atomicity (bounded SEED-002) (shipped 2026-04-23)
+
+- ✓ **AUD-09** — **`Sigra.MFA.confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`log_multi_safe`** with **`mfa_audit_atomicity_test.exs`**; **022** remains **T2** / **`EX-44-02`** — **Phase 66**
+- ✓ **AUD-10** — **`09-03-SUMMARY.md`** post–**phase-66** trace + bounded-batch narrative; **D-06** reconciliation **AUD-04-020..022** vs **44** inventory with explicit **no `09-VERIFICATION.md` edit`** attestation — **Phase 67**
+
+### Validated — v1.10 Adopter confidence for solo production (shipped 2026-04-23)
+
+- ✓ **ACF-01** — Production **HTTPS / proxy / session cookie** checklist hub in **`guides/recipes/deployment.md`** with maintainer + intro discovery links — **Phase 68**
+- ✓ **ACF-04** — **Oban-backed vs inline** Swoosh delivery TL;DR + install flags + example pointers — **Phase 68**
+- ✓ **ACF-02** — **`guides/introduction/intermediate-production-path.md`** intermediate dogfood spine + **`.planning/v1.10-ADOPTER-SCOPE.md`** link — **Phase 69**
+- ✓ **ACF-03** — **`guides/reference/generator-options.md`** optional-feature index + intro cross-links — **Phase 69**
+- ✓ **ACF-05** — **`guides/introduction/upgrading-to-v1.10.md`** + **`mix.exs`** ExDoc extras — **Phase 70**
+- ✓ **ACF-06** — Archived **v1.10** requirements + **`PROJECT.md`** explicit deferrals for **`sigra_lockspire`** and full **SEED-002** with **ADR 001** + seed pointers — **Phase 70**
+
+### Validated — v1.7 Adoption readiness & audit durability (shipped 2026-04-23)
+
+- ✓ **ADOPT-01** / **ADOPT-02** / **ADOPT-03** — First-hour guide, **v1.7** upgrade stub, install troubleshooting wired into ExDoc — **Phase 60**
+- ✓ **INTG-01** — Companion embedded OAuth/OIDC provider recipe (non-coupled seam) — **Phase 60**
+- ✓ **AUD-01** — Bounded **`verify_backup/4`** failure-path **`Multi`** + audit-aware tests + honest **AUD-04** / **C-1** rows — **Phase 61** (2026-04-23)
+- ✓ **AUD-02** — **`09-03-SUMMARY.md`** aligned to post–**phase-61** **C-1** truth with explicit planning trace; **D-06** required no **`09-VERIFICATION.md`** edit — **Phase 62** (2026-04-23)
 
 ### Validated — v1.6 Nyquist closure + OAuth audit depth
 
@@ -258,6 +361,7 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | Playwright over Cypress/WebdriverIO for browser smoke | Only runner with first-class frameLocator support for Swoosh dev-mailbox iframe; lowest-friction TypeScript setup. | ✓ Validated v1.0 (phase 10.1.1) — golden-path spec runs in ~90s on CI, zero flakes to date |
 | Organizations as first-class multi-tenancy | Logical tenants without schema-per-tenant; scope + membership + invitations. | ✓ Shipped v1.1 — org switcher, plugs, audit columns; superseded the old “defer to v2” note |
 | SAML / OAuth IdP out of scope | Enterprise concern with high maintenance burden. Architecture should not prevent future plugin/extension. | — Pending (still out of scope) |
+| Optional `sigra_lockspire` glue package | Keeps Sigra core deps minimal; companion OAuth servers integrate via **host-generated** seams (`AccountResolver`); glue only after both APIs stable. | — Deferred — see `.planning/decisions/001-defer-sigra-lockspire-glue-package.md` |
 | WebAuthn / passkeys deferred from v1.0 MFA | TOTP covers the broader developer use case; WebAuthn adds meaningful complexity; `wax_` dep was evaluated but not integrated. | ✓ Shipped v1.1 — passkeys + orgs foundations |
 | v1.2 admin is default-on installer feature with library-owned enforcement | Keeps security semantics in the dep while host owns policy module + shell chrome; matches hybrid architecture. | ✓ Validated v1.2 — plugs, `Sigra.Admin.*`, generator parity phases 32-33 |
 | Shift-left gates for installer + verification docs | Prevents INT-01..04 recurrence: emission audit, drift dead-text nav guard, milestone VERIFICATION.md gate, installer-scoped milestone audit CI, artifact bundle contract. | ✓ Validated v1.2 — Phase 35 |
@@ -283,8 +387,16 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.6 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.13 execution log)</summary>
 
+- **2026-04-24** — **`/gsd-complete-milestone` v1.14**: archived **`v1.14-REQUIREMENTS.md`**, **`v1.14-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.14`**.
+- **2026-04-24** — **`/gsd-complete-milestone` v1.13** (planning-only): archived **`v1.13-REQUIREMENTS.md`**, **`v1.13-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; no Hex tag (no library version bump).
+- **2026-04-24** — **`/gsd-complete-milestone` v1.12**: archived **`v1.12-REQUIREMENTS.md`**, **`v1.12-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.12`**.
+- **2026-04-23** — **v1.11** phases **71–72** complete; archived **`v1.11-REQUIREMENTS.md`** + **`v1.11-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed.
+- **2026-04-23** — **v1.10** phases **68–70** complete; `/gsd-complete-milestone` archived planning + tag **`v1.10`**; live **`REQUIREMENTS.md`** removed.
+- **2026-04-23** — **v1.9** phases **66–67** complete; `/gsd-complete-milestone` archived planning + tag **`v1.9`**; live **`REQUIREMENTS.md`** removed.
+- **2026-04-23** — **v1.8** phases **63–65** complete; `/gsd-complete-milestone` archived planning + tag **`v1.8`**; live **`REQUIREMENTS.md`** removed.
+- **2026-04-23** — **v1.7** phases **60–62** complete; `/gsd-complete-milestone` archived planning + tag **`v1.7`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.6** phases **57–59** complete; `/gsd-complete-milestone` archived planning + tag **`v1.6`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-22** — **v1.5** phases **53–56** complete; `/gsd-complete-milestone` archived planning + tag **`v1.5`**.
 - **2026-04-22** — v1.4 phases **41–52** complete on ROADMAP; milestone wrap via `/gsd-complete-milestone`.
@@ -297,4 +409,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`v1.6-MILESTONE-AUDIT.md`** added (retroactive **passed** verdict); **`/gsd-complete-milestone`** had archived `milestones/v1.6-*`, removed live **`REQUIREMENTS.md`**, and tagged **`v1.6`**.*
+*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.14**: archived **`v1.14-ROADMAP.md`** + **`v1.14-REQUIREMENTS.md`**; live **`REQUIREMENTS.md`** removed; git tag **`v1.14`**; **`77-01-SUMMARY.md`** added.*

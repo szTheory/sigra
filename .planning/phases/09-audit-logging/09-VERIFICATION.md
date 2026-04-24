@@ -16,14 +16,14 @@ Normative vocabulary: [`docs/audit-semantics.md`](../../../docs/audit-semantics.
 Mechanical inventory totals (pipe rows whose first cell is an **AUD-04-** id):
 
 - `rg -c '^\| AUD-04-' .planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md` → **19**
-- `rg -c '^\| AUD-04-' .planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md` → **30**
+- `rg -c '^\| AUD-04-' .planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md` → **31**
 - `rg -c '^\| AUD-04-' .planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md` → **12**
 
 **45** inventory also documents **AUD-04-050** / **AUD-04-051** under *Callback mutation inventory* without duplicating them as extra `| AUD-04-050 |` pipe rows in that file. The **Phase 45** subsection below adds explicit **050** / **051** matrix rows so **050+** coverage stays row-complete.
 
 Mechanical check on this document (after the tables are present):
 
-- `rg -c '^\| AUD-04-[0-9]+' .planning/phases/09-audit-logging/09-VERIFICATION.md` must be **≥ 61** (inventory pipe sum). Current row count: **63** (19 + 30 + 14, where 14 = 12 + **050** + **051**).
+- `rg -c '^\| AUD-04-[0-9]+' .planning/phases/09-audit-logging/09-VERIFICATION.md` must be **≥ 61** (inventory pipe sum). Current row count: **64** (19 + 31 + 14, where 14 = 12 + **050** + **051**).
 
 **Intentional delta / excluded populations:** none (empty); **EX-*** compensating controls remain authoritative in the phase inventory files.
 
@@ -55,21 +55,22 @@ Mechanical check on this document (after the tables are present):
 
 | AUD-04-id | mechanism | tier | verdict | evidence pointer |
 |-----------|-----------|------|---------|-------------------|
-| AUD-04-020 | `log_safe` (post `Repo.transaction`) | tier 6 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-021 | `log_safe` (after failed credential insert) | tier 7 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-022 | `log_safe` (invalid TOTP before DB) | tier 9 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-023 | `log_safe` (after `update_all` + lockout reset) | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-024 | `log_safe` (after `Lockout.increment`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-025 | `log_safe` (threshold reached) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-026 | `log_safe` | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-027 | `log_safe` | tier 3 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-028 | `log_safe` (after `cleanup_mfa/5`) | tier 6 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-029 | `log_safe` (after `cleanup_mfa/5`) | tier 6 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-030 | **Multi (`log_multi_safe`)** | tier 5 | T1 (Multi-bound) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-031 | `log_safe` | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-032 | `log_safe` | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-033 | `log_safe` | tier 8 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-034 | `log_safe` | tier 8 | T2 / target Multi (phase 44 closure) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-020 | **`Multi` + `log_multi_safe`** (`mfa.enroll.success` inside enrollment `Repo.transaction/1`) | tier 5 | T1 (**AUD-09**, phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-021 | **`Multi` + `log_multi_safe`** (follow-up `Repo.transaction/1` for `insert_failed` / `mfa.enroll.failure`) | tier 5 | T1 (**AUD-09**, phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-022 | **`log_safe`** (invalid TOTP; no DB writes) | tier 9 | T2 / **EX-44-02** (hybrid; unchanged phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
+| AUD-04-023 | **`Multi` + `log_multi_safe`** (`verify/4` TOTP success — `Multi.update_all` + `mfa.verify.success` in one `repo.transaction/1`) | tier 3 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~291–310 |
+| AUD-04-024 | **`Multi` + `log_multi_safe`** (`verify/4` wrong TOTP — `Lockout.increment` + `mfa.verify.failure`) | tier 5 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~325–341 |
+| AUD-04-025 | **`Multi` + `log_multi_safe`** (`mfa.lockout` appended via `Multi.merge` when threshold met) | tier 4 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~342–360 |
+| AUD-04-026 | **`Multi` + `log_multi_safe`** (`verify_backup/4` success path) | tier 3 | T1 (Multi-bound; closed in `lib/`; phase 73 verification receipts) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-027 | **`Multi` + `log_multi_safe`** (`mfa.backup_code_used` paired with **026**) | tier 3 | T1 (Multi-bound; closed in `lib/`; phase 73 verification receipts) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-067 | **`Multi` + `log_multi_safe`** | tier 5 | T1 (**AUD-01**, phase **61**; phase 73 verification receipts) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-028 | **`Multi` + `log_multi_safe`** (`cleanup_mfa/6` — `mfa.disable` on same `Multi` as deletes + trust revoke) | tier 6 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~1007–1033 |
+| AUD-04-029 | **`Multi` + `log_multi_safe`** (`disable!/4` admin path; same pattern as **028**) | tier 6 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-030 | **`Multi` + `log_multi_safe`** (`regenerate_backup_codes/4` success — replace + `mfa.backup_codes_regenerate` in one txn) | tier 5 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-031 | **`Multi` + `log_multi_safe`** (`regenerate_backup_codes/4` wrong TOTP — `mfa.verify.failure`) | tier 5 | T1 (Multi-bound; phase 73) | `lib/sigra/mfa.ex` ~741–757 |
+| AUD-04-032 | **`Multi` + `log_multi_safe`** (regenerate path `mfa.lockout` via `Multi.merge`) | tier 4 | T1 (Multi-bound; phase 73) | `lib/sigra/mfa.ex` ~758–776 |
+| AUD-04-033 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`audit_backup_codes_regenerate/3`; dedicated `:audit_mfa_backup_codes_regenerate_adhoc` step) | tier 8 | T1 (phase **77** / **AUD-13**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
+| AUD-04-034 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`audit_trust_browser/2`; dedicated `:audit_mfa_trust_browser_adhoc` step) | tier 8 | T1 (phase **77** / **AUD-13**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
 | AUD-04-035 | `log_safe` (after `{:ok, _}`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/account_audit_atomicity_test.exs` |
 | AUD-04-036 | `log_safe` (after `{:ok, _}`) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/account_audit_atomicity_test.exs` |
 | AUD-04-037 | `log_safe` (after `{:ok, _}`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/account_audit_atomicity_test.exs` |
@@ -85,6 +86,8 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-047 | `log_safe` (after `repo.update`) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/api_token_audit_atomic_test.exs` |
 | AUD-04-048 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
 | AUD-04-049 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
+
+**Phase 61 (2026-04-23):** **`verify_backup/4`** wrong-code / invalid-backup attempts emit **`mfa.verify.failure`** via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (and **`mfa.lockout`** in the same transaction when the lockout threshold is reached), matching **`verify/4`** failure semantics. Matrix row **`AUD-04-067`**; tests in **`test/sigra/mfa_audit_atomicity_test.exs`**.
 
 ### C-1 — Phase 45 inventory
 

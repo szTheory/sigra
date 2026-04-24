@@ -34,10 +34,12 @@ defmodule Sigra.MFA do
   #
   # D-26 dispatch table (Phase 44 AUD-06 — Multi + `log_multi_safe` when `:audit_schema`):
   #   enroll success          -> `Multi` + `Sigra.Audit.log_multi_safe("mfa.enroll.success", …)` (+ telemetry on `{:ok, changes}`)
-  #   enroll failure          -> Sigra.Audit.log_safe("mfa.enroll.failure", …) (post-rollback / invalid code)
+  #   enroll failure          -> `insert_failed`: follow-up `repo.transaction/1` on `Multi` + `log_multi_safe("mfa.enroll.failure", …)` after enrollment `Multi` rolls back; `invalid_code` still `log_safe/3` (AUD-04-022 / EX-44-02 default)
+  #   ad-hoc audit helpers    -> `Repo.transaction/1` on `Multi` + `log_multi_safe` (`audit_backup_codes_regenerate/3`, `audit_trust_browser/2`; phase **77** / AUD-04-033..034)
   #   verify success (totp)   -> `Multi` + `log_multi_safe("mfa.verify.success", …)`
   #   verify success (backup) -> dual `log_multi_safe` with `:audit_mfa_verify` / `:audit_mfa_backup` + paired telemetry
   #   verify failure          -> `Multi` (`Lockout.increment` + `log_multi_safe` + optional lockout audit)
+  #   verify_backup failure   -> same `Multi` + `log_multi_safe` pattern as verify failure (invalid backup / consume miss)
   #   disable                 -> `cleanup_mfa/6` Multi + `log_multi_safe("mfa.disable", …)`
   #   lockout                 -> (bundled on verify / regen failure Multis where applicable)
 
@@ -48,6 +50,68 @@ defmodule Sigra.MFA do
       repo: config.repo,
       audit_schema: Keyword.get(audit_config, :audit_schema)
     ]
+  end
+
+  defp mfa_ad_hoc_audit_scope_fields(nil) do
+    [organization_id: nil, effective_user_id: nil, actor_id: nil]
+  end
+
+  defp mfa_ad_hoc_audit_scope_fields(%{user: scope_user} = s) do
+    org = Map.get(s, :active_organization)
+    actor = Map.get(s, :impersonating_from) || scope_user
+
+    [
+      organization_id: org && org.id,
+      effective_user_id: scope_user && scope_user.id,
+      actor_id: actor && actor.id
+    ]
+  end
+
+  defp mfa_ad_hoc_audit_scope_fields(_), do: mfa_ad_hoc_audit_scope_fields(nil)
+
+  defp commit_ad_hoc_mfa_audit(%Sigra.Config{} = config, action, user, extra_opts, audit_step)
+       when is_binary(action) and is_atom(audit_step) do
+    repo = config.repo
+    scope = Sigra.Scope.from_config(config, user)
+
+    opts =
+      config
+      |> mfa_audit_opts()
+      |> Keyword.merge(mfa_ad_hoc_audit_scope_fields(scope))
+      |> Keyword.merge(extra_opts)
+      |> Keyword.put(:audit_multi_step, audit_step)
+
+    multi =
+      Multi.new()
+      |> Sigra.Audit.log_multi_safe(action, opts)
+
+    try do
+      case repo.transaction(multi) do
+        {:ok, changes} ->
+          Sigra.Audit.emit_telemetry_from_changes(changes, [audit_step])
+          :ok
+
+        {:error, _failed, %Ecto.Changeset{} = failed_cs, _changes} ->
+          emit_enroll_failure_audit_error_telemetry(action, failed_cs)
+          :ok
+
+        {:error, _failed, _other, _changes} ->
+          :ok
+      end
+    rescue
+      e ->
+        if failure_audit_followup_rescue?(e) do
+          :telemetry.execute(
+            [:sigra, :audit, :log_safe_error],
+            %{count: 1},
+            %{action: action, reason: :constraint_violation}
+          )
+
+          :ok
+        else
+          reraise(e, __STACKTRACE__)
+        end
+    end
   end
 
   @doc """
@@ -179,25 +243,45 @@ defmodule Sigra.MFA do
             )
           )
 
-        case repo.transaction(multi) do
-          {:ok, %{credential: db_credential} = changes} ->
+        enrollment_txn =
+          try do
+            {:completed, repo.transaction(multi)}
+          rescue
+            e ->
+              if enroll_txn_postgrex_insert_failed?(e) do
+                {:persist_error, insert_failed_return_changeset(backup_code_schema)}
+              else
+                reraise(e, __STACKTRACE__)
+              end
+          end
+
+        case enrollment_txn do
+          {:completed, {:ok, %{credential: db_credential} = changes}} ->
             credential = Credential.from_schema(db_credential)
             formatted_codes = Enum.map(codes, &elem(&1, 0))
             Sigra.Audit.emit_telemetry_from_changes(changes)
 
             {:ok, %{credential: credential, backup_codes: formatted_codes}}
 
-          {:error, _step, changeset, _changes} ->
-            Sigra.Audit.log_safe(
-              "mfa.enroll.failure",
-              Sigra.Scope.from_config(config, user),
-              Keyword.merge(mfa_audit_opts(config),
-                actor_id: user.id,
-                target_id: user.id,
-                outcome: "failure",
-                metadata: %{method: "totp", reason: "insert_failed"}
-              )
-            )
+          {:completed, {:error, step, changeset, _changes}} ->
+            case step do
+              s when s in [:credential, :backup_codes] ->
+                emit_enroll_insert_failed_audit(repo, config, user)
+                {:error, changeset}
+
+              _ ->
+                raise Ecto.ConstraintError,
+                  type: :check,
+                  constraint: "mfa_enroll_audit",
+                  message:
+                    "check constraint violation on MFA enrollment audit step #{inspect(step)}",
+                  source: nil,
+                  changeset: changeset,
+                  repo: repo
+            end
+
+          {:persist_error, changeset} ->
+            emit_enroll_insert_failed_audit(repo, config, user)
 
             {:error, changeset}
         end
@@ -441,17 +525,65 @@ defmodule Sigra.MFA do
                   {:ok, :consumed, changes.remaining}
 
                 {:error, :consume, :invalid_backup_code, _changes} ->
-                  {:ok, %{failed_attempts: count, locked: locked}} =
-                    Lockout.increment(repo, mfa_credential_schema, credential.id, config)
-
                   threshold = Keyword.get(config.mfa, :lockout_threshold, 5)
 
-                  if locked do
-                    duration = Keyword.get(config.mfa, :lockout_duration, 900)
-                    Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
-                    {:error, :lockout, duration}
-                  else
-                    {:error, :invalid_backup_code, max(threshold - count, 0)}
+                  failure_multi =
+                    Multi.new()
+                    |> Multi.run(:lockout_inc, fn r, _ ->
+                      Lockout.increment(r, mfa_credential_schema, credential.id, config)
+                    end)
+                    |> Sigra.Audit.log_multi_safe(
+                      "mfa.verify.failure",
+                      Keyword.merge(mfa_audit_opts(config),
+                        actor_id: user.id,
+                        target_id: user.id,
+                        outcome: "failure",
+                        audit_multi_step: :audit_mfa_backup_verify_failure,
+                        metadata_resolver: fn ch ->
+                          %{method: "backup_code", attempts: ch.lockout_inc.failed_attempts}
+                        end
+                      )
+                    )
+                    |> Multi.merge(fn %{lockout_inc: inc} ->
+                      if inc.locked do
+                        duration = Keyword.get(config.mfa, :lockout_duration, 900)
+
+                        Sigra.Audit.log_multi_safe(
+                          Multi.new(),
+                          "mfa.lockout",
+                          Keyword.merge(mfa_audit_opts(config),
+                            actor_id: user.id,
+                            target_id: user.id,
+                            outcome: "failure",
+                            audit_multi_step: :audit_mfa_backup_lockout,
+                            metadata: %{method: "backup_code", duration: duration}
+                          )
+                        )
+                      else
+                        Multi.new()
+                      end
+                    end)
+
+                  case repo.transaction(failure_multi) do
+                    {:ok, changes} ->
+                      Sigra.Audit.emit_telemetry_from_changes(changes, [
+                        :audit_mfa_backup_verify_failure,
+                        :audit_mfa_backup_lockout
+                      ])
+
+                      %{failed_attempts: count, locked: locked} = changes.lockout_inc
+
+                      if locked do
+                        duration = Keyword.get(config.mfa, :lockout_duration, 900)
+                        Sigra.Telemetry.event([:sigra, :mfa, :lockout], %{}, %{user_id: user.id})
+                        {:error, :lockout, duration}
+                      else
+                        {:error, :invalid_backup_code, max(threshold - count, 0)}
+                      end
+
+                    {:error, failed, reason, _changes} ->
+                      raise "Sigra.MFA.verify_backup/4 unexpected transaction failure " <>
+                              "at #{inspect(failed)}: #{inspect(reason)}"
                   end
 
                 {:error, failed, reason, _changes} ->
@@ -734,7 +866,9 @@ defmodule Sigra.MFA do
   end
 
   @doc """
-  Record an `mfa.backup_codes_regenerate` audit row via `log_safe/2`.
+  Record an `mfa.backup_codes_regenerate` audit row via `Ecto.Multi` +
+  `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema`
+  is configured (same telemetry semantics as legacy `log_safe/3` on failure).
 
   This is **not** the authoritative audit path when audit is enabled for
   library-driven rotation — use `regenerate_backup_codes/4`, which appends
@@ -743,29 +877,28 @@ defmodule Sigra.MFA do
   """
   @spec audit_backup_codes_regenerate(Sigra.Config.t(), struct(), non_neg_integer()) :: :ok
   def audit_backup_codes_regenerate(%Sigra.Config{} = config, user, count) do
-    Sigra.Audit.log_safe(
+    commit_ad_hoc_mfa_audit(
+      config,
       "mfa.backup_codes_regenerate",
-      Sigra.Scope.from_config(config, user),
-      Keyword.merge(mfa_audit_opts(config),
-        actor_id: user.id,
-        metadata: %{count: count}
-      )
+      user,
+      [actor_id: user.id, metadata: %{count: count}],
+      :audit_mfa_backup_codes_regenerate_adhoc
     )
   end
 
   @doc """
-  Record an mfa.trust_browser audit row. Called by Sigra.MFA.Trust when
-  a browser is marked trusted.
+  Record an `mfa.trust_browser` audit row via `Ecto.Multi` +
+  `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema`
+  is configured. Intended for `Sigra.MFA.Trust` when a browser is marked trusted.
   """
   @spec audit_trust_browser(Sigra.Config.t(), struct()) :: :ok
   def audit_trust_browser(%Sigra.Config{} = config, user) do
-    Sigra.Audit.log_safe(
+    commit_ad_hoc_mfa_audit(
+      config,
       "mfa.trust_browser",
-      Sigra.Scope.from_config(config, user),
-      Keyword.merge(mfa_audit_opts(config),
-        actor_id: user.id,
-        metadata: %{}
-      )
+      user,
+      [actor_id: user.id, metadata: %{}],
+      :audit_mfa_trust_browser_adhoc
     )
   end
 
@@ -986,4 +1119,107 @@ defmodule Sigra.MFA do
 
   defp cleanup_disable_transaction_error(:audit, %Ecto.Changeset{}), do: :mfa_audit_failed
   defp cleanup_disable_transaction_error(_, _), do: :mfa_disable_failed
+
+  # Mirrors `Sigra.Audit` private `emit_log_safe_error/2` — enrollment must not
+  # depend on Audit internals, but operators need the same `log_safe_error`
+  # signal when the post-rollback failure-audit transaction does not commit.
+  defp emit_enroll_failure_audit_error_telemetry(action, %Ecto.Changeset{} = cs) do
+    error_fields = cs.errors |> Enum.map(fn {field, _} -> field end) |> Enum.uniq()
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{action: action, reason: :invalid_changeset, error_fields: error_fields}
+    )
+  end
+
+  defp enroll_txn_postgrex_insert_failed?(e) do
+    with true <- is_exception(e),
+         %{table: table} <- Map.get(e, :postgres) do
+      table in ["user_mfa_backup_codes", "user_mfa_credentials"]
+    else
+      _ -> false
+    end
+  end
+
+  defp failure_audit_followup_rescue?(e) do
+    match?(%Ecto.ConstraintError{}, e) or
+      (is_exception(e) and match?(%{table: _}, Map.get(e, :postgres)))
+  end
+
+  defp insert_failed_return_changeset(backup_code_schema) do
+    backup_code_schema.__struct__()
+    |> Ecto.Changeset.change(%{})
+    |> Ecto.Changeset.add_error(:base, "insert_failed")
+  end
+
+  defp enroll_insert_failed_opts(config, user) do
+    scope = Sigra.Scope.from_config(config, user)
+
+    scope_opts =
+      case scope do
+        %{user: scope_user} = s ->
+          org = Map.get(s, :active_organization)
+          actor = Map.get(s, :impersonating_from) || scope_user
+
+          [
+            organization_id: org && org.id,
+            effective_user_id: scope_user && scope_user.id,
+            actor_id: actor && actor.id
+          ]
+
+        _ ->
+          [organization_id: nil, effective_user_id: nil, actor_id: nil]
+      end
+
+    caller_opts =
+      Keyword.merge(mfa_audit_opts(config),
+        actor_id: user.id,
+        target_id: user.id,
+        outcome: "failure",
+        metadata: %{method: "totp", reason: "insert_failed"}
+      )
+
+    Keyword.merge(scope_opts, caller_opts)
+  end
+
+  defp emit_enroll_insert_failed_audit(repo, config, user) do
+    failure_opts = enroll_insert_failed_opts(config, user)
+
+    failure_multi =
+      Multi.new()
+      |> Sigra.Audit.log_multi_safe(
+        "mfa.enroll.failure",
+        Keyword.merge(failure_opts, audit_multi_step: :audit_mfa_enroll_insert_failed)
+      )
+
+    try do
+      case repo.transaction(failure_multi) do
+        {:ok, audit_changes} ->
+          Sigra.Audit.emit_telemetry_from_changes(audit_changes, [
+            :audit_mfa_enroll_insert_failed
+          ])
+
+        {:error, _failed_step, failed_value, _audit_changes} ->
+          case failed_value do
+            %Ecto.Changeset{} = failed_cs ->
+              emit_enroll_failure_audit_error_telemetry("mfa.enroll.failure", failed_cs)
+
+            _ ->
+              :ok
+          end
+      end
+    rescue
+      e ->
+        if failure_audit_followup_rescue?(e) do
+          :telemetry.execute(
+            [:sigra, :audit, :log_safe_error],
+            %{count: 1},
+            %{action: "mfa.enroll.failure", reason: :constraint_violation}
+          )
+        else
+          reraise(e, __STACKTRACE__)
+        end
+    end
+  end
 end

@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.6
-milestone_name: Nyquist closure + OAuth audit depth
+milestone: v1.14
+milestone_name: Bounded audit trust closure
 status: milestone_archived
-stopped_at: Milestone v1.6 closed via /gsd-complete-milestone
-last_updated: "2026-04-23T12:00:00.000Z"
-last_activity: 2026-04-23 -- v1.6 archival + REQUIREMENTS.md removed
+stopped_at: null
+last_updated: "2026-04-24T12:00:00.000Z"
+last_activity: 2026-04-24 — Phase 77 / AUD-13 MFA ad-hoc audit Multi closure
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 65
+  completed_phases: 65
+  total_plans: 182
+  completed_plans: 187
   percent: 100
 ---
 
@@ -18,37 +18,37 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-23)
+See: `.planning/PROJECT.md` (updated 2026-04-24 — post–v1.14 archive)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones — run `/gsd-new-milestone` to open v1.7+ scope.
+**North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
+
+**Current focus:** **v1.14** archived — **`/gsd-new-milestone`** when a trust-signal opens **v1.15+**; else **CHANGELOG + Hex** patch cadence per **`MAINTAINING.md`**.
 
 ## Current Position
 
-Phase: v1.6 complete (57–59 archived)
+Phase: **77** — **MFA ad-hoc audit `Multi` closure** — **Complete**
 
-Plan: n/a
+Plan: N/A
 
-Status: Milestone archived; live `.planning/REQUIREMENTS.md` removed at close
+Status: Phase **77** verification satisfied (**AUD-13**)
 
-Last activity: 2026-04-23
+Last activity: 2026-04-24 — **`lib/sigra/mfa.ex`** `commit_ad_hoc_mfa_audit/5`; tests + planning truth (**AUD-13-04**).
 
 ## Performance Metrics
 
-_Velocity metrics populate as phases complete._
+_Velocity metrics populate during phase work._
 
 ## Accumulated Context
 
-**v1.6** closed **2026-04-23** — archives: `.planning/milestones/v1.6-ROADMAP.md`, `v1.6-REQUIREMENTS.md`. Summary: `.planning/MILESTONES.md`.
+**v1.14** — **Phase 77** — bounded **SEED-002** slice (**AUD-04-033** / **034**); **`AUD-04-022`** unchanged (**EX-44-02**).
 
-**v1.5** closed **2026-04-22** — archives: `.planning/milestones/v1.5-ROADMAP.md`, `v1.5-REQUIREMENTS.md`. Summary: `.planning/MILESTONES.md`.
-
-**Note:** `.planning/phases/` retains historical directories; **`phases.clear`** is not used in this repo.
+**v1.13** closed **2026-04-24** — planning-only **Phase 76** (**CAD-01**..**CAD-03**).
 
 ### Pending Todos
 
-_None — capture in phase PLAN.md as work starts._
+_None._
 
 ### Blockers/Concerns
 
@@ -56,14 +56,10 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+**Next:** **`/gsd-new-milestone`** for coordinated **v1.15+** work, or routine **CHANGELOG + Hex** patches without a new planning milestone.
 
-Stopped at: Phase 59 context gathered
+**Archived requirements (v1.14):** `.planning/milestones/v1.14-REQUIREMENTS.md` — live **`.planning/REQUIREMENTS.md`** removed at close; recreate via **`/gsd-new-milestone`**.
 
-Resume file: --resume-file
+**Planned work:** Default ops lane until next trust-signal **`/gsd-new-milestone`**.
 
-**Next phase:** Use **`/gsd-new-milestone`** to author the next milestone’s requirements and phased roadmap.
-
-**Planned focus:** TBD until the next milestone is opened.
-
-**Planned Phase:** n/a
+**Planned Phase:** _TBD from next milestone_

@@ -10,8 +10,91 @@
 - ✅ **v1.4 GA readiness & audit trail completeness** — Phases **41–52** (shipped **2026-04-22**). See [v1.4 archive](milestones/v1.4-ROADMAP.md), [v1.4 requirements](milestones/v1.4-REQUIREMENTS.md), [v1.4 milestone audit](milestones/v1.4-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.5 Public release narrative & community readiness** — Phases **53–56** (shipped **2026-04-22**). See [v1.5 archive](milestones/v1.5-ROADMAP.md), [v1.5 requirements](milestones/v1.5-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.6 Nyquist closure + OAuth audit depth** — Phases **57–59** (shipped **2026-04-23**). See [v1.6 archive](milestones/v1.6-ROADMAP.md), [v1.6 requirements](milestones/v1.6-REQUIREMENTS.md), [v1.6 milestone audit](milestones/v1.6-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.7 Adoption readiness & audit durability** — Phases **60–62** (shipped **2026-04-23**). See [v1.7 archive](milestones/v1.7-ROADMAP.md), [v1.7 requirements](milestones/v1.7-REQUIREMENTS.md), [v1.7 milestone audit](milestones/v1.7-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.8 Adopter polish (diminishing returns)** — Phases **63–65** (shipped **2026-04-23**). See [v1.8 archive](milestones/v1.8-ROADMAP.md), [v1.8 requirements](milestones/v1.8-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.9 Audit atomicity (bounded SEED-002)** — Phases **66–67** (shipped **2026-04-23**). See [v1.9 archive](milestones/v1.9-ROADMAP.md), [v1.9 requirements](milestones/v1.9-REQUIREMENTS.md), [v1.9 milestone audit](milestones/v1.9-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.10 Adopter confidence for solo production** — Phases **68–70** (shipped **2026-04-23**). See [v1.10 archive](milestones/v1.10-ROADMAP.md), [v1.10 requirements](milestones/v1.10-REQUIREMENTS.md), [v1.10 milestone audit](milestones/v1.10-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.11 Adoption stabilization** — Phases **71–72** (shipped **2026-04-23**). See [v1.11 archive](milestones/v1.11-ROADMAP.md), [v1.11 requirements](milestones/v1.11-REQUIREMENTS.md), and triage [v1.11-TRIAGE.md](v1.11-TRIAGE.md).
+- ✅ **v1.12 Trust, evidence, and adoption polish** — Phases **73–75** (shipped **2026-04-24**). See [v1.12 archive](milestones/v1.12-ROADMAP.md), [v1.12 requirements](milestones/v1.12-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Bounded **SEED-002** batch + **SEED-001** evidence index + triage-driven doc polish.
+- ✅ **v1.13 Post–v1.12 operational cadence** — Phase **76** (shipped **2026-04-24**). See [v1.13 archive](milestones/v1.13-ROADMAP.md), [v1.13 requirements](milestones/v1.13-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Planning-only cadence lock-in (**CAD-01**..**CAD-03**).
+- ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). See [v1.14 archive](milestones/v1.14-ROADMAP.md), [v1.14 requirements](milestones/v1.14-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
 
 ## Phases
+
+<details>
+<summary>✅ v1.14 Bounded audit trust closure (Phase 77) — SHIPPED 2026-04-24</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md).
+
+**At a glance:** **77** — **`audit_backup_codes_regenerate/3`** / **`audit_trust_browser/2`** → **`commit_ad_hoc_mfa_audit/5`** (**`Multi` + `log_multi_safe`**); **`mfa_audit_atomicity_test.exs`**; **09** / **44** / **CHANGELOG** truth (**AUD-13-01**..**AUD-13-04**). Verification: [`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`](phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md).
+
+</details>
+
+<details>
+<summary>✅ v1.13 Post–v1.12 operational cadence (Phase 76) — SHIPPED 2026-04-24</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md).
+
+**At a glance:** **76** — **PROJECT** / **STATE** / **ROADMAP** / **REQUIREMENTS** + **76-VERIFICATION.md** record default Hex patch cadence and trust-signal event lanes (**CAD-01**..**CAD-03**).
+
+</details>
+
+<details>
+<summary>✅ v1.12 Trust, evidence, and adoption polish (Phases 73–75) — SHIPPED 2026-04-24</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md).
+
+**At a glance:** **73** bounded **C-1** **`Multi`** + **`log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** (**AUD-11**); **74** **09-03-SUMMARY** + **v1.12-UAT-EVIDENCE** + **`docs/uat-ci-coverage.md`** (**AUD-12**, **UAT-01**, **UAT-02**); **75** **`upgrading-to-v1.12.md`** + trust-bundle surfacing + **`v1.11-TRIAGE.md`** reconciliation (**TRN-01**..**TRN-03**).
+
+</details>
+
+<details>
+<summary>✅ v1.11 Adoption stabilization (Phases 71–72) — SHIPPED 2026-04-23</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|----------------------------|
+| **71** | Triage + maintainer pause guidance | Record adoption signals; document when to pause GSD milestones. | STAB-01, STAB-03 | (1) **`.planning/v1.11-TRIAGE.md`** is complete and linked from **`upgrading-to-v1.11.md`**. (2) **`MAINTAINING.md`** contains **Milestone cadence and pause** with pause/resume criteria. |
+| **72** | Upgrade stub + intro cross-links | Planning **v1.11** vs Hex is legible; intro docs surface upgrade pages. | STAB-02, STAB-04 | (1) **`guides/introduction/upgrading-to-v1.11.md`** ships and appears in **`mix.exs`** ExDoc extras after **v1.10** upgrade page. (2) **getting-started** faster path lists **v1.10** and **v1.11** upgrade links; **upgrading-to-v1.10** See also links **v1.11**. |
+
+**Coverage:** 4 requirements → 2 phases. Phase numbering continues from **v1.10** (last phase **70**).
+
+</details>
+
+<details>
+<summary>✅ v1.10 Adopter confidence for solo production (Phases 68–70) — SHIPPED 2026-04-23</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md).
+
+**At a glance:** **68** deployment + mail confidence hub (**`068-VERIFICATION.md`**, **ACF-01** / **ACF-04**); **69** intermediate path + **`generator-options`** index (**`069-VERIFICATION.md`**, **ACF-02** / **ACF-03**); **70** **`upgrading-to-v1.10.md`** + non-goal attestation (**`070-VERIFICATION.md`**, **ACF-05** / **ACF-06**).
+
+</details>
+
+<details>
+<summary>✅ v1.9 Audit atomicity (Phases 66–67) — SHIPPED 2026-04-23</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.9-ROADMAP.md`](milestones/v1.9-ROADMAP.md).
+
+**At a glance:** **66** **`confirm_enrollment/5`** **AUD-04-020..021** **`Multi`** + **`mfa_audit_atomicity_test.exs`** (**AUD-09**); **67** **`09-03-SUMMARY.md`** + **D-06** attestation (**AUD-10**).
+
+</details>
+
+<details>
+<summary>✅ v1.8 Adopter polish (Phases 63–65) — SHIPPED 2026-04-23</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.8-ROADMAP.md`](milestones/v1.8-ROADMAP.md).
+
+**At a glance:** **63** **`upgrading-to-v1.8.md`** + ExDoc extras + SemVer framing (**ADOPT-04**); **64** cross-links among getting-started, first-hour, troubleshooting, and upgrade paths (**ADOPT-05**); **65** companion recipe prerequisite / when-not-to-use / See also polish (**INTG-02**).
+
+</details>
+
+<details>
+<summary>✅ v1.7 Adoption readiness & audit durability (Phases 60–62) — SHIPPED 2026-04-23</summary>
+
+Full phase table, success criteria, and Phase **60** directory note are archived in [`milestones/v1.7-ROADMAP.md`](milestones/v1.7-ROADMAP.md).
+
+**At a glance:** **60** adoption + companion recipe (**ADOPT-01..03**, **INTG-01**); **61** bounded **SEED-002** batch — `verify_backup/4` failure **`Multi`** + **`mfa_audit_atomicity_test.exs`** + **AUD-04-067** (**AUD-01**); **62** **`09-03-SUMMARY.md`** + **AUD-02** closure.
+
+</details>
 
 <details>
 <summary>✅ v1.4 GA readiness & audit trail completeness (Phases 41–52) — SHIPPED 2026-04-22</summary>
@@ -30,10 +113,6 @@ Full phase table, goals, and canonical refs are archived in [`milestones/v1.5-RO
 At a glance: **53** Hex / `mix.exs` metadata (**PUB-01**); **54** `CHANGELOG.md` milestone anchors (**PUB-02**); **55** README + ExDoc GA entry paths (**DOC-01**, **DOC-02**); **56** maintainer **First public launch** checklist in `MAINTAINING.md` (**MAINT-01**).
 
 </details>
-
-### Next milestone
-
-Planning not started — run `/gsd-new-milestone` to define requirements and phased work.
 
 <details>
 <summary>✅ v1.6 Nyquist closure + OAuth audit depth (Phases 57–59) — SHIPPED 2026-04-23</summary>

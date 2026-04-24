@@ -1,11 +1,30 @@
-# Phase 9 — Audit logging summary (post v1.4)
+# Phase 9 — Audit logging & C-1 executive orientation
 
-Executive snapshot after **AUD-08** (OAuth + ops + worker) and prior **AUD-04** waves on auth, MFA, and account/API surfaces.
+## Document status
+
+- **Last materially updated for:** **v1.14** (**2026-04-24**) — phase **`77`** / **`AUD-13`** closes **AUD-04-033** / **034** ad-hoc MFA audit helpers to **`Multi` + `log_multi_safe`** inside **`Repo.transaction/1`**.
+- **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02) → Phase 66 (AUD-09) → Phase 67 (AUD-10) → Phase 73 (AUD-11) → Phase 77 (AUD-13).
+- **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
+- **Requirement:** [**AUD-10**](../../milestones/v1.9-REQUIREMENTS.md) (archived **v1.9** requirements at milestone close — historical anchor).
+- **`v1.12` carry-forward (archived):** [`milestones/v1.12-REQUIREMENTS.md`](../../milestones/v1.12-REQUIREMENTS.md) — **`AUD-12`**, **`UAT-01`**, **`UAT-02`** (and **`AUD-11`**, **`TRN-*`**) at milestone close **2026-04-24**; live **`.planning/REQUIREMENTS.md`** removed until **`/gsd-new-milestone`**.
+- **C-1 verification note (phase 67 / AUD-10):** No edit to 09-VERIFICATION.md rows AUD-04-020..022 after D-06 reconciliation (hybrid D-06 / AUD-02 class).
+- **C-1 verification note (phase 73 / AUD-11):** Rows **AUD-04-023..032** reconciled to **`lib/sigra/mfa.ex`** **`Multi` + `log_multi_safe`** where **T1**. Evidence **`test/sigra/mfa_audit_atomicity_test.exs`**; planning **`.planning/phases/73-bounded-audit-atomicity-batch/`**; merge commits **`aed7a9a`** (matrix + inventory) and **`b5500a7`** (Postgres CHECK fault-injection tests) — if `git log` shows different tip SHAs for those changes, substitute the **first-parent** SHAs that touch the listed files instead of these literals.
+- **C-1 verification note (phase 77 / AUD-13):** **AUD-04-033** / **034** (`audit_backup_codes_regenerate/3`, `audit_trust_browser/2`) now use **`commit_ad_hoc_mfa_audit/5`** (**`Repo.transaction/1`** + **`log_multi_safe`**) → **T1** in **`09-VERIFICATION.md`**; **EX-44-03** / **EX-44-04** appendix rows updated for mechanism (compensating controls unchanged). **`AUD-04-022`** remains **`log_safe`** (**EX-44-02**).
+
+## Recent bounded batches
+
+Phase **61** shipped **AUD-01** for **`Sigra.MFA.verify_backup/4`** invalid-backup and wrong-code attempts. **`verify_backup/4`** wrong-code / invalid-backup attempts emit **`mfa.verify.failure`** via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (and **`mfa.lockout`** in the same transaction when the lockout threshold is reached), matching **`verify/4`** failure semantics. For mechanism, tier, and verdict, see the C-1 row for **`AUD-04-067`** in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
+
+Phase **66** shipped **AUD-09** for **`Sigra.MFA.confirm_enrollment/5`**, covering **`AUD-04-020`–`022`**; **`AUD-04-022`** stays on **`log_safe`** as **T2** under **`EX-44-02`** (invalid TOTP before DB writes). The primary story is **`AUD-04-021`**: **`Multi`** + **`log_multi_safe`** with a dedicated follow-up **`Repo.transaction/1`** when enrollment persistence fails after DB work—so failure audit does not disagree with rolled-back enrollment effects. For mechanism, tier, and verdict, see the C-1 row for **`AUD-04-021`** in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
+
+Phase **73** shipped **AUD-11** for **`Sigra.MFA`** paths covering **`AUD-04-023`..`032`**: **`verify/4`**, **`verify_backup/4`**, **`cleanup_mfa/6`**, **`disable!/4`**, and **`regenerate_backup_codes/4`** — audit rows are **`Multi`**-co-fated via **`Sigra.Audit.log_multi_safe/3`** where the matrix claims **T1**. **`44-AUD-04-INVENTORY.md`** Phase column + **`## Grep log`** were refreshed with **`lib/sigra/mfa.ex`**; **`09-VERIFICATION.md`** C-1 rows **023..032** were updated in the same closure.
+
+Phase **77** shipped **AUD-13** for ad-hoc **`Sigra.MFA.audit_backup_codes_regenerate/3`** and **`Sigra.MFA.audit_trust_browser/2`** — **`AUD-04-033`** / **034** now **T1** via dedicated **`Repo.transaction/1`** + **`log_multi_safe`** steps (failure telemetry parity with former **`log_safe/3`**). See **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`** and C-1 rows **033** / **034** in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
 
 ## Inventory pointers
 
 | Phase | File | Scope |
-|-------|------|--------|
+|-------|------|-------|
 | 43 | [`.planning/phases/43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md`](../43-audit-inventory-auth-atomic-batch/43-AUD-04-INVENTORY.md) | Auth-only **AUD-04-001–019** |
 | 44 | [`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`](../44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md) | MFA + account + API token **AUD-04-020–049** |
 | 45 | [`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`](../45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md) | OAuth + ops + worker **AUD-04-050+** |

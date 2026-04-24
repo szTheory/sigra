@@ -6,6 +6,8 @@ This guide takes you from a fresh Phoenix app with Sigra installed to a working 
 
 If you have not installed Sigra yet, read [Installation](installation.html) first.
 
+**Faster path:** [First hour with Sigra](first-hour.html) · [Troubleshooting install](troubleshooting-install.html) · [Upgrading notes — v1.7](upgrading-to-v1.7.html) · [Upgrading notes — v1.8](upgrading-to-v1.8.html) · [Upgrading notes — v1.10](upgrading-to-v1.10.html) · [Upgrading notes — v1.11](upgrading-to-v1.11.html) · [Upgrading notes — v1.12](upgrading-to-v1.12.html)
+
 ## Prerequisites
 
 - Phoenix 1.8+ app named `MyApp` (substitute your app name throughout)
@@ -285,6 +287,8 @@ Every one of those calls is in the generated `Accounts`, `Organizations`, and `U
 
 You've covered the core session auth flow. Most apps need one or more of:
 
+- **[Generator and install options](../reference/generator-options.html)** — canonical `mix sigra.install` switches and defaults.
+- **[After the first hour: toward solo production](intermediate-production-path.html)** — ordered path toward solo production confidence (links out to deployment + flows).
 - **[Multi-factor authentication](mfa.html)** — TOTP enrollment, backup codes, trust-this-browser.
 - **[Upgrading to v1.1](upgrading-to-v1.1.html)** — the tested `mix sigra.upgrade` path from v1.0.
 - **[OAuth and social login](oauth.html)** — Google, GitHub, Apple via Assent.
@@ -307,3 +311,7 @@ And a few cross-cutting recipes:
 - **Reset email never arrives in dev** — Swoosh dev mailer stores emails in memory at `/dev/mailbox`. For prod, configure a real adapter (Postmark, Mailgun, SES) in `config/runtime.exs`.
 - **Remember-me cookie not persisting across browser restart** — verify you checked the box on the login form, then check devtools → Cookies for `_my_app_web_user_remember_me`. If it's missing, check your Phoenix endpoint's `secure_browser_headers` config.
 - **Password reset link shows "Reset password link is invalid or it has expired"** — the token is older than 60 minutes, or the password has already been reset (tokens are single-use), or the URL was copied incorrectly.
+
+## Before you ship to production
+
+Skim the **[Production checklist (read first)](../recipes/deployment.html#production-checklist-read-first)** for HTTPS, cookies, and origin alignment. For mail queues and retries, read **[Mail delivery: inline vs Oban (TL;DR)](../recipes/deployment.html#mail-delivery-inline-vs-oban-tl-dr)**.

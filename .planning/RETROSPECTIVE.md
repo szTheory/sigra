@@ -1,6 +1,234 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.6 section added at ship (2026-04-23).*
+*Living document updated at milestone boundaries. v1.14 section added at milestone archive (2026-04-24).*
+
+## Milestone: v1.14 — Bounded audit trust closure
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (77) | **Plans (on-disk):** 1 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-13-01 / AUD-13-02** — **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** routed through **`commit_ad_hoc_mfa_audit/5`** (**`Repo.transaction/1`** + **`Ecto.Multi`** + **`log_multi_safe`**).
+- **AUD-13-03** — **`mfa_audit_atomicity_test.exs`** success, audit-disabled no-op, and CHECK-guard rollback coverage on Postgres.
+- **AUD-13-04** — **09-VERIFICATION** / **09-03-SUMMARY** / **44-AUD-04-INVENTORY** / **CHANGELOG [Unreleased]** aligned to **T1** for **033**/**034** with **phase 77** pointer.
+
+### What worked
+
+- **Single-phase bounded batch** — closed a discrete **C-1** pair without scope bleed into **Account**/**API** or **SEED-001**.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still failed (`version required for phases archive`); manual **`milestones/v1.14-*`** writes repeated the established pattern.
+- **No `v1.14-MILESTONE-AUDIT.md`** — optional; honesty gate was **77-VERIFICATION.md** + requirements traceability.
+
+### Patterns established
+
+- **Shared `commit_ad_hoc_mfa_audit/5`** — one helper for ad-hoc MFA audit inserts preserves telemetry parity with legacy **`log_safe/3`** swallowing.
+
+### Key lessons
+
+1. Add an on-disk **`*-SUMMARY.md`** for single-phase ships so milestone close and **MILESTONES** extraction stay uniform (**77-01-SUMMARY** added at archive).
+2. Keep **AUD-04-022** explicitly out of hybrid **Multi** batches when there is no durable business row to co-fate (**EX-44-02**).
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Tight **SEED-002** slice; highest leverage was Postgres rollback tests + inventory row honesty.
+
+---
+
+## Milestone: v1.12 — Trust, evidence, and adoption polish
+
+**Shipped:** 2026-04-24  
+**Phases:** 3 (73–75) | **Plans (on-disk):** 7 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-11 (Phase 73)** — Bounded **`mfa.ex`** **`Ecto.Multi`** + **`log_multi_safe`**; **`mfa_audit_atomicity_test.exs`** rollback coverage; inventory / **09-VERIFICATION** row reconciliation.
+- **AUD-12 / UAT-01 / UAT-02 (Phase 74)** — **`09-03-SUMMARY.md`** carries post–**73** truth; **`.planning/v1.12-UAT-EVIDENCE.md`**; **`docs/uat-ci-coverage.md`** aligned with evidence story.
+- **TRN-01..TRN-03 (Phase 75)** — **`upgrading-to-v1.12.md`** + ExDoc extras; trust bundle on getting-started / **MAINTAINING** / **CHANGELOG**; **`v1.11-TRIAGE.md`** § v1.12 reconciliation + **`75-VERIFICATION.md`**.
+
+### What worked
+
+- **Same tranche shape as v1.9–v1.11** — one code batch + evidence/planning closure + doc polish without scope explosion.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still failed; manual **`milestones/v1.12-*`** writes repeated the established pattern.
+- **No `v1.12-MILESTONE-AUDIT.md`** — honesty gate was phase **`*-VERIFICATION.md`** + requirements; consider a short audit file next ship if comparing to **v1.10**.
+
+### Patterns established
+
+- **Planning-label evidence file** — **`v1.12-UAT-EVIDENCE.md`** as the single auditable index before a loud launch.
+
+### Key lessons
+
+1. Reconcile **`.planning/REQUIREMENTS.md`** traceability at close so **Pending** rows never lag **`*-VERIFICATION.md` passed** (fixed at archive for **v1.12**).
+2. Keep **`roadmap.analyze`** limitations in mind; **ROADMAP + filesystem** remained source of truth.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Small phase count; highest leverage was evidence packaging + one more bounded **SEED-002** batch.
+
+---
+
+## Milestone: v1.10 — Adopter confidence for solo production
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (68–70) | **Plans (on-disk):** 5 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **ACF-01 / ACF-04 (Phase 68)** — **`guides/recipes/deployment.md`** production checklist hub + mail inline vs Oban TL;DR; cross-links from README, intro guides, **MAINTAINING**, and install flag anchors.
+- **ACF-02 / ACF-03 (Phase 69)** — **`intermediate-production-path.md`**, canonical **`generator-options.md`**, ExDoc **Reference** group, **`Mix.Tasks.Sigra.Install`** `@moduledoc` bullet, intro mesh.
+- **ACF-05 / ACF-06 (Phase 70)** — **`upgrading-to-v1.10.md`** + ExDoc extras; explicit **ADR 001** / **SEED-002** deferrals in planning surfaces.
+
+### What worked
+
+- **Verification-first closure** — **`068-VERIFICATION.md`** **passed** gave a clean signal for **ACF-01** / **ACF-04** even when live requirement rows briefly lagged.
+- **Same-day phases** — three small doc phases shipped without scope creep into new auth primitives.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** unavailable; manual archival repeated the **v1.3**–**v1.9** pattern.
+- **`roadmap.analyze`** empty JSON for this roadmap shape; relied on filesystem + **VERIFICATION** artifacts.
+
+### Patterns established
+
+- **Planning-label upgrade stubs** — **`upgrading-to-v1.x.md`** files disambiguate GSD / planning milestones from Hex SemVer for adopters.
+
+### Key lessons
+
+1. Reconcile **`.planning/REQUIREMENTS.md`** traceability at ship so **Pending** rows never contradict **`*-VERIFICATION.md` passed**.
+2. Keep **adopter-confidence** milestones doc-only but still milestone-audited when the prior ship window used the same honesty gate.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: **28** commits since **`v1.9`** tag on the measured range; **47** files in **`git diff --stat v1.9..HEAD`** summary.
+
+---
+
+## Milestone: v1.9 — Audit atomicity (bounded SEED-002)
+
+**Shipped:** 2026-04-23  
+**Phases:** 2 (66–67) | **Plans (on-disk):** 3 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-09 (Phase 66)** — **`confirm_enrollment/5`** **AUD-04-020..021** on **`Ecto.Multi`** with **`log_multi_safe`**; **`mfa_audit_atomicity_test.exs`** for success + rollback/failure signals.
+- **AUD-10 (Phase 67)** — **`09-03-SUMMARY.md`** post–phase-66 narrative; **D-06** inventory cross-check; explicit **no `09-VERIFICATION.md` edit** where rows already matched intent.
+
+### What worked
+
+- **Mirror v1.7 pattern** — one bounded code batch plus honest planning closure closed the milestone without boiling the ocean.
+- **Merge-gated audit tests** — kept **T1** semantics provable in CI for the touched subsystem.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again; manual archival repeated the v1.3–v1.8 pattern.
+- **`roadmap.analyze`** returned empty JSON for this roadmap shape; closure relied on **REQUIREMENTS.md** + on-disk **`*-SUMMARY.md`** checks.
+
+### Patterns established
+
+- **Failure-path `Multi`** for enrollment audit parity with success-path co-fated writes where **C-1** demands it.
+
+### Key lessons
+
+1. Keep **bounded SEED-002** milestones to **one production batch + one planning closure** per ship window when possible.
+2. File a short **milestone audit** at close when prior milestones used the same honesty gate.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Very small phase count; highest leverage was MFA audit atomicity + **C-1** narrative alignment.
+
+---
+
+## Milestone: v1.8 — Adopter polish (diminishing returns)
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (63–65) | **Plans (on-disk):** 0 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **ADOPT-04 (Phase 63)** — **`upgrading-to-v1.8.md`** with honest **planning vs SemVer** framing, **`mix.exs`** extras ordering, and pointers back to **v1.7** maintainer context.
+- **ADOPT-05 (Phase 64)** — Cross-links so **getting-started → first-hour → troubleshooting → upgrades** reads as one mesh.
+- **INTG-02 (Phase 65)** — **`companion-oauth-provider.md`** prerequisites, explicit **B2C-only / no third-party API clients** anti-pattern, and **See also** navigation to **v1.8** upgrades.
+
+### What worked
+
+- **Doc-only milestone with full traceability** — three requirements mapped to three phases without inventing fake execution packs.
+- **Small diff, high leverage** — most churn was prose + navigation, not security-sensitive code paths.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again; manual archival repeated the v1.3–v1.7 pattern.
+- **No `063-*` / `064-*` / `065-*` phase directories** — harder to grep execution history; prefer lightweight doc phase dirs if Nyquist strictness matters later.
+
+### Patterns established
+
+- **Upgrade guide per planning focus** — when “v1.x” is planning language, ship a dedicated upgrade page that does not pretend SemVer is the same thing.
+
+### Key lessons
+
+1. Ship **adopter polish** milestones with the same **REQUIREMENTS.md** traceability discipline as code-heavy milestones.
+2. When **`roadmap.analyze`** returns empty JSON for this roadmap shape, rely on **`.planning/REQUIREMENTS.md`** + filesystem checks before close.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Single-day closure; git range since **`v1.7`** was intentionally tiny.
+
+---
+
+## Milestone: v1.7 — Adoption readiness & audit durability
+
+**Shipped:** 2026-04-23  
+**Phases:** 3 (60–62) | **Plans (with on-disk summaries):** 3 (**061**–**062**) | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **ADOPT / INTG (Phase 60)** — First-hour, upgrade, troubleshooting guides plus **`companion-oauth-provider`** recipe with explicit non-coupling (no IdP in Sigra core).
+- **AUD-01 (Phase 61)** — `verify_backup/4` failure path on **`Ecto.Multi`** with **`mfa_audit_atomicity_test.exs`**; **AUD-04-067** + C-1 / inventory alignment.
+- **AUD-02 (Phase 62)** — **`09-03-SUMMARY.md`** carries honest post-batch narrative; **D-06** confirmed **`09-VERIFICATION.md`** unchanged.
+
+### What worked
+
+- **Tiny code + heavy truth** — one subsystem batch plus doc alignment closed a real audit durability gap without boiling the ocean.
+- **D-06 discipline** — avoided churning verification files when the matrix already matched the summary.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** failed again; manual archival repeated v1.3–v1.6 toil.
+- **No `060-*` phase directory** — Phase **60** is harder to grep as execution history; prefer creating doc phases on disk up front.
+
+### Patterns established
+
+- **Document status blocks** on planning-facing audit summaries for time-bounded narrative patches.
+- **Companion recipe** as architecture doc, not a new core dependency surface.
+
+### Key lessons
+
+1. Ship **adoption** milestones with the same traceability table discipline as code milestones — even when most work is prose.
+2. When **`roadmap.analyze`** returns empty for this roadmap shape, rely on **`REQUIREMENTS.md`** + filesystem checks before close.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Very small product diff; highest leverage was MFA audit atomicity + C-1 honesty.
+
+---
 
 ## Milestone: v1.6 — Nyquist closure + OAuth audit depth
 
@@ -171,6 +399,7 @@
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |
 | v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
 | v1.5 | n/a | 4 | Public narrative + Hex/changelog/README/MAINTAINING alignment with v1.4 GA evidence |
 | v1.4 | n/a | 12 | GA matrix honesty + audit Multi batches + merge-gated verification + install-golden CI coupling |

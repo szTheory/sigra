@@ -2,7 +2,27 @@
 
 This document is for **maintainers** who cut Hex releases and GitHub releases. **Drive-by contributors** should start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for tests, CI expectations, and review norms.
 
+Hex releases exercise the library and templates — they do **not** validate an adopter’s production TLS termination, reverse proxy, session cookies, or mail delivery. Point application teams at the **[production checklist in the deployment recipe](guides/recipes/deployment.md#production-checklist-read-first)** before they go live.
+
 On your **first public Hex release**, follow **`Release automation`** for the mechanical ship path; when you are ready to coordinate evidence and optional comms around that ship, use **`First public launch (announcement checklist)`** later in this file.
+
+## Milestone cadence and pause (v1.11+)
+
+GSD milestones (**`/gsd-new-milestone`**, **`.planning/REQUIREMENTS.md`**, phased **`.planning/ROADMAP.md`**) are for **coordinated tranches** that move **North Star** outcomes in **`.planning/PROJECT.md`**. They are **not** required for every Hex publish.
+
+**Pause full milestone cycles** (ship **patch/minor** via **`CHANGELOG.md` + tag + Hex** only) when all of the following are true:
+
+1. **No P0/P1** adoption or security items remain from maintainer triage (issues, dogfood runs, README vs guides consistency).
+2. The next candidate milestone would mostly duplicate **docs-only polish** without a new **trust signal** (merge-blocking CI change, honest scope boundary, or materially new integrator path) — same “diminishing returns” bar used for **v1.8** adopter polish.
+3. **Hex releases** can carry fixes with conventional commits and **`CHANGELOG.md`** entries without remapping **REQ-IDs**.
+
+**Resume `/gsd-new-milestone`** when an **event** warrants a scoped tranche, for example: public launch prep + **SEED-001** human matrix; compliance or customer evidence forcing **SEED-002** batches; **ADR 001** revisit for **`sigra_lockspire`** / Lockspire glue; or a **documented adoption gap** that does not fit a single patch.
+
+## v1.12 trust bundle (audit + UAT evidence)
+
+**v1.12** packages the **bounded SEED-002 audit closure** narrative, the **eight-row GA·UAT outcome index**, and the **machine vs residual** CI catalog into a small set of stable links. Do **not** fork the eight-row matrix into **Hex-facing** guides — treat **[`docs/uat-ci-coverage.md`](docs/uat-ci-coverage.md)** as the catalog and **[`v1.12-UAT-EVIDENCE.md` on `main`](https://github.com/sztheory/sigra/blob/main/.planning/v1.12-UAT-EVIDENCE.md)** as the milestone outcome index.
+
+**Release ritual:** when cutting a **minor** or **major**, confirm **`CHANGELOG.md`**, **`guides/introduction/upgrading-to-v1.12.md`**, and the two URLs above still agree (no renamed paths, no duplicated tables).
 
 ## Installer golden CI contract (phase 50)
 

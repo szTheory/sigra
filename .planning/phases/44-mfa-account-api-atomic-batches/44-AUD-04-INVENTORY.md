@@ -7,75 +7,62 @@
 
 ```text
 $ rg -n "Sigra\.Audit\.(log_safe|log_multi_safe|__log_internal__)" lib/sigra/mfa.ex lib/sigra/account.ex lib/sigra/api_token.ex
-lib/sigra/account.ex:40:  #   request_email_change  -> Sigra.Audit.log_safe("account.email_change_request", nil, ...)
-lib/sigra/account.ex:41:  #   confirm_email_change  -> Sigra.Audit.log_safe("account.email_change_confirm", nil, ...)
-lib/sigra/account.ex:42:  #   cancel_email_change   -> Sigra.Audit.log_safe("account.email_change_cancel", nil, ...)
-lib/sigra/account.ex:43:  #   change_password       -> Sigra.Audit.log_safe("account.password_change", nil,
-lib/sigra/account.ex:45:  #   forced password chg   -> Sigra.Audit.log_safe("account.password_change", nil,
-lib/sigra/account.ex:47:  #   schedule_deletion     -> Sigra.Audit.log_safe("account.deletion_schedule", nil, ...)
-lib/sigra/account.ex:48:  #   cancel_deletion       -> Sigra.Audit.log_safe("account.deletion_cancel", nil, ...)
-lib/sigra/account.ex:49:  #   execute_deletion      -> Sigra.Audit.log_safe("account.deletion_execute", nil, ...)
-lib/sigra/account.ex:76:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:97:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:118:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:151:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:172:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:207:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:228:        Sigra.Audit.log_safe(
-lib/sigra/account.ex:250:    Sigra.Audit.log_safe(
-lib/sigra/account.ex:282:    Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:194:          Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:211:              Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:227:              Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:281:            Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:310:    Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:328:    Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:35:  #   enroll success          -> Sigra.Audit.log_safe("mfa.enroll.success", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:36:  #                              (see Sigra.Audit.__log_internal__ for Multi form)
-lib/sigra/mfa.ex:37:  #   enroll failure          -> Sigra.Audit.log_safe("mfa.enroll.failure", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:38:  #   verify success (totp)   -> Sigra.Audit.log_safe("mfa.verify.success", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:39:  #   verify success (backup) -> Sigra.Audit.log_safe("mfa.verify.success", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:40:  #                            + Sigra.Audit.log_safe("mfa.backup_code_used", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:41:  #   verify failure          -> Sigra.Audit.log_safe("mfa.verify.failure", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:42:  #   disable                 -> Sigra.Audit.log_safe("mfa.disable", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:43:  #   lockout                 -> Sigra.Audit.log_safe("mfa.lockout", Sigra.Scope.from_config(config, user), ...)
-lib/sigra/mfa.ex:181:            Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:194:            Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:209:        Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:286:                  Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:305:                  Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:320:                    Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:383:                  Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:392:                  Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:460:          Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:498:      Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:519:  `mfa.backup_codes_regenerate` row is written via `Sigra.Audit.log_multi_safe/3`
-lib/sigra/mfa.ex:597:                    |> Sigra.Audit.log_multi_safe(
-lib/sigra/mfa.ex:623:                  Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:637:                    Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:667:    Sigra.Audit.log_safe(
-lib/sigra/mfa.ex:683:    Sigra.Audit.log_safe(
+lib/sigra/mfa.ex:36:  #   enroll success          -> `Multi` + `Sigra.Audit.log_multi_safe("mfa.enroll.success", …)` (+ telemetry on `{:ok, changes}`)
+lib/sigra/mfa.ex:86:      |> Sigra.Audit.log_multi_safe(action, opts)
+lib/sigra/mfa.ex:222:          |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:275:        Sigra.Audit.log_safe(
+lib/sigra/mfa.ex:351:                    |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:378:                    |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:394:                        Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:484:                |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:493:                |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:520:                    |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:536:                        Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:688:  `mfa.backup_codes_regenerate` row is written via `Sigra.Audit.log_multi_safe/3`
+lib/sigra/mfa.ex:766:                    |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:794:                    |> Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:810:                        Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:1074:          Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:1176:      |> Sigra.Audit.log_multi_safe(
+lib/sigra/api_token.ex:199:          Sigra.Audit.log_safe(
+lib/sigra/api_token.ex:216:              Sigra.Audit.log_safe(
+lib/sigra/api_token.ex:232:              Sigra.Audit.log_safe(
+lib/sigra/api_token.ex:329:    Sigra.Audit.log_safe(
+lib/sigra/api_token.ex:347:    Sigra.Audit.log_safe(
+lib/sigra/account.ex:37:  # D-26 dispatch table (Phase 44 AUD-07 — `Ecto.Multi` + `Sigra.Audit.log_multi_safe`
+lib/sigra/account.ex:49:  # `audit_forced_password_change/2` remains `Sigra.Audit.log_safe/3` (audit-only helper).
+lib/sigra/account.ex:123:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:163:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:215:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:255:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:294:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:346:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:383:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:427:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:439:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:499:    Sigra.Audit.log_safe(
 ```
 
 ## Inventory table
 
 | ID | Boundary (module.function) | action string | mechanism today | tier | REQ batch | Phase | notes |
 |----|----------------------------|-----------------|-----------------|------|-----------|-------|-------|
-| AUD-04-020 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.success` | `log_safe` (post `Repo.transaction`) | 6 | AUD-06 | 44 | Target **Multi** + `log_multi_safe` / `__log_internal__` per **D-44-03** (plan **44-03**). |
-| AUD-04-021 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` | `log_safe` (after failed credential insert) | 7 | AUD-06 | 44 | Failure path after rolled-back txn; evaluate **Multi** vs intentional **log_safe** during **44-03** (no paired success commit). |
-| AUD-04-022 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` | `log_safe` (invalid TOTP before DB) | 9 | AUD-06 | 44 | Pure validation — see **EX-44-02** if retained as hybrid. |
-| AUD-04-023 | `Sigra.MFA.verify/4` | `mfa.verify.success` | `log_safe` (after `update_all` + lockout reset) | 3 | AUD-06 | 44 | Target **Multi** per **D-44-03** ordering #1 (plan **44-03**). |
-| AUD-04-024 | `Sigra.MFA.verify/4` | `mfa.verify.failure` | `log_safe` (after `Lockout.increment`) | 5 | AUD-06 | 44 | Target **Multi** (counter + audit share fate) per **D-44-03** #5. |
-| AUD-04-025 | `Sigra.MFA.verify/4` | `mfa.lockout` | `log_safe` (threshold reached) | 4 | AUD-06 | 44 | Target **Multi** with verify-failure row or merged metadata per **D-44-03**. |
-| AUD-04-026 | `Sigra.MFA.verify_backup/4` | `mfa.verify.success` | `log_safe` | 3 | AUD-06 | 44 | Second row **AUD-04-027** in same success path — requires **D-44-02** named steps then **Multi** (plan **44-03**). |
-| AUD-04-027 | `Sigra.MFA.verify_backup/4` | `mfa.backup_code_used` | `log_safe` | 3 | AUD-06 | 44 | Paired with **AUD-04-026**; dual audit in one txn (plan **44-03**). |
-| AUD-04-028 | `Sigra.MFA.disable/4` | `mfa.disable` | `log_safe` (after `cleanup_mfa/5`) | 6 | AUD-06 | 44 | Target audit on **`cleanup_mfa`** **Multi** per **D-44-03** #4. |
-| AUD-04-029 | `Sigra.MFA.disable!/4` | `mfa.disable` | `log_safe` (after `cleanup_mfa/5`) | 6 | AUD-06 | 44 | Admin path; same **Multi** pattern as **AUD-04-028**. |
-| AUD-04-030 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.backup_codes_regenerate` | **Multi (`log_multi_safe`)** | 5 | AUD-06 | 44 | Already atomic with rotation (**Phase 41**); verify telemetry still correct after **44-02**. |
-| AUD-04-031 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.verify.failure` | `log_safe` | 5 | AUD-06 | 44 | Failed TOTP on regen path — align with **AUD-04-024** treatment. |
-| AUD-04-032 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.lockout` | `log_safe` | 4 | AUD-06 | 44 | Lockout on regen path — align with **AUD-04-025**. |
-| AUD-04-033 | `Sigra.MFA.audit_backup_codes_regenerate/3` | `mfa.backup_codes_regenerate` | `log_safe` | 8 | AUD-06 | 44 | Legacy/ad-hoc helper — see **EX-44-03**; not the authoritative audited rotation path. |
-| AUD-04-034 | `Sigra.MFA.audit_trust_browser/2` | `mfa.trust_browser` | `log_safe` | 8 | AUD-06 | 44 | Trust-browser observability; defer **Multi** unless paired domain write is added (see **EX-44-04**). |
+| AUD-04-020 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.success` | **`Multi` + `log_multi_safe`** (same enrollment `Repo.transaction/1` as credential + backup codes) | 5 | AUD-06 | 66 | **Phase 66** — **`AUD-09`** / **SEED-002**; evidence **`test/sigra/mfa_audit_atomicity_test.exs`**. |
+| AUD-04-021 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` (`insert_failed`) | **`Multi` + `log_multi_safe`** (dedicated follow-up `Repo.transaction/1` after enrollment `Multi` rolls back or credential/backup persistence raises) | 5 | AUD-06 | 66 | **Phase 66** — **`AUD-09`**; failure audit not co-fated with rolled-back enrollment writes by design. |
+| AUD-04-022 | `Sigra.MFA.confirm_enrollment/5` | `mfa.enroll.failure` | **`log_safe`** (invalid TOTP before DB) | 9 | AUD-06 | 44 | **EX-44-02** — unchanged in phase **66** (**066-CONTEXT D-02**). |
+| AUD-04-023 | `Sigra.MFA.verify/4` | `mfa.verify.success` | **`Multi` + `log_multi_safe`** (`Multi.update_all` + audit in one `Repo.transaction/1`) | 3 | AUD-06 | 73 | **Phase 73** — **`AUD-11`**; evidence **`test/sigra/mfa_audit_atomicity_test.exs`** + **`lib/sigra/mfa.ex`**. |
+| AUD-04-024 | `Sigra.MFA.verify/4` | `mfa.verify.failure` | **`Multi` + `log_multi_safe`** (`Lockout.increment` + audit) | 5 | AUD-06 | 73 | **Phase 73** — same txn as counter increment; **`lib/sigra/mfa.ex`**. |
+| AUD-04-025 | `Sigra.MFA.verify/4` | `mfa.lockout` | **`Multi` + `log_multi_safe`** (`Multi.merge` lockout append) | 4 | AUD-06 | 73 | **Phase 73** — **`lib/sigra/mfa.ex`**. |
+| AUD-04-026 | `Sigra.MFA.verify_backup/4` | `mfa.verify.success` | **`Multi` + `log_multi_safe`** | 3 | AUD-06 | 73 | **Phase 73** — paired **AUD-04-027**; consume txn (**AUD-11**). |
+| AUD-04-027 | `Sigra.MFA.verify_backup/4` | `mfa.backup_code_used` | **`Multi` + `log_multi_safe`** | 3 | AUD-06 | 73 | **Phase 73** — paired with **AUD-04-026**. |
+| AUD-04-067 | `Sigra.MFA.verify_backup/4` | `mfa.verify.failure` | **`Multi` + `log_multi_safe`** (invalid backup / `:consume` miss); optional **`mfa.lockout`** in same txn at threshold | 5 | AUD-01 | 61 | **Phase 61** — parity with **`verify/4`** failure **`Multi`** (**AUD-01**); phase **73** verification receipts extend **023–032** band. |
+| AUD-04-028 | `Sigra.MFA.disable/4` | `mfa.disable` | **`Multi` + `log_multi_safe`** (`cleanup_mfa/6` + deletes + trust revoke) | 6 | AUD-06 | 73 | **Phase 73** — **`lib/sigra/mfa.ex`**. |
+| AUD-04-029 | `Sigra.MFA.disable!/4` | `mfa.disable` | **`Multi` + `log_multi_safe`** (admin `cleanup_mfa/6` path) | 6 | AUD-06 | 73 | **Phase 73** — same pattern as **AUD-04-028**. |
+| AUD-04-030 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.backup_codes_regenerate` | **`Multi` + `log_multi_safe`** (replace + audit one txn) | 5 | AUD-06 | 73 | **Phase 73** — rotation atomicity (**AUD-11**); **`lib/sigra/mfa.ex`**. |
+| AUD-04-031 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.verify.failure` | **`Multi` + `log_multi_safe`** (wrong TOTP on regen path) | 5 | AUD-06 | 73 | **Phase 73** — **`lib/sigra/mfa.ex`**. |
+| AUD-04-032 | `Sigra.MFA.regenerate_backup_codes/4` | `mfa.lockout` | **`Multi` + `log_multi_safe`** (`Multi.merge` on regen failure path) | 4 | AUD-06 | 73 | **Phase 73** — **`lib/sigra/mfa.ex`**. |
+| AUD-04-033 | `Sigra.MFA.audit_backup_codes_regenerate/3` | `mfa.backup_codes_regenerate` | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`:audit_mfa_backup_codes_regenerate_adhoc`) | 8 | AUD-06 | **77** | Ad-hoc helper — **phase 77** / **AUD-13**; authoritative rotation path remains **`regenerate_backup_codes/4`** (**EX-44-03** compensating control unchanged). |
+| AUD-04-034 | `Sigra.MFA.audit_trust_browser/2` | `mfa.trust_browser` | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`:audit_mfa_trust_browser_adhoc`) | 8 | AUD-06 | **77** | **Phase 77** / **AUD-13**; still no paired domain write in-library (**EX-44-04** stance). |
 | AUD-04-035 | `Sigra.Account.request_email_change/4` | `account.email_change_request` | `log_safe` (after `{:ok, _}`) | 5 | AUD-07 | 44 | Target **Multi** per **D-44-04** (plan **44-04**). |
 | AUD-04-036 | `Sigra.Account.confirm_email_change/3` | `account.email_change_confirm` | `log_safe` (after `{:ok, _}`) | 4 | AUD-07 | 44 | Target **Multi** (priority #2 stack). |
 | AUD-04-037 | `Sigra.Account.cancel_email_change/3` | `account.email_change_cancel` | `log_safe` (after `{:ok, _}`) | 5 | AUD-07 | 44 | Target **Multi**. |
@@ -100,8 +87,8 @@ lib/sigra/mfa.ex:683:    Sigra.Audit.log_safe(
 |----|---------------|-------|-----------|---------------|----------------------|-------|------------------|----------|----------------|
 | EX-44-01 | **D-44-05**, **AUD-07** | `Sigra.APIToken.verify/2` → `api.token_verify.failure` (all branches) | `log_safe` | High-volume failure rows may commit if later logic rolls back (classic hybrid) | Telemetry on verify path; rate limits at edge | Sigra | REQ amendment or incident class “durable verify failures required” | `lib/sigra/api_token.ex` | 2026-04-20 |
 | EX-44-02 | **D-44-03** | `mfa.enroll.failure` on invalid enrollment code (no DB mutation) | `log_safe` | Forensic gap on rejected enroll attempts | MFA unit tests + telemetry | Sigra | User story needs durable pre-DB enroll failures | `lib/sigra/mfa.ex` | 2026-04-20 |
-| EX-44-03 | **D-44-03** | `Sigra.MFA.audit_backup_codes_regenerate/3` | `log_safe` | Callers may omit Multi-backed rotation | Document authoritative path: `regenerate_backup_codes/4` | Sigra | Legacy call sites removed | `@doc` on `audit_backup_codes_regenerate/3` | 2026-04-20 |
-| EX-44-04 | **D-44-03** | `Sigra.MFA.audit_trust_browser/2` | `log_safe` | Trust events not co-fated with optional future DB writes | Trust module tests / product analytics stance | Sigra | Trust browser becomes security-critical persistence | `lib/sigra/mfa.ex` | 2026-04-20 |
+| EX-44-03 | **D-44-03** | `Sigra.MFA.audit_backup_codes_regenerate/3` | **`Multi` + `log_multi_safe`** in dedicated txn (phase **77**) | Callers may still omit library rotation — prefer `regenerate_backup_codes/4` | Document authoritative path: `regenerate_backup_codes/4` | Sigra | Legacy call sites removed | `@doc` on `audit_backup_codes_regenerate/3` | 2026-04-24 |
+| EX-44-04 | **D-44-03** | `Sigra.MFA.audit_trust_browser/2` | **`Multi` + `log_multi_safe`** in dedicated txn (phase **77**) | Trust events still not co-fated with in-library DB writes | Trust module tests / product analytics stance | Sigra | Trust browser becomes security-critical persistence | `lib/sigra/mfa.ex` | 2026-04-24 |
 | EX-44-05 | **D-44-04** | `Sigra.Account.audit_forced_password_change/2` | `log_safe` | Audit-only row; no in-function domain mutation | PasswordChange tests + host call ordering | Sigra | Forced-change flow gains paired Ecto writes in-library | `lib/sigra/account.ex` | 2026-04-20 |
 
 ## Priority table (implementation waves)
@@ -117,4 +104,12 @@ lib/sigra/mfa.ex:683:    Sigra.Audit.log_safe(
 
 Release notes should reference this file when **AUD-06 / AUD-07** land for MFA + Account + API token; see repository `CHANGELOG.md` under **[Unreleased]** for the continuation bullet from phase **43**.
 
+**Note — Phase 73 (2026-04-24):** **`lib/sigra/mfa.ex`** is already **Multi**-first for **AUD-04-023–032**; phase **73** closed planning drift versus legacy **44-03** “target Multi” language and shipped **CHECK** rollback receipts in **`test/sigra/mfa_audit_atomicity_test.exs`**.
+
+**Note — Phase 77 (2026-04-24):** **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** now use **`commit_ad_hoc_mfa_audit/5`** (**`Repo.transaction/1`** + **`log_multi_safe`**) when `:audit_schema` is set — **AUD-04-033** / **034** align with **T1** in **`09-VERIFICATION.md`**; **`mfa.enroll.failure`** invalid-code (**AUD-04-022**) remains **`log_safe`** (**EX-44-02**).
+
 OAuth, operational security helpers (`Lockout`, `SuspiciousLogin`, `Impersonation`), and the account-deletion worker continue in [`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`](../45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md) (**AUD-04-050+**, **AUD-08** batch).
+
+**Note — Phase 61 (2026-04-23):** **`verify_backup/4`** invalid-backup / wrong-code path (**`AUD-04-067`**) now shares **`Lockout.increment`** fate with **`mfa.verify.failure`** (+ optional **`mfa.lockout`**) via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (**AUD-01**). Evidence: **`test/sigra/mfa_audit_atomicity_test.exs`**.
+
+**Note — Phase 66 (2026-04-23):** **`confirm_enrollment/5`** — **`AUD-04-020`** success audit is **`Multi` + `log_multi_safe`** inside the enrollment transaction; **`AUD-04-021`** **`mfa.enroll.failure`** / **`insert_failed`** uses a follow-up **`Repo.transaction(Multi + log_multi_safe)`** after the enrollment **`Multi`** rolls back (**AUD-09**). **`AUD-04-022`** remains **`log_safe`** under **EX-44-02**. Evidence: **`test/sigra/mfa_audit_atomicity_test.exs`**.
