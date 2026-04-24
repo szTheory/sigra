@@ -2,8 +2,8 @@
 
 ## Document status
 
-- **Last materially updated for:** **v1.18** (**2026-04-24**) — phase **`81`** / **`AUD-18`**: **`Sigra.APIToken.audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set (**AUD-04-048** / **049** **T1** for audit rows only); **AUD-08** not claimed closed.
-- **Planning trace:** Phase 9 → … → Phase 79 (AUD-16) → Phase 80 (AUD-17) → Phase 81 (AUD-18).
+- **Last materially updated for:** **v1.19** (**2026-04-24**) — phase **`82`** / **`AUD-19`**: **`Sigra.JWT.refresh/3`** co-fates **`user_tokens`** persistence + **`api.jwt_refresh*`** when `:audit_schema` is set (**AUD-08** for guided path). Phase **`81`** standalone **`audit_jwt_refresh*`** helpers remain audit-only.
+- **Planning trace:** Phase 9 → … → Phase 79 (AUD-16) → Phase 80 (AUD-17) → Phase 81 (AUD-18) → Phase 82 (AUD-19).
 - **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
 - **Requirement:** [**AUD-10**](../../milestones/v1.9-REQUIREMENTS.md) (archived **v1.9** requirements at milestone close — historical anchor).
 - **`v1.12` carry-forward (archived):** [`milestones/v1.12-REQUIREMENTS.md`](../../milestones/v1.12-REQUIREMENTS.md) — **`AUD-12`**, **`UAT-01`**, **`UAT-02`** (and **`AUD-11`**, **`TRN-*`**) at milestone close **2026-04-24**; live **`.planning/REQUIREMENTS.md`** removed until **`/gsd-new-milestone`**.
@@ -13,7 +13,8 @@
 - **C-1 verification note (phase 79 / AUD-16):** **AUD-04-044..046** — **`Sigra.APIToken.verify/2`** failure branches (**invalid_token**, **token_revoked**, **token_expired**) emit **`api.token_verify.failure`** via **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is configured; success path remains unaudited (**D-27**). Constraint / invalid-changeset insert failures emit **`[:sigra, :audit, :log_safe_error]`** and callers still receive **`{:error, reason}`**. Evidence: **`test/sigra/api_token_audit_atomic_test.exs`**.
 - **C-1 verification note (phase 78 / AUD-14):** **AUD-04-035..042** and **047** — **`Sigra.Account`** and **`Sigra.APIToken.revoke/2`** were already **`Multi` + `log_multi_safe`** in **`lib/`**; **44-AUD-04-INVENTORY.md** and **09-VERIFICATION.md** Phase **44** rows were stale vs code. **044–046** were **`log_safe`** (**EX-44-01**) until **phase 79**. Evidence: **`test/sigra/account_audit_atomicity_test.exs`** (password + **email-change** request/confirm/cancel happy paths + audit `CHECK` rollbacks), **`test/sigra/api_token_audit_atomic_test.exs`**.
 - **C-1 verification note (phase 80 / AUD-17):** **AUD-04-043** — **`T1`** via **`Multi` + `log_multi_safe`** on **`Sigra.Account.clear_password_change_requirement/3`** (phase **80**); evidence **`account_audit_atomicity_test.exs`**; **`audit_forced_password_change/2`** is **`@deprecated`** for that completion path (do not call both).
-- **C-1 verification note (phase 81 / AUD-18):** **AUD-04-048** / **049** — **`Sigra.APIToken.audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** emit **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** via **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is configured; **AUD-08** persistence scope explicitly **not** claimed closed. Evidence: **`test/sigra/api_token_audit_atomic_test.exs`**.
+- **C-1 verification note (phase 81 / AUD-18):** **AUD-04-048** / **049** — **`Sigra.APIToken.audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** emit **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** via **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is configured (audit-only helpers). Evidence: **`test/sigra/api_token_audit_atomic_test.exs`**.
+- **C-1 verification note (phase 82 / AUD-19):** **AUD-04-048** / **049** — **`Sigra.JWT.refresh/3`** co-fates **`user_tokens`** writes and audit rows in one **`Repo.transaction/1`** when `:audit_schema` is set (**AUD-08**). Merge gate: **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`**.
 
 ## Recent bounded batches
 
@@ -27,7 +28,9 @@ Phase **77** shipped **AUD-13** for ad-hoc **`Sigra.MFA.audit_backup_codes_regen
 
 Phase **79** ships **AUD-16** for **`Sigra.APIToken.verify/2`** failure audits (**AUD-04-044..046**) — transactional **`log_multi_safe`** + extended **`test/sigra/api_token_audit_atomic_test.exs`**. See **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
 
-Phase **81** ships **AUD-18** for **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** (**AUD-04-048** / **049**) — **`Repo.transaction/1`** + **`Multi` + `log_multi_safe`** when `:audit_schema` is set; **does not** close **AUD-08** (refresh-token storage co-fate). See **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
+Phase **81** ships **AUD-18** for **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** (**AUD-04-048** / **049**) — **`Repo.transaction/1`** + **`Multi` + `log_multi_safe`** when `:audit_schema` is set (audit-only helpers). See **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
+
+Phase **82** ships **AUD-19** for **`Sigra.JWT.refresh/3`** — persistence + **`api.jwt_refresh*`** co-fate when `:audit_schema` is set (**AUD-08** for the guided **`JWT.refresh`** path). Verification lives in **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`** (evidence: **`test/sigra/jwt_refresh_audit_cofate_test.exs`**).
 
 Phase **78** ships **AUD-14** for **`Sigra.Account`** (**AUD-04-035..042**) and **`Sigra.APIToken.revoke/2`** (**AUD-04-047**) — **planning truth** aligning **44** inventory + **09-VERIFICATION** C-1 rows with **`lib/`** (code already **`Multi` + `log_multi_safe`**); extends **`test/sigra/account_audit_atomicity_test.exs`** for **`change_password`**. See **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
 

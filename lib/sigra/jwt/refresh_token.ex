@@ -22,7 +22,8 @@ defmodule Sigra.JWT.RefreshToken do
 
   import Ecto.Query
 
-  alias Sigra.{Telemetry, Token}
+  alias Ecto.Multi
+  alias Sigra.Token
 
   @doc """
   Creates a new refresh token for the given user.
@@ -62,6 +63,57 @@ defmodule Sigra.JWT.RefreshToken do
           {:ok, String.t(), struct(), list(String.t())}
           | {:error, :invalid_token | :token_expired | :reuse_detected}
   def rotate(config, raw_token, opts \\ []) do
+    case rotate_with_reuse_meta(config, raw_token, opts) do
+      {:error, :reuse_detected, _} -> {:error, :reuse_detected}
+      {:error, reason} -> {:error, reason}
+      {:ok, new_raw, new_record, scopes} -> {:ok, new_raw, new_record, scopes}
+    end
+  end
+
+  @doc false
+  @spec rotate_with_reuse_meta(Sigra.Config.t(), String.t(), keyword()) ::
+          {:ok, String.t(), struct(), list(String.t())}
+          | {:error, :invalid_token | :token_expired}
+          | {:error, :reuse_detected, %{user_id: term(), family_id: term()}}
+  def rotate_with_reuse_meta(config, raw_token, opts \\ []) do
+    case classify_refresh_token(config, raw_token, opts) do
+      {:error, reason} ->
+        {:error, reason}
+
+      {:ok, :reuse, token_record, metadata} ->
+        family_id = metadata["family_id"]
+        revoke_family(config, family_id, opts)
+
+        {:error, :reuse_detected,
+         %{user_id: token_record.user_id, family_id: family_id}}
+
+      {:ok, :rotate, token_record, metadata} ->
+        user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+        repo = config.repo
+
+        superseded_metadata =
+          Map.put(metadata, "superseded_at", DateTime.utc_now() |> DateTime.to_iso8601())
+
+        token_record
+        |> Ecto.Changeset.change(sent_to: Jason.encode!(superseded_metadata))
+        |> repo.update!()
+
+        user = %{id: token_record.user_id}
+        scopes = metadata["scopes"] || []
+
+        {new_raw, new_record} =
+          do_create(config, user, scopes, metadata["family_id"], user_token_schema)
+
+        {:ok, new_raw, new_record, scopes}
+    end
+  end
+
+  @doc false
+  @spec classify_refresh_token(Sigra.Config.t(), String.t(), keyword()) ::
+          {:ok, :rotate, struct(), map()}
+          | {:ok, :reuse, struct(), map()}
+          | {:error, :invalid_token | :token_expired}
+  def classify_refresh_token(config, raw_token, opts) do
     user_token_schema = Keyword.fetch!(opts, :user_token_schema)
     hashed = Token.hash_token(raw_token)
     repo = config.repo
@@ -76,39 +128,76 @@ defmodule Sigra.JWT.RefreshToken do
 
         cond do
           metadata["superseded_at"] != nil ->
-            # REUSE DETECTED: token was already rotated
-            revoke_family(config, metadata["family_id"], opts)
-
-            Telemetry.event(
-              [:sigra, :jwt, :refresh_reuse_detected],
-              %{count: 1},
-              %{user_id: token_record.user_id, family_id: metadata["family_id"]}
-            )
-
-            {:error, :reuse_detected}
+            {:ok, :reuse, token_record, metadata}
 
           token_expired?(token_record, refresh_ttl) ->
             {:error, :token_expired}
 
           true ->
-            # Mark current token as superseded
-            superseded_metadata =
-              Map.put(metadata, "superseded_at", DateTime.utc_now() |> DateTime.to_iso8601())
+            {:ok, :rotate, token_record, metadata}
+        end
+    end
+  end
+
+  @doc false
+  def build_rotate_persist_multi(%Multi{} = multi, token_record, metadata, _config, opts)
+      when is_map(metadata) do
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+
+    superseded_metadata =
+      Map.put(metadata, "superseded_at", DateTime.utc_now() |> DateTime.to_iso8601())
+
+    multi
+    |> Multi.update(
+      :jwt_refresh_supersede,
+      Ecto.Changeset.change(token_record, sent_to: Jason.encode!(superseded_metadata))
+    )
+    |> Multi.run(:jwt_refresh_new_token, fn repo, %{jwt_refresh_supersede: superseded_struct} ->
+      user = %{id: superseded_struct.user_id}
+      scopes = metadata["scopes"] || []
+      family_id = metadata["family_id"]
+      {raw, insert_struct} = refresh_token_insert_tuple(user, scopes, family_id, user_token_schema)
+
+      case repo.insert(insert_struct) do
+        {:ok, record} -> {:ok, {raw, record, scopes}}
+        {:error, cs} -> {:error, cs}
+      end
+    end)
+  end
+
+  @doc false
+  def build_revoke_family_multi(%Multi{} = multi, _config, family_id, opts) do
+    Multi.run(multi, :jwt_reuse_revoke_family, fn repo, _ ->
+      user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+      now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+      query =
+        from(t in user_token_schema,
+          where: t.context == "api_refresh",
+          where: like(t.sent_to, ^"%\"family_id\":\"#{family_id}\"%")
+        )
+
+      tokens = repo.all(query)
+
+      count =
+        Enum.reduce(tokens, 0, fn token_record, acc ->
+          meta = decode_metadata(token_record.sent_to)
+
+          if meta["superseded_at"] == nil do
+            superseded_metadata = Map.put(meta, "superseded_at", now)
 
             token_record
             |> Ecto.Changeset.change(sent_to: Jason.encode!(superseded_metadata))
             |> repo.update!()
 
-            # Create new token in same family -- use a minimal map with :id
-            user = %{id: token_record.user_id}
-            scopes = metadata["scopes"] || []
+            acc + 1
+          else
+            acc
+          end
+        end)
 
-            {new_raw, new_record} =
-              do_create(config, user, scopes, metadata["family_id"], user_token_schema)
-
-            {:ok, new_raw, new_record, scopes}
-        end
-    end
+      {:ok, count}
+    end)
   end
 
   @doc """
@@ -211,8 +300,13 @@ defmodule Sigra.JWT.RefreshToken do
   # -- Private --
 
   defp do_create(config, user, scopes, family_id, user_token_schema) do
+    {raw_token, token_struct} = refresh_token_insert_tuple(user, scopes, family_id, user_token_schema)
+    {:ok, record} = config.repo.insert(token_struct)
+    {raw_token, record}
+  end
+
+  defp refresh_token_insert_tuple(user, scopes, family_id, user_token_schema) do
     {raw_token, hashed_token} = Token.generate_hashed_token()
-    repo = config.repo
 
     metadata =
       Jason.encode!(%{
@@ -229,8 +323,7 @@ defmodule Sigra.JWT.RefreshToken do
         user_id: user.id
       })
 
-    {:ok, record} = repo.insert(token_struct)
-    {raw_token, record}
+    {raw_token, token_struct}
   end
 
   defp decode_metadata(nil), do: %{}

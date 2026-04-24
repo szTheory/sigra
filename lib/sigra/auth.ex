@@ -2088,10 +2088,19 @@ defmodule Sigra.Auth do
 
   @doc """
   Refreshes JWT tokens using a refresh token.
+
+  When **`:audit_schema`** is set, persistence and JWT audit share one
+  transaction; failures there return **`{:error, :jwt_refresh_aborted}`** (see
+  **`Sigra.JWT.refresh/3`**).
   """
   @doc since: "0.7.0"
   @spec refresh_jwt(Sigra.Config.t(), String.t()) ::
-          {:ok, map()} | {:error, :invalid_token | :token_expired | :reuse_detected}
+          {:ok, map()}
+          | {:error,
+             :invalid_token
+             | :token_expired
+             | :reuse_detected
+             | :jwt_refresh_aborted}
   def refresh_jwt(config, raw_refresh_token) do
     Sigra.JWT.refresh(config, raw_refresh_token)
   end

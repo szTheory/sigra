@@ -26,14 +26,24 @@
 
 ## Phases
 
-### v1.19 — in progress (Phases 82–83)
+### v1.19 — in progress (Phase 83 remaining)
 
 | Phase | Name | Goal | Requirements | Success criteria (observable) |
 |-------|------|------|--------------|----------------------------|
-| **82** | JWT refresh persistence + audit co-fate | Single transactional boundary for **`user_tokens`** rotation / reuse revocation and **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** when audit is on. | AUD-19-01, AUD-19-02, AUD-19-03, AUD-19-04 | (1) **`Sigra.JWT.refresh/3`** (and **`RefreshToken.rotate`**) do not commit refresh-token DB effects unless audit succeeds when `:audit_schema` set. (2) Reuse path matches same discipline. (3) Tests prove rollback / audit-off. (4) **09** / **44** / **45** / **09-03** / **`CHANGELOG`** + **`82-VERIFICATION.md`**. |
 | **83** | MFA **`AUD-04-022`** closure | Remove **`log_safe`** hybrid for invalid pre-DB TOTP on **`confirm_enrollment/5`** **or** document explicit waiver. | AUD-20-01, AUD-20-02, AUD-20-03 | (1) **`lib/sigra/mfa.ex`** matches chosen mechanism. (2) **`mfa_audit_atomicity_test.exs`** covers **022**. (3) **44** / **09** / **09-03** / **`CHANGELOG`** + **`83-VERIFICATION.md`**. |
 
-**Coverage:** 7 requirements → 2 phases. Numbering continues from **v1.18** (last phase **81**).
+**Coverage:** 7 requirements → 2 phases (**82** shipped **2026-04-24**). Numbering continues from **v1.18** (last phase **81**).
+
+<details>
+<summary>✅ v1.19 JWT refresh persistence + audit co-fate (Phase 82) — SHIPPED 2026-04-24</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **82** | JWT refresh persistence + audit co-fate | Single transactional boundary for **`user_tokens`** rotation / reuse revocation and **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** when audit is on. | AUD-19-01, AUD-19-02, AUD-19-03, AUD-19-04 | (1) **`Sigra.JWT.refresh/3`** does not commit refresh-token DB effects unless audit succeeds when `:audit_schema` set. (2) Reuse path matches same discipline. (3) **`jwt_refresh_audit_cofate_test.exs`** proves rollback / audit-off. (4) **09** / **44** / **45** / **09-03** / **`CHANGELOG`** + **`82-VERIFICATION.md`**. |
+
+**At a glance:** **`Sigra.JWT.refresh/3`** + **`append_api_token_jwt_audit_to_multi`**; **`test/sigra/jwt_refresh_audit_cofate_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **AUD-08** for guided **`JWT.refresh`**. Verification: [`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`](phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md) (**merge gate pending** until Postgres test run).
+
+</details>
 
 <details>
 <summary>✅ v1.18 JWT refresh / reuse audit atomicity (Phase 81) — SHIPPED 2026-04-24</summary>
@@ -42,7 +52,7 @@
 |-------|------|------|--------------|----------------------------|
 | **81** | JWT refresh audit atomicity | Replace hybrid **`log_safe/3`** on **`audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** with transactional **`log_multi_safe`** when audit is on; align **44**/**45**/**09**/**CHANGELOG**. | AUD-18-01, AUD-18-02, AUD-18-03, AUD-18-04 | (1) Both helpers use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` set. (2) **`api_token_audit_atomic_test.exs`** covers success, audit-off, and fault injection. (3) **44**/**45** inventories + **09-VERIFICATION** rows **048–049** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]** match **`lib/sigra/api_token.ex`**. (4) **`81-VERIFICATION.md`** records merge gate outcome. |
 
-**At a glance:** **81** — **`commit_api_token_jwt_audit/3`**; **`api_token_audit_atomic_test.exs`** JWT rows; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **AUD-08** explicitly not closed. Verification: [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
+**At a glance:** **81** — **`commit_api_token_jwt_audit/3`**; **`api_token_audit_atomic_test.exs`** JWT rows; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **JWT persistence + audit co-fate** → **v1.19** / **Phase 82**. Verification: [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
 
 **Coverage:** 4 requirements → 1 phase.
 

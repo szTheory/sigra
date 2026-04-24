@@ -29,7 +29,9 @@ defmodule Sigra.APIToken do
   4. **JWT refresh auditing** -- `audit_jwt_refresh/2` and `audit_jwt_refresh_reuse/2`
      emit `api.jwt_refresh` / `api.jwt_refresh_reuse` rows when `:audit_schema` is
      set, using **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Audit.log_multi_safe/3`**
-     (audit-only transaction; AUD-18).
+     (audit-only transaction; AUD-18). When `:audit_schema` is set, **`Sigra.JWT.refresh/3`**
+     also performs **persistence + audit co-fate** in one transaction — do not call
+     **`audit_jwt_refresh/2`** afterward or you risk double-audit rows.
 
   ## Scope System
 
@@ -242,6 +244,57 @@ defmodule Sigra.APIToken do
     end
   end
 
+  @doc """
+  Appends a JWT audit insert step to the given `Ecto.Multi`.
+
+  Delegates to `Sigra.Audit.log_multi_safe/3` (no-op when `:audit_schema` is `nil`).
+
+  For internal composition from `Sigra.JWT.refresh/3` when `:audit_schema` is set.
+  Host applications should not compose arbitrary multis unless they own the
+  outer `Repo.transaction/1`.
+  """
+  @doc since: "0.9.1"
+  def append_api_token_jwt_audit_to_multi(%Ecto.Multi{} = multi, action, opts)
+      when is_binary(action) and is_list(opts) do
+    Audit.log_multi_safe(multi, action, opts)
+  end
+
+  @doc false
+  def jwt_refresh_audit_multi_opts(config, user_id, kind) when kind in [:refresh, :reuse] do
+    jwt_refresh_audit_merged_opts(config, user_id, kind)
+  end
+
+  defp jwt_refresh_audit_merged_opts(config, user_id, :refresh) do
+    scope = Sigra.Scope.from_config(config, %{id: user_id})
+
+    Keyword.merge(
+      api_token_scope_fields(scope),
+      api_token_audit_opts(config) ++
+        [
+          actor_id: user_id,
+          target_id: user_id,
+          metadata: %{},
+          audit_multi_step: :audit_api_token_jwt_refresh
+        ]
+    )
+  end
+
+  defp jwt_refresh_audit_merged_opts(config, user_id, :reuse) do
+    scope = Sigra.Scope.from_config(config, %{id: user_id})
+
+    Keyword.merge(
+      api_token_scope_fields(scope),
+      api_token_audit_opts(config) ++
+        [
+          actor_id: user_id,
+          target_id: user_id,
+          outcome: "failure",
+          metadata: %{reason: "refresh_token_reuse_detected"},
+          audit_multi_step: :audit_api_token_jwt_refresh_reuse
+        ]
+    )
+  end
+
   defp commit_api_token_jwt_audit(config, action, opts)
        when is_binary(action) and is_list(opts) do
     case Keyword.get(opts, :audit_schema) do
@@ -253,7 +306,7 @@ defmodule Sigra.APIToken do
 
         multi =
           Multi.new()
-          |> Audit.log_multi_safe(action, opts)
+          |> append_api_token_jwt_audit_to_multi(action, opts)
 
         try do
           case config.repo.transaction(multi) do
@@ -485,21 +538,11 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh(config, user_id) do
-    scope = Sigra.Scope.from_config(config, %{id: user_id})
-
-    merged =
-      Keyword.merge(
-        api_token_scope_fields(scope),
-        api_token_audit_opts(config) ++
-          [
-            actor_id: user_id,
-            target_id: user_id,
-            metadata: %{},
-            audit_multi_step: :audit_api_token_jwt_refresh
-          ]
-      )
-
-    commit_api_token_jwt_audit(config, "api.jwt_refresh", merged)
+    commit_api_token_jwt_audit(
+      config,
+      "api.jwt_refresh",
+      jwt_refresh_audit_merged_opts(config, user_id, :refresh)
+    )
   end
 
   @doc """
@@ -514,22 +557,11 @@ defmodule Sigra.APIToken do
   @doc since: "0.9.0"
   @spec audit_jwt_refresh_reuse(Sigra.Config.t(), term()) :: :ok
   def audit_jwt_refresh_reuse(config, user_id) do
-    scope = Sigra.Scope.from_config(config, %{id: user_id})
-
-    merged =
-      Keyword.merge(
-        api_token_scope_fields(scope),
-        api_token_audit_opts(config) ++
-          [
-            actor_id: user_id,
-            target_id: user_id,
-            outcome: "failure",
-            metadata: %{reason: "refresh_token_reuse_detected"},
-            audit_multi_step: :audit_api_token_jwt_refresh_reuse
-          ]
-      )
-
-    commit_api_token_jwt_audit(config, "api.jwt_refresh_reuse", merged)
+    commit_api_token_jwt_audit(
+      config,
+      "api.jwt_refresh_reuse",
+      jwt_refresh_audit_merged_opts(config, user_id, :reuse)
+    )
   end
 
   @doc """
