@@ -127,6 +127,79 @@ defmodule Sigra.AccountAuditAtomicityTest do
     ]
   end
 
+  test "change_password persists user update and account.password_change audit together", %{
+    repo: repo
+  } do
+    id = Ecto.UUID.generate()
+
+    {:ok, user} =
+      repo.insert(
+        AccountUser.changeset(%AccountUser{id: id}, %{
+          email: "pw@example.com",
+          hashed_password: "old-hash"
+        })
+      )
+
+    assert {:ok, %AccountUser{} = updated} =
+             Account.change_password(repo, user, "old-secret", %{password: "new-stored"},
+               Keyword.merge(base_opts(repo),
+                 validate_password_fn: fn u, cur ->
+                   u.id == user.id and cur == "old-secret"
+                 end
+               )
+             )
+
+    assert updated.hashed_password == "new-stored"
+    reloaded = repo.get!(AccountUser, id)
+    assert reloaded.hashed_password == "new-stored"
+    assert count_where(repo, "audit_events", "action = 'account.password_change'") == 1
+  end
+
+  test "rolls back change_password when audit insert is rejected by database guard", %{
+    repo: repo
+  } do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT account_audit_pw_change_guard CHECK (action <> 'account.password_change')
+      """,
+      []
+    )
+
+    try do
+      id = Ecto.UUID.generate()
+
+      {:ok, user} =
+        repo.insert(
+          AccountUser.changeset(%AccountUser{id: id}, %{
+            email: "pw-guard@example.com",
+            hashed_password: "before"
+          })
+        )
+
+      assert_raise Ecto.ConstraintError, fn ->
+        Account.change_password(repo, user, "secret", %{password: "after"},
+          Keyword.merge(base_opts(repo),
+            validate_password_fn: fn u, cur ->
+              u.id == user.id and cur == "secret"
+            end
+          )
+        )
+      end
+
+      reloaded = repo.get!(AccountUser, id)
+      assert reloaded.hashed_password == "before"
+      assert count(repo, "audit_events") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS account_audit_pw_change_guard",
+        []
+      )
+    end
+  end
+
   test "set_password persists user update and account.password_change audit together", %{
     repo: repo
   } do

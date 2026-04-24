@@ -20,7 +20,14 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-_No coordinated GSD milestone open._ Use **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* triggers fire; otherwise ship small fixes via **CHANGELOG + Hex** without a new planning milestone.
+**v1.15 — Account + API C-1 planning truth (SEED-002 slice)** — **Phase 78**, **AUD-14**..**AUD-14-05** (execution landed **2026-04-24**; run **`/gsd-complete-milestone`** to archive + remove live **`REQUIREMENTS.md`** per cadence).
+
+**Goal:** Reconcile **`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`**, **`09-VERIFICATION.md`**, and **`09-03-SUMMARY.md`** with **`lib/sigra/account.ex`** and **`lib/sigra/api_token.ex`** for **AUD-04-035..042** and **047** (already **`Multi` + `log_multi_safe`** in code); tighten machine evidence in **`test/sigra/account_audit_atomicity_test.exs`** (**`change_password`** tests).
+
+**Target features:**
+- Inventory + C-1 matrix honesty for Account email/password/deletion rows **035–042** and **`api.token_revoke` (047)**
+- **`09-03-SUMMARY.md`** bounded-batch note for phase **78** / **AUD-14**
+- **`CHANGELOG.md` [Unreleased]** planning trace bullet
 
 **Last closed:** **v1.14 — Bounded audit trust closure (SEED-002 slice)** (**Phase 77**, **AUD-13**..**AUD-13-04**, **2026-04-24**). **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** use **`commit_ad_hoc_mfa_audit/5`**; **`mfa_audit_atomicity_test.exs`**; planning truth on **09** / **44** / **CHANGELOG**. Archives: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md), [`.planning/milestones/v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md). Verification: **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
 
@@ -40,7 +47,9 @@ _No coordinated GSD milestone open._ Use **`/gsd-new-milestone`** when **`MAINTA
 
 ## Current State
 
-**v1.14 (archived 2026-04-24):** Phase **77** — **AUD-13**..**AUD-13-04** MFA ad-hoc audit **`Multi`** closure. Archives: **`milestones/v1.14-ROADMAP.md`**, **`milestones/v1.14-REQUIREMENTS.md`**; verification **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**. Live **`.planning/REQUIREMENTS.md`** removed at milestone close — recreate via **`/gsd-new-milestone`**.
+**v1.15 (open):** Phase **78** — **AUD-14**..**AUD-14-05** — **SEED-002** planning truth for **Account** + **`APIToken.revoke`** C-1 rows (**AUD-04-035..042**, **047**) aligned to **`lib/`**; verification **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
+
+**v1.14 (archived 2026-04-24):** Phase **77** — **AUD-13**..**AUD-13-04** MFA ad-hoc audit **`Multi`** closure. Archives: **`milestones/v1.14-ROADMAP.md`**, **`milestones/v1.14-REQUIREMENTS.md`**; verification **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
 
 **v1.13 (planning shipped 2026-04-24):** Phase **76** — **CAD-01**..**CAD-03** cadence lock-in. Archives: **`milestones/v1.13-ROADMAP.md`**, **`milestones/v1.13-REQUIREMENTS.md`**; verification **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
@@ -103,6 +112,14 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Active — v1.15 Account + API C-1 planning truth (phase **78** execution complete; **`/gsd-complete-milestone`** when archiving)
+
+- [x] **AUD-14-01** — **`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`** — **AUD-04-035..042** mechanism **`Multi` + `log_multi_safe`** + **Phase 78**; **043** **`log_safe`** (**EX-44-05**)
+- [x] **AUD-14-02** — Same file — **AUD-04-047** **`Multi` + `log_multi_safe`**; **044–046** remain **`log_safe`** (**EX-44-01**)
+- [x] **AUD-14-03** — **`09-VERIFICATION.md`** C-1 rows **035–042**, **047** → **T1** where **`lib/`** proves **Multi**; **043** / **044–046** / **048–049** unchanged honest **T2** / deferral
+- [x] **AUD-14-04** — **`09-03-SUMMARY.md`** phase **78** bounded-batch note + document status
+- [x] **AUD-14-05** — **`CHANGELOG.md` [Unreleased]** + **`test/sigra/account_audit_atomicity_test.exs`** **`change_password`** CHECK rollback
 
 ### Validated — v1.14 Bounded audit trust closure (shipped 2026-04-24)
 

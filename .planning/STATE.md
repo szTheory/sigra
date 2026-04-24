@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.14
-milestone_name: Bounded audit trust closure
-status: milestone_archived
+milestone: v1.15
+milestone_name: Account + API C-1 planning truth
+status: phase_complete_pending_milestone_close
 stopped_at: null
-last_updated: "2026-04-24T12:00:00.000Z"
-last_activity: 2026-04-24 — Phase 77 / AUD-13 MFA ad-hoc audit Multi closure
+last_updated: "2026-04-24T18:30:00.000Z"
+last_activity: 2026-04-24 — Phase 78 / AUD-14 planning truth + tests landed
 progress:
-  total_phases: 65
-  completed_phases: 65
-  total_plans: 182
-  completed_plans: 187
+  total_phases: 1
+  completed_phases: 1
+  total_plans: 0
+  completed_plans: 0
   percent: 100
 ---
 
@@ -24,23 +24,25 @@ See: `.planning/PROJECT.md` (updated 2026-04-24 — post–v1.14 archive)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.14** archived — **`/gsd-new-milestone`** when a trust-signal opens **v1.15+**; else **CHANGELOG + Hex** patch cadence per **`MAINTAINING.md`**.
+**Current focus:** **v1.15** — **Phase 78** — **AUD-14**..**AUD-14-05** (**SEED-002** planning truth for **Account** + **`api.token_revoke`**).
 
 ## Current Position
 
-Phase: **77** — **MFA ad-hoc audit `Multi` closure** — **Complete**
+Phase: **78** — **Account + API C-1 planning truth** — **Complete**
 
 Plan: N/A
 
-Status: Phase **77** verification satisfied (**AUD-13**)
+Status: **AUD-14**..**AUD-14-05** satisfied — **`78-VERIFICATION.md`**; pending **`/gsd-complete-milestone` v1.15** for archive + live **`REQUIREMENTS.md`** removal.
 
-Last activity: 2026-04-24 — **`lib/sigra/mfa.ex`** `commit_ad_hoc_mfa_audit/5`; tests + planning truth (**AUD-13-04**).
+Last activity: 2026-04-24 — **44** / **09** / **CHANGELOG** + **`account_audit_atomicity_test.exs`** **`change_password`** coverage.
 
 ## Performance Metrics
 
 _Velocity metrics populate during phase work._
 
 ## Accumulated Context
+
+**v1.15** — **Phase 78** — **SEED-002** inventory + C-1 matrix alignment for **AUD-04-035..042**, **047** vs **`lib/`**; **`change_password`** audit atomicity test.
 
 **v1.14** — **Phase 77** — bounded **SEED-002** slice (**AUD-04-033** / **034**); **`AUD-04-022`** unchanged (**EX-44-02**).
 
@@ -56,10 +58,10 @@ _None._
 
 ## Session Continuity
 
-**Next:** **`/gsd-new-milestone`** for coordinated **v1.15+** work, or routine **CHANGELOG + Hex** patches without a new planning milestone.
+**Next:** **`/gsd-discuss-phase 78`** or **`/gsd-plan-phase 78`** — execute **AUD-14**..**AUD-14-05**; close via **`/gsd-transition`** + **`78-VERIFICATION.md`**.
 
-**Archived requirements (v1.14):** `.planning/milestones/v1.14-REQUIREMENTS.md` — live **`.planning/REQUIREMENTS.md`** removed at close; recreate via **`/gsd-new-milestone`**.
+**Live requirements:** `.planning/REQUIREMENTS.md` (**v1.15**).
 
-**Planned work:** Default ops lane until next trust-signal **`/gsd-new-milestone`**.
+**Archived requirements (v1.14):** `.planning/milestones/v1.14-REQUIREMENTS.md`.
 
-**Planned Phase:** _TBD from next milestone_
+**Planned Phase:** **78** — Account + API C-1 planning truth

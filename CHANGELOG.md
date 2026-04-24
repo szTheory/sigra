@@ -11,6 +11,10 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Documentation
+
+* **planning:** Milestone **v1.15** (phase **78**, **AUD-14**) — **44-AUD-04-INVENTORY** + **09-VERIFICATION** C-1 rows for **AUD-04-035..042** and **047** aligned to **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; **09-03-SUMMARY** bounded-batch note. See [`.planning/REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/REQUIREMENTS.md) and [`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md).
+
 ## [0.2.4](https://github.com/szTheory/sigra/compare/v0.2.3...v0.2.4) (2026-04-24)
 
 ### Changed

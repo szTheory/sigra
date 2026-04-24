@@ -18,8 +18,22 @@
 - ✅ **v1.12 Trust, evidence, and adoption polish** — Phases **73–75** (shipped **2026-04-24**). See [v1.12 archive](milestones/v1.12-ROADMAP.md), [v1.12 requirements](milestones/v1.12-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Bounded **SEED-002** batch + **SEED-001** evidence index + triage-driven doc polish.
 - ✅ **v1.13 Post–v1.12 operational cadence** — Phase **76** (shipped **2026-04-24**). See [v1.13 archive](milestones/v1.13-ROADMAP.md), [v1.13 requirements](milestones/v1.13-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Planning-only cadence lock-in (**CAD-01**..**CAD-03**).
 - ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). See [v1.14 archive](milestones/v1.14-ROADMAP.md), [v1.14 requirements](milestones/v1.14-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
+- **v1.15 Account + API C-1 planning truth** — Phase **78** (execution complete **2026-04-24**; archive via **`/gsd-complete-milestone`**). Live [REQUIREMENTS.md](REQUIREMENTS.md); phase dir [`.planning/phases/78-account-api-c1-planning-truth/`](phases/78-account-api-c1-planning-truth/). **AUD-14**..**AUD-14-05**.
 
 ## Phases
+
+<details>
+<summary>✅ v1.15 Account + API C-1 planning truth (Phase 78) — EXECUTION COMPLETE 2026-04-24</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|----------------------------|
+| **78** | Account + API C-1 planning truth | Align **44** inventory + **09** C-1 matrix + summary with **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`** for **035–042**, **047**; extend **`account_audit_atomicity_test`** for **`change_password`**. | AUD-14-01, AUD-14-02, AUD-14-03, AUD-14-04, AUD-14-05 | (1) **44-AUD-04-INVENTORY** rows match **`lib/`**. (2) **09-VERIFICATION** **T1**/**T2** honest. (3) **09-03-SUMMARY** cites **78**. (4) **CHANGELOG** + tests green. |
+
+**Coverage:** 5 requirements → 1 phase.
+
+**Verification:** [`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`](phases/78-account-api-c1-planning-truth/78-VERIFICATION.md).
+
+</details>
 
 <details>
 <summary>✅ v1.14 Bounded audit trust closure (Phase 77) — SHIPPED 2026-04-24</summary>
