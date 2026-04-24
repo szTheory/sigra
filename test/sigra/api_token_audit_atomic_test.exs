@@ -128,6 +128,16 @@ defmodule Sigra.APITokenAuditAtomicTest do
     )
   end
 
+  defp sigra_config_no_audit(repo) do
+    Sigra.Config.new!(
+      repo: repo,
+      user_schema: MyApp.User,
+      otp_app: :my_app,
+      audit: [],
+      api_token: [api_token_schema: ApiTokenRow]
+    )
+  end
+
   test "persists token and api.token_create audit row in one transaction", %{repo: repo} do
     user = %{id: Ecto.UUID.generate()}
     cfg = sigra_config(repo)
@@ -295,6 +305,150 @@ defmodule Sigra.APITokenAuditAtomicTest do
       Ecto.Adapters.SQL.query!(
         repo,
         "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS api_token_verify_failure_audit_guard",
+        []
+      )
+    end
+  end
+
+  test "audit_jwt_refresh writes api.jwt_refresh when audit enabled", %{repo: repo} do
+    user_id = Ecto.UUID.generate()
+    cfg = sigra_config(repo)
+
+    assert :ok = APIToken.audit_jwt_refresh(cfg, user_id)
+
+    assert count_where(repo, "audit_events", "action = 'api.jwt_refresh'") == 1
+
+    %{rows: [[outcome, meta]]} =
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "SELECT outcome, metadata FROM audit_events WHERE action = 'api.jwt_refresh' LIMIT 1",
+        []
+      )
+
+    assert outcome == "success"
+    assert meta == %{}
+  end
+
+  test "audit_jwt_refresh_reuse writes api.jwt_refresh_reuse with failure outcome and metadata",
+       %{repo: repo} do
+    user_id = Ecto.UUID.generate()
+    cfg = sigra_config(repo)
+
+    assert :ok = APIToken.audit_jwt_refresh_reuse(cfg, user_id)
+
+    assert count_where(repo, "audit_events", "action = 'api.jwt_refresh_reuse'") == 1
+
+    %{rows: [[outcome, reason]]} =
+      Ecto.Adapters.SQL.query!(
+        repo,
+        """
+        SELECT outcome, metadata->>'reason' FROM audit_events
+        WHERE action = 'api.jwt_refresh_reuse' LIMIT 1
+        """,
+        []
+      )
+
+    assert outcome == "failure"
+    assert reason == "refresh_token_reuse_detected"
+  end
+
+  test "audit_jwt_refresh is silent when audit_schema absent", %{repo: repo} do
+    user_id = Ecto.UUID.generate()
+    cfg = sigra_config_no_audit(repo)
+
+    assert :ok = APIToken.audit_jwt_refresh(cfg, user_id)
+    assert count_where(repo, "audit_events", "action = 'api.jwt_refresh'") == 0
+  end
+
+  test "audit_jwt_refresh_reuse is silent when audit_schema absent", %{repo: repo} do
+    user_id = Ecto.UUID.generate()
+    cfg = sigra_config_no_audit(repo)
+
+    assert :ok = APIToken.audit_jwt_refresh_reuse(cfg, user_id)
+    assert count_where(repo, "audit_events", "action = 'api.jwt_refresh_reuse'") == 0
+  end
+
+  test "audit_jwt_refresh fault injection emits log_safe_error and leaves no row", %{
+    repo: repo
+  } do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT api_jwt_refresh_audit_guard CHECK (action <> 'api.jwt_refresh')
+      """,
+      []
+    )
+
+    try do
+      user_id = Ecto.UUID.generate()
+      cfg = sigra_config(repo)
+
+      ref =
+        :telemetry.attach(
+          {__MODULE__, :jwt_refresh_guard},
+          [:sigra, :audit, :log_safe_error],
+          &VerifyFailureTelemetryHandler.handle_event/4,
+          self()
+        )
+
+      try do
+        assert :ok = APIToken.audit_jwt_refresh(cfg, user_id)
+
+        assert_receive {:verify_failure_telemetry, [:sigra, :audit, :log_safe_error], %{count: 1},
+                        %{action: "api.jwt_refresh", reason: :constraint_violation}}
+      after
+        :telemetry.detach(ref)
+      end
+
+      assert count_where(repo, "audit_events", "action = 'api.jwt_refresh'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS api_jwt_refresh_audit_guard",
+        []
+      )
+    end
+  end
+
+  test "audit_jwt_refresh_reuse fault injection emits log_safe_error and leaves no row", %{
+    repo: repo
+  } do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT api_jwt_refresh_reuse_audit_guard CHECK (action <> 'api.jwt_refresh_reuse')
+      """,
+      []
+    )
+
+    try do
+      user_id = Ecto.UUID.generate()
+      cfg = sigra_config(repo)
+
+      ref =
+        :telemetry.attach(
+          {__MODULE__, :jwt_reuse_guard},
+          [:sigra, :audit, :log_safe_error],
+          &VerifyFailureTelemetryHandler.handle_event/4,
+          self()
+        )
+
+      try do
+        assert :ok = APIToken.audit_jwt_refresh_reuse(cfg, user_id)
+
+        assert_receive {:verify_failure_telemetry, [:sigra, :audit, :log_safe_error], %{count: 1},
+                        %{action: "api.jwt_refresh_reuse", reason: :constraint_violation}}
+      after
+        :telemetry.detach(ref)
+      end
+
+      assert count_where(repo, "audit_events", "action = 'api.jwt_refresh_reuse'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS api_jwt_refresh_reuse_audit_guard",
         []
       )
     end
