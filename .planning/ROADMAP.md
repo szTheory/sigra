@@ -15,11 +15,17 @@
 - ✅ **v1.9 Audit atomicity (bounded SEED-002)** — Phases **66–67** (shipped **2026-04-23**). See [v1.9 archive](milestones/v1.9-ROADMAP.md), [v1.9 requirements](milestones/v1.9-REQUIREMENTS.md), [v1.9 milestone audit](milestones/v1.9-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.10 Adopter confidence for solo production** — Phases **68–70** (shipped **2026-04-23**). See [v1.10 archive](milestones/v1.10-ROADMAP.md), [v1.10 requirements](milestones/v1.10-REQUIREMENTS.md), [v1.10 milestone audit](milestones/v1.10-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.11 Adoption stabilization** — Phases **71–72** (shipped **2026-04-23**). See [v1.11 archive](milestones/v1.11-ROADMAP.md), [v1.11 requirements](milestones/v1.11-REQUIREMENTS.md), and triage [v1.11-TRIAGE.md](v1.11-TRIAGE.md).
-- 📋 **Next milestone** — Not opened until **`/gsd-new-milestone`**; default posture after **v1.11** is **Hex-only** releases until an event warrants a tranche (**`MAINTAINING.md`** → *Milestone cadence and pause*).
+- 🚧 **v1.12 Trust, evidence, and adoption polish** — Phases **73–75** (in planning). Requirements: [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md). Bounded **SEED-002** batch + **SEED-001** evidence index + triage-driven doc polish.
 
 ## Phases
 
-_No active phased work._ Open **`/gsd-new-milestone`** when a scoped tranche is warranted.
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|----------------------------|
+| **73** | Bounded audit atomicity batch | Close one more **C-1** hybrid site with **`Multi`** + **`log_multi_safe`** and audit-aware tests. | AUD-11 | (1) Production change merged with tests proving audit row co-fates with business op. (2) Phase plan names inventory row(s) touched. |
+| **74** | Planning truth + launch evidence | Carry **09-03-SUMMARY** (+ **09-VERIFICATION** rationale); ship **v1.12** UAT evidence index and align **`docs/uat-ci-coverage.md`**. | AUD-12, UAT-01, UAT-02 | (1) **09-03-SUMMARY** reflects phase 73 batch; **D-06**-class note if **09-VERIFICATION** unchanged. (2) **`.planning/v1.12-UAT-EVIDENCE.md`** exists with eight-row outcomes. (3) **`docs/uat-ci-coverage.md`** links evidence and mentions **v1.12** without contradictions. |
+| **75** | Upgrade continuity + triage polish | ExDoc upgrade stub, intro/maintainer pointers, at least one triage-derived doc outcome. | TRN-01, TRN-02, TRN-03 | (1) **`upgrading-to-v1.12.md`** + **`mix.exs`** extras ordering. (2) Getting-started (or agreed surface) + **MAINTAINING** or **CHANGELOG** mention **v1.12** trust bundle. (3) Triage/issue-linked polish or explicit “no triage deltas” in phase summary. |
+
+**Coverage:** 7 requirements → 3 phases · phase numbering continues from **v1.11** (last phase **72**).
 
 <details>
 <summary>✅ v1.11 Adoption stabilization (Phases 71–72) — SHIPPED 2026-04-23</summary>
