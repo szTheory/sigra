@@ -1,6 +1,7 @@
 ---
-status: pending
+status: passed
 phase: 75
+verified: 2026-04-23
 ---
 
 # Phase 75 — Verification
@@ -14,6 +15,12 @@ phase: 75
 | **TRN-01** | **`upgrading-to-v1.12.md`** + **`mix.exs`** **`extras`** registration; **`mix docs --warnings-as-errors`** green |
 | **TRN-02** | **Faster path** + **MAINTAINING** block + **`CHANGELOG`** unreleased bullet; **README** unchanged |
 | **TRN-03** | Triage subsection present (**this file is not the sole record**) |
+
+## Verification outcome
+
+- Ran the **Automated** script block below on **2026-04-23** — all greps and `mix docs --warnings-as-errors` succeeded.
+- `MIX_ENV=test mix compile --warnings-as-errors` succeeded during plan execution.
+- Full root `mix test` was not re-run to completion in this sandbox (host Postgres `postgres` role / pool errors); executable regressions are unchanged by markdown-only edits — rely on CI **`library_tests`** for BEAM coverage.
 
 ## Automated
 

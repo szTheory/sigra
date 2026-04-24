@@ -20,7 +20,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**v1.12 — Trust, evidence, and adoption polish** (phases **73–75**)
+**v1.12 — Trust, evidence, and adoption polish** (phases **73–75**) — **shipped 2026-04-24**
 
 **Goal:** Ship one coherent **trust** tranche: another **bounded SEED-002** audit-atomicity batch with honest planning updates, a **SEED-001**-aligned **evidence index** so machine vs human UAT is legible before a loud launch, and **small triage-driven** adoption/docs polish (upgrade stub, intro/maintainer pointers).
 
@@ -43,7 +43,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.12 (in planning):** Phases **73–75** — **Phase 73** + **74** shipped (**bounded audit batch**, **09-03** planning truth, **v1.12-UAT-EVIDENCE** + **`docs/uat-ci-coverage.md`** attestation); **Phase 75** remains. See **`.planning/REQUIREMENTS.md`** and **`.planning/ROADMAP.md`**.
+**v1.12 (shipped 2026-04-24):** Phases **73–75** complete — bounded **SEED-002** batch + **09-03** truth (**73**), launch evidence + **`docs/uat-ci-coverage.md`** alignment (**74**), and upgrade continuity + triage reconciliation (**75** — **`upgrading-to-v1.12.md`**, intro/maintainer/**CHANGELOG** pointers, **`v1.11-TRIAGE.md`** § **v1.12 reconciliation**). See **`.planning/REQUIREMENTS.md`**, **`.planning/ROADMAP.md`**, and **`.planning/phases/75-upgrade-continuity-triage-polish/75-VERIFICATION.md`**.
 
 **v1.11 (shipped 2026-04-23):** Phases **71–72** — **`STAB-01`**..**`STAB-04`** adoption stabilization (triage log, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`** + ExDoc, intro cross-links). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
 
@@ -69,7 +69,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.12 (active):** See **Current milestone** above — **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** phases **73–75**.
+**v1.12:** Closed **2026-04-24** — phases **73–75** on **`.planning/ROADMAP.md`**.
+
+**Backlog / hygiene:** Phase **999.1** (*Nyquist retroactive validation pass*) and other **999.x** items remain optional archaeology — see **`.planning/ROADMAP.md`** and **`.planning/STATE.md`** for current focus.
 
 **Default posture (post–v1.12):** Return to **Hex-only** releases when work is patch-sized unless an **event** warrants another tranche — **`MAINTAINING.md`** → *Milestone cadence and pause*.
 
@@ -392,4 +394,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **v1.12** progress: **Phase 74** complete (planning truth **AUD-12** + launch evidence **UAT-01** / **UAT-02**); **Phase 75** next. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.*
+*Last updated: 2026-04-24 — **v1.12** shipped: phases **73–75** complete (audit batch + launch evidence + **TRN-01**..**TRN-03** doc polish). Next focus: **999.1** per **`.planning/STATE.md`**.*
