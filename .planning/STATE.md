@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Trust, evidence, and adoption polish
-status: defining_requirements
-stopped_at: milestone opened via /gsd-new-milestone
-last_updated: "2026-04-23T18:00:00.000Z"
-last_activity: 2026-04-23 — v1.12 planning landed (phases 73–75)
+status: Defining requirements → roadmap ready; execute with **`/gsd-plan-phase 73`**.
+stopped_at: Phase 73 context gathered
+last_updated: "2026-04-24T01:38:52.146Z"
+last_activity: "2026-04-23 — **`/gsd-new-milestone`** opened **v1.12**. (**Note:** **`phases.clear`** was run then **reverted** via **`git restore .planning/phases/`** so tracked historical phase trees stay in-repo — this project keeps **`.planning/phases/`** under version control.)"
 progress:
-  total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 61
+  completed_phases: 56
+  total_plans: 175
+  completed_plans: 180
+  percent: 100
 ---
 
 # Project State
@@ -56,11 +56,11 @@ _None._
 
 ## Session Continuity
 
-Last session: 2026-04-23
+Last session: --stopped-at
 
-Stopped at: **v1.12** roadmap + requirements written
+Stopped at: Phase 73 context gathered
 
-Resume file: —
+Resume file: --resume-file
 
 **Next:** **`/gsd-discuss-phase 73`** or **`/gsd-plan-phase 73`**
 
