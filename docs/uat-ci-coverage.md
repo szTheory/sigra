@@ -41,6 +41,14 @@ Human vs machine boundaries for **v1.4** are recorded in **`.planning/v1.4-GA-UA
 - **GA-04:** Human = witnessed `guides/introduction/getting-started.md` run; machine = **`getting_started_uat_contract`** + `scripts/ci/getting-started-contract.sh` (SEED-8).
 - **GA-05:** Consolidated matrix ownership — links **`.planning/v1.4-GA-UAT.md`** here and defers full CI graph to this file’s SEED rows.
 
+## v1.12 launch evidence (attestation)
+
+**v1.12** records per-SEED outcomes (**Executed** / **Waived with substitute** / **Deferred**) in the planning-only index **[.planning/v1.12-UAT-EVIDENCE.md](../.planning/v1.12-UAT-EVIDENCE.md)** (**UAT-01**). That file is intentionally **not** a second SEED×CI matrix — the **machine substitute vs residual** catalog and **merge-blocking Policy** for SEED-1..8 remain **in this document** (table above + **§ Policy**).
+
+- **Catalog vs outcomes:** the SEED table above names **what CI proves and what humans might still check**; **v1.12-UAT-EVIDENCE** records **what we assert happened** for release engineering.
+- **Governance:** if an outcome row disagrees with **§ Policy** below, **edit `.planning/v1.12-UAT-EVIDENCE.md` first**, then align prose here.
+- **Downstream:** phase **75** links **`upgrading-to-v1.12.md`** to this path (**TRN-01**) — keep the filename stable.
+
 ## Where to run this
 
 - **GitHub Actions:** `.github/workflows/ci.yml` — jobs `library_tests`, `example_unit_smoke`, `example_playwright_smoke` (includes `ga-uat-shift-left.spec.ts`), `install_smoke`, `getting_started_uat_contract`.
