@@ -17,8 +17,20 @@
 - ✅ **v1.11 Adoption stabilization** — Phases **71–72** (shipped **2026-04-23**). See [v1.11 archive](milestones/v1.11-ROADMAP.md), [v1.11 requirements](milestones/v1.11-REQUIREMENTS.md), and triage [v1.11-TRIAGE.md](v1.11-TRIAGE.md).
 - ✅ **v1.12 Trust, evidence, and adoption polish** — Phases **73–75** (shipped **2026-04-24**). See [v1.12 archive](milestones/v1.12-ROADMAP.md), [v1.12 requirements](milestones/v1.12-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Bounded **SEED-002** batch + **SEED-001** evidence index + triage-driven doc polish.
 - ✅ **v1.13 Post–v1.12 operational cadence** — Phase **76** (shipped **2026-04-24**). See [v1.13 archive](milestones/v1.13-ROADMAP.md), [v1.13 requirements](milestones/v1.13-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Planning-only cadence lock-in (**CAD-01**..**CAD-03**).
+- ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). Live [REQUIREMENTS.md](REQUIREMENTS.md); verification [`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`](phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
 
 ## Phases
+
+<details>
+<summary>✅ v1.14 Bounded audit trust closure (Phase 77) — SHIPPED 2026-04-24</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|----------------------------|
+| **77** | MFA ad-hoc audit `Multi` closure | Ad-hoc **`audit_backup_codes_regenerate/3`** / **`audit_trust_browser/2`** use transactional **`log_multi_safe`**; C-1 **033**/**034** → **T1**. | AUD-13-01, AUD-13-02, AUD-13-03, AUD-13-04 | (1) **`mfa_audit_atomicity_test.exs`** passes on Postgres for new cases. (2) **`09-VERIFICATION.md`** rows **033**/**034** list **`Multi` + `log_multi_safe`**. (3) **`44-AUD-04-INVENTORY.md`** grep + table + **EX-44-03**/**04** appendix aligned. (4) **`CHANGELOG` [Unreleased]** documents behavior. |
+
+**Coverage:** 4 requirements → 1 phase.
+
+</details>
 
 <details>
 <summary>✅ v1.13 Post–v1.12 operational cadence (Phase 76) — SHIPPED 2026-04-24</summary>

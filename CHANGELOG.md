@@ -11,6 +11,10 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Changed
+
+* **audit:** `Sigra.MFA.audit_backup_codes_regenerate/3` and `Sigra.MFA.audit_trust_browser/2` now emit audit rows via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema` is configured (bounded **SEED-002** closure for **AUD-04-033** / **AUD-04-034**; **`regenerate_backup_codes/4`** remains the authoritative rotation path).
+
 ### Documentation
 
 * **planning:** **v1.11** adoption stabilization — triage notes (`.planning/v1.11-TRIAGE.md`), **`upgrading-to-v1.11.md`**, ExDoc extras, intro upgrade cross-links, and **`MAINTAINING.md`** milestone pause guidance (**STAB-01**..**STAB-04**).

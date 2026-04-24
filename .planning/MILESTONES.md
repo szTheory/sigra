@@ -464,3 +464,23 @@
 - [v1.13 Requirements](milestones/v1.13-REQUIREMENTS.md)
 
 ---
+
+## v1.14 Bounded audit trust closure (Shipped: 2026-04-24)
+
+**Scope:** 1 phase (**77**), library + tests + planning truth (**AUD-13**..**AUD-13-04**).
+
+**What shipped:** **`Sigra.MFA.audit_backup_codes_regenerate/3`** and **`Sigra.MFA.audit_trust_browser/2`** now use **`commit_ad_hoc_mfa_audit/5`** — **`Repo.transaction/1`** on **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set — closing **AUD-04-033** / **AUD-04-034** from **T2** **`log_safe`** to **T1** in **`09-VERIFICATION.md`**. **`test/sigra/mfa_audit_atomicity_test.exs`** gains success, no-op, and CHECK-guard cases. **`09-03-SUMMARY.md`**, **`44-AUD-04-INVENTORY.md`** (grep + table + **EX-44-03**/**04** appendix), and **`CHANGELOG` [Unreleased]** updated. **`regenerate_backup_codes/4`** remains the authoritative backup-code rotation audit path.
+
+### Stats
+
+- **Requirements:** 4/4 **Validated** in live [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) (archive at **`/gsd-complete-milestone`**).
+- **Timeline:** **2026-04-24**.
+
+### Tech debt carried forward
+
+- **SEED-002** — **Account** / **API token** / OAuth rows in **`44-AUD-04-INVENTORY.md`** and phase **45** inventory remain backlog-triggered.
+- **AUD-04-022** — **`log_safe`** invalid enrollment code path unchanged (**EX-44-02**).
+
+**Archive:** _Pending **`/gsd-complete-milestone`**_ — will add **`milestones/v1.14-ROADMAP.md`** + **`milestones/v1.14-REQUIREMENTS.md`**.
+
+---

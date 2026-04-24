@@ -20,9 +20,17 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**None — awaiting `/gsd-new-milestone`.** Default posture until then: **Hex patch/minor** from **`CHANGELOG.md` + tag + Hex** unless a **trust-signal event** warrants a coordinated tranche ([`MAINTAINING.md`](MAINTAINING.md) → *Milestone cadence and pause*).
+**v1.14 — Bounded audit trust closure (SEED-002 slice)** (**Phase 77**, **AUD-13**..**AUD-13-04**).
 
-**Last closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
+**Goal:** Close the last **MFA** **`log_safe`** ad-hoc audit helpers (**AUD-04-033** / **034**) with **`Multi` + `log_multi_safe`** + **`Repo.transaction/1`**, machine tests, and honest C-1 / inventory / summary alignment — a tangible **operator-trust** increment without opening **SEED-001** or broad **Account**/**API** batches.
+
+**Delivered (Phase 77):**
+
+- **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** use **`commit_ad_hoc_mfa_audit/5`** (transactional audit insert; failure telemetry parity with former **`log_safe/3`**).
+- **Postgres audit atomicity tests** for success, no-audit-schema no-op, and CHECK-guard rollback.
+- **Planning truth:** **`09-VERIFICATION.md`**, **`09-03-SUMMARY.md`**, **`44-AUD-04-INVENTORY.md`**, **`CHANGELOG` [Unreleased]**, **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
+
+**Last closed (previous):** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
 **Last shipped code milestone:** **v1.12 — Trust, evidence, and adoption polish** (**phases 73–75**, **2026-04-24**). Archives: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
 
@@ -37,6 +45,8 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
+
+**v1.14 (shipped 2026-04-24):** Phase **77** — **AUD-13**..**AUD-13-04** MFA ad-hoc audit **`Multi`** closure. Live **`REQUIREMENTS.md`** + **`ROADMAP.md`**; verification **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
 
 **v1.13 (planning shipped 2026-04-24):** Phase **76** — **CAD-01**..**CAD-03** cadence lock-in. Archives: **`milestones/v1.13-ROADMAP.md`**, **`milestones/v1.13-REQUIREMENTS.md`**; verification **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
@@ -66,9 +76,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.13:** Milestone archived **2026-04-24** (`/gsd-complete-milestone`); live **`.planning/REQUIREMENTS.md`** removed — recreate via **`/gsd-new-milestone`**.
+**v1.14:** Shipped **2026-04-24** — **Phase 77** (**AUD-13**); live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** until **`/gsd-complete-milestone`** archives them.
 
-**When to open v1.14+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + **SEED-002**, documented adoption gap, **ADR 001** glue).
+**When to open v1.15+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
 
 **Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
 
@@ -101,6 +111,13 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Validated — v1.14 Bounded audit trust closure (shipped 2026-04-24)
+
+- ✓ **AUD-13-01** — **`audit_backup_codes_regenerate/3`** **`Multi` + `log_multi_safe`** — **Phase 77**
+- ✓ **AUD-13-02** — **`audit_trust_browser/2`** same pattern — **Phase 77**
+- ✓ **AUD-13-03** — **`mfa_audit_atomicity_test.exs`** coverage — **Phase 77**
+- ✓ **AUD-13-04** — C-1 matrix + inventory + summary + **CHANGELOG** — **Phase 77**
 
 ### Validated — v1.13 Post–v1.12 operational cadence (planning shipped 2026-04-24)
 
@@ -399,4 +416,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.13**: planning archives **`milestones/v1.13-*.md`**; live **`REQUIREMENTS.md`** cleared; **`/gsd-new-milestone`** recreates requirements for **v1.14+**.*
+*Last updated: 2026-04-24 — **`/gsd-new-milestone` v1.14**: **Phase 77** / **AUD-13** bounded **SEED-002** MFA ad-hoc audit closure; live **`REQUIREMENTS.md`** + roadmap row.*

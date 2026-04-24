@@ -69,8 +69,8 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-030 | **`Multi` + `log_multi_safe`** (`regenerate_backup_codes/4` success — replace + `mfa.backup_codes_regenerate` in one txn) | tier 5 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-031 | **`Multi` + `log_multi_safe`** (`regenerate_backup_codes/4` wrong TOTP — `mfa.verify.failure`) | tier 5 | T1 (Multi-bound; phase 73) | `lib/sigra/mfa.ex` ~741–757 |
 | AUD-04-032 | **`Multi` + `log_multi_safe`** (regenerate path `mfa.lockout` via `Multi.merge`) | tier 4 | T1 (Multi-bound; phase 73) | `lib/sigra/mfa.ex` ~758–776 |
-| AUD-04-033 | `log_safe` | tier 8 | T2 / **EX-44-03** | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-034 | `log_safe` | tier 8 | T2 / **EX-44-04** | `test/sigra/mfa_audit_atomicity_test.exs` |
+| AUD-04-033 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`audit_backup_codes_regenerate/3`; dedicated `:audit_mfa_backup_codes_regenerate_adhoc` step) | tier 8 | T1 (phase **77** / **AUD-13**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
+| AUD-04-034 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`audit_trust_browser/2`; dedicated `:audit_mfa_trust_browser_adhoc` step) | tier 8 | T1 (phase **77** / **AUD-13**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
 | AUD-04-035 | `log_safe` (after `{:ok, _}`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/account_audit_atomicity_test.exs` |
 | AUD-04-036 | `log_safe` (after `{:ok, _}`) | tier 4 | T2 / target Multi (phase 44 closure) | `test/sigra/account_audit_atomicity_test.exs` |
 | AUD-04-037 | `log_safe` (after `{:ok, _}`) | tier 5 | T2 / target Multi (phase 44 closure) | `test/sigra/account_audit_atomicity_test.exs` |
