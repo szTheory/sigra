@@ -21,8 +21,17 @@
 - ✅ **v1.15 Account + API C-1 planning truth** — Phase **78** (shipped **2026-04-24**). See [v1.15 archive](milestones/v1.15-ROADMAP.md), [v1.15 requirements](milestones/v1.15-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **AUD-14**..**AUD-14-05**.
 - ✅ **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). See [v1.16 archive](milestones/v1.16-ROADMAP.md), [v1.16 requirements](milestones/v1.16-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (shipped **2026-04-24**). See [v1.17 requirements](milestones/v1.17-REQUIREMENTS.md), [milestone archive](milestones/v1.17-ROADMAP.md), and [MILESTONES.md](MILESTONES.md).
+- **v1.18 JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049)** — Phase **81** (in planning). Live [REQUIREMENTS.md](REQUIREMENTS.md); execution via **`/gsd-plan-phase 81`**.
 
 ## Phases
+
+### v1.18 — JWT refresh / reuse audit atomicity (Phase 81)
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **81** | JWT refresh audit atomicity | Replace hybrid **`log_safe/3`** on **`audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** with transactional **`log_multi_safe`** when audit is on; align **44**/**45**/**09**/**CHANGELOG**. | AUD-18-01, AUD-18-02, AUD-18-03, AUD-18-04 | (1) Both helpers use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` set. (2) **`api_token_audit_atomic_test.exs`** covers success, audit-off, and fault injection. (3) **44**/**45** inventories + **09-VERIFICATION** rows **048–049** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]** match **`lib/sigra/api_token.ex`**. (4) **`81-VERIFICATION.md`** records merge gate outcome. |
+
+**Coverage:** 4 requirements → 1 phase. Phase numbering continues from **v1.17** (last phase **80**).
 
 <details>
 <summary>✅ v1.17 Forced password change audit atomicity (Phase 80) — SHIPPED 2026-04-24</summary>
