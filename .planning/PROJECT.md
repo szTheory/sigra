@@ -43,7 +43,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.12 (in planning):** Phases **73–75** — trust / evidence / adoption polish; see **`.planning/REQUIREMENTS.md`** and **`.planning/ROADMAP.md`**.
+**v1.12 (in planning):** Phases **73–75** — **Phase 73** + **74** shipped (**bounded audit batch**, **09-03** planning truth, **v1.12-UAT-EVIDENCE** + **`docs/uat-ci-coverage.md`** attestation); **Phase 75** remains. See **`.planning/REQUIREMENTS.md`** and **`.planning/ROADMAP.md`**.
 
 **v1.11 (shipped 2026-04-23):** Phases **71–72** — **`STAB-01`**..**`STAB-04`** adoption stabilization (triage log, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`** + ExDoc, intro cross-links). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
 
@@ -392,4 +392,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.12** (**73–75**); live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** active phases restored.*
+*Last updated: 2026-04-24 — **v1.12** progress: **Phase 74** complete (planning truth **AUD-12** + launch evidence **UAT-01** / **UAT-02**); **Phase 75** next. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.*

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Trust, evidence, and adoption polish
-status: executing
+status: ready_to_plan
 stopped_at: Phase 74 context gathered
 last_updated: "2026-04-24T02:27:49.966Z"
 last_activity: 2026-04-24 -- Phase 74 execution started
 progress:
   total_phases: 62
-  completed_phases: 57
+  completed_phases: 58
   total_plans: 179
   completed_plans: 182
-  percent: 100
+  percent: 94
 ---
 
 # Project State
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 74 — planning-truth-launch-evidence
+**Current focus:** Phase **75** — upgrade continuity + triage polish (v1.12)
 
 ## Current Position
 
-Phase: 74 (planning-truth-launch-evidence) — EXECUTING
+Phase: **75**
 
-Plan: 1 of 2
+Plan: Not started
 
-Status: Executing Phase 74
+Status: Ready to plan
 
-Last activity: 2026-04-24 -- Phase 74 execution started
+Last activity: 2026-04-24 — Phase **74** verified complete (**AUD-12**, **UAT-01**, **UAT-02**).
 
 ## Performance Metrics
 
@@ -48,7 +48,7 @@ _Velocity metrics populate during phase work._
 
 **Phase 73 (2026-04-24):** **09-VERIFICATION** C-1 rows **023–034** reconciled to **`lib/sigra/mfa.ex`**; **44-AUD-04-INVENTORY** **023–032** + grep log refreshed; **`mfa_audit_atomicity_test.exs`** gained five **`CHECK`** rollback tests. Phase directory renamed **`073-*` → `73-*`** so **`gsd-sdk`** resolves phase **73**.
 
-**Phase 74 (2026-04-24):** Discuss-phase complete — **AUD-12** / **UAT-01** / **UAT-02** decisions in **`.planning/phases/74-planning-truth-launch-evidence/74-CONTEXT.md`** (hybrid **09-03** + optional matrix pointer; **`.planning/v1.12-UAT-EVIDENCE.md`** eight-row shape; thin **v1.12** subsection in **`docs/uat-ci-coverage.md`**).
+**Phase 74 (2026-04-24):** **Complete** — **`09-03-SUMMARY.md`** carries **v1.12** / **Phase 73 (AUD-11)** trace + **AUD-11** bounded-batch paragraph (**AUD-12**); **`.planning/v1.12-UAT-EVIDENCE.md`** + **`docs/uat-ci-coverage.md`** § **v1.12 launch evidence** (**UAT-01**, **UAT-02**). See **`.planning/phases/74-planning-truth-launch-evidence/74-VERIFICATION.md`**.
 
 ### Pending Todos
 
@@ -60,16 +60,16 @@ _None._
 
 ## Session Continuity
 
-Last session: phase-74-discuss
+Last session: phase-74-execute
 
-Stopped at: Phase 74 context gathered
+Stopped at: Phase 74 complete; advance to Phase 75
 
-Resume file: `.planning/phases/74-planning-truth-launch-evidence/74-CONTEXT.md`
+Resume file: `.planning/ROADMAP.md` (Phase **75** row)
 
-**Next:** **`/gsd-plan-phase 74`**
+**Next:** **`/gsd-discuss-phase 75`** (recommended) or **`/gsd-plan-phase 75`**
 
 **Live requirements:** `.planning/REQUIREMENTS.md`
 
-**Planned work:** Phases **74–75** on **`.planning/ROADMAP.md`**
+**Planned work:** Phase **75** on **`.planning/ROADMAP.md`** (v1.12 triage + upgrade continuity)
 
-**Planned Phase:** 74 (Planning truth + launch evidence) — 2 plans — 2026-04-24T02:24:21.047Z
+**Planned Phase:** 75 (Upgrade continuity + triage polish)
