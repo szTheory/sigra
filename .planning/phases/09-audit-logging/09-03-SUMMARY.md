@@ -16,6 +16,8 @@ Phase **61** shipped **AUD-01** for **`Sigra.MFA.verify_backup/4`** invalid-back
 
 Phase **66** shipped **AUD-09** for **`Sigra.MFA.confirm_enrollment/5`**, covering **`AUD-04-020`–`022`**; **`AUD-04-022`** stays on **`log_safe`** as **T2** under **`EX-44-02`** (invalid TOTP before DB writes). The primary story is **`AUD-04-021`**: **`Multi`** + **`log_multi_safe`** with a dedicated follow-up **`Repo.transaction/1`** when enrollment persistence fails after DB work—so failure audit does not disagree with rolled-back enrollment effects. For mechanism, tier, and verdict, see the C-1 row for **`AUD-04-021`** in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
 
+Phase **73** shipped **AUD-11** for **`Sigra.MFA`** paths covering **`AUD-04-023`..`032`**: **`verify/4`**, **`verify_backup/4`**, **`cleanup_mfa/6`**, **`disable!/4`**, and **`regenerate_backup_codes/4`** — audit rows are **`Multi`**-co-fated via **`Sigra.Audit.log_multi_safe/3`** where the matrix claims **T1**; **`AUD-04-033`** and **`AUD-04-034`** remain **`log_safe`** **T2** under **EX-44-03** / **EX-44-04**. **`44-AUD-04-INVENTORY.md`** Phase column + **`## Grep log`** were refreshed with **`lib/sigra/mfa.ex`**; **`09-VERIFICATION.md`** C-1 rows **023..032** were updated in the same closure. For mechanism, tier, and verdict, see the C-1 rows in [`09-VERIFICATION.md`](./09-VERIFICATION.md).
+
 ## Inventory pointers
 
 | Phase | File | Scope |
