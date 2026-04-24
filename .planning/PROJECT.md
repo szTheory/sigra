@@ -71,7 +71,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **v1.12:** Closed **2026-04-24** — phases **73–75** on **`.planning/ROADMAP.md`**.
 
-**Backlog / hygiene:** Phase **999.1** (*Nyquist retroactive validation pass*) and other **999.x** items remain optional archaeology — see **`.planning/ROADMAP.md`** and **`.planning/STATE.md`** for current focus.
+**Backlog / hygiene:** Phase **999.1** (*Nyquist retroactive validation pass*) and other **999.x** items remain optional archaeology — see **`.planning/ROADMAP.md`** for the canonical queue. **`.planning/STATE.md`** is session handoff only (not a second roadmap); **999.1** tombstones: **`phases/999.1-*/999.1-CONTEXT.md`** + **`999.1-VALIDATION.md`**. **Planning precedence:** if `STATE.md` disagrees with **`ROADMAP.md`** or a phase’s **`*-VALIDATION.md` / `*-VERIFICATION.md`**, trust **ROADMAP + phase attestation** first.
 
 **Default posture (post–v1.12):** Return to **Hex-only** releases when work is patch-sized unless an **event** warrants another tranche — **`MAINTAINING.md`** → *Milestone cadence and pause*.
 

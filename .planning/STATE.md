@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Trust, evidence, and adoption polish
-status: ready_to_plan
-stopped_at: Phase 75 complete
-last_updated: "2026-04-24T12:00:00.000Z"
-last_activity: 2026-04-24 — Phase **75** complete (**TRN-01**..**TRN-03**); focus advanced to **999.1**.
+status: milestone_complete
+stopped_at: v1.12 shipped; post-milestone idle
+last_updated: "2026-04-23T18:00:00.000Z"
+last_activity: 2026-04-23 — **999.1** discuss complete (tombstone **CONTEXT** + STATE alignment); **v1.12** already complete (**73–75**).
 progress:
   total_phases: 63
   completed_phases: 59
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase **999.1** — Nyquist retroactive validation pass (backlog)
+**Current focus:** **None (idle).** **999.1** is **superseded** (see **`phases/999.1-*/999.1-VALIDATION.md`** and **`999.1-CONTEXT.md`**). Next promoted work: **`.planning/ROADMAP.md`** (not `STATE.md`).
 
 ## Current Position
 
-Phase: **999.1**
+Phase: _idle — canonical queue is **ROADMAP.md**_
 
-Plan: Not started
+Plan: N/A
 
-Status: Ready to plan
+Status: Post–**v1.12** handoff
 
-Last activity: 2026-04-24 — Phase **75** complete (**TRN-01**..**TRN-03**).
+Last activity: 2026-04-23 — **999.1** stewardship context captured; **STATE** cleared of false “ready to plan **999.1**”.
 
 ## Performance Metrics
 
@@ -62,16 +62,16 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: 2026-04-23 — `/gsd-discuss-phase 999.1` (all areas + research synthesis)
 
-Stopped at: Phase 75 context gathered
+Stopped at: **999.1** tombstone **CONTEXT** written; **STATE** aligned with supersession
 
-Resume file: --resume-file
+Resume file: `.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`
 
-**Next:** **`/gsd-discuss-phase 999.1`** (recommended) or **`/gsd-plan-phase 999.1`**
+**Next:** Pick next work from **`.planning/ROADMAP.md`** (e.g. new milestone or promoted backlog). Do **not** **`/gsd-plan-phase 999.1`** for implementation — scope shipped as **Phase 36**.
 
-**Live requirements:** `.planning/REQUIREMENTS.md`
+**Live requirements:** `.planning/REQUIREMENTS.md` (may lag until a new milestone opens)
 
-**Planned work:** Phase **999.1** on **`.planning/ROADMAP.md`** (Nyquist retroactive validation pass)
+**Planned work:** See **ROADMAP** — **999.1** is archaeology only
 
-**Planned Phase:** 999.1 (nyquist-retroactive-validation-pass) — backlog
+**Planned Phase:** _TBD from ROADMAP when a new tranche starts_
