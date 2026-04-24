@@ -19,17 +19,18 @@
 - ✅ **v1.13 Post–v1.12 operational cadence** — Phase **76** (shipped **2026-04-24**). See [v1.13 archive](milestones/v1.13-ROADMAP.md), [v1.13 requirements](milestones/v1.13-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Planning-only cadence lock-in (**CAD-01**..**CAD-03**).
 - ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). See [v1.14 archive](milestones/v1.14-ROADMAP.md), [v1.14 requirements](milestones/v1.14-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
 - ✅ **v1.15 Account + API C-1 planning truth** — Phase **78** (shipped **2026-04-24**). See [v1.15 archive](milestones/v1.15-ROADMAP.md), [v1.15 requirements](milestones/v1.15-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **AUD-14**..**AUD-14-05**.
-- **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) (**AUD-16-01**..**AUD-16-04**); verification [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+- ✅ **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). See [v1.16 archive](milestones/v1.16-ROADMAP.md), [v1.16 requirements](milestones/v1.16-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Phases
 
-### v1.16 API verify failure audit atomicity (Phase 79) — SHIPPED 2026-04-24
+<details>
+<summary>✅ v1.16 API verify failure audit atomicity (Phase 79) — SHIPPED 2026-04-24</summary>
 
-| Phase | Name | Goal | Requirements | Success criteria (observable) |
-|-------|------|------|----------------|------------------------------|
-| **79** | API token verify failure audit | **`Sigra.APIToken.verify/2`** failure audits are **`Repo.transaction/1`** + **`Multi` + `log_multi_safe`** when `:audit_schema` is set; **44** + **09** rows **044–046** **T1**; **D-27** unchanged | **AUD-16-01**..**AUD-16-04** | (1) **`api_token_audit_atomic_test.exs`** covers invalid / revoked / expired + fault injection. (2) **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]** updated. |
+Full phase table, goals, and success criteria are archived in [`milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md).
 
-**Coverage:** 4 requirements → 1 phase.
+**At a glance:** **79** — **`Sigra.APIToken.verify/2`** failure **`api.token_verify.failure`** **`Multi` + `log_multi_safe`** (**AUD-04-044..046**); **`api_token_audit_atomic_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **D-27** preserved. Verification: [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+
+</details>
 
 <details>
 <summary>✅ v1.15 Account + API C-1 planning truth (Phase 78) — SHIPPED 2026-04-24</summary>

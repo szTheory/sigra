@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.16
 milestone_name: API verify failure audit atomicity
-status: phase_79_execution
+status: milestone_closed
 stopped_at: null
-last_updated: "2026-04-24T12:00:00.000Z"
-last_activity: 2026-04-24 — v1.16 Phase 79 — AUD-16 lib + tests + planning truth
+last_updated: "2026-04-24T18:00:00.000Z"
+last_activity: 2026-04-24 — /gsd-complete-milestone v1.16 — archives + tag
 progress:
   total_phases: 1
   completed_phases: 1
@@ -18,23 +18,25 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-24 — v1.16 / Phase 79)
+See: `.planning/PROJECT.md` (updated 2026-04-24 — v1.16 closed)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.16** / **Phase 79** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** transactional **`log_multi_safe`** (**AUD-16**). Live **`.planning/REQUIREMENTS.md`**.
+**Current focus:** **Next milestone** — run **`/gsd-new-milestone`** when resume criteria in **`MAINTAINING.md`** apply. Live **`.planning/REQUIREMENTS.md`** removed at **v1.16** close.
 
 ## Current Position
 
-Phase: **79** — API token verify failure audit atomicity
+Milestone: **v1.16** — closed **2026-04-24**
+
+Phase: **79** — API token verify failure audit atomicity (archived)
 
 Plan: N/A (single-phase milestone)
 
-Status: **Implementation + verification artifacts landed** — **`79-VERIFICATION.md`**; **`mix test`** for **`api_token_audit_atomic_test.exs`** + **`api_token_test.exs`**.
+Status: **Shipped** — archives **`.planning/milestones/v1.16-ROADMAP.md`**, **`.planning/milestones/v1.16-REQUIREMENTS.md`**; tag **`v1.16`**.
 
-Last activity: 2026-04-24 — **`lib/sigra/api_token.ex`**, **`api_token_audit_atomic_test.exs`**, **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**.
+Last activity: **`/gsd-complete-milestone` v1.16** — planning docs + **MILESTONES** + **RETROSPECTIVE**.
 
 ## Performance Metrics
 
@@ -42,13 +44,13 @@ _Velocity metrics populate during phase work._
 
 ## Accumulated Context
 
-**v1.16** — **Phase 79** — **AUD-16-01**..**AUD-16-04** — **SEED-002** slice for **`APIToken.verify/2`** failure audits (**AUD-04-044..046**); **EX-44-01** verify slice retired in appendix.
+**v1.16** closed — **Phase 79** — **AUD-16-01**..**AUD-16-04** — **`APIToken.verify/2`** failure audits (**AUD-04-044..046**); **EX-44-01** verify slice retired in appendix.
 
-**v1.15** closed **2026-04-24** — **Phase 78** — **AUD-14**..**AUD-14-05**; archives **`.planning/milestones/v1.15-*`**.
+**v1.15** archives **`.planning/milestones/v1.15-*`**.
 
 ### Pending Todos
 
-_None — use **`/gsd-complete-milestone`** when ready to archive v1.16._
+_Use **`/gsd-new-milestone`** to open the next coordinated milestone._
 
 ### Blockers/Concerns
 
@@ -56,6 +58,6 @@ _None._
 
 ## Session Continuity
 
-**Next:** **`/gsd-complete-milestone` v1.16** when Hex release / tag policy satisfied — archive **`REQUIREMENTS.md`**, **`v1.16-ROADMAP.md`**, **`v1.16-REQUIREMENTS.md`**, tag **`v1.16`**.
+**Next:** **`/gsd-new-milestone`** when **`MAINTAINING.md`** resume list matches; **`CHANGELOG` + Hex** for patch-only fixes.
 
-**Active requirements:** `.planning/REQUIREMENTS.md` (**AUD-16**).
+**Archives:** **`.planning/milestones/v1.16-ROADMAP.md`**, **`.planning/milestones/v1.16-REQUIREMENTS.md`**.

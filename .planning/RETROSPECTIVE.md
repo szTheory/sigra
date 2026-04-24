@@ -1,6 +1,45 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.15 section added at milestone archive (2026-04-24).*
+*Living document updated at milestone boundaries. v1.16 section added at milestone archive (2026-04-24).*
+
+## Milestone: v1.16 — API verify failure audit atomicity
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (79) | **Plans (on-disk):** 0 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-16-01 / AUD-16-02** — **`verify/2`** invalid / revoked / expired paths emit **`api.token_verify.failure`** inside **`Repo.transaction/1`** with **`Ecto.Multi`** + **`log_multi_safe`** when `:audit_schema` is set.
+- **AUD-16-03** — **44** inventory + **09-VERIFICATION** C-1 **044–046** → **T1**; **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]** trace **v1.16** / **79** / **AUD-16**.
+- **AUD-16-04** — **D-27** preserved: no success-path **`api.token_verify`** audit rows.
+- **`api_token_audit_atomic_test.exs`** — Postgres-backed failure + fault-injection coverage alongside **`api_token_test.exs`**.
+
+### What worked
+
+- **Verification-first single phase** — **`79-VERIFICATION.md`** checklist mapped cleanly to code + docs.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** not used; manual **`milestones/v1.16-*`** writes (same as **v1.12**–**v1.15**).
+- **No on-disk `79-SUMMARY.md`** — closure relied on **VERIFICATION** + requirements traceability (same shape as **v1.15**).
+
+### Patterns established
+
+- **Failure-only API token verify audits** co-fated with the **`{:error, reason}`** return path without widening **D-27** success noise.
+
+### Key lessons
+
+1. Retire **EX-44-01** appendix honesty when code moves **`044–046`** to **T1** — keep appendix row for archaeology.
+2. Keep **`log_safe_error`** telemetry explicit when audit insert fails but the caller still gets the domain error.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Single commit since **`v1.15`** tag; highest leverage was **`api_token.ex`** + one atomic test module + planning matrix rows.
+
+---
 
 ## Milestone: v1.15 — Account + API C-1 planning truth
 
@@ -437,6 +476,7 @@
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.16 | n/a | 1 | **`APIToken.verify/2`** failure **`api.token_verify.failure`** → **`Multi` + `log_multi_safe`** + **`api_token_audit_atomic_test.exs`** (**044–046** **T1**) |
 | v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |
 | v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
 | v1.5 | n/a | 4 | Public narrative + Hex/changelog/README/MAINTAINING alignment with v1.4 GA evidence |

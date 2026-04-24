@@ -20,16 +20,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**v1.16 — API verify failure audit atomicity (SEED-002 slice)** — **Phase 79**, **AUD-16-01**..**AUD-16-04** — **execution complete 2026-04-24** (close via **`/gsd-complete-milestone`** when release policy satisfied).
+**Next milestone** — open with **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (CHANGELOG + Hex for tiny fixes; coordinated milestone for loud launch, **SEED-001**, compliance, adoption gaps, **ADR 001** glue).
 
-**Goal:** Harden **`Sigra.APIToken.verify/2`** failure-path audit durability (**AUD-04-044..046**) with **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; refresh **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; preserve **D-27** (no success-path audit).
-
-**Target features:**
-- Transactional **`api.token_verify.failure`** for invalid / revoked / expired branches + telemetry on committed audit
-- **`log_safe_error`** on audit insert failure (invalid changeset or DB constraint), caller still receives **`{:error, reason}`**
-- Planning truth for **044–046** (**T1**); **EX-44-01** verify slice retired (appendix row retained)
-
-**Requirements + verification:** [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) — **AUD-16-01**..**AUD-16-04**; **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
+**Previously closed:** **v1.16 — API verify failure audit atomicity (SEED-002 slice)** (**Phase 79**, **AUD-16-01**..**AUD-16-04**, **2026-04-24**). **`Sigra.APIToken.verify/2`** failure **`api.token_verify.failure`** via **`Repo.transaction/1`** + **`Multi` + `log_multi_safe`**; **`api_token_audit_atomic_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **D-27** preserved. Archives: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md), [`.planning/milestones/v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md). Verification: **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
 
 **Previously closed:** **v1.15 — Account + API C-1 planning truth (SEED-002 slice)** (**Phase 78**, **AUD-14**..**AUD-14-05**, **2026-04-24**). **44** + **09** C-1 planning truth for **035–042**, **047**; **`09-03-SUMMARY`** + **`CHANGELOG` [Unreleased]**; **`account_audit_atomicity_test.exs`** **`change_password`**. Archives: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md), [`.planning/milestones/v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md). Verification: **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
 
@@ -37,7 +30,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **Previously closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
-**Last shipped code milestone (prior to v1.16 execution):** **v1.15 — Account + API C-1 planning truth** (**Phase 78**, **2026-04-24**; **`AUD-14`**). Archives: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md), [`v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md). _(Prior: **v1.14** — **Phase 77**; **v1.12** — phases **73–75**.)_
+**Last shipped code milestone (prior to next planning):** **v1.16 — API verify failure audit atomicity** (**Phase 79**, **2026-04-24**; **`AUD-16`**). Archives: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md), [`v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md). _(Prior: **v1.15** — **Phase 78**; **v1.14** — **Phase 77**.)_
 
 **Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
@@ -51,7 +44,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.16 (execution complete 2026-04-24):** Phase **79** — **AUD-16-01**..**AUD-16-04** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** transactional **`log_multi_safe`** (**AUD-04-044..046**); **`api_token_audit_atomic_test.exs`**; live **`.planning/REQUIREMENTS.md`** until **`/gsd-complete-milestone` v1.16**; verification **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
+**v1.16 (archived 2026-04-24):** Phase **79** — **AUD-16-01**..**AUD-16-04** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** transactional **`log_multi_safe`** (**AUD-04-044..046**); **`api_token_audit_atomic_test.exs`**; archives **`milestones/v1.16-ROADMAP.md`**, **`milestones/v1.16-REQUIREMENTS.md`**; verification **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
 
 **v1.15 (archived 2026-04-24):** Phase **78** — **AUD-14**..**AUD-14-05** — **SEED-002** planning truth for **Account** + **`APIToken.revoke`** C-1 rows (**AUD-04-035..042**, **047**) aligned to **`lib/`**; **`account_audit_atomicity_test.exs`** **`change_password`**. Archives: **`milestones/v1.15-ROADMAP.md`**, **`milestones/v1.15-REQUIREMENTS.md`**; verification **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
 
@@ -417,8 +410,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.13 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.16 execution log)</summary>
 
+- **2026-04-24** — **`/gsd-complete-milestone` v1.16**: archived **`v1.16-REQUIREMENTS.md`**, **`v1.16-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.16`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.15**: archived **`v1.15-REQUIREMENTS.md`**, **`v1.15-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.15`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.14**: archived **`v1.14-REQUIREMENTS.md`**, **`v1.14-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.14`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.13** (planning-only): archived **`v1.13-REQUIREMENTS.md`**, **`v1.13-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; no Hex tag (no library version bump).
@@ -440,4 +434,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-new-milestone` v1.16** (**Phase 79** / **AUD-16**) opened; live **`.planning/REQUIREMENTS.md`** restored for **`APIToken.verify/2`** failure audit atomicity. Prior: **`/gsd-complete-milestone` v1.15** — **Phase 78** / **AUD-14** archived; git tag **`v1.15`**.*
+*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.16** — **Phase 79** / **AUD-16** archived; live **`.planning/REQUIREMENTS.md`** removed; git tag **`v1.16`**. Prior: **`/gsd-new-milestone` v1.16** opened **Phase 79**; **`/gsd-complete-milestone` v1.15** — tag **`v1.15`**.*

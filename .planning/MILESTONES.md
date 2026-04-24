@@ -490,7 +490,7 @@
 
 ---
 
-## v1.16 API verify failure audit atomicity (Shipped in-repo: 2026-04-24)
+## v1.16 API verify failure audit atomicity (Shipped: 2026-04-24)
 
 **Scope:** 1 phase (**79**), **`Sigra.APIToken.verify/2`** failure audits + planning truth (**AUD-16-01**..**AUD-16-04**).
 
@@ -504,13 +504,21 @@
 
 ### Stats
 
-- **Requirements:** 4/4 in live [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) (archive at **`/gsd-complete-milestone` v1.16**).
-- **Verification:** [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+- **Requirements:** 4/4 **Validated** in archived [`milestones/v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** same day — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** not relied on; manual **`milestones/v1.16-*`** archival (same pattern as **v1.12**–**v1.15**).
+- **Git (since `v1.15` tag):** 1 commit; **13** files (**487** insertions / **80** deletions in `git diff --shortstat 'v1.15^{}'..HEAD` at close).
 
 ### Tech debt carried forward
 
 - **SEED-002** — remaining **`log_safe/3`** clusters (e.g. **043**, **048–049**, OAuth phase **45**).
 - **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+**Archive:**
+
+- [v1.16 Roadmap](milestones/v1.16-ROADMAP.md)
+- [v1.16 Requirements](milestones/v1.16-REQUIREMENTS.md)
 
 ---
 
