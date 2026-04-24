@@ -1,6 +1,8 @@
 defmodule Sigra.MFAAuditAtomicityTest do
   use ExUnit.Case, async: false
 
+  import Ecto.Query
+
   alias Sigra.{Config, MFA}
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
   alias Sigra.Test.PostgresRepo
@@ -834,6 +836,76 @@ defmodule Sigra.MFAAuditAtomicityTest do
       Ecto.Adapters.SQL.query!(
         repo,
         "ALTER TABLE user_mfa_backup_codes DROP CONSTRAINT IF EXISTS mfa_enroll_backup_guard_insert_failed",
+        []
+      )
+    end
+  end
+
+  test "audit_backup_codes_regenerate inserts mfa.backup_codes_regenerate audit row", %{
+    repo: repo
+  } do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+
+    assert :ok = MFA.audit_backup_codes_regenerate(config, user, 10)
+
+    assert count_where(repo, "audit_events", "action = 'mfa.backup_codes_regenerate'") == 1
+
+    row =
+      repo.one!(
+        from(e in AuditTestEvent,
+          where: e.action == "mfa.backup_codes_regenerate",
+          select: e
+        )
+      )
+
+    assert row.actor_id == user.id
+    assert row.metadata["count"] == 10
+  end
+
+  test "audit_trust_browser inserts mfa.trust_browser audit row", %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+
+    assert :ok = MFA.audit_trust_browser(config, user)
+
+    assert count_where(repo, "audit_events", "action = 'mfa.trust_browser'") == 1
+
+    row =
+      repo.one!(from(e in AuditTestEvent, where: e.action == "mfa.trust_browser", select: e))
+
+    assert row.actor_id == user.id
+  end
+
+  test "audit_backup_codes_regenerate is no-op when audit_schema absent", %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo, false)
+
+    assert :ok = MFA.audit_backup_codes_regenerate(config, user, 3)
+    assert count(repo, "audit_events") == 0
+  end
+
+  test "audit_backup_codes_regenerate leaves no row when audit insert blocked by CHECK guard",
+       %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_adhoc_regen_audit_guard CHECK (action <> 'mfa.backup_codes_regenerate')
+      """,
+      []
+    )
+
+    try do
+      assert :ok = MFA.audit_backup_codes_regenerate(config, user, 5)
+      assert count_where(repo, "audit_events", "action = 'mfa.backup_codes_regenerate'") == 0
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_adhoc_regen_audit_guard",
         []
       )
     end

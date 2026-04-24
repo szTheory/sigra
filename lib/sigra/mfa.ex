@@ -35,6 +35,7 @@ defmodule Sigra.MFA do
   # D-26 dispatch table (Phase 44 AUD-06 — Multi + `log_multi_safe` when `:audit_schema`):
   #   enroll success          -> `Multi` + `Sigra.Audit.log_multi_safe("mfa.enroll.success", …)` (+ telemetry on `{:ok, changes}`)
   #   enroll failure          -> `insert_failed`: follow-up `repo.transaction/1` on `Multi` + `log_multi_safe("mfa.enroll.failure", …)` after enrollment `Multi` rolls back; `invalid_code` still `log_safe/3` (AUD-04-022 / EX-44-02 default)
+  #   ad-hoc audit helpers    -> `Repo.transaction/1` on `Multi` + `log_multi_safe` (`audit_backup_codes_regenerate/3`, `audit_trust_browser/2`; phase **77** / AUD-04-033..034)
   #   verify success (totp)   -> `Multi` + `log_multi_safe("mfa.verify.success", …)`
   #   verify success (backup) -> dual `log_multi_safe` with `:audit_mfa_verify` / `:audit_mfa_backup` + paired telemetry
   #   verify failure          -> `Multi` (`Lockout.increment` + `log_multi_safe` + optional lockout audit)
@@ -49,6 +50,53 @@ defmodule Sigra.MFA do
       repo: config.repo,
       audit_schema: Keyword.get(audit_config, :audit_schema)
     ]
+  end
+
+  defp mfa_ad_hoc_audit_scope_fields(nil) do
+    [organization_id: nil, effective_user_id: nil, actor_id: nil]
+  end
+
+  defp mfa_ad_hoc_audit_scope_fields(%{user: scope_user} = s) do
+    org = Map.get(s, :active_organization)
+    actor = Map.get(s, :impersonating_from) || scope_user
+
+    [
+      organization_id: org && org.id,
+      effective_user_id: scope_user && scope_user.id,
+      actor_id: actor && actor.id
+    ]
+  end
+
+  defp mfa_ad_hoc_audit_scope_fields(_), do: mfa_ad_hoc_audit_scope_fields(nil)
+
+  defp commit_ad_hoc_mfa_audit(%Sigra.Config{} = config, action, user, extra_opts, audit_step)
+       when is_binary(action) and is_atom(audit_step) do
+    repo = config.repo
+    scope = Sigra.Scope.from_config(config, user)
+
+    opts =
+      config
+      |> mfa_audit_opts()
+      |> Keyword.merge(mfa_ad_hoc_audit_scope_fields(scope))
+      |> Keyword.merge(extra_opts)
+      |> Keyword.put(:audit_multi_step, audit_step)
+
+    multi =
+      Multi.new()
+      |> Sigra.Audit.log_multi_safe(action, opts)
+
+    case repo.transaction(multi) do
+      {:ok, changes} ->
+        Sigra.Audit.emit_telemetry_from_changes(changes, [audit_step])
+        :ok
+
+      {:error, _failed, %Ecto.Changeset{} = failed_cs, _changes} ->
+        emit_enroll_failure_audit_error_telemetry(action, failed_cs)
+        :ok
+
+      {:error, _failed, _other, _changes} ->
+        :ok
+    end
   end
 
   @doc """
@@ -803,7 +851,9 @@ defmodule Sigra.MFA do
   end
 
   @doc """
-  Record an `mfa.backup_codes_regenerate` audit row via `log_safe/2`.
+  Record an `mfa.backup_codes_regenerate` audit row via `Ecto.Multi` +
+  `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema`
+  is configured (same telemetry semantics as legacy `log_safe/3` on failure).
 
   This is **not** the authoritative audit path when audit is enabled for
   library-driven rotation — use `regenerate_backup_codes/4`, which appends
@@ -812,29 +862,28 @@ defmodule Sigra.MFA do
   """
   @spec audit_backup_codes_regenerate(Sigra.Config.t(), struct(), non_neg_integer()) :: :ok
   def audit_backup_codes_regenerate(%Sigra.Config{} = config, user, count) do
-    Sigra.Audit.log_safe(
+    commit_ad_hoc_mfa_audit(
+      config,
       "mfa.backup_codes_regenerate",
-      Sigra.Scope.from_config(config, user),
-      Keyword.merge(mfa_audit_opts(config),
-        actor_id: user.id,
-        metadata: %{count: count}
-      )
+      user,
+      [actor_id: user.id, metadata: %{count: count}],
+      :audit_mfa_backup_codes_regenerate_adhoc
     )
   end
 
   @doc """
-  Record an mfa.trust_browser audit row. Called by Sigra.MFA.Trust when
-  a browser is marked trusted.
+  Record an `mfa.trust_browser` audit row via `Ecto.Multi` +
+  `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema`
+  is configured. Intended for `Sigra.MFA.Trust` when a browser is marked trusted.
   """
   @spec audit_trust_browser(Sigra.Config.t(), struct()) :: :ok
   def audit_trust_browser(%Sigra.Config{} = config, user) do
-    Sigra.Audit.log_safe(
+    commit_ad_hoc_mfa_audit(
+      config,
       "mfa.trust_browser",
-      Sigra.Scope.from_config(config, user),
-      Keyword.merge(mfa_audit_opts(config),
-        actor_id: user.id,
-        metadata: %{}
-      )
+      user,
+      [actor_id: user.id, metadata: %{}],
+      :audit_mfa_trust_browser_adhoc
     )
   end
 
