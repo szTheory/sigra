@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Trust, evidence, and adoption polish
-status: ready_to_plan
-stopped_at: Phase 74 context gathered
-last_updated: "2026-04-24T02:27:49.966Z"
-last_activity: 2026-04-24 -- Phase 74 execution started
+status: planning
+stopped_at: Phase 75 context gathered
+last_updated: "2026-04-24T02:46:38.591Z"
+last_activity: 2026-04-24 — Phase **74** verified complete (**AUD-12**, **UAT-01**, **UAT-02**).
 progress:
-  total_phases: 62
+  total_phases: 63
   completed_phases: 58
   total_plans: 179
-  completed_plans: 182
-  percent: 94
+  completed_plans: 184
+  percent: 100
 ---
 
 # Project State
@@ -60,11 +60,11 @@ _None._
 
 ## Session Continuity
 
-Last session: phase-74-execute
+Last session: --stopped-at
 
-Stopped at: Phase 74 complete; advance to Phase 75
+Stopped at: Phase 75 context gathered
 
-Resume file: `.planning/ROADMAP.md` (Phase **75** row)
+Resume file: --resume-file
 
 **Next:** **`/gsd-discuss-phase 75`** (recommended) or **`/gsd-plan-phase 75`**
 
