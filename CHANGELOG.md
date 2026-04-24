@@ -11,14 +11,24 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.2.4](https://github.com/szTheory/sigra/compare/v0.2.3...v0.2.4) (2026-04-24)
+
 ### Changed
 
 * **audit:** `Sigra.MFA.audit_backup_codes_regenerate/3` and `Sigra.MFA.audit_trust_browser/2` now emit audit rows via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema` is configured (bounded **SEED-002** closure for **AUD-04-033** / **AUD-04-034**; **`regenerate_backup_codes/4`** remains the authoritative rotation path).
+
+### Fixed
+
+* **audit:** `commit_ad_hoc_mfa_audit/5` rescues `Ecto.ConstraintError` (and related DB constraint failures) when the audit insert is rejected at the database layer without a matching changeset constraint, preserving `log_safe/3`-class behavior: emit `[:sigra, :audit, :log_safe_error]` with `reason: :constraint_violation` and return `:ok`.
 
 ### Documentation
 
 * **planning:** **v1.11** adoption stabilization — triage notes (`.planning/v1.11-TRIAGE.md`), **`upgrading-to-v1.11.md`**, ExDoc extras, intro upgrade cross-links, and **`MAINTAINING.md`** milestone pause guidance (**STAB-01**..**STAB-04**).
 * **planning:** **v1.12** trust bundle — [upgrading-to-v1.12.md](guides/introduction/upgrading-to-v1.12.md) (ExDoc extra), [docs/uat-ci-coverage.md](docs/uat-ci-coverage.md) (**v1.12 launch evidence** subsection), and [milestone UAT index](https://github.com/sztheory/sigra/blob/main/.planning/v1.12-UAT-EVIDENCE.md) on GitHub (**TRN-01**..**TRN-03** doc polish).
+
+### Roadmap traceability
+
+* Planning milestone **v1.14** (phase **77**, **AUD-13**) — operator-trust slice for MFA ad-hoc audit atomicity; see [`.planning/milestones/v1.14-ROADMAP.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.14-ROADMAP.md).
 
 ## [0.2.3](https://github.com/szTheory/sigra/compare/v0.2.2...v0.2.3) (2026-04-23)
 
