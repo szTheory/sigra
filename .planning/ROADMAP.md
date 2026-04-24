@@ -20,8 +20,19 @@
 - ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). See [v1.14 archive](milestones/v1.14-ROADMAP.md), [v1.14 requirements](milestones/v1.14-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
 - ✅ **v1.15 Account + API C-1 planning truth** — Phase **78** (shipped **2026-04-24**). See [v1.15 archive](milestones/v1.15-ROADMAP.md), [v1.15 requirements](milestones/v1.15-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **AUD-14**..**AUD-14-05**.
 - ✅ **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). See [v1.16 archive](milestones/v1.16-ROADMAP.md), [v1.16 requirements](milestones/v1.16-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
+- 🚧 **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (active). See [REQUIREMENTS.md](REQUIREMENTS.md) and phase table below.
 
 ## Phases
+
+### v1.17 Forced password change audit atomicity — Phase 80 (active)
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|----------------|-------------------------------|
+| **80** | Forced password change audit atomicity | Retire **EX-44-05** standalone **`log_safe`** for **`AUD-04-043`** by co-fating **`account.password_change`** (`forced: true`) with **`PasswordChange.clear_force_change/2`**. | AUD-17-01, AUD-17-02, AUD-17-03, AUD-17-04 | (1) With audit enabled, successful clear persists user **`must_change_password: false`** and exactly one matching **`account.password_change`** audit row in one transaction. (2) Injected audit insert failure rolls back the user update (no partial durable state). (3) **`account_audit_atomicity_test.exs`** documents the rollback. (4) **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]** updated. |
+
+**Coverage:** 4 requirements → 1 phase. Phase numbering continues from **v1.16** (last phase **79**).
+
+**Verification (planned):** `.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md` (create during `/gsd-plan-phase` / execute).
 
 <details>
 <summary>✅ v1.16 API verify failure audit atomicity (Phase 79) — SHIPPED 2026-04-24</summary>
