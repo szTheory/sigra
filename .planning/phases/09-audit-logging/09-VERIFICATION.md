@@ -57,7 +57,7 @@ Mechanical check on this document (after the tables are present):
 |-----------|-----------|------|---------|-------------------|
 | AUD-04-020 | **`Multi` + `log_multi_safe`** (`mfa.enroll.success` inside enrollment `Repo.transaction/1`) | tier 5 | T1 (**AUD-09**, phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs` |
 | AUD-04-021 | **`Multi` + `log_multi_safe`** (follow-up `Repo.transaction/1` for `insert_failed` / `mfa.enroll.failure`) | tier 5 | T1 (**AUD-09**, phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs` |
-| AUD-04-022 | **`log_safe`** (invalid TOTP; no DB writes) | tier 9 | T2 / **EX-44-02** (hybrid; unchanged phase **66**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
+| AUD-04-022 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (via **`commit_ad_hoc_mfa_audit/5`**) for invalid TOTP when `:audit_schema` | tier 9 | T1 (**AUD-20**, phase **83**) | `test/sigra/mfa_audit_atomicity_test.exs` (invalid-code matrix); `lib/sigra/mfa.ex` **`confirm_enrollment/5`** |
 | AUD-04-023 | **`Multi` + `log_multi_safe`** (`verify/4` TOTP success — `Multi.update_all` + `mfa.verify.success` in one `repo.transaction/1`) | tier 3 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~291–310 |
 | AUD-04-024 | **`Multi` + `log_multi_safe`** (`verify/4` wrong TOTP — `Lockout.increment` + `mfa.verify.failure`) | tier 5 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~325–341 |
 | AUD-04-025 | **`Multi` + `log_multi_safe`** (`mfa.lockout` appended via `Multi.merge` when threshold met) | tier 4 | T1 (Multi-bound; phase 73) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` ~342–360 |
