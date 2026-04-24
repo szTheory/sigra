@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Post–**v1.12** handoff
+milestone: v1.12
+milestone_name: Trust, evidence, and adoption polish
+status: milestone_complete
 stopped_at: Phase 999.1 context gathered (tombstone)
-last_updated: "2026-04-24T03:28:28.234Z"
+last_updated: "2026-04-24T03:35:00.000Z"
 last_activity: 2026-04-23 — **999.1** stewardship context captured; **STATE** cleared of false “ready to plan **999.1**”.
 progress:
   total_phases: 63
   completed_phases: 59
   total_plans: 182
   completed_plans: 187
-  percent: 100
+  percent: 94
 ---
 
 # Project State
@@ -62,11 +62,11 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: 2026-04-23 — `/gsd-discuss-phase 999.1` (all areas + research synthesis)
 
 Stopped at: Phase 999.1 context gathered (tombstone)
 
-Resume file: --resume-file
+Resume file: `.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`
 
 **Next:** Pick next work from **`.planning/ROADMAP.md`** (e.g. new milestone or promoted backlog). Do **not** **`/gsd-plan-phase 999.1`** for implementation — scope shipped as **Phase 36**.
 
