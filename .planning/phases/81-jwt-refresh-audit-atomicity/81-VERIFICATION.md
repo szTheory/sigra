@@ -1,3 +1,7 @@
+---
+status: passed
+---
+
 # Phase 81 verification
 
 **Phase:** 81 — jwt-refresh-audit-atomicity (**AUD-18**)  
@@ -7,11 +11,11 @@
 
 | Check | Evidence | Status |
 |-------|----------|--------|
-| Automated tests green | `PGUSER=… PGPASSWORD=… PGHOST=localhost MIX_ENV=test mix test test/sigra/api_token_audit_atomic_test.exs` exits **0** (requires live Postgres; default **`postgres`/`postgres`** per **CLAUDE.md**) | pending CI / maintainer |
-| **AUD-04-048** / **049** planning truth | **44-AUD-04-INVENTORY.md**, **45-AUD-04-INVENTORY.md** (**EX-45-JWT-***), **09-VERIFICATION.md** C-1 rows cite **`Repo.transaction/1` + `Multi` + `log_multi_safe`** and **phase 81**; **AUD-08** footnote only | pending maintainer |
-| **CHANGELOG** **[Unreleased]** | Bullet under **Changed** documents **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit atomicity; **no** **AUD-08** closure claim | pending maintainer |
-| Code pointers | **`lib/sigra/api_token.ex`** — **`commit_api_token_jwt_audit/3`**, **`audit_jwt_refresh/2`**, **`audit_jwt_refresh_reuse/2`** | self-check |
-| Maintainer sign-off | Human merge after review | **pending** |
+| Automated tests green | `MIX_ENV=test mix test test/sigra/api_token_audit_atomic_test.exs` exits **0** with live Postgres (**`postgres`/`postgres`** at **`localhost:5432`** per **CLAUDE.md**, or **`SIGRA_TEST_PG_*`** overrides) | passed (orchestrator **2026-04-24**) |
+| **AUD-04-048** / **049** planning truth | **44-AUD-04-INVENTORY.md**, **45-AUD-04-INVENTORY.md** (**EX-45-JWT-***), **09-VERIFICATION.md** C-1 rows cite **`Repo.transaction/1` + `Multi` + `log_multi_safe`** and **phase 81**; **AUD-08** footnote only | passed |
+| **CHANGELOG** **[Unreleased]** | Bullet under **Changed** documents **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit atomicity; **no** **AUD-08** closure claim | passed |
+| Code pointers | **`lib/sigra/api_token.ex`** — **`commit_api_token_jwt_audit/3`**, **`audit_jwt_refresh/2`**, **`audit_jwt_refresh_reuse/2`** | passed |
+| Maintainer sign-off | Human merge after PR review | pending |
 
 ## Notes
 
