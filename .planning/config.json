@@ -26,7 +26,14 @@
     "research_before_questions": true,
     "discuss_mode": "discuss",
     "skip_discuss": false,
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "discuss_comprehensive_research": true,
+    "discuss_synthesize_when_user_delegates": true,
+    "discuss_always_surface_for_user": [
+      "semver_or_public_api_break",
+      "security_model_vs_owasp_doc",
+      "generator_or_host_contract_output"
+    ]
   },
   "sigra_defaults": {
     "audit_atomicity_doc": ".planning/AUDIT-ATOMICITY-DEFAULTS.md",

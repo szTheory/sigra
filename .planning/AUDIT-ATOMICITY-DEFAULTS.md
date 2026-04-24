@@ -2,7 +2,7 @@
 
 **Purpose:** Capture **default engineering choices** for bounded **SEED-002**–style phases and `/gsd-discuss-phase` so planners rarely re-open settled tradeoffs. **Override** in phase CONTEXT when a requirement truly demands an exception (call that out explicitly).
 
-**Status:** Established **2026-04-24** (Phase 80 research synthesis); extended **D-AUD-05..07** **2026-04-24** (Phase 81 JWT audit-only slice + discuss shift-left).
+**Status:** Established **2026-04-24** (Phase 80 research synthesis); extended **D-AUD-05..07** **2026-04-24** (Phase 81 JWT audit-only slice + discuss shift-left); **D-AUD-12** + discuss delegation prefs **2026-04-24** (Phase **83**).
 
 ## Defaults
 
@@ -60,6 +60,17 @@
 ### D-AUD-11 — Planning matrix updates when **T1** semantics strengthen
 
 - Prefer **surgical cell edits** + **one dated supersession footnote** (phase id + what narrowed, e.g. **AUD-08** closed) across **44** / **45** / **09-VERIFICATION** / **09-03-SUMMARY** in lockstep; **`CHANGELOG` [Unreleased]** carries the user-visible behavior story; phase **`NN-VERIFICATION.md`** is the merge gate spine. Avoid wholesale matrix rewrites unless the row taxonomy is wrong.
+
+### D-AUD-12 — MFA invalid pre-DB enrollment attempt (**AUD-04-022**)
+
+- When **`:audit_schema`** is set, **`Sigra.MFA.confirm_enrollment/5`** wrong-TOTP path (**before** enrollment `Multi`) persists **`mfa.enroll.failure`** via **`Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`**, using the **same audit-only shell** as **`commit_ad_hoc_mfa_audit/5`** (success → **`emit_telemetry_from_changes`**; failure → **`[:sigra, :audit, :log_safe_error]`** per existing rescue/changeset paths).
+- **Public return:** **`{:error, :invalid_code}`** whenever the TOTP check fails — **independent** of audit insert outcome (**not** **D-AUD-08**; not a new failure atom for audit DB issues).
+- **Explicit waiver** (retain **`log_safe`**) remains valid only if a phase **CONTEXT** records an intentional **exception to D-AUD-05** with updated **EX-44-02** rationale (**AUD-20-01** second branch).
+
+## Discuss-phase preferences (this project)
+
+- When the user **delegates** (“all”, “synthesize”, “don’t make me think”), default orchestrator behavior: **parallel research** (subagents or equivalent) on listed gray areas → **one coherent CONTEXT** aligned with **PROJECT.md** / **REQUIREMENTS.md** / these defaults.
+- **Still require explicit user choices** for topics in **`.planning/config.json` → `workflow.discuss_always_surface_for_user`** (semver/public API, security model vs published OWASP stance, generator/host output contracts).
 
 ## When to still run discuss-phase
 
