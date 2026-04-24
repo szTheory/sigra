@@ -84,10 +84,12 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-045 | same (`verify/2` revoked) | tier 9 | T1 (phase **79** / **AUD-16**) | same |
 | AUD-04-046 | same (`verify/2` expired) | tier 9 | T1 (phase **79** / **AUD-16**) | same |
 | AUD-04-047 | **`Multi` + `Audit.log_multi_safe`** (`revoke/2` — `config.repo.transaction/1`) | tier 4 | T1 (phase **78** / **AUD-14**) | `test/sigra/api_token_audit_atomic_test.exs`; `lib/sigra/api_token.ex` |
-| AUD-04-048 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
-| AUD-04-049 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
+| AUD-04-048 | **`Repo.transaction/1` + `Multi` + `log_multi_safe`** (`audit_jwt_refresh/2` — audit-only txn) | tier 8 | T1 (phase **81**; audit-only **Multi**). Footnote: **AUD-08** JWT refresh-token **persistence** co-fate with audit remains **out of scope**. | `test/sigra/api_token_audit_atomic_test.exs`; `lib/sigra/api_token.ex` (**`audit_jwt_refresh/2`**, **`commit_api_token_jwt_audit/3`**) |
+| AUD-04-049 | **`Repo.transaction/1` + `Multi` + `log_multi_safe`** (`audit_jwt_refresh_reuse/2` — audit-only txn) | tier 8 | T1 (phase **81**; audit-only **Multi**). **AUD-08** persistence deferral unchanged. | same file (**`audit_jwt_refresh_reuse/2`**) |
 
 **Phase 80 (2026-04-24):** **AUD-17** — **`Sigra.Account.clear_password_change_requirement/3`** co-fates clearing **`must_change_password`** with **`account.password_change`** (`metadata: %{forced: true}`) via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`**; **AUD-04-043** **T1**; **EX-44-05** satisfied; **`audit_forced_password_change/2`** **`@deprecated`**.
+
+**Phase 81 (2026-04-24):** **AUD-18** — **`Sigra.APIToken.audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** (matrix rows **048** / **049**) use **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **T1** for audit-row durability inside the audit transaction only — **AUD-08** (JWT refresh-token persistence co-fate) remains **deferred**. Evidence: **`test/sigra/api_token_audit_atomic_test.exs`**.
 
 **Phase 79 (2026-04-24):** **AUD-16** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** for invalid / revoked / expired branches uses **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **044–046** **T1**; **EX-44-01** verify-failure slice retired (appendix row retained for history).
 

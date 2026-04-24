@@ -57,8 +57,8 @@ lib/sigra/oauth.ex:382:            |> Audit.log_multi_safe(
 | EX-45-04 | `admin.impersonation.timeout_expire` (**AUD-04-055**) | Read-only timeout evaluation path | Session store + `Auth` session lifecycle tests | Sigra | Timeout path gains paired DB mutation in-library |
 | EX-45-05 | `admin.impersonation.denied` (**AUD-04-056**) | Denied attempts — no impersonation session created | Admin audit + authorization tests | Sigra | Denial must be co-fated with security-sensitive DB row |
 | EX-45-06 | `admin.impersonation.start` / `stop` (**AUD-04-053**, **AUD-04-054**) | Session persistence goes through **`SessionStore`** (`create` / `delete`); no shared **`Ecto.Multi`** hook today | Integration tests + honest **T2** until store supports txn-scoped audit | Sigra | `SessionStore` exposes transactional compose with host repo |
-| EX-45-JWT-01 | JWT refresh audit (**AUD-04-048**) | Deferred from phase **44** per honesty rule | See **44-AUD-04-INVENTORY** row **AUD-04-048** | Sigra | JWT persistence work promoted into **AUD-08** scope |
-| EX-45-JWT-02 | JWT reuse audit (**AUD-04-049**) | Same deferral family as **EX-45-JWT-01** | See **44-AUD-04-INVENTORY** row **AUD-04-049** | Sigra | Same as **EX-45-JWT-01** |
+| EX-45-JWT-01 | JWT refresh audit (**AUD-04-048**) | Deferred from phase **44** per honesty rule; **2026-04-24** — **phase 81** / **AUD-18** ships audit-only **`Repo.transaction/1` + `Multi` + `log_multi_safe`** for **`api.jwt_refresh`** in **`lib/sigra/api_token.ex`**. **AUD-08** (refresh-token row + audit co-fate) remains open. | See **44-AUD-04-INVENTORY** row **AUD-04-048**; **`test/sigra/api_token_audit_atomic_test.exs`** | Sigra | JWT persistence work promoted into **AUD-08** scope |
+| EX-45-JWT-02 | JWT reuse audit (**AUD-04-049**) | Same as **EX-45-JWT-01** for **`api.jwt_refresh_reuse`**; **phase 81** **`log_multi_safe`** path — **AUD-08** unchanged. | See **44-AUD-04-INVENTORY** row **AUD-04-049** | Sigra | Same persistence deferral as **EX-45-JWT-01** |
 
 ## Priority table (phase 45 waves)
 

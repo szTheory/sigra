@@ -22,13 +22,10 @@ lib/sigra/mfa.ex:703:  `mfa.backup_codes_regenerate` row is written via `Sigra.A
 lib/sigra/mfa.ex:781:                    |> Sigra.Audit.log_multi_safe(
 lib/sigra/mfa.ex:809:                    |> Sigra.Audit.log_multi_safe(
 lib/sigra/mfa.ex:825:                        Sigra.Audit.log_multi_safe(
+lib/sigra/mfa.ex:870:  `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema`
+lib/sigra/mfa.ex:891:  `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema`
 lib/sigra/mfa.ex:1089:          Sigra.Audit.log_multi_safe(
 lib/sigra/mfa.ex:1191:      |> Sigra.Audit.log_multi_safe(
-lib/sigra/api_token.ex:199:          Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:216:              Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:232:              Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:329:    Sigra.Audit.log_safe(
-lib/sigra/api_token.ex:347:    Sigra.Audit.log_safe(
 lib/sigra/account.ex:38:  # D-26 dispatch table (Phase 44 AUD-07 — `Ecto.Multi` + `Sigra.Audit.log_multi_safe`
 lib/sigra/account.ex:51:  # `audit_forced_password_change/2` is **deprecated** — legacy `Sigra.Audit.log_safe/3` only.
 lib/sigra/account.ex:126:        |> Sigra.Audit.log_multi_safe(
@@ -42,10 +39,13 @@ lib/sigra/account.ex:430:        |> Sigra.Audit.log_multi_safe(
 lib/sigra/account.ex:474:        |> Sigra.Audit.log_multi_safe(
 lib/sigra/account.ex:486:        |> Sigra.Audit.log_multi_safe(
 lib/sigra/account.ex:550:    Sigra.Audit.log_safe(
-$ rg -n "Audit\.log_multi_safe" lib/sigra/api_token.ex
-lib/sigra/api_token.ex:121:      |> Audit.log_multi_safe("api.token_create", audit_opts)
-lib/sigra/api_token.ex:297:          |> Audit.log_multi_safe("api.token_revoke", audit_opts)
-lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all", audit_opts)
+(no matches in lib/sigra/api_token.ex for `Sigra.Audit.*` — module aliases `Sigra.Audit` as `Audit`)
+$ rg -n "Audit\.(log_safe|log_multi_safe)" lib/sigra/api_token.ex
+lib/sigra/api_token.ex:129:      |> Audit.log_multi_safe("api.token_create", audit_opts)
+lib/sigra/api_token.ex:213:          |> Audit.log_multi_safe(
+lib/sigra/api_token.ex:256:          |> Audit.log_multi_safe(action, opts)
+lib/sigra/api_token.ex:448:          |> Audit.log_multi_safe("api.token_revoke", audit_opts)
+lib/sigra/api_token.ex:583:        |> Audit.log_multi_safe("api.token_revoke_all", audit_opts)
 ```
 
 ## Inventory table
@@ -81,8 +81,8 @@ lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all
 | AUD-04-045 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | Revoked branch — same as **044**. |
 | AUD-04-046 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | Expired branch — same as **044**. |
 | AUD-04-047 | `Sigra.APIToken.revoke/2` | `api.token_revoke` | **`Multi` + `Audit.log_multi_safe`** (`config.repo.transaction/1`) | 4 | AUD-07 | **78** | **`lib/sigra/api_token.ex`**; **`test/sigra/api_token_audit_atomic_test.exs`** (**AUD-14**). |
-| AUD-04-048 | `Sigra.APIToken.audit_jwt_refresh/2` | `api.jwt_refresh` | `log_safe` | 8 | defer AUD-08 | 45 | JWT persistence / refresh work — out of phase **44** per **D-44-05** / **D-44-07** honesty rule. |
-| AUD-04-049 | `Sigra.APIToken.audit_jwt_refresh_reuse/2` | `api.jwt_refresh_reuse` | `log_safe` | 8 | defer AUD-08 | 45 | Same deferral as **AUD-04-048**. |
+| AUD-04-048 | `Sigra.APIToken.audit_jwt_refresh/2` | `api.jwt_refresh` | **`Repo.transaction/1`** on audit-only **`Ecto.Multi` + `Audit.log_multi_safe`** | 8 | defer AUD-08 (persistence) | **81** | **Phase 81** / **AUD-18** — audit-row durability (**T1**) when `:audit_schema` is set; **`lib/sigra/api_token.ex`** (`commit_api_token_jwt_audit/3`). **T1** here means audit-row durability inside the audit transaction only — **AUD-08** (JWT refresh-token **persistence** co-fated with audit) remains **deferred**. |
+| AUD-04-049 | `Sigra.APIToken.audit_jwt_refresh_reuse/2` | `api.jwt_refresh_reuse` | **`Repo.transaction/1`** on audit-only **`Ecto.Multi` + `Audit.log_multi_safe`** | 8 | defer AUD-08 (persistence) | **81** | Same **AUD-18** closure as **048**; **AUD-08** persistence scope unchanged. |
 
 **Note:** `Sigra.APIToken.create/3` uses `Audit.log_multi_safe/3` (qualified alias, not `Sigra.Audit` prefix) and is therefore absent from the grep pattern above; it is already **Multi**-bound and tracked under **AUD-07** / **D-44-05** as the reference pattern for **AUD-04-047**.
 
@@ -114,6 +114,8 @@ Release notes should reference this file when **AUD-06 / AUD-07** land for MFA +
 **Note — Phase 79 (2026-04-24):** **`Sigra.APIToken.verify/2`** failure paths (**AUD-04-044..046**) use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set (**AUD-16**); **EX-44-01** appendix row marked retired for this slice.
 
 **Note — Phase 80 (2026-04-24):** **`Sigra.Account.clear_password_change_requirement/3`** — **AUD-04-043** uses **`Ecto.Multi` + `log_multi_safe`** for paired **`must_change_password`** clear + **`account.password_change`** (**AUD-17**); **EX-44-05** closed; **`audit_forced_password_change/2`** deprecated (**`log_safe`** legacy only). Evidence: **`test/sigra/account_audit_atomicity_test.exs`**.
+
+**Note — Phase 81 (2026-04-24):** **`Sigra.APIToken.audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** (**AUD-04-048** / **049**) use **`Repo.transaction/1`** + audit-only **`Ecto.Multi` + `Audit.log_multi_safe`** when `:audit_schema` is set (**AUD-18**). **T1** in row notes means audit-row durability inside that audit transaction only — **AUD-08** (JWT refresh-token persistence co-fated with audit) remains deferred. Evidence: **`test/sigra/api_token_audit_atomic_test.exs`**.
 
 **Note — Phase 78 (2026-04-24):** **`Sigra.Account`** email/password/deletion paths (**AUD-04-035..042**) and **`Sigra.APIToken.revoke/2`** (**AUD-04-047**) already use **`Ecto.Multi` + `log_multi_safe`** in **`lib/`**; phase **78** closes **44** inventory + **09** C-1 drift vs legacy “target **Multi**” language (**AUD-14**).
 
