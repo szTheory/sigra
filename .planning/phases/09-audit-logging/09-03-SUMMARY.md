@@ -2,8 +2,8 @@
 
 ## Document status
 
-- **Last materially updated for:** **v1.16** (**2026-04-24**) — phase **`79`** / **`AUD-16`**: **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** uses **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set (**AUD-04-044..046** **T1**); **EX-44-01** verify slice retired (appendix retained).
-- **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02) → Phase 66 (AUD-09) → Phase 67 (AUD-10) → Phase 73 (AUD-11) → Phase 77 (AUD-13) → Phase 78 (AUD-14) → Phase 79 (AUD-16).
+- **Last materially updated for:** **v1.18** (**2026-04-24**) — phase **`81`** / **`AUD-18`**: **`Sigra.APIToken.audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set (**AUD-04-048** / **049** **T1** for audit rows only); **AUD-08** not claimed closed.
+- **Planning trace:** Phase 9 → … → Phase 79 (AUD-16) → Phase 80 (AUD-17) → Phase 81 (AUD-18).
 - **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
 - **Requirement:** [**AUD-10**](../../milestones/v1.9-REQUIREMENTS.md) (archived **v1.9** requirements at milestone close — historical anchor).
 - **`v1.12` carry-forward (archived):** [`milestones/v1.12-REQUIREMENTS.md`](../../milestones/v1.12-REQUIREMENTS.md) — **`AUD-12`**, **`UAT-01`**, **`UAT-02`** (and **`AUD-11`**, **`TRN-*`**) at milestone close **2026-04-24**; live **`.planning/REQUIREMENTS.md`** removed until **`/gsd-new-milestone`**.
