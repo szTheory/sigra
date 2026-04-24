@@ -40,6 +40,27 @@
 
 - **Separate named tests** per action × fault story (no parametrized loops for fault paths). Reuse **only** small private helpers for `ALTER … CHECK` + `try/after` + telemetry attach; **unique** handler IDs per test; **`async: false`**; action-scoped SQL counts.
 
+### D-AUD-08 — Persistence + audit co-fate (JWT refresh class; **AUD-19**)
+
+- When requirements mandate **one commit** for **domain `user_tokens` effects** and **`api.jwt_refresh*`** audit rows (**:audit_schema** set):
+  - **Orchestrator** (**`Sigra.JWT.refresh/3`**, optionally delegated to an internal **`@moduledoc false`** module) owns **exactly one** **`Repo.transaction/1`** (or **`Repo.transact/2`** if the project adopts it here).
+  - **`Sigra.APIToken`** (or equivalent) must expose audit as **`Ecto.Multi` steps** composable into that transaction — **do not** call **`Repo.transaction`** inside helpers used from that **`Multi`** (no nested txn / savepoint surprise).
+  - **Public contract:** **`{:ok, tokens}`** iff the **full bundle** commits; **any** step failure → rollback and **`{:error, _}`** — **explicit exception** to **D-AUD-06** for this class only. **`@doc`** must contrast with **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** standalone semantics (**`:ok`** + telemetry on audit-only failure).
+- **Rationale:** **D-AUD-06** exists because audit-only paths cannot roll back already-committed host work; co-fate paths **can** and **must** roll back persistence when audit fails — returning **`:ok`** with tokens would violate least surprise and audit integrity.
+
+### D-AUD-09 — Security telemetry after commit (reuse / co-fate)
+
+- **`Telemetry.event/3`** (or similar) that implies **persisted** security outcomes (**reuse detected**, family revoked) must run **after** the transaction **commits** (success branch), not interleaved between persistence and audit where a later audit failure would roll back DB state but leave misleading signals.
+
+### D-AUD-10 — ExUnit split: audit-only vs persistence co-fate
+
+- **Audit-only** stories (helpers that do not join **`user_tokens`** writes in the same txn) stay in **`api_token_audit_atomic_test.exs`** (or the established audit-atomicity module for that surface).
+- **Persistence + audit co-fate** proofs live in a **dedicated** file (e.g. **`jwt_refresh_audit_cofate_test.exs`**) with **`@moduledoc`** cross-linking the audit-only module — preserves CI failure labels and avoids conflating **D-AUD-06** contracts with **D-AUD-08** contracts in one module.
+
+### D-AUD-11 — Planning matrix updates when **T1** semantics strengthen
+
+- Prefer **surgical cell edits** + **one dated supersession footnote** (phase id + what narrowed, e.g. **AUD-08** closed) across **44** / **45** / **09-VERIFICATION** / **09-03-SUMMARY** in lockstep; **`CHANGELOG` [Unreleased]** carries the user-visible behavior story; phase **`NN-VERIFICATION.md`** is the merge gate spine. Avoid wholesale matrix rewrites unless the row taxonomy is wrong.
+
 ## When to still run discuss-phase
 
-Use `/gsd-discuss-phase` when any of: new **external** contract (HTTP, host generator output), **semver exception**, **cross-cutting** audit API change (e.g. new `log_multi_safe` step names), or **explicit** stakeholder preference. Otherwise planners may treat **D-AUD-01..07** as locked unless phase SPEC says otherwise.
+Use `/gsd-discuss-phase` when any of: new **external** contract (HTTP, host generator output), **semver exception**, **cross-cutting** audit API change (e.g. new `log_multi_safe` step names), **persistence + audit co-fate** scope not already covered by **D-AUD-08**, or **explicit** stakeholder preference. Otherwise planners may treat **D-AUD-01..11** as locked unless phase SPEC says otherwise.
