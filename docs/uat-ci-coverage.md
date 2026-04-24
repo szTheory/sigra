@@ -43,7 +43,7 @@ Human vs machine boundaries for **v1.4** are recorded in **`.planning/v1.4-GA-UA
 
 ## v1.12 launch evidence (attestation)
 
-**v1.12** records per-SEED outcomes (**Executed** / **Waived with substitute** / **Deferred**) in the planning-only index **[.planning/v1.12-UAT-EVIDENCE.md](../.planning/v1.12-UAT-EVIDENCE.md)** (**UAT-01**). That file is intentionally **not** a second SEED×CI matrix — the **machine substitute vs residual** catalog and **merge-blocking Policy** for SEED-1..8 remain **in this document** (table above + **§ Policy**).
+**v1.12** records per-SEED outcomes (**Executed** / **Waived with substitute** / **Deferred**) in the planning-only index **[`v1.12-UAT-EVIDENCE.md` on `main`](https://github.com/sztheory/sigra/blob/main/.planning/v1.12-UAT-EVIDENCE.md)** (**UAT-01**). That file is intentionally **not** a second SEED×CI matrix — the **machine substitute vs residual** catalog and **merge-blocking Policy** for SEED-1..8 remain **in this document** (table above + **§ Policy**).
 
 - **Catalog vs outcomes:** the SEED table above names **what CI proves and what humans might still check**; **v1.12-UAT-EVIDENCE** records **what we assert happened** for release engineering.
 - **Governance:** if an outcome row disagrees with **§ Policy** below, **edit `.planning/v1.12-UAT-EVIDENCE.md` first**, then align prose here.
