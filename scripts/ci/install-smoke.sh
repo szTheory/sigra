@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+_ci_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/ci/lib/mix-deps-get-retry.sh
+source "${_ci_here}/lib/mix-deps-get-retry.sh"
+
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app}"
 
@@ -50,8 +54,8 @@ elixir -e '
   File.write!(path, new_content)
 '
 
-echo "==> install-smoke: fetching deps (hex + path dep)"
-mix deps.get
+echo "==> install-smoke: fetching deps (hex + path dep; retries for transient GitHub git deps)"
+mix_deps_get_with_retry
 
 echo "==> install-smoke: running mix sigra.install --yes Accounts User users"
 mix sigra.install --yes Accounts User users
@@ -79,7 +83,7 @@ if ! grep -q '{:cloak_ecto' mix.exs; then
     new = String.replace(content, anchor, anchor <> cloak, global: false)
     File.write!(path, new)
   '
-  mix deps.get
+  mix_deps_get_with_retry
   mix compile --warnings-as-errors
 fi
 
