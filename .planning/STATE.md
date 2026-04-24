@@ -34,7 +34,7 @@ Plan: **—**
 
 Status: Defining requirements → roadmap ready; execute with **`/gsd-plan-phase 73`**.
 
-Last activity: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.12**; **`.planning/phases/`** cleared via **`gsd-sdk query phases.clear --confirm`** (historical phase dirs archived/moved per SDK).
+Last activity: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.12**. (**Note:** **`phases.clear`** was run then **reverted** via **`git restore .planning/phases/`** so tracked historical phase trees stay in-repo — this project keeps **`.planning/phases/`** under version control.)
 
 ## Performance Metrics
 
