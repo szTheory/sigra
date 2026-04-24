@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.12
 milestone_name: Trust, evidence, and adoption polish
-status: Defining requirements → roadmap ready; execute with **`/gsd-plan-phase 73`**.
-stopped_at: Phase 73 context gathered
-last_updated: "2026-04-24T01:38:52.146Z"
-last_activity: "2026-04-23 — **`/gsd-new-milestone`** opened **v1.12**. (**Note:** **`phases.clear`** was run then **reverted** via **`git restore .planning/phases/`** so tracked historical phase trees stay in-repo — this project keeps **`.planning/phases/`** under version control.)"
+status: ready_to_plan
+stopped_at: null
+last_updated: "2026-04-24T05:00:00.000Z"
+last_activity: 2026-04-24 — Phase **73** executed (docs + MFA CHECK tests); **ROADMAP** row **73** marked complete.
 progress:
   total_phases: 61
-  completed_phases: 56
-  total_plans: 175
-  completed_plans: 180
-  percent: 100
+  completed_phases: 58
+  total_plans: 177
+  completed_plans: 182
+  percent: 93
 ---
 
 # Project State
@@ -24,17 +24,17 @@ See: `.planning/PROJECT.md` (updated 2026-04-23)
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.12** — bounded **SEED-002** audit batch, **SEED-001** evidence index, triage-driven adoption/docs polish.
+**Current focus:** **v1.12** — next: **74** (planning truth + launch evidence).
 
 ## Current Position
 
-Phase: **Not started** (next: **73** — bounded audit atomicity batch)
+Phase: **74** — Planning truth + launch evidence (not started)
 
 Plan: **—**
 
-Status: Defining requirements → roadmap ready; execute with **`/gsd-plan-phase 73`**.
+Status: Ready to plan
 
-Last activity: 2026-04-23 — **`/gsd-new-milestone`** opened **v1.12**. (**Note:** **`phases.clear`** was run then **reverted** via **`git restore .planning/phases/`** so tracked historical phase trees stay in-repo — this project keeps **`.planning/phases/`** under version control.)
+Last activity: 2026-04-24 — Phase **73** complete (bounded audit atomicity batch).
 
 ## Performance Metrics
 
@@ -46,6 +46,8 @@ _Velocity metrics populate during phase work._
 
 **v1.12** bundles **SEED-002** (one more bounded **C-1** batch + **09-03** truth), **SEED-001** (evidence file + **`docs/uat-ci-coverage.md`** alignment), and **TRN** adoption polish (**`upgrading-to-v1.12.md`**, intro/maintainer pointers, triage follow-up).
 
+**Phase 73 (2026-04-24):** **09-VERIFICATION** C-1 rows **023–034** reconciled to **`lib/sigra/mfa.ex`**; **44-AUD-04-INVENTORY** **023–032** + grep log refreshed; **`mfa_audit_atomicity_test.exs`** gained five **`CHECK`** rollback tests. Phase directory renamed **`073-*` → `73-*`** so **`gsd-sdk`** resolves phase **73**.
+
 ### Pending Todos
 
 _Capture during phase work._
@@ -56,14 +58,14 @@ _None._
 
 ## Session Continuity
 
-Last session: --stopped-at
+Last session: phase-73-execute
 
-Stopped at: Phase 73 context gathered
+Stopped at: Phase **73** verification passed
 
-Resume file: --resume-file
+Resume file: —
 
-**Next:** **`/gsd-discuss-phase 73`** or **`/gsd-plan-phase 73`**
+**Next:** **`/gsd-discuss-phase 74`** or **`/gsd-plan-phase 74`**
 
 **Live requirements:** `.planning/REQUIREMENTS.md`
 
-**Planned work:** Phases **73–75** on **`.planning/ROADMAP.md`**
+**Planned work:** Phases **74–75** on **`.planning/ROADMAP.md`**
