@@ -411,3 +411,34 @@
 - [v1.11 Requirements](milestones/v1.11-REQUIREMENTS.md)
 
 ---
+
+## v1.12 Trust, evidence, and adoption polish (Shipped: 2026-04-24)
+
+**Scope:** 3 phases (**73–75**), **7** on-disk plans across **`.planning/phases/73-*`**, **`74-*`**, **`75-*`**.
+
+**What shipped:** **AUD-11** — bounded **`lib/sigra/mfa.ex`** **`Multi`** + **`log_multi_safe`** with expanded **`mfa_audit_atomicity_test.exs`**. **AUD-12** / **UAT-01** / **UAT-02** — **`09-03-SUMMARY.md`**, **`.planning/v1.12-UAT-EVIDENCE.md`**, **`docs/uat-ci-coverage.md`** § v1.12 launch evidence. **TRN-01**..**TRN-03** — **`upgrading-to-v1.12.md`**, ExDoc extras, getting-started / **MAINTAINING** / **CHANGELOG** trust-bundle surfacing, **`v1.11-TRIAGE.md`** reconciliation + **`75-VERIFICATION.md`**.
+
+### Key accomplishments
+
+1. **Phase 73 — audit atomicity** — One more **C-1** hybrid site closed with merge-gated audit tests.
+2. **Phase 74 — evidence legibility** — Single index for eight **SEED-001** rows + honest machine vs human boundaries.
+3. **Phase 75 — adoption continuity** — Upgrade stub + maintainer-visible trust bundle + triage-driven doc truth.
+
+### Stats
+
+- **Requirements:** 7/7 **Validated** in archived [`milestones/v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
+- **Milestone audit:** not filed (optional).
+- **Pre-close `audit-open`:** all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** failed (`version required for phases archive`); archival manual (same pattern as **v1.10**–**v1.11**).
+- **Git (since `v1.10` tag):** ~49 commits; **59** files (**3601** insertions / **111** deletions in `git diff --shortstat v1.10..HEAD` summary) — spans **v1.11** + **v1.12** tranches.
+
+### Tech debt carried forward
+
+- **SEED-002** remainder — further **`log_safe/3` → `Ecto.Multi`** batches remain backlog-triggered (see **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`**).
+
+**Archive:**
+
+- [v1.12 Roadmap](milestones/v1.12-ROADMAP.md)
+- [v1.12 Requirements](milestones/v1.12-REQUIREMENTS.md)
+
+---

@@ -6,7 +6,7 @@
 - **Planning trace:** Phase 9 → Phase 61 (AUD-01) → Phase 62 (AUD-02) → Phase 66 (AUD-09) → Phase 67 (AUD-10) → Phase 73 (AUD-11).
 - **Canonical C-1 matrix:** [09-VERIFICATION.md](./09-VERIFICATION.md).
 - **Requirement:** [**AUD-10**](../../milestones/v1.9-REQUIREMENTS.md) (archived **v1.9** requirements at milestone close — historical anchor).
-- **`v1.12` carry-forward:** [`.planning/REQUIREMENTS.md`](../../REQUIREMENTS.md) — active trust-bundle requirements **`AUD-12`**, **`UAT-01`**, **`UAT-02`** for this milestone.
+- **`v1.12` carry-forward (archived):** [`milestones/v1.12-REQUIREMENTS.md`](../../milestones/v1.12-REQUIREMENTS.md) — **`AUD-12`**, **`UAT-01`**, **`UAT-02`** (and **`AUD-11`**, **`TRN-*`**) at milestone close **2026-04-24**; live **`.planning/REQUIREMENTS.md`** removed until **`/gsd-new-milestone`**.
 - **C-1 verification note (phase 67 / AUD-10):** No edit to 09-VERIFICATION.md rows AUD-04-020..022 after D-06 reconciliation (hybrid D-06 / AUD-02 class).
 - **C-1 verification note (phase 73 / AUD-11):** Rows **AUD-04-023..032** reconciled to **`lib/sigra/mfa.ex`** **`Multi` + `log_multi_safe`** where **T1**; **AUD-04-033** / **034** remain **`log_safe`** **T2** (**EX-44-03** / **EX-44-04**). Evidence **`test/sigra/mfa_audit_atomicity_test.exs`**; planning **`.planning/phases/73-bounded-audit-atomicity-batch/`**; merge commits **`aed7a9a`** (matrix + inventory) and **`b5500a7`** (Postgres CHECK fault-injection tests) — if `git log` shows different tip SHAs for those changes, substitute the **first-parent** SHAs that touch the listed files instead of these literals.
 

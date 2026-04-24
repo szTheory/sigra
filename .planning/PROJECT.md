@@ -20,18 +20,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**v1.12 — Trust, evidence, and adoption polish** (phases **73–75**) — **shipped 2026-04-24**
+**None — awaiting `/gsd-new-milestone`.** Last shipped: **v1.12 — Trust, evidence, and adoption polish** (**phases 73–75**, **2026-04-24**) — bounded **SEED-002** batch (**73**), launch evidence + **`docs/uat-ci-coverage.md`** (**74**), upgrade continuity + triage polish (**75**). Archives: [`.planning/milestones/v1.12-ROADMAP.md`](milestones/v1.12-ROADMAP.md), [`v1.12-REQUIREMENTS.md`](milestones/v1.12-REQUIREMENTS.md).
 
-**Goal:** Ship one coherent **trust** tranche: another **bounded SEED-002** audit-atomicity batch with honest planning updates, a **SEED-001**-aligned **evidence index** so machine vs human UAT is legible before a loud launch, and **small triage-driven** adoption/docs polish (upgrade stub, intro/maintainer pointers).
-
-**Target features:**
-- **Bounded audit work** — One **C-1** deferral batch → **`Ecto.Multi`** + **`log_multi_safe`** + audit-aware tests; **09-03-SUMMARY** (+ **09-VERIFICATION** rationale per **D-06** class).
-- **Launch evidence** — **`.planning/v1.12-UAT-EVIDENCE.md`** for eight SEED-001 rows; **`docs/uat-ci-coverage.md`** aligned with that story.
-- **Adoption polish** — **`upgrading-to-v1.12.md`** + ExDoc extras; getting-started / **MAINTAINING** or **CHANGELOG** surfacing; at least one **v1.11-TRIAGE** (or issue-linked) doc outcome or explicit “no triage deltas”.
-
-**Selected seeds (this milestone):** **SEED-002** (bounded batch + planning truth) and **SEED-001** (evidence packaging; residual human rows documented, not implied).
-
-**Last closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
+**Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
 **Previously closed:** **v1.10 Adopter confidence for solo production** — shipped **2026-04-23** (**phases 68–70**; **`ACF-01`**..**`ACF-06`**). Archives: [`.planning/milestones/v1.10-ROADMAP.md`](milestones/v1.10-ROADMAP.md), [`v1.10-REQUIREMENTS.md`](milestones/v1.10-REQUIREMENTS.md), [`v1.10-MILESTONE-AUDIT.md`](milestones/v1.10-MILESTONE-AUDIT.md); summary in [`.planning/MILESTONES.md`](MILESTONES.md).
 
@@ -43,7 +34,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.12 (shipped 2026-04-24):** Phases **73–75** complete — bounded **SEED-002** batch + **09-03** truth (**73**), launch evidence + **`docs/uat-ci-coverage.md`** alignment (**74**), and upgrade continuity + triage reconciliation (**75** — **`upgrading-to-v1.12.md`**, intro/maintainer/**CHANGELOG** pointers, **`v1.11-TRIAGE.md`** § **v1.12 reconciliation**). See **`.planning/REQUIREMENTS.md`**, **`.planning/ROADMAP.md`**, and **`.planning/phases/75-upgrade-continuity-triage-polish/75-VERIFICATION.md`**.
+**v1.12 (shipped 2026-04-24):** Phases **73–75** complete — bounded **SEED-002** batch + **09-03** truth (**73**), launch evidence + **`docs/uat-ci-coverage.md`** alignment (**74**), and upgrade continuity + triage reconciliation (**75**). Planning archives: **`milestones/v1.12-ROADMAP.md`**, **`milestones/v1.12-REQUIREMENTS.md`**; verification **`.planning/phases/75-upgrade-continuity-triage-polish/75-VERIFICATION.md`**.
 
 **v1.11 (shipped 2026-04-23):** Phases **71–72** — **`STAB-01`**..**`STAB-04`** adoption stabilization (triage log, **`MAINTAINING.md`** pause guidance, **`upgrading-to-v1.11.md`** + ExDoc, intro cross-links). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md).
 
@@ -69,7 +60,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.12:** Closed **2026-04-24** — phases **73–75** on **`.planning/ROADMAP.md`**.
+**v1.12:** Milestone archived **2026-04-24** (`/gsd-complete-milestone`); live **`.planning/REQUIREMENTS.md`** removed — recreate via **`/gsd-new-milestone`**.
 
 **Backlog / hygiene:** Phase **999.1** (*Nyquist retroactive validation pass*) and other **999.x** items remain optional archaeology — see **`.planning/ROADMAP.md`** for the canonical queue. **`.planning/STATE.md`** is session handoff only (not a second roadmap); **999.1** tombstones: **`phases/999.1-*/999.1-CONTEXT.md`** + **`999.1-VALIDATION.md`**. **Planning precedence:** if `STATE.md` disagrees with **`ROADMAP.md`** or a phase’s **`*-VALIDATION.md` / `*-VERIFICATION.md`**, trust **ROADMAP + phase attestation** first.
 
@@ -105,15 +96,15 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.12 Trust, evidence, and adoption polish
+### Validated — v1.12 Trust, evidence, and adoption polish (shipped 2026-04-24)
 
-- [ ] **AUD-11** — Bounded **SEED-002** **`Multi`** + **`log_multi_safe`** batch + audit-aware tests — **Phase 73**
-- [ ] **AUD-12** — **09-03-SUMMARY** (+ **09-VERIFICATION** rationale) — **Phase 74**
-- [ ] **UAT-01** — **`.planning/v1.12-UAT-EVIDENCE.md`** (eight SEED-001 rows) — **Phase 74**
-- [ ] **UAT-02** — **`docs/uat-ci-coverage.md`** aligned with **v1.12** evidence — **Phase 74**
-- [ ] **TRN-01** — **`upgrading-to-v1.12.md`** + **`mix.exs`** ExDoc extras — **Phase 75**
-- [ ] **TRN-02** — Intro + **MAINTAINING** or **CHANGELOG** pointers — **Phase 75**
-- [ ] **TRN-03** — Triage/issue-derived polish or explicit “no triage deltas” — **Phase 75**
+- ✓ **AUD-11** — Bounded **SEED-002** **`Multi`** + **`log_multi_safe`** batch + audit-aware tests — **Phase 73**
+- ✓ **AUD-12** — **09-03-SUMMARY** (+ **09-VERIFICATION** rationale) — **Phase 74**
+- ✓ **UAT-01** — **`.planning/v1.12-UAT-EVIDENCE.md`** (eight SEED-001 rows) — **Phase 74**
+- ✓ **UAT-02** — **`docs/uat-ci-coverage.md`** aligned with **v1.12** evidence — **Phase 74**
+- ✓ **TRN-01** — **`upgrading-to-v1.12.md`** + **`mix.exs`** ExDoc extras — **Phase 75**
+- ✓ **TRN-02** — Intro + **MAINTAINING** or **CHANGELOG** pointers — **Phase 75**
+- ✓ **TRN-03** — Triage/issue-derived polish or explicit “no triage deltas” — **Phase 75**
 
 ### Validated — v1.11 Adoption stabilization (shipped 2026-04-23)
 
@@ -375,8 +366,9 @@ This document evolves at phase transitions and milestone boundaries.
 ---
 
 <details>
-<summary>Archived milestone “Last updated” footers (v1.0–v1.10 execution log)</summary>
+<summary>Archived milestone “Last updated” footers (v1.0–v1.12 execution log)</summary>
 
+- **2026-04-24** — **`/gsd-complete-milestone` v1.12**: archived **`v1.12-REQUIREMENTS.md`**, **`v1.12-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.12`**.
 - **2026-04-23** — **v1.11** phases **71–72** complete; archived **`v1.11-REQUIREMENTS.md`** + **`v1.11-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.10** phases **68–70** complete; `/gsd-complete-milestone` archived planning + tag **`v1.10`**; live **`REQUIREMENTS.md`** removed.
 - **2026-04-23** — **v1.9** phases **66–67** complete; `/gsd-complete-milestone` archived planning + tag **`v1.9`**; live **`REQUIREMENTS.md`** removed.
@@ -394,4 +386,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **v1.12** shipped: phases **73–75** complete (audit batch + launch evidence + **TRN-01**..**TRN-03** doc polish). Next focus: **999.1** per **`.planning/STATE.md`**.*
+*Last updated: 2026-04-24 — **`/gsd-complete-milestone` v1.12**: planning archived; live **`REQUIREMENTS.md`** cleared for next tranche. Next: **`/gsd-new-milestone`** (canonical queue: **`.planning/ROADMAP.md`**).*

@@ -1,6 +1,44 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.10 section added at ship (2026-04-23).*
+*Living document updated at milestone boundaries. v1.12 section added at milestone archive (2026-04-24).*
+
+## Milestone: v1.12 — Trust, evidence, and adoption polish
+
+**Shipped:** 2026-04-24  
+**Phases:** 3 (73–75) | **Plans (on-disk):** 7 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-11 (Phase 73)** — Bounded **`mfa.ex`** **`Ecto.Multi`** + **`log_multi_safe`**; **`mfa_audit_atomicity_test.exs`** rollback coverage; inventory / **09-VERIFICATION** row reconciliation.
+- **AUD-12 / UAT-01 / UAT-02 (Phase 74)** — **`09-03-SUMMARY.md`** carries post–**73** truth; **`.planning/v1.12-UAT-EVIDENCE.md`**; **`docs/uat-ci-coverage.md`** aligned with evidence story.
+- **TRN-01..TRN-03 (Phase 75)** — **`upgrading-to-v1.12.md`** + ExDoc extras; trust bundle on getting-started / **MAINTAINING** / **CHANGELOG**; **`v1.11-TRIAGE.md`** § v1.12 reconciliation + **`75-VERIFICATION.md`**.
+
+### What worked
+
+- **Same tranche shape as v1.9–v1.11** — one code batch + evidence/planning closure + doc polish without scope explosion.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still failed; manual **`milestones/v1.12-*`** writes repeated the established pattern.
+- **No `v1.12-MILESTONE-AUDIT.md`** — honesty gate was phase **`*-VERIFICATION.md`** + requirements; consider a short audit file next ship if comparing to **v1.10**.
+
+### Patterns established
+
+- **Planning-label evidence file** — **`v1.12-UAT-EVIDENCE.md`** as the single auditable index before a loud launch.
+
+### Key lessons
+
+1. Reconcile **`.planning/REQUIREMENTS.md`** traceability at close so **Pending** rows never lag **`*-VERIFICATION.md` passed** (fixed at archive for **v1.12**).
+2. Keep **`roadmap.analyze`** limitations in mind; **ROADMAP + filesystem** remained source of truth.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Small phase count; highest leverage was evidence packaging + one more bounded **SEED-002** batch.
+
+---
 
 ## Milestone: v1.10 — Adopter confidence for solo production
 

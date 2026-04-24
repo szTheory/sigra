@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.12
-milestone_name: Trust, evidence, and adoption polish
-status: milestone_complete
-stopped_at: Phase 999.1 context gathered (tombstone)
-last_updated: "2026-04-24T03:35:00.000Z"
-last_activity: 2026-04-23 — **999.1** stewardship context captured; **STATE** cleared of false “ready to plan **999.1**”.
+milestone: null
+milestone_name: null
+status: between_milestones
+stopped_at: Milestone v1.12 archived (`/gsd-complete-milestone`)
+last_updated: "2026-04-24T12:00:00.000Z"
+last_activity: 2026-04-24 — **v1.12** milestone archived; live **`.planning/REQUIREMENTS.md`** removed; next **`/gsd-new-milestone`**.
 progress:
   total_phases: 63
   completed_phases: 59
@@ -18,7 +18,7 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-23)
+See: `.planning/PROJECT.md` (updated 2026-04-24)
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
@@ -32,9 +32,9 @@ Phase: _idle — canonical queue is **ROADMAP.md**_
 
 Plan: N/A
 
-Status: Post–**v1.12** handoff
+Status: Between milestones (**v1.12** archived)
 
-Last activity: 2026-04-23 — **999.1** stewardship context captured; **STATE** cleared of false “ready to plan **999.1**”.
+Last activity: 2026-04-24 — **v1.12** milestone archived; live **`.planning/REQUIREMENTS.md`** removed; next **`/gsd-new-milestone`**.
 
 ## Performance Metrics
 
@@ -70,7 +70,7 @@ Resume file: `.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-C
 
 **Next:** Pick next work from **`.planning/ROADMAP.md`** (e.g. new milestone or promoted backlog). Do **not** **`/gsd-plan-phase 999.1`** for implementation — scope shipped as **Phase 36**.
 
-**Live requirements:** `.planning/REQUIREMENTS.md` (may lag until a new milestone opens)
+**Live requirements:** _none — recreate with **`/gsd-new-milestone`**_
 
 **Planned work:** See **ROADMAP** — **999.1** is archaeology only
 
