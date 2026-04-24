@@ -28,6 +28,10 @@
     "skip_discuss": false,
     "_auto_chain_active": false
   },
+  "sigra_defaults": {
+    "audit_atomicity_doc": ".planning/AUDIT-ATOMICITY-DEFAULTS.md",
+    "note": "Subagent-backed defaults from Phase 80 discuss; load for SEED-002 / audit Multi phases unless CONTEXT overrides."
+  },
   "hooks": {
     "context_warnings": true
   },
