@@ -76,9 +76,9 @@ lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all
 | AUD-04-041 | `Sigra.Account.cancel_deletion/3` | `account.deletion_cancel` | **`Multi` + `log_multi_safe`** | 5 | AUD-07 | **78** | **`lib/sigra/account.ex`**; phase **78** (**AUD-14**). |
 | AUD-04-042 | `Sigra.Account.execute_deletion/3` | `account.deletion_execute` + `account.deletion_executed` | **`Multi` + `log_multi_safe`** (two audit steps + `Deletion.execute` in `Multi.run`) | 2 | AUD-07 | **78** | **`lib/sigra/account.ex`**; **`test/sigra/account_audit_atomicity_test.exs`** (`deletion_execute` CHECK guard). |
 | AUD-04-043 | `Sigra.Account.audit_forced_password_change/2` | `account.password_change` | `log_safe` | 7 | AUD-07 | 44 | Audit-only helper — **EX-44-05**; unchanged unless paired domain writes land in-library. |
-| AUD-04-044 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | `log_safe` | 9 | AUD-07 | 44 | Intentional hybrid (volume / read-heavy) — **EX-44-01**; keep unless REQ changes (**D-44-05**). |
-| AUD-04-045 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | `log_safe` | 9 | AUD-07 | 44 | Revoked token branch — **EX-44-01**. |
-| AUD-04-046 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | `log_safe` | 9 | AUD-07 | 44 | Expired token branch — **EX-44-01**. |
+| AUD-04-044 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | **AUD-16**; **EX-44-01** verify-failure slice retired (**2026-04-24**). |
+| AUD-04-045 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | Revoked branch — same as **044**. |
+| AUD-04-046 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | Expired branch — same as **044**. |
 | AUD-04-047 | `Sigra.APIToken.revoke/2` | `api.token_revoke` | **`Multi` + `Audit.log_multi_safe`** (`config.repo.transaction/1`) | 4 | AUD-07 | **78** | **`lib/sigra/api_token.ex`**; **`test/sigra/api_token_audit_atomic_test.exs`** (**AUD-14**). |
 | AUD-04-048 | `Sigra.APIToken.audit_jwt_refresh/2` | `api.jwt_refresh` | `log_safe` | 8 | defer AUD-08 | 45 | JWT persistence / refresh work — out of phase **44** per **D-44-05** / **D-44-07** honesty rule. |
 | AUD-04-049 | `Sigra.APIToken.audit_jwt_refresh_reuse/2` | `api.jwt_refresh_reuse` | `log_safe` | 8 | defer AUD-08 | 45 | Same deferral as **AUD-04-048**. |
@@ -89,7 +89,7 @@ lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all
 
 | ID | REQ / control | scope | mechanism | residual risk | compensating control | owner | reopen trigger | evidence | last reviewed |
 |----|---------------|-------|-----------|---------------|----------------------|-------|------------------|----------|----------------|
-| EX-44-01 | **D-44-05**, **AUD-07** | `Sigra.APIToken.verify/2` → `api.token_verify.failure` (all branches) | `log_safe` | High-volume failure rows may commit if later logic rolls back (classic hybrid) | Telemetry on verify path; rate limits at edge | Sigra | REQ amendment or incident class “durable verify failures required” | `lib/sigra/api_token.ex` | 2026-04-20 |
+| EX-44-01 | **D-44-05**, **AUD-07** | `Sigra.APIToken.verify/2` → `api.token_verify.failure` (all branches) | **Retired for 044–046 (phase 79)** — was `log_safe` | Historical: classic hybrid gap for failure-only audits | **Phase 79:** transactional **`log_multi_safe`** + **`log_safe_error`** on changeset / constraint insert failure | Sigra | *Closed 2026-04-24* — **AUD-16** | `lib/sigra/api_token.ex`; `test/sigra/api_token_audit_atomic_test.exs` | 2026-04-24 |
 | EX-44-02 | **D-44-03** | `mfa.enroll.failure` on invalid enrollment code (no DB mutation) | `log_safe` | Forensic gap on rejected enroll attempts | MFA unit tests + telemetry | Sigra | User story needs durable pre-DB enroll failures | `lib/sigra/mfa.ex` | 2026-04-20 |
 | EX-44-03 | **D-44-03** | `Sigra.MFA.audit_backup_codes_regenerate/3` | **`Multi` + `log_multi_safe`** in dedicated txn (phase **77**) | Callers may still omit library rotation — prefer `regenerate_backup_codes/4` | Document authoritative path: `regenerate_backup_codes/4` | Sigra | Legacy call sites removed | `@doc` on `audit_backup_codes_regenerate/3` | 2026-04-24 |
 | EX-44-04 | **D-44-03** | `Sigra.MFA.audit_trust_browser/2` | **`Multi` + `log_multi_safe`** in dedicated txn (phase **77**) | Trust events still not co-fated with in-library DB writes | Trust module tests / product analytics stance | Sigra | Trust browser becomes security-critical persistence | `lib/sigra/mfa.ex` | 2026-04-24 |
@@ -102,13 +102,15 @@ lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all
 | B0 | **44-02** | **D-44-02** — `audit_multi_step` (named `Ecto.Multi` audit steps) + telemetry for multiple committed inserts (`Sigra.Audit`). Prerequisite for **AUD-04-026/027**. |
 | B1 | **44-03** | **AUD-06** — MFA rows targeting **Multi** in this file (**AUD-04-020–034** except exclusions / already-Multi). |
 | B2 | **44-04** | **AUD-07** — Account rows **AUD-04-035–043** per **D-44-04** stack ordering. |
-| B3 | **44-05** | **AUD-07** — API token **AUD-04-047**, `revoke_all/2` summary audit (no grep row until implemented), retain **EX-44-01** for **AUD-04-044–046**. |
+| B3 | **44-05** | **AUD-07** — API token **AUD-04-047**, `revoke_all/2` summary audit (no grep row until implemented); **EX-44-01** verify slice retired by **phase 79** (**AUD-04-044–046**). |
 
 ## Changelog pointer
 
 Release notes should reference this file when **AUD-06 / AUD-07** land for MFA + Account + API token; see repository `CHANGELOG.md` under **[Unreleased]** for the continuation bullet from phase **43**.
 
 **Note — Phase 73 (2026-04-24):** **`lib/sigra/mfa.ex`** is already **Multi**-first for **AUD-04-023–032**; phase **73** closed planning drift versus legacy **44-03** “target Multi” language and shipped **CHECK** rollback receipts in **`test/sigra/mfa_audit_atomicity_test.exs`**.
+
+**Note — Phase 79 (2026-04-24):** **`Sigra.APIToken.verify/2`** failure paths (**AUD-04-044..046**) use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set (**AUD-16**); **EX-44-01** appendix row marked retired for this slice.
 
 **Note — Phase 78 (2026-04-24):** **`Sigra.Account`** email/password/deletion paths (**AUD-04-035..042**) and **`Sigra.APIToken.revoke/2`** (**AUD-04-047**) already use **`Ecto.Multi` + `log_multi_safe`** in **`lib/`**; phase **78** closes **44** inventory + **09** C-1 drift vs legacy “target **Multi**” language (**AUD-14**).
 

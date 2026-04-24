@@ -72,22 +72,24 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-033 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`audit_backup_codes_regenerate/3`; dedicated `:audit_mfa_backup_codes_regenerate_adhoc` step) | tier 8 | T1 (phase **77** / **AUD-13**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
 | AUD-04-034 | **`Repo.transaction/1`** on **`Multi` + `log_multi_safe`** (`audit_trust_browser/2`; dedicated `:audit_mfa_trust_browser_adhoc` step) | tier 8 | T1 (phase **77** / **AUD-13**) | `test/sigra/mfa_audit_atomicity_test.exs`; `lib/sigra/mfa.ex` |
 | AUD-04-035 | **`Multi` + `log_multi_safe`** (`request_email_change/4` — same `Repo.transaction/1` as domain `Multi.run`) | tier 5 | T1 (phase **78** / **AUD-14**) | `test/sigra/account_audit_atomicity_test.exs`; `lib/sigra/account.ex` |
-| AUD-04-036 | **`Multi` + `log_multi_safe`** (`confirm_email_change/3`) | tier 4 | T1 (phase **78** / **AUD-14**) | `lib/sigra/account.ex` |
-| AUD-04-037 | **`Multi` + `log_multi_safe`** (`cancel_email_change/3`) | tier 5 | T1 (phase **78** / **AUD-14**) | `lib/sigra/account.ex` |
+| AUD-04-036 | **`Multi` + `log_multi_safe`** (`confirm_email_change/3`) | tier 4 | T1 (phase **78** / **AUD-14**) | `test/sigra/account_audit_atomicity_test.exs`; `lib/sigra/account.ex` |
+| AUD-04-037 | **`Multi` + `log_multi_safe`** (`cancel_email_change/3`) | tier 5 | T1 (phase **78** / **AUD-14**) | `test/sigra/account_audit_atomicity_test.exs`; `lib/sigra/account.ex` |
 | AUD-04-038 | **`Multi` + `log_multi_safe`** (`change_password/5`) | tier 3 | T1 (phase **78** / **AUD-14**) | `test/sigra/account_audit_atomicity_test.exs`; `lib/sigra/account.ex` |
 | AUD-04-039 | **`Multi` + `log_multi_safe`** (`set_password/4`) | tier 3 | T1 (phase **78** / **AUD-14**) | `test/sigra/account_audit_atomicity_test.exs`; `lib/sigra/account.ex` |
 | AUD-04-040 | **`Multi` + `log_multi_safe`** (`schedule_deletion/3`) | tier 5 | T1 (phase **78** / **AUD-14**) | `lib/sigra/account.ex` |
 | AUD-04-041 | **`Multi` + `log_multi_safe`** (`cancel_deletion/3`) | tier 5 | T1 (phase **78** / **AUD-14**) | `lib/sigra/account.ex` |
 | AUD-04-042 | **`Multi` + `log_multi_safe`** (`execute_deletion/3` — `deletion_execute` + `deletion_executed` steps) | tier 2 | T1 (phase **78** / **AUD-14**) | `test/sigra/account_audit_atomicity_test.exs`; `lib/sigra/account.ex` |
 | AUD-04-043 | `log_safe` | tier 7 | T2 / **EX-44-05** (audit-only helper) | `lib/sigra/account.ex` |
-| AUD-04-044 | `log_safe` | tier 9 | T2 / **EX-44-01** (read-heavy verify failures) | `test/sigra/api_token_audit_atomic_test.exs` |
-| AUD-04-045 | `log_safe` | tier 9 | T2 / **EX-44-01** | `test/sigra/api_token_audit_atomic_test.exs` |
-| AUD-04-046 | `log_safe` | tier 9 | T2 / **EX-44-01** | `test/sigra/api_token_audit_atomic_test.exs` |
+| AUD-04-044 | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** (`verify/2` invalid token) | tier 9 | T1 (phase **79** / **AUD-16**) | `test/sigra/api_token_audit_atomic_test.exs`; `lib/sigra/api_token.ex` |
+| AUD-04-045 | same (`verify/2` revoked) | tier 9 | T1 (phase **79** / **AUD-16**) | same |
+| AUD-04-046 | same (`verify/2` expired) | tier 9 | T1 (phase **79** / **AUD-16**) | same |
 | AUD-04-047 | **`Multi` + `Audit.log_multi_safe`** (`revoke/2` — `config.repo.transaction/1`) | tier 4 | T1 (phase **78** / **AUD-14**) | `test/sigra/api_token_audit_atomic_test.exs`; `lib/sigra/api_token.ex` |
 | AUD-04-048 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
 | AUD-04-049 | `log_safe` | tier 8 | Deferred to phase 45 / AUD-08 | `45-AUD-04-INVENTORY.md` rows **AUD-04-048**/**049** + `44-VERIFICATION.md` |
 
-**Phase 78 (2026-04-24):** **AUD-14** — **AUD-04-035..042** (`Sigra.Account` email/password/deletion) and **047** (`Sigra.APIToken.revoke/2`) aligned to **`Multi` + `log_multi_safe`** in **`lib/`**; **44** inventory + this matrix updated from legacy “target **Multi**” language. **043** stays **`log_safe`** (**EX-44-05**); **044–046** stay **`log_safe`** (**EX-44-01**).
+**Phase 79 (2026-04-24):** **AUD-16** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** for invalid / revoked / expired branches uses **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **044–046** **T1**; **EX-44-01** verify-failure slice retired (appendix row retained for history). **043** unchanged (**EX-44-05**).
+
+**Phase 78 (2026-04-24):** **AUD-14** — **AUD-04-035..042** (`Sigra.Account` email/password/deletion) and **047** (`Sigra.APIToken.revoke/2`) aligned to **`Multi` + `log_multi_safe`** in **`lib/`**; **44** inventory + this matrix updated from legacy “target **Multi**” language. **043** stays **`log_safe`** (**EX-44-05**); **044–046** were **`log_safe`** (**EX-44-01**) until **phase 79**.
 
 **Phase 61 (2026-04-23):** **`verify_backup/4`** wrong-code / invalid-backup attempts emit **`mfa.verify.failure`** via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** (and **`mfa.lockout`** in the same transaction when the lockout threshold is reached), matching **`verify/4`** failure semantics. Matrix row **`AUD-04-067`**; tests in **`test/sigra/mfa_audit_atomicity_test.exs`**.
 

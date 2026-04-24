@@ -20,15 +20,24 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-_No coordinated milestone open._ Start the next cycle with **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
+**v1.16 — API verify failure audit atomicity (SEED-002 slice)** — **Phase 79**, **AUD-16-01**..**AUD-16-04** — **execution complete 2026-04-24** (close via **`/gsd-complete-milestone`** when release policy satisfied).
 
-**Last closed:** **v1.15 — Account + API C-1 planning truth (SEED-002 slice)** (**Phase 78**, **AUD-14**..**AUD-14-05**, **2026-04-24**). **44** + **09** C-1 planning truth for **035–042**, **047**; **`09-03-SUMMARY`** + **`CHANGELOG` [Unreleased]**; **`account_audit_atomicity_test.exs`** **`change_password`**. Archives: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md), [`.planning/milestones/v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md). Verification: **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
+**Goal:** Harden **`Sigra.APIToken.verify/2`** failure-path audit durability (**AUD-04-044..046**) with **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; refresh **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; preserve **D-27** (no success-path audit).
+
+**Target features:**
+- Transactional **`api.token_verify.failure`** for invalid / revoked / expired branches + telemetry on committed audit
+- **`log_safe_error`** on audit insert failure (invalid changeset or DB constraint), caller still receives **`{:error, reason}`**
+- Planning truth for **044–046** (**T1**); **EX-44-01** verify slice retired (appendix row retained)
+
+**Requirements + verification:** [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) — **AUD-16-01**..**AUD-16-04**; **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
+
+**Previously closed:** **v1.15 — Account + API C-1 planning truth (SEED-002 slice)** (**Phase 78**, **AUD-14**..**AUD-14-05**, **2026-04-24**). **44** + **09** C-1 planning truth for **035–042**, **047**; **`09-03-SUMMARY`** + **`CHANGELOG` [Unreleased]**; **`account_audit_atomicity_test.exs`** **`change_password`**. Archives: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md), [`.planning/milestones/v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md). Verification: **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
 
 **Previously closed:** **v1.14 — Bounded audit trust closure (SEED-002 slice)** (**Phase 77**, **AUD-13**..**AUD-13-04**, **2026-04-24**). **`audit_backup_codes_regenerate/3`** and **`audit_trust_browser/2`** use **`commit_ad_hoc_mfa_audit/5`**; **`mfa_audit_atomicity_test.exs`**; planning truth on **09** / **44** / **CHANGELOG**. Archives: [`.planning/milestones/v1.14-ROADMAP.md`](milestones/v1.14-ROADMAP.md), [`.planning/milestones/v1.14-REQUIREMENTS.md`](milestones/v1.14-REQUIREMENTS.md). Verification: **`.planning/phases/77-mfa-adhoc-audit-multi/77-VERIFICATION.md`**.
 
 **Previously closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
-**Last shipped code milestone:** **v1.15 — Account + API C-1 planning truth** (**Phase 78**, **2026-04-24**; **`AUD-14`**). Archives: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md), [`v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md). _(Prior: **v1.14** — **Phase 77**; **v1.12** — phases **73–75**.)_
+**Last shipped code milestone (prior to v1.16 execution):** **v1.15 — Account + API C-1 planning truth** (**Phase 78**, **2026-04-24**; **`AUD-14`**). Archives: [`.planning/milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md), [`v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md). _(Prior: **v1.14** — **Phase 77**; **v1.12** — phases **73–75**.)_
 
 **Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
@@ -41,6 +50,8 @@ _No coordinated milestone open._ Start the next cycle with **`/gsd-new-milestone
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
 ## Current State
+
+**v1.16 (execution complete 2026-04-24):** Phase **79** — **AUD-16-01**..**AUD-16-04** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** transactional **`log_multi_safe`** (**AUD-04-044..046**); **`api_token_audit_atomic_test.exs`**; live **`.planning/REQUIREMENTS.md`** until **`/gsd-complete-milestone` v1.16**; verification **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
 
 **v1.15 (archived 2026-04-24):** Phase **78** — **AUD-14**..**AUD-14-05** — **SEED-002** planning truth for **Account** + **`APIToken.revoke`** C-1 rows (**AUD-04-035..042**, **047**) aligned to **`lib/`**; **`account_audit_atomicity_test.exs`** **`change_password`**. Archives: **`milestones/v1.15-ROADMAP.md`**, **`milestones/v1.15-REQUIREMENTS.md`**; verification **`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`**.
 
@@ -74,7 +85,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**When to open v1.16+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
+**When to open v1.17+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
 
 **Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
 
@@ -108,10 +119,17 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — v1.16 API verify failure audit atomicity (shipped in-repo 2026-04-24)
+
+- ✓ **AUD-16-01** — **`verify/2`** invalid-token **`api.token_verify.failure`** — **`Repo.transaction/1`** + **`Multi` + `log_multi_safe`** — **Phase 79**
+- ✓ **AUD-16-02** — **`verify/2`** revoked + expired failure branches — same pattern — **Phase 79**
+- ✓ **AUD-16-03** — **44** + **09** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]** — **044–046** **T1** — **Phase 79**
+- ✓ **AUD-16-04** — **D-27** — no success-path **`api.token_verify`** audit — **Phase 79**
+
 ### Validated — v1.15 Account + API C-1 planning truth (shipped 2026-04-24)
 
 - ✓ **AUD-14-01** — **44-AUD-04-INVENTORY** — **AUD-04-035..042** **`Multi` + `log_multi_safe`** + **Phase 78**; **043** **`log_safe`** (**EX-44-05**) — **Phase 78**
-- ✓ **AUD-14-02** — Same file — **AUD-04-047** **`Multi` + `log_multi_safe`**; **044–046** **`log_safe`** (**EX-44-01**) — **Phase 78**
+- ✓ **AUD-14-02** — Same file — **AUD-04-047** **`Multi` + `log_multi_safe`**; **044–046** were **`log_safe`** (**EX-44-01**) at **v1.15** close — superseded by **v1.16** / **phase 79** (**AUD-16**) — **Phase 78**
 - ✓ **AUD-14-03** — **`09-VERIFICATION.md`** C-1 rows **035–042**, **047** → **T1**; **043** / **044–046** / **048–049** honest **T2** / deferral — **Phase 78**
 - ✓ **AUD-14-04** — **`09-03-SUMMARY.md`** phase **78** bounded-batch note + document status — **Phase 78**
 - ✓ **AUD-14-05** — **`CHANGELOG.md` [Unreleased]** + **`account_audit_atomicity_test.exs`** **`change_password`** CHECK rollback — **Phase 78**
@@ -366,7 +384,7 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | Hybrid user/identity table pattern | `users` + `user_identities` — clean multi-provider support, natural Ecto idiom, matches Better Auth/Django Allauth/PowAssent. | ✓ Validated v1.0 — pattern held through registration/login/linking/unlink |
 | Argon2id default with bcrypt migration path | OWASP gold standard; memory-hard; transparent upgrade on login keeps migration invisible to users. | ✓ Validated v1.0 — `verify_with_upgrade/3` pattern works cleanly |
 | Database-backed session tokens (no JWT for browser) | Revocation requires server-side state; JWT-only for browser is an anti-pattern for session auth. | ✓ Validated v1.0 — JWT remains opt-in for stateless API paths only |
-| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ✓ Advanced through **v1.15** — **Account** + **`APIToken.revoke`** C-1 rows **035–042**, **047** verified **`Multi` + `log_multi_safe`** in **`lib/`** with **`account_audit_atomicity_test`** for **`change_password`**; remaining deferrals explicit in **44** / **09** matrices |
+| D-01 universal atomic `Ecto.Multi` for audit writes | Audit rows must be as durable as the business op that produced them; no dropped rows on partial failure. | ✓ Advanced through **v1.16** — **`APIToken.verify/2`** failure audits (**AUD-04-044..046**) use transactional **`log_multi_safe`**; **Account** + **`APIToken.revoke`** (**v1.15**) + prior batches; remaining deferrals explicit in **44** / **09** matrices |
 | D-10 installer default PK type = `binary_id` (uuid) | UUIDs are idiomatic for modern Phoenix; avoids enumeration of integer IDs; matches phx.gen.auth 1.8 convention. | ✓ Validated v1.0 (flipped in phase 10.1.1) — no integer-PK regressions downstream |
 | IN-03 SHA-pin all GitHub Actions | Supply-chain security: tag-based references allow the tag to be moved post-publish; SHA pins lock the exact code. | ✓ Validated v1.0 (phase 10.1 + 10.1.1) — Dependabot `github-actions` ecosystem handles upgrade churn |
 | D-15 no `continue-on-error` on any required CI check | Flakes must be fixed at root cause; masking them defeats the gate's purpose. | ✓ Validated v1.0 — all 5 CI jobs are strict-pass; no `continue-on-error` anywhere in `.github/workflows/ci.yml` |
@@ -422,4 +440,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 after **`/gsd-complete-milestone` v1.15** — **Phase 78** / **AUD-14** archived; live **`REQUIREMENTS.md`** removed; git tag **`v1.15`**. Prior: **`v1.14`** archive + tag **`v1.14`**.*
+*Last updated: 2026-04-24 — **`/gsd-new-milestone` v1.16** (**Phase 79** / **AUD-16**) opened; live **`.planning/REQUIREMENTS.md`** restored for **`APIToken.verify/2`** failure audit atomicity. Prior: **`/gsd-complete-milestone` v1.15** — **Phase 78** / **AUD-14** archived; git tag **`v1.15`**.*

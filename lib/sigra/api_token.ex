@@ -16,7 +16,10 @@ defmodule Sigra.APIToken do
      Revoked and expired tokens are rejected. Successful verification does not
      write a durable audit row (D-27); `maybe_update_last_used/2` bumps
      `last_used_at` asynchronously via `Task.start/1` so the hot path stays
-     low-latency while telemetry covers observability.
+     low-latency while telemetry covers observability. When `:audit_schema` is
+     configured, **`api.token_verify.failure`** rows are written inside
+     **`Repo.transaction/1`** via **`Ecto.Multi`** + **`Audit.log_multi_safe/3`**
+     (audit-only transaction; success remains unaudited per D-27).
 
   3. **Revoke** -- `revoke/2` soft-deletes a token by setting `revoked_at`.
      `revoke_all/2` revokes all active tokens for a user. With `:audit_schema`
@@ -163,6 +166,99 @@ defmodule Sigra.APIToken do
     ]
   end
 
+  defp verify_failure_audit_scope_fields(scope) do
+    case scope do
+      nil ->
+        [organization_id: nil, effective_user_id: nil, actor_id: nil]
+
+      %{user: user} = s ->
+        org = Map.get(s, :active_organization)
+        actor = Map.get(s, :impersonating_from) || user
+
+        [
+          organization_id: org && org.id,
+          effective_user_id: user && user.id,
+          actor_id: actor && actor.id
+        ]
+
+      _ ->
+        [organization_id: nil, effective_user_id: nil, actor_id: nil]
+    end
+  end
+
+  defp verify_failure_audit_opts(config, scope, metadata, overrides)
+       when is_map(metadata) and is_list(overrides) do
+    Keyword.merge(
+      Keyword.merge(
+        verify_failure_audit_scope_fields(scope),
+        api_token_audit_opts(config) ++ [outcome: "failure", metadata: metadata]
+      ),
+      overrides
+    )
+  end
+
+  defp commit_api_token_verify_failure_audit(config, opts) do
+    case Keyword.get(opts, :audit_schema) do
+      nil ->
+        :ok
+
+      _ ->
+        multi =
+          Multi.new()
+          |> Audit.log_multi_safe(
+            "api.token_verify.failure",
+            Keyword.put(opts, :audit_multi_step, :audit_api_token_verify_failure)
+          )
+
+        try do
+          case config.repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_verify_failure])
+
+            {:error, :audit_api_token_verify_failure, %Ecto.Changeset{} = cs, _} ->
+              verify_failure_audit_emit_invalid_changeset(cs)
+
+            {:error, failed, reason, _} ->
+              raise "unexpected Ecto.Multi failure from Sigra.APIToken.verify failure audit: " <>
+                      "#{inspect(failed)} => #{inspect(reason)}"
+          end
+        rescue
+          e ->
+            if verify_failure_audit_rescue?(e) do
+              :telemetry.execute(
+                [:sigra, :audit, :log_safe_error],
+                %{count: 1},
+                %{action: "api.token_verify.failure", reason: :constraint_violation}
+              )
+            else
+              reraise(e, __STACKTRACE__)
+            end
+        end
+    end
+  end
+
+  defp verify_failure_audit_rescue?(e) do
+    match?(%Ecto.ConstraintError{}, e) or
+      (is_exception(e) and match?(%{table: _}, Map.get(e, :postgres)))
+  end
+
+  defp verify_failure_audit_emit_invalid_changeset(%Ecto.Changeset{} = cs) do
+    error_fields =
+      cs.errors
+      |> Enum.map(fn {field, _} -> field end)
+      |> Enum.uniq()
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{
+        action: "api.token_verify.failure",
+        reason: :invalid_changeset,
+        error_fields: error_fields
+      }
+    )
+  end
+
   @doc """
   Verifies a raw API token string.
 
@@ -193,19 +289,13 @@ defmodule Sigra.APIToken do
 
       case config.repo.get_by(schema, hashed_token: hashed) do
         nil ->
-          # D-27: api.token_verify.failure only (success is NOT audited
-          # because it would be too noisy; observability is covered by
-          # telemetry).
-          Sigra.Audit.log_safe(
-            "api.token_verify.failure",
-            nil,
-            api_token_audit_opts(config) ++
-              [
-                actor_id: nil,
-                target_id: nil,
-                outcome: "failure",
-                metadata: %{reason: "invalid_token"}
-              ]
+          # D-27: failure rows only; success is still not audited.
+          commit_api_token_verify_failure_audit(
+            config,
+            verify_failure_audit_opts(config, nil, %{reason: "invalid_token"},
+              actor_id: nil,
+              target_id: nil
+            )
           )
 
           {:error, :invalid_token}
@@ -213,32 +303,30 @@ defmodule Sigra.APIToken do
         token ->
           cond do
             token.revoked_at != nil ->
-              Sigra.Audit.log_safe(
-                "api.token_verify.failure",
-                Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
-                api_token_audit_opts(config) ++
-                  [
-                    actor_id: Map.get(token, :user_id),
-                    target_id: Map.get(token, :user_id),
-                    outcome: "failure",
-                    metadata: %{reason: "token_revoked"}
-                  ]
+              scope = Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)})
+              user_id = Map.get(token, :user_id)
+
+              commit_api_token_verify_failure_audit(
+                config,
+                verify_failure_audit_opts(config, scope, %{reason: "token_revoked"},
+                  actor_id: user_id,
+                  target_id: user_id
+                )
               )
 
               {:error, :token_revoked}
 
             token.expires_at != nil and
                 DateTime.compare(token.expires_at, DateTime.utc_now()) == :lt ->
-              Sigra.Audit.log_safe(
-                "api.token_verify.failure",
-                Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)}),
-                api_token_audit_opts(config) ++
-                  [
-                    actor_id: Map.get(token, :user_id),
-                    target_id: Map.get(token, :user_id),
-                    outcome: "failure",
-                    metadata: %{reason: "token_expired"}
-                  ]
+              scope = Sigra.Scope.from_config(config, %{id: Map.get(token, :user_id)})
+              user_id = Map.get(token, :user_id)
+
+              commit_api_token_verify_failure_audit(
+                config,
+                verify_failure_audit_opts(config, scope, %{reason: "token_expired"},
+                  actor_id: user_id,
+                  target_id: user_id
+                )
               )
 
               {:error, :token_expired}

@@ -11,9 +11,19 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Changed
+
+* **audit:** When `:audit_schema` is configured, `Sigra.APIToken.verify/2` now writes `api.token_verify.failure` audit rows inside `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (invalid, revoked, and expired branches). Success remains telemetry-only (**D-27**). Insert failures emit `[:sigra, :audit, :log_safe_error]` (`:invalid_changeset` or `:constraint_violation`) while the caller still receives `{:error, reason}`.
+
 ### Documentation
 
-* **planning:** Milestone **v1.15** (phase **78**, **AUD-14**) — **44-AUD-04-INVENTORY** + **09-VERIFICATION** C-1 rows for **AUD-04-035..042** and **047** aligned to **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; **09-03-SUMMARY** bounded-batch note. See [`.planning/REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/REQUIREMENTS.md) and [`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md).
+* **planning:** Milestone **v1.16** (phase **79**, **AUD-16**) — **44-AUD-04-INVENTORY** + **09-VERIFICATION** C-1 rows **AUD-04-044..046** aligned to transactional **`verify/2`** in **`lib/sigra/api_token.ex`**; **09-03-SUMMARY** bounded-batch note; **EX-44-01** verify slice retired. See [`.planning/REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/REQUIREMENTS.md) and [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+* **planning:** Milestone **v1.15** (phase **78**, **AUD-14**) — **44-AUD-04-INVENTORY** + **09-VERIFICATION** C-1 rows for **AUD-04-035..042** and **047** aligned to **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; **09-03-SUMMARY** bounded-batch note. See [`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md).
+
+### Added
+
+* **tests:** `test/sigra/api_token_audit_atomic_test.exs` covers **`api.token_verify.failure`** for invalid / revoked / expired paths plus audit-table fault injection (constraint / telemetry parity).
+* **tests:** `test/sigra/account_audit_atomicity_test.exs` exercises **`Sigra.Account.request_email_change/4`**, **`confirm_email_change/3`**, and **`cancel_email_change/3`** with Postgres `CHECK` fault injection so domain mutations roll back when the paired **`account.email_change_*`** audit insert is rejected — complements **AUD-04-035..037** C-1 evidence alongside **`change_password`**.
 
 ## [0.2.4](https://github.com/szTheory/sigra/compare/v0.2.3...v0.2.4) (2026-04-24)
 

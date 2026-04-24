@@ -490,6 +490,30 @@
 
 ---
 
+## v1.16 API verify failure audit atomicity (Shipped in-repo: 2026-04-24)
+
+**Scope:** 1 phase (**79**), **`Sigra.APIToken.verify/2`** failure audits + planning truth (**AUD-16-01**..**AUD-16-04**).
+
+**What shipped:** **`api.token_verify.failure`** for invalid / revoked / expired branches uses **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **`log_safe_error`** telemetry on audit insert failure while callers still receive **`{:error, reason}`**; **44** + **09** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]**; **`test/sigra/api_token_audit_atomic_test.exs`** coverage + fault injection; **EX-44-01** verify slice retired (appendix row retained).
+
+### Key accomplishments
+
+1. **AUD-16-01 / AUD-16-02** — **`verify/2`** failure branches match atomic audit pattern without **D-27** success-path noise.
+2. **AUD-16-03** — **AUD-04-044..046** **T1** in **44** inventory + **09-VERIFICATION** C-1 matrix.
+3. **AUD-16-04** — Success path remains telemetry-only.
+
+### Stats
+
+- **Requirements:** 4/4 in live [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) (archive at **`/gsd-complete-milestone` v1.16**).
+- **Verification:** [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+
+### Tech debt carried forward
+
+- **SEED-002** — remaining **`log_safe/3`** clusters (e.g. **043**, **048–049**, OAuth phase **45**).
+- **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+---
+
 ## v1.15 Account + API C-1 planning truth (Shipped: 2026-04-24)
 
 **Scope:** 1 phase (**78**), library tests + planning truth (**AUD-14**..**AUD-14-05**).
@@ -498,7 +522,7 @@
 
 ### Key accomplishments
 
-1. **AUD-14-01 / AUD-14-02** — Inventory rows match code for **Account** paths and **`APIToken.revoke/2`**, preserving **EX-44-01** / **EX-44-05** hybrid rows.
+1. **AUD-14-01 / AUD-14-02** — Inventory rows match code for **Account** paths and **`APIToken.revoke/2`**, preserving **EX-44-05** and **EX-44-01** for **044–046** at **v1.15** close (**044–046** advanced in **v1.16** / **phase 79**).
 2. **AUD-14-03** — **09-VERIFICATION** Phase **44** table carries defensible **T1**/**T2** labels for **035–042**, **043**, **044–046**, **047**, **048–049**.
 3. **AUD-14-04 / AUD-14-05** — Summary + changelog trace; Postgres-backed atomicity tests for **`change_password`**.
 

@@ -1,0 +1,36 @@
+# Requirements: Sigra — v1.16 API verify failure audit atomicity
+
+**Defined:** 2026-04-24  
+**Milestone:** v1.16 — bounded **SEED-002** slice (**AUD-16**)  
+**Core value:** (from `PROJECT.md`) Authentication that works out of the box with great DX on the happy path AND on the rough edges.
+
+## v1.16 Requirements
+
+### Audit atomicity — API token verify failures (AUD)
+
+- [x] **AUD-16-01**: **`Sigra.APIToken.verify/2`** — invalid hash / unknown token branch emits **`api.token_verify.failure`** via **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** inside **`Repo.transaction/1`** when `:audit_schema` is configured; Postgres evidence in **`test/sigra/api_token_audit_atomic_test.exs`**.
+- [x] **AUD-16-02**: **`verify/2`** — **`token_revoked`** and **`token_expired`** branches use the same transactional **`log_multi_safe`** pattern; metadata reasons **`token_revoked`** / **`token_expired`** asserted in tests.
+- [x] **AUD-16-03**: **`44-AUD-04-INVENTORY.md`** rows **AUD-04-044..046** and **`09-VERIFICATION.md`** Phase **44** C-1 rows show **T1** (**`Multi` + `log_multi_safe`**, phase **79**); **`09-03-SUMMARY.md`** bounded-batch note; **`CHANGELOG.md` [Unreleased]`** roadmap trace for **v1.16** / **79** / **AUD-16**.
+- [x] **AUD-16-04**: **D-27** preserved — successful **`verify/2`** does **not** write **`api.token_verify`** success audit rows (telemetry-only success path).
+
+## Future requirements
+
+_Defer unchanged:_ **AUD-04-043** (**EX-44-05**); **AUD-04-022** (**EX-44-02**); **AUD-04-048..049** (JWT / **AUD-08**); OAuth phase **45** bulk.
+
+## Out of scope (v1.16)
+
+| Item | Reason |
+|------|--------|
+| **`api.token_verify` success auditing** | **D-27** volume / noise policy unchanged |
+| **JWT refresh audit helpers** | **AUD-04-048..049** deferred to **AUD-08** / phase **45** co-fate story |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUD-16-01 | 79 | Complete |
+| AUD-16-02 | 79 | Complete |
+| AUD-16-03 | 79 | Complete |
+| AUD-16-04 | 79 | Complete |
+
+**Coverage:** v1.16 requirements: 4 total; mapped to phases: 4; unmapped: 0.
