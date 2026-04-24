@@ -18,6 +18,12 @@ GSD milestones (**`/gsd-new-milestone`**, **`.planning/REQUIREMENTS.md`**, phase
 
 **Resume `/gsd-new-milestone`** when an **event** warrants a scoped tranche, for example: public launch prep + **SEED-001** human matrix; compliance or customer evidence forcing **SEED-002** batches; **ADR 001** revisit for **`sigra_lockspire`** / Lockspire glue; or a **documented adoption gap** that does not fit a single patch.
 
+## v1.12 trust bundle (audit + UAT evidence)
+
+**v1.12** packages the **bounded SEED-002 audit closure** narrative, the **eight-row GA·UAT outcome index**, and the **machine vs residual** CI catalog into a small set of stable links. Do **not** fork the eight-row matrix into **Hex-facing** guides — treat **[`docs/uat-ci-coverage.md`](docs/uat-ci-coverage.md)** as the catalog and **[`v1.12-UAT-EVIDENCE.md` on `main`](https://github.com/sztheory/sigra/blob/main/.planning/v1.12-UAT-EVIDENCE.md)** as the milestone outcome index.
+
+**Release ritual:** when cutting a **minor** or **major**, confirm **`CHANGELOG.md`**, **`guides/introduction/upgrading-to-v1.12.md`**, and the two URLs above still agree (no renamed paths, no duplicated tables).
+
 ## Installer golden CI contract (phase 50)
 
 The installer subprocess harness (`mix phx.new` + generated app) is expensive; do not rely on “it passed locally once.” Run the scoped merge gate the same way CI does:
