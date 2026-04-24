@@ -29,18 +29,19 @@ lib/sigra/api_token.ex:216:              Sigra.Audit.log_safe(
 lib/sigra/api_token.ex:232:              Sigra.Audit.log_safe(
 lib/sigra/api_token.ex:329:    Sigra.Audit.log_safe(
 lib/sigra/api_token.ex:347:    Sigra.Audit.log_safe(
-lib/sigra/account.ex:37:  # D-26 dispatch table (Phase 44 AUD-07 — `Ecto.Multi` + `Sigra.Audit.log_multi_safe`
-lib/sigra/account.ex:49:  # `audit_forced_password_change/2` remains `Sigra.Audit.log_safe/3` (audit-only helper).
-lib/sigra/account.ex:123:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:163:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:215:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:255:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:294:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:346:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:383:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:427:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:439:        |> Sigra.Audit.log_multi_safe(
-lib/sigra/account.ex:499:    Sigra.Audit.log_safe(
+lib/sigra/account.ex:38:  # D-26 dispatch table (Phase 44 AUD-07 — `Ecto.Multi` + `Sigra.Audit.log_multi_safe`
+lib/sigra/account.ex:51:  # `audit_forced_password_change/2` is **deprecated** — legacy `Sigra.Audit.log_safe/3` only.
+lib/sigra/account.ex:126:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:166:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:218:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:258:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:297:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:341:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:393:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:430:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:474:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:486:        |> Sigra.Audit.log_multi_safe(
+lib/sigra/account.ex:550:    Sigra.Audit.log_safe(
 $ rg -n "Audit\.log_multi_safe" lib/sigra/api_token.ex
 lib/sigra/api_token.ex:121:      |> Audit.log_multi_safe("api.token_create", audit_opts)
 lib/sigra/api_token.ex:297:          |> Audit.log_multi_safe("api.token_revoke", audit_opts)
@@ -75,7 +76,7 @@ lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all
 | AUD-04-040 | `Sigra.Account.schedule_deletion/3` | `account.deletion_schedule` | **`Multi` + `log_multi_safe`** | 5 | AUD-07 | **78** | **`lib/sigra/account.ex`**; phase **78** (**AUD-14**). |
 | AUD-04-041 | `Sigra.Account.cancel_deletion/3` | `account.deletion_cancel` | **`Multi` + `log_multi_safe`** | 5 | AUD-07 | **78** | **`lib/sigra/account.ex`**; phase **78** (**AUD-14**). |
 | AUD-04-042 | `Sigra.Account.execute_deletion/3` | `account.deletion_execute` + `account.deletion_executed` | **`Multi` + `log_multi_safe`** (two audit steps + `Deletion.execute` in `Multi.run`) | 2 | AUD-07 | **78** | **`lib/sigra/account.ex`**; **`test/sigra/account_audit_atomicity_test.exs`** (`deletion_execute` CHECK guard). |
-| AUD-04-043 | `Sigra.Account.audit_forced_password_change/2` | `account.password_change` | `log_safe` | 7 | AUD-07 | 44 | Audit-only helper — **EX-44-05**; unchanged unless paired domain writes land in-library. |
+| AUD-04-043 | `Sigra.Account.clear_password_change_requirement/3` | `account.password_change` | **`Multi` + `log_multi_safe`** | 7 | AUD-07 | **80** | **Phase 80** — **`AUD-17`**; paired **`must_change_password`** clear + audit; **`audit_forced_password_change/2`** deprecated (**`log_safe`** legacy only). Evidence **`test/sigra/account_audit_atomicity_test.exs`**. |
 | AUD-04-044 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | **AUD-16**; **EX-44-01** verify-failure slice retired (**2026-04-24**). |
 | AUD-04-045 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | Revoked branch — same as **044**. |
 | AUD-04-046 | `Sigra.APIToken.verify/2` | `api.token_verify.failure` | **`Repo.transaction/1`** on audit-only **`Multi` + `log_multi_safe`** | 9 | AUD-07 | **79** | Expired branch — same as **044**. |
@@ -93,7 +94,7 @@ lib/sigra/api_token.ex:408:        |> Audit.log_multi_safe("api.token_revoke_all
 | EX-44-02 | **D-44-03** | `mfa.enroll.failure` on invalid enrollment code (no DB mutation) | `log_safe` | Forensic gap on rejected enroll attempts | MFA unit tests + telemetry | Sigra | User story needs durable pre-DB enroll failures | `lib/sigra/mfa.ex` | 2026-04-20 |
 | EX-44-03 | **D-44-03** | `Sigra.MFA.audit_backup_codes_regenerate/3` | **`Multi` + `log_multi_safe`** in dedicated txn (phase **77**) | Callers may still omit library rotation — prefer `regenerate_backup_codes/4` | Document authoritative path: `regenerate_backup_codes/4` | Sigra | Legacy call sites removed | `@doc` on `audit_backup_codes_regenerate/3` | 2026-04-24 |
 | EX-44-04 | **D-44-03** | `Sigra.MFA.audit_trust_browser/2` | **`Multi` + `log_multi_safe`** in dedicated txn (phase **77**) | Trust events still not co-fated with in-library DB writes | Trust module tests / product analytics stance | Sigra | Trust browser becomes security-critical persistence | `lib/sigra/mfa.ex` | 2026-04-24 |
-| EX-44-05 | **D-44-04** | `Sigra.Account.audit_forced_password_change/2` | `log_safe` | Audit-only row; no in-function domain mutation | PasswordChange tests + host call ordering | Sigra | Forced-change flow gains paired Ecto writes in-library | `lib/sigra/account.ex` | 2026-04-20 |
+| EX-44-05 | **D-44-04** | `Sigra.Account.clear_password_change_requirement/3` | **`Multi` + `log_multi_safe`** | *Closed 2026-04-24* — paired domain + audit in-library | Hosts migrate off standalone **`audit_forced_password_change/2`** for the same completion | Sigra | *Closed* — **phase 80** / **AUD-17** | `lib/sigra/account.ex`; `test/sigra/account_audit_atomicity_test.exs` | 2026-04-24 |
 
 ## Priority table (implementation waves)
 
@@ -111,6 +112,8 @@ Release notes should reference this file when **AUD-06 / AUD-07** land for MFA +
 **Note — Phase 73 (2026-04-24):** **`lib/sigra/mfa.ex`** is already **Multi**-first for **AUD-04-023–032**; phase **73** closed planning drift versus legacy **44-03** “target Multi” language and shipped **CHECK** rollback receipts in **`test/sigra/mfa_audit_atomicity_test.exs`**.
 
 **Note — Phase 79 (2026-04-24):** **`Sigra.APIToken.verify/2`** failure paths (**AUD-04-044..046**) use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set (**AUD-16**); **EX-44-01** appendix row marked retired for this slice.
+
+**Note — Phase 80 (2026-04-24):** **`Sigra.Account.clear_password_change_requirement/3`** — **AUD-04-043** uses **`Ecto.Multi` + `log_multi_safe`** for paired **`must_change_password`** clear + **`account.password_change`** (**AUD-17**); **EX-44-05** closed; **`audit_forced_password_change/2`** deprecated (**`log_safe`** legacy only). Evidence: **`test/sigra/account_audit_atomicity_test.exs`**.
 
 **Note — Phase 78 (2026-04-24):** **`Sigra.Account`** email/password/deletion paths (**AUD-04-035..042**) and **`Sigra.APIToken.revoke/2`** (**AUD-04-047**) already use **`Ecto.Multi` + `log_multi_safe`** in **`lib/`**; phase **78** closes **44** inventory + **09** C-1 drift vs legacy “target **Multi**” language (**AUD-14**).
 

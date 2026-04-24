@@ -20,9 +20,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current milestone
 
-**v1.17 — Forced password change audit atomicity (bounded SEED-002 / AUD-04-043)** — **Phase 80** (active). Co-fate **`account.password_change`** with `metadata: %{forced: true}` to the in-library **`must_change_password`** clear (**`Sigra.Account.PasswordChange.clear_force_change/2`** path), retiring standalone **`Sigra.Account.audit_forced_password_change/2`** **`log_safe`** for that completion (**EX-44-05** trigger met: paired **`Ecto`** write exists in-library). Live requirements: [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md); roadmap: [`.planning/ROADMAP.md`](ROADMAP.md).
+_No active milestone._ **v1.17** shipped **2026-04-24** — see **Previously closed** below. Open **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (CHANGELOG + Hex for tiny fixes; coordinated milestone for loud launch, **SEED-001**, compliance, adoption gaps, **ADR 001** glue).
 
-**After v1.17:** open **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (CHANGELOG + Hex for tiny fixes; coordinated milestone for loud launch, **SEED-001**, compliance, adoption gaps, **ADR 001** glue).
+**Previously closed:** **v1.17 — Forced password change audit atomicity (SEED-002 / AUD-04-043)** (**Phase 80**, **AUD-17-01**..**AUD-17-04**, **2026-04-24**). **`Sigra.Account.clear_password_change_requirement/3`** **`Multi` + `log_multi_safe`**; **`audit_forced_password_change/2`** **`@deprecated`**; **`account_audit_atomicity_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed. Archives: [`.planning/milestones/v1.17-ROADMAP.md`](milestones/v1.17-ROADMAP.md), [`.planning/milestones/v1.17-REQUIREMENTS.md`](milestones/v1.17-REQUIREMENTS.md). Verification: **`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`**.
 
 **Previously closed:** **v1.16 — API verify failure audit atomicity (SEED-002 slice)** (**Phase 79**, **AUD-16-01**..**AUD-16-04**, **2026-04-24**). **`Sigra.APIToken.verify/2`** failure **`api.token_verify.failure`** via **`Repo.transaction/1`** + **`Multi` + `log_multi_safe`**; **`api_token_audit_atomic_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **D-27** preserved. Archives: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md), [`.planning/milestones/v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md). Verification: **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
 
@@ -32,7 +32,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **Previously closed:** **v1.13 — Post–v1.12 operational cadence** (planning **2026-04-24**, **Phase 76**, **CAD-01**..**CAD-03**). Archives: [`.planning/milestones/v1.13-ROADMAP.md`](milestones/v1.13-ROADMAP.md), [`.planning/milestones/v1.13-REQUIREMENTS.md`](milestones/v1.13-REQUIREMENTS.md). Attestation: **`.planning/phases/76-post-v1-12-cadence-lock-in/76-VERIFICATION.md`**.
 
-**Last shipped code milestone (prior to next planning):** **v1.16 — API verify failure audit atomicity** (**Phase 79**, **2026-04-24**; **`AUD-16`**). Archives: [`.planning/milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md), [`v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md). _(Prior: **v1.15** — **Phase 78**; **v1.14** — **Phase 77**.)_
+**Last shipped code milestone (prior to next planning):** **v1.17 — Forced password change audit atomicity** (**Phase 80**, **2026-04-24**; **`AUD-17`**). Archives: [`.planning/milestones/v1.17-ROADMAP.md`](milestones/v1.17-ROADMAP.md), [`v1.17-REQUIREMENTS.md`](milestones/v1.17-REQUIREMENTS.md). _(Prior: **v1.16** — **Phase 79**.)_
 
 **Previously closed:** **v1.11 Adoption stabilization** — shipped **2026-04-23** (**phases 71–72**; **`STAB-01`**..**`STAB-04`**). Archives: [`.planning/milestones/v1.11-ROADMAP.md`](milestones/v1.11-ROADMAP.md), [`v1.11-REQUIREMENTS.md`](milestones/v1.11-REQUIREMENTS.md); triage [`.planning/v1.11-TRIAGE.md`](v1.11-TRIAGE.md).
 
@@ -46,7 +46,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.17 (active):** Phase **80** — **AUD-17-01**..**AUD-17-04** — **AUD-04-043** forced **`account.password_change`** co-fated with **`clear_force_change`**; **`account_audit_atomicity_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]** (see **`.planning/REQUIREMENTS.md`**).
+**v1.17 (archived 2026-04-24):** Phase **80** — **AUD-17-01**..**AUD-17-04** — **`clear_password_change_requirement/3`** + **`account_audit_atomicity_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed. Archives **`milestones/v1.17-ROADMAP.md`**, **`milestones/v1.17-REQUIREMENTS.md`**; verification **`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`**.
 
 **v1.16 (archived 2026-04-24):** Phase **79** — **AUD-16-01**..**AUD-16-04** — **`Sigra.APIToken.verify/2`** **`api.token_verify.failure`** transactional **`log_multi_safe`** (**AUD-04-044..046**); **`api_token_audit_atomic_test.exs`**; archives **`milestones/v1.16-ROADMAP.md`**, **`milestones/v1.16-REQUIREMENTS.md`**; verification **`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`**.
 
@@ -82,7 +82,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.17 (active):** **AUD-04-043** forced password-change audit closure — see [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md).
+**v1.17** is **shipped** — see [`.planning/milestones/v1.17-ROADMAP.md`](milestones/v1.17-ROADMAP.md).
 
 **When to open v1.18+ (or patch-only):** Prefer **CHANGELOG + Hex** for small fixes. Open a **new coordinated milestone** when an event matches **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* list (loud launch + **SEED-001**, compliance / incident + further **SEED-002**, documented adoption gap, **ADR 001** glue).
 
@@ -118,12 +118,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.17 Forced password change audit atomicity (Phase 80)
+### Validated — v1.17 Forced password change audit atomicity (shipped in-repo 2026-04-24)
 
-- [ ] **AUD-17-01** — **`Sigra.Account.PasswordChange.clear_force_change/2`** (or a single **`Sigra.Account`** entrypoint it delegates through) runs **`Repo.transaction/1`** with **`Ecto.Multi`** such that clearing **`must_change_password`** and inserting **`account.password_change`** (`metadata: %{forced: true}`) share rollback semantics when `:audit_schema` / audit opts are configured — **Phase 80**
-- [ ] **AUD-17-02** — **`Sigra.Account.audit_forced_password_change/2`** is removed, deprecated to no-op, or documented as unreachable for the completion path once **AUD-17-01** ships (no post-commit **`log_safe`** for the same business outcome) — **Phase 80**
-- [ ] **AUD-17-03** — **`test/sigra/account_audit_atomicity_test.exs`** extends coverage for the forced-clear path (including audit `CHECK` / fault-injection rollback pattern consistent with **Phase 78** / **79** atomicity tests) — **Phase 80**
-- [ ] **AUD-17-04** — **44-AUD-04-INVENTORY** row **AUD-04-043**, **09-VERIFICATION.md** C-1 row **043**, **09-03-SUMMARY.md** bounded-batch note, and **`CHANGELOG.md` [Unreleased]** reflect **T1** + mechanism — **Phase 80**
+- ✓ **AUD-17-01** — **`Sigra.Account.clear_password_change_requirement/3`** — **`Repo.transaction/1`** + **`Ecto.Multi`** + **`log_multi_safe`** when `:audit_schema` is set — **Phase 80**
+- ✓ **AUD-17-02** — **`audit_forced_password_change/2`** **`@deprecated`** for that completion path — **Phase 80**
+- ✓ **AUD-17-03** — **`account_audit_atomicity_test.exs`** forced-clear + **`CHECK`** rollback — **Phase 80**
+- ✓ **AUD-17-04** — **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]** — **Phase 80**
 
 ### Validated — v1.16 API verify failure audit atomicity (shipped in-repo 2026-04-24)
 
@@ -134,7 +134,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ### Validated — v1.15 Account + API C-1 planning truth (shipped 2026-04-24)
 
-- ✓ **AUD-14-01** — **44-AUD-04-INVENTORY** — **AUD-04-035..042** **`Multi` + `log_multi_safe`** + **Phase 78**; **043** **`log_safe`** (**EX-44-05**) — **Phase 78**
+- ✓ **AUD-14-01** — **44-AUD-04-INVENTORY** — **AUD-04-035..042** **`Multi` + `log_multi_safe`** + **Phase 78**; **043** was **`log_safe`** (**EX-44-05** open) at **v1.15** close — superseded by **v1.17** / **phase 80** (**AUD-17**) — **Phase 78**
 - ✓ **AUD-14-02** — Same file — **AUD-04-047** **`Multi` + `log_multi_safe`**; **044–046** were **`log_safe`** (**EX-44-01**) at **v1.15** close — superseded by **v1.16** / **phase 79** (**AUD-16**) — **Phase 78**
 - ✓ **AUD-14-03** — **`09-VERIFICATION.md`** C-1 rows **035–042**, **047** → **T1**; **043** / **044–046** / **048–049** honest **T2** / deferral — **Phase 78**
 - ✓ **AUD-14-04** — **`09-03-SUMMARY.md`** phase **78** bounded-batch note + document status — **Phase 78**
@@ -447,4 +447,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`/gsd-new-milestone` v1.17** — **Phase 80** / **AUD-17** opened; live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** for **v1.17**. Prior: **`/gsd-complete-milestone` v1.16** — **Phase 79** / **AUD-16** archived; tag **`v1.16`**.*
+*Last updated: 2026-04-24 — **`/gsd-execute-phase 80`** — **v1.17** / **AUD-17** shipped; **`.planning/milestones/v1.17-ROADMAP.md`**. Prior: **v1.16** — **Phase 79** / **AUD-16**.*
