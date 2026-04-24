@@ -85,17 +85,32 @@ defmodule Sigra.MFA do
       Multi.new()
       |> Sigra.Audit.log_multi_safe(action, opts)
 
-    case repo.transaction(multi) do
-      {:ok, changes} ->
-        Sigra.Audit.emit_telemetry_from_changes(changes, [audit_step])
-        :ok
+    try do
+      case repo.transaction(multi) do
+        {:ok, changes} ->
+          Sigra.Audit.emit_telemetry_from_changes(changes, [audit_step])
+          :ok
 
-      {:error, _failed, %Ecto.Changeset{} = failed_cs, _changes} ->
-        emit_enroll_failure_audit_error_telemetry(action, failed_cs)
-        :ok
+        {:error, _failed, %Ecto.Changeset{} = failed_cs, _changes} ->
+          emit_enroll_failure_audit_error_telemetry(action, failed_cs)
+          :ok
 
-      {:error, _failed, _other, _changes} ->
-        :ok
+        {:error, _failed, _other, _changes} ->
+          :ok
+      end
+    rescue
+      e ->
+        if failure_audit_followup_rescue?(e) do
+          :telemetry.execute(
+            [:sigra, :audit, :log_safe_error],
+            %{count: 1},
+            %{action: action, reason: :constraint_violation}
+          )
+
+          :ok
+        else
+          reraise(e, __STACKTRACE__)
+        end
     end
   end
 
