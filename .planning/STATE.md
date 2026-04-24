@@ -58,8 +58,8 @@ _None._
 
 **Next:** **`/gsd-new-milestone`** for coordinated **v1.15+** work, or routine **CHANGELOG + Hex** patches without a new planning milestone.
 
-**Live requirements:** `.planning/REQUIREMENTS.md` (**v1.14**)
+**Archived requirements (v1.14):** `.planning/milestones/v1.14-REQUIREMENTS.md` — live **`.planning/REQUIREMENTS.md`** removed at close; recreate via **`/gsd-new-milestone`**.
 
-**Planned work:** After close — default ops lane until next trust-signal **`/gsd-new-milestone`**.
+**Planned work:** Default ops lane until next trust-signal **`/gsd-new-milestone`**.
 
 **Planned Phase:** _TBD from next milestone_
