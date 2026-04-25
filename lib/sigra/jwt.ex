@@ -17,6 +17,13 @@ defmodule Sigra.JWT do
   Refresh tokens are opaque, hashed tokens (not JWTs) stored in the database
   with family-based reuse detection. See `Sigra.JWT.RefreshToken` for details.
 
+  When **`:audit_schema`** is set under **`:audit`**, **`refresh/3`** commits
+  **`user_tokens`** rotation (or reuse-driven family revocation) and the
+  matching **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit row in
+  **one** transaction. Hosts should rely on that path for durable audit and
+  **avoid** calling **`Sigra.APIToken.audit_jwt_refresh/2`** afterward, which
+  would risk **double-audit** rows.
+
   ## Epoch Check
 
   Every `verify_access/2` call checks the `epoch` claim against the user's
@@ -42,6 +49,8 @@ defmodule Sigra.JWT do
       )
   """
 
+  alias Ecto.Multi
+  alias Sigra.{APIToken, Audit}
   alias Sigra.JWT.{RefreshToken, Signer}
   alias Sigra.Telemetry
 
@@ -155,35 +164,29 @@ defmodule Sigra.JWT do
   - `{:error, :invalid_token}` - Refresh token not found
   - `{:error, :token_expired}` - Refresh token has expired
   - `{:error, :reuse_detected}` - Superseded token reused; entire family revoked
+    (only after reuse handling **commits** successfully when auditing is on)
+  - `{:error, :jwt_refresh_aborted}` - When **`:audit_schema`** is set, refresh
+    token rotation (or reuse revocation) and audit could not commit together
+    (audit insert failure, constraint violation, etc.). This is an intentional
+    exception to **D-AUD-06** “audit-only may return `:ok` on insert failure”:
+    co-fated refresh rolls back persistence and surfaces this atom instead of
+    returning new tokens without a matching audit row.
   """
   @spec refresh(Sigra.Config.t(), String.t(), keyword()) ::
-          {:ok, map()} | {:error, :invalid_token | :token_expired | :reuse_detected}
+          {:ok, map()}
+          | {:error,
+             :invalid_token
+             | :token_expired
+             | :reuse_detected
+             | :jwt_refresh_aborted}
   def refresh(config, raw_refresh_token, opts \\ []) do
     Signer.ensure_joken!()
 
     Telemetry.span([:sigra, :jwt, :refresh], %{}, fn ->
-      case RefreshToken.rotate(config, raw_refresh_token, opts) do
-        {:ok, new_raw, new_record, scopes} ->
-          signer = Signer.create_signer(config)
-          jwt_config = config.jwt
-          access_ttl = Keyword.get(jwt_config, :access_ttl, 900)
-          now = DateTime.utc_now() |> DateTime.to_unix()
-
-          # We need the user for claims; fetch from DB
-          user = config.repo.get!(config.user_schema, new_record.user_id)
-          claims = build_claims(config, user, scopes, now, access_ttl)
-
-          {:ok, jwt, _full_claims} = Joken.generate_and_sign(%{}, claims, signer)
-
-          {:ok,
-           %{
-             access_token: jwt,
-             refresh_token: new_raw,
-             expires_in: access_ttl
-           }}
-
-        {:error, reason} ->
-          {:error, reason}
+      if jwt_audit_schema_set?(config) do
+        refresh_with_audit_co_fate(config, raw_refresh_token, opts)
+      else
+        refresh_without_audit_co_fate(config, raw_refresh_token, opts)
       end
     end)
   end
@@ -217,6 +220,147 @@ defmodule Sigra.JWT do
   end
 
   # -- Private --
+
+  defp jwt_audit_schema_set?(config) do
+    Keyword.get(Map.get(config, :audit, []), :audit_schema) != nil
+  end
+
+  defp refresh_without_audit_co_fate(config, raw_refresh_token, opts) do
+    case RefreshToken.rotate_with_reuse_meta(config, raw_refresh_token, opts) do
+      {:ok, new_raw, new_record, scopes} ->
+        finalize_refresh_response(config, new_record, scopes, new_raw)
+
+      {:error, :reuse_detected, %{user_id: user_id, family_id: family_id}} ->
+        Telemetry.event(
+          [:sigra, :jwt, :refresh_reuse_detected],
+          %{count: 1},
+          %{user_id: user_id, family_id: family_id}
+        )
+
+        {:error, :reuse_detected}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp refresh_with_audit_co_fate(config, raw_refresh_token, opts) do
+    case RefreshToken.classify_refresh_token(config, raw_refresh_token, opts) do
+      {:error, reason} ->
+        {:error, reason}
+
+      {:ok, :reuse, token_record, metadata} ->
+        user_id = token_record.user_id
+        family_id = metadata["family_id"]
+        reuse_audit_opts = APIToken.jwt_refresh_audit_multi_opts(config, user_id, :reuse)
+
+        multi =
+          Multi.new()
+          |> RefreshToken.build_revoke_family_multi(config, family_id, opts)
+          |> APIToken.append_api_token_jwt_audit_to_multi(
+            "api.jwt_refresh_reuse",
+            reuse_audit_opts
+          )
+
+        try do
+          case config.repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh_reuse])
+
+              Telemetry.event(
+                [:sigra, :jwt, :refresh_reuse_detected],
+                %{count: 1},
+                %{user_id: user_id, family_id: family_id}
+              )
+
+              {:error, :reuse_detected}
+
+            {:error, _step, _reason, _changes} ->
+              :telemetry.execute(
+                [:sigra, :audit, :log_safe_error],
+                %{count: 1},
+                %{action: "api.jwt_refresh_reuse", reason: :database_error}
+              )
+
+              {:error, :jwt_refresh_aborted}
+          end
+        rescue
+          e ->
+            reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+
+            :telemetry.execute(
+              [:sigra, :audit, :log_safe_error],
+              %{count: 1},
+              %{action: "api.jwt_refresh_reuse", reason: reason}
+            )
+
+            {:error, :jwt_refresh_aborted}
+        end
+
+      {:ok, :rotate, token_record, metadata} ->
+        user_id = token_record.user_id
+        refresh_audit_opts = APIToken.jwt_refresh_audit_multi_opts(config, user_id, :refresh)
+
+        multi =
+          Multi.new()
+          |> RefreshToken.build_rotate_persist_multi(
+            token_record,
+            metadata,
+            config,
+            opts
+          )
+          |> APIToken.append_api_token_jwt_audit_to_multi(
+            "api.jwt_refresh",
+            refresh_audit_opts
+          )
+
+        try do
+          case config.repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh])
+              {new_raw, new_record, scopes} = changes.jwt_refresh_new_token
+              finalize_refresh_response(config, new_record, scopes, new_raw)
+
+            {:error, _step, _reason, _changes} ->
+              :telemetry.execute(
+                [:sigra, :audit, :log_safe_error],
+                %{count: 1},
+                %{action: "api.jwt_refresh", reason: :database_error}
+              )
+
+              {:error, :jwt_refresh_aborted}
+          end
+        rescue
+          e ->
+            reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+
+            :telemetry.execute(
+              [:sigra, :audit, :log_safe_error],
+              %{count: 1},
+              %{action: "api.jwt_refresh", reason: reason}
+            )
+
+            {:error, :jwt_refresh_aborted}
+        end
+    end
+  end
+
+  defp finalize_refresh_response(config, new_record, scopes, new_raw) do
+    signer = Signer.create_signer(config)
+    jwt_config = config.jwt
+    access_ttl = Keyword.get(jwt_config, :access_ttl, 900)
+    now = DateTime.utc_now() |> DateTime.to_unix()
+    user = config.repo.get!(config.user_schema, new_record.user_id)
+    claims = build_claims(config, user, scopes, now, access_ttl)
+    {:ok, jwt, _full_claims} = Joken.generate_and_sign(%{}, claims, signer)
+
+    {:ok,
+     %{
+       access_token: jwt,
+       refresh_token: new_raw,
+       expires_in: access_ttl
+     }}
+  end
 
   defp build_claims(config, user, scopes, now, access_ttl) do
     jwt_config = config.jwt

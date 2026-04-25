@@ -1,6 +1,121 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.14 section added at milestone archive (2026-04-24).*
+*Living document updated at milestone boundaries. v1.17 section added at milestone close (2026-04-24).*
+
+## Milestone: v1.17 — Forced password change audit atomicity
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (80) | **Plans (on-disk):** 2 (`80-01`, `80-02`) | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-17-01** — **`clear_password_change_requirement/3`** wraps **`PasswordChange.clear_force_change/2`** semantics in **`Repo.transaction/1`** with **`Multi` + `log_multi_safe`** when audit is enabled.
+- **AUD-17-02** — **`audit_forced_password_change/2`** **`@deprecated`** for the path now covered by the **`Multi`**.
+- **AUD-17-03** — **`account_audit_atomicity_test.exs`** forced-clear happy path + audit **`CHECK`** rollback.
+- **AUD-17-04** — **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed.
+
+### What worked
+
+- **Verification gate** — **`80-VERIFICATION.md`** mapped 1:1 to code, tests, and planning surfaces.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still fails (`version required for phases archive`); manual **`milestones/v1.17-*`** + **`/gsd-complete-milestone`** finish (same as **v1.12**–**v1.16**).
+
+### Patterns established
+
+- **Account forced-clear** follows the same transactional audit pattern as **`change_password`** in **`account_audit_atomicity_test.exs`**.
+
+### Key lessons
+
+1. Close **EX-44-05** in the same milestone as **043** **T1** to avoid dangling inventory appendix rows.
+2. Deprecation on the old helper keeps semver-safe migration for any host callers.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Tight scope (one public API + tests + planning); highest leverage was **`account.ex`** + atomic tests.
+
+---
+
+## Milestone: v1.16 — API verify failure audit atomicity
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (79) | **Plans (on-disk):** 0 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-16-01 / AUD-16-02** — **`verify/2`** invalid / revoked / expired paths emit **`api.token_verify.failure`** inside **`Repo.transaction/1`** with **`Ecto.Multi`** + **`log_multi_safe`** when `:audit_schema` is set.
+- **AUD-16-03** — **44** inventory + **09-VERIFICATION** C-1 **044–046** → **T1**; **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]** trace **v1.16** / **79** / **AUD-16**.
+- **AUD-16-04** — **D-27** preserved: no success-path **`api.token_verify`** audit rows.
+- **`api_token_audit_atomic_test.exs`** — Postgres-backed failure + fault-injection coverage alongside **`api_token_test.exs`**.
+
+### What worked
+
+- **Verification-first single phase** — **`79-VERIFICATION.md`** checklist mapped cleanly to code + docs.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** not used; manual **`milestones/v1.16-*`** writes (same as **v1.12**–**v1.15**).
+- **No on-disk `79-SUMMARY.md`** — closure relied on **VERIFICATION** + requirements traceability (same shape as **v1.15**).
+
+### Patterns established
+
+- **Failure-only API token verify audits** co-fated with the **`{:error, reason}`** return path without widening **D-27** success noise.
+
+### Key lessons
+
+1. Retire **EX-44-01** appendix honesty when code moves **`044–046`** to **T1** — keep appendix row for archaeology.
+2. Keep **`log_safe_error`** telemetry explicit when audit insert fails but the caller still gets the domain error.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Single commit since **`v1.15`** tag; highest leverage was **`api_token.ex`** + one atomic test module + planning matrix rows.
+
+---
+
+## Milestone: v1.15 — Account + API C-1 planning truth
+
+**Shipped:** 2026-04-24  
+**Phases:** 1 (78) | **Plans (on-disk):** 0 | **Sessions:** n/a (not instrumented)
+
+### What was built
+
+- **AUD-14-01 / AUD-14-02** — **44-AUD-04-INVENTORY** rows **035–042** and **047** aligned to **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; hybrid **044–046** and **043** deferrals preserved (**EX-44-01**, **EX-44-05**).
+- **AUD-14-03** — **09-VERIFICATION** C-1 table honesty for the same row IDs.
+- **AUD-14-04 / AUD-14-05** — **09-03-SUMMARY** bounded-batch note; **CHANGELOG [Unreleased]** trace; **`account_audit_atomicity_test.exs`** **`change_password`** success + CHECK-guard rollback.
+
+### What worked
+
+- **Verification-first single phase** — **`78-VERIFICATION.md`** gave a tight checklist against inventory + matrix + tests.
+- **`audit-open` all clear** — no deferred artifact debt at close.
+
+### What was inefficient
+
+- **`gsd-sdk query milestone.complete`** still failed (`version required for phases archive`); manual **`milestones/v1.15-*`** writes repeated the established pattern.
+- **No on-disk `78-SUMMARY.md`** — closure relied on **VERIFICATION** + requirements traceability (same shape as other micro-ships).
+
+### Patterns established
+
+- **Planning truth before the next SEED-002 batch** — when code already matched **Multi**, the milestone was mostly honest **C-1** labeling + test evidence.
+
+### Key lessons
+
+1. Keep **EX-44-01** / **EX-44-05** explicit whenever **Account**/**API** rows mix **`log_safe`** and **`log_multi_safe`**.
+2. **`change_password`** audit atomicity belongs in **`account_audit_atomicity_test.exs`** alongside **`set_password`** for symmetric confidence.
+
+### Cost observations
+
+- Model mix: n/a  
+- Sessions: n/a  
+- Notable: Small diff since **`v1.14`** tag; highest leverage was matrix + inventory alignment + one focused test file.
+
+---
 
 ## Milestone: v1.14 — Bounded audit trust closure
 
@@ -399,6 +514,7 @@
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.16 | n/a | 1 | **`APIToken.verify/2`** failure **`api.token_verify.failure`** → **`Multi` + `log_multi_safe`** + **`api_token_audit_atomic_test.exs`** (**044–046** **T1**) |
 | v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |
 | v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
 | v1.5 | n/a | 4 | Public narrative + Hex/changelog/README/MAINTAINING alignment with v1.4 GA evidence |

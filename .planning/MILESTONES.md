@@ -45,9 +45,9 @@
 - `SEED-001` — 8 human-only UAT items to run before GA public announcement (email visual × 4, OAuth real-credential × 4)
 - `SEED-002` — Phase 9 `log_safe/3` hybrid to atomic `Ecto.Multi` conversion (C-1 caveat followup)
 
-**Backlog** (999.x parking lot):
-- `Phase 999.1` — Retroactive Nyquist validation pass for 6 draft + 1 missing VALIDATION.md files
-- `Phase 999.2` — Dependabot major-version bumps (setup-node 4→6, upload-artifact 4→7, checkout 4→6) requiring per-bump CI verification
+**Backlog** (999.x parking lot; archaeology only):
+- `Phase 999.1` — Retroactive Nyquist validation pass for 6 draft + 1 missing VALIDATION.md files; shipped in v1.3 and now retained as a tombstone/pointer only
+- `Phase 999.2` — Dependabot major-version bumps (setup-node 4→6, upload-artifact 4→7, checkout 4→6) requiring per-bump CI verification; historical parking-lot label only until promoted into a newly numbered phase
 
 **Archive:**
 - [v1.0 Roadmap](milestones/v1.0-ROADMAP.md) — full phase details
@@ -81,7 +81,7 @@
 ### Tech Debt Carried Forward
 
 - **`gsd-tools audit-open --json` is deprecated** for Sigra maintainers; the **supported path** is [`MAINTAINING.md`](../MAINTAINING.md) section **Planning hygiene (without gsd-tools JSON)** plus optional [`scripts/maintainers/planning-audit-hygiene.sh`](../scripts/maintainers/planning-audit-hygiene.sh).
-- `Phase 999.1` Nyquist backfill remains parked.
+- `Phase 999.1` Nyquist backfill remains archaeology-only; Phase 84 owns the routing-honesty cleanup so active workflows stop pointing at the tombstone.
 - `Phase 999.2` Dependabot major-version cleanup remains parked.
 
 **Archive:**
@@ -114,7 +114,7 @@
 
 ### Tech Debt Carried Forward
 
-- `SEED-001` human-only GA UAT items; `SEED-002` audit atomicity hybrid; backlog **999.1** / **999.2** unchanged from prior milestones.
+- `SEED-001` human-only GA UAT items; `SEED-002` audit atomicity hybrid; backlog **999.1** / **999.2** remain historical parking-lot labels only.
 - Residual subjective reviewer items called out in phase VERIFICATION/HUMAN-UAT docs where automation cannot fully substitute judgment.
 
 **Archive:**
@@ -487,5 +487,101 @@
 
 - [v1.14 Roadmap](milestones/v1.14-ROADMAP.md)
 - [v1.14 Requirements](milestones/v1.14-REQUIREMENTS.md)
+
+---
+
+## v1.17 Forced password change audit atomicity (Shipped: 2026-04-24)
+
+**Scope:** 1 phase (**80**), **`Sigra.Account.clear_password_change_requirement/3`** + planning truth (**AUD-17-01**..**AUD-17-04**).
+
+**What shipped:** **`clear_password_change_requirement/3`** co-fates **`must_change_password: false`** with **`account.password_change`** (`metadata: %{forced: true}`) via **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **`audit_forced_password_change/2`** **`@deprecated`**; **`test/sigra/account_audit_atomicity_test.exs`** forced-clear + CHECK rollback; **44** inventory + **09-VERIFICATION** C-1 **043** **T1** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]**; **EX-44-05** closed.
+
+### Key accomplishments
+
+1. **AUD-17-01** — Forced-clear path matches atomic audit pattern used elsewhere on **Account**.
+2. **AUD-17-02** — Standalone post-commit **`log_safe`** for that completion path retired (**deprecation**).
+3. **AUD-17-03 / AUD-17-04** — Postgres-backed atomicity tests + planning truth aligned to **AUD-04-043**.
+
+### Stats
+
+- **Requirements:** 4/4 **Validated** in archived [`milestones/v1.17-REQUIREMENTS.md`](milestones/v1.17-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** failed (`version required for phases archive`); manual **`milestones/v1.17-*`** archival (same pattern as **v1.12**–**v1.16**).
+- **Git (since `v1.16` tag):** 9 commits; **24** files (**1288** insertions / **50** deletions in `git diff --shortstat v1.16..HEAD` at close).
+
+### Tech debt carried forward
+
+- **SEED-002** — remaining **`log_safe/3`** clusters (**048–049**, OAuth phase **45**, etc.).
+- **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+**Archive:**
+
+- [v1.17 Roadmap](milestones/v1.17-ROADMAP.md)
+- [v1.17 Requirements](milestones/v1.17-REQUIREMENTS.md)
+
+---
+
+## v1.16 API verify failure audit atomicity (Shipped: 2026-04-24)
+
+**Scope:** 1 phase (**79**), **`Sigra.APIToken.verify/2`** failure audits + planning truth (**AUD-16-01**..**AUD-16-04**).
+
+**What shipped:** **`api.token_verify.failure`** for invalid / revoked / expired branches uses **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is set; **`log_safe_error`** telemetry on audit insert failure while callers still receive **`{:error, reason}`**; **44** + **09** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]**; **`test/sigra/api_token_audit_atomic_test.exs`** coverage + fault injection; **EX-44-01** verify slice retired (appendix row retained).
+
+### Key accomplishments
+
+1. **AUD-16-01 / AUD-16-02** — **`verify/2`** failure branches match atomic audit pattern without **D-27** success-path noise.
+2. **AUD-16-03** — **AUD-04-044..046** **T1** in **44** inventory + **09-VERIFICATION** C-1 matrix.
+3. **AUD-16-04** — Success path remains telemetry-only.
+
+### Stats
+
+- **Requirements:** 4/4 **Validated** in archived [`milestones/v1.16-REQUIREMENTS.md`](milestones/v1.16-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** same day — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** not relied on; manual **`milestones/v1.16-*`** archival (same pattern as **v1.12**–**v1.15**).
+- **Git (since `v1.15` tag):** 1 commit; **13** files (**487** insertions / **80** deletions in `git diff --shortstat 'v1.15^{}'..HEAD` at close).
+
+### Tech debt carried forward
+
+- **SEED-002** — remaining **`log_safe/3`** clusters (e.g. **043**, **048–049**, OAuth phase **45**).
+- **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+**Archive:**
+
+- [v1.16 Roadmap](milestones/v1.16-ROADMAP.md)
+- [v1.16 Requirements](milestones/v1.16-REQUIREMENTS.md)
+
+---
+
+## v1.15 Account + API C-1 planning truth (Shipped: 2026-04-24)
+
+**Scope:** 1 phase (**78**), library tests + planning truth (**AUD-14**..**AUD-14-05**).
+
+**What shipped:** **`44-AUD-04-INVENTORY.md`** rows **035–042** and **047** aligned to **`Multi` + `log_multi_safe`** in **`lib/sigra/account.ex`** and **`lib/sigra/api_token.ex`**; **`09-VERIFICATION.md`** C-1 **T1**/**T2** honesty for those rows; **`09-03-SUMMARY.md`** bounded-batch note for **phase 78** / **AUD-14**; **`CHANGELOG.md` [Unreleased]** trace bullet; **`test/sigra/account_audit_atomicity_test.exs`** **`change_password`** success + CHECK-guard rollback.
+
+### Key accomplishments
+
+1. **AUD-14-01 / AUD-14-02** — Inventory rows match code for **Account** paths and **`APIToken.revoke/2`**, preserving **EX-44-05** and **EX-44-01** for **044–046** at **v1.15** close (**044–046** advanced in **v1.16** / **phase 79**).
+2. **AUD-14-03** — **09-VERIFICATION** Phase **44** table carries defensible **T1**/**T2** labels for **035–042**, **043**, **044–046**, **047**, **048–049**.
+3. **AUD-14-04 / AUD-14-05** — Summary + changelog trace; Postgres-backed atomicity tests for **`change_password`**.
+
+### Stats
+
+- **Requirements:** 5/5 **Validated** in archived [`milestones/v1.15-REQUIREMENTS.md`](milestones/v1.15-REQUIREMENTS.md).
+- **Timeline:** **2026-04-24**; **`/gsd-complete-milestone`** same day — live **`REQUIREMENTS.md`** removed.
+- **Milestone audit:** not filed (optional); pre-close **`audit-open`**: all artifact types clear (2026-04-24).
+- **`gsd-sdk query milestone.complete`:** failed (`version required for phases archive`); archival manual (same pattern as **v1.12**–**v1.14**).
+- **Git (since `v1.14` tag):** ~4 commits; **13** files (**282** insertions / **72** deletions in `git diff --shortstat v1.14..HEAD` at close).
+
+### Tech debt carried forward
+
+- **SEED-002** — remaining **`log_safe/3`** clusters per **44** / phase **45** inventory; backlog-triggered.
+- **AUD-04-022** — **`log_safe`** invalid enrollment path unchanged (**EX-44-02**).
+
+**Archive:**
+
+- [v1.15 Roadmap](milestones/v1.15-ROADMAP.md)
+- [v1.15 Requirements](milestones/v1.15-REQUIREMENTS.md)
 
 ---

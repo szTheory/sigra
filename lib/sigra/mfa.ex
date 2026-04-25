@@ -34,7 +34,7 @@ defmodule Sigra.MFA do
   #
   # D-26 dispatch table (Phase 44 AUD-06 — Multi + `log_multi_safe` when `:audit_schema`):
   #   enroll success          -> `Multi` + `Sigra.Audit.log_multi_safe("mfa.enroll.success", …)` (+ telemetry on `{:ok, changes}`)
-  #   enroll failure          -> `insert_failed`: follow-up `repo.transaction/1` on `Multi` + `log_multi_safe("mfa.enroll.failure", …)` after enrollment `Multi` rolls back; `invalid_code` still `log_safe/3` (AUD-04-022 / EX-44-02 default)
+  #   enroll failure          -> `insert_failed`: follow-up `repo.transaction/1` on `Multi` + `log_multi_safe("mfa.enroll.failure", …)` after enrollment `Multi` rolls back; `invalid_code` -> `commit_ad_hoc_mfa_audit/5` when `:audit_schema` (Phase **83** / AUD-04-022)
   #   ad-hoc audit helpers    -> `Repo.transaction/1` on `Multi` + `log_multi_safe` (`audit_backup_codes_regenerate/3`, `audit_trust_browser/2`; phase **77** / AUD-04-033..034)
   #   verify success (totp)   -> `Multi` + `log_multi_safe("mfa.verify.success", …)`
   #   verify success (backup) -> dual `log_multi_safe` with `:audit_mfa_verify` / `:audit_mfa_backup` + paired telemetry
@@ -173,6 +173,17 @@ defmodule Sigra.MFA do
   - `raw_secret` - The raw TOTP secret binary (from enrollment, held in session)
   - `code` - The 6-digit TOTP code to verify
   - `opts` - Options including `:mfa_credential_schema` and `:backup_code_schema`
+
+  ## Returns
+
+  - `{:ok, %{credential: credential, backup_codes: codes}}` when the code is valid
+    and the enrollment transaction succeeds.
+  - `{:error, :invalid_code}` when the TOTP check fails. This tuple is returned
+    regardless of audit subsystem outcome: with `:audit_schema` configured, Sigra
+    may attempt a durable `mfa.enroll.failure` row in an audit-only transaction
+    (`Repo.transaction/1` + `Multi` + `log_multi_safe`); audit persistence failure
+    does not change the return value. Operators should monitor
+    `[:sigra, :audit, :log_safe_error]` for forensic signals.
   """
   @doc since: "0.6.0"
   @spec confirm_enrollment(Sigra.Config.t(), struct(), binary(), String.t(), keyword()) ::
@@ -287,15 +298,20 @@ defmodule Sigra.MFA do
         end
 
       {:error, _reason} ->
-        Sigra.Audit.log_safe(
-          "mfa.enroll.failure",
-          Sigra.Scope.from_config(config, user),
-          Keyword.merge(mfa_audit_opts(config),
-            actor_id: user.id,
-            outcome: "failure",
-            metadata: %{method: "totp", reason: "invalid_code"}
+        unless is_nil(Keyword.get(mfa_audit_opts(config), :audit_schema)) do
+          commit_ad_hoc_mfa_audit(
+            config,
+            "mfa.enroll.failure",
+            user,
+            [
+              actor_id: user.id,
+              target_id: user.id,
+              outcome: "failure",
+              metadata: %{method: "totp", reason: "invalid_code"}
+            ],
+            :audit_mfa_enroll_invalid_code
           )
-        )
+        end
 
         {:error, :invalid_code}
     end

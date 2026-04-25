@@ -23,10 +23,21 @@
     "ui_phase": true,
     "ui_safety_gate": true,
     "text_mode": false,
-    "research_before_questions": false,
+    "research_before_questions": true,
     "discuss_mode": "discuss",
     "skip_discuss": false,
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "discuss_comprehensive_research": true,
+    "discuss_synthesize_when_user_delegates": true,
+    "discuss_always_surface_for_user": [
+      "semver_or_public_api_break",
+      "security_model_vs_owasp_doc",
+      "generator_or_host_contract_output"
+    ]
+  },
+  "sigra_defaults": {
+    "audit_atomicity_doc": ".planning/AUDIT-ATOMICITY-DEFAULTS.md",
+    "note": "Subagent-backed defaults from Phase 80 discuss; load for SEED-002 / audit Multi phases unless CONTEXT overrides."
   },
   "hooks": {
     "context_warnings": true

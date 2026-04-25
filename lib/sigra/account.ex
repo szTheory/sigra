@@ -23,6 +23,7 @@ defmodule Sigra.Account do
 
       Sigra.Account.change_password(repo, user, "current", %{password: "new"}, opts)
       Sigra.Account.set_password(repo, user, %{password: "new"}, opts)
+      Sigra.Account.clear_password_change_requirement(repo, user, opts)
 
   ## Account Deletion (D-11 to D-33)
 
@@ -42,11 +43,13 @@ defmodule Sigra.Account do
   #   cancel_email_change   -> `Multi` + `log_multi_safe("account.email_change_cancel", …)` + telemetry
   #   change_password       -> `Multi` + `log_multi_safe("account.password_change", …)` + telemetry
   #   set_password          -> `Multi` + `log_multi_safe("account.password_change", …)` + telemetry
+  #   clear_password_change_requirement -> `Multi` + `log_multi_safe("account.password_change", metadata: %{forced: true}, …)` + telemetry
   #   schedule_deletion     -> `Multi` + `log_multi_safe("account.deletion_schedule", …)` + telemetry
   #   cancel_deletion       -> `Multi` + `log_multi_safe("account.deletion_cancel", …)` + telemetry
   #   execute_deletion      -> `Multi.run(Deletion.execute)` then `log_multi_safe("account.deletion_execute", …)` + telemetry
   #
-  # `audit_forced_password_change/2` remains `Sigra.Audit.log_safe/3` (audit-only helper).
+  # `audit_forced_password_change/2` is **deprecated** — legacy `Sigra.Audit.log_safe/3` only.
+  # Do not pair it with `clear_password_change_requirement/3` for the same completion.
 
   defp account_audit_opts(opts) when is_list(opts) do
     [
@@ -318,6 +321,50 @@ defmodule Sigra.Account do
     end
   end
 
+  @doc """
+  Clears the admin-enforced password change requirement after the user completes the flow.
+
+  When `:audit_schema` is set in `opts`, the `must_change_password` update and the
+  `account.password_change` audit row (`metadata: %{forced: true}`) are committed in one
+  transaction. Otherwise delegates to `PasswordChange.clear_force_change/2` with no audit.
+  """
+  @doc since: "0.2.5"
+  @spec clear_password_change_requirement(module(), map(), keyword()) ::
+          {:ok, map()} | {:error, Ecto.Changeset.t()}
+  def clear_password_change_requirement(repo, user, opts) do
+    if audit_enabled?(opts) do
+      scope_kw = password_change_scope_kw(opts, user)
+
+      multi =
+        Multi.new()
+        |> Multi.run(:domain, fn r, _ -> PasswordChange.clear_force_change(r, user) end)
+        |> Sigra.Audit.log_multi_safe(
+          "account.password_change",
+          Keyword.merge(
+            audit_repo_opts(repo, opts),
+            Keyword.merge(scope_kw,
+              actor_id: user.id,
+              target_id: user.id,
+              metadata: %{forced: true}
+            )
+          )
+        )
+
+      case finish_audit_multi(repo, multi) do
+        {:ok, %{domain: u}} ->
+          {:ok, u}
+
+        {:error, :domain, reason, _} ->
+          {:error, reason}
+
+        {:error, failed, reason, _} ->
+          unexpected_account_multi!(failed, reason)
+      end
+    else
+      PasswordChange.clear_force_change(repo, user)
+    end
+  end
+
   @doc "Check if user must change their password."
   @doc since: "0.8.0"
   defdelegate must_change_password?(user), to: PasswordChange, as: :force_change_required?
@@ -488,8 +535,12 @@ defmodule Sigra.Account do
   Called by subsystems that complete a forced-password change path
   (e.g., `Sigra.Account.PasswordChange.clear_force_change/2`). Writes
   a `account.password_change` audit row with `metadata: %{forced: true}`.
+
+  Prefer `clear_password_change_requirement/3` when `:audit_schema` is configured so the
+  domain update and audit share one transaction.
   """
   @doc since: "0.9.0"
+  @deprecated "Use clear_password_change_requirement/3 when :audit_schema is configured; do not call this function for the same forced-clear completion or you may duplicate audit rows."
   @spec audit_forced_password_change(keyword(), term()) :: :ok
   def audit_forced_password_change(opts, user_id) do
     # 15-02 Category 2: user is resolved via id-only; build a minimal

@@ -18,8 +18,80 @@
 - ✅ **v1.12 Trust, evidence, and adoption polish** — Phases **73–75** (shipped **2026-04-24**). See [v1.12 archive](milestones/v1.12-ROADMAP.md), [v1.12 requirements](milestones/v1.12-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Bounded **SEED-002** batch + **SEED-001** evidence index + triage-driven doc polish.
 - ✅ **v1.13 Post–v1.12 operational cadence** — Phase **76** (shipped **2026-04-24**). See [v1.13 archive](milestones/v1.13-ROADMAP.md), [v1.13 requirements](milestones/v1.13-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). Planning-only cadence lock-in (**CAD-01**..**CAD-03**).
 - ✅ **v1.14 Bounded audit trust closure** — Phase **77** (shipped **2026-04-24**). See [v1.14 archive](milestones/v1.14-ROADMAP.md), [v1.14 requirements](milestones/v1.14-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **SEED-002** slice — **AUD-04-033** / **034** (**AUD-13**).
+- ✅ **v1.15 Account + API C-1 planning truth** — Phase **78** (shipped **2026-04-24**). See [v1.15 archive](milestones/v1.15-ROADMAP.md), [v1.15 requirements](milestones/v1.15-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md). **AUD-14**..**AUD-14-05**.
+- ✅ **v1.16 API verify failure audit atomicity** — Phase **79** (shipped **2026-04-24**). See [v1.16 archive](milestones/v1.16-ROADMAP.md), [v1.16 requirements](milestones/v1.16-REQUIREMENTS.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (shipped **2026-04-24**). See [v1.17 requirements](milestones/v1.17-REQUIREMENTS.md), [milestone archive](milestones/v1.17-ROADMAP.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.18 JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049)** — Phase **81** (shipped **2026-04-24**). [MILESTONES.md](MILESTONES.md); verification [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
+- **v1.19 JWT refresh persistence + audit co-fate & MFA enrollment failure** — Phases **82–83** (opened **2026-04-24**). Live [REQUIREMENTS.md](REQUIREMENTS.md); phases **82** then **83** below.
+- ✅ **Post-v1.19 routing honesty follow-up** — Phase **84** (completed **2026-04-25**). Removed stale executable pointers to superseded **`999.1`** and kept future validation work on newly numbered phases only.
 
 ## Phases
+
+### v1.19 — shipped **2026-04-24** (Phases **82–83**)
+
+**Coverage:** 7 requirements → 2 phases (**AUD-19** + **AUD-20**). Numbering continues from **v1.18** (last phase **81**).
+
+<details>
+<summary>✅ v1.19 MFA **`AUD-04-022`** closure (Phase **83**) — SHIPPED **2026-04-24**</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **83** | MFA **`AUD-04-022`** closure | Promote invalid pre-DB TOTP on **`confirm_enrollment/5`** to **`commit_ad_hoc_mfa_audit/5`** when `:audit_schema` is set. | AUD-20-01, AUD-20-02, AUD-20-03 | (1) **`lib/sigra/mfa.ex`** uses transactional **`log_multi_safe`** for **`mfa.enroll.failure`**. (2) **`mfa_audit_atomicity_test.exs`** invalid-code matrix. (3) **44** / **09** / **09-03** / **`CHANGELOG`** + **`83-VERIFICATION.md`**. |
+
+**At a glance:** **`Sigra.MFA.confirm_enrollment/5`**; **`test/sigra/mfa_audit_atomicity_test.exs`**; **44-AUD-04-INVENTORY** row **022** + **EX-44-02** appendix; **09-VERIFICATION** C-1 **022** → **T1**. Verification: [`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`](phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md).
+
+</details>
+
+<details>
+<summary>✅ v1.19 JWT refresh persistence + audit co-fate (Phase 82) — SHIPPED 2026-04-24</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **82** | JWT refresh persistence + audit co-fate | Single transactional boundary for **`user_tokens`** rotation / reuse revocation and **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** when audit is on. | AUD-19-01, AUD-19-02, AUD-19-03, AUD-19-04 | (1) **`Sigra.JWT.refresh/3`** does not commit refresh-token DB effects unless audit succeeds when `:audit_schema` set. (2) Reuse path matches same discipline. (3) **`jwt_refresh_audit_cofate_test.exs`** proves rollback / audit-off. (4) **09** / **44** / **45** / **09-03** / **`CHANGELOG`** + **`82-VERIFICATION.md`**. |
+
+**At a glance:** **`Sigra.JWT.refresh/3`** + **`append_api_token_jwt_audit_to_multi`**; **`test/sigra/jwt_refresh_audit_cofate_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **AUD-08** for guided **`JWT.refresh`**. Verification: [`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`](phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md) (**merge gate pending** until Postgres test run).
+
+</details>
+
+<details>
+<summary>✅ v1.18 JWT refresh / reuse audit atomicity (Phase 81) — SHIPPED 2026-04-24</summary>
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **81** | JWT refresh audit atomicity | Replace hybrid **`log_safe/3`** on **`audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** with transactional **`log_multi_safe`** when audit is on; align **44**/**45**/**09**/**CHANGELOG**. | AUD-18-01, AUD-18-02, AUD-18-03, AUD-18-04 | (1) Both helpers use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` set. (2) **`api_token_audit_atomic_test.exs`** covers success, audit-off, and fault injection. (3) **44**/**45** inventories + **09-VERIFICATION** rows **048–049** + **09-03-SUMMARY** + **`CHANGELOG` [Unreleased]** match **`lib/sigra/api_token.ex`**. (4) **`81-VERIFICATION.md`** records merge gate outcome. |
+
+**At a glance:** **81** — **`commit_api_token_jwt_audit/3`**; **`api_token_audit_atomic_test.exs`** JWT rows; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **JWT persistence + audit co-fate** → **v1.19** / **Phase 82**. Verification: [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
+
+**Coverage:** 4 requirements → 1 phase.
+
+</details>
+
+<details>
+<summary>✅ v1.17 Forced password change audit atomicity (Phase 80) — SHIPPED 2026-04-24</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.17-ROADMAP.md`](milestones/v1.17-ROADMAP.md).
+
+**At a glance:** **80** — **`Sigra.Account.clear_password_change_requirement/3`** **`Multi` + `log_multi_safe`** for **AUD-04-043**; **`account_audit_atomicity_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **EX-44-05** closed (**AUD-17**). Verification: [`.planning/phases/80-forced-password-change-audit/80-VERIFICATION.md`](phases/80-forced-password-change-audit/80-VERIFICATION.md).
+
+</details>
+
+<details>
+<summary>✅ v1.16 API verify failure audit atomicity (Phase 79) — SHIPPED 2026-04-24</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.16-ROADMAP.md`](milestones/v1.16-ROADMAP.md).
+
+**At a glance:** **79** — **`Sigra.APIToken.verify/2`** failure **`api.token_verify.failure`** **`Multi` + `log_multi_safe`** (**AUD-04-044..046**); **`api_token_audit_atomic_test.exs`**; **44** / **09** / **09-03-SUMMARY** / **`CHANGELOG` [Unreleased]**; **D-27** preserved. Verification: [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+
+</details>
+
+<details>
+<summary>✅ v1.15 Account + API C-1 planning truth (Phase 78) — SHIPPED 2026-04-24</summary>
+
+Full phase table, goals, and success criteria are archived in [`milestones/v1.15-ROADMAP.md`](milestones/v1.15-ROADMAP.md).
+
+**At a glance:** **78** — **44** + **09** C-1 planning truth for **AUD-04-035..042**, **047** vs **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; **`09-03-SUMMARY`** + **`CHANGELOG` [Unreleased]**; **`account_audit_atomicity_test.exs`** **`change_password`**. Verification: [`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`](phases/78-account-api-c1-planning-truth/78-VERIFICATION.md).
+
+</details>
 
 <details>
 <summary>✅ v1.14 Bounded audit trust closure (Phase 77) — SHIPPED 2026-04-24</summary>
@@ -125,8 +197,16 @@ Full phase table, goals, success criteria, and reader note are archived in [`mil
 
 </details>
 
+### Post-v1.19 follow-up — completed (Phase **84**)
+
+| Phase | Name | Goal | Requirements | Success criteria (observable) |
+|-------|------|------|--------------|----------------------------|
+| **84** | Routing honesty reconciliation | Align **`STATE.md`**, **`ROADMAP.md`**, and related planning surfaces so no active workflow points at superseded **`999.1`**; preserve **`999.1`** as archaeology-only and route any future Nyquist work to newly numbered phases. | ROUTE-84-01, ROUTE-84-02, ROUTE-84-03 | Complete — **`STATE.md`** no longer marks **`999.1`** as next/current/planned, live planning hubs describe **`999.1`** / **`999.2`** as archaeology-only, and **Phase 84** verification artifacts document the routing rule. |
+
+**At a glance:** planning-surface honesty only — no Sigra runtime/library code changes; canonical supersession remains [`.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`](phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md) and Phase **36** evidence. Verification: [`.planning/phases/84-routing-honesty-reconciliation/84-VERIFICATION.md`](phases/84-routing-honesty-reconciliation/84-VERIFICATION.md).
+
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
-- **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only.
+- **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only. Do not plan new work under **999.x**; use newly numbered phases.
 - **SEED-002** — broad `log_safe/3` → `Ecto.Multi` conversion; trigger when audit-aware refactors are scheduled or compliance demands it.
 - Items not mapped in archived requirements stay here until a future milestone selects them.

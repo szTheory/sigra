@@ -57,8 +57,8 @@ lib/sigra/oauth.ex:382:            |> Audit.log_multi_safe(
 | EX-45-04 | `admin.impersonation.timeout_expire` (**AUD-04-055**) | Read-only timeout evaluation path | Session store + `Auth` session lifecycle tests | Sigra | Timeout path gains paired DB mutation in-library |
 | EX-45-05 | `admin.impersonation.denied` (**AUD-04-056**) | Denied attempts — no impersonation session created | Admin audit + authorization tests | Sigra | Denial must be co-fated with security-sensitive DB row |
 | EX-45-06 | `admin.impersonation.start` / `stop` (**AUD-04-053**, **AUD-04-054**) | Session persistence goes through **`SessionStore`** (`create` / `delete`); no shared **`Ecto.Multi`** hook today | Integration tests + honest **T2** until store supports txn-scoped audit | Sigra | `SessionStore` exposes transactional compose with host repo |
-| EX-45-JWT-01 | JWT refresh audit (**AUD-04-048**) | Deferred from phase **44** per honesty rule | See **44-AUD-04-INVENTORY** row **AUD-04-048** | Sigra | JWT persistence work promoted into **AUD-08** scope |
-| EX-45-JWT-02 | JWT reuse audit (**AUD-04-049**) | Same deferral family as **EX-45-JWT-01** | See **44-AUD-04-INVENTORY** row **AUD-04-049** | Sigra | Same as **EX-45-JWT-01** |
+| EX-45-JWT-01 | JWT refresh audit (**AUD-04-048**) | **2026-04-24** — **phase 81** / **AUD-18**: audit-only **`Repo.transaction/1` + `Multi` + `log_multi_safe`** for standalone **`audit_jwt_refresh/2`**. **Phase 82** / **AUD-19**: **`Sigra.JWT.refresh/3`** co-fates **`user_tokens`** rotation + **`api.jwt_refresh`** when `:audit_schema` set (**AUD-08** closure for guided path). | **44** row **AUD-04-048**; **`test/sigra/api_token_audit_atomic_test.exs`**; **`test/sigra/jwt_refresh_audit_cofate_test.exs`** | Sigra | **82** closes **AUD-08** for **`JWT.refresh`** |
+| EX-45-JWT-02 | JWT reuse audit (**AUD-04-049**) | Same progression as **EX-45-JWT-01** for **`api.jwt_refresh_reuse`** — **81** audit-only helpers; **82** co-fate on **`JWT.refresh`** reuse branch. | **44** row **AUD-04-049**; **`jwt_refresh_audit_cofate_test.exs`** | Sigra | **82** co-fate for reuse + audit |
 
 ## Priority table (phase 45 waves)
 

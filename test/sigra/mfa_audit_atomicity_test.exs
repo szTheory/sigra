@@ -1,6 +1,13 @@
 defmodule Sigra.MFAAuditAtomicityTest do
   use ExUnit.Case, async: false
 
+  defmodule EnrollInvalidCodeTelemetryHandler do
+    @moduledoc false
+    def handle_event(event, measurements, metadata, parent) do
+      send(parent, {:enroll_invalid_code_telemetry, event, measurements, metadata})
+    end
+  end
+
   import Ecto.Query
 
   alias Sigra.{Config, MFA}
@@ -836,6 +843,99 @@ defmodule Sigra.MFAAuditAtomicityTest do
       Ecto.Adapters.SQL.query!(
         repo,
         "ALTER TABLE user_mfa_backup_codes DROP CONSTRAINT IF EXISTS mfa_enroll_backup_guard_insert_failed",
+        []
+      )
+    end
+  end
+
+  test "confirm_enrollment invalid TOTP writes mfa.enroll.failure when audit enabled", %{
+    repo: repo
+  } do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo)
+    {:ok, %{raw_secret: raw}} = MFA.enroll(config, account: "u@example.com")
+
+    assert {:error, :invalid_code} =
+             MFA.confirm_enrollment(config, user, raw, "000000",
+               mfa_credential_schema: MfaCredential,
+               backup_code_schema: BackupCode
+             )
+
+    assert count(repo, "user_mfa_credentials") == 0
+    assert count(repo, "user_mfa_backup_codes") == 0
+    assert count_where(repo, "audit_events", "action = 'mfa.enroll.failure'") == 1
+
+    %{rows: [[meta]]} =
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "SELECT metadata::text FROM audit_events WHERE action = 'mfa.enroll.failure' ORDER BY inserted_at DESC LIMIT 1",
+        []
+      )
+
+    assert meta =~ "invalid_code"
+    assert meta =~ "totp"
+  end
+
+  test "confirm_enrollment invalid TOTP skips audit when audit disabled", %{repo: repo} do
+    user = %{id: Ecto.UUID.generate()}
+    config = cfg(repo, false)
+    {:ok, %{raw_secret: raw}} = MFA.enroll(config, account: "u@example.com")
+
+    assert {:error, :invalid_code} =
+             MFA.confirm_enrollment(config, user, raw, "000000",
+               mfa_credential_schema: MfaCredential,
+               backup_code_schema: BackupCode
+             )
+
+    assert count_where(repo, "audit_events", "action = 'mfa.enroll.failure'") == 0
+  end
+
+  test "confirm_enrollment invalid TOTP emits log_safe_error when failure audit blocked", %{
+    repo: repo
+  } do
+    Ecto.Adapters.SQL.query!(
+      repo,
+      """
+      ALTER TABLE audit_events
+      ADD CONSTRAINT mfa_enroll_invalid_code_failure_guard CHECK (action <> 'mfa.enroll.failure')
+      """,
+      []
+    )
+
+    try do
+      user = %{id: Ecto.UUID.generate()}
+      config = cfg(repo)
+      {:ok, %{raw_secret: raw}} = MFA.enroll(config, account: "u@example.com")
+
+      ref =
+        :telemetry.attach(
+          {__MODULE__, :enroll_invalid_code_guard},
+          [:sigra, :audit, :log_safe_error],
+          &EnrollInvalidCodeTelemetryHandler.handle_event/4,
+          self()
+        )
+
+      try do
+        assert {:error, :invalid_code} =
+                 MFA.confirm_enrollment(config, user, raw, "000000",
+                   mfa_credential_schema: MfaCredential,
+                   backup_code_schema: BackupCode
+                 )
+
+        assert count_where(repo, "audit_events", "action = 'mfa.enroll.failure'") == 0
+
+        assert_receive {:enroll_invalid_code_telemetry, [:sigra, :audit, :log_safe_error],
+                        %{count: 1},
+                        %{action: "mfa.enroll.failure", reason: reason}}
+
+        assert reason in [:constraint_violation, :invalid_changeset]
+      after
+        :telemetry.detach(ref)
+      end
+    after
+      Ecto.Adapters.SQL.query!(
+        repo,
+        "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS mfa_enroll_invalid_code_failure_guard",
         []
       )
     end

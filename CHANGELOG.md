@@ -11,6 +11,34 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
+
+### Changed
+
+* **mfa:** When `:audit_schema` is configured, `Sigra.MFA.confirm_enrollment/5` writes `mfa.enroll.failure` for invalid TOTP (pre-enrollment DB work) inside `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`, using the same `commit_ad_hoc_mfa_audit/5` shell as other MFA ad-hoc audits (**AUD-20-01** / **AUD-04-022**). The caller still receives `{:error, :invalid_code}` regardless of audit insert outcome; audit failures emit `[:sigra, :audit, :log_safe_error]`. Evidence: `test/sigra/mfa_audit_atomicity_test.exs`.
+* **jwt:** When `:audit_schema` is configured, `Sigra.JWT.refresh/3` (and `Sigra.Auth.refresh_jwt/2`) runs refresh-token **`user_tokens`** persistence and `api.jwt_refresh` / `api.jwt_refresh_reuse` audit inserts in a single `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (persistence + audit co-fate / **AUD-08** for the guided path). Any step failure in that transaction returns `{:error, :jwt_refresh_aborted}` instead of issuing new tokens without a matching audit row. Evidence: `test/sigra/jwt_refresh_audit_cofate_test.exs`.
+* **jwt:** Refresh-token classify/revoke paths now base64url-decode the raw refresh token before hashing, so malformed or non-decodable inputs return `{:error, :invalid_token}` instead of hashing the encoded wrapper bytes.
+* **audit:** When `:audit_schema` is configured, `Sigra.APIToken.audit_jwt_refresh/2` and `audit_jwt_refresh_reuse/2` write `api.jwt_refresh` / `api.jwt_refresh_reuse` inside `Repo.transaction/1` via audit-only `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (audit-row atomicity only — standalone helpers; prefer `JWT.refresh/3` for co-fate so audit is not double-emitted).
+* **audit:** When `:audit_schema` is configured, `Sigra.Account.clear_password_change_requirement/3` clears `must_change_password` and writes `account.password_change` (`metadata: %{forced: true}`) in one `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`. `Sigra.Account.audit_forced_password_change/2` is deprecated for that path — do not call both or you may duplicate audit rows.
+* **audit:** When `:audit_schema` is configured, `Sigra.APIToken.verify/2` now writes `api.token_verify.failure` audit rows inside `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (invalid, revoked, and expired branches). Success remains telemetry-only (**D-27**). Insert failures emit `[:sigra, :audit, :log_safe_error]` (`:invalid_changeset` or `:constraint_violation`) while the caller still receives `{:error, reason}`.
+
+### Documentation
+
+* **planning:** Milestone **v1.19** (phase **83**, **AUD-20**) — **AUD-04-022** + **EX-44-02** appendix, **09-VERIFICATION** C-1 row **022**, **09-03-SUMMARY**, **44-AUD-04-INVENTORY** for **`Sigra.MFA.confirm_enrollment/5`** invalid-code transactional audit. See [`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md).
+* **planning:** Milestone **v1.19** (phase **82**, **AUD-19**) — **AUD-04-048** / **049** + **09-VERIFICATION** C-1 rows, **44**/**45** inventories, **09-03-SUMMARY** for **`Sigra.JWT.refresh/3`** persistence + audit co-fate; **AUD-08** closure for guided **`JWT.refresh`** path. See [`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md).
+* **planning:** Milestone **v1.18** (phase **81**, **AUD-18**) — **AUD-04-048** / **049** + **09-VERIFICATION** C-1 rows, **44**/**45** inventories, **09-03-SUMMARY** note for transactional JWT refresh/reuse audit in **`lib/sigra/api_token.ex`**; **AUD-08** explicitly out of scope. See [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
+* **planning:** Milestone **v1.17** (phase **80**, **AUD-17**) — **AUD-04-043** / **EX-44-05** closure: **44-AUD-04-INVENTORY**, **09-VERIFICATION** C-1 row **043**, **09-03-SUMMARY** note; forced-clear audit atomicity in **`lib/sigra/account.ex`**. See [`.planning/REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/REQUIREMENTS.md).
+* **planning:** Milestone **v1.16** (phase **79**, **AUD-16**) — **44-AUD-04-INVENTORY** + **09-VERIFICATION** C-1 rows **AUD-04-044..046** aligned to transactional **`verify/2`** in **`lib/sigra/api_token.ex`**; **09-03-SUMMARY** bounded-batch note; **EX-44-01** verify slice retired. See [`.planning/REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/REQUIREMENTS.md) and [`.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/79-api-token-verify-failure-audit/79-VERIFICATION.md).
+* **planning:** Milestone **v1.15** (phase **78**, **AUD-14**) — **44-AUD-04-INVENTORY** + **09-VERIFICATION** C-1 rows for **AUD-04-035..042** and **047** aligned to **`lib/sigra/account.ex`** / **`lib/sigra/api_token.ex`**; **09-03-SUMMARY** bounded-batch note. See [`.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/78-account-api-c1-planning-truth/78-VERIFICATION.md).
+
+### Added
+
+* **tests:** `test/sigra/jwt_refresh_audit_cofate_test.exs` covers **`Sigra.JWT.refresh/3`** persistence + audit co-fate (happy path, audit-off, reuse + audit, **`CHECK`** fault injection on happy and reuse branches).
+* **tests:** `test/sigra/api_token_audit_atomic_test.exs` covers **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** (happy path, audit-off, **`CHECK`** fault injection + **`log_safe_error`** telemetry).
+* **tests:** `test/sigra/api_token_audit_atomic_test.exs` covers **`api.token_verify.failure`** for invalid / revoked / expired paths plus audit-table fault injection (constraint / telemetry parity).
+* **tests:** `test/sigra/account_audit_atomicity_test.exs` exercises **`Sigra.Account.request_email_change/4`**, **`confirm_email_change/3`**, and **`cancel_email_change/3`** with Postgres `CHECK` fault injection so domain mutations roll back when the paired **`account.email_change_*`** audit insert is rejected — complements **AUD-04-035..037** C-1 evidence alongside **`change_password`**.
+* **tests:** `test/sigra/account_audit_atomicity_test.exs` covers **`Sigra.Account.clear_password_change_requirement/3`** (happy path, audit-off branch, and **`account.password_change`** `CHECK` rollback) for **AUD-04-043** / **AUD-17**.
+
 ## [0.2.4](https://github.com/szTheory/sigra/compare/v0.2.3...v0.2.4) (2026-04-24)
 
 ### Changed
