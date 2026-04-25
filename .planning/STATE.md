@@ -1,16 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.20
-milestone_name: GA Launch — SEED closure + public release
-status: ready_to_plan
-last_updated: "2026-04-25T00:00:00.000Z"
-last_activity: 2026-04-25 -- ROADMAP.md drafted (6 phases, 21 requirements mapped); ready to plan Phase 85
+milestone_name: — active
+status: executing
+status: ready_for_next
+last_updated: "2026-04-25T21:42:02Z"
+last_activity: 2026-04-25 — Phase 85 completed (2 plans, AUD-21 closure); ready to begin Phase 86
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -29,19 +30,28 @@ See: `.planning/PROJECT.md`
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: Not started (roadmap drafted; ready to plan first phase)
+Phase: 85 completed
 
-Plan: —
+Plan: 85-01-PLAN.md / 85-02-PLAN.md (done)
 
-Status: Ready to plan
+Status: Complete
 
-Last activity: 2026-04-25 — ROADMAP.md drafted with 6 phases (85–90); 21/21 requirements mapped; SEED-001 + SEED-002 closure mapped to Phases 85 and 88 respectively.
+Last activity: 2026-04-25 — Phase 85 completed; AUD-21 closure captured and verified.
 
-**Planned Phase:** **85 — OAuth audit atomicity closure (AUD-21)** (parallel-ready with Phases 86–88; can be picked first per maintainer judgment).
+**Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 
 ## Performance Metrics
 
-_Velocity metrics populate during phase work._
+| Phase | Plans | Duration | Tasks | Files |
+| --- | --- | --- | --- | --- |
+| 85 | 2 | session | 5 | 13 |
+
+## Decisions
+
+- Use optional `SessionStore` multi callbacks only on adapters that support them.
+- Return `:impersonation_aborted` on transactional audit failure.
+- Mark Phase 9 C-1 as PASS for the AUD-21 slice.
+- Validate SEED-002 and publish a phase merge-gate artifact.
 
 ## Accumulated Context
 
@@ -72,12 +82,12 @@ _None as of milestone open. Will populate during phase planning._
 
 ## Session Continuity
 
-**Next:** `/gsd-plan-phase 85 ${GSD_WS}` once the v1.20 ROADMAP is approved. Phases 86–88 may be planned in parallel (any order) since Leg 2 is parallel-ready with Leg 1.
+**Next:** Phase 86 — GAUAT email visual QA (or `/gsd-plan-phase 86 ${GSD_WS}` when ready).
 
 **Resume file:** None
 
 **Artifacts (active):** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`
 
-**Last completed phase:** **84** (routing-honesty-reconciliation) — **2026-04-25**
+**Last completed phase:** **85** (oauth-audit-atomicity-closure-aud-21) — **2026-04-25**
 
-**Planned Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
+**Planned Phase:** **86 — GAUAT email visual QA (Phase 04 + Phase 08 templates)**

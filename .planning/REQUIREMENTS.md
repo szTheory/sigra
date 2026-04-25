@@ -10,11 +10,16 @@
 
 Closes the C-1 caveat that has hung over Phase 9 since v1.0. After this leg, every `log_safe/3` integration site in `lib/sigra/oauth/*` and the OAuth/ops Phase 45 T2 inventory uses atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` when `:audit_schema` is set, matching the discipline already shipped in `Sigra.MFA`, `Sigra.Account`, and `Sigra.APIToken`.
 
-- [ ] **AUD-21-01** — Convert OAuth/ops `log_safe/3` clusters at **AUD-04 rows 052–056, 058, 063** (per `.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`) to atomic `Repo.transaction/1` + `Ecto.Multi` + `log_multi_safe`. On audit-insert failure: callers see `{:error, _}` and business-op rolls back; on `:audit_schema` unset: behavior preserved (telemetry-on-commit only).
-- [ ] **AUD-21-02** — Audit-aware test coverage at `test/sigra/oauth_audit_atomic_test.exs` (or extension of existing OAuth ceremony tests) proves: happy-path co-fate, audit-off parity, fault-injection rollback (CHECK guard) for each new atomic site.
-- [ ] **AUD-21-03** — Planning truth refresh: `45-AUD-04-INVENTORY.md` rows 052–056/058/063 marked T1 with phase reference; `09-VERIFICATION.md` C-1 matrix updated; `09-03-SUMMARY.md` post-batch narrative added; `CHANGELOG.md` `[Unreleased]` trace bullet.
-- [ ] **AUD-21-04** — Phase 9 **C-1 caveat downgraded from PASS-WITH-CAVEATS to PASS** in `09-VERIFICATION.md` frontmatter (`caveats: []` or removal) and `09-03-SUMMARY.md` summary block, with explicit reference to AUD-21 closure. SEED-002 status flipped to `validated` in `.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md` frontmatter.
-- [ ] **AUD-21-05** — Per-phase merge gate (`*-VERIFICATION.md`) in the implementing phase directory; `mix ci.audit_45` still green; library test suite + 5 CI gates remain green on `main`.
+- [x] **AUD-21-01
+** — Convert OAuth/ops `log_safe/3` clusters at **AUD-04 rows 052–056, 058, 063** (per `.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`) to atomic `Repo.transaction/1` + `Ecto.Multi` + `log_multi_safe`. On audit-insert failure: callers see `{:error, _}` and business-op rolls back; on `:audit_schema` unset: behavior preserved (telemetry-on-commit only).
+- [x] **AUD-21-02
+** — Audit-aware test coverage at `test/sigra/oauth_audit_atomic_test.exs` (or extension of existing OAuth ceremony tests) proves: happy-path co-fate, audit-off parity, fault-injection rollback (CHECK guard) for each new atomic site.
+- [x] **AUD-21-03
+** — Planning truth refresh: `45-AUD-04-INVENTORY.md` rows 052–056/058/063 marked T1 with phase reference; `09-VERIFICATION.md` C-1 matrix updated; `09-03-SUMMARY.md` post-batch narrative added; `CHANGELOG.md` `[Unreleased]` trace bullet.
+- [x] **AUD-21-04
+** — Phase 9 **C-1 caveat downgraded from PASS-WITH-CAVEATS to PASS** in `09-VERIFICATION.md` frontmatter (`caveats: []` or removal) and `09-03-SUMMARY.md` summary block, with explicit reference to AUD-21 closure. SEED-002 status flipped to `validated` in `.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md` frontmatter.
+- [x] **AUD-21-05
+** — Per-phase merge gate (`*-VERIFICATION.md`) in the implementing phase directory; `mix ci.audit_45` still green; library test suite + 5 CI gates remain green on `main`.
 
 ### Leg 2 — SEED-001 human UAT execution (GAUAT)
 

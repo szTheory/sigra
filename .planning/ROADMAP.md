@@ -36,7 +36,7 @@
 
 **Phase summary:**
 
-- [ ] **Phase 85: OAuth audit atomicity closure (AUD-21)** — Convert remaining `log_safe/3` OAuth/ops clusters in Phase 45 T2 (AUD-04 rows 052–056, 058, 063) to atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`; refresh planning truth; downgrade Phase 9 C-1 caveat from PASS-WITH-CAVEATS to PASS.
+- [x] **Phase 85: OAuth audit atomicity closure (AUD-21)** — Convert remaining `log_safe/3` OAuth/ops clusters in Phase 45 T2 (AUD-04 rows 052–056, 058, 063) to atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`; refresh planning truth; downgrade Phase 9 C-1 caveat from PASS-WITH-CAVEATS to PASS.
 - [ ] **Phase 86: GAUAT email visual QA (Phase 04 + Phase 08 templates)** — Render both Phase 04 lockout/suspicious-login templates and the seven Phase 08 lifecycle templates in Gmail / Outlook / Apple Mail; capture screenshots; file pass/fail per template.
 - [ ] **Phase 87: GAUAT OAuth real-credential cycle** — `mix sigra.gen.oauth` fresh-host smoke + end-to-end Google register/login + provider linking and last-method unlink prevention + email-match confirmation flash; capture evidence per scenario.
 - [ ] **Phase 88: GAUAT MFA + getting-started + results filing** — Backup-code regeneration human verification; clean-machine timed getting-started run on a fresh Phoenix 1.8 host; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` (or `partially-validated` with reopen trigger).
@@ -61,7 +61,11 @@
 4. `.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md` frontmatter `status:` reads `validated`; `45-AUD-04-INVENTORY.md` rows 052–056/058/063 carry T1 verdicts with phase 85 reference; `09-03-SUMMARY.md` has a phase-85 / AUD-21 narrative bullet; `CHANGELOG.md` `[Unreleased]` carries the AUD-21 trace bullet.
 5. `mix ci.audit_45` and the library test suite (plus the 5 existing CI gates) remain green on `main` after the phase merges; `85-VERIFICATION.md` records the merge gate outcome.
 
-**Plans:** TBD.
+**Plans:** 2 plans.
+
+Plans:
+- [x] 85-01-PLAN.md — Atomicize impersonation session/audit orchestration and sharpen AUD-04 truth.
+- [x] 85-02-PLAN.md — Close the C-1 narrative, seed status, and verification trail for AUD-21.
 
 ### Phase 86: GAUAT email visual QA (Phase 04 + Phase 08 templates)
 
@@ -160,7 +164,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 85. OAuth audit atomicity closure (AUD-21) | 0/0 | Not started | — |
+| 85. OAuth audit atomicity closure (AUD-21) | 0/2 | Not started | — |
 | 86. GAUAT email visual QA | 0/0 | Not started | — |
 | 87. GAUAT OAuth real-credential cycle | 0/0 | Not started | — |
 | 88. GAUAT closing cluster + SEED-001 closure | 0/0 | Not started | — |
