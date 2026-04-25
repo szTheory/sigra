@@ -1,46 +1,87 @@
-# Requirements: Sigra — v1.19 JWT persistence + audit co-fate & MFA enrollment failure
+# Requirements: Sigra — v1.20 GA Launch (SEED closure + public release)
 
-**Defined:** 2026-04-24  
-**Milestone:** v1.19 — bounded **SEED-002** (**AUD-19** + **AUD-20**)
+**Defined:** 2026-04-25
+**Milestone:** v1.20 — GA Launch — SEED closure + public release
+**Selected seeds:** SEED-001 (human GA UAT), SEED-002 (OAuth audit atomicity remainder)
 
-## v1.19 Requirements
+## v1.20 Requirements
 
-### JWT refresh — persistence + audit co-fate (closes v1.18 “AUD-08 persistence” footnote)
+### Leg 1 — SEED-002 OAuth audit atomicity closure (AUD-21)
 
-- [x] **AUD-19-01** — On successful JWT refresh, **`Sigra.JWT.RefreshToken.rotate/3`** persistence work (supersede old **`user_tokens`** row + insert new refresh token) and **`api.jwt_refresh`** emission occur in **one** `Repo.transaction` (or equivalent documented single boundary) when `:audit_schema` is set, so the host never observes persisted rotation without a matching audit row, and audit failure rolls back rotation.
-- [x] **AUD-19-02** — On **`:reuse_detected`**, family-wide revocation persistence and **`api.jwt_refresh_reuse`** audit share the same transactional discipline when audit is on (aligned to **AUD-19-01** semantics).
-- [x] **AUD-19-03** — Automated tests prove co-fate: happy path, audit-off, and fault injection (audit insert failure → no partial persistence / consistent `{:error, _}` or documented contract). Prefer extending **`test/sigra/api_token_audit_atomic_test.exs`** and/or focused JWT integration tests.
-- [x] **AUD-19-04** — Planning truth: **`.planning/phases/09-audit-logging/09-VERIFICATION.md`** rows **048–049** footnotes, **`.planning/phases/44-mfa-account-api-atomic-batches/44-AUD-04-INVENTORY.md`**, **`.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`** (JWT appendix as needed), **`.planning/phases/09-audit-logging/09-03-SUMMARY.md`**, **`CHANGELOG.md` [Unreleased]**; **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`** records merge gate.
+Closes the C-1 caveat that has hung over Phase 9 since v1.0. After this leg, every `log_safe/3` integration site in `lib/sigra/oauth/*` and the OAuth/ops Phase 45 T2 inventory uses atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` when `:audit_schema` is set, matching the discipline already shipped in `Sigra.MFA`, `Sigra.Account`, and `Sigra.APIToken`.
 
-### MFA — AUD-04-022 / EX-44-02
+- [ ] **AUD-21-01** — Convert OAuth/ops `log_safe/3` clusters at **AUD-04 rows 052–056, 058, 063** (per `.planning/phases/45-oauth-ops-c1-signoff/45-AUD-04-INVENTORY.md`) to atomic `Repo.transaction/1` + `Ecto.Multi` + `log_multi_safe`. On audit-insert failure: callers see `{:error, _}` and business-op rolls back; on `:audit_schema` unset: behavior preserved (telemetry-on-commit only).
+- [ ] **AUD-21-02** — Audit-aware test coverage at `test/sigra/oauth_audit_atomic_test.exs` (or extension of existing OAuth ceremony tests) proves: happy-path co-fate, audit-off parity, fault-injection rollback (CHECK guard) for each new atomic site.
+- [ ] **AUD-21-03** — Planning truth refresh: `45-AUD-04-INVENTORY.md` rows 052–056/058/063 marked T1 with phase reference; `09-VERIFICATION.md` C-1 matrix updated; `09-03-SUMMARY.md` post-batch narrative added; `CHANGELOG.md` `[Unreleased]` trace bullet.
+- [ ] **AUD-21-04** — Phase 9 **C-1 caveat downgraded from PASS-WITH-CAVEATS to PASS** in `09-VERIFICATION.md` frontmatter (`caveats: []` or removal) and `09-03-SUMMARY.md` summary block, with explicit reference to AUD-21 closure. SEED-002 status flipped to `validated` in `.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md` frontmatter.
+- [ ] **AUD-21-05** — Per-phase merge gate (`*-VERIFICATION.md`) in the implementing phase directory; `mix ci.audit_45` still green; library test suite + 5 CI gates remain green on `main`.
 
-- [x] **AUD-20-01** — **`Sigra.MFA.confirm_enrollment/5`** invalid-TOTP (**pre-persistence**) path upgraded from standalone **`log_safe/3`** to **`Repo.transaction/1` + `Multi` + `log_multi_safe`** **or** explicit milestone waiver with updated **EX-44-02** rationale (must be captured in **83** discuss/plan if waived).
-- [x] **AUD-20-02** — **`test/sigra/mfa_audit_atomicity_test.exs`** covers the **022** mechanism + rollback / audit-off parity with prior MFA atomicity phases.
-- [x] **AUD-20-03** — **44** inventory row **022**, **09-VERIFICATION** C-1 **022**, **09-03-SUMMARY**, **`CHANGELOG` [Unreleased]**; **`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`** merge gate.
+### Leg 2 — SEED-001 human UAT execution (GAUAT)
+
+Executes the 8 GA-risk UAT items listed in `.planning/seeds/SEED-001-v1.0-ga-human-uat-gate.md`. Each requirement maps to one observable human verification with recorded outcome (pass / fail-with-issue) and supporting evidence.
+
+- [ ] **GAUAT-01** — **Phase 04 lockout + suspicious-login email visual QA** — Render both templates in Gmail (web), Outlook (web), Apple Mail (macOS). Verify: heading hierarchy, CTA button contrast, IP/location block layout. Capture screenshots → `.planning/uat-evidence/v1.20/email-phase-04/`. File pass/fail row with notes.
+- [ ] **GAUAT-02** — **Phase 08 lifecycle email visual QA** — Render the 7 lifecycle templates (email change, email change confirmation, password change, account deletion, reactivation, etc.) in Gmail / Outlook / Apple Mail. Verify per UI-SPEC: copywriting accuracy, CTA buttons, security footer. Capture screenshots → `.planning/uat-evidence/v1.20/email-phase-08/`. File one row per template.
+- [ ] **GAUAT-03** — **`mix sigra.gen.oauth` fresh-host smoke** — On a freshly-generated Phoenix 1.8 app, run `mix sigra.gen.oauth`. Verify: 12+ files emitted, routes/config/vault child wired, `mix compile --warnings-as-errors` clean, `mix test` green for generated host. Record terminal transcript → `.planning/uat-evidence/v1.20/oauth-gen/`.
+- [ ] **GAUAT-04** — **End-to-end Google OAuth register/login cycle** — With real Google developer credentials configured, complete: provider button → consent → callback → user record created → session established → logout → re-login via same provider. Capture screen recording or staged screenshots → `.planning/uat-evidence/v1.20/oauth-google/`. File pass/fail row with timing.
+- [ ] **GAUAT-05** — **Provider linking + last-method unlink prevention** — Existing user adds Google OAuth; UI shows linked state; attempt to unlink last auth method shows tooltip + disabled state; enable-after-password-set unblocks unlink. Evidence: screenshots of all four states.
+- [ ] **GAUAT-06** — **Email-match confirmation flash + redirect flow** — Sign in via Google with an email that matches an existing user; flash message displays correctly; redirect lands at expected post-login destination; `user_identities` row created. Evidence: screenshots + DB row check transcript.
+- [ ] **GAUAT-07** — **Backup-code regeneration human verification** — On a real MFASettingsLive in the example app, exercise `regenerate_backup_codes` end-to-end (sudo prompt → TOTP → new codes shown once → old codes invalidated → audit row visible). Verify v1.4 GA-01 wiring matches user-visible behavior. Evidence: screenshots + audit-row check.
+- [ ] **GAUAT-08** — **Clean-machine getting-started timed run** — A developer unfamiliar with Sigra follows `guides/introduction/getting-started.md` end-to-end on a fresh Phoenix 1.8 app, target <30 minutes wall-clock, with no tribal-knowledge assists. Record start/end timestamps and friction notes (any place the guide stalls). Evidence: timestamped transcript + friction-list note.
+- [ ] **GAUAT-09** — **Results filing + seed closure** — `.planning/v1.20-GA-UAT-RESULTS.md` written with one pass/fail/blocked row per GAUAT-01..08, links to evidence directories under `.planning/uat-evidence/v1.20/`, and a final go/no-go disposition for the launch leg. SEED-001 status flipped to `validated` (or `partially-validated` with reopen trigger if any item failed) in `.planning/seeds/SEED-001-v1.0-ga-human-uat-gate.md` frontmatter.
+
+### Leg 3 — Public launch execution (LAUNCH)
+
+Executes the v1.5 `MAINT-01` First Public Launch checklist for the first time. Sequenced *after* legs 1 and 2 close so the launch is defensible. Failures here roll back narrowly (delete announcement, mark Hex release as broken) without invalidating legs 1 and 2.
+
+- [ ] **LAUNCH-01** — **Hex.pm publish v1.20** — Bump `mix.exs` version to `1.20.0`; tag `v1.20` annotated; `mix hex.publish` (with reviewable diff against the prior published version, if any); verify package shows on hex.pm with correct description, links, optional-deps, and ExDoc. Record release URL. (If this is Sigra's first-ever Hex publish, also covers `mix hex.user auth` setup if not already configured.)
+- [ ] **LAUNCH-02** — **README "use this in production" promotion** — Update README from "production readiness available" framing to an explicit "Use this in production" section with: link to v1.20 GA evidence, link to Phase 9 C-1 PASS attestation (post-AUD-21), getting-started link, version-pin guidance. ExDoc landing path mirrors the change.
+- [ ] **LAUNCH-03** — **Announcement post drafted + published** — Long-form post covering: (a) what Sigra is and why it exists, (b) positioning vs Pow / phx.gen.auth (without disparaging Pow — credit the prior art), (c) hybrid lib+generator architecture rationale, (d) what shipped v1.0–v1.20, (e) getting-started call-to-action, (f) where to file issues / contribute. Self-hosted blog or dev.to / Medium acceptable. Record canonical URL.
+- [ ] **LAUNCH-04** — **Hacker News submission** — Submit announcement post to HN with title that reads honestly (no clickbait, no false-claim "production-ready" if anything material is open). Stay reachable in the comments for 4–8 hours after submission. Record: submission URL, peak score, top 3 comments + responses, and any issues filed against Sigra as a result.
+- [ ] **LAUNCH-05** — **Elixir community soft-launch** — Post to: elixir-lang Discord (or active Elixir community Discord), elixirforum.com, and one of {Twitter/X, Bluesky, Mastodon}. Brief, link-driven posts pointing at the announcement. Record post URLs.
+- [ ] **LAUNCH-06** — **MAINTAINING.md post-launch monitoring lane** — Add a `Post-launch monitoring (v1.20)` section to `MAINTAINING.md` with concrete checkpoints at 24h / 7d / 30d. Each checkpoint enumerates: open issues count, Hex downloads, GitHub star delta, time-to-first-response on issues, and a triage SLA (e.g. acknowledge within 24h, resolve sev-1 within 72h). Initial 24h checkpoint filled in as part of this requirement; 7d and 30d remain pending with documented owner.
+- [ ] **LAUNCH-07** — **CHANGELOG + ExDoc final alignment** — `CHANGELOG.md` v1.20.0 section finalized: covers AUD-21 (audit completeness PASS), GAUAT closure pointer, launch metadata, upgrade notes (none expected — pure additive). ExDoc extras include `upgrading-to-v1.20.md` (or "no upgrade required" stub if changeset is purely additive); `mix docs --warnings-as-errors` clean.
 
 ## Future requirements
 
-- **ROUTE-84-01** / **02** / **03** — completed in **Phase 84** (**2026-04-25**); see `.planning/phases/84-routing-honesty-reconciliation/84-VERIFICATION.md`.
-- **Phase 45 T2** promotions (**052–056**, **058**, **063**) — only if a later milestone selects them with owner + reopen trigger (**EX-45-***).
-- **SEED-001** human GA matrix — launch lane milestone, not **v1.19**.
+- **Week-one launch-feedback follow-ups** — sized as a v1.21 patch milestone if signal warrants. Not pre-scoped.
+- **Phase 45 T2 stragglers** beyond 052–056/058/063, if any surface during AUD-21 inventory walk — captured as `EX-45-*` with reopen triggers, deferred to a later milestone.
+- **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope for v1.20.
+- **30d post-launch retrospective** — formal retrospective on launch-week outcomes, distinct from the LAUNCH-06 monitoring checkpoints. Triggered automatically at the 30d mark.
 
 ## Out of scope
 
-- Re-auditing **Phase 45** merge gate **`mix ci.audit_45`** beyond regression needed for **JWT** path edits.
-- **`sigra_lockspire`** / ADR **001** glue package.
-- **999.x** Nyquist archaeology.
+- **Reopening 999.x archaeology** — assurance work uses newly numbered phases.
+- **Re-auditing Phase 45 merge gate (`mix ci.audit_45`) beyond regression needed for AUD-21 edits.**
+- **Responding to launch feedback during the v1.20 milestone window** — captured in LAUNCH-06 monitoring lane and routed to a follow-up milestone.
+- **`sigra_lockspire` / ADR 001** — deferred until a real companion-app trigger fires.
+- **Marketing site / standalone landing page** — README + announcement post cover positioning. A dedicated marketing site is a later concern.
+- **Paid promotion / sponsorships** — organic only for first launch.
 
 ## Traceability
 
 | REQ-ID    | Phase |
 |-----------|-------|
-| AUD-19-01 | 82    |
-| AUD-19-02 | 82    |
-| AUD-19-03 | 82    |
-| AUD-19-04 | 82    |
-| AUD-20-01 | 83    |
-| AUD-20-02 | 83    |
-| AUD-20-03 | 83    |
-| ROUTE-84-01 | 84 |
-| ROUTE-84-02 | 84 |
-| ROUTE-84-03 | 84 |
+| AUD-21-01 | TBD   |
+| AUD-21-02 | TBD   |
+| AUD-21-03 | TBD   |
+| AUD-21-04 | TBD   |
+| AUD-21-05 | TBD   |
+| GAUAT-01  | TBD   |
+| GAUAT-02  | TBD   |
+| GAUAT-03  | TBD   |
+| GAUAT-04  | TBD   |
+| GAUAT-05  | TBD   |
+| GAUAT-06  | TBD   |
+| GAUAT-07  | TBD   |
+| GAUAT-08  | TBD   |
+| GAUAT-09  | TBD   |
+| LAUNCH-01 | TBD   |
+| LAUNCH-02 | TBD   |
+| LAUNCH-03 | TBD   |
+| LAUNCH-04 | TBD   |
+| LAUNCH-05 | TBD   |
+| LAUNCH-06 | TBD   |
+| LAUNCH-07 | TBD   |
+
+_(Phase column populated by gsd-roadmapper.)_
