@@ -62,26 +62,26 @@ Executes the v1.5 `MAINT-01` First Public Launch checklist for the first time. S
 
 | REQ-ID    | Phase |
 |-----------|-------|
-| AUD-21-01 | TBD   |
-| AUD-21-02 | TBD   |
-| AUD-21-03 | TBD   |
-| AUD-21-04 | TBD   |
-| AUD-21-05 | TBD   |
-| GAUAT-01  | TBD   |
-| GAUAT-02  | TBD   |
-| GAUAT-03  | TBD   |
-| GAUAT-04  | TBD   |
-| GAUAT-05  | TBD   |
-| GAUAT-06  | TBD   |
-| GAUAT-07  | TBD   |
-| GAUAT-08  | TBD   |
-| GAUAT-09  | TBD   |
-| LAUNCH-01 | TBD   |
-| LAUNCH-02 | TBD   |
-| LAUNCH-03 | TBD   |
-| LAUNCH-04 | TBD   |
-| LAUNCH-05 | TBD   |
-| LAUNCH-06 | TBD   |
-| LAUNCH-07 | TBD   |
+| AUD-21-01 | 85    |
+| AUD-21-02 | 85    |
+| AUD-21-03 | 85    |
+| AUD-21-04 | 85    |
+| AUD-21-05 | 85    |
+| GAUAT-01  | 86    |
+| GAUAT-02  | 86    |
+| GAUAT-03  | 87    |
+| GAUAT-04  | 87    |
+| GAUAT-05  | 87    |
+| GAUAT-06  | 87    |
+| GAUAT-07  | 88    |
+| GAUAT-08  | 88    |
+| GAUAT-09  | 88    |
+| LAUNCH-01 | 89    |
+| LAUNCH-02 | 89    |
+| LAUNCH-03 | 90    |
+| LAUNCH-04 | 90    |
+| LAUNCH-05 | 90    |
+| LAUNCH-06 | 90    |
+| LAUNCH-07 | 89    |
 
-_(Phase column populated by gsd-roadmapper.)_
+_(Phase column populated by gsd-roadmapper, 2026-04-25. 21/21 requirements mapped to exactly one phase across Phases 85–90.)_
