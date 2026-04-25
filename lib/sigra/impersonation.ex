@@ -32,42 +32,31 @@ defmodule Sigra.Impersonation do
         {:error, :not_allowed}
 
       true ->
-        metadata = %{
-          type: :standard,
-          impersonator_user_id: admin_user.id,
-          impersonator_session_id: admin_session.id
-        }
+        metadata = impersonation_session_metadata(admin_user, admin_session)
+        {session_store, store_opts} = session_store_and_opts(config, opts)
 
-        case Auth.create_session(config, target_user, metadata, opts) do
-          {:ok, session} ->
-            impersonation_scope =
-              Scope.build(config.scope_module, target_user,
-                active_organization: admin_scope.organization,
-                impersonating_from: admin_user
-              )
-
-            Audit.log_safe(
-              "admin.impersonation.start",
-              impersonation_scope,
-              audit_opts(config, opts, %{
-                actor_id: admin_user.id,
-                target_id: target_user.id,
-                metadata: %{
-                  impersonation_session_id: session.id,
-                  admin_session_id: admin_session.id
-                }
-              })
-            )
-
-            {:ok,
-             %{
-               session: session,
-               restore: restore_decision(admin_token),
-               mode: :impersonating
-             }}
-
-          {:error, reason} ->
-            {:error, reason}
+        if session_store_supports_multi?(session_store) do
+          start_with_multi(
+            config,
+            session_store,
+            store_opts,
+            admin_user,
+            admin_session,
+            target_user,
+            metadata,
+            admin_token,
+            opts
+          )
+        else
+          start_with_legacy_flow(
+            config,
+            admin_scope,
+            admin_session,
+            target_user,
+            metadata,
+            admin_token,
+            opts
+          )
         end
     end
   end
@@ -76,20 +65,25 @@ defmodule Sigra.Impersonation do
   def stop(config, scope, %Session{} = session, opts \\ []) do
     restore = restore_decision(Keyword.get(opts, :admin_token))
     actor_id = actor_id(scope)
+    {session_store, store_opts} = session_store_and_opts(config, opts)
 
-    :ok = Auth.delete_session(config, session.hashed_token, opts)
+    if session_store_supports_multi?(session_store) do
+      delete_with_multi(config, session_store, store_opts, scope, session, restore, actor_id, opts)
+    else
+      :ok = Auth.delete_session(config, session.hashed_token, opts)
 
-    Audit.log_safe(
-      "admin.impersonation.stop",
-      scope,
-      audit_opts(config, opts, %{
-        actor_id: actor_id,
-        target_id: session.user_id,
-        metadata: %{impersonation_session_id: session.id}
-      })
-    )
+      Audit.log_safe(
+        "admin.impersonation.stop",
+        scope,
+        audit_opts(config, opts, %{
+          actor_id: actor_id,
+          target_id: session.user_id,
+          metadata: %{impersonation_session_id: session.id}
+        })
+      )
 
-    {:ok, %{restore: restore, session_deleted?: true}}
+      {:ok, %{restore: restore, session_deleted?: true}}
+    end
   end
 
   @spec evaluate_timeout(Sigra.Config.t(), struct(), Session.t(), keyword()) :: {:ok, map()}
@@ -176,6 +170,146 @@ defmodule Sigra.Impersonation do
     )
     |> Keyword.merge(Map.to_list(extra))
   end
+
+  defp impersonation_session_metadata(admin_user, admin_session) do
+    %{
+      type: :standard,
+      impersonator_user_id: admin_user.id,
+      impersonator_session_id: admin_session.id
+    }
+  end
+
+  defp start_with_multi(
+         config,
+         session_store,
+         store_opts,
+         admin_user,
+         admin_session,
+         target_user,
+         metadata,
+         admin_token,
+         opts
+       ) do
+    multi =
+      session_store.create_session_multi(target_user.id, metadata, store_opts)
+      |> Audit.log_multi_safe(
+        "admin.impersonation.start",
+        audit_opts(config, opts, %{
+          actor_id: admin_user.id,
+          target_id: target_user.id,
+          metadata_resolver: fn %{session: session} ->
+            %{impersonation_session_id: session.id, admin_session_id: admin_session.id}
+          end,
+          metadata: %{
+            impersonator_user_id: admin_user.id,
+            impersonator_session_id: admin_session.id
+          }
+        })
+      )
+
+    try do
+      case config.repo.transaction(multi) do
+        {:ok, %{session: session} = changes} ->
+          Audit.emit_telemetry_from_changes(changes)
+
+          {:ok,
+           %{
+             session: session,
+             restore: restore_decision(admin_token),
+             mode: :impersonating
+           }}
+
+        {:error, _op, _value, _changes} ->
+          {:error, :impersonation_aborted}
+      end
+    rescue
+      Ecto.ConstraintError -> {:error, :impersonation_aborted}
+    end
+  end
+
+  defp start_with_legacy_flow(
+         config,
+         admin_scope,
+         admin_session,
+         target_user,
+         metadata,
+         admin_token,
+         opts
+       ) do
+    case Auth.create_session(config, target_user, metadata, opts) do
+      {:ok, session} ->
+        impersonation_scope =
+          Scope.build(config.scope_module, target_user,
+            active_organization: admin_scope.organization,
+            impersonating_from: admin_scope.scope.user
+          )
+
+        Audit.log_safe(
+          "admin.impersonation.start",
+          impersonation_scope,
+          audit_opts(config, opts, %{
+            actor_id: admin_scope.scope.user.id,
+            target_id: target_user.id,
+            metadata: %{
+              impersonation_session_id: session.id,
+              admin_session_id: admin_session.id
+            }
+          })
+        )
+
+        {:ok,
+         %{
+           session: session,
+           restore: restore_decision(admin_token),
+           mode: :impersonating
+         }}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp delete_with_multi(config, session_store, store_opts, scope, session, restore, actor_id, opts) do
+    multi =
+      session_store.delete_session_multi(session.hashed_token, session, store_opts)
+      |> Audit.log_multi_safe(
+        "admin.impersonation.stop",
+        audit_opts(config, opts, %{
+          actor_id: actor_id,
+          target_id: session.user_id,
+          metadata: %{impersonation_session_id: session.id}
+        })
+      )
+
+    try do
+      case config.repo.transaction(multi) do
+        {:ok, changes} ->
+          Audit.emit_telemetry_from_changes(changes)
+          {:ok, %{restore: restore, session_deleted?: true}}
+
+        {:error, _op, _value, _changes} ->
+          _ = scope
+          {:error, :impersonation_aborted}
+      end
+    rescue
+      Ecto.ConstraintError -> {:error, :impersonation_aborted}
+    end
+  end
+
+  defp session_store_and_opts(config, opts) do
+    session_config = config.session || []
+    session_store = Keyword.get(opts, :session_store) || Keyword.get(session_config, :store)
+    store_opts = [repo: config.repo, session_schema: Keyword.get(session_config, :session_schema)]
+    {session_store, store_opts}
+  end
+
+  defp session_store_supports_multi?(session_store) when is_atom(session_store) do
+    Code.ensure_loaded?(session_store) and
+      function_exported?(session_store, :create_session_multi, 3) and
+      function_exported?(session_store, :delete_session_multi, 3)
+  end
+
+  defp session_store_supports_multi?(_), do: false
 
   defp log_denied(config, admin_scope, target_user, reason, opts) do
     scope = admin_scope.scope

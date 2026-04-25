@@ -50,6 +50,36 @@ defmodule Sigra.SessionStores.Ecto do
   end
 
   @impl true
+  def create_session_multi(user_id, metadata, opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    schema = Keyword.fetch!(opts, :session_schema)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:session, fn _repo, _changes ->
+      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      now = DateTime.utc_now()
+
+      attrs = %{
+        user_id: user_id,
+        hashed_token: hashed_token,
+        type: to_string(Map.get(metadata, :type, :standard)),
+        ip: Map.get(metadata, :ip),
+        user_agent: Map.get(metadata, :user_agent),
+        geo_city: Map.get(metadata, :geo_city),
+        geo_country_code: Map.get(metadata, :geo_country_code),
+        active_organization_id: Map.get(metadata, :active_organization_id),
+        last_active_at: now,
+        inserted_at: now
+      }
+
+      case repo.insert(struct(schema, attrs)) do
+        {:ok, record} -> {:ok, %{to_session(record) | token: raw_token}}
+        {:error, reason} -> {:error, reason}
+      end
+    end)
+  end
+
+  @impl true
   def fetch(hashed_token, opts) do
     repo = Keyword.fetch!(opts, :repo)
     schema = Keyword.fetch!(opts, :session_schema)
@@ -69,6 +99,25 @@ defmodule Sigra.SessionStores.Ecto do
       nil -> :ok
       record -> repo.delete!(record) && :ok
     end
+  end
+
+  @impl true
+  def delete_session_multi(hashed_token, _context, opts) do
+    repo = Keyword.fetch!(opts, :repo)
+    schema = Keyword.fetch!(opts, :session_schema)
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:session_deleted, fn _repo, _changes ->
+      case repo.get_by(schema, hashed_token: hashed_token) do
+        nil -> {:ok, true}
+
+        record ->
+          case repo.delete(record) do
+            {:ok, _record} -> {:ok, true}
+            {:error, reason} -> {:error, reason}
+          end
+      end
+    end)
   end
 
   @impl true

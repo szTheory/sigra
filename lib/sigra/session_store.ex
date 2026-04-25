@@ -3,9 +3,13 @@ defmodule Sigra.SessionStore do
   Behaviour for session persistence implementations.
 
   Sigra uses database-backed sessions by default (not JWTs for session
-  state). This behaviour abstracts the storage mechanism with 7 callbacks
+  state). This behaviour abstracts the storage mechanism with 7 required callbacks
   covering the full session lifecycle: creation, retrieval, deletion,
   user listing, bulk deletion, activity tracking, and sudo mode.
+
+  The optional `create_session_multi/3` and `delete_session_multi/3` callbacks
+  let orchestration code compose session writes into a caller-owned
+  `Ecto.Multi` when the adapter can participate in one transaction.
 
   ## Default Implementation
 
@@ -29,6 +33,11 @@ defmodule Sigra.SessionStore do
   @callback create(user_id :: term(), metadata :: map(), opts :: keyword()) ::
               {:ok, Sigra.Session.t()} | {:error, term()}
 
+  @doc "Builds a session-creation multi suitable for composition in a transaction."
+  @doc since: "0.2.0"
+  @callback create_session_multi(user_id :: term(), metadata :: map(), opts :: keyword()) ::
+              Ecto.Multi.t()
+
   @doc "Fetches a session by its hashed token. Returns the Session struct without the raw token."
   @doc since: "0.1.0"
   @callback fetch(hashed_token :: binary(), opts :: keyword()) ::
@@ -37,6 +46,14 @@ defmodule Sigra.SessionStore do
   @doc "Deletes a session by its hashed token."
   @doc since: "0.1.0"
   @callback delete(hashed_token :: binary(), opts :: keyword()) :: :ok
+
+  @doc "Builds a session-deletion multi suitable for composition in a transaction."
+  @doc since: "0.2.0"
+  @callback delete_session_multi(
+              hashed_token :: binary(),
+              context :: term(),
+              opts :: keyword()
+            ) :: Ecto.Multi.t()
 
   @doc "Lists all sessions for a user, ordered by most recent first."
   @doc since: "0.1.0"
@@ -81,6 +98,8 @@ defmodule Sigra.SessionStore do
               session :: Sigra.Session.t(),
               org_id :: binary() | nil,
               opts :: keyword()
-            ) ::
+              ) ::
               {:ok, Sigra.Session.t()} | {:error, term()}
+
+  @optional_callbacks create_session_multi: 3, delete_session_multi: 3
 end
