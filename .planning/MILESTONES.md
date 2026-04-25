@@ -45,9 +45,9 @@
 - `SEED-001` — 8 human-only UAT items to run before GA public announcement (email visual × 4, OAuth real-credential × 4)
 - `SEED-002` — Phase 9 `log_safe/3` hybrid to atomic `Ecto.Multi` conversion (C-1 caveat followup)
 
-**Backlog** (999.x parking lot):
-- `Phase 999.1` — Retroactive Nyquist validation pass for 6 draft + 1 missing VALIDATION.md files
-- `Phase 999.2` — Dependabot major-version bumps (setup-node 4→6, upload-artifact 4→7, checkout 4→6) requiring per-bump CI verification
+**Backlog** (999.x parking lot; archaeology only):
+- `Phase 999.1` — Retroactive Nyquist validation pass for 6 draft + 1 missing VALIDATION.md files; shipped in v1.3 and now retained as a tombstone/pointer only
+- `Phase 999.2` — Dependabot major-version bumps (setup-node 4→6, upload-artifact 4→7, checkout 4→6) requiring per-bump CI verification; historical parking-lot label only until promoted into a newly numbered phase
 
 **Archive:**
 - [v1.0 Roadmap](milestones/v1.0-ROADMAP.md) — full phase details
@@ -81,7 +81,7 @@
 ### Tech Debt Carried Forward
 
 - **`gsd-tools audit-open --json` is deprecated** for Sigra maintainers; the **supported path** is [`MAINTAINING.md`](../MAINTAINING.md) section **Planning hygiene (without gsd-tools JSON)** plus optional [`scripts/maintainers/planning-audit-hygiene.sh`](../scripts/maintainers/planning-audit-hygiene.sh).
-- `Phase 999.1` Nyquist backfill remains parked.
+- `Phase 999.1` Nyquist backfill remains archaeology-only; Phase 84 owns the routing-honesty cleanup so active workflows stop pointing at the tombstone.
 - `Phase 999.2` Dependabot major-version cleanup remains parked.
 
 **Archive:**
@@ -114,7 +114,7 @@
 
 ### Tech Debt Carried Forward
 
-- `SEED-001` human-only GA UAT items; `SEED-002` audit atomicity hybrid; backlog **999.1** / **999.2** unchanged from prior milestones.
+- `SEED-001` human-only GA UAT items; `SEED-002` audit atomicity hybrid; backlog **999.1** / **999.2** remain historical parking-lot labels only.
 - Residual subjective reviewer items called out in phase VERIFICATION/HUMAN-UAT docs where automation cannot fully substitute judgment.
 
 **Archive:**

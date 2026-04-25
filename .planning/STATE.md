@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.19
-milestone_name: — shipped (Phases 82–83)
-status: ready_to_plan
-last_updated: "2026-04-24T18:05:00.000Z"
-last_activity: "`/gsd-execute-phase 83` — **AUD-20**; **`confirm_enrollment`** invalid-code → **`commit_ad_hoc_mfa_audit/5`**; **`mfa_audit_atomicity_test.exs`** matrix; planning truth (**44** / **09** / **`CHANGELOG`**)."
+milestone_name: — shipped **2026-04-24**
+status: executing
+last_updated: "2026-04-25T17:07:46.184Z"
+last_activity: 2026-04-25 -- Phase 84 execution started
 progress:
-  total_phases: 71
-  completed_phases: 64
-  total_plans: 193
+  total_phases: 72
+  completed_phases: 63
+  total_plans: 194
   completed_plans: 199
-  percent: 90
+  percent: 100
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.19** closed (**82–83**). Next backlog: **`999.1`** (Nyquist retroactive validation).
+**Current focus:** Phase 84 — routing-honesty-reconciliation
 
 ## Current Position
 
 Milestone: **v1.19** — **shipped** (**Phases 82–83**, **2026-04-24**)
 
-Phase: **999.1** (next)
+Phase: 84 (routing-honesty-reconciliation) — EXECUTING
 
-Plan: —
+Plan: 1 of 1
 
-Status: Ready to plan (**999.1** not started)
+Status: Executing Phase 84
 
-Last activity: **`/gsd-execute-phase 83`** — **AUD-20** complete.
+Last activity: 2026-04-25 -- Phase 84 execution started
 
 ## Performance Metrics
 
@@ -55,12 +55,12 @@ _None._
 
 ## Session Continuity
 
-**Next:** **`/gsd-plan-phase 999.1`** — Nyquist retroactive validation (or **`/gsd-discuss-phase 999.1`**)
+**Next:** **`/gsd-plan-phase 84`** — planning-surface routing honesty (or **`/gsd-discuss-phase 84`** if context needs revision)
 
 **Resume file:** --resume-file
 
-**Artifacts:** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, **`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`**, **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`**
+**Artifacts:** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, **`.planning/phases/84-routing-honesty-reconciliation/84-CONTEXT.md`**, **`.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`**, **`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`**, **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`**
 
 **Last completed phase:** **83** (mfa-confirm-enrollment-022) — **2026-04-24**
 
-**Planned Phase:** **999.1** (nyquist-retroactive-validation-pass) — not started
+**Planned Phase:** **84** (routing-honesty-reconciliation) — not started

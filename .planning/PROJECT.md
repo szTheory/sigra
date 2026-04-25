@@ -90,9 +90,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **v1.19** is **shipped** (**Phases 82–83**, **2026-04-24**). Prefer **CHANGELOG + Hex** for small fixes; **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (e.g. loud launch + **SEED-001**, documented adoption gap, **ADR 001** glue).
 
-**Backlog / hygiene:** Phase **999.1** and **999.x** — optional archaeology; see **`.planning/ROADMAP.md`**. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** over conflicting **`STATE.md`** notes.
+**Backlog / hygiene:** **Phase 84** owns routing-honesty cleanup after **v1.19**. **`999.1`** and **999.x** are archaeology only; see **`.planning/ROADMAP.md`** and the **`999.1-*`** tombstone files. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** / **`*-VALIDATION.md`** over conflicting **`STATE.md`** notes.
 
-**Later candidates (post–v1.19):** **SEED-001** human matrix before megaphone launch; Phase **45** **T2** clusters (**052–056**, **058**, **063**) only if promoted with owner + trigger; **999.x** only if promoted; **`sigra_lockspire`** per ADR **001** triggers.
+**Later candidates (post–v1.19):** **SEED-001** human matrix before megaphone launch; Phase **45** **T2** clusters (**052–056**, **058**, **063**) only if promoted with owner + trigger; new validation / assurance work uses newly numbered phases rather than **999.x** reuse; **`sigra_lockspire`** per ADR **001** triggers.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -122,7 +122,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — _(none — **v1.19** Phases **82–83** shipped **2026-04-24**; next planning: **`999.1`** / backlog)_
+### Active — _(none — **v1.19** Phases **82–83** shipped **2026-04-24**; next planning follow-up: **Phase 84** / routing honesty only)_
 
 ### Validated — v1.19 JWT persistence + audit co-fate & MFA invalid-code audit (shipped in-repo 2026-04-24)
 
