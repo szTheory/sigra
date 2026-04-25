@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.19
-milestone_name: — shipped **2026-04-24**
-status: ready_to_plan
-last_updated: "2026-04-25T17:09:42.837Z"
-last_activity: 2026-04-25 -- Phase 84 routing honesty reconciliation complete
+milestone: v1.20
+milestone_name: GA Launch — SEED closure + public release
+status: defining_requirements
+last_updated: "2026-04-25T00:00:00.000Z"
+last_activity: 2026-04-25 -- /gsd-new-milestone v1.20 opened (defining requirements)
 progress:
-  total_phases: 72
-  completed_phases: 65
-  total_plans: 194
-  completed_plans: 200
-  percent: 90
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.19** shipped; **Phase 84** routing honesty reconciliation is complete. No active **999.x** work is planned.
+**Current focus:** **v1.20 GA Launch** — close SEED-001 (human UAT) + SEED-002 (OAuth audit atomicity remainder) gates, then execute public release per v1.5 `MAINT-01` checklist. Phase numbering continues from Phase 84 (last completed).
 
 ## Current Position
 
-Milestone: **v1.19** — **shipped** (**Phases 82–83**, **2026-04-24**)
+Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 84 (routing-honesty-reconciliation) — COMPLETE
+Phase: Not started (defining requirements)
 
-Plan: 1 of 1
+Plan: —
 
-Status: Ready to plan a later newly numbered phase or milestone
+Status: Defining requirements
 
-Last activity: 2026-04-25 -- `84-01-SUMMARY.md` and `84-VERIFICATION.md` recorded
+Last activity: 2026-04-25 — Milestone v1.20 started
 
 ## Performance Metrics
 
@@ -43,24 +43,32 @@ _Velocity metrics populate during phase work._
 
 ## Accumulated Context
 
-**v1.19** — **Phase 83** shipped **AUD-20** — **`Sigra.MFA.confirm_enrollment/5`** invalid TOTP records **`mfa.enroll.failure`** via **`commit_ad_hoc_mfa_audit/5`** (**`Repo.transaction/1`** + **`Multi` + `log_multi_safe`**) when **`:audit_schema`** is set; caller always **`{:error, :invalid_code}`** on crypto failure (**D-83-02**). **Phase 82** shipped **AUD-19** — JWT refresh persistence + audit co-fate (**`Sigra.JWT.refresh/3`**). **Phase 81** standalone **`audit_jwt_refresh*`** helpers unchanged for backward compatibility.
+**v1.19 (shipped 2026-04-24)** — Phases 82–83 closed JWT refresh persistence + audit co-fate (AUD-19) and MFA invalid-TOTP enrollment audit (AUD-20). **Phase 84** (routing-honesty-reconciliation) closed 2026-04-25. After v1.20, the only known live audit-atomicity gap is the Phase 45 T2 OAuth/ops cluster (052–056, 058, 063) — explicitly in v1.20 scope.
+
+**v1.20 framing:** This is the inflection-point milestone where Sigra goes from "evidence-capable on disk" to "publicly available." All three legs (SEED-002 OAuth audit closure, SEED-001 human UAT execution, public launch sequence) are interdependent: legs 1 and 2 give the launch defensible evidence; the launch is the only reason to spend the engineering hours on legs 1 and 2 right now.
+
+**Selected seeds for this milestone:** SEED-001, SEED-002. Both will close (status → validated) when v1.20 ships.
+
+**Explicit non-goals:** `sigra_lockspire` / ADR 001 glue (still awaiting companion-app trigger); 999.x archaeology; responding to week-one launch feedback (deferred to a follow-up patch milestone if signal warrants).
 
 ### Pending Todos
 
-- Flip **`82-VERIFICATION.md`** checklist after **`mix test test/sigra/jwt_refresh_audit_cofate_test.exs`** passes locally/CI (merge gate hygiene for **AUD-19** evidence).
+_None as of milestone open. Will populate during phase planning._
 
 ### Blockers/Concerns
 
-_None._
+- **Live Google OAuth credentials** — SEED-001 leg requires real Google developer credentials for register/login/link/unlink cycle. Acquisition is part of the milestone scope; not blocking start.
+- **Real consumer mail accounts** — SEED-001 email visual QA needs Gmail / Outlook / Apple Mail accounts. Acquisition trivial; flagged here so it's not forgotten when the relevant phase starts.
+- **Hex.pm publish credentials + 2FA** — launch leg requires `mix hex.user auth` configured for the publishing maintainer. Verify before the launch phase begins.
 
 ## Session Continuity
 
-**Next:** **`/gsd-new-milestone`** or a later newly numbered phase — do not reopen **999.x**
+**Next:** `/gsd-plan-phase [N] ${GSD_WS}` once the v1.20 ROADMAP is approved.
 
 **Resume file:** None
 
-**Artifacts:** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, **`.planning/phases/84-routing-honesty-reconciliation/84-VERIFICATION.md`**, **`.planning/phases/84-routing-honesty-reconciliation/84-01-SUMMARY.md`**, **`.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`**, **`.planning/phases/83-mfa-confirm-enrollment-022/83-VERIFICATION.md`**, **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`**
+**Artifacts (active):** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md` (both being rewritten by this workflow)
 
 **Last completed phase:** **84** (routing-honesty-reconciliation) — **2026-04-25**
 
-**Planned Phase:** None — future assurance work must use a newly numbered phase, not **999.x**
+**Planned Phase:** None — defined by the upcoming v1.20 ROADMAP

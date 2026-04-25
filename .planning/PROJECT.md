@@ -18,9 +18,25 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-## Current milestone
+## Current Milestone: v1.20 GA Launch — SEED closure + public release
 
-**v1.19 — JWT refresh persistence + audit co-fate & MFA enrollment failure (SEED-002)** — **Phases 82–83** (opened **2026-04-24**). Closes the **v1.18** footnote deferral: **JWT `user_tokens` rotation** (`Sigra.JWT.RefreshToken` / **`Sigra.JWT.refresh/3`**) must share a **single transactional boundary** with **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit rows when `:audit_schema` is set (no successful persistence with a missing audit row, and no audit row for a rolled-back rotation). Second tranche: **`AUD-04-022`** / **`EX-44-02`** — invalid pre-DB TOTP on **`Sigra.MFA.confirm_enrollment/5`** promoted to the same **`Multi` + `log_multi_safe`** discipline where semantics allow. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.
+**Goal:** Close the last two trust-surface gates (**SEED-001** human UAT execution, **SEED-002** OAuth audit atomicity) and execute Sigra's first public release per the v1.5 **`MAINT-01`** checklist — turning Sigra from "evidence-capable, on-disk only" into "publicly available, used in production."
+
+**Target features (3 legs):**
+
+- **SEED-002 — OAuth audit atomicity closure** — Convert remaining `log_safe/3` OAuth/ops clusters in **Phase 45 T2** (**052–056**, **058**, **063**) to atomic **`Repo.transaction/1` + `Ecto.Multi` + `log_multi_safe`**. Refresh **`45-AUD-04-INVENTORY.md`**, **`09-VERIFICATION.md`** C-1 matrix, **`09-03-SUMMARY.md`**. Downgrade Phase 9 **C-1** from **PASS-WITH-CAVEATS → PASS**. Audit-aware tests; `CHANGELOG [Unreleased]`.
+- **SEED-001 — Human UAT execution** — Run all 8 GA-risk items: Phase 04 lockout/suspicious-login email visual QA across Gmail/Outlook/Apple Mail; Phase 08 lifecycle email templates in same 3 clients; **`mix sigra.gen.oauth`** real-credential register/login/link/unlink with live Google credentials; clean-machine **`getting-started.md`** timed end-to-end run (<30min target); backup-code rotation human verification. File **`.planning/v1.20-GA-UAT-RESULTS.md`** superseding **SEED-001**; archive evidence under **`.planning/uat-evidence/v1.20/`**.
+- **Public launch execution** — Tag **v1.20**; **`mix hex.publish`**; promote README from "production readiness available" to "use this in production" with v1.20 evidence/closure pointers; write + publish announcement post (positioning vs Pow / phx.gen.auth, why hybrid lib+generator, getting-started link); HN submission with outcome captured; Elixir community soft-launch (Discord/forum); add **`MAINTAINING.md`** post-launch monitoring lane (24h / 7d / 30d cadence: issues, Hex downloads, GitHub stars, triage SLA).
+
+**Selected seeds:** **SEED-001** (human GA UAT) + **SEED-002** (OAuth audit atomicity remainder) — both close in this milestone.
+
+**Explicit non-goals:** **`sigra_lockspire`** / **ADR 001** glue package (still awaiting companion-app trigger); **999.x** Nyquist archaeology; responding to week-one launch feedback (deferred to a follow-up milestone if signal warrants).
+
+Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.
+
+### Previously closed milestones
+
+**v1.19 — JWT refresh persistence + audit co-fate & MFA enrollment failure (SEED-002)** — **Phases 82–83** (shipped **2026-04-24**). Closed the **v1.18** footnote deferral: **JWT `user_tokens` rotation** (`Sigra.JWT.RefreshToken` / **`Sigra.JWT.refresh/3`**) shares a **single transactional boundary** with **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit rows when `:audit_schema` is set. Second tranche: **`AUD-04-022`** / **`EX-44-02`** — invalid pre-DB TOTP on **`Sigra.MFA.confirm_enrollment/5`** promoted to the same **`Multi` + `log_multi_safe`** discipline where semantics allow. Plus **Phase 84** routing-honesty reconciliation (**2026-04-25**).
 
 **Previously closed:** **v1.18 — JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049 / AUD-18)** (**Phase 81**, **AUD-18-01**..**AUD-18-04**, **2026-04-24**). **`Sigra.APIToken.audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** use **`Repo.transaction/1`** + audit-only **`Multi` + `log_multi_safe`** when `:audit_schema` is set; **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **JWT persistence co-fate** explicitly deferred to **v1.19**. Verification: **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
 
@@ -48,7 +64,9 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current State
 
-**v1.19 (shipped 2026-04-24):** Phases **82–83** — **AUD-19** (JWT **`user_tokens`** persistence + **`api.jwt_refresh*`** co-fate) + **AUD-20** (**`AUD-04-022`** invalid-code → **`commit_ad_hoc_mfa_audit/5`**). **`83-VERIFICATION.md`** / **`82-VERIFICATION.md`** merge gates; live **`REQUIREMENTS.md`** / **`ROADMAP.md`**.
+**v1.20 (started 2026-04-25):** Defining requirements — three legs (**SEED-002** OAuth audit atomicity closure, **SEED-001** human UAT execution, public launch per v1.5 **`MAINT-01`** checklist). Phase numbering continues from **Phase 84** (last completed); **`--reset-phase-numbers`** not used. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** drafting.
+
+**v1.19 (shipped 2026-04-24):** Phases **82–83** — **AUD-19** (JWT **`user_tokens`** persistence + **`api.jwt_refresh*`** co-fate) + **AUD-20** (**`AUD-04-022`** invalid-code → **`commit_ad_hoc_mfa_audit/5`**). **`83-VERIFICATION.md`** / **`82-VERIFICATION.md`** merge gates. **Phase 84** routing-honesty reconciliation closed **2026-04-25** (`84-VERIFICATION.md`).
 
 **v1.18 (shipped 2026-04-24):** Phase **81** — **AUD-18-01**..**AUD-18-04** — **`audit_jwt_refresh/2`** / **`audit_jwt_refresh_reuse/2`** transactional **`log_multi_safe`** (audit-only txn); **`api_token_audit_atomic_test.exs`**; **44** / **45** / **09** / **`CHANGELOG` [Unreleased]**; **persistence co-fate** → **v1.19**. Verification: **`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`**.
 
@@ -88,11 +106,14 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.19** is **shipped** (**Phases 82–83**, **2026-04-24**). Prefer **CHANGELOG + Hex** for small fixes; **`/gsd-new-milestone`** when **`MAINTAINING.md`** *Resume `/gsd-new-milestone`* criteria match (e.g. loud launch + **SEED-001**, documented adoption gap, **ADR 001** glue).
+**v1.20 is active** (started **2026-04-25**) and bundles all three remaining "before megaphone launch" gates: **SEED-001** human UAT execution, **SEED-002** Phase **45 T2** OAuth audit atomicity closure (**052–056**, **058**, **063**), and the public launch sequence (Hex push, README promotion, announcement post, HN, Elixir community soft-launch, post-launch monitoring lane).
 
-**Backlog / hygiene:** **Phase 84** owns routing-honesty cleanup after **v1.19**. **`999.1`** and **999.x** are archaeology only; see **`.planning/ROADMAP.md`** and the **`999.1-*`** tombstone files. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** / **`*-VALIDATION.md`** over conflicting **`STATE.md`** notes.
+**Later candidates (post–v1.20):**
+- **`sigra_lockspire`** glue package per **ADR 001** — only after a real companion-app trigger fires.
+- Week-one launch-feedback follow-ups — sized as a **v1.21** patch milestone if signal warrants; not pre-scoped.
+- Any newly identified validation / assurance work uses newly numbered phases (no **999.x** reuse).
 
-**Later candidates (post–v1.19):** **SEED-001** human matrix before megaphone launch; Phase **45** **T2** clusters (**052–056**, **058**, **063**) only if promoted with owner + trigger; new validation / assurance work uses newly numbered phases rather than **999.x** reuse; **`sigra_lockspire`** per ADR **001** triggers.
+**Backlog / hygiene:** **`999.1`** / **999.x** remain archaeology only; see **`.planning/ROADMAP.md`** and **`999.1-*`** tombstone files. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** / **`*-VALIDATION.md`** over conflicting **`STATE.md`** notes.
 
 <details>
 <summary>Archived v1.2 milestone framing (Admin Dashboard)</summary>
@@ -122,7 +143,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — _(none — **v1.19** Phases **82–83** shipped **2026-04-24**; next planning follow-up: **Phase 84** / routing honesty only)_
+### Active — v1.20 GA Launch (defining)
+
+_See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*) once defined. Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 human UAT execution, public launch execution._
 
 ### Validated — v1.19 JWT persistence + audit co-fate & MFA invalid-code audit (shipped in-repo 2026-04-24)
 
@@ -471,4 +494,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-24 — **`v1.19`** Phases **82–83** shipped (**AUD-19** + **AUD-20**); **`REQUIREMENTS.md`**, **`ROADMAP.md`**, **`PROJECT.md`**, **`STATE.md`** aligned.*
+*Last updated: 2026-04-25 — **`/gsd-new-milestone` v1.20** opened (GA Launch — SEED-001 human UAT + SEED-002 OAuth audit atomicity closure + public launch). Live **`REQUIREMENTS.md`** + **`ROADMAP.md`** to be defined in this workflow.*
