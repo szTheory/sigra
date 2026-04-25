@@ -11,10 +11,13 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
+
 ### Changed
 
 * **mfa:** When `:audit_schema` is configured, `Sigra.MFA.confirm_enrollment/5` writes `mfa.enroll.failure` for invalid TOTP (pre-enrollment DB work) inside `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`, using the same `commit_ad_hoc_mfa_audit/5` shell as other MFA ad-hoc audits (**AUD-20-01** / **AUD-04-022**). The caller still receives `{:error, :invalid_code}` regardless of audit insert outcome; audit failures emit `[:sigra, :audit, :log_safe_error]`. Evidence: `test/sigra/mfa_audit_atomicity_test.exs`.
 * **jwt:** When `:audit_schema` is configured, `Sigra.JWT.refresh/3` (and `Sigra.Auth.refresh_jwt/2`) runs refresh-token **`user_tokens`** persistence and `api.jwt_refresh` / `api.jwt_refresh_reuse` audit inserts in a single `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (persistence + audit co-fate / **AUD-08** for the guided path). Any step failure in that transaction returns `{:error, :jwt_refresh_aborted}` instead of issuing new tokens without a matching audit row. Evidence: `test/sigra/jwt_refresh_audit_cofate_test.exs`.
+* **jwt:** Refresh-token classify/revoke paths now base64url-decode the raw refresh token before hashing, so malformed or non-decodable inputs return `{:error, :invalid_token}` instead of hashing the encoded wrapper bytes.
 * **audit:** When `:audit_schema` is configured, `Sigra.APIToken.audit_jwt_refresh/2` and `audit_jwt_refresh_reuse/2` write `api.jwt_refresh` / `api.jwt_refresh_reuse` inside `Repo.transaction/1` via audit-only `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (audit-row atomicity only — standalone helpers; prefer `JWT.refresh/3` for co-fate so audit is not double-emitted).
 * **audit:** When `:audit_schema` is configured, `Sigra.Account.clear_password_change_requirement/3` clears `must_change_password` and writes `account.password_change` (`metadata: %{forced: true}`) in one `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`. `Sigra.Account.audit_forced_password_change/2` is deprecated for that path — do not call both or you may duplicate audit rows.
 * **audit:** When `:audit_schema` is configured, `Sigra.APIToken.verify/2` now writes `api.token_verify.failure` audit rows inside `Repo.transaction/1` via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` (invalid, revoked, and expired branches). Success remains telemetry-only (**D-27**). Insert failures emit `[:sigra, :audit, :log_safe_error]` (`:invalid_changeset` or `:constraint_violation`) while the caller still receives `{:error, reason}`.

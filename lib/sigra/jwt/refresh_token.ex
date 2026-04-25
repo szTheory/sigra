@@ -115,7 +115,13 @@ defmodule Sigra.JWT.RefreshToken do
           | {:error, :invalid_token | :token_expired}
   def classify_refresh_token(config, raw_token, opts) do
     user_token_schema = Keyword.fetch!(opts, :user_token_schema)
-    hashed = Token.hash_token(raw_token)
+
+    hashed =
+      case Base.url_decode64(raw_token, padding: false) do
+        {:ok, decoded} -> Token.hash_token(decoded)
+        :error -> nil
+      end
+
     repo = config.repo
     refresh_ttl = Keyword.get(config.jwt, :refresh_ttl, 30 * 24 * 60 * 60)
 
@@ -211,7 +217,13 @@ defmodule Sigra.JWT.RefreshToken do
           :ok | {:error, :invalid_token}
   def revoke(config, raw_token, opts \\ []) do
     user_token_schema = Keyword.fetch!(opts, :user_token_schema)
-    hashed = Token.hash_token(raw_token)
+
+    hashed =
+      case Base.url_decode64(raw_token, padding: false) do
+        {:ok, decoded} -> Token.hash_token(decoded)
+        :error -> nil
+      end
+
     repo = config.repo
 
     case repo.get_by(user_token_schema, token: hashed, context: "api_refresh") do

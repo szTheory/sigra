@@ -262,19 +262,38 @@ defmodule Sigra.JWT do
             reuse_audit_opts
           )
 
-        case config.repo.transaction(multi) do
-          {:ok, changes} ->
-            Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh_reuse])
+        try do
+          case config.repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh_reuse])
 
-            Telemetry.event(
-              [:sigra, :jwt, :refresh_reuse_detected],
+              Telemetry.event(
+                [:sigra, :jwt, :refresh_reuse_detected],
+                %{count: 1},
+                %{user_id: user_id, family_id: family_id}
+              )
+
+              {:error, :reuse_detected}
+
+            {:error, _step, _reason, _changes} ->
+              :telemetry.execute(
+                [:sigra, :audit, :log_safe_error],
+                %{count: 1},
+                %{action: "api.jwt_refresh_reuse", reason: :database_error}
+              )
+
+              {:error, :jwt_refresh_aborted}
+          end
+        rescue
+          e ->
+            reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+
+            :telemetry.execute(
+              [:sigra, :audit, :log_safe_error],
               %{count: 1},
-              %{user_id: user_id, family_id: family_id}
+              %{action: "api.jwt_refresh_reuse", reason: reason}
             )
 
-            {:error, :reuse_detected}
-
-          {:error, _, _, _} ->
             {:error, :jwt_refresh_aborted}
         end
 
@@ -295,13 +314,32 @@ defmodule Sigra.JWT do
             refresh_audit_opts
           )
 
-        case config.repo.transaction(multi) do
-          {:ok, changes} ->
-            Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh])
-            {new_raw, new_record, scopes} = changes.jwt_refresh_new_token
-            finalize_refresh_response(config, new_record, scopes, new_raw)
+        try do
+          case config.repo.transaction(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes, [:audit_api_token_jwt_refresh])
+              {new_raw, new_record, scopes} = changes.jwt_refresh_new_token
+              finalize_refresh_response(config, new_record, scopes, new_raw)
 
-          {:error, _, _, _} ->
+            {:error, _step, _reason, _changes} ->
+              :telemetry.execute(
+                [:sigra, :audit, :log_safe_error],
+                %{count: 1},
+                %{action: "api.jwt_refresh", reason: :database_error}
+              )
+
+              {:error, :jwt_refresh_aborted}
+          end
+        rescue
+          e ->
+            reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+
+            :telemetry.execute(
+              [:sigra, :audit, :log_safe_error],
+              %{count: 1},
+              %{action: "api.jwt_refresh", reason: reason}
+            )
+
             {:error, :jwt_refresh_aborted}
         end
     end
