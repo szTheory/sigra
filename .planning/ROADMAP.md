@@ -23,7 +23,7 @@
 - ✅ **v1.17 Forced password change audit atomicity (SEED-002 / AUD-04-043)** — Phase **80** (shipped **2026-04-24**). See [v1.17 requirements](milestones/v1.17-REQUIREMENTS.md), [milestone archive](milestones/v1.17-ROADMAP.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.18 JWT refresh / reuse audit atomicity (SEED-002 / AUD-04-048..049)** — Phase **81** (shipped **2026-04-24**). [MILESTONES.md](MILESTONES.md); verification [`.planning/phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md`](phases/81-jwt-refresh-audit-atomicity/81-VERIFICATION.md).
 - **v1.19 JWT refresh persistence + audit co-fate & MFA enrollment failure** — Phases **82–83** (opened **2026-04-24**). Live [REQUIREMENTS.md](REQUIREMENTS.md); phases **82** then **83** below.
-- **Post-v1.19 routing honesty follow-up** — Phase **84** (planned). Purpose: remove stale executable pointers to superseded **`999.1`** and keep future validation work on newly numbered phases only.
+- ✅ **Post-v1.19 routing honesty follow-up** — Phase **84** (completed **2026-04-25**). Removed stale executable pointers to superseded **`999.1`** and kept future validation work on newly numbered phases only.
 
 ## Phases
 
@@ -197,13 +197,13 @@ Full phase table, goals, success criteria, and reader note are archived in [`mil
 
 </details>
 
-### Post-v1.19 follow-up — planned (Phase **84**)
+### Post-v1.19 follow-up — completed (Phase **84**)
 
 | Phase | Name | Goal | Requirements | Success criteria (observable) |
 |-------|------|------|--------------|----------------------------|
-| **84** | Routing honesty reconciliation | Align **`STATE.md`**, **`ROADMAP.md`**, and related planning surfaces so no active workflow points at superseded **`999.1`**; preserve **`999.1`** as archaeology-only and route any future Nyquist work to newly numbered phases. | ROUTE-84-01, ROUTE-84-02, ROUTE-84-03 | (1) **`STATE.md`** no longer marks **`999.1`** as next/current/planned. (2) **`ROADMAP.md`**, **`PROJECT.md`**, and **`MILESTONES.md`** consistently describe **`999.1`** / **`999.2`** as archaeology-only. (3) **Phase 84** context and verification artifacts document the routing rule: future assurance work requires a new numbered phase, not **`999.1`** reuse. |
+| **84** | Routing honesty reconciliation | Align **`STATE.md`**, **`ROADMAP.md`**, and related planning surfaces so no active workflow points at superseded **`999.1`**; preserve **`999.1`** as archaeology-only and route any future Nyquist work to newly numbered phases. | ROUTE-84-01, ROUTE-84-02, ROUTE-84-03 | Complete — **`STATE.md`** no longer marks **`999.1`** as next/current/planned, live planning hubs describe **`999.1`** / **`999.2`** as archaeology-only, and **Phase 84** verification artifacts document the routing rule. |
 
-**At a glance:** planning-surface honesty only — no Sigra runtime/library code changes; canonical supersession remains [`.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`](phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md) and Phase **36** evidence.
+**At a glance:** planning-surface honesty only — no Sigra runtime/library code changes; canonical supersession remains [`.planning/phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md`](phases/999.1-nyquist-retroactive-validation-pass/999.1-CONTEXT.md) and Phase **36** evidence. Verification: [`.planning/phases/84-routing-honesty-reconciliation/84-VERIFICATION.md`](phases/84-routing-honesty-reconciliation/84-VERIFICATION.md).
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 

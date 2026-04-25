@@ -20,6 +20,7 @@
 
 ## Future requirements
 
+- **ROUTE-84-01** / **02** / **03** — completed in **Phase 84** (**2026-04-25**); see `.planning/phases/84-routing-honesty-reconciliation/84-VERIFICATION.md`.
 - **Phase 45 T2** promotions (**052–056**, **058**, **063**) — only if a later milestone selects them with owner + reopen trigger (**EX-45-***).
 - **SEED-001** human GA matrix — launch lane milestone, not **v1.19**.
 
@@ -40,3 +41,6 @@
 | AUD-20-01 | 83    |
 | AUD-20-02 | 83    |
 | AUD-20-03 | 83    |
+| ROUTE-84-01 | 84 |
+| ROUTE-84-02 | 84 |
+| ROUTE-84-03 | 84 |
