@@ -16,6 +16,7 @@
 - **C-1 verification note (phase 80 / AUD-17):** **AUD-04-043** — **`T1`** via **`Multi` + `log_multi_safe`** on **`Sigra.Account.clear_password_change_requirement/3`** (phase **80**); evidence **`account_audit_atomicity_test.exs`**; **`audit_forced_password_change/2`** is **`@deprecated`** for that completion path (do not call both).
 - **C-1 verification note (phase 81 / AUD-18):** **AUD-04-048** / **049** — **`Sigra.APIToken.audit_jwt_refresh/2`** and **`audit_jwt_refresh_reuse/2`** emit **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** via **`Repo.transaction/1`** + **`Ecto.Multi`** + **`Sigra.Audit.log_multi_safe/3`** when `:audit_schema` is configured (audit-only helpers). Evidence: **`test/sigra/api_token_audit_atomic_test.exs`**.
 - **C-1 verification note (phase 82 / AUD-19):** **AUD-04-048** / **049** — **`Sigra.JWT.refresh/3`** co-fates **`user_tokens`** writes and audit rows in one **`Repo.transaction/1`** when `:audit_schema` is set (**AUD-08**). Merge gate: **`.planning/phases/82-jwt-refresh-persistence-audit-cofate/82-VERIFICATION.md`**.
+- **C-1 verification note (phase 85 / AUD-21):** **AUD-04-053** / **054** — **`Sigra.Impersonation.start/5`** and **`stop/4`** now co-fate the session write/delete with the matching impersonation audit row on the default Ecto session store. Non-Ecto stores keep the legacy `create` / `delete` + `log_safe` path. Evidence: **`test/sigra/impersonation_audit_atomicity_test.exs`**; merge gate **`.planning/phases/85-oauth-audit-atomicity-closure-aud-21/85-VERIFICATION.md`**.
 
 ## Recent bounded batches
 

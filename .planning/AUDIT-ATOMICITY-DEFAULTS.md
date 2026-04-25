@@ -34,7 +34,7 @@
 
 ### D-AUD-06 — Caller contract when audit insert fails (audit-only paths)
 
-- Public functions that today return **`:ok`** and use **`log_safe`/`log_multi_safe`** for **side-channel audit** keep **`:ok`** on audit subsystem failure; emit **`[:sigra, :audit, :log_safe_error]`** (or the same telemetry contract as `emit_log_safe_error`) so operators can alert; **raise** only on programmer-wiring errors. **`@doc`** must state **`:ok` does not guarantee** the audit row exists.
+- Public functions that today return **`:ok`** and use **`log_safe`/`log_multi_safe`** for **side-channel audit** keep **`:ok`** on audit subsystem failure **when the audit row is not co-fated with a durable partner write**. This covers three legitimate sub-classes: **detection-only** (the audit row is the forensic record), **pre-domain** (the event fires before a persistence target exists), and **audit-only helpers**. Emit **`[:sigra, :audit, :log_safe_error]`** (or the same telemetry contract as `emit_log_safe_error`) so operators can alert; **raise** only on programmer-wiring errors. **`@doc`** must state **`:ok` does not guarantee** the audit row exists.
 
 ### D-AUD-07 — ExUnit layout for audit fault injection
 

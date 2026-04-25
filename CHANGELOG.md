@@ -11,7 +11,15 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+- **planning:** Phase **85** / **AUD-21** closes the impersonation audit-atomicity gap: the default Ecto session store now co-fates impersonation session writes with `admin.impersonation.start` / `admin.impersonation.stop`, while non-Ecto stores keep the legacy `create` / `delete` + `log_safe` path.
+
 ## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
+
+### Summary
+
+- Several audit-backed MFA, JWT, account, and API-token flows now succeed or fail as one unit instead of risking a data change without the matching audit row.
+- Malformed refresh tokens fail earlier with `{:error, :invalid_token}` instead of going through the normal hash-and-lookup path first.
+- Most apps do not need new upgrade steps for this release; it is mainly a safety, correctness, and observability improvement.
 
 ### Changed
 
@@ -41,6 +49,12 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [0.2.4](https://github.com/szTheory/sigra/compare/v0.2.3...v0.2.4) (2026-04-24)
 
+### Summary
+
+- MFA backup-code regeneration and trust-browser audit writes are now more durable when audit logging is enabled.
+- A database-level audit insert failure now falls back to the same telemetry-first behavior as other safe audit helpers instead of surfacing a rougher failure mode.
+- This release is mostly operational hardening and docs polish; most host apps do not need a new install or migration step.
+
 ### Changed
 
 * **audit:** `Sigra.MFA.audit_backup_codes_regenerate/3` and `Sigra.MFA.audit_trust_browser/2` now emit audit rows via `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3` inside `Repo.transaction/1` when `:audit_schema` is configured (bounded **SEED-002** closure for **AUD-04-033** / **AUD-04-034**; **`regenerate_backup_codes/4`** remains the authoritative rotation path).
@@ -60,6 +74,11 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [0.2.3](https://github.com/szTheory/sigra/compare/v0.2.2...v0.2.3) (2026-04-23)
 
+### Summary
+
+- Release automation and maintainer docs are clearer, especially around token setup for Release Please and downstream CI behavior.
+- No new library features or upgrade steps for host apps.
+
 
 ### Bug Fixes
 
@@ -67,12 +86,22 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [0.2.2](https://github.com/szTheory/sigra/compare/v0.2.1...v0.2.2) (2026-04-23)
 
+### Summary
+
+- Hex package metadata was trimmed to satisfy Hex.pm limits.
+- No runtime behavior change for host apps.
+
 
 ### Bug Fixes
 
 * **hex:** shorten Hex package description (300 char limit) ([#22](https://github.com/szTheory/sigra/issues/22)) ([3d8acfe](https://github.com/szTheory/sigra/commit/3d8acfed1d0cf7530454a8ef151f91e12ebbbe4c))
 
 ## [0.2.1](https://github.com/szTheory/sigra/compare/v0.2.0...v0.2.1) (2026-04-23)
+
+### Summary
+
+- Sigra became easier to discover and evaluate on Hex: docs links, package metadata, and first-pass release presentation all improved.
+- This was mostly a packaging and documentation release around the existing `0.2.0` line.
 
 
 ### Features

@@ -1,6 +1,6 @@
 ---
 id: SEED-002
-status: deferred
+status: validated
 planted: 2026-04-11
 planted_during: v1.0 milestone completion
 trigger_when: When subsystem tests become audit-aware OR when a customer reports a missing audit row for a successful business op
@@ -11,7 +11,7 @@ scope: Medium
 
 ## Why This Matters
 
-Phase 9 (audit logging) landed with an accepted caveat — **C-1: PASS-WITH-CAVEATS** — documented in `.planning/phases/09-audit-logging/09-VERIFICATION.md` and in phase 9's `09-03-SUMMARY.md`. The original D-01 design decision called for universal atomic `Ecto.Multi` writes at every integration site, so that an audit row for a successful business operation could never be lost. What actually shipped is a **hybrid**: 3 sites use true atomic `Ecto.Multi` (confirm_user, verify_confirmation_code, reset_password in `lib/sigra/auth.ex`), and ~30+ other integration sites use a non-atomic `log_safe/3` helper that fires the audit insert in a separate transaction after the business-op transaction commits.
+Phase 9 (audit logging) landed with an accepted caveat — **C-1: PASS-WITH-CAVEATS** — documented in `.planning/phases/09-audit-logging/09-VERIFICATION.md` and in phase 9's `09-03-SUMMARY.md`. Phase **85** closed the remaining AUD-21 impersonation slice: the default Ecto session store now co-fates impersonation session writes with their matching audit row, while non-Ecto stores keep the legacy `create` / `delete` + `log_safe` path. The original D-01 design decision called for universal atomic `Ecto.Multi` writes at every integration site, so that an audit row for a successful business operation could never be lost. What actually shipped is a **hybrid**: 3 sites use true atomic `Ecto.Multi` (confirm_user, verify_confirmation_code, reset_password in `lib/sigra/auth.ex`), and ~30+ other integration sites use a non-atomic `log_safe/3` helper that fires the audit insert in a separate transaction after the business-op transaction commits.
 
 ### The failure mode C-1 permits
 

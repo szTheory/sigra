@@ -104,8 +104,8 @@ Mechanical check on this document (after the tables are present):
 | AUD-04-050 | `Callback` / `register_oauth_user/6` | T1 | T1 (AUD-08) | `test/sigra/oauth/oauth_audit_atomicity_test.exs` |
 | AUD-04-051 | `Callback` / `do_login_with_identity_update/7` | T1 | T1 (AUD-08) | `test/sigra/oauth/oauth_audit_atomicity_test.exs` |
 | AUD-04-052 | `log_safe` | T2 (see **EX-45-03**) | T2 (EX-45-03) | `test/sigra/suspicious_login_test.exs` |
-| AUD-04-053 | `log_safe` after `Auth.create_session` | T2 | T2 (EX-45-06) | `test/sigra/impersonation_test.exs` |
-| AUD-04-054 | `log_safe` after `Auth.delete_session` | T2 | T2 (EX-45-06) | `test/sigra/impersonation_test.exs` |
+| AUD-04-053 | `Multi` + `log_multi_safe` via `SessionStore.create_session_multi/3` | T1 | T1 (AUD-21, phase 85) | `test/sigra/impersonation_audit_atomicity_test.exs` |
+| AUD-04-054 | `Multi` + `log_multi_safe` via `SessionStore.delete_session_multi/3` | T1 | T1 (AUD-21, phase 85) | `test/sigra/impersonation_audit_atomicity_test.exs` |
 | AUD-04-055 | `log_safe` (no DB write in-module) | T2 | T2 (EX-45-04) | `test/sigra/impersonation_test.exs` |
 | AUD-04-056 | `log_safe` | T2 | T2 (EX-45-05) | `test/sigra/impersonation_test.exs` |
 | AUD-04-057 | **`log_multi_safe`** inside same `repo.transaction` as **`Deletion.execute`** | T1 | T1 (AUD-08) | `test/sigra/account/deletion_test.exs` + `test/sigra/workers/account_deletion_test.exs` |
