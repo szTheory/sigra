@@ -12,6 +12,7 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ## [Unreleased]
 
 - **planning:** Phase **85** / **AUD-21** closes the impersonation audit-atomicity gap: the default Ecto session store now co-fates impersonation session writes with `admin.impersonation.start` / `admin.impersonation.stop`, while non-Ecto stores keep the legacy `create` / `delete` + `log_safe` path.
+- **planning (Phase 87 / GAUAT-03..06 verification-approach correction):** v1.20 GAUAT OAuth slice (gen smoke + Google register/login + provider linking + email-match confirmation) reshaped from "human runs `mix sigra.gen.oauth` + clicks real Google + captures screenshots" to a fully automated end-to-end harness — `Sigra.Testing.OAuthIssuer` (TestServer-backed in-process OIDC issuer mirroring Assent's own `OIDCTestCase`) drives Sigra's real HTTP stack from three Playwright specs (oauth-register / oauth-link / oauth-email-match) on every PR. Generator smoke extends `scripts/ci/install-smoke.sh` to add `mix test` on the freshly-generated host. Adopter-side real-credential check ships as `mix sigra.oauth.smoketest --provider=google` + `docs/oauth-google-setup.md`. 0 human UAT for v1.20 launch — matches Auth.js / Spring Security / Assent / pow_assent / Devise+omniauth ecosystem convention. REQUIREMENTS.md GAUAT-03..06, ROADMAP.md Phase 87, and `docs/uat-ci-coverage.md` SEED-001 row updated in the same commit (Phase 86 D-86-08 precedent).
 
 ## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
 
