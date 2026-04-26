@@ -37,7 +37,7 @@
 **Phase summary:**
 
 - [x] **Phase 85: OAuth audit atomicity closure (AUD-21)** — Convert remaining `log_safe/3` OAuth/ops clusters in Phase 45 T2 (AUD-04 rows 052–056, 058, 063) to atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`; refresh planning truth; downgrade Phase 9 C-1 caveat from PASS-WITH-CAVEATS to PASS.
-- [ ] **Phase 86: GAUAT email visual QA (Phase 04 + Phase 08 templates)** — Render both Phase 04 lockout/suspicious-login templates and the seven Phase 08 lifecycle templates in Gmail / Outlook / Apple Mail; capture screenshots; file pass/fail per template.
+- [ ] **Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)** — Ship automated visual regression harness (Premailex CSS-inline + Playwright `toHaveScreenshot` Chromium+WebKit × light+dark + caniemail CSS lint + extended WCAG/byte/multipart/XSS ExUnit asserts) producing CI-reproducible evidence per template. 0 human MUA passes required for v1.20 launch.
 - [ ] **Phase 87: GAUAT OAuth real-credential cycle** — `mix sigra.gen.oauth` fresh-host smoke + end-to-end Google register/login + provider linking and last-method unlink prevention + email-match confirmation flash; capture evidence per scenario.
 - [ ] **Phase 88: GAUAT MFA + getting-started + results filing** — Backup-code regeneration human verification; clean-machine timed getting-started run on a fresh Phoenix 1.8 host; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` (or `partially-validated` with reopen trigger).
 - [ ] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean.
@@ -67,9 +67,9 @@ Plans:
 - [x] 85-01-PLAN.md — Atomicize impersonation session/audit orchestration and sharpen AUD-04 truth.
 - [x] 85-02-PLAN.md — Close the C-1 narrative, seed status, and verification trail for AUD-21.
 
-### Phase 86: GAUAT email visual QA (Phase 04 + Phase 08 templates)
+### Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)
 
-**Goal:** Verify by human inspection that the Phase 04 lockout/suspicious-login emails and the seven Phase 08 lifecycle emails render correctly in real consumer mail clients (Gmail web, Outlook web, Apple Mail macOS), so the launch claim of "real-mail-client tested" is defensible.
+**Goal:** Ship an automated email visual regression harness that produces CI-reproducible evidence for the 9 transactional email templates (2 Phase 04 security + 7 Phase 08 lifecycle) without any human MUA pass. The launch claim is downgraded from "real-mail-client tested" to **"render-tested across Chromium + WebKit engines × light + dark mode, with caniemail-validated CSS for Gmail web / new Outlook web / Apple Mail; legacy Outlook Word-engine desktop documented as out-of-scope (Microsoft EOL Oct 2026)"** — accurate, defensible, and reproducible from any SHA. 0 human UAT for v1.20 launch.
 
 **Depends on:** Nothing (parallel-ready with Phase 85 and with Phases 87–88).
 
@@ -77,12 +77,16 @@ Plans:
 
 **Success criteria** (what must be TRUE):
 
-1. An external reviewer opening `.planning/uat-evidence/v1.20/email-phase-04/` finds two screenshot sets (lockout, suspicious-login) for each of Gmail / Outlook / Apple Mail (six images per template, twelve total minimum), plus a `README.md` listing client + template + verdict.
-2. An external reviewer opening `.planning/uat-evidence/v1.20/email-phase-08/` finds one screenshot set per Phase 08 lifecycle template across the same three clients, with one filed pass/fail row per template (seven rows minimum).
-3. `.planning/v1.20-GA-UAT-RESULTS.md` (filed in Phase 88) carries one row per GAUAT-01 sub-template and one row per GAUAT-02 sub-template, each linking back into the evidence directories under `.planning/uat-evidence/v1.20/`.
-4. Any rendering failure surfaced during this phase is filed as a tracked todo with severity (blocker / non-blocker for launch); blocker failures fail the phase and force a fix loop before AUD-21 / Phase 88 can converge into Phase 89.
+1. An external reviewer running `mix test` and `mix ci.email_visual` (or the equivalent CI workflow) on the phase-close SHA produces 36 baseline-matching snapshots (9 templates × 2 engines × 2 themes) byte-equal to the committed baselines under `test/example/priv/playwright/__snapshots__/email-visual.spec.ts/`. Pixel-diff > `maxDiffPixels` fails the build.
+2. An external reviewer opening `.planning/uat-evidence/v1.20/email-phase-04/README.md` and `email-phase-08/README.md` finds: YAML frontmatter (`hex_version`, `git_sha`, `git_tag`, `ci_run_url`, `disposition`); `manifest.json` with one row per (template, engine, theme); `reports/contrast-summary.json` and `byte-budget.csv`; hero PNGs under `snapshots/` named `{template}__{engine}__{theme}__sha-{short-sha}.png` (~1-2 MB total per directory).
+3. The full snapshot bundle (raw `.eml`, all engine PNGs at full res, axe-core JSONs) is uploaded as a GitHub Actions artifact at every CI run AND promoted to the `v1.20.0` GitHub release asset at tag time (release assets do not expire, vs. Actions artifacts capped at 400d — matters for SOC 2 Type II audit windows).
+4. The extended ExUnit suite (`Sigra.A11y.Contrast` module + `Example.EmailAssertions` helper) asserts WCAG 2.2 AA computed contrast (CTA bumped to `#1d4ed8` for 5.17:1 normal-text), byte budget < 100 KB vs Gmail clip, multipart parity (text mirrors HTML URLs), recipient correctness, XSS fuzz on user-controlled fields, Outlook Word-engine deny-list (no `<style>`, no `position:`, no `flex|grid:`), and image tripwire — all per template, all green at phase close.
+5. The `caniemail` CSS lint module fails the build if any rendered template uses a CSS property not supported in Gmail web / new Outlook web / Apple Mail per the open-data caniemail.com allowlist.
+6. `.planning/v1.20-GA-UAT-RESULTS.md` (filed in Phase 88) carries one row per (template, engine, theme) cell for GAUAT-01 + GAUAT-02, each linking back into the evidence directories under `.planning/uat-evidence/v1.20/`.
+7. `docs/uat-ci-coverage.md` SEED-1/SEED-2 row residual columns are updated to point at the new `email_visual_regression` CI job; the v1.4 GA-02 waiver is demoted to historical-only (no v1.20 invocation).
+8. `86-VERIFICATION.md` records the merge gate outcome (CI run URL, snapshot count = 36, contrast min ratio, byte budget max, dated PASS attestation per GAUAT-01/02). Documented residual (legacy Outlook desktop Word engine; subjective copy tone in PR review; spam placement = deliverability) is captured in `docs/uat-ci-coverage.md` SEED-1/2 residual column — NOT as a waiver, since no work is being skipped.
 
-**Plans:** TBD.
+**Plans:** TBD (two-commit closure per Phase-85 D-85-06 pattern: Commit A = ExUnit extensions + `Sigra.A11y.Contrast` + CTA template bump + caniemail lint; Commit B = Playwright spec + `mix sigra.email.snapshot` + 36 baselines + `mix sigra.uat.report` + evidence directories + CI job + planning-truth edits + `86-VERIFICATION.md`).
 
 ### Phase 87: GAUAT OAuth real-credential cycle (gen smoke + Google live + linking + email-match)
 
