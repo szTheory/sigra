@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
 status: executing
-last_updated: "2026-04-26T17:46:04.063Z"
-last_activity: 2026-04-26 -- Phase 86 execution started
+last_updated: "2026-04-26T18:00:00.000Z"
+last_activity: 2026-04-26 -- Phase 86 wave 1 complete (86-01 ExUnit harness landed)
 progress:
   total_phases: 6
   completed_phases: 1
