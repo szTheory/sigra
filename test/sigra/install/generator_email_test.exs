@@ -79,7 +79,7 @@ defmodule Sigra.Install.GeneratorEmailTest do
 
     test "includes CTA button color from UI-SPEC" do
       content = render_template("emails.ex")
-      assert content =~ "#2563eb"
+      assert content =~ "#1d4ed8"
     end
 
     test "includes background color from UI-SPEC" do
