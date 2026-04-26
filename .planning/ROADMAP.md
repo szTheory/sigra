@@ -91,8 +91,8 @@ Plans:
 Plans:
 - [x] 86-01-PLAN.md — Commit A: ExUnit extensions, `Sigra.A11y.Contrast`, CTA contrast bump, and caniemail CSS lint for the 9-template matrix.
 - [x] 86-02-PLAN.md — Commit B1: deterministic snapshot/report tasks plus the committed 36 Playwright baselines.
-- [ ] 86-03-PLAN.md — Commit B2: `email_visual_regression` CI wiring, Phase 04 evidence materialization, and `86-VERIFICATION.md`.
-- [ ] 86-04-PLAN.md — Commit B3: Phase 08 evidence materialization with the 28 lifecycle hero PNGs.
+- [x] 86-03-PLAN.md — Commit B2: `email_visual_regression` CI wiring, Phase 04 evidence materialization, and `86-VERIFICATION.md`.
+- [x] 86-04-PLAN.md — Commit B3: Phase 08 evidence materialization with the 28 lifecycle hero PNGs.
 
 ### Phase 87: GAUAT OAuth real-credential cycle (gen smoke + Google live + linking + email-match)
 
