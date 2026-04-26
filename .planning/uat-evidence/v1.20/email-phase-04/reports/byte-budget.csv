@@ -1,0 +1,9 @@
+template,engine,theme,byte_size,byte_budget_max,outcome
+lockout-notification,chromium,light,46983,100000,pass
+lockout-notification,chromium,dark,46983,100000,pass
+lockout-notification,webkit,light,63587,100000,pass
+lockout-notification,webkit,dark,63587,100000,pass
+suspicious-login,chromium,light,46761,100000,pass
+suspicious-login,chromium,dark,46761,100000,pass
+suspicious-login,webkit,light,62864,100000,pass
+suspicious-login,webkit,dark,62864,100000,pass

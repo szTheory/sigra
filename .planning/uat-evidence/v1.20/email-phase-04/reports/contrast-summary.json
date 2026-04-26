@@ -1,0 +1,14 @@
+[
+  {
+    "template": "lockout-notification",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "suspicious-login",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  }
+]
