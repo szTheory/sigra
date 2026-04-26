@@ -29,6 +29,10 @@ const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
 // (Playwright mobile preset is WebKit).
 const WEBAUTHN_CDP_SPECS =
   /passkeys-hooks\.spec\.ts|passkey-options\.spec\.ts|passkey-login\.spec\.ts/;
+// Phase 86 D-86-03: email visual regression lane (9 templates × 2 engines × 2 themes = 36 baselines)
+// Each project is scoped to exactly one engine+theme combination. The spec
+// encodes engine and theme in every snapshot name so no project-name suffix is needed.
+const EMAIL_VISUAL_SPEC = /email-visual\.spec\.ts/;
 
 // GitHub Pages publish job sets SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1 so reviewer
 // videos are retained on green runs (default CI keeps video on failure only).
@@ -78,7 +82,7 @@ export default defineConfig({
     // specs so those stay scoped to their partitioned projects.
     {
       name: 'chromium',
-      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_GENERATED_SPEC],
+      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_GENERATED_SPEC, EMAIL_VISUAL_SPEC],
       use: { ...devices['Desktop Chrome'] },
     },
     // Mobile coverage for non-admin flows (golden-path, organizations,
@@ -91,6 +95,7 @@ export default defineConfig({
         ADMIN_BEHAVIOR_SPECS,
         ADMIN_CHECKPOINTS_SPEC,
         ADMIN_GENERATED_SPEC,
+        EMAIL_VISUAL_SPEC,
         WEBAUTHN_CDP_SPECS,
       ],
       use: { ...devices['iPhone 13'] },
@@ -142,6 +147,89 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         video: checkpointVideo,
+      },
+    },
+
+    // Phase 86 D-86-03: email visual regression lane.
+    //
+    // 9 templates × 2 engines × 2 themes = 36 committed baselines.
+    // Viewport: 640×1200 (matches the email card width in base_layout/1).
+    // Diff tolerance: maxDiffPixels 50 per D-86-03 and D-86-11.
+    //
+    // Each project covers exactly one engine+theme combination. The spec
+    // includes engine and theme in the snapshot arg so the committed PNG names
+    // are `{template}__{engine}__{theme}.png` — no project-name suffix needed.
+    //
+    // snapshotPathTemplate at the project level routes baselines to the
+    // canonical `__snapshots__/email-visual.spec.ts/` directory instead of the
+    // default `tests/email-visual.spec.ts-snapshots/` path used by other specs.
+    //
+    // Baselines are generated once with `--update-snapshots` and then committed.
+    // Normal CI runs compare against committed PNGs and fail on drift.
+    // To update: `MIX_ENV=test mix sigra.email.snapshot` then
+    // `npx playwright test tests/email-visual.spec.ts --update-snapshots`.
+    // Document the reason for the change in the commit message.
+    {
+      name: 'email-visual-chromium-light',
+      testMatch: EMAIL_VISUAL_SPEC,
+      // Route baselines to the canonical __snapshots__/email-visual.spec.ts/ path.
+      // {arg}{ext} only — no {-projectName} suffix because the arg already encodes
+      // engine and theme (e.g. `lockout-notification__chromium__light.png`).
+      expect: {
+        toHaveScreenshot: {
+          pathTemplate: '__snapshots__/email-visual.spec.ts/{arg}{ext}',
+          maxDiffPixels: 50,
+        },
+      },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 640, height: 1200 },
+        colorScheme: 'light',
+      },
+    },
+    {
+      name: 'email-visual-chromium-dark',
+      testMatch: EMAIL_VISUAL_SPEC,
+      expect: {
+        toHaveScreenshot: {
+          pathTemplate: '__snapshots__/email-visual.spec.ts/{arg}{ext}',
+          maxDiffPixels: 50,
+        },
+      },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 640, height: 1200 },
+        colorScheme: 'dark',
+      },
+    },
+    {
+      name: 'email-visual-webkit-light',
+      testMatch: EMAIL_VISUAL_SPEC,
+      expect: {
+        toHaveScreenshot: {
+          pathTemplate: '__snapshots__/email-visual.spec.ts/{arg}{ext}',
+          maxDiffPixels: 50,
+        },
+      },
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 640, height: 1200 },
+        colorScheme: 'light',
+      },
+    },
+    {
+      name: 'email-visual-webkit-dark',
+      testMatch: EMAIL_VISUAL_SPEC,
+      expect: {
+        toHaveScreenshot: {
+          pathTemplate: '__snapshots__/email-visual.spec.ts/{arg}{ext}',
+          maxDiffPixels: 50,
+        },
+      },
+      use: {
+        ...devices['Desktop Safari'],
+        viewport: { width: 640, height: 1200 },
+        colorScheme: 'dark',
       },
     },
   ],
