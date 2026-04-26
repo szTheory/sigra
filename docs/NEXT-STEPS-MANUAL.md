@@ -26,7 +26,7 @@ After **`main`** has the commit you intend to ship:
 
 ## 3. GitHub Release
 
-Release Please creates the release when the Release PR merges. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and paste the matching **`CHANGELOG.md`** section.
+Release Please creates the release when the Release PR merges and now syncs the matching **`CHANGELOG.md`** `### Summary` block into the GitHub Release body automatically. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and start with that same summary block, then paste or adapt the detailed release section below it.
 
 ## 4. Sanity check
 

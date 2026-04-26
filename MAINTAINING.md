@@ -142,8 +142,28 @@ Sigra follows the same pattern as sibling libraries (**Release Please** + **Hex 
 3. **Secrets** — configure **`HEX_API_KEY`** under **GitHub → Settings → Secrets and variables → Actions**. If you cannot enable **Allow GitHub Actions to create and approve pull requests** (org policy), add a fine-grained PAT as **`RELEASE_PLEASE_TOKEN`** with `contents` + `pull-requests` write (and scopes required by your branch rules); the workflow uses `RELEASE_PLEASE_TOKEN` when set, otherwise `github.token`. If the UI *is* enabled but you still see token errors, check org-level Actions policies overriding the repo.
 4. **Released version anchor** — `.release-please-manifest.json` records the last shipped version for Release Please. After an exceptional manual publish, bump that file in the same commit as `mix.exs` so automation stays aligned.
 5. **Changelog shape** — Release Please’s `elixir` release type expects to own `CHANGELOG.md` entries for automated releases. The first Release PR may normalize headings; resolve merge conflicts in favor of a single coherent history, then keep using **conventional commits** on `main`.
+6. **Human summary is required** — every shipped version should start with a short `### Summary` block directly under the release heading before the detailed technical sections. Keep it brief and readable on HexDocs:
+   - what changed in plain language
+   - why it matters
+   - whether most apps need to do anything
 
-**Recovery / one-off publish:** **Actions → Hex publish (manual recovery)** — supply the **tag or SHA** and the **expected `@version`** string; it runs the same compile + test + dry-run + publish path without Release Please.
+Recommended template:
+
+```md
+## [0.x.y](...)
+
+### Summary
+
+- **What changed:** ...
+- **Why it matters:** ...
+- **Action:** None for most apps / run X / read Y
+```
+
+Keep jargon, requirement IDs, and implementation detail in the sections below (`Changed`, `Fixed`, `Documentation`, etc.), not in the summary itself.
+
+The release workflow copies that `### Summary` block into the GitHub Release body automatically. If the summary is missing, the release pipeline should fail before Hex publish instead of silently shipping a hard-to-scan release note.
+
+**Recovery / one-off publish:** **Actions → Hex publish (manual recovery)** — supply the **tag or SHA** and the **expected `@version`** string; it now creates the GitHub Release if needed, syncs the matching `CHANGELOG.md` summary into the release body, then runs the same compile + test + dry-run + publish path without Release Please.
 
 ## First public launch (announcement checklist)
 
@@ -183,7 +203,7 @@ These rows widen concurrent skeptics; treat every channel below as **optional** 
 Use only when not using the Release PR flow. Adjust version strings to match `mix.exs`.
 
 1. Confirm `mix.exs` `@version` matches the release you intend to ship.
-2. Update `CHANGELOG.md` with everything notable since the last tag.
+2. Update `CHANGELOG.md` with everything notable since the last tag, and add a short `### Summary` block at the top of the new release entry.
 3. Run the library test suite against Postgres (same bar as CI):
 
    ```bash
@@ -209,7 +229,7 @@ Use only when not using the Release PR flow. Adjust version strings to match `mi
 
 8. Publish to Hex from a trusted machine with `HEX_API_KEY` configured, or run **Actions → Hex publish (manual recovery)**. Non-interactive automation should use `mix hex.publish --yes` as documented in [Hex publish](https://hex.pm/docs/publish).
 
-9. Open **GitHub → Releases** if you still need a release entry not created by Release Please.
+9. Open **GitHub → Releases** if you still need a release entry not created by Release Please. Lead with the matching `CHANGELOG.md` summary, then paste or adapt the detailed section below it as needed.
 10. Verify the [Hex version badge](https://hex.pm/packages/sigra) reflects the new version and that [HexDocs](https://hexdocs.pm/sigra) `source_ref` matches the tag you published (`mix.exs` `docs/0` uses `source_ref: "v#{@version}"`).
 11. After publish, smoke-check a fresh `mix deps.get` consumer app or the example app pinned to the new requirement range.
 

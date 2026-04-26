@@ -19,7 +19,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -65,6 +65,16 @@ jobs:
 
       - name: Verify release version in mix.exs
         run: grep -n "@version \"${{ inputs.release_version }}\"" mix.exs
+
+      - name: Sync changelog summary into GitHub release body
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x scripts/release/sync_release_summary.sh
+          scripts/release/sync_release_summary.sh \
+            "${{ inputs.release_version }}" \
+            "${{ inputs.tag }}"
 
       - name: Fetch library deps
         run: mix deps.get

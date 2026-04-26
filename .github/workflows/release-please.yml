@@ -47,9 +47,31 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+  sync-release-summary:
+    name: Sync GitHub release summary
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Sync changelog summary into GitHub release body
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          chmod +x scripts/release/sync_release_summary.sh
+          scripts/release/sync_release_summary.sh \
+            "${{ needs.release-please.outputs.version }}" \
+            "${{ needs.release-please.outputs.tag_name }}"
+
   publish-hex:
     name: Publish to Hex.pm
-    needs: release-please
+    needs: [release-please, sync-release-summary]
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     permissions:
