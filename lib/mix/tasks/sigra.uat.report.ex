@@ -184,6 +184,12 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
     File.write!(contrast_path, Jason.encode!(contrast_summary, pretty: true))
     Mix.shell().info("  WROTE #{contrast_path}")
 
+    # Write byte-budget.csv to reports/
+    byte_budget_path = Path.join(reports_dir, "byte-budget.csv")
+    byte_budget_csv = build_byte_budget_csv(cells)
+    File.write!(byte_budget_path, byte_budget_csv)
+    Mix.shell().info("  WROTE #{byte_budget_path}")
+
     present = Enum.count(cells, fn c -> c.outcome == "pass" end)
     Mix.shell().info("")
     Mix.shell().info("Done. Phase #{phase}: #{present}/#{length(cells)} baselines present.")
@@ -239,6 +245,20 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
     end
   end
 
+  defp build_byte_budget_csv(cells) do
+    header = "template,engine,theme,byte_size,byte_budget_max,outcome\n"
+
+    rows =
+      cells
+      |> Enum.map(fn cell ->
+        bytes = if cell.byte_size, do: to_string(cell.byte_size), else: ""
+        "#{cell.template},#{cell.engine},#{cell.theme},#{bytes},#{cell.byte_budget_max},#{cell.outcome}\n"
+      end)
+      |> Enum.join("")
+
+    header <> rows
+  end
+
   defp build_contrast_summary(cells) do
     cells
     |> Enum.group_by(& &1.template)
@@ -257,12 +277,19 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
     generated_at = DateTime.utc_now() |> Calendar.strftime("%Y-%m-%dT%H:%M:%SZ")
     present = Enum.count(cells, fn c -> c.outcome == "pass" end)
 
+    git_tag = System.get_env("SIGRA_GIT_TAG", "")
+    ci_run_url = System.get_env("SIGRA_CI_RUN_URL", "")
+    ci_workflow = System.get_env("SIGRA_CI_WORKFLOW", ".github/workflows/ci.yml / email_visual_regression")
+
     frontmatter = """
     ---
     phase: #{phase}
     gauat_requirement: GAUAT-0#{if phase == "04", do: "1", else: "2"}
     hex_version: #{mix_version()}
     git_sha: #{git_sha}
+    git_tag: #{git_tag}
+    ci_run_url: #{ci_run_url}
+    ci_workflow: #{ci_workflow}
     generated_by: mix sigra.uat.report --phase=#{phase}
     generated_at: #{generated_at}
     disposition: #{if present == length(cells), do: "pass", else: "partial"}
