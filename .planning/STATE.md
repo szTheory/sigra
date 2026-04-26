@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: executing
+status: ready_to_plan
 last_updated: "2026-04-26T23:00:00.000Z"
 last_activity: 2026-04-26 -- Phase 86 wave 3 complete (CI wiring + Phase 04/08 evidence bundles, awaiting verifier)
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
   completed_plans: 2
   percent: 33
@@ -29,13 +29,13 @@ See: `.planning/PROJECT.md`
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 86 (gauat-email-visual-qa-phase-04-phase-08-templates) — EXECUTING
+Phase: 87
 
-Plan: 1 of 4
+Plan: Not started
 
-Status: Executing Phase 86
+Status: Ready to plan
 
-Last activity: 2026-04-26 -- Phase 86 execution started
+Last activity: 2026-04-26
 
 **Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 

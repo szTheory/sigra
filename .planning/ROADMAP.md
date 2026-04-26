@@ -37,7 +37,7 @@
 **Phase summary:**
 
 - [x] **Phase 85: OAuth audit atomicity closure (AUD-21)** — Convert remaining `log_safe/3` OAuth/ops clusters in Phase 45 T2 (AUD-04 rows 052–056, 058, 063) to atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`; refresh planning truth; downgrade Phase 9 C-1 caveat from PASS-WITH-CAVEATS to PASS.
-- [ ] **Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)** — Ship automated visual regression harness (Premailex CSS-inline + Playwright `toHaveScreenshot` Chromium+WebKit × light+dark + caniemail CSS lint + extended WCAG/byte/multipart/XSS ExUnit asserts) producing CI-reproducible evidence per template. 0 human MUA passes required for v1.20 launch.
+- [x] **Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)** — Ship automated visual regression harness (Premailex CSS-inline + Playwright `toHaveScreenshot` Chromium+WebKit × light+dark + caniemail CSS lint + extended WCAG/byte/multipart/XSS ExUnit asserts) producing CI-reproducible evidence per template. 0 human MUA passes required for v1.20 launch. (completed 2026-04-26)
 - [ ] **Phase 87: GAUAT OAuth real-credential cycle** — `mix sigra.gen.oauth` fresh-host smoke + end-to-end Google register/login + provider linking and last-method unlink prevention + email-match confirmation flash; capture evidence per scenario.
 - [ ] **Phase 88: GAUAT MFA + getting-started + results filing** — Backup-code regeneration human verification; clean-machine timed getting-started run on a fresh Phoenix 1.8 host; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` (or `partially-validated` with reopen trigger).
 - [ ] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean.
@@ -86,7 +86,7 @@ Plans:
 7. `docs/uat-ci-coverage.md` SEED-1/SEED-2 row residual columns are updated to point at the new `email_visual_regression` CI job; the v1.4 GA-02 waiver is demoted to historical-only (no v1.20 invocation).
 8. `86-VERIFICATION.md` records the merge gate outcome (CI run URL, snapshot count = 36, contrast min ratio, byte budget max, dated PASS attestation per GAUAT-01/02). Documented residual (legacy Outlook desktop Word engine; subjective copy tone in PR review; spam placement = deliverability) is captured in `docs/uat-ci-coverage.md` SEED-1/2 residual column — NOT as a waiver, since no work is being skipped.
 
-**Plans:** 4 plans.
+**Plans:** 4/4 plans complete
 
 Plans:
 - [x] 86-01-PLAN.md — Commit A: ExUnit extensions, `Sigra.A11y.Contrast`, CTA contrast bump, and caniemail CSS lint for the 9-template matrix.
@@ -175,7 +175,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 85. OAuth audit atomicity closure (AUD-21) | 0/2 | Not started | — |
-| 86. GAUAT email visual QA | 0/0 | Not started | — |
+| 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
 | 87. GAUAT OAuth real-credential cycle | 0/0 | Not started | — |
 | 88. GAUAT closing cluster + SEED-001 closure | 0/0 | Not started | — |
 | 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/0 | Not started | — |
