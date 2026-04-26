@@ -137,7 +137,7 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
       Mix.shell().info("  Missing baselines:")
 
       Enum.each(missing, fn cell ->
-        Mix.shell().info("    #{cell.template}__#{cell.engine}__#{cell.theme}.png")
+        Mix.shell().info("    #{cell.template}-#{cell.engine}-#{cell.theme}.png")
       end)
     end
 
@@ -204,7 +204,11 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
     for template <- templates,
         engine <- @engines,
         theme <- @themes do
-      png_name = "#{template}__#{engine}__#{theme}.png"
+      # Playwright sanitizes `__` (double underscores) in the {arg} token to `-`
+      # (single dashes), so the committed baseline filenames use single dashes
+      # as separators even though the spec passes `template__engine__theme.png`
+      # as the snapshot name argument. See D-86-03 and email-visual.spec.ts.
+      png_name = "#{template}-#{engine}-#{theme}.png"
       png_path = Path.join(@baseline_dir, png_name)
 
       {outcome, snapshot_sha256, byte_size_val} =
