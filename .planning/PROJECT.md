@@ -143,9 +143,13 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.20 GA Launch (defining)
+### Active — v1.20 GA Launch (in progress)
 
-_See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*) once defined. Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 human UAT execution, public launch execution._
+_See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*). Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 human UAT execution, public launch execution._
+
+- ✓ **AUD-21** — OAuth audit atomicity closure (Phase 45 T2 cluster: 052–056, 058, 063 → atomic) — **Phase 85** (2026-04-25)
+- ✓ **GAUAT-01** — Phase 04 lockout + suspicious-login email visual regression: 8 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-04/`, 0-human-MUA — **Phase 86** (2026-04-26)
+- ✓ **GAUAT-02** — Phase 08 lifecycle email visual regression: 28 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-08/`, same residual policy as GAUAT-01 — **Phase 86** (2026-04-26)
 
 ### Validated — v1.19 JWT persistence + audit co-fate & MFA invalid-code audit (shipped in-repo 2026-04-24)
 
@@ -494,4 +498,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-25 — **`/gsd-new-milestone` v1.20** opened (GA Launch — SEED-001 human UAT + SEED-002 OAuth audit atomicity closure + public launch). Live **`REQUIREMENTS.md`** + **`ROADMAP.md`** to be defined in this workflow.*
+*Last updated: 2026-04-26 — **Phase 86** complete: automated email visual regression harness (Premailex + Playwright Chromium/WebKit × light/dark + caniemail CSS lint + WCAG/byte/multipart ExUnit asserts). 36 committed baselines, GAUAT-01/02 evidence bundles under `.planning/uat-evidence/v1.20/`, `email_visual_regression` CI job promoting bundles to GitHub release assets on any v* tag. SEED-001 GAUAT rows 1-2 now closable.*
