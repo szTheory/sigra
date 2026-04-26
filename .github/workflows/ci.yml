@@ -924,3 +924,157 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run Phase 34 mechanical UAT contracts
         run: scripts/ci/phase34-uat-contracts.sh
+
+  # Phase 86: GAUAT-01 / GAUAT-02 — email visual regression harness
+  # Runs the snapshot prerender, evidence report generation, and narrow
+  # Playwright email-visual spec. Uploads the full raw bundle on every run.
+  # On refs/tags/v1.20.0 promotes that exact bundle to the v1.20.0 release
+  # asset without rebuilding from different inputs (D-86-01, D-86-06, D-86-11).
+  #
+  # SEED-1/SEED-2 residual columns in docs/uat-ci-coverage.md point at this job.
+  # snapshot count = 36, contrast min ratio = 4.5, byte budget max = 100000
+  email_visual_regression:
+    name: Email visual regression (GAUAT-01/02)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # required for gh release upload on tag runs
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-test-${{ hashFiles('mix.lock', 'mix.exs') }}
+      - name: Cache example deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-test-${{ hashFiles('test/example/mix.lock', 'test/example/mix.exs', 'mix.exs') }}
+      - name: Fetch library deps
+        run: mix deps.get
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: test
+        run: mix deps.get
+      - name: Compile library (test env)
+        env:
+          MIX_ENV: test
+        run: mix compile --warnings-as-errors
+      - name: Compile example (test env)
+        working-directory: test/example
+        env:
+          MIX_ENV: test
+        run: mix compile --warnings-as-errors
+      - name: Setup test DB
+        working-directory: test/example
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      # L1: snapshot prerender — deterministic email HTML to disk via frozen fixtures
+      - name: Prerender email HTML snapshots (L1 snapshot lane)
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: MIX_ENV=test mix sigra.email.snapshot --check
+      # L2: Playwright email-visual spec — 36-cell matrix (9 templates × 2 engines × 2 themes)
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers (chromium + webkit)
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium webkit
+      - name: Run email visual regression spec (L2 Playwright lane)
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+        run: npx playwright test tests/email-visual.spec.ts --project=email-chromium-light --project=email-chromium-dark --project=email-webkit-light --project=email-webkit-dark
+      # L3: evidence report generation — manifest + README + contrast/byte-budget reports
+      - name: Generate Phase 04 evidence report (L3 report lane)
+        env:
+          MIX_ENV: test
+          SIGRA_CI_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SIGRA_CI_WORKFLOW: .github/workflows/ci.yml / email_visual_regression
+          SIGRA_GIT_TAG: ${{ github.ref_name }}
+        run: MIX_ENV=test mix sigra.uat.report --phase=04
+      - name: Generate Phase 08 evidence report (L3 report lane)
+        env:
+          MIX_ENV: test
+          SIGRA_CI_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SIGRA_CI_WORKFLOW: .github/workflows/ci.yml / email_visual_regression
+          SIGRA_GIT_TAG: ${{ github.ref_name }}
+        run: MIX_ENV=test mix sigra.uat.report --phase=08
+      # Bundle the full evidence payload: committed baselines + generated reports
+      - name: Assemble email evidence bundle
+        run: |
+          mkdir -p /tmp/email-visual-bundle
+          cp -r .planning/uat-evidence/v1.20/ /tmp/email-visual-bundle/uat-evidence/
+          cp -r test/example/priv/playwright/__snapshots__/email-visual.spec.ts/ /tmp/email-visual-bundle/baselines/
+          cp -r test/example/priv/email_snapshots/ /tmp/email-visual-bundle/html-snapshots/ 2>/dev/null || true
+          echo "Bundle contents:"
+          find /tmp/email-visual-bundle -type f | sort
+      # Upload the raw bundle artifact on every run (branch/PR and tags)
+      - name: Upload email visual regression bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: email-visual-regression-bundle
+          path: /tmp/email-visual-bundle/
+          retention-days: 14
+      - name: Upload email visual regression bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: email-visual-regression-bundle
+          path: /tmp/email-visual-bundle/
+          retention-days: 7
+      # On refs/tags/v1.20.0 promote the exact same bundle to the GitHub release
+      # asset without rebuilding from different inputs (D-86-01, D-86-06).
+      - name: Create release asset archive (tag v1.20.0 only)
+        if: github.ref == 'refs/tags/v1.20.0'
+        run: |
+          cd /tmp && tar -czf sigra-email-visual-regression-v1.20.0.tar.gz email-visual-bundle/
+          echo "Release asset: sigra-email-visual-regression-v1.20.0.tar.gz"
+          ls -lh /tmp/sigra-email-visual-regression-v1.20.0.tar.gz
+      - name: Promote bundle to v1.20.0 release asset
+        if: github.ref == 'refs/tags/v1.20.0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload v1.20.0 /tmp/sigra-email-visual-regression-v1.20.0.tar.gz \
+            --clobber \
+            --repo "${{ github.repository }}"
+      - name: Upload email visual bundle (tag, 90d retention)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: email-visual-regression-bundle
+          path: /tmp/email-visual-bundle/
+          retention-days: 90
