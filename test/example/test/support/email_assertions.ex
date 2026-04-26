@@ -101,11 +101,7 @@ defmodule Example.EmailAssertions do
   def assert_text_part_mirrors_html(%{html_body: html, text_body: text}) do
     urls = extract_href_urls(html)
 
-    missing =
-      Enum.reject(urls, fn url ->
-        # Skip template placeholder URLs that are never real at test time
-        is_placeholder(url) or String.contains?(text, url)
-      end)
+    missing = Enum.reject(urls, &String.contains?(text, &1))
 
     assert missing == [],
            "assert_text_part_mirrors_html: #{length(missing)} URL(s) in html_body " <>
@@ -221,20 +217,14 @@ defmodule Example.EmailAssertions do
   defp extract_bg_color_from_style(_), do: []
 
   # Extract href URLs from anchor tags in HTML.
+  # The generated example app resolves all EEx template placeholder URLs (e.g.
+  # `<%= reset_password_url %>`) to real strings at compile time, so no filtering
+  # of placeholder URLs is needed here.
   defp extract_href_urls(html) do
     href_regex = ~r/href="([^"]+)"/
 
     Regex.scan(href_regex, html, capture: :all_but_first)
     |> Enum.flat_map(fn [url] -> [url] end)
     |> Enum.uniq()
-    |> Enum.reject(&is_placeholder/1)
   end
-
-  # Template placeholder URLs (EEx interpolation leftovers at test time).
-  # The generated template uses `<%= reset_password_url %>` etc., which in the
-  # compiled example app become real URL strings, not literal EEx tags. However,
-  # the test/example compiled templates may still have configuration-derived URLs
-  # that we don't need to assert are in text. We skip nothing - all real URLs
-  # that appear in the rendered HTML must also appear in the rendered text.
-  defp is_placeholder(_url), do: false
 end
