@@ -66,6 +66,8 @@ defmodule Example.MixProject do
       {:assent, "~> 0.3"},
       {:joken, "~> 2.6"},
       {:eqrcode, "~> 0.2.1"},
+      # Phase 86 L2: CSS inlining for email snapshot harness
+      {:premailex, "~> 0.3"},
       {:mox, "~> 1.1", only: :test}
     ]
   end
