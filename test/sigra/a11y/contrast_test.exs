@@ -57,10 +57,16 @@ defmodule Sigra.A11y.ContrastTest do
       assert ratio >= 4.5, "Expected #1d4ed8 on #ffffff to be >= 4.5:1, got #{ratio}"
     end
 
-    test "#2563eb (old CTA blue-600) on #ffffff is below 4.5 normal-text threshold" do
-      # D-86-07: old color was an AA edge case for normal text; new default removes it
-      ratio = Contrast.ratio("#2563eb", "#ffffff")
-      assert ratio < 4.5, "Expected #2563eb on #ffffff to be < 4.5:1 for normal text, got #{ratio}"
+    test "#1d4ed8 (CTA blue-700) has higher contrast than #2563eb (old CTA blue-600)" do
+      # D-86-07: #1d4ed8 is bumped from #2563eb for a stronger, unambiguous AA pass
+      # Both clear 4.5:1 but #1d4ed8 is higher (6.70 vs 5.17) -- the bump eliminates
+      # any large-text-bold edge-case discussion and future-proofs against small rendering diffs
+      ratio_new = Contrast.ratio("#1d4ed8", "#ffffff")
+      ratio_old = Contrast.ratio("#2563eb", "#ffffff")
+      assert ratio_new > ratio_old,
+             "Expected #1d4ed8 (#{ratio_new}) to have higher contrast than #2563eb (#{ratio_old})"
+
+      assert ratio_new >= 4.5
     end
 
     test "#dc2626 (red-emphasis) on #ffffff passes WCAG AA (>= 4.5)" do
