@@ -111,7 +111,7 @@ defmodule Sigra.Email.CssLint do
     if has_flex do
       violations ++
         [
-          "display:flex or display:flex found (not supported by Gmail web / Outlook web). " <>
+          "display: flex or display:flex found (not supported by Gmail web / Outlook web). " <>
             "Use table-based layout instead. Denied by caniemail policy."
         ]
     else
