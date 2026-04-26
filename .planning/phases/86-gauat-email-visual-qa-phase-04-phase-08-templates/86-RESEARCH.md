@@ -333,19 +333,19 @@ end)
 
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
-| A1 | GitHub release-asset promotion should happen in Phase 86 rather than waiting for Phase 89 tag publication. [ASSUMED] | Common Pitfalls / Evidence flow implications | Low: planner can move release-asset promotion to Phase 89 if tag-only release mechanics are preferred. |
+| A1 | GitHub release-asset promotion belongs in Phase 86 as tag-conditional wiring on the same evidence bundle the phase generates. [RESOLVED] | Common Pitfalls / Evidence flow implications | Low: the requirement is already locked in ROADMAP/REQUIREMENTS, so the planning risk is only implementation detail, not scope choice. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the full-bundle GitHub release asset be produced in Phase 86 or deferred to the actual `v1.20.0` tag workflow?**
-   - What we know: the locked context wants long-lived evidence and explicitly references release assets at tag time. [VERIFIED: `.planning/phases/86-gauat-email-visual-qa-phase-04-phase-08-templates/86-CONTEXT.md`]
-   - What's unclear: whether the phase should implement only artifact upload on PR/main and leave release publication wiring to the launch/tag phase. [ASSUMED]
-   - Recommendation: implement artifact upload + manifest digests in Phase 86, and make release-asset promotion a tag-conditional extension that can be exercised in Phase 89 if needed. [CITED: https://docs.github.com/en/actions/tutorials/store-and-share-data]
+   - **RESOLVED:** Phase 86 must implement the tag-conditional release-asset promotion itself, not defer the wiring to Phase 89. The locked context, REQUIREMENTS, and ROADMAP already require the full snapshot bundle to upload on every CI run and to be promoted to the `v1.20.0` GitHub release asset at tag time from the same generated Phase 86 bundle. [VERIFIED: `.planning/phases/86-gauat-email-visual-qa-phase-04-phase-08-templates/86-CONTEXT.md`] [VERIFIED: `.planning/REQUIREMENTS.md`] [VERIFIED: `.planning/ROADMAP.md`]
+   - **Implementation decision:** Phase 86 plans should wire `.github/workflows/ci.yml` so the `email_visual_regression` lane always builds one canonical bundle, uploads it as an Actions artifact on branch/PR runs, and on `refs/tags/v1.20.0` promotes that exact bundle to the release asset without rebuilding from different inputs. The manifest/digest emitted by `mix sigra.uat.report` is the provenance link proving the release asset and CI artifact came from the same run output. [CITED: https://docs.github.com/en/actions/tutorials/store-and-share-data]
+   - **Why this is correct:** It satisfies the long-lived evidence requirement now, keeps the bundle provenance inside the phase that creates the evidence, and avoids a later Phase 89 gap where tag publication exists but the Phase 86 evidence bundle is not release-published. [VERIFIED: checker issue + locked phase success criteria]
 
 2. **Where should the prerender/report mix tasks live?**
-   - What we know: the context explicitly leaves `lib/mix/tasks/` vs `test/example/lib/mix/tasks/` to planner discretion. [VERIFIED: `.planning/phases/86-gauat-email-visual-qa-phase-04-phase-08-templates/86-CONTEXT.md`]
-   - What's unclear: whether the task should be library-root for easier CI invocation or example-app-scoped for easier access to `Example.Accounts.Emails`. [VERIFIED: codebase grep]
-   - Recommendation: put the tasks at the repo root if they can boot the example app code explicitly; otherwise keep them in `test/example` and call them from CI with `working-directory: test/example`. [VERIFIED: codebase grep]
+   - **RESOLVED:** The prerender and report tasks should live at the repo root in `lib/mix/tasks/`, matching the planned file ownership and giving CI one canonical invocation surface. [VERIFIED: `.planning/phases/86-gauat-email-visual-qa-phase-04-phase-08-templates/86-02-PLAN.md`]
+   - **Why this is correct:** the repo already carries root-level Mix tasks for harness-style repo workflows, and the Phase 86 plans require `MIX_ENV=test mix sigra.email.snapshot --check` / `mix sigra.uat.report --phase=... --check` from the project root. Keeping the tasks root-scoped avoids split invocation rules between local validation, CI, and tag-time release promotion. [VERIFIED: codebase grep] [VERIFIED: `.planning/phases/86-gauat-email-visual-qa-phase-04-phase-08-templates/86-02-PLAN.md`]
+   - **Implementation constraint:** the tasks may explicitly boot or reference the example app code, but the operator contract stays root-level so the CI artifact lane and release-asset promotion consume the same commands. [VERIFIED: checker fix scope]
 
 ## Environment Availability
 

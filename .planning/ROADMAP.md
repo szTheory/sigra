@@ -61,7 +61,7 @@
 4. `.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md` frontmatter `status:` reads `validated`; `45-AUD-04-INVENTORY.md` rows 052–056/058/063 carry T1 verdicts with phase 85 reference; `09-03-SUMMARY.md` has a phase-85 / AUD-21 narrative bullet; `CHANGELOG.md` `[Unreleased]` carries the AUD-21 trace bullet.
 5. `mix ci.audit_45` and the library test suite (plus the 5 existing CI gates) remain green on `main` after the phase merges; `85-VERIFICATION.md` records the merge gate outcome.
 
-**Plans:** 2 plans.
+**Plans:** 4 plans.
 
 Plans:
 - [x] 85-01-PLAN.md — Atomicize impersonation session/audit orchestration and sharpen AUD-04 truth.
@@ -86,7 +86,13 @@ Plans:
 7. `docs/uat-ci-coverage.md` SEED-1/SEED-2 row residual columns are updated to point at the new `email_visual_regression` CI job; the v1.4 GA-02 waiver is demoted to historical-only (no v1.20 invocation).
 8. `86-VERIFICATION.md` records the merge gate outcome (CI run URL, snapshot count = 36, contrast min ratio, byte budget max, dated PASS attestation per GAUAT-01/02). Documented residual (legacy Outlook desktop Word engine; subjective copy tone in PR review; spam placement = deliverability) is captured in `docs/uat-ci-coverage.md` SEED-1/2 residual column — NOT as a waiver, since no work is being skipped.
 
-**Plans:** TBD (two-commit closure per Phase-85 D-85-06 pattern: Commit A = ExUnit extensions + `Sigra.A11y.Contrast` + CTA template bump + caniemail lint; Commit B = Playwright spec + `mix sigra.email.snapshot` + 36 baselines + `mix sigra.uat.report` + evidence directories + CI job + planning-truth edits + `86-VERIFICATION.md`).
+**Plans:** 4 plans.
+
+Plans:
+- [ ] 86-01-PLAN.md — Commit A: ExUnit extensions, `Sigra.A11y.Contrast`, CTA contrast bump, and caniemail CSS lint for the 9-template matrix.
+- [ ] 86-02-PLAN.md — Commit B1: deterministic snapshot/report tasks plus the committed 36 Playwright baselines.
+- [ ] 86-03-PLAN.md — Commit B2: `email_visual_regression` CI wiring, Phase 04 evidence materialization, and `86-VERIFICATION.md`.
+- [ ] 86-04-PLAN.md — Commit B3: Phase 08 evidence materialization with the 28 lifecycle hero PNGs.
 
 ### Phase 87: GAUAT OAuth real-credential cycle (gen smoke + Google live + linking + email-match)
 

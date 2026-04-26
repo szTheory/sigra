@@ -46,6 +46,11 @@
   "phase_naming": "sequential",
   "agent_skills": {},
   "resolve_model_ids": "omit",
+  "review": {
+    "models": {
+      "codex": "gpt-5.4"
+    }
+  },
   "mode": "yolo",
   "granularity": "fine"
 }

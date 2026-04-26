@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: completed
-last_updated: "2026-04-26T13:37:19.367Z"
-last_activity: 2026-04-25 — Phase 85 completed; AUD-21 closure captured and verified.
+status: executing
+last_updated: "2026-04-26T17:46:04.063Z"
+last_activity: 2026-04-26 -- Phase 86 execution started
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 2
+  total_plans: 6
   completed_plans: 2
-  percent: 100
+  percent: 33
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** **v1.20 GA Launch** — close SEED-001 (human UAT) + SEED-002 (OAuth audit atomicity remainder) gates, then execute public release per v1.5 `MAINT-01` checklist. Phase numbering continues from Phase 84 (last completed); v1.20 occupies Phases **85–90**.
+**Current focus:** Phase 86 — gauat-email-visual-qa-phase-04-phase-08-templates
 
 ## Current Position
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 85 completed
+Phase: 86 (gauat-email-visual-qa-phase-04-phase-08-templates) — EXECUTING
 
-Plan: 85-01-PLAN.md / 85-02-PLAN.md (done)
+Plan: 1 of 4
 
-Status: Complete
+Status: Executing Phase 86
 
-Last activity: 2026-04-25 — Phase 85 completed; AUD-21 closure captured and verified.
+Last activity: 2026-04-26 -- Phase 86 execution started
 
 **Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 
@@ -75,7 +75,7 @@ _None as of milestone open. Will populate during phase planning._
 ### Blockers/Concerns
 
 - **Live Google OAuth credentials** — Phase 87 requires real Google developer credentials for register/login/link/unlink cycle. Acquisition is part of phase scope; not blocking start of Phase 85 or Phase 86.
-- **Real consumer mail accounts** — Phase 86 email visual QA needs Gmail / Outlook / Apple Mail accounts. Acquisition trivial; flagged here so it's not forgotten when Phase 86 starts.
+- **Phase 86 evidence environment** — The Phase 86 harness is automation-only (`0 human MUA passes required`), but it still depends on the repo CI/browser environment staying reproducible: Chromium + WebKit available in Playwright, deterministic snapshot generation, and tag-time release-asset upload wiring for the same evidence bundle.
 - **Hex.pm publish credentials + 2FA** — Phase 89 requires `mix hex.user auth` configured for the publishing maintainer. Verify before Phase 89 begins (ideally early in v1.20 so it's not the long-pole on launch day).
 - **Clean-machine availability** — Phase 88 GAUAT-08 needs a fresh Phoenix 1.8 host environment ("clean-machine read-through"). Plan ahead for VM / fresh worktree provisioning.
 
