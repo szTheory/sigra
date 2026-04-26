@@ -2,17 +2,20 @@
 phase: 08
 gauat_requirement: GAUAT-02
 hex_version: 0.2.5
-git_sha: 6ce3cd3
+git_sha: eaf0fd8
+git_tag: 
+ci_run_url: 
+ci_workflow: .github/workflows/ci.yml / email_visual_regression
 generated_by: mix sigra.uat.report --phase=08
-generated_at: 2026-04-26T18:47:14Z
+generated_at: 2026-04-26T19:58:06Z
 disposition: pass
 ---
 
 # Phase 08: Lifecycle Email Visual Regression Evidence
 
 **Baselines present:** 28/28  
-**Git SHA:** `6ce3cd3`  
-**Generated at:** 2026-04-26T18:47:14Z  
+**Git SHA:** `eaf0fd8`  
+**Generated at:** 2026-04-26T19:58:06Z  
 
 | Template | Engine | Theme | Outcome | SHA-256 (first 16) | Bytes |
 |----------|--------|-------|---------|--------------------|-------|
