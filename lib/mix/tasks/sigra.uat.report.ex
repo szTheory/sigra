@@ -272,6 +272,20 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
     end)
   end
 
+  defp build_byte_budget_csv(cells) do
+    header = "template,engine,theme,byte_size,byte_budget_max,outcome\n"
+
+    rows =
+      cells
+      |> Enum.map(fn cell ->
+        byte_size_val = if cell.byte_size, do: to_string(cell.byte_size), else: ""
+        "#{cell.template},#{cell.engine},#{cell.theme},#{byte_size_val},#{cell.byte_budget_max},#{cell.outcome}\n"
+      end)
+      |> Enum.join()
+
+    header <> rows
+  end
+
   defp build_readme(cells, phase) do
     git_sha = git_short_sha()
     generated_at = DateTime.utc_now() |> Calendar.strftime("%Y-%m-%dT%H:%M:%SZ")

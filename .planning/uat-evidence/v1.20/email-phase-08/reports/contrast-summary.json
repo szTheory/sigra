@@ -1,0 +1,44 @@
+[
+  {
+    "template": "deletion-cancelled",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "deletion-finalized",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "deletion-scheduled",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "email-change-confirmation",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "email-change-notification",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "email-changed",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  },
+  {
+    "template": "password-changed",
+    "contrast_min_ratio": 4.5,
+    "cells_present": 4,
+    "cells_total": 4
+  }
+]
