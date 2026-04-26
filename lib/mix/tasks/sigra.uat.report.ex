@@ -184,6 +184,12 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
     File.write!(contrast_path, Jason.encode!(contrast_summary, pretty: true))
     Mix.shell().info("  WROTE #{contrast_path}")
 
+    # Write byte-budget.csv to reports/
+    byte_budget_path = Path.join(reports_dir, "byte-budget.csv")
+    byte_budget_csv = build_byte_budget_csv(cells)
+    File.write!(byte_budget_path, byte_budget_csv)
+    Mix.shell().info("  WROTE #{byte_budget_path}")
+
     present = Enum.count(cells, fn c -> c.outcome == "pass" end)
     Mix.shell().info("")
     Mix.shell().info("Done. Phase #{phase}: #{present}/#{length(cells)} baselines present.")
@@ -250,6 +256,20 @@ defmodule Mix.Tasks.Sigra.Uat.Report do
         cells_total: length(template_cells)
       }
     end)
+  end
+
+  defp build_byte_budget_csv(cells) do
+    header = "template,engine,theme,byte_size,byte_budget_max,outcome\n"
+
+    rows =
+      cells
+      |> Enum.map(fn cell ->
+        byte_size_val = if cell.byte_size, do: to_string(cell.byte_size), else: ""
+        "#{cell.template},#{cell.engine},#{cell.theme},#{byte_size_val},#{cell.byte_budget_max},#{cell.outcome}\n"
+      end)
+      |> Enum.join()
+
+    header <> rows
   end
 
   defp build_readme(cells, phase) do
