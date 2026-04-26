@@ -938,7 +938,7 @@ defmodule Example.Accounts.Emails do
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 24px 0;">
       <tr>
         <td align="center">
-          <a href="#{url}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; font-size: 16px; font-weight: 700; line-height: 1.0; font-family: #{@font_family}; text-decoration: none; border-radius: 8px;" role="link">
+          <a href="#{url}" style="display: inline-block; padding: 12px 24px; background-color: #1d4ed8; color: #ffffff; font-size: 16px; font-weight: 700; line-height: 1.0; font-family: #{@font_family}; text-decoration: none; border-radius: 8px;" role="link">
             #{label}
           </a>
         </td>
