@@ -2,13 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: executing
-status: ready_for_next
-last_updated: "2026-04-25T21:42:02Z"
-last_activity: 2026-04-25 — Phase 85 completed (2 plans, AUD-21 closure); ready to begin Phase 86
+status: completed
+last_updated: "2026-04-26T13:37:19.367Z"
+last_activity: 2026-04-25 — Phase 85 completed; AUD-21 closure captured and verified.
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 1
   total_plans: 2
   completed_plans: 2
   percent: 100
@@ -84,7 +83,7 @@ _None as of milestone open. Will populate during phase planning._
 
 **Next:** Phase 86 — GAUAT email visual QA (or `/gsd-plan-phase 86 ${GSD_WS}` when ready).
 
-**Resume file:** None
+**Resume file:** --resume-file
 
 **Artifacts (active):** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`
 
