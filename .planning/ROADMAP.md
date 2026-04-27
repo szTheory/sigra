@@ -111,7 +111,11 @@ Plans:
 5. `.planning/v1.20-GA-UAT-RESULTS.md` (filed in Phase 88) carries pass/fail rows for GAUAT-03, GAUAT-04, GAUAT-05, GAUAT-06 each linking to the relevant evidence subdirectory.
 6. `mix sigra.oauth.smoketest --provider=google` exists, exits 0 against a valid Google `client_id`/`client_secret` configuration, and emits a clear diagnostic on failure. `docs/oauth-google-setup.md` walks adopters through Google Cloud Console setup + the smoketest invocation.
 
-**Plans:** TBD.
+**Plans:** 2 plans.
+
+Plans:
+- [ ] 87-01-PLAN.md — Wave 1 (Commit A): Sigra.Testing.OAuthIssuer + RSA fixtures + mix sigra.oauth.smoketest task + 3 Playwright OAuth specs + install-smoke extension + new oauth_e2e_playwright CI job + controller integration test + docs/oauth-google-setup.md.
+- [ ] 87-02-PLAN.md — Wave 2 (Commit B): 4 evidence dirs (Phase 86 schema verbatim) + mix sigra.uat.report --phase=oauth-{gen,google,link,email-match} extension + GAUAT-05 hero PNG materialization + 87-VERIFICATION.md + milestone-scope-edits verification.
 
 ### Phase 88: GAUAT closing cluster — backup-code rotation + clean-machine getting-started + results filing & SEED-001 closure
 

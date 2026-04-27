@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
 status: planning
-last_updated: "2026-04-26T21:02:43.750Z"
+last_updated: "2026-04-27T02:20:58.439Z"
 last_activity: 2026-04-26
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 6
+  total_plans: 9
   completed_plans: 6
-  percent: 100
+  percent: 67
 ---
 
 # Project State
@@ -89,4 +89,4 @@ _None as of milestone open. Will populate during phase planning._
 
 **Last completed phase:** **85** (oauth-audit-atomicity-closure-aud-21) — **2026-04-25**
 
-**Planned Phase:** **86 — GAUAT email visual QA (Phase 04 + Phase 08 templates)**
+**Planned Phase:** 87 (gauat-oauth-real-credential-cycle-gen-smoke-google-live-link) — 3 plans — 2026-04-27T02:20:58.433Z
