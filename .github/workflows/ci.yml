@@ -826,6 +826,162 @@ jobs:
           path: test/example/priv/playwright/test-results/
           retention-days: 7
 
+  oauth_e2e_playwright:
+    name: OAuth E2E Playwright (mock issuer)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      EXAMPLE_DB_PROBE_ENABLED: "1"
+      EXAMPLE_OAUTH_ISSUER_CTL_ENABLED: "1"
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache example deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium
+      - name: Boot example app in background
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PHX_SERVER: "true"
+        run: mix phx.server > /tmp/example-oauth-playwright-server.log 2>&1 &
+      - name: Wait for app and warm OAuth routes
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "App responding after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          for path in /users/log_in /users/settings /test/db_probe /test/oauth_issuer/reset; do
+            curl -s -o /dev/null -w "%{http_code} ${path}\n" "http://localhost:4000${path}" || true
+          done
+      - name: Run OAuth Playwright specs
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/oauth-register.spec.ts \
+            tests/oauth-link.spec.ts \
+            tests/oauth-email-match.spec.ts \
+            --project=chromium \
+            --reporter=line
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-oauth-playwright-server.log ---"
+          cat /tmp/example-oauth-playwright-server.log || echo "(no log file)"
+      - name: Assemble oauth e2e bundle
+        if: always()
+        run: |
+          mkdir -p /tmp/oauth-e2e-playwright-bundle
+          cp -r test/example/priv/playwright/playwright-report /tmp/oauth-e2e-playwright-bundle/playwright-report 2>/dev/null || true
+          cp -r test/example/priv/playwright/__snapshots__/oauth-link.spec.ts /tmp/oauth-e2e-playwright-bundle/oauth-link-hero 2>/dev/null || true
+          echo "Bundle contents:"
+          find /tmp/oauth-e2e-playwright-bundle -type f | sort || true
+      - name: Upload oauth e2e playwright bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-e2e-playwright-bundle
+          path: /tmp/oauth-e2e-playwright-bundle/
+          retention-days: 14
+      - name: Upload oauth e2e playwright bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-e2e-playwright-bundle
+          path: /tmp/oauth-e2e-playwright-bundle/
+          retention-days: 7
+      - name: Upload oauth e2e playwright failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-e2e-playwright-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 14
+      - name: Upload oauth e2e playwright failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-e2e-playwright-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 7
+      - name: Create oauth e2e playwright release asset archive (v* tag only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          cd /tmp && tar -czf "sigra-oauth-e2e-playwright-${{ github.ref_name }}.tar.gz" oauth-e2e-playwright-bundle/
+          echo "Release asset: sigra-oauth-e2e-playwright-${{ github.ref_name }}.tar.gz"
+          ls -lh "/tmp/sigra-oauth-e2e-playwright-${{ github.ref_name }}.tar.gz"
+      - name: Promote oauth e2e playwright bundle to ${{ github.ref_name }} release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" "/tmp/sigra-oauth-e2e-playwright-${{ github.ref_name }}.tar.gz" \
+            --clobber \
+            --repo "${{ github.repository }}"
+      - name: Upload oauth e2e playwright bundle (tag, 90d retention)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-e2e-playwright-bundle
+          path: /tmp/oauth-e2e-playwright-bundle/
+          retention-days: 90
+
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
