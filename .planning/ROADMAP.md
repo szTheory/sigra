@@ -40,7 +40,7 @@
 - [x] **Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)** — Ship automated visual regression harness (Premailex CSS-inline + Playwright `toHaveScreenshot` Chromium+WebKit × light+dark + caniemail CSS lint + extended WCAG/byte/multipart/XSS ExUnit asserts) producing CI-reproducible evidence per template. 0 human MUA passes required for v1.20 launch. (completed 2026-04-26)
 - [ ] **Phase 87: GAUAT OAuth automated end-to-end harness** — Ship `Sigra.Testing.OAuthIssuer` (TestServer-backed in-process OIDC issuer mirroring Assent's `OIDCTestCase`) + 3 Playwright specs (oauth-register / oauth-link / oauth-email-match) covering GAUAT-04/05/06 against Sigra's example app, plus extended `install-smoke.sh` covering GAUAT-03 (`mix phx.new` + `sigra.install` + `sigra.gen.oauth` + `--warnings-as-errors` + `mix test`); ship `mix sigra.oauth.smoketest --provider=google` + `docs/oauth-google-setup.md` for adopter-side real-credential check at install time. 0 human UAT.
 - [x] **Phase 88: GAUAT MFA + getting-started + results filing** — Automated backup-code regeneration E2E proof; generated-host getting-started install/runtime proof; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` when release-SHA evidence is complete. (completed 2026-04-28)
-- [ ] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean.
+- [x] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean. (completed 2026-04-28)
 - [ ] **Phase 90: Launch + monitoring lane** — Publish announcement post; submit to Hacker News; soft-launch to Elixir Discord / forum / one social channel; install `MAINTAINING.md` "Post-launch monitoring (v1.20)" lane with 24h / 7d / 30d checkpoints and triage SLA; complete the 24h checkpoint as part of this phase.
 
 ## Phase Details
@@ -160,11 +160,11 @@ Plans:
 
 **UI hint**: yes
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 89-01-PLAN.md — Update core project artifacts to reflect the v1.20.0 release.
-- [ ] 89-02-PLAN.md — Execute the Hex publication of Sigra v1.20.0 and produce verification artifacts.
+- [x] 89-01-PLAN.md — Update core project artifacts to reflect the v1.20.0 release.
+- [x] 89-02-PLAN.md — Execute the Hex publication of Sigra v1.20.0 and produce verification artifacts.
 
 ### Phase 90: Launch + monitoring lane (announcement, HN, community soft-launch, MAINTAINING.md monitoring)
 
@@ -194,7 +194,7 @@ Plans:
 | 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
 | 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
 | 88. GAUAT closing cluster + SEED-001 closure | 3/3 | Complete    | 2026-04-28 |
-| 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/2 | Not started | — |
+| 89. Pre-launch (Hex publish + README + CHANGELOG) | 2/2 | Complete    | 2026-04-28 |
 | 90. Launch + monitoring lane | 0/0 | Not started | — |
 
 ## Traceability — v1.20

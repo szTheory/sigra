@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: planning
+status: ready_to_plan
 last_updated: "2026-04-28T21:25:40.649Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 14
   completed_plans: 13
-  percent: 93
+  percent: 83
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 89
+Phase: 90
 
 Plan: Not started
 
