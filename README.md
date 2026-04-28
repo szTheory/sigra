@@ -23,12 +23,17 @@
 | **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
 | **Maintaining / releasing** | See [`MAINTAINING.md`](MAINTAINING.md) for version bumps, Hex and GitHub releases, and planning hygiene for maintainers. |
 
-## Before production
+## Use this in production
 
-Public HTTPS hosts need aligned origins, proxy-forwarded TLS, session cookies, and a deliberate mail-delivery posture before you take real traffic. Treat the deployment recipe as the single checklist hub — skim it once per environment.
+Sigra v1.20.0 marks the project's **General Availability**. The authentication primitives have been proven through extensive automated testing and documented security attestations.
 
-- **[Production checklist (read first)](guides/recipes/deployment.md#production-checklist-read-first)** — scheme, cookies, LiveView origins, staging parity.
-- **[Mail: inline vs Oban (TL;DR)](guides/recipes/deployment.md#mail-delivery-inline-vs-oban-tl-dr)** — when background delivery is worth the operational cost.
+1. Add `{:sigra, "~> 1.20"}` to your `mix.exs`.
+2. Follow **[Getting started](guides/introduction/getting-started.md)** to generate your host application's auth surface.
+3. Review the **[Production checklist](guides/recipes/deployment.md#production-checklist-read-first)** for scheme, cookies, LiveView origins, and mail delivery posture.
+
+For production confidence and audit evidence:
+- **[v1.20 GA evidence](https://github.com/szTheory/sigra/blob/main/.planning/v1.20-GA-UAT-RESULTS.md)**: Comprehensive User Acceptance Testing results and deployment artifacts.
+- **[Phase 9 C-1 PASS attestation](https://github.com/szTheory/sigra/blob/main/.planning/phases/09-audit-logging/09-VERIFICATION.md)**: Proof of audit atomicity for all major auth actions.
 
 **Milestone planning (maintainers):** Product north star and scope boundaries for GSD live in `.planning/PROJECT.md` under **North Star (milestones)** (with **Core Value** and **Out of Scope**).
 
