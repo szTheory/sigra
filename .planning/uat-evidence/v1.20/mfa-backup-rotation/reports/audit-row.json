@@ -1,0 +1,6 @@
+{
+  "status": "pending human witness run",
+  "release_candidate_sha": "367a164",
+  "required_action": "Capture the persisted mfa.backup_codes_regenerate audit row during Task 2.",
+  "required_anchor": "mfa.backup_codes_regenerate"
+}

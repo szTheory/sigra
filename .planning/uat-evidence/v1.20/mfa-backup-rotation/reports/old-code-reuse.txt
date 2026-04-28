@@ -1,0 +1,8 @@
+GAUAT-07 old-code invalidation proof
+Status: pending human witness run
+Release-candidate SHA: 367a164
+
+Record the exact pre-rotation plaintext backup code selected in transcript.log, then capture the post-regeneration failure for that same code here.
+
+Required anchor:
+- old-code-reuse

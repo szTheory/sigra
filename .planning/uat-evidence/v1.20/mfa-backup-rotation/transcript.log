@@ -1,0 +1,12 @@
+# GAUAT-07 transcript
+# Status: pending human witness run
+# Release-candidate SHA: 367a164
+#
+# Required capture points:
+# - Timestamp when sudo prompt is reached
+# - Timestamp when regenerate modal is opened with TOTP input visible
+# - The chosen pre-rotation plaintext backup code used for invalidation proof
+# - Timestamp when regeneration succeeds and new codes are shown once
+# - Timestamp when audit proof is captured
+#
+# Append witness output below during Task 2.
