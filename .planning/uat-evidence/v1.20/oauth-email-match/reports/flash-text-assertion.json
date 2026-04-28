@@ -1,0 +1,9 @@
+{
+  "generated_at": "2026-04-28T11:41:55.534Z",
+  "git_sha": "367a164",
+  "source_spec": "test/example/priv/playwright/tests/oauth-email-match.spec.ts",
+  "source_pointer": "priv/templates/sigra.gen.oauth/oauth_controller.ex:96",
+  "flash_text": "An account with this email exists. Log in to link your google account.",
+  "redirect_destination": "/users/log_in",
+  "post_login_flash": "Your Google sign-in has been linked to this account."
+}

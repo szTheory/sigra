@@ -594,7 +594,7 @@ defmodule Example.Accounts do
       passkeys: [
         rp_id: "localhost",
         rp_name: "Sigra Example",
-        origin: "http://localhost:4000",
+        origin: example_base_url(),
         timeout_ms: 60_000,
         attestation: :none,
         user_verification: :preferred,
@@ -618,6 +618,10 @@ defmodule Example.Accounts do
       end)
 
     Keyword.put(base_oauth, :providers, merged_providers)
+  end
+
+  defp example_base_url do
+    System.get_env("SIGRA_EXAMPLE_URL") || ExampleWeb.Endpoint.url()
   end
 
   def oauth_providers do
@@ -1251,7 +1255,7 @@ defmodule Example.Accounts do
   """
   def change_password(user, current_password, attrs) do
     Sigra.Auth.change_password(sigra_config(), user, current_password, attrs,
-      changeset_fn: &User.password_changeset/3
+      changeset_fn: &User.password_changeset/2
     )
   end
 
@@ -1261,7 +1265,7 @@ defmodule Example.Accounts do
   Requires sudo mode. Returns `{:ok, user}` or `{:error, changeset}`.
   """
   def set_password(user, attrs) do
-    Sigra.Auth.set_password(sigra_config(), user, attrs, changeset_fn: &User.password_changeset/3)
+    Sigra.Auth.set_password(sigra_config(), user, attrs, changeset_fn: &User.password_changeset/2)
   end
 
   @doc """

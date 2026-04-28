@@ -352,12 +352,11 @@ MIX_ENV=dev mix run -e '
 
 All substantive claims in this research were verified against repo files or local command output during this session. [VERIFIED: repository sources and local command checks]
 
-## Open Questions
+## Resolved Questions
 
 1. **If Phase 87 provenance is still missing when Phase 88 executes, should SEED-001 stay open or move to `partially-validated`?**
-   - What we know: `validated` requires remote-verifiable CI evidence or dated human evidence on the exact release-candidate SHA, and `partially-validated` is only allowed for pre-declared non-launch-critical laggards. [VERIFIED: D-88-11..12 in 88-CONTEXT.md]
-   - What's unclear: The current repo state does not declare GAUAT-03..06 non-launch-critical, yet `.planning/ROADMAP.md` assumes Phase 88 flips SEED-001 status. [VERIFIED: .planning/ROADMAP.md; .planning/seeds/SEED-001-v1.0-ga-human-uat-gate.md]
-   - Recommendation: Keep Slice C blocked by default unless maintainers explicitly bless a `partially-validated` exception with a concrete `reopen_trigger`. [VERIFIED: D-88-12 in 88-CONTEXT.md]
+   - Resolution: SEED-001 stays open/unvalidated by default. It may move to `partially-validated` only if maintainers have already pre-declared the affected Phase 87 rows as non-launch-critical and provide the explicit `reopen_trigger` required by D-88-12. No such exception exists in the current repo state, so unresolved Phase 87 provenance blocks closure by default. [VERIFIED: D-88-11..14 in 88-CONTEXT.md; .planning/phases/87-gauat-oauth-real-credential-cycle-gen-smoke-google-live-link/87-VERIFICATION.md; .planning/seeds/SEED-001-v1.0-ga-human-uat-gate.md]
+   - Planning consequence: Slice C must file `GAUAT-03..06` as `BLOCKED`, keep the launch leg blocked, and leave SEED-001 open/unvalidated unless the executor first closes the Phase 87 provenance gap or a maintainer-approved D-88-12 exception is added before execution. [VERIFIED: D-88-12..14 in 88-CONTEXT.md]
 
 ## Environment Availability
 

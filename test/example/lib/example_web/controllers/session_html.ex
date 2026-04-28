@@ -17,6 +17,8 @@ defmodule ExampleWeb.SessionHTML do
   def new(assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">
+      <Layouts.flash_group flash={@flash} />
+
       <.header>
         Log in
         <:subtitle>

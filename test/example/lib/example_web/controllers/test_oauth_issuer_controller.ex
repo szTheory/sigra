@@ -13,32 +13,46 @@ defmodule ExampleWeb.TestOAuthIssuerController do
   @allowed_claim_keys ~w(sub email email_verified name picture)
 
   def setup(conn, %{"provider" => "google", "user" => user_claims}) when is_map(user_claims) do
-    reset_current_issuer()
+    if enabled?() do
+      reset_current_issuer()
 
-    with {:ok, issuer} <- issuer_module().start_link(provider: :google, user: atomize_claims(user_claims)) do
-      :persistent_term.put(@issuer_key, issuer)
+      with {:ok, issuer} <- issuer_module().start_link(provider: :google, user: atomize_claims(user_claims)) do
+        :persistent_term.put(@issuer_key, issuer)
 
-      Application.put_env(:sigra, :oauth_provider_overrides,
-        google: [
-          base_url: issuer_module().url(issuer),
-          openid_configuration: issuer_module().openid_config(issuer)
-        ]
-      )
+        Application.put_env(:sigra, :oauth_provider_overrides,
+          google: [
+            client_id: "google-client-id",
+            client_secret: "google-client-secret",
+            base_url: issuer_module().url(issuer),
+            openid_configuration: issuer_module().openid_config(issuer)
+          ]
+        )
 
-      json(conn, %{ok: true, base_url: issuer_module().url(issuer)})
+        json(conn, %{ok: true, base_url: issuer_module().url(issuer)})
+      end
+    else
+      send_resp(conn, :not_found, "")
     end
   end
 
   def setup(conn, _params) do
-    conn
-    |> put_status(:bad_request)
-    |> json(%{error: "provider must be google"})
+    if enabled?() do
+      conn
+      |> put_status(:bad_request)
+      |> json(%{error: "provider must be google"})
+    else
+      send_resp(conn, :not_found, "")
+    end
   end
 
   def reset(conn, _params) do
-    reset_current_issuer()
-    Application.delete_env(:sigra, :oauth_provider_overrides)
-    json(conn, %{ok: true})
+    if enabled?() do
+      reset_current_issuer()
+      Application.delete_env(:sigra, :oauth_provider_overrides)
+      json(conn, %{ok: true})
+    else
+      send_resp(conn, :not_found, "")
+    end
   end
 
   defp reset_current_issuer do
@@ -59,4 +73,5 @@ defmodule ExampleWeb.TestOAuthIssuerController do
   end
 
   defp issuer_module, do: Module.concat([Sigra, Testing, OAuthIssuer])
+  defp enabled?, do: System.get_env("EXAMPLE_OAUTH_ISSUER_CTL_ENABLED") == "1"
 end

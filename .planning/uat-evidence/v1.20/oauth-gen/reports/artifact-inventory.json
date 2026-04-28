@@ -1,0 +1,62 @@
+[
+  {
+    "path": "lib/tmp_app/accounts/user_identity.ex",
+    "sha256": "45378f40ae41e2dec8513bcb7bfcc9c6286ce661d28d01d7ca5b8de823a3e640",
+    "byte_size": 1769
+  },
+  {
+    "path": "lib/tmp_app_web/controllers/oauth_controller.ex",
+    "sha256": "6eee9d5377aa681e51e5d8218796885918b8d708414eb73ff52c4b236e5d9bb3",
+    "byte_size": 4875
+  },
+  {
+    "path": "lib/tmp_app_web/controllers/oauth_html.ex",
+    "sha256": "ee08fde9dbbba99fc6ae7bcc002318ece28d304c602f159e5e770513f6fe4867",
+    "byte_size": 5392
+  },
+  {
+    "path": "lib/tmp_app_web/controllers/oauth_buttons.html.heex",
+    "sha256": "f36f60ad8cf9f79730bd2825e461893b6332fb53f049bd3b0bf6fbade5fe43ce",
+    "byte_size": 797
+  },
+  {
+    "path": "lib/tmp_app/accounts/emails/provider_linked.ex",
+    "sha256": "0f5e44c32fa17dba40d9296d0300c8d9efefb0c931e22c226cca6315fab76e7d",
+    "byte_size": 1999
+  },
+  {
+    "path": "lib/tmp_app/accounts/emails/provider_unlinked.ex",
+    "sha256": "0acd14015e902e1a4bdb4b5175818b40f814c333cdba14e21442f7595e4fe34a",
+    "byte_size": 2079
+  },
+  {
+    "path": "lib/tmp_app/vault.ex",
+    "sha256": "b6ce7ebf18df99ec74298a2ffa756181caf7a594f96351d622f26b90ee56f91d",
+    "byte_size": 907
+  },
+  {
+    "path": "lib/tmp_app/encrypted/binary.ex",
+    "sha256": "8f6c1ce5ec2cac2275d3a6c15fd7b4328c56c9b65049a9389b3fac66b189934a",
+    "byte_size": 342
+  },
+  {
+    "path": "lib/tmp_app_web/controllers/oauth_settings.html.heex",
+    "sha256": "e92c61f2dc9917745893327434b6d8f66be2ca282651753d29e109eb466d4e1d",
+    "byte_size": 3468
+  },
+  {
+    "path": "test/support/oauth_test_helpers.ex",
+    "sha256": "094f64834b3656a4a52294a0e61e168722fe737816fd14a32a53a13310b1d5f7",
+    "byte_size": 1473
+  },
+  {
+    "path": "priv/repo/migrations/20260428114050_create_user_identities.exs",
+    "sha256": "f04d0e87a2bc51ae8b418d3fcacc68ee73f1112b30ee6445e810e3bd6b958c5e",
+    "byte_size": 947
+  },
+  {
+    "path": "lib/tmp_app_web/router.ex",
+    "sha256": "76740fa5a33f68edf5091299501fbd2ea1c5a09cdbd965567196955f5ffd0bd6",
+    "byte_size": 8711
+  }
+]

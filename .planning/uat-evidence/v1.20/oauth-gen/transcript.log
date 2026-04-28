@@ -1,0 +1,1013 @@
+==> install-smoke: using Sigra repo at /Users/jon/projects/sigra
+==> install-smoke: generating fresh Phoenix app at /tmp/tmp_app
+* creating tmp_app/lib/tmp_app/application.ex
+* creating tmp_app/lib/tmp_app.ex
+* creating tmp_app/lib/tmp_app_web/controllers/error_json.ex
+* creating tmp_app/lib/tmp_app_web/endpoint.ex
+* creating tmp_app/lib/tmp_app_web/router.ex
+* creating tmp_app/lib/tmp_app_web/telemetry.ex
+* creating tmp_app/lib/tmp_app_web.ex
+* creating tmp_app/mix.exs
+* creating tmp_app/README.md
+* creating tmp_app/.formatter.exs
+* creating tmp_app/.gitignore
+* creating tmp_app/test/support/conn_case.ex
+* creating tmp_app/test/test_helper.exs
+* creating tmp_app/test/tmp_app_web/controllers/error_json_test.exs
+* creating tmp_app/lib/tmp_app/repo.ex
+* creating tmp_app/priv/repo/migrations/.formatter.exs
+* creating tmp_app/priv/repo/seeds.exs
+* creating tmp_app/test/support/data_case.ex
+* creating tmp_app/lib/tmp_app_web/controllers/error_html.ex
+* creating tmp_app/test/tmp_app_web/controllers/error_html_test.exs
+* creating tmp_app/lib/tmp_app_web/components/core_components.ex
+* creating tmp_app/lib/tmp_app_web/controllers/page_controller.ex
+* creating tmp_app/lib/tmp_app_web/controllers/page_html.ex
+* creating tmp_app/lib/tmp_app_web/controllers/page_html/home.html.heex
+* creating tmp_app/test/tmp_app_web/controllers/page_controller_test.exs
+* creating tmp_app/lib/tmp_app_web/components/layouts/root.html.heex
+* creating tmp_app/lib/tmp_app_web/components/layouts.ex
+* creating tmp_app/priv/static/images/logo.svg
+* creating tmp_app/lib/tmp_app/mailer.ex
+* creating tmp_app/lib/tmp_app_web/gettext.ex
+* creating tmp_app/priv/gettext/en/LC_MESSAGES/errors.po
+* creating tmp_app/priv/gettext/errors.pot
+* creating tmp_app/priv/static/robots.txt
+* creating tmp_app/priv/static/favicon.ico
+* creating tmp_app/assets/js/app.js
+* creating tmp_app/assets/vendor/topbar.js
+* creating tmp_app/assets/tsconfig.json
+* creating tmp_app/assets/css/app.css
+* creating tmp_app/assets/vendor/heroicons.js
+* creating tmp_app/assets/vendor/daisyui.js
+* creating tmp_app/assets/vendor/daisyui-theme.js
+* initializing git repository
+
+We are almost there! The following steps are missing:
+
+    $ cd tmp_app
+    $ mix deps.get
+
+Then configure your database in config/dev.exs and run:
+
+    $ mix ecto.create
+
+Start your Phoenix app with:
+
+    $ mix phx.server
+
+You can also run your app inside IEx (Interactive Elixir) as:
+
+    $ iex -S mix phx.server
+
+==> install-smoke: patching mix.exs to add {:sigra, path: "/Users/jon/projects/sigra"}
+==> install-smoke: fetching deps (hex + path dep; retries for transient GitHub git deps)
+* Getting heroicons (https://github.com/tailwindlabs/heroicons.git - v2.2.0)
+remote: Enumerating objects: 9314, done.        
+remote: Counting objects:   0% (1/9314)        remote: Counting objects:   1% (94/9314)        remote: Counting objects:   2% (187/9314)        remote: Counting objects:   3% (280/9314)        remote: Counting objects:   4% (373/9314)        remote: Counting objects:   5% (466/9314)        remote: Counting objects:   6% (559/9314)        remote: Counting objects:   7% (652/9314)        remote: Counting objects:   8% (746/9314)        remote: Counting objects:   9% (839/9314)        remote: Counting objects:  10% (932/9314)        remote: Counting objects:  11% (1025/9314)        remote: Counting objects:  12% (1118/9314)        remote: Counting objects:  13% (1211/9314)        remote: Counting objects:  14% (1304/9314)        remote: Counting objects:  15% (1398/9314)        remote: Counting objects:  16% (1491/9314)        remote: Counting objects:  17% (1584/9314)        remote: Counting objects:  18% (1677/9314)        remote: Counting objects:  19% (1770/9314)        remote: Counting objects:  20% (1863/9314)        remote: Counting objects:  21% (1956/9314)        remote: Counting objects:  22% (2050/9314)        remote: Counting objects:  23% (2143/9314)        remote: Counting objects:  24% (2236/9314)        remote: Counting objects:  25% (2329/9314)        remote: Counting objects:  26% (2422/9314)        remote: Counting objects:  27% (2515/9314)        remote: Counting objects:  28% (2608/9314)        remote: Counting objects:  29% (2702/9314)        remote: Counting objects:  30% (2795/9314)        remote: Counting objects:  31% (2888/9314)        remote: Counting objects:  32% (2981/9314)        remote: Counting objects:  33% (3074/9314)        remote: Counting objects:  34% (3167/9314)        remote: Counting objects:  35% (3260/9314)        remote: Counting objects:  36% (3354/9314)        remote: Counting objects:  37% (3447/9314)        remote: Counting objects:  38% (3540/9314)        remote: Counting objects:  39% (3633/9314)        remote: Counting objects:  40% (3726/9314)        remote: Counting objects:  41% (3819/9314)        remote: Counting objects:  42% (3912/9314)        remote: Counting objects:  43% (4006/9314)        remote: Counting objects:  44% (4099/9314)        remote: Counting objects:  45% (4192/9314)        remote: Counting objects:  46% (4285/9314)        remote: Counting objects:  47% (4378/9314)        remote: Counting objects:  48% (4471/9314)        remote: Counting objects:  49% (4564/9314)        remote: Counting objects:  50% (4657/9314)        remote: Counting objects:  51% (4751/9314)        remote: Counting objects:  52% (4844/9314)        remote: Counting objects:  53% (4937/9314)        remote: Counting objects:  54% (5030/9314)        remote: Counting objects:  55% (5123/9314)        remote: Counting objects:  56% (5216/9314)        remote: Counting objects:  57% (5309/9314)        remote: Counting objects:  58% (5403/9314)        remote: Counting objects:  59% (5496/9314)        remote: Counting objects:  60% (5589/9314)        remote: Counting objects:  61% (5682/9314)        remote: Counting objects:  62% (5775/9314)        remote: Counting objects:  63% (5868/9314)        remote: Counting objects:  64% (5961/9314)        remote: Counting objects:  65% (6055/9314)        remote: Counting objects:  66% (6148/9314)        remote: Counting objects:  67% (6241/9314)        remote: Counting objects:  68% (6334/9314)        remote: Counting objects:  69% (6427/9314)        remote: Counting objects:  70% (6520/9314)        remote: Counting objects:  71% (6613/9314)        remote: Counting objects:  72% (6707/9314)        remote: Counting objects:  73% (6800/9314)        remote: Counting objects:  74% (6893/9314)        remote: Counting objects:  75% (6986/9314)        remote: Counting objects:  76% (7079/9314)        remote: Counting objects:  77% (7172/9314)        remote: Counting objects:  78% (7265/9314)        remote: Counting objects:  79% (7359/9314)        remote: Counting objects:  80% (7452/9314)        remote: Counting objects:  81% (7545/9314)        remote: Counting objects:  82% (7638/9314)        remote: Counting objects:  83% (7731/9314)        remote: Counting objects:  84% (7824/9314)        remote: Counting objects:  85% (7917/9314)        remote: Counting objects:  86% (8011/9314)        remote: Counting objects:  87% (8104/9314)        remote: Counting objects:  88% (8197/9314)        remote: Counting objects:  89% (8290/9314)        remote: Counting objects:  90% (8383/9314)        remote: Counting objects:  91% (8476/9314)        remote: Counting objects:  92% (8569/9314)        remote: Counting objects:  93% (8663/9314)        remote: Counting objects:  94% (8756/9314)        remote: Counting objects:  95% (8849/9314)        remote: Counting objects:  96% (8942/9314)        remote: Counting objects:  97% (9035/9314)        remote: Counting objects:  98% (9128/9314)        remote: Counting objects:  99% (9221/9314)        remote: Counting objects: 100% (9314/9314)        remote: Counting objects: 100% (9314/9314), done.        
+remote: Compressing objects:   0% (1/5403)        remote: Compressing objects:   1% (55/5403)        remote: Compressing objects:   2% (109/5403)        remote: Compressing objects:   3% (163/5403)        remote: Compressing objects:   4% (217/5403)        remote: Compressing objects:   5% (271/5403)        remote: Compressing objects:   6% (325/5403)        remote: Compressing objects:   7% (379/5403)        remote: Compressing objects:   8% (433/5403)        remote: Compressing objects:   9% (487/5403)        remote: Compressing objects:  10% (541/5403)        remote: Compressing objects:  11% (595/5403)        remote: Compressing objects:  12% (649/5403)        remote: Compressing objects:  13% (703/5403)        remote: Compressing objects:  14% (757/5403)        remote: Compressing objects:  15% (811/5403)        remote: Compressing objects:  16% (865/5403)        remote: Compressing objects:  17% (919/5403)        remote: Compressing objects:  18% (973/5403)        remote: Compressing objects:  19% (1027/5403)        remote: Compressing objects:  20% (1081/5403)        remote: Compressing objects:  21% (1135/5403)        remote: Compressing objects:  22% (1189/5403)        remote: Compressing objects:  23% (1243/5403)        remote: Compressing objects:  24% (1297/5403)        remote: Compressing objects:  25% (1351/5403)        remote: Compressing objects:  26% (1405/5403)        remote: Compressing objects:  27% (1459/5403)        remote: Compressing objects:  28% (1513/5403)        remote: Compressing objects:  29% (1567/5403)        remote: Compressing objects:  30% (1621/5403)        remote: Compressing objects:  31% (1675/5403)        remote: Compressing objects:  32% (1729/5403)        remote: Compressing objects:  33% (1783/5403)        remote: Compressing objects:  34% (1838/5403)        remote: Compressing objects:  35% (1892/5403)        remote: Compressing objects:  36% (1946/5403)        remote: Compressing objects:  37% (2000/5403)        remote: Compressing objects:  38% (2054/5403)        remote: Compressing objects:  39% (2108/5403)        remote: Compressing objects:  40% (2162/5403)        remote: Compressing objects:  41% (2216/5403)        remote: Compressing objects:  42% (2270/5403)        remote: Compressing objects:  43% (2324/5403)        remote: Compressing objects:  44% (2378/5403)        remote: Compressing objects:  45% (2432/5403)        remote: Compressing objects:  46% (2486/5403)        remote: Compressing objects:  47% (2540/5403)        remote: Compressing objects:  48% (2594/5403)        remote: Compressing objects:  49% (2648/5403)        remote: Compressing objects:  50% (2702/5403)        remote: Compressing objects:  51% (2756/5403)        remote: Compressing objects:  52% (2810/5403)        remote: Compressing objects:  53% (2864/5403)        remote: Compressing objects:  54% (2918/5403)        remote: Compressing objects:  55% (2972/5403)        remote: Compressing objects:  56% (3026/5403)        remote: Compressing objects:  57% (3080/5403)        remote: Compressing objects:  58% (3134/5403)        remote: Compressing objects:  59% (3188/5403)        remote: Compressing objects:  60% (3242/5403)        remote: Compressing objects:  61% (3296/5403)        remote: Compressing objects:  62% (3350/5403)        remote: Compressing objects:  63% (3404/5403)        remote: Compressing objects:  64% (3458/5403)        remote: Compressing objects:  65% (3512/5403)        remote: Compressing objects:  66% (3566/5403)        remote: Compressing objects:  67% (3621/5403)        remote: Compressing objects:  68% (3675/5403)        remote: Compressing objects:  69% (3729/5403)        remote: Compressing objects:  70% (3783/5403)        remote: Compressing objects:  71% (3837/5403)        remote: Compressing objects:  72% (3891/5403)        remote: Compressing objects:  73% (3945/5403)        remote: Compressing objects:  74% (3999/5403)        remote: Compressing objects:  75% (4053/5403)        remote: Compressing objects:  76% (4107/5403)        remote: Compressing objects:  77% (4161/5403)        remote: Compressing objects:  78% (4215/5403)        remote: Compressing objects:  79% (4269/5403)        remote: Compressing objects:  80% (4323/5403)        remote: Compressing objects:  81% (4377/5403)        remote: Compressing objects:  82% (4431/5403)        remote: Compressing objects:  83% (4485/5403)        remote: Compressing objects:  84% (4539/5403)        remote: Compressing objects:  85% (4593/5403)        remote: Compressing objects:  86% (4647/5403)        remote: Compressing objects:  87% (4701/5403)        remote: Compressing objects:  88% (4755/5403)        remote: Compressing objects:  89% (4809/5403)        remote: Compressing objects:  90% (4863/5403)        remote: Compressing objects:  91% (4917/5403)        remote: Compressing objects:  92% (4971/5403)        remote: Compressing objects:  93% (5025/5403)        remote: Compressing objects:  94% (5079/5403)        remote: Compressing objects:  95% (5133/5403)        remote: Compressing objects:  96% (5187/5403)        remote: Compressing objects:  97% (5241/5403)        remote: Compressing objects:  98% (5295/5403)        remote: Compressing objects:  99% (5349/5403)        remote: Compressing objects: 100% (5403/5403)        remote: Compressing objects: 100% (5403/5403), done.        
+remote: Total 9314 (delta 4193), reused 8343 (delta 3849), pack-reused 0 (from 0)        
+Resolving Hex dependencies...
+Resolution completed in 0.847s
+New:
+  argon2_elixir 4.1.3
+  asn1_compiler 0.1.1
+  bandit 1.10.4
+  cbor 1.0.2
+  cc_precompiler 0.1.11
+  cloak 1.1.4
+  cloak_ecto 1.3.0
+  comeonin 5.5.1
+  db_connection 2.10.0
+  decimal 2.3.0
+  dns_cluster 0.2.0
+  ecto 3.13.5
+  ecto_sql 3.13.5
+  elixir_make 0.9.0
+  esbuild 0.10.0
+  expo 1.1.1
+  file_system 1.1.1
+  finch 0.21.0
+  fine 0.1.6
+  flop 0.26.3
+  flop_phoenix 0.26.0
+  gettext 1.0.2
+  hpax 1.0.3
+  idna 6.1.1
+  jason 1.4.4
+  lazy_html 0.1.11
+  mime 2.0.7
+  mint 1.7.1
+  nimble_options 1.1.1
+  nimble_pool 1.1.0
+  nimble_totp 1.0.0
+  phoenix 1.8.5
+  phoenix_ecto 4.7.0
+  phoenix_html 4.3.0
+  phoenix_live_reload 1.6.2
+  phoenix_live_view 1.1.28
+  phoenix_pubsub 2.2.0
+  phoenix_template 1.0.4
+  plug 1.19.1
+  plug_crypto 2.1.1
+  postgrex 0.22.0
+  req 0.5.17
+  swoosh 1.25.0
+  tailwind 0.4.1
+  telemetry 1.4.1
+  telemetry_metrics 1.1.0
+  telemetry_poller 1.3.0
+  thousand_island 1.4.3
+  unicode_util_compat 0.7.1
+  wax_ 0.7.0
+  websock 0.5.3
+  websock_adapter 0.5.9
+  x509 0.9.2
+* Getting phoenix (Hex package)
+* Getting phoenix_ecto (Hex package)
+* Getting ecto_sql (Hex package)
+* Getting postgrex (Hex package)
+* Getting phoenix_html (Hex package)
+* Getting phoenix_live_reload (Hex package)
+* Getting phoenix_live_view (Hex package)
+* Getting lazy_html (Hex package)
+* Getting esbuild (Hex package)
+* Getting tailwind (Hex package)
+* Getting swoosh (Hex package)
+* Getting req (Hex package)
+* Getting telemetry_metrics (Hex package)
+* Getting telemetry_poller (Hex package)
+* Getting gettext (Hex package)
+* Getting jason (Hex package)
+* Getting dns_cluster (Hex package)
+* Getting bandit (Hex package)
+* Getting hpax (Hex package)
+* Getting plug (Hex package)
+* Getting telemetry (Hex package)
+* Getting thousand_island (Hex package)
+* Getting websock (Hex package)
+* Getting mime (Hex package)
+* Getting plug_crypto (Hex package)
+* Getting expo (Hex package)
+* Getting finch (Hex package)
+* Getting mint (Hex package)
+* Getting nimble_options (Hex package)
+* Getting nimble_pool (Hex package)
+* Getting idna (Hex package)
+* Getting unicode_util_compat (Hex package)
+* Getting cc_precompiler (Hex package)
+* Getting elixir_make (Hex package)
+* Getting fine (Hex package)
+* Getting phoenix_template (Hex package)
+* Getting file_system (Hex package)
+* Getting db_connection (Hex package)
+* Getting decimal (Hex package)
+* Getting ecto (Hex package)
+* Getting phoenix_pubsub (Hex package)
+* Getting websock_adapter (Hex package)
+* Getting flop (Hex package)
+* Getting flop_phoenix (Hex package)
+* Getting argon2_elixir (Hex package)
+* Getting comeonin (Hex package)
+* Getting nimble_totp (Hex package)
+* Getting cloak_ecto (Hex package)
+* Getting wax_ (Hex package)
+* Getting asn1_compiler (Hex package)
+* Getting cbor (Hex package)
+* Getting x509 (Hex package)
+* Getting cloak (Hex package)
+You have added/upgraded packages you could sponsor, run `mix hex.sponsor` to learn more
+==> install-smoke: running mix sigra.install --yes Accounts User users
+
+07:40:14.702 [info] Compiling file system watcher for Mac...
+
+07:40:15.159 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+==> x509
+Compiling 24 files (.ex)
+Generated x509 app
+==> nimble_options
+Compiling 3 files (.ex)
+Generated nimble_options app
+==> comeonin
+Compiling 3 files (.ex)
+Generated comeonin app
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+==> hpax
+Compiling 4 files (.ex)
+Generated hpax app
+==> mint
+Compiling 1 file (.erl)
+Compiling 20 files (.ex)
+Generated mint app
+==> asn1_compiler
+Compiling 1 file (.ex)
+    warning: :asn1ct.compile/2 is undefined (module :asn1ct is not available or is yet to be defined)
+    │
+ 74 │       :asn1ct.compile(to_charlist(input), options)
+    │               ~
+    │
+    └─ lib/mix/tasks/compile.asn1.ex:74:15: Mix.Tasks.Compile.Asn1.run/1
+
+Generated asn1_compiler app
+==> elixir_make
+Compiling 8 files (.ex)
+Generated elixir_make app
+==> argon2_elixir
+mkdir -p /private/tmp/tmp_app/_build/dev/lib/argon2_elixir/priv
+cc -g -O3 -pthread -Wall -I"/opt/homebrew/Cellar/erlang/28.4.1/lib/erlang/erts-16.3/include" -Iargon2/include -Iargon2/src -Ic_src -dynamiclib -undefined dynamic_lookup  argon2/src/argon2.c argon2/src/core.c argon2/src/blake2/blake2b.c argon2/src/thread.c argon2/src/encoding.c argon2/src/ref.c c_src/argon2_nif.c -o /private/tmp/tmp_app/_build/dev/lib/argon2_elixir/priv/argon2_nif.so
+Compiling 3 files (.ex)
+Generated argon2_elixir app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> esbuild
+Compiling 4 files (.ex)
+Generated esbuild app
+==> nimble_totp
+Compiling 1 file (.ex)
+Generated nimble_totp app
+==> tmp_app
+===> Analyzing applications...
+===> Compiling unicode_util_compat
+===> Analyzing applications...
+===> Compiling idna
+===> Analyzing applications...
+===> Compiling telemetry
+==> telemetry_metrics
+Compiling 7 files (.ex)
+Generated telemetry_metrics app
+==> tmp_app
+===> Analyzing applications...
+===> Compiling telemetry_poller
+==> thousand_island
+Compiling 18 files (.ex)
+Generated thousand_island app
+==> db_connection
+Compiling 18 files (.ex)
+Generated db_connection app
+==> ecto
+Compiling 56 files (.ex)
+Generated ecto app
+==> flop
+Compiling 17 files (.ex)
+Generated flop app
+==> cbor
+Compiling 5 files (.ex)
+Generated cbor app
+==> wax_
+Compiling 3 files (.asn1)
+Compiling 3 files (.erl)
+Compiling 25 files (.ex)
+Generated wax_ app
+==> phoenix_html
+Compiling 6 files (.ex)
+Generated phoenix_html app
+==> phoenix_template
+Compiling 4 files (.ex)
+Generated phoenix_template app
+==> expo
+Compiling 2 files (.erl)
+Compiling 22 files (.ex)
+Generated expo app
+==> gettext
+Compiling 18 files (.ex)
+Generated gettext app
+==> phoenix_pubsub
+Compiling 12 files (.ex)
+Generated phoenix_pubsub app
+==> cloak
+Compiling 14 files (.ex)
+Generated cloak app
+==> dns_cluster
+Compiling 1 file (.ex)
+Generated dns_cluster app
+==> plug
+Compiling 1 file (.erl)
+Compiling 42 files (.ex)
+Generated plug app
+==> postgrex
+Compiling 69 files (.ex)
+Generated postgrex app
+==> phoenix_ecto
+Compiling 7 files (.ex)
+Generated phoenix_ecto app
+==> ecto_sql
+Compiling 25 files (.ex)
+Generated ecto_sql app
+==> nimble_pool
+Compiling 2 files (.ex)
+Generated nimble_pool app
+==> finch
+Compiling 14 files (.ex)
+Generated finch app
+==> req
+Compiling 19 files (.ex)
+Generated req app
+==> tailwind
+Compiling 3 files (.ex)
+Generated tailwind app
+==> websock
+Compiling 1 file (.ex)
+Generated websock app
+==> bandit
+Compiling 54 files (.ex)
+Generated bandit app
+==> swoosh
+Compiling 59 files (.ex)
+Generated swoosh app
+==> websock_adapter
+Compiling 4 files (.ex)
+Generated websock_adapter app
+==> phoenix
+Compiling 74 files (.ex)
+Generated phoenix app
+==> phoenix_live_reload
+Compiling 5 files (.ex)
+Generated phoenix_live_reload app
+==> phoenix_live_view
+Compiling 49 files (.ex)
+Generated phoenix_live_view app
+==> flop_phoenix
+Compiling 6 files (.ex)
+Generated flop_phoenix app
+==> cloak_ecto
+Compiling 23 files (.ex)
+Generated cloak_ecto app
+==> sigra
+Compiling 145 files (.ex)
+Generated sigra app
+==> tmp_app
+* creating priv/repo/migrations/20260428114041_create_sigra_auth_tables.exs
+* creating priv/repo/migrations/20260428114042_add_active_organization_id_to_user_sessions.exs
+* creating lib/tmp_app/accounts/user.ex
+* creating lib/tmp_app/accounts/user_token.ex
+* creating lib/tmp_app/accounts/scope.ex
+* creating lib/tmp_app/accounts.ex
+* creating lib/tmp_app_web/user_auth.ex
+* creating lib/tmp_app_web/auth_error_handler.ex
+* creating lib/tmp_app_web/controllers/session_controller.ex
+* creating test/support/fixtures/auth_fixtures.ex
+* creating test/support/conn_case_helpers.ex
+* creating lib/tmp_app/accounts/emails.ex
+* creating lib/tmp_app/accounts/mailer.ex
+* creating lib/tmp_app_web/controllers/confirmation_controller.ex
+* creating lib/tmp_app_web/controllers/confirmation_html.ex
+* creating lib/tmp_app_web/controllers/reset_password_controller.ex
+* creating lib/tmp_app_web/controllers/reset_password_html.ex
+* creating lib/tmp_app/accounts/user_session.ex
+* creating lib/tmp_app_web/controllers/auth/sudo_controller.ex
+* creating lib/tmp_app_web/controllers/auth/sudo_html.ex
+* creating lib/tmp_app/accounts/user_mfa_credential.ex
+* creating lib/tmp_app/accounts/user_backup_code.ex
+* creating lib/tmp_app_web/controllers/mfa_challenge_controller.ex
+* creating lib/tmp_app_web/controllers/mfa_challenge_html.ex
+* creating priv/repo/migrations/20260428114044_create_audit_events.exs
+* creating lib/tmp_app/accounts/audit_event.ex
+* skipping lib/tmp_app/mailer.ex (already exists)
+* creating lib/tmp_app/vault.ex
+* creating lib/tmp_app/accounts/encrypted.ex
+* creating lib/tmp_app_web/controllers/session_html.ex
+* creating lib/tmp_app_web/live/registration_live.ex
+* creating lib/tmp_app_web/live/confirmation_live.ex
+* creating lib/tmp_app_web/live/reset_password_live.ex
+* creating lib/tmp_app_web/live/auth/session_live.ex
+* creating lib/tmp_app_web/live/mfa_challenge_live.ex
+* creating lib/tmp_app_web/live/mfa_settings_live.ex
+* creating lib/tmp_app_web/live/settings_live.ex
+* creating lib/tmp_app_web/live/reactivation_live.ex
+* injecting lib/tmp_app_web/router.ex
+* injecting lib/tmp_app_web/router.ex
+* injecting lib/tmp_app_web/router.ex
+* injecting config/config.exs
+* injecting config/test.exs
+* injecting test/support/conn_case.ex
+* injecting lib/tmp_app/application.ex
+* detected Oban config in config/config.exs
+  Add the sigra_mailer queue to your Oban config:
+    config :tmp_app, Oban, queues: [sigra_mailer: 10]
+
+* injecting Swoosh dev config into config/dev.exs
+
+Sigra authentication has been installed!
+
+Next steps:
+
+  1. Run the migration:
+
+         mix ecto.migrate
+
+  2. Add the authentication pipeline to your router:
+
+         # In lib/your_app_web/router.ex
+         # Routes were auto-injected if the router was found.
+
+  3. Review the generated configuration in config/config.exs
+
+  4. (Optional) Set up rate limiting with Hammer:
+
+         # In your application.ex children list:
+         {MyApp.RateLimit, clean_period: :timer.minutes(1)}
+
+         # Create lib/my_app/rate_limit.ex:
+         defmodule MyApp.RateLimit do
+           use Hammer, backend: :ets
+         end
+
+  LiveView pages were generated for login, registration, and session management.
+  Passkeys: enabled (default)
+
+
+
+* creating lib/tmp_app/accounts/organization.ex
+* creating lib/tmp_app/accounts/organization_invitation.ex
+* creating lib/tmp_app/accounts/organization_membership.ex
+* creating lib/tmp_app/accounts/organization_slug_alias.ex
+* creating priv/repo/migrations/20260428114045_create_organizations.exs
+* creating priv/repo/migrations/20260428114046_alter_audit_events_add_org_columns.exs
+* creating lib/tmp_app/organizations.ex
+* creating lib/tmp_app_web/components/org_switcher.ex
+* creating lib/tmp_app_web/controllers/organization_switch_controller.ex
+* creating lib/tmp_app_web/live/organizations_live/index.ex
+* creating lib/tmp_app_web/live/organizations_live/new.ex
+* creating lib/tmp_app_web/live/organization_settings_live.ex
+* creating lib/tmp_app_web/live/organization_members_live.ex
+* creating lib/tmp_app_web/live/invitation_accept_live.ex
+* injecting lib/tmp_app_web/router.ex
+
+Sigra organizations installed!
+
+Next steps:
+
+  1. Add the organization switcher to your app layout.
+     In lib/<app>_web/components/layouts.ex, inside the <header>, add:
+
+         <.org_switcher
+           current_scope={@current_scope}
+           user_organizations={@user_organizations}
+           return_to={@current_path}
+         />
+
+  2. Organization routes were injected into your router, including
+     the /organizations landing + scoped /organizations/:org block.
+
+  3. Run `mix ecto.migrate` to create the organizations tables.
+
+  4. Add `:require_org` gates to routes that should force org
+     selection:
+
+         pipe_through [:browser, :require_authenticated, :require_org]
+
+* creating lib/tmp_app/accounts/user_passkey.ex
+* creating assets/js/passkey_browser.js
+* creating assets/js/passkey_hooks.js
+* creating assets/package.json
+* injecting lib/tmp_app_web/router.ex
+* injecting config/config.exs
+* injecting mix.exs
+* injecting mix.exs
+* already injected assets/package.json
+* injecting assets/js/app.js
+* creating lib/tmp_app/sigra_admin_policy.ex
+* creating lib/tmp_app_web/components/admin_shell.ex
+* creating lib/tmp_app_web/controllers/admin/impersonation_controller.ex
+* creating lib/tmp_app_web/controllers/admin/audit_export_controller.ex
+* injecting lib/tmp_app_web/router.ex
+* injecting lib/tmp_app_web/components/layouts.ex
+* injecting lib/tmp_app_web/components/layouts.ex
+* injecting lib/tmp_app_web/auth_error_handler.ex
+
+Sigra admin installed!
+
+Next steps:
+
+  1. Review `lib/<app>/sigra_admin_policy.ex` and define platform-admin
+     and org-admin access explicitly for your host app.
+
+  2. Review the injected admin router scopes at `/admin` and
+     `/admin/organizations/:org`, which already enforce the admin
+     policy contract through Sigra's Plug and LiveView guards.
+
+  3. Adjust `lib/<app>_web/components/admin_shell.ex` and your layouts
+     so impersonation stays visibly persistent and the app-wide
+     `/impersonation` stop action remains reachable from host-owned
+     chrome.
+
+==> install-smoke: compiling with --warnings-as-errors
+==> sigra
+Compiling 145 files (.ex)
+Generated sigra app
+==> tmp_app
+Compiling 64 files (.ex)
+Generated tmp_app app
+==> install-smoke: creating + migrating fresh DB
+The database for TmpApp.Repo has been created
+
+07:40:47.163 [info] == Running 20260428114041 TmpApp.Repo.Migrations.CreateSigraAuthTables.up/0 forward
+
+07:40:47.165 [info] execute "CREATE EXTENSION IF NOT EXISTS citext"
+
+07:40:47.202 [info] create table users
+
+07:40:47.207 [info] create index users_email_active_index
+
+07:40:47.208 [info] create index users_pending_email_index
+
+07:40:47.209 [info] create table user_tokens
+
+07:40:47.212 [info] create index user_tokens_user_id_index
+
+07:40:47.213 [info] create index user_tokens_context_token_index
+
+07:40:47.214 [info] create table user_sessions
+
+07:40:47.216 [info] create index user_sessions_hashed_token_index
+
+07:40:47.217 [info] create index user_sessions_user_id_index
+
+07:40:47.217 [info] create index user_sessions_user_id_type_index
+
+07:40:47.218 [info] create index user_sessions_inserted_at_index
+
+07:40:47.219 [info] create table user_mfa_credentials
+
+07:40:47.221 [info] create index user_mfa_credentials_user_id_type_index
+
+07:40:47.221 [info] create table user_backup_codes
+
+07:40:47.222 [info] create index user_backup_codes_user_id_index
+
+07:40:47.223 [info] alter table users
+
+07:40:47.224 [info] == Migrated 20260428114041 in 0.0s
+
+07:40:47.241 [info] == Running 20260428114042 TmpApp.Repo.Migrations.AddActiveOrganizationIdToUserSessions.change/0 forward
+
+07:40:47.241 [info] alter table user_sessions
+
+07:40:47.242 [info] == Migrated 20260428114042 in 0.0s
+
+07:40:47.243 [info] == Running 20260428114044 TmpApp.Repo.Migrations.CreateAuditEvents.change/0 forward
+
+07:40:47.243 [info] create table audit_events
+
+07:40:47.247 [info] create index audit_events_actor_id_inserted_at_index
+
+07:40:47.248 [info] create index audit_events_action_inserted_at_index
+
+07:40:47.249 [info] create index audit_events_inserted_at_index
+
+07:40:47.250 [info] == Migrated 20260428114044 in 0.0s
+
+07:40:47.251 [info] == Running 20260428114045 TmpApp.Repo.Migrations.CreateOrganizations.up/0 forward
+
+07:40:47.251 [info] create table organizations
+
+07:40:47.255 [info] create index organizations_slug_active_index
+
+07:40:47.256 [info] create index organizations_personal_owner_uidx
+
+07:40:47.257 [info] create table organization_memberships
+
+07:40:47.259 [info] create index organization_memberships_user_id_organization_id_index
+
+07:40:47.259 [info] create index organization_memberships_organization_id_index
+
+07:40:47.260 [info] create table organization_invitations
+
+07:40:47.262 [info] create index organization_invitations_pending_index
+
+07:40:47.262 [info] create index organization_invitations_hashed_token_index
+
+07:40:47.263 [info] create table organization_slug_aliases
+
+07:40:47.264 [info] create index organization_slug_aliases_organization_id_index
+
+07:40:47.264 [info] create index organization_slug_aliases_old_slug_idx
+
+07:40:47.264 [info] == Migrated 20260428114045 in 0.0s
+
+07:40:47.265 [info] == Running 20260428114046 TmpApp.Repo.Migrations.AlterAuditEventsAddOrgColumns.up/0 forward
+
+07:40:47.265 [info] alter table audit_events
+
+07:40:47.267 [info] create index audit_events_organization_id_inserted_at_index
+
+07:40:47.268 [info] == Migrated 20260428114046 in 0.0s
+==> install-smoke: injecting {:cloak_ecto, "~> 1.3"} for mix sigra.gen.oauth
+Resolving Hex dependencies...
+Resolution completed in 0.138s
+Unchanged:
+  argon2_elixir 4.1.3
+  asn1_compiler 0.1.1
+  bandit 1.10.4
+  cbor 1.0.2
+  cc_precompiler 0.1.11
+  cloak 1.1.4
+  cloak_ecto 1.3.0
+  comeonin 5.5.1
+  db_connection 2.10.0
+  decimal 2.3.0
+  dns_cluster 0.2.0
+  ecto 3.13.5
+  ecto_sql 3.13.5
+  elixir_make 0.9.0
+  esbuild 0.10.0
+  expo 1.1.1
+  file_system 1.1.1
+  finch 0.21.0
+  fine 0.1.6
+  flop 0.26.3
+  flop_phoenix 0.26.0
+  gettext 1.0.2
+  hpax 1.0.3
+  idna 6.1.1
+  jason 1.4.4
+  lazy_html 0.1.11
+  mime 2.0.7
+  mint 1.7.1
+  nimble_options 1.1.1
+  nimble_pool 1.1.0
+  nimble_totp 1.0.0
+  phoenix 1.8.5
+  phoenix_ecto 4.7.0
+  phoenix_html 4.3.0
+  phoenix_live_reload 1.6.2
+  phoenix_live_view 1.1.28
+  phoenix_pubsub 2.2.0
+  phoenix_template 1.0.4
+  plug 1.19.1
+  plug_crypto 2.1.1
+  postgrex 0.22.0
+  req 0.5.17
+  swoosh 1.25.0
+  tailwind 0.4.1
+  telemetry 1.4.1
+  telemetry_metrics 1.1.0
+  telemetry_poller 1.3.0
+  thousand_island 1.4.3
+  unicode_util_compat 0.7.1
+  wax_ 0.7.0
+  websock 0.5.3
+  websock_adapter 0.5.9
+  x509 0.9.2
+Generated tmp_app app
+==> install-smoke: mix sigra.gen.oauth (greenfield generator contract)
+* creating priv/repo/migrations/20260428114050_create_user_identities.exs
+* creating lib/tmp_app/accounts/user_identity.ex
+* creating lib/tmp_app_web/controllers/oauth_controller.ex
+* creating lib/tmp_app_web/controllers/oauth_html.ex
+    warning: <%# is deprecated, use <%!-- or add a space between <% and # instead
+    │
+  1 │ <%# Dynamic OAuth provider buttons - rendered from configured providers %>
+    │ ~
+    │
+    └─ _build/dev/lib/sigra/priv/templates/sigra.gen.oauth/oauth_buttons.html.heex:1: (file)
+
+* creating lib/tmp_app_web/controllers/oauth_buttons.html.heex
+* creating lib/tmp_app/accounts/emails/provider_linked.ex
+* creating lib/tmp_app/accounts/emails/provider_unlinked.ex
+* creating test/support/oauth_test_helpers.ex
+* skipping lib/tmp_app/vault.ex (already exists)
+* creating lib/tmp_app/encrypted/binary.ex
+* creating lib/tmp_app_web/controllers/oauth_settings.html.heex
+* injecting lib/tmp_app_web/router.ex
+* injecting config/config.exs
+* already injected lib/tmp_app/application.ex
+
+Sigra OAuth has been generated!
+
+Next steps:
+
+  1. Run the migration:
+
+         mix ecto.migrate
+
+  2. Generate a CLOAK_KEY:
+
+         elixir -e '32 |> :crypto.strong_rand_bytes() |> Base.encode64() |> IO.puts()'
+
+     Add it to your environment: export CLOAK_KEY="<generated key>"
+
+  3. Add cloak_ecto to your deps (if not already):
+
+         {:cloak_ecto, "~> 1.3"}
+
+      4. Configure provider credentials in config/runtime.exs:
+         - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+         - GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET
+
+  Controller-based settings page was generated for OAuth account management.
+
+
+==> sigra
+Generated sigra app
+==> tmp_app
+Compiling 70 files (.ex)
+Generated tmp_app app
+
+07:40:53.331 [info] == Running 20260428114050 TmpApp.Accounts.Repo.Migrations.CreateUserIdentities.change/0 forward
+
+07:40:53.332 [info] create table user_identities
+
+07:40:53.340 [info] create index user_identities_user_id_provider_index
+
+07:40:53.341 [info] create index user_identities_provider_provider_uid_index
+
+07:40:53.342 [info] create index user_identities_user_id_index
+
+07:40:53.343 [info] == Migrated 20260428114050 in 0.0s
+==> install-smoke: creating + migrating test DB and running mix test
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+==> x509
+Compiling 24 files (.ex)
+Generated x509 app
+==> nimble_options
+Compiling 3 files (.ex)
+Generated nimble_options app
+==> fine
+Compiling 1 file (.ex)
+Generated fine app
+==> comeonin
+Compiling 3 files (.ex)
+Generated comeonin app
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+==> hpax
+Compiling 4 files (.ex)
+Generated hpax app
+==> mint
+Compiling 1 file (.erl)
+Compiling 20 files (.ex)
+Generated mint app
+==> asn1_compiler
+Compiling 1 file (.ex)
+    warning: :asn1ct.compile/2 is undefined (module :asn1ct is not available or is yet to be defined)
+    │
+ 74 │       :asn1ct.compile(to_charlist(input), options)
+    │               ~
+    │
+    └─ lib/mix/tasks/compile.asn1.ex:74:15: Mix.Tasks.Compile.Asn1.run/1
+
+Generated asn1_compiler app
+==> elixir_make
+Compiling 8 files (.ex)
+Generated elixir_make app
+==> argon2_elixir
+mkdir -p /private/tmp/tmp_app/_build/test/lib/argon2_elixir/priv
+cc -g -O3 -pthread -Wall -I"/opt/homebrew/Cellar/erlang/28.4.1/lib/erlang/erts-16.3/include" -Iargon2/include -Iargon2/src -Ic_src -dynamiclib -undefined dynamic_lookup  argon2/src/argon2.c argon2/src/core.c argon2/src/blake2/blake2b.c argon2/src/thread.c argon2/src/encoding.c argon2/src/ref.c c_src/argon2_nif.c -o /private/tmp/tmp_app/_build/test/lib/argon2_elixir/priv/argon2_nif.so
+Compiling 3 files (.ex)
+Generated argon2_elixir app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> esbuild
+Compiling 4 files (.ex)
+Generated esbuild app
+==> nimble_totp
+Compiling 1 file (.ex)
+Generated nimble_totp app
+==> tmp_app
+===> Analyzing applications...
+===> Compiling unicode_util_compat
+===> Analyzing applications...
+===> Compiling idna
+===> Analyzing applications...
+===> Compiling telemetry
+==> telemetry_metrics
+Compiling 7 files (.ex)
+Generated telemetry_metrics app
+==> tmp_app
+===> Analyzing applications...
+===> Compiling telemetry_poller
+==> thousand_island
+Compiling 18 files (.ex)
+Generated thousand_island app
+==> db_connection
+Compiling 18 files (.ex)
+Generated db_connection app
+==> ecto
+Compiling 56 files (.ex)
+Generated ecto app
+==> flop
+Compiling 17 files (.ex)
+Generated flop app
+==> cbor
+Compiling 5 files (.ex)
+Generated cbor app
+==> wax_
+Compiling 3 files (.erl)
+Compiling 25 files (.ex)
+Generated wax_ app
+==> phoenix_html
+Compiling 6 files (.ex)
+Generated phoenix_html app
+==> phoenix_template
+Compiling 4 files (.ex)
+Generated phoenix_template app
+==> expo
+Compiling 2 files (.erl)
+Compiling 22 files (.ex)
+Generated expo app
+==> gettext
+Compiling 18 files (.ex)
+Generated gettext app
+==> phoenix_pubsub
+Compiling 12 files (.ex)
+Generated phoenix_pubsub app
+==> cloak
+Compiling 14 files (.ex)
+Generated cloak app
+==> dns_cluster
+Compiling 1 file (.ex)
+Generated dns_cluster app
+==> plug
+Compiling 1 file (.erl)
+Compiling 42 files (.ex)
+Generated plug app
+==> postgrex
+Compiling 69 files (.ex)
+Generated postgrex app
+==> phoenix_ecto
+Compiling 7 files (.ex)
+Generated phoenix_ecto app
+==> ecto_sql
+Compiling 25 files (.ex)
+Generated ecto_sql app
+==> nimble_pool
+Compiling 2 files (.ex)
+Generated nimble_pool app
+==> finch
+Compiling 14 files (.ex)
+Generated finch app
+==> req
+Compiling 19 files (.ex)
+Generated req app
+==> cc_precompiler
+Compiling 3 files (.ex)
+Generated cc_precompiler app
+==> lazy_html
+Compiling 3 files (.ex)
+Generated lazy_html app
+==> tailwind
+Compiling 3 files (.ex)
+Generated tailwind app
+==> websock
+Compiling 1 file (.ex)
+Generated websock app
+==> bandit
+Compiling 54 files (.ex)
+Generated bandit app
+==> swoosh
+Compiling 59 files (.ex)
+Generated swoosh app
+==> websock_adapter
+Compiling 4 files (.ex)
+Generated websock_adapter app
+==> phoenix
+Compiling 74 files (.ex)
+Generated phoenix app
+==> phoenix_live_view
+Compiling 49 files (.ex)
+Generated phoenix_live_view app
+==> flop_phoenix
+Compiling 6 files (.ex)
+Generated flop_phoenix app
+==> cloak_ecto
+Compiling 23 files (.ex)
+Generated cloak_ecto app
+==> sigra
+Compiling 145 files (.ex)
+Generated sigra app
+==> tmp_app
+Compiling 75 files (.ex)
+Generated tmp_app app
+The database for TmpApp.Repo has been created
+
+07:41:22.626 [info] == Running 20260428114041 TmpApp.Repo.Migrations.CreateSigraAuthTables.up/0 forward
+
+07:41:22.628 [info] execute "CREATE EXTENSION IF NOT EXISTS citext"
+
+07:41:22.652 [info] create table users
+
+07:41:22.657 [info] create index users_email_active_index
+
+07:41:22.658 [info] create index users_pending_email_index
+
+07:41:22.658 [info] create table user_tokens
+
+07:41:22.661 [info] create index user_tokens_user_id_index
+
+07:41:22.662 [info] create index user_tokens_context_token_index
+
+07:41:22.662 [info] create table user_sessions
+
+07:41:22.664 [info] create index user_sessions_hashed_token_index
+
+07:41:22.664 [info] create index user_sessions_user_id_index
+
+07:41:22.665 [info] create index user_sessions_user_id_type_index
+
+07:41:22.665 [info] create index user_sessions_inserted_at_index
+
+07:41:22.666 [info] create table user_mfa_credentials
+
+07:41:22.667 [info] create index user_mfa_credentials_user_id_type_index
+
+07:41:22.667 [info] create table user_backup_codes
+
+07:41:22.668 [info] create index user_backup_codes_user_id_index
+
+07:41:22.669 [info] alter table users
+
+07:41:22.670 [info] == Migrated 20260428114041 in 0.0s
+
+07:41:22.689 [info] == Running 20260428114042 TmpApp.Repo.Migrations.AddActiveOrganizationIdToUserSessions.change/0 forward
+
+07:41:22.689 [info] alter table user_sessions
+
+07:41:22.690 [info] == Migrated 20260428114042 in 0.0s
+
+07:41:22.691 [info] == Running 20260428114044 TmpApp.Repo.Migrations.CreateAuditEvents.change/0 forward
+
+07:41:22.691 [info] create table audit_events
+
+07:41:22.696 [info] create index audit_events_actor_id_inserted_at_index
+
+07:41:22.696 [info] create index audit_events_action_inserted_at_index
+
+07:41:22.697 [info] create index audit_events_inserted_at_index
+
+07:41:22.698 [info] == Migrated 20260428114044 in 0.0s
+
+07:41:22.699 [info] == Running 20260428114045 TmpApp.Repo.Migrations.CreateOrganizations.up/0 forward
+
+07:41:22.699 [info] create table organizations
+
+07:41:22.700 [info] create index organizations_slug_active_index
+
+07:41:22.701 [info] create index organizations_personal_owner_uidx
+
+07:41:22.702 [info] create table organization_memberships
+
+07:41:22.703 [info] create index organization_memberships_user_id_organization_id_index
+
+07:41:22.703 [info] create index organization_memberships_organization_id_index
+
+07:41:22.704 [info] create table organization_invitations
+
+07:41:22.705 [info] create index organization_invitations_pending_index
+
+07:41:22.706 [info] create index organization_invitations_hashed_token_index
+
+07:41:22.706 [info] create table organization_slug_aliases
+
+07:41:22.707 [info] create index organization_slug_aliases_organization_id_index
+
+07:41:22.708 [info] create index organization_slug_aliases_old_slug_idx
+
+07:41:22.708 [info] == Migrated 20260428114045 in 0.0s
+
+07:41:22.709 [info] == Running 20260428114046 TmpApp.Repo.Migrations.AlterAuditEventsAddOrgColumns.up/0 forward
+
+07:41:22.709 [info] alter table audit_events
+
+07:41:22.711 [info] create index audit_events_organization_id_inserted_at_index
+
+07:41:22.711 [info] == Migrated 20260428114046 in 0.0s
+
+07:41:22.712 [info] == Running 20260428114050 TmpApp.Accounts.Repo.Migrations.CreateUserIdentities.change/0 forward
+
+07:41:22.712 [info] create table user_identities
+
+07:41:22.714 [info] create index user_identities_user_id_provider_index
+
+07:41:22.714 [info] create index user_identities_provider_provider_uid_index
+
+07:41:22.714 [info] create index user_identities_user_id_index
+
+07:41:22.715 [info] == Migrated 20260428114050 in 0.0s
+Running ExUnit with seed: 667229, max_cases: 16
+
+.....
+Finished in 0.07 seconds (0.03s async, 0.04s sync)
+5 tests, 0 failures
+==> install-smoke: oauth generator contract OK (>=11 generated paths + migration + router inject)
+==> install-smoke: oauth-gen: 12/12 expected artifacts present, mix test green
+==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean

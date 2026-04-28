@@ -1,0 +1,46 @@
+[
+  {
+    "gauat_requirement": "GAUAT-05",
+    "artifact_class": "linked-with-password",
+    "evidence_path": "reports/db-probe-results.json",
+    "outcome": "pass",
+    "evidence_sha256": "8f2a1de0e8dff3a4717710de78c7b07212d65deb7bc283155a1f6e67e94f649c",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-05",
+    "artifact_class": "only-oauth-no-password",
+    "evidence_path": "snapshots/oauth-link__disabled-tooltip__sha-367a164.png",
+    "outcome": "pass",
+    "evidence_sha256": "7b0ba20923326b0bd4bd4ccf54c14a0ab2fb5ed217a8bbd86df9ce21cfe9864d",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-05",
+    "artifact_class": "after-set-password",
+    "evidence_path": "reports/db-probe-results.json",
+    "outcome": "pass",
+    "evidence_sha256": "8f2a1de0e8dff3a4717710de78c7b07212d65deb7bc283155a1f6e67e94f649c",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-05",
+    "artifact_class": "post-unlink",
+    "evidence_path": "reports/db-probe-results.json",
+    "outcome": "pass",
+    "evidence_sha256": "8f2a1de0e8dff3a4717710de78c7b07212d65deb7bc283155a1f6e67e94f649c",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  }
+]

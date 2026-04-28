@@ -60,6 +60,7 @@ defmodule ExampleWeb.UserAuth do
   def log_in_user(conn, user, params \\ %{}) do
     ip = conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))
     user_agent = conn |> get_req_header("user-agent") |> List.first() || ""
+    flash = conn.assigns[:flash] || %{}
 
     token =
       Example.Accounts.generate_user_session_token(user, ip: ip, user_agent: user_agent)
@@ -70,6 +71,7 @@ defmodule ExampleWeb.UserAuth do
     |> renew_session()
     |> put_token_in_session(token)
     |> maybe_write_remember_me_cookie(token, params)
+    |> restore_flash(flash)
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
@@ -136,6 +138,14 @@ defmodule ExampleWeb.UserAuth do
     conn
     |> configure_session(renew: true)
     |> clear_session()
+  end
+
+  defp restore_flash(conn, flash) when flash == %{}, do: conn
+
+  defp restore_flash(conn, flash) do
+    Enum.reduce(flash, conn, fn {kind, message}, acc ->
+      put_flash(acc, kind, message)
+    end)
   end
 
   @doc """

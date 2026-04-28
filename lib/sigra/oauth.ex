@@ -498,10 +498,13 @@ defmodule Sigra.OAuth do
 
   defp extract_assent_session(session_params) do
     # Pass through PKCE code_verifier and other Assent-required session state
+    sigra_state = session_params[:sigra_state] || session_params["sigra_state"]
+
     session_params
     |> Map.drop([:sigra_state, "sigra_state"])
     |> Map.to_list()
     |> Enum.into(%{})
+    |> maybe_put(:state, sigra_state)
   end
 
   defp get_provider_config(config, provider) do

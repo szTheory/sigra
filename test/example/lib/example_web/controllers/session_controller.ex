@@ -64,7 +64,7 @@ defmodule ExampleWeb.SessionController do
     if user = Auth.get_user_by_email_and_password(email, password) do
       conn
       |> maybe_complete_oauth_link(user)
-      |> put_flash(:info, info)
+      |> maybe_put_info_flash(info)
       |> UserAuth.log_in_user(user, user_params)
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
@@ -106,6 +106,13 @@ defmodule ExampleWeb.SessionController do
 
       _ ->
         conn
+    end
+  end
+
+  defp maybe_put_info_flash(conn, message) do
+    case Phoenix.Flash.get(conn.assigns.flash, :info) do
+      nil -> put_flash(conn, :info, message)
+      _existing -> conn
     end
   end
 

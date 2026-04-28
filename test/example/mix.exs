@@ -69,7 +69,8 @@ defmodule Example.MixProject do
       {:cloak_ecto, "~> 1.3"},
       # Phase 86 L2: CSS inlining for email snapshot harness
       {:premailex, "~> 0.3"},
-      {:mox, "~> 1.1", only: :test}
+      {:mox, "~> 1.1", only: :test},
+      {:test_server, "~> 0.1.22", only: [:dev, :test]}
     ]
   end
 

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-04-28T11:41:55.534Z",
+  "git_sha": "367a164",
+  "source_spec": "test/example/priv/playwright/tests/oauth-email-match.spec.ts",
+  "mailbox_expectation": {
+    "subject_includes": "Google linked to your account",
+    "body_includes": "Google was linked to your account."
+  },
+  "db_probe_expectation": {
+    "expected_count": 1,
+    "expected_rows": [
+      {
+        "provider": "google",
+        "provider_uid_prefix": "oauth-email-match-"
+      }
+    ]
+  }
+}

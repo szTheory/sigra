@@ -82,6 +82,7 @@ defmodule Sigra.OAuth.Strategies.Google do
     scopes = Keyword.get(provider_config, :scopes, @default_scopes)
 
     provider_config
+    |> Keyword.put_new(:code_verifier, true)
     |> Keyword.put_new(:authorization_params, [])
     |> Keyword.update!(
       :authorization_params,

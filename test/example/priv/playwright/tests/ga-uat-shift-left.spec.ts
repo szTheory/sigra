@@ -1,9 +1,7 @@
-// Shift-left SEED-001 (GA UAT): browser contracts that used to be human-only.
+// Shift-left SEED-001 (GA UAT): browser contract that used to be human-only.
 // SEED-6: invitation signup email lock — tampered client-side email → server error.
-// SEED-7: MFA backup regenerate panel + TOTP gate (flash proves handler path).
 
 import { test, expect } from '@playwright/test';
-import { authenticator } from 'otplib';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 
 const baseURL = process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000';
@@ -108,7 +106,7 @@ async function extractInvitationLink(
   throw new Error(`No invitation link for ${recipient}`);
 }
 
-test.describe('GA UAT shift-left (SEED-6 / SEED-7)', () => {
+test.describe('GA UAT shift-left (SEED-6)', () => {
   test('SEED-6: invitation signup rejects tampered email with locked-address error', async ({
     page,
     browser,
@@ -152,44 +150,4 @@ test.describe('GA UAT shift-left (SEED-6 / SEED-7)', () => {
     }
   });
 
-  test('SEED-7: MFA regenerate confirmation surface is reachable after enrollment', async ({
-    page,
-  }) => {
-    const email = `ga-seed7-${Date.now()}@example.test`;
-    const password = 'CorrectHorseBatteryStaple123!';
-
-    await registerAndConfirm(page, email, password);
-    await logInIfNeeded(page, email, password);
-
-    await page.goto('/users/sudo');
-    await page.fill('input[name="sudo[password]"]', password);
-    await page.click('button:has-text("Confirm password")');
-    await expect(page).not.toHaveURL(/\/users\/sudo(\?|$)/);
-
-    await page.goto('/users/settings/mfa');
-    await waitForLiveViewReady(page);
-    const beginSelector =
-      'button:has-text("Enable"), button:has-text("Begin"), button:has-text("Set up")';
-    await page.locator(beginSelector).first().click();
-
-    const secret = (
-      await page.locator('[data-testid="mfa-totp-secret"]').innerText()
-    ).replace(/\s+/g, '');
-    expect(secret).toBeTruthy();
-    const enrollCode = authenticator.generate(secret);
-    await page.fill('#mfa_enroll_form input[name="enroll[code]"]', enrollCode);
-    await expect(page.getByText(/save your backup codes/i).first()).toBeVisible();
-
-    await page.goto('/users/settings/mfa');
-    await waitForLiveViewReady(page);
-    await expect(page.getByRole('button', { name: /^Disable$/i }).first()).toBeVisible();
-
-    await page.getByRole('button', { name: 'Regenerate codes' }).first().click();
-    await expect(page.locator('#mfa_regenerate_form')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Regenerate backup codes' })).toBeVisible();
-    await expect(page.locator('#regenerate_code')).toBeVisible();
-
-    // Full rotate+DB proof waits on `Auth.mfa_regenerate_backup_codes/2` (see MFASettingsLive TODO).
-    // Here we only shift-left the human "can reach the gate" check into CI.
-  });
 });

@@ -14,7 +14,8 @@ defmodule Sigra.Testing.OAuthIssuer do
   @typedoc "Issuer handle returned by start_link/1"
   @type t :: %__MODULE__{
           base_url: String.t(),
-          state: pid()
+          state: pid(),
+          server: pid()
         }
 
   @fixture_dir Path.expand("fixtures", __DIR__)
@@ -42,7 +43,17 @@ defmodule Sigra.Testing.OAuthIssuer do
   @userinfo_path "/userinfo"
   @jwks_path "/jwks"
 
-  defstruct [:base_url, :state]
+  defstruct [:base_url, :state, :server]
+
+  defmodule HTTPPlug do
+    @moduledoc false
+
+    def init(opts), do: opts
+
+    def call(conn, opts) do
+      Sigra.Testing.OAuthIssuer.dispatch(conn, Keyword.fetch!(opts, :state))
+    end
+  end
 
   @spec start_link(keyword()) :: {:ok, t()} | {:error, term()}
   def start_link(opts \\ []) do
@@ -55,15 +66,10 @@ defmodule Sigra.Testing.OAuthIssuer do
 
     with :ok <- validate_provider(provider),
          :ok <- validate_kid_count(kid_count),
-         {:ok, instance} <- TestServer.start(),
-         {:ok, registrar} <- start_registrar(),
-         base_url = base_url(instance),
          {:ok, state} <-
            Agent.start_link(fn ->
              %{
-               instance: instance,
-               registrar: registrar,
-               base_url: base_url,
+               base_url: nil,
                provider: provider,
                user_claims: user_claims,
                kid_count: kid_count,
@@ -75,8 +81,9 @@ defmodule Sigra.Testing.OAuthIssuer do
                refresh_tokens: %{}
              }
            end),
-         :ok <- register_routes(instance, registrar, state) do
-      {:ok, %__MODULE__{base_url: base_url, state: state}}
+         {:ok, server, base_url} <- start_http_server(state) do
+      Agent.update(state, &Map.put(&1, :base_url, base_url))
+      {:ok, %__MODULE__{base_url: base_url, state: state, server: server}}
     end
   end
 
@@ -110,44 +117,45 @@ defmodule Sigra.Testing.OAuthIssuer do
   end
 
   @spec stop(t()) :: :ok
-  def stop(%__MODULE__{state: state}) do
+  def stop(%__MODULE__{state: state, server: server}) do
     if Process.alive?(state) do
-      %{instance: instance, registrar: registrar} =
-        Agent.get(state, &Map.take(&1, [:instance, :registrar]))
+      if is_pid(server) and Process.alive?(server) do
+        GenServer.stop(server)
+      end
 
-      if Process.alive?(registrar), do: send(registrar, :stop)
-      TestServer.stop(instance)
       Agent.stop(state)
     end
 
     :ok
   end
 
-  defp register_routes(instance, registrar, state) do
-    route_specs = [
-      {@discovery_path, [via: :get], &handle_discovery(&1, state)},
-      {@authorize_path, [via: :get], &handle_authorize(&1, state)},
-      {@token_path, [via: :post], &handle_token(&1, state)},
-      {@userinfo_path, [via: :get], &handle_userinfo(&1, state)},
-      {@jwks_path, [via: :get], &handle_jwks(&1, state)}
-    ]
-
-    Enum.each(route_specs, fn {path, opts, handler} ->
-      add_persistent_route(instance, registrar, path, opts, handler)
-    end)
-
-    :ok
+  def dispatch(conn, state) do
+    case {conn.method, conn.request_path} do
+      {"GET", @discovery_path} -> handle_discovery(conn, state)
+      {"GET", @authorize_path} -> handle_authorize(conn, state)
+      {"POST", @token_path} -> handle_token(conn, state)
+      {"GET", @userinfo_path} -> handle_userinfo(conn, state)
+      {"GET", @jwks_path} -> handle_jwks(conn, state)
+      _other -> Plug.Conn.send_resp(conn, 404, "")
+    end
   end
 
-  defp add_persistent_route(instance, registrar, path, opts, handler) do
-    TestServer.add(
-      instance,
-      path,
-      Keyword.put(opts, :to, fn conn ->
-        send(registrar, {:rearm, instance, path, opts, handler})
-        handler.(conn)
-      end)
-    )
+  defp start_http_server(state) do
+    unless Code.ensure_loaded?(Bandit) do
+      {:error, {:missing_dependency, :bandit}}
+    else
+      bandit_opts = [
+        scheme: :http,
+        ip: {127, 0, 0, 1},
+        port: 0,
+        plug: {HTTPPlug, state: state}
+      ]
+
+      with {:ok, server} <- apply(Bandit, :start_link, [bandit_opts]),
+           {:ok, {{127, 0, 0, 1}, port}} <- ThousandIsland.listener_info(server) do
+        {:ok, server, "http://127.0.0.1:#{port}"}
+      end
+    end
   end
 
   defp handle_discovery(conn, state) do
@@ -493,25 +501,4 @@ defmodule Sigra.Testing.OAuthIssuer do
     prefix <> "_" <> encoded
   end
 
-  defp base_url(instance), do: TestServer.url(instance, "", host: "127.0.0.1")
-
-  defp start_registrar do
-    pid =
-      spawn_link(fn ->
-        registrar_loop()
-      end)
-
-    {:ok, pid}
-  end
-
-  defp registrar_loop do
-    receive do
-      {:rearm, instance, path, opts, handler} ->
-        add_persistent_route(instance, self(), path, opts, handler)
-        registrar_loop()
-
-      :stop ->
-        :ok
-    end
-  end
 end

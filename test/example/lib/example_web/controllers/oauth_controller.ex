@@ -13,6 +13,8 @@ defmodule ExampleWeb.OAuthController do
 
   use ExampleWeb, :controller
 
+  alias ExampleWeb.UserAuth
+
   @doc """
   Initiates OAuth flow by redirecting to the provider's authorization URL.
 
@@ -20,7 +22,7 @@ defmodule ExampleWeb.OAuthController do
   verification on callback.
   """
   def request(conn, %{"provider" => provider}) do
-    config = conn.assigns[:sigra_config] || raise "Sigra config not found in conn.assigns"
+    config = conn.assigns[:sigra_config] || Example.Accounts.sigra_config()
 
     case validate_provider(config, provider) do
       {:ok, provider_atom} ->
@@ -52,7 +54,7 @@ defmodule ExampleWeb.OAuthController do
   and routes to the appropriate account action.
   """
   def callback(conn, %{"provider" => provider} = params) do
-    config = conn.assigns[:sigra_config] || raise "Sigra config not found in conn.assigns"
+    config = conn.assigns[:sigra_config] || Example.Accounts.sigra_config()
 
     case validate_provider(config, provider) do
       {:ok, provider_atom} ->
@@ -67,35 +69,55 @@ defmodule ExampleWeb.OAuthController do
           |> delete_session(:sigra_oauth_code_verifier)
 
         case Sigra.OAuth.handle_callback(config, provider_atom, params, session_params) do
-          {:ok, :registered, _user, session} ->
+          {:ok, :registered, user, session} ->
             return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
 
             conn
             |> delete_session(:sigra_oauth_return_to)
-            |> put_session(:sigra_session_token, session.token)
+            |> put_oauth_user_session(user, session)
             |> redirect(to: return_to)
 
-          {:ok, :logged_in, _user, session} ->
+          {:ok, :logged_in, user, session} ->
             return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
 
             conn
             |> delete_session(:sigra_oauth_return_to)
-            |> put_session(:sigra_session_token, session.token)
+            |> put_oauth_user_session(user, session)
             |> redirect(to: return_to)
 
           {:link_confirmation_required, info} ->
-            conn
-            |> put_session(:sigra_oauth_link_intent, %{
-              provider: info.provider,
-              provider_uid: info.provider_uid,
-              email: info.email,
-              expires_at: DateTime.add(DateTime.utc_now(), 900, :second)
-            })
-            |> put_flash(
-              :info,
-              "An account with this email exists. Log in to link your #{provider} account."
-            )
-            |> redirect(to: ~p"/users/log_in")
+            if current_user = conn.assigns[:current_scope] && conn.assigns.current_scope.user do
+              case Example.Accounts.complete_oauth_link(current_user, info) do
+                {:ok, _identity} ->
+                  return_to = get_session(conn, :sigra_oauth_return_to) || ~p"/"
+
+                  conn
+                  |> delete_session(:sigra_oauth_return_to)
+                  |> put_flash(:info, "Your Google sign-in has been linked to this account.")
+                  |> redirect(to: return_to)
+
+                _error ->
+                  conn
+                  |> put_flash(
+                    :error,
+                    "Could not sign in with #{provider}. Please try again or use another method."
+                  )
+                  |> redirect(to: ~p"/users/log_in")
+              end
+            else
+              conn
+              |> put_session(:sigra_oauth_link_intent, %{
+                provider: info.provider,
+                provider_uid: info.provider_uid,
+                email: info.email,
+                expires_at: DateTime.add(DateTime.utc_now(), 900, :second)
+              })
+              |> put_flash(
+                :info,
+                "An account with this email exists. Log in to link your #{provider} account."
+              )
+              |> redirect(to: ~p"/users/log_in")
+            end
 
           {:error, %Sigra.Error.OAuthError{error_code: :state_mismatch}} ->
             conn
@@ -136,5 +158,19 @@ defmodule ExampleWeb.OAuthController do
     else
       :error
     end
+  end
+
+  defp put_oauth_user_session(conn, user, session_metadata) do
+    ip = conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))
+    user_agent = conn |> get_req_header("user-agent") |> List.first() || ""
+
+    token =
+      Example.Accounts.generate_user_session_token(user,
+        type: Map.get(session_metadata, :type, :standard),
+        ip: ip,
+        user_agent: user_agent
+      )
+
+    UserAuth.put_user_session_token(conn, token)
   end
 end

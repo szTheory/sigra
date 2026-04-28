@@ -39,7 +39,7 @@
 - [x] **Phase 85: OAuth audit atomicity closure (AUD-21)** — Convert remaining `log_safe/3` OAuth/ops clusters in Phase 45 T2 (AUD-04 rows 052–056, 058, 063) to atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`; refresh planning truth; downgrade Phase 9 C-1 caveat from PASS-WITH-CAVEATS to PASS.
 - [x] **Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)** — Ship automated visual regression harness (Premailex CSS-inline + Playwright `toHaveScreenshot` Chromium+WebKit × light+dark + caniemail CSS lint + extended WCAG/byte/multipart/XSS ExUnit asserts) producing CI-reproducible evidence per template. 0 human MUA passes required for v1.20 launch. (completed 2026-04-26)
 - [ ] **Phase 87: GAUAT OAuth automated end-to-end harness** — Ship `Sigra.Testing.OAuthIssuer` (TestServer-backed in-process OIDC issuer mirroring Assent's `OIDCTestCase`) + 3 Playwright specs (oauth-register / oauth-link / oauth-email-match) covering GAUAT-04/05/06 against Sigra's example app, plus extended `install-smoke.sh` covering GAUAT-03 (`mix phx.new` + `sigra.install` + `sigra.gen.oauth` + `--warnings-as-errors` + `mix test`); ship `mix sigra.oauth.smoketest --provider=google` + `docs/oauth-google-setup.md` for adopter-side real-credential check at install time. 0 human UAT.
-- [ ] **Phase 88: GAUAT MFA + getting-started + results filing** — Automated backup-code regeneration E2E proof; generated-host getting-started install/runtime proof; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` when release-SHA evidence is complete.
+- [x] **Phase 88: GAUAT MFA + getting-started + results filing** — Automated backup-code regeneration E2E proof; generated-host getting-started install/runtime proof; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` when release-SHA evidence is complete. (completed 2026-04-28)
 - [ ] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean.
 - [ ] **Phase 90: Launch + monitoring lane** — Publish announcement post; submit to Hacker News; soft-launch to Elixir Discord / forum / one social channel; install `MAINTAINING.md` "Post-launch monitoring (v1.20)" lane with 24h / 7d / 30d checkpoints and triage SLA; complete the 24h checkpoint as part of this phase.
 
@@ -135,12 +135,12 @@ Plans:
 4. `.planning/seeds/SEED-001-v1.0-ga-human-uat-gate.md` frontmatter `status:` reads `validated` (all green) or `partially-validated` (with explicit `reopen_trigger:` listing any failed row that does not block launch). SEED-001 supersession line points to `v1.20-GA-UAT-RESULTS.md`.
 5. `88-VERIFICATION.md` records the merge gate outcome including the launch-leg go/no-go decision and a check that no GAUAT row is silently `Pending`.
 
-**Plans:** 3 plans.
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 88-01-PLAN.md — Capture the GAUAT-07 MFA backup-code rotation evidence bundle from the Playwright E2E lane with transcript-first invalidation and audit proof.
 - [x] 88-02-PLAN.md — Capture the GAUAT-08 generated-host getting-started evidence bundle from the install-smoke lane with transcript and environment proof.
-- [ ] 88-03-PLAN.md — File GAUAT-09 results, update SEED-001 honestly, extend the v1.20 evidence index, and record the launch-leg disposition without overstating Phase 87.
+- [x] 88-03-PLAN.md — File GAUAT-09 results, update SEED-001 honestly, extend the v1.20 evidence index, and record the launch-leg disposition without overstating Phase 87.
 
 ### Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment
 
@@ -189,7 +189,7 @@ Plans:
 | 85. OAuth audit atomicity closure (AUD-21) | 0/2 | Not started | — |
 | 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
 | 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
-| 88. GAUAT closing cluster + SEED-001 closure | 3/3 | Completed | 10m |
+| 88. GAUAT closing cluster + SEED-001 closure | 3/3 | Complete    | 2026-04-28 |
 | 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/0 | Not started | — |
 | 90. Launch + monitoring lane | 0/0 | Not started | — |
 

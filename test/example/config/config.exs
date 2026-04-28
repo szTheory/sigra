@@ -7,6 +7,8 @@
 # General application configuration
 import Config
 
+example_base_url = System.get_env("SIGRA_EXAMPLE_URL", "http://localhost:4000")
+
 config :example,
   ecto_repos: [Example.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -53,7 +55,7 @@ config :example, :sigra_config,
   passkeys: [
     rp_id: "localhost",
     rp_name: "Sigra Example",
-    origin: "http://localhost:4000",
+    origin: example_base_url,
     timeout_ms: 60_000,
     attestation: :none,
     user_verification: :preferred,
@@ -77,7 +79,7 @@ config :example, :sigra,
       google: [
         client_id: System.get_env("GOOGLE_CLIENT_ID"),
         client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
-        redirect_uri: "http://localhost:4000/auth/google/callback"
+        redirect_uri: "#{example_base_url}/auth/google/callback"
       ]
     ]
   ]

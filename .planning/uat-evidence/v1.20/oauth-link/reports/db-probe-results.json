@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-28T11:41:55.534Z",
+  "git_sha": "367a164",
+  "source_spec": "test/example/priv/playwright/tests/oauth-link.spec.ts",
+  "assertions": {
+    "linked_with_password": {
+      "expected_count": 1,
+      "expected_rows": [
+        {
+          "provider": "google",
+          "provider_uid_prefix": "oauth-link-password-"
+        }
+      ]
+    },
+    "post_unlink": {
+      "expected_count": 0,
+      "expected_rows": []
+    }
+  },
+  "verification": [
+    "CI=1 SIGRA_EXAMPLE_URL=http://localhost:4010 npx playwright test tests/oauth-link.spec.ts --project=chromium --reporter=line",
+    "2 passed (5.2s)"
+  ]
+}

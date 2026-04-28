@@ -4,6 +4,8 @@ defmodule ExampleWeb.SettingsHTML do
   def edit(assigns) do
     ~H"""
     <div class="mx-auto max-w-2xl space-y-10">
+      <Layouts.flash_group flash={@flash} />
+
       <section>
         <.header>
           Account Settings

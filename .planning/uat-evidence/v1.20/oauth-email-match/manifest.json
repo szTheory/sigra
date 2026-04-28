@@ -1,0 +1,46 @@
+[
+  {
+    "gauat_requirement": "GAUAT-06",
+    "artifact_class": "flash-text-assertion",
+    "evidence_path": "reports/flash-text-assertion.json",
+    "outcome": "pass",
+    "evidence_sha256": "735714db5378d3fa6d2e711ee9efedd4fd3126720a8febf1711f6081fb5aadb0",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-06",
+    "artifact_class": "redirect-destination",
+    "evidence_path": "reports/flash-text-assertion.json",
+    "outcome": "pass",
+    "evidence_sha256": "735714db5378d3fa6d2e711ee9efedd4fd3126720a8febf1711f6081fb5aadb0",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-06",
+    "artifact_class": "identity-row-created",
+    "evidence_path": "reports/linked-email-mailbox.json",
+    "outcome": "pass",
+    "evidence_sha256": "5d69dc185e04a791cdc8c30ca4705c94e14f0b172c3516fe33e6f0dd71c5291e",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-06",
+    "artifact_class": "linked-email-mailbox",
+    "evidence_path": "reports/linked-email-mailbox.json",
+    "outcome": "pass",
+    "evidence_sha256": "5d69dc185e04a791cdc8c30ca4705c94e14f0b172c3516fe33e6f0dd71c5291e",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  }
+]

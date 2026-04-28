@@ -1,0 +1,46 @@
+[
+  {
+    "gauat_requirement": "GAUAT-03",
+    "artifact_class": "artifact-inventory",
+    "evidence_path": "reports/artifact-inventory.json",
+    "outcome": "pass",
+    "evidence_sha256": "abc25060528c776f2e4cf484d463cbae7fe41e9532aff9e518f10028b69957eb",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-03",
+    "artifact_class": "mix-test-green",
+    "evidence_path": "transcript.log",
+    "outcome": "pass",
+    "evidence_sha256": "27f42846f0a7f005fb9166b19b8562c510e1b53906ed1e8d0ca96bcc15d6e294",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-03",
+    "artifact_class": "transcript-uploaded",
+    "evidence_path": "transcript.log",
+    "outcome": "pass",
+    "evidence_sha256": "27f42846f0a7f005fb9166b19b8562c510e1b53906ed1e8d0ca96bcc15d6e294",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-03",
+    "artifact_class": "release-asset-on-tag",
+    "evidence_path": null,
+    "outcome": "pass",
+    "evidence_sha256": null,
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5"
+  }
+]

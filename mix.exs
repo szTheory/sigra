@@ -115,6 +115,7 @@ defmodule Sigra.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.1", only: :test},
       {:stream_data, "~> 1.1", only: [:dev, :test]},
+      {:bandit, "~> 1.5", only: :test},
       # Postgres driver used only by the opt-in `:postgres` tagged tests
       # (e.g. `test/sigra/audit/query_index_test.exs`) that assert Query
       # plans against a live Postgres repo. Excluded from default test runs
@@ -185,6 +186,7 @@ defmodule Sigra.MixProject do
         "guides/flows/password-reset.md",
         "guides/flows/mfa.md",
         "guides/flows/oauth.md",
+        "docs/oauth-google-setup.md",
         "guides/flows/api-authentication.md",
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",

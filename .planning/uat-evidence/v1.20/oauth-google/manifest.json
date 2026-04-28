@@ -1,0 +1,90 @@
+[
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "provider-button-render",
+    "evidence_path": "reports/playwright-trace.README.md",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": "2deedfc4a95eb955b975525c8d358e55f2d80b1a95cd968b32cced1bf6c2416e"
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "authorize-redirect",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "mock-issuer-callback",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "user-record-created",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "identity-row-created",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "session-established",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "logout",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  },
+  {
+    "gauat_requirement": "GAUAT-04",
+    "artifact_class": "re-login",
+    "evidence_path": null,
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pass",
+    "evidence_sha256": null
+  }
+]
