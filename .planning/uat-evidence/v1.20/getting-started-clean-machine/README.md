@@ -1,38 +1,24 @@
 ---
 phase: 88
 gauat_requirement: GAUAT-08
-git_sha: f67b9fd
-generated_by: phase-88 task-1 scaffold
-generated_at: 2026-04-28T13:34:00Z
-disposition: pending-human-witness
+hex_version: 0.2.5
+git_sha: 5b99077
+git_tag: 
+ci_run_url: 
+ci_workflow: .github/workflows/ci.yml / install_smoke
+generated_by: mix sigra.uat.report --phase=getting-started
+generated_at: 2026-04-28T20:47:37Z
+disposition: pass
 ---
 
-# GAUAT-08: Clean-Machine Getting-Started Evidence
+# GAUAT-08: Generated-Host Getting-Started Evidence
 
-This bundle records the bounded fresh-host walkthrough for `guides/introduction/getting-started.md`. Task 1 established the mechanical floor; Task 2 must add the human witness transcript, exact environment capture, and friction accounting before this evidence is complete.
+**Evidence rows present:** 3/3  
+**Git SHA:** `5b99077`  
+**Generated at:** 2026-04-28T20:47:37Z  
 
-## Witness scope
-
-- Requirement: `GAUAT-08`
-- Release-candidate SHA: `f67b9fd`
-- Mechanical floor: `bash scripts/ci/getting-started-contract.sh`
-- Mechanical floor status: `PASS` on `2026-04-28`
-- Current status: waiting for blocking fresh-host human witness run
-
-## Artifact inventory
-
-| Artifact class | Status | Path | Purpose |
-|----------------|--------|------|---------|
-| transcript | pending | `transcript.log` | Timestamped walkthrough log including `START`, `FIRST_SERVER_BOOT`, `FIRST_SUCCESSFUL_REGISTER_LOGIN_RESET`, and `END`. |
-| environment | pending | `env.txt` | Exact host OS and prerequisite versions used during the witness run. |
-| friction-log | pending | `friction-log.md` | Explicit record of stalls, hints, workarounds, and any source spelunking. |
-
-## Outcome
-
-Pending the blocking human witness run. Do not cite this bundle as completed GAUAT-08 evidence until the transcript, environment capture, and friction log are populated from a fresh temporary Phoenix 1.8 host.
-
-## Timing rules
-
-- Record the four milestone timestamps directly in `transcript.log`.
-- Treat the under-30-minute claim as an auditable attestation, not an automatic pass condition.
-- If off-script help was required, record it in `friction-log.md` rather than smoothing the story.
+| Artifact class | Outcome | Evidence path | SHA-256 (first 16) |
+|----------------|---------|---------------|--------------------|
+| generated-host-lifecycle | pass | `reports/generated-host-checks.json` | `0874ce54ef5c8319` |
+| environment-capture | pass | `env.txt` | `f383336f5735cd2f` |
+| transcript | pass | `transcript.log` | `9ee54b76a5460220` |

@@ -1,0 +1,35 @@
+[
+  {
+    "gauat_requirement": "GAUAT-08",
+    "artifact_class": "generated-host-lifecycle",
+    "evidence_path": "reports/generated-host-checks.json",
+    "outcome": "pass",
+    "evidence_sha256": "0874ce54ef5c8319702501eb12e71429f51e5f73880a1145a2fc90c3023e8934",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "5b99077",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-08",
+    "artifact_class": "environment-capture",
+    "evidence_path": "env.txt",
+    "outcome": "pass",
+    "evidence_sha256": "f383336f5735cd2f5c8da72101d8d223a01789dfdb6d805bac0cc158fd64845e",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "5b99077",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-08",
+    "artifact_class": "transcript",
+    "evidence_path": "transcript.log",
+    "outcome": "pass",
+    "evidence_sha256": "9ee54b76a5460220f46ccd94992004dd91b6d3b81223bce5c62615a0aba67f08",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "5b99077",
+    "hex_version": "0.2.5"
+  }
+]
