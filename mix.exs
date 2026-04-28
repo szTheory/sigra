@@ -189,6 +189,7 @@ defmodule Sigra.MixProject do
         "guides/flows/account-lifecycle.md",
         "guides/flows/audit-logging.md",
         "docs/audit-semantics.md",
+        "docs/oauth-google-setup.md",
         "docs/uat-ci-coverage.md",
         "docs/ga-evidence.md",
         "docs/nyquist-posture-matrix.md",
