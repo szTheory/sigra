@@ -147,6 +147,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 _See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*). Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 GA UAT closure, public launch execution._
 
+- ✓ **LAUNCH-01, LAUNCH-02, LAUNCH-07** — Pre-launch Hex publish and README promotion — **Phase 89** (Validated in Phase 89: pre-launch-hex-publish)
 - ✓ **AUD-21** — OAuth audit atomicity closure (Phase 45 T2 cluster: 052–056, 058, 063 → atomic) — **Phase 85** (2026-04-25)
 - ✓ **GAUAT-01** — Phase 04 lockout + suspicious-login email visual regression: 8 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-04/`, 0-human-MUA — **Phase 86** (2026-04-26)
 - ✓ **GAUAT-02** — Phase 08 lifecycle email visual regression: 28 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-08/`, same residual policy as GAUAT-01 — **Phase 86** (2026-04-26)
