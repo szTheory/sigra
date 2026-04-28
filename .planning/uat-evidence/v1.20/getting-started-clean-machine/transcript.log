@@ -1,11 +1,14 @@
 # GAUAT-08 transcript
 # Status: pending human witness run
-# Release-candidate SHA: 367a164
+# Release-candidate SHA: f67b9fd
+#
+# Record the fresh-host walkthrough here while following:
+# guides/introduction/getting-started.md
 #
 # Required markers:
-# START=
-# FIRST_SERVER_BOOT=
-# FIRST_SUCCESSFUL_REGISTER_LOGIN_RESET=
-# END=
+# START <ISO8601 timestamp>
+# FIRST_SERVER_BOOT <ISO8601 timestamp>
+# FIRST_SUCCESSFUL_REGISTER_LOGIN_RESET <ISO8601 timestamp>
+# END <ISO8601 timestamp>
 #
-# Append the clean-machine walkthrough transcript below during Task 2.
+# Append the full shell/browser-oriented witness notes below during Task 2.

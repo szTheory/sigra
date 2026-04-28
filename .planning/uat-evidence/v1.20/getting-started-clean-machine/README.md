@@ -1,22 +1,23 @@
 ---
 phase: 88
 gauat_requirement: GAUAT-08
-git_sha: 367a164
-generated_by: phase-88 manual witness scaffold
-generated_at: 2026-04-28T12:40:27Z
+git_sha: f67b9fd
+generated_by: phase-88 task-1 scaffold
+generated_at: 2026-04-28T13:34:00Z
 disposition: pending-human-witness
 ---
 
 # GAUAT-08: Clean-Machine Getting-Started Evidence
 
-This bundle records the bounded fresh-host walkthrough for `guides/introduction/getting-started.md`. It is intentionally small: transcript, exact environment capture, and a friction log.
+This bundle records the bounded fresh-host walkthrough for `guides/introduction/getting-started.md`. Task 1 established the mechanical floor; Task 2 must add the human witness transcript, exact environment capture, and friction accounting before this evidence is complete.
 
 ## Witness scope
 
 - Requirement: `GAUAT-08`
-- Release-candidate SHA: `367a164`
+- Release-candidate SHA: `f67b9fd`
 - Mechanical floor: `bash scripts/ci/getting-started-contract.sh`
-- Current status: human witness run not yet captured
+- Mechanical floor status: `PASS` on `2026-04-28`
+- Current status: waiting for blocking fresh-host human witness run
 
 ## Artifact inventory
 
