@@ -160,7 +160,11 @@ Plans:
 
 **UI hint**: yes
 
-**Plans:** TBD.
+**Plans:** 2 plans
+
+Plans:
+- [ ] 89-01-PLAN.md — Update core project artifacts to reflect the v1.20.0 release.
+- [ ] 89-02-PLAN.md — Execute the Hex publication of Sigra v1.20.0 and produce verification artifacts.
 
 ### Phase 90: Launch + monitoring lane (announcement, HN, community soft-launch, MAINTAINING.md monitoring)
 
@@ -190,7 +194,7 @@ Plans:
 | 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
 | 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
 | 88. GAUAT closing cluster + SEED-001 closure | 3/3 | Complete    | 2026-04-28 |
-| 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/0 | Not started | — |
+| 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/2 | Not started | — |
 | 90. Launch + monitoring lane | 0/0 | Not started | — |
 
 ## Traceability — v1.20

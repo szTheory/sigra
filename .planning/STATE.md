@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: ready_to_plan
-last_updated: "2026-04-28T20:54:13.969Z"
+status: planning
+last_updated: "2026-04-28T21:25:40.649Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 12
-  completed_plans: 12
-  percent: 83
+  completed_phases: 4
+  total_plans: 14
+  completed_plans: 13
+  percent: 93
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Last activity: 2026-04-28
 | Phase 88 P01 | 5m | 3 tasks | 5 files |
 | Phase 88 P02 | 2m | 3 tasks | 5 files |
 | Phase 88 P03 | 15m | 3 tasks | 5 files |
+| Phase 89 P01 | 5m | 2 tasks | 4 files |
 
 ## Decisions
 
@@ -60,6 +61,8 @@ Last activity: 2026-04-28
 - Set launch-leg disposition to NO-GO (BLOCKED BY PROVENANCE) because of the pending Phase 87 URLs, and kept SEED-001 as deferred.
 - Kept GAUAT-03..06 marked as BLOCKED in v1.20-GA-UAT-RESULTS.md until Phase 87 remote CI provenance (ci_run_url) is established.
 - Modified sigra.uat.report.ex to resolve snapshot paths by wildcard instead of assuming the current git SHA, fixing the verification failure for previous phases.
+- Bump package version to 1.20.0.
+- Expose absolute links to .planning evidence in README.
 
 ## Accumulated Context
 
