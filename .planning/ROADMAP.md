@@ -32,14 +32,14 @@
 
 **Coverage:** 21 requirements → 6 phases. Numbering continues from **v1.19/post-v1.19** (last phase **84**).
 
-**Dependency shape:** two parallel legs (Leg 1 — AUD-21 OAuth audit closure; Leg 2 — SEED-001 GAUAT execution) feed a sequential launch leg (Leg 3 — pre-launch then launch+monitoring). Legs 1 and 2 are independent and can run in either order. Leg 3 cannot start until **both** legs 1 and 2 close — the launch's defensibility depends on AUD-21 downgrading the Phase 9 C-1 caveat to PASS and GAUAT-09 filing v1.20 GA UAT results with a go-decision.
+**Dependency shape:** two parallel legs (Leg 1 — AUD-21 OAuth audit closure; Leg 2 — SEED-001 GAUAT closure) feed a sequential launch leg (Leg 3 — pre-launch then launch+monitoring). Legs 1 and 2 are independent and can run in either order. Leg 3 cannot start until **both** legs 1 and 2 close — the launch's defensibility depends on AUD-21 downgrading the Phase 9 C-1 caveat to PASS and GAUAT-09 filing v1.20 GA UAT results with a go-decision.
 
 **Phase summary:**
 
 - [x] **Phase 85: OAuth audit atomicity closure (AUD-21)** — Convert remaining `log_safe/3` OAuth/ops clusters in Phase 45 T2 (AUD-04 rows 052–056, 058, 063) to atomic `Repo.transaction/1` + `Ecto.Multi` + `Sigra.Audit.log_multi_safe/3`; refresh planning truth; downgrade Phase 9 C-1 caveat from PASS-WITH-CAVEATS to PASS.
 - [x] **Phase 86: GAUAT email visual regression harness (Phase 04 + Phase 08 templates)** — Ship automated visual regression harness (Premailex CSS-inline + Playwright `toHaveScreenshot` Chromium+WebKit × light+dark + caniemail CSS lint + extended WCAG/byte/multipart/XSS ExUnit asserts) producing CI-reproducible evidence per template. 0 human MUA passes required for v1.20 launch. (completed 2026-04-26)
 - [ ] **Phase 87: GAUAT OAuth automated end-to-end harness** — Ship `Sigra.Testing.OAuthIssuer` (TestServer-backed in-process OIDC issuer mirroring Assent's `OIDCTestCase`) + 3 Playwright specs (oauth-register / oauth-link / oauth-email-match) covering GAUAT-04/05/06 against Sigra's example app, plus extended `install-smoke.sh` covering GAUAT-03 (`mix phx.new` + `sigra.install` + `sigra.gen.oauth` + `--warnings-as-errors` + `mix test`); ship `mix sigra.oauth.smoketest --provider=google` + `docs/oauth-google-setup.md` for adopter-side real-credential check at install time. 0 human UAT.
-- [ ] **Phase 88: GAUAT MFA + getting-started + results filing** — Backup-code regeneration human verification; clean-machine timed getting-started run on a fresh Phoenix 1.8 host; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` (or `partially-validated` with reopen trigger).
+- [ ] **Phase 88: GAUAT MFA + getting-started + results filing** — Automated backup-code regeneration E2E proof; generated-host getting-started install/runtime proof; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` when release-SHA evidence is complete.
 - [ ] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean.
 - [ ] **Phase 90: Launch + monitoring lane** — Publish announcement post; submit to Hacker News; soft-launch to Elixir Discord / forum / one social channel; install `MAINTAINING.md` "Post-launch monitoring (v1.20)" lane with 24h / 7d / 30d checkpoints and triage SLA; complete the 24h checkpoint as part of this phase.
 
@@ -111,15 +111,17 @@ Plans:
 5. `.planning/v1.20-GA-UAT-RESULTS.md` (filed in Phase 88) carries pass/fail rows for GAUAT-03, GAUAT-04, GAUAT-05, GAUAT-06 each linking to the relevant evidence subdirectory.
 6. `mix sigra.oauth.smoketest --provider=google` exists, exits 0 against a valid Google `client_id`/`client_secret` configuration, and emits a clear diagnostic on failure. `docs/oauth-google-setup.md` walks adopters through Google Cloud Console setup + the smoketest invocation.
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/2 plan groups executed locally; CI provenance pending for the phase-close SHA
 
 Plans:
-- [ ] 87-01-PLAN.md — Wave 1 (Commit A): Sigra.Testing.OAuthIssuer + RSA fixtures + mix sigra.oauth.smoketest task + 3 Playwright OAuth specs + install-smoke extension + new oauth_e2e_playwright CI job + controller integration test + docs/oauth-google-setup.md.
-- [ ] 87-02-PLAN.md — Wave 2 (Commit B): 4 evidence dirs (Phase 86 schema verbatim) + mix sigra.uat.report --phase=oauth-{gen,google,link,email-match} extension + GAUAT-05 hero PNG materialization + 87-VERIFICATION.md + milestone-scope-edits verification.
+- [x] 87-01-PLAN.md — Wave 1 (Commit A): Sigra.Testing.OAuthIssuer + RSA fixtures + mix sigra.oauth.smoketest task + 3 Playwright OAuth specs + install-smoke extension + new oauth_e2e_playwright CI job + controller integration test + docs/oauth-google-setup.md.
+- [x] 87-02-PLAN.md — Wave 2 (Commit B): 4 evidence dirs (Phase 86 schema verbatim) + mix sigra.uat.report --phase=oauth-{gen,google,link,email-match} extension + GAUAT-05 hero PNG materialization + 87-VERIFICATION.md + milestone-scope-edits verification.
+
+**Phase status note:** Local execution and evidence generation are complete at SHA `367a164`. Full closure still depends on pushing that SHA, waiting for `install_smoke` and `oauth_e2e_playwright`, and regenerating the OAuth evidence with populated `ci_run_url` values.
 
 ### Phase 88: GAUAT closing cluster — backup-code rotation + clean-machine getting-started + results filing & SEED-001 closure
 
-**Goal:** Execute the remaining two GAUAT activities (MFA backup-code rotation human verification and a clean-machine timed getting-started walk-through) and file the consolidated `.planning/v1.20-GA-UAT-RESULTS.md` that closes SEED-001. Produces the launch-leg's go/no-go disposition.
+**Goal:** Execute the remaining two GAUAT automation lanes (MFA backup-code rotation E2E and generated-host getting-started install/runtime proof) and file the consolidated `.planning/v1.20-GA-UAT-RESULTS.md` that closes SEED-001. Produces the launch-leg's go/no-go disposition without any human-only gate for GAUAT-07 or GAUAT-08.
 
 **Depends on:** Phase 86 and Phase 87 (results filing in GAUAT-09 needs evidence rows from 86 and 87 to consolidate; backup-code and getting-started can run in parallel with 86/87 but the consolidation cannot).
 
@@ -127,13 +129,18 @@ Plans:
 
 **Success criteria** (what must be TRUE):
 
-1. A reviewer opening `.planning/uat-evidence/v1.20/mfa-backup-rotation/` finds screenshots of the full `regenerate_backup_codes` flow on the example app (sudo prompt → TOTP entry → new codes shown once → old codes invalidated → audit row visible), with the audit-row check transcript proving the v1.4 GA-01 wiring matches user-visible behavior.
-2. A reviewer opening `.planning/uat-evidence/v1.20/getting-started-clean-machine/` finds a timestamped transcript proving the getting-started walk-through completed in under 30 minutes wall-clock by a developer unfamiliar with Sigra on a fresh Phoenix 1.8 app, plus a friction-list note enumerating any place the guide stalled (or "no friction" if none).
+1. A reviewer opening `.planning/uat-evidence/v1.20/mfa-backup-rotation/` finds machine-generated README + manifest + transcript + `old-code-validity.json` + `audit-event.json` + `ui-summary.json`, proving the real `regenerate_backup_codes` flow on the example app and the persisted invalidation/audit truth without any human witness bundle.
+2. A reviewer opening `.planning/uat-evidence/v1.20/getting-started-clean-machine/` finds machine-generated README + manifest + timestamped transcript + `env.txt` + `reports/generated-host-checks.json`, proving the documented install/runtime path on a fresh Phoenix 1.8 host. Subjective timing/friction claims are explicitly non-gating.
 3. `.planning/v1.20-GA-UAT-RESULTS.md` exists at repo root of `.planning/`, has one pass / fail / blocked row per GAUAT-01..08, links every row to evidence within ≤2 clicks, and ends with an explicit "go" or "no-go" disposition for the launch leg with reasoning.
 4. `.planning/seeds/SEED-001-v1.0-ga-human-uat-gate.md` frontmatter `status:` reads `validated` (all green) or `partially-validated` (with explicit `reopen_trigger:` listing any failed row that does not block launch). SEED-001 supersession line points to `v1.20-GA-UAT-RESULTS.md`.
 5. `88-VERIFICATION.md` records the merge gate outcome including the launch-leg go/no-go decision and a check that no GAUAT row is silently `Pending`.
 
-**Plans:** TBD.
+**Plans:** 3 plans.
+
+Plans:
+- [ ] 88-01-PLAN.md — Capture the GAUAT-07 MFA backup-code rotation evidence bundle from the Playwright E2E lane with transcript-first invalidation and audit proof.
+- [ ] 88-02-PLAN.md — Capture the GAUAT-08 generated-host getting-started evidence bundle from the install-smoke lane with transcript and environment proof.
+- [ ] 88-03-PLAN.md — File GAUAT-09 results, update SEED-001 honestly, extend the v1.20 evidence index, and record the launch-leg disposition without overstating Phase 87.
 
 ### Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment
 
@@ -182,7 +189,7 @@ Plans:
 | 85. OAuth audit atomicity closure (AUD-21) | 0/2 | Not started | — |
 | 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
 | 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
-| 88. GAUAT closing cluster + SEED-001 closure | 0/0 | Not started | — |
+| 88. GAUAT closing cluster + SEED-001 closure | 0/3 | Not started | — |
 | 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/0 | Not started | — |
 | 90. Launch + monitoring lane | 0/0 | Not started | — |
 

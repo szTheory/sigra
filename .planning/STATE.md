@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
 status: executing
-last_updated: "2026-04-28T12:08:03.410Z"
-last_activity: 2026-04-28 -- Phase 87 local execution completed; awaiting CI provenance
+last_updated: "2026-04-28T20:44:05.948Z"
+last_activity: 2026-04-28 -- Phase --phase execution started
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 12
+  completed_plans: 10
+  percent: 83
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 87 — OAuth automated end-to-end harness
+**Current focus:** Phase --phase — 88
 
 ## Current Position
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 87 — EXECUTING
+Phase: --phase (88) — EXECUTING
 
-Plan: 3 of 3
+Plan: 1 of --name
 
-Status: Executing Phase 87 (local verification complete; awaiting pushed CI run URL)
+Status: Executing Phase --phase
 
-Last activity: 2026-04-28 -- Phase 87 local execution completed; awaiting CI provenance
+Last activity: 2026-04-28 -- Phase --phase execution started
 
 **Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 
@@ -44,6 +44,7 @@ Last activity: 2026-04-28 -- Phase 87 local execution completed; awaiting CI pro
 | Phase | Plans | Duration | Tasks | Files |
 | --- | --- | --- | --- | --- |
 | 85 | 2 | session | 5 | 13 |
+| Phase 88 P01 | 5m | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -51,20 +52,21 @@ Last activity: 2026-04-28 -- Phase 87 local execution completed; awaiting CI pro
 - Return `:impersonation_aborted` on transactional audit failure.
 - Mark Phase 9 C-1 as PASS for the AUD-21 slice.
 - Validate SEED-002 and publish a phase merge-gate artifact.
+- Ran the example-app background server with EXAMPLE_DB_PROBE_ENABLED=1 so Playwright tests could hit probe endpoints
 
 ## Accumulated Context
 
 **v1.19 (shipped 2026-04-24)** — Phases 82–83 closed JWT refresh persistence + audit co-fate (AUD-19) and MFA invalid-TOTP enrollment audit (AUD-20). **Phase 84** (routing-honesty-reconciliation) closed 2026-04-25. After v1.20, the only known live audit-atomicity gap is the Phase 45 T2 OAuth/ops cluster (052–056, 058, 063) — explicitly in v1.20 scope.
 
-**v1.20 framing:** This is the inflection-point milestone where Sigra goes from "evidence-capable on disk" to "publicly available." All three legs (SEED-002 OAuth audit closure, SEED-001 human UAT execution, public launch sequence) are interdependent: legs 1 and 2 give the launch defensible evidence; the launch is the only reason to spend the engineering hours on legs 1 and 2 right now.
+**v1.20 framing:** This is the inflection-point milestone where Sigra goes from "evidence-capable on disk" to "publicly available." All three legs (SEED-002 OAuth audit closure, SEED-001 GA UAT closure, public launch sequence) are interdependent: legs 1 and 2 give the launch defensible evidence; the launch is the only reason to spend the engineering hours on legs 1 and 2 right now.
 
 **v1.20 phase shape:** 6 phases.
 
 - **Leg 1 (parallel-ready, single phase):** Phase 85 — AUD-21 OAuth audit atomicity closure → downgrades Phase 9 C-1 caveat to PASS; flips SEED-002 to `validated`.
-- **Leg 2 (parallel-ready, three phases):** Phase 86 (email visual QA Phase 04 + Phase 08), Phase 87 (OAuth gen smoke + live Google + linking + email-match), Phase 88 (backup-code rotation + clean-machine getting-started + results filing + SEED-001 closure). 86 and 87 are independent; 88 depends on 86 and 87 (consolidates evidence into `v1.20-GA-UAT-RESULTS.md`).
+- **Leg 2 (parallel-ready, three phases):** Phase 86 (email visual QA Phase 04 + Phase 08), Phase 87 (OAuth gen smoke + issuer-backed register/link/email-match), Phase 88 (backup-code rotation + generated-host getting-started + results filing + SEED-001 closure). 86 and 87 are independent; 88 depends on 86 and 87 (consolidates evidence into `v1.20-GA-UAT-RESULTS.md`).
 - **Leg 3 (sequential, two phases):** Phase 89 (Hex publish + README promotion + CHANGELOG/ExDoc — depends on Phase 85 + Phase 88), then Phase 90 (announcement + HN + community soft-launch + MAINTAINING monitoring lane — depends on Phase 89).
 
-**Selected seeds for this milestone:** SEED-001 (closes in Phase 88), SEED-002 (closes in Phase 85). Both will close (status → `validated`) when v1.20 ships.
+**Selected seeds for this milestone:** SEED-001 (closes in Phase 88), SEED-002 (closes in Phase 85). Both close from release-authoritative evidence, not human witness runs.
 
 **Explicit non-goals:** `sigra_lockspire` / ADR 001 glue (still awaiting companion-app trigger); 999.x archaeology; responding to week-one launch feedback (deferred to a follow-up patch milestone if signal warrants); marketing site / paid promotion.
 
@@ -74,16 +76,16 @@ _None as of milestone open. Will populate during phase planning._
 
 ### Blockers/Concerns
 
-- **Live Google OAuth credentials** — Phase 87 requires real Google developer credentials for register/login/link/unlink cycle. Acquisition is part of phase scope; not blocking start of Phase 85 or Phase 86.
+- **Phase 87 CI provenance** — OAuth machine evidence is implemented locally, but GAUAT closure still depends on the phase-close SHA being pushed and its CI run URLs being written back into the evidence READMEs.
 - **Phase 86 evidence environment** — The Phase 86 harness is automation-only (`0 human MUA passes required`), but it still depends on the repo CI/browser environment staying reproducible: Chromium + WebKit available in Playwright, deterministic snapshot generation, and tag-time release-asset upload wiring for the same evidence bundle.
 - **Hex.pm publish credentials + 2FA** — Phase 89 requires `mix hex.user auth` configured for the publishing maintainer. Verify before Phase 89 begins (ideally early in v1.20 so it's not the long-pole on launch day).
-- **Clean-machine availability** — Phase 88 GAUAT-08 needs a fresh Phoenix 1.8 host environment ("clean-machine read-through"). Plan ahead for VM / fresh worktree provisioning.
+- **Generated-host reproducibility** — Phase 88 GAUAT-08 now depends on the disposable Phoenix host harness staying aligned with `guides/introduction/getting-started.md`; drift here is a CI problem, not a manual-witness scheduling problem.
 
 ## Session Continuity
 
 **Next:** Push `367a164`, wait for `install_smoke` + `oauth_e2e_playwright`, then regenerate Phase 87 OAuth evidence with populated `ci_run_url`.
 
-**Resume file:** --resume-file
+**Resume file:** None
 
 **Artifacts (active):** `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`
 
