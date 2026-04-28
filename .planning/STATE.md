@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
 status: executing
-last_updated: "2026-04-28T08:49:25.858Z"
-last_activity: 2026-04-28
+last_updated: "2026-04-28T12:08:03.410Z"
+last_activity: 2026-04-28 -- Phase 87 local execution completed; awaiting CI provenance
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 7
-  percent: 78
+  completed_plans: 9
+  percent: 100
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 87 — gauat-oauth-real-credential-cycle-gen-smoke-google-live-link
+**Current focus:** Phase 87 — OAuth automated end-to-end harness
 
 ## Current Position
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 87 (gauat-oauth-real-credential-cycle-gen-smoke-google-live-link) — EXECUTING
+Phase: 87 — EXECUTING
 
-Plan: 2 of 3
+Plan: 3 of 3
 
-Status: Ready to execute
+Status: Executing Phase 87 (local verification complete; awaiting pushed CI run URL)
 
-Last activity: 2026-04-28
+Last activity: 2026-04-28 -- Phase 87 local execution completed; awaiting CI provenance
 
 **Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 
@@ -81,7 +81,7 @@ _None as of milestone open. Will populate during phase planning._
 
 ## Session Continuity
 
-**Next:** Phase 86 — GAUAT email visual QA (or `/gsd-plan-phase 86 ${GSD_WS}` when ready).
+**Next:** Push `367a164`, wait for `install_smoke` + `oauth_e2e_playwright`, then regenerate Phase 87 OAuth evidence with populated `ci_run_url`.
 
 **Resume file:** --resume-file
 
