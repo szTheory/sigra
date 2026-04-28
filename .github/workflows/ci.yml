@@ -1292,6 +1292,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # required for gh release upload on tag runs
+    env:
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     services:
       postgres:
         image: postgres:15
