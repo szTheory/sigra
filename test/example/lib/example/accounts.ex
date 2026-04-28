@@ -10,8 +10,10 @@ defmodule Example.Accounts do
   import Ecto.Query, warn: false
   alias Example.Repo, as: Repo
   alias Example.Accounts.User
+  alias Example.Accounts.UserIdentity
   alias Example.Accounts.UserToken
   alias Example.Accounts.Emails
+  alias Example.Accounts.Emails.{ProviderLinked, ProviderUnlinked}
   alias Sigra.Auth, as: SigraAuth
 
   ## Database getters
@@ -602,6 +604,7 @@ defmodule Example.Accounts do
       ],
       oauth: oauth_config()
     )
+    |> Map.put(:identity_schema, UserIdentity)
   end
 
   defp oauth_config do
@@ -616,6 +619,93 @@ defmodule Example.Accounts do
 
     Keyword.put(base_oauth, :providers, merged_providers)
   end
+
+  def oauth_providers do
+    sigra_config()
+    |> Sigra.Config.oauth_providers()
+  end
+
+  def list_user_identities(%User{} = user) do
+    from(i in UserIdentity,
+      where: i.user_id == ^user.id,
+      order_by: [asc: i.provider, asc: i.inserted_at]
+    )
+    |> Repo.all()
+  end
+
+  def create_identity(attrs) when is_map(attrs) do
+    %UserIdentity{}
+    |> UserIdentity.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def get_user_identity!(id), do: Repo.get!(UserIdentity, id)
+
+  def complete_oauth_link(%User{} = user, intent) when is_map(intent) do
+    provider = intent["provider"] || intent[:provider]
+    provider_uid = intent["provider_uid"] || intent[:provider_uid]
+    email = intent["email"] || intent[:email]
+
+    attrs = %{
+      user_id: user.id,
+      provider: provider |> to_string() |> String.downcase(),
+      provider_uid: provider_uid,
+      provider_email: email,
+      provider_name: nil,
+      provider_avatar_url: nil,
+      metadata: %{},
+      last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+    }
+
+    with {:ok, identity} <- create_identity(attrs),
+         {:ok, _metadata} <- deliver_provider_linked_email(user, provider) do
+      {:ok, identity}
+    end
+  end
+
+  def complete_oauth_link(_user, _intent), do: {:error, :invalid_link_intent}
+
+  def unlink_oauth_identity(%User{} = user, identity_id) do
+    identity = Repo.get_by!(UserIdentity, id: identity_id, user_id: user.id)
+
+    other_identities? =
+      Repo.exists?(from(i in UserIdentity, where: i.user_id == ^user.id and i.id != ^identity.id))
+
+    has_password? = not is_nil(user.hashed_password) and user.hashed_password != ""
+
+    cond do
+      not has_password? and not other_identities? ->
+        {:error, :last_provider}
+
+      true ->
+        Repo.delete!(identity)
+        {:ok, _metadata} = deliver_provider_unlinked_email(user, identity.provider)
+        {:ok, :unlinked}
+    end
+  end
+
+  defp deliver_provider_linked_email(user, provider) do
+    user
+    |> ProviderLinked.build(provider_display_name(provider), settings_url())
+    |> Example.Mailer.deliver()
+  end
+
+  defp deliver_provider_unlinked_email(user, provider) do
+    user
+    |> ProviderUnlinked.build(provider_display_name(provider), settings_url())
+    |> Example.Mailer.deliver()
+  end
+
+  defp provider_display_name(provider) when is_atom(provider),
+    do: provider |> to_string() |> provider_display_name()
+
+  defp provider_display_name("google"), do: "Google"
+  defp provider_display_name("github"), do: "GitHub"
+  defp provider_display_name("apple"), do: "Apple"
+  defp provider_display_name("facebook"), do: "Facebook"
+  defp provider_display_name(provider), do: provider |> to_string() |> String.capitalize()
+
+  defp settings_url, do: "#{ExampleWeb.Endpoint.url()}/users/settings"
 
   @doc "List all active sessions for a user."
   def list_sessions(user) do

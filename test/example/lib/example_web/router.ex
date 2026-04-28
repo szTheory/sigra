@@ -138,9 +138,12 @@ defmodule ExampleWeb.Router do
     live_session :require_authenticated,
       on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
       live "/sessions", Auth.SessionLive, :index
-      live "/settings", SettingsLive, :edit
       live "/reactivation", ReactivationLive
     end
+
+    get "/settings", SettingsController, :edit
+    post "/settings/password", SettingsController, :update_password
+    delete "/settings/oauth/identities/:id", SettingsController, :delete_identity
   end
 
   scope "/users", ExampleWeb do

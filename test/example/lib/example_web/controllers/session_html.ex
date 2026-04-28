@@ -117,6 +117,29 @@ defmodule ExampleWeb.SessionHTML do
             Log in <span aria-hidden="true">&rarr;</span>
           </.button>
         </.form>
+
+        <%= if @oauth_providers != [] do %>
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <hr class="w-full" />
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="bg-white px-2 text-gray-500">or continue with</span>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <%= for {provider, _config} <- @oauth_providers do %>
+              <a
+                href={~p"/auth/#{provider}"}
+                class="w-full h-10 flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium transition-colors"
+              >
+                <%= ExampleWeb.OAuthHTML.oauth_provider_icon(provider) %>
+                <span>Continue with <%= ExampleWeb.OAuthHTML.oauth_provider_name(provider) %></span>
+              </a>
+            <% end %>
+          </div>
+        <% end %>
       <% else %>
         <% # Magic link section %>
         <.form
@@ -166,6 +189,29 @@ defmodule ExampleWeb.SessionHTML do
             Log in <span aria-hidden="true">&rarr;</span>
           </.button>
         </.form>
+
+        <%= if @oauth_providers != [] do %>
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <hr class="w-full" />
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="bg-white px-2 text-gray-500">or continue with</span>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <%= for {provider, _config} <- @oauth_providers do %>
+              <a
+                href={~p"/auth/#{provider}"}
+                class="w-full h-10 flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-sm font-medium transition-colors"
+              >
+                <%= ExampleWeb.OAuthHTML.oauth_provider_icon(provider) %>
+                <span>Continue with <%= ExampleWeb.OAuthHTML.oauth_provider_name(provider) %></span>
+              </a>
+            <% end %>
+          </div>
+        <% end %>
       <% end %>
     </div>
     """

@@ -31,7 +31,8 @@ defmodule ExampleWeb.SessionController do
     render(conn, :new,
       form: form,
       magic_link_form: magic_link_form,
-      passkey_primary_enabled: Auth.passkey_primary_enabled?()
+      passkey_primary_enabled: Auth.passkey_primary_enabled?(),
+      oauth_providers: Auth.oauth_providers()
     )
   end
 
@@ -62,6 +63,7 @@ defmodule ExampleWeb.SessionController do
 
     if user = Auth.get_user_by_email_and_password(email, password) do
       conn
+      |> maybe_complete_oauth_link(user)
       |> put_flash(:info, info)
       |> UserAuth.log_in_user(user, user_params)
     else
@@ -70,6 +72,40 @@ defmodule ExampleWeb.SessionController do
       |> put_flash(:error, "Invalid email or password")
       |> put_flash(:email, String.slice(email, 0, 160))
       |> redirect(to: ~p"/users/log_in")
+    end
+  end
+
+  defp maybe_complete_oauth_link(conn, user) do
+    case get_session(conn, :sigra_oauth_link_intent) do
+      %{"expires_at" => expires_at} = intent ->
+        with {:ok, expires_at, _offset} <- DateTime.from_iso8601(expires_at),
+             true <- DateTime.compare(expires_at, DateTime.utc_now()) == :gt,
+             {:ok, _identity} <- Auth.complete_oauth_link(user, intent) do
+          conn
+          |> delete_session(:sigra_oauth_link_intent)
+          |> put_flash(:info, "Your Google sign-in has been linked to this account.")
+        else
+          _ ->
+            delete_session(conn, :sigra_oauth_link_intent)
+        end
+
+      %{expires_at: %DateTime{} = expires_at} = intent ->
+        if DateTime.compare(expires_at, DateTime.utc_now()) == :gt do
+          case Auth.complete_oauth_link(user, intent) do
+            {:ok, _identity} ->
+              conn
+              |> delete_session(:sigra_oauth_link_intent)
+              |> put_flash(:info, "Your Google sign-in has been linked to this account.")
+
+            _ ->
+              delete_session(conn, :sigra_oauth_link_intent)
+          end
+        else
+          delete_session(conn, :sigra_oauth_link_intent)
+        end
+
+      _ ->
+        conn
     end
   end
 
