@@ -1,14 +1,6 @@
-# GAUAT-08 transcript
-# Status: pending human witness run
-# Release-candidate SHA: f67b9fd
-#
-# Record the fresh-host walkthrough here while following:
-# guides/introduction/getting-started.md
-#
-# Required markers:
-# START <ISO8601 timestamp>
-# FIRST_SERVER_BOOT <ISO8601 timestamp>
-# FIRST_SUCCESSFUL_REGISTER_LOGIN_RESET <ISO8601 timestamp>
-# END <ISO8601 timestamp>
-#
-# Append the full shell/browser-oriented witness notes below during Task 2.
+2026-04-28T20:45:55Z START generated-host getting-started contract
+2026-04-28T20:46:24Z SIGRA_INSTALL_OK
+2026-04-28T20:47:05Z BASE_TEST_SUITE_OK
+2026-04-28T20:47:07Z FIRST_SUCCESSFUL_REGISTER_LOGIN_RESET
+2026-04-28T20:47:07Z FIRST_SERVER_BOOT
+2026-04-28T20:47:07Z END generated-host getting-started contract

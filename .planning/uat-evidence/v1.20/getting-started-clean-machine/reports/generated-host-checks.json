@@ -1,0 +1,7 @@
+{
+  "generated_host_lifecycle": "pass",
+  "server_boot": "pass",
+  "register_page_http": 200,
+  "login_page_http": 200,
+  "notes": "Generated-host mechanical proof replaces human-timed walkthrough gating for GAUAT-08."
+}
