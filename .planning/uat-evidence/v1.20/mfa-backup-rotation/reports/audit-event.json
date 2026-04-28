@@ -1,0 +1,13 @@
+{
+  "count": 1,
+  "rows": [
+    {
+      "action": "mfa.backup_codes_regenerate",
+      "inserted_at": "2026-04-28T20:42:30.673578Z",
+      "target_id": "afbfe6fc-1edf-4480-a11c-b718b5bb88da",
+      "actor_id": "afbfe6fc-1edf-4480-a11c-b718b5bb88da",
+      "outcome": "success",
+      "effective_user_id": null
+    }
+  ]
+}

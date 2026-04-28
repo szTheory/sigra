@@ -1,0 +1,8 @@
+{
+  "pre_rotation_count": 8,
+  "post_rotation_count": 8,
+  "disable_visible_after_enrollment": true,
+  "regenerate_form_visible": true,
+  "regenerate_form_closed_after_submit": true,
+  "backup_codes_heading_visible_after_rotation": true
+}
