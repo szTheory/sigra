@@ -111,7 +111,7 @@ Plans:
 5. `.planning/v1.20-GA-UAT-RESULTS.md` (filed in Phase 88) carries pass/fail rows for GAUAT-03, GAUAT-04, GAUAT-05, GAUAT-06 each linking to the relevant evidence subdirectory.
 6. `mix sigra.oauth.smoketest --provider=google` exists, exits 0 against a valid Google `client_id`/`client_secret` configuration, and emits a clear diagnostic on failure. `docs/oauth-google-setup.md` walks adopters through Google Cloud Console setup + the smoketest invocation.
 
-**Plans:** 2 plans.
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 87-01-PLAN.md — Wave 1 (Commit A): Sigra.Testing.OAuthIssuer + RSA fixtures + mix sigra.oauth.smoketest task + 3 Playwright OAuth specs + install-smoke extension + new oauth_e2e_playwright CI job + controller integration test + docs/oauth-google-setup.md.
@@ -181,7 +181,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 85. OAuth audit atomicity closure (AUD-21) | 0/2 | Not started | — |
 | 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
-| 87. GAUAT OAuth real-credential cycle | 0/0 | Not started | — |
+| 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
 | 88. GAUAT closing cluster + SEED-001 closure | 0/0 | Not started | — |
 | 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/0 | Not started | — |
 | 90. Launch + monitoring lane | 0/0 | Not started | — |

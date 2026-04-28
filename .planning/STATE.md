@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: planning
-last_updated: "2026-04-27T02:20:58.439Z"
-last_activity: 2026-04-26
+status: executing
+last_updated: "2026-04-28T08:49:25.858Z"
+last_activity: 2026-04-28
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 9
-  completed_plans: 6
-  percent: 67
+  completed_plans: 7
+  percent: 78
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 86 — gauat-email-visual-qa-phase-04-phase-08-templates
+**Current focus:** Phase 87 — gauat-oauth-real-credential-cycle-gen-smoke-google-live-link
 
 ## Current Position
 
 Milestone: **v1.20** — GA Launch — SEED closure + public release
 
-Phase: 87
+Phase: 87 (gauat-oauth-real-credential-cycle-gen-smoke-google-live-link) — EXECUTING
 
-Plan: Not started
+Plan: 2 of 3
 
-Status: Ready to plan
+Status: Ready to execute
 
-Last activity: 2026-04-26
+Last activity: 2026-04-28
 
 **Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 
