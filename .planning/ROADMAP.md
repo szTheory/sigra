@@ -139,7 +139,7 @@ Plans:
 
 Plans:
 - [ ] 88-01-PLAN.md — Capture the GAUAT-07 MFA backup-code rotation evidence bundle from the Playwright E2E lane with transcript-first invalidation and audit proof.
-- [ ] 88-02-PLAN.md — Capture the GAUAT-08 generated-host getting-started evidence bundle from the install-smoke lane with transcript and environment proof.
+- [x] 88-02-PLAN.md — Capture the GAUAT-08 generated-host getting-started evidence bundle from the install-smoke lane with transcript and environment proof.
 - [ ] 88-03-PLAN.md — File GAUAT-09 results, update SEED-001 honestly, extend the v1.20 evidence index, and record the launch-leg disposition without overstating Phase 87.
 
 ### Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment

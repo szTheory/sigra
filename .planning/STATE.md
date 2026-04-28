@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
 status: executing
-last_updated: "2026-04-28T20:44:05.948Z"
-last_activity: 2026-04-28 -- Phase --phase execution started
+last_updated: "2026-04-28T20:49:32.039Z"
+last_activity: 2026-04-28
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 92
 ---
 
 # Project State
@@ -31,11 +31,11 @@ Milestone: **v1.20** — GA Launch — SEED closure + public release
 
 Phase: --phase (88) — EXECUTING
 
-Plan: 1 of --name
+Plan: 3 of 3
 
-Status: Executing Phase --phase
+Status: Ready to execute
 
-Last activity: 2026-04-28 -- Phase --phase execution started
+Last activity: 2026-04-28
 
 **Completed Phase:** **85 — OAuth audit atomicity closure (AUD-21)**
 
@@ -45,6 +45,7 @@ Last activity: 2026-04-28 -- Phase --phase execution started
 | --- | --- | --- | --- | --- |
 | 85 | 2 | session | 5 | 13 |
 | Phase 88 P01 | 5m | 3 tasks | 5 files |
+| Phase 88 P02 | 2m | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -53,6 +54,8 @@ Last activity: 2026-04-28 -- Phase --phase execution started
 - Mark Phase 9 C-1 as PASS for the AUD-21 slice.
 - Validate SEED-002 and publish a phase merge-gate artifact.
 - Ran the example-app background server with EXAMPLE_DB_PROBE_ENABLED=1 so Playwright tests could hit probe endpoints
+- Relied entirely on the install-smoke.sh CI lane to serve as the single source of truth for the 'clean machine' getting-started evidence per D-88-06 through D-88-10.
+- Kept the verification strict on generated-host route checks instead of human subjective friction logging, proving out the underlying document paths with machine reliability.
 
 ## Accumulated Context
 
