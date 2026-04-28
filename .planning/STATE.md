@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.20
 milestone_name: — active
-status: executing
-last_updated: "2026-04-28T20:49:32.039Z"
+status: verifying
+last_updated: "2026-04-28T20:54:13.969Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_plans: 12
+  percent: 100
 ---
 
 # Project State
@@ -33,7 +33,7 @@ Phase: --phase (88) — EXECUTING
 
 Plan: 3 of 3
 
-Status: Ready to execute
+Status: Phase complete — ready for verification
 
 Last activity: 2026-04-28
 
@@ -46,6 +46,7 @@ Last activity: 2026-04-28
 | 85 | 2 | session | 5 | 13 |
 | Phase 88 P01 | 5m | 3 tasks | 5 files |
 | Phase 88 P02 | 2m | 3 tasks | 5 files |
+| Phase 88 P03 | 15m | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -56,6 +57,9 @@ Last activity: 2026-04-28
 - Ran the example-app background server with EXAMPLE_DB_PROBE_ENABLED=1 so Playwright tests could hit probe endpoints
 - Relied entirely on the install-smoke.sh CI lane to serve as the single source of truth for the 'clean machine' getting-started evidence per D-88-06 through D-88-10.
 - Kept the verification strict on generated-host route checks instead of human subjective friction logging, proving out the underlying document paths with machine reliability.
+- Set launch-leg disposition to NO-GO (BLOCKED BY PROVENANCE) because of the pending Phase 87 URLs, and kept SEED-001 as deferred.
+- Kept GAUAT-03..06 marked as BLOCKED in v1.20-GA-UAT-RESULTS.md until Phase 87 remote CI provenance (ci_run_url) is established.
+- Modified sigra.uat.report.ex to resolve snapshot paths by wildcard instead of assuming the current git SHA, fixing the verification failure for previous phases.
 
 ## Accumulated Context
 

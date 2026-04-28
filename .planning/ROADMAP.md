@@ -189,7 +189,7 @@ Plans:
 | 85. OAuth audit atomicity closure (AUD-21) | 0/2 | Not started | — |
 | 86. GAUAT email visual QA | 4/4 | Complete    | 2026-04-26 |
 | 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
-| 88. GAUAT closing cluster + SEED-001 closure | 0/3 | Not started | — |
+| 88. GAUAT closing cluster + SEED-001 closure | 3/3 | Completed | 10m |
 | 89. Pre-launch (Hex publish + README + CHANGELOG) | 0/0 | Not started | — |
 | 90. Launch + monitoring lane | 0/0 | Not started | — |
 
@@ -229,3 +229,4 @@ Plans:
 - **Phase 45 T2 stragglers** beyond 052–056/058/063 — captured as `EX-45-*` with reopen triggers if surfaced during AUD-21 inventory walk; deferred to a later milestone.
 - **30d post-launch retrospective** — distinct from LAUNCH-06 monitoring checkpoints; triggered at the 30d mark.
 - Items not mapped in archived requirements stay here until a future milestone selects them.
+.
