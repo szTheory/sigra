@@ -176,6 +176,23 @@ defmodule ExampleWeb.Router do
     end
   end
 
+  # Test-only DB probe + OAuth-issuer control endpoints. Runtime env-gated
+  # so the routes fail closed unless explicitly enabled for test automation.
+  if System.get_env("EXAMPLE_DB_PROBE_ENABLED") == "1" do
+    scope "/test", ExampleWeb do
+      pipe_through :api
+      get "/db_probe", TestDbProbeController, :show
+    end
+  end
+
+  if System.get_env("EXAMPLE_OAUTH_ISSUER_CTL_ENABLED") == "1" do
+    scope "/test/oauth_issuer", ExampleWeb do
+      pipe_through :api
+      post "/setup", TestOAuthIssuerController, :setup
+      post "/reset", TestOAuthIssuerController, :reset
+    end
+  end
+
   # Sigra organizations (Phase 16)
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug,

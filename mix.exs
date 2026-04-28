@@ -119,7 +119,8 @@ defmodule Sigra.MixProject do
       # (e.g. `test/sigra/audit/query_index_test.exs`) that assert Query
       # plans against a live Postgres repo. Excluded from default test runs
       # via `ExUnit.start(exclude: [:postgres])` in test/test_helper.exs.
-      {:postgrex, "~> 0.17", only: :test}
+      {:postgrex, "~> 0.17", only: :test},
+      {:test_server, "~> 0.1.22", only: :test}
     ]
   end
 
