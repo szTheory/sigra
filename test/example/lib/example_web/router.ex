@@ -297,4 +297,12 @@ defmodule ExampleWeb.Router do
       live "/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show
     end
   end
+
+  # Sigra OAuth
+  scope "/auth", ExampleWeb do
+    pipe_through [:browser]
+
+    get "/:provider", OAuthController, :request
+    get "/:provider/callback", OAuthController, :callback
+  end
 end

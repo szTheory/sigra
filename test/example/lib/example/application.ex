@@ -8,6 +8,7 @@ defmodule Example.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      {Example.Vault, []},
       ExampleWeb.Telemetry,
       Example.Repo,
       {DNSCluster, query: Application.get_env(:example, :dns_cluster_query) || :ignore},

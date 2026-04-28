@@ -69,4 +69,17 @@ config :sigra,
   email_module: Example.Accounts.Emails,
   mailer: Example.Accounts.Mailer
 
+# Sigra OAuth providers
+# Move secrets to config/runtime.exs for production
+config :example, :sigra,
+  oauth: [
+    providers: [
+      google: [
+        client_id: System.get_env("GOOGLE_CLIENT_ID"),
+        client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
+        redirect_uri: "http://localhost:4000/auth/google/callback"
+      ]
+    ]
+  ]
+
 import_config "#{config_env()}.exs"

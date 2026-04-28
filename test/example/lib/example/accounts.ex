@@ -574,6 +574,7 @@ defmodule Example.Accounts do
     Sigra.Config.new!(
       repo: Example.Repo,
       user_schema: User,
+      secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: Example.Accounts.UserSession
@@ -598,8 +599,22 @@ defmodule Example.Accounts do
         ceremony_rate_limit: [limit: 5, window_ms: 60_000],
         passkey_primary_enabled: true,
         user_passkey_schema: Example.Accounts.UserPasskey
-      ]
+      ],
+      oauth: oauth_config()
     )
+  end
+
+  defp oauth_config do
+    base_oauth = Application.get_env(:example, :sigra, [])[:oauth] || []
+    base_providers = Keyword.get(base_oauth, :providers, [])
+    override_providers = Application.get_env(:sigra, :oauth_provider_overrides, [])
+
+    merged_providers =
+      Keyword.merge(base_providers, override_providers, fn _provider, base, override ->
+        Keyword.merge(base, override)
+      end)
+
+    Keyword.put(base_oauth, :providers, merged_providers)
   end
 
   @doc "List all active sessions for a user."
