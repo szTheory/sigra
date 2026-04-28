@@ -2,5 +2,10 @@
   "status": "pending human witness run",
   "release_candidate_sha": "367a164",
   "required_action": "Capture the persisted mfa.backup_codes_regenerate audit row during Task 2.",
-  "required_anchor": "mfa.backup_codes_regenerate"
+  "required_anchor": "mfa.backup_codes_regenerate",
+  "task_1_notes": {
+    "preflight_complete": true,
+    "accepted_event_name": "mfa.backup_codes_regenerate",
+    "evidence_rule": "Persisted-row capture only; screenshots are supporting evidence."
+  }
 }

@@ -1,12 +1,21 @@
-# GAUAT-07 transcript
-# Status: pending human witness run
-# Release-candidate SHA: 367a164
-#
-# Required capture points:
-# - Timestamp when sudo prompt is reached
-# - Timestamp when regenerate modal is opened with TOTP input visible
-# - The chosen pre-rotation plaintext backup code used for invalidation proof
-# - Timestamp when regeneration succeeds and new codes are shown once
-# - Timestamp when audit proof is captured
-#
-# Append witness output below during Task 2.
+2026-04-28T13:30:55Z TASK-1 scaffold created for GAUAT-07
+2026-04-28T13:31:00Z PRECHECK pass MIX_ENV=test mix test test/sigra/mfa_audit_atomicity_test.exs --no-color
+2026-04-28T13:31:06Z PRECHECK pass CLOAK_KEY=... MIX_ENV=test mix test test/example_web/smoke/backup_code_rotation_test.exs --include example_app --no-color
+2026-04-28T13:31:06Z TASK-2 pending real human witness run at /users/settings/mfa
+
+# Task 2 witness template
+# 1. Record START timestamp.
+# 2. Record SUDO prompt reach.
+# 3. Record regenerate modal with TOTP input ready.
+# 4. Record the exact pre_rotation_code chosen for invalidation proof.
+# 5. Record rotate completion and the shown-once screenshot capture.
+# 6. Record the audit-row capture timestamp and the old-code failure timestamp.
+
+# Pre-existing exploratory lines retained below for context only.
+# They are not the authoritative Task 2 witness transcript.
+2026-04-28T13:04:36.994Z EXPLORATORY START register-and-confirm
+2026-04-28T13:04:38.120Z EXPLORATORY SUDO confirm-password
+2026-04-28T13:04:38.455Z EXPLORATORY MFA enroll begin
+2026-04-28T13:04:38.876Z EXPLORATORY MFA enroll complete pre_rotation_code=1804-7934
+2026-04-28T13:04:39.035Z EXPLORATORY MFA rotate begin
+2026-04-28T13:05:00.436Z EXPLORATORY MFA rotate complete

@@ -1,0 +1,46 @@
+[
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "transcript-primary",
+    "evidence_path": "transcript.log",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pending",
+    "evidence_sha256": ""
+  },
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "old-code-reuse-proof",
+    "evidence_path": "reports/old-code-reuse.txt",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pending",
+    "evidence_sha256": ""
+  },
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "audit-row-proof",
+    "evidence_path": "reports/audit-row.json",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pending",
+    "evidence_sha256": ""
+  },
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "screenshots-supporting",
+    "evidence_path": "screenshots/01-sudo.png",
+    "git_sha": "367a164",
+    "hex_version": "0.2.5",
+    "ci_run_url": "",
+    "artifact_url": "",
+    "outcome": "pending",
+    "evidence_sha256": ""
+  }
+]

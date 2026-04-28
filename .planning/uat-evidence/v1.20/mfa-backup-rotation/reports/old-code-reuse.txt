@@ -2,7 +2,15 @@ GAUAT-07 old-code invalidation proof
 Status: pending human witness run
 Release-candidate SHA: 367a164
 
-Record the exact pre-rotation plaintext backup code selected in transcript.log, then capture the post-regeneration failure for that same code here.
+Task 1 notes:
+- Machine preflight passed before human witness execution.
+- The authoritative human proof must name the exact pre_rotation_code from transcript.log and show that same code failing after regeneration.
 
 Required anchor:
 - old-code-reuse
+
+Required fill-in format for Task 2:
+- chosen_code: XXXX-XXXX
+- attempted_at: 2026-..Z
+- result: {:error, :invalid_backup_code, ...} or equivalent explicit failure text
+- operator_note: confirm the code was valid before rotation and failed after rotation

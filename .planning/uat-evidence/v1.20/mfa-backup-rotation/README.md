@@ -1,38 +1,31 @@
 ---
 phase: 88
 gauat_requirement: GAUAT-07
+hex_version: 0.2.5
 git_sha: 367a164
-generated_by: phase-88 manual witness scaffold
-generated_at: 2026-04-28T12:39:44Z
+git_tag: 
+ci_run_url: 
+ci_workflow: .github/workflows/ci.yml / mfa_e2e_playwright
+generated_by: phase-88-01-task-1
+generated_at: 2026-04-28T13:30:55Z
 disposition: pending-human-witness
 ---
 
 # GAUAT-07: MFA Backup-Code Rotation Evidence
 
-This bundle is text-first by design. Transcript and persisted-state proof carry the security claim; screenshots only show that the human flow happened.
+**Outcome:** `BLOCKED` pending Task 2 human witness execution.  
+**Release-candidate SHA:** `367a164`  
+**Task 1 preflight:** `MIX_ENV=test mix test test/sigra/mfa_audit_atomicity_test.exs --no-color` and `CLOAK_KEY=... MIX_ENV=test mix test test/example_web/smoke/backup_code_rotation_test.exs --include example_app --no-color` both passed on 2026-04-28.  
 
-## Witness scope
+| Artifact class | Outcome | Evidence path | SHA-256 (first 16) |
+|----------------|---------|---------------|--------------------|
+| transcript-primary | pending | `transcript.log` | `pending` |
+| old-code-reuse-proof | pending | `reports/old-code-reuse.txt` | `pending` |
+| audit-row-proof | pending | `reports/audit-row.json` | `pending` |
+| screenshots-supporting | pending | `screenshots/01-sudo.png` .. `screenshots/04-audit-ui-row.png` | `pending` |
 
-- Requirement: `GAUAT-07`
-- Release-candidate SHA: `367a164`
-- Locked decisions: `D-88-01` through `D-88-05`
-- Current status: human witness run not yet captured
+## Reviewer Notes
 
-## Artifact inventory
-
-| Artifact class | Status | Path | Purpose |
-|----------------|--------|------|---------|
-| transcript | pending | `transcript.log` | Timestamped operator log for the regenerate flow, including the chosen pre-rotation plaintext backup code. |
-| invalidation-proof | pending | `reports/old-code-reuse.txt` | Explicit proof that the chosen pre-rotation backup code fails after regeneration. |
-| audit-proof | pending | `reports/audit-row.json` | Persisted `mfa.backup_codes_regenerate` audit evidence. |
-| screenshots | pending | `screenshots/` | Minimal UI evidence only: sudo prompt, regenerate modal, shown-once state, audit UI row if used. |
-
-## Outcome
-
-Pending the blocking human witness run. Do not cite this bundle as a completed GAUAT-07 proof pack until `transcript.log`, `reports/old-code-reuse.txt`, `reports/audit-row.json`, and the four required screenshots are populated.
-
-## Redaction rules
-
-- Do not expose raw backup codes except for one tightly scoped shown-once capture.
-- Do not treat screenshots as invalidation proof.
-- Keep the audit artifact explicit enough for reviewers to match `mfa.backup_codes_regenerate` against `lib/sigra/mfa.ex`.
+- Transcript/query artifacts are the security truth for GAUAT-07. Screenshots are supporting evidence only.
+- `reports/audit-event.json`, `reports/old-code-validity.json`, and `reports/ui-summary.json` are pre-existing exploratory artifacts in the working tree. They are not the Task 2 deliverables named by the plan and should not be used as launch-truth substitutes.
+- The required Task 2 deliverables remain: a real `MfaSettingsLive` witness transcript, explicit `old-code-reuse` failure text, explicit `mfa.backup_codes_regenerate` audit-row capture, and the four minimal screenshots from D-88-03.
