@@ -20,15 +20,15 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Current Milestone: v1.20 GA Launch — SEED closure + public release
 
-**Goal:** Close the last two trust-surface gates (**SEED-001** human UAT execution, **SEED-002** OAuth audit atomicity) and execute Sigra's first public release per the v1.5 **`MAINT-01`** checklist — turning Sigra from "evidence-capable, on-disk only" into "publicly available, used in production."
+**Goal:** Close the last two trust-surface gates (**SEED-001** GA UAT closure, **SEED-002** OAuth audit atomicity) and execute Sigra's first public release per the v1.5 **`MAINT-01`** checklist — turning Sigra from "evidence-capable, on-disk only" into "publicly available, used in production."
 
 **Target features (3 legs):**
 
 - **SEED-002 — OAuth audit atomicity closure** — Convert remaining `log_safe/3` OAuth/ops clusters in **Phase 45 T2** (**052–056**, **058**, **063**) to atomic **`Repo.transaction/1` + `Ecto.Multi` + `log_multi_safe`**. Refresh **`45-AUD-04-INVENTORY.md`**, **`09-VERIFICATION.md`** C-1 matrix, **`09-03-SUMMARY.md`**. Downgrade Phase 9 **C-1** from **PASS-WITH-CAVEATS → PASS**. Audit-aware tests; `CHANGELOG [Unreleased]`.
-- **SEED-001 — Human UAT execution** — Run all 8 GA-risk items: Phase 04 lockout/suspicious-login email visual QA across Gmail/Outlook/Apple Mail; Phase 08 lifecycle email templates in same 3 clients; **`mix sigra.gen.oauth`** real-credential register/login/link/unlink with live Google credentials; clean-machine **`getting-started.md`** timed end-to-end run (<30min target); backup-code rotation human verification. File **`.planning/v1.20-GA-UAT-RESULTS.md`** superseding **SEED-001**; archive evidence under **`.planning/uat-evidence/v1.20/`**.
+- **SEED-001 — GA UAT closure** — Close all 8 GA-risk items with merge-blocking machine evidence: email visual regression, generated-host OAuth install proof, issuer-backed OAuth browser flows, MFA backup-code rotation E2E, and generated-host getting-started install/runtime proof. File **`.planning/v1.20-GA-UAT-RESULTS.md`** against the exact release SHA/tag; archive evidence under **`.planning/uat-evidence/v1.20/`**.
 - **Public launch execution** — Tag **v1.20**; **`mix hex.publish`**; promote README from "production readiness available" to "use this in production" with v1.20 evidence/closure pointers; write + publish announcement post (positioning vs Pow / phx.gen.auth, why hybrid lib+generator, getting-started link); HN submission with outcome captured; Elixir community soft-launch (Discord/forum); add **`MAINTAINING.md`** post-launch monitoring lane (24h / 7d / 30d cadence: issues, Hex downloads, GitHub stars, triage SLA).
 
-**Selected seeds:** **SEED-001** (human GA UAT) + **SEED-002** (OAuth audit atomicity remainder) — both close in this milestone.
+**Selected seeds:** **SEED-001** (GA UAT closure) + **SEED-002** (OAuth audit atomicity remainder) — both close in this milestone.
 
 **Explicit non-goals:** **`sigra_lockspire`** / **ADR 001** glue package (still awaiting companion-app trigger); **999.x** Nyquist archaeology; responding to week-one launch feedback (deferred to a follow-up milestone if signal warrants).
 
@@ -64,7 +64,7 @@ Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.
 
 ## Current State
 
-**v1.20 (started 2026-04-25):** Defining requirements — three legs (**SEED-002** OAuth audit atomicity closure, **SEED-001** human UAT execution, public launch per v1.5 **`MAINT-01`** checklist). Phase numbering continues from **Phase 84** (last completed); **`--reset-phase-numbers`** not used. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** drafting.
+**v1.20 (started 2026-04-25):** Defining requirements — three legs (**SEED-002** OAuth audit atomicity closure, **SEED-001** GA UAT closure, public launch per v1.5 **`MAINT-01`** checklist). Phase numbering continues from **Phase 84** (last completed); **`--reset-phase-numbers`** not used. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** drafting.
 
 **v1.19 (shipped 2026-04-24):** Phases **82–83** — **AUD-19** (JWT **`user_tokens`** persistence + **`api.jwt_refresh*`** co-fate) + **AUD-20** (**`AUD-04-022`** invalid-code → **`commit_ad_hoc_mfa_audit/5`**). **`83-VERIFICATION.md`** / **`82-VERIFICATION.md`** merge gates. **Phase 84** routing-honesty reconciliation closed **2026-04-25** (`84-VERIFICATION.md`).
 
@@ -106,7 +106,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.20 is active** (started **2026-04-25**) and bundles all three remaining "before megaphone launch" gates: **SEED-001** human UAT execution, **SEED-002** Phase **45 T2** OAuth audit atomicity closure (**052–056**, **058**, **063**), and the public launch sequence (Hex push, README promotion, announcement post, HN, Elixir community soft-launch, post-launch monitoring lane).
+**v1.20 is active** (started **2026-04-25**) and bundles all three remaining "before megaphone launch" gates: **SEED-001** GA UAT closure, **SEED-002** Phase **45 T2** OAuth audit atomicity closure (**052–056**, **058**, **063**), and the public launch sequence (Hex push, README promotion, announcement post, HN, Elixir community soft-launch, post-launch monitoring lane).
 
 **Later candidates (post–v1.20):**
 - **`sigra_lockspire`** glue package per **ADR 001** — only after a real companion-app trigger fires.
@@ -145,7 +145,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ### Active — v1.20 GA Launch (in progress)
 
-_See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*). Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 human UAT execution, public launch execution._
+_See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*). Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 GA UAT closure, public launch execution._
 
 - ✓ **AUD-21** — OAuth audit atomicity closure (Phase 45 T2 cluster: 052–056, 058, 063 → atomic) — **Phase 85** (2026-04-25)
 - ✓ **GAUAT-01** — Phase 04 lockout + suspicious-login email visual regression: 8 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-04/`, 0-human-MUA — **Phase 86** (2026-04-26)
@@ -498,4 +498,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-26 — **Phase 86** complete: automated email visual regression harness (Premailex + Playwright Chromium/WebKit × light/dark + caniemail CSS lint + WCAG/byte/multipart ExUnit asserts). 36 committed baselines, GAUAT-01/02 evidence bundles under `.planning/uat-evidence/v1.20/`, `email_visual_regression` CI job promoting bundles to GitHub release assets on any v* tag. SEED-001 GAUAT rows 1-2 now closable.*
+*Last updated: 2026-04-28 — **Phase 88** complete: GAUAT closing cluster + SEED-001 closure. Captured GAUAT-07 and GAUAT-08 evidence bundles via Playwright lane and generated-host smoke tests, updating SEED-001 honestly.*
