@@ -17,7 +17,7 @@ defmodule Sigra.Planning.Phase52MilestoneHonestyContractTest do
     md = read!(".planning/ROADMAP.md")
 
     assert md =~ "v1.4 GA readiness"
-    assert md =~ "SHIPPED 2026-04-22"
+    assert md =~ "shipped **2026-04-22**"
     assert md =~ "milestones/v1.4-ROADMAP.md"
   end
 

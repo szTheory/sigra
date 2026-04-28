@@ -96,12 +96,17 @@ defmodule Sigra.ImpersonationTest do
         })
 
       Sigra.MockSessionStore
-      |> expect(:create, fn user_id, metadata, _opts ->
+      |> expect(:create_session_multi, fn user_id, metadata, _opts ->
         assert user_id == target.id
         assert metadata.type == :standard
         assert metadata.impersonator_user_id == admin.id
         assert metadata.impersonator_session_id == admin_session.id
-        {:ok, impersonation_session}
+        Ecto.Multi.new() |> Ecto.Multi.put(:session, impersonation_session)
+      end)
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn _multi ->
+        {:ok, %{session: impersonation_session}}
       end)
 
       assert {:ok, result} =
@@ -131,10 +136,15 @@ defmodule Sigra.ImpersonationTest do
         })
 
       Sigra.MockSessionStore
-      |> expect(:create, fn user_id, metadata, _opts ->
+      |> expect(:create_session_multi, fn user_id, metadata, _opts ->
         assert user_id == target.id
         assert metadata.impersonator_user_id == admin.id
-        {:ok, impersonation_session}
+        Ecto.Multi.new() |> Ecto.Multi.put(:session, impersonation_session)
+      end)
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn _multi ->
+        {:ok, %{session: impersonation_session}}
       end)
 
       assert {:ok, %{session: ^impersonation_session}} =
@@ -207,7 +217,14 @@ defmodule Sigra.ImpersonationTest do
       }
 
       Sigra.MockSessionStore
-      |> expect(:delete, fn "impersonation-hash", _opts -> :ok end)
+      |> expect(:delete_session_multi, fn "impersonation-hash", _session, _opts ->
+        Ecto.Multi.new() |> Ecto.Multi.put(:session_deleted, true)
+      end)
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn _multi ->
+        {:ok, %{session_deleted: true}}
+      end)
 
       assert {:ok, %{restore: {:admin_session, "admin-raw-token"}, session_deleted?: true}} =
                Impersonation.stop(

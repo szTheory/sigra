@@ -77,10 +77,12 @@ defmodule Sigra.SessionTest do
     test "defines 8 callbacks" do
       callbacks = Sigra.SessionStore.behaviour_info(:callbacks)
 
-      assert length(callbacks) == 8
+      assert length(callbacks) == 10
       assert {:create, 3} in callbacks
+      assert {:create_session_multi, 3} in callbacks
       assert {:fetch, 2} in callbacks
       assert {:delete, 2} in callbacks
+      assert {:delete_session_multi, 3} in callbacks
       assert {:list_by_user, 2} in callbacks
       assert {:delete_all_for_user, 2} in callbacks
       assert {:update_activity, 3} in callbacks
