@@ -181,6 +181,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.11.md",
         "guides/introduction/upgrading-to-v1.12.md",
         "guides/introduction/upgrading-to-v1.1.md",
+        "guides/upgrading/upgrading-to-v1.20.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
         "guides/flows/password-reset.md",
