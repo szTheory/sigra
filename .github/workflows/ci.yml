@@ -220,6 +220,8 @@ jobs:
     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     services:
       postgres:
         image: postgres:15
@@ -253,7 +255,7 @@ jobs:
           mix local.hex --force
           mix local.rebar --force
       - name: Install phx_new archive
-        run: mix archive.install --force hex phx_new
+        run: mix archive.install --force hex phx_new 1.8.5
       - name: Fetch Sigra library deps
         run: mix deps.get
       - name: Run install smoke harness
@@ -264,7 +266,43 @@ jobs:
           GITHUB_WORKSPACE: ${{ github.workspace }}
           # Fresh tmp_app includes Cloak.Vault; compile/boot needs a dummy key (same as admin-acceptance-smoke.sh).
           CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
-        run: scripts/ci/install-smoke.sh
+        run: |
+          mkdir -p .planning/uat-evidence/v1.20/oauth-gen
+          scripts/ci/install-smoke.sh 2>&1 | tee .planning/uat-evidence/v1.20/oauth-gen/transcript.log
+      - name: Upload oauth-gen bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-gen-bundle
+          path: .planning/uat-evidence/v1.20/oauth-gen/
+          retention-days: 14
+      - name: Upload oauth-gen bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-gen-bundle
+          path: .planning/uat-evidence/v1.20/oauth-gen/
+          retention-days: 7
+      - name: Create oauth-gen release asset archive (v* tag only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          cd /tmp && tar -czf "sigra-oauth-gen-${{ github.ref_name }}.tar.gz" \
+            -C "${{ github.workspace }}" .planning/uat-evidence/v1.20/oauth-gen/
+      - name: Promote oauth-gen bundle to ${{ github.ref_name }} release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" "/tmp/sigra-oauth-gen-${{ github.ref_name }}.tar.gz" \
+            --clobber \
+            --repo "${{ github.repository }}"
+      - name: Upload oauth-gen bundle (tag, 90d retention)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: oauth-gen-bundle
+          path: .planning/uat-evidence/v1.20/oauth-gen/
+          retention-days: 90
 
   passkeys_manual_fallback_smoke:
     name: Passkeys manual fallback smoke

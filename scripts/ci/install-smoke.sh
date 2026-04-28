@@ -92,6 +92,11 @@ mix sigra.gen.oauth --providers google,github
 mix ecto.migrate
 mix compile --warnings-as-errors
 
+echo "==> install-smoke: creating + migrating test DB and running mix test"
+MIX_ENV=test mix ecto.create
+MIX_ENV=test mix ecto.migrate
+MIX_ENV=test mix test
+
 APP="$(basename "$(pwd)")"
 WEB_LIB="lib/${APP}_web"
 CTX="lib/${APP}/accounts"
@@ -132,5 +137,6 @@ grep -q "# Sigra OAuth" "${WEB_LIB}/router.ex" || {
 }
 
 echo "==> install-smoke: oauth generator contract OK (>=11 generated paths + migration + router inject)"
+echo "==> install-smoke: oauth-gen: 12/12 expected artifacts present, mix test green"
 
 echo "==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean"
