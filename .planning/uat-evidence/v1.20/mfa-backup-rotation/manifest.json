@@ -1,46 +1,46 @@
 [
   {
     "gauat_requirement": "GAUAT-07",
-    "artifact_class": "transcript-primary",
+    "artifact_class": "ui-rotation-flow",
+    "evidence_path": "reports/ui-summary.json",
+    "outcome": "pass",
+    "evidence_sha256": "29c000b0d479ac0055d447d96d3d76db8dfead5bece4151bf8269af73fcebd82",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "bf05676",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "old-code-invalidated",
+    "evidence_path": "reports/old-code-validity.json",
+    "outcome": "pass",
+    "evidence_sha256": "804e131b7dff72255709af06b0e99d606e328f99aa764e45d81eb85921638548",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "bf05676",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "audit-event-persisted",
+    "evidence_path": "reports/audit-event.json",
+    "outcome": "pass",
+    "evidence_sha256": "d5b5e59678e5dabf5134a22818e41939f80ef15d612aa3fb40202aca141d6af9",
+    "artifact_url": "",
+    "ci_run_url": "",
+    "git_sha": "bf05676",
+    "hex_version": "0.2.5"
+  },
+  {
+    "gauat_requirement": "GAUAT-07",
+    "artifact_class": "transcript",
     "evidence_path": "transcript.log",
-    "git_sha": "367a164",
-    "hex_version": "0.2.5",
-    "ci_run_url": "",
+    "outcome": "pass",
+    "evidence_sha256": "16428d69dddf93dfcb19919582d109e065f5de9a366738604a772a0916a463f0",
     "artifact_url": "",
-    "outcome": "pending",
-    "evidence_sha256": ""
-  },
-  {
-    "gauat_requirement": "GAUAT-07",
-    "artifact_class": "old-code-reuse-proof",
-    "evidence_path": "reports/old-code-reuse.txt",
-    "git_sha": "367a164",
-    "hex_version": "0.2.5",
     "ci_run_url": "",
-    "artifact_url": "",
-    "outcome": "pending",
-    "evidence_sha256": ""
-  },
-  {
-    "gauat_requirement": "GAUAT-07",
-    "artifact_class": "audit-row-proof",
-    "evidence_path": "reports/audit-row.json",
-    "git_sha": "367a164",
-    "hex_version": "0.2.5",
-    "ci_run_url": "",
-    "artifact_url": "",
-    "outcome": "pending",
-    "evidence_sha256": ""
-  },
-  {
-    "gauat_requirement": "GAUAT-07",
-    "artifact_class": "screenshots-supporting",
-    "evidence_path": "screenshots/01-sudo.png",
-    "git_sha": "367a164",
-    "hex_version": "0.2.5",
-    "ci_run_url": "",
-    "artifact_url": "",
-    "outcome": "pending",
-    "evidence_sha256": ""
+    "git_sha": "bf05676",
+    "hex_version": "0.2.5"
   }
 ]
