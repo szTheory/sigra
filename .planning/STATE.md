@@ -1,16 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.21
-milestone_name: B2B-ready & production-honest
-status: planning
-last_updated: "2026-04-28T22:30:00.000Z"
-last_activity: 2026-04-28
+milestone_name: — active
+status: Roadmap drafted, awaiting `/gsd-plan-phase 91`.
+last_updated: "2026-04-29T16:00:00.000Z"
+last_activity: "2026-04-29 — Phase 91 context gathered (14 implementation decisions across 4 gray areas)."
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
-  percent: 0
 ---
 
 # Project State
@@ -33,9 +32,9 @@ Phase: Not started — Phases **91–96** drafted in `.planning/ROADMAP.md`; fir
 
 Plan: —
 
-Status: Roadmap drafted, awaiting `/gsd-plan-phase 91`.
+Status: Phase 91 context captured (`91-CONTEXT.md` committed). Awaiting `/gsd-plan-phase 91`.
 
-Last activity: 2026-04-28 — Roadmap written for Phases 91–96 (7 REQ-IDs covered: B2B-01..03, HARD-01..03, API-01).
+Last activity: 2026-04-29 — Phase 91 context gathered (14 decisions: pipeline integration, allowlist exemption, admin self-lockout, audit shape + idempotency).
 
 ## Decisions
 
@@ -46,6 +45,6 @@ Last activity: 2026-04-28 — Roadmap written for Phases 91–96 (7 REQ-IDs cove
 
 ## Session Continuity
 
-**Next:** `/gsd-discuss-phase 91` (org-level MFA enforcement) → `/gsd-plan-phase 91` after discussion → execute. Phases 91, 92, 94, 95, 96 are independent and can be discussed in any order; Phase 93 (M2M tokens) depends on Phase 92's `actor_type` scope-struct extension.
+**Next:** `/gsd-plan-phase 91` (org-level MFA enforcement) → execute. Phases 92, 94, 95, 96 remain independent and can be discussed in any order; Phase 93 (M2M tokens) depends on Phase 92's `actor_type` scope-struct extension.
 
-**Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block written), `.planning/REQUIREMENTS.md` (7 REQ-IDs with phase traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed with 5 success criteria each).
+**Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (7 REQ-IDs with phase traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed). Phase 91: `.planning/phases/91-org-level-mfa-enforcement-b2b-01/91-CONTEXT.md` + `91-DISCUSSION-LOG.md`.
