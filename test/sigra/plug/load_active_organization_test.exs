@@ -57,7 +57,11 @@ defmodule Sigra.Plug.LoadActiveOrganizationTest do
   end
 
   defmodule TestScope do
-    defstruct [:user, :active_organization, :membership, :impersonating_from]
+    # Phase 92 / B2B-02 (Plan 92-03 Task 2 cascade): mirror the generated
+    # scope struct after Plan 92-02 — `:role` and `:actor_type` are
+    # required for the library plug to set/clear role on the recovery
+    # branches without raising KeyError on the struct update.
+    defstruct [:user, :active_organization, :membership, :impersonating_from, :role, :actor_type]
   end
 
   # Host Organizations module — mimics what `use Sigra.Organizations` produces

@@ -38,6 +38,24 @@ defmodule Sigra.Plug.PutActiveOrganization do
   SessionStore's `update_active_organization/3` callback. The SessionStore
   callback itself does not enforce authz (see Phase 14 T-14-04).
 
+  ## Phase 92 / B2B-02 (Plan 92-03) — `:role` propagation (T-92-08)
+
+  This plug is the SINGLE authoritative library seam for `:role` updates
+  on active-organization transitions. After the host's
+  `scope_module.put_active_organization/3` returns, the plug:
+
+    * On a set transition: writes `membership.role` onto `scope.role`.
+    * On a clear transition: writes nil onto `scope.role`.
+
+  The host scope module remains role-agnostic — it does NOT need to know
+  about `:role` for the contract to hold. Hosts that have customized the
+  generated `put_active_organization/3` in their scope module retain that
+  customization unchanged; the library applies the role write afterwards
+  so role updates always lockstep with the authoritative membership check.
+
+  `:actor_type` is reserved Phase 93 prep — this plug does not branch on
+  it under Phase 92.
+
   ## Options
 
     * `:organizations` — required. The host's `use Sigra.Organizations`
@@ -75,7 +93,15 @@ defmodule Sigra.Plug.PutActiveOrganization do
       store_opts = Keyword.get(opts, :session_store_opts, [])
 
       with {:ok, refreshed} <- session_store.update_active_organization(session, nil, store_opts) do
-        new_scope = scope_module.put_active_organization(scope, nil, nil)
+        # Phase 92 / B2B-02 (Plan 92-03 Task 2 / T-92-08): clear `:role`
+        # alongside membership at this single authoritative seam. The host
+        # scope_module's `put_active_organization/3` clear clause sets
+        # active_organization + membership to nil; we apply the role nil
+        # afterwards so the host scope module stays role-agnostic.
+        new_scope =
+          scope
+          |> scope_module.put_active_organization(nil, nil)
+          |> Map.put(:role, nil)
 
         {:ok,
          conn
@@ -101,7 +127,15 @@ defmodule Sigra.Plug.PutActiveOrganization do
         membership ->
           with {:ok, refreshed} <-
                  session_store.update_active_organization(session, org.id, store_opts) do
-            new_scope = scope_module.put_active_organization(scope, org, membership)
+            # Phase 92 / B2B-02 (Plan 92-03 Task 2 / T-92-08): write
+            # `scope.role` from `membership.role` at the single authoritative
+            # write seam. `Map.get/3` tolerates a membership struct that
+            # does not declare `:role` (defense-in-depth) and a nil role
+            # value (Plan 92-02 made the column nullable + plain :string).
+            new_scope =
+              scope
+              |> scope_module.put_active_organization(org, membership)
+              |> Map.put(:role, Map.get(membership, :role))
 
             {:ok,
              conn

@@ -67,7 +67,10 @@ defmodule Sigra.Scope.PlugLiveViewParityTest do
   end
 
   defmodule TestScope do
-    defstruct [:user, :active_organization, :membership, :impersonating_from]
+    # Plan 92-02 reserved `:role` and `:actor_type` on the generated scope.
+    # Plan 92-03 wires `:role` propagation through the shared hydrator seam;
+    # this test asserts plug ↔ on_mount parity for both fields.
+    defstruct [:user, :active_organization, :membership, :impersonating_from, :role, :actor_type]
   end
 
   @test_config %{
@@ -160,7 +163,14 @@ defmodule Sigra.Scope.PlugLiveViewParityTest do
   end
 
   defp build_scope(user) do
-    %TestScope{user: user, active_organization: nil, membership: nil, impersonating_from: nil}
+    %TestScope{
+      user: user,
+      active_organization: nil,
+      membership: nil,
+      impersonating_from: nil,
+      role: nil,
+      actor_type: nil
+    }
   end
 
   defp build_conn(scope, session) do
@@ -210,6 +220,13 @@ defmodule Sigra.Scope.PlugLiveViewParityTest do
       assert plug_scope.active_organization.id == lv_scope.active_organization.id
       assert plug_scope.membership.id == lv_scope.membership.id
       assert plug_scope.impersonating_from == lv_scope.impersonating_from
+      # Phase 92 / B2B-02 (Plan 92-03): both paths derive scope.role from
+      # the same membership.role atom via Sigra.Scope.Hydration.hydrate/3.
+      assert plug_scope.role == lv_scope.role
+      assert plug_scope.role == :admin
+      # actor_type stays nil on both paths under Phase 92.
+      assert plug_scope.actor_type == lv_scope.actor_type
+      assert is_nil(plug_scope.actor_type)
     end
 
     test "nil active_organization_id: both paths return the same zero-org scope" do
@@ -225,6 +242,8 @@ defmodule Sigra.Scope.PlugLiveViewParityTest do
       assert lv_scope == scope
       assert lv_scope.active_organization == nil
       assert lv_scope.membership == nil
+      # Phase 92: role stays nil on the zero-org branch.
+      assert is_nil(lv_scope.role)
 
       # Plug path
       conn = build_conn(scope, session)
@@ -234,6 +253,8 @@ defmodule Sigra.Scope.PlugLiveViewParityTest do
       assert plug_scope == scope
       assert plug_scope.active_organization == nil
       assert plug_scope.membership == nil
+      # Phase 92: plug path also leaves role nil (parity).
+      assert is_nil(plug_scope.role)
       refute plug_conn.halted
     end
 
@@ -280,6 +301,41 @@ defmodule Sigra.Scope.PlugLiveViewParityTest do
       refute plug_conn.halted
       assert plug_scope.active_organization == nil
       assert plug_scope.membership == nil
+      # Phase 92 / B2B-02 (Plan 92-03): on stale-pointer recovery the plug
+      # path leaves role nil (no membership → no role). The LV path saw the
+      # error tuple and never wrote a scope, so its role is also nil.
+      assert is_nil(plug_scope.role)
+    end
+
+    test "host-themed role atom: both paths propagate :tenant_lead from membership.role to scope.role" do
+      # Plan 92-01 made the seam role-agnostic; this test proves the plug ↔
+      # on_mount parity holds for a host-defined role atom that the library
+      # has never heard of.
+      user = build_user()
+      org = build_org()
+      membership = build_membership(user, org, :tenant_lead)
+      session = build_session(org.id, user.id)
+      scope = build_scope(user)
+
+      # LV path
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+      |> expect(:one, fn _query -> membership end)
+
+      assert {:ok, lv_scope} = Hydration.hydrate(scope, @test_config, session)
+      assert lv_scope.role == :tenant_lead
+
+      # Plug path
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+      |> expect(:one, fn _query -> membership end)
+
+      conn = build_conn(scope, session)
+      plug_conn = LoadActiveOrganization.call(conn, plug_opts())
+      plug_scope = plug_conn.assigns[:current_scope]
+
+      assert plug_scope.role == :tenant_lead
+      assert plug_scope.role == lv_scope.role
     end
   end
 end

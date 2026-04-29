@@ -29,6 +29,16 @@ defmodule Sigra.Plug.LoadActiveOrganization do
 
   No Plug session cookie writes. No halts. Phase 14 D-03, D-04, D-14, D-17.
 
+  ## Phase 92 / B2B-02 (Plan 92-03) — `:role` clearing on recovery
+
+  All recovery branches (single-org auto-reassign, zero-orgs, multi-org
+  picker, row-vanished WR-05) clear `scope.role` alongside `:membership`.
+  On successful single-org auto-reassign the new membership's role atom
+  is written onto `scope.role` — this is the stale-pointer-recovery
+  analog of the happy-path `Sigra.Scope.Hydration` seam. The shared-seam
+  contract holds: `:role` is populated only on successful org-active
+  enrichment and is nil on every other branch.
+
   ## Options
 
     * `:organizations` — required. The host's `use Sigra.Organizations` module,
@@ -116,7 +126,13 @@ defmodule Sigra.Plug.LoadActiveOrganization do
         # leave the request unhalted — the next request will re-hydrate
         # cleanly (or the auth plug will redirect to login if the session
         # is fully gone). Do NOT crash the request.
-        safe_scope = %{scope | active_organization: nil, membership: nil}
+        #
+        # Phase 92 / B2B-02 (Plan 92-03 Task 2): clear `:role` alongside
+        # membership on stale-pointer recovery. The shared-seam contract
+        # is "role is populated only when org-active enrichment
+        # succeeds, and is nil on zero-org, clear, stale-pointer, and
+        # userless branches" — this branch is the stale-pointer leg.
+        safe_scope = %{scope | active_organization: nil, membership: nil, role: nil}
         Plug.Conn.assign(conn, :current_scope, safe_scope)
     end
   end
@@ -174,20 +190,35 @@ defmodule Sigra.Plug.LoadActiveOrganization do
     # empty scope rather than MatchError'ing mid-pipeline.
     case session_store.update_active_organization(cleared_session, new_org.id, store_opts) do
       {:ok, refreshed} ->
-        {refreshed, %{scope | active_organization: new_org, membership: membership}}
+        # Phase 92 / B2B-02 (Plan 92-03 Task 2): on successful auto-reassign
+        # the new membership IS the authoritative source of `:role` — this
+        # is the stale-pointer-recovery analog of the happy-path Hydration
+        # seam (`Sigra.Scope.Hydration` writes role on successful org-active
+        # enrichment; this branch reaches the same end state via a different
+        # selector). `Map.get/3` tolerates a nil-role membership.
+        {refreshed,
+         %{
+           scope
+           | active_organization: new_org,
+             membership: membership,
+             role: Map.get(membership, :role)
+         }}
 
       {:error, _reason} ->
-        {cleared_session, %{scope | active_organization: nil, membership: nil}}
+        # Phase 92: clear role alongside membership on the safe-empty fallback.
+        {cleared_session, %{scope | active_organization: nil, membership: nil, role: nil}}
     end
   end
 
   defp apply_selection({:none, :zero_orgs}, scope, cleared, _store, _opts) do
-    {cleared, %{scope | active_organization: nil, membership: nil}}
+    # Phase 92: clear role alongside membership on the zero-orgs branch.
+    {cleared, %{scope | active_organization: nil, membership: nil, role: nil}}
   end
 
   defp apply_selection({:multiple, _orgs}, scope, cleared, _store, _opts) do
     # v1.1: leave nil; user sees the picker on the next RequireMembership hit.
-    {cleared, %{scope | active_organization: nil, membership: nil}}
+    # Phase 92: clear role alongside membership on the picker-required branch.
+    {cleared, %{scope | active_organization: nil, membership: nil, role: nil}}
   end
 
   # IN-01: If the caller did not thread `:audit_opts`, derive `[repo:,

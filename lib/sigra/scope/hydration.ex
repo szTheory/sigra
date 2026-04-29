@@ -28,6 +28,27 @@ defmodule Sigra.Scope.Hydration do
   twice with the same inputs yields structurally-equal scopes.
 
   Source of truth: Phase 14 CONTEXT.md D-01 / D-14 / D-23.
+
+  ## Phase 92 / B2B-02 (Plan 92-03) — `:role` propagation
+
+  On successful org-active hydration this module copies `membership.role`
+  onto `scope.role`. This is the **only** Phase 92 library seam that
+  populates `:role` from a membership read; `Sigra.Plug.PutActiveOrganization`
+  is the only OTHER seam that writes `:role`, and only in lockstep with
+  membership transitions.
+
+  `Sigra.Plug.FetchSession` and `Sigra.Plug.FetchBearer` MUST NOT touch
+  `:role` — they enrich identity, not authorization context. The
+  Phase 14 D-23 plug ↔ on_mount parity also implies role parity: both
+  paths flow through this hydrator.
+
+  Error tuples (`:not_a_member`, `:org_not_found`) and the nil-pointer /
+  nil-user branches do NOT propagate a role atom. Callers that take the
+  recovery branch (`Sigra.Plug.LoadActiveOrganization`) clear `:role`
+  explicitly when they synthesize a no-org scope.
+
+  `:actor_type` is reserved Phase 93 prep — this module does not branch
+  on it under Phase 92.
   """
 
   alias Sigra.Organizations
@@ -80,7 +101,20 @@ defmodule Sigra.Scope.Hydration do
             {:error, :not_a_member}
 
           membership ->
-            {:ok, %{scope | active_organization: org, membership: membership}}
+            # Phase 92 / B2B-02 (Plan 92-03 Task 2): the shared seam derives
+            # `scope.role` from `membership.role` only on successful
+            # org-active enrichment. `Map.get/3` tolerates a membership
+            # struct without a `:role` key (defense-in-depth — host
+            # OrganizationMembership schemas may add the field at any
+            # point) and a nil role value (Plan 92-02 made the column
+            # nullable + plain :string with no opinionated default).
+            {:ok,
+             %{
+               scope
+               | active_organization: org,
+                 membership: membership,
+                 role: Map.get(membership, :role)
+             }}
         end
 
       {:error, :not_found} ->

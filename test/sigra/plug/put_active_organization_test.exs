@@ -50,11 +50,20 @@ defmodule Sigra.Plug.PutActiveOrganizationTest do
   end
 
   defmodule TestScope do
-    defstruct [:user, :active_organization, :membership, :impersonating_from]
+    # Plan 92-02 reserved `:role` and `:actor_type` on the generated scope
+    # struct. Plan 92-03 wires `:role` propagation through the authoritative
+    # PutActiveOrganization seam.
+    defstruct [:user, :active_organization, :membership, :impersonating_from, :role, :actor_type]
 
     # Test-local scope module that records calls to put_active_organization/3
     # so we can assert the orchestrator resolved the module via config and not
     # a hardcoded Sigra.Scope.
+    #
+    # NOTE: this stub deliberately does NOT update :role itself — the library
+    # plug `Sigra.Plug.PutActiveOrganization` is the single authoritative
+    # seam for role updates (per Plan 92-03 must-haves), so the test scope
+    # module remains role-agnostic. The plug must apply the role write after
+    # the scope_module call returns; tests below assert the post-condition.
     def put_active_organization(%__MODULE__{} = scope, nil, nil) do
       Process.put(:test_scope_calls, Process.get(:test_scope_calls, []) ++ [{:clear}])
       %{scope | active_organization: nil, membership: nil}
@@ -151,7 +160,9 @@ defmodule Sigra.Plug.PutActiveOrganizationTest do
       user: user,
       active_organization: org,
       membership: membership,
-      impersonating_from: nil
+      impersonating_from: nil,
+      role: membership && membership.role,
+      actor_type: nil
     }
   end
 
@@ -195,6 +206,9 @@ defmodule Sigra.Plug.PutActiveOrganizationTest do
       assert updated_conn.private[:sigra_session].active_organization_id == org.id
       assert updated_conn.assigns[:current_scope].active_organization.id == org.id
       assert updated_conn.assigns[:current_scope].membership.id == membership.id
+      # Phase 92 / B2B-02 (Plan 92-03): role is set from membership.role at
+      # this single authoritative seam.
+      assert updated_conn.assigns[:current_scope].role == membership.role
       # TestScope.put_active_organization was invoked.
       assert [{:set, org_id, m_id}] = Process.get(:test_scope_calls)
       assert org_id == org.id
@@ -260,6 +274,12 @@ defmodule Sigra.Plug.PutActiveOrganizationTest do
       scope = build_scope(user, org, membership)
       conn = build_conn(scope, session)
 
+      # Pre-condition: the scope arrived with a populated role atom (built
+      # from membership.role inside build_scope/3). After clear, role MUST
+      # be nil — Plan 92-03 must-have: clear-path nils out role alongside
+      # membership.
+      assert scope.role == membership.role
+
       cleared = %{session | active_organization_id: nil}
 
       Sigra.MockSessionStore
@@ -270,9 +290,109 @@ defmodule Sigra.Plug.PutActiveOrganizationTest do
       assert updated_conn.private[:sigra_session].active_organization_id == nil
       assert updated_conn.assigns[:current_scope].active_organization == nil
       assert updated_conn.assigns[:current_scope].membership == nil
+      # Phase 92 / B2B-02 (Plan 92-03): role is cleared alongside membership.
+      assert is_nil(updated_conn.assigns[:current_scope].role)
       assert [{:clear}] = Process.get(:test_scope_calls)
       # D-17 / D-18: no put_session, no configure_session.
       assert get_session(updated_conn, :active_organization_id) == nil
+    end
+  end
+
+  describe "Phase 92 / B2B-02 — :role propagation (Plan 92-03 Task 2)" do
+    test "set path: writes scope.role from membership.role using a host-themed role atom" do
+      # Plan 92-01 made the seam role-agnostic. This test proves the plug
+      # accepts an atom the library has never heard of.
+      user = build_user()
+      org = build_org()
+      membership = build_membership(user, org, :tenant_lead)
+      session = build_session(nil, user.id)
+      scope = build_scope(user)
+      conn = build_conn(scope, session)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> membership end)
+
+      Sigra.MockSessionStore
+      |> expect(:update_active_organization, fn _, _, _ ->
+        {:ok, %{session | active_organization_id: org.id}}
+      end)
+
+      assert {:ok, updated_conn} = PutActiveOrganization.call(conn, org, call_opts())
+      assert updated_conn.assigns[:current_scope].role == :tenant_lead
+    end
+
+    test "set path: writes nil scope.role when membership.role is nil" do
+      # Plan 92-02 made membership.role nullable. The seam must propagate
+      # nil verbatim and not invent an opinionated default.
+      user = build_user()
+      org = build_org()
+      membership = %{build_membership(user, org) | role: nil}
+      session = build_session(nil, user.id)
+      scope = build_scope(user)
+      conn = build_conn(scope, session)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> membership end)
+
+      Sigra.MockSessionStore
+      |> expect(:update_active_organization, fn _, _, _ ->
+        {:ok, %{session | active_organization_id: org.id}}
+      end)
+
+      assert {:ok, updated_conn} = PutActiveOrganization.call(conn, org, call_opts())
+      assert is_nil(updated_conn.assigns[:current_scope].role)
+    end
+
+    test ":not_a_member error path does NOT write role onto the scope (T-92-08)" do
+      # T-92-08: clear role when clearing membership and reuse the
+      # authoritative membership check before writes. This test pins that
+      # if get_membership returns nil, no role is written.
+      user = build_user()
+      org = build_org()
+      session = build_session(nil, user.id)
+      # Pre-existing scope arrives with a stale role (defense-in-depth):
+      # if the plug ever leaks role through the no-membership branch it
+      # would surface here.
+      scope = %{build_scope(user) | role: :stale_atom}
+      conn = build_conn(scope, session)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> nil end)
+
+      assert {:error, :not_a_member} = PutActiveOrganization.call(conn, org, call_opts())
+      # Scope module was not invoked, no role write happened.
+      assert Process.get(:test_scope_calls, []) == []
+    end
+
+    test "actor_type stays nil under Phase 92 on both set and clear paths" do
+      # Phase 92 reserves but does not populate actor_type. The plug must
+      # not synthesize a value on either branch.
+      user = build_user()
+      org = build_org()
+      membership = build_membership(user, org, :admin)
+      session = build_session(nil, user.id)
+      scope = build_scope(user)
+      conn = build_conn(scope, session)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> membership end)
+
+      Sigra.MockSessionStore
+      |> expect(:update_active_organization, fn _, _, _ ->
+        {:ok, %{session | active_organization_id: org.id}}
+      end)
+
+      {:ok, set_conn} = PutActiveOrganization.call(conn, org, call_opts())
+      assert is_nil(set_conn.assigns[:current_scope].actor_type)
+
+      # Clear path
+      cleared_session = %{session | active_organization_id: nil}
+
+      Sigra.MockSessionStore
+      |> expect(:update_active_organization, fn _, nil, _ -> {:ok, cleared_session} end)
+
+      {:ok, clear_conn} = PutActiveOrganization.call(set_conn, nil, call_opts())
+      assert is_nil(clear_conn.assigns[:current_scope].actor_type)
     end
   end
 
