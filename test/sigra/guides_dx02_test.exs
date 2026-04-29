@@ -220,7 +220,7 @@ defmodule Sigra.GuidesDx02Test do
              "mix.exs must set docs main: \"getting-started\" (plan 10-05 Task 1 Step F)"
     end
 
-    test "all 17 expected guide files exist" do
+    test "all 18 expected guide files exist" do
       expected =
         [
           "introduction/getting-started.md",
@@ -239,7 +239,12 @@ defmodule Sigra.GuidesDx02Test do
           "recipes/multi-tenant.md",
           "recipes/passkeys.md",
           "recipes/deployment.md",
-          "recipes/subdomain-auth.md"
+          "recipes/subdomain-auth.md",
+          # Phase 92 / B2B-02 (Plan 92-04): RBAC seam recipe — concrete
+          # deny-by-default walk-through using a host-owned `owner/admin/member`
+          # policy. The library ships only the `Sigra.Authz` behaviour; the
+          # recipe lives here as the host-facing companion.
+          "recipes/role-based-access-control.md"
         ]
         |> Enum.map(&Path.join(@guides_root, &1))
 
@@ -248,7 +253,7 @@ defmodule Sigra.GuidesDx02Test do
       assert missing == [],
              "Missing expected guide files: #{Enum.join(missing, ", ")}"
 
-      assert length(expected) == 17
+      assert length(expected) == 18
     end
 
     test "subdomain-auth.md mentions cookie_domain (10-03 -> 10-04 consistency)" do

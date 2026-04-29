@@ -201,6 +201,7 @@ defmodule Sigra.MixProject do
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
         "guides/recipes/multi-tenant.md",
+        "guides/recipes/role-based-access-control.md",
         "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md",
         "guides/recipes/companion-oauth-provider.md"
