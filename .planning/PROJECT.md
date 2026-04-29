@@ -18,23 +18,25 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-## Current Milestone: v1.20 GA Launch — SEED closure + public release
+## Current Milestone: v1.21 B2B-ready & production-honest
 
-**Goal:** Close the last two trust-surface gates (**SEED-001** GA UAT closure, **SEED-002** OAuth audit atomicity) and execute Sigra's first public release per the v1.5 **`MAINT-01`** checklist — turning Sigra from "evidence-capable, on-disk only" into "publicly available, used in production."
+**Goal:** Move Sigra from "solo-SaaS-ready" to "B2B-SaaS-ready" by shipping the highest-needle adoption blockers (org-level MFA enforcement, RBAC seams, M2M tokens) bundled with the highest-pain hardening items (Postgres-only honesty, optional-dep boot validation, OAuth refresh for non-Google providers, rate-limit headers). First milestone after v1.20 public launch — first real adopters arrive into a library that doesn't quietly mislead them.
 
 **Target features (3 legs):**
 
-- **SEED-002 — OAuth audit atomicity closure** — Convert remaining `log_safe/3` OAuth/ops clusters in **Phase 45 T2** (**052–056**, **058**, **063**) to atomic **`Repo.transaction/1` + `Ecto.Multi` + `log_multi_safe`**. Refresh **`45-AUD-04-INVENTORY.md`**, **`09-VERIFICATION.md`** C-1 matrix, **`09-03-SUMMARY.md`**. Downgrade Phase 9 **C-1** from **PASS-WITH-CAVEATS → PASS**. Audit-aware tests; `CHANGELOG [Unreleased]`.
-- **SEED-001 — GA UAT closure** — Close all 8 GA-risk items with merge-blocking machine evidence: email visual regression, generated-host OAuth install proof, issuer-backed OAuth browser flows, MFA backup-code rotation E2E, and generated-host getting-started install/runtime proof. File **`.planning/v1.20-GA-UAT-RESULTS.md`** against the exact release SHA/tag; archive evidence under **`.planning/uat-evidence/v1.20/`**.
-- **Public launch execution** — Tag **v1.20**; **`mix hex.publish`**; promote README from "production readiness available" to "use this in production" with v1.20 evidence/closure pointers; write + publish announcement post (positioning vs Pow / phx.gen.auth, why hybrid lib+generator, getting-started link); HN submission with outcome captured; Elixir community soft-launch (Discord/forum); add **`MAINTAINING.md`** post-launch monitoring lane (24h / 7d / 30d cadence: issues, Hex downloads, GitHub stars, triage SLA).
+- **B2B trust** — `Sigra.Plug.RequireOrgMfa` plug + `enforce_mfa_for_members` org setting + admin LiveView toggle + atomic audit row (**B2B-01**); `role` field on `OrganizationMembership` schema + `Sigra.Authz` `can?/3` behaviour + scope-struct `:role` + recipe doc (seams only, no built-in roles) (**B2B-02**); org-scoped service accounts with `client_credentials` grant on JWT path + admin LiveView for issue/list/revoke + new `service_account.*` audit category (**B2B-03**).
+- **Production hardening** — Drop unimplemented MySQL/SQLite migration branches; generator pre-flight refuses non-Postgres adapter; PROJECT.md / README / mix.exs / getting-started realigned (**HARD-01**). `Sigra.OptionalDeps` SOT module + raise-on-missing for Oban / Bcrypt / EQRCode + `mix sigra.doctor` task + CI matrix that toggles each optional dep off (**HARD-02**). Per-provider OAuth refresh for GitHub / Apple / Facebook / Generic via Assent (replacing `lib/sigra/oauth.ex:174` "not yet implemented") + atomic `oauth.token_refreshed` audit row (**HARD-03**).
+- **API polish** — `Sigra.Plug.RateLimitHeaders` exposing `X-RateLimit-Limit` / `Remaining` / `Reset` / `Retry-After` from Hammer state (**API-01**).
 
-**Selected seeds:** **SEED-001** (GA UAT closure) + **SEED-002** (OAuth audit atomicity remainder) — both close in this milestone.
+**Selected seeds:** none — SEED-001 / SEED-002 closed in v1.20; no SEED matches v1.21 scope.
 
-**Explicit non-goals:** **`sigra_lockspire`** / **ADR 001** glue package (still awaiting companion-app trigger); **999.x** Nyquist archaeology; responding to week-one launch feedback (deferred to a follow-up milestone if signal warrants).
+**Explicit non-goals:** webhooks / outbound event pipeline (deferred to v1.22 — needs its own design phase); session UX completeness (named devices, "logout everywhere except this"); email template overrides + i18n + bounce handling; passkey multi-authenticator + recovery; DataExport depth (audit export, anonymize-in-place); built-in opinionated roles (RBAC stays seams-only); MySQL / SQLite (explicitly removed via **HARD-01**); `sigra_lockspire` / **ADR 001** glue package; **999.x** archaeology; announcement / blog / HN / community work; SAML / OAuth IdP / SCIM / full RBAC engine.
 
 Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.
 
 ### Previously closed milestones
+
+**v1.20 — GA Launch (SEED closure + public release)** — **Phases 85–90** (shipped **2026-04-28**). Closed **SEED-002** OAuth audit atomicity remainder (Phase **45 T2** clusters **052–056**, **058**, **063** to atomic **`Multi` + `log_multi_safe`**; Phase 9 **C-1 PASS-WITH-CAVEATS → PASS**). Closed **SEED-001** GA UAT — all 8 rows machine-substituted via Playwright + Premailex (**GAUAT-01..09**) with evidence under **`.planning/uat-evidence/v1.20/`**. Public launch via **`mix hex.publish`** v1.20.0 + README "use this in production" promotion + CHANGELOG alignment (**LAUNCH-01..07**). **Phase 90** publicity / monitoring waived. Archives: [`.planning/milestones/v1.20-ROADMAP.md`](milestones/v1.20-ROADMAP.md), [`v1.20-REQUIREMENTS.md`](milestones/v1.20-REQUIREMENTS.md), [`v1.20-MILESTONE-AUDIT.md`](milestones/v1.20-MILESTONE-AUDIT.md).
 
 **v1.19 — JWT refresh persistence + audit co-fate & MFA enrollment failure (SEED-002)** — **Phases 82–83** (shipped **2026-04-24**). Closed the **v1.18** footnote deferral: **JWT `user_tokens` rotation** (`Sigra.JWT.RefreshToken` / **`Sigra.JWT.refresh/3`**) shares a **single transactional boundary** with **`api.jwt_refresh`** / **`api.jwt_refresh_reuse`** audit rows when `:audit_schema` is set. Second tranche: **`AUD-04-022`** / **`EX-44-02`** — invalid pre-DB TOTP on **`Sigra.MFA.confirm_enrollment/5`** promoted to the same **`Multi` + `log_multi_safe`** discipline where semantics allow. Plus **Phase 84** routing-honesty reconciliation (**2026-04-25**).
 
@@ -64,7 +66,9 @@ Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`**.
 
 ## Current State
 
-**v1.20 (started 2026-04-25):** Defining requirements — three legs (**SEED-002** OAuth audit atomicity closure, **SEED-001** GA UAT closure, public launch per v1.5 **`MAINT-01`** checklist). Phase numbering continues from **Phase 84** (last completed); **`--reset-phase-numbers`** not used. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** drafting.
+**v1.21 (started 2026-04-28):** Defining requirements — three legs (B2B trust: org MFA enforcement / RBAC seams / M2M tokens; production hardening: Postgres-only declaration / optional-dep boot validation / OAuth refresh; API polish: rate-limit headers). Phase numbering continues from **Phase 90** (last completed); **`--reset-phase-numbers`** not used. Live **`.planning/REQUIREMENTS.md`** + **`.planning/ROADMAP.md`** drafting.
+
+**v1.20 (shipped 2026-04-28):** Phases **85–90** — **AUD-21** (OAuth audit atomicity closure: Phase 45 T2 clusters 052–056 / 058 / 063 → atomic `Multi`; Phase 9 **C-1 PASS-WITH-CAVEATS → PASS**), **GAUAT-01..09** (machine substitutes for all 8 SEED-001 rows via Playwright + Premailex; evidence at `.planning/uat-evidence/v1.20/`), **LAUNCH-01..07** (Hex v1.20.0 push + README promotion + CHANGELOG alignment). Phase 90 publicity / monitoring waived. Verification: `.planning/phases/89-pre-launch-hex-publish/`, milestone audit `.planning/milestones/v1.20-MILESTONE-AUDIT.md`.
 
 **v1.19 (shipped 2026-04-24):** Phases **82–83** — **AUD-19** (JWT **`user_tokens`** persistence + **`api.jwt_refresh*`** co-fate) + **AUD-20** (**`AUD-04-022`** invalid-code → **`commit_ad_hoc_mfa_audit/5`**). **`83-VERIFICATION.md`** / **`82-VERIFICATION.md`** merge gates. **Phase 84** routing-honesty reconciliation closed **2026-04-25** (`84-VERIFICATION.md`).
 
@@ -106,11 +110,15 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.20 is active** (started **2026-04-25**) and bundles all three remaining "before megaphone launch" gates: **SEED-001** GA UAT closure, **SEED-002** Phase **45 T2** OAuth audit atomicity closure (**052–056**, **058**, **063**), and the public launch sequence (Hex push, README promotion, announcement post, HN, Elixir community soft-launch, post-launch monitoring lane).
+**v1.21 is active** (started **2026-04-28**) and bundles three legs:
+- **B2B trust** (B2B-01..03): org MFA enforcement, RBAC seams (no built-in roles), M2M / service-account tokens with `client_credentials` grant.
+- **Production hardening** (HARD-01..03): Postgres-only declaration (drop unimplemented MySQL / SQLite branches), optional-dep boot validation + `mix sigra.doctor`, OAuth refresh for non-Google providers (GitHub / Apple / Facebook / Generic).
+- **API polish** (API-01): `X-RateLimit-*` HTTP headers on the dual-mode auth plug.
 
-**Later candidates (post–v1.20):**
+**Later candidates (post–v1.21):**
+- **Webhooks / outbound event pipeline** — deferred to **v1.22** as its own focused milestone (event schema, signed delivery, retry / dead-letter, host configuration UX).
+- Session UX completeness, email template overrides + i18n + bounce handling, passkey multi-authenticator + recovery, DataExport depth — Tier 3 polish, schedule when adopter demand surfaces.
 - **`sigra_lockspire`** glue package per **ADR 001** — only after a real companion-app trigger fires.
-- Week-one launch-feedback follow-ups — sized as a **v1.21** patch milestone if signal warrants; not pre-scoped.
 - Any newly identified validation / assurance work uses newly numbered phases (no **999.x** reuse).
 
 **Backlog / hygiene:** **`999.1`** / **999.x** remain archaeology only; see **`.planning/ROADMAP.md`** and **`999.1-*`** tombstone files. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** / **`*-VALIDATION.md`** over conflicting **`STATE.md`** notes.
@@ -143,14 +151,26 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.20 GA Launch (in progress)
+### Active — v1.21 B2B-ready & production-honest (in progress)
 
-_See **`.planning/REQUIREMENTS.md`** for the full v1.20 REQ-ID list (LAUNCH-*, AUD-21-*, GAUAT-*). Three legs: SEED-002 OAuth audit atomicity closure, SEED-001 GA UAT closure, public launch execution._
+_See **`.planning/REQUIREMENTS.md`** for the full v1.21 REQ-ID list (B2B-01..03, HARD-01..03, API-01). Three legs: B2B trust, production hardening, API polish._
 
-- ✓ **LAUNCH-01, LAUNCH-02, LAUNCH-07** — Pre-launch Hex publish and README promotion — **Phase 89** (Validated in Phase 89: pre-launch-hex-publish)
+- [ ] **B2B-01** — Org-level MFA enforcement (`enforce_mfa_for_members` + `Sigra.Plug.RequireOrgMfa` + admin LiveView toggle + atomic audit row)
+- [ ] **B2B-02** — RBAC seams (role field on `OrganizationMembership` + `Sigra.Authz.can?/3` behaviour + scope `:role` + recipe doc; no built-in roles)
+- [ ] **B2B-03** — M2M / service-account tokens (org-scoped table + `client_credentials` JWT grant + admin LiveView + new audit category)
+- [ ] **HARD-01** — Postgres-only declaration (drop MySQL/SQLite migration branches; generator pre-flight refuses non-Postgres adapter)
+- [ ] **HARD-02** — Optional-dep boot validation (`Sigra.OptionalDeps` SOT + raise-on-missing + `mix sigra.doctor` + CI matrix)
+- [ ] **HARD-03** — OAuth refresh for non-Google providers (GitHub / Apple / Facebook / Generic via Assent + atomic `oauth.token_refreshed` audit row)
+- [ ] **API-01** — Rate-limit HTTP headers (`X-RateLimit-*` + `Retry-After` from Hammer state on the dual-mode auth plug)
+
+### Validated — v1.20 GA Launch (shipped 2026-04-28)
+
+- ✓ **LAUNCH-01, LAUNCH-02, LAUNCH-07** — Pre-launch Hex publish and README promotion — **Phase 89**
 - ✓ **AUD-21** — OAuth audit atomicity closure (Phase 45 T2 cluster: 052–056, 058, 063 → atomic) — **Phase 85** (2026-04-25)
 - ✓ **GAUAT-01** — Phase 04 lockout + suspicious-login email visual regression: 8 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-04/`, 0-human-MUA — **Phase 86** (2026-04-26)
 - ✓ **GAUAT-02** — Phase 08 lifecycle email visual regression: 28 baselines, evidence under `.planning/uat-evidence/v1.20/email-phase-08/`, same residual policy as GAUAT-01 — **Phase 86** (2026-04-26)
+- ✓ **GAUAT-03..09** — OAuth real-credential cycles + MFA backup-code rotation E2E + clean-machine getting-started — **Phases 87–88** (2026-04-26..28)
+- ✓ **LAUNCH-03..06** — CHANGELOG alignment + maintainer monitoring lane (Phase 90 publicity / HN / community soft-launch waived per user direction)
 
 ### Validated — v1.19 JWT persistence + audit co-fate & MFA invalid-code audit (shipped in-repo 2026-04-24)
 
@@ -499,4 +519,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-28 — **Phase 88** complete: GAUAT closing cluster + SEED-001 closure. Captured GAUAT-07 and GAUAT-08 evidence bundles via Playwright lane and generated-host smoke tests, updating SEED-001 honestly.*
+*Last updated: 2026-04-28 — `/gsd-new-milestone` opened **v1.21 B2B-ready & production-honest**. Six phases (91-96) covering B2B trust (org MFA, RBAC seams, M2M tokens), production hardening (Postgres-only declaration, optional-dep validation, OAuth refresh), and API polish (rate-limit headers). Webhooks deferred to v1.22.*
