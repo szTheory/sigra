@@ -257,7 +257,27 @@ defmodule Sigra.Plug.RequireAdminAccessTest do
         %{organization_id: "org-3", role: :member}
       ]
 
-      assert Policy.admin_org_ids_from_memberships(memberships) == ["org-1", "org-2"]
+      # Phase 92-01 / B2B-02: `:roles` is now required — the library no
+      # longer ships an implicit `[:owner, :admin]` default. Pass the
+      # admin-equivalent role list explicitly at the call site.
+      assert Policy.admin_org_ids_from_memberships(memberships, roles: [:owner, :admin]) ==
+               ["org-1", "org-2"]
+    end
+
+    test "raises KeyError when :roles option is missing (Phase 92-01)" do
+      memberships = [%{organization_id: "org-1", role: :owner}]
+
+      assert_raise KeyError, ~r/:roles/, fn ->
+        Policy.admin_org_ids_from_memberships(memberships, [])
+      end
+    end
+
+    test "raises ArgumentError when :roles is not a list of atoms (Phase 92-01)" do
+      memberships = [%{organization_id: "org-1", role: :owner}]
+
+      assert_raise ArgumentError, ~r/list of atoms/, fn ->
+        Policy.admin_org_ids_from_memberships(memberships, roles: ["owner"])
+      end
     end
   end
 end

@@ -20,15 +20,17 @@ defmodule Sigra.Plug.RequireMembershipTest do
     defstruct [:id]
   end
 
-  # IN-03: Host org module with an extended role list. `init/1` should read
-  # `__sigra_org_config__().roles` and accept custom atoms (`:viewer`,
-  # `:billing`) that are NOT in the canonical `[:owner, :admin, :member]`.
+  # IN-03 / Phase 92-01: Host org module with an explicit host-owned role
+  # list. `init/1` reads `__sigra_org_config__().roles` directly — there
+  # is no library-canonical fallback any more. The atoms below are
+  # deliberately host-themed (`:tenant_lead`, `:site_admin`, `:viewer`,
+  # `:billing`) to prove the seam is genuinely role-agnostic.
   defmodule CustomRolesOrganizations do
     @config %{
       repo: Sigra.MockRepo,
       schemas: %{},
-      roles: [:owner, :admin, :member, :viewer, :billing],
-      owner_role: :owner,
+      roles: [:tenant_lead, :site_admin, :reviewer, :viewer, :billing],
+      owner_role: :tenant_lead,
       audit_schema: nil,
       hooks: []
     }
@@ -95,20 +97,34 @@ defmodule Sigra.Plug.RequireMembershipTest do
       assert Keyword.fetch!(opts, :error_handler) == FakeErrorHandler
     end
 
-    test "accepts a valid :roles subset" do
-      opts = RequireMembership.init(error_handler: FakeErrorHandler, roles: [:owner, :admin])
-      assert Keyword.fetch!(opts, :roles) == [:owner, :admin]
+    test "accepts a valid :roles subset against host org config (Phase 92-01)" do
+      opts =
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:tenant_lead, :site_admin]
+        )
+
+      assert Keyword.fetch!(opts, :roles) == [:tenant_lead, :site_admin]
     end
 
-    test "raises ArgumentError when :roles contains an unknown atom" do
+    test "raises ArgumentError when :roles contains an unknown atom against host org config" do
       assert_raise ArgumentError, ~r/unknown atoms.*:superadmin/, fn ->
-        RequireMembership.init(error_handler: FakeErrorHandler, roles: [:owner, :superadmin])
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:tenant_lead, :superadmin]
+        )
       end
     end
 
     test "raises ArgumentError when :roles is not a list of atoms" do
       assert_raise ArgumentError, ~r/must be a list of atoms/, fn ->
-        RequireMembership.init(error_handler: FakeErrorHandler, roles: ["owner"])
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: ["tenant_lead"]
+        )
       end
     end
 
@@ -128,15 +144,43 @@ defmodule Sigra.Plug.RequireMembershipTest do
         RequireMembership.init(
           error_handler: FakeErrorHandler,
           organizations: CustomRolesOrganizations,
-          roles: [:owner, :superadmin]
+          roles: [:tenant_lead, :superadmin]
         )
       end
     end
 
-    test "without :organizations, rejects custom roles against canonical universe" do
-      assert_raise ArgumentError, ~r/unknown atoms.*:viewer/, fn ->
+    test "Phase 92-01: raises when :roles is non-empty but :organizations is missing (no canonical fallback)" do
+      # Phase 92-01 removes the library-shipped `[:owner, :admin, :member]`
+      # canonical universe. Hosts that want to gate by role MUST tell the
+      # plug which org wrapper to read the role universe from. The error
+      # message must be actionable so router authors see how to fix it.
+      assert_raise ArgumentError, ~r/:organizations|host.*org/i, fn ->
         RequireMembership.init(error_handler: FakeErrorHandler, roles: [:viewer])
       end
+    end
+
+    test "Phase 92-01: empty :roles still init's without :organizations" do
+      # Membership-presence-only gating (D-07: any active membership OK)
+      # never needed to validate a role universe, so it must keep working
+      # without an `:organizations` reference.
+      opts = RequireMembership.init(error_handler: FakeErrorHandler)
+      assert Keyword.fetch!(opts, :roles) == []
+    end
+
+    test "Phase 92-01: error message names :organizations as the fix" do
+      err =
+        try do
+          RequireMembership.init(error_handler: FakeErrorHandler, roles: [:tenant_lead])
+        rescue
+          e in ArgumentError -> e
+        end
+
+      assert is_struct(err, ArgumentError),
+             "init/1 with :roles and no :organizations must raise ArgumentError"
+
+      assert err.message =~ ":organizations",
+             "error message must mention the :organizations option as the fix; got: " <>
+               inspect(err.message)
     end
   end
 
@@ -166,7 +210,7 @@ defmodule Sigra.Plug.RequireMembershipTest do
   describe "call/2 — role filtering" do
     test "passes through when :roles is [] regardless of the member's role (D-07)" do
       opts = RequireMembership.init(error_handler: BombErrorHandler, roles: [])
-      scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :member})
+      scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :viewer})
       conn = build_conn(scope)
 
       result = RequireMembership.call(conn, opts)
@@ -176,8 +220,16 @@ defmodule Sigra.Plug.RequireMembershipTest do
     end
 
     test "passes through when membership role is in the required list" do
-      opts = RequireMembership.init(error_handler: BombErrorHandler, roles: [:owner, :admin])
-      scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :admin})
+      opts =
+        RequireMembership.init(
+          error_handler: BombErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:tenant_lead, :site_admin]
+        )
+
+      scope =
+        build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :site_admin})
+
       conn = build_conn(scope)
 
       result = RequireMembership.call(conn, opts)
@@ -186,20 +238,36 @@ defmodule Sigra.Plug.RequireMembershipTest do
     end
 
     test "halts with :insufficient_role + forwards required_roles when role is not in list" do
-      opts = RequireMembership.init(error_handler: FakeErrorHandler, roles: [:owner])
-      scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :member})
+      opts =
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:tenant_lead]
+        )
+
+      scope =
+        build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :viewer})
+
       conn = build_conn(scope)
 
       result = RequireMembership.call(conn, opts)
 
       assert result.halted == true
       assert [{:insufficient_role, error_opts}] = Process.get(:fake_handler_calls)
-      assert Keyword.fetch!(error_opts, :required_roles) == [:owner]
+      assert Keyword.fetch!(error_opts, :required_roles) == [:tenant_lead]
     end
 
-    test "admin does NOT imply owner — hierarchical role confusion is rejected (T-14-11)" do
-      opts = RequireMembership.init(error_handler: FakeErrorHandler, roles: [:owner])
-      scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :admin})
+    test "admin-like roles do NOT imply tenant_lead — hierarchical role confusion is rejected (T-14-11)" do
+      opts =
+        RequireMembership.init(
+          error_handler: FakeErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:tenant_lead]
+        )
+
+      scope =
+        build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :site_admin})
+
       conn = build_conn(scope)
 
       result = RequireMembership.call(conn, opts)
@@ -212,11 +280,19 @@ defmodule Sigra.Plug.RequireMembershipTest do
   describe "no DB re-query (D-21)" do
     test "plug reads scope.membership.role and never re-fetches it" do
       # The contract: if the plug consulted the DB instead of scope.membership.role,
-      # it would see (for example) a :member role and halt. We set the scope
-      # membership to :owner and trust that; BombErrorHandler proves the plug
+      # it would see (for example) a non-matching role and halt. We set the scope
+      # membership to :tenant_lead and trust that; BombErrorHandler proves the plug
       # did NOT overrule it via a phantom re-query.
-      opts = RequireMembership.init(error_handler: BombErrorHandler, roles: [:owner])
-      scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :owner})
+      opts =
+        RequireMembership.init(
+          error_handler: BombErrorHandler,
+          organizations: CustomRolesOrganizations,
+          roles: [:tenant_lead]
+        )
+
+      scope =
+        build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :tenant_lead})
+
       conn = build_conn(scope)
 
       result = RequireMembership.call(conn, opts)
