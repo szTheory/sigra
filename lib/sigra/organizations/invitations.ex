@@ -51,15 +51,16 @@ defmodule Sigra.Organizations.Invitations do
 
   require Logger
 
-  @auth_roles [:owner, :admin]
-
   # ---------- create/2 ----------
 
   @doc """
   Create a pending invitation for `email` to join `organization_id` with `role`.
 
   Requires the actor (passed via `attrs.actor`) to carry a membership with
-  role in `#{inspect(@auth_roles)}`. Returns:
+  a role listed in the host's configured `:invitation_admin_roles`
+  (Phase 92 / B2B-02 — Plan 92-01 removed the implicit
+  invitation-admin default; hosts must declare the authorized roles
+  explicitly in `use Sigra.Organizations`). Returns:
 
     * `{:ok, %OrganizationInvitation{} = invitation}` — invitation row
       inserted, with an ephemeral `__encoded_token__` key on the struct
@@ -85,7 +86,7 @@ defmodule Sigra.Organizations.Invitations do
     :ok = assert_secret_key_base!(config)
     :ok = Sigra.Organizations.__warn_long_invitation_ttl__(config)
 
-    with :ok <- authorize_create(actor_scope),
+    with :ok <- authorize_create(config, actor_scope),
          :ok <- check_user_rate_limit(config, attrs.invited_by_id),
          :ok <- check_org_rate_limit(config, attrs.organization_id),
          {:ok, result} <- do_create(config, attrs) do
@@ -107,8 +108,32 @@ defmodule Sigra.Organizations.Invitations do
 
   defp assert_secret_key_base!(%{secret_key_base: s}) when is_binary(s), do: :ok
 
-  defp authorize_create(%{membership: %{role: role}}) when role in @auth_roles, do: :ok
-  defp authorize_create(_scope), do: {:error, :unauthorized}
+  defp authorize_create(config, %{membership: %{role: role}}) do
+    if role in fetch_invitation_admin_roles!(config),
+       do: :ok,
+       else: {:error, :unauthorized}
+  end
+
+  defp authorize_create(_config, _scope), do: {:error, :unauthorized}
+
+  # Phase 92-01: read the host-configured invitation admin role list. The
+  # library no longer ships a built-in role constant — the host must
+  # declare which configured roles confer invitation-admin privilege via
+  # `use Sigra.Organizations`.
+  defp fetch_invitation_admin_roles!(config) do
+    case Map.fetch(config, :invitation_admin_roles) do
+      {:ok, roles} when is_list(roles) and roles != [] ->
+        roles
+
+      _ ->
+        raise ArgumentError,
+              "Sigra.Organizations.Invitations requires :invitation_admin_roles in the " <>
+                "Sigra.Organizations config (Phase 92 / B2B-02 — Plan 92-01 removed the " <>
+                "implicit invitation-admin role default). Set " <>
+                "`invitation_admin_roles: [...]` in `use Sigra.Organizations` listing the " <>
+                "host roles authorized to create or revoke invitations."
+    end
+  end
 
   defp check_user_rate_limit(config, user_id) do
     case config.invitation_rate_limit_per_user do
@@ -653,12 +678,14 @@ defmodule Sigra.Organizations.Invitations do
   @doc """
   Revoke a pending invitation.
 
-  Requires the actor to carry a membership with role in
-  `#{inspect(@auth_roles)}`. Already-accepted or already-revoked
-  invitations return `{:error, :not_pending}` — the DB row is untouched.
-  Missing invitation id → `{:error, :not_found}`. The lookup is scoped
-  to `actor_scope.active_organization.id`; cross-tenant ids are
-  collapsed to `{:error, :not_found}` to prevent enumeration.
+  Requires the actor to carry a membership with a role listed in the
+  host's configured `:invitation_admin_roles` (Phase 92 / B2B-02 — Plan
+  92-01 removed the implicit invitation-admin default). Already-accepted
+  or already-revoked invitations return `{:error, :not_pending}` — the
+  DB row is untouched. Missing invitation id → `{:error, :not_found}`.
+  The lookup is scoped to `actor_scope.active_organization.id`;
+  cross-tenant ids are collapsed to `{:error, :not_found}` to prevent
+  enumeration.
   """
   @spec revoke(map(), integer() | binary(), map()) ::
           {:ok, struct()} | {:error, :not_pending | :unauthorized | :not_found}
@@ -666,28 +693,31 @@ defmodule Sigra.Organizations.Invitations do
         config,
         invitation_id,
         %{membership: %{role: role}, active_organization: %{id: org_id}} = actor_scope
-      )
-      when role in @auth_roles do
-    schema = config.schemas.invitation
+      ) do
+    if role in fetch_invitation_admin_roles!(config) do
+      schema = config.schemas.invitation
 
-    query =
-      from i in schema,
-        where: i.id == ^invitation_id and i.organization_id == ^org_id
+      query =
+        from i in schema,
+          where: i.id == ^invitation_id and i.organization_id == ^org_id
 
-    case config.repo.one(query) do
-      nil ->
-        # Collapses two cases onto one response to prevent cross-tenant
-        # enumeration: (a) id truly does not exist, (b) id exists in
-        # another org. Per CR-01 / INV-08 gap closure.
-        # No audit emission on the :not_found branch — cross-tenant
-        # probes are observable via future telemetry, tracked separately.
-        {:error, :not_found}
+      case config.repo.one(query) do
+        nil ->
+          # Collapses two cases onto one response to prevent cross-tenant
+          # enumeration: (a) id truly does not exist, (b) id exists in
+          # another org. Per CR-01 / INV-08 gap closure.
+          # No audit emission on the :not_found branch — cross-tenant
+          # probes are observable via future telemetry, tracked separately.
+          {:error, :not_found}
 
-      %{accepted_at: nil, revoked_at: nil} = inv ->
-        do_revoke(config, inv, actor_scope)
+        %{accepted_at: nil, revoked_at: nil} = inv ->
+          do_revoke(config, inv, actor_scope)
 
-      _inv ->
-        {:error, :not_pending}
+        _inv ->
+          {:error, :not_pending}
+      end
+    else
+      {:error, :unauthorized}
     end
   end
 

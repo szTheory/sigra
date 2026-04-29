@@ -67,13 +67,24 @@ defmodule Sigra.Organizations do
     ],
     roles: [
       type: {:list, :atom},
-      default: [:owner, :admin, :member],
-      doc: "Valid membership roles."
+      required: true,
+      doc: """
+      Valid membership roles. **Required as of Phase 92 / B2B-02 (Plan
+      92-01)** — the library no longer ships a canonical
+      role-list default. Generated host code (Plan 92-02) emits the
+      host-owned role list explicitly so the privilege taxonomy is
+      visible to reviewers.
+      """
     ],
     owner_role: [
       type: :atom,
-      default: :owner,
-      doc: "The role atom that designates an organization owner."
+      required: true,
+      doc: """
+      The role atom that designates an organization owner. **Required as
+      of Phase 92 / B2B-02 (Plan 92-01)** — the library no longer
+      defaults this to `:owner`. The atom must be a member of `:roles`.
+      Generated host code (Plan 92-02) emits this explicitly.
+      """
     ],
     reserved_slugs: [
       type: {:list, :string},
@@ -118,6 +129,18 @@ defmodule Sigra.Organizations do
       (`:timer.hours(24 * 7)`). A dev-mode warning is logged on first use if
       the configured value exceeds 30 days (phishing window guidance).
       Does not block runtime.
+      """
+    ],
+    invitation_admin_roles: [
+      type: {:list, :atom},
+      required: true,
+      doc: """
+      Membership roles authorized to create and revoke organization
+      invitations. **Required as of Phase 92 / B2B-02 (Plan 92-01)** —
+      the library no longer ships an implicit invitation-admin default.
+      Hosts must declare which configured roles count as
+      "invitation-admin" so the privilege contract is visible at
+      `use Sigra.Organizations`. Atoms here must be a subset of `:roles`.
       """
     ],
     invitation_rate_limit_per_user: [
@@ -848,8 +871,12 @@ defmodule Sigra.Organizations do
   ## Example — direct user
 
       config
-      |> Sigra.Organizations.add_member_multi(scope, org, user, :member)
+      |> Sigra.Organizations.add_member_multi(scope, org, user, host_role)
       |> config.repo.transact()
+
+  Where `host_role` is an atom drawn from the host's configured `:roles`
+  list. Phase 92 / B2B-02 (Plan 92-01) deliberately ships no library
+  role names; pass whatever the host defines.
 
   ## Example — composed with register_user_multi/2
 
@@ -862,7 +889,7 @@ defmodule Sigra.Organizations do
           scope,
           org,
           {:changes_key, :user},
-          :member
+          host_role
         )
 
       register_multi

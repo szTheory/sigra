@@ -8,36 +8,39 @@ defmodule Sigra.Plug.RequireMembership do
   pattern, same `error_handler` delegation, same halt shape. Any divergence
   from RequireScopes is a bug. Phase 14 D-05 / D-06 / D-07 / D-21.
 
+  ## Phase 92 / B2B-02 — explicit-only role universe
+
+  As of Phase 92 the library no longer ships a canonical fallback role
+  universe. Hosts that gate on `:roles` must thread the
+  `:organizations` option through so `init/1` can read the host's
+  configured `:roles` from `__sigra_org_config__/0`. Routers that omit
+  `:organizations` while passing `:roles` raise an actionable
+  `ArgumentError` with the fix.
+
+  Membership-presence-only gating (`:roles` empty or omitted) keeps
+  working without `:organizations` because there is nothing to validate.
+
   ## Options
 
     * `:error_handler` — **required**. Module implementing
       `Sigra.Plug.ErrorHandler`.
 
-    * `:roles` — optional list of atoms. Must be a subset of the host's
-      organization role universe. Default: `[]` (any active membership
-      accepted — D-07). Validation behavior depends on `:organizations`:
+    * `:roles` — optional list of atoms. Default: `[]` (any active
+      membership accepted — D-07). When non-empty, `:organizations` is
+      required so the plug can validate the requested atoms against the
+      host's configured role universe (`__sigra_org_config__/0` `:roles`).
 
-        - **Without `:organizations`:** Validated at `init/1` against the
-          library's canonical role universe (`[:owner, :admin, :member]`);
-          raises `ArgumentError` on typos.
-
-        - **With `:organizations`:** Validated at `init/1` against
-          `organizations.__sigra_org_config__().roles`, which is the
-          host's actual role list (Phase 14 D-05 / IN-03). This lets hosts
-          extend roles (`:viewer`, `:billing`, etc.) via the
-          `Sigra.Organizations` config without editing the library.
-
-    * `:organizations` — optional. The host's `use Sigra.Organizations`
-      module. When given, `init/1` reads the role universe from its
-      `__sigra_org_config__/0` so custom roles are recognized (IN-03). If the
-      org module is not yet compiled when the router is compiled, pass
-      nothing and the plug falls back to the canonical universe.
+    * `:organizations` — required when `:roles` is non-empty. The host's
+      `use Sigra.Organizations` module. `init/1` reads the role universe
+      from its `__sigra_org_config__/0` so custom roles
+      (`:tenant_lead`, `:viewer`, `:billing`, etc.) are recognized
+      without library changes.
 
   Reads `scope.membership.role` from assigns. **Never re-queries the DB** —
   the membership lookup was already performed by
   `Sigra.Plug.LoadActiveOrganization` and stashed on the scope struct. Set
-  membership semantics (D-06): `[:owner]` means "owner only"; it does NOT
-  imply admin.
+  membership semantics (D-06): a single-element required-roles list means
+  "that role only"; it does NOT imply a role hierarchy.
 
   ## Example
 
@@ -48,31 +51,25 @@ defmodule Sigra.Plug.RequireMembership do
       plug Sigra.Plug.RequireMembership,
         error_handler: MyAppWeb.AuthErrorHandler,
         organizations: MyApp.Organizations,
-        roles: [:owner, :admin]
+        roles: [:tenant_lead, :site_admin]
   """
 
   @behaviour Plug
 
-  # Canonical fallback universe when no `:organizations` module is provided.
-  # Hosts with extended role lists (`:viewer`, `:billing`, etc.) should pass
-  # `:organizations` so validation reads the host's actual `:roles` (IN-03).
-  @default_role_universe [:owner, :admin, :member]
-
   @doc """
   Initialize the plug with the given options.
 
-  Validates that `:error_handler` is present and that `:roles` (when given) is
-  a list of atoms drawn from the role universe. The role universe is the
-  host's `__sigra_org_config__/0` `:roles` when `:organizations` is passed,
-  otherwise `[:owner, :admin, :member]`. Raises `ArgumentError` with a
-  helpful message on typos.
+  Validates that `:error_handler` is present, that `:roles` (when given)
+  is a list of atoms, and that any non-empty `:roles` is paired with an
+  `:organizations` module so the role universe is host-supplied (Phase
+  92-01 — no library-canonical fallback). Raises `ArgumentError` with a
+  helpful message on misuse.
   """
   @doc since: "0.8.0"
   @impl Plug
   def init(opts) do
     error_handler = Keyword.fetch!(opts, :error_handler)
     required_roles = Keyword.get(opts, :roles, [])
-    role_universe = resolve_role_universe(opts)
 
     unless is_list(required_roles) and Enum.all?(required_roles, &is_atom/1) do
       raise ArgumentError,
@@ -80,13 +77,17 @@ defmodule Sigra.Plug.RequireMembership do
               inspect(required_roles)
     end
 
-    invalid = required_roles -- role_universe
+    if required_roles != [] do
+      role_universe = resolve_role_universe!(opts)
+      invalid = required_roles -- role_universe
 
-    unless invalid == [] do
-      raise ArgumentError,
-            "Sigra.Plug.RequireMembership :roles contains unknown atoms: " <>
-              inspect(invalid) <>
-              ". Valid roles: " <> inspect(role_universe)
+      unless invalid == [] do
+        raise ArgumentError,
+              "Sigra.Plug.RequireMembership :roles contains unknown atoms: " <>
+                inspect(invalid) <>
+                ". Valid roles (from #{inspect(Keyword.fetch!(opts, :organizations))} " <>
+                "via __sigra_org_config__/0): " <> inspect(role_universe)
+      end
     end
 
     opts
@@ -94,25 +95,39 @@ defmodule Sigra.Plug.RequireMembership do
     |> Keyword.put(:roles, required_roles)
   end
 
-  # IN-03: When a host `use Sigra.Organizations` module is passed, read its
-  # validated `:roles` list so hosts can extend the role universe without
-  # editing the library. If the module is present but not compiled yet (rare
-  # — would require a circular compile dep), or the accessor raises, fall
-  # back to the canonical list so `init/1` never crashes at compile time on a
-  # module-load race.
-  defp resolve_role_universe(opts) do
+  # Phase 92-01 / IN-03: Read the role universe from the host's
+  # `use Sigra.Organizations` module. The library no longer ships a
+  # canonical fallback list, so an :organizations module is required
+  # whenever :roles is non-empty. The error message names the
+  # :organizations option so router authors see the fix.
+  defp resolve_role_universe!(opts) do
     case Keyword.get(opts, :organizations) do
       nil ->
-        @default_role_universe
+        raise ArgumentError,
+              "Sigra.Plug.RequireMembership :roles is non-empty but :organizations " <>
+                "is missing. As of Phase 92 the library no longer ships a canonical " <>
+                "role universe — pass `organizations: MyApp.Organizations` so the " <>
+                "plug can read the host-configured :roles from __sigra_org_config__/0."
 
       module when is_atom(module) ->
         try do
           case module.__sigra_org_config__() do
-            %{roles: roles} when is_list(roles) -> roles
-            _ -> @default_role_universe
+            %{roles: roles} when is_list(roles) and roles != [] ->
+              roles
+
+            _ ->
+              raise ArgumentError,
+                    "Sigra.Plug.RequireMembership :organizations module #{inspect(module)} " <>
+                      "did not return a non-empty :roles list from __sigra_org_config__/0. " <>
+                      "Set `roles: [...]` in `use Sigra.Organizations` so the role universe " <>
+                      "is explicit."
           end
         rescue
-          UndefinedFunctionError -> @default_role_universe
+          UndefinedFunctionError ->
+            raise ArgumentError,
+                  "Sigra.Plug.RequireMembership :organizations module #{inspect(module)} " <>
+                    "does not export __sigra_org_config__/0. Make sure the module uses " <>
+                    "`use Sigra.Organizations` so the role universe is exposed."
         end
     end
   end
