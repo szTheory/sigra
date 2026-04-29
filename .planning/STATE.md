@@ -4,13 +4,13 @@ milestone: v1.21
 milestone_name: — active
 status: executing
 last_updated: "2026-04-29T18:52:44.808Z"
-last_activity: "2026-04-29 — Phase 92 (RBAC seams / B2B-02) execution started; plan 92-01 complete"
+last_activity: "2026-04-29 — Phase 92 wave 2 complete; plans 92-01 and 92-02 done"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 11
-  completed_plans: 8
-  percent: 72
+  completed_plans: 9
+  percent: 81
 ---
 
 # Project State
@@ -31,11 +31,11 @@ Milestone: **v1.21 B2B-ready & production-honest**
 
 Phase: 92 — EXECUTING
 
-Plan: 1/4 complete (92-01 done; 92-02, 92-03, 92-04 pending)
+Plan: 2/4 complete (92-01, 92-02 done; 92-03, 92-04 pending)
 
 Status: Executing Phase 92
 
-Last activity: 2026-04-29 — plan 92-01 complete; wave 2 dispatching
+Last activity: 2026-04-29 — wave 2 complete; wave 3 dispatching
 
 ## Decisions
 
