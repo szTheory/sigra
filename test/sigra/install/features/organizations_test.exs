@@ -591,10 +591,17 @@ defmodule Sigra.Install.Features.OrganizationsTest do
              `use Sigra.Organizations` config.
              """
 
-      # The role field declaration must still exist (Plan 92-02 doesn't
-      # remove the field — it just makes it nullable + non-opinionated).
-      assert template =~ ~r/field :role/,
-             "organization_membership.ex must still declare `field :role`"
+      # Phase 92 CR-02 fix: the field uses Sigra.Ecto.Types.RoleAtom so
+      # role values round-trip as atoms in Elixir code while the DB
+      # column stays a plain string the host can edit.
+      assert template =~ ~r/field :role,\s*Sigra\.Ecto\.Types\.RoleAtom/,
+             """
+             organization_membership.ex must declare
+             `field :role, Sigra.Ecto.Types.RoleAtom`. Phase 92 CR-02
+             fix: a plain `:string` field silently breaks atom
+             comparisons in `Sigra.Plug.RequireMembership` and the
+             last-owner guard — the custom type round-trips atoms.
+             """
     end
 
     test "changeset does not enforce :role as required (host-owned nullability)" do
@@ -621,8 +628,81 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     end
   end
 
+  describe "generated invitation schema role storage (Phase 92 CR-02 fix)" do
+    @invitation_template_path "priv/templates/sigra.install/organizations/organization_invitation.ex"
+
+    test "invitation schema role field uses Sigra.Ecto.Types.RoleAtom (no Ecto.Enum literal taxonomy)" do
+      template = File.read!(@invitation_template_path)
+
+      # CR-02 from Phase 92 code review: the invitation schema previously
+      # still hardcoded `Ecto.Enum, values: [:owner, :admin, :member]`
+      # while membership had been migrated. A host with a custom taxonomy
+      # would see Invitations.create/2 raise Ecto.ChangeError because
+      # their role atom is not in the literal Enum values list.
+      refute template =~ ~r/Ecto\.Enum,\s*values:\s*\[:owner,\s*:admin,\s*:member\]/,
+             """
+             organization_invitation.ex template must NOT hard-code
+             `Ecto.Enum, values: [:owner, :admin, :member]`. CR-02 from
+             the Phase 92 code review: this taxonomy literal breaks
+             custom-taxonomy hosts at invitation creation time. Use
+             Sigra.Ecto.Types.RoleAtom for the symmetric host-owned shape.
+             """
+
+      assert template =~ ~r/field :role,\s*Sigra\.Ecto\.Types\.RoleAtom/,
+             """
+             organization_invitation.ex must declare
+             `field :role, Sigra.Ecto.Types.RoleAtom` so it parallels
+             the membership schema and round-trips role atoms cleanly.
+             """
+    end
+  end
+
   describe "generated migration role column storage (Phase 92 Plan 92-02)" do
     @migration_template_path "priv/templates/sigra.install/organizations/migration.exs"
+
+    test "organization_invitations.role column is nullable with no default (CR-03 fix)" do
+      template = File.read!(@migration_template_path)
+
+      # CR-03 from Phase 92 code review: both adapter branches still
+      # emitted `add :role, :string, null: false, default: "member"` for
+      # invitations — the inverse of what Plan 92-02 did for memberships.
+      # The default "member" string baked the very taxonomy Phase 92 deletes
+      # into every fresh host install.
+      invitation_blocks = extract_create_table_blocks(template, "organization_invitations")
+
+      assert length(invitation_blocks) >= 1,
+             "expected at least one organization_invitations create-table block in migration template"
+
+      Enum.each(invitation_blocks, fn block ->
+        refute block =~ ~r/add :role, :string, null: false, default: "member"/,
+               """
+               organization_invitations block emits the pre-CR-03 role
+               column shape:
+
+                   #{Regex.run(~r/add :role[^\n]+/, block) |> inspect()}
+
+               CR-03 contract: invitations role column must mirror the
+               memberships shape — nullable string, no default. Drop both
+               `null: false` and `default: "member"`.
+               """
+
+        refute block =~ ~r/add :role, :string, null: false/,
+               """
+               organization_invitations role column must be nullable
+               (CR-03). Drop `null: false`.
+               """
+
+        refute block =~ ~r/add :role[^\n]*default:\s*"member"/,
+               """
+               organization_invitations role column must drop
+               `default: "member"` (CR-03) — the canonical taxonomy
+               default cannot ship in a host-owned-taxonomy world.
+               """
+
+        assert block =~ ~r/add :role/,
+               "organization_invitations block must still declare an `add :role` column"
+      end)
+    end
 
     test "organization_memberships.role column is nullable with no default" do
       template = File.read!(@migration_template_path)
