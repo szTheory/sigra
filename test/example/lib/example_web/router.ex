@@ -203,6 +203,9 @@ defmodule ExampleWeb.Router do
       scope_module: Example.Accounts.Scope
 
     plug Sigra.Plug.RequireMembership, error_handler: ExampleWeb.AuthErrorHandler
+    plug Sigra.Plug.RequireOrgMfa,
+      error_handler: ExampleWeb.AuthErrorHandler,
+      mfa_check_fn: &Example.Accounts.mfa_enabled?/1
   end
 
   scope "/", ExampleWeb do
@@ -231,7 +234,8 @@ defmodule ExampleWeb.Router do
         {ExampleWeb.UserAuth, :ensure_authenticated},
         {ExampleWeb.UserAuth, :assign_user_organizations},
         {Sigra.LiveView.OrganizationScope,
-         [organizations: Example.Organizations, scope_module: Example.Accounts.Scope]}
+         [organizations: Example.Organizations, scope_module: Example.Accounts.Scope]},
+        {Sigra.LiveView.RequireOrgMfa, [mfa_check_fn: &Example.Accounts.mfa_enabled?/1]}
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index

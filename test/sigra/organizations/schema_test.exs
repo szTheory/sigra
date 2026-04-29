@@ -19,6 +19,7 @@ defmodule Sigra.Organizations.SchemaTest do
       field :name, :string
       field :slug, :string
       field :deleted_at, :utc_datetime
+      field :enforce_mfa_for_members, :boolean, default: false
 
       timestamps(type: :utc_datetime)
     end
@@ -146,6 +147,15 @@ defmodule Sigra.Organizations.SchemaTest do
       changeset = Organization.changeset(%Organization{}, valid_org_attrs(%{deleted_at: now}))
       assert changeset.valid?
       assert Ecto.Changeset.get_field(changeset, :deleted_at) == now
+    end
+
+    test "enforce_mfa_for_members defaults false and is not user-castable" do
+      changeset =
+        Organization.changeset(%Organization{}, Map.put(valid_org_attrs(), :enforce_mfa_for_members, true))
+
+      assert changeset.valid?
+      assert Ecto.Changeset.get_change(changeset, :enforce_mfa_for_members) == nil
+      assert Ecto.Changeset.get_field(changeset, :enforce_mfa_for_members) == false
     end
   end
 

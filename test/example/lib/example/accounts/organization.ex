@@ -12,6 +12,8 @@ defmodule Example.Accounts.Organization do
     field :deleted_at, :utc_datetime
     # Phase 18 D-01: personal-workspace flag. Library-managed, NOT exposed via cast/3.
     field :personal, :boolean, default: false
+    # Phase 91 B2B-01: org-level MFA enforcement. Library-managed.
+    field :enforce_mfa_for_members, :boolean, default: false
 
     # Phase 18 D-00: sticky origin owner. Library sets via put_change/3 in
     # Sigra.Organizations.create_organization/3; NEVER exposed via cast/3.

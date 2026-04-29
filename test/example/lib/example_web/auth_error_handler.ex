@@ -55,4 +55,33 @@ defmodule ExampleWeb.AuthErrorHandler do
       "Not found. This organization admin scope is unavailable."
     )
   end
+
+  @impl true
+  def auth_error(conn, :no_active_org, _opts) do
+    conn
+    |> put_flash(:info, "Pick or create an organization to continue.")
+    |> redirect(to: ~p"/organizations")
+  end
+
+  @impl true
+  def auth_error(conn, :insufficient_role, _opts) do
+    conn
+    |> put_flash(:error, "You don't have permission to access this page in the current organization.")
+    |> put_status(:forbidden)
+    |> put_view(ExampleWeb.ErrorHTML)
+    |> render(:"403")
+    |> halt()
+  end
+
+  @impl true
+  def auth_error(conn, :org_mfa_required, opts) do
+    enrollment_path = Keyword.get(opts, :enrollment_path, ~p"/users/settings/mfa")
+
+    conn
+    |> put_flash(
+      :warning,
+      "Your organization requires two-factor authentication. Set up MFA below to continue."
+    )
+    |> redirect(to: enrollment_path)
+  end
 end

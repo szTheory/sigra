@@ -57,6 +57,20 @@ defmodule SigraInstallGoldenTmpWeb.AuthErrorHandler do
     |> halt()
   end
 
+
+  @impl true
+  def auth_error(conn, :org_mfa_required, opts) do
+    enrollment_path = Keyword.get(opts, :enrollment_path, ~p"/users/settings/mfa")
+
+    conn
+    |> put_flash(
+      :warning,
+      "Your organization requires two-factor authentication. Set up MFA below to continue."
+    )
+    |> redirect(to: enrollment_path)
+  end
+
+
   @impl true
   def auth_error(conn, :insufficient_scope, _opts) do
     conn

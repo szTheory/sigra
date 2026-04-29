@@ -12,6 +12,8 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
       add :owner_user_id, references(:users, type: :binary_id, on_delete: :nilify_all)
       # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
       add :personal, :boolean, null: false, default: false
+      # Phase 91 B2B-01: org-level MFA enforcement.
+      add :enforce_mfa_for_members, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
     end

@@ -32,7 +32,8 @@ defmodule <%= app_module %>.Organizations do
       invitation: <%= context_module %>.OrganizationInvitation,
       user: <%= context_module %>.<%= schema_alias %>,
       scope: <%= context_module %>.Scope
-    ]
+    ],
+    audit_schema: <%= context_module %>.AuditEvent
 
   @doc """
   Sets the active organization for the current request.
@@ -84,6 +85,26 @@ defmodule <%= app_module %>.Organizations do
         scope,
         scope.active_organization,
         params
+      )
+
+  @doc "Set org-level MFA enforcement for the active organization (Phase 91 B2B-01)."
+  def set_mfa_policy(scope, value),
+    do:
+      Sigra.Organizations.set_mfa_policy(
+        __sigra_org_config__(),
+        scope,
+        scope.active_organization,
+        value,
+        mfa_check_fn: &<%= context_module %>.mfa_enabled?/1
+      )
+
+  @doc "Count active-organization members without MFA enabled (Phase 91 B2B-01)."
+  def count_members_without_mfa(scope),
+    do:
+      Sigra.Organizations.count_members_without_mfa(
+        __sigra_org_config__(),
+        scope,
+        <%= context_module %>.UserMFACredential
       )
 
   # `list_members_with_activity/2` and `count_members/1` are injected by

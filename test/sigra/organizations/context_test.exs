@@ -16,6 +16,7 @@ defmodule Sigra.Organizations.ContextTest do
       # Phase 18: Sticky origin owner + personal-workspace flag.
       field :owner_user_id, :binary_id
       field :personal, :boolean, default: false
+      field :enforce_mfa_for_members, :boolean, default: false
       timestamps(type: :utc_datetime)
     end
   end

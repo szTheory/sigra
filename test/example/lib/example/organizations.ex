@@ -35,6 +35,7 @@ defmodule Example.Organizations do
       user: Example.Accounts.User,
       scope: Example.Accounts.Scope
     ],
+    audit_schema: Example.Accounts.AuditEvent,
     emails_module: Example.Accounts.Emails,
     secret_key_base: Application.compile_env!(:example, ExampleWeb.Endpoint)[:secret_key_base],
     url_builder: &Example.Organizations.__build_invite_url__/1,
@@ -112,6 +113,26 @@ defmodule Example.Organizations do
         scope,
         scope.active_organization,
         params
+      )
+
+  @doc "Set org-level MFA enforcement for the active organization."
+  def set_mfa_policy(scope, value),
+    do:
+      Sigra.Organizations.set_mfa_policy(
+        __sigra_org_config__(),
+        scope,
+        scope.active_organization,
+        value,
+        mfa_check_fn: &Example.Accounts.mfa_enabled?/1
+      )
+
+  @doc "Count active-organization members without MFA enabled."
+  def count_members_without_mfa(scope),
+    do:
+      Sigra.Organizations.count_members_without_mfa(
+        __sigra_org_config__(),
+        scope,
+        Example.Accounts.UserMFACredential
       )
 
   # `list_members_with_activity/2` and `count_members/1` are injected by

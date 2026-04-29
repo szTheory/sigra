@@ -646,7 +646,12 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
-    Sigra.MFA.enabled?(sigra_config(), user)
+    config =
+      Map.update(sigra_config(), :mfa, [mfa_credential_schema: UserMFACredential], fn mfa ->
+        Keyword.put(mfa || [], :mfa_credential_schema, UserMFACredential)
+      end)
+
+    Sigra.MFA.enabled?(config, user)
   end
 
   @doc "Upgrade an MFA-pending Sigra session after second-factor verification."

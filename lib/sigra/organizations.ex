@@ -705,6 +705,78 @@ defmodule Sigra.Organizations do
   end
 
   @doc """
+  Returns the count of active-organization members without MFA enabled.
+
+  The MFA enrollment check matches `Sigra.MFA.enabled?/2`: a member is counted
+  as enrolled only when a credential row exists with `enabled_at` set. When no
+  `mfa_credential_schema` is configured, every member is counted as not
+  enrolled.
+  """
+  @spec count_members_without_mfa(map(), map(), module() | nil) :: non_neg_integer()
+  def count_members_without_mfa(config, scope, mfa_credential_schema) do
+    org =
+      scope.active_organization ||
+        raise ArgumentError,
+              "count_members_without_mfa/3 requires scope.active_organization"
+
+    membership_schema = config.schemas.membership
+
+    case mfa_credential_schema do
+      nil ->
+        count_members(config, scope)
+
+      schema ->
+        enabled_users =
+          from(c in schema,
+            where: not is_nil(c.enabled_at),
+            distinct: c.user_id,
+            select: %{user_id: c.user_id}
+          )
+
+        from(m in membership_schema,
+          where: m.organization_id == ^org.id,
+          left_join: enabled in subquery(enabled_users),
+          on: enabled.user_id == m.user_id,
+          where: is_nil(enabled.user_id),
+          select: count(m.id)
+        )
+        |> config.repo.one()
+    end
+  end
+
+  @doc """
+  Sets the org-level MFA enforcement flag.
+
+  Returns `{:ok, org}` on success, `{:ok, org}` without writing when the value
+  is unchanged, `{:error, :admin_must_enroll_first}` when enabling while the
+  acting admin has no MFA, `{:error, :mfa_policy_aborted}` when the audit write
+  aborts the transaction, or `{:error, changeset}` for org-row validation
+  failures.
+  """
+  @spec set_mfa_policy(map(), map(), struct(), boolean(), keyword()) ::
+          {:ok, struct()}
+          | {:error, :admin_must_enroll_first | :mfa_policy_aborted}
+          | {:error, Ecto.Changeset.t()}
+  def set_mfa_policy(config, scope, org, value, opts \\ []) when is_boolean(value) do
+    if value do
+      mfa_check_fn =
+        Keyword.get_lazy(opts, :mfa_check_fn, fn ->
+          raise ArgumentError,
+                "set_mfa_policy/5 requires :mfa_check_fn when enabling MFA enforcement"
+        end)
+
+      unless is_function(mfa_check_fn, 1) do
+        raise ArgumentError,
+              "set_mfa_policy/5 :mfa_check_fn must be a 1-arity function, got: #{inspect(mfa_check_fn)}"
+      end
+
+      if not mfa_check_fn.(scope.user), do: {:error, :admin_must_enroll_first}, else: do_set_mfa_policy(config, scope, org, value)
+    else
+      do_set_mfa_policy(config, scope, org, value)
+    end
+  end
+
+  @doc """
   Fetches a non-expired organization slug alias row for the given old
   slug. Used by `Sigra.Plug.LoadOrganizationFromSlug` to follow 7-day
   redirects from renamed-org URLs to the canonical slug.
@@ -1301,6 +1373,67 @@ defmodule Sigra.Organizations do
       multi
     end
   end
+
+  defp do_set_mfa_policy(config, scope, org, value) do
+    changeset = set_mfa_policy_changeset(org, value)
+
+    if changeset.changes == %{} do
+      {:ok, org}
+    else
+      old_value = Map.get(org, :enforce_mfa_for_members, false)
+
+      result =
+        try do
+          Multi.new()
+          |> Multi.update(:organization, changeset)
+          |> append_audit(config, "organization.mfa_policy_change", scope,
+            metadata: %{old_value: old_value, new_value: value}
+          )
+          |> config.repo.transact()
+          |> normalize_multi_result_for_mfa_policy()
+        rescue
+          e ->
+            reason =
+              if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+
+            :telemetry.execute(
+              [:sigra, :audit, :log_safe_error],
+              %{count: 1},
+              %{action: "organization.mfa_policy_change", reason: reason}
+            )
+
+            {:error, :mfa_policy_aborted}
+        end
+
+      case result do
+        {:ok, %{organization: updated}} -> {:ok, updated}
+        error -> error
+      end
+    end
+  end
+
+  defp set_mfa_policy_changeset(org, value) do
+    Ecto.Changeset.change(org, %{enforce_mfa_for_members: value})
+  end
+
+  defp normalize_multi_result_for_mfa_policy({:ok, changes}), do: {:ok, changes}
+
+  defp normalize_multi_result_for_mfa_policy({:error, :audit, %Ecto.Changeset{} = cs, _}) do
+    error_fields = cs.errors |> Enum.map(fn {field, _} -> field end) |> Enum.uniq()
+
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{action: "organization.mfa_policy_change", reason: :invalid_changeset, error_fields: error_fields}
+    )
+
+    {:error, :mfa_policy_aborted}
+  end
+
+  defp normalize_multi_result_for_mfa_policy({:error, _step, %Ecto.Changeset{} = cs, _}),
+    do: {:error, cs}
+
+  defp normalize_multi_result_for_mfa_policy({:error, _step, reason, _}), do: {:error, reason}
 
   defp normalize_multi_result({:ok, changes}), do: {:ok, changes}
 

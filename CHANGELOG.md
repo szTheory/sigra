@@ -11,6 +11,14 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Added
+
+* **organizations / mfa:** Org admins can now require MFA for every member of an organization. Sigra adds `enforce_mfa_for_members` to generated organization schemas and migrations, `Sigra.Organizations.set_mfa_policy/5` + `count_members_without_mfa/3`, request/LiveView enforcement via `Sigra.Plug.RequireOrgMfa` and `Sigra.LiveView.RequireOrgMfa`, generated `OrganizationSettingsLive` toggle UX, and atomic `organization.mfa_policy_change` audit logging via `Sigra.Audit.log_multi_safe/3`.
+
+### Documentation
+
+* **planning:** Phase **91** / **B2B-01** implements org-level MFA enforcement across the library, generated host, and verification suite. See [`.planning/phases/91-org-level-mfa-enforcement-b2b-01/91-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/91-org-level-mfa-enforcement-b2b-01/91-VERIFICATION.md).
+
 ## [1.20.0](https://github.com/szTheory/sigra/compare/v0.2.5...v1.20.0) (2026-04-28)
 
 ### Summary

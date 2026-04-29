@@ -12,6 +12,8 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
       add :owner_user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
       # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
       add :personal, :boolean, null: false, default: false
+      # Phase 91 B2B-01: org-level MFA enforcement.
+      add :enforce_mfa_for_members, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
     end
@@ -121,6 +123,8 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
       add :owner_user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
       # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
       add :personal, :boolean, null: false, default: false
+      # Phase 91 B2B-01: org-level MFA enforcement.
+      add :enforce_mfa_for_members, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
     end

@@ -43,7 +43,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 
 **Phase summary:**
 
-- [ ] **Phase 91: Org-level MFA enforcement (B2B-01)** — Org admin can require MFA for all members of an organization with an atomic `organization.mfa_policy_changed` audit row, blocking non-MFA-enrolled members at the request boundary until enrollment.
+- [ ] **Phase 91: Org-level MFA enforcement (B2B-01)** — Org admin can require MFA for all members of an organization with an atomic `organization.mfa_policy_change` audit row, blocking non-MFA-enrolled members at the request boundary until enrollment.
 - [ ] **Phase 92: RBAC seams (B2B-02)** — Generated host receives a nullable `role` field on `OrganizationMembership`, a `Sigra.Authz` `can?/3` behaviour, scope-struct `:role` propagation, a no-op default `Authz` impl, and a recipe doc — without the library shipping any opinionated roles.
 - [ ] **Phase 93: M2M / service-account tokens (B2B-03)** — Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope.actor_type` and audit rows from user-tied tokens.
 - [ ] **Phase 94: Postgres-only declaration (HARD-01)** — `mix sigra.install` refuses to run against a non-Postgres adapter with a clear error; all unimplemented MySQL / SQLite migration branches are removed; PROJECT.md / README / mix.exs / getting-started state PostgreSQL as the only supported adapter.
@@ -62,7 +62,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 
 **Success criteria** (what must be TRUE):
 
-1. An org admin opening the generated host's `OrganizationSettingsLive` page sees an "Require MFA for all members" toggle gated to the admin role; flipping it persists `enforce_mfa_for_members: true` on the `Organization` row and emits exactly one `organization.mfa_policy_changed` audit row whose `inserted_at` is in the same `Repo.transaction/1` boundary as the org write (no orphan audit rows on rollback under fault injection).
+1. An org admin opening the generated host's `OrganizationSettingsLive` page sees an "Require MFA for all members" toggle gated to the admin role; flipping it persists `enforce_mfa_for_members: true` on the `Organization` row and emits exactly one `organization.mfa_policy_change` audit row whose `inserted_at` is in the same `Repo.transaction/1` boundary as the org write (no orphan audit rows on rollback under fault injection).
 2. An existing member of that org who does not have `mfa_enabled: true` issuing a request to any route plugged with `Sigra.Plug.RequireOrgMfa` is redirected to the MFA enrollment page and cannot reach the protected route until enrolled; an org member who is MFA-enrolled passes through unchanged; a member of a non-enforced org is unaffected.
 3. A maintainer running `mix phx.new` + `mix sigra.install` on a fresh host (with the `--organizations` feature on) finds the `enforce_mfa_for_members` migration generated, the LiveView toggle wired into `OrganizationSettingsLive`, and `Sigra.Plug.RequireOrgMfa` enumerated in the generated auth pipeline so no host code edit is needed to opt in.
 4. A reviewer running the `test/example/test/example_web/integration/` suite sees a generator-host integration test that flips the toggle as an admin, then issues a request as a non-MFA member from the same browser session and asserts the enrollment redirect; the same test asserts the audit row exists.
