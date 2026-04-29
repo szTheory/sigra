@@ -185,6 +185,10 @@ defmodule Sigra.Organizations.InvitationsTest do
         },
         roles: [:owner, :admin, :member],
         owner_role: :owner,
+        # Phase 92 / B2B-02 (Plan 92-01) made :invitation_admin_roles a
+        # required config key. Plan 92-02 re-greens this fixture by
+        # supplying the host-themed value the generator now emits.
+        invitation_admin_roles: [:owner, :admin],
         audit_schema: nil,
         hooks: [],
         invitation_ttl: :timer.hours(24 * 7),
