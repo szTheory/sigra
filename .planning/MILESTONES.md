@@ -585,3 +585,34 @@
 - [v1.15 Requirements](milestones/v1.15-REQUIREMENTS.md)
 
 ---
+
+## v1.20 GA Launch (SEED closure + public release) (Shipped: 2026-04-28)
+
+**Scope:** 6 phases (**85–90**), 14 on-disk plans. (Phase 90 waived).
+
+**What shipped:** **AUD-21** — OAuth audit atomicity closure, converting remaining `log_safe/3` clusters in Phase 45 T2 to atomic `Repo.transaction/1` + `Ecto.Multi`. **GAUAT-01..09** — Fully automated E2E harnesses for email visual QA, OAuth real-credential cycles, MFA backup-code rotation, and getting-started proof, resulting in SEED-001 closure. **LAUNCH-01..07** — Hex v1.20.0 publish, README promotion, and CHANGELOG alignment.
+
+### Key accomplishments
+
+1. **AUD-21 closure** — Phase 9 C-1 caveat officially downgraded to PASS.
+2. **GAUAT zero-human proof** — Replaced all manual SEED-001 testing requirements with deterministic CI automation (Playwright + Premailex).
+3. **v1.20.0 Public Launch** — Reached the "use this in production" inflexion point.
+
+### Stats
+
+- **Requirements:** 21/21 requirements satisfied/waived.
+- **Milestone audit:** **passed** ([`milestones/v1.20-MILESTONE-AUDIT.md`](milestones/v1.20-MILESTONE-AUDIT.md)).
+- **Timeline:** 2026-04-25 → 2026-04-28.
+
+### Tech debt carried forward
+
+- Lockspire glue package deferred.
+- Week-one launch-feedback follow-ups deferred to patch milestone.
+
+**Archive:**
+
+- [v1.20 Roadmap](milestones/v1.20-ROADMAP.md)
+- [v1.20 Requirements](milestones/v1.20-REQUIREMENTS.md)
+- [v1.20 Milestone Audit](milestones/v1.20-MILESTONE-AUDIT.md)
+
+---
