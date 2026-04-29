@@ -92,7 +92,7 @@ Plans:
 - [x] `92-01-PLAN.md` — De-opinionate the library RBAC seams and add the `Sigra.Authz` behaviour.
 - [x] `92-02-PLAN.md` — Emit host-owned authz/default scope contracts and nullable membership-role generator output.
 - [x] `92-03-PLAN.md` — Propagate `current_scope.role` only through shared org-enrichment seams with parity coverage.
-- [ ] `92-04-PLAN.md` — Add the RBAC recipe and close golden/docs/authz verification gates.
+- [x] `92-04-PLAN.md` — Add the RBAC recipe and close golden/docs/authz verification gates.
 
 ### Phase 93: M2M / service-account tokens (B2B-03)
 
@@ -171,7 +171,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 91. Org-level MFA enforcement (B2B-01) | 7/7 | Complete    | 2026-04-29 |
-| 92. RBAC seams (B2B-02) | 3/4 | In progress | — |
+| 92. RBAC seams (B2B-02) | 4/4 | In progress | — |
 | 93. M2M / service-account tokens (B2B-03) | 0/0 | Not started | — |
 | 94. Postgres-only declaration (HARD-01) | 0/0 | Not started | — |
 | 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 0/0 | Not started | — |
