@@ -86,7 +86,13 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 4. A reviewer running `test/sigra/install/golden_diff_test.exs` against the extended `Authz` template sees stable golden output; running the new `test/sigra/authz_test.exs` exercises the behaviour contract (callback shape + scope-struct propagation) without depending on any specific role taxonomy.
 5. `92-VERIFICATION.md` records the merge gate outcome and explicitly attests that the library ships no opinionated roles (no `:owner`, `:admin`, `:member` constants in `lib/sigra/`); the recipe is the only place those names appear, and only as illustrative.
 
-**Plans:** TBD.
+**Plans:** 4 plans.
+
+Plans:
+- [x] `92-01-PLAN.md` — De-opinionate the library RBAC seams and add the `Sigra.Authz` behaviour.
+- [ ] `92-02-PLAN.md` — Emit host-owned authz/default scope contracts and nullable membership-role generator output.
+- [ ] `92-03-PLAN.md` — Propagate `current_scope.role` only through shared org-enrichment seams with parity coverage.
+- [ ] `92-04-PLAN.md` — Add the RBAC recipe and close golden/docs/authz verification gates.
 
 ### Phase 93: M2M / service-account tokens (B2B-03)
 
@@ -165,7 +171,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 91. Org-level MFA enforcement (B2B-01) | 7/7 | Complete    | 2026-04-29 |
-| 92. RBAC seams (B2B-02) | 0/0 | Not started | — |
+| 92. RBAC seams (B2B-02) | 1/4 | In progress | — |
 | 93. M2M / service-account tokens (B2B-03) | 0/0 | Not started | — |
 | 94. Postgres-only declaration (HARD-01) | 0/0 | Not started | — |
 | 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 0/0 | Not started | — |
