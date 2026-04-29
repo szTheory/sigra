@@ -56,7 +56,11 @@ defmodule Sigra.Scope.HydrationImpersonationTest do
   end
 
   defmodule TestScope do
-    defstruct [:user, :active_organization, :membership, :impersonating_from]
+    # Phase 92 / B2B-02 (Plan 92-03 Task 2 cascade): mirror the generated
+    # scope struct after Plan 92-02 — `:role` and `:actor_type` are
+    # required so Hydration's role-write doesn't raise KeyError on the
+    # struct update.
+    defstruct [:user, :active_organization, :membership, :impersonating_from, :role, :actor_type]
   end
 
   setup :verify_on_exit!
