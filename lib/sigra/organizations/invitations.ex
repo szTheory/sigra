@@ -85,6 +85,7 @@ defmodule Sigra.Organizations.Invitations do
   def create(config, %{actor: actor_scope} = attrs) do
     :ok = assert_secret_key_base!(config)
     :ok = Sigra.Organizations.__warn_long_invitation_ttl__(config)
+    :ok = Sigra.Organizations.assert_role_in_universe!(attrs.role, config, :"Invitations.create")
 
     with :ok <- authorize_create(config, actor_scope),
          :ok <- check_user_rate_limit(config, attrs.invited_by_id),

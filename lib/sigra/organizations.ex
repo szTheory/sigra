@@ -256,9 +256,55 @@ defmodule Sigra.Organizations do
   def __validate_config__!(opts) do
     validated = NimbleOptions.validate!(opts, @org_config_schema)
 
+    validated =
+      validated
+      |> Map.new()
+      |> Map.update!(:schemas, &Map.new/1)
+
+    validate_role_invariants!(validated)
     validated
-    |> Map.new()
-    |> Map.update!(:schemas, &Map.new/1)
+  end
+
+  # Phase 92 / B2B-02 (CR-04 fix): NimbleOptions validates each option
+  # in isolation — :roles, :owner_role, :invitation_admin_roles all pass
+  # individually even when :owner_role is not in :roles or
+  # :invitation_admin_roles is not a subset of :roles. That silent drift
+  # disables the last-owner guard (which compares m.role == config.owner_role)
+  # and incoherently authorizes invitation admins. Cross-field invariants
+  # are enforced here so `use Sigra.Organizations` raises a CompileError
+  # at the host's configuration line with an actionable recovery path.
+  defp validate_role_invariants!(%{
+         roles: roles,
+         owner_role: owner_role,
+         invitation_admin_roles: invitation_admin_roles
+       }) do
+    unless owner_role in roles do
+      raise ArgumentError, """
+      Sigra.Organizations: :owner_role #{inspect(owner_role)} is not a member of :roles \
+      #{inspect(roles)}.
+
+      The owner role must be one of the configured roles. Either add \
+      #{inspect(owner_role)} to :roles, or change :owner_role to an atom that is \
+      already in :roles.
+      """
+    end
+
+    invalid = invitation_admin_roles -- roles
+
+    unless invalid == [] do
+      raise ArgumentError, """
+      Sigra.Organizations: :invitation_admin_roles contains atom(s) not in :roles: \
+      #{inspect(invalid)}.
+
+      Configured :roles: #{inspect(roles)}.
+      Configured :invitation_admin_roles: #{inspect(invitation_admin_roles)}.
+
+      Every invitation-admin atom must be one of the configured roles. Either add \
+      the missing atom(s) to :roles, or remove them from :invitation_admin_roles.
+      """
+    end
+
+    :ok
   end
 
   @doc false
@@ -832,6 +878,8 @@ defmodule Sigra.Organizations do
   """
   @spec add_member(map(), map(), struct(), struct(), atom()) :: {:ok, struct()} | {:error, term()}
   def add_member(config, scope, org, user, role) do
+    assert_role_in_universe!(role, config, :add_member)
+
     with :ok <- run_before_hook(config, :before_add_member, [org, user, role, scope]) do
       result =
         config
@@ -970,6 +1018,8 @@ defmodule Sigra.Organizations do
   """
   @spec change_role(map(), map(), struct(), atom()) :: {:ok, struct()} | {:error, term()}
   def change_role(config, scope, membership, new_role) do
+    assert_role_in_universe!(new_role, config, :change_role)
+
     with :ok <- run_before_hook(config, :before_role_change, [membership, new_role, scope]) do
       role_changeset = Ecto.Changeset.change(membership, %{role: new_role})
 
@@ -1280,6 +1330,38 @@ defmodule Sigra.Organizations do
       slug_format: Map.get(config, :slug_format, ~r/^[a-z][a-z0-9-]*[a-z0-9]$/),
       slug_length: Map.get(config, :slug_length, {3, 63})
     }
+  end
+
+  # Phase 92 / B2B-02 (WR-02 + WR-03 fix): the host's configured `:roles`
+  # universe is the single source of truth for legitimate role atoms.
+  # `add_member/5`, `change_role/4`, and `Invitations.create/2` consult
+  # this guard so a controller passing an unconfigured atom (e.g. a typo,
+  # an attacker-controlled param, or a stale role from a prior
+  # taxonomy) cannot insert privilege-incoherent rows. The schema's
+  # `Sigra.Ecto.Types.RoleAtom` cast already rejects strings without a
+  # matching existing atom; this guard adds the second wall against
+  # known atoms outside the host's declared role universe.
+  @doc false
+  @spec assert_role_in_universe!(atom(), map(), atom()) :: :ok
+  def assert_role_in_universe!(role, config, function_name) when is_atom(role) do
+    if role in config.roles do
+      :ok
+    else
+      raise ArgumentError, """
+      Sigra.Organizations.#{function_name}/* received role #{inspect(role)} which is \
+      not a member of the configured :roles universe.
+
+      Configured :roles: #{inspect(config.roles)}.
+
+      Either pass an atom from the configured :roles, or extend `use Sigra.Organizations, \
+      roles: [...]` to include #{inspect(role)}.
+      """
+    end
+  end
+
+  def assert_role_in_universe!(role, _config, function_name) do
+    raise ArgumentError,
+          "Sigra.Organizations.#{function_name}/* expected an atom role, got: #{inspect(role)}"
   end
 
   defp build_membership_changeset(membership_schema, org, user, role) do
