@@ -1,10 +1,11 @@
 ---
 phase: 91
 slug: org-level-mfa-enforcement-b2b-01
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-04-29
+reviewed_at: 2026-04-29
 ---
 
 # Phase 91 — UI Design Contract
