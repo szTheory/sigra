@@ -82,19 +82,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| B2B-01 | TBD | Pending |
-| B2B-02 | TBD | Pending |
-| B2B-03 | TBD | Pending |
-| HARD-01 | TBD | Pending |
-| HARD-02 | TBD | Pending |
-| HARD-03 | TBD | Pending |
-| API-01 | TBD | Pending |
+| B2B-01 | 91 | Pending |
+| B2B-02 | 92 | Pending |
+| B2B-03 | 93 | Pending |
+| HARD-01 | 94 | Pending |
+| HARD-02 | 95 | Pending |
+| HARD-03 | 96 | Pending |
+| API-01 | 96 | Pending |
 
 **Coverage:**
 - v1.21 requirements: 7 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 7 (resolved by `gsd-roadmapper` step)
+- Mapped to phases: 7 (Phases 91–96; Phase 96 bundles HARD-03 + API-01)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-28*
-*Last updated: 2026-04-28 after milestone v1.21 init*
+*Last updated: 2026-04-28 after roadmap creation (Phases 91–96)*
