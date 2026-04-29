@@ -54,7 +54,13 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
     create table(:organization_invitations, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :email, :citext, null: false
-      add :role, :string, null: false, default: "member"
+      # Phase 92 / B2B-02 (CR-03 fix): nullable host-owned role storage,
+      # mirroring the memberships column above. The library no longer
+      # ships a canonical role taxonomy and therefore cannot bake a
+      # `default: "member"` opinion into the schema. Application-level
+      # enforcement of the configured `:roles` universe lives in
+      # `Sigra.Organizations.Invitations.create/2`.
+      add :role, :string
       add :hashed_token, :binary
       add :accepted_at, :utc_datetime
       add :revoked_at, :utc_datetime
