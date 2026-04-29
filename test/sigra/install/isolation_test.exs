@@ -83,9 +83,11 @@ defmodule Sigra.Install.IsolationTest do
       end)
     end
 
-    test "contains exactly 49 templates" do
+    test "contains exactly 50 templates" do
+      # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex), the host-owned
+      # `Sigra.Authz` starter wired into Features.Core.files/1.
       files = File.ls!("priv/templates/sigra.install/core")
-      assert length(files) == 49
+      assert length(files) == 50
     end
   end
 

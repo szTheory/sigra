@@ -50,6 +50,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     session_controller.ex
     session_live.ex
     settings_live.ex
+    sigra_authz.ex
     sudo_controller.ex
     sudo_html.ex
     token_controller.ex
@@ -67,8 +68,11 @@ defmodule Sigra.Install.TemplatesLayoutTest do
   @top_dir "priv/templates/sigra.install"
 
   test "templates have been relocated under core/ subdirectory" do
+    # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex). The host-owned
+    # `Sigra.Authz` starter sits beside admin/policy.ex (admin feature)
+    # and lives under core/ because the Authz seam itself is core-scoped.
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 49
+    assert length(core_files) == 50
     assert core_files == Enum.sort(@manifest_post_move)
   end
 
