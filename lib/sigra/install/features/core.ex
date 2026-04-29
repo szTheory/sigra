@@ -458,19 +458,16 @@ defmodule Sigra.Install.Features.Core do
         plug Sigra.Plug.RequireSudo, error_handler: #{web_module}.AuthErrorHandler
       end
 
-      # Phase 14 Plan 03: organization-aware pipelines (opt-in).
+      # Phase 14 Plan 03 / Phase 92 (CR-01): organization-aware pipeline (opt-in).
       # Apps that want to gate routes by active organization membership
-      # pipe_through :require_org (any active membership) or
-      # :require_org_owner (owner role only). Phase 16 wires these to
-      # the organization picker + switcher.
+      # pipe_through :require_org. Role-gated pipelines are intentionally
+      # NOT generated — Phase 92 makes the role taxonomy host-owned, so
+      # the library cannot ship a `:require_org_owner` pipeline without
+      # baking an opinion. See guides/recipes/role-based-access-control.md
+      # for the recipe pattern (host writes its own role-gated pipeline
+      # threading `organizations: MyApp.Organizations, roles: [...]`).
       pipeline :require_org do
         plug Sigra.Plug.RequireMembership, error_handler: #{web_module}.AuthErrorHandler
-      end
-
-      pipeline :require_org_owner do
-        plug Sigra.Plug.RequireMembership,
-          error_handler: #{web_module}.AuthErrorHandler,
-          roles: [:owner]
       end
 
       # MFA challenge (accessible with mfa_pending sessions, D-24)
