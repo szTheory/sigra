@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
-status: Roadmap drafted, awaiting `/gsd-plan-phase 91`.
-last_updated: "2026-04-29T16:00:00.000Z"
-last_activity: "2026-04-29 — Phase 91 context gathered (14 implementation decisions across 4 gray areas)."
+status: ready_to_plan
+last_updated: "2026-04-29T17:41:39Z"
+last_activity: "2026-04-29 — Phase 91 completed. Phase 92 (RBAC seams / B2B-02) is next."
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 0
   completed_plans: 0
 ---
@@ -22,19 +22,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** v1.21 B2B-ready & production-honest — roadmap drafted (phases 91–96), awaiting plan-phase execution.
+**Current focus:** v1.21 B2B-ready & production-honest — Phase 91 complete; Phase 92 (RBAC seams / B2B-02) is ready for planning.
 
 ## Current Position
 
 Milestone: **v1.21 B2B-ready & production-honest**
 
-Phase: Not started — Phases **91–96** drafted in `.planning/ROADMAP.md`; first up is **Phase 91 (B2B-01 org-level MFA enforcement)**.
+Phase: 92
 
-Plan: —
+Plan: Not started
 
-Status: Phase 91 context captured (`91-CONTEXT.md` committed). Awaiting `/gsd-plan-phase 91`.
+Status: Ready to plan
 
-Last activity: 2026-04-29 — Phase 91 context gathered (14 decisions: pipeline integration, allowlist exemption, admin self-lockout, audit shape + idempotency).
+Last activity: 2026-04-29 — Phase 91 completed. Phase 92 is next.
 
 ## Decisions
 
@@ -45,6 +45,6 @@ Last activity: 2026-04-29 — Phase 91 context gathered (14 decisions: pipeline 
 
 ## Session Continuity
 
-**Next:** `/gsd-plan-phase 91` (org-level MFA enforcement) → execute. Phases 92, 94, 95, 96 remain independent and can be discussed in any order; Phase 93 (M2M tokens) depends on Phase 92's `actor_type` scope-struct extension.
+**Next:** `/gsd-plan-phase 92` (RBAC seams / B2B-02) → execute. Phases 94, 95, and 96 remain independently plannable; Phase 93 (M2M tokens) still depends on Phase 92's `actor_type` and role/scope extension.
 
-**Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (7 REQ-IDs with phase traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed). Phase 91: `.planning/phases/91-org-level-mfa-enforcement-b2b-01/91-CONTEXT.md` + `91-DISCUSSION-LOG.md`.
+**Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (REQ traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed). Phase 91 execution artifacts now live under `.planning/phases/91-org-level-mfa-enforcement-b2b-01/`.

@@ -43,7 +43,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 
 **Phase summary:**
 
-- [ ] **Phase 91: Org-level MFA enforcement (B2B-01)** — Org admin can require MFA for all members of an organization with an atomic `organization.mfa_policy_change` audit row, blocking non-MFA-enrolled members at the request boundary until enrollment.
+- [x] **Phase 91: Org-level MFA enforcement (B2B-01)** — Org admin can require MFA for all members of an organization with an atomic `organization.mfa_policy_change` audit row, blocking non-MFA-enrolled members at the request boundary until enrollment. (completed 2026-04-29)
 - [ ] **Phase 92: RBAC seams (B2B-02)** — Generated host receives a nullable `role` field on `OrganizationMembership`, a `Sigra.Authz` `can?/3` behaviour, scope-struct `:role` propagation, a no-op default `Authz` impl, and a recipe doc — without the library shipping any opinionated roles.
 - [ ] **Phase 93: M2M / service-account tokens (B2B-03)** — Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope.actor_type` and audit rows from user-tied tokens.
 - [ ] **Phase 94: Postgres-only declaration (HARD-01)** — `mix sigra.install` refuses to run against a non-Postgres adapter with a clear error; all unimplemented MySQL / SQLite migration branches are removed; PROJECT.md / README / mix.exs / getting-started state PostgreSQL as the only supported adapter.
@@ -68,7 +68,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 4. A reviewer running the `test/example/test/example_web/integration/` suite sees a generator-host integration test that flips the toggle as an admin, then issues a request as a non-MFA member from the same browser session and asserts the enrollment redirect; the same test asserts the audit row exists.
 5. `91-VERIFICATION.md` records the merge gate outcome — full library suite green, generator-host integration green, golden-diff for the new template stable — and notes that no new `log_safe/3` debt was introduced (the new audit row uses `Sigra.Audit.log_multi_safe/3` per `AUDIT-ATOMICITY-DEFAULTS.md`).
 
-**Plans:** TBD.
+**Plans:** 7/7 plans complete
 
 ### Phase 92: RBAC seams (B2B-02)
 
@@ -164,7 +164,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 91. Org-level MFA enforcement (B2B-01) | 0/0 | Not started | — |
+| 91. Org-level MFA enforcement (B2B-01) | 7/7 | Complete    | 2026-04-29 |
 | 92. RBAC seams (B2B-02) | 0/0 | Not started | — |
 | 93. M2M / service-account tokens (B2B-03) | 0/0 | Not started | — |
 | 94. Postgres-only declaration (HARD-01) | 0/0 | Not started | — |
