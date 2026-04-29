@@ -54,7 +54,13 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     create table(:organization_invitations<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
 <% end %>      add :email, :citext, null: false
-      add :role, :string, null: false, default: "member"
+      # Phase 92 / B2B-02 (CR-03 fix): nullable host-owned role storage,
+      # mirroring the memberships column above. The library no longer
+      # ships a canonical role taxonomy and therefore cannot bake a
+      # `default: "member"` opinion into the schema. Application-level
+      # enforcement of the configured `:roles` universe lives in
+      # `Sigra.Organizations.Invitations.create/2`.
+      add :role, :string
       add :hashed_token, :binary
       add :accepted_at, :utc_datetime
       add :revoked_at, :utc_datetime
@@ -163,7 +169,9 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     create table(:organization_invitations<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
 <% end %>      add :email, :string, null: false, size: 160
-      add :role, :string, null: false, default: "member"
+      # Phase 92 / B2B-02 (CR-03 fix): nullable host-owned role storage.
+      # See the postgres branch above for full rationale.
+      add :role, :string
       add :hashed_token, :binary
       add :accepted_at, :utc_datetime
       add :revoked_at, :utc_datetime
