@@ -80,14 +80,21 @@ defmodule Sigra.Organizations.Invitations do
              :rate_limited_user
              | :rate_limited_org
              | :unauthorized
+             | :invalid_role
              | :already_member
              | Ecto.Changeset.t()}
   def create(config, %{actor: actor_scope} = attrs) do
     :ok = assert_secret_key_base!(config)
     :ok = Sigra.Organizations.__warn_long_invitation_ttl__(config)
-    :ok = Sigra.Organizations.assert_role_in_universe!(attrs.role, config, :"Invitations.create")
 
+    # Phase 92 / B2B-02 (CR-2-01 fix): role-universe validation runs
+    # AFTER authorize_create so a non-admin caller does not learn
+    # whether a role atom is or is not configured (info-disclosure
+    # mitigation). The validation returns {:error, :invalid_role}
+    # rather than raising, matching the documented @spec — this is
+    # the request-handler-facing entry point, not an internal API.
     with :ok <- authorize_create(config, actor_scope),
+         :ok <- Sigra.Organizations.validate_role_in_universe(attrs.role, config),
          :ok <- check_user_rate_limit(config, attrs.invited_by_id),
          :ok <- check_org_rate_limit(config, attrs.organization_id),
          {:ok, result} <- do_create(config, attrs) do

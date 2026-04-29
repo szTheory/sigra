@@ -1364,6 +1364,19 @@ defmodule Sigra.Organizations do
           "Sigra.Organizations.#{function_name}/* expected an atom role, got: #{inspect(role)}"
   end
 
+  # Non-raising variant of assert_role_in_universe!/3 for request-handler-
+  # facing entry points (Invitations.create/2) where the function spec
+  # documents tagged-tuple errors and a raise would break callers.
+  # Library-internal call sites (add_member/5, change_role/4) keep using
+  # the bang variant — those are programmer-error semantics.
+  @doc false
+  @spec validate_role_in_universe(any(), map()) :: :ok | {:error, :invalid_role}
+  def validate_role_in_universe(role, config) when is_atom(role) and not is_nil(role) do
+    if role in config.roles, do: :ok, else: {:error, :invalid_role}
+  end
+
+  def validate_role_in_universe(_role, _config), do: {:error, :invalid_role}
+
   defp build_membership_changeset(membership_schema, org, user, role) do
     struct(membership_schema)
     |> Ecto.Changeset.cast(%{role: role}, [:role])
