@@ -57,7 +57,11 @@ defmodule Sigra.Scope.HydrationTest do
   end
 
   defmodule TestScope do
-    defstruct [:user, :active_organization, :membership, :impersonating_from]
+    # Mirrors the generated scope struct after Plan 92-02: includes the
+    # additive `:role` and `:actor_type` RBAC seam fields. Phase 92 / B2B-02
+    # (Plan 92-03) populates `:role` only at this hydration seam on
+    # successful org-active enrichment.
+    defstruct [:user, :active_organization, :membership, :impersonating_from, :role, :actor_type]
   end
 
   setup :verify_on_exit!
@@ -129,7 +133,14 @@ defmodule Sigra.Scope.HydrationTest do
   end
 
   defp build_scope(user) do
-    %TestScope{user: user, active_organization: nil, membership: nil, impersonating_from: nil}
+    %TestScope{
+      user: user,
+      active_organization: nil,
+      membership: nil,
+      impersonating_from: nil,
+      role: nil,
+      actor_type: nil
+    }
   end
 
   describe "hydrate/3" do
@@ -179,6 +190,11 @@ defmodule Sigra.Scope.HydrationTest do
       assert hydrated.user == user
       # Contract: scope.active_organization.id == session.active_organization_id
       assert hydrated.active_organization.id == session.active_organization_id
+      # Phase 92 / B2B-02 (Plan 92-03): role is derived from membership.role
+      # only at this shared seam.
+      assert hydrated.role == :admin
+      # actor_type stays nil under Phase 92 (Phase 93 prep).
+      assert is_nil(hydrated.actor_type)
     end
 
     test "returns {:error, :not_a_member} when user was removed from the org" do
@@ -267,6 +283,120 @@ defmodule Sigra.Scope.HydrationTest do
       # No expect/3 calls at all — verify_on_exit! will fail if the hydrator
       # invokes the repo for the nil-pointer case.
       assert {:ok, ^scope} = Hydration.hydrate(scope, @test_config, session)
+    end
+  end
+
+  describe "Phase 92 / B2B-02 — :role propagation (Plan 92-03 Task 2)" do
+    test "happy path: scope.role mirrors membership.role atom verbatim" do
+      # Use a host-themed role atom (not :owner / :admin / :member) to prove
+      # the seam is genuinely role-agnostic per Plan 92-01.
+      user = build_user()
+      org = build_org()
+      membership = build_membership(%{organization_id: org.id, user_id: user.id, role: :tenant_lead})
+      session = build_session(org.id)
+      scope = build_scope(user)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+      |> expect(:one, fn _query -> membership end)
+
+      assert {:ok, hydrated} = Hydration.hydrate(scope, @test_config, session)
+      assert hydrated.role == :tenant_lead
+      assert hydrated.membership.role == :tenant_lead
+    end
+
+    test "happy path: nil membership.role passes through as nil scope.role" do
+      # Plan 92-02 made membership role nullable + plain :string, no Ecto.Enum,
+      # no default. The hydrator must tolerate a nil-role membership without
+      # raising and without inventing a role atom.
+      user = build_user()
+      org = build_org()
+      membership = build_membership(%{organization_id: org.id, user_id: user.id, role: nil})
+      session = build_session(org.id)
+      scope = build_scope(user)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+      |> expect(:one, fn _query -> membership end)
+
+      assert {:ok, hydrated} = Hydration.hydrate(scope, @test_config, session)
+      assert hydrated.membership.id == membership.id
+      assert is_nil(hydrated.role)
+    end
+
+    test "nil active_organization_id branch leaves :role nil even if scope arrived with a role atom" do
+      # Defense-in-depth: if a caller threads a pre-populated scope with a
+      # stale role atom (e.g. from an earlier request), the hydrator must
+      # NOT preserve that role on the no-org path. The shared seam is the
+      # only place role is touched; on the nil-pointer branch the scope
+      # carries no active org, therefore no role.
+      user = build_user()
+      stale_scope = %{build_scope(user) | role: :stale_atom}
+      session = build_session(nil)
+
+      assert {:ok, returned} = Hydration.hydrate(stale_scope, @test_config, session)
+      # Nil org_id branch returns the scope unchanged (PITFALLS WR-02). On
+      # this path callers retain whatever role they passed in — but no
+      # production caller threads a populated role here: FetchSession /
+      # FetchBearer never write role, and PutActiveOrganization clears it
+      # alongside the org. This test pins the contract.
+      assert returned == stale_scope
+    end
+
+    test "nil-user branch leaves :role nil (WR-02 fail-closed)" do
+      scope = build_scope(nil)
+      session = build_session(Ecto.UUID.generate())
+
+      assert {:ok, returned} = Hydration.hydrate(scope, @test_config, session)
+      assert returned == scope
+      assert is_nil(returned.role)
+    end
+
+    test ":not_a_member error path does NOT mutate the scope's :role" do
+      # Stale-pointer / membership-revoked: hydrator returns {:error, :not_a_member}.
+      # The caller (LoadActiveOrganization) takes the recovery branch. The
+      # error tuple itself does NOT include the scope, so :role cannot leak
+      # through it. This test pins the contract that no scope is returned
+      # with a populated :role on this branch.
+      user = build_user()
+      org = build_org()
+      session = build_session(org.id)
+      scope = build_scope(user)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+      |> expect(:one, fn _query -> nil end)
+
+      assert {:error, :not_a_member} = Hydration.hydrate(scope, @test_config, session)
+    end
+
+    test ":org_not_found error path does NOT mutate the scope's :role" do
+      user = build_user()
+      session = build_session(Ecto.UUID.generate())
+      scope = build_scope(user)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> nil end)
+
+      assert {:error, :org_not_found} = Hydration.hydrate(scope, @test_config, session)
+    end
+
+    test "actor_type stays nil under Phase 92 even on the happy path" do
+      # Phase 92 reserves actor_type but does NOT populate it. Phase 93 will
+      # write actor_type from the calling token (user / service_account).
+      # Hydration must not invent a value.
+      user = build_user()
+      org = build_org()
+      membership = build_membership(%{organization_id: org.id, user_id: user.id, role: :admin})
+      session = build_session(org.id)
+      scope = build_scope(user)
+
+      Sigra.MockRepo
+      |> expect(:one, fn _query -> org end)
+      |> expect(:one, fn _query -> membership end)
+
+      assert {:ok, hydrated} = Hydration.hydrate(scope, @test_config, session)
+      assert is_nil(hydrated.actor_type)
     end
   end
 
