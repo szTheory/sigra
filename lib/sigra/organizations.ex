@@ -670,7 +670,7 @@ defmodule Sigra.Organizations do
         last_active_sub =
           from(s in user_session_schema,
             where:
-              s.user_id == parent_as(:membership).user_id and
+              s.user_id == parent_as(:join_row).user_id and
                 s.active_organization_id == ^org.id,
             order_by: [desc: s.last_active_at],
             limit: 1,
@@ -678,7 +678,7 @@ defmodule Sigra.Organizations do
           )
 
         from(m in membership_schema,
-          as: :membership,
+          as: :join_row,
           where: m.organization_id == ^org.id,
           join: u in ^user_schema,
           on: u.id == m.user_id,
