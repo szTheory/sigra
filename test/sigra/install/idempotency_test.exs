@@ -97,6 +97,88 @@ defmodule Sigra.Install.IdempotencyTest do
            "first sigra.install run did not report any file creation — harness is broken"
   end
 
+  test "Phase 92 Plan 92-02 ownership split: sigra_authz.ex + organizations/* land on first run AND survive second run", %{
+    app_dir: app_dir,
+    first_stdout: first_stdout
+  } do
+    # Plan 92-02 introduces a core/organizations ownership split that
+    # MUST be both visible at install time AND idempotent on re-run.
+    # First-run sanity:
+    authz_path = Path.join([app_dir, "lib", Path.basename(app_dir), "sigra_authz.ex"])
+
+    assert File.exists?(authz_path),
+           """
+           Plan 92-02: a fresh `mix sigra.install` must emit
+           `lib/<otp_app>/sigra_authz.ex`. Got app_dir = #{inspect(app_dir)}.
+           First-run stdout snippet:
+
+           #{first_stdout |> String.split("\n") |> Enum.take(40) |> Enum.join("\n")}
+           """
+
+    # The host-owned authz starter must declare @behaviour Sigra.Authz
+    # so a second `sigra.install` run treats it as already-installed.
+    authz_source = File.read!(authz_path)
+
+    assert authz_source =~ "@behaviour Sigra.Authz",
+           "host authz starter must declare @behaviour Sigra.Authz on first install"
+
+    # Membership schema lands under the host accounts directory and is
+    # nullable / non-opinionated by Plan 92-02.
+    membership_path =
+      Path.join([
+        app_dir,
+        "lib",
+        Path.basename(app_dir),
+        "accounts",
+        "organization_membership.ex"
+      ])
+
+    assert File.exists?(membership_path),
+           "Plan 92-02: organization_membership.ex must land under the host accounts dir"
+
+    membership_source = File.read!(membership_path)
+
+    refute membership_source =~ ~r/Ecto\.Enum,\s*values:\s*\[:owner,\s*:admin,\s*:member\]/,
+           """
+           Generated organization_membership.ex must NOT carry the
+           pre-Plan-92-02 hard-coded `Ecto.Enum, values: [:owner, :admin, :member]`
+           shape — Plan 92-02 makes role nullable + host-owned.
+           """
+
+    # Run a SECOND install and confirm both files are byte-identical
+    # (the GEN-04 idempotency contract still holds for the new core/
+    # organizations ownership split). The other idempotency test in
+    # this file already proves global byte-identity; here we narrow
+    # the assertion to the Plan-92-02 surface so a future ownership
+    # regression has a precise failure signal.
+    snapshot_before = sha256(authz_path) <> sha256(membership_path)
+
+    {second_out, status} =
+      System.cmd(
+        "mix",
+        ["sigra.install", "Accounts", "User", "users", "--yes"],
+        cd: app_dir,
+        stderr_to_stdout: true,
+        env: [{"MIX_ENV", "dev"}]
+      )
+
+    assert status == 0, "second sigra.install failed:\n#{second_out}"
+
+    snapshot_after = sha256(authz_path) <> sha256(membership_path)
+
+    assert snapshot_before == snapshot_after,
+           """
+           Plan 92-02 ownership-split files changed between install runs.
+           Either sigra_authz.ex or organization_membership.ex was
+           rewritten on the second run. GEN-04 idempotency must hold for
+           the new split.
+           """
+  end
+
+  defp sha256(path) do
+    :crypto.hash(:sha256, File.read!(path)) |> Base.encode16(case: :lower)
+  end
+
   # -- helpers --------------------------------------------------------------
 
   defp hash_snapshot(app_dir) do

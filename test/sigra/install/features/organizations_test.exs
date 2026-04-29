@@ -138,6 +138,38 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert organizations_template =~ "use Sigra.Organizations"
     end
 
+    test "organizations.ex template passes explicit host-owned :roles / :owner_role / :invitation_admin_roles to use Sigra.Organizations (Phase 92 Plan 92-02)" do
+      # Phase 92 / B2B-02 (Plan 92-01) made these three options required
+      # on Sigra.Organizations.__config_schema__. Plan 92-02 closes the loop:
+      # the generated host wrapper must supply them explicitly so the
+      # privilege taxonomy is visible at `use Sigra.Organizations` and the
+      # NimbleOptions schema is satisfied without library-side defaults.
+      template =
+        File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+
+      assert template =~ ~r/roles:\s*\[/,
+             """
+             The generated organizations.ex wrapper must pass an explicit
+             `roles: [...]` option to `use Sigra.Organizations`. Phase 92
+             made :roles a required NimbleOptions key — without this line
+             the host app fails to compile with NimbleOptions.ValidationError.
+             """
+
+      assert template =~ ~r/owner_role:\s*:/,
+             """
+             The generated organizations.ex wrapper must pass an explicit
+             `owner_role: :<atom>` option (Phase 92 required key).
+             """
+
+      assert template =~ ~r/invitation_admin_roles:\s*\[/,
+             """
+             The generated organizations.ex wrapper must pass an explicit
+             `invitation_admin_roles: [...]` option (Phase 92 required key)
+             so invitation-admin privilege is visible at the host's
+             `use Sigra.Organizations` call site.
+             """
+    end
+
     test "organizations.ex template compiles against real Sigra.Organizations.__using__/1 (CR-01 regression)" do
       # This test renders the EEx template against a set of stub schema
       # modules and compiles the result end-to-end. It catches NimbleOptions
@@ -539,6 +571,117 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert template =~ "phx-submit=\"update_slug\""
       assert template =~ "phx-submit=\"soft_delete\""
     end
+  end
+
+  describe "generated membership schema role storage (Phase 92 Plan 92-02)" do
+    @membership_template_path "priv/templates/sigra.install/organizations/organization_membership.ex"
+
+    test "schema role field is nullable (not Ecto.Enum, no required taxonomy)" do
+      template = File.read!(@membership_template_path)
+
+      # The library no longer ships canonical role atoms (Phase 92-01).
+      # The generator must NOT hard-code Ecto.Enum [:owner, :admin, :member]
+      # because that re-introduces the very taxonomy Phase 92 removed.
+      refute template =~ ~r/Ecto\.Enum,\s*values:\s*\[:owner,\s*:admin,\s*:member\]/,
+             """
+             organization_membership.ex template must NOT hard-code
+             `Ecto.Enum, values: [:owner, :admin, :member]` for the role
+             field. Phase 92 / B2B-02 makes role storage host-owned and
+             nullable; hosts pick their own taxonomy via
+             `use Sigra.Organizations` config.
+             """
+
+      # The role field declaration must still exist (Plan 92-02 doesn't
+      # remove the field — it just makes it nullable + non-opinionated).
+      assert template =~ ~r/field :role/,
+             "organization_membership.ex must still declare `field :role`"
+    end
+
+    test "changeset does not enforce :role as required (host-owned nullability)" do
+      template = File.read!(@membership_template_path)
+
+      # The Plan 92-01 contract: the host owns role taxonomy AND
+      # nullability. The generated changeset must allow nil role values
+      # so a host can rely on its own validation rules without fighting
+      # the generator-emitted starter.
+      refute template =~ ~r/validate_required\(\[:role,/,
+             """
+             organization_membership.ex generated changeset must NOT
+             list :role in `validate_required` — Plan 92-02 makes role
+             nullable so hosts that prefer late role assignment (e.g.
+             accept-invite-then-pick-role) work out of the box.
+             """
+
+      refute template =~ ~r/validate_required\(\[[^\]]*:role\b/,
+             """
+             organization_membership.ex generated changeset must NOT
+             include :role in any validate_required call — Plan 92-02
+             keeps :role nullable.
+             """
+    end
+  end
+
+  describe "generated migration role column storage (Phase 92 Plan 92-02)" do
+    @migration_template_path "priv/templates/sigra.install/organizations/migration.exs"
+
+    test "organization_memberships.role column is nullable with no default" do
+      template = File.read!(@migration_template_path)
+
+      # Plan 92-02 scope is the MEMBERSHIPS table only. Slice the template
+      # into per-table blocks by searching from each `create table(:X ...)`
+      # line down to the next `create table(...)` or the closing `end` of
+      # the `def up do` block. We need to test the memberships block in
+      # isolation because the invitations table also has a `role` column
+      # (with its own `default: "member"`) that is out of this plan's scope.
+      memberships_blocks = extract_create_table_blocks(template, "organization_memberships")
+
+      assert length(memberships_blocks) >= 1,
+             "expected at least one organization_memberships create-table block in migration template"
+
+      # Across both postgres and mysql/sqlite adapter branches, the
+      # memberships role column MUST be nullable AND MUST NOT carry a
+      # `default: "member"` (canonical-taxonomy default removed by 92-01).
+      Enum.each(memberships_blocks, fn block ->
+        refute block =~ ~r/add :role, :string, null: false, default: "member"/,
+               """
+               organization_memberships block emits the pre-Plan-92-02
+               role column shape:
+
+                   #{Regex.run(~r/add :role[^\n]+/, block) |> inspect()}
+
+               Plan 92-02 contract: role is nullable AND host-owned.
+               Drop both `null: false` and `default: "member"`.
+               """
+
+        refute block =~ ~r/add :role, :string, null: false/,
+               """
+               organization_memberships role column must be nullable
+               (Plan 92-02). Drop `null: false`.
+               """
+
+        refute block =~ ~r/add :role[^\n]*default:\s*"member"/,
+               """
+               organization_memberships role column must drop
+               `default: "member"` — Plan 92-02 removes the canonical
+               role-taxonomy default.
+               """
+
+        # Sanity floor: the role column must still exist in the schema —
+        # only its constraints change, not the column itself.
+        assert block =~ ~r/add :role/,
+               "organization_memberships block must still declare an `add :role` column"
+      end)
+    end
+  end
+
+  # Slice helper for the migration-template tests above. Returns the
+  # `create table(:NAME ...) do ... end` block(s) for `name`. Matches both
+  # postgres and mysql/sqlite branches in the template.
+  defp extract_create_table_blocks(template, name) do
+    pattern = ~r/create table\(:#{Regex.escape(name)}[^)]*\)\s+do(.*?)\n    end/s
+
+    Regex.scan(pattern, template, capture: :all_but_first)
+    |> List.flatten()
   end
 
   describe "injections/1" do
