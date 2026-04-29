@@ -45,7 +45,7 @@ DaisyUI/Tailwind 4 stock 8-point scale. Declared values used by Phase 91 surface
 | Token | Tailwind class | Value | Usage in Phase 91 |
 |-------|---------------|-------|-------------------|
 | xs | `gap-1`, `mr-1`, `mt-1` | 4px | Heroicon ↔ inline label gaps; tight stack inside banner |
-| sm | `mt-2`, `gap-2`, `space-y-2` | 8px | Button row gap (Save / Cancel); inline help-text-to-input |
+| sm | `mt-2`, `gap-2`, `space-y-2` | 8px | Button row gap (Save / dismiss); inline help-text-to-input |
 | md | `mt-4`, `space-y-4`, `gap-4` | 16px | Form field spacing inside the confirm form; section heading-to-form |
 | lg | `p-6`, `mt-6` | 24px | Section card padding; section-to-section bottom margin |
 | xl | `mt-8` | 32px | Vertical break between Security section and Danger Zone |
@@ -89,7 +89,7 @@ DaisyUI semantic tokens are theme-aware (auto light/dark). The 60/30/10 split be
 2. The impact-preview row inside the confirm form, rendered as a single `alert alert-warning alert-soft` block, only when `unenrolled_count > 0` — when the count is zero, the row is omitted entirely (no warning is needed if no one is affected).
 3. The "Enable MFA on your account first" inline error shown on the toggle when admin pre-flight refuses (D-91-09). Same `alert alert-warning alert-soft` shape.
 
-Anything that does not appear on this list MUST NOT use the warning color. Buttons inside the confirm form are `btn btn-primary` (Save) and `btn btn-ghost` (Cancel), matching the existing slug/delete confirm forms.
+Anything that does not appear on this list MUST NOT use the warning color. Buttons inside the confirm form are `btn btn-primary` (Save) and `btn btn-ghost` (dismiss), matching the existing slug/delete confirm forms.
 
 ---
 
@@ -121,10 +121,10 @@ The `{N}` and `{M}` placeholders interpolate from the COUNT query in D-91-10. Wh
 
 | Action direction | Primary CTA | Secondary CTA |
 |------------------|-------------|---------------|
-| Enabling enforcement | `Require MFA for all members` | `Cancel` |
-| Disabling enforcement | `Stop requiring MFA` | `Cancel` |
+| Enabling enforcement | `Require MFA for all members` | `Don't require MFA` |
+| Disabling enforcement | `Stop requiring MFA` | `Keep MFA required` |
 
-Both primary buttons use `btn btn-primary` with `phx-disable-with="Saving..."`. Cancel buttons use `btn btn-ghost`.
+Both primary buttons use `btn btn-primary` with `phx-disable-with="Saving..."`. Secondary buttons use `btn btn-ghost`. Each secondary label names the state being preserved (the action the user is dismissing toward) so the choice reads as a concrete pair rather than a generic abandon.
 
 ### Empty / informational states
 
@@ -168,7 +168,7 @@ Rendered on `MFASettingsLive` when the user arrives via `Sigra.Plug.RequireOrgMf
 
 | Action | Confirmation copy | Mechanism |
 |--------|------------------|-----------|
-| Disable MFA enforcement | `Stop requiring MFA for all members of {org_name}? Members will keep their existing MFA enrollment, but new members will not be required to enroll.` | Inline confirm form (D-91-11) — same `phx-click="confirm_mfa_policy"` progressive-disclosure shape as the existing slug/delete sections, but with NO password field and NO typed-confirm. Just impact-preview body + Save / Cancel. |
+| Disable MFA enforcement | `Stop requiring MFA for all members of {org_name}? Members will keep their existing MFA enrollment, but new members will not be required to enroll.` | Inline confirm form (D-91-11) — same `phx-click="confirm_mfa_policy"` progressive-disclosure shape as the existing slug/delete sections, but with NO password field and NO typed-confirm. Just impact-preview body + Save / dismiss pair. |
 | Enable MFA enforcement | `Require MFA for all members of {org_name}? {N} of {M} members are not enrolled and will be redirected to set up MFA on their next request.` | Same inline confirm form. The "{N} of {M}" sentence is the impact-preview row; when N == 0, the sentence is omitted (per Impact preview rule above) and the confirmation reads simply `Require MFA for all members of {org_name}?` |
 
 **No sudo password. No typed-confirm of org name.** Per D-91-11: "Audit row is the compliance signal." The `organization.mfa_policy_change` audit row is the durable record; the inline confirm is interaction friction calibrated to a recoverable change, not legal evidence.
@@ -185,7 +185,7 @@ Phase 91 introduces **zero new generic components**. Every visual element resolv
 | Section heading | `<h2 class="text-lg font-semibold">Security</h2>` |
 | State badge | DaisyUI `<span class="badge badge-success badge-soft">Enforced</span>` |
 | Toggle (idle) | `<.input field={…} type="checkbox" label="Require MFA for all members" />` (core_components `<.input>` accepts `type="checkbox"` and renders DaisyUI's `toggle` class via `class="toggle"`) — NOTE: the executor verifies the host's `<.input>` actually emits a DaisyUI toggle; if it emits a plain checkbox, replace the call site with `<input type="checkbox" class="toggle toggle-primary" …>` directly. |
-| Confirm form | `<.form for={…} phx-submit="save_mfa_policy" class="mt-4 space-y-3">` containing optional impact-preview alert + button row |
+| Confirm form | `<.form for={…} phx-submit="save_mfa_policy" class="mt-4 space-y-3">` containing optional impact-preview alert + button row. The secondary button label is direction-specific (`Don't require MFA` when enabling, `Keep MFA required` when disabling) — never the literal word "Cancel". |
 | Impact preview alert | `<div role="alert" class="alert alert-warning alert-soft"><.icon name="hero-exclamation-triangle" class="size-5" /><span>{copy}</span></div>` |
 | Pre-flight inline error | `<p class="text-error text-sm mt-2">{copy}</p>` (no alert chrome — same shape as existing field-level errors) |
 | Pre-flight inline link | `<.link navigate={~p"/users/settings/mfa"} class="link link-primary text-sm">Set up MFA on your account →</.link>` |
@@ -202,8 +202,8 @@ The executor MUST NOT introduce new `<.component>` definitions, `defmodule`s, or
 | Idle, OFF, admin enrolled | Default | Toggle off, helper text reads OFF copy, badge "Not enforced", no confirm form |
 | Idle, ON, admin enrolled | Default | Toggle on, helper text reads ON copy, badge "Enforced", no confirm form |
 | Idle, admin NOT enrolled | Computed at mount via `Sigra.MFA.enabled?(config, scope.user)` | Toggle disabled (`disabled` attribute), `text-error` inline copy below toggle, link to MFA setup |
-| Confirm-form open | User clicks toggle | Toggle visually flipped (optimistic), confirm form revealed below with impact-preview alert (if N > 0) and Save / Cancel buttons; rest of page interactive |
-| Confirm-form submitting | User clicks Save | Save button shows `phx-disable-with="Saving..."`; Cancel disabled |
+| Confirm-form open | User clicks toggle | Toggle visually flipped (optimistic), confirm form revealed below with impact-preview alert (if N > 0) and Save / direction-specific dismiss buttons; rest of page interactive |
+| Confirm-form submitting | User clicks Save | Save button shows `phx-disable-with="Saving..."`; secondary dismiss button (`Don't require MFA` when enabling, `Keep MFA required` when disabling) is disabled |
 | Save success | Library returns `{:ok, org}` | Confirm form collapses, badge updates, helper text updates, `<.flash kind={:info}>` shows success copy |
 | Save no-op (D-91-14) | Library short-circuits with `{:ok, org}` and no audit row | Confirm form collapses silently; no flash |
 | Save error (admin pre-flight) | Library returns `{:error, :admin_must_enroll_first}` | Confirm form collapses, toggle reverts to OFF, inline `text-error` message + link rendered below toggle, toggle disabled |
@@ -266,7 +266,7 @@ No `npx shadcn add`, no third-party block registry, no external CSS files. The r
 
 | Decision | Source | UI-SPEC manifestation |
 |----------|--------|-----------------------|
-| D-91-11 — Light confirmation friction, both directions | CONTEXT.md | Inline confirm form (no sudo, no typed-confirm); Save / Cancel pair only |
+| D-91-11 — Light confirmation friction, both directions | CONTEXT.md | Inline confirm form (no sudo, no typed-confirm); Save / direction-specific dismiss pair only |
 | D-91-10 — Inline impact preview before enabling | CONTEXT.md | Impact-preview alert row inside confirm form; copy "{N} of {M} members…" |
 | D-91-09 — Hard pre-flight refuse if admin not MFA-enrolled | CONTEXT.md | Disabled toggle + `text-error` inline copy + link to MFA setup |
 | D-91-08 — Server-side `return_to` with relative-path validation | CONTEXT.md | Surface-2 banner exists because the redirect terminates on `MFASettingsLive`; success flash on enrollment includes "You can now access {org_name}" copy that confirms return-flow restoration |
