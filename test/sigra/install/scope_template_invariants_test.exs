@@ -61,4 +61,56 @@ defmodule Sigra.Install.ScopeTemplateInvariantsTest do
              """
     end
   end
+
+  describe "reserved RBAC fields (Phase 92 Plan 92-02)" do
+    test "rendered Scope struct exposes :role and :actor_type defaulting to nil" do
+      Code.compile_string("defmodule TestApp.Accounts.User, do: defstruct([:id])")
+      Code.compile_string("defmodule TestApp.Accounts.Organization, do: defstruct([:id])")
+
+      Code.compile_string(
+        "defmodule TestApp.Accounts.OrganizationMembership, do: defstruct([:id])"
+      )
+
+      rendered =
+        EEx.eval_file(@template_path,
+          context_module: "TestApp.Accounts",
+          schema_alias: "User",
+          organizations?: true
+        )
+
+      [{mod, _bytecode} | _] = Code.compile_string(rendered)
+
+      empty_struct = mod.__struct__()
+      struct_keys = empty_struct |> Map.keys()
+
+      assert :role in struct_keys,
+             """
+             The rendered Scope struct must contain :role.
+             Got keys: #{inspect(struct_keys)}.
+
+             :role is part of the Phase 92 / B2B-02 RBAC seam. Generated
+             host wiring writes the active membership's host-defined role
+             atom into this field. Removing it breaks the host-owned
+             Sigra.Authz contract emitted by Plan 92-02.
+             """
+
+      assert :actor_type in struct_keys,
+             """
+             The rendered Scope struct must contain :actor_type.
+             Got keys: #{inspect(struct_keys)}.
+
+             :actor_type is reserved for Phase 93 (M2M tokens / service
+             accounts) and MUST remain present (and nil) so the v1.x
+             upgrade path stays additive. Phase 92 attaches NO behavior
+             to this field — it exists solely so Phase 93 can populate it
+             without a breaking scope-struct change.
+             """
+
+      # Both fields default to nil — Phase 92 must NOT attach behavior to
+      # actor_type. The default also matches the explicit `field: nil`
+      # contract documented in the moduledoc.
+      assert Map.fetch!(empty_struct, :role) == nil
+      assert Map.fetch!(empty_struct, :actor_type) == nil
+    end
+  end
 end
