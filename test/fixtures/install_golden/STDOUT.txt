@@ -4,6 +4,7 @@
 * creating lib/sigra_install_golden_tmp/accounts/user_token.ex
 * creating lib/sigra_install_golden_tmp/accounts/scope.ex
 * creating lib/sigra_install_golden_tmp/accounts.ex
+* creating lib/sigra_install_golden_tmp/sigra_authz.ex
 * creating lib/sigra_install_golden_tmp_web/user_auth.ex
 * creating lib/sigra_install_golden_tmp_web/auth_error_handler.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/session_controller.ex

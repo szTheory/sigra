@@ -36,7 +36,11 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
     # ── Organization Memberships ───────────────────────────────────────
     create table(:organization_memberships, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :role, :string, null: false, default: "member"
+      # Phase 92 / Plan 92-02: nullable host-owned role storage.
+      # The library no longer ships a canonical role taxonomy; the
+      # generated wrapper passes `roles:` / `owner_role:` /
+      # `invitation_admin_roles:` to `use Sigra.Organizations`.
+      add :role, :string
       add :organization_id, references(:organizations, type: :binary_id, on_delete: :delete_all), null: false
       add :user_id, references(:users, type: :binary_id, on_delete: :delete_all), null: false
 
