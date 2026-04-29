@@ -8,7 +8,7 @@ defmodule Example.Accounts.OrganizationInvitation do
 
   schema "organization_invitations" do
     field :email, :string
-    field :role, Ecto.Enum, values: [:owner, :admin, :member]
+    field :role, Sigra.Ecto.Types.RoleAtom
     field :hashed_token, :binary
     field :accepted_at, :utc_datetime
     field :revoked_at, :utc_datetime

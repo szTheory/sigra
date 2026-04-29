@@ -7,7 +7,7 @@ defmodule Example.Accounts.OrganizationMembership do
   @foreign_key_type :binary_id
 
   schema "organization_memberships" do
-    field :role, Ecto.Enum, values: [:owner, :admin, :member]
+    field :role, Sigra.Ecto.Types.RoleAtom
 
     belongs_to :organization, Example.Accounts.Organization
     belongs_to :user, Example.Accounts.User
