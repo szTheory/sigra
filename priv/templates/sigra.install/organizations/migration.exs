@@ -36,7 +36,11 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     # ── Organization Memberships ───────────────────────────────────────
     create table(:organization_memberships<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      add :role, :string, null: false, default: "member"
+<% end %>      # Phase 92 / Plan 92-02: nullable host-owned role storage.
+      # The library no longer ships a canonical role taxonomy; the
+      # generated wrapper passes `roles:` / `owner_role:` /
+      # `invitation_admin_roles:` to `use Sigra.Organizations`.
+      add :role, :string
       add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
       add :user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
 
@@ -143,7 +147,9 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     # ── Organization Memberships ───────────────────────────────────────
     create table(:organization_memberships<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      add :role, :string, null: false, default: "member"
+<% end %>      # Phase 92 / Plan 92-02: nullable host-owned role storage.
+      # See the postgres branch above for full rationale.
+      add :role, :string
       add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
       add :user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
 

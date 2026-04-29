@@ -28,9 +28,14 @@ defmodule Example.SigraAdminPolicy do
   def admin_org_ids(%{user: %{id: user_id, email: email}})
       when is_binary(email) and is_binary(user_id) do
     if String.starts_with?(email, @org_admin_prefix) do
+      # Phase 92 / B2B-02 (Plan 92-01) made `:roles` a required option
+      # on Sigra.Admin.Policy.admin_org_ids_from_memberships/2. The host
+      # is now responsible for declaring the admin role universe; this
+      # example matches the role list configured at
+      # `use Sigra.Organizations` in lib/example/organizations.ex.
       user_id
       |> admin_memberships()
-      |> Sigra.Admin.Policy.admin_org_ids_from_memberships()
+      |> Sigra.Admin.Policy.admin_org_ids_from_memberships(roles: [:owner, :admin])
     else
       []
     end

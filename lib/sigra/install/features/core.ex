@@ -185,6 +185,13 @@ defmodule Sigra.Install.Features.Core do
         {:eex, "core/scope.ex", Path.join(["lib", otp_app, ctx, "scope.ex"])},
         {:eex, "core/auth.ex", Path.join(["lib", otp_app, "#{ctx}.ex"])},
 
+        # Phase 92 / B2B-02 (Plan 92-02): host-owned `Sigra.Authz` starter.
+        # Sits beside sigra_admin_policy.ex (admin feature) so the two
+        # host-owned policy modules are discoverable as a pair. Returns
+        # true from can?/3 to preserve current allow-all behavior; Plan
+        # 92-04 walks hosts to deny-by-default.
+        {:eex, "core/sigra_authz.ex", Path.join(["lib", otp_app, "sigra_authz.ex"])},
+
         # Plug + error handler
         {:eex, "core/user_auth.ex", Path.join(["lib", web, "user_auth.ex"])},
         {:eex, "core/error_handler.ex", Path.join(["lib", web, "auth_error_handler.ex"])},

@@ -193,12 +193,14 @@ defmodule Sigra.Install.Features.CoreTest do
       refute "core/api_token_migration.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 38 files" do
-      # 28 base_files + 9 ui_files (live-mode) + 3 inlined migrations
+    test "default (live=true, api=false, jwt=false) returns exactly 39 files" do
+      # 29 base_files + 9 ui_files (live-mode) + 3 inlined migrations
       # (primary + active_org_column + audit_events); api_token migration
       # is --api-only; audit_events_org_columns moved to the Organizations
       # feature in Phase 24.1 (was previously in Core's files/1).
-      assert length(Core.files(@binding)) == 38
+      # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex) — host-owned
+      # `Sigra.Authz` starter sits beside sigra_admin_policy.ex.
+      assert length(Core.files(@binding)) == 39
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -218,9 +220,10 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 32 files" do
+    test "--no-live returns exactly 33 files" do
+      # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex).
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 32
+      assert length(Core.files(binding)) == 33
     end
 
     test "falls back to the plaintext stub when encryption-requiring features are disabled" do

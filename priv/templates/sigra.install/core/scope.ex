@@ -15,15 +15,34 @@ defmodule <%= context_module %>.Scope do
   `:impersonating_from` is reserved for v1.2 impersonation support and must
   not be removed. See `UPGRADE-v1.2.md` at the project root for the contract.
 
+  `:role` is the active membership's host-defined role atom, populated by
+  generated wiring during scope hydration. The host's `SigraAuthz` module
+  reads this field when answering `Sigra.Authz.can?/3`. Phase 92 / B2B-02
+  (Plan 92-02) introduced the field; the host owns the role taxonomy and
+  may freely use any atoms it wants.
+
+  `:actor_type` is reserved for Phase 93 (M2M tokens / service accounts)
+  and MUST remain `nil` under Phase 92 — it exists now so populating it
+  in Phase 93 stays additive (no breaking scope-struct change). DO NOT
+  branch on `:actor_type` from any code under Phase 92; the field has
+  no behavior attached anywhere in the library or in this generated
+  starter.
+
   """
 
   alias <%= context_module %>.<%= schema_alias %>
 
   # Reserved for v1.2 impersonation. Do not remove — see UPGRADE-v1.2.md.
+  # `:role` and `:actor_type` are Phase 92 / B2B-02 (Plan 92-02) RBAC
+  # seam fields. `:role` carries the active membership's host-defined
+  # role atom. `:actor_type` is Phase 93 prep ONLY — keep it nil under
+  # Phase 92.
   defstruct user: nil,
             active_organization: nil,
             membership: nil,
-            impersonating_from: nil
+            impersonating_from: nil,
+            role: nil,
+            actor_type: nil
 
   @type t :: %__MODULE__{
           user: %<%= schema_alias %>{} | nil,
@@ -34,7 +53,9 @@ defmodule <%= context_module %>.Scope do
           active_organization: nil,
           membership: nil,
 <% end %>
-          impersonating_from: %<%= schema_alias %>{} | nil
+          impersonating_from: %<%= schema_alias %>{} | nil,
+          role: atom() | nil,
+          actor_type: atom() | nil
         }
 
   @doc """

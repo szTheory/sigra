@@ -24,6 +24,12 @@ defmodule Example.Organizations do
   performed on the reject path).
   """
 
+  # Phase 92 / B2B-02 (Plan 92-02): role configuration is host-owned and
+  # explicit. Plan 92-01 made `:roles`, `:owner_role`, and
+  # `:invitation_admin_roles` required NimbleOptions keys; this example
+  # scaffold supplies them so the app compiles after the 92-01 contract
+  # change. See lib/example/organizations.ex in your generated app for
+  # the same shape (the install generator template now emits these).
   use Sigra.Organizations,
     repo: Example.Repo,
     schemas: [
@@ -35,6 +41,9 @@ defmodule Example.Organizations do
       user: Example.Accounts.User,
       scope: Example.Accounts.Scope
     ],
+    roles: [:owner, :admin, :member],
+    owner_role: :owner,
+    invitation_admin_roles: [:owner, :admin],
     audit_schema: Example.Accounts.AuditEvent,
     emails_module: Example.Accounts.Emails,
     secret_key_base: Application.compile_env!(:example, ExampleWeb.Endpoint)[:secret_key_base],

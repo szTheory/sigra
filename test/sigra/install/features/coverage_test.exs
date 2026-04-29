@@ -203,6 +203,76 @@ defmodule Sigra.Install.Features.CoverageTest do
     end
   end
 
+  describe "Phase 92 Plan 92-02 ownership split (core/authz vs organizations/membership)" do
+    # Plan 92-02 introduces a deliberate split: `core/sigra_authz.ex`
+    # is owned by Features.Core (because Sigra.Authz is a core seam +
+    # scope-template contract) while membership-role storage stays
+    # owned by Features.Organizations. These tests freeze that split
+    # so a future refactor cannot silently relocate ownership.
+
+    @core_binding [
+      otp_app: :ownership_split_app,
+      web_module: "OwnershipSplitAppWeb",
+      app_module: "OwnershipSplitApp",
+      context_module: "OwnershipSplitApp.Accounts",
+      context_alias: "Accounts",
+      schema_module: "OwnershipSplitApp.Accounts.User",
+      schema_alias: "User",
+      repo_module: "OwnershipSplitApp.Repo",
+      binary_id: true,
+      opts: [live: true, api: false, jwt: false, mfa: true, oauth: true]
+    ]
+
+    test "Features.Core owns core/sigra_authz.ex (Authz seam is core-scoped)" do
+      core_sources =
+        Sigra.Install.Features.Core.files(@core_binding)
+        |> Enum.map(fn {:eex, src, _} -> src end)
+
+      assert "core/sigra_authz.ex" in core_sources,
+             """
+             Plan 92-02 contract: Features.Core owns the host-owned
+             Sigra.Authz starter because the Authz behaviour is a core
+             seam + a scope-template contract (scope.ex carries the
+             :role / :actor_type fields the starter reads). Moving the
+             template to another feature would re-couple Authz to that
+             feature's optional flag.
+             """
+
+      org_sources =
+        Sigra.Install.Features.Organizations.files(@core_binding)
+        |> Enum.map(fn {:eex, src, _} -> src end)
+
+      refute "core/sigra_authz.ex" in org_sources,
+             """
+             Features.Organizations must NOT register core/sigra_authz.ex.
+             That file is owned by Features.Core (Plan 92-02 ownership
+             split): the Authz seam exists even with --no-organizations.
+             """
+    end
+
+    test "Features.Organizations owns organization_membership.ex (membership storage stays org-scoped)" do
+      org_sources =
+        Sigra.Install.Features.Organizations.files(@core_binding)
+        |> Enum.map(fn {:eex, src, _} -> src end)
+
+      assert "organizations/organization_membership.ex" in org_sources,
+             "Features.Organizations must own the OrganizationMembership schema template"
+
+      assert "organizations/migration.exs" in org_sources,
+             "Features.Organizations must own the organizations migration template"
+
+      core_sources =
+        Sigra.Install.Features.Core.files(@core_binding)
+        |> Enum.map(fn {:eex, src, _} -> src end)
+
+      refute "organizations/organization_membership.ex" in core_sources,
+             "Features.Core must NOT register organizations/organization_membership.ex"
+
+      refute "organizations/migration.exs" in core_sources,
+             "Features.Core must NOT register organizations/migration.exs"
+    end
+  end
+
   # Migrations return tuples like `{:organizations, "organizations/migration.exs", "create_organizations.exs"}`
   # where the middle element is already relative to @template_root. Normalize defensively.
   defp normalize(path), do: Path.relative_to(path, ".")

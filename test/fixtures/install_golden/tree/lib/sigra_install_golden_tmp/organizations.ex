@@ -24,6 +24,12 @@ defmodule SigraInstallGoldenTmp.Organizations do
   performed on the reject path).
   """
 
+  # Phase 92 / B2B-02 (Plan 92-02): role configuration is host-owned and
+  # explicit. The library used to default to `[:owner, :admin, :member]`
+  # with `:owner` as the owner role; that default was removed in Plan
+  # 92-01 so the privilege taxonomy is visible at every host's
+  # `use Sigra.Organizations` call site. Edit the lists below to match
+  # your app's role universe — the seam is intentionally open.
   use Sigra.Organizations,
     repo: SigraInstallGoldenTmp.Repo,
     schemas: [
@@ -33,6 +39,9 @@ defmodule SigraInstallGoldenTmp.Organizations do
       user: SigraInstallGoldenTmp.Accounts.User,
       scope: SigraInstallGoldenTmp.Accounts.Scope
     ],
+    roles: [:owner, :admin, :member],
+    owner_role: :owner,
+    invitation_admin_roles: [:owner, :admin],
     audit_schema: SigraInstallGoldenTmp.Accounts.AuditEvent
 
   @doc """
