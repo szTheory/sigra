@@ -205,7 +205,35 @@ Change these lists to match your product. Common variations:
 - **More tiers:** `roles: [:owner, :admin, :editor, :viewer]`, `owner_role: :owner`, `invitation_admin_roles: [:owner, :admin]`.
 - **Domain-specific atoms:** `roles: [:tenant_lead, :site_admin, :reviewer, :viewer]`, `owner_role: :tenant_lead`, `invitation_admin_roles: [:tenant_lead, :site_admin]`.
 
-After changing `roles`, update `MyApp.SigraAuthz.can?/3` clauses to match the new taxonomy and add migration-time logic if you need to remap existing memberships. The `organization_memberships.role` column is plain `:string` and nullable (Plan 92-02), so you can stage a backfill without fighting the schema.
+After changing `roles`, update `MyApp.SigraAuthz.can?/3` clauses to match the new taxonomy and add migration-time logic if you need to remap existing memberships. The `organization_memberships.role` column is plain `:string` and nullable (Plan 92-02), and `Sigra.Ecto.Types.RoleAtom` round-trips your atoms transparently, so you can stage a backfill without fighting the schema or per-callsite type conversions.
+
+`use Sigra.Organizations` validates two cross-field invariants at compile time, so a misconfigured `:owner_role` or `:invitation_admin_roles` fails fast with an actionable error pointing at your config line:
+
+- `:owner_role` must be a member of `:roles`.
+- `:invitation_admin_roles` must be a subset of `:roles`.
+
+`Sigra.Organizations.add_member/5`, `change_role/4`, and `Invitations.create/2` likewise refuse role atoms outside the configured `:roles` universe, so a controller passing a typo or stale taxonomy never lands an incoherent row.
+
+## Role-gated router pipelines (optional)
+
+The default install ships a single membership-presence pipeline:
+
+    pipeline :require_org do
+      plug Sigra.Plug.RequireMembership, error_handler: MyAppWeb.AuthErrorHandler
+    end
+
+Because `can?/3` is the canonical privilege gate, role-specific pipelines are intentionally left to host code. If you want routing-level role gating (e.g. for an `/admin/...` namespace that should never even compile a controller call for a non-admin), add a pipeline that threads your `Organizations` module so the plug can read the configured `:roles`:
+
+    pipeline :require_org_admin do
+      plug Sigra.Plug.RequireMembership,
+        error_handler: MyAppWeb.AuthErrorHandler,
+        organizations: MyApp.Organizations,
+        roles: [:owner, :admin]
+    end
+
+The `:organizations` option is required whenever `:roles` is non-empty (Phase 92 — the library no longer ships a canonical role universe). The atoms in `:roles` must be a subset of your configured `:roles`; the plug raises at compile time with a pointer to `__sigra_org_config__/0` if they aren't.
+
+Prefer `can?/3` for any non-trivial decision — routing-level gating only catches the URL path, not parameters or sub-resources.
 
 ## What can?/3 should NOT decide
 
