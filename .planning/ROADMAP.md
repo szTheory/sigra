@@ -41,7 +41,7 @@
 - [ ] **Phase 87: GAUAT OAuth automated end-to-end harness** — Ship `Sigra.Testing.OAuthIssuer` (TestServer-backed in-process OIDC issuer mirroring Assent's `OIDCTestCase`) + 3 Playwright specs (oauth-register / oauth-link / oauth-email-match) covering GAUAT-04/05/06 against Sigra's example app, plus extended `install-smoke.sh` covering GAUAT-03 (`mix phx.new` + `sigra.install` + `sigra.gen.oauth` + `--warnings-as-errors` + `mix test`); ship `mix sigra.oauth.smoketest --provider=google` + `docs/oauth-google-setup.md` for adopter-side real-credential check at install time. 0 human UAT.
 - [x] **Phase 88: GAUAT MFA + getting-started + results filing** — Automated backup-code regeneration E2E proof; generated-host getting-started install/runtime proof; file `.planning/v1.20-GA-UAT-RESULTS.md`; flip SEED-001 status to `validated` when release-SHA evidence is complete. (completed 2026-04-28)
 - [x] **Phase 89: Pre-launch — Hex publish + README promotion + CHANGELOG/ExDoc alignment** — Bump `mix.exs` to 1.20.0; tag `v1.20`; `mix hex.publish`; promote README from "production readiness available" to "use this in production"; finalize CHANGELOG v1.20.0 section + `upgrading-to-v1.20.md` (or no-upgrade-required stub) so `mix docs --warnings-as-errors` is clean. (completed 2026-04-28)
-- [ ] **Phase 90: Launch + monitoring lane** — Publish announcement post; submit to Hacker News; soft-launch to Elixir Discord / forum / one social channel; install `MAINTAINING.md` "Post-launch monitoring (v1.20)" lane with 24h / 7d / 30d checkpoints and triage SLA; complete the 24h checkpoint as part of this phase.
+- [x] ➖ **Phase 90: Launch + monitoring lane** — _Skipped per user request._ (waived 2026-04-28)
 
 ## Phase Details
 
@@ -166,21 +166,18 @@ Plans:
 - [x] 89-01-PLAN.md — Update core project artifacts to reflect the v1.20.0 release.
 - [x] 89-02-PLAN.md — Execute the Hex publication of Sigra v1.20.0 and produce verification artifacts.
 
-### Phase 90: Launch + monitoring lane (announcement, HN, community soft-launch, MAINTAINING.md monitoring)
+### Phase 90: Waive publicity + install monitoring lane (MAINTAINING.md monitoring)
 
-**Goal:** Execute the public launch sequence — announcement post, Hacker News submission, Elixir community soft-launch on Discord / forum / one social channel — and install the `MAINTAINING.md` "Post-launch monitoring (v1.20)" lane with concrete 24h / 7d / 30d checkpoints and a triage SLA. Maps to the remaining v1.5 `MAINT-01` checklist rows: announcement, HN, community, monitoring.
+**Goal:** Formally waive the public launch sequence (announcement post, Hacker News submission, community soft-launch) per user directive to focus purely on library quality, and install the `MAINTAINING.md` "Post-launch monitoring (v1.20)" lane with concrete 24h / 7d / 30d checkpoints and a triage SLA to ensure long-term health. Maps to the remaining v1.5 `MAINT-01` checklist rows: monitoring.
 
-**Depends on:** Phase 89 (the announcement post must reference the published Hex version; the HN submission and community soft-launch must link to a README that already says "use this in production").
+**Depends on:** Phase 89.
 
-**Requirements:** LAUNCH-03, LAUNCH-04, LAUNCH-05, LAUNCH-06.
+**Requirements:** LAUNCH-06. (LAUNCH-03, LAUNCH-04, LAUNCH-05 waived).
 
 **Success criteria** (what must be TRUE):
 
-1. A reader following the canonical announcement-post URL recorded in `90-VERIFICATION.md` lands on a long-form post that covers (a) what Sigra is and why, (b) honest positioning vs Pow / phx.gen.auth (crediting prior art), (c) hybrid lib+generator architecture rationale, (d) v1.0 → v1.20 shipped capabilities, (e) a getting-started call-to-action, and (f) where to file issues.
-2. A reader opening the Hacker News submission URL recorded in `90-VERIFICATION.md` finds the announcement live, with title that does not over-claim ("production-ready" claims are scoped to the v1.20 evidence trail). `90-VERIFICATION.md` records peak score, the top three comments + author responses, and any GitHub issues filed against Sigra as a result.
-3. A reader can open the recorded URLs for the elixir-lang Discord (or active community Discord), elixirforum.com, and one of {Twitter/X, Bluesky, Mastodon} posts, and see brief link-driven posts pointing at the announcement.
-4. A maintainer opening `MAINTAINING.md` finds a `Post-launch monitoring (v1.20)` section with 24h / 7d / 30d checkpoints, each enumerating: open issues count, Hex downloads, GitHub star delta, time-to-first-response on issues, and an explicit triage SLA (e.g. acknowledge within 24h, sev-1 resolved within 72h). The 24h checkpoint is filled in with real numbers as part of this phase; 7d and 30d are pending with a documented owner.
-5. `90-VERIFICATION.md` records every v1.5 `MAINT-01` checklist row as checked or explicitly waived with evidence; no row is `Pending` at phase close. The milestone is ready for `/gsd-complete-milestone v1.20`.
+1. A maintainer opening `MAINTAINING.md` finds a `Post-launch monitoring (v1.20)` section with 24h / 7d / 30d checkpoints, each enumerating: open issues count, Hex downloads, GitHub star delta, time-to-first-response on issues, and an explicit triage SLA (e.g. acknowledge within 24h, sev-1 resolved within 72h). The 24h checkpoint is filled in with real numbers (or explicitly zeroed) as part of this phase; 7d and 30d are pending with a documented owner.
+2. `90-VERIFICATION.md` records the v1.5 `MAINT-01` monitoring checklist row as checked. The milestone is ready for `/gsd-complete-milestone v1.20`.
 
 **UI hint**: yes
 
@@ -195,7 +192,7 @@ Plans:
 | 87. GAUAT OAuth real-credential cycle | 1/3 | In Progress|  |
 | 88. GAUAT closing cluster + SEED-001 closure | 3/3 | Complete    | 2026-04-28 |
 | 89. Pre-launch (Hex publish + README + CHANGELOG) | 2/2 | Complete    | 2026-04-28 |
-| 90. Launch + monitoring lane | 0/0 | Not started | — |
+| 90. Launch + monitoring lane | 0/0 | Skipped     | 2026-04-28 |
 
 ## Traceability — v1.20
 
