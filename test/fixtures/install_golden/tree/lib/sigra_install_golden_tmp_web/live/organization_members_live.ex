@@ -218,6 +218,8 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
 
     case Organizations.create_invitation(attrs) do
       {:ok, invitation} ->
+        default_role = List.last(available_roles) |> to_string()
+
         {:noreply,
          socket
          |> put_flash(:info, "Invitation sent to #{invitation.email}.")
@@ -225,7 +227,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
          |> update(:pending_count, &(&1 + 1))
          |> assign(
            :invite_form,
-           to_form(%{"email" => "", "role" => "member"}, as: :invitation)
+           to_form(%{"email" => "", "role" => default_role}, as: :invitation)
          )
          |> push_event("close-modal", %{id: "invite-member-modal"})}
 
