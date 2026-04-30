@@ -42,6 +42,15 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
   def mount(_params, _session, socket) do
     scope = socket.assigns.current_scope
 
+    # Phase 92 / B2B-02 (WR-2-05 fix): read the host's role taxonomy from
+    # `Organizations.__sigra_org_config__()` so the LV stays in lockstep
+    # with `use Sigra.Organizations, roles: [...]` instead of hardcoding
+    # `[:owner, :admin, :member]` in helpers and select options.
+    config = Organizations.__sigra_org_config__()
+    available_roles = config.roles
+    invitation_admin_roles = config.invitation_admin_roles
+    default_invite_role = List.last(available_roles) |> to_string()
+
     rows = Organizations.list_members_with_activity(scope, limit: @page_size, offset: 0)
     total = Organizations.count_members(scope)
     decorated = decorate_rows(rows)
@@ -57,7 +66,12 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
      |> assign(:pending_action, nil)
      |> assign(:role_modal_error, nil)
      |> assign(:remove_modal_error, nil)
-     |> assign(:invite_form, to_form(%{"email" => "", "role" => "member"}, as: :invitation))
+     |> assign(:available_roles, available_roles)
+     |> assign(:invitation_admin_roles, invitation_admin_roles)
+     |> assign(
+       :invite_form,
+       to_form(%{"email" => "", "role" => default_invite_role}, as: :invitation)
+     )
      |> assign(:revoking_invitation, nil)
      |> stream(:pending_invitations, pending)
      |> assign(:pending_count, length(pending))}
@@ -133,8 +147,9 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
   def handle_event("change_role", %{"role" => role_str}, socket) do
     {:role, member} = socket.assigns.pending_action
     scope = socket.assigns.current_scope
+    available_roles = socket.assigns.available_roles
 
-    with {:ok, new_role} <- safe_role_atom(role_str),
+    with {:ok, new_role} <- safe_role_atom(role_str, available_roles),
          {:ok, updated} <- Organizations.change_member_role(scope, member, new_role) do
       updated_decorated =
         updated
@@ -173,11 +188,13 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
   # ── Phase 17: Invite member flow ────────────────────────────────────────
 
   def handle_event("open_invite_modal", _params, socket) do
+    default_invite_role = List.last(socket.assigns.available_roles) |> to_string()
+
     {:noreply,
      socket
      |> assign(
        :invite_form,
-       to_form(%{"email" => "", "role" => "member"}, as: :invitation)
+       to_form(%{"email" => "", "role" => default_invite_role}, as: :invitation)
      )
      |> push_event("open-modal", %{id: "invite-member-modal"})}
   end
@@ -189,12 +206,13 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
   def handle_event("invite_member", %{"invitation" => params}, socket) do
     scope = socket.assigns.current_scope
     org = scope.active_organization
+    available_roles = socket.assigns.available_roles
 
     attrs = %{
       actor: scope,
       organization_id: org.id,
       email: params["email"],
-      role: safe_invite_role(params["role"]),
+      role: safe_invite_role(params["role"], available_roles),
       invited_by_id: scope.user.id
     }
 
@@ -339,7 +357,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
       Members ({@total_count})
       <:actions>
         <.button
-          :if={owner_or_admin?(@current_scope)}
+          :if={can_manage_members?(@current_scope, @invitation_admin_roles)}
           type="button"
           phx-click="open_invite_modal"
           id="invite-member-button"
@@ -347,7 +365,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
           Invite member
         </.button>
         <.button
-          :if={not owner_or_admin?(@current_scope)}
+          :if={not can_manage_members?(@current_scope, @invitation_admin_roles)}
           disabled
           aria-disabled="true"
           title="Only owners and admins can invite members"
@@ -431,7 +449,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
             </:col>
             <:action :let={{_dom_id, inv}}>
               <button
-                :if={owner_or_admin?(@current_scope)}
+                :if={can_manage_members?(@current_scope, @invitation_admin_roles)}
                 type="button"
                 class="btn btn-ghost btn-xs text-error"
                 phx-click="open_revoke_modal"
@@ -475,9 +493,9 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
               name="invitation[role]"
               class="select select-bordered w-full"
             >
-              <option value="member">Member — can access the organization</option>
-              <option value="admin">Admin — can invite and manage members</option>
-              <option value="owner">Owner — full control, including deletion</option>
+              <option :for={role <- @available_roles} value={Atom.to_string(role)}>
+                {humanize_role(role)}
+              </option>
             </select>
           </label>
 
@@ -543,9 +561,13 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
             <label class="form-control w-full">
               <span class="label-text">New role</span>
               <select name="role" class="select select-bordered w-full">
-                <option value="owner" selected={m.role == :owner}>Owner</option>
-                <option value="admin" selected={m.role == :admin}>Admin</option>
-                <option value="member" selected={m.role == :member}>Member</option>
+                <option
+                  :for={role <- @available_roles}
+                  value={Atom.to_string(role)}
+                  selected={m.role == role}
+                >
+                  {humanize_role(role)}
+                </option>
               </select>
             </label>
 
@@ -627,16 +649,31 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
     |> Enum.find(fn m -> to_string(m.id) == to_string(id) end)
   end
 
-  # ── Phase 17 helpers ────────────────────────────────────────────────────
+  # ── Phase 17 / Phase 92 helpers ──────────────────────────────────────────
 
-  defp owner_or_admin?(%{membership: %{role: role}}) when role in [:owner, :admin],
-    do: true
+  # Phase 92 / B2B-02: "can this scope manage members?" reads from the
+  # host-configured `:invitation_admin_roles` instead of the legacy
+  # `[:owner, :admin]` literal. Stays in lockstep with whatever the host
+  # declares in `use Sigra.Organizations`.
+  defp can_manage_members?(%{membership: %{role: role}}, invitation_admin_roles)
+       when is_list(invitation_admin_roles) do
+    role in invitation_admin_roles
+  end
 
-  defp owner_or_admin?(_), do: false
+  defp can_manage_members?(_scope, _roles), do: false
 
-  defp safe_invite_role("owner"), do: :owner
-  defp safe_invite_role("admin"), do: :admin
-  defp safe_invite_role(_), do: :member
+  # Phase 92 / B2B-02 (WR-2-05 fix): casts a form-submitted role string
+  # to an atom, validating it against the host's configured `:roles`
+  # universe. Falls back to the last configured role (the lowest-
+  # privilege convention in the recipe) when the input is missing or
+  # unrecognized — keeps the form forgiving while never producing a
+  # role atom outside the host taxonomy.
+  defp safe_invite_role(role_str, available_roles) when is_list(available_roles) do
+    case safe_role_atom(role_str, available_roles) do
+      {:ok, atom} -> atom
+      {:error, :invalid_role} -> List.last(available_roles)
+    end
+  end
 
   defp find_pending_invitation(socket, id) do
     org = socket.assigns.current_scope.active_organization
@@ -662,23 +699,55 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
 
   defp invitation_expires_relative(_), do: "—"
 
-  # Accepts only the three known atoms. String.to_existing_atom/1 would also
-  # work but would raise on an unknown string; returning an {:error, ...}
-  # tuple keeps the LV handler purely case-driven.
-  defp safe_role_atom("owner"), do: {:ok, :owner}
-  defp safe_role_atom("admin"), do: {:ok, :admin}
-  defp safe_role_atom("member"), do: {:ok, :member}
-  defp safe_role_atom(_other), do: {:error, :invalid_role}
+  # Phase 92 / B2B-02 (WR-2-05 fix): casts a form-submitted role string
+  # to an atom and validates it against the host's configured roles.
+  # Uses `String.to_existing_atom/1` for safety — host role atoms enter
+  # the BEAM at compile time via `use Sigra.Organizations, roles: [...]`,
+  # so any legitimate role string maps to an existing atom. Unknown or
+  # non-host atoms return `{:error, :invalid_role}`.
+  defp safe_role_atom(role_str, available_roles)
+       when is_binary(role_str) and is_list(available_roles) do
+    atom = String.to_existing_atom(role_str)
 
-  # UI-SPEC §Color — role badge variants.
+    if atom in available_roles do
+      {:ok, atom}
+    else
+      {:error, :invalid_role}
+    end
+  rescue
+    ArgumentError -> {:error, :invalid_role}
+  end
+
+  defp safe_role_atom(_other, _available_roles), do: {:error, :invalid_role}
+
+  # UI-SPEC §Color — role badge variants. Phase 92 / B2B-02 (WR-2-05
+  # fix): hosts customizing the role taxonomy should also customize
+  # this clause list. The fallback `_ -> "badge-ghost"` keeps unknown
+  # atoms rendering safely without the LV crashing.
+  #
+  # Edit these clauses to match your `roles:` taxonomy. The starter is:
+  #
+  #     :owner  -> badge-primary
+  #     :admin  -> badge-neutral
+  #     :member -> badge-ghost
   defp role_badge_class(:owner), do: "badge-primary"
   defp role_badge_class(:admin), do: "badge-neutral"
   defp role_badge_class(:member), do: "badge-ghost"
-  defp role_badge_class(_), do: "badge-ghost"
+  defp role_badge_class(_other), do: "badge-ghost"
 
-  defp humanize_role(:owner), do: "Owner"
-  defp humanize_role(:admin), do: "Admin"
-  defp humanize_role(:member), do: "Member"
+  # Phase 92 / B2B-02: humanize falls through to a generic
+  # capitalize-and-replace-underscores formatter so any host role atom
+  # (e.g. `:tenant_lead` -> "Tenant Lead") renders without explicit
+  # clauses. Edit the explicit clauses to match your taxonomy if you
+  # want non-default casing.
+  defp humanize_role(role) when is_atom(role) and not is_nil(role) do
+    role
+    |> Atom.to_string()
+    |> String.replace("_", " ")
+    |> String.split(" ")
+    |> Enum.map_join(" ", &String.capitalize/1)
+  end
+
   defp humanize_role(other), do: other |> to_string() |> String.capitalize()
 
   # Lightweight relative-time formatter — hosts commonly replace this with
