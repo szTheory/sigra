@@ -64,7 +64,7 @@ rg -n "^if Code.ensure_loaded\\?\\(Oban.Worker\\) do" \
 ```
 
 ```bash
-rg -n "ensure_available!\\(:async_email|ensure_available!\\(:bcrypt_migration|ensure_available!\\(:totp_qr|ensure_available!\\(:jwt" lib test
+rg -n "ensure_available!\\(:async_email|ensure_available!\\(:lifecycle_jobs|ensure_available!\\(:bcrypt_migration|ensure_available!\\(:totp_qr|ensure_available!\\(:jwt" lib test
 ```
 
 The remaining Phase 95 enforcement paths route through `Sigra.OptionalDeps.ensure_available!/2` instead of scattered worker-disappearance guards.

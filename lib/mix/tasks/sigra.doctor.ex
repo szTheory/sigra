@@ -10,7 +10,10 @@ defmodule Mix.Tasks.Sigra.Doctor do
   alias Sigra.OptionalDeps
 
   @switches [
+    bcrypt_hash_present: :boolean,
     jwt_enabled: :boolean,
+    lifecycle_jobs: :boolean,
+    mfa_qr: :boolean,
     oauth_enabled: :boolean,
     delivery_mode: :string,
     rate_limit: :string,
@@ -18,7 +21,7 @@ defmodule Mix.Tasks.Sigra.Doctor do
     missing: :keep
   ]
 
-  @features [:async_email, :bcrypt_migration, :totp_qr, :jwt, :rate_limit, :oauth, :swoosh]
+  @features [:async_email, :lifecycle_jobs, :bcrypt_migration, :totp_qr, :jwt, :rate_limit, :oauth, :swoosh]
 
   @impl Mix.Task
   def run(argv) do
@@ -77,12 +80,18 @@ defmodule Mix.Tasks.Sigra.Doctor do
 
     [
       config: host_config(opts),
+      has_bcrypt_hash?: Keyword.get(opts, :bcrypt_hash_present, false),
       jwt: [enabled: Keyword.get(opts, :jwt_enabled, false)],
+      lifecycle_jobs?: Keyword.get(opts, :lifecycle_jobs, false),
+      mfa_enrollment: if(Keyword.get(opts, :mfa_qr, false), do: :qr, else: nil),
       oauth_enabled?: Keyword.get(opts, :oauth_enabled, false),
       delivery_mode: parse_delivery_mode(Keyword.get(opts, :delivery_mode)),
       rate_limiter: parse_rate_limiter(Keyword.get(opts, :rate_limit)),
       mailer_backend: parse_mailer(Keyword.get(opts, :mailer)),
-      dependency_loaded?: fn spec -> not MapSet.member?(missing, spec.dependency) end
+      dependency_loaded?: fn spec ->
+        not MapSet.member?(missing, spec.dependency) and
+          Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
+      end
     ]
   end
 

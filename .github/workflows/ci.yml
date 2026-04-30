@@ -208,8 +208,8 @@ jobs:
               System.halt(1)
             rescue
               error in Sigra.OptionalDeps.MissingDependencyError ->
-                if error.feature == :async_email do
-                  IO.puts("account deletion worker raised tagged async dependency error")
+                if error.feature == :lifecycle_jobs do
+                  IO.puts("account deletion worker raised tagged lifecycle dependency error")
                 else
                   IO.puts("unexpected feature: #{inspect(error.feature)}")
                   System.halt(1)

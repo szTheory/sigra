@@ -28,16 +28,17 @@ defmodule Sigra.Workers.AuditCleanup do
   """
 
   alias Sigra.OptionalDeps
+  @oban_available Code.ensure_loaded?(Oban.Worker)
 
-  if Code.ensure_loaded?(Oban.Worker) do
+  if @oban_available do
     use Oban.Worker,
-      queue: :sigra_mailer,
+      queue: :sigra_lifecycle,
       max_attempts: 1
 
     alias Oban.{Job, Worker}
 
     def new(args, opts) when is_map(args) and is_list(opts) do
-      OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
+      OptionalDeps.ensure_available!(:lifecycle_jobs, lifecycle_job_context(opts))
       Job.new(args, Worker.merge_opts(__opts__(), Keyword.drop(opts, [:dependency_loaded?])))
     end
 
@@ -51,10 +52,10 @@ defmodule Sigra.Workers.AuditCleanup do
       {:ok, :cleaned}
     end
   else
-    def __opts__, do: [queue: :sigra_mailer, max_attempts: 1, worker: inspect(__MODULE__)]
+    def __opts__, do: [queue: :sigra_lifecycle, max_attempts: 1, worker: inspect(__MODULE__)]
 
     def new(args, opts \\ []) when is_map(args) and is_list(opts) do
-      OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
+      OptionalDeps.ensure_available!(:lifecycle_jobs, lifecycle_job_context(opts))
     end
   end
 
@@ -70,11 +71,8 @@ defmodule Sigra.Workers.AuditCleanup do
     Sigra.Audit.do_cleanup(repo, audit_schema, retention_days)
   end
 
-  defp async_email_context(opts) do
-    [
-      delivery_mode: :async,
-      dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
-    ]
+  defp lifecycle_job_context(opts) do
+    [lifecycle_jobs?: true, dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)]
   end
 
   defp dependency_loaded?(spec) do

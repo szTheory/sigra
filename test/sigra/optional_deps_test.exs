@@ -15,7 +15,7 @@ defmodule Sigra.OptionalDepsTest do
         |> Enum.map(& &1.feature)
         |> Enum.sort()
 
-      assert [:async_email, :bcrypt_migration, :jwt, :oauth, :rate_limit, :swoosh, :totp_qr] =
+      assert [:async_email, :bcrypt_migration, :jwt, :lifecycle_jobs, :oauth, :rate_limit, :swoosh, :totp_qr] =
                features
 
       assert %{dependency: :oban, enforced?: true, support_tier: :phase_95} =
@@ -23,6 +23,9 @@ defmodule Sigra.OptionalDepsTest do
 
       assert %{dependency: :joken, enforced?: true, support_tier: :phase_95} =
                OptionalDeps.feature_spec!(:jwt)
+
+      assert %{dependency: :oban, enforced?: true, support_tier: :phase_95} =
+               OptionalDeps.feature_spec!(:lifecycle_jobs)
 
       assert %{dependency: :hammer, enforced?: false, support_tier: :advisory} =
                OptionalDeps.feature_spec!(:rate_limit)

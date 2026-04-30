@@ -58,6 +58,10 @@ defmodule Sigra.Install.Features.Core do
     ~s(Add {:oban, "~> 2.17"} to your mix.exs deps, run mix deps.get, and configure the sigra_mailer queue.)
   end
 
+  def optional_dependency_remediation(:lifecycle_jobs) do
+    ~s(Add {:oban, "~> 2.17"} to your mix.exs deps, run mix deps.get, and configure the sigra_lifecycle queue.)
+  end
+
   def optional_dependency_remediation(:bcrypt_migration) do
     ~s(Add {:bcrypt_elixir, "~> 3.3"} to your mix.exs deps and run mix deps.get.)
   end

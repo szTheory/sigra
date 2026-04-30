@@ -31,7 +31,7 @@ defmodule Sigra.Workers.OptionalDepsTest do
 
     test "first queue-backed interaction raises the tagged missing async dependency error" do
       Enum.each(@workers, fn {worker, args} ->
-        assert_raise MissingDependencyError, ~r/optional dependency missing for async_email/, fn ->
+        assert_raise MissingDependencyError, ~r/optional dependency missing for lifecycle_jobs/, fn ->
           worker.new(args, dependency_loaded?: fn _spec -> false end)
         end
       end)

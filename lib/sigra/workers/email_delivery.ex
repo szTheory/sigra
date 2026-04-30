@@ -31,8 +31,9 @@ defmodule Sigra.Workers.EmailDelivery do
 
   alias Sigra.OptionalDeps
   alias Sigra.Telemetry
+  @oban_available Code.ensure_loaded?(Oban.Worker)
 
-  if Code.ensure_loaded?(Oban.Worker) do
+  if @oban_available do
     use Oban.Worker, queue: :sigra_mailer, max_attempts: 3
 
     alias Oban.{Job, Worker}

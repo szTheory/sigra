@@ -10,7 +10,15 @@ defmodule Sigra.OptionalDeps do
   alias Sigra.OptionalDeps.MissingDependencyError
   alias Sigra.Install.Features.Core, as: InstallCore
 
-  @type feature :: :async_email | :bcrypt_migration | :jwt | :oauth | :rate_limit | :swoosh | :totp_qr
+  @type feature ::
+          :async_email
+          | :bcrypt_migration
+          | :jwt
+          | :lifecycle_jobs
+          | :oauth
+          | :rate_limit
+          | :swoosh
+          | :totp_qr
 
   @type feature_spec :: %{
           feature: feature(),
@@ -104,6 +112,19 @@ defmodule Sigra.OptionalDeps do
         remediation: InstallCore.optional_dependency_remediation(:async_email),
         enabled?: fn context -> async_email_enabled?(context) end,
         evidence: fn context -> async_email_evidence(context) end
+      },
+      lifecycle_jobs: %{
+        feature: :lifecycle_jobs,
+        dependency: :oban,
+        dependency_spec: "~> 2.17",
+        dependency_modules: [Oban],
+        support_tier: :phase_95,
+        enforced?: true,
+        doctor?: false,
+        compile_warning?: :never,
+        remediation: InstallCore.optional_dependency_remediation(:lifecycle_jobs),
+        enabled?: fn context -> lifecycle_jobs_enabled?(context) end,
+        evidence: fn context -> lifecycle_jobs_evidence(context) end
       },
       bcrypt_migration: %{
         feature: :bcrypt_migration,
@@ -266,6 +287,18 @@ defmodule Sigra.OptionalDeps do
     case Map.get(context, :password_hash) do
       "$2" <> _rest -> true
       _other -> Map.get(context, :has_bcrypt_hash?, false)
+    end
+  end
+
+  defp lifecycle_jobs_enabled?(context) do
+    Map.get(context, :lifecycle_jobs?, false)
+  end
+
+  defp lifecycle_jobs_evidence(context) do
+    if lifecycle_jobs_enabled?(context) do
+      "lifecycle job execution was requested"
+    else
+      "lifecycle job execution was not requested"
     end
   end
 
