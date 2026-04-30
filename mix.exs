@@ -35,7 +35,7 @@ defmodule Sigra.MixProject do
       ],
       name: "Sigra",
       description:
-        "Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth " <>
+        "Authentication for Phoenix 1.8+ and PostgreSQL-backed Ecto. Mix generators emit host-owned auth " <>
           "(sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more " <>
           "are optional host deps. See https://hexdocs.pm/sigra and the README for details.",
       source_url: @source_url,
@@ -56,15 +56,13 @@ defmodule Sigra.MixProject do
   defp elixirc_paths(_), do: ["lib"]
 
   # Silence undefined-function warnings for optional deps and for internal
-  # modules that are conditionally compiled behind optional-dep guards. When
-  # Sigra is pulled in by a consumer that doesn't add these deps to its own
-  # mix.exs, the compiler would otherwise warn on every reference and break
-  # `mix compile --warnings-as-errors` downstream.
+  # modules that still have unavoidable optional-dep references. Enforced
+  # feature paths (Bcrypt, Joken, EQRCode) now carry their own narrow
+  # suppressions at the use sites so this global list stays limited to the
+  # remaining advisory or worker seams.
   defp elixirc_options do
     [
       no_warn_undefined: [
-        # Optional deps (mix.exs: optional: true)
-        Bcrypt,
         Hammer,
         Swoosh.Email,
         Oban,
@@ -74,10 +72,6 @@ defmodule Sigra.MixProject do
         Assent.Strategy.Facebook,
         Assent.Strategy.Github,
         Assent.Strategy.Google,
-        Joken,
-        Joken.Signer,
-        Joken.Config,
-        EQRCode,
         # Internal modules defined only when an optional dep is loaded
         Sigra.Workers.AccountDeletion,
         Sigra.Workers.AuditCleanup,
@@ -201,6 +195,7 @@ defmodule Sigra.MixProject do
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
         "guides/recipes/multi-tenant.md",
+        "guides/recipes/m2m-service-accounts.md",
         "guides/recipes/role-based-access-control.md",
         "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md",

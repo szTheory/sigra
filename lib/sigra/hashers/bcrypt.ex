@@ -19,6 +19,8 @@ defmodule Sigra.Hashers.Bcrypt do
 
   """
 
+  @compile {:no_warn_undefined, Bcrypt}
+
   @behaviour Sigra.Hasher
 
   alias Sigra.OptionalDeps

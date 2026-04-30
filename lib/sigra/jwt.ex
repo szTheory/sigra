@@ -49,8 +49,10 @@ defmodule Sigra.JWT do
       )
   """
 
+  @compile {:no_warn_undefined, [Joken, Joken.Config]}
+
   alias Ecto.Multi
-  alias Sigra.{APIToken, Audit}
+  alias Sigra.{APIToken, Audit, ServiceAccounts}
   alias Sigra.JWT.{RefreshToken, Signer}
   alias Sigra.Telemetry
 
@@ -105,6 +107,44 @@ defmodule Sigra.JWT do
          refresh_token: refresh_token,
          expires_in: access_ttl
        }}
+    end)
+  end
+
+  @doc """
+  Generates a JWT access token for a service account via `client_credentials`.
+
+  Returns `{:ok, %{access_token: jwt, refresh_token: nil, expires_in: ttl}}`.
+  """
+  @spec generate_service_account_tokens(Sigra.Config.t(), struct(), struct()) ::
+          {:ok, map()} | {:error, term()}
+  def generate_service_account_tokens(config, service_account, credential) do
+    Signer.ensure_joken!()
+    jwt_config = config.jwt
+
+    unless Keyword.get(jwt_config, :enabled, false) do
+      raise RuntimeError, "JWT support is not enabled. Set jwt: [enabled: true] in config."
+    end
+
+    Telemetry.span([:sigra, :jwt, :generate_service_account], %{service_account_id: service_account.id}, fn ->
+      signer = Signer.create_signer(config)
+      access_ttl = Keyword.get(jwt_config, :client_credentials_access_ttl, 3600)
+      now = DateTime.utc_now() |> DateTime.to_unix()
+
+      claims = build_service_account_claims(config, service_account, credential, now, access_ttl)
+
+      multi =
+        Multi.new()
+        |> ServiceAccounts.append_token_issued_audit(config, service_account, credential)
+
+      case config.repo.transaction(multi) do
+        {:ok, changes} ->
+          Audit.emit_telemetry_from_changes(changes)
+          {:ok, jwt, _full_claims} = Joken.generate_and_sign(%{}, claims, signer)
+          {:ok, %{access_token: jwt, refresh_token: nil, expires_in: access_ttl}}
+
+        {:error, _failed, _reason, _changes} = error ->
+          error
+      end
     end)
   end
 
@@ -385,6 +425,24 @@ defmodule Sigra.JWT do
     end
   end
 
+  defp build_service_account_claims(config, service_account, credential, now, access_ttl) do
+    jwt_config = config.jwt
+
+    %{
+      "sub" => credential.client_id,
+      "iat" => now,
+      "exp" => now + access_ttl,
+      "jti" => Ecto.UUID.generate(),
+      "iss" => Keyword.get(jwt_config, :issuer) || to_string(config.otp_app),
+      "scopes" => Map.get(service_account, :scopes, []),
+      "epoch" => Map.get(service_account, :token_epoch, 0),
+      "actor_type" => "service_account",
+      "service_account_id" => service_account.id,
+      "credential_id" => credential.id,
+      "org_id" => service_account.organization_id
+    }
+  end
+
   defp claims_expired?(claims) do
     case claims["exp"] do
       nil -> false
@@ -393,21 +451,58 @@ defmodule Sigra.JWT do
   end
 
   defp verify_epoch(config, claims) do
-    user_id = claims["sub"]
+    case claims["actor_type"] do
+      "service_account" ->
+        verify_service_account_epoch(config, claims)
 
-    case config.repo.get(config.user_schema, user_id) do
-      nil ->
-        {:error, :invalid_token}
+      _ ->
+        user_id = claims["sub"]
 
-      user ->
-        user_epoch = Map.get(user, :token_epoch, 0)
-        claim_epoch = claims["epoch"] || 0
+        case config.repo.get(config.user_schema, user_id) do
+          nil ->
+            {:error, :invalid_token}
 
-        if user_epoch == claim_epoch do
-          {:ok, claims}
-        else
-          {:error, :epoch_mismatch}
+          user ->
+            user_epoch = Map.get(user, :token_epoch, 0)
+            claim_epoch = claims["epoch"] || 0
+
+            if user_epoch == claim_epoch do
+              {:ok, claims}
+            else
+              {:error, :epoch_mismatch}
+            end
         end
+    end
+  end
+
+  defp verify_service_account_epoch(config, claims) do
+    schema = Keyword.get(config.service_accounts, :service_account_schema)
+    credential_schema = Keyword.get(config.service_accounts, :service_account_credential_schema)
+
+    with schema when not is_nil(schema) <- schema,
+         service_account_id when not is_nil(service_account_id) <- claims["service_account_id"],
+         %_{} = service_account <- config.repo.get(schema, service_account_id),
+         credential_schema when not is_nil(credential_schema) <- credential_schema,
+         credential_id when not is_nil(credential_id) <- claims["credential_id"],
+         %_{} = credential <- config.repo.get(credential_schema, credential_id) do
+      service_account_epoch = Map.get(service_account, :token_epoch, 0)
+      claim_epoch = claims["epoch"] || 0
+
+      if service_account.revoked_at == nil and credential.revoked_at == nil and
+           not credential_expired?(credential) and service_account_epoch == claim_epoch do
+        {:ok, claims}
+      else
+        {:error, :epoch_mismatch}
+      end
+    else
+      _ -> {:error, :invalid_token}
+    end
+  end
+
+  defp credential_expired?(credential) do
+    case Map.get(credential, :expires_at) do
+      nil -> false
+      expires_at -> DateTime.compare(expires_at, DateTime.utc_now()) == :lt
     end
   end
 end

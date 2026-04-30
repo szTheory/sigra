@@ -27,6 +27,8 @@ defmodule Sigra.MFA do
   - TOTP secrets encrypted at rest via cloak_ecto (D-09)
   """
 
+  @compile {:no_warn_undefined, EQRCode}
+
   alias Ecto.Multi
   alias Sigra.MFA.{BackupCodes, Credential, Lockout, Trust}
   alias Sigra.OptionalDeps

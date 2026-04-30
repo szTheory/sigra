@@ -16,6 +16,7 @@ defmodule Sigra.Application do
   use Application
 
   require Logger
+  alias Sigra.OptionalDeps
 
   @impl Application
   def start(_type, _args) do
@@ -67,12 +68,19 @@ defmodule Sigra.Application do
   @doc false
   def maybe_warn_audit_cleanup_fallback do
     retention = Application.get_env(:sigra, :audit, [])[:retention_days]
+    maybe_warn_audit_cleanup_fallback(retention)
+  end
+
+  @doc false
+  def maybe_warn_audit_cleanup_fallback(retention, dependency_loaded? \\ &Code.ensure_loaded?/1)
+      when is_function(dependency_loaded?, 1) do
+    oban_loaded? = dependency_loaded?.(Oban)
 
     cond do
       is_nil(retention) ->
         :ok
 
-      Code.ensure_loaded?(Oban) ->
+      oban_loaded? ->
         :ok
 
       true ->
@@ -84,6 +92,35 @@ defmodule Sigra.Application do
         """)
 
         :ok
+    end
+  end
+
+  @doc false
+  def compile_warning_rows(context) do
+    OptionalDeps.feature_specs()
+    |> Enum.filter(&(&1.compile_warning? == :when_enabled))
+    |> Enum.map(&OptionalDeps.doctor_row(&1.feature, context))
+    |> Enum.filter(&(&1.enabled? and not &1.loaded?))
+  end
+
+  defmacro warn_for_enabled_optional_deps!(context_ast) do
+    {context, _binding} = Code.eval_quoted(context_ast, [], __CALLER__)
+    rows = __MODULE__.compile_warning_rows(context)
+
+    Enum.each(rows, fn row ->
+      IO.warn(
+        """
+        [Sigra] compile-time optional dependency warning for #{row.feature}.
+        Dependency: #{row.dependency} (#{row.spec})
+        Evidence: #{row.evidence}
+        #{row.remediation}
+        """,
+        Macro.Env.stacktrace(__CALLER__)
+      )
+    end)
+
+    quote do
+      :ok
     end
   end
 

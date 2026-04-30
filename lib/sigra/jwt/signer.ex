@@ -7,6 +7,8 @@ defmodule Sigra.JWT.Signer do
   registry-backed optional dependency contract for Joken.
   """
 
+  @compile {:no_warn_undefined, [Joken, Joken.Signer]}
+
   alias Sigra.OptionalDeps
 
   @doc """
