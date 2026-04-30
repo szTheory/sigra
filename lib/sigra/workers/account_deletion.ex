@@ -1,60 +1,65 @@
-if Code.ensure_loaded?(Oban.Worker) do
-  defmodule Sigra.Workers.AccountDeletion do
-    @moduledoc """
-    Oban worker for executing scheduled account deletions.
+defmodule Sigra.Workers.AccountDeletion do
+  @moduledoc """
+  Oban worker for executing scheduled account deletions.
 
-    Scheduled by `Sigra.Account.Deletion.schedule/3` when a grace period is
-    configured. The job fires at `scheduled_deletion_at` and applies the
-    configured deletion strategy.
+  Scheduled by `Sigra.Account.Deletion.schedule/3` when a grace period is
+  configured. The job fires at `scheduled_deletion_at` and applies the
+  configured deletion strategy.
 
-    Implements `Sigra.Workers` so the perform callback receives a
-    reconstructed, audit-only `%Scope{}` built from the stringified args.
+  Implements `Sigra.Workers` so the perform callback receives a
+  reconstructed, audit-only `%Scope{}` built from the stringified args.
 
-    ## Job Args
+  ## Job Args
 
-    Required by `Sigra.Workers.new/3`:
+  Required by `Sigra.Workers.new/3`:
 
-      * `"organization_id"` - May be `nil`. Resolves to `scope.active_organization`.
-      * `"actor_id"`        - May be `nil`. The user who enqueued the job.
+    * `"organization_id"` - May be `nil`. Resolves to `scope.active_organization`.
+    * `"actor_id"`        - May be `nil`. The user who enqueued the job.
 
-    Required by this worker's `perform/2` (belt + suspenders via
-    `Sigra.Workers.fetch_arg!/2`):
+  Required by this worker's `perform/2` (belt + suspenders via
+  `Sigra.Workers.fetch_arg!/2`):
 
-      * `"user_id"`              - The user ID to delete.
-      * `"strategy"`             - Deletion strategy ("soft_delete", "hard_delete", "anonymize").
-      * `"repo"`                 - Repo module as a stringified module name.
-      * `"user_schema"`          - User schema as a stringified module name.
-      * `"scope_module"`         - Host scope module as a stringified module name.
-      * `"organization_schema"`  - Organization schema stringified, or `nil`.
-      * `"audit_schema"`         - Audit event schema as a stringified module name.
-                                   Required for `account.deletion_executed`
-                                   emission.
+    * `"user_id"`              - The user ID to delete.
+    * `"strategy"`             - Deletion strategy ("soft_delete", "hard_delete", "anonymize").
+    * `"repo"`                 - Repo module as a stringified module name.
+    * `"user_schema"`          - User schema as a stringified module name.
+    * `"scope_module"`         - Host scope module as a stringified module name.
+    * `"organization_schema"`  - Organization schema stringified, or `nil`.
+    * `"audit_schema"`         - Audit event schema as a stringified module name.
+                                 Required for `account.deletion_executed`
+                                 emission.
 
-    Optional:
+  Optional:
 
-      * `"user_token_schema"`
-      * `"session_store"`
-      * `"identity_schema"`
-      * `"api_token_schema"`
-      * `"mfa_credential_schema"`
-      * `"backup_code_schema"`
+    * `"user_token_schema"`
+    * `"session_store"`
+    * `"identity_schema"`
+    * `"api_token_schema"`
+    * `"mfa_credential_schema"`
+    * `"backup_code_schema"`
 
-    ## Queue
+  ## Queue
 
-    Uses `:sigra_lifecycle` queue. Host apps must add this to their Oban config:
+  Uses `:sigra_lifecycle` queue. Host apps must add this to their Oban config:
 
-        config :my_app, Oban,
-          queues: [sigra_lifecycle: 5, sigra_mailer: 10]
-    """
+      config :my_app, Oban,
+        queues: [sigra_lifecycle: 5, sigra_mailer: 10]
+  """
 
+  alias Sigra.{Account, Account.Deletion, OptionalDeps}
+
+  if Code.ensure_loaded?(Oban.Worker) do
     use Oban.Worker,
       queue: :sigra_lifecycle,
       max_attempts: 3,
       unique: [period: 300, keys: [:user_id]]
 
-    @behaviour Sigra.Workers
+    alias Oban.{Job, Worker}
 
-    alias Sigra.{Account, Account.Deletion}
+    def new(args, opts) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
+      Job.new(args, Worker.merge_opts(__opts__(), Keyword.drop(opts, [:dependency_loaded?])))
+    end
 
     @impl Oban.Worker
     def perform(%Oban.Job{args: args}) do
@@ -101,65 +106,84 @@ if Code.ensure_loaded?(Oban.Worker) do
 
       perform(scope, args)
     end
+  else
+    def __opts__, do: [queue: :sigra_lifecycle, max_attempts: 3, worker: inspect(__MODULE__)]
 
-    @impl Sigra.Workers
-    def perform(_scope, args) do
-      repo = Module.safe_concat([Map.fetch!(args, "repo")])
-      user_schema = Module.safe_concat([Map.fetch!(args, "user_schema")])
-      audit_schema = Module.safe_concat([Map.fetch!(args, "audit_schema")])
-      scope_module = Module.safe_concat([Map.fetch!(args, "scope_module")])
-      user_id = Map.fetch!(args, "user_id")
-      strategy = String.to_existing_atom(Map.fetch!(args, "strategy"))
+    def new(args, opts \\ []) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
+    end
+  end
 
-      case repo.get(user_schema, user_id) do
-        nil ->
-          {:ok, :user_not_found}
+  @behaviour Sigra.Workers
 
-        user ->
-          if Deletion.scheduled?(user) do
-            exec_opts = [
-              config: %{deletion: %{strategy: strategy}},
-              changeset_fn: &default_changeset_fn/2,
-              token_query_fn: &default_token_query_fn/2,
-              audit_schema: audit_schema,
-              scope_module: scope_module
-            ]
+  @impl Sigra.Workers
+  def perform(_scope, args) do
+    repo = Module.safe_concat([Map.fetch!(args, "repo")])
+    user_schema = Module.safe_concat([Map.fetch!(args, "user_schema")])
+    audit_schema = Module.safe_concat([Map.fetch!(args, "audit_schema")])
+    scope_module = Module.safe_concat([Map.fetch!(args, "scope_module")])
+    user_id = Map.fetch!(args, "user_id")
+    strategy = String.to_existing_atom(Map.fetch!(args, "strategy"))
 
-            exec_opts =
-              exec_opts
-              |> maybe_add_opt(:user_token_schema, args["user_token_schema"])
-              |> maybe_add_opt(:session_store, args["session_store"])
-              |> maybe_add_opt(:identity_schema, args["identity_schema"])
-              |> maybe_add_opt(:api_token_schema, args["api_token_schema"])
-              |> maybe_add_opt(:mfa_credential_schema, args["mfa_credential_schema"])
-              |> maybe_add_opt(:backup_code_schema, args["backup_code_schema"])
+    case repo.get(user_schema, user_id) do
+      nil ->
+        {:ok, :user_not_found}
 
-            case Account.execute_deletion(repo, user, exec_opts) do
-              {:ok, _strategy} ->
-                :ok
+      user ->
+        if Deletion.scheduled?(user) do
+          exec_opts = [
+            config: %{deletion: %{strategy: strategy}},
+            changeset_fn: &default_changeset_fn/2,
+            token_query_fn: &default_token_query_fn/2,
+            audit_schema: audit_schema,
+            scope_module: scope_module
+          ]
 
-              {:error, reason} ->
-                {:error, reason}
-            end
-          else
-            {:ok, :not_scheduled}
+          exec_opts =
+            exec_opts
+            |> maybe_add_opt(:user_token_schema, args["user_token_schema"])
+            |> maybe_add_opt(:session_store, args["session_store"])
+            |> maybe_add_opt(:identity_schema, args["identity_schema"])
+            |> maybe_add_opt(:api_token_schema, args["api_token_schema"])
+            |> maybe_add_opt(:mfa_credential_schema, args["mfa_credential_schema"])
+            |> maybe_add_opt(:backup_code_schema, args["backup_code_schema"])
+
+          case Account.execute_deletion(repo, user, exec_opts) do
+            {:ok, _strategy} ->
+              :ok
+
+            {:error, reason} ->
+              {:error, reason}
           end
-      end
+        else
+          {:ok, :not_scheduled}
+        end
     end
+  end
 
-    defp maybe_add_opt(opts, _key, nil), do: opts
+  defp maybe_add_opt(opts, _key, nil), do: opts
 
-    defp maybe_add_opt(opts, key, module_string) when is_binary(module_string) do
-      Keyword.put(opts, key, Module.safe_concat([module_string]))
-    end
+  defp maybe_add_opt(opts, key, module_string) when is_binary(module_string) do
+    Keyword.put(opts, key, Module.safe_concat([module_string]))
+  end
 
-    defp default_changeset_fn(struct, attrs) do
-      Ecto.Changeset.change(struct, attrs)
-    end
+  defp default_changeset_fn(struct, attrs) do
+    Ecto.Changeset.change(struct, attrs)
+  end
 
-    defp default_token_query_fn(user, _contexts) do
-      import Ecto.Query
-      from(t in "user_tokens", where: t.user_id == ^user.id)
-    end
+  defp default_token_query_fn(user, _contexts) do
+    import Ecto.Query
+    from(t in "user_tokens", where: t.user_id == ^user.id)
+  end
+
+  defp async_email_context(opts) do
+    [
+      delivery_mode: :async,
+      dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
+    ]
+  end
+
+  defp dependency_loaded?(spec) do
+    Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
   end
 end
