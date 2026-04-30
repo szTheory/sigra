@@ -3,6 +3,40 @@ defmodule Mix.Tasks.Sigra.InstallTest do
 
   alias Mix.Tasks.Sigra.Install
 
+  defmodule PostgresRepo do
+    def __adapter__, do: Ecto.Adapters.Postgres
+  end
+
+  defmodule MyXQLRepo do
+    def __adapter__, do: Ecto.Adapters.MyXQL
+  end
+
+  defmodule SQLiteRepo do
+    def __adapter__, do: Ecto.Adapters.SQLite3
+  end
+
+  defmodule UnknownRepo do
+    def __adapter__, do: Sigra.Test.UnsupportedAdapter
+  end
+
+  defmodule UndetectableRepo do
+  end
+
+  setup do
+    otp_app = Mix.Phoenix.otp_app()
+    previous_repos = Application.get_env(otp_app, :ecto_repos)
+
+    on_exit(fn ->
+      if is_nil(previous_repos) do
+        Application.delete_env(otp_app, :ecto_repos)
+      else
+        Application.put_env(otp_app, :ecto_repos, previous_repos)
+      end
+    end)
+
+    %{otp_app: otp_app}
+  end
+
   describe "argument parsing" do
     test "raises with no arguments" do
       assert_raise Mix.Error, ~r/Expected.*arguments/i, fn ->
@@ -26,6 +60,48 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       assert_raise Mix.Error, ~r/schema name/i, fn ->
         Install.run(["Accounts", "user", "users"])
       end
+    end
+  end
+
+  describe "adapter validation" do
+    test "refuses MyXQL projects before generation", %{otp_app: otp_app} do
+      Application.put_env(otp_app, :ecto_repos, [MyXQLRepo])
+
+      assert_raise Mix.Error,
+                   ~r/PostgreSQL only: mix sigra\.install cannot continue for Ecto\.Adapters\.MyXQL projects.*guides\/introduction\/installation\.md/s,
+                   fn ->
+                     Install.run(["Accounts", "User", "users"])
+                   end
+    end
+
+    test "refuses SQLite projects before generation", %{otp_app: otp_app} do
+      Application.put_env(otp_app, :ecto_repos, [SQLiteRepo])
+
+      assert_raise Mix.Error,
+                   ~r/PostgreSQL only: mix sigra\.install cannot continue for Ecto\.Adapters\.SQLite3 projects.*guides\/introduction\/installation\.md/s,
+                   fn ->
+                     Install.run(["Accounts", "User", "users"])
+                   end
+    end
+
+    test "refuses unknown adapters before generation", %{otp_app: otp_app} do
+      Application.put_env(otp_app, :ecto_repos, [UnknownRepo])
+
+      assert_raise Mix.Error,
+                   ~r/PostgreSQL only: mix sigra\.install cannot continue for Sigra\.Test\.UnsupportedAdapter projects.*guides\/introduction\/installation\.md/s,
+                   fn ->
+                     Install.run(["Accounts", "User", "users"])
+                   end
+    end
+
+    test "refuses undetectable adapters before generation", %{otp_app: otp_app} do
+      Application.put_env(otp_app, :ecto_repos, [UndetectableRepo])
+
+      assert_raise Mix.Error,
+                   ~r/PostgreSQL only: mix sigra\.install cannot continue because the repo adapter could not be detected.*guides\/introduction\/installation\.md/s,
+                   fn ->
+                     Install.run(["Accounts", "User", "users"])
+                   end
     end
   end
 
@@ -107,40 +183,6 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       assert String.contains?(content, "unique_index(:users, [:email]")
     end
 
-    test "renders migration template for mysql adapter" do
-      binding = [
-        repo_module: "MyApp.Repo",
-        table_name: "users",
-        binary_id: false,
-        adapter: :mysql
-      ]
-
-      template_path =
-        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
-
-      content = EEx.eval_file(template_path, binding)
-
-      assert String.contains?(content, "size: 160")
-      refute String.contains?(content, "citext")
-    end
-
-    test "renders migration template for sqlite adapter" do
-      binding = [
-        repo_module: "MyApp.Repo",
-        table_name: "users",
-        binary_id: false,
-        adapter: :sqlite
-      ]
-
-      template_path =
-        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core", "migration.exs"])
-
-      content = EEx.eval_file(template_path, binding)
-
-      assert String.contains?(content, "collate: :nocase")
-      refute String.contains?(content, "citext")
-    end
-
     test "renders scope template with defstruct" do
       binding = [
         context_module: "MyApp.Accounts",
@@ -167,8 +209,11 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         repo_module: "MyApp.Repo",
         web_module: "MyAppWeb",
         otp_app: :my_app,
+        api: false,
+        jwt: false,
         organizations?: true,
-        passkeys?: false
+        passkeys?: false,
+        opts: []
       ]
 
       template_path =

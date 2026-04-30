@@ -15,6 +15,17 @@ defmodule Example.Accounts do
   alias Example.Accounts.Emails
   alias Example.Accounts.Emails.{ProviderLinked, ProviderUnlinked}
   alias Sigra.Auth, as: SigraAuth
+  require Sigra.Application
+
+  Sigra.Application.warn_for_enabled_optional_deps!(
+    jwt: [enabled: true],
+    dependency_loaded?: fn spec ->
+      case Application.get_env(:sigra, :compile_dependency_loaded_override) do
+        fun when is_function(fun, 1) -> fun.(spec)
+        _ -> Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
+      end
+    end
+  )
 
   ## Database getters
 
@@ -577,9 +588,18 @@ defmodule Example.Accounts do
       repo: Example.Repo,
       user_schema: User,
       secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
+      scope_module: Example.Accounts.Scope,
+      organizations_module: Example.Organizations,
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: Example.Accounts.UserSession
+      ],
+      jwt: [
+        enabled: true,
+        algorithm: "HS256",
+        access_ttl: 900,
+        client_credentials_access_ttl: 3600,
+        refresh_ttl: 2_592_000
       ],
       lockout: [
         threshold: 5,
@@ -601,6 +621,11 @@ defmodule Example.Accounts do
         ceremony_rate_limit: [limit: 5, window_ms: 60_000],
         passkey_primary_enabled: true,
         user_passkey_schema: Example.Accounts.UserPasskey
+      ],
+      service_accounts: [
+        service_account_schema: Example.Accounts.ServiceAccount,
+        service_account_credential_schema: Example.Accounts.ServiceAccountCredential,
+        client_id_prefix: "sigra_sa_"
       ],
       oauth: oauth_config()
     )

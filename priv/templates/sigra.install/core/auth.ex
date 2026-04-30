@@ -15,6 +15,19 @@ defmodule <%= context_module %> do
   alias <%= context_module %>.Emails
 <% end %>
   alias Sigra.Auth, as: SigraAuth
+<%= if Keyword.get(opts, :api, false) || Keyword.get(opts, :jwt, false) do %>
+  require Sigra.Application
+
+  Sigra.Application.warn_for_enabled_optional_deps!(
+    jwt: [enabled: true],
+    dependency_loaded?: fn spec ->
+      case Application.get_env(:sigra, :compile_dependency_loaded_override) do
+        fun when is_function(fun, 1) -> fun.(spec)
+        _ -> Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
+      end
+    end
+  )
+<% end %>
 
   ## Database getters
 

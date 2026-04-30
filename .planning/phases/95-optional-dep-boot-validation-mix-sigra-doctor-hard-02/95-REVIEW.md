@@ -1,8 +1,8 @@
 ---
 phase: 95-optional-dep-boot-validation-mix-sigra-doctor-hard-02
-reviewed: 2026-04-30T21:51:49Z
+reviewed: 2026-04-30T22:02:08Z
 depth: standard
-files_reviewed: 30
+files_reviewed: 33
 files_reviewed_list:
   - lib/sigra/optional_deps.ex
   - lib/sigra/optional_deps/missing_dependency_error.ex
@@ -34,46 +34,32 @@ files_reviewed_list:
   - guides/introduction/troubleshooting-install.md
   - guides/recipes/deployment.md
   - test/sigra/workers/optional_deps_test.exs
+  - priv/templates/sigra.install/core/auth.ex
+  - test/example/lib/example/accounts.ex
+  - test/mix/tasks/sigra.install_test.exs
 findings:
   critical: 0
-  warning: 1
+  warning: 0
   info: 0
-  total: 1
-status: issues_found
+  total: 0
+status: clean
 ---
 
 # Phase 95: Code Review Report
 
-**Reviewed:** 2026-04-30T21:51:49Z
+**Reviewed:** 2026-04-30T22:02:08Z
 **Depth:** standard
-**Files Reviewed:** 30
-**Status:** issues_found
+**Files Reviewed:** 33
+**Status:** clean
 
 ## Summary
 
-Re-reviewed the unchanged Phase 95 scope after the CI expectation correction. The `optional_dep_oban_absent` lane now asserts `:lifecycle_jobs` correctly, so that false-failure is gone. The only remaining issue in scope is that the compile-warning support for enabled optional dependencies is still tested synthetically rather than through a generated host file.
+Re-reviewed the full Phase 95 file set after aligning the auth template render contract with the real installer binding. The previous template-binding warning is resolved: the installer render path guarantees `opts`, the standalone template-render test now exercises that contract explicitly, and the generated example host still proves the compile-warning behavior.
 
-## Warnings
-
-### WR-01: Generated-host compile-warning coverage is still synthetic, not integrated
-
-**File:** `lib/sigra/application.ex:106-124`, `lib/sigra/install/features/core.ex:136-160`, `test/example/test/example_web/smoke/install_compile_test.exs:79-100`
-**Issue:** `Sigra.Application.warn_for_enabled_optional_deps!/1` exists and the smoke test proves it emits a JWT/Joken warning when invoked manually, but no generated host file in the reviewed scope actually calls that macro. A repository-wide search finds the macro referenced only in `lib/sigra/application.ex` and the smoke test itself. The example host already enables JWT in `test/example/lib/example/accounts.ex:575-592`, yet compilation of generated host code does not exercise the warning path. That leaves the Phase 95 compile-warning contract unproven in the real installer output: it validates `Code.compile_string/1`, not the generated host integration.
-**Fix:**
-```elixir
-# Inject the warning into a generated compile-time site, for example in the
-# generated auth/config module after the JWT-enabled config is known:
-require Sigra.Application
-
-Sigra.Application.warn_for_enabled_optional_deps!(
-  jwt: [enabled: true]
-)
-```
-
-Then update the example-host smoke to compile the generated file itself under a missing-`joken` scenario and assert the warning originates from that file, not from `Code.compile_string/1`.
+No bugs, security issues, or code-quality findings remain in the scoped Phase 95 files. The re-review also re-verified the affected seams with targeted tests and warning-clean compilation.
 
 ---
 
-_Reviewed: 2026-04-30T21:51:49Z_
+_Reviewed: 2026-04-30T22:02:08Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_

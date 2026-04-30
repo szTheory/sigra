@@ -77,26 +77,41 @@ defmodule Example.InstallCompileTest do
   end
 
   test "generated-host jwt/api compile contract emits a Joken warning only when JWT is enabled" do
+    source_path = Path.expand("../../../lib/example/accounts.ex", __DIR__)
+    current_sigra_ebin = Path.expand("../../../../../_build/test/lib/sigra/ebin", __DIR__)
     module_name = Module.concat(__MODULE__, "JwtWarning#{System.unique_integer([:positive])}")
+    original_source = File.read!(source_path)
+
+    compiled_source =
+      Regex.replace(
+        ~r/^defmodule Example\.Accounts do/m,
+        original_source,
+        "defmodule #{inspect(module_name)} do",
+        global: false
+      )
+
+    previous_override = Application.get_env(:sigra, :compile_dependency_loaded_override)
+
+    Application.put_env(:sigra, :compile_dependency_loaded_override, fn spec ->
+      spec.dependency != :joken
+    end)
+
+    Code.prepend_path(current_sigra_ebin)
 
     warning =
       ExUnit.CaptureIO.capture_io(:stderr, fn ->
-        Code.compile_string("""
-        defmodule #{inspect(module_name)} do
-          require Sigra.Application
-
-          Sigra.Application.warn_for_enabled_optional_deps!(
-            jwt: [enabled: true],
-            dependency_loaded?: fn spec -> spec.dependency != :joken end
-          )
-
-          def ready?, do: true
-        end
-        """)
+        Code.compile_string(compiled_source, source_path)
       end)
+
+    if is_nil(previous_override) do
+      Application.delete_env(:sigra, :compile_dependency_loaded_override)
+    else
+      Application.put_env(:sigra, :compile_dependency_loaded_override, previous_override)
+    end
 
     assert warning =~ "compile-time optional dependency warning for jwt"
     assert warning =~ "Dependency: joken (~> 2.6)"
     assert warning =~ "Evidence: jwt[:enabled] == true"
+    assert warning =~ "test/example/lib/example/accounts.ex"
   end
 end
