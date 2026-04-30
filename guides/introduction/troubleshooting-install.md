@@ -20,11 +20,11 @@ Common failures when adding Sigra to a Phoenix 1.8+ app and how to fix them.
 
 **Fix:** The installer defaults to **`binary_id`**. Pass `--no-binary-id` to `mix sigra.install` if you need bigint PKs and align foreign keys accordingly.
 
-## Optional deps (Oban, Hammer, OAuth, etc.)
+## Optional deps (Oban, bcrypt, EQRCode, Hammer, OAuth, etc.)
 
-**Symptom:** Compile errors referencing `Oban`, `Hammer`, or OAuth-related modules in generated code.
+**Symptom:** `mix sigra.doctor` shows `FAIL enforced ...`, or the host raises a tagged missing-dependency error when you trigger async email, bcrypt-hash verification, or MFA QR enrollment.
 
-**Fix:** Add the optional dependency to the **host** `mix.exs` as documented in the installer output and in **`README.md`**. Sigra keeps optional integrations as **host** deps by design.
+**Fix:** Run `mix sigra.doctor` first. Add the missing dependency to the **host** `mix.exs` only for the capability you actually enabled. Sigra keeps optional integrations as **host** deps by design, so Oban, `bcrypt_elixir`, and `eqrcode` become blocking only when the host opts into async/background delivery, real bcrypt migration verification, or TOTP QR rendering.
 
 ## Tests fail only in CI
 

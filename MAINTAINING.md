@@ -6,6 +6,16 @@ Hex releases exercise the library and templates — they do **not** validate an 
 
 On your **first public Hex release**, follow **`Release automation`** for the mechanical ship path; when you are ready to coordinate evidence and optional comms around that ship, use **`First public launch (announcement checklist)`** later in this file.
 
+## Diagnosing first-run issues
+
+Start with:
+
+```bash
+mix sigra.doctor
+```
+
+Treat `FAIL enforced ...` rows as blocking only when the current host actually enabled that feature. The expected Phase 95 cases are explicit async email (`Oban`), real bcrypt-hash verification (`bcrypt_elixir`), and TOTP QR rendering (`EQRCode`). Advisory rows such as `Hammer`, `Assent`, and `Swoosh` remain informational unless the host deliberately turns them on.
+
 ## Milestone cadence and pause (v1.11+)
 
 GSD milestones (**`/gsd-new-milestone`**, **`.planning/REQUIREMENTS.md`**, phased **`.planning/ROADMAP.md`**) are for **coordinated tranches** that move **North Star** outcomes in **`.planning/PROJECT.md`**. They are **not** required for every Hex publish.

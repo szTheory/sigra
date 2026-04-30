@@ -31,6 +31,8 @@ Sigra v1.20.0 marks the project's **General Availability**. The authentication p
 2. Follow **[Getting started](guides/introduction/getting-started.md)** to generate your host application's auth surface.
 3. Review the **[Production checklist](guides/recipes/deployment.md#production-checklist-read-first)** for scheme, cookies, LiveView origins, and mail delivery posture.
 
+Optional deps stay optional until you enable the related capability. If you explicitly turn on async email, JWT, or TOTP QR rendering and something is missing from the host's `mix.exs`, run `mix sigra.doctor` for the blocking row and remediation.
+
 For production confidence and audit evidence:
 - **[v1.20 GA evidence](https://github.com/szTheory/sigra/blob/main/.planning/v1.20-GA-UAT-RESULTS.md)**: Comprehensive User Acceptance Testing results and deployment artifacts.
 - **[Phase 9 C-1 PASS attestation](https://github.com/szTheory/sigra/blob/main/.planning/phases/09-audit-logging/09-VERIFICATION.md)**: Proof of audit atomicity for all major auth actions.
@@ -104,8 +106,10 @@ Branching installer flags (`--no-live`, `--admin`, `--api`, …) are summarized 
 |-------------|--------|
 | **Elixir** | `~> 1.18` (see [`mix.exs`](mix.exs)); align local toolchains with [`.tool-versions` on GitHub](https://github.com/sztheory/sigra/blob/main/.tool-versions). |
 | **Phoenix** | 1.8.x baseline the library targets. |
-| **Database** | Ecto + typical Postgres setup for the happy path; other adapters are handled in generated migrations where applicable. |
+| **Database** | PostgreSQL only. Sigra's generators and maintained install path target a Postgres-backed Ecto repo. |
 | **Mailer** | Email flows expect Swoosh (or compatible) wiring — see [Installation](guides/introduction/installation.md). |
+
+Optional dependency rule: Oban, bcrypt migration support, and EQRCode are only blocking when the host actually enables async/background delivery, bcrypt-hash verification, or QR rendering. Use `mix sigra.doctor` to confirm what is active in the current host.
 
 ---
 

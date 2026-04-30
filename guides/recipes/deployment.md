@@ -133,6 +133,8 @@ Keep `COOKIE_DOMAIN` in sync across Sigra, Phoenix, and any other stacks that re
 - **Token and security mail** — treat messages as **at-least-once**: Oban retries can **double-send** unless your templates and tokens stay **idempotent** (see token handling in [`test/example/lib/example/accounts.ex`](../../test/example/lib/example/accounts.ex)).
 - **Need queue tuning or plugins** — read the upstream docs at [Oban](https://hexdocs.pm/oban).
 
+Sigra's optional-dep contract is explicit here: `delivery_mode: :auto` may stay synchronous when Oban is absent, but `delivery_mode: :async` and any queue-backed worker path require Oban. When unsure which story your host selected, run `mix sigra.doctor`.
+
 `mix sigra.install` flags (from `mix help sigra.install`): `--live` / `--no-live`, `--binary-id` / `--no-binary-id`, `--table`, `--api`, `--jwt`, `--admin` / `--no-admin`, `--passkeys` / `--no-passkeys`, `--yes`.
 
 The next section expands on Oban queues and workers for Sigra — read it after you pick inline vs queued delivery above.
@@ -159,7 +161,7 @@ Sigra's background jobs (email delivery, session cleanup, audit retention, sched
          ]}
       ]
 
-If you don't use Oban, Sigra's email delivery falls back to inline `Task` supervision. Token cleanup still runs via a minimal built-in scheduler, but with weaker delivery guarantees. **Strongly prefer Oban in production.**
+If you don't use Oban, leave email delivery on the synchronous/`:auto` path. Explicit async delivery and queue-backed lifecycle work require Oban and will raise a tagged missing-dependency error when the host enabled them without the dependency present. Token cleanup still runs via a minimal built-in scheduler, but with weaker delivery guarantees. **Strongly prefer Oban in production.**
 
 ## Rate limit tuning
 
