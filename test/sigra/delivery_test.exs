@@ -4,6 +4,8 @@ defmodule Sigra.DeliveryTest do
   import Mox
 
   alias Sigra.Delivery
+  alias Sigra.OptionalDeps.MissingDependencyError
+  alias Sigra.Workers.EmailDelivery
 
   # Fake Oban modules for testing async delivery without a running Oban instance
   defmodule FakeOban do
@@ -97,6 +99,14 @@ defmodule Sigra.DeliveryTest do
       assert {:error, :queue_full} =
                Delivery.deliver_async(:reset, args, oban: FailingOban)
     end
+
+    test "raises a tagged missing dependency error when async delivery is requested without Oban" do
+      args = %{user_id: 42, token: "abc123"}
+
+      assert_raise MissingDependencyError, ~r/optional dependency missing for async_email/, fn ->
+        Delivery.deliver_async(:confirmation, args, dependency_loaded?: fn _spec -> false end)
+      end
+    end
   end
 
   describe "deliver/3" do
@@ -125,6 +135,17 @@ defmodule Sigra.DeliveryTest do
                )
     end
 
+    test "with delivery_mode: :async raises when Oban is unavailable" do
+      args = %{user_id: 1, token: "tok"}
+
+      assert_raise MissingDependencyError, ~r/optional dependency missing for async_email/, fn ->
+        Delivery.deliver(:reset, args,
+          delivery_mode: :async,
+          dependency_loaded?: fn _spec -> false end
+        )
+      end
+    end
+
     test "with delivery_mode: :auto routes to :sync when Oban is not supervised" do
       # Oban is loadable in test env (it's a library dep) but NOT supervised,
       # so :auto must route to :sync — otherwise apps that add {:oban, ...} to
@@ -139,6 +160,7 @@ defmodule Sigra.DeliveryTest do
       assert {:ok, :sent} =
                Delivery.deliver(:test_email, args,
                  delivery_mode: :auto,
+                 dependency_loaded?: fn _spec -> false end,
                  mailer: Sigra.MockMailer
                )
     end
@@ -157,6 +179,18 @@ defmodule Sigra.DeliveryTest do
                  delivery_mode: :auto,
                  oban: FakeOban
                )
+    end
+  end
+
+  describe "EmailDelivery worker boundary" do
+    test "stays loadable and raises a tagged missing dependency error at first queue-backed use" do
+      assert Code.ensure_loaded?(EmailDelivery)
+
+      assert_raise MissingDependencyError, ~r/optional dependency missing for async_email/, fn ->
+        EmailDelivery.new(%{"email_type" => "confirmation", "user_id" => 42},
+          dependency_loaded?: fn _spec -> false end
+        )
+      end
     end
   end
 end

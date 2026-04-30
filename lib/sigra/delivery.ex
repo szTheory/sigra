@@ -16,6 +16,7 @@ defmodule Sigra.Delivery do
   content in the database (T-3-INFRA-01).
   """
 
+  alias Sigra.OptionalDeps
   alias Sigra.Telemetry
 
   @doc """
@@ -43,6 +44,7 @@ defmodule Sigra.Delivery do
   """
   @spec deliver_async(atom(), map(), keyword()) :: {:ok, term()} | {:error, term()}
   def deliver_async(email_type, args, opts \\ []) do
+    OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
     changeset = build_job(email_type, args, opts)
     oban = Keyword.get(opts, :oban, Oban)
 
@@ -63,6 +65,7 @@ defmodule Sigra.Delivery do
   """
   @spec build_job(atom(), map(), keyword()) :: Ecto.Changeset.t()
   def build_job(email_type, args, opts \\ []) do
+    OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
     queue = Keyword.get(opts, :oban_queue, "sigra_mailer")
 
     job_args = %{
@@ -112,5 +115,16 @@ defmodule Sigra.Delivery do
   # mix.exs without wiring the supervisor would otherwise crash on insert.
   defp oban_running? do
     Code.ensure_loaded?(Oban) and Process.whereis(Oban) != nil
+  end
+
+  defp async_email_context(opts) do
+    [
+      delivery_mode: :async,
+      dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
+    ]
+  end
+
+  defp dependency_loaded?(spec) do
+    Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
   end
 end
