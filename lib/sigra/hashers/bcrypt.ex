@@ -21,22 +21,24 @@ defmodule Sigra.Hashers.Bcrypt do
 
   @behaviour Sigra.Hasher
 
+  alias Sigra.OptionalDeps
+
   @impl Sigra.Hasher
   def hash_password(password) when is_binary(password) do
-    ensure_loaded!()
+    ensure_available!()
     Bcrypt.hash_pwd_salt(password)
   end
 
   @impl Sigra.Hasher
   def verify_password(password, hashed_password)
       when is_binary(password) and is_binary(hashed_password) do
-    ensure_loaded!()
+    ensure_available!(password_hash: hashed_password)
     Bcrypt.verify_pass(password, hashed_password)
   end
 
   @impl Sigra.Hasher
   def no_user_verify do
-    if Code.ensure_loaded?(Bcrypt) do
+    if dependency_loaded?() do
       Bcrypt.no_user_verify()
     else
       # Fall back to Argon2 timing if bcrypt not available
@@ -44,13 +46,12 @@ defmodule Sigra.Hashers.Bcrypt do
     end
   end
 
-  defp ensure_loaded! do
-    unless Code.ensure_loaded?(Bcrypt) do
-      raise """
-      bcrypt_elixir is required for bcrypt hash operations.
+  defp ensure_available!(context \\ []) do
+    OptionalDeps.ensure_available!(:bcrypt_migration, Keyword.put_new(context, :has_bcrypt_hash?, true))
+  end
 
-      Add {:bcrypt_elixir, "~> 3.3"} to your deps in mix.exs.
-      """
-    end
+  defp dependency_loaded? do
+    spec = OptionalDeps.feature_spec!(:bcrypt_migration)
+    Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
   end
 end

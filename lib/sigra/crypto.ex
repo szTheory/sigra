@@ -26,6 +26,8 @@ defmodule Sigra.Crypto do
 
   @default_hasher Sigra.Hashers.Argon2
 
+  alias Sigra.OptionalDeps
+
   @doc """
   Hashes a plaintext password using the configured hasher.
 
@@ -148,7 +150,7 @@ defmodule Sigra.Crypto do
   def verify_with_upgrade(password, hashed_password, opts) when is_binary(password) do
     cond do
       bcrypt_hash?(hashed_password) ->
-        if bcrypt_verify(password, hashed_password) do
+        if bcrypt_verify(password, hashed_password, opts) do
           new_hash = hash_password(password, opts)
           {:ok, :valid, new_hash}
         else
@@ -240,15 +242,20 @@ defmodule Sigra.Crypto do
 
   # -- Private helpers --
 
-  defp bcrypt_verify(password, hashed_password) do
-    if Code.ensure_loaded?(Bcrypt) do
-      Sigra.Hashers.Bcrypt.verify_password(password, hashed_password)
-    else
-      # bcrypt_elixir not available -- cannot verify bcrypt hashes
-      # Run timing protection and return false
-      no_user_verify()
-      false
-    end
+  defp bcrypt_verify(password, hashed_password, opts) do
+    OptionalDeps.ensure_available!(:bcrypt_migration, bcrypt_context(hashed_password, opts))
+    Sigra.Hashers.Bcrypt.verify_password(password, hashed_password)
+  end
+
+  defp bcrypt_context(hashed_password, opts) do
+    [
+      password_hash: hashed_password,
+      dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
+    ]
+  end
+
+  defp dependency_loaded?(spec) do
+    Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
   end
 
   defp parse_argon2_params(hash) do

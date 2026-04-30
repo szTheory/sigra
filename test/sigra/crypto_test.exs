@@ -2,6 +2,7 @@ defmodule Sigra.CryptoTest do
   use ExUnit.Case, async: true
 
   alias Sigra.Crypto
+  alias Sigra.OptionalDeps.MissingDependencyError
 
   describe "hash_password/2" do
     test "produces an Argon2id hash" do
@@ -119,6 +120,14 @@ defmodule Sigra.CryptoTest do
         bcrypt_hash = Bcrypt.hash_pwd_salt("password123")
 
         assert {:error, :invalid} = Crypto.verify_with_upgrade("wrongpassword", bcrypt_hash)
+      end
+    end
+
+    test "raises a tagged missing dependency error when bcrypt verification is requested without bcrypt" do
+      assert_raise MissingDependencyError, ~r/optional dependency missing for bcrypt_migration/, fn ->
+        Crypto.verify_with_upgrade("password123", @bcrypt_hash,
+          dependency_loaded?: fn _spec -> false end
+        )
       end
     end
   end

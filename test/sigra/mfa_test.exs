@@ -2,6 +2,7 @@ defmodule Sigra.MFATest do
   use ExUnit.Case, async: true
 
   alias Sigra.MFA
+  alias Sigra.OptionalDeps.MissingDependencyError
 
   describe "enroll/2" do
     test "returns {:ok, map} with secret, otpauth_uri, svg, and raw_secret" do
@@ -10,9 +11,16 @@ defmodule Sigra.MFATest do
       assert {:ok, enrollment} = MFA.enroll(config)
       assert is_binary(enrollment.secret)
       assert is_binary(enrollment.otpauth_uri)
+      assert is_binary(enrollment.svg)
       assert is_binary(enrollment.raw_secret)
-      # svg may be nil if eqrcode not loaded, or a string if available
-      assert is_nil(enrollment.svg) or is_binary(enrollment.svg)
+    end
+
+    test "raises a tagged missing dependency error when QR rendering is requested without eqrcode" do
+      config = build_config()
+
+      assert_raise MissingDependencyError, ~r/optional dependency missing for totp_qr/, fn ->
+        MFA.enroll(config, dependency_loaded?: fn _spec -> false end)
+      end
     end
 
     test "otpauth_uri contains issuer and account" do

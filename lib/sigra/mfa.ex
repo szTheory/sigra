@@ -29,6 +29,7 @@ defmodule Sigra.MFA do
 
   alias Ecto.Multi
   alias Sigra.MFA.{BackupCodes, Credential, Lockout, Trust}
+  alias Sigra.OptionalDeps
 
   # --- Audit integration helpers (Plan 09-03) ---
   #
@@ -148,7 +149,7 @@ defmodule Sigra.MFA do
 
       otpauth_uri = NimbleTOTP.otpauth_uri("#{issuer}:#{account}", raw_secret, issuer: issuer)
 
-      svg = generate_qr_svg(otpauth_uri)
+      svg = generate_qr_svg(otpauth_uri, opts)
 
       {:ok,
        %{
@@ -1055,14 +1056,23 @@ defmodule Sigra.MFA do
     |> Enum.map_join(" ", &String.capitalize/1)
   end
 
-  defp generate_qr_svg(otpauth_uri) do
-    if Code.ensure_loaded?(EQRCode) do
-      otpauth_uri
-      |> EQRCode.encode()
-      |> EQRCode.svg(width: 200)
-    else
-      nil
-    end
+  defp generate_qr_svg(otpauth_uri, opts) do
+    OptionalDeps.ensure_available!(:totp_qr, qr_context(opts))
+
+    otpauth_uri
+    |> EQRCode.encode()
+    |> EQRCode.svg(width: 200)
+  end
+
+  defp qr_context(opts) do
+    [
+      mfa_enrollment: :qr,
+      dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
+    ]
+  end
+
+  defp dependency_loaded?(spec) do
+    Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
   end
 
   defp verify_backup_for_disable(config, user, code, opts) do
