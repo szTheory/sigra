@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
 status: executing
-last_updated: "2026-04-30T21:22:31.114Z"
+last_updated: "2026-04-30T21:35:17.201Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 25
-  completed_plans: 24
-  percent: 96
+  completed_plans: 25
+  percent: 100
 ---
 
 # Project State
@@ -23,17 +23,17 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 95 — optional-dep-boot-validation-mix-sigra-doctor-hard-02
+**Current focus:** Phase 94 — postgres-only-declaration-hard-01
 
 ## Current Position
 
 Milestone: **v1.21 B2B-ready & production-honest**
 
-Phase: 95 (optional-dep-boot-validation-mix-sigra-doctor-hard-02) — EXECUTING
+Phase: 94 (postgres-only-declaration-hard-01) — READY TO EXECUTE
 
-Plan: 3 of 4
+Plan: 0 of 4
 
-Status: Ready to execute
+Status: Phase 95 complete; Phase 94 ready to execute
 
 Last activity: 2026-04-30
 
@@ -50,10 +50,13 @@ Last activity: 2026-04-30
 - Kept mix sigra.doctor contextual: only enabled enforced optional deps can halt with status 2.
 - Moved Joken/Bcrypt/EQRCode warning suppression to local module seams and reserved mix.exs global suppression for advisory or worker references.
 - Added a compile-time host-proof warning macro in Sigra.Application instead of relying on speculative undefined-module warnings.
+- Kept lifecycle workers always defined while guarding only Oban-specific entrypoints behind the compile-safe seam.
+- Used dedicated dep-off CI jobs with real mix run assertions instead of a mandatory Joken-off lane.
+- Routed maintainer and adopter optional-dependency diagnosis through mix sigra.doctor and the optional-until-enabled rule.
 
 ## Session Continuity
 
-**Next:** Execute `95-04-PLAN.md` to finish the dep-off matrix and remaining HARD-02 verification gates. Phase 94 (Postgres-only declaration) remains the next independent roadmap leg after Phase 95 closes.
+**Next:** Execute `94-01-PLAN.md` to begin the Postgres-only declaration hardening work. Phase 95 is complete on disk with `95-04-SUMMARY.md`, `95-VALIDATION.md`, and `95-VERIFICATION.md` recorded.
 
 **Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (REQ traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed). Phase 93 execution artifacts under `.planning/phases/93-m2m-service-account-tokens-b2b-03/` — see `93-VERIFICATION.md` for the goal-backward verdict.
 

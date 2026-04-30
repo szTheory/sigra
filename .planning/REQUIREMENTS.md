@@ -16,7 +16,7 @@ Requirements for the v1.21 milestone. Each maps to exactly one roadmap phase (91
 ### Production Hardening
 
 - [ ] **HARD-01**: `mix sigra.install` refuses to run against a non-Postgres adapter with a clear error; all unimplemented MySQL / SQLite migration branches are removed; PROJECT.md / README / mix.exs / getting-started honestly state PostgreSQL as the only supported adapter.
-- [ ] **HARD-02**: Each optional dependency (Oban / Bcrypt / EQRCode) raises a clear, actionable error at first use when missing instead of compiling to silent nil; `mix sigra.doctor` reports per-feature dep status; CI matrix toggles each optional dep off and verifies behavior.
+- [x] **HARD-02**: Each optional dependency (Oban / Bcrypt / EQRCode) raises a clear, actionable error at first use when missing instead of compiling to silent nil; `mix sigra.doctor` reports per-feature dep status; CI matrix toggles each optional dep off and verifies behavior.
 - [ ] **HARD-03**: OAuth token refresh works for GitHub / Apple / Facebook / Generic providers (replacing the `lib/sigra/oauth.ex:174` "not yet implemented" warning) with provider-specific refresh dispatch via Assent and atomic `oauth.token_refreshed` audit rows.
 
 ### API Polish
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | B2B-02 | 92 | Pending |
 | B2B-03 | 93 | Complete |
 | HARD-01 | 94 | Pending |
-| HARD-02 | 95 | Pending |
+| HARD-02 | 95 | Complete |
 | HARD-03 | 96 | Pending |
 | API-01 | 96 | Pending |
 
@@ -97,4 +97,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-28*
-*Last updated: 2026-04-30 after Phase 93 verification*
+*Last updated: 2026-04-30 after Phase 95 verification*
