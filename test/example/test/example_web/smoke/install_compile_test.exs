@@ -7,7 +7,37 @@ defmodule Example.InstallCompileTest do
   fails, downstream smoke tests cannot run.
   """
   use ExUnit.Case, async: true
+  @compile {:no_warn_undefined, Example.Accounts}
   @moduletag :example_app
+
+  setup_all do
+    example_build = Path.expand("../../../_build/test/lib", __DIR__)
+
+    example_build
+    |> Path.join("*/ebin")
+    |> Path.wildcard()
+    |> Enum.each(&Code.prepend_path/1)
+
+    if :ets.whereis(ExampleWeb.Endpoint) == :undefined do
+      :ets.new(ExampleWeb.Endpoint, [:named_table, :public, :set])
+    end
+
+    :ets.insert(ExampleWeb.Endpoint, {:secret_key_base, String.duplicate("a", 64)})
+
+    base_url = "http://localhost"
+
+    :persistent_term.put(
+      {Phoenix.Endpoint, ExampleWeb.Endpoint},
+      %{
+        url: base_url,
+        static_url: base_url,
+        struct_url: URI.parse(base_url),
+        host: "localhost"
+      }
+    )
+
+    :ok
+  end
 
   test "Sigra-generated core modules are loaded" do
     assert Code.ensure_loaded?(Example.Accounts)
@@ -44,5 +74,29 @@ defmodule Example.InstallCompileTest do
     assert Code.ensure_loaded?(Sigra.Testing)
     assert Code.ensure_loaded?(Sigra.Config)
     assert Code.ensure_loaded?(Sigra.MFA)
+  end
+
+  test "generated-host jwt/api compile contract emits a Joken warning only when JWT is enabled" do
+    module_name = Module.concat(__MODULE__, "JwtWarning#{System.unique_integer([:positive])}")
+
+    warning =
+      ExUnit.CaptureIO.capture_io(:stderr, fn ->
+        Code.compile_string("""
+        defmodule #{inspect(module_name)} do
+          require Sigra.Application
+
+          Sigra.Application.warn_for_enabled_optional_deps!(
+            jwt: [enabled: true],
+            dependency_loaded?: fn spec -> spec.dependency != :joken end
+          )
+
+          def ready?, do: true
+        end
+        """)
+      end)
+
+    assert warning =~ "compile-time optional dependency warning for jwt"
+    assert warning =~ "Dependency: joken (~> 2.6)"
+    assert warning =~ "Evidence: jwt[:enabled] == true"
   end
 end
