@@ -167,6 +167,157 @@ jobs:
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
 
+  optional_dep_oban_absent:
+    name: Optional dep off - oban
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-oban-off-${{ hashFiles('mix.lock') }}
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Remove oban from this lane
+        run: |
+          perl -0pi -e 's/\n\s*\{:oban, "~> 2\.17", optional: true\},//g' mix.exs
+      - name: Fetch reduced dependency set
+        run: mix deps.get
+      - name: Verify oban-off failure surfaces
+        env:
+          MIX_ENV: test
+        run: |
+          mix test test/sigra/delivery_test.exs:103 test/sigra/workers/optional_deps_test.exs:32
+          if mix sigra.doctor --delivery-mode=async; then
+            echo "expected mix sigra.doctor --delivery-mode=async to fail without oban"
+            exit 1
+          fi
+          mix run -e '
+            try do
+              Sigra.Workers.AccountDeletion.new(%{"user_id" => 1}, [])
+              IO.puts("expected MissingDependencyError for oban-off lane")
+              System.halt(1)
+            rescue
+              error in Sigra.OptionalDeps.MissingDependencyError ->
+                if error.feature == :async_email do
+                  IO.puts("account deletion worker raised tagged async dependency error")
+                else
+                  IO.puts("unexpected feature: #{inspect(error.feature)}")
+                  System.halt(1)
+                end
+            end
+          '
+
+  optional_dep_bcrypt_absent:
+    name: Optional dep off - bcrypt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-bcrypt-off-${{ hashFiles('mix.lock') }}
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Remove bcrypt_elixir from this lane
+        run: |
+          perl -0pi -e 's/\n\s*\{:bcrypt_elixir, "~> 3\.3", optional: true\},//g' mix.exs
+      - name: Fetch reduced dependency set
+        run: mix deps.get
+      - name: Verify bcrypt-off failure surfaces
+        env:
+          MIX_ENV: test
+        run: |
+          mix test test/sigra/crypto_test.exs:126
+          mix run -e '
+            hash = "$2b$12$WApznUPhDubN0oeveSXHp.Raz0RCbZCjJjVEqMlKsXXYb.1VZFBi2"
+
+            try do
+              Sigra.Crypto.verify_with_upgrade("password123", hash)
+              IO.puts("expected MissingDependencyError for bcrypt-off lane")
+              System.halt(1)
+            rescue
+              error in Sigra.OptionalDeps.MissingDependencyError ->
+                if error.feature == :bcrypt_migration do
+                  IO.puts("bcrypt verification raised tagged dependency error")
+                else
+                  IO.puts("unexpected feature: #{inspect(error.feature)}")
+                  System.halt(1)
+                end
+            end
+          '
+
+  optional_dep_eqrcode_absent:
+    name: Optional dep off - eqrcode
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-eqrcode-off-${{ hashFiles('mix.lock') }}
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Remove eqrcode from this lane
+        run: |
+          perl -0pi -e 's/\n\s*\{:eqrcode, "~> 0\.2\.1", optional: true\},//g' mix.exs
+      - name: Fetch reduced dependency set
+        run: mix deps.get
+      - name: Verify eqrcode-off failure surfaces
+        env:
+          MIX_ENV: test
+        run: |
+          mix test test/sigra/mfa_test.exs:18
+          mix run -e '
+            config = Sigra.Config.new!(
+              repo: Sigra.MockRepo,
+              user_schema: Sigra.TestUser,
+              secret_key_base: String.duplicate("a", 64),
+              mfa: [enabled: true, totp_issuer: nil]
+            )
+
+            try do
+              Sigra.MFA.enroll(config)
+              IO.puts("expected MissingDependencyError for eqrcode-off lane")
+              System.halt(1)
+            rescue
+              error in Sigra.OptionalDeps.MissingDependencyError ->
+                if error.feature == :totp_qr do
+                  IO.puts("mfa enrollment raised tagged dependency error")
+                else
+                  IO.puts("unexpected feature: #{inspect(error.feature)}")
+                  System.halt(1)
+                end
+            end
+          '
+
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
     runs-on: ubuntu-latest
