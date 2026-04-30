@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
 status: executing
-last_updated: "2026-04-30T21:08:20.428Z"
+last_updated: "2026-04-30T21:22:31.114Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 25
-  completed_plans: 23
-  percent: 92
+  completed_plans: 24
+  percent: 96
 ---
 
 # Project State
@@ -31,7 +31,7 @@ Milestone: **v1.21 B2B-ready & production-honest**
 
 Phase: 95 (optional-dep-boot-validation-mix-sigra-doctor-hard-02) — EXECUTING
 
-Plan: 2 of 4
+Plan: 3 of 4
 
 Status: Ready to execute
 
@@ -47,10 +47,13 @@ Last activity: 2026-04-30
 - Kept delivery_mode :auto synchronous unless Oban is actually running, while explicit async boundaries enforce :async_email through Sigra.OptionalDeps.
 - Moved the email worker to an always-defined module so missing Oban fails at first queue-backed use instead of via compile-time disappearance.
 - Limited permissive missing-bcrypt behavior to no_user timing equalization; bcrypt hash verification and TOTP QR rendering now raise tagged missing-dependency errors.
+- Kept mix sigra.doctor contextual: only enabled enforced optional deps can halt with status 2.
+- Moved Joken/Bcrypt/EQRCode warning suppression to local module seams and reserved mix.exs global suppression for advisory or worker references.
+- Added a compile-time host-proof warning macro in Sigra.Application instead of relying on speculative undefined-module warnings.
 
 ## Session Continuity
 
-**Next:** Start Phase 94 discussion/planning (`$gsd-discuss-phase 94`). Phase 94 (Postgres-only declaration) is the next roadmap item; Phases 95 and 96 remain independently plannable after that. Before any ship/merge step, the current dirty Phase 93 batch still needs commit hygiene.
+**Next:** Execute `95-04-PLAN.md` to finish the dep-off matrix and remaining HARD-02 verification gates. Phase 94 (Postgres-only declaration) remains the next independent roadmap leg after Phase 95 closes.
 
 **Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (REQ traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed). Phase 93 execution artifacts under `.planning/phases/93-m2m-service-account-tokens-b2b-03/` — see `93-VERIFICATION.md` for the goal-backward verdict.
 

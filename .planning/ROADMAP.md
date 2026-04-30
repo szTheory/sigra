@@ -160,7 +160,7 @@ Plans:
 4. A reviewer running the optional-dep CI matrix sees three jobs (Oban-absent / Bcrypt-absent / EQRCode-absent) each toggling that dep off via `mix.exs` and asserting the raise-on-missing path fires with the expected error tag — none silently passes by skipping the relevant code.
 5. `95-VERIFICATION.md` records the merge gate outcome plus the `MAINTAINING.md` "Diagnosing first-run issues" row pointing at `mix sigra.doctor`; `lib/sigra/optional_deps.ex` is the single source of truth for the feature → dep mapping (verified via grep — no scattered `Code.ensure_loaded?` guards left in workers).
 
-**Plans:** 1/4 plans executed
+**Plans:** 3/4 plans executed
 
 ### Phase 96: OAuth refresh + rate-limit headers (HARD-03 + API-01)
 
@@ -188,7 +188,7 @@ Plans:
 | 92. RBAC seams (B2B-02) | 4/4 | In progress | — |
 | 93. M2M / service-account tokens (B2B-03) | 6/6 | Complete | 2026-04-30 |
 | 94. Postgres-only declaration (HARD-01) | 0/4 | Not started | — |
-| 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 1/4 | In Progress|  |
+| 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 3/4 | In Progress | — |
 | 96. OAuth refresh + rate-limit headers (HARD-03 + API-01) | 0/0 | Not started | — |
 
 ## Traceability — v1.21
