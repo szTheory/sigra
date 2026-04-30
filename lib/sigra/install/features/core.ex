@@ -53,6 +53,35 @@ defmodule Sigra.Install.Features.Core do
   @impl true
   def enabled?(_opts), do: true
 
+  @doc false
+  def optional_dependency_remediation(:async_email) do
+    ~s(Add {:oban, "~> 2.17"} to your mix.exs deps, run mix deps.get, and configure the sigra_mailer queue.)
+  end
+
+  def optional_dependency_remediation(:bcrypt_migration) do
+    ~s(Add {:bcrypt_elixir, "~> 3.3"} to your mix.exs deps and run mix deps.get.)
+  end
+
+  def optional_dependency_remediation(:totp_qr) do
+    ~s(Add {:eqrcode, "~> 0.2.1"} to your mix.exs deps and run mix deps.get.)
+  end
+
+  def optional_dependency_remediation(:jwt) do
+    ~s(Add {:joken, "~> 2.6"} to your mix.exs deps and run mix deps.get.)
+  end
+
+  def optional_dependency_remediation(:rate_limit) do
+    ~s(Add {:hammer, "~> 7.3"} to your mix.exs deps and run mix deps.get.)
+  end
+
+  def optional_dependency_remediation(:oauth) do
+    ~s(Add {:assent, "~> 0.3"} to your mix.exs deps and run mix deps.get.)
+  end
+
+  def optional_dependency_remediation(:swoosh) do
+    ~s(Add {:swoosh, "~> 1.5"} to your mix.exs deps and run mix deps.get.)
+  end
+
   @impl true
   def files(binding) do
     opts = Keyword.get(binding, :opts, [])
@@ -334,7 +363,9 @@ defmodule Sigra.Install.Features.Core do
 
     [
       {:eex, "core/token_controller.ex",
-       Path.join(["lib", web, "controllers", "token_controller.ex"])}
+       Path.join(["lib", web, "controllers", "token_controller.ex"])},
+      {:eex, "core/oauth_token_controller.ex",
+       Path.join(["lib", web, "controllers", "oauth_token_controller.ex"])}
     ]
   end
 
@@ -639,7 +670,7 @@ defmodule Sigra.Install.Features.Core do
 
     jwt_config_tail =
       if jwt? do
-        "\n  jwt: [\n    algorithm: \"HS256\",\n    access_ttl: 900,\n    refresh_ttl: 2_592_000\n  ]\n"
+        "\n  jwt: [\n    algorithm: \"HS256\",\n    access_ttl: 900,\n    client_credentials_access_ttl: 3600,\n    refresh_ttl: 2_592_000\n  ]\n"
       else
         ""
       end
@@ -665,6 +696,12 @@ defmodule Sigra.Install.Features.Core do
     if jwt? do
       jwt_router_content = """
         # Sigra JWT
+        scope "/", #{web_module} do
+          pipe_through :api
+
+          post "/oauth/token", OAuthTokenController, :create
+        end
+
         scope "/api/auth", #{web_module} do
           pipe_through :api
 
@@ -714,7 +751,8 @@ defmodule Sigra.Install.Features.Core do
 
     jwt_line =
       if Keyword.get(opts, :jwt, false) do
-        "  JWT authentication endpoints were generated at /api/auth/token.\n"
+        "  JWT authentication endpoints were generated at /api/auth/token.\n" <>
+          "  #{optional_dependency_remediation(:jwt)}\n"
       else
         ""
       end
@@ -796,7 +834,7 @@ defmodule Sigra.Install.Features.Core do
           "* Oban not detected. ",
           :reset,
           "Email delivery will use synchronous mode.\n",
-          "  To enable async delivery, add Oban and configure the sigra_mailer queue."
+          "  #{optional_dependency_remediation(:async_email)}"
         ]
       ]
     end

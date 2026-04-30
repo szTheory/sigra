@@ -8,6 +8,7 @@ defmodule Sigra.OptionalDeps do
   """
 
   alias Sigra.OptionalDeps.MissingDependencyError
+  alias Sigra.Install.Features.Core, as: InstallCore
 
   @type feature :: :async_email | :bcrypt_migration | :jwt | :oauth | :rate_limit | :swoosh | :totp_qr
 
@@ -100,7 +101,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: true,
         doctor?: true,
         compile_warning?: :when_enabled,
-        remediation: ~s(Add {:oban, "~> 2.17"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:async_email),
         enabled?: fn context -> async_email_enabled?(context) end,
         evidence: fn context -> async_email_evidence(context) end
       },
@@ -113,8 +114,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: true,
         doctor?: true,
         compile_warning?: :never,
-        remediation:
-          ~s(Add {:bcrypt_elixir, "~> 3.3"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:bcrypt_migration),
         enabled?: fn context -> bcrypt_migration_enabled?(context) end,
         evidence: fn context -> bcrypt_migration_evidence(context) end
       },
@@ -127,7 +127,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: true,
         doctor?: true,
         compile_warning?: :when_enabled,
-        remediation: ~s(Add {:eqrcode, "~> 0.2.1"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:totp_qr),
         enabled?: fn context -> totp_qr_enabled?(context) end,
         evidence: fn context -> totp_qr_evidence(context) end
       },
@@ -140,7 +140,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: true,
         doctor?: true,
         compile_warning?: :when_enabled,
-        remediation: ~s(Add {:joken, "~> 2.6"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:jwt),
         enabled?: fn context -> jwt_enabled?(context) end,
         evidence: fn context -> jwt_evidence(context) end
       },
@@ -153,7 +153,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: false,
         doctor?: true,
         compile_warning?: :advisory_only,
-        remediation: ~s(Add {:hammer, "~> 7.3"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:rate_limit),
         enabled?: fn context -> rate_limit_enabled?(context) end,
         evidence: fn context -> rate_limit_evidence(context) end
       },
@@ -166,7 +166,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: false,
         doctor?: true,
         compile_warning?: :advisory_only,
-        remediation: ~s(Add {:assent, "~> 0.3"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:oauth),
         enabled?: fn context -> oauth_enabled?(context) end,
         evidence: fn context -> oauth_evidence(context) end
       },
@@ -179,7 +179,7 @@ defmodule Sigra.OptionalDeps do
         enforced?: false,
         doctor?: true,
         compile_warning?: :advisory_only,
-        remediation: ~s(Add {:swoosh, "~> 1.5"} to your mix.exs deps and run mix deps.get.),
+        remediation: InstallCore.optional_dependency_remediation(:swoosh),
         enabled?: fn context -> swoosh_enabled?(context) end,
         evidence: fn context -> swoosh_evidence(context) end
       }
