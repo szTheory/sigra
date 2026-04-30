@@ -96,6 +96,19 @@ defmodule Sigra.OptionalDepsTest do
   end
 
   describe "doctor_row/2" do
+    test "proves jwt enablement from host config instead of speculation" do
+      active_row = OptionalDeps.doctor_row(:jwt, config(jwt: [enabled: true]))
+      inactive_row = OptionalDeps.doctor_row(:jwt, config(jwt: [enabled: false]))
+
+      assert active_row.enabled? == true
+      assert active_row.status == :ok
+      assert active_row.evidence == "config.jwt[:enabled] == true"
+
+      assert inactive_row.enabled? == false
+      assert inactive_row.status == :inactive
+      assert inactive_row.blocking? == false
+    end
+
     test "returns informative non-blocking metadata for inactive advisory rows" do
       row =
         OptionalDeps.doctor_row(:rate_limit,

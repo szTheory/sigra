@@ -2,6 +2,7 @@ defmodule Sigra.JWT.SignerTest do
   use ExUnit.Case, async: true
 
   alias Sigra.JWT.Signer
+  alias Sigra.OptionalDeps
 
   defp config(overrides \\ []) do
     base = [
@@ -20,6 +21,11 @@ defmodule Sigra.JWT.SignerTest do
   describe "ensure_joken!/0" do
     test "returns :ok when Joken is loaded" do
       assert :ok = Signer.ensure_joken!()
+    end
+
+    test "uses the registry-backed jwt contract" do
+      assert %{dependency: :joken, enforced?: true, support_tier: :phase_95} =
+               OptionalDeps.feature_spec!(:jwt)
     end
   end
 

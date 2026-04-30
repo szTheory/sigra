@@ -3,27 +3,21 @@ defmodule Sigra.JWT.Signer do
   JWT key loading and signer creation.
 
   Derives signing keys from the application's `secret_key_base` for HS256,
-  or loads PEM keys for RS256/ES256. All functions guard against Joken
-  availability at runtime.
+  or loads PEM keys for RS256/ES256. All functions guard against the
+  registry-backed optional dependency contract for Joken.
   """
+
+  alias Sigra.OptionalDeps
 
   @doc """
   Ensures Joken is available at runtime.
 
-  Raises a clear `RuntimeError` with installation instructions if Joken
-  is not loaded. Called before any JWT operation.
+  Raises a tagged Sigra optional-dependency error if Joken is not loaded.
+  Called before any JWT operation.
   """
   @spec ensure_joken!() :: :ok
   def ensure_joken! do
-    unless Code.ensure_loaded?(Joken) do
-      raise RuntimeError, """
-      Joken is required for JWT support but is not available.
-
-      Add {:joken, "~> 2.6"} to your mix.exs deps and run mix deps.get.
-      """
-    end
-
-    :ok
+    OptionalDeps.ensure_available!(:jwt, jwt: [enabled: true])
   end
 
   @doc """

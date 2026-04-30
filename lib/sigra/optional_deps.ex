@@ -222,16 +222,28 @@ defmodule Sigra.OptionalDeps do
   defp status_for(_spec, false, _loaded?), do: :advisory
 
   defp jwt_enabled?(context) do
-    context
-    |> config_value(:jwt, [])
-    |> Keyword.get(:enabled, false)
+    jwt_config =
+      case Map.get(context, :jwt) do
+        jwt when is_list(jwt) -> jwt
+        _other -> config_value(context, :jwt, [])
+      end
+
+    Keyword.get(jwt_config, :enabled, false)
   end
 
   defp jwt_evidence(context) do
     if jwt_enabled?(context) do
-      "config.jwt[:enabled] == true"
+      if is_list(Map.get(context, :jwt)) do
+        "jwt[:enabled] == true"
+      else
+        "config.jwt[:enabled] == true"
+      end
     else
-      "config.jwt[:enabled] != true"
+      if is_list(Map.get(context, :jwt)) do
+        "jwt[:enabled] != true"
+      else
+        "config.jwt[:enabled] != true"
+      end
     end
   end
 
