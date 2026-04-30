@@ -45,7 +45,7 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 
 - [x] **Phase 91: Org-level MFA enforcement (B2B-01)** — Org admin can require MFA for all members of an organization with an atomic `organization.mfa_policy_change` audit row, blocking non-MFA-enrolled members at the request boundary until enrollment. (completed 2026-04-29)
 - [ ] **Phase 92: RBAC seams (B2B-02)** — Generated host receives a nullable `role` field on `OrganizationMembership`, a `Sigra.Authz` `can?/3` behaviour, scope-struct `:role` propagation, a no-op default `Authz` impl, and a recipe doc — without the library shipping any opinionated roles.
-- [ ] **Phase 93: M2M / service-account tokens (B2B-03)** — Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope.actor_type` and audit rows from user-tied tokens.
+- [x] **Phase 93: M2M / service-account tokens (B2B-03)** — Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope.actor_type` and audit rows from user-tied tokens. (completed 2026-04-30)
 - [ ] **Phase 94: Postgres-only declaration (HARD-01)** — `mix sigra.install` refuses to run against a non-Postgres adapter with a clear error; all unimplemented MySQL / SQLite migration branches are removed; PROJECT.md / README / mix.exs / getting-started state PostgreSQL as the only supported adapter.
 - [ ] **Phase 95: Optional-dep boot-validation + `mix sigra.doctor` (HARD-02)** — Each optional dependency (Oban / Bcrypt / EQRCode) raises a clear, actionable error at first use when missing instead of compiling to silent nil; `mix sigra.doctor` reports per-feature dep status; CI matrix toggles each optional dep off and verifies behavior.
 - [ ] **Phase 96: OAuth refresh + rate-limit headers (HARD-03 + API-01)** — OAuth token refresh works for GitHub / Apple / Facebook / Generic providers with atomic `oauth.token_refreshed` audit rows; API responses on rate-limited paths carry `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After` headers populated from Hammer state.
@@ -106,11 +106,19 @@ Plans:
 
 1. An org admin opening the generated service-accounts admin LiveView can: create a new service account with a name + scope list, see the token displayed exactly once at creation (never readable again), see the service account in the org's list view with status / created-by / last-used columns, and revoke a service account such that `revoked_at` is set and the token immediately stops authenticating.
 2. An external caller issuing `POST /oauth/token` with `grant_type=client_credentials` + valid client credentials receives a JWT bound to the service account; calling a protected API endpoint with `Authorization: Bearer <jwt>` succeeds, and `current_scope.actor_type` reads `:service_account` (not `:user`) inside the controller / LiveView. The same JWT after revocation produces a 401 with `api.token_verify.failure` audit row whose actor type is `:service_account`.
-3. A reviewer querying audit rows for a service-account-issued request sees `service_account.created` / `service_account.revoked` rows for lifecycle events and `api.token_verify` rows extended with the actor-type discriminator; every audit row uses `Sigra.Audit.log_multi_safe/3` (no `log_safe/3` debt added).
+3. A reviewer querying audit rows for a service-account-issued request sees `service_account.create` / `service_account.revoke` rows for lifecycle events and `api.token_verify` rows extended with the actor-type discriminator; every audit row uses `Sigra.Audit.log_multi_safe/3` (no `log_safe/3` debt added).
 4. A maintainer running the `test/example/test/example_web/integration/` suite sees a generated-host E2E that issues a service-account token, calls a protected endpoint successfully, revokes the service account, and asserts the next call fails — including the audit-row assertions on both halves.
 5. `93-VERIFICATION.md` records: full library suite + generator-host E2E green, golden-diff stable for the new template set, JWT path test coverage exercises both `:user` and `:service_account` actor types, and the dual-mode auth plug remains the single entry point (no parallel auth pipeline introduced).
 
-**Plans:** TBD.
+**Plans:** 6/6 plans complete
+
+Plans:
+- [x] `93-01-PLAN.md` — Normalize service-account lifecycle/audit verbs, stable errors, and atomicity proof around the existing library module.
+- [x] `93-02-PLAN.md` — Lock JWT, FetchBearer, membership, and org-MFA service-account parity on the existing dual-mode auth path.
+- [x] `93-03-PLAN.md` — Enforce generator gating and add direct `/oauth/token` controller coverage for the generated/example token surface.
+- [x] `93-04-PLAN.md` — Align generated/example service-account UI, sudo, and `service_account_id` scope parity to the locked host-facing decisions.
+- [x] `93-05-PLAN.md` — Publish the service-account recipe and refresh the service-account golden install fixture.
+- [x] `93-06-PLAN.md` — Close Phase 93 with roadmap/requirements canonicalization plus `93-VERIFICATION.md`.
 
 ### Phase 94: Postgres-only declaration (HARD-01)
 
@@ -128,7 +136,13 @@ Plans:
 4. A reviewer running the new regression test (`test/sigra/install/postgres_only_test.exs` or equivalent) sees the install task refused against a fake `MyXQL` adapter config and accepted against `Postgres`; the `install_smoke` CI job remains green against Postgres.
 5. `94-VERIFICATION.md` records the merge gate outcome including: zero remaining adapter-conditional branches in templates, the trace bullet committed to `CHANGELOG.md` `[Unreleased]`, and the explicit MySQL / SQLite Out-of-Scope row in `REQUIREMENTS.md` matches the language now in PROJECT.md / README.
 
-**Plans:** TBD.
+**Plans:** 4 plans.
+
+Plans:
+- [ ] `94-01-PLAN.md` — Enforce the installer’s Postgres-only pre-flight refusal and add the unsupported-adapter boundary regression.
+- [ ] `94-02-PLAN.md` — Collapse the core auth/session and organizations templates to one Postgres path and replace their adapter-matrix tests with supported-contract assertions.
+- [ ] `94-03-PLAN.md` — Align docs/metadata/changelog to PostgreSQL-only support and run the supported-path verification gate after all installer cleanup plans land.
+- [ ] `94-04-PLAN.md` — Remove adjacent installer-surface drift from API-token, passkeys, and audit-events templates and replace their adapter-matrix tests with supported-contract assertions.
 
 ### Phase 95: Optional-dep boot-validation + `mix sigra.doctor` (HARD-02)
 
@@ -146,7 +160,7 @@ Plans:
 4. A reviewer running the optional-dep CI matrix sees three jobs (Oban-absent / Bcrypt-absent / EQRCode-absent) each toggling that dep off via `mix.exs` and asserting the raise-on-missing path fires with the expected error tag — none silently passes by skipping the relevant code.
 5. `95-VERIFICATION.md` records the merge gate outcome plus the `MAINTAINING.md` "Diagnosing first-run issues" row pointing at `mix sigra.doctor`; `lib/sigra/optional_deps.ex` is the single source of truth for the feature → dep mapping (verified via grep — no scattered `Code.ensure_loaded?` guards left in workers).
 
-**Plans:** TBD.
+**Plans:** 1/4 plans executed
 
 ### Phase 96: OAuth refresh + rate-limit headers (HARD-03 + API-01)
 
@@ -172,9 +186,9 @@ Plans:
 |-------|----------------|--------|-----------|
 | 91. Org-level MFA enforcement (B2B-01) | 7/7 | Complete    | 2026-04-29 |
 | 92. RBAC seams (B2B-02) | 4/4 | In progress | — |
-| 93. M2M / service-account tokens (B2B-03) | 0/0 | Not started | — |
-| 94. Postgres-only declaration (HARD-01) | 0/0 | Not started | — |
-| 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 0/0 | Not started | — |
+| 93. M2M / service-account tokens (B2B-03) | 6/6 | Complete | 2026-04-30 |
+| 94. Postgres-only declaration (HARD-01) | 0/4 | Not started | — |
+| 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 1/4 | In Progress|  |
 | 96. OAuth refresh + rate-limit headers (HARD-03 + API-01) | 0/0 | Not started | — |
 
 ## Traceability — v1.21

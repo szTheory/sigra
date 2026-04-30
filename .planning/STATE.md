@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
 status: executing
-last_updated: "2026-04-30T19:29:09.566Z"
-last_activity: 2026-04-30 -- Phase 94 execution started
+last_updated: "2026-04-30T21:08:20.428Z"
+last_activity: 2026-04-30
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 21
-  completed_plans: 17
-  percent: 81
+  completed_phases: 4
+  total_plans: 25
+  completed_plans: 23
+  percent: 92
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 94 — postgres-only-declaration-hard-01
+**Current focus:** Phase 95 — optional-dep-boot-validation-mix-sigra-doctor-hard-02
 
 ## Current Position
 
 Milestone: **v1.21 B2B-ready & production-honest**
 
-Phase: 94 (postgres-only-declaration-hard-01) — EXECUTING
+Phase: 95 (optional-dep-boot-validation-mix-sigra-doctor-hard-02) — EXECUTING
 
-Plan: 1 of 4
+Plan: 2 of 4
 
-Status: Executing Phase 94
+Status: Ready to execute
 
-Last activity: 2026-04-30 -- Phase 94 execution started
+Last activity: 2026-04-30
 
 ## Decisions
 
@@ -44,6 +44,9 @@ Last activity: 2026-04-30 -- Phase 94 execution started
 - v1.21 phase boundaries fixed at 6 phases (91–96) per the user-approved plan: one phase per REQ-ID except Phase 96 which bundles HARD-03 + API-01 (both narrow surface area on the dual-mode auth plug + OAuth callback).
 - Phase numbering continues from Phase 90; `--reset-phase-numbers` not used.
 - Phase 93 (B2B-03) is complete on disk and verified locally, but not yet committed from this workspace snapshot.
+- Kept delivery_mode :auto synchronous unless Oban is actually running, while explicit async boundaries enforce :async_email through Sigra.OptionalDeps.
+- Moved the email worker to an always-defined module so missing Oban fails at first queue-backed use instead of via compile-time disappearance.
+- Limited permissive missing-bcrypt behavior to no_user timing equalization; bcrypt hash verification and TOTP QR rendering now raise tagged missing-dependency errors.
 
 ## Session Continuity
 
