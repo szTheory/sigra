@@ -126,7 +126,12 @@ defmodule Mix.Tasks.Sigra.Doctor do
   end
 
   defp halt!(status) do
-    halt_fun = Application.get_env(:sigra, :doctor_halt, &System.halt/1)
-    halt_fun.(status)
+    case Application.get_env(:sigra, :doctor_halt) do
+      nil -> default_halt(status)
+      halt_fun -> halt_fun.(status)
+    end
   end
+
+  defp default_halt(2), do: System.halt(2)
+  defp default_halt(status), do: System.halt(status)
 end
