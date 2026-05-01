@@ -1272,9 +1272,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       hashed_token_matches =
         Regex.scan(~r/unique_index\(:organization_invitations, \[:hashed_token\]\)/, template)
 
-      # One occurrence per adapter branch (postgres + mysql/sqlite).
-      assert length(hashed_token_matches) == 2,
-             "Expected 2 `unique_index(:organization_invitations, [:hashed_token])` occurrences (one per adapter branch), got #{length(hashed_token_matches)}"
+      assert length(hashed_token_matches) == 1,
+             "Expected 1 `unique_index(:organization_invitations, [:hashed_token])` occurrence, got #{length(hashed_token_matches)}"
     end
 
     test "Phase 16 D-03 pending-invitation partial index (IS NULL predicate) is preserved" do

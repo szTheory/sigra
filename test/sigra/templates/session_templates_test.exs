@@ -57,12 +57,8 @@ defmodule Sigra.Templates.SessionTemplatesTest do
       assert content =~ "index(:user_sessions, [:inserted_at])"
     end
 
-    test "includes user_sessions in all three adapter sections", %{content: content} do
-      # Each adapter section should have user_sessions
-      sections = String.split(content, "create table(:user_sessions")
-      # Original + 3 adapter sections = 4 parts
-      assert length(sections) == 4,
-             "Expected user_sessions in postgres, mysql, and sqlite sections"
+    test "includes user_sessions table definition", %{content: content} do
+      assert content =~ "create table(:user_sessions"
     end
   end
 

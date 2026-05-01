@@ -50,7 +50,7 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     end
   end
 
-  describe "api_token_migration.exs template (Postgres)" do
+  describe "api_token_migration.exs template" do
     test "creates user_api_tokens table" do
       content = render_template("api_token_migration.exs")
       assert content =~ "create table(:user_api_tokens, primary_key: false)"
@@ -103,26 +103,6 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     end
   end
 
-  describe "api_token_migration.exs template (MySQL)" do
-    test "uses string type for scopes on MySQL" do
-      content = render_template("api_token_migration.exs", adapter: :mysql)
-      assert content =~ "add :scopes, :string"
-      refute content =~ "{:array, :string}"
-    end
-
-    test "uses change function for MySQL" do
-      content = render_template("api_token_migration.exs", adapter: :mysql)
-      assert content =~ "def change do"
-    end
-  end
-
-  describe "api_token_migration.exs template (SQLite)" do
-    test "uses string type for scopes on SQLite" do
-      content = render_template("api_token_migration.exs", adapter: :sqlite)
-      assert content =~ "add :scopes, :string"
-      refute content =~ "{:array, :string}"
-    end
-  end
 
   describe "user_api_token.ex template" do
     test "defines schema for user_api_tokens" do
@@ -138,11 +118,6 @@ defmodule Sigra.Install.APITokenGeneratorTest do
     test "uses array type for scopes on Postgres" do
       content = render_template("user_api_token.ex")
       assert content =~ "field :scopes, {:array, :string}, default: []"
-    end
-
-    test "uses StringList type for scopes on MySQL" do
-      content = render_template("user_api_token.ex", adapter: :mysql)
-      assert content =~ "field :scopes, Sigra.Ecto.Types.StringList"
     end
 
     test "belongs_to user" do
