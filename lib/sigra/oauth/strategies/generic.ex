@@ -54,6 +54,23 @@ defmodule Sigra.OAuth.Strategies.Generic do
   end
 
   @doc """
+  Refreshes the OAuth access token using the configured Assent strategy.
+  """
+  @doc since: "0.1.21"
+  @spec refresh(keyword(), String.t(), keyword()) :: {:ok, map()} | {:error, term()}
+  def refresh(provider_config, refresh_token, _config \\ []) do
+    ensure_assent!()
+    {_strategy, config} = resolve_strategy(provider_config)
+
+    # Use OAuth2.refresh_access_token directly since most custom strategies
+    # either use standard OAuth2 or can handle this shape.
+    case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+      {:ok, token} when is_map(token) -> {:ok, token}
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  @doc """
   Normalizes a generic provider user info map to a consistent shape.
   """
   @doc since: "0.1.0"

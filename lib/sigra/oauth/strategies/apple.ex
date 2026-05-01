@@ -41,6 +41,23 @@ defmodule Sigra.OAuth.Strategies.Apple do
     end
   end
 
+  @doc """
+  Refreshes the OAuth access token.
+
+  Delegates to `Assent.Strategy.OAuth2.refresh_access_token/2` with merged config.
+  """
+  @doc since: "0.1.21"
+  @spec refresh(keyword(), String.t(), keyword()) :: {:ok, map()} | {:error, term()}
+  def refresh(provider_config, refresh_token, _config \\ []) do
+    ensure_assent!()
+    config = build_config(provider_config)
+
+    case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+      {:ok, token} when is_map(token) -> {:ok, token}
+      {:error, error} -> {:error, error}
+    end
+  end
+
   @doc "Returns the default OAuth scopes for Apple."
   @doc since: "0.1.0"
   @spec default_scopes() :: [String.t()]

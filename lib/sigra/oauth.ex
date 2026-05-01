@@ -210,11 +210,34 @@ defmodule Sigra.OAuth do
   @doc since: "0.5.0"
   @spec get_tokens(map(), Identity.t()) :: {:ok, map()} | {:error, :token_expired}
   def get_tokens(config, %Identity{} = identity) do
+    case refresh_token(config, identity) do
+      {:ok, tokens} -> {:ok, tokens}
+      {:error, _reason} -> {:error, :token_expired}
+    end
+  end
+
+  @doc """
+  Refreshes OAuth tokens for an identity via the provider's token endpoint.
+
+  Returns `{:ok, tokens}` if the token is still valid or was successfully refreshed.
+  If the token is expired and cannot be refreshed, returns a typed error indicating
+  the failure reason (e.g., `:reauth_required`, `:temporarily_unavailable`).
+
+  ## Examples
+
+      {:ok, %{access_token: "new_token"}} = Sigra.OAuth.refresh_token(config, identity)
+      {:error, :reauth_required} = Sigra.OAuth.refresh_token(config, identity)
+
+  """
+  @doc since: "0.6.0"
+  @spec refresh_token(map(), Identity.t()) ::
+          {:ok, map()} | {:error, Sigra.OAuth.RefreshClassifier.classification()}
+  def refresh_token(config, %Identity{} = identity) do
     if token_expired?(identity) do
       if identity.encrypted_refresh_token do
-        refresh_tokens(config, identity)
+        do_refresh_token(config, identity)
       else
-        {:error, :token_expired}
+        {:error, :reauth_required}
       end
     else
       # Identity fields are named encrypted_* for the DB column, but Cloak
@@ -518,26 +541,26 @@ defmodule Sigra.OAuth do
     DateTime.compare(DateTime.utc_now(), expires_at) == :gt
   end
 
-  defp refresh_tokens(config, %Identity{} = identity) do
+  defp do_refresh_token(config, %Identity{} = identity) do
     provider = String.to_existing_atom(identity.provider)
     provider_config = get_provider_config(config, provider) || []
 
     case Strategies.resolve(provider, provider_config) do
-      {:error, _} ->
-        {:error, :token_expired}
+      {:error, :unknown_provider} ->
+        {:error, :unknown_provider}
 
-      _strategy_module ->
-        # Attempt token refresh via Assent if available
-        # For now, return error -- full refresh requires Assent HTTP client
-        Logger.warning("Token refresh not yet implemented for #{identity.provider}")
+      strategy_module ->
+        Telemetry.span([:sigra, :oauth, :refresh], %{provider: provider}, fn ->
+          case strategy_module.refresh(provider_config, identity.encrypted_refresh_token, config) do
+            {:ok, token} ->
+              # Currently returning token only; persistence will be added in the next plan.
+              {:ok, token}
 
-        Telemetry.event([:sigra, :oauth, :refresh, :stop], %{}, %{
-          user_id: identity.user_id,
-          provider: identity.provider,
-          success: false
-        })
-
-        {:error, :token_expired}
+            {:error, error} ->
+              Logger.error("OAuth token refresh failed for #{provider}: #{inspect(error)}")
+              {:error, Sigra.OAuth.RefreshClassifier.classify({:error, error})}
+          end
+        end)
     end
   end
 

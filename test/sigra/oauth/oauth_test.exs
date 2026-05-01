@@ -37,6 +37,10 @@ defmodule Sigra.OAuthTest do
          }
        }}
     end
+
+    def refresh(_provider_config, _refresh_token, _config) do
+      {:ok, %{"access_token" => "new_tok", "refresh_token" => "new_ref", "expires_in" => 3600}}
+    end
   end
 
   defmodule FailingStrategy do
@@ -46,6 +50,10 @@ defmodule Sigra.OAuthTest do
 
     def callback(_config, _params) do
       {:error, %{reason: :provider_error}}
+    end
+
+    def refresh(_provider_config, _refresh_token, _config) do
+      {:error, %Assent.RequestError{response: %{"error" => "invalid_grant"}}}
     end
   end
 
@@ -278,6 +286,140 @@ defmodule Sigra.OAuthTest do
       }
 
       assert {:ok, %{access_token: "valid_token"}} = OAuth.get_tokens(config, identity)
+    end
+
+    test "maps typed failures from refresh_token/2 back to :token_expired for compatibility" do
+      config =
+        build_config(
+          providers: [
+            failing: [client_id: "x", client_secret: "y", strategy: FailingStrategy]
+          ]
+        )
+
+      identity = %Sigra.Identity{
+        id: 1,
+        user_id: 1,
+        provider: "failing",
+        provider_uid: "uid_123",
+        encrypted_access_token: "expired",
+        encrypted_refresh_token: "refresh_me",
+        token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
+      }
+
+      assert {:error, :token_expired} = OAuth.get_tokens(config, identity)
+    end
+  end
+
+  describe "refresh_token/2" do
+    test "returns existing tokens when not expired" do
+      config = build_config()
+
+      identity = %Sigra.Identity{
+        id: 1,
+        user_id: 1,
+        provider: "google",
+        provider_uid: "uid_123",
+        encrypted_access_token: "valid",
+        encrypted_refresh_token: "refresh",
+        token_expires_at: DateTime.add(DateTime.utc_now(), 3600, :second)
+      }
+
+      assert {:ok, %{access_token: "valid", refresh_token: "refresh"}} =
+               OAuth.refresh_token(config, identity)
+    end
+
+    test "returns :reauth_required when token expired and no refresh token" do
+      config = build_config()
+
+      identity = %Sigra.Identity{
+        id: 1,
+        user_id: 1,
+        provider: "google",
+        provider_uid: "uid_123",
+        encrypted_access_token: "expired",
+        encrypted_refresh_token: nil,
+        token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
+      }
+
+      assert {:error, :reauth_required} = OAuth.refresh_token(config, identity)
+    end
+
+    test "calls refresh on strategy and returns typed outcome on success" do
+      TestServer.start()
+      site_url = TestServer.url()
+
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "access_token" => "new_tok",
+              "refresh_token" => "new_ref",
+              "expires_in" => 3600,
+              "token_type" => "Bearer"
+            })
+          )
+        end
+      )
+
+      config =
+        build_config(
+          providers: [
+            mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy, base_url: site_url, token_url: "#{site_url}/token"]
+          ]
+        )
+
+      identity = %Sigra.Identity{
+        id: 1,
+        user_id: 1,
+        provider: "mock",
+        provider_uid: "uid_123",
+        encrypted_access_token: "expired",
+        encrypted_refresh_token: "refresh_me",
+        token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
+      }
+
+      assert {:ok, %{"access_token" => "new_tok", "refresh_token" => "new_ref"}} =
+               OAuth.refresh_token(config, identity)
+    end
+
+    test "calls refresh on strategy and returns classified error on failure" do
+      TestServer.start()
+      site_url = TestServer.url()
+
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            400,
+            Jason.encode!(%{"error" => "invalid_grant"})
+          )
+        end
+      )
+
+      config =
+        build_config(
+          providers: [
+            failing: [client_id: "x", client_secret: "y", strategy: FailingStrategy, base_url: site_url, token_url: "#{site_url}/token"]
+          ]
+        )
+
+      identity = %Sigra.Identity{
+        id: 1,
+        user_id: 1,
+        provider: "failing",
+        provider_uid: "uid_123",
+        encrypted_access_token: "expired",
+        encrypted_refresh_token: "refresh_me",
+        token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
+      }
+
+      assert {:error, :reauth_required} = OAuth.refresh_token(config, identity)
     end
   end
 
