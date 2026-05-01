@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
 status: executing
-last_updated: "2026-04-30T21:35:17.201Z"
-last_activity: 2026-04-30
+last_updated: "2026-05-01T00:00:00.000Z"
+last_activity: 2026-05-01
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 25
-  completed_plans: 25
-  percent: 100
+  completed_phases: 2
+  total_plans: 26
+  completed_plans: 13
+  percent: 33
 ---
 
 # Project State
@@ -23,19 +23,19 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 94 — postgres-only-declaration-hard-01
+**Current focus:** Phase 92 — rbac-seams-b2b-02
 
 ## Current Position
 
 Milestone: **v1.21 B2B-ready & production-honest**
 
-Phase: 94 (postgres-only-declaration-hard-01) — READY TO EXECUTE
+Phase: 92 (rbac-seams-b2b-02) — READY TO EXECUTE
 
 Plan: 0 of 4
 
-Status: Phase 95 complete; Phase 94 ready to execute
+Status: Phase 93 complete; Phase 92 ready to execute
 
-Last activity: 2026-04-30
+Last activity: 2026-05-01
 
 ## Decisions
 
@@ -43,7 +43,7 @@ Last activity: 2026-04-30
 - Opened v1.21 with B2B trust + production hardening + API polish theme. Webhooks deferred to v1.22.
 - v1.21 phase boundaries fixed at 6 phases (91–96) per the user-approved plan: one phase per REQ-ID except Phase 96 which bundles HARD-03 + API-01 (both narrow surface area on the dual-mode auth plug + OAuth callback).
 - Phase numbering continues from Phase 90; `--reset-phase-numbers` not used.
-- Phase 93 (B2B-03) is complete on disk and verified locally, but not yet committed from this workspace snapshot.
+- Phase 93 (B2B-03) is complete on disk and verified. Phase 92, 94, 95, and 96 are pending execution (previous broken executions were discarded).
 - Kept delivery_mode :auto synchronous unless Oban is actually running, while explicit async boundaries enforce :async_email through Sigra.OptionalDeps.
 - Moved the email worker to an always-defined module so missing Oban fails at first queue-backed use instead of via compile-time disappearance.
 - Limited permissive missing-bcrypt behavior to no_user timing equalization; bcrypt hash verification and TOTP QR rendering now raise tagged missing-dependency errors.
