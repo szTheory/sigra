@@ -68,7 +68,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       Application.put_env(otp_app, :ecto_repos, [MyXQLRepo])
 
       assert_raise Mix.Error,
-                   ~r/PostgreSQL only: mix sigra\.install cannot continue for Ecto\.Adapters\.MyXQL projects.*guides\/introduction\/installation\.md/s,
+                   ~r/Sigra supports PostgreSQL only\. Detected Ecto\.Adapters\.MyXQL\. mix sigra\.install cannot continue\. See guides\/introduction\/installation\.md/,
                    fn ->
                      Install.run(["Accounts", "User", "users"])
                    end
@@ -78,7 +78,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       Application.put_env(otp_app, :ecto_repos, [SQLiteRepo])
 
       assert_raise Mix.Error,
-                   ~r/PostgreSQL only: mix sigra\.install cannot continue for Ecto\.Adapters\.SQLite3 projects.*guides\/introduction\/installation\.md/s,
+                   ~r/Sigra supports PostgreSQL only\. Detected Ecto\.Adapters\.SQLite3\. mix sigra\.install cannot continue\. See guides\/introduction\/installation\.md/,
                    fn ->
                      Install.run(["Accounts", "User", "users"])
                    end
@@ -88,7 +88,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       Application.put_env(otp_app, :ecto_repos, [UnknownRepo])
 
       assert_raise Mix.Error,
-                   ~r/PostgreSQL only: mix sigra\.install cannot continue for Sigra\.Test\.UnsupportedAdapter projects.*guides\/introduction\/installation\.md/s,
+                   ~r/Sigra supports PostgreSQL only\. Detected Sigra\.Test\.UnsupportedAdapter\. mix sigra\.install cannot continue\. See guides\/introduction\/installation\.md/,
                    fn ->
                      Install.run(["Accounts", "User", "users"])
                    end
@@ -98,7 +98,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       Application.put_env(otp_app, :ecto_repos, [UndetectableRepo])
 
       assert_raise Mix.Error,
-                   ~r/PostgreSQL only: mix sigra\.install cannot continue because the repo adapter could not be detected.*guides\/introduction\/installation\.md/s,
+                   ~r/Sigra supports PostgreSQL only\. Detected an unknown adapter\. mix sigra\.install cannot continue\. See guides\/introduction\/installation\.md/,
                    fn ->
                      Install.run(["Accounts", "User", "users"])
                    end

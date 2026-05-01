@@ -74,7 +74,13 @@ defmodule Mix.Tasks.Sigra.Install do
     case parsed do
       [context_name, schema_name, table_name] ->
         validate_args!(context_name, schema_name, table_name)
-        binding = build_binding(context_name, schema_name, opts[:table] || table_name, opts)
+
+        otp_app = Mix.Phoenix.otp_app()
+        repo_module = get_repo_module(otp_app)
+        adapter = validate_supported_adapter!(repo_module)
+
+        opts = Keyword.put(opts, :adapter, adapter)
+        binding = build_binding(context_name, schema_name, opts[:table] || table_name, otp_app, repo_module, opts)
         {:ok, _report} = Runner.run(@features, binding, opts)
 
       _ ->
@@ -107,12 +113,10 @@ defmodule Mix.Tasks.Sigra.Install do
     end
   end
 
-  defp build_binding(context_name, schema_name, table_name, opts) do
+  defp build_binding(context_name, schema_name, table_name, otp_app, repo_module, opts) do
     base = Mix.Phoenix.base()
     web_module = Module.concat([Mix.Phoenix.web_module(base)])
-    otp_app = Mix.Phoenix.otp_app()
-    repo_module = get_repo_module(otp_app)
-    adapter = detect_adapter(repo_module)
+    adapter = Keyword.fetch!(opts, :adapter)
     app_name = otp_app |> to_string() |> Macro.camelize()
 
     [
@@ -149,16 +153,18 @@ defmodule Mix.Tasks.Sigra.Install do
     end
   end
 
-  defp detect_adapter(repo_module) do
+  defp validate_supported_adapter!(repo_module) do
     if Code.ensure_loaded?(repo_module) and function_exported?(repo_module, :__adapter__, 0) do
-      case repo_module.__adapter__() do
-        Ecto.Adapters.Postgres -> :postgres
-        Ecto.Adapters.MyXQL -> :mysql
-        Ecto.Adapters.SQLite3 -> :sqlite
-        _ -> :postgres
+      adapter = repo_module.__adapter__()
+      case adapter do
+        Ecto.Adapters.Postgres ->
+          :postgres
+
+        _ ->
+          Mix.raise("Sigra supports PostgreSQL only. Detected #{inspect(adapter)}. mix sigra.install cannot continue. See guides/introduction/installation.md.")
       end
     else
-      :postgres
+      Mix.raise("Sigra supports PostgreSQL only. Detected an unknown adapter. mix sigra.install cannot continue. See guides/introduction/installation.md.")
     end
   end
 end
