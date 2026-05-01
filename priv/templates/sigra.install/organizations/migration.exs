@@ -1,6 +1,6 @@
 defmodule <%= repo_module %>.Migrations.CreateOrganizations do
   use Ecto.Migration
-<%= if adapter == :postgres do %>
+
   def up do
     # ── Organizations ──────────────────────────────────────────────────
     create table(:organizations<%= if binary_id do %>, primary_key: false<% end %>) do
@@ -121,102 +121,4 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     drop table(:organization_memberships)
     drop table(:organizations)
   end
-<% else %>
-  def up do
-    # ── Organizations ──────────────────────────────────────────────────
-    create table(:organizations<%= if binary_id do %>, primary_key: false<% end %>) do
-<%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      add :name, :string, null: false, size: 255
-      add :slug, :string, null: false, size: 63
-      add :deleted_at, :utc_datetime
-      # D-00: sticky origin owner (added Phase 18). Write-once on insert; :nilify_all so the org row survives owner account deletion.
-      add :owner_user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
-      # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
-      add :personal, :boolean, null: false, default: false
-      # Phase 91 B2B-01: org-level MFA enforcement.
-      add :enforce_mfa_for_members, :boolean, null: false, default: false
-
-      timestamps(type: :utc_datetime)
-    end
-
-    # MySQL/SQLite: no partial index support. Application-level handles
-    # soft-delete slug reclamation.
-    create unique_index(:organizations, [:slug])
-
-    # D-01: MySQL/SQLite lack partial unique indexes. Application-level guard
-    # in Sigra.Organizations enforces at-most-one-personal-org-per-user;
-    # this composite index provides a best-effort structural hint.
-    create unique_index(:organizations, [:owner_user_id, :personal],
-      name: :organizations_personal_owner_uidx
-    )
-
-    # ── Organization Memberships ───────────────────────────────────────
-    create table(:organization_memberships<%= if binary_id do %>, primary_key: false<% end %>) do
-<%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      # Phase 92 / Plan 92-02: nullable host-owned role storage.
-      # See the postgres branch above for full rationale.
-      add :role, :string
-      add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
-      add :user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
-
-      timestamps(type: :utc_datetime)
-    end
-
-    create unique_index(:organization_memberships, [:user_id, :organization_id])
-    create index(:organization_memberships, [:organization_id])
-
-    # ── Organization Invitations ───────────────────────────────────────
-    create table(:organization_invitations<%= if binary_id do %>, primary_key: false<% end %>) do
-<%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      add :email, :string, null: false, size: 160
-      # Phase 92 / B2B-02 (CR-03 fix): nullable host-owned role storage.
-      # See the postgres branch above for full rationale.
-      add :role, :string
-      add :hashed_token, :binary
-      add :accepted_at, :utc_datetime
-      add :revoked_at, :utc_datetime
-      add :expires_at, :utc_datetime, null: false
-      add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
-      add :invited_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
-      add :accepted_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
-      add :revoked_by_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
-
-      timestamps(type: :utc_datetime)
-    end
-
-    # MySQL/SQLite: no partial index. Composite unique index as fallback.
-    create unique_index(:organization_invitations, [:organization_id, :email, :accepted_at, :revoked_at])
-    create unique_index(:organization_invitations, [:hashed_token])
-
-    # ── Organization Slug Aliases ──────────────────────────────────────
-    # Tracks previous slugs for 7 days after a slug change (Phase 16 D-13).
-    # MySQL/SQLite: no partial-index support — enforce uniqueness on
-    # `old_slug` alone. Application-level cleanup removes expired rows
-    # before the old_slug becomes reclaimable.
-    create table(:organization_slug_aliases<%= if binary_id do %>, primary_key: false<% end %>) do
-<%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
-      add :old_slug, :string, null: false, size: 63
-      add :expires_at, :utc_datetime, null: false
-
-      timestamps(type: :utc_datetime, updated_at: false)
-    end
-
-    create index(:organization_slug_aliases, [:organization_id])
-    # Phase 17 Plan 08: rename to match the postgres branch (Option A).
-    # MySQL/SQLite already used a plain unique_index under the legacy
-    # `old_slug_active_idx` name — this rename only harmonizes the two
-    # adapter branches and introduces no behavior change.
-    create unique_index(:organization_slug_aliases, [:old_slug],
-      name: :organization_slug_aliases_old_slug_idx
-    )
-  end
-
-  def down do
-    drop table(:organization_slug_aliases)
-    drop table(:organization_invitations)
-    drop table(:organization_memberships)
-    drop table(:organizations)
-  end
-<% end %>
 end
