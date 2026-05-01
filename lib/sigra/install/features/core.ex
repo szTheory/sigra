@@ -512,7 +512,7 @@ defmodule Sigra.Install.Features.Core do
       end
 
       scope "/users", #{web_module} do
-        pipe_through [:browser, :redirect_if_user_is_authenticated]
+        pipe_through [:browser, :redirect_if_user_is_authenticated, :auth_rate_limit]
 
         # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
         get "/log_in", SessionController, :new

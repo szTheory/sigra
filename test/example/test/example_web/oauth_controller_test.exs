@@ -91,6 +91,124 @@ defmodule ExampleWeb.OAuthControllerTest do
     end
   end
 
+  describe "Phase 96 rate-limit wire proof" do
+    defmodule TestHammer do
+      use Hammer, backend: :ets
+    end
+
+    setup do
+      Application.put_env(:sigra, :hammer_module, TestHammer)
+      start_supervised!({TestHammer, clean_period: :timer.minutes(1)})
+      :ok
+    end
+
+    test "POST /users/log_in returns allow and deny rate-limit headers", %{conn: conn} do
+      # 1st request (Allowed)
+      # Get the page to generate a session and CSRF token
+      conn_get = get(conn, ~p"/users/log_in")
+      
+      valid_csrf = Plug.CSRFProtection.get_csrf_token()
+
+      conn_1 =
+        conn_get
+        |> recycle()
+        |> put_req_header("x-csrf-token", valid_csrf)
+        |> put_req_header("x-forwarded-for", "203.0.113.1")
+        |> post(~p"/users/log_in", %{"user" => %{"email" => "test@example.com", "password" => "wrong"}})
+
+      IO.inspect(conn_1.status, label: "conn_1 status")
+      IO.inspect(conn_1.resp_headers, label: "conn_1 headers")
+
+      assert [limit] = Plug.Conn.get_resp_header(conn_1, "x-ratelimit-limit")
+      assert [remaining] = Plug.Conn.get_resp_header(conn_1, "x-ratelimit-remaining")
+      assert [reset] = Plug.Conn.get_resp_header(conn_1, "x-ratelimit-reset")
+      
+      assert limit == "10"
+      assert String.to_integer(remaining) == 9
+      assert String.to_integer(reset) > 0
+
+      # Burn remaining requests to hit the limit
+      conn_burn = Enum.reduce(1..9, conn_1, fn _, current_conn ->
+        current_conn
+        |> recycle()
+        |> put_req_header("x-forwarded-for", "203.0.113.1")
+        |> put_req_header("x-csrf-token", valid_csrf)
+        |> post(~p"/users/log_in", %{"user" => %{"email" => "test@example.com", "password" => "wrong"}})
+      end)
+
+      # 11th request (Denied)
+      conn_deny =
+        conn_burn
+        |> recycle()
+        |> put_req_header("x-forwarded-for", "203.0.113.1")
+        |> put_req_header("x-csrf-token", valid_csrf)
+        |> post(~p"/users/log_in", %{"user" => %{"email" => "test@example.com", "password" => "wrong"}})
+
+      assert conn_deny.status == 429
+      assert Plug.Conn.get_resp_header(conn_deny, "x-ratelimit-limit") == ["10"]
+      assert Plug.Conn.get_resp_header(conn_deny, "x-ratelimit-remaining") == ["0"]
+      assert [retry_after] = Plug.Conn.get_resp_header(conn_deny, "retry-after")
+      assert String.to_integer(retry_after) > 0
+    end
+  end
+
+  describe "Phase 96 OAuth refresh wire proof" do
+    test "Sigra.OAuth.get_tokens/3 refreshes an expired token using Assent TestServer", %{conn: _conn} do
+      # Using our TestServer to mock the token refresh endpoint
+      TestServer.start()
+      site_url = TestServer.url()
+
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "access_token" => "refreshed_access",
+              "refresh_token" => "refreshed_refresh",
+              "expires_in" => 3600,
+              "token_type" => "Bearer"
+            })
+          )
+        end
+      )
+
+      # Add a test provider override
+      Application.put_env(:sigra, :oauth_provider_overrides,
+        github: [
+          client_id: "github-client",
+          client_secret: "github-secret",
+          base_url: site_url,
+          token_url: "#{site_url}/token"
+        ]
+      )
+
+      user = Example.Repo.insert!(%Example.Accounts.User{email: "refresh@example.com"})
+
+      identity =
+        Example.Repo.insert!(%Example.Accounts.UserIdentity{
+          user_id: user.id,
+          provider: "github",
+          provider_uid: "refresh_uid",
+          encrypted_access_token: "expired_access",
+          encrypted_refresh_token: "refresh_me",
+          token_expires_at: DateTime.add(DateTime.utc_now() |> DateTime.truncate(:second), -3600, :second),
+          last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      # Calling get_oauth_tokens should detect expiration and trigger the refresh flow
+      assert {:ok, %{access_token: "refreshed_access"}} =
+               Sigra.OAuth.get_tokens(Example.Accounts.sigra_config(), Sigra.Identity.from_schema(identity))
+               
+      # Verify the DB was updated
+      updated = Example.Repo.get!(Example.Accounts.UserIdentity, identity.id)
+      assert updated.encrypted_access_token == "refreshed_access"
+      assert updated.encrypted_refresh_token == "refreshed_refresh"
+    end
+  end
+
   defp begin_google_oauth(conn, user_claims, issuer_opts) do
     issuer = start_google_issuer!(user_claims, issuer_opts)
 

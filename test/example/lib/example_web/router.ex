@@ -28,6 +28,10 @@ defmodule ExampleWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api_authenticated do
+    plug ExampleWeb.Plugs.ApiBearerAuth
+  end
+
   scope "/", ExampleWeb do
     pipe_through :browser
 
@@ -56,6 +60,10 @@ defmodule ExampleWeb.Router do
 
   pipeline :require_sudo do
     plug Sigra.Plug.RequireSudo, error_handler: ExampleWeb.AuthErrorHandler
+  end
+
+  pipeline :auth_rate_limit do
+    plug Sigra.Plug.RateLimit, error_handler: ExampleWeb.AuthErrorHandler
   end
 
   pipeline :admin_global do
@@ -97,7 +105,7 @@ defmodule ExampleWeb.Router do
   end
 
   scope "/users", ExampleWeb do
-    pipe_through [:browser, :redirect_if_user_is_authenticated]
+    pipe_through [:browser, :redirect_if_user_is_authenticated, :auth_rate_limit]
 
     # Phase 10.1.1 B9: login page is a plain controller + HEEx render,
     # NOT a LiveView. Keeping it outside the live_session ensures
@@ -193,6 +201,18 @@ defmodule ExampleWeb.Router do
     post "/reset", TestOAuthIssuerController, :reset
   end
 
+  scope "/", ExampleWeb do
+    pipe_through :api
+
+    post "/oauth/token", OAuthTokenController, :create
+  end
+
+  scope "/api", ExampleWeb do
+    pipe_through [:api, :api_authenticated]
+
+    get "/service-account/probe", ServiceAccountProbeController, :show
+  end
+
   # Sigra organizations (Phase 16)
   pipeline :org_scoped do
     plug Sigra.Plug.LoadOrganizationFromSlug,
@@ -239,6 +259,7 @@ defmodule ExampleWeb.Router do
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
+      live "/service-accounts", OrganizationServiceAccountsLive, :index
     end
   end
 

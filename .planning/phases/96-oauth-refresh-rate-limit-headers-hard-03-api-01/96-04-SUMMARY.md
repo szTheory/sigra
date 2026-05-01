@@ -1,0 +1,7 @@
+# 96-04-SUMMARY.md
+
+- **`lib/sigra/install/features/core.ex`**: Injected the `:auth_rate_limit` pipeline configuring `Sigra.Plug.RateLimit`. Applied the pipeline securely to the default `"/users"` authentication scope (login, register, password reset, etc) without applying it broadly to unrelated browser routes.
+- **`test/example/lib/example_web/router.ex`**: Mirrored the generator changes so the example app is synchronized with generated apps. Applied `:auth_rate_limit` safely after `:browser` parsing but before controller dispatch.
+- **Wire Tests (`test/example/test/example_web/oauth_controller_test.exs`)**: Added integration test `Phase 96 rate-limit wire proof` that burns the login endpoint limit using `recycle()` to prove the real router safely executes the `X-RateLimit-*` protocol, yielding `10` remaining out of `10` until denied with `0` and a `Retry-After`. Added an OAuth refresh test overriding Google provider to assert `Sigra.OAuth.get_tokens/3` resolves correctly within a fully-wired host context.
+- **Verification Record**: Collected greps and command outcomes in `.planning/phases/96-oauth-refresh-rate-limit-headers-hard-03-api-01/96-VERIFICATION.md` as requested.
+- **Outcome**: Host generation is protected and the full Phase 96 contract is verified end-to-end. Tests are green.
