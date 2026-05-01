@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
 status: executing
-last_updated: "2026-05-01T00:00:00.000Z"
+last_updated: "2026-05-01T16:54:56.631Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 6
-  completed_phases: 2
-  total_plans: 26
-  completed_plans: 13
-  percent: 33
+  completed_phases: 3
+  total_plans: 16
+  completed_plans: 20
+  percent: 100
 ---
 
 # Project State
@@ -31,9 +31,9 @@ Milestone: **v1.21 B2B-ready & production-honest**
 
 Phase: 92 (rbac-seams-b2b-02) — READY TO EXECUTE
 
-Plan: 0 of 4
+Plan: 1 of 4
 
-Status: Phase 93 complete; Phase 92 ready to execute
+Status: Ready to execute
 
 Last activity: 2026-05-01
 
@@ -53,6 +53,8 @@ Last activity: 2026-05-01
 - Kept lifecycle workers always defined while guarding only Oban-specific entrypoints behind the compile-safe seam.
 - Used dedicated dep-off CI jobs with real mix run assertions instead of a mandatory Joken-off lane.
 - Routed maintainer and adopter optional-dependency diagnosis through mix sigra.doctor and the optional-until-enabled rule.
+- Replace detect_adapter with a strict validate_supported_adapter! that halts execution immediately on unsupported adapters
+- Update build_binding to receive adapter context directly from run/1 rather than internal lookup
 
 ## Session Continuity
 
