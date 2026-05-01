@@ -85,6 +85,17 @@ defmodule Sigra.Test.MockRepo do
   def get_by(Sigra.Test.MockUser, _clauses), do: nil
   def get_by(_, _), do: nil
 
+  def get!(Sigra.Test.MockIdentity, id) do
+    %Sigra.Test.MockIdentity{
+      id: id,
+      provider: "google",
+      provider_uid: "uid_123",
+      user_id: 1,
+      encrypted_access_token: "expired",
+      encrypted_refresh_token: "refresh_me"
+    }
+  end
+
   def insert(%Ecto.Changeset{} = changeset) do
     result =
       changeset

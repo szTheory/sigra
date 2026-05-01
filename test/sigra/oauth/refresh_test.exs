@@ -165,17 +165,20 @@ defmodule Sigra.OAuth.RefreshTest do
 
         config = oauth_config(repo, unquote(strategy_module), site_url)
 
-        identity = %Sigra.Identity{
-          id: Ecto.UUID.generate(),
-          user_id: Ecto.UUID.generate(),
+        user = repo.insert!(%OAuthUser{email: "test@example.com"})
+
+        identity_record = repo.insert!(%OAuthIdentity{
+          user_id: user.id,
           provider: "test_provider",
           provider_uid: "uid_123",
           encrypted_access_token: "expired",
           encrypted_refresh_token: "refresh_me",
-          token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
-        }
+          token_expires_at: DateTime.add(DateTime.utc_now() |> DateTime.truncate(:second), -3600, :second),
+          last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+        identity = Sigra.Identity.from_schema(identity_record)
 
-        assert {:ok, %{"access_token" => "new_acc", "refresh_token" => "new_ref"}} =
+        assert {:ok, %{access_token: "new_acc", refresh_token: "new_ref"}} =
                  OAuth.refresh_token(config, identity)
       end
 
@@ -194,15 +197,18 @@ defmodule Sigra.OAuth.RefreshTest do
 
         config = oauth_config(repo, unquote(strategy_module), site_url)
 
-        identity = %Sigra.Identity{
-          id: Ecto.UUID.generate(),
-          user_id: Ecto.UUID.generate(),
+        user = repo.insert!(%OAuthUser{email: "test@example.com"})
+
+        identity_record = repo.insert!(%OAuthIdentity{
+          user_id: user.id,
           provider: "test_provider",
           provider_uid: "uid_123",
           encrypted_access_token: "expired",
           encrypted_refresh_token: "refresh_me",
-          token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
-        }
+          token_expires_at: DateTime.add(DateTime.utc_now() |> DateTime.truncate(:second), -3600, :second),
+          last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+        identity = Sigra.Identity.from_schema(identity_record)
 
         assert {:error, :reauth_required} = OAuth.refresh_token(config, identity)
       end

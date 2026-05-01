@@ -553,14 +553,67 @@ defmodule Sigra.OAuth do
         Telemetry.span([:sigra, :oauth, :refresh], %{provider: provider}, fn ->
           case strategy_module.refresh(provider_config, identity.encrypted_refresh_token, config) do
             {:ok, token} ->
-              # Currently returning token only; persistence will be added in the next plan.
-              {:ok, token}
+              persist_refresh(config, identity, token)
 
             {:error, error} ->
               Logger.error("OAuth token refresh failed for #{provider}: #{inspect(error)}")
               {:error, Sigra.OAuth.RefreshClassifier.classify({:error, error})}
           end
         end)
+    end
+  end
+
+  defp persist_refresh(config, identity, token) do
+    repo = config.repo
+    identity_schema = config.identity_schema
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    refresh_token = token["refresh_token"]
+    refresh_token_rotated? = is_binary(refresh_token) and refresh_token != ""
+
+    updates = %{
+      encrypted_access_token: token["access_token"],
+      token_expires_at: compute_token_expires_at(token),
+      last_used_at: now
+    }
+
+    updates =
+      if refresh_token_rotated? do
+        Map.put(updates, :encrypted_refresh_token, refresh_token)
+      else
+        updates
+      end
+
+    db_identity = repo.get!(identity_schema, identity.id)
+    changeset = Ecto.Changeset.change(db_identity, updates)
+
+    multi =
+      Multi.new()
+      |> Multi.update(:identity, changeset)
+      |> Audit.log_multi_safe(
+        "oauth.token_refreshed",
+        Keyword.merge(oauth_audit_opts(config),
+          audit_multi_step: :audit_oauth_refresh,
+          actor_id: identity.user_id,
+          target_id: identity.user_id,
+          metadata: %{
+            provider: identity.provider,
+            refresh_token_rotated: refresh_token_rotated?
+          }
+        )
+      )
+
+    case repo.transaction(multi) do
+      {:ok, %{identity: updated_identity} = changes} ->
+        Audit.emit_telemetry_from_changes(changes, [:audit_oauth_refresh])
+        {:ok,
+         %{
+           access_token: updated_identity.encrypted_access_token,
+           refresh_token: updated_identity.encrypted_refresh_token
+         }}
+
+      {:error, _step, _reason, _} ->
+        {:error, :temporarily_unavailable}
     end
   end
 

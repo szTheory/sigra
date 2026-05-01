@@ -382,7 +382,48 @@ defmodule Sigra.OAuthTest do
         token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
       }
 
-      assert {:ok, %{"access_token" => "new_tok", "refresh_token" => "new_ref"}} =
+      assert {:ok, %{access_token: "new_tok", refresh_token: "new_ref"}} =
+               OAuth.refresh_token(config, identity)
+    end
+
+    test "preserves existing refresh_token when provider omits it on refresh" do
+      TestServer.start()
+      site_url = TestServer.url()
+
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "access_token" => "new_tok",
+              "expires_in" => 3600,
+              "token_type" => "Bearer"
+            })
+          )
+        end
+      )
+
+      config =
+        build_config(
+          providers: [
+            mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy, base_url: site_url, token_url: "#{site_url}/token"]
+          ]
+        )
+
+      identity = %Sigra.Identity{
+        id: 1,
+        user_id: 1,
+        provider: "mock",
+        provider_uid: "uid_123",
+        encrypted_access_token: "expired",
+        encrypted_refresh_token: "refresh_me",
+        token_expires_at: DateTime.add(DateTime.utc_now(), -3600, :second)
+      }
+
+      assert {:ok, %{access_token: "new_tok", refresh_token: "refresh_me"}} =
                OAuth.refresh_token(config, identity)
     end
 

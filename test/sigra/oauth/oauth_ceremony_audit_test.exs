@@ -236,4 +236,61 @@ defmodule Sigra.OAuthCeremonyAuditTest do
       })
     end
   end
+
+  describe "refresh" do
+    test "persists oauth.token_refreshed after successful refresh", %{repo: repo} do
+      TestServer.start()
+      site_url = TestServer.url()
+
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "access_token" => "new_tok",
+              "refresh_token" => "new_ref",
+              "expires_in" => 3600,
+              "token_type" => "Bearer"
+            })
+          )
+        end
+      )
+
+      config =
+        repo
+        |> oauth_config()
+        |> Map.put(:secret_key_base, String.duplicate("a", 64))
+        |> Map.put(:oauth, [
+          enabled: true,
+          providers: [
+            mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy, base_url: site_url, token_url: "#{site_url}/token"]
+          ],
+        ])
+
+      user = repo.insert!(%OAuthUser{email: "test@example.com"})
+
+      identity =
+        repo.insert!(%OAuthIdentity{
+          user_id: user.id,
+          provider: "mock",
+          provider_uid: "uid_123",
+          encrypted_access_token: "expired",
+          encrypted_refresh_token: "refresh_me",
+          token_expires_at: DateTime.add(DateTime.utc_now() |> DateTime.truncate(:second), -3600, :second),
+          last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      assert {:ok, _} = OAuth.refresh_token(config, Sigra.Identity.from_schema(identity))
+
+      Assertions.assert_audit_fields(repo, AuditTestEvent, %{
+        action: "oauth.token_refreshed",
+        actor_id: user.id,
+        target_id: user.id,
+        metadata: %{"provider" => "mock", "refresh_token_rotated" => true}
+      })
+    end
+  end
 end

@@ -191,4 +191,131 @@ defmodule Sigra.OAuthAuditAtomicityTest do
       )
     end
   end
+
+  defmodule MockStrategy do
+    @moduledoc false
+    def refresh(_config, "refresh_me", _config2) do
+      {:ok, %{"access_token" => "new_acc", "refresh_token" => "new_ref", "expires_in" => 3600}}
+    end
+
+    def refresh(_config, "bad_refresh", _config2) do
+      {:error, %Assent.InvalidResponseError{response: %{body: %{"error" => "invalid_grant"}}}}
+    end
+  end
+
+  defp refresh_oauth_config(repo, site_url) do
+    repo
+    |> oauth_config()
+    |> Map.put(:secret_key_base, String.duplicate("a", 64))
+    |> Map.put(:oauth, [
+      enabled: true,
+      providers: [
+        mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy, base_url: site_url, token_url: "#{site_url}/token"]
+      ]
+    ])
+  end
+
+  describe "refresh token atomicity" do
+    setup do
+      TestServer.start()
+      %{site_url: TestServer.url()}
+    end
+
+    test "rolls back token rotation when oauth.token_refreshed audit insert is rejected", %{repo: repo, site_url: site_url} do
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "access_token" => "new_acc",
+              "refresh_token" => "new_ref",
+              "expires_in" => 3600,
+              "token_type" => "Bearer"
+            })
+          )
+        end
+      )
+
+      Ecto.Adapters.SQL.query!(
+        repo,
+        """
+        ALTER TABLE audit_events
+        ADD CONSTRAINT oauth_audit_ref_guard CHECK (action <> 'oauth.token_refreshed')
+        """,
+        []
+      )
+
+      config = refresh_oauth_config(repo, site_url)
+      user = repo.insert!(%OAuthUser{email: "test@example.com"})
+
+      identity =
+        repo.insert!(%OAuthIdentity{
+          user_id: user.id,
+          provider: "mock",
+          provider_uid: "uid_123",
+          encrypted_access_token: "expired",
+          encrypted_refresh_token: "refresh_me",
+          token_expires_at: DateTime.add(DateTime.utc_now() |> DateTime.truncate(:second), -3600, :second),
+          last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      try do
+        # We catch the exception or match the returned {:error, :temporarily_unavailable}
+        # since persist_refresh rescues repo.transaction failures and returns an error
+        # rather than raising (except Ecto.ConstraintError which raises if not mapped).
+        assert_raise Ecto.ConstraintError, fn ->
+          Sigra.OAuth.refresh_token(config, Sigra.Identity.from_schema(identity))
+        end
+
+        reloaded = repo.get!(OAuthIdentity, identity.id)
+        assert reloaded.encrypted_access_token == "expired"
+        assert reloaded.encrypted_refresh_token == "refresh_me"
+        assert [] == repo.all(from(a in AuditTestEvent, where: like(a.action, "oauth.%")))
+      after
+        Ecto.Adapters.SQL.query!(
+          repo,
+          "ALTER TABLE audit_events DROP CONSTRAINT IF EXISTS oauth_audit_ref_guard",
+          []
+        )
+      end
+    end
+
+    test "leaves persistence unchanged and returns classified error on invalid_grant", %{repo: repo, site_url: site_url} do
+      TestServer.add("/token",
+        via: :post,
+        to: fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            400,
+            Jason.encode!(%{"error" => "invalid_grant"})
+          )
+        end
+      )
+
+      config = refresh_oauth_config(repo, site_url)
+      user = repo.insert!(%OAuthUser{email: "test@example.com"})
+
+      identity =
+        repo.insert!(%OAuthIdentity{
+          user_id: user.id,
+          provider: "mock",
+          provider_uid: "uid_123",
+          encrypted_access_token: "expired",
+          encrypted_refresh_token: "bad_refresh",
+          token_expires_at: DateTime.add(DateTime.utc_now() |> DateTime.truncate(:second), -3600, :second),
+          last_used_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        })
+
+      assert {:error, :reauth_required} = Sigra.OAuth.refresh_token(config, Sigra.Identity.from_schema(identity))
+
+      reloaded = repo.get!(OAuthIdentity, identity.id)
+      assert reloaded.encrypted_access_token == "expired"
+      assert reloaded.encrypted_refresh_token == "bad_refresh"
+      assert [] == repo.all(from(a in AuditTestEvent, where: like(a.action, "oauth.%")))
+    end
+  end
 end
