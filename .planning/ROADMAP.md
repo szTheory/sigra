@@ -141,8 +141,8 @@ Plans:
 Plans:
 - [ ] `94-01-PLAN.md` — Enforce the installer’s Postgres-only pre-flight refusal and add the unsupported-adapter boundary regression.
 - [ ] `94-02-PLAN.md` — Collapse the core auth/session and organizations templates to one Postgres path and replace their adapter-matrix tests with supported-contract assertions.
-- [ ] `94-03-PLAN.md` — Align docs/metadata/changelog to PostgreSQL-only support and run the supported-path verification gate after all installer cleanup plans land.
-- [ ] `94-04-PLAN.md` — Remove adjacent installer-surface drift from API-token, passkeys, and audit-events templates and replace their adapter-matrix tests with supported-contract assertions.
+- [ ] `94-03-PLAN.md` — Remove adjacent installer-surface drift from API-token, passkeys, and audit-events templates and replace their adapter-matrix tests with supported-contract assertions.
+- [ ] `94-04-PLAN.md` — Align docs/metadata/changelog to PostgreSQL-only support and run the supported-path verification gate after all installer cleanup plans land.
 
 ### Phase 95: Optional-dep boot-validation + `mix sigra.doctor` (HARD-02)
 
