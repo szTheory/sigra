@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.21
 milestone_name: — active
 status: executing
-last_updated: "2026-05-01T16:54:56.631Z"
+last_updated: "2026-05-01T17:01:14.506Z"
 last_activity: 2026-05-01
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 16
-  completed_plans: 20
+  completed_plans: 21
   percent: 100
 ---
 
@@ -31,7 +31,7 @@ Milestone: **v1.21 B2B-ready & production-honest**
 
 Phase: 92 (rbac-seams-b2b-02) — READY TO EXECUTE
 
-Plan: 1 of 4
+Plan: 2 of 4
 
 Status: Ready to execute
 
@@ -55,6 +55,7 @@ Last activity: 2026-05-01
 - Routed maintainer and adopter optional-dependency diagnosis through mix sigra.doctor and the optional-until-enabled rule.
 - Replace detect_adapter with a strict validate_supported_adapter! that halts execution immediately on unsupported adapters
 - Update build_binding to receive adapter context directly from run/1 rather than internal lookup
+- Replaced multi-adapter check tests with tests that ensure Postgres-specific configurations like citext remain intact.
 
 ## Session Continuity
 
