@@ -8,9 +8,8 @@ defmodule <%= repo_module %>.Migrations.CreateUserPasskeys do
       add :credential_id, :binary, null: false
       add :public_key, :binary, null: false
       add :sign_count, :integer, default: 0, null: false
-<%= if adapter == :postgres do %>      add :aaguid, :uuid
-<% else %>      add :aaguid, :binary, size: 16
-<% end %>      add :nickname, :string
+      add :aaguid, :uuid
+      add :nickname, :string
       add :device_hint, :string
       add :transports, {:array, :string}, default: []
       add :rp_id, :string

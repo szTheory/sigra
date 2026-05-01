@@ -22,9 +22,8 @@ defmodule <%= context_module %>.UserAPIToken do
     field :hashed_token, :binary
     field :prefix, :string
     field :name, :string
-<%= if adapter == :postgres do %>    field :scopes, {:array, :string}, default: []
-<% else %>    field :scopes, Sigra.Ecto.Types.StringList
-<% end %>    field :last_used_at, :utc_datetime_usec
+    field :scopes, {:array, :string}, default: []
+    field :last_used_at, :utc_datetime_usec
     field :expires_at, :utc_datetime
     field :revoked_at, :utc_datetime
     field :inserted_at, :utc_datetime_usec
