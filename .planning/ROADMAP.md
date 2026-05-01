@@ -178,7 +178,13 @@ Plans:
 4. A reviewer running the new `test/sigra/plug/rate_limit_headers_test.exs` plug-unit suite plus the e2e against the example app's rate-limited endpoint sees both the under-limit and over-limit shapes asserted; the plug is wired into the dual-mode auth pipeline in `priv/templates/sigra.install/core/auth_plug_pipeline.ex` so generated hosts get headers without manual config.
 5. `96-VERIFICATION.md` records the merge gate outcome including: per-provider OAuth refresh tests green on Postgres, the dropped warning verified by grep, the audit-atomicity check confirms `oauth.token_refreshed` uses `Multi + log_multi_safe`, and the rate-limit-headers e2e against the example app proves the headers reach the wire.
 
-**Plans:** TBD.
+**Plans:** 4 plans.
+
+Plans:
+- [ ] `96-01-PLAN.md` — Add the typed OAuth refresh API, internal failure classifier, and per-provider refresh dispatch seam.
+- [ ] `96-02-PLAN.md` — Persist refreshed OAuth tokens atomically with `oauth.token_refreshed` audit co-fate and rollback proof.
+- [ ] `96-03-PLAN.md` — Emit authoritative `X-RateLimit-*` and `Retry-After` headers from the single HTTP plug seam.
+- [ ] `96-04-PLAN.md` — Wire the final Phase 96 contract through the active install/example seams and record verification evidence.
 
 ## Progress
 
@@ -189,7 +195,7 @@ Plans:
 | 93. M2M / service-account tokens (B2B-03) | 6/6 | Complete | 2026-04-30 |
 | 94. Postgres-only declaration (HARD-01) | 0/4 | Not started | — |
 | 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 4/4 | Complete | 2026-04-30 |
-| 96. OAuth refresh + rate-limit headers (HARD-03 + API-01) | 0/0 | Not started | — |
+| 96. OAuth refresh + rate-limit headers (HARD-03 + API-01) | 4/4 | Complete | — |
 
 ## Traceability — v1.21
 
