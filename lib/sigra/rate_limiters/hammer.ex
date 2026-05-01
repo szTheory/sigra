@@ -27,15 +27,24 @@ defmodule Sigra.RateLimiters.Hammer do
   @impl Sigra.RateLimiter
   def check_rate(key, limit, window_ms) do
     module = hammer_module()
+    now_ms = System.system_time(:millisecond)
+    reset_ms = (div(now_ms, window_ms) + 1) * window_ms
 
     try do
       # Hammer 7.x: hit(key, scale_ms, limit) -- note parameter order
-      module.hit(key, window_ms, limit)
+      case module.hit(key, window_ms, limit) do
+        {:allow, count} ->
+          remaining = max(0, limit - count)
+          {:allow, %{count: count, remaining: remaining, reset_ms: reset_ms}}
+
+        {:deny, retry_after_ms} ->
+          {:deny, %{retry_after_ms: retry_after_ms, reset_ms: reset_ms}}
+      end
     rescue
       _ ->
         # Fail open per D-41 if Hammer GenServer not running
         Logger.warning("[Sigra] Hammer rate limiter unavailable, failing open")
-        {:allow, 0}
+        {:allow, %{count: 1, remaining: limit - 1, reset_ms: reset_ms}}
     end
   end
 

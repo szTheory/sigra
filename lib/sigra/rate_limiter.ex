@@ -19,8 +19,12 @@ defmodule Sigra.RateLimiter do
       Mox.defmock(MockRateLimiter, for: Sigra.RateLimiter)
   """
 
+  @type check_result ::
+          {:allow, %{count: pos_integer(), remaining: non_neg_integer(), reset_ms: pos_integer()}}
+          | {:deny, %{retry_after_ms: pos_integer(), reset_ms: pos_integer()}}
+
   @doc "Checks whether a request identified by `key` should be allowed."
   @doc since: "0.1.0"
   @callback check_rate(key :: String.t(), limit :: pos_integer(), window_ms :: pos_integer()) ::
-              {:allow, count :: pos_integer()} | {:deny, retry_after_ms :: pos_integer()}
+              check_result()
 end

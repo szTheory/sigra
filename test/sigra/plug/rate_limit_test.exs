@@ -84,7 +84,7 @@ defmodule Sigra.Plug.RateLimitTest do
         assert key == "sigra:ip:127.0.0.1"
         assert limit == 10
         assert window == 60_000
-        {:allow, 1}
+        {:allow, %{count: 1, remaining: 9, reset_ms: 1000}}
       end)
 
       test_conn =
@@ -98,7 +98,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:allow, 5}
+        {:allow, %{count: 5, remaining: 5, reset_ms: 1000}}
       end)
 
       test_conn =
@@ -112,7 +112,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:deny, 30_000}
+        {:deny, %{retry_after_ms: 30_000, reset_ms: 30_000}}
       end)
 
       test_conn =
@@ -127,7 +127,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:deny, 30_500}
+        {:deny, %{retry_after_ms: 30_500, reset_ms: 30_500}}
       end)
 
       test_conn =
@@ -143,7 +143,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:deny, 60_000}
+        {:deny, %{retry_after_ms: 60_000, reset_ms: 60_000}}
       end)
 
       test_conn =
@@ -158,7 +158,7 @@ defmodule Sigra.Plug.RateLimitTest do
 
       expect(Sigra.MockRateLimiter, :check_rate, fn key, _limit, _window ->
         assert key == "login:ip:127.0.0.1"
-        {:allow, 1}
+        {:allow, %{count: 1, remaining: 9, reset_ms: 1000}}
       end)
 
       conn(:post, "/login")
@@ -171,7 +171,7 @@ defmodule Sigra.Plug.RateLimitTest do
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, limit, window ->
         assert limit == 5
         assert window == 30_000
-        {:allow, 1}
+        {:allow, %{count: 1, remaining: 9, reset_ms: 1000}}
       end)
 
       conn(:post, "/login")
@@ -193,7 +193,7 @@ defmodule Sigra.Plug.RateLimitTest do
       on_exit(fn -> :telemetry.detach("test-rate-limited") end)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:deny, 30_000}
+        {:deny, %{retry_after_ms: 30_000, reset_ms: 30_000}}
       end)
 
       conn(:post, "/login")
@@ -209,7 +209,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:allow, 1}
+        {:allow, %{count: 1, remaining: 9, reset_ms: 1000}}
       end)
 
       test_conn =
@@ -223,7 +223,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:allow, 1}
+        {:allow, %{count: 1, remaining: 9, reset_ms: 1000}}
       end)
 
       test_conn =
@@ -237,7 +237,7 @@ defmodule Sigra.Plug.RateLimitTest do
       opts = RateLimit.init(@default_opts)
 
       expect(Sigra.MockRateLimiter, :check_rate, fn _key, _limit, _window ->
-        {:allow, 1}
+        {:allow, %{count: 1, remaining: 9, reset_ms: 1000}}
       end)
 
       test_conn =

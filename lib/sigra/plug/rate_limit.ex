@@ -62,11 +62,17 @@ defmodule Sigra.Plug.RateLimit do
     key = "#{opts.key_prefix}:ip:#{ip}"
 
     case limiter.check_rate(key, opts.limit, opts.window) do
-      {:allow, _count} ->
-        conn
+      {:allow, %{remaining: remaining, reset_ms: reset_ms}} ->
+        reset_s = div(reset_ms, 1000)
 
-      {:deny, retry_after_ms} ->
+        conn
+        |> Plug.Conn.put_resp_header("x-ratelimit-limit", Integer.to_string(opts.limit))
+        |> Plug.Conn.put_resp_header("x-ratelimit-remaining", Integer.to_string(remaining))
+        |> Plug.Conn.put_resp_header("x-ratelimit-reset", Integer.to_string(reset_s))
+
+      {:deny, %{retry_after_ms: retry_after_ms, reset_ms: reset_ms}} ->
         retry_after_s = div(retry_after_ms + 999, 1000)
+        reset_s = div(reset_ms, 1000)
 
         Sigra.Telemetry.event(
           [:sigra, :security, :rate_limited],
@@ -75,6 +81,9 @@ defmodule Sigra.Plug.RateLimit do
         )
 
         conn
+        |> Plug.Conn.put_resp_header("x-ratelimit-limit", Integer.to_string(opts.limit))
+        |> Plug.Conn.put_resp_header("x-ratelimit-remaining", "0")
+        |> Plug.Conn.put_resp_header("x-ratelimit-reset", Integer.to_string(reset_s))
         |> Plug.Conn.put_resp_header("retry-after", Integer.to_string(retry_after_s))
         |> opts.error_handler.auth_error(:rate_limited, retry_after: retry_after_s)
         |> Plug.Conn.halt()
