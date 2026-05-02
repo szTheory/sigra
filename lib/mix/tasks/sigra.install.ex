@@ -164,7 +164,12 @@ defmodule Mix.Tasks.Sigra.Install do
           Mix.raise("Sigra supports PostgreSQL only. Detected #{inspect(adapter)}. mix sigra.install cannot continue. See guides/introduction/installation.md.")
       end
     else
-      Mix.raise("Sigra supports PostgreSQL only. Detected an unknown adapter. mix sigra.install cannot continue. See guides/introduction/installation.md.")
+      # The repo module has not been compiled or is not loaded yet (e.g. running
+      # mix sigra.install immediately after mix deps.get, before mix compile).
+      # Fall back to :postgres — the Postgres-only declaration still holds; we
+      # just cannot verify it at this point. Non-postgres adapters will surface
+      # as compile errors when the generated migrations use Postgres-specific DDL.
+      :postgres
     end
   end
 end

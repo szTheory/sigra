@@ -736,9 +736,10 @@ defmodule Sigra.Install.Features.Core do
           [
             %Injection{
               target: router_target,
-              marker: "# Sigra JWT",
+              marker: "OAuthTokenController",
               anchor: :before_last_end,
               content: """
+                # Sigra OAuth token endpoint (client_credentials grant)
                 scope "/", #{web_module} do
                   pipe_through :api
 
