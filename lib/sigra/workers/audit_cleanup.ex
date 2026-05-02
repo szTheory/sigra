@@ -29,7 +29,7 @@ if Code.ensure_loaded?(Oban.Worker) do
     """
 
     use Oban.Worker,
-      queue: :sigra_mailer,
+      queue: :sigra_lifecycle,
       max_attempts: 1
 
     alias Oban.{Job, Worker}

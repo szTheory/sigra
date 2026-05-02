@@ -19,9 +19,13 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 * **organizations / mfa:** Org admins can now require MFA for every member of an organization. Sigra adds `enforce_mfa_for_members` to generated organization schemas and migrations, `Sigra.Organizations.set_mfa_policy/5` + `count_members_without_mfa/3`, request/LiveView enforcement via `Sigra.Plug.RequireOrgMfa` and `Sigra.LiveView.RequireOrgMfa`, generated `OrganizationSettingsLive` toggle UX, and atomic `organization.mfa_policy_change` audit logging via `Sigra.Audit.log_multi_safe/3`.
 
+* **B2B-03 / service accounts:** Org admins can mint org-scoped service-account tokens that authenticate API calls via the RFC 6749 §4.4 `client_credentials` grant on Sigra's existing JWT path. New library surface (`Sigra.ServiceAccounts`, `Sigra.OAuth.Token`), generated host artifacts (`OrganizationServiceAccountsLive`, OAuth controller, schemas + migration, CopyToClipboard hook) gated on `--jwt --organizations`, and JWT scope distinguishes `actor_type: :service_account` from user-tied tokens in `current_scope` and audit rows. Audit lifecycle covers `service_account.{create, revoke, credential_create, credential_revoke, token_issued}` with co-fated rollback (D-AUD-08). See [`guides/recipes/m2m-service-accounts.md`](https://github.com/szTheory/sigra/blob/main/guides/recipes/m2m-service-accounts.md).
+
 ### Documentation
 
 * **planning:** Phase **91** / **B2B-01** implements org-level MFA enforcement across the library, generated host, and verification suite. See [`.planning/phases/91-org-level-mfa-enforcement-b2b-01/91-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/91-org-level-mfa-enforcement-b2b-01/91-VERIFICATION.md).
+
+* **planning:** Phase **93** / **B2B-03** ships M2M service-account tokens end-to-end across library + generator + recipe + E2E. See [`.planning/phases/93-m2m-service-account-tokens-b2b-03/93-VERIFICATION.md`](https://github.com/szTheory/sigra/blob/main/.planning/phases/93-m2m-service-account-tokens-b2b-03/93-VERIFICATION.md).
 
 ## [1.20.0](https://github.com/szTheory/sigra/compare/v0.2.5...v1.20.0) (2026-04-28)
 

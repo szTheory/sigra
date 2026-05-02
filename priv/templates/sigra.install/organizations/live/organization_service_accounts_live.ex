@@ -485,7 +485,7 @@ defmodule <%= web_module %>.OrganizationServiceAccountsLive do
 
     <%%= # ── Create credential modal ──────────────────────────────────────── %>
     <dialog id="create-credential-modal" class="modal" phx-hook="DialogModal">
-      <%%= if @create_credential_modal_open? and @service_account do %>
+      <%%= if @create_credential_modal_open? && @service_account do %>
         <div class="modal-box">
           <h3 class="text-lg font-semibold">Create a credential for {@service_account.name}</h3>
           <p class="text-sm text-base-content/70 mt-2">
@@ -647,7 +647,7 @@ defmodule <%= web_module %>.OrganizationServiceAccountsLive do
 
     <%%= # ── Revoke credential modal ──────────────────────────────────────── %>
     <dialog id="revoke-credential-modal" class="modal" phx-hook="DialogModal">
-      <%%= if @revoking_credential and @service_account do %>
+      <%%= if @revoking_credential && @service_account do %>
         <div class="modal-box">
           <h3 class="text-lg font-semibold">Revoke this credential?</h3>
           <p class="text-sm mt-2">

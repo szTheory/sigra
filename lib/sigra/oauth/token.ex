@@ -51,7 +51,10 @@ defmodule Sigra.OAuth.Token do
     {:error, :invalid_client}
   end
 
-  defp verify_credential(%{expires_at: expires_at}, submitted_hash)
+  defp verify_credential(
+         %{expires_at: expires_at, hashed_client_secret: stored_hash} = credential,
+         submitted_hash
+       )
        when not is_nil(expires_at) do
     cond do
       DateTime.compare(expires_at, DateTime.utc_now()) == :lt ->
@@ -59,7 +62,7 @@ defmodule Sigra.OAuth.Token do
         {:error, :invalid_client}
 
       true ->
-        verify_secret(submitted_hash, submitted_hash, expires_at)
+        verify_secret(stored_hash, submitted_hash, credential)
     end
   end
 

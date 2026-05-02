@@ -19,7 +19,7 @@ if Code.ensure_loaded?(Oban.Worker) do
     are deleted (T-3-INFRA-02). Never deletes tokens within their TTL.
     """
     use Oban.Worker,
-      queue: :sigra_mailer,
+      queue: :sigra_lifecycle,
       max_attempts: 1
 
     alias Oban.{Job, Worker}

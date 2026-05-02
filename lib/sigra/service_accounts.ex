@@ -119,7 +119,6 @@ defmodule Sigra.ServiceAccounts do
           organization_id: Map.get(service_account, :organization_id),
           metadata: %{
             service_account_id: service_account.id,
-            credential_id_resolver: true,
             client_id_prefix: client_id_prefix(client_id),
             expires_at: Map.get(attrs, :expires_at)
           }
@@ -227,7 +226,7 @@ defmodule Sigra.ServiceAccounts do
   # Both should classify as :constraint_violation for D-AUD-08 telemetry.
   defp classify_error(%Ecto.ConstraintError{}), do: :constraint_violation
 
-  defp classify_error(%Postgrex.Error{postgres: %{code: code}})
+  defp classify_error(%{__struct__: Postgrex.Error, postgres: %{code: code}})
        when code in [
               :check_violation,
               :foreign_key_violation,
@@ -370,45 +369,53 @@ defmodule Sigra.ServiceAccounts do
   defp normalize_multi_result({:error, _step, %Changeset{} = cs, _}), do: {:error, cs}
   defp normalize_multi_result({:error, _step, reason, _}), do: {:error, reason}
 
-  defp emit_constraint_or_reraise(%Ecto.ConstraintError{}, action, atom) do
-    :telemetry.execute(
-      [:sigra, :audit, :log_safe_error],
-      %{count: 1},
-      %{action: action, reason: :constraint_violation}
-    )
-
-    {:error, atom}
-  end
-
-  defp emit_constraint_or_reraise(%Postgrex.Error{postgres: %{code: code}}, action, atom)
-       when code in [
-              :check_violation,
-              :foreign_key_violation,
-              :unique_violation,
-              :integrity_constraint_violation,
-              :restrict_violation,
-              :exclusion_violation,
-              :not_null_violation
-            ] do
-    :telemetry.execute(
-      [:sigra, :audit, :log_safe_error],
-      %{count: 1},
-      %{action: action, reason: :constraint_violation}
-    )
-
-    {:error, atom}
-  end
-
   defp emit_constraint_or_reraise(e, action, atom) do
-    :telemetry.execute(
-      [:sigra, :audit, :log_safe_error],
-      %{count: 1},
-      %{action: action, reason: :database_error}
-    )
+    if integrity_violation?(e) do
+      :telemetry.execute(
+        [:sigra, :audit, :log_safe_error],
+        %{count: 1},
+        %{action: action, reason: :constraint_violation}
+      )
 
-    _ = e
-    {:error, atom}
+      {:error, atom}
+    else
+      # Non-DB-integrity exceptions (RuntimeError, ArgumentError,
+      # FunctionClauseError, etc.) are programming errors — surface them
+      # via Logger and reraise so callers see real failures instead of a
+      # tagged :aborted tuple. __STACKTRACE__ cannot cross a function
+      # boundary, so the reraise here loses the original stacktrace; the
+      # Logger line preserves the diagnostic context.
+      require Logger
+
+      Logger.error(
+        "service-account mutation #{action} aborted by unexpected exception: " <>
+          "#{inspect(e.__struct__)} #{Exception.message(e)}"
+      )
+
+      reraise e, []
+    end
   end
+
+  @integrity_codes [
+    :check_violation,
+    :foreign_key_violation,
+    :unique_violation,
+    :integrity_constraint_violation,
+    :restrict_violation,
+    :exclusion_violation,
+    :not_null_violation
+  ]
+
+  # Postgrex is a runtime dep only via Ecto; we cannot pattern-match its
+  # struct module from a function head when MIX_ENV=dev (where Postgrex.Error
+  # may not be loaded by the host app). Use a structural map match instead.
+  defp integrity_violation?(%Ecto.ConstraintError{}), do: true
+
+  defp integrity_violation?(%{__struct__: Postgrex.Error, postgres: %{code: code}})
+       when code in @integrity_codes,
+       do: true
+
+  defp integrity_violation?(_), do: false
 
   defp ensure_user_scope!(%{user: %{id: _}} = scope, _fun), do: scope
 
