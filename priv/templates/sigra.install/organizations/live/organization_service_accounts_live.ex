@@ -45,6 +45,8 @@ defmodule <%= web_module %>.OrganizationServiceAccountsLive do
 
   import Ecto.Query, warn: false
 
+  alias <%= app_module %>.Organizations
+
   @page_size 50
 
   @impl true
@@ -963,8 +965,11 @@ defmodule <%= web_module %>.OrganizationServiceAccountsLive do
     case Enum.find(socket.assigns.service_accounts, fn sa -> to_string(sa.id) == to_string(id) end) do
       nil ->
         case socket.assigns.service_account do
-          %{id: sa_id} = sa when to_string(sa_id) == to_string(id) -> sa
-          _ -> nil
+          %{id: sa_id} = sa ->
+            if to_string(sa_id) == to_string(id), do: sa, else: nil
+
+          nil ->
+            nil
         end
 
       sa ->

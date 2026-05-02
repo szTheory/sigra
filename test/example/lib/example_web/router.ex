@@ -260,6 +260,7 @@ defmodule ExampleWeb.Router do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
       live "/service-accounts", OrganizationServiceAccountsLive, :index
+      live "/service-accounts/:id", OrganizationServiceAccountsLive, :show
     end
   end
 
