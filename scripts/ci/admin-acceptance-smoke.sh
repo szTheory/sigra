@@ -138,7 +138,7 @@ defmodule SigraAdminSmoke.SigraAdminPolicy do
         select: %{organization_id: membership.organization_id, role: membership.role}
       )
       |> Repo.all()
-      |> Sigra.Admin.Policy.admin_org_ids_from_memberships()
+      |> Sigra.Admin.Policy.admin_org_ids_from_memberships(roles: [:owner, :admin])
     else
       []
     end
