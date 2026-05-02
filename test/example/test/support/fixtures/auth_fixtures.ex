@@ -123,12 +123,19 @@ defmodule Example.AccountsFixtures do
       ) || create_membership(user, organization)
 
     token = Accounts.generate_user_session_token(user)
-    {_authed_user, session} = Accounts.get_user_and_session_by_token(token)
+    {_authed_user, sigra_session} = Accounts.get_user_and_session_by_token(token)
 
-    {:ok, session} =
-      session
+    # `get_user_and_session_by_token` returns a `Sigra.Session` plain struct
+    # (not an Ecto schema), so we must fetch the `UserSession` Ecto row from the
+    # repo by session ID before calling `Ecto.Changeset.change/2`.
+    user_session = Repo.get!(Example.Accounts.UserSession, sigra_session.id)
+
+    {:ok, _updated_session} =
+      user_session
       |> Ecto.Changeset.change(%{active_organization_id: organization.id})
       |> Repo.update()
+
+    session = sigra_session
 
     scope =
       user
