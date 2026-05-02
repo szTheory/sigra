@@ -120,6 +120,40 @@ If you want a host-defined role on service accounts, populate
 `service_accounts.role` and branch on `scope.role` the same way you do for user
 memberships.
 
+## Rate limiting
+
+Sigra v1.21 does **not** wire framework-level rate limiting into the generated
+`/oauth/token` route. Credential enumeration is already neutralised at the
+library layer — `Sigra.OAuth.Token` runs a constant-time `secure_compare`
+against a dummy hash even when the `client_id` does not exist, and returns the
+single `:invalid_client` error atom for all five failure sub-cases (unknown
+`client_id`, wrong `client_secret`, revoked credential, expired credential,
+revoked service account). Timing and error-shape attacks are closed.
+
+The residual concern is unbounded credential-stuffing **request volume**.
+Mitigate it one of two ways:
+
+1. **At the edge (recommended for v1.21):** apply per-IP rate limits at your
+   reverse proxy / WAF / CDN — typically 10–60 requests per minute per IP for
+   `/oauth/token`.
+2. **In your own pipeline:** add `Sigra.Plug.RateLimit` (Hammer-backed) before
+   the OAuth controller in your router, e.g.:
+
+   ```elixir
+   pipeline :oauth_throttled do
+     plug :accepts, ["json"]
+     plug Sigra.Plug.RateLimit, scope: :ip, limit: 10, period: 60_000
+   end
+
+   scope "/", MyAppWeb do
+     pipe_through :oauth_throttled
+     post "/oauth/token", OAuthTokenController, :create
+   end
+   ```
+
+A future Sigra release (v1.22 follow-up, AR-93-02) will wire this directly
+into the generated route so adopters get the protection by default.
+
 ## Rotation flow
 
 Sigra models service accounts and credentials separately so you can rotate
