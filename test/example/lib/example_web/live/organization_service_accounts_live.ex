@@ -37,37 +37,35 @@ defmodule ExampleWeb.OrganizationServiceAccountsLive do
     ~H"""
     <div class="space-y-6">
       <.header>
-        Service accounts (<%= length(@service_accounts) %>)
-        <:subtitle><%= @empty_state_copy %></:subtitle>
+        Service accounts ({length(@service_accounts)})
+        <:subtitle>{@empty_state_copy}</:subtitle>
       </.header>
 
-      <%= if @service_accounts == [] do %>
-        <div class="card bg-base-200 py-12 px-6 text-center">
-          <h2 class="text-lg font-semibold">No service accounts yet</h2>
-          <p class="mt-2 text-sm text-base-content/70">
-            Service accounts let your CI, internal services, and scheduled jobs authenticate as the organization without using a member's password.
-          </p>
-        </div>
-      <% else %>
-        <div class="overflow-x-auto">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr :for={service_account <- @service_accounts}>
-                <td><%= service_account.name %></td>
-                <td><%= if service_account.revoked_at, do: "Revoked", else: "Active" %></td>
-                <td><%= service_account.inserted_at %></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      <% end %>
+      <div :if={@service_accounts == []} class="card bg-base-200 py-12 px-6 text-center">
+        <h2 class="text-lg font-semibold">No service accounts yet</h2>
+        <p class="mt-2 text-sm text-base-content/70">
+          Service accounts let your CI, internal services, and scheduled jobs authenticate as the organization without using a member's password.
+        </p>
+      </div>
+
+      <div :if={@service_accounts != []} class="overflow-x-auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr :for={service_account <- @service_accounts}>
+              <td>{service_account.name}</td>
+              <td>{if service_account.revoked_at, do: "Revoked", else: "Active"}</td>
+              <td>{service_account.inserted_at}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     """
   end
