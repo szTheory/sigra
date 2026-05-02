@@ -110,7 +110,7 @@ Plans:
 4. A maintainer running the `test/example/test/example_web/integration/` suite sees a generated-host E2E that issues a service-account token, calls a protected endpoint successfully, revokes the service account, and asserts the next call fails — including the audit-row assertions on both halves.
 5. `93-VERIFICATION.md` records: full library suite + generator-host E2E green, golden-diff stable for the new template set, JWT path test coverage exercises both `:user` and `:service_account` actor types, and the dual-mode auth plug remains the single entry point (no parallel auth pipeline introduced).
 
-**Plans:** 6/6 plans complete
+**Plans:** 10/10 plans complete
 
 Plans:
 - [x] `93-01-PLAN.md` — Normalize service-account lifecycle/audit verbs, stable errors, and atomicity proof around the existing library module.
@@ -118,7 +118,11 @@ Plans:
 - [x] `93-03-PLAN.md` — Enforce generator gating and add direct `/oauth/token` controller coverage for the generated/example token surface.
 - [x] `93-04-PLAN.md` — Align generated/example service-account UI, sudo, and `service_account_id` scope parity to the locked host-facing decisions.
 - [x] `93-05-PLAN.md` — Publish the service-account recipe and refresh the service-account golden install fixture.
-- [x] `93-06-PLAN.md` — Close Phase 93 with roadmap/requirements canonicalization plus `93-VERIFICATION.md`.
+- [x] `93-06-PLAN.md` — Gap closure: D-AUD-08 co-fated rollback proof for all five SA mutations.
+- [x] `93-07-PLAN.md` — Gap closure: SA token parity coverage in jwt_test.exs and fetch_bearer_test.exs.
+- [x] `93-08-PLAN.md` — Gap closure: SA generator gating tests for `--jwt --organizations` emission.
+- [x] `93-09-PLAN.md` — Gap closure: full UI-SPEC parity for `OrganizationServiceAccountsLive` template + CopyToClipboard hook.
+- [x] `93-10-PLAN.md` — Gap closure: generated-host E2E test proving full SA lifecycle (ROADMAP SC #4).
 
 ### Phase 94: Postgres-only declaration (HARD-01)
 
