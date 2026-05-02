@@ -58,9 +58,9 @@ defmodule Sigra.Workers.TokenCleanupTest do
       assert changeset.changes[:max_attempts] == 1
     end
 
-    test "uses sigra_mailer queue" do
+    test "uses sigra_lifecycle queue" do
       changeset = TokenCleanup.new(%{})
-      assert changeset.changes[:queue] == "sigra_mailer"
+      assert changeset.changes[:queue] == "sigra_lifecycle"
     end
   end
 end
