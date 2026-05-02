@@ -75,4 +75,28 @@ if Code.ensure_loaded?(Oban.Worker) do
       Sigra.Audit.do_cleanup(repo, audit_schema, retention_days)
     end
   end
+else
+  defmodule Sigra.Workers.AuditCleanup do
+    @moduledoc """
+    Stub fallback for hosts that compile Sigra without Oban (Phase 95
+    `:lifecycle_jobs` optional-dep boundary). See
+    `Sigra.Workers.AccountDeletion` for the rationale on the dual-defmodule
+    shape.
+    """
+
+    alias Sigra.OptionalDeps
+
+    @doc false
+    def new(args, opts \\ []) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:lifecycle_jobs, lifecycle_job_context(opts))
+      raise "unreachable"
+    end
+
+    defp lifecycle_job_context(opts) do
+      [
+        lifecycle_jobs?: true,
+        dependency_loaded?: Keyword.get(opts, :dependency_loaded?, fn _spec -> false end)
+      ]
+    end
+  end
 end
