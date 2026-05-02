@@ -195,9 +195,31 @@ defmodule Sigra.ServiceAccounts do
   @spec issue_token(Sigra.Config.t(), struct(), struct(), keyword()) ::
           {:ok, map()} | {:error, term()}
   def issue_token(config, service_account, credential, _opts \\ []) do
-    case JWT.generate_service_account_tokens(config, service_account, credential) do
-      {:error, _step, _reason, _changes} -> {:error, :service_account_token_issuance_aborted}
-      other -> other
+    try do
+      case JWT.generate_service_account_tokens(config, service_account, credential) do
+        {:error, _step, _reason, _changes} ->
+          :telemetry.execute(
+            [:sigra, :audit, :log_safe_error],
+            %{count: 1},
+            %{action: "service_account.token_issued", reason: :database_error}
+          )
+
+          {:error, :service_account_token_issuance_aborted}
+
+        other ->
+          other
+      end
+    rescue
+      e ->
+        reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
+
+        :telemetry.execute(
+          [:sigra, :audit, :log_safe_error],
+          %{count: 1},
+          %{action: "service_account.token_issued", reason: reason}
+        )
+
+        {:error, :service_account_token_issuance_aborted}
     end
   end
 
