@@ -153,23 +153,53 @@ defmodule Mix.Tasks.Sigra.Install do
     end
   end
 
+  # Discriminates three cases:
+  #
+  #   1. Repo module is not loaded at all (`Code.ensure_loaded?` is false).
+  #      This happens when `mix sigra.install` runs immediately after
+  #      `mix deps.get`, before any `mix compile` step has produced the
+  #      host's beams. The Postgres-only declaration still holds; we just
+  #      cannot verify it at this point. Fall back to `:postgres` so the
+  #      installer keeps moving — non-postgres adapters will surface later
+  #      as compile errors against the generated Postgres-specific DDL.
+  #
+  #   2. Repo module is loaded but does not declare an `__adapter__/0` —
+  #      i.e. it is genuinely not an Ecto repo (or a malformed one). This
+  #      is the case the `:undetectable adapter` test in
+  #      `test/mix/tasks/sigra.install_test.exs` exercises and the case
+  #      that, if allowed to fall through, causes the installer to write
+  #      its scaffolding into whatever Mix project happens to be the
+  #      current cwd. Refuse with a clear error.
+  #
+  #   3. Repo module is loaded and declares an adapter. Allow only the
+  #      Postgres adapter; raise on anything else.
+  #
+  # The earlier "fall back to :postgres on anything unloadable" shortcut
+  # collapsed cases (1) and (2) and let `mix sigra.install` proceed when
+  # invoked inside the Sigra repo itself (where the test sets
+  # `:ecto_repos` to a stub module with no `__adapter__/0`). That produced
+  # a phantom `lib/sigra_web/` tree under the repo root which then
+  # broke every fresh-clone install_fixture test downstream.
   defp validate_supported_adapter!(repo_module) do
-    if Code.ensure_loaded?(repo_module) and function_exported?(repo_module, :__adapter__, 0) do
-      adapter = repo_module.__adapter__()
-      case adapter do
-        Ecto.Adapters.Postgres ->
-          :postgres
+    cond do
+      not Code.ensure_loaded?(repo_module) ->
+        :postgres
 
-        _ ->
-          Mix.raise("Sigra supports PostgreSQL only. Detected #{inspect(adapter)}. mix sigra.install cannot continue. See guides/introduction/installation.md.")
-      end
-    else
-      # The repo module has not been compiled or is not loaded yet (e.g. running
-      # mix sigra.install immediately after mix deps.get, before mix compile).
-      # Fall back to :postgres — the Postgres-only declaration still holds; we
-      # just cannot verify it at this point. Non-postgres adapters will surface
-      # as compile errors when the generated migrations use Postgres-specific DDL.
-      :postgres
+      not function_exported?(repo_module, :__adapter__, 0) ->
+        Mix.raise(
+          "Sigra supports PostgreSQL only. Detected an unknown adapter. mix sigra.install cannot continue. See guides/introduction/installation.md."
+        )
+
+      true ->
+        case repo_module.__adapter__() do
+          Ecto.Adapters.Postgres ->
+            :postgres
+
+          adapter ->
+            Mix.raise(
+              "Sigra supports PostgreSQL only. Detected #{inspect(adapter)}. mix sigra.install cannot continue. See guides/introduction/installation.md."
+            )
+        end
     end
   end
 end
