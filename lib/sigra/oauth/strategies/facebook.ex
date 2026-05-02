@@ -53,7 +53,14 @@ defmodule Sigra.OAuth.Strategies.Facebook do
     ensure_assent!()
     config = build_config(provider_config)
 
-    case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+    # Use apply/3 so the call is resolved at runtime — direct `M.f/a` calls
+    # leak Assent's symbol table at compile time, which fails
+    # `--warnings-as-errors` in path-dep installs that don't declare Assent.
+    # `ensure_assent!/0` above already raises if Assent is absent at runtime.
+    case apply(Assent.Strategy.OAuth2, :refresh_access_token, [
+           config,
+           %{"refresh_token" => refresh_token}
+         ]) do
       {:ok, token} when is_map(token) -> {:ok, token}
       {:error, error} -> {:error, error}
     end
