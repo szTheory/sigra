@@ -189,8 +189,9 @@ defmodule Sigra.Install.Features.Organizations do
       base_injections ++
         [
           # Phase 93 Plan 09: inject ClipboardHooks registration into host's
-          # assets/js/app.js. Mirrors the passkeys app_js injection pattern at
-          # Sigra.Install.Features.Passkeys (anchor: :app_js_passkeys).
+          # assets/js/app.js. Mirrors the existing passkeys app_js injection
+          # pattern (anchor: :app_js_passkeys) without taking a structural
+          # dependency on it — Pitfall X-3 isolation.
           %Injection{
             target: Path.join(["assets", "js", "app.js"]),
             marker: "// Sigra clipboard:start",

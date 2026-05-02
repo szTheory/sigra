@@ -33,7 +33,31 @@ if Code.ensure_loaded?(Oban.Worker) do
       queue: :sigra_mailer,
       max_attempts: 3
 
+    alias Oban.{Job, Worker}
+    alias Sigra.OptionalDeps
     alias Sigra.Telemetry
+
+    # Phase 95 Plan 02 — async_email optional-dep boundary.
+    # Override new/2 so enqueueing hard-fails with MissingDependencyError when
+    # the host app has not declared the `:async_email` optional dep. Without
+    # this, hosts compiling against Sigra's own Oban dep can produce
+    # unrunnable Job structs silently.
+    @impl Oban.Worker
+    def new(args, opts) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
+      Job.new(args, Worker.merge_opts(__opts__(), Keyword.drop(opts, [:dependency_loaded?])))
+    end
+
+    defp async_email_context(opts) do
+      [
+        delivery_mode: :async,
+        dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
+      ]
+    end
+
+    defp dependency_loaded?(spec) do
+      Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
+    end
 
     @impl Oban.Worker
     def perform(%Oban.Job{args: args}) do

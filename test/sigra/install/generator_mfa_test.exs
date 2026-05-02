@@ -23,7 +23,11 @@ defmodule Sigra.Install.GeneratorMFATest do
     # "organizations?"`.
     organizations?: true,
     # Core templates gate passkey-related branches on `passkeys?` (EEx assigns).
-    passkeys?: true
+    passkeys?: true,
+    # Phase 93 Plan 03: auth.ex template gates the OptionalDeps preflight on
+    # `<%= if api || jwt do %>` (changed from Keyword.get(opts, :api/:jwt)).
+    api: false,
+    jwt: false
   ]
 
   describe "MFA template files exist" do

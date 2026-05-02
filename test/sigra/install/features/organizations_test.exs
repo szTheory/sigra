@@ -772,7 +772,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     @injections_binding [
       otp_app: :my_app,
       web_module: "MyAppWeb",
-      app_module: "MyApp"
+      app_module: "MyApp",
+      opts: []
     ]
 
     test "returns list with router injection only (Phase 24.1: user_auth baked into template)" do

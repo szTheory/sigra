@@ -18,7 +18,9 @@ defmodule Sigra.Install.GeneratorWiringTest do
     binary_id: false,
     adapter: :postgres,
     organizations?: true,
-    passkeys?: true
+    passkeys?: true,
+    api: false,
+    jwt: false
   ]
 
   describe "generator file list includes Phase 3 templates" do

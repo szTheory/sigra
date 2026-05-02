@@ -32,6 +32,27 @@ if Code.ensure_loaded?(Oban.Worker) do
       queue: :sigra_mailer,
       max_attempts: 1
 
+    alias Oban.{Job, Worker}
+    alias Sigra.OptionalDeps
+
+    # Phase 95 — lifecycle_jobs optional-dep boundary.
+    @impl Oban.Worker
+    def new(args, opts) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:lifecycle_jobs, lifecycle_job_context(opts))
+      Job.new(args, Worker.merge_opts(__opts__(), Keyword.drop(opts, [:dependency_loaded?])))
+    end
+
+    defp lifecycle_job_context(opts) do
+      [
+        lifecycle_jobs?: true,
+        dependency_loaded?: Keyword.get(opts, :dependency_loaded?, &dependency_loaded?/1)
+      ]
+    end
+
+    defp dependency_loaded?(spec) do
+      Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
+    end
+
     @impl Oban.Worker
     def perform(%Oban.Job{args: args}) do
       repo = String.to_existing_atom(args["repo"])

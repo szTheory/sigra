@@ -72,7 +72,7 @@ defmodule Sigra.Install.ScopeTemplateFieldsTest do
       assert length(for_user_matches) == 2, "Expected 2 for_user/1 clauses"
 
       new_matches = Regex.scan(~r/def new\(/, source)
-      assert length(new_matches) == 2, "Expected 2 new/1 clauses"
+      assert length(new_matches) == 3, "Expected 3 new/1 clauses (Phase 93-04 added a service-account attrs-map clause)"
     end
 
     test "moduledoc mentions reserved fields and UPGRADE-v1.2.md" do

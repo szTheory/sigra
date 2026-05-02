@@ -108,6 +108,10 @@ defmodule Sigra.Templates.GeneratorEmissionAuditTest do
       "SessionHTML" -> ["login_html.ex", "session_html.ex"]
       # `PageLive` is a compile-time stub defined inside `user_auth.ex` (not a separate template).
       "PageLive" -> ["user_auth.ex"]
+      # Phase 93 Plan 03: Macro.underscore("OAuthTokenController") returns
+      # "o_auth_token_controller" but the on-disk filename follows Phoenix
+      # convention "oauth_token_controller.ex" (single token, RFC 6749 §4.4).
+      "OAuthTokenController" -> ["oauth_token_controller.ex"]
       _ -> []
     end
   end
