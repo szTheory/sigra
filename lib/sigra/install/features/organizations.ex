@@ -154,7 +154,15 @@ defmodule Sigra.Install.Features.Organizations do
           {:eex, "organizations/service_accounts_migration.exs",
            migration_target(binding, :service_accounts, "create_service_accounts.exs")},
           {:eex, "organizations/live/organization_service_accounts_live.ex",
-           Path.join(["lib", web, "live", "organization_service_accounts_live.ex"])}
+           Path.join(["lib", web, "live", "organization_service_accounts_live.ex"])},
+          # Phase 93 Plan 09: CopyToClipboard hook source — ships into the host's
+          # assets/js/ directory. The hook is required by phx-hook="CopyToClipboard"
+          # on the credential-disclosure modal copy buttons in OrganizationServiceAccountsLive.
+          # Uses :eex atom to stay consistent with how passkey_hooks.js is shipped;
+          # the file contains no EEx markers but the :eex pipeline produces identical
+          # output for plain-text files.
+          {:eex, "organizations/copy_to_clipboard_hook.js",
+           Path.join(["assets", "js", "copy_to_clipboard_hook.js"])}
         ]
     else
       base_files
@@ -165,7 +173,7 @@ defmodule Sigra.Install.Features.Organizations do
   def injections(binding) do
     otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
 
-    [
+    base_injections = [
       # user_auth injection was removed in Phase 24.1: the
       # :assign_user_organizations on_mount clause is now baked directly
       # into core/user_auth.ex gated on `<%= if organizations? do %>`.
@@ -176,6 +184,23 @@ defmodule Sigra.Install.Features.Organizations do
       # from the existing on_mount group.
       router_injection(otp_app, binding)
     ]
+
+    if Keyword.get(Keyword.get(binding, :opts, []), :jwt, false) do
+      base_injections ++
+        [
+          # Phase 93 Plan 09: inject ClipboardHooks registration into host's
+          # assets/js/app.js. Mirrors the passkeys app_js injection pattern at
+          # Sigra.Install.Features.Passkeys (anchor: :app_js_passkeys).
+          %Injection{
+            target: Path.join(["assets", "js", "app.js"]),
+            marker: "// Sigra clipboard:start",
+            anchor: :app_js_clipboard,
+            content: read_template!("organizations/app_js_clipboard_injection.js")
+          }
+        ]
+    else
+      base_injections
+    end
   end
 
   @impl true
