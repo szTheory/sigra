@@ -120,7 +120,11 @@ defmodule Sigra.Install.Features.CorePostInstructionsTest do
 
       assert out =~ "Oban not detected"
       assert out =~ "synchronous mode"
-      assert out =~ "To enable async delivery"
+      # Remediation copy tells the user how to enable async delivery: add the
+      # :oban dep and configure the sigra_mailer queue. Anchored on the
+      # remediation marker emitted by `optional_dependency_remediation(:async_email)`.
+      assert out =~ "Add {:oban"
+      assert out =~ "sigra_mailer queue"
     end
 
     test "neither config/config.exs nor config/runtime.exs present still emits Oban-absent warning" do
