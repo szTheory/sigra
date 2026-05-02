@@ -58,7 +58,7 @@ defmodule Sigra.ServiceAccounts do
     changeset =
       service_account
       |> Changeset.change(
-        revoked_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        revoked_at: DateTime.utc_now() |> DateTime.truncate(:microsecond),
         token_epoch: Map.get(service_account, :token_epoch, 0) + 1
       )
 
@@ -152,7 +152,7 @@ defmodule Sigra.ServiceAccounts do
     changeset =
       Changeset.change(
         credential,
-        revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        revoked_at: DateTime.utc_now() |> DateTime.truncate(:microsecond)
       )
 
     service_account =
@@ -207,7 +207,7 @@ defmodule Sigra.ServiceAccounts do
   """
   @spec append_token_issued_audit(Multi.t(), Sigra.Config.t(), struct(), struct()) :: Multi.t()
   def append_token_issued_audit(%Multi{} = multi, config, service_account, credential) do
-    timestamp = DateTime.utc_now() |> DateTime.truncate(:second)
+    timestamp = DateTime.utc_now() |> DateTime.truncate(:microsecond)
 
     credential_changeset =
       Changeset.change(credential, last_used_at: timestamp)
@@ -302,6 +302,13 @@ defmodule Sigra.ServiceAccounts do
   end
 
   defp append_audit(multi, config, action, scope, extra) do
+    # Use direct field access instead of get_in/2: plain structs (like the
+    # generated host Scope module) do not implement the Access behaviour in
+    # Elixir 1.19+, so get_in/2 would raise UndefinedFunctionError. Direct
+    # dot-notation access with the &./1 safe-navigation idiom avoids this.
+    user = Map.get(scope, :user)
+    org = Map.get(scope, :active_organization)
+
     Audit.log_multi_safe(
       multi,
       action,
@@ -309,10 +316,10 @@ defmodule Sigra.ServiceAccounts do
         [
           repo: config.repo,
           audit_schema: audit_schema(config),
-          actor_id: get_in(scope, [:user, :id]),
+          actor_id: user && Map.get(user, :id),
           actor_type: "user",
-          organization_id: get_in(scope, [:active_organization, :id]),
-          effective_user_id: get_in(scope, [:user, :id])
+          organization_id: org && Map.get(org, :id),
+          effective_user_id: user && Map.get(user, :id)
         ],
         extra
       )

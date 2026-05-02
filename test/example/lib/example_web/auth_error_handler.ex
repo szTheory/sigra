@@ -15,9 +15,16 @@ defmodule ExampleWeb.AuthErrorHandler do
 
   @impl true
   def auth_error(conn, :unauthenticated, _opts) do
-    conn
-    |> put_flash(:error, "You must log in to access this page.")
-    |> redirect(to: ~p"/users/log_in")
+    if api_request?(conn) do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(401, ~s({"error":"unauthenticated"}))
+      |> halt()
+    else
+      conn
+      |> put_flash(:error, "You must log in to access this page.")
+      |> redirect(to: ~p"/users/log_in")
+    end
   end
 
   @impl true
@@ -83,5 +90,14 @@ defmodule ExampleWeb.AuthErrorHandler do
       "Your organization requires two-factor authentication. Set up MFA below to continue."
     )
     |> redirect(to: enrollment_path)
+  end
+
+  # Returns true when the connection is an API request using a Bearer token.
+  # Used to return 401 JSON instead of flash+redirect on auth failure.
+  defp api_request?(conn) do
+    case Plug.Conn.get_req_header(conn, "authorization") do
+      ["Bearer " <> _ | _] -> true
+      _ -> false
+    end
   end
 end
