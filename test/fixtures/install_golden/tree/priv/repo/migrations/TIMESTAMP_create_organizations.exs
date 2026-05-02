@@ -121,5 +121,4 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateOrganizations do
     drop table(:organization_memberships)
     drop table(:organizations)
   end
-
 end

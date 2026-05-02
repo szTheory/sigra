@@ -40,6 +40,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     mfa_settings_html.ex
     mfa_settings_live.ex
     migration.exs
+    oauth_token_controller.ex
     reactivation_live.ex
     registration_html.ex
     registration_live.ex
@@ -72,7 +73,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     # `Sigra.Authz` starter sits beside admin/policy.ex (admin feature)
     # and lives under core/ because the Authz seam itself is core-scoped.
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 50
+    assert length(core_files) == 51
     assert core_files == Enum.sort(@manifest_post_move)
   end
 

@@ -56,6 +56,10 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     plug Sigra.Plug.RequireSudo, error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
   end
 
+  pipeline :auth_rate_limit do
+    plug Sigra.Plug.RateLimit, error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
+  end
+
   # Phase 14 Plan 03 / Phase 92 (CR-01): organization-aware pipeline (opt-in).
   # Apps that want to gate routes by active organization membership
   # pipe_through :require_org. Role-gated pipelines are intentionally
@@ -77,7 +81,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
   end
 
   scope "/users", SigraInstallGoldenTmpWeb do
-    pipe_through [:browser, :redirect_if_user_is_authenticated]
+    pipe_through [:browser, :redirect_if_user_is_authenticated, :auth_rate_limit]
 
     # Phase 10.1.1 B9: login page is a plain controller, not a LiveView.
     get "/log_in", SessionController, :new
@@ -173,6 +177,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
+
     end
   end
 
