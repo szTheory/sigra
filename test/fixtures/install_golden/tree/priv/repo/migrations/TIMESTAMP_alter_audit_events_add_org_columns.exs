@@ -1,7 +1,6 @@
 defmodule SigraInstallGoldenTmp.Repo.Migrations.AlterAuditEventsAddOrgColumns do
   use Ecto.Migration
 
-
   @disable_ddl_transaction true
   @disable_migration_lock true
 
@@ -22,5 +21,4 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.AlterAuditEventsAddOrgColumns do
       remove :organization_id
     end
   end
-
 end

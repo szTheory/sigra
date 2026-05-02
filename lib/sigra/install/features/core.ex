@@ -503,6 +503,10 @@ defmodule Sigra.Install.Features.Core do
         plug Sigra.Plug.RequireSudo, error_handler: #{web_module}.AuthErrorHandler
       end
 
+      pipeline :auth_rate_limit do
+        plug Sigra.Plug.RateLimit, error_handler: #{web_module}.AuthErrorHandler
+      end
+
       # Phase 14 Plan 03 / Phase 92 (CR-01): organization-aware pipeline (opt-in).
       # Apps that want to gate routes by active organization membership
       # pipe_through :require_org. Role-gated pipelines are intentionally

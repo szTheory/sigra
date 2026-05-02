@@ -42,7 +42,8 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
             membership: nil,
             impersonating_from: nil,
             role: nil,
-            actor_type: nil
+            actor_type: nil,
+            service_account_id: nil
 
   @type t :: %__MODULE__{
           user: %User{} | nil,
@@ -52,7 +53,8 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
 
           impersonating_from: %User{} | nil,
           role: atom() | nil,
-          actor_type: atom() | nil
+          actor_type: atom() | nil,
+          service_account_id: binary() | nil
         }
 
   @doc """
@@ -72,6 +74,10 @@ defmodule SigraInstallGoldenTmp.Accounts.Scope do
   end
 
   def new(nil), do: nil
+
+  def new(%{} = attrs) when is_map(attrs) do
+    struct(__MODULE__, attrs)
+  end
 
   @doc """
   Puts the given organization and membership on the scope.

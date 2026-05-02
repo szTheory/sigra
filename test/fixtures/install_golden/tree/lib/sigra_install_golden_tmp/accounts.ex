@@ -16,6 +16,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   alias Sigra.Auth, as: SigraAuth
 
+
   ## Database getters
 
   @doc """
@@ -538,6 +539,8 @@ defmodule SigraInstallGoldenTmp.Accounts do
         threshold: 5,
         duration: 900
       ],
+
+
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
       # written for session.create, auth.login.*, etc.

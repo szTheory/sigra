@@ -1,3 +1,38 @@
+    warning: Assent.Strategy.OAuth2.refresh_access_token/2 is undefined (module Assent.Strategy.OAuth2 is not available or is yet to be defined)
+    │
+ 56 │     case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+    │                                 ~
+    │
+    └─ (sigra 1.20.0) lib/sigra/oauth/strategies/facebook.ex:56:33: Sigra.OAuth.Strategies.Facebook.refresh/3
+
+    warning: Assent.Strategy.OAuth2.refresh_access_token/2 is undefined (module Assent.Strategy.OAuth2 is not available or is yet to be defined)
+    │
+ 53 │     case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+    │                                 ~
+    │
+    └─ (sigra 1.20.0) lib/sigra/oauth/strategies/github.ex:53:33: Sigra.OAuth.Strategies.Github.refresh/3
+
+    warning: Assent.Strategy.OAuth2.refresh_access_token/2 is undefined (module Assent.Strategy.OAuth2 is not available or is yet to be defined)
+    │
+ 55 │     case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+    │                                 ~
+    │
+    └─ (sigra 1.20.0) lib/sigra/oauth/strategies/apple.ex:55:33: Sigra.OAuth.Strategies.Apple.refresh/3
+
+    warning: Assent.Strategy.OAuth2.refresh_access_token/2 is undefined (module Assent.Strategy.OAuth2 is not available or is yet to be defined)
+    │
+ 67 │     case Assent.Strategy.OAuth2.refresh_access_token(config, %{"refresh_token" => refresh_token}) do
+    │                                 ~
+    │
+    └─ (sigra 1.20.0) lib/sigra/oauth/strategies/generic.ex:67:33: Sigra.OAuth.Strategies.Generic.refresh/3
+
+     warning: Joken.encode_and_sign/2 is undefined (module Joken is not available or is yet to be defined). Make sure the module name is correct and has been specified in full (or that an alias has been defined)
+     │
+ 747 │     {:ok, token, _} = Joken.encode_and_sign(claims, signer)
+     │                             ~
+     │
+     └─ (sigra 1.20.0) lib/sigra/testing.ex:747:29: Sigra.Testing.expired_jwt/3
+
 * creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
 * creating priv/repo/migrations/TIMESTAMP_add_active_organization_id_to_user_sessions.exs
 * creating lib/sigra_install_golden_tmp/accounts/user.ex
