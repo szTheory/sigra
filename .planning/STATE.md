@@ -35,7 +35,13 @@ Plan: 10/10 complete (gap-closure plans 06-10 just executed)
 
 Status: Phase 93 shipped — PR #37 (v1.21 batch)
 
-Last activity: 2026-05-02
+Last activity: 2026-05-02 - Completed quick task 260502-lzl: PR #37 CI 6 mechanical drift fixes
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260502-lzl | fix PR #37 CI red — 6 mechanical drift fixes (4 commits + 2 documented no-ops; 2357/2358 local pass) | 2026-05-02 | 80ecae7 | [260502-lzl-fix-pr-37-ci-red-6-mechanical-drift-fixe](./quick/260502-lzl-fix-pr-37-ci-red-6-mechanical-drift-fixe/) |
 
 ## Decisions
 
