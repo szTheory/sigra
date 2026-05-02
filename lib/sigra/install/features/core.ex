@@ -156,7 +156,7 @@ defmodule Sigra.Install.Features.Core do
       ]
 
     base
-    |> Kernel.++(if api?, do: api_injections(otp_app_str, web_module, jwt?), else: [])
+    |> Kernel.++(if api?, do: api_injections(otp_app_str, web_module, jwt?, binding), else: [])
     |> Enum.reject(&is_nil/1)
   end
 
@@ -364,13 +364,23 @@ defmodule Sigra.Install.Features.Core do
   defp jwt_files(binding, true) do
     otp_app = otp_app_str(binding)
     web = "#{otp_app}_web"
+    opts = Keyword.get(binding, :opts, [])
+    organizations? = Keyword.get(opts, :organizations, true)
 
-    [
+    files = [
       {:eex, "core/token_controller.ex",
        Path.join(["lib", web, "controllers", "token_controller.ex"])},
-      {:eex, "core/oauth_token_controller.ex",
-       Path.join(["lib", web, "controllers", "oauth_token_controller.ex"])}
     ]
+
+    if organizations? do
+      files ++
+        [
+          {:eex, "core/oauth_token_controller.ex",
+           Path.join(["lib", web, "controllers", "oauth_token_controller.ex"])}
+        ]
+    else
+      files
+    end
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -636,7 +646,7 @@ defmodule Sigra.Install.Features.Core do
     end
   end
 
-  defp api_injections(otp_app, web_module, jwt?) do
+  defp api_injections(otp_app, web_module, jwt?, binding) do
     api_router_content = """
       # Sigra API
       pipeline :api_authenticated do
@@ -698,14 +708,10 @@ defmodule Sigra.Install.Features.Core do
     ]
 
     if jwt? do
+      organizations? = Keyword.get(Keyword.get(binding, :opts, []), :organizations, true)
+
       jwt_router_content = """
         # Sigra JWT
-        scope "/", #{web_module} do
-          pipe_through :api
-
-          post "/oauth/token", OAuthTokenController, :create
-        end
-
         scope "/api/auth", #{web_module} do
           pipe_through :api
 
@@ -716,8 +722,7 @@ defmodule Sigra.Install.Features.Core do
         end
       """
 
-      api_list ++
-        [
+      jwt_injections = [
           %Injection{
             target: router_target,
             marker: "# Sigra JWT",
@@ -725,6 +730,28 @@ defmodule Sigra.Install.Features.Core do
             content: jwt_router_content
           }
         ]
+
+      oauth_injections =
+        if organizations? do
+          [
+            %Injection{
+              target: router_target,
+              marker: "# Sigra JWT",
+              anchor: :before_last_end,
+              content: """
+                scope "/", #{web_module} do
+                  pipe_through :api
+
+                  post "/oauth/token", OAuthTokenController, :create
+                end
+              """
+            }
+          ]
+        else
+          []
+        end
+
+      api_list ++ jwt_injections ++ oauth_injections
     else
       api_list
     end

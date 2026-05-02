@@ -52,5 +52,9 @@
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
+<%= if Keyword.get(opts, :jwt, false) do %>
+      live "/service-accounts", OrganizationServiceAccountsLive, :index
+      live "/service-accounts/:id", OrganizationServiceAccountsLive, :show
+<% end %>
     end
   end

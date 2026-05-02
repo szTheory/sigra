@@ -6,7 +6,7 @@ Sigra installs into an existing Phoenix 1.8+ application in four commands. This 
 
 - Elixir ~> 1.18 and Erlang/OTP ~> 27
 - A Phoenix 1.8+ application (`mix phx.new my_app`) with an Ecto repo
-- PostgreSQL (primary supported adapter; MySQL and SQLite work with conditional migrations)
+- PostgreSQL (Sigra requires PostgreSQL)
 
 If you don't have a Phoenix app yet:
 

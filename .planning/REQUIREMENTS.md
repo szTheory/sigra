@@ -10,7 +10,7 @@ Requirements for the v1.21 milestone. Each maps to exactly one roadmap phase (91
 ### B2B Trust
 
 - [x] **B2B-01**: Org admin can require MFA for all members of an organization, blocking access for non-MFA-enrolled members until enrollment, with the policy change recorded as an atomic audit row.
-- [ ] **B2B-02**: Generated host receives a `role` field on `OrganizationMembership`, a `Sigra.Authz` `can?/3` behaviour, scope-struct `:role` propagation, and a recipe doc demonstrating role-based policy implementation — without the library shipping any opinionated roles.
+- [x] **B2B-02**: Generated host receives a `role` field on `OrganizationMembership`, a `Sigra.Authz` `can?/3` behaviour, scope-struct `:role` propagation, and a recipe doc demonstrating role-based policy implementation — without the library shipping any opinionated roles.
 - [x] **B2B-03**: Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope` and audit rows from user-tied tokens.
 
 ### Production Hardening
@@ -84,7 +84,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | B2B-01 | 91 | Complete |
-| B2B-02 | 92 | Pending |
+| B2B-02 | 92 | Complete |
 | B2B-03 | 93 | Complete |
 | HARD-01 | 94 | Pending |
 | HARD-02 | 95 | Complete |
@@ -98,4 +98,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-28*
-*Last updated: 2026-04-30 after Phase 95 verification*
+*Last updated: 2026-05-01 after Phase 92 verification and Phase 93 reconciliation*

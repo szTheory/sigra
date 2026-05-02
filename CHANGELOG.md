@@ -11,6 +11,10 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Changed
+
+* **support:** clarified support boundary to PostgreSQL only. Removed placeholder MySQL/SQLite branches from generator templates.
+
 ### Added
 
 * **organizations / mfa:** Org admins can now require MFA for every member of an organization. Sigra adds `enforce_mfa_for_members` to generated organization schemas and migrations, `Sigra.Organizations.set_mfa_policy/5` + `count_members_without_mfa/3`, request/LiveView enforcement via `Sigra.Plug.RequireOrgMfa` and `Sigra.LiveView.RequireOrgMfa`, generated `OrganizationSettingsLive` toggle UX, and atomic `organization.mfa_policy_change` audit logging via `Sigra.Audit.log_multi_safe/3`.

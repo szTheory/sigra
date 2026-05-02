@@ -15,7 +15,7 @@ defmodule <%= context_module %> do
   alias <%= context_module %>.Emails
 <% end %>
   alias Sigra.Auth, as: SigraAuth
-<%= if Keyword.get(opts, :api, false) || Keyword.get(opts, :jwt, false) do %>
+<%= if api || jwt do %>
   require Sigra.Application
 
   Sigra.Application.warn_for_enabled_optional_deps!(
@@ -551,6 +551,22 @@ defmodule <%= context_module %> do
         threshold: 5,
         duration: 900
       ],
+<%= if jwt do %>
+      jwt: [
+        enabled: true,
+        algorithm: "HS256",
+        access_ttl: 900,
+        client_credentials_access_ttl: 3600,
+        refresh_ttl: 2_592_000
+      ],
+<% end %>
+<%= if organizations? and jwt do %>
+      service_accounts: [
+        service_account_schema: <%= context_module %>.ServiceAccount,
+        service_account_credential_schema: <%= context_module %>.ServiceAccountCredential,
+        client_id_prefix: "sigra_sa_"
+      ],
+<% end %>
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
       # written for session.create, auth.login.*, etc.

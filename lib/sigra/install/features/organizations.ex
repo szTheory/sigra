@@ -45,7 +45,7 @@ defmodule Sigra.Install.Features.Organizations do
     # always sets context_alias (via mix sigra.install <ctx> <schema> ...).
     ctx = binding |> Keyword.get(:context_alias, "Accounts") |> Macro.underscore()
 
-    [
+    base_files = [
       # Phase 13 Plan 02 / Phase 24.1: v1.1 organization schema modules.
       # These four schemas were created in Phase 13 but never registered
       # in files/1 until Phase 24 absorbed Phase 18 Plan 18-03's charter
@@ -143,6 +143,22 @@ defmodule Sigra.Install.Features.Organizations do
       # kept under organizations/ for CD-01 subdir ownership and to give
       # Phase 17/24 verifiers a grep anchor, but it is reference-only.
     ]
+
+    if Keyword.get(Keyword.get(binding, :opts, []), :jwt, false) do
+      base_files ++
+        [
+          {:eex, "organizations/service_account.ex",
+           Path.join(["lib", otp_app, ctx, "service_account.ex"])},
+          {:eex, "organizations/service_account_credential.ex",
+           Path.join(["lib", otp_app, ctx, "service_account_credential.ex"])},
+          {:eex, "organizations/service_accounts_migration.exs",
+           migration_target(binding, :service_accounts, "create_service_accounts.exs")},
+          {:eex, "organizations/live/organization_service_accounts_live.ex",
+           Path.join(["lib", web, "live", "organization_service_accounts_live.ex"])}
+        ]
+    else
+      base_files
+    end
   end
 
   @impl true
@@ -163,8 +179,8 @@ defmodule Sigra.Install.Features.Organizations do
   end
 
   @impl true
-  def migrations(_binding) do
-    [
+  def migrations(binding) do
+    base = [
       {:organizations, "organizations/migration.exs", "create_organizations.exs"},
       # Phase 24.1: moved out of the Core feature so the hard FK to the
       # organizations table lands after that table is created AND is
@@ -172,6 +188,16 @@ defmodule Sigra.Install.Features.Organizations do
       {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
        "alter_audit_events_add_org_columns.exs"}
     ]
+
+    if Keyword.get(Keyword.get(binding, :opts, []), :jwt, false) do
+      base ++
+        [
+          {:service_accounts, "organizations/service_accounts_migration.exs",
+           "create_service_accounts.exs"}
+        ]
+    else
+      base
+    end
   end
 
   @impl true

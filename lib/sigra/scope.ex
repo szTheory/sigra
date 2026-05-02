@@ -50,7 +50,8 @@ defmodule Sigra.Scope do
       # scope module does not declare so this stays compatible with
       # pre-Plan-92-02 host scope structs.
       role: Keyword.get(opts, :role),
-      actor_type: Keyword.get(opts, :actor_type)
+      actor_type: Keyword.get(opts, :actor_type),
+      service_account_id: Keyword.get(opts, :service_account_id)
     )
   end
 
@@ -87,7 +88,8 @@ defmodule Sigra.Scope do
         build(mod, user,
           active_organization: nil,
           role: Keyword.get(opts, :role),
-          actor_type: Keyword.get(opts, :actor_type)
+          actor_type: Keyword.get(opts, :actor_type),
+          service_account_id: Keyword.get(opts, :service_account_id)
         )
     end
   end
@@ -115,7 +117,8 @@ defmodule Sigra.Scope do
         build(mod, user,
           active_organization: nil,
           role: Map.get(config, :role),
-          actor_type: Map.get(config, :actor_type)
+          actor_type: Map.get(config, :actor_type),
+          service_account_id: Map.get(config, :service_account_id)
         )
     end
   end

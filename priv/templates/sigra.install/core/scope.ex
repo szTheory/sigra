@@ -42,7 +42,8 @@ defmodule <%= context_module %>.Scope do
             membership: nil,
             impersonating_from: nil,
             role: nil,
-            actor_type: nil
+            actor_type: nil,
+            service_account_id: nil
 
   @type t :: %__MODULE__{
           user: %<%= schema_alias %>{} | nil,
@@ -55,7 +56,8 @@ defmodule <%= context_module %>.Scope do
 <% end %>
           impersonating_from: %<%= schema_alias %>{} | nil,
           role: atom() | nil,
-          actor_type: atom() | nil
+          actor_type: atom() | nil,
+          service_account_id: binary() | nil
         }
 
   @doc """
@@ -75,6 +77,10 @@ defmodule <%= context_module %>.Scope do
   end
 
   def new(nil), do: nil
+
+  def new(%{} = attrs) when is_map(attrs) do
+    struct(__MODULE__, attrs)
+  end
 
   @doc """
   Puts the given organization and membership on the scope.

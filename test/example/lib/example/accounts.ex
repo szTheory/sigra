@@ -20,7 +20,7 @@ defmodule Example.Accounts do
   Sigra.Application.warn_for_enabled_optional_deps!(
     jwt: [enabled: true],
     dependency_loaded?: fn spec ->
-      case Application.get_env(:sigra, :compile_dependency_loaded_override) do
+      case Application.compile_env(:sigra, :compile_dependency_loaded_override, nil) do
         fun when is_function(fun, 1) -> fun.(spec)
         _ -> Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
       end

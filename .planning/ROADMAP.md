@@ -45,9 +45,9 @@ No phase blocks the milestone close on a separate launch / monitoring leg — v1
 
 - [x] **Phase 91: Org-level MFA enforcement (B2B-01)** — Org admin can require MFA for all members of an organization with an atomic `organization.mfa_policy_change` audit row, blocking non-MFA-enrolled members at the request boundary until enrollment. (completed 2026-04-29)
 - [x] **Phase 92: RBAC seams (B2B-02)** — Generated host receives a nullable `role` field on `OrganizationMembership`, a `Sigra.Authz` `can?/3` behaviour, scope-struct `:role` propagation, a no-op default `Authz` impl, and a recipe doc — without the library shipping any opinionated roles. (completed 2026-04-30)
-- [x] **Phase 93: M2M / service-account tokens (B2B-03)** — Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope.actor_type` and audit rows from user-tied tokens. (completed 2026-04-30)
+- [ ] **Phase 93: M2M / service-account tokens (B2B-03)** — Org admin can issue, list, and revoke org-scoped service-account tokens that authenticate API calls via `client_credentials` grant on the existing JWT path, distinguishable in `current_scope.actor_type` and audit rows from user-tied tokens. Core capability is implemented locally, but the original phase closeout contract still has open proof/UI gaps. (in progress)
 - [ ] **Phase 94: Postgres-only declaration (HARD-01)** — `mix sigra.install` refuses to run against a non-Postgres adapter with a clear error; all unimplemented MySQL / SQLite migration branches are removed; PROJECT.md / README / mix.exs / getting-started state PostgreSQL as the only supported adapter.
-- [ ] **Phase 95: Optional-dep boot-validation + `mix sigra.doctor` (HARD-02)** — Each optional dependency (Oban / Bcrypt / EQRCode) raises a clear, actionable error at first use when missing instead of compiling to silent nil; `mix sigra.doctor` reports per-feature dep status; CI matrix toggles each optional dep off and verifies behavior.
+- [x] **Phase 95: Optional-dep boot-validation + `mix sigra.doctor` (HARD-02)** — Each optional dependency (Oban / Bcrypt / EQRCode) raises a clear, actionable error at first use when missing instead of compiling to silent nil; `mix sigra.doctor` reports per-feature dep status; CI matrix toggles each optional dep off and verifies behavior. (completed 2026-04-30)
 - [ ] **Phase 96: OAuth refresh + rate-limit headers (HARD-03 + API-01)** — OAuth token refresh works for GitHub / Apple / Facebook / Generic providers with atomic `oauth.token_refreshed` audit rows; API responses on rate-limited paths carry `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After` headers populated from Hammer state.
 
 ## Phase Details
@@ -191,8 +191,8 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 91. Org-level MFA enforcement (B2B-01) | 7/7 | Complete    | 2026-04-29 |
-| 92. RBAC seams (B2B-02) | 4/4 | In progress | — |
-| 93. M2M / service-account tokens (B2B-03) | 6/6 | Complete | 2026-04-30 |
+| 92. RBAC seams (B2B-02) | 4/4 | Complete | 2026-04-30 |
+| 93. M2M / service-account tokens (B2B-03) | 5/5 | In progress | — |
 | 94. Postgres-only declaration (HARD-01) | 0/4 | Not started | — |
 | 95. Optional-dep boot-validation + `mix sigra.doctor` (HARD-02) | 4/4 | Complete | 2026-04-30 |
 | 96. OAuth refresh + rate-limit headers (HARD-03 + API-01) | 4/4 | Complete | — |

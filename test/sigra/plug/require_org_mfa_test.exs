@@ -6,7 +6,7 @@ defmodule Sigra.Plug.RequireOrgMfaTest do
   alias Sigra.Plug.RequireOrgMfa
 
   defmodule TestScope do
-    defstruct [:user, :active_organization]
+    defstruct [:user, :active_organization, :actor_type]
   end
 
   defmodule TestUser do
@@ -111,6 +111,26 @@ defmodule Sigra.Plug.RequireOrgMfaTest do
         RequireOrgMfa.call(
           conn,
           RequireOrgMfa.init(error_handler: BombErrorHandler, mfa_check_fn: fn _ -> true end)
+        )
+
+      refute result.halted
+    end
+
+    test "passes through for service-account scope even when policy is enabled" do
+      active_org = %TestOrg{id: "o1", slug: "acme", enforce_mfa_for_members: true}
+
+      conn =
+        conn(:get, "/organizations/acme/members")
+        |> assign(:current_scope, %TestScope{
+          user: nil,
+          active_organization: active_org,
+          actor_type: :service_account
+        })
+
+      result =
+        RequireOrgMfa.call(
+          conn,
+          RequireOrgMfa.init(error_handler: BombErrorHandler, mfa_check_fn: fn _ -> false end)
         )
 
       refute result.halted

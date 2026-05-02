@@ -187,6 +187,37 @@ Tests should cover the allow paths and the deny fall-through explicitly. The den
 
 Add request-level tests that assert routes are gated correctly — `can?/3` unit tests prove the policy is right, but only the request tests prove the policy is wired into the right controllers and LiveViews.
 
+## Authorizing service-account requests
+
+Phase 93 adds an explicit machine-principal path. When a request arrives from a
+service-account bearer token, `scope.actor_type == :service_account`,
+`scope.user == nil`, and `scope.service_account_id` is populated. Keep that
+branch explicit instead of pretending a service account is a human user.
+
+    defmodule MyApp.SigraAuthz do
+      @behaviour Sigra.Authz
+
+      def can?(action, _subject, %{actor_type: :service_account, token_scopes: scopes}) do
+        case {action, scopes} do
+          {{:manage, :deployments}, scopes} when "deploy:write" in scopes -> true
+          {{:read, :billing}, scopes} when "billing:read" in scopes -> true
+          _ -> false
+        end
+      end
+
+      def can?(action, subject, %{actor_type: :user} = scope) do
+        # existing membership-role logic
+        LegacyUserPolicy.can?(action, subject, scope)
+      end
+
+      def can?(_action, _subject, _scope), do: false
+    end
+
+If your product wants host-defined service-account roles, set
+`service_accounts.role` and read `scope.role` inside that `:service_account`
+branch. The important part is the principal-type split, not which field you use
+to express machine capabilities.
+
 ## Customizing the role taxonomy
 
 The starter values come from your generated `lib/my_app/organizations.ex` wrapper:

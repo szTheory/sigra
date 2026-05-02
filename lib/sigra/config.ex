@@ -39,7 +39,8 @@ defmodule Sigra.Config do
   passkeys: [type: :keyword_list, default: [], doc: "Passkey (WebAuthn) options.", keys: [enabled: [type: :boolean, default: true, doc: "Enable passkey support. Default: true."], passkey_primary_enabled: [type: :boolean, default: false, doc: "Enable passkey-primary login. Passkey MFA and enrollment are still controlled by :enabled. Default: false."], sign_count_policy: [type: {:in, [:warn, :require_reauth, :revoke]}, default: :warn, doc: "Sign-count regression policy. Default: :warn to accommodate synced passkeys."], max_per_user: [type: :pos_integer, default: 10, doc: "Maximum passkeys per user. Enforced atomically. Default: 10."], rp_id: [type: {:or, [:string, nil]}, default: nil, doc: "Relying party ID. Default: nil."], rp_name: [type: :string, default: "Sigra", doc: "Relying party display name. Default: \"Sigra\"."], origin: [type: {:or, [:string, nil]}, default: nil, doc: "Relying party origin (https://...). Default: nil."], attestation: [type: {:in, [:none, :indirect, :direct]}, default: :none, doc: "Attestation conveyance preference. Default: :none."], user_verification: [type: {:in, [:preferred, :required, :discouraged]}, default: :preferred, doc: "User verification requirement. Default: :preferred."], timeout_ms: [type: :pos_integer, default: 60_000, doc: "Passkey ceremony timeout in milliseconds. Default: 60_000."], ceremony_rate_limit: [type: :keyword_list, default: [], doc: "Per-user ceremony initiation rate limit. Default: 5 per 60_000ms.", keys: [limit: [type: :pos_integer, default: 5, doc: "Maximum ceremony initiations per user within the window. Default: 5."], window_ms: [type: :pos_integer, default: 60_000, doc: "Ceremony initiation window in milliseconds. Default: 60_000."]]], user_passkey_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "Generated host UserPasskey schema module. Default: nil."]]],
   oauth: [type: :keyword_list, default: [], doc: "OAuth / social login options.", keys: [enabled: [type: :boolean, default: true, doc: "Master switch for OAuth. When false, OAuth routes are disabled and buttons hidden (D-63)."], providers: [type: :keyword_list, default: [], doc: "Provider configurations. Each key is a provider atom, value is a keyword list with :client_id, :client_secret, :redirect_uri, and optional :strategy, :scopes."], session_type: [type: {:in, [:standard, :remember_me]}, default: :remember_me, doc: "Session type for OAuth logins. Default: :remember_me (D-43)."], link_confirmation: [type: {:in, [:required, :auto]}, default: :required, doc: "Account linking behavior when OAuth email matches existing account. Default: :required (D-01)."], trust_provider_email: [type: :boolean, default: true, doc: "Whether to auto-confirm email based on provider verification. Set false for Facebook (D-42)."]]],
   api_token: [type: :keyword_list, default: [], doc: "API token options.", keys: [prefix: [type: {:or, [:string, nil]}, default: nil, doc: "Token prefix. Nil derives from otp_app: {otp_app}_sk_. Must match ^[a-z0-9_]+$ and not start with eyJ."], custom_scopes: [type: {:list, :string}, default: [], doc: "Custom scope strings in resource:action format."], write_implies_read: [type: :boolean, default: false, doc: "Whether write scope implies read. Default: false."], require_expiry: [type: :boolean, default: false, doc: "Whether expiration is required. Default: false."], max_ttl: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Maximum TTL in seconds. Nil = no limit."], cleanup_retention: [type: :pos_integer, default: 90 * 24 * 60 * 60, doc: "Retention period for revoked/expired tokens in seconds. Default: 90 days."], activity_update_threshold: [type: :pos_integer, default: 300, doc: "Minimum seconds between last_used_at writes. Default: 300."], default_page_size: [type: :pos_integer, default: 50, doc: "Default page size for token listing. Default: 50."], max_page_size: [type: :pos_integer, default: 200, doc: "Maximum page size. Default: 200."], api_token_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated UserAPIToken schema module."]]],
-  jwt: [type: :keyword_list, default: [], doc: "JWT options (requires Joken ~> 2.6 as optional dependency).", keys: [enabled: [type: :boolean, default: false, doc: "Enable JWT support. Default: false."], algorithm: [type: {:in, ["HS256", "RS256", "ES256"]}, default: "HS256", doc: "Signing algorithm. Default: HS256."], issuer: [type: {:or, [:string, nil]}, default: nil, doc: "JWT issuer claim. Nil = otp_app name."], access_ttl: [type: :pos_integer, default: 900, doc: "Access token TTL in seconds. Default: 900 (15 min)."], refresh_ttl: [type: :pos_integer, default: 30 * 24 * 60 * 60, doc: "Refresh token TTL in seconds. Default: 30 days."], refresh: [type: :boolean, default: true, doc: "Enable refresh tokens. Default: true."], claims_builder: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing Sigra.JWT.ClaimsBuilder behaviour."], verify_epoch: [type: :boolean, default: true, doc: "Verify user token_epoch on every JWT request. Default: true."], private_key: [type: {:or, [:string, nil]}, default: nil, doc: "PEM private key for RS256/ES256."]]],
+  service_accounts: [type: :keyword_list, default: [], doc: "Service-account token options.", keys: [service_account_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "Generated host service-account schema module."], service_account_credential_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "Generated host service-account credential schema module."], client_id_prefix: [type: :string, default: "sigra_sa_", doc: "OAuth client_id prefix for service-account credentials."], client_id_byte_size: [type: :pos_integer, default: 24, doc: "Random byte count used for generated service-account client IDs."], default_page_size: [type: :pos_integer, default: 50, doc: "Default page size for service-account listing."], max_page_size: [type: :pos_integer, default: 200, doc: "Maximum page size for service-account listing."]]],
+  jwt: [type: :keyword_list, default: [], doc: "JWT options (requires Joken ~> 2.6 as optional dependency).", keys: [enabled: [type: :boolean, default: false, doc: "Enable JWT support. Default: false."], algorithm: [type: {:in, ["HS256", "RS256", "ES256"]}, default: "HS256", doc: "Signing algorithm. Default: HS256."], issuer: [type: {:or, [:string, nil]}, default: nil, doc: "JWT issuer claim. Nil = otp_app name."], access_ttl: [type: :pos_integer, default: 900, doc: "Access token TTL in seconds. Default: 900 (15 min)."], client_credentials_access_ttl: [type: :pos_integer, default: 3600, doc: "Service-account access token TTL in seconds. Default: 3600 (1 hour)."], refresh_ttl: [type: :pos_integer, default: 30 * 24 * 60 * 60, doc: "Refresh token TTL in seconds. Default: 30 days."], refresh: [type: :boolean, default: true, doc: "Enable refresh tokens. Default: true."], claims_builder: [type: {:or, [:atom, nil]}, default: nil, doc: "Module implementing Sigra.JWT.ClaimsBuilder behaviour."], verify_epoch: [type: :boolean, default: true, doc: "Verify user token_epoch on every JWT request. Default: true."], private_key: [type: {:or, [:string, nil]}, default: nil, doc: "PEM private key for RS256/ES256."]]],
   deletion: [type: :keyword_list, default: [], doc: "Account deletion options.", keys: [strategy: [type: {:in, [:soft_delete, :hard_delete, :anonymize]}, default: :soft_delete, doc: "Deletion strategy. :soft_delete preserves row with deleted_at, :hard_delete removes row, :anonymize strips PII. Default: :soft_delete."], grace_period_days: [type: {:or, [:non_neg_integer, nil]}, default: 14, doc: "Days before scheduled deletion executes. 0 or nil for immediate. Default: 14."], cooldown_hours: [type: :pos_integer, default: 24, doc: "Hours after cancelling deletion before re-requesting is allowed. Default: 24."], notify: [type: :boolean, default: true, doc: "Send email notifications for deletion events. Default: true."]]],
   hooks: [type: :keyword_list, default: [], doc: "Lifecycle hook callbacks. Each is a {module, function} tuple or nil.", keys: [on_register: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after user registration. Receives (multi, context_map). Default: nil."], on_email_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after email change confirmation. Receives (multi, context_map). Default: nil."], on_password_change: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called after password change. Receives (multi, context_map). Default: nil."], on_delete: [type: {:or, [{:tuple, [:atom, :atom]}, nil]}, default: nil, doc: "Called when deletion is scheduled. Receives (multi, context_map). Default: nil."]]],
   audit: [type: :keyword_list, default: [], doc: "Structured audit logging options (Phase 9). See `Sigra.Audit`.", keys: [audit_schema: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated AuditEvent schema module. Default: nil."], retention_days: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Days to retain audit events. nil = keep forever (D-09). Default: nil."], max_metadata_bytes: [type: :pos_integer, default: 8_192, doc: "Cap on JSON-encoded metadata byte size (D-20). Default: 8192."], reserved_prefixes: [type: {:list, :string}, default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.), doc: "Reserved action prefixes developers cannot use (D-17, D-18)."]]])}
@@ -682,6 +683,43 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    service_accounts: [
+      type: :keyword_list,
+      default: [],
+      doc: "Service-account token options.",
+      keys: [
+        service_account_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host service-account schema module."
+        ],
+        service_account_credential_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host service-account credential schema module."
+        ],
+        client_id_prefix: [
+          type: :string,
+          default: "sigra_sa_",
+          doc: "OAuth client_id prefix for service-account credentials."
+        ],
+        client_id_byte_size: [
+          type: :pos_integer,
+          default: 24,
+          doc: "Random byte count used for generated service-account client IDs."
+        ],
+        default_page_size: [
+          type: :pos_integer,
+          default: 50,
+          doc: "Default page size for service-account listing."
+        ],
+        max_page_size: [
+          type: :pos_integer,
+          default: 200,
+          doc: "Maximum page size for service-account listing."
+        ]
+      ]
+    ],
     jwt: [
       type: :keyword_list,
       default: [],
@@ -706,6 +744,11 @@ defmodule Sigra.Config do
           type: :pos_integer,
           default: 900,
           doc: "Access token TTL in seconds. Default: 900 (15 min)."
+        ],
+        client_credentials_access_ttl: [
+          type: :pos_integer,
+          default: 3600,
+          doc: "Service-account access token TTL in seconds. Default: 3600 (1 hour)."
         ],
         refresh_ttl: [
           type: :pos_integer,
@@ -848,6 +891,7 @@ defmodule Sigra.Config do
           passkeys: keyword(),
           oauth: keyword(),
           api_token: keyword(),
+          service_accounts: keyword(),
           jwt: keyword(),
           deletion: keyword(),
           hooks: keyword(),
@@ -882,6 +926,7 @@ defmodule Sigra.Config do
     passkeys: [],
     oauth: [],
     api_token: [],
+    service_accounts: [],
     jwt: [],
     deletion: [],
     hooks: [],

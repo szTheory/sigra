@@ -15,6 +15,9 @@ defmodule Example.Accounts.Scope do
   `:impersonating_from` is reserved for v1.2 impersonation support and must
   not be removed. See `UPGRADE-v1.2.md` at the project root for the contract.
 
+  `:role`, `:actor_type`, and `:service_account_id` are additive authz fields
+  used by later Sigra phases.
+
   """
 
   alias Example.Accounts.User
@@ -23,13 +26,19 @@ defmodule Example.Accounts.Scope do
   defstruct user: nil,
             active_organization: nil,
             membership: nil,
-            impersonating_from: nil
+            impersonating_from: nil,
+            role: nil,
+            actor_type: nil,
+            service_account_id: nil
 
   @type t :: %__MODULE__{
           user: %User{} | nil,
           active_organization: struct() | nil,
           membership: struct() | nil,
-          impersonating_from: %User{} | nil
+          impersonating_from: %User{} | nil,
+          role: atom() | nil,
+          actor_type: atom() | nil,
+          service_account_id: binary() | nil
         }
 
   @doc """
@@ -49,6 +58,10 @@ defmodule Example.Accounts.Scope do
   end
 
   def new(nil), do: nil
+
+  def new(%{} = attrs) when is_map(attrs) do
+    struct(__MODULE__, attrs)
+  end
 
   @doc """
   Assigns the active organization and membership to the scope.

@@ -44,6 +44,9 @@ defmodule Sigra.Plug.RequireOrgMfa do
       is_nil(scope) or is_nil(scope.user) or is_nil(scope.active_organization) ->
         conn
 
+      Map.get(scope, :actor_type) == :service_account ->
+        conn
+
       Map.get(scope.active_organization, :enforce_mfa_for_members, false) == false ->
         conn
 

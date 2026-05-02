@@ -5,7 +5,7 @@ defmodule Sigra.Plug.RequireMembershipTest do
   alias Sigra.Plug.RequireMembership
 
   defmodule TestScope do
-    defstruct [:user, :active_organization, :membership, :impersonating_from]
+    defstruct [:user, :active_organization, :membership, :impersonating_from, :actor_type]
   end
 
   defmodule TestOrg do
@@ -208,6 +208,22 @@ defmodule Sigra.Plug.RequireMembershipTest do
   end
 
   describe "call/2 — role filtering" do
+    test "passes through for service-account scopes without membership lookup" do
+      opts = RequireMembership.init(error_handler: BombErrorHandler, roles: [])
+
+      scope = %TestScope{
+        user: nil,
+        active_organization: %TestOrg{id: "o1"},
+        membership: nil,
+        impersonating_from: nil,
+        actor_type: :service_account
+      }
+
+      result = RequireMembership.call(build_conn(scope), opts)
+
+      assert result.halted == false
+    end
+
     test "passes through when :roles is [] regardless of the member's role (D-07)" do
       opts = RequireMembership.init(error_handler: BombErrorHandler, roles: [])
       scope = build_scope(%TestOrg{id: "o1"}, %TestMembership{id: "m1", role: :viewer})

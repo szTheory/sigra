@@ -445,7 +445,7 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 ## Constraints
 
 - **Framework:** Phoenix 1.8+ / Ecto 3.x as blessed path. Plug compatibility where DX is not compromised.
-- **Database:** PostgreSQL as primary (citext, JSONB). MySQL/SQLite support via conditional migrations.
+- **Database:** PostgreSQL only (citext, JSONB).
 - **Security:** OWASP standards throughout. Argon2id default. All tokens HMAC-protected. Enumeration prevention by default.
 - **Dependencies:** Minimal transitive deps. Copy-paste over deps when code is small and stable.
 - **LiveView:** Supported but optional. Core works with standard controllers. Login/logout via HTTP POST (not LiveView events).

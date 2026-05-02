@@ -149,6 +149,9 @@ defmodule Sigra.Plug.RequireMembership do
         |> error_handler.auth_error(:no_active_org, opts)
         |> Plug.Conn.halt()
 
+      Map.get(scope, :actor_type) == :service_account ->
+        conn
+
       required != [] and scope.membership.role not in required ->
         error_opts = Keyword.put(opts, :required_roles, required)
 
