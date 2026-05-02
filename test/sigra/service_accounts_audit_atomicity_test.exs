@@ -42,10 +42,10 @@ defmodule Sigra.ServiceAccountsAuditAtomicityTest do
       field(:scopes, {:array, :string}, default: [])
       field(:role, :string)
       field(:token_epoch, :integer, default: 0)
-      field(:revoked_at, :utc_datetime)
-      field(:last_used_at, :utc_datetime)
+      field(:revoked_at, :utc_datetime_usec)
+      field(:last_used_at, :utc_datetime_usec)
       field(:created_by_user_id, :binary_id)
-      timestamps(type: :utc_datetime)
+      timestamps(type: :utc_datetime_usec)
     end
 
     def changeset(struct, attrs) do
@@ -74,10 +74,10 @@ defmodule Sigra.ServiceAccountsAuditAtomicityTest do
       field(:service_account_id, :binary_id)
       field(:client_id, :string)
       field(:hashed_client_secret, :binary)
-      field(:expires_at, :utc_datetime)
-      field(:last_used_at, :utc_datetime)
-      field(:revoked_at, :utc_datetime)
-      timestamps(type: :utc_datetime)
+      field(:expires_at, :utc_datetime_usec)
+      field(:last_used_at, :utc_datetime_usec)
+      field(:revoked_at, :utc_datetime_usec)
+      timestamps(type: :utc_datetime_usec)
     end
 
     def changeset(struct, attrs) do

@@ -197,11 +197,11 @@ defmodule Sigra.ServiceAccounts do
   def issue_token(config, service_account, credential, _opts \\ []) do
     try do
       case JWT.generate_service_account_tokens(config, service_account, credential) do
-        {:error, _step, _reason, _changes} ->
+        {:error, _step, reason, _changes} ->
           :telemetry.execute(
             [:sigra, :audit, :log_safe_error],
             %{count: 1},
-            %{action: "service_account.token_issued", reason: :database_error}
+            %{action: "service_account.token_issued", reason: classify_error(reason)}
           )
 
           {:error, :service_account_token_issuance_aborted}
@@ -211,17 +211,35 @@ defmodule Sigra.ServiceAccounts do
       end
     rescue
       e ->
-        reason = if match?(%Ecto.ConstraintError{}, e), do: :constraint_violation, else: :database_error
-
         :telemetry.execute(
           [:sigra, :audit, :log_safe_error],
           %{count: 1},
-          %{action: "service_account.token_issued", reason: reason}
+          %{action: "service_account.token_issued", reason: classify_error(e)}
         )
 
         {:error, :service_account_token_issuance_aborted}
     end
   end
+
+  # CHECK / FK / UNIQUE constraint violations bubble up as either
+  # Ecto.ConstraintError (changeset-driven constraints) or Postgrex.Error
+  # with a postgres-side error code in the integrity-violation class.
+  # Both should classify as :constraint_violation for D-AUD-08 telemetry.
+  defp classify_error(%Ecto.ConstraintError{}), do: :constraint_violation
+
+  defp classify_error(%Postgrex.Error{postgres: %{code: code}})
+       when code in [
+              :check_violation,
+              :foreign_key_violation,
+              :unique_violation,
+              :integrity_constraint_violation,
+              :restrict_violation,
+              :exclusion_violation,
+              :not_null_violation
+            ],
+       do: :constraint_violation
+
+  defp classify_error(_other), do: :database_error
 
   @doc """
   Appends the token-issued audit row and the credential last-used update to the
@@ -353,6 +371,25 @@ defmodule Sigra.ServiceAccounts do
   defp normalize_multi_result({:error, _step, reason, _}), do: {:error, reason}
 
   defp emit_constraint_or_reraise(%Ecto.ConstraintError{}, action, atom) do
+    :telemetry.execute(
+      [:sigra, :audit, :log_safe_error],
+      %{count: 1},
+      %{action: action, reason: :constraint_violation}
+    )
+
+    {:error, atom}
+  end
+
+  defp emit_constraint_or_reraise(%Postgrex.Error{postgres: %{code: code}}, action, atom)
+       when code in [
+              :check_violation,
+              :foreign_key_violation,
+              :unique_violation,
+              :integrity_constraint_violation,
+              :restrict_violation,
+              :exclusion_violation,
+              :not_null_violation
+            ] do
     :telemetry.execute(
       [:sigra, :audit, :log_safe_error],
       %{count: 1},
