@@ -11,52 +11,20 @@ defmodule Example.InstallCompileTest do
   @moduletag :example_app
 
   setup_all do
+    # Prepend each generated app's ebin so Code.ensure_loaded?/1 below can verify
+    # that the installer-generated modules compile cleanly. The Phoenix.Endpoint
+    # `:persistent_term` and `:ets` shims this previously installed have been
+    # removed: Application.start has already populated the real endpoint term
+    # with ~30 keys, and overwriting it with a slim 4-key map at setup_all time
+    # corrupted Phoenix.ConnTest.dispatch/5 in every other test module that ran
+    # concurrently (max_cases > 1) — manifesting as KeyError on :script_name /
+    # :path. None of this module's tests actually read the endpoint config.
     example_build = Path.expand("../../../_build/test/lib", __DIR__)
 
     example_build
     |> Path.join("*/ebin")
     |> Path.wildcard()
     |> Enum.each(&Code.prepend_path/1)
-
-    if :ets.whereis(ExampleWeb.Endpoint) == :undefined do
-      :ets.new(ExampleWeb.Endpoint, [:named_table, :public, :set])
-    end
-
-    :ets.insert(ExampleWeb.Endpoint, {:secret_key_base, String.duplicate("a", 64)})
-
-    # The real Application.start has already populated this persistent_term with the full
-    # Phoenix.Endpoint config (~30 keys including :script_name). Snapshot it so we can
-    # restore on exit — the slim 4-key replacement below is fine for this module's tests
-    # but breaks every other test that uses `Phoenix.ConnTest.dispatch/5` against the
-    # endpoint, which expects keys like :script_name. Without restoration, this module's
-    # `setup_all` corrupts the global term for the rest of the test run.
-    endpoint_term_key = {Phoenix.Endpoint, ExampleWeb.Endpoint}
-
-    original_term =
-      try do
-        {:ok, :persistent_term.get(endpoint_term_key)}
-      rescue
-        ArgumentError -> :missing
-      end
-
-    base_url = "http://localhost"
-
-    :persistent_term.put(
-      endpoint_term_key,
-      %{
-        url: base_url,
-        static_url: base_url,
-        struct_url: URI.parse(base_url),
-        host: "localhost"
-      }
-    )
-
-    on_exit(fn ->
-      case original_term do
-        {:ok, term} -> :persistent_term.put(endpoint_term_key, term)
-        :missing -> :persistent_term.erase(endpoint_term_key)
-      end
-    end)
 
     :ok
   end
