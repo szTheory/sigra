@@ -181,4 +181,41 @@ if Code.ensure_loaded?(Oban.Worker) do
       from(t in "user_tokens", where: t.user_id == ^user.id)
     end
   end
+else
+  defmodule Sigra.Workers.AccountDeletion do
+    @moduledoc """
+    Stub fallback for hosts that compile Sigra without Oban (Phase 95
+    `:lifecycle_jobs` optional-dep boundary).
+
+    Keeps the module loadable so callers can pattern-match
+    `Code.ensure_loaded?(Sigra.Workers.AccountDeletion)` and so generated
+    code referencing the worker compiles cleanly. The first queue-backed
+    interaction (`new/2`) raises `Sigra.OptionalDeps.MissingDependencyError`
+    tagged `:lifecycle_jobs`, mirroring the real Oban-backed branch's
+    contract from `lib/sigra/optional_deps.ex`.
+
+    Elixir 1.19 expands `use Oban.Worker` even inside `if false do ... end`
+    blocks (the AST is fully macro-expanded before the conditional is
+    evaluated), so the conditional must wrap the entire `defmodule` —
+    hence the dual-defmodule shape here.
+    """
+
+    alias Sigra.OptionalDeps
+
+    @doc false
+    def new(args, opts \\ []) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:lifecycle_jobs, lifecycle_job_context(opts))
+      # ensure_available!/2 always raises here (Oban is not loaded and
+      # `lifecycle_jobs?: true` is forced via the context). The defensive
+      # raise documents the no-return for Dialyzer.
+      raise "unreachable"
+    end
+
+    defp lifecycle_job_context(opts) do
+      [
+        lifecycle_jobs?: true,
+        dependency_loaded?: Keyword.get(opts, :dependency_loaded?, fn _spec -> false end)
+      ]
+    end
+  end
 end

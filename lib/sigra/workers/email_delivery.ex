@@ -124,4 +124,29 @@ if Code.ensure_loaded?(Oban.Worker) do
       end
     end
   end
+else
+  defmodule Sigra.Workers.EmailDelivery do
+    @moduledoc """
+    Stub fallback for hosts that compile Sigra without Oban (Phase 95
+    `:async_email` optional-dep boundary). See
+    `Sigra.Workers.AccountDeletion` for the rationale on the dual-defmodule
+    shape — Elixir 1.19 expands `use Oban.Worker` even inside `if false do
+    ... end`, so the conditional must wrap the entire `defmodule`.
+    """
+
+    alias Sigra.OptionalDeps
+
+    @doc false
+    def new(args, opts \\ []) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:async_email, async_email_context(opts))
+      raise "unreachable"
+    end
+
+    defp async_email_context(opts) do
+      [
+        delivery_mode: :async,
+        dependency_loaded?: Keyword.get(opts, :dependency_loaded?, fn _spec -> false end)
+      ]
+    end
+  end
 end

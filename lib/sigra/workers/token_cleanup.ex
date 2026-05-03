@@ -25,6 +25,8 @@ if Code.ensure_loaded?(Oban.Worker) do
     alias Oban.{Job, Worker}
     alias Sigra.OptionalDeps
 
+    import Ecto.Query
+
     # Phase 95 — lifecycle_jobs optional-dep boundary.
     @impl Oban.Worker
     def new(args, opts) when is_map(args) and is_list(opts) do
@@ -42,8 +44,6 @@ if Code.ensure_loaded?(Oban.Worker) do
     defp dependency_loaded?(spec) do
       Enum.any?(spec.dependency_modules, &Code.ensure_loaded?/1)
     end
-
-    import Ecto.Query
 
     @contexts_and_ttls [
       {"confirm", 48 * 60 * 60},
@@ -242,5 +242,29 @@ if Code.ensure_loaded?(Oban.Worker) do
 
     defp get_token_schema(%{"token_schema" => schema_string}),
       do: String.to_existing_atom(schema_string)
+  end
+else
+  defmodule Sigra.Workers.TokenCleanup do
+    @moduledoc """
+    Stub fallback for hosts that compile Sigra without Oban (Phase 95
+    `:lifecycle_jobs` optional-dep boundary). See
+    `Sigra.Workers.AccountDeletion` for the rationale on the dual-defmodule
+    shape.
+    """
+
+    alias Sigra.OptionalDeps
+
+    @doc false
+    def new(args, opts \\ []) when is_map(args) and is_list(opts) do
+      OptionalDeps.ensure_available!(:lifecycle_jobs, lifecycle_job_context(opts))
+      raise "unreachable"
+    end
+
+    defp lifecycle_job_context(opts) do
+      [
+        lifecycle_jobs?: true,
+        dependency_loaded?: Keyword.get(opts, :dependency_loaded?, fn _spec -> false end)
+      ]
+    end
   end
 end
