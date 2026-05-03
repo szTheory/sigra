@@ -321,6 +321,8 @@ jobs:
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
     runs-on: ubuntu-latest
+    env:
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     services:
       postgres:
         image: postgres:15
@@ -706,6 +708,8 @@ jobs:
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
     runs-on: ubuntu-latest
+    env:
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     services:
       postgres:
         image: postgres:15
@@ -770,6 +774,8 @@ jobs:
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
     runs-on: ubuntu-latest
+    env:
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     services:
       postgres:
         image: postgres:15
