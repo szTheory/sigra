@@ -102,6 +102,11 @@ defmodule Example.InstallCompileTest do
     assert warning =~ "compile-time optional dependency warning for jwt"
     assert warning =~ "Dependency: joken (~> 2.6)"
     assert warning =~ "Evidence: jwt[:enabled] == true"
-    assert warning =~ "test/example/lib/example/accounts.ex"
+    # Elixir emits compile-warning paths relative to the runner cwd. When mix
+    # test is invoked from test/example/ (the standard local path) the warning
+    # shows `lib/example/accounts.ex`; when run from the project root (some CI
+    # invocations) it shows `test/example/lib/example/accounts.ex`. Match
+    # the trailing fragment that's stable across both cwds.
+    assert warning =~ "lib/example/accounts.ex"
   end
 end
