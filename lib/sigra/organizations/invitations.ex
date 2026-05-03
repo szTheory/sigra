@@ -610,7 +610,10 @@ defmodule Sigra.Organizations.Invitations do
     )
     |> Multi.update(:accept_invitation, accept_changeset)
     |> append_audit(config, "organization.invitation.accepted", user_scope,
-      metadata: %{invitation_id: invitation.id, role: to_string(invitation.role)}
+      metadata: %{invitation_id: invitation.id, role: to_string(invitation.role)},
+      # add_member_multi already inserts an :audit step for "organization.member_add";
+      # name this second audit distinctly so the composed Multi has unique step names.
+      audit_multi_step: :accept_invitation_audit
     )
     |> config.repo.transact()
     |> case do
@@ -663,7 +666,10 @@ defmodule Sigra.Organizations.Invitations do
         invitation_id: invitation.id,
         role: to_string(invitation.role),
         path: "signup"
-      }
+      },
+      # add_member_multi already inserts an :audit step for "organization.member_add";
+      # name this second audit distinctly so the composed Multi has unique step names.
+      audit_multi_step: :accept_invitation_audit
     )
     |> config.repo.transact()
     |> case do
@@ -810,15 +816,20 @@ defmodule Sigra.Organizations.Invitations do
   # ---------- helpers ----------
 
   defp append_audit(multi, config, action, scope, extra) do
-    audit_opts = [
-      repo: config.repo,
-      audit_schema: Map.get(config, :audit_schema),
-      actor_id: get_in_scope(scope, :user, :id),
-      metadata: Keyword.get(extra, :metadata, %{})
-    ]
+    audit_opts =
+      [
+        repo: config.repo,
+        audit_schema: Map.get(config, :audit_schema),
+        actor_id: get_in_scope(scope, :user, :id),
+        metadata: Keyword.get(extra, :metadata, %{})
+      ]
+      |> maybe_put(:audit_multi_step, Keyword.get(extra, :audit_multi_step))
 
     Sigra.Audit.log_multi_safe(multi, action, audit_opts)
   end
+
+  defp maybe_put(list, _key, nil), do: list
+  defp maybe_put(list, key, value), do: Keyword.put(list, key, value)
 
   defp get_in_scope(scope, :user, :id) do
     case scope do
