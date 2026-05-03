@@ -1266,12 +1266,18 @@ jobs:
           SIGRA_EXAMPLE_URL: "http://localhost:4000"
         run: npx playwright test tests/mfa-backup-rotation.spec.ts --project=chromium --reporter=line
       - name: Generate MFA evidence report
+        # The rest of this job runs in MIX_ENV=dev (Compile example, Setup DB,
+        # Boot example app), so deps are only fetched/built in _build/dev.
+        # Running the report in MIX_ENV=test triggered "the dependency is not
+        # available, run mix deps.get" because _build/test was never populated.
+        # Run the report in dev env to match the rest of the job — the report
+        # task just emits a markdown summary; env choice is cosmetic.
         env:
-          MIX_ENV: test
+          MIX_ENV: dev
           SIGRA_CI_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SIGRA_CI_WORKFLOW: .github/workflows/ci.yml / mfa_e2e_playwright
           SIGRA_GIT_TAG: ${{ github.ref_name }}
-        run: MIX_ENV=test mix sigra.uat.report --phase=mfa-backup-rotation
+        run: MIX_ENV=dev mix sigra.uat.report --phase=mfa-backup-rotation
       - name: Dump example app log (on failure)
         if: failure()
         run: |
@@ -1528,7 +1534,11 @@ jobs:
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
-        run: npx playwright test tests/email-visual.spec.ts --project=email-chromium-light --project=email-chromium-dark --project=email-webkit-light --project=email-webkit-dark
+        # Project names in playwright.config.ts are prefixed with `email-visual-`
+        # (see Available projects: in CI failure on run 25276147131). The
+        # short `email-*` names below were correct at one point but drifted
+        # from the config; the spec exits with "Project(s) ... not found".
+        run: npx playwright test tests/email-visual.spec.ts --project=email-visual-chromium-light --project=email-visual-chromium-dark --project=email-visual-webkit-light --project=email-visual-webkit-dark
       # L3: evidence report generation — manifest + README + contrast/byte-budget reports
       - name: Generate Phase 04 evidence report (L3 report lane)
         env:
