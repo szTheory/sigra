@@ -24,10 +24,25 @@ defmodule Example.InstallCompileTest do
 
     :ets.insert(ExampleWeb.Endpoint, {:secret_key_base, String.duplicate("a", 64)})
 
+    # The real Application.start has already populated this persistent_term with the full
+    # Phoenix.Endpoint config (~30 keys including :script_name). Snapshot it so we can
+    # restore on exit — the slim 4-key replacement below is fine for this module's tests
+    # but breaks every other test that uses `Phoenix.ConnTest.dispatch/5` against the
+    # endpoint, which expects keys like :script_name. Without restoration, this module's
+    # `setup_all` corrupts the global term for the rest of the test run.
+    endpoint_term_key = {Phoenix.Endpoint, ExampleWeb.Endpoint}
+
+    original_term =
+      try do
+        {:ok, :persistent_term.get(endpoint_term_key)}
+      rescue
+        ArgumentError -> :missing
+      end
+
     base_url = "http://localhost"
 
     :persistent_term.put(
-      {Phoenix.Endpoint, ExampleWeb.Endpoint},
+      endpoint_term_key,
       %{
         url: base_url,
         static_url: base_url,
@@ -35,6 +50,13 @@ defmodule Example.InstallCompileTest do
         host: "localhost"
       }
     )
+
+    on_exit(fn ->
+      case original_term do
+        {:ok, term} -> :persistent_term.put(endpoint_term_key, term)
+        :missing -> :persistent_term.erase(endpoint_term_key)
+      end
+    end)
 
     :ok
   end
