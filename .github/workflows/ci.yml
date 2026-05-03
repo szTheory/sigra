@@ -1266,12 +1266,12 @@ jobs:
           SIGRA_EXAMPLE_URL: "http://localhost:4000"
         run: npx playwright test tests/mfa-backup-rotation.spec.ts --project=chromium --reporter=line
       - name: Generate MFA evidence report
-        # The rest of this job runs in MIX_ENV=dev (Compile example, Setup DB,
-        # Boot example app), so deps are only fetched/built in _build/dev.
-        # Running the report in MIX_ENV=test triggered "the dependency is not
-        # available, run mix deps.get" because _build/test was never populated.
-        # Run the report in dev env to match the rest of the job — the report
-        # task just emits a markdown summary; env choice is cosmetic.
+        # `mix sigra.uat.report` is a sigra-provided mix task. Run from
+        # test/example/ (where sigra is a path dep with deps already fetched)
+        # rather than the repo root (whose mix.exs has not had deps.get run
+        # in this job — that's why the previous "MIX_ENV=test" attempt failed
+        # with "the dependency is not available, run mix deps.get").
+        working-directory: test/example
         env:
           MIX_ENV: dev
           SIGRA_CI_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -1554,6 +1554,21 @@ jobs:
           SIGRA_CI_WORKFLOW: .github/workflows/ci.yml / email_visual_regression
           SIGRA_GIT_TAG: ${{ github.ref_name }}
         run: MIX_ENV=test mix sigra.uat.report --phase=08
+      # Capture playwright test-results on spec failure for snapshot triage.
+      # The full evidence bundle below is assembled only on success because it
+      # depends on the L3 report steps that get skipped on L2 failure. Without
+      # this dedicated failure-path upload, snapshot drift is not triageable
+      # from the CI logs alone.
+      - name: Upload email visual test-results on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: email-visual-failure-diagnostics
+          path: |
+            test/example/priv/playwright/test-results/
+            test/example/priv/playwright/playwright-report/
+          retention-days: 7
+          if-no-files-found: warn
       # Bundle the full evidence payload: committed baselines + generated reports
       - name: Assemble email evidence bundle
         run: |
