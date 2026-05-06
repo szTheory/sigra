@@ -58,7 +58,7 @@ Both companion libraries integrate through host-owned glue, not deep coupling. T
 
 ### Lockspire ↔ Sigra
 
-Lockspire defines a single behaviour, `Lockspire.Host.AccountResolver`, with five callbacks: "who is logged in," "redirect to login," "build claims," "redirect to logout," and (for CIBA flows) "verify a backchannel user code."
+Lockspire defines a single behaviour, `Lockspire.Host.AccountResolver`, with six callbacks: "who is logged in now," "look up an account by reference" (used during introspection and refresh), "redirect to login," "build claims," "redirect to logout," and (for CIBA flows) "verify a backchannel user code."
 
 Generate a Sigra-aware stub from your host:
 
@@ -110,9 +110,9 @@ Relyra terminates SAML at its ACS endpoint and hands you a verified assertion. Y
 Concretely:
 
 1. Relyra ACS controller returns `{:ok, assertion}` with attributes
-2. Host code: `Sigra.Identity.find_or_create_from_provider/2` (or your own equivalent) → `%Sigra.User{}`
-3. Host code: `Sigra.Session.get_or_create/4` → session token
-4. Issue session cookie, redirect
+2. Host code maps assertion attributes to a Sigra user — a small `MyApp.Accounts.upsert_from_saml/1` you write that keys on `(provider, provider_uid)` with `email` as a secondary lookup
+3. Host code: `Sigra.Auth.create_session(config, user, %{auth_method: :saml})` → `%Sigra.Session{}` with a fresh raw `:token`
+4. `Plug.Conn.put_session(conn, :user_token, session.token)` and redirect
 
 This makes SAML "just another login method" from the rest of the app's perspective. If Lockspire is also present, SAML-originated users get OAuth tokens through the same Lockspire endpoints that password-originated users do. No special path.
 
