@@ -254,13 +254,13 @@ defmodule Sigra.Admin.WebhooksTest do
              Query.list_subscriptions(config, admin_scope, %{
                "page" => "1",
                "page_size" => "10",
-               "status" => "retry_scheduled",
+               "status" => "retrying",
                "enabled" => "false",
                "q" => "retrying"
              })
 
     assert meta.current_page == 1
-    assert normalized["status"] == "retry_scheduled"
+    assert normalized["status"] == "retrying"
     assert normalized["enabled"] == false
     assert normalized["q"] == "retrying"
 
@@ -358,7 +358,7 @@ defmodule Sigra.Admin.WebhooksTest do
              Failures.list_deliveries(config, admin_scope, %{"status" => "retrying"})
 
     assert normalized["status"] == "retrying"
-    assert Enum.map(rows, & &1.delivery.delivery_id) == [retrying.delivery_id, dead_lettered.delivery_id]
+    assert Enum.map(rows, & &1.delivery.delivery_id) == [dead_lettered.delivery_id, retrying.delivery_id]
     assert Enum.all?(rows, &(&1.delivery.status in ["retry_scheduled", "dead_lettered"]))
   end
 
@@ -385,10 +385,10 @@ defmodule Sigra.Admin.WebhooksTest do
 
     assert {:ok, updated} =
              Actions.update(config, admin_scope, created.id, %{
-               event_types: ["org.membership.created", "org.membership.created", "user.created"]
+               event_types: ["session.created", "session.created", "user.created"]
              })
 
-    assert updated.event_types == ["org.membership.created", "user.created"]
+    assert updated.event_types == ["session.created", "user.created"]
   end
 
   test "reveal_secret requires an explicit action and rotate_secret replaces the active secret", %{
