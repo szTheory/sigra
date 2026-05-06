@@ -60,7 +60,7 @@ completed: 2026-05-06
 
 ## Task Commits
 
-No plan-specific commit yet. The work was verified in a shared dirty worktree before final commit selection.
+1. **Plan 01 foundation work** - `6b8ef36` (`feat`)
 
 ## Files Created/Modified
 
@@ -109,6 +109,7 @@ PASSED
 - `mix test test/sigra/install/generator_wiring_test.exs --no-color`
 - `mix test test/sigra/optional_deps_test.exs --no-color`
 - `rg -n "webhooks|webhook_subscription|webhook_event|webhook_delivery" lib/sigra/config.ex lib/sigra/optional_deps.ex test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts.ex test/fixtures/install_golden/tree/priv/repo/migrations`
+- Verified commit `6b8ef36` in `git log --oneline --max-count=1`
 
 ---
 *Phase: 97-webhook-subscription-registry-signed-dispatcher-contract*
