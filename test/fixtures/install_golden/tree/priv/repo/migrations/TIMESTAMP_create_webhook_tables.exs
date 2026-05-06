@@ -37,8 +37,16 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateWebhookTables do
       add :id, :binary_id, primary_key: true
       add :delivery_id, :string, null: false
       add :status, :string, null: false, default: "pending"
+      add :attempt_count, :integer, null: false, default: 0
       add :endpoint_url, :string, null: false
       add :dispatched_at, :utc_datetime_usec
+      add :last_attempted_at, :utc_datetime_usec
+      add :next_attempt_at, :utc_datetime_usec
+      add :last_http_status, :integer
+      add :last_error_category, :string
+      add :last_error_detail, :string
+      add :dead_lettered_at, :utc_datetime_usec
+      add :terminal_reason, :string
       add :webhook_subscription_id,
           references(:webhook_subscriptions, type: :binary_id, on_delete: :delete_all),
           null: false
@@ -52,7 +60,35 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateWebhookTables do
 
     create unique_index(:webhook_deliveries, [:delivery_id])
     create index(:webhook_deliveries, [:status])
+    create index(:webhook_deliveries, [:next_attempt_at])
+    create index(:webhook_deliveries, [:dead_lettered_at])
     create index(:webhook_deliveries, [:webhook_subscription_id])
     create index(:webhook_deliveries, [:webhook_event_id])
+
+    create table(:webhook_delivery_attempts, primary_key: false) do
+      add :id, :binary_id, primary_key: true
+      add :delivery_id, :string, null: false
+      add :attempt_number, :integer, null: false
+      add :endpoint_url, :string, null: false
+      add :started_at, :utc_datetime_usec, null: false
+      add :finished_at, :utc_datetime_usec
+      add :response_status, :integer
+      add :retryable, :boolean, null: false, default: false
+      add :retry_after_seconds, :integer
+      add :error_category, :string
+      add :error_detail, :string
+      add :terminal_reason, :string
+
+      add :webhook_delivery_id,
+          references(:webhook_deliveries, type: :binary_id, on_delete: :delete_all)
+
+      timestamps(type: :utc_datetime_usec, updated_at: false)
+    end
+
+    create unique_index(:webhook_delivery_attempts, [:delivery_id, :attempt_number])
+    create index(:webhook_delivery_attempts, [:webhook_delivery_id, :attempt_number])
+    create index(:webhook_delivery_attempts, [:response_status])
+    create index(:webhook_delivery_attempts, [:terminal_reason])
+    create index(:webhook_delivery_attempts, [:retry_after_seconds])
   end
 end
