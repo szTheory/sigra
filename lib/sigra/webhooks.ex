@@ -125,6 +125,22 @@ defmodule Sigra.Webhooks do
   end
 
   @doc """
+  Loads one configured webhook subscription by id.
+  """
+  @spec get_subscription(Sigra.Config.t(), binary()) :: struct() | nil
+  def get_subscription(%Sigra.Config{} = config, subscription_id) when is_binary(subscription_id) do
+    config.repo.get_by(subscription_schema!(config), id: subscription_id)
+  end
+
+  @doc """
+  Loads one configured webhook subscription by id and raises if missing.
+  """
+  @spec get_subscription!(Sigra.Config.t(), binary()) :: struct()
+  def get_subscription!(%Sigra.Config{} = config, subscription_id) when is_binary(subscription_id) do
+    config.repo.get_by!(subscription_schema!(config), id: subscription_id)
+  end
+
+  @doc """
   Returns the enabled subscriptions that explicitly include `event_type`.
   """
   @spec matching_subscriptions(Sigra.Config.t(), String.t()) :: [struct()]
@@ -148,6 +164,29 @@ defmodule Sigra.Webhooks do
           {:ok, struct()} | {:error, Changeset.t()}
   def disable_subscription(%Sigra.Config{} = config, subscription) do
     update_subscription(config, subscription, %{enabled: false})
+  end
+
+  @doc """
+  Reveals the currently active signing secret for one subscription.
+  """
+  @spec reveal_secret(Sigra.Config.t(), struct() | binary()) :: {:ok, binary()} | {:error, :not_found}
+  def reveal_secret(%Sigra.Config{} = config, subscription_or_id) do
+    case get_subscription_record(config, subscription_or_id) do
+      nil -> {:error, :not_found}
+      subscription -> {:ok, subscription.signing_secret}
+    end
+  end
+
+  @doc """
+  Replaces the currently active signing secret with a newly generated secret.
+  """
+  @spec rotate_secret(Sigra.Config.t(), struct() | binary()) ::
+          {:ok, struct()} | {:error, Changeset.t() | :not_found}
+  def rotate_secret(%Sigra.Config{} = config, subscription_or_id) do
+    case get_subscription_record(config, subscription_or_id) do
+      nil -> {:error, :not_found}
+      subscription -> update_subscription(config, subscription, %{signing_secret: generate_signing_secret()})
+    end
   end
 
   @doc """
@@ -405,6 +444,24 @@ defmodule Sigra.Webhooks do
   defp extract_delivery_id!(_delivery_or_id) do
     raise ArgumentError,
           "webhook delivery jobs require a persisted delivery with a binary delivery_id"
+  end
+
+  defp get_subscription_record(%Sigra.Config{} = config, %{id: subscription_id})
+       when is_binary(subscription_id) do
+    get_subscription(config, subscription_id)
+  end
+
+  defp get_subscription_record(%Sigra.Config{} = config, subscription_id)
+       when is_binary(subscription_id) do
+    get_subscription(config, subscription_id)
+  end
+
+  defp get_subscription_record(_config, nil), do: nil
+
+  defp generate_signing_secret do
+    32
+    |> :crypto.strong_rand_bytes()
+    |> Base.url_encode64(padding: false)
   end
 
   defp normalize_attrs(attrs) when is_list(attrs), do: Enum.into(attrs, %{})

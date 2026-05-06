@@ -614,6 +614,56 @@ defmodule SigraInstallGoldenTmp.Accounts do
     Sigra.Webhooks.disable_subscription(sigra_config(), subscription)
   end
 
+  @doc "List admin webhook subscriptions with URL-driven params."
+  def list_admin_webhook_subscriptions(admin_scope, params \\ %{}) do
+    Sigra.Admin.Webhooks.Query.list_subscriptions(sigra_config(), admin_scope, params)
+  end
+
+  @doc "Load one admin webhook subscription detail."
+  def get_admin_webhook_subscription!(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Detail.load_subscription!(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "List retrying and dead-letter webhook deliveries for admins."
+  def list_admin_webhook_failures(admin_scope, params \\ %{}) do
+    Sigra.Admin.Webhooks.Failures.list_deliveries(sigra_config(), admin_scope, params)
+  end
+
+  @doc "Load one shared admin webhook delivery detail."
+  def get_admin_webhook_delivery!(admin_scope, delivery_id) do
+    Sigra.Admin.Webhooks.Detail.load_delivery!(sigra_config(), admin_scope, delivery_id)
+  end
+
+  @doc "Create a webhook subscription through the admin action seam."
+  def create_admin_webhook_subscription(admin_scope, attrs) do
+    Sigra.Admin.Webhooks.Actions.create(sigra_config(), admin_scope, attrs)
+  end
+
+  @doc "Update a webhook subscription through the admin action seam."
+  def update_admin_webhook_subscription(admin_scope, subscription_id, attrs) do
+    Sigra.Admin.Webhooks.Actions.update(sigra_config(), admin_scope, subscription_id, attrs)
+  end
+
+  @doc "Enable a webhook subscription through the admin action seam."
+  def enable_admin_webhook_subscription(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.enable(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Disable a webhook subscription through the admin action seam."
+  def disable_admin_webhook_subscription(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.disable(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Reveal a webhook signing secret through an explicit admin action."
+  def reveal_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.reveal_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Rotate a webhook signing secret through an explicit admin action."
+  def rotate_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.rotate_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
   @doc "Check if user is locked out."
   def locked?(user) do
     Sigra.Lockout.locked?(user, lockout_opts())
