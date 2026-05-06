@@ -355,6 +355,11 @@ defmodule <%= web_module %>.OrganizationMembersLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      user_organizations={@user_organizations}
+    >
     <.header>
       Members ({@total_count})
       <:actions>
@@ -612,6 +617,7 @@ defmodule <%= web_module %>.OrganizationMembersLive do
         <form method="dialog" class="modal-backdrop"><button>close</button></form>
       <%% end %>
     </dialog>
+    </Layouts.app>
     """
   end
 
