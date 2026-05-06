@@ -1,0 +1,168 @@
+# Webhook Verification
+
+This recipe shows how a Plug or Phoenix receiver verifies Sigra's outbound
+webhooks without re-reading Sigra internals.
+
+## The contract to verify
+
+Sigra signs every delivery with:
+
+- `Sigra-Webhook-Id`
+- `Sigra-Webhook-Timestamp`
+- `Sigra-Webhook-Signature`
+
+The HMAC input is the exact string:
+
+```text
+delivery_id.timestamp.raw_body
+```
+
+`raw_body` means the exact bytes received on the wire. Do not verify against a
+decoded map, re-encoded JSON, or pretty-printed JSON.
+
+## Step 1: Capture the raw body with `body_reader`
+
+Configure `Plug.Parsers` to preserve the raw body before JSON decoding:
+
+```elixir
+pipeline :webhooks do
+  plug :accepts, ["json"]
+
+  plug Plug.Parsers,
+    parsers: [:json],
+    pass: ["application/json"],
+    json_decoder: Jason,
+    body_reader: {MyAppWeb.WebhookBodyReader, :read_body, []}
+end
+```
+
+Add a small `body_reader` module:
+
+```elixir
+defmodule MyAppWeb.WebhookBodyReader do
+  def read_body(conn, opts) do
+    case Plug.Conn.read_body(conn, opts) do
+      {:ok, body, conn} ->
+        conn = Plug.Conn.assign(conn, :raw_body, body)
+        {:ok, body, conn}
+
+      {:more, body, conn} ->
+        conn = Plug.Conn.assign(conn, :raw_body, body)
+        {:more, body, conn}
+    end
+  end
+end
+```
+
+If your payloads can exceed a single `read_body/2` call, accumulate chunks
+instead of overwriting `:raw_body`.
+
+## Step 2: Verify the signature before trusting JSON fields
+
+`Sigra.Webhooks.Signature.verify/4` already applies constant-time digest
+comparison through `Sigra.Token.secure_compare/2`.
+
+```elixir
+defmodule MyAppWeb.SigraWebhookController do
+  use MyAppWeb, :controller
+
+  alias Sigra.Webhooks.Signature
+
+  def create(conn, _params) do
+    raw_body = conn.assigns.raw_body || ""
+    secret = webhook_secret()
+
+    with {:ok, %{delivery_id: delivery_id, timestamp: timestamp}} <-
+           Signature.verify(conn.req_headers, raw_body, secret, tolerance: 300) do
+      payload = Jason.decode!(raw_body)
+      :ok = MyApp.Webhooks.process(delivery_id, payload, timestamp)
+      send_resp(conn, 202, "")
+    else
+      {:error, :missing_id} -> send_resp(conn, 400, "missing webhook id")
+      {:error, :missing_timestamp} -> send_resp(conn, 400, "missing webhook timestamp")
+      {:error, :missing_signature} -> send_resp(conn, 400, "missing webhook signature")
+      {:error, :invalid_timestamp} -> send_resp(conn, 400, "invalid webhook timestamp")
+      {:error, :stale_timestamp} -> send_resp(conn, 400, "stale webhook timestamp")
+      {:error, :malformed_signature} -> send_resp(conn, 400, "malformed webhook signature")
+      {:error, :invalid_signature} -> send_resp(conn, 401, "invalid webhook signature")
+    end
+  end
+
+  defp webhook_secret do
+    System.fetch_env!("SIGRA_WEBHOOK_SECRET")
+  end
+end
+```
+
+If you implement verification outside Elixir, keep the same rules:
+
+- split `Sigra-Webhook-Signature` on commas
+- accept `v1=...` entries only
+- compute HMAC-SHA256 over `delivery_id.timestamp.raw_body`
+- compare digests in constant time
+
+## Step 3: Dedupe by `delivery_id`
+
+`event_id` and `delivery_id` are not interchangeable.
+
+- `event_id` identifies the shared public event payload.
+- `delivery_id` identifies one subscription-specific delivery attempt.
+
+Store `delivery_id` in your receiver database and ignore duplicates you have
+already processed. Phase 98 keeps the same `delivery_id` across retries, so
+dedupe should stay keyed on `delivery_id` even when you see multiple signed
+attempts for the same logical delivery.
+
+## Step 4: Keep a bounded timestamp tolerance
+
+Sigra's default tolerance is 300 seconds. Your receiver can choose a tighter
+value, but it should stay long enough to tolerate real queue and clock skew.
+
+Each retry attempt gets a fresh `Sigra-Webhook-Timestamp` and a fresh HMAC
+signature over the same `delivery_id` plus the exact body bytes. Do not assume
+retries reuse the original timestamp or signature.
+
+Reject stale timestamps even when the signature digest matches.
+
+## Step 5: Support secret rotation on the receiver side
+
+`Signature.verify/4` accepts one secret or a list of candidate secrets:
+
+```elixir
+Signature.verify(conn.req_headers, raw_body, [
+  System.fetch_env!("SIGRA_WEBHOOK_SECRET_CURRENT"),
+  System.fetch_env!("SIGRA_WEBHOOK_SECRET_PREVIOUS")
+])
+```
+
+That lets your receiver accept both secrets during its own cutover window,
+even though Sigra does not yet define overlapping signing windows on the
+Sigra sender side.
+
+## Delivery retries and dead-letter semantics
+
+Phase 98 sends at most six total attempts per `delivery_id` on this nominal
+schedule:
+
+- first retry after 1 minute
+- then 5 minutes
+- then 15 minutes
+- then 1 hour
+- then 3 hours
+
+If the receiver returns `Retry-After`, Sigra may delay the next scheduled
+attempt beyond the nominal slot, but it does not expand the attempt budget.
+
+When the final attempt still fails, or when Sigra hits a terminal local
+invariant failure, Sigra moves the parent delivery row into `dead_lettered`
+state. That state is visible in Sigra-owned tables; Phase 98 does not include
+manual replay tooling.
+
+## Common mistakes
+
+- Verifying `conn.body_params` instead of the raw body bytes.
+- Parsing JSON and then re-encoding it before verification.
+- Treating `event_id` as the dedupe key instead of `delivery_id`.
+- Accepting stale `Sigra-Webhook-Timestamp` values forever.
+- Comparing HMAC digests with normal string equality instead of a constant-time
+  comparison.
