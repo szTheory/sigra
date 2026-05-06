@@ -95,9 +95,14 @@ defmodule Sigra.BehavioursTest do
       assert Sigra.RateLimiter in behaviours
     end
 
-    test "check_rate/3 always returns {:allow, 1}" do
-      assert Sigra.RateLimiters.Noop.check_rate("key", 10, 60_000) == {:allow, 1}
-      assert Sigra.RateLimiters.Noop.check_rate("other", 1, 1) == {:allow, 1}
+    test "check_rate/3 always returns {:allow, %{count, remaining, reset_ms}} matching the Sigra.Plug.RateLimit contract" do
+      assert {:allow, %{count: 1, remaining: 9, reset_ms: reset_ms}} =
+               Sigra.RateLimiters.Noop.check_rate("key", 10, 60_000)
+
+      assert is_integer(reset_ms) and reset_ms > 0
+
+      assert {:allow, %{count: 1, remaining: 0, reset_ms: _}} =
+               Sigra.RateLimiters.Noop.check_rate("other", 1, 1)
     end
   end
 

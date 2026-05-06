@@ -1107,15 +1107,23 @@ jobs:
             --project=chromium \
             --reporter=line
       - name: Generate OAuth evidence reports
+        # `mix sigra.uat.report` is a sigra-provided mix task. Run from
+        # test/example/ (where sigra is a path dep with deps already fetched
+        # by this job's earlier steps in MIX_ENV=dev) rather than the repo
+        # root (whose mix.exs has not had deps.get run in this job — that's
+        # why the previous repo-root invocation failed with "the dependency
+        # is not available, run mix deps.get"). Mirrors the MFA evidence
+        # report fix in 2974be6.
+        working-directory: test/example
         env:
-          MIX_ENV: test
+          MIX_ENV: dev
           SIGRA_CI_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SIGRA_CI_WORKFLOW: .github/workflows/ci.yml / oauth_e2e_playwright
           SIGRA_GIT_TAG: ${{ github.ref_name }}
         run: |
-          MIX_ENV=test mix sigra.uat.report --phase=oauth-google
-          MIX_ENV=test mix sigra.uat.report --phase=oauth-link
-          MIX_ENV=test mix sigra.uat.report --phase=oauth-email-match
+          mix sigra.uat.report --phase=oauth-google
+          mix sigra.uat.report --phase=oauth-link
+          mix sigra.uat.report --phase=oauth-email-match
       - name: Dump example app log (on failure)
         if: failure()
         run: |
