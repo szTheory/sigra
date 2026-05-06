@@ -75,6 +75,16 @@ defmodule Sigra.Webhooks do
   end
 
   @doc """
+  Returns the generated host webhook delivery-attempt schema module.
+  """
+  @spec delivery_attempt_schema!(Sigra.Config.t()) :: module()
+  def delivery_attempt_schema!(%Sigra.Config{} = config) do
+    config.webhooks
+    |> Keyword.fetch!(:webhook_delivery_attempt_schema)
+    |> validate_schema!(:webhook_delivery_attempt_schema)
+  end
+
+  @doc """
   Creates a webhook subscription after validating endpoint and event scope.
   """
   @spec create_subscription(Sigra.Config.t(), attrs()) ::
@@ -239,13 +249,14 @@ defmodule Sigra.Webhooks do
   defp maybe_validate_schema_modules(%Changeset{} = changeset, %Sigra.Config{} = config) do
     _ = event_schema!(config)
     _ = delivery_schema!(config)
+    _ = delivery_attempt_schema!(config)
     changeset
   rescue
     KeyError ->
       Changeset.add_error(
         changeset,
         :base,
-        "config.webhooks must declare webhook_subscription_schema, webhook_event_schema, and webhook_delivery_schema"
+        "config.webhooks must declare webhook_subscription_schema, webhook_event_schema, webhook_delivery_schema, and webhook_delivery_attempt_schema"
       )
   end
 

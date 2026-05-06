@@ -746,6 +746,11 @@ defmodule Sigra.Config do
           default: nil,
           doc: "Generated host webhook-delivery schema module."
         ],
+        webhook_delivery_attempt_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host webhook-delivery-attempt schema module."
+        ],
         oban_queue: [
           type: :string,
           default: "sigra_webhooks",
