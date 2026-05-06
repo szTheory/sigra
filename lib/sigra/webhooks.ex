@@ -12,26 +12,13 @@ defmodule Sigra.Webhooks do
 
   @type attrs :: map() | keyword()
 
-  @public_event_types [
-    "organization_membership.created",
-    "organization_membership.deleted",
-    "organization_membership.updated",
-    "service_account.created",
-    "service_account.revoked",
-    "session.created",
-    "session.revoked",
-    "user.created",
-    "user.deleted",
-    "user.updated"
-  ]
-
   @localhost_hosts MapSet.new(["127.0.0.1", "::1", "localhost"])
 
   @doc """
   Returns the explicit public webhook event catalog.
   """
   @spec public_event_types() :: [String.t()]
-  def public_event_types, do: @public_event_types
+  def public_event_types, do: Sigra.Webhooks.EventCatalog.all()
 
   @doc """
   Returns true when webhook delivery is enabled for the host config.
@@ -209,7 +196,7 @@ defmodule Sigra.Webhooks do
     Changeset.validate_change(changeset, :event_types, fn :event_types, event_types ->
       invalid =
         if is_list(event_types) do
-          Enum.reject(event_types, &(&1 in @public_event_types))
+          Enum.reject(event_types, &Sigra.Webhooks.EventCatalog.valid?/1)
         else
           []
         end
