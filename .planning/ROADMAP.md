@@ -26,16 +26,73 @@
 - ✅ **Post-v1.19 routing honesty follow-up** — Phase **84** (completed **2026-04-25**).
 - ✅ **v1.20 GA Launch — SEED closure + public release** — Phases **85–90** (shipped **2026-04-28**). See [v1.20 archive](milestones/v1.20-ROADMAP.md), [v1.20 requirements](milestones/v1.20-REQUIREMENTS.md), [v1.20 milestone audit](milestones/v1.20-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.21 B2B-ready & production-honest** — Phases **91–96** (shipped **2026-05-06**). See [v1.21 archive](milestones/v1.21-ROADMAP.md), [v1.21 requirements](milestones/v1.21-REQUIREMENTS.md), [v1.21 milestone audit](milestones/v1.21-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- 🟡 **v1.22 Webhooks / outbound event pipeline** — Phases **97–99** (opened **2026-05-06**). Live [REQUIREMENTS.md](REQUIREMENTS.md); phases below.
 
 ## Phases
 
-_No active milestone. Run `/gsd-new-milestone` to start the next cycle._
+### v1.22 — active (Phases **97–99**)
+
+**Coverage:** 3 requirements → 3 phases. Numbering continues from **v1.21** (last phase **96**).
+
+**Dependency shape:** sequential by contract. Phase **97** defines the public event contract, subscription registry, and signing seam. Phase **98** depends on 97 to make delivery reliable with filtering, retries, and dead-letter history. Phase **99** depends on both to expose the feature through generated admin LiveViews and host UX without forcing adopters into manual wiring.
+
+**Phase summary:**
+
+- [ ] **Phase 97: Webhook subscription registry + signed dispatcher contract** — establish the event catalog, durable subscription registry, outbound payload schema, stable delivery/event IDs, and HMAC-signed dispatcher seam for Sigra-owned auth and identity events.
+- [ ] **Phase 98: Reliable delivery pipeline** — add per-subscription event filtering, bounded retries, dead-letter handling, and delivery-attempt history from persisted state rather than best-effort fire-and-forget.
+- [ ] **Phase 99: Admin and generated-host webhook UX** — generate the admin LiveView, routes, and host configuration guidance to manage subscriptions, rotate secrets, inspect delivery history, and prove the end-to-end adopter path.
+
+## Phase Details
+
+### Phase 97: Webhook subscription registry + signed dispatcher contract
+
+**Goal:** Define Sigra's public outbound webhook contract and durable subscription model so auth and identity events can be emitted as a trustworthy machine-to-machine integration surface instead of remaining trapped in internal audit rows.
+
+**Depends on:** Nothing.
+
+**Requirements:** WH-01.
+
+**Success criteria** (what must be TRUE):
+
+1. Sigra stores webhook subscriptions durably with endpoint URL, enabled/disabled state, signing secret, and event-type scope, and generated hosts receive the minimum schema/config seam needed to manage them.
+2. For a selected set of Sigra-owned auth and identity events, the library emits a stable public payload shape with explicit event type, event timestamp, stable event or delivery identifier, and enough context for receivers to process the event without parsing internal audit rows.
+3. Each outbound delivery is signed with a documented verification contract based on HMAC-SHA256, and the contract is specific enough that a host or third-party system can verify authenticity without reading Sigra internals.
+4. The dispatcher seam exists as library-owned infrastructure that records durable local state before attempting remote delivery, rather than making webhook success a precondition of the auth transaction.
+
+### Phase 98: Reliable delivery pipeline
+
+**Goal:** Make webhook delivery operationally trustworthy by turning persisted webhook events into a retryable, inspectable, bounded delivery pipeline with failure visibility.
+
+**Depends on:** Phase 97.
+
+**Requirements:** WH-02.
+
+**Success criteria** (what must be TRUE):
+
+1. Each subscription can limit which event types it receives, and Sigra routes only matching events to that subscription without receiver-side filtering being the sole gate.
+2. Failed deliveries retry with a documented bounded policy from persisted state, and retry exhaustion moves the delivery into a durable dead-letter state instead of dropping it silently.
+3. Every delivery attempt records enough history to answer: when was it attempted, what endpoint was targeted, what status/result occurred, and whether another retry is pending.
+4. Verification proves auth and identity operations still succeed when downstream webhook endpoints fail, while delivery history accurately reflects the failure and subsequent retry/dead-letter outcome.
+
+### Phase 99: Admin and generated-host webhook UX
+
+**Goal:** Make webhooks a real adopter feature by shipping generated admin UX and host wiring that expose the system cleanly without manual reverse-engineering.
+
+**Depends on:** Phases 97 and 98.
+
+**Requirements:** WH-03.
+
+**Success criteria** (what must be TRUE):
+
+1. Fresh generated host exposes an admin LiveView where an authorized operator can create, enable/disable, edit, and rotate webhook subscriptions without touching Sigra internals.
+2. The admin surface exposes recent delivery history and failure/dead-letter status clearly enough that an adopter can diagnose a broken endpoint from the generated UI.
+3. Generator and example-app verification prove the full path: create subscription, trigger Sigra event, observe signed delivery attempt, and inspect success/failure history from the generated host surface.
+4. Documentation and generated configuration make the adopter boundary explicit: Sigra emits the events; the host or downstream system owns the receiver implementation and business automation.
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only. Do not plan new work under **999.x**; use newly numbered phases.
-- **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope for v1.21.
-- **Webhooks / outbound event pipeline (`WH-01..03`)** — deferred to **v1.22** as its own focused milestone (event schema, signed delivery, retry / dead-letter, host configuration UX).
+- **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope for v1.22.
 - **Session UX completeness (`SESS-01..03`)** — Tier 3 polish; not B2B-blocking. Future requirements section of `REQUIREMENTS.md`.
 - **Email template overrides + i18n + bounce handling (`EMAIL-01..03`)** — Tier 3 polish.
 - **Passkey multi-authenticator + recovery (`PK-01..03`)** — Tier 3 polish.
