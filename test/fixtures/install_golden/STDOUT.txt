@@ -1,3 +1,36 @@
+     warning: the following pattern will never match:
+
+         changeset = build_delivery_job(config, delivery_or_id, opts)
+
+     because the right-hand side has type:
+
+         none()
+
+     where "config" was given the type:
+
+         # type: dynamic(%Sigra.Config{})
+         # from: lib/sigra/webhooks.ex:207:40
+         %Sigra.Config{} = config
+
+     where "delivery_or_id" was given the type:
+
+         # type: dynamic()
+         # from: lib/sigra/webhooks.ex:207:50
+         delivery_or_id
+
+     where "opts" was given the type:
+
+         # type: dynamic()
+         # from: lib/sigra/webhooks.ex:207:66
+         opts
+
+     typing violation found at:
+     │
+ 208 │     changeset = build_delivery_job(config, delivery_or_id, opts)
+     │               ~
+     │
+     └─ (sigra 1.20.0) lib/sigra/webhooks.ex:208:15: Sigra.Webhooks.enqueue_delivery/3
+
      warning: Joken.encode_and_sign/2 is undefined (module Joken is not available or is yet to be defined). Make sure the module name is correct and has been specified in full (or that an alias has been defined)
      │
  747 │     {:ok, token, _} = Joken.encode_and_sign(claims, signer)
@@ -40,10 +73,15 @@
 
 * creating priv/repo/migrations/TIMESTAMP_create_sigra_auth_tables.exs
 * creating priv/repo/migrations/TIMESTAMP_add_active_organization_id_to_user_sessions.exs
+* creating priv/repo/migrations/TIMESTAMP_create_webhook_tables.exs
 * creating lib/sigra_install_golden_tmp/accounts/user.ex
 * creating lib/sigra_install_golden_tmp/accounts/user_token.ex
 * creating lib/sigra_install_golden_tmp/accounts/scope.ex
 * creating lib/sigra_install_golden_tmp/accounts.ex
+* creating lib/sigra_install_golden_tmp/accounts/webhook_subscription.ex
+* creating lib/sigra_install_golden_tmp/accounts/webhook_event.ex
+* creating lib/sigra_install_golden_tmp/accounts/webhook_delivery.ex
+* creating lib/sigra_install_golden_tmp/accounts/webhook_delivery_attempt.ex
 * creating lib/sigra_install_golden_tmp/sigra_authz.ex
 * creating lib/sigra_install_golden_tmp_web/user_auth.ex
 * creating lib/sigra_install_golden_tmp_web/auth_error_handler.ex
@@ -88,6 +126,9 @@
   Add the sigra_mailer queue to your Oban config:
     config :sigra_install_golden_tmp, Oban, queues: [sigra_mailer: 10]
 
+  If you enable Sigra webhooks, also add:
+    config :sigra_install_golden_tmp, Oban, queues: [sigra_webhooks: 10]
+
 * injecting Swoosh dev config into config/dev.exs
 
 Sigra authentication has been installed!
@@ -119,6 +160,7 @@ Next steps:
   Passkeys: enabled (default)
 
 
+  If you enable outbound webhooks later, add Oban and the sigra_webhooks queue first. Sigra does not downgrade webhook delivery to synchronous request-path I/O.
 
 * creating lib/sigra_install_golden_tmp/accounts/organization.ex
 * creating lib/sigra_install_golden_tmp/accounts/organization_invitation.ex

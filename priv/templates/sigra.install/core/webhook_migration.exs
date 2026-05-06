@@ -1,4 +1,4 @@
-defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateWebhookTables do
+defmodule <%= app_module %>.Repo.Migrations.CreateWebhookTables do
   use Ecto.Migration
 
   def change do

@@ -62,6 +62,10 @@ defmodule Sigra.Install.Features.Core do
     ~s(Add {:oban, "~> 2.17"} to your mix.exs deps, run mix deps.get, and configure the sigra_lifecycle queue.)
   end
 
+  def optional_dependency_remediation(:webhook_delivery) do
+    ~s(Add {:oban, "~> 2.17"} to your mix.exs deps, run mix deps.get, and configure the sigra_webhooks queue. Webhooks stay async-only when enabled.)
+  end
+
   def optional_dependency_remediation(:bcrypt_migration) do
     ~s(Add {:bcrypt_elixir, "~> 3.3"} to your mix.exs deps and run mix deps.get.)
   end
@@ -120,6 +124,7 @@ defmodule Sigra.Install.Features.Core do
       {:primary, "core/migration.exs", "create_sigra_auth_tables.exs"},
       {:active_org_column, "core/add_active_organization_id_to_user_sessions.exs",
        "add_active_organization_id_to_user_sessions.exs"},
+      {:webhooks, "core/webhook_migration.exs", "create_webhook_tables.exs"},
       {:api_token, "core/api_token_migration.exs", "create_user_api_tokens.exs"},
       {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"}
       # Phase 24.1: :audit_events_org_columns moved to a later feature
@@ -197,6 +202,10 @@ defmodule Sigra.Install.Features.Core do
          "add_active_organization_id_to_user_sessions.exs"
        )}
 
+    webhook_migration =
+      {:eex, "core/webhook_migration.exs",
+       migration_target(binding, :webhooks, "create_webhook_tables.exs")}
+
     audit_migration =
       {:eex, "core/create_audit_events.exs",
        migration_target(binding, :audit_events, "create_audit_events.exs")}
@@ -212,11 +221,21 @@ defmodule Sigra.Install.Features.Core do
         # Phase 12: active_organization_id ALTER migration (position 1, before core schemas)
         active_org_column_migration,
 
+        # Phase 97/98: webhook foundation + reliable delivery persistence
+        webhook_migration,
+
         # Core schemas + context
         {:eex, "core/user.ex", Path.join(["lib", otp_app, ctx, "user.ex"])},
         {:eex, "core/user_token.ex", Path.join(["lib", otp_app, ctx, "user_token.ex"])},
         {:eex, "core/scope.ex", Path.join(["lib", otp_app, ctx, "scope.ex"])},
         {:eex, "core/auth.ex", Path.join(["lib", otp_app, "#{ctx}.ex"])},
+        {:eex, "core/webhook_subscription.ex",
+         Path.join(["lib", otp_app, ctx, "webhook_subscription.ex"])},
+        {:eex, "core/webhook_event.ex", Path.join(["lib", otp_app, ctx, "webhook_event.ex"])},
+        {:eex, "core/webhook_delivery.ex",
+         Path.join(["lib", otp_app, ctx, "webhook_delivery.ex"])},
+        {:eex, "core/webhook_delivery_attempt.ex",
+         Path.join(["lib", otp_app, ctx, "webhook_delivery_attempt.ex"])},
 
         # Phase 92 / B2B-02 (Plan 92-02): host-owned `Sigra.Authz` starter.
         # Sits beside sigra_admin_policy.ex (admin feature) so the two
@@ -369,7 +388,7 @@ defmodule Sigra.Install.Features.Core do
 
     files = [
       {:eex, "core/token_controller.ex",
-       Path.join(["lib", web, "controllers", "token_controller.ex"])},
+       Path.join(["lib", web, "controllers", "token_controller.ex"])}
     ]
 
     if organizations? do
@@ -727,13 +746,13 @@ defmodule Sigra.Install.Features.Core do
       """
 
       jwt_injections = [
-          %Injection{
-            target: router_target,
-            marker: "# Sigra JWT",
-            anchor: :before_last_end,
-            content: jwt_router_content
-          }
-        ]
+        %Injection{
+          target: router_target,
+          marker: "# Sigra JWT",
+          anchor: :before_last_end,
+          content: jwt_router_content
+        }
+      ]
 
       oauth_injections =
         if organizations? do
@@ -829,6 +848,7 @@ defmodule Sigra.Install.Features.Core do
 
     #{live_line}#{passkeys_line}
     #{api_line}#{jwt_line}
+      If you enable outbound webhooks later, add Oban and the sigra_webhooks queue first. Sigra does not downgrade webhook delivery to synchronous request-path I/O.
     """
   end
 
@@ -851,7 +871,15 @@ defmodule Sigra.Install.Features.Core do
       content = File.read!(target)
 
       if content =~ "sigra_mailer" do
-        [[:yellow, "* already configured ", :reset, "Oban sigra_mailer queue"]]
+        [
+          [:yellow, "* already configured ", :reset, "Oban sigra_mailer queue"],
+          [
+            :yellow,
+            "  If you later enable Sigra webhooks, also add the sigra_webhooks queue.\n",
+            :reset,
+            "  #{optional_dependency_remediation(:webhook_delivery)}"
+          ]
+        ]
       else
         [
           [:green, "* detected Oban config in ", :reset, target],
@@ -860,6 +888,12 @@ defmodule Sigra.Install.Features.Core do
             "  Add the sigra_mailer queue to your Oban config:\n",
             :reset,
             "    config :#{otp_app}, Oban, queues: [sigra_mailer: 10]\n"
+          ],
+          [
+            :yellow,
+            "  If you enable Sigra webhooks, also add:\n",
+            :reset,
+            "    config :#{otp_app}, Oban, queues: [sigra_webhooks: 10]\n"
           ]
         ]
       end
@@ -870,7 +904,9 @@ defmodule Sigra.Install.Features.Core do
           "* Oban not detected. ",
           :reset,
           "Email delivery will use synchronous mode.\n",
-          "  #{optional_dependency_remediation(:async_email)}"
+          "  #{optional_dependency_remediation(:async_email)}\n",
+          "  If you enable Sigra webhooks, they remain async-only:\n",
+          "  #{optional_dependency_remediation(:webhook_delivery)}"
         ]
       ]
     end

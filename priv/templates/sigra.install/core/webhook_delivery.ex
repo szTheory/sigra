@@ -1,4 +1,4 @@
-defmodule SigraInstallGoldenTmp.Accounts.WebhookDelivery do
+defmodule <%= context_module %>.WebhookDelivery do
   @moduledoc """
   Delivery summary rows for outbound webhooks.
 
@@ -28,9 +28,9 @@ defmodule SigraInstallGoldenTmp.Accounts.WebhookDelivery do
     field :dead_lettered_at, :utc_datetime_usec
     field :terminal_reason, :string
 
-    belongs_to :webhook_subscription, SigraInstallGoldenTmp.Accounts.WebhookSubscription
-    belongs_to :webhook_event, SigraInstallGoldenTmp.Accounts.WebhookEvent
-    has_many :attempts, SigraInstallGoldenTmp.Accounts.WebhookDeliveryAttempt
+    belongs_to :webhook_subscription, <%= context_module %>.WebhookSubscription
+    belongs_to :webhook_event, <%= context_module %>.WebhookEvent
+    has_many :attempts, <%= context_module %>.WebhookDeliveryAttempt
 
     timestamps(type: :utc_datetime_usec)
   end

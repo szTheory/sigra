@@ -11,6 +11,10 @@ defmodule <%= context_module %> do
   alias <%= repo_module %>, as: Repo
   alias <%= context_module %>.<%= schema_alias %>
   alias <%= context_module %>.UserToken
+  alias <%= context_module %>.WebhookDelivery
+  alias <%= context_module %>.WebhookDeliveryAttempt
+  alias <%= context_module %>.WebhookEvent
+  alias <%= context_module %>.WebhookSubscription
 <%= if passkeys? do %>
   alias <%= context_module %>.Emails
 <% end %>
@@ -572,6 +576,16 @@ defmodule <%= context_module %> do
       # written for session.create, auth.login.*, etc.
       audit: [
         audit_schema: <%= context_module %>.AuditEvent
+      ],
+      webhooks: [
+        enabled: false,
+        webhook_subscription_schema: WebhookSubscription,
+        webhook_event_schema: WebhookEvent,
+        webhook_delivery_schema: WebhookDelivery,
+        webhook_delivery_attempt_schema: WebhookDeliveryAttempt,
+        oban_queue: "sigra_webhooks",
+        oban_concurrency: 10,
+        signature_tolerance: 300
       ]
     )
   end
@@ -594,6 +608,36 @@ defmodule <%= context_module %> do
   @doc "Confirm sudo mode for a session."
   def confirm_sudo(hashed_token) do
     Sigra.Auth.confirm_sudo(sigra_config(), hashed_token)
+  end
+
+  @doc "List the explicit webhook event catalog."
+  def webhook_event_types do
+    Sigra.Webhooks.public_event_types()
+  end
+
+  @doc "List configured webhook subscriptions."
+  def list_webhook_subscriptions do
+    Sigra.Webhooks.list_subscriptions(sigra_config())
+  end
+
+  @doc "Create a webhook subscription."
+  def create_webhook_subscription(attrs) do
+    Sigra.Webhooks.create_subscription(sigra_config(), attrs)
+  end
+
+  @doc "Update a webhook subscription."
+  def update_webhook_subscription(subscription, attrs) do
+    Sigra.Webhooks.update_subscription(sigra_config(), subscription, attrs)
+  end
+
+  @doc "Enable a webhook subscription."
+  def enable_webhook_subscription(subscription) do
+    Sigra.Webhooks.enable_subscription(sigra_config(), subscription)
+  end
+
+  @doc "Disable a webhook subscription."
+  def disable_webhook_subscription(subscription) do
+    Sigra.Webhooks.disable_subscription(sigra_config(), subscription)
   end
 
   @doc "Check if user is locked out."

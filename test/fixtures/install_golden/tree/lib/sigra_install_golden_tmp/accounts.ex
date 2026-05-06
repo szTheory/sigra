@@ -12,6 +12,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
   alias SigraInstallGoldenTmp.Accounts.User
   alias SigraInstallGoldenTmp.Accounts.UserToken
   alias SigraInstallGoldenTmp.Accounts.WebhookDelivery
+  alias SigraInstallGoldenTmp.Accounts.WebhookDeliveryAttempt
   alias SigraInstallGoldenTmp.Accounts.WebhookEvent
   alias SigraInstallGoldenTmp.Accounts.WebhookSubscription
 
@@ -555,6 +556,7 @@ defmodule SigraInstallGoldenTmp.Accounts do
         webhook_subscription_schema: WebhookSubscription,
         webhook_event_schema: WebhookEvent,
         webhook_delivery_schema: WebhookDelivery,
+        webhook_delivery_attempt_schema: WebhookDeliveryAttempt,
         oban_queue: "sigra_webhooks",
         oban_concurrency: 10,
         signature_tolerance: 300
@@ -580,6 +582,11 @@ defmodule SigraInstallGoldenTmp.Accounts do
   @doc "Confirm sudo mode for a session."
   def confirm_sudo(hashed_token) do
     Sigra.Auth.confirm_sudo(sigra_config(), hashed_token)
+  end
+
+  @doc "List the explicit webhook event catalog."
+  def webhook_event_types do
+    Sigra.Webhooks.public_event_types()
   end
 
   @doc "List configured webhook subscriptions."
