@@ -217,10 +217,54 @@ defmodule Sigra.Install.GeneratorWiringTest do
     end
   end
 
+  describe "webhook wiring" do
+    test "generated accounts config includes webhook schemas and queue defaults" do
+      content = render_fixture("lib/sigra_install_golden_tmp/accounts.ex")
+
+      assert content =~ "webhooks: ["
+      assert content =~ "webhook_subscription_schema: WebhookSubscription"
+      assert content =~ "webhook_event_schema: WebhookEvent"
+      assert content =~ "webhook_delivery_schema: WebhookDelivery"
+      assert content =~ ~s(oban_queue: "sigra_webhooks")
+      assert content =~ "def list_webhook_subscriptions do"
+      assert content =~ "def create_webhook_subscription(attrs) do"
+      assert content =~ "def update_webhook_subscription(subscription, attrs) do"
+      assert content =~ "def enable_webhook_subscription(subscription) do"
+      assert content =~ "def disable_webhook_subscription(subscription) do"
+    end
+
+    test "generated migration and schemas for webhook tables exist" do
+      migration = render_fixture("priv/repo/migrations/TIMESTAMP_create_webhook_tables.exs")
+      subscription = render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_subscription.ex")
+      event = render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_event.ex")
+      delivery = render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_delivery.ex")
+
+      assert migration =~ "create table(:webhook_subscriptions"
+      assert migration =~ "create table(:webhook_events"
+      assert migration =~ "create table(:webhook_deliveries"
+      assert migration =~ "add :signing_secret, :binary, null: false"
+      assert migration =~ "add :event_id, :string, null: false"
+      assert migration =~ "add :delivery_id, :string, null: false"
+
+      assert subscription =~ "schema \"webhook_subscriptions\""
+      assert subscription =~ "field :event_types, {:array, :string}, default: []"
+      assert subscription =~ "field :signing_secret"
+      assert event =~ "schema \"webhook_events\""
+      assert event =~ "field :event_id, :string"
+      assert delivery =~ "schema \"webhook_deliveries\""
+      assert delivery =~ "field :delivery_id, :string"
+    end
+  end
+
   # -- Helpers --
 
   defp render_template(name) do
     path = Path.join(@template_dir, name)
     EEx.eval_file(path, @base_binding)
+  end
+
+  defp render_fixture(relative_path) do
+    Path.join([File.cwd!(), "test", "fixtures", "install_golden", "tree", relative_path])
+    |> File.read!()
   end
 end

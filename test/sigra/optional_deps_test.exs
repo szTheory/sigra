@@ -15,7 +15,17 @@ defmodule Sigra.OptionalDepsTest do
         |> Enum.map(& &1.feature)
         |> Enum.sort()
 
-      assert [:async_email, :bcrypt_migration, :jwt, :lifecycle_jobs, :oauth, :rate_limit, :swoosh, :totp_qr] =
+      assert [
+               :async_email,
+               :bcrypt_migration,
+               :jwt,
+               :lifecycle_jobs,
+               :oauth,
+               :rate_limit,
+               :swoosh,
+               :totp_qr,
+               :webhook_delivery
+             ] =
                features
 
       assert %{dependency: :oban, enforced?: true, support_tier: :phase_95} =
@@ -26,6 +36,9 @@ defmodule Sigra.OptionalDepsTest do
 
       assert %{dependency: :oban, enforced?: true, support_tier: :phase_95} =
                OptionalDeps.feature_spec!(:lifecycle_jobs)
+
+      assert %{dependency: :oban, enforced?: true, support_tier: :phase_95} =
+               OptionalDeps.feature_spec!(:webhook_delivery)
 
       assert %{dependency: :hammer, enforced?: false, support_tier: :advisory} =
                OptionalDeps.feature_spec!(:rate_limit)
@@ -57,6 +70,11 @@ defmodule Sigra.OptionalDepsTest do
       assert OptionalDeps.feature_enabled?(:async_email, delivery_mode: :async)
       refute OptionalDeps.feature_enabled?(:async_email, delivery_mode: :sync)
     end
+
+    test "proves webhook delivery enablement from host config" do
+      assert OptionalDeps.feature_enabled?(:webhook_delivery, config(webhooks: [enabled: true]))
+      refute OptionalDeps.feature_enabled?(:webhook_delivery, config(webhooks: [enabled: false]))
+    end
   end
 
   describe "ensure_available!/2" do
@@ -68,6 +86,15 @@ defmodule Sigra.OptionalDepsTest do
       assert_raise MissingDependencyError, fn ->
         OptionalDeps.ensure_available!(:jwt,
           config: config(jwt: [enabled: true]),
+          dependency_loaded?: fn _spec -> false end
+        )
+      end
+    end
+
+    test "raises a tagged error for enabled webhook delivery when Oban is missing" do
+      assert_raise MissingDependencyError, fn ->
+        OptionalDeps.ensure_available!(:webhook_delivery,
+          config: config(webhooks: [enabled: true]),
           dependency_loaded?: fn _spec -> false end
         )
       end
@@ -126,6 +153,30 @@ defmodule Sigra.OptionalDepsTest do
       assert row.status == :advisory
       assert row.evidence == "rate limiting not explicitly configured"
     end
+
+    test "marks webhook delivery as blocking only when explicitly enabled and missing" do
+      active_row =
+        OptionalDeps.doctor_row(:webhook_delivery,
+          config: config(webhooks: [enabled: true]),
+          dependency_loaded?: fn _spec -> false end
+        )
+
+      inactive_row =
+        OptionalDeps.doctor_row(:webhook_delivery,
+          config: config(webhooks: [enabled: false]),
+          dependency_loaded?: fn _spec -> false end
+        )
+
+      assert active_row.enabled? == true
+      assert active_row.blocking? == true
+      assert active_row.status == :missing
+      assert active_row.evidence == "config.webhooks[:enabled] == true"
+
+      assert inactive_row.enabled? == false
+      assert inactive_row.blocking? == false
+      assert inactive_row.status == :inactive
+      assert inactive_row.evidence == "config.webhooks[:enabled] != true"
+    end
   end
 
   defp config(overrides) do
@@ -134,13 +185,15 @@ defmodule Sigra.OptionalDepsTest do
       user_schema: Sigra.TestUser,
       secret_key_base: String.duplicate("a", 64),
       jwt: [enabled: false, algorithm: "HS256"],
-      mfa: [enabled: true]
+      mfa: [enabled: true],
+      webhooks: [enabled: false]
     ]
 
     merged =
       Keyword.merge(base, overrides, fn
         :jwt, left, right -> Keyword.merge(left, right)
         :mfa, left, right -> Keyword.merge(left, right)
+        :webhooks, left, right -> Keyword.merge(left, right)
         _key, _left, right -> right
       end)
 

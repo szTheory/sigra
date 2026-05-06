@@ -19,6 +19,7 @@ defmodule Sigra.OptionalDeps do
           | :rate_limit
           | :swoosh
           | :totp_qr
+          | :webhook_delivery
 
   @type feature_spec :: %{
           feature: feature(),
@@ -203,6 +204,19 @@ defmodule Sigra.OptionalDeps do
         remediation: InstallCore.optional_dependency_remediation(:swoosh),
         enabled?: fn context -> swoosh_enabled?(context) end,
         evidence: fn context -> swoosh_evidence(context) end
+      },
+      webhook_delivery: %{
+        feature: :webhook_delivery,
+        dependency: :oban,
+        dependency_spec: "~> 2.17",
+        dependency_modules: [Oban],
+        support_tier: :phase_95,
+        enforced?: true,
+        doctor?: true,
+        compile_warning?: :when_enabled,
+        remediation: InstallCore.optional_dependency_remediation(:lifecycle_jobs),
+        enabled?: fn context -> webhook_delivery_enabled?(context) end,
+        evidence: fn context -> webhook_delivery_evidence(context) end
       }
     ]
   end
@@ -362,6 +376,32 @@ defmodule Sigra.OptionalDeps do
       "Swoosh-backed delivery is configured"
     else
       "Swoosh-backed delivery is not explicitly configured"
+    end
+  end
+
+  defp webhook_delivery_enabled?(context) do
+    webhooks_config =
+      case Map.get(context, :webhooks) do
+        webhooks when is_list(webhooks) -> webhooks
+        _other -> config_value(context, :webhooks, [])
+      end
+
+    Keyword.get(webhooks_config, :enabled, false)
+  end
+
+  defp webhook_delivery_evidence(context) do
+    if webhook_delivery_enabled?(context) do
+      if is_list(Map.get(context, :webhooks)) do
+        "webhooks[:enabled] == true"
+      else
+        "config.webhooks[:enabled] == true"
+      end
+    else
+      if is_list(Map.get(context, :webhooks)) do
+        "webhooks[:enabled] != true"
+      else
+        "config.webhooks[:enabled] != true"
+      end
     end
   end
 

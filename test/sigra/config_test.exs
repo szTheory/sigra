@@ -240,6 +240,53 @@ defmodule Sigra.ConfigTest do
       assert config.email[:oban_concurrency] == 10
     end
 
+    test "accepts webhook config overrides" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          webhooks: [
+            enabled: true,
+            webhook_subscription_schema: MyApp.WebhookSubscription,
+            webhook_event_schema: MyApp.WebhookEvent,
+            webhook_delivery_schema: MyApp.WebhookDelivery,
+            oban_queue: "sigra_webhooks",
+            oban_concurrency: 4,
+            signature_tolerance: 120
+          ]
+        )
+
+      assert config.webhooks[:enabled] == true
+      assert config.webhooks[:webhook_subscription_schema] == MyApp.WebhookSubscription
+      assert config.webhooks[:webhook_event_schema] == MyApp.WebhookEvent
+      assert config.webhooks[:webhook_delivery_schema] == MyApp.WebhookDelivery
+      assert config.webhooks[:oban_queue] == "sigra_webhooks"
+      assert config.webhooks[:oban_concurrency] == 4
+      assert config.webhooks[:signature_tolerance] == 120
+    end
+
+    test "provides correct webhook defaults" do
+      config = Config.new!(repo: MyApp.Repo, user_schema: MyApp.User)
+
+      assert config.webhooks[:enabled] == false
+      assert config.webhooks[:webhook_subscription_schema] == nil
+      assert config.webhooks[:webhook_event_schema] == nil
+      assert config.webhooks[:webhook_delivery_schema] == nil
+      assert config.webhooks[:oban_queue] == "sigra_webhooks"
+      assert config.webhooks[:oban_concurrency] == 10
+      assert config.webhooks[:signature_tolerance] == 300
+    end
+
+    test "rejects invalid webhook signature_tolerance" do
+      assert_raise NimbleOptions.ValidationError, ~r/signature_tolerance/, fn ->
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          webhooks: [signature_tolerance: 0]
+        )
+      end
+    end
+
     # Phase 4: Session management config extensions
     test "accepts idle_timeout in session section" do
       config =

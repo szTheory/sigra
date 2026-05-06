@@ -720,6 +720,50 @@ defmodule Sigra.Config do
         ]
       ]
     ],
+    webhooks: [
+      type: :keyword_list,
+      default: [],
+      doc: "Outbound webhook options.",
+      keys: [
+        enabled: [
+          type: :boolean,
+          default: false,
+          doc:
+            "Enable outbound webhooks. When true, Sigra requires async delivery infrastructure. Default: false."
+        ],
+        webhook_subscription_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host webhook-subscription schema module."
+        ],
+        webhook_event_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host webhook-event schema module."
+        ],
+        webhook_delivery_schema: [
+          type: {:or, [:atom, nil]},
+          default: nil,
+          doc: "Generated host webhook-delivery schema module."
+        ],
+        oban_queue: [
+          type: :string,
+          default: "sigra_webhooks",
+          doc: "Oban queue name for async webhook delivery. Default: \"sigra_webhooks\"."
+        ],
+        oban_concurrency: [
+          type: :pos_integer,
+          default: 10,
+          doc: "Maximum concurrent webhook delivery workers. Default: 10."
+        ],
+        signature_tolerance: [
+          type: :pos_integer,
+          default: 300,
+          doc:
+            "Allowed timestamp skew in seconds for webhook signature verification. Default: 300."
+        ]
+      ]
+    ],
     jwt: [
       type: :keyword_list,
       default: [],
@@ -892,6 +936,7 @@ defmodule Sigra.Config do
           oauth: keyword(),
           api_token: keyword(),
           service_accounts: keyword(),
+          webhooks: keyword(),
           jwt: keyword(),
           deletion: keyword(),
           hooks: keyword(),
@@ -927,6 +972,7 @@ defmodule Sigra.Config do
     oauth: [],
     api_token: [],
     service_accounts: [],
+    webhooks: [],
     jwt: [],
     deletion: [],
     hooks: [],
