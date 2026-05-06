@@ -164,6 +164,7 @@ defmodule Sigra.MixProject do
         "LICENSE",
         "CHANGELOG.md",
         "guides/introduction/installation.md",
+        "guides/introduction/ecosystem-overview.md",
         "guides/introduction/getting-started.md",
         "guides/introduction/first-hour.md",
         "guides/introduction/intermediate-production-path.md",
