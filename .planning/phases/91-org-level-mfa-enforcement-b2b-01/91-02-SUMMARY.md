@@ -2,6 +2,7 @@
 phase: 91
 plan: "02"
 status: complete
+requirements-completed: [B2B-01]
 ---
 
 # Plan 91-02 — MFA policy atomicity coverage

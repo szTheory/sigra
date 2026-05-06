@@ -1,3 +1,21 @@
+---
+phase: 96-oauth-refresh-rate-limit-headers-hard-03-api-01
+slug: oauth-refresh-rate-limit-headers-hard-03-api-01
+status: passed
+created: 2026-05-02
+updated: 2026-05-06
+requirements: [HARD-03, API-01]
+score: 4/4 evidence sections passing
+test_counts:
+  oauth_refresh: "41 tests, 0 failures"
+  rate_limit_headers: "20 tests, 0 failures"
+  generator_wiring: "56 tests, 0 failures"
+  example_oauth_controller: "5 tests, 0 failures"
+gaps: []
+deferred: []
+audited: 2026-05-06
+---
+
 # 96-VERIFICATION.md
 
 ## OAuth Refresh Tests

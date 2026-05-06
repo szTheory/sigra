@@ -1,3 +1,10 @@
+---
+phase: 96-oauth-refresh-rate-limit-headers-hard-03-api-01
+plan: 02
+status: complete
+requirements-completed: [HARD-03]
+---
+
 # 96-02-SUMMARY.md
 
 - **`Sigra.OAuth.persist_refresh/3`**: Implemented local persistence and audit co-fate for successful OAuth token refreshes. Uses `Ecto.Multi` and `Sigra.Audit.log_multi_safe/3` to update the `OAuthIdentity` and insert the `oauth.token_refreshed` audit event in a single atomic transaction.

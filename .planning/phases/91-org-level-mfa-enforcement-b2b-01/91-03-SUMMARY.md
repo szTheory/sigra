@@ -2,6 +2,7 @@
 phase: 91
 plan: "03"
 status: complete
+requirements-completed: [B2B-01]
 ---
 
 # Plan 91-03 — HTTP org-MFA enforcement

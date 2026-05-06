@@ -1,6 +1,8 @@
 ---
 phase: 94-postgres-only-declaration-hard-01
 plan: 03
+status: complete
+requirements-completed: [HARD-01]
 subsystem: generators
 tags:
   - postgres-only

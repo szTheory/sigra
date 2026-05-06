@@ -2,6 +2,7 @@
 phase: 91
 plan: "06"
 status: complete
+requirements-completed: [B2B-01]
 ---
 
 # Plan 91-06 — End-to-end org-MFA integration proof

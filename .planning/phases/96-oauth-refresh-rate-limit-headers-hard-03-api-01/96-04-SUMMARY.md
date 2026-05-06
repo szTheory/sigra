@@ -1,3 +1,10 @@
+---
+phase: 96-oauth-refresh-rate-limit-headers-hard-03-api-01
+plan: 04
+status: complete
+requirements-completed: [HARD-03, API-01]
+---
+
 # 96-04-SUMMARY.md
 
 - **`lib/sigra/install/features/core.ex`**: Injected the `:auth_rate_limit` pipeline configuring `Sigra.Plug.RateLimit`. Applied the pipeline securely to the default `"/users"` authentication scope (login, register, password reset, etc) without applying it broadly to unrelated browser routes.

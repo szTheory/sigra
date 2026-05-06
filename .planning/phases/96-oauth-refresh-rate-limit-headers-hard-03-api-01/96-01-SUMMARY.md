@@ -1,3 +1,10 @@
+---
+phase: 96-oauth-refresh-rate-limit-headers-hard-03-api-01
+plan: 01
+status: complete
+requirements-completed: [HARD-03]
+---
+
 # 96-01-SUMMARY.md
 
 - **`Sigra.OAuth.Strategies.Github`**, **`Apple`**, **`Facebook`**, **`Generic`**: Implemented `refresh/3` that delegates to `Assent.Strategy.OAuth2.refresh_access_token/2` and returns a typed `{:ok, token}` or `{:error, error}`.

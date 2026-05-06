@@ -2,6 +2,7 @@
 phase: 91
 plan: "04"
 status: complete
+requirements-completed: [B2B-01]
 ---
 
 # Plan 91-04 — LiveView org-MFA enforcement

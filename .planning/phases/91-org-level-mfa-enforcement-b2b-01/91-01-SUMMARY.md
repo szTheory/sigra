@@ -2,6 +2,7 @@
 phase: 91
 plan: "01"
 status: complete
+requirements-completed: [B2B-01]
 ---
 
 # Plan 91-01 — MFA policy persistence and orchestration

@@ -1,6 +1,8 @@
 ---
 phase: 94-postgres-only-declaration-hard-01
 plan: 01
+status: complete
+requirements-completed: [HARD-01]
 subsystem: mix-tasks
 tags:
   - installer

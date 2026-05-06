@@ -1,3 +1,10 @@
+---
+phase: 96-oauth-refresh-rate-limit-headers-hard-03-api-01
+plan: 03
+status: complete
+requirements-completed: [API-01]
+---
+
 # 96-03-SUMMARY.md
 
 - **`Sigra.RateLimiter` & `Sigra.RateLimiters.Hammer`**: Enriched the limiter behaviour return shape to return full metadata (`count`, `remaining`, `reset_ms` on allow; `retry_after_ms`, `reset_ms` on deny). Computes `reset_ms` accurately via epoch-alignment to avoid a second Hammer hit.

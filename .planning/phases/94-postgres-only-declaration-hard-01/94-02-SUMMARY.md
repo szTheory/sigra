@@ -1,6 +1,8 @@
 ---
 phase: 94-postgres-only-declaration-hard-01
 plan: 02
+status: complete
+requirements-completed: [HARD-01]
 subsystem: install
 tags:
   - migrations

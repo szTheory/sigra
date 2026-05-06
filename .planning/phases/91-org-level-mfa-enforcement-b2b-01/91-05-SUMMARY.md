@@ -2,6 +2,7 @@
 phase: 91
 plan: "05"
 status: complete
+requirements-completed: [B2B-01]
 ---
 
 # Plan 91-05 — Organization settings MFA UX

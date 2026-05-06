@@ -1,6 +1,27 @@
+---
+phase: 94-postgres-only-declaration-hard-01
+slug: postgres-only-declaration-hard-01
+status: passed
+created: 2026-05-01
+updated: 2026-05-06
+requirement: HARD-01
+score: 3/3 tasks verified
+gaps: []
+deferred: []
+re_verification:
+  audited: 2026-05-06
+  notes: |
+    Original VERIFICATION recorded an environmental caveat about Oban.Worker
+    compile failures in test/sigra/install/golden_diff_test.exs and
+    idempotency_test.exs under Elixir 1.19.5. The v1.21 milestone audit on
+    2026-05-06 confirmed this no longer reproduces:
+    `MIX_ENV=test mix compile --warnings-as-errors` exits 0; golden_diff_test
+    runs 2/2 clean. Caveat is now closed.
+---
+
 # Phase 94 Verification
 
-## Status: VERIFIED (with environmental caveat)
+## Status: VERIFIED
 
 ### Task 1: Align public documentation and metadata
 - `README.md`, `guides/introduction/getting-started.md`, `guides/introduction/installation.md`, and `.planning/PROJECT.md` already explicitly state that PostgreSQL is the only supported adapter and traces of MySQL/SQLite have been removed.
@@ -12,6 +33,6 @@
 
 ### Task 3: Full suite verification gate
 - The core test suite passes.
-- Note: There are compilation failures affecting `test/sigra/install/golden_diff_test.exs` and `test/sigra/install/idempotency_test.exs` related to `Oban.Worker`. This is due to stricter optional dependency compilation rules in Elixir 1.19.5, which is an environmental issue that exists on the pristine `main` branch before any changes were made for Phase 94. It is completely independent of the Postgres-only transition.
+- The original VERIFICATION recorded `Oban.Worker` compile failures in `test/sigra/install/golden_diff_test.exs` and `idempotency_test.exs` as an Elixir 1.19.5 environmental issue. The v1.21 milestone audit on 2026-05-06 confirmed these no longer reproduce: `MIX_ENV=test mix compile --warnings-as-errors` exits 0; `golden_diff_test.exs` runs 2/2 clean.
 
 The phase objective to align the docs/metadata/changelog to PostgreSQL-only support is complete.

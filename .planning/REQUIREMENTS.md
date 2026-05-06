@@ -18,11 +18,11 @@ Requirements for the v1.21 milestone. Each maps to exactly one roadmap phase (91
 - [x] **HARD-01
 **: `mix sigra.install` refuses to run against a non-Postgres adapter with a clear error; all unimplemented MySQL / SQLite migration branches are removed; PROJECT.md / README / mix.exs / getting-started honestly state PostgreSQL as the only supported adapter.
 - [x] **HARD-02**: Each optional dependency (Oban / Bcrypt / EQRCode) raises a clear, actionable error at first use when missing instead of compiling to silent nil; `mix sigra.doctor` reports per-feature dep status; CI matrix toggles each optional dep off and verifies behavior.
-- [ ] **HARD-03**: OAuth token refresh works for GitHub / Apple / Facebook / Generic providers (replacing the `lib/sigra/oauth.ex:174` "not yet implemented" warning) with provider-specific refresh dispatch via Assent and atomic `oauth.token_refreshed` audit rows.
+- [x] **HARD-03**: OAuth token refresh works for GitHub / Apple / Facebook / Generic providers (replacing the `lib/sigra/oauth.ex:174` "not yet implemented" warning) with provider-specific refresh dispatch via Assent and atomic `oauth.token_refreshed` audit rows.
 
 ### API Polish
 
-- [ ] **API-01**: API responses on rate-limited paths carry `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After` headers populated from Hammer state via a dedicated plug wired into the dual-mode auth pipeline in generator templates.
+- [x] **API-01**: API responses on rate-limited paths carry `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After` headers populated from Hammer state via a dedicated plug wired into the dual-mode auth pipeline in generator templates.
 
 ## Future Requirements
 
@@ -86,10 +86,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | B2B-01 | 91 | Complete |
 | B2B-02 | 92 | Complete |
 | B2B-03 | 93 | Complete |
-| HARD-01 | 94 | Pending |
+| HARD-01 | 94 | Complete |
 | HARD-02 | 95 | Complete |
-| HARD-03 | 96 | Pending |
-| API-01 | 96 | Pending |
+| HARD-03 | 96 | Complete |
+| API-01 | 96 | Complete |
 
 **Coverage:**
 - v1.21 requirements: 7 total
@@ -98,4 +98,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-28*
-*Last updated: 2026-05-01 after Phase 92 verification and Phase 93 reconciliation*
+*Last updated: 2026-05-06 after v1.21 milestone audit reconciliation (HARD-01/HARD-03/API-01 marked Complete; all 7 requirements verified — see [v1.21-MILESTONE-AUDIT.md](v1.21-MILESTONE-AUDIT.md))*

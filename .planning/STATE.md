@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.21
-milestone_name: — active
-status: "Phase 93 shipped — PR #37 (v1.21 batch)"
-last_updated: "2026-05-02T18:24:30.095Z"
-last_activity: 2026-05-02
+milestone_name: — pending close (audit reconciled 2026-05-06)
+status: "v1.21 milestone audit passed — all 7 requirements verified; ready for /gsd-complete-milestone"
+last_updated: "2026-05-06T00:00:00.000Z"
+last_activity: 2026-05-06
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 26
   completed_plans: 33
   percent: 100
@@ -23,19 +23,22 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** Phase 93 — m2m-service-account-tokens-b2b-03 verification
+**Current focus:** v1.21 milestone close — `/gsd-complete-milestone v1.21` (audit reconciled, all 7 requirements verified Complete)
 
 ## Current Position
 
-Milestone: **v1.21 B2B-ready & production-honest**
+Milestone: **v1.21 B2B-ready & production-honest** — pending milestone close
 
-Phase: 93 (m2m-service-account-tokens-b2b-03) — PLANS COMPLETE, AWAITING VERIFICATION
+Phases: 91, 92, 93, 94, 95, 96 all VERIFIED. See [v1.21-MILESTONE-AUDIT.md](v1.21-MILESTONE-AUDIT.md).
 
-Plan: 10/10 complete (gap-closure plans 06-10 just executed)
+Status: Audit passed (substantive 7/7); REQUIREMENTS.md / ROADMAP.md / phase verifications reconciled 2026-05-06.
 
-Status: Phase 93 shipped — PR #37 (v1.21 batch)
+Last activity: 2026-05-06 — v1.21 milestone audit + bookkeeping reconciliation (HARD-01/HARD-03/API-01 promoted to Complete; Phase 94 stale env caveat closed; SUMMARY/VERIFICATION frontmatter cleanup across 91/94/96).
 
-Last activity: 2026-05-02 - PR #37 CI Group C — added CLOAK_KEY to 3 example smoke jobs (manual; gsd-sdk broken)
+Open tech debt at milestone close (non-blocking):
+- 2 install-smoke pending todos from 2026-04-30 (JOSE warning, Postgres too_many_connections)
+- DEF-92-02-01 pre-existing audit Multi step-name collision (predates Phase 92)
+- Nyquist coverage thin: 91/92/93 draft VALIDATION.md; 94/96 missing VALIDATION.md (Phase 95 only one with `nyquist_compliant: true`)
 
 ### Quick Tasks Completed
 
@@ -51,10 +54,12 @@ Last activity: 2026-05-02 - PR #37 CI Group C — added CLOAK_KEY to 3 example s
 - Opened v1.21 with B2B trust + production hardening + API polish theme. Webhooks deferred to v1.22.
 - v1.21 phase boundaries fixed at 6 phases (91–96) per the user-approved plan: one phase per REQ-ID except Phase 96 which bundles HARD-03 + API-01 (both narrow surface area on the dual-mode auth plug + OAuth callback).
 - Phase numbering continues from Phase 90; `--reset-phase-numbers` not used.
-- Phase 92 (B2B-02) is complete and verified.
-- Phase 93 (B2B-03) is substantially implemented in the working tree, but the original plan's full closeout contract is not yet met; see `.planning/phases/93-m2m-service-account-tokens-b2b-03/93-VERIFICATION.md`.
-- Phase 94 has local artifacts in the worktree but is not the active source of truth until Phase 93 closeout gaps are resolved or explicitly waived.
-- Phase 95 is complete and verified.
+- Phase 91 (B2B-01) is complete and verified — full library suite green (2214 tests).
+- Phase 92 (B2B-02) is complete and verified — 5/5 must-haves.
+- Phase 93 (B2B-03) is complete and re-verified 2026-05-02 (22/22 after gap-closure commit `bf5a8a8`).
+- Phase 94 (HARD-01) is complete and verified; the original "environmental Oban-test caveat" was confirmed closed in the 2026-05-06 milestone audit.
+- Phase 95 (HARD-02) is complete and verified.
+- Phase 96 (HARD-03 + API-01) is complete and verified — 122 passing tests across OAuth refresh, rate-limit headers, generator wiring, and example-app wire-test.
 - Kept delivery_mode :auto synchronous unless Oban is actually running, while explicit async boundaries enforce :async_email through Sigra.OptionalDeps.
 - Moved the email worker to an always-defined module so missing Oban fails at first queue-backed use instead of via compile-time disappearance.
 - Limited permissive missing-bcrypt behavior to no_user timing equalization; bcrypt hash verification and TOTP QR rendering now raise tagged missing-dependency errors.
@@ -71,9 +76,9 @@ Last activity: 2026-05-02 - PR #37 CI Group C — added CLOAK_KEY to 3 example s
 
 ## Session Continuity
 
-**Next:** Finish the remaining automated proof and generated-host contract gaps for Phase 93, then decide whether to advance to the parked Phase 94 work or explicitly down-scope the Phase 93 plan.
+**Next:** `/gsd-complete-milestone v1.21` to archive v1.21 and start the v1.22 milestone cycle. Audit verdict: tech_debt → reconciled → ready for close. Optional pre-close: `/gsd-validate-phase` for 91/92/93/94/96 to fill Nyquist gaps.
 
-**Artifacts (active):** `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (REQ traceability), `.planning/ROADMAP.md` (Phases 91–96 detailed), `.planning/phases/93-m2m-service-account-tokens-b2b-03/93-01-SUMMARY.md` through `93-05-SUMMARY.md`, and `.planning/phases/93-m2m-service-account-tokens-b2b-03/93-VERIFICATION.md`.
+**Artifacts (active):** `.planning/v1.21-MILESTONE-AUDIT.md` (the close-out audit), `.planning/PROJECT.md` (v1.21 Current Milestone block), `.planning/REQUIREMENTS.md` (REQ traceability — all 7 Complete), `.planning/ROADMAP.md` (Phases 91–96 all [x]), `.planning/phases/9{1,2,3,4,5,6}-*/` VERIFICATION.md (all six phases verified).
 
 ## Accumulated Context
 
@@ -83,4 +88,4 @@ Last activity: 2026-05-02 - PR #37 CI Group C — added CLOAK_KEY to 3 example s
 - 2026-04-30: Fix JOSE JWT warning surfaced by install smoke
 - 2026-04-30: Stabilize generated-host Postgres connection usage in install smoke
 
-**Planned Phase:** 93 (M2M / service-account tokens (B2B-03)) — 10 plans — 2026-05-02T01:45:41.231Z
+**Planned Phase:** none — v1.21 milestone close pending. Run `/gsd-complete-milestone v1.21`.
