@@ -57,7 +57,7 @@ completed: 2026-05-06
 
 ## Task Commits
 
-No plan-specific commit yet. The contract work is verified and ready for selective commit.
+1. **Plan 02 payload-contract work** - `d5dc0cd` (`feat`)
 
 ## Files Created/Modified
 
@@ -99,6 +99,7 @@ PASSED
 - `mix test test/sigra/webhooks_payload_test.exs --no-color`
 - `mix test test/sigra/webhooks_event_catalog_test.exs --no-color`
 - `rg -n "user\\.created|session\\.created|organization_membership|service_account|schema_version|occurred_at" lib/sigra/webhooks test/sigra/webhooks_*`
+- Verified commit `d5dc0cd` in `git log --oneline --max-count=1`
 
 ---
 *Phase: 97-webhook-subscription-registry-signed-dispatcher-contract*
