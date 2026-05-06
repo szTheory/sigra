@@ -616,3 +616,45 @@
 - [v1.20 Milestone Audit](milestones/v1.20-MILESTONE-AUDIT.md)
 
 ---
+
+## v1.21 B2B-ready & production-honest (Shipped: 2026-05-06)
+
+**Scope:** 6 phases (**91–96**), 33 on-disk plan summaries (across 26 PLAN.md files; some phases inline-summarized).
+
+**What shipped:** First milestone after v1.20 public launch. Three legs converged. **Leg 1 — B2B trust** (Phases **91**, **92**, **93**) — `Sigra.Plug.RequireOrgMfa` + `enforce_mfa_for_members` + admin LiveView toggle + atomic `organization.mfa_policy_change` audit row (**B2B-01**); `Sigra.Authz` `can?/3` behaviour + nullable `role` on `OrganizationMembership` + scope-struct `:role` propagation + role-based-access-control recipe (zero opinionated roles in `lib/sigra/`) (**B2B-02**); org-scoped service-account tokens via `client_credentials` grant on existing JWT path + `current_scope.actor_type: :service_account` discriminator + 5 SA-mutation rollback proofs (**B2B-03**, re-verified 22/22 after gap-closure plans 06–10 + critical fixes in commit `bf5a8a8`). **Leg 2 — Production hardening** (Phases **94**, **95**) — `mix sigra.install` refuses non-Postgres adapter at pre-flight + removed MySQL/SQLite placeholder branches + aligned `mix.exs` description / README / getting-started narrative; environmental Oban-test caveat closed in 2026-05-06 audit (**HARD-01**); `Sigra.OptionalDeps` SOT + raise-on-missing for Oban/Bcrypt/EQRCode + `mix sigra.doctor` per-feature dep matrix + 3 dep-off CI lanes (**HARD-02**, only v1.21 phase with `nyquist_compliant: true`). **Leg 3 — OAuth + API polish** (Phase **96**) — per-provider OAuth refresh dispatch for GitHub/Apple/Facebook/Generic via Assent + atomic `oauth.token_refreshed` audit (**HARD-03**); single-pass `Sigra.Plug.RateLimit` emitting `X-RateLimit-Limit/Remaining/Reset` + `Retry-After` from Hammer state, wired into generated host's `:auth_rate_limit` pipeline (**API-01**) — 122 passing tests across 4 evidence sections.
+
+### Key accomplishments
+
+1. **Org-level MFA enforcement** — Atomic policy-change audit + plug + LiveView gate; full library suite green (33 doctests, 3 properties, 2214 tests, 0 failures).
+2. **RBAC seams without opinions** — `Sigra.Authz` ships as behaviour-only; library has zero `:owner / :admin / :member` constants; recipe is the only place those names appear, illustratively.
+3. **M2M service-account tokens** — `client_credentials` grant on existing JWT path; scope-struct `actor_type` discriminator; SA short-circuits user-membership and org-MFA checks; 5/5 mutations co-fated with audit (D-AUD-08).
+4. **Honest Postgres-only narrative** — Aligned the documented adapter support to what CI actually exercises and what migrations actually implement.
+5. **Optional-dep boot validation** — `mix sigra.doctor` reports per-feature status; missing optional deps raise tagged errors at first use instead of compiling to silent `nil`; CI matrix toggles each off.
+6. **OAuth refresh dispatch + rate-limit headers** — Closed the `lib/sigra/oauth.ex:174` "not yet implemented" warning across 4 providers with atomic audit; clients on rate-limited paths get standards-compliant headers for backoff.
+
+### Stats
+
+- **Requirements:** 7/7 requirements satisfied (B2B-01, B2B-02, B2B-03, HARD-01, HARD-02, HARD-03, API-01).
+- **Milestone audit:** **tech_debt → reconciled** ([`milestones/v1.21-MILESTONE-AUDIT.md`](milestones/v1.21-MILESTONE-AUDIT.md)). Substantive 7/7 with passing test evidence; bookkeeping reconciled 2026-05-06.
+- **Timeline:** 2026-04-28 → 2026-05-06 (8 days).
+- **Cross-phase wires verified:** B2B-02 `:actor_type` reservation → B2B-03 `:service_account` population; B2B-02 host-supplied `:roles` → B2B-03 SA short-circuit; HARD-01 Postgres-only → HARD-02 `mix sigra.doctor`; HARD-03 OAuth refresh → API-01 rate-limit headers.
+
+### Known deferred items at close (non-blocking)
+
+- 2 install-smoke pending todos from 2026-04-30: JOSE.JWT.peek_payload/1 undefined warning + transient Postgres `too_many_connections` during install smoke (both surfaced during Phase 94 work).
+- `DEF-92-02-01` — InvitationAcceptLive audit-Multi-step name collision (pre-existing bug from commit `5e6c026`, predates Phase 92; recommended landing point not yet assigned).
+- Nyquist VALIDATION.md gaps — only Phase 95 has `nyquist_compliant: true`; 91/92/93 have draft VALIDATION.md (`nyquist_compliant: false`); 94/96 missing entirely. Optional retroactive fill via `/gsd-validate-phase`.
+
+### Tech debt carried forward
+
+- Webhooks (`WH-01..03`) — deferred to v1.22 as its own design-first milestone (event schema, signed delivery, retry/dead-letter, host UX).
+- Tier-3 polish carried in Future Requirements: Session UX (`SESS-01..03`), Email overrides + i18n + bounce (`EMAIL-01..03`), Passkey multi-authenticator + recovery (`PK-01..03`), DataExport depth (`DATA-01..03`).
+- `sigra_lockspire` glue package per **ADR 001** — still awaiting companion-app trigger.
+
+**Archive:**
+
+- [v1.21 Roadmap](milestones/v1.21-ROADMAP.md)
+- [v1.21 Requirements](milestones/v1.21-REQUIREMENTS.md)
+- [v1.21 Milestone Audit](milestones/v1.21-MILESTONE-AUDIT.md)
+
+---

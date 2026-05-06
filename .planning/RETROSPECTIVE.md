@@ -1,6 +1,53 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.17 section added at milestone close (2026-04-24).*
+*Living document updated at milestone boundaries. v1.21 section added at milestone close (2026-05-06).*
+
+## Milestone: v1.21 — B2B-ready & production-honest
+
+**Shipped:** 2026-05-06
+**Phases:** 6 (91–96) | **Plans (on-disk):** 33 summaries across 26 PLAN.md files | **Timeline:** 2026-04-28 → 2026-05-06 (8 days)
+
+### What was built
+
+- **B2B trust leg** — Phase 91 org-level MFA enforcement (B2B-01) with `Sigra.Plug.RequireOrgMfa` + atomic `organization.mfa_policy_change` audit row; Phase 92 RBAC seams (B2B-02) shipping `Sigra.Authz` behaviour + nullable role on memberships + scope-struct `:role` propagation + role-based-access-control recipe (zero opinionated roles in `lib/sigra/`); Phase 93 M2M service-account tokens (B2B-03) with `client_credentials` grant on existing JWT path + `current_scope.actor_type: :service_account` discriminator + 5 SA-mutation rollback proofs.
+- **Production hardening leg** — Phase 94 Postgres-only declaration (HARD-01) refusing non-Postgres at `mix sigra.install` pre-flight; Phase 95 optional-dep boot validation (HARD-02) via `Sigra.OptionalDeps` SOT + `mix sigra.doctor` + 3 dep-off CI lanes.
+- **OAuth + API polish leg** — Phase 96 OAuth refresh dispatch (HARD-03) for GitHub/Apple/Facebook/Generic via Assent + atomic `oauth.token_refreshed` audit, plus rate-limit headers (API-01) emitting `X-RateLimit-Limit/Remaining/Reset` + `Retry-After` from Hammer state in single-pass plug — 122 passing tests across 4 evidence sections.
+
+### What worked
+
+- **Three legs in parallel** — B2B trust, production hardening, OAuth+API polish each had clean dependency boundaries; only B2B-03 → B2B-02 (`:actor_type` reservation) imposed ordering. Allowed concurrent execution and independent verification.
+- **Milestone audit before close** — Surfaced strict-3-source bookkeeping gaps (Phases 94/96 verifications missing YAML frontmatter; SUMMARYs missing `requirements-completed:`) before they became archaeology debt. Substantive code was already 7/7; the audit/reconcile/close path took ~30 min of mechanical edits.
+- **Phase 95 discipline** — Only v1.21 phase with `nyquist_compliant: true` and full VALIDATION.md. The dep-off CI lanes pattern is reusable for future optional-integration work.
+- **Re-verification cycle on Phase 93** — Initial 5 plans → 5 gaps → gap-closure plans 06–10 → 3 new blockers → critical fixes in commit `bf5a8a8` → final 22/22. Catching the new blockers (Postgrex struct match leak, `nil and x` BadBooleanError) at re-verification rather than after release saved a hot patch.
+
+### What was inefficient
+
+- **`gsd-sdk` binary broken** — Continued from v1.20. Forced manual `milestone.complete` again; SDK CLI returned "Expected gsd-sdk run/auto/init" instead of `query` subcommand. Pre-close audit, milestone archival, and progress queries all done by hand. Same workaround pattern as v1.12–v1.20.
+- **STATE.md drift** — Last STATE.md update was 2026-05-02; it still pointed at "Phase 93 verification" four days after Phase 93 was re-verified clean and Phases 94/95/96 had completed. The 2026-05-06 milestone audit had to reconcile the staleness explicitly. Lesson: STATE.md should be touched at every phase verification, not just at session pause.
+- **Phase 94 "environmental caveat"** — Original 94-VERIFICATION recorded Oban.Worker compile failures as an Elixir 1.19.5 environmental issue and shipped without confirming whether they reproduced after Phase 94's own work landed. The 2026-05-06 audit verified the caveat no longer reproduces — but it sat as ambiguous tech debt for a week. Lesson: env caveats need an explicit "verified still applies on phase close SHA" line before they're allowed in VERIFICATION.
+
+### Patterns established
+
+- **`requirements-completed:` frontmatter on every SUMMARY.md** — promoted from convention to requirement after the milestone audit surfaced 3 phases worth of missing entries.
+- **YAML frontmatter on every VERIFICATION.md** — same. Phase 94/96 had pure-prose VERIFICATIONs that strict 3-source matrix flagged as `unsatisfied` despite having clear passing-test evidence in the body.
+- **Single milestone audit before close, not just at gaps** — even when artifacts look clean, a strict 3-source pass catches frontmatter drift cheaply.
+- **Cross-phase wiring readout in audit** — Skipping the `gsd-integration-checker` subagent and doing a focused readout from existing VERIFICATIONs saved a subagent run; the wires are already documented with code pointers.
+
+### Key lessons
+
+1. **Strict 3-source matrix > prose verification** — A VERIFICATION.md with passing tests but no YAML status is half-finished. Fix this in the discuss-phase template or plan-phase output, not at milestone close.
+2. **Refresh STATE.md at every verification, not at every pause** — staleness compounds and creates false signal at audit time.
+3. **Env caveats need an expiry stamp** — "exists on pristine main" claims should be re-verified at phase close SHA, with the date/SHA recorded, or they become cargo cult.
+4. **Re-verification cycles are good** — finding `Postgrex.Error` struct-match leak and `nil and x` LV bug at re-verification (not after merge) was the correct disposition. Worth keeping the pattern.
+5. **One-shot bookkeeping reconciliation > insert-a-closure-phase** — for milestone-close clean-up work that's purely mechanical (frontmatter cleanup, traceability sync), inline reconciliation in a single commit is faster and clearer than a closure phase chain.
+
+### Cost observations
+
+- Model mix: n/a (not instrumented)
+- Sessions: many (parallel work across 3 legs over 8 days)
+- Notable: 33 plan summaries across 6 phases is the highest plan-density milestone since v1.0 (which had 60 plans across 12 phases). Re-verification on Phase 93 added 5 plans + 2 cycles of fix work; that should be planned for in advance for any milestone that gates on a re-verifiable observable contract.
+
+---
 
 ## Milestone: v1.17 — Forced password change audit atomicity
 

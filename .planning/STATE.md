@@ -1,8 +1,8 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.21
-milestone_name: — pending close (audit reconciled 2026-05-06)
-status: "v1.21 milestone audit passed — all 7 requirements verified; ready for /gsd-complete-milestone"
+milestone_name: — shipped (between milestones)
+status: "v1.21 archived 2026-05-06 — ready for /gsd-new-milestone"
 last_updated: "2026-05-06T00:00:00.000Z"
 last_activity: 2026-05-06
 progress:
@@ -23,13 +23,13 @@ See: `.planning/PROJECT.md`
 
 **North star (milestones):** Prefer work that moves **North Star (milestones)** in `.planning/PROJECT.md` — production trust, integration path, DX.
 
-**Current focus:** v1.21 milestone close — `/gsd-complete-milestone v1.21` (audit reconciled, all 7 requirements verified Complete)
+**Current focus:** Between milestones — `/gsd-new-milestone` to start the next cycle (webhooks `WH-01..03` is the leading deferred-from-v1.21 candidate for v1.22)
 
 ## Current Position
 
-Milestone: **v1.21 B2B-ready & production-honest** — pending milestone close
+Milestone: **v1.21 — SHIPPED 2026-05-06**, archived to `.planning/milestones/v1.21-*`
 
-Phases: 91, 92, 93, 94, 95, 96 all VERIFIED. See [v1.21-MILESTONE-AUDIT.md](v1.21-MILESTONE-AUDIT.md).
+Phases: 91, 92, 93, 94, 95, 96 all VERIFIED. See [milestones/v1.21-MILESTONE-AUDIT.md](milestones/v1.21-MILESTONE-AUDIT.md).
 
 Status: Audit passed (substantive 7/7); REQUIREMENTS.md / ROADMAP.md / phase verifications reconciled 2026-05-06.
 
