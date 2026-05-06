@@ -10,6 +10,19 @@ defmodule Sigra.WebhooksIntegrationTest do
   alias Sigra.Webhooks.Signature
   alias Sigra.Workers.WebhookDelivery
 
+  defmodule MockOban do
+    def insert(%Ecto.Changeset{} = changeset) do
+      job = %{
+        args: Ecto.Changeset.get_change(changeset, :args),
+        queue: Ecto.Changeset.get_change(changeset, :queue)
+      }
+
+      jobs = Process.get(:queued_jobs, [])
+      Process.put(:queued_jobs, jobs ++ [job])
+      {:ok, job}
+    end
+  end
+
   defmodule IntegrationUser do
     use Ecto.Schema
     import Ecto.Changeset
@@ -221,6 +234,8 @@ defmodule Sigra.WebhooksIntegrationTest do
       Application.delete_env(:sigra, :secret_key_base)
       Application.delete_env(:sigra, :webhooks)
       Application.delete_env(:sigra, :webhook_delivery_requester)
+      Application.delete_env(:sigra, :webhook_delivery_oban)
+      Process.delete(:queued_jobs)
     end)
 
     Ecto.Adapters.SQL.query!(repo, ~s|CREATE EXTENSION IF NOT EXISTS "uuid-ossp"|, [])
@@ -609,6 +624,107 @@ defmodule Sigra.WebhooksIntegrationTest do
     assert persisted_attempt.retryable == true
     assert persisted_attempt.retry_after_seconds == 60
     assert persisted_attempt.terminal_reason == nil
+  end
+
+  test "retryable receiver failures keep the auth mutation committed and persist attempt history", %{
+    repo: repo
+  } do
+    Application.put_env(:sigra, :webhook_delivery_oban, MockOban)
+    Process.put(:queued_jobs, [])
+
+    {:ok, _subscription} =
+      Webhooks.create_subscription(config(repo), %{
+        endpoint_url: "https://retry.example.test/hooks",
+        event_types: ["user.created"],
+        signing_secret: String.duplicate("r", 32)
+      })
+
+    {:ok, user} =
+      Auth.register(
+        config(repo),
+        %{"email" => "retry-path@example.com", "hashed_password" => "hash"},
+        register_opts(request_id: "req_phase98_retry")
+      )
+
+    delivery = repo.one!(from(delivery in WebhookDeliveryRow, select: delivery))
+
+    Application.put_env(:sigra, :webhook_delivery_requester, fn _request ->
+      {:ok, %{status: 429, headers: [{"Retry-After", "120"}]}}
+    end)
+
+    assert {:ok, :retry_scheduled} =
+             WebhookDelivery.perform(%Oban.Job{args: %{"delivery_id" => delivery.delivery_id}})
+
+    persisted =
+      repo.one!(
+        from(delivery in WebhookDeliveryRow,
+          where: delivery.delivery_id == ^delivery.delivery_id,
+          preload: [:attempts]
+        )
+      )
+
+    assert user.email == "retry-path@example.com"
+    assert persisted.status == "retry_scheduled"
+    assert persisted.attempt_count == 1
+    assert persisted.last_http_status == 429
+    assert persisted.last_error_category == "http_backpressure"
+    assert %DateTime{} = persisted.next_attempt_at
+    assert [attempt] = persisted.attempts
+    assert attempt.delivery_id == delivery.delivery_id
+    assert attempt.retryable == true
+    assert attempt.retry_after_seconds == 120
+    assert [%{args: %{"delivery_id" => same_delivery_id}, queue: "sigra_webhooks"}] =
+             Process.get(:queued_jobs)
+    assert same_delivery_id == delivery.delivery_id
+  end
+
+  test "permanent receiver failures dead-letter the delivery in place without breaking auth commits", %{
+    repo: repo
+  } do
+    Application.put_env(:sigra, :webhook_delivery_oban, MockOban)
+    Process.put(:queued_jobs, [])
+
+    {:ok, _subscription} =
+      Webhooks.create_subscription(config(repo), %{
+        endpoint_url: "https://dead-letter.example.test/hooks",
+        event_types: ["user.created"],
+        signing_secret: String.duplicate("d", 32)
+      })
+
+    {:ok, user} =
+      Auth.register(
+        config(repo),
+        %{"email" => "dead-letter@example.com", "hashed_password" => "hash"},
+        register_opts(request_id: "req_phase98_dead_letter")
+      )
+
+    delivery = repo.one!(from(delivery in WebhookDeliveryRow, select: delivery))
+
+    Application.put_env(:sigra, :webhook_delivery_requester, fn _request ->
+      {:ok, %{status: 404}}
+    end)
+
+    assert {:ok, :dead_lettered} =
+             WebhookDelivery.perform(%Oban.Job{args: %{"delivery_id" => delivery.delivery_id}})
+
+    persisted =
+      repo.one!(
+        from(delivery in WebhookDeliveryRow,
+          where: delivery.delivery_id == ^delivery.delivery_id,
+          preload: [:attempts]
+        )
+      )
+
+    assert user.email == "dead-letter@example.com"
+    assert persisted.status == "dead_lettered"
+    assert persisted.attempt_count == 1
+    assert %DateTime{} = persisted.dead_lettered_at
+    assert persisted.terminal_reason == "http_4xx_permanent"
+    assert [attempt] = persisted.attempts
+    assert attempt.retryable == false
+    assert attempt.response_status == 404
+    assert attempt.terminal_reason == "http_4xx_permanent"
+    assert [] = Process.get(:queued_jobs)
   end
 
   defp config(repo) do
