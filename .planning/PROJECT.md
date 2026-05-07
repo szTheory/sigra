@@ -18,20 +18,33 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-## Current Milestone: v1.22 Webhooks / outbound event pipeline
+**GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops.
 
-**Goal:** Make Sigra a reliable producer of outbound auth and identity events so host apps and downstream systems can react to security-relevant changes without polling or library forking.
+## Latest Shipped Milestone: v1.22 Webhooks / outbound event pipeline
+
+**Shipped:** 2026-05-06
+
+Sigra now ships a full outbound webhook surface for Sigra-owned auth and identity events: durable subscription registry, stable signed payload contract, bounded retries and dead-letter handling, generated admin UX, production worker handoff, operator-truth query fixes, and a real generated-host proof path with correlated receiver/admin evidence.
+
+Archives:
+- [`.planning/milestones/v1.22-ROADMAP.md`](milestones/v1.22-ROADMAP.md)
+- [`.planning/milestones/v1.22-REQUIREMENTS.md`](milestones/v1.22-REQUIREMENTS.md)
+- [`.planning/milestones/v1.22-MILESTONE-AUDIT.md`](milestones/v1.22-MILESTONE-AUDIT.md)
+
+## Current Milestone: v1.23 Webhook operator trust & controls
+
+**Goal:** Turn the shipped outbound webhook pipeline into a production-trustworthy integration surface by making secret rollover safe, failed delivery recovery operator-driven, and outbound network policy enforceable.
 
 **Target features:**
-- Outbound webhook subscription registry and event schema with signed delivery for Sigra-owned auth events
-- Reliable delivery pipeline with per-subscription filtering, retry policy, and dead-letter handling
-- Generated admin LiveView and host-owned configuration surface to manage subscriptions and inspect delivery history
+- Overlap-safe webhook secret rotation with replay-safe rollover and no delivery-loss window
+- Manual replay of failed or dead-lettered deliveries from admin UX or CLI with durable history and auditability
+- Enforceable webhook egress controls plus generated guidance for allowlisting and deployment-specific network boundaries
 
-**Why now:** This is the most direct follow-on to v1.21's B2B and service-account work. Sigra already owns the auth events; v1.22 makes those events usable by real production systems and strengthens the integration story for adopters who need automation beyond the auth boundary.
-
-v1.22 continues phase numbering from **96** and uses three focused phases (**97–99**) mapped to `WH-01..03`.
+**Why now:** v1.22 proved the outbound event pipeline end to end; the next highest-leverage move is to close the operational trust gaps that still block serious adoption. This milestone pushes all three north-star outcomes at once: production trust, clear integration boundaries, and fewer rough edges when an operator has to rotate keys or recover from receiver failure.
 
 ### Previously closed milestones
+
+**v1.22 — Webhooks / outbound event pipeline** — **Phases 97–102** (shipped **2026-05-06**). Phase **97** established the public event catalog, durable subscription registry, stable payload envelope, and signing contract. Phase **98** made delivery reliable with persisted attempts, bounded retries, and dead-letter state. Phase **99** turned that capability into a usable adopter feature through generated admin LiveViews, routing, and host guidance. Gap-closure Phase **100** restored the production enqueue handoff from persisted delivery rows into the async worker path, Phase **101** made retrying/dead-lettered operator views truthful, and Phase **102** proved the generated-host flow end to end while reconciling `ROADMAP.md`, `REQUIREMENTS.md`, `STATE.md`, and verification artifacts. Archives: [`.planning/milestones/v1.22-ROADMAP.md`](milestones/v1.22-ROADMAP.md), [`v1.22-REQUIREMENTS.md`](milestones/v1.22-REQUIREMENTS.md), [`v1.22-MILESTONE-AUDIT.md`](milestones/v1.22-MILESTONE-AUDIT.md).
 
 **v1.21 — B2B-ready & production-honest** — **Phases 91–96** (shipped **2026-05-06**). Three legs converged: **B2B trust** — Phase **91** org-level MFA enforcement (**B2B-01**) with `Sigra.Plug.RequireOrgMfa` + atomic `organization.mfa_policy_change` audit row, Phase **92** RBAC seams (**B2B-02**) shipping `Sigra.Authz` behaviour + nullable `role` on memberships + scope-struct `:role` propagation + role-based-access-control recipe (zero opinionated roles), Phase **93** M2M / service-account tokens (**B2B-03**) with `client_credentials` grant on existing JWT path + `current_scope.actor_type: :service_account` discriminator + 5 SA-mutation rollback proofs (re-verified 22/22 after gap-closure plans 06–10 + critical fixes in commit `bf5a8a8`). **Production hardening** — Phase **94** Postgres-only declaration (**HARD-01**) refusing non-Postgres at `mix sigra.install` pre-flight + removed MySQL/SQLite placeholder branches + aligned `mix.exs` description / README / getting-started (env Oban-test caveat closed 2026-05-06), Phase **95** optional-dep boot validation (**HARD-02**) via `Sigra.OptionalDeps` SOT + raise-on-missing for Oban/Bcrypt/EQRCode + `mix sigra.doctor` per-feature dep matrix + 3 dep-off CI lanes (only v1.21 phase with `nyquist_compliant: true`). **OAuth + API polish** — Phase **96** OAuth refresh dispatch (**HARD-03**) for GitHub/Apple/Facebook/Generic via Assent + atomic `oauth.token_refreshed` audit + rate-limit headers (**API-01**) emitting `X-RateLimit-Limit/Remaining/Reset` + `Retry-After` from Hammer state in single-pass plug (122 passing tests across 4 evidence sections). Audit: tech_debt → reconciled (substantive 7/7; bookkeeping reconciled 2026-05-06). Open at close (non-blocking): 2 install-smoke todos from 2026-04-30, `DEF-92-02-01` pre-existing audit Multi step-name collision (predates Phase 92), Nyquist VALIDATION.md gaps for 91/92/93/94/96. Archives: [`.planning/milestones/v1.21-ROADMAP.md`](milestones/v1.21-ROADMAP.md), [`v1.21-REQUIREMENTS.md`](milestones/v1.21-REQUIREMENTS.md), [`v1.21-MILESTONE-AUDIT.md`](milestones/v1.21-MILESTONE-AUDIT.md).
 
@@ -65,7 +78,9 @@ v1.22 continues phase numbering from **96** and uses three focused phases (**97�
 
 ## Current State
 
-**v1.22 (started 2026-05-06):** Phases **97–99** — webhooks / outbound event pipeline. Phase **97** defines the event contract, subscription registry, signed payload shape, and Sigra-owned dispatcher seam. Phase **98** makes delivery reliable with filtering, retries, and dead-letter handling. Phase **99** turns the system into a usable adopter feature via generated admin LiveViews, host configuration UX, and delivery-history inspection. This milestone is intentionally library-first and generator-aware: Sigra should produce events reliably without forcing adopters to reverse-engineer internal auth flows.
+**v1.23 (started 2026-05-07):** The active milestone continues the webhook line with a tighter operator and network-trust focus: safe signing-secret rollover, replaying failed deliveries without losing history, and outbound endpoint controls that adopters can enforce without forking Sigra internals.
+
+**v1.22 (shipped 2026-05-06):** Phases **97–102** delivered the outbound event pipeline: signed event contract, durable subscription registry, bounded retries, dead-letter state, generated admin UX, production enqueue repair, operator-truth queries, and generated-host proof.
 
 **v1.21 (shipped 2026-05-06):** Phases **91–96** — B2B trust + production hardening + API polish. Org-level MFA enforcement (**B2B-01**, Phase 91), RBAC seams (**B2B-02**, Phase 92), M2M service-account tokens (**B2B-03**, Phase 93, re-verified 22/22), Postgres-only declaration (**HARD-01**, Phase 94), optional-dep boot validation + `mix sigra.doctor` (**HARD-02**, Phase 95), OAuth refresh + rate-limit headers (**HARD-03 + API-01**, Phase 96). Audit: tech_debt → reconciled. Phase numbering continues from **Phase 96**. Archives: [`.planning/milestones/v1.21-ROADMAP.md`](milestones/v1.21-ROADMAP.md), [`v1.21-REQUIREMENTS.md`](milestones/v1.21-REQUIREMENTS.md), [`v1.21-MILESTONE-AUDIT.md`](milestones/v1.21-MILESTONE-AUDIT.md).
 
@@ -111,18 +126,18 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**v1.22 is active** (started **2026-05-06**) and focuses on **webhooks / outbound event pipeline**:
-- **WH-01**: outbound webhook subscription registry + dispatcher with signed payload delivery for Sigra-owned auth and identity events
-- **WH-02**: per-subscription event filtering, retry policy, dead-letter handling, and durable delivery history
-- **WH-03**: generated admin LiveView + host configuration UX to manage subscriptions and inspect delivery attempts
+**Active next milestone:** **v1.23 Webhook operator trust & controls**
 
-**Design intent:** email is for notifying humans; webhooks are for notifying systems. The milestone is about making Sigra a reliable source of identity events for host apps, ops systems, and downstream automation.
+**Selected scope:**
+- **WH-04** — overlap-safe signing-secret rotation with replay-safe rollover
+- **WH-05** — operator replay of failed or dead-lettered deliveries
+- **WH-06** — enforceable outbound endpoint policy plus allowlisting and deployment-boundary guidance
 
-**Later candidates (post–v1.22):**
-- Session UX completeness, email template overrides + i18n + bounce handling, passkey multi-authenticator + recovery, DataExport depth — Tier 3 polish, schedule when adopter demand surfaces.
-- Install-smoke stability follow-up — close the JOSE warning and transient Postgres `too_many_connections` noise if they become adoption friction or CI risk.
-- **`sigra_lockspire`** glue package per **ADR 001** — only after a real companion-app trigger fires.
-- Any newly identified validation / assurance work uses newly numbered phases (no **999.x** reuse).
+**Deferred after v1.23:**
+- Tier-3 polish from future requirements: session UX completeness, email overrides + i18n + bounce handling, passkey multi-authenticator + recovery, or DataExport depth.
+- `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
+- Release-cut mechanics after the milestone closes honestly; the feature-line priority is hardening the webhook surface first.
+- Any newly identified validation or assurance work should use newly numbered phases; do not reuse **999.x**.
 
 **Backlog / hygiene:** **`999.1`** / **999.x** remain archaeology only; see **`.planning/ROADMAP.md`** and **`999.1-*`** tombstone files. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** / **`*-VALIDATION.md`** over conflicting **`STATE.md`** notes.
 
@@ -154,13 +169,19 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.22 Webhooks / outbound event pipeline
+### Active — v1.23 Webhook operator trust & controls
 
-_See **`.planning/REQUIREMENTS.md`** for the full v1.22 REQ-ID list (`WH-01..03`). Three phases: contract + registry, reliable delivery, admin UX._
+- [ ] **WH-04** — Secret rotation supports overlap windows and replay-safe rollover without delivery loss.
+- [ ] **WH-05** — Maintainer or admin can manually replay a failed delivery from UI or CLI.
+- [ ] **WH-06** — Adopter can constrain webhook egress with endpoint policy, IP allowlisting guidance, or tenant-specific controls.
 
-- [ ] **WH-01** — Host app can register outbound webhook subscriptions for Sigra-owned auth and identity events, and Sigra emits signed payloads with stable event IDs and an explicit event schema.
-- [ ] **WH-02** — Each subscription can filter event types, failed deliveries retry automatically with bounded policy, and exhausted deliveries land in a dead-letter state with durable attempt history.
-- [ ] **WH-03** — Generated admin LiveView lets adopters create, enable/disable, rotate, and inspect webhook subscriptions and delivery history without hand-editing Sigra internals.
+### Validated — v1.22 Webhooks / outbound event pipeline (shipped 2026-05-06)
+
+_See [`.planning/milestones/v1.22-REQUIREMENTS.md`](milestones/v1.22-REQUIREMENTS.md) for the archived requirement contract and outcomes._
+
+- ✓ **WH-01** — Host app can register outbound webhook subscriptions for Sigra-owned auth and identity events, and Sigra emits signed payloads with stable event IDs, timestamps, and a documented verification contract.
+- ✓ **WH-02** — Each subscription can filter event types, failed deliveries retry automatically with bounded policy, and exhausted deliveries land in a dead-letter state with durable attempt history.
+- ✓ **WH-03** — Generated admin LiveView lets adopters create, enable/disable, rotate, and inspect webhook subscriptions and delivery history without hand-editing Sigra internals.
 
 ### Validated — v1.20 GA Launch (shipped 2026-04-28)
 
@@ -518,4 +539,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-04-28 — `/gsd-new-milestone` opened **v1.21 B2B-ready & production-honest**. Six phases (91-96) covering B2B trust (org MFA, RBAC seams, M2M tokens), production hardening (Postgres-only declaration, optional-dep validation, OAuth refresh), and API polish (rate-limit headers). Webhooks deferred to v1.22.*
+*Last updated: 2026-05-07 — opened `v1.23` for webhook operator trust, replay, and egress-control follow-ons after the `v1.22` outbound pipeline ship.*

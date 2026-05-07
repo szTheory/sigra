@@ -1,31 +1,17 @@
-# Requirements: Sigra v1.22
+# Requirements: Sigra
 
-**Defined:** 2026-05-06
-**Core Value:** Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence.
+**Defined:** 2026-05-07
+**Core Value:** Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
 
-**Milestone framing:** **Webhooks / outbound event pipeline** — turn Sigra into a reliable producer of auth and identity events for host apps and downstream systems. This milestone is about outbound machine-to-machine integration, not email UX. Research was performed because this is a new capability surface for the library.
+## v1 Requirements
 
-## v1.22 Requirements
+### Webhook operator trust
 
-### Webhook delivery core
+- [ ] **WH-04**: Adopter can rotate a webhook signing secret with an overlap window, complete the cutover without delivery loss, and retire the old secret without reopening replay risk.
+- [ ] **WH-05**: Maintainer or admin can manually replay a failed or dead-lettered delivery from supported control surfaces while preserving truthful delivery history.
+- [ ] **WH-06**: Adopter can enforce outbound webhook endpoint policy, including allowlisting guidance and deployment-specific controls, without forking Sigra internals.
 
-- [ ] **WH-01**: Host app can configure outbound webhook subscriptions for Sigra-owned auth and identity events, and Sigra emits a stable signed payload for each delivery with a unique delivery ID, event type, timestamp, and event body suitable for verification by the receiver.
-
-### Delivery reliability
-
-- [ ] **WH-02**: Each webhook subscription can limit which event types it receives, failed deliveries retry with a documented bounded policy, and permanently failed deliveries are retained in a dead-letter state with per-attempt history instead of disappearing silently.
-
-### Admin and host UX
-
-- [ ] **WH-03**: Generated admin LiveView lets adopters create, enable or disable, rotate, and inspect webhook subscriptions and delivery history, and the generated host gets the minimum wiring needed to expose the feature without reverse-engineering Sigra internals.
-
-## Future Requirements
-
-### Webhooks follow-ons
-
-- **WH-04**: Secret rotation supports overlap windows and replay-safe rollover without delivery loss.
-- **WH-05**: Maintainer or admin can manually replay a failed delivery from UI or CLI.
-- **WH-06**: Adopter can constrain webhook egress with endpoint policy, IP allowlisting guidance, or tenant-specific controls.
+## v2 Requirements
 
 ### Session UX completeness
 
@@ -37,43 +23,46 @@
 
 - **EMAIL-01**: Pluggable template module chain enabling host overrides without forking.
 - **EMAIL-02**: i18n skeleton for auth emails.
-- **EMAIL-03**: Bounce / complaint event stubs + production deliverability recipe.
+- **EMAIL-03**: Bounce / complaint event stubs plus production deliverability recipe.
 
 ### Passkey polish
 
 - **PK-01**: Multi-authenticator management UI (list / rename / remove).
 - **PK-02**: Passkey-only recovery flow (no password fallback).
-- **PK-03**: Cross-device sync guidance + UX.
+- **PK-03**: Cross-device sync guidance plus UX.
 
 ### Data export depth
 
 - **DATA-01**: Audit-log export included in `Sigra.DataExport`.
 - **DATA-02**: Anonymize-in-place mode for right-to-be-forgotten cascade.
-- **DATA-03**: Export-format attestation + compliance recipe.
+- **DATA-03**: Export-format attestation plus compliance recipe.
+
+### Release follow-up
+
+- **REL-01**: Cut the next Sigra release after the webhook operator-trust milestone closes with reconciled changelog, roadmap, and evidence.
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Inbound provider webhooks (for example Stripe or GitHub receivers) | v1.22 is about Sigra emitting auth events, not becoming a general inbound webhook consumer. |
-| Public, non-admin webhook self-service UI | Keep management in the generated admin surface to preserve a clear trust boundary. |
-| Outsourcing delivery to a third-party webhook SaaS by default | Sigra should ship a native first-party event pipeline before adding hosted-provider seams. |
-| Folding the two install-smoke todos into this milestone | Useful hardening work, but not core to the outbound-event capability and would dilute the milestone focus. |
-| Built-in downstream business automations | Sigra should emit trustworthy events; what adopters do with them remains host-owned. |
+| Inbound provider webhooks | The current milestone continues Sigra's outbound event surface; becoming a general inbound webhook consumer is a separate product line. |
+| Arbitrary event transformation or scripting before delivery | Adds a second automation platform before the core trust and control seams are hardened. |
+| Custom retry-policy tuning per subscription | Useful later, but not the highest-leverage blocker compared with safe rotation, replay, and network-boundary controls. |
+| Tier-3 UX polish outside webhooks | Session, email, passkey, and data-export follow-ons remain lower-priority than closing webhook adoption blockers. |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WH-01 | 97 | Pending |
-| WH-02 | 98 | Pending |
-| WH-03 | 99 | Pending |
+| WH-04 | Phase 103 | Pending |
+| WH-05 | Phase 104 | Pending |
+| WH-06 | Phase 105 | Pending |
 
 **Coverage:**
-- v1.22 requirements: 3 total
+- v1 requirements: 3 total
 - Mapped to phases: 3
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-05-06*
-*Last updated: 2026-05-06 after milestone v1.22 initialization*
+*Requirements defined: 2026-05-07*
+*Last updated: 2026-05-07 after opening milestone v1.23*
