@@ -773,6 +773,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       otp_app: :my_app,
       web_module: "MyAppWeb",
       app_module: "MyApp",
+      context_module: "MyApp.Accounts",
       opts: []
     ]
 
@@ -780,15 +781,17 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       injections = Organizations.injections(@injections_binding)
 
       assert is_list(injections)
-      assert length(injections) == 4
 
       Enum.each(injections, fn injection ->
         assert %Sigra.Install.Injection{} = injection
       end)
 
       targets = Enum.map(injections, & &1.target)
-      assert Enum.count(targets, &String.ends_with?(&1, "layouts.ex")) == 3
-      assert Enum.any?(targets, &String.ends_with?(&1, "router.ex"))
+      assert Enum.frequencies(targets) == %{
+               Path.join(["lib", "my_app_web", "components", "layouts.ex"]) => 3,
+               Path.join(["lib", "my_app_web", "router.ex"]) => 1
+             }
+
       refute Enum.any?(targets, &String.ends_with?(&1, "user_auth.ex"))
     end
 
@@ -803,6 +806,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert router_injection.content =~ ~s|post "/organizations/switch"|
       assert router_injection.content =~ ~s|scope "/organizations/:org"|
       assert router_injection.content =~ "Sigra.Plug.LoadOrganizationFromSlug"
+      assert router_injection.content =~ "organizations: MyApp.Organizations"
+      assert router_injection.content =~ "scope_module: MyApp.Accounts.Scope"
+      assert router_injection.content =~ "Sigra.LiveView.OrganizationScope"
     end
   end
 

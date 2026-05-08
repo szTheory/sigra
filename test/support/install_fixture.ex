@@ -170,7 +170,7 @@ defmodule Sigra.Test.InstallFixture do
         ["-c", "echo n | mix deps.get"],
         cd: app_dir,
         stderr_to_stdout: true,
-        env: subprocess_env([])
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if status != 0 do
@@ -255,7 +255,7 @@ defmodule Sigra.Test.InstallFixture do
       System.cmd("mix", args,
         cd: app_dir,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if status != 0 do

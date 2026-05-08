@@ -33,6 +33,7 @@ export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export MIX_ENV="${MIX_ENV:-dev}"
+export APP_MODULE
 # test-only: deterministic Cloak key for the ephemeral smoke DB; NEVER
 # reuse in any non-test environment. The default value only takes effect
 # when CLOAK_KEY is unset, so CI / local runs can override.
@@ -73,6 +74,59 @@ cleanup() {
 }
 
 trap cleanup EXIT
+
+patch_generated_sigra_runtime_config() {
+  local config_file="config/config.exs"
+  local patch_script
+
+  if grep -q "webhook_subscription_schema: ${APP_MODULE}.Accounts.WebhookSubscription" "${config_file}"; then
+    echo "==> admin-acceptance: generated host sigra_config.webhooks already present"
+    return 0
+  fi
+
+  patch_script="$(mktemp)"
+  cat > "${patch_script}" <<EOF
+path = hd(System.argv())
+content = File.read!(path)
+
+audit_block = """
+  audit: [
+    audit_schema: ${APP_MODULE}.Accounts.AuditEvent
+  ],
+"""
+
+webhooks_block = """
+  webhooks: [
+    enabled: true,
+    webhook_subscription_schema: ${APP_MODULE}.Accounts.WebhookSubscription,
+    webhook_event_schema: ${APP_MODULE}.Accounts.WebhookEvent,
+    webhook_delivery_schema: ${APP_MODULE}.Accounts.WebhookDelivery,
+    webhook_delivery_attempt_schema: ${APP_MODULE}.Accounts.WebhookDeliveryAttempt,
+    endpoint_policy: &${APP_MODULE}.Accounts.webhook_endpoint_policy/1,
+    oban_queue: "sigra_webhooks",
+    oban_concurrency: 10,
+    signature_tolerance: 300
+  ],
+"""
+
+new_content =
+  if String.contains?(content, "webhook_subscription_schema: ${APP_MODULE}.Accounts.WebhookSubscription") do
+    content
+  else
+    String.replace(content, audit_block, audit_block <> webhooks_block, global: false)
+  end
+
+if new_content == content do
+  IO.puts("==> admin-acceptance: generated host sigra_config.webhooks already included")
+else
+  File.write!(path, new_content)
+  IO.puts("==> admin-acceptance: patched generated host sigra_config.webhooks")
+end
+EOF
+
+  elixir "${patch_script}" "${config_file}"
+  rm -f "${patch_script}"
+}
 
 echo "==> admin-acceptance: using Sigra repo at ${SIGRA_REPO}"
 echo "==> admin-acceptance: generating fresh Phoenix app at ${TMP_APP_DIR}"
@@ -149,6 +203,9 @@ defmodule SigraAdminSmoke.SigraAdminPolicy do
   def admin_org_ids(_scope), do: []
 end
 EOF
+
+echo "==> admin-acceptance: patching generated sigra_config webhooks runtime block"
+patch_generated_sigra_runtime_config
 
 echo "==> admin-acceptance: compiling generated host"
 mix compile --warnings-as-errors
