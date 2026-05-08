@@ -316,12 +316,12 @@ cd test/example/priv/playwright && \
 
 All claims in this research were verified or cited in this session — no user confirmation needed. [VERIFIED: codebase grep]
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should the live v1.23 audit be edited in-place or only annotated as superseded for the `WH-05` portion?**
-   - What we know: Phase 102 previously converted a live audit into a superseded historical gap record once closeout truth landed, and Phase 106 explicitly allows wording discretion for the current audit note. [VERIFIED: codebase grep]
-   - What's unclear: Whether the planner should choose a partial supersession note for the `WH-05` section only or a broader audit refresh after both Phases 106 and 107 close. [VERIFIED: codebase grep]
-   - Recommendation: Plan a minimal in-place clarification that `WH-05` is now authoritatively verified while `WH-06` remains unsatisfied, and avoid a full audit rewrite in Phase 106. [VERIFIED: codebase grep]
+   - Resolution: edit `.planning/v1.23-MILESTONE-AUDIT.md` in place for the `WH-05` closeout only, clearing the `104-VERIFICATION.md` blocker and updating the relevant requirement/artifact rows while preserving the open `WH-06` findings. [VERIFIED: codebase grep]
+   - Why this is the right call: Phase 102 used full supersession only after the active gap set was actually closed, whereas Phase 106 explicitly leaves `WH-06` unresolved and only allows bounded wording discretion for the current audit note. [VERIFIED: codebase grep]
+   - Planning consequence: Phase 106 should not mark the whole audit superseded or milestone-complete; it should leave the `WH-06` operator-truth gap and next-step guidance intact. [VERIFIED: codebase grep]
 
 ## Environment Availability
 

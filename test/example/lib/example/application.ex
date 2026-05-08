@@ -11,6 +11,7 @@ defmodule Example.Application do
       {Example.Vault, []},
       ExampleWeb.Telemetry,
       Example.Repo,
+      oban_child_spec(),
       {DNSCluster, query: Application.get_env(:example, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Example.PubSub},
       # Start a worker by calling: Example.Worker.start_link(arg)
@@ -18,6 +19,7 @@ defmodule Example.Application do
       # Start to serve requests, typically the last entry
       ExampleWeb.Endpoint
     ]
+    |> Enum.reject(&is_nil/1)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -31,5 +33,12 @@ defmodule Example.Application do
   def config_change(changed, _new, removed) do
     ExampleWeb.Endpoint.config_change(changed, removed)
     :ok
+  end
+
+  defp oban_child_spec do
+    case Application.get_env(:example, Oban) do
+      nil -> nil
+      config -> {Oban, config}
+    end
   end
 end

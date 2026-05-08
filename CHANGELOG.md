@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Planning milestones vs Hex releases
 
-This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.2.0]`** for **published Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.0–v1.4** in **`.planning/MILESTONES.md`** — those **v1.x** labels describe shipped *tranches* of work, **not** a second installable version axis on Hex (this repo remains **0.x** on Hex until a real **1.0.0**). Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When in doubt, treat **`MILESTONES.md`** as canonical for dates and archive paths.
+This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[1.20.0]`** for **published Hex releases**. Separately, maintainers track planning milestones in **`.planning/`** for scope, sequencing, and verification. Those milestone labels describe shipped tranches of work, not a second installable version axis on Hex. Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When release automation and planning disagree, treat **`mix.exs`**, **`.release-please-manifest.json`**, and the published Hex version as canonical for package version truth.
 
 ## [Unreleased]
 
@@ -386,6 +386,6 @@ Planning milestone **v1.2** (admin dashboard tranche; **not** a Hex version): sh
   for zero-downtime deploy on production audit tables. On SQLite/MySQL, a
   plain `change/0` migration emits the same shape non-concurrently.
 
-[Unreleased]: https://github.com/sztheory/sigra/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/sztheory/sigra/compare/v1.20.0...HEAD
 [0.2.0]: https://github.com/sztheory/sigra/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/sztheory/sigra/releases/tag/v0.1.0

@@ -21,7 +21,7 @@ defmodule Sigra.Auth do
   """
 
   alias Ecto.Multi
-  alias Sigra.{Audit, Crypto, Email, Telemetry, Token}
+  alias Sigra.{Audit, Crypto, Email, Telemetry, Token, Webhooks}
 
   # Email regex used by both valid_email?/1 and the registration changeset.
   # Matches a non-whitespace local part, an @, a non-whitespace domain, a dot,
@@ -141,9 +141,15 @@ defmodule Sigra.Auth do
   On success, metadata includes `%{user_id: id}`.
   """
   @doc since: "0.2.0"
-  @spec register(module(), map(), keyword()) ::
+  @spec register(module() | Sigra.Config.t(), map(), keyword()) ::
           {:ok, struct()} | {:error, Ecto.Changeset.t()} | {:error, :email_taken}
-  def register(repo, attrs, opts \\ []) do
+  def register(repo_or_config, attrs, opts \\ [])
+
+  def register(%Sigra.Config{} = config, attrs, opts) do
+    register(config.repo, attrs, Keyword.put(opts, :config, config))
+  end
+
+  def register(repo, attrs, opts) do
     Telemetry.span([:sigra, :auth, :register], %{}, fn ->
       # D-26: audit integration. When `:audit_schema` is present in opts,
       # `auth.register.success` is appended to `register_user_multi/2` via
@@ -190,6 +196,12 @@ defmodule Sigra.Auth do
 
             {:error, changeset}
           end
+
+        {:error, _step, %Ecto.Changeset{} = changeset, _changes} ->
+          {:error, changeset}
+
+        {:error, _step, reason, _changes} ->
+          {:error, reason}
       end
     end)
   end
@@ -228,6 +240,7 @@ defmodule Sigra.Auth do
     multi =
       Ecto.Multi.new()
       |> Ecto.Multi.insert(:user, changeset_fn.(attrs))
+      |> maybe_append_user_created_webhook(opts)
 
     case Keyword.get(audit_opts, :audit_schema) do
       nil ->
@@ -243,6 +256,28 @@ defmodule Sigra.Auth do
             metadata: %{method: "password"}
           )
         )
+    end
+  end
+
+  defp maybe_append_user_created_webhook(multi, opts) do
+    case Keyword.get(opts, :config) do
+      %Sigra.Config{} = config ->
+        Webhooks.append_dispatch_multi(
+          multi,
+          config,
+          "user.created",
+          {:changes_key, :user},
+          step_id: :auth_register_user_created,
+          context: fn %{user: user} ->
+            Webhooks.context(nil,
+              actor: %{type: "user", id: user.id},
+              request_id: Keyword.get(opts, :request_id)
+            )
+          end
+        )
+
+      _other ->
+        multi
     end
   end
 
@@ -1427,22 +1462,28 @@ defmodule Sigra.Auth do
 
     # D-26: session.delete audit row (standalone, D-28).
     # actor_id is resolved from the opts :user_id if provided; otherwise nil.
-    audit_opts = audit_opts_from_config(config)
+    audit_opts =
+      audit_opts_from_config(config,
+        ip_address: Keyword.get(opts, :ip_address) || Keyword.get(opts, :ip),
+        user_agent: Keyword.get(opts, :user_agent)
+      )
 
     user_id = Keyword.get(opts, :user_id)
     actor_id = Keyword.get(opts, :actor_id, user_id)
     target_id = Keyword.get(opts, :target_id, user_id)
     effective_user_id = Keyword.get(opts, :effective_user_id, user_id)
     scope = audit_scope_from_opts(config, opts, effective_user_id)
+    audit_action = Keyword.get(opts, :audit_action, "session.delete")
+    audit_metadata = Keyword.get(opts, :audit_metadata, %{})
 
     Sigra.Audit.log_safe(
-      "session.delete",
+      audit_action,
       scope,
       Keyword.merge(audit_opts,
         actor_id: actor_id,
         target_id: target_id,
         effective_user_id: effective_user_id,
-        metadata: %{}
+        metadata: audit_metadata
       )
     )
 
@@ -1462,6 +1503,46 @@ defmodule Sigra.Auth do
   @doc since: "0.4.0"
   @spec delete_all_sessions(Sigra.Config.t(), term(), keyword()) :: {non_neg_integer(), nil}
   def delete_all_sessions(config, user_id, opts \\ []) do
+    revoke_sessions(config, user_id, opts,
+      audit_action: "session.revoke_all",
+      telemetry_event: [:sigra, :session, :revoke_all, :stop]
+    )
+  end
+
+  @doc """
+  Revokes every session for a user except the current session.
+
+  Returns `{:ok, count}` when the supplied current session belongs to the user,
+  where count is the number of sibling sessions revoked. Returns
+  `{:error, :current_session_not_found}` without side effects when the current
+  session cannot be proven for that user.
+
+  ## Options
+
+  - `:current_hashed_token` - Hashed token for the session to preserve.
+  - `:pubsub` - Phoenix.PubSub module name for LiveView disconnect broadcasts.
+  """
+  @doc since: "0.4.0"
+  @spec revoke_other_sessions(Sigra.Config.t(), term(), keyword()) ::
+          {:ok, non_neg_integer()} | {:error, :current_session_not_found}
+  def revoke_other_sessions(config, user_id, opts \\ []) do
+    current_hashed_token = Keyword.get(opts, :current_hashed_token)
+
+    with true <- is_binary(current_hashed_token),
+         sessions when is_list(sessions) <- list_sessions(config, user_id, opts),
+         true <- Enum.any?(sessions, &(&1.hashed_token == current_hashed_token)) do
+      {count, nil} =
+        revoke_sessions(config, user_id, Keyword.put(opts, :except_token, current_hashed_token),
+          audit_action: "session.revoke_others"
+        )
+
+      {:ok, count}
+    else
+      _other -> {:error, :current_session_not_found}
+    end
+  end
+
+  defp revoke_sessions(config, user_id, opts, runtime_opts) do
     {session_store, store_opts} = session_store_and_opts(config, opts)
 
     # Get all sessions BEFORE deleting (need tokens for PubSub broadcast)
@@ -1488,9 +1569,10 @@ defmodule Sigra.Auth do
       end)
     end
 
-    Telemetry.event([:sigra, :session, :revoke_all, :stop], %{count: count}, %{user_id: user_id})
+    if telemetry_event = Keyword.get(runtime_opts, :telemetry_event) do
+      Telemetry.event(telemetry_event, %{count: count}, %{user_id: user_id})
+    end
 
-    # D-26: session.revoke_all audit row (standalone)
     audit_opts = audit_opts_from_config(config)
 
     actor_id = Keyword.get(opts, :actor_id, user_id)
@@ -1498,16 +1580,20 @@ defmodule Sigra.Auth do
     effective_user_id = Keyword.get(opts, :effective_user_id, user_id)
     scope = audit_scope_from_opts(config, opts, effective_user_id)
 
-    Sigra.Audit.log_safe(
-      "session.revoke_all",
-      scope,
-      Keyword.merge(audit_opts,
-        actor_id: actor_id,
-        target_id: target_id,
-        effective_user_id: effective_user_id,
-        metadata: %{count: count}
+    audit_action = Keyword.fetch!(runtime_opts, :audit_action)
+
+    if count > 0 do
+      Sigra.Audit.log_safe(
+        audit_action,
+        scope,
+        Keyword.merge(audit_opts,
+          actor_id: actor_id,
+          target_id: target_id,
+          effective_user_id: effective_user_id,
+          metadata: %{count: count}
+        )
       )
-    )
+    end
 
     {count, nil}
   end
@@ -1536,6 +1622,29 @@ defmodule Sigra.Auth do
   @spec revoke_session(Sigra.Config.t(), binary(), keyword()) :: :ok
   def revoke_session(config, hashed_token, opts \\ []) do
     delete_session(config, hashed_token, opts)
+  end
+
+  @doc """
+  Logs out the current user's session with explicit voluntary-logout audit truth.
+  """
+  @doc since: "1.20.0"
+  @spec logout(Sigra.Config.t(), struct(), Sigra.Session.t(), keyword()) :: :ok
+  def logout(config, user, %Sigra.Session{} = session, opts \\ []) do
+    delete_session(
+      config,
+      session.hashed_token,
+      opts
+      |> Keyword.put(:user_id, user.id)
+      |> Keyword.put(:actor_id, user.id)
+      |> Keyword.put(:target_id, user.id)
+      |> Keyword.put(:effective_user_id, user.id)
+      |> Keyword.put(:audit_scope, Sigra.Scope.from_config(config, user))
+      |> Keyword.put(:audit_action, "auth.logout")
+      |> Keyword.put(:audit_metadata, %{
+        session_id: session.id,
+        type: session.type
+      })
+    )
   end
 
   defp audit_scope_from_opts(config, opts, effective_user_id) do
@@ -1691,6 +1800,22 @@ defmodule Sigra.Auth do
 
     case create_session(config, user, metadata) do
       {:ok, new_session} ->
+        audit_opts =
+          audit_opts_from_config(config,
+            ip_address: Map.get(old_session, :ip),
+            user_agent: Map.get(old_session, :user_agent)
+          )
+
+        Sigra.Audit.log_safe(
+          "auth.mfa_verified",
+          Sigra.Scope.from_config(config, user),
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            target_id: user.id,
+            metadata: %{session_id: new_session.id, type: target_type}
+          )
+        )
+
         Telemetry.event([:sigra, :mfa, :verification_complete], %{}, %{
           user_id: user.id,
           target_type: target_type,
@@ -2320,7 +2445,7 @@ defmodule Sigra.Auth do
   @spec cancel_deletion(Sigra.Config.t(), struct(), keyword()) ::
           {:ok, struct()} | {:error, term()}
   def cancel_deletion(config, user, opts \\ []) do
-    Sigra.Account.cancel_deletion(config.repo, user, opts)
+    Sigra.Account.cancel_deletion(config.repo, user, deletion_account_opts(config, opts))
   end
 
   @doc """
@@ -2333,10 +2458,16 @@ defmodule Sigra.Auth do
   @spec execute_deletion(Sigra.Config.t(), struct(), keyword()) ::
           {:ok, atom()} | {:error, term()}
   def execute_deletion(config, user, opts \\ []) do
-    Sigra.Account.execute_deletion(config.repo, user, opts)
+    Sigra.Account.execute_deletion(config.repo, user, deletion_account_opts(config, opts))
   end
 
   # -- Private helpers --
+
+  defp deletion_account_opts(%Sigra.Config{} = config, opts) do
+    opts
+    |> Keyword.put(:config, [deletion: Map.get(config, :deletion, [])])
+    |> Keyword.put(:webhook_config, config)
+  end
 
   defp get_session_store(config) do
     Keyword.get(config.session, :store, Sigra.SessionStores.Ecto)

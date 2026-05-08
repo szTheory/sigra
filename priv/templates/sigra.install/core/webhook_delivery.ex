@@ -27,6 +27,11 @@ defmodule <%= context_module %>.WebhookDelivery do
     field :last_error_detail, :string
     field :dead_lettered_at, :utc_datetime_usec
     field :terminal_reason, :string
+    field :replayed_from_webhook_delivery_id, :binary_id
+    field :replay_root_webhook_delivery_id, :binary_id
+    field :replayed_at, :utc_datetime_usec
+    field :replayed_by_user_id, :binary_id
+    field :replay_source, :string
 
     belongs_to :webhook_subscription, <%= context_module %>.WebhookSubscription
     belongs_to :webhook_event, <%= context_module %>.WebhookEvent
@@ -50,6 +55,11 @@ defmodule <%= context_module %>.WebhookDelivery do
       :last_error_detail,
       :dead_lettered_at,
       :terminal_reason,
+      :replayed_from_webhook_delivery_id,
+      :replay_root_webhook_delivery_id,
+      :replayed_at,
+      :replayed_by_user_id,
+      :replay_source,
       :webhook_subscription_id,
       :webhook_event_id
     ])
@@ -64,5 +74,8 @@ defmodule <%= context_module %>.WebhookDelivery do
     |> assoc_constraint(:webhook_subscription)
     |> assoc_constraint(:webhook_event)
     |> unique_constraint(:delivery_id)
+    |> unique_constraint(:replayed_from_webhook_delivery_id,
+      name: :webhook_deliveries_replayed_from_unique_index
+    )
   end
 end

@@ -310,7 +310,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
       assert String.contains?(content, "These devices are currently signed in to your account.")
       assert String.contains?(content, "This device")
       assert String.contains?(content, "Revoke session")
-      assert String.contains?(content, "Log out of all devices")
+      assert String.contains?(content, "Log out of other devices")
       assert String.contains?(content, "Session revoked.")
       assert String.contains?(content, "mx-auto max-w-2xl")
       assert String.contains?(content, "bg-brand/10")

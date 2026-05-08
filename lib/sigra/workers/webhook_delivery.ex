@@ -15,7 +15,7 @@ if Code.ensure_loaded?(Oban.Worker) do
 
     alias Oban.{Job, Worker}
     alias Sigra.{OptionalDeps, Webhooks}
-    alias Sigra.Webhooks.{RetryPolicy, Signature}
+    alias Sigra.Webhooks.{EndpointPolicy, RetryPolicy, Signature}
 
     @impl Oban.Worker
     def new(args, opts) when is_map(args) and is_list(opts) do
@@ -60,7 +60,8 @@ if Code.ensure_loaded?(Oban.Worker) do
     end
 
     defp dispatch_delivery(config, %{delivery: delivery, subscription: subscription, event: event}) do
-      with {:ok, raw_body} <- encode_payload(event),
+      with :ok <- enforce_endpoint_policy(config, delivery, subscription),
+           {:ok, raw_body} <- encode_payload(event),
            {:ok, signed_at, request} <- build_request(delivery, subscription, raw_body),
            {:ok, response} <- execute_request(request) do
         persist_success(config, delivery, signed_at, response)
@@ -75,13 +76,13 @@ if Code.ensure_loaded?(Oban.Worker) do
     end
 
     defp build_request(delivery, subscription, raw_body) do
-      case Map.get(subscription, :signing_secret) do
-        secret when is_binary(secret) and secret != "" ->
+      case Webhooks.active_signing_secrets(subscription) do
+        [first_secret | _rest] = secrets when is_binary(first_secret) ->
           signed_at = DateTime.utc_now() |> DateTime.truncate(:microsecond)
           timestamp = DateTime.to_unix(signed_at)
 
           headers =
-            Signature.headers(Map.fetch!(delivery, :delivery_id), raw_body, secret,
+            Signature.headers(Map.fetch!(delivery, :delivery_id), raw_body, secrets,
               timestamp: timestamp
             )
             |> Map.put("Content-Type", "application/json")
@@ -217,11 +218,14 @@ if Code.ensure_loaded?(Oban.Worker) do
           :exhausted
         end
 
+      exhausted_retry? = classification.retryable and next_attempt == :exhausted
+      persist_as_retryable = classification.retryable and not exhausted_retry?
+
       attrs = %{
         attempt_number: attempt_number,
         attempted_at: attempted_at,
         finished_at: attempted_at,
-        retryable: classification.retryable,
+        retryable: persist_as_retryable,
         response_status: Map.get(classification, :status),
         retry_after_seconds: Map.get(classification, :retry_after_seconds),
         error_category: classification.error_category,
@@ -234,7 +238,7 @@ if Code.ensure_loaded?(Oban.Worker) do
       case Webhooks.persist_delivery_outcome(config, delivery, attrs) do
         {:ok, %{delivery: updated_delivery, next_attempt: next_retry}} ->
           case maybe_enqueue_retry(config, updated_delivery, next_retry) do
-            :ok -> {:ok, retry_result(classification.retryable)}
+            :ok -> {:ok, retry_result(persist_as_retryable)}
             {:error, reason} -> {:error, reason}
           end
 
@@ -274,6 +278,16 @@ if Code.ensure_loaded?(Oban.Worker) do
       |> case do
         nil -> Map.get(classification, :error_detail)
         reason -> inspect(reason)
+      end
+    end
+
+    defp enforce_endpoint_policy(config, delivery, subscription) do
+      case EndpointPolicy.validate_delivery(config, Map.fetch!(delivery, :endpoint_url), %{
+             subscription: subscription,
+             delivery: delivery
+           }) do
+        :ok -> :ok
+        {:error, reason, detail} -> {:cancel, {:local_policy_error, reason, detail}}
       end
     end
 

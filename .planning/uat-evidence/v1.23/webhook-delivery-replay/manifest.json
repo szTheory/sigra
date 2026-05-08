@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-05-08T01:24:22.208Z",
+  "proof_user_email": "generated-replay-proof-user-1778203456551@example.test",
+  "subscription_id": "1fc8f661-cf46-45ca-aaf3-fad2c36f39cb",
+  "endpoint_url": "http://localhost:4000/webhooks/sigra",
+  "source_delivery_id": "c388bb94-7e5c-4587-adee-3f9c33100685",
+  "replay_delivery_id": "389bb1d8-b94d-4f04-b2f2-b85217832edc",
+  "root_delivery_id": "c388bb94-7e5c-4587-adee-3f9c33100685",
+  "source_delivery_status": "dead_lettered",
+  "replay_delivery_status": "delivered",
+  "receiver_verification": {
+    "source_delivery": {
+      "verified_at": "2026-05-08T01:24:19.000000Z",
+      "signature_timestamp": 1778203459,
+      "raw_body_sha256": "01128230807efc4ef54b5eace874085ad7b49d51b41dceda21670a7b9f46ebc8"
+    },
+    "replay_delivery": {
+      "verified_at": "2026-05-08T01:24:21.000000Z",
+      "signature_timestamp": 1778203461,
+      "raw_body_sha256": "01128230807efc4ef54b5eace874085ad7b49d51b41dceda21670a7b9f46ebc8"
+    }
+  },
+  "screenshots": {
+    "subscription": "/Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-delivery-replay/screenshots/subscription-detail.png",
+    "failed_source": "/Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-delivery-replay/screenshots/failed-source-row.png",
+    "source_detail": "/Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-delivery-replay/screenshots/source-delivery-detail.png",
+    "replay_detail": "/Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-delivery-replay/screenshots/replay-delivery-detail.png"
+  }
+}

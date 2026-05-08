@@ -28,6 +28,7 @@ GETTING_STARTED_REPORT="${GETTING_STARTED_REPORTS_DIR}/generated-host-checks.jso
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
+export SIGRA_INSTALL_SMOKE_POOL_SIZE="${SIGRA_INSTALL_SMOKE_POOL_SIZE:-4}"
 
 mkdir -p "${GETTING_STARTED_REPORTS_DIR}"
 : > "${GETTING_STARTED_TRANSCRIPT}"
@@ -82,6 +83,23 @@ elixir -e '
     IO.puts(:stderr, "FAIL: anchor '"'"'      {:phoenix,'"'"' not found in mix.exs; mix phx.new output shape changed")
     System.halt(1)
   end
+  File.write!(path, new_content)
+'
+
+echo "==> install-smoke: capping generated-host test pool to ${SIGRA_INSTALL_SMOKE_POOL_SIZE}"
+export SIGRA_INSTALL_SMOKE_POOL_SIZE
+elixir -e '
+  path = "config/test.exs"
+  content = File.read!(path)
+  old = "  pool_size: System.schedulers_online() * 2"
+  new = "  pool_size: String.to_integer(System.get_env(\"SIGRA_INSTALL_SMOKE_POOL_SIZE\", \"4\"))"
+  new_content = String.replace(content, old, new, global: false)
+
+  if new_content == content do
+    IO.puts(:stderr, "FAIL: expected test pool_size anchor not found in config/test.exs")
+    System.halt(1)
+  end
+
   File.write!(path, new_content)
 '
 

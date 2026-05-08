@@ -274,20 +274,20 @@ req =
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
 | A1 | Generated deployment guidance should cover the main deployment classes adopters are likely to use rather than a single infrastructure recipe. | Summary / Common Pitfalls | Planner may under-scope docs work or choose the wrong examples. |
-| A2 | Tenant-specific controls can likely be satisfied by config plus a host callback seam instead of a new Sigra-owned policy-management UI or policy tables. | Open Questions | Planner may miss schema/UI work if the product expectation is tenant-managed policy in admin. |
+| A2 | Tenant-specific controls are satisfied in this phase by a host callback seam that can inspect tenant-aware host state; Phase 105 does not add a Sigra-owned tenant policy UI or persisted policy tables. | Resolved Decisions | If future roadmap work wants tenant-managed policy as a product surface, that is follow-on scope, not WH-06 minimum scope. |
 | A3 | Sigra should document adopter-owned egress IP pinning instead of publishing a fixed sender-IP list because Sigra runs inside the adopter runtime. | Summary / Don't Hand-Roll | If the project later adds a hosted relay mode, the guidance model would change materially. |
 
-## Open Questions
+## Resolved Questions
 
-1. **Does WH-06 need a persisted tenant policy model or only a host-config callback seam?**
+1. **WH-06 is satisfied in Phase 105 by a host-config callback seam, not a persisted tenant policy model.**
    - What we know: the requirement asks for tenant- or deployment-specific controls without forking, and the current webhook data model has no tenant-specific policy tables. [VERIFIED: .planning/REQUIREMENTS.md] [VERIFIED: codebase]
-   - What's unclear: whether “tenant-specific” means host code can decide policy per tenant, or whether Sigra admin must let operators edit tenant policy directly. [ASSUMED]
-   - Recommendation: lock Phase 105 to `Sigra.Config` + optional host callback unless the user explicitly wants policy management as a product surface. [VERIFIED: codebase] [ASSUMED]
+   - Resolution: Phase 105 will ship `Sigra.Config` + generated-host callback wiring so host apps can make tenant-aware allow/deny decisions from their own state. Sigra admin does not gain a new tenant-policy management product surface in this phase. [VERIFIED: roadmap + research synthesis]
+   - Scope effect: no new policy tables, tenant-policy forms, or same-phase schema/UI expansion are required for WH-06.
 
-2. **Should the phase also migrate the default sender transport off `:httpc`?**
+2. **Transport modernization is out of scope unless implementation pressure forces a narrow extraction seam.**
    - What we know: current worker delivery uses `:httpc.request/4`, and policy logic can be added before that call. [VERIFIED: lib/sigra/workers/webhook_delivery.ex]
-   - What's unclear: whether the team wants transport modernization in the same phase or a narrower policy-only slice. [ASSUMED]
-   - Recommendation: keep transport extraction optional; do not let a broad HTTP-client swap delay the policy contract unless implementation pressure makes it necessary. [VERIFIED: codebase] [ASSUMED]
+   - Resolution: Phase 105 is a policy-and-proof slice, not a general HTTP-client migration. The executor may introduce a small extraction seam to make pre-send enforcement testable, but should not broaden the phase into a Req migration unless blocked by the existing structure. [VERIFIED: roadmap success criteria + research synthesis]
+   - Scope effect: `WH-06` can pass without replacing the transport implementation.
 
 ## Environment Availability
 
@@ -375,7 +375,7 @@ req =
 - Hex package API lookups for `req`, `phoenix`, `ecto`, `oban`, and `inet_cidr` — current version and publish-date verification. [VERIFIED: hex.pm registry]
 
 ### Tertiary (LOW confidence)
-- None; low-confidence ecosystem claims were avoided, and remaining uncertainty is listed in the assumptions/open-questions sections. [VERIFIED: research process]
+- None; low-confidence ecosystem claims were avoided, and no unresolved research blockers remain for planning. [VERIFIED: research process]
 
 ## Metadata
 

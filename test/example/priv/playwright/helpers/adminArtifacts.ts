@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import type { Page, TestInfo } from "@playwright/test";
 
 // Phase 31 Plan 1: shared helpers for admin reviewer artifacts.
@@ -37,6 +40,53 @@ export interface CapturedCheckpointOptions {
    */
   fullPage?: boolean;
 }
+
+export interface GeneratedHostProofBundle {
+  runAt: string;
+  proofUserEmail: string;
+  endpointUrl: string;
+  subscriptionId: string;
+  subscriptionScreenshot: string;
+  sourceDeliveryId: string;
+  replayDeliveryId: string;
+  rootDeliveryId: string;
+  sourceDeliveryStatus: string;
+  replayDeliveryStatus: string;
+  sourceFailureScreenshot: string;
+  sourceDetailScreenshot: string;
+  replayDetailScreenshot: string;
+  receiverVerification: {
+    sourceDelivery: GeneratedHostReceiverVerification | null;
+    replayDelivery: GeneratedHostReceiverVerification | null;
+  };
+}
+
+export interface GeneratedHostReceiverVerification {
+  receiverVerifiedAt: string;
+  receiverSignatureTimestamp: number;
+  rawBodySha256: string;
+}
+
+export interface BlockedPolicyProofBundle {
+  runAt: string;
+  endpointUrl: string;
+  blockedDeliveryId: string;
+  deliveryStatus: string;
+  policyReason: string;
+  policyDetail: string;
+  failuresScreenshot: string;
+  detailScreenshot: string;
+}
+
+const repoRoot = path.resolve(__dirname, "../../../../..");
+const replayProofDir = path.join(
+  repoRoot,
+  ".planning/uat-evidence/v1.23/webhook-delivery-replay",
+);
+const blockedPolicyProofDir = path.join(
+  repoRoot,
+  ".planning/uat-evidence/v1.23/webhook-policy-operator-truth",
+);
 
 function slugify(value: string): string {
   return value
@@ -91,4 +141,177 @@ export async function captureAdminCheckpoint(
   });
 
   return path;
+}
+
+export async function captureGeneratedHostProofArtifact(
+  page: Page,
+  testInfo: TestInfo,
+  fileName: string,
+  proofDir = replayProofDir,
+): Promise<string> {
+  const screenshotsDir = path.join(proofDir, "screenshots");
+  const artifactPath = path.join(screenshotsDir, fileName);
+
+  fs.mkdirSync(screenshotsDir, { recursive: true });
+
+  await page.screenshot({
+    path: artifactPath,
+    fullPage: true,
+  });
+
+  await testInfo.attach(fileName.replace(/\.png$/, ""), {
+    path: artifactPath,
+    contentType: "image/png",
+  });
+
+  return artifactPath;
+}
+
+export function writeGeneratedHostProofBundle(bundle: GeneratedHostProofBundle): void {
+  fs.mkdirSync(replayProofDir, { recursive: true });
+
+  const manifestPath = path.join(replayProofDir, "manifest.json");
+  const readmePath = path.join(replayProofDir, "README.md");
+
+  fs.writeFileSync(
+    manifestPath,
+    JSON.stringify(
+      {
+        generated_at: bundle.runAt,
+        proof_user_email: bundle.proofUserEmail,
+        subscription_id: bundle.subscriptionId,
+        endpoint_url: bundle.endpointUrl,
+        source_delivery_id: bundle.sourceDeliveryId,
+        replay_delivery_id: bundle.replayDeliveryId,
+        root_delivery_id: bundle.rootDeliveryId,
+        source_delivery_status: bundle.sourceDeliveryStatus,
+        replay_delivery_status: bundle.replayDeliveryStatus,
+        receiver_verification: {
+          source_delivery: toReceiverVerification(bundle.receiverVerification.sourceDelivery),
+          replay_delivery: toReceiverVerification(bundle.receiverVerification.replayDelivery),
+        },
+        screenshots: {
+          subscription: bundle.subscriptionScreenshot,
+          failed_source: bundle.sourceFailureScreenshot,
+          source_detail: bundle.sourceDetailScreenshot,
+          replay_detail: bundle.replayDetailScreenshot,
+        },
+      },
+      null,
+      2,
+    ),
+  );
+
+  fs.writeFileSync(
+    readmePath,
+    `# Generated Host Replay Proof
+
+Canonical admin and receiver proof for the fail -> inspect -> repair -> replay recovery flow.
+
+- Run at: ${bundle.runAt}
+- Proof user prefix: ${bundle.proofUserEmail}
+- Subscription ID: ${bundle.subscriptionId}
+- Admin endpoint: ${bundle.endpointUrl}
+- Admin subscription screenshot: ${bundle.subscriptionScreenshot}
+
+## Delivery lineage
+
+- source delivery id: ${bundle.sourceDeliveryId}
+- replay delivery id: ${bundle.replayDeliveryId}
+- root delivery id: ${bundle.rootDeliveryId}
+- source delivery status: ${bundle.sourceDeliveryStatus}
+- replay delivery status: ${bundle.replayDeliveryStatus}
+
+## Receiver verification
+
+- source delivery receiver verification: ${describeReceiverVerification(bundle.receiverVerification.sourceDelivery)}
+- replay delivery receiver verification: ${describeReceiverVerification(bundle.receiverVerification.replayDelivery)}
+
+## Screenshots
+
+- failed source row: ${bundle.sourceFailureScreenshot}
+- source delivery detail: ${bundle.sourceDetailScreenshot}
+- replay delivery detail: ${bundle.replayDetailScreenshot}
+
+Artifacts:
+- machine manifest: ${path.relative(replayProofDir, manifestPath)}
+
+This evidence bundle correlates the original failed source row and the replay child row across admin history and receiver verification while keeping \`delivery_id\` dedupe truthful.
+`,
+  );
+}
+
+export function writeBlockedPolicyProofBundle(bundle: BlockedPolicyProofBundle): void {
+  fs.mkdirSync(blockedPolicyProofDir, { recursive: true });
+
+  const manifestPath = path.join(blockedPolicyProofDir, "manifest.json");
+  const readmePath = path.join(blockedPolicyProofDir, "README.md");
+
+  fs.writeFileSync(
+    manifestPath,
+    JSON.stringify(
+      {
+        generated_at: bundle.runAt,
+        endpoint_url: bundle.endpointUrl,
+        blocked_delivery_id: bundle.blockedDeliveryId,
+        delivery_status: bundle.deliveryStatus,
+        policy_reason: bundle.policyReason,
+        policy_detail: bundle.policyDetail,
+        screenshots: {
+          failures_row: bundle.failuresScreenshot,
+          delivery_detail: bundle.detailScreenshot,
+        },
+      },
+      null,
+      2,
+    ),
+  );
+
+  fs.writeFileSync(
+    readmePath,
+    `# Webhook Policy Operator Truth Proof
+
+Blocked destination proof for the generated-host operator workflow.
+
+- Run at: ${bundle.runAt}
+- blocked delivery id: ${bundle.blockedDeliveryId}
+- endpoint url: ${bundle.endpointUrl}
+- delivery status: ${bundle.deliveryStatus}
+- policy reason: ${bundle.policyReason}
+- policy detail: ${bundle.policyDetail}
+
+## Operator surfaces
+
+- Failures inbox row shows \`Blocked by local policy\`
+- Delivery detail shows \`Endpoint policy result\`
+
+## Screenshots
+
+- failures row: ${bundle.failuresScreenshot}
+- delivery detail: ${bundle.detailScreenshot}
+
+Artifacts:
+- machine manifest: ${path.relative(blockedPolicyProofDir, manifestPath)}
+`,
+  );
+}
+
+function toReceiverVerification(verification: GeneratedHostReceiverVerification | null) {
+  if (!verification) {
+    return null;
+  }
+
+  return {
+    verified_at: verification.receiverVerifiedAt,
+    signature_timestamp: verification.receiverSignatureTimestamp,
+    raw_body_sha256: verification.rawBodySha256,
+  };
+}
+
+function describeReceiverVerification(verification: GeneratedHostReceiverVerification | null): string {
+  if (!verification) {
+    return "missing";
+  }
+
+  return `verified_at=${verification.receiverVerifiedAt}, signature_timestamp=${verification.receiverSignatureTimestamp}, raw_body_sha256=${verification.rawBodySha256}`;
 }

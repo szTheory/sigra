@@ -225,16 +225,16 @@ Use only when not using the Release PR flow. Adjust version strings to match `mi
 6. Create an annotated or lightweight tag after the version bump lands:
 
    ```bash
-   git tag v0.2.0
+   git tag v1.20.0
    ```
 
-   (Replace `0.2.0` with the actual `@version`.)
+   (Replace `1.20.0` with the actual `@version`.)
 
 7. Push the tag (and branch, if applicable):
 
    ```bash
    git push origin main
-   git push origin v0.2.0
+   git push origin v1.20.0
    ```
 
 8. Publish to Hex from a trusted machine with `HEX_API_KEY` configured, or run **Actions → Hex publish (manual recovery)**. Non-interactive automation should use `mix hex.publish --yes` as documented in [Hex publish](https://hex.pm/docs/publish).
@@ -243,11 +243,15 @@ Use only when not using the Release PR flow. Adjust version strings to match `mi
 10. Verify the [Hex version badge](https://hex.pm/packages/sigra) reflects the new version and that [HexDocs](https://hexdocs.pm/sigra) `source_ref` matches the tag you published (`mix.exs` `docs/0` uses `source_ref: "v#{@version}"`).
 11. After publish, smoke-check a fresh `mix deps.get` consumer app or the example app pinned to the new requirement range.
 
-## Semver for Sigra (pre-1.0)
+## Semver for Sigra
 
-Hex and Mix treat `0.x` minors as potentially breaking. Use **`0.y.z` patches** only for doc-only fixes, internal-only changes, or releases that do **not** add new **supported public** `lib/` API since the last published version.
+Sigra is already shipping on the `1.x` line on Hex. Use normal Semantic Versioning for published package changes:
 
-Use a **`0.y` minor bump** when you ship **new supported public** modules or functions on Hex since the last publish. In particular: if the last Hex publish was **`0.1.0`** without `Sigra.Audit.Assertions`, a release that includes that module (or any comparable new supported public `lib/` surface) must be at least **`0.2.0`**. Do **not** jump to **`1.0.0`** unless the project explicitly decides to declare API stability with coordinated messaging.
+- use a **patch** bump for bug fixes, doc-only fixes, and internal changes that do not expand or break supported public behavior
+- use a **minor** bump for backward-compatible new supported public API or materially new supported capability
+- use a **major** bump for intentional breaking changes to supported public API, generated-host contracts, or upgrade expectations
+
+Planning milestone labels in `.planning/` are separate from package versioning. Keep release truth aligned across `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, the `v<version>` tag, and the published Hex release.
 
 Atomic release hygiene: keep **`mix.exs` `@version`**, **`CHANGELOG.md`**, the **`v<version>`** tag, Hex publish, and the GitHub Release aligned in one tight commit series (or a documented sequence), not scattered across unrelated merges.
 

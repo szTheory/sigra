@@ -38,6 +38,7 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
         |> html_response(200)
 
       assert html =~ "Audit Subject"
+      assert html =~ "Signed in"
       assert html =~ "session.create"
       assert html =~ ~s(name="action_prefix")
       assert html =~ ~s(value="session")
@@ -84,10 +85,47 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
         |> html_response(200)
 
       assert html =~ "Scoped Subject"
+      assert html =~ "Signed in"
+      assert html =~ "Signed out of all devices"
       assert html =~ "session.create"
       assert html =~ "session.revoke_all"
       assert html =~ "return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dscoped"
       assert html =~ "/admin/organizations/#{org.slug}/users/#{subject.id}/audit"
+    end
+
+    test "logout and suspicious-login rows stay aligned with the shared activity labels", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+
+      subject =
+        user_fixture(%{email: "semantic-audit-subject@example.com", display_name: "Semantic Subject"})
+
+      insert_audit_event(%{
+        action: "auth.logout",
+        actor_id: subject.id,
+        effective_user_id: subject.id,
+        target_id: subject.id
+      })
+
+      insert_audit_event(%{
+        action: "security.suspicious_login",
+        actor_id: subject.id,
+        effective_user_id: subject.id,
+        target_id: subject.id,
+        outcome: "failure"
+      })
+
+      html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/users/#{subject.id}/audit")
+        |> html_response(200)
+
+      assert html =~ "Signed out"
+      assert html =~ "Suspicious sign-in attempt"
+      assert html =~ "auth.logout"
+      assert html =~ "security.suspicious_login"
     end
   end
 

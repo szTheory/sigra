@@ -197,8 +197,8 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "Recent Audit"
 
       # Phase 33: preview rows are Presenter-shaped (action_label), not raw `event.action` headings.
-      assert html =~ "Session Create"
-      assert html =~ "Session Revoke_all"
+      assert html =~ "Signed in"
+      assert html =~ "Signed out of all devices"
       refute html =~ ~r/<p class="font-semibold">session\.(create|revoke_all)</
       assert html =~ "View full audit"
       assert html =~ "/admin/users/#{target.id}/audit"
@@ -237,7 +237,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "View full audit"
       assert html =~ "/admin/organizations/#{org.slug}/users/#{target.id}/audit"
       assert html =~ "return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dorg-preview"
-      assert html =~ "Session Create"
+      assert html =~ "Signed in"
     end
 
     test "recent audit preview uses Presenter labels and impersonation badge when applicable",
@@ -265,6 +265,36 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "Impersonation"
       assert html =~ "Impersonation started"
       refute html =~ ~r/<p class="font-semibold">admin\.impersonation\.start</
+    end
+  end
+
+  describe "Phase 108 admin session truth" do
+    test "self-view marks only the authenticated admin session as current", %{conn: conn} do
+      admin = platform_admin_fixture()
+      session_fixture(admin, %{ip: "10.8.0.2"})
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(admin)
+        |> live("/admin/users/#{admin.id}")
+
+      assert html =~ "Current session"
+      assert html =~ "Session type: standard"
+    end
+
+    test "viewing another user does not invent a current-session marker", %{conn: conn} do
+      admin = platform_admin_fixture()
+      target = user_fixture(%{email: "other-session-target@example.com"})
+
+      session_fixture(target, %{ip: "10.8.1.2"})
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(admin)
+        |> live("/admin/users/#{target.id}")
+
+      refute html =~ "Current session"
+      assert html =~ "Session type: standard"
     end
   end
 

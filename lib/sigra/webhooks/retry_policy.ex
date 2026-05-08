@@ -108,6 +108,16 @@ defmodule Sigra.Webhooks.RetryPolicy do
     %{retryable: false, error_category: "local_state_error", terminal_reason: "missing_delivery_id"}
   end
 
+  def classify_local_failure({:local_policy_error, reason, detail})
+      when is_atom(reason) and is_binary(detail) do
+    %{
+      retryable: false,
+      error_category: "local_policy_error",
+      terminal_reason: Atom.to_string(reason),
+      error_detail: detail
+    }
+  end
+
   def classify_local_failure(reason) when is_atom(reason) do
     %{retryable: false, error_category: "local_state_error", terminal_reason: Atom.to_string(reason)}
   end

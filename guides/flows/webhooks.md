@@ -20,7 +20,10 @@ Each subscription stores:
 - `endpoint_url` for the receiver.
 - `event_types` as an explicit list such as `["user.created", "session.revoked"]`.
 - `enabled` as the on/off switch for delivery.
-- `signing_secret` used to produce `Sigra-Webhook-Signature`.
+- `signing_secret` as the current active secret.
+- `next_signing_secret` when a rotation is prepared.
+- `rotation_state` plus overlap timestamps and operator metadata for the
+  `stable -> prepared -> overlap_active -> completed` lifecycle.
 
 Sigra does not store wildcard semantics. New event types are not delivered to
 old subscriptions unless you edit their explicit `event_types` list.
@@ -29,6 +32,15 @@ Endpoint policy is strict by default:
 
 - Production endpoints must use HTTPS.
 - Plain HTTP is accepted only for `localhost`, `127.0.0.1`, or `::1`.
+- Sigra evaluates endpoint policy twice: once when a subscription is saved,
+  and again immediately before the worker sends the request.
+- Hostnames are resolved at delivery time and every resolved A/AAAA answer must
+  pass the policy check. Mixed public/private answers are blocked.
+- Blocked deliveries persist as `last_error_category = "local_policy_error"`
+  with stable reasons such as `blocked_private_ip`, `blocked_link_local_ip`,
+  `blocked_metadata_ip`, `dns_resolution_failed`, or `policy_denied`.
+- Generated hosts can add deployment-specific rules through
+  `webhook_endpoint_policy/1` without forking Sigra internals.
 
 ## Event catalog
 
@@ -104,6 +116,10 @@ Each outbound request includes:
 v1=5f0f3e...
 ```
 
+During an active overlap window the same header carries multiple comma-separated
+`v1=...` values, one for each currently valid signing secret. Sigra does not
+emit a `kid` or any other sender-selected secret hint.
+
 The canonical signature input is the exact byte sequence:
 
 ```text
@@ -118,6 +134,20 @@ Where:
 
 Receivers must verify against the raw request body bytes, not a decoded and
 re-encoded map. See [Webhook Verification](../recipes/webhook-verification.md).
+
+## Rotation lifecycle
+
+Phase 103 makes secret rotation overlap-safe:
+
+1. `prepare` stages one next secret while Sigra still signs with the current
+   secret only.
+2. `start overlap` makes Sigra sign each delivery with both the current and
+   next secret.
+3. `complete rotation` retires the old secret and keeps only the promoted
+   secret active.
+
+Replay protection does not change during this window. Receivers still dedupe
+strictly on `delivery_id`, and timestamp tolerance stays unchanged.
 
 ## Async delivery semantics
 
@@ -169,14 +199,31 @@ The child attempt ledger answers:
 - whether the attempt was retryable
 - what `Retry-After` delay was honored, if any
 
+## Manual replay semantics
+
+Phase 104 adds one recovery path for failed deliveries:
+
+- Replay is an admin-owned action only in Sigra's admin surfaces.
+- Replay applies only to eligible `dead_lettered` source rows.
+- Replay creates a brand-new child `webhook_deliveries` row with a fresh
+  `delivery_id`.
+- The original failed source row stays immutable and visible in admin history.
+- The replay child starts a fresh attempt ledger at `attempt_count = 0`.
+- Receiver dedupe does not change: receivers still key strictly on
+  `delivery_id`.
+
+That means the same public event can now appear in admin history as one failed
+source delivery plus one replay child delivery. This is truthful lineage, not
+an in-place retry reset.
+
 ## Still out of scope
 
-Phase 98 still does not claim:
+Sigra still does not claim:
 
-- manual replay or resend tooling
+- a CLI or public API replay contract in this phase
 - automatic subscription disablement
 - a separate dead-letter subsystem
-- overlapping signing-secret rotation windows
+- arbitrary N-version secret history or scheduler-driven cutover
 
 ## Generated host wrapper surface
 
@@ -188,7 +235,15 @@ MyApp.Accounts.create_webhook_subscription(attrs)
 MyApp.Accounts.update_webhook_subscription(subscription, attrs)
 MyApp.Accounts.enable_webhook_subscription(subscription)
 MyApp.Accounts.disable_webhook_subscription(subscription)
+MyApp.Accounts.webhook_endpoint_policy(context)
 ```
 
 Use `Sigra.Webhooks.public_event_types()` to populate event-type checkboxes or
 presets in your admin UI.
+
+## Generated host setup path
+
+If you install Sigra's admin feature, generated hosts also get
+`docs/webhook_receiver_setup.md`. Treat that file as the host-owned checklist
+for wiring the receiver route, raw request body capture, `delivery_id` dedupe,
+and the prepare -> overlap -> complete rotation lifecycle.

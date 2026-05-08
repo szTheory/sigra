@@ -193,8 +193,10 @@ defmodule Sigra.Plug.FetchBearer do
   end
 
   defp peek_jwt_payload(raw_token) do
-    if Code.ensure_loaded?(JOSE.JWT) and function_exported?(JOSE.JWT, :peek_payload, 1) do
-      apply(JOSE.JWT, :peek_payload, [raw_token]).fields
+    jwt_module = Module.concat([JOSE, JWT])
+
+    if Code.ensure_loaded?(jwt_module) and function_exported?(jwt_module, :peek_payload, 1) do
+      apply(jwt_module, :peek_payload, [raw_token]).fields
     else
       %{}
     end

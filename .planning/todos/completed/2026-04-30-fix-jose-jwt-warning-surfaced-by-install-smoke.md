@@ -1,3 +1,4 @@
+completed: 2026-05-07
 ---
 created: 2026-04-30T20:01:33.965Z
 title: Fix JOSE JWT warning surfaced by install smoke

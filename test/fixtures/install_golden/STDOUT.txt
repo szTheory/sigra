@@ -9,27 +9,27 @@
      where "config" was given the type:
 
          # type: dynamic(%Sigra.Config{})
-         # from: lib/sigra/webhooks.ex:207:40
+         # from: lib/sigra/webhooks.ex:246:40
          %Sigra.Config{} = config
 
      where "delivery_or_id" was given the type:
 
          # type: dynamic()
-         # from: lib/sigra/webhooks.ex:207:50
+         # from: lib/sigra/webhooks.ex:246:50
          delivery_or_id
 
      where "opts" was given the type:
 
          # type: dynamic()
-         # from: lib/sigra/webhooks.ex:207:66
+         # from: lib/sigra/webhooks.ex:246:66
          opts
 
      typing violation found at:
      │
- 208 │     changeset = build_delivery_job(config, delivery_or_id, opts)
+ 247 │     changeset = build_delivery_job(config, delivery_or_id, opts)
      │               ~
      │
-     └─ (sigra 1.20.0) lib/sigra/webhooks.ex:208:15: Sigra.Webhooks.enqueue_delivery/3
+     └─ (sigra 1.20.0) lib/sigra/webhooks.ex:247:15: Sigra.Webhooks.enqueue_delivery/3
 
      warning: Joken.encode_and_sign/2 is undefined (module Joken is not available or is yet to be defined). Make sure the module name is correct and has been specified in full (or that an alias has been defined)
      │
@@ -217,6 +217,7 @@ Add this step to your `"assets.setup"` alias manually:
 
 * creating lib/sigra_install_golden_tmp/sigra_admin_policy.ex
 * creating lib/sigra_install_golden_tmp_web/components/admin_shell.ex
+* creating docs/webhook_receiver_setup.md
 * creating lib/sigra_install_golden_tmp_web/controllers/admin/impersonation_controller.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/admin/audit_export_controller.ex
 * injecting lib/sigra_install_golden_tmp_web/router.ex
@@ -239,4 +240,9 @@ Next steps:
      so impersonation stays visibly persistent and the app-wide
      `/impersonation` stop action remains reachable from host-owned
      chrome.
+
+  4. Review `docs/webhook_receiver_setup.md` before enabling webhook
+     subscriptions in production. It captures the raw request body,
+     `body_reader`, and `delivery_id` receiver contract from the
+     generated admin webhook setup flow.
 

@@ -579,6 +579,7 @@ defmodule <%= context_module %> do
       ],
       webhooks: [
         enabled: false,
+        endpoint_policy: &__MODULE__.webhook_endpoint_policy/1,
         webhook_subscription_schema: WebhookSubscription,
         webhook_event_schema: WebhookEvent,
         webhook_delivery_schema: WebhookDelivery,
@@ -589,6 +590,8 @@ defmodule <%= context_module %> do
       ]
     )
   end
+
+  def webhook_endpoint_policy(_context), do: :ok
 
   @doc "List all active sessions for a user."
   def list_sessions(user) do
@@ -602,12 +605,66 @@ defmodule <%= context_module %> do
 
   @doc "Revoke all sessions for a user. Broadcasts PubSub disconnect."
   def revoke_all_sessions(user, opts \\ []) do
-    Sigra.Auth.delete_all_sessions(sigra_config(), user.id, Keyword.put(opts, :pubsub, <%= web_module %>.PubSub))
+    Sigra.Auth.delete_all_sessions(sigra_config(), user.id, maybe_put_pubsub(opts))
   end
+
+  @doc "Revoke all sibling sessions while preserving the current session."
+  def revoke_other_sessions(user, current_hashed_token, opts \\ []) do
+    Sigra.Auth.revoke_other_sessions(
+      sigra_config(),
+      user.id,
+      maybe_put_pubsub(opts)
+      |> Keyword.put(:current_hashed_token, current_hashed_token)
+    )
+  end
+
+  @doc "Resolve the persisted hashed token for the current raw session token."
+  def current_session_hashed_token(raw_token) when is_binary(raw_token) do
+    case get_user_and_session_by_token(raw_token) do
+      {_user, session} -> session.hashed_token
+      nil -> nil
+    end
+  end
+
+  def current_session_hashed_token(_raw_token), do: nil
+
+  @doc "List recent persisted security activity for a user."
+  def recent_security_activity(user, opts \\ []) do
+    Sigra.SecurityActivity.list_recent_activity(sigra_config(), user.id, opts)
+  end
+
+  @doc "Log out the current user's session with explicit voluntary-logout audit truth."
+  def log_out_user_session_token(raw_token, user, opts \\ [])
+
+  def log_out_user_session_token(raw_token, %<%= schema_alias %>{} = user, opts)
+      when is_binary(raw_token) do
+    case get_user_and_session_by_token(raw_token) do
+      {%<%= schema_alias %>{id: user_id} = token_user, session} when user_id == user.id ->
+        Sigra.Auth.logout(sigra_config(), token_user, session, opts)
+        :ok
+
+      _other ->
+        delete_user_session_token(raw_token)
+    end
+  end
+
+  def log_out_user_session_token(raw_token, _user, _opts) when is_binary(raw_token) do
+    delete_user_session_token(raw_token)
+  end
+
+  def log_out_user_session_token(_raw_token, _user, _opts), do: :ok
 
   @doc "Confirm sudo mode for a session."
   def confirm_sudo(hashed_token) do
     Sigra.Auth.confirm_sudo(sigra_config(), hashed_token)
+  end
+
+  defp maybe_put_pubsub(opts) do
+    if Process.whereis(<%= web_module %>.PubSub) do
+      Keyword.put(opts, :pubsub, <%= web_module %>.PubSub)
+    else
+      opts
+    end
   end
 
   @doc "List the explicit webhook event catalog."
@@ -638,6 +695,94 @@ defmodule <%= context_module %> do
   @doc "Disable a webhook subscription."
   def disable_webhook_subscription(subscription) do
     Sigra.Webhooks.disable_subscription(sigra_config(), subscription)
+  end
+
+  @doc "List admin webhook subscriptions with URL-driven params."
+  def list_admin_webhook_subscriptions(admin_scope, params \\ %{}) do
+    Sigra.Admin.Webhooks.Query.list_subscriptions(sigra_config(), admin_scope, params)
+  end
+
+  @doc "Load one admin webhook subscription detail."
+  def get_admin_webhook_subscription!(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Detail.load_subscription!(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "List retrying and dead-letter webhook deliveries for admins."
+  def list_admin_webhook_failures(admin_scope, params \\ %{}) do
+    Sigra.Admin.Webhooks.Failures.list_deliveries(sigra_config(), admin_scope, params)
+  end
+
+  @doc "Load one shared admin webhook delivery detail."
+  def get_admin_webhook_delivery!(admin_scope, delivery_id) do
+    Sigra.Admin.Webhooks.Detail.load_delivery!(sigra_config(), admin_scope, delivery_id)
+  end
+
+  @doc "Replay a dead-letter webhook delivery through the admin action seam."
+  def replay_admin_webhook_delivery(admin_scope, delivery_id, opts \\ []) do
+    Sigra.Admin.Webhooks.Actions.replay_delivery(sigra_config(), admin_scope, delivery_id, opts)
+  end
+
+  @doc "Create a webhook subscription through the admin action seam."
+  def create_admin_webhook_subscription(admin_scope, attrs) do
+    Sigra.Admin.Webhooks.Actions.create(sigra_config(), admin_scope, attrs)
+  end
+
+  @doc "Update a webhook subscription through the admin action seam."
+  def update_admin_webhook_subscription(admin_scope, subscription_id, attrs) do
+    Sigra.Admin.Webhooks.Actions.update(sigra_config(), admin_scope, subscription_id, attrs)
+  end
+
+  @doc "Enable a webhook subscription through the admin action seam."
+  def enable_admin_webhook_subscription(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.enable(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Disable a webhook subscription through the admin action seam."
+  def disable_admin_webhook_subscription(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.disable(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Reveal a webhook signing secret through an explicit admin action."
+  def reveal_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.reveal_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Rotate a webhook signing secret through an explicit admin action."
+  def rotate_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.rotate_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Prepare a webhook signing secret rotation through an explicit admin action."
+  def prepare_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.prepare_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Discard a prepared webhook signing secret through an explicit admin action."
+  def discard_prepared_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.discard_prepared_secret(
+      sigra_config(),
+      admin_scope,
+      subscription_id
+    )
+  end
+
+  @doc "Start a webhook signing secret overlap window through an explicit admin action."
+  def start_admin_webhook_secret_overlap(admin_scope, subscription_id, opts \\ []) do
+    Sigra.Admin.Webhooks.Actions.start_secret_overlap(
+      sigra_config(),
+      admin_scope,
+      subscription_id,
+      opts
+    )
+  end
+
+  @doc "Complete a webhook signing secret rotation through an explicit admin action."
+  def complete_admin_webhook_secret_rotation(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.complete_secret_rotation(
+      sigra_config(),
+      admin_scope,
+      subscription_id
+    )
   end
 
   @doc "Check if user is locked out."

@@ -751,6 +751,18 @@ defmodule Sigra.Config do
           default: nil,
           doc: "Generated host webhook-delivery-attempt schema module."
         ],
+        endpoint_policy: [
+          type: {:or, [{:fun, 1}, nil]},
+          default: nil,
+          doc:
+            "Optional host callback for deployment-specific webhook endpoint policy. Receives a context map and returns :ok or {:error, reason_atom, detail_string}."
+        ],
+        endpoint_resolver: [
+          type: {:or, [{:fun, 1}, nil]},
+          default: nil,
+          doc:
+            "Optional hostname resolver used by webhook endpoint policy evaluation. Intended for tests and advanced host control."
+        ],
         oban_queue: [
           type: :string,
           default: "sigra_webhooks",

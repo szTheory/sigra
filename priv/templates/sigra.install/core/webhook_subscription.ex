@@ -19,6 +19,18 @@ defmodule <%= context_module %>.WebhookSubscription do
     field :enabled, :boolean, default: true
     field :description, :string
     field :signing_secret, <%= context_module %>.Encrypted.Binary, redact: true
+    field :next_signing_secret, <%= context_module %>.Encrypted.Binary, redact: true
+    field :rotation_state, Ecto.Enum,
+      values: [:stable, :prepared, :overlap_active, :completed],
+      default: :stable
+
+    field :rotation_prepared_at, :utc_datetime_usec
+    field :rotation_overlap_started_at, :utc_datetime_usec
+    field :rotation_retire_after_at, :utc_datetime_usec
+    field :rotation_completed_at, :utc_datetime_usec
+    field :rotation_last_changed_by_user_id, :binary_id
+    field :signing_secret_fingerprint, :string
+    field :next_signing_secret_fingerprint, :string
 
     has_many :webhook_deliveries, <%= context_module %>.WebhookDelivery
 
@@ -27,7 +39,22 @@ defmodule <%= context_module %>.WebhookSubscription do
 
   def changeset(subscription, attrs) do
     subscription
-    |> cast(attrs, [:endpoint_url, :event_types, :enabled, :description, :signing_secret])
+    |> cast(attrs, [
+      :endpoint_url,
+      :event_types,
+      :enabled,
+      :description,
+      :signing_secret,
+      :next_signing_secret,
+      :rotation_state,
+      :rotation_prepared_at,
+      :rotation_overlap_started_at,
+      :rotation_retire_after_at,
+      :rotation_completed_at,
+      :rotation_last_changed_by_user_id,
+      :signing_secret_fingerprint,
+      :next_signing_secret_fingerprint
+    ])
     |> validate_required([:endpoint_url, :event_types, :enabled, :signing_secret])
   end
 end

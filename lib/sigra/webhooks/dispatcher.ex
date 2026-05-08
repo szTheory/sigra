@@ -22,7 +22,8 @@ defmodule Sigra.Webhooks.Dispatcher do
     config
     |> Webhooks.list_subscriptions()
     |> Enum.filter(fn subscription ->
-      Map.get(subscription, :enabled, false) and event_type in Map.get(subscription, :event_types, [])
+      Map.get(subscription, :enabled, false) and
+        event_type in Map.get(subscription, :event_types, [])
     end)
   end
 
@@ -36,7 +37,7 @@ defmodule Sigra.Webhooks.Dispatcher do
     validate_event_type!(event_type)
 
     if Webhooks.enabled?(config) do
-      {subscriptions_step, event_step, deliveries_step} = step_names(event_type, opts)
+      {subscriptions_step, event_step, deliveries_step, jobs_step} = step_names(event_type, opts)
 
       Multi.new()
       |> Multi.run(subscriptions_step, fn _repo, _changes ->
@@ -50,6 +51,7 @@ defmodule Sigra.Webhooks.Dispatcher do
         event = Map.fetch!(changes, event_step)
         insert_deliveries(repo, config, subscriptions, event)
       end)
+      |> Webhooks.append_delivery_jobs_multi(config, deliveries_step, jobs_step: jobs_step)
     else
       Multi.new()
     end
@@ -69,7 +71,8 @@ defmodule Sigra.Webhooks.Dispatcher do
     {
       {:webhook_subscriptions, step_id},
       {:webhook_event, step_id},
-      {:webhook_deliveries, step_id}
+      {:webhook_deliveries, step_id},
+      {:webhook_delivery_jobs, step_id}
     }
   end
 
@@ -106,10 +109,38 @@ defmodule Sigra.Webhooks.Dispatcher do
   end
 
   defp insert_deliveries(repo, config, subscriptions, event) do
-    delivery_schema = Webhooks.delivery_schema!(config)
-
     Enum.reduce_while(subscriptions, {:ok, []}, fn subscription, {:ok, deliveries} ->
-      attrs = %{
+      case insert_delivery(repo, config, subscription, event) do
+        {:ok, delivery} -> {:cont, {:ok, [delivery | deliveries]}}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
+    |> case do
+      {:ok, deliveries} -> {:ok, Enum.reverse(deliveries)}
+      other -> other
+    end
+  end
+
+  @doc """
+  Inserts one canonical pending delivery row for a subscription/event pair.
+  """
+  @spec insert_delivery(module(), Sigra.Config.t(), struct() | map(), struct() | map(), map()) ::
+          {:ok, struct()} | {:error, term()}
+  def insert_delivery(repo, %Sigra.Config{} = config, subscription, event, attrs \\ %{})
+      when is_map(attrs) do
+    delivery_schema = Webhooks.delivery_schema!(config)
+    attrs = build_delivery_attrs(subscription, event, attrs)
+
+    repo.insert(delivery_schema.changeset(struct(delivery_schema), attrs))
+  end
+
+  @doc """
+  Builds the canonical pending delivery row attributes for persistence.
+  """
+  @spec build_delivery_attrs(struct() | map(), struct() | map(), map()) :: map()
+  def build_delivery_attrs(subscription, event, attrs \\ %{}) when is_map(attrs) do
+    Map.merge(
+      %{
         delivery_id: Ecto.UUID.generate(),
         status: "pending",
         attempt_count: 0,
@@ -124,17 +155,9 @@ defmodule Sigra.Webhooks.Dispatcher do
         terminal_reason: nil,
         webhook_subscription_id: Map.fetch!(subscription, :id),
         webhook_event_id: Map.fetch!(event, :id)
-      }
-
-      case repo.insert(delivery_schema.changeset(struct(delivery_schema), attrs)) do
-        {:ok, delivery} -> {:cont, {:ok, [delivery | deliveries]}}
-        {:error, reason} -> {:halt, {:error, reason}}
-      end
-    end)
-    |> case do
-      {:ok, deliveries} -> {:ok, Enum.reverse(deliveries)}
-      other -> other
-    end
+      },
+      attrs
+    )
   end
 
   defp resolve_object({:changes_key, key}, changes) when is_atom(key) do

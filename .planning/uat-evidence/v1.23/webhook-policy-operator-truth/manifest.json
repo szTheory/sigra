@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-05-08T01:24:24.836Z",
+  "endpoint_url": "http://localhost:4000/webhooks/sigra",
+  "blocked_delivery_id": "f030c39b-eb31-4b9d-b9ce-fe8ff6c1cda0",
+  "delivery_status": "dead_lettered",
+  "policy_reason": "policy_denied",
+  "policy_detail": "blocked by deployment callback",
+  "screenshots": {
+    "failures_row": "/Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-policy-operator-truth/screenshots/blocked-failures-row.png",
+    "delivery_detail": "/Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-policy-operator-truth/screenshots/blocked-delivery-detail.png"
+  }
+}

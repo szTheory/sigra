@@ -11,8 +11,8 @@ defmodule Sigra.Admin.Users.Detail do
 
   @audit_preview_limit 5
 
-  @spec load!(map(), Scope.t(), binary()) :: map()
-  def load!(config, %Scope{} = admin_scope, user_id) when is_binary(user_id) do
+  @spec load!(map(), Scope.t(), binary(), keyword()) :: map()
+  def load!(config, %Scope{} = admin_scope, user_id, opts \\ []) when is_binary(user_id) do
     hooks = Hooks.resolve(config)
     helpers = helpers(config)
     user = load_user!(config, admin_scope, user_id, helpers)
@@ -22,7 +22,9 @@ defmodule Sigra.Admin.Users.Detail do
 
     organizations = list_organizations(config, admin_scope, user, helpers)
     {identities, identities_available?} = identities_with_flag(config, user, helpers)
-    sessions = Sigra.Auth.list_sessions(config, user.id)
+    raw_sessions = Sigra.Auth.list_sessions(config, user.id)
+    current_session_hashed_token = current_session_hashed_token(user, admin_scope, raw_sessions, opts)
+    sessions = Enum.map(raw_sessions, &present_session(&1, current_session_hashed_token))
     passkeys = list_passkeys(config, user, helpers)
     mfa_status = load_mfa_status(config, user, helpers)
     recent_audit = recent_audit_preview(config, admin_scope, user.id)
@@ -43,6 +45,7 @@ defmodule Sigra.Admin.Users.Detail do
         inserted_at: Map.get(user, :inserted_at)
       },
       sessions: sessions,
+      current_session_hashed_token: current_session_hashed_token,
       security: %{
         mfa_status: mfa_status,
         passkeys: passkeys,
@@ -220,6 +223,52 @@ defmodule Sigra.Admin.Users.Detail do
   end
 
   defp maybe_put_audit_scope(filters, _admin_scope), do: filters
+
+  defp current_session_hashed_token(
+         user,
+         %Scope{scope: %{user: %{id: current_user_id}}},
+         sessions,
+         opts
+       )
+       when current_user_id == user.id do
+    case Keyword.get(opts, :current_user_token) do
+      raw_token when is_binary(raw_token) ->
+        with {:ok, raw_bytes} <- Base.url_decode64(raw_token, padding: false),
+             hashed_token <- Sigra.Token.hash_token(raw_bytes),
+             true <- Enum.any?(sessions, &(&1.hashed_token == hashed_token)) do
+          hashed_token
+        else
+          _other -> nil
+        end
+
+      _other ->
+        nil
+    end
+  end
+
+  defp current_session_hashed_token(_user, _admin_scope, _sessions, _opts), do: nil
+
+  defp present_session(session, current_session_hashed_token) do
+    %{
+      id: session.id,
+      hashed_token: session.hashed_token,
+      ip: session.ip,
+      current?: is_binary(current_session_hashed_token) and session.hashed_token == current_session_hashed_token,
+      type_label: "Session type: #{session.type}",
+      last_activity_label: activity_label(session.last_active_at),
+      sudo_label: sudo_label(session.sudo_at)
+    }
+  end
+
+  defp activity_label(%DateTime{} = at),
+    do: "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
+
+  defp activity_label(_), do: "Last activity: Not available"
+
+  defp sudo_label(%DateTime{} = at),
+    do: "Sudo confirmed: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
+
+  defp sudo_label(_), do: nil
 
   defp scope_label(%Scope{mode: :organization, organization: %{name: name}}) when is_binary(name),
     do: name

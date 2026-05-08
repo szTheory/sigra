@@ -31,6 +31,7 @@ defmodule Sigra.Install.Features.Admin do
       {:eex, "admin/policy.ex", Path.join(["lib", otp_app, "sigra_admin_policy.ex"])},
       {:eex, "admin/components/admin_shell.ex",
        Path.join(["lib", web, "components", "admin_shell.ex"])},
+      {:eex, "admin/webhook_receiver_setup.md", Path.join(["docs", "webhook_receiver_setup.md"])},
       {:eex, "admin/impersonation_controller.ex",
        Path.join(["lib", web, "controllers", "admin", "impersonation_controller.ex"])},
       {:eex, "admin/audit_export_controller.ex",
@@ -75,6 +76,11 @@ defmodule Sigra.Install.Features.Admin do
            so impersonation stays visibly persistent and the app-wide
            `/impersonation` stop action remains reachable from host-owned
            chrome.
+
+        4. Review `docs/webhook_receiver_setup.md` before enabling webhook
+           subscriptions in production. It captures the raw request body,
+           `body_reader`, and `delivery_id` receiver contract from the
+           generated admin webhook setup flow.
       """
     ]
   end

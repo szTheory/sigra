@@ -115,8 +115,22 @@ defmodule Sigra.Templates.SessionTemplatesTest do
       assert content =~ "def revoke_session("
     end
 
-    test "contains revoke_all_sessions function", %{content: content} do
-      assert content =~ "def revoke_all_sessions("
+    test "contains revoke_other_sessions function", %{content: content} do
+      assert content =~ "def revoke_other_sessions("
+    end
+
+    test "contains current_session_hashed_token function", %{content: content} do
+      assert content =~ "def current_session_hashed_token("
+    end
+
+    test "contains recent_security_activity function", %{content: content} do
+      assert content =~ "def recent_security_activity("
+      assert content =~ "Sigra.SecurityActivity.list_recent_activity"
+    end
+
+    test "contains truthful logout helper", %{content: content} do
+      assert content =~ "def log_out_user_session_token("
+      assert content =~ "Sigra.Auth.logout"
     end
 
     test "contains confirm_sudo function", %{content: content} do
@@ -138,8 +152,33 @@ defmodule Sigra.Templates.SessionTemplatesTest do
     test "delegates to Sigra.Auth library functions", %{content: content} do
       assert content =~ "Sigra.Auth.list_sessions"
       assert content =~ "Sigra.Auth.revoke_session"
-      assert content =~ "Sigra.Auth.delete_all_sessions"
+      assert content =~ "Sigra.Auth.revoke_other_sessions"
+      assert content =~ "Sigra.SecurityActivity.list_recent_activity"
       assert content =~ "Sigra.Auth.confirm_sudo"
+    end
+  end
+
+  describe "session live template" do
+    setup do
+      content = File.read!(Path.join(@templates_dir, "session_live.ex"))
+      %{content: content}
+    end
+
+    test "renders recent security activity section", %{content: content} do
+      assert content =~ "Recent security activity"
+      assert content =~ "security_activity"
+      assert content =~ "Recent sign-ins"
+    end
+  end
+
+  describe "user_auth template" do
+    setup do
+      content = File.read!(Path.join(@templates_dir, "user_auth.ex"))
+      %{content: content}
+    end
+
+    test "logout delegates through the truthful logout helper", %{content: content} do
+      assert content =~ "log_out_user_session_token"
     end
   end
 

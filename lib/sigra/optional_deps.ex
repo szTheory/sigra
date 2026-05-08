@@ -214,14 +214,15 @@ defmodule Sigra.OptionalDeps do
         enforced?: true,
         doctor?: true,
         compile_warning?: :when_enabled,
-        remediation: InstallCore.optional_dependency_remediation(:lifecycle_jobs),
+        remediation: InstallCore.optional_dependency_remediation(:webhook_delivery),
         enabled?: fn context -> webhook_delivery_enabled?(context) end,
         evidence: fn context -> webhook_delivery_evidence(context) end
       }
     ]
   end
 
-  defp normalize_context(%Sigra.Config{} = config), do: %{data: %{config: config}, loader: &default_loader/1}
+  defp normalize_context(%Sigra.Config{} = config),
+    do: %{data: %{config: config}, loader: &default_loader/1}
 
   defp normalize_context(context) when is_list(context) do
     loader = Keyword.get(context, :dependency_loaded?, &default_loader/1)
@@ -405,6 +406,8 @@ defmodule Sigra.OptionalDeps do
     end
   end
 
-  defp config_value(%{config: %Sigra.Config{} = config}, field, default), do: Map.get(config, field, default)
+  defp config_value(%{config: %Sigra.Config{} = config}, field, default),
+    do: Map.get(config, field, default)
+
   defp config_value(_context, _field, default), do: default
 end

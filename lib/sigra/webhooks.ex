@@ -10,12 +10,10 @@ defmodule Sigra.Webhooks do
   alias Ecto.Changeset
   alias Ecto.Multi
   alias Sigra.OptionalDeps
-  alias Sigra.Webhooks.{Dispatcher, RetryPolicy}
+  alias Sigra.Webhooks.{Dispatcher, EndpointPolicy, RetryPolicy}
 
   @type attrs :: map() | keyword()
   @type scope_like :: map() | struct() | nil
-
-  @localhost_hosts MapSet.new(["127.0.0.1", "::1", "localhost"])
 
   @doc """
   Returns the explicit public webhook event catalog.
@@ -128,7 +126,8 @@ defmodule Sigra.Webhooks do
   Loads one configured webhook subscription by id.
   """
   @spec get_subscription(Sigra.Config.t(), binary()) :: struct() | nil
-  def get_subscription(%Sigra.Config{} = config, subscription_id) when is_binary(subscription_id) do
+  def get_subscription(%Sigra.Config{} = config, subscription_id)
+      when is_binary(subscription_id) do
     config.repo.get_by(subscription_schema!(config), id: subscription_id)
   end
 
@@ -136,7 +135,8 @@ defmodule Sigra.Webhooks do
   Loads one configured webhook subscription by id and raises if missing.
   """
   @spec get_subscription!(Sigra.Config.t(), binary()) :: struct()
-  def get_subscription!(%Sigra.Config{} = config, subscription_id) when is_binary(subscription_id) do
+  def get_subscription!(%Sigra.Config{} = config, subscription_id)
+      when is_binary(subscription_id) do
     config.repo.get_by!(subscription_schema!(config), id: subscription_id)
   end
 
@@ -169,12 +169,24 @@ defmodule Sigra.Webhooks do
   @doc """
   Reveals the currently active signing secret for one subscription.
   """
-  @spec reveal_secret(Sigra.Config.t(), struct() | binary()) :: {:ok, binary()} | {:error, :not_found}
+  @spec reveal_secret(Sigra.Config.t(), struct() | binary()) ::
+          {:ok, binary()} | {:error, :not_found}
   def reveal_secret(%Sigra.Config{} = config, subscription_or_id) do
     case get_subscription_record(config, subscription_or_id) do
       nil -> {:error, :not_found}
       subscription -> {:ok, subscription.signing_secret}
     end
+  end
+
+  @doc """
+  Resolves the secrets that are currently valid for outbound signing.
+  """
+  @spec active_signing_secrets(struct() | map()) :: [binary()]
+  def active_signing_secrets(subscription) when is_map(subscription) do
+    subscription
+    |> rotation_secrets()
+    |> Enum.filter(&(is_binary(&1) and &1 != ""))
+    |> Enum.uniq()
   end
 
   @doc """
@@ -184,8 +196,202 @@ defmodule Sigra.Webhooks do
           {:ok, struct()} | {:error, Changeset.t() | :not_found}
   def rotate_secret(%Sigra.Config{} = config, subscription_or_id) do
     case get_subscription_record(config, subscription_or_id) do
-      nil -> {:error, :not_found}
-      subscription -> update_subscription(config, subscription, %{signing_secret: generate_signing_secret()})
+      nil ->
+        {:error, :not_found}
+
+      subscription ->
+        update_subscription(config, subscription, %{signing_secret: generate_signing_secret()})
+    end
+  end
+
+  @doc """
+  Stages a replacement signing secret without changing the currently active one.
+  """
+  @spec prepare_secret(Sigra.Config.t(), struct() | binary(), keyword()) ::
+          {:ok, struct()} | {:error, Changeset.t() | :not_found}
+  def prepare_secret(%Sigra.Config{} = config, subscription_or_id, opts \\ [])
+      when is_list(opts) do
+    with_subscription(config, subscription_or_id, fn subscription ->
+      case rotation_state(subscription) do
+        state when state in [:stable, :completed] ->
+          now = DateTime.utc_now() |> DateTime.truncate(:second)
+          next_secret = generate_signing_secret()
+
+          update_subscription(config, subscription, %{
+            next_signing_secret: next_secret,
+            rotation_state: :prepared,
+            rotation_prepared_at: now,
+            rotation_overlap_started_at: nil,
+            rotation_retire_after_at: nil,
+            rotation_completed_at: nil,
+            rotation_last_changed_by_user_id: actor_id_from_scope(Keyword.get(opts, :scope)),
+            signing_secret_fingerprint:
+              secret_fingerprint(subscription.signing_secret || generate_signing_secret()),
+            next_signing_secret_fingerprint: secret_fingerprint(next_secret)
+          })
+
+        _other ->
+          {:error,
+           rotation_error_changeset(
+             subscription,
+             "can only prepare a next secret from stable or completed"
+           )}
+      end
+    end)
+  end
+
+  @doc """
+  Discards a prepared next signing secret and returns the subscription to `stable`.
+  """
+  @spec discard_prepared_secret(Sigra.Config.t(), struct() | binary(), keyword()) ::
+          {:ok, struct()} | {:error, Changeset.t() | :not_found}
+  def discard_prepared_secret(%Sigra.Config{} = config, subscription_or_id, opts \\ [])
+      when is_list(opts) do
+    with_subscription(config, subscription_or_id, fn subscription ->
+      if rotation_state(subscription) == :prepared do
+        update_subscription(config, subscription, %{
+          next_signing_secret: nil,
+          rotation_state: :stable,
+          rotation_prepared_at: nil,
+          rotation_overlap_started_at: nil,
+          rotation_retire_after_at: nil,
+          rotation_completed_at: nil,
+          rotation_last_changed_by_user_id: actor_id_from_scope(Keyword.get(opts, :scope)),
+          signing_secret_fingerprint:
+            secret_fingerprint(subscription.signing_secret || generate_signing_secret()),
+          next_signing_secret_fingerprint: nil
+        })
+      else
+        {:error,
+         rotation_error_changeset(
+           subscription,
+           "can only discard a prepared secret from prepared"
+         )}
+      end
+    end)
+  end
+
+  @doc """
+  Activates the overlap window so deliveries can be signed by both the current and next secret.
+  """
+  @spec start_secret_overlap(Sigra.Config.t(), struct() | binary(), keyword()) ::
+          {:ok, struct()} | {:error, Changeset.t() | :not_found}
+  def start_secret_overlap(%Sigra.Config{} = config, subscription_or_id, opts \\ [])
+      when is_list(opts) do
+    with_subscription(config, subscription_or_id, fn subscription ->
+      cond do
+        rotation_state(subscription) != :prepared ->
+          {:error, rotation_error_changeset(subscription, "can only start overlap from prepared")}
+
+        is_nil(Map.get(subscription, :next_signing_secret)) ->
+          {:error,
+           rotation_error_changeset(subscription, "requires a prepared next signing secret")}
+
+        true ->
+          now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+          update_subscription(config, subscription, %{
+            rotation_state: :overlap_active,
+            rotation_overlap_started_at: now,
+            rotation_retire_after_at: Keyword.get(opts, :retire_after_at),
+            rotation_completed_at: nil,
+            rotation_last_changed_by_user_id: actor_id_from_scope(Keyword.get(opts, :scope)),
+            signing_secret_fingerprint:
+              secret_fingerprint(subscription.signing_secret || generate_signing_secret()),
+            next_signing_secret_fingerprint:
+              secret_fingerprint(Map.get(subscription, :next_signing_secret))
+          })
+      end
+    end)
+  end
+
+  @doc """
+  Completes the overlap window by promoting the prepared secret to active and clearing the next slot.
+  """
+  @spec complete_secret_rotation(Sigra.Config.t(), struct() | binary(), keyword()) ::
+          {:ok, struct()} | {:error, Changeset.t() | :not_found}
+  def complete_secret_rotation(%Sigra.Config{} = config, subscription_or_id, opts \\ [])
+      when is_list(opts) do
+    with_subscription(config, subscription_or_id, fn subscription ->
+      next_secret = Map.get(subscription, :next_signing_secret)
+
+      cond do
+        rotation_state(subscription) != :overlap_active ->
+          {:error,
+           rotation_error_changeset(
+             subscription,
+             "can only complete rotation from overlap_active"
+           )}
+
+        is_nil(next_secret) ->
+          {:error,
+           rotation_error_changeset(subscription, "requires a prepared next signing secret")}
+
+        true ->
+          now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+          update_subscription(config, subscription, %{
+            signing_secret: next_secret,
+            next_signing_secret: nil,
+            rotation_state: :completed,
+            rotation_prepared_at: nil,
+            rotation_overlap_started_at: nil,
+            rotation_retire_after_at: nil,
+            rotation_completed_at: now,
+            rotation_last_changed_by_user_id: actor_id_from_scope(Keyword.get(opts, :scope)),
+            signing_secret_fingerprint: secret_fingerprint(next_secret),
+            next_signing_secret_fingerprint: nil
+          })
+      end
+    end)
+  end
+
+  @doc """
+  Replays one dead-lettered delivery as a fresh child delivery lineage.
+  """
+  @spec replay_delivery(Sigra.Config.t(), binary(), scope_like(), keyword()) ::
+          {:ok, %{source_delivery: struct(), replay_delivery: struct()}} | {:error, term()}
+  def replay_delivery(%Sigra.Config{} = config, delivery_id, scope, opts \\ [])
+      when is_binary(delivery_id) and is_list(opts) do
+    if enabled?(config) do
+      repo = config.repo
+      delivery_schema = delivery_schema!(config)
+
+      Multi.new()
+      |> Multi.run(:source_delivery, fn repo, _changes ->
+        case repo.get_by(delivery_schema, delivery_id: delivery_id) do
+          nil -> {:error, :not_found}
+          delivery -> {:ok, delivery}
+        end
+      end)
+      |> Multi.run(:subscription, fn repo, %{source_delivery: source_delivery} ->
+        load_replay_subscription(repo, config, source_delivery)
+      end)
+      |> Multi.run(:event, fn repo, %{source_delivery: source_delivery} ->
+        load_replay_event(repo, config, source_delivery)
+      end)
+      |> Multi.run(:replay_guard, fn repo,
+                                     %{
+                                       source_delivery: source_delivery,
+                                       subscription: subscription
+                                     } ->
+        ensure_replayable(repo, config, source_delivery, subscription)
+      end)
+      |> Multi.insert(:replay_delivery, fn %{
+                                             source_delivery: source_delivery,
+                                             subscription: subscription,
+                                             event: event
+                                           } ->
+        replay_delivery_changeset(config, source_delivery, subscription, event, scope, opts)
+      end)
+      |> Multi.run(:replay_deliveries, fn _repo, %{replay_delivery: replay_delivery} ->
+        {:ok, [replay_delivery]}
+      end)
+      |> append_delivery_jobs_multi(config, :replay_deliveries, jobs_step: :replay_jobs)
+      |> repo.transaction()
+      |> normalize_replay_result()
+    else
+      {:error, :webhooks_disabled}
     end
   end
 
@@ -213,6 +419,40 @@ defmodule Sigra.Webhooks do
       )
       when is_binary(event_type) and is_list(opts) do
     Multi.append(multi, dispatch_multi(config, event_type, object_ref, opts))
+  end
+
+  @doc """
+  Appends an explicit transaction-owned initial enqueue step for deliveries
+  already inserted by the current outer multi.
+  """
+  @spec append_delivery_jobs_multi(Multi.t(), Sigra.Config.t(), atom() | tuple(), keyword()) ::
+          Multi.t()
+  def append_delivery_jobs_multi(
+        %Multi{} = multi,
+        %Sigra.Config{} = config,
+        deliveries_step,
+        opts \\ []
+      )
+      when is_list(opts) do
+    jobs_step = Keyword.get(opts, :jobs_step, delivery_jobs_step_name(deliveries_step))
+    job_opts = Keyword.drop(opts, [:jobs_step])
+
+    Multi.run(multi, jobs_step, fn repo, changes ->
+      deliveries = Map.fetch!(changes, deliveries_step)
+
+      Enum.reduce_while(deliveries, {:ok, []}, fn delivery, {:ok, jobs} ->
+        changeset = build_delivery_job(config, delivery, job_opts)
+
+        case repo.insert(changeset) do
+          {:ok, job} -> {:cont, {:ok, [job | jobs]}}
+          {:error, reason} -> {:halt, {:error, reason}}
+        end
+      end)
+      |> case do
+        {:ok, jobs} -> {:ok, Enum.reverse(jobs)}
+        {:error, reason} -> {:error, reason}
+      end
+    end)
   end
 
   @doc """
@@ -289,7 +529,8 @@ defmodule Sigra.Webhooks do
   same transaction.
   """
   @spec persist_delivery_outcome(Sigra.Config.t(), struct(), map()) ::
-          {:ok, %{attempt: struct(), delivery: struct(), next_attempt: map() | nil}} | {:error, term()}
+          {:ok, %{attempt: struct(), delivery: struct(), next_attempt: map() | nil}}
+          | {:error, term()}
   def persist_delivery_outcome(%Sigra.Config{} = config, delivery, attrs) when is_map(attrs) do
     repo = config.repo
     attempt_schema = delivery_attempt_schema!(config)
@@ -347,7 +588,7 @@ defmodule Sigra.Webhooks do
     |> put_default_enabled()
     |> normalize_event_types()
     |> validate_event_types()
-    |> validate_endpoint_url()
+    |> validate_endpoint_url(config)
     |> maybe_validate_secret()
     |> maybe_validate_schema_modules(config)
   end
@@ -385,8 +626,17 @@ defmodule Sigra.Webhooks do
       terminal_reason: if(retryable, do: nil, else: terminal_reason)
     }
 
-    Enum.reject(base, fn {_key, value} -> is_nil(value) end)
-    |> Enum.into(%{})
+    summary_attrs =
+      Enum.reject(base, fn {key, value} ->
+        is_nil(value) and key not in [:next_attempt_at]
+      end)
+      |> Enum.into(%{})
+
+    if Map.has_key?(attrs, :next_attempt) do
+      Map.put(summary_attrs, :next_attempt_at, next_attempt && Map.get(next_attempt, :scheduled_at))
+    else
+      summary_attrs
+    end
   end
 
   defp delivery_status(attrs) do
@@ -446,9 +696,33 @@ defmodule Sigra.Webhooks do
           "webhook delivery jobs require a persisted delivery with a binary delivery_id"
   end
 
-  defp get_subscription_record(%Sigra.Config{} = config, %{id: subscription_id})
+  defp delivery_jobs_step_name({:webhook_deliveries, step_id}),
+    do: {:webhook_delivery_jobs, step_id}
+
+  defp delivery_jobs_step_name(deliveries_step), do: {:webhook_delivery_jobs, deliveries_step}
+
+  defp normalize_replay_result(
+         {:ok,
+          %{
+            source_delivery: source_delivery,
+            replay_delivery: replay_delivery
+          }}
+       ),
+       do: {:ok, %{source_delivery: source_delivery, replay_delivery: replay_delivery}}
+
+  defp normalize_replay_result({:error, :replay_delivery, %Changeset{} = changeset, _changes}) do
+    if replay_already_exists_changeset?(changeset) do
+      {:error, :replay_already_exists}
+    else
+      {:error, changeset}
+    end
+  end
+
+  defp normalize_replay_result({:error, _step, reason, _changes}), do: {:error, reason}
+
+  defp get_subscription_record(%Sigra.Config{} = config, %{id: subscription_id} = subscription)
        when is_binary(subscription_id) do
-    get_subscription(config, subscription_id)
+    get_subscription(config, subscription_id) || subscription
   end
 
   defp get_subscription_record(%Sigra.Config{} = config, subscription_id)
@@ -457,6 +731,52 @@ defmodule Sigra.Webhooks do
   end
 
   defp get_subscription_record(_config, nil), do: nil
+
+  defp with_subscription(%Sigra.Config{} = config, subscription_or_id, fun)
+       when is_function(fun, 1) do
+    case get_subscription_record(config, subscription_or_id) do
+      nil -> {:error, :not_found}
+      subscription -> fun.(subscription)
+    end
+  end
+
+  defp rotation_state(subscription) do
+    Map.get(subscription, :rotation_state) || :stable
+  end
+
+  defp rotation_secrets(subscription) do
+    case rotation_state(subscription) do
+      :overlap_active ->
+        [Map.get(subscription, :signing_secret), Map.get(subscription, :next_signing_secret)]
+
+      _other ->
+        [Map.get(subscription, :signing_secret)]
+    end
+  end
+
+  defp rotation_error_changeset(subscription, message) do
+    subscription
+    |> Changeset.change()
+    |> Changeset.add_error(:rotation_state, message)
+  end
+
+  defp actor_id_from_scope(scope) do
+    scope
+    |> actor_from_scope()
+    |> case do
+      %{id: actor_id} -> actor_id
+      _other -> nil
+    end
+  end
+
+  defp secret_fingerprint(secret) when is_binary(secret) do
+    secret
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
+    |> binary_part(0, 12)
+  end
+
+  defp secret_fingerprint(_secret), do: nil
 
   defp generate_signing_secret do
     32
@@ -526,21 +846,29 @@ defmodule Sigra.Webhooks do
     end)
   end
 
-  defp validate_endpoint_url(%Changeset{} = changeset) do
+  defp validate_endpoint_url(%Changeset{} = changeset, %Sigra.Config{} = config) do
     Changeset.validate_change(changeset, :endpoint_url, fn :endpoint_url, endpoint_url ->
-      case validate_endpoint(endpoint_url) do
+      case EndpointPolicy.validate_subscription(config, endpoint_url, %{
+             subscription: Changeset.apply_changes(changeset)
+           }) do
         :ok -> []
-        {:error, reason} -> [endpoint_url: reason]
+        {:error, _reason, detail} -> [endpoint_url: detail]
       end
     end)
   end
 
   defp maybe_validate_secret(%Changeset{} = changeset) do
-    Changeset.validate_change(changeset, :signing_secret, fn :signing_secret, secret ->
+    changeset
+    |> validate_secret_field(:signing_secret)
+    |> validate_secret_field(:next_signing_secret)
+  end
+
+  defp validate_secret_field(%Changeset{} = changeset, field) do
+    Changeset.validate_change(changeset, field, fn ^field, secret ->
       cond do
         is_binary(secret) and byte_size(secret) >= 16 -> []
-        is_binary(secret) -> [signing_secret: "must be at least 16 bytes"]
-        true -> [signing_secret: "must be a binary secret"]
+        is_binary(secret) -> [{field, "must be at least 16 bytes"}]
+        true -> [{field, "must be a binary secret"}]
       end
     end)
   end
@@ -568,25 +896,6 @@ defmodule Sigra.Webhooks do
   defp validate_schema!(_schema, key) do
     raise ArgumentError, "config.webhooks[:#{key}] must be a module"
   end
-
-  defp validate_endpoint(endpoint_url) when is_binary(endpoint_url) do
-    uri = URI.parse(endpoint_url)
-
-    cond do
-      uri.scheme == "https" and is_binary(uri.host) -> :ok
-      uri.scheme == "http" and localhost_host?(uri.host) -> :ok
-      uri.scheme in ["http", "https"] and is_nil(uri.host) -> {:error, "must include a host"}
-      uri.scheme == "http" -> {:error, "must use HTTPS unless the host is localhost"}
-      true -> {:error, "must be an absolute HTTP or HTTPS URL"}
-    end
-  end
-
-  defp validate_endpoint(_other), do: {:error, "must be an absolute HTTP or HTTPS URL"}
-
-  defp localhost_host?(host) when is_binary(host),
-    do: MapSet.member?(@localhost_hosts, String.downcase(host))
-
-  defp localhost_host?(_host), do: false
 
   defp actor_from_scope(nil), do: nil
 
@@ -640,4 +949,88 @@ defmodule Sigra.Webhooks do
   end
 
   defp maybe_put_context_request(context, _request_id), do: context
+
+  defp load_replay_subscription(repo, %Sigra.Config{} = config, source_delivery) do
+    case repo.get(
+           subscription_schema!(config),
+           Map.get(source_delivery, :webhook_subscription_id)
+         ) do
+      nil -> {:error, :delivery_context_incomplete}
+      subscription -> {:ok, subscription}
+    end
+  end
+
+  defp load_replay_event(repo, %Sigra.Config{} = config, source_delivery) do
+    case repo.get(event_schema!(config), Map.get(source_delivery, :webhook_event_id)) do
+      nil -> {:error, :delivery_context_incomplete}
+      event -> {:ok, event}
+    end
+  end
+
+  defp ensure_replayable(repo, %Sigra.Config{} = config, source_delivery, subscription) do
+    cond do
+      Map.get(source_delivery, :status) != "dead_lettered" or
+          is_nil(Map.get(source_delivery, :dead_lettered_at)) ->
+        {:error, :not_dead_lettered}
+
+      delivery_context_incomplete?(source_delivery) ->
+        {:error, :delivery_context_incomplete}
+
+      not Map.get(subscription, :enabled, false) ->
+        {:error, :subscription_disabled}
+
+      replay_child_exists?(repo, config, source_delivery) ->
+        {:error, :replay_already_exists}
+
+      true ->
+        {:ok, :replayable}
+    end
+  end
+
+  defp replay_delivery_changeset(config, source_delivery, subscription, event, scope, opts) do
+    replay_root_id =
+      Map.get(source_delivery, :replay_root_webhook_delivery_id) || Map.get(source_delivery, :id)
+
+    attrs =
+      Dispatcher.build_delivery_attrs(subscription, event, %{
+        replayed_from_webhook_delivery_id: Map.get(source_delivery, :id),
+        replay_root_webhook_delivery_id: replay_root_id,
+        replayed_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        replayed_by_user_id: actor_id_from_scope(scope),
+        replay_source: normalize_replay_source(Keyword.get(opts, :source))
+      })
+
+    delivery_schema = delivery_schema!(config)
+    delivery_schema.changeset(struct(delivery_schema), attrs)
+  end
+
+  defp replay_child_exists?(repo, %Sigra.Config{} = config, source_delivery) do
+    delivery_schema = delivery_schema!(config)
+
+    case repo.get_by(
+           delivery_schema,
+           replayed_from_webhook_delivery_id: Map.get(source_delivery, :id)
+         ) do
+      nil -> false
+      _delivery -> true
+    end
+  end
+
+  defp delivery_context_incomplete?(source_delivery) do
+    case Map.get(source_delivery, :terminal_reason) do
+      "delivery_dependency_missing" -> true
+      "orphaned_terminal_issue" -> true
+      _other -> false
+    end
+  end
+
+  defp normalize_replay_source(source) when is_binary(source) and source != "", do: source
+  defp normalize_replay_source(_source), do: "admin.unknown"
+
+  defp replay_already_exists_changeset?(%Changeset{} = changeset) do
+    Enum.any?(changeset.errors, fn
+      {:replayed_from_webhook_delivery_id, {_message, _opts}} -> true
+      _other -> false
+    end)
+  end
 end

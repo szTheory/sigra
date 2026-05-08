@@ -13,3 +13,11 @@
 // smoke will fail to log in.
 
 export const TEST_PASSWORD = 'CorrectHorseBatteryStaple123!';
+
+export function buildLocalWebhookReceiverUrl(baseUrl: string): string {
+  return new URL('/webhooks/sigra', baseUrl).toString();
+}
+
+export function buildProofUserEmail(prefix: string): string {
+  return `${prefix}-${Date.now()}@example.test`;
+}

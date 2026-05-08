@@ -1,6 +1,6 @@
 # Audit Logging
 
-Sigra writes a structured row to `audit_events` for every security-relevant operation: logins, failed logins, password resets, MFA challenges, token revocations, account deletions, and more. This guide covers the schema, the query API, writing custom events, and testing audit-aware code.
+Sigra writes a structured row to `audit_events` for every security-relevant operation: logins, failed logins, password resets, MFA challenges, token revocations, account deletions, and more. The same persisted truth also backs the generated recent security activity feed on `/users/sessions`, which intentionally stays bounded to recent sign-ins, suspicious-login outcomes, and meaningful session lifecycle changes rather than promising timeout-expiry history. This guide covers the schema, the query API, writing custom events, and testing audit-aware code.
 
 ## What Sigra gives you
 
@@ -36,6 +36,7 @@ Sigra writes these automatically (this list is not exhaustive — check `lib/sig
 - `auth.register.success` / `auth.register.failure`
 - `auth.login.success` / `auth.login.failure`
 - `auth.logout`
+- `auth.mfa_verified`
 - `auth.password_reset_request`
 - `auth.password_reset.success` / `auth.password_reset.failure`
 - `auth.magic_link_request`
@@ -103,6 +104,14 @@ Your own code can write domain-specific events. Prefix them to avoid colliding w
     )
 
 Reserved prefixes (`auth.`, `mfa.`, `account.`, `api_token.`, `oauth.`) are rejected from the public `log/2` path to protect the invariants of built-in events. Use your own namespace.
+
+For session-history semantics, keep these distinctions intact:
+
+- `auth.logout` means the current user explicitly signed out.
+- `session.revoke_others` means preserve-current "log out of other devices".
+- `session.revoke_all` means destructive sign-out everywhere.
+- `session.delete` remains the generic single-session revoke path.
+- `auth.mfa_verified` distinguishes MFA completion from a second bare `session.create`.
 
 ## Integrating with Ecto.Multi
 

@@ -163,6 +163,63 @@ Sigra's background jobs (email delivery, session cleanup, audit retention, sched
 
 If you don't use Oban, leave email delivery on the synchronous/`:auto` path. Explicit async delivery and queue-backed lifecycle work require Oban and will raise a tagged missing-dependency error when the host enabled them without the dependency present. Token cleanup still runs via a minimal built-in scheduler, but with weaker delivery guarantees. **Strongly prefer Oban in production.**
 
+## Webhook egress controls
+
+Sigra now enforces a sender-side webhook endpoint policy before any outbound
+request leaves your app process. That is useful, but it is not the whole
+egress boundary.
+
+Use both layers:
+
+- App-layer policy in your generated host via `webhook_endpoint_policy/1`
+- Infrastructure-layer controls such as Kubernetes `NetworkPolicy`, Fly.io
+  egress IPs, and Fly.io network policies
+
+Sigra does not publish a fixed sender IP range because Sigra runs inside your
+deployment. If a downstream receiver wants an allowlist, give it the egress IP
+or gateway you own.
+
+Example generated-host seam:
+
+```elixir
+def webhook_endpoint_policy(%{uri: uri, stage: stage}) do
+  allowed_hosts = MapSet.new(["hooks.example.com", "audit.example.com"])
+
+  cond do
+    stage == :delivery and not MapSet.member?(allowed_hosts, String.downcase(uri.host || "")) ->
+      {:error, :policy_denied, "host not on deployment allowlist"}
+
+    true ->
+      :ok
+  end
+end
+```
+
+The callback is wired through your generated `sigra_config()` as:
+
+```elixir
+webhooks: [
+  endpoint_policy: &__MODULE__.webhook_endpoint_policy/1,
+  ...
+]
+```
+
+Infrastructure examples:
+
+- Kubernetes `NetworkPolicy`: restrict the app pods so only the webhook worker
+  pods can talk to approved egress destinations or egress gateways.
+- Fly.io egress IPs: if the receiver needs IP-based allowlisting, terminate
+  outbound traffic through a stable Fly.io egress IP or your own gateway and
+  share that address with the receiver.
+- Fly.io network policies: keep worker-to-internet access narrower than the
+  rest of the app when your deployment model allows it.
+
+Operationally, validate both sides:
+
+- allowed public endpoint: delivery succeeds normally
+- blocked delivery: Sigra records `local_policy_error` and the receiver never
+  sees the request
+
 ## Rate limit tuning
 
 The default Hammer rate limits are conservative for small apps. Review them for your traffic:

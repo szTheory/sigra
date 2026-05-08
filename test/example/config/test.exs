@@ -45,3 +45,7 @@ config :phoenix,
 # Sigra authentication
 # Speed up password hashing in tests
 config :argon2_elixir, t_cost: 1, m_cost: 8
+
+config :example, Oban,
+  testing: :manual,
+  plugins: false

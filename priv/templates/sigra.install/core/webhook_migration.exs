@@ -9,6 +9,15 @@ defmodule <%= app_module %>.Repo.Migrations.CreateWebhookTables do
       add :enabled, :boolean, null: false, default: true
       add :description, :string
       add :signing_secret, :binary, null: false
+      add :next_signing_secret, :binary
+      add :rotation_state, :string, null: false, default: "stable"
+      add :rotation_prepared_at, :utc_datetime_usec
+      add :rotation_overlap_started_at, :utc_datetime_usec
+      add :rotation_retire_after_at, :utc_datetime_usec
+      add :rotation_completed_at, :utc_datetime_usec
+      add :rotation_last_changed_by_user_id, :binary_id
+      add :signing_secret_fingerprint, :string
+      add :next_signing_secret_fingerprint, :string
 
       timestamps(type: :utc_datetime_usec)
     end
@@ -47,6 +56,11 @@ defmodule <%= app_module %>.Repo.Migrations.CreateWebhookTables do
       add :last_error_detail, :string
       add :dead_lettered_at, :utc_datetime_usec
       add :terminal_reason, :string
+      add :replayed_from_webhook_delivery_id, references(:webhook_deliveries, type: :binary_id)
+      add :replay_root_webhook_delivery_id, references(:webhook_deliveries, type: :binary_id)
+      add :replayed_at, :utc_datetime_usec
+      add :replayed_by_user_id, :binary_id
+      add :replay_source, :string
 
       add :webhook_subscription_id,
           references(:webhook_subscriptions, type: :binary_id, on_delete: :delete_all),
@@ -63,8 +77,13 @@ defmodule <%= app_module %>.Repo.Migrations.CreateWebhookTables do
     create index(:webhook_deliveries, [:status])
     create index(:webhook_deliveries, [:next_attempt_at])
     create index(:webhook_deliveries, [:dead_lettered_at])
+    create index(:webhook_deliveries, [:replay_root_webhook_delivery_id])
     create index(:webhook_deliveries, [:webhook_subscription_id])
     create index(:webhook_deliveries, [:webhook_event_id])
+    create unique_index(:webhook_deliveries, [:replayed_from_webhook_delivery_id],
+             where: "replayed_from_webhook_delivery_id IS NOT NULL",
+             name: :webhook_deliveries_replayed_from_unique_index
+           )
 
     create table(:webhook_delivery_attempts, primary_key: false) do
       add :id, :binary_id, primary_key: true

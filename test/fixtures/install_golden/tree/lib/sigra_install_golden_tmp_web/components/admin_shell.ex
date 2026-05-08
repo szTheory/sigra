@@ -59,6 +59,16 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
                   </a>
                 </li>
                 <li>
+                  <a class={nav_item_class(false)} href={~p"/admin/webhooks"}>
+                    Webhooks
+                  </a>
+                </li>
+                <li>
+                  <a class={nav_item_class(false)} href={~p"/admin/webhooks/failures"}>
+                    Failures
+                  </a>
+                </li>
+                <li>
                   <a class={nav_item_class(false)} href={audit_link(@admin_scope)}>
                     Audit
                   </a>
@@ -102,6 +112,9 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
         </a>
         <a href={~p"/admin"} class={bottom_nav_class(global_active?(@admin_scope))}>
           <span class="btm-nav-label">Global</span>
+        </a>
+        <a href={~p"/admin/webhooks"} class={bottom_nav_class(false)}>
+          <span class="btm-nav-label">Webhooks</span>
         </a>
         <a
           :if={organization_link(@admin_scope)}

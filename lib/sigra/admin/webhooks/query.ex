@@ -8,7 +8,7 @@ defmodule Sigra.Admin.Webhooks.Query do
   alias Sigra.Admin.Authorizer
   alias Sigra.Admin.Scope
 
-  @allowed_params ~w(q status enabled page page_size order_by order_direction)
+  @allowed_params ~w(q delivery_state status enabled page page_size order_by order_direction)
 
   defmodule Params do
     @moduledoc false
@@ -18,7 +18,7 @@ defmodule Sigra.Admin.Webhooks.Query do
 
     @derive {
       Flop.Schema,
-      filterable: [:q, :status, :enabled],
+      filterable: [:q, :delivery_state, :enabled],
       sortable: [:inserted_at, :endpoint_url, :enabled],
       default_limit: 25,
       max_limit: 100,
@@ -27,7 +27,7 @@ defmodule Sigra.Admin.Webhooks.Query do
 
     embedded_schema do
       field :q, :string
-      field :status, :string
+      field :delivery_state, :string
       field :enabled, :boolean
       field :inserted_at, :utc_datetime
       field :endpoint_url, :string
@@ -36,25 +36,25 @@ defmodule Sigra.Admin.Webhooks.Query do
 
   @spec normalize_params(map() | keyword() | nil) :: {:ok, map()} | {:error, Flop.Meta.t()}
   def normalize_params(params) do
-    params
-    |> stringify_map()
-    |> Map.take(@allowed_params)
-    |> Enum.reject(fn {_key, value} -> blank?(value) end)
-    |> Map.new(fn
-      {"q", value} -> {"q", String.trim(to_string(value))}
-      {"status", value} -> {"status", String.trim(to_string(value))}
-      {"enabled", value} -> {"enabled", normalize_boolean(value)}
-      {"page", value} -> {"page", normalize_integer(value)}
-      {"page_size", value} -> {"page_size", normalize_integer(value)}
-      {"order_by", value} -> {"order_by", normalize_string(value)}
-      {"order_direction", value} -> {"order_direction", normalize_string(value)}
-    end)
-    |> then(fn normalized ->
-      case Flop.validate(to_flop_params(normalized), for: Params) do
-        {:ok, flop} -> {:ok, merge_flop_defaults(normalized, flop)}
-        {:error, %Flop.Meta{} = meta} -> {:error, meta}
-      end
-    end)
+    raw =
+      params
+      |> stringify_map()
+      |> Map.take(@allowed_params)
+
+    normalized =
+      %{}
+      |> maybe_put_trimmed("q", Map.get(raw, "q"))
+      |> maybe_put_delivery_state(raw)
+      |> maybe_put("enabled", normalize_boolean(Map.get(raw, "enabled")))
+      |> maybe_put("page", normalize_integer(Map.get(raw, "page")))
+      |> maybe_put("page_size", normalize_integer(Map.get(raw, "page_size")))
+      |> maybe_put("order_by", normalize_string(Map.get(raw, "order_by")))
+      |> maybe_put("order_direction", normalize_string(Map.get(raw, "order_direction")))
+
+    case Flop.validate(to_flop_params(normalized), for: Params) do
+      {:ok, flop} -> {:ok, merge_flop_defaults(normalized, flop)}
+      {:error, %Flop.Meta{} = meta} -> {:error, meta}
+    end
   end
 
   @spec list_subscriptions(map(), Scope.t(), map() | keyword() | nil) ::
@@ -64,31 +64,76 @@ defmodule Sigra.Admin.Webhooks.Query do
 
     with {:ok, normalized} <- normalize_params(params),
          {:ok, %Flop{} = flop} <- Flop.validate(to_flop_params(normalized), for: Params) do
-      subscription_schema = Sigra.Webhooks.subscription_schema!(config)
-
-      query =
-        from(subscription in subscription_schema, as: :subscription)
+      filtered_query =
+        config
+        |> base_query(admin_scope)
         |> apply_filters(normalized)
 
       pagination_flop = %Flop{flop | filters: []}
-      meta = Flop.meta(query, pagination_flop, for: Params, repo: config.repo)
+      meta = Flop.meta(filtered_query, pagination_flop, for: Params, repo: config.repo)
 
       rows =
-        query
+        filtered_query
         |> Flop.query(pagination_flop, for: Params)
+        |> select_row()
         |> config.repo.all()
-        |> attach_latest_deliveries(config)
-        |> maybe_filter_status(Map.get(normalized, "status"))
         |> Enum.map(&row_from_result/1)
 
       {:ok, {rows, meta, normalized}}
     end
   end
 
+  @spec summary_counts(map(), Scope.t()) :: map()
+  def summary_counts(config, %Scope{} = admin_scope) do
+    Authorizer.authorize_global!(admin_scope)
+
+    repo = config.repo
+    base = base_query(config, admin_scope)
+
+    %{
+      total: repo.aggregate(base, :count, :id),
+      enabled: repo.aggregate(where(base, [subscription: subscription], subscription.enabled), :count, :id),
+      disabled:
+        repo.aggregate(
+          where(base, [subscription: subscription], not subscription.enabled),
+          :count,
+          :id
+        ),
+      retrying: repo.aggregate(maybe_filter_delivery_state(base, "retrying"), :count, :id),
+      dead_lettered:
+        repo.aggregate(maybe_filter_delivery_state(base, "dead_lettered"), :count, :id)
+    }
+  end
+
+  defp base_query(config, _admin_scope) do
+    subscription_schema = Sigra.Webhooks.subscription_schema!(config)
+    latest_delivery = latest_delivery_subquery(config)
+
+    from(subscription in subscription_schema, as: :subscription)
+    |> join(:left, [subscription: subscription], latest in subquery(latest_delivery),
+      as: :latest_delivery,
+      on: latest.webhook_subscription_id == subscription.id
+    )
+  end
+
+  defp latest_delivery_subquery(config) do
+    delivery_schema = Sigra.Webhooks.delivery_schema!(config)
+
+    from(delivery in delivery_schema,
+      order_by: [
+        asc: delivery.webhook_subscription_id,
+        desc: delivery.inserted_at,
+        desc: delivery.id
+      ],
+      distinct: delivery.webhook_subscription_id
+    )
+  end
+
   defp apply_filters(query, normalized) do
     query
     |> maybe_filter_q(Map.get(normalized, "q"))
     |> maybe_filter_enabled(Map.get(normalized, "enabled"))
+    |> maybe_filter_delivery_state(Map.get(normalized, "delivery_state"))
   end
 
   defp maybe_filter_q(query, nil), do: query
@@ -104,49 +149,27 @@ defmodule Sigra.Admin.Webhooks.Query do
     )
   end
 
-  defp maybe_filter_status(rows, nil), do: rows
-
-  defp maybe_filter_status(rows, "retrying") do
-    Enum.filter(rows, fn %{latest_delivery: delivery} ->
-      delivery && delivery.status in ["retry_scheduled", "dead_lettered"]
-    end)
-  end
-
-  defp maybe_filter_status(rows, status) do
-    Enum.filter(rows, fn %{latest_delivery: delivery} ->
-      delivery && delivery.status == status
-    end)
-  end
-
   defp maybe_filter_enabled(query, nil), do: query
 
   defp maybe_filter_enabled(query, enabled) when is_boolean(enabled) do
     where(query, [subscription: subscription], subscription.enabled == ^enabled)
   end
 
-  defp attach_latest_deliveries(subscriptions, config) do
-    delivery_schema = Sigra.Webhooks.delivery_schema!(config)
-    subscription_ids = Enum.map(subscriptions, & &1.id)
+  defp maybe_filter_delivery_state(query, nil), do: query
 
-    latest_by_subscription =
-      from(delivery in delivery_schema,
-        where: delivery.webhook_subscription_id in ^subscription_ids,
-        order_by: [
-          asc: delivery.webhook_subscription_id,
-          desc: delivery.inserted_at,
-          desc: delivery.id
-        ],
-        distinct: delivery.webhook_subscription_id
-      )
-      |> config.repo.all()
-      |> Map.new(&{&1.webhook_subscription_id, &1})
+  defp maybe_filter_delivery_state(query, "retrying") do
+    where(query, [latest_delivery: latest_delivery], latest_delivery.status == "retry_scheduled")
+  end
 
-    Enum.map(subscriptions, fn subscription ->
-      %{
-        subscription: subscription,
-        latest_delivery: Map.get(latest_by_subscription, subscription.id)
-      }
-    end)
+  defp maybe_filter_delivery_state(query, delivery_state) do
+    where(query, [latest_delivery: latest_delivery], latest_delivery.status == ^delivery_state)
+  end
+
+  defp select_row(query) do
+    select(query, [subscription: subscription, latest_delivery: latest_delivery], %{
+      subscription: subscription,
+      latest_delivery: latest_delivery
+    })
   end
 
   defp row_from_result(%{subscription: subscription, latest_delivery: latest_delivery}) do
@@ -171,6 +194,35 @@ defmodule Sigra.Admin.Webhooks.Query do
     |> Map.put_new("order_direction", normalize_order_direction(flop.order_directions))
   end
 
+  defp maybe_put_delivery_state(map, raw) do
+    raw
+    |> delivery_state_param()
+    |> normalize_delivery_state()
+    |> then(fn
+      nil -> map
+      delivery_state -> Map.put(map, "delivery_state", delivery_state)
+    end)
+  end
+
+  defp delivery_state_param(raw) do
+    Map.get(raw, "delivery_state") || Map.get(raw, "status")
+  end
+
+  defp normalize_delivery_state(nil), do: nil
+  defp normalize_delivery_state(""), do: nil
+  defp normalize_delivery_state("retry_scheduled"), do: "retrying"
+
+  defp normalize_delivery_state(value) do
+    value
+    |> to_string()
+    |> String.trim()
+    |> case do
+      "" -> nil
+      "retry_scheduled" -> "retrying"
+      other -> other
+    end
+  end
+
   defp normalize_order_by([field | _rest]), do: to_string(field)
   defp normalize_order_by(field) when is_atom(field), do: to_string(field)
   defp normalize_order_by(_other), do: "inserted_at"
@@ -188,7 +240,17 @@ defmodule Sigra.Admin.Webhooks.Query do
   end
 
   defp maybe_put(map, _key, nil), do: map
+  defp maybe_put(map, _key, value) when value == "", do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  defp maybe_put_trimmed(map, key, value) do
+    value
+    |> normalize_string()
+    |> then(fn
+      nil -> map
+      trimmed -> Map.put(map, key, trimmed)
+    end)
+  end
 
   defp maybe_put_order_by(map, nil), do: map
   defp maybe_put_order_by(map, value), do: Map.put(map, "order_by", [value])
@@ -204,16 +266,28 @@ defmodule Sigra.Admin.Webhooks.Query do
 
   defp stringify_map(_params), do: %{}
 
-  defp blank?(value), do: value in [nil, "", []]
+  defp normalize_string(nil), do: nil
 
-  defp normalize_string(value), do: value |> to_string() |> String.trim()
+  defp normalize_string(value) do
+    value
+    |> to_string()
+    |> String.trim()
+    |> case do
+      "" -> nil
+      trimmed -> trimmed
+    end
+  end
 
   defp normalize_boolean(value) when value in [true, false], do: value
   defp normalize_boolean("true"), do: true
   defp normalize_boolean("false"), do: false
+  defp normalize_boolean(nil), do: nil
+  defp normalize_boolean(""), do: nil
   defp normalize_boolean(value), do: value
 
   defp normalize_integer(value) when is_integer(value), do: value
+  defp normalize_integer(nil), do: nil
+  defp normalize_integer(""), do: nil
 
   defp normalize_integer(value) do
     case Integer.parse(to_string(value)) do

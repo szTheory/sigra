@@ -222,12 +222,14 @@ defmodule Sigra.Install.GeneratorWiringTest do
       content = render_fixture("lib/sigra_install_golden_tmp/accounts.ex")
 
       assert content =~ "webhooks: ["
+      assert content =~ "endpoint_policy: &__MODULE__.webhook_endpoint_policy/1"
       assert content =~ "webhook_subscription_schema: WebhookSubscription"
       assert content =~ "webhook_event_schema: WebhookEvent"
       assert content =~ "webhook_delivery_schema: WebhookDelivery"
       assert content =~ "webhook_delivery_attempt_schema: WebhookDeliveryAttempt"
       assert content =~ ~s(oban_queue: "sigra_webhooks")
       assert content =~ "signature_tolerance: 300"
+      assert content =~ "def webhook_endpoint_policy(_context), do: :ok"
       assert content =~ "def webhook_event_types do"
       assert content =~ "Sigra.Webhooks.public_event_types()"
       assert content =~ "def list_webhook_subscriptions do"
@@ -235,6 +237,52 @@ defmodule Sigra.Install.GeneratorWiringTest do
       assert content =~ "def update_webhook_subscription(subscription, attrs) do"
       assert content =~ "def enable_webhook_subscription(subscription) do"
       assert content =~ "def disable_webhook_subscription(subscription) do"
+      assert content =~ "def list_admin_webhook_subscriptions(admin_scope, params \\\\ %{}) do"
+      assert content =~ "def get_admin_webhook_subscription!(admin_scope, subscription_id) do"
+      assert content =~ "def list_admin_webhook_failures(admin_scope, params \\\\ %{}) do"
+      assert content =~ "def get_admin_webhook_delivery!(admin_scope, delivery_id) do"
+
+      assert content =~
+               "def replay_admin_webhook_delivery(admin_scope, delivery_id, opts \\\\ []) do"
+
+      assert content =~ "def create_admin_webhook_subscription(admin_scope, attrs) do"
+
+      assert content =~
+               "def update_admin_webhook_subscription(admin_scope, subscription_id, attrs) do"
+
+      assert content =~ "def enable_admin_webhook_subscription(admin_scope, subscription_id) do"
+      assert content =~ "def disable_admin_webhook_subscription(admin_scope, subscription_id) do"
+      assert content =~ "def reveal_admin_webhook_secret(admin_scope, subscription_id) do"
+      assert content =~ "def rotate_admin_webhook_secret(admin_scope, subscription_id) do"
+      assert content =~ "def prepare_admin_webhook_secret(admin_scope, subscription_id) do"
+
+      assert content =~
+               "def discard_prepared_admin_webhook_secret(admin_scope, subscription_id) do"
+
+      assert content =~
+               "def start_admin_webhook_secret_overlap(admin_scope, subscription_id, opts \\\\ []) do"
+
+      assert content =~
+               "def complete_admin_webhook_secret_rotation(admin_scope, subscription_id) do"
+
+      assert content =~
+               "Sigra.Admin.Webhooks.Actions.replay_delivery(sigra_config(), admin_scope, delivery_id, opts)"
+    end
+
+    test "example, template, and golden auth surfaces expose the same replay wrapper" do
+      example =
+        File.read!(Path.join([File.cwd!(), "test", "example", "lib", "example", "accounts.ex"]))
+
+      template = File.read!(Path.join(@template_dir, "auth.ex"))
+      golden = render_fixture("lib/sigra_install_golden_tmp/accounts.ex")
+
+      for content <- [example, template, golden] do
+        assert content =~
+                 "def replay_admin_webhook_delivery(admin_scope, delivery_id, opts \\\\ []) do"
+
+        assert content =~
+                 "Sigra.Admin.Webhooks.Actions.replay_delivery(sigra_config(), admin_scope, delivery_id, opts)"
+      end
     end
 
     test "generated migration and schemas for webhook tables exist" do
@@ -245,31 +293,101 @@ defmodule Sigra.Install.GeneratorWiringTest do
 
       event = render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_event.ex")
       delivery = render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_delivery.ex")
-      attempt = render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_delivery_attempt.ex")
+
+      attempt =
+        render_fixture("lib/sigra_install_golden_tmp/accounts/webhook_delivery_attempt.ex")
 
       assert migration =~ "create table(:webhook_subscriptions"
       assert migration =~ "create table(:webhook_events"
       assert migration =~ "create table(:webhook_deliveries"
       assert migration =~ "create table(:webhook_delivery_attempts"
-      assert migration =~ "add :signing_secret, :binary, null: false"
-      assert migration =~ "add :event_id, :string, null: false"
-      assert migration =~ "add :delivery_id, :string, null: false"
-      assert migration =~ "add :attempt_count, :integer, null: false, default: 0"
-      assert migration =~ "add :retry_after_seconds, :integer"
+      assert migration =~ "add(:signing_secret, :binary, null: false)"
+      assert migration =~ "add(:next_signing_secret, :binary)"
+      assert migration =~ "add(:rotation_state, :string, null: false, default: \"stable\")"
+      assert migration =~ "add(:rotation_prepared_at, :utc_datetime_usec)"
+      assert migration =~ "add(:rotation_overlap_started_at, :utc_datetime_usec)"
+      assert migration =~ "add(:rotation_retire_after_at, :utc_datetime_usec)"
+      assert migration =~ "add(:rotation_completed_at, :utc_datetime_usec)"
+      assert migration =~ "add(:rotation_last_changed_by_user_id, :binary_id)"
+      assert migration =~ "add(:signing_secret_fingerprint, :string)"
+      assert migration =~ "add(:next_signing_secret_fingerprint, :string)"
+      assert migration =~ "add(:event_id, :string, null: false)"
+      assert migration =~ "add(:delivery_id, :string, null: false)"
+      assert migration =~ "add(:attempt_count, :integer, null: false, default: 0)"
+      assert migration =~ "add(:replayed_from_webhook_delivery_id"
+      assert migration =~ "add(:replay_root_webhook_delivery_id"
+      assert migration =~ "add(:replayed_at, :utc_datetime_usec)"
+      assert migration =~ "add(:replayed_by_user_id, :binary_id)"
+      assert migration =~ "add(:replay_source, :string)"
+      assert migration =~ "unique_index(:webhook_deliveries, [:replayed_from_webhook_delivery_id]"
+      assert migration =~ "index(:webhook_deliveries, [:replay_root_webhook_delivery_id])"
+      assert migration =~ "add(:retry_after_seconds, :integer)"
 
       assert subscription =~ "schema \"webhook_subscriptions\""
       assert subscription =~ "field :event_types, {:array, :string}, default: []"
       assert subscription =~ "field :signing_secret"
+      assert subscription =~ "field :next_signing_secret"
+      assert subscription =~ "field :rotation_state, Ecto.Enum"
+      assert subscription =~ "values: [:stable, :prepared, :overlap_active, :completed]"
+      assert subscription =~ "field :rotation_prepared_at, :utc_datetime_usec"
+      assert subscription =~ "field :rotation_overlap_started_at, :utc_datetime_usec"
+      assert subscription =~ "field :rotation_retire_after_at, :utc_datetime_usec"
+      assert subscription =~ "field :rotation_completed_at, :utc_datetime_usec"
+      assert subscription =~ "field :rotation_last_changed_by_user_id, :binary_id"
+      assert subscription =~ "field :signing_secret_fingerprint, :string"
+      assert subscription =~ "field :next_signing_secret_fingerprint, :string"
       assert event =~ "schema \"webhook_events\""
       assert event =~ "field :event_id, :string"
       assert delivery =~ "schema \"webhook_deliveries\""
       assert delivery =~ "field :delivery_id, :string"
+      assert delivery =~ "field :replayed_from_webhook_delivery_id, :binary_id"
+      assert delivery =~ "field :replay_root_webhook_delivery_id, :binary_id"
+      assert delivery =~ "field :replayed_at, :utc_datetime_usec"
+      assert delivery =~ "field :replayed_by_user_id, :binary_id"
+      assert delivery =~ "field :replay_source, :string"
       assert delivery =~ "has_many :attempts"
       assert delivery =~ "field :terminal_reason, :string"
       assert attempt =~ "schema \"webhook_delivery_attempts\""
       assert attempt =~ "field :attempt_number, :integer"
       assert attempt =~ "field :retryable, :boolean, default: false"
       assert attempt =~ "field :terminal_reason, :string"
+    end
+
+    test "generated admin router and shell expose webhook routes and navigation" do
+      router = render_fixture("lib/sigra_install_golden_tmp_web/router.ex")
+      shell = render_fixture("lib/sigra_install_golden_tmp_web/components/admin_shell.ex")
+
+      assert router =~
+               ~s(live "/admin/webhooks", Elixir.Sigra.Admin.Live.WebhookSubscriptionsIndexLive, :index)
+
+      assert router =~
+               ~s(live "/admin/webhooks/failures", Elixir.Sigra.Admin.Live.WebhookDeliveryFailuresLive, :index)
+
+      assert router =~ ~s(live "/admin/webhooks/subscriptions/:id")
+      assert router =~ "Elixir.Sigra.Admin.Live.WebhookSubscriptionShowLive"
+      assert router =~ ":show"
+
+      assert router =~ ~s(live "/admin/webhooks/deliveries/:id")
+      assert router =~ "Elixir.Sigra.Admin.Live.WebhookDeliveryShowLive"
+
+      assert shell =~ "Webhooks"
+      assert shell =~ "Failures"
+      assert shell =~ ~s(href={~p"/admin/webhooks"})
+      assert shell =~ ~s(href={~p"/admin/webhooks/failures"})
+    end
+
+    test "admin feature emits a webhook receiver setup document" do
+      admin_feature =
+        File.read!(Path.join([File.cwd!(), "lib", "sigra", "install", "features", "admin.ex"]))
+
+      doc = render_fixture("docs/webhook_receiver_setup.md")
+
+      assert admin_feature =~ "Path.join([\"docs\", \"webhook_receiver_setup.md\"])"
+      assert doc =~ "raw request body"
+      assert doc =~ "body_reader"
+      assert doc =~ "delivery_id"
+      assert doc =~ "SIGRA_WEBHOOK_SECRET_CURRENT"
+      assert doc =~ "prepare the next secret"
     end
   end
 

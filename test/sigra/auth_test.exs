@@ -37,6 +37,29 @@ defmodule Sigra.AuthTest do
     end
   end
 
+  defmodule StubAuditRepo do
+    @moduledoc false
+
+    def reset do
+      Process.put({__MODULE__, :events}, [])
+    end
+
+    def events do
+      Process.get({__MODULE__, :events}, [])
+    end
+
+    def insert(%Ecto.Changeset{} = changeset) do
+      event =
+        changeset
+        |> Ecto.Changeset.apply_changes()
+        |> Map.put(:id, Ecto.UUID.generate())
+        |> Map.put(:inserted_at, DateTime.utc_now())
+
+      Process.put({__MODULE__, :events}, [event | events()])
+      {:ok, event}
+    end
+  end
+
   describe "register/3" do
     test "with valid attrs returns {:ok, user}" do
       user = %TestUser{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
@@ -991,7 +1014,21 @@ defmodule Sigra.AuthTest do
     ]
   }
 
-  defp build_session(overrides \\ %{}) do
+  @session_audit_config %Sigra.Config{
+    repo: StubAuditRepo,
+    user_schema: TestUser,
+    session: [
+      store: Sigra.MockSessionStore,
+      idle_timeout: 1_800,
+      absolute_timeout: 86_400,
+      activity_update_threshold: 300,
+      remember_me_max_age: 5_184_000,
+      session_schema: TestUser
+    ],
+    audit: [audit_schema: Sigra.Test.AuditEvent]
+  }
+
+  defp build_session(overrides) do
     defaults = %Sigra.Session{
       id: 1,
       user_id: 1,
@@ -1036,6 +1073,33 @@ defmodule Sigra.AuthTest do
 
       assert :ok = result
       assert_received {[:sigra, :session, :delete, :stop], ^ref, _measurements, _metadata}
+    end
+
+    test "logout writes explicit auth.logout audit truth" do
+      StubAuditRepo.reset()
+
+      Sigra.MockSessionStore
+      |> expect(:delete, fn "hashed-token", _opts -> :ok end)
+
+      user_id = Ecto.UUID.generate()
+      user = %TestUser{id: user_id}
+      session = build_session(%{id: "session-123", user_id: user_id, hashed_token: "hashed-token"})
+
+      assert :ok =
+               Auth.logout(@session_audit_config, user, session,
+                 ip_address: "1.2.3.4",
+                 user_agent: "ExUnit/1.0"
+               )
+
+      [event] = StubAuditRepo.events()
+      assert event.action == "auth.logout"
+      assert event.actor_id == user_id
+      assert event.target_id == user_id
+      assert event.effective_user_id == user_id
+      assert event.ip_address == "1.2.3.4"
+      assert event.user_agent == "ExUnit/1.0"
+      assert event.metadata.session_id == "session-123"
+      assert event.metadata.type == :standard
     end
   end
 
@@ -1098,6 +1162,69 @@ defmodule Sigra.AuthTest do
       # hash2 should get disconnect
       assert_receive :disconnect
       # hash1 should NOT get disconnect
+      refute_receive :disconnect, 50
+    end
+  end
+
+  describe "revoke_other_sessions/3" do
+    test "revokes sibling sessions when the current hashed token belongs to the user" do
+      session1 = build_session(%{hashed_token: "hash1"})
+      session2 = build_session(%{hashed_token: "hash2"})
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, 2, fn 1, _opts -> [session1, session2] end)
+      |> expect(:delete_all_for_user, fn 1, opts ->
+        assert Keyword.get(opts, :except_token) == "hash1"
+        {1, nil}
+      end)
+
+      start_supervised!({Phoenix.PubSub, name: :test_pubsub_revoke_others})
+      Phoenix.PubSub.subscribe(:test_pubsub_revoke_others, "users_sessions:#{Base.url_encode64("hash2")}")
+      Phoenix.PubSub.subscribe(:test_pubsub_revoke_others, "users_sessions:#{Base.url_encode64("hash1")}")
+
+      assert {:ok, 1} =
+               Auth.revoke_other_sessions(@session_config, 1,
+                 current_hashed_token: "hash1",
+                 pubsub: :test_pubsub_revoke_others
+               )
+
+      assert_receive :disconnect
+      refute_receive :disconnect, 50
+    end
+
+    test "returns ok with zero when the current session is the only session left" do
+      session = build_session(%{hashed_token: "hash1"})
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, 2, fn 1, _opts -> [session] end)
+      |> expect(:delete_all_for_user, fn 1, opts ->
+        assert Keyword.get(opts, :except_token) == "hash1"
+        {0, nil}
+      end)
+
+      assert {:ok, 0} =
+               Auth.revoke_other_sessions(@session_config, 1,
+                 current_hashed_token: "hash1"
+               )
+    end
+
+    test "fails closed when the current hashed token cannot be proven for the user" do
+      session1 = build_session(%{hashed_token: "hash1"})
+      session2 = build_session(%{hashed_token: "hash2"})
+
+      Sigra.MockSessionStore
+      |> expect(:list_by_user, fn 1, _opts -> [session1, session2] end)
+
+      start_supervised!({Phoenix.PubSub, name: :test_pubsub_revoke_others_missing})
+      Phoenix.PubSub.subscribe(:test_pubsub_revoke_others_missing, "users_sessions:#{Base.url_encode64("hash1")}")
+      Phoenix.PubSub.subscribe(:test_pubsub_revoke_others_missing, "users_sessions:#{Base.url_encode64("hash2")}")
+
+      assert {:error, :current_session_not_found} =
+               Auth.revoke_other_sessions(@session_config, 1,
+                 current_hashed_token: "missing",
+                 pubsub: :test_pubsub_revoke_others_missing
+               )
+
       refute_receive :disconnect, 50
     end
   end

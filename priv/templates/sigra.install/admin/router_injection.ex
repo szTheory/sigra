@@ -34,6 +34,10 @@
       ] do
       live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
       live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
+      live "/admin/webhooks", Elixir.Sigra.Admin.Live.WebhookSubscriptionsIndexLive, :index
+      live "/admin/webhooks/failures", Elixir.Sigra.Admin.Live.WebhookDeliveryFailuresLive, :index
+      live "/admin/webhooks/subscriptions/:id", Elixir.Sigra.Admin.Live.WebhookSubscriptionShowLive, :show
+      live "/admin/webhooks/deliveries/:id", Elixir.Sigra.Admin.Live.WebhookDeliveryShowLive, :show
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
       live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show

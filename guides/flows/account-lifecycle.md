@@ -8,6 +8,7 @@ Sigra handles the full post-registration account lifecycle: changing email, chan
 - **`Sigra.Auth.confirm_email_change/3`** — verifies the token, updates the email, invalidates all sessions.
 - **`Sigra.Auth.cancel_email_change/3`** — clears a pending email change.
 - **`Sigra.Auth.change_password/5`** — verifies the current password, updates, and keeps only the current session.
+- **`Sigra.Auth.revoke_other_sessions/3`** — revokes sibling sessions while preserving the current session when it can be proven.
 - **`Sigra.Auth.set_password/4`** — adds a password to an OAuth-only account. Requires sudo mode.
 - **`Sigra.Auth.confirm_sudo/3`** — elevates a session to sudo mode for a short window (default 15 min).
 - **`Sigra.Auth.schedule_deletion/3`** — starts the grace-period deletion flow.
@@ -74,7 +75,7 @@ Sensitive — requires **current password** in addition to the new one:
       end
     end
 
-`change_password/5` uses `Ecto.Multi` to atomically update the password and delete every session **except the current one**. The user stays logged in on the current device but is logged out everywhere else.
+`change_password/5` uses `Ecto.Multi` to atomically update the password and delete every session **except the current one**. The user stays logged in on the current device but is logged out everywhere else. The same preserve-current contract is also available directly through `Sigra.Auth.revoke_other_sessions/3` when you want a dedicated "log out of other sessions" action without forcing a password change. On generated hosts, the adjacent recent security activity feed then shows `Signed out of other devices` from persisted Sigra truth; it does not invent timeout-expiry history.
 
 ## Set password (OAuth-only users)
 

@@ -1,6 +1,6 @@
 defmodule ExampleWeb.TestDbProbeController do
   @moduledoc """
-  Test-only read-only DB introspection endpoint for Playwright OAuth specs.
+  Test-only DB introspection and control endpoint for Playwright specs.
   Mounted only when `EXAMPLE_DB_PROBE_ENABLED=1`. Never ship to production.
   Citation: 87-CONTEXT.md D-87-05; threat model T-87-01.
   """
@@ -114,6 +114,38 @@ defmodule ExampleWeb.TestDbProbeController do
     end
   end
 
+  def show(conn, %{"table" => "webhook_proof", "delivery_id" => delivery_id}) do
+    if enabled?() do
+      case Example.Accounts.get_webhook_proof_bundle(delivery_id) do
+        nil ->
+          conn
+          |> put_status(:not_found)
+          |> json(%{error: "delivery not found"})
+
+        bundle ->
+          json(conn, bundle)
+      end
+    else
+      send_resp(conn, :not_found, "")
+    end
+  end
+
+  def show(conn, %{"table" => "webhook_subscription_secrets", "subscription_id" => subscription_id}) do
+    if enabled?() do
+      case Example.Accounts.get_webhook_subscription_secret_material(subscription_id) do
+        nil ->
+          conn
+          |> put_status(:not_found)
+          |> json(%{error: "subscription not found"})
+
+        material ->
+          json(conn, material)
+      end
+    else
+      send_resp(conn, :not_found, "")
+    end
+  end
+
   def show(conn, _params) do
     if enabled?() do
       conn
@@ -124,5 +156,69 @@ defmodule ExampleWeb.TestDbProbeController do
     end
   end
 
+  def create(conn, %{"table" => "webhook_receiver_config"} = params) do
+    if enabled?() do
+      :ok =
+        Example.Accounts.configure_webhook_receiver_secrets(%{
+          current_secret: Map.get(params, "current_secret"),
+          previous_secret: Map.get(params, "previous_secret"),
+          mode: Map.get(params, "mode")
+        })
+
+      json(conn, %{
+        ok: true,
+        current_secret: blank_to_nil(Map.get(params, "current_secret")),
+        previous_secret: blank_to_nil(Map.get(params, "previous_secret")),
+        mode: Example.Accounts.webhook_receiver_mode()
+      })
+    else
+      send_resp(conn, :not_found, "")
+    end
+  end
+
+  def create(conn, %{"table" => "webhook_drain"} = _params) do
+    if enabled?() do
+      result =
+        Oban.drain_queue(
+          queue: :sigra_webhooks,
+          with_recursion: true,
+          with_scheduled: true,
+          with_safety: false
+        )
+
+      json(conn, %{ok: true, result: result})
+    else
+      send_resp(conn, :not_found, "")
+    end
+  end
+
+  def create(conn, %{"table" => "webhook_endpoint_policy"} = params) do
+    if enabled?() do
+      :ok =
+        Example.Accounts.configure_webhook_endpoint_policy(%{
+          mode: Map.get(params, "mode"),
+          endpoint_url: Map.get(params, "endpoint_url"),
+          detail: Map.get(params, "detail")
+        })
+
+      json(conn, %{ok: true, config: Example.Accounts.webhook_endpoint_policy_config()})
+    else
+      send_resp(conn, :not_found, "")
+    end
+  end
+
+  def create(conn, _params) do
+    if enabled?() do
+      conn
+      |> put_status(:bad_request)
+      |> json(%{error: "unsupported probe"})
+    else
+      send_resp(conn, :not_found, "")
+    end
+  end
+
   defp enabled?, do: System.get_env("EXAMPLE_DB_PROBE_ENABLED") == "1"
+
+  defp blank_to_nil(value) when value in [nil, ""], do: nil
+  defp blank_to_nil(value), do: value
 end

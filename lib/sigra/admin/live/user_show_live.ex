@@ -10,10 +10,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
   alias Sigra.Admin.Users.Detail
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     {:ok,
      socket
      |> assign(:sigra_config, runtime_config!())
+     |> assign(:current_user_token, Map.get(session, "user_token"))
      |> assign(:detail, nil)
      |> assign(:return_to, nil)
      |> assign(:confirm_action, nil)
@@ -23,7 +24,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
   @impl true
   def handle_params(%{"id" => user_id} = params, _uri, socket) do
     admin_scope = socket.assigns.admin_scope
-    detail = Detail.load!(socket.assigns.sigra_config, admin_scope, user_id)
+    detail =
+      Detail.load!(socket.assigns.sigra_config, admin_scope, user_id,
+        current_user_token: socket.assigns.current_user_token
+      )
+
     return_to = sanitize_return_to(Map.get(params, "return_to"), admin_scope)
 
     {:noreply,
@@ -130,9 +135,15 @@ defmodule Sigra.Admin.Live.UserShowLive do
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div class="space-y-1">
-                <p class="font-semibold">{session_label(session)}</p>
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="font-semibold">{session.type_label}</p>
+                  <span :if={session.current?} class="badge badge-primary badge-sm">
+                    Current session
+                  </span>
+                </div>
                 <p>{session.ip || "Unknown IP"}</p>
-                <p>{activity_label(session.last_active_at)}</p>
+                <p>{session.last_activity_label}</p>
+                <p :if={session.sudo_label}>{session.sudo_label}</p>
               </div>
 
               <button
@@ -273,7 +284,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
   end
 
   defp reload_detail(socket, user_id) do
-    detail = Detail.load!(socket.assigns.sigra_config, socket.assigns.admin_scope, user_id)
+    detail =
+      Detail.load!(socket.assigns.sigra_config, socket.assigns.admin_scope, user_id,
+        current_user_token: socket.assigns.current_user_token
+      )
+
     assign(socket, detail: detail, confirm_action: nil)
   end
 
@@ -359,13 +374,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp mfa_label(%{enabled?: true}), do: "MFA: Enabled"
   defp mfa_label(%{enabled_at: %DateTime{}}), do: "MFA: Enabled"
   defp mfa_label(_status), do: "MFA: Not configured"
-
-  defp session_label(%{type: type}), do: "Session type: " <> to_string(type)
-
-  defp activity_label(%DateTime{} = at),
-    do: "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
-
-  defp activity_label(_), do: "Last activity: Not available"
 
   defp pluralize(1, label), do: "1 #{label}"
   defp pluralize(count, label), do: "#{count} #{label}s"

@@ -9,7 +9,7 @@ defmodule Sigra.ServiceAccounts do
 
   alias Ecto.Changeset
   alias Ecto.Multi
-  alias Sigra.{Audit, JWT, Token}
+  alias Sigra.{Audit, JWT, Token, Webhooks}
 
   @type scope_like :: map() | struct() | nil
 
@@ -28,6 +28,9 @@ defmodule Sigra.ServiceAccounts do
       try do
         Multi.new()
         |> Multi.insert(:service_account, changeset)
+        |> append_webhook(config, "service_account.created", {:changes_key, :service_account}, scope,
+          step_id: :service_account_create
+        )
         |> append_audit(config, "service_account.create", scope,
           target_type: "service_account",
           target_resolver: &Map.fetch!(&1, :service_account).id,
@@ -66,6 +69,9 @@ defmodule Sigra.ServiceAccounts do
       try do
         Multi.new()
         |> Multi.update(:service_account, changeset)
+        |> append_webhook(config, "service_account.revoked", {:changes_key, :service_account}, scope,
+          step_id: :service_account_revoke
+        )
         |> append_audit(config, "service_account.revoke", scope,
           target_type: "service_account",
           target_id: service_account.id,
@@ -362,6 +368,16 @@ defmodule Sigra.ServiceAccounts do
         ],
         extra
       )
+    )
+  end
+
+  defp append_webhook(multi, config, event_type, object_ref, scope, extra) do
+    Webhooks.append_dispatch_multi(
+      multi,
+      config,
+      event_type,
+      object_ref,
+      Keyword.merge([context: Webhooks.context(scope)], extra)
     )
   end
 

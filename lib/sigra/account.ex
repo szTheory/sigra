@@ -34,6 +34,7 @@ defmodule Sigra.Account do
 
   alias Ecto.Multi
   alias Sigra.Account.{Deletion, EmailChange, PasswordChange}
+  alias Sigra.Webhooks
 
   # D-26 dispatch table (Phase 44 AUD-07 — `Ecto.Multi` + `Sigra.Audit.log_multi_safe`
   # when `:audit_schema` is set in opts; without it, domain-only — no audit insert):
@@ -59,6 +60,13 @@ defmodule Sigra.Account do
   end
 
   defp audit_enabled?(opts), do: Keyword.get(opts, :audit_schema) != nil
+
+  defp webhook_enabled?(opts) do
+    case webhook_config(opts) do
+      %Sigra.Config{} = config -> Webhooks.enabled?(config)
+      _other -> false
+    end
+  end
 
   defp audit_repo_opts(repo, opts) do
     account_audit_opts(opts) |> Keyword.put(:repo, repo)
@@ -153,7 +161,7 @@ defmodule Sigra.Account do
   @doc "Confirm an email change via token from verification email."
   @doc since: "0.8.0"
   def confirm_email_change(repo, encoded_token, opts) do
-    if audit_enabled?(opts) do
+    if audit_enabled?(opts) or webhook_enabled?(opts) do
       multi =
         Multi.new()
         |> Multi.run(:domain, fn r, _ ->
@@ -163,6 +171,19 @@ defmodule Sigra.Account do
             {:error, %Ecto.Changeset{} = cs} -> {:error, cs}
           end
         end)
+        |> append_webhook(
+          opts,
+          "user.updated",
+          {:changes_key, :domain},
+          step_id: :account_confirm_email_change,
+          changes: ["email", "confirmed_at"],
+          context: fn %{domain: user} ->
+            Webhooks.context(nil,
+              actor: %{type: "user", id: user.id},
+              request_id: Keyword.get(opts, :request_id)
+            )
+          end
+        )
         |> Sigra.Audit.log_multi_safe(
           "account.email_change_confirm",
           Keyword.merge(audit_repo_opts(repo, opts),
@@ -459,7 +480,7 @@ defmodule Sigra.Account do
   def execute_deletion(repo, user, opts) do
     user_id = user.id
 
-    if audit_enabled?(opts) do
+    if audit_enabled?(opts) or webhook_enabled?(opts) do
       scope = Sigra.Scope.from_opts(opts, user)
       scope_kw = scope_to_audit_kw(scope)
 
@@ -471,6 +492,13 @@ defmodule Sigra.Account do
             err -> err
           end
         end)
+        |> append_webhook(
+          opts,
+          "user.deleted",
+          user,
+          step_id: :account_execute_deletion,
+          context: Webhooks.context(scope, request_id: Keyword.get(opts, :request_id))
+        )
         |> Sigra.Audit.log_multi_safe(
           "account.deletion_execute",
           Keyword.merge(
@@ -553,5 +581,19 @@ defmodule Sigra.Account do
       account_audit_opts(opts) ++
         [actor_id: user_id, target_id: user_id, metadata: %{forced: true}]
     )
+  end
+
+  defp append_webhook(multi, opts, event_type, object_ref, webhook_opts) do
+    case webhook_config(opts) do
+      %Sigra.Config{} = config ->
+        Webhooks.append_dispatch_multi(multi, config, event_type, object_ref, webhook_opts)
+
+      _other ->
+        multi
+    end
+  end
+
+  defp webhook_config(opts) do
+    Keyword.get(opts, :webhook_config) || Keyword.get(opts, :config)
   end
 end

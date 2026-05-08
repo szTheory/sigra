@@ -52,6 +52,17 @@ config :example, :sigra_config,
   audit: [
     audit_schema: Example.Accounts.AuditEvent
   ],
+  webhooks: [
+    enabled: true,
+    webhook_subscription_schema: Example.Accounts.WebhookSubscription,
+    webhook_event_schema: Example.Accounts.WebhookEvent,
+    webhook_delivery_schema: Example.Accounts.WebhookDelivery,
+    webhook_delivery_attempt_schema: Example.Accounts.WebhookDeliveryAttempt,
+    endpoint_policy: &Example.Accounts.webhook_endpoint_policy/1,
+    oban_queue: "sigra_webhooks",
+    oban_concurrency: 10,
+    signature_tolerance: 300
+  ],
   passkeys: [
     rp_id: "localhost",
     rp_name: "Sigra Example",
@@ -64,12 +75,29 @@ config :example, :sigra_config,
     user_passkey_schema: Example.Accounts.UserPasskey
   ]
 
+config :example, Oban,
+  repo: Example.Repo,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [sigra_webhooks: 10]
+
 # Sigra worker runtime config (used by Oban workers)
 config :sigra,
   repo: Example.Repo,
   user_schema: Example.Accounts.User,
   email_module: Example.Accounts.Emails,
-  mailer: Example.Accounts.Mailer
+  mailer: Example.Accounts.Mailer,
+  webhooks: [
+    enabled: true,
+    webhook_subscription_schema: Example.Accounts.WebhookSubscription,
+    webhook_event_schema: Example.Accounts.WebhookEvent,
+    webhook_delivery_schema: Example.Accounts.WebhookDelivery,
+    webhook_delivery_attempt_schema: Example.Accounts.WebhookDeliveryAttempt,
+    endpoint_policy: &Example.Accounts.webhook_endpoint_policy/1,
+    oban_queue: "sigra_webhooks",
+    oban_concurrency: 10,
+    signature_tolerance: 300
+  ]
 
 # Sigra OAuth providers
 # Move secrets to config/runtime.exs for production

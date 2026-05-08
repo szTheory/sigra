@@ -20,6 +20,10 @@ delivery_id.timestamp.raw_body
 `raw_body` means the exact bytes received on the wire. Do not verify against a
 decoded map, re-encoded JSON, or pretty-printed JSON.
 
+Sender-side endpoint policy does not change this HMAC contract. If Sigra blocks
+an endpoint with `local_policy_error`, the receiver sees nothing because the
+request is never attempted.
+
 ## Step 1: Capture the raw body with `body_reader`
 
 Configure `Plug.Parsers` to preserve the raw body before JSON decoding:
@@ -70,10 +74,10 @@ defmodule MyAppWeb.SigraWebhookController do
 
   def create(conn, _params) do
     raw_body = conn.assigns.raw_body || ""
-    secret = webhook_secret()
+    secrets = webhook_secrets()
 
     with {:ok, %{delivery_id: delivery_id, timestamp: timestamp}} <-
-           Signature.verify(conn.req_headers, raw_body, secret, tolerance: 300) do
+           Signature.verify(conn.req_headers, raw_body, secrets, tolerance: 300) do
       payload = Jason.decode!(raw_body)
       :ok = MyApp.Webhooks.process(delivery_id, payload, timestamp)
       send_resp(conn, 202, "")
@@ -88,8 +92,12 @@ defmodule MyAppWeb.SigraWebhookController do
     end
   end
 
-  defp webhook_secret do
-    System.fetch_env!("SIGRA_WEBHOOK_SECRET")
+  defp webhook_secrets do
+    [
+      System.fetch_env!("SIGRA_WEBHOOK_SECRET_CURRENT"),
+      System.get_env("SIGRA_WEBHOOK_SECRET_PREVIOUS")
+    ]
+    |> Enum.filter(&is_binary/1)
   end
 end
 ```
@@ -113,6 +121,11 @@ already processed. Phase 98 keeps the same `delivery_id` across retries, so
 dedupe should stay keyed on `delivery_id` even when you see multiple signed
 attempts for the same logical delivery.
 
+Phase 104 does not change that rule. Manual replay creates a new child
+delivery with a fresh `delivery_id`, so receivers should treat the replay as a
+new logical delivery while still ignoring duplicates for the original failed
+source row.
+
 ## Step 4: Keep a bounded timestamp tolerance
 
 Sigra's default tolerance is 300 seconds. Your receiver can choose a tighter
@@ -124,7 +137,7 @@ retries reuse the original timestamp or signature.
 
 Reject stale timestamps even when the signature digest matches.
 
-## Step 5: Support secret rotation on the receiver side
+## Step 5: Support overlap-safe secret rotation on the receiver side
 
 `Signature.verify/4` accepts one secret or a list of candidate secrets:
 
@@ -135,9 +148,18 @@ Signature.verify(conn.req_headers, raw_body, [
 ])
 ```
 
-That lets your receiver accept both secrets during its own cutover window,
-even though Sigra does not yet define overlapping signing windows on the
-Sigra sender side.
+That lets your receiver accept both secrets during Sigra's overlap window.
+Sigra signs overlap-window deliveries with two `v1=` values over one shared
+timestamp and one stable `delivery_id`.
+
+Those candidate secrets stay receiver-owned. Do not ask Sigra which secret
+matches a specific `delivery_id`, and do not depend on sender-side secret
+lookup as part of your verification contract.
+
+Generated hosts should mirror this in their own deployment checklist:
+prepare the next sender secret, update the receiver to hold both current and
+previous secrets, start overlap, verify at least one real overlap-window
+delivery, then complete rotation and verify one post-retirement delivery.
 
 ## Delivery retries and dead-letter semantics
 
@@ -155,8 +177,18 @@ attempt beyond the nominal slot, but it does not expand the attempt budget.
 
 When the final attempt still fails, or when Sigra hits a terminal local
 invariant failure, Sigra moves the parent delivery row into `dead_lettered`
-state. That state is visible in Sigra-owned tables; Phase 98 does not include
-manual replay tooling.
+state.
+
+Phase 104 adds one operator recovery path from that state:
+
+- replay is triggered from Sigra's admin UI, not from the receiver
+- the original dead-lettered source row remains visible
+- the replay child gets a fresh `delivery_id`
+- receiver dedupe still stays keyed on `delivery_id`
+
+Receivers should not special-case replay beyond handling the fresh
+`delivery_id` exactly the same way they would handle any other first-time
+delivery.
 
 ## Common mistakes
 
@@ -166,3 +198,4 @@ manual replay tooling.
 - Accepting stale `Sigra-Webhook-Timestamp` values forever.
 - Comparing HMAC digests with normal string equality instead of a constant-time
   comparison.
+- Expecting a `kid` or other secret-selection header from the sender.
