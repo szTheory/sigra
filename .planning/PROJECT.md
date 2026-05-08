@@ -20,27 +20,42 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops.
 
-## Latest Shipped Milestone: v1.22 Webhooks / outbound event pipeline
+## Latest Shipped Milestone: v1.24 Session Control Plane
 
-**Shipped:** 2026-05-06
+**Shipped:** 2026-05-08
 
-Sigra now ships a full outbound webhook surface for Sigra-owned auth and identity events: durable subscription registry, stable signed payload contract, bounded retries and dead-letter handling, generated admin UX, production worker handoff, operator-truth query fixes, and a real generated-host proof path with correlated receiver/admin evidence.
+Sigra now ships a coherent account-security control plane on top of its existing session and audit substrate: preserve-current revoke semantics, truthful current-session labeling, recent security activity over persisted audit rows, and repaired-form milestone proof that keeps the generated host, admin surfaces, docs, and planning artifacts aligned.
 
 Archives:
-- [`.planning/milestones/v1.22-ROADMAP.md`](milestones/v1.22-ROADMAP.md)
-- [`.planning/milestones/v1.22-REQUIREMENTS.md`](milestones/v1.22-REQUIREMENTS.md)
-- [`.planning/milestones/v1.22-MILESTONE-AUDIT.md`](milestones/v1.22-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.24-ROADMAP.md`](milestones/v1.24-ROADMAP.md)
+- [`.planning/milestones/v1.24-REQUIREMENTS.md`](milestones/v1.24-REQUIREMENTS.md)
+- [`.planning/milestones/v1.24-MILESTONE-AUDIT.md`](milestones/v1.24-MILESTONE-AUDIT.md)
 
-## Current Milestone: v1.23 Webhook operator trust & controls
+## Current State
 
-**Goal:** Turn the shipped outbound webhook pipeline into a production-trustworthy integration surface by making secret rollover safe, failed delivery recovery operator-driven, and outbound network policy enforceable.
+v1.24 closes the highest-leverage post-webhook trust gap for everyday adopters. Users can now revoke all other sessions without losing the current device, both user and admin surfaces derive current-session truth from authoritative persisted state, and recent security activity reflects the real audit/session lifecycle Sigra already owns.
 
-**Target features:**
-- Overlap-safe webhook secret rotation with replay-safe rollover and no delivery-loss window
-- Manual replay of failed or dead-lettered deliveries from admin UX or CLI with durable history and auditability
-- Enforceable webhook egress controls plus generated guidance for allowlisting and deployment-specific network boundaries
+The active requirement set for v1.24 has been archived. The next milestone should start from a fresh `REQUIREMENTS.md`, not by extending the shipped session-control scope in place.
 
-**Why now:** v1.22 proved the outbound event pipeline end to end; the next highest-leverage move is to close the operational trust gaps that still block serious adoption. This milestone pushes all three north-star outcomes at once: production trust, clear integration boundaries, and fewer rough edges when an operator has to rotate keys or recover from receiver failure.
+## Next Milestone Goals
+
+- `SESS-CTRL` is now shipped and should not be replanned as open feature work.
+- Follow the ranked milestone arc in [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) instead of re-researching candidate themes from scratch.
+- Default next milestone order: email reliability/override rails first, then passkey lifecycle completion, then compliance export/data lifecycle.
+- Treat stale carried-forward labels carefully: `SESS-01` and most of `PK-01` are already substantially shipped, so future milestones should focus on remaining trust and lifecycle gaps rather than replanning completed surfaces.
+
+## Current Milestone Status
+
+No active milestone requirements are defined right now.
+
+The next milestone should begin with a fresh `REQUIREMENTS.md`. Unless the user explicitly pivots, the ranked default is `EMAIL-RAILS` from [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md).
+
+### Just shipped: v1.24 Session Control Plane
+
+- preserve-current revoke semantics via a library-owned `revoke_other_sessions` seam
+- truthful current-session labeling across user and admin surfaces
+- recent security activity over persisted audit rows
+- repaired-form verification artifacts for Phases 108-109 and a passing live milestone audit
 
 ### Previously closed milestones
 
@@ -78,7 +93,7 @@ Archives:
 
 ## Current State
 
-**v1.23 (started 2026-05-07):** The active milestone continues the webhook line with a tighter operator and network-trust focus: safe signing-secret rollover, replaying failed deliveries without losing history, and outbound endpoint controls that adopters can enforce without forking Sigra internals.
+**v1.23 (shipped 2026-05-08):** Phases **103–107** closed the webhook operator-trust follow-ons to v1.22. Phase **103** shipped overlap-safe secret rotation with a dual-slot lifecycle and overlap-window signatures (**WH-04**). Phase **104** implemented replay recovery as new delivery lineage, and Phase **106** authoritatively verified that recovery path through `104-VERIFICATION.md` (**WH-05**). Phase **105** implemented webhook egress policy enforcement, and Phase **107** closed the remaining operator-truth and evidence gap for `WH-06` through `105-VERIFICATION.md`, `105-VALIDATION.md`, and the blocked-policy proof bundle under `.planning/uat-evidence/v1.23/webhook-policy-operator-truth/`.
 
 **v1.22 (shipped 2026-05-06):** Phases **97–102** delivered the outbound event pipeline: signed event contract, durable subscription registry, bounded retries, dead-letter state, generated admin UX, production enqueue repair, operator-truth queries, and generated-host proof.
 
@@ -126,17 +141,20 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Next milestone goals
 
-**Active next milestone:** **v1.23 Webhook operator trust & controls**
+**Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Selected scope:**
-- **WH-04** — overlap-safe signing-secret rotation with replay-safe rollover
-- **WH-05** — operator replay of failed or dead-lettered deliveries
-- **WH-06** — enforceable outbound endpoint policy plus allowlisting and deployment-boundary guidance
+**Immediate next action:** **Define the next milestone after shipped `SESS-CTRL`, starting with a fresh `REQUIREMENTS.md`**
 
-**Deferred after v1.23:**
-- Tier-3 polish from future requirements: session UX completeness, email overrides + i18n + bounce handling, passkey multi-authenticator + recovery, or DataExport depth.
+**Recent between-milestones closeout:** **`REL-01 Release Truth Reset`**
+
+**Ranked follow-ons:**
+- `EMAIL-RAILS` — email reliability, override seams, diagnostics, and provider-agnostic delivery posture
+- `PK-LIFECYCLE` — passkey recovery, last-passkey safety, and cross-device trust
+- `DATA-LIFECYCLE` — auth-data export, audit inclusion, and anonymize/delete lifecycle guidance
+
+**Deferred after `EMAIL-RAILS`:**
 - `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
-- Release-cut mechanics after the milestone closes honestly; the feature-line priority is hardening the webhook surface first.
+- Any theme that primarily expands generic admin CRUD, hosted-control-plane behavior, or authz policy rather than the auth control plane itself.
 - Any newly identified validation or assurance work should use newly numbered phases; do not reuse **999.x**.
 
 **Backlog / hygiene:** **`999.1`** / **999.x** remain archaeology only; see **`.planning/ROADMAP.md`** and **`999.1-*`** tombstone files. **`STATE.md`** is session handoff only. **Planning precedence:** **`ROADMAP.md`** + phase **`*-VERIFICATION.md`** / **`*-VALIDATION.md`** over conflicting **`STATE.md`** notes.
@@ -169,11 +187,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.23 Webhook operator trust & controls
+### Active — Next milestone not yet defined
 
-- [ ] **WH-04** — Secret rotation supports overlap windows and replay-safe rollover without delivery loss.
-- [ ] **WH-05** — Maintainer or admin can manually replay a failed delivery from UI or CLI.
-- [ ] **WH-06** — Adopter can constrain webhook egress with endpoint policy, IP allowlisting guidance, or tenant-specific controls.
+The active `REQUIREMENTS.md` has been intentionally cleared at the v1.24 boundary. Start the next milestone by selecting a fresh requirement contract rather than carrying v1.24 forward in place.
 
 ### Validated — v1.22 Webhooks / outbound event pipeline (shipped 2026-05-06)
 
@@ -539,4 +555,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-07 — opened `v1.23` for webhook operator trust, replay, and egress-control follow-ons after the `v1.22` outbound pipeline ship.*
+*Last updated: 2026-05-08 — archived `v1.24` session control and reset the active milestone surface for `EMAIL-RAILS` selection.*

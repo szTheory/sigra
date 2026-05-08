@@ -27,61 +27,24 @@
 - ✅ **v1.20 GA Launch — SEED closure + public release** — Phases **85–90** (shipped **2026-04-28**). See [v1.20 archive](milestones/v1.20-ROADMAP.md), [v1.20 requirements](milestones/v1.20-REQUIREMENTS.md), [v1.20 milestone audit](milestones/v1.20-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.21 B2B-ready & production-honest** — Phases **91–96** (shipped **2026-05-06**). See [v1.21 archive](milestones/v1.21-ROADMAP.md), [v1.21 requirements](milestones/v1.21-REQUIREMENTS.md), [v1.21 milestone audit](milestones/v1.21-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.22 Webhooks / outbound event pipeline** — Phases **97–102** (shipped **2026-05-06**). See [v1.22 archive](milestones/v1.22-ROADMAP.md), [v1.22 requirements](milestones/v1.22-REQUIREMENTS.md), [v1.22 milestone audit](milestones/v1.22-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-
-## Phases
-
-### Phase 103: Overlap-safe webhook secret rotation
-
-**Goal:** Make webhook signing-secret rollover safe in production by supporting overlap windows, deterministic cutover, and replay-safe verification without creating a delivery-loss window.
-
-**Depends on:** Phases 97-102.
-
-**Requirements:** WH-04.
-
-**Success criteria:**
-1. A webhook subscription can hold the metadata needed for current and next signing secrets during a controlled overlap window, with explicit activation and retirement semantics.
-2. Deliveries emitted during rotation remain verifiable by receivers without requiring adopters to race a one-shot cutover or accept dropped webhook traffic.
-3. Replay protection remains correct across the rotation window so a previously accepted delivery cannot be re-accepted merely because multiple secrets are temporarily valid.
-4. Generated guidance and verification prove the full lifecycle: pre-rotation, overlap, final cutover, and old-secret retirement.
-
-### Phase 104: Failed-delivery replay controls
-
-**Goal:** Let operators recover from receiver outages by replaying failed or dead-lettered deliveries from supported control surfaces while preserving truthful history.
-
-**Depends on:** Phases 98-103.
-
-**Requirements:** WH-05.
-
-**Success criteria:**
-1. An authorized maintainer or admin can manually replay a failed or dead-lettered delivery from the admin surface or an equivalent CLI flow without hand-editing database state.
-2. Replayed deliveries preserve the original delivery and attempt history while creating a clear new execution path that operators can inspect and audit.
-3. The system rejects unsafe replay states, such as replaying already-successful deliveries or double-submitting an in-flight recovery action, with explicit operator-facing errors.
-4. Verification proves the receiver-recovery path end to end: fail, inspect, restore downstream health, replay, and observe successful delivery plus truthful admin history.
-
-### Phase 105: Webhook egress policy and deployment controls
-
-**Goal:** Give adopters enforceable outbound network boundaries for webhook destinations, plus generated guidance that makes those controls practical in real deployments.
-
-**Depends on:** Phases 97-104.
-
-**Requirements:** WH-06.
-
-**Success criteria:**
-1. Sigra enforces an outbound endpoint policy for webhook destinations that blocks disallowed schemes, hosts, or network targets before a remote request is attempted.
-2. Adopters receive generated guidance for IP allowlisting and deployment-specific control points so the policy is actionable rather than a buried library knob.
-3. Tenant- or deployment-specific controls can be applied without forking Sigra internals, and blocked destinations are visible to operators with truthful failure reasons.
-4. Verification proves both sides of the contract: allowed endpoints still deliver successfully, and disallowed targets fail safely with a clear audit and operator story.
+- ✅ **v1.23 Webhook operator trust & controls** — Phases **103–107** (shipped **2026-05-08**). See [v1.23 archive](milestones/v1.23-ROADMAP.md), [v1.23 requirements](milestones/v1.23-REQUIREMENTS.md), [v1.23 milestone audit](milestones/v1.23-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.24 Session Control Plane** — Phases **108–110** (shipped **2026-05-08**). See [v1.24 archive](milestones/v1.24-ROADMAP.md), [v1.24 requirements](milestones/v1.24-REQUIREMENTS.md), [v1.24 milestone audit](milestones/v1.24-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only. Do not plan new work under **999.x**; use newly numbered phases.
 - **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope for v1.23.
-- **Session UX completeness (`SESS-01..03`)** — Tier 3 polish; not B2B-blocking. Future requirements section of `REQUIREMENTS.md`.
-- **Email template overrides + i18n + bounce handling (`EMAIL-01..03`)** — Tier 3 polish.
-- **Passkey multi-authenticator + recovery (`PK-01..03`)** — Tier 3 polish.
-- **DataExport depth (`DATA-01..03`)** — Tier 3; only matters at compliance review.
-- **Release cut after v1.23** — do not promote the release-prep slice until webhook operator trust work closes honestly.
+- **`REL-01` release truth reset** — completed between milestones; reconciled version/release truth across package metadata, changelog framing, and maintainer-facing release docs.
+- **`EMAIL-RAILS` email reliability + override rails** — ranked feature candidate #1; focus on override seams, previews, diagnostics, and provider-agnostic delivery posture.
+- **`PK-LIFECYCLE` passkey lifecycle completion** — ranked feature candidate #2; recovery, last-passkey safety, and cross-device trust matter more than already-shipped passkey CRUD.
+- **`DATA-LIFECYCLE` compliance export + data lifecycle** — ranked feature candidate #3; extend existing export and anonymize seams after more universal adoption blockers are closed.
 - **Built-in opinionated roles** — RBAC stays seams-only per Phase **92**.
 - **MySQL / SQLite adapters** — explicitly removed via Phase **94**; re-evaluate only if an adopter signals concrete demand and is willing to own the adapter.
 - **Phase 999.x archaeology** — pure planning hygiene; tombstone-only.
-- **Items not mapped in archived requirements** — stay here until a future milestone selects them.
+- **Items not mapped in archived requirements** — stay here until a future milestone selects them into a new `REQUIREMENTS.md`.
+
+## Arc Notes
+
+- Treat [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) as the ranking source for the next several milestones.
+- Do not treat `SESS-01` or `PK-01` as fresh greenfield gaps: session/device labeling and passkey list/rename/remove are already substantially shipped.
+- Prefer milestones that improve production trust, integration clarity, or DX on rough edges over generic admin expansion or hosted-control-plane imitation.
