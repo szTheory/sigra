@@ -18,9 +18,15 @@ signature verification, duplicate suppression, and downstream automation.
 6. Use Sigra's explicit flow: prepare the next secret, update the receiver,
    start overlap, verify a real overlap-window delivery, then complete
    rotation.
-7. Trigger real Sigra events after setup and confirm deliveries in the
+7. Customize `webhook_endpoint_policy/1` in your generated accounts module if
+   your deployment needs an app-layer allowlist or extra deny rules.
+8. Pair that callback with platform egress controls such as Kubernetes
+   `NetworkPolicy`, Fly.io egress IP allowlisting, or Fly.io network policies.
+9. Trigger real Sigra events after setup and confirm deliveries in the
    generated admin webhook history.
-8. If a delivery ever dead-letters, use the Sigra admin UI replay action as a
+10. If a blocked delivery ever dead-letters, confirm admin history shows
+    `local_policy_error` plus the stable reason/detail you expect.
+11. If a delivery ever dead-letters for another reason, use the Sigra admin UI replay action as a
    recovery step. Replay creates a fresh child `delivery_id`; keep receiver
    dedupe keyed on `delivery_id` and keep the original failed source row in
    your own incident notes.
@@ -48,3 +54,7 @@ end
 See `guides/recipes/webhook-verification.md` for the full raw request body,
 candidate-secret verification, `body_reader`, and `delivery_id` verification
 flow.
+
+For deployment-specific outbound controls, edit `webhook_endpoint_policy/1` in
+your generated accounts module and keep it aligned with your infrastructure
+allowlist story.

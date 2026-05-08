@@ -63,17 +63,23 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     user_session.ex
     user_token.ex
     vault.ex
+    webhook_delivery.ex
+    webhook_delivery_attempt.ex
+    webhook_event.ex
+    webhook_migration.exs
+    webhook_subscription.ex
   )
 
   @core_dir "priv/templates/sigra.install/core"
   @top_dir "priv/templates/sigra.install"
 
   test "templates have been relocated under core/ subdirectory" do
-    # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex). The host-owned
-    # `Sigra.Authz` starter sits beside admin/policy.ex (admin feature)
-    # and lives under core/ because the Authz seam itself is core-scoped.
+    # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex). Phase 97/98:
+    # +5 webhook templates/migration in core (subscription/event/delivery/
+    # attempt + migration) because webhook scaffolding is now part of the
+    # core installer surface.
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 51
+    assert length(core_files) == 56
     assert core_files == Enum.sort(@manifest_post_move)
   end
 

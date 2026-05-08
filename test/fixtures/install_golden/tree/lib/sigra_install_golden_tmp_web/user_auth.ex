@@ -145,7 +145,23 @@ defmodule SigraInstallGoldenTmpWeb.UserAuth do
   """
   def log_out_user(conn) do
     user_token = get_session(conn, :user_token)
-    user_token && SigraInstallGoldenTmp.Accounts.delete_user_session_token(user_token)
+    current_user = conn.assigns[:current_scope] && conn.assigns.current_scope.user
+    ip_address = conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))
+    user_agent = conn |> get_req_header("user-agent") |> List.first()
+
+    cond do
+      is_binary(user_token) and current_user ->
+        SigraInstallGoldenTmp.Accounts.log_out_user_session_token(user_token, current_user,
+          ip_address: ip_address,
+          user_agent: user_agent
+        )
+
+      is_binary(user_token) ->
+        SigraInstallGoldenTmp.Accounts.delete_user_session_token(user_token)
+
+      true ->
+        :ok
+    end
 
     if live_socket_id = get_session(conn, :live_socket_id) do
       SigraInstallGoldenTmpWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})

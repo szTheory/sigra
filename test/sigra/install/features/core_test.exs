@@ -67,18 +67,19 @@ defmodule Sigra.Install.Features.CoreTest do
   end
 
   describe "migrations/1" do
-    test "returns exactly 4 slot entries in canonical order" do
+    test "returns exactly 5 slot entries in canonical order" do
       # Phase 24.1: :audit_events_org_columns moved to the Organizations
       # feature so its hard FK to the organizations table lands AFTER
       # that table is created, and is omitted entirely under
       # --no-organizations.
       slots = Core.migrations(@binding)
-      assert length(slots) == 4
+      assert length(slots) == 5
 
       assert [
                {:primary, "core/migration.exs", _primary_basename},
                {:active_org_column, "core/add_active_organization_id_to_user_sessions.exs",
                 _active_org_basename},
+               {:webhooks, "core/webhook_migration.exs", _webhook_basename},
                {:api_token, "core/api_token_migration.exs", _api_basename},
                {:audit_events, "core/create_audit_events.exs", _audit_basename}
              ] = slots
@@ -188,19 +189,17 @@ defmodule Sigra.Install.Features.CoreTest do
       # allocator.
       assert "core/migration.exs" in sources
       assert "core/add_active_organization_id_to_user_sessions.exs" in sources
+      assert "core/webhook_migration.exs" in sources
       assert "core/create_audit_events.exs" in sources
       # api_token migration is only included with --api/--jwt
       refute "core/api_token_migration.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 39 files" do
-      # 29 base_files + 9 ui_files (live-mode) + 3 inlined migrations
-      # (primary + active_org_column + audit_events); api_token migration
-      # is --api-only; audit_events_org_columns moved to the Organizations
-      # feature in Phase 24.1 (was previously in Core's files/1).
-      # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex) — host-owned
-      # `Sigra.Authz` starter sits beside sigra_admin_policy.ex.
-      assert length(Core.files(@binding)) == 39
+    test "default (live=true, api=false, jwt=false) returns exactly 44 files" do
+      # Phase 92 / Plan 92-02 added core/sigra_authz.ex.
+      # Phase 97/98 added 4 webhook core templates plus 1 inlined
+      # webhook migration to the default installer surface.
+      assert length(Core.files(@binding)) == 44
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -220,10 +219,12 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 33 files" do
-      # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex).
+    test "--no-live returns exactly 38 files" do
+      # Phase 92 / Plan 92-02 added core/sigra_authz.ex.
+      # Phase 97/98 added 4 webhook core templates plus 1 inlined
+      # webhook migration to the controller-mode installer surface.
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 33
+      assert length(Core.files(binding)) == 38
     end
 
     test "falls back to the plaintext stub when encryption-requiring features are disabled" do

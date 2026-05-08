@@ -83,14 +83,15 @@ defmodule Sigra.Install.IsolationTest do
       end)
     end
 
-    test "contains exactly 51 templates" do
+    test "contains exactly 56 templates" do
       # Phase 92 / Plan 92-02: +1 (core/sigra_authz.ex), the host-owned
       # `Sigra.Authz` starter wired into Features.Core.files/1.
       # Phase 93 / Plan 93-03: +1 (core/oauth_token_controller.ex),
       # the RFC 6749 §4.4 client_credentials grant controller, gated
       # on `--jwt --organizations` (D-93-18).
+      # Phase 97/98: +5 webhook templates/migration in core.
       files = File.ls!("priv/templates/sigra.install/core")
-      assert length(files) == 51
+      assert length(files) == 56
     end
   end
 

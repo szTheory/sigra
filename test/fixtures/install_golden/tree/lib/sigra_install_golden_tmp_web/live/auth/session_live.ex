@@ -18,83 +18,116 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
 
   def mount(_params, session, socket) do
     user = socket.assigns.current_scope.user
-    sessions = Auth.list_sessions(user)
     current_hashed_token = current_session_hashed_token(session)
 
-    {:ok, assign(socket,
-      sessions: sessions,
-      current_hashed_token: current_hashed_token,
-      page_title: "Active Sessions"
-    )}
+    {:ok,
+     socket
+     |> assign(:current_hashed_token, current_hashed_token)
+     |> assign(:page_title, "Active Sessions")
+     |> assign_session_surface(user)}
   end
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
-      <.header>
-        Active Sessions
-        <:subtitle>These devices are currently signed in to your account.</:subtitle>
-      </.header>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
+      <div class="mx-auto max-w-2xl">
+        <.header>
+          Active Sessions
+          <:subtitle>These devices are currently signed in to your account.</:subtitle>
+        </.header>
 
-      <div class="mt-8 space-y-4">
-        <div
-          :for={session <- @sessions}
-          class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
-        >
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold">
-                <%= device_name(session) %>
-              </span>
-              <span
-                :if={current_session?(session, @current_hashed_token)}
-                class="inline-flex items-center rounded-md bg-brand/10 px-2 py-1 text-xs font-semibold text-brand"
-              >
-                This device
-              </span>
+        <div class="mt-8 space-y-4">
+          <div
+            :for={session <- @sessions}
+            class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold">
+                  <%= device_name(session) %>
+                </span>
+                <span
+                  :if={current_session?(session, @current_hashed_token)}
+                  class="inline-flex items-center rounded-md bg-brand/10 px-2 py-1 text-xs font-semibold text-brand"
+                >
+                  This device
+                </span>
+              </div>
+              <div class="mt-1 text-sm text-gray-500">
+                <span><%= session.ip || "Unknown IP" %></span>
+                <span class="mx-1">&middot;</span>
+                <span><%= location(session) %></span>
+              </div>
+              <div class="mt-1 text-sm text-gray-500">
+                <%= relative_time(session.last_active_at) %>
+              </div>
             </div>
-            <div class="mt-1 text-sm text-gray-500">
-              <span><%= session.ip || "Unknown IP" %></span>
-              <span class="mx-1">&middot;</span>
-              <span><%= location(session) %></span>
+            <div>
+              <%= if current_session?(session, @current_hashed_token) do %>
+                <.button
+                  phx-click="revoke_current"
+                  phx-value-token={Base.url_encode64(session.hashed_token)}
+                  data-confirm="This is your current session. Revoking it will log you out. Continue?"
+                  class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
+                >
+                  Revoke session
+                </.button>
+              <% else %>
+                <.button
+                  phx-click="revoke"
+                  phx-value-token={Base.url_encode64(session.hashed_token)}
+                  class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
+                >
+                  Revoke session
+                </.button>
+              <% end %>
             </div>
-            <div class="mt-1 text-sm text-gray-500">
-              <%= relative_time(session.last_active_at) %>
-            </div>
-          </div>
-          <div>
-            <%= if current_session?(session, @current_hashed_token) do %>
-              <.button
-                phx-click="revoke_current"
-                phx-value-token={Base.url_encode64(session.hashed_token)}
-                data-confirm="This is your current session. Revoking it will log you out. Continue?"
-                class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
-              >
-                Revoke session
-              </.button>
-            <% else %>
-              <.button
-                phx-click="revoke"
-                phx-value-token={Base.url_encode64(session.hashed_token)}
-                class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
-              >
-                Revoke session
-              </.button>
-            <% end %>
           </div>
         </div>
-      </div>
 
-      <div :if={length(@sessions) > 1} class="mt-8 border-t border-gray-200 pt-6">
-        <.button
-          phx-click="revoke_others"
-          data-confirm="This will end every other session and keep this device signed in."
-          class="text-red-600 bg-red-50 hover:bg-red-100"
-        >
-          Log out of other devices
-        </.button>
+        <div :if={length(@sessions) > 1} class="mt-8 border-t border-gray-200 pt-6">
+          <.button
+            phx-click="revoke_others"
+            data-confirm="This will end every other session and keep this device signed in."
+            class="text-red-600 bg-red-50 hover:bg-red-100"
+          >
+            Log out of other devices
+          </.button>
+        </div>
+
+        <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">Recent security activity</h2>
+              <p class="mt-1 text-sm text-gray-500">
+                Recent sign-ins, suspicious-login outcomes, and session changes sourced from Sigra's persisted security history.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <article
+              :for={activity <- @security_activity}
+              class="rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
+              <div class="flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold text-gray-900">{activity.action_label}</p>
+                  <p :if={activity_context(activity)} class="text-sm text-gray-500">
+                    {activity_context(activity)}
+                  </p>
+                </div>
+                <p class="shrink-0 text-xs text-gray-500">{relative_time(activity.occurred_at)}</p>
+              </div>
+            </article>
+
+            <p :if={@security_activity == []} class="text-sm text-gray-500">
+              No recent security activity yet.
+            </p>
+          </div>
+        </section>
       </div>
-    </div>
+    </Layouts.app>
     """
   end
 
@@ -102,8 +135,10 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
     hashed_token = Base.url_decode64!(encoded_token)
     Auth.revoke_session(hashed_token)
 
-    sessions = Auth.list_sessions(socket.assigns.current_scope.user)
-    {:noreply, socket |> put_flash(:info, "Session revoked.") |> assign(sessions: sessions)}
+    {:noreply,
+     socket
+     |> put_flash(:info, "Session revoked.")
+     |> assign_session_surface(socket.assigns.current_scope.user)}
   end
 
   def handle_event("revoke_current", %{"token" => encoded_token}, socket) do
@@ -118,14 +153,15 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
 
     case Auth.revoke_other_sessions(user, socket.assigns.current_hashed_token) do
       {:ok, count} ->
-        sessions = Auth.list_sessions(user)
-
         message =
           if count == 0,
             do: "No other sessions were active.",
             else: "Logged out of #{count} other #{session_word(count)}."
 
-        {:noreply, socket |> put_flash(:info, message) |> assign(sessions: sessions)}
+        {:noreply,
+         socket
+         |> put_flash(:info, message)
+         |> assign_session_surface(user)}
 
       {:error, :current_session_not_found} ->
         {:noreply,
@@ -174,4 +210,36 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
 
   defp session_word(1), do: "session"
   defp session_word(_count), do: "sessions"
+
+  defp assign_session_surface(socket, user) do
+    assign(socket,
+      sessions: Auth.list_sessions(user),
+      security_activity: Auth.recent_security_activity(user)
+    )
+  end
+
+  defp activity_context(activity) do
+    [outcome_label(activity), activity.ip_address, activity_location(activity), session_type_label(activity)]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(" · ")
+  end
+
+  defp outcome_label(%{outcome: "success"}), do: nil
+  defp outcome_label(%{outcome: "failure"}), do: "Failed"
+  defp outcome_label(%{outcome: outcome}) when is_binary(outcome), do: String.capitalize(outcome)
+  defp outcome_label(_activity), do: nil
+
+  defp activity_location(%{geo_city: city, geo_country_code: country})
+       when is_binary(city) and is_binary(country),
+       do: "#{city}, #{country}"
+
+  defp activity_location(_activity), do: nil
+
+  defp session_type_label(%{session_type: type}) when type in [:remember_me, "remember_me"],
+    do: "Remembered session"
+
+  defp session_type_label(%{session_type: type}) when type in [:standard, "standard"],
+    do: "Standard session"
+
+  defp session_type_label(_activity), do: nil
 end

@@ -1,5 +1,38 @@
      warning: the following pattern will never match:
 
+         changeset = build_delivery_job(config, delivery, job_opts)
+
+     because the right-hand side has type:
+
+         none()
+
+     where "config" was given the type:
+
+         # type: dynamic(%Sigra.Config{})
+         # from: lib/sigra/webhooks.ex:432:25
+         %Sigra.Config{} = config
+
+     where "delivery" was given the type:
+
+         # type: dynamic()
+         # from: lib/sigra/webhooks.ex:443:51
+         delivery
+
+     where "job_opts" was given the type:
+
+         # type: dynamic()
+         # from: lib/sigra/webhooks.ex:438:14
+         job_opts = Keyword.drop(opts, [:jobs_step])
+
+     typing violation found at:
+     │
+ 444 │         changeset = build_delivery_job(config, delivery, job_opts)
+     │                   ~
+     │
+     └─ (sigra 1.20.0) lib/sigra/webhooks.ex:444:19: Sigra.Webhooks.append_delivery_jobs_multi/4
+
+     warning: the following pattern will never match:
+
          changeset = build_delivery_job(config, delivery_or_id, opts)
 
      because the right-hand side has type:
@@ -9,27 +42,27 @@
      where "config" was given the type:
 
          # type: dynamic(%Sigra.Config{})
-         # from: lib/sigra/webhooks.ex:246:40
+         # from: lib/sigra/webhooks.ex:486:40
          %Sigra.Config{} = config
 
      where "delivery_or_id" was given the type:
 
          # type: dynamic()
-         # from: lib/sigra/webhooks.ex:246:50
+         # from: lib/sigra/webhooks.ex:486:50
          delivery_or_id
 
      where "opts" was given the type:
 
          # type: dynamic()
-         # from: lib/sigra/webhooks.ex:246:66
+         # from: lib/sigra/webhooks.ex:486:66
          opts
 
      typing violation found at:
      │
- 247 │     changeset = build_delivery_job(config, delivery_or_id, opts)
+ 487 │     changeset = build_delivery_job(config, delivery_or_id, opts)
      │               ~
      │
-     └─ (sigra 1.20.0) lib/sigra/webhooks.ex:247:15: Sigra.Webhooks.enqueue_delivery/3
+     └─ (sigra 1.20.0) lib/sigra/webhooks.ex:487:15: Sigra.Webhooks.enqueue_delivery/3
 
      warning: Joken.encode_and_sign/2 is undefined (module Joken is not available or is yet to be defined). Make sure the module name is correct and has been specified in full (or that an alias has been defined)
      │
