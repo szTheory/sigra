@@ -209,6 +209,9 @@ Next steps:
 * creating lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex
 * creating lib/sigra_install_golden_tmp_web/live/organization_members_live.ex
 * creating lib/sigra_install_golden_tmp_web/live/invitation_accept_live.ex
+* injecting lib/sigra_install_golden_tmp_web/components/layouts.ex
+* injecting lib/sigra_install_golden_tmp_web/components/layouts.ex
+* injecting lib/sigra_install_golden_tmp_web/components/layouts.ex
 * injecting lib/sigra_install_golden_tmp_web/router.ex
 
 Sigra organizations installed!

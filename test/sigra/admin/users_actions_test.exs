@@ -246,7 +246,8 @@ defmodule Sigra.Admin.UsersActionsTest do
       target_user: user,
       global_scope: global_scope
     } do
-      session = insert_session(user.id)
+      session = insert_session(user.id, %{ip: "10.0.0.9"})
+      _second = insert_session(user.id, %{ip: "10.0.0.10"})
       :ok = Actions.revoke_session(config, global_scope, user.id, session.hashed_token)
       {_count, nil} = Actions.revoke_all_sessions(config, global_scope, user.id)
 

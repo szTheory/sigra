@@ -776,21 +776,18 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       opts: []
     ]
 
-    test "returns list with router injection only (Phase 24.1: user_auth baked into template)" do
+    test "returns layouts and router injections for organizations" do
       injections = Organizations.injections(@injections_binding)
 
       assert is_list(injections)
-      # Phase 24.1: the :assign_user_organizations on_mount clause was
-      # moved from an injection fragment into core/user_auth.ex directly
-      # (gated on `<%= if organizations? do %>`). Only the router
-      # injection remains.
-      assert length(injections) == 1
+      assert length(injections) == 4
 
       Enum.each(injections, fn injection ->
         assert %Sigra.Install.Injection{} = injection
       end)
 
       targets = Enum.map(injections, & &1.target)
+      assert Enum.count(targets, &String.ends_with?(&1, "layouts.ex")) == 3
       assert Enum.any?(targets, &String.ends_with?(&1, "router.ex"))
       refute Enum.any?(targets, &String.ends_with?(&1, "user_auth.ex"))
     end

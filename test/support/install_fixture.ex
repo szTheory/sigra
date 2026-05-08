@@ -76,7 +76,7 @@ defmodule Sigra.Test.InstallFixture do
       System.cmd("mix", ["compile"],
         cd: app_dir,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if compile_status != 0 do
@@ -95,7 +95,7 @@ defmodule Sigra.Test.InstallFixture do
         ["sigra.install", "Accounts", "User", "users", "--yes"],
         cd: app_dir,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if install_status != 0 do
@@ -153,7 +153,7 @@ defmodule Sigra.Test.InstallFixture do
       System.cmd("mix", ["compile"],
         cd: app_dir,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if compile_status != 0 do
@@ -169,7 +169,8 @@ defmodule Sigra.Test.InstallFixture do
         "sh",
         ["-c", "echo n | mix deps.get"],
         cd: app_dir,
-        stderr_to_stdout: true
+        stderr_to_stdout: true,
+        env: subprocess_env([])
       )
 
     if status != 0 do
@@ -195,7 +196,7 @@ defmodule Sigra.Test.InstallFixture do
       System.cmd("mix", args,
         cd: app_dir,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if status != 0 do
@@ -228,7 +229,7 @@ defmodule Sigra.Test.InstallFixture do
       System.cmd("mix", args,
         cd: app_dir,
         stderr_to_stdout: true,
-        env: [{"MIX_ENV", "dev"}]
+        env: subprocess_env([{"MIX_ENV", "dev"}])
       )
 
     if status != 0 do
@@ -527,6 +528,12 @@ defmodule Sigra.Test.InstallFixture do
     end
 
     File.write!(mix_exs, patched)
+  end
+
+  defp subprocess_env(overrides) when is_list(overrides) do
+    System.get_env()
+    |> Map.merge(Enum.into(overrides, %{}))
+    |> Map.to_list()
   end
 
   defp sigra_repo_root do

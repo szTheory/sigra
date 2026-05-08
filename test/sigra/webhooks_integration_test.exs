@@ -1144,9 +1144,18 @@ defmodule Sigra.WebhooksIntegrationTest do
       webhook_event_schema: WebhookEvent,
       webhook_delivery_schema: WebhookDeliveryRow,
       webhook_delivery_attempt_schema: WebhookDeliveryAttemptRow,
+      endpoint_resolver: &public_test_resolver/1,
       oban_queue: "sigra_webhooks",
       signature_tolerance: 300
     ]
+  end
+
+  defp public_test_resolver(host) when is_binary(host) do
+    if String.ends_with?(host, ".example.test") do
+      {:ok, [{203, 0, 113, 20}]}
+    else
+      {:error, :nxdomain}
+    end
   end
 
   defp register_opts(extra) do
