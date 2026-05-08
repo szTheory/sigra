@@ -1013,11 +1013,34 @@ defmodule Sigra.Admin.WebhooksTest do
     Ecto.Adapters.SQL.query!(repo, ~s|CREATE EXTENSION IF NOT EXISTS "uuid-ossp"|, [])
 
     for statement <- [
+          "DROP TABLE IF EXISTS oban_jobs CASCADE",
           "DROP TABLE IF EXISTS admin_webhooks_delivery_attempts_99 CASCADE",
           "DROP TABLE IF EXISTS admin_webhooks_deliveries_99 CASCADE",
           "DROP TABLE IF EXISTS admin_webhooks_events_99 CASCADE",
           "DROP TABLE IF EXISTS admin_webhooks_subscriptions_99 CASCADE",
           "DROP TABLE IF EXISTS admin_webhooks_users_99 CASCADE",
+          """
+          CREATE TABLE oban_jobs (
+            id bigserial PRIMARY KEY,
+            state text NOT NULL DEFAULT 'available',
+            queue text NOT NULL DEFAULT 'default',
+            worker text NOT NULL,
+            args jsonb NOT NULL,
+            errors jsonb NOT NULL DEFAULT '[]'::jsonb,
+            meta jsonb NOT NULL DEFAULT '{}'::jsonb,
+            tags text[] NOT NULL DEFAULT '{}',
+            attempt integer NOT NULL DEFAULT 0,
+            attempted_by text[],
+            max_attempts integer NOT NULL DEFAULT 20,
+            priority integer NOT NULL DEFAULT 0,
+            attempted_at timestamp,
+            cancelled_at timestamp,
+            completed_at timestamp,
+            discarded_at timestamp,
+            inserted_at timestamp NOT NULL DEFAULT now(),
+            scheduled_at timestamp NOT NULL DEFAULT now()
+          )
+          """,
           """
           CREATE TABLE admin_webhooks_users_99 (
             id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),

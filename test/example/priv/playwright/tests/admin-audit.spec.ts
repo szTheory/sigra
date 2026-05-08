@@ -43,7 +43,7 @@ async function clearBrowserSession(page: Page) {
 }
 
 async function createOrganization(page: Page, name: string, slug: string) {
-  await page.goto('/organizations');
+  await page.goto('/organizations/new');
   await waitForLiveViewReady(page);
   await page.fill('input[name="organization[name]"]', name);
   await expect(page.locator('#slug-preview')).toHaveText(slug);
@@ -90,6 +90,9 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await registerUser(page, adminEmail, password);
 
     await openUserDetail(page, targetEmail);
+    const targetUserId =
+      new URL(page.url()).pathname.split('/').filter(Boolean).pop() ?? '';
+    expect(targetUserId).not.toEqual('');
 
     const detailUrl = new URL(page.url());
     const detailPath = `${detailUrl.pathname}${detailUrl.search}`;
@@ -119,7 +122,7 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
 
     expect(globalCsv).toContain('impersonation_state');
     expect(globalCsv).toContain('admin.impersonation.start');
-    expect(globalCsv).toContain(targetEmail);
+    expect(globalCsv).toContain(targetUserId);
     expect(globalCsv).toContain(adminEmail);
 
     await openUserDetail(page, targetEmail);

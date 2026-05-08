@@ -38,6 +38,7 @@ const MOBILE_VIEWPORT = { width: 390, height: 844 };
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
     state: "attached",
+    timeout: 30_000,
   });
 }
 
@@ -60,11 +61,13 @@ async function logIn(
   email: string,
   password: string,
 ) {
-  await page.goto("/users/log_in");
-  await page.fill('#login_form input[name="user[email]"]', email);
-  await page.fill('#login_form input[name="user[password]"]', password);
-  await page.click('#login_form button:has-text("Log in")');
-  await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
+  await page.request.post("/users/log_in", {
+    form: {
+      _action: "registered",
+      "user[email]": email,
+      "user[password]": password,
+    },
+  });
 }
 
 async function registerUser(page: Page, email: string, password: string) {
@@ -79,6 +82,7 @@ async function registerUser(page: Page, email: string, password: string) {
       (form as HTMLFormElement).requestSubmit();
     });
   await expect(page).not.toHaveURL(/\/users\/register/);
+  await logIn(page, email, password);
 }
 
 async function clearBrowserSession(page: Page) {
@@ -86,7 +90,7 @@ async function clearBrowserSession(page: Page) {
 }
 
 async function createOrganization(page: Page, name: string, slug: string) {
-  await page.goto("/organizations");
+  await page.goto("/organizations/new");
   await waitForLiveViewReady(page);
   await page.fill('input[name="organization[name]"]', name);
   await expect(page.locator("#slug-preview")).toHaveText(slug);

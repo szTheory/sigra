@@ -122,17 +122,19 @@ defmodule SigraAdminSmoke.SigraAdminPolicy do
   alias SigraAdminSmoke.Accounts.OrganizationMembership
   alias SigraAdminSmoke.Repo
 
-  @platform_admin_email System.get_env("SIGRA_PLATFORM_ADMIN_EMAIL", "platform-admin@example.test")
-  @org_admin_email System.get_env("SIGRA_ORG_ADMIN_EMAIL", "org-admin@example.test")
+  @platform_admin_prefix "platform-admin+"
+  @org_admin_prefix "org-admin+"
 
   @impl true
-  def platform_admin?(%{user: %{email: email}}) when is_binary(email), do: email == @platform_admin_email
+  def platform_admin?(%{user: %{email: email}}) when is_binary(email) do
+    String.starts_with?(email, @platform_admin_prefix)
+  end
   def platform_admin?(_scope), do: false
 
   @impl true
   def admin_org_ids(%{user: %{id: user_id, email: email}})
       when is_binary(user_id) and is_binary(email) do
-    if email == @org_admin_email do
+    if String.starts_with?(email, @org_admin_prefix) do
       from(membership in OrganizationMembership,
         where: membership.user_id == ^user_id,
         select: %{organization_id: membership.organization_id, role: membership.role}
@@ -246,7 +248,7 @@ for i in $(seq 1 60); do
   sleep 1
 done
 
-for path in /users/log_in /admin "/admin/organizations/${SIGRA_ALLOWED_ORG_SLUG}"; do
+for path in /users/log_in /organizations /organizations/new /admin "/admin/organizations/${SIGRA_ALLOWED_ORG_SLUG}"; do
   curl -s -o /dev/null "http://localhost:${PORT}${path}" || true
 done
 
