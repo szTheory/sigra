@@ -172,8 +172,12 @@ defmodule Sigra.Install.Features.Organizations do
   @impl true
   def injections(binding) do
     otp_app = binding |> Keyword.fetch!(:otp_app) |> to_string()
+    web_module = Keyword.fetch!(binding, :web_module)
 
     base_injections = [
+      layouts_import_injection(otp_app, web_module),
+      layouts_attrs_injection(otp_app),
+      layouts_header_injection(otp_app),
       # user_auth injection was removed in Phase 24.1: the
       # :assign_user_organizations on_mount clause is now baked directly
       # into core/user_auth.ex gated on `<%= if organizations? do %>`.
@@ -282,6 +286,44 @@ defmodule Sigra.Install.Features.Organizations do
       marker: "# Sigra organizations",
       anchor: :before_last_end,
       content: content
+    }
+  end
+
+  defp layouts_import_injection(otp_app, web_module) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "components", "layouts.ex"]),
+      marker: "import #{web_module}.Components.OrgSwitcher",
+      anchor: :after_use_block,
+      content: "import #{web_module}.Components.OrgSwitcher"
+    }
+  end
+
+  defp layouts_attrs_injection(otp_app) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "components", "layouts.ex"]),
+      marker: "attr :user_organizations, :list,",
+      anchor: :layouts_app_attrs,
+      content: """
+        attr :user_organizations, :list,
+          default: [],
+          doc: "list of {organization, role} tuples for the current user (Phase 16 D-26)"
+      """
+    }
+  end
+
+  defp layouts_header_injection(otp_app) do
+    %Injection{
+      target: Path.join(["lib", "#{otp_app}_web", "components", "layouts.ex"]),
+      marker: "<.org_switcher",
+      anchor: :layouts_app_header,
+      content: """
+            <.org_switcher
+              :if={@current_scope && @current_scope.active_organization}
+              current_scope={@current_scope}
+              user_organizations={@user_organizations}
+              return_to="/"
+            />
+      """
     }
   end
 

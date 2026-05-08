@@ -592,6 +592,28 @@ defmodule Sigra.Install.Injector do
     end
   end
 
+  defp apply_anchor(:layouts_app_attrs, content, payload) do
+    case Regex.run(~r/^\s*slot :inner_block, required: true\s*$/m, content) do
+      [anchor_line] ->
+        String.replace(content, anchor_line, payload <> "\n\n" <> anchor_line, global: false)
+
+      _ ->
+        {:manual_action,
+         "Could not find `slot :inner_block, required: true` in layouts.ex. Add the `:user_organizations` attr to `Layouts.app/1` manually."}
+    end
+  end
+
+  defp apply_anchor(:layouts_app_header, content, payload) do
+    case Regex.run(~r/^\s*<ul class="flex flex-column px-1 space-x-4 items-center">\s*$/m, content) do
+      [anchor_line] ->
+        String.replace(content, anchor_line, payload <> "\n" <> anchor_line, global: false)
+
+      _ ->
+        {:manual_action,
+         "Could not find the layouts header action list in layouts.ex. Add the org switcher block to `Layouts.app/1` manually."}
+    end
+  end
+
   defp apply_anchor(:vault_child, content, app_module) do
     case inject_vault_child(content, app_module) do
       {:ok, new_content} -> new_content

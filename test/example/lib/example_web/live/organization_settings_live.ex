@@ -58,6 +58,8 @@ defmodule ExampleWeb.OrganizationSettingsLive do
 
   @impl true
   def render(assigns) do
+    assigns = assign_new(assigns, :user_organizations, fn -> [] end)
+
     ~H"""
     <Layouts.app
       flash={@flash}
