@@ -176,19 +176,29 @@ defmodule ExampleWeb.TestDbProbeController do
     end
   end
 
-  def create(conn, %{"table" => "webhook_drain"} = _params) do
-    if enabled?() do
-      result =
-        Oban.drain_queue(
-          queue: :sigra_webhooks,
-          with_recursion: true,
-          with_scheduled: true,
-          with_safety: false
-        )
+  if Code.ensure_loaded?(Oban) do
+    def create(conn, %{"table" => "webhook_drain"} = _params) do
+      if enabled?() do
+        result =
+          Oban.drain_queue(
+            queue: :sigra_webhooks,
+            with_recursion: true,
+            with_scheduled: true,
+            with_safety: false
+          )
 
-      json(conn, %{ok: true, result: result})
-    else
-      send_resp(conn, :not_found, "")
+        json(conn, %{ok: true, result: result})
+      else
+        send_resp(conn, :not_found, "")
+      end
+    end
+  else
+    def create(conn, %{"table" => "webhook_drain"} = _params) do
+      if enabled?() do
+        json(conn, %{ok: false, result: "oban_unavailable"})
+      else
+        send_resp(conn, :not_found, "")
+      end
     end
   end
 

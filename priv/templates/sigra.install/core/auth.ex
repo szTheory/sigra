@@ -105,7 +105,7 @@ defmodule <%= context_module %> do
     changeset_fn = fn a -> <%= schema_alias %>.registration_changeset(%<%= schema_alias %>{}, a) end
     confirmation_url_fun = Keyword.get(opts, :confirmation_url_fun)
 
-    case SigraAuth.register(Repo, attrs, changeset_fn: changeset_fn) do
+    case SigraAuth.register(sigra_config(), attrs, changeset_fn: changeset_fn) do
       {:ok, user} ->
         # CONF-01: Auto-send confirmation email on registration
         if confirmation_url_fun do

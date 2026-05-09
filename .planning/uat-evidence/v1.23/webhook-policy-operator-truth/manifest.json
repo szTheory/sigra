@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-08T01:24:24.836Z",
-  "endpoint_url": "http://localhost:4000/webhooks/sigra",
-  "blocked_delivery_id": "f030c39b-eb31-4b9d-b9ce-fe8ff6c1cda0",
+  "generated_at": "2026-05-09T03:12:11.246Z",
+  "endpoint_url": "http://localhost:4017/webhooks/sigra",
+  "blocked_delivery_id": "48a91128-6cc9-4c30-86d7-98804850872a",
   "delivery_status": "dead_lettered",
   "policy_reason": "policy_denied",
   "policy_detail": "blocked by deployment callback",

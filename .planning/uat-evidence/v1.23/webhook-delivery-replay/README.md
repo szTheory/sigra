@@ -2,24 +2,24 @@
 
 Canonical admin and receiver proof for the fail -> inspect -> repair -> replay recovery flow.
 
-- Run at: 2026-05-08T01:24:22.208Z
-- Proof user prefix: generated-replay-proof-user-1778203456551@example.test
-- Subscription ID: 1fc8f661-cf46-45ca-aaf3-fad2c36f39cb
-- Admin endpoint: http://localhost:4000/webhooks/sigra
+- Run at: 2026-05-09T03:12:08.134Z
+- Proof user prefix: generated-replay-proof-user-1778296322718@example.test
+- Subscription ID: b5af797a-c902-4d0e-83b9-6de6afb7783e
+- Admin endpoint: http://localhost:4017/webhooks/sigra
 - Admin subscription screenshot: /Users/jon/projects/sigra/.planning/uat-evidence/v1.23/webhook-delivery-replay/screenshots/subscription-detail.png
 
 ## Delivery lineage
 
-- source delivery id: c388bb94-7e5c-4587-adee-3f9c33100685
-- replay delivery id: 389bb1d8-b94d-4f04-b2f2-b85217832edc
-- root delivery id: c388bb94-7e5c-4587-adee-3f9c33100685
+- source delivery id: 2d81f944-b7a6-4cb3-a212-08f16b98ede5
+- replay delivery id: f41f3fe5-f62f-476e-b48c-5b5ee76ae749
+- root delivery id: 2d81f944-b7a6-4cb3-a212-08f16b98ede5
 - source delivery status: dead_lettered
 - replay delivery status: delivered
 
 ## Receiver verification
 
-- source delivery receiver verification: verified_at=2026-05-08T01:24:19.000000Z, signature_timestamp=1778203459, raw_body_sha256=01128230807efc4ef54b5eace874085ad7b49d51b41dceda21670a7b9f46ebc8
-- replay delivery receiver verification: verified_at=2026-05-08T01:24:21.000000Z, signature_timestamp=1778203461, raw_body_sha256=01128230807efc4ef54b5eace874085ad7b49d51b41dceda21670a7b9f46ebc8
+- source delivery receiver verification: verified_at=2026-05-09T03:12:05.000000Z, signature_timestamp=1778296325, raw_body_sha256=1c59c74acaffddb6595274450ff2cae7f11a71d510d4f12ecb80189ea7ed0ee9
+- replay delivery receiver verification: verified_at=2026-05-09T03:12:07.000000Z, signature_timestamp=1778296327, raw_body_sha256=1c59c74acaffddb6595274450ff2cae7f11a71d510d4f12ecb80189ea7ed0ee9
 
 ## Screenshots
 
