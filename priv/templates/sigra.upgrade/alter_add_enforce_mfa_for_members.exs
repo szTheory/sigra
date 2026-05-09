@@ -1,6 +1,6 @@
 defmodule <%= repo_module %>.Migrations.AddEnforceMfaForMembersToOrganizations do
   @moduledoc """
-  Phase 91 B2B-01: add `enforce_mfa_for_members` to organizations.
+  Adds `enforce_mfa_for_members` to organizations (org-level MFA enforcement).
 
   Uses additive `*_if_not_exists` helpers so reruns on already-upgraded
   schemas are safe no-ops.

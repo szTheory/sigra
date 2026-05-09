@@ -1,6 +1,6 @@
 defmodule <%= repo_module %>.Migrations.AddServiceAccounts do
   @moduledoc """
-  Adds Phase 93 service-account tables for org-scoped machine credentials.
+  Adds service-account tables for org-scoped machine credentials.
 
   Uses `create_if_not_exists` so re-running the upgrade on a partially migrated
   schema is safe.

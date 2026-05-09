@@ -37,10 +37,9 @@ defmodule <%= context_module %>.OrganizationInvitation do
 <% end %>
   schema "organization_invitations" do
     field :email, :string
-    # Phase 92 / B2B-02 (CR-02 fix): host-owned role atom — matches the
-    # OrganizationMembership shape. Library-level enforcement against
-    # the configured `:roles` universe lives in
-    # `Sigra.Organizations.Invitations.create/2`.
+    # Host-owned role atom — matches the OrganizationMembership shape.
+    # Library-level enforcement against the configured `:roles` universe
+    # lives in `Sigra.Organizations.Invitations.create/2`.
     field :role, Sigra.Ecto.Types.RoleAtom
     field :hashed_token, :binary
     field :accepted_at, :utc_datetime

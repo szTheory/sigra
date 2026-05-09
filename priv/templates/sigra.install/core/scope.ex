@@ -32,11 +32,11 @@ defmodule <%= context_module %>.Scope do
 
   alias <%= context_module %>.<%= schema_alias %>
 
-  # Reserved for v1.2 impersonation. Do not remove — see UPGRADE-v1.2.md.
-  # `:role` and `:actor_type` are Phase 92 / B2B-02 (Plan 92-02) RBAC
-  # seam fields. `:role` carries the active membership's host-defined
-  # role atom. `:actor_type` is Phase 93 prep ONLY — keep it nil under
-  # Phase 92.
+  # Reserved for impersonation. Do not remove — see UPGRADE-v1.2.md.
+  # `:role` and `:actor_type` are RBAC seam fields. `:role` carries the
+  # active membership's host-defined role atom. `:actor_type` is reserved
+  # for service-account work and stays `nil` until then — do not branch
+  # on it from generated code.
   defstruct user: nil,
             active_organization: nil,
             membership: nil,

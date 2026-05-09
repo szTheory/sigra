@@ -24,12 +24,11 @@ defmodule <%= app_module %>.Organizations do
   performed on the reject path).
   """
 
-  # Phase 92 / B2B-02 (Plan 92-02): role configuration is host-owned and
-  # explicit. The library used to default to `[:owner, :admin, :member]`
-  # with `:owner` as the owner role; that default was removed in Plan
-  # 92-01 so the privilege taxonomy is visible at every host's
-  # `use Sigra.Organizations` call site. Edit the lists below to match
-  # your app's role universe — the seam is intentionally open.
+  # Role configuration is host-owned and explicit. The library used to
+  # default to `[:owner, :admin, :member]` with `:owner` as the owner role;
+  # the default was removed so the privilege taxonomy is visible at every
+  # host's `use Sigra.Organizations` call site. Edit the lists below to
+  # match your app's role universe — the seam is intentionally open.
   use Sigra.Organizations,
     repo: <%= repo_module %>,
     schemas: [
@@ -54,7 +53,7 @@ defmodule <%= app_module %>.Organizations do
   end
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Phase 16 thin-wrapper delegates (settings page + members list)
+  # Thin-wrapper delegates (settings page + members list)
   #
   # `use Sigra.Organizations` above already injects thin delegators for
   # `list_organizations_for_user/1`, `remove_member/2`, and a 3-arg

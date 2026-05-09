@@ -1,6 +1,6 @@
 defmodule <%= repo_module %>.Migrations.AddOwnerUserIdToOrganizations do
   @moduledoc """
-  Phase 18 D-00: add sticky `owner_user_id` to existing organizations.
+  Adds sticky `owner_user_id` to existing organizations.
 
   Populates the new column from the earliest `:owner` membership per
   org. Row count is bounded by `organizations` (typically small), so

@@ -1,8 +1,8 @@
-  # Phase 17 D-06: single unscoped InvitationAcceptLive at
-  # /invitations/:token/accept. This route MUST remain outside any
-  # `:require_authenticated` pipeline so both anonymous visitors
-  # (signup branch) and signed-in visitors (accept / mismatch branch)
-  # reach the same LiveView, which branches on `@branch` at mount.
+  # Single unscoped InvitationAcceptLive at /invitations/:token/accept.
+  # This route MUST remain outside any `:require_authenticated` pipeline
+  # so both anonymous visitors (signup branch) and signed-in visitors
+  # (accept / mismatch branch) reach the same LiveView, which branches
+  # on `@branch` at mount.
   scope "/", <%= web_module %> do
     pipe_through [:browser]
 

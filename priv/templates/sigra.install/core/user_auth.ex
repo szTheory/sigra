@@ -359,11 +359,10 @@ defmodule <%= web_module %>.UserAuth do
     end
   end
 <%= if organizations? do %>
-  # Phase 16 D-26: assigns `@user_organizations` to the socket for the
-  # org switcher component. Wired into `live_session` entries by the
-  # Sigra organizations router injection. Shape:
-  # `[{%Organization{}, role}]` — presentation-only data; security
-  # checks still go through the scope + membership plugs.
+  # Assigns `@user_organizations` to the socket for the org switcher
+  # component. Wired into `live_session` entries by the Sigra organizations
+  # router injection. Shape: `[{%Organization{}, role}]` — presentation-only
+  # data; security checks still go through the scope + membership plugs.
   def on_mount(:assign_user_organizations, _params, _session, socket) do
     socket =
       case socket.assigns[:current_scope] do

@@ -35,13 +35,12 @@ defmodule <%= context_module %>.OrganizationMembership do
   @foreign_key_type :binary_id
 <% end %>
   schema "organization_memberships" do
-    # Phase 92 / Plan 92-02 + CR-02 fix: role is host-owned. The DB
-    # column is a plain string; `Sigra.Ecto.Types.RoleAtom` round-trips
-    # the value as an atom in Elixir code so authorization comparisons
-    # (`role in [:owner, :admin]`, `role == config.owner_role`) match
-    # without per-callsite conversions. Library-level enforcement of the
-    # `:roles` universe lives in `Sigra.Organizations.add_member/5` and
-    # `change_role/4`.
+    # Role is host-owned. The DB column is a plain string;
+    # `Sigra.Ecto.Types.RoleAtom` round-trips the value as an atom in
+    # Elixir code so authorization comparisons (`role in [:owner, :admin]`,
+    # `role == config.owner_role`) match without per-callsite conversions.
+    # Library-level enforcement of the `:roles` universe lives in
+    # `Sigra.Organizations.add_member/5` and `change_role/4`.
     field :role, Sigra.Ecto.Types.RoleAtom
 
     belongs_to :organization, <%= context_module %>.Organization

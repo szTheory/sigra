@@ -42,10 +42,10 @@ defmodule <%= web_module %>.OrganizationMembersLive do
   def mount(_params, _session, socket) do
     scope = socket.assigns.current_scope
 
-    # Phase 92 / B2B-02 (WR-2-05 fix): read the host's role taxonomy from
-    # `Organizations.__sigra_org_config__()` so the LV stays in lockstep
-    # with `use Sigra.Organizations, roles: [...]` instead of hardcoding
-    # `[:owner, :admin, :member]` in helpers and select options.
+    # Read the host's role taxonomy from `Organizations.__sigra_org_config__()`
+    # so the LV stays in lockstep with `use Sigra.Organizations, roles: [...]`
+    # instead of hardcoding `[:owner, :admin, :member]` in helpers and select
+    # options.
     config = Organizations.__sigra_org_config__()
     available_roles = config.roles
     invitation_admin_roles = config.invitation_admin_roles
@@ -659,12 +659,12 @@ defmodule <%= web_module %>.OrganizationMembersLive do
     |> Enum.find(fn m -> to_string(m.id) == to_string(id) end)
   end
 
-  # ── Phase 17 / Phase 92 helpers ──────────────────────────────────────────
+  # ── Member-management helpers ────────────────────────────────────────────
 
-  # Phase 92 / B2B-02: "can this scope manage members?" reads from the
-  # host-configured `:invitation_admin_roles` instead of the legacy
-  # `[:owner, :admin]` literal. Stays in lockstep with whatever the host
-  # declares in `use Sigra.Organizations`.
+  # "Can this scope manage members?" reads from the host-configured
+  # `:invitation_admin_roles` instead of a legacy `[:owner, :admin]` literal.
+  # Stays in lockstep with whatever the host declares in
+  # `use Sigra.Organizations`.
   defp can_manage_members?(%{membership: %{role: role}}, invitation_admin_roles)
        when is_list(invitation_admin_roles) do
     role in invitation_admin_roles
@@ -672,12 +672,11 @@ defmodule <%= web_module %>.OrganizationMembersLive do
 
   defp can_manage_members?(_scope, _roles), do: false
 
-  # Phase 92 / B2B-02 (WR-2-05 fix): casts a form-submitted role string
-  # to an atom, validating it against the host's configured `:roles`
-  # universe. Falls back to the last configured role (the lowest-
-  # privilege convention in the recipe) when the input is missing or
-  # unrecognized — keeps the form forgiving while never producing a
-  # role atom outside the host taxonomy.
+  # Casts a form-submitted role string to an atom, validating it against
+  # the host's configured `:roles` universe. Falls back to the last
+  # configured role (the lowest-privilege convention in the recipe) when
+  # the input is missing or unrecognized — keeps the form forgiving while
+  # never producing a role atom outside the host taxonomy.
   defp safe_invite_role(role_str, available_roles) when is_list(available_roles) do
     case safe_role_atom(role_str, available_roles) do
       {:ok, atom} -> atom
@@ -709,12 +708,12 @@ defmodule <%= web_module %>.OrganizationMembersLive do
 
   defp invitation_expires_relative(_), do: "—"
 
-  # Phase 92 / B2B-02 (WR-2-05 fix): casts a form-submitted role string
-  # to an atom and validates it against the host's configured roles.
-  # Uses `String.to_existing_atom/1` for safety — host role atoms enter
-  # the BEAM at compile time via `use Sigra.Organizations, roles: [...]`,
-  # so any legitimate role string maps to an existing atom. Unknown or
-  # non-host atoms return `{:error, :invalid_role}`.
+  # Casts a form-submitted role string to an atom and validates it against
+  # the host's configured roles. Uses `String.to_existing_atom/1` for safety
+  # — host role atoms enter the BEAM at compile time via
+  # `use Sigra.Organizations, roles: [...]`, so any legitimate role string
+  # maps to an existing atom. Unknown or non-host atoms return
+  # `{:error, :invalid_role}`.
   defp safe_role_atom(role_str, available_roles)
        when is_binary(role_str) and is_list(available_roles) do
     atom = String.to_existing_atom(role_str)
@@ -730,10 +729,9 @@ defmodule <%= web_module %>.OrganizationMembersLive do
 
   defp safe_role_atom(_other, _available_roles), do: {:error, :invalid_role}
 
-  # UI-SPEC §Color — role badge variants. Phase 92 / B2B-02 (WR-2-05
-  # fix): hosts customizing the role taxonomy should also customize
-  # this clause list. The fallback `_ -> "badge-ghost"` keeps unknown
-  # atoms rendering safely without the LV crashing.
+  # Role badge variants. Hosts customizing the role taxonomy should also
+  # customize this clause list. The fallback `_ -> "badge-ghost"` keeps
+  # unknown atoms rendering safely without the LV crashing.
   #
   # Edit these clauses to match your `roles:` taxonomy. The starter is:
   #
@@ -745,11 +743,10 @@ defmodule <%= web_module %>.OrganizationMembersLive do
   defp role_badge_class(:member), do: "badge-ghost"
   defp role_badge_class(_other), do: "badge-ghost"
 
-  # Phase 92 / B2B-02: humanize falls through to a generic
-  # capitalize-and-replace-underscores formatter so any host role atom
-  # (e.g. `:tenant_lead` -> "Tenant Lead") renders without explicit
-  # clauses. Edit the explicit clauses to match your taxonomy if you
-  # want non-default casing.
+  # Humanize falls through to a generic capitalize-and-replace-underscores
+  # formatter so any host role atom (e.g. `:tenant_lead` -> "Tenant Lead")
+  # renders without explicit clauses. Edit the explicit clauses to match
+  # your taxonomy if you want non-default casing.
   defp humanize_role(role) when is_atom(role) and not is_nil(role) do
     role
     |> Atom.to_string()

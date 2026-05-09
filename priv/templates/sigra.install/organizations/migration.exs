@@ -12,7 +12,7 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
       add :owner_user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :nilify_all)
       # D-01: personal-workspace flag (added Phase 18). Sticky origin, NOT current state — a personal org stays `personal: true` even after inviting others.
       add :personal, :boolean, null: false, default: false
-      # Phase 91 B2B-01: org-level MFA enforcement.
+      # Org-level MFA enforcement.
       add :enforce_mfa_for_members, :boolean, null: false, default: false
 
       timestamps(type: :utc_datetime)
@@ -36,10 +36,9 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     # ── Organization Memberships ───────────────────────────────────────
     create table(:organization_memberships<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
-<% end %>      # Phase 92 / Plan 92-02: nullable host-owned role storage.
-      # The library no longer ships a canonical role taxonomy; the
-      # generated wrapper passes `roles:` / `owner_role:` /
-      # `invitation_admin_roles:` to `use Sigra.Organizations`.
+<% end %>      # Nullable host-owned role storage. The library no longer ships
+      # a canonical role taxonomy; the generated wrapper passes `roles:` /
+      # `owner_role:` / `invitation_admin_roles:` to `use Sigra.Organizations`.
       add :role, :string
       add :organization_id, references(:organizations<%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
       add :user_id, references(:<%= table_name %><%= if binary_id do %>, type: :binary_id<% end %>, on_delete: :delete_all), null: false
@@ -54,12 +53,11 @@ defmodule <%= repo_module %>.Migrations.CreateOrganizations do
     create table(:organization_invitations<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
 <% end %>      add :email, :citext, null: false
-      # Phase 92 / B2B-02 (CR-03 fix): nullable host-owned role storage,
-      # mirroring the memberships column above. The library no longer
-      # ships a canonical role taxonomy and therefore cannot bake a
-      # `default: "member"` opinion into the schema. Application-level
-      # enforcement of the configured `:roles` universe lives in
-      # `Sigra.Organizations.Invitations.create/2`.
+      # Nullable host-owned role storage, mirroring the memberships column
+      # above. The library no longer ships a canonical role taxonomy and
+      # therefore cannot bake a `default: "member"` opinion into the schema.
+      # Application-level enforcement of the configured `:roles` universe
+      # lives in `Sigra.Organizations.Invitations.create/2`.
       add :role, :string
       add :hashed_token, :binary
       add :accepted_at, :utc_datetime
