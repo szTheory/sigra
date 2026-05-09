@@ -112,9 +112,11 @@ The remaining meaningful work clusters are:
 - diagnostics and doctor checks for missing or inconsistent setup
 - provider-agnostic telemetry and async delivery posture
 - bounce / complaint hooks or stubs plus recipes
+- evaluate Mailglass adapter (`Sigra.Mailers.Adapters.Mailglass`) as the primary unlock for preview + admin + webhook ledger + unsubscribe; see `seeds/SEED-005-mailglass-mailer-adapter.md`. If adopted, EMAIL-RAILS scope shrinks to "wire the adapter, document the override surface, ship the preview catalog."
 **Prerequisites:**
 - keep core provider-agnostic
 - preserve Swoosh and Oban seams
+- if pursuing Mailglass path, widen Mailglass's optional `:sigra` constraint first (see `todos/pending/2026-05-08-cross-repo-mailglass-sigra-constraint.md`)
 **Non-goals:**
 - owning SPF / DKIM / DMARC
 - hard-coding a preferred ESP in core
@@ -159,6 +161,25 @@ The remaining meaningful work clusters are:
 - generic BI/reporting exports
 - claiming host-app regulatory ownership
 
+### candidate
+
+**ID:** `SUITE-INTEGRATION`
+**Name:** `szTheory Suite Integration`
+**Priority:** 4
+**Why now:** Sigra's value compounds when adopters can compose it with the rest of the szTheory ecosystem (Mailglass, Threadline, Accrue, Lockspire, Relyra, Rulestead). Today these are individual recipes (see `todos/pending/2026-05-08-write-*-integration-recipe.md`); a focused milestone could ship first-class adapters where they exist (Threadline, Mailglass) and a coherent OSS-suite narrative.
+**Theme:** Sigra-as-suite-anchor — the auth library that plays cleanly with the rest of the szTheory toolkit.
+**Likely scope:**
+- Threadline audit adapter (`Sigra.Audit.Adapters.Threadline`); see `seeds/SEED-006-threadline-audit-adapter.md`
+- Confirm Mailglass adoption posture (likely already absorbed into EMAIL-RAILS; cross-link)
+- Suite-narrative guide section + ecosystem diagram in `guides/introduction/`
+- Reference starter app (Sigra + Accrue + Mailglass) — separate repo or `examples/` directory
+**Prerequisites:**
+- EMAIL-RAILS shipped (Mailglass story crystallized)
+- recipe TODOs C1–C5 landed (provides the doc baseline)
+**Non-goals:**
+- owning any sister-lib's roadmap
+- replacing recipes with code where the library boundary doesn't justify it
+
 ## Selection Guidance
 
 `REL-01 Release Truth Reset` is complete. Until a stronger signal appears from real adopter feedback, use this default sequence:
@@ -166,5 +187,6 @@ The remaining meaningful work clusters are:
 1. `EMAIL-RAILS Email Reliability & Override Rails`
 2. `PK-LIFECYCLE Passkey Lifecycle Completion`
 3. `DATA-LIFECYCLE Compliance Export & Data Lifecycle`
+4. `SUITE-INTEGRATION szTheory Suite Integration`
 
 If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above.
