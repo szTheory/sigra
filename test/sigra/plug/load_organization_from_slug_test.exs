@@ -66,8 +66,8 @@ defmodule Sigra.Plug.LoadOrganizationFromSlugTest do
   defmodule TestScope do
     defstruct [:user, :active_organization, :membership]
 
-    def put_active_organization(scope, org, membership) do
-      %__MODULE__{scope | active_organization: org, membership: membership}
+    def put_active_organization(%__MODULE__{} = scope, org, membership) do
+      %{scope | active_organization: org, membership: membership}
     end
   end
 
@@ -129,7 +129,7 @@ defmodule Sigra.Plug.LoadOrganizationFromSlugTest do
     )
   end
 
-  defp build_membership(attrs \\ %{}) do
+  defp build_membership(attrs) do
     Map.merge(
       %TestMembership{id: Ecto.UUID.generate(), role: :member},
       attrs
