@@ -41,11 +41,16 @@
 
 **Requirements:** SSO-01, SSO-02  
 **Depends on:** none
+**Plans:** 2 plans
 
 Success criteria:
 1. Organization admins can configure an enterprise OIDC connection for their organization through Sigra's generated-host surface.
 2. Connection activation fails truthfully when required discovery or client settings are invalid.
 3. The public/generated-host contract stays provider-agnostic enough that future protocol expansion does not require a different operator model.
+
+Plans:
+- [ ] 122-01-PLAN.md — Add the enterprise connection domain model, generator schema/migration ownership, and failure-closed OIDC validation lifecycle.
+- [ ] 122-02-PLAN.md — Add the org-admin enterprise connection surface, truthful lifecycle UX, and bounded docs for setup validation.
 
 ### Phase 123: Org-Aware Enterprise Routing
 
