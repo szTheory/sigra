@@ -83,7 +83,10 @@ Next steps:
 * creating lib/sigra_install_golden_tmp/accounts/organization_invitation.ex
 * creating lib/sigra_install_golden_tmp/accounts/organization_membership.ex
 * creating lib/sigra_install_golden_tmp/accounts/organization_slug_alias.ex
+* creating lib/sigra_install_golden_tmp/accounts/enterprise_connection.ex
+* creating lib/sigra_install_golden_tmp/accounts/enterprise_connection_oidc_settings.ex
 * creating priv/repo/migrations/TIMESTAMP_create_organizations.exs
+* creating priv/repo/migrations/TIMESTAMP_create_enterprise_connections.exs
 * creating priv/repo/migrations/TIMESTAMP_alter_audit_events_add_org_columns.exs
 * creating lib/sigra_install_golden_tmp/organizations.ex
 * creating lib/sigra_install_golden_tmp_web/components/org_switcher.ex

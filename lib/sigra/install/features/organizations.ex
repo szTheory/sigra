@@ -60,10 +60,17 @@ defmodule Sigra.Install.Features.Organizations do
       {:eex, "organizations/organization_slug_alias.ex",
        Path.join(["lib", otp_app, ctx, "organization_slug_alias.ex"])},
 
+      {:eex, "organizations/enterprise_connection.ex",
+       Path.join(["lib", otp_app, ctx, "enterprise_connection.ex"])},
+      {:eex, "organizations/enterprise_connection_oidc_settings.ex",
+       Path.join(["lib", otp_app, ctx, "enterprise_connection_oidc_settings.ex"])},
+
       # Phase 24.1: organizations table migration. Must land BEFORE
       # `audit_events_org_columns` (which references it via hard FK).
       {:eex, "organizations/migration.exs",
        migration_target(binding, :organizations, "create_organizations.exs")},
+      {:eex, "organizations/enterprise_connections_migration.exs",
+       migration_target(binding, :enterprise_connections, "create_enterprise_connections.exs")},
 
       # Phase 24.1: audit_events_org_columns migration. Moved out of
       # the Core feature because it `references(:organizations, ...)`
@@ -166,6 +173,8 @@ defmodule Sigra.Install.Features.Organizations do
   def migrations(_binding) do
     [
       {:organizations, "organizations/migration.exs", "create_organizations.exs"},
+      {:enterprise_connections, "organizations/enterprise_connections_migration.exs",
+       "create_enterprise_connections.exs"},
       # Phase 24.1: moved out of the Core feature so the hard FK to the
       # organizations table lands after that table is created AND is
       # skipped entirely under --no-organizations.
