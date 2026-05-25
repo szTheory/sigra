@@ -475,16 +475,16 @@ defmodule <%= web_module %>.MFAChallengeLive do
   defp passkey_recovery_notice(:canceled) do
     %{
       tone: :neutral,
-      title: "Passkey sign-in was canceled.",
-      body: "Nothing changed. Try again or choose another way to continue."
+      title: "Nothing changed.",
+      body: "Try again or use another way."
     }
   end
 
   defp passkey_recovery_notice(:timeout) do
     %{
       tone: :warning,
-      title: "That passkey request timed out.",
-      body: "Try again when you're ready, or use another sign-in method."
+      title: "We couldn't finish passkey sign-in. Try again or use another way to continue.",
+      body: nil
     }
   end
 
@@ -492,7 +492,7 @@ defmodule <%= web_module %>.MFAChallengeLive do
     %{
       tone: :info,
       title: "Passkeys aren't available in this browser.",
-      body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+      body: "Use your authenticator code, a backup code, or a device/browser that supports passkeys."
     }
   end
 

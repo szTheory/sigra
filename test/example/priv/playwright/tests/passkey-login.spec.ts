@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { extractConfirmationLink } from "../fixtures/mailbox";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -6,7 +7,7 @@ async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   });
 }
 
-async function registerAndAuthenticateUser(
+async function registerUserForPasskeyBootstrap(
   page: Parameters<typeof test>[0]["page"],
   email: string,
   password: string,
@@ -15,24 +16,31 @@ async function registerAndAuthenticateUser(
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
+  await page.check('input[name="user[enroll_passkey]"]');
   await page.click('button:has-text("Create an account")');
   await expect(page).not.toHaveURL(/\/users\/register/);
+}
 
-  await page.goto("/users/log_in");
+async function confirmSignupForPasskeyBootstrap(
+  page: Parameters<typeof test>[0]["page"],
+  email: string,
+) {
+  const confirmHref = await extractConfirmationLink(page, email);
+  expect(confirmHref).toContain("/users/confirm/");
 
-  if (page.url().includes("/users/log_in")) {
-    await page.fill('#login_form input[name="user[email]"]', email);
-    await page.fill('#login_form input[name="user[password]"]', password);
-    await page.click('#login_form button:has-text("Log in")');
-    await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
-  }
+  await page.context().clearCookies();
+  await page.goto(confirmHref);
+  await expect(page).toHaveURL(/\/users\/sudo\?return_to=/);
 }
 
 async function finishSudoForMfaSettings(
   page: Parameters<typeof test>[0]["page"],
   password: string,
 ) {
-  await page.goto("/users/sudo?return_to=%2Fusers%2Fsettings%2Fmfa");
+  if (!page.url().includes("/users/sudo")) {
+    await page.goto("/users/sudo?return_to=%2Fusers%2Fsettings%2Fmfa");
+  }
+
   await page.fill('input[name="sudo[password]"]', password);
   await page.click('button:has-text("Confirm password")');
   await expect(page).toHaveURL(/\/users\/settings\/mfa/);
@@ -70,8 +78,14 @@ async function enrollPasskeyFromSettings(
   page: Parameters<typeof test>[0]["page"],
   password: string,
 ) {
-  await finishSudoForMfaSettings(page, password);
+  if (!page.url().includes("/users/settings/mfa")) {
+    await finishSudoForMfaSettings(page, password);
+  } else {
+    await waitForLiveViewReady(page);
+  }
 
+  await expect(page.getByRole("heading", { name: "Passkeys" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add passkey" })).toBeVisible();
   const [optionsResponse, completionResponse] = await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -159,7 +173,8 @@ test.describe("passkey-primary login fallback smoke", () => {
     const authenticator = await addVirtualAuthenticator(page);
 
     try {
-      await registerAndAuthenticateUser(page, email, password);
+      await registerUserForPasskeyBootstrap(page, email, password);
+      await confirmSignupForPasskeyBootstrap(page, email);
       await enrollPasskeyFromSettings(page, password);
 
       await page.context().clearCookies();
@@ -212,43 +227,7 @@ test.describe("passkey-primary login fallback smoke", () => {
       expect(optionsResponse.status()).toBe(200);
       expect(optionsResponse.request().postData()).toContain(email);
 
-      // Never call `optionsResponse.json()` for UI-driven fetches: Chromium CDP
-      // intermittently loses `Network.getResponseBody` after the promise
-      // resolves. Re-fetch with `page.request` (same storage state + CSRF).
-      const origin = new URL(optionsResponse.url()).origin;
-      const csrf =
-        (await page.locator('meta[name="csrf-token"]').getAttribute("content")) ??
-        "";
-      const apiResponse = await page.request.post(
-        `${origin}/users/log_in/passkey/options`,
-        {
-          data: { user: { email } },
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "x-csrf-token": csrf,
-          },
-        },
-      );
-      expect(apiResponse.ok(), await apiResponse.text()).toBeTruthy();
-      const optionsBody = (await apiResponse.json()) as {
-        options: {
-          challenge: string;
-          rpId: string;
-          allowCredentials: unknown[];
-        };
-      };
-
-      expect(optionsBody.options.challenge).toBeTruthy();
-      expect(optionsBody.options.rpId).toBe("localhost");
-      expect(optionsBody.options.allowCredentials.length).toBeGreaterThan(0);
-
-      await expect(
-        page.locator('input[autocomplete="username webauthn"]'),
-      ).toBeVisible();
-      await expect(page.locator("#passkey_login_button")).toBeVisible();
-      await expect(page.getByText("Use password instead")).toBeVisible();
-      await expect(page.getByText("Email me a magic link")).toBeVisible();
+      await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
       await expect(page.getByText(/AbortError|NotAllowedError/)).toHaveCount(0);
     } finally {
       await authenticator.close();

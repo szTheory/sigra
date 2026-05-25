@@ -89,8 +89,9 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
             "alias <%= web_module %>.UserAuth",
             "put_session(:user_return_to",
             "UserAuth.log_in_user(user, %{})",
-            "/users/sudo?return_to=/users/settings/mfa#passkeys",
-            "/users/settings/mfa#passkeys",
+            "passkey_bootstrap_return_to",
+            "URI.encode_www_form(\"/users/settings/mfa?bootstrap_passkey=1#passkeys\")",
+            "/users/settings/mfa?bootstrap_passkey=1#passkeys",
             "enroll_passkey"
           ] do
         assert content =~ expected

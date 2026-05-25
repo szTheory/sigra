@@ -623,6 +623,24 @@ defmodule Sigra.AuthTest do
       assert code_struct.user_id == 1
       assert is_binary(code_struct.token)
     end
+
+    test "stores the hash of the transported confirmation token string" do
+      user = %TestUser{id: 1, email: "user@example.com"}
+
+      {encoded_token, _code, link_struct, _code_struct} =
+        Auth.generate_confirmation_token(Sigra.MockRepo, user,
+          secret_key_base: @secret_key_base,
+          user_token_schema: TestUserToken
+        )
+
+      {:ok, signed} =
+        Base.url_decode64(encoded_token, padding: false)
+
+      {:ok, raw_token} =
+        Plug.Crypto.verify(@secret_key_base, "sigra-confirm-token", signed, max_age: 48 * 60 * 60)
+
+      assert link_struct.token == Sigra.Token.hash_token(raw_token)
+    end
   end
 
   describe "confirm_user/3" do
@@ -638,7 +656,9 @@ defmodule Sigra.AuthTest do
 
       # Mock get_by for token lookup, then transaction for atomic confirm
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
+      |> expect(:get_by, fn TestUserToken, [token: token, context: "confirm"] ->
+        assert token == link_struct.token
+
         %TestUserToken{
           id: 1,
           token: link_struct.token,
@@ -674,7 +694,9 @@ defmodule Sigra.AuthTest do
         )
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
+      |> expect(:get_by, fn TestUserToken, [token: token, context: "confirm"] ->
+        assert token == link_struct.token
+
         %TestUserToken{
           id: 1,
           token: link_struct.token,
@@ -739,7 +761,9 @@ defmodule Sigra.AuthTest do
         )
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: _, context: "confirm"] ->
+      |> expect(:get_by, fn TestUserToken, [token: token, context: "confirm"] ->
+        assert token == link_struct.token
+
         %TestUserToken{
           id: 1,
           token: link_struct.token,

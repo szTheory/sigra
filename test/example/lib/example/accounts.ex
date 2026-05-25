@@ -888,7 +888,8 @@ defmodule Example.Accounts do
 
   @doc "Rename a passkey."
   def rename_passkey(user, credential_id, nickname, opts \\ []) do
-    with :ok <- forbid_sensitive_operation(opts, user, "passkey.rename") do
+    with :ok <- forbid_sensitive_operation(opts, user, "passkey.rename"),
+         {:ok, credential_id} <- normalize_passkey_credential_id(credential_id) do
       Sigra.Passkeys.rename(sigra_config(), user, credential_id, nickname || "",
         user_passkey_schema: UserPasskey
       )
@@ -897,8 +898,11 @@ defmodule Example.Accounts do
 
   @doc "Delete a passkey."
   def delete_passkey(user, credential_id, opts \\ []) do
-    with :ok <- forbid_sensitive_operation(opts, user, "passkey.delete") do
-      Sigra.Passkeys.delete(sigra_config(), user, credential_id, user_passkey_schema: UserPasskey)
+    with :ok <- forbid_sensitive_operation(opts, user, "passkey.delete"),
+         {:ok, credential_id} <- normalize_passkey_credential_id(credential_id) do
+      Sigra.Passkeys.delete_with_posture(sigra_config(), user, credential_id,
+        user_passkey_schema: UserPasskey
+      )
     end
   end
 
@@ -1044,6 +1048,15 @@ defmodule Example.Accounts do
 
   defp decode_base64url(value) when is_binary(value), do: Base.url_decode64(value, padding: false)
   defp decode_base64url(_value), do: {:error, :invalid_passkey}
+
+  defp normalize_passkey_credential_id(credential_id) when is_binary(credential_id) do
+    case decode_base64url(credential_id) do
+      {:ok, decoded} -> {:ok, decoded}
+      {:error, :invalid_passkey} -> {:ok, credential_id}
+    end
+  end
+
+  defp normalize_passkey_credential_id(_credential_id), do: {:error, :invalid_passkey}
 
   defp decode_optional_base64url(nil), do: {:ok, nil}
   defp decode_optional_base64url(""), do: {:ok, nil}

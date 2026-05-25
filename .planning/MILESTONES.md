@@ -1,5 +1,49 @@
 # Milestones
 
+## v1.26 PK-LIFECYCLE (Shipped: 2026-05-25)
+
+**Phases completed:** 7 phases, 9 plans, 17 tasks
+
+**Key accomplishments:**
+
+- Introduced a library-owned final-passkey delete posture and kept generated-host copy explicit about fallback without implying Sigra-owned recovery.
+- Preserved visible fallback and bootstrap guidance across passkey-primary login, signup follow-through, and passkey enrollment flows.
+- Settled cross-device and RP-ID/origin migration truth across docs, runtime advisories, and generated-host copy.
+- Closed the canonical generated-host/browser proof lane for the milestone's lifecycle claims.
+- Backfilled authoritative `PK-02` and `PK-03` proof homes onto Phases 115 and 116, then reconciled the live truth surfaces.
+- Closed the remaining Nyquist and milestone-truth debt so the v1.26 re-audit passed cleanly.
+
+**Stats:**
+
+- **Requirements:** 4/4 satisfied
+- **Milestone audit:** passed (`verified_and_archive_ready` on 2026-05-25)
+- **Timeline:** 2026-05-23 → 2026-05-25
+- **Committed implementation range:** `26a5b9f` → `93d3f8d`
+- **Known deferred items at close:** 6 (see `STATE.md` Deferred Items)
+
+**Archive:**
+
+- [v1.26 Roadmap](milestones/v1.26-ROADMAP.md)
+- [v1.26 Requirements](milestones/v1.26-REQUIREMENTS.md)
+- [v1.26 Milestone Audit](milestones/v1.26-MILESTONE-AUDIT.md)
+
+---
+
+## v1.25 EMAIL-RAILS (Shipped: 2026-05-23)
+
+**Phases completed:** 4 phases, 8 plans, 5 tasks
+
+**Key accomplishments:**
+
+- Introduced an optional `Sigra.Mailers.Adapters.Mailglass` shim and `--with-mailglass` installer path without forcing Mailglass on existing adopters.
+- Shipped generated-host override rails and the Mailglass preview catalog for all 18 auth email surfaces.
+- Verified existing Oban-based async dispatch and provider-agnostic `[:sigra, :email, :deliver]` telemetry spans for email delivery (Zero-Code Closure).
+- Added a canonical bounce/complaint normalization contract plus generated host-owned `EmailFailureHandler` seams.
+- Published Postmark and SendGrid webhook recipes with example-app proof wiring.
+- Mailglass adapter compilation is now optional-dependency-safe, and the nested example app can compile and prove the Phase 114 bounce/complaint recipes again.
+
+---
+
 ## v1.0 Phoenix Auth Library — Initial Release (Shipped: 2026-04-11)
 
 **Scope:** 12 phases (including 2 remediation phases), 60 plans, 117 tasks.
@@ -42,14 +86,17 @@
 ### Tech Debt Carried Forward (tracked, non-blocking)
 
 **Seeds** (trigger-conditioned, surface during `/gsd-new-milestone`):
+
 - `SEED-001` — 8 human-only UAT items to run before GA public announcement (email visual × 4, OAuth real-credential × 4)
 - `SEED-002` — Phase 9 `log_safe/3` hybrid to atomic `Ecto.Multi` conversion (C-1 caveat followup)
 
 **Backlog** (999.x parking lot; archaeology only):
+
 - `Phase 999.1` — Retroactive Nyquist validation pass for 6 draft + 1 missing VALIDATION.md files; shipped in v1.3 and now retained as a tombstone/pointer only
 - `Phase 999.2` — Dependabot major-version bumps (setup-node 4→6, upload-artifact 4→7, checkout 4→6) requiring per-bump CI verification; historical parking-lot label only until promoted into a newly numbered phase
 
 **Archive:**
+
 - [v1.0 Roadmap](milestones/v1.0-ROADMAP.md) — full phase details
 - [v1.0 Requirements](milestones/v1.0-REQUIREMENTS.md) — all 85 REQ-IDs with outcomes
 - [v1.0 Milestone Audit](milestones/v1.0-MILESTONE-AUDIT.md) — final audit report
@@ -85,6 +132,7 @@
 - `Phase 999.2` Dependabot major-version cleanup remains parked.
 
 **Archive:**
+
 - [v1.1 Roadmap](milestones/v1.1-ROADMAP.md)
 - [v1.1 Requirements](milestones/v1.1-REQUIREMENTS.md)
 - [v1.1 Milestone Audit](milestones/v1.1-MILESTONE-AUDIT.md)
@@ -583,5 +631,195 @@
 
 - [v1.15 Roadmap](milestones/v1.15-ROADMAP.md)
 - [v1.15 Requirements](milestones/v1.15-REQUIREMENTS.md)
+
+---
+
+## v1.20 GA Launch (SEED closure + public release) (Shipped: 2026-04-28)
+
+**Scope:** 6 phases (**85–90**), 14 on-disk plans. (Phase 90 waived).
+
+**What shipped:** **AUD-21** — OAuth audit atomicity closure, converting remaining `log_safe/3` clusters in Phase 45 T2 to atomic `Repo.transaction/1` + `Ecto.Multi`. **GAUAT-01..09** — Fully automated E2E harnesses for email visual QA, OAuth real-credential cycles, MFA backup-code rotation, and getting-started proof, resulting in SEED-001 closure. **LAUNCH-01..07** — Hex v1.20.0 publish, README promotion, and CHANGELOG alignment.
+
+### Key accomplishments
+
+1. **AUD-21 closure** — Phase 9 C-1 caveat officially downgraded to PASS.
+2. **GAUAT zero-human proof** — Replaced all manual SEED-001 testing requirements with deterministic CI automation (Playwright + Premailex).
+3. **v1.20.0 Public Launch** — Reached the "use this in production" inflexion point.
+
+### Stats
+
+- **Requirements:** 21/21 requirements satisfied/waived.
+- **Milestone audit:** **passed** ([`milestones/v1.20-MILESTONE-AUDIT.md`](milestones/v1.20-MILESTONE-AUDIT.md)).
+- **Timeline:** 2026-04-25 → 2026-04-28.
+
+### Tech debt carried forward
+
+- Lockspire glue package deferred.
+- Week-one launch-feedback follow-ups deferred to patch milestone.
+
+**Archive:**
+
+- [v1.20 Roadmap](milestones/v1.20-ROADMAP.md)
+- [v1.20 Requirements](milestones/v1.20-REQUIREMENTS.md)
+- [v1.20 Milestone Audit](milestones/v1.20-MILESTONE-AUDIT.md)
+
+---
+
+## v1.21 B2B-ready & production-honest (Shipped: 2026-05-06)
+
+**Scope:** 6 phases (**91–96**), 33 on-disk plan summaries (across 26 PLAN.md files; some phases inline-summarized).
+
+**What shipped:** First milestone after v1.20 public launch. Three legs converged. **Leg 1 — B2B trust** (Phases **91**, **92**, **93**) — `Sigra.Plug.RequireOrgMfa` + `enforce_mfa_for_members` + admin LiveView toggle + atomic `organization.mfa_policy_change` audit row (**B2B-01**); `Sigra.Authz` `can?/3` behaviour + nullable `role` on `OrganizationMembership` + scope-struct `:role` propagation + role-based-access-control recipe (zero opinionated roles in `lib/sigra/`) (**B2B-02**); org-scoped service-account tokens via `client_credentials` grant on existing JWT path + `current_scope.actor_type: :service_account` discriminator + 5 SA-mutation rollback proofs (**B2B-03**, re-verified 22/22 after gap-closure plans 06–10 + critical fixes in commit `bf5a8a8`). **Leg 2 — Production hardening** (Phases **94**, **95**) — `mix sigra.install` refuses non-Postgres adapter at pre-flight + removed MySQL/SQLite placeholder branches + aligned `mix.exs` description / README / getting-started narrative; environmental Oban-test caveat closed in 2026-05-06 audit (**HARD-01**); `Sigra.OptionalDeps` SOT + raise-on-missing for Oban/Bcrypt/EQRCode + `mix sigra.doctor` per-feature dep matrix + 3 dep-off CI lanes (**HARD-02**, only v1.21 phase with `nyquist_compliant: true`). **Leg 3 — OAuth + API polish** (Phase **96**) — per-provider OAuth refresh dispatch for GitHub/Apple/Facebook/Generic via Assent + atomic `oauth.token_refreshed` audit (**HARD-03**); single-pass `Sigra.Plug.RateLimit` emitting `X-RateLimit-Limit/Remaining/Reset` + `Retry-After` from Hammer state, wired into generated host's `:auth_rate_limit` pipeline (**API-01**) — 122 passing tests across 4 evidence sections.
+
+### Key accomplishments
+
+1. **Org-level MFA enforcement** — Atomic policy-change audit + plug + LiveView gate; full library suite green (33 doctests, 3 properties, 2214 tests, 0 failures).
+2. **RBAC seams without opinions** — `Sigra.Authz` ships as behaviour-only; library has zero `:owner / :admin / :member` constants; recipe is the only place those names appear, illustratively.
+3. **M2M service-account tokens** — `client_credentials` grant on existing JWT path; scope-struct `actor_type` discriminator; SA short-circuits user-membership and org-MFA checks; 5/5 mutations co-fated with audit (D-AUD-08).
+4. **Honest Postgres-only narrative** — Aligned the documented adapter support to what CI actually exercises and what migrations actually implement.
+5. **Optional-dep boot validation** — `mix sigra.doctor` reports per-feature status; missing optional deps raise tagged errors at first use instead of compiling to silent `nil`; CI matrix toggles each off.
+6. **OAuth refresh dispatch + rate-limit headers** — Closed the `lib/sigra/oauth.ex:174` "not yet implemented" warning across 4 providers with atomic audit; clients on rate-limited paths get standards-compliant headers for backoff.
+
+### Stats
+
+- **Requirements:** 7/7 requirements satisfied (B2B-01, B2B-02, B2B-03, HARD-01, HARD-02, HARD-03, API-01).
+- **Milestone audit:** **tech_debt → reconciled** ([`milestones/v1.21-MILESTONE-AUDIT.md`](milestones/v1.21-MILESTONE-AUDIT.md)). Substantive 7/7 with passing test evidence; bookkeeping reconciled 2026-05-06.
+- **Timeline:** 2026-04-28 → 2026-05-06 (8 days).
+- **Cross-phase wires verified:** B2B-02 `:actor_type` reservation → B2B-03 `:service_account` population; B2B-02 host-supplied `:roles` → B2B-03 SA short-circuit; HARD-01 Postgres-only → HARD-02 `mix sigra.doctor`; HARD-03 OAuth refresh → API-01 rate-limit headers.
+
+### Known deferred items at close (non-blocking)
+
+- 2 install-smoke pending todos from 2026-04-30: JOSE.JWT.peek_payload/1 undefined warning + transient Postgres `too_many_connections` during install smoke (both surfaced during Phase 94 work).
+- `DEF-92-02-01` — InvitationAcceptLive audit-Multi-step name collision (pre-existing bug from commit `5e6c026`, predates Phase 92; recommended landing point not yet assigned).
+- Nyquist VALIDATION.md gaps — only Phase 95 has `nyquist_compliant: true`; 91/92/93 have draft VALIDATION.md (`nyquist_compliant: false`); 94/96 missing entirely. Optional retroactive fill via `/gsd-validate-phase`.
+
+### Tech debt carried forward
+
+- Webhooks (`WH-01..03`) — deferred to v1.22 as its own design-first milestone (event schema, signed delivery, retry/dead-letter, host UX).
+- Tier-3 polish carried in Future Requirements: Session UX (`SESS-01..03`), Email overrides + i18n + bounce (`EMAIL-01..03`), Passkey multi-authenticator + recovery (`PK-01..03`), DataExport depth (`DATA-01..03`).
+- `sigra_lockspire` glue package per **ADR 001** — still awaiting companion-app trigger.
+
+**Archive:**
+
+- [v1.21 Roadmap](milestones/v1.21-ROADMAP.md)
+- [v1.21 Requirements](milestones/v1.21-REQUIREMENTS.md)
+- [v1.21 Milestone Audit](milestones/v1.21-MILESTONE-AUDIT.md)
+
+---
+
+## v1.22 Webhooks / outbound event pipeline (Shipped: 2026-05-06)
+
+**Scope:** 6 phases (**97–102**), 20 on-disk plans.
+
+**What shipped:** Sigra now emits real outbound auth and identity webhooks as a first-party product surface. **Phase 97** established the event contract, durable subscription registry, stable payload envelope, and HMAC signing contract. **Phase 98** added persisted attempts, bounded retries, and dead-letter state so delivery reliability no longer depends on raw Oban semantics. **Phase 99** exposed the capability through generated admin LiveViews, routes, and adopter-facing guidance. After the first milestone audit found end-to-end gaps, **Phase 100** restored the production enqueue handoff from persisted delivery rows into the async worker path, **Phase 101** corrected operator-state query truth for retrying and dead-lettered views, and **Phase 102** proved the generated-host flow end to end while reconciling roadmap, requirements, state, and verification artifacts.
+
+### Key accomplishments
+
+1. **Stable webhook contract** — durable subscription registry, canonical event catalog, public payload serializers, and documented HMAC verification contract for Sigra-owned auth and identity events.
+2. **Reliable delivery pipeline** — persisted summary rows, append-only attempt history, bounded retries, and durable dead-letter state.
+3. **Generated-host operator UX** — admin LiveViews for subscription management, delivery history, failure inspection, and secret rotation.
+4. **Production handoff repaired** — persisted delivery rows now enqueue the first worker job automatically from the mutation path instead of stalling before async dispatch.
+5. **Operator truth restored** — retrying and dead-lettered views now match persisted delivery state before pagination.
+6. **Adopter proof closed** — generated-host evidence correlates receiver-side verification with admin-visible delivery history and reconciled planning artifacts.
+
+### Stats
+
+- **Requirements:** 3/3 requirements satisfied (`WH-01..03`).
+- **Milestone audit:** historical `gaps_found` audit preserved and superseded by [`102-VERIFICATION.md`](phases/102-generated-host-proof-and-planning-reconciliation/102-VERIFICATION.md) after Phases 100–102 closed the listed gaps.
+- **Pre-close `audit-open`:** all artifact types clear on 2026-05-07 after resolving quick-task metadata drift and the two install-smoke todos.
+- **Git (milestone range):** first milestone commit `6b8ef36` on 2026-05-06; current diff vs that start point is `43` files changed, `5833` insertions, `32` deletions.
+
+### Tech debt carried forward
+
+- Webhook follow-ons remain future work only: replay support, safer secret-rotation windows, and tighter outbound egress controls (`WH-04..06`).
+- Tier-3 polish stays deferred: session UX completeness, email overrides + i18n + bounce handling, passkey multi-authenticator + recovery, and DataExport depth.
+- `sigra_lockspire` glue package per **ADR 001** remains trigger-based.
+- Nyquist VALIDATION.md coverage remains thin for earlier B2B phases; not part of the webhook milestone contract.
+
+**Archive:**
+
+- [v1.22 Roadmap](milestones/v1.22-ROADMAP.md)
+- [v1.22 Requirements](milestones/v1.22-REQUIREMENTS.md)
+- [v1.22 Milestone Audit](milestones/v1.22-MILESTONE-AUDIT.md)
+
+---
+
+## v1.23 Webhook operator trust & controls (Shipped: 2026-05-08)
+
+**Scope:** 5 phases (**103–107**), 16 on-disk plans.
+
+**What shipped:** v1.23 closes the three operational trust gaps left after the outbound webhook pipeline launch. **Phase 103** replaced one-shot signing-secret rotation with a dual-slot lifecycle, overlap-window signatures, truthful admin controls, and generated-host proof (**WH-04**). **Phase 104** implemented replay as a new delivery lineage with durable parent/root pointers, admin recovery actions, LiveView lineage truth, and generated-host proof; **Phase 106** then turned that evidence into authoritative milestone verification via `104-VERIFICATION.md` (**WH-05**). **Phase 105** implemented enforceable endpoint policy, generated-host policy seams, and deployment guidance; **Phase 107** finished the blocked-policy admin truth, denied-path browser proof, and repaired-form `105-VERIFICATION.md` / `105-VALIDATION.md` closeout (**WH-06**).
+
+### Key accomplishments
+
+1. **Overlap-safe secret rotation** — webhook subscriptions can carry current and next secrets through a bounded overlap window without delivery loss or replay-contract drift.
+2. **Replay as truthful recovery** — operators can replay dead-lettered deliveries as fresh child rows with new `delivery_id` values while preserving the original failed history and attempt ledger.
+3. **Enforceable outbound policy** — Sigra can deny disallowed webhook destinations locally before egress and preserve canonical `policy_reason` / `policy_detail` truth across worker, admin, and proof surfaces.
+4. **Generated-host evidence is now adopter-grade** — rotation lifecycle, replay recovery, and blocked-policy operator inspection all have durable `.planning/uat-evidence/v1.23/*` bundles.
+5. **Milestone audit closed cleanly** — `WH-04..06` are all satisfied, `104-VERIFICATION.md` and `105-VERIFICATION.md` exist, and the live v1.23 audit now passes.
+
+### Stats
+
+- **Requirements:** 3/3 requirements satisfied (`WH-04`, `WH-05`, `WH-06`).
+- **Milestone audit:** passed at close ([`milestones/v1.23-MILESTONE-AUDIT.md`](milestones/v1.23-MILESTONE-AUDIT.md)).
+- **Pre-close `audit-open`:** all artifact types clear (2026-05-08).
+- **Timeline:** 2026-05-07 → 2026-05-08.
+- **Worktree delta from milestone start commit `200e131`:** 63 tracked files changed, 6131 insertions, 557 deletions.
+
+### Known deferred items at close
+
+- `REL-01` release-cut work is intentionally deferred to the next milestone now that webhook operator trust is closed honestly.
+- Tier-3 follow-ons remain future work only: session UX, email overrides and i18n, passkey polish, and data-export depth.
+- `sigra_lockspire` glue package per **ADR 001** remains trigger-based and out of scope for this milestone.
+
+### Technical debt carried forward
+
+- The repository was still on a dirty worktree at milestone close, so the planning archive is complete but the git closeout commit and release tag must be cut only after the shipped code and docs land in clean commits.
+
+**Archive:**
+
+- [v1.23 Roadmap](milestones/v1.23-ROADMAP.md)
+- [v1.23 Requirements](milestones/v1.23-REQUIREMENTS.md)
+- [v1.23 Milestone Audit](milestones/v1.23-MILESTONE-AUDIT.md)
+
+---
+
+## v1.24 Session Control Plane (Shipped: 2026-05-08)
+
+**Scope:** 3 phases (**108–110**), 9 on-disk plans.
+
+**What shipped:** v1.24 turned Sigra's session and audit substrate into a coherent account-security control plane. **Phase 108** shipped preserve-current revoke semantics, truthful current-session labeling, and aligned user/admin/docs behavior for session truth (**SESS-02**, first `SESS-04/05` slice). **Phase 109** shipped the library-owned recent-security-activity seam plus explicit logout/MFA activity truth across generated-host, admin, and docs surfaces (**SESS-03**, remaining `SESS-04/05`). **Phase 110** converted the implementation summary chain into authoritative `108-VERIFICATION.md` and `109-VERIFICATION.md` artifacts, then reconciled the active milestone truth across planning files and the live audit.
+
+### Key accomplishments
+
+1. **Preserve-current revoke is now first-class** — users can revoke sibling sessions without losing the current device, and the operation fails closed if the preserved session cannot be proven.
+2. **Current-session truth is authoritative** — user and admin surfaces derive the current session from persisted/session-token truth rather than LiveView heuristics or raw-token comparisons.
+3. **Recent security activity is now Sigra-owned** — sign-in, suspicious-login, logout, revoke, and MFA verification render through a canonical library seam over persisted audit rows.
+4. **Thin-host boundaries held** — generated hosts delegate session-control and activity logic to Sigra-owned seams instead of reimplementing business rules.
+5. **Milestone proof is repaired and archive-ready** — `108-VERIFICATION.md`, `109-VERIFICATION.md`, and `v1.24-MILESTONE-AUDIT.md` now provide a coherent authoritative closeout surface.
+
+### Stats
+
+- **Requirements:** 4/4 requirements satisfied (`SESS-02`, `SESS-03`, `SESS-04`, `SESS-05`).
+- **Milestone audit:** passed at close ([`milestones/v1.24-MILESTONE-AUDIT.md`](milestones/v1.24-MILESTONE-AUDIT.md)).
+- **Pre-close `audit-open`:** all artifact types clear (2026-05-08).
+- **Timeline:** 2026-05-08.
+- **Scoped worktree delta at close:** 17 files changed, 1355 insertions, 243 deletions across the tracked session-control implementation and planning surfaces.
+
+### Known deferred items at close
+
+- `EMAIL-RAILS` is now the default next milestone candidate; it was intentionally not pulled into the v1.24 scope.
+- `PK-LIFECYCLE` and `DATA-LIFECYCLE` remain ranked follow-ons, not hidden v1.24 gaps.
+- Historical Nyquist coverage thin spots from older milestones remain non-blocking carried debt, not session-control misses.
+
+### Technical debt carried forward
+
+- The repository is still on a dirty worktree at milestone close. The planning archive can be committed selectively, but a release-accurate `v1.24` git tag must wait until the shipped implementation and proof changes are committed cleanly.
+
+**Archive:**
+
+- [v1.24 Roadmap](milestones/v1.24-ROADMAP.md)
+- [v1.24 Requirements](milestones/v1.24-REQUIREMENTS.md)
+- [v1.24 Milestone Audit](milestones/v1.24-MILESTONE-AUDIT.md)
 
 ---

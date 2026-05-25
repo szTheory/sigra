@@ -29,7 +29,7 @@ defmodule ExampleWeb.PasskeyMFAChallengeLiveTest do
       assert route_info("POST", "/users/mfa/passkey").plug_opts == :complete_mfa_passkey
     end
 
-    test "unsupported and abort guidance remain neutral with recovery action", %{conn: conn} do
+    test "unsupported and abort guidance remain MFA-truthful with recovery action", %{conn: conn} do
       %{user: user} = mfa_pending_session_fixture()
       passkey_fixture(user)
 
@@ -42,8 +42,10 @@ defmodule ExampleWeb.PasskeyMFAChallengeLiveTest do
 
       assert render_click(view, "begin_passkey_authentication") =~ "Waiting for passkey"
 
-      assert render_hook(view, "sigra:passkey-authenticate:aborted", %{}) =~
-               "Passkey sign-in was canceled."
+      html = render_hook(view, "sigra:passkey-authenticate:aborted", %{})
+
+      assert html =~ "Nothing changed."
+      assert html =~ "Try again or use another way."
 
       html =
         render_hook(view, "sigra:passkey-authenticate:error", %{
@@ -54,9 +56,15 @@ defmodule ExampleWeb.PasskeyMFAChallengeLiveTest do
       assert html =~ "Use another way"
       assert html =~ "Passkeys aren"
       assert html =~ "available in this browser."
+
+      assert html =~
+               "Use your authenticator code, a backup code, or a device/browser that supports passkeys."
+
       assert html =~ "Continue with passkey"
       assert html =~ "Use authenticator code instead"
       assert html =~ "Use a backup code"
+      refute html =~ "password"
+      refute html =~ "magic link"
       refute html =~ "NotSupportedError"
       refute html =~ ~s(role="tablist")
     end

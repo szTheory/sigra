@@ -100,7 +100,7 @@ defmodule Sigra.Install.GeneratorPasskeyManagementTest do
             "Delete this passkey?",
             "Delete this passkey? You'll still need another sign-in method before removing your last recovery option.",
             "You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.",
-            ~S(~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"),
+            ~S|~p"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"|,
             ~s(method="post"),
             "_csrf_token",
             ~s(def handle_event("confirm_passkey_delete"),

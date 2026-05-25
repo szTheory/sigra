@@ -9,13 +9,15 @@ type MailboxEmail = {
 
 function extractConfirmationHref(email: MailboxEmail): string | null {
   const body = [email.html_body || '', email.text_body || ''].join('\n');
-  const hrefMatch = body.match(/https?:\/\/[^\s"'<>]+\/users\/confirm\/[A-Za-z0-9._~-]+/);
+  const hrefMatch = body.match(
+    /https?:\/\/[^\s"'<>]+\/users\/confirm\/[A-Za-z0-9._~-]+(?:\?[^\s"'<>]+)?/,
+  );
 
   if (hrefMatch?.[0]) {
     return hrefMatch[0];
   }
 
-  const pathMatch = body.match(/\/users\/confirm\/[A-Za-z0-9._~-]+/);
+  const pathMatch = body.match(/\/users\/confirm\/[A-Za-z0-9._~-]+(?:\?[^\s"'<>]+)?/);
   return pathMatch?.[0] ?? null;
 }
 
