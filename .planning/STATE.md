@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.27
 milestone_name: v1.27 ENT-SSO
-status: ready_for_verification
-last_updated: "2026-05-25T14:57:08.000Z"
-last_activity: 2026-05-25 -- Phase 122 enterprise connection contract and generated-host surface executed; verification artifacts and installer fixtures are up to date
+status: executing
+last_updated: "2026-05-25T16:45:53.071Z"
+last_activity: 2026-05-25 -- Phase 123 execution started
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 2
+  total_plans: 6
   completed_plans: 2
   percent: 20
 ---
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 122 is implemented; next gate is verification before Phase 123 routing work
+**Current focus:** Phase 123 — org-aware-enterprise-routing
 
 ## Current Position
 
-Phase: 122 (enterprise-connection-contract-validation) — IMPLEMENTED
-Plan: 2 of 2
-Status: Ready for verification
-Last activity: 2026-05-25 -- executed the enterprise connection substrate, truthful organization settings surface, and installer fixture updates for Phase 122
+Phase: 123 (org-aware-enterprise-routing) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 123
+Last activity: 2026-05-25 -- Phase 123 execution started
 
 ## Accumulating Context
 
