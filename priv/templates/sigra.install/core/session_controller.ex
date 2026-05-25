@@ -261,13 +261,13 @@ defmodule <%= web_module %>.SessionController do
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
     end
   end
-<% end %>
 
   defp delete_passkey_success_message(:last_deleted) do
     "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey."
   end
 
   defp delete_passkey_success_message(:deleted), do: "Passkey deleted."
+<% end %>
 
   def delete(conn, _params) do
     Sigra.Telemetry.event(
