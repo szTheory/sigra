@@ -1,18 +1,10 @@
-defmodule <%= web_module %>.EnterpriseSSOController do
-  @moduledoc """
-  Canonical organization-scoped enterprise sign-in controller.
+defmodule ExampleWeb.EnterpriseSSOController do
+  use ExampleWeb, :controller
 
-  The generated host owns the route, copy, and retry UX. Sigra owns the
-  security-critical routing, signed OAuth state, callback revalidation, and
-  session metadata truth.
-  """
-
-  use <%= web_module %>, :controller
-
+  alias Example.Accounts, as: Auth
+  alias Example.Organizations
+  alias ExampleWeb.UserAuth
   alias Sigra.Error.OAuthError
-  alias <%= app_module %>.Organizations
-  alias <%= context_module %>, as: Auth
-  alias <%= web_module %>.UserAuth
 
   @enterprise_session_key :enterprise_auth_session
 
@@ -170,7 +162,7 @@ defmodule <%= web_module %>.EnterpriseSSOController do
   end
 
   defp oauth_module do
-    Application.get_env(:<%= otp_app %>, :enterprise_oauth_module, Sigra.OAuth)
+    Application.get_env(:example, :enterprise_oauth_module, Sigra.OAuth)
   end
 
   defp enterprise_sigra_config(connection) do

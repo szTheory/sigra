@@ -49,6 +49,23 @@ defmodule ExampleWeb.SessionController do
     |> redirect(to: ~p"/users/log_in")
   end
 
+  def create(conn, %{"_action" => "enterprise", "user" => %{"email" => email}}) do
+    case Example.Organizations.discover_enterprise_connection(email) do
+      {:ok, %{organization_slug: slug}} ->
+        conn
+        |> redirect(
+          to:
+            ~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"
+        )
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, enterprise_discovery_error(reason))
+        |> put_flash(:email, String.slice(email, 0, 160))
+        |> redirect(to: ~p"/users/log_in")
+    end
+  end
+
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")
   end
@@ -291,6 +308,18 @@ defmodule ExampleWeb.SessionController do
         |> redirect(to: ~p"/users/mfa")
     end
   end
+
+  defp enterprise_discovery_error(:no_org_match),
+    do: "We couldn't find an organization with enterprise sign-in for that work email."
+
+  defp enterprise_discovery_error(:multiple_org_matches),
+    do: "We found more than one organization for that work email. Use your organization-specific sign-in link instead."
+
+  defp enterprise_discovery_error(:org_connection_unavailable),
+    do: "Enterprise sign-in is not available for this organization right now."
+
+  defp enterprise_discovery_error(_reason),
+    do: "We couldn't start enterprise sign-in right now. Please try again."
 
   def delete_passkey(conn, %{"id" => credential_id}) do
     user = conn.assigns.current_scope.user

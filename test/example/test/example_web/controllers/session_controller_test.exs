@@ -35,6 +35,7 @@ defmodule ExampleWeb.SessionControllerTest do
 
       assert body =~ ~s(id="magic_link_form")
       assert body =~ ~s(id="login_form")
+      assert body =~ ~s(id="enterprise_login_form")
       assert body =~ ~s(action="/users/log_in")
       assert body =~ ~s(method="post")
     end
@@ -91,5 +92,53 @@ defmodule ExampleWeb.SessionControllerTest do
       assert redirected_to(conn) == ~p"/users/log_in"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "magic link"
     end
+  end
+
+  describe "POST /users/log_in (_action=enterprise)" do
+    test "redirects an exact domain match to the canonical organization SSO route", %{conn: conn} do
+      organization = create_organization(%{name: "Acme", slug: "acme"})
+      create_enterprise_connection(organization, ["acme.example"])
+
+      conn =
+        post(conn, ~p"/users/log_in", %{
+          "_action" => "enterprise",
+          "user" => %{"email" => "person@acme.example"}
+        })
+
+      assert redirected_to(conn) == ~p"/organizations/acme/sso?#{%{routing_source: "domain_discovery"}}"
+    end
+
+    test "shows a bounded error when discovery has no exact match", %{conn: conn} do
+      conn =
+        post(conn, ~p"/users/log_in", %{
+          "_action" => "enterprise",
+          "user" => %{"email" => "person@unknown.example"}
+        })
+
+      assert redirected_to(conn) == ~p"/users/log_in"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+               "couldn't find an organization"
+    end
+  end
+
+  defp create_enterprise_connection(organization, login_hint_domains) do
+    %Example.Accounts.EnterpriseConnection{}
+    |> Example.Accounts.EnterpriseConnection.changeset(%{
+      organization_id: organization.id,
+      protocol: :oidc,
+      status: :active,
+      display_name: "Enterprise #{System.unique_integer([:positive])}",
+      login_hint_domains: login_hint_domains,
+      oidc_settings: %{
+        issuer: "https://idp.example.com",
+        discovery_document_uri: "https://idp.example.com/.well-known/openid-configuration",
+        client_id: "client-id",
+        encrypted_client_secret: "super-secret",
+        client_authentication_method: "client_secret_basic",
+        scopes: ["openid", "profile", "email"]
+      }
+    })
+    |> Example.Repo.insert!()
   end
 end
