@@ -171,11 +171,12 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
     test "delete route rejects stale sudo and deletes row with fresh sudo", %{conn: conn} do
       user = user_fixture()
       passkey = passkey_fixture(user)
+      encoded_id = Base.url_encode64(passkey.credential_id, padding: false)
 
       conn =
         conn
         |> log_in_user(user)
-        |> post(~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete")
+        |> post(~p"/users/settings/mfa/passkeys/#{encoded_id}/delete")
 
       assert redirected_to(conn) == ~p"/users/log_in"
       assert Repo.get(UserPasskey, passkey.id)
@@ -183,7 +184,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
       conn =
         build_conn()
         |> log_in_with_sudo(user)
-        |> post(~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete")
+        |> post(~p"/users/settings/mfa/passkeys/#{encoded_id}/delete")
 
       assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) ==
@@ -194,17 +195,18 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
     test "rename event saves the new passkey name in the database", %{conn: conn} do
       user = user_fixture()
       passkey = passkey_fixture(user, nickname: "Old name")
+      encoded_id = Base.url_encode64(passkey.credential_id, padding: false)
 
       {:ok, view, _html} =
         conn
         |> log_in_with_sudo(user)
         |> live("/users/settings/mfa")
 
-      assert render_click(view, "open_passkey_rename", %{"id" => passkey.credential_id}) =~
+      assert render_click(view, "open_passkey_rename", %{"id" => encoded_id}) =~
                "Old name"
 
       assert render_submit(view, "save_passkey_name", %{
-               "passkey" => %{"id" => passkey.credential_id, "nickname" => "Travel key"}
+               "passkey" => %{"id" => encoded_id, "nickname" => "Travel key"}
              }) =~ "Travel key"
 
       assert Repo.reload!(passkey).nickname == "Travel key"
@@ -213,6 +215,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
     test "delete confirmation warns when removing the last passkey", %{conn: conn} do
       user = user_fixture()
       passkey = passkey_fixture(user, nickname: "Laptop key")
+      encoded_id = Base.url_encode64(passkey.credential_id, padding: false)
 
       {:ok, view, _html} =
         conn
@@ -220,7 +223,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
         |> live("/users/settings/mfa")
 
       html =
-        render_click(view, "confirm_passkey_delete", %{"id" => passkey.credential_id})
+        render_click(view, "confirm_passkey_delete", %{"id" => encoded_id})
 
       assert html =~ "Delete this passkey?"
       assert html =~ "last recovery option."

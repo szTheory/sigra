@@ -317,19 +317,19 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                   <% end %>
                 </p>
 
-                <div :if={@renaming_passkey_id == passkey.credential_id} class="mt-3">
+                <div :if={@renaming_passkey_id == passkey_param_id(passkey)} class="mt-3">
                   <.form
                     for={@rename_form}
                     phx-submit="save_passkey_name"
                     class="flex flex-col gap-2 sm:flex-row sm:items-end"
                   >
-                    <input type="hidden" name="passkey[id]" value={passkey.credential_id} />
+                    <input type="hidden" name="passkey[id]" value={passkey_param_id(passkey)} />
                     <div class="flex-1">
-                      <label for={"passkey-name-#{passkey.credential_id}"} class="block text-sm font-semibold">
+                      <label for={"passkey-name-#{passkey_param_id(passkey)}"} class="block text-sm font-semibold">
                         Passkey name
                       </label>
                       <input
-                        id={"passkey-name-#{passkey.credential_id}"}
+                        id={"passkey-name-#{passkey_param_id(passkey)}"}
                         type="text"
                         name="passkey[nickname]"
                         value={@rename_form[:nickname].value}
@@ -351,7 +351,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                   </.form>
                 </div>
 
-                <div :if={@deleting_passkey_id == passkey.credential_id} class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
+                <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
                   <p class="text-sm font-semibold text-red-800">Delete this passkey?</p>
                   <p class="mt-1 text-sm text-red-700">
                     Delete this passkey? You'll still need another sign-in method before removing your last recovery option.
@@ -361,7 +361,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                   </p>
 
                   <div class="mt-3 flex items-center gap-2">
-                    <form action={~p"/users/settings/mfa/passkeys/#{passkey.credential_id}/delete"} method="post">
+                    <form action={~p"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"} method="post">
                       <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
                       <button type="submit" class="text-sm text-red-600 bg-white border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md">
                         Delete
@@ -382,7 +382,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                 <button
                   type="button"
                   phx-click="open_passkey_rename"
-                  phx-value-id={passkey.credential_id}
+                  phx-value-id={passkey_param_id(passkey)}
                   class="text-sm text-brand hover:underline"
                 >
                   Rename
@@ -390,7 +390,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
                 <button
                   type="button"
                   phx-click="confirm_passkey_delete"
-                  phx-value-id={passkey.credential_id}
+                  phx-value-id={passkey_param_id(passkey)}
                   class="text-sm text-red-600 hover:underline"
                 >
                   Delete
@@ -954,7 +954,11 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   end
 
   defp find_passkey(socket, credential_id) do
-    Enum.find(socket.assigns.passkeys, &(to_string(&1.credential_id) == to_string(credential_id)))
+    Enum.find(socket.assigns.passkeys, &(passkey_param_id(&1) == to_string(credential_id)))
+  end
+
+  defp passkey_param_id(%{credential_id: credential_id}) when is_binary(credential_id) do
+    Base.url_encode64(credential_id, padding: false)
   end
 
 

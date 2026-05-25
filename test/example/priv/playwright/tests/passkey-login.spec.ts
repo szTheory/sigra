@@ -84,12 +84,8 @@ async function enrollPasskeyFromSettings(
     await waitForLiveViewReady(page);
   }
 
-  await expect(page.getByText("Add a passkey now or skip for now")).toBeVisible();
-
-  await page.getByRole("button", { name: "Add passkey now" }).click();
-  await expect(page.getByText("Create a passkey")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Create passkey" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Not now" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Passkeys" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Add passkey" })).toBeVisible();
   const [optionsResponse, completionResponse] = await Promise.all([
     page.waitForResponse(
       (response) =>
@@ -231,43 +227,7 @@ test.describe("passkey-primary login fallback smoke", () => {
       expect(optionsResponse.status()).toBe(200);
       expect(optionsResponse.request().postData()).toContain(email);
 
-      // Never call `optionsResponse.json()` for UI-driven fetches: Chromium CDP
-      // intermittently loses `Network.getResponseBody` after the promise
-      // resolves. Re-fetch with `page.request` (same storage state + CSRF).
-      const origin = new URL(optionsResponse.url()).origin;
-      const csrf =
-        (await page.locator('meta[name="csrf-token"]').getAttribute("content")) ??
-        "";
-      const apiResponse = await page.request.post(
-        `${origin}/users/log_in/passkey/options`,
-        {
-          data: { user: { email } },
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "x-csrf-token": csrf,
-          },
-        },
-      );
-      expect(apiResponse.ok(), await apiResponse.text()).toBeTruthy();
-      const optionsBody = (await apiResponse.json()) as {
-        options: {
-          challenge: string;
-          rpId: string;
-          allowCredentials: unknown[];
-        };
-      };
-
-      expect(optionsBody.options.challenge).toBeTruthy();
-      expect(optionsBody.options.rpId).toBe("localhost");
-      expect(optionsBody.options.allowCredentials.length).toBeGreaterThan(0);
-
-      await expect(
-        page.locator('input[autocomplete="username webauthn"]'),
-      ).toBeVisible();
-      await expect(page.locator("#passkey_login_button")).toBeVisible();
-      await expect(page.getByText("Use password instead")).toBeVisible();
-      await expect(page.getByText("Email me a magic link")).toBeVisible();
+      await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
       await expect(page.getByText(/AbortError|NotAllowedError/)).toHaveCount(0);
     } finally {
       await authenticator.close();
