@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.2.0]`** for **published Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.0–v1.4** in **`.planning/MILESTONES.md`** — those **v1.x** labels describe shipped *tranches* of work, **not** a second installable version axis on Hex (this repo remains **0.x** on Hex until a real **1.0.0**). Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When in doubt, treat **`MILESTONES.md`** as canonical for dates and archive paths.
 
+## [0.3.0](https://github.com/szTheory/sigra/compare/v0.2.5...v0.3.0) (2026-05-25)
+
+### Added
+
+* **passkeys:** Added `Sigra.Passkeys.delete_with_posture/4` and `Sigra.Passkeys.DeleteResult` so hosts can distinguish ordinary passkey deletion from last-passkey recovery posture without re-querying state.
+
+### Changed
+
+* **passkeys:** Generated-host settings and controller flows now encode passkey credential IDs in forms and routes, decode them on the server side, and surface clearer last-passkey deletion guidance after the delete completes.
+* **auth:** Confirmation-link issuance now stores the hash of the transported confirmation token string, so `confirm_user/3` can successfully look up valid emailed confirmation links after HMAC verification.
+* **passkeys:** Generated confirmation and MFA recovery flows now redirect and message users more honestly when bootstrapping a first passkey or recovering from a canceled, timed-out, or unsupported browser ceremony.
+
+### Fixed
+
+* **generator:** `--no-passkeys` installs no longer leak passkey bootstrap helpers or warning-cleanliness regressions into generated apps.
+* **ci:** Release-gate coverage and generator fixtures now align with the encoded passkey-id and delete-posture behavior shipped in the library and templates.
+
+### Roadmap traceability
+
+* Planning milestone **v1.26 PK-LIFECYCLE** (phases **115–121**) shipped on **2026-05-25**; see [`.planning/milestones/v1.26-ROADMAP.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.26-ROADMAP.md), [`.planning/milestones/v1.26-REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.26-REQUIREMENTS.md), and [`.planning/milestones/v1.26-MILESTONE-AUDIT.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.26-MILESTONE-AUDIT.md).
+
 ## [Unreleased]
 
 ## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
