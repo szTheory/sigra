@@ -1,8 +1,8 @@
 ---
 last_updated: 2026-05-25
-status: ready_for_next_selection
+status: active_milestone_selected
 current_release_followup: completed-REL-01
-current_active_milestone: none
+current_active_milestone: ENT-SSO
 default_post_release_candidate: ENT-SSO
 ---
 
@@ -146,7 +146,7 @@ The remaining meaningful work clusters are:
 - inventing a custom sync layer
 - broad MFA rewrite outside passkey-specific paths
 
-### candidate
+### active
 
 **ID:** `ENT-SSO`
 **Name:** `Enterprise SSO & B2B Connections`
@@ -157,6 +157,8 @@ The remaining meaningful work clusters are:
 - Standardization layer around `Assent` for enterprise connections (SAML).
 - Tenant-level directory routing (IdP-initiated flows or domain-based IdP discovery).
 - Just-In-Time (JIT) organization membership provisioning.
+**Assessment calibration (2026-05-25):**
+- Repo-grounded next-step review kept this ranked first because Sigra already ships the org/MFA/RBAC/service-account substrate; the missing contract-closing wedge is enterprise login routing and JIT truth, not another narrow polish pass.
 **Prerequisites:**
 - Deep understanding of Assent's SAML capabilities vs host-application requirements.
 **Non-goals:**
@@ -211,7 +213,7 @@ To protect the architectural integrity and maintainability of Sigra, we explicit
 
 ## Selection Guidance
 
-`REL-01 Release Truth Reset` is complete and `PK-LIFECYCLE` is now shipped. With no active milestone selected, the default next sequence becomes:
+`REL-01 Release Truth Reset` is complete, `PK-LIFECYCLE` is shipped, and `ENT-SSO` is now the active milestone. The ranked follow-on sequence after the current milestone is:
 
 1. `ENT-SSO Enterprise SSO & B2B Connections`
 2. `DATA-LIFECYCLE Compliance Export & Data Lifecycle`
