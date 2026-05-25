@@ -348,17 +348,15 @@ session_params = %{sigra_state: state} |> maybe_put(:code_verifier, Map.get(asse
 
 All material claims in this research were verified in this session or cited from official documentation. [VERIFIED: this document]
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Controller vs LiveView for the canonical enterprise entry**
-   - What we know: the current login page is controller-rendered, and auth-critical Sigra flows are HTTP oriented. [VERIFIED: `test/example/lib/example_web/controllers/session_html.ex`, `test/example/lib/example_web/controllers/session_controller.ex`]
-   - What's unclear: whether the org-scoped enterprise entry should be a small controller surface or a LiveView wrapper for richer retry states. [VERIFIED: `.planning/phases/123-org-aware-enterprise-routing/123-CONTEXT.md`]
-   - Recommendation: plan controller-first unless UX proof requires LiveView; it minimizes auth-flow surface area and fits existing patterns. [VERIFIED: codebase routing/controller posture]
+1. **Canonical enterprise entry transport**
+   - Decision: implement the canonical enterprise entry as a controller-first surface, not a LiveView wrapper.
+   - Why: the current login page is controller-rendered, auth-critical Sigra flows are HTTP oriented, and controller-first keeps the redirect/callback surface smaller while matching the mapped generated-host patterns. [VERIFIED: `test/example/lib/example_web/controllers/session_html.ex`, `test/example/lib/example_web/controllers/session_controller.ex`, `.planning/phases/123-org-aware-enterprise-routing/123-PATTERNS.md`]
 
-2. **Exact split between signed OAuth state and server session**
-   - What we know: D-06 permits either or both, Plug session is the correct cross-request store, and Sigra already signs OAuth state. [VERIFIED: `.planning/phases/123-org-aware-enterprise-routing/123-CONTEXT.md`, `lib/sigra/oauth.ex`] [CITED: https://hexdocs.pm/plug/Plug.Conn.html]
-   - What's unclear: whether the implementation should store all enterprise routing context in both places or keep the session minimal and the signed state authoritative. [VERIFIED: current code review]
-   - Recommendation: store the full routing tuple in signed state and a minimal mirrored copy in the server session for UX/error rendering. Treat signed state as callback authority. [VERIFIED: `lib/sigra/oauth.ex`, `.planning/phases/123-org-aware-enterprise-routing/123-CONTEXT.md`] 
+2. **Authority split between signed OAuth state and server session**
+   - Decision: store the full `{organization_id, connection_id, routing_source}` tuple in signed OAuth state and a minimal mirrored copy in the server session for UX/error rendering.
+   - Why: Plug session is the correct cross-request store for redirect flows, but signed state must remain the callback authority so enterprise routing truth cannot drift or be re-inferred from email. [VERIFIED: `.planning/phases/123-org-aware-enterprise-routing/123-CONTEXT.md`, `lib/sigra/oauth.ex`] [CITED: https://hexdocs.pm/plug/Plug.Conn.html]
 
 ## Environment Availability
 

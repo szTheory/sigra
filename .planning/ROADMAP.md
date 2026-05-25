@@ -41,7 +41,7 @@
 
 **Requirements:** SSO-01, SSO-02  
 **Depends on:** none
-**Plans:** 2 plans
+**Plans:** 4 plans
 
 Success criteria:
 1. Organization admins can configure an enterprise OIDC connection for their organization through Sigra's generated-host surface.
@@ -58,11 +58,18 @@ Plans:
 
 **Requirements:** SSO-03  
 **Depends on:** Phase 122
+**Plans:** 2 plans
 
 Success criteria:
 1. Users can start enterprise login from an explicit organization-aware entry path.
 2. Bounded email-domain discovery resolves only to the intended organization connection.
 3. Session and audit truth preserve which organization initiated the enterprise login flow.
+
+Plans:
+- [ ] 123-01-PLAN.md — Add library-owned exact-match enterprise routing, signed authorize context, callback revalidation, and first-session org truth.
+- [ ] 123-02-PLAN.md — Add the generated-host template surface for canonical org entry, bounded discovery, and lightweight org-truth retry UX.
+- [ ] 123-03-PLAN.md — Sync the committed example app with the enterprise routing surface and add controller plus integration proof in the example Mix lane.
+- [ ] 123-04-PLAN.md — Lock the generated-host routing contract with installer feature and golden diff regression coverage.
 
 ### Phase 124: JIT Provisioning & Safe Reconciliation
 
