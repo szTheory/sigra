@@ -91,6 +91,7 @@ Next steps:
 * creating lib/sigra_install_golden_tmp/organizations.ex
 * creating lib/sigra_install_golden_tmp_web/components/org_switcher.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/organization_switch_controller.ex
+* creating lib/sigra_install_golden_tmp_web/controllers/enterprise_sso_controller.ex
 * creating lib/sigra_install_golden_tmp_web/live/organizations_live/index.ex
 * creating lib/sigra_install_golden_tmp_web/live/organizations_live/new.ex
 * creating lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex

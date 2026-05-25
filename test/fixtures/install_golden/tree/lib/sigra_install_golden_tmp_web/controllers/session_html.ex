@@ -151,6 +151,34 @@ defmodule SigraInstallGoldenTmpWeb.SessionHTML do
 
       <% end %>
 
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <hr class="w-full" />
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="bg-white px-2 text-gray-500">or continue with enterprise SSO</span>
+        </div>
+      </div>
+
+      <section class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-base-content">Enterprise sign-in</h2>
+          <p class="text-sm text-base-content/70">
+            Enter your work email. If Sigra finds one exact active organization match, it will send you to the
+            canonical enterprise sign-in route for that organization.
+          </p>
+        </div>
+
+        <.form :let={f} for={@form} id="enterprise_login_form" action={~p"/users/log_in"} method="post" class="mt-4 space-y-4">
+          <input type="hidden" name="_action" value="enterprise" />
+          <.input field={f[:email]} type="email" label="Work email" autocomplete="username" required />
+
+          <.button class="btn btn-outline w-full">
+            Continue with enterprise SSO
+          </.button>
+        </.form>
+      </section>
     </div>
     """
   end

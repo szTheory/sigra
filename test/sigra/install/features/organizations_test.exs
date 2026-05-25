@@ -168,6 +168,25 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert organizations_template =~ "validate_enterprise_connection"
       assert organizations_template =~ "activate_enterprise_connection"
       assert organizations_template =~ "disable_enterprise_connection"
+      assert organizations_template =~ "discover_enterprise_connection"
+      assert organizations_template =~ "get_routable_enterprise_connection"
+      assert organizations_template =~ "Sigra.EnterpriseRouting"
+    end
+
+    test "core login templates expose the enterprise discovery branch and canonical redirect wiring" do
+      session_controller = File.read!("priv/templates/sigra.install/core/session_controller.ex")
+      login_html = File.read!("priv/templates/sigra.install/core/login_html.ex")
+
+      assert session_controller =~ ~s|%{"_action" => "enterprise", "user" => %{"email" => email}}|
+      assert session_controller =~ "discover_enterprise_connection"
+      assert session_controller =~
+               ~S|~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"|
+      assert session_controller =~ "enterprise_discovery_error"
+
+      assert login_html =~ ~s|id="enterprise_login_form"|
+      assert login_html =~ ~s|<input type="hidden" name="_action" value="enterprise" />|
+      assert login_html =~ "Enter your work email."
+      assert login_html =~ "canonical enterprise sign-in route"
     end
 
     test "organization settings template contains Enterprise SSO status and validate/activate actions" do
@@ -624,6 +643,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert router_injection
       assert router_injection.content =~ ~s|post "/organizations/switch"|
       assert router_injection.content =~ ~s|scope "/organizations/:org"|
+      assert router_injection.content =~ ~s|get "/sso", EnterpriseSSOController, :new|
+      assert router_injection.content =~ ~s|post "/sso", EnterpriseSSOController, :create|
+      assert router_injection.content =~ ~s|get "/sso/callback", EnterpriseSSOController, :callback|
       assert router_injection.content =~ "Sigra.Plug.LoadOrganizationFromSlug"
     end
   end
@@ -637,6 +659,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert "organizations/components/org_switcher.ex" in sources
       assert "organizations/controllers/organization_switch_controller.ex" in sources
+      assert "organizations/controllers/enterprise_sso_controller.ex" in sources
       # Phase 16 Plan 05: OrganizationMembersLive template
       assert "organizations/live/organization_members_live.ex" in sources
 
@@ -645,6 +668,11 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert Enum.any?(
                targets,
                &String.ends_with?(&1, "controllers/organization_switch_controller.ex")
+             )
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "controllers/enterprise_sso_controller.ex")
              )
 
       assert Enum.any?(
