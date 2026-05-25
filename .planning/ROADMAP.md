@@ -77,11 +77,17 @@ Plans:
 
 **Requirements:** SSO-04, JIT-01, JIT-02  
 **Depends on:** Phase 123
+**Plans:** 3 plans
 
 Success criteria:
 1. Successful enterprise login signs the user into the correct organization while preserving Sigra's existing session and audit invariants.
 2. Just-in-time membership provisioning reuses the current org/membership substrate instead of bypassing it.
 3. Ambiguous matches fail safely and visibly rather than linking an enterprise identity to the wrong user.
+
+Plans:
+- [ ] 124-01-PLAN.md — Add the library-owned enterprise reconciliation core for safe principal resolution, exact invite reuse, and atomic JIT membership outcomes.
+- [ ] 124-02-PLAN.md — Wire reconciliation output into enterprise callback success plus first-session and audit truth without auth-mode fallback.
+- [ ] 124-03-PLAN.md — Update the example enterprise callback flow for org-compatible return paths, `/organizations` fallback, and no-session unsafe recovery.
 
 ### Phase 125: SSO-Only Enforcement & Break-Glass Truth
 
