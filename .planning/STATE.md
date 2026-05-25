@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.27
 milestone_name: v1.27 ENT-SSO
-status: ready_for_phase_planning
-last_updated: "2026-05-25T13:26:42.000Z"
-last_activity: 2026-05-25 -- Started v1.27 ENT-SSO, wrote fresh research and requirements, and created the roadmap for phases 122-126
+status: ready_for_verification
+last_updated: "2026-05-25T14:57:08.000Z"
+last_activity: 2026-05-25 -- Phase 122 enterprise connection contract and generated-host surface executed; verification artifacts and installer fixtures are up to date
 progress:
   total_phases: 5
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 20
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.27 ENT-SSO — enterprise login routing, JIT organization membership provisioning, and truthful SSO-only / break-glass posture
+**Current focus:** Phase 122 is implemented; next gate is verification before Phase 123 routing work
 
 ## Current Position
 
-Phase: 122
-Plan: 0 of 0
-Status: v1.27 ENT-SSO is initialized; requirements and roadmap are live, and the project is ready for phase planning
-Last activity: 2026-05-25 -- activated the ENT-SSO milestone with OIDC-first enterprise connection requirements, org-aware routing, JIT membership, enforcement, and proof/docs phases
+Phase: 122 (enterprise-connection-contract-validation) — IMPLEMENTED
+Plan: 2 of 2
+Status: Ready for verification
+Last activity: 2026-05-25 -- executed the enterprise connection substrate, truthful organization settings surface, and installer fixture updates for Phase 122
 
 ## Accumulating Context
 
@@ -67,6 +67,6 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 
 ## Operator Next Steps
 
-- Start with `$gsd-plan-phase 122` to plan the enterprise connection contract and setup-truth phase.
+- Run `$gsd-verify-work 122` to confirm the enterprise connection contract, generated-host surface, and installer output against the Phase 122 plan and requirements.
+- If verification passes, continue with Phase 123 enterprise routing rather than widening 122 into SCIM, hosted-control-plane UX, or opinionated authorization policy.
 - Keep later milestone proposals behind the current sequence: finish `ENT-SSO`, then reassess `DATA-LIFECYCLE`, then `SUITE-INTEGRATION`.
-- Do not widen the current milestone into SCIM, hosted-control-plane UX, or opinionated authorization policy.
