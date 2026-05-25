@@ -94,4 +94,35 @@ defmodule SigraInstallGoldenTmp.Organizations do
   def change_member_role(scope, membership, new_role),
     do:
       Sigra.Organizations.change_role(__sigra_org_config__(), scope, membership, new_role)
+
+  @doc "Returns the current organization's enterprise connection, if present."
+  def get_enterprise_connection(scope),
+    do: Sigra.EnterpriseConnections.get_connection(enterprise_connection_config(), scope)
+
+  @doc "Builds the enterprise connection changeset for the current organization."
+  def change_enterprise_connection(scope, attrs \\ %{}),
+    do: Sigra.EnterpriseConnections.change_connection(enterprise_connection_config(), scope, attrs)
+
+  @doc "Saves enterprise SSO settings as a draft."
+  def save_enterprise_connection(scope, attrs),
+    do: Sigra.EnterpriseConnections.save_connection(enterprise_connection_config(), scope, attrs)
+
+  @doc "Runs enterprise SSO validation without activating the connection."
+  def validate_enterprise_connection(scope, attrs),
+    do:
+      Sigra.EnterpriseConnections.validate_connection(enterprise_connection_config(), scope, attrs)
+
+  @doc "Activates the current organization's enterprise SSO connection when validation passes."
+  def activate_enterprise_connection(scope, attrs),
+    do:
+      Sigra.EnterpriseConnections.activate_connection(enterprise_connection_config(), scope, attrs)
+
+  @doc "Disables the current organization's enterprise SSO connection."
+  def disable_enterprise_connection(scope),
+    do: Sigra.EnterpriseConnections.disable_connection(enterprise_connection_config(), scope)
+
+  defp enterprise_connection_config do
+    __sigra_org_config__()
+    |> Map.update!(:schemas, &Map.put(&1, :enterprise_connection, SigraInstallGoldenTmp.Accounts.EnterpriseConnection))
+  end
 end

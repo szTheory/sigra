@@ -37,7 +37,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
   end
 
   describe "migrations/1" do
-    test "returns organizations + audit_events_org_columns slots in order" do
+    test "returns organizations, enterprise_connections, and audit_events_org_columns slots in order" do
       slots = Organizations.migrations([])
 
       # Phase 24.1: Organizations now owns both its own `:organizations`
@@ -45,10 +45,12 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # (moved from Features.Core so the hard FK to organizations
       # lands after the organizations table is created, and is omitted
       # entirely under --no-organizations).
-      assert length(slots) == 2
+      assert length(slots) == 3
 
       assert [
                {:organizations, "organizations/migration.exs", "create_organizations.exs"},
+               {:enterprise_connections, "organizations/enterprise_connections_migration.exs",
+                "create_enterprise_connections.exs"},
                {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
                 "alter_audit_events_add_org_columns.exs"}
              ] = slots
@@ -85,6 +87,25 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert {:eex, _, target} = wrapper
       assert target == Path.join(["lib", "my_app", "organizations.ex"])
+    end
+
+    test "registers enterprise connection schema and migration templates" do
+      files = Organizations.files(otp_app: :my_app, context_alias: "Accounts")
+
+      assert {:eex, "organizations/enterprise_connection.ex", target} =
+               Enum.find(files, fn {:eex, template, _target} ->
+                 template == "organizations/enterprise_connection.ex"
+               end)
+
+      assert target == Path.join(["lib", "my_app", "accounts", "enterprise_connection.ex"])
+
+      assert {:eex, "organizations/enterprise_connection_oidc_settings.ex", settings_target} =
+               Enum.find(files, fn {:eex, template, _target} ->
+                 template == "organizations/enterprise_connection_oidc_settings.ex"
+               end)
+
+      assert settings_target ==
+               Path.join(["lib", "my_app", "accounts", "enterprise_connection_oidc_settings.ex"])
     end
 
     test "renders target path relative to the host app's otp_app" do
@@ -136,6 +157,28 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert organizations_template =~ "def set_active_organization(conn, org)"
       assert organizations_template =~ "Sigra.Plug.PutActiveOrganization.call(conn, org, [])"
       assert organizations_template =~ "use Sigra.Organizations"
+    end
+
+    test "organizations.ex template exposes enterprise connection delegates" do
+      organizations_template =
+        File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+
+      assert organizations_template =~ "Sigra.EnterpriseConnections"
+      assert organizations_template =~ "change_enterprise_connection"
+      assert organizations_template =~ "validate_enterprise_connection"
+      assert organizations_template =~ "activate_enterprise_connection"
+      assert organizations_template =~ "disable_enterprise_connection"
+    end
+
+    test "organization settings template contains Enterprise SSO status and validate/activate actions" do
+      template =
+        File.read!("priv/templates/sigra.install/organizations/live/organization_settings_live.ex")
+
+      assert template =~ "Enterprise SSO"
+      assert template =~ "validation_failed"
+      assert template =~ "last_validation_error"
+      assert template =~ "Validate"
+      assert template =~ "Activate"
     end
 
     test "organizations.ex template compiles against real Sigra.Organizations.__using__/1 (CR-01 regression)" do
