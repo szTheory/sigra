@@ -19,7 +19,7 @@ created: 2026-05-25
 |----------|-------|
 | **Framework** | ExUnit in two lanes: root library tests plus the `test/example` Phoenix app test harness |
 | **Config file** | `test/test_helper.exs` and `test/example/test/test_helper.exs` |
-| **Quick run command** | `mix test test/sigra/oauth/enterprise_callback_test.exs` |
+| **Quick run command** | `mix test test/sigra/oauth/enterprise_callback_test.exs` or `cd test/example && mix test --include example_app test/example_web/controllers/enterprise_sso_controller_test.exs` |
 | **Full suite command** | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test` and `cd test/example && MIX_ENV=test mix test --include example_app` |
 | **Estimated runtime** | ~90 seconds |
 
@@ -27,10 +27,10 @@ created: 2026-05-25
 
 ## Sampling Rate
 
-- **After every task commit:** Run `mix test test/sigra/oauth/enterprise_callback_test.exs` plus any new reconciliation-focused root test file touched by the task.
+- **After every task commit:** Run the smallest touched-lane smoke test: `mix test test/sigra/oauth/enterprise_callback_test.exs` for root-library work, or `cd test/example && mix test --include example_app test/example_web/controllers/enterprise_sso_controller_test.exs` for example-host work, plus any newly added reconciliation-focused file in that lane.
 - **After every plan wave:** Run the relevant example-app controller and integration tests with `--include example_app` plus the touched root-library reconciliation tests.
 - **Before `$gsd-verify-work`:** Full root suite and full example-app suite must both be green.
-- **Max feedback latency:** 90 seconds
+- **Max feedback latency:** 25 seconds for per-task smoke lanes; ~90 seconds only for wave/full-suite gates
 
 ---
 
@@ -70,7 +70,7 @@ created: 2026-05-25
 - [x] Sampling continuity: no 3 consecutive tasks without automated verify
 - [x] Wave 0 covers all MISSING references
 - [x] No watch-mode flags
-- [x] Feedback latency < 90s
+- [x] Feedback latency < 30s for per-task smoke lanes
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending

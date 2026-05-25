@@ -337,12 +337,12 @@ Sigra.Auth.create_session(config, user, %{
 
 All claims in this research were verified or cited during this session. [VERIFIED: this document]
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **What exact generated-host recovery surface should typed reconciliation refusals use?**
-   - What we know: unsafe outcomes must not create a normal session, and the host UX copy/layout is discretionary. [VERIFIED: .planning/phases/124-jit-provisioning-safe-reconciliation/124-CONTEXT.md]
-   - What's unclear: whether the example app should use a dedicated recovery page, an `/sso` flash loop with typed parameters, or a login-adjacent fixup route. [VERIFIED: test/example/lib/example_web/controllers/enterprise_sso_controller.ex]
-   - Recommendation: plan the library result shape first, then make the example app prove one dedicated bounded recovery path that cannot masquerade as success. [VERIFIED: .planning/phases/124-jit-provisioning-safe-reconciliation/124-CONTEXT.md]
+   - Resolution: use the existing org-scoped enterprise entry surface as the bounded recovery path, with typed refusal outcomes returning to the organization-aware enterprise controller flow rather than creating a separate recovery page. [VERIFIED: .planning/phases/124-jit-provisioning-safe-reconciliation/124-CONTEXT.md] [VERIFIED: test/example/lib/example_web/controllers/enterprise_sso_controller.ex]
+   - Why: this keeps unsafe outcomes inside the same enterprise mode per D-12 and D-20, avoids a misleading post-success surface, and lets the generated host show truthful low-leak flash copy on a route the user already trusts. [VERIFIED: .planning/phases/124-jit-provisioning-safe-reconciliation/124-CONTEXT.md]
+   - Planning implication: Plan `124-03` should update the example app so typed refusal codes route back through the org-scoped enterprise entry or retry surface, assert no `:user_token` is created, and reserve `/organizations` for safe success fallback only. [VERIFIED: .planning/phases/124-jit-provisioning-safe-reconciliation/124-03-PLAN.md]
 
 ## Environment Availability
 
