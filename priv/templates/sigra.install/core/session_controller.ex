@@ -245,9 +245,14 @@ defmodule <%= web_module %>.SessionController do
     user = conn.assigns.current_scope.user
 
     case Auth.delete_passkey(user, credential_id) do
-      {:ok, _credential} ->
+      {:ok, _credential, %{remaining_passkeys: 0}} ->
         conn
-        |> put_flash(:info, "Passkey deleted.")
+        |> put_flash(:info, delete_passkey_success_message(:last_deleted))
+        |> redirect(to: ~p"/users/settings/mfa#passkeys")
+
+      {:ok, _credential, _posture} ->
+        conn
+        |> put_flash(:info, delete_passkey_success_message(:deleted))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
       {:error, _reason} ->
@@ -257,6 +262,12 @@ defmodule <%= web_module %>.SessionController do
     end
   end
 <% end %>
+
+  defp delete_passkey_success_message(:last_deleted) do
+    "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey."
+  end
+
+  defp delete_passkey_success_message(:deleted), do: "Passkey deleted."
 
   def delete(conn, _params) do
     Sigra.Telemetry.event(
