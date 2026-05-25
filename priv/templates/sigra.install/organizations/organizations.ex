@@ -121,6 +121,14 @@ defmodule <%= app_module %>.Organizations do
   def disable_enterprise_connection(scope),
     do: Sigra.EnterpriseConnections.disable_connection(enterprise_connection_config(), scope)
 
+  @doc "Discovers one exact routable enterprise connection from a work-email entry."
+  def discover_enterprise_connection(email),
+    do: Sigra.EnterpriseRouting.discover_connection(enterprise_connection_config(), email)
+
+  @doc "Loads the canonical routable enterprise connection for an organization."
+  def get_routable_enterprise_connection(organization),
+    do: Sigra.EnterpriseRouting.get_routable_connection(enterprise_connection_config(), organization)
+
   defp enterprise_connection_config do
     __sigra_org_config__()
     |> Map.update!(:schemas, &Map.put(&1, :enterprise_connection, <%= context_module %>.EnterpriseConnection))

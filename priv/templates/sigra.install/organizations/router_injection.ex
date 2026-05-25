@@ -38,6 +38,14 @@
   end
 
   scope "/organizations/:org", <%= web_module %> do
+    pipe_through [:browser]
+
+    get "/sso", EnterpriseSSOController, :new
+    post "/sso", EnterpriseSSOController, :create
+    get "/sso/callback", EnterpriseSSOController, :callback
+  end
+
+  scope "/organizations/:org", <%= web_module %> do
     pipe_through [:browser, :require_authenticated, :org_scoped]
 
     live_session :organization_scoped,

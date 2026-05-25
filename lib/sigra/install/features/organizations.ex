@@ -104,6 +104,9 @@ defmodule Sigra.Install.Features.Organizations do
       {:eex, "organizations/controllers/organization_switch_controller.ex",
        Path.join(["lib", web, "controllers", "organization_switch_controller.ex"])},
 
+      {:eex, "organizations/controllers/enterprise_sso_controller.ex",
+       Path.join(["lib", web, "controllers", "enterprise_sso_controller.ex"])},
+
       # Phase 16 Plan 03: unified landing / picker LiveView at /organizations.
       # Three render branches keyed on (memberships, pending_invitations):
       #   * zero-state hero + create form (also the post-signup destination
