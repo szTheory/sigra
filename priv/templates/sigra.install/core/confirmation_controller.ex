@@ -107,7 +107,9 @@ defmodule <%= web_module %>.ConfirmationController do
     end
   end
 
+<%= if passkeys? do %>
   defp passkey_bootstrap_return_to do
     "/users/sudo?return_to=#{URI.encode_www_form("/users/settings/mfa?bootstrap_passkey=1#passkeys")}"
   end
+<% end %>
 end

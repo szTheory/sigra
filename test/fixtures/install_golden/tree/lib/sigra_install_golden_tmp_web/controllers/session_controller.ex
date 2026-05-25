@@ -245,9 +245,14 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
     user = conn.assigns.current_scope.user
 
     case Auth.delete_passkey(user, credential_id) do
-      {:ok, _credential} ->
+      {:ok, %{remaining_passkeys: 0}} ->
         conn
-        |> put_flash(:info, "Passkey deleted.")
+        |> put_flash(:info, delete_passkey_success_message(:last_deleted))
+        |> redirect(to: ~p"/users/settings/mfa#passkeys")
+
+      {:ok, %{}} ->
+        conn
+        |> put_flash(:info, delete_passkey_success_message(:deleted))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
       {:error, _reason} ->
@@ -256,6 +261,12 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
     end
   end
+
+  defp delete_passkey_success_message(:last_deleted) do
+    "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey."
+  end
+
+  defp delete_passkey_success_message(:deleted), do: "Passkey deleted."
 
 
   def delete(conn, _params) do

@@ -245,12 +245,12 @@ defmodule <%= web_module %>.SessionController do
     user = conn.assigns.current_scope.user
 
     case Auth.delete_passkey(user, credential_id) do
-      {:ok, _credential, %{remaining_passkeys: 0}} ->
+      {:ok, %{remaining_passkeys: 0}} ->
         conn
         |> put_flash(:info, delete_passkey_success_message(:last_deleted))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
-      {:ok, _credential, _posture} ->
+      {:ok, %{}} ->
         conn
         |> put_flash(:info, delete_passkey_success_message(:deleted))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
