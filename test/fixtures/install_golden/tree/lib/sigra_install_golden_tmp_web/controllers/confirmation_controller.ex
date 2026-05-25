@@ -17,7 +17,6 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
 
   alias SigraInstallGoldenTmpWeb.UserAuth
 
-
   def new(conn, _params) do
     render(conn, :new)
   end
@@ -38,7 +37,10 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
 
       {:error, :rate_limited} ->
         conn
-        |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
+        |> put_flash(
+          :error,
+          dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again.")
+        )
         |> render(:new)
 
       {:error, :already_confirmed} ->
@@ -48,13 +50,12 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
     end
   end
 
-
   def confirm(conn, %{"token" => token, "enroll_passkey" => "1"}) do
     case Auth.confirm_user(token) do
       {:ok, user} ->
         conn
         |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-        |> put_session(:user_return_to, ~p"/users/sudo?return_to=/users/settings/mfa#passkeys")
+        |> put_session(:user_return_to, passkey_bootstrap_return_to())
         |> UserAuth.log_in_user(user, %{})
 
       {:error, :already_confirmed} ->
@@ -65,11 +66,13 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
 
       {:error, :token_invalid} ->
         conn
-        |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+        |> put_flash(
+          :error,
+          dgettext("sigra", "This confirmation link is invalid or has expired.")
+        )
         |> redirect(to: ~p"/users/confirm")
     end
   end
-
 
   def confirm(conn, %{"token" => token}) do
     case Auth.confirm_user(token) do
@@ -86,7 +89,10 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
 
       {:error, :token_invalid} ->
         conn
-        |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired."))
+        |> put_flash(
+          :error,
+          dgettext("sigra", "This confirmation link is invalid or has expired.")
+        )
         |> redirect(to: ~p"/users/confirm")
     end
   end
@@ -105,5 +111,9 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
         |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
         |> redirect(to: ~p"/")
     end
+  end
+
+  defp passkey_bootstrap_return_to do
+    "/users/sudo?return_to=#{URI.encode_www_form("/users/settings/mfa?bootstrap_passkey=1#passkeys")}"
   end
 end

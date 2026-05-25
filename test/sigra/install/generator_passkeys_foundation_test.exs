@@ -51,6 +51,7 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
       assert content =~ "def authenticate_discoverable_passkey("
       assert content =~ "def rename_passkey(user, credential_id, nickname)"
       assert content =~ "def delete_passkey(user, credential_id)"
+      assert content =~ "Sigra.Passkeys.delete_with_posture"
       assert content =~ "def passkey_primary_enabled?()"
       assert content =~ "def deliver_passkey_registration_notification(user, details)"
       assert content =~ "normalize_passkey_registration_params"
@@ -122,6 +123,8 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
             "def complete_mfa_passkey",
             "def delete_passkey(conn, %{\"id\" => credential_id})",
             "Auth.delete_passkey(user, credential_id)",
+            "delete_passkey_success_message",
+            "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey.",
             "decode_passkey_response",
             "passkey[response]",
             "JSON.decode",

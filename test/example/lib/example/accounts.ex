@@ -626,6 +626,403 @@ defmodule Example.Accounts do
     Sigra.Auth.confirm_sudo(sigra_config(), hashed_token)
   end
 
+  defp maybe_put_pubsub(opts) do
+    if Process.whereis(ExampleWeb.PubSub) do
+      Keyword.put(opts, :pubsub, ExampleWeb.PubSub)
+    else
+      opts
+    end
+  end
+
+  @doc "List the explicit webhook event catalog."
+  def webhook_event_types do
+    Sigra.Webhooks.public_event_types()
+  end
+
+  @doc "List configured webhook subscriptions."
+  def list_webhook_subscriptions do
+    Sigra.Webhooks.list_subscriptions(sigra_config())
+  end
+
+  @doc "Create a webhook subscription."
+  def create_webhook_subscription(attrs) do
+    Sigra.Webhooks.create_subscription(sigra_config(), attrs)
+  end
+
+  @doc "Update a webhook subscription."
+  def update_webhook_subscription(subscription, attrs) do
+    Sigra.Webhooks.update_subscription(sigra_config(), subscription, attrs)
+  end
+
+  @doc "Enable a webhook subscription."
+  def enable_webhook_subscription(subscription) do
+    Sigra.Webhooks.enable_subscription(sigra_config(), subscription)
+  end
+
+  @doc "Disable a webhook subscription."
+  def disable_webhook_subscription(subscription) do
+    Sigra.Webhooks.disable_subscription(sigra_config(), subscription)
+  end
+
+  @doc "List admin webhook subscriptions with URL-driven params."
+  def list_admin_webhook_subscriptions(admin_scope, params \\ %{}) do
+    Sigra.Admin.Webhooks.Query.list_subscriptions(sigra_config(), admin_scope, params)
+  end
+
+  @doc "Load one admin webhook subscription detail."
+  def get_admin_webhook_subscription!(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Detail.load_subscription!(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "List retrying and dead-letter webhook deliveries for admins."
+  def list_admin_webhook_failures(admin_scope, params \\ %{}) do
+    Sigra.Admin.Webhooks.Failures.list_deliveries(sigra_config(), admin_scope, params)
+  end
+
+  @doc "Load one shared admin webhook delivery detail."
+  def get_admin_webhook_delivery!(admin_scope, delivery_id) do
+    Sigra.Admin.Webhooks.Detail.load_delivery!(sigra_config(), admin_scope, delivery_id)
+  end
+
+  @doc "Replay a dead-letter webhook delivery through the admin action seam."
+  def replay_admin_webhook_delivery(admin_scope, delivery_id, opts \\ []) do
+    Sigra.Admin.Webhooks.Actions.replay_delivery(sigra_config(), admin_scope, delivery_id, opts)
+  end
+
+  @doc "Create a webhook subscription through the admin action seam."
+  def create_admin_webhook_subscription(admin_scope, attrs) do
+    Sigra.Admin.Webhooks.Actions.create(sigra_config(), admin_scope, attrs)
+  end
+
+  @doc "Update a webhook subscription through the admin action seam."
+  def update_admin_webhook_subscription(admin_scope, subscription_id, attrs) do
+    Sigra.Admin.Webhooks.Actions.update(sigra_config(), admin_scope, subscription_id, attrs)
+  end
+
+  @doc "Enable a webhook subscription through the admin action seam."
+  def enable_admin_webhook_subscription(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.enable(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Disable a webhook subscription through the admin action seam."
+  def disable_admin_webhook_subscription(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.disable(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Reveal a webhook signing secret through an explicit admin action."
+  def reveal_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.reveal_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Rotate a webhook signing secret through an explicit admin action."
+  def rotate_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.rotate_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Prepare a webhook signing secret rotation through an explicit admin action."
+  def prepare_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.prepare_secret(sigra_config(), admin_scope, subscription_id)
+  end
+
+  @doc "Discard a prepared webhook signing secret through an explicit admin action."
+  def discard_prepared_admin_webhook_secret(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.discard_prepared_secret(
+      sigra_config(),
+      admin_scope,
+      subscription_id
+    )
+  end
+
+  @doc "Start a webhook signing secret overlap window through an explicit admin action."
+  def start_admin_webhook_secret_overlap(admin_scope, subscription_id, opts \\ []) do
+    Sigra.Admin.Webhooks.Actions.start_secret_overlap(
+      sigra_config(),
+      admin_scope,
+      subscription_id,
+      opts
+    )
+  end
+
+  @doc "Complete a webhook signing secret rotation through an explicit admin action."
+  def complete_admin_webhook_secret_rotation(admin_scope, subscription_id) do
+    Sigra.Admin.Webhooks.Actions.complete_secret_rotation(
+      sigra_config(),
+      admin_scope,
+      subscription_id
+    )
+  end
+
+  @doc "Load one delivery with its subscription and event for proof correlation."
+  def get_webhook_delivery_context(delivery_id) when is_binary(delivery_id) do
+    from(delivery in WebhookDelivery,
+      where: delivery.delivery_id == ^delivery_id,
+      left_join: subscription in assoc(delivery, :webhook_subscription),
+      left_join: event in assoc(delivery, :webhook_event),
+      preload: [webhook_subscription: subscription, webhook_event: event]
+    )
+    |> Repo.one()
+  end
+
+  @doc "Return receiver-owned candidate secrets for webhook verification."
+  def webhook_receiver_secrets do
+    webhook_receiver_secret_config()
+    |> Map.values()
+    |> Enum.filter(&(is_binary(&1) and &1 != ""))
+    |> Enum.uniq()
+  end
+
+  @doc false
+  def webhook_receiver_secret_config do
+    configured = Application.get_env(:example, :webhook_receiver_secrets, [])
+
+    %{
+      current:
+        Keyword.get(configured, :current) || System.get_env("SIGRA_WEBHOOK_SECRET_CURRENT"),
+      previous:
+        Keyword.get(configured, :previous) || System.get_env("SIGRA_WEBHOOK_SECRET_PREVIOUS")
+    }
+  end
+
+  @doc "Return the configured test-only receiver mode."
+  def webhook_receiver_mode do
+    Application.get_env(:example, :webhook_receiver_mode, :healthy)
+    |> normalize_webhook_receiver_mode()
+  end
+
+  @doc "True when the test-only receiver should fail after successful verification."
+  def webhook_receiver_fail_after_verify? do
+    webhook_receiver_mode() == :fail_after_verify
+  end
+
+  @doc false
+  def webhook_endpoint_policy_config do
+    configured = Application.get_env(:example, :webhook_endpoint_policy, [])
+
+    %{
+      mode:
+        configured
+        |> Keyword.get(:mode, :healthy)
+        |> normalize_webhook_endpoint_policy_mode(),
+      endpoint_url: Keyword.get(configured, :endpoint_url),
+      detail: Keyword.get(configured, :detail) || "blocked by deployment callback"
+    }
+  end
+
+  @doc false
+  def configure_webhook_receiver_secrets(attrs) when is_list(attrs) or is_map(attrs) do
+    current = fetch_secret_attr(attrs, [:current, "current", :current_secret, "current_secret"])
+
+    previous =
+      fetch_secret_attr(attrs, [:previous, "previous", :previous_secret, "previous_secret"])
+
+    mode = fetch_secret_attr(attrs, [:mode, "mode"])
+
+    Application.put_env(
+      :example,
+      :webhook_receiver_secrets,
+      current: blank_to_nil(current),
+      previous: blank_to_nil(previous)
+    )
+
+    Application.put_env(:example, :webhook_receiver_mode, normalize_webhook_receiver_mode(mode))
+
+    :ok
+  end
+
+  @doc false
+  def configure_webhook_endpoint_policy(attrs) when is_list(attrs) or is_map(attrs) do
+    mode = fetch_secret_attr(attrs, [:mode, "mode"])
+    endpoint_url = fetch_secret_attr(attrs, [:endpoint_url, "endpoint_url"])
+    detail = fetch_secret_attr(attrs, [:detail, "detail"])
+
+    Application.put_env(
+      :example,
+      :webhook_endpoint_policy,
+      mode: normalize_webhook_endpoint_policy_mode(mode),
+      endpoint_url: blank_to_nil(endpoint_url),
+      detail: blank_to_nil(detail) || "blocked by deployment callback"
+    )
+
+    :ok
+  end
+
+  @doc false
+  def get_webhook_subscription_secret_material(subscription_id) when is_binary(subscription_id) do
+    case Repo.get(WebhookSubscription, subscription_id) do
+      nil ->
+        nil
+
+      subscription ->
+        %{
+          subscription_id: subscription.id,
+          current_secret: subscription.signing_secret,
+          next_secret: Map.get(subscription, :next_signing_secret),
+          rotation_state: Map.get(subscription, :rotation_state) || :stable
+        }
+    end
+  end
+
+  @doc "Load one persisted receiver receipt by delivery id."
+  def get_webhook_receipt_by_delivery_id(delivery_id) when is_binary(delivery_id) do
+    Repo.get_by(WebhookReceipt, delivery_id: delivery_id)
+  end
+
+  @doc "Build one correlated proof bundle for a delivery id."
+  def get_webhook_proof_bundle(delivery_id) when is_binary(delivery_id) do
+    case get_webhook_delivery_context(delivery_id) do
+      %{webhook_event: event, webhook_subscription: subscription} = delivery ->
+        receipt = get_webhook_receipt_by_delivery_id(delivery_id)
+
+        replay_parent =
+          load_webhook_delivery_by_id(Map.get(delivery, :replayed_from_webhook_delivery_id))
+
+        replay_root =
+          load_webhook_delivery_by_id(
+            Map.get(delivery, :replay_root_webhook_delivery_id) || Map.get(delivery, :id)
+          )
+
+        source_delivery = replay_parent || delivery
+        replay_child = load_replay_child(source_delivery)
+        source_receipt = get_webhook_receipt_by_delivery_id(source_delivery.delivery_id)
+
+        replay_receipt =
+          case replay_child do
+            %{delivery_id: replay_delivery_id} ->
+              get_webhook_receipt_by_delivery_id(replay_delivery_id)
+
+            _other ->
+              nil
+          end
+
+        %{
+          delivery_id: delivery.delivery_id,
+          delivery_status: delivery.status,
+          endpoint_url: delivery.endpoint_url,
+          event_id: event && event.event_id,
+          event_type: event && event.type,
+          subscription_id: subscription && subscription.id,
+          subscription_description: subscription && subscription.description,
+          lineage: %{
+            source_delivery_id: source_delivery.delivery_id,
+            replay_delivery_id: replay_child && replay_child.delivery_id,
+            root_delivery_id: (replay_root || source_delivery).delivery_id,
+            replay_parent_delivery_id: replay_parent && replay_parent.delivery_id
+          },
+          receiver_verification: %{
+            current_delivery: build_receipt_proof(receipt),
+            source_delivery: build_receipt_proof(source_receipt),
+            replay_delivery: build_receipt_proof(replay_receipt)
+          },
+          receipt: build_receipt_proof(receipt)
+        }
+
+      nil ->
+        nil
+    end
+  end
+
+  @doc "Persist one verified webhook receipt, deduped by delivery_id."
+  def record_webhook_receipt(delivery_id, raw_body, timestamp)
+      when is_binary(delivery_id) and is_binary(raw_body) do
+    payload = Jason.decode!(raw_body)
+
+    attrs = %{
+      delivery_id: delivery_id,
+      event_id: payload["id"],
+      event_type: payload["type"],
+      payload: payload,
+      raw_body_sha256: raw_body_sha256(raw_body),
+      signature_timestamp: timestamp,
+      verified_at: DateTime.utc_now() |> DateTime.truncate(:second)
+    }
+
+    %WebhookReceipt{}
+    |> WebhookReceipt.changeset(attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, receipt} ->
+        {:ok, receipt, :created}
+
+      {:error, changeset} ->
+        if receipt_duplicate?(changeset) do
+          {:ok, Repo.get_by!(WebhookReceipt, delivery_id: delivery_id), :duplicate}
+        else
+          {:error, changeset}
+        end
+    end
+  end
+
+  defp fetch_secret_attr(attrs, keys) when is_list(attrs) do
+    Enum.find_value(keys, fn key ->
+      if is_atom(key) do
+        Keyword.get(attrs, key)
+      end
+    end)
+  end
+
+  defp fetch_secret_attr(attrs, keys) when is_map(attrs) do
+    Enum.find_value(keys, &Map.get(attrs, &1))
+  end
+
+  defp load_webhook_delivery_by_id(nil), do: nil
+
+  defp load_webhook_delivery_by_id(id) when is_binary(id) do
+    Repo.get(WebhookDelivery, id)
+  end
+
+  defp load_replay_child(%WebhookDelivery{id: source_id}) do
+    from(delivery in WebhookDelivery,
+      where: delivery.replayed_from_webhook_delivery_id == ^source_id,
+      order_by: [asc: delivery.inserted_at, asc: delivery.id],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  defp build_receipt_proof(nil), do: nil
+
+  defp build_receipt_proof(receipt) do
+    %{
+      verified_at: receipt.verified_at,
+      raw_body_sha256: receipt.raw_body_sha256,
+      signature_timestamp: receipt.signature_timestamp
+    }
+  end
+
+  defp normalize_webhook_receiver_mode(mode) when mode in [nil, ""], do: :healthy
+  defp normalize_webhook_receiver_mode(:healthy), do: :healthy
+  defp normalize_webhook_receiver_mode(:fail_after_verify), do: :fail_after_verify
+  defp normalize_webhook_receiver_mode("healthy"), do: :healthy
+  defp normalize_webhook_receiver_mode("fail_after_verify"), do: :fail_after_verify
+  defp normalize_webhook_receiver_mode(_mode), do: :healthy
+
+  defp normalize_webhook_endpoint_policy_mode(mode) when mode in [nil, ""], do: :healthy
+  defp normalize_webhook_endpoint_policy_mode(:healthy), do: :healthy
+  defp normalize_webhook_endpoint_policy_mode(:deny_exact_endpoint), do: :deny_exact_endpoint
+  defp normalize_webhook_endpoint_policy_mode("healthy"), do: :healthy
+  defp normalize_webhook_endpoint_policy_mode("deny_exact_endpoint"), do: :deny_exact_endpoint
+  defp normalize_webhook_endpoint_policy_mode(_mode), do: :healthy
+
+  defp deny_endpoint?(%URI{}, expected_endpoint_url) when expected_endpoint_url in [nil, ""],
+    do: true
+
+  defp deny_endpoint?(%URI{} = actual_uri, expected_endpoint_url)
+       when is_binary(expected_endpoint_url) do
+    case URI.new(expected_endpoint_url) do
+      {:ok, %URI{} = expected_uri} ->
+        actual_uri.scheme == expected_uri.scheme and
+          actual_uri.host == expected_uri.host and
+          effective_port(actual_uri) == effective_port(expected_uri) and
+          actual_uri.path == expected_uri.path
+
+      _other ->
+        true
+    end
+  end
+
+  defp effective_port(%URI{port: port}) when is_integer(port), do: port
+  defp effective_port(%URI{scheme: "https"}), do: 443
+  defp effective_port(%URI{}), do: 80
   @doc "Check if user is locked out."
   def locked?(user) do
     Sigra.Lockout.locked?(user, lockout_opts())
@@ -898,7 +1295,9 @@ defmodule Example.Accounts do
   @doc "Delete a passkey."
   def delete_passkey(user, credential_id, opts \\ []) do
     with :ok <- forbid_sensitive_operation(opts, user, "passkey.delete") do
-      Sigra.Passkeys.delete(sigra_config(), user, credential_id, user_passkey_schema: UserPasskey)
+      Sigra.Passkeys.delete_with_posture(sigra_config(), user, credential_id,
+        user_passkey_schema: UserPasskey
+      )
     end
   end
 

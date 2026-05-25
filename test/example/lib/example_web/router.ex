@@ -110,12 +110,12 @@ defmodule ExampleWeb.Router do
       live "/register", RegistrationLive
 
       live "/confirm", ConfirmationLive
-      live "/confirm/:token", ConfirmationLive, :confirm
 
       live "/reset-password", ResetPasswordLive
       live "/reset-password/:token", ResetPasswordLive, :edit
     end
 
+    get "/confirm/:token", ConfirmationController, :confirm
     post "/log_in", SessionController, :create
     post "/log_in/passkey", SessionController, :complete_passkey
     get "/log_in/:token", SessionController, :magic_link

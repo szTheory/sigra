@@ -27,7 +27,6 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
 
       passkey_count = Auth.passkey_count_for_user(user)
 
-
       {:ok,
        assign(socket,
          # `passkey_count: Auth.passkey_count_for_user(user)` is the generator
@@ -311,7 +310,6 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
     {:noreply, assign(socket, active_method: "backup")}
   end
 
-
   def handle_event("begin_passkey_authentication", _params, socket) do
     {:noreply,
      socket
@@ -350,7 +348,6 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
        active_method: "passkey"
      )}
   end
-
 
   def handle_event("validate_totp", %{"mfa" => %{"code" => code}}, socket) do
     form = to_form(%{"code" => code, "trust" => "false"}, as: "mfa")
@@ -447,7 +444,6 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
     end
   end
 
-
   defp passkey_recovery_bucket(payload) when is_map(payload) do
     payload
     |> Map.take(["name", "code", "message"])
@@ -473,16 +469,16 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
   defp passkey_recovery_notice(:canceled) do
     %{
       tone: :neutral,
-      title: "Passkey sign-in was canceled.",
-      body: "Nothing changed. Try again or choose another way to continue."
+      title: "Nothing changed.",
+      body: "Try again or use another way."
     }
   end
 
   defp passkey_recovery_notice(:timeout) do
     %{
       tone: :warning,
-      title: "That passkey request timed out.",
-      body: "Try again when you're ready, or use another sign-in method."
+      title: "We couldn't finish passkey sign-in. Try again or use another way to continue.",
+      body: nil
     }
   end
 
@@ -490,7 +486,8 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
     %{
       tone: :info,
       title: "Passkeys aren't available in this browser.",
-      body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+      body:
+        "Use your authenticator code, a backup code, or a device/browser that supports passkeys."
     }
   end
 
@@ -501,5 +498,4 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
       body: nil
     }
   end
-
 end

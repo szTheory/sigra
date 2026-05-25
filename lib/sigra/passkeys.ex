@@ -31,6 +31,21 @@ defmodule Sigra.Passkeys do
 
   @delete_opts_schema @schema_opts
 
+  defmodule DeleteResult do
+    @moduledoc """
+    Outcome metadata for a passkey deletion.
+    """
+
+    @enforce_keys [:credential, :deleted_last_passkey?, :remaining_passkeys]
+    defstruct [:credential, :deleted_last_passkey?, :remaining_passkeys]
+
+    @type t :: %__MODULE__{
+            credential: Sigra.Passkeys.Credential.t(),
+            deleted_last_passkey?: boolean(),
+            remaining_passkeys: non_neg_integer()
+          }
+  end
+
   @known_transports ~w(usb nfc ble internal hybrid)
 
   @spec config() :: Sigra.Config.t()
@@ -199,6 +214,15 @@ defmodule Sigra.Passkeys do
   @spec delete(Sigra.Config.t(), user :: map(), credential_id :: binary(), keyword()) ::
           {:ok, Credential.t()} | {:error, :not_found} | {:error, term()}
   def delete(%Sigra.Config{} = config, user, credential_id, opts \\ []) do
+    case delete_with_posture(config, user, credential_id, opts) do
+      {:ok, %DeleteResult{credential: credential}} -> {:ok, credential}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @spec delete_with_posture(Sigra.Config.t(), user :: map(), credential_id :: binary(), keyword()) ::
+          {:ok, DeleteResult.t()} | {:error, :not_found} | {:error, term()}
+  def delete_with_posture(%Sigra.Config{} = config, user, credential_id, opts \\ []) do
     validated = NimbleOptions.validate!(opts, @delete_opts_schema)
     schema = resolve_user_passkey_schema!(config, validated)
 
@@ -209,6 +233,9 @@ defmodule Sigra.Passkeys do
       row ->
         multi =
           Multi.new()
+          |> Multi.run(:remaining_passkeys_before_delete, fn repo, _changes ->
+            {:ok, count_owned_passkeys(repo, schema, user.id)}
+          end)
           |> Multi.delete(:passkey, row)
           |> Sigra.Audit.log_multi_safe(
             "passkey.delete",
@@ -224,7 +251,7 @@ defmodule Sigra.Passkeys do
               ]
           )
 
-        normalize_mutation_result(config.repo.transact(multi))
+        normalize_delete_result(config.repo.transact(multi))
     end
   end
 
@@ -330,6 +357,23 @@ defmodule Sigra.Passkeys do
   defp normalize_mutation_result({:error, _step, reason, _changes}), do: {:error, reason}
   defp normalize_mutation_result({:error, reason}), do: {:error, reason}
 
+  defp normalize_delete_result(
+         {:ok, %{remaining_passkeys_before_delete: count_before_delete, passkey: row}}
+       ) do
+    {:ok,
+     %DeleteResult{
+       credential: Credential.from_schema(row),
+       deleted_last_passkey?: count_before_delete == 1,
+       remaining_passkeys: max(count_before_delete - 1, 0)
+     }}
+  end
+
+  defp normalize_delete_result({:error, _step, %Ecto.Changeset{} = changeset, _changes}),
+    do: {:error, changeset}
+
+  defp normalize_delete_result({:error, _step, reason, _changes}), do: {:error, reason}
+  defp normalize_delete_result({:error, reason}), do: {:error, reason}
+
   defp passkey_audit_opts(%Sigra.Config{} = config) do
     audit_config = Map.get(config, :audit, [])
 
@@ -360,6 +404,11 @@ defmodule Sigra.Passkeys do
   defp get_owned_passkey(repo, schema, user_id, credential_id) do
     from(p in schema, where: p.user_id == ^user_id and p.credential_id == ^credential_id)
     |> repo.one()
+  end
+
+  defp count_owned_passkeys(repo, schema, user_id) do
+    from(p in schema, where: p.user_id == ^user_id)
+    |> repo.aggregate(:count)
   end
 
   defp build_registration_attrs(user, extracted) do

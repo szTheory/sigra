@@ -45,12 +45,10 @@ defmodule Sigra.Install.GeneratorPasskeyMFAChallengeTest do
       content = read_core_template("mfa_challenge_live.ex")
 
       for expected <- [
-            "Passkey sign-in was canceled.",
-            "Nothing changed. Try again or choose another way to continue.",
-            "That passkey request timed out.",
-            "Try again when you're ready, or use another sign-in method.",
+            "Nothing changed.",
+            "Try again or use another way.",
             "Passkeys aren't available in this browser.",
-            "Use your password or a magic link here, or switch to a device that supports passkeys.",
+            "Use your authenticator code, a backup code, or a device/browser that supports passkeys.",
             "We couldn't finish passkey sign-in. Try again or use another way to continue.",
             "Try again",
             "Use another way",
@@ -63,6 +61,7 @@ defmodule Sigra.Install.GeneratorPasskeyMFAChallengeTest do
       refute content =~ "AbortError"
       refute content =~ "NotAllowedError"
       refute content =~ "WebAuthnError"
+      refute content =~ "magic link"
     end
   end
 

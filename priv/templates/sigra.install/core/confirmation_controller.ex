@@ -54,7 +54,7 @@ defmodule <%= web_module %>.ConfirmationController do
       {:ok, user} ->
         conn
         |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-        |> put_session(:user_return_to, ~p"/users/sudo?return_to=/users/settings/mfa#passkeys")
+        |> put_session(:user_return_to, passkey_bootstrap_return_to())
         |> UserAuth.log_in_user(user, %{})
 
       {:error, :already_confirmed} ->
@@ -105,5 +105,9 @@ defmodule <%= web_module %>.ConfirmationController do
         |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
         |> redirect(to: ~p"/")
     end
+  end
+
+  defp passkey_bootstrap_return_to do
+    "/users/sudo?return_to=#{URI.encode_www_form("/users/settings/mfa?bootstrap_passkey=1#passkeys")}"
   end
 end

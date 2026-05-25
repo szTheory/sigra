@@ -195,8 +195,14 @@ defmodule Sigra.PasskeysTest do
     |> expect(:one, fn %Ecto.Query{} -> row end)
     |> expect(:transact, fn %Ecto.Multi{} = multi ->
       names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
-      assert names == [:passkey, :audit]
-      {:ok, %{passkey: row, audit: %Sigra.Test.AuditEvent{action: "passkey.delete"}}}
+      assert names == [:remaining_passkeys_before_delete, :passkey, :audit]
+
+      {:ok,
+       %{
+         remaining_passkeys_before_delete: 2,
+         passkey: row,
+         audit: %Sigra.Test.AuditEvent{action: "passkey.delete"}
+       }}
     end)
 
     assert {:ok, credential} =
@@ -205,12 +211,64 @@ defmodule Sigra.PasskeysTest do
     assert credential.credential_id == row.credential_id
   end
 
-  test "delete/4 returns not_found when the credential is missing or cross-user" do
+  test "delete_with_posture/4 returns non-final posture when other passkeys remain" do
+    current_user = user()
+    row = build_row(current_user.id, nickname: "Laptop")
+
+    Sigra.MockRepo
+    |> expect(:one, fn %Ecto.Query{} -> row end)
+    |> expect(:transact, fn %Ecto.Multi{} = multi ->
+      names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
+      assert names == [:remaining_passkeys_before_delete, :passkey, :audit]
+
+      {:ok,
+       %{
+         remaining_passkeys_before_delete: 2,
+         passkey: row,
+         audit: %Sigra.Test.AuditEvent{action: "passkey.delete"}
+       }}
+    end)
+
+    assert {:ok, result} =
+             Passkeys.delete_with_posture(config(), current_user, row.credential_id)
+
+    assert result.credential.credential_id == row.credential_id
+    assert result.deleted_last_passkey? == false
+    assert result.remaining_passkeys == 1
+  end
+
+  test "delete_with_posture/4 returns final-passkey posture when deleting the last passkey" do
+    current_user = user()
+    row = build_row(current_user.id, nickname: "Laptop")
+
+    Sigra.MockRepo
+    |> expect(:one, fn %Ecto.Query{} -> row end)
+    |> expect(:transact, fn %Ecto.Multi{} = multi ->
+      names = Enum.map(Ecto.Multi.to_list(multi), fn {name, _op} -> name end)
+      assert names == [:remaining_passkeys_before_delete, :passkey, :audit]
+
+      {:ok,
+       %{
+         remaining_passkeys_before_delete: 1,
+         passkey: row,
+         audit: %Sigra.Test.AuditEvent{action: "passkey.delete"}
+       }}
+    end)
+
+    assert {:ok, result} =
+             Passkeys.delete_with_posture(config(), current_user, row.credential_id)
+
+    assert result.credential.credential_id == row.credential_id
+    assert result.deleted_last_passkey? == true
+    assert result.remaining_passkeys == 0
+  end
+
+  test "delete_with_posture/4 returns not_found when the credential is missing or cross-user" do
     Sigra.MockRepo
     |> expect(:one, fn %Ecto.Query{} -> nil end)
 
     assert {:error, :not_found} =
-             Passkeys.delete(config(), user(), :crypto.strong_rand_bytes(32))
+             Passkeys.delete_with_posture(config(), user(), :crypto.strong_rand_bytes(32))
   end
 
   defp build_row(user_id, overrides) do

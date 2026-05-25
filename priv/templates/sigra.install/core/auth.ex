@@ -738,7 +738,9 @@ defmodule <%= context_module %> do
 
   @doc "Delete a passkey."
   def delete_passkey(user, credential_id) do
-    Sigra.Passkeys.delete(sigra_config(), user, credential_id, user_passkey_schema: UserPasskey)
+    Sigra.Passkeys.delete_with_posture(sigra_config(), user, credential_id,
+      user_passkey_schema: UserPasskey
+    )
   end
 
   @doc "Returns true when passkey-primary login is enabled."

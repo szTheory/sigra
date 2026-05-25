@@ -788,8 +788,11 @@ defmodule Sigra.Auth do
     secret_key_base = Keyword.fetch!(opts, :secret_key_base)
     user_token_schema = Keyword.fetch!(opts, :user_token_schema)
 
-    # Generate link token: random bytes -> HMAC sign -> base64 encode
-    {raw_token, hashed_token} = Token.generate_hashed_token()
+    # The confirmation link transports the URL-safe token string, not the
+    # original random bytes. Store the hash of that transported string so
+    # confirm_user/3 can look it up after HMAC verification.
+    {raw_token, _hashed_raw_bytes} = Token.generate_hashed_token()
+    hashed_token = Token.hash_token(raw_token)
     signed = Plug.Crypto.sign(secret_key_base, "sigra-confirm-token", raw_token)
     encoded_token = Base.url_encode64(signed, padding: false)
 
