@@ -1,329 +1,185 @@
 # Phase 122: Enterprise Connection Contract & Validation - Research
 
-**Researched:** 2026-05-25  
-**Domain:** Organization-bound enterprise OIDC connection modeling, validation, and generated-host operator truth [VERIFIED: roadmap.get-phase 122]  
-**Confidence:** HIGH
+**Researched:** 2026-05-25 [VERIFIED: roadmap, requirements, codebase, official Assent docs]
+**Domain:** Organization-bound enterprise OIDC connection modeling, setup validation, and truthful activation semantics for Sigra's generated-host operator surface [VERIFIED: `.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md`, `.planning/PROJECT.md`]
+**Confidence:** HIGH [VERIFIED: current codebase patterns plus primary OIDC dependency docs]
 
+<user_constraints>
 ## User Constraints
 
-No phase-specific `*-CONTEXT.md` exists for Phase 122, so there are no additional locked user decisions beyond `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`, `.planning/MILESTONE-ARC.md`, and `.planning/PROJECT.md`. [VERIFIED: init.phase-op 122]
+- Phase 122 is explicitly OIDC-first. The milestone keeps SAML as a future-compatible seam, but this phase must not pretend broader protocol support than the repo can ship honestly now. [VERIFIED: `.planning/MILESTONE-ARC.md`, `.planning/research/SUMMARY.md`]
+- The enterprise connection must be organization-bound, not a global provider toggle. Routing and JIT membership land in later phases; this phase only defines and validates the connection contract itself. [VERIFIED: `.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md`]
+- Activation must fail truthfully when discovery or client configuration is unusable. A saved draft may exist, but Sigra must not represent an invalid connection as active. [VERIFIED: `.planning/ROADMAP.md`, `.planning/REQUIREMENTS.md`]
+- The public/generated-host contract must stay provider-agnostic enough that future protocol expansion can reuse the same operator mental model rather than inventing a second control surface. [VERIFIED: `.planning/ROADMAP.md`]
+</user_constraints>
 
 <phase_requirements>
 ## Phase Requirements
 
 | ID | Description | Research Support |
 |----|-------------|------------------|
-| SSO-01 | Organization admins can configure an enterprise OIDC connection for their organization using validated discovery and client settings. [VERIFIED: .planning/REQUIREMENTS.md] | Use an organization-scoped connection model, generated-host org settings UI, Assent OIDC discovery/config validation, and library-owned activation semantics. [VERIFIED: repo grep] |
-| SSO-02 | Sigra refuses to activate an unusable enterprise connection and exposes setup truth clearly enough that operators do not need to reverse-engineer callback failures. [VERIFIED: .planning/REQUIREMENTS.md] | Add pre-activation validation, explicit activation state, error classification, and targeted tests for invalid issuer/discovery/client settings. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
+| SSO-01 | Organization admins can configure an enterprise OIDC connection for their organization using validated discovery and client settings. [VERIFIED: `.planning/REQUIREMENTS.md`] | Sigra already has NimbleOptions-backed config validation, organization ownership/membership substrate, generated-host patterns, and Assent OIDC support to build an org-scoped connection model without inventing a separate auth stack. [VERIFIED: `lib/sigra/config.ex`, `lib/sigra/organizations.ex`, `lib/mix/tasks/sigra.gen.oauth.ex`, `test/sigra/oauth/assent_oidc_contract_test.exs`] |
+| SSO-02 | Sigra refuses to activate an unusable enterprise connection and exposes setup truth clearly enough that operators do not need to reverse-engineer callback failures. [VERIFIED: `.planning/REQUIREMENTS.md`] | The safest contract is a draft/validated/active lifecycle with preflight discovery checks, callback-url validation, and explicit error state persisted on the connection instead of discovering breakage only at login time. [INFERENCE from roadmap goal + existing operator-truth patterns] |
 </phase_requirements>
-
-## Project Constraints (from CLAUDE.md)
-
-- Sigra’s blessed path is Phoenix `1.8+` with Ecto `3.x`; Plug compatibility is secondary and should not drive the primary design. [VERIFIED: CLAUDE.md]
-- PostgreSQL is the primary database, and local `mix test` requires a live Postgres on `localhost:5432` with `postgres/postgres`. [VERIFIED: CLAUDE.md]
-- Security-sensitive logic belongs in the library, while generated host code owns customizable UX and routes. [VERIFIED: CLAUDE.md; VERIFIED: lib/sigra/organizations.ex]
-- OWASP-oriented security posture, minimal dependencies, and honest operator-facing behavior are mandatory project norms. [VERIFIED: CLAUDE.md]
-- Do not make direct repo edits outside the GSD workflow unless explicitly asked; this research file is the planning artifact for that workflow. [VERIFIED: CLAUDE.md]
-- No project-local skills were present under `.claude/skills/` or `.agents/skills/` in this workspace. [VERIFIED: filesystem check]
 
 ## Summary
 
-Phase 122 should stay narrow: define a provider-agnostic enterprise connection contract, but only promise an OIDC implementation path in this milestone. Sigra already has a library-owned OAuth/OIDC orchestrator (`Sigra.OAuth`), a generic Assent strategy wrapper, a generated-host organization settings pattern, and an org-scoped routing substrate. Reusing those is the honest path; building a second enterprise-specific auth stack would violate the repo’s current architecture. [VERIFIED: lib/sigra/oauth.ex] [VERIFIED: lib/sigra/oauth/strategies/generic.ex] [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex] [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex]
+Phase 122 should establish a new organization-owned enterprise connection resource plus a thin validation service, not a full login flow. The repo already has the three ingredients this phase needs: a mature organization substrate for ownership and scoping, an OAuth/OIDC integration layer built around Assent, and generated-host/admin/operator patterns for exposing truthful settings surfaces. What it lacks is a first-class per-organization enterprise connection model and the activation semantics that distinguish "saved configuration" from "validated and usable". [VERIFIED: `lib/sigra/organizations.ex`, `lib/sigra/oauth.ex`, `lib/sigra/oauth/strategies.ex`, `lib/mix/tasks/sigra.gen.oauth.ex`]
 
-The key planning requirement is to separate “configured” from “active”. Assent’s OIDC strategy can fetch OpenID configuration dynamically, adds `openid` scope automatically, supports nonce/session-bound state, and validates ID tokens against OIDC Core rules. That means Sigra can validate discovery and client configuration before activation instead of waiting for a failing callback. Phase 122 should therefore introduce an organization-bound connection record with explicit status, a library validation routine that exercises discovery and client configuration honestly, and generated-host UI that surfaces “draft / invalid / active” truth directly to org admins. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] [CITED: https://openid.net/specs/openid-connect-discovery-1_0.html] [CITED: https://openid.net/specs/openid-connect-core-1_0.html]
+The key design decision is to model enterprise SSO as an organization-scoped connection with explicit lifecycle state, not as another entry inside the existing global `oauth[:providers]` keyword config. The current OAuth configuration is compile-time-ish host config for generic social providers; it does not fit dynamic per-organization connections, validation outcomes, or future enterprise protocol expansion. [VERIFIED: `lib/sigra/config.ex`, `lib/sigra/oauth.ex`, `guides/flows/oauth.md`]
 
-**Primary recommendation:** Use a library-owned `enterprise connection` model per organization, validated through Assent OIDC before activation, and surface it through the existing generated-host organization settings pattern rather than inventing a new admin/control-plane surface. [VERIFIED: repo grep] [ASSUMED]
+The safest bounded contract for this phase is:
+
+1. persist enterprise connection records per organization with enough fields to support OIDC now and future protocols later,
+2. add a validation path that performs issuer/discovery/client-setting checks before activation,
+3. expose truthful operator states such as `draft`, `validation_failed`, and `active`, and
+4. keep later routing/JIT/enforcement concerns out of scope. [INFERENCE from roadmap phase boundaries]
+
+**Primary recommendation:** split Phase 122 into two plans. Plan 01 should add the domain model, migrations, validation service, and tests for discovery/config semantics. Plan 02 should add the generated-host/admin/operator surface and documentation/tests that make invalid-vs-active truth legible. That keeps the public contract stable while separating persistence/validation risk from UI/operator-surface risk. [INFERENCE from repo structure and similar phase patterns]
 
 ## Architectural Responsibility Map
 
 | Capability | Primary Tier | Secondary Tier | Rationale |
 |------------|-------------|----------------|-----------|
-| Org admin configuration surface | Frontend Server | API / Backend | Existing organization settings are generated LiveView/controller code owned by the host app, while security-critical writes delegate to library modules. [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex] [VERIFIED: lib/sigra/organizations.ex] |
-| Enterprise connection validation and activation | API / Backend | Database / Storage | Discovery fetches, client-setting validation, and activation truth are security-critical and should follow the same library-owned pattern as OAuth and organizations. [VERIFIED: lib/sigra/oauth.ex] [VERIFIED: lib/sigra/organizations.ex] |
-| OIDC discovery metadata fetch and token rules | API / Backend | CDN / Static | Assent performs OIDC protocol work server-side and validates ID tokens per OIDC rules. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
-| Org-bound connection persistence | Database / Storage | API / Backend | Phase 122 needs durable per-organization connection state; Sigra already persists organization and identity/auth state in Ecto/Postgres-backed schemas. [VERIFIED: mix.exs] [VERIFIED: .planning/PROJECT.md] |
-| Public/generated-host contract stability for future protocols | API / Backend | Frontend Server | The library should own the contract shape, while generated-host forms render whatever fields the contract exposes. [VERIFIED: lib/sigra/config.ex] [ASSUMED] |
+| Enterprise connection persistence and org ownership | library context + host schemas | generated host wrappers | Security-critical org scoping belongs in Sigra's library-first context pattern, consistent with organizations and auth. [VERIFIED: `lib/sigra/organizations.ex`] |
+| OIDC discovery and client validation | library service around Assent/Req | generated-host form UX | Validation must be reusable and authoritative; UI should display results, not invent them. [VERIFIED: `test/sigra/oauth/assent_oidc_contract_test.exs`, `test/example/AGENTS.md`] |
+| Operator-facing configuration workflow | generated-host/admin LiveView or controller surface | library context APIs | Generated-host owns UX; Sigra core owns correctness and truth. [VERIFIED: `.planning/MILESTONE-ARC.md`, `lib/sigra/admin/live/organization_live.ex`] |
+| Activation truth state | persisted connection status + validation metadata | audit/docs/operator copy | Active must mean "preflight validated", not merely "saved". [INFERENCE from requirement SSO-02] |
+| Future protocol expansion seam | protocol-neutral connection envelope | OIDC-specific settings/details | Prevents Phase 122 from hard-coding an operator model that would block SAML later. [VERIFIED: roadmap success criterion 3] |
+
+## Project Constraints
+
+- Do not widen into routing, IdP discovery from user email, JIT provisioning, or SSO-only enforcement. Those belong to Phases 123-125. [VERIFIED: `.planning/ROADMAP.md`]
+- Do not treat existing global OAuth provider config as the enterprise storage layer. It lacks per-organization scope and truthful activation state. [VERIFIED: `lib/sigra/config.ex`, `lib/sigra/oauth.ex`]
+- Keep the persisted contract provider-agnostic at the top level. OIDC-specific fields can live under a protocol/type-specific configuration map or embedded schema, but the operator model must not require a future rewrite for SAML. [INFERENCE from roadmap success criterion 3]
+- Avoid secrets leakage in audit metadata and operator diagnostics. Existing audit policy already treats tokens and secrets as sensitive and that must extend to enterprise client credentials. [VERIFIED: `lib/sigra/audit/changeset.ex`, `lib/sigra/oauth.ex`]
 
 ## Standard Stack
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| `assent` | Repo constraint `~> 0.3`, locked `0.3.1`, latest release `0.3.1` on 2025-06-20. [VERIFIED: mix hex.info assent] | OIDC discovery, authorize/callback flow, ID token validation, userinfo fetch. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] | Sigra already depends on Assent optionally, ships a generic Assent wrapper, and has an explicit contract test for `Assent.Strategy.OIDC`. [VERIFIED: mix.exs] [VERIFIED: lib/sigra/oauth/strategies/generic.ex] [VERIFIED: test/sigra/oauth/assent_oidc_contract_test.exs] |
-| `phoenix` | Repo constraint `~> 1.8`, locked `1.8.5`, latest release `1.8.7` on 2026-05-06. [VERIFIED: mix hex.info phoenix] | Generated-host controller/LiveView/operator surface. [VERIFIED: mix.exs] | Existing org settings, routing, and generated-host patterns are Phoenix-owned already. [VERIFIED: repo grep] |
-| `phoenix_live_view` | Repo constraint `~> 1.1`, locked `1.1.28`, latest stable release `1.1.30` on 2026-05-05. [VERIFIED: mix hex.info phoenix_live_view] | Org admin settings UX for configuration and truth display. [VERIFIED: mix.exs] | Existing organization settings surface is LiveView-based, so Phase 122 can extend the current operator model instead of adding a new UI system. [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex] |
-| `ecto` | Repo constraint `~> 3.12`, locked `3.13.5`, latest release `3.14.0` on 2026-05-19. [VERIFIED: mix hex.info ecto] | Persistence for org-bound connection records and validation state. [VERIFIED: mix.exs] | Sigra’s auth, org, identity, and audit state are already Ecto-backed. [VERIFIED: mix.exs] [VERIFIED: .planning/PROJECT.md] |
-| `nimble_options` | Repo constraint `~> 1.1`, locked `1.1.1`, latest release `1.1.1` on 2024-05-25. [VERIFIED: mix hex.info nimble_options] | Library-owned option schemas and config validation. [VERIFIED: mix.exs] | Sigra already uses NimbleOptions for complex config surfaces like organizations, so enterprise connection validation should reuse the same pattern. [VERIFIED: lib/sigra/organizations.ex] |
+| Library / Tool | Version / Source | Purpose | Why Standard |
+|----------------|------------------|---------|--------------|
+| Ecto schemas + migrations | repo-local | Persist organization-bound enterprise connection records and validation state | All existing auth/org state is modeled this way. [VERIFIED: `lib/sigra/organizations.ex`, existing org migrations under `test/example/priv/repo/migrations/`] |
+| Sigra context modules | repo-local | Own enterprise connection CRUD, scoping, and activation rules | Security-critical logic lives in library contexts, not generated host glue. [VERIFIED: `lib/sigra/organizations.ex`] |
+| Assent OIDC | official HexDocs | Discovery-driven OIDC authorize/callback semantics and token/userinfo handling | Assent already exposes `Assent.Strategy.OIDC.authorize_url/1`, `callback/3`, discovery config, and ID-token validation. [VERIFIED: `test/sigra/oauth/assent_oidc_contract_test.exs`, https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
+| Req | project guideline | Fetch discovery documents and JWKS/userinfo preflight data where Sigra performs validation | Project guidance prefers `Req` for HTTP. [VERIFIED: `test/example/AGENTS.md`] |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| Existing `Sigra.OAuth.Strategies.Generic` | Repo-local module. [VERIFIED: lib/sigra/oauth/strategies/generic.ex] | Generic wrapper for arbitrary Assent strategies. [VERIFIED: lib/sigra/oauth/strategies/generic.ex] | Use it as the reuse seam for enterprise OIDC strategy wiring instead of adding a second orchestration layer. [VERIFIED: lib/sigra/oauth/strategies/generic.ex] [ASSUMED] |
-| Existing `Sigra.Plug.LoadOrganizationFromSlug` | Repo-local module. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex] | URL-scoped organization resolution and session-pointer refresh. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex] | Use it as the routing precedent for later org-aware enterprise entry work, and keep Phase 122’s contract compatible with slug-scoped routing. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex] |
-| Existing generated `OrganizationSettingsLive` pattern | Repo-local template/proof surface. [VERIFIED: priv/templates/sigra.install/organizations/live/organization_settings_live.ex] | Operator-facing org settings UX with thin handlers delegating to library calls. [VERIFIED: priv/templates/sigra.install/organizations/live/organization_settings_live.ex] | Use it as the generated-host surface for configuring enterprise connections. [VERIFIED: repo grep] [ASSUMED] |
-
-### Alternatives Considered
-
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Assent OIDC | Custom OIDC discovery/JWKS/ID-token code | Do not hand-roll discovery, JWKS fetch, or ID token validation when Assent already owns those responsibilities. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
-| Existing org settings surface | New global admin/control-plane UI | A new global control plane contradicts the milestone’s generated-host/operator-surface goal and existing org-scoped UX model. [VERIFIED: .planning/ROADMAP.md] [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex] |
-| Provider-agnostic connection contract with OIDC discriminator | OIDC-specific public contract | OIDC-only naming would force a different operator model when SAML arrives later; a protocol discriminator keeps the contract stable. [VERIFIED: .planning/ROADMAP.md] [ASSUMED] |
-
-**Installation:** Existing dependencies already cover the Phase 122 stack, so no new package is required for research-backed planning. [VERIFIED: mix.exs]
-
-```bash
-mix deps.get
-```
-
-**Version verification:** Versions above were verified with `mix hex.info assent`, `mix hex.info phoenix`, `mix hex.info phoenix_live_view`, `mix hex.info ecto`, and `mix hex.info nimble_options` on 2026-05-25. [VERIFIED: local commands]
+| Library / Tool | Purpose | When to Use |
+|----------------|---------|-------------|
+| NimbleOptions-backed config/schema patterns | Validate operator-entered settings and config envelopes | Reuse for normalized OIDC settings and lifecycle enums where possible. [VERIFIED: `lib/sigra/config.ex`] |
+| Existing OAuth strategy wrappers | Pattern source for provider abstraction and normalized user data | Useful for later routing/login phases and for understanding how OIDC-specific options should flow through Sigra. [VERIFIED: `lib/sigra/oauth/strategies.ex`, `lib/sigra/oauth/strategies/generic.ex`] |
+| LiveView/generated-host form patterns | Truthful operator UI and validation feedback | Reuse existing generated-host conventions for forms, flash, and scoped pages. [VERIFIED: `priv/templates/sigra.gen.oauth/`, `test/sigra/oauth/oauth_settings_template_contract_test.exs`] |
 
 ## Architecture Patterns
 
-### System Architecture Diagram
+### Pattern 1: Library-First Org-Scoped Substrate
 
-```text
-Org admin
-  |
-  v
-Generated host org settings (LiveView/controller)
-  |
-  v
-Library command: create/update enterprise connection
-  |
-  +--> NimbleOptions / changeset validation
-  |       |
-  |       +--> reject missing issuer/client settings
-  |
-  +--> Assent OIDC validation probe
-  |       |
-  |       +--> fetch OpenID configuration
-  |       +--> verify issuer/discovery endpoints
-  |       +--> verify client auth mode prerequisites
-  |
-  +--> Persist org-bound connection + status
-          |
-          +--> `draft` / `invalid` / `active` status [ASSUMED]
-          +--> operator-visible diagnostics
-```
+**What:** Put enterprise connection invariants in a Sigra context and host-owned schema modules, then expose thin generated-host wrappers/views around them. [VERIFIED: `lib/sigra/organizations.ex`]
 
-The critical design rule is that protocol validation happens before activation, not only during a callback failure path. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]
+**When to use:** Any feature that binds identity/security state to organizations and must survive generated-host regeneration or UX customization. [VERIFIED: org architecture docs in code]
 
-### Recommended Project Structure
+**Why it fits here:** Enterprise connections affect authentication correctness and cross-phase routing/JIT logic. They need a durable core contract now so later phases can compose on top without moving business rules back out of the host surface. [INFERENCE from roadmap sequence]
 
-```text
-lib/
-├── sigra/enterprise/                 # Library-owned enterprise connection contract + validation [ASSUMED]
-├── sigra/enterprise/oidc/            # OIDC-specific validation helpers over Assent [ASSUMED]
-└── mix/tasks/ or install/features/   # Generator/install wiring for host surface updates [VERIFIED: repo grep]
+### Pattern 2: Saved Draft vs Validated Active State
 
-priv/templates/sigra.install/
-└── organizations/                    # Generated host org settings additions [VERIFIED: repo grep] [ASSUMED]
+**What:** Distinguish persisted configuration from activated configuration with explicit status fields and last-validation metadata.
 
-test/
-├── sigra/enterprise/                 # Contract + validation tests to add in Wave 0 [ASSUMED]
-└── sigra/install/                    # Generator/template contract tests for new UI/output [VERIFIED: repo grep] [ASSUMED]
-```
+**Recommended states:**
+- `draft` — incomplete or unvalidated
+- `validation_failed` — most recent preflight failed; not usable
+- `active` — discovery and required client settings validated
+- `disabled` — intentionally turned off while preserving config/history
 
-### Pattern 1: Library Owns Validation, Host Owns Forms
+**When to use:** Operator-entered external integrations where callback-time failure would otherwise be the first truth signal.
 
-**What:** Put OIDC discovery/client validation in library code, and keep the generated-host settings UI as a thin wrapper. [VERIFIED: lib/sigra/organizations.ex] [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex]  
-**When to use:** For any enterprise connection create/update/activate action. [ASSUMED]  
-**Example:**
+**Why it fits here:** Requirement `SSO-02` is explicitly about refusing to activate unusable configs. A boolean `enabled` flag is too weak unless it is backed by a validation transition. [INFERENCE from requirements]
 
-```elixir
-# Source: repo pattern from Sigra.Organizations + generated OrganizationSettingsLive
-def handle_event("save_enterprise_connection", %{"enterprise_connection" => params}, socket) do
-  case Organizations.update_enterprise_connection(socket.assigns.current_scope, params) do
-    {:ok, connection} -> {:noreply, assign(socket, :connection, connection)}
-    {:error, changeset} -> {:noreply, assign(socket, :form, to_form(changeset))}
-  end
-end
-```
+### Pattern 3: Protocol-Neutral Connection Envelope with OIDC-Specific Detail
 
-### Pattern 2: Strategy Indirection Through Assent, Not Provider-Specific Branch Explosion
+**What:** Model a top-level connection with neutral fields such as `organization_id`, `provider_type`, `status`, `display_name`, `domains`, and validation timestamps, while keeping OIDC-specific settings in a typed embedded schema or validated map.
 
-**What:** Keep provider-specific protocol mechanics behind Assent strategies and Sigra wrappers. [VERIFIED: lib/sigra/oauth/strategies/generic.ex] [CITED: https://hexdocs.pm/assent/Assent.Strategy.html]  
-**When to use:** For enterprise OIDC issuer wiring and later protocol expansion. [ASSUMED]  
-**Example:**
+**When to use:** When the roadmap already signals likely future protocol expansion but current delivery is intentionally narrower.
 
-```elixir
-# Source: lib/sigra/oauth/strategies/generic.ex
-{strategy, config} = resolve_strategy(provider_config)
-strategy.authorize_url(config)
-```
+**Why it fits here:** Phase 122 must stay OIDC-first without trapping future SAML work behind a second operator surface. [VERIFIED: `.planning/MILESTONE-ARC.md`, `.planning/ROADMAP.md`]
 
-### Pattern 3: Org Scope Is a First-Class Routing Input
+### Pattern 4: Preflight Discovery Validation Before Activation
 
-**What:** Enterprise connections must be keyed to an organization and later resolved through org-aware routing, not global provider config. [VERIFIED: .planning/REQUIREMENTS.md] [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex]  
-**When to use:** For persistence keys, generated-host routes, and future callback correlation. [ASSUMED]  
-**Example:**
+**What:** Validate issuer/discovery URL, required endpoints, client authentication method compatibility, redirect URI, and basic claim expectations before flipping the connection to `active`.
 
-```elixir
-# Source: lib/sigra/plug/load_organization_from_slug.ex
-with org when not is_nil(org) <- Organizations.get_organization_by_slug(config, slug),
-     membership when not is_nil(membership) <- Organizations.get_membership(config, scope.user, org) do
-  {:ok, org, membership}
-end
-```
+**Likely checks for OIDC now:**
+- issuer/base URL present and well-formed
+- discovery document fetch succeeds
+- authorization/token/JWKS endpoints are discoverable
+- client authentication method is one Sigra supports now
+- redirect URI matches the generated-host callback route Sigra will use later
+- configured scopes include `openid`
 
-### Anti-Patterns to Avoid
+**Why it fits here:** Assent OIDC already depends on issuer/discovery data and session params such as `state`, `code_verifier`, and `nonce`. Failing these early is safer than treating callback-time explosions as operator validation. [VERIFIED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]
 
-- **Activation boolean with no validation state:** A plain `enabled: true` flag would let Sigra claim a connection is active before discovery/client settings are proven usable. [VERIFIED: .planning/REQUIREMENTS.md] [ASSUMED]
-- **Global `config.oauth.providers` reuse for enterprise org state:** Current OAuth config is app-global and keyed by provider atom, not organization-bound. [VERIFIED: lib/sigra/config.ex]
-- **Callback-only truth:** Waiting for the first operator-reported callback failure violates `SSO-02`. [VERIFIED: .planning/REQUIREMENTS.md]
-- **Protocol-specific public contract names:** Naming the model around OIDC only would undermine future SAML expansion without a public contract reshaping. [VERIFIED: .planning/ROADMAP.md] [ASSUMED]
+## Recommended Domain Shape
 
-## Don't Hand-Roll
+### New bounded subsystem
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| OIDC discovery fetching | Custom `/.well-known` fetch/parser | `Assent.Strategy.OIDC` | Assent already supports dynamic OpenID configuration fetching. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
-| ID token validation / JWKS verification | Homegrown JWT/JWKS validation | `Assent.Strategy.OIDC.validate_id_token/2` path | Assent validates ID tokens per OIDC Core and can use `jwks_uri` for public-key verification. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
-| Option-schema validation | Ad hoc keyword parsing | `NimbleOptions` | Sigra already uses NimbleOptions for library config surfaces. [VERIFIED: lib/sigra/organizations.ex] |
-| Org-scoped route resolution | New parallel tenant-routing logic | Existing org slug/scope patterns | `LoadOrganizationFromSlug` already defines org-scoped URL truth and membership-safe 404 behavior. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex] |
-| Operator config UI scaffolding | Separate enterprise dashboard | Generated org settings surface | Existing organization settings prove Sigra’s generated-host operator model. [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex] |
+- `Sigra.EnterpriseConnections` context or similar library-owned module
+- host-owned schema(s) generated by a new install/generator seam or manual integration path
+- one primary `enterprise_connections` table scoped by `organization_id`
 
-**Key insight:** Phase 122 is not blocked by missing protocol machinery; it is blocked by missing contract and activation truth. The plan should spend effort on model/state/UX truth, not on replacing Assent or Phoenix patterns already in the repo. [VERIFIED: mix.exs] [VERIFIED: repo grep]
+### Likely persisted fields
+
+- `organization_id`
+- `slug` or stable internal key
+- `protocol` or `provider_type` (`:oidc` now; future-safe for `:saml`)
+- `status` (`draft`, `validation_failed`, `active`, `disabled`)
+- `display_name`
+- `issuer` / `base_url`
+- `client_id`
+- encrypted `client_secret`
+- optional `discovery_document_uri` override
+- `client_authentication_method`
+- `scopes`
+- `email_domains` or verified routing hints placeholder
+- `last_validated_at`
+- `last_validation_error`
+- timestamps/audit metadata
+
+**Important:** `email_domains` can exist as a future routing seam but Phase 122 should not ship domain-based login resolution yet; it is just part of the connection contract for Phase 123 to consume. [INFERENCE from roadmap dependency]
+
+## Anti-Patterns to Avoid
+
+- **Reusing global `oauth[:providers]` config as enterprise storage:** that config is host-global and not suitable for organization-owned state or activation truth. [VERIFIED: `lib/sigra/config.ex`]
+- **Single `enabled` boolean without validation lifecycle:** this makes it easy to overclaim unusable connections as active. [INFERENCE from `SSO-02`]
+- **Overfitting the schema to OIDC-only naming at the top level:** later SAML support would force either a breaking rename or a second control plane. [VERIFIED: roadmap success criterion 3]
+- **Deferring all validation to first login attempt:** operators then have to reverse-engineer callback failures, which is exactly what `SSO-02` forbids. [VERIFIED: `.planning/REQUIREMENTS.md`]
+- **Logging client secrets or token-shaped values in audit/events:** existing Sigra audit policy already forbids this class of leakage. [VERIFIED: `lib/sigra/audit/changeset.ex`, `lib/sigra/oauth.ex`]
 
 ## Common Pitfalls
 
-### Pitfall 1: Treating “saved” as “active”
+### Pitfall 1: Conflating "saved" with "usable"
 
-**What goes wrong:** Operators save issuer/client settings and the UI marks the connection as live even though discovery, issuer metadata, or client authentication settings are invalid. [VERIFIED: .planning/REQUIREMENTS.md] [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]  
-**Why it happens:** Current Sigra OAuth config is declarative app config, so there is no built-in per-org activation truth yet. [VERIFIED: lib/sigra/config.ex]  
-**How to avoid:** Persist an explicit validation/activation state and require a successful validation probe before moving to `active`. [ASSUMED]  
-**Warning signs:** The only way to learn config is bad is an end-user callback failure. [VERIFIED: .planning/REQUIREMENTS.md]
+**What goes wrong:** The operator saves issuer/client values and the UI marks the connection enabled even though discovery or redirect constraints are wrong.
 
-### Pitfall 2: Smuggling enterprise state into global OAuth config
+**How to avoid:** Treat save and activate as separate transitions or make activation contingent on successful validation in the same transaction. Persist the validation result and surface the last failure reason clearly. [INFERENCE from requirement SSO-02]
 
-**What goes wrong:** Per-organization enterprise settings get forced into `config.oauth.providers`, which is app-global and provider-atom keyed. [VERIFIED: lib/sigra/config.ex]  
-**Why it happens:** The existing OAuth surface is already there and looks superficially reusable. [VERIFIED: lib/sigra/config.ex]  
-**How to avoid:** Create a dedicated org-bound connection model and keep `config.oauth.providers` for app-global social/provider config only. [ASSUMED]  
-**Warning signs:** Designs that talk about `providers: [okta: ...]` without an `organization_id`. [VERIFIED: lib/sigra/config.ex] [ASSUMED]
+### Pitfall 2: Baking login-routing decisions into the Phase 122 model
 
-### Pitfall 3: Losing org context between setup and future routing
+**What goes wrong:** The phase expands into domain discovery heuristics, org chooser UX, or callback routing before the base contract is stable.
 
-**What goes wrong:** The connection is saved, but its contract does not preserve enough org/routing metadata for later slug-based entry and callback correlation. [VERIFIED: .planning/ROADMAP.md] [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex]  
-**Why it happens:** Phase 122 can be scoped too narrowly around forms and secrets, ignoring Phase 123’s routing dependency. [VERIFIED: .planning/ROADMAP.md]  
-**How to avoid:** Include organization foreign key, protocol discriminator, and routing-relevant metadata in the contract now. [ASSUMED]  
-**Warning signs:** Any proposed model that can only be looked up by provider name. [ASSUMED]
+**How to avoid:** Keep Phase 122 focused on the persisted connection shape and validation APIs. Domain resolution and org-aware entry belong to Phase 123. [VERIFIED: `.planning/ROADMAP.md`]
 
-### Pitfall 4: Overpromising future protocols in current UX copy
+### Pitfall 3: Depending on compile-time config for per-org credentials
 
-**What goes wrong:** The public/generated-host surface says “enterprise SSO” generically while only OIDC has validated implementation semantics in the repo. [VERIFIED: .planning/research/SUMMARY.md] [VERIFIED: test/sigra/oauth/assent_oidc_contract_test.exs]  
-**Why it happens:** Milestone language is broader than the current proven substrate. [VERIFIED: .planning/MILESTONE-ARC.md]  
-**How to avoid:** Name the Phase 122 implementation “enterprise OIDC connection” while keeping the underlying data contract protocol-agnostic. [VERIFIED: .planning/ROADMAP.md] [ASSUMED]  
-**Warning signs:** Docs or field names that hardcode “SAML/OIDC” without a real discriminator or implementation. [ASSUMED]
+**What goes wrong:** Enterprise customers cannot manage their own connection state without redeploy/reconfigure cycles, and generated-host operator surfaces become fake.
 
-### Pitfall 5: Support-hostile error surfaces
+**How to avoid:** Store per-organization connection credentials/state in DB-backed schemas with encrypted secret handling, then have runtime logic read that substrate. [INFERENCE from enterprise requirement shape]
 
-**What goes wrong:** Operators only see a generic failure, with no distinction between bad issuer URL, discovery fetch failure, missing client secret, unsupported client auth method, or claim mismatch. [VERIFIED: .planning/REQUIREMENTS.md] [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]  
-**Why it happens:** Raw protocol errors are not normalized into operator-facing states. [ASSUMED]  
-**How to avoid:** Normalize validation errors into a bounded diagnostic taxonomy and persist/display the latest result. [ASSUMED]  
-**Warning signs:** Flash copy that says only “SSO failed” or “Callback failed”. [ASSUMED]
+### Pitfall 4: Narrowing the contract to one IdP's quirks
 
-## Code Examples
+**What goes wrong:** The model ends up looking like "Okta config" rather than a generic OIDC enterprise connection.
 
-Verified patterns from official sources:
-
-### OIDC Strategy Configuration
-
-```elixir
-# Source: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html
-config = [
-  client_id: System.fetch_env!("OIDC_CLIENT_ID"),
-  client_secret: System.fetch_env!("OIDC_CLIENT_SECRET"),
-  base_url: "https://issuer.example.com",
-  redirect_uri: "https://app.example.com/auth/enterprise/callback"
-]
-```
-
-This is the verified minimum shape Assent expects for OIDC discovery-backed operation. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]
-
-### Generic Strategy Delegation
-
-```elixir
-# Source: lib/sigra/oauth/strategies/generic.ex
-def authorize_url(provider_config) do
-  ensure_assent!()
-  {strategy, config} = resolve_strategy(provider_config)
-  strategy.authorize_url(config)
-end
-```
-
-This is the existing Sigra pattern for strategy indirection and is the cleanest reuse seam for enterprise OIDC strategy wiring. [VERIFIED: lib/sigra/oauth/strategies/generic.ex]
-
-### Org-Scoped Route Resolution
-
-```elixir
-# Source: lib/sigra/plug/load_organization_from_slug.ex
-case resolve(config, scope, slug) do
-  {:ok, org, membership} -> assign_scope(conn, org, membership, opts)
-  {:redirect, new_slug} -> redirect_to_canonical(conn, slug, new_slug)
-  :not_found -> halt_not_found(conn, error_handler, opts)
-end
-```
-
-This is the verified routing pattern that future enterprise entry flows must remain compatible with. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex]
-
-## State of the Art
-
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| App-global social OAuth provider config | Org-bound enterprise connection records with explicit status [ASSUMED] | Phase 122 target state for 2026-05-25 planning. [VERIFIED: roadmap.get-phase 122] | Prevents pretending that enterprise SSO is just another app-global social provider toggle. [VERIFIED: lib/sigra/config.ex] [ASSUMED] |
-| “Discover truth at callback time” | Pre-activation discovery and client validation | Assent `OIDC` already supports discovery fetch and ID token validation in v0.3.1. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] | Lets Sigra satisfy `SSO-02` honestly. [VERIFIED: .planning/REQUIREMENTS.md] |
-| OIDC-specific host language | Provider-agnostic contract with protocol discriminator [ASSUMED] | Required by Phase 122 success criterion 3. [VERIFIED: roadmap.get-phase 122] | Keeps the operator model stable if SAML arrives later. [ASSUMED] |
-
-**Deprecated/outdated:**
-
-- Treating enterprise setup as a future docs problem is outdated for this milestone because `SSO-02` explicitly requires operator-visible setup truth in the product surface. [VERIFIED: .planning/REQUIREMENTS.md]
-
-## Assumptions Log
-
-| # | Claim | Section | Risk if Wrong |
-|---|-------|---------|---------------|
-| A1 | The generated host should extend `OrganizationSettingsLive` rather than add a separate enterprise admin surface. | Summary, Standard Stack, Architecture Patterns | Planner may assign UI work to the wrong surface and create avoidable operator-model churn. |
-| A2 | The connection model should expose at least `draft / invalid / active` style states. | Summary, Architecture Patterns, Common Pitfalls | Planner may under-spec activation truth and leave `SSO-02` partially unmet. |
-| A3 | A protocol discriminator should exist in the public contract even if only OIDC is implemented now. | Standard Stack, State of the Art | Planner may choose an OIDC-only schema that forces a breaking model change for SAML. |
-| A4 | A dedicated `lib/sigra/enterprise/` namespace is the best implementation home. | Recommended Project Structure | Planner may lay work into awkward existing modules and reduce cohesion. |
-
-## Open Questions
-
-1. **Should client secrets and cached discovery metadata both be stored, or only client secrets?**
-   - What we know: Sigra already uses `cloak_ecto` for sensitive auth data at rest. [VERIFIED: mix.exs] [VERIFIED: guides/flows/oauth.md]
-   - What's unclear: Whether Phase 122 should persist discovery snapshots for diagnostics or fetch them on demand only. [ASSUMED]
-   - Recommendation: Plan for encrypted client-secret storage in Phase 122 and treat discovery-metadata persistence as optional unless diagnostics UX clearly requires it. [ASSUMED]
-
-2. **Should validation run synchronously on every save or as an explicit “Validate / Activate” action?**
-   - What we know: `SSO-02` requires truthful activation failure, not silent acceptance. [VERIFIED: .planning/REQUIREMENTS.md]
-   - What's unclear: Whether a synchronous validation-on-save experience will be acceptable for remote discovery timeouts. [ASSUMED]
-   - Recommendation: Separate save from activate in the contract, and allow “validate now” before “activate” so draft edits do not pretend to be live. [ASSUMED]
-
-3. **What minimum routing metadata must Phase 122 persist for Phase 123?**
-   - What we know: Phase 123 depends directly on Phase 122 and requires org-aware entry plus verified email-domain discovery. [VERIFIED: .planning/ROADMAP.md]
-   - What's unclear: Whether Phase 122 should already store verified domains, login hints, or only the connection contract. [ASSUMED]
-   - Recommendation: Persist protocol discriminator and an organization foreign key now, and only add domain-routing fields in Phase 122 if they are required to avoid a schema rewrite in Phase 123. [ASSUMED]
-
-## Environment Availability
-
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| Elixir | Library implementation and tests | ✓ [VERIFIED: local command] | `1.19.5` [VERIFIED: local command] | — |
-| Mix | Dependency and test commands | ✓ [VERIFIED: local command] | `1.19.5` [VERIFIED: local command] | — |
-| PostgreSQL server | Local `mix test` for this repo | ✓ [VERIFIED: `pg_isready`] | `14.17` binary installed; `localhost:5432` accepting connections. [VERIFIED: local commands] | Docker is also installed if the local service changes. [VERIFIED: local commands] |
-| Docker | Disposable Postgres fallback and CI parity | ✓ [VERIFIED: local command] | `29.4.1` [VERIFIED: local command] | Existing local Postgres is already live. [VERIFIED: `pg_isready`] |
-| Node.js | Tooling and browser/example lanes in the repo | ✓ [VERIFIED: local command] | `v22.14.0` [VERIFIED: local command] | — |
-
-**Missing dependencies with no fallback:**
-
-- None. [VERIFIED: local commands]
-
-**Missing dependencies with fallback:**
-
-- None. [VERIFIED: local commands]
+**How to avoid:** Normalize on OIDC concepts from Assent and the discovery document instead of provider-brand-specific fields. [VERIFIED: Assent OIDC docs]
 
 ## Validation Architecture
 
@@ -331,91 +187,81 @@ This is the verified routing pattern that future enterprise entry flows must rem
 
 | Property | Value |
 |----------|-------|
-| Framework | ExUnit on repo-root tests. [VERIFIED: test/test_helper.exs] |
-| Config file | [`test/test_helper.exs`](/Users/jon/projects/sigra/test/test_helper.exs:1) [VERIFIED: test/test_helper.exs] |
-| Quick run command | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/enterprise/connection_config_test.exs -x` [ASSUMED] |
-| Full suite command | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test` [VERIFIED: CLAUDE.md] |
+| Framework | ExUnit with schema/context/config contract tests and generated-host surface tests. [VERIFIED: repo test patterns] |
+| Config file | `test/test_helper.exs` and `test/example/test/test_helper.exs`. [VERIFIED: codebase] |
+| Quick run command | `mix test test/sigra/oauth/assent_oidc_contract_test.exs test/sigra/oauth/config_test.exs test/sigra/oauth/strategies_test.exs` |
+| Full suite command | `mix test test/sigra/oauth/assent_oidc_contract_test.exs test/sigra/oauth/config_test.exs test/sigra/oauth/strategies_test.exs test/sigra/organizations/context_test.exs test/sigra/organizations/schema_test.exs test/sigra/admin/live/organization_live_test.exs` |
 
-CI also runs `mix docs --warnings-as-errors` after library tests, so any planner should keep docs-build cleanliness in the phase gate. [VERIFIED: .github/workflows/ci.yml]
-
-### Phase Requirements → Test Map
+### Phase Requirements -> Test Map
 
 | Req ID | Behavior | Test Type | Automated Command | File Exists? |
 |--------|----------|-----------|-------------------|-------------|
-| SSO-01 | Org admin can save valid enterprise OIDC settings and see truthful validation output. [VERIFIED: .planning/REQUIREMENTS.md] | unit + integration | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/enterprise/connection_config_test.exs -x` [ASSUMED] | ❌ Wave 0 |
-| SSO-02 | Activation rejects unusable connections and classifies discovery/client-setting failures honestly. [VERIFIED: .planning/REQUIREMENTS.md] | integration | `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/enterprise/activation_test.exs -x` [ASSUMED] | ❌ Wave 0 |
+| SSO-01 | Enterprise connection schema/context enforces organization ownership, required OIDC settings, and normalized status transitions. | ExUnit context/schema | `mix test test/sigra/enterprise_connections/context_test.exs test/sigra/enterprise_connections/schema_test.exs` | ❌ Wave 0 |
+| SSO-01 | Discovery/config validation accepts minimally valid OIDC inputs and rejects malformed issuer/client data. | ExUnit service/contract | `mix test test/sigra/enterprise_connections/validation_test.exs` | ❌ Wave 0 |
+| SSO-02 | Activation cannot succeed when discovery, endpoints, redirect shape, or required client settings are invalid. | ExUnit integration/context | `mix test test/sigra/enterprise_connections/activation_test.exs` | ❌ Wave 0 |
+| SSO-02 | Generated-host/admin surface exposes truthful draft/failed/active states and does not claim invalid configs are active. | LiveView/controller/template | `mix test test/sigra/admin/live/enterprise_connection_live_test.exs` | ❌ Wave 0 |
 
 ### Sampling Rate
 
-- **Per task commit:** `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test test/sigra/enterprise/connection_config_test.exs test/sigra/enterprise/activation_test.exs` [ASSUMED]
-- **Per wave merge:** `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test` [VERIFIED: CLAUDE.md]
-- **Phase gate:** Full suite green, plus docs build still clean in CI. [VERIFIED: .github/workflows/ci.yml]
+- **After every task commit:** run the smallest plan-local ExUnit command for the touched subsystem.
+- **After the schema/service plan:** run all `test/sigra/enterprise_connections/*` tests plus existing OIDC contract tests.
+- **After the operator-surface plan:** run the full suite command plus any new generated-host/admin surface tests.
+- **Before `$gsd-verify-work`:** all new enterprise-connection tests and the existing OIDC contract tests must pass.
 
 ### Wave 0 Gaps
 
-- [ ] `test/sigra/enterprise/connection_config_test.exs` — covers org-bound contract validation for `SSO-01`. [ASSUMED]
-- [ ] `test/sigra/enterprise/activation_test.exs` — covers validation/activation failure truth for `SSO-02`. [ASSUMED]
-- [ ] `test/sigra/install/enterprise_connection_template_test.exs` — covers generated-host surface emission. [ASSUMED]
-- [ ] Discovery/client-setting fixtures or a minimal fake issuer harness — needed to test invalid discovery paths deterministically. [ASSUMED]
+- `test/sigra/enterprise_connections/schema_test.exs` - schema/state transition contract
+- `test/sigra/enterprise_connections/context_test.exs` - org-scoped CRUD/authorization contract
+- `test/sigra/enterprise_connections/validation_test.exs` - discovery/client validation behavior
+- `test/sigra/enterprise_connections/activation_test.exs` - invalid configs cannot activate
+- `test/sigra/admin/live/enterprise_connection_live_test.exs` or equivalent generated-host test surface
 
-## Security Domain
+## Suggested Plan Split
 
-### Applicable ASVS Categories
+### Plan 01 - Domain model, validation service, and proof substrate
 
-| ASVS Category | Applies | Standard Control |
-|---------------|---------|-----------------|
-| V2 Authentication | yes [VERIFIED: .planning/REQUIREMENTS.md] | Reuse Assent OIDC protocol validation and Sigra’s existing auth/session substrate. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
-| V3 Session Management | no for primary Phase 122 scope; routing/session integration lands mainly in later phases. [VERIFIED: .planning/ROADMAP.md] | Existing session model remains unchanged in this phase. [VERIFIED: .planning/ROADMAP.md] |
-| V4 Access Control | yes [VERIFIED: .planning/REQUIREMENTS.md] | Restrict configuration writes to org-admin/owner surfaces through the existing org-scoped settings model. [VERIFIED: test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex] |
-| V5 Input Validation | yes [VERIFIED: .planning/REQUIREMENTS.md] | Use `NimbleOptions` and/or Ecto changesets for issuer URL, client settings, and status transitions. [VERIFIED: lib/sigra/organizations.ex] [ASSUMED] |
-| V6 Cryptography | yes [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] | Do not hand-roll ID token verification; use Assent and existing encrypted-secret posture. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] [VERIFIED: guides/flows/oauth.md] |
+Focus:
+- new schema(s) and migration
+- org-scoped context API
+- encrypted secret handling
+- validation lifecycle/status contract
+- ExUnit coverage for OIDC discovery and activation refusal
 
-### Known Threat Patterns for this Stack
+### Plan 02 - Generated-host/admin surface and truthful operator UX
 
-| Pattern | STRIDE | Standard Mitigation |
-|---------|--------|---------------------|
-| Invalid or hostile issuer/discovery URL | Spoofing / Tampering | Validate issuer format, require honest validation before activation, and keep operator-visible failure states. [CITED: https://openid.net/specs/openid-connect-discovery-1_0.html] [ASSUMED] |
-| Token substitution between ID token and userinfo | Spoofing | Enforce `sub` equality between ID token and userinfo claims. [CITED: https://openid.net/specs/openid-connect-core-1_0.html] [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html] |
-| Secret leakage in logs/audit rows | Information Disclosure | Follow the existing Sigra rule of never writing tokens/secrets into audit metadata. [VERIFIED: lib/sigra/oauth.ex] |
-| Wrong-org configuration mutation | Elevation of Privilege | Reuse org-scoped settings/routing patterns and require organization-bound persistence keys. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex] [ASSUMED] |
+Focus:
+- organization admin route/page/form
+- validation feedback and status display
+- activation/deactivation flow
+- docs and tests that prove invalid configurations do not masquerade as active
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-- `mix hex.info assent` — current Assent version/release date. [VERIFIED: local command]
-- `mix hex.info phoenix` — current Phoenix version/release date. [VERIFIED: local command]
-- `mix hex.info phoenix_live_view` — current LiveView version/release date. [VERIFIED: local command]
-- `mix hex.info ecto` — current Ecto version/release date. [VERIFIED: local command]
-- `mix hex.info nimble_options` — current NimbleOptions version/release date. [VERIFIED: local command]
-- [https://hexdocs.pm/assent/Assent.Strategy.OIDC.html](https://hexdocs.pm/assent/Assent.Strategy.OIDC.html) — OIDC configuration, discovery fetch, nonce/session params, ID token validation. [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]
-- [https://hexdocs.pm/assent/Assent.Strategy.html](https://hexdocs.pm/assent/Assent.Strategy.html) — Assent strategy behavior and helper responsibilities. [CITED: https://hexdocs.pm/assent/Assent.Strategy.html]
-- [https://openid.net/specs/openid-connect-discovery-1_0.html](https://openid.net/specs/openid-connect-discovery-1_0.html) — discovery endpoint and metadata retrieval rules. [CITED: https://openid.net/specs/openid-connect-discovery-1_0.html]
-- [https://openid.net/specs/openid-connect-core-1_0.html](https://openid.net/specs/openid-connect-core-1_0.html) — ID token and `sub`/userinfo consistency rules. [CITED: https://openid.net/specs/openid-connect-core-1_0.html]
-- [`mix.exs`](/Users/jon/projects/sigra/mix.exs:1) — repo dependency constraints and optional Assent dependency. [VERIFIED: mix.exs]
-- [`lib/sigra/config.ex`](/Users/jon/projects/sigra/lib/sigra/config.ex:591) — current global OAuth config model. [VERIFIED: lib/sigra/config.ex]
-- [`lib/sigra/oauth.ex`](/Users/jon/projects/sigra/lib/sigra/oauth.ex:1) — existing OAuth orchestrator and audit/security posture. [VERIFIED: lib/sigra/oauth.ex]
-- [`lib/sigra/oauth/strategies/generic.ex`](/Users/jon/projects/sigra/lib/sigra/oauth/strategies/generic.ex:1) — strategy indirection seam. [VERIFIED: lib/sigra/oauth/strategies/generic.ex]
-- [`lib/sigra/organizations.ex`](/Users/jon/projects/sigra/lib/sigra/organizations.ex:1) — library-owned config/validation pattern for org features. [VERIFIED: lib/sigra/organizations.ex]
-- [`lib/sigra/plug/load_organization_from_slug.ex`](/Users/jon/projects/sigra/lib/sigra/plug/load_organization_from_slug.ex:1) — org-scoped routing and 404-safe resolution pattern. [VERIFIED: lib/sigra/plug/load_organization_from_slug.ex]
-- [`test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex`](/Users/jon/projects/sigra/test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/organization_settings_live.ex:1) — generated-host organization settings pattern. [VERIFIED: repo fixture]
-- [`test/sigra/oauth/assent_oidc_contract_test.exs`](/Users/jon/projects/sigra/test/sigra/oauth/assent_oidc_contract_test.exs:1) — repo proof that `Assent.Strategy.OIDC` is an intentional substrate. [VERIFIED: repo test]
+- `.planning/ROADMAP.md`
+- `.planning/REQUIREMENTS.md`
+- `.planning/PROJECT.md`
+- `.planning/MILESTONE-ARC.md`
+- `.planning/research/SUMMARY.md`
+- `lib/sigra/config.ex`
+- `lib/sigra/oauth.ex`
+- `lib/sigra/oauth/strategies.ex`
+- `lib/sigra/organizations.ex`
+- `lib/mix/tasks/sigra.gen.oauth.ex`
+- `test/sigra/oauth/assent_oidc_contract_test.exs`
+- `test/sigra/oauth/config_test.exs`
+- `test/sigra/oauth/strategies_test.exs`
+- `test/sigra/oauth/oauth_settings_template_contract_test.exs`
+- `test/example/AGENTS.md`
+- https://hexdocs.pm/assent/Assent.Strategy.OIDC.html
 
 ### Secondary (MEDIUM confidence)
 
-- `.planning/research/SUMMARY.md`, `.planning/research/STACK.md`, `.planning/research/ARCHITECTURE.md`, `.planning/research/PITFALLS.md` — repo-local milestone framing and prior synthesis. [VERIFIED: planning docs]
+- `guides/flows/oauth.md`
+- `lib/sigra/admin/live/organization_live.ex`
+- organization-related tests and generated example files under `test/example/`
 
 ### Tertiary (LOW confidence)
 
-- None. All nontrivial external claims were verified against official docs or local repo state. [VERIFIED: this research pass]
-
-## Metadata
-
-**Confidence breakdown:**
-
-- Standard stack: HIGH - Assent, Phoenix, LiveView, Ecto, and NimbleOptions versions were verified locally and the reuse seams are explicit in the repo. [VERIFIED: local commands] [VERIFIED: repo grep]
-- Architecture: MEDIUM-HIGH - The host-vs-library split is well established in the repo, but exact module names and state enums for Phase 122 are still planning assumptions. [VERIFIED: lib/sigra/organizations.ex] [ASSUMED]
-- Pitfalls: HIGH - The major failure modes are directly implied by `SSO-01`, `SSO-02`, the current global OAuth config model, and OIDC discovery/validation rules. [VERIFIED: .planning/REQUIREMENTS.md] [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]
-
-**Research date:** 2026-05-25  
-**Valid until:** 2026-06-24 for repo structure; re-check package releases and official OIDC/Assent docs after that date. [VERIFIED: local commands] [CITED: https://hexdocs.pm/assent/Assent.Strategy.OIDC.html]
+- None. The phase can be planned primarily from repo-local patterns plus current official Assent OIDC docs.
