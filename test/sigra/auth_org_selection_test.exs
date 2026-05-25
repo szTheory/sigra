@@ -290,6 +290,34 @@ defmodule Sigra.AuthOrgSelectionTest do
 
       assert result.active_organization_id == nil
     end
+
+    test "explicit enterprise active_organization_id wins over selector inference" do
+      session = build_session()
+      explicit_org = build_org(%{slug: "enterprise"})
+      updated = %{session | active_organization_id: explicit_org.id}
+
+      Sigra.MockSessionStore
+      |> expect(:create, fn 1, metadata, _opts ->
+        assert metadata.active_organization_id == explicit_org.id
+        {:ok, session}
+      end)
+      |> expect(:update_active_organization, fn ^session, org_id, _opts ->
+        assert org_id == explicit_org.id
+        {:ok, updated}
+      end)
+
+      user = %TestUser{id: 1}
+
+      assert {:ok, result} =
+               Auth.create_session(
+                 @config_with_orgs,
+                 user,
+                 %{type: :standard, active_organization_id: explicit_org.id},
+                 previous_active_organization_id: Ecto.UUID.generate()
+               )
+
+      assert result.active_organization_id == explicit_org.id
+    end
   end
 
   describe "create_session/4 — fail-open on selector raise (T-14-13)" do

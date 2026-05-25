@@ -25,6 +25,7 @@ defmodule Sigra.OAuth.Callback do
   alias Ecto.Multi
   alias Sigra.Audit
   alias Sigra.Error.OAuthError
+  alias Sigra.EnterpriseRouting
   alias Sigra.Telemetry
 
   @doc """
@@ -46,11 +47,11 @@ defmodule Sigra.OAuth.Callback do
   - `{:error, %OAuthError{error_code: :email_mismatch}}` - UID/email cross-account conflict
   """
   @doc since: "0.5.0"
-  @spec process_callback(map(), atom(), map(), map()) ::
+  @spec process_callback(map(), atom(), map(), map(), keyword()) ::
           {:ok, atom(), map(), map()}
           | {:link_confirmation_required, map()}
           | {:error, %OAuthError{}}
-  def process_callback(config, provider, user_info, token) do
+  def process_callback(config, provider, user_info, token, opts \\ []) do
     email = user_info["email"]
 
     # D-08: No email check
@@ -58,16 +59,19 @@ defmodule Sigra.OAuth.Callback do
       Logger.error("OAuth callback for #{provider}: provider returned no email")
       {:error, %OAuthError{provider: provider, error_code: :no_email}}
     else
-      provider_str = to_string(provider) |> String.downcase()
-      provider_uid = to_string(user_info["sub"])
+      with {:ok, enterprise_context} <-
+             validate_enterprise_context(config, provider, Keyword.get(opts, :enterprise_context)) do
+        provider_str = to_string(provider) |> String.downcase()
+        provider_uid = to_string(user_info["sub"])
 
-      do_process(config, provider, provider_str, provider_uid, user_info, token)
+        do_process(config, provider, provider_str, provider_uid, user_info, token, enterprise_context)
+      end
     end
   end
 
   # -- Private --
 
-  defp do_process(config, provider, provider_str, provider_uid, user_info, token) do
+  defp do_process(config, provider, provider_str, provider_uid, user_info, token, enterprise_context) do
     repo = config.repo
     identity_schema = config.identity_schema
     user_schema = config.user_schema
@@ -78,7 +82,15 @@ defmodule Sigra.OAuth.Callback do
     cond do
       # Scenario 1: Existing identity found
       identity != nil ->
-        handle_existing_identity(config, repo, identity, user_info, token, provider)
+        handle_existing_identity(
+          config,
+          repo,
+          identity,
+          user_info,
+          token,
+          provider,
+          enterprise_context
+        )
 
       # Scenario 2-3: No identity, check for email match
       true ->
@@ -95,12 +107,20 @@ defmodule Sigra.OAuth.Callback do
            }}
         else
           # New user registration
-          register_oauth_user(config, provider, provider_str, user_info, token)
+          register_oauth_user(config, provider, provider_str, user_info, token, enterprise_context)
         end
     end
   end
 
-  defp handle_existing_identity(config, repo, identity, user_info, token, provider) do
+  defp handle_existing_identity(
+         config,
+         repo,
+         identity,
+         user_info,
+         token,
+         provider,
+         enterprise_context
+       ) do
     user_schema = config.user_schema
     user = repo.get!(user_schema, identity.user_id)
     email = user_info["email"]
@@ -117,14 +137,41 @@ defmodule Sigra.OAuth.Callback do
 
         return_email_mismatch(provider)
       else
-        do_login_with_identity_update(config, repo, identity, user, user_info, token, provider)
+        do_login_with_identity_update(
+          config,
+          repo,
+          identity,
+          user,
+          user_info,
+          token,
+          provider,
+          enterprise_context
+        )
       end
     else
-      do_login_with_identity_update(config, repo, identity, user, user_info, token, provider)
+      do_login_with_identity_update(
+        config,
+        repo,
+        identity,
+        user,
+        user_info,
+        token,
+        provider,
+        enterprise_context
+      )
     end
   end
 
-  defp do_login_with_identity_update(config, repo, identity, user, user_info, token, provider) do
+  defp do_login_with_identity_update(
+         config,
+         repo,
+         identity,
+         user,
+         user_info,
+         token,
+         provider,
+         enterprise_context
+       ) do
     # D-31: Update identity fields on every login. D-34: Update last_used_at.
     # Pitfall 2: Only update non-nil fields (Apple name is nil on re-auth).
     now = DateTime.utc_now() |> DateTime.truncate(:second)
@@ -175,7 +222,7 @@ defmodule Sigra.OAuth.Callback do
           :audit_oauth_login
         ])
 
-        session_metadata = build_session_metadata(config, provider)
+        session_metadata = build_session_metadata(config, provider, enterprise_context)
 
         Telemetry.event([:sigra, :oauth, :login, :stop], %{}, %{
           user_id: user.id,
@@ -189,7 +236,7 @@ defmodule Sigra.OAuth.Callback do
     end
   end
 
-  defp register_oauth_user(config, provider, provider_str, user_info, token) do
+  defp register_oauth_user(config, provider, provider_str, user_info, token, enterprise_context) do
     repo = config.repo
     user_schema = config.user_schema
     identity_schema = config.identity_schema
@@ -275,7 +322,7 @@ defmodule Sigra.OAuth.Callback do
           :audit_oauth_registered_register
         ])
 
-        session_metadata = build_session_metadata(config, provider)
+        session_metadata = build_session_metadata(config, provider, enterprise_context)
 
         Telemetry.event([:sigra, :oauth, :register, :stop], %{}, %{
           user_id: user.id,
@@ -303,7 +350,7 @@ defmodule Sigra.OAuth.Callback do
     ]
   end
 
-  defp build_session_metadata(config, provider) do
+  defp build_session_metadata(config, provider, enterprise_context) do
     session_type = Keyword.get(config.oauth, :session_type, :remember_me)
 
     %{
@@ -311,7 +358,56 @@ defmodule Sigra.OAuth.Callback do
       auth_method: :oauth,
       provider: provider
     }
+    |> maybe_put(:active_organization_id, enterprise_context && enterprise_context.organization_id)
+    |> maybe_put(:enterprise_connection_id, enterprise_context && enterprise_context.connection_id)
+    |> maybe_put(:enterprise_routing_source, enterprise_context && enterprise_context.routing_source)
   end
+
+  defp validate_enterprise_context(_config, _provider, nil), do: {:ok, nil}
+  defp validate_enterprise_context(_config, _provider, %{state: nil, session: nil}), do: {:ok, nil}
+
+  defp validate_enterprise_context(config, provider, %{state: state_context, session: session_context}) do
+    state_context = normalize_enterprise_context(state_context)
+    session_context = normalize_enterprise_context(session_context)
+
+    cond do
+      is_nil(state_context) or is_nil(session_context) ->
+        {:error, %OAuthError{provider: provider, error_code: :enterprise_context_mismatch}}
+
+      state_context != session_context ->
+        {:error, %OAuthError{provider: provider, error_code: :enterprise_context_mismatch}}
+
+      true ->
+        case EnterpriseRouting.get_routable_connection(config, %{id: state_context.organization_id}) do
+          {:ok, %{connection_id: connection_id}} when connection_id == state_context.connection_id ->
+            {:ok, state_context}
+
+          _ ->
+            {:error, %OAuthError{provider: provider, error_code: :org_connection_unavailable}}
+        end
+    end
+  end
+
+  defp normalize_enterprise_context(nil), do: nil
+
+  defp normalize_enterprise_context(%{} = enterprise_context) do
+    with organization_id when not is_nil(organization_id) <-
+           enterprise_context[:organization_id] || enterprise_context["organization_id"],
+         connection_id when not is_nil(connection_id) <-
+           enterprise_context[:connection_id] || enterprise_context["connection_id"],
+         routing_source when not is_nil(routing_source) <-
+           enterprise_context[:routing_source] || enterprise_context["routing_source"] do
+      %{
+        organization_id: organization_id,
+        connection_id: connection_id,
+        routing_source: routing_source
+      }
+    else
+      _ -> nil
+    end
+  end
+
+  defp normalize_enterprise_context(_), do: nil
 
   defp return_email_mismatch(provider) do
     {:error, %OAuthError{provider: provider, error_code: :email_mismatch}}

@@ -1317,9 +1317,15 @@ defmodule Sigra.Auth do
     # org selection so the first audit row of a successful login carries the
     # real `organization_id`. This is the v1.2 impersonation anchor.
     {final_session, active_org} =
-      case config.organizations_module do
-        nil -> {session, nil}
-        om -> resolve_and_assign_org(config, om, user, session, session_store, store_opts, opts)
+      case Map.get(metadata, :active_organization_id) do
+        org_id when not is_nil(org_id) ->
+          assign_explicit_active_organization(config, session, session_store, store_opts, org_id)
+
+        _ ->
+          case config.organizations_module do
+            nil -> {session, nil}
+            om -> resolve_and_assign_org(config, om, user, session, session_store, store_opts, opts)
+          end
       end
 
     scope =
@@ -1344,6 +1350,16 @@ defmodule Sigra.Auth do
     )
 
     {:ok, final_session}
+  end
+
+  defp assign_explicit_active_organization(config, session, session_store, store_opts, org_id) do
+    updated_session =
+      case session_store.update_active_organization(session, org_id, store_opts) do
+        {:ok, updated_session} -> updated_session
+        {:error, _reason} -> session
+      end
+
+    {updated_session, load_explicit_active_organization(config, org_id)}
   end
 
   defp resolve_and_assign_org(
@@ -1411,6 +1427,18 @@ defmodule Sigra.Auth do
           {:error, _reason} -> {session, org}
         end
     end
+  end
+
+  defp load_explicit_active_organization(config, org_id) do
+    with organizations_module when not is_nil(organizations_module) <- config.organizations_module,
+         org_config <- organizations_module.__sigra_org_config__(),
+         organization_schema when not is_nil(organization_schema) <- get_in(org_config, [:schemas, :organization]) do
+      config.repo.get(organization_schema, org_id)
+    else
+      _ -> nil
+    end
+  rescue
+    _ -> nil
   end
 
   @doc """

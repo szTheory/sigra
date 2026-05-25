@@ -97,6 +97,38 @@ defmodule Sigra.OAuthTest do
       assert is_binary(data.nonce)
     end
 
+    test "enterprise authorize persists enterprise_context in session params and signed state" do
+      config = build_config()
+
+      enterprise = %{
+        organization_id: "org-acme",
+        connection_id: "conn-acme",
+        routing_source: :domain_discovery
+      }
+
+      assert {:ok, _url, session_params} =
+               OAuth.authorize_url(config, :mock, enterprise: enterprise)
+
+      assert session_params.enterprise_context == enterprise
+
+      assert {:ok, data} =
+               Sigra.Token.verify(
+                 @secret_key_base,
+                 "sigra-oauth-state",
+                 session_params.sigra_state,
+                 max_age: 900
+               )
+
+      assert data.enterprise_context == enterprise
+    end
+
+    test "non-enterprise authorize continues without enterprise_context" do
+      config = build_config()
+
+      assert {:ok, _url, session_params} = OAuth.authorize_url(config, :mock, [])
+      refute Map.has_key?(session_params, :enterprise_context)
+    end
+
     test "returns error for unknown provider" do
       config = build_config(providers: [])
 
