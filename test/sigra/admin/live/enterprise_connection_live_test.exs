@@ -10,6 +10,10 @@ defmodule Sigra.Admin.Live.EnterpriseConnectionLiveTest do
 
     for source <- [template, example] do
       assert source =~ "Enterprise SSO"
+      assert source =~ "Setup"
+      assert source =~ "Routing"
+      assert source =~ "Reconciliation"
+      assert source =~ "Enforcement"
       assert source =~ "validation_failed"
       assert source =~ "last_validation_error"
       assert source =~ "Validate"

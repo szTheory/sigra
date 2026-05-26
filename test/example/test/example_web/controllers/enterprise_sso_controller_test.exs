@@ -1,5 +1,5 @@
 defmodule ExampleWeb.EnterpriseSSOControllerTest do
-  use ExampleWeb.ConnCase, async: true
+  use ExampleWeb.ConnCase, async: false
 
   import Example.AccountsFixtures
 
@@ -75,7 +75,7 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
   end
 
   describe "GET /organizations/:org/sso/callback" do
-    test "creates a session and redirects into the organization scope", %{
+    test "creates a session and honors an org-compatible return path", %{
       conn: conn,
       organization: organization
     } do
@@ -95,13 +95,44 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
       conn =
         conn
         |> init_test_session(%{
-          enterprise_auth_session: %{state: "state-123", enterprise_context: %{organization_id: organization.id}}
+          enterprise_auth_session: %{state: "state-123", enterprise_context: %{organization_id: organization.id}},
+          user_return_to: "/organizations/#{organization.slug}/members"
         })
         |> put_req_header("user-agent", "ExUnit")
         |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
 
-      assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/settings"
+      assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/members"
       assert get_session(conn, :enterprise_auth_session) == nil
+      assert get_session(conn, :user_token)
+    end
+
+    test "falls back to /organizations when the stored return path is incompatible", %{
+      conn: conn,
+      organization: organization
+    } do
+      user = user_fixture(%{email: "person@acme.example"})
+      create_membership(user, organization)
+
+      :persistent_term.put(
+        {MockEnterpriseOAuth, :callback_result},
+        {:ok, :logged_in, user,
+         %{
+           active_organization_id: organization.id,
+           enterprise_connection_id: "conn-id",
+           enterprise_routing_source: :explicit_org,
+           enterprise_reconciliation_outcome: :jit_created
+         }}
+      )
+
+      conn =
+        conn
+        |> init_test_session(%{
+          enterprise_auth_session: %{state: "state-123", enterprise_context: %{organization_id: organization.id}},
+          user_return_to: "/organizations/other-org/settings"
+        })
+        |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
+
+      assert redirected_to(conn) == ~p"/organizations"
       assert get_session(conn, :user_token)
     end
 
@@ -121,6 +152,24 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
 
       assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/sso"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "session expired"
+    end
+
+    test "unsafe enterprise outcomes stay on the recovery route without a normal session", %{
+      conn: conn,
+      organization: organization
+    } do
+      :persistent_term.put(
+        {MockEnterpriseOAuth, :callback_result},
+        {:error, %OAuthError{provider: :oidc, error_code: :ambiguous_email_match}}
+      )
+
+      conn =
+        conn
+        |> init_test_session(%{enterprise_auth_session: %{state: "state-123"}})
+        |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
+
+      assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/sso"
+      assert get_session(conn, :user_token) == nil
     end
   end
 

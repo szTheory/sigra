@@ -1,5 +1,32 @@
 # Milestones
 
+## v1.27 ENT-SSO (Shipped: 2026-05-26)
+
+**Phases completed:** 5 phases, 17 plans, 35 tasks
+
+**Key accomplishments:**
+
+- Added an organization-bound enterprise connection model with truthful OIDC validation and activation refusal.
+- Shipped canonical org-scoped enterprise entry plus bounded exact-match domain discovery and callback revalidation.
+- Landed safe JIT enterprise reconciliation on top of the existing org, membership, invitation, and identity substrate.
+- Added SSO-only enforcement with explicit break-glass recovery semantics instead of hidden local-auth fallback.
+- Closed the milestone with generated-host/example proof, installer parity, canonical enterprise docs, and retroactive authoritative verification for Phases 123-125.
+
+**Stats:**
+
+- **Requirements:** 8/8 satisfied
+- **Milestone audit:** passed (`verified_and_archive_ready` on 2026-05-26)
+- **Timeline:** 2026-05-25 → 2026-05-26
+- **Known deferred items at close:** 6 carried forward from v1.26 (see `STATE.md` Deferred Items)
+
+**Archive:**
+
+- [v1.27 Roadmap](milestones/v1.27-ROADMAP.md)
+- [v1.27 Requirements](milestones/v1.27-REQUIREMENTS.md)
+- [v1.27 Milestone Audit](milestones/v1.27-MILESTONE-AUDIT.md)
+
+---
+
 ## v1.26 PK-LIFECYCLE (Shipped: 2026-05-25)
 
 **Phases completed:** 7 phases, 9 plans, 17 tasks

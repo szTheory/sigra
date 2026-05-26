@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.27
 milestone_name: v1.27 ENT-SSO
-status: executing
-last_updated: "2026-05-25T16:45:53.071Z"
-last_activity: 2026-05-25 -- Phase 123 execution started
+status: milestone_shipped
+last_updated: "2026-05-26T15:05:00.000Z"
+last_activity: 2026-05-26 -- v1.27 milestone audit passed and archive preparation completed
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 6
-  completed_plans: 2
-  percent: 20
+  completed_phases: 5
+  total_plans: 17
+  completed_plans: 17
+  percent: 100
 ---
 
 # Project State
@@ -21,24 +21,21 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 123 — org-aware-enterprise-routing
+**Current focus:** No active milestone; archive v1.27 and prepare the next milestone selection.
 
 ## Current Position
 
-Phase: 123 (org-aware-enterprise-routing) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 123
-Last activity: 2026-05-25 -- Phase 123 execution started
+Phase: none
+Plan: n/a
+Status: v1.27 shipped; milestone archive and tag are the next repository actions
+Last activity: 2026-05-26 -- v1.27 `ENT-SSO` reached `verified_and_archive_ready` in `.planning/v1.27-MILESTONE-AUDIT.md`
 
 ## Accumulating Context
 
-- Assessment takeaway remains unchanged: Sigra is already strong for Phoenix SaaS teams on installer DX, sessions, MFA, passkeys, orgs, admin, audit, and operator truth; enterprise SSO per organization is the remaining contract-closing wedge.
-- Current rough maturity band remains `80-89%` for the library's intended scope. The remaining delta is meaningful but concentrated rather than foundationally weak.
-- `v1.27` is intentionally OIDC-first and keeps SAML as a future-compatible seam unless implementation research proves a broader protocol cut is honest inside this milestone.
-- `Sigra.DataExport` is still intentionally thin compared with the rest of the library surface. That keeps `DATA-LIFECYCLE` as the next ranked follow-on after `ENT-SSO`.
-- Open investigation threads:
-  - `.planning/threads/enterprise-sso-b2b-connections.md`
-  - `.planning/threads/data-lifecycle-export-scope.md`
+- Sigra now ships the missing organization-scoped enterprise login wedge: truthful setup, canonical routing, JIT reconciliation, SSO-only enforcement, and bounded generated-host/operator proof.
+- The rough maturity band remains `80-89%`, but the largest remaining delta after v1.27 is no longer enterprise login truth; it is the thinner data-export and lifecycle surface.
+- `DATA-LIFECYCLE` is now the top-ranked follow-on candidate. `SUITE-INTEGRATION` remains behind it.
+- The enterprise and data-lifecycle planning threads are no longer open blockers; `enterprise-sso-b2b-connections` is resolved and `data-lifecycle-export-scope` is dormant until the next milestone is selected.
 
 ## Deferred Items
 
@@ -64,9 +61,11 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - Treat SCIM, broad directory sync, hosted-control-plane behavior, and opinionated authorization policy as out of scope for the immediate `ENT-SSO` milestone.
 - Start `v1.27` at Phase `122` and keep the roadmap to five phases: connection contract, routing, JIT reconciliation, enforcement, and proof/docs.
 - Treat enterprise SSO in this milestone as an auth-control-plane extension, not a generic company-directory platform.
+- Shipped `v1.27 ENT-SSO` on 2026-05-26 after retroactively restoring authoritative verification artifacts for Phases 123-125, normalizing Nyquist records for Phases 123-126, and passing the milestone audit.
+- `DATA-LIFECYCLE` is now the next ranked candidate; keep SAML, SCIM, hosted-control-plane behavior, and opinionated authz out of scope unless a future milestone explicitly re-selects them.
 
 ## Operator Next Steps
 
-- Run `$gsd-verify-work 122` to confirm the enterprise connection contract, generated-host surface, and installer output against the Phase 122 plan and requirements.
-- If verification passes, continue with Phase 123 enterprise routing rather than widening 122 into SCIM, hosted-control-plane UX, or opinionated authorization policy.
-- Keep later milestone proposals behind the current sequence: finish `ENT-SSO`, then reassess `DATA-LIFECYCLE`, then `SUITE-INTEGRATION`.
+- Review `.planning/milestones/v1.27-ROADMAP.md`, `.planning/milestones/v1.27-REQUIREMENTS.md`, and `.planning/milestones/v1.27-MILESTONE-AUDIT.md` for the archived enterprise contract.
+- Start the next milestone with `$gsd-new-milestone`; use `.planning/MILESTONE-ARC.md` to rank `DATA-LIFECYCLE` against any new proposal.
+- Keep later milestone proposals behind the current sequence: `DATA-LIFECYCLE`, then `SUITE-INTEGRATION`, unless a new repo-grounded blocker outranks them.

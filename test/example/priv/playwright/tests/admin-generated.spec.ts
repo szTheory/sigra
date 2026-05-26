@@ -162,6 +162,24 @@ test.describe("VFY-01 generated host global users index", () => {
   });
 });
 
+test.describe("OPS-01 bounded enterprise surface", () => {
+  test("organization settings render stage-based enterprise guidance", async ({
+    page,
+  }) => {
+    await logIn(page, orgAdminEmail, adminPassword);
+    const response = await page.goto(`/organizations/${allowedOrgSlug}/settings`);
+    expect(response?.status()).toBe(200);
+    await waitForLiveViewReady(page);
+    await expect(page.locator("main")).toContainText("Allowed Org");
+    await expect(page.locator("main")).toContainText("Enterprise SSO");
+    await expect(page.locator("main")).toContainText("Setup");
+    await expect(page.locator("main")).toContainText("Routing");
+    await expect(page.locator("main")).toContainText("Reconciliation");
+    await expect(page.locator("main")).toContainText("Enforcement");
+    await expect(page.locator("main")).toContainText("SSO-only");
+  });
+});
+
 test.describe("VFY-01 generated host audit CSV export", () => {
   test("returns CSV with stable audit header columns", async ({ page }) => {
     await logIn(page, platformAdminEmail, adminPassword);

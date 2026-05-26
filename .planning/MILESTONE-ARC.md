@@ -1,9 +1,9 @@
 ---
-last_updated: 2026-05-25
-status: active_milestone_selected
+last_updated: 2026-05-26
+status: post_v1.27_ranked
 current_release_followup: completed-REL-01
-current_active_milestone: ENT-SSO
-default_post_release_candidate: ENT-SSO
+current_active_milestone: none
+default_post_release_candidate: DATA-LIFECYCLE
 ---
 
 # Sigra Milestone Arc
@@ -146,19 +146,25 @@ The remaining meaningful work clusters are:
 - inventing a custom sync layer
 - broad MFA rewrite outside passkey-specific paths
 
-### active
+### shipped
 
 **ID:** `ENT-SSO`
 **Name:** `Enterprise SSO & B2B Connections`
 **Priority:** 3
+**Status:** Shipped 2026-05-26 via Phases 122-126.
 **Why now:** B2B customers demand SAML or OIDC single sign-on (e.g., Okta, Entra ID) to enforce their own corporate policies. Sigra has OAuth, but enterprise SSO requires Just-In-Time (JIT) provisioning and tenant-level identity routing.
 **Theme:** Open the door to enterprise contracts for host applications.
-**Likely scope:**
-- Standardization layer around `Assent` for enterprise connections (SAML).
-- Tenant-level directory routing (IdP-initiated flows or domain-based IdP discovery).
-- Just-In-Time (JIT) organization membership provisioning.
+**Delivered scope:**
+- organization-bound enterprise connection model with truthful validation and activation refusal
+- org-scoped enterprise entry and bounded domain discovery
+- Just-In-Time (JIT) organization membership provisioning and safe reconciliation
+- SSO-only enforcement with explicit break-glass recovery
+- generated-host proof, installer parity, and canonical enterprise operator docs
 **Assessment calibration (2026-05-25):**
 - Repo-grounded next-step review kept this ranked first because Sigra already ships the org/MFA/RBAC/service-account substrate; the missing contract-closing wedge is enterprise login routing and JIT truth, not another narrow polish pass.
+**Notable outcomes:**
+- retroactive verification authority now exists for Phases 123, 124, and 125 instead of relying on summary-only closeout
+- the shipped contract stayed OIDC-first and organization-scoped without claiming SCIM, hosted control-plane behavior, or opinionated authz
 **Prerequisites:**
 - Deep understanding of Assent's SAML capabilities vs host-application requirements.
 **Non-goals:**
@@ -213,10 +219,9 @@ To protect the architectural integrity and maintainability of Sigra, we explicit
 
 ## Selection Guidance
 
-`REL-01 Release Truth Reset` is complete, `PK-LIFECYCLE` is shipped, and `ENT-SSO` is now the active milestone. The ranked follow-on sequence after the current milestone is:
+`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, and `ENT-SSO` are shipped. The ranked follow-on sequence after v1.27 is:
 
-1. `ENT-SSO Enterprise SSO & B2B Connections`
-2. `DATA-LIFECYCLE Compliance Export & Data Lifecycle`
-3. `SUITE-INTEGRATION szTheory Suite Integration`
+1. `DATA-LIFECYCLE Compliance Export & Data Lifecycle`
+2. `SUITE-INTEGRATION szTheory Suite Integration`
 
 If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above.

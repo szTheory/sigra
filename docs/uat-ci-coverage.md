@@ -49,6 +49,29 @@ Human vs machine boundaries for **v1.4** are recorded in **`.planning/v1.4-GA-UA
 - **Governance:** if an outcome row disagrees with **§ Policy** below, **edit `.planning/v1.12-UAT-EVIDENCE.md` first**, then align prose here.
 - **Downstream:** phase **75** links **`upgrading-to-v1.12.md`** to this path (**TRN-01**) — keep the filename stable.
 
+## OPS-01 bounded enterprise proof package
+
+This subsection records the machine-vs-human boundary for **OPS-01** in the active `v1.27 ENT-SSO` milestone. It is intentionally narrow: one bounded enterprise contract, one canonical operator story, and no claim of live-provider certification.
+
+### Machine (merge-blocking or command-first)
+
+- **Root proof:** `mix test test/sigra/enterprise_connections/validation_test.exs test/sigra/enterprise_connections/activation_test.exs test/sigra/enterprise_routing/discovery_test.exs test/sigra/oauth/enterprise_callback_test.exs test/sigra/oauth/enterprise_reconciliation_test.exs test/sigra/auth_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs`
+  Proves setup, routing, reconciliation, and enforcement truth stays bounded to library-owned outcomes.
+- **Example/generated-host proof:** `cd test/example && MIX_ENV=test mix test --include example_app test/example_web/integration/enterprise_sso_routing_flow_test.exs test/example_web/integration/enterprise_sso_reconciliation_flow_test.exs test/example_web/controllers/session_controller_test.exs test/example_web/live/organization_settings_live_test.exs`
+  Proves one canonical happy path, one representative denied path, and operator-visible stage guidance.
+- **Installer parity:** `mix test test/sigra/install/features/organizations_test.exs test/sigra/admin/live/enterprise_connection_live_test.exs`
+  Proves generated-host templates and example surfaces describe the same bounded enterprise contract.
+- **Narrow browser lane:** `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4000 npx playwright test tests/admin-generated.spec.ts --project=admin-generated`
+  Proves a real served route renders bounded enterprise wiring without expanding into a browser or IdP matrix.
+- **Docs / truth-surface grep:** `rg -n "Enterprise|organization|routing|reconciliation|SSO-only|break-glass|SCIM|hosted control plane|opinionated authz|Did Not Prove|Proved" guides/flows/oauth.md docs/uat-ci-coverage.md .planning/phases/126-generated-host-proof-diagnostics-docs/126-VERIFICATION.md`
+  Proves the public and maintainer truth surfaces stay explicit about scope and non-goals.
+
+### Human / live-provider residual
+
+- Live enterprise IdP consent screens, tenant-specific policy, and provider operational quirks are not covered by the machine lanes above.
+- Cross-browser compatibility, branded UI review, and screenshot-heavy review are outside this proof package.
+- This package does not prove SCIM, hosted control plane behavior, opinionated authz, or provider certification.
+
 ## Where to run this
 
 - **GitHub Actions:** `.github/workflows/ci.yml` — jobs `library_tests`, `example_unit_smoke`, `example_playwright_smoke` (includes `ga-uat-shift-left.spec.ts`), `install_smoke`, `getting_started_uat_contract`.

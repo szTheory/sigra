@@ -1,10 +1,12 @@
 ---
 phase: 123
 slug: org-aware-enterprise-routing
-status: draft
+status: passed
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-05-25
+updated: 2026-05-26
+requirements: [SSO-03]
 ---
 
 # Phase 123 - Validation Strategy
@@ -75,4 +77,4 @@ created: 2026-05-25
 - [x] Feedback latency < 90s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** passed on 2026-05-26 after current-head root, example-app, and installer reruns.

@@ -30,7 +30,7 @@ key-decisions:
 patterns-established:
   - "Example coverage mirrors the generated host: login discovery redirects into `/organizations/:org/sso`, then the org-scoped controller owns provider handoff and callback retry UX."
   - "Controller tests mock only the OAuth exchange boundary; enterprise routing and canonical route selection stay real and DB-backed."
-requirements-completed: [SSO-04]
+requirements-completed: [SSO-03]
 duration: 34 min
 completed: 2026-05-25
 ---

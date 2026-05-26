@@ -1,9 +1,9 @@
 ---
 slug: enterprise-sso-b2b-connections
 title: Enterprise SSO & B2B connections milestone investigation
-status: open
+status: resolved
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-05-26
 ---
 
 # Thread: Enterprise SSO & B2B connections milestone investigation

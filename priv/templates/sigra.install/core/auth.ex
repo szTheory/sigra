@@ -48,9 +48,20 @@ defmodule <%= context_module %> do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password}, user_schema: <%= schema_alias %>) do
+    case authenticate_user(email, password) do
       {:ok, user} -> user
-      {:error, _} -> nil
+      _ -> nil
+    end
+  end
+
+  @doc "Authenticates a user and preserves typed denial results for controller handling."
+  def authenticate_user(email, password)
+      when is_binary(email) and is_binary(password) do
+    case SigraAuth.authenticate(sigra_config(), %{"email" => email, "password" => password}) do
+      {:ok, user} -> {:ok, user}
+      {:ok, user, _session_meta} -> {:ok, user}
+      {:error, :sso_required} -> typed_local_auth_denial(email, :sso_required)
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -410,12 +421,16 @@ defmodule <%= context_module %> do
   """
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
+    user = get_user_by_email(email)
+    auth_policy = user && <%= app_module %>.Organizations.local_auth_policy_for(user)
+
     case Sigra.Auth.request_password_reset(Repo, email,
-      user_schema: <%= schema_alias %>,
-      user_token_schema: UserToken,
-      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
-      url_fun: reset_password_url_fun
-    ) do
+           user_schema: <%= schema_alias %>,
+           user_token_schema: UserToken,
+           secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
+           url_fun: reset_password_url_fun,
+           enterprise_auth_policy: <%= app_module %>.Organizations
+         ) do
       {:ok, {signed_token, url}} ->
         user = get_user_by_email(email)
 
@@ -435,6 +450,10 @@ defmodule <%= context_module %> do
         {:ok, :sent}
 
       {:ok, :sent} ->
+        if user && local_password_reset_denied?(auth_policy) do
+          maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+        end
+
         # Non-existent email -- enumeration safe
         {:ok, :sent}
 
@@ -495,7 +514,8 @@ defmodule <%= context_module %> do
       user_token_schema: UserToken,
       user_schema: <%= schema_alias %>,
       changeset_fn: &<%= schema_alias %>.password_changeset/2,
-      reset_ttl: 3600
+      reset_ttl: 3600,
+      enterprise_auth_policy: <%= app_module %>.Organizations
     )
   end
 
@@ -530,6 +550,8 @@ defmodule <%= context_module %> do
     Sigra.Config.new!(
       repo: <%= repo_module %>,
       user_schema: <%= schema_alias %>,
+      scope_module: <%= context_module %>.Scope,
+      organizations_module: <%= app_module %>.Organizations,
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
@@ -583,6 +605,43 @@ defmodule <%= context_module %> do
       threshold: Keyword.get(config.lockout, :threshold, 5),
       duration: Keyword.get(config.lockout, :duration, 900)
     ]
+  end
+
+  defp typed_local_auth_denial(email, reason) do
+    case get_user_by_email(email) do
+      %<%= schema_alias %>{} = user ->
+        {:error, reason, <%= app_module %>.Organizations.local_auth_policy_for(user)}
+
+      _ ->
+        {:error, reason}
+    end
+  end
+
+  defp local_password_reset_denied?(%{password_reset: :deny}), do: true
+  defp local_password_reset_denied?(_policy), do: false
+
+  defp maybe_deliver_enterprise_reset_guidance(user, auth_policy) do
+    if slug = auth_policy[:organization_slug] do
+      url = <%= web_module %>.Endpoint.url() <> "/organizations/#{slug}/sso"
+      email =
+        <%= context_module %>.Emails.enterprise_sso_reset_email(
+          user,
+          auth_policy[:organization_name] || slug,
+          url
+        )
+
+      Sigra.Delivery.deliver(
+        :reset_password_guidance,
+        %{
+          user_id: user.id,
+          to: user.email,
+          subject: email.subject,
+          body: %{html: email.html_body, text: email.text_body},
+          url: url
+        },
+        delivery_opts()
+      )
+    end
   end
 
   ## MFA

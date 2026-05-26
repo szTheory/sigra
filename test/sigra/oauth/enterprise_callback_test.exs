@@ -54,6 +54,31 @@ defmodule Sigra.OAuth.EnterpriseCallbackTest do
     end
   end
 
+  defmodule TestMembership do
+    use Ecto.Schema
+
+    @primary_key {:id, :binary_id, autogenerate: false}
+    schema "organization_memberships" do
+      field :organization_id, :binary_id
+      field :user_id, :integer
+      field :role, Ecto.Enum, values: [:owner, :admin, :member]
+    end
+  end
+
+  defmodule TestInvitation do
+    use Ecto.Schema
+
+    @primary_key {:id, :binary_id, autogenerate: false}
+    schema "organization_invitations" do
+      field :organization_id, :binary_id
+      field :email, :string
+      field :role, Ecto.Enum, values: [:owner, :admin, :member]
+      field :accepted_at, :utc_datetime
+      field :accepted_by_id, :integer
+      field :revoked_at, :utc_datetime
+    end
+  end
+
   defmodule EnterpriseCallbackRepo do
     alias Sigra.OAuth.EnterpriseCallbackTest.{TestConnection, TestOrganization}
 
@@ -79,16 +104,54 @@ defmodule Sigra.OAuth.EnterpriseCallbackTest do
           id: 1,
           user_id: 42,
           provider: clauses[:provider] || "mock",
-          provider_uid: "provider_uid_123"
+          provider_uid: "provider_uid_123",
+          metadata: %{"enterprise_connection_id" => "conn-acme"}
         }
       end
     end
 
-    def get_by(Sigra.Test.MockUser, _clauses), do: nil
+    def get_by(Sigra.Test.MockUser, clauses) do
+      if clauses[:email] == "oauth@example.com" do
+        %Sigra.Test.MockUser{
+          id: 42,
+          email: "oauth@example.com",
+          hashed_password: nil,
+          confirmed_at: ~U[2026-01-01 00:00:00Z]
+        }
+      end
+    end
+
+    def get_by(TestMembership, clauses) do
+      if clauses[:organization_id] == "org-acme" and clauses[:user_id] == 42 do
+        %TestMembership{id: "membership-acme-42", organization_id: "org-acme", user_id: 42, role: :member}
+      end
+    end
+
+    def get_by(TestInvitation, _clauses), do: nil
 
     def get!(Sigra.Test.MockUser, 42) do
-      %{id: 42, email: "oauth@example.com", hashed_password: nil, confirmed_at: ~U[2026-01-01 00:00:00Z]}
+      %Sigra.Test.MockUser{
+        id: 42,
+        email: "oauth@example.com",
+        hashed_password: nil,
+        confirmed_at: ~U[2026-01-01 00:00:00Z]
+      }
     end
+
+    def enterprise_users_by_email(Sigra.Test.MockUser, "oauth@example.com") do
+      [
+        %Sigra.Test.MockUser{
+          id: 42,
+          email: "oauth@example.com",
+          hashed_password: nil,
+          confirmed_at: ~U[2026-01-01 00:00:00Z]
+        }
+      ]
+    end
+
+    def enterprise_users_by_email(_schema, _email), do: []
+    def enterprise_pending_invitations(TestInvitation, "org-acme"), do: []
+    def enterprise_pending_invitations(_schema, _org_id), do: []
 
     def all(%Ecto.Query{wheres: wheres}) do
       Enum.filter([@active_connection], fn connection ->
@@ -160,6 +223,8 @@ defmodule Sigra.OAuth.EnterpriseCallbackTest do
       ],
       identity_schema: Sigra.Test.MockIdentity,
       schemas: %{
+        membership: TestMembership,
+        invitation: TestInvitation,
         enterprise_connection: TestConnection,
         organization: TestOrganization
       }

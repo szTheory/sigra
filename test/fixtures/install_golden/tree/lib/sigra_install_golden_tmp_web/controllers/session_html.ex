@@ -51,6 +51,10 @@ defmodule SigraInstallGoldenTmpWeb.SessionHTML do
           <a href="#login_form" class="btn btn-secondary w-full">Use password instead</a>
         </div>
 
+        <p class="mt-3 text-sm text-base-content/70">
+          Passkeys are not break-glass sign-in for SSO-only organizations.
+        </p>
+
         <% # Magic link recovery remains visible in passkey-primary mode. %>
         <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="mt-3">
           <input type="hidden" name="_action" value="magic_link" />
@@ -60,6 +64,10 @@ defmodule SigraInstallGoldenTmpWeb.SessionHTML do
             Email me a magic link
           </.button>
         </.form>
+
+        <p class="mt-2 text-sm text-base-content/70">
+          Magic links are not break-glass recovery for SSO-only organizations.
+        </p>
 
         <% # Password fallback stays on the same controller-rendered page. %>
         <div class="relative my-6">
@@ -122,6 +130,10 @@ defmodule SigraInstallGoldenTmpWeb.SessionHTML do
           </.button>
         </.form>
 
+        <p class="mt-2 text-sm text-base-content/70">
+          Magic links are not break-glass recovery for SSO-only organizations.
+        </p>
+
         <% # Divider %>
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
@@ -178,6 +190,10 @@ defmodule SigraInstallGoldenTmpWeb.SessionHTML do
             Continue with enterprise SSO
           </.button>
         </.form>
+
+        <p class="mt-3 text-sm text-base-content/70">
+          If your organization enforces SSO-only, break-glass stays limited to password sign-in and password reset.
+        </p>
       </section>
     </div>
     """

@@ -1,9 +1,9 @@
 ---
 slug: data-lifecycle-export-scope
 title: Data lifecycle and export scope follow-on investigation
-status: open
+status: dormant
 created: 2026-05-25
-updated: 2026-05-25
+updated: 2026-05-26
 ---
 
 # Thread: Data lifecycle and export scope follow-on investigation

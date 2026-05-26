@@ -62,13 +62,16 @@ defmodule ExampleWeb.EnterpriseSSOController do
             |> Map.put(:ip, client_ip(conn))
             |> Map.put(:user_agent, client_user_agent(conn))
 
+          redirect_path =
+            UserAuth.enterprise_return_to_path(conn, routing.organization.slug) || ~p"/organizations"
+
           case Sigra.Auth.create_session(Auth.sigra_config(), user, metadata, []) do
             {:ok, session} ->
               conn
               |> delete_session(@enterprise_session_key)
-              |> put_flash(:info, "Welcome!")
               |> UserAuth.put_user_session_token(session.token)
-              |> redirect(to: ~p"/organizations/#{org_slug}/settings")
+              |> maybe_put_enterprise_success_flash(session_metadata)
+              |> redirect(to: redirect_path)
 
             {:error, _reason} ->
               conn
@@ -152,6 +155,13 @@ defmodule ExampleWeb.EnterpriseSSOController do
 
   defp oauth_error_message(_error),
     do: "We couldn't finish enterprise sign-in. Please try again."
+
+  defp maybe_put_enterprise_success_flash(conn, %{enterprise_reconciliation_outcome: outcome})
+       when outcome in [:jit_created, :invitation_consumed] do
+    put_flash(conn, :info, "Enterprise access is ready.")
+  end
+
+  defp maybe_put_enterprise_success_flash(conn, _metadata), do: conn
 
   defp client_ip(conn) do
     conn.remote_ip && to_string(:inet.ntoa(conn.remote_ip))

@@ -21,7 +21,7 @@ defmodule Sigra.Auth do
   """
 
   alias Ecto.Multi
-  alias Sigra.{Audit, Crypto, Email, Telemetry, Token}
+  alias Sigra.{Audit, Crypto, Email, EnterpriseAuthPolicy, Telemetry, Token}
 
   # Email regex used by both valid_email?/1 and the registration changeset.
   # Matches a non-whitespace local part, an @, a non-whitespace domain, a dot,
@@ -354,11 +354,20 @@ defmodule Sigra.Auth do
 
     case Crypto.verify_with_upgrade(password, hashed_password) do
       {:ok, :valid} ->
-        handle_valid_login(repo, user, require_confirmation, %{}, opts)
+        with :allow <- EnterpriseAuthPolicy.password_login_allowed?(opts, user, opts) do
+          handle_valid_login(repo, user, require_confirmation, %{}, opts)
+        else
+          {:deny, reason, _metadata} -> {:error, reason}
+        end
 
       {:ok, :valid, new_hash} ->
         Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
-        handle_valid_login(repo, user, require_confirmation, %{hashed_password: new_hash}, opts)
+
+        with :allow <- EnterpriseAuthPolicy.password_login_allowed?(opts, user, opts) do
+          handle_valid_login(repo, user, require_confirmation, %{hashed_password: new_hash}, opts)
+        else
+          {:deny, reason, _metadata} -> {:error, reason}
+        end
 
       {:error, :invalid} ->
         if user do
@@ -520,7 +529,7 @@ defmodule Sigra.Auth do
 
         case Crypto.verify_with_upgrade(password, hashed_password) do
           {:ok, :valid} ->
-            login_success_password_path(
+            handle_enterprise_password_login(
               config,
               repo,
               user,
@@ -534,7 +543,7 @@ defmodule Sigra.Auth do
           {:ok, :valid, new_hash} ->
             Telemetry.event([:sigra, :auth, :hash_upgraded], %{}, %{user_id: user.id})
 
-            login_success_password_path(
+            handle_enterprise_password_login(
               config,
               repo,
               user,
@@ -1085,6 +1094,9 @@ defmodule Sigra.Auth do
           rate_limited?(rate_limiter, "sigra:reset:#{normalized_email}", max_requests, window_ms) ->
         {:error, :rate_limited}
 
+      match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
+        {:ok, :sent}
+
       true ->
         {raw_token, hashed_token} = Token.generate_hashed_token()
         signed = Plug.Crypto.sign(secret_key_base, "sigra-reset-token", raw_token)
@@ -1172,57 +1184,64 @@ defmodule Sigra.Auth do
           {:error, :token_invalid}
 
         token_record ->
-          multi =
-            Multi.new()
-            |> Multi.run(:reset_password, fn _repo, _changes ->
-              user = repo.get!(user_schema, token_record.user_id)
-              changeset = changeset_fn.(user, password_attrs)
+          user = repo.get!(user_schema, token_record.user_id)
 
-              case repo.update(changeset) do
-                {:ok, updated} -> {:ok, updated}
-                {:error, changeset} -> {:error, changeset}
-              end
-            end)
-            |> Multi.run(:delete_all_tokens, fn _repo, _changes ->
-              import Ecto.Query
-
-              query =
-                from(t in user_token_schema,
-                  where: t.user_id == ^token_record.user_id
-                )
-
-              repo.delete_all(query)
-              {:ok, :deleted}
-            end)
-
-          # D-26: atomic audit row for password_reset_complete
-          audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
-
-          multi =
-            if Keyword.get(audit_opts, :audit_schema) do
-              Sigra.Audit.__log_internal__(
-                multi,
-                "auth.password_reset_complete",
-                Keyword.merge(audit_opts,
-                  actor_resolver: fn %{reset_password: u} -> u.id end,
-                  metadata: %{}
-                )
-              )
-            else
-              multi
-            end
-
-          case repo.transaction(multi) do
-            {:ok, %{reset_password: user} = changes} ->
-              Audit.emit_telemetry_from_changes(changes)
-              Telemetry.event([:sigra, :reset, :completed], %{}, %{user_id: user.id})
-              {:ok, user}
-
-            {:error, :reset_password, %Ecto.Changeset{} = changeset, _changes} ->
-              {:error, changeset}
-
-            {:error, _step, reason, _changes} ->
+          case EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts) do
+            {:deny, reason, _metadata} ->
               {:error, reason}
+
+            :allow ->
+              multi =
+                Multi.new()
+                |> Multi.run(:reset_password, fn _repo, _changes ->
+                  changeset = changeset_fn.(user, password_attrs)
+
+                  case repo.update(changeset) do
+                    {:ok, updated} -> {:ok, updated}
+                    {:error, changeset} -> {:error, changeset}
+                  end
+                end)
+                |> Multi.run(:delete_all_tokens, fn _repo, _changes ->
+                  import Ecto.Query
+
+                  query =
+                    from(t in user_token_schema,
+                      where: t.user_id == ^token_record.user_id
+                    )
+
+                  repo.delete_all(query)
+                  {:ok, :deleted}
+                end)
+
+              # D-26: atomic audit row for password_reset_complete
+              audit_opts = Keyword.put(audit_opts_from_keyword(opts), :repo, repo)
+
+              multi =
+                if Keyword.get(audit_opts, :audit_schema) do
+                  Sigra.Audit.__log_internal__(
+                    multi,
+                    "auth.password_reset_complete",
+                    Keyword.merge(audit_opts,
+                      actor_resolver: fn %{reset_password: u} -> u.id end,
+                      metadata: %{}
+                    )
+                  )
+                else
+                  multi
+                end
+
+              case repo.transaction(multi) do
+                {:ok, %{reset_password: user} = changes} ->
+                  Audit.emit_telemetry_from_changes(changes)
+                  Telemetry.event([:sigra, :reset, :completed], %{}, %{user_id: user.id})
+                  {:ok, user}
+
+                {:error, :reset_password, %Ecto.Changeset{} = changeset, _changes} ->
+                  {:error, changeset}
+
+                {:error, _step, reason, _changes} ->
+                  {:error, reason}
+              end
           end
       end
     else
@@ -1323,8 +1342,11 @@ defmodule Sigra.Auth do
 
         _ ->
           case config.organizations_module do
-            nil -> {session, nil}
-            om -> resolve_and_assign_org(config, om, user, session, session_store, store_opts, opts)
+            nil ->
+              {session, nil}
+
+            om ->
+              resolve_and_assign_org(config, om, user, session, session_store, store_opts, opts)
           end
       end
 
@@ -1345,7 +1367,7 @@ defmodule Sigra.Auth do
       scope,
       Keyword.merge(audit_opts,
         actor_id: user.id,
-        metadata: %{type: Map.get(metadata, :type, :standard), session_id: final_session.id}
+        metadata: session_create_audit_metadata(metadata, final_session)
       )
     )
 
@@ -1432,7 +1454,8 @@ defmodule Sigra.Auth do
   defp load_explicit_active_organization(config, org_id) do
     with organizations_module when not is_nil(organizations_module) <- config.organizations_module,
          org_config <- organizations_module.__sigra_org_config__(),
-         organization_schema when not is_nil(organization_schema) <- get_in(org_config, [:schemas, :organization]) do
+         organization_schema when not is_nil(organization_schema) <-
+           get_in(org_config, [:schemas, :organization]) do
       config.repo.get(organization_schema, org_id)
     else
       _ -> nil
@@ -1440,6 +1463,28 @@ defmodule Sigra.Auth do
   rescue
     _ -> nil
   end
+
+  defp session_create_audit_metadata(metadata, final_session) do
+    %{
+      type: Map.get(metadata, :type, :standard),
+      session_id: final_session.id,
+      active_organization_id:
+        Map.get(final_session, :active_organization_id) ||
+          Map.get(metadata, :active_organization_id)
+    }
+    |> maybe_put_metadata(:enterprise_connection_id, Map.get(metadata, :enterprise_connection_id))
+    |> maybe_put_metadata(
+      :enterprise_routing_source,
+      Map.get(metadata, :enterprise_routing_source)
+    )
+    |> maybe_put_metadata(
+      :enterprise_reconciliation_outcome,
+      Map.get(metadata, :enterprise_reconciliation_outcome)
+    )
+  end
+
+  defp maybe_put_metadata(map, _key, nil), do: map
+  defp maybe_put_metadata(map, key, value), do: Map.put(map, key, value)
 
   @doc """
   Delete a specific session by its hashed token.
@@ -1888,6 +1933,47 @@ defmodule Sigra.Auth do
         {:error, reason} ->
           {:error, reason}
       end
+    end
+  end
+
+  defp handle_enterprise_password_login(
+         config,
+         repo,
+         user,
+         require_confirmation,
+         audit_opts,
+         login_ip,
+         extra_changes,
+         metadata
+       ) do
+    case EnterpriseAuthPolicy.password_login_allowed?(config, user) do
+      :allow ->
+        login_success_password_path(
+          config,
+          repo,
+          user,
+          require_confirmation,
+          audit_opts,
+          login_ip,
+          extra_changes,
+          metadata
+        )
+
+      {:deny, reason, denial_metadata} ->
+        user_scope = Sigra.Scope.from_config(config, user)
+
+        Audit.log_safe(
+          "auth.login.failure",
+          user_scope,
+          Keyword.merge(audit_opts,
+            actor_id: user.id,
+            target_id: user.id,
+            outcome: "failure",
+            metadata: Map.put(denial_metadata, :reason, reason)
+          )
+        )
+
+        {:error, reason}
     end
   end
 

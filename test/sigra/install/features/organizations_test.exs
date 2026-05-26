@@ -45,12 +45,15 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # (moved from Features.Core so the hard FK to organizations
       # lands after the organizations table is created, and is omitted
       # entirely under --no-organizations).
-      assert length(slots) == 3
+      assert length(slots) == 4
 
       assert [
                {:organizations, "organizations/migration.exs", "create_organizations.exs"},
                {:enterprise_connections, "organizations/enterprise_connections_migration.exs",
                 "create_enterprise_connections.exs"},
+               {:organization_auth_policies,
+                "organizations/organization_auth_policies_migration.exs",
+                "create_organization_auth_policies.exs"},
                {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
                 "alter_audit_events_add_org_columns.exs"}
              ] = slots
@@ -179,8 +182,10 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert session_controller =~ ~s|%{"_action" => "enterprise", "user" => %{"email" => email}}|
       assert session_controller =~ "discover_enterprise_connection"
+
       assert session_controller =~
                ~S|~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"|
+
       assert session_controller =~ "enterprise_discovery_error"
 
       assert login_html =~ ~s|id="enterprise_login_form"|
@@ -191,11 +196,18 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
     test "organization settings template contains Enterprise SSO status and validate/activate actions" do
       template =
-        File.read!("priv/templates/sigra.install/organizations/live/organization_settings_live.ex")
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
 
       assert template =~ "Enterprise SSO"
+      assert template =~ "Setup"
+      assert template =~ "Routing"
+      assert template =~ "Reconciliation"
+      assert template =~ "Enforcement"
       assert template =~ "validation_failed"
       assert template =~ "last_validation_error"
+      assert template =~ "SSO-only"
       assert template =~ "Validate"
       assert template =~ "Activate"
     end
@@ -265,6 +277,24 @@ defmodule Sigra.Install.Features.OrganizationsTest do
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "users_template_compile_#{suffix}" do
           field :email, :string
+        end
+      end
+
+      defmodule #{context_module}.OrganizationAuthPolicy do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organization_auth_policies_template_compile_#{suffix}" do
+          field :enforcement_mode, Ecto.Enum, values: [:optional, :sso_required]
+          belongs_to :organization, #{context_module}.Organization, type: :binary_id
+        end
+      end
+
+      defmodule #{context_module}.OrganizationAuthPolicyExemption do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organization_auth_policy_exemptions_template_compile_#{suffix}" do
+          field :organization_id, :binary_id
+          field :user_id, :binary_id
         end
       end
 
@@ -645,7 +675,10 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert router_injection.content =~ ~s|scope "/organizations/:org"|
       assert router_injection.content =~ ~s|get "/sso", EnterpriseSSOController, :new|
       assert router_injection.content =~ ~s|post "/sso", EnterpriseSSOController, :create|
-      assert router_injection.content =~ ~s|get "/sso/callback", EnterpriseSSOController, :callback|
+
+      assert router_injection.content =~
+               ~s|get "/sso/callback", EnterpriseSSOController, :callback|
+
       assert router_injection.content =~ "Sigra.Plug.LoadOrganizationFromSlug"
     end
   end

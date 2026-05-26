@@ -62,6 +62,9 @@ defmodule Sigra.Error do
             | :authorize_failed
             | :enterprise_context_mismatch
             | :org_connection_unavailable
+            | :unsafe_email_claim
+            | :ambiguous_email_match
+            | :provider_subject_conflict
 
     @impl true
     def message(%{provider: provider, error_code: code}) when not is_nil(code) do
@@ -212,6 +215,15 @@ defmodule Sigra.Error do
 
   def safe_message(:oauth_org_connection_unavailable),
     do: "Enterprise sign-in is currently unavailable. Please try again or contact support."
+
+  def safe_message(:oauth_unsafe_email_claim),
+    do: "Could not complete enterprise sign in. Please contact your administrator."
+
+  def safe_message(:oauth_ambiguous_email_match),
+    do: "Could not complete enterprise sign in. Please contact your administrator."
+
+  def safe_message(:oauth_provider_subject_conflict),
+    do: "Could not complete enterprise sign in. Please contact your administrator."
 
   # API token / JWT error codes
   def safe_message(:token_revoked), do: "This token has been revoked."

@@ -25,6 +25,22 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
     end
   end
 
+  defmodule SSOOnlyOrganizations do
+    def local_auth_policy_for(%{email: "b3-sso@example.com"}, _opts) do
+      %{
+        organization_id: "org-b3",
+        enforcement_mode: :sso_required,
+        break_glass: false,
+        password_login: :deny,
+        password_reset: :deny
+      }
+    end
+
+    def local_auth_policy_for(_user, _opts) do
+      %{password_login: :allow, password_reset: :allow, break_glass: false}
+    end
+  end
+
   setup do
     start_supervised!({PostgresRepo, PostgresRepo.default_config()})
     repo = PostgresRepo
@@ -84,6 +100,7 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
       repo: repo,
       user_schema: LoginUser,
       otp_app: :sigra,
+      organizations_module: SSOOnlyOrganizations,
       audit: [audit_schema: AuditTestEvent],
       session: [store: Sigra.MockSessionStore, session_schema: LoginUser],
       suspicious_login: [enabled: false, notify: false],
@@ -139,6 +156,44 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
       actor_id: user.id,
       target_id: user.id,
       metadata: %{"method" => "password"}
+    })
+  end
+
+  test "config authenticate: SSO-only denial returns before auth.login.success and session.create",
+       %{repo: repo} do
+    password = "long_password_123"
+    hashed = Sigra.Crypto.hash_password(password)
+
+    {:ok, user} =
+      %LoginUser{}
+      |> Ecto.Changeset.change(%{
+        email: "b3-sso@example.com",
+        hashed_password: hashed,
+        confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        failed_login_attempts: 0,
+        locked_at: nil
+      })
+      |> repo.insert()
+
+    cfg = sigra_config(repo)
+
+    assert {:error, :sso_required} =
+             Auth.authenticate(cfg, %{
+               "email" => user.email,
+               "password" => password
+             })
+
+    assert is_nil(
+             Assertions.latest_audit_event(repo, AuditTestEvent, action: "auth.login.success")
+           )
+
+    assert is_nil(Assertions.latest_audit_event(repo, AuditTestEvent, action: "session.create"))
+
+    Assertions.assert_audit_fields(repo, AuditTestEvent, %{
+      action: "auth.login.failure",
+      actor_id: user.id,
+      target_id: user.id,
+      metadata: %{"reason" => "sso_required", "organization_id" => "org-b3"}
     })
   end
 end

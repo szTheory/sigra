@@ -18,9 +18,20 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-**GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase and prompt research before questioning, and ask only when no clear winner remains after narrowing.
+**GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
-## Latest Shipped Milestone: v1.26 PK-LIFECYCLE
+## Latest Shipped Milestone: v1.27 ENT-SSO
+
+**Shipped:** 2026-05-26
+
+Sigra now ships a bounded enterprise login contract for organization-based B2B adopters: truthful enterprise connection setup and activation, canonical org-aware routing and bounded discovery, safe JIT membership reconciliation, SSO-only enforcement with explicit break-glass recovery, and a generated-host/operator proof package that stays honest about non-goals.
+
+Archives:
+- [`.planning/milestones/v1.27-ROADMAP.md`](milestones/v1.27-ROADMAP.md)
+- [`.planning/milestones/v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md)
+- [`.planning/milestones/v1.27-MILESTONE-AUDIT.md`](milestones/v1.27-MILESTONE-AUDIT.md)
+
+## Previous Shipped Milestone: v1.26 PK-LIFECYCLE
 
 **Shipped:** 2026-05-25
 
@@ -31,45 +42,22 @@ Archives:
 - [`.planning/milestones/v1.26-REQUIREMENTS.md`](milestones/v1.26-REQUIREMENTS.md)
 - [`.planning/milestones/v1.26-MILESTONE-AUDIT.md`](milestones/v1.26-MILESTONE-AUDIT.md)
 
-## Previous Shipped Milestone: v1.25 EMAIL-RAILS
-
-**Shipped:** 2026-05-23
-
-Sigra now ships a coherent email-operations story on top of its auth substrate: an optional Mailglass adapter, generated-host override rails, preview-catalog support, provider-agnostic telemetry and async delivery posture, and bounce/complaint hooks with concrete provider recipes and example proof.
-
-Archives:
-- [`.planning/milestones/v1.25-ROADMAP.md`](milestones/v1.25-ROADMAP.md)
-- [`.planning/milestones/v1.25-REQUIREMENTS.md`](milestones/v1.25-REQUIREMENTS.md)
-- [`.planning/milestones/v1.25-MILESTONE-AUDIT.md`](milestones/v1.25-MILESTONE-AUDIT.md)
-
 ## Current State
 
-`v1.26 PK-LIFECYCLE` is now shipped and archived. The live milestone planning surface has been collapsed, `REQUIREMENTS.md` has been archived, and the project is back in milestone-selection mode.
+`v1.27 ENT-SSO` is shipped and archived. The enterprise proof authority is now split cleanly by phase: `123-VERIFICATION.md` for routing, `124-VERIFICATION.md` for JIT reconciliation, `125-VERIFICATION.md` for SSO-only enforcement, and `126-VERIFICATION.md` for generated-host/operator proof and docs.
 
-The repaired-form rule for the passkey lifecycle work is now explicit and archived: Phases `119` and `120` were backfill/reconciliation phases, while authoritative proof authority remains on Phases `115` and `116`. Phase `121` closed the remaining Nyquist and milestone-truth debt without reopening runtime passkey claims.
+No active milestone is selected. The next ranked candidate is `DATA-LIFECYCLE`, with `SUITE-INTEGRATION` behind it.
 
-## Current Milestone: v1.27 ENT-SSO
+### Just shipped: v1.27 ENT-SSO
 
-**Goal:** Open the door to enterprise customer adoption by adding org-aware enterprise SSO routing, JIT organization membership provisioning, and truthful SSO-only / break-glass posture without pretending Sigra is a hosted identity platform.
+- added truthful organization-bound enterprise connection setup and activation refusal
+- added canonical org-aware enterprise routing with bounded exact-match discovery
+- added safe JIT enterprise reconciliation and first-session org/audit truth
+- added SSO-only enforcement with explicit break-glass recovery
+- closed generated-host/operator proof, installer parity, and bounded enterprise docs
+- backfilled authoritative verification artifacts for Phases 123, 124, and 125
 
-**Target features:**
-- Enterprise OIDC-first connection model per organization, with provider-agnostic seams kept explicit for future SAML work
-- Org-aware login routing via explicit organization entry and domain discovery
-- JIT account and membership reconciliation on enterprise login
-- SSO-only enforcement with explicit break-glass exemptions and operator truth
-- Generated-host proof, diagnostics, and setup guidance for the bounded enterprise login contract
-
-**Why now:** Sigra already ships the org/MFA/RBAC/service-account substrate. The highest-leverage remaining wedge for serious B2B adopters is enterprise login routing and JIT truth, not another narrow polish pass.
-
-## Current Milestone Status
-
-Latest verified milestone: `v1.26 PK-LIFECYCLE`.
-
-Current active milestone: `v1.27 ENT-SSO`.
-
-The archived v1.26 authorities are `.planning/phases/115-last-passkey-safety-deletion-truth/115-VERIFICATION.md`, `.planning/phases/115-last-passkey-safety-deletion-truth/115-VALIDATION.md`, `.planning/phases/116-recovery-first-passkey-bootstrap/116-VERIFICATION.md`, `.planning/phases/116-recovery-first-passkey-bootstrap/116-VALIDATION.md`, `.planning/phases/117-cross-device-rp-id-trust-rails/117-VALIDATION.md`, `.planning/phases/118-generated-host-proof-milestone-closeout/118-VERIFICATION.md`, `.planning/phases/118-generated-host-proof-milestone-closeout/118-VALIDATION.md`, and `.planning/phases/121-pk-lifecycle-nyquist-closure/121-VERIFICATION.md`.
-
-### Just shipped: v1.26 PK-LIFECYCLE
+### Previously shipped: v1.26 PK-LIFECYCLE
 
 - strengthened last-passkey deletion truth
 - backfilled `PK-02` through `115-VERIFICATION.md` and `115-VALIDATION.md`
@@ -181,18 +169,18 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** **Plan and execute `v1.27 ENT-SSO` starting at Phase 122**
+**Immediate next action:** **Start the next milestone definition; `DATA-LIFECYCLE` is the top-ranked candidate**
 
 **Recent between-milestones closeout:** **`REL-01 Release Truth Reset`**
 
 **Current active milestone:**
-- `v1.27 ENT-SSO`
+- none selected
 
 **Ranked follow-ons after the current milestone:**
 - `DATA-LIFECYCLE` — auth-data export, audit inclusion, and anonymize/delete lifecycle guidance
 - `SUITE-INTEGRATION` — companion-library integration once the sharper adoption blockers are closed
 
-**Deferred after `v1.27` milestone selection:**
+**Deferred after `v1.27` shipment:**
 - `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
 - full SCIM / directory sync and generic directory lifecycle automation until an enterprise SSO milestone proves the narrower login + JIT wedge first
 - Any theme that primarily expands generic admin CRUD, hosted-control-plane behavior, or authz policy rather than the auth control plane itself.
@@ -228,16 +216,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.27 ENT-SSO
+### No Active Milestone Requirements
 
-- [ ] **SSO-01** — Organization admins can configure an enterprise OIDC connection for their organization with validated discovery and client settings.
-- [ ] **SSO-02** — Sigra refuses to activate an unusable enterprise connection and exposes setup truth clearly enough that operators do not need to reverse-engineer callback failures.
-- [ ] **SSO-03** — Users can enter enterprise login through an org-aware entry path that resolves the correct organization connection by explicit org route or verified email-domain discovery.
-- [ ] **SSO-04** — Successful enterprise login signs the user into the correct organization and preserves Sigra's existing session and audit truth.
-- [ ] **JIT-01** — Enterprise login can provision or reconcile organization membership just in time without bypassing the existing org invariants.
-- [ ] **JIT-02** — Ambiguous enterprise identity matches fail safely instead of silently linking the wrong account.
-- [ ] **ENF-01** — Organizations can require SSO for members while preserving explicit break-glass exemptions for allowed users.
-- [ ] **OPS-01** — Generated-host proof, diagnostics, and docs make the bounded enterprise SSO contract legible for adopters and operators.
+The active `REQUIREMENTS.md` file is intentionally absent until the next milestone is selected. See [`.planning/milestones/v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md) for the archived enterprise requirement contract and outcomes.
 
 ### Archived — v1.26 PK-LIFECYCLE (shipped 2026-05-25)
 
@@ -612,4 +593,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-25 — activated `v1.27 ENT-SSO` after the post-`v1.26` milestone assessment and requirement reset.*
+*Last updated: 2026-05-26 — archived `v1.27 ENT-SSO` and reset the live planning surface for next-milestone selection.*

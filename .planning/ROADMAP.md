@@ -31,94 +31,20 @@
 - ✅ **v1.24 Session Control Plane** — Phases **108–110** (shipped **2026-05-08**). See [v1.24 archive](milestones/v1.24-ROADMAP.md), [v1.24 requirements](milestones/v1.24-REQUIREMENTS.md), [v1.24 milestone audit](milestones/v1.24-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.25 EMAIL-RAILS (Email Reliability & Override Rails)** — Phases **111–114** (shipped **2026-05-23**). See [v1.25 archive](milestones/v1.25-ROADMAP.md), [v1.25 requirements](milestones/v1.25-REQUIREMENTS.md), [v1.25 milestone audit](milestones/v1.25-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.26 PK-LIFECYCLE (Passkey Lifecycle Completion)** — Phases **115–121** (shipped **2026-05-25**). See [v1.26 archive](milestones/v1.26-ROADMAP.md), [v1.26 requirements](milestones/v1.26-REQUIREMENTS.md), [v1.26 milestone audit](milestones/v1.26-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- 🟡 **v1.27 ENT-SSO (Enterprise SSO & B2B Connections)** — Phases **122–126** (initialized **2026-05-25**). See [requirements](REQUIREMENTS.md), [PROJECT.md](PROJECT.md), and [MILESTONE-ARC.md](MILESTONE-ARC.md).
+- ✅ **v1.27 ENT-SSO (Enterprise SSO & B2B Connections)** — Phases **122–126** (shipped **2026-05-26**). See [v1.27 archive](milestones/v1.27-ROADMAP.md), [v1.27 requirements](milestones/v1.27-REQUIREMENTS.md), [v1.27 milestone audit](milestones/v1.27-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
-## Phases
+## Current State
 
-### Phase 122: Enterprise Connection Contract & Validation
+No active milestone is selected.
 
-**Goal:** Define and validate the organization-bound enterprise connection model without pretending unusable or unsupported configurations are active.
-
-**Requirements:** SSO-01, SSO-02  
-**Depends on:** none
-**Plans:** 4 plans
-
-Success criteria:
-1. Organization admins can configure an enterprise OIDC connection for their organization through Sigra's generated-host surface.
-2. Connection activation fails truthfully when required discovery or client settings are invalid.
-3. The public/generated-host contract stays provider-agnostic enough that future protocol expansion does not require a different operator model.
-
-Plans:
-- [ ] 122-01-PLAN.md — Add the enterprise connection domain model, generator schema/migration ownership, and failure-closed OIDC validation lifecycle.
-- [ ] 122-02-PLAN.md — Add the org-admin enterprise connection surface, truthful lifecycle UX, and bounded docs for setup validation.
-
-### Phase 123: Org-Aware Enterprise Routing
-
-**Goal:** Route enterprise login into the correct organization connection through explicit org entry and bounded email-domain discovery.
-
-**Requirements:** SSO-03  
-**Depends on:** Phase 122
-**Plans:** 2 plans
-
-Success criteria:
-1. Users can start enterprise login from an explicit organization-aware entry path.
-2. Bounded email-domain discovery resolves only to the intended organization connection.
-3. Session and audit truth preserve which organization initiated the enterprise login flow.
-
-Plans:
-- [ ] 123-01-PLAN.md — Add library-owned exact-match enterprise routing, signed authorize context, callback revalidation, and first-session org truth.
-- [ ] 123-02-PLAN.md — Add the generated-host template surface for canonical org entry, bounded discovery, and lightweight org-truth retry UX.
-- [ ] 123-03-PLAN.md — Sync the committed example app with the enterprise routing surface and add controller plus integration proof in the example Mix lane.
-- [ ] 123-04-PLAN.md — Lock the generated-host routing contract with installer feature and golden diff regression coverage.
-
-### Phase 124: JIT Provisioning & Safe Reconciliation
-
-**Goal:** Make successful enterprise login land in the correct organization membership without silently taking over the wrong account.
-
-**Requirements:** SSO-04, JIT-01, JIT-02  
-**Depends on:** Phase 123
-**Plans:** 3 plans
-
-Success criteria:
-1. Successful enterprise login signs the user into the correct organization while preserving Sigra's existing session and audit invariants.
-2. Just-in-time membership provisioning reuses the current org/membership substrate instead of bypassing it.
-3. Ambiguous matches fail safely and visibly rather than linking an enterprise identity to the wrong user.
-
-Plans:
-- [ ] 124-01-PLAN.md — Add the library-owned enterprise reconciliation core for safe principal resolution, exact invite reuse, and atomic JIT membership outcomes.
-- [ ] 124-02-PLAN.md — Wire reconciliation output into enterprise callback success plus first-session and audit truth without auth-mode fallback.
-- [ ] 124-03-PLAN.md — Update the example enterprise callback flow for org-compatible return paths, `/organizations` fallback, and no-session unsafe recovery.
-
-### Phase 125: SSO-Only Enforcement & Break-Glass Truth
-
-**Goal:** Let organizations enforce enterprise login without locking operators out of the last safe recovery path.
-
-**Requirements:** ENF-01  
-**Depends on:** Phase 124
-
-Success criteria:
-1. Organization policy can require SSO for members through server-side enforcement rather than UI-only gating.
-2. Explicit break-glass exemptions remain available for allowed users.
-3. Denied password-login paths are truthful and auditable.
-
-### Phase 126: Generated-Host Proof, Diagnostics & Docs
-
-**Goal:** Close the milestone with generated-host proof, operator diagnostics, and honest docs for the bounded enterprise SSO contract.
-
-**Requirements:** OPS-01  
-**Depends on:** Phase 125
-
-Success criteria:
-1. Generated-host/example proof covers the bounded enterprise login happy path and representative denied-path behavior.
-2. Operators can tell whether setup, routing, reconciliation, or enforcement is failing without reverse-engineering Sigra internals.
-3. Docs and planning surfaces stay explicit about non-goals: no SCIM, no hosted control plane, no opinionated authz.
+Start the next milestone with `$gsd-new-milestone` after reviewing [MILESTONE-ARC.md](MILESTONE-ARC.md), [PROJECT.md](PROJECT.md), and [MILESTONES.md](MILESTONES.md).
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only. Do not plan new work under **999.x**; use newly numbered phases.
 - **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope for v1.23.
 - **`REL-01` release truth reset** — completed between milestones; reconciled version/release truth across package metadata, changelog framing, and maintainer-facing release docs.
-- **`DATA-LIFECYCLE` compliance export + data lifecycle** — ranked future candidate after `ENT-SSO`; extend existing export and anonymize seams after more universal adoption blockers are closed.
+- **`DATA-LIFECYCLE` compliance export + data lifecycle** — current top-ranked milestone candidate; extend existing export and anonymize seams after the enterprise-auth wedge shipped in v1.27.
 - **Built-in opinionated roles** — RBAC stays seams-only per Phase **92**.
 - **MySQL / SQLite adapters** — explicitly removed via Phase **94**; re-evaluate only if an adopter signals concrete demand and is willing to own the adapter.
 - **Phase 999.x archaeology** — pure planning hygiene; tombstone-only.
@@ -128,5 +54,5 @@ Success criteria:
 
 - Treat [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) as the ranking source for the next several milestones.
 - Do not treat `SESS-01` or `PK-01` as fresh greenfield gaps: session/device labeling and passkey list/rename/remove are already substantially shipped.
-- `ENT-SSO` is the active milestone; `DATA-LIFECYCLE` is the next ranked follow-on once the current wedge is complete.
+- `ENT-SSO` shipped in v1.27; `DATA-LIFECYCLE` is now the next ranked follow-on candidate.
 - Prefer milestones that improve production trust, integration clarity, or DX on rough edges over generic admin expansion or hosted-control-plane imitation.

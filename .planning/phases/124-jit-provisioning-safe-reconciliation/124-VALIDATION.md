@@ -1,10 +1,12 @@
 ---
 phase: 124
 slug: jit-provisioning-safe-reconciliation
-status: draft
+status: passed
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-05-25
+updated: 2026-05-26
+requirements: [SSO-04, JIT-01, JIT-02]
 ---
 
 # Phase 124 - Validation Strategy
@@ -73,4 +75,4 @@ created: 2026-05-25
 - [x] Feedback latency < 30s for per-task smoke lanes
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** passed on 2026-05-26 after current-head reconciliation, callback, and example-host reruns.

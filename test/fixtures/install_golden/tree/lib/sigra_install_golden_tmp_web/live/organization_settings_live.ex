@@ -165,6 +165,37 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
           </span>
         </div>
 
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Setup</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              Save a draft, validate discovery, then activate. If the connection stays
+              `validation_failed`, use the last validation error as the setup-stage truth.
+            </p>
+          </div>
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Routing</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              Enterprise sign-in should start from the canonical organization route or
+              bounded domain discovery, not a generic fallback path.
+            </p>
+          </div>
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Reconciliation</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              Callback recovery stays on the same organization enterprise route when
+              reconciliation fails safely.
+            </p>
+          </div>
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Enforcement</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              SSO-only denial is separate from setup and routing. Use explicit break-glass
+              members for the password-only recovery path.
+            </p>
+          </div>
+        </div>
+
         <%= if @enterprise_connection && @enterprise_connection.last_validation_error do %>
           <div role="alert" class="alert alert-warning alert-soft mt-4">
             <.icon name="hero-exclamation-triangle" class="w-5 h-5" />

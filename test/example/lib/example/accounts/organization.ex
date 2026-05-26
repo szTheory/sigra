@@ -19,6 +19,8 @@ defmodule Example.Accounts.Organization do
 
     has_many :memberships, Example.Accounts.OrganizationMembership
     has_many :invitations, Example.Accounts.OrganizationInvitation
+    has_one :auth_policy, Example.Accounts.OrganizationAuthPolicy
+    has_many :auth_policy_exemptions, Example.Accounts.OrganizationAuthPolicyExemption
 
     timestamps(type: :utc_datetime)
   end

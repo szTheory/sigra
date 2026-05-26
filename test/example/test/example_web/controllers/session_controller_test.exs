@@ -19,6 +19,7 @@ defmodule ExampleWeb.SessionControllerTest do
   import Example.AccountsFixtures
 
   alias Example.Accounts
+  alias Example.Accounts.Scope
 
   @moduletag :example_app
 
@@ -38,6 +39,8 @@ defmodule ExampleWeb.SessionControllerTest do
       assert body =~ ~s(id="enterprise_login_form")
       assert body =~ ~s(action="/users/log_in")
       assert body =~ ~s(method="post")
+      assert body =~ "Magic links are not break-glass recovery for SSO-only organizations"
+      assert body =~ "break-glass stays limited to password sign-in"
     end
 
     test "login page is a dead render (no phx-* attributes)", %{conn: conn} do
@@ -79,6 +82,34 @@ defmodule ExampleWeb.SessionControllerTest do
       assert redirected_to(conn) == ~p"/users/log_in"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Invalid email or password"
     end
+
+    test "SSO-only denial redirects to the organization enterprise sign-in route", %{
+      conn: conn,
+      user: user,
+      password: password
+    } do
+      owner = user_fixture(%{email: "owner-#{System.unique_integer([:positive])}@example.com"})
+      organization = create_organization(%{name: "Acme", slug: "acme-sso"})
+      create_membership(owner, organization, :owner)
+      create_membership(user, organization, :member)
+      create_enterprise_connection(organization, ["example.com"])
+
+      assert {:ok, _policy_state} =
+               Example.Organizations.enable_sso_only(
+                 %Scope{user: owner, active_organization: organization},
+                 [owner.id]
+               )
+
+      conn =
+        post(conn, ~p"/users/log_in", %{
+          "user" => %{"email" => user.email, "password" => password}
+        })
+
+      assert redirected_to(conn) ==
+               ~p"/organizations/acme-sso/sso?#{%{routing_source: "local_policy"}}"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "requires enterprise sign-in"
+    end
   end
 
   describe "POST /users/log_in (_action=magic_link)" do
@@ -105,7 +136,8 @@ defmodule ExampleWeb.SessionControllerTest do
           "user" => %{"email" => "person@acme.example"}
         })
 
-      assert redirected_to(conn) == ~p"/organizations/acme/sso?#{%{routing_source: "domain_discovery"}}"
+      assert redirected_to(conn) ==
+               ~p"/organizations/acme/sso?#{%{routing_source: "domain_discovery"}}"
     end
 
     test "shows a bounded error when discovery has no exact match", %{conn: conn} do

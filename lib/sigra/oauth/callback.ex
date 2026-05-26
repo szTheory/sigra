@@ -25,6 +25,7 @@ defmodule Sigra.OAuth.Callback do
   alias Ecto.Multi
   alias Sigra.Audit
   alias Sigra.Error.OAuthError
+  alias Sigra.OAuth.EnterpriseReconciliation
   alias Sigra.EnterpriseRouting
   alias Sigra.Telemetry
 
@@ -76,39 +77,55 @@ defmodule Sigra.OAuth.Callback do
     identity_schema = config.identity_schema
     user_schema = config.user_schema
 
-    # Step 1: Look up identity by (provider, provider_uid) -- D-32
-    identity = repo.get_by(identity_schema, provider: provider_str, provider_uid: provider_uid)
+    if enterprise_context do
+      case EnterpriseReconciliation.reconcile(
+             config,
+             provider,
+             user_info,
+             token,
+             enterprise_context
+           ) do
+        {:ok, action, user, session_metadata} ->
+          {:ok, action, user, session_metadata}
 
-    cond do
-      # Scenario 1: Existing identity found
-      identity != nil ->
-        handle_existing_identity(
-          config,
-          repo,
-          identity,
-          user_info,
-          token,
-          provider,
-          enterprise_context
-        )
+        {:error, reason} ->
+          {:error, %OAuthError{provider: provider, error_code: reason}}
+      end
+    else
+      # Step 1: Look up identity by (provider, provider_uid) -- D-32
+      identity = repo.get_by(identity_schema, provider: provider_str, provider_uid: provider_uid)
 
-      # Scenario 2-3: No identity, check for email match
-      true ->
-        email = user_info["email"]
-        existing_user = repo.get_by(user_schema, email: email)
+      cond do
+        # Scenario 1: Existing identity found
+        identity != nil ->
+          handle_existing_identity(
+            config,
+            repo,
+            identity,
+            user_info,
+            token,
+            provider,
+            enterprise_context
+          )
 
-        if existing_user do
-          # D-01: Email match requires login confirmation
-          {:link_confirmation_required,
-           %{
-             provider: provider,
-             provider_uid: user_info["sub"],
-             email: email
-           }}
-        else
-          # New user registration
-          register_oauth_user(config, provider, provider_str, user_info, token, enterprise_context)
-        end
+        # Scenario 2-3: No identity, check for email match
+        true ->
+          email = user_info["email"]
+          existing_user = repo.get_by(user_schema, email: email)
+
+          if existing_user do
+            # D-01: Email match requires login confirmation
+            {:link_confirmation_required,
+             %{
+               provider: provider,
+               provider_uid: user_info["sub"],
+               email: email
+             }}
+          else
+            # New user registration
+            register_oauth_user(config, provider, provider_str, user_info, token, enterprise_context)
+          end
+      end
     end
   end
 

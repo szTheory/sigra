@@ -24,6 +24,12 @@ defmodule Example.Organizations do
   performed on the reject path).
   """
 
+  import Ecto.Query
+
+  alias Example.Accounts.OrganizationAuthPolicy
+  alias Example.Accounts.OrganizationAuthPolicyExemption
+  alias Example.Repo
+
   use Sigra.Organizations,
     repo: Example.Repo,
     schemas: [
@@ -128,7 +134,8 @@ defmodule Example.Organizations do
 
   @doc "Builds the enterprise connection changeset for the current organization."
   def change_enterprise_connection(scope, attrs \\ %{}),
-    do: Sigra.EnterpriseConnections.change_connection(enterprise_connection_config(), scope, attrs)
+    do:
+      Sigra.EnterpriseConnections.change_connection(enterprise_connection_config(), scope, attrs)
 
   @doc "Saves enterprise SSO settings as a draft."
   def save_enterprise_connection(scope, attrs),
@@ -136,15 +143,169 @@ defmodule Example.Organizations do
 
   @doc "Runs enterprise SSO validation without activating the connection."
   def validate_enterprise_connection(scope, attrs),
-    do: Sigra.EnterpriseConnections.validate_connection(enterprise_connection_config(), scope, attrs)
+    do:
+      Sigra.EnterpriseConnections.validate_connection(
+        enterprise_connection_config(),
+        scope,
+        attrs
+      )
 
   @doc "Activates the current organization's enterprise SSO connection when validation passes."
   def activate_enterprise_connection(scope, attrs),
-    do: Sigra.EnterpriseConnections.activate_connection(enterprise_connection_config(), scope, attrs)
+    do:
+      Sigra.EnterpriseConnections.activate_connection(
+        enterprise_connection_config(),
+        scope,
+        attrs
+      )
 
   @doc "Disables the current organization's enterprise SSO connection."
   def disable_enterprise_connection(scope),
     do: Sigra.EnterpriseConnections.disable_connection(enterprise_connection_config(), scope)
+
+  @doc "Returns the current organization's auth policy, defaulting to optional."
+  def get_auth_policy(scope) do
+    organization = scope.active_organization
+
+    Repo.get_by(OrganizationAuthPolicy, organization_id: organization.id) ||
+      %OrganizationAuthPolicy{
+        organization_id: organization.id,
+        organization: organization,
+        enforcement_mode: :optional
+      }
+  end
+
+  @doc "Builds the auth policy changeset for the current organization."
+  def change_auth_policy(scope, attrs \\ %{}) do
+    scope
+    |> get_auth_policy()
+    |> OrganizationAuthPolicy.changeset(
+      Map.merge(%{"organization_id" => scope.active_organization.id}, stringify_keys(attrs))
+    )
+  end
+
+  @doc "Persists auth policy changes for the current organization."
+  def save_auth_policy(scope, attrs) do
+    scope
+    |> change_auth_policy(attrs)
+    |> Repo.insert_or_update()
+  end
+
+  @doc "Lists explicit break-glass exemptions for the current organization."
+  def list_auth_policy_exemptions(scope) do
+    OrganizationAuthPolicyExemption
+    |> where([row], row.organization_id == ^scope.active_organization.id)
+    |> join(:inner, [row], membership in Example.Accounts.OrganizationMembership,
+      on:
+        membership.organization_id == row.organization_id and
+          membership.user_id == row.user_id
+    )
+    |> join(:inner, [_row, membership], user in Example.Accounts.User,
+      on: user.id == membership.user_id
+    )
+    |> order_by([_row, membership, user], asc: membership.role, asc: user.email)
+    |> select([row, membership, user], %{
+      id: row.id,
+      user_id: user.id,
+      email: user.email,
+      role: membership.role
+    })
+    |> Repo.all()
+  end
+
+  @doc "Lists members who can be selected as break-glass exemptions."
+  def list_break_glass_candidates(scope) do
+    Example.Accounts.OrganizationMembership
+    |> where([membership], membership.organization_id == ^scope.active_organization.id)
+    |> join(:inner, [membership], user in Example.Accounts.User,
+      on: user.id == membership.user_id
+    )
+    |> order_by([membership, user], asc: membership.role, asc: user.email)
+    |> select([membership, user], %{user_id: user.id, email: user.email, role: membership.role})
+    |> Repo.all()
+  end
+
+  @doc "Resolves the current user's local-auth policy for the selected organization."
+  def local_auth_policy_for(user, opts \\ []) do
+    selector_opts = [
+      previous_active_organization_id: Keyword.get(opts, :previous_active_organization_id)
+    ]
+
+    case Sigra.Organizations.select_active_organization(
+           __sigra_org_config__(),
+           user,
+           selector_opts
+         ) do
+      {:ok, organization} ->
+        policy = Repo.get_by(OrganizationAuthPolicy, organization_id: organization.id)
+
+        cond do
+          is_nil(policy) or policy.enforcement_mode != :sso_required ->
+            %{
+              organization_id: organization.id,
+              organization_slug: organization.slug,
+              organization_name: organization.name,
+              enforcement_mode: :optional,
+              break_glass: false,
+              password_login: :allow,
+              password_reset: :allow
+            }
+
+          break_glass_exempt?(organization.id, user.id) ->
+            %{
+              organization_id: organization.id,
+              organization_slug: organization.slug,
+              organization_name: organization.name,
+              enforcement_mode: :sso_required,
+              break_glass: true,
+              password_login: :allow,
+              password_reset: :allow
+            }
+
+          true ->
+            %{
+              organization_id: organization.id,
+              organization_slug: organization.slug,
+              organization_name: organization.name,
+              enforcement_mode: :sso_required,
+              break_glass: false,
+              password_login: :deny,
+              password_reset: :deny
+            }
+        end
+
+      _ ->
+        %{password_login: :allow, password_reset: :allow, break_glass: false}
+    end
+  end
+
+  @doc "Enables SSO-only with explicit break-glass exemptions."
+  def enable_sso_only(scope, exempt_user_ids) when is_list(exempt_user_ids) do
+    exempt_user_ids =
+      exempt_user_ids
+      |> Enum.reject(&(&1 in [nil, ""]))
+      |> Enum.uniq()
+
+    if exempt_user_ids == [] do
+      {:error, :break_glass_required}
+    else
+      Repo.transaction(fn ->
+        with {:ok, policy} <-
+               save_auth_policy(scope, %{"enforcement_mode" => "sso_required"}),
+             :ok <- replace_auth_policy_exemptions(scope, exempt_user_ids) do
+          %{policy: policy, exemptions: list_auth_policy_exemptions(scope)}
+        else
+          {:error, reason} -> Repo.rollback(reason)
+        end
+      end)
+      |> normalize_policy_transaction()
+    end
+  end
+
+  @doc "Disables SSO-only while keeping explicit exemption records."
+  def disable_sso_only(scope) do
+    save_auth_policy(scope, %{"enforcement_mode" => "optional"})
+  end
 
   @doc "Discovers one exact routable enterprise connection from a work-email entry."
   def discover_enterprise_connection(email),
@@ -152,10 +313,60 @@ defmodule Example.Organizations do
 
   @doc "Loads the canonical routable enterprise connection for an organization."
   def get_routable_enterprise_connection(organization),
-    do: Sigra.EnterpriseRouting.get_routable_connection(enterprise_connection_config(), organization)
+    do:
+      Sigra.EnterpriseRouting.get_routable_connection(
+        enterprise_connection_config(),
+        organization
+      )
 
   defp enterprise_connection_config do
     __sigra_org_config__()
-    |> Map.update!(:schemas, &Map.put(&1, :enterprise_connection, Example.Accounts.EnterpriseConnection))
+    |> Map.update!(
+      :schemas,
+      &Map.put(&1, :enterprise_connection, Example.Accounts.EnterpriseConnection)
+    )
+  end
+
+  defp replace_auth_policy_exemptions(scope, exempt_user_ids) do
+    organization_id = scope.active_organization.id
+
+    candidates =
+      list_break_glass_candidates(scope)
+      |> Map.new(&{&1.user_id, &1})
+
+    if Enum.all?(exempt_user_ids, &Map.has_key?(candidates, &1)) do
+      from(row in OrganizationAuthPolicyExemption, where: row.organization_id == ^organization_id)
+      |> Repo.delete_all()
+
+      Enum.reduce_while(exempt_user_ids, :ok, fn user_id, :ok ->
+        attrs = %{organization_id: organization_id, user_id: user_id}
+
+        case %OrganizationAuthPolicyExemption{}
+             |> OrganizationAuthPolicyExemption.changeset(attrs)
+             |> Repo.insert() do
+          {:ok, _row} -> {:cont, :ok}
+          {:error, changeset} -> {:halt, {:error, changeset}}
+        end
+      end)
+    else
+      {:error, :invalid_break_glass_users}
+    end
+  end
+
+  defp normalize_policy_transaction({:ok, result}), do: {:ok, result}
+  defp normalize_policy_transaction({:error, reason}), do: {:error, reason}
+
+  defp break_glass_exempt?(organization_id, user_id) do
+    Repo.exists?(
+      from row in OrganizationAuthPolicyExemption,
+        where: row.organization_id == ^organization_id and row.user_id == ^user_id
+    )
+  end
+
+  defp stringify_keys(attrs) do
+    Map.new(attrs, fn
+      {key, value} when is_atom(key) -> {Atom.to_string(key), value}
+      pair -> pair
+    end)
   end
 end
