@@ -93,7 +93,9 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   2. An adopter following `guides/recipes/companion-libs/mailglass.md` can wire Mailglass `~> 1.2` behind the existing `Sigra.Mailer` behaviour from their host app without expecting a Sigra-owned adapter module or a `--with-mailglass` install flag (and the recipe explicitly says so).
   3. Both recipes ship with `validated_against:` + `last_validated:` frontmatter, a `mix.exs` snippet, a "Failure modes" section, a "Non-goals" section, and the "Sigra works fully standalone" banner, and both are reachable from ExDoc under a new "Companion Libraries" group.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+  - [ ] 132-01-PLAN.md — Threadline canary recipe + Mailglass host-owned-wiring recipe + mix.exs ExDoc registration (RC-01, RC-02)
 
 ### Phase 133: Suite Narrative + Ecosystem Diagram
 
