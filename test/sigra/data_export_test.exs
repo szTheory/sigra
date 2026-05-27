@@ -168,6 +168,21 @@ defmodule Sigra.DataExportTest do
           metadata: %{method: "password"},
           occurred_at: @now,
           inserted_at: @now
+        },
+        %TestAuditEvent{
+          id: 17,
+          action: "organization.active_auto_reassigned",
+          outcome: "success",
+          actor_id: 2,
+          effective_user_id: 2,
+          target_id: 1,
+          target_type: "organization",
+          organization_id: 1,
+          ip_address: "203.0.113.11",
+          user_agent: "Firefox",
+          metadata: %{reason: "colliding organization id"},
+          occurred_at: @now,
+          inserted_at: @now
         }
       ],
       TestMfaCredential => [
@@ -403,6 +418,7 @@ defmodule Sigra.DataExportTest do
       refute Map.has_key?(identity, :encrypted_refresh_token)
 
       assert [audit] = data.audit
+      refute Enum.any?(data.audit, &(&1.action == "organization.active_auto_reassigned"))
 
       assert_includes_only(audit, [
         :id,

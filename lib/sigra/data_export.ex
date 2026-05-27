@@ -233,26 +233,56 @@ defmodule Sigra.DataExport do
         :inserted_at
       ])
 
-    predicates =
-      [:actor_id, :effective_user_id, :target_id]
-      |> Enum.filter(&(&1 in fields))
+    predicates = audit_predicate_fields(fields)
 
-    if predicates == [] do
+    if predicates == [] and :target_id not in fields do
       []
     else
-      predicate =
-        Enum.reduce(predicates, dynamic(false), fn field_name, acc ->
-          dynamic([record], ^acc or field(record, ^field_name) == ^user_id)
-        end)
-
       query =
-        from(record in schema, where: ^predicate)
+        from(record in schema, where: ^audit_predicate(fields, predicates, user_id))
         |> maybe_order_audit_records(fields)
         |> select([record], map(record, ^export_fields))
 
       repo.all(query)
       |> normalize_records(export_fields)
+      |> Enum.filter(&audit_record_for_user?(&1, user_id))
     end
+  end
+
+  defp audit_predicate_fields(fields) do
+    [:actor_id, :effective_user_id]
+    |> Enum.filter(&(&1 in fields))
+  end
+
+  defp audit_predicate(fields, predicates, user_id) do
+    import Ecto.Query
+
+    predicate =
+      Enum.reduce(predicates, dynamic(false), fn field_name, acc ->
+        dynamic([record], ^acc or field(record, ^field_name) == ^user_id)
+      end)
+
+    cond do
+      :target_id in fields and :target_type in fields ->
+        dynamic(
+          [record],
+          ^predicate or
+            (field(record, ^:target_id) == ^user_id and field(record, ^:target_type) == "user")
+        )
+
+      :target_id in fields ->
+        dynamic([record], ^predicate or field(record, ^:target_id) == ^user_id)
+
+      true ->
+        predicate
+    end
+  end
+
+  defp audit_record_for_user?(record, user_id) do
+    Map.get(record, :actor_id) == user_id or
+      Map.get(record, :effective_user_id) == user_id or
+      (Map.get(record, :target_id) == user_id and
+         (not Map.has_key?(record, :target_type) or Map.get(record, :target_type) == "user"))
   end
 
   defp maybe_order_audit_records(query, fields) do
