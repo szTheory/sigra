@@ -12,7 +12,7 @@ This guide is intentionally narrow. It explains:
 ## What Sigra gives you
 
 - **`Sigra.OAuth.authorize_url/3`** builds the provider authorization URL and stores PKCE state in the session.
-- **`Sigra.OAuth.callback/4`** exchanges the provider callback for normalized identity data.
+- **`Sigra.OAuth.handle_callback/4`** exchanges the provider callback for normalized identity data.
 - **`Sigra.Auth.register_oauth/4`** creates a new user from OAuth user info.
 - **`Sigra.Auth.login_oauth/4`** logs in an existing user by provider identity.
 - **`Sigra.Auth.link_provider/4`** links a provider identity to an existing account.
@@ -55,7 +55,7 @@ Never hardcode client secrets. Use `System.get_env/1` or equivalent runtime secr
 
 1. Start the flow with a link such as `~p"/auth/google"`.
 2. `Sigra.OAuth.authorize_url/3` generates PKCE state and redirects to the provider.
-3. `Sigra.OAuth.callback/4` verifies the return trip, exchanges the code, and normalizes user info.
+3. `Sigra.OAuth.handle_callback/4` verifies the return trip, exchanges the code, and normalizes user info.
 4. Your host app decides whether to register, log in, or require an explicit account-linking confirmation step.
 
 ### Account linking
