@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
-status: planning
-last_updated: "2026-05-27T15:55:07.780Z"
-last_activity: 2026-05-27 — Phase 131 context gathered (assumptions mode); 9 areas captured as D-01..D-33; ready for `/gsd-plan-phase 131`.
+status: executing
+last_updated: "2026-05-27T16:47:09.097Z"
+last_activity: 2026-05-27 -- Phase 131 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
+  total_plans: 6
   completed_plans: 0
   percent: 0
 ---
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.29 SUITE-INTEGRATION — Threadline audit forwarder library code (Phase 131), six companion-library recipes under `guides/recipes/companion-libs/`, `guides/introduction/suite-integration.md` narrative, `test/example/` Threadline demo extension, and verification proof bundle with v1.25 Mailglass-narrative corrigendum. Phases run 131 → 136 (continuous from v1.28's last phase 130).
+**Current focus:** Phase 131 — Forwarder Behaviour + Threadline Forwarder Library Scaffolding
 
 ## Current Position
 
-Phase: Phase 131 (Forwarder Behaviour + Threadline Forwarder Library Scaffolding)
-Plan: —
-Status: planning
-Last activity: 2026-05-27 — Phase 131 context gathered (assumptions mode); 9 areas captured as D-01..D-33; ready for `/gsd-plan-phase 131`.
+Phase: 131 (Forwarder Behaviour + Threadline Forwarder Library Scaffolding) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 131
+Last activity: 2026-05-27 -- Phase 131 execution started
 
 ## Accumulating Context
 
