@@ -16,15 +16,15 @@
 
 ### Threadline audit forwarder — library code
 
-- [ ] **TL-01** — Sigra ships `Sigra.Audit.Forwarders.Threadline` that subscribes to `[:sigra, :audit, :log]` telemetry and forwards committed audit rows to Threadline. The Sigra audit table remains source-of-truth; Threadline is a post-commit projection, never a destination swap.
-- [ ] **TL-02** — Forwarder supports two-tier dispatch (`:auto` / `:async` / `:sync`) matching the `Sigra.Delivery` precedent: `:auto` selects the `Sigra.Workers.AuditForward` Oban worker when Oban is present, falls back to inline call otherwise; `:async` raises if Oban is absent at boot; `:sync` always calls inline.
-- [ ] **TL-03** — `Sigra.Workers.AuditForward` Oban worker (wrapped in `if Code.ensure_loaded?(Oban.Worker) do`) handles bounded retries with exponential backoff; forwarding failures fire `[:sigra, :audit, :forward, :error]` telemetry and never roll back the originating auth operation.
-- [ ] **TL-04** — Forwarder is optional-dep safe — the entire `Sigra.Audit.Forwarders.Threadline` module is wrapped in `if Code.ensure_loaded?(Threadline) do`, a `Sigra.Audit.Forwarders.Noop` fallback ships in tree, and `Sigra.Application.start/2` emits a one-shot `Logger.warning` when the forwarder is configured but the Threadline dep is missing.
-- [ ] **TL-05** — Forwarder emits separate `[:sigra, :audit, :forward, :ok]` and `[:sigra, :audit, :forward, :error]` telemetry events so operators can observe forwarding parity against the primary audit row without grep-walking logs.
+- [x] **TL-01** — Sigra ships `Sigra.Audit.Forwarders.Threadline` that subscribes to `[:sigra, :audit, :log]` telemetry and forwards committed audit rows to Threadline. The Sigra audit table remains source-of-truth; Threadline is a post-commit projection, never a destination swap.
+- [x] **TL-02** — Forwarder supports two-tier dispatch (`:auto` / `:async` / `:sync`) matching the `Sigra.Delivery` precedent: `:auto` selects the `Sigra.Workers.AuditForward` Oban worker when Oban is present, falls back to inline call otherwise; `:async` raises if Oban is absent at boot; `:sync` always calls inline.
+- [x] **TL-03** — `Sigra.Workers.AuditForward` Oban worker (wrapped in `if Code.ensure_loaded?(Oban.Worker) do`) handles bounded retries with exponential backoff; forwarding failures fire `[:sigra, :audit, :forward, :error]` telemetry and never roll back the originating auth operation.
+- [x] **TL-04** — Forwarder is optional-dep safe — the entire `Sigra.Audit.Forwarders.Threadline` module is wrapped in `if Code.ensure_loaded?(Threadline) do`, a `Sigra.Audit.Forwarders.Noop` fallback ships in tree, and `Sigra.Application.start/2` emits a one-shot `Logger.warning` when the forwarder is configured but the Threadline dep is missing.
+- [x] **TL-05** — Forwarder emits separate `[:sigra, :audit, :forward, :ok]` and `[:sigra, :audit, :forward, :error]` telemetry events so operators can observe forwarding parity against the primary audit row without grep-walking logs.
 
 ### Forwarder behaviour contract
 
-- [ ] **FB-01** — Sigra defines `Sigra.Audit.Forwarder` behaviour with a single `@callback attach(keyword) :: :ok | {:error, term}` so hosts can implement custom forwarders (Datadog, Honeycomb, OpenTelemetry, in-house) and mock the contract via `Mox.defmock(MyForwarder, for: Sigra.Audit.Forwarder)`. Behaviour ships in Phase 131 alongside Threadline impl — locks the contract before a 2nd forwarder lands.
+- [x] **FB-01** — Sigra defines `Sigra.Audit.Forwarder` behaviour with a single `@callback attach(keyword) :: :ok | {:error, term}` so hosts can implement custom forwarders (Datadog, Honeycomb, OpenTelemetry, in-house) and mock the contract via `Mox.defmock(MyForwarder, for: Sigra.Audit.Forwarder)`. Behaviour ships in Phase 131 alongside Threadline impl — locks the contract before a 2nd forwarder lands.
 
 ### Companion-library recipes
 
