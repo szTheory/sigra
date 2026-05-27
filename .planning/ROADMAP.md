@@ -76,7 +76,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
 
   - [x] 131-01-PLAN.md — Forwarder behaviour + Noop fallback (FB-01, TL-04)
   - [x] 131-02-PLAN.md — Audit telemetry metadata extension (TL-05 enabler — adds :id + :occurred_at)
-  - [ ] 131-03-PLAN.md — Config schema + dispatcher + mix.exs no_warn_undefined + optional :threadline dep (TL-02, TL-04)
+  - [x] 131-03-PLAN.md — Config schema + dispatcher + mix.exs no_warn_undefined + optional :threadline dep (TL-02, TL-04)
   - [ ] 131-04-PLAN.md — Threadline impl + AuditForward Oban worker (TL-01, TL-03, TL-05)
   - [ ] 131-05-PLAN.md — Boot wiring: maybe_warn_missing_forwarder_deps/0 + attach_forwarders/0 (TL-02, TL-04)
   - [ ] 131-06-PLAN.md — Dep-off CI lane: library_tests_dep_off in ci.yml (TL-04 SC-2)
@@ -160,7 +160,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 131. Forwarder Behaviour + Threadline Scaffolding | 2/6 | In Progress|  |
+| 131. Forwarder Behaviour + Threadline Scaffolding | 3/6 | In Progress|  |
 | 132. Threadline + Mailglass Recipes | 0/TBD | Not started | - |
 | 133. Suite Narrative + Ecosystem Diagram | 0/TBD | Not started | - |
 | 134. Recipe-Only Companion Libraries | 0/TBD | Not started | - |
