@@ -83,8 +83,6 @@ defmodule Sigra.DataExport do
   @doc since: "0.8.0"
   @spec export_auth_data(module(), struct(), keyword()) :: {:ok, map()}
   def export_auth_data(repo, user, opts \\ []) do
-    import Ecto.Query
-
     data = %{
       schema_version: 1,
       exported_at: DateTime.utc_now() |> DateTime.truncate(:second),
@@ -97,12 +95,56 @@ defmodule Sigra.DataExport do
         scheduled_deletion_at: Map.get(user, :scheduled_deletion_at),
         lifecycle_status: lifecycle_status(user)
       },
-      sessions: fetch_records(repo, Keyword.get(opts, :session_schema), user.id),
-      identities: fetch_records(repo, Keyword.get(opts, :identity_schema), user.id),
+      sessions:
+        fetch_user_records(repo, Keyword.get(opts, :session_schema), user.id, [
+          :id,
+          :type,
+          :ip,
+          :user_agent,
+          :last_active_at,
+          :sudo_at,
+          :active_organization_id,
+          :inserted_at,
+          :updated_at
+        ]),
+      identities:
+        fetch_user_records(repo, Keyword.get(opts, :identity_schema), user.id, [
+          :id,
+          :provider,
+          :provider_uid,
+          :email,
+          :name,
+          :nickname,
+          :avatar_url,
+          :email_verified,
+          :inserted_at,
+          :updated_at
+        ]),
       audit: fetch_audit_records(repo, Keyword.get(opts, :audit_schema), user.id),
       mfa: %{
-        credentials: fetch_records(repo, Keyword.get(opts, :mfa_credential_schema), user.id),
-        passkeys: fetch_records(repo, Keyword.get(opts, :user_passkey_schema), user.id),
+        credentials:
+          fetch_user_records(repo, Keyword.get(opts, :mfa_credential_schema), user.id, [
+            :id,
+            :type,
+            :enabled,
+            :last_used_at,
+            :locked_until,
+            :failed_attempts,
+            :inserted_at,
+            :updated_at
+          ]),
+        passkeys:
+          fetch_user_records(repo, Keyword.get(opts, :user_passkey_schema), user.id, [
+            :id,
+            :nickname,
+            :device_type,
+            :last_used_at,
+            :sign_count,
+            :rp_id,
+            :aaguid,
+            :inserted_at,
+            :updated_at
+          ]),
         backup_codes: %{
           count: count_records(repo, Keyword.get(opts, :backup_code_schema), user.id),
           exported: false,
@@ -110,7 +152,15 @@ defmodule Sigra.DataExport do
         }
       },
       organizations: %{
-        memberships: fetch_records(repo, Keyword.get(opts, :membership_schema), user.id)
+        memberships:
+          fetch_user_records(repo, Keyword.get(opts, :membership_schema), user.id, [
+            :id,
+            :organization_id,
+            :user_id,
+            :role,
+            :inserted_at,
+            :updated_at
+          ])
       },
       enterprise: %{
         connections: [],
@@ -124,14 +174,20 @@ defmodule Sigra.DataExport do
     {:ok, data}
   end
 
-  defp fetch_records(nil, _schema, _user_id), do: []
-  defp fetch_records(_repo, nil, _user_id), do: []
+  defp fetch_user_records(nil, _schema, _user_id, _fields), do: []
+  defp fetch_user_records(_repo, nil, _user_id, _fields), do: []
 
-  defp fetch_records(repo, schema, user_id) do
+  defp fetch_user_records(repo, schema, user_id, fields) do
     import Ecto.Query
 
     if function_exported?(schema, :__schema__, 1) and :user_id in schema.__schema__(:fields) do
-      repo.all(from(r in schema, where: field(r, ^:user_id) == ^user_id))
+      fields = export_fields(schema, fields)
+
+      schema
+      |> where([record], field(record, ^:user_id) == ^user_id)
+      |> select([record], map(record, ^fields))
+      |> repo.all()
+      |> normalize_records(fields)
     else
       []
     end
@@ -158,6 +214,23 @@ defmodule Sigra.DataExport do
 
     fields = schema.__schema__(:fields)
 
+    export_fields =
+      export_fields(schema, [
+        :id,
+        :action,
+        :outcome,
+        :actor_id,
+        :effective_user_id,
+        :target_id,
+        :target_type,
+        :organization_id,
+        :ip,
+        :user_agent,
+        :metadata,
+        :occurred_at,
+        :inserted_at
+      ])
+
     predicates =
       [:actor_id, :effective_user_id, :target_id]
       |> Enum.filter(&(&1 in fields))
@@ -173,8 +246,10 @@ defmodule Sigra.DataExport do
       query =
         from(record in schema, where: ^predicate)
         |> maybe_order_audit_records(fields)
+        |> select([record], map(record, ^export_fields))
 
       repo.all(query)
+      |> normalize_records(export_fields)
     end
   end
 
@@ -211,9 +286,30 @@ defmodule Sigra.DataExport do
     end
   end
 
+  defp export_fields(schema, fields) do
+    schema_fields = schema.__schema__(:fields)
+    Enum.filter(fields, &(&1 in schema_fields))
+  end
+
+  defp normalize_records(records, fields) do
+    Enum.map(records, &normalize_record(&1, fields))
+  end
+
+  defp normalize_record(%{__struct__: _} = record, fields) do
+    record
+    |> Map.from_struct()
+    |> Map.take(fields)
+  end
+
+  defp normalize_record(record, fields) when is_map(record) do
+    Map.take(record, fields)
+  end
+
   defp omissions(opts) do
     @optional_sections
-    |> Enum.filter(fn %{schema_option: schema_option} -> is_nil(Keyword.get(opts, schema_option)) end)
+    |> Enum.filter(fn %{schema_option: schema_option} ->
+      is_nil(Keyword.get(opts, schema_option))
+    end)
     |> Enum.map(fn %{section: section, schema_option: schema_option} ->
       %{
         section: section,
