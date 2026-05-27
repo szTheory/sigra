@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: DATA-LIFECYCLE
-status: executing
-last_updated: "2026-05-27T10:57:52.938Z"
-last_activity: 2026-05-27 -- Phase 130 execution started
+status: blocked
+last_updated: "2026-05-27T11:10:35.393Z"
+last_activity: 2026-05-27 -- Phase 130 Plan 01 executed in blocked branch; PROOF-01 still pending due to docs gate failure
 progress:
   total_phases: 4
   completed_phases: 3
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 130 (verification-and-release-readiness) — EXECUTING
-Plan: 1 of 1
-Status: Executing Phase 130
-Last activity: 2026-05-27 -- Phase 130 execution started
+Phase: 130 (verification-and-release-readiness) — BLOCKED (release docs gate)
+Plan: 1 of 1 (executed; PROOF-01 release-blocked, not completed)
+Status: Phase 130 Plan 01 executed in blocked branch on 2026-05-27. PROOF-01 remains pending in REQUIREMENTS.md and v1.28-MILESTONE-AUDIT.md keeps status: gaps_found.
+Last activity: 2026-05-27 -- Phase 130 Plan 01 executed in blocked branch; PROOF-01 still pending due to docs gate failure
 
 ## Accumulating Context
 
@@ -74,9 +74,21 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - [Phase 128]: Kept account-deletion enqueue ownership in `Sigra.Account.Deletion.schedule/3`.
 - [Phase 128]: Kept missing job context as safe no-op degradation rather than failing scheduling.
 - [Phase 128]: Kept soft-delete finalization row-preserving and `deleted_at`-preserving.
+- [Phase 130]: Captured fresh Phase 130 PROOF-01 evidence on 2026-05-27 with 56+66 targeted-lane passing tests and 2211 full-suite passing tests, but recorded mix docs --warnings-as-errors as a release docs blocker on Sigra.OAuth.callback/4 references; PROOF-01 remains pending and v1.28-MILESTONE-AUDIT.md keeps status: gaps_found.
+- [Phase 130]: Did not flip PROOF-01 to completed or Phase 130 plan count to 1/1 because the release docs gate failed; follow-up plan must fix guides/flows/oauth.md Sigra.OAuth.callback/4 references and rerun mix docs --warnings-as-errors before promotion.
 
 ## Operator Next Steps
 
-- Verify Phase 128 account deletion lifecycle truth, then plan Phase 129 generated host parity and docs from the Phase 128 summary.
+- Plan a focused docs-hotfix follow-on (small Phase 130-02 plan or equivalent) that resolves the `Sigra.OAuth.callback/4` references in `guides/flows/oauth.md` (lines 15 and 58) and reruns `mix docs --warnings-as-errors` cleanly. Once the docs gate passes, promote PROOF-01 to completed in REQUIREMENTS.md, flip Phase 130 to 1/1 in ROADMAP.md, refresh v1.28-MILESTONE-AUDIT.md to `status: passed`, and update `130-VERIFICATION.md` to `status: passed`.
 - Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
-- Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.
+- Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE` until v1.28 release readiness is closed.
+
+### Blockers
+
+- Phase 130 release docs gate failure: mix docs --warnings-as-errors fails on Sigra.OAuth.callback/4 undefined-reference warnings in guides/flows/oauth.md (lines 15 and 58). PROOF-01 BLOCKED. Recorded in 130-01-SUMMARY.md ## Release Blockers with owner Claude and retry condition.
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 130 P01 | 605s | 3 tasks; 3 files modified (130-01-SUMMARY.md, 130-VERIFICATION.md, 130-VALIDATION.md); blocked branch — PROOF-01 release-blocked on mix docs --warnings-as-errors. |
