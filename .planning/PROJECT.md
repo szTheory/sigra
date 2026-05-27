@@ -46,7 +46,7 @@ Archives:
 
 `v1.27 ENT-SSO` is shipped and archived. The enterprise proof authority is now split cleanly by phase: `123-VERIFICATION.md` for routing, `124-VERIFICATION.md` for JIT reconciliation, `125-VERIFICATION.md` for SSO-only enforcement, and `126-VERIFICATION.md` for generated-host/operator proof and docs.
 
-The active milestone is `v1.28 DATA-LIFECYCLE`. Phase 127 is complete: Sigra now has a versioned auth/account export with lifecycle status, generated-schema-safe serializers, explicit optional-schema omissions, backup-code summary-only behavior, and bounded enterprise exclusion truth. `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
+The active milestone is `v1.28 DATA-LIFECYCLE`. Phase 128 is complete: Sigra now has executable truth for account deletion scheduling, safe missing-job-context degradation, active-scheduled cancel/execute gating, stale worker no-ops, and row-preserving soft-delete finalization. `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
 
 ## Current Milestone: v1.28 DATA-LIFECYCLE
 
@@ -232,7 +232,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 _See [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md) for the active requirement contract and phase mapping._
 
 - ✓ **EXP-01 / EXP-02** — versioned Sigra-owned auth/account export with optional-schema omission truth. Validated in Phase 127.
-- **LIFE-01 / LIFE-02 / LIFE-03** — truthful deletion scheduling, cancellation, execution, worker enqueue, and soft-delete finalization semantics.
+- ✓ **LIFE-01 / LIFE-02 / LIFE-03** — truthful deletion scheduling, cancellation, execution, worker enqueue, and soft-delete finalization semantics. Validated in Phase 128.
 - **HOST-01 / DOC-01** — generated-host, example-app, install-golden, and documentation parity.
 - **PROOF-01** — targeted tests and release-readiness proof for the active data-lifecycle contract.
 
@@ -609,4 +609,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-27 — completed Phase 127 of `v1.28 DATA-LIFECYCLE`; EXP-01/EXP-02 are validated and Phase 128 is next.*
+*Last updated: 2026-05-27 — completed Phase 128 of `v1.28 DATA-LIFECYCLE`; LIFE-01/LIFE-02/LIFE-03 are validated and Phase 129 is next.*
