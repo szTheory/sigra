@@ -49,7 +49,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
 
 **Phase summary:**
 
-- [ ] **Phase 131: Forwarder Behaviour + Threadline Forwarder Library Scaffolding** — Ship `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline` impl + Noop fallback + optional Oban worker + boundary doctrine.
+- [x] **Phase 131: Forwarder Behaviour + Threadline Forwarder Library Scaffolding** — Ship `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline` impl + Noop fallback + optional Oban worker + boundary doctrine. (completed 2026-05-27)
 - [ ] **Phase 132: Threadline Recipe + Mailglass Cross-Link Recipe** — Publish the canonical Threadline integration recipe and the Mailglass host-owned-wiring recipe that pin the config block Phase 131 froze.
 - [ ] **Phase 133: Suite Narrative + Ecosystem Diagram** — Publish `guides/introduction/suite-integration.md` as the canonical narrative entry point, with the ASCII ecosystem diagram, fan-out matrix, and standalone-banner posture.
 - [ ] **Phase 134: Recipe-Only Companion Libraries** — Publish the four recipe-only companion-lib docs (Accrue, Lockspire, Relyra, Rulestead) under `guides/recipes/companion-libs/`.
@@ -79,7 +79,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   - [x] 131-03-PLAN.md — Config schema + dispatcher + mix.exs no_warn_undefined + optional :threadline dep (TL-02, TL-04)
   - [x] 131-04-PLAN.md — Threadline impl + AuditForward Oban worker (TL-01, TL-03, TL-05)
   - [x] 131-05-PLAN.md — Boot wiring: maybe_warn_missing_forwarder_deps/0 + attach_forwarders/0 (TL-02, TL-04)
-  - [ ] 131-06-PLAN.md — Dep-off CI lane: library_tests_dep_off in ci.yml (TL-04 SC-2)
+  - [x] 131-06-PLAN.md — Dep-off CI lane: library_tests_dep_off in ci.yml (TL-04 SC-2)
 
 ### Phase 132: Threadline Recipe + Mailglass Cross-Link Recipe
 
@@ -160,7 +160,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 131. Forwarder Behaviour + Threadline Scaffolding | 5/6 | In Progress|  |
+| 131. Forwarder Behaviour + Threadline Scaffolding | 6/6 | Complete   | 2026-05-27 |
 | 132. Threadline + Mailglass Recipes | 0/TBD | Not started | - |
 | 133. Suite Narrative + Ecosystem Diagram | 0/TBD | Not started | - |
 | 134. Recipe-Only Companion Libraries | 0/TBD | Not started | - |
