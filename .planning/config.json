@@ -47,5 +47,8 @@
   "agent_skills": {},
   "resolve_model_ids": "omit",
   "mode": "yolo",
-  "granularity": "fine"
+  "granularity": "fine",
+  "model_overrides": {
+    "gsd-executor": "claude-sonnet-4-6"
+  }
 }
