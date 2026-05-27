@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
 status: executing
-last_updated: "2026-05-27T22:06:50.294Z"
+last_updated: "2026-05-27T22:19:34.132Z"
 last_activity: 2026-05-27
 progress:
   total_phases: 6
@@ -21,14 +21,15 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 131 — Forwarder Behaviour + Threadline Forwarder Library Scaffolding
+**Current focus:** Phase 132 — Threadline Recipe + Mailglass Cross-Link Recipe
 
 ## Current Position
 
 Phase: 132
 Plan: Not started
-Status: Executing Phase 131
+Status: Context gathered (assumptions mode) — ready for planning
 Last activity: 2026-05-27
+Resume file: `.planning/phases/132-threadline-recipe-mailglass-cross-link-recipe/132-CONTEXT.md`
 
 ## Accumulating Context
 
