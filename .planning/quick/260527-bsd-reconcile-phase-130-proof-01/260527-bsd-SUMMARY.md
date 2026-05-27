@@ -2,6 +2,7 @@
 quick-id: 260527-bsd
 type: execute
 mode: quick
+status: complete
 wave: 1
 depends_on: []
 requirements-completed: [PROOF-01]

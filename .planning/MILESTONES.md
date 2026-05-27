@@ -1,5 +1,19 @@
 # Milestones
 
+## v1.28 DATA-LIFECYCLE (Shipped: 2026-05-27)
+
+**Phases completed:** 4 phases, 6 plans, 12 tasks
+
+**Key accomplishments:**
+
+- Executable RED tests now pin lifecycle status, omission truth, configured-schema serialization, and credential-secret exclusion for the auth data export contract.
+- Library-owned schema_version 1 auth export now derives lifecycle truth, reports optional-schema omissions, and serializes configured auth records through safe allowlists.
+- Account deletion lifecycle truth is now pinned by tests for Oban enqueue shape, safe missing-context degradation, stale worker no-ops, and row-preserving soft-delete finalization.
+- Generated host, example app, and install golden now expose thin Sigra-owned auth export wrappers and strategy-neutral lifecycle copy.
+- Guide tests and public docs now pin Sigra-owned auth/account export boundaries, optional-schema omissions, and strategy-specific deletion outcomes.
+
+---
+
 ## v1.27 ENT-SSO (Shipped: 2026-05-26)
 
 **Phases completed:** 5 phases, 17 plans, 35 tasks

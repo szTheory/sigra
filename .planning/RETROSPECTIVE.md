@@ -1,6 +1,56 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.17 section added at milestone close (2026-04-24).*
+*Living document updated at milestone boundaries. v1.28 section added at milestone close (2026-05-27). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumes the cadence.*
+
+## Milestone: v1.28 — DATA-LIFECYCLE (Compliance Export & Data Lifecycle)
+
+**Shipped:** 2026-05-27
+**Phases:** 4 (127, 128, 129, 130) | **Plans:** 6 (`127-01`, `127-02`, `128-01`, `129-01`, `129-02`, `130-01`)
+**Git range:** `v1.27..v1.28` — 77 commits, 78 files changed, +10,340 / −145
+**Timeline:** single-day milestone — 2026-05-27 02:00 → 08:42 EDT (~7 hours of execution time)
+
+### What was built
+
+- **EXP-01 / EXP-02** — `Sigra.DataExport.export_auth_data/3` ships `schema_version: 1` with curated safe serializers, lifecycle status derived from `Sigra.Account.Deletion.status/1`, explicit structured omission notes, backup-code summary-only exposure, and explicit exclusion of enterprise connections.
+- **LIFE-01 / LIFE-02 / LIFE-03** — `Sigra.Account.Deletion.schedule/3` enqueues `Sigra.Workers.AccountDeletion` when Oban + generated-host context exist; degrades safely when context is absent; cancel/execute gated through `Deletion.scheduled?/1`; soft-delete finalization clears scheduled-deletion + pending/original email fields while preserving the row and `deleted_at`.
+- **HOST-01** — Generated host templates, example app, and install golden fixture all delegate to library export/lifecycle APIs (no per-host re-implementation).
+- **DOC-01** — Account lifecycle, audit export, and testing docs pin Sigra-owned vs host-owned data boundaries, omission behavior, and deletion strategy consequences; guide tests assert the contract.
+- **PROOF-01** — 56+66 lifecycle/install-lane targeted tests, 2211 full-suite tests, and `mix docs --warnings-as-errors` exit 0 (unblocked by docs-fix commit `110a560`).
+
+### What worked
+
+- **Assumptions-mode discuss → planning → execute** chain on day-of: all four phases planned and executed in a single working session with clean handoffs through `*-CONTEXT.md` resume artifacts.
+- **RED-first plan-01 for Phase 127** — test-only proof committed before implementation gave Plan 02 a precise contract to satisfy; export payload shape stabilized fast.
+- **Single library ownership boundary** — keeping export payload in `Sigra.DataExport.export_auth_data/3` and deletion lifecycle in `Sigra.Account.Deletion` meant Phase 129 generated-host work was a thin wrapper, not a re-implementation.
+- **Audit unblocker via quick-task `260527-bsd`** — when PROOF-01 hit the `mix docs --warnings-as-errors` blocker on OAuth callback xrefs, a focused quick task (commits `110a560` + `111e024`) closed the docs gate and reconciled all five v1.28 traceability artifacts in one atomic doc-only pass.
+
+### What was inefficient
+
+- **Docs gate caught late** — `mix docs --warnings-as-errors` is a release-readiness gate that should run earlier in Phase 130 (or in a Phase 129 verification step) so docs-xref drift surfaces before the final proof commit, not after.
+- **Quick-task SUMMARY missing `status: complete` field** — bookkeeping caused `gsd-sdk query audit-open` to flag a clean task as open at milestone close. Future quick-tasks should set `status: complete` in frontmatter alongside `completed: <timestamp>`.
+- **No v1.18–v1.27 retrospective entries** — 10 milestones shipped without retrospective sections, leaving cross-milestone trend tables stale. Worth a one-time backfill pass before next retrospective grows further.
+
+### Patterns established
+
+- **Versioned payload + structured omissions** — Library-owned exports carry `schema_version` plus an explicit `omissions` block keyed by `(section, schema)` rather than silently dropping missing optional data.
+- **Safe missing-context degradation for schedulers** — Background-job scheduling functions check for required context (Oban + generated-host modules) and no-op rather than failing when the host hasn't wired them; explicit return values communicate the degradation.
+- **Active-scheduled gating for state transitions** — Cancel/execute paths assert `scheduled?/1` and return `{:error, :not_scheduled}` rather than mutating finalized rows; stale workers also use the same predicate to no-op gracefully.
+- **Row-preserving soft-delete finalization** — Soft-delete clears scheduled-deletion + pending/original email fields while preserving the row and `deleted_at`, keeping audit + recovery possible.
+
+### Key lessons
+
+1. **Run release docs gate early.** `mix docs --warnings-as-errors` is a fast check; bake it into the phase that owns docs (Phase 129) so xref drift gets caught before the verification phase.
+2. **RED-first for contract-defining plans.** Phase 127 Plan 01 as test-only proof made Plan 02 implementation almost mechanical and prevented payload-shape drift.
+3. **One library ownership boundary per concern.** Resisting the urge to duplicate export logic into generated-host templates kept Phase 129 small and made HOST-01 verification trivial.
+4. **Acknowledge bookkeeping gaps explicitly.** The `status: complete` frontmatter quirk in the quick-task SUMMARY surfaced through `audit-open` — fix the canonical form rather than acknowledging it as deferred debt.
+
+### Cost observations
+
+- Model mix: n/a (not instrumented)
+- Sessions: single working day (2026-05-27, ~7 hours wall-clock)
+- Notable: 77 commits with +10,340 / −145 in a single day is a high-throughput milestone; the bounded scope (auth export + deletion lifecycle only — no SCIM, BI export, hosted control plane) and the strong substrate from v1.0–v1.27 (account lifecycle, audit, Oban workers, generated-host pattern) were the leverage.
+
+---
 
 ## Milestone: v1.17 — Forced password change audit atomicity
 
