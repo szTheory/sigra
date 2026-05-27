@@ -333,17 +333,17 @@ MIX_ENV=test mix test test/sigra/install/golden_diff_test.exs
 | A1 | A generated wrapper can naturally live in the existing generated Accounts/Auth context near lifecycle helpers. [ASSUMED] | Common Pitfalls / Pattern 1 | If planner chooses a different file, tests and docs must still prove a thin generated seam exists. |
 | A2 | No new dependency is needed for Phase 129. [ASSUMED] | Standard Stack | If implementation discovers a docs or fixture tool gap, planner may need an environment/setup task, but current repo has required tools. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should docs add a new dedicated data-export guide or update current guides only?**
    - What we know: Context gives discretion on exact documentation structure and names account lifecycle, audit/auth export, and testing docs as required coverage. [VERIFIED: `129-CONTEXT.md`]
    - What's unclear: Whether a standalone guide improves discoverability enough to justify another ExDoc extra. [ASSUMED]
-   - Recommendation: Update existing `account-lifecycle`, `audit-logging`, and `testing` guides first; add cross-links from getting-started only if the edits become hard to discover. [VERIFIED: `mix.exs`, `129-CONTEXT.md`]
+   - RESOLVED: Update existing `account-lifecycle`, `audit-logging`, and `testing` guides first. Do not add a dedicated data-export guide in Phase 129 unless execution discovers the required DOC-01 truth cannot fit coherently in those existing guides. [VERIFIED: `mix.exs`, `129-CONTEXT.md`]
 
 2. **Should `lib/sigra/testing.ex` behavior change or only its docs?**
    - What we know: `assert_account_deleted/3` currently accepts absent row or anonymized email, while Phase 129 specifically names docs and generated parity. [VERIFIED: `lib/sigra/testing.ex`, `.planning/ROADMAP.md`]
    - What's unclear: Whether changing helper semantics belongs in Phase 129 or Phase 130 proof. [ASSUMED]
-   - Recommendation: Plan doc truth first; change helper behavior only if tests/docs need a strategy-aware helper to avoid false claims. [VERIFIED: `guides/recipes/testing.md`, `129-CONTEXT.md`]
+   - RESOLVED: Plan documentation truth only for Phase 129. Do not change `lib/sigra/testing.ex` behavior unless execution finds an existing guide test cannot represent strategy-aware truth without a helper change. [VERIFIED: `guides/recipes/testing.md`, `129-CONTEXT.md`]
 
 ## Environment Availability
 
