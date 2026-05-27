@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: v1.28 DATA-LIFECYCLE
 status: executing
-last_updated: "2026-05-27T06:32:59.197Z"
-last_activity: 2026-05-27 -- Phase 127 planning complete
+last_updated: "2026-05-27T06:50:30.055Z"
+last_activity: 2026-05-27 -- Phase 127 Plan 01 proof surface complete
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Execute `DATA-LIFECYCLE` as the active milestone and keep lifecycle truth repair inside the milestone boundary.
+**Current focus:** Phase 127 — versioned-auth-data-export
 
 ## Current Position
 
-Phase: 127 — Versioned Auth Data Export
-Plan: not planned
-Status: Ready to execute
-Last activity: 2026-05-27 -- Phase 127 planning complete
+Phase: 127 (versioned-auth-data-export) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute Plan 2
+Last activity: 2026-05-27 -- Phase 127 Plan 01 proof surface complete
 
 ## Accumulating Context
 
@@ -64,9 +64,10 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - Treat SCIM, hosted-control-plane behavior, generic BI/reporting export, broad directory sync, and opinionated authorization policy as out of scope for `DATA-LIFECYCLE`.
 - `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
 - Gathered Phase 127 assumptions-mode context on 2026-05-27; planning should use `.planning/phases/127-versioned-auth-data-export/127-CONTEXT.md` as the resume artifact.
+- Completed Phase 127 Plan 01 as test-only RED proof on 2026-05-27; EXP-01/EXP-02 production behavior remains for Plan 02 implementation.
 
 ## Operator Next Steps
 
-- Plan and execute Phase 127 from `.planning/phases/127-versioned-auth-data-export/127-CONTEXT.md` before selecting any new milestone.
+- Execute `.planning/phases/127-versioned-auth-data-export/127-02-PLAN.md` to make the Plan 01 export contract tests pass.
 - Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
 - Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.
