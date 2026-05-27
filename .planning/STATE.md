@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 130 (verification-and-release-readiness) — BLOCKED (release docs gate)
-Plan: 1 of 1 (executed; PROOF-01 release-blocked, not completed)
-Status: Phase 130 Plan 01 executed in blocked branch on 2026-05-27. PROOF-01 remains pending in REQUIREMENTS.md and v1.28-MILESTONE-AUDIT.md keeps status: gaps_found.
-Last activity: 2026-05-27 -- Phase 130 Plan 01 executed in blocked branch; PROOF-01 still pending due to docs gate failure
+Phase: 130 (verification-and-release-readiness) — COMPLETE (PROOF-01 closed)
+Plan: 1 of 1 complete
+Status: Phase 130 Plan 01 executed and reconciled on 2026-05-27. Docs gate unblocked by commit 110a560; `mix docs --warnings-as-errors` now exits 0. PROOF-01 satisfied across REQUIREMENTS.md, ROADMAP.md, 130-VERIFICATION.md, 130-01-SUMMARY.md, and v1.28-MILESTONE-AUDIT.md. Milestone v1.28 audit flipped from gaps_found → passed.
+Last activity: 2026-05-27 -- Quick task 260527-bsd reconciled Phase 130 PROOF-01; milestone v1.28 passes
 
 ## Accumulating Context
 
@@ -79,13 +79,19 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 
 ## Operator Next Steps
 
-- Plan a focused docs-hotfix follow-on (small Phase 130-02 plan or equivalent) that resolves the `Sigra.OAuth.callback/4` references in `guides/flows/oauth.md` (lines 15 and 58) and reruns `mix docs --warnings-as-errors` cleanly. Once the docs gate passes, promote PROOF-01 to completed in REQUIREMENTS.md, flip Phase 130 to 1/1 in ROADMAP.md, refresh v1.28-MILESTONE-AUDIT.md to `status: passed`, and update `130-VERIFICATION.md` to `status: passed`.
-- Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
-- Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE` until v1.28 release readiness is closed.
+- v1.28 DATA-LIFECYCLE milestone is complete. Run `/gsd:complete-milestone v1.28` (or the equivalent archive step) to close out the milestone and advance the arc.
+- Use `.planning/MILESTONE-ARC.md` to pick the next milestone after v1.28 archives.
+- `SUITE-INTEGRATION` is now unblocked at the data-lifecycle gate and can be activated whenever the arc selects it.
 
 ### Blockers
 
-- Phase 130 release docs gate failure: mix docs --warnings-as-errors fails on Sigra.OAuth.callback/4 undefined-reference warnings in guides/flows/oauth.md (lines 15 and 58). PROOF-01 BLOCKED. Recorded in 130-01-SUMMARY.md ## Release Blockers with owner Claude and retry condition.
+- None. Prior Phase 130 release docs gate failure resolved by commit 110a560 (Sigra.OAuth.callback/4 xrefs in guides/flows/oauth.md fixed); reconciled across all v1.28 traceability artifacts by quick task 260527-bsd on 2026-05-27.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260527-bsd | Reconcile Phase 130 PROOF-01: capture fresh `mix docs --warnings-as-errors` evidence and flip v1.28 milestone to passed | 2026-05-27 | 111e024 | [260527-bsd-reconcile-phase-130-proof-01](./quick/260527-bsd-reconcile-phase-130-proof-01/) |
 
 ## Performance Metrics
 
