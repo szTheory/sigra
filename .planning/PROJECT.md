@@ -20,6 +20,23 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
+## Current Milestone: v1.29 SUITE-INTEGRATION
+
+**Goal:** Make Sigra compose cleanly with the rest of the szTheory OSS suite — first-class Threadline audit adapter, recipe coverage for the other companion libraries (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead), and a coherent suite-narrative entry point — without owning any sister library's roadmap.
+
+**Target features:**
+- Threadline audit adapter (library-owned `Sigra.Audit.Adapters.Threadline`, optional-dep safe, no Threadline runtime dep when unused)
+- Mailglass adoption posture cross-link (confirm v1.25 EMAIL-RAILS boundary; no double-claim)
+- Integration recipes for the five deferred companion libraries (Accrue, Lockspire, Relyra, Rulestead, Threadline) under `guides/recipes/`
+- Suite-narrative landing page + ecosystem diagram under `guides/introduction/`
+- Reference example proving Sigra + at least one companion (likely Threadline alongside the new adapter)
+- Verification proof bundle (adapter tests, recipe contract checks, generator/install parity, `mix docs --warnings-as-errors`)
+
+**Key context:**
+- Default behaviour follows `MILESTONE-ARC.md` GSD defaults — pick the highest-ranked candidate after v1.28; SUITE-INTEGRATION is the standing recommendation.
+- Non-goals (explicit): owning any companion library's roadmap, replacing recipes with code where the library boundary doesn't justify it, hosted-control-plane behavior, opinionated authorization, generic admin expansion.
+- Phase numbering continues from v1.28 (last phase: 130). v1.29 starts at **Phase 131**.
+
 ## Latest Shipped Milestone: v1.28 DATA-LIFECYCLE
 
 **Shipped:** 2026-05-27
@@ -181,15 +198,15 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** **Pick the next milestone from `MILESTONE-ARC.md` and run `/gsd-new-milestone`**
+**Immediate next action:** **Define v1.29 SUITE-INTEGRATION requirements** (this milestone is now active — see "Current Milestone" section above).
 
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
 **Current active milestone:**
-- None — `v1.28 DATA-LIFECYCLE` shipped 2026-05-27
+- `v1.29 SUITE-INTEGRATION` — opened 2026-05-27; companion-library integration recipes (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead, Threadline) + first-class Threadline audit adapter
 
-**Ranked follow-on (next candidate):**
-- `SUITE-INTEGRATION` — companion-library integration (Accrue, Lockspire, Mailglass, Relyra, Rulestead, Threadline) now that the data-lifecycle trust surface has shipped
+**Ranked follow-on (next candidate after v1.29):**
+- TBD — re-rank `MILESTONE-ARC.md` after v1.29 ships; the "Diminishing Returns Wall" still excludes opinionated authz, billing, and frontend component libraries.
 
 **Deferred after `v1.28` shipment:**
 - `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
@@ -227,9 +244,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active
+### Active — v1.29 SUITE-INTEGRATION (opened 2026-05-27)
 
-No active milestone. Run `/gsd-new-milestone` after consulting [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md).
+Requirements TBD — written to [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) after the requirements step of `/gsd-new-milestone` completes. Roadmap phases continue from **Phase 131**.
 
 ### Validated — v1.28 DATA-LIFECYCLE (shipped 2026-05-27)
 
@@ -632,4 +649,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-27 after v1.28 DATA-LIFECYCLE milestone (Phases 127–130 shipped; EXP-01/EXP-02/LIFE-01/LIFE-02/LIFE-03/HOST-01/DOC-01/PROOF-01 validated).*
+*Last updated: 2026-05-27 — `/gsd-new-milestone` opened **v1.29 SUITE-INTEGRATION** (phase numbering continues from 131).*

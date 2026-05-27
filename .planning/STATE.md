@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.28
-milestone_name: DATA-LIFECYCLE
-status: Awaiting next milestone
-last_updated: "2026-05-27T13:01:18.868Z"
-last_activity: 2026-05-27 — Milestone v1.28 completed and archived
+milestone: v1.29
+milestone_name: SUITE-INTEGRATION
+status: planning
+last_updated: "2026-05-27T13:14:39.896Z"
+last_activity: 2026-05-27
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** No active milestone — pick next from `MILESTONE-ARC.md`, then `/gsd-new-milestone`.
+**Current focus:** v1.29 SUITE-INTEGRATION — companion-library integration recipes + first-class Threadline audit adapter + suite narrative. Phases continue from 131.
 
 ## Current Position
 
-Phase: Milestone v1.28 complete and archived
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-05-27 — Milestone v1.28 completed and archived (Phases 127–130 shipped; all 8 requirements satisfied)
+Status: Defining requirements
+Last activity: 2026-05-27 — Milestone v1.29 started
 
 ## Accumulating Context
 
