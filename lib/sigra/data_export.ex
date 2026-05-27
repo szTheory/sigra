@@ -21,6 +21,39 @@ defmodule Sigra.DataExport do
       end
   """
 
+  alias Sigra.Account.Deletion
+
+  @optional_sections [
+    %{
+      section: :sessions,
+      schema_option: :session_schema
+    },
+    %{
+      section: :identities,
+      schema_option: :identity_schema
+    },
+    %{
+      section: :audit,
+      schema_option: :audit_schema
+    },
+    %{
+      section: :mfa_credentials,
+      schema_option: :mfa_credential_schema
+    },
+    %{
+      section: :passkeys,
+      schema_option: :user_passkey_schema
+    },
+    %{
+      section: :backup_codes,
+      schema_option: :backup_code_schema
+    },
+    %{
+      section: :memberships,
+      schema_option: :membership_schema
+    }
+  ]
+
   @doc """
   Export all data associated with the given user.
 
@@ -61,7 +94,8 @@ defmodule Sigra.DataExport do
         confirmed_at: Map.get(user, :confirmed_at),
         inserted_at: user.inserted_at,
         deleted_at: Map.get(user, :deleted_at),
-        scheduled_deletion_at: Map.get(user, :scheduled_deletion_at)
+        scheduled_deletion_at: Map.get(user, :scheduled_deletion_at),
+        lifecycle_status: lifecycle_status(user)
       },
       sessions: fetch_records(repo, Keyword.get(opts, :session_schema), user.id),
       identities: fetch_records(repo, Keyword.get(opts, :identity_schema), user.id),
@@ -159,22 +193,32 @@ defmodule Sigra.DataExport do
     end
   end
 
-  defp omissions(opts) do
-    []
-    |> maybe_add_omission(
-      is_nil(Keyword.get(opts, :audit_schema)),
-      "Audit events are omitted because no audit schema was provided."
-    )
-    |> maybe_add_omission(
-      is_nil(Keyword.get(opts, :membership_schema)),
-      "Organization memberships are omitted because no membership schema was provided."
-    )
-    |> maybe_add_omission(
-      is_nil(Keyword.get(opts, :mfa_credential_schema)),
-      "MFA credential rows are omitted because no MFA credential schema was provided."
-    )
+  defp lifecycle_status(user) do
+    user =
+      user
+      |> Map.put_new(:deleted_at, nil)
+      |> Map.put_new(:scheduled_deletion_at, nil)
+
+    case Deletion.status(user) do
+      {:scheduled, days_remaining} ->
+        %{state: :scheduled, days_remaining: days_remaining}
+
+      :deleted ->
+        %{state: :deleted}
+
+      :not_scheduled ->
+        %{state: :not_scheduled}
+    end
   end
 
-  defp maybe_add_omission(omissions, true, message), do: [message | omissions]
-  defp maybe_add_omission(omissions, false, _message), do: omissions
+  defp omissions(opts) do
+    @optional_sections
+    |> Enum.filter(fn %{schema_option: schema_option} -> is_nil(Keyword.get(opts, schema_option)) end)
+    |> Enum.map(fn %{section: section, schema_option: schema_option} ->
+      %{
+        section: section,
+        schema_option: schema_option
+      }
+    end)
+  end
 end
