@@ -20,7 +20,7 @@ key-decisions:
   - "Captured Phase 130 PROOF-01 evidence by re-running the exact targeted DATA-LIFECYCLE lanes named in the current milestone audit before touching traceability artifacts."
   - "Classified mix docs --warnings-as-errors failure as a release docs blocker rather than fixing production docs inside Task 130-01-02, per the plan instruction to not edit production files in the broader-gate task."
   - "Held PROOF-01 in requirements-blocked state because the release docs gate fails on two undefined-reference warnings to Sigra.OAuth.callback/4."
-requirements-blocked: [PROOF-01]
+requirements-completed: [PROOF-01]
 completed: 2026-05-27
 ---
 
@@ -44,21 +44,31 @@ Targeted PROOF-01 lanes (Task 130-01-01):
 Broader release gates (Task 130-01-02):
 
 - `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test` -> `33 doctests, 3 properties, 2211 tests, 0 failures` (Finished in 279.2 seconds). Compile-time warnings emitted by `Sigra.Test.OrgsTemplateCompile1.*` and a few telemetry "local function handler" info notices are unrelated to PROOF-01 surfaces and pre-date Phase 130.
-- `mix docs --warnings-as-errors` -> **FAILED with exit code 1**. ExDoc emitted: `warning: documentation references function "Sigra.OAuth.callback/4" but it is undefined or private` at `guides/flows/oauth.md:15` and `guides/flows/oauth.md:58`. The CLI message was `Documents have been generated, but generation for html format failed due to warnings while using the --warnings-as-errors option`. This is the exact `Sigra.OAuth.callback/4` warning class flagged as a release-gate risk in `.planning/phases/129-generated-host-parity-and-docs/129-02-SUMMARY.md` and surfaced as Open Question 2 in `.planning/phases/130-verification-and-release-readiness/130-RESEARCH.md`.
+- `mix docs --warnings-as-errors` -> **PASSED with exit code 0** at `2026-05-27T12:36:24Z`. ExDoc emitted:
+
+    ```
+    Compiling 144 files (.ex)
+    Generated sigra app
+    Generating docs...
+    View html docs at "doc/index.html"
+    View markdown docs at "doc/llms.txt"
+    ```
+
+    Unblocked by docs-fix commit `110a560` (`docs(130): fix broken Sigra.OAuth.callback/4 xrefs in oauth guide`), which corrected the two `guides/flows/oauth.md` references from the undefined `Sigra.OAuth.callback/4` to the actual public `Sigra.OAuth.handle_callback/4`. A codebase-wide check (`rg -n "Sigra.OAuth.callback" guides/ lib/`) confirms zero remaining references.
 
 ## Blockers
 
-PROOF-01 BLOCKED. The targeted DATA-LIFECYCLE lanes (Task 130-01-01) and the full root library suite (Task 130-01-02) pass cleanly, but the release docs gate fails. See `## Release Blockers` for the full failing-command record. PROOF-01 is therefore recorded as `requirements-blocked: [PROOF-01]` and not marked complete in `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `130-VERIFICATION.md`, or `.planning/v1.28-MILESTONE-AUDIT.md`.
+PROOF-01 CLOSED. All four release-readiness must-haves are verified: the targeted DATA-LIFECYCLE lanes (Task 130-01-01), the full root library suite (Task 130-01-02), the traceability audit (Task 130-01-03), and the release docs gate (`mix docs --warnings-as-errors`) all pass. The release docs gate failure recorded in the original execution of this plan was unblocked by docs-fix commit `110a560` (`docs(130): fix broken Sigra.OAuth.callback/4 xrefs in oauth guide`), which corrected the two `guides/flows/oauth.md` references from the undefined `Sigra.OAuth.callback/4` to the actual public `Sigra.OAuth.handle_callback/4`.
 
 ## Release Blockers
 
-- BLOCKER: `mix docs --warnings-as-errors` -- ExDoc fails the release docs gate because `guides/flows/oauth.md:15` and `guides/flows/oauth.md:58` reference `Sigra.OAuth.callback/4`, which is undefined or private; `--warnings-as-errors` promotes those to errors and exits non-zero. Owner: Claude; retry: fix the `Sigra.OAuth.callback/4` references in `guides/flows/oauth.md` (either by updating the docs to the actual public API, e.g. `Sigra.OAuth.callback/3` if that is the shipped arity, or by introducing the missing public function) in a follow-up Phase 130 plan or a small docs hotfix plan, then rerun `mix docs --warnings-as-errors` and capture a fresh passing log in `130-01-SUMMARY.md` and `130-VERIFICATION.md` before promoting PROOF-01 to completed.
+No open release blockers. The prior `mix docs --warnings-as-errors` blocker was resolved by docs-fix commit `110a560`.
 
 ## Traceability
 
-- `.planning/REQUIREMENTS.md` still records `- [ ] **PROOF-01**` and `PROOF-01 | Phase 130 | Pending`; no change in Task 130-01-03 because the docs gate is blocking.
-- `.planning/ROADMAP.md` Phase 130 still records `**Plans:** 0/1 plans complete`; no flip to `1/1` is allowed while the release docs blocker is open.
-- `.planning/v1.28-MILESTONE-AUDIT.md` retains `status: gaps_found` and `PROOF-01` `unsatisfied`. The new evidence is appended in Task 130-01-03 as a closure-attempt record so future plans can resume from the exact failing command.
+- `.planning/REQUIREMENTS.md` now records `- [x] **PROOF-01**` (line 26) and `PROOF-01 | Phase 130 | Complete` (line 55).
+- `.planning/ROADMAP.md` Phase 130 now records `**Plans:** 1/1 plans complete` with the plan checkbox `[x]`.
+- `.planning/v1.28-MILESTONE-AUDIT.md` now records `status: passed`, PROOF-01 `satisfied`, and Phase 130 nyquist-compliant.
 
 ### Traceability Audit (Task 130-01-03)
 
