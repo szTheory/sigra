@@ -1,8 +1,7 @@
 defmodule Sigra.Audit.Forwarders.DispatchTest do
   use ExUnit.Case, async: false
 
-  # Wave 0 test scaffold for Sigra.Audit.Forwarders dispatcher (Plan 03).
-  # Tests are RED until lib/sigra/audit/forwarders.ex is implemented.
+  # Tests for Sigra.Audit.Forwarders dispatcher (Plan 03).
   #
   # Tests :auto/:async/:sync dispatch routing using the per-forwarder :dispatch
   # opt (D-07) — NOT top-level :delivery_mode (mirrors email[:delivery_mode]
@@ -11,6 +10,10 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
   # oban_running?(opts) is PUBLIC (BLOCKER 2 fix — Plan 05 calls cross-module).
   # This test uses the :oban override key (D-32) to simulate Oban
   # supervised vs not, without touching the real Oban process.
+  #
+  # NOTE: With Plan 04 shipping Sigra.Workers.AuditForward, the async path
+  # now calls oban.insert/1 (previously was a graceful no-op when the worker
+  # wasn't compiled). Tests 2 and 4 updated to use StubOban.insert/1.
 
   alias Sigra.Audit.Forwarders
 
@@ -30,8 +33,19 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
     end
   end
 
+  # StubOban — implements insert/1 to replace the real Oban supervisor in tests.
+  # Required because Sigra.Workers.AuditForward is now compiled (Plan 04) and
+  # dispatch_async calls oban.insert(changeset) — atom-only mocks no longer work.
+  defmodule StubOban do
+    @moduledoc false
+    def insert(changeset) do
+      send(self(), {:oban_insert_called, changeset})
+      {:ok, %Oban.Job{id: 1, queue: "sigra_audit_forward", attempt: 1}}
+    end
+  end
+
   # Atom that is never supervised — Process.whereis returns nil for it.
-  # Used to simulate Oban NOT running (D-12 test coverage).
+  # Used to simulate Oban NOT running for :auto routing test (D-12).
   @no_oban_module :nonexistent_oban_module_for_testing
 
   describe "dispatch/3 with :sync" do
@@ -50,17 +64,18 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
   end
 
   describe "dispatch/3 with :async" do
-    test "Test 2 — :async with Oban not running falls back gracefully (D-10)" do
-      # Arrange — use :oban override so test does not require a live Oban supervisor
-      # The :async path routes to Oban.insert; when Oban isn't supervised, the
-      # worker is not loaded so the enqueue is a no-op (Plan 05 makes it live).
+    test "Test 2 — :async enqueues Oban job via StubOban (D-10)" do
+      # Arrange — use StubOban override so test does not require a live Oban supervisor.
+      # Now that AuditForward is compiled (Plan 04), the async path calls oban.insert/1.
+      # The :oban option is BOTH the running-check target AND the insert module.
+      # StubOban.insert/1 captures the call and returns {:ok, %Oban.Job{}}.
       metadata = %{id: "audit-uuid-1234", action: "auth.login.success", actor_id: "u1", outcome: "success", occurred_at: DateTime.utc_now()}
-      opts = [dispatch: :async, oban: @no_oban_module]
+      opts = [dispatch: :async, oban: StubOban]
 
-      # Act — should not raise; gracefully returns :ok or {:ok, _}
+      # Act — should not raise; async path calls StubOban.insert/1
       result = Forwarders.dispatch(StubForwarder, metadata, opts)
 
-      # Assert — returns :ok regardless of Oban load state (defensive no-op per plan)
+      # Assert — returns {:ok, job} from StubOban.insert
       assert result == :ok or match?({:ok, _}, result)
     end
   end
@@ -82,25 +97,30 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
     end
 
     test "Test 4 — :auto routes to :async when Oban IS supervised (D-12)" do
-      # Arrange — register a named process to simulate Oban being supervised.
-      # oban_running?/1 checks Process.whereis(oban_module) != nil; we use a
-      # named Agent as a stand-in for the Oban process.
-      {:ok, _pid} = Agent.start(fn -> :ok end, name: :mock_oban_running_agent)
+      # Arrange — register StubOban as a named process so oban_running?/1 returns true.
+      # StubOban is both:
+      # (1) a module with insert/1 (so dispatch_async can call it), AND
+      # (2) registered as a named process (so Process.whereis(StubOban) != nil).
+      # We use Agent under the StubOban atom name for the presence check.
+      {:ok, agent_pid} = Agent.start(fn -> :ok end)
+      Process.register(agent_pid, StubOban)
 
       metadata = %{id: "uuid-auto-async", action: "session.create", actor_id: "u3", outcome: "success", occurred_at: DateTime.utc_now()}
-      opts = [dispatch: :auto, oban: :mock_oban_running_agent]
+      opts = [dispatch: :auto, oban: StubOban]
 
-      # Act — :auto sees :mock_oban_running_agent is supervised → routes :async
-      # Since Sigra.Workers.AuditForward isn't loaded yet, the enqueue is a no-op
+      # Act — :auto sees StubOban is supervised → routes :async
       result = Forwarders.dispatch(StubForwarder, metadata, opts)
 
-      # Assert — returns :ok (no crash) and does NOT call handle_event inline
-      # (i.e. the :sync path was NOT taken)
+      # Assert — returns :ok or {:ok, job} (async path with StubOban.insert)
       assert result == :ok or match?({:ok, _}, result)
+      # The :sync path was NOT taken — handle_event NOT called inline
       refute_received {:handle_event_called, _, _}
     after
-      # Clean up named agent
-      Agent.stop(:mock_oban_running_agent)
+      # Clean up named process registration
+      if pid = Process.whereis(StubOban) do
+        Process.unregister(StubOban)
+        Process.exit(pid, :normal)
+      end
     end
   end
 
