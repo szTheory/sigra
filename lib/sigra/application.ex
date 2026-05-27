@@ -152,6 +152,15 @@ defmodule Sigra.Application do
       end
 
       if Code.ensure_loaded?(module) do
+        # Idempotency: detach-then-attach so that `recompile()` in dev
+        # (which restarts the application) picks up fresh opts without
+        # silently leaving the previous handler attached with stale opts.
+        # `:telemetry.attach/4` returns {:error, :already_exists} on duplicate
+        # handler IDs — detaching first avoids that and ensures fresh opts apply.
+        # Handler ID is derived from {module, :id} — same derivation as each
+        # impl's attach/1 (e.g. Threadline uses {__MODULE__, opts[:id] || :default}).
+        handler_id = {module, Keyword.get(forwarder_opts, :id, :default)}
+        _ = :telemetry.detach(handler_id)
         module.attach(forwarder_opts)
       end
     end)
