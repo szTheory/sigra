@@ -27,11 +27,11 @@ defmodule Sigra.DataExportTest do
       field :user_id, :integer
       field :provider, :string
       field :provider_uid, :string
-      field :email, :string
-      field :name, :string
-      field :nickname, :string
-      field :avatar_url, :string
-      field :email_verified, :boolean
+      field :provider_email, :string
+      field :provider_name, :string
+      field :provider_avatar_url, :string
+      field :metadata, :map, default: %{}
+      field :last_used_at, :utc_datetime
       field :encrypted_access_token, :binary
       field :encrypted_refresh_token, :binary
 
@@ -50,7 +50,7 @@ defmodule Sigra.DataExportTest do
       field :target_id, :integer
       field :target_type, :string
       field :organization_id, :integer
-      field :ip, :string
+      field :ip_address, :string
       field :user_agent, :string
       field :metadata, :map
       field :occurred_at, :utc_datetime_usec
@@ -65,8 +65,9 @@ defmodule Sigra.DataExportTest do
     schema "test_mfa_credentials" do
       field :user_id, :integer
       field :type, :string
-      field :enabled, :boolean
+      field :enabled_at, :utc_datetime_usec
       field :last_used_at, :utc_datetime_usec
+      field :last_verified_step, :integer
       field :locked_until, :utc_datetime_usec
       field :failed_attempts, :integer
       field :encrypted_secret, :binary
@@ -94,7 +95,8 @@ defmodule Sigra.DataExportTest do
       field :credential_id, :binary
       field :public_key, :binary
       field :nickname, :string
-      field :device_type, :string
+      field :device_hint, :string
+      field :transports, {:array, :string}, default: []
       field :last_used_at, :utc_datetime_usec
       field :sign_count, :integer
       field :rp_id, :string
@@ -140,11 +142,11 @@ defmodule Sigra.DataExportTest do
           user_id: 1,
           provider: "github",
           provider_uid: "gh_123",
-          email: "user@example.com",
-          name: "Example User",
-          nickname: "example",
-          avatar_url: "https://example.test/avatar.png",
-          email_verified: true,
+          provider_email: "user@example.com",
+          provider_name: "Example User",
+          provider_avatar_url: "https://example.test/avatar.png",
+          metadata: %{nickname: "example", email_verified: true},
+          last_used_at: @now,
           encrypted_access_token: <<4, 5, 6>>,
           encrypted_refresh_token: <<7, 8, 9>>,
           inserted_at: @now,
@@ -161,7 +163,7 @@ defmodule Sigra.DataExportTest do
           target_id: 1,
           target_type: "user",
           organization_id: 200,
-          ip: "203.0.113.10",
+          ip_address: "203.0.113.10",
           user_agent: "Firefox",
           metadata: %{method: "password"},
           occurred_at: @now,
@@ -173,8 +175,9 @@ defmodule Sigra.DataExportTest do
           id: 13,
           user_id: 1,
           type: "totp",
-          enabled: true,
+          enabled_at: @now,
           last_used_at: @now,
+          last_verified_step: 123,
           locked_until: nil,
           failed_attempts: 0,
           encrypted_secret: <<10, 11, 12>>,
@@ -197,7 +200,8 @@ defmodule Sigra.DataExportTest do
           credential_id: <<13, 14, 15>>,
           public_key: <<16, 17, 18>>,
           nickname: "MacBook",
-          device_type: "platform",
+          device_hint: "platform",
+          transports: ["internal"],
           last_used_at: @now,
           sign_count: 9,
           rp_id: "example.test",
@@ -218,11 +222,16 @@ defmodule Sigra.DataExportTest do
       ]
     }
 
-    def all(%Ecto.Query{from: %{source: {_source, schema}}}) do
+    def all(%Ecto.Query{from: %{source: {_source, schema}}, wheres: wheres, select: select}) do
+      assert wheres != []
+      assert select != nil
+
       Map.fetch!(@rows, schema)
     end
 
-    def aggregate(%Ecto.Query{from: %{source: {_source, schema}}}, :count, :id) do
+    def aggregate(%Ecto.Query{from: %{source: {_source, schema}}, wheres: wheres}, :count, :id) do
+      assert wheres != []
+
       @rows
       |> Map.fetch!(schema)
       |> length()
@@ -381,11 +390,11 @@ defmodule Sigra.DataExportTest do
         :id,
         :provider,
         :provider_uid,
-        :email,
-        :name,
-        :nickname,
-        :avatar_url,
-        :email_verified,
+        :provider_email,
+        :provider_name,
+        :provider_avatar_url,
+        :metadata,
+        :last_used_at,
         :inserted_at,
         :updated_at
       ])
@@ -404,7 +413,7 @@ defmodule Sigra.DataExportTest do
         :target_id,
         :target_type,
         :organization_id,
-        :ip,
+        :ip_address,
         :user_agent,
         :metadata,
         :occurred_at,
@@ -416,8 +425,9 @@ defmodule Sigra.DataExportTest do
       assert_includes_only(mfa_credential, [
         :id,
         :type,
-        :enabled,
+        :enabled_at,
         :last_used_at,
+        :last_verified_step,
         :locked_until,
         :failed_attempts,
         :inserted_at,
@@ -431,7 +441,8 @@ defmodule Sigra.DataExportTest do
       assert_includes_only(passkey, [
         :id,
         :nickname,
-        :device_type,
+        :device_hint,
+        :transports,
         :last_used_at,
         :sign_count,
         :rp_id,
