@@ -25,7 +25,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 **Goal:** Make Sigra compose cleanly with the rest of the szTheory OSS suite — first-class Threadline audit adapter, recipe coverage for the other companion libraries (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead), and a coherent suite-narrative entry point — without owning any sister library's roadmap.
 
 **Target features:**
-- Threadline audit adapter (library-owned `Sigra.Audit.Adapters.Threadline`, optional-dep safe, no Threadline runtime dep when unused)
+- Threadline audit forwarder (library-owned `Sigra.Audit.Forwarders.Threadline`, optional-dep safe, no Threadline runtime dep when unused) — **shipped in Phase 131** (2026-05-27)
 - Mailglass adoption posture cross-link (confirm v1.25 EMAIL-RAILS boundary; no double-claim)
 - Integration recipes for the five deferred companion libraries (Accrue, Lockspire, Relyra, Rulestead, Threadline) under `guides/recipes/`
 - Suite-narrative landing page + ecosystem diagram under `guides/introduction/`
@@ -649,4 +649,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-27 — `/gsd-new-milestone` opened **v1.29 SUITE-INTEGRATION** (phase numbering continues from 131).*
+*Last updated: 2026-05-27 — Phase 131 (Forwarder Behaviour + Threadline Forwarder Library Scaffolding) shipped: `Sigra.Audit.Forwarder` behaviour, `Sigra.Audit.Forwarders.Threadline` impl, `Noop` fallback, `Sigra.Workers.AuditForward` Oban worker, boot wiring + dep-off CI lane. Verified passed (5/5 SCs, 6/6 reqs).*
