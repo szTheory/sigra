@@ -1,7 +1,7 @@
 ---
 phase: 128
 slug: account-deletion-lifecycle-truth
-status: draft
+status: approved
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-05-27
@@ -38,9 +38,9 @@ created: 2026-05-27
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 128-01-01 | 01 | 1 | LIFE-01 | T-128-01 | Scheduled deletion jobs are enqueued only with explicit worker context and safe no-op degradation remains non-failing. | unit | `mix test test/sigra/account/deletion_test.exs` | ✅ | ⬜ pending |
-| 128-01-02 | 01 | 1 | LIFE-02 | T-128-02 | Cancel and execute reject users that are not actively scheduled instead of mutating finalized users. | unit | `mix test test/sigra/account/deletion_test.exs test/sigra/workers/account_deletion_test.exs` | ✅ | ⬜ pending |
-| 128-01-03 | 01 | 1 | LIFE-03 | T-128-03 | Soft-delete finalization preserves the user row while clearing scheduled and email-staging fields. | unit | `mix test test/sigra/account/deletion_test.exs` | ✅ | ⬜ pending |
+| 128-01-01 | 01 | 1 | LIFE-01 | T-128-01 | Scheduled deletion jobs are enqueued only with explicit worker context and safe no-op degradation remains non-failing. | unit | `mix test test/sigra/account/deletion_test.exs` | ✅ | ✅ green |
+| 128-01-02 | 01 | 1 | LIFE-02 | T-128-02 | Cancel and execute reject users that are not actively scheduled instead of mutating finalized users. | unit | `mix test test/sigra/account/deletion_test.exs test/sigra/workers/account_deletion_test.exs` | ✅ | ✅ green |
+| 128-01-03 | 01 | 1 | LIFE-03 | T-128-03 | Soft-delete finalization preserves the user row while clearing scheduled and email-staging fields. | unit | `mix test test/sigra/account/deletion_test.exs` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -55,6 +55,18 @@ Existing infrastructure covers all phase requirements.
 ## Manual-Only Verifications
 
 All phase behaviors have automated verification.
+
+---
+
+## Validation Audit 2026-05-27
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+Auditor result: all Phase 128 requirements have automated ExUnit coverage. Focused command `mix test test/sigra/account/deletion_test.exs test/sigra/workers/account_deletion_test.exs` passed with 35 tests, 0 failures.
 
 ---
 
