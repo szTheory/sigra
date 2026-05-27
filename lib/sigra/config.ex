@@ -953,33 +953,47 @@ defmodule Sigra.Config do
   # NimbleOptions wraps the message in NimbleOptions.ValidationError automatically.
   @spec validate_forwarders(list()) :: {:ok, list()} | {:error, String.t()}
   def validate_forwarders(list) when is_list(list) do
-    Enum.reduce_while(list, {:ok, list}, fn entry, _acc ->
-      cond do
-        not is_list(entry) ->
-          {:halt,
-           {:error,
-            "forwarder entry must be a keyword list, got unexpected type"}}
+    # Accumulates a normalized list (with :dispatch and :id defaults injected) rather
+    # than returning the original input. Downstream consumers that call
+    # Keyword.fetch!(entry, :dispatch) (rather than Keyword.get with a default) will
+    # work correctly after validation. WR-07: returning raw input was a maintenance
+    # landmine — any new consumer that assumed "validation already normalized this"
+    # would silently break on missing default keys.
+    result =
+      Enum.reduce_while(list, {:ok, []}, fn entry, {:ok, acc} ->
+        cond do
+          not is_list(entry) ->
+            {:halt,
+             {:error,
+              "forwarder entry must be a keyword list, got unexpected type"}}
 
-        not Keyword.has_key?(entry, :module) ->
-          {:halt,
-           {:error,
-            "required :module option not found in forwarder entry, received options: #{inspect(Keyword.keys(entry))}"}}
+          not Keyword.has_key?(entry, :module) ->
+            {:halt,
+             {:error,
+              "required :module option not found in forwarder entry, received options: #{inspect(Keyword.keys(entry))}"}}
 
-        not is_atom(Keyword.get(entry, :module)) ->
-          {:halt, {:error, ":module must be an atom"}}
+          not is_atom(Keyword.get(entry, :module)) ->
+            {:halt, {:error, ":module must be an atom"}}
 
-        (dispatch = Keyword.get(entry, :dispatch, :auto)) not in [:auto, :async, :sync] ->
-          {:halt,
-           {:error,
-            "invalid :dispatch value #{inspect(dispatch)} in forwarder entry, expected one of: :auto, :async, :sync"}}
+          (dispatch = Keyword.get(entry, :dispatch, :auto)) not in [:auto, :async, :sync] ->
+            {:halt,
+             {:error,
+              "invalid :dispatch value #{inspect(dispatch)} in forwarder entry, expected one of: :auto, :async, :sync"}}
 
-        not is_atom(Keyword.get(entry, :id, :default)) ->
-          {:halt, {:error, ":id must be an atom in forwarder entry"}}
+          not is_atom(Keyword.get(entry, :id, :default)) ->
+            {:halt, {:error, ":id must be an atom in forwarder entry"}}
 
-        true ->
-          {:cont, {:ok, list}}
-      end
-    end)
+          true ->
+            normalized =
+              entry
+              |> Keyword.put_new(:dispatch, :auto)
+              |> Keyword.put_new(:id, :default)
+
+            {:cont, {:ok, acc ++ [normalized]}}
+        end
+      end)
+
+    result
   end
 
   def validate_forwarders(_other) do
