@@ -82,6 +82,114 @@ defmodule Sigra.Account.DeletionTest do
       assert %DateTime{} = scheduled_at
     end
 
+    test "enqueues account deletion worker when generated-host job context is present" do
+      user = build_user()
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        assert %Multi{} = multi
+
+        [{:user, {:update, changeset, []}}, {:tokens, {:delete_all, _query, []}}] =
+          Multi.to_list(multi)
+
+        now = Ecto.Changeset.get_change(changeset, :deleted_at)
+        scheduled = Ecto.Changeset.get_change(changeset, :scheduled_deletion_at)
+        Process.put(:account_deletion_scheduled_at, scheduled)
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | deleted_at: now,
+               scheduled_deletion_at: scheduled,
+               original_email: user.email,
+               pending_email: nil
+           }
+         }}
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:delete_all_for_user, fn 1, [] -> {1, nil} end)
+
+      Sigra.MockRepo
+      |> expect(:insert, fn changeset ->
+        assert changeset.valid? == true
+        assert Ecto.Changeset.get_field(changeset, :worker) == "Sigra.Workers.AccountDeletion"
+        assert Ecto.Changeset.get_field(changeset, :queue) == "sigra_lifecycle"
+
+        assert DateTime.compare(
+                 Ecto.Changeset.get_field(changeset, :scheduled_at),
+                 Process.get(:account_deletion_scheduled_at)
+               ) == :eq
+
+        assert Ecto.Changeset.get_field(changeset, :replace) == [
+                 scheduled: [:scheduled_at, :args]
+               ]
+
+        args = Ecto.Changeset.get_field(changeset, :args)
+
+        assert args["user_id"] == 1
+        assert args["strategy"] == "soft_delete"
+        assert args["repo"] == Atom.to_string(Sigra.MockRepo)
+        assert args["user_schema"] == Atom.to_string(Sigra.TestUser)
+        assert args["user_token_schema"] == Atom.to_string(Sigra.TestUserToken)
+        assert args["session_store"] == Atom.to_string(Sigra.MockSessionStore)
+        assert Map.has_key?(args, "organization_id") == true
+        assert Map.has_key?(args, "actor_id") == true
+        assert Map.has_key?(args, "audit_schema") == true
+        assert Map.has_key?(args, "scope_module") == true
+
+        {:ok, %Oban.Job{}}
+      end)
+
+      assert {:ok, updated_user, scheduled_at} =
+               Deletion.schedule(
+                 Sigra.MockRepo,
+                 user,
+                 base_opts(
+                   user_schema: Sigra.TestUser,
+                   user_token_schema: Sigra.TestUserToken
+                 )
+               )
+
+      assert updated_user.scheduled_deletion_at == scheduled_at
+    end
+
+    test "safely degrades without enqueue when job context is missing" do
+      user = build_user()
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        assert %Multi{} = multi
+
+        [{:user, {:update, changeset, []}}, {:tokens, {:delete_all, _query, []}}] =
+          Multi.to_list(multi)
+
+        now = Ecto.Changeset.get_change(changeset, :deleted_at)
+        scheduled = Ecto.Changeset.get_change(changeset, :scheduled_deletion_at)
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | deleted_at: now,
+               scheduled_deletion_at: scheduled,
+               original_email: user.email,
+               pending_email: nil
+           }
+         }}
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:delete_all_for_user, fn 1, [] -> {1, nil} end)
+
+      assert {:ok, updated_user, scheduled_at} =
+               Deletion.schedule(Sigra.MockRepo, user, base_opts())
+
+      assert updated_user.scheduled_deletion_at == scheduled_at
+      assert %DateTime{} = scheduled_at
+    end
+
     test "returns {:error, :already_scheduled} when deletion is already scheduled" do
       user =
         build_user(%{
@@ -151,6 +259,12 @@ defmodule Sigra.Account.DeletionTest do
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
+        [{:user, {:update, changeset, []}}] = Multi.to_list(multi)
+
+        assert Ecto.Changeset.get_change(changeset, :scheduled_deletion_at) == nil
+        assert Ecto.Changeset.get_change(changeset, :pending_email) == nil
+        assert Ecto.Changeset.get_change(changeset, :original_email) == nil
+        assert Ecto.Changeset.get_change(changeset, :deleted_at) == nil
 
         {:ok,
          %{
