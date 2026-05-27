@@ -50,11 +50,11 @@ Current execution priority: complete `DATA-LIFECYCLE` before promoting any follo
 
 **Depends on:** none
 **Requirements:** `EXP-01`, `EXP-02`
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 127-01-PLAN.md — Add test proof for versioned payload, lifecycle status, omission truth, and safe serialization.
-- [ ] 127-02-PLAN.md — Implement library-owned lifecycle status, structured omissions, and curated auth section serializers.
+- [x] 127-02-PLAN.md — Implement library-owned lifecycle status, structured omissions, and curated auth section serializers.
 
 **Success criteria:**
 

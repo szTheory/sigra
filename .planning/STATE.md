@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: v1.28 DATA-LIFECYCLE
-status: executing
-last_updated: "2026-05-27T06:50:30.055Z"
-last_activity: 2026-05-27 -- Phase 127 Plan 01 proof surface complete
+status: verifying
+last_updated: "2026-05-27T07:02:00.462Z"
+last_activity: 2026-05-27
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 25
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 127 (versioned-auth-data-export) — EXECUTING
+Phase: 127 (versioned-auth-data-export) — VERIFYING
 Plan: 2 of 2
-Status: Ready to execute Plan 2
-Last activity: 2026-05-27 -- Phase 127 Plan 01 proof surface complete
+Status: Phase complete — ready for verification
+Last activity: 2026-05-27
 
 ## Accumulating Context
 
@@ -65,9 +65,13 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
 - Gathered Phase 127 assumptions-mode context on 2026-05-27; planning should use `.planning/phases/127-versioned-auth-data-export/127-CONTEXT.md` as the resume artifact.
 - Completed Phase 127 Plan 01 as test-only RED proof on 2026-05-27; EXP-01/EXP-02 production behavior remains for Plan 02 implementation.
+- Completed Phase 127 Plan 02 on 2026-05-27; `Sigra.DataExport.export_auth_data/3` now ships lifecycle status, structured omissions, curated safe optional-schema serializers, backup-code summary, and enterprise exclusion truth.
+- [Phase 127]: Preserved the Plan 01 omission test surface as section/schema maps without adding a third reason key.
+- [Phase 127]: Kept backup codes summary-only and enterprise connections explicitly excluded from user export.
+- [Phase 127]: Kept export payload ownership in Sigra.DataExport.export_auth_data/3.
 
 ## Operator Next Steps
 
-- Execute `.planning/phases/127-versioned-auth-data-export/127-02-PLAN.md` to make the Plan 01 export contract tests pass.
+- Verify Phase 127 or proceed to Phase 128 account deletion lifecycle truth planning/execution.
 - Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
 - Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.

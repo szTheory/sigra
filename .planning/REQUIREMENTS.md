@@ -7,8 +7,8 @@
 
 ### Export Contract
 
-- [ ] **EXP-01**: Operator can export a versioned Sigra-owned auth/account payload that includes account lifecycle fields, sessions, identities, audit rows, MFA credentials, passkey records, backup-code summary, and organization memberships when the generated schemas are available.
-- [ ] **EXP-02**: Operator can inspect explicit omission notes when optional export schemas are not configured, so partial exports are truthful instead of silent.
+- [x] **EXP-01**: Operator can export a versioned Sigra-owned auth/account payload that includes account lifecycle fields, sessions, identities, audit rows, MFA credentials, passkey records, backup-code summary, and organization memberships when the generated schemas are available.
+- [x] **EXP-02**: Operator can inspect explicit omission notes when optional export schemas are not configured, so partial exports are truthful instead of silent.
 
 ### Account Lifecycle
 
@@ -45,8 +45,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXP-01 | Phase 127 | Pending |
-| EXP-02 | Phase 127 | Pending |
+| EXP-01 | Phase 127 | Complete |
+| EXP-02 | Phase 127 | Complete |
 | LIFE-01 | Phase 128 | Pending |
 | LIFE-02 | Phase 128 | Pending |
 | LIFE-03 | Phase 128 | Pending |
