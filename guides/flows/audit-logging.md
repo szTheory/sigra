@@ -119,6 +119,14 @@ For atomicity, write the audit row inside the same transaction as the business o
 
 `Sigra.Audit.log_multi` adds a `{:audit, ...}` step to your multi. If the business op fails, the audit row rolls back with it.
 
+## Auth/account data export boundary
+
+Use `Sigra.DataExport.export_auth_data/3` when you need Sigra-owned auth/account data for a user. The export is versioned and bounded to Sigra-owned sections such as account lifecycle fields, sessions, identities, audit rows, MFA credentials, passkeys, backup-code summary, and organization memberships when those generated schemas are configured.
+
+The export is not host-owned domain data. Host applications remain responsible for their own domain export, retention policy, and legal interpretation.
+
+The returned `omissions` list is part of the contract. When optional Sigra-owned schemas are absent, Sigra returns explicit omission notes for those sections instead of silently implying the export is complete.
+
 ## Cursor pagination and streaming for SIEM export
 
 Use `Sigra.Audit.list/2` for stable cursor-based pagination when you need

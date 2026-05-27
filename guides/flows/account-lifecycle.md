@@ -149,8 +149,10 @@ The Oban worker (`Sigra.Workers.AccountDeletion`) calls `execute_deletion/3` whi
       ]
 
 - `:hard_delete` — deletes the user row and Sigra token rows. Other row cleanup follows your DB constraints and host-owned schema design.
-- `:soft_delete` — finalizes the deletion lifecycle while preserving the user row and its PII in the DB.
+- `:soft_delete` — finalizes the deletion lifecycle while preserving the user row and its PII and clearing scheduled-deletion staging fields.
 - `:anonymize` — clears Sigra-owned user PII fields while keeping the row for referential integrity. Recommended default.
+
+The strategy-specific contract is: :soft_delete preserves the user row and its PII. These strategies apply to Sigra-owned auth/account state. Sigra lifecycle finalization does not claim to delete host-owned domain data; your application still owns domain-table cleanup, retention policy, and legal interpretation.
 
 ## Testing
 

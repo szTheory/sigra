@@ -77,8 +77,10 @@ The generated `AuthFixtures` module provides seven named fixtures — one per do
 - **`assert_password_changed(user)`** — `hashed_password` differs from a known baseline.
 - **`assert_deletion_scheduled(user)`** — `scheduled_deletion_at` is set.
 - **`assert_deletion_cancelled(user)`** — inverse.
-- **`assert_account_deleted(repo, user_schema, user_id)`** — the user row is gone (or anonymized).
+- **`assert_account_deleted(repo, user_schema, user_id)`** — assert the configured deletion strategy outcome: `:hard_delete` expects the row to be gone, `:anonymize` expects Sigra-owned PII cleared, and `:soft_delete preserves the user row` while finalizing lifecycle state.
 - **`assert_audit_event(expected, opts)`** — most recent audit row matches; supports metadata subset matching.
+
+For auth/account export tests, assert `omissions` when optional generated schemas are absent. That proves partial Sigra-owned exports are explicit instead of accidentally treated as complete host-domain exports.
 
 ## MFA helpers
 
