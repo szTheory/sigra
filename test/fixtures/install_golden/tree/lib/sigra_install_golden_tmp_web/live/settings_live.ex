@@ -170,12 +170,12 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
               </button>
             <% :not_scheduled -> %>
               <p class="mt-2 text-sm text-gray-500">
-                Permanently delete your account and all associated data.
-                This action cannot be undone after the grace period expires.
+                Schedule account deletion according to your configured deletion strategy.
+                After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
               </p>
               <button
                 phx-click="confirm_delete"
-                data-confirm="Are you sure? Your account will be deactivated immediately and permanently deleted. All sessions will be signed out."
+                data-confirm="Are you sure? Your account will be deactivated immediately, all sessions will be signed out, and finalization will follow your configured deletion strategy."
                 class="mt-4 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded"
               >
                 Delete my account

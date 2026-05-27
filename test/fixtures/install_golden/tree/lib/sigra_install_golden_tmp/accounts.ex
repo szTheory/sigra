@@ -1069,6 +1069,18 @@ defmodule SigraInstallGoldenTmp.Accounts do
   end
 
   @doc """
+  Export Sigra-owned auth and account data for a user.
+
+  Caller opts may provide optional generated schemas such as OAuth
+  identities, passkeys, or organization memberships.
+  """
+  def export_auth_data(user, opts \\ []) do
+    Sigra.DataExport.export_auth_data(Repo, user,
+      Keyword.merge(default_auth_export_opts(), opts)
+    )
+  end
+
+  @doc """
   Check if the user must change their password.
   """
   def must_change_password?(user) do
@@ -1076,6 +1088,15 @@ defmodule SigraInstallGoldenTmp.Accounts do
   end
 
   # -- Private helpers --
+
+  defp default_auth_export_opts do
+    [
+      session_schema: SigraInstallGoldenTmp.Accounts.UserSession,
+      audit_schema: SigraInstallGoldenTmp.Accounts.AuditEvent,
+      mfa_credential_schema: SigraInstallGoldenTmp.Accounts.UserMFACredential,
+      backup_code_schema: SigraInstallGoldenTmp.Accounts.UserBackupCode
+    ]
+  end
 
   defp delivery_opts do
     [
