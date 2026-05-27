@@ -70,7 +70,13 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   3. A deliberately failed Threadline write (forced via injected stub) fires `[:sigra, :audit, :forward, :error]` telemetry and never rolls back the originating Sigra auth/audit transaction — the Sigra DB row remains committed and the audit table stays source-of-truth.
   4. The `:auto` / `:async` / `:sync` dispatch knob behaves per the `Sigra.Delivery` precedent: `:auto` picks the Oban worker when present and inline otherwise; `:async` raises at boot if Oban is missing; `:sync` always calls inline.
   5. A host-defined custom forwarder (e.g. `Mox.defmock(MyForwarder, for: Sigra.Audit.Forwarder)`) successfully `attach/1`s against the same behaviour contract Threadline uses, proving the behaviour generalizes beyond the in-tree impl.
-**Plans**: TBD
+**Plans**: 6 plans
+  - [ ] 131-01-PLAN.md — Forwarder behaviour + Noop fallback (FB-01, TL-04)
+  - [ ] 131-02-PLAN.md — Audit telemetry metadata extension (TL-05 enabler — adds :id + :occurred_at)
+  - [ ] 131-03-PLAN.md — Config schema + dispatcher + mix.exs no_warn_undefined + optional :threadline dep (TL-02, TL-04)
+  - [ ] 131-04-PLAN.md — Threadline impl + AuditForward Oban worker (TL-01, TL-03, TL-05)
+  - [ ] 131-05-PLAN.md — Boot wiring: maybe_warn_missing_forwarder_deps/0 + attach_forwarders/0 (TL-02, TL-04)
+  - [ ] 131-06-PLAN.md — Dep-off CI lane: library_tests_dep_off in ci.yml (TL-04 SC-2)
 
 ### Phase 132: Threadline Recipe + Mailglass Cross-Link Recipe
 
@@ -141,7 +147,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 131. Forwarder Behaviour + Threadline Scaffolding | 0/TBD | Not started | - |
+| 131. Forwarder Behaviour + Threadline Scaffolding | 0/6 | Not started | - |
 | 132. Threadline + Mailglass Recipes | 0/TBD | Not started | - |
 | 133. Suite Narrative + Ecosystem Diagram | 0/TBD | Not started | - |
 | 134. Recipe-Only Companion Libraries | 0/TBD | Not started | - |
