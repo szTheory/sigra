@@ -85,11 +85,11 @@ Plans:
 
 **Depends on:** Phase 128
 **Requirements:** `HOST-01`, `DOC-01`
-**Plans:** 0/2 plans complete
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 129-01-PLAN.md — Align generated templates, example app, and golden fixture with library-owned export/lifecycle semantics.
-- [ ] 129-02-PLAN.md — Update docs and guide assertions for Sigra-owned data boundaries, omissions, and deletion strategy truth.
+- [x] 129-01-PLAN.md — Align generated templates, example app, and golden fixture with library-owned export/lifecycle semantics.
+- [x] 129-02-PLAN.md — Update docs and guide assertions for Sigra-owned data boundaries, omissions, and deletion strategy truth.
 
 **Success criteria:**
 

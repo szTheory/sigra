@@ -18,7 +18,7 @@
 
 ### Generated Host And Docs
 
-- [ ] **HOST-01**: Generated host templates, example app, and install golden fixture preserve the same export and lifecycle semantics as the library code.
+- [x] **HOST-01**: Generated host templates, example app, and install golden fixture preserve the same export and lifecycle semantics as the library code.
 - [ ] **DOC-01**: Account lifecycle, audit export, and testing docs explain Sigra-owned data boundaries, host-owned data boundaries, omission behavior, and deletion strategy consequences.
 
 ### Proof
@@ -50,7 +50,7 @@
 | LIFE-01 | Phase 128 | Complete |
 | LIFE-02 | Phase 128 | Complete |
 | LIFE-03 | Phase 128 | Complete |
-| HOST-01 | Phase 129 | Pending |
+| HOST-01 | Phase 129 | Complete |
 | DOC-01 | Phase 129 | Pending |
 | PROOF-01 | Phase 130 | Pending |
 
