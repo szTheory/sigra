@@ -21,6 +21,8 @@ defmodule Sigra.GuidesDx02Test do
   @getting_started Path.join([@guides_root, "introduction", "getting-started.md"])
   @upgrade_guide Path.join([@guides_root, "introduction", "upgrading-to-v1.1.md"])
   @mfa_guide Path.join([@guides_root, "flows", "mfa.md"])
+  @account_lifecycle_guide Path.join([@guides_root, "flows", "account-lifecycle.md"])
+  @audit_logging_guide Path.join([@guides_root, "flows", "audit-logging.md"])
   @testing_guide Path.join([@guides_root, "recipes", "testing.md"])
   @multi_tenant_guide Path.join([@guides_root, "recipes", "multi-tenant.md"])
   @passkeys_guide Path.join([@guides_root, "recipes", "passkeys.md"])
@@ -295,6 +297,50 @@ defmodule Sigra.GuidesDx02Test do
       assert raw =~ "origin"
       assert raw =~ "rename"
       assert raw =~ "magic link"
+    end
+  end
+
+  describe "DATA-LIFECYCLE guide truth" do
+    test "audit logging guide documents bounded auth data export and omissions" do
+      raw = File.read!(@audit_logging_guide)
+
+      assert raw =~ "Sigra.DataExport.export_auth_data/3"
+      assert raw =~ "Sigra-owned auth/account data"
+      assert raw =~ "host-owned domain data"
+      assert raw =~ "omissions"
+    end
+
+    test "account lifecycle guide documents strategy-specific deletion consequences" do
+      raw = File.read!(@account_lifecycle_guide)
+
+      assert raw =~ ":hard_delete"
+      assert raw =~ ":soft_delete"
+      assert raw =~ ":anonymize"
+      assert raw =~ "soft_delete preserves the user row and its PII"
+    end
+
+    test "testing guide documents deletion strategy assertions and export omissions" do
+      raw = File.read!(@testing_guide)
+
+      assert raw =~ ":soft_delete preserves the user row"
+      assert raw =~ "assert_account_deleted"
+      assert raw =~ "omissions"
+    end
+
+    test "data lifecycle guides avoid unscoped export, deletion, and compliance claims" do
+      guides = [
+        @account_lifecycle_guide,
+        @audit_logging_guide,
+        @testing_guide
+      ]
+
+      for guide <- guides do
+        raw = File.read!(guide)
+
+        refute raw =~ "exports all application data"
+        refute raw =~ "all associated data is permanently removed"
+        refute raw =~ "guarantees compliance"
+      end
     end
   end
 
