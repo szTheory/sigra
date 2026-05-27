@@ -290,17 +290,17 @@ All claims in this research were verified or cited from local project artifacts,
 |---|-------|---------|---------------|
 | None | No `[ASSUMED]` claims were used. | All | None. [VERIFIED: all cited sources in this file] |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should Phase 130 update the stale `.planning/milestones/v1.28-MILESTONE-AUDIT.md` copy?** [VERIFIED: .planning/v1.28-MILESTONE-AUDIT.md; .planning/milestones/v1.28-MILESTONE-AUDIT.md]
    - What we know: The current root audit says the milestone path copy is stale. [VERIFIED: .planning/v1.28-MILESTONE-AUDIT.md]
-   - What's unclear: Whether milestone archive copies are meant to be repaired during active closeout or left until milestone archive. [VERIFIED: .planning/v1.28-MILESTONE-AUDIT.md]
-   - Recommendation: Plan Phase 130 to update active traceability first; update the stale milestone copy only if required by verification or milestone archive workflow. [VERIFIED: .planning/v1.28-MILESTONE-AUDIT.md]
+   - RESOLVED: Phase 130 should treat `.planning/v1.28-MILESTONE-AUDIT.md` as the current gap source and update that active audit during traceability closure. Do not update `.planning/milestones/v1.28-MILESTONE-AUDIT.md` in the planned task set; leave the stale milestone copy untouched unless execution discovers a verification/tooling requirement or a later milestone archive workflow explicitly needs it. [VERIFIED: .planning/v1.28-MILESTONE-AUDIT.md]
+   - Recommendation: Plan Phase 130 to update active traceability first; update/archive the stale milestone copy only if execution finds it necessary. [VERIFIED: .planning/v1.28-MILESTONE-AUDIT.md]
 
 2. **Will `mix docs --warnings-as-errors` currently fail because of the pre-existing `Sigra.OAuth.callback/4` warnings?** [VERIFIED: .planning/phases/129-generated-host-parity-and-docs/129-02-SUMMARY.md; .github/workflows/ci.yml]
    - What we know: Phase 129 `mix docs` emitted unresolved-reference warnings but exited successfully; CI runs `mix docs --warnings-as-errors`. [VERIFIED: .planning/phases/129-generated-host-parity-and-docs/129-02-SUMMARY.md; .github/workflows/ci.yml]
-   - What's unclear: This research did not run `mix docs --warnings-as-errors` to avoid generating doc artifacts during research. [VERIFIED: command history]
-   - Recommendation: Make this a Phase 130 Wave 0 gate; either fix warnings or record them as explicit release blockers. [VERIFIED: .planning/ROADMAP.md]
+   - RESOLVED: Do not assume pass or fail before execution. The plan must include `mix docs --warnings-as-errors` as a release docs gate and require blocker capture if it fails, including the `Sigra.OAuth.callback/4` warning class if that is the observed failure. [VERIFIED: .github/workflows/ci.yml; .planning/ROADMAP.md]
+   - Recommendation: Make this a Phase 130 release gate; record failure as an explicit blocker with command, failure summary, owner, and retry condition instead of closing `PROOF-01`. [VERIFIED: .planning/ROADMAP.md]
 
 ## Environment Availability
 
