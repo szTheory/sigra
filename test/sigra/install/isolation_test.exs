@@ -87,6 +87,20 @@ defmodule Sigra.Install.IsolationTest do
       files = File.ls!("priv/templates/sigra.install/core")
       assert length(files) == 49
     end
+
+    test "core auth export defaults do not reference optional feature schemas" do
+      content = File.read!("priv/templates/sigra.install/core/auth.ex")
+      default_opts = default_auth_export_opts_body(content)
+
+      refute default_opts =~ "identity_schema:",
+             "core auth export defaults must not assume an OAuth identity schema"
+
+      refute default_opts =~ "user_passkey_schema:",
+             "core auth export defaults must not assume a passkey schema"
+
+      refute default_opts =~ "membership_schema:",
+             "core auth export defaults must not assume an organization membership schema"
+    end
   end
 
   # Strips heredoc-based doc attributes so symbol checks target
@@ -97,5 +111,14 @@ defmodule Sigra.Install.IsolationTest do
     source
     |> String.replace(~r/@moduledoc\s+"""[\s\S]*?"""/m, "")
     |> String.replace(~r/@doc\s+"""[\s\S]*?"""/m, "")
+  end
+
+  defp default_auth_export_opts_body(content) do
+    case Regex.run(~r/defp default_auth_export_opts do\s*(?<body>[\s\S]*?)\n  end/, content,
+           capture: ["body"]
+         ) do
+      [body] -> body
+      nil -> ""
+    end
   end
 end
