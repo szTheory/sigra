@@ -11,8 +11,10 @@ defmodule Sigra.Audit.Forwarders do
 
   - `:auto` — detects Oban presence via `oban_running?/1`; routes to
     `:async` when supervised, `:sync` when not.
-  - `:async` — enqueues a `Sigra.Workers.AuditForward` Oban job. No-op
-    if the worker module is not compiled (graceful — Plan 05 makes it live).
+  - `:async` — enqueues a `Sigra.Workers.AuditForward` Oban job. Returns
+    `{:error, :async_worker_not_compiled}` if the worker module is not
+    compiled (Oban not in deps) — callers observe the degradation rather
+    than receiving a silent `:ok`.
   - `:sync` — calls `forwarder_module.handle_event/4` inline in the
     calling process.
 
@@ -34,8 +36,8 @@ defmodule Sigra.Audit.Forwarders do
   ## Boot-Time Safety
 
   The boot-time `:async`-without-Oban raise (D-26) does NOT live here — it
-  lives in `Sigra.Application.attach_forwarders/0` (Plan 05). This dispatcher
-  only routes already-validated `:auto`/`:async`/`:sync` values.
+  lives in `Sigra.Application.attach_forwarders/0`. This dispatcher only
+  routes already-validated `:auto`/`:async`/`:sync` values.
   """
 
   @telemetry_event [:sigra, :audit, :log]
@@ -121,13 +123,17 @@ defmodule Sigra.Audit.Forwarders do
   end
 
   # Private: asynchronous dispatch via Oban worker.
-  # Gracefully no-ops if Sigra.Workers.AuditForward is not compiled (e.g.
-  # Oban is not in deps). Plan 05 makes this branch fully live.
+  #
+  # Returns {:error, :async_worker_not_compiled} if Sigra.Workers.AuditForward is
+  # not compiled (Oban absent from deps). The D-26 boot-time raise in
+  # attach_forwarders/0 prevents :async dispatch from being configured without Oban
+  # supervised, but this guard protects against runtime calls (e.g. hot deploys that
+  # removed Oban) and provides an observable error rather than a silent :ok.
   #
   # Uses apply/3 to avoid a compile-time undefined-module warning when
-  # Sigra.Workers.AuditForward is not yet loaded (it ships in Plan 05).
-  # mix.exs no_warn_undefined will carry Sigra.Workers.AuditForward once
-  # Task 3 lands the mix.exs edit.
+  # Sigra.Workers.AuditForward is conditionally compiled (wrapped in
+  # Code.ensure_loaded?(Oban.Worker)). mix.exs no_warn_undefined carries
+  # Sigra.Workers.AuditForward to suppress the dialyzer warning.
   @worker_module Sigra.Workers.AuditForward
   defp dispatch_async(forwarder_module, metadata, opts) do
     if Code.ensure_loaded?(@worker_module) do
@@ -146,7 +152,7 @@ defmodule Sigra.Audit.Forwarders do
         {:error, reason} -> {:error, reason}
       end
     else
-      :ok
+      {:error, :async_worker_not_compiled}
     end
   end
 
