@@ -49,6 +49,7 @@
   "mode": "yolo",
   "granularity": "fine",
   "model_overrides": {
-    "gsd-executor": "claude-sonnet-4-6"
+    "gsd-executor": "claude-sonnet-4-6",
+    "gsd-code-fixer": "claude-sonnet-4-6"
   }
 }
