@@ -1,10 +1,11 @@
 ---
 phase: 129
 slug: generated-host-parity-and-docs
-status: draft
+status: audited
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-05-27
+audited: 2026-05-27
 ---
 
 # Phase 129 - Validation Strategy
@@ -38,20 +39,20 @@ created: 2026-05-27
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 129-01-01 | 01 | 1 | HOST-01 | T-129-01 | Generated/export wrapper delegates to `Sigra.DataExport.export_auth_data/3` and does not serialize payload fields in host code. | template/unit | `mix test test/sigra/templates/settings_live_test.exs --max-failures 1` | Existing test file, assertions need update | pending |
-| 129-01-02 | 01 | 1 | HOST-01 | T-129-02 | Generated lifecycle copy avoids unconditional permanent-removal claims and stays strategy-neutral. | template/unit | `mix test test/sigra/templates/settings_live_test.exs --max-failures 1` | Existing test file, assertions need update | pending |
-| 129-01-03 | 01 | 1 | HOST-01 | T-129-03 | Install golden output mirrors templates after rebless. | golden/integration | `MIX_ENV=test mix sigra.fixture.rebless_golden && mix test test/sigra/install/golden_diff_test.exs --max-failures 1` | Existing golden test | pending |
-| 129-02-01 | 02 | 1 | DOC-01 | T-129-04 | Docs distinguish Sigra-owned auth/account data from host-owned domain data and describe explicit `omissions`. | docs/grep or guide test | `mix test test/sigra/guides_dx02_test.exs --max-failures 1` or focused docs grep checks added by plan | Existing guide test file | pending |
-| 129-02-02 | 02 | 1 | DOC-01 | T-129-05 | Docs describe `:hard_delete`, `:soft_delete`, and `:anonymize` consequences without compliance overclaim. | docs/grep or guide test | `mix test test/sigra/guides_dx02_test.exs --max-failures 1` or focused docs grep checks added by plan | Existing guide files | pending |
+| 129-01-01 | 01 | 1 | HOST-01 | T-129-01 | Generated/export wrapper delegates to `Sigra.DataExport.export_auth_data/3` and does not serialize payload fields in host code. | template/unit | `mix test test/sigra/templates/settings_live_test.exs test/sigra/install/isolation_test.exs test/sigra/install/golden_diff_test.exs --max-failures 1` | `test/sigra/templates/settings_live_test.exs`, `test/sigra/install/isolation_test.exs` | covered |
+| 129-01-02 | 01 | 1 | HOST-01 | T-129-02 | Generated lifecycle copy avoids unconditional permanent-removal claims and stays strategy-neutral. | template/unit | `mix test test/sigra/templates/settings_live_test.exs test/sigra/install/isolation_test.exs test/sigra/install/golden_diff_test.exs --max-failures 1` | `test/sigra/templates/settings_live_test.exs` | covered |
+| 129-01-03 | 01 | 1 | HOST-01 | T-129-03 | Install golden output mirrors templates after rebless. | golden/integration | `mix test test/sigra/templates/settings_live_test.exs test/sigra/install/isolation_test.exs test/sigra/install/golden_diff_test.exs --max-failures 1` | `test/sigra/install/golden_diff_test.exs`, `test/fixtures/install_golden/tree/**` | covered |
+| 129-02-01 | 02 | 1 | DOC-01 | T-129-04 | Docs distinguish Sigra-owned auth/account data from host-owned domain data and describe explicit `omissions`. | docs/guide test | `mix test test/sigra/guides_dx02_test.exs --max-failures 1` and `mix docs` | `test/sigra/guides_dx02_test.exs`, `guides/flows/audit-logging.md`, `guides/recipes/testing.md` | covered |
+| 129-02-02 | 02 | 1 | DOC-01 | T-129-05 | Docs describe `:hard_delete`, `:soft_delete`, and `:anonymize` consequences without compliance overclaim. | docs/guide test | `mix test test/sigra/guides_dx02_test.exs --max-failures 1` and `mix docs` | `test/sigra/guides_dx02_test.exs`, `guides/flows/account-lifecycle.md`, `guides/recipes/testing.md` | covered |
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] Add or update template assertions that `priv/templates/sigra.install/core/auth.ex` contains `export_auth_data` and `Sigra.DataExport.export_auth_data`.
-- [ ] Add or update assertions preventing broad generated deletion copy such as `all associated data` and unconditional `permanently removed` in generated templates.
-- [ ] Rebless install golden after template changes with `MIX_ENV=test mix sigra.fixture.rebless_golden`.
-- [ ] Add docs verification for Sigra-owned versus host-owned data, optional-schema `omissions`, and deletion strategy consequences.
+- [x] Add or update template assertions that `priv/templates/sigra.install/core/auth.ex` contains `export_auth_data` and `Sigra.DataExport.export_auth_data`.
+- [x] Add or update assertions preventing broad generated deletion copy such as `all associated data` and unconditional `permanently removed` in generated templates.
+- [x] Rebless install golden after template changes with `MIX_ENV=test mix sigra.fixture.rebless_golden`.
+- [x] Add docs verification for Sigra-owned versus host-owned data, optional-schema `omissions`, and deletion strategy consequences.
 
 ---
 
@@ -72,6 +73,23 @@ created: 2026-05-27
 | T-129-03 | Golden fixture drift masks installer behavior. | Golden output must be regenerated from templates and verified by `golden_diff_test.exs`. |
 | T-129-04 | Host-domain export overclaim implies Sigra exports all application data. | Docs must state Sigra export covers Sigra-owned auth/account data and host apps own domain-data export/retention. |
 | T-129-05 | Optional schema omissions are hidden from operators. | Docs/tests must describe explicit `omissions` for missing optional Sigra-owned schemas. |
+
+---
+
+## Validation Audit 2026-05-27
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 5 |
+| Escalated | 0 |
+
+### Automated Evidence
+
+- `mix test test/sigra/templates/settings_live_test.exs test/sigra/install/isolation_test.exs test/sigra/install/golden_diff_test.exs --max-failures 1` - passed, 50 tests, 0 failures.
+- `mix test test/sigra/guides_dx02_test.exs --max-failures 1` - passed, 16 tests, 0 failures.
+- `mix docs` - passed; emitted pre-existing unresolved reference warnings for `Sigra.OAuth.callback/4` in `guides/flows/oauth.md`.
+- `rg` cross-checks confirmed export wrapper assertions, optional-schema omission guards, broad deletion-copy refutes, docs boundary assertions, and strategy-specific guide wording.
 
 ---
 
