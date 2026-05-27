@@ -159,7 +159,18 @@ defmodule Sigra.MixProject do
       # are intentionally relative from this guide for repo navigation.
       skip_undefined_reference_warnings_on: [
         "guides/introduction/upgrading-to-v1.10.md",
-        "guides/introduction/upgrading-to-v1.11.md"
+        "guides/introduction/upgrading-to-v1.11.md",
+        # Phase 131: hidden Application helpers referenced in moduledocs; suppressed pending
+        # a @doc false / @moduledoc false strategy alignment in a future phase.
+        "lib/sigra/audit/forwarder.ex",
+        "lib/sigra/audit/forwarders.ex",
+        "lib/sigra/audit/forwarders/noop.ex",
+        "lib/sigra/audit/forwarders/threadline.ex",
+        "lib/sigra/workers/audit_forward.ex",
+        # Phase 132: recipe files reference hidden Application helpers and the Sigra.Mailer
+        # behaviour callback (which is a @callback, not a @doc function).
+        "guides/recipes/companion-libs/threadline.md",
+        "guides/recipes/companion-libs/mailglass.md"
       ],
       main: "getting-started",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
@@ -204,13 +215,16 @@ defmodule Sigra.MixProject do
         "guides/recipes/multi-tenant.md",
         "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md",
-        "guides/recipes/companion-oauth-provider.md"
+        "guides/recipes/companion-oauth-provider.md",
+        "guides/recipes/companion-libs/threadline.md",
+        "guides/recipes/companion-libs/mailglass.md"
       ],
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
         Reference: ~r{guides/reference/.?},
         Flows: ~r{guides/flows/.?},
-        Recipes: ~r{guides/recipes/.?},
+        "Companion Libraries": ~r{guides/recipes/companion-libs/.?},
+        Recipes: ~r{guides/recipes/[^/]+\.md$},
         Docs: ~r{^docs/|^SECURITY\.md$}
       ],
       groups_for_modules: [
