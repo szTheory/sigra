@@ -306,17 +306,19 @@ end
 
 All claims in this research were verified or cited; no user confirmation is needed before planning. [VERIFIED: source list below]
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should omissions be strings or structured maps?**
    - What we know: CONTEXT leaves this to the agent as long as output is explicit and tests pin behavior. [VERIFIED: `127-CONTEXT.md`]
    - What's unclear: Existing implementation uses strings, while structured maps would be easier to test and consume. [VERIFIED: `lib/sigra/data_export.ex`]
    - Recommendation: Use structured maps like `%{section: :sessions, reason: "..."}` unless backward compatibility with string omissions is intentionally preserved. [VERIFIED: current phase discretion]
+   - **RESOLVED:** Use structured omission maps with `:section`, `:schema_option`, and `:reason` keys. Phase 127 is a stabilization phase before downstream host parity, and no current tests or documented public examples require string-only omissions. [VERIFIED: `127-01-PLAN.md`, `127-02-PLAN.md`]
 
 2. **Should configured-schema tests use fake repo rows or real Postgres?**
    - What we know: Focused nil-schema tests pass today, and a Postgres test repo is available when needed. [VERIFIED: `mix test test/sigra/data_export_test.exs`, `test/support/postgres_test_repo.ex`]
    - What's unclear: The planner may prefer fake repo tests for speed or Postgres tests for query compilation proof. [VERIFIED: current test suite patterns]
    - Recommendation: Use focused unit tests with in-test schemas and a fake repo for serializer output, plus one Postgres-backed test only if Ecto `select: map/2` query shape needs runtime proof. [VERIFIED: `mix help test`, `test/support/postgres_test_repo.ex`]
+   - **RESOLVED:** Use deterministic in-test Ecto schemas plus a fake repo for configured-schema serializer coverage in Phase 127. This keeps the proof focused on payload shape, safe-field allowlists, and omission truth; the full Postgres suite remains the phase-level safety check before verification. [VERIFIED: `127-01-PLAN.md`, `127-VALIDATION.md`]
 
 ## Environment Availability
 
