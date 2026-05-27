@@ -23,7 +23,7 @@
 
 ### Proof
 
-- [ ] **PROOF-01**: Targeted tests prove export shape, optional-schema degradation, deletion lifecycle truth, worker scheduling behavior, and generated-host parity.
+- [x] **PROOF-01**: Targeted tests prove export shape, optional-schema degradation, deletion lifecycle truth, worker scheduling behavior, and generated-host parity.
 
 ## Future Requirements
 
@@ -52,7 +52,7 @@
 | LIFE-03 | Phase 128 | Complete |
 | HOST-01 | Phase 129 | Complete |
 | DOC-01 | Phase 129 | Complete |
-| PROOF-01 | Phase 130 | Pending |
+| PROOF-01 | Phase 130 | Complete |
 
 **Coverage:**
 - v1 requirements: 8 total
@@ -61,4 +61,4 @@
 
 ---
 *Requirements defined: 2026-05-27*
-*Last updated: 2026-05-27 after v1.28 milestone gap closure planning*
+*Last updated: 2026-05-27 after Phase 130 PROOF-01 closure (docs gate unblocked by commit 110a560)*
