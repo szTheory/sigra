@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-05-27T13:14:39.896Z"
 last_activity: 2026-05-27
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,52 +21,63 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.29 SUITE-INTEGRATION — companion-library integration recipes + first-class Threadline audit adapter + suite narrative. Phases continue from 131.
+**Current focus:** v1.29 SUITE-INTEGRATION — Threadline audit forwarder library code (Phase 131), six companion-library recipes under `guides/recipes/companion-libs/`, `guides/introduction/suite-integration.md` narrative, `test/example/` Threadline demo extension, and verification proof bundle with v1.25 Mailglass-narrative corrigendum. Phases run 131 → 136 (continuous from v1.28's last phase 130).
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 131 (Forwarder Behaviour + Threadline Forwarder Library Scaffolding)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-27 — Milestone v1.29 started
+Status: planning
+Last activity: 2026-05-27 — Roadmap created; 6 phases (131-136); 16/16 REQ-IDs mapped.
 
 ## Accumulating Context
 
 - `v1.28 DATA-LIFECYCLE` shipped 2026-05-27: versioned auth/account export, schedule/cancel/execute deletion semantics, generated-host parity, release-readiness proof.
-- The rough maturity band remains `80-89%`; data-export and lifecycle truth are no longer the largest delta.
-- `SUITE-INTEGRATION` is the next ranked follow-on (companion-library integration recipes: Accrue, Lockspire, Mailglass, Relyra, Rulestead, Threadline).
-- The data-lifecycle planning thread is resolved; no active milestone planning is in flight.
+- v1.29 SUITE-INTEGRATION is now active. Phases continue from 131 (no reset).
+- Roadmap is the lowest-code milestone in recent memory: exactly one new library module (`Sigra.Audit.Forwarders.Threadline` + behaviour + Noop + optional worker); everything else is recipes, narrative, and `test/example/` extension.
+- Mailglass disposition is locked: recipe-only in v1.29; the orphaned Phase 111/114 library-resident adapter does NOT re-land here. Phase 136 DOC-01 corrigendum corrects the v1.25 narrative.
+- `Sigra.OptionalDeps` SOT and `mix sigra.doctor` are both explicitly deferred out of v1.29; existing scattered-`Code.ensure_loaded?` precedent stands.
+- Research basis: `.planning/research/SUMMARY.md` (HIGH confidence; verified against repo HEAD on `v1.28-data-lifecycle` and hex.pm on 2026-05-27).
 
 ## Deferred Items
 
-Items acknowledged and deferred at v1.26 milestone close on 2026-05-25 (still pending after v1.28):
+Items acknowledged and deferred at v1.26 milestone close on 2026-05-25 (still pending after v1.28; promoted into v1.29 active scope):
 
 | Category | Item | Status |
 |----------|------|--------|
-| todo | 2026-05-08-write-accrue-integration-recipe.md | pending |
-| todo | 2026-05-08-write-lockspire-integration-recipe.md | pending |
-| todo | 2026-05-08-write-relyra-integration-recipe.md | pending |
-| todo | 2026-05-08-write-rulestead-integration-recipe.md | pending |
-| todo | 2026-05-08-write-threadline-integration-recipe.md | pending |
-| seed | SEED-011-ecosystem-integrations | dormant |
+| todo | 2026-05-08-write-accrue-integration-recipe.md | promoted → Phase 134 (RC-03) |
+| todo | 2026-05-08-write-lockspire-integration-recipe.md | promoted → Phase 134 (RC-04) |
+| todo | 2026-05-08-write-relyra-integration-recipe.md | promoted → Phase 134 (RC-05) |
+| todo | 2026-05-08-write-rulestead-integration-recipe.md | promoted → Phase 134 (RC-06) |
+| todo | 2026-05-08-write-threadline-integration-recipe.md | promoted → Phase 132 (RC-01) |
+| seed | SEED-011-ecosystem-integrations | active — backing v1.29 SUITE-INTEGRATION |
 
-These integration recipes are the natural scope for the next `SUITE-INTEGRATION` milestone.
+Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
+
+| Category | Item | Status |
+|----------|------|--------|
+| refactor | `Sigra.OptionalDeps` SOT consolidation | deferred (no v1.29 trigger; existing scattered guards sound) |
+| task | `mix sigra.doctor` adopter-facing diagnostic | deferred (referenced in v1.21 HARD-02 narrative but never shipped) |
+| recovery | Re-land orphaned Phase 111/114 Mailglass adapter | deferred (separate quick task; current call: drop orphaned work) |
+| differentiator | Threadline correlation-ID propagation | deferred (v1.30 candidate) |
+| differentiator | Recipe-contract test fixtures | deferred unless Phase 134 has budget |
 
 ### Decisions
 
 - Shipped `v1.28 DATA-LIFECYCLE` on 2026-05-27 with four phases: versioned export, deletion lifecycle truth, generated-host/docs parity, and verification/release readiness.
-- Kept `DATA-LIFECYCLE` bounded to Sigra-owned auth/account export, audit/export boundary clarity, and truthful schedule/cancel/execute semantics.
-- Treated SCIM, hosted-control-plane behavior, generic BI/reporting export, broad directory sync, and opinionated authorization policy as out of scope for `DATA-LIFECYCLE`.
-- Library owns versioned export payload via `Sigra.DataExport.export_auth_data/3` with `schema_version: 1` and structured omission notes.
-- Kept backup codes summary-only and enterprise connections explicitly excluded from the user data export.
-- Kept account-deletion enqueue ownership in `Sigra.Account.Deletion.schedule/3` with safe missing-context degradation.
-- Kept soft-delete finalization row-preserving and `deleted_at`-preserving.
-- `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
+- Opened `v1.29 SUITE-INTEGRATION` on 2026-05-27. Phases 131-136. 16 REQ-IDs across Threadline forwarder library code (TL-01..TL-05, FB-01), recipes (RC-01..RC-06), suite narrative (NX-01), reference example (EX-01), and verification + corrigendum (PROOF-01, DOC-01).
+- Adopted ARCHITECTURE.md's `Sigra.Audit.Forwarders.Threadline` naming over STACK.md's `Sigra.Audit.Adapters.Threadline` — "Forwarders" correctly signals "Sigra DB row remains source-of-truth; Threadline is a projection."
+- Adopted `guides/recipes/companion-libs/<name>.md` subdir convention (new ExDoc "Companion Libraries" group) over flat `guides/recipes/`.
+- Adopted "extend `test/example/`" over "new top-level `examples/` directory" — Phase 114 already paid the cost of closing nested-example-app drift; existing CI lanes cover it.
+- Adopted scattered-`Code.ensure_loaded?` precedent for Threadline optional-dep handling; deferred the `Sigra.OptionalDeps` SOT module to a separate refactor.
+- Locked Mailglass posture for v1.29 as **recipe-only**: do NOT re-land the orphaned Phase 111/114 adapter; Phase 136 DOC-01 corrigendum corrects the v1.25 EMAIL-RAILS narrative claim.
+- Treated `--with-threadline` (and any `--with-*`) install flag as out of scope — no precedent in `lib/mix/tasks/sigra.install.ex`.
+- Kept all six companion-lib recipes under a uniform template: `validated_against:` + `last_validated:` frontmatter, `mix.exs` snippet, "Failure modes" section, "Non-goals" section, "Sigra works fully standalone" banner.
 
 ## Operator Next Steps
 
-- Start the next milestone with `/gsd-new-milestone` (consult `.planning/MILESTONE-ARC.md` first for ranking).
-- Consider a backfill pass on `RETROSPECTIVE.md` for milestones v1.18–v1.27 before the cross-milestone trend tables grow further stale.
+- Plan Phase 131 with `/gsd-plan-phase 131`: forwarder behaviour + Threadline impl + Noop fallback + optional Oban worker + boundary doctrine.
+- Phases 132 → 136 execute in order after 131; Phase 134 may parallelize with Phase 133 if planning budget allows.
 
 ### Blockers
 

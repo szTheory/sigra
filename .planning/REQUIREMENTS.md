@@ -78,21 +78,21 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| TL-01 | TBD | Active |
-| TL-02 | TBD | Active |
-| TL-03 | TBD | Active |
-| TL-04 | TBD | Active |
-| TL-05 | TBD | Active |
-| FB-01 | TBD | Active |
-| RC-01 | TBD | Active |
-| RC-02 | TBD | Active |
-| RC-03 | TBD | Active |
-| RC-04 | TBD | Active |
-| RC-05 | TBD | Active |
-| RC-06 | TBD | Active |
-| NX-01 | TBD | Active |
-| EX-01 | TBD | Active |
-| PROOF-01 | TBD | Active |
-| DOC-01 | TBD | Active |
+| TL-01 | Phase 131 | Active |
+| TL-02 | Phase 131 | Active |
+| TL-03 | Phase 131 | Active |
+| TL-04 | Phase 131 | Active |
+| TL-05 | Phase 131 | Active |
+| FB-01 | Phase 131 | Active |
+| RC-01 | Phase 132 | Active |
+| RC-02 | Phase 132 | Active |
+| RC-03 | Phase 134 | Active |
+| RC-04 | Phase 134 | Active |
+| RC-05 | Phase 134 | Active |
+| RC-06 | Phase 134 | Active |
+| NX-01 | Phase 133 | Active |
+| EX-01 | Phase 135 | Active |
+| PROOF-01 | Phase 136 | Active |
+| DOC-01 | Phase 136 | Active |
 
-*Phase column populated by `gsd-roadmapper` in the roadmap step.*
+*Phase column populated by `gsd-roadmapper` on 2026-05-27. All 16 active REQ-IDs mapped to exactly one phase; no orphans.*
