@@ -106,6 +106,10 @@ defmodule Sigra.Audit.Forwarders.DispatchTest do
 
   describe "oban_running?/1 (PUBLIC — BLOCKER 2 check)" do
     test "Test 5 — oban_running?/1 returns false when module not supervised (D-12)" do
+      # Ensure the module is loaded before checking function visibility.
+      # function_exported?/3 returns false for not-yet-loaded modules (Erlang behaviour);
+      # Code.ensure_loaded!/1 guarantees the BEAM is in the running system before the check.
+      Code.ensure_loaded!(Forwarders)
       # This also asserts the function is PUBLIC (def, not defp).
       assert function_exported?(Forwarders, :oban_running?, 1)
 

@@ -67,6 +67,10 @@ defmodule Sigra.MixProject do
         Bcrypt,
         Hammer,
         Swoosh.Email,
+        Threadline,
+        Threadline.ActorRef,
+        Threadline.AuditChange,
+        Threadline.AuditTransaction,
         Oban,
         Oban.Worker,
         Oban.Job,
@@ -81,6 +85,7 @@ defmodule Sigra.MixProject do
         # Internal modules defined only when an optional dep is loaded
         Sigra.Workers.AccountDeletion,
         Sigra.Workers.AuditCleanup,
+        Sigra.Workers.AuditForward,
         Sigra.Workers.EmailDelivery,
         Sigra.Workers.TokenCleanup
       ]
@@ -108,6 +113,7 @@ defmodule Sigra.MixProject do
       {:nimble_totp, "~> 1.0"},
       {:cloak_ecto, "~> 1.3"},
       {:wax_, "~> 0.7"},
+      {:threadline, "~> 0.5", optional: true},
       {:eqrcode, "~> 0.2.1", optional: true},
       # Dev/test
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
@@ -115,11 +121,11 @@ defmodule Sigra.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.1", only: :test},
       {:stream_data, "~> 1.1", only: [:dev, :test]},
-      # Postgres driver used only by the opt-in `:postgres` tagged tests
-      # (e.g. `test/sigra/audit/query_index_test.exs`) that assert Query
-      # plans against a live Postgres repo. Excluded from default test runs
+      # Postgres driver. Required at runtime when threadline (optional) is used;
+      # also used by opt-in `:postgres` tagged tests (e.g. `test/sigra/audit/query_index_test.exs`)
+      # that assert Query plans against a live Postgres repo. Excluded from default test runs
       # via `ExUnit.start(exclude: [:postgres])` in test/test_helper.exs.
-      {:postgrex, "~> 0.17", only: :test}
+      {:postgrex, "~> 0.17"}
     ]
   end
 
