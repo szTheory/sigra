@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: v1.28 DATA-LIFECYCLE
-status: milestone_active
-last_updated: "2026-05-27T00:00:00.000-04:00"
-last_activity: 2026-05-27 -- v1.28 DATA-LIFECYCLE requirements and phase roadmap scaffolded around active export/lifecycle repair work
+status: executing
+last_updated: "2026-05-27T06:07:50.973Z"
+last_activity: 2026-05-27 -- Phase 127 context gathered in assumptions mode for versioned auth data export
 progress:
   total_phases: 4
   completed_phases: 0
@@ -27,8 +27,8 @@ See: `.planning/PROJECT.md`
 
 Phase: 127 — Versioned Auth Data Export
 Plan: not planned
-Status: active milestone scaffolded; implementation and proof are in progress
-Last activity: 2026-05-27 -- v1.28 DATA-LIFECYCLE requirements and phase roadmap scaffolded around active export/lifecycle repair work
+Status: context gathered; ready for planning
+Last activity: 2026-05-27 -- Phase 127 context gathered in assumptions mode at `.planning/phases/127-versioned-auth-data-export/127-CONTEXT.md`
 
 ## Accumulating Context
 
@@ -63,9 +63,10 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - Keep `DATA-LIFECYCLE` bounded to Sigra-owned auth/account export, audit/export boundary clarity, and truthful schedule/cancel/execute semantics.
 - Treat SCIM, hosted-control-plane behavior, generic BI/reporting export, broad directory sync, and opinionated authorization policy as out of scope for `DATA-LIFECYCLE`.
 - `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
+- Gathered Phase 127 assumptions-mode context on 2026-05-27; planning should use `.planning/phases/127-versioned-auth-data-export/127-CONTEXT.md` as the resume artifact.
 
 ## Operator Next Steps
 
-- Plan and execute Phase 127 before selecting any new milestone.
+- Plan and execute Phase 127 from `.planning/phases/127-versioned-auth-data-export/127-CONTEXT.md` before selecting any new milestone.
 - Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
 - Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.
