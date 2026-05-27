@@ -95,7 +95,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
 
 **Plans**: 1 plan
 
-  - [ ] 132-01-PLAN.md — Threadline canary recipe + Mailglass host-owned-wiring recipe + mix.exs ExDoc registration (RC-01, RC-02)
+  - [x] 132-01-PLAN.md — Threadline canary recipe + Mailglass host-owned-wiring recipe + mix.exs ExDoc registration (RC-01, RC-02)
 
 ### Phase 133: Suite Narrative + Ecosystem Diagram
 
@@ -163,7 +163,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 131. Forwarder Behaviour + Threadline Scaffolding | 6/6 | Complete    | 2026-05-27 |
-| 132. Threadline + Mailglass Recipes | 0/TBD | Not started | - |
+| 132. Threadline + Mailglass Recipes | 1/1 | Complete   | 2026-05-27 |
 | 133. Suite Narrative + Ecosystem Diagram | 0/TBD | Not started | - |
 | 134. Recipe-Only Companion Libraries | 0/TBD | Not started | - |
 | 135. Reference Example (`test/example/`) | 0/TBD | Not started | - |
