@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: v1.28 DATA-LIFECYCLE
-status: ready_to_plan
-last_updated: 2026-05-27T07:24:07.763Z
+status: planning
+last_updated: "2026-05-27T07:57:13Z"
 last_activity: 2026-05-27
 progress:
   total_phases: 4
@@ -11,7 +11,6 @@ progress:
   total_plans: 2
   completed_plans: 2
   percent: 25
-stopped_at: Phase 127 complete (2/2) — ready to discuss Phase 128
 ---
 
 # Project State
@@ -70,9 +69,10 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - [Phase 127]: Preserved the Plan 01 omission test surface as section/schema maps without adding a third reason key.
 - [Phase 127]: Kept backup codes summary-only and enterprise connections explicitly excluded from user export.
 - [Phase 127]: Kept export payload ownership in Sigra.DataExport.export_auth_data/3.
+- Gathered Phase 128 assumptions-mode context on 2026-05-27; planning should use `.planning/phases/128-account-deletion-lifecycle-truth/128-CONTEXT.md` as the resume artifact.
 
 ## Operator Next Steps
 
-- Discuss and plan Phase 128 account deletion lifecycle truth before execution.
+- Plan Phase 128 account deletion lifecycle truth from `.planning/phases/128-account-deletion-lifecycle-truth/128-CONTEXT.md`, then execute.
 - Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
 - Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.
