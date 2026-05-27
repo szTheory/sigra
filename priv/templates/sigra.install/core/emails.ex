@@ -694,14 +694,14 @@ defmodule <%= context_module %>.Emails do
       #{dgettext("sigra", "Account Deleted")}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
-      #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
+      #{dgettext("sigra", "Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
     </p>
     """
 
     text_body = """
     #{dgettext("sigra", "Account Deleted")}
 
-    #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
+    #{dgettext("sigra", "Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
 
     ---
     #{footer_text()}

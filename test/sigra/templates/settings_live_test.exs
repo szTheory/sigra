@@ -85,8 +85,11 @@ defmodule Sigra.Templates.SettingsLiveTest do
     end
 
     test "uses strategy-neutral deletion copy", %{content: content} do
-      assert content =~ "Schedule account deletion according to your configured deletion strategy."
-      assert content =~ "Finalization will follow your configured deletion strategy."
+      assert content =~
+               "Schedule account deletion according to your configured deletion strategy."
+
+      assert content =~
+               "After the grace period expires, Sigra finalizes the account lifecycle according to that strategy."
 
       refute content =~ "all associated data"
       refute content =~ "account and data will be permanently removed"
@@ -182,7 +185,8 @@ defmodule Sigra.Templates.SettingsLiveTest do
     end
 
     test "uses strategy-neutral deletion finalized copy", %{content: content} do
-      assert content =~ "account deletion has been finalized according to the configured deletion strategy"
+      assert content =~
+               "account deletion has been finalized according to the configured deletion strategy"
 
       refute content =~ "all associated data"
       refute content =~ "account and data will be permanently removed"
@@ -283,7 +287,9 @@ defmodule Sigra.Templates.SettingsLiveTest do
   end
 
   defp export_auth_data_body(content) do
-    case Regex.run(~r/def export_auth_data\(user, opts \\\\ \[\]\) do\s*(?<body>[\s\S]*?)\n  end/, content,
+    case Regex.run(
+           ~r/def export_auth_data\(user, opts \\\\ \[\]\) do\s*(?<body>[\s\S]*?)\n  end/,
+           content,
            capture: ["body"]
          ) do
       [body] -> body

@@ -697,14 +697,14 @@ defmodule Example.Accounts.Emails do
       #{dgettext("sigra", "Account Deleted")}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
-      #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "Example")}
+      #{dgettext("sigra", "Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "Example")}
     </p>
     """
 
     text_body = """
     #{dgettext("sigra", "Account Deleted")}
 
-    #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "Example")}
+    #{dgettext("sigra", "Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "Example")}
 
     ---
     #{footer_text()}

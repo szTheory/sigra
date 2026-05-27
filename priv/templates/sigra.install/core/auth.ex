@@ -1070,6 +1070,18 @@ defmodule <%= context_module %> do
   end
 
   @doc """
+  Export Sigra-owned auth and account data for a user.
+
+  Caller opts may provide optional generated schemas such as OAuth
+  identities, passkeys, or organization memberships.
+  """
+  def export_auth_data(user, opts \\ []) do
+    Sigra.DataExport.export_auth_data(Repo, user,
+      Keyword.merge(default_auth_export_opts(), opts)
+    )
+  end
+
+  @doc """
   Check if the user must change their password.
   """
   def must_change_password?(user) do
@@ -1077,6 +1089,15 @@ defmodule <%= context_module %> do
   end
 
   # -- Private helpers --
+
+  defp default_auth_export_opts do
+    [
+      session_schema: <%= context_module %>.UserSession,
+      audit_schema: <%= context_module %>.AuditEvent,
+      mfa_credential_schema: <%= context_module %>.UserMFACredential,
+      backup_code_schema: <%= context_module %>.UserBackupCode
+    ]
+  end
 
   defp delivery_opts do
     [

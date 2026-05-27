@@ -1277,6 +1277,22 @@ defmodule Example.Accounts do
   end
 
   @doc """
+  Export Sigra-owned auth and account data for a user.
+
+  The example app passes the optional schemas it ships; generated core
+  templates leave optional schemas to caller opts or separately generated code.
+  """
+  def export_auth_data(user, opts \\ []) do
+    with :ok <- forbid_sensitive_operation(opts, user, "account.data_export") do
+      Sigra.DataExport.export_auth_data(
+        Repo,
+        user,
+        Keyword.merge(default_auth_export_opts(), opts)
+      )
+    end
+  end
+
+  @doc """
   Check if the user must change their password.
   """
   def must_change_password?(user) do
@@ -1284,6 +1300,17 @@ defmodule Example.Accounts do
   end
 
   # -- Private helpers --
+
+  defp default_auth_export_opts do
+    [
+      session_schema: Example.Accounts.UserSession,
+      audit_schema: Example.Accounts.AuditEvent,
+      mfa_credential_schema: Example.Accounts.UserMFACredential,
+      backup_code_schema: Example.Accounts.UserBackupCode,
+      user_passkey_schema: Example.Accounts.UserPasskey,
+      membership_schema: Example.Accounts.OrganizationMembership
+    ]
+  end
 
   defp delivery_opts do
     [
