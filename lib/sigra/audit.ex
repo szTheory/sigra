@@ -10,7 +10,9 @@ defmodule Sigra.Audit do
     `__log_internal__/3` bypasses this check for library-owned events
   - Metadata size cap 8KB default (D-20); forbidden keys rejected (D-23)
   - Cursor pagination, no offset, or-expanded tiebreak (D-13)
-  - Telemetry passthrough `[:sigra, :audit, :log]` on successful commit (D-24)
+  - Telemetry passthrough `[:sigra, :audit, :log]` on successful commit (D-24);
+    metadata keys `:action`, `:actor_id`, `:outcome`, `:id`, `:occurred_at`
+    (`:id` + `:occurred_at` added in v0.4.0 for cross-system idempotency — Pitfall 4)
 
   ## Telemetry responsibility for `log_multi/3` and `log_multi_safe/3`
 
@@ -302,10 +304,24 @@ defmodule Sigra.Audit do
   end
 
   defp emit_telemetry(event) do
+    # Metadata superset per D-31 (Phase 131 Plan 02):
+    # - :action, :actor_id, :outcome — original (Plan 09 / D-24); preserved verbatim
+    # - :id, :occurred_at — added in v0.4.0 for cross-system idempotency (Pitfall 4)
+    #   so Threadline forwarder (Plan 04) can ship the canonical dedupe key via
+    #   :correlation_id without an extra DB round-trip inside the handler.
+    # Both new fields are schema-guaranteed: event.id from
+    # @primary_key {:id, :binary_id, autogenerate: true}; event.occurred_at from
+    # validate_required([:action, :outcome, :occurred_at]) (Audit.Changeset).
     :telemetry.execute(
       @telemetry_event,
       %{count: 1},
-      %{action: event.action, actor_id: event.actor_id, outcome: event.outcome}
+      %{
+        action: event.action,
+        actor_id: event.actor_id,
+        outcome: event.outcome,
+        id: event.id,
+        occurred_at: event.occurred_at
+      }
     )
   end
 
