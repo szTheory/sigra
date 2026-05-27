@@ -68,10 +68,10 @@ Plans:
 
 **Depends on:** Phase 127
 **Requirements:** `LIFE-01`, `LIFE-02`, `LIFE-03`
-**Plans:** 0/1 plans complete
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 128-01-PLAN.md — Prove and repair account deletion enqueue, active-scheduled gating, worker no-op, and soft-delete finalization truth.
+- [x] 128-01-PLAN.md — Prove and repair account deletion enqueue, active-scheduled gating, worker no-op, and soft-delete finalization truth.
 
 **Success criteria:**
 

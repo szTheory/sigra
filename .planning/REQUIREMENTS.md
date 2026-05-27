@@ -12,9 +12,9 @@
 
 ### Account Lifecycle
 
-- [ ] **LIFE-01**: User deletion scheduling enqueues `Sigra.Workers.AccountDeletion` for the scheduled time when Oban and generated-host context are available, while safely degrading when job context is absent.
-- [ ] **LIFE-02**: User deletion cancel and execute paths only apply to actively scheduled deletions; already-finalized users return `{:error, :not_scheduled}`.
-- [ ] **LIFE-03**: Soft-delete finalization clears scheduled deletion state and pending/original email fields without claiming the user row was hard-deleted.
+- [x] **LIFE-01**: User deletion scheduling enqueues `Sigra.Workers.AccountDeletion` for the scheduled time when Oban and generated-host context are available, while safely degrading when job context is absent.
+- [x] **LIFE-02**: User deletion cancel and execute paths only apply to actively scheduled deletions; already-finalized users return `{:error, :not_scheduled}`.
+- [x] **LIFE-03**: Soft-delete finalization clears scheduled deletion state and pending/original email fields without claiming the user row was hard-deleted.
 
 ### Generated Host And Docs
 
@@ -47,9 +47,9 @@
 |-------------|-------|--------|
 | EXP-01 | Phase 127 | Complete |
 | EXP-02 | Phase 127 | Complete |
-| LIFE-01 | Phase 128 | Pending |
-| LIFE-02 | Phase 128 | Pending |
-| LIFE-03 | Phase 128 | Pending |
+| LIFE-01 | Phase 128 | Complete |
+| LIFE-02 | Phase 128 | Complete |
+| LIFE-03 | Phase 128 | Complete |
 | HOST-01 | Phase 129 | Pending |
 | DOC-01 | Phase 129 | Pending |
 | PROOF-01 | Phase 130 | Pending |
