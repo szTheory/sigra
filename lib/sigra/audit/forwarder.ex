@@ -14,10 +14,11 @@ defmodule Sigra.Audit.Forwarder do
 
   - `Sigra.Audit.Forwarders.Threadline` — telemetry-tap impl, loaded
     only when the `:threadline` dep is present.
-  - `Sigra.Audit.Forwarders.Noop` — fail-open fallback used when a
-    forwarder is configured but its dep is not loaded. A one-shot
-    `Logger.warning` is emitted upstream from `Sigra.Application.start/2`
-    in that case.
+  - `Sigra.Audit.Forwarders.Noop` — explicit no-op forwarder for test
+    environments or placeholder use. Note: when a configured forwarder's
+    dep is absent, `Sigra.Application.attach_forwarders/0` skips the
+    attach call entirely — Noop is NOT automatically substituted (D-22,
+    D-23). A one-shot `Logger.warning` is still emitted to alert operators.
 
   Host applications can implement their own forwarder by adopting this
   behaviour and registering it in their `sigra_config/0` under

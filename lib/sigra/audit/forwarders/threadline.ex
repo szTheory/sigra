@@ -15,7 +15,9 @@ if Code.ensure_loaded?(Threadline) do
     The entire `defmodule` is wrapped in `if Code.ensure_loaded?(Threadline) do`.
     When `:threadline` is absent from `mix.lock`, this file compiles to a no-op
     and the module simply does not exist. `Sigra.Application.attach_forwarders/0`
-    falls through to Noop (D-23 split) and emits one `Logger.warning`.
+    skips the attach call and emits one `Logger.warning` via
+    `maybe_warn_missing_forwarder_deps/0` (D-23). Noop is NOT automatically
+    substituted — zero forwarding occurs in the degraded path.
 
     ## Idempotency (RESEARCH.md §4 path 1, §7.2)
 
