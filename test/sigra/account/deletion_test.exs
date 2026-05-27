@@ -126,6 +126,14 @@ defmodule Sigra.Account.DeletionTest do
 
       assert result == {:error, :not_scheduled}
     end
+
+    test "returns {:error, :not_scheduled} when user is already finalized" do
+      user = build_user(%{deleted_at: ~U[2026-01-01 00:00:00Z]})
+
+      result = Deletion.cancel(Sigra.MockRepo, user, base_opts())
+
+      assert result == {:error, :not_scheduled}
+    end
   end
 
   # --- execute/3 ---
@@ -135,14 +143,24 @@ defmodule Sigra.Account.DeletionTest do
       user =
         build_user(%{
           deleted_at: ~U[2026-01-01 00:00:00Z],
-          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z],
+          original_email: "user@example.com",
+          pending_email: "pending@example.com"
         })
 
-      # Soft delete: just clear MFA data, no row deletion
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
-        {:ok, %{}}
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | original_email: nil,
+               pending_email: nil,
+               scheduled_deletion_at: nil
+           }
+         }}
       end)
 
       opts = base_opts(config: [deletion: [strategy: :soft_delete]])
@@ -188,6 +206,14 @@ defmodule Sigra.Account.DeletionTest do
 
     test "returns {:error, :not_scheduled} when user is not scheduled for deletion" do
       user = build_user()
+
+      opts = base_opts(config: [deletion: [strategy: :soft_delete]])
+
+      assert {:error, :not_scheduled} = Deletion.execute(Sigra.MockRepo, user, opts)
+    end
+
+    test "returns {:error, :not_scheduled} when user is already finalized" do
+      user = build_user(%{deleted_at: ~U[2026-01-01 00:00:00Z]})
 
       opts = base_opts(config: [deletion: [strategy: :soft_delete]])
 

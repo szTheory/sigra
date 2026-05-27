@@ -19,6 +19,7 @@ defmodule Sigra.Account.Deletion do
 
   alias Ecto.Multi
   alias Sigra.{Hooks, Telemetry}
+  require Logger
 
   @default_grace_period_days 14
 
@@ -70,7 +71,7 @@ defmodule Sigra.Account.Deletion do
   @doc since: "0.8.0"
   @spec cancel(module(), map(), keyword()) :: {:ok, map()} | {:error, :not_scheduled}
   def cancel(repo, user, opts) do
-    if user.deleted_at == nil do
+    if not scheduled?(user) do
       {:error, :not_scheduled}
     else
       do_cancel(repo, user, opts)
@@ -107,7 +108,7 @@ defmodule Sigra.Account.Deletion do
   @spec execute(module(), map(), keyword()) ::
           {:ok, atom()} | {:error, :not_scheduled}
   def execute(repo, user, opts) do
-    if user.deleted_at == nil do
+    if not scheduled?(user) do
       {:error, :not_scheduled}
     else
       do_execute(repo, user, opts)
@@ -202,6 +203,7 @@ defmodule Sigra.Account.Deletion do
         {:ok, %{user: updated_user}} ->
           # Revoke all sessions after transaction commit
           revoke_sessions(user, opts)
+          maybe_enqueue_deletion_job(repo, updated_user, scheduled_deletion_at, opts)
 
           Telemetry.event(
             [:sigra, :account, :deletion_scheduled],
@@ -261,10 +263,18 @@ defmodule Sigra.Account.Deletion do
     end)
   end
 
-  defp build_execute_multi(:soft_delete, _user, _opts) do
-    # Soft delete: deleted_at already set. Clear MFA data at finalization.
+  defp build_execute_multi(:soft_delete, user, opts) do
+    changeset_fn = Keyword.fetch!(opts, :changeset_fn)
+
+    user_changeset =
+      changeset_fn.(user, %{
+        original_email: nil,
+        pending_email: nil,
+        scheduled_deletion_at: nil
+      })
+
     Multi.new()
-    |> Multi.run(:soft_delete, fn _repo, _changes -> {:ok, :soft_deleted} end)
+    |> Multi.update(:user, user_changeset)
   end
 
   defp build_execute_multi(:hard_delete, user, opts) do
@@ -292,6 +302,83 @@ defmodule Sigra.Account.Deletion do
     Multi.new()
     |> Multi.update(:user, user_changeset)
   end
+
+  defp maybe_enqueue_deletion_job(repo, user, scheduled_at, opts) do
+    with true <- Code.ensure_loaded?(Oban),
+         true <- Code.ensure_loaded?(Sigra.Workers.AccountDeletion),
+         {:ok, args} <- deletion_job_args(repo, user, opts),
+         {:ok, changeset} <-
+           build_deletion_job_changeset(args, scheduled_at),
+         {:ok, _job} <- repo.insert(changeset) do
+      :ok
+    else
+      false ->
+        :ok
+
+      {:error, :missing_job_context} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.warning("Sigra account deletion job was not enqueued: #{inspect(reason)}")
+        :ok
+    end
+  rescue
+    error ->
+      Logger.warning("Sigra account deletion job enqueue crashed: #{Exception.message(error)}")
+      :ok
+  end
+
+  defp deletion_job_args(repo, user, opts) do
+    case Keyword.get(opts, :user_schema) do
+      nil ->
+        {:error, :missing_job_context}
+
+      user_schema ->
+        scope = Keyword.get(opts, :scope)
+
+        args = %{
+          "organization_id" => scope_organization_id(scope),
+          "actor_id" => scope_actor_id(scope, user),
+          "user_id" => user.id,
+          "strategy" => get_strategy(Keyword.get(opts, :config, [])) |> Atom.to_string(),
+          "repo" => Atom.to_string(repo),
+          "user_schema" => Atom.to_string(user_schema),
+          "scope_module" => stringify_module(Keyword.get(opts, :scope_module)),
+          "organization_schema" => stringify_module(Keyword.get(opts, :organization_schema)),
+          "audit_schema" => stringify_module(Keyword.get(opts, :audit_schema)),
+          "user_token_schema" => stringify_module(Keyword.get(opts, :user_token_schema)),
+          "session_store" => stringify_module(Keyword.get(opts, :session_store)),
+          "identity_schema" => stringify_module(Keyword.get(opts, :identity_schema)),
+          "api_token_schema" => stringify_module(Keyword.get(opts, :api_token_schema)),
+          "mfa_credential_schema" => stringify_module(Keyword.get(opts, :mfa_credential_schema)),
+          "backup_code_schema" => stringify_module(Keyword.get(opts, :backup_code_schema))
+        }
+
+        {:ok, args}
+    end
+  end
+
+  defp build_deletion_job_changeset(args, scheduled_at) do
+    Sigra.Workers.new(
+      Sigra.Workers.AccountDeletion,
+      args,
+      scheduled_at: scheduled_at,
+      replace: [scheduled: [:scheduled_at, :args]]
+    )
+    |> then(&{:ok, &1})
+  rescue
+    error -> {:error, error}
+  end
+
+  defp scope_actor_id(%{impersonating_from: %{id: actor_id}}, _user), do: actor_id
+  defp scope_actor_id(%{user: %{id: actor_id}}, _user), do: actor_id
+  defp scope_actor_id(_, user), do: user.id
+
+  defp scope_organization_id(%{active_organization: %{id: org_id}}), do: org_id
+  defp scope_organization_id(_), do: nil
+
+  defp stringify_module(nil), do: nil
+  defp stringify_module(module) when is_atom(module), do: Atom.to_string(module)
 
   defp get_strategy(config) do
     # Config may be a Sigra.Config struct (keyword list values),

@@ -1030,10 +1030,16 @@ defmodule SigraInstallGoldenTmp.Accounts do
 
   Returns `{:ok, user, scheduled_date}` or `{:error, reason}`.
   """
-  def schedule_deletion(user) do
+  def schedule_deletion(user, opts \\ []) do
     Sigra.Auth.schedule_deletion(sigra_config(), user,
-      user_token_schema: UserToken,
-      session_store: Sigra.SessionStores.Ecto
+      Keyword.merge(
+        [
+          changeset_fn: &User.deletion_changeset/2,
+          user_token_schema: UserToken,
+          session_store: Sigra.SessionStores.Ecto
+        ],
+        opts
+      )
     )
   end
 

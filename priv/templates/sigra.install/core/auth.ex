@@ -422,14 +422,13 @@ defmodule <%= context_module %> do
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
     user = get_user_by_email(email)
-    auth_policy = user && <%= app_module %>.Organizations.local_auth_policy_for(user)
+<%= if organizations?, do: "    auth_policy = user && #{app_module}.Organizations.local_auth_policy_for(user)", else: "    auth_policy = nil" %>
 
     case Sigra.Auth.request_password_reset(Repo, email,
            user_schema: <%= schema_alias %>,
            user_token_schema: UserToken,
            secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
-           url_fun: reset_password_url_fun,
-           enterprise_auth_policy: <%= app_module %>.Organizations
+           url_fun: reset_password_url_fun<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
          ) do
       {:ok, {signed_token, url}} ->
         user = get_user_by_email(email)
@@ -514,8 +513,7 @@ defmodule <%= context_module %> do
       user_token_schema: UserToken,
       user_schema: <%= schema_alias %>,
       changeset_fn: &<%= schema_alias %>.password_changeset/2,
-      reset_ttl: 3600,
-      enterprise_auth_policy: <%= app_module %>.Organizations
+      reset_ttl: 3600<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
     )
   end
 
@@ -551,7 +549,7 @@ defmodule <%= context_module %> do
       repo: <%= repo_module %>,
       user_schema: <%= schema_alias %>,
       scope_module: <%= context_module %>.Scope,
-      organizations_module: <%= app_module %>.Organizations,
+<%= if organizations?, do: "      organizations_module: #{app_module}.Organizations,", else: "" %>
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
@@ -609,8 +607,7 @@ defmodule <%= context_module %> do
 
   defp typed_local_auth_denial(email, reason) do
     case get_user_by_email(email) do
-      %<%= schema_alias %>{} = user ->
-        {:error, reason, <%= app_module %>.Organizations.local_auth_policy_for(user)}
+<%= if organizations?, do: "      %#{schema_alias}{} = user ->\n        {:error, reason, #{app_module}.Organizations.local_auth_policy_for(user)}", else: "      %#{schema_alias}{} ->\n        {:error, reason}" %>
 
       _ ->
         {:error, reason}
@@ -1034,10 +1031,16 @@ defmodule <%= context_module %> do
 
   Returns `{:ok, user, scheduled_date}` or `{:error, reason}`.
   """
-  def schedule_deletion(user) do
+  def schedule_deletion(user, opts \\ []) do
     Sigra.Auth.schedule_deletion(sigra_config(), user,
-      user_token_schema: UserToken,
-      session_store: Sigra.SessionStores.Ecto
+      Keyword.merge(
+        [
+          changeset_fn: &User.deletion_changeset/2,
+          user_token_schema: UserToken,
+          session_store: Sigra.SessionStores.Ecto
+        ],
+        opts
+      )
     )
   end
 

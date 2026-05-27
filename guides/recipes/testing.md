@@ -75,7 +75,7 @@ The generated `AuthFixtures` module provides seven named fixtures — one per do
 - **`assert_scope_denied(conn)`** — API response is 403 and halted.
 - **`assert_sessions_invalidated(repo, user)`** — no session tokens remain for the user.
 - **`assert_password_changed(user)`** — `hashed_password` differs from a known baseline.
-- **`assert_deletion_scheduled(user)`** — `deletion_scheduled_at` is set.
+- **`assert_deletion_scheduled(user)`** — `scheduled_deletion_at` is set.
 - **`assert_deletion_cancelled(user)`** — inverse.
 - **`assert_account_deleted(repo, user_schema, user_id)`** — the user row is gone (or anonymized).
 - **`assert_audit_event(expected, opts)`** — most recent audit row matches; supports metadata subset matching.

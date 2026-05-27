@@ -271,12 +271,13 @@ defmodule <%= web_module %>.SettingsLive do
     user = socket.assigns.current_scope.user
 
     case Auth.schedule_deletion(user) do
-      {:ok, _user, scheduled_date} ->
+      {:ok, updated_user, scheduled_date} ->
         {:noreply,
          socket
          |> put_flash(:info, "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.")
          |> assign(
-           deletion_status: Auth.deletion_status(user),
+           current_scope: %{socket.assigns.current_scope | user: updated_user},
+           deletion_status: Auth.deletion_status(updated_user),
            scheduled_deletion_date: to_string(scheduled_date)
          )}
 
@@ -296,11 +297,12 @@ defmodule <%= web_module %>.SettingsLive do
     user = socket.assigns.current_scope.user
 
     case Auth.cancel_deletion(user) do
-      {:ok, _user} ->
+      {:ok, updated_user} ->
         {:noreply,
          socket
          |> put_flash(:info, "Account deletion cancelled. Your account is active again.")
          |> assign(
+           current_scope: %{socket.assigns.current_scope | user: updated_user},
            deletion_status: :not_scheduled,
            scheduled_deletion_date: nil
          )}

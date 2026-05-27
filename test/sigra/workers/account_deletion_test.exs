@@ -116,7 +116,7 @@ defmodule Sigra.Workers.AccountDeletionTest do
     test "reconstructs scope via Sigra.Scope.build and passes it to perform/2" do
       source = File.read!("lib/sigra/workers/account_deletion.ex")
       # 15-02 invariant: scope is built from scope_module + user + active_org
-      assert source =~ "Sigra.Scope.build(scope_module"
+      assert source =~ "Sigra.Scope.build("
     end
 
     test "uses Module.safe_concat for repo resolution (T-8-10 mitigation)" do

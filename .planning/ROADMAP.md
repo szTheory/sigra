@@ -32,19 +32,80 @@
 - ✅ **v1.25 EMAIL-RAILS (Email Reliability & Override Rails)** — Phases **111–114** (shipped **2026-05-23**). See [v1.25 archive](milestones/v1.25-ROADMAP.md), [v1.25 requirements](milestones/v1.25-REQUIREMENTS.md), [v1.25 milestone audit](milestones/v1.25-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.26 PK-LIFECYCLE (Passkey Lifecycle Completion)** — Phases **115–121** (shipped **2026-05-25**). See [v1.26 archive](milestones/v1.26-ROADMAP.md), [v1.26 requirements](milestones/v1.26-REQUIREMENTS.md), [v1.26 milestone audit](milestones/v1.26-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.27 ENT-SSO (Enterprise SSO & B2B Connections)** — Phases **122–126** (shipped **2026-05-26**). See [v1.27 archive](milestones/v1.27-ROADMAP.md), [v1.27 requirements](milestones/v1.27-REQUIREMENTS.md), [v1.27 milestone audit](milestones/v1.27-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ▶ **v1.28 DATA-LIFECYCLE (Compliance Export & Data Lifecycle)** — Phases **127–130** (active). Requirements: [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## Current State
 
-No active milestone is selected.
+Active milestone: `v1.28 DATA-LIFECYCLE`.
 
-Start the next milestone with `$gsd-new-milestone` after reviewing [MILESTONE-ARC.md](MILESTONE-ARC.md), [PROJECT.md](PROJECT.md), and [MILESTONES.md](MILESTONES.md).
+Current execution priority: complete `DATA-LIFECYCLE` before promoting any follow-on milestone. Keep [MILESTONE-ARC.md](MILESTONE-ARC.md), [PROJECT.md](PROJECT.md), and [MILESTONES.md](MILESTONES.md) as the ranking context for what comes after.
+
+## Active Milestone: v1.28 DATA-LIFECYCLE
+
+**Goal:** Make Sigra's auth/account export and deletion lifecycle truthful, bounded, testable, and documented without expanding into generic compliance, SCIM, BI exports, or hosted-control-plane behavior.
+
+### Phase 127: Versioned Auth Data Export
+
+**Goal:** Stabilize the Sigra-owned auth/account export payload with versioning, lifecycle fields, optional sections, and explicit omission truth.
+
+**Depends on:** none
+**Requirements:** `EXP-01`, `EXP-02`
+**Plans:** 0/0 plans complete
+
+**Success criteria:**
+
+1. Exports include version metadata and Sigra-owned auth/account sections when schemas are configured.
+2. Missing optional schemas produce honest empty sections and omission notes.
+3. Tests cover payload shape and optional-schema degradation.
+
+### Phase 128: Account Deletion Lifecycle Truth
+
+**Goal:** Repair schedule, cancel, execute, and worker-enqueue semantics so account deletion behavior matches operator-facing docs.
+
+**Depends on:** Phase 127
+**Requirements:** `LIFE-01`, `LIFE-02`, `LIFE-03`
+**Plans:** 0/0 plans complete
+
+**Success criteria:**
+
+1. Scheduling enqueues the account-deletion worker when Oban and generated-host context are available.
+2. Cancel and execute reject users that are not actively scheduled for deletion.
+3. Soft-delete finalization clears scheduled deletion and pending/original email fields without over-claiming hard deletion.
+
+### Phase 129: Generated Host Parity And Docs
+
+**Goal:** Align generated templates, example app, install golden fixture, and public docs with the bounded data-lifecycle contract.
+
+**Depends on:** Phase 128
+**Requirements:** `HOST-01`, `DOC-01`
+**Plans:** 0/0 plans complete
+
+**Success criteria:**
+
+1. Generated host templates and example app call the same lifecycle/export contract as library code.
+2. Install golden output reflects the current generated-host behavior.
+3. Docs explain Sigra-owned data, host-owned data, omission behavior, and deletion strategy consequences.
+
+### Phase 130: Verification And Release Readiness
+
+**Goal:** Close the milestone scaffold with proof that the dirty DATA-LIFECYCLE implementation, docs, and planning artifacts agree.
+
+**Depends on:** Phase 129
+**Requirements:** `PROOF-01`
+**Plans:** 0/0 plans complete
+
+**Success criteria:**
+
+1. Targeted lifecycle/export tests pass after the final code/doc edits.
+2. Broader relevant test lanes pass or any failures are captured as explicit blockers.
+3. Requirements traceability maps all v1.28 requirements to the active roadmap before commit/push.
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
 - **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only. Do not plan new work under **999.x**; use newly numbered phases.
 - **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope for v1.23.
 - **`REL-01` release truth reset** — completed between milestones; reconciled version/release truth across package metadata, changelog framing, and maintainer-facing release docs.
-- **`DATA-LIFECYCLE` compliance export + data lifecycle** — current top-ranked milestone candidate; extend existing export and anonymize seams after the enterprise-auth wedge shipped in v1.27.
+- **`DATA-LIFECYCLE` compliance export + data lifecycle** — active milestone; extend existing export and anonymize seams and repair lifecycle truth after the enterprise-auth wedge shipped in v1.27.
 - **Built-in opinionated roles** — RBAC stays seams-only per Phase **92**.
 - **MySQL / SQLite adapters** — explicitly removed via Phase **94**; re-evaluate only if an adopter signals concrete demand and is willing to own the adapter.
 - **Phase 999.x archaeology** — pure planning hygiene; tombstone-only.
@@ -54,5 +115,5 @@ Start the next milestone with `$gsd-new-milestone` after reviewing [MILESTONE-AR
 
 - Treat [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) as the ranking source for the next several milestones.
 - Do not treat `SESS-01` or `PK-01` as fresh greenfield gaps: session/device labeling and passkey list/rename/remove are already substantially shipped.
-- `ENT-SSO` shipped in v1.27; `DATA-LIFECYCLE` is now the next ranked follow-on candidate.
+- `ENT-SSO` shipped in v1.27; `DATA-LIFECYCLE` is now active and `SUITE-INTEGRATION` remains the next ranked follow-on.
 - Prefer milestones that improve production trust, integration clarity, or DX on rough edges over generic admin expansion or hosted-control-plane imitation.

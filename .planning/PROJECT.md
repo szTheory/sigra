@@ -46,7 +46,19 @@ Archives:
 
 `v1.27 ENT-SSO` is shipped and archived. The enterprise proof authority is now split cleanly by phase: `123-VERIFICATION.md` for routing, `124-VERIFICATION.md` for JIT reconciliation, `125-VERIFICATION.md` for SSO-only enforcement, and `126-VERIFICATION.md` for generated-host/operator proof and docs.
 
-No active milestone is selected. The next ranked candidate is `DATA-LIFECYCLE`, with `SUITE-INTEGRATION` behind it.
+The active milestone is `v1.28 DATA-LIFECYCLE`. `SUITE-INTEGRATION` remains the next ranked follow-on after it.
+
+## Current Milestone: v1.28 DATA-LIFECYCLE
+
+**Goal:** Make Sigra's auth/account export and deletion lifecycle truthful, bounded, testable, and documented without expanding into generic compliance, SCIM, BI exports, or hosted-control-plane behavior.
+
+**Target features:**
+- versioned Sigra-owned auth/account export with explicit omission truth
+- schedule/cancel/execute deletion semantics that match generated-host and operator docs
+- generated-host, example-app, install-golden, and guide parity for data-lifecycle behavior
+- targeted proof for export shape, optional-schema degradation, worker scheduling, and lifecycle finalization
+
+**Why now:** After v1.27 closed the enterprise-login wedge, the remaining high-leverage trust gap is the thinner data-export and lifecycle surface over already-shipped Sigra primitives.
 
 ### Just shipped: v1.27 ENT-SSO
 
@@ -169,15 +181,14 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** **Start the next milestone definition; `DATA-LIFECYCLE` is the top-ranked candidate**
+**Immediate next action:** **Execute `DATA-LIFECYCLE` and keep lifecycle truth repair in scope**
 
 **Recent between-milestones closeout:** **`REL-01 Release Truth Reset`**
 
 **Current active milestone:**
-- none selected
+- `DATA-LIFECYCLE` — auth-data export contract, audit/export boundary, and truthful delete/anonymize lifecycle repair
 
 **Ranked follow-ons after the current milestone:**
-- `DATA-LIFECYCLE` — auth-data export, audit inclusion, and anonymize/delete lifecycle guidance
 - `SUITE-INTEGRATION` — companion-library integration once the sharper adoption blockers are closed
 
 **Deferred after `v1.27` shipment:**
@@ -216,9 +227,14 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### No Active Milestone Requirements
+### Active — v1.28 DATA-LIFECYCLE
 
-The active `REQUIREMENTS.md` file is intentionally absent until the next milestone is selected. See [`.planning/milestones/v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md) for the archived enterprise requirement contract and outcomes.
+_See [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) and [`.planning/ROADMAP.md`](ROADMAP.md) for the active requirement contract and phase mapping._
+
+- **EXP-01 / EXP-02** — versioned Sigra-owned auth/account export with optional-schema omission truth.
+- **LIFE-01 / LIFE-02 / LIFE-03** — truthful deletion scheduling, cancellation, execution, worker enqueue, and soft-delete finalization semantics.
+- **HOST-01 / DOC-01** — generated-host, example-app, install-golden, and documentation parity.
+- **PROOF-01** — targeted tests and release-readiness proof for the active data-lifecycle contract.
 
 ### Archived — v1.26 PK-LIFECYCLE (shipped 2026-05-25)
 

@@ -1237,6 +1237,7 @@ defmodule Example.Accounts do
         user,
         Keyword.merge(
           [
+            changeset_fn: &User.deletion_changeset/2,
             user_token_schema: UserToken,
             session_store: Sigra.SessionStores.Ecto
           ],

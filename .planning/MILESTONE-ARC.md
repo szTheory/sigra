@@ -1,8 +1,8 @@
 ---
-last_updated: 2026-05-26
-status: post_v1.27_ranked
+last_updated: 2026-05-27
+status: data_lifecycle_active
 current_release_followup: completed-REL-01
-current_active_milestone: none
+current_active_milestone: DATA-LIFECYCLE
 default_post_release_candidate: DATA-LIFECYCLE
 ---
 
@@ -171,11 +171,12 @@ The remaining meaningful work clusters are:
 - Building a full SCIM directory sync layer (beyond JIT).
 - Custom cryptography outside the Assent primitives.
 
-### candidate
+### active
 
 **ID:** `DATA-LIFECYCLE`
 **Name:** `Compliance Export & Data Lifecycle`
 **Priority:** 4
+**Status:** Active as v1.28 beginning 2026-05-27.
 **Why now:** Valuable, but lower-frequency adopter pain than session and email rough edges.
 **Theme:** Extend existing export and anonymize seams into a coherent auth-data lifecycle story.
 **Likely scope:**
@@ -219,9 +220,8 @@ To protect the architectural integrity and maintainability of Sigra, we explicit
 
 ## Selection Guidance
 
-`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, and `ENT-SSO` are shipped. The ranked follow-on sequence after v1.27 is:
+`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, and `ENT-SSO` are shipped. `DATA-LIFECYCLE` is active as v1.28. The ranked follow-on sequence after v1.28 is:
 
-1. `DATA-LIFECYCLE Compliance Export & Data Lifecycle`
-2. `SUITE-INTEGRATION szTheory Suite Integration`
+1. `SUITE-INTEGRATION szTheory Suite Integration`
 
 If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above.

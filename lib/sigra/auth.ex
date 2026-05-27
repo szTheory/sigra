@@ -2418,7 +2418,12 @@ defmodule Sigra.Auth do
       Keyword.merge(
         [
           config: config,
+          repo: repo,
+          user_schema: config.user_schema,
+          scope_module: Map.get(config, :scope_module),
+          audit_schema: get_in(config, [:audit, :audit_schema]),
           session_store: get_session_store(config),
+          session_schema: get_in(config, [:session, :session_schema]),
           user_token_schema: Keyword.fetch!(opts, :user_token_schema)
         ],
         opts
@@ -2437,7 +2442,18 @@ defmodule Sigra.Auth do
   @spec cancel_deletion(Sigra.Config.t(), struct(), keyword()) ::
           {:ok, struct()} | {:error, term()}
   def cancel_deletion(config, user, opts \\ []) do
-    Sigra.Account.cancel_deletion(config.repo, user, opts)
+    merged_opts =
+      Keyword.merge(
+        [
+          repo: config.repo,
+          user_schema: config.user_schema,
+          scope_module: Map.get(config, :scope_module),
+          audit_schema: get_in(config, [:audit, :audit_schema])
+        ],
+        opts
+      )
+
+    Sigra.Account.cancel_deletion(config.repo, user, merged_opts)
   end
 
   @doc """
@@ -2450,7 +2466,18 @@ defmodule Sigra.Auth do
   @spec execute_deletion(Sigra.Config.t(), struct(), keyword()) ::
           {:ok, atom()} | {:error, term()}
   def execute_deletion(config, user, opts \\ []) do
-    Sigra.Account.execute_deletion(config.repo, user, opts)
+    merged_opts =
+      Keyword.merge(
+        [
+          repo: config.repo,
+          user_schema: config.user_schema,
+          scope_module: Map.get(config, :scope_module),
+          audit_schema: get_in(config, [:audit, :audit_schema])
+        ],
+        opts
+      )
+
+    Sigra.Account.execute_deletion(config.repo, user, merged_opts)
   end
 
   # -- Private helpers --

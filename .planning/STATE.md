@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.27
-milestone_name: v1.27 ENT-SSO
-status: milestone_shipped
-last_updated: "2026-05-26T15:05:00.000Z"
-last_activity: 2026-05-26 -- v1.27 milestone audit passed and archive preparation completed
+milestone: v1.28
+milestone_name: v1.28 DATA-LIFECYCLE
+status: milestone_active
+last_updated: "2026-05-27T00:00:00.000-04:00"
+last_activity: 2026-05-27 -- v1.28 DATA-LIFECYCLE requirements and phase roadmap scaffolded around active export/lifecycle repair work
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,21 +21,21 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** No active milestone; archive v1.27 and prepare the next milestone selection.
+**Current focus:** Execute `DATA-LIFECYCLE` as the active milestone and keep lifecycle truth repair inside the milestone boundary.
 
 ## Current Position
 
-Phase: none
-Plan: n/a
-Status: v1.27 shipped; milestone archive and tag are the next repository actions
-Last activity: 2026-05-26 -- v1.27 `ENT-SSO` reached `verified_and_archive_ready` in `.planning/v1.27-MILESTONE-AUDIT.md`
+Phase: 127 — Versioned Auth Data Export
+Plan: not planned
+Status: active milestone scaffolded; implementation and proof are in progress
+Last activity: 2026-05-27 -- v1.28 DATA-LIFECYCLE requirements and phase roadmap scaffolded around active export/lifecycle repair work
 
 ## Accumulating Context
 
 - Sigra now ships the missing organization-scoped enterprise login wedge: truthful setup, canonical routing, JIT reconciliation, SSO-only enforcement, and bounded generated-host/operator proof.
 - The rough maturity band remains `80-89%`, but the largest remaining delta after v1.27 is no longer enterprise login truth; it is the thinner data-export and lifecycle surface.
-- `DATA-LIFECYCLE` is now the top-ranked follow-on candidate. `SUITE-INTEGRATION` remains behind it.
-- The enterprise and data-lifecycle planning threads are no longer open blockers; `enterprise-sso-b2b-connections` is resolved and `data-lifecycle-export-scope` is dormant until the next milestone is selected.
+- `DATA-LIFECYCLE` is now active. `SUITE-INTEGRATION` remains behind it.
+- The enterprise and data-lifecycle planning threads are no longer open blockers; `enterprise-sso-b2b-connections` is resolved and `data-lifecycle-export-scope` is now the active milestone context.
 
 ## Deferred Items
 
@@ -57,15 +57,15 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 - Closed the stale Phase 88 working-tree todo after re-verifying the branch was clean on 2026-05-23.
 - Archived `v1.26 PK-LIFECYCLE` after the repaired-form proof surfaces, milestone audit, and Nyquist closure all aligned on 2026-05-25.
 - Repo-grounded next-step assessment kept `ENT-SSO` as the highest-leverage milestone because the org/MFA/RBAC/service-account substrate already exists while enterprise customer auth routing and JIT provisioning do not.
-- `DATA-LIFECYCLE` stays second: the audit stream and account-lifecycle primitives are real, but the export contract is still much thinner than the enterprise-auth gap.
-- Treat SCIM, broad directory sync, hosted-control-plane behavior, and opinionated authorization policy as out of scope for the immediate `ENT-SSO` milestone.
-- Start `v1.27` at Phase `122` and keep the roadmap to five phases: connection contract, routing, JIT reconciliation, enforcement, and proof/docs.
-- Treat enterprise SSO in this milestone as an auth-control-plane extension, not a generic company-directory platform.
 - Shipped `v1.27 ENT-SSO` on 2026-05-26 after retroactively restoring authoritative verification artifacts for Phases 123-125, normalizing Nyquist records for Phases 123-126, and passing the milestone audit.
-- `DATA-LIFECYCLE` is now the next ranked candidate; keep SAML, SCIM, hosted-control-plane behavior, and opinionated authz out of scope unless a future milestone explicitly re-selects them.
+- Activated `DATA-LIFECYCLE` on 2026-05-26 as the next milestone because the repo already ships export and account-lifecycle substrate, but the contract and truth surface still need repair.
+- Scaffolded `v1.28 DATA-LIFECYCLE` on 2026-05-27 with four phases: versioned export, deletion lifecycle truth, generated-host/docs parity, and verification/release readiness.
+- Keep `DATA-LIFECYCLE` bounded to Sigra-owned auth/account export, audit/export boundary clarity, and truthful schedule/cancel/execute semantics.
+- Treat SCIM, hosted-control-plane behavior, generic BI/reporting export, broad directory sync, and opinionated authorization policy as out of scope for `DATA-LIFECYCLE`.
+- `SUITE-INTEGRATION` remains the next ranked follow-on after `DATA-LIFECYCLE`.
 
 ## Operator Next Steps
 
-- Review `.planning/milestones/v1.27-ROADMAP.md`, `.planning/milestones/v1.27-REQUIREMENTS.md`, and `.planning/milestones/v1.27-MILESTONE-AUDIT.md` for the archived enterprise contract.
-- Start the next milestone with `$gsd-new-milestone`; use `.planning/MILESTONE-ARC.md` to rank `DATA-LIFECYCLE` against any new proposal.
-- Keep later milestone proposals behind the current sequence: `DATA-LIFECYCLE`, then `SUITE-INTEGRATION`, unless a new repo-grounded blocker outranks them.
+- Plan and execute Phase 127 before selecting any new milestone.
+- Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
+- Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.

@@ -46,9 +46,9 @@ Sigra writes these automatically (this list is not exhaustive — check `lib/sig
 - `mfa.backup_code.used`
 - `api_token.create` / `api_token.revoke`
 - `oauth.link.success` / `oauth.unlink.success`
-- `account.email_change.request` / `account.email_change.confirm`
-- `account.password_change.success`
-- `account.deletion.schedule` / `account.deletion.cancel` / `account.deletion.execute`
+- `account.email_change_request` / `account.email_change_confirm`
+- `account.password_change`
+- `account.deletion_schedule` / `account.deletion_cancel` / `account.deletion_execute`
 
 ## Configuring audit
 
@@ -119,16 +119,23 @@ For atomicity, write the audit row inside the same transaction as the business o
 
 `Sigra.Audit.log_multi` adds a `{:audit, ...}` step to your multi. If the business op fails, the audit row rolls back with it.
 
-## Streaming for SIEM export
+## Cursor pagination and streaming for SIEM export
 
-For SOC2 / HIPAA compliance you may need to export events to Splunk, Datadog, or a self-hosted SIEM. Use `Sigra.Audit.stream/2`:
+Use `Sigra.Audit.list/2` for stable cursor-based pagination when you need
+checkpointed export batches. Use `Sigra.Audit.stream/2` for database-backed
+streaming inside a transaction when you want to process a large slice in one run.
+
+Cursor pagination:
+
+    {:ok, %{entries: entries, next_cursor: cursor}} =
+      Sigra.Audit.list(config(), audit_schema: MyApp.AuditEvent, limit: 1_000)
+
+Streaming:
 
     Sigra.Audit.stream(config(), since: last_export_cursor)
     |> Stream.map(&encode_for_siem/1)
     |> Stream.chunk_every(1_000)
     |> Enum.each(&SIEM.Client.push_batch/1)
-
-The stream is cursor-based and stable across pagination boundaries (see `test/sigra/audit/cursor_portability_test.exs`).
 
 ## Retention
 
