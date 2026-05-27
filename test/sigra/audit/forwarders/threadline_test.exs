@@ -10,6 +10,7 @@ defmodule Sigra.Audit.Forwarders.ThreadlineTest do
   # Analog: test/sigra/rate_limiters/hammer_test.exs (impl-with-stub-dep idiom)
 
   use ExUnit.Case, async: false
+  @moduletag :requires_threadline
 
   alias Sigra.Audit.Forwarders.Threadline
   alias Sigra.Test.AuditEvent, as: TestAuditEvent
