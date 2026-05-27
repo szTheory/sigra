@@ -45,8 +45,11 @@ if Code.ensure_loaded?(Oban.Worker) do
 
     ## Config Resolution (D-27)
 
-    Config lookup uses the existing `Application.get_env(otp_app, :sigra_config)`
-    pattern — the single config-resolution idiom across all Sigra boot diagnostics.
+    `:repo` is read from `Application.fetch_env!(:sigra, :repo)` — mirrors
+    `EmailDelivery` exactly (`:repo` is a top-level `:sigra` key, not nested under
+    `:audit`). `:audit_schema` is read from
+    `Application.get_env(otp_app, :sigra_config)[:audit][:audit_schema]` following
+    the single config-resolution idiom across all Sigra boot diagnostics.
     """
 
     use Oban.Worker,
@@ -57,44 +60,100 @@ if Code.ensure_loaded?(Oban.Worker) do
 
     @impl Oban.Worker
     def perform(%Oban.Job{args: args, attempt: attempt} = _job) do
-      # Parse thin job args (D-13) — only these three keys are read.
-      forwarder_string = args["forwarder"]
-      audit_event_id = args["audit_event_id"]
-      _occurred_at_iso = args["occurred_at"]
+      try do
+        # Parse thin job args (D-13) — only these three keys are read.
+        forwarder_string = args["forwarder"]
+        audit_event_id = args["audit_event_id"]
+        _occurred_at_iso = args["occurred_at"]
 
-      # Resolve the forwarder module (must be a loaded atom).
-      # If the module was removed, cancel the job (non-retryable).
-      case resolve_forwarder(forwarder_string) do
-        {:error, :unknown_forwarder} ->
-          {:cancel, :unknown_forwarder}
+        # Resolve the forwarder module (must be a loaded atom).
+        # If the module was removed, cancel the job (non-retryable).
+        case resolve_forwarder(forwarder_string) do
+          {:error, :unknown_forwarder} ->
+            {:cancel, :unknown_forwarder}
 
-        {:ok, forwarder_module} ->
-          # Resolve config from Application env (D-27 single config-resolution pattern).
-          %{repo: repo, audit_schema: audit_schema} = resolve_config()
+          {:ok, forwarder_module} ->
+            # Resolve config from Application env (D-27 single config-resolution pattern).
+            %{repo: repo, audit_schema: audit_schema} = resolve_config()
 
-          # Reload the audit row by UUID (D-13 — full payload from DB, not args).
-          case repo.get(audit_schema, audit_event_id) do
-            nil ->
-              {:cancel, :audit_event_not_found}
+            # Reload the audit row by UUID (D-13 — full payload from DB, not args).
+            case repo.get(audit_schema, audit_event_id) do
+              nil ->
+                {:cancel, :audit_event_not_found}
 
-            audit_row ->
-              # Build metadata map equivalent to what handle_event/4 receives
-              # (same shape as Plan 02's extended emit_telemetry/1 metadata — D-31).
-              metadata = %{
-                id: audit_row.id,
-                action: audit_row.action,
-                actor_id: audit_row.actor_id,
-                outcome: audit_row.outcome,
-                occurred_at: audit_row.occurred_at
-              }
+              audit_row ->
+                # Build metadata map equivalent to what handle_event/4 receives
+                # (same shape as Plan 02's extended emit_telemetry/1 metadata — D-31).
+                metadata = %{
+                  id: audit_row.id,
+                  action: audit_row.action,
+                  actor_id: audit_row.actor_id,
+                  outcome: audit_row.outcome,
+                  occurred_at: audit_row.occurred_at
+                }
 
-              # Force :sync so the worker itself does the inline call.
-              # The worker IS already async (running in an Oban job process);
-              # forcing :sync prevents re-enqueue recursion.
-              opts = build_forwarder_opts(repo, audit_schema) ++ [dispatch: :sync]
+                # Force :sync so the worker itself does the inline call.
+                # The worker IS already async (running in an Oban job process);
+                # forcing :sync prevents re-enqueue recursion.
+                opts = build_forwarder_opts(repo, audit_schema) ++ [dispatch: :sync]
 
-              perform_forward(forwarder_module, metadata, opts, audit_event_id, attempt)
-          end
+                perform_forward(forwarder_module, metadata, opts, audit_event_id, attempt)
+            end
+        end
+      rescue
+        exception ->
+          reason = Exception.message(exception)
+
+          :telemetry.execute(
+            [:sigra, :audit, :forward, :error],
+            %{count: 1},
+            %{
+              forwarder: :audit_forward_worker,
+              audit_event_id: args["audit_event_id"],
+              action: nil,
+              reason: exception,
+              kind: :error,
+              attempt: attempt
+            }
+          )
+
+          Logger.warning(
+            "[Sigra.Workers.AuditForward] perform/1 rescued: #{reason}"
+          )
+
+          {:error, reason}
+      catch
+        :exit, exit_reason ->
+          :telemetry.execute(
+            [:sigra, :audit, :forward, :error],
+            %{count: 1},
+            %{
+              forwarder: :audit_forward_worker,
+              audit_event_id: args["audit_event_id"],
+              action: nil,
+              reason: exit_reason,
+              kind: :exit,
+              attempt: attempt
+            }
+          )
+
+          {:error, {:exit, exit_reason}}
+
+        :throw, thrown_value ->
+          :telemetry.execute(
+            [:sigra, :audit, :forward, :error],
+            %{count: 1},
+            %{
+              forwarder: :audit_forward_worker,
+              audit_event_id: args["audit_event_id"],
+              action: nil,
+              reason: thrown_value,
+              kind: :throw,
+              attempt: attempt
+            }
+          )
+
+          {:error, {:throw, thrown_value}}
       end
     end
 
@@ -124,7 +183,14 @@ if Code.ensure_loaded?(Oban.Worker) do
     end
 
     # Private: resolve Sigra config — repo + audit_schema.
-    # Uses the single Application.get_env(otp_app, :sigra_config) cascade (D-27).
+    #
+    # :repo mirrors the EmailDelivery pattern (lib/sigra/workers/email_delivery.ex:80):
+    # read from Application.fetch_env!(:sigra, :repo). This is correct because :repo
+    # is a top-level :sigra key, NOT a key nested under :audit in NimbleOptions
+    # (audit: [...] only contains audit_schema, retention_days, etc. — not :repo).
+    #
+    # :audit_schema reads from the host app's sigra_config/0 audit opts (D-27).
+    #
     # Supports Process dictionary override for tests:
     #   Process.put(:sigra_audit_forward_config, %{repo: StubRepo, audit_schema: SomeSchema})
     defp resolve_config do
@@ -133,19 +199,25 @@ if Code.ensure_loaded?(Oban.Worker) do
           override
 
         nil ->
-          otp_app = Application.get_env(:sigra, :otp_app)
-
-          audit_opts =
-            case otp_app && Application.get_env(otp_app, :sigra_config) do
-              opts when is_list(opts) -> Keyword.get(opts, :audit, [])
-              _ -> []
-            end
-
           %{
-            repo: Keyword.fetch!(audit_opts, :repo),
-            audit_schema: Keyword.fetch!(audit_opts, :audit_schema)
+            repo: Application.fetch_env!(:sigra, :repo),
+            audit_schema: fetch_audit_schema!()
           }
       end
+    end
+
+    # Private: fetch audit_schema from the host app's sigra_config/0.
+    # Uses the Application.get_env(otp_app, :sigra_config) pattern (D-27).
+    defp fetch_audit_schema! do
+      otp_app = Application.get_env(:sigra, :otp_app)
+
+      audit_opts =
+        case otp_app && Application.get_env(otp_app, :sigra_config) do
+          opts when is_list(opts) -> Keyword.get(opts, :audit, [])
+          _ -> []
+        end
+
+      Keyword.fetch!(audit_opts, :audit_schema)
     end
 
     # Private: build per-forwarder opts for the handle_event/4 call.
@@ -164,11 +236,18 @@ if Code.ensure_loaded?(Oban.Worker) do
 
           case result do
             :ok -> :ok
+            {:ok, _} -> :ok
             {:error, :schema_mismatch} -> {:cancel, :schema_mismatch}
             {:error, :missing_actor} -> {:cancel, :schema_mismatch}
             {:error, :invalid_actor_ref} -> {:cancel, :schema_mismatch}
             {:error, :missing_repo} -> {:cancel, :schema_mismatch}
             {:error, reason} -> {:error, reason}
+            other ->
+              Logger.warning(
+                "[Sigra.Workers.AuditForward] Unexpected return from #{inspect(forwarder_module)}: #{inspect(other)}"
+              )
+
+              {:error, {:unexpected_return, other}}
           end
         else
           # Forwarder does not implement handle_event/4 convention — log and cancel.
