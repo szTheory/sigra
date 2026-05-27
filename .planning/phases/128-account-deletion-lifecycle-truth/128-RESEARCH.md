@@ -352,17 +352,17 @@ end
 |---|-------|---------|---------------|
 | A1 | No new dependency is needed for Phase 128. [ASSUMED] | Standard Stack | If wrong, planner may omit a dependency or setup task, but current code already has Ecto, Oban, and Mox surfaces for the requested behavior. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should enqueue degradation log missing job context?**
+1. **RESOLVED: Missing job context should remain a safe no-op; non-missing enqueue errors should log.**
    - What we know: Locked D-03 requires safe degradation and says it must remain explicit enough for tests and docs. [VERIFIED: `128-CONTEXT.md`]
    - What's unclear: Current code returns `:ok` silently for `{:error, :missing_job_context}`. [VERIFIED: `lib/sigra/account/deletion.ex`]
-   - Recommendation: Planner should require test proof for both full-context enqueue and missing-context no-op; add logging only if tests or operator truth require it. [VERIFIED: `128-CONTEXT.md`]
+   - Resolution: Phase 128 plans require test proof for both full-context enqueue and missing-context no-op. The missing `:user_schema` branch resolves to `{:error, :missing_job_context}` and degrades to `:ok` without logging; unexpected enqueue errors and rescue paths log warnings. [RESOLVED: `128-01-PLAN.md`, D-03]
 
-2. **Should Phase 128 touch generated templates?**
+2. **RESOLVED: Phase 128 should not perform broad generated-template parity work.**
    - What we know: Phase 129 owns broad generated-host/docs parity. [VERIFIED: `.planning/ROADMAP.md`, `128-CONTEXT.md`]
    - What's unclear: A narrow template/context propagation fix is allowed if needed to prove `LIFE-01`. [VERIFIED: `128-CONTEXT.md`]
-   - Recommendation: Start in library tests and only edit generated templates if `Sigra.Auth.schedule_deletion/3` cannot supply sufficient job context through current wrappers. [VERIFIED: `lib/sigra/auth.ex`, `priv/templates/sigra.install/core/auth.ex`]
+   - Resolution: Phase 128 plans keep generated templates, example app files, install-golden fixtures, and public docs out of scope unless a focused compile failure directly requires a narrow change. The planned implementation path repairs library behavior and `Sigra.Auth.schedule_deletion/3` context propagation only. [RESOLVED: `128-01-PLAN.md`, D-10, D-11]
 
 ## Environment Availability
 
