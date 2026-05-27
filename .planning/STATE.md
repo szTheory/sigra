@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: v1.28 DATA-LIFECYCLE
-status: verifying
-last_updated: "2026-05-27T08:31:28.727Z"
+status: ready_to_plan
+last_updated: 2026-05-27T08:37:22.069Z
 last_activity: 2026-05-27
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 3
-  completed_plans: 3
+  completed_plans: 227
   percent: 50
+stopped_at: Phase 128 complete (1/1) — ready to discuss Phase 129
 ---
 
 # Project State
@@ -21,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 128 — account-deletion-lifecycle-truth
+**Current focus:** Phase 129 — generated host parity and docs
 
 ## Current Position
 
-Phase: 128 (account-deletion-lifecycle-truth) — COMPLETE
-Plan: 1 of 1
-Status: Phase complete — ready for verification
+Phase: 129
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-05-27
 
 ## Accumulating Context
