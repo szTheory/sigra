@@ -255,30 +255,55 @@ if Code.ensure_loaded?(Threadline) do
           _ -> :ok
         end
 
-      # Action name: Threadline.record_action/2 requires an atom (when is_atom(name)).
-      name =
+      # Action name: Threadline.record_action/2 requires an atom.
+      #
+      # NOTE (atom-growth risk): String.to_atom/1 is used here rather than
+      # String.to_existing_atom/1 because audit action names are strings at the
+      # Sigra boundary and there is no centralised atom-declaration registry for
+      # developer-defined actions. Atoms are not GC'd in the BEAM; the table is
+      # capped at ~1M. In practice, the set of action strings is bounded by the
+      # application's action vocabulary (Sigra-reserved prefixes are finite; host
+      # actions are developer-controlled, not end-user-controlled). A future phase
+      # may introduce an action registry to allow switching to to_existing_atom/1.
+      #
+      # The nil/unknown fallback clause (_ ->) is required to avoid CaseClauseError
+      # inside the telemetry handler body — a crash here would trigger the
+      # auto-detach landmine (D-20), silently disabling forwarding for BEAM uptime.
+      name_result =
         case metadata[:action] do
-          a when is_atom(a) -> a
-          s when is_binary(s) -> String.to_atom(s)
+          a when is_atom(a) ->
+            {:ok, a}
+
+          s when is_binary(s) ->
+            {:ok, String.to_atom(s)}
+
+          _ ->
+            {:error, :missing_action}
         end
 
-      # Build Threadline call opts.
-      call_opts =
-        [
-          repo: repo,
-          status: status,
-          # Audit row UUID as idempotency key (RESEARCH.md §4 path 1, §7.2)
-          correlation_id: metadata[:id]
-        ]
-        |> add_actor_opt(actor_ref)
+      case name_result do
+        {:error, reason} ->
+          {:error, reason}
 
-      case threadline.record_action(name, call_opts) do
-        {:ok, _action} -> :ok
-        {:error, %Ecto.Changeset{}} -> {:error, :schema_mismatch}
-        {:error, :missing_actor} -> {:error, :missing_actor}
-        {:error, :invalid_actor_ref} -> {:error, :invalid_actor_ref}
-        {:error, :missing_repo} -> {:error, :missing_repo}
-        {:error, reason} -> {:error, reason}
+        {:ok, name} ->
+          # Build Threadline call opts.
+          call_opts =
+            [
+              repo: repo,
+              status: status,
+              # Audit row UUID as idempotency key (RESEARCH.md §4 path 1, §7.2)
+              correlation_id: metadata[:id]
+            ]
+            |> add_actor_opt(actor_ref)
+
+          case threadline.record_action(name, call_opts) do
+            {:ok, _action} -> :ok
+            {:error, %Ecto.Changeset{}} -> {:error, :schema_mismatch}
+            {:error, :missing_actor} -> {:error, :missing_actor}
+            {:error, :invalid_actor_ref} -> {:error, :invalid_actor_ref}
+            {:error, :missing_repo} -> {:error, :missing_repo}
+            {:error, reason} -> {:error, reason}
+          end
       end
     end
 
