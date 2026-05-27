@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.28
 milestone_name: v1.28 DATA-LIFECYCLE
-status: verifying
-last_updated: "2026-05-27T07:02:00.462Z"
+status: ready_to_plan
+last_updated: 2026-05-27T07:24:07.763Z
 last_activity: 2026-05-27
 progress:
   total_phases: 4
@@ -11,6 +11,7 @@ progress:
   total_plans: 2
   completed_plans: 2
   percent: 25
+stopped_at: Phase 127 complete (2/2) — ready to discuss Phase 128
 ---
 
 # Project State
@@ -21,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 127 — versioned-auth-data-export
+**Current focus:** Phase 128 — account deletion lifecycle truth
 
 ## Current Position
 
-Phase: 127 (versioned-auth-data-export) — VERIFYING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 128
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-05-27
 
 ## Accumulating Context
@@ -72,6 +73,6 @@ Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
 
 ## Operator Next Steps
 
-- Verify Phase 127 or proceed to Phase 128 account deletion lifecycle truth planning/execution.
+- Discuss and plan Phase 128 account deletion lifecycle truth before execution.
 - Use `.planning/MILESTONE-ARC.md` to keep later milestone proposals behind the current sequence unless a new repo-grounded blocker outranks it.
 - Keep `SUITE-INTEGRATION` deferred behind `DATA-LIFECYCLE`.
