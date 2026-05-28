@@ -35,9 +35,11 @@ Before wiring Threadline forwarding, confirm:
 
   See the [Threadline 0.5.0 README](https://hex.pm/packages/threadline) for full bootstrap
   instructions, including Repo configuration and migration options.
-- **Environment variables are set.** The forwarder reads `THREADLINE_ENDPOINT` and
-  `THREADLINE_API_KEY` via `System.get_env/1`. Operator owns secret management — do not
-  hard-code these values in config files committed to source control.
+- **Repo is confirmed.** Threadline 0.5+ is DB-based: audit actions are persisted through
+  the same Ecto repo as your Threadline bootstrap migration. There are no Threadline-specific
+  endpoint or API key secrets to manage for the forwarder — confirm the repo from Threadline's
+  bootstrap (`mix threadline.install`) is the one you pass as `repo:` in the forwarder entry
+  below.
 
 ## `mix.exs` snippet
 
@@ -62,10 +64,11 @@ audit: [
   forwarders: [
     [
       module: Sigra.Audit.Forwarders.Threadline,
-      dispatch: :auto,
       id: :default,
-      endpoint: System.get_env("THREADLINE_ENDPOINT"),
-      api_key: System.get_env("THREADLINE_API_KEY")
+      dispatch: :auto,
+      # Threadline 0.5+ is DB-based; writes audit_actions via repo: — no HTTP
+      # endpoint or api_key required.
+      repo: MyApp.Repo
     ]
   ]
 ]
@@ -112,9 +115,10 @@ Observable signal: telemetry event with `reason: :schema_mismatch`. This is non-
 Threadline shipped a breaking schema change that the forwarder cannot satisfy. Pin or upgrade
 Threadline to a version compatible with the event shape Sigra produces.
 
-### 4. Network or transient failure on `:async` path
+### 4. Transient DB failure on `:async` path
 
-Transient failures (network errors, HTTP timeouts) on the async path are retried by
+Threadline 0.5+ is DB-based — there is no HTTP path. Transient DB failures (connection errors,
+repo temporarily unavailable, transient Postgres failures) on the async path are retried by
 `Sigra.Workers.AuditForward` with `max_attempts: 5` and exponential backoff. After exhausting
 retries, the Oban job moves to `discarded` and a `[:sigra, :audit, :forward, :error]` telemetry
 event is emitted. The originating auth operation is not rolled back and the Sigra `AuditEvent`
