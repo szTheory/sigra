@@ -169,7 +169,7 @@ check or ensure the dep is in your `mix.exs` before enabling the callbacks.
 ### 2. `before_add_member/4` returns `{:error, _}` — membership add aborted
 
 When `before_add_member/4` returns `{:error, reason}`, the enclosing `Ecto.Multi` is aborted
-and `Sigra.Organizations.add_member/4` returns `{:error, :before_add_member, reason, %{}}`.
+and the `add_member` call returns `{:error, :before_add_member, reason, %{}}`.
 The caller (controller or LiveView) is responsible for translating `reason` to a user-facing
 message. No partial state is written.
 
