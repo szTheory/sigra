@@ -92,7 +92,7 @@
 | RC-06 | Phase 134 | Active |
 | NX-01 | Phase 133 | Active |
 | EX-01 | Phase 135 | Active |
-| PROOF-01 | Phase 136 | Active |
-| DOC-01 | Phase 136 | Active |
+| PROOF-01 | Phase 136 | Complete |
+| DOC-01 | Phase 136 | Complete |
 
 *Phase column populated by `gsd-roadmapper` on 2026-05-27. All 16 active REQ-IDs mapped to exactly one phase; no orphans.*

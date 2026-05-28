@@ -54,7 +54,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
 - [x] **Phase 133: Suite Narrative + Ecosystem Diagram** — Publish `guides/introduction/suite-integration.md` as the canonical narrative entry point, with the ASCII ecosystem diagram, fan-out matrix, and standalone-banner posture. (completed 2026-05-28)
 - [x] **Phase 134: Recipe-Only Companion Libraries** — Publish the four recipe-only companion-lib docs (Accrue, Lockspire, Relyra, Rulestead) under `guides/recipes/companion-libs/`. (completed 2026-05-28)
 - [x] **Phase 135: Reference Example — Threadline Forwarder Demo in `test/example/`** — Extend the existing `test/example/` app with a runnable Threadline forwarder demo that proves the wiring end-to-end via existing CI lanes. (completed 2026-05-28)
-- [ ] **Phase 136: Verification Proof Bundle + Narrative-Honesty Corrigendum** — Land the milestone-close proof bundle (tests, dep-off CI lane, `mix docs --warnings-as-errors`, `mix credo --strict`, per-phase `*-VERIFICATION.md`) and the v1.25 EMAIL-RAILS Mailglass-narrative corrigendum.
+- [x] **Phase 136: Verification Proof Bundle + Narrative-Honesty Corrigendum** — Land the milestone-close proof bundle (tests, dep-off CI lane, `mix docs --warnings-as-errors`, `mix credo --strict`, per-phase `*-VERIFICATION.md`) and the v1.25 EMAIL-RAILS Mailglass-narrative corrigendum.
 
 ## Phase Details
 
@@ -163,7 +163,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
 
   - [x] 136-01-PLAN.md — Run the PROOF-01 proof bundle (six gates) + backfill 132/133/136 verification reports (PROOF-01)
   - [x] 136-02-PLAN.md — v1.25 EMAIL-RAILS Mailglass-narrative corrigendum across MILESTONES.md/PROJECT.md/CHANGELOG.md (DOC-01)
-  - [ ] 136-03-PLAN.md — In-place PROOF-01/DOC-01 traceability reconciliation; archive deferred to /gsd-complete-milestone (PROOF-01, DOC-01)
+  - [x] 136-03-PLAN.md — In-place PROOF-01/DOC-01 traceability reconciliation; archive deferred to /gsd-complete-milestone (PROOF-01, DOC-01)
 
 ## Progress
 
@@ -177,7 +177,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 | 133. Suite Narrative + Ecosystem Diagram | 1/1 | Complete   | 2026-05-28 |
 | 134. Recipe-Only Companion Libraries | 1/1 | Complete    | 2026-05-28 |
 | 135. Reference Example (`test/example/`) | 1/1 | Complete    | 2026-05-28 |
-| 136. Verification Proof + Corrigendum | 2/3 | In Progress|  |
+| 136. Verification Proof + Corrigendum | 3/3 | Complete | 2026-05-28 |
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
