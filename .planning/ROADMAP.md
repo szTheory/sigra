@@ -143,7 +143,9 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   2. `test/example/mix.exs` carries Threadline as a `:dev, :test`-scoped dep, `test/example/lib/example/accounts.ex` carries the `forwarders:` block under the existing `audit:` keyword, and `test/example/AGENTS.md` documents the demo wiring — so an adopter can grep `test/example/` for "threadline" and find a working end-to-end reference in under a minute.
   3. No new top-level `examples/` directory is created, no new CI jobs are added, and the existing `test/example/` CI lanes (3 jobs in `ci.yml` including the Playwright smoke) remain green.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+  - [ ] 135-01-PLAN.md — Threadline forwarder demo in test/example/: dev/test dep + two ordered migrations + dual forwarders: config block + AGENTS.md section + end-to-end projection-chain integration test (EX-01)
 
 ### Phase 136: Verification Proof Bundle + Narrative-Honesty Corrigendum
 
