@@ -30,10 +30,10 @@
 
 - [ ] **RC-01** — `guides/recipes/companion-libs/threadline.md` ships as the canonical Threadline integration recipe with `validated_against:` + `last_validated:` frontmatter, `mix.exs` snippet, `forwarders:` config block, failure-modes section, non-goals section, "Sigra works fully standalone" banner.
 - [ ] **RC-02** — `guides/recipes/companion-libs/mailglass.md` ships as a 1-page recipe wiring Mailglass behind the existing `Sigra.Mailer` behaviour, pinned to Mailglass `~> 1.2`. Does **not** ship a library-resident adapter; uses the existing host-owned wiring pattern (matches Devise/Rodauth/Allauth posture).
-- [ ] **RC-03** — `guides/recipes/companion-libs/accrue.md` ships referencing the `Accrue.Auth` behaviour and cross-links `lib/sigra/hooks.ex` for seat-limit gating + lifecycle integration.
-- [ ] **RC-04** — `guides/recipes/companion-libs/lockspire.md` ships as a concrete recipe (mix.exs deps, AccountResolver stub, walkthrough) and cross-links the existing `guides/recipes/companion-oauth-provider.md` architectural framing. Respects ADR 001 (no `sigra_lockspire` glue package).
-- [ ] **RC-05** — `guides/recipes/companion-libs/relyra.md` ships with SAML 2.0 SP wiring guidance and cites the v1.27 ENT-SSO OIDC-vs-SAML decision matrix.
-- [ ] **RC-06** — `guides/recipes/companion-libs/rulestead.md` ships demonstrating `Rulestead.enabled?` from a Sigra-protected controller and `RulesteadPolicy` derived from `current_scope`.
+- [x] **RC-03** — `guides/recipes/companion-libs/accrue.md` ships referencing the `Accrue.Auth` behaviour and cross-links `lib/sigra/hooks.ex` for seat-limit gating + lifecycle integration.
+- [x] **RC-04** — `guides/recipes/companion-libs/lockspire.md` ships as a concrete recipe (mix.exs deps, AccountResolver stub, walkthrough) and cross-links the existing `guides/recipes/companion-oauth-provider.md` architectural framing. Respects ADR 001 (no `sigra_lockspire` glue package).
+- [x] **RC-05** — `guides/recipes/companion-libs/relyra.md` ships with SAML 2.0 SP wiring guidance and cites the v1.27 ENT-SSO OIDC-vs-SAML decision matrix.
+- [x] **RC-06** — `guides/recipes/companion-libs/rulestead.md` ships demonstrating `Rulestead.enabled?` from a Sigra-protected controller and `RulesteadPolicy` derived from `current_scope`.
 
 ### Suite narrative
 
