@@ -172,7 +172,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 | 132. Threadline + Mailglass Recipes | 1/1 | Complete   | 2026-05-27 |
 | 133. Suite Narrative + Ecosystem Diagram | 1/1 | Complete   | 2026-05-28 |
 | 134. Recipe-Only Companion Libraries | 1/1 | Complete    | 2026-05-28 |
-| 135. Reference Example (`test/example/`) | 1/1 | Complete   | 2026-05-28 |
+| 135. Reference Example (`test/example/`) | 1/1 | Complete    | 2026-05-28 |
 | 136. Verification Proof + Corrigendum | 0/TBD | Not started | - |
 
 ## Backlog (parking lot — not in the active roadmap until promoted)

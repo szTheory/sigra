@@ -41,7 +41,7 @@
 
 ### Reference example
 
-- [ ] **EX-01** — `test/example/` extends with a working Threadline forwarder demo: `test/example/mix.exs` adds Threadline as a dev/test dep; `test/example/lib/example/accounts.ex` adds the `forwarders:` block under the existing `audit:` keyword; a new `test/example/test/example_web/threadline_forwarder_test.exs` asserts a Sigra audit event materializes as a Threadline row; `test/example/AGENTS.md` documents the demo wiring. No new top-level `examples/` directory.
+- [x] **EX-01** — `test/example/` extends with a working Threadline forwarder demo: `test/example/mix.exs` adds Threadline as a dev/test dep; `test/example/lib/example/accounts.ex` adds the `forwarders:` block under the existing `audit:` keyword; a new `test/example/test/example_web/threadline_forwarder_test.exs` asserts a Sigra audit event materializes as a Threadline row; `test/example/AGENTS.md` documents the demo wiring. No new top-level `examples/` directory.
 
 ### Verification + narrative honesty
 
