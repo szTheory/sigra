@@ -127,7 +127,9 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   4. An adopter can read `guides/recipes/companion-libs/rulestead.md` and gate a Sigra-protected controller on `Rulestead.enabled?` plus derive a `RulesteadPolicy` from `current_scope`, without expecting Sigra to ship opinionated authorization.
   5. All four recipes carry uniform `validated_against:` + `last_validated:` frontmatter, "Failure modes" section, "Non-goals" section, and the "Sigra works fully standalone" banner — matching the template Phase 132 established.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+  - [ ] 134-01-PLAN.md — Four companion-lib recipes (accrue/lockspire/relyra/rulestead) + atomic mix.exs extras-register/skip-warnings-remove edit + docs-warnings-as-errors gate (RC-03..RC-06)
 
 ### Phase 135: Reference Example — Threadline Forwarder Demo in `test/example/`
 
