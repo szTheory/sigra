@@ -90,7 +90,7 @@ Filter by time range:
 
 Your own code can write domain-specific events. Prefix them to avoid colliding with `auth.`, `mfa.`, `api_token.`, `oauth.`, `account.`:
 
-    Sigra.Audit.log(config, "billing.subscription.upgraded",
+    Sigra.Audit.log("billing.subscription.upgraded",
       actor_id: user.id,
       actor_type: "user",
       target_id: subscription.id,

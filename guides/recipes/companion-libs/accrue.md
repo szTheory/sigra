@@ -78,7 +78,11 @@ defmodule MyApp.Accrue.Auth do
   def log_audit(user, event_map) do
     # Forward to the Sigra audit pipeline; Sigra's AuditEvent row stays source-of-truth.
     # See lib/sigra/audit.ex and the Threadline recipe for event-type filtering options.
-    Sigra.Audit.log(event_map |> Map.put(:actor_id, user.id))
+    Sigra.Audit.log("billing.seat.added",
+      actor_id: user.id,
+      actor_type: "user",
+      metadata: Map.take(event_map, [:action, :target_id, :target_type, :reason])
+    )
   end
 
   @impl Accrue.Auth
