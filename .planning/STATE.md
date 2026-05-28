@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
 status: completed
-last_updated: "2026-05-27T22:51:56.283Z"
+last_updated: "2026-05-28T00:52:36.352Z"
 last_activity: 2026-05-27 -- Phase 132 marked complete
 progress:
   total_phases: 6
@@ -29,7 +29,7 @@ Phase: 132 — COMPLETE
 Plan: 1 of 1
 Status: Phase 132 complete
 Last activity: 2026-05-27 -- Phase 132 marked complete
-Resume file: `.planning/phases/132-threadline-recipe-mailglass-cross-link-recipe/132-CONTEXT.md`
+Resume file: .planning/phases/133-suite-narrative-ecosystem-diagram/133-CONTEXT.md
 
 ## Accumulating Context
 
