@@ -44,7 +44,7 @@ Two Sigra seams connect to Accrue:
    `lib/sigra/hooks.ex:1-103`
 
 Both paths flow through a single host module that implements the `Accrue.Auth` behaviour
-(`/Users/jon/projects/accrue/accrue/lib/accrue/auth.ex:41-49`).
+(`accrue/lib/accrue/auth.ex:41-49`).
 
 ### 1. Implement the `Accrue.Auth` behaviour
 
@@ -134,13 +134,19 @@ end
 ### 4. Clean up subscriptions on user delete
 
 Wire an `on_delete` hook via `lib/sigra/hooks.ex:1-103` to cancel any Accrue subscription
-when a user is deleted:
+when a user is deleted. Hooks are read from your `Sigra.Config` struct — add them to the
+`Sigra.Config.new!/1` call inside your `MyApp.Auth.sigra_config/0`, **not** to `config :sigra`
+app env (the app-env path is not read by hook dispatch and the hook will silently never fire):
 
 ```elixir
-config :sigra,
+# in MyApp.Auth.sigra_config/0
+Sigra.Config.new!(
+  repo: MyApp.Repo,
+  # ... your other Sigra config ...
   hooks: [
     on_delete: {MyApp.AccrueHooks, :on_user_delete}
   ]
+)
 ```
 
 ```elixir

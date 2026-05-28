@@ -105,7 +105,9 @@ defmodule MyApp.AccountResolver do
 
   @impl Lockspire.Host.AccountResolver
   def redirect_for_login(conn, context) do
-    Phoenix.Controller.redirect(conn, to: "/users/log-in?return_to=#{context.return_to}")
+    # URI-encode return_to — never interpolate caller-supplied values raw (open-redirect / injection risk).
+    return_to = URI.encode_www_form(context.return_to)
+    Phoenix.Controller.redirect(conn, to: "/users/log-in?return_to=#{return_to}")
   end
 end
 ```

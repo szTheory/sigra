@@ -79,13 +79,13 @@ signature: `(config, user, metadata, opts \\ [])`):
 
 ```elixir
 def acs(conn, %{"SAMLResponse" => saml_response} = params) do
-  sigra_config = Application.fetch_env!(:my_app, :sigra)
+  sigra_config = MyApp.Auth.sigra_config()
 
   with {:ok, login_result} <- Relyra.consume_response(saml_response, params),
        {:ok, user} <- MyApp.Accounts.find_or_create_from_saml(login_result),
        {:ok, session} <- Sigra.Auth.create_session(sigra_config, user, %{type: :saml}) do
     conn
-    |> Sigra.Plug.put_session(session)
+    |> MyAppWeb.UserAuth.put_user_session_token(session.token)
     |> redirect(to: "/dashboard")
   else
     {:error, reason} ->
@@ -122,13 +122,14 @@ sync, and verify the SP metadata registered with the IdP matches your current Re
 
 If the Sigra session store is unavailable or the user struct is invalid, `create_session/4`
 returns an error. Ensure the user was successfully looked up or created before calling
-`create_session/4`, and confirm the Sigra session store (`Sigra.Session.Store.*`) is configured.
+`create_session/4`, and confirm the Sigra session store (`Sigra.SessionStores.Ecto`) is configured.
 
 ### 4. IdP-initiated SLO reaches your SLO endpoint while session is active
 
 Relyra handles the SLO ceremony. After Relyra confirms the logout, invalidate the Sigra
-session by calling `Sigra.Auth.delete_session/2` with the session token. The SAML session
-index stored in your session metadata (`metadata[:saml_session_index]`) can help correlate
+session by calling `Sigra.Auth.delete_session/3` — signature `(config, hashed_token, opts \\ [])`
+— passing your `Sigra.Config` (from `MyApp.Auth.sigra_config()`) as the first argument. The SAML
+session index stored in your session metadata (`metadata[:saml_session_index]`) can help correlate
 the SLO request to the right Sigra session.
 
 ## Non-goals
