@@ -48,7 +48,20 @@ config :example, :sigra_config,
     session_schema: Example.Accounts.UserSession
   ],
   audit: [
-    audit_schema: Example.Accounts.AuditEvent
+    audit_schema: Example.Accounts.AuditEvent,
+    forwarders: [
+      [
+        module: Sigra.Audit.Forwarders.Threadline,
+        id: :default,
+        # dispatch: :auto resolves to :sync when Oban is not supervised (the
+        # case in this example app). Pin dispatch: :sync in attach/1 calls for
+        # deterministic inline insertion.
+        dispatch: :auto,
+        # Threadline 0.5+ is DB-based; writes audit_actions via repo: — no HTTP
+        # endpoint or api_key required.
+        repo: Example.Repo
+      ]
+    ]
   ],
   passkeys: [
     rp_id: "localhost",
