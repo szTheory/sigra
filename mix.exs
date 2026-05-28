@@ -170,13 +170,7 @@ defmodule Sigra.MixProject do
         # Phase 132: recipe files reference hidden Application helpers and the Sigra.Mailer
         # behaviour callback (which is a @callback, not a @doc function).
         "guides/recipes/companion-libs/threadline.md",
-        "guides/recipes/companion-libs/mailglass.md",
-        # Phase 133: companion-lib recipes pending Phase 134 — remove these four
-        # entries when accrue/lockspire/relyra/rulestead recipes land.
-        "guides/recipes/companion-libs/accrue.md",
-        "guides/recipes/companion-libs/lockspire.md",
-        "guides/recipes/companion-libs/relyra.md",
-        "guides/recipes/companion-libs/rulestead.md"
+        "guides/recipes/companion-libs/mailglass.md"
       ],
       main: "getting-started",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
@@ -224,7 +218,11 @@ defmodule Sigra.MixProject do
         "guides/recipes/deployment.md",
         "guides/recipes/companion-oauth-provider.md",
         "guides/recipes/companion-libs/threadline.md",
-        "guides/recipes/companion-libs/mailglass.md"
+        "guides/recipes/companion-libs/mailglass.md",
+        "guides/recipes/companion-libs/accrue.md",
+        "guides/recipes/companion-libs/lockspire.md",
+        "guides/recipes/companion-libs/relyra.md",
+        "guides/recipes/companion-libs/rulestead.md"
       ],
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
