@@ -588,9 +588,9 @@ done
 All other claims in this research are `[VERIFIED: local checkout/file]` against files read this
 session.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Relyra `LoginResult` field for the authenticated subject**
+1. **RESOLVED — Relyra `LoginResult` field for the authenticated subject**
    - What we know: `consume_response/3` returns `{:ok, map()}`; moduledoc says the success
      value is a `%Relyra.LoginResult{}`.
    - What's unclear: the exact field name the host reads to get the subject/email for
@@ -602,7 +602,7 @@ session.
      precise field is wanted, the planner can have the executor read `Relyra.LoginResult`
      during step 3 — it is a cheap local-checkout read, not external research.
 
-2. **Whether `rulestead_admin` package belongs in the recipe's primary `mix.exs` snippet**
+2. **RESOLVED — Whether `rulestead_admin` package belongs in the recipe's primary `mix.exs` snippet**
    - What we know: the runtime `rulestead` package provides `enabled?`; the mounted admin needs
      the separate `rulestead_admin` package.
    - Recommendation: show `{:rulestead, "~> 0.1"}` as the core dep; show `{:rulestead_admin,
