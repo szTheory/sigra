@@ -147,6 +147,7 @@ isolate failures from the telemetry dispatch path.
   emits `[:sigra, :audit, :log]` telemetry, and handles retention
 - [Mailglass recipe](./mailglass.html) — wiring Mailglass behind `Sigra.Mailer` for transactional
   auth email
+- [Suite integration overview](../introduction/suite-integration.html) — companion-library ecosystem diagram, fan-out matrix, and Diminishing Returns Wall framing
 
 ### Custom forwarders
 
