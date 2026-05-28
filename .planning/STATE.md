@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
 status: executing
-last_updated: "2026-05-28T15:43:46.961Z"
+last_updated: "2026-05-28T17:38:30.335Z"
 last_activity: 2026-05-28
 progress:
   total_phases: 6
@@ -29,7 +29,7 @@ Phase: 136
 Plan: Not started
 Status: Executing Phase 135
 Last activity: 2026-05-28
-Resume file: .planning/phases/135-reference-example-threadline-forwarder-demo-in-test-example/135-CONTEXT.md
+Resume file: .planning/phases/136-verification-proof-bundle-narrative-honesty-corrigendum/136-CONTEXT.md
 
 ## Accumulating Context
 
