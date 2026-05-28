@@ -169,7 +169,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 | 131. Forwarder Behaviour + Threadline Scaffolding | 6/6 | Complete    | 2026-05-27 |
 | 132. Threadline + Mailglass Recipes | 1/1 | Complete   | 2026-05-27 |
 | 133. Suite Narrative + Ecosystem Diagram | 1/1 | Complete   | 2026-05-28 |
-| 134. Recipe-Only Companion Libraries | 1/1 | Complete   | 2026-05-28 |
+| 134. Recipe-Only Companion Libraries | 1/1 | Complete    | 2026-05-28 |
 | 135. Reference Example (`test/example/`) | 0/TBD | Not started | - |
 | 136. Verification Proof + Corrigendum | 0/TBD | Not started | - |
 
