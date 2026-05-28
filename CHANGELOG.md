@@ -32,6 +32,10 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Documentation
+
+- **Mailglass integration posture (v1.29 DOC-01):** Sigra ships no library-resident Mailglass adapter and no `--with-mailglass` installer flag. The supported integration posture is recipe-only host-owned wiring: the host implements `Sigra.Mailer` and delegates to a Mailglass-backed module. See `guides/recipes/companion-libs/mailglass.md` for the current supported configuration.
+
 ## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
 
 ### Changed
@@ -218,8 +222,6 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 * **example:** JS bundle + endpoint socket + router auth pipeline ([58b7122](https://github.com/szTheory/sigra/commit/58b7122df97529a9604e06ea1b18071fb021785e))
 * **mfa:** correct Ecto.Multi.merge arity for lockout audit Multis ([09e2263](https://github.com/szTheory/sigra/commit/09e22637898512404ac7c81d1e488685d8215699))
 * **MFA:** handle cleanup Multi errors in disable flows ([2e1d309](https://github.com/szTheory/sigra/commit/2e1d30936b7ab4d40f458eb49d4b91ae7d438d67))
-
-## [Unreleased]
 
 - **Chore:** Root `.formatter.exs` no longer scans `test/example/_build` (and
   other generated trees) where Hex-copied `*.ex` install templates are not
