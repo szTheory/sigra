@@ -649,4 +649,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-27 — Phase 131 (Forwarder Behaviour + Threadline Forwarder Library Scaffolding) shipped: `Sigra.Audit.Forwarder` behaviour, `Sigra.Audit.Forwarders.Threadline` impl, `Noop` fallback, `Sigra.Workers.AuditForward` Oban worker, boot wiring + dep-off CI lane. Verified passed (5/5 SCs, 6/6 reqs).*
+*Last updated: 2026-05-28 — Phase 135 (Reference Example — Threadline Forwarder Demo) shipped: `test/example/` extended with the `{:threadline, "~> 0.5"}` dev/test dep (resolved 0.6.0), three committed migrations, mirrored `forwarders:` config in `accounts.ex` + `config.exs`, an integration test proving the Sigra→Threadline `audit_actions` projection, and an AGENTS.md demo section. Verified passed (EX-01; 6/6 must-haves; targeted test + `example_unit_smoke` 236 tests green; lib/ frozen). Phases 131–135 of v1.29 complete; Phase 136 (proof bundle + corrigendum) remains.*
