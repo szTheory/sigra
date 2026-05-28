@@ -109,7 +109,9 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   2. The narrative cross-links to all six companion-lib recipes (Threadline, Mailglass, Accrue, Lockspire, Relyra, Rulestead) such that ExDoc renders the suite as a coherent "Companion Libraries" group with no orphan pages.
   3. The narrative carries no banned marketing phrases ("seamlessly," "just works," "production-ready out of the box," "the recommended way") and would survive a lint pass on those phrases.
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+  - [ ] 133-01-PLAN.md — Suite-integration narrative + README Topic-map pointer + mix.exs ExDoc registration + threadline.md reciprocal pointer (NX-01)
 
 ### Phase 134: Recipe-Only Companion Libraries
 
