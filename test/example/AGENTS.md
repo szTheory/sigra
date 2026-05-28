@@ -205,10 +205,13 @@ Four touchpoints, all inside `test/example/`:
    app), and `repo: Example.Repo`. No HTTP `endpoint:` or `api_key:` — Threadline
    writes directly to the database via `repo:`.
 
-3. **Migrations** — Two committed migrations under `priv/repo/migrations/`:
+3. **Migrations** — Three committed migrations under `priv/repo/migrations/`
+   (Threadline 0.6 generates all three; committed verbatim, run in timestamp order):
    - `*_threadline_audit_schema.exs` — creates `audit_transactions` and trigger fn
    - `*_threadline_semantics_schema.exs` — creates `audit_actions`, ALTERs
      `audit_transactions`
+   - `*_threadline_governance_schema.exs` — creates `export_jobs`, `retention_runs`,
+     `saved_views`, `evidence_records`
 
    The `test` alias runs `ecto.migrate --quiet` automatically; no manual step.
 
@@ -217,9 +220,11 @@ Four touchpoints, all inside `test/example/`:
    Sigra `session.create` audit event materializes as a real
    `Threadline.Semantics.AuditAction` row joined on `correlation_id == audit_event.id`.
 
-   The test attaches the forwarder itself (the vanilla `Example.Application` does not
-   call `Sigra.Application.attach_forwarders/0`). It pins `dispatch: :sync` and
-   `repo: Example.Repo` for deterministic inline insertion inside the SQL Sandbox.
+   `Sigra.Application` attaches a `:default` forwarder at boot from the
+   `:sigra_config` `audit.forwarders` block. To run with exactly one handler, the
+   test (`async: false`) detaches `:default` in setup, attaches a `:test` handler
+   pinned to `dispatch: :sync` + `repo: Example.Repo` for deterministic inline
+   insertion inside the SQL Sandbox, and restores `:default` in `on_exit`.
 
 Run the test:
 
