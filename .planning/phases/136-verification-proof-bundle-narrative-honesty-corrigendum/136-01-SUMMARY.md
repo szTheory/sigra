@@ -31,7 +31,7 @@ key-decisions:
   - "Record-only (D-04): Phase 136 runs each proof command and records results; adds NO new CI lanes"
   - "No-waiver discipline (D-04a): all six gates passed; requirements-completed: [PROOF-01] is correct"
   - "Archive is post-phase (D-05): 136-VERIFICATION.md notes the archive as the downstream /gsd-complete-milestone step, never records it as done"
-  - "Credo exit 31 is documented verbatim: issues are in test/example/deps/ third-party code; Sigra library clean per --only sigra probe"
+  - "Credo exit 31 is documented verbatim: ~506 advisory issues are in Sigra library code (lib/, test/sigra/) and the rest in test/example/deps/ third-party code. credo has no CI lane (mix.exs:120, dev/test-only dep), so it is a non-release-enforced local advisory; the 2 enforced custom Sigra checks pass (--only sigra exit 0). Recorded as advisory per disposition; status passed gated on the 5 hard test/docs gates being green."
   - "Gate 3 flaky async note: seed-dependent 1 failure in NoopTest (capture_log async race) on first run, 0 failures on subsequent run; exit code 0 both runs; pre-existing, not a Phase 136 regression"
 
 requirements-completed: [PROOF-01]
@@ -134,11 +134,11 @@ View markdown docs at "doc/llms.txt"
 
 **Command:** `mix credo --strict`
 
-**Result:** Exit code 31. Analysis: 2088 files, 36070 mods/funs. Found 194 consistency issues, 107 warnings, 935 refactoring opportunities, 1225 code readability issues, 1427 software design suggestions. Issues are in `test/example/deps/` (third-party deps scanned under `test/`) — NOT in Sigra library code.
+**Result:** Exit code 31. Analysis: 2088 files, 36070 mods/funs. Found 194 consistency issues, 107 warnings, 935 refactoring opportunities, 1225 code readability issues, 1427 software design suggestions. Of these, **506 are in actual Sigra library code** (`lib/`, `test/sigra/`): 10 consistency, 276 design, 121 refactoring, 94 readability, 5 warnings — all advisory categories (e.g. function complexity, nesting depth, line length, nested-module aliasing, `Enum.map_join`, a TODO tag). These are pre-existing style/design advisories, unchanged by this no-new-code phase. The remainder are in `test/example/deps/` third-party code (pulled in because `.credo.exs` `included: ["test/"]` does not exclude the nested `test/example/deps/`).
 
-**Library-clean probe:** `mix credo --strict --only sigra` → exit code 0; no issues found in `lib/sigra/`.
+**Enforced-checks probe:** `mix credo --strict --only sigra` → exit code 0. This runs ONLY the 2 custom Sigra checks (`no_log_safe2_in_lib`, `no_unscoped_org_query_in_lib`), which pass. It is NOT a full-strict library-cleanliness probe.
 
-**Status:** PASS (Sigra library code is clean; exit 31 reflects third-party dep issues outside scope)
+**Status:** PASS as a recorded local advisory. credo has no CI lane (mix.exs:120 is a dev/test-only dep) and is therefore not a release-enforced gate. The library is NOT credo-`--strict`-clean (506 advisory issues), but the enforced custom checks pass and the 5 hard test/docs gates are green. Per the milestone-close disposition, the PROOF-01 "credo --strict clean" line is advisory-only with the true count disclosed here; it does not block the proof bundle.
 
 ---
 
@@ -159,10 +159,10 @@ None.
 - **Issue:** `Sigra.Audit.Forwarders.NoopTest` "does NOT emit any Logger output — D-23" failed on one run due to an async test ordering race (`capture_log` picked up output from a concurrent test). Exit code was still 0.
 - **Disposition:** Not a Phase 136 regression. The noop test file is unchanged and passes consistently when run in isolation. Documented in `136-VERIFICATION.md` Anti-Overclaim Scan. No fix applied; no `@tag :skip` added.
 
-**2. Gate 6 credo exit code 31 with third-party issues**
+**2. Gate 6 credo exit code 31 — 506 library advisories + third-party noise**
 - **Found during:** Gate 6
-- **Issue:** `mix credo --strict` exits 31 because `test/example/deps/` (third-party example app deps) are included in credo's `test/` scan path. The issues are not in Sigra library code.
-- **Disposition:** Expected. `.credo.exs` includes `test/` which picks up `test/example/deps/`. Verified Sigra-library cleanliness via `mix credo --strict --only sigra` (exit 0). Documented verbatim.
+- **Issue:** `mix credo --strict` exits 31. The total spans both `test/example/deps/` third-party code (scanned because `.credo.exs` `included: ["test/"]` does not exclude the nested example-app deps) AND 506 issues in actual Sigra library code (`lib/`, `test/sigra/`) — all advisory categories (10 consistency, 276 design, 121 refactoring, 94 readability, 5 warnings).
+- **Disposition:** Recorded as a non-blocking local advisory. credo has no CI lane (mix.exs:120, dev/test-only dep), so it is not release-enforced; the 2 custom enforced Sigra checks pass (`--only sigra` exit 0). The 506 library issues are pre-existing style/design advisories, not introduced by this no-new-code phase. Disposition chosen at milestone close: keep status passed on the 5 hard test/docs gates + credo-as-advisory; do NOT claim the library is credo-clean. No `@tag :skip` or waiver added.
 
 ## Traceability
 
