@@ -6,11 +6,14 @@ defmodule ExampleWeb.ThreadlineForwarderTest do
   the resulting Sigra session.create audit event materializes as a real
   Threadline.Semantics.AuditAction row joined on correlation_id == audit_event.id.
 
-  The forwarder is attached in test setup (the example Application never calls
-  Sigra.Application.attach_forwarders/0). dispatch: :sync ensures the inline
-  insert lands on the SQL Sandbox-owned connection before the query runs.
+  Sigra's OTP application attaches the :default Threadline forwarder at boot
+  (from the :sigra_config audit.forwarders block). To run with exactly one
+  handler using dispatch: :sync on the SQL Sandbox-owned connection, setup
+  detaches :default and attaches a :test handler; on_exit restores :default so
+  the rest of the suite is unaffected. async: false because the test mutates
+  VM-global :telemetry handlers.
   """
-  use ExampleWeb.ConnCase, async: true
+  use ExampleWeb.ConnCase, async: false
 
   import Ecto.Query
 
@@ -45,7 +48,12 @@ defmodule ExampleWeb.ThreadlineForwarderTest do
         actor_type: :user
       )
 
-    on_exit(fn -> :telemetry.detach({Sigra.Audit.Forwarders.Threadline, :test}) end)
+    on_exit(fn ->
+      :telemetry.detach({Sigra.Audit.Forwarders.Threadline, :test})
+      # Restore the boot-time :default handler (idempotent detach-then-attach)
+      # so subsequent tests in the session keep their Threadline forwarder.
+      Sigra.Application.attach_forwarders()
+    end)
 
     %{user: user}
   end
