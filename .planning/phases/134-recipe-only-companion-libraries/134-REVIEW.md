@@ -14,7 +14,9 @@ findings:
   warning: 5
   info: 1
   total: 11
-status: issues_found
+status: resolved_partial
+resolved_at: 2026-05-28
+resolution: 7 verified Sigra-side findings fixed (commit 826e5a0); CR-01, WR-02, WR-05, IN-01 deferred to tracked todos
 ---
 
 # Phase 134: Code Review Report
@@ -34,6 +36,28 @@ The prose framing, architecture separation of concerns, callback arities, and cr
 generally correct. However, five of the copy-paste code snippets contain incorrect API calls
 that will produce runtime errors in adopter applications, plus one leaks a local developer
 filesystem path into published documentation. These must be fixed before the recipes ship.
+
+## Resolution (2026-05-28)
+
+Reviewed and verified against the live Sigra source. **7 findings fixed** in commit `826e5a0`
+(`mix docs --warnings-as-errors` re-run clean, D-20 grep zero, structural checks pass):
+
+- CR-03 (relyra) — `Sigra.Plug.put_session/2` → `MyAppWeb.UserAuth.put_user_session_token/2`
+- CR-04 (relyra) — `Application.fetch_env!` keyword list → `MyApp.Auth.sigra_config()` Config struct
+- CR-02 (accrue) — hooks moved from ignored `config :sigra` app-env into `Sigra.Config.new!(hooks:)`
+- CR-05 (accrue) — removed hardcoded `/Users/jon/...` absolute path
+- WR-04 (relyra) — `Sigra.Session.Store.*` → `Sigra.SessionStores.Ecto`
+- WR-01 (relyra) — `delete_session` pinned to `/3` with config-first arg
+- WR-03 (lockspire) — URI-encode `return_to` (open-redirect/injection)
+
+**4 findings deferred** (tracked in `.planning/todos/pending/`):
+
+- CR-01 — `Sigra.Audit.log` config-first form is documented but unimplemented (library/cross-doc
+  gap; `audit-logging.md` is also wrong). → `2026-05-28-audit-log-config-first-api-gap.md`
+- WR-02, WR-05 — depend on Lockspire/Rulestead sister-repo contracts not checked out here.
+  → `2026-05-28-phase-134-recipe-residual-findings.md`
+- IN-01 — `~> 1.29` pin is a project-wide convention matching shipped siblings, not a phase bug.
+  → same residual-findings todo.
 
 ---
 
