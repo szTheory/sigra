@@ -161,7 +161,7 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
 
 **Plans**: 3 plans
 
-  - [ ] 136-01-PLAN.md — Run the PROOF-01 proof bundle (six gates) + backfill 132/133/136 verification reports (PROOF-01)
+  - [x] 136-01-PLAN.md — Run the PROOF-01 proof bundle (six gates) + backfill 132/133/136 verification reports (PROOF-01)
   - [ ] 136-02-PLAN.md — v1.25 EMAIL-RAILS Mailglass-narrative corrigendum across MILESTONES.md/PROJECT.md/CHANGELOG.md (DOC-01)
   - [ ] 136-03-PLAN.md — In-place PROOF-01/DOC-01 traceability reconciliation; archive deferred to /gsd-complete-milestone (PROOF-01, DOC-01)
 
@@ -177,7 +177,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 | 133. Suite Narrative + Ecosystem Diagram | 1/1 | Complete   | 2026-05-28 |
 | 134. Recipe-Only Companion Libraries | 1/1 | Complete    | 2026-05-28 |
 | 135. Reference Example (`test/example/`) | 1/1 | Complete    | 2026-05-28 |
-| 136. Verification Proof + Corrigendum | 0/3 | Not started | - |
+| 136. Verification Proof + Corrigendum | 1/3 | In Progress|  |
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
