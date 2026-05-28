@@ -100,10 +100,11 @@ Archives: [`.planning/milestones/v1.27-ROADMAP.md`](milestones/v1.27-ROADMAP.md)
 
 ### Previously shipped: v1.25 EMAIL-RAILS
 
-- optional Mailglass adapter plus `--with-mailglass` installer path
-- generated-host override seam and Mailglass preview catalog for auth emails
+- generated-host override seam for auth emails (override rails and failure handler seams)
 - provider-agnostic async-delivery telemetry verified as a zero-code closure
 - canonical bounce/complaint normalizer, host-owned handler seam, and runnable provider recipes
+
+**Corrigendum (v1.29 DOC-01, 2026-05-28):** The original v1.25 narrative claimed an optional Mailglass adapter plus `--with-mailglass` installer path and a Mailglass preview catalog for auth emails. These did not land on the release branch. The library-resident `Sigra.Mailers.Adapters.Mailglass` module and the `--with-mailglass` flag from Phase 111/114 were never merged to `main` and are not part of the supported surface. The supported Mailglass posture is recipe-only host-owned wiring via the `Sigra.Mailer` behaviour — no library-resident adapter, no `--with-mailglass` flag. See `guides/recipes/companion-libs/mailglass.md`.
 
 ### Previously shipped: v1.24 Session Control Plane
 

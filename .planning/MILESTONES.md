@@ -83,6 +83,8 @@
 - Published Postmark and SendGrid webhook recipes with example-app proof wiring.
 - Mailglass adapter compilation is now optional-dependency-safe, and the nested example app can compile and prove the Phase 114 bounce/complaint recipes again.
 
+**Corrigendum (v1.29 DOC-01, 2026-05-28):** The three bullets above that reference Mailglass are historically recorded but did not land on the release branch. Specifically: the library-resident `Sigra.Mailers.Adapters.Mailglass` module and the `--with-mailglass` installer flag described in Phase 111/114 were NOT merged to `main` and are NOT part of the supported surface. Likewise, no Mailglass preview catalog shipped in the library, and the "optional-dependency-safe" adapter compilation claim applies only to code that was never committed to `main`. The supported Mailglass posture as of v1.29 is recipe-only host-owned wiring: the host implements `Sigra.Mailer` and delegates to a Mailglass-backed module; Sigra ships no library-resident adapter and no `--with-mailglass` flag. See `guides/recipes/companion-libs/mailglass.md` for the current supported integration path.
+
 ---
 
 ## v1.0 Phoenix Auth Library — Initial Release (Shipped: 2026-04-11)
