@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
 status: executing
-last_updated: "2026-05-28T15:14:45.676Z"
-last_activity: 2026-05-28 -- Phase 135 planning complete
+last_updated: "2026-05-28T15:17:35.164Z"
+last_activity: 2026-05-28 -- Phase 135 execution started
 progress:
   total_phases: 6
   completed_phases: 4
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 135 — Reference Example (Threadline forwarder demo in `test/example/`)
+**Current focus:** Phase 135 — reference-example-threadline-forwarder-demo-in-test-example
 
 ## Current Position
 
-Phase: 135
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-28 -- Phase 135 planning complete
+Phase: 135 (reference-example-threadline-forwarder-demo-in-test-example) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 135
+Last activity: 2026-05-28 -- Phase 135 execution started
 Resume file: .planning/phases/135-reference-example-threadline-forwarder-demo-in-test-example/135-CONTEXT.md
 
 ## Accumulating Context
