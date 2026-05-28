@@ -41,3 +41,16 @@ Pick one and apply consistently:
 
 After fixing, re-run `mix docs --warnings-as-errors` and grep the guides for any remaining
 `Sigra.Audit.log(config,` arity-3 usages.
+
+## Resolution
+
+Resolved 2026-05-28 via **Option B** in quick task `260528-nwa` (commit 350ba24,
+surfaced by the v1.29 milestone audit):
+- `guides/flows/audit-logging.md:93` — config-first `log/3` call rewritten to real `log/2 (action, opts)`.
+- `guides/recipes/companion-libs/accrue.md:81` — arity-1 map call rewritten to real `log/2 (action, opts)` (`Sigra.Audit.log("billing.seat.added", ...)`).
+- `mix docs --warnings-as-errors` green; grep confirms zero remaining `Sigra.Audit.log(config,` arity-3 usages.
+
+The documentation defect is closed. **Option A** (adding a `%Sigra.Config{}`-first
+`Sigra.Audit.log/3` convenience to the library) was NOT applied — it is an optional
+ergonomics enhancement, not a defect. If desired later, file it as a fresh enhancement,
+not a gap.
