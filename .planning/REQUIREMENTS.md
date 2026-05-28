@@ -46,7 +46,7 @@
 ### Verification + narrative honesty
 
 - [x] **PROOF-01** — All forwarder unit + integration tests pass; dep-off CI lane (Threadline absent) proves `mix compile && mix test` green; `mix test test/sigra/audit/` clean; `mix test` inside `test/example/` clean; `mix docs --warnings-as-errors` exit 0 (the gate that nearly blocked v1.28 PROOF-01); `mix credo --strict` clean; `131-VERIFICATION.md` through `135-VERIFICATION.md` filed; `.planning/milestones/v1.29-ROADMAP.md`, `v1.29-REQUIREMENTS.md`, `v1.29-MILESTONE-AUDIT.md` archived at close.
-- [ ] **DOC-01** — `MILESTONES.md` v1.25 EMAIL-RAILS entry appends a one-line corrigendum noting that the library-resident `Sigra.Mailers.Adapters.Mailglass` module and `--with-mailglass` flag from Phase 111/114 did **not** land on the release branch and are not part of the supported surface. `PROJECT.md` v1.25 narrative gets the same correction. `CHANGELOG.md` [Unreleased] notes the v1.29 clarification of Mailglass integration posture (host-owned wiring via `Sigra.Mailer` behaviour).
+- [x] **DOC-01** — `MILESTONES.md` v1.25 EMAIL-RAILS entry appends a one-line corrigendum noting that the library-resident `Sigra.Mailers.Adapters.Mailglass` module and `--with-mailglass` flag from Phase 111/114 did **not** land on the release branch and are not part of the supported surface. `PROJECT.md` v1.25 narrative gets the same correction. `CHANGELOG.md` [Unreleased] notes the v1.29 clarification of Mailglass integration posture (host-owned wiring via `Sigra.Mailer` behaviour).
 
 ---
 
