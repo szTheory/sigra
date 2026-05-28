@@ -159,7 +159,11 @@ Current execution priority: ship the Threadline audit forwarder (the only new li
   2. `131-VERIFICATION.md` through `135-VERIFICATION.md` are filed under `.planning/phases/`, and `.planning/milestones/v1.29-ROADMAP.md`, `v1.29-REQUIREMENTS.md`, and `v1.29-MILESTONE-AUDIT.md` are archived in the same shape as v1.28's milestone artifacts.
   3. A reader landing on `MILESTONES.md` and `PROJECT.md` for the v1.25 EMAIL-RAILS entry sees an explicit corrigendum line stating that the library-resident `Sigra.Mailers.Adapters.Mailglass` module and `--with-mailglass` installer flag from Phase 111/114 did **not** land on the release branch and are not part of the supported surface; `CHANGELOG.md` [Unreleased] notes the v1.29 clarification of Mailglass integration posture as host-owned wiring via `Sigra.Mailer`.
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+  - [ ] 136-01-PLAN.md — Run the PROOF-01 proof bundle (six gates) + backfill 132/133/136 verification reports (PROOF-01)
+  - [ ] 136-02-PLAN.md — v1.25 EMAIL-RAILS Mailglass-narrative corrigendum across MILESTONES.md/PROJECT.md/CHANGELOG.md (DOC-01)
+  - [ ] 136-03-PLAN.md — In-place PROOF-01/DOC-01 traceability reconciliation; archive deferred to /gsd-complete-milestone (PROOF-01, DOC-01)
 
 ## Progress
 
@@ -173,7 +177,7 @@ Phases execute in numeric order: 131 → 132 → 133 → 134 → 135 → 136. Ph
 | 133. Suite Narrative + Ecosystem Diagram | 1/1 | Complete   | 2026-05-28 |
 | 134. Recipe-Only Companion Libraries | 1/1 | Complete    | 2026-05-28 |
 | 135. Reference Example (`test/example/`) | 1/1 | Complete    | 2026-05-28 |
-| 136. Verification Proof + Corrigendum | 0/TBD | Not started | - |
+| 136. Verification Proof + Corrigendum | 0/3 | Not started | - |
 
 ## Backlog (parking lot — not in the active roadmap until promoted)
 
