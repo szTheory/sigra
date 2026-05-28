@@ -2,7 +2,7 @@
 gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
-status: verifying
+status: ready
 last_updated: "2026-05-28T14:40:31.142Z"
 last_activity: 2026-05-28
 progress:
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 134 — recipe-only-companion-libraries
+**Current focus:** Phase 135 — Reference Example (Threadline forwarder demo in `test/example/`)
 
 ## Current Position
 
 Phase: 135
 Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-05-28
+Status: Phase 134 complete and verified — Phase 135 not started
+Last activity: 2026-05-28 -- Phase 134 complete (code-review fixes applied, verified passed)
 Resume file: None
 
 ## Accumulating Context
