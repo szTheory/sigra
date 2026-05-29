@@ -63,7 +63,7 @@
 
 **Wave 1**
 
-  - [ ] 137-01-PLAN.md — Create `Sigra.OptionalDeps` SOT (9 availability predicates + `encryption_active?/1`) + unit tests (OD-01)
+  - [x] 137-01-PLAN.md — Create `Sigra.OptionalDeps` SOT (9 availability predicates + `encryption_active?/1`) + unit tests (OD-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -116,7 +116,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 137. Optional-Dependency Source of Truth | 0/TBD | Not started | - |
+| 137. Optional-Dependency Source of Truth | 1/3 | In Progress|  |
 | 138. `mix sigra.doctor` Operator Diagnostic | 0/TBD | Not started | - |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 0/TBD | Not started | - |
 | 140. Deprecation Hygiene + Verification & Docs Close | 0/TBD | Not started | - |
