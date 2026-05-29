@@ -221,6 +221,27 @@ Use a **`0.y` minor bump** when you ship **new supported public** modules or fun
 
 Atomic release hygiene: keep **`mix.exs` `@version`**, **`CHANGELOG.md`**, the **`v<version>`** tag, Hex publish, and the GitHub Release aligned in one tight commit series (or a documented sequence), not scattered across unrelated merges.
 
+## OptionalDeps single source of truth (Phase 137)
+
+`lib/sigra/optional_deps.ex` (`Sigra.OptionalDeps`) is the canonical module for runtime optional-dep checks. All runtime optional-dep guards delegate to it via per-dep `available?/0` predicates. To add or audit an optional dependency, edit `lib/sigra/optional_deps.ex` — do not scatter new `Code.ensure_loaded?` guards across call sites.
+
+The "single source of truth" claim applies to **runtime guards only**. The narrow documented exceptions that are out of scope: compile-time `defmodule` wrappers that must resolve at compile time, dynamic host-schema atom checks, boot-warning `cond` blocks, and the doctor task's dynamic-forwarder check. These are not Phase 137 gaps; they are inherent to their respective roles and are not convertible to runtime delegates.
+
+## Recipe-contract fixture (Phase 139)
+
+`test/sigra/recipes/companion_lib_contract_test.exs` is a **maintainer-internal** merge-blocking drift guard, NOT a Hex-facing recipe or adopter-facing test. It is a CI contract assertion that runs in the standard `mix test` suite.
+
+Every companion-lib recipe under `guides/recipes/companion-libs/` must carry five required markers: a `## Failure modes` section, a `## Non-goals` section, a "Sigra works fully standalone" banner, `validated_against:` frontmatter, and `last_validated:` frontmatter. The fixture asserts that all six recipes carry all five markers and will fail the test suite if any marker drifts or a new recipe is added without them.
+
+## Deprecation removal timeline
+
+Two live deprecated functions have committed removal schedules:
+
+- **`Sigra.MFA.Trust.cookie_opts/0`** — already raises at runtime (no-return stub). The raising stub will be deleted entirely in `0.4.0`. Migration: use `cookie_opts/1` with `%Sigra.Config{}` so `cookie_domain` is honored.
+- **`Sigra.Account.audit_forced_password_change/2`** — still works (soft-deprecated). Removed in `0.5.0`. Migration: use `clear_password_change_requirement/3` when `:audit_schema` is configured.
+
+Removal process: each removal-target version will carry a CHANGELOG entry and the function body will be deleted (not just the annotation). Removal targets are expressed as Hex SemVer `0.x` minors, consistent with the pre-1.0 policy above.
+
 ## Planning hygiene (without gsd-tools JSON)
 
 Reliance on **`gsd-tools audit-open --json`** is **deprecated** for this repository. The upstream helper has been unreliable; Sigra maintainers should use **grep-driven** checks over `.planning/phases/` instead.
