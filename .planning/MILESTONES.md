@@ -1,5 +1,28 @@
 # Milestones
 
+## v1.29 SUITE-INTEGRATION (Shipped: 2026-05-29)
+
+**Phases completed:** 6 phases (131–136), 13 plans, all VERIFICATION = passed
+**Requirements:** 16/16 satisfied (TL-01..05, FB-01, RC-01..06, NX-01, EX-01, PROOF-01, DOC-01)
+**Timeline:** 2 days (2026-05-27 → 2026-05-28) · **Changes:** ~110 files, +19,460 / −67 (~17k of which is recipe/narrative docs)
+**Git range:** `5026262` (docs(131) context) → HEAD on `v1.28-data-lifecycle` branch
+
+**Delivered:** Sigra now composes cleanly with the szTheory OSS suite — a first-class, optional-dep-safe Threadline audit forwarder (the milestone's only new library code), recipe coverage for the five other companion libraries, and a coherent suite-narrative entry point — without owning any sister library's roadmap.
+
+**Key accomplishments:**
+
+- **Threadline audit forwarder (only new library code)** — `Sigra.Audit.Forwarder` single-callback behaviour (`attach/1`) + `Sigra.Audit.Forwarders.Threadline` telemetry-tap impl + `Sigra.Audit.Forwarders.Noop` fallback + optional `Sigra.Workers.AuditForward` Oban worker. `:auto`/`:async`/`:sync` dispatch per the `Sigra.Delivery` precedent; `[:sigra,:audit,:forward,:ok|:error]` telemetry. The Sigra audit DB row stays source-of-truth; Threadline is a post-commit projection that never rolls back the originating auth transaction. Optional-dep safe (whole impl wrapped in `Code.ensure_loaded?(Threadline)`, one-shot boot `Logger.warning` when configured-but-missing). (Phase 131 — TL-01..05, FB-01)
+- **Six companion-library recipes** under `guides/recipes/companion-libs/` (Threadline, Mailglass, Accrue, Lockspire, Relyra, Rulestead) on a uniform template — `validated_against:`/`last_validated:` frontmatter, `mix.exs` snippet, "Failure modes", "Non-goals", and the "Sigra works fully standalone" banner — all reachable under a new ExDoc "Companion Libraries" group. (Phases 132, 134 — RC-01..06)
+- **Suite-narrative entry point** — `guides/introduction/suite-integration.md` ships the ASCII ecosystem diagram, 7-row role table, 6×5 audit fan-out matrix, and Diminishing Returns Wall framing; README Topic-map gains a pointer. No banned marketing phrases. (Phase 133 — NX-01)
+- **Runnable reference demo** — `test/example/` extended with a Sigra→Threadline audit projection: dev/test dep + ordered migrations + dual `forwarders:` config + an integration test asserting a `session.create` audit event materializes as a Threadline `audit_actions` row joined on `correlation_id`, green on existing CI lanes (no new top-level `examples/`). (Phase 135 — EX-01)
+- **Verification proof bundle + narrative-honesty corrigendum** — six PROOF-01 gates green on release-branch HEAD (full suite 2252 tests, audit suite, dep-off lane 2246 tests with Threadline absent, example app 236 tests, `mix docs --warnings-as-errors` exit 0); `131-VERIFICATION.md`..`136-VERIFICATION.md` filed; and the v1.25 EMAIL-RAILS Mailglass overclaim corrected across MILESTONES.md, PROJECT.md, and CHANGELOG.md (the library-resident `Sigra.Mailers.Adapters.Mailglass` module + `--with-mailglass` flag never landed; recipe-only host-owned wiring is the supported posture). (Phase 136 — PROOF-01, DOC-01)
+
+**Post-verification fixes (quick tasks):** `260528-nwa` corrected the threadline.md `forwarders:` config drift (`endpoint:`/`api_key:` → `repo:`) and an accrue/audit-logging `log/2` API mismatch; `260528-sbn` fixed the mailglass corrigendum pointer and aligned all 7 recipe self-pins to `{:sigra, "~> 0.2"}` (IN-01).
+
+**Known deferred items at close (non-blocking, see STATE.md Deferred Items):** 2 tracked todos (WR-02/WR-05 sister-repo contract checks; Threadline 0.6.0 migration-count deviation) + 2 standing-posture items (credo `--strict` 506 advisory issues, non-CI-enforced; retroactive Nyquist sign-off). All classified non-blocking by the passing v1.29 milestone audit.
+
+---
+
 ## v1.28 DATA-LIFECYCLE (Shipped: 2026-05-27)
 
 **Phases completed:** 4 phases, 6 plans, 12 tasks

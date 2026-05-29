@@ -20,24 +20,26 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
-## Current Milestone: v1.29 SUITE-INTEGRATION
+## Latest Shipped Milestone: v1.29 SUITE-INTEGRATION
 
-**Goal:** Make Sigra compose cleanly with the rest of the szTheory OSS suite — first-class Threadline audit adapter, recipe coverage for the other companion libraries (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead), and a coherent suite-narrative entry point — without owning any sister library's roadmap.
+**Shipped:** 2026-05-29 (Phases 131–136)
 
-**Target features:**
-- Threadline audit forwarder (library-owned `Sigra.Audit.Forwarders.Threadline`, optional-dep safe, no Threadline runtime dep when unused) — **shipped in Phase 131** (2026-05-27)
-- Mailglass adoption posture cross-link (confirm v1.25 EMAIL-RAILS boundary; no double-claim)
-- Integration recipes for the five deferred companion libraries (Accrue, Lockspire, Relyra, Rulestead, Threadline) under `guides/recipes/`
-- Suite-narrative landing page + ecosystem diagram under `guides/introduction/`
-- Reference example proving Sigra + at least one companion (likely Threadline alongside the new adapter)
-- Verification proof bundle (adapter tests, recipe contract checks, generator/install parity, `mix docs --warnings-as-errors`)
+Sigra now composes cleanly with the rest of the szTheory OSS suite: a first-class, optional-dep-safe Threadline audit forwarder (the milestone's only new library code), recipe coverage for the five other companion libraries, and a coherent suite-narrative entry point — without owning any sister library's roadmap and without re-landing the orphaned Phase 111/114 Mailglass adapter.
 
-**Key context:**
-- Default behaviour follows `MILESTONE-ARC.md` GSD defaults — pick the highest-ranked candidate after v1.28; SUITE-INTEGRATION is the standing recommendation.
-- Non-goals (explicit): owning any companion library's roadmap, replacing recipes with code where the library boundary doesn't justify it, hosted-control-plane behavior, opinionated authorization, generic admin expansion.
-- Phase numbering continues from v1.28 (last phase: 130). v1.29 starts at **Phase 131**.
+Archives:
+- [`.planning/milestones/v1.29-ROADMAP.md`](milestones/v1.29-ROADMAP.md)
+- [`.planning/milestones/v1.29-REQUIREMENTS.md`](milestones/v1.29-REQUIREMENTS.md)
+- [`.planning/milestones/v1.29-MILESTONE-AUDIT.md`](milestones/v1.29-MILESTONE-AUDIT.md)
 
-## Latest Shipped Milestone: v1.28 DATA-LIFECYCLE
+### Just shipped: v1.29 SUITE-INTEGRATION
+
+- shipped `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline` telemetry-tap impl + `Noop` fallback + optional `Sigra.Workers.AuditForward` Oban worker — `:auto`/`:async`/`:sync` dispatch, `[:sigra,:audit,:forward,:ok|:error]` telemetry, Sigra audit row stays source-of-truth, optional-dep safe (no Threadline runtime dep when unused)
+- published six companion-library recipes under `guides/recipes/companion-libs/` (Threadline, Mailglass, Accrue, Lockspire, Relyra, Rulestead) on a uniform template with the "Sigra works fully standalone" banner, under a new ExDoc "Companion Libraries" group
+- published `guides/introduction/suite-integration.md` suite narrative (ASCII ecosystem diagram, fan-out matrix, Diminishing Returns Wall framing) + README pointer
+- extended `test/example/` with a runnable end-to-end Threadline forwarder demo proven by a real DB round-trip test on existing CI lanes (no new top-level `examples/`)
+- landed the PROOF-01 proof bundle (full suite + dep-off lane + example app + `mix docs --warnings-as-errors` exit 0) and the v1.25 EMAIL-RAILS Mailglass-narrative corrigendum (DOC-01)
+
+## Previous Shipped Milestone: v1.28 DATA-LIFECYCLE
 
 **Shipped:** 2026-05-27
 
@@ -48,7 +50,7 @@ Archives:
 - [`.planning/milestones/v1.28-REQUIREMENTS.md`](milestones/v1.28-REQUIREMENTS.md)
 - [`.planning/milestones/v1.28-MILESTONE-AUDIT.md`](milestones/v1.28-MILESTONE-AUDIT.md)
 
-## Previous Shipped Milestone: v1.27 ENT-SSO
+## Earlier Shipped Milestone: v1.27 ENT-SSO
 
 **Shipped:** 2026-05-26
 
@@ -61,9 +63,9 @@ Archives:
 
 ## Current State
 
-`v1.28 DATA-LIFECYCLE` is shipped and archived. `Sigra.DataExport.export_auth_data/3` now owns versioned auth/account export with explicit omission truth; `Sigra.Account.Deletion` owns schedule/cancel/execute lifecycle with safe missing-context degradation, active-scheduled gating, and row-preserving soft-delete finalization; generated host templates, example app, install golden, and public docs are aligned with the bounded library contract.
+`v1.29 SUITE-INTEGRATION` is shipped and archived. `Sigra.Audit.Forwarder` + `Sigra.Audit.Forwarders.Threadline`/`Noop` + the optional `Sigra.Workers.AuditForward` worker now provide an optional-dep-safe, source-of-truth-preserving audit projection path to Threadline; six companion-library recipes (`guides/recipes/companion-libs/`) and the `guides/introduction/suite-integration.md` narrative document the rest of the suite without Sigra owning any sister library's roadmap; `test/example/` carries a runnable end-to-end Threadline demo. The v1.25 EMAIL-RAILS Mailglass overclaim is corrected (recipe-only host-owned wiring is the supported posture; no library-resident adapter, no `--with-mailglass` flag).
 
-No milestone is currently active. `SUITE-INTEGRATION` is the next ranked follow-on. Consult [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) before running `/gsd:new-milestone`.
+No milestone is currently active. Consult [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) (re-rank after v1.29) before running `/gsd:new-milestone`.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
 
@@ -199,17 +201,17 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** **Define v1.29 SUITE-INTEGRATION requirements** (this milestone is now active — see "Current Milestone" section above).
+**Immediate next action:** **Start the next milestone** with `/gsd-new-milestone` (re-rank [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) first; phases continue from **Phase 137**).
 
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
 **Current active milestone:**
-- `v1.29 SUITE-INTEGRATION` — opened 2026-05-27; companion-library integration recipes (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead, Threadline) + first-class Threadline audit adapter
+- None — `v1.29 SUITE-INTEGRATION` shipped 2026-05-29.
 
 **Ranked follow-on (next candidate after v1.29):**
-- TBD — re-rank `MILESTONE-ARC.md` after v1.29 ships; the "Diminishing Returns Wall" still excludes opinionated authz, billing, and frontend component libraries.
+- TBD — re-rank `MILESTONE-ARC.md` now that v1.29 has shipped; the "Diminishing Returns Wall" still excludes opinionated authz, billing, and frontend component libraries. Candidates surfaced during v1.29 and deferred: Threadline correlation-ID propagation (v1.30 candidate), `Sigra.OptionalDeps` SOT consolidation + `mix sigra.doctor` (trigger-gated), recipe-contract test fixtures.
 
-**Deferred after `v1.28` shipment:**
+**Deferred after `v1.29` shipment:**
 - `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
 - full SCIM / directory sync and generic directory lifecycle automation until an enterprise SSO milestone proves the narrower login + JIT wedge first
 - Any theme that primarily expands generic admin CRUD, hosted-control-plane behavior, or authz policy rather than the auth control plane itself.
@@ -245,9 +247,20 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — v1.29 SUITE-INTEGRATION (opened 2026-05-27)
+### Active — next milestone (TBD)
 
-Requirements TBD — written to [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) after the requirements step of `/gsd-new-milestone` completes. Roadmap phases continue from **Phase 131**.
+No milestone is currently active. Requirements will be written to [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) after `/gsd-new-milestone`. Roadmap phases continue from **Phase 136** (next milestone starts at **Phase 137**).
+
+### Validated — v1.29 SUITE-INTEGRATION (shipped 2026-05-29)
+
+_See [`.planning/milestones/v1.29-REQUIREMENTS.md`](milestones/v1.29-REQUIREMENTS.md), [`.planning/milestones/v1.29-ROADMAP.md`](milestones/v1.29-ROADMAP.md), and [`.planning/milestones/v1.29-MILESTONE-AUDIT.md`](milestones/v1.29-MILESTONE-AUDIT.md) for the archived bounded contract (16/16 satisfied)._
+
+- ✓ **TL-01..TL-05, FB-01** — `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline`/`Noop` + optional `Sigra.Workers.AuditForward` worker; `:auto`/`:async`/`:sync` dispatch; `[:sigra,:audit,:forward,:ok|:error]` telemetry; optional-dep safe; Sigra audit row stays source-of-truth — **Phase 131**
+- ✓ **RC-01, RC-02** — Threadline canary recipe + Mailglass host-owned-wiring recipe under `guides/recipes/companion-libs/` — **Phase 132**
+- ✓ **NX-01** — `guides/introduction/suite-integration.md` suite narrative + ecosystem diagram + fan-out matrix + README pointer — **Phase 133**
+- ✓ **RC-03..RC-06** — Accrue, Lockspire, Relyra, Rulestead recipe-only companion-lib docs — **Phase 134**
+- ✓ **EX-01** — runnable end-to-end Threadline forwarder demo in `test/example/` proven on existing CI lanes — **Phase 135**
+- ✓ **PROOF-01, DOC-01** — six-gate proof bundle (full suite + dep-off lane + example app + `mix docs --warnings-as-errors` exit 0) + v1.25 EMAIL-RAILS Mailglass-narrative corrigendum — **Phase 136**
 
 ### Validated — v1.28 DATA-LIFECYCLE (shipped 2026-05-27)
 
@@ -650,4 +663,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-28 — Phase 136 (Verification Proof Bundle + Narrative-Honesty Corrigendum) shipped (PROOF-01, DOC-01). PROOF-01 proof bundle run on release-branch HEAD — five hard test/docs gates green (full `mix test` 2252/0, `test/sigra/audit/` 60/0, dep-off lane 2246/0, `test/example/` 236/0, `mix docs --warnings-as-errors` exit 0); `mix credo --strict` recorded as a non-CI-enforced local advisory (506 pre-existing library style/design issues disclosed, non-blocking — the 2 enforced custom Sigra checks pass). Per-phase `131–136-VERIFICATION.md` all filed with canonical dash-prefix names (132 history-preserving rename, 133 backfilled). DOC-01 v1.25 EMAIL-RAILS Mailglass corrigendum landed across MILESTONES.md/PROJECT.md/CHANGELOG.md (the library-resident adapter + `--with-mailglass` flag did not land; recipe-only host-owned `Sigra.Mailer` posture). PROOF-01 + DOC-01 reconciled in-place; the v1.29 milestone archive is deferred to the downstream `/gsd-complete-milestone` + `/gsd-audit-milestone` step (D-05). Verified passed (5/5 must-haves). **All v1.29 SUITE-INTEGRATION phases (131–136) complete — milestone ready for archive.***
+*Last updated: 2026-05-28 — Phase 136 (Verification Proof Bundle + Narrative-Honesty Corrigendum) shipped (PROOF-01, DOC-01). PROOF-01 proof bundle run on release-branch HEAD — five hard test/docs gates green (full `mix test` 2252/0, `test/sigra/audit/` 60/0, dep-off lane 2246/0, `test/example/` 236/0, `mix docs --warnings-as-errors` exit 0); `mix credo --strict` recorded as a non-CI-enforced local advisory (506 pre-existing library style/design issues disclosed, non-blocking — the 2 enforced custom Sigra checks pass). Per-phase `131–136-VERIFICATION.md` all filed with canonical dash-prefix names (132 history-preserving rename, 133 backfilled). DOC-01 v1.25 EMAIL-RAILS Mailglass corrigendum landed across MILESTONES.md/PROJECT.md/CHANGELOG.md (the library-resident adapter + `--with-mailglass` flag did not land; recipe-only host-owned `Sigra.Mailer` posture). PROOF-01 + DOC-01 reconciled in-place. **v1.29 SUITE-INTEGRATION shipped and archived on 2026-05-29 via `/gsd-complete-milestone` — milestone audit passed (16/16 requirements, 6/6 phases, 5/5 integration, 2/2 flows); ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.29-*`, live `REQUIREMENTS.md` removed for the next milestone, tagged `v1.29`.***

@@ -1,6 +1,50 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.28 section added at milestone close (2026-05-27). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumes the cadence.*
+*Living document updated at milestone boundaries. v1.29 section added at milestone close (2026-05-29). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumed the cadence.*
+
+## Milestone: v1.29 — SUITE-INTEGRATION (Companion-Library Integration)
+
+**Shipped:** 2026-05-29
+**Phases:** 6 (131, 132, 133, 134, 135, 136) | **Plans:** 13 (`131-01`..`131-06`, `132-01`, `133-01`, `134-01`, `135-01`, `136-01`..`136-03`)
+**Git range:** `5026262`..HEAD — ~133 commits, 110 files changed, +19,460 / −67 (~17k of which is recipe/narrative docs)
+**Timeline:** 2 days — 2026-05-27 → 2026-05-28
+
+### What was built
+
+- **TL-01..TL-05 / FB-01** — `Sigra.Audit.Forwarder` single-callback behaviour + `Sigra.Audit.Forwarders.Threadline` telemetry-tap impl + `Noop` fallback + optional `Sigra.Workers.AuditForward` Oban worker. `:auto`/`:async`/`:sync` dispatch on the `Sigra.Delivery` precedent; `[:sigra,:audit,:forward,:ok|:error]` telemetry; whole impl wrapped in `Code.ensure_loaded?(Threadline)` with a one-shot boot warning; the Sigra audit DB row stays source-of-truth (post-commit projection, never a destination swap, never rolls back the originating txn). The only new library code in the milestone.
+- **RC-01..RC-06 / NX-01** — six companion-library recipes under `guides/recipes/companion-libs/` (Threadline, Mailglass, Accrue, Lockspire, Relyra, Rulestead) on a uniform template + `guides/introduction/suite-integration.md` narrative (ASCII diagram, fan-out matrix, Diminishing Returns Wall), all under a new ExDoc "Companion Libraries" group with no orphan pages.
+- **EX-01** — `test/example/` extended with a runnable Sigra→Threadline audit projection demo: dev/test dep + ordered migrations + dual `forwarders:` config + an integration test asserting a `session.create` audit event materializes as a Threadline `audit_actions` row joined on `correlation_id`, green on existing CI lanes (no new top-level `examples/`).
+- **PROOF-01 / DOC-01** — six-gate proof bundle green on release-branch HEAD (full suite 2252, audit suite 60, dep-off lane 2246 with Threadline absent, example app 236, `mix docs --warnings-as-errors` exit 0); `131-VERIFICATION.md`..`136-VERIFICATION.md` filed; v1.25 EMAIL-RAILS Mailglass overclaim corrected across MILESTONES.md/PROJECT.md/CHANGELOG.md.
+
+### What worked
+
+- **Bounded "one piece of new library code" framing** — deciding up front that only the Threadline forwarder was library code (everything else recipe/narrative/`test/example/`) kept the milestone honest to the Diminishing Returns Wall and made phase scoping trivial.
+- **Behaviour-first (Phase 131 before any 2nd forwarder)** — locking `Sigra.Audit.Forwarder` + the `forwarders:` config shape before recipes/demo pinned against it meant the canary recipe, the demo, and the example config all referenced a frozen contract.
+- **Real E2E demo as the integration proof** — the `test/example/` DB round-trip test (Phase 135) caught the RC-01 config-drift class of bug that prose review would have missed; the milestone audit's "verbatim paste fires `:forward:error`" finding came directly from having a runnable reference.
+
+### What was inefficient
+
+- **Recipe config drift slipped past phase verification** — RC-01 (threadline.md shipped `endpoint:`/`api_key:`, omitted the required `repo:` key) and CR-01 (accrue/audit-logging referenced a non-existent `log/1`/`log/3`) were both caught only at milestone audit, requiring two post-verification quick tasks (`260528-nwa`, `260528-sbn`). Recipe-contract test fixtures (deferred) would have caught the config-block divergence between validator, recipe, and example mechanically.
+- **Three audit passes to close** — gaps_found → tech_debt → passed. The doc-debt (mailglass corrigendum present-tense pointer, `~> 1.29` vs `~> 0.2` self-pins) was avoidable drift that a version-pin lint would have flagged before the first audit.
+- **Quick-task status frontmatter again unstamped** — same bookkeeping miss as v1.28: `gsd-sdk query audit-open` flagged two genuinely-complete quick tasks as open at close because they lacked a `status: complete` field.
+
+### Patterns established
+
+- **`guides/recipes/companion-libs/<name>.md` subdir convention** + ExDoc "Companion Libraries" group as the home for all future companion-lib recipes, on a uniform template (`validated_against:`/`last_validated:` frontmatter, `mix.exs` snippet, "Failure modes", "Non-goals", standalone banner).
+- **`Sigra.Audit.Forwarders.*` naming** ("Forwarders" not "Adapters") to signal projection-not-destination-swap semantics — applies to any future post-commit audit sink.
+- **Extend `test/example/` over new top-level `examples/`** — reaffirmed; existing CI lanes cover it and it avoids re-opening the Phase 114 nested-example-app drift.
+
+### Key lessons
+
+- A runnable reference example is worth more than recipe prose for catching integration drift — the config block an adopter pastes must be byte-for-byte identical across validator, recipe, and example, and only an executable test enforces that.
+- Version-pin and present-tense-pointer drift in docs is a recurring, cheap-to-prevent audit gap; a lint over recipe self-pins and corrigendum pointers would remove a whole audit pass.
+
+### Cost observations
+
+- Lowest-code milestone in recent memory: 1 new library module, ~17k of the diff is documentation. Three audit passes added overhead but each was a focused doc-only quick task, not re-execution.
+- Quick tasks `260528-nwa` / `260528-sbn` were the right tool for post-verification doc-debt closure — atomic, doc-only, no library wiring touched, `mix docs --warnings-as-errors` re-verified exit 0.
+
+---
 
 ## Milestone: v1.28 — DATA-LIFECYCLE (Compliance Export & Data Lifecycle)
 

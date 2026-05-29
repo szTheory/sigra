@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.29
 milestone_name: SUITE-INTEGRATION
-status: verifying
-last_updated: "2026-05-28T20:11:45.396Z"
-last_activity: 2026-05-28
+status: Awaiting next milestone
+last_updated: "2026-05-29T00:36:51.852Z"
+last_activity: 2026-05-29 — Milestone v1.29 completed and archived
 progress:
   total_phases: 6
   completed_phases: 6
@@ -21,26 +21,34 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 136 — verification-proof-bundle-narrative-honesty-corrigendum
+**Current focus:** Planning next milestone (v1.29 SUITE-INTEGRATION shipped + archived 2026-05-29)
 
 ## Current Position
 
-Phase: 136
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-05-29 - Completed quick task 260528-sbn: fix v1.29 doc debt (mailglass corrigendum pointer + recipe version-pin alignment IN-01)
-Resume file: None
+Phase: Milestone v1.29 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-05-29 — Milestone v1.29 completed and archived
 
 ## Accumulating Context
 
+- `v1.29 SUITE-INTEGRATION` shipped + archived 2026-05-29: Threadline audit forwarder (only new library code), six companion-lib recipes, suite narrative, `test/example/` demo, proof bundle + v1.25 Mailglass corrigendum. Milestone audit passed (16/16). Next milestone starts at Phase 137.
 - `v1.28 DATA-LIFECYCLE` shipped 2026-05-27: versioned auth/account export, schedule/cancel/execute deletion semantics, generated-host parity, release-readiness proof.
-- v1.29 SUITE-INTEGRATION is now active. Phases continue from 131 (no reset).
 - Roadmap is the lowest-code milestone in recent memory: exactly one new library module (`Sigra.Audit.Forwarders.Threadline` + behaviour + Noop + optional worker); everything else is recipes, narrative, and `test/example/` extension.
 - Mailglass disposition is locked: recipe-only in v1.29; the orphaned Phase 111/114 library-resident adapter does NOT re-land here. Phase 136 DOC-01 corrigendum corrects the v1.25 narrative.
 - `Sigra.OptionalDeps` SOT and `mix sigra.doctor` are both explicitly deferred out of v1.29; existing scattered-`Code.ensure_loaded?` precedent stands.
 - Research basis: `.planning/research/SUMMARY.md` (HIGH confidence; verified against repo HEAD on `v1.28-data-lifecycle` and hex.pm on 2026-05-27).
 
 ## Deferred Items
+
+Items acknowledged and deferred at v1.29 milestone close on 2026-05-29 (non-blocking; classified standing-posture by the passing v1.29 milestone audit):
+
+| Category | Item | Status |
+|----------|------|--------|
+| todo | 2026-05-28-phase-134-recipe-residual-findings.md | deferred — WR-02/WR-05 sister-repo contract checks (lockspire `resolve_account/2` shape, rulestead `RulesteadPolicy @behaviour`) unverifiable without sister-repos in tree; verify-when-available |
+| todo | 2026-05-28-phase-135-review-deferred-findings.md | deferred — Threadline 0.6.0 vs `~> 0.5` pin brings 3 migrations not 2 (API-compatible, tests green); upstream Threadline generated-DDL concern |
+| standing | credo `--strict` 506 advisory issues in library code | deferred — pre-existing, non-CI-enforced (mix.exs:120 dev/test-only); 2 custom enforced checks pass; not v1.29-accrued |
+| standing | Nyquist formal sign-off (131/134/135 draft, 132/133/136 N/A) | deferred — runtime coverage comprehensive (PROOF-01); consistent with project's retroactive-validation pattern |
 
 Items acknowledged and deferred at v1.26 milestone close on 2026-05-25 (still pending after v1.28; promoted into v1.29 active scope):
 
@@ -77,8 +85,7 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 
 ## Operator Next Steps
 
-- Plan Phase 131 with `/gsd-plan-phase 131`: forwarder behaviour + Threadline impl + Noop fallback + optional Oban worker + boundary doctrine.
-- Phases 132 → 136 execute in order after 131; Phase 134 may parallelize with Phase 133 if planning budget allows.
+- Start the next milestone with /gsd:new-milestone
 
 ### Blockers
 
