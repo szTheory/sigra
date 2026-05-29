@@ -27,7 +27,7 @@ Sigra owns the **seam** — the callback that fires at membership add/remove and
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 1.29"},
+    {:sigra, "~> 0.2"},
     {:accrue, "~> 1.2"},
     # ... your other deps
   ]

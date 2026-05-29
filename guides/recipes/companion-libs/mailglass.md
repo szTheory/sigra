@@ -32,7 +32,7 @@ delegates to a Mailglass-backed module; Sigra has no direct dependency on Mailgl
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 1.29"},
+    {:sigra, "~> 0.2"},
     {:mailglass, "~> 1.2"},
     # ... your other deps
   ]
