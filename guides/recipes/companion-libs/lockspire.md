@@ -1,8 +1,8 @@
 <!-- validated_against: lockspire ~> 1.2 -->
-<!-- last_validated: 2026-05-28 -->
+<!-- last_validated: 2026-05-29 -->
 # Recipe: Sigra + Lockspire (embedded OAuth/OIDC provider)
 
-Validated against: `lockspire ~> 1.2` as of 2026-05-28
+Validated against: `lockspire ~> 1.2` (`def616d`) as of 2026-05-29
 
 > **Sigra works fully standalone.** Lockspire is an optional integration; Sigra ships without it, and removing the wiring below returns Sigra to standalone operation with no further changes.
 
@@ -91,7 +91,10 @@ defmodule MyApp.AccountResolver do
 
   @impl Lockspire.Host.AccountResolver
   def resolve_account(account_reference, _context) do
-    MyApp.Accounts.get_user(account_reference)
+    case MyApp.Accounts.get_user(account_reference) do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
   end
 
   @impl Lockspire.Host.AccountResolver
