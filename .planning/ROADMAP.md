@@ -104,7 +104,12 @@
   3. The Lockspire `resolve_account/2` return-shape contract is verified against the sister repo where it resolves; where it does not resolve, the assumed contract is documented explicitly in the recipe and the tracked todo is updated honestly.
   4. The Rulestead policy `@behaviour` contract is verified against the sister repo where it resolves; otherwise documented explicitly in the recipe and the tracked todo (the phase cannot hard-block on unavailable sister repos).
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+**Wave 1** *(independent — runs in parallel with 137/138)*
+
+  - [ ] 139-01-PLAN.md — Create companion-lib recipe contract fixture (RCT-01)
+  - [ ] 139-02-PLAN.md — Fix Lockspire/Rulestead recipe contracts + close folded todo (RCV-01, RCV-02)
 
 #### Phase 140: Deprecation Hygiene + Verification & Docs Close
 
