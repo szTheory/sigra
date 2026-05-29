@@ -241,7 +241,7 @@ defmodule Sigra.Crypto do
   # -- Private helpers --
 
   defp bcrypt_verify(password, hashed_password) do
-    if Code.ensure_loaded?(Bcrypt) do
+    if Sigra.OptionalDeps.bcrypt_available?() do
       Sigra.Hashers.Bcrypt.verify_password(password, hashed_password)
     else
       # bcrypt_elixir not available -- cannot verify bcrypt hashes

@@ -1056,7 +1056,7 @@ defmodule Sigra.MFA do
   end
 
   defp generate_qr_svg(otpauth_uri) do
-    if Code.ensure_loaded?(EQRCode) do
+    if Sigra.OptionalDeps.eqrcode_available?() do
       otpauth_uri
       |> EQRCode.encode()
       |> EQRCode.svg(width: 200)

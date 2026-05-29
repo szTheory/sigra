@@ -36,7 +36,7 @@ defmodule Sigra.Hashers.Bcrypt do
 
   @impl Sigra.Hasher
   def no_user_verify do
-    if Code.ensure_loaded?(Bcrypt) do
+    if Sigra.OptionalDeps.bcrypt_available?() do
       Bcrypt.no_user_verify()
     else
       # Fall back to Argon2 timing if bcrypt not available
@@ -45,7 +45,7 @@ defmodule Sigra.Hashers.Bcrypt do
   end
 
   defp ensure_loaded! do
-    unless Code.ensure_loaded?(Bcrypt) do
+    unless Sigra.OptionalDeps.bcrypt_available?() do
       raise """
       bcrypt_elixir is required for bcrypt hash operations.
 
