@@ -74,7 +74,7 @@ defmodule Sigra.OAuth.Strategies.Github do
   @doc since: "0.1.0"
   @spec ensure_assent!() :: :ok
   def ensure_assent! do
-    unless Code.ensure_loaded?(Assent) do
+    unless Sigra.OptionalDeps.assent_available?() do
       raise "Assent is required for OAuth. Add {:assent, \"~> 0.3\"} to mix.exs and run: mix deps.get"
     end
 
