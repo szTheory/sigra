@@ -540,7 +540,7 @@ defmodule Sigra.Account do
   domain update and audit share one transaction.
   """
   @doc since: "0.9.0"
-  @deprecated "Use clear_password_change_requirement/3 when :audit_schema is configured; do not call this function for the same forced-clear completion or you may duplicate audit rows."
+  @deprecated "Use clear_password_change_requirement/3 when :audit_schema is configured; do not call this function for the same forced-clear completion or you may duplicate audit rows. Scheduled for removal in 0.5.0."
   @spec audit_forced_password_change(keyword(), term()) :: :ok
   def audit_forced_password_change(opts, user_id) do
     # 15-02 Category 2: user is resolved via id-only; build a minimal
