@@ -242,6 +242,15 @@ Two live deprecated functions have committed removal schedules:
 
 Removal process: each removal-target version will carry a CHANGELOG entry and the function body will be deleted (not just the annotation). Removal targets are expressed as Hex SemVer `0.x` minors, consistent with the pre-1.0 policy above.
 
+### Dual version axes — why HexDocs renders "since 0.9.0 / removal 0.5.0" (intentional)
+
+Sigra carries **two coexisting version axes**, and a deprecated function's rendered HexDocs header can therefore show a removal target *numerically lower* than its `@doc since:` value. This is a known, accepted convention — not a bug:
+
+- **Hex-published SemVer axis** — what `mix.exs` `@version` tracks (currently `0.x`). **Removal targets** (`0.4.0`, `0.5.0`) are chosen on this axis and are correctly *future* relative to the published version.
+- **Internal milestone/planning axis** — the `@doc since:` annotations across `lib/` are keyed to the milestone numbering (which runs ahead, e.g. `0.6.0`, `0.9.0`, up to `0.11.0`), **not** the Hex release axis.
+
+Because the two axes share a `0.x` shape, ExDoc renders both numbers in one header (`cookie_opts/0`: since 0.6.0, removal 0.4.0; `audit_forced_password_change/2`: since 0.9.0, removal 0.5.0), producing an apparent inversion. The **removal targets are authoritative and correct** (Hex axis); the `since:` values are milestone-axis labels. Fully reconciling this would mean re-keying every `@doc since:` in the library onto the Hex SemVer axis — a deliberate, separate, library-wide change tracked in `.planning/todos/pending/2026-05-29-deprecation-since-vs-removal-version-axis.md`, not a milestone-close edit. Until that lands, read "removal in X" as the Hex-axis commitment and treat `since:` as informational. (Cosmetic: ExDoc also appends a trailing period, rendering `0.5.0..` / `0.4.0..` — harmless.)
+
 ## Planning hygiene (without gsd-tools JSON)
 
 Reliance on **`gsd-tools audit-open --json`** is **deprecated** for this repository. The upstream helper has been unreliable; Sigra maintainers should use **grep-driven** checks over `.planning/phases/` instead.

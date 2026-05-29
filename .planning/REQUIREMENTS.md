@@ -12,8 +12,8 @@ Requirements for the v1.30 milestone. Each maps to exactly one roadmap phase.
 
 ### Optional-Dependency Source of Truth
 
-- [ ] **OD-01**: A `Sigra.OptionalDeps` module exposes a per-dependency `available?/0` (or equivalent) for every optional dependency Sigra guards today (Oban, Bcrypt, EQRCode, Threadline, Assent, Swoosh, Joken, cloak/encryption), as a single canonical source of truth.
-- [ ] **OD-02**: The scattered `Code.ensure_loaded?` guards across library call sites delegate to `Sigra.OptionalDeps`, with no runtime behavior change — proven by the existing dep-off CI lanes staying green.
+- [x] **OD-01**: A `Sigra.OptionalDeps` module exposes a per-dependency `available?/0` (or equivalent) for every optional dependency Sigra guards today (Oban, Bcrypt, EQRCode, Threadline, Assent, Swoosh, Joken, cloak/encryption), as a single canonical source of truth.
+- [x] **OD-02**: The scattered `Code.ensure_loaded?` guards across library call sites delegate to `Sigra.OptionalDeps`, with no runtime behavior change — proven by the existing dep-off CI lanes staying green.
 
 ### Operator Diagnostics
 
@@ -72,8 +72,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OD-01 | Phase 137 | Pending |
-| OD-02 | Phase 137 | Pending |
+| OD-01 | Phase 137 | Complete |
+| OD-02 | Phase 137 | Complete |
 | DR-01 | Phase 138 | Complete |
 | DR-02 | Phase 138 | Complete |
 | RCT-01 | Phase 139 | Complete |

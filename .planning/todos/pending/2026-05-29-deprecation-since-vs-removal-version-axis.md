@@ -60,3 +60,15 @@ contract clarity defect, not a bug.
 - **IN-02:** `cookie_opts/0` keeps the identical deprecation string in both
   `@doc deprecated:` and `@deprecated`; a maintenance drift hazard. Phase 140
   edited them in lockstep, so currently consistent.
+
+## Decision (v1.30 milestone close, 2026-05-29)
+
+Resolved to **Option 3 — accept + document** at `/gsd-complete-milestone v1.30`.
+Rationale: the removal targets (0.4.0 / 0.5.0) are correct on the authoritative
+Hex SemVer axis; only the `@doc since:` labels sit on the internal milestone axis.
+Re-keying every `since:` library-wide (Option 1) is real churn and out of scope
+for a low-code consolidation close. The dual-axis convention is now documented in
+`MAINTAINING.md` → "Dual version axes" so the rendered inversion reads as
+intentional. **This todo stays open** as the tracking home for a future
+dedicated library-wide `@doc since:` → Hex-axis reconciliation (do NOT guess-fix;
+it remains a deliberate, separate change). No v1.30 code edit.
