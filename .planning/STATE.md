@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
 status: executing
-last_updated: "2026-05-29T12:21:29.051Z"
+last_updated: "2026-05-29T14:39:48.748Z"
 last_activity: 2026-05-29 -- Phase 137 execution started
 progress:
-  total_phases: 91
-  completed_phases: 75
-  total_plans: 231
-  completed_plans: 237
-  percent: 82
+  total_phases: 10
+  completed_phases: 7
+  total_plans: 16
+  completed_plans: 16
+  percent: 70
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: `.planning/PROJECT.md`
 Phase: 137 (optional-dependency-source-of-truth) — EXECUTING
 Plan: 1 of 3
 Status: Executing Phase 137
-Resume file: `.planning/phases/137-optional-dependency-source-of-truth/137-CONTEXT.md`
+Resume file: .planning/phases/138-mix-sigra-doctor-operator-diagnostic/138-CONTEXT.md
 Last activity: 2026-05-29 -- Phase 137 execution started
 Progress: [____________________] 0/4 phases
 
@@ -76,6 +76,8 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 
 ### Decisions
 
+- **Milestone-boundary assessment (2026-05-29, mid-v1.30):** repo-grounded done-band is **90–95% (near-done / diminishing returns soon)** for stated scope — every major auth flow is real + tested. **Adoption evidence is NOT a blocker**: the E2E / install-verification / happy-path automation backbone already exists and is strong. The one genuine gap is narrow — an empty `test/example/priv/repo/seeds.exs` and no evaluator-facing demo *showcase*. Recommended next build after v1.30 = **"Demo Showcase"** (seed-rich, persona-driven, one-command spin-up; extend `test/example/`, not a new repo), then **1.0 Hex cut + adoption push** (the honest bottleneck is absence of real adopters, not features). Full investigation: `.planning/threads/adoption-evidence-and-demo-showcase.md`; learnings + 2 graduation candidates in `137-LEARNINGS.md`.
+- **STATE-vs-git drift note (2026-05-29):** the `## Current Position` progress block below ("Plan 1 of 3", "0/4 phases") is stale — git log shows Phase 137 plans 137-02 and 137-03 already merged (`eb64903`, `a945a9b`, `523b631`), so Phase 137 is largely executed. STATE.md is the lowest-precedence session-handoff doc; trust git/ROADMAP. (Block left intact per assessment scope — corrective note only.) Working branch name `v1.28-data-lifecycle` is also stale vs active milestone v1.30.
 - Created the `v1.30 TRUST-HARDENING` roadmap on 2026-05-29: Phases 137–140, continuing from v1.29's Phase 136. Derived 4 phases (favoring tight consolidation over `fine`-granularity sprawl) from the 11 requirements. Sequencing honors OD-before-doctor (Phase 137 feeds Phase 138), keeps recipe-contract/sister-repo work an independent track (Phase 139), and bundles deprecation hygiene + PROOF-01 + DOC-01 into the final close (Phase 140) per prior-milestone precedent (v1.28 Phase 130, v1.29 Phase 136).
 - Phase 139 carries the document-the-assumption fallback for RCV-01/RCV-02 so unavailable sister repos cannot hard-block the milestone.
 - Shipped `v1.28 DATA-LIFECYCLE` on 2026-05-27 with four phases: versioned export, deletion lifecycle truth, generated-host/docs parity, and verification/release readiness.
