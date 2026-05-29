@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
-status: planning
-last_updated: "2026-05-29T21:21:54.640Z"
+status: roadmap_created
+last_updated: "2026-05-29"
 last_activity: 2026-05-29
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,86 +21,67 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Milestone complete
+**Current focus:** v1.31 DEMO-SHOWCASE — roadmap created, ready for Phase 141 planning
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 141 (Seed Data Layer) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-29 — Milestone v1.31 started
+Status: Roadmap created; awaiting `/gsd-plan-phase 141`
+Last activity: 2026-05-29 — v1.31 DEMO-SHOWCASE roadmap created (Phases 141–144, 14/14 requirements mapped)
+
+```
+Phase progress: [                    ] 0% (0/4 phases)
+```
 
 ## Accumulating Context
 
-- `v1.30 TRUST-HARDENING` roadmap created 2026-05-29: 4 phases (137–140), 11/11 requirements mapped. Phase 137 `Sigra.OptionalDeps` SOT + guard consolidation (OD-01/OD-02) → Phase 138 `mix sigra.doctor` diagnostic (DR-01/DR-02, depends on 137) → Phase 139 recipe-contract fixture + Lockspire/Rulestead sister-repo verification (RCT-01/RCV-01/RCV-02, independent track, document-the-assumption fallback) → Phase 140 deprecation-removal timelines + verification + docs close (DEPR-01/DEPR-02/PROOF-01/DOC-01). Low-code consolidation milestone; honors the Diminishing Returns Wall.
-- `v1.29 SUITE-INTEGRATION` shipped + archived 2026-05-29: Threadline audit forwarder (only new library code), six companion-lib recipes, suite narrative, `test/example/` demo, proof bundle + v1.25 Mailglass corrigendum. Milestone audit passed (16/16). Next milestone starts at Phase 137.
-- `v1.28 DATA-LIFECYCLE` shipped 2026-05-27: versioned auth/account export, schedule/cancel/execute deletion semantics, generated-host parity, release-readiness proof.
-- Roadmap is the lowest-code milestone in recent memory: exactly one new library module (`Sigra.Audit.Forwarders.Threadline` + behaviour + Noop + optional worker); everything else is recipes, narrative, and `test/example/` extension.
-- Mailglass disposition is locked: recipe-only in v1.29; the orphaned Phase 111/114 library-resident adapter does NOT re-land here. Phase 136 DOC-01 corrigendum corrects the v1.25 narrative.
-- `Sigra.OptionalDeps` SOT and `mix sigra.doctor` are both explicitly deferred out of v1.29; existing scattered-`Code.ensure_loaded?` precedent stands.
-- Research basis: `.planning/research/SUMMARY.md` (HIGH confidence; verified against repo HEAD on `v1.28-data-lifecycle` and hex.pm on 2026-05-27).
+- `v1.31 DEMO-SHOWCASE` roadmap created 2026-05-29: 4 phases (141–144), 14/14 requirements mapped. Phase 141 Seed Data Layer (SEED-01..06, hard dependency for all later phases, owns full security posture) → Phase 142 Dev Credentials Page & App Framing (DEMO-01/DEMO-02, depends on 141) → Phase 143 Playwright Demo Spec & Screenshots (PW-01/PW-02/PW-03, depends on 141) → Phase 144 README Evaluator Lane & Docs/Proof (DOC-01/DOC-02/DOC-03, depends on 141 + 143). Seeds-first / proof-last invariant honored per SUMMARY.md firm ordering rule.
+- Granularity config is "fine" but this is a low-net-new-code milestone (data + one dev LiveView + Playwright + docs). 4 phases map cleanly to natural delivery boundaries without artificial padding.
+- Key architectural decisions locked in SUMMARY.md: no Faker dep (determinism); deterministic demo-only TOTP secret is acceptable behind the `Mix.env()==:test` guard; 6 persona roster (admin/alice/bob/carol/dave/frank); email domains `@demo.sigra.dev` (seeded) vs `@example.test` (golden-path) are an enforced invariant; Argon2 dev cost override `t_cost: 2, m_cost: 12` in `dev.exs` (not `t_cost: 1, m_cost: 8`).
+- `v1.30 TRUST-HARDENING` shipped + archived 2026-05-29 (Phases 137–140, 11/11 requirements). Phase 141 continues the sequential numbering.
+
+## Research Flags (Surface at Phase 141 Plan Time)
+
+These require quick codebase confirmation before writing seed insert code — not pre-planning research, just spot-checks:
+
+| Flag | What to Confirm | Impact if Wrong |
+|------|-----------------|-----------------|
+| `user_identities` schema fields | Exact column names for Carol's OAuth identity insert | Wrong column names cause compile/runtime failure on seed run |
+| `EnterpriseConnection` schema shape | Required fields + column names for Acme Corp SSO row | Same — insert fails if fields are wrong |
+| `Sigra.Testing.setup_totp/2` in dev | Whether the function is available outside `MIX_ENV=test` | If test-only, use direct `Repo.insert!` on `UserMfaCredential` instead |
+| `UserPasskey.create_changeset/2` + Wax | Whether inserting a passkey display row triggers Wax ceremony validation | If yes, skip the passkey display row and note as deferred; avoid fabricated COSE key issues |
 
 ## Deferred Items
 
-Items acknowledged and deferred at v1.30 milestone close on 2026-05-29 (non-blocking; all classified non-blocking tech debt by the v1.30 milestone audit, which found zero unsatisfied requirements):
+Items acknowledged and deferred at v1.30 milestone close on 2026-05-29 (non-blocking; carried forward):
 
 | Category | Item | Status |
 |----------|------|--------|
 | todo | 2026-05-28-phase-135-review-deferred-findings.md | deferred — cross-milestone (v1.29/Phase 135), out of v1.30 scope; Threadline 0.6.0 vs `~> 0.5` pin + upstream generated-DDL concern |
-| todo | 2026-05-29-deprecation-since-vs-removal-version-axis.md | deferred BY DESIGN — WR-01 resolved at this close to "accept + document" (dual-axis note added to MAINTAINING.md); todo kept open as the tracking home for a future library-wide `@doc since:` → Hex-axis re-keying |
-| todo | 2026-05-29-phase-138-doctor-info-findings.md | deferred — Phase 138 Info findings IN-01 (`:quiet` docstring inaccuracy), IN-02 (`bcrypt_configured?/1` hardcoded false), IN-03 (test-8 CWD-relative source grep); low-priority maintainability/doc/test-hygiene; the stated Phase-140 fold-in did not happen, carried forward |
-| process (resolved at close) | 3 SDK-reported "open" quick_tasks (260527-bsd, 260528-nwa, 260528-sbn) | NOT open — all complete with SUMMARY.md + recorded in Quick Tasks Completed; `audit-open` false positive (documented SDK unreliability, MAINTAINING.md "Planning hygiene without gsd-tools JSON") |
+| todo | 2026-05-29-deprecation-since-vs-removal-version-axis.md | deferred BY DESIGN — WR-01 resolved at v1.30 close to "accept + document"; tracking home for future `@doc since:` → Hex-axis re-keying |
+| todo | 2026-05-29-phase-138-doctor-info-findings.md | deferred — Phase 138 Info findings IN-01/IN-02/IN-03; low-priority maintainability/doc/test-hygiene |
 
-Items acknowledged and deferred at v1.29 milestone close on 2026-05-29 (non-blocking; classified standing-posture by the passing v1.29 milestone audit):
-
-| Category | Item | Status |
-|----------|------|--------|
-| todo | 2026-05-28-phase-134-recipe-residual-findings.md | deferred — WR-02/WR-05 sister-repo contract checks (lockspire `resolve_account/2` shape, rulestead `RulesteadPolicy @behaviour`) unverifiable without sister-repos in tree; verify-when-available |
-| todo | 2026-05-28-phase-135-review-deferred-findings.md | deferred — Threadline 0.6.0 vs `~> 0.5` pin brings 3 migrations not 2 (API-compatible, tests green); upstream Threadline generated-DDL concern |
-| standing | credo `--strict` 506 advisory issues in library code | deferred — pre-existing, non-CI-enforced (mix.exs:120 dev/test-only); 2 custom enforced checks pass; not v1.29-accrued |
-| standing | Nyquist formal sign-off (131/134/135 draft, 132/133/136 N/A) | deferred — runtime coverage comprehensive (PROOF-01); consistent with project's retroactive-validation pattern |
-
-Items acknowledged and deferred at v1.26 milestone close on 2026-05-25 (still pending after v1.28; promoted into v1.29 active scope):
+Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future Requirements):
 
 | Category | Item | Status |
 |----------|------|--------|
-| todo | 2026-05-08-write-accrue-integration-recipe.md | promoted → Phase 134 (RC-03) |
-| todo | 2026-05-08-write-lockspire-integration-recipe.md | promoted → Phase 134 (RC-04) |
-| todo | 2026-05-08-write-relyra-integration-recipe.md | promoted → Phase 134 (RC-05) |
-| todo | 2026-05-08-write-rulestead-integration-recipe.md | promoted → Phase 134 (RC-06) |
-| todo | 2026-05-08-write-threadline-integration-recipe.md | promoted → Phase 132 (RC-01) |
-| seed | SEED-011-ecosystem-integrations | active — backing v1.29 SUITE-INTEGRATION |
-
-Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
-
-| Category | Item | Status |
-|----------|------|--------|
-| refactor | `Sigra.OptionalDeps` SOT consolidation | deferred (no v1.29 trigger; existing scattered guards sound) |
-| task | `mix sigra.doctor` adopter-facing diagnostic | deferred (referenced in v1.21 HARD-02 narrative but never shipped) |
-| recovery | Re-land orphaned Phase 111/114 Mailglass adapter | deferred (separate quick task; current call: drop orphaned work) |
-| differentiator | Threadline correlation-ID propagation | deferred (v1.30 candidate) |
-| differentiator | Recipe-contract test fixtures | deferred unless Phase 134 has budget |
+| feature | DEMO-03: in-app per-persona explainer banner | deferred — only affordance touching new LiveView beyond credentials page; DEMO-01 covers core need |
+| feature | Playwright seeds-smoke with full persona CDP virtual-authenticator exercise | may land in Phase 143 if budget permits; otherwise post-milestone polish |
+| feature | Carol OAuth row direct `user_identities` insert | deferred pending schema confirmation; Phase 141 research flag |
 
 ### Decisions
 
-- **Milestone-boundary assessment (2026-05-29, mid-v1.30):** repo-grounded done-band is **90–95% (near-done / diminishing returns soon)** for stated scope — every major auth flow is real + tested. **Adoption evidence is NOT a blocker**: the E2E / install-verification / happy-path automation backbone already exists and is strong. The one genuine gap is narrow — an empty `test/example/priv/repo/seeds.exs` and no evaluator-facing demo *showcase*. Recommended next build after v1.30 = **"Demo Showcase"** (seed-rich, persona-driven, one-command spin-up; extend `test/example/`, not a new repo), then **1.0 Hex cut + adoption push** (the honest bottleneck is absence of real adopters, not features). Full investigation: `.planning/threads/adoption-evidence-and-demo-showcase.md`; learnings + 2 graduation candidates in `137-LEARNINGS.md`.
-- **STATE-vs-git drift note (2026-05-29):** the `## Current Position` progress block below ("Plan 1 of 3", "0/4 phases") is stale — git log shows Phase 137 plans 137-02 and 137-03 already merged (`eb64903`, `a945a9b`, `523b631`), so Phase 137 is largely executed. STATE.md is the lowest-precedence session-handoff doc; trust git/ROADMAP. (Block left intact per assessment scope — corrective note only.) Working branch name `v1.28-data-lifecycle` is also stale vs active milestone v1.30.
-- Created the `v1.30 TRUST-HARDENING` roadmap on 2026-05-29: Phases 137–140, continuing from v1.29's Phase 136. Derived 4 phases (favoring tight consolidation over `fine`-granularity sprawl) from the 11 requirements. Sequencing honors OD-before-doctor (Phase 137 feeds Phase 138), keeps recipe-contract/sister-repo work an independent track (Phase 139), and bundles deprecation hygiene + PROOF-01 + DOC-01 into the final close (Phase 140) per prior-milestone precedent (v1.28 Phase 130, v1.29 Phase 136).
-- Phase 139 carries the document-the-assumption fallback for RCV-01/RCV-02 so unavailable sister repos cannot hard-block the milestone.
-- Shipped `v1.28 DATA-LIFECYCLE` on 2026-05-27 with four phases: versioned export, deletion lifecycle truth, generated-host/docs parity, and verification/release readiness.
-- Opened `v1.29 SUITE-INTEGRATION` on 2026-05-27. Phases 131-136. 16 REQ-IDs across Threadline forwarder library code (TL-01..TL-05, FB-01), recipes (RC-01..RC-06), suite narrative (NX-01), reference example (EX-01), and verification + corrigendum (PROOF-01, DOC-01).
-- Adopted ARCHITECTURE.md's `Sigra.Audit.Forwarders.Threadline` naming over STACK.md's `Sigra.Audit.Adapters.Threadline` — "Forwarders" correctly signals "Sigra DB row remains source-of-truth; Threadline is a projection."
-- Adopted `guides/recipes/companion-libs/<name>.md` subdir convention (new ExDoc "Companion Libraries" group) over flat `guides/recipes/`.
-- Adopted "extend `test/example/`" over "new top-level `examples/` directory" — Phase 114 already paid the cost of closing nested-example-app drift; existing CI lanes cover it.
-- Adopted scattered-`Code.ensure_loaded?` precedent for Threadline optional-dep handling; deferred the `Sigra.OptionalDeps` SOT module to a separate refactor.
-- Locked Mailglass posture for v1.29 as **recipe-only**: do NOT re-land the orphaned Phase 111/114 adapter; Phase 136 DOC-01 corrigendum corrects the v1.25 EMAIL-RAILS narrative claim.
-- Treated `--with-threadline` (and any `--with-*`) install flag as out of scope — no precedent in `lib/mix/tasks/sigra.install.ex`.
-- Kept all six companion-lib recipes under a uniform template: `validated_against:` + `last_validated:` frontmatter, `mix.exs` snippet, "Failure modes" section, "Non-goals" section, "Sigra works fully standalone" banner.
-- [Phase ?]: Phase 140 Plan 03: Gate 8 docs-render proof confirms DEPR-01/DEPR-02 render in published doc/; pre-existing env failures recorded verbatim (anti-overclaim)
+- **v1.31 roadmap (2026-05-29):** 4 phases derived from the natural delivery boundary implied by SUMMARY.md's firm ordering rule (seeds → evaluator affordances → Playwright → README/proof). Granularity config is "fine" but the milestone is intentionally low-net-new-code; 4 tight phases are the correct calibration over artificial padding.
+- **Phase numbering:** continues from v1.30's Phase 140; v1.31 phases run 141–144.
+- **Seeds-first invariant:** Phase 141 gates ALL later phases — it owns the security posture (Argon2id cost, `Mix.env()==:test` guard, `@demo.sigra.dev` domain segregation, idempotency). No other phase may touch seeded data before Phase 141 completes.
+- **Playwright partition:** `demo-showcase` project partition is isolated from `chromium`/`mobile`/golden-path runs; never coupled to `mix test`. This preserves CI determinism.
+- **No new Sigra library code:** this milestone adds to `test/example/` only (seeds, one LiveView, Playwright spec, README). Zero changes to `lib/sigra/`.
+- **DEMO-03 deferred:** in-app persona banner overlay is the only affordance requiring new LiveView code beyond the credentials page; the DEMO-01 credentials cheat-sheet covers the core evaluator need. Deferred to post-milestone polish per REQUIREMENTS.md.
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run `/gsd-plan-phase 141` to begin the Seed Data Layer phase
 
 ### Blockers
 

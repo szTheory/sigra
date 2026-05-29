@@ -36,9 +36,94 @@
 - ✅ **v1.29 SUITE-INTEGRATION (Companion-Library Integration)** — Phases **131–136** (shipped **2026-05-29**). See [v1.29 archive](milestones/v1.29-ROADMAP.md), [v1.29 requirements](milestones/v1.29-REQUIREMENTS.md), [v1.29 milestone audit](milestones/v1.29-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.30 TRUST-HARDENING (Operator Confidence & Debt Closure)** — Phases **137–140** (shipped **2026-05-29**). See [v1.30 archive](milestones/v1.30-ROADMAP.md), [v1.30 requirements](milestones/v1.30-REQUIREMENTS.md), [v1.30 milestone audit](milestones/v1.30-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
-## Current State
+## Current Milestone: v1.31 DEMO-SHOWCASE
 
-No milestone is currently active. `v1.30 TRUST-HARDENING` shipped and archived 2026-05-29: a `Sigra.OptionalDeps` single-source-of-truth, the long-promised `mix sigra.doctor` diagnostic, merge-blocking recipe-contract fixtures, sister-repo contract verification, and deprecation-timeline hygiene — a deliberately low-code consolidation deepening already-shipped substrate (4 phases, 11/11 requirements). Consult [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) (re-rank after v1.30) before running `/gsd-new-milestone`. Phases continue from **Phase 141**. Planning precedence: [ROADMAP.md](ROADMAP.md) + phase `*-VERIFICATION.md` / `*-VALIDATION.md` over conflicting [STATE.md](STATE.md) notes.
+**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
+
+## Phases
+
+- [ ] **Phase 141: Seed Data Layer** — Populate `seeds.exs` with 6 deterministic personas, idempotency, and the full security posture
+- [ ] **Phase 142: Dev Credentials Page & App Framing** — Dev-only credentials LiveView at `/demo/credentials` plus realistic SaaS app name in layout
+- [ ] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture
+- [ ] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle
+
+## Phase Details
+
+### Phase 141: Seed Data Layer
+**Goal**: An evaluator running `mix setup` in `test/example/` gets a fully-populated demo database covering all six auth-state personas with zero duplicate rows on re-run, and the example app's security posture matches what Sigra ships to production.
+**Depends on**: Nothing (first phase of milestone; continues from Phase 140)
+**Requirements**: SEED-01, SEED-02, SEED-03, SEED-04, SEED-05, SEED-06
+**Success Criteria** (what must be TRUE):
+  1. Running `mix run priv/repo/seeds.exs` twice in `test/example/` completes without errors and leaves exactly the expected set of persona rows (no duplicates, no failures on second run)
+  2. Running `MIX_ENV=test mix run priv/repo/seeds.exs` raises immediately with a clear error message before touching the test database
+  3. Six distinct personas are present after seeding — admin (TOTP enrolled, multi-org, API token, passkey display row), alice (standard confirmed), bob (TOTP enrolled, org owner), carol (OAuth identity row), dave (locked), frank (scheduled-deletion) — each demonstrating a different auth state observable in the admin UI
+  4. The audit log table contains at least 15 rows covering 6 or more distinct event types after seeding, so the admin audit explorer reads as a live system rather than an empty scaffold
+  5. Seeded passwords satisfy `Sigra.PasswordPolicy.validate/1`, are hashed with real Argon2id at `t_cost: 2, m_cost: 12` (the dev override in `dev.exs`), and the TOTP secret constant is labeled `# Demo-only — intentionally deterministic. Never use in production.`
+
+**Research flags (confirm at plan time):**
+  - Confirm exact `user_identities` schema field names before writing the Carol OAuth insert
+  - Confirm `EnterpriseConnection` schema shape (field names, required columns) before the Acme Corp SSO row
+  - Verify whether `Sigra.Testing.setup_totp/2` is available in `MIX_ENV=dev`; if test-only, seed MFA credentials via direct `Repo.insert!` on `UserMfaCredential`
+  - Confirm `UserPasskey.create_changeset/2` does not fire Wax ceremony validation before inserting the admin passkey display row; if it does, skip the display row and note as deferred
+
+**Plans**: TBD
+**UI hint**: yes
+
+---
+
+### Phase 142: Dev Credentials Page & App Framing
+**Goal**: An evaluator who has run `mix setup && mix phx.server` can open `/demo/credentials` in their browser and see a credentials cheat-sheet listing every persona, its login, and the auth feature it demonstrates — and the app presents itself as a realistic SaaS product rather than a bare test fixture.
+**Depends on**: Phase 141 (credentials page reads from `Example.Demo.Personas` module established in Phase 141)
+**Requirements**: DEMO-01, DEMO-02
+**Success Criteria** (what must be TRUE):
+  1. Navigating to `/demo/credentials` in `MIX_ENV=dev` renders a table listing all six personas with their email, password, and a plain-language description of the auth feature each demonstrates
+  2. The `/demo/credentials` route is absent in `MIX_ENV=test` and `MIX_ENV=prod` — the route guard (`Application.compile_env(:example, :dev_routes)`) prevents it from appearing in non-dev environments
+  3. The example app layout displays a realistic SaaS product name (e.g., "Vaultr") so the demo reads as a purposeful product rather than a scaffold
+  4. Running `mix run priv/repo/seeds.exs` prints a credentials summary block to stdout so evaluators see credentials without needing to navigate to the LiveView first
+
+**Plans**: TBD
+**UI hint**: yes
+
+---
+
+### Phase 143: Playwright Demo Spec & Screenshots
+**Goal**: Automated Playwright coverage exercises the seeded personas' distinct auth states using structural assertions in a dedicated project partition that does not affect the golden-path specs, and evaluator-quality screenshots of the populated app are captured and committed.
+**Depends on**: Phase 141 (spec asserts against seeded personas; screenshots require a populated dev database)
+**Requirements**: PW-01, PW-02, PW-03
+**Success Criteria** (what must be TRUE):
+  1. A `demo-showcase` Playwright project partition exists in `playwright.config.ts`, runs independently of the `chromium` and `mobile` partitions, and can be invoked without affecting the golden-path spec results
+  2. The demo spec asserts each seeded persona's auth state using `data-testid` or structural DOM checks — not persona display-name text — so a persona rename does not break the spec
+  3. Screenshots are captured covering at minimum: login page (populated), admin user list (all 6 personas visible), admin user detail (MFA row, passkey row, API token row), and the audit log explorer (showing event variety); screenshots are committed in the expected output directory
+  4. A seeds-smoke check (ExUnit or Playwright) runs in CI, asserts that seeds are idempotent (run twice, no errors), and verifies each persona's key auth-state column (e.g., `locked_at` is not null for dave, `scheduled_deletion_at` is not null for frank)
+
+**Plans**: TBD
+
+---
+
+### Phase 144: README Evaluator Lane & Docs/Proof
+**Goal**: An evaluator landing on `test/example/README.md` or the `guides/introduction/demo-showcase.md` guide has everything needed to spin up the demo, identify personas, and experience each auth feature — and the milestone proof bundle confirms the full suite and one-command spin-up are green.
+**Depends on**: Phase 141 (README references exact credential strings), Phase 143 (guide embeds committed screenshots)
+**Requirements**: DOC-01, DOC-02, DOC-03
+**Success Criteria** (what must be TRUE):
+  1. `test/example/README.md` contains a "Try it locally" section with: prerequisites block (Elixir 1.18+, Postgres, Docker one-liner), the one-command spin-up (`mix setup && mix phx.server`), a credentials table matching the seeded personas, rough-edge persona callouts (dave's lockout, frank's scheduled deletion), and mentions of `/demo/credentials` and `/dev/mailbox`
+  2. `guides/introduction/demo-showcase.md` exists, walks an evaluator through the populated demo with at least 2 embedded screenshots from Phase 143, and is wired into ExDoc extras
+  3. The proof bundle confirms all of: full test suite green, dep-off CI lane green, `mix setup` completes from a clean state without errors, and screenshots are committed and rendered in the guide
+
+**Plans**: TBD
+**UI hint**: yes
+
+---
+
+## Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 141. Seed Data Layer | 0/? | Not started | - |
+| 142. Dev Credentials Page & App Framing | 0/? | Not started | - |
+| 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
+| 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
+
+---
 
 <details>
 <summary>✅ v1.30 TRUST-HARDENING (Phases 137–140) — SHIPPED 2026-05-29</summary>
@@ -59,37 +144,6 @@ Full phase details, success criteria, and plan breakdowns: [v1.30 archive](miles
 
 **Goal:** Make Sigra compose cleanly with the rest of the szTheory OSS suite — a first-class Threadline audit forwarder (the only new library code) plus recipe coverage for the other companion libraries (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead) and a coherent suite-narrative entry point — without owning any sister library's roadmap and without re-landing the orphaned Phase 111/114 Mailglass adapter.
 
-- [x] **Phase 131: Forwarder Behaviour + Threadline Forwarder Library Scaffolding** — `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline` impl + Noop fallback + optional Oban worker + boundary doctrine (6/6 plans, completed 2026-05-27)
-- [x] **Phase 132: Threadline Recipe + Mailglass Cross-Link Recipe** — canonical Threadline integration recipe + Mailglass host-owned-wiring recipe pinning the Phase 131 config block (1/1, completed 2026-05-27)
-- [x] **Phase 133: Suite Narrative + Ecosystem Diagram** — `guides/introduction/suite-integration.md` with ASCII ecosystem diagram, fan-out matrix, standalone-banner posture (1/1, completed 2026-05-28)
-- [x] **Phase 134: Recipe-Only Companion Libraries** — Accrue, Lockspire, Relyra, Rulestead recipes under `guides/recipes/companion-libs/` (1/1, completed 2026-05-28)
-- [x] **Phase 135: Reference Example — Threadline Forwarder Demo in `test/example/`** — runnable end-to-end Threadline demo proven via existing CI lanes (1/1, completed 2026-05-28)
-- [x] **Phase 136: Verification Proof Bundle + Narrative-Honesty Corrigendum** — proof bundle (tests, dep-off lane, `mix docs --warnings-as-errors`, per-phase `*-VERIFICATION.md`) + v1.25 EMAIL-RAILS Mailglass-narrative corrigendum (3/3, completed 2026-05-28)
-
 Full phase details, success criteria, and plan breakdowns: [v1.29 archive](milestones/v1.29-ROADMAP.md).
 
 </details>
-
-## Backlog (parking lot — not in the active roadmap until promoted)
-
-- **999.1** / **999.2** — historical parking-lot labels; shipped in v1.3 — keep directories under `.planning/phases/` as archaeology only. Do not plan new work under **999.x**; use newly numbered phases.
-- **`sigra_lockspire` glue package per ADR 001** — still awaiting companion-app trigger; explicitly out of scope until a real companion-app trigger fires. Phase 134 ships a concrete Lockspire recipe instead.
-- ✅ **`Sigra.OptionalDeps` SOT module consolidation** — SHIPPED in v1.30 Phase 137 (OD-01/OD-02): one canonical module with 9 `*_available?/0` predicates + `encryption_active?/1`; ~29 scattered guards consolidated across 17 delegation sites with zero runtime behavior change.
-- ✅ **`mix sigra.doctor` task** — SHIPPED in v1.30 Phase 138 (DR-01/DR-02): per-feature optional-dep matrix + boot-wiring hard-fail checks + CI exit-code gate.
-- **Mailglass library-resident adapter recovery** — separate quick task to decide whether to recover `lib/sigra/mailers/adapters/mailglass.ex` + `--with-mailglass` flag from the orphaned wip branches (`backup/pre-cleanup-20260525-073728`, `chore/phase-88-uat-evidence`, `wip/2026-05-23-example-isolation`, `wip/example-admin-drift-20260525`). Current recommendation: drop the orphaned work; recipe-only stays as the supported posture (locked by Phase 136 DOC-01 corrigendum).
-- **Threadline correlation-ID propagation** — Sigra → Threadline trace-correlation closes the loop with Threadline's existing one-way wire. Blocked on a stable Threadline correlation-ID injection seam (CORR-01); v1.31+ candidate.
-- ✅ **Recipe-contract test fixtures** — SHIPPED in v1.30 Phase 139 (RCT-01): merge-blocking ExUnit fixture over `guides/recipes/companion-libs/*.md` asserting the five required markers, with a standalone D-05 non-empty-glob guard.
-- **`REL-01` release truth reset** — completed between milestones; reconciled version/release truth across package metadata, changelog framing, and maintainer-facing release docs.
-- **Built-in opinionated roles** — RBAC stays seams-only per Phase **92**.
-- **MySQL / SQLite adapters** — explicitly removed via Phase **94**; re-evaluate only if an adopter signals concrete demand and is willing to own the adapter.
-- **Phase 999.x archaeology** — pure planning hygiene; tombstone-only.
-- **Items not mapped in archived requirements** — stay here until a future milestone selects them into a new `REQUIREMENTS.md`.
-
-## Arc Notes
-
-- Treat [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) as the ranking source for the next several milestones now that v1.30 has shipped (the named arc was exhausted through v1.29; re-rank before selecting v1.31).
-- Do not treat `SESS-01` or `PK-01` as fresh greenfield gaps: session/device labeling and passkey list/rename/remove are already substantially shipped.
-- `ENT-SSO` shipped in v1.27; `DATA-LIFECYCLE` shipped in v1.28; `SUITE-INTEGRATION` shipped in v1.29; `TRUST-HARDENING` shipped in v1.30. Re-rank `MILESTONE-ARC.md` before selecting the next milestone; phases continue from **141**.
-- **Next-candidate signal (from v1.30 close):** the strongest greenfield candidate is **SCIM / Directory Sync** (ENT-SSO proved the login+JIT wedge); a **"Demo Showcase"** (seed-rich, persona-driven `test/example/` spin-up) ranked the highest-value near-term build per the mid-v1.30 boundary assessment, ahead of a 1.0 Hex cut + adoption push. See `.planning/threads/adoption-evidence-and-demo-showcase.md`.
-- Prefer milestones that improve production trust, integration clarity, or DX on rough edges over generic admin expansion or hosted-control-plane imitation.
-- `TRUST-HARDENING` (v1.30) shipped exactly three small new library surfaces (`Sigra.OptionalDeps`, `Sigra.Doctor`, the `mix sigra.doctor` task); everything else was consolidation, fixtures, and docs. Like v1.29, this honors the Diminishing Returns Wall.

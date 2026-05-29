@@ -1,5 +1,21 @@
 # Milestones
 
+## v1.31 DEMO-SHOWCASE (Active: 2026-05-29)
+
+**Phases:** 141–144 (4 phases)
+**Requirements:** 0/14 satisfied (roadmap created 2026-05-29; execution not yet started)
+**Status:** Roadmap created — awaiting Phase 141 planning
+
+**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
+
+**Phase structure:**
+- Phase 141: Seed Data Layer (SEED-01..06) — idempotent 6-persona seeds, full security posture, `Mix.env()==:test` guard
+- Phase 142: Dev Credentials Page & App Framing (DEMO-01/DEMO-02) — `/demo/credentials` LiveView + SaaS layout name
+- Phase 143: Playwright Demo Spec & Screenshots (PW-01/PW-02/PW-03) — demo-showcase project partition, screenshots
+- Phase 144: README Evaluator Lane & Docs/Proof (DOC-01/DOC-02/DOC-03) — "Try it locally" README, guide, proof bundle
+
+---
+
 ## v1.30 TRUST-HARDENING (Shipped: 2026-05-29)
 
 **Phases completed:** 4 phases (137–140), 10 plans, all VERIFICATION = passed, all 4 phases Nyquist-compliant

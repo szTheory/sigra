@@ -66,26 +66,26 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEED-01 | TBD | Pending |
-| SEED-02 | TBD | Pending |
-| SEED-03 | TBD | Pending |
-| SEED-04 | TBD | Pending |
-| SEED-05 | TBD | Pending |
-| SEED-06 | TBD | Pending |
-| DEMO-01 | TBD | Pending |
-| DEMO-02 | TBD | Pending |
-| PW-01 | TBD | Pending |
-| PW-02 | TBD | Pending |
-| PW-03 | TBD | Pending |
-| DOC-01 | TBD | Pending |
-| DOC-02 | TBD | Pending |
-| DOC-03 | TBD | Pending |
+| SEED-01 | Phase 141 | Pending |
+| SEED-02 | Phase 141 | Pending |
+| SEED-03 | Phase 141 | Pending |
+| SEED-04 | Phase 141 | Pending |
+| SEED-05 | Phase 141 | Pending |
+| SEED-06 | Phase 141 | Pending |
+| DEMO-01 | Phase 142 | Pending |
+| DEMO-02 | Phase 142 | Pending |
+| PW-01 | Phase 143 | Pending |
+| PW-02 | Phase 143 | Pending |
+| PW-03 | Phase 143 | Pending |
+| DOC-01 | Phase 144 | Pending |
+| DOC-02 | Phase 144 | Pending |
+| DOC-03 | Phase 144 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 14 ⚠️ (resolved by roadmapper)
+- Mapped to phases: 14 (roadmap complete)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-29*
-*Last updated: 2026-05-29 after initial definition (v1.31 DEMO-SHOWCASE)*
+*Last updated: 2026-05-29 — traceability filled by roadmapper (v1.31 DEMO-SHOWCASE, Phases 141–144)*
