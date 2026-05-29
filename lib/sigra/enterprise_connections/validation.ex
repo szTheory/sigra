@@ -88,7 +88,7 @@ defmodule Sigra.EnterpriseConnections.Validation do
   end
 
   defp default_http_get(opts) do
-    if Code.ensure_loaded?(Req) and function_exported?(Req, :get, 1) do
+    if Sigra.OptionalDeps.req_available?() and function_exported?(Req, :get, 1) do
       apply(Req, :get, [opts])
     else
       {:error, :req_unavailable}
