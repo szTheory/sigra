@@ -304,7 +304,7 @@ defmodule Sigra.Account.Deletion do
   end
 
   defp maybe_enqueue_deletion_job(repo, user, scheduled_at, opts) do
-    with true <- Code.ensure_loaded?(Oban),
+    with true <- Sigra.OptionalDeps.oban_available?(),
          true <- Code.ensure_loaded?(Sigra.Workers.AccountDeletion),
          {:ok, args} <- deletion_job_args(repo, user, opts),
          {:ok, changeset} <-
