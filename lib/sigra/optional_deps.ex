@@ -33,7 +33,7 @@ defmodule Sigra.OptionalDeps do
 
   `encryption_active?/1` answers "is the host configured with a real vault
   (not the plaintext stub)?" by mirroring the `__sigra_encryption_mode__/0`
-  config check in `Sigra.Application.verify_vault!/1`. It does **not** call
+  config check in the internal `verify_vault!/1` in `Sigra.Application`. It does **not** call
   `Code.ensure_loaded?(Cloak)` — a load check would return `true` even when
   the host app is still on the plaintext stub, which is a silent at-rest
   encryption regression (ASVS V6, D-07).
@@ -178,7 +178,7 @@ defmodule Sigra.OptionalDeps do
   real vault (not the plaintext stub).
 
   Derives the host's `*.Encrypted.Binary` module from the `:user_schema`
-  key in `host_sigra` (same derivation as `Sigra.Application.verify_vault!/1`
+  key in `host_sigra` (same derivation as the internal `verify_vault!/1` in `Sigra.Application`
   and `encrypted_binary_module/1`), then checks whether that module exports
   `__sigra_encryption_mode__/0` and returns a non-`:stub` value.
 

@@ -26,8 +26,8 @@ defmodule Sigra.Doctor do
   - `:host_sigra` — the raw keyword config list (same shape as the two-hop config
     read in `Sigra.Application`).
   - `:oban_running` — a boolean override for both async-email and audit-forwarder
-    Oban supervision checks (replaces the real `Sigra.Audit.Forwarders.oban_running?/1`
-    call). When not provided, the real function is called.
+    Oban supervision checks (replaces the real internal `oban_running?/1` call in
+    `Sigra.Audit.Forwarders`). When not provided, the real function is called.
   - `:module_loaded?` — a `(module :: atom() -> boolean())` function override for
     `Code.ensure_loaded?/1` used in the D-09 #4 forwarder-module-loaded check.
     Allows deterministic unit-testing of the not-loaded branch without relying on
@@ -35,8 +35,8 @@ defmodule Sigra.Doctor do
 
   When injection keys are absent, the real functions are called:
   - `Sigra.OptionalDeps.*_available?/0` for each of the nine availability predicates
-  - `Sigra.OptionalDeps.encryption_active?(host_sigra)` for encryption posture
-  - `Sigra.Audit.Forwarders.oban_running?([])` for supervised-Oban checks
+  - `Sigra.OptionalDeps.encryption_active?/1` for encryption posture
+  - the internal `oban_running?/1` in `Sigra.Audit.Forwarders` for supervised-Oban checks
   - `Code.ensure_loaded?/1` for dynamic forwarder-module existence checks
 
   ## OptionalDeps SOT (D-06)
@@ -48,19 +48,19 @@ defmodule Sigra.Doctor do
   The one narrow exception is the dynamic forwarder-module check: configured
   forwarder modules are host-provided dynamic atoms that cannot be listed in
   `OptionalDeps`, so `Code.ensure_loaded?(module)` is called directly for that
-  check (mirrors `Sigra.Application.attach_forwarders/0`).
+  check (mirrors the internal `attach_forwarders/0` in `Sigra.Application`).
 
   ## Deliberate Omissions (D-08)
 
   This module deliberately does NOT call:
 
-  - `Sigra.Application.verify_vault!/1` — raises, would abort the report before
+  - the internal `verify_vault!/1` in `Sigra.Application` — it raises, which would abort the report before
     the full matrix prints.
-  - `Sigra.Application.attach_forwarders/0` — raises `ArgumentError` on
-    async-without-Oban, would abort.
+  - the internal `attach_forwarders/0` in `Sigra.Application` — it raises `ArgumentError` on
+    async-without-Oban, which would abort.
 
   Instead, doctor uses the non-raising mirrors: `Sigra.OptionalDeps.encryption_active?/1`
-  and `Sigra.Audit.Forwarders.oban_running?/1`.
+  and the internal `oban_running?/1` in `Sigra.Audit.Forwarders`.
   """
 
   # Feature definition struct (internal — not part of public API)
