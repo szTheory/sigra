@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
-status: verifying
-last_updated: "2026-05-29T17:10:15.717Z"
+status: ready_to_plan
+last_updated: 2026-05-29T17:22:48.995Z
 last_activity: 2026-05-29
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 20
-  completed_plans: 20
+  completed_plans: 244
   percent: 90
+stopped_at: Phase 139 complete (2/2) — ready to discuss Phase 140
 ---
 
 # Project State
@@ -21,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 139 — recipe-contract-integrity-sister-repo-verification
+**Current focus:** Phase 140 — deprecation hygiene + verification & docs close
 
 ## Current Position
 
-Phase: 139 (recipe-contract-integrity-sister-repo-verification) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 140
+Plan: Not started
+Status: Ready to plan
 Resume file: None
 Last activity: 2026-05-29
 Progress: [██████████] 100%
