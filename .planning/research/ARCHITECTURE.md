@@ -1,422 +1,549 @@
-# ARCHITECTURE.md — v1.29 SUITE-INTEGRATION integration points
+# Architecture Research
 
-**Domain:** Elixir/Phoenix authentication library, hybrid lib+generator
-**Researched:** 2026-05-27
-**Overall confidence:** HIGH (all integration points verified against current code)
+**Domain:** Seed-rich demo integration into a dual-role Phoenix test fixture / evaluator showcase (v1.31 DEMO-SHOWCASE)
+**Researched:** 2026-05-29
+**Confidence:** HIGH
 
-## Executive summary
+## Core Architectural Problem
 
-The orchestrator's framing carries three assumptions that don't match the repo on the current release branch. Correcting them first, because the roadmap will be sturdier on the real precedents.
+`test/example/` currently plays two roles that have structurally conflicting needs:
 
-1. **There is no `Sigra.Mailers.Adapters.Mailglass` adapter on the v1.28 release branch.** `lib/sigra/mailer.ex` is a thin behaviour (`@callback deliver/3`). EMAIL-RAILS (v1.25, Phases 111–114) shipped the override seam, preview catalog, bounce/complaint normalizer, async-delivery telemetry, and a Mailglass *recipe*. Mailglass integration in the example app is via a generated host `Example.Accounts.Mailer` that the host wires to Mailglass — no library adapter exists. There is no `--with-mailglass` flag in `lib/mix/tasks/sigra.install.ex` (verified against the `@switches` list). Apparent Mailglass adapter modules referenced in some milestone narratives live only on wip/backup branches.
-2. **There is no `Sigra.OptionalDeps` module.** The "HARD-02 SOT" mentioned in v1.21 narrative is implemented as a scattered pattern: `if Code.ensure_loaded?(Oban.Worker)` module guards (e.g., `lib/sigra/workers/account_deletion.ex:1`, `audit_cleanup.ex:1`), `no_warn_undefined` whitelist in `mix.exs:65-87`, and one-shot boot warnings in `lib/sigra/application.ex` (`maybe_warn_audit_cleanup_fallback/0`, `verify_vault!/0`).
-3. **There is no `mix sigra.doctor` task.** Referenced in narrative but not present as a task (`lib/mix/tasks/` has only `install`, `upgrade`, `gen.oauth`, `fixture.rebless_golden`).
+- **CI fixture role:** Headless, deterministic, sandbox-isolated. Tests create their own data via
+  `Example.AccountsFixtures` and roll it back via `Ecto.Adapters.SQL.Sandbox`. The database is
+  empty at test start except for what each test inserts in its sandbox transaction. Tests must not
+  see, depend on, or be disrupted by data from any other source.
 
-Once those corrections land, the recipe + adapter shape becomes much smaller and matches Sigra's "minimal coupling, host owns wiring" philosophy.
+- **Evaluator showcase role:** Human-facing, seed-populated, persistent. An evaluator runs
+  `mix setup && mix phx.server`, browses to `localhost:4000`, and sees a fully populated SaaS with
+  realistic personas, organizations, MFA credentials, and OAuth identities — all already there
+  without any manual steps.
 
-## Real precedents (verified file paths)
+The conflict: seeds write to the same database that tests use. If seeds populate the `dev`
+database and tests somehow read it, determinism breaks. The resolution is structural separation by
+Mix environment, enforced at the `seeds.exs` execution boundary.
 
-### Optional-dep extension pattern (the strongest match)
+## Standard Architecture
 
-**Behaviour + impl + Noop fallback triad:**
+### System Overview
 
-| Surface | File | Role |
-|---|---|---|
-| Behaviour | `lib/sigra/rate_limiter.ex` | `@callback check_rate/3` |
-| Real impl | `lib/sigra/rate_limiters/hammer.ex` | Uses optional `:hammer` dep |
-| Noop | `lib/sigra/rate_limiters/noop.ex` | `@behaviour Sigra.RateLimiter`, always `{:allow, 1}` |
-| Boot warning | `lib/sigra/application.ex:68-88` | `Code.ensure_loaded?(Oban)`-style guard, one-shot `Logger.warning` |
-| Mix.exs guard | `mix.exs:65-87` | `no_warn_undefined: [Bcrypt, Hammer, ...]` whitelist |
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  MIX_ENV=dev  (mix setup -> mix phx.server — evaluator path)            │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │  priv/repo/seeds.exs                                             │   │
+│  │  -> Example.Demo.Seeds  (new module)                             │   │
+│  │    ├── upsert_persona(:alice_admin)                              │   │
+│  │    ├── upsert_persona(:bob_standard)                             │   │
+│  │    ├── upsert_persona(:carol_invited)                            │   │
+│  │    ├── upsert_persona(:dave_locked)                              │   │
+│  │    ├── upsert_persona(:erin_oauth)                               │   │
+│  │    └── upsert_persona(:frank_passkey)                            │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+│            │                                                             │
+│            v                                                             │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │  example_dev database (Postgres)                                 │   │
+│  │  users | organizations | user_sessions | user_mfa_credentials    │   │
+│  │  user_tokens | user_passkeys | audit_events | ...                │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘
 
-The hashers triad (`lib/sigra/hasher.ex`, `lib/sigra/hashers/argon2.ex`, `lib/sigra/hashers/bcrypt.ex`) follows the same pattern.
+┌─────────────────────────────────────────────────────────────────────────┐
+│  MIX_ENV=test  (mix test — CI fixture path)                              │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │  Example.DataCase  ->  SQL.Sandbox (each test owns its tx)       │   │
+│  │  Example.AccountsFixtures  (factory helpers, unique integers)    │   │
+│  │  -> NO seeds.exs execution (test alias skips seeds.exs)         │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+│            │                                                             │
+│            v                                                             │
+│  ┌──────────────────────────────────────────────────────────────────┐   │
+│  │  example_test database (Postgres — separate DB name)             │   │
+│  │  empty at test start; per-test sandbox transactions              │   │
+│  └──────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘
 
-### Optional Oban worker pattern
-
-`lib/sigra/workers/account_deletion.ex:1` wraps the entire module in `if Code.ensure_loaded?(Oban.Worker) do`. The companion `lib/sigra/workers.ex` (the `Sigra.Workers` behaviour) is pure (no Oban compile-time dep) and validates required args. Precedent workers: `account_deletion.ex`, `audit_cleanup.ex`, `email_delivery.ex`, `token_cleanup.ex`.
-
-### Audit emission surface (Threadline subscribes here)
-
-`Sigra.Audit.emit_telemetry/1` (`audit.ex:304-310`) fires `[:sigra, :audit, :log]` with `%{count: 1}` and `%{action, actor_id, outcome}`. Fired from three callsites that all gate on successful DB commit:
-
-- `log/3` `{:ok, event}` branch — standalone insert
-- `emit_telemetry_from_changes/2` — invoked by callers from `{:ok, changes}` branch of their `repo.transaction/1`
-- `log_safe/3` `{:ok, event}` branch — best-effort no-op-on-disable path
-
-**This is the cleanest forwarding point.** No new behaviour callback is needed in `Sigra.Audit` itself.
-
-### Generated-host audit wiring (host owns it)
-
-`test/example/lib/example/accounts.ex:607-609` shows the precedent host wiring:
-
-```elixir
-audit: [audit_schema: Example.Accounts.AuditEvent]
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Playwright E2E (boots app in MIX_ENV=dev against example_dev)           │
+│                                                                          │
+│  golden-path.spec.ts      — registers fresh users, no seed dependency   │
+│  ga-uat-shift-left.spec.ts — registers fresh users, no seed dependency  │
+│  demo-showcase.spec.ts    — READS seeded personas by known email        │
+│  screenshot.spec.ts       — READS seeded personas, captures baselines   │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
-This is the ONLY audit configuration surface in `Sigra.Config`. There is no current concept of "audit destinations" — the schema is the destination.
+### Component Responsibilities
 
-### Install feature pattern (the only way to add installer surface)
+| Component | Responsibility | Location |
+|-----------|----------------|----------|
+| `priv/repo/seeds.exs` | Entry point; calls `Example.Demo.Seeds.run/0`; already wired into `mix setup` alias | existing (modify) |
+| `Example.Demo.Seeds` | Seed orchestrator; idempotent upsert loop over all personas in deterministic order | new: `lib/example/demo/seeds.ex` |
+| `Example.Demo.Personas` | Persona definitions as a data structure (email, password, role, orgs, MFA state, etc.) | new: `lib/example/demo/personas.ex` |
+| `Example.Demo.CredentialsPage` | Dev-only LiveView or controller that renders a table of seeded credentials for evaluators | new: `lib/example_web/live/demo_credentials_live.ex` |
+| `demo-showcase.spec.ts` | Playwright spec that logs in as seeded personas and exercises their specific auth state | new: `priv/playwright/tests/demo-showcase.spec.ts` |
+| `screenshot.spec.ts` | Playwright spec that captures baselines of populated pages for README/docs | new: `priv/playwright/tests/screenshot.spec.ts` |
+| `README.md` lane | "Try it locally" evaluator section with persona table and spin-up steps | existing (modify) |
 
-`lib/sigra/install/feature.ex` defines a 5-callback behaviour: `enabled?/1`, `files/1`, `migrations/1`, `injections/1`, `post_instructions/2`. Adding installer surface = adding a module to the `@features` list in `lib/mix/tasks/sigra.install.ex:41-46`. There is no `--with-*` flag pattern in this codebase; existing flags are either negative (`--no-admin`, `--no-organizations`, `--no-passkeys`) or feature-enables (`--api`, `--jwt`). Feature modules read `enabled?/1` from the parsed opts.
+## Isolation Strategy: The Fundamental Guarantee
 
-### Recipe wiring (for non-adapter integrations)
+The isolation guarantee rests on a single fact that already exists in the codebase:
 
-`mix.exs:163-202` ExDoc `extras:` list plus `groups_for_extras: [..., Recipes: ~r{guides/recipes/.?}]`. Adding a recipe = drop a Markdown file in `guides/recipes/` AND add an entry to the `extras:` list. The regex group_for assignment is automatic. Existing recipes: `companion-oauth-provider.md`, `custom-user-fields.md`, `deployment.md`, `multi-tenant.md`, `passkeys.md`, `subdomain-auth.md`, `testing.md`. `companion-oauth-provider.md` is the precedent for "ecosystem/companion-lib recipe" tone — sister-lib by role-table, "when not to use," "see also" cross-links.
-
-### Reference example pattern
-
-`test/example/` is a full Phoenix app with its own `mix.exs` (`{:sigra, path: "../..", override: true}`). It is wired into CI via `.github/workflows/ci.yml` at `working-directory: test/example` jobs: compile + test with `--include example_app`, dev test, `example_playwright_smoke` Playwright job. The example app is auth-focused but its tests are the only place real `Sigra.Auth.*` round-trip flows exercise against a live Phoenix server. There is no top-level `examples/` directory.
-
-### Suite-narrative entry-point precedent
-
-`guides/introduction/` contains `installation.md`, `getting-started.md`, `first-hour.md`, `intermediate-production-path.md`, `troubleshooting-install.md`, and upgrade stubs. `getting-started.md` is `main:` in `mix.exs:158`. Adding a suite-narrative landing page = drop a Markdown file under `guides/introduction/` and add to `extras:`.
-
-### Hook seam (alternative integration surface, not used here)
-
-`lib/sigra/hooks.ex` provides a `{module, function}` hook callable via `Sigra.Hooks.maybe_run_hook/4` inside an `Ecto.Multi`. Hooks run **inside** the auth operation's transaction. For Threadline (audit-forwarding), this is *too coupled* — auth must not fail because Threadline is down. Telemetry, not hooks, is the right seam.
-
-## Integration architecture for v1.29
-
-### 1. Threadline audit adapter
-
-**Decision:** Build it as a telemetry handler, not as a pluggable destination inside `Sigra.Audit`. Sigra.Audit's contract stays untouched.
-
-**File:** `lib/sigra/audit/forwarders/threadline.ex` (NEW)
-
-Naming: `forwarders/` (not `adapters/`) because it forwards *already-committed* events to a sink, not selects an alternative storage backend.
-
-**Module shape (mirrors `Sigra.RateLimiters.Hammer`):**
+**The `test` alias in `mix.exs` does not call `seeds.exs`:**
 
 ```elixir
-if Code.ensure_loaded?(Threadline) do
-  defmodule Sigra.Audit.Forwarders.Threadline do
-    @behaviour Sigra.Audit.Forwarder
-    require Logger
+# test/example/mix.exs — current state
+defp aliases do
+  [
+    setup: ["deps.get", "ecto.setup"],
+    "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+    "ecto.reset": ["ecto.drop", "ecto.setup"],
+    test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],   # no seeds.exs
+    precommit: [...]
+  ]
+end
+```
 
-    def attach(opts) do
-      :telemetry.attach(
-        {__MODULE__, opts[:id] || :default},
-        [:sigra, :audit, :log],
-        &__MODULE__.handle_event/4,
-        opts
-      )
-    end
+The `test` alias creates the test DB and runs migrations but never calls `priv/repo/seeds.exs`.
+Additionally, `config/test.exs` points to `example_test` (separate database name from
+`example_dev`). Even if seeds ran in the test environment, they would write to a different
+database. Seeds and tests are therefore doubly isolated: by alias omission and by database name.
 
-    def handle_event(_event, _measurements, metadata, opts) do
-      # dispatch path: inline call vs Oban async — see #2 below
+No changes to the `mix.exs` `test` alias are needed to preserve CI determinism. The `setup`
+alias already calls `ecto.setup`, which already calls `run priv/repo/seeds.exs`. Populating
+`seeds.exs` with real content is the only change required to make `mix setup` produce a
+populated dev database.
+
+**One caveat to watch:** If seeds are ever run in MIX_ENV=test (e.g., `MIX_ENV=test mix run
+priv/repo/seeds.exs`), they would write to `example_test` and break test isolation. Guard
+against this at the top of `seeds.exs`:
+
+```elixir
+# priv/repo/seeds.exs
+if Mix.env() == :test do
+  Mix.raise("seeds.exs must not run in the test environment")
+end
+
+Example.Demo.Seeds.run()
+```
+
+## Recommended Project Structure (new + modified files)
+
+```
+test/example/
+├── lib/
+│   └── example/
+│       └── demo/
+│           ├── seeds.ex          # NEW — idempotent seed orchestrator
+│           └── personas.ex       # NEW — persona definitions (data, not logic)
+│   └── example_web/
+│       └── live/
+│           └── demo_credentials_live.ex   # NEW — dev-only credentials page
+│       └── router.ex             # MODIFY — add /demo/credentials route (dev_routes guard)
+├── priv/
+│   └── repo/
+│       └── seeds.exs             # MODIFY — call Example.Demo.Seeds.run(), add env guard
+│   └── playwright/
+│       └── tests/
+│           ├── demo-showcase.spec.ts    # NEW — Playwright spec over seeded personas
+│           └── screenshot.spec.ts      # NEW — screenshot capture for README/docs
+└── README.md (test/example/ level) # MODIFY — add "Try it locally" evaluator lane
+```
+
+No new top-level files in the Sigra root. No new `examples/` directory. No separate repo.
+Everything lives inside `test/example/`.
+
+## Architectural Patterns
+
+### Pattern 1: Upsert-by-natural-key Idempotency
+
+**What:** Each persona is keyed on a stable, well-known email address (e.g.,
+`alice@demo.sigra.dev`). The seed function uses `on_conflict: {:replace, [...]}` rather than a
+bare `Repo.insert!`. This makes seeds re-runnable: running `mix run priv/repo/seeds.exs` twice
+produces the same database state as running it once.
+
+**When to use:** Always for seeds. Never use `Repo.insert!` with no conflict strategy — it fails
+on the second run and leaves the evaluator with a broken `mix setup`.
+
+**Trade-offs:** `on_conflict: :replace_all` would wipe fields the evaluator may have changed.
+Use `{:replace, [:hashed_password, :confirmed_at, ...]}` to replace only the seeded canonical
+fields. For association rows (org memberships, MFA credentials), use `Repo.get_by` then insert if
+missing, or unique-index-backed `on_conflict: :nothing` — omitting a duplicate association on
+re-seed is correct behavior.
+
+**Example (Elixir pattern):**
+
+```elixir
+# lib/example/demo/seeds.ex
+defmodule Example.Demo.Seeds do
+  alias Example.Repo
+  alias Example.Accounts.User
+
+  def run do
+    for persona <- Example.Demo.Personas.all() do
+      upsert_user(persona)
     end
+  end
+
+  defp upsert_user(%{email: email, password: password} = persona) do
+    hashed = Argon2.hash_pwd_salt(password)
+    confirmed_at = if persona[:unconfirmed], do: nil, else: DateTime.utc_now()
+
+    %User{}
+    |> Ecto.Changeset.change(%{
+      email: email,
+      hashed_password: hashed,
+      confirmed_at: confirmed_at,
+      locked_at: persona[:locked_at],
+      failed_login_attempts: persona[:failed_login_attempts] || 0
+    })
+    |> Repo.insert!(
+      on_conflict: {:replace, [:hashed_password, :confirmed_at, :locked_at,
+                               :failed_login_attempts, :must_change_password]},
+      conflict_target: :email
+    )
   end
 end
 ```
 
-**Behaviour:** `lib/sigra/audit/forwarder.ex` (NEW) — `@callback attach(keyword) :: :ok | {:error, term}`. Tiny — single callback. Mirrors `Sigra.RateLimiter`.
+### Pattern 2: Seeded RNG for Determinism
 
-**Dispatch path:** Two-tier, matches `Sigra.Delivery` precedent (`lib/sigra/delivery.ex:103-115`):
+**What:** Seeds that need any randomness (backup code generation, TOTP secrets) must use fixed
+constants per persona rather than `:crypto.strong_rand_bytes/1`. The standard approach is to
+store a fixed base32-encoded TOTP secret per persona as a module attribute.
 
-- `:auto` (default) — `Code.ensure_loaded?(Oban) and Process.whereis(Oban) != nil` ⇒ async via `Sigra.Workers.AuditForward` (NEW Oban worker), else inline `Threadline.publish/2`
-- `:async` — always Oban (raises if Oban absent at boot)
-- `:sync` — always inline (host accepts the latency cost)
+**When to use:** Wherever a seed function would otherwise produce a different result on each run.
+For TOTP secrets specifically, use a fixed base32-encoded string per persona rather than calling
+`NimbleTOTP.generate_secret/0`.
 
-**Co-fate semantics:** Threadline forwarding is **post-commit, fire-and-forget**. The telemetry event itself only fires on successful commit, so any audit row Threadline receives is a row that already persisted in Sigra's table. Failures in the forwarder MUST NOT roll back the auth operation. Errors land on a `[:sigra, :audit, :forward_error]` telemetry event for observability (mirrors `:log_safe_error`).
+**Trade-offs:** A fixed TOTP secret means the evaluator can scan the QR code and the code in
+their authenticator app matches the secret that `ecto.reset` will always restore. If the secret
+regenerated on every seed run, the evaluator's authenticator app would stop working. Fixed
+constants are correct here.
 
-**Config shape (runtime struct, NOT `Application.get_env`):**
-
-Extend `Sigra.Config` (`lib/sigra/config.ex`) with a new `:forwarders` field on the audit keyword:
-
-```elixir
-audit: [
-  audit_schema: MyApp.Accounts.AuditEvent,
-  forwarders: [
-    {Sigra.Audit.Forwarders.Threadline,
-       endpoint: System.get_env("THREADLINE_URL"),
-       api_key: {:system, "THREADLINE_API_KEY"},
-       dispatch: :auto}
-  ]
-]
-```
-
-Validate via `NimbleOptions` schema in `Sigra.Config`. Host-attached at boot in `Sigra.Application.start/2`.
-
-**Boot-time optional-dep validation:** Extend `Sigra.Application.start/2`:
-
-- If a forwarder is configured but its module is not loaded ⇒ `Logger.warning`
-- If dispatch `:async` and Oban absent ⇒ raise
-
-**Mix.exs guard:** Add `Threadline` and `Sigra.Workers.AuditForward` to the `no_warn_undefined:` list in `mix.exs:65-87`.
-
-### 2. Optional Oban worker for async forwarding
-
-**File:** `lib/sigra/workers/audit_forward.ex` (NEW)
-
-Wrap entire module in `if Code.ensure_loaded?(Oban.Worker) do`. Mirrors `lib/sigra/workers/audit_cleanup.ex` and `account_deletion.ex`. Queue: `:sigra_audit_forward` (new — document in recipe). `max_attempts: 5` with exponential backoff.
-
-### 3. Installer integration — opt-in via config, NOT `--with-threadline`
-
-**Decision:** No `--with-threadline` flag. The codebase has zero `--with-*` flags today. Adding one creates a precedent that will multiply. Forwarders are pure runtime config — no generated host files, no migrations, no router injections. The recipe owns wiring.
-
-**Install golden assertions:** None required — golden tree (`test/fixtures/install_golden/`) does not change.
-
-### 4. Generated-host emissions
-
-**Decision:** Zero. Threadline is pure-library + pure-runtime-config. The host's only generated artifact is what `mix sigra.install` already produces; adopters add the forwarder config block to their existing `sigra_config/0` function. The recipe shows the literal lines to paste.
-
-### 5. Recipes for non-adapter companion libs (Accrue, Lockspire, Mailglass cross-link, Relyra, Rulestead)
-
-**Location convention:** `guides/recipes/companion-libs/<name>.md` (NEW subdirectory).
-
-Rationale: the flat `guides/recipes/` is starting to mix integration patterns with feature recipes. A `companion-libs/` subdir signals "these are integrations with sister libs, not Sigra feature primers."
-
-**mix.exs wiring:**
+**Example:**
 
 ```elixir
-# in extras: list, add:
-"guides/recipes/companion-libs/threadline.md",
-"guides/recipes/companion-libs/accrue.md",
-"guides/recipes/companion-libs/lockspire.md",
-"guides/recipes/companion-libs/mailglass.md",
-"guides/recipes/companion-libs/relyra.md",
-"guides/recipes/companion-libs/rulestead.md",
+# lib/example/demo/personas.ex
+defmodule Example.Demo.Personas do
+  # Fixed TOTP secrets for MFA-enabled personas.
+  # These are dev-demo constants — not production secrets.
+  # Standard base32, compatible with NimbleTOTP and authenticator apps.
+  @alice_totp_secret "JBSWY3DPEHPK3PXP"
 
-# in groups_for_extras, add:
-"Companion Libraries": ~r{guides/recipes/companion-libs/.?},
-# and adjust Recipes regex to ~r{guides/recipes/[^/]+\.md$}
+  def all do
+    [
+      %{
+        name: "Alice Admin",
+        email: "alice@demo.sigra.dev",
+        password: "DemoPassw0rd!",
+        role: :admin,
+        mfa_totp_secret: @alice_totp_secret,
+        organizations: ["Acme Corp", "Beta Inc"]
+      },
+      # ... other personas
+    ]
+  end
+end
 ```
 
-**Lockspire recipe note:** `companion-oauth-provider.md` already covers Lockspire at the architecture-pattern level. The new `companion-libs/lockspire.md` should be the *concrete* recipe (mix.exs deps, AccountResolver stub, walkthrough) and cross-link back.
+### Pattern 3: Env-gated Dev-only Credentials Page
 
-**Mailglass recipe:** Cross-link page summarizing "Mailglass is the default preview/diagnostics adapter; here are the host config lines" and linking to the EMAIL-RAILS docs. 1–2 pages.
+**What:** A `/demo/credentials` route exists only when `dev_routes: true` is configured (the same
+guard used by Phoenix's dev-only mailbox and dashboard routes). It renders a table of all seeded
+personas with email, password, and current auth state. This is the "cheat sheet" for evaluators
+who don't want to read the README.
 
-**Recipe content template (match `companion-oauth-provider.md`):**
+**When to use:** Always — this is the lowest-friction evaluator affordance and the single place
+where demo credentials are canonical.
 
-- "What this is + role table"
-- Prerequisites
-- Architecture sketch (ASCII)
-- Rules of thumb
-- Concrete config + code block(s)
-- "When not to use"
-- "See also" cross-links
+**Trade-offs:** Must be guarded behind `Application.compile_env(:example, :dev_routes)` in the
+router so it is completely absent from any non-dev path. The route should be excluded from
+Playwright's golden-path specs.
 
-### 6. Suite narrative landing page
+**Example (router guard):**
 
-**File:** `guides/introduction/suite-integration.md` (NEW). Add to `mix.exs` `extras:` list.
-
-**Companion ecosystem diagram:** ASCII (not Mermaid) for ExDoc compatibility.
-
-```
-                ┌─────────────────────────────────┐
-                │       Sigra (auth core)         │
-                │  sessions · MFA · passkeys ·    │
-                │  audit · webhooks · SSO         │
-                └────────┬────────────────────────┘
-                         │
-    ┌────────────────────┼───────────────────────────┐
-    │                    │                           │
-┌───▼────┐          ┌────▼─────┐               ┌─────▼─────┐
-│ Email  │          │  Audit   │               │  OAuth    │
-│ outbox │          │  sink    │               │  AS       │
-│Mailglass│         │Threadline│               │ Lockspire │
-└────────┘          └──────────┘               └───────────┘
-
-Other adopter-side companions (recipe-only):
-Accrue (billing webhook consumer) · Relyra (relationships)
-Rulestead (rule engine)
+```elixir
+# lib/example_web/router.ex
+if Application.compile_env(:example, :dev_routes) do
+  scope "/demo", ExampleWeb do
+    pipe_through :browser
+    live "/credentials", DemoCredentialsLive, :index
+  end
+end
 ```
 
-**Diminishing Returns Wall connection:** Open the narrative by quoting `MILESTONE-ARC.md`'s wall (no authz engine, no billing, no UI components). Then frame suite-integration as "the seams you bring your own companion library through."
+## Data Flow
 
-**No separate `ecosystem.md`** — fold the diagram and "who owns what" table into `suite-integration.md`.
-
-### 7. Reference example
-
-**Decision:** Extend `test/example/`, do not create top-level `examples/`.
-
-| Factor | `test/example/` | new `examples/` |
-|---|---|---|
-| CI wired | YES — 3 jobs in `ci.yml` | NO — new wiring needed |
-| Auth focus | YES — already exercises Sigra | Greenfield |
-| Playwright smoke | YES | NO |
-| Risk to existing tests | Additive only | Zero |
-| Hex package size | Excluded (`files:` allowlist) | Same |
-
-**What changes in `test/example/`:**
-
-- `test/example/mix.exs` — add `{:threadline, "~> X.Y", only: [:dev, :test]}` (when published) or path dep if pre-release
-- `test/example/lib/example/accounts.ex:607-609` — add the `forwarders:` block under the `audit:` keyword
-- `test/example/test/example_web/threadline_forwarder_test.exs` — new test asserting that an audit event triggers a Threadline call (mock via Bypass or Mox)
-- `test/example/AGENTS.md` — note the Threadline demo wiring
-
-### 8. Build order — phase sequence with dependencies
-
-Numbered from Phase 131.
-
-**Phase 131 — Threadline forwarder behaviour + library scaffolding**
-
-Why first: it's the only new library code. Phases 132+ depend on it existing.
-
-Artifacts:
-- `lib/sigra/audit/forwarder.ex` (behaviour, 1 callback)
-- `lib/sigra/audit/forwarders/threadline.ex` (impl, wrapped in `Code.ensure_loaded?`)
-- `lib/sigra/audit/forwarders/noop.ex` (fallback for tests)
-- `lib/sigra/workers/audit_forward.ex` (optional Oban worker)
-- `lib/sigra/config.ex` — extend `:audit` NimbleOptions schema with `:forwarders`
-- `lib/sigra/application.ex` — `maybe_warn_missing_forwarder_deps/1` + `attach_forwarders/1`
-- `mix.exs:65-87` no_warn_undefined updates
-- Tests: `test/sigra/audit/forwarders/threadline_test.exs`, `test/sigra/audit/forwarder_test.exs`
-- `CHANGELOG.md` [Unreleased] entry
-
-**Phase 132 — Threadline recipe + Mailglass cross-link recipe**
-
-Why second: recipes depend on Phase 131's config shape being finalized.
-
-Artifacts:
-- `guides/recipes/companion-libs/threadline.md`
-- `guides/recipes/companion-libs/mailglass.md` (cross-link, ~1 page)
-- `mix.exs` extras: list updates + groups_for_extras adjustment
-- `mix docs --warnings-as-errors` exit 0 (gate)
-
-**Phase 133 — Suite narrative + ecosystem diagram**
-
-Why third: narrative refers to Phase 131 + Phase 132 artifacts.
-
-Artifacts:
-- `guides/introduction/suite-integration.md`
-- `mix.exs` extras: update
-- `README.md` — add a "Suite integration" link
-- `mix docs --warnings-as-errors` exit 0
-
-**Phase 134 — Recipe-only companion libs (Accrue, Lockspire concrete, Relyra, Rulestead)**
-
-Why fourth: pure documentation. Parallelizable with Phase 133.
-
-Artifacts:
-- `guides/recipes/companion-libs/accrue.md`
-- `guides/recipes/companion-libs/lockspire.md`
-- `guides/recipes/companion-libs/relyra.md`
-- `guides/recipes/companion-libs/rulestead.md`
-- `mix.exs` extras: 4 new entries
-- `mix docs --warnings-as-errors` exit 0
-
-**Phase 135 — Reference example wiring (Threadline demo in `test/example/`)**
-
-Artifacts:
-- `test/example/mix.exs` — add Threadline dep
-- `test/example/lib/example/accounts.ex` — wire the forwarder
-- `test/example/test/example_web/threadline_forwarder_test.exs`
-- `test/example/AGENTS.md` — note the demo
-- CI passes
-
-**Phase 136 — Verification proof bundle + milestone audit**
-
-Artifacts:
-- Forwarder unit + integration tests passing
-- `mix test test/sigra/audit/` clean
-- `mix test` in `test/example/` clean
-- `mix docs --warnings-as-errors` exit 0
-- `mix credo --strict` clean
-- `131-VERIFICATION.md` through `135-VERIFICATION.md` filed
-- `.planning/milestones/v1.29-ROADMAP.md`, `v1.29-REQUIREMENTS.md`, `v1.29-MILESTONE-AUDIT.md`
-
-**Critical dependency chain:**
+### Seed Execution Flow (mix setup)
 
 ```
-131 (library code)
-  ↓
-  ├─→ 132 (Threadline recipe needs config shape)
-  │     ↓
-  │     ├─→ 133 (narrative refs recipe)
-  │     ├─→ 134 (recipe-only siblings, parallelizable with 133)
-  │     ↓
-  │     135 (example app demos adapter, refs recipe)
-  │       ↓
-  └────→ 136 (verification gates all of above)
+mix setup
+  -> deps.get
+  -> ecto.setup
+      -> ecto.create          (creates example_dev if absent)
+      -> ecto.migrate         (runs all migrations)
+      -> run priv/repo/seeds.exs
+            -> env guard (raises if MIX_ENV=test)
+            -> Example.Demo.Seeds.run/0
+                -> for each persona: upsert_user/1
+                    -> Argon2.hash_pwd_salt (seeded password, ~200ms each)
+                    -> Repo.insert! with on_conflict
+                -> for each persona with MFA: upsert_totp_credential/1
+                    -> stores fixed TOTP secret (no random generation)
+                    -> stores hashed backup codes (8 fixed codes per persona)
+                -> for each org: upsert_organization/1
+                    -> for each membership: upsert_membership/1
 ```
 
-## Architecture decision summary
+### Test Execution Flow (mix test)
 
-| Decision | What | Why |
-|---|---|---|
-| Threadline is a forwarder, not a destination | New `Sigra.Audit.Forwarders.*` namespace; attach to existing `[:sigra, :audit, :log]` telemetry | Preserves single-table audit invariant; post-commit fire-and-forget |
-| No `--with-threadline` flag | Runtime config only; no installer feature | Zero precedent for `--with-*`; would cascade to 5+ flags |
-| Recipes go in `guides/recipes/companion-libs/` subdir | New subdir | Separates feature recipes from integration recipes |
-| Reference example extends `test/example/` | Not new `examples/` directory | CI is already wired; auth-focused example is the right demo |
-| Suite narrative lives in `guides/introduction/suite-integration.md` | Single file | One canonical entry point |
-| Diagram is ASCII | Not Mermaid | Matches existing precedent |
+```
+mix test
+  -> ecto.create --quiet      (creates example_test if absent — separate DB)
+  -> ecto.migrate --quiet     (runs migrations on example_test)
+  -> test                     (seeds.exs is NEVER called)
+      -> each test: Example.DataCase.setup_sandbox
+          -> SQL.Sandbox.start_owner! (test owns a transaction)
+          -> test body: Example.AccountsFixtures.user_fixture/1 etc.
+          -> on_exit: SQL.Sandbox.stop_owner (rolls back all inserts)
+```
 
-## Files: new vs modified
+### Playwright Demo Spec Flow
 
-### New files (Phase 131)
+```
+demo-showcase.spec.ts boots against MIX_ENV=dev (localhost:4000)
+  -> login as alice@demo.sigra.dev with known password
+  -> assert admin panel is visible (proves admin role seeded)
+  -> login as dave@demo.sigra.dev with known password
+  -> assert account locked message (proves locked state seeded)
+  -> login as alice@demo.sigra.dev, navigate to MFA settings
+  -> assert TOTP enabled (proves MFA credential seeded)
+```
 
-- `lib/sigra/audit/forwarder.ex`
-- `lib/sigra/audit/forwarders/threadline.ex`
-- `lib/sigra/audit/forwarders/noop.ex`
-- `lib/sigra/workers/audit_forward.ex`
-- `test/sigra/audit/forwarder_test.exs`
-- `test/sigra/audit/forwarders/threadline_test.exs`
-- `test/sigra/audit/forwarders/noop_test.exs`
+This spec is NOT run in the CI `mix test` lane. It runs in the Playwright lane that boots the dev
+server, which already depends on seeds being present. The spec is correctly coupled to seeded data
+— it is testing the demo presentation, not the Sigra auth library internals.
 
-### Modified files (Phase 131)
+### Playwright Golden-Path Spec (unchanged, no seed coupling)
 
-- `lib/sigra/config.ex` — extend `:audit` NimbleOptions schema (`:forwarders`)
-- `lib/sigra/application.ex` — `maybe_warn_missing_forwarder_deps/1`, `attach_forwarders/1`
-- `mix.exs` — add `Threadline`, `Sigra.Workers.AuditForward` to `no_warn_undefined`
-- `CHANGELOG.md` — [Unreleased] section
+All existing specs (`golden-path.spec.ts`, `ga-uat-shift-left.spec.ts`, etc.) register fresh
+users with `Date.now()` suffixes in emails (`lifecycle-${Date.now()}@example.test`). They have
+zero dependency on seeded personas. No changes needed. CI determinism is preserved because:
 
-### New files (Phase 132–134, docs)
+1. Golden-path specs create their own data dynamically.
+2. Seeded personas use a `@demo.sigra.dev` email domain that golden-path specs never reference.
+3. The test DB (`example_test`) never receives seeds.
 
-- `guides/recipes/companion-libs/threadline.md`
-- `guides/recipes/companion-libs/mailglass.md`
-- `guides/recipes/companion-libs/accrue.md`
-- `guides/recipes/companion-libs/lockspire.md`
-- `guides/recipes/companion-libs/relyra.md`
-- `guides/recipes/companion-libs/rulestead.md`
-- `guides/introduction/suite-integration.md`
+## Build Order / New vs Modified File Map
 
-### Modified files (Phase 132–134)
+Build in this order to respect dependencies:
 
-- `mix.exs` — `extras:` list (+7 entries), `groups_for_extras` (add `"Companion Libraries"` group)
+### Step 1 — Seed Data Layer (no UI dependencies)
 
-### New files (Phase 135)
+| File | Action | Why first |
+|------|--------|-----------|
+| `lib/example/demo/personas.ex` | NEW | Pure data module; no deps on anything else |
+| `lib/example/demo/seeds.ex` | NEW | Depends on personas.ex and Accounts context |
+| `priv/repo/seeds.exs` | MODIFY | Calls Seeds.run/0; add env guard |
 
-- `test/example/test/example_web/threadline_forwarder_test.exs`
+Verify: `MIX_ENV=dev mix run priv/repo/seeds.exs` succeeds and is idempotent (run twice, same DB
+state). Verify: `MIX_ENV=test mix run priv/repo/seeds.exs` raises with a clear error.
 
-### Modified files (Phase 135)
+### Step 2 — Dev Credentials Page (depends on Step 1: needs persona list)
 
-- `test/example/mix.exs` — add Threadline dep
-- `test/example/lib/example/accounts.ex` — add `forwarders:` block to `sigra_config/0`
-- `test/example/AGENTS.md` — document Threadline demo
+| File | Action | Why here |
+|------|--------|----------|
+| `lib/example_web/live/demo_credentials_live.ex` | NEW | renders persona table from Personas module |
+| `lib/example_web/router.ex` | MODIFY | add dev-only `/demo/credentials` route |
 
-## Open architecture questions (escalate to user)
+Verify: `mix phx.server` (dev), visit `/demo/credentials`, see persona table with correct entries.
 
-1. **Forwarder vs Sink naming.** Recommend **Forwarders** because Sigra's audit table is not being swapped out.
-2. **Should `forwarders` be a list, or a single forwarder?** Recommend **list** — matches Phoenix's `pipelines:` ergonomic, future-proofs without cost.
-3. **Telemetry event payload extension.** Today `[:sigra, :audit, :log]` carries `%{action, actor_id, outcome}` only. Recommend extending metadata to include the full event struct (backwards-compatible). Document as a public telemetry contract extension.
-4. **Failure semantics for the inline dispatch path.** Recommend **log + telemetry**, do not re-raise.
-5. **`mix sigra.doctor` task.** Referenced in v1.21 narrative but not present. Recommend **defer to a separate quick after v1.29 ships** — keep this milestone bounded.
+### Step 3 — Playwright Demo Spec (depends on Step 1: seeds must exist)
 
-## Confidence levels
+| File | Action | Why here |
+|------|--------|----------|
+| `priv/playwright/tests/demo-showcase.spec.ts` | NEW | exercises seeded personas over browser |
+| `priv/playwright/playwright.config.ts` | MODIFY | add `demo-showcase` project partition |
 
-| Area | Level | Evidence |
-|---|---|---|
-| Existing audit emission surface | HIGH | Direct read of `lib/sigra/audit.ex` |
-| Optional-dep extension precedent | HIGH | `rate_limiter.ex` + `rate_limiters/{hammer,noop}.ex` + `application.ex` warnings all read |
-| Install feature pattern | HIGH | `feature.ex` + `features/passkeys.ex` + `mix/tasks/sigra.install.ex` all read |
-| ExDoc extras/groups wiring | HIGH | `mix.exs:163-218` read directly |
-| Reference example CI wiring | HIGH | `.github/workflows/ci.yml` grepped at `test/example` paths |
-| Mailglass shipped state | HIGH | No `Sigra.Mailers.Adapters.Mailglass` exists on v1.28-data-lifecycle |
-| `Sigra.OptionalDeps` claim | HIGH (against) | Module does not exist; pattern is scattered `Code.ensure_loaded?` |
-| Threadline as a library | MEDIUM-HIGH | Confirmed by STACK research at hex.pm/packages/threadline 0.5.0 |
-| Recipe TODO file existence | HIGH | STATE.md references them; `find` shows files do not exist on disk |
+The new `demo-showcase.spec.ts` pattern:
+- Reads personas by their stable `@demo.sigra.dev` email addresses
+- Does NOT generate fresh accounts (contrast with golden-path)
+- Asserts auth-state-specific behavior: admin panel visible for alice, lock screen for dave, MFA
+  enabled for alice
+- Tagged/isolated so it does not run when the DB has not been seeded
+
+### Step 4 — Screenshot Script (depends on Step 3: Playwright working)
+
+| File | Action | Why last |
+|------|--------|----------|
+| `priv/playwright/tests/screenshot.spec.ts` | NEW | capture populated pages for README |
+
+### Step 5 — README Evaluator Lane (depends on Step 4: screenshots exist)
+
+| File | Action | Why last |
+|------|--------|----------|
+| `test/example/README.md` (create if absent) or root README | MODIFY | add "Try it locally" section |
+
+## Crypto at Seed Time
+
+The example app uses `Example.Accounts.Encrypted.Binary` as a passthrough (no-op) type — not
+real `Cloak.Ecto`. The module's own docstring states: "A production app MUST replace this with a
+real `Cloak.Ecto.Binary` subtype backed by a `Cloak.Vault`."
+
+This means:
+- TOTP secrets stored in `user_mfa_credentials.encrypted_secret` are NOT actually encrypted in
+  the dev database. The passthrough type stores the raw binary as-is.
+- OAuth access/refresh tokens (if any seeded persona has OAuth) are similarly unencrypted.
+
+This is acceptable for a local dev demo. Seeds must store the TOTP secret in the format the
+passthrough type expects: a raw binary string (not a cloak ciphertext envelope).
+
+Password hashing at seed time is the main latency concern. The fast Argon2 config (`t_cost: 1,
+m_cost: 8`) is in `config/test.exs` only. Seeds run under `MIX_ENV=dev` which uses
+production-equivalent Argon2 parameters (~200-500ms per hash). With 6 personas:
+
+- Total seed time: ~1.2 – 3 seconds for password hashing alone
+- Acceptable for a one-time `mix setup`; this is why tests use the fast config and never call seeds
+
+If seed time becomes a concern, precompute hashed passwords as known-good constants using
+`mix run -e "IO.puts Argon2.hash_pwd_salt(\"DemoPassw0rd!\")"` and store them as module
+attributes. This reduces seed runtime to near-zero at the cost of a one-time precomputation step.
+
+Recommendation: do not precompute for v1.31. Accept the ~2-3s seed time; document it. Only
+precompute if evaluator feedback identifies `mix setup` speed as a friction point.
+
+## Integration Points
+
+### Existing Boundaries (unchanged)
+
+| Boundary | How Demo Seeds Interact | Notes |
+|----------|------------------------|-------|
+| `Example.Accounts.register_user/1` | Seeds should call through it for initial user creation | Fires audit rows, handles normalization; seeds then patch `confirmed_at` via direct `Repo.update!` |
+| `Sigra.Testing.setup_totp/2` | Seeds can call it directly for MFA credential creation | Available in all envs (not test-only); correct way to populate credential schema |
+| `Example.Repo` | Seeds write directly via Repo for fields context API does not expose | No sandbox; writes persist to `example_dev` DB |
+| `SQL.Sandbox` | Tests use it; seeds never interact with it | Completely separate execution path |
+
+### New Integration Points
+
+| Boundary | Pattern | Notes |
+|----------|---------|-------|
+| `Example.Demo.Seeds` vs `Example.Accounts` context | Prefer context API; use direct Repo writes only for fields context does not expose (confirmed_at, locked_at) | Context calls fire correct audit events |
+| `demo-showcase.spec.ts` vs dev server | Playwright connects to localhost:4000; server must be running with seeded DB | In CI: launch server in background, verify seeded, then run Playwright |
+| `DemoCredentialsLive` vs `Example.Demo.Personas` | LiveView reads persona list at mount time from module attribute | No DB query needed; `personas.ex` is the source of truth for displayed credentials |
+
+## Critical Architectural Risk and Mitigation
+
+### Risk: Demo Seeds Breaking CI Determinism
+
+**What could go wrong:** A future CI job inadvertently runs seeds in the test database, or a
+Playwright spec references seeded personas in a context where the DB has not been seeded.
+
+**Why this is the single biggest risk:** All other risks (seed idempotency, credential page
+exposure, screenshot flakiness) are recoverable with a one-line fix. This risk could silently
+corrupt CI reliability — tests pass locally with seeds, fail in CI without seeds, or vice versa.
+
+**Concrete failure modes:**
+
+1. A future CI step adds `mix setup` (which calls seeds) before `mix test`. Seeds run in
+   `MIX_ENV=test`, write to `example_test`, tests see unexpected rows causing test failures or
+   false positives due to unique-constraint conflicts on email.
+
+2. A Playwright golden-path spec is updated to use a hard-coded email like `alice@demo.sigra.dev`
+   (copying from the credentials page) instead of a fresh `Date.now()` address. The spec becomes
+   dependent on seeded data and fails whenever the DB is reset without re-seeding.
+
+3. The `demo-showcase.spec.ts` is added to the existing Playwright `chromium` project instead of
+   a dedicated project. It runs in CI alongside golden-path specs where seeds may not be present.
+
+**Mitigations (in priority order):**
+
+1. **Hard env guard in `seeds.exs`:** `if Mix.env() == :test, do: Mix.raise(...)`. This makes
+   accidental test-env seeding a loud failure rather than silent corruption. Most important
+   mitigation. Two lines. Ship it.
+
+2. **Reserve `@demo.sigra.dev` as the seed email domain.** All seeded personas use
+   `*@demo.sigra.dev` emails. All Playwright golden-path specs use `*@example.test` emails with
+   `Date.now()` suffixes. The domain difference is visually distinct in code review. Any spec
+   using `@demo.sigra.dev` is immediately recognizable as seed-coupled.
+
+3. **Playwright demo spec goes in a dedicated CI project.** Put `demo-showcase.spec.ts` in a
+   separate Playwright project (`demo-showcase`) in `playwright.config.ts`. Exclude it from the
+   `chromium` and `mobile` projects via `testIgnore`. The demo lane only runs when the dev server
+   is pre-seeded. This mirrors the existing partition pattern already established in the config
+   (ADMIN_BEHAVIOR_SPECS, ADMIN_CHECKPOINTS_SPEC, etc.).
+
+4. **Do not modify the `test` alias.** The `test: ["ecto.create --quiet", "ecto.migrate --quiet",
+   "test"]` alias is the invariant that preserves CI determinism. No seeds clause is ever added.
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Seeds in the Test Alias
+
+**What people do:** Add `run priv/repo/seeds.exs` to the `test` alias in `mix.exs` to make test
+data "richer" or to pre-populate state for Playwright tests.
+
+**Why it's wrong:** Breaks sandbox isolation. Tests see rows they did not insert. Ordering-
+dependent test failures emerge. Async tests will see each other's seeded state. Seeds run with
+`MIX_ENV=test` parameters and produce different behavior than dev.
+
+**Do this instead:** Keep seeds out of the test alias entirely. Tests create all their own data
+via `Example.AccountsFixtures`. Seeds are only for the dev database.
+
+### Anti-Pattern 2: Hard-coded UUIDs in Seeds
+
+**What people do:** Specify fixed UUID primary keys in seed upserts (e.g., `id:
+"00000000-0000-0000-0000-000000000001"` for alice) to enable stable cross-references.
+
+**Why it's wrong:** Any foreign key in another seed or fixture that references this UUID will
+break if applied to a database where that UUID is already taken. Creates false coupling.
+
+**Do this instead:** Let UUIDs be database-generated. Key all upserts on the natural key (email
+for users, slug for organizations). Fetch the generated ID after upsert when cross-referencing.
+
+### Anti-Pattern 3: Playwright Demo Spec in the Golden-Path Lane
+
+**What people do:** Add demo-aware assertions to `golden-path.spec.ts` (e.g., "log in as alice
+and check admin panel").
+
+**Why it's wrong:** `golden-path.spec.ts` runs in CI against a server that may or may not be
+seeded. If seeds are not present, the spec fails because alice does not exist.
+
+**Do this instead:** Keep demo-coupled assertions in `demo-showcase.spec.ts` only. Run that spec
+in a dedicated Playwright project that explicitly depends on seeds. The golden-path spec continues
+to register fresh users and has zero dependency on seeded personas.
+
+### Anti-Pattern 4: Bypassing Context API for All Seed Writes
+
+**What people do:** Bypass the `Example.Accounts` context and write directly to schemas for every
+seed insert (e.g., `%User{} |> Repo.insert!` without going through `Accounts.register_user`).
+
+**Why it's wrong:** Context functions fire audit events, trigger optional-dep hooks (Oban jobs,
+Threadline forwarder), and validate invariants. Seeds that bypass the context will produce a
+database state that looks wrong to anyone inspecting audit logs — the demo becomes untrustworthy
+as a representation of how Sigra actually works.
+
+**Do this instead:** Seed through `Accounts.register_user` then patch fields the API does not
+expose (like `confirmed_at`, `locked_at`) via a direct `Repo.update!` with a plain changeset.
+For MFA enrollment, use `Sigra.Testing.setup_totp/2` which is available in all environments and
+correctly populates the credential schema.
 
 ## Sources
 
-- `/Users/jon/projects/sigra/lib/sigra/audit.ex`
-- `/Users/jon/projects/sigra/lib/sigra/rate_limiter.ex`, `rate_limiters/hammer.ex`, `rate_limiters/noop.ex`
-- `/Users/jon/projects/sigra/lib/sigra/workers/account_deletion.ex`, `audit_cleanup.ex`
-- `/Users/jon/projects/sigra/lib/sigra/application.ex`
-- `/Users/jon/projects/sigra/lib/sigra/mailer.ex`
-- `/Users/jon/projects/sigra/lib/sigra/install/feature.ex`, `features/passkeys.ex`
-- `/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex`
-- `/Users/jon/projects/sigra/mix.exs`
-- `/Users/jon/projects/sigra/guides/recipes/companion-oauth-provider.md`
-- `/Users/jon/projects/sigra/.github/workflows/ci.yml`
-- `/Users/jon/projects/sigra/test/example/mix.exs` and `lib/example/accounts.ex`
-- `/Users/jon/projects/sigra/.planning/MILESTONE-ARC.md`, `PROJECT.md`, `STATE.md`
+- `test/example/mix.exs` — aliases (setup / test / ecto.setup) confirming seeds.exs execution path (HIGH confidence, direct inspection)
+- `test/example/priv/repo/seeds.exs` — currently empty; `ecto.setup` alias confirmed as the entry point (HIGH confidence)
+- `test/example/config/test.exs` — separate `example_test` DB + `Ecto.Adapters.SQL.Sandbox` pool (HIGH confidence)
+- `test/example/config/dev.exs` — `example_dev` DB; no sandbox pool (HIGH confidence)
+- `test/example/test/support/fixtures/auth_fixtures.ex` — all test data factory patterns; `System.unique_integer()` suffix and `@example.com` domain convention (HIGH confidence)
+- `test/example/priv/playwright/playwright.config.ts` — Playwright project partitioning pattern to follow for demo-showcase isolation (HIGH confidence)
+- `test/example/priv/playwright/helpers/fixtures.ts` — `@example.test` domain convention for golden-path specs (HIGH confidence)
+- `test/example/lib/example/accounts/encrypted.ex` — passthrough cloak type; confirms encryption is no-op in example app (HIGH confidence)
+- `test/example/lib/example/accounts/user_mfa_credential.ex` — `encrypted_secret` field type; seeding TOTP secrets requires raw binary compatible with passthrough type (HIGH confidence)
+- `.planning/MILESTONE-ARC.md` — DEMO-SHOWCASE scope: extend test/example, not separate repo; Phase 114 nested-app-drift cost already paid (HIGH confidence)
+- `.planning/PROJECT.md` — v1.31 goal: idempotent deterministic seeds.exs, one-command spin-up (HIGH confidence)
+
+---
+*Architecture research for: v1.31 DEMO-SHOWCASE — dual-role CI fixture + evaluator showcase*
+*Researched: 2026-05-29*

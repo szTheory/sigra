@@ -1,274 +1,350 @@
-# Pitfalls Research — v1.29 SUITE-INTEGRATION
+# Pitfalls Research
 
-**Domain:** Companion-library integration for an established Phoenix auth library (Sigra + szTheory OSS suite: Accrue, Lockspire, Mailglass, Relyra, Rulestead, Threadline)
-**Researched:** 2026-05-27
-**Confidence:** HIGH — anchored in Sigra's own precedent (v1.21 HARD-02 optional-dep gating, v1.25 EMAIL-RAILS Mailglass adoption, ADR 001 Lockspire deferral) and the published `Sigra.Audit` module (`lib/sigra/audit.ex`, 528 lines) whose contract every adapter must respect.
-
----
-
-## Critical Pitfalls
-
-### Pitfall 1: Compile-time coupling to an optional companion library
-
-**What goes wrong:**
-A new adapter (e.g. `Sigra.Audit.Adapters.Threadline`) references `Threadline.Event` or `Threadline.Repo` at compile time. When an adopter installs Sigra without Threadline, the application fails to compile — or worse, succeeds but raises `UndefinedFunctionError` at runtime when the adapter is invoked. Sigra's release breaks for everyone not opted into Threadline.
-
-**Why it happens:**
-- Idiomatic Elixir code references modules by name; the compiler emits BEAM references to those names. When the dep is missing, those references either generate warnings (`no_warn_undefined` not set) or runtime `:undef`.
-- The Mailglass `OptionalDeps.Sigra` precedent (`test/example/deps/mailglass/lib/mailglass/optional_deps/sigra.ex`) shows the correct pattern: **wrap the entire `defmodule` in `if Code.ensure_loaded?(...)` and set `@compile {:no_warn_undefined, [Module]}`** — but a casual adapter author will skip both.
-- Sigra has **no canonical `Sigra.OptionalDeps` SOT module today.** The v1.21 HARD-02 milestone shipped `mix sigra.doctor` + boot-time `Code.ensure_loaded?` guards scattered across `lib/sigra/{delivery,application,jwt,oauth,mfa,crypto,plug,account}.ex` (29 grep hits). There is no single registry to add a new optional dep to — each adapter author re-invents the guard, and inconsistency creeps in.
-
-**How to avoid:**
-1. **Introduce a canonical `Sigra.OptionalDeps` namespace** before adding the Threadline adapter — mirror Mailglass's pattern (one module per optional dep, conditionally compiled, declaring `available?/0`).
-2. The Threadline adapter module file must open with `if Code.ensure_loaded?(Threadline) do … end` wrapping the entire `defmodule`. The module **must not exist at all** when Threadline is absent.
-3. Set `@compile {:no_warn_undefined, [Threadline, Threadline.Event, …]}` inside the conditional `defmodule` so that on warm rebuilds the compiler does not emit phantom warnings against missing modules.
-4. Callers (config resolution, telemetry handlers, doctor checks) **must guard via `Code.ensure_loaded?(Sigra.Audit.Adapters.Threadline)`** — not the upstream `Threadline` module — because conditional compilation means the *adapter* module is the existence signal.
-5. Extend `mix sigra.doctor` (already shipped in HARD-02) with a per-adapter feature row: when `config :sigra, audit: [adapter: Sigra.Audit.Adapters.Threadline]` is set, doctor checks that `Threadline` is loaded, the Threadline endpoint config is present, and the adapter module is compiled. Failure prints a remediation line, not a stack trace.
-6. Add a CI lane that compiles and tests Sigra **with Threadline absent from `mix.lock`** — the HARD-02 precedent of "3 dep-off CI lanes" is the model. Without this lane, optional-dep regressions ship undetected.
-
-**Warning signs:**
-- A PR adds `{:threadline, "~> X.Y"}` to `mix.exs` without `optional: true`.
-- A PR references `Threadline.…` outside a `Code.ensure_loaded?` guard or outside an `if`-wrapped `defmodule`.
-- `mix compile --force` emits `warning: Threadline.X.Y/Z is undefined` when Threadline is not in the lock.
-- `mix sigra.doctor` does not list the Threadline adapter as a known feature row.
-- A new adapter author copy-pastes scattered `Code.ensure_loaded?(SomeDep)` calls instead of adding a `Sigra.OptionalDeps.Threadline` gateway module.
-
-**Phase to address:**
-Phase 131 (foundational adapter scaffolding). Land `Sigra.OptionalDeps.Threadline` (and the namespace SOT if it does not exist) **before** Phase 132 builds the actual adapter logic. Adopt a "dep-off CI lane" gate as a merge-blocking check.
+**Domain:** Seed-rich evaluator demo for a security-sensitive auth library — extending a dual-role CI fixture
+**Researched:** 2026-05-29
+**Confidence:** HIGH — grounded in Sigra's actual codebase, Phase 114 retro, v1.29 SUITE-INTEGRATION retro, CI yml, test/example structure, and security posture documented in PROJECT.md and CLAUDE.md
 
 ---
 
-### Pitfall 2: Audit-destination divergence between Sigra DB rows and Threadline
+## Priority Note
 
-**What goes wrong:**
-The host configures `Sigra.Audit.Adapters.Threadline` and expects audit rows to land in Threadline. The adapter either:
-- (a) **Replaces** the DB write — audit rows stop landing in Postgres, but `Sigra.Audit.Assertions` (test helpers) and `Sigra.Admin.Audit` (admin LiveView) still query the local `audit_events` table → admin views show empty audit history while Threadline holds the truth; tests pass against an empty table; operators lose forensic data when Threadline is down.
-- (b) **Dual-writes** without a defined precedence — the DB write commits, Threadline POST 500s, retry storms generate duplicates, and audit timestamps in the two systems disagree because Threadline assigns its own.
-- (c) **Replaces silently** when Threadline is unreachable — the adapter swallows the error in a `Task.start/1` and the auth flow continues, but the audit row never lands anywhere → the OWASP "log auth events" invariant is silently broken.
-
-**Why it happens:**
-- `Sigra.Audit.log_multi_safe/3` is co-fated to the **caller's `Repo.transaction/1`** — the audit row commits or rolls back with the auth-state change (`lib/sigra/audit.ex:254-261`). Threadline is an HTTP/event sink, not a Postgres transaction participant; co-fate is not achievable for a remote sink.
-- Sigra has shipped 20+ phases of audit-atomicity work (v1.9 → v1.21 AUD-04..AUD-21) precisely to make audit writes co-fated with state changes. A non-co-fated remote adapter undoes that invariant for any event it claims to own.
-- The current `Sigra.Audit` module has **no behaviour/adapter abstraction.** It writes directly to `:audit_schema` via `Ecto.Multi` and emits `[:sigra, :audit, :log]` telemetry on commit. There is no defined "swap destination" seam, so adapter authors will invent one ad-hoc.
-
-**How to avoid:**
-1. **Default to telemetry-tap, not write-replacement.** The Threadline adapter should be a `:telemetry.attach/4` handler on `[:sigra, :audit, :log]` that forwards committed rows to Threadline. DB rows remain the source of truth; Threadline is a *projection*. This preserves co-fate (only committed rows fire telemetry — see `lib/sigra/audit.ex:286-302`), preserves admin LiveView coverage, and makes Threadline downtime non-blocking.
-2. **Document the destination contract explicitly** in the adapter moduledoc and the recipe: *"DB rows remain authoritative. Threadline is a forwarded projection. If you want Threadline to be the SOT, you are outside the supported contract — and you also need to replace `Sigra.Admin.Audit` views, `Sigra.Audit.Assertions`, and the audit retention/cleanup worker (`Sigra.Workers.AuditCleanup`)."*
-3. **Failure mode must be fail-open, not fail-closed.** Threadline 500/timeout must not break the user-facing auth flow. The telemetry handler runs out-of-band; failures emit a separate `[:sigra, :audit, :forward_error]` telemetry event for the host to alert on.
-4. **Retries belong in the adapter's queue (Oban worker), not in the telemetry handler.** Inline retries inside the telemetry handler block the BEAM scheduler and risk retry storms when Threadline is partially degraded. The adapter's worker should use exponential backoff and a dead-letter terminal state (same shape as `Sigra.Workers.WebhookDelivery` from v1.22).
-5. **De-duplicate on the Threadline side using a stable event ID.** The audit row's UUID primary key is the natural idempotency key; the adapter must include it in the Threadline payload. Without this, retries create duplicate Threadline events.
-6. **Add a milestone-level non-goal:** "Sigra does not support write-replacement audit adapters. Adapters tap committed audit rows; the DB remains the SOT." Capture in MILESTONE-ARC's Diminishing Returns Wall.
-
-**Warning signs:**
-- Adapter implementation contains `def insert(changeset)` or `def write(row)` callbacks — implies destination swap, not forwarding.
-- Adapter calls happen *inside* `Ecto.Multi` steps or `Repo.transaction/1` — synchronous coupling to a remote service inside a DB transaction is a deadlock/timeout magnet.
-- Admin LiveView shows fewer rows than Threadline, or vice versa, in a soak test.
-- Threadline downtime in staging produces 5xx responses on login, MFA, or password change.
-- No `[:sigra, :audit, :forward_error]` telemetry event is documented.
-
-**Phase to address:**
-Phase 132 (Threadline adapter design + contract). The phase must produce a `Sigra.Audit.Adapters` behaviour (or explicit telemetry-handler convention) document and a contract test asserting: (a) committed rows are forwarded, (b) rolled-back rows are NOT forwarded, (c) Threadline downtime does not break auth, (d) duplicate-protection via event ID.
+This document is organized by severity within domain. **Security pitfalls lead** because Sigra is an auth library: a demo that weakens its own security model or leaks bad credential patterns would undermine the entire trust surface the library is trying to sell. CI-determinism pitfalls come second because the fixture role of `test/example/` must survive unchanged.
 
 ---
 
-### Pitfall 3: Recipe rot when companion libraries change their API
+## Critical Pitfalls — Security
+
+### Pitfall S-1: Seeded demo passwords that look usable and are publicly committed
 
 **What goes wrong:**
-A `guides/recipes/companion-threadline-audit.md` ships at v1.29 documenting `Threadline.Event.create/1`. Six months later, Threadline 2.0 renames it to `Threadline.Events.publish/1`. Adopters following the Sigra recipe get `UndefinedFunctionError`. Sigra has no signal that the recipe is stale; nobody owns Threadline-compatibility validation; the recipe drifts silently. Same problem multiplied across Accrue, Lockspire, Mailglass, Relyra, Rulestead.
+`seeds.exs` commits credentials like `"admin123"`, `"password"`, `"Demo@1234"`, or any password that an evaluator might copy-paste into a real project or that maps to a known password list. Because `seeds.exs` runs in `MIX_ENV=dev` against the same codebase and config path an adopter would use, there is no environment gate preventing those credentials from reaching a production-adjacent clone. The Playwright specs that exercise seeded data will also embed these credentials in their source as string literals, where they persist in git history forever.
 
 **Why it happens:**
-- Documentation-only integrations have no CI signal. Markdown does not compile.
-- ADR 001 explicitly chose "documentation + recipes" over a glue package precisely to avoid the version-lock matrix — but the recipe path needs a different verification model than a real Hex package would.
-- Sigra ships at high cadence (28 milestones in 6 weeks); companion libs ship independently. Drift is statistically guaranteed without an executable contract.
-- Phoenix's own ecosystem docs (the Phoenix guides + HexDocs Mix tasks) live in the same repo as the code they document, so drift is bounded to one repo. Cross-repo recipes don't have that property.
+Demo seeds prioritize "easy to log in" over "credible security posture." The person writing the seed just needs to remember the password to click through the demo. The credentials feel throwaway because they're in `test/`. But `seeds.exs` is not test code — it runs in dev, appears in `git log`, and is publicly visible on GitHub. Sigra's value proposition is auth security; a committed weak credential is a direct contradiction.
 
 **How to avoid:**
-1. **Recipes that are not executable are unsupported.** Treat the recipe as a contract; if it can't be exercised in CI, it must not claim "verified" or "tested" status. Mark such recipes "REFERENCE — community contributions welcome, last validated YYYY-MM-DD."
-2. **Pin the exact companion-lib version each recipe was validated against** in the recipe frontmatter: `validated_against_threadline: "~> 0.7.2"` plus a `last_validated: 2026-05-27` date. Make recipe-validation tracking a first-class artifact (`guides/recipes/COMPATIBILITY.md` summarizing all validated combos).
-3. **Run at least one companion lib through real CI** as the "canary adapter" — Threadline is the obvious pick for v1.29 because it's the one Sigra is shipping an adapter for. The test exercises the recipe end-to-end against the pinned Threadline version in a CI job. When Threadline ships a major, the canary breaks; the recipe gets updated or the validated-against pin gets bumped. This buys executable freshness for *one* recipe, not all six.
-4. **Add a quarterly recipe-freshness gate** to `MAINTAINING.md`: when `last_validated` is older than 6 months, the recipe must either be re-validated or have a banner injected: *"This recipe was last validated against Threadline 0.7.2 on 2026-05-27. Newer Threadline versions may require adjustments."*
-5. **Anchor recipes to companion-lib stability tier.** Hex-published libs with semver and a CHANGELOG (Mailglass if/when published) get fuller recipes; non-Hex / pre-1.0 / private libs (Accrue, Lockspire, Relyra, Rulestead today) get **"reference posture only"** recipes with explicit "API may shift" disclaimers.
-6. **Do not include companion-lib API snippets inline if you can't test them.** Prefer linking to the companion lib's own README/docs ("see Threadline §Configuration") plus the Sigra-side wiring that's actually tested. This keeps drift in the companion repo where the maintainer can see it.
+Use a `DEMO_ADMIN_PASSWORD` environment variable with a fallback to a strong random placeholder that is printed to stdout at seed time: `System.get_env("DEMO_ADMIN_PASSWORD") || raise "Set DEMO_ADMIN_PASSWORD"`. Alternatively, generate random passwords per seed run, print them to stdout in a labeled block ("=== DEMO CREDENTIALS ==="), and never commit a hardcoded literal. Add a `.credo.exs` or module-level guard that rejects any password shorter than 12 characters passed directly to Argon2. Document in `seeds.exs` header comments exactly which credential pattern is intentional and why it does not weaken the library's security posture.
 
 **Warning signs:**
-- A recipe contains code snippets with no corresponding `.exs` file in `test/recipes/` or `test/integration/`.
-- The recipe has no `last_validated` date or version pin.
-- A new Sigra release ships without any compatibility check against companion libs the docs mention.
-- An adopter opens an issue: "the recipe doesn't compile."
+Any password in `seeds.exs` that contains `"password"`, `"admin"`, `"demo"`, `"test"`, or `"123"` as a substring. Any Playwright spec that hardcodes a seed credential literal. Any credential that appears in both `seeds.exs` and a Playwright `page.fill()` call without going through an env var or a printed-at-runtime value.
 
 **Phase to address:**
-Phase 133 (recipe authoring + compatibility doctrine). Land the recipe-freshness model, `COMPATIBILITY.md`, and the canary CI lane in the same phase as the first recipe ships.
+Seeds phase (Phase 141 or the first dedicated seed phase). The credential strategy must be decided and documented before any persona is inserted. Playwright exercises of seeded data inherit this decision in the same phase.
 
 ---
 
-### Pitfall 4: Scope creep — Sigra accidentally owns companion-library concerns
+### Pitfall S-2: Demo disabling enumeration prevention or rate limiting "to make it easy to log in"
 
 **What goes wrong:**
-The Threadline adapter feature pulls Sigra into owning concerns it should not:
-- Sigra's `mix sigra.install` grows a `--threadline-endpoint` flag, then a `--threadline-api-key-env` flag, then a `mix sigra.threadline.test` task. Sigra now owns Threadline's configuration UX.
-- Sigra ships a migration that creates `threadline_dlq` tables for the adapter's retry queue. Sigra now owns a piece of Threadline's schema.
-- Operators file Sigra issues for Threadline outages because the adapter is "in Sigra." Sigra's maintainer triage backlog inherits Threadline's operational concerns.
-- ADR 001 deferred a `sigra_lockspire` glue package on identical grounds — but the same drift can happen *inside Sigra core* if the boundary isn't held visibly.
+The evaluator wants to try logging in as multiple personas quickly. The seed script or demo config silently sets `enumeration_prevention: false` or uses a Hammer no-op backend to avoid lockout during demos. Those config values live in `dev.exs`, which is the same file used for real development. An adopter who clones and starts building from the example app inherits the weakened config. Even if the adopter doesn't use `test/example/` as a template, the documentation screenshots and README "try it locally" lane now show a demo that doesn't match production behavior — an evaluator who sees instant error messages on bad passwords (enumeration leak) or no lockout after 10 wrong guesses will draw incorrect conclusions about library behavior.
 
 **Why it happens:**
-- The auth library is the integration hub for many adopter concerns (sessions, audit, email, identity), so it's tempting to absorb companion concerns into the hub.
-- Generators and install tasks have a natural "while we're here" gravity — adding one more flag feels cheap; ten more flags later, Sigra owns the world.
-- Maintainers often respond to "the integration broke" issues by fixing in Sigra rather than triaging to the companion lib.
+Rate limiting and enumeration delays are friction during demos. A presenter who's demonstrating persona switching doesn't want to wait 200ms per hash or get locked out after testing the wrong-password path. The fix feels harmless because it's in `dev.exs`, not `prod.exs`.
 
 **How to avoid:**
-1. **Codify ownership in the milestone non-goals (already drafted in `PROJECT.md` line 37):** *"owning any companion library's roadmap, replacing recipes with code where the library boundary doesn't justify it."* Reaffirm in every adapter moduledoc with an "Ownership" section: what Sigra owns (the seam, telemetry, optional-dep guard), what the host owns (config, deploy), what the companion lib owns (its own schema, API, SLO).
-2. **No companion-specific install flags beyond a single opt-in toggle.** The v1.25 `--with-mailglass` precedent is the ceiling: one boolean per companion. No `--threadline-endpoint`, no `--threadline-api-key-env`. Config lives in the host's `config/runtime.exs`, owned by the host.
-3. **Adapters do not ship migrations for companion lib state.** If the adapter needs a queue, it uses Oban's `default` queue (already a Sigra optional dep) with a Sigra-owned worker module — no companion-specific tables. If the companion lib needs schema (e.g. Threadline events), the companion lib owns it.
-4. **Issue-triage protocol in `MAINTAINING.md`:** issues about companion-lib behavior get triaged to the companion repo with a stock response. Sigra's responsibility ends at the seam contract: "did the telemetry fire correctly with the documented payload shape?"
-5. **Quarterly boundary audit:** count lines of code, doc, and config Sigra ships for each companion. If the count grows >2x without a clear adopter pull, the boundary is leaking.
-6. **The `examples/` reference app (if any) lives in a separate repo or `examples/` subdir gated by its own CI job — not coupled to Sigra's core test suite.** See Pitfall 6.
+Never touch `enumeration_prevention` or Hammer backends in the demo path. The demo must demonstrate exactly what adopters will ship — that means showing the same timing behavior, the same non-enumerable error messages, and the same lockout UX. The "locked account" persona demonstrates lockout state without requiring the evaluator to trigger it live. If Argon2 timing is the concern, that is addressed separately (see Pitfall C-1 on seed cost). The README evaluator lane should explicitly call out that the demo uses production-grade security settings — this is a feature, not a bug.
 
 **Warning signs:**
-- A PR adds `--threadline-*` install flag beyond the single opt-in toggle.
-- A migration template references companion-lib table names.
-- An adapter's moduledoc explains how to operate the companion lib (vs. how Sigra connects to it).
-- The Sigra issue tracker accumulates "Threadline is slow," "Mailglass deliverability question," "Accrue billing not syncing" issues without triage tags.
-- A recipe is rewritten as a generator template "for convenience."
+Any diff in `dev.exs` touching `enumeration_prevention`, `Hammer`, rate-limit config, or Argon2 parameters that is not already present in the codebase today. Any seed-setup script that modifies `Application` config at runtime to disable security checks.
 
 **Phase to address:**
-Phase 131 (boundary doctrine). The first phase of v1.29 must produce a `guides/introduction/suite-narrative.md` (already on the scope list) that defines the ownership boundary visibly. Every subsequent phase's PLAN must check this doctrine before adding surface area.
+Seeds phase. Add a test-time assertion (or a `mix sigra.doctor`-style check) that dev config preserves the expected enumeration/rate-limit settings. This is a success criterion, not just a guideline.
 
 ---
 
-### Pitfall 5: Suite-narrative over-promising — "works seamlessly together"
+### Pitfall S-3: Demo personas using real-looking PII — real email patterns, real names, real phone numbers
 
 **What goes wrong:**
-The new `guides/introduction/suite-narrative.md` says things like:
-- *"Sigra, Mailglass, and Threadline work seamlessly together."* → adopter expects zero-config integration, hits one config knob, opens a "false advertising" issue.
-- *"The szTheory suite is the recommended way to deploy Sigra in production."* → adopter reads this as "Sigra-without-the-suite is unsupported," chooses a competitor.
-- *"Threadline is the recommended audit destination."* → reads as "DB-only audit is deprecated."
-- *"Just add `:threadline` to your deps and you're done."* → under-documents the configuration, signing-key setup, and the failure modes of Threadline-down scenarios.
+Seed personas use `admin@acme.com`, `john.smith@techcorp.io`, or phone numbers that map to real people or real organizations. These appear in screenshot captures committed to the repo, in HTML snapshots, and in Playwright baselines. If the screenshots are published (the repo has a `playwright-github-pages.yml` CI job that publishes to GitHub Pages), the PII propagates to a public URL.
 
 **Why it happens:**
-- Marketing voice creeps into ecosystem docs when the same person writes both.
-- Suite narratives invite vendor-lock-in framing even when the libs are MIT-licensed and independent.
-- It's easier to write a glossy "works together" sentence than the longer "here's the contract, here are the failure modes, here's what you give up if you don't" paragraph.
+Realistic-looking names make demos feel polished. The persona set is invented but modeled on real-world naming conventions. The people writing the seeds don't expect anyone to mistake `john.smith@techcorp.io` for a real person.
 
 **How to avoid:**
-1. **Banned marketing phrases in suite docs:** "seamlessly," "just works," "production-ready out of the box," "the recommended way." Replace with bounded claims: *"When Threadline is configured per the recipe, committed audit rows are forwarded asynchronously. If Threadline is unreachable, audit forwarding is queued with bounded retries and DLQs; the auth flow is not blocked."*
-2. **Every "X works with Y" claim must link to (a) the recipe, (b) the validated version pin, (c) the failure-mode section.** No floating endorsements.
-3. **Explicit non-requirement banner on each adapter:** *"Sigra works fully without Threadline. The Threadline adapter is opt-in via `config :sigra, audit: [adapter: Sigra.Audit.Adapters.Threadline]`. Default audit-to-DB remains the supported configuration."* This banner is mandatory in the moduledoc, the recipe, and the suite-narrative page.
-4. **No "recommended stack" language.** "Compatible companion libraries" is the upper bound of endorsement. The Diminishing Returns Wall (`MILESTONE-ARC.md` line 213) already commits Sigra to not owning opinionated authorization, billing, or UI; extend the same restraint to suite framing.
-5. **Failure-mode section is mandatory in every recipe.** Minimum: what happens when the companion is down, when it returns 4xx, when it returns malformed payload, when its API rotates.
+Use obviously fictional domains: `@sigra.example`, `@example.test`, `@acme.example`. Use names that signal fiction: personas named after their auth role/state ("Alex Admin", "Ursula Unconfirmed", "Otto OAuth", "Petra Passkey", "Lena Locked") make the seed purpose self-documenting and are impossible to mistake for real users. Avoid any email pattern that resolves to a real domain. Add a CI lint that rejects any email in `seeds.exs` that doesn't end in `.example` or `.test` (RFC 2606 reserved).
 
 **Warning signs:**
-- A guide uses the words "seamlessly," "just works," or "recommended stack."
-- A recipe lacks a "Failure modes" section.
-- A README sentence reads as if Sigra is incomplete without the companion.
-- An issue arrives: "I thought I had to use Mailglass — can I use plain Swoosh?"
+Any email in seeds that ends in `.com`, `.io`, `.org`, or any non-reserved TLD. Names that sound like real people rather than role labels. Phone numbers of any kind.
 
 **Phase to address:**
-Phase 131 (suite-narrative authoring) + Phase 134 (recipe authoring contract). Treat this as a copy-review gate in PR review: no "seamless" merges.
+Seeds phase. The persona naming convention should be decided in the discuss/planning stage, not corrected after screenshots are committed.
 
 ---
 
-### Pitfall 6: Reference example app drift and CI cost
+### Pitfall S-4: Demo-only OAuth credentials or API keys committed to the repository
 
 **What goes wrong:**
-A new `examples/sigra-suite/` app is created at v1.29 showing Sigra + Threadline + (optionally) Accrue. Six months later:
-- The example app pins `sigra ~> 1.29`, has not been updated since the v1.29 ship, references deprecated generator templates, runs an old Phoenix version, and the README screenshot shows a UI element that no longer exists.
-- The example app's CI lane consumes 30% of total CI minutes because it does `mix phx.new` + `mix sigra.install` + `mix deps.get` + browser smoke on every push.
-- Fixture data in the example app drifts from `priv/templates/sigra.install/` golden fixtures (`test/sigra/install/golden_diff_test.exs`) → two SOTs disagree.
-- The example app's tests pass against the example's local Sigra version but break against `main` because the example was never wired into Sigra's monorepo test harness.
+To make the OAuth persona ("Otto OAuth") work click-through in the demo, someone adds a real Google/GitHub OAuth client ID and secret to `dev.exs` or a `.env` file that gets committed. Even as a demo-only credential scoped to `localhost:4000`, this is a committed secret. GitHub secret-scanning will flag it; security-conscious evaluators will notice; and the credential may be rotated without the repo being updated, breaking the demo silently.
 
 **Why it happens:**
-- Reference apps are demos at creation time and rot rapidly without an owner.
-- Phoenix LiveView, generator output, and dep matrices shift on every Sigra minor; the example needs continuous reconciliation.
-- CI cost feels free at ship time and burdensome later.
-- The temptation to "improve the example beyond the recipe" splits effort between two SOTs.
+The OAuth flow genuinely requires valid credentials to complete the browser callback cycle. The person setting up the demo doesn't want to document "go get your own OAuth app" as a setup step. They add the demo creds "just for the example app."
 
 **How to avoid:**
-1. **Decide upfront: example in-repo or out-of-repo.** In-repo costs CI minutes but stays current; out-of-repo costs nothing but rots. ADR 001 chose "documentation + recipes" precisely to avoid the maintenance matrix; apply the same restraint here. Default for v1.29: **no examples/ subdir.** Use the existing `test/example/` nested app (already in the repo, already CI-validated) for whatever integration proof is needed.
-2. **If a reference example ships anyway**, scope it to one companion (Threadline, since it's the one with the adapter), keep it under `examples/threadline/`, gate it behind a `mix sigra.example.threadline` task, and add a single CI lane that boots it, runs a smoke (login + audit assertion against Threadline), and exits. No browser, no fixtures, no UI verification.
-3. **Treat example apps as part of the recipe `last_validated` tracking** — when the recipe is re-validated, the example is re-run. Out of validation date → CI is allowed to mark "stale" instead of failing red, but the README banner appears.
-4. **Never duplicate generator golden fixtures.** Example app's `lib/example_app_web/` is generated by `mix sigra.install` and re-generated on every Sigra release; it is not a separate SOT. The example is *consumer config + companion wiring*, not a fork of the generator output.
-5. **Hard cap CI minutes for example/integration lanes.** Set a budget (e.g. 5 minutes for the example lane); enforce in CI workflow. If the lane exceeds budget, optimize or remove — do not lazily expand.
+OAuth persona demonstration should not require a live OAuth callback. Use the existing Assent mock path or a stub identity fixture injected directly via the `user_identities` table in seeds — show that the user *has* an OAuth-linked identity without requiring the evaluator to complete an OAuth dance. If a live OAuth demo is ever required, it must use environment variables (`GOOGLE_CLIENT_ID`, `GITHUB_CLIENT_ID`) with no fallback defaults in tracked files, and the README must document that OAuth live flow requires a personal OAuth app. The `dev.exs` in the repo today already has no OAuth config — keep it that way.
 
 **Warning signs:**
-- The example app diverges from `priv/templates/sigra.install/` output.
-- CI runtime for the example lane grows >2x.
-- Example app's last commit is from a previous Sigra minor.
-- The example README screenshots no longer match the current LiveView output.
-- An adopter follows the example, hits an error, and the error doesn't reproduce against the recipe.
+Any string beginning with `GOCSPX-`, `ghp_`, `sk-`, or any pattern matching an OAuth or API key format in `seeds.exs`, `dev.exs`, or `config.exs`. Any new entry added to `.gitignore` that suggests a committed secret was discovered after the fact.
 
 **Phase to address:**
-Phase 135 (reference example decision + scope). The phase must explicitly choose "no examples/" or "scoped Threadline-only example" with hard CI budget. Do not defer this to phase-end polish.
+Seeds phase. The OAuth persona implementation strategy (stub identity vs. live callback) must be settled before any seed code is written. Stub injection is the default; live OAuth is an explicit opt-in requiring env vars only.
 
 ---
 
-### Pitfall 7: Cross-library event/audit duplication and conflicting records
+### Pitfall S-5: Demo weakening the library's security model to show "all features" simultaneously on one account
 
 **What goes wrong:**
-A login event arrives at the Sigra audit table (`auth.login.success`). It also fires `[:sigra, :audit, :log]` telemetry. The Threadline adapter forwards it to Threadline as one event. Simultaneously, the v1.22 webhook pipeline (already shipped) emits an `auth.login.success` webhook to subscribed endpoints. If Mailglass logs an email failure related to the login (lockout email send), Mailglass writes its own event to *its* event store. The host now has:
-- 1 row in the Sigra audit table
-- 1 row in Threadline (forwarded copy)
-- N webhook deliveries (one per subscription) — each persisted in Sigra's `webhook_deliveries` table
-- 1 entry in Mailglass's event store for the email outcome
-
-When the host reconciles, the same logical event is represented 4+ ways with potentially conflicting timestamps, conflicting metadata, and conflicting "what is the source of truth." Compliance auditors get confused; operators get paged spuriously; investigations cite the wrong record.
+To demonstrate every auth feature on a single admin persona, the seed creates an account that has MFA enabled, a passkey registered, an OAuth identity, an API token, and an active session simultaneously — then the README shows how to log in with that account's known password, bypassing MFA by using a hardcoded TOTP secret embedded in seeds. The TOTP secret appears in `seeds.exs` in plaintext. Once extracted, it allows anyone with the seed file to generate valid TOTP codes forever for that account.
 
 **Why it happens:**
-- Multiple pipelines (audit, webhooks, email-event hooks) were added incrementally. Each was correct in isolation; their composition was never specified.
-- Each pipeline has its own ID space, its own timestamping, its own retry semantics.
-- The natural inclination on "we need observability" is "add another sink" rather than "rationalize what the sinks are."
+A complete demo persona is more impressive than a partial one. The TOTP secret must be known to demonstrate the MFA challenge flow. It feels like demo infrastructure, not a security surface.
 
 **How to avoid:**
-1. **Declare the canonical event ID and timestamp once, propagate everywhere.** The Sigra audit row's UUID and `occurred_at` are the canonical pair. Every downstream pipeline (webhooks, Threadline adapter, future suite consumers) **must** include both in the forwarded payload. Adopters can join across systems on the audit ID. This is a *contract*, not a *suggestion*; encode it in the webhook envelope (already partially present from v1.22 WH-01) and in the Threadline adapter payload.
-2. **Document the "fan-out matrix" explicitly** in the suite-narrative guide:
-
-   | Event class | Sigra DB | Telemetry | Webhooks (v1.22) | Threadline adapter | Mailglass event |
-   |---|---|---|---|---|---|
-   | auth.login.success | authoritative | always | if subscribed | if configured | n/a |
-   | account.email_send.failure | n/a | always | if subscribed | if configured | authoritative |
-   | webhook.delivery.dlq | authoritative | always | n/a (don't recurse) | if configured | n/a |
-
-   Adopters need to see this; without it they assume duplication is a bug.
-3. **Webhook subscriptions to Sigra-emitted events must not recurse.** If Threadline is itself a webhook subscriber (it could be) AND the Threadline adapter forwards audit rows, the same event lands in Threadline twice. The adapter must check the subscription registry on install / doctor and warn on the duplicate path. Recipe must call this out.
-4. **Mailglass email-failure events are NOT audit events.** Mailglass's event store covers email-delivery lifecycle (sent, bounced, complained). Sigra audit covers auth-state changes. These are distinct concerns; do not collapse them. The v1.25 EMAIL-RAILS bounce/complaint hooks (`Sigra.Email` host-owned handler seam) already preserve this boundary — keep it.
-5. **Provide a `Sigra.Audit.canonical_id/1` helper** so downstream consumers can extract the ID without reinventing the convention.
+TOTP secrets must be generated randomly at seed time (using `NimbleTOTP.otpauth_uri/3` with a fresh `NimbleTOTP.secret/0`) and printed to stdout for the evaluator. Never embed a known TOTP secret in tracked code. The Playwright spec can read the TOTP secret from the printed output or from a dedicated env var injected at test time — the existing `golden-path.spec.ts` already does this correctly by reading the secret from the QR-code DOM element, not from a hardcoded seed value. The demo cheat-sheet (README evaluator lane) should instruct the evaluator to run seeds first, then copy the printed TOTP setup URI into any authenticator app — not to paste a hardcoded secret.
 
 **Warning signs:**
-- A webhook payload and a Threadline payload for the same logical event have different IDs.
-- A recipe says "configure Threadline as a webhook subscriber" without warning about adapter-overlap.
-- Adopter asks "which is the source of truth?" — the answer is not obvious from docs.
-- An audit query in admin LiveView returns fewer rows than the Threadline query for the same time window.
+Any `NimbleTOTP.secret/0` call result stored as a literal string in `seeds.exs`. Any base32-encoded string that looks like a TOTP secret appearing in git history. Any Playwright spec that hardcodes a TOTP secret as a test-time constant rather than reading it from the running application.
 
 **Phase to address:**
-Phase 132 (adapter contract) + Phase 134 (recipe authoring). The fan-out matrix lives in the suite-narrative guide; the canonical-ID rule is contract-tested in Phase 132.
+Seeds phase, with explicit verification during the Playwright-extension phase that TOTP codes are being generated from a runtime secret, not a committed one.
 
 ---
 
-### Pitfall 8: Recipes for not-yet-published companion libs
+## Critical Pitfalls — CI Determinism
+
+### Pitfall C-1: Argon2id hashing at full cost in seeds makes CI time budgets explode
 
 **What goes wrong:**
-Sigra ships v1.29 with recipes for Accrue, Lockspire, Relyra, Rulestead. Several of these are not yet on Hex.pm (the szTheory suite is internal-to-Jon's-projects at varying maturity). Adopters reading the recipe try `mix deps.get`, get *"package accrue not found"*, file an issue. The recipe has effectively shipped vaporware. Alternatively, the recipe references private GitHub URLs, leaving a maintenance contract Sigra cannot honor.
+`seeds.exs` creates 5-6 persona users, each requiring a full Argon2id hash. In production and dev, Argon2id is intentionally configured at ~200-500ms per hash (OWASP recommendation). 6 personas at 300ms = 1.8 seconds of pure hashing. If the Playwright CI job runs seeds before booting the app (or re-seeds on each run), and CI is running this on an underpowered GitHub Actions runner, this blows up. Worse, the `example_http_smoke` and `example_playwright_smoke` jobs today run in `MIX_ENV=dev`, not `MIX_ENV=test`. The `config :argon2_elixir, t_cost: 1, m_cost: 8` override only exists in `test.exs` — it does NOT apply to `MIX_ENV=dev`. Seeds in dev pay full Argon2 cost.
 
 **Why it happens:**
-- The suite-narrative milestone has a natural pull to enumerate the whole suite even when only Mailglass + (eventually) Threadline are publicly installable.
-- Authoring a recipe is cheap; verifying that the companion lib is actually consumable is the expensive part that gets skipped.
-- "Coming soon" framing is hard to maintain across releases — last year's "coming soon" becomes this year's broken link.
+The `t_cost: 1, m_cost: 8` override in `test.exs` is well-known and correctly applied to ExUnit tests. But `seeds.exs` runs via `mix run priv/repo/seeds.exs` or `mix setup`, which is a `dev` operation — and the example app's `dev.exs` has no Argon2 cost reduction. The person writing seeds knows about the test config override but doesn't realize it doesn't cover the seed path.
 
 **How to avoid:**
-1. **Recipes only ship for companion libs that are either (a) on Hex.pm with a published version, or (b) explicitly labeled `vapor: true` with a "this library is not yet generally available" banner.** No middle ground. The recipe frontmatter declares the status.
-2. **Vapor-status recipes live under `guides/recipes/preview/` with their own index.** They are not linked from the suite-narrative main page; they're discoverable only from the preview index. This prevents accidental "look how complete the suite is" framing.
-3. **The Hex.pm published-status check is automated** — a small CI script reads each recipe's `companion_package:` field and `mix hex.search`-s it; if absent and not labeled `vapor: true`, CI fails. This prevents "we shipped a recipe for `relyra` but it never made it to Hex" drift.
-4. **For libs in vapor status, recipes are "design sketches"** — they describe what the integration *will* look like, but explicitly disclaim "this code does not run today." When the lib publishes, the recipe is promoted from `preview/` to `recipes/`, validated, and gets the standard `last_validated` treatment.
-5. **License + dep posture in `mix.exs`:** never reference an unpublished lib in `mix.exs` even as `optional: true`. Mix will resolve optional deps from Hex by default; pointing at a private GitHub repo creates a clone-time dep that breaks `mix deps.get` for adopters.
-6. **For Threadline specifically** — confirm Hex publish status before Phase 132 ships. If Threadline is not on Hex by v1.29 cut, either (a) defer the adapter until Threadline publishes, or (b) ship the adapter as `Sigra.Audit.Adapters.Threadline` but mark the recipe `preview/` and the `mix.exs` entry as commented-out with a comment pointing at the Threadline release plan.
+Two options, both valid; one must be chosen and documented:
+Option A — fast-hash seeds via Mix env awareness: add `Application.put_env(:argon2_elixir, :t_cost, 1); Application.put_env(:argon2_elixir, :m_cost, 8)` at the top of `seeds.exs`, with a comment explaining why. This is the lowest-friction fix.
+Option B — generate hashed password once per run and reuse it across all personas (all personas share one pre-hashed password, distinct per seed run). This reduces hashing to one operation regardless of persona count.
+In both cases, add a `mix setup` step to the CI seed job that is explicitly timed, with a CI budget ceiling documented in a comment.
 
 **Warning signs:**
-- A recipe references `{:somelib, "~> X"}` but `mix hex.search somelib` returns no result.
-- A recipe links to a GitHub URL instead of HexDocs.
-- A recipe lacks a `companion_package:` field in frontmatter.
-- An adopter opens an issue: "Mix can't find package X."
+CI Playwright job wall-clock time increases by more than 3 seconds after seeds are added. Any Argon2 timing log appearing in `mix run priv/repo/seeds.exs` output showing >100ms per hash in dev.
 
 **Phase to address:**
-Phase 134 (recipe authoring). Pair every recipe with the Hex-publication check before merge.
+Seeds phase. The hash-cost strategy for seeds must be in the requirements, not discovered post-implementation when CI slows.
+
+---
+
+### Pitfall C-2: Seeds making ExUnit tests non-deterministic by polluting the test database
+
+**What goes wrong:**
+The example app's ExUnit tests (`example_unit_smoke` CI job) run with `MIX_ENV=test` using `Ecto.Adapters.SQL.Sandbox`. The test database is separate from the dev database. Seeds run against the dev database. This sounds safe — but the moment someone adds a CI step that runs `mix ecto.seed` (or `mix setup`) inside a test-env CI job, seeded rows leak into the test database and cause test failures when fixtures try to create rows that violate unique constraints (e.g., persona email `admin@sigra.example` already exists).
+
+**Why it happens:**
+A developer runs `mix setup` locally to populate the dev DB, then runs `mix test` — this works fine because they're different databases. But a CI author refactoring the setup job runs `mix ecto.seed` before `mix test` in the same pipeline step, or forgets to scope it to `MIX_ENV=dev`, and the test sandbox gets contaminated.
+
+**How to avoid:**
+Seeds must never run in the `example_unit_smoke` CI job. The `seeds.exs` file should assert at its top that `Mix.env() == :dev`, raising a clear error if invoked in test: `if Mix.env() != :dev, do: raise "seeds.exs must only run in MIX_ENV=dev"`. The CI yml must have no `mix run priv/repo/seeds.exs` or `mix setup` in any step that sets `MIX_ENV: test`. Document this constraint in a comment in `ci.yml` at the seeds step.
+
+**Warning signs:**
+Any `mix setup` or `mix ecto.seed` call in a CI job that also sets `MIX_ENV: test`. Test failures on `users` unique-index violations in the `example_unit_smoke` CI job after the seeds phase lands. Any `seeds.exs` line that calls `Example.Repo.insert!` without an environment guard.
+
+**Phase to address:**
+Seeds phase. The env guard belongs in `seeds.exs` itself, not just in CI config — defense-in-depth.
+
+---
+
+### Pitfall C-3: Playwright specs coupling to seeded persona data that changes across seed runs
+
+**What goes wrong:**
+Playwright specs are extended to exercise seeded data. A spec navigates to `/admin/users` and asserts `expect(page).toContainText("Alex Admin")`. Later, someone renames the admin persona to "Admin User" for a better README screenshot. The Playwright spec now fails on CI. Because the spec was added in the same phase as the seed, the coupling isn't obvious — it looks like a flaky test rather than a seed-data contract violation.
+
+**Why it happens:**
+Playwright specs are written to test what the developer sees on their screen at the time. The demo persona names are visible and concrete. Asserting on them feels natural and stable — they're seed data that doesn't change between test runs. Until someone changes the seed.
+
+**How to avoid:**
+Playwright specs that exercise seeded data should assert on stable structural properties, not persona display names or email addresses. Use `data-testid` attributes on key demo elements (the admin user list, the locked-account badge, the MFA-enabled indicator) rather than text content. When text assertions are necessary, use role labels that are locked to the auth state (e.g., assert "Locked" status badge exists, not that "Lena Locked" appears in a specific table row). The persona names should be defined in a single constant in `seeds.exs` and also exported to a JSON fixture file that Playwright reads — so a name change requires a single-source update, not a grep-across-two-files.
+
+**Warning signs:**
+Any Playwright `toContainText()` or `getByText()` call whose argument matches a persona name or email from seeds. Any spec that would silently pass if the seeded data were absent (i.e., it asserts on something that could also exist from a freshly-registered test user).
+
+**Phase to address:**
+Playwright-extension phase (the phase that extends golden-path to exercise seeded data). This is distinct from the seeds phase — the coupling risk only materializes when Playwright is extended, so the prevention belongs in that phase's success criteria.
+
+---
+
+### Pitfall C-4: Non-idempotent seeds causing CI setup failures on re-runs
+
+**What goes wrong:**
+The CI Playwright job does not start with a fresh database — it runs `mix ecto.create && mix ecto.migrate` then boots the server, and seeds would need to be run as an additional step. If seeds are not idempotent, a re-run of a failed CI job (or a local developer who ran seeds before and runs them again) causes `Ecto.ConstraintError` on the second run. The demo breaks, the developer thinks something is wrong with their setup, and debugging takes longer than the seeds took to write.
+
+**Why it happens:**
+`seeds.exs` uses `Repo.insert!` for convenience. The first run works. The second run fails on the unique index on `email`. The developer just never ran seeds twice locally before pushing.
+
+**How to avoid:**
+Use `Repo.insert` with `on_conflict: :nothing, conflict_target: :email` for every persona upsert. Or use a `get_or_create` pattern: `Repo.get_by(User, email: email) || Repo.insert!(%User{...})`. The idempotency contract should be stated explicitly in `seeds.exs` header comments: "Running this script multiple times is safe. Existing personas are skipped." The README evaluator lane should document that `mix setup` (which includes seeds) is re-runnable.
+
+**Warning signs:**
+Any `Repo.insert!` call in `seeds.exs` without an upsert qualifier or existence check. Any CI job that drops and recreates the dev database before seeding (drops the first run's data, which is correct, but documents that the CI assumption is "always fresh" — a fragile assumption for local dev).
+
+**Phase to address:**
+Seeds phase. Idempotency is a hard requirement, not an optimization. It must appear in the success criteria.
+
+---
+
+## Moderate Pitfalls — Maintenance Drift
+
+### Pitfall M-1: Seeds going stale as auth features evolve — the silent demo rot problem
+
+**What goes wrong:**
+Phase 141 seeds create a `user_identities` row for the OAuth persona using the v1.29 schema shape. In a future milestone, the `user_identities` table gains a new non-nullable column. The migration adds it with a default, so existing rows are fine. But seeds still don't set it, so the OAuth persona looks subtly wrong in the UI (empty field, missing badge). No test fails — seeds run without error because the DB default fills the gap. The demo now misrepresents the OAuth flow in a way that evaluators see but tests don't catch.
+
+**Why it happens:**
+Seeds are not schema-tracked the way migrations are. There is no compile-time coupling between a seeds persona struct and the schema fields it should populate. The schema can evolve without touching `seeds.exs`, and the drift is invisible until someone manually walks the demo.
+
+**How to avoid:**
+Add a `mix test` suite (or fold into the existing `example_unit_smoke` lane) that runs the seed logic in a transaction, rolls it back, and asserts that each persona has the expected fields populated: MFA-enabled persona has `mfa_enabled: true`, locked persona has `locked_at` non-nil, OAuth persona has at least one `user_identity`, passkey persona has at least one `user_passkey`. These assertions are structural (is the relationship present?), not content-specific (what's the passkey credential blob?). This gives seeds a contract test that fails when schema evolution breaks persona completeness.
+
+**Warning signs:**
+Any migration adding a non-nullable column to a table seeded by `seeds.exs` without a corresponding `seeds.exs` update. Any new Sigra feature that adds a user-visible status flag (e.g., `sso_only_at`, `deletion_scheduled_at`) where the demo persona set doesn't include a persona demonstrating that state.
+
+**Phase to address:**
+Seeds phase (write the contract test alongside the seeds). Every future migration phase that touches seeded tables should include seeds-contract update as a success criterion.
+
+---
+
+### Pitfall M-2: Screenshots rotting — committed PNG baselines that diverge from the running app
+
+**What goes wrong:**
+The README evaluator lane includes screenshots. Playwright generates snapshot baselines at `*-snapshots/`. These are committed to the repo. When the UI changes (a LiveView template is updated, a CSS class moves a button, Phoenix 1.8's dark mode is added), the screenshot baselines no longer match the running app. The README shows a stale UI. Playwright's visual regression tests start failing in CI on unrelated PRs, and the fix requires a full re-capture pass.
+
+**Why it happens:**
+The existing Playwright config already has visual regression infrastructure (`toHaveScreenshot` with `pathTemplate`). Adding a few "evaluator showcase" screenshots feels natural. But screenshot baselines are notoriously brittle — OS, browser engine version, font rendering, and even locale can cause pixel-level differences. The existing config already acknowledges this by omitting OS suffixes from snapshot paths to reduce per-platform churn.
+
+**How to avoid:**
+Two distinct categories: (a) **README screenshots** — these are manually curated PNG files committed to `docs/` or `priv/static/images/`, not Playwright visual regression baselines. They're updated intentionally, not automatically. The README uses these. (b) **Playwright structural assertions** — these use `toBeVisible()`, `toContainText()`, structural DOM checks, and `data-testid` attributes, not `toHaveScreenshot()`. Visual regression baselines for the demo should only be added if the checkpoint lane is specifically extended to cover demo states, and they should follow the existing `admin-checkpoints` discipline (explicitly named project, reviewer artifact, `retain-on-failure` video).
+
+**Warning signs:**
+Any `toHaveScreenshot()` call in new Playwright specs that exercises seeded demo data without being scoped to a dedicated checkpoint project. Any committed PNG in `*-snapshots/` directories from a newly added spec that will be re-run on every CI pass.
+
+**Phase to address:**
+Playwright-extension phase. The distinction between "README screenshots" (static, manually updated) and "Playwright baselines" (automated, fragile) should be in the phase plan.
+
+---
+
+### Pitfall M-3: Nested-app drift — the Phase 114 lesson repeating itself
+
+**What goes wrong:**
+Phase 114 (EMAIL-RAILS milestone) already paid the cost of nested-app drift: the example app drifted from the Sigra library's contract because changes to the library's generated templates or config patterns were not reflected in `test/example/`. The drift was caught only at milestone audit. The v1.29 retro explicitly documents "Extend `test/example/` over new top-level `examples/`" as a reaffirmed decision. Adding a rich seeds layer and a README showcase lane creates new drift surfaces: the seeds persona set, the README screenshots, the Playwright fixture data.
+
+**Why it happens:**
+`test/example/` is a separate Mix project with its own `mix.exs`, `mix.lock`, and dependency pins. Library changes don't automatically propagate. When a milestone evolves the library schema (new migration), updates the installer templates, or adds a new auth state, the example app must be manually updated. Under time pressure, "I'll update the example app in the next phase" becomes a tracked debt that sometimes doesn't get paid.
+
+**How to avoid:**
+Every phase that touches Sigra library schema or installer templates must include an explicit `test/example/` update as a success criterion — not as a nice-to-have. The v1.29 pattern of running all CI lanes against `test/example/` after library changes (the `example_unit_smoke` and `example_playwright_smoke` jobs) is already the enforcement mechanism. The new risk is seeds: add a CI check that `seeds.exs` runs without errors after every migration (this is a step in the `example_http_smoke` or `example_playwright_smoke` job, immediately after `mix ecto.migrate`).
+
+**Warning signs:**
+Any library migration that adds a required field to a table without a corresponding `seeds.exs` update. Any new Sigra config key that `test/example/config/config.exs` doesn't define. A CI seeds step that is added but not gated on `mix ecto.migrate` completing successfully first.
+
+**Phase to address:**
+Seeds phase (establish the CI seeds step). Every subsequent phase that modifies the Sigra library schema or installer templates owns the `test/example/` update.
+
+---
+
+## Moderate Pitfalls — DX / Evaluator Experience
+
+### Pitfall D-1: A demo that's impressive but doesn't exercise the rough edges — the "happy path only" demo trap
+
+**What goes wrong:**
+The demo spin-up shows registration, login, and MFA enrollment — the same flows covered by the existing `golden-path.spec.ts`. The evaluator persona set includes an "admin" and a "regular user" but not a "locked account" or "unconfirmed user." The README evaluator lane walks through the happy path only. An evaluator wondering "what happens when MFA fails?" or "how does account lockout look?" has no way to discover it from the demo. They conclude Sigra handles the basics but the rough edges are undocumented — the opposite of Sigra's core value proposition.
+
+**Why it happens:**
+Demo authors optimize for "impressive first impression." Failure states require setup (triggering lockout, leaving email unconfirmed, failing MFA). They feel awkward to show. The happy path is cleaner and faster.
+
+**How to avoid:**
+The persona set must include at minimum: (1) a locked account (demonstrates lockout state and admin unlock flow), (2) an unconfirmed user (demonstrates the confirmation-required gate), (3) an MFA-enrolled user (demonstrates challenge flow, not just enrollment), and (4) a user with a scheduled account deletion pending. The README evaluator lane must include a section for "What to try next" that links to each rough-edge persona and explains what to look for. The admin persona must have a multi-org membership so the org-switcher is visible. If any of these are missing at demo launch, the demo fails its own stated goal.
+
+**Warning signs:**
+A persona set where all accounts are in a "normal" authenticated state (confirmed, unlocked, MFA not enrolled or not challenged). A README that only shows the register→login flow. An evaluator who has read the README but cannot find where to see account lockout behavior without triggering it themselves.
+
+**Phase to address:**
+Seeds phase (persona requirements are part of the seed design). README phase (the evaluator lane must explicitly call out rough-edge personas).
+
+---
+
+### Pitfall D-2: Missing credentials cheat-sheet — evaluator types the wrong password and hits Argon2 timing repeatedly
+
+**What goes wrong:**
+Seeds are seeded, the app is running, the evaluator opens the README and navigates to `/users/log_in`. They don't know the password because seeds generated it randomly (or env-var-gated). They try a few guesses, hit Argon2's 300ms timing on each attempt, get locked out after 5 tries (rate limiter), and conclude "the demo doesn't work." The `locked_at` state on their test session now matches the "Lena Locked" persona — confusingly. They give up.
+
+**Why it happens:**
+The credentials are printed to stdout when seeds run, but the evaluator didn't notice or scrolled past the output. The README doesn't tell them where to find the credentials. The cheat-sheet is not co-located with the login form in the UI.
+
+**How to avoid:**
+After seeds run, print a clearly formatted credentials block to stdout and write it to a `.gitignored` file (e.g., `priv/repo/demo_credentials.txt`) that persists across the server session. Wire the dev landing page or a `/dev/demo` route that reads and displays this file in the browser. The README evaluator lane must say explicitly: "After `mix setup`, your credentials are in `priv/repo/demo_credentials.txt`." Do not require the evaluator to hunt through terminal output.
+
+**Warning signs:**
+A README evaluator lane that says "run `mix setup && mix phx.server`" but does not tell the evaluator where to find the generated passwords. Any seed run that prints credentials only to stdout without persisting them to a local file.
+
+**Phase to address:**
+Seeds phase. The credential-persistence mechanism must be part of the seeds implementation, not a documentation afterthought.
+
+---
+
+### Pitfall D-3: Spin-up that isn't actually one command on a clean machine
+
+**What goes wrong:**
+The README says "`mix setup && mix phx.server` → fully populated, clickable SaaS." In practice, on a fresh clone: (1) Postgres must be running locally, (2) the `DEMO_ADMIN_PASSWORD` env var must be set if that pattern is chosen, (3) Elixir/OTP version must match `.tool-versions`. None of these are `mix setup`. The evaluator gets a cryptic error because their Docker Postgres isn't running, or because they're on Elixir 1.16.
+
+**Why it happens:**
+"One command" is aspirational. The developer writing the README runs seeds dozens of times on their configured machine and loses track of what prerequisites exist. The `mix setup` alias in `mix.exs` runs `mix deps.get && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs`, but it doesn't validate that Postgres is running first. The error from `Ecto.Adapters.PostgreSQL.Connection` is not obviously a "Postgres not running" error to a first-time evaluator.
+
+**How to avoid:**
+Add a pre-flight check in `seeds.exs` (or in a `mix setup` alias step) that pings Postgres and prints a friendly error if it's not available: "Cannot connect to PostgreSQL. Start a container with: docker run -d --name sigra-demo-postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16-alpine". The CLAUDE.md already has this pattern for the test suite. The README evaluator lane must include: (1) prerequisites (Elixir 1.18+, Postgres), (2) Docker one-liner for Postgres, (3) the actual one-command setup, (4) expected output (what a successful seed run looks like). Verify the README steps work from a fresh `git clone` on a machine without prior Sigra deps cached — the existing install-smoke infrastructure is the model for this kind of clean-machine verification.
+
+**Warning signs:**
+A README evaluator lane that starts with `mix setup` without a prerequisites block. Any `seeds.exs` that raises `DBConnection.ConnectionError` without a human-readable message about Postgres. A "one command" README that requires more than one command plus prerequisites to actually work.
+
+**Phase to address:**
+README/evaluator-lane phase (whichever phase writes the "try it locally" documentation). The pre-flight check belongs in that phase.
+
+---
+
+## Minor Pitfalls — Scope Creep
+
+### Pitfall SC-1: Generic seeding framework creep — building `Sigra.Seeds` instead of `seeds.exs`
+
+**What goes wrong:**
+Seeds are written, then someone notes they could be useful for other projects and proposes extracting a `Sigra.TestFixtures.Seeder` module or a `mix sigra.seed` task. The implementation grows from 80 lines to 300. The new module needs its own tests. The milestone scope doubles. The evaluator-facing value (a populated demo app) is unchanged.
+
+**Why it happens:**
+Engineers see patterns and want to abstract them. Seeding auth personas has real reuse potential. The extraction feels like good library hygiene. But the MILESTONE-ARC.md non-goals are explicit: "no generic seeding framework." The value is in the populated `test/example/`, not in a reusable seed API.
+
+**How to avoid:**
+Strictly scope seeds to `test/example/priv/repo/seeds.exs`. No new library module, no new Mix task beyond a `mix example.seed` alias in the example app's `mix.exs`. If reuse patterns emerge, document them in a comment in `seeds.exs` ("see SEED pattern doc") and defer extraction to a future milestone with a concrete adopter trigger. Any PR that adds a `lib/sigra/seeds*` module should be rejected at review.
+
+**Warning signs:**
+Any new file in `lib/sigra/` with "seed", "fixture", or "demo" in its name. Any new `mix` task in the library's `mix.exs` that isn't `mix run priv/repo/seeds.exs`. A seeds PR diff that touches library files (`lib/`) rather than only example-app files (`test/example/`).
+
+**Phase to address:**
+All phases. This is a scope-creep guardrail, not a phase-specific concern. It should be in the milestone non-goals and in the requirements document.
+
+---
+
+### Pitfall SC-2: Separate demo repo — re-opening the Phase 114 nested-app decision
+
+**What goes wrong:**
+Someone proposes "it would be cleaner to have a standalone `sigra_demo` repo so evaluators can clone just the demo without cloning the whole library." The proposal sounds reasonable. But Phase 114 already paid the cost of understanding why this creates drift. A separate repo has its own dep pins, its own CI, its own maintenance surface. When Sigra releases v1.32 with a new migration, the `sigra_demo` repo is now stale. The evaluator cloning the demo sees v1.31 behavior against a Sigra v1.32 backend and reports bugs that don't exist.
+
+**Why it happens:**
+Standalone repos feel professionally polished. "Clone this one repo and run it" is a cleaner pitch than "clone sigra and navigate to test/example". The Phase 114 lesson is not visible without reading the retro.
+
+**How to avoid:**
+The MILESTONE-ARC.md non-goal is explicit and grounded in real history: "not a separate standalone demo repo." The decision is already made. If someone proposes a separate repo, the answer is "Phase 114 paid this cost; see MILESTONE-ARC.md." The evaluator UX is addressed by making `mix setup && mix phx.server` work from the `test/example/` directory with clear README instructions pointing there.
+
+**Warning signs:**
+Any new repository created under `szTheory/` with "demo", "example", "starter", or "showcase" in its name. Any PR that creates a `standalone-demo/` or `examples/` directory at the Sigra repo root.
+
+**Phase to address:**
+All phases. This is a permanent non-goal documented in MILESTONE-ARC.md.
 
 ---
 
@@ -276,156 +352,75 @@ Phase 134 (recipe authoring). Pair every recipe with the Hex-publication check b
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hard-code Threadline references outside `Code.ensure_loaded?` guards | Adapter "just works" in dev where Threadline is present | Adopter mix.exs without Threadline fails to compile or boot | Never — see Pitfall 1 |
-| Replace audit DB write with Threadline forward | One less Postgres write, "Threadline as SOT" simplicity | Admin LiveView empty, assertions broken, OWASP audit invariant lost, retention worker no-ops | Never — see Pitfall 2 |
-| Inline retries in telemetry handler | No extra dep, simpler code | BEAM scheduler block, retry storms, lost rows on crash | Never in production. Acceptable for a one-shot bench script. |
-| Ship a recipe without `last_validated` date | Faster authoring | Drift, no signal of staleness, eventual issue flood | Only if the recipe is labeled "REFERENCE — community contributions welcome" |
-| Add `--threadline-*` install flags for convenience | Lower adopter friction at install | Generator surface area sprawls, every companion lib adds N flags, install task becomes the integration hub | Never. Use a single `--with-threadline` opt-in toggle at most. |
-| Ship reference example without CI budget cap | Looks impressive in README | CI minutes spiral, example rots, screenshots stale | Only if example lane has hard time/cost budget and validation cadence |
-| Recipe references unpublished companion lib | Suite story looks complete | "Vaporware" issue reports, broken `mix deps.get` for adopters | Only under `preview/` with explicit vapor banner |
-| Adapter writes its own `dlq` table | Self-contained retry semantics | Sigra owns companion-shaped schema, schema drift between Sigra and companion releases | Only if the DLQ table is logically Sigra's (forwarded-event DLQ, not companion-state DLQ) |
-
----
-
-## Integration Gotchas
-
-| Integration | Common Mistake | Correct Approach |
-|---|---|---|
-| Threadline (audit forwarding) | Replace DB write; co-fate with Repo.transaction | Tap `[:sigra, :audit, :log]` telemetry on `{:ok, changes}` branch; forward via Oban worker; DB remains SOT |
-| Threadline (event ID) | Generate new ID in adapter / let Threadline assign | Forward `audit_row.id` (UUID) + `occurred_at` as idempotency key + canonical timestamp |
-| Mailglass (cross-link) | Re-document Mailglass as if EMAIL-RAILS didn't ship | Cross-link to existing v1.25 docs; do not re-introduce `Sigra.Mailers.Adapters.Mailglass` surface or `--with-mailglass` flag |
-| Mailglass (event store) | Conflate Mailglass email-event store with Sigra audit | Mailglass owns email-lifecycle events; Sigra owns auth-state events; do not merge |
-| Webhooks (v1.22) recursion | Subscribe Threadline as a webhook AND configure adapter | Doctor + recipe must detect+warn on duplicate forward path |
-| Accrue (billing identity sync) | Sigra emits "user.subscription_changed" event | Out of scope; Sigra emits auth-state changes only; billing changes are Accrue-owned |
-| Lockspire (third-party OAuth server) | Cross-call between Sigra and Lockspire core paths | Per ADR 001: documentation + recipe only; no library-to-library calls; revisit when Lockspire Phase 6 ships |
-| Rulestead (rules engine) | Wire as authorization decisions inside Sigra plugs | Sigra provides `current_scope` identity; rules engine is host-owned (per Diminishing Returns Wall: no opinionated authz) |
-| Relyra (TBD) | Adopt before companion lib has a stable public API | Recipe stays `preview/` until Hex publish; no `mix.exs` entry |
-| Companion lib HTTP failure | Block auth flow on adapter failure | Fail-open: adapter emits `[:sigra, :*, :forward_error]` telemetry; auth flow proceeds |
-
----
-
-## Performance Traps
-
-| Trap | Symptoms | Prevention | When It Breaks |
-|---|---|---|---|
-| Sync HTTP call in audit telemetry handler | p99 login latency tracks Threadline p99 | Adapter enqueues to Oban worker; telemetry handler is non-blocking | Any time Threadline p99 > 200ms |
-| Adapter retries without exponential backoff | Retry storm when Threadline degrades | Bounded retry with exponential backoff + DLQ (mirror v1.22 webhook delivery) | Threadline partial outage |
-| Webhook + Threadline adapter both forwarding same event | 2x outbound load per event | Doctor warns; recipe documents the overlap | Adopter who naively adds both pipelines |
-| Reference example app full LiveView smoke on every push | CI minute spend grows; ship cadence slows | Hard CI budget for example lane; smoke-only, not full UI | Once you accumulate >2 companion examples |
-| Recipe-validation lane bloats over time | CI runtime regresses each milestone | Cap canary-lane scope to one companion (Threadline); other recipes are doc-only | Beyond 1 canary companion lane |
-| Audit retention cleanup running while Threadline backlog ships | Adapter forwards already-deleted rows | Retention cleanup and forward-DLQ must agree on a max retention window; document the invariant | Long Threadline outages spanning retention boundary |
-| Unbounded forward-DLQ growth | Oban table bloat; dead-letter rows pile up | Bounded DLQ retention; operator-facing UI to inspect/replay (mirror v1.22 webhooks dead-letter UI) | Long outage + no operator attention |
-
----
-
-## Security Mistakes
-
-| Mistake | Risk | Prevention |
-|---|---|---|
-| Forwarding raw audit metadata (containing PII) to Threadline without redaction | Compliance violation; audit row D-23 forbidden-keys policy bypass | Adapter MUST apply same `Sigra.Audit.Changeset` D-23 forbidden-keys filter to the forwarded payload. Add a contract test. |
-| Storing Threadline API key in `mix.exs` or generator templates | Key leak in repo history | Key is host-owned config; recipe documents env-var pattern (e.g. `THREADLINE_API_KEY`); generator does not template a literal key |
-| Unauthenticated Threadline endpoint | Forged audit events poison the forensic record | Adapter signs each forwarded event with HMAC (reuse Sigra's existing token-HMAC primitive); Threadline verifies signature |
-| Adapter swallows forward errors → silent loss of failed-login audit rows | OWASP A09 (logging failure) — undetected breach | Forward failures emit `[:sigra, :audit, :forward_error]` telemetry + populate DLQ; doctor surfaces DLQ size; operator playbook documents response |
-| Recipe shows companion lib API key in plaintext config | Adopter copies sample literally → production key in source | Recipe MUST use `System.fetch_env!/1` examples; never literal keys; lint check on recipe markdown |
-| Adapter retries indefinitely on 4xx (signing rejection) | Permanent retry loop; queue saturation | Adapter distinguishes retryable (5xx, timeout) from permanent (4xx) failures; permanent failures go straight to DLQ |
-| Companion lib pulled in as transitive dep widens attack surface | Adopter unaware of new HTTP-calling lib | `optional: true` in `mix.exs`; doctor lists active optional deps; security audit covers the adapter's payload shape |
-
----
-
-## UX Pitfalls
-
-| Pitfall | User Impact | Better Approach |
-|---|---|---|
-| "Just add Threadline to your deps" without doctor coverage | Adopter installs, sees no audit events flowing, has no diagnostic path | `mix sigra.doctor` lists adapter status + Threadline reachability + last successful forward |
-| Adapter failures silent on operator dashboards | Outages discovered via missing audit rows weeks later | DLQ size + last-forward-error visible in admin LiveView (mirror v1.22 webhook delivery UI) |
-| Recipe shows "happy path only" code | Adopter hits a 4xx, has no model for recovery | Recipe MUST include "Failure modes" + "When the companion lib is down" + "How to replay DLQ" sections |
-| `--with-threadline` install flag does not exist (but `--with-mailglass` does) | Adopter expects symmetric UX across companion libs | Either provide the toggle symmetrically OR document explicitly that runtime config is the only seam |
-| Suite-narrative implies all libs are required | Adopter feels forced into vendor lock-in | "Sigra works fully standalone" banner on every adapter; suite-narrative leads with the optional posture |
-| `mix sigra.install` adds Threadline templates by default | Adopter pulls in companion config they don't want | Adapter scaffolding is strictly opt-in; default install path is unchanged |
-| Removing a companion lib leaves stale config that breaks boot | Adopter cannot easily back out | Adapter is config-driven; missing config means adapter is inert (not a boot error); doctor flags orphaned config |
+| Hardcoded seed passwords | Easy dev setup | Security anti-pattern in an auth library repo; leaks bad credential patterns to git history | Never |
+| Single combined seed file > 200 lines | Simple to write once | Hard to maintain; persona additions require understanding full file | Only if personas are stable; extract to per-persona modules if > 5 personas |
+| Seeds that use `Repo.insert!` without idempotency | Fast to write | Breaks on re-run; CI re-runs fail without full DB drop | Never for a re-runnable demo |
+| Screenshots committed as Playwright baselines | Automated capture | Brittle; fails on minor UI changes; requires full re-capture pass | Only for explicitly curated checkpoint lane, not demo flows |
+| Playwright specs asserting on persona names | Readable tests | Breaks when persona names change; seeds and specs become a coupled system | Never; use data-testid or structural assertions instead |
+| README screenshots showing happy-path only | Fast to produce | Misrepresents library's rough-edge handling; evaluator misses the differentiation | Never for Sigra; rough-edge personas are the product |
+| Skipping seeds env guard | Fewer lines in seeds.exs | Seeds can be invoked in test env; contaminates test DB on CI misconfiguration | Never |
 
 ---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Threadline adapter:** Often missing dep-off CI lane — verify `mix compile && mix test` passes with Threadline removed from `mix.lock`.
-- [ ] **Threadline adapter:** Often missing the contract test for "rolled-back transactions do not forward" — verify a failing transaction does NOT fire telemetry and does NOT enqueue a forward job.
-- [ ] **Threadline adapter:** Often missing DLQ operator UI — verify admin LiveView surfaces forward failures + retry/replay/drop actions.
-- [ ] **Threadline adapter:** Often missing the canonical event ID propagation — verify forwarded payload includes Sigra `audit_row.id` and `occurred_at` (not Threadline-assigned).
-- [ ] **Threadline adapter:** Often missing D-23 forbidden-keys filter on forwarded metadata — verify PII filter applies on the forward path identically to the insert path.
-- [ ] **Threadline adapter:** Often missing fail-open guarantee — verify a 500 from Threadline does not block a login.
-- [ ] **Recipes (Accrue/Lockspire/Mailglass/Relyra/Rulestead/Threadline):** Often missing `last_validated` date + version pin — verify recipe frontmatter is complete.
-- [ ] **Recipes:** Often missing "Failure modes" section — verify every recipe documents downtime behavior.
-- [ ] **Recipes:** Often missing Hex-publication validation — verify `companion_package:` lookup returns a Hex version OR recipe is labeled `vapor: true` under `preview/`.
-- [ ] **Suite-narrative guide:** Often missing the fan-out matrix — verify cross-library event/audit/email duplication is documented explicitly.
-- [ ] **Suite-narrative guide:** Often missing "Sigra works fully standalone" banner — verify no "recommended stack" framing.
-- [ ] **`mix sigra.doctor`:** Often missing per-adapter feature row — verify Threadline adapter status, reachability, and DLQ size are all surfaced.
-- [ ] **OptionalDeps namespace:** Often missing the canonical SOT — verify `Sigra.OptionalDeps.Threadline` (or equivalent) exists and is the single registration point, not scattered `Code.ensure_loaded?` calls.
-- [ ] **Reference example (if any):** Often missing CI budget cap — verify the example lane has a documented minute/timeout budget.
-- [ ] **Reference example (if any):** Often missing generator-fixture deduplication — verify the example consumes `mix sigra.install` output rather than forking the templates.
-- [ ] **Compatibility doc:** Often missing — verify `guides/recipes/COMPATIBILITY.md` enumerates each companion lib + validated version + date.
-- [ ] **Webhook + Threadline overlap:** Often missing — verify doctor + recipe warn on adopters who configure both pipelines for the same event class.
-
----
-
-## Recovery Strategies
-
-| Pitfall | Recovery Cost | Recovery Steps |
-|---|---|---|
-| Compile-time coupling shipped (Pitfall 1) | LOW (early), HIGH (post-release) | Pre-release: wrap adapter in `Code.ensure_loaded?`, add dep-off CI lane, ship patch. Post-release: yank version, ship patch, communicate to adopters who already upgraded. |
-| Audit-destination divergence (Pitfall 2) | HIGH | Adapter must be redesigned as telemetry-tap, not destination swap. Existing adopters need a migration path: dual-write window + reconciliation script + cutover. Document timeline. |
-| Recipe rot (Pitfall 3) | LOW per recipe | Re-validate against current companion lib version; update `last_validated`; if API changed, rewrite snippet or downgrade to "REFERENCE" status. |
-| Scope creep (Pitfall 4) | MEDIUM | Audit code: each `--threadline-*` flag added gets deprecated and removed in next minor. Adapter-specific tables get migrated to companion-owned schema. ADR captures the rollback. |
-| Suite over-promise (Pitfall 5) | LOW | Doc edit + CHANGELOG note. No code change. Add banned-phrase lint to docs CI. |
-| Reference example rot (Pitfall 6) | MEDIUM | Either re-validate against current Sigra version OR archive with "last validated against X.Y" banner OR delete entirely. Prefer archive + banner over silent rot. |
-| Cross-library duplication (Pitfall 7) | MEDIUM | Publish the fan-out matrix as a doc patch; add doctor warnings on overlap; backfill canonical-ID propagation across pipelines. |
-| Vapor-recipe (Pitfall 8) | LOW | Move recipe from `recipes/` to `preview/`; add banner; update suite-narrative link. |
+- [ ] **Seeds**: Idempotency — does `mix run priv/repo/seeds.exs && mix run priv/repo/seeds.exs` succeed without constraint errors?
+- [ ] **Seeds**: Argon2 cost — does the seeds step complete in under 5 seconds total in `MIX_ENV=dev` CI?
+- [ ] **Seeds**: Env guard — does `seeds.exs` refuse to run in `MIX_ENV=test` with a clear error?
+- [ ] **Seeds**: Credentials — are demo passwords generated at runtime (not committed literals), and persisted to a `.gitignored` file?
+- [ ] **Seeds**: TOTP secrets — are all TOTP secrets generated at seed time via `NimbleTOTP.secret/0`, never committed as string literals?
+- [ ] **Seeds**: Email domains — do all seed emails end in `.example` or `.test`?
+- [ ] **Personas**: Rough-edge coverage — are locked, unconfirmed, MFA-enrolled (challengeable), and OAuth-linked personas all present?
+- [ ] **Playwright**: Seeded-data specs — do all assertions use `data-testid` or structural checks, not hardcoded persona name strings?
+- [ ] **Playwright**: No visual regressions added for demo states without a dedicated checkpoint project scoping
+- [ ] **README**: Prerequisites block present (Elixir version, Postgres, Docker one-liner)?
+- [ ] **README**: Credentials cheat-sheet — does the evaluator lane tell the evaluator exactly where to find the printed passwords?
+- [ ] **README**: Rough-edge callouts — does the evaluator lane explicitly mention the locked, unconfirmed, and MFA-enrolled personas?
+- [ ] **CI**: No `mix setup` or seeds step in any CI job with `MIX_ENV: test`
+- [ ] **CI**: Seeds step is present in the `example_playwright_smoke` job (or a dedicated job) and runs after `mix ecto.migrate`
+- [ ] **Security**: No OAuth client IDs, API keys, or TOTP secrets in tracked files
+- [ ] **Scope**: No new files in `lib/sigra/` touching seeds/fixtures/demo
 
 ---
 
 ## Pitfall-to-Phase Mapping
 
-Phase numbering continues from v1.28's last phase (130); v1.29 starts at Phase 131.
-
 | Pitfall | Prevention Phase | Verification |
-|---|---|---|
-| **1. Compile-time coupling** | Phase 131 (foundational adapter scaffolding + `Sigra.OptionalDeps.Threadline` SOT) | New dep-off CI lane (model: v1.21 HARD-02 "3 dep-off CI lanes") passes with Threadline absent; `mix sigra.doctor` surfaces adapter availability |
-| **2. Audit-destination divergence** | Phase 132 (adapter contract design + telemetry-tap implementation) | Contract test: rolled-back transactions do NOT fire forward; admin LiveView and Threadline return matching counts; Threadline downtime test exits with auth flow successful |
-| **3. Recipe rot** | Phase 133 (recipe authoring doctrine + `COMPATIBILITY.md`) | Recipe frontmatter check in CI; `last_validated` date + version pin enforced; one canary lane (Threadline) executes recipe end-to-end |
-| **4. Scope creep** | Phase 131 (boundary doctrine in suite-narrative) + ongoing PR review | Each phase PLAN cites the boundary doctrine; install task surface area count tracked milestone-over-milestone |
-| **5. Suite over-promise** | Phase 131 (suite-narrative + banned-phrase lint) | Doc CI fails on banned phrases ("seamlessly," "recommended stack," "just works"); failure-mode section required per recipe |
-| **6. Reference example drift** | Phase 135 (reference example decision) | Explicit "no examples/" decision OR scoped Threadline-only example with hard CI budget cap; generator-fixture deduplication enforced |
-| **7. Cross-library duplication** | Phase 132 (adapter contract — canonical-ID propagation) + Phase 134 (recipe — fan-out matrix doc) | Contract test: forwarded payload includes audit row UUID + occurred_at unchanged; doctor warns on webhook+adapter overlap |
-| **8. Vapor recipes** | Phase 134 (recipe authoring + Hex-publication CI check) | CI fails on recipes that reference unpublished Hex packages without `vapor: true` + `preview/` placement |
-
-**Suggested phase ordering for v1.29:**
-
-1. **Phase 131** — Boundary doctrine + `Sigra.OptionalDeps.Threadline` SOT + suite-narrative landing page draft (no adapter code yet; establishes the contract first)
-2. **Phase 132** — Threadline adapter implementation + contract tests (telemetry-tap pattern; fail-open; canonical-ID propagation)
-3. **Phase 133** — Recipe authoring doctrine + `COMPATIBILITY.md` + recipe-freshness gate + Hex-publication CI check
-4. **Phase 134** — Companion-library recipes (Threadline canary + Mailglass cross-link + `preview/` for Accrue/Lockspire/Relyra/Rulestead)
-5. **Phase 135** — Reference example decision + scope (default: no examples/; explicit gate before any examples/ subdir ships)
-6. **Phase 136** — `mix sigra.doctor` extensions for adapters + admin LiveView DLQ surface + verification proof bundle
-
-Phases 132–135 can partially overlap; Phase 131 (boundary + optional-dep SOT) must land first because every subsequent phase depends on it.
+|---------|------------------|--------------|
+| S-1: Committed weak passwords | Seeds phase (141+) | CI lint: no password literals matching known weak patterns; no `"password"` in seeds.exs git diff |
+| S-2: Demo disabling enumeration/rate-limiting | Seeds phase | Assertion: `dev.exs` diff contains no changes to enumeration_prevention, Hammer config, or Argon2 parameters |
+| S-3: Real-looking PII in seed personas | Seeds phase | CI lint or code review: all seed emails end in `.example` or `.test`; names use role labels |
+| S-4: OAuth credentials committed | Seeds phase | GitHub secret-scanning + CI diff check: no OAuth key patterns in tracked files; `dev.exs` OAuth config stays absent |
+| S-5: TOTP secret committed | Seeds phase | Assertion: `seeds.exs` calls `NimbleTOTP.secret/0` at runtime; no base32 literal matching TOTP pattern in git |
+| C-1: Argon2 cost blowing CI time | Seeds phase | CI timing: seeds step completes under 5s; Argon2 `t_cost`/`m_cost` override applied at seed runtime |
+| C-2: Seeds contaminating test DB | Seeds phase | Env guard in `seeds.exs`; CI audit: no seed step in test-env jobs; `example_unit_smoke` passes after seeds land |
+| C-3: Playwright coupling to persona names | Playwright-extension phase | PR review: no `toContainText(personaName)` in demo-data specs; `data-testid` used for auth-state assertions |
+| C-4: Non-idempotent seeds | Seeds phase | CI or local: run seeds twice in sequence; assert second run completes without constraint errors |
+| M-1: Seeds going stale | Seeds phase + every future migration phase | Seeds-contract ExUnit suite: asserts persona completeness post-seed; migration phase success criteria include seeds update |
+| M-2: Screenshot rot | Playwright-extension phase | No new `toHaveScreenshot()` calls for demo flows outside checkpoint lane; README PNGs are static/manually-updated |
+| M-3: Nested-app drift | Every phase touching schema/templates | `example_unit_smoke` + `example_playwright_smoke` CI gates remain green; seeds step added to CI runs after `mix ecto.migrate` |
+| D-1: Happy-path-only demo | Seeds phase + README phase | Persona checklist: locked, unconfirmed, MFA-enrolled, OAuth-linked, deletion-pending all present |
+| D-2: Missing credentials cheat-sheet | Seeds phase | `demo_credentials.txt` exists, is `.gitignored`, README references it explicitly |
+| D-3: Spin-up not actually one command | README/evaluator-lane phase | Fresh-clone smoke test (model: existing install-smoke infrastructure); prerequisites block present in README |
+| SC-1: Generic seeding framework creep | All phases | No new files in `lib/sigra/` touching seeds/fixtures; diff scoped to `test/example/` only |
+| SC-2: Separate demo repo | All phases | No new repos created; MILESTONE-ARC.md non-goal is the standing decision |
 
 ---
 
 ## Sources
 
-- `/Users/jon/projects/sigra/.planning/MILESTONE-ARC.md` — Diminishing Returns Wall + SUITE-INTEGRATION candidate scope (HIGH confidence, primary)
-- `/Users/jon/projects/sigra/.planning/PROJECT.md` — v1.29 current-milestone goal + non-goals (HIGH confidence, primary)
-- `/Users/jon/projects/sigra/.planning/decisions/001-defer-sigra-lockspire-glue-package.md` — ADR 001 deferral precedent (HIGH confidence, primary)
-- `/Users/jon/projects/sigra/lib/sigra/audit.ex` (528 lines) — current audit module surface: no behaviour abstraction, telemetry on `{:ok, changes}` only, D-23 forbidden-keys policy, retention cleanup (HIGH confidence, primary)
-- `/Users/jon/projects/sigra/MAINTAINING.md` — release cadence, installer golden contract, Nyquist matrix policy (HIGH confidence, primary)
-- `/Users/jon/projects/sigra/test/example/deps/mailglass/lib/mailglass/optional_deps.ex` — `Mailglass.OptionalDeps.*` namespace pattern (HIGH confidence; precedent for proposed `Sigra.OptionalDeps.Threadline`)
-- `/Users/jon/projects/sigra/.planning/MILESTONES.md` — v1.25 EMAIL-RAILS shipped scope: `Sigra.Mailers.Adapters.Mailglass`, `--with-mailglass` flag, generated-host override seam (HIGH confidence; precedent for Threadline opt-in toggle ceiling)
-- v1.21 HARD-02 narrative in `.planning/PROJECT.md` line 119 — `Sigra.OptionalDeps` SOT mention + `mix sigra.doctor` + 3 dep-off CI lanes; the planning narrative documents this as shipped, but `grep -r "Sigra.OptionalDeps" lib/` returns no hits in `lib/` — the SOT module is referenced as a doctrine but not present as a canonical namespace today (MEDIUM confidence on current state; HIGH confidence that the precedent exists)
-- v1.22 webhooks (WH-04/05/06 — Phases 103–107) — model for delivery retry, signature rotation, DLQ + replay, blocked-policy operator truth; same shape applies to Threadline adapter delivery semantics (HIGH confidence)
-- `/Users/jon/projects/sigra/lib/sigra/mailer.ex` — pluggable mailer behaviour (host-provided implementation) — model for adapter-behaviour pattern (HIGH confidence)
-- `/Users/jon/projects/sigra/lib/mix/tasks/sigra.install.ex` — install task scope ceiling (HIGH confidence; informs Pitfall 4 "no per-companion flag sprawl")
+- `/Users/jon/projects/sigra/.planning/MILESTONE-ARC.md` — Phase 114 drift lesson, Demo Showcase non-goals, Diminishing Returns Wall (HIGH confidence, primary)
+- `/Users/jon/projects/sigra/.planning/RETROSPECTIVE.md` — v1.29 recipe config drift, v1.28 release-docs-gate-late pattern (HIGH confidence)
+- `/Users/jon/projects/sigra/.planning/PROJECT.md` — OWASP constraints, enumeration prevention, Argon2id requirement, security posture (HIGH confidence)
+- `/Users/jon/projects/sigra/CLAUDE.md` — Argon2id default, enumeration prevention by default, Hammer rate limiting, security constraints (HIGH confidence)
+- `/Users/jon/projects/sigra/test/example/config/test.exs` — `t_cost: 1, m_cost: 8` test override; confirms override does NOT exist in dev.exs (HIGH confidence — direct inspection)
+- `/Users/jon/projects/sigra/test/example/config/dev.exs` — absence of Argon2 cost override in dev; dev `secret_key_base` pattern (HIGH confidence)
+- `/Users/jon/projects/sigra/.github/workflows/ci.yml` — `example_http_smoke` and `example_playwright_smoke` jobs boot in `MIX_ENV: dev` without seeds step; `example_unit_smoke` in `MIX_ENV: test` (HIGH confidence — direct inspection)
+- `/Users/jon/projects/sigra/test/example/priv/playwright/playwright.config.ts` — serial workers, `toHaveScreenshot` pathTemplate, checkpoint lane structure (HIGH confidence)
+- `/Users/jon/projects/sigra/test/example/priv/playwright/tests/golden-path.spec.ts` — TOTP secret read from DOM at runtime, not hardcoded; model for correct pattern (HIGH confidence — direct inspection)
+- `/Users/jon/projects/sigra/test/example/test/example/fixtures_test.exs` — existing fixture scenarios (locked, unconfirmed, MFA states) as reference for persona set (HIGH confidence)
+- `/Users/jon/projects/sigra/.planning/threads/adoption-evidence-and-demo-showcase.md` — Demo Showcase scope, overbuild guardrails, Phase 114 decision reaffirmation (HIGH confidence)
 
 ---
-
-*Pitfalls research for: SUITE-INTEGRATION (v1.29)*
-*Researched: 2026-05-27*
+*Pitfalls research for: Seed-rich evaluator demo on a dual-role auth library CI fixture (v1.31 DEMO-SHOWCASE)*
+*Researched: 2026-05-29*

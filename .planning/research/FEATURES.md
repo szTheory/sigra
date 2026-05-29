@@ -1,226 +1,242 @@
-# Feature Research — v1.29 SUITE-INTEGRATION
+# Feature Research: v1.31 DEMO-SHOWCASE
 
-**Domain:** Companion-library integration recipes + first-class Threadline audit adapter for Sigra (Phoenix 1.8+ auth library)
-**Researched:** 2026-05-27
-**Confidence:** HIGH (verified against in-repo Sigra contracts, Threadline source at `/Users/jon/projects/threadline`, MILESTONE-ARC, MILESTONES.md narrative)
+**Domain:** Seed-rich evaluator demo showcase for an OSS auth library (Sigra / Phoenix 1.8+)
+**Researched:** 2026-05-29
+**Confidence:** HIGH — grounded in codebase inspection + ecosystem survey of comparable evaluator patterns
 
-## Scope Recap (so categories make sense)
+---
 
-v1.29 is **not** about owning sister-library functionality. The milestone closes a documentation/seam gap: adopters who pick up Sigra should be able to compose it with Mailglass, Threadline, Accrue, Lockspire, Relyra, and Rulestead **today**, with one decisive code surface (Threadline reverse adapter) and a coherent narrative layer (recipes + ecosystem diagram + reference example).
+## Scope
 
-The asymmetry that drives feature shape:
+This research answers four questions for the downstream roadmap:
 
-- **Threadline** already wires Sigra one way (`Threadline.Integrations.Sigra` reads `current_scope` to derive `ActorRef` + correlation ID). Sigra → Threadline does **not** yet exist. This is the only direction worth code.
-- **Mailglass** was wired in v1.25 EMAIL-RAILS as `Sigra.Mailers.Adapters.Mailglass` + `--with-mailglass` installer flag. Cross-link, do not re-wire.
-- **Accrue / Lockspire / Relyra / Rulestead** have no Sigra-side code surface to design. They consume Sigra outputs (`current_scope`, `organization_id`, audit events, webhooks). Recipes only.
-- **Lockspire** already has a recipe (`guides/recipes/companion-oauth-provider.md`) shipped in v1.7. Audit it; don't duplicate.
+1. What persona set best exercises Sigra's full auth surface?
+2. What is table-stakes vs differentiator in the "try it locally" doc lane?
+3. What cheap-but-high-leverage demo affordances make auth features legible?
+4. What are the anti-features to avoid given the milestone non-goals?
 
-## Existing Sigra Surfaces the Milestone Builds On (do not re-research)
+---
 
-| Sigra Surface | Used By | Notes |
-|---------------|---------|-------|
-| `Sigra.Audit.log_multi_safe/3` + `__log_internal__/3` | Threadline adapter | Internal library-owned audit events use reserved prefixes (`auth.`, `session.`, `mfa.`, `oauth.`, `api.`, `account.`, `sigra.`). Adapter rides telemetry, not internal hooks. |
-| `[:sigra, :audit, :log]` telemetry event | Threadline adapter | Single canonical event; emitted exactly once per committed audit row. Metadata: `%{action, actor_id, outcome}`. |
-| `Sigra.Mailer` behaviour | Mailglass cross-link | Host implements `deliver/3`. Mailglass already adapter-shaped. |
-| `Sigra.Delivery` (`:async` / `:sync` / `:auto`) | Mailglass cross-link | Detects Oban; routes async via `Sigra.Workers.EmailDelivery`. |
-| `current_scope` struct (`:user`, `:active_organization`, `:active_organization_id`, `:membership`, `:auth_method`, `:impersonating_from`, `:token_id`, `:id`) | Threadline adapter, Accrue recipe, Lockspire recipe, Rulestead recipe | The shared bus across every recipe. Recipe templates should reference these fields by exact name. |
-| `Sigra.OptionalDeps` (HARD-02) + `mix sigra.doctor` | Threadline adapter, recipes | Optional-dep guards already exist for Oban/Bcrypt/EQRCode/etc. New Threadline guard should follow the same pattern. |
-| Webhooks (v1.22) — signed outbound events | Accrue recipe (subscription state sync) | Adopters use existing webhook subscriptions; recipe shows event-type filters + payload mapping. |
-| `Sigra.Organizations` + `:role` on memberships (B2B-02 v1.21) | Rulestead recipe, Accrue recipe | Recipes read org/role from scope; do not re-invent. |
-| Generator template seams (`priv/templates/sigra.install/`) | Reference example | Sigra ships generated host code; reference example must use the generator output, not bespoke wiring. |
+## Recommended Persona Roster (Concrete, Mapped to Sigra Features)
+
+Seven personas cover every auth state Sigra ships. Six are seeded users; one is the "unauthenticated visitor" state that requires no row but should be listed in the credentials table as "just visit the app."
+
+| # | Handle | Email | Password | Auth State Demonstrated | Sigra Features Exercised | Admin-visible state |
+|---|--------|-------|----------|--------------------------|--------------------------|---------------------|
+| 1 | `admin` | `admin@demo.example` | `DemoAdmin1!` | Confirmed, MFA-enrolled (TOTP), multi-org owner + member, API token holder | Password auth, TOTP MFA, backup codes, multi-org membership, org switching, API tokens, audit log (rich), admin dashboard, impersonation | Global admin view; audit trail shows all events |
+| 2 | `alice` | `alice@demo.example` | `DemoAlice1!` | Confirmed, no MFA, member of one org | Password auth, email confirmation, session device labeling, settings, org membership | Normal confirmed user; standard audit trail |
+| 3 | `bob` | `bob@demo.example` | `DemoBob1!` | Confirmed, TOTP MFA enrolled | MFA challenge on step-up, backup codes available | MFA enabled; no org affiliation |
+| 4 | `carol` | `carol@demo.example` | `DemoCarol1!` | Confirmed, OAuth-linked (GitHub identity stored) | OAuth identity row (inserted directly — no live OAuth roundtrip needed), social login surface in settings | "GitHub" identity shown on user detail |
+| 5 | `dave` | `dave@demo.example` | (none) | Locked (failed_login_attempts=5, locked_at set) | Lockout flow, admin unlock, rate limiting | Locked badge visible; unlock button present |
+| 6 | `eve` | `eve@demo.example` | `DemoEve1!` | Unconfirmed (registered, confirmation email not clicked) | Unconfirmed state, re-send confirmation, restricted login | Unconfirmed badge in admin |
+| 7 | `frank` | `frank@demo.example` | `DemoFrank1!` | Scheduled-deletion (deleted_at set, scheduled_deletion_at ~14 days out) | Data lifecycle: scheduled deletion, reactivation flow | Soft-deleted / scheduled-for-deletion state in admin |
+
+**Why this roster:**
+
+- **Admin** (persona 1) is the anchor: multi-org ownership proves organizations + memberships + org switching; MFA proves the enrollment and backup-code flows; API token proves bearer auth; the audit trail for the admin will be long (seed many audit events) so the audit explorer shows populated data immediately.
+- **Alice** (persona 2) is the clean happy path: one confirmed, non-MFA user an evaluator can log in as to experience the standard flow without complexity.
+- **Bob** (persona 3) isolates TOTP MFA from org membership so the evaluator can reach the MFA challenge without becoming the admin first.
+- **Carol** (persona 4) demonstrates OAuth-linked identity. Because the demo runs without live OAuth provider credentials, the identity row is inserted directly into the user-identity table using Sigra's internal schemas. The settings page will show the linked GitHub identity. This is honest: it shows what a real OAuth-linked account looks like without requiring provider credentials.
+- **Dave** (persona 5) demonstrates the lockout state and admin unlock flow. The admin can unlock him via the user-detail page. No password is needed because he cannot log in while locked.
+- **Eve** (persona 6) demonstrates unconfirmed state. She can try to log in and see the "confirm your email" gate.
+- **Frank** (persona 7) demonstrates the data lifecycle (scheduled deletion + reactivation path). The `reactivation_live.ex` page already exists in the example app and shows the deletion date. This is a rough edge most auth libraries ignore.
+
+**Passkey persona: defer or fold into admin.** Passkeys require a real browser ceremony with platform authenticator; they cannot be seeded as DB rows that the evaluator can authenticate with in a normal browser. Seed a passkey credential row on admin (with nickname "Touch ID — MacBook Pro") for visibility in the admin user-detail page, but do not list it as a clickable login path. The interactive passkey login demo belongs in the Playwright spec, not in the seeded click-around path.
+
+**SSO/Enterprise persona: fold into admin's org.** Seed an `EnterpriseConnection` row on admin's primary organization (in a `configured` / pending-activation state) so the org settings page shows the SSO panel populated. Do not attempt an active SSO login in seeds — it requires a live OIDC provider. The visual evidence (configured connection visible in settings) is sufficient for the evaluator.
+
+**Multi-org coverage:** Seed two organizations:
+- `Acme Corp` (slug: `acme-corp`) — admin is owner, alice is member, carol is member.
+- `Beta Labs` (slug: `beta-labs`) — admin is member (not owner), bob is owner.
+
+This proves org switching (admin can switch between two orgs) and the owner vs member role distinction.
+
+---
 
 ## Feature Landscape
 
-### Table Stakes (Must Ship in v1.29)
+### Table Stakes
 
-Features without which the milestone "doesn't really make Sigra compose cleanly with the suite."
+Features the evaluator expects without being told to look for them. Missing any of these makes the demo feel broken or incomplete.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **F-TL-01 — `Sigra.Audit.Adapters.Threadline` reverse adapter** | Threadline already wires Sigra one way; reverse is the only direction with adopter pull. SEED-006 referenced as canonical scope unlock. | MEDIUM | Library-owned module under `lib/sigra/audit/adapters/threadline.ex`. Subscribes to `[:sigra, :audit, :log]` telemetry, calls `Threadline.record_action/2` with derived `ActorRef`, `category`, `verb`, `correlation_id`. Optional-dep safe: compiles to no-op stubs when `Threadline` is not loaded (mirror `Sigra.Workers.AccountDeletion` optional-dep pattern via `no_warn_undefined` in `mix.exs`). |
-| **F-TL-02 — Async dispatch with bounded backpressure** | Telemetry handlers run in the producer process; a slow Threadline insert would slow Sigra. | MEDIUM | Adapter must hand off to a `Task.Supervisor` or (when Oban present) an Oban job. Default to `Task.Supervisor` with a configurable pool; route to Oban only if explicitly configured. Never block the calling process. Mirrors `Sigra.Delivery` `:auto`/`:async`/`:sync` pattern. |
-| **F-TL-03 — Retry semantics for adapter failures** | Threadline writes can fail (DB down, validation rejected, network for remote Threadline). Sigra audit row is already committed — adapter failure must not retroactively affect Sigra. | SMALL | Bounded retry (3 attempts, exponential backoff) inside the Task supervisor branch; on Oban path, use Oban's retry. On exhaust, emit `[:sigra, :audit, :adapter, :threadline, :failed]` telemetry + `Logger.warning`. **Adapter failures never raise out of `Sigra.Audit` callers.** |
-| **F-TL-04 — Optional-dep guard + boot-time diagnostic** | HARD-02 set the pattern: missing optional dep should raise truthfully at boot if the feature is enabled, not silently degrade at runtime. | SMALL | Extend `Sigra.OptionalDeps` to validate Threadline when `audit_adapters: [Sigra.Audit.Adapters.Threadline]` is configured. `mix sigra.doctor` adds a Threadline-adapter row in its dep matrix. |
-| **F-TL-05 — Telemetry parity with native audit path** | `[:sigra, :audit, :log]` fires once per committed row today; adapter must not silently drop or double-emit. | SMALL | Adapter emits its own `[:sigra, :audit, :adapter, :threadline, :forwarded]` event per successful Threadline write (separate event so native audit telemetry stays canonical). |
-| **F-RC-01 — Threadline integration recipe** | Recipe is the doc surface the adapter ships behind. Doc-only file under `guides/recipes/threadline-audit-adapter.md`. | SMALL | Required sections: Prerequisites, Install (deps + config + supervisor), Integration code snippet (config example), Verification snippet (telemetry-attach proof or `mix sigra.doctor` line), Cross-link to `companion-oauth-provider.md` precedent, **Non-goals** (does not own Threadline retention/policy/triggers/operator surface). |
-| **F-RC-02 — Accrue integration recipe** | Identified in deferred TODOs (`2026-05-08-write-accrue-integration-recipe.md`). Adopters need to know how Sigra identity feeds Stripe-webhook-backed Accrue. | SMALL | Doc-only. Sections: Prerequisites (Sigra orgs shipped), Architecture sketch (Sigra = identity / Accrue = billing state / Stripe webhooks → Accrue / Sigra reads `org.subscription_tier` for feature gates), Integration code snippet (scope-aware plug example), Verification (test plan stub), Non-goals (Sigra does not own billing, does not generate Stripe glue). |
-| **F-RC-03 — Lockspire recipe audit + cross-link refresh** | v1.7 already shipped `companion-oauth-provider.md`. Confirm it still reflects the Lockspire posture; add **See also** linking to the v1.29 suite-narrative page. | TINY | Read-and-touch-up pass. Add the suite-narrative back-link. Do not rewrite. If Lockspire has shipped meaningful API changes since v1.7 that would invalidate the recipe, escalate (out-of-scope: rewriting from scratch). |
-| **F-RC-04 — Relyra integration recipe** | Deferred TODO. Relyra = SAML 2.0 SP; complements ENT-SSO's OIDC-first enterprise login. | SMALL | Doc-only. Sections: Prerequisites (Sigra orgs + ENT-SSO shipped), When to use Relyra vs Sigra's OIDC connection (decision matrix), Integration sketch (Relyra issues identity assertion → host translates to Sigra session via JIT path), Verification, **Non-goals** (Sigra does not own SAML metadata, key rotation, or IdP-initiated SLO; those stay with Relyra). |
-| **F-RC-05 — Rulestead integration recipe** | Deferred TODO. Rulestead = feature flags / typed remote config. | SMALL | Doc-only. Sections: Prerequisites, Use cases (staged rollout of Sigra auth methods — e.g. passkey-primary, MFA-required, SSO-required by org), Integration sketch (Rulestead context builder reads `current_scope` → returns evaluated flags), Verification, Non-goals (Sigra does not own flag storage, evaluator, or admin UI). |
-| **F-RC-06 — Mailglass cross-link confirmation** | EMAIL-RAILS v1.25 already shipped the adapter. v1.29 must confirm the boundary, **not** add new code or claim new adapters. | TINY | Either (a) one paragraph + link in the suite-narrative page pointing at the existing `--with-mailglass` flag + Mailglass-side `migration-from-swoosh.md`, **or** (b) a slim `guides/recipes/mailglass-email-rails.md` summarizing the v1.25 shipped surface. Default: **cross-link, no new recipe**. Lean doc-only to honor "do not re-research existing features." |
-| **F-NX-01 — Suite-narrative landing page** | The five recipes + Threadline adapter need a single entry point so adopters don't have to discover them one-by-one. | SMALL | New file `guides/introduction/suite-integration.md` (or `guides/recipes/szTheory-suite.md`). Sections: What the szTheory suite is, Where Sigra fits, Per-library one-paragraph posture + recipe link, Ecosystem diagram, "When you need just Sigra alone" exit ramp, **Non-goals** (Sigra is not a meta-framework; libraries stay independent). |
-| **F-NX-02 — Ecosystem diagram (ASCII or PlantUML)** | Visual anchor that the narrative refers to. | TINY | ASCII diagram embedded in the narrative page. Shows: Sigra (auth identity hub) at center, Mailglass (email rails) + Threadline (audit sink) + Accrue (billing state) + Lockspire (OAuth AS) + Relyra (SAML SP) + Rulestead (flags) at periphery, with the integration direction labeled on each edge (e.g. "Sigra → Threadline: audit events", "Mailglass → Sigra: mailer impl", "Lockspire ← Sigra: AccountResolver"). |
-| **F-EX-01 — Reference example proving Sigra + Threadline composition** | Without an executable proof, the adapter is doc theater. | MEDIUM | **Reuse `test/example/`** (the existing nested Phoenix example app — already proven for EMAIL-RAILS bounce/complaint recipes per Phase 114). Add Threadline as an opt-in dep, install Threadline migrations, wire the adapter, write a single integration test that asserts a Sigra login event materializes as a `Threadline.AuditAction` row. **Do not create a new `examples/suite-starter/`** — that would split maintenance and recreate the example-app drift problems EMAIL-RAILS spent Phase 114 closing. |
-| **F-PR-01 — Verification proof bundle** | Standard v1.x phase close gate. | SMALL | Adapter unit tests (with Threadline loaded + with Threadline unloaded), recipe contract checks (each recipe has prereq/install/integration/verification/non-goals sections — pattern after `verify.doc_contract` in Threadline's own mix.exs), generator/install parity unchanged (no installer changes in this milestone — assert that), `mix docs --warnings-as-errors` exit 0 (the gate that nearly blocked v1.28 PROOF-01). |
+| Feature | Why Expected | Complexity | Dependency on Sigra Feature |
+|---------|--------------|------------|----------------------------|
+| One-command spin-up (`mix setup && mix phx.server`) | Every modern OSS library demo works this way; evaluators will not debug setup | LOW — `mix setup` alias exists; seeds.exs is the only missing piece | `seeds.exs` idempotent insert wired into `mix setup` |
+| Credentials table in README "Evaluating" section | Standard pattern: Keycloak, SuperTokens, and every comparable tool lists demo accounts prominently | LOW — copy-paste Markdown table | None — pure docs |
+| Named personas with auth state described | Without this, evaluators log in as admin, see 0 events in the audit log, and conclude the feature doesn't work | LOW — README table cells | Seeded audit events |
+| `mix setup` populates DB | Evaluators will run `mix setup` by habit; empty DB = demo appears broken | LOW — one-line alias addition in mix.exs | `seeds.exs` |
+| Pre-populated audit log for admin | The admin audit explorer is a headline feature; 0 rows = "nothing to see" | MEDIUM — seed 10-15 rows covering 6+ event types | `AuditEvent` schema + Sigra event type atoms |
+| Screenshots in README/guide | Without screenshots, evaluator cannot judge admin UI quality before cloning | LOW — re-use existing Playwright admin-checkpoints artifacts | Playwright artifacts already in repo |
+| Password printed alongside email in credentials table | Table with email-only forces evaluator to grep seeds.exs | LOW — include in README table | None |
 
-### Differentiators (High-Value Optional — Defer if Schedule Pressure)
+### Differentiators
 
-Features that elevate v1.29 from "table stakes shipped" to "this is the SaaS-builder suite anchor."
+Features that elevate the demo above "it runs" into "I understand what Sigra does."
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **F-D-01 — `mix sigra.gen.adapter threadline` task** | One-command wiring instead of doc-and-paste. Mirrors `mix lockspire.install --sigra-host` from companion-oauth recipe. | MEDIUM | Generates: supervisor child spec, runtime config block, optional Oban queue entry, and a smoke test. Defer if Phase budget pressed — recipe handles the same with copy-paste, just less elegantly. |
-| **F-D-02 — Behaviour-shaped audit-adapter contract (`Sigra.Audit.Adapter`)** | Threadline is the first adapter; future audit sinks (Datadog Audit, Carbonite, custom) become drop-in. | MEDIUM | Define `@callback forward(audit_row, context) :: :ok \| {:error, term}`. Configure adapters as a list: `audit_adapters: [Sigra.Audit.Adapters.Threadline, MyApp.AuditAdapters.Datadog]`. Honors Sigra's "behaviours + callbacks, no hidden macros" decision. **Strongly recommended as table stakes** — if only one adapter ships in v1.29, the behaviour cost is near-zero and locks in the contract before it ossifies. **Promote to table stakes** unless explicitly cut. |
-| **F-D-03 — Correlation-ID propagation Sigra → Threadline** | Threadline derives correlation IDs today by reading Sigra state. With the reverse adapter, Sigra-internal audit rows should carry the same correlation ID so Threadline timeline queries unify. | SMALL | Adapter reads `Logger.metadata()[:request_id]` or accepts a `correlation_id` field on the audit row metadata. Inserts as Threadline's `correlation_id` column. Closes the loop. |
-| **F-D-04 — Suite-starter blog/README narrative artifact** | Beyond docs: a public-facing post titled "Build a SaaS in a weekend with the szTheory Elixir suite." Differentiator for adoption, not for the library itself. | SMALL | Out of repo scope; could be a `RELEASE_NOTES.md` or a CHANGELOG paragraph that hexdocs surfaces. **Defer to publicity lane; not in milestone proof bundle.** |
-| **F-D-05 — Recipe-contract test fixtures** | Threadline's own `verify.doc_contract` alias proves each guide has the required sections. Apply same pattern to Sigra's new recipes so future drift is caught at CI. | SMALL | Add `test/sigra/recipes/recipe_contract_test.exs` that walks `guides/recipes/*.md` and asserts the section heading set per recipe type (integration recipes vs deployment-style recipes have different shapes). |
-| **F-D-06 — Composable scope inspector for recipes** | All five recipes read from `current_scope`. A small inspector helper (`Sigra.Scope.summary/1` returning a `%{user_id, org_id, role, auth_method, impersonating?}` map) gives every recipe a single one-liner. | TINY | Already mostly exists implicitly. Promoting it to a documented helper makes recipe code snippets ~3 lines shorter each. |
+| Feature | Value Proposition | Complexity | Dependency on Sigra Feature |
+|---------|-------------------|------------|----------------------------|
+| Pre-seeded audit history with realistic variety | The audit explorer is most impressive when it shows logins, failed attempts, MFA enrollments, org invitations, password resets. 10-15 rows covering 6-8 event types is the minimum for the explorer to feel useful | MEDIUM — know event type atoms; insert directly | `AuditEvent` schema + Sigra audit event type constants |
+| Seeded pending invitation row (to `invited@demo.example`) | The invitation flow is hard to reach without a complete demo; a pre-seeded row shows the invitation management UI populated | LOW — one DB insert | `OrganizationInvitation` schema |
+| Passkey credential row visible in admin for admin persona | Shows WebAuthn surface without requiring hardware authenticator | LOW — one `UserPasskey` insert with friendly nickname | `UserPasskey` schema |
+| API token row visible in admin for admin persona | Shows bearer token surface without requiring evaluator to generate one first; shows `sigra_sk_` prefix | LOW — one row insert | API token schema |
+| EnterpriseConnection row on Acme Corp (configured state) | Shows SSO panel in org settings without requiring live OIDC provider | LOW — one row insert | `EnterpriseConnection` schema |
+| Frank's scheduled-deletion state with reactivation path | Shows data lifecycle (a rough edge most auth libraries do not have at all) | LOW — set `deleted_at` + `scheduled_deletion_at` on frank | `User` deletion fields + `reactivation_live.ex` (already exists) |
+| In-app persona explainer banner (dev only) | Turns click-around browsing into guided evaluation: "You are logged in as Dave (locked user)" | MEDIUM — dev-only LiveView component or flash overlay | Dev-env conditional (`Mix.env() == :dev`) |
+| `/demo` cheat-sheet route (dev only) | A `/demo` Phoenix route shows the full persona table with one-click login links — Auth0's "1-click auto-login demo user" pattern | MEDIUM — one controller/LiveView + template, dev-only pipeline scope | None |
+| Playwright seeds-smoke spec | Proves seeds are idempotent and correct on every CI run; logs in as each persona and asserts expected auth state is visible | MEDIUM — ~80-100 lines of Playwright | All seeded personas |
+| Realistic app domain name in layout | "Campfire — Team Projects" or "Vaultr" gives narrative context that makes auth states feel purposeful | LOW — rename in layout template | None |
+| `/dev/mailbox` mention in README | Magic link and confirmation email flows are otherwise invisible without a real inbox; Swoosh mailbox preview is already wired | VERY LOW — one sentence in README | None |
 
-### Anti-Features (Explicitly NOT in v1.29)
+### Anti-Features
 
-Things that look like SUITE-INTEGRATION scope but cost dramatically more than they return.
+Features to explicitly exclude, with rationale tied to milestone non-goals.
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **AF-01 — Sigra-managed Stripe integration via Accrue** | Adopters ask "can Sigra just hand me billing?" | Direct billing ownership crosses the permanent "Diminishing Returns Wall" in MILESTONE-ARC. Accrue is the canonical pairing; Sigra ships the identity feed and reads the result. | Doc-only recipe (F-RC-02). |
-| **AF-02 — Sigra-side SAML metadata / IdP handling** | "Sigra should handle SAML, not just OIDC" | SAML SP responsibilities (metadata exchange, signing keys, IdP-initiated SLO) is Relyra's scope. Sigra owns the org-scoped session it issues after a Relyra assertion. | Doc-only recipe (F-RC-04) with explicit non-goal. |
-| **AF-03 — Sigra-owned feature-flag store** | "Sigra should gate auth methods by flag" | Rulestead owns flag storage/eval/admin. Sigra reads flag values via Rulestead's context builder. | Doc-only recipe (F-RC-05) with explicit non-goal. |
-| **AF-04 — A `sigra_threadline_adapter` separate Hex package** | "Keep Sigra core deps minimal" | Threadline is already an optional dep candidate (`optional: true` in `mix.exs`, `no_warn_undefined` guard). A separate package adds release coordination overhead without solving the dep-graph problem. Follows ADR 001 pattern (Lockspire glue deferred until a real trigger fires; same logic applies here — single in-tree adapter is fine until a second adapter forces extraction). | Single-tree `Sigra.Audit.Adapters.Threadline` with `optional: true` in mix.exs. |
-| **AF-05 — New top-level `examples/suite-starter/` directory** | "A reference SaaS combining all six libraries" | (1) Duplicates `test/example/` maintenance; (2) splits CI signal; (3) creates a synthetic adopter context that diverges from the generator output. Phase 114 already paid the price of nested-example-app drift; do not re-open that wound. | Extend `test/example/` with opt-in deps + per-integration test files. |
-| **AF-06 — Cross-library version-compatibility matrix in Sigra docs** | "Tell adopters which Mailglass / Threadline version pairs with which Sigra version" | Drift trap. Each library owns its own compat matrix. Sigra-side claim would lie within weeks. | Each recipe states the minimum companion-lib version tested against; companion docs own their full compat story. |
-| **AF-07 — Sigra-emitted webhooks for the suite** | "Sigra should fire Accrue-shaped or Threadline-shaped webhooks" | v1.22 webhooks ship the canonical Sigra event contract; Accrue/Threadline subscribe to that, not the other way around. Inventing per-companion webhook shapes leaks companion identities into the Sigra event contract. | Recipe shows how to filter existing webhook subscriptions by event type and consume in companion. |
-| **AF-08 — Generic "plugin registry" for arbitrary companion libs** | "Make Sigra pluggable for any library" | Sigra already exposes behaviours (Mailer, RateLimiter, Authz, Audit Adapter once F-D-02 lands). A "registry" abstraction would re-implement that loosely-typed. | Behaviour + optional-dep guard + recipe is the pattern. |
-| **AF-09 — Re-architecting `Sigra.Audit` to push events instead of pulling via telemetry** | "Direct push is faster than telemetry handler" | Telemetry is canonical; single-emission-on-commit guarantees are proven through 11 milestones (D-01 + AUD-01..AUD-21). Re-architecting risks audit atomicity invariants for adapter convenience. | Adapter rides existing telemetry event. If push semantics are ever needed (F-D-02 behaviour), wrap them as a thin `Adapter.forward/2` callback invoked from a single telemetry handler attached at boot. |
-| **AF-10 — Owning any companion library's roadmap** | Explicit non-goal in MILESTONE-ARC SUITE-INTEGRATION entry. | Companion libs are independent; v1.29 must not create dependencies that block their independence. | Recipes assume current shipped versions; each companion library owns its own changelog and version cadence. |
+| Anti-Feature | Why It Seems Good | Why to Avoid | What to Do Instead |
+|--------------|-------------------|--------------|-------------------|
+| Generic seeding framework (ex_machina, Faker) | Looks professional; produces varied data | Milestone non-goal bars a generic framework; Faker data is non-deterministic unless seeded with a fixed integer, making Playwright assertions fragile; adds deps | Hard-coded deterministic data: fixed emails, fixed names, fixed timestamps. No `System.unique_integer`. |
+| Separate standalone demo repo | Reduces drift between demo and library | Phase 114 already paid the nested-app drift cost; separate repo doubles maintenance surface; demo and library can diverge silently | Extend `test/example/` — the architectural decision is settled |
+| Live OAuth provider credentials in seeds | Makes the OAuth demo click-through-able | Requires real GitHub/Google secrets in dev config; creates rotating-credential maintenance burden; breaks offline CI | Insert the identity row directly — shows the feature shape without live credentials |
+| Seeding host-app domain data (projects, tasks, documents) | Makes the app feel like a "real" SaaS | Explicit milestone non-goal: no host-domain data beyond what makes auth legible | Persona descriptions and org names provide sufficient narrative context |
+| Marketing site or landing page copy | Makes Sigra look polished | Out of scope; the demo is inside `test/example/`, not a hosted product | README "Evaluating" section is the conversion surface |
+| Passkey interactive login as a seeded click-around path | Shows passkey end-to-end | Requires platform authenticator; non-portable across machines; confuses evaluators without biometrics enrolled | Seed the passkey row for visibility; defer interactive passkey login to the existing Playwright spec |
+| Over-seeded audit log (100+ rows) | More data looks more impressive | Slows `mix setup`; forces the audit explorer into pagination mode, which can confuse an evaluator | 10-15 rows covering 6-8 event types — quality of variety over quantity |
+| Lowered Argon2id work factor in seeds | Speeds up `mix setup` | Undermines the "real security posture" message; ~1.4 seconds for 7 hashes is acceptable | Keep default work factor |
+
+---
 
 ## Feature Dependencies
 
 ```
-F-TL-01 Threadline adapter
-    ├──requires──> F-TL-02 async dispatch
-    ├──requires──> F-TL-03 retry semantics
-    ├──requires──> F-TL-04 optional-dep guard
-    ├──requires──> F-TL-05 telemetry parity
-    ├──requires──> existing Sigra.Audit telemetry event [:sigra, :audit, :log] (v1.0)
-    └──enables──> F-RC-01 Threadline recipe
+Idempotent seeds.exs
+    ├──requires──> All seeded schemas exist and are migrated
+    │                  (User, Organization, OrganizationMembership,
+    │                   OrganizationInvitation, UserMFACredential,
+    │                   UserBackupCode, UserPasskey, AuditEvent,
+    │                   UserSession, EnterpriseConnection)
+    └──requires──> Argon2id hashing available (argon2_elixir NIF compiled)
+                   (admin/alice/bob/eve/frank need hashed_password rows)
 
-F-D-02 Audit.Adapter behaviour (recommended-promote-to-table-stakes)
-    └──refactors──> F-TL-01 to implement the behaviour
-        └──unlocks──> future adapters without re-cutting the surface
+mix setup spin-up
+    └──requires──> seeds.exs complete + `mix setup` alias wired in mix.exs
 
-F-RC-01..F-RC-06 recipes
-    ├──require──> F-NX-01 suite-narrative landing page (cross-link target)
-    └──require──> Sigra v1.21 RBAC scope + v1.22 webhooks + v1.27 ENT-SSO (already shipped)
+README credentials table
+    └──requires──> seeds.exs finalized (emails + passwords must match)
 
-F-NX-01 suite narrative
-    └──requires──> F-NX-02 ecosystem diagram
+Pre-populated audit log (differentiator)
+    └──requires──> AuditEvent schema + Sigra audit event type atoms
+                   (event types must match shipped constants)
 
-F-EX-01 reference example
-    ├──requires──> F-TL-01 Threadline adapter
-    └──uses──> existing test/example/ Phoenix app (do not fork)
+Credentials cheat-sheet /demo route (differentiator)
+    └──requires──> seeds.exs complete (personas must exist in DB)
 
-F-PR-01 verification proof bundle
-    └──requires──> all of F-TL-* + F-RC-* + F-NX-* + F-EX-*
+In-app persona banner (differentiator)
+    └──requires──> seeds.exs complete
+                   (dev-env-only; no prod concern)
+
+Playwright seeds-smoke spec (differentiator)
+    └──requires──> seeds.exs complete + well-known emails/passwords
+
+README screenshots
+    └──requires──> Playwright checkpoint artifacts (already exist)
+                   + seeds populated so screenshots show non-empty UI
 ```
 
-### Dependency Notes
+---
 
-- **F-TL-01 sits on F-D-02 if you ship the behaviour.** If F-D-02 stays deferred, F-TL-01 is a one-off module that codifies the same shape de facto. Either is fine; the behaviour version costs ~30 minutes more and prevents a refactor when a second adapter lands.
-- **All recipes require the suite-narrative page (F-NX-01) to exist before they merge** so the cross-link target is real. Sequence the milestone so F-NX-01 lands in Phase 131 (or whatever the first phase is) before recipe phases.
-- **F-EX-01 reference example must reuse `test/example/`** not create a new directory. This is a hard constraint born of the v1.25 Phase 114 nested-example-app pain.
-- **Lockspire recipe (F-RC-03) is touch-up only.** If audit reveals it's still accurate, the diff is a single back-link to the suite-narrative page. If it's substantively wrong, escalate — that's a separate scope question, not a v1.29 expansion.
+## Demo Affordances: Cheap-but-High-Leverage Analysis
 
-## MVP Definition
+Ranked by (evaluator impact) / (implementation cost). Items marked HIGH/VERY LOW are the first-day wins.
 
-### Launch With (v1.29 must-haves)
+| Affordance | Evaluator Impact | Implementation Cost | Notes |
+|-----------|-----------------|---------------------|-------|
+| Credentials table in README | HIGH | VERY LOW | Do this first; unblocks all evaluation paths |
+| `mix setup` wires seeds | HIGH | VERY LOW | One-line alias addition in mix.exs |
+| Pre-populated audit log (15 rows, 6+ types) | HIGH | LOW | Audit explorer is the most impressive admin feature; empty = invisible |
+| `/dev/mailbox` mention in README | MEDIUM | VERY LOW | Magic link / confirmation flows become legible with one sentence |
+| Seeded pending invitation row | MEDIUM | VERY LOW | One DB insert; invitation management UI goes from empty to populated |
+| Passkey row visible in admin | MEDIUM | VERY LOW | One insert; shows WebAuthn surface without hardware |
+| API token row visible in admin | MEDIUM | VERY LOW | One insert; shows bearer token surface |
+| EnterpriseConnection row on Acme Corp | MEDIUM | VERY LOW | One insert; shows SSO panel |
+| Frank scheduled-deletion state | MEDIUM | LOW | Sets two timestamp fields; reactivation_live.ex already exists |
+| README screenshots (re-use existing Playwright artifacts) | HIGH | LOW | Playwright admin-checkpoints artifacts already committed; add to guide |
+| Realistic app domain name | MEDIUM | LOW | Layout rename; makes demo feel purposeful |
+| In-app persona banner | HIGH | MEDIUM | Highest-impact differentiator; worth a dedicated phase segment |
+| `/demo` cheat-sheet route | HIGH | MEDIUM | Dev-only; one controller + template; 80% of value is the README table though |
+| Playwright seeds-smoke spec | HIGH (CI) | MEDIUM | Proves idempotency; can follow seeds.exs in same phase or follow-on phase |
 
-The bounded contract that justifies the milestone tag.
+---
 
-- [ ] **F-TL-01** Threadline reverse adapter — the only code-deep wedge
-- [ ] **F-TL-02** async dispatch — Sigra audit hot path must not regress
-- [ ] **F-TL-03** retry semantics — adapter failures don't poison Sigra
-- [ ] **F-TL-04** optional-dep guard — boot-time truth follows HARD-02 pattern
-- [ ] **F-TL-05** telemetry parity — observability is part of the contract
-- [ ] **F-RC-01..F-RC-05** five integration recipes (Threadline, Accrue, Lockspire-touchup, Relyra, Rulestead)
-- [ ] **F-RC-06** Mailglass cross-link (one paragraph; not a new recipe)
-- [ ] **F-NX-01** suite-narrative page
-- [ ] **F-NX-02** ecosystem diagram
-- [ ] **F-EX-01** reference example proof in `test/example/`
-- [ ] **F-PR-01** verification proof bundle
+## MVP Definition for This Milestone
 
-### Add If Schedule Allows (still v1.29)
+### Must-Have (v1.31 cannot ship without these)
 
-Things that should ship together but are recoverable in v1.30 if cut.
+- `seeds.exs` idempotent, deterministic, covering all 7 persona states (including locked, unconfirmed, MFA-enrolled, multi-org, scheduled-deletion)
+- `mix setup` alias triggers `mix run priv/repo/seeds.exs`
+- README "Evaluating" section with credentials table + one-command spin-up instructions
+- Pre-populated audit log (15 rows minimum, 6+ event types, tied to admin persona)
+- Seeded organizations (Acme Corp + Beta Labs) with memberships
+- Seeded pending invitation row
+- At least 2 screenshots in README/guide (admin user index, admin user detail) — re-use existing Playwright artifacts
 
-- [ ] **F-D-02** `Sigra.Audit.Adapter` behaviour — **strongly recommended as table stakes** (low cost, future-proofs the contract)
-- [ ] **F-D-03** correlation-ID propagation Sigra → Threadline — closes the loop with Threadline's existing one-way wire
-- [ ] **F-D-05** recipe-contract test fixtures — catches future doc drift
+### Should-Have (adds significant evaluator value, low risk)
 
-### Defer to v1.30+ or Beyond
+- Passkey row seeded for admin (visible in admin user detail)
+- API token row seeded for admin
+- EnterpriseConnection row on Acme Corp (configured / pending-activation state)
+- Frank scheduled-deletion state
+- `/dev/mailbox` note in README
+- Realistic app domain name in layout
 
-- **F-D-01** `mix sigra.gen.adapter threadline` task — adopter ergonomics; recipe handles for now
-- **F-D-04** suite-starter blog/README narrative artifact — publicity lane
-- **F-D-06** `Sigra.Scope.summary/1` helper — adopter ergonomics
+### Defer (higher complexity or uncertain dependencies)
 
-## Complexity Summary
+- In-app persona banner (medium complexity; best as a follow-on phase)
+- `/demo` cheat-sheet route (README table covers 80% of the value; defer if phase is crowded)
+- Playwright seeds-smoke spec (valuable for CI; can be the milestone's final phase)
+- OAuth identity row for Carol (requires confirming exact `user_identities` schema shape in example app before committing to the insert pattern)
 
-| Sizing | Features |
-|--------|----------|
-| TINY (~1-3 hours) | F-RC-03, F-RC-06, F-NX-02, F-D-06 |
-| SMALL (~half-day to day) | F-TL-03, F-TL-04, F-TL-05, F-RC-01, F-RC-02, F-RC-04, F-RC-05, F-NX-01, F-PR-01, F-D-03, F-D-04, F-D-05 |
-| MEDIUM (~2-3 days) | F-TL-01, F-TL-02, F-EX-01, F-D-01, F-D-02 |
+---
 
-Estimated minimal-MVP phase count: **3-4 phases** (one phase for Threadline adapter + reference example, one phase for the five recipes + cross-link + Mailglass touch, one phase for suite-narrative + diagram, one phase for proof bundle and milestone audit). With F-D-02 promoted to table stakes: **3 phases** still works because the behaviour is a sub-task of phase 1.
+## Implementation Notes for Roadmap
 
-## Dependencies on Existing Sigra Contracts (Named Explicitly)
+### seeds.exs idempotency strategy
 
-| Dependency | Where It Lives | Used By |
-|------------|---------------|---------|
-| `[:sigra, :audit, :log]` telemetry event with `%{action, actor_id, outcome}` metadata | `lib/sigra/audit.ex:37, :304-310` | F-TL-01 adapter subscribes here |
-| `Sigra.OptionalDeps` boot-time validation pattern | HARD-02 (Phase 95, v1.21) | F-TL-04 extends with `:threadline` entry |
-| `mix sigra.doctor` dep matrix | HARD-02 (Phase 95, v1.21) | F-TL-04 adds Threadline-adapter row |
-| `current_scope` struct shape (`:user`, `:active_organization_id`, `:membership`, `:auth_method`, `:impersonating_from`, `:token_id`, `:id`, `:role`) | `lib/sigra/scope.ex` (B2B-02 v1.21 added `:role`) | F-TL-01 derives `ActorRef`; all F-RC-* recipes read from this |
-| `Sigra.Workers.*` optional-dep compile-time guards (`no_warn_undefined` in `mix.exs:65-86`) | Sigra mix.exs | F-TL-01 follows same pattern for Threadline-conditional code |
-| `Sigra.Audit` reserved-prefix contract (`auth.`, `session.`, `mfa.`, `oauth.`, `api.`, `account.`, `sigra.`) | `lib/sigra/audit.ex:39` | F-TL-01 must forward events whose action uses reserved prefixes — these are exactly the events host adopters want centralized in Threadline |
-| `Sigra.Mailer` behaviour (`@callback deliver/3`) | `lib/sigra/mailer.ex` | F-RC-06 references; no change to behaviour |
-| `Sigra.Delivery` (`:auto` / `:async` / `:sync`) | `lib/sigra/delivery.ex` | F-TL-02 async dispatch uses `oban_running?/0` detection pattern |
-| Webhook event catalog + subscription registry (v1.22 Phases 97–99) | `lib/sigra/webhooks/*` | F-RC-02 Accrue recipe shows event-type filter |
-| Org-scoped enterprise routing + JIT (v1.27 ENT-SSO Phases 122–126) | `lib/sigra/enterprise_*.ex` | F-RC-04 Relyra recipe references; Relyra integrates into the JIT path |
-| Generated host template seams (`priv/templates/sigra.install/`) | Generator | F-EX-01 reference example uses the generator output, **does not bypass it** |
-| Threadline `record_action/2` API + `ActorRef.new/2` validation | `/Users/jon/projects/threadline/lib/threadline.ex:40` and `lib/threadline/semantics/actor_ref.ex` | F-TL-01 calls these directly |
-| `Threadline.Integrations.Sigra.actor_ref_from_scope/1` existing logic | `/Users/jon/projects/threadline/lib/threadline/integrations/sigra.ex:72-86` | F-TL-01 should **mirror** the actor-type derivation (impersonating→admin, api_token/jwt→service_account, user→user) for symmetry. **Do not invent a second mapping.** |
+Use `on_conflict: :nothing` with deterministic UUIDs (hardcoded `Ecto.UUID.cast!` strings per persona) or `Repo.insert_or_update` with email as the unique key. This ensures `mix setup` is re-runnable without errors or duplicate rows.
 
-## Reference Differentiator Note: Recipe Section Contract
+Structure the seed file as:
+1. Local `defp` helper functions (not a framework)
+2. Organizations block (Acme Corp, Beta Labs)
+3. Users block (7 personas in order)
+4. Relationships block (memberships, invitation, MFA credentials, passkey row, API token row, audit events, EnterpriseConnection)
+5. `IO.puts` a summary credentials table to stdout so the developer sees accounts after seeding
 
-Each integration recipe must include these sections (in this order) so adopters can scan-and-skip identically across all six recipes. This is the precedent from `companion-oauth-provider.md` (v1.7 INTG-01) lightly extended:
+### Audit event seeding
 
-1. **Title + one-line description** ("Recipe: Sigra + Threadline audit adapter")
-2. **What this is / What this is not** (1-2 sentences; cross-link to `companion-oauth-provider.md` for the pattern)
-3. **Prerequisites** (Sigra version pin, companion version pin, what must work first)
-4. **Architecture sketch** (ASCII or 3-line description showing Sigra → companion direction)
-5. **Install steps** (mix.exs deps, `config/runtime.exs` block, supervisor child spec if needed)
-6. **Integration code snippet** (copy-pasteable, ~20-40 lines)
-7. **Verification snippet** (the one assertion or `iex>` line that proves it works — e.g. `:telemetry.attach(...)` + login event + Threadline row count)
-8. **When NOT to use this pattern** (the anti-feature exit ramp — `companion-oauth-provider.md` precedent at lines 40-44)
-9. **See also** (cross-links to suite-narrative page + sister recipes)
-10. **Non-goals** (explicit list: what Sigra does not own in this integration)
+`AuditEvent` schema fields: `user_id`, `action`, `ip`, `metadata`, `inserted_at`. Seed rows with deterministic `inserted_at` timestamps spread over the past 30 days so the explorer shows a realistic timeline. Use `Ecto.Changeset.change/2` directly — no need to invoke the full Sigra audit pipeline for seed rows. Event types to cover: `user.registered`, `user.confirmed`, `session.login`, `session.logout`, `mfa.enrolled`, `mfa.backup_codes.generated`, `org.member.invited`, `api_token.created`.
 
-The "first-class" vs "recipe" distinction in v1.29:
+### Argon2id in seeds.exs
 
-- **First-class:** Threadline (F-TL-01 = code surface in Sigra + recipe). Bidirectional code wire.
-- **Recipe-only:** Accrue / Lockspire / Relyra / Rulestead / Mailglass-cross-link. Adopters do all the wiring; Sigra provides the seams that already exist.
+Hashing 7 passwords at default Argon2id settings (~200ms each) takes ~1.4 seconds total — acceptable. Do not lower the work factor; it undermines the security-posture message.
+
+### Password policy compliance
+
+All demo passwords must pass `Sigra.PasswordPolicy.validate/1`. The format `DemoAlice1!` (12 chars, upper + lower + digit + symbol) satisfies typical policies. Verify against the live policy before committing to the exact strings in the credentials table.
+
+---
 
 ## Sources
 
-- In-repo verified (HIGH confidence):
-  - `/Users/jon/projects/sigra/.planning/PROJECT.md` (project context, v1.28 close state, v1.29 active milestone)
-  - `/Users/jon/projects/sigra/.planning/MILESTONE-ARC.md` (SUITE-INTEGRATION candidate scope, diminishing-returns wall)
-  - `/Users/jon/projects/sigra/.planning/STATE.md` (deferred TODO list confirming five integration recipes pending)
-  - `/Users/jon/projects/sigra/.planning/MILESTONES.md` (Mailglass v1.25 EMAIL-RAILS adapter already shipped via `Sigra.Mailers.Adapters.Mailglass` + `--with-mailglass` installer flag)
-  - `/Users/jon/projects/sigra/guides/recipes/companion-oauth-provider.md` (v1.7 INTG-01 recipe precedent — section pattern reused)
-  - `/Users/jon/projects/sigra/guides/recipes/deployment.md` (v1.10 recipe precedent — section pattern variant)
-  - `/Users/jon/projects/sigra/lib/sigra/audit.ex` (telemetry event contract, optional-dep pattern context)
-  - `/Users/jon/projects/sigra/lib/sigra/mailer.ex` (Mailer behaviour shape for reference)
-  - `/Users/jon/projects/sigra/lib/sigra/delivery.ex` (async/sync/auto pattern that F-TL-02 mirrors)
-  - `/Users/jon/projects/sigra/mix.exs` (optional-dep + `no_warn_undefined` pattern for F-TL-01 / F-TL-04)
-- Companion-library verified (HIGH confidence):
-  - `/Users/jon/projects/threadline/lib/threadline/integrations/sigra.ex` (existing one-way Threadline→Sigra wire; symmetry source for F-TL-01)
-  - `/Users/jon/projects/threadline/lib/threadline.ex:40` (`record_action/2` public API the adapter calls)
-  - `/Users/jon/projects/threadline/guides/integrations/sigra.md` (Threadline-side companion doc; reference for split-ownership wording)
-  - `/Users/jon/projects/threadline/mix.exs` (`verify.doc_contract` alias — pattern referenced by F-D-05)
-  - `/Users/jon/projects/lockspire/mix.exs` description (Lockspire still ships embedded OAuth/OIDC AS posture; recipe touch-up rather than rewrite)
-  - `/Users/jon/projects/accrue/accrue/mix.exs` (Accrue v1.2.0 billing-state-modeled-clearly posture; doc-only integration confirmed)
-  - `/Users/jon/projects/relyra/mix.exs` (Relyra v1.2.0 strict SAML 2.0 SP; complements OIDC-first ENT-SSO)
-  - `/Users/jon/projects/rulestead/README.md` + `/Users/jon/projects/rulestead/rulestead/mix.exs` (Rulestead 0.1.x line typed flags; recipe is staged-rollout of Sigra auth methods)
-- User memory (informational; verified against repo state):
-  - `project_oss_suite_vision.md` — szTheory suite vision; integration directions confirmed against actual companion-library code rather than memory claims
+- Codebase: `test/example/priv/repo/seeds.exs` (empty baseline confirmed — HIGH confidence)
+- Codebase: `test/example/test/support/fixtures/auth_fixtures.ex` (7 existing test scenarios; persona roster derived from these — HIGH confidence)
+- Codebase: `test/example/lib/example/accounts/user.ex` (auth-state fields: `confirmed_at`, `locked_at`, `failed_login_attempts`, `deleted_at`, `scheduled_deletion_at` — HIGH confidence)
+- Codebase: `test/example/priv/playwright/tests/golden-path.spec.ts` (existing E2E patterns to extend — HIGH confidence)
+- Codebase: `test/example/priv/playwright/tests/admin-checkpoints.spec.ts` (existing screenshot artifacts to re-use — HIGH confidence)
+- `.planning/threads/adoption-evidence-and-demo-showcase.md` (adoption verdict + genuine gap analysis — HIGH confidence)
+- `.planning/MILESTONE-ARC.md` (non-goals: no separate repo, no generic seeding framework, no host-domain data — HIGH confidence)
+- SuperTokens demo: single `demo@example.com` / `abcd1234` credential pattern — informed the "persona table is better than a single generic account" conclusion (MEDIUM confidence)
+- Auth0 community "1-click auto-login demo user" pattern — informed the `/demo` cheat-sheet route suggestion (LOW confidence — community post, not official doc)
+- Phoenix seed guides (hexdocs.pm/phoenix seeding data) — background context on idempotent seeding approaches (MEDIUM confidence)
+
+---
+
+*Feature research for: v1.31 DEMO-SHOWCASE (Sigra auth library evaluator demo)*
+*Researched: 2026-05-29*
