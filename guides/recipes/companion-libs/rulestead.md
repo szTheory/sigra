@@ -147,11 +147,11 @@ defmodule MyApp.RulesteadPolicy do
   """
   @impl Rulestead.Admin.Policy
   def can?(%{roles: roles}, action, _resource, _environment_key) do
-    case {action, roles} do
-      {_, roles} when :admin in roles -> true
-      {:read, roles} when :editor in roles or :viewer in roles -> true
-      {:write, roles} when :editor in roles -> true
-      _ -> false
+    cond do
+      :admin in roles -> true
+      action == :read and (:editor in roles or :viewer in roles) -> true
+      action == :write and :editor in roles -> true
+      true -> false
     end
   end
 
