@@ -190,8 +190,16 @@ Any already-running container on port 5432 with the same credentials
 suite with:
 
 ```bash
-PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test
+mix test
 ```
+
+No env prefix is needed: `mix test` sets `MIX_ENV=test` itself, and the
+real-DB test repo (`Sigra.Test.PostgresRepo`) plus the install-golden
+fixture already default to `postgres`/`postgres`/`localhost`. To point at a
+Postgres with different credentials, override the vars the test repo
+actually reads — `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_USERNAME`,
+`SIGRA_TEST_PG_PASSWORD`, `SIGRA_TEST_PG_DATABASE` — not the libpq `PG*`
+vars.
 
 <!-- GSD:skills-start source:skills/ -->
 ## Project Skills
