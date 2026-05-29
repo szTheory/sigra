@@ -2,11 +2,21 @@
 created: 2026-05-29T00:00:00.000Z
 title: Phase 138 Sigra.Doctor minor (Info) code-review findings
 area: lib/sigra
-resolves_phase: 140
 files:
   - lib/sigra/doctor.ex
   - test/sigra/mix/tasks/doctor_task_test.exs
 ---
+
+## Status note (2026-05-29, Phase 140 close)
+
+The original `resolves_phase: 140` tag was an optimistic bet that Phase 140 would
+fold these cleanups in. It did NOT: Phase 140's executed plans were deprecation
+removal-target strings, docs-close, and the proof bundle. The only doctor.ex edit
+in Phase 140 (commit `6f60743`) was the Gate-5 moduledoc autolink fix at lines
+26-63 — a different region. Verified all three findings remain open at Phase 140
+HEAD: IN-01 `:quiet` paragraph still at doctor.ex:138; IN-02 `bcrypt_configured?/1`
+still hardcoded at doctor.ex:428; IN-03 test grep untouched. Tag removed so this is
+not falsely auto-closed; remains a pending low-priority cleanup for a future pass.
 
 ## Problem
 

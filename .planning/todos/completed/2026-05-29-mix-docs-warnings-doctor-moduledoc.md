@@ -1,6 +1,8 @@
 ---
 created: 2026-05-29T00:00:00.000Z
-status: pending
+status: resolved
+resolved: 2026-05-29
+resolved_by: Phase 140 (140-03 Gate-5 Rule-1 auto-fix, commit 6f60743)
 title: mix docs --warnings-as-errors fails on Sigra.Doctor moduledoc references to hidden functions
 area: docs
 origin_phase: 138
@@ -9,6 +11,15 @@ files:
   - lib/sigra/application.ex
   - lib/sigra/audit/forwarders.ex
 ---
+
+## Resolution (2026-05-29, Phase 140)
+
+Resolved by Phase 140 plan 140-03's Gate-5 Rule-1 auto-fix (commit `6f60743`). The
+broken `@moduledoc` autolinks to `@doc false` functions in `lib/sigra/doctor.ex`
+and `lib/sigra/optional_deps.ex` were rewritten as plain prose (no behavior change).
+`mix docs --warnings-as-errors` now exits 0 — independently confirmed as Gate 5 of
+the Phase 140 proof bundle (140-VERIFICATION.md, status: passed).
+
 
 ## Problem
 
