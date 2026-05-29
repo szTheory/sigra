@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
-status: ready_to_plan
-last_updated: 2026-05-29T17:22:48.995Z
+status: planning
+last_updated: "2026-05-29T17:39:00.435Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 20
-  completed_plans: 244
+  completed_plans: 20
   percent: 90
-stopped_at: Phase 139 complete (2/2) — ready to discuss Phase 140
 ---
 
 # Project State
@@ -29,7 +28,7 @@ See: `.planning/PROJECT.md`
 Phase: 140
 Plan: Not started
 Status: Ready to plan
-Resume file: None
+Resume file: .planning/phases/140-deprecation-hygiene-verification-docs-close/140-CONTEXT.md
 Last activity: 2026-05-29
 Progress: [██████████] 100%
 
