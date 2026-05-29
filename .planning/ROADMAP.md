@@ -45,7 +45,7 @@
 - [x] **Phase 137: Optional-Dependency Source of Truth** — `Sigra.OptionalDeps` per-dep `available?/0` SOT + consolidate ~29 scattered `Code.ensure_loaded?` guards with zero runtime behavior change
 - [x] **Phase 138: `mix sigra.doctor` Operator Diagnostic** — per-feature optional-dep matrix with remediation hints + boot-wiring validation that exits non-zero on misconfiguration (completed 2026-05-29)
 - [x] **Phase 139: Recipe-Contract Integrity & Sister-Repo Verification** — merge-blocking recipe-section/frontmatter fixture + Lockspire/Rulestead contract verification (verify-where-resolvable, else document-the-assumption) (completed 2026-05-29)
-- [ ] **Phase 140: Deprecation Hygiene + Verification & Docs Close** — removal-timeline + migration notes for the 2 live `@deprecated` functions + full proof bundle + docs alignment
+- [x] **Phase 140: Deprecation Hygiene + Verification & Docs Close** — removal-timeline + migration notes for the 2 live `@deprecated` functions + full proof bundle + docs alignment (completed 2026-05-29)
 
 ### v1.30 Phase Details
 
@@ -141,7 +141,7 @@
 | 137. Optional-Dependency Source of Truth | 3/3 | Complete | 2026-05-29 |
 | 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete    | 2026-05-29 |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 2/2 | Complete    | 2026-05-29 |
-| 140. Deprecation Hygiene + Verification & Docs Close | 3/3 | Complete   | 2026-05-29 |
+| 140. Deprecation Hygiene + Verification & Docs Close | 3/3 | Complete    | 2026-05-29 |
 
 <details>
 <summary>✅ v1.29 SUITE-INTEGRATION (Phases 131–136) — SHIPPED 2026-05-29</summary>
