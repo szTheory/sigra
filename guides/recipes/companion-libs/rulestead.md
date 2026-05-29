@@ -1,8 +1,8 @@
 <!-- validated_against: rulestead ~> 0.1 -->
-<!-- last_validated: 2026-05-28 -->
+<!-- last_validated: 2026-05-29 -->
 # Recipe: Sigra + Rulestead (feature-flag gating from current_scope)
 
-Validated against: `rulestead ~> 0.1` as of 2026-05-28
+Validated against: `rulestead ~> 0.1` (`0a18360`) as of 2026-05-29
 
 > **Sigra works fully standalone.** Rulestead is an optional integration; Sigra ships without it, and removing the wiring below returns Sigra to standalone operation with no further changes.
 
@@ -120,8 +120,9 @@ end
 
 ### Implementing `RulesteadPolicy`
 
-The admin UI calls `policy.can?(actor, action, resource, environment_key)` at
-`authorizer.ex:146-150`. The host module implements `can?/4` returning a boolean:
+The host module implements the `Rulestead.Admin.Policy` behaviour (defined at `policy.ex:121`,
+verified against rulestead v0.1.3 `0a18360` on 2026-05-29; dispatched from `authorizer.ex:149`).
+Implement the one required callback `can?/4`, which returns a boolean:
 
 | Argument | Type | Description |
 |----------|------|-------------|
@@ -138,10 +139,13 @@ config :rulestead, :admin_policy, MyApp.RulesteadPolicy
 
 ```elixir
 defmodule MyApp.RulesteadPolicy do
+  @behaviour Rulestead.Admin.Policy
+
   @doc """
   Authorize Rulestead admin actions.
   actor.roles derives from current_scope.role via the admin session.
   """
+  @impl Rulestead.Admin.Policy
   def can?(%{roles: roles}, action, _resource, _environment_key) do
     case {action, roles} do
       {_, roles} when :admin in roles -> true
@@ -150,6 +154,16 @@ defmodule MyApp.RulesteadPolicy do
       _ -> false
     end
   end
+
+  # Optional callbacks — implement only if you use Rulestead governance actions
+  # (publish_ruleset, advance_rollout, engage_kill_switch, release_kill_switch,
+  # promote_environment). If omitted, Rulestead falls back to its internal defaults.
+  #
+  #   @impl Rulestead.Admin.Policy
+  #   def change_request_required?(actor, action, resource, environment_key), do: ...
+  #
+  #   @impl Rulestead.Admin.Policy
+  #   def allow_self_approval?(actor, action, resource, environment_key), do: ...
 end
 ```
 
