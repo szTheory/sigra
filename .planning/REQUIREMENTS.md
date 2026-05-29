@@ -33,7 +33,7 @@ Requirements for the v1.30 milestone. Each maps to exactly one roadmap phase.
 
 ### Verification & Docs
 
-- [ ] **PROOF-01**: Full test suite + dep-off CI lane + `mix docs --warnings-as-errors` all green; `mix sigra.doctor` exercised against the `test/example/` app; per-phase verification artifacts filed.
+- [x] **PROOF-01**: Full test suite + dep-off CI lane + `mix docs --warnings-as-errors` all green; `mix sigra.doctor` exercised against the `test/example/` app; per-phase verification artifacts filed.
 - [x] **DOC-01**: Guides/docs updated — `mix sigra.doctor` usage, a `Sigra.OptionalDeps` maintainer note, the deprecation-removal-timeline notes, and a recipe-contract-testing note.
 
 ## Future Requirements
@@ -81,7 +81,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | RCV-02 | Phase 139 | Complete |
 | DEPR-01 | Phase 140 | Complete |
 | DEPR-02 | Phase 140 | Complete |
-| PROOF-01 | Phase 140 | Pending |
+| PROOF-01 | Phase 140 | Complete |
 | DOC-01 | Phase 140 | Complete |
 
 **Coverage:**

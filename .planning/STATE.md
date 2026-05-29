@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
-status: executing
-last_updated: "2026-05-29T18:13:45.261Z"
+status: verifying
+last_updated: "2026-05-29T18:32:41.632Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 10
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 23
-  completed_plans: 22
-  percent: 90
+  completed_plans: 23
+  percent: 100
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: `.planning/PROJECT.md`
 
 Phase: 140 (deprecation-hygiene-verification-docs-close) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Resume file: None
 Last activity: 2026-05-29
-Progress: [██████████] 96%
+Progress: [██████████] 100%
 
 ## Accumulating Context
 
@@ -89,6 +89,7 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 - Locked Mailglass posture for v1.29 as **recipe-only**: do NOT re-land the orphaned Phase 111/114 adapter; Phase 136 DOC-01 corrigendum corrects the v1.25 EMAIL-RAILS narrative claim.
 - Treated `--with-threadline` (and any `--with-*`) install flag as out of scope — no precedent in `lib/mix/tasks/sigra.install.ex`.
 - Kept all six companion-lib recipes under a uniform template: `validated_against:` + `last_validated:` frontmatter, `mix.exs` snippet, "Failure modes" section, "Non-goals" section, "Sigra works fully standalone" banner.
+- [Phase ?]: Phase 140 Plan 03: Gate 8 docs-render proof confirms DEPR-01/DEPR-02 render in published doc/; pre-existing env failures recorded verbatim (anti-overclaim)
 
 ## Operator Next Steps
 
@@ -116,3 +117,4 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 | Phase 139 P02 | 15min | 2 tasks | 3 files |
 | Phase 140 P01 | 5min | 2 tasks | 2 files |
 | Phase 140 P02 | 5min | 3 tasks | 3 files |
+| Phase 140 P03 | 953 | 2 tasks | 3 files |

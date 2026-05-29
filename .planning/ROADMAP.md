@@ -132,7 +132,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion — docs-render gates require DEPR edits and doc sections to be in place)*
 
-  - [ ] 140-03-PLAN.md — Run all 8 proof gates and file 140-VERIFICATION.md (PROOF-01, DEPR-01, DEPR-02)
+  - [x] 140-03-PLAN.md — Run all 8 proof gates and file 140-VERIFICATION.md (PROOF-01, DEPR-01, DEPR-02)
 
 ### v1.30 Progress
 
@@ -141,7 +141,7 @@
 | 137. Optional-Dependency Source of Truth | 3/3 | Complete | 2026-05-29 |
 | 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete    | 2026-05-29 |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 2/2 | Complete    | 2026-05-29 |
-| 140. Deprecation Hygiene + Verification & Docs Close | 2/3 | In Progress|  |
+| 140. Deprecation Hygiene + Verification & Docs Close | 3/3 | Complete   | 2026-05-29 |
 
 <details>
 <summary>✅ v1.29 SUITE-INTEGRATION (Phases 131–136) — SHIPPED 2026-05-29</summary>
