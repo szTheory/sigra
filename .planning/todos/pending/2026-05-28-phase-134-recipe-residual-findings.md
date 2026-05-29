@@ -2,6 +2,7 @@
 created: 2026-05-28T00:00:00.000Z
 title: Phase 134 companion-lib recipe residual findings (sister-repo + version pin)
 area: docs/recipes
+resolves_phase: 139
 files:
   - guides/recipes/companion-libs/lockspire.md
   - guides/recipes/companion-libs/rulestead.md
