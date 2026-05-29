@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
 status: executing
-last_updated: "2026-05-29T18:03:10.673Z"
-last_activity: 2026-05-29 -- Phase 140 planning complete
+last_updated: "2026-05-29T18:10:49.951Z"
+last_activity: 2026-05-29
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 23
-  completed_plans: 20
-  percent: 87
+  completed_plans: 21
+  percent: 90
 ---
 
 # Project State
@@ -21,16 +21,16 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 140 — deprecation hygiene + verification & docs close
+**Current focus:** Phase 140 — deprecation-hygiene-verification-docs-close
 
 ## Current Position
 
-Phase: 140
-Plan: Not started
+Phase: 140 (deprecation-hygiene-verification-docs-close) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Resume file: .planning/phases/140-deprecation-hygiene-verification-docs-close/140-CONTEXT.md
-Last activity: 2026-05-29 -- Phase 140 planning complete
-Progress: [██████████] 100%
+Resume file: None
+Last activity: 2026-05-29
+Progress: [█████████░] 91%
 
 ## Accumulating Context
 
@@ -114,3 +114,4 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 | Phase 130 P01 | 605s | 3 tasks; PROOF-01 release-blocked on mix docs --warnings-as-errors; unblocked by quick task 260527-bsd via commit 110a560. |
 | Phase 139 P01 | 8min | 1 tasks | 1 files |
 | Phase 139 P02 | 15min | 2 tasks | 3 files |
+| Phase 140 P01 | 5min | 2 tasks | 2 files |
