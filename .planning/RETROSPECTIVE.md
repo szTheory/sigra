@@ -1,6 +1,49 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.29 section added at milestone close (2026-05-29). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumed the cadence.*
+*Living document updated at milestone boundaries. v1.30 section added at milestone close (2026-05-29). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumed the cadence.*
+
+## Milestone: v1.30 — TRUST-HARDENING (Operator Confidence & Debt Closure)
+
+**Shipped:** 2026-05-29
+**Phases:** 4 (137, 138, 139, 140) | **Plans:** 10 (`137-01`..`137-03`, `138-01`..`138-02`, `139-01`..`139-02`, `140-01`..`140-03`)
+**Git range:** `de3f3f8`..HEAD — ~89 commits, 90 files changed, +10,991 / −63 (dominated by `.planning/` docs)
+**Timeline:** ~2 days — 2026-05-28 → 2026-05-29
+
+### What was built
+
+- **OD-01/OD-02** — `Sigra.OptionalDeps`: one canonical module with 9 `*_available?/0` predicates (oban/bcrypt/eqrcode/threadline/assent/swoosh/joken/hammer/req) + config-driven `encryption_active?/1`. ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with **zero runtime behavior change** — proven by a 12-test drift-catching unit suite (each predicate asserted `== Code.ensure_loaded?(Mod)`, so the test stays valid in a dep-off env) and the existing `library_tests_dep_off` CI lane. Documented fences (compile-time defmodule wrappers, dynamic host-schema atoms, internal-worker leg, Oban boot warning) were deliberately left literal.
+- **DR-01/DR-02** — `mix sigra.doctor`: a pure injectable `Sigra.Doctor` core (nine-feature matrix, four states, four D-09 boot-wiring hard-fail checks, no IO) + a thin Mix-task shell (ANSI output, `--quiet`, `exit({:shutdown,1})` CI gate, never `System.halt`). 30 tests via an injection seam + CaptureIO, no subprocess.
+- **RCT-01/RCV-01/RCV-02** — a merge-blocking pure-ExUnit fixture asserting all 6 companion-lib recipes carry five required markers (+ a standalone D-05 non-empty-glob guard), plus sister-repo verification of the Lockspire `resolve_account/2` return shape and Rulestead `@behaviour` contract (`def616d`/`0a18360`), with the folded phase-134 residual todo closed.
+- **DEPR-01/DEPR-02/PROOF-01/DOC-01** — Hex-SemVer removal targets + migration notes on both live `@deprecated` functions; an eight-gate proof bundle filed at `140-VERIFICATION.md`; docs aligned (deployment operator-diagnostics + three MAINTAINING maintainer notes).
+
+### What worked
+
+- **SOT-before-consumer sequencing** — building `Sigra.OptionalDeps` (137) before `mix sigra.doctor` (138) meant the doctor consumed a frozen predicate surface; the integration checker later confirmed the doctor re-implements no dep checks (all 9 predicates + `encryption_active?/1` delegated).
+- **Drift-catching equality assertions** — writing the SOT unit tests as `predicate() == Code.ensure_loaded?(Mod)` rather than hardcoded booleans made one test file valid in both dep-on and dep-off environments, and turned the "no behavior change" invariant into something mechanically checkable.
+- **Injection seam for the diagnostic** — `Sigra.Doctor`'s `predicates:`/`host_sigra:`/`oban_running:`/`module_loaded?:` overrides let all 30 doctor tests run without toggling the ambient dep tree or spawning subprocesses (<0.1s feedback), and made the four D-09 hard-fail branches fully unit-testable.
+- **Honest low-code framing** — declaring up front that v1.30 was a consolidation milestone (net new lib surface = `OptionalDeps` + `Doctor` + the task) kept it bounded and on the right side of the Diminishing Returns Wall.
+
+### What was inefficient
+
+- **Verification-artifact bookkeeping lagged execution** — at milestone-audit time Phase 137 had no `137-VERIFICATION.md` (only UAT/VALIDATION/SECURITY), Phase 138 had no `138-VALIDATION.md`, and Phase 139's `139-VALIDATION.md` was a never-signed pre-execution draft. All three were substantively done — the gap was purely filing the canonical artifact. Closing them at milestone close cost a full retroactive pass (file one VERIFICATION, reconstruct one VALIDATION, sign off another, tick two checkboxes). A per-phase "VALIDATION signed off post-execution?" gate would have caught this before close.
+- **`gsd-sdk query audit-open` false positives, third milestone running** — it flagged 3 genuinely-complete quick tasks as open (each has a SUMMARY.md; `status:` frontmatter just isn't where the SDK looks). MAINTAINING.md already documents the SDK as unreliable for this repo and prescribes grep-driven checks — the audit-open call could be dropped from the close flow entirely here.
+- **The SDK's `milestone.complete` accomplishments were unusable** — it globbed *all* phase SUMMARYs (so the v1.30 MILESTONES.md entry came out full of v1.29 Threadline/suite content + literal "One-liner:" artifacts + a wrong `10 phases / 23 plans` count) and had to be rewritten by hand. The counts in its JSON (`phases: 10`) are cumulative-disk, not milestone-scoped.
+- **A deferred fold-in silently didn't happen** — the phase-138 doctor Info findings (IN-01/02/03) were tagged for a Phase-140 fold-in that never occurred; they were still in `pending/` at close and had to be carried forward. "Resolve in phase N+k" notes need a verification step at phase N+k.
+
+### Patterns established
+
+- **Retroactive artifact backfill at milestone close is legitimate when alternate evidence is current and strong** — a missing `VERIFICATION.md` was closed by synthesizing from existing UAT (7/7) + VALIDATION (nyquist-compliant) + SECURITY (9/9) + the integration checker, with an explicit `backfilled: true` frontmatter flag, rather than re-running execution.
+- **Document, don't churn, a versioning-coherence wart** — WR-01 (deprecation removal target rendering *before* `@doc since:`, an artifact of a Hex-SemVer axis vs an internal milestone axis) was resolved to "accept + document": a "Dual version axes" note in MAINTAINING.md plus a kept-open todo for a future library-wide `since:` re-keying, instead of a large mechanical edit at close.
+
+### Key lessons
+
+- A phase can be functionally and code-verified (integration checker WIRED, tests green) yet still trip the close gate purely on artifact hygiene. Treat `*-VERIFICATION.md` / signed `*-VALIDATION.md` as execution deliverables, not close-time chores.
+- When a milestone audit says `gaps_found` but `requirements: N/N` with zero unsatisfied, read the gap categories before reacting — process/hygiene gaps close in minutes; requirement gaps need phases.
+
+### Cost observations
+
+- Model mix: predominantly Opus (single-session close). Sessions: 1 (this close) atop the per-phase execution sessions.
+- Notable: the entire close was no-code — every gap closed with docs/artifacts. The expensive part was reading evidence across UAT/VALIDATION/SECURITY/integration to file one honest VERIFICATION, not generating anything.
 
 ## Milestone: v1.29 — SUITE-INTEGRATION (Companion-Library Integration)
 
