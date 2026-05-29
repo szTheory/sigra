@@ -114,8 +114,8 @@ queue). Sigra's v1.25 EMAIL-RAILS async-delivery telemetry (`Sigra.Delivery` /
 
 - Sigra does **not** ship a library-resident Mailglass adapter. The orphaned Phase 111/114
   adapter code does not re-land in v1.29 (see STATE.md deferred items and STACK.md:14-23). A
-  corrigendum correcting the v1.25 EMAIL-RAILS narrative is planned for Phase 136 DOC-01; until
-  it lands, see the planned location: `../introduction/suite-integration.html`.
+  corrigendum correcting the v1.25 EMAIL-RAILS Mailglass narrative has landed in `CHANGELOG.md`
+  (v1.25 entry); the same correction appears in MILESTONES.md and PROJECT.md under v1.25.
 - There is **no `--with-mailglass` install flag** in `mix sigra.install`.
 - Sigra does **not** ship mailable templates for Mailglass — host owns rendering. The
   `deliver/3` body argument accepts `String.t()`, `%{html:, text:}`, or `%{text:}` per the
