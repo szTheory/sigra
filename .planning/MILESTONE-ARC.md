@@ -210,6 +210,29 @@ The remaining meaningful work clusters are:
 - owning any sister-lib's roadmap
 - replacing recipes with code where the library boundary doesn't justify it
 
+### candidate
+
+**ID:** `DEMO-SHOWCASE`
+**Name:** `Seed-rich Evaluator Demo Showcase`
+**Priority:** 1 (top remaining build wedge)
+**Why now:** Repo-grounded assessment (2026-05-29) puts Sigra at 90–95% done for scope with adoption-evidence automation already strong (E2E, install-smoke, golden-path Playwright, dep-off CI). The one genuine gap is the *evaluator conversion surface*: `test/example/priv/repo/seeds.exs` is empty and the example app is a headless test fixture, not a positioned showcase. This is the unbuilt remainder of `SUITE-INTEGRATION`'s "reference starter app" (shipped recipe-only). For a pre-1.0 lib chasing adopters, the evaluation funnel is the highest-leverage *build* left.
+**Theme:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase.
+**Likely scope:**
+- realistic domain + 4–6 personas (admin w/ MFA + multi-org, standard user, invited-unconfirmed, locked, OAuth-linked, passkey user)
+- idempotent, deterministic `seeds.exs`
+- one-command spin-up (`mix setup && mix phx.server` → fully populated, clickable realistic SaaS)
+- README/guide "try it locally" path with screenshots (README "Evaluating" lane)
+- extend the existing Playwright golden-path to exercise seeded data
+**Prerequisites:**
+- v1.30 TRUST-HARDENING closed
+- reuse existing `test/example/` + E2E/CI substrate (low net-new code)
+**Non-goals:**
+- a *separate standalone* demo repo (extend `test/example/`; nested-app drift cost already paid in Phase 114)
+- a marketing site, component library, or generic seeding framework
+- seeding host-app domain data beyond what makes auth/account features legible
+
+> **Meta-framing (graduated from 137-LEARNINGS, 2026-05-29):** the honest bottleneck for "is Sigra done?" is **absence of real adopters, not missing features**. Demo Showcase is the best remaining *build*; the move after it is non-code — a 1.0 Hex cut + adoption push. Weight that above further feature wedges.
+
 ## The "Diminishing Returns" Wall (Permanent Non-Goals)
 
 To protect the architectural integrity and maintainability of Sigra, we explicitly define boundaries that the library will **never** cross, even if requested:
@@ -220,8 +243,9 @@ To protect the architectural integrity and maintainability of Sigra, we explicit
 
 ## Selection Guidance
 
-`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, and `ENT-SSO` are shipped. `DATA-LIFECYCLE` is active as v1.28. The ranked follow-on sequence after v1.28 is:
+`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, `ENT-SSO`, `DATA-LIFECYCLE` (v1.28), and `SUITE-INTEGRATION` (v1.29, recipe-only) are shipped. `TRUST-HARDENING` is active as v1.30. The ranked follow-on sequence after v1.30 closes is:
 
-1. `SUITE-INTEGRATION szTheory Suite Integration`
+1. `DEMO-SHOWCASE Seed-rich Evaluator Demo Showcase` — top remaining build wedge (assessment 2026-05-29)
+2. **1.0 Hex cut + adoption push** (non-code) — the honest bottleneck is adopters, not features; let real usage choose what's next
 
-If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above.
+If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above. After `DEMO-SHOWCASE`, default to the adoption push over any further feature wedge unless a concrete adopter need proves a new seam.
