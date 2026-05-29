@@ -43,7 +43,7 @@
 ### v1.30 TRUST-HARDENING — Phases
 
 - [ ] **Phase 137: Optional-Dependency Source of Truth** — `Sigra.OptionalDeps` per-dep `available?/0` SOT + consolidate ~29 scattered `Code.ensure_loaded?` guards with zero runtime behavior change
-- [ ] **Phase 138: `mix sigra.doctor` Operator Diagnostic** — per-feature optional-dep matrix with remediation hints + boot-wiring validation that exits non-zero on misconfiguration
+- [x] **Phase 138: `mix sigra.doctor` Operator Diagnostic** — per-feature optional-dep matrix with remediation hints + boot-wiring validation that exits non-zero on misconfiguration (completed 2026-05-29)
 - [ ] **Phase 139: Recipe-Contract Integrity & Sister-Repo Verification** — merge-blocking recipe-section/frontmatter fixture + Lockspire/Rulestead contract verification (verify-where-resolvable, else document-the-assumption)
 - [ ] **Phase 140: Deprecation Hygiene + Verification & Docs Close** — removal-timeline + migration notes for the 2 live `@deprecated` functions + full proof bundle + docs alignment
 
@@ -125,7 +125,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 137. Optional-Dependency Source of Truth | 1/3 | In Progress|  |
-| 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete   | 2026-05-29 |
+| 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete    | 2026-05-29 |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 0/TBD | Not started | - |
 | 140. Deprecation Hygiene + Verification & Docs Close | 0/TBD | Not started | - |
 

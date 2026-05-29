@@ -17,8 +17,8 @@ Requirements for the v1.30 milestone. Each maps to exactly one roadmap phase.
 
 ### Operator Diagnostics
 
-- [ ] **DR-01**: `mix sigra.doctor` reports a per-feature optional-dependency matrix (loaded / available / configured-but-missing / missing) with actionable remediation hints for each row.
-- [ ] **DR-02**: `mix sigra.doctor` validates boot-time wiring for configured features (e.g. audit forwarder, async email/audit workers, encryption vault) and exits non-zero when a configured feature is misconfigured.
+- [x] **DR-01**: `mix sigra.doctor` reports a per-feature optional-dependency matrix (loaded / available / configured-but-missing / missing) with actionable remediation hints for each row.
+- [x] **DR-02**: `mix sigra.doctor` validates boot-time wiring for configured features (e.g. audit forwarder, async email/audit workers, encryption vault) and exits non-zero when a configured feature is misconfigured.
 
 ### Recipe Contract Integrity
 
@@ -74,8 +74,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 |-------------|-------|--------|
 | OD-01 | Phase 137 | Pending |
 | OD-02 | Phase 137 | Pending |
-| DR-01 | Phase 138 | Pending |
-| DR-02 | Phase 138 | Pending |
+| DR-01 | Phase 138 | Complete |
+| DR-02 | Phase 138 | Complete |
 | RCT-01 | Phase 139 | Pending |
 | RCV-01 | Phase 139 | Pending |
 | RCV-02 | Phase 139 | Pending |
