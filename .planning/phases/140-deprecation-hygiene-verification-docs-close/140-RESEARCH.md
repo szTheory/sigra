@@ -33,7 +33,7 @@
 
 **D-11:** The recipe-contract-testing note documents `test/sigra/recipes/companion_lib_contract_test.exs` as a maintainer-internal drift guard.
 
-**D-12:** Flip `[ ]`→`[x]` on ROADMAP.md lines 45/70/71 and reconcile the "1/3" progress-table row (line 132) to reflect Phase 137 complete. STATE.md drift and stale branch name are **deferred to `/gsd-complete-milestone`** — out of scope.
+**D-12:** Flip `[ ]`→`[x]` on ROADMAP.md lines 45/70/71 and reconcile the "1/3" progress-table row (line 141) to reflect Phase 137 complete. STATE.md drift and stale branch name are **deferred to `/gsd-complete-milestone`** — out of scope.
 
 ### Claude's Discretion
 
@@ -276,7 +276,7 @@ Three sections to add:
 | ROADMAP.md line 66 | `- [x] 137-01-PLAN.md — Create \`Sigra.OptionalDeps\` SOT...` | (already `[x]` — no change) |
 | ROADMAP.md line 70 | `  - [ ] 137-02-PLAN.md — Delegate single-leaf runtime guards...` | `  - [x] 137-02-PLAN.md — Delegate single-leaf runtime guards...` |
 | ROADMAP.md line 71 | `  - [ ] 137-03-PLAN.md — Delegate compound-guard load-halves...` | `  - [x] 137-03-PLAN.md — Delegate compound-guard load-halves...` |
-| ROADMAP.md line 132 | `\| 137. Optional-Dependency Source of Truth \| 1/3 \| In Progress\|  \|` | `\| 137. Optional-Dependency Source of Truth \| 3/3 \| Complete \| 2026-05-29 \|` |
+| ROADMAP.md line 141 | `\| 137. Optional-Dependency Source of Truth \| 1/3 \| In Progress\|  \|` | `\| 137. Optional-Dependency Source of Truth \| 3/3 \| Complete \| 2026-05-29 \|` |
 
 **Honesty check:** Flipping these is honest because:
 - 137-01-SUMMARY.md, 137-02-SUMMARY.md, 137-03-SUMMARY.md all exist with `completed: "2026-05-29"`. [VERIFIED: codebase read]
@@ -330,7 +330,7 @@ Three sections to add:
 
 **What goes wrong:** Attempting to reconcile STATE.md drift or rename the `v1.28-data-lifecycle` branch as part of this phase.
 
-**How to avoid (D-12):** Those items are explicitly deferred to `/gsd-complete-milestone`. This phase only edits ROADMAP.md lines 45/70/71/132.
+**How to avoid (D-12):** Those items are explicitly deferred to `/gsd-complete-milestone`. This phase only edits ROADMAP.md lines 45/70/71/141.
 
 ---
 
@@ -453,14 +453,14 @@ No packages installed in this phase. Not applicable.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Doctor exit code against test/example/**
+1. **Doctor exit code against test/example/** — RESOLVED: disposition is "record verbatim regardless of value." Plan 140-03 Task 2 instructs the executor to run `cd test/example && mix sigra.doctor` and record the actual exit code verbatim; a non-zero exit is filed as a finding (same disposition as the credo advisory gate), not a blocker caused by this phase. No pre-decision of the exit value is required to plan.
    - What we know: Doctor exits 1 only on misconfigured features; exits 0 on clean or unconfigured. The example app passed Gate 4 (236 tests) cleanly.
    - What's unclear: Whether any feature in `test/example/` is configured in a way that triggers the `configured_but_missing` wiring check state at the time of the Phase 140 proof run.
    - Recommendation: Run `cd test/example && mix sigra.doctor` as part of a dry-run before committing the verification report. If it exits 1, file the wiring error as a DOC-01 note and record non-zero exit verbatim (same disposition as the credo advisory gate). This is unlikely given the passing Gate 4.
 
-2. **ExDoc `doc/` HTML structure for grep**
+2. **ExDoc `doc/` HTML structure for grep** — RESOLVED: Gate 8 uses `grep -r` across the full `doc/` tree (not a pinned file path), which is resilient to ExDoc internals. No specific HTML path needs to be known to plan or execute.
    - What we know: `mix docs --warnings-as-errors` exits 0 on current HEAD. ExDoc renders `@deprecated` strings into HTML.
    - What's unclear: Exact file path within `doc/` where the deprecation strings land (module page vs. search index vs. llms.txt).
    - Recommendation: Use `grep -r` across the entire `doc/` directory (not a specific file path) to be resilient to ExDoc internals.
@@ -486,7 +486,7 @@ No packages installed in this phase. Not applicable.
 - `lib/mix/tasks/sigra.doctor.ex` — doctor exit-code contract (0 = clean, 1 = misconfigured) [VERIFIED: codebase read]
 - `mix.exs:180-234` — extras and groups_for_extras confirming MAINTAINING.md (line 184) and deployment.md (line 218) already registered [VERIFIED: codebase read]
 - `.planning/phases/137-optional-dependency-source-of-truth/137-02-SUMMARY.md` and `137-03-SUMMARY.md` — confirmed completed: 2026-05-29 [VERIFIED: codebase read]
-- `.planning/ROADMAP.md:45,70,71,132` — exact stale line content confirmed [VERIFIED: codebase read]
+- `.planning/ROADMAP.md:45,70,71,141` — exact stale line content confirmed [VERIFIED: codebase read]
 - `MAINTAINING.md:216-244` — pre-1.0 SemVer policy + existing section structure [VERIFIED: codebase read]
 - `guides/recipes/deployment.md` — existing section structure (H2 headings) [VERIFIED: codebase read]
 
@@ -524,7 +524,7 @@ No packages installed in this phase. Not applicable.
 
 3. **No mix.exs changes needed.** Both `MAINTAINING.md` (line 184) and `guides/recipes/deployment.md` (line 218) are already registered in `extras`. DOC-01 is purely appending to existing registered files.
 
-4. **ROADMAP D-12 reconciliation is four targeted edits:** lines 45/70/71 `[ ]`→`[x]`; line 132 `1/3 | In Progress` → `3/3 | Complete | 2026-05-29`. This is justified by 137-02-SUMMARY.md and 137-03-SUMMARY.md both carrying `completed: "2026-05-29"`.
+4. **ROADMAP D-12 reconciliation is four targeted edits:** lines 45/70/71 `[ ]`→`[x]`; line 141 `1/3 | In Progress` → `3/3 | Complete | 2026-05-29`. This is justified by 137-02-SUMMARY.md and 137-03-SUMMARY.md both carrying `completed: "2026-05-29"`.
 
 5. **Phase 137 is fully landed.** All three 137-SUMMARY files exist and are dated 2026-05-29. The ROADMAP checkbox drift is cosmetic only.
 
