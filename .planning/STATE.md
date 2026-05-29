@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
 status: executing
-last_updated: "2026-05-29T18:10:49.951Z"
+last_updated: "2026-05-29T18:13:45.261Z"
 last_activity: 2026-05-29
 progress:
   total_phases: 10
   completed_phases: 9
   total_plans: 23
-  completed_plans: 21
+  completed_plans: 22
   percent: 90
 ---
 
@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 140 (deprecation-hygiene-verification-docs-close) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Resume file: None
 Last activity: 2026-05-29
-Progress: [█████████░] 91%
+Progress: [██████████] 96%
 
 ## Accumulating Context
 
@@ -115,3 +115,4 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 | Phase 139 P01 | 8min | 1 tasks | 1 files |
 | Phase 139 P02 | 15min | 2 tasks | 3 files |
 | Phase 140 P01 | 5min | 2 tasks | 2 files |
+| Phase 140 P02 | 5min | 3 tasks | 3 files |
