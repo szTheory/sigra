@@ -72,23 +72,23 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OD-01 | TBD | Pending |
-| OD-02 | TBD | Pending |
-| DR-01 | TBD | Pending |
-| DR-02 | TBD | Pending |
-| RCT-01 | TBD | Pending |
-| RCV-01 | TBD | Pending |
-| RCV-02 | TBD | Pending |
-| DEPR-01 | TBD | Pending |
-| DEPR-02 | TBD | Pending |
-| PROOF-01 | TBD | Pending |
-| DOC-01 | TBD | Pending |
+| OD-01 | Phase 137 | Pending |
+| OD-02 | Phase 137 | Pending |
+| DR-01 | Phase 138 | Pending |
+| DR-02 | Phase 138 | Pending |
+| RCT-01 | Phase 139 | Pending |
+| RCV-01 | Phase 139 | Pending |
+| RCV-02 | Phase 139 | Pending |
+| DEPR-01 | Phase 140 | Pending |
+| DEPR-02 | Phase 140 | Pending |
+| PROOF-01 | Phase 140 | Pending |
+| DOC-01 | Phase 140 | Pending |
 
 **Coverage:**
 - v1 requirements: 11 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 11 ⚠️ (resolved by roadmapper)
+- Mapped to phases: 11 ✓ (Phases 137–140)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-05-28*
-*Last updated: 2026-05-28 after initial definition (v1.30 TRUST-HARDENING)*
+*Last updated: 2026-05-28 after roadmap creation (v1.30 TRUST-HARDENING; Phases 137–140 mapped)*

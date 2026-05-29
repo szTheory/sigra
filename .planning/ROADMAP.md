@@ -34,10 +34,73 @@
 - ✅ **v1.27 ENT-SSO (Enterprise SSO & B2B Connections)** — Phases **122–126** (shipped **2026-05-26**). See [v1.27 archive](milestones/v1.27-ROADMAP.md), [v1.27 requirements](milestones/v1.27-REQUIREMENTS.md), [v1.27 milestone audit](milestones/v1.27-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.28 DATA-LIFECYCLE (Compliance Export & Data Lifecycle)** — Phases **127–130** (shipped **2026-05-27**). See [v1.28 archive](milestones/v1.28-ROADMAP.md), [v1.28 requirements](milestones/v1.28-REQUIREMENTS.md), [v1.28 milestone audit](milestones/v1.28-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.29 SUITE-INTEGRATION (Companion-Library Integration)** — Phases **131–136** (shipped **2026-05-29**). See [v1.29 archive](milestones/v1.29-ROADMAP.md), [v1.29 requirements](milestones/v1.29-REQUIREMENTS.md), [v1.29 milestone audit](milestones/v1.29-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- 🚧 **v1.30 TRUST-HARDENING (Operator Confidence & Debt Closure)** — Phases **137–140** (active, opened **2026-05-28**). See the v1.30 phase detail below and [REQUIREMENTS.md](REQUIREMENTS.md).
 
 ## Current State
 
-No milestone is currently active. `v1.29 SUITE-INTEGRATION` shipped and was archived on 2026-05-29 (16/16 requirements, milestone audit passed). Phases continue from **Phase 137** for the next milestone. Re-rank [MILESTONE-ARC.md](MILESTONE-ARC.md) and run `/gsd-new-milestone`; keep [PROJECT.md](PROJECT.md) and [MILESTONES.md](MILESTONES.md) as ranking context.
+`v1.30 TRUST-HARDENING` is the active milestone (opened 2026-05-28). It turns Sigra's accumulated maturity into legible operator trust: a `Sigra.OptionalDeps` single-source-of-truth module, the long-promised `mix sigra.doctor` diagnostic, recipe-contract test fixtures that lock companion docs against drift, sister-repo recipe-contract verification, and standing API-coherence debt closure — all without crossing the Diminishing Returns Wall. Phases continue from **Phase 137**. This is a low-code consolidation milestone deepening already-shipped substrate (4 phases, 11 requirements). Precedent: planning precedence is [ROADMAP.md](ROADMAP.md) + phase `*-VERIFICATION.md` / `*-VALIDATION.md` over conflicting [STATE.md](STATE.md) notes.
+
+### v1.30 TRUST-HARDENING — Phases
+
+- [ ] **Phase 137: Optional-Dependency Source of Truth** — `Sigra.OptionalDeps` per-dep `available?/0` SOT + consolidate ~29 scattered `Code.ensure_loaded?` guards with zero runtime behavior change
+- [ ] **Phase 138: `mix sigra.doctor` Operator Diagnostic** — per-feature optional-dep matrix with remediation hints + boot-wiring validation that exits non-zero on misconfiguration
+- [ ] **Phase 139: Recipe-Contract Integrity & Sister-Repo Verification** — merge-blocking recipe-section/frontmatter fixture + Lockspire/Rulestead contract verification (verify-where-resolvable, else document-the-assumption)
+- [ ] **Phase 140: Deprecation Hygiene + Verification & Docs Close** — removal-timeline + migration notes for the 2 live `@deprecated` functions + full proof bundle + docs alignment
+
+### v1.30 Phase Details
+
+#### Phase 137: Optional-Dependency Source of Truth
+**Goal**: Sigra has one canonical place that answers "is this optional dependency available?" for every optional dep it guards today, and every call site delegates to it without changing runtime behavior.
+**Depends on**: Nothing (first phase of v1.30; builds on shipped `Sigra.OptionalDeps` precedent from v1.21 HARD-02)
+**Requirements**: OD-01, OD-02
+**Success Criteria** (what must be TRUE):
+  1. `Sigra.OptionalDeps` exposes a per-dependency availability predicate (`available?/0` or equivalent) for Oban, Bcrypt, EQRCode, Threadline, Assent, Swoosh, Joken, and cloak/encryption.
+  2. The ~29 scattered `Code.ensure_loaded?` guards across library call sites delegate to `Sigra.OptionalDeps` instead of inlining the check.
+  3. The existing dep-off CI lanes stay green, proving no runtime behavior change (the refactor preserves all optional-dep semantics).
+  4. A maintainer can add or audit an optional dependency by editing one module rather than grepping call sites.
+**Plans**: TBD
+
+#### Phase 138: `mix sigra.doctor` Operator Diagnostic
+**Goal**: An adopter can run one command and see, per feature, which optional dependencies are loaded/available/configured-but-missing/missing, with actionable next steps, and the command fails loudly when a configured feature is wired wrong.
+**Depends on**: Phase 137 (`mix sigra.doctor` consumes the `Sigra.OptionalDeps` SOT)
+**Requirements**: DR-01, DR-02
+**Success Criteria** (what must be TRUE):
+  1. `mix sigra.doctor` prints a per-feature optional-dependency matrix with a clear state per row (loaded / available / configured-but-missing / missing).
+  2. Each row carries an actionable remediation hint (what to add to deps or config to resolve it).
+  3. `mix sigra.doctor` validates boot-time wiring for configured features (e.g. audit forwarder, async email/audit workers, encryption vault).
+  4. `mix sigra.doctor` exits non-zero when a configured feature is misconfigured, so it is usable as a CI/pre-deploy gate.
+**Plans**: TBD
+
+#### Phase 139: Recipe-Contract Integrity & Sister-Repo Verification
+**Goal**: Companion-lib recipe docs cannot silently drift out of their required shape, and the two deferred sister-repo contract assumptions are either verified against the real repos or documented explicitly so nothing hard-blocks.
+**Depends on**: Nothing within v1.30 (independent doc/test-integrity track; can run in parallel with 137–138)
+**Requirements**: RCT-01, RCV-01, RCV-02
+**Success Criteria** (what must be TRUE):
+  1. A merge-blocking test fixture asserts every recipe under `guides/recipes/companion-libs/` carries its required sections ("Failure modes", "Non-goals", the "Sigra works fully standalone" banner) and `validated_against:`/`last_validated:` frontmatter.
+  2. Removing a required section or frontmatter key from any companion-lib recipe makes that fixture fail (drift is caught at merge time, not in production).
+  3. The Lockspire `resolve_account/2` return-shape contract is verified against the sister repo where it resolves; where it does not resolve, the assumed contract is documented explicitly in the recipe and the tracked todo is updated honestly.
+  4. The Rulestead policy `@behaviour` contract is verified against the sister repo where it resolves; otherwise documented explicitly in the recipe and the tracked todo (the phase cannot hard-block on unavailable sister repos).
+**Plans**: TBD
+
+#### Phase 140: Deprecation Hygiene + Verification & Docs Close
+**Goal**: The two open-ended `@deprecated` functions carry real removal timelines and migration guidance, the whole milestone's claims are proven green, and the docs reflect everything shipped this milestone.
+**Depends on**: Phases 137, 138, 139 (verification and docs alignment close over all prior v1.30 work)
+**Requirements**: DEPR-01, DEPR-02, PROOF-01, DOC-01
+**Success Criteria** (what must be TRUE):
+  1. `Sigra.Account.audit_forced_password_change/2` carries a documented removal target version and a migration note pointing to the supported atomic path.
+  2. `Sigra.MFA.Trust.cookie_opts/0` carries a documented removal target version and a migration note.
+  3. The full test suite, the dep-off CI lane, and `mix docs --warnings-as-errors` are all green, `mix sigra.doctor` is exercised against the `test/example/` app, and per-phase `*-VERIFICATION.md` artifacts are filed.
+  4. Guides/docs are updated: `mix sigra.doctor` usage, a `Sigra.OptionalDeps` maintainer note, the deprecation-removal-timeline notes, and a recipe-contract-testing note.
+**Plans**: TBD
+
+### v1.30 Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 137. Optional-Dependency Source of Truth | 0/TBD | Not started | - |
+| 138. `mix sigra.doctor` Operator Diagnostic | 0/TBD | Not started | - |
+| 139. Recipe-Contract Integrity & Sister-Repo Verification | 0/TBD | Not started | - |
+| 140. Deprecation Hygiene + Verification & Docs Close | 0/TBD | Not started | - |
 
 <details>
 <summary>✅ v1.29 SUITE-INTEGRATION (Phases 131–136) — SHIPPED 2026-05-29</summary>

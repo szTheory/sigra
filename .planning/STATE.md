@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING
-status: planning
-last_updated: "2026-05-29T00:54:06.373Z"
+status: roadmap_complete
+last_updated: "2026-05-29T01:30:00.000Z"
 last_activity: 2026-05-29
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,17 +21,19 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Planning next milestone (v1.29 SUITE-INTEGRATION shipped + archived 2026-05-29)
+**Current focus:** v1.30 TRUST-HARDENING roadmap created (Phases 137–140); ready to plan Phase 137
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 137 — Optional-Dependency Source of Truth (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-05-29 — Milestone v1.30 started
+Status: Roadmap complete; awaiting `/gsd-plan-phase 137` (or `/gsd-discuss-phase 137`)
+Last activity: 2026-05-29 — v1.30 roadmap created (Phases 137–140, 11/11 requirements mapped)
+Progress: [____________________] 0/4 phases
 
 ## Accumulating Context
 
+- `v1.30 TRUST-HARDENING` roadmap created 2026-05-29: 4 phases (137–140), 11/11 requirements mapped. Phase 137 `Sigra.OptionalDeps` SOT + guard consolidation (OD-01/OD-02) → Phase 138 `mix sigra.doctor` diagnostic (DR-01/DR-02, depends on 137) → Phase 139 recipe-contract fixture + Lockspire/Rulestead sister-repo verification (RCT-01/RCV-01/RCV-02, independent track, document-the-assumption fallback) → Phase 140 deprecation-removal timelines + verification + docs close (DEPR-01/DEPR-02/PROOF-01/DOC-01). Low-code consolidation milestone; honors the Diminishing Returns Wall.
 - `v1.29 SUITE-INTEGRATION` shipped + archived 2026-05-29: Threadline audit forwarder (only new library code), six companion-lib recipes, suite narrative, `test/example/` demo, proof bundle + v1.25 Mailglass corrigendum. Milestone audit passed (16/16). Next milestone starts at Phase 137.
 - `v1.28 DATA-LIFECYCLE` shipped 2026-05-27: versioned auth/account export, schedule/cancel/execute deletion semantics, generated-host parity, release-readiness proof.
 - Roadmap is the lowest-code milestone in recent memory: exactly one new library module (`Sigra.Audit.Forwarders.Threadline` + behaviour + Noop + optional worker); everything else is recipes, narrative, and `test/example/` extension.
@@ -73,6 +75,8 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 
 ### Decisions
 
+- Created the `v1.30 TRUST-HARDENING` roadmap on 2026-05-29: Phases 137–140, continuing from v1.29's Phase 136. Derived 4 phases (favoring tight consolidation over `fine`-granularity sprawl) from the 11 requirements. Sequencing honors OD-before-doctor (Phase 137 feeds Phase 138), keeps recipe-contract/sister-repo work an independent track (Phase 139), and bundles deprecation hygiene + PROOF-01 + DOC-01 into the final close (Phase 140) per prior-milestone precedent (v1.28 Phase 130, v1.29 Phase 136).
+- Phase 139 carries the document-the-assumption fallback for RCV-01/RCV-02 so unavailable sister repos cannot hard-block the milestone.
 - Shipped `v1.28 DATA-LIFECYCLE` on 2026-05-27 with four phases: versioned export, deletion lifecycle truth, generated-host/docs parity, and verification/release readiness.
 - Opened `v1.29 SUITE-INTEGRATION` on 2026-05-27. Phases 131-136. 16 REQ-IDs across Threadline forwarder library code (TL-01..TL-05, FB-01), recipes (RC-01..RC-06), suite narrative (NX-01), reference example (EX-01), and verification + corrigendum (PROOF-01, DOC-01).
 - Adopted ARCHITECTURE.md's `Sigra.Audit.Forwarders.Threadline` naming over STACK.md's `Sigra.Audit.Adapters.Threadline` — "Forwarders" correctly signals "Sigra DB row remains source-of-truth; Threadline is a projection."
