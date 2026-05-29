@@ -28,7 +28,7 @@ See: `.planning/PROJECT.md`
 Phase: 136
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-05-28 - Completed quick task 260528-nwa: fix RC-01/CR-01 doc defects from v1.29 milestone audit
+Last activity: 2026-05-29 - Completed quick task 260528-sbn: fix v1.29 doc debt (mailglass corrigendum pointer + recipe version-pin alignment IN-01)
 Resume file: None
 
 ## Accumulating Context
@@ -90,6 +90,7 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 |---|-------------|------|--------|-----------|
 | 260527-bsd | Reconcile Phase 130 PROOF-01: capture fresh `mix docs --warnings-as-errors` evidence and flip v1.28 milestone to passed | 2026-05-27 | 111e024 | [260527-bsd-reconcile-phase-130-proof-01](./quick/260527-bsd-reconcile-phase-130-proof-01/) |
 | 260528-nwa | Fix RC-01 (threadline.md forwarders block: `endpoint:`/`api_key:` → `repo:`, DB-based failure framing) + CR-01 (accrue.md & audit-logging.md: non-existent `log/1`/`log/3` → real `log/2`) — v1.29 milestone-audit gaps | 2026-05-28 | 350ba24 | [260528-nwa-fix-rc-01-in-guides-recipes-companion-li](./quick/260528-nwa-fix-rc-01-in-guides-recipes-companion-li/) |
+| 260528-sbn | Fix v1.29 doc debt from milestone audit: mailglass.md corrigendum pointer (stale "planned for Phase 136" → landed in CHANGELOG.md) + recipe `{:sigra, "~> 1.29"}` → `~> 0.2` (7 occurrences, IN-01) + AGENTS.md migration count verify (already "Three", no-op) | 2026-05-29 | 81b8a65 | [260528-sbn-fix-v1-29-doc-debt-mailglass-corrigendum](./quick/260528-sbn-fix-v1-29-doc-debt-mailglass-corrigendum/) |
 
 ## Performance Metrics
 
