@@ -144,10 +144,13 @@ defmodule Sigra.DoctorTest do
   # Test 7: D-09 hard-fail #3 — encryption stub, passkeys enabled.
   # ---------------------------------------------------------------------------
 
-  test "passkeys enabled, encryption_active false → verdict :fail, encryption :configured_but_missing" do
+  test "passkeys enabled, user_schema configured, encryption_active false → verdict :fail, encryption :configured_but_missing" do
     predicates = %{all_false_predicates() | encryption_active: false}
 
+    # user_schema must be set: encryption_configured? mirrors verify_vault!/1 which
+    # short-circuits to :ok when no user_schema is present (no vault module to check).
     host_sigra = [
+      user_schema: FakeApp.Accounts.User,
       passkeys: [enabled: true]
     ]
 
@@ -182,6 +185,122 @@ defmodule Sigra.DoctorTest do
     forwarding = find_row(result.rows, :audit_forwarding)
     assert forwarding.state == :configured_but_missing
     assert result.verdict == :fail
+  end
+
+  # WR-02: oauth: [enabled: false] master switch suppresses oauth_configured?.
+
+  test "oauth enabled: false master switch → oauth row :available (not :loaded_active), verdict :ok" do
+    predicates = %{all_false_predicates() | assent: true}
+
+    # OAuth intentionally disabled even though providers are configured.
+    # Doctor should honor the master switch, not report oauth as active.
+    host_sigra = [
+      oauth: [enabled: false, providers: [google: [client_id: "x"]]]
+    ]
+
+    result = Doctor.diagnose(predicates: predicates, host_sigra: host_sigra)
+
+    oauth = find_row(result.rows, :oauth)
+    assert oauth.state == :available
+    assert result.verdict == :ok
+  end
+
+  # WR-03: mfa: [enabled: false] master switch suppresses totp_configured?.
+
+  test "mfa enabled: false master switch → totp_mfa row :available (not :loaded_active), verdict :ok" do
+    predicates = %{all_false_predicates() | eqrcode: true}
+
+    # MFA explicitly disabled even though non-empty mfa config is present.
+    host_sigra = [
+      mfa: [enabled: false, totp_drift_steps: 2]
+    ]
+
+    result = Doctor.diagnose(predicates: predicates, host_sigra: host_sigra)
+
+    totp = find_row(result.rows, :totp_mfa)
+    assert totp.state == :available
+    assert result.verdict == :ok
+  end
+
+  # WR-04: malformed forwarder entry is flagged as misconfiguration without crashing.
+
+  test "malformed forwarder entry (bare atom) produces hard-fail without crashing doctor" do
+    predicates = %{all_false_predicates() | threadline: true, oban: true}
+
+    # A bare atom (not a keyword list) as a forwarder entry is a misconfiguration.
+    # Doctor must not crash with FunctionClauseError — it should flag the row as fail.
+    host_sigra = [
+      audit: [
+        forwarders: [:bad_entry]
+      ]
+    ]
+
+    result = Doctor.diagnose(
+      predicates: predicates,
+      host_sigra: host_sigra,
+      oban_running: true
+    )
+
+    forwarding = find_row(result.rows, :audit_forwarding)
+    assert forwarding.state == :configured_but_missing
+    assert result.verdict == :fail
+  end
+
+  # WR-06: module_loaded? injection seam — deterministic not-loaded check
+  # without relying on a module name that happens not to be defined.
+
+  test "module_loaded? injection seam: injected fn returns false → forwarder hard-fail fires deterministically" do
+    predicates = %{all_false_predicates() | threadline: true, oban: true}
+
+    # Use a module that IS loaded (Sigra.Doctor itself) so we know the test
+    # is exercising the injected predicate, not the ambient runtime state.
+    host_sigra = [
+      audit: [
+        forwarders: [
+          [module: Sigra.Doctor, dispatch: :sync]
+        ]
+      ]
+    ]
+
+    # Inject a module_loaded? that always returns false — simulates any not-loaded module
+    always_not_loaded = fn _module -> false end
+
+    result = Doctor.diagnose(
+      predicates: predicates,
+      host_sigra: host_sigra,
+      oban_running: true,
+      module_loaded?: always_not_loaded
+    )
+
+    forwarding = find_row(result.rows, :audit_forwarding)
+    assert forwarding.state == :configured_but_missing
+    assert result.verdict == :fail
+  end
+
+  test "module_loaded? injection seam: injected fn returns true → forwarder does not hard-fail (loaded + sync)" do
+    predicates = %{all_false_predicates() | threadline: true, oban: true}
+
+    host_sigra = [
+      audit: [
+        forwarders: [
+          [module: Sigra.Doctor, dispatch: :sync]
+        ]
+      ]
+    ]
+
+    # Inject a module_loaded? that always returns true — simulates all modules loaded
+    always_loaded = fn _module -> true end
+
+    result = Doctor.diagnose(
+      predicates: predicates,
+      host_sigra: host_sigra,
+      oban_running: true,
+      module_loaded?: always_loaded
+    )
+
+    forwarding = find_row(result.rows, :audit_forwarding)
+    assert forwarding.state == :loaded_active
+    assert result.verdict == :ok
   end
 
   # ---------------------------------------------------------------------------
@@ -279,5 +398,37 @@ defmodule Sigra.DoctorTest do
     assert run_result.verdict == diagnose_result.verdict
     assert length(run_result.rows) == length(diagnose_result.rows)
     assert is_list(run_result.wiring)
+  end
+
+  # ---------------------------------------------------------------------------
+  # WR-01 regression: absent :passkeys key defaults to enabled (mirrors Application)
+  # ---------------------------------------------------------------------------
+
+  test "absent :passkeys key in host_sigra → passkeys treated as enabled (matches Sigra.Application default)" do
+    # host_sigra with no :passkeys key AND user_schema set → encryption_configured? true
+    # encryption_active false → hard fail fires (same as verify_vault! behavior: passkeys
+    # default-enabled when :passkeys absent, so vault must be real if user_schema is set).
+    predicates = %{all_false_predicates() | encryption_active: false}
+
+    host_sigra = [user_schema: FakeApp.Accounts.User]
+
+    result = Doctor.diagnose(predicates: predicates, host_sigra: host_sigra)
+
+    encryption = find_row(result.rows, :encryption)
+    assert encryption.state == :configured_but_missing
+    assert result.verdict == :fail
+  end
+
+  test "absent :passkeys key, no user_schema → encryption not required, verdict :ok (dep-off safe)" do
+    # Without user_schema, verify_vault! short-circuits (no vault module to check).
+    # Doctor must not over-report: passkeys default-enabled does not mean hard-fail
+    # when there is no vault module at all.
+    predicates = %{all_false_predicates() | encryption_active: false}
+
+    result = Doctor.diagnose(predicates: predicates, host_sigra: [])
+
+    encryption = find_row(result.rows, :encryption)
+    assert encryption.state == :missing
+    assert result.verdict == :ok
   end
 end

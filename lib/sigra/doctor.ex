@@ -28,11 +28,16 @@ defmodule Sigra.Doctor do
   - `:oban_running` — a boolean override for both async-email and audit-forwarder
     Oban supervision checks (replaces the real `Sigra.Audit.Forwarders.oban_running?/1`
     call). When not provided, the real function is called.
+  - `:module_loaded?` — a `(module :: atom() -> boolean())` function override for
+    `Code.ensure_loaded?/1` used in the D-09 #4 forwarder-module-loaded check.
+    Allows deterministic unit-testing of the not-loaded branch without relying on
+    a module name that happens not to be defined in the runtime.
 
   When injection keys are absent, the real functions are called:
   - `Sigra.OptionalDeps.*_available?/0` for each of the nine availability predicates
   - `Sigra.OptionalDeps.encryption_active?(host_sigra)` for encryption posture
   - `Sigra.Audit.Forwarders.oban_running?([])` for supervised-Oban checks
+  - `Code.ensure_loaded?/1` for dynamic forwarder-module existence checks
 
   ## OptionalDeps SOT (D-06)
 
@@ -94,18 +99,24 @@ defmodule Sigra.Doctor do
     `:encryption_active`.
   - `:host_sigra` — raw keyword list of host application Sigra config.
   - `:oban_running` — boolean override for the Oban supervision check.
+  - `:module_loaded?` — a `(module :: atom() -> boolean())` function override for
+    `Code.ensure_loaded?/1` used in the D-09 #4 forwarder-module-loaded check.
+    Allows deterministic unit-testing of the not-loaded branch without relying on
+    a module name that happens not to be defined.
   """
   @spec diagnose(keyword()) :: diagnosis()
   def diagnose(opts \\ []) do
     predicates = Keyword.get(opts, :predicates, nil)
     host_sigra = resolve_host_sigra(opts)
     oban_running_override = Keyword.get(opts, :oban_running, nil)
+    module_loaded_override = Keyword.get(opts, :module_loaded?, nil)
 
     resolved = resolve_predicates(predicates, host_sigra)
     oban_running = resolve_oban_running(oban_running_override)
+    module_loaded? = resolve_module_loaded(module_loaded_override)
 
     {rows, wiring_failures, has_hard_fail} =
-      build_matrix(resolved, host_sigra, oban_running)
+      build_matrix(resolved, host_sigra, oban_running, module_loaded?)
 
     verdict = if has_hard_fail, do: :fail, else: :ok
 
@@ -180,17 +191,20 @@ defmodule Sigra.Doctor do
     override
   end
 
+  defp resolve_module_loaded(nil), do: &Code.ensure_loaded?/1
+  defp resolve_module_loaded(f) when is_function(f, 1), do: f
+
   # ---------------------------------------------------------------------------
   # Matrix builder
   # ---------------------------------------------------------------------------
 
-  defp build_matrix(preds, host_sigra, oban_running) do
+  defp build_matrix(preds, host_sigra, oban_running, module_loaded?) do
     # Build all nine feature rows; track wiring failures and hard-fail verdict
     {rows, wiring_failures, hard_fail} =
       feature_definitions()
       |> Enum.reduce({[], [], false}, fn feature_def, {rows_acc, wiring_acc, fail_acc} ->
         {row, wiring_msgs, is_hard_fail} =
-          evaluate_feature(feature_def, preds, host_sigra, oban_running)
+          evaluate_feature(feature_def, preds, host_sigra, oban_running, module_loaded?)
 
         {
           [row | rows_acc],
@@ -210,7 +224,7 @@ defmodule Sigra.Doctor do
         deps: ["eqrcode"],
         availability_keys: [:eqrcode],
         configured?: &totp_configured?/1,
-        hard_fail?: fn _preds, _host, _oban -> false end,
+        hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:eqrcode, "~> 0.1"}` to mix.exs deps to enable TOTP QR code generation.),
         hint_available:
@@ -224,7 +238,7 @@ defmodule Sigra.Doctor do
         deps: ["bcrypt_elixir"],
         availability_keys: [:bcrypt],
         configured?: &bcrypt_configured?/1,
-        hard_fail?: fn _preds, _host, _oban -> false end,
+        hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:bcrypt_elixir, "~> 3.0"}` to mix.exs deps to enable transparent bcrypt→argon2id hash migration.),
         hint_available:
@@ -239,7 +253,7 @@ defmodule Sigra.Doctor do
         deps: ["assent"],
         availability_keys: [:assent],
         configured?: &oauth_configured?/1,
-        hard_fail?: fn _preds, _host, _oban -> false end,
+        hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:assent, "~> 0.3"}` to mix.exs deps to enable OAuth/OIDC/social login.),
         hint_available:
@@ -254,7 +268,7 @@ defmodule Sigra.Doctor do
         deps: ["hammer"],
         availability_keys: [:hammer],
         configured?: &rate_limiting_configured?/1,
-        hard_fail?: fn _preds, _host, _oban -> false end,
+        hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:hammer, "~> 7.3"}` to mix.exs deps to enable rate limiting.),
         hint_available:
@@ -269,7 +283,7 @@ defmodule Sigra.Doctor do
         deps: ["joken"],
         availability_keys: [:joken],
         configured?: &jwt_configured?/1,
-        hard_fail?: fn _preds, _host, _oban -> false end,
+        hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:joken, "~> 2.6"}` to mix.exs deps to enable JWT signing/verification.),
         hint_available:
@@ -284,7 +298,7 @@ defmodule Sigra.Doctor do
         deps: ["swoosh", "oban"],
         availability_keys: [:swoosh, :oban],
         configured?: &async_email_configured?/1,
-        hard_fail?: &async_email_hard_fail?/3,
+        hard_fail?: &async_email_hard_fail?/4,
         hint_missing:
           ~s(Add `{:swoosh, "~> 1.5"}` and `{:oban, "~> 2.17"}` to mix.exs deps to enable async email delivery.),
         hint_available:
@@ -299,7 +313,7 @@ defmodule Sigra.Doctor do
         deps: ["threadline", "oban"],
         availability_keys: [:threadline, :oban],
         configured?: &audit_forwarding_configured?/1,
-        hard_fail?: &audit_forwarding_hard_fail?/3,
+        hard_fail?: &audit_forwarding_hard_fail?/4,
         hint_missing:
           ~s(Add `{:threadline, "~> 0.5"}` to mix.exs deps and configure `audit: [forwarders: [...]]` in sigra_config.),
         hint_available:
@@ -314,22 +328,22 @@ defmodule Sigra.Doctor do
         deps: ["cloak_ecto"],
         availability_keys: [:encryption_active],
         configured?: &encryption_configured?/1,
-        hard_fail?: &encryption_hard_fail?/3,
+        hard_fail?: &encryption_hard_fail?/4,
         hint_missing:
           ~s(Add `{:cloak_ecto, "~> 1.3"}` to mix.exs and run `mix sigra.upgrade` to enable at-rest encryption.),
         hint_available:
-          ~s(Encryption vault configured. Enable passkeys or OAuth token storage in sigra_config to activate.),
+          ~s(Encryption vault configured. Enable passkeys in sigra_config to activate.),
         hint_active:
-          ~s(Encryption active. Vault configured and encryption-requiring features enabled.),
+          ~s(Encryption active. Vault configured and passkeys enabled.),
         hint_broken:
-          "Encryption is required (passkeys or OAuth token storage enabled) but the encryption module is the plaintext stub. Run 'mix sigra.upgrade' and set CLOAK_KEY."
+          "Encryption is required (passkeys enabled) but the encryption module is the plaintext stub. Run 'mix sigra.upgrade' and set CLOAK_KEY."
       },
       %{
         feature: :enterprise_connections,
         deps: ["req"],
         availability_keys: [:req],
         configured?: &enterprise_connections_configured?/1,
-        hard_fail?: fn _preds, _host, _oban -> false end,
+        hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:
           ~s(Add `{:req, "~> 0.5"}` to mix.exs deps to enable enterprise connection validation.),
         hint_available:
@@ -343,7 +357,7 @@ defmodule Sigra.Doctor do
   end
 
   # Evaluates one feature and returns {row_map, wiring_failure_strings, is_hard_fail}
-  defp evaluate_feature(feature_def, preds, host_sigra, oban_running) do
+  defp evaluate_feature(feature_def, preds, host_sigra, oban_running, module_loaded?) do
     %{
       feature: feature,
       deps: deps,
@@ -355,7 +369,7 @@ defmodule Sigra.Doctor do
     any_dep_available = Enum.any?(avail_keys, fn key -> Map.get(preds, key, false) end)
     all_deps_available = Enum.all?(avail_keys, fn key -> Map.get(preds, key, false) end)
     configured = configured_fn.(host_sigra)
-    is_hard_fail = hard_fail_fn.(preds, host_sigra, oban_running)
+    is_hard_fail = hard_fail_fn.(preds, host_sigra, oban_running, module_loaded?)
 
     {state, hint} =
       cond do
@@ -403,8 +417,10 @@ defmodule Sigra.Doctor do
   # ---------------------------------------------------------------------------
 
   defp totp_configured?(host_sigra) do
-    mfa = Keyword.get(host_sigra, :mfa, [])
-    is_list(mfa) and mfa != []
+    # Check :enabled sub-key, consistent with how other features gate on a switch.
+    # mfa: [enabled: false, totp_drift_steps: 2] is a non-empty list with MFA disabled.
+    mfa = sub(host_sigra, :mfa)
+    is_list(mfa) and mfa != [] and Keyword.get(mfa, :enabled, true)
   end
 
   # password_migration: bcrypt presence doubles as configured indicator;
@@ -414,55 +430,59 @@ defmodule Sigra.Doctor do
   end
 
   defp oauth_configured?(host_sigra) do
-    providers =
-      host_sigra
-      |> Keyword.get(:oauth, [])
-      |> Keyword.get(:providers, [])
-
-    is_list(providers) and providers != []
+    # Mirror Sigra.Config.oauth_enabled?/1: honor the :enabled master switch.
+    # A host with oauth: [enabled: false, providers: [...]] has OAuth intentionally off.
+    oauth = sub(host_sigra, :oauth)
+    Keyword.get(oauth, :enabled, true) and Keyword.get(oauth, :providers, []) != []
   end
 
   defp rate_limiting_configured?(host_sigra) do
-    limiter =
-      host_sigra
-      |> Keyword.get(:rate_limiting, [])
-      |> Keyword.get(:limiter)
-
+    limiter = sub(host_sigra, :rate_limiting) |> Keyword.get(:limiter)
     not is_nil(limiter)
   end
 
   defp jwt_configured?(host_sigra) do
-    host_sigra
-    |> Keyword.get(:jwt, [])
-    |> Keyword.get(:enabled, false)
+    sub(host_sigra, :jwt) |> Keyword.get(:enabled, false)
   end
 
   defp async_email_configured?(host_sigra) do
-    host_sigra
-    |> Keyword.get(:email, [])
-    |> Keyword.get(:delivery_mode) == :async
+    sub(host_sigra, :email) |> Keyword.get(:delivery_mode) == :async
   end
 
   defp audit_forwarding_configured?(host_sigra) do
-    forwarders =
-      host_sigra
-      |> Keyword.get(:audit, [])
-      |> Keyword.get(:forwarders, [])
-
+    forwarders = sub(host_sigra, :audit) |> Keyword.get(:forwarders, [])
     is_list(forwarders) and forwarders != []
   end
 
   defp encryption_configured?(host_sigra) do
-    # Encryption is considered configured when passkeys are enabled (requires real vault)
-    # or when OAuth token storage is explicitly enabled (distinct from having OAuth providers).
-    # Having OAuth providers alone does NOT imply encryption is required — providers can be
-    # configured without token storage enabled.
-    passkeys_enabled?(host_sigra) or oauth_token_storage_enabled?(host_sigra)
+    # Mirror Sigra.Application.verify_vault!/1: encryption is required only when
+    # passkeys are enabled AND a user_schema is configured (verify_vault! short-circuits
+    # to :ok when encrypted_binary_module/1 returns nil — i.e., no user_schema set).
+    # Do not introduce divergent triggers (e.g. phantom :store_tokens key).
+    # If OAuth-token-storage encryption becomes a genuine requirement, add the real
+    # config key to Sigra.Config and verify_vault!/1 first, then mirror here.
+    user_schema = Keyword.get(host_sigra, :user_schema)
+    passkeys_enabled?(host_sigra) and not is_nil(user_schema)
   end
 
   defp enterprise_connections_configured?(host_sigra) do
-    connections = Keyword.get(host_sigra, :enterprise_connections, [])
+    connections = sub(host_sigra, :enterprise_connections)
     is_list(connections) and connections != []
+  end
+
+  # ---------------------------------------------------------------------------
+  # Sub-config helper (WR-05)
+  # ---------------------------------------------------------------------------
+
+  # Safely reads a sub-keyword-list from host_sigra. host_sigra is unvalidated
+  # input (read from Application.get_env before NimbleOptions validation), so
+  # type guarantees do not hold. Returns [] when key is absent or value is not
+  # a keyword list (e.g. jwt: "true" instead of jwt: [enabled: true]).
+  defp sub(host_sigra, key) do
+    case Keyword.get(host_sigra, key, []) do
+      l when is_list(l) -> l
+      _ -> []
+    end
   end
 
   # ---------------------------------------------------------------------------
@@ -470,35 +490,39 @@ defmodule Sigra.Doctor do
   # ---------------------------------------------------------------------------
 
   # D-09 #2: async email configured, Oban not supervised
-  defp async_email_hard_fail?(_preds, host_sigra, oban_running) do
+  defp async_email_hard_fail?(_preds, host_sigra, oban_running, _module_loaded?) do
     async_email_configured?(host_sigra) and not oban_running
   end
 
   # D-09 #1 and #4: async forwarder without Oban OR forwarder module not loaded
-  defp audit_forwarding_hard_fail?(_preds, host_sigra, oban_running) do
+  defp audit_forwarding_hard_fail?(_preds, host_sigra, oban_running, module_loaded?) do
     forwarders =
-      host_sigra
-      |> Keyword.get(:audit, [])
+      sub(host_sigra, :audit)
       |> Keyword.get(:forwarders, [])
 
-    Enum.any?(forwarders, fn forwarder_opts ->
-      module = Keyword.get(forwarder_opts, :module)
-      dispatch = Keyword.get(forwarder_opts, :dispatch, :auto)
+    Enum.any?(forwarders, fn
+      forwarder_opts when is_list(forwarder_opts) ->
+        module = Keyword.get(forwarder_opts, :module)
+        dispatch = Keyword.get(forwarder_opts, :dispatch, :auto)
 
-      # D-09 #4: forwarder module not loaded
-      module_not_loaded = not is_nil(module) and not Code.ensure_loaded?(module)
+        # D-09 #4: forwarder module not loaded
+        module_not_loaded = not is_nil(module) and not module_loaded?.(module)
 
-      # D-09 #1: async dispatch but Oban not supervised
-      async_without_oban = dispatch == :async and not oban_running
+        # D-09 #1: async dispatch but Oban not supervised
+        async_without_oban = dispatch == :async and not oban_running
 
-      module_not_loaded or async_without_oban
+        module_not_loaded or async_without_oban
+
+      _ ->
+        # Malformed entry (e.g. :bad, or a map) is itself a misconfiguration — flag, don't crash.
+        true
     end)
   end
 
   # D-09 #3: encryption-requiring feature is configured but encryption stub is active.
-  # Hard-fail only when passkeys or explicit OAuth token storage requires a real vault
-  # but encryption_active? returns false (stub is still in place).
-  defp encryption_hard_fail?(preds, host_sigra, _oban_running) do
+  # Hard-fail only when passkeys are enabled AND user_schema is set (matching verify_vault!/1
+  # semantics — it short-circuits to :ok when encrypted_binary_module/1 returns nil).
+  defp encryption_hard_fail?(preds, host_sigra, _oban_running, _module_loaded?) do
     encryption_required = encryption_configured?(host_sigra)
     encryption_active = Map.get(preds, :encryption_active, false)
 
@@ -510,21 +534,10 @@ defmodule Sigra.Doctor do
   # ---------------------------------------------------------------------------
 
   defp passkeys_enabled?(host_sigra) do
-    passkeys = Keyword.get(host_sigra, :passkeys, nil)
-
-    case passkeys do
-      nil -> false
-      opts when is_list(opts) -> Keyword.get(opts, :enabled, true)
-      _ -> false
-    end
-  end
-
-  # oauth_token_storage_enabled? checks whether OAuth token storage encryption is
-  # explicitly enabled — distinct from having providers configured. Token storage
-  # encryption is gated on the :store_tokens option under :oauth.
-  defp oauth_token_storage_enabled?(host_sigra) do
+    # Mirror Sigra.Application.passkeys_enabled?/1: absent :passkeys block defaults to
+    # enabled: true (matching the config schema default and the install generator default).
     host_sigra
-    |> Keyword.get(:oauth, [])
-    |> Keyword.get(:store_tokens, false)
+    |> Keyword.get(:passkeys, [])
+    |> Keyword.get(:enabled, true)
   end
 end
