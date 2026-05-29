@@ -123,7 +123,16 @@
   3. The full test suite, the dep-off CI lane, and `mix docs --warnings-as-errors` are all green, `mix sigra.doctor` is exercised against the `test/example/` app, and per-phase `*-VERIFICATION.md` artifacts are filed.
   4. Guides/docs are updated: `mix sigra.doctor` usage, a `Sigra.OptionalDeps` maintainer note, the deprecation-removal-timeline notes, and a recipe-contract-testing note.
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+**Wave 1** *(independent — source edits and docs appends)*
+
+  - [ ] 140-01-PLAN.md — Append removal target 0.4.0 / 0.5.0 to @deprecated annotations for cookie_opts/0 and audit_forced_password_change/2 (DEPR-01, DEPR-02)
+  - [ ] 140-02-PLAN.md — Add ## Operator diagnostics section to deployment.md, three ## sections to MAINTAINING.md, and reconcile stale ROADMAP Phase 137 entries (DOC-01)
+
+**Wave 2** *(blocked on Wave 1 completion — docs-render gates require DEPR edits and doc sections to be in place)*
+
+  - [ ] 140-03-PLAN.md — Run all 8 proof gates and file 140-VERIFICATION.md (PROOF-01, DEPR-01, DEPR-02)
 
 ### v1.30 Progress
 
@@ -132,7 +141,7 @@
 | 137. Optional-Dependency Source of Truth | 1/3 | In Progress|  |
 | 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete    | 2026-05-29 |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 2/2 | Complete    | 2026-05-29 |
-| 140. Deprecation Hygiene + Verification & Docs Close | 0/TBD | Not started | - |
+| 140. Deprecation Hygiene + Verification & Docs Close | 0/3 | Not started | - |
 
 <details>
 <summary>✅ v1.29 SUITE-INTEGRATION (Phases 131–136) — SHIPPED 2026-05-29</summary>
