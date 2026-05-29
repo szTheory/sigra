@@ -40,8 +40,8 @@ defmodule Sigra.MFA.Trust do
   Call `cookie_opts/1` with your `%Sigra.Config{}` instead.
   """
   @doc since: "0.6.0"
-  @doc deprecated: "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored."
-  @deprecated "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored."
+  @doc deprecated: "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored. Scheduled for removal in 0.4.0."
+  @deprecated "Use cookie_opts/1 with a %Sigra.Config{} so cookie_domain is honored. Scheduled for removal in 0.4.0."
   @spec cookie_opts() :: no_return()
   def cookie_opts do
     raise """
