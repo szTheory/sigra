@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.30 TRUST-HARDENING (Shipped: 2026-05-29)
+
+**Phases completed:** 4 phases (137–140), 10 plans, all VERIFICATION = passed, all 4 phases Nyquist-compliant
+**Requirements:** 11/11 satisfied (OD-01/02, DR-01/02, RCT-01, RCV-01/02, DEPR-01/02, PROOF-01, DOC-01)
+**Timeline:** ~2 days (2026-05-28 → 2026-05-29) · **Changes:** 90 files, +10,991 / −63 (mostly `.planning/` docs — a deliberately low-code consolidation milestone)
+**Git range:** `de3f3f8` (feat 137-01) → milestone close on `v1.28-data-lifecycle` branch
+**Milestone audit:** `gaps_found` reflecting process/hygiene only — 0 unsatisfied requirements, 4/4 integration seams WIRED, 3/3 flows intact; all 4 hygiene gaps closed retroactively at this close.
+
+**Delivered:** Turned Sigra's accumulated maturity into legible operator trust — a `Sigra.OptionalDeps` single-source-of-truth, the long-promised `mix sigra.doctor` diagnostic, merge-blocking recipe-contract fixtures, sister-repo contract verification, and deprecation-timeline hygiene — without crossing the Diminishing Returns Wall.
+
+**Key accomplishments:**
+
+- **Phase 137 — `Sigra.OptionalDeps` SOT (OD-01/OD-02):** one canonical module with 9 optional-dep `*_available?/0` predicates + config-driven `encryption_active?/1`; ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with **zero runtime behavior change** (drift-catching 12-test unit suite + dep-off CI lane green; documented fences preserved).
+- **Phase 138 — `mix sigra.doctor` operator diagnostic (DR-01/DR-02):** per-feature nine-feature matrix (loaded/available/configured-but-missing/missing) with actionable remediation hints, four D-09 boot-wiring hard-fail checks, and an `exit({:shutdown, 1})` CI gate; pure injectable `Sigra.Doctor` core + thin Mix-task shell, 30 tests via injection seam + CaptureIO.
+- **Phase 139 — recipe-contract integrity & sister-repo verification (RCT-01/RCV-01/RCV-02):** merge-blocking ExUnit fixture asserting all six companion-lib recipes carry five required markers (+ standalone D-05 non-empty-glob guard); Lockspire `resolve_account/2` return shape and Rulestead `@behaviour Rulestead.Admin.Policy` corrected and verified against sister-repo commits (`def616d` / `0a18360`).
+- **Phase 140 — deprecation hygiene + verification & docs close (DEPR-01/02, PROOF-01, DOC-01):** Hex-SemVer removal targets + migration notes for both live `@deprecated` functions (`cookie_opts/0` → 0.4.0, `audit_forced_password_change/2` → 0.5.0); eight-gate proof bundle; docs aligned (deployment operator-diagnostics + MAINTAINING `OptionalDeps`/recipe-fixture/deprecation notes).
+- **Trust close:** full suite green (2296 tests, 0 failures), dep-off CI lane green, `mix docs --warnings-as-errors` clean; at milestone close all four audit hygiene gaps were closed retroactively (137-VERIFICATION filed, 138 Nyquist reconstructed, 139 Nyquist signed off, OD-01/OD-02 traceability ticked) and the WR-01 dual-version-axis deprecation wart was resolved to "accept + document".
+
+**Known deferred items at close:** 3 (tracked tech debt — see STATE.md Deferred Items: phase-135 cross-milestone findings, the WR-01 since-vs-removal version-axis todo kept open by design, and the phase-138 IN-01/02/03 doctor findings).
+
+---
+
 ## v1.29 SUITE-INTEGRATION (Shipped: 2026-05-29)
 
 **Phases completed:** 6 phases (131–136), 13 plans, all VERIFICATION = passed

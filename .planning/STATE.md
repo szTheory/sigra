@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.30
 milestone_name: TRUST-HARDENING — Phases
-status: milestone_complete
-last_updated: 2026-05-29T18:39:35.736Z
-last_activity: 2026-05-29
+status: Awaiting next milestone
+last_updated: "2026-05-29T21:08:27.859Z"
+last_activity: 2026-05-29 — Milestone v1.30 completed and archived
 progress:
   total_phases: 10
   completed_phases: 10
   total_plans: 23
-  completed_plans: 247
+  completed_plans: 23
   percent: 100
-stopped_at: Milestone complete (Phase 140 was final phase)
 ---
 
 # Project State
@@ -26,12 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 140
-Plan: Not started
-Status: Milestone complete
-Resume file: None
-Last activity: 2026-05-29
-Progress: [██████████] 100%
+Phase: Milestone v1.30 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-05-29 — Milestone v1.30 completed and archived
 
 ## Accumulating Context
 
@@ -44,6 +41,15 @@ Progress: [██████████] 100%
 - Research basis: `.planning/research/SUMMARY.md` (HIGH confidence; verified against repo HEAD on `v1.28-data-lifecycle` and hex.pm on 2026-05-27).
 
 ## Deferred Items
+
+Items acknowledged and deferred at v1.30 milestone close on 2026-05-29 (non-blocking; all classified non-blocking tech debt by the v1.30 milestone audit, which found zero unsatisfied requirements):
+
+| Category | Item | Status |
+|----------|------|--------|
+| todo | 2026-05-28-phase-135-review-deferred-findings.md | deferred — cross-milestone (v1.29/Phase 135), out of v1.30 scope; Threadline 0.6.0 vs `~> 0.5` pin + upstream generated-DDL concern |
+| todo | 2026-05-29-deprecation-since-vs-removal-version-axis.md | deferred BY DESIGN — WR-01 resolved at this close to "accept + document" (dual-axis note added to MAINTAINING.md); todo kept open as the tracking home for a future library-wide `@doc since:` → Hex-axis re-keying |
+| todo | 2026-05-29-phase-138-doctor-info-findings.md | deferred — Phase 138 Info findings IN-01 (`:quiet` docstring inaccuracy), IN-02 (`bcrypt_configured?/1` hardcoded false), IN-03 (test-8 CWD-relative source grep); low-priority maintainability/doc/test-hygiene; the stated Phase-140 fold-in did not happen, carried forward |
+| process (resolved at close) | 3 SDK-reported "open" quick_tasks (260527-bsd, 260528-nwa, 260528-sbn) | NOT open — all complete with SUMMARY.md + recorded in Quick Tasks Completed; `audit-open` false positive (documented SDK unreliability, MAINTAINING.md "Planning hygiene without gsd-tools JSON") |
 
 Items acknowledged and deferred at v1.29 milestone close on 2026-05-29 (non-blocking; classified standing-posture by the passing v1.29 milestone audit):
 
@@ -94,7 +100,7 @@ Items explicitly deferred OUT of v1.29 (to a separate quick task or v1.30+):
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd:new-milestone
+- Start the next milestone with /gsd-new-milestone
 
 ### Blockers
 
