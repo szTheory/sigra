@@ -42,7 +42,7 @@
 
 ### v1.30 TRUST-HARDENING — Phases
 
-- [ ] **Phase 137: Optional-Dependency Source of Truth** — `Sigra.OptionalDeps` per-dep `available?/0` SOT + consolidate ~29 scattered `Code.ensure_loaded?` guards with zero runtime behavior change
+- [x] **Phase 137: Optional-Dependency Source of Truth** — `Sigra.OptionalDeps` per-dep `available?/0` SOT + consolidate ~29 scattered `Code.ensure_loaded?` guards with zero runtime behavior change
 - [x] **Phase 138: `mix sigra.doctor` Operator Diagnostic** — per-feature optional-dep matrix with remediation hints + boot-wiring validation that exits non-zero on misconfiguration (completed 2026-05-29)
 - [x] **Phase 139: Recipe-Contract Integrity & Sister-Repo Verification** — merge-blocking recipe-section/frontmatter fixture + Lockspire/Rulestead contract verification (verify-where-resolvable, else document-the-assumption) (completed 2026-05-29)
 - [ ] **Phase 140: Deprecation Hygiene + Verification & Docs Close** — removal-timeline + migration notes for the 2 live `@deprecated` functions + full proof bundle + docs alignment
@@ -67,8 +67,8 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-  - [ ] 137-02-PLAN.md — Delegate single-leaf runtime guards (Bcrypt, EQRCode, Joken, Hammer, Assent×5) to the SOT (OD-02)
-  - [ ] 137-03-PLAN.md — Delegate compound-guard load-halves (Oban delivery/forwarders/deletion, Req validation), liveness/arity halves preserved (OD-02, D-06)
+  - [x] 137-02-PLAN.md — Delegate single-leaf runtime guards (Bcrypt, EQRCode, Joken, Hammer, Assent×5) to the SOT (OD-02)
+  - [x] 137-03-PLAN.md — Delegate compound-guard load-halves (Oban delivery/forwarders/deletion, Req validation), liveness/arity halves preserved (OD-02, D-06)
 
 #### Phase 138: `mix sigra.doctor` Operator Diagnostic
 
@@ -138,7 +138,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 137. Optional-Dependency Source of Truth | 1/3 | In Progress|  |
+| 137. Optional-Dependency Source of Truth | 3/3 | Complete | 2026-05-29 |
 | 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete    | 2026-05-29 |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 2/2 | Complete    | 2026-05-29 |
 | 140. Deprecation Hygiene + Verification & Docs Close | 1/3 | In Progress|  |
