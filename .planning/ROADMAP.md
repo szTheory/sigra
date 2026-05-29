@@ -90,7 +90,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-  - [ ] 138-02-PLAN.md — Implement `Mix.Tasks.Sigra.Doctor` thin shell (ANSI output, exit-code gate, --quiet flag) + CaptureIO integration tests
+  - [x] 138-02-PLAN.md — Implement `Mix.Tasks.Sigra.Doctor` thin shell (ANSI output, exit-code gate, --quiet flag) + CaptureIO integration tests
 
 #### Phase 139: Recipe-Contract Integrity & Sister-Repo Verification
 
@@ -125,7 +125,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 137. Optional-Dependency Source of Truth | 1/3 | In Progress|  |
-| 138. `mix sigra.doctor` Operator Diagnostic | 1/2 | In Progress|  |
+| 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete   | 2026-05-29 |
 | 139. Recipe-Contract Integrity & Sister-Repo Verification | 0/TBD | Not started | - |
 | 140. Deprecation Hygiene + Verification & Docs Close | 0/TBD | Not started | - |
 
