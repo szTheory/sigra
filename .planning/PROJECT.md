@@ -20,6 +20,20 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
+## Current Milestone: v1.30 TRUST-HARDENING
+
+**Goal:** Turn Sigra's accumulated maturity into legible operator trust — ship the long-promised `mix sigra.doctor` diagnostic, consolidate optional-dependency handling into one source of truth, lock companion-recipe contracts against drift, and resolve standing API-coherence debt — without crossing the Diminishing Returns Wall.
+
+**Target features:**
+- `mix sigra.doctor` adopter-facing diagnostic — per-feature optional-dep matrix (Oban/Bcrypt/EQRCode/Threadline/Assent/…), configured-but-missing detection, boot-wiring checks, actionable remediation hints (referenced in the v1.21 HARD-02 narrative; never shipped)
+- `Sigra.OptionalDeps` single-source-of-truth module consolidating ~29 scattered `Code.ensure_loaded?` guards into per-dep `available?/0`; no runtime behavior change (feeds `sigra.doctor`)
+- Recipe-contract test fixtures asserting the 6 companion-lib recipes carry required sections (Failure modes, Non-goals, "Sigra works fully standalone" banner, `validated_against:`/`last_validated:` frontmatter) so docs can't silently drift
+- Deprecation hygiene — documented removal timelines for the 2 live `@deprecated` functions (`Sigra.Account.audit_forced_password_change/2`, `Sigra.MFA.Trust.cookie_opts/0`)
+- Sister-repo recipe-contract verification — resolve the 2 deferred pending todos (Lockspire `resolve_account/2` shape, Rulestead `@behaviour`); verify where sister repos resolve, otherwise document the contract assumption explicitly
+- Verification proof + docs alignment at milestone close
+
+Phases continue from **Phase 137**. Research basis: inline repo survey (2026-05-28) against `main` — no separate ecosystem-research pass (this milestone consolidates already-shipped substrate, not new-feature discovery). The v1.29 audit-forwarder review findings were verified already-remediated in `main` and are **not** re-opened here.
+
 ## Latest Shipped Milestone: v1.29 SUITE-INTEGRATION
 
 **Shipped:** 2026-05-29 (Phases 131–136)
@@ -201,15 +215,18 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** **Start the next milestone** with `/gsd-new-milestone` (re-rank [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) first; phases continue from **Phase 137**).
+**Immediate next action:** Plan the active milestone — `/gsd-discuss-phase 137` (or `/gsd-plan-phase 137`).
 
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
 **Current active milestone:**
-- None — `v1.29 SUITE-INTEGRATION` shipped 2026-05-29.
+- `v1.30 TRUST-HARDENING` (opened 2026-05-28) — Operator Confidence & Debt Closure. The named milestone arc (`MILESTONE-ARC.md`) was exhausted through v1.29; this milestone deepens shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield). Pulls in the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor` because this milestone *is* the trigger.
 
-**Ranked follow-on (next candidate after v1.29):**
-- TBD — re-rank `MILESTONE-ARC.md` now that v1.29 has shipped; the "Diminishing Returns Wall" still excludes opinionated authz, billing, and frontend component libraries. Candidates surfaced during v1.29 and deferred: Threadline correlation-ID propagation (v1.30 candidate), `Sigra.OptionalDeps` SOT consolidation + `mix sigra.doctor` (trigger-gated), recipe-contract test fixtures.
+**Ranked follow-on (next candidates after v1.30):**
+- `SCIM / Directory Sync` — newly ripe (ENT-SSO proved the login+JIT wedge the arc required); large; compliant with the Wall. Strongest greenfield candidate for v1.31.
+- Threadline correlation-ID propagation — blocked on a stable Threadline injection seam.
+- `sigra_lockspire` glue package (ADR 001) — blocked until both libraries stabilize + a real companion-app trigger fires.
+- The "Diminishing Returns Wall" still excludes opinionated authz, billing, and frontend component libraries.
 
 **Deferred after `v1.29` shipment:**
 - `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
@@ -247,9 +264,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
-### Active — next milestone (TBD)
+### Active — v1.30 TRUST-HARDENING
 
-No milestone is currently active. Requirements will be written to [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) after `/gsd-new-milestone`. Roadmap phases continue from **Phase 136** (next milestone starts at **Phase 137**).
+`v1.30 TRUST-HARDENING` is the active milestone (opened 2026-05-28). Requirements are written to [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md). Roadmap phases continue from **Phase 137**. Scope: `mix sigra.doctor`, `Sigra.OptionalDeps` SOT, recipe-contract test fixtures, deprecation-removal timelines, sister-repo recipe-contract verification, and a verification/docs proof at close.
 
 ### Validated — v1.29 SUITE-INTEGRATION (shipped 2026-05-29)
 
@@ -664,3 +681,5 @@ This document evolves at phase transitions and milestone boundaries.
 </details>
 
 *Last updated: 2026-05-28 — Phase 136 (Verification Proof Bundle + Narrative-Honesty Corrigendum) shipped (PROOF-01, DOC-01). PROOF-01 proof bundle run on release-branch HEAD — five hard test/docs gates green (full `mix test` 2252/0, `test/sigra/audit/` 60/0, dep-off lane 2246/0, `test/example/` 236/0, `mix docs --warnings-as-errors` exit 0); `mix credo --strict` recorded as a non-CI-enforced local advisory (506 pre-existing library style/design issues disclosed, non-blocking — the 2 enforced custom Sigra checks pass). Per-phase `131–136-VERIFICATION.md` all filed with canonical dash-prefix names (132 history-preserving rename, 133 backfilled). DOC-01 v1.25 EMAIL-RAILS Mailglass corrigendum landed across MILESTONES.md/PROJECT.md/CHANGELOG.md (the library-resident adapter + `--with-mailglass` flag did not land; recipe-only host-owned `Sigra.Mailer` posture). PROOF-01 + DOC-01 reconciled in-place. **v1.29 SUITE-INTEGRATION shipped and archived on 2026-05-29 via `/gsd-complete-milestone` — milestone audit passed (16/16 requirements, 6/6 phases, 5/5 integration, 2/2 flows); ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.29-*`, live `REQUIREMENTS.md` removed for the next milestone, tagged `v1.29`.***
+
+*Last updated: 2026-05-28 — `/gsd-new-milestone` opened **v1.30 TRUST-HARDENING** (Operator Confidence & Debt Closure). The named milestone arc was exhausted through v1.29; v1.30 deepens shipped substrate per the arc's ranking rules. Scope: `mix sigra.doctor`, `Sigra.OptionalDeps` SOT, recipe-contract test fixtures, deprecation-removal timelines, sister-repo recipe-contract verification, proof/docs at close. Phases continue from **137**. Note: 88 stale phase directories (pre-v1.29 + un-archived v1.29 `131–136`) remain in `.planning/phases/` — destructive `phases.clear` was deliberately skipped (no number collision at 137+); recommend a `/gsd-cleanup` archive pass.*

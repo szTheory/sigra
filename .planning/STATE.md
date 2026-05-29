@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.29
-milestone_name: SUITE-INTEGRATION
-status: Awaiting next milestone
-last_updated: "2026-05-29T00:36:51.852Z"
-last_activity: 2026-05-29 — Milestone v1.29 completed and archived
+milestone: v1.30
+milestone_name: TRUST-HARDENING
+status: planning
+last_updated: "2026-05-29T00:54:06.373Z"
+last_activity: 2026-05-29
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.29 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-05-29 — Milestone v1.29 completed and archived
+Status: Defining requirements
+Last activity: 2026-05-29 — Milestone v1.30 started
 
 ## Accumulating Context
 
