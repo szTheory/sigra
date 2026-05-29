@@ -111,6 +111,6 @@ defmodule Sigra.Delivery do
   # host app — not merely compiled/loadable. Apps that add `{:oban, ...}` to
   # mix.exs without wiring the supervisor would otherwise crash on insert.
   defp oban_running? do
-    Code.ensure_loaded?(Oban) and Process.whereis(Oban) != nil
+    Sigra.OptionalDeps.oban_available?() and Process.whereis(Oban) != nil
   end
 end
