@@ -1,9 +1,9 @@
 ---
-last_updated: 2026-05-27
-status: data_lifecycle_active
+last_updated: 2026-05-29
+status: demo_showcase_next
 current_release_followup: completed-REL-01
-current_active_milestone: DATA-LIFECYCLE
-default_post_release_candidate: DATA-LIFECYCLE
+current_active_milestone: DEMO-SHOWCASE
+default_post_release_candidate: DEMO-SHOWCASE
 ---
 
 # Sigra Milestone Arc
@@ -171,12 +171,12 @@ The remaining meaningful work clusters are:
 - Building a full SCIM directory sync layer (beyond JIT).
 - Custom cryptography outside the Assent primitives.
 
-### active
+### shipped
 
 **ID:** `DATA-LIFECYCLE`
 **Name:** `Compliance Export & Data Lifecycle`
 **Priority:** 4
-**Status:** Active as v1.28 beginning 2026-05-27.
+**Status:** Shipped 2026-05-27 as v1.28 via Phases 127-130.
 **Why now:** Valuable, but lower-frequency adopter pain than session and email rough edges.
 **Theme:** Extend existing export and anonymize seams into a coherent auth-data lifecycle story.
 **Likely scope:**
@@ -191,11 +191,12 @@ The remaining meaningful work clusters are:
 - generic BI/reporting exports
 - claiming host-app regulatory ownership
 
-### candidate
+### shipped
 
 **ID:** `SUITE-INTEGRATION`
 **Name:** `szTheory Suite Integration`
 **Priority:** 5
+**Status:** Shipped (recipe-only) 2026-05-29 as v1.29 via Phases 131-136. Threadline audit forwarder was the only new library code; the "reference starter app" was deferred and is the unbuilt remainder now carried by `DEMO-SHOWCASE`.
 **Why now:** Sigra's value compounds when adopters can compose it with the rest of the szTheory ecosystem (Mailglass, Threadline, Accrue, Lockspire, Relyra, Rulestead). Today these are individual recipes (see `todos/pending/2026-05-08-write-*-integration-recipe.md`); a focused milestone could ship first-class adapters where they exist (Threadline, Mailglass) and a coherent OSS-suite narrative.
 **Theme:** Sigra-as-suite-anchor — the auth library that plays cleanly with the rest of the szTheory toolkit.
 **Likely scope:**
@@ -210,11 +211,26 @@ The remaining meaningful work clusters are:
 - owning any sister-lib's roadmap
 - replacing recipes with code where the library boundary doesn't justify it
 
-### candidate
+### shipped
+
+**ID:** `TRUST-HARDENING`
+**Name:** `Trust Hardening — Optional-Dep SOT, Doctor & Deprecation Hygiene`
+**Priority:** consolidation
+**Status:** Shipped 2026-05-29 as v1.30 via Phases 137-140.
+**Delivered scope:**
+- `Sigra.OptionalDeps` single-source-of-truth + guard consolidation (replaced scattered `Code.ensure_loaded?`)
+- `mix sigra.doctor` adopter-facing diagnostic
+- recipe-contract fixture + sister-repo (Lockspire/Rulestead) verification with document-the-assumption fallback
+- deprecation-removal timelines + verification + docs close
+**Notable outcomes:**
+- mid-milestone repo-grounded assessment (2026-05-29) put Sigra at 90-95% done-for-scope and named the one genuine *build* gap as the evaluator conversion surface (empty `test/example/priv/repo/seeds.exs`), graduating `DEMO-SHOWCASE` to top wedge.
+**Non-goals held:** no new greenfield primitives; honored the Diminishing Returns Wall.
+
+### next
 
 **ID:** `DEMO-SHOWCASE`
 **Name:** `Seed-rich Evaluator Demo Showcase`
-**Priority:** 1 (top remaining build wedge)
+**Priority:** 1 (top remaining build wedge — SELECTED as v1.31, 2026-05-29)
 **Why now:** Repo-grounded assessment (2026-05-29) puts Sigra at 90–95% done for scope with adoption-evidence automation already strong (E2E, install-smoke, golden-path Playwright, dep-off CI). The one genuine gap is the *evaluator conversion surface*: `test/example/priv/repo/seeds.exs` is empty and the example app is a headless test fixture, not a positioned showcase. This is the unbuilt remainder of `SUITE-INTEGRATION`'s "reference starter app" (shipped recipe-only). For a pre-1.0 lib chasing adopters, the evaluation funnel is the highest-leverage *build* left.
 **Theme:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase.
 **Likely scope:**
@@ -243,9 +259,11 @@ To protect the architectural integrity and maintainability of Sigra, we explicit
 
 ## Selection Guidance
 
-`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, `ENT-SSO`, `DATA-LIFECYCLE` (v1.28), and `SUITE-INTEGRATION` (v1.29, recipe-only) are shipped. `TRUST-HARDENING` is active as v1.30. The ranked follow-on sequence after v1.30 closes is:
+`REL-01 Release Truth Reset`, `PK-LIFECYCLE`, `ENT-SSO`, `DATA-LIFECYCLE` (v1.28), `SUITE-INTEGRATION` (v1.29, recipe-only), and `TRUST-HARDENING` (v1.30) are all shipped. The ranked follow-on sequence after v1.30 closed is:
 
-1. `DEMO-SHOWCASE Seed-rich Evaluator Demo Showcase` — top remaining build wedge (assessment 2026-05-29)
+1. `DEMO-SHOWCASE Seed-rich Evaluator Demo Showcase` — **SELECTED as v1.31** (top remaining build wedge; re-ranked + confirmed 2026-05-29 over greenfield SCIM)
 2. **1.0 Hex cut + adoption push** (non-code) — the honest bottleneck is adopters, not features; let real usage choose what's next
+
+**Greenfield SCIM directory-sync is explicitly deprioritized below both of the above.** It is already a stated `ENT-SSO` non-goal ("full SCIM directory sync layer beyond JIT"). With Sigra at 90-95% done-for-scope, inventing a new greenfield primitive violates Ranking Rule 1 (deepen substrate over new primitives) and the Diminishing Returns Wall. Do not pull SCIM forward unless a concrete enterprise adopter proves JIT provisioning is insufficient for a real contract.
 
 If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above. After `DEMO-SHOWCASE`, default to the adoption push over any further feature wedge unless a concrete adopter need proves a new seam.

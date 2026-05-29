@@ -269,11 +269,26 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 </details>
 
+## Current Milestone: v1.31 DEMO-SHOWCASE
+
+**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
+
+**Target features:**
+- Realistic domain + 4–6 personas (admin w/ MFA + multi-org, standard user, invited-unconfirmed, locked, OAuth-linked, passkey user)
+- Idempotent, deterministic `seeds.exs` (currently empty)
+- One-command spin-up (`mix setup && mix phx.server` → fully populated, clickable SaaS)
+- README/guide "try it locally" evaluator lane with screenshots
+- Extend the existing Playwright golden-path to exercise seeded data
+
+**Key context:** The highest-leverage remaining *build* per the 2026-05-29 repo-grounded assessment (Sigra is 90–95% done-for-scope; the one genuine gap is the empty `test/example/priv/repo/seeds.exs` and absence of an evaluator-facing showcase). This is the unbuilt remainder of v1.29 SUITE-INTEGRATION's deferred "reference starter app." Extend `test/example/`, **not** a separate repo (Phase 114 already paid the nested-app drift cost). Phases continue from **141**. After this milestone: 1.0 Hex cut + adoption push (non-code); greenfield SCIM stays deprioritized. See `MILESTONE-ARC.md` (re-ranked 2026-05-29).
+
+**Non-goals:** separate standalone demo repo; marketing site / component library / generic seeding framework; seeding host-app domain data beyond what makes auth/account features legible.
+
 ## Requirements
 
-### Active — none
+### Active — v1.31 DEMO-SHOWCASE
 
-No milestone is currently active. v1.30 shipped 2026-05-29; the next milestone gets a fresh `.planning/REQUIREMENTS.md` via `/gsd-new-milestone`. Phases continue from **Phase 141**.
+See [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) for the scoped requirements and [`.planning/ROADMAP.md`](ROADMAP.md) for the phase structure (phases from 141).
 
 ### Validated — v1.30 TRUST-HARDENING (shipped 2026-05-29)
 
@@ -706,3 +721,5 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-05-29 — Phase 140 (Deprecation Hygiene + Verification & Docs Close) shipped (DEPR-01, DEPR-02, PROOF-01, DOC-01) — the final phase of **v1.30 TRUST-HARDENING**. The 2 live `@deprecated` functions now carry concrete Hex-SemVer removal targets (`Sigra.MFA.Trust.cookie_opts/0` → 0.4.0, `Sigra.Account.audit_forced_password_change/2` → 0.5.0) with migration notes, rendered into published docs (Gate 8 proof). DOC-01 closed: `mix sigra.doctor` operator section in `guides/recipes/deployment.md` + 3 maintainer sections in `MAINTAINING.md` (OptionalDeps SOT, recipe-contract fixture, deprecation timeline); ROADMAP Phase 137 reconciled to 3/3 Complete (D-12). PROOF-01 eight-gate bundle filed at `140-VERIFICATION.md` (status: passed): 6/8 hard gates green; 2 non-green results are pre-existing/environmental and recorded verbatim — Gates 1/3 install-test failures are the local Xcode-license/argon2-NIF compile block (CI unaffected), Gate 7 doctor exit-1 is the `test/example/` passkeys-on-plaintext-stub wiring gap. Code review: 1 Warning (WR-01 deprecation since-vs-removal version-axis inversion) + 2 Info deferred to tracked todos. **All v1.30 phases (137–140) complete — milestone ready to close via `/gsd-complete-milestone`.** Carry-forward to milestone close: WR-01 version-axis reconciliation; deferred phase-138 doctor Info findings (IN-01/02/03, untagged from 140 — not folded in); REQUIREMENTS.md traceability gaps (SCIM-01/CORR-01/GLUE-01); 88 stale phase dirs pending `/gsd-cleanup`.*
 
 *Last updated: 2026-05-29 after v1.30 TRUST-HARDENING milestone — **shipped and archived via `/gsd-complete-milestone`**. Milestone audit re-run (post-137-closeout) found **11/11 requirements satisfied, 4/4 integration seams WIRED, 3/3 flows intact** — `gaps_found` reflected process/hygiene only, and all four were closed retroactively at this close: filed `137-VERIFICATION.md` from existing UAT/VALIDATION/SECURITY evidence; reconstructed `138-VALIDATION.md` (State B) and signed off `139-VALIDATION.md` (State A) → all 4 phases now Nyquist-compliant; ticked OD-01/OD-02 in REQUIREMENTS.md. WR-01 dual-version-axis deprecation wart resolved to "accept + document" (dual-axis note added to MAINTAINING.md; library-wide `@doc since:` re-keying kept as an open tracked todo). ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.30-*`, ROADMAP collapsed in place, live `REQUIREMENTS.md` removed for the next milestone, tagged `v1.30` (not pushed). 3 deferred tech-debt todos acknowledged in STATE.md (phase-135 cross-milestone, WR-01 version-axis, phase-138 doctor IN-01/02/03). Phases continue from **141**; re-rank `MILESTONE-ARC.md` before `/gsd-new-milestone`. Still pending: 88 stale phase dirs await a `/gsd-cleanup` archive pass.*
+
+*Last updated: 2026-05-29 — `/gsd-new-milestone` opened **v1.31 DEMO-SHOWCASE** (Seed-rich Evaluator Demo Showcase). `MILESTONE-ARC.md` re-ranked first: DATA-LIFECYCLE/SUITE-INTEGRATION/TRUST-HARDENING marked shipped, DEMO-SHOWCASE promoted to SELECTED-next, greenfield SCIM explicitly deprioritized below it and the subsequent 1.0 Hex cut + adoption push. Goal: turn `test/example/` into double-duty adopter proof + click-around evaluator showcase (seed-rich personas, deterministic `seeds.exs`, one-command spin-up, README "try it locally" lane, Playwright over seeded data). The unbuilt remainder of v1.29's deferred "reference starter app"; extends `test/example/` (no new repo). Research-first chosen. Phases continue from **141**.*
