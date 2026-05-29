@@ -22,9 +22,9 @@ Requirements for the v1.30 milestone. Each maps to exactly one roadmap phase.
 
 ### Recipe Contract Integrity
 
-- [ ] **RCT-01**: A merge-blocking test fixture asserts every companion-lib recipe under `guides/recipes/companion-libs/` carries its required sections ("Failure modes", "Non-goals", "Sigra works fully standalone" banner) and `validated_against:`/`last_validated:` frontmatter, so recipe docs cannot silently drift.
-- [ ] **RCV-01**: The Lockspire `resolve_account/2` return-shape contract is verified against the sister repo where it resolves, otherwise the assumed contract is documented explicitly in the recipe and the tracked todo is updated honestly.
-- [ ] **RCV-02**: The Rulestead policy `@behaviour` contract is verified against the sister repo where it resolves, otherwise documented explicitly in the recipe and the tracked todo.
+- [x] **RCT-01**: A merge-blocking test fixture asserts every companion-lib recipe under `guides/recipes/companion-libs/` carries its required sections ("Failure modes", "Non-goals", "Sigra works fully standalone" banner) and `validated_against:`/`last_validated:` frontmatter, so recipe docs cannot silently drift.
+- [x] **RCV-01**: The Lockspire `resolve_account/2` return-shape contract is verified against the sister repo where it resolves, otherwise the assumed contract is documented explicitly in the recipe and the tracked todo is updated honestly.
+- [x] **RCV-02**: The Rulestead policy `@behaviour` contract is verified against the sister repo where it resolves, otherwise documented explicitly in the recipe and the tracked todo.
 
 ### Deprecation Hygiene
 
@@ -76,9 +76,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | OD-02 | Phase 137 | Pending |
 | DR-01 | Phase 138 | Complete |
 | DR-02 | Phase 138 | Complete |
-| RCT-01 | Phase 139 | Pending |
-| RCV-01 | Phase 139 | Pending |
-| RCV-02 | Phase 139 | Pending |
+| RCT-01 | Phase 139 | Complete |
+| RCV-01 | Phase 139 | Complete |
+| RCV-02 | Phase 139 | Complete |
 | DEPR-01 | Phase 140 | Pending |
 | DEPR-02 | Phase 140 | Pending |
 | PROOF-01 | Phase 140 | Pending |

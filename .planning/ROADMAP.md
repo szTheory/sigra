@@ -109,7 +109,7 @@
 **Wave 1** *(independent — runs in parallel with 137/138)*
 
   - [x] 139-01-PLAN.md — Create companion-lib recipe contract fixture (RCT-01)
-  - [ ] 139-02-PLAN.md — Fix Lockspire/Rulestead recipe contracts + close folded todo (RCV-01, RCV-02)
+  - [x] 139-02-PLAN.md — Fix Lockspire/Rulestead recipe contracts + close folded todo (RCV-01, RCV-02)
 
 #### Phase 140: Deprecation Hygiene + Verification & Docs Close
 
@@ -131,7 +131,7 @@
 |-------|----------------|--------|-----------|
 | 137. Optional-Dependency Source of Truth | 1/3 | In Progress|  |
 | 138. `mix sigra.doctor` Operator Diagnostic | 2/2 | Complete    | 2026-05-29 |
-| 139. Recipe-Contract Integrity & Sister-Repo Verification | 1/2 | In Progress|  |
+| 139. Recipe-Contract Integrity & Sister-Repo Verification | 2/2 | Complete   | 2026-05-29 |
 | 140. Deprecation Hygiene + Verification & Docs Close | 0/TBD | Not started | - |
 
 <details>
