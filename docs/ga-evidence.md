@@ -8,9 +8,9 @@ This page is a **router** for the v1.4 GA narrative: it does not duplicate the G
 
 ## Where to read next
 
-- [UAT ↔ CI coverage — OA-01 / OA-02 machine baseline (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/docs/uat-ci-coverage.md)
-- [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md)
-- [v1.4 requirements closure (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md)
+- [UAT ↔ CI coverage — OA-01 / OA-02 machine baseline (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.1/docs/uat-ci-coverage.md)
+- [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.1/.planning/v1.4-GA-UAT.md)
+- [v1.4 requirements closure (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.1/.planning/milestones/v1.4-REQUIREMENTS.md)
 - [UAT ↔ CI coverage](uat-ci-coverage.html)
 - [Audit semantics](audit-semantics.html)
 - [Maintaining & releasing](maintaining.html)

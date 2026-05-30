@@ -1,9 +1,9 @@
 ---
 phase: 144
 slug: readme-evaluator-lane-docs-proof
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: finalized
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-30
 ---
 
@@ -38,16 +38,16 @@ created: 2026-05-30
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 144-01-01 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "Try it locally" test/example/README.md && grep -q "mix setup" test/example/README.md` | ✅ | ⬜ pending |
-| 144-01-02 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "admin@demo.sigra.dev" test/example/README.md && grep -q "alice@demo.sigra.dev" test/example/README.md` | ✅ | ⬜ pending |
-| 144-01-03 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "/demo/credentials" test/example/README.md && grep -q "/dev/mailbox" test/example/README.md` | ✅ | ⬜ pending |
-| 144-01-04 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "dave" test/example/README.md && grep -q "frank" test/example/README.md` | ✅ | ⬜ pending |
-| 144-02-01 | 02 | 1 | DOC-02 | — | N/A | file | `ls guides/assets/demo-credentials-demo-showcase-chromium.png guides/assets/admin-user-detail-demo-showcase-chromium.png guides/assets/admin-user-list-demo-showcase-chromium.png guides/assets/audit-explorer-demo-showcase-chromium.png` | ❌ W0 | ⬜ pending |
-| 144-02-02 | 02 | 1 | DOC-02 | — | N/A | grep | `grep -q "demo-credentials-demo-showcase-chromium" guides/introduction/demo-showcase.md` | ❌ W0 | ⬜ pending |
-| 144-02-03 | 02 | 1 | DOC-02 | — | N/A | mix | `mix docs --warnings-as-errors` | ✅ | ⬜ pending |
-| 144-03-01 | 03 | 2 | DOC-03 | — | N/A | mix | `mix test` | ✅ | ⬜ pending |
-| 144-03-02 | 03 | 2 | DOC-03 | — | N/A | grep | `grep -q "144-VERIFICATION" docs/ga-evidence.md` | ✅ | ⬜ pending |
-| 144-03-03 | 03 | 2 | DOC-03 | — | N/A | file | `test -f .planning/phases/144-readme-evaluator-lane-docs-proof/144-VERIFICATION.md` | ✅ | ⬜ pending |
+| 144-01-01 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "Try it locally" test/example/README.md && grep -q "mix setup" test/example/README.md` | ✅ | ✅ green |
+| 144-01-02 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "admin@demo.sigra.dev" test/example/README.md && grep -q "alice@demo.sigra.dev" test/example/README.md` | ✅ | ✅ green |
+| 144-01-03 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "/demo/credentials" test/example/README.md && grep -q "/dev/mailbox" test/example/README.md` | ✅ | ✅ green |
+| 144-01-04 | 01 | 1 | DOC-01 | — | N/A | grep | `grep -q "dave" test/example/README.md && grep -q "frank" test/example/README.md` | ✅ | ✅ green |
+| 144-02-01 | 02 | 1 | DOC-02 | — | N/A | file | `ls guides/assets/demo-credentials-demo-showcase-chromium.png guides/assets/admin-user-detail-demo-showcase-chromium.png guides/assets/admin-user-list-demo-showcase-chromium.png guides/assets/audit-explorer-demo-showcase-chromium.png` | ✅ | ✅ green |
+| 144-02-02 | 02 | 1 | DOC-02 | — | N/A | grep | `grep -q "demo-credentials-demo-showcase-chromium" guides/introduction/demo-showcase.md` | ✅ | ✅ green |
+| 144-02-03 | 02 | 1 | DOC-02 | — | N/A | mix | `mix docs --warnings-as-errors` | ✅ | ✅ green |
+| 144-03-01 | 03 | 2 | DOC-03 | — | N/A | mix | `mix test` | ✅ | ✅ green |
+| 144-03-02 | 03 | 2 | DOC-03 | — | N/A | grep | `grep -q "144-VERIFICATION" docs/ga-evidence.md` | ✅ | ✅ green |
+| 144-03-03 | 03 | 2 | DOC-03 | — | N/A | file | `test -f .planning/phases/144-readme-evaluator-lane-docs-proof/144-VERIFICATION.md` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -55,9 +55,9 @@ created: 2026-05-30
 
 ## Wave 0 Requirements
 
-- [ ] `guides/assets/` directory created
-- [ ] 4 PNG files copied from `test/example/priv/playwright/tests/demo-showcase.spec.ts-snapshots/` to `guides/assets/`
-- [ ] `guides/introduction/demo-showcase.md` file created (Wave 1 task)
+- [x] `guides/assets/` directory created
+- [x] 4 PNG files copied from `test/example/priv/playwright/tests/demo-showcase.spec.ts-snapshots/` to `guides/assets/`
+- [x] `guides/introduction/demo-showcase.md` file created (Wave 1 task)
 
 *Tasks 144-02-01 and 144-02-02 depend on Wave 0 file creation.*
 
@@ -75,11 +75,11 @@ created: 2026-05-30
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** finalized — Phase 144 complete, all tasks green (2026-05-30)

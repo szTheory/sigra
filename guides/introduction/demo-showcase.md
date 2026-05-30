@@ -44,7 +44,7 @@ The `/admin/audit` route in the admin area shows the seeded audit log. The demo 
 
 These two personas exercise Sigra's failure and lifecycle paths. No screenshot is needed — the interesting behavior is in the response, not the UI.
 
-**Dave** (`dave@demo.sigra.dev`) has a locked and unconfirmed account. Try logging in with the wrong password to see Sigra's enumeration-resistant response — the error message does not reveal whether the account exists or why the login failed. To unlock Dave's account, log in as admin and visit `/admin/users`, find Dave's row, and use the unlock action.
+**Dave** (`dave@demo.sigra.dev`) has a locked and unconfirmed account. Try logging in — with the correct password (`DaveDemoPass1!Locked`) or a wrong one — to see Sigra's enumeration-resistant response. The error message does not reveal whether the account exists, is locked, or is unconfirmed. This is by design: leaking the reason for a failed login enables account enumeration and targeted attacks. To unlock Dave's account, log in as admin and visit `/admin/users`, find Dave's row, and use the unlock action.
 
 **Frank** (`frank@demo.sigra.dev`) has `scheduled_deletion_at` set — his account is still active and can log in, but it is marked for deletion. Inspect the scheduled deletion date via `/admin/users` as admin. This demonstrates Sigra's graceful account deletion lifecycle: the deletion is scheduled rather than immediate, giving the user a window to cancel before the job runs.
 
