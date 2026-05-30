@@ -27,9 +27,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Visual Proof & Browser Coverage (PW)
 
-- [ ] **PW-01**: A Playwright demo spec exercises the seeded personas' auth states using structural assertions (`data-testid` / auth-state, not brittle persona-name matching), in its own Playwright project partition, leaving the golden-path specs unaffected.
-- [ ] **PW-02**: Evaluator-facing screenshots are captured via the existing Playwright capture infrastructure, covering key surfaces (login, admin user list, audit log, MFA, organization switcher).
-- [ ] **PW-03**: A seeds-smoke check proves the seeds are idempotent and each persona's auth state is verifiable, guarding CI against seed/schema drift.
+- [x] **PW-01**: A Playwright demo spec exercises the seeded personas' auth states using structural assertions (`data-testid` / auth-state, not brittle persona-name matching), in its own Playwright project partition, leaving the golden-path specs unaffected.
+- [x] **PW-02**: Evaluator-facing screenshots are captured via the existing Playwright capture infrastructure, covering key surfaces (login, admin user list, audit log, MFA, organization switcher).
+- [x] **PW-03**: A seeds-smoke check proves the seeds are idempotent and each persona's auth state is verifiable, guarding CI against seed/schema drift.
 
 ### Evaluator Documentation (DOC)
 
@@ -75,9 +75,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | DEMO-01 | Phase 142 | Complete |
 | DEMO-02 | Phase 142 | Complete |
 | DEMO-03 | Deferred | Backlog |
-| PW-01 | Phase 143 | Pending |
-| PW-02 | Phase 143 | Pending |
-| PW-03 | Phase 143 | Pending |
+| PW-01 | Phase 143 | Complete |
+| PW-02 | Phase 143 | Complete |
+| PW-03 | Phase 143 | Complete |
 | DOC-01 | Phase 144 | Pending |
 | DOC-02 | Phase 144 | Pending |
 | DOC-03 | Phase 144 | Pending |
