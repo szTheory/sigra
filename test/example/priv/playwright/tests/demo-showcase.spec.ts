@@ -48,7 +48,7 @@ async function waitForLiveViewReady(page: Page) {
  */
 async function assertDemoScreenshot(
   page: Page,
-  testInfo: TestInfo,
+  _testInfo: TestInfo,
   slug: string,
 ) {
   const ci = process.env.CI === 'true';
