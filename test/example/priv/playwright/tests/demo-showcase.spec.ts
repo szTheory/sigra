@@ -115,7 +115,7 @@ test.describe('demo-showcase', () => {
     await assertDemoScreenshot(page, testInfo, 'demo-credentials');
 
     // ──────────────────────────────────────────────────────────────────
-    // Step 2: Login as demo admin (TOTP challenge)
+    // Step 2: Login as demo admin (standard session — no MFA challenge)
     // ──────────────────────────────────────────────────────────────────
     await loginDemoAdmin(page);
 
