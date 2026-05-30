@@ -175,13 +175,17 @@ defmodule Sigra.MixProject do
         # Phase 132: recipe files reference hidden Application helpers and the Sigra.Mailer
         # behaviour callback (which is a @callback, not a @doc function).
         "guides/recipes/companion-libs/threadline.md",
-        "guides/recipes/companion-libs/mailglass.md"
+        "guides/recipes/companion-libs/mailglass.md",
+        # Phase 144: ga-evidence.md links to a planning-internal VERIFICATION.md that
+        # does not exist until Plan 03 (Wave 2) completes.
+        "docs/ga-evidence.md"
       ],
       main: "getting-started",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
       formatters: ["html", "markdown"],
+      assets: %{"guides/assets" => "assets"},
       extras: [
         "README.md",
         "CONTRIBUTING.md",
@@ -202,6 +206,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.12.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/introduction/suite-integration.md",
+        "guides/introduction/demo-showcase.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
         "guides/flows/password-reset.md",
