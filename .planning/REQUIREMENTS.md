@@ -13,12 +13,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Seed Data Layer (SEED)
 
-- [ ] **SEED-01**: Evaluator runs `mix setup` in `test/example/` and gets a fully-populated demo database in one command; re-running is idempotent (no errors, no duplicate rows).
-- [ ] **SEED-02**: Six personas are seeded, each demonstrating a distinct auth state — admin (TOTP MFA + multi-org + passkey display row + rich audit trail), standard confirmed user, MFA-enrolled org owner, OAuth-linked user, locked user, and scheduled-deletion user.
-- [ ] **SEED-03**: Seeded data exercises the rough edges — TOTP enrollment, a locked account, an OAuth identity, a scheduled deletion, and multi-org membership including a pending invitation — not just the happy path.
-- [ ] **SEED-04**: The seeded audit log shows realistic variety (6–8 distinct event types) so the admin audit explorer reads as a real, in-use system.
-- [ ] **SEED-05**: Demo seeds stay isolated from the CI-fixture role — dev/test database separation, a `Mix.env()==:test` raise-guard in `seeds.exs`, and `@demo.sigra.dev` (seeded) vs `@example.test` (golden-path) email-domain segregation — so `mix test` stays deterministic.
-- [ ] **SEED-06**: The demo preserves Sigra's production security posture — real Argon2id hashing at a safe dev cost, no committed real secrets (the demo-only TOTP secret is clearly labeled demo-only), and enumeration/rate-limit protections left unchanged.
+- [x] **SEED-01**: Evaluator runs `mix setup` in `test/example/` and gets a fully-populated demo database in one command; re-running is idempotent (no errors, no duplicate rows).
+- [x] **SEED-02**: Six personas are seeded, each demonstrating a distinct auth state — admin (TOTP MFA + multi-org + passkey display row + rich audit trail), standard confirmed user, MFA-enrolled org owner, OAuth-linked user, locked user, and scheduled-deletion user.
+- [x] **SEED-03**: Seeded data exercises the rough edges — TOTP enrollment, a locked account, an OAuth identity, a scheduled deletion, and multi-org membership including a pending invitation — not just the happy path.
+- [x] **SEED-04**: The seeded audit log shows realistic variety (6–8 distinct event types) so the admin audit explorer reads as a real, in-use system.
+- [x] **SEED-05**: Demo seeds stay isolated from the CI-fixture role — dev/test database separation, a `Mix.env()==:test` raise-guard in `seeds.exs`, and `@demo.sigra.dev` (seeded) vs `@example.test` (golden-path) email-domain segregation — so `mix test` stays deterministic.
+- [x] **SEED-06**: The demo preserves Sigra's production security posture — real Argon2id hashing at a safe dev cost, no committed real secrets (the demo-only TOTP secret is clearly labeled demo-only), and enumeration/rate-limit protections left unchanged.
 
 ### Evaluator Affordances (DEMO)
 
@@ -66,12 +66,12 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEED-01 | Phase 141 | Pending |
-| SEED-02 | Phase 141 | Pending |
-| SEED-03 | Phase 141 | Pending |
-| SEED-04 | Phase 141 | Pending |
-| SEED-05 | Phase 141 | Pending |
-| SEED-06 | Phase 141 | Pending |
+| SEED-01 | Phase 141 | Complete |
+| SEED-02 | Phase 141 | Complete |
+| SEED-03 | Phase 141 | Complete |
+| SEED-04 | Phase 141 | Complete |
+| SEED-05 | Phase 141 | Complete |
+| SEED-06 | Phase 141 | Complete |
 | DEMO-01 | Phase 142 | Pending |
 | DEMO-02 | Phase 142 | Pending |
 | PW-01 | Phase 143 | Pending |
