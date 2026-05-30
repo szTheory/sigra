@@ -84,7 +84,7 @@ Archives:
 
 `v1.30 TRUST-HARDENING` is shipped and archived (Phases 137–140, 11/11 requirements). `Sigra.OptionalDeps` is now the single source of truth for optional-dependency availability (9 `*_available?/0` predicates + `encryption_active?/1`), consumed by `mix sigra.doctor` — an operator/CI diagnostic that prints a per-feature dep matrix with remediation hints, validates boot-time wiring, and exits non-zero on misconfiguration. A merge-blocking ExUnit fixture locks the 6 companion-lib recipes against contract drift, the Lockspire/Rulestead sister-repo contracts are verified, and both live `@deprecated` functions now carry Hex-SemVer removal timelines. `v1.29 SUITE-INTEGRATION` (the Threadline forwarder + companion recipes + suite narrative) remains the prior shipped substrate this milestone deepened.
 
-No milestone is currently active. Consult [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md) (re-rank after v1.30) before running `/gsd-new-milestone`; phases continue from **Phase 141**.
+**v1.31 DEMO-SHOWCASE** is the active milestone (Phases 141–144.1). Phase 144.1 closed 2026-05-30 — five tech-debt items deferred from Phase 144: `144-VALIDATION.md` finalized to nyquist-compliant, WR-01 stale v0.2.0 tag URLs replaced with v0.2.1 in `docs/ga-evidence.md`, Dave enumeration-resistance framing corrected in two docs, and the incorrect "TOTP challenge" Step 2 label fixed in `demo-showcase.spec.ts`. All 2296 tests green. Milestone is now complete; phases continue from **Phase 145**.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
 
