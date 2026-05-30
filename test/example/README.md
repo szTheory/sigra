@@ -42,7 +42,7 @@ All personas use the `@demo.sigra.dev` email domain. Passwords are public-by-des
 
 ## Rough Edges
 
-**Dave — locked and unconfirmed:** Dave's account is locked AND unconfirmed. Try the wrong password to see the enumeration-resistant login response. Unlock via /admin/users as the admin persona.
+**Dave — locked and unconfirmed:** Dave's account is locked AND unconfirmed. Try logging in — with the correct password or a wrong one — to see Sigra's enumeration-resistant response. The error does not reveal whether the account exists, is locked, or is unconfirmed. Unlock via /admin/users as the admin persona.
 
 **Frank — scheduled deletion:** Frank's `scheduled_deletion_at` is set — the account is still active and accessible. Inspect via /admin/users as the admin persona.
 
