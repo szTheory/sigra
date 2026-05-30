@@ -86,7 +86,7 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: false,
         identity_github: true,
         org_owner: nil,
-        org_member: nil
+        org_member: :acme
       },
       %{
         email: "dave@demo.sigra.dev",
