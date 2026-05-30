@@ -1,10 +1,11 @@
 ---
 phase: 142
 slug: dev-credentials-page-app-framing
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-30
+reviewed_at: 2026-05-30
 ---
 
 # Phase 142 — UI Design Contract
@@ -61,6 +62,7 @@ Source: existing `core_components.ex` and `layouts.ex` patterns confirmed throug
 - The `<.header>` component (existing) renders `text-lg font-semibold leading-8` — reuse it for the credentials page section heading.
 - The `<.table>` component (existing) renders `table table-zebra` — reuse it for the persona table.
 - No new font sizes or weights are introduced in this phase.
+- The header app name ("Vaultr") and table column headers share `text-sm`/`font-semibold` by spec, but the app name inherits the existing nav/brand treatment in `layouts.ex` (logo slot + positioning) — do NOT apply identical flat styling to both; the header's brand context differentiates it, not a distinct font size.
 
 ---
 
@@ -76,6 +78,8 @@ Source: daisyUI semantic tokens already in use throughout `admin_shell.ex`, `cor
 | Destructive | `alert-error` / `text-error` | Not applicable in this phase — no destructive actions |
 
 Accent reserved for: the "DEV ONLY" environment badge displayed prominently on the credentials page. No other elements in this phase use accent color.
+
+**Primary focal point:** the persona credentials table — it is the evaluator's actual destination. The DEV ONLY badge is the secondary visual signal (scope/context), not the focal point.
 
 **Dev-only visual signal:** The `/demo/credentials` page must carry a visible `badge badge-warning` (daisyUI yellow) bearing "DEV ONLY — not visible in production" so evaluators instantly understand the page's scope. This is a DEMO-01 contract requirement, not a style preference.
 
@@ -201,11 +205,11 @@ No third-party component registries are used. All UI is built from existing dais
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS (FLAG addressed — focal point now declared)
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (FLAG addressed — header brand vs. table header differentiation noted)
+- [x] Dimension 5 Spacing: PASS (FLAG: pre-existing `py-20` documented + justified, non-blocking)
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED — 2026-05-30 (gsd-ui-checker; 3 non-blocking FLAGs, 2 resolved inline)
