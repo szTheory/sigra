@@ -118,6 +118,23 @@ defmodule Example.Demo.Personas do
   end
 
   @doc """
+  Returns the feature-text map keyed by email local part. Single source of truth (D-02)
+  consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
+  '@') for all six @demo.sigra.dev personas.
+  """
+  @spec feature_map() :: %{String.t() => String.t()}
+  def feature_map do
+    %{
+      "admin" => "Admin — TOTP MFA, passkey display row, multi-org owner, rich audit trail",
+      "alice" => "Standard confirmed user — happy path login, Acme Corp member",
+      "bob"   => "TOTP MFA enrolled — org owner (Beta Labs)",
+      "carol" => "OAuth identity — GitHub-linked login (carol@demo.sigra.dev)",
+      "dave"  => "Locked account — failed login attempts exhausted, unconfirmed",
+      "frank" => "Scheduled deletion — account marked for deletion"
+    }
+  end
+
+  @doc """
   Returns the deterministic demo-only TOTP secret (20-byte binary).
 
   Derived as `SHA-256("sigra-demo-admin-totp-v1") |> binary_part(0, 20)`.
