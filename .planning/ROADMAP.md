@@ -155,7 +155,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 144-03-PLAN.md — Six-gate proof bundle; file 144-VERIFICATION.md (DOC-03)
+- [x] 144-03-PLAN.md — Six-gate proof bundle; file 144-VERIFICATION.md (DOC-03)
 
 **UI hint**: yes
 
@@ -168,7 +168,7 @@
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
-| 144. README Evaluator Lane & Docs/Proof | 2/3 | In Progress|  |
+| 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete   | 2026-05-30 |
 
 ---
 
