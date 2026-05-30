@@ -1,9 +1,9 @@
 ---
 phase: 142
 slug: dev-credentials-page-app-framing
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-30
 ---
 
@@ -41,9 +41,9 @@ created: 2026-05-30
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| {plan}-{task} | {p} | {w} | DEMO-01 | T-142-01 | `/demo/credentials` route is compiled OUT under `MIX_ENV=test` (404 / route-absent) — dev-only exposure cannot leak into a non-dev build | conn | `cd test/example && mix test test/example_web/live/demo/credentials_live_test.exs` | ❌ W0 | ⬜ pending |
-| {plan}-{task} | {p} | {w} | DEMO-01 | — | Rendered HTML carries `data-testid="demo-credentials-table"`, per-row `demo-persona-row-{local}`, and `demo-dev-only-badge` | structural (render-direct, NOT `live/2` — route compiled out) | same file | ❌ W0 | ⬜ pending |
-| {plan}-{task} | {p} | {w} | DEMO-02 | — | Layout carries `data-testid="app-name"` and browser `<title>` contains "Vaultr" | structural / conn | same file | ❌ W0 | ⬜ pending |
+| 142-03-T2 | 03 | 2 | DEMO-01 | T-142-01 | `/demo/credentials` route is compiled OUT under `MIX_ENV=test` (404 / route-absent) — dev-only exposure cannot leak into a non-dev build | conn | `cd test/example && mix test test/example_web/live/demo/credentials_live_test.exs` | ✅ d52934c | ✅ green |
+| 142-03-T2 | 03 | 2 | DEMO-01 | — | Rendered HTML carries `data-testid="demo-credentials-table"`, per-row `demo-persona-row-{local}`, and `demo-dev-only-badge` | structural (render-direct, NOT `live/2` — route compiled out) | same file | ✅ d52934c | ✅ green |
+| 142-03-T2 | 03 | 2 | DEMO-02 | — | Layout carries `data-testid="app-name"` and browser `<title>` contains "Vaultr" | structural / conn | same file | ✅ d52934c | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,8 +51,8 @@ created: 2026-05-30
 
 ## Wave 0 Requirements
 
-- [ ] `test/example/test/example_web/live/demo/credentials_live_test.exs` — stubs for DEMO-01 (404 env guard) + DEMO-02 (content/testid assertions)
-- [ ] `test/example/test/example_web/live/demo/` directory (new)
+- [x] `test/example/test/example_web/live/demo/credentials_live_test.exs` — covers DEMO-01 (404 env guard) + DEMO-02 (content/testid assertions) — commit d52934c
+- [x] `test/example/test/example_web/live/demo/` directory (new) — created in plan 03
 
 *Existing infrastructure — `ExampleWeb.ConnCase`, `Phoenix.ConnTest`, `Phoenix.LiveViewTest` — already present. No new framework installation needed.*
 
@@ -70,11 +70,11 @@ created: 2026-05-30
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** complete — 2026-05-30. All tasks green. 2 tests, 0 failures on scoped run; 185 tests, 0 failures on full suite.
