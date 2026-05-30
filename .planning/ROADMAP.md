@@ -99,7 +99,16 @@
   3. The example app layout displays a realistic SaaS product name (e.g., "Vaultr") so the demo reads as a purposeful product rather than a scaffold
   4. Running `mix run priv/repo/seeds.exs` prints a credentials summary block to stdout so evaluators see credentials without needing to navigate to the LiveView first
 
-**Plans**: TBD
+**Plans**: 3 plans
+**Wave 1** *(independent tracks, run in parallel)*
+
+- [ ] 142-01-PLAN.md — Example.Demo.Personas.feature_map/0 + ExampleWeb.Demo.CredentialsLive + /demo/credentials router route
+- [ ] 142-02-PLAN.md — Vaultr branding (root.html.heex + layouts.ex brand span + contextual nav)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 142-03-PLAN.md — Seeds stdout block (D-11) + credentials_live_test.exs (404 env-guard + rendered HTML testid contract)
+
 **UI hint**: yes
 
 ---
@@ -141,7 +150,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
-| 142. Dev Credentials Page & App Framing | 0/? | Not started | - |
+| 142. Dev Credentials Page & App Framing | 0/3 | Not started | - |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
