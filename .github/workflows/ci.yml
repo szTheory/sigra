@@ -647,6 +647,14 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
       - name: Install Playwright deps
         working-directory: test/example/priv/playwright
         run: npm ci

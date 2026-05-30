@@ -16,10 +16,11 @@ defmodule Example.SigraAdminPolicy do
 
   @platform_admin_prefix "platform-admin+"
   @org_admin_prefix "org-admin+"
+  @demo_admin_email "admin@demo.sigra.dev"
 
   @impl true
   def platform_admin?(%{user: %{email: email}}) when is_binary(email) do
-    String.starts_with?(email, @platform_admin_prefix)
+    String.starts_with?(email, @platform_admin_prefix) or email == @demo_admin_email
   end
 
   def platform_admin?(_scope), do: false
