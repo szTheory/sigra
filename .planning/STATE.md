@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
-status: executing
-last_updated: "2026-05-30T17:43:37.933Z"
+status: milestone_complete
+last_updated: 2026-05-30T18:13:44.391Z
 last_activity: 2026-05-30 -- Phase 144.1 execution started
 progress:
   total_phases: 9
   completed_phases: 8
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 260
   percent: 89
+stopped_at: Milestone complete (Phase 144.1 was final phase)
 ---
 
 # Project State
@@ -21,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 144.1 — address-tech-debt-validation-md-finalization-dave-credential
+**Current focus:** Milestone complete
 
 ## Current Position
 
-Phase: 144.1 (address-tech-debt-validation-md-finalization-dave-credential) — EXECUTING
-Plan: 1 of 1
-Status: Executing Phase 144.1
-Last activity: 2026-05-30 -- Phase 144.1 execution started
+Phase: 144.1
+Plan: Not started
+Status: Milestone complete
+Last activity: 2026-05-30
 
 ```
 Phase progress: [                    ] 0% (0/4 phases)

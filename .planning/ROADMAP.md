@@ -46,7 +46,7 @@
 - [x] **Phase 142: Dev Credentials Page & App Framing** — Dev-only credentials LiveView at `/demo/credentials` plus realistic SaaS app name in layout (completed 2026-05-30)
 - [x] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture (completed 2026-05-30)
 - [x] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle (completed 2026-05-30)
-- [ ] **Phase 144.1: Address Tech Debt** — VALIDATION.md finalization, WR-01 tag fix, Dave credential clarity, spec comment correction
+- [x] **Phase 144.1: Address Tech Debt** — VALIDATION.md finalization, WR-01 tag fix, Dave credential clarity, spec comment correction (completed 2026-05-30)
 
 ## Phase Details
 
@@ -190,7 +190,7 @@
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
 | 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete    | 2026-05-30 |
-| 144.1. Address Tech Debt | 1/1 | Complete   | 2026-05-30 |
+| 144.1. Address Tech Debt | 1/1 | Complete    | 2026-05-30 |
 
 ---
 
