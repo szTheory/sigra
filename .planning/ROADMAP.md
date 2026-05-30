@@ -47,6 +47,7 @@
 - [x] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture (completed 2026-05-30)
 - [x] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle (completed 2026-05-30)
 - [x] **Phase 144.1: Address Tech Debt** — VALIDATION.md finalization, WR-01 tag fix, Dave credential clarity, spec comment correction (completed 2026-05-30)
+- [ ] **Phase 144.2: Close minor integration debt: testInfo param + ga-evidence link** — (INSERTED) rename unused testInfo param to _testInfo; fix unresolvable ga-evidence.md ExDoc link
 
 ## Phase Details
 
@@ -182,6 +183,23 @@
 
 ---
 
+### Phase 144.2: Close minor integration debt: testInfo param + ga-evidence link (INSERTED)
+
+**Goal**: Remove two discrete cleanup items deferred from v1.31 DEMO-SHOWCASE — rename the unused `testInfo` param to `_testInfo` in `assertDemoScreenshot()` (TypeScript convention), and replace the broken relative ExDoc link in `docs/ga-evidence.md` with an absolute GitHub URL while removing the suppression workaround from `mix.exs`.
+**Depends on:** Phase 144.1
+**Requirements**: (none — no formal requirement IDs assigned; debt items from prior phase)
+**Success Criteria** (what must be TRUE):
+
+  1. `demo-showcase.spec.ts` line 51 reads `_testInfo: TestInfo,` — call sites on lines 102, 115, 132, 148, 160 are unchanged
+  2. `docs/ga-evidence.md` last bullet links to `https://github.com/szTheory/sigra/blob/main/.planning/phases/144-readme-evaluator-lane-docs-proof/144-VERIFICATION.md`
+  3. `mix.exs` `skip_undefined_reference_warnings_on` no longer contains `"docs/ga-evidence.md"` or its `# Phase 144:` comment; `extras:` list still contains `"docs/ga-evidence.md"`
+  4. `mix docs --warnings-as-errors` passes cleanly
+
+**Plans**: 1 plan
+**Wave 1**
+
+- [ ] 144.2-01-PLAN.md — testInfo rename + ga-evidence.md absolute URL + mix.exs suppression removal (D-01, D-02, D-03)
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -191,6 +209,7 @@
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
 | 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete    | 2026-05-30 |
 | 144.1. Address Tech Debt | 1/1 | Complete    | 2026-05-30 |
+| 144.2. Close minor integration debt: testInfo param + ga-evidence link | 0/1 | Not started | — |
 
 ---
 
