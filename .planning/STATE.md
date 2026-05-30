@@ -2,15 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
-status: executing
-last_updated: "2026-05-30T14:53:31.378Z"
+status: milestone_complete
+last_updated: 2026-05-30T15:42:48.315Z
 last_activity: 2026-05-30 -- Phase 144 execution started
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 22
-  completed_plans: 19
-  percent: 86
+  completed_plans: 259
+  percent: 88
+stopped_at: Milestone complete (Phase 144 was final phase)
 ---
 
 # Project State
@@ -21,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 144 — readme-evaluator-lane-docs-proof
+**Current focus:** Milestone complete
 
 ## Current Position
 
-Phase: 144 (readme-evaluator-lane-docs-proof) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 144
-Last activity: 2026-05-30 -- Phase 144 execution started
+Phase: 144
+Plan: Not started
+Status: Milestone complete
+Last activity: 2026-05-30
 
 ```
 Phase progress: [                    ] 0% (0/4 phases)

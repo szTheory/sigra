@@ -33,9 +33,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Evaluator Documentation (DOC)
 
-- [ ] **DOC-01**: The README has a "Try it locally" evaluator lane — prerequisites, the one-command spin-up, a credentials table, and rough-edge persona callouts.
-- [ ] **DOC-02**: A guide page (`guides/introduction/demo-showcase.md`) walks an evaluator through the demo with embedded screenshots.
-- [ ] **DOC-03**: A milestone proof bundle confirms the full test suite is green, the dependency-off lane is green, the `mix setup` one-command spin-up works from a clean state, and screenshots are committed/rendered.
+- [x] **DOC-01**: The README has a "Try it locally" evaluator lane — prerequisites, the one-command spin-up, a credentials table, and rough-edge persona callouts.
+- [x] **DOC-02**: A guide page (`guides/introduction/demo-showcase.md`) walks an evaluator through the demo with embedded screenshots.
+- [x] **DOC-03**: A milestone proof bundle confirms the full test suite is green, the dependency-off lane is green, the `mix setup` one-command spin-up works from a clean state, and screenshots are committed/rendered.
 
 ## Future Requirements
 
@@ -78,9 +78,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PW-01 | Phase 143 | Complete |
 | PW-02 | Phase 143 | Complete |
 | PW-03 | Phase 143 | Complete |
-| DOC-01 | Phase 144 | Pending |
-| DOC-02 | Phase 144 | Pending |
-| DOC-03 | Phase 144 | Pending |
+| DOC-01 | Phase 144 | Complete |
+| DOC-02 | Phase 144 | Complete |
+| DOC-03 | Phase 144 | Complete |
 
 **Coverage:**
 - v1 requirements: 14 total
