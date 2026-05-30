@@ -82,7 +82,10 @@ defmodule Sigra.MixProject do
         Joken.Signer,
         Joken.Config,
         EQRCode,
+        Chimeway,
+        Chimeway.Notifier,
         # Internal modules defined only when an optional dep is loaded
+        Sigra.Integrations.Chimeway,
         Sigra.Workers.AccountDeletion,
         Sigra.Workers.AuditCleanup,
         Sigra.Workers.AuditForward,
@@ -114,6 +117,8 @@ defmodule Sigra.MixProject do
       {:cloak_ecto, "~> 1.3"},
       {:wax_, "~> 0.7"},
       {:threadline, "~> 0.5", optional: true},
+      # Optional Chimeway bridge — host adds `{:chimeway, "~> 1.0"}`; local dev may use CHIMEWAY_PATH path dep.
+      {:chimeway, "~> 1.0", optional: true},
       {:eqrcode, "~> 0.2.1", optional: true},
       # Dev/test
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
