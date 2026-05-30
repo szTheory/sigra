@@ -178,7 +178,7 @@
 **Plans**: 1 plan
 **Wave 1**
 
-- [ ] 144.1-01-PLAN.md — VALIDATION.md finalization + WR-01 fix + Dave callout fixes + spec comment fix (TD-01..TD-05)
+- [x] 144.1-01-PLAN.md — VALIDATION.md finalization + WR-01 fix + Dave callout fixes + spec comment fix (TD-01..TD-05)
 
 ---
 
@@ -190,7 +190,7 @@
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
 | 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete    | 2026-05-30 |
-| 144.1. Address Tech Debt | 0/1 | In Progress | — |
+| 144.1. Address Tech Debt | 1/1 | Complete   | 2026-05-30 |
 
 ---
 
