@@ -77,7 +77,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 141-03-PLAN.md — Example.Demo.Seeds idempotent upsert orchestrator (D-01..D-02, D-06..D-12)
+- [x] 141-03-PLAN.md — Example.Demo.Seeds idempotent upsert orchestrator (D-01..D-02, D-06..D-12)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -140,7 +140,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 141. Seed Data Layer | 2/4 | In Progress|  |
+| 141. Seed Data Layer | 3/4 | In Progress|  |
 | 142. Dev Credentials Page & App Framing | 0/? | Not started | - |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
