@@ -290,6 +290,8 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 See [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) for the scoped requirements and [`.planning/ROADMAP.md`](ROADMAP.md) for the phase structure (phases from 141).
 
+**Progress:** Phase 141 (Seed Data Layer) complete 2026-05-29 — SEED-01..SEED-06 delivered: idempotent `Example.Demo.Seeds` orchestrator seeds 6 deterministic auth-state personas into `test/example/`, with a `MIX_ENV=test` raise-guard, audit-event liveness, and production-matching security posture. Verified 6/6 must-haves against live DB.
+
 ### Validated — v1.30 TRUST-HARDENING (shipped 2026-05-29)
 
 _See [`.planning/milestones/v1.30-REQUIREMENTS.md`](milestones/v1.30-REQUIREMENTS.md), [`.planning/milestones/v1.30-ROADMAP.md`](milestones/v1.30-ROADMAP.md), and [`.planning/milestones/v1.30-MILESTONE-AUDIT.md`](milestones/v1.30-MILESTONE-AUDIT.md) for the archived bounded contract (11/11 satisfied)._
