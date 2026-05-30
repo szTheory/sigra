@@ -135,11 +135,7 @@ defmodule Example.Demo.Seeds do
     end
   end
 
-  defp maybe_lock(user, _persona) do
-    # Dave's hashed_password is also cleared — do it here alongside the lockout
-    # check. On re-run the password is already nil so skip.
-    user
-  end
+  defp maybe_lock(user, _persona), do: user
 
   defp maybe_schedule_deletion(user, %{email: "dave@demo.sigra.dev"}) do
     # Clear Dave's hashed_password (no context API for this — use deletion_changeset).
@@ -296,10 +292,18 @@ defmodule Example.Demo.Seeds do
   ## ── Acme Corp SSO EnterpriseConnection (D-08) ────────────────────────────────
 
   defp seed_enterprise_connection(acme) do
-    # enterprise_connections_active_display_name_index is a partial unique index.
+    # enterprise_connections_active_display_name_index is a partial unique index
+    # on [:organization_id, :protocol, :display_name] WHERE status = 'active'.
     # Ecto's {:constraint, :name} conflict_target is not supported by the Postgres
-    # adapter; use check-then-insert for idempotency.
-    existing = Repo.get_by(EnterpriseConnection, display_name: "Acme Corp SSO")
+    # adapter; use check-then-insert for idempotency. Scope the lookup to the
+    # active row for this org so a non-active row with the same display_name can
+    # never suppress the seed insert.
+    existing =
+      Repo.get_by(EnterpriseConnection,
+        organization_id: acme.id,
+        display_name: "Acme Corp SSO",
+        status: :active
+      )
 
     unless existing do
       %EnterpriseConnection{}
@@ -380,27 +384,33 @@ defmodule Example.Demo.Seeds do
   end
 
   defp insert_audit_batch(admin) do
-    Enum.each(@audit_actions, fn {action, outcome, offset_days} ->
-      # Spread occurred_at deterministically over a past-30-days window.
-      # Use @seed_reference_ts as the fixed anchor — NOT DateTime.utc_now().
-      occurred_at =
-        DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
+    # Wrap the whole batch in a transaction: the count-threshold guard above is
+    # only idempotent if the batch is all-or-nothing. A mid-batch crash would
+    # otherwise leave <15 rows, so the next run/0 re-fires and accumulates
+    # duplicates indefinitely.
+    Repo.transaction(fn ->
+      Enum.each(@audit_actions, fn {action, outcome, offset_days} ->
+        # Spread occurred_at deterministically over a past-30-days window.
+        # Use @seed_reference_ts as the fixed anchor — NOT DateTime.utc_now().
+        occurred_at =
+          DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
 
-      %AuditEvent{}
-      |> AuditEvent.changeset(
-        %{
-          action: action,
-          outcome: outcome,
-          occurred_at: occurred_at,
-          actor_id: admin.id,
-          actor_type: "user",
-          # TIE-TO-USER: effective_user_id (not just actor_id) so these rows
-          # surface on admin's detail page (lib/sigra/admin/audit/query.ex:32).
-          effective_user_id: admin.id
-        },
-        allow_reserved: true
-      )
-      |> Repo.insert!()
+        %AuditEvent{}
+        |> AuditEvent.changeset(
+          %{
+            action: action,
+            outcome: outcome,
+            occurred_at: occurred_at,
+            actor_id: admin.id,
+            actor_type: "user",
+            # TIE-TO-USER: effective_user_id (not just actor_id) so these rows
+            # surface on admin's detail page (lib/sigra/admin/audit/query.ex:32).
+            effective_user_id: admin.id
+          },
+          allow_reserved: true
+        )
+        |> Repo.insert!()
+      end)
     end)
   end
 end
