@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
-status: roadmap_created
-last_updated: "2026-05-29"
-last_activity: 2026-05-29
+status: Roadmap created; awaiting `/gsd-plan-phase 141`
+last_updated: "2026-05-30T00:21:25.775Z"
+last_activity: 2026-05-29 — v1.31 DEMO-SHOWCASE roadmap created (Phases 141–144, 14/14 requirements mapped)
 progress:
-  total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 8
+  completed_phases: 4
+  total_plans: 10
+  completed_plans: 10
+  percent: 50
 ---
 
 # Project State
