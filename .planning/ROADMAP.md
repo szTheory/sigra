@@ -132,7 +132,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 143-02-PLAN.md — playwright.config.ts demo-showcase-chromium partition + demo-showcase.spec.ts + PNG baselines
+- [x] 143-02-PLAN.md — playwright.config.ts demo-showcase-chromium partition + demo-showcase.spec.ts + PNG baselines
 
 ---
 
@@ -158,7 +158,7 @@
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
-| 143. Playwright Demo Spec & Screenshots | 1/2 | In Progress|  |
+| 143. Playwright Demo Spec & Screenshots | 2/2 | Complete   | 2026-05-30 |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
 ---
