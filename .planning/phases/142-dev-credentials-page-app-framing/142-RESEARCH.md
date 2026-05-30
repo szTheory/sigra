@@ -492,12 +492,16 @@ This phase is confined to `test/example/` source edits. No external services, CL
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Render content testing strategy**
-   - What we know: The route is compiled out in test env; `live/2` will raise `NoRouteError`.
-   - What's unclear: Whether `Phoenix.LiveViewTest.render_component/3` works for a `Phoenix.LiveView` module (vs `Phoenix.LiveComponent`) in the project's current Phoenix version, or whether calling `render/1` directly is simpler.
-   - Recommendation: Executor should test `CredentialsLive.render(%{flash: %{}, credentials: [], page_title: "Demo Credentials"})` directly and assert on the resulting iodata/HTML string. If that doesn't type-check cleanly, fall back to checking just the 404 case in automated tests and note content coverage will be Playwright-only (Phase 143).
+1. **Render content testing strategy** — RESOLVED
+   - RESOLUTION (encoded in Plan 03 Task 2): assert content via a router-free
+     `CredentialsLive.render(%{...}) |> Phoenix.HTML.safe_to_string()` call (NOT `live/2`,
+     which raises `NoRouteError` because the route is compiled out under `MIX_ENV=test`);
+     fallback `IO.iodata_to_binary/1` if the safe→string conversion needs it. The route
+     itself is covered separately by a 404/route-absent assertion (`get/2`, D-12).
+   - What we knew: The route is compiled out in test env; `live/2` raises `NoRouteError`.
+   - Original recommendation: test `CredentialsLive.render(%{flash: %{}, credentials: [], page_title: "Demo Credentials"})` directly and assert on the resulting iodata/HTML string; if it doesn't type-check cleanly, fall back to 404-only automated coverage with content coverage deferred to Playwright (Phase 143).
 
 ---
 
