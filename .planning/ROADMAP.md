@@ -150,8 +150,8 @@
 **Plans**: 3 plans
 **Wave 1** *(independent tracks, run in parallel)*
 
-- [ ] 144-01-PLAN.md — Replace test/example/README.md with evaluator lane (DOC-01)
-- [ ] 144-02-PLAN.md — guides/assets/ + demo-showcase.md guide + mix.exs ExDoc config + ga-evidence.md pointer (DOC-02)
+- [x] 144-01-PLAN.md — Replace test/example/README.md with evaluator lane (DOC-01)
+- [x] 144-02-PLAN.md — guides/assets/ + demo-showcase.md guide + mix.exs ExDoc config + ga-evidence.md pointer (DOC-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -168,7 +168,7 @@
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
-| 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
+| 144. README Evaluator Lane & Docs/Proof | 2/3 | In Progress|  |
 
 ---
 
