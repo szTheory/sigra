@@ -50,36 +50,50 @@
 ## Phase Details
 
 ### Phase 141: Seed Data Layer
+
 **Goal**: An evaluator running `mix setup` in `test/example/` gets a fully-populated demo database covering all six auth-state personas with zero duplicate rows on re-run, and the example app's security posture matches what Sigra ships to production.
 **Depends on**: Nothing (first phase of milestone; continues from Phase 140)
 **Requirements**: SEED-01, SEED-02, SEED-03, SEED-04, SEED-05, SEED-06
 **Success Criteria** (what must be TRUE):
+
   1. Running `mix run priv/repo/seeds.exs` twice in `test/example/` completes without errors and leaves exactly the expected set of persona rows (no duplicates, no failures on second run)
   2. Running `MIX_ENV=test mix run priv/repo/seeds.exs` raises immediately with a clear error message before touching the test database
-  3. Six distinct personas are present after seeding — admin (TOTP enrolled, multi-org, API token, passkey display row), alice (standard confirmed), bob (TOTP enrolled, org owner), carol (OAuth identity row), dave (locked), frank (scheduled-deletion) — each demonstrating a different auth state observable in the admin UI
+  3. Six distinct personas are present after seeding — admin (TOTP enrolled, multi-org, passkey display row, rich audit trail), alice (standard confirmed), bob (TOTP enrolled, org owner), carol (OAuth identity row), dave (locked), frank (scheduled-deletion) — each demonstrating a different auth state observable in the admin UI (SC#3 amended per CONTEXT D-10: dropped the admin "API token observable in admin UI" claim — admin user-detail has no API-token surface and `create_api_token/3` is a non-persisting stub; the `sigra_sk_` prefix is surfaced illustratively on the Phase 142 `/demo/credentials` page)
   4. The audit log table contains at least 15 rows covering 6 or more distinct event types after seeding, so the admin audit explorer reads as a live system rather than an empty scaffold
   5. Seeded passwords satisfy `Sigra.PasswordPolicy.validate/1`, are hashed with real Argon2id at `t_cost: 2, m_cost: 12` (the dev override in `dev.exs`), and the TOTP secret constant is labeled `# Demo-only — intentionally deterministic. Never use in production.`
 
 **Research flags (confirm at plan time):**
+
   - Confirm exact `user_identities` schema field names before writing the Carol OAuth insert
   - Confirm `EnterpriseConnection` schema shape (field names, required columns) before the Acme Corp SSO row
   - Verify whether `Sigra.Testing.setup_totp/2` is available in `MIX_ENV=dev`; if test-only, seed MFA credentials via direct `Repo.insert!` on `UserMfaCredential`
   - Confirm `UserPasskey.create_changeset/2` does not fire Wax ceremony validation before inserting the admin passkey display row; if it does, skip the display row and note as deferred
 
 **Plans**: 4 plans
+**Wave 1**
+
 - [ ] 141-01-PLAN.md — UserIdentity schema + migration (Carol OAuth dependency, D-09)
 - [ ] 141-02-PLAN.md — dev.exs Argon2 override + Example.Demo.Personas pure-data module (D-04, D-05, D-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 141-03-PLAN.md — Example.Demo.Seeds idempotent upsert orchestrator (D-01..D-02, D-06..D-12)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 141-04-PLAN.md — seeds.exs raise-guard wiring + end-to-end SC#1–SC#5 verification (D-03)
+
 **UI hint**: yes
 
 ---
 
 ### Phase 142: Dev Credentials Page & App Framing
+
 **Goal**: An evaluator who has run `mix setup && mix phx.server` can open `/demo/credentials` in their browser and see a credentials cheat-sheet listing every persona, its login, and the auth feature it demonstrates — and the app presents itself as a realistic SaaS product rather than a bare test fixture.
 **Depends on**: Phase 141 (credentials page reads from `Example.Demo.Personas` module established in Phase 141)
 **Requirements**: DEMO-01, DEMO-02
 **Success Criteria** (what must be TRUE):
+
   1. Navigating to `/demo/credentials` in `MIX_ENV=dev` renders a table listing all six personas with their email, password, and a plain-language description of the auth feature each demonstrates
   2. The `/demo/credentials` route is absent in `MIX_ENV=test` and `MIX_ENV=prod` — the route guard (`Application.compile_env(:example, :dev_routes)`) prevents it from appearing in non-dev environments
   3. The example app layout displays a realistic SaaS product name (e.g., "Vaultr") so the demo reads as a purposeful product rather than a scaffold
@@ -91,10 +105,12 @@
 ---
 
 ### Phase 143: Playwright Demo Spec & Screenshots
+
 **Goal**: Automated Playwright coverage exercises the seeded personas' distinct auth states using structural assertions in a dedicated project partition that does not affect the golden-path specs, and evaluator-quality screenshots of the populated app are captured and committed.
 **Depends on**: Phase 141 (spec asserts against seeded personas; screenshots require a populated dev database)
 **Requirements**: PW-01, PW-02, PW-03
 **Success Criteria** (what must be TRUE):
+
   1. A `demo-showcase` Playwright project partition exists in `playwright.config.ts`, runs independently of the `chromium` and `mobile` partitions, and can be invoked without affecting the golden-path spec results
   2. The demo spec asserts each seeded persona's auth state using `data-testid` or structural DOM checks — not persona display-name text — so a persona rename does not break the spec
   3. Screenshots are captured covering at minimum: login page (populated), admin user list (all 6 personas visible), admin user detail (MFA row, passkey row, API token row), and the audit log explorer (showing event variety); screenshots are committed in the expected output directory
@@ -105,10 +121,12 @@
 ---
 
 ### Phase 144: README Evaluator Lane & Docs/Proof
+
 **Goal**: An evaluator landing on `test/example/README.md` or the `guides/introduction/demo-showcase.md` guide has everything needed to spin up the demo, identify personas, and experience each auth feature — and the milestone proof bundle confirms the full suite and one-command spin-up are green.
 **Depends on**: Phase 141 (README references exact credential strings), Phase 143 (guide embeds committed screenshots)
 **Requirements**: DOC-01, DOC-02, DOC-03
 **Success Criteria** (what must be TRUE):
+
   1. `test/example/README.md` contains a "Try it locally" section with: prerequisites block (Elixir 1.18+, Postgres, Docker one-liner), the one-command spin-up (`mix setup && mix phx.server`), a credentials table matching the seeded personas, rough-edge persona callouts (dave's lockout, frank's scheduled deletion), and mentions of `/demo/credentials` and `/dev/mailbox`
   2. `guides/introduction/demo-showcase.md` exists, walks an evaluator through the populated demo with at least 2 embedded screenshots from Phase 143, and is wired into ExDoc extras
   3. The proof bundle confirms all of: full test suite green, dep-off CI lane green, `mix setup` completes from a clean state without errors, and screenshots are committed and rendered in the guide

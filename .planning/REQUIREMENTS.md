@@ -14,7 +14,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 ### Seed Data Layer (SEED)
 
 - [ ] **SEED-01**: Evaluator runs `mix setup` in `test/example/` and gets a fully-populated demo database in one command; re-running is idempotent (no errors, no duplicate rows).
-- [ ] **SEED-02**: Six personas are seeded, each demonstrating a distinct auth state — admin (TOTP MFA + multi-org + API token + passkey display row), standard confirmed user, MFA-enrolled org owner, OAuth-linked user, locked user, and scheduled-deletion user.
+- [ ] **SEED-02**: Six personas are seeded, each demonstrating a distinct auth state — admin (TOTP MFA + multi-org + passkey display row + rich audit trail), standard confirmed user, MFA-enrolled org owner, OAuth-linked user, locked user, and scheduled-deletion user.
 - [ ] **SEED-03**: Seeded data exercises the rough edges — TOTP enrollment, a locked account, an OAuth identity, a scheduled deletion, and multi-org membership including a pending invitation — not just the happy path.
 - [ ] **SEED-04**: The seeded audit log shows realistic variety (6–8 distinct event types) so the admin audit explorer reads as a real, in-use system.
 - [ ] **SEED-05**: Demo seeds stay isolated from the CI-fixture role — dev/test database separation, a `Mix.env()==:test` raise-guard in `seeds.exs`, and `@demo.sigra.dev` (seeded) vs `@example.test` (golden-path) email-domain segregation — so `mix test` stays deterministic.
