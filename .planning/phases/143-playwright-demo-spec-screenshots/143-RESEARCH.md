@@ -240,6 +240,9 @@ async function loginDemoAdmin(page: Page) {
   // 2. Handle TOTP challenge — auto-verifies on 6 digits (phx-change="validate_totp")
   await expect(page).toHaveURL(/\/users\/mfa/);
   await page.waitForSelector('[data-phx-session].phx-connected', { state: 'attached' });
+  // Switch to TOTP tab — admin has 1 passkey so active_method defaults to 'passkey'
+  await page.click('button[phx-click="show_totp"]');
+  await page.waitForSelector('#mfa_totp_code', { state: 'visible' });
   const code = authenticator.generate(DEMO_TOTP_B32);
   await page.fill('#mfa_totp_code', code);
 
@@ -545,17 +548,17 @@ The only security-adjacent consideration: `DEMO_TOTP_B32 = 'CSIL7ZDJ7RGXDGXRGIV3
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **What is the TOTP tab button selector in MFAChallengeLive?**
    - What we know: `active_method` defaults to `"passkey"` when passkey count > 0. The template has separate TOTP and passkey sections.
    - What's unclear: The exact button/tab label text or `data-*` attribute to click to switch to the TOTP method view.
-   - Recommendation: Planner reads `test/example/lib/example_web/live/mfa_challenge_live.ex` lines 46–200 for the tab/button selector before writing the login helper task.
+   - **RESOLVED: `button[phx-click="show_totp"]`** — confirmed via direct inspection of `mfa_challenge_live.ex`. Pattern 3 code sample updated to include this click before the `#mfa_totp_code` fill.
 
 2. **Does `/admin/users?q=demo.sigra.dev` (domain substring) return all 6 personas?**
    - What we know: The search param is `q`, the admin users index uses it, and existing specs search with full emails.
    - What's unclear: Whether a partial domain match (`demo.sigra.dev`) surfaces all 6 results or requires exact email matching.
-   - Recommendation: The plan task for the admin-user-list screenshot should have a fallback: if domain search doesn't work, use `adminUsersEmailLocator` for each email in a loop.
+   - **RESOLVED: Fallback per-email assertions pattern added to plan.** The spec uses `adminUsersEmailLocator` in a loop over all 6 `DEMO_EMAILS` regardless of whether domain search works. If the `q=demo.sigra.dev` query does not narrow results sufficiently, the per-email `toBeVisible` assertions still pass as long as the persona rows exist in the results set. No plan change needed beyond what is already specified.
 
 ---
 

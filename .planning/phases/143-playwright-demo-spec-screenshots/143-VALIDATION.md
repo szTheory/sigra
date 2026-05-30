@@ -1,9 +1,9 @@
 ---
 phase: 143
 slug: playwright-demo-spec-screenshots
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-30
 ---
 
@@ -42,7 +42,7 @@ created: 2026-05-30
 | 143-01-01 | 01 | 1 | PW-01 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium demo-showcase.spec.ts --reporter=line` | ✅ | ⬜ pending |
 | 143-01-02 | 01 | 1 | PW-01 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium --reporter=line` | ✅ | ⬜ pending |
 | 143-02-01 | 02 | 2 | PW-02 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium --update-snapshots --reporter=line` | ✅ | ⬜ pending |
-| 143-03-01 | 03 | 1 | PW-03 | — | N/A | unit | `cd test/example && mix test test/example/demo/seeds_test.exs` | ✅ | ⬜ pending |
+| 143-01-03 | 01 | 1 | PW-03 | — | N/A | unit | `cd test/example && mix test test/example/demo/seeds_test.exs` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
