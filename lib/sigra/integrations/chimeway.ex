@@ -117,12 +117,83 @@ if Code.ensure_loaded?(Chimeway) do
     end
 
     @doc false
-    def dispatch_confirmation_code(_repo, _user, _encoded_token, _code, _url, _opts \\ []),
-      do: {:error, :not_implemented}
+    def dispatch_confirmation_code(_repo, user, _encoded_token, code, url, opts \\ []) do
+      with true <- enabled?(),
+           confirmation_id when not is_nil(confirmation_id) <-
+             opts[:confirmation_id] || opts["confirmation_id"] do
+        user_id = user_id_string(user)
+        idempotency_key = confirmation_idempotency_key(user_id, confirmation_id)
 
-    @doc false
-    def dispatch_confirmation_after_generate(_repo, _user, _opts \\ []),
-      do: {:error, :not_implemented}
+        :ok = PendingDelivery.put(idempotency_key, %{code: code, url: url})
+
+        trigger_params = %{
+          "idempotency_key" => idempotency_key,
+          "user_id" => user_id,
+          "email" => user.email,
+          "confirmation_id" => to_string(confirmation_id),
+          "kind" => "confirmation_code"
+        }
+
+        trigger_opts =
+          [
+            idempotency_key: idempotency_key,
+            tenant_id: user_id,
+            correlation_id: opts[:correlation_id]
+          ]
+          |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+
+        case Chimeway.trigger(__MODULE__.ConfirmationCodeNotifier, trigger_params, trigger_opts) do
+          {:ok, result} -> {:ok, result}
+          {:duplicate, event} -> {:duplicate, event}
+          {:error, reason} -> {:error, reason}
+        end
+      else
+        false -> {:error, :disabled}
+        nil -> {:error, :missing_confirmation_id}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+
+    @doc """
+    Generates confirmation tokens, inserts link/code rows, and dispatches via Chimeway.
+
+    Does not call `Sigra.Delivery.deliver/3` — Chimeway Logger adapter only in Phase 64 tests.
+    """
+    @spec dispatch_confirmation_after_generate(module(), struct(), keyword()) ::
+            {:ok, {String.t(), String.t(), String.t(), map()}} | {:error, term()}
+    def dispatch_confirmation_after_generate(repo, user, opts \\ []) do
+      user_token_schema = user_token_schema(opts)
+
+      secret_key_base =
+        Keyword.get(opts, :secret_key_base) ||
+          Application.get_env(:sigra, :secret_key_base) ||
+          raise ArgumentError, "secret_key_base required"
+
+      confirmation_url_fun = Keyword.fetch!(opts, :confirmation_url_fun)
+
+      {encoded_token, code, link_struct, code_struct} =
+        Sigra.Auth.generate_confirmation_token(repo, user,
+          secret_key_base: secret_key_base,
+          user_token_schema: user_token_schema
+        )
+
+      link_token = repo.insert!(link_struct)
+      _code_token = repo.insert!(code_struct)
+
+      url = confirmation_url_fun.(encoded_token)
+
+      case dispatch_confirmation_code(repo, user, encoded_token, code, url,
+             Keyword.put(opts, :confirmation_id, link_token.id)
+           ) do
+        {:ok, result} -> {:ok, {encoded_token, code, url, result}}
+        {:duplicate, event} -> {:ok, {encoded_token, code, url, %{event: event, duplicate: true}}}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+
+    defp confirmation_idempotency_key(user_id, confirmation_id) do
+      "sigra.confirmation_code:" <> user_id <> ":" <> to_string(confirmation_id)
+    end
 
     defp magic_link_idempotency_key(user_id, %DateTime{} = inserted_at) do
       "sigra.magic_link:" <> user_id <> ":" <> DateTime.to_iso8601(inserted_at)
@@ -221,6 +292,71 @@ if Code.ensure_loaded?(Chimeway) do
            channels: %{
              email: %{
                render_key: "sigra.auth.magic_link.email",
+               render_version: 1
+             }
+           }
+         }}
+      end
+    end
+
+    defmodule ConfirmationCodeNotifier do
+      @moduledoc false
+
+      @behaviour Chimeway.Notifier
+      @compile {:no_warn_undefined, [Chimeway.Notifier]}
+
+      alias Sigra.Integrations.Chimeway.PendingDelivery
+
+      @impl true
+      def notification_key, do: "sigra.auth.confirmation_code"
+
+      @impl true
+      def version, do: 1
+
+      @impl true
+      def recipients(params) do
+        email = Map.get(params, :email) || Map.get(params, "email")
+
+        if is_binary(email) and email != "" do
+          {:ok, [%{recipient_identity: email, recipient_type: "email"}]}
+        else
+          {:error, :missing_email}
+        end
+      end
+
+      @impl true
+      def build(params, _recipient) do
+        {:ok,
+         %{
+           user_id: Map.get(params, :user_id) || Map.get(params, "user_id"),
+           confirmation_id: Map.get(params, :confirmation_id) || Map.get(params, "confirmation_id"),
+           kind: "confirmation_code"
+         }}
+      end
+
+      @impl true
+      def channels(_params, _recipient), do: {:ok, [:email]}
+
+      @impl true
+      def orchestration(_params, _recipient), do: {:ok, :immediate}
+
+      @impl true
+      def rendering(params, _recipient) do
+        idempotency_key =
+          Map.get(params, "idempotency_key") || Map.get(params, :idempotency_key)
+
+        _secrets = PendingDelivery.pop!(idempotency_key)
+
+        {:ok,
+         %{
+           assigns: %{
+             "subject" => "Confirm your account",
+             "html_body" => "<p>Enter the confirmation code we sent you.</p>",
+             "text_body" => "Enter the confirmation code we sent you."
+           },
+           channels: %{
+             email: %{
+               render_key: "sigra.auth.confirmation_code.email",
                render_version: 1
              }
            }
