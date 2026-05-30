@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
 status: executing
-last_updated: "2026-05-30T13:13:53.235Z"
-last_activity: 2026-05-30 -- Phase 143 planning complete
+last_updated: "2026-05-30T13:17:28.690Z"
+last_activity: 2026-05-30 -- Phase 143 execution started
 progress:
   total_phases: 8
   completed_phases: 6
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 143 — playwright demo spec & screenshots
+**Current focus:** Phase 143 — playwright-demo-spec-screenshots
 
 ## Current Position
 
-Phase: 143
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-30 -- Phase 143 planning complete
+Phase: 143 (playwright-demo-spec-screenshots) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 143
+Last activity: 2026-05-30 -- Phase 143 execution started
 
 ```
 Phase progress: [                    ] 0% (0/4 phases)

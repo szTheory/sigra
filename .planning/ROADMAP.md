@@ -128,7 +128,7 @@
 **Plans**: 2 plans
 **Wave 1**
 
-- [ ] 143-01-PLAN.md — SigraAdminPolicy demo-admin grant + CI seeds step + PW-03 comment cross-ref
+- [x] 143-01-PLAN.md — SigraAdminPolicy demo-admin grant + CI seeds step + PW-03 comment cross-ref
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -158,7 +158,7 @@
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
-| 143. Playwright Demo Spec & Screenshots | 0/2 | In progress | - |
+| 143. Playwright Demo Spec & Screenshots | 1/2 | In Progress|  |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
 ---
