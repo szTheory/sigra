@@ -27,6 +27,8 @@ if Code.ensure_loaded?(Chimeway) do
 
     @compile {:no_warn_undefined, [Chimeway, Chimeway.Notifier]}
 
+    import Ecto.Query
+
     alias Sigra.Integrations.Chimeway.PendingDelivery
 
     @doc false
@@ -39,13 +41,80 @@ if Code.ensure_loaded?(Chimeway) do
       Application.get_env(:sigra, :repo) || Sigra.Repo
     end
 
-    @doc false
-    def dispatch_magic_link(_repo, _user, _raw_token, _url, _opts \\ []),
-      do: {:error, :not_implemented}
+    @doc """
+    Triggers `sigra.auth.magic_link` after a successful magic-link request.
 
-    @doc false
-    def dispatch_magic_link_after_request(_repo, _email, _opts \\ []),
-      do: {:error, :not_implemented}
+    Stores the login URL in `PendingDelivery` keyed by idempotency key; trigger
+    params contain identifiers only (no `url` or `raw_token`).
+    """
+    @spec dispatch_magic_link(module(), struct(), String.t(), String.t(), keyword()) ::
+            {:ok, map()} | {:duplicate, struct()} | {:error, term()}
+    def dispatch_magic_link(repo, user, _raw_token, url, opts \\ []) do
+      with true <- enabled?(),
+           user_token_schema <- user_token_schema(opts),
+           {:ok, token_inserted_at} <- fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
+        user_id = user_id_string(user)
+        idempotency_key = magic_link_idempotency_key(user_id, token_inserted_at)
+
+        :ok = PendingDelivery.put(idempotency_key, %{url: url})
+
+        trigger_params = %{
+          "idempotency_key" => idempotency_key,
+          "user_id" => user_id,
+          "email" => user.email,
+          "kind" => "magic_link"
+        }
+
+        trigger_opts =
+          [
+            idempotency_key: idempotency_key,
+            tenant_id: user_id,
+            correlation_id: opts[:correlation_id]
+          ]
+          |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+
+        case Chimeway.trigger(__MODULE__.MagicLinkNotifier, trigger_params, trigger_opts) do
+          {:ok, result} -> {:ok, result}
+          {:duplicate, event} -> {:duplicate, event}
+          {:error, reason} -> {:error, reason}
+        end
+      else
+        false -> {:error, :disabled}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+
+    @doc """
+    Calls `Sigra.Auth.request_magic_link/3` then dispatches via Chimeway on success.
+    """
+    @spec dispatch_magic_link_after_request(module(), String.t(), keyword()) ::
+            {:ok, {String.t(), String.t(), map()}}
+            | {:ok, :sent}
+            | {:error, term()}
+    def dispatch_magic_link_after_request(repo, email, opts \\ []) do
+      auth_opts =
+        opts
+        |> Keyword.take([:user_schema, :user_token_schema, :url_fun, :rate_limiter, :max_requests, :window_ms])
+        |> Keyword.merge(
+          user_schema: Keyword.get(opts, :user_schema, user_schema(opts)),
+          user_token_schema: Keyword.get(opts, :user_token_schema, user_token_schema(opts)),
+          url_fun: Keyword.fetch!(opts, :url_fun)
+        )
+
+      case Sigra.Auth.request_magic_link(repo, email, auth_opts) do
+        {:ok, {raw_token, url}} ->
+          user = repo.get_by!(auth_opts[:user_schema], email: Sigra.Email.normalize(email))
+
+          case dispatch_magic_link(repo, user, raw_token, url, opts) do
+            {:ok, result} -> {:ok, {raw_token, url, result}}
+            {:duplicate, event} -> {:ok, {raw_token, url, %{event: event, duplicate: true}}}
+            {:error, reason} -> {:error, reason}
+          end
+
+        other ->
+          other
+      end
+    end
 
     @doc false
     def dispatch_confirmation_code(_repo, _user, _encoded_token, _code, _url, _opts \\ []),
@@ -54,6 +123,110 @@ if Code.ensure_loaded?(Chimeway) do
     @doc false
     def dispatch_confirmation_after_generate(_repo, _user, _opts \\ []),
       do: {:error, :not_implemented}
+
+    defp magic_link_idempotency_key(user_id, %DateTime{} = inserted_at) do
+      "sigra.magic_link:" <> user_id <> ":" <> DateTime.to_iso8601(inserted_at)
+    end
+
+    defp magic_link_idempotency_key(user_id, %NaiveDateTime{} = inserted_at) do
+      inserted_at
+      |> DateTime.from_naive!("Etc/UTC")
+      |> then(&magic_link_idempotency_key(user_id, &1))
+    end
+
+    defp fetch_magic_link_token_inserted_at(repo, user, user_token_schema) do
+      case repo.one(
+             from(t in user_token_schema,
+               where: t.user_id == ^user.id and t.context == "magic_link",
+               order_by: [desc: t.inserted_at],
+               limit: 1,
+               select: t.inserted_at
+             )
+           ) do
+        nil -> {:error, :magic_link_token_not_found}
+        inserted_at -> {:ok, inserted_at}
+      end
+    end
+
+    defp user_id_string(%{id: id}) when is_integer(id), do: Integer.to_string(id)
+    defp user_id_string(%{id: id}) when is_binary(id), do: id
+
+    defp user_schema(opts) do
+      Keyword.get(opts, :user_schema) ||
+        Application.get_env(:sigra, :user_schema) ||
+        raise ArgumentError, "user_schema required"
+    end
+
+    defp user_token_schema(opts) do
+      Keyword.get(opts, :user_token_schema) ||
+        Application.get_env(:sigra, :user_token_schema) ||
+        raise ArgumentError, "user_token_schema required"
+    end
+
+    defmodule MagicLinkNotifier do
+      @moduledoc false
+
+      @behaviour Chimeway.Notifier
+      @compile {:no_warn_undefined, [Chimeway.Notifier]}
+
+      alias Sigra.Integrations.Chimeway.PendingDelivery
+
+      @impl true
+      def notification_key, do: "sigra.auth.magic_link"
+
+      @impl true
+      def version, do: 1
+
+      @impl true
+      def recipients(params) do
+        email = Map.get(params, :email) || Map.get(params, "email")
+
+        if is_binary(email) and email != "" do
+          {:ok, [%{recipient_identity: email, recipient_type: "email"}]}
+        else
+          {:error, :missing_email}
+        end
+      end
+
+      @impl true
+      def build(params, _recipient) do
+        {:ok,
+         %{
+           user_id: Map.get(params, :user_id) || Map.get(params, "user_id"),
+           kind: "magic_link"
+         }}
+      end
+
+      @impl true
+      def channels(_params, _recipient), do: {:ok, [:email]}
+
+      @impl true
+      def orchestration(_params, _recipient), do: {:ok, :immediate}
+
+      @impl true
+      def rendering(params, _recipient) do
+        idempotency_key =
+          Map.get(params, "idempotency_key") || Map.get(params, :idempotency_key)
+
+        # Resolve URL at render time; pop deletes from ETS so secrets do not linger.
+        _secrets = PendingDelivery.pop!(idempotency_key)
+
+        {:ok,
+         %{
+           assigns: %{
+             "subject" => "Sign in to your account",
+             "html_body" => "<p>Use the secure sign-in link we sent you.</p>",
+             "text_body" => "Use the secure sign-in link we sent you."
+           },
+           channels: %{
+             email: %{
+               render_key: "sigra.auth.magic_link.email",
+               render_version: 1
+             }
+           }
+         }}
+      end
+    end
 
     defmodule PendingDelivery do
       @moduledoc false
