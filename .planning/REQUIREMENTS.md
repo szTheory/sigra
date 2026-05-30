@@ -22,8 +22,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Evaluator Affordances (DEMO)
 
-- [ ] **DEMO-01**: Evaluator can open a dev-only credentials cheat-sheet (`/demo/credentials`) listing each persona, its login, and the auth feature it demonstrates; the route is present in dev and absent in test/prod.
-- [ ] **DEMO-02**: The example app presents a realistic SaaS framing (app name / layout) so the demo reads as a real product rather than a bare scaffold.
+- [x] **DEMO-01**: Evaluator can open a dev-only credentials cheat-sheet (`/demo/credentials`) listing each persona, its login, and the auth feature it demonstrates; the route is present in dev and absent in test/prod.
+- [x] **DEMO-02**: The example app presents a realistic SaaS framing (app name / layout) so the demo reads as a real product rather than a bare scaffold.
 
 ### Visual Proof & Browser Coverage (PW)
 
@@ -72,8 +72,8 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SEED-04 | Phase 141 | Complete |
 | SEED-05 | Phase 141 | Complete |
 | SEED-06 | Phase 141 | Complete |
-| DEMO-01 | Phase 142 | Pending |
-| DEMO-02 | Phase 142 | Pending |
+| DEMO-01 | Phase 142 | Complete |
+| DEMO-02 | Phase 142 | Complete |
 | PW-01 | Phase 143 | Pending |
 | PW-02 | Phase 143 | Pending |
 | PW-03 | Phase 143 | Pending |

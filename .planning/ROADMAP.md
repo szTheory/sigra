@@ -43,7 +43,7 @@
 ## Phases
 
 - [x] **Phase 141: Seed Data Layer** — Populate `seeds.exs` with 6 deterministic personas, idempotency, and the full security posture (completed 2026-05-30)
-- [ ] **Phase 142: Dev Credentials Page & App Framing** — Dev-only credentials LiveView at `/demo/credentials` plus realistic SaaS app name in layout
+- [x] **Phase 142: Dev Credentials Page & App Framing** — Dev-only credentials LiveView at `/demo/credentials` plus realistic SaaS app name in layout (completed 2026-05-30)
 - [ ] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture
 - [ ] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle
 
@@ -150,7 +150,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
-| 142. Dev Credentials Page & App Framing | 3/3 | Complete   | 2026-05-30 |
+| 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
