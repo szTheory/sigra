@@ -46,6 +46,7 @@
 - [x] **Phase 142: Dev Credentials Page & App Framing** — Dev-only credentials LiveView at `/demo/credentials` plus realistic SaaS app name in layout (completed 2026-05-30)
 - [x] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture (completed 2026-05-30)
 - [x] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle (completed 2026-05-30)
+- [ ] **Phase 144.1: Address Tech Debt** — VALIDATION.md finalization, WR-01 tag fix, Dave credential clarity, spec comment correction
 
 ## Phase Details
 
@@ -161,6 +162,26 @@
 
 ---
 
+### Phase 144.1: Address Tech Debt
+
+**Goal**: Close five discrete tech-debt items deferred from Phase 144 — finalize the VALIDATION.md planning artifact, fix the WR-01 stale tag URLs in ga-evidence.md, clarify the Dave credential callout in README and guide, and correct the misleading spec step comment.
+**Depends on**: Phase 144 (all items are follow-ups to Phase 144 artifacts)
+**Requirements**: TD-01, TD-02, TD-03, TD-04, TD-05
+**Success Criteria** (what must be TRUE):
+
+  1. `.planning/phases/144-readme-evaluator-lane-docs-proof/144-VALIDATION.md` frontmatter reads `status: finalized` / `nyquist_compliant: true`, all 10 task rows show `✅ green`, sign-off block is finalized
+  2. `docs/ga-evidence.md` contains no `blob/v0.2.0` URLs; all three tag snapshot links reference `blob/v0.2.1`
+  3. `test/example/README.md` Dave callout references both correct and wrong passwords producing the enumeration-resistant response
+  4. `guides/introduction/demo-showcase.md` Dave section includes the correct password `DaveDemoPass1!Locked` and explains enumeration resistance applies to both correct and wrong password attempts
+  5. `test/example/priv/playwright/tests/demo-showcase.spec.ts` Step 2 comment reads "standard session — no MFA challenge" with no "TOTP challenge" text
+
+**Plans**: 1 plan
+**Wave 1**
+
+- [ ] 144.1-01-PLAN.md — VALIDATION.md finalization + WR-01 fix + Dave callout fixes + spec comment fix (TD-01..TD-05)
+
+---
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -169,6 +190,7 @@
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
 | 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete    | 2026-05-30 |
+| 144.1. Address Tech Debt | 0/1 | In Progress | — |
 
 ---
 
