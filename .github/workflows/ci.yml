@@ -761,6 +761,15 @@ jobs:
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts
+      - name: Run demo-showcase spec (demo-showcase-chromium)
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/demo-showcase.spec.ts \
+            --project=demo-showcase-chromium
       - name: Dump example app log (on failure)
         if: failure()
         # WR-04: surface the backgrounded server log directly in the
