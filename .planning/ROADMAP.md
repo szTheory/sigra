@@ -147,7 +147,16 @@
   2. `guides/introduction/demo-showcase.md` exists, walks an evaluator through the populated demo with at least 2 embedded screenshots from Phase 143, and is wired into ExDoc extras
   3. The proof bundle confirms all of: full test suite green, dep-off CI lane green, `mix setup` completes from a clean state without errors, and screenshots are committed and rendered in the guide
 
-**Plans**: TBD
+**Plans**: 3 plans
+**Wave 1** *(independent tracks, run in parallel)*
+
+- [ ] 144-01-PLAN.md — Replace test/example/README.md with evaluator lane (DOC-01)
+- [ ] 144-02-PLAN.md — guides/assets/ + demo-showcase.md guide + mix.exs ExDoc config + ga-evidence.md pointer (DOC-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 144-03-PLAN.md — Six-gate proof bundle; file 144-VERIFICATION.md (DOC-03)
+
 **UI hint**: yes
 
 ---
