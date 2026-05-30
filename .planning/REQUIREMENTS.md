@@ -74,6 +74,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | SEED-06 | Phase 141 | Complete |
 | DEMO-01 | Phase 142 | Complete |
 | DEMO-02 | Phase 142 | Complete |
+| DEMO-03 | Deferred | Backlog |
 | PW-01 | Phase 143 | Pending |
 | PW-02 | Phase 143 | Pending |
 | PW-03 | Phase 143 | Pending |
