@@ -16,3 +16,4 @@ This page is a **router** for the v1.4 GA narrative: it does not duplicate the G
 - [Maintaining & releasing](maintaining.html)
 - [Contributing](contributing.html)
 - [Security policy](security.html)
+- [v1.31 DEMO-SHOWCASE proof bundle (planning-internal)](.planning/phases/144-readme-evaluator-lane-docs-proof/144-VERIFICATION.md)
