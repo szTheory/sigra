@@ -101,3 +101,25 @@ gaps (no framework install needed):
 | Escalated to manual-only | 1 (SEED-05 raise-guard, process-level) |
 | Tests added | 2 files / 20 tests (8 unit + 12 integration), 0 failures |
 | Implementation bugs found | 0 |
+
+---
+
+## Validation Audit 2026-05-30 (re-audit — coverage re-verification)
+
+State-A re-audit of the existing strategy. No gap-fill needed — the prior
+reconstruction's claims were re-verified by **re-running** the two committed test
+files (`cd test/example && mix test test/example/demo/personas_test.exs
+test/example/demo/seeds_test.exs`): **20 tests, 0 failures, exit 0** (Postgres at
+localhost:5432). Per-Task Map statuses unchanged; all automatable requirements
+remain green; the single SEED-05 raise-guard remains justified manual-only
+(roadmapped to Phase 143 CI seeds-smoke). Frontmatter unchanged
+(`nyquist_compliant: false` — PARTIAL).
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+| Tests re-run | 20 (8 unit + 12 integration), 0 failures |
+| MISSING / failing requirements | 0 |
+| Manual-only (justified) | 1 (SEED-05 raise-guard) |
