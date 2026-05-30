@@ -107,7 +107,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 142-03-PLAN.md — Seeds stdout block (D-11) + credentials_live_test.exs (404 env-guard + rendered HTML testid contract)
+- [x] 142-03-PLAN.md — Seeds stdout block (D-11) + credentials_live_test.exs (404 env-guard + rendered HTML testid contract)
 
 **UI hint**: yes
 
@@ -150,7 +150,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
-| 142. Dev Credentials Page & App Framing | 2/3 | In Progress|  |
+| 142. Dev Credentials Page & App Framing | 3/3 | Complete   | 2026-05-30 |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
