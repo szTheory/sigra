@@ -66,7 +66,11 @@
   - Verify whether `Sigra.Testing.setup_totp/2` is available in `MIX_ENV=dev`; if test-only, seed MFA credentials via direct `Repo.insert!` on `UserMfaCredential`
   - Confirm `UserPasskey.create_changeset/2` does not fire Wax ceremony validation before inserting the admin passkey display row; if it does, skip the display row and note as deferred
 
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 141-01-PLAN.md — UserIdentity schema + migration (Carol OAuth dependency, D-09)
+- [ ] 141-02-PLAN.md — dev.exs Argon2 override + Example.Demo.Personas pure-data module (D-04, D-05, D-01)
+- [ ] 141-03-PLAN.md — Example.Demo.Seeds idempotent upsert orchestrator (D-01..D-02, D-06..D-12)
+- [ ] 141-04-PLAN.md — seeds.exs raise-guard wiring + end-to-end SC#1–SC#5 verification (D-03)
 **UI hint**: yes
 
 ---
@@ -118,7 +122,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 141. Seed Data Layer | 0/? | Not started | - |
+| 141. Seed Data Layer | 0/4 | Not started | - |
 | 142. Dev Credentials Page & App Framing | 0/? | Not started | - |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
