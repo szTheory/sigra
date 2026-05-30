@@ -182,6 +182,7 @@ defmodule Sigra.MixProject do
       source_ref: "v#{@version}",
       source_url: @source_url,
       formatters: ["html", "markdown"],
+      assets: %{"guides/assets" => "assets"},
       extras: [
         "README.md",
         "CONTRIBUTING.md",
@@ -202,6 +203,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.12.md",
         "guides/introduction/upgrading-to-v1.1.md",
         "guides/introduction/suite-integration.md",
+        "guides/introduction/demo-showcase.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
         "guides/flows/password-reset.md",
