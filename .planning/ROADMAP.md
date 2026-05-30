@@ -125,7 +125,14 @@
   3. Screenshots are captured covering at minimum: login page (populated), admin user list (all 6 personas visible), admin user detail (MFA row, passkey row, API token row), and the audit log explorer (showing event variety); screenshots are committed in the expected output directory
   4. A seeds-smoke check (ExUnit or Playwright) runs in CI, asserts that seeds are idempotent (run twice, no errors), and verifies each persona's key auth-state column (e.g., `locked_at` is not null for dave, `scheduled_deletion_at` is not null for frank)
 
-**Plans**: TBD
+**Plans**: 2 plans
+**Wave 1**
+
+- [ ] 143-01-PLAN.md — SigraAdminPolicy demo-admin grant + CI seeds step + PW-03 comment cross-ref
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 143-02-PLAN.md — playwright.config.ts demo-showcase-chromium partition + demo-showcase.spec.ts + PNG baselines
 
 ---
 
@@ -151,7 +158,7 @@
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
 | 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
-| 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
+| 143. Playwright Demo Spec & Screenshots | 0/2 | In progress | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
 ---
