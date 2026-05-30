@@ -356,6 +356,9 @@ defmodule Sigra.Admin.Live.UserShowLive do
     do: "Deletion: " <> if(identity.deleted?, do: "Deleted", else: "Active")
 
   defp mfa_label(nil), do: "MFA: Not configured"
+  # Sigra.MFA.status/3 returns %{enabled: true, ...} (atom key, no trailing ?)
+  defp mfa_label(%{enabled: true}), do: "MFA: Enabled"
+  # Legacy shape from earlier Sigra versions — keep for backward compat
   defp mfa_label(%{enabled?: true}), do: "MFA: Enabled"
   defp mfa_label(%{enabled_at: %DateTime{}}), do: "MFA: Enabled"
   defp mfa_label(_status), do: "MFA: Not configured"
