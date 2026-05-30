@@ -195,9 +195,11 @@ defmodule Example.Demo.Seeds do
         org
 
       nil ->
-        %Organization{}
-        |> Organization.changeset(%{name: name, slug: slug})
-        |> Repo.insert!()
+        changeset = Organization.changeset(%Organization{}, %{name: name, slug: slug})
+        case Repo.insert(changeset, on_conflict: :nothing) do
+          {:ok, %Organization{id: nil}} -> Repo.get_by!(Organization, slug: slug)
+          {:ok, org} -> org
+        end
     end
   end
 
