@@ -72,8 +72,8 @@
 **Plans**: 4 plans
 **Wave 1**
 
-- [ ] 141-01-PLAN.md — UserIdentity schema + migration (Carol OAuth dependency, D-09)
-- [ ] 141-02-PLAN.md — dev.exs Argon2 override + Example.Demo.Personas pure-data module (D-04, D-05, D-01)
+- [x] 141-01-PLAN.md — UserIdentity schema + migration (Carol OAuth dependency, D-09)
+- [x] 141-02-PLAN.md — dev.exs Argon2 override + Example.Demo.Personas pure-data module (D-04, D-05, D-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -140,7 +140,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 141. Seed Data Layer | 0/4 | Not started | - |
+| 141. Seed Data Layer | 2/4 | In Progress|  |
 | 142. Dev Credentials Page & App Framing | 0/? | Not started | - |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
