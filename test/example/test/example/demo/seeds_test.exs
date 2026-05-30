@@ -86,6 +86,7 @@ defmodule Example.Demo.SeedsTest do
     }
   end
 
+  # PW-03: seeds-smoke check
   describe "idempotency (SEED-01)" do
     test "running run/0 twice yields identical counts and does not error" do
       assert :ok = Seeds.run()
@@ -103,6 +104,7 @@ defmodule Example.Demo.SeedsTest do
     end
   end
 
+  # PW-03: seeds-smoke check
   describe "six personas + states (SEED-02, SEED-03)" do
     setup do
       assert :ok = Seeds.run()
