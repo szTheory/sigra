@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
-status: milestone_complete
-last_updated: 2026-05-30T18:13:44.391Z
-last_activity: 2026-05-30 -- Phase 144.1 execution started
+status: Active — phase inserted
+last_updated: "2026-05-30T19:15:43.098Z"
+last_activity: 2026-05-30
 progress:
-  total_phases: 9
-  completed_phases: 8
+  total_phases: 10
+  completed_phases: 9
   total_plans: 23
-  completed_plans: 260
-  percent: 89
-stopped_at: Milestone complete (Phase 144.1 was final phase)
+  completed_plans: 23
+  percent: 90
 ---
 
 # Project State
@@ -26,9 +25,9 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 144.1
+Phase: 144.2
 Plan: Not started
-Status: Milestone complete
+Status: Active — phase inserted
 Last activity: 2026-05-30
 
 ```
@@ -113,3 +112,4 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 ### Roadmap Evolution
 
 - Phase 144.1 inserted after Phase 144: Address tech debt: VALIDATION.md finalization + Dave credential clarity + spec comment (URGENT)
+- Phase 144.2 inserted after Phase 144.1: Close minor integration debt: testInfo param + ga-evidence link (URGENT)
