@@ -53,7 +53,19 @@ defmodule Example.Demo.Seeds do
     seed_enterprise_connection(acme)
     seed_user_identity(users)
     seed_audit_events(users)
+    print_credentials()
     :ok
+  end
+
+  defp print_credentials do
+    IO.puts("\n=== Demo Credentials ===")
+
+    Personas.all()
+    |> Enum.each(fn p ->
+      local = p.email |> String.split("@") |> hd()
+      feature = Personas.feature_map()[local]
+      IO.puts("[#{local}]  #{p.email}  #{p.password}  (#{feature})")
+    end)
   end
 
   ## ── User creation + state patches ───────────────────────────────────────────
