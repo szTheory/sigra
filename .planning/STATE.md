@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
 status: executing
-last_updated: "2026-05-30T11:55:46.563Z"
-last_activity: 2026-05-30 -- Phase 142 planning complete
+last_updated: "2026-05-30T11:58:37.373Z"
+last_activity: 2026-05-30 -- Phase 142 execution started
 progress:
   total_phases: 8
   completed_phases: 5
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 142 — dev credentials page & app framing
+**Current focus:** Phase 142 — dev-credentials-page-app-framing
 
 ## Current Position
 
-Phase: 142
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-30 -- Phase 142 planning complete
+Phase: 142 (dev-credentials-page-app-framing) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 142
+Last activity: 2026-05-30 -- Phase 142 execution started
 
 ```
 Phase progress: [                    ] 0% (0/4 phases)

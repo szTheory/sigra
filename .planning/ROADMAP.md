@@ -102,8 +102,8 @@
 **Plans**: 3 plans
 **Wave 1** *(independent tracks, run in parallel)*
 
-- [ ] 142-01-PLAN.md — Example.Demo.Personas.feature_map/0 + ExampleWeb.Demo.CredentialsLive + /demo/credentials router route
-- [ ] 142-02-PLAN.md — Vaultr branding (root.html.heex + layouts.ex brand span + contextual nav)
+- [x] 142-01-PLAN.md — Example.Demo.Personas.feature_map/0 + ExampleWeb.Demo.CredentialsLive + /demo/credentials router route
+- [x] 142-02-PLAN.md — Vaultr branding (root.html.heex + layouts.ex brand span + contextual nav)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -150,7 +150,7 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
-| 142. Dev Credentials Page & App Framing | 0/3 | Not started | - |
+| 142. Dev Credentials Page & App Framing | 2/3 | In Progress|  |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
 
