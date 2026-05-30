@@ -1,18 +1,58 @@
-# Example
+# Vaultr — Sigra Demo App
 
-To start your Phoenix server:
+Vaultr is a showcase Phoenix app demonstrating [Sigra](https://hexdocs.pm/sigra) — a comprehensive authentication library for Phoenix 1.8+. It covers registration, email confirmation, password reset, TOTP MFA, OAuth/social login, and account lifecycle out of the box. You can run it locally in one command and explore every auth feature with pre-seeded personas.
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+## Try it locally
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+### Prerequisites
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+- Elixir 1.18+
+- Erlang/OTP 27+
+- PostgreSQL running (or Docker)
 
-## Learn more
+Start a disposable Postgres container:
 
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+```bash
+docker run -d --name vaultr-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16-alpine
+```
+
+The container password is `postgres` — matching the app's dev config default.
+
+### One-command setup
+
+```bash
+cd test/example
+mix setup && mix phx.server
+```
+
+Then visit http://localhost:4000
+
+## Demo Personas
+
+All personas use the `@demo.sigra.dev` email domain. Passwords are public-by-design demo credentials — never use them in production.
+
+| Email | Password | Feature demonstrated |
+|-------|----------|---------------------|
+| admin@demo.sigra.dev | DemoAdmin1!SecurePass | Admin — TOTP MFA, passkey display row, multi-org owner, rich audit trail |
+| alice@demo.sigra.dev | AliceDemoPass1! | Standard confirmed user — happy path login, Acme Corp member |
+| bob@demo.sigra.dev | BobDemoPass1!Beta | TOTP MFA enrolled — org owner (Beta Labs) |
+| carol@demo.sigra.dev | CarolDemoPass1!Github | OAuth identity — GitHub-linked login (carol@demo.sigra.dev) |
+| dave@demo.sigra.dev | DaveDemoPass1!Locked | Locked account — failed login attempts exhausted, unconfirmed |
+| frank@demo.sigra.dev | FrankDemoPass1!Deleted | Scheduled deletion — account marked for deletion |
+
+## Rough Edges
+
+**Dave — locked and unconfirmed:** Dave's account is locked AND unconfirmed. Try the wrong password to see the enumeration-resistant login response. Unlock via /admin/users as the admin persona.
+
+**Frank — scheduled deletion:** Frank's `scheduled_deletion_at` is set — the account is still active and accessible. Inspect via /admin/users as the admin persona.
+
+## Dev Tools
+
+- http://localhost:4000/dev/mailbox — Swoosh local email inbox (confirmation emails, password reset links, magic links)
+- http://localhost:4000/demo/credentials — In-app credentials cheat-sheet (all personas listed while the server is running)
+
+## Learn More About Sigra
+
+- [Getting Started](https://hexdocs.pm/sigra/getting-started.html) guide
+- [Full documentation](https://hexdocs.pm/sigra) on Hexdocs
+- [Demo Showcase guide](https://hexdocs.pm/sigra/demo-showcase.html) — walkthrough with screenshots
