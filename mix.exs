@@ -176,8 +176,8 @@ defmodule Sigra.MixProject do
         # behaviour callback (which is a @callback, not a @doc function).
         "guides/recipes/companion-libs/threadline.md",
         "guides/recipes/companion-libs/mailglass.md",
-        # Phase 144: ga-evidence.md links to a planning-internal VERIFICATION.md that
-        # does not exist until Plan 03 (Wave 2) completes.
+        # Phase 144: ga-evidence.md links to a planning-internal VERIFICATION.md at a
+        # ../.planning/ relative path that ExDoc cannot resolve as a docs page.
         "docs/ga-evidence.md"
       ],
       main: "getting-started",

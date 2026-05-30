@@ -9,7 +9,7 @@ cd test/example
 mix setup && mix phx.server
 ```
 
-Then visit [http://localhost:4000](http://localhost:4000). See `test/example/README.md` for prerequisites (Elixir, PostgreSQL, and Node.js versions).
+Then visit [http://localhost:4000](http://localhost:4000). See `test/example/README.md` for prerequisites (Elixir, PostgreSQL versions and Docker one-liner).
 
 ## Credentials Cheat-Sheet
 
