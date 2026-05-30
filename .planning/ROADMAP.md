@@ -81,7 +81,7 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 141-04-PLAN.md — seeds.exs raise-guard wiring + end-to-end SC#1–SC#5 verification (D-03)
+- [x] 141-04-PLAN.md — seeds.exs raise-guard wiring + end-to-end SC#1–SC#5 verification (D-03)
 
 **UI hint**: yes
 
@@ -140,7 +140,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 141. Seed Data Layer | 3/4 | In Progress|  |
+| 141. Seed Data Layer | 4/4 | Complete   | 2026-05-30 |
 | 142. Dev Credentials Page & App Framing | 0/? | Not started | - |
 | 143. Playwright Demo Spec & Screenshots | 0/? | Not started | - |
 | 144. README Evaluator Lane & Docs/Proof | 0/? | Not started | - |
