@@ -59,7 +59,7 @@
 |-------|------|------|--------------|------------------|
 | 145 | 1.0 Contract And Release Truth | Lock the public 1.0 contract and remove version/scope ambiguity before release automation work. | REL1-01, REL1-04, CONTRACT-01..04 | 5 |
 | 146 | Release Gate And Maintainer Runbook | Make the 1.0 publish path deterministic, evidence-backed, and recoverable. | REL1-02, REL1-03 | 5 |
-| 147 | Upgrade And Migration Lanes | 4/4 | Complete   | 2026-05-31 |
+| 147 | Upgrade And Migration Lanes | 4/4 | Complete    | 2026-05-31 |
 | 148 | Evaluator Funnel And First-Run DX | Turn README, HexDocs, demo, and doctor guidance into one canonical first-10-minutes path. | ADOPT-01..04 | 5 |
 | 149 | Launch Evidence And Announcement Pack | Package the public 1.0 story around proof, comparisons, and post-release triage. | LAUNCH-01..04 | 5 |
 
@@ -112,7 +112,7 @@ Plans:
 4. Pow/Guardian/Ueberauth migration lane explains cutover options, session/token/OAuth ownership boundaries, and migration risk.
 5. Migration docs are linked from README, ExDoc, launch notes, and AI-consumption index surfaces.
 
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 - [ ] `147-01-PLAN.md` — add the deterministic published-0.3.0 to local-1.0.0 consumer upgrade smoke lane and CI job
@@ -158,10 +158,10 @@ Plans:
 | CONTRACT-02 | Phase 145 | Complete |
 | CONTRACT-03 | Phase 145 | Complete |
 | CONTRACT-04 | Phase 145 | Complete |
-| UPGRADE-01 | Phase 147 | Pending |
-| UPGRADE-02 | Phase 147 | Pending |
-| MIGRATE-01 | Phase 147 | Pending |
-| MIGRATE-02 | Phase 147 | Pending |
+| UPGRADE-01 | Phase 147 | Complete |
+| UPGRADE-02 | Phase 147 | Complete |
+| MIGRATE-01 | Phase 147 | Complete |
+| MIGRATE-02 | Phase 147 | Complete |
 | ADOPT-01 | Phase 148 | Pending |
 | ADOPT-02 | Phase 148 | Pending |
 | ADOPT-03 | Phase 148 | Pending |
@@ -182,7 +182,7 @@ Plans:
 
 - [x] **Phase 145: 1.0 Contract And Release Truth** — public contract, version-axis clarity, ownership boundaries, security invariants, and SemVer/deprecation posture (completed 2026-05-31)
 - [x] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy (completed 2026-05-31)
-- [ ] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane
+- [x] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane (completed 2026-05-31)
 - [ ] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output
 - [ ] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes
 
