@@ -7,17 +7,17 @@
 
 ### Release Truth
 
-- [ ] **REL1-01**: Maintainer can cut Hex `1.0.0` with `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, release tag, Hex version, and HexDocs `source_ref` all aligned.
+- [x] **REL1-01**: Maintainer can cut Hex `1.0.0` with `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, release tag, Hex version, and HexDocs `source_ref` all aligned.
 - [ ] **REL1-02**: Maintainer can run a 1.0 release gate matrix that blocks publish unless library tests, install golden/idempotency, fresh install smoke, example/browser smoke, dep-off lane, docs warnings, Hex dry-run, and post-publish visibility checks are green or explicitly waived with evidence.
 - [ ] **REL1-03**: Maintainer can follow a deterministic 1.0 runbook covering normal publish, dry-run inspection, tag/source-link checks, Hex publish, documentation publish, revert/replace recovery, and first-14-day hotfix policy.
-- [ ] **REL1-04**: Release notes can explain the planning-milestone-vs-Hex-version axis without confusing users about installable versions.
+- [x] **REL1-04**: Release notes can explain the planning-milestone-vs-Hex-version axis without confusing users about installable versions.
 
 ### Public Contract
 
-- [ ] **CONTRACT-01**: Developer can read a single public 1.0 contract that states supported Elixir, OTP, Phoenix, Ecto, and Postgres ranges plus optional dependency posture.
-- [ ] **CONTRACT-02**: Developer can distinguish library-owned, generated-host-owned, and shared seam surfaces before installing or upgrading Sigra.
-- [ ] **CONTRACT-03**: Developer can understand Sigra's SemVer, public API stability, experimental/private API, and deprecation/removal policy.
-- [ ] **CONTRACT-04**: Developer can read a security invariants and non-goals table covering sessions, tokens, MFA/passkeys, audit durability, mail/Oban/OAuth responsibilities, and host-owned authz/business policy.
+- [x] **CONTRACT-01**: Developer can read a single public 1.0 contract that states supported Elixir, OTP, Phoenix, Ecto, and Postgres ranges plus optional dependency posture.
+- [x] **CONTRACT-02**: Developer can distinguish library-owned, generated-host-owned, and shared seam surfaces before installing or upgrading Sigra.
+- [x] **CONTRACT-03**: Developer can understand Sigra's SemVer, public API stability, experimental/private API, and deprecation/removal policy.
+- [x] **CONTRACT-04**: Developer can read a security invariants and non-goals table covering sessions, tokens, MFA/passkeys, audit durability, mail/Oban/OAuth responsibilities, and host-owned authz/business policy.
 
 ### Upgrade And Migration
 
@@ -66,14 +66,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REL1-01 | Phase 145 | Pending |
+| REL1-01 | Phase 145 | Complete |
 | REL1-02 | Phase 146 | Pending |
 | REL1-03 | Phase 146 | Pending |
-| REL1-04 | Phase 145 | Pending |
-| CONTRACT-01 | Phase 145 | Pending |
-| CONTRACT-02 | Phase 145 | Pending |
-| CONTRACT-03 | Phase 145 | Pending |
-| CONTRACT-04 | Phase 145 | Pending |
+| REL1-04 | Phase 145 | Complete |
+| CONTRACT-01 | Phase 145 | Complete |
+| CONTRACT-02 | Phase 145 | Complete |
+| CONTRACT-03 | Phase 145 | Complete |
+| CONTRACT-04 | Phase 145 | Complete |
 | UPGRADE-01 | Phase 147 | Pending |
 | UPGRADE-02 | Phase 147 | Pending |
 | MIGRATE-01 | Phase 147 | Pending |
@@ -86,6 +86,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LAUNCH-02 | Phase 149 | Pending |
 | LAUNCH-03 | Phase 149 | Pending |
 | LAUNCH-04 | Phase 149 | Pending |
+| DEMO-03 | Future | Deferred |
+| SCIM-01 | Future | Deferred |
+| CORR-01 | Future | Deferred |
+| GLUE-01 | Future | Deferred |
 
 **Coverage:**
 - v1.32 requirements: 20 total

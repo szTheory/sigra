@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
 status: executing
-last_updated: "2026-05-31T16:12:00.000Z"
-last_activity: 2026-05-31 -- Phase 145 plans complete; verification pending
+last_updated: 2026-05-31T15:45:35.171Z
+last_activity: 2026-05-31 -- Phase 145 complete; Phase 146 ready to plan
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
   completed_plans: 2
-  percent: 100
+  percent: 20
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 145 — 1.0 Contract And Release Truth
+**Current focus:** Phase 146 — Release Gate And Maintainer Runbook
 
 ## Current Position
 
-Phase: 145 (1.0 Contract And Release Truth) — EXECUTING
-Plan: 2 of 2
-Status: Plans complete; phase verification pending
-Last activity: 2026-05-31 -- Phase 145 plans complete; verification pending
+Phase: 146 (Release Gate And Maintainer Runbook) — READY TO PLAN
+Plan: Not started
+Status: Phase 145 complete; Phase 146 ready to plan
+Last activity: 2026-05-31 -- Phase 145 complete; Phase 146 ready to plan
 
 ## Accumulating Context
 
@@ -84,7 +84,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 
 ## Operator Next Steps
 
-- Plan Phase 145 with `/gsd-plan-phase 145`.
+- Plan Phase 146 with `/gsd-plan-phase 146`.
 
 ### Blockers
 
