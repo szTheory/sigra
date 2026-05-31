@@ -24,9 +24,11 @@ Add `:sigra` to `deps/0` in `mix.exs`:
         {:phoenix, "~> 1.8"},
         {:ecto_sql, "~> 3.12"},
         # ...
-        {:sigra, "~> 0.2"}
+        {:sigra, "~> 1.0"}
       ]
     end
+
+The selected 1.0 package line is governed by the [Sigra 1.0 contract](contract.html).
 
 Fetch it:
 

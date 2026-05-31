@@ -46,7 +46,7 @@ Before wiring Threadline forwarding, confirm:
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 0.2"},
+    {:sigra, "~> 1.0"},
     {:threadline, "~> 0.5"},
     # ... your other deps
   ]
