@@ -99,7 +99,7 @@ jobs:
         run: mix compile --warnings-as-errors
 
       - name: Verify release version in mix.exs
-        run: grep -n "@version \"${{ needs.release-please.outputs.version }}\"" mix.exs
+        run: grep -nF "@version \"${{ needs.release-please.outputs.version }}\"" mix.exs
 
       - name: Verify tag matches release version
         run: |
@@ -128,7 +128,8 @@ jobs:
           echo "manifest/version truth verified: $actual_version"
 
       - name: Verify docs source_ref follows version
-        run: grep -n 'source_ref: "v#{@version}"' mix.exs
+        run: |
+          grep -n 'source_ref: "v#{@version}"' mix.exs
 
       - name: Run library tests
         env:

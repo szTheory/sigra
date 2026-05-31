@@ -76,7 +76,7 @@ Default publish path: `Release Please` (Release PR merge creates tag/release and
 
 Primary no-invention recovery path: `Hex publish (manual recovery)` with required inputs:
 
-- `tag` must be `v1.0.0` or exact release SHA.
+- `tag` must be `v1.0.0` or the exact commit SHA that resolves to the `v1.0.0` tag.
 - `release_version` must be `1.0.0`.
 
 Local trusted-machine publish is fallback only. If fallback is used, maintainers must preserve the same truth checks as automation: tag/version alignment, manifest alignment, `source_ref` check, package inspection, dry-run evidence, and post-publish visibility checks.
@@ -97,7 +97,7 @@ After successful publish, verify:
   - Do not publish.
   - Fix root cause, rerun package inspection and dry-run, then continue.
 - Publish failure before Hex visibility:
-  - Retry via `Hex publish (manual recovery)` using validated `tag` and `release_version`.
+  - Retry via `Hex publish (manual recovery)` using validated `tag` and `release_version`; SHA inputs must resolve to the expected release tag.
   - Re-verify `mix.exs @version`, `release-please-manifest`, and `source_ref` checks before retry.
 - Docs/source-link issue after package is visible:
   - Use docs republish path or a focused follow-up fix, then verify links again.
@@ -146,4 +146,3 @@ Communication posture:
 
 - [ ] After the `1.0.0` Release PR merges and release is cut, remove or update `release-please-config.json` `release-as: "1.0.0"`.
 - [ ] Confirm subsequent release planning returns to normal conventional-commit SemVer flow.
-
