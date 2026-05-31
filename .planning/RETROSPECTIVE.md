@@ -2,6 +2,29 @@
 
 *Living document updated at milestone boundaries. v1.30 section added at milestone close (2026-05-29). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumed the cadence.*
 
+## In-flight posture capture: v1.32 — RELEASE-ADOPTION
+
+**Captured:** 2026-05-31 during Phase 147 planning/execution handoff  
+**Status:** active milestone, not yet closed
+
+### Decision
+
+v1.32 is the transition from building broad auth-library surface area to proving, releasing, and supporting it. Once Phases 147-149 and the live release UAT items are complete, the right default is to cut the real Hex `1.0.0` release rather than invent another broad polish or feature milestone.
+
+### Posture for future milestones
+
+- Sigra should be treated as release-grade and broadly feature-complete for the expected Phoenix auth-library surface after v1.32 closes.
+- Future work defaults to maintenance, release support, adopter feedback, docs/upgrade clarity, and selective strategic bets.
+- New feature milestones need a concrete reason: adopter demand, security/trust risk, ecosystem strategy, or an explicitly chosen product expansion.
+- Open-ended polish should stay quiet unless it removes adoption friction, closes release risk, or fixes a verified trust gap.
+- Future agents should not keep re-asking "are we done?" by default. They should start from this posture, inspect current evidence, and recommend maintenance or strategic work only when the evidence supports it.
+
+### Boundaries to preserve
+
+- Do not reopen new auth primitives, hosted control-plane behavior, SCIM/directory sync, generic compliance platform work, broad generated-host UI redesign, or generic authorization policy by default.
+- Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
+- Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
+
 ## Milestone: v1.30 — TRUST-HARDENING (Operator Confidence & Debt Closure)
 
 **Shipped:** 2026-05-29

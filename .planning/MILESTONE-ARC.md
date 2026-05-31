@@ -1,16 +1,16 @@
 ---
-last_updated: 2026-05-29
-status: demo_showcase_next
+last_updated: 2026-05-31
+status: release_adoption_then_post_1_0_maintenance
 current_release_followup: completed-REL-01
-current_active_milestone: DEMO-SHOWCASE
-default_post_release_candidate: DEMO-SHOWCASE
+current_active_milestone: RELEASE-ADOPTION
+default_post_release_candidate: POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 ---
 
 # Sigra Milestone Arc
 
 ## Strategic Goal
 
-Make Sigra feel batteries-included for Phoenix teams until additional work becomes diminishing-return polish.
+Make Sigra feel batteries-included for Phoenix teams until additional work becomes diminishing-return polish. v1.32 is the release/adoption closeout for that arc; after it closes, default to maintenance, release support, adopter feedback, and selective strategic bets instead of automatically selecting another feature tranche.
 
 This arc exists so milestone selection starts from a ranked strategic sequence instead of re-researching priorities every time `/gsd-new-milestone` runs.
 
@@ -22,6 +22,7 @@ Prefer milestones that:
 2. Remove production or integration friction that adopters hit immediately after install.
 3. Improve user/operator trust through clearer control surfaces, diagnostics, and honest docs.
 4. Keep Sigra core provider-agnostic and Phoenix-native.
+5. After v1.32 closes, respond to concrete evidence: regressions, security/trust findings, adopter reports, release failures, or an explicit strategic thesis.
 
 Deprioritize work that is mostly:
 
@@ -29,6 +30,8 @@ Deprioritize work that is mostly:
 - hosted-control-plane imitation
 - product-specific authorization policy
 - compliance theater without executable seams or evidence
+- post-1.0 super-polish without adopter friction or release-risk evidence
+- broad new auth primitives after the 1.0 contract is cut
 
 ## Ownership Boundaries
 
@@ -52,9 +55,21 @@ Deprioritize work that is mostly:
 
 When milestone selection or roadmap triage is delegated:
 
-- default to the highest-ranked `candidate` below unless the user explicitly pivots
+- while v1.32 is active, finish the RELEASE-ADOPTION phases before proposing new feature work
+- after v1.32 closes, default to the post-1.0 maintenance/strategic-bets posture unless the user explicitly pivots
 - only escalate decisions that affect the public contract, semver, security model, generated-host contract, or milestone order
 - prefer decisive recommendations over reopening broad product-choice loops
+
+## Post-1.0 Default Posture
+
+After `v1.32 RELEASE-ADOPTION` closes and the real Hex `1.0.0` release is cut, Sigra should be considered broadly feature-complete for the expected Phoenix authentication-library surface. Future milestone proposals should answer "why now?" against one of these lanes:
+
+- **Release support / hotfix:** fix actual release, install, upgrade, HexDocs, CI, or adopter regression evidence.
+- **Maintenance / trust:** security findings, audit drift, dependency churn, deprecation cleanup, docs corrections, or release-process failures.
+- **Adopter feedback:** concrete user pain from installation, upgrade, migration, demo/evaluator flow, or generated-host ownership.
+- **Strategic bet:** a deliberate new thesis with clear boundaries and non-goals.
+
+If none of those lanes apply, do not create a new milestone. Keep the work silent, defer it as polish, or record it as a future idea without planning.
 
 ## Backlog Corrections
 

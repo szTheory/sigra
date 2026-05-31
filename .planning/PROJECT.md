@@ -20,6 +20,18 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
+## Post-1.0 Operating Posture
+
+After `v1.32 RELEASE-ADOPTION` closes and Sigra's real Hex `1.0.0` release is cut, treat the library as broadly feature-complete for the expected Phoenix authentication-library surface. The default future posture is maintenance, release support, adopter feedback, and selective strategic building — not another open-ended feature treadmill.
+
+Future milestones should begin from this assumption:
+
+- **Release-grade until evidence says otherwise** — do not re-litigate "are we done?" at every milestone. Ask what concrete risk, adopter pain, or strategic opportunity justifies new work.
+- **Maintenance first** — prioritize regressions, security/trust findings, upgrade issues, docs corrections, CI/release failures, and adopter-reported friction.
+- **Strategic bets only by thesis** — new capability work should have a clear product thesis, ecosystem signal, or contract gap. Good examples: a real adopter integration need, a security model improvement, or a narrowly scoped ecosystem wedge.
+- **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
+- **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
+
 ## Latest Shipped Milestone: v1.31 DEMO-SHOWCASE
 
 **Shipped:** 2026-05-31 (Phases 141–144.2) · 14/14 requirements satisfied · all 6 phases Nyquist-compliant
