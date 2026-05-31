@@ -37,7 +37,7 @@ defmodule Sigra.MixProject do
       description:
         "Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth " <>
           "(sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more " <>
-          "are optional host deps. See https://hexdocs.pm/sigra and the README for details.",
+          "are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.",
       source_url: @source_url,
       homepage_url: @source_url,
       package: package(),
@@ -177,7 +177,7 @@ defmodule Sigra.MixProject do
         "guides/recipes/companion-libs/threadline.md",
         "guides/recipes/companion-libs/mailglass.md"
       ],
-      main: "getting-started",
+      main: "demo-showcase",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
