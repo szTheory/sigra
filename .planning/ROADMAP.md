@@ -93,11 +93,11 @@
 4. First-14-day hotfix policy and triage expectations are documented before publish.
 5. A failed dry-run or publish has an explicit recovery path that does not require inventing process under pressure.
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] `146-01-PLAN.md` — make canonical CI and publish workflows runnable on the release ref and evidence-complete
-- [ ] `146-02-PLAN.md` — create the canonical 1.0 release runbook, maintainer routers, and first-14-day hotfix policy
+- [x] `146-01-PLAN.md` — make canonical CI and publish workflows runnable on the release ref and evidence-complete
+- [x] `146-02-PLAN.md` — create the canonical 1.0 release runbook, maintainer routers, and first-14-day hotfix policy
 
 ### Phase 147: Upgrade And Migration Lanes
 
@@ -173,7 +173,7 @@ Plans:
 **Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
 
 - [x] **Phase 145: 1.0 Contract And Release Truth** — public contract, version-axis clarity, ownership boundaries, security invariants, and SemVer/deprecation posture (completed 2026-05-31)
-- [ ] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy
+- [x] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy (completed 2026-05-31)
 - [ ] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane
 - [ ] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output
 - [ ] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes
