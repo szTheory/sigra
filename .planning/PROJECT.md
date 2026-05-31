@@ -266,7 +266,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** v1.32 RELEASE-ADOPTION is active — start Phase 145 with `/gsd-discuss-phase 145` or plan directly with `/gsd-plan-phase 145`.
+**Immediate next action:** v1.32 RELEASE-ADOPTION is active — plan Phase 148 with `/gsd-plan-phase 148`.
 
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
