@@ -39,7 +39,13 @@ Declared values (must be multiples of 4):
 | 2xl | 48px | Major group separation (persona map, screenshot grid, doctor section) |
 | 3xl | 64px | Full page section breaks in long-form guides |
 
-Exceptions: 44px minimum touch target for icon-only controls if any interactive icon affordance is introduced in this phase.
+Exceptions: 48px minimum touch target for icon-only controls if any interactive icon affordance is introduced in this phase.
+
+Primary evaluator-screen visual hierarchy:
+1. First eye target: "Run Demo Showcase" primary CTA in the canonical first-path section.
+2. Secondary: ordered first-run command sequence (`cd test/example`, `mix setup`, `mix phx.server`) and immediate `/demo/credentials` destination.
+3. Tertiary: persona intent map and screenshot grid with explicit demo limitations.
+4. Icon-only controls fallback: if any icon-only control is introduced, include adjacent visible text label or an explicit text alternative in the same row/callout.
 
 ---
 
