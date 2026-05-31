@@ -106,7 +106,7 @@ n/a    = This event is host-emitted; Sigra does not own it.
 
 Two cells worth calling out explicitly:
 
-**`auth.password_reset.success` / Mailglass column is `(host)`:** Mailglass receives the *email side-effect* of a password reset (the notification email), not the audit event itself. Sigra fires the audit event; your application code calls `Mailglass.deliver/2` with the password reset context. These are two separate fan-out paths. A common misread is to expect Mailglass to subscribe directly to `auth.password_reset.success` telemetry — it does not.
+**`auth.password_reset.success` / Mailglass column is `(host)`:** Mailglass receives the *email side-effect* of a password reset (the notification email), not the audit event itself. Sigra fires the audit event; your application code calls `Mailglass.deliver/1` with the password reset context. These are two separate fan-out paths. A common misread is to expect Mailglass to subscribe directly to `auth.password_reset.success` telemetry — it does not.
 
 **`billing.subscription.upgraded` / Sigra audit DB row is `n/a`:** Sigra does not own billing events. A host-emitted `billing.*` event originates from your billing webhook handler, not from Sigra's auth core. The row is included here to demonstrate that the matrix generalizes: any host-emitted event reads `n/a` in the Sigra audit DB column.
 

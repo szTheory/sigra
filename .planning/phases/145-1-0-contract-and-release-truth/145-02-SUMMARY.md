@@ -56,6 +56,7 @@ Plan 02 configured Release Please for the one-time `1.0.0` release PR without ch
 | Post-review companion recipe cleanup | `9dceb62` | Fixed nested recipe links and corrected Lockspire/Relyra path and parameter examples. |
 | Post-review changelog cleanup | `df83626` | Corrected the unreleased compare base and malformed doc reference. |
 | Post-review Mailglass cleanup | `5e2b17d` | Aligned the Mailglass failure-mode text with the real `deliver/1` API. |
+| Verification Mailglass cleanup | final verification commit | Corrected a remaining introduction guide reference from `Mailglass.deliver/2` to `Mailglass.deliver/1`. |
 | Clean code review report | `eb703c8` | Recorded clean standard-depth review after all post-review fixes. |
 
 ## Verification
