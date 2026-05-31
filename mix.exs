@@ -192,6 +192,7 @@ defmodule Sigra.MixProject do
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/contract.md",
         "guides/introduction/first-hour.md",
         "guides/introduction/intermediate-production-path.md",
         "guides/reference/generator-options.md",
