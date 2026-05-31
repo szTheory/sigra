@@ -54,6 +54,9 @@ Migrating is not required. Staying on `phx.gen.auth` is safer when host-owned au
 
 ## Rollback posture
 
+Keep the first production cutover narrow: migrate one deployable auth surface at a time, then observe sessions, token emails, and privileged-action gates before widening scope.
+If a route or token behavior is ambiguous, keep the `phx.gen.auth` path live until Sigra behavior is proven equivalent for that app.
+
 If migration validation fails:
 
 1. Revert to pre-migration commit and dependency line.
