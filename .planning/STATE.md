@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.31
 milestone_name: DEMO-SHOWCASE
-status: executing
-last_updated: "2026-05-30T20:00:00.000Z"
-last_activity: 2026-05-30 -- Phase 144.2 executed (commit 46cbc18)
+status: Awaiting next milestone
+last_updated: "2026-05-31T14:33:53.067Z"
+last_activity: 2026-05-31 — Milestone v1.31 completed and archived
 progress:
-  total_phases: 10
-  completed_phases: 10
-  total_plans: 24
-  completed_plans: 24
+  total_phases: 6
+  completed_phases: 6
+  total_plans: 14
+  completed_plans: 14
   percent: 100
 ---
 
@@ -21,18 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Milestone complete
+**Current focus:** Awaiting next milestone
 
 ## Current Position
 
-Phase: 144.2
-Plan: 01
-Status: Complete
-Last activity: 2026-05-30 -- Phase 144.2 executed (commit 46cbc18)
-
-```
-Phase progress: [====================] 100% (10/10 phases)
-```
+Phase: Milestone v1.31 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-05-31 — Milestone v1.31 completed and archived
 
 ## Accumulating Context
 
@@ -54,21 +50,19 @@ These require quick codebase confirmation before writing seed insert code — no
 
 ## Deferred Items
 
-Items acknowledged and deferred at v1.30 milestone close on 2026-05-29 (non-blocking; carried forward):
+Items deferred at v1.30 milestone close and resolved before v1.31 archive:
 
 | Category | Item | Status |
 |----------|------|--------|
-| todo | 2026-05-28-phase-135-review-deferred-findings.md | deferred — cross-milestone (v1.29/Phase 135), out of v1.30 scope; Threadline 0.6.0 vs `~> 0.5` pin + upstream generated-DDL concern |
-| todo | 2026-05-29-deprecation-since-vs-removal-version-axis.md | deferred BY DESIGN — WR-01 resolved at v1.30 close to "accept + document"; tracking home for future `@doc since:` → Hex-axis re-keying |
-| todo | 2026-05-29-phase-138-doctor-info-findings.md | deferred — Phase 138 Info findings IN-01/IN-02/IN-03; low-priority maintainability/doc/test-hygiene |
+| todo | 2026-05-28-phase-135-review-deferred-findings.md | resolved 2026-05-31 — Threadline demo caveats documented and moved to completed |
+| todo | 2026-05-29-deprecation-since-vs-removal-version-axis.md | resolved 2026-05-31 — dual-axis decision documented; future re-key requires a new milestone item |
+| todo | 2026-05-29-phase-138-doctor-info-findings.md | resolved 2026-05-31 — Doctor docs/comment/test cleanup landed and moved to completed |
 
 Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future Requirements):
 
 | Category | Item | Status |
 |----------|------|--------|
 | feature | DEMO-03: in-app per-persona explainer banner | deferred — only affordance touching new LiveView beyond credentials page; DEMO-01 covers core need |
-| feature | Playwright seeds-smoke with full persona CDP virtual-authenticator exercise | may land in Phase 143 if budget permits; otherwise post-milestone polish |
-| feature | Carol OAuth row direct `user_identities` insert | deferred pending schema confirmation; Phase 141 research flag |
 
 ### Decisions
 
@@ -81,7 +75,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 141` to begin the Seed Data Layer phase
+- Start the next milestone with /gsd-new-milestone
 
 ### Blockers
 

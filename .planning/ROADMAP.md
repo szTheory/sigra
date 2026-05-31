@@ -35,183 +35,29 @@
 - ✅ **v1.28 DATA-LIFECYCLE (Compliance Export & Data Lifecycle)** — Phases **127–130** (shipped **2026-05-27**). See [v1.28 archive](milestones/v1.28-ROADMAP.md), [v1.28 requirements](milestones/v1.28-REQUIREMENTS.md), [v1.28 milestone audit](milestones/v1.28-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.29 SUITE-INTEGRATION (Companion-Library Integration)** — Phases **131–136** (shipped **2026-05-29**). See [v1.29 archive](milestones/v1.29-ROADMAP.md), [v1.29 requirements](milestones/v1.29-REQUIREMENTS.md), [v1.29 milestone audit](milestones/v1.29-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.30 TRUST-HARDENING (Operator Confidence & Debt Closure)** — Phases **137–140** (shipped **2026-05-29**). See [v1.30 archive](milestones/v1.30-ROADMAP.md), [v1.30 requirements](milestones/v1.30-REQUIREMENTS.md), [v1.30 milestone audit](milestones/v1.30-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- ✅ **v1.31 DEMO-SHOWCASE** — Phases **141–144.2** (shipped **2026-05-31**). See [v1.31 archive](milestones/v1.31-ROADMAP.md), [v1.31 requirements](milestones/v1.31-REQUIREMENTS.md), [v1.31 milestone audit](milestones/v1.31-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 
-## Current Milestone: v1.31 DEMO-SHOWCASE
+## Current Milestone
 
-**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
+No active milestone. Start the next milestone with `$gsd-new-milestone`; phases continue from **145**.
 
 ## Phases
 
-- [x] **Phase 141: Seed Data Layer** — Populate `seeds.exs` with 6 deterministic personas, idempotency, and the full security posture (completed 2026-05-30)
-- [x] **Phase 142: Dev Credentials Page & App Framing** — Dev-only credentials LiveView at `/demo/credentials` plus realistic SaaS app name in layout (completed 2026-05-30)
-- [x] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture (completed 2026-05-30)
-- [x] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle (completed 2026-05-30)
-- [x] **Phase 144.1: Address Tech Debt** — VALIDATION.md finalization, WR-01 tag fix, Dave credential clarity, spec comment correction (completed 2026-05-30)
-- [x] **Phase 144.2: Close minor integration debt: testInfo param + ga-evidence link** — (INSERTED) rename unused testInfo param to _testInfo; fix unresolvable ga-evidence.md ExDoc link (completed 2026-05-30)
+<details>
+<summary>✅ v1.31 DEMO-SHOWCASE (Phases 141–144.2) — SHIPPED 2026-05-31</summary>
 
-## Phase Details
+**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
 
-### Phase 141: Seed Data Layer
+- [x] **Phase 141: Seed Data Layer** — 6 deterministic personas, idempotent seeds, test-env guard, audit variety, and production-matching demo security posture (4/4 plans, completed 2026-05-30)
+- [x] **Phase 142: Dev Credentials Page & App Framing** — dev-only `/demo/credentials`, stdout credential summary, and Vaultr app framing (3/3 plans, completed 2026-05-30)
+- [x] **Phase 143: Playwright Demo Spec & Screenshots** — isolated `demo-showcase-chromium` partition, structural assertions, seed-smoke CI, and committed evaluator screenshots (2/2 plans, completed 2026-05-30)
+- [x] **Phase 144: README Evaluator Lane & Docs/Proof** — README evaluator lane, demo-showcase guide, screenshots, ExDoc wiring, and proof bundle (3/3 plans, completed 2026-05-30)
+- [x] **Phase 144.1: Address Tech Debt** — validation finalization, tag-link repair, Dave copy, and Step 2 comment correction (1/1 plan, completed 2026-05-30)
+- [x] **Phase 144.2: Close Minor Integration Debt** — `_testInfo` rename, absolute ga-evidence proof URL, ExDoc suppression removal, and verification artifact (1/1 plan, completed 2026-05-30)
 
-**Goal**: An evaluator running `mix setup` in `test/example/` gets a fully-populated demo database covering all six auth-state personas with zero duplicate rows on re-run, and the example app's security posture matches what Sigra ships to production.
-**Depends on**: Nothing (first phase of milestone; continues from Phase 140)
-**Requirements**: SEED-01, SEED-02, SEED-03, SEED-04, SEED-05, SEED-06
-**Success Criteria** (what must be TRUE):
+Full phase details, success criteria, and plan breakdowns: [v1.31 archive](milestones/v1.31-ROADMAP.md).
 
-  1. Running `mix run priv/repo/seeds.exs` twice in `test/example/` completes without errors and leaves exactly the expected set of persona rows (no duplicates, no failures on second run)
-  2. Running `MIX_ENV=test mix run priv/repo/seeds.exs` raises immediately with a clear error message before touching the test database
-  3. Six distinct personas are present after seeding — admin (TOTP enrolled, multi-org, passkey display row, rich audit trail), alice (standard confirmed), bob (TOTP enrolled, org owner), carol (OAuth identity row), dave (locked), frank (scheduled-deletion) — each demonstrating a different auth state observable in the admin UI (SC#3 amended per CONTEXT D-10: dropped the admin "API token observable in admin UI" claim — admin user-detail has no API-token surface and `create_api_token/3` is a non-persisting stub; the `sigra_sk_` prefix is surfaced illustratively on the Phase 142 `/demo/credentials` page)
-  4. The audit log table contains at least 15 rows covering 6 or more distinct event types after seeding, so the admin audit explorer reads as a live system rather than an empty scaffold
-  5. Seeded passwords satisfy `Sigra.PasswordPolicy.validate/1`, are hashed with real Argon2id at `t_cost: 2, m_cost: 12` (the dev override in `dev.exs`), and the TOTP secret constant is labeled `# Demo-only — intentionally deterministic. Never use in production.`
-
-**Research flags (confirm at plan time):**
-
-  - Confirm exact `user_identities` schema field names before writing the Carol OAuth insert
-  - Confirm `EnterpriseConnection` schema shape (field names, required columns) before the Acme Corp SSO row
-  - Verify whether `Sigra.Testing.setup_totp/2` is available in `MIX_ENV=dev`; if test-only, seed MFA credentials via direct `Repo.insert!` on `UserMfaCredential`
-  - Confirm `UserPasskey.create_changeset/2` does not fire Wax ceremony validation before inserting the admin passkey display row; if it does, skip the display row and note as deferred
-
-**Plans**: 4 plans
-**Wave 1**
-
-- [x] 141-01-PLAN.md — UserIdentity schema + migration (Carol OAuth dependency, D-09)
-- [x] 141-02-PLAN.md — dev.exs Argon2 override + Example.Demo.Personas pure-data module (D-04, D-05, D-01)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 141-03-PLAN.md — Example.Demo.Seeds idempotent upsert orchestrator (D-01..D-02, D-06..D-12)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-
-- [x] 141-04-PLAN.md — seeds.exs raise-guard wiring + end-to-end SC#1–SC#5 verification (D-03)
-
-**UI hint**: yes
-
----
-
-### Phase 142: Dev Credentials Page & App Framing
-
-**Goal**: An evaluator who has run `mix setup && mix phx.server` can open `/demo/credentials` in their browser and see a credentials cheat-sheet listing every persona, its login, and the auth feature it demonstrates — and the app presents itself as a realistic SaaS product rather than a bare test fixture.
-**Depends on**: Phase 141 (credentials page reads from `Example.Demo.Personas` module established in Phase 141)
-**Requirements**: DEMO-01, DEMO-02
-**Success Criteria** (what must be TRUE):
-
-  1. Navigating to `/demo/credentials` in `MIX_ENV=dev` renders a table listing all six personas with their email, password, and a plain-language description of the auth feature each demonstrates
-  2. The `/demo/credentials` route is absent in `MIX_ENV=test` and `MIX_ENV=prod` — the route guard (`Application.compile_env(:example, :dev_routes)`) prevents it from appearing in non-dev environments
-  3. The example app layout displays a realistic SaaS product name (e.g., "Vaultr") so the demo reads as a purposeful product rather than a scaffold
-  4. Running `mix run priv/repo/seeds.exs` prints a credentials summary block to stdout so evaluators see credentials without needing to navigate to the LiveView first
-
-**Plans**: 3 plans
-**Wave 1** *(independent tracks, run in parallel)*
-
-- [x] 142-01-PLAN.md — Example.Demo.Personas.feature_map/0 + ExampleWeb.Demo.CredentialsLive + /demo/credentials router route
-- [x] 142-02-PLAN.md — Vaultr branding (root.html.heex + layouts.ex brand span + contextual nav)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 142-03-PLAN.md — Seeds stdout block (D-11) + credentials_live_test.exs (404 env-guard + rendered HTML testid contract)
-
-**UI hint**: yes
-
----
-
-### Phase 143: Playwright Demo Spec & Screenshots
-
-**Goal**: Automated Playwright coverage exercises the seeded personas' distinct auth states using structural assertions in a dedicated project partition that does not affect the golden-path specs, and evaluator-quality screenshots of the populated app are captured and committed.
-**Depends on**: Phase 141 (spec asserts against seeded personas; screenshots require a populated dev database)
-**Requirements**: PW-01, PW-02, PW-03
-**Success Criteria** (what must be TRUE):
-
-  1. A `demo-showcase` Playwright project partition exists in `playwright.config.ts`, runs independently of the `chromium` and `mobile` partitions, and can be invoked without affecting the golden-path spec results
-  2. The demo spec asserts each seeded persona's auth state using `data-testid` or structural DOM checks — not persona display-name text — so a persona rename does not break the spec
-  3. Screenshots are captured covering at minimum: login page (populated), admin user list (all 6 personas visible), admin user detail (MFA row, passkey row, API token row), and the audit log explorer (showing event variety); screenshots are committed in the expected output directory
-  4. A seeds-smoke check (ExUnit or Playwright) runs in CI, asserts that seeds are idempotent (run twice, no errors), and verifies each persona's key auth-state column (e.g., `locked_at` is not null for dave, `scheduled_deletion_at` is not null for frank)
-
-**Plans**: 2 plans
-**Wave 1**
-
-- [x] 143-01-PLAN.md — SigraAdminPolicy demo-admin grant + CI seeds step + PW-03 comment cross-ref
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 143-02-PLAN.md — playwright.config.ts demo-showcase-chromium partition + demo-showcase.spec.ts + PNG baselines
-
----
-
-### Phase 144: README Evaluator Lane & Docs/Proof
-
-**Goal**: An evaluator landing on `test/example/README.md` or the `guides/introduction/demo-showcase.md` guide has everything needed to spin up the demo, identify personas, and experience each auth feature — and the milestone proof bundle confirms the full suite and one-command spin-up are green.
-**Depends on**: Phase 141 (README references exact credential strings), Phase 143 (guide embeds committed screenshots)
-**Requirements**: DOC-01, DOC-02, DOC-03
-**Success Criteria** (what must be TRUE):
-
-  1. `test/example/README.md` contains a "Try it locally" section with: prerequisites block (Elixir 1.18+, Postgres, Docker one-liner), the one-command spin-up (`mix setup && mix phx.server`), a credentials table matching the seeded personas, rough-edge persona callouts (dave's lockout, frank's scheduled deletion), and mentions of `/demo/credentials` and `/dev/mailbox`
-  2. `guides/introduction/demo-showcase.md` exists, walks an evaluator through the populated demo with at least 2 embedded screenshots from Phase 143, and is wired into ExDoc extras
-  3. The proof bundle confirms all of: full test suite green, dep-off CI lane green, `mix setup` completes from a clean state without errors, and screenshots are committed and rendered in the guide
-
-**Plans**: 3 plans
-**Wave 1** *(independent tracks, run in parallel)*
-
-- [x] 144-01-PLAN.md — Replace test/example/README.md with evaluator lane (DOC-01)
-- [x] 144-02-PLAN.md — guides/assets/ + demo-showcase.md guide + mix.exs ExDoc config + ga-evidence.md pointer (DOC-02)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 144-03-PLAN.md — Six-gate proof bundle; file 144-VERIFICATION.md (DOC-03)
-
-**UI hint**: yes
-
----
-
-### Phase 144.1: Address Tech Debt
-
-**Goal**: Close five discrete tech-debt items deferred from Phase 144 — finalize the VALIDATION.md planning artifact, fix the WR-01 stale tag URLs in ga-evidence.md, clarify the Dave credential callout in README and guide, and correct the misleading spec step comment.
-**Depends on**: Phase 144 (all items are follow-ups to Phase 144 artifacts)
-**Requirements**: TD-01, TD-02, TD-03, TD-04, TD-05
-**Success Criteria** (what must be TRUE):
-
-  1. `.planning/phases/144-readme-evaluator-lane-docs-proof/144-VALIDATION.md` frontmatter reads `status: finalized` / `nyquist_compliant: true`, all 10 task rows show `✅ green`, sign-off block is finalized
-  2. `docs/ga-evidence.md` contains no `blob/v0.2.0` URLs; all three tag snapshot links reference `blob/v0.2.1`
-  3. `test/example/README.md` Dave callout references both correct and wrong passwords producing the enumeration-resistant response
-  4. `guides/introduction/demo-showcase.md` Dave section includes the correct password `DaveDemoPass1!Locked` and explains enumeration resistance applies to both correct and wrong password attempts
-  5. `test/example/priv/playwright/tests/demo-showcase.spec.ts` Step 2 comment reads "standard session — no MFA challenge" with no "TOTP challenge" text
-
-**Plans**: 1 plan
-**Wave 1**
-
-- [x] 144.1-01-PLAN.md — VALIDATION.md finalization + WR-01 fix + Dave callout fixes + spec comment fix (TD-01..TD-05)
-
----
-
-### Phase 144.2: Close minor integration debt: testInfo param + ga-evidence link (INSERTED)
-
-**Goal**: Remove two discrete cleanup items deferred from v1.31 DEMO-SHOWCASE — rename the unused `testInfo` param to `_testInfo` in `assertDemoScreenshot()` (TypeScript convention), and replace the broken relative ExDoc link in `docs/ga-evidence.md` with an absolute GitHub URL while removing the suppression workaround from `mix.exs`.
-**Depends on:** Phase 144.1
-**Requirements**: (none — no formal requirement IDs assigned; debt items from prior phase)
-**Success Criteria** (what must be TRUE):
-
-  1. `demo-showcase.spec.ts` line 51 reads `_testInfo: TestInfo,` — call sites on lines 102, 115, 132, 148, 160 are unchanged
-  2. `docs/ga-evidence.md` last bullet links to `https://github.com/szTheory/sigra/blob/main/.planning/phases/144-readme-evaluator-lane-docs-proof/144-VERIFICATION.md`
-  3. `mix.exs` `skip_undefined_reference_warnings_on` no longer contains `"docs/ga-evidence.md"` or its `# Phase 144:` comment; `extras:` list still contains `"docs/ga-evidence.md"`
-  4. `mix docs --warnings-as-errors` passes cleanly
-
-**Plans**: 1 plan
-**Wave 1**
-
-- [x] 144.2-01-PLAN.md — testInfo rename + ga-evidence.md absolute URL + mix.exs suppression removal (D-01, D-02, D-03)
-
-## Progress
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 141. Seed Data Layer | 4/4 | Complete    | 2026-05-30 |
-| 142. Dev Credentials Page & App Framing | 3/3 | Complete    | 2026-05-30 |
-| 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
-| 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete    | 2026-05-30 |
-| 144.1. Address Tech Debt | 1/1 | Complete    | 2026-05-30 |
-| 144.2. Close minor integration debt: testInfo param + ga-evidence link | 1/1 | Complete | 2026-05-30 |
-
----
+</details>
 
 <details>
 <summary>✅ v1.30 TRUST-HARDENING (Phases 137–140) — SHIPPED 2026-05-29</summary>

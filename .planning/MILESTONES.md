@@ -1,18 +1,22 @@
 # Milestones
 
-## v1.31 DEMO-SHOWCASE (Active: 2026-05-29)
+## v1.31 DEMO-SHOWCASE (Shipped: 2026-05-31)
 
-**Phases:** 141–144 (4 phases)
-**Requirements:** 0/14 satisfied (roadmap created 2026-05-29; execution not yet started)
-**Status:** Roadmap created — awaiting Phase 141 planning
+**Phases completed:** 6 phases (141–144.2), 14 plans, all VERIFICATION = passed, all 6 phases Nyquist-compliant
+**Requirements:** 14/14 satisfied (SEED-01..06, DEMO-01..02, PW-01..03, DOC-01..03)
+**Milestone audit:** passed — 14/14 requirements, 6/6 phases verified, 11/11 integration checks connected, 4/4 flows complete.
 
-**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
+**Delivered:** Turned `test/example/` into a seed-rich evaluator showcase: one-command setup, six deterministic auth-state personas, a dev credentials cheat-sheet, realistic Vaultr framing, Playwright proof over seeded data, committed screenshots, and README/guide evaluator lanes.
 
-**Phase structure:**
-- Phase 141: Seed Data Layer (SEED-01..06) — idempotent 6-persona seeds, full security posture, `Mix.env()==:test` guard
-- Phase 142: Dev Credentials Page & App Framing (DEMO-01/DEMO-02) — `/demo/credentials` LiveView + SaaS layout name
-- Phase 143: Playwright Demo Spec & Screenshots (PW-01/PW-02/PW-03) — demo-showcase project partition, screenshots
-- Phase 144: README Evaluator Lane & Docs/Proof (DOC-01/DOC-02/DOC-03) — "Try it locally" README, guide, proof bundle
+**Key accomplishments:**
+
+- **Phase 141 — Seed Data Layer:** deterministic six-persona demo seeds with idempotent upserts, `MIX_ENV=test` raise guard, audit-event variety, Argon2id dev-cost posture, and demo-only TOTP labeling.
+- **Phase 142 — Dev Credentials Page & App Framing:** `/demo/credentials` dev-only LiveView, seed stdout credentials summary, and Vaultr app framing without weakening prod/test route gates.
+- **Phase 143 — Playwright Demo Spec & Screenshots:** isolated `demo-showcase-chromium` project partition, structural persona assertions, seed-smoke CI coverage, and committed evaluator screenshots.
+- **Phase 144 — Evaluator Docs/Proof:** `test/example/README.md` "Try it locally" lane, `guides/introduction/demo-showcase.md` with screenshots, ExDoc wiring, and six-gate proof bundle.
+- **Closure phases 144.1/144.2:** finalized validation bookkeeping, corrected Dave lockout copy, fixed stale tag links, renamed `_testInfo`, restored `docs/ga-evidence.md` ExDoc warning coverage, and filed the missing 144.2 verification artifact.
+
+**Known deferred item at close:** DEMO-03 in-app per-persona explainer banner remains a future requirement; credentials cheat-sheet covers the core evaluator need.
 
 ---
 

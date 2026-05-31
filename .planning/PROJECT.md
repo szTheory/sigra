@@ -20,11 +20,30 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
-## Latest Shipped Milestone: v1.30 TRUST-HARDENING
+## Latest Shipped Milestone: v1.31 DEMO-SHOWCASE
 
-**Shipped:** 2026-05-29 (Phases 137–140) · 11/11 requirements satisfied · all 4 phases Nyquist-compliant
+**Shipped:** 2026-05-31 (Phases 141–144.2) · 14/14 requirements satisfied · all 6 phases Nyquist-compliant
 
-Sigra now carries legible operator trust: a single canonical answer to "is this optional dependency available?", a one-command operator diagnostic, and companion-recipe contracts that can't silently drift — a deliberately low-code consolidation deepening already-shipped substrate, honoring the Diminishing Returns Wall.
+Sigra now has a seed-rich evaluator showcase in `test/example/`: deterministic auth-state personas, one-command setup, dev-only credentials, realistic Vaultr framing, Playwright proof, screenshots, and evaluator-facing docs.
+
+Archives:
+- [`.planning/milestones/v1.31-ROADMAP.md`](milestones/v1.31-ROADMAP.md)
+- [`.planning/milestones/v1.31-REQUIREMENTS.md`](milestones/v1.31-REQUIREMENTS.md)
+- [`.planning/milestones/v1.31-MILESTONE-AUDIT.md`](milestones/v1.31-MILESTONE-AUDIT.md)
+
+### Just shipped: v1.31 DEMO-SHOWCASE
+
+- shipped deterministic six-persona seeds for `test/example/`, including idempotent upserts, a test-env raise guard, realistic audit-event variety, Argon2id dev-cost posture, and demo-only TOTP labeling
+- shipped a dev-only `/demo/credentials` LiveView plus stdout credentials summary and Vaultr app framing so evaluators can explore the demo without setup guesswork
+- shipped an isolated `demo-showcase-chromium` Playwright partition with structural persona assertions, seed-smoke CI coverage, and committed evaluator screenshots
+- shipped the README “Try it locally” lane and `guides/introduction/demo-showcase.md` with screenshots and ExDoc wiring
+- closed milestone hygiene: validation bookkeeping finalized, Dave lockout copy corrected, stale tag links fixed, `_testInfo` renamed, ga-evidence ExDoc warning coverage restored, and the missing 144.2 verification artifact filed
+
+## Previous Shipped Milestone: v1.30 TRUST-HARDENING
+
+**Shipped:** 2026-05-29 (Phases 137–140)
+
+Sigra carries legible operator trust: a single canonical answer to optional-dependency availability, a one-command operator diagnostic, and companion-recipe contracts that cannot silently drift.
 
 Archives:
 - [`.planning/milestones/v1.30-ROADMAP.md`](milestones/v1.30-ROADMAP.md)
@@ -33,11 +52,11 @@ Archives:
 
 ### Just shipped: v1.30 TRUST-HARDENING
 
-- shipped `Sigra.OptionalDeps` SOT (OD-01/OD-02): 9 `*_available?/0` predicates + config-driven `encryption_active?/1`; ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with zero runtime behavior change (drift-catching unit suite + dep-off CI lane green; documented fences preserved)
-- shipped `mix sigra.doctor` (DR-01/DR-02): nine-feature optional-dep matrix (loaded/available/configured-but-missing/missing) with actionable remediation hints, four boot-wiring hard-fail checks, and an `exit({:shutdown,1})` CI gate — pure injectable `Sigra.Doctor` core + thin Mix-task shell
-- shipped the merge-blocking companion-lib recipe-contract fixture (RCT-01) over 6 recipes × 5 markers, plus sister-repo verification of the Lockspire `resolve_account/2` and Rulestead `@behaviour` contracts (RCV-01/RCV-02; `def616d`/`0a18360`)
-- shipped deprecation hygiene (DEPR-01/DEPR-02): Hex-SemVer removal targets + migration notes for both live `@deprecated` functions (`cookie_opts/0` → 0.4.0, `audit_forced_password_change/2` → 0.5.0); the rendered since-vs-removal dual-axis convention is documented in MAINTAINING.md
-- landed the PROOF-01 eight-gate proof bundle + DOC-01 docs alignment (full suite 2296 green, dep-off lane green, `mix docs --warnings-as-errors` clean, `mix sigra.doctor` exercised against `test/example/`)
+- shipped `Sigra.OptionalDeps` SOT (OD-01/OD-02): 9 `*_available?/0` predicates + config-driven `encryption_active?/1`; ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with zero runtime behavior change
+- shipped `mix sigra.doctor` (DR-01/DR-02): nine-feature optional-dep matrix with actionable hints, four boot-wiring hard-fail checks, and a non-zero CI gate
+- shipped the merge-blocking companion-lib recipe-contract fixture (RCT-01), plus Lockspire/Rulestead sister-repo contract verification (RCV-01/RCV-02)
+- shipped deprecation hygiene (DEPR-01/DEPR-02): Hex-SemVer removal targets and migration notes for both live `@deprecated` functions
+- landed the PROOF-01 eight-gate proof bundle and DOC-01 docs alignment
 
 ## Previous Shipped Milestone: v1.29 SUITE-INTEGRATION
 
@@ -82,9 +101,9 @@ Archives:
 
 ## Current State
 
-`v1.30 TRUST-HARDENING` is shipped and archived (Phases 137–140, 11/11 requirements). `Sigra.OptionalDeps` is now the single source of truth for optional-dependency availability (9 `*_available?/0` predicates + `encryption_active?/1`), consumed by `mix sigra.doctor` — an operator/CI diagnostic that prints a per-feature dep matrix with remediation hints, validates boot-time wiring, and exits non-zero on misconfiguration. A merge-blocking ExUnit fixture locks the 6 companion-lib recipes against contract drift, the Lockspire/Rulestead sister-repo contracts are verified, and both live `@deprecated` functions now carry Hex-SemVer removal timelines. `v1.29 SUITE-INTEGRATION` (the Threadline forwarder + companion recipes + suite narrative) remains the prior shipped substrate this milestone deepened.
+`v1.31 DEMO-SHOWCASE` is shipped and archived (Phases 141–144.2, 14/14 requirements). The example app now doubles as adopter proof and an evaluator walkthrough: `mix setup && mix phx.server` yields seeded personas, visible rough edges, dev credentials, Playwright-backed screenshots, and docs that guide a click-around review.
 
-**v1.31 DEMO-SHOWCASE** is the active milestone (Phases 141–144.1). Phase 144.1 closed 2026-05-30 — five tech-debt items deferred from Phase 144: `144-VALIDATION.md` finalized to nyquist-compliant, WR-01 stale v0.2.0 tag URLs replaced with v0.2.1 in `docs/ga-evidence.md`, Dave enumeration-resistance framing corrected in two docs, and the incorrect "TOTP challenge" Step 2 label fixed in `demo-showcase.spec.ts`. All 2296 tests green. Milestone is now complete; phases continue from **Phase 145**.
+No milestone is active. The next milestone should start with `$gsd-new-milestone`; phase numbering continues from **Phase 145**. DEMO-03 (in-app per-persona explainer banner) remains a future requirement, not shipped scope.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
 
@@ -220,12 +239,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** No milestone active — `/gsd-new-milestone` to start the next cycle (questioning → research → requirements → roadmap). Phases continue from **Phase 141**. Re-rank `MILESTONE-ARC.md` first.
+**Immediate next action:** No milestone active — `/gsd-new-milestone` to start the next cycle (questioning → research → requirements → roadmap). Phases continue from **Phase 145**. Re-rank `MILESTONE-ARC.md` first.
 
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
 **Last shipped milestone:**
-- `v1.30 TRUST-HARDENING` (shipped 2026-05-29, Phases 137–140) — Operator Confidence & Debt Closure. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`.
+- `v1.31 DEMO-SHOWCASE` (shipped 2026-05-31, Phases 141–144.2) — Seed-rich Evaluator Demo Showcase. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`.
 
 **Ranked follow-on (next candidates after v1.30):**
 - **"Demo Showcase"** — seed-rich, persona-driven, one-command spin-up extending `test/example/` (not a new repo). Ranked highest-value near-term build by the mid-v1.30 boundary assessment; closes the one genuine adoption gap (no evaluator-facing demo). See `.planning/threads/adoption-evidence-and-demo-showcase.md`.
@@ -269,28 +288,16 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 </details>
 
-## Current Milestone: v1.31 DEMO-SHOWCASE
-
-**Goal:** Turn `test/example/` into double-duty adopter proof + click-around evaluator showcase — a one-command, seed-populated realistic SaaS that lets an evaluator experience every auth/account feature without setup.
-
-**Target features:**
-- Realistic domain + 4–6 personas (admin w/ MFA + multi-org, standard user, invited-unconfirmed, locked, OAuth-linked, passkey user)
-- Idempotent, deterministic `seeds.exs` (currently empty)
-- One-command spin-up (`mix setup && mix phx.server` → fully populated, clickable SaaS)
-- README/guide "try it locally" evaluator lane with screenshots
-- Extend the existing Playwright golden-path to exercise seeded data
-
-**Key context:** The highest-leverage remaining *build* per the 2026-05-29 repo-grounded assessment (Sigra is 90–95% done-for-scope; the one genuine gap is the empty `test/example/priv/repo/seeds.exs` and absence of an evaluator-facing showcase). This is the unbuilt remainder of v1.29 SUITE-INTEGRATION's deferred "reference starter app." Extend `test/example/`, **not** a separate repo (Phase 114 already paid the nested-app drift cost). Phases continue from **141**. After this milestone: 1.0 Hex cut + adoption push (non-code); greenfield SCIM stays deprioritized. See `MILESTONE-ARC.md` (re-ranked 2026-05-29).
-
-**Non-goals:** separate standalone demo repo; marketing site / component library / generic seeding framework; seeding host-app domain data beyond what makes auth/account features legible.
-
 ## Requirements
 
-### Active — v1.31 DEMO-SHOWCASE
+### Validated — v1.31 DEMO-SHOWCASE (shipped 2026-05-31)
 
-See [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) for the scoped requirements and [`.planning/ROADMAP.md`](ROADMAP.md) for the phase structure (phases from 141).
+_See [`.planning/milestones/v1.31-REQUIREMENTS.md`](milestones/v1.31-REQUIREMENTS.md), [`.planning/milestones/v1.31-ROADMAP.md`](milestones/v1.31-ROADMAP.md), and [`.planning/milestones/v1.31-MILESTONE-AUDIT.md`](milestones/v1.31-MILESTONE-AUDIT.md) for the archived bounded contract (14/14 satisfied)._
 
-**Progress:** Phase 141 (Seed Data Layer) complete 2026-05-29 — SEED-01..SEED-06 delivered: idempotent `Example.Demo.Seeds` orchestrator seeds 6 deterministic auth-state personas into `test/example/`, with a `MIX_ENV=test` raise-guard, audit-event liveness, and production-matching security posture. Verified 6/6 must-haves against live DB.
+- ✓ **SEED-01..SEED-06** — deterministic six-persona demo seed layer with idempotency, test-env guard, audit variety, and security posture — **Phase 141**
+- ✓ **DEMO-01, DEMO-02** — dev credentials page, stdout summary, and realistic app framing — **Phase 142**
+- ✓ **PW-01..PW-03** — isolated demo-showcase Playwright partition, screenshots, and seeds-smoke coverage — **Phase 143**
+- ✓ **DOC-01..DOC-03** — evaluator README lane, guide, ExDoc wiring, screenshots, and proof bundle — **Phase 144**
 
 ### Validated — v1.30 TRUST-HARDENING (shipped 2026-05-29)
 
@@ -726,4 +733,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-05-29 — `/gsd-new-milestone` opened **v1.31 DEMO-SHOWCASE** (Seed-rich Evaluator Demo Showcase). `MILESTONE-ARC.md` re-ranked first: DATA-LIFECYCLE/SUITE-INTEGRATION/TRUST-HARDENING marked shipped, DEMO-SHOWCASE promoted to SELECTED-next, greenfield SCIM explicitly deprioritized below it and the subsequent 1.0 Hex cut + adoption push. Goal: turn `test/example/` into double-duty adopter proof + click-around evaluator showcase (seed-rich personas, deterministic `seeds.exs`, one-command spin-up, README "try it locally" lane, Playwright over seeded data). The unbuilt remainder of v1.29's deferred "reference starter app"; extends `test/example/` (no new repo). Research-first chosen. Phases continue from **141**.*
 
-*Last updated: 2026-05-30 — Phase 144 (README Evaluator Lane & Docs/Proof) shipped (DOC-01, DOC-02, DOC-03) — the final phase of **v1.31 DEMO-SHOWCASE**. `test/example/README.md` replaced with full evaluator lane: three-sentence Sigra framing, Docker one-liner (`vaultr-postgres`), credentials table with all 6 personas (exact `personas.ex` values), rough-edge callouts for Dave (locked+unconfirmed) and Frank (`scheduled_deletion_at`), dev tools URLs, "Learn More About Sigra" section. `guides/introduction/demo-showcase.md` created with 7-section structure, 4 Playwright screenshots embedded via `assets/` format, wired into ExDoc extras + `:assets` config. Proof bundle filed: 6/6 hard gates green (`mix test` 2296/0, dep-off lane, clean-state `mix setup`, screenshots committed, 4 guide references, `mix docs --warnings-as-errors` exit 0). Code review: 1 Critical (CR-01 broken relative path), 2 Warnings (WR-02 false Node.js prereq, WR-03 stale comment) — all 3 fixed. **All v1.31 phases (141–144) complete — milestone ready to close via `/gsd-complete-milestone`.**
+*Last updated: 2026-05-31 after v1.31 DEMO-SHOWCASE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.31-*`; live `REQUIREMENTS.md` removed for the next milestone; phases continue from **145**.*
