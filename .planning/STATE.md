@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
-status: executing
-last_updated: "2026-05-31T21:31:59Z"
-last_activity: 2026-05-31 -- Phase 148 automated verification complete; human UAT pending
+status: active
+last_updated: 2026-05-31T21:39:11.700Z
+last_activity: 2026-05-31 -- Phase 148 complete; Phase 149 ready to plan
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 8
-  percent: 60
+  completed_plans: 11
+  percent: 80
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 148 — evaluator-funnel-and-first-run-dx human verification
+**Current focus:** Phase 149 — Launch Evidence And Announcement Pack
 
 ## Current Position
 
-Phase: 148 (evaluator-funnel-and-first-run-dx) — HUMAN UAT
-Plan: 3 of 3 complete
-Status: Automated execution and verification complete; awaiting 10-minute evaluator stopwatch UAT
-Last activity: 2026-05-31 -- Phase 148 automated verification complete; human UAT pending
+Phase: 149
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-05-31
 
 ## Accumulating Context
 
@@ -38,6 +38,7 @@ Last activity: 2026-05-31 -- Phase 148 automated verification complete; human UA
 - Phase 147 context gathered 2026-05-31 in assumptions mode: `.planning/phases/147-upgrade-and-migration-lanes/147-CONTEXT.md` locks the `upgrading-to-v1.0.md` operational guide shape, a dedicated `0.3.x` consumer-to-`1.0.0` candidate smoke lane, comparative boundary-first migration docs for `phx.gen.auth` and Pow/Guardian/Ueberauth, and discovery wiring through README, ExDoc, release/evidence docs, and `doc/llms.txt`.
 - Phase 147 completed 2026-05-31: `scripts/ci/upgrade-smoke.sh` and `CI` / `upgrade_smoke` prove published-consumer upgrade posture, public upgrade and migration guides are wired through README/CHANGELOG/ExDoc/AI index/release evidence, code review is clean, and verification passed 9/9 must-haves. Review cleanup made the smoke lane source series configurable (`SIGRA_UPGRADE_SOURCE_SERIES`) so live Hex package truth can move beyond the historical v1.0 source series without stale docs.
 - Phase 148 context gathered 2026-05-31 in assumptions mode: `.planning/phases/148-evaluator-funnel-and-first-run-dx/148-CONTEXT.md` locks the demo showcase as the canonical evaluator-first path, reuse of existing six-persona demo data and four committed screenshots, first-run `mix sigra.doctor` guidance, and a docs/assets/routing-only scope boundary that leaves DEMO-03 and Phase 149 launch packaging deferred.
+- Phase 148 completed 2026-05-31: README/HexDocs/AI index/example README now converge on the canonical evaluator path, demo persona/screenshot/limitations docs are source-backed, `mix sigra.doctor` is documented as the first-run verification surface, and the former 10-minute evaluator stopwatch UAT is automated in the demo-showcase Playwright CI lane.
 - Phase 145 context gathered 2026-05-31 in assumptions mode: `.planning/phases/145-1-0-contract-and-release-truth/145-CONTEXT.md` locks direct Hex `1.0.0` from `main`, public version-axis messaging, canonical 1.0 contract surface, one-time Release Please `release-as: "1.0.0"` override, ownership boundaries, and security invariants/non-goals.
 - Phase 145 Plan 01 completed 2026-05-31: `guides/introduction/contract.md` is the canonical public 1.0 contract, README/CHANGELOG route version-axis readers to it, SECURITY.md exposes invariants/non-goals, and `mix docs --warnings-as-errors` passes. Global `mix format --check-formatted` still reports unrelated pre-existing formatter drift outside Plan 01's write set.
 - Phase 145 Plan 02 completed 2026-05-31: Release Please has the one-time `release-as: "1.0.0"` override, `.release-please-manifest.json` and `mix.exs` remain at last shipped/current `0.3.0`, maintainer docs explain the direct Hex 1.0 path and cleanup rule, and first-path install examples use `{:sigra, "~> 1.0"}` while companion pins remain unchanged. `mix docs --warnings-as-errors` and companion recipe contract tests pass; global formatter drift remains outside Plan 02's write set.
@@ -89,7 +90,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 
 ## Operator Next Steps
 
-- Plan Phase 148 with `/gsd-plan-phase 148`.
+- Plan Phase 149 with `/gsd-plan-phase 149`.
 
 ### Blockers
 

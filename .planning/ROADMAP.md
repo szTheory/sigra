@@ -60,7 +60,7 @@
 | 145 | 1.0 Contract And Release Truth | Lock the public 1.0 contract and remove version/scope ambiguity before release automation work. | REL1-01, REL1-04, CONTRACT-01..04 | 5 |
 | 146 | Release Gate And Maintainer Runbook | Make the 1.0 publish path deterministic, evidence-backed, and recoverable. | REL1-02, REL1-03 | 5 |
 | 147 | Upgrade And Migration Lanes | 4/4 | Complete    | 2026-05-31 |
-| 148 | Evaluator Funnel And First-Run DX | 3/3 | Human UAT | 2026-05-31 |
+| 148 | Evaluator Funnel And First-Run DX | 3/3 | Complete    | 2026-05-31 |
 | 149 | Launch Evidence And Announcement Pack | Package the public 1.0 story around proof, comparisons, and post-release triage. | LAUNCH-01..04 | 5 |
 
 ## Phase Details
@@ -133,12 +133,12 @@ Plans:
 4. Screenshot grid and demo limitations make evaluator proof inspectable without pretending the demo is production certification.
 5. First-run doctor/troubleshooting guidance shows expected success and common failure output after install.
 
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] `148-01-PLAN.md` — rewire README, Hex package metadata, and AI index to the canonical evaluator path while preserving explicit adoption lanes
-- [ ] `148-02-PLAN.md` — turn the demo showcase and example README into the explicit 10-minute evaluator flow with persona proof and screenshot boundaries
-- [ ] `148-03-PLAN.md` — make `mix sigra.doctor` the canonical first-run verification surface and lock the unified docs contract with a phase test
+- [x] `148-01-PLAN.md` — rewire README, Hex package metadata, and AI index to the canonical evaluator path while preserving explicit adoption lanes
+- [x] `148-02-PLAN.md` — turn the demo showcase and example README into the explicit 10-minute evaluator flow with persona proof and screenshot boundaries
+- [x] `148-03-PLAN.md` — make `mix sigra.doctor` the canonical first-run verification surface and lock the unified docs contract with a phase test
 
 ### Phase 149: Launch Evidence And Announcement Pack
 
@@ -169,10 +169,10 @@ Plans:
 | UPGRADE-02 | Phase 147 | Complete |
 | MIGRATE-01 | Phase 147 | Complete |
 | MIGRATE-02 | Phase 147 | Complete |
-| ADOPT-01 | Phase 148 | Pending |
-| ADOPT-02 | Phase 148 | Pending |
-| ADOPT-03 | Phase 148 | Pending |
-| ADOPT-04 | Phase 148 | Pending |
+| ADOPT-01 | Phase 148 | Complete |
+| ADOPT-02 | Phase 148 | Complete |
+| ADOPT-03 | Phase 148 | Complete |
+| ADOPT-04 | Phase 148 | Complete |
 | LAUNCH-01 | Phase 149 | Pending |
 | LAUNCH-02 | Phase 149 | Pending |
 | LAUNCH-03 | Phase 149 | Pending |
@@ -190,7 +190,7 @@ Plans:
 - [x] **Phase 145: 1.0 Contract And Release Truth** — public contract, version-axis clarity, ownership boundaries, security invariants, and SemVer/deprecation posture (completed 2026-05-31)
 - [x] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy (completed 2026-05-31)
 - [x] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane (completed 2026-05-31)
-- [ ] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output
+- [x] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output (completed 2026-05-31)
 - [ ] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes
 
 </details>

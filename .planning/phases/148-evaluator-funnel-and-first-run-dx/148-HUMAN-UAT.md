@@ -1,15 +1,15 @@
 ---
-status: partial
+status: resolved
 phase: 148-evaluator-funnel-and-first-run-dx
 source:
   - 148-VERIFICATION.md
 started: 2026-05-31T21:31:59Z
-updated: 2026-05-31T21:31:59Z
+updated: 2026-05-31T21:38:24Z
 ---
 
 ## Current Test
 
-awaiting human testing
+resolved by automation
 
 ## Tests
 
@@ -26,14 +26,18 @@ steps:
 
 why_human: Time-to-complete and interaction pacing are runtime/manual behaviors not verifiable via static analysis or unit tests.
 
-result: pending
+automation: `test/example/priv/playwright/tests/demo-showcase.spec.ts` now verifies this path in the `demo-showcase-chromium` project by starting at `/demo/credentials`, logging in as `alice@demo.sigra.dev`, reaching `/users/sessions`, and asserting elapsed browser-path time is <= 10 minutes.
+
+ci: Existing `example_playwright_smoke` runs `npx playwright test tests/demo-showcase.spec.ts --project=demo-showcase-chromium` on PR/main.
+
+result: passed
 
 ## Summary
 
 total: 1
-passed: 0
+passed: 1
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 

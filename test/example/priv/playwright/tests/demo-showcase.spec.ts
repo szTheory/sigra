@@ -23,6 +23,9 @@ import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 const DEMO_TOTP_B32 = 'CSIL7ZDJ7RGXDGXRGIV3Q6CZIBOESTCW';
 const DEMO_ADMIN_EMAIL = 'admin@demo.sigra.dev';
 const DEMO_ADMIN_PASSWORD = 'DemoAdmin1!SecurePass';
+const DEMO_ALICE_EMAIL = 'alice@demo.sigra.dev';
+const DEMO_ALICE_PASSWORD = 'AliceDemoPass1!';
+const EVALUATOR_FLOW_MAX_MS = 10 * 60 * 1000;
 const DEMO_EMAILS = [
   'admin@demo.sigra.dev',
   'alice@demo.sigra.dev',
@@ -83,20 +86,52 @@ async function assertDemoScreenshot(
  *   3. Submit — redirects to "/" with :standard session
  *   4. Wait for redirect away from /users/log_in
  */
-async function loginDemoAdmin(page: Page) {
+async function loginDemoUser(page: Page, email: string, password: string) {
   // /users/log_in is a plain controller page (not a LiveView) — do NOT call
   // waitForLiveViewReady here. Fill the form directly and submit.
   await page.goto('/users/log_in');
   // The login page has multiple forms (passkey, magic link, password).
   // Scope fills to #login_form to target the password form specifically.
-  await page.fill('#login_form input[name="user[email]"]', DEMO_ADMIN_EMAIL);
-  await page.fill('#login_form input[name="user[password]"]', DEMO_ADMIN_PASSWORD);
+  await page.fill('#login_form input[name="user[email]"]', email);
+  await page.fill('#login_form input[name="user[password]"]', password);
   await page.click('#login_form button:has-text("Log in")');
   // No MFA challenge — example app creates a :standard session without check_fn.
   await expect(page).not.toHaveURL(/\/users\/log_in/);
 }
 
+async function loginDemoAdmin(page: Page) {
+  await loginDemoUser(page, DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD);
+}
+
 test.describe('demo-showcase', () => {
+  test('documented evaluator path reaches authenticated flow within ten minutes', async ({
+    page,
+  }) => {
+    const startedAt = Date.now();
+
+    await page.goto('/demo/credentials');
+    await waitForLiveViewReady(page);
+
+    await expect(
+      page.locator('[data-testid="demo-persona-row-alice"]'),
+    ).toBeVisible();
+    await expect(page.getByText(DEMO_ALICE_EMAIL)).toBeVisible();
+
+    await loginDemoUser(page, DEMO_ALICE_EMAIL, DEMO_ALICE_PASSWORD);
+
+    await page.goto('/users/sessions');
+    await waitForLiveViewReady(page);
+    await expect(
+      page.getByText(/active|just now|current/i).first(),
+    ).toBeVisible();
+
+    const elapsedMs = Date.now() - startedAt;
+    expect(
+      elapsedMs,
+      'documented evaluator path should reach an authenticated auth surface within 10 minutes',
+    ).toBeLessThanOrEqual(EVALUATOR_FLOW_MAX_MS);
+  });
+
   test('demo personas structural assertions and evaluator screenshots', async ({
     page,
   }, testInfo) => {

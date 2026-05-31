@@ -28,10 +28,10 @@
 
 ### Adoption Funnel
 
-- [ ] **ADOPT-01**: New evaluator can find one canonical first path from README, Hex package text, ExDoc, and `test/example/README.md` to run the demo and see meaningful auth flows in 10 minutes or less.
-- [ ] **ADOPT-02**: Evaluator can use a persona intent map and screenshot grid to understand what each seeded demo account proves, including rough-edge states and explicit demo limitations.
-- [ ] **ADOPT-03**: Developer can choose between greenfield, existing-app, migration, and advanced-control adoption lanes from the top-level docs without reading the whole guide set first.
-- [ ] **ADOPT-04**: Developer can run `mix sigra.doctor` or equivalent documented verification immediately after install and understand expected success/failure output for common first-run mistakes.
+- [x] **ADOPT-01**: New evaluator can find one canonical first path from README, Hex package text, ExDoc, and `test/example/README.md` to run the demo and see meaningful auth flows in 10 minutes or less.
+- [x] **ADOPT-02**: Evaluator can use a persona intent map and screenshot grid to understand what each seeded demo account proves, including rough-edge states and explicit demo limitations.
+- [x] **ADOPT-03**: Developer can choose between greenfield, existing-app, migration, and advanced-control adoption lanes from the top-level docs without reading the whole guide set first.
+- [x] **ADOPT-04**: Developer can run `mix sigra.doctor` or equivalent documented verification immediately after install and understand expected success/failure output for common first-run mistakes.
 
 ### Launch Evidence
 
@@ -78,10 +78,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UPGRADE-02 | Phase 147 | Complete |
 | MIGRATE-01 | Phase 147 | Complete |
 | MIGRATE-02 | Phase 147 | Complete |
-| ADOPT-01 | Phase 148 | Pending |
-| ADOPT-02 | Phase 148 | Pending |
-| ADOPT-03 | Phase 148 | Pending |
-| ADOPT-04 | Phase 148 | Pending |
+| ADOPT-01 | Phase 148 | Complete |
+| ADOPT-02 | Phase 148 | Complete |
+| ADOPT-03 | Phase 148 | Complete |
+| ADOPT-04 | Phase 148 | Complete |
 | LAUNCH-01 | Phase 149 | Pending |
 | LAUNCH-02 | Phase 149 | Pending |
 | LAUNCH-03 | Phase 149 | Pending |
