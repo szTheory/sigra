@@ -141,7 +141,9 @@ For this one-time major release, `release-please-config.json` carries `"release-
 
 After the 1.0 release PR merges and the release is cut, remove or update the `"release-as": "1.0.0"` override before normal post-1.0 conventional-commit SemVer resumes.
 
-Phase 146 owns the detailed dry-run, package inspection, publish recovery, release gates, and first-14-day hotfix policy. Do not duplicate that full gate matrix here.
+Phase 146 canonical runbook: `docs/release-runbook-v1-0.md`.
+It is the single source for the release gate matrix, dry-run/package inspection, publish recovery branches, post-publish checks, and first-14-day hotfix policy.
+Keep this file as the maintainer entry-point index and do not duplicate the full matrix here.
 
 ## Release automation (default)
 
