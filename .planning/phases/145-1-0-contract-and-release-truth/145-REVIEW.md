@@ -1,6 +1,6 @@
 ---
 phase: 145-1-0-contract-and-release-truth
-reviewed: 2026-05-31T15:33:44Z
+reviewed: 2026-05-31T15:39:40Z
 depth: standard
 files_reviewed: 16
 files_reviewed_list:
@@ -30,7 +30,7 @@ status: clean
 
 # Phase 145: Code Review Report
 
-**Reviewed:** 2026-05-31T15:33:44Z  
+**Reviewed:** 2026-05-31T15:39:40Z  
 **Depth:** standard  
 **Files Reviewed:** 16  
 **Status:** clean
@@ -44,12 +44,16 @@ README/contract/changelog/maintaining/release config.
 
 No remaining bugs, security issues, or quality defects were found in the reviewed scope.
 
+## Delta Review
+
+After commit `ba6c79a`, a scoped reviewer checked the remaining Mailglass arity delta in `guides/introduction/suite-integration.md` and the related planning evidence. The only warning was a non-reproducible summary evidence label; commit `c5776c2` replaced it with the concrete `ba6c79a` hash. No `Mailglass.deliver/2` references remain in the reviewed public docs scope.
+
 ## Narrative Findings (AI reviewer)
 
 No findings.
 
 ---
 
-_Reviewed: 2026-05-31T15:33:44Z_  
+_Reviewed: 2026-05-31T15:39:40Z_  
 _Reviewer: the agent (gsd-code-reviewer)_  
 _Depth: standard_
