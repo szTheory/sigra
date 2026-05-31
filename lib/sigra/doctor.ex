@@ -89,8 +89,8 @@ defmodule Sigra.Doctor do
   - `:rows` — list of nine feature row maps, each with `:feature`, `:deps`,
     `:state`, and `:hint` keys.
   - `:wiring` — list of wiring check failure strings (empty when all wiring is OK).
-  - `:verdict` — `:ok` when no D-09 hard-fail conditions are present; `:fail`
-    when any configured feature has broken wiring.
+  - `:verdict` — `:ok` when no configured features are misconfigured; `:fail`
+    when any configured feature has broken wiring or a missing required dependency.
 
   ## Injection Options (for testing; all optional)
 
@@ -115,10 +115,10 @@ defmodule Sigra.Doctor do
     oban_running = resolve_oban_running(oban_running_override)
     module_loaded? = resolve_module_loaded(module_loaded_override)
 
-    {rows, wiring_failures, has_hard_fail} =
+    {rows, wiring_failures, has_misconfiguration} =
       build_matrix(resolved, host_sigra, oban_running, module_loaded?)
 
-    verdict = if has_hard_fail, do: :fail, else: :ok
+    verdict = if has_misconfiguration, do: :fail, else: :ok
 
     %{
       rows: rows,
@@ -197,21 +197,21 @@ defmodule Sigra.Doctor do
   # ---------------------------------------------------------------------------
 
   defp build_matrix(preds, host_sigra, oban_running, module_loaded?) do
-    # Build all nine feature rows; track wiring failures and hard-fail verdict
-    {rows, wiring_failures, hard_fail} =
+    # Build all nine feature rows; track wiring failures and fail verdict.
+    {rows, wiring_failures, has_misconfiguration} =
       feature_definitions()
       |> Enum.reduce({[], [], false}, fn feature_def, {rows_acc, wiring_acc, fail_acc} ->
-        {row, wiring_msgs, is_hard_fail} =
+        {row, wiring_msgs, is_misconfigured} =
           evaluate_feature(feature_def, preds, host_sigra, oban_running, module_loaded?)
 
         {
           [row | rows_acc],
           wiring_acc ++ wiring_msgs,
-          fail_acc or is_hard_fail
+          fail_acc or is_misconfigured
         }
       end)
 
-    {Enum.reverse(rows), wiring_failures, hard_fail}
+    {Enum.reverse(rows), wiring_failures, has_misconfiguration}
   end
 
   # Returns a list of feature definition maps in D-05 stable order
@@ -356,7 +356,7 @@ defmodule Sigra.Doctor do
     ]
   end
 
-  # Evaluates one feature and returns {row_map, wiring_failure_strings, is_hard_fail}
+  # Evaluates one feature and returns {row_map, wiring_failure_strings, is_misconfigured}
   defp evaluate_feature(feature_def, preds, host_sigra, oban_running, module_loaded?) do
     %{
       feature: feature,
@@ -396,7 +396,7 @@ defmodule Sigra.Doctor do
       end
 
     wiring_msg =
-      if is_hard_fail do
+      if state == :configured_but_missing do
         ["[#{feature}] #{hint}"]
       else
         []
@@ -409,7 +409,7 @@ defmodule Sigra.Doctor do
       hint: hint
     }
 
-    {row, wiring_msg, is_hard_fail}
+    {row, wiring_msg, state == :configured_but_missing}
   end
 
   # ---------------------------------------------------------------------------

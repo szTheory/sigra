@@ -72,12 +72,12 @@ defmodule Sigra.DoctorTest do
   end
 
   # ---------------------------------------------------------------------------
-  # Test 4: configured_but_missing (non-hard-fail) — assent false, providers
-  # configured → :configured_but_missing, verdict :ok (dep-absent on configured
-  # feature is NOT a D-09 hard-fail).
+  # Test 4: configured_but_missing — assent false, providers configured →
+  # :configured_but_missing, verdict :fail. Any configured feature missing its
+  # required dependency is a failing first-run doctor contract.
   # ---------------------------------------------------------------------------
 
-  test "assent false, oauth providers configured → configured_but_missing, verdict :ok" do
+  test "assent false, oauth providers configured → configured_but_missing, verdict :fail" do
     host_sigra = [
       oauth: [providers: [google: [client_id: "x", client_secret: "y"]]]
     ]
@@ -86,7 +86,10 @@ defmodule Sigra.DoctorTest do
 
     oauth = find_row(result.rows, :oauth)
     assert oauth.state == :configured_but_missing
-    assert result.verdict == :ok
+    assert result.verdict == :fail
+    assert result.wiring == [
+             "[oauth] OAuth providers are configured but Assent is missing. Add `{:assent, \"~> 0.3\"}` to mix.exs."
+           ]
   end
 
   # ---------------------------------------------------------------------------

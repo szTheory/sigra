@@ -11,7 +11,7 @@ mix setup && mix phx.server
 
 Open [http://localhost:4000/demo/credentials](http://localhost:4000/demo/credentials). This `/demo/credentials` page is the first live stop and shows the current seeded personas, emails, and passwords.
 
-If first-run verification fails after setup, run `mix sigra.doctor` and use the fixes in [Troubleshooting install](troubleshooting-install.html).
+If first-run verification fails after setup, run `mix sigra.doctor` and use the fixes in [Troubleshooting install](troubleshooting-install.md).
 
 ## Evaluator Persona Map
 

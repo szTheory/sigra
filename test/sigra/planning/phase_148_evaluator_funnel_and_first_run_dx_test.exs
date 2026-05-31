@@ -3,7 +3,9 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
   Nyquist validation for Phase 148 evaluator funnel and first-run DX contracts.
   """
 
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
+
+  import ExUnit.CaptureIO
 
   defp root do
     Path.expand("../../..", __DIR__)
@@ -84,5 +86,38 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
 
     assert troubleshooting =~ "exit 0"
     assert troubleshooting =~ "exit 1"
+
+    dep_off_opts = [
+      predicates: %{
+        oban: false,
+        bcrypt: false,
+        eqrcode: false,
+        threadline: false,
+        assent: false,
+        swoosh: false,
+        joken: false,
+        hammer: false,
+        req: false,
+        encryption_active: false
+      },
+      host_sigra: []
+    ]
+
+    assert capture_io(fn ->
+             Mix.Tasks.Sigra.Doctor.run_with_opts(dep_off_opts)
+           end) =~ "OK: all configured features are properly wired."
+
+    configured_oauth_without_assent =
+      Keyword.merge(dep_off_opts,
+        host_sigra: [oauth: [providers: [github: [client_id: "id", client_secret: "secret"]]]]
+      )
+
+    assert catch_exit(
+             capture_io(:stderr, fn ->
+               capture_io(fn ->
+                 Mix.Tasks.Sigra.Doctor.run_with_opts(configured_oauth_without_assent)
+               end)
+             end)
+           ) == {:shutdown, 1}
   end
 end
