@@ -207,17 +207,17 @@ on:
 | A1 | 14-day policy should apply uniformly to every post-1.0 release, not only initial `1.0.0`. | Architecture Patterns | Minor policy overreach; can be narrowed to “first 14 days after 1.0.0 publish”. |
 | A2 | “Unlabeled manual gate” is currently a real team risk pattern. | Common Pitfalls | Low; mainly impacts documentation emphasis. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should all required CI lanes be rerun on the release tag, or can pre-merge `main` evidence be accepted for some long-running lanes?**
    - What we know: Existing workflows include all required gates, but not every lane is currently wired to release-tag execution. [VERIFIED: codebase grep]
-   - What's unclear: Exact policy for acceptable pre-merge evidence vs mandatory post-tag rerun.
-   - Recommendation: Lock this in runbook with explicit waiver policy and rationale template per gate.
+   - Resolution: Phase 146 planning chose the release-tag rerun as the default evidence policy. Plan `146-01` makes the existing `CI` workflow manually dispatchable on the release tag via `gh workflow run "CI" --ref v1.0.0`; plan `146-02` requires the runbook gate matrix to classify each row as `release tag`, `pre-merge main evidence`, or `manual post-publish`.
+   - Final decision: Gates should run against the release tag when technically possible. Any gate that cannot run against the release ref must be explicitly labeled manual or pre-merge and must include waiver fields `gate`, `reason`, `approver`, `evidence URL`, and `expiry`.
 
 2. **Where should the dedicated runbook live (`docs/` vs `guides/`), and how should `MAINTAINING.md` link to it?**
    - What we know: D-10/D-11 require dedicated surface + MAINTAINING pointer. [VERIFIED: codebase grep]
-   - What's unclear: Final file path conventions for maintainers.
-   - Recommendation: Choose one stable path in plan and keep MAINTAINING as index only.
+   - Resolution: Phase 146 planning selected `docs/release-runbook-v1-0.md` as the canonical runbook path.
+   - Final decision: `MAINTAINING.md` remains the stable maintainer entry point and links to `docs/release-runbook-v1-0.md`; it must not duplicate the full release gate matrix.
 
 ## Environment Availability
 
