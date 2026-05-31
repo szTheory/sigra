@@ -9,6 +9,13 @@ It does not duplicate the release gate matrix.
 - [UAT ↔ CI coverage](uat-ci-coverage.html) — machine-vs-human coverage mapping for proof posture.
 - [Maintaining](maintaining.html) — stable maintainer entry point and release automation index.
 
+## Upgrade and migration proof
+
+- [Upgrading to v1.0](upgrading-to-v1.0.html)
+- [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.html)
+- [Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.html)
+- Canonical machine proof for the latest published `0.3.x` to local `1.0.0` candidate path: `CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh`.
+
 ## GitHub-hosted proof links policy
 
 For release proof hosted outside the Hex package tarball (for example `.planning/` artifacts on GitHub), use pinned `v<version>` links.
