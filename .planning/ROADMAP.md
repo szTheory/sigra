@@ -59,7 +59,7 @@
 |-------|------|------|--------------|------------------|
 | 145 | 1.0 Contract And Release Truth | Lock the public 1.0 contract and remove version/scope ambiguity before release automation work. | REL1-01, REL1-04, CONTRACT-01..04 | 5 |
 | 146 | Release Gate And Maintainer Runbook | Make the 1.0 publish path deterministic, evidence-backed, and recoverable. | REL1-02, REL1-03 | 5 |
-| 147 | Upgrade And Migration Lanes | Give existing and migrating teams executable guidance before the adoption push. | UPGRADE-01..02, MIGRATE-01..02 | 5 |
+| 147 | Upgrade And Migration Lanes | 1/4 | In Progress|  |
 | 148 | Evaluator Funnel And First-Run DX | Turn README, HexDocs, demo, and doctor guidance into one canonical first-10-minutes path. | ADOPT-01..04 | 5 |
 | 149 | Launch Evidence And Announcement Pack | Package the public 1.0 story around proof, comparisons, and post-release triage. | LAUNCH-01..04 | 5 |
 

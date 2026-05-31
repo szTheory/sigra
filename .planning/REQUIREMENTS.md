@@ -22,7 +22,7 @@
 ### Upgrade And Migration
 
 - [ ] **UPGRADE-01**: Existing `0.3.x` adopter can follow an `upgrading-to-v1.0.md` guide with breaking-change table, generated-file review strategy, migration/schema impact, rollback notes, and verification commands.
-- [ ] **UPGRADE-02**: Maintainer can run an automated consumer upgrade smoke from latest `0.3.x` posture to `1.0.0`-candidate source and fail the release on unexpected compile/install/runtime regressions.
+- [x] **UPGRADE-02**: Maintainer can run an automated consumer upgrade smoke from latest `0.3.x` posture to `1.0.0`-candidate source and fail the release on unexpected compile/install/runtime regressions.
 - [ ] **MIGRATE-01**: Phoenix developer using `phx.gen.auth` can evaluate a migration lane that compares scope/session/token models, adoption sequence, risks, and when not to migrate.
 - [ ] **MIGRATE-02**: Developer using Pow, Guardian, Ueberauth, or composed auth stacks can evaluate a migration lane that explains cutover options, session/token/OAuth ownership differences, and migration risk.
 
@@ -75,7 +75,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONTRACT-03 | Phase 145 | Complete |
 | CONTRACT-04 | Phase 145 | Complete |
 | UPGRADE-01 | Phase 147 | Pending |
-| UPGRADE-02 | Phase 147 | Pending |
+| UPGRADE-02 | Phase 147 | Complete |
 | MIGRATE-01 | Phase 147 | Pending |
 | MIGRATE-02 | Phase 147 | Pending |
 | ADOPT-01 | Phase 148 | Pending |

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
 status: executing
-last_updated: "2026-05-31T17:33:17.062Z"
-last_activity: 2026-05-31 -- Phase 147 planning complete
+last_updated: "2026-05-31T18:05:21.062Z"
+last_activity: 2026-05-31
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 8
-  completed_plans: 4
+  completed_plans: 5
   percent: 40
 ---
 
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 147 — Upgrade And Migration Lanes
+**Current focus:** Phase 147 — upgrade-and-migration-lanes
 
 ## Current Position
 
-Phase: 147 (Upgrade And Migration Lanes) — READY TO PLAN
-Plan: Not started
+Phase: 147 (upgrade-and-migration-lanes) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-05-31 -- Phase 147 planning complete
+Last activity: 2026-05-31
 
 ## Accumulating Context
 
@@ -112,6 +112,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 | Phase 140 P01 | 5min | 2 tasks | 2 files |
 | Phase 140 P02 | 5min | 3 tasks | 3 files |
 | Phase 140 P03 | 953 | 2 tasks | 3 files |
+| Phase 147 P01 | 20min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
