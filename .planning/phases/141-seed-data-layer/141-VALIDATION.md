@@ -2,7 +2,7 @@
 phase: 141
 slug: seed-data-layer
 status: validated
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: true
 created: 2026-05-30
 ---
@@ -16,10 +16,12 @@ This phase ships **example-app demo seed data**, deliberately excluded from
 `mix test` at runtime (the `Mix.env() == :test` raise-guard in `seeds.exs` and the
 `@demo.sigra.dev`↔`@example.test` email-domain segregation are the point). Original
 verification was one-off `mix run -e …` commands captured in the SUMMARYs — none ran
-in CI. This audit added two ExUnit files so the requirements are now exercised by
+in CI. This audit now has three ExUnit files so the requirements are exercised by
 `mix test`. The orchestrator module `Example.Demo.Seeds.run/0` has **no** env guard
 (only the `seeds.exs` script does), so it is called directly inside the Ecto SQL
-Sandbox and rolls back — never executing the guarded script.
+Sandbox and rolls back. The `seeds.exs` script guard is covered separately by a
+process-level ExUnit test that spawns `MIX_ENV=test mix run priv/repo/seeds.exs`
+and verifies no demo users are written.
 
 ---
 
@@ -29,9 +31,9 @@ Sandbox and rolls back — never executing the guarded script.
 |----------|-------|
 | **Framework** | ExUnit (Elixir) |
 | **Config file** | `test/example/test/test_helper.exs` (`Ecto.Adapters.SQL.Sandbox`, `:manual`) |
-| **Quick run command** | `cd test/example && mix test test/example/demo/personas_test.exs test/example/demo/seeds_test.exs` |
+| **Quick run command** | `cd test/example && mix test test/example/demo/personas_test.exs test/example/demo/seeds_test.exs test/example/demo/seeds_script_test.exs` |
 | **Full suite command** | `cd test/example && mix test` |
-| **Estimated runtime** | ~0.5 seconds (the two new files); Postgres at localhost:5432 required |
+| **Estimated runtime** | ~0.8 seconds (the three validation files); Postgres at localhost:5432 required |
 
 ---
 
@@ -40,7 +42,7 @@ Sandbox and rolls back — never executing the guarded script.
 - **After every task commit:** Run the quick run command
 - **After every plan wave:** Run the full suite command
 - **Before `/gsd-verify-work`:** Full suite must be green
-- **Max feedback latency:** ~1 second (the two demo files)
+- **Max feedback latency:** ~1 second (the three validation files)
 
 ---
 
@@ -53,7 +55,7 @@ Sandbox and rolls back — never executing the guarded script.
 | SEED-03 | 01,03 | 1,2 | Rough edges: dave locked (5/`locked_at`/nil hash), frank scheduled-deletion, carol github identity, admin+bob TOTP (deterministic secret), admin passkey | T-141-10 | Fabricated credentials are display-only, never authenticate | integration | `mix test test/example/demo/seeds_test.exs` | ✅ | ✅ green |
 | SEED-04 | 03 | 2 | Audit log ≥15 rows, ≥6 distinct actions, admin-tied via `effective_user_id` | T-141-09 | Audit rows correctly attributable in admin UI | integration | `mix test test/example/demo/seeds_test.exs` | ✅ | ✅ green |
 | SEED-05 | 02,04 | 1,3 | Email-domain segregation: every persona `@demo.sigra.dev`, none `@example.test` | T-141-07 | `mix test` stays deterministic (no demo contamination) | unit | `mix test test/example/demo/personas_test.exs` | ✅ | ✅ green |
-| SEED-05 | 04 | 3 | `MIX_ENV=test mix run priv/repo/seeds.exs` raises before any DB write | T-141-12 | CI fixture DB cannot be contaminated by the dev seed path | manual-only | (see Manual-Only) | — | ⬜ manual |
+| SEED-05 | 04 | 3 | `MIX_ENV=test mix run priv/repo/seeds.exs` raises before any DB write and leaves zero `@demo.sigra.dev` users in the test DB | T-141-12 | CI fixture DB cannot be contaminated by the dev seed path | process integration | `mix test test/example/demo/seeds_script_test.exs` | ✅ | ✅ green |
 | SEED-06 | 02,04 | 1,3 | Real Argon2id (`$argon2id$`), policy-passing passwords, deterministic 20-byte TOTP secret + verbatim demo-only label | T-141-04 / T-141-05 / T-141-06 | Demo posture matches production; no real secrets; demo secret labeled | unit + integration | `mix test test/example/demo/personas_test.exs test/example/demo/seeds_test.exs` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky · ⬜ manual*
@@ -63,11 +65,12 @@ Sandbox and rolls back — never executing the guarded script.
 ## Wave 0 Requirements
 
 Existing ExUnit + `Example.DataCase` (SQL Sandbox) infrastructure covers all
-automatable phase requirements. Two test files were authored to fill the MISSING
-gaps (no framework install needed):
+phase requirements. Three test files fill the validation surface (no framework
+install needed):
 
 - [x] `test/example/test/example/demo/personas_test.exs` — pure-data assertions for SEED-02, SEED-05 (domain), SEED-06 (`async: true`, no DB)
 - [x] `test/example/test/example/demo/seeds_test.exs` — `Example.DataCase` sandbox assertions for SEED-01, SEED-02, SEED-03, SEED-04, SEED-06 (`async: false`)
+- [x] `test/example/test/example/demo/seeds_script_test.exs` — process-level `seeds.exs` guard assertion for SEED-05 (`async: false`)
 
 ---
 
@@ -75,7 +78,7 @@ gaps (no framework install needed):
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| `seeds.exs` raises in `MIX_ENV=test` before any DB access | SEED-05 (raise-guard half) | The guard lives in the `priv/repo/seeds.exs` **script**, not the orchestrator module. The test suite itself runs in `MIX_ENV=test`, so invoking the script from a test would raise by design and cannot assert "no rows written" cleanly. This is a process-level behavior. | `cd test/example && MIX_ENV=test mix run priv/repo/seeds.exs` → expect non-zero exit + the contamination message before any DB write; confirm zero `@demo.sigra.dev` rows in `example_test`. **Roadmapped:** Phase 143 SC#4 adds this as a CI seeds-smoke check. |
+| None | — | — | — |
 
 ---
 
@@ -83,12 +86,12 @@ gaps (no framework install needed):
 
 - [x] All tasks have `<automated>` verify or are justified manual-only
 - [x] Sampling continuity: no 3 consecutive tasks without automated verify
-- [x] Wave 0 covers all MISSING references (2 test files added)
+- [x] Wave 0 covers all MISSING references (3 test files added)
 - [x] No watch-mode flags
 - [x] Feedback latency < 2s
-- [ ] `nyquist_compliant: true` — **not set:** one behavior (SEED-05 raise-guard) is justified manual-only, deferred to the Phase 143 CI seeds-smoke. All other requirements are fully automated.
+- [x] `nyquist_compliant: true` — all phase requirements have automated verification.
 
-**Approval:** approved 2026-05-30 (PARTIAL — 5.5/6 requirements automated, 1 justified manual-only)
+**Approval:** approved 2026-05-31 (COMPLIANT — 6/6 requirements automated)
 
 ---
 
@@ -123,3 +126,32 @@ remain green; the single SEED-05 raise-guard remains justified manual-only
 | Tests re-run | 20 (8 unit + 12 integration), 0 failures |
 | MISSING / failing requirements | 0 |
 | Manual-only (justified) | 1 (SEED-05 raise-guard) |
+
+---
+
+## Validation Audit 2026-05-31 (gap fill — SEED-05 script guard)
+
+State-A re-audit found one remaining manual-only behavior from the prior
+validation: the process-level `MIX_ENV=test mix run priv/repo/seeds.exs` guard.
+That gap is now covered by `test/example/test/example/demo/seeds_script_test.exs`.
+The test spawns the seed script with `MIX_ENV=test`, asserts non-zero exit and the
+contamination warning, then verifies zero `@demo.sigra.dev` users exist in the
+test DB.
+
+Verification command:
+
+```bash
+cd test/example && mix test test/example/demo/personas_test.exs test/example/demo/seeds_test.exs test/example/demo/seeds_script_test.exs
+```
+
+Result: **21 tests, 0 failures, exit 0**.
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 1 |
+| Resolved | 1 |
+| Escalated | 0 |
+| Tests added | 1 file / 1 process-level test |
+| Tests re-run | 21, 0 failures |
+| MISSING / failing requirements | 0 |
+| Manual-only | 0 |
