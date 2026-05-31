@@ -101,6 +101,35 @@ jobs:
       - name: Verify release version in mix.exs
         run: grep -n "@version \"${{ needs.release-please.outputs.version }}\"" mix.exs
 
+      - name: Verify tag matches release version
+        run: |
+          set -euo pipefail
+          expected_tag="v${{ needs.release-please.outputs.version }}"
+          actual_tag="${{ needs.release-please.outputs.tag_name }}"
+          if [ "$actual_tag" != "$expected_tag" ]; then
+            echo "Release Please output mismatch: tag=$actual_tag expected=$expected_tag"
+            exit 1
+          fi
+          echo "tag/version truth verified: $actual_tag"
+
+      - name: Verify release version in release-please-manifest
+        run: |
+          set -euo pipefail
+          expected_version="${{ needs.release-please.outputs.version }}"
+          actual_version="$(grep -oE '"\."\s*:\s*"[^"]+"' .release-please-manifest.json | sed -E 's/.*"([^"]+)"$/\1/')"
+          if [ -z "$actual_version" ]; then
+            echo "Unable to read version from .release-please-manifest.json"
+            exit 1
+          fi
+          if [ "$actual_version" != "$expected_version" ]; then
+            echo "Manifest version mismatch: manifest=$actual_version expected=$expected_version"
+            exit 1
+          fi
+          echo "manifest/version truth verified: $actual_version"
+
+      - name: Verify docs source_ref follows version
+        run: grep -n 'source_ref: "v#{@version}"' mix.exs
+
       - name: Run library tests
         env:
           MIX_ENV: test
@@ -108,6 +137,22 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix test
+
+      - name: Check docs build cleanly
+        run: mix docs --warnings-as-errors
+
+      - name: Inspect packaged files
+        run: |
+          set -euo pipefail
+          mix hex.build --unpack --output sigra-hex-inspect
+          test -f sigra-hex-inspect/README.md
+          test -f sigra-hex-inspect/CHANGELOG.md
+          test -f sigra-hex-inspect/mix.exs
+          test -d sigra-hex-inspect/lib
+          if [ -e sigra-hex-inspect/.planning ]; then
+            echo "Package contains forbidden .planning directory"
+            exit 1
+          fi
 
       - name: Dry run Hex publish
         env:
