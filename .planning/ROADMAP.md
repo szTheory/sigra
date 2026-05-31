@@ -112,6 +112,14 @@ Plans:
 4. Pow/Guardian/Ueberauth migration lane explains cutover options, session/token/OAuth ownership boundaries, and migration risk.
 5. Migration docs are linked from README, ExDoc, launch notes, and AI-consumption index surfaces.
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] `147-01-PLAN.md` — add the deterministic published-0.3.0 to local-1.0.0 consumer upgrade smoke lane and CI job
+- [ ] `147-02-PLAN.md` — author the operational v1.0 upgrade guide plus split boundary-first migration guides
+- [ ] `147-03-PLAN.md` — wire the new guides into README, CHANGELOG, ExDoc extras, and `doc/llms.txt`
+- [ ] `147-04-PLAN.md` — thread upgrade smoke and migration guidance through release-evidence routing docs
+
 ### Phase 148: Evaluator Funnel And First-Run DX
 
 **Goal:** Turn README, HexDocs, demo, and doctor guidance into one canonical first-10-minutes path.
