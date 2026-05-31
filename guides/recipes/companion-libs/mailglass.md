@@ -21,7 +21,7 @@ delegates to a Mailglass-backed module; Sigra has no direct dependency on Mailgl
 
 - **Sigra email flows must be green first** — confirm that confirmation, password-reset, and
   magic-link emails are delivering correctly before adding Mailglass. See the
-  [installation guide](../introduction/installation.html) and [OAuth flow](../flows/oauth.html).
+  [installation guide](../../introduction/installation.html) and [OAuth flow](../../flows/oauth.html).
 - **Mailglass `~> 1.2` installed and configured** — API key and sender domain set in your
   Mailglass config.
 
@@ -101,7 +101,7 @@ If Mailglass is not configured or the API key is missing at runtime, `Mailglass.
 returns `{:error, _}`. Because `MyApp.SigraAuthMailer.deliver/3` propagates this return value,
 `Sigra.Mailer.deliver/3` returns `{:error, _}` and the calling auth flow surfaces an error to
 the user. This is intentional — Sigra does not silently swallow delivery failures. See the
-[OAuth flow](../flows/oauth.html) for error-bubbling semantics.
+[OAuth flow](../../flows/oauth.html) for error-bubbling semantics.
 
 ### 3. Mailglass + Oban backpressure
 
@@ -123,8 +123,8 @@ queue). Sigra's v1.25 EMAIL-RAILS async-delivery telemetry (`Sigra.Delivery` /
 
 ## See also
 
-- [OAuth flow](../flows/oauth.html) — email delivery error-bubbling semantics
-- [Installation guide](../introduction/installation.html) — Sigra email flow prerequisites
+- [OAuth flow](../../flows/oauth.html) — email delivery error-bubbling semantics
+- [Installation guide](../../introduction/installation.html) — Sigra email flow prerequisites
 - [Threadline recipe](./threadline.html) — forwarding audit events to Threadline timelines
-- [Suite integration overview](../introduction/suite-integration.html) — companion-library
+- [Suite integration overview](../../introduction/suite-integration.html) — companion-library
   ecosystem diagram (Phase 133 NX-01; link ships ahead of the page)

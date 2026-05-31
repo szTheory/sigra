@@ -208,7 +208,7 @@ UI; it is a separate optional package.
 
 ## See also
 
-- [Suite integration overview](../introduction/suite-integration.html) — companion-library
+- [Suite integration overview](../../introduction/suite-integration.html) — companion-library
   ecosystem diagram and Diminishing Returns Wall framing
 - [Accrue recipe](./accrue.html) — seat-limit gating and subscription lifecycle; another
   pattern that reads `current_scope` from the Sigra plug pipeline

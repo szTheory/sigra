@@ -169,8 +169,8 @@ callback — complete them before running `mix compile`.
 
 - [Companion OAuth/OIDC provider recipe](../companion-oauth-provider.html) — architecture-level
   framing: why run both roles in one host, rules of thumb for claims and subject stability
-- [OAuth flow](../flows/oauth.html) — Sigra's consumer OAuth (login with provider), distinct from
+- [OAuth flow](../../flows/oauth.html) — Sigra's consumer OAuth (login with provider), distinct from
   the embedded AS pattern this recipe describes
-- [Suite integration overview](../introduction/suite-integration.html) — companion-library
+- [Suite integration overview](../../introduction/suite-integration.html) — companion-library
   ecosystem diagram and Diminishing Returns Wall framing
 - [Accrue recipe](./accrue.html) — seat-limit gating and subscription lifecycle via Accrue

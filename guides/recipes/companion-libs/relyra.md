@@ -149,10 +149,10 @@ There is **no `--with-relyra` install flag** in `mix sigra.install`.
 
 ## See also
 
-- [Suite integration overview](../introduction/suite-integration.html) — companion-library
+- [Suite integration overview](../../introduction/suite-integration.html) — companion-library
   ecosystem diagram and Diminishing Returns Wall framing
-- [OAuth flow](../flows/oauth.html) — Sigra's built-in OIDC-via-Assent consumer OAuth;
+- [OAuth flow](../../flows/oauth.html) — Sigra's built-in OIDC-via-Assent consumer OAuth;
   contrast with the SAML SP path this recipe describes
-- [Account lifecycle flow](../flows/account-lifecycle.html) — user creation and deletion
+- [Account lifecycle flow](../../flows/account-lifecycle.html) — user creation and deletion
   semantics relevant to `find_or_create_from_saml/1`
 - [Lockspire recipe](./lockspire.html) — embedded OAuth/OIDC provider in the same host

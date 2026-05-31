@@ -75,7 +75,7 @@ flowchart TD
    {:sigra, "~> 1.0"}
    ```
 
-   This is the selected 1.0 package line. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
+   This is the selected 1.0 package line. If you are reading `main` before Hex shows `1.0.0`, use the latest published `0.3.x` package or a source checkout until the release PR lands. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
 
 2. **Scaffold** (from app root; names must match your domain):
 

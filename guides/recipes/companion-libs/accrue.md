@@ -99,7 +99,7 @@ config :accrue, :auth_adapter, MyApp.Accrue.Auth
 **`log_audit/2` note:** Accrue's `log_audit/2` is a consumer of identity-event side-effects,
 not a destination swap. Sigra's `AuditEvent` row (`lib/sigra/audit.ex`) remains the
 source-of-truth. To filter audit events by type before forwarding, see the
-[Audit logging flow](../flows/audit-logging.html) and the [Threadline recipe](./threadline.html).
+[Audit logging flow](../../flows/audit-logging.html) and the [Threadline recipe](./threadline.html).
 
 ### 2. Gate membership adds on seat limits
 
@@ -209,10 +209,10 @@ unconditionally and log the error instead.
 
 ## See also
 
-- [Audit logging flow](../flows/audit-logging.html) — how Sigra writes `AuditEvent` rows and
+- [Audit logging flow](../../flows/audit-logging.html) — how Sigra writes `AuditEvent` rows and
   emits telemetry; event-type filtering for `log_audit/2` forwarding
 - [Threadline recipe](./threadline.html) — forwarding audit events to Threadline for queryable
   timelines; `log_audit/2` and the Threadline forwarder complement each other
-- [Suite integration overview](../introduction/suite-integration.html) — companion-library
+- [Suite integration overview](../../introduction/suite-integration.html) — companion-library
   ecosystem diagram and Diminishing Returns Wall framing
 - [Mailglass recipe](./mailglass.html) — wiring transactional auth email via Mailglass
