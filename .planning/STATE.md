@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
-status: ready
-last_updated: 2026-05-31T16:37:51.860Z
-last_activity: 2026-05-31 -- Phase 146 complete; live release UAT tracked
+status: Ready to plan
+last_updated: "2026-05-31T17:25:00.000Z"
+last_activity: 2026-05-31 -- Phase 147 context gathered in assumptions mode
 progress:
   total_phases: 5
   completed_phases: 2
@@ -25,16 +25,17 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 147 (Upgrade And Migration Lanes) — READY TO DISCUSS
+Phase: 147 (Upgrade And Migration Lanes) — READY TO PLAN
 Plan: Not started
-Status: Ready to discuss
-Last activity: 2026-05-31 -- Phase 146 complete; live release UAT tracked
+Status: Context gathered
+Last activity: 2026-05-31 -- Phase 147 context gathered in assumptions mode
 
 ## Accumulating Context
 
 - `v1.32 RELEASE-ADOPTION` roadmap created 2026-05-31: 5 phases (145–149), 20/20 requirements mapped. Phase 145 locks the public 1.0 contract and release truth; Phase 146 builds deterministic release gates and maintainer runbook; Phase 147 ships upgrade/migration lanes; Phase 148 tightens evaluator funnel and first-run DX; Phase 149 packages launch evidence and announcement materials.
 - Phase 146 context gathered 2026-05-31 in assumptions mode: `.planning/phases/146-release-gate-and-maintainer-runbook/146-CONTEXT.md` locks release-ref gate truth, reuse of existing CI contracts as gate evidence, manual Hex publish recovery as the primary no-invention recovery path, a dedicated release-runbook/policy doc with `MAINTAINING.md` as pointer, first-14-day hotfix triage policy, and post-1.0 cleanup of the one-time Release Please `release-as: "1.0.0"` override.
 - Phase 146 completed 2026-05-31: canonical CI can be manually dispatched only on `refs/tags/v*` for release evidence, Release Please and manual Hex publish both enforce version/ref/manifest/source-ref/package/visibility gates, `docs/release-runbook-v1-0.md` is the canonical runbook, and maintainer routers point to it. Verification scored 11/11 codebase must-haves with three live release UAT items tracked in `.planning/phases/146-release-gate-and-maintainer-runbook/146-HUMAN-UAT.md`.
+- Phase 147 context gathered 2026-05-31 in assumptions mode: `.planning/phases/147-upgrade-and-migration-lanes/147-CONTEXT.md` locks the `upgrading-to-v1.0.md` operational guide shape, a dedicated `0.3.x` consumer-to-`1.0.0` candidate smoke lane, comparative boundary-first migration docs for `phx.gen.auth` and Pow/Guardian/Ueberauth, and discovery wiring through README, ExDoc, release/evidence docs, and `doc/llms.txt`.
 - Phase 145 context gathered 2026-05-31 in assumptions mode: `.planning/phases/145-1-0-contract-and-release-truth/145-CONTEXT.md` locks direct Hex `1.0.0` from `main`, public version-axis messaging, canonical 1.0 contract surface, one-time Release Please `release-as: "1.0.0"` override, ownership boundaries, and security invariants/non-goals.
 - Phase 145 Plan 01 completed 2026-05-31: `guides/introduction/contract.md` is the canonical public 1.0 contract, README/CHANGELOG route version-axis readers to it, SECURITY.md exposes invariants/non-goals, and `mix docs --warnings-as-errors` passes. Global `mix format --check-formatted` still reports unrelated pre-existing formatter drift outside Plan 01's write set.
 - Phase 145 Plan 02 completed 2026-05-31: Release Please has the one-time `release-as: "1.0.0"` override, `.release-please-manifest.json` and `mix.exs` remain at last shipped/current `0.3.0`, maintainer docs explain the direct Hex 1.0 path and cleanup rule, and first-path install examples use `{:sigra, "~> 1.0"}` while companion pins remain unchanged. `mix docs --warnings-as-errors` and companion recipe contract tests pass; global formatter drift remains outside Plan 02's write set.
@@ -86,7 +87,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 
 ## Operator Next Steps
 
-- Discuss Phase 147 with `/gsd-discuss-phase 147`.
+- Plan Phase 147 with `/gsd-plan-phase 147`.
 
 ### Blockers
 
