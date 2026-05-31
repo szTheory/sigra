@@ -50,6 +50,8 @@ defp deps do
 end
 ```
 
+If you are reading `main` before Hex shows `1.0.0`, use the latest published `0.3.x` Sigra package or a source checkout until the release PR lands.
+
 ## Integration walkthrough
 
 ### 1. Initiate the SAML login
@@ -59,7 +61,7 @@ Call `Relyra.start_login/3` (`relyra.ex:28-29`, signature:
 action to build the AuthnRequest and redirect the browser to the IdP:
 
 ```elixir
-def sso_login(conn, _params) do
+def sso_login(conn, params) do
   relay_context = %{return_to: params["return_to"] || "/dashboard"}
   Relyra.start_login(conn, relay_context)
 end
@@ -91,7 +93,7 @@ def acs(conn, %{"SAMLResponse" => saml_response} = params) do
     {:error, reason} ->
       conn
       |> put_flash(:error, "SSO login failed: #{inspect(reason)}")
-      |> redirect(to: "/users/log-in")
+      |> redirect(to: "/users/log_in")
   end
 end
 ```

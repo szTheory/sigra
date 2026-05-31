@@ -41,6 +41,8 @@ defp deps do
 end
 ```
 
+If you are reading `main` before Hex shows `1.0.0`, use the latest published `0.3.x` Sigra package or a source checkout until the release PR lands.
+
 ## Install the AccountResolver stub
 
 Run the Lockspire generator to scaffold the AccountResolver with Sigra-oriented comments:
@@ -110,7 +112,7 @@ defmodule MyApp.AccountResolver do
   def redirect_for_login(conn, context) do
     # URI-encode return_to — never interpolate caller-supplied values raw (open-redirect / injection risk).
     return_to = URI.encode_www_form(context.return_to)
-    Phoenix.Controller.redirect(conn, to: "/users/log-in?return_to=#{return_to}")
+    Phoenix.Controller.redirect(conn, to: "/users/log_in?return_to=#{return_to}")
   end
 end
 ```

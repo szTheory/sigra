@@ -34,6 +34,8 @@ defp deps do
 end
 ```
 
+If you are reading `main` before Hex shows `1.0.0`, use the latest published `0.3.x` Sigra package or a source checkout until the release PR lands.
+
 ## Wiring overview
 
 Two Sigra seams connect to Accrue:

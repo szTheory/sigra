@@ -39,6 +39,8 @@ defp deps do
 end
 ```
 
+If you are reading `main` before Hex shows `1.0.0`, use the latest published `0.3.x` Sigra package or a source checkout until the release PR lands.
+
 > Mailglass sits **above** Swoosh — it is not a Swoosh adapter. Sigra's existing
 > Swoosh-based mailer rails are unaffected.
 
