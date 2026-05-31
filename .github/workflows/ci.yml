@@ -344,6 +344,55 @@ jobs:
           CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: scripts/ci/install-smoke.sh
 
+  upgrade_smoke:
+    name: Upgrade smoke (latest published 0.3.x -> local 1.0.0 candidate)
+    runs-on: ubuntu-latest
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Cache Hex registry
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run upgrade smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+        run: scripts/ci/upgrade-smoke.sh
+
   passkeys_manual_fallback_smoke:
     name: Passkeys manual fallback smoke
     runs-on: ubuntu-latest
