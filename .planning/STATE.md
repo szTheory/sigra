@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
-status: planning
-last_updated: "2026-05-31T15:02:38.364Z"
-last_activity: 2026-05-31 — Phase 145 context gathered
+status: executing
+last_updated: "2026-05-31T15:52:00.000Z"
+last_activity: 2026-05-31 -- Phase 145 Plan 01 complete
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 50
 ---
 
 # Project State
@@ -21,19 +21,20 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.32 RELEASE-ADOPTION — Phase 145 context gathered
+**Current focus:** Phase 145 — 1.0 Contract And Release Truth
 
 ## Current Position
 
-Phase: 145 — 1.0 Contract And Release Truth
-Plan: —
-Status: Context gathered; ready for phase planning
-Last activity: 2026-05-31 — Phase 145 context gathered (assumptions mode)
+Phase: 145 (1.0 Contract And Release Truth) — EXECUTING
+Plan: 2 of 2
+Status: Plan 01 complete; executing release metadata and install example alignment
+Last activity: 2026-05-31 -- Phase 145 Plan 01 complete
 
 ## Accumulating Context
 
 - `v1.32 RELEASE-ADOPTION` roadmap created 2026-05-31: 5 phases (145–149), 20/20 requirements mapped. Phase 145 locks the public 1.0 contract and release truth; Phase 146 builds deterministic release gates and maintainer runbook; Phase 147 ships upgrade/migration lanes; Phase 148 tightens evaluator funnel and first-run DX; Phase 149 packages launch evidence and announcement materials.
 - Phase 145 context gathered 2026-05-31 in assumptions mode: `.planning/phases/145-1-0-contract-and-release-truth/145-CONTEXT.md` locks direct Hex `1.0.0` from `main`, public version-axis messaging, canonical 1.0 contract surface, one-time Release Please `release-as: "1.0.0"` override, ownership boundaries, and security invariants/non-goals.
+- Phase 145 Plan 01 completed 2026-05-31: `guides/introduction/contract.md` is the canonical public 1.0 contract, README/CHANGELOG route version-axis readers to it, SECURITY.md exposes invariants/non-goals, and `mix docs --warnings-as-errors` passes. Global `mix format --check-formatted` still reports unrelated pre-existing formatter drift outside Plan 01's write set.
 - Research consensus from `.planning/research/RELEASE-MECHANICS.md`, `ADOPTION-DX.md`, `ECOSYSTEM-BENCHMARKS.md`, `LOCAL-PROMPT-SYNTHESIS.md`, and `SUMMARY.md`: cut real Hex `1.0.0` directly from `main`, avoid a public RC train unless a concrete blocker appears, and keep v1.32 as release-truth/adoption work rather than new auth feature work.
 - Selected scope: SemVer/public API contract, generated-host ownership contract, compatibility/support boundaries, release gate matrix, upgrade smoke, migration lanes, demo/evaluator funnel, announcement/evidence bundle, and first-14-day hotfix policy.
 - Non-goals locked: no SCIM, hosted control plane, authorization engine, generic compliance platform, broad generated-host UI redesign, Mailglass adapter resurrection, public RC train by default, or new auth primitives.
