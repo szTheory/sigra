@@ -1,62 +1,48 @@
-# Demo Showcase — Vaultr Example App
+# Demo Showcase
 
-Vaultr is Sigra's seeded showcase Phoenix application, bundled at `test/example/`, that demonstrates every major authentication feature using six pre-seeded personas. This guide walks through each feature area so you can evaluate Sigra's capabilities without writing any setup code yourself.
+This is the canonical evaluator-first path for Sigra. It is a runnable, source-backed walkthrough of the seeded Vaultr demo app in `test/example`.
 
-## Running the Demo
+## Run Demo Showcase
 
 ```bash
 cd test/example
 mix setup && mix phx.server
 ```
 
-Then visit [http://localhost:4000](http://localhost:4000). See `test/example/README.md` for prerequisites (Elixir, PostgreSQL versions and Docker one-liner).
+Open [http://localhost:4000/demo/credentials](http://localhost:4000/demo/credentials). This `/demo/credentials` page is the first live stop and shows the current seeded personas, emails, and passwords.
 
-## Credentials Cheat-Sheet
+If first-run verification fails after setup, run `mix sigra.doctor` and use the fixes in [Troubleshooting install](troubleshooting-install.html).
 
-![Credentials cheat-sheet showing all six demo persona emails and passwords](assets/demo-credentials-demo-showcase-chromium.png)
+## Evaluator Persona Map
 
-While the server is running, visit `/demo/credentials` for a live cheat-sheet listing all six persona emails and passwords. The page is only available in development mode — it is not generated in production builds.
+These six personas come from `Example.Demo.Personas.feature_map/0` and are the source of truth for what the showcase proves.
 
-## Admin: Platform-Admin View
+- `admin@demo.sigra.dev`: admin/operator surface, TOTP MFA, passkey display row, multi-org ownership/membership, and audit trail inspection via `/admin` and `/admin/audit`.
+- `alice@demo.sigra.dev`: happy-path confirmed login baseline.
+- `bob@demo.sigra.dev`: second TOTP/MFA-enabled user plus org-owner coverage.
+- `carol@demo.sigra.dev`: seeded GitHub OAuth-linked identity row for inspection; live GitHub OAuth still requires evaluator-supplied provider credentials.
+- `dave@demo.sigra.dev`: locked and unconfirmed rough edge for enumeration-resistant login behavior.
+- `frank@demo.sigra.dev`: scheduled deletion lifecycle state while still active.
 
-![Admin user detail showing TOTP MFA enrollment and passkey display row](assets/admin-user-detail-demo-showcase-chromium.png)
+## Screenshot Grid
 
-![Admin user list showing all six demo personas](assets/admin-user-list-demo-showcase-chromium.png)
+| Credentials | Admin Users |
+| --- | --- |
+| ![Credentials view with six seeded personas](assets/demo-credentials-demo-showcase-chromium.png) | ![Admin users list view](assets/admin-user-list-demo-showcase-chromium.png) |
 
-Log in as `admin@demo.sigra.dev` (password on the credentials page) to access the `/admin` area. The admin persona demonstrates the full platform-admin surface:
+| Admin User Detail | Audit Explorer |
+| --- | --- |
+| ![Admin user detail including MFA and passkey rows](assets/admin-user-detail-demo-showcase-chromium.png) | ![Audit explorer view with seeded events](assets/audit-explorer-demo-showcase-chromium.png) |
 
-- **TOTP MFA** — TOTP is enrolled; the admin user detail page shows the MFA status row and enrollment date.
-- **Passkey display row** — a passkey credential row is visible in the admin user detail, illustrating how WebAuthn credentials are stored and surfaced in the admin UI.
-- **Multi-org membership** — admin is a member of multiple demo organizations, demonstrating Sigra's multi-tenancy seams.
-- **Rich audit trail** — every login, MFA challenge, and admin action is recorded; review the audit log at `/admin/audit`.
+## Proof Boundary And Limitations
 
-**Alice** (`alice@demo.sigra.dev`) is a standard confirmed user — the happy-path baseline. She is a member of Acme Corp and logs in without MFA, which makes her the simplest reference for testing the plain email/password flow.
+This showcase and screenshot grid are evaluator proof and inspection aids. They are **not production certification** and **not compliance evidence**.
 
-**Bob** (`bob@demo.sigra.dev`) is also TOTP-enrolled and acts as org owner of Beta Labs. He complements admin for testing that TOTP enforcement applies consistently across different roles.
+## Not Evaluating Right Now?
 
-## Audit Log
-
-![Audit log explorer showing six or more distinct event types](assets/audit-explorer-demo-showcase-chromium.png)
-
-The `/admin/audit` route in the admin area shows the seeded audit log. The demo seed data covers distinct event types — logins, MFA challenges, account lifecycle events, and admin actions — so the log reads as a live system rather than an empty scaffold. Use the filter controls to narrow by actor, resource, or action string.
-
-## Rough Edges: Locked and Scheduled-Deletion Accounts
-
-These two personas exercise Sigra's failure and lifecycle paths. No screenshot is needed — the interesting behavior is in the response, not the UI.
-
-**Dave** (`dave@demo.sigra.dev`) has a locked and unconfirmed account. Try logging in — with the correct password (`DaveDemoPass1!Locked`) or a wrong one — to see Sigra's enumeration-resistant response. The error message does not reveal whether the account exists, is locked, or is unconfirmed. This is by design: leaking the reason for a failed login enables account enumeration and targeted attacks. To unlock Dave's account, log in as admin and visit `/admin/users`, find Dave's row, and use the unlock action.
-
-**Frank** (`frank@demo.sigra.dev`) has `scheduled_deletion_at` set — his account is still active and can log in, but it is marked for deletion. Inspect the scheduled deletion date via `/admin/users` as admin. This demonstrates Sigra's graceful account deletion lifecycle: the deletion is scheduled rather than immediate, giving the user a window to cancel before the job runs.
-
-## OAuth Identity
-
-**Carol** (`carol@demo.sigra.dev`) has a seeded GitHub OAuth identity row, visible in her admin user detail page at `/admin/users`. The identity row shows the provider (`github`), the external UID, and the insertion timestamp — exactly what Sigra stores when a user completes the OAuth flow.
-
-> **Important:** the live OAuth flow requires real GitHub OAuth application credentials configured in `config/dev.exs`. The demo does not include working GitHub credentials out of the box, so clicking "Sign in with GitHub" will fail unless you add your own. The seeded identity row is present for inspection regardless — you do not need to run the live flow to evaluate how Sigra stores OAuth identities.
-
-## What's Next
-
-- **[Installation](installation.html)** — add Sigra to your Phoenix app
-- **[Getting started](getting-started.html)** — generate auth scaffolding and run your first authenticated request
-- **[MFA guide](../flows/mfa.html)** — TOTP enrollment, backup codes, and enforcement policies
-- **[Full Sigra documentation](https://hexdocs.pm/sigra)** — complete API reference on Hexdocs
+- [Installation](installation.html)
+- [Upgrading to v1.0](upgrading-to-v1.0.html)
+- [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.html)
+- [Migrating from Pow / Guardian / Ueberauth](migrating-from-pow-guardian-ueberauth.html)
+- [Deployment](../recipes/deployment.html)
+- Local companion app details: `test/example/README.md`
