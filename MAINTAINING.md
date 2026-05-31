@@ -133,6 +133,16 @@ gh run watch "$(gh run list --workflow 'Release Please' --limit 1 --json databas
 
 Do **not** enable **Allow GitHub Actions to create and approve pull requests**. Instead add a fine-grained **PAT** as the **`RELEASE_PLEASE_TOKEN`** secret (contents + pull-requests write, and any scopes Release Please needs for your branch rules). The workflow uses `token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}` — see **Release automation** below.
 
+## Sigra 1.0 release path
+
+The selected 1.0 path is a direct Hex `1.0.0` cut from `main`, not a public RC train by default. RCs are a fallback only if hardening finds a concrete blocker that needs external validation.
+
+For this one-time major release, `release-please-config.json` carries `"release-as": "1.0.0"` in `packages["."]`. `.release-please-manifest.json` remains the last shipped `0.3.0` until the Release Please release PR records the new release, and `mix.exs` `@version` changes inside that Release Please release PR.
+
+After the 1.0 release PR merges and the release is cut, remove or update the `"release-as": "1.0.0"` override before normal post-1.0 conventional-commit SemVer resumes.
+
+Phase 146 owns the detailed dry-run, package inspection, publish recovery, release gates, and first-14-day hotfix policy. Do not duplicate that full gate matrix here.
+
 ## Release automation (default)
 
 Sigra follows the same pattern as sibling libraries (**Release Please** + **Hex on merge**):
@@ -214,6 +224,8 @@ Use only when not using the Release PR flow. Adjust version strings to match `mi
 11. After publish, smoke-check a fresh `mix deps.get` consumer app or the example app pinned to the new requirement range.
 
 ## Semver for Sigra (pre-1.0)
+
+This section is historical pre-1.0 policy. For the selected major release decision, follow [Sigra 1.0 release path](#sigra-10-release-path).
 
 Hex and Mix treat `0.x` minors as potentially breaking. Use **`0.y.z` patches** only for doc-only fixes, internal-only changes, or releases that do **not** add new **supported public** `lib/` API since the last published version.
 
