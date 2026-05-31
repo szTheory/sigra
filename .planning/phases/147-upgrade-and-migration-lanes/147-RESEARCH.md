@@ -217,17 +217,13 @@ mix ecto.migrate
 |---|-------|---------|---------------|
 | A1 | Pow docs site alone is sufficient to characterize Pow migration boundaries for this phase. | Standard Stack / Pitfalls | Medium: migration lane could miss nuance from deeper Pow docs. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact smoke start posture for “latest `0.3.x`”**
-   - What we know: Requirement/decisions require latest published `0.3.x` posture. [VERIFIED: codebase grep]
-   - What's unclear: Whether lane should resolve directly from Hex at runtime or pin a concrete `0.3.x` in script.
-   - Recommendation: Planner should add explicit decision checkpoint for deterministic pinning strategy.
+   - Resolution: The upgrade smoke lane should resolve the latest published `0.3.x` release from Hex at runtime, record the selected version in a variable/log line, support an optional deterministic override for reruns, and fail if no published `0.3.x` exists. This satisfies D-04 through D-06 without silently collapsing to a stale pin. [VERIFIED: checker revision instruction + codebase decisions]
 
 2. **Single migration guide vs split guides**
-   - What we know: Context allows either, with discretion. [VERIFIED: codebase grep]
-   - What's unclear: Preferred information density for adopters.
-   - Recommendation: Start split if each lane exceeds ~2 screens; otherwise keep one guide with clear TOC anchors.
+   - Resolution: Keep split guides. `147-02-PLAN.md` already assigns separate migration surfaces for `phx.gen.auth` and Pow/Guardian/Ueberauth, which is the better fit for the different boundary models and preserves the context decision to keep those comparisons readable. [VERIFIED: plan review + D-07/D-08]
 
 ## Environment Availability
 
