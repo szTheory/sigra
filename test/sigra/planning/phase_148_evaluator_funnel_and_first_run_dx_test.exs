@@ -27,7 +27,7 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert mix_exs =~ ~s(main: "demo-showcase")
     assert mix_exs =~ "Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html."
 
-    assert llms =~ "- [Demo Showcase](demo-showcase.md)"
+    assert llms =~ "- [Demo Showcase — Vaultr Example App](demo-showcase.md)"
     assert llms =~ "- [Troubleshooting install](troubleshooting-install.md)"
     assert llms =~ "Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html."
   end
