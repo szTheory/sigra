@@ -46,6 +46,8 @@ Plan 01 created `guides/introduction/contract.md` as the public 1.0 contract sur
 | 145-01-02 Wire public version-axis and contract pointers | `fc10cff` | Updated README and CHANGELOG routing/version-axis text. |
 | 145-01-03 Add security invariants and non-goals | `21269d3` | Added SECURITY.md invariant and non-goal tables. |
 | Formatter correction | `c9c65c8` | Removed trailing comma in `mix.exs` exposed by the ExDoc extras edit. |
+| Post-review release contract cleanup | `a367c2b` | Clarified pre-publish caveats and release-truth wording in scoped docs. |
+| Clean code review report | `eb703c8` | Recorded clean standard-depth review after all post-review fixes. |
 
 ## Verification
 

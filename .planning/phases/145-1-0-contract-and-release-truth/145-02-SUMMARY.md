@@ -53,6 +53,10 @@ Plan 02 configured Release Please for the one-time `1.0.0` release PR without ch
 | 145-02-01 Configure one-time Release Please 1.0 jump | `3d035af` | Added package-level `"release-as": "1.0.0"` while preserving manifest/version truth. |
 | 145-02-02 Update maintainer docs for direct Hex 1.0 path | `2aa0f28` | Added `## Sigra 1.0 release path` and historical pre-1.0 pointer. |
 | 145-02-03 Update first-path install examples | `9599704` | Updated intro and companion recipe Sigra tuples to `~> 1.0`; preserved sister-library pins. |
+| Post-review companion recipe cleanup | `9dceb62` | Fixed nested recipe links and corrected Lockspire/Relyra path and parameter examples. |
+| Post-review changelog cleanup | `df83626` | Corrected the unreleased compare base and malformed doc reference. |
+| Post-review Mailglass cleanup | `5e2b17d` | Aligned the Mailglass failure-mode text with the real `deliver/1` API. |
+| Clean code review report | `eb703c8` | Recorded clean standard-depth review after all post-review fixes. |
 
 ## Verification
 
