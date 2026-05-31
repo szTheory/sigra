@@ -229,17 +229,15 @@ Source: `test/example/lib/example/demo/personas.ex` [VERIFIED: codebase grep]
 |---|-------|---------|---------------|
 | A1 | A “10 minutes or less” target can be validated via documented command sequence and evaluator timing spot-check without adding automated timer instrumentation. [ASSUMED] | Summary / Validation Architecture | Medium: planner may need explicit manual timing evidence task. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Where should the doctor output snippet live as canonical text?**
+1. **RESOLVED: Where should the doctor output snippet live as canonical text?**
    - What we know: `troubleshooting-install.md` exists and already covers install failures, while `deployment.md` already references doctor. [VERIFIED: codebase grep]
-   - What's unclear: Whether to make troubleshooting page canonical and link from demo-showcase/README, or duplicate snippets.
-   - Recommendation: Keep one canonical snippet block in `guides/introduction/troubleshooting-install.md`, link from README/demo-showcase/test/example README. [VERIFIED: codebase grep]
+   - Resolution: Keep one canonical snippet block in `guides/introduction/troubleshooting-install.md`, link from README/demo-showcase/test/example README, and avoid duplicating divergent doctor transcripts. This matches D-07/D-08 and Phase 148 plan coverage. [VERIFIED: context + plan]
 
-2. **Do we need a doc-contract test for routing consistency?**
+2. **RESOLVED: Do we need a doc-contract test for routing consistency?**
    - What we know: Prior phases used targeted doc assertions in scripts/tests for drift-sensitive lanes. [VERIFIED: codebase grep]
-   - What's unclear: Whether existing CI checks already cover this exact cross-file routing contract.
-   - Recommendation: Add a narrow grep-based contract script or test only if current checks do not assert these links. [ASSUMED]
+   - Resolution: Add a narrow docs-contract test for this phase because the generated plan explicitly depends on cross-surface routing consistency across README, Hex/ExDoc, `doc/llms.txt`, demo showcase, troubleshooting, and `test/example/README.md`. [VERIFIED: plan]
 
 ## Environment Availability
 
