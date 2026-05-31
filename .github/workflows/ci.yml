@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  # Release-ref evidence path: manually dispatch this workflow from a v* tag
+  # (`gh workflow run "CI" --ref v1.0.0` or Actions UI) to rerun canonical gates.
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
