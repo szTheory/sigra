@@ -101,7 +101,9 @@ Archives:
 
 ## Current State
 
-`v1.31 DEMO-SHOWCASE` is shipped and archived (Phases 141–144.2, 14/14 requirements). The example app now doubles as adopter proof and an evaluator walkthrough: `mix setup && mix phx.server` yields seeded personas, visible rough edges, dev credentials, Playwright-backed screenshots, and docs that guide a click-around review.
+`v1.32 RELEASE-ADOPTION` is in progress. Phases 145-146 are complete: the public 1.0 contract/release truth is locked, the release-ref gate and publish/recovery workflows are evidence-backed, and `docs/release-runbook-v1-0.md` is the canonical maintainer runbook. Phase 146 has three live release-operation UAT items tracked for the actual tag/publish/HexDocs flow.
+
+Next focus: Phase 147, upgrade and migration lanes for existing `0.3.x` users plus greenfield and migration-path adopters.
 
 ## Current Milestone: v1.32 RELEASE-ADOPTION
 
