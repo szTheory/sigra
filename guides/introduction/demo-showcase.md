@@ -1,4 +1,4 @@
-# Demo Showcase
+# Demo Showcase — Vaultr Example App
 
 This is the canonical evaluator-first path for Sigra. It is a runnable, source-backed walkthrough of the seeded Vaultr demo app in `test/example`.
 
