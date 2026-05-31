@@ -133,6 +133,13 @@ Plans:
 4. Screenshot grid and demo limitations make evaluator proof inspectable without pretending the demo is production certification.
 5. First-run doctor/troubleshooting guidance shows expected success and common failure output after install.
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] `148-01-PLAN.md` — rewire README, Hex package metadata, and AI index to the canonical evaluator path while preserving explicit adoption lanes
+- [ ] `148-02-PLAN.md` — turn the demo showcase and example README into the explicit 10-minute evaluator flow with persona proof and screenshot boundaries
+- [ ] `148-03-PLAN.md` — make `mix sigra.doctor` the canonical first-run verification surface and lock the unified docs contract with a phase test
+
 ### Phase 149: Launch Evidence And Announcement Pack
 
 **Goal:** Package the public 1.0 story around proof, comparisons, and post-release triage.
