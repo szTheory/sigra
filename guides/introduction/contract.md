@@ -44,6 +44,8 @@ Deprecations should identify the replacement path, preserve a migration lane whe
 
 Sigra's security contract is bounded by the library/generator split:
 
+For the top-level security table, vulnerability reporting policy, and non-goal boundaries, see [`SECURITY.md`](../../SECURITY.md).
+
 - **Sessions** use database-backed session patterns and revocation seams that generated hosts can inspect and adapt.
 - **Tokens** use time-bounded, HMAC-protected or hashed-reference patterns for flows such as confirmation, reset, magic links, API tokens, and JWT refresh, according to the installed slice.
 - **MFA and passkeys** provide TOTP, backup code, trusted-browser, WebAuthn/passkey, lockout, and recovery patterns where the corresponding features are enabled.

@@ -48,6 +48,7 @@ Plan 01 created `guides/introduction/contract.md` as the public 1.0 contract sur
 | Formatter correction | `c9c65c8` | Removed trailing comma in `mix.exs` exposed by the ExDoc extras edit. |
 | Post-review release contract cleanup | `a367c2b` | Clarified pre-publish caveats and release-truth wording in scoped docs. |
 | Clean code review report | `eb703c8` | Recorded clean standard-depth review after all post-review fixes. |
+| Verification security link cleanup | `66363b0` | Added the contract page cross-link to `SECURITY.md` requested by phase verification. |
 
 ## Verification
 
