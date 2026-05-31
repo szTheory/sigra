@@ -75,7 +75,7 @@ flowchart TD
    {:sigra, "~> 1.0"}
    ```
 
-   This is the selected 1.0 package line. If you are reading `main` before Hex shows `1.0.0`, use the latest published `0.3.x` package or a source checkout until the release PR lands. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
+   This is the selected 1.0 contract line. If Hex package metadata advertises a newer installable line, treat Hex as the current package truth and use the version constraint appropriate for your target. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
 
 2. **Scaffold** (from app root; names must match your domain):
 
@@ -145,7 +145,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | Installation & env | [introduction/installation.md](guides/introduction/installation.md) |
 | First happy path | [introduction/getting-started.md](guides/introduction/getting-started.md) |
 | Companion library suite | [introduction/suite-integration.md](guides/introduction/suite-integration.md) |
-| Upgrade notes | [latest 0.3.x -> 1.0](guides/introduction/upgrading-to-v1.0.md) · [v1.0 → v1.1](guides/introduction/upgrading-to-v1.1.md) · [toward v1.7](guides/introduction/upgrading-to-v1.7.md) · [toward v1.8](guides/introduction/upgrading-to-v1.8.md) |
+| Upgrade notes | [pre-1.0 -> v1.0](guides/introduction/upgrading-to-v1.0.md) · [v1.0 → v1.1](guides/introduction/upgrading-to-v1.1.md) · [toward v1.7](guides/introduction/upgrading-to-v1.7.md) · [toward v1.8](guides/introduction/upgrading-to-v1.8.md) |
 | Migration lanes | [from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) · [from Pow/Guardian/Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) |
 | Registration | [flows/registration.md](guides/flows/registration.md) |
 | Login / logout | [flows/login-and-logout.md](guides/flows/login-and-logout.md) |

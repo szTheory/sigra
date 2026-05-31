@@ -74,7 +74,7 @@ This subsection records the machine-vs-human boundary for **OPS-01** in the acti
 
 ## v1.32 upgrade and migration proof
 
-- **UPGRADE-02 (machine-closed):** canonical machine proof is the dedicated `CI` / `upgrade_smoke` lane backed by `scripts/ci/upgrade-smoke.sh`, which exercises the latest published `0.3.x` to local `1.0.0` candidate upgrade posture.
+- **UPGRADE-02 (machine-closed):** canonical machine proof is the dedicated `CI` / `upgrade_smoke` lane backed by `scripts/ci/upgrade-smoke.sh`, which exercises a selected published Hex source series against the local candidate checkout. The v1.0 proof lane uses `SIGRA_UPGRADE_SOURCE_SERIES=0.3` for the historical pre-1.0 cutover; maintainers can retarget the same harness when live Hex package truth has moved on.
 - **UPGRADE-01, MIGRATE-01, MIGRATE-02 (published-doc truths):** these are closed by published guidance surfaces plus docs integrity checks (`mix docs --warnings-as-errors`) for:
   - `guides/introduction/upgrading-to-v1.0.md`
   - `guides/introduction/migrating-from-phx-gen-auth.md`

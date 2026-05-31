@@ -345,7 +345,7 @@ jobs:
         run: scripts/ci/install-smoke.sh
 
   upgrade_smoke:
-    name: Upgrade smoke (latest published 0.3.x -> local 1.0.0 candidate)
+    name: Upgrade smoke (published source series -> local candidate)
     runs-on: ubuntu-latest
     needs: release_ref_guard
     services:

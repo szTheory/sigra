@@ -14,7 +14,7 @@ It does not duplicate the release gate matrix.
 - [Upgrading to v1.0](upgrading-to-v1.0.html)
 - [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.html)
 - [Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.html)
-- Canonical machine proof for the latest published `0.3.x` to local `1.0.0` candidate path: `CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh`.
+- Canonical machine proof for published-consumer upgrade posture: `CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh`. The harness defaults to the historical v1.0 source series and can be retargeted with `SIGRA_UPGRADE_SOURCE_SERIES` when live Hex package truth has moved on.
 
 ## GitHub-hosted proof links policy
 

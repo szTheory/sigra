@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # scripts/ci/upgrade-smoke.sh
 #
-# Proves upgrade posture: latest published 0.3.x from Hex -> local candidate
-# source. Fails on deps, compile, migration, or runtime regressions.
+# Proves upgrade posture: selected published Hex series -> local candidate source.
+# Fails on deps, compile, migration, or runtime regressions.
 
 set -euo pipefail
 
@@ -13,20 +13,37 @@ source "${_ci_here}/lib/mix-deps-get-retry.sh"
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app_upgrade}"
 START_VERSION_OVERRIDE="${SIGRA_UPGRADE_SMOKE_START_VERSION:-}"
+SOURCE_SERIES="${SIGRA_UPGRADE_SOURCE_SERIES:-0.3}"
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
 export CLOAK_KEY="${CLOAK_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
 
-resolve_latest_sigra_03x() {
+validate_source_series() {
+  if [[ ! "${SOURCE_SERIES}" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    echo "FAIL: SIGRA_UPGRADE_SOURCE_SERIES must be a major or major.minor series; got '${SOURCE_SERIES}'" >&2
+    exit 1
+  fi
+}
+
+series_regex() {
+  if [[ "${SOURCE_SERIES}" == *.* ]]; then
+    printf '^%s\\.[0-9]+$' "${SOURCE_SERIES//./\\.}"
+  else
+    printf '^%s\\.[0-9]+\\.[0-9]+$' "${SOURCE_SERIES}"
+  fi
+}
+
+resolve_latest_sigra_source() {
   local info versions selected
 
+  validate_source_series
   info="$(mix hex.info sigra)"
-  versions="$(printf '%s\n' "${info}" | sed -n 's/^  \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' | grep '^0\.3\.[0-9]\+$' || true)"
+  versions="$(printf '%s\n' "${info}" | sed -n 's/^  \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' | grep -E "$(series_regex)" || true)"
 
   if [[ -z "${versions}" ]]; then
-    echo "FAIL: no published sigra 0.3.x release found on Hex" >&2
+    echo "FAIL: no published sigra release found on Hex for series ${SOURCE_SERIES}" >&2
     exit 1
   fi
 
@@ -38,8 +55,9 @@ validate_override_version() {
   local override="${1}"
   local info
 
-  if [[ ! "${override}" =~ ^0\.3\.[0-9]+$ ]]; then
-    echo "FAIL: SIGRA_UPGRADE_SMOKE_START_VERSION must match 0.3.x; got '${override}'" >&2
+  validate_source_series
+  if ! printf '%s\n' "${override}" | grep -Eq "$(series_regex)"; then
+    echo "FAIL: SIGRA_UPGRADE_SMOKE_START_VERSION must match configured series ${SOURCE_SERIES}; got '${override}'" >&2
     exit 1
   fi
 
@@ -50,13 +68,13 @@ validate_override_version() {
   fi
 }
 
-SIGRA_START_VERSION="$(resolve_latest_sigra_03x)"
+SIGRA_START_VERSION="$(resolve_latest_sigra_source)"
 if [[ -n "${START_VERSION_OVERRIDE}" ]]; then
   validate_override_version "${START_VERSION_OVERRIDE}"
   SIGRA_START_VERSION="${START_VERSION_OVERRIDE}"
   echo "==> upgrade-smoke: using override published start version ${SIGRA_START_VERSION}"
 else
-  echo "==> upgrade-smoke: resolved latest published 0.3.x as ${SIGRA_START_VERSION}"
+  echo "==> upgrade-smoke: resolved latest published ${SOURCE_SERIES}.x series as ${SIGRA_START_VERSION}"
 fi
 
 echo "==> upgrade-smoke: using Sigra repo at ${SIGRA_REPO}"
@@ -109,7 +127,8 @@ elixir -e '
   path = "mix.exs"
   content = File.read!(path)
 
-  pattern = ~r/\{:sigra,\s*"~>\s*0\.3\.[0-9]+"\}/
+  start_version = System.get_env("SIGRA_START_VERSION")
+  pattern = Regex.compile!("\\{:sigra,\\s*\"~>\\s*" <> Regex.escape(start_version) <> "\"\\}")
   replacement = "{:sigra, path: System.get_env(\"SIGRA_REPO\")}"
   new_content = Regex.replace(pattern, content, replacement, global: false)
 

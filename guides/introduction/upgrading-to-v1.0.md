@@ -1,11 +1,11 @@
 # Upgrading to v1.0
 
-Sigra v1.0 is a direct Hex release target from the latest published `0.3.x` line. This guide is operational by design: branch first, run exact commands, review generated-host changes intentionally, and verify against the same proof surfaces used in this repo.
+This guide is the historical v1.0 cutover lane for teams that are moving from a pre-1.0 Sigra package to the v1.0 contract. It is operational by design: branch first, run exact commands, review generated-host changes intentionally, and verify against the same proof surfaces used in this repo.
 
 ## Version axis and target posture
 
-- Source posture: latest published `0.3.x`, resolved by `scripts/ci/upgrade-smoke.sh`.
-- Target posture: direct `1.0.0` release line.
+- Source posture for the original v1.0 cut: latest published pre-1.0 series, resolved by `scripts/ci/upgrade-smoke.sh` with `SIGRA_UPGRADE_SOURCE_SERIES=0.3`.
+- Target posture for this lane: the v1.0 contract line. If Hex already advertises a newer installable line, treat Hex package metadata as the current package truth and use this guide only for historical pre-1.0 cutover review.
 - Planning milestones (`v1.x` in `.planning/`) are coordination labels, not a second installable version axis.
 
 ## Breaking-change review categories
@@ -78,7 +78,7 @@ Run the same focused checks used by this repo:
     mix test test/upgrade_test.exs -x
     bash scripts/ci/upgrade-smoke.sh
 
-These checks validate the published-consumer upgrade posture and targeted upgrade contract.
+These checks validate the published-consumer upgrade posture and targeted upgrade contract. Maintainers can retarget the smoke source series for later public lines with `SIGRA_UPGRADE_SOURCE_SERIES`, while the v1.0 proof lane keeps `0.3` as its historical source series.
 
 ## 7. Minimal manual boot smoke
 

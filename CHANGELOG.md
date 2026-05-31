@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Planning milestones vs Hex releases
 
-This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.3.0]`** for **installable Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.x** in **`.planning/`** and archived milestone docs — those labels describe shipped tranches of work, **not** a second installable version axis on Hex. The current published Hex truth before the release PR is **`0.3.0`**, and the current planning milestone is preparing the direct real Hex **`1.0.0`** line. Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When in doubt, treat this changelog's SemVer headings and Hex package metadata as the installable version truth; treat planning milestones as project-management traceability.
+This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.3.0]`** for **installable Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.x** in **`.planning/`** and archived milestone docs — those labels describe shipped tranches of work, **not** a second installable version axis on Hex. When in doubt, treat this changelog's SemVer headings and live Hex package metadata as the installable version truth; treat planning milestones as project-management traceability.
 
 ## [0.3.0](https://github.com/szTheory/sigra/compare/v0.2.5...v0.3.0) (2026-05-25)
 
@@ -35,7 +35,7 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Documentation
 
 - **Mailglass integration posture (v1.29 DOC-01):** Sigra ships no library-resident Mailglass adapter and no `--with-mailglass` installer flag. The supported integration posture is recipe-only host-owned wiring: the host implements `Sigra.Mailer` and delegates to a Mailglass-backed module. See `guides/recipes/companion-libs/mailglass.md` for the current supported configuration.
-- **v1.0 adopter routing:** Existing adopters should start with `guides/introduction/upgrading-to-v1.0.md` for latest `0.3.x -> 1.0` upgrade flow.
+- **v1.0 adopter routing:** Existing pre-1.0 adopters should start with `guides/introduction/upgrading-to-v1.0.md` for the historical v1.0 cutover flow.
 - **Migration lane (`phx.gen.auth`):** Existing `phx.gen.auth` teams should use `guides/introduction/migrating-from-phx-gen-auth.md` for boundary-first migration guidance.
 - **Migration lane (Pow/Guardian/Ueberauth):** Existing Pow/Guardian/Ueberauth teams should use `guides/introduction/migrating-from-pow-guardian-ueberauth.md` for boundary-first migration guidance.
 
