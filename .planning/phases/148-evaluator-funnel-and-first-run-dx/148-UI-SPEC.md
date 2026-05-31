@@ -1,10 +1,11 @@
 ---
 phase: 148
 slug: evaluator-funnel-and-first-run-dx
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-31
+reviewed_at: 2026-05-31
 ---
 
 # Phase 148 — UI Design Contract
