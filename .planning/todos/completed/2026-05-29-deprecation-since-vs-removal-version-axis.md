@@ -1,5 +1,7 @@
 ---
 created: 2026-05-29T00:00:00.000Z
+status: resolved
+resolved: 2026-05-31
 title: Reconcile @doc since vs "Scheduled for removal" version axes on deprecated functions
 area: lib (deprecation annotations) + versioning policy
 files:
@@ -69,6 +71,11 @@ Hex SemVer axis; only the `@doc since:` labels sit on the internal milestone axi
 Re-keying every `since:` library-wide (Option 1) is real churn and out of scope
 for a low-code consolidation close. The dual-axis convention is now documented in
 `MAINTAINING.md` → "Dual version axes" so the rendered inversion reads as
-intentional. **This todo stays open** as the tracking home for a future
-dedicated library-wide `@doc since:` → Hex-axis reconciliation (do NOT guess-fix;
-it remains a deliberate, separate change). No v1.30 code edit.
+intentional. No v1.30 code edit.
+
+## Closeout note (2026-05-31)
+
+Moved to completed during v1.31 closeout because the required decision has been
+made and the maintainer-facing convention is documented. A future library-wide
+`@doc since:` re-key, if desired, should be planned as a new milestone item
+rather than kept as stale closeout debt.

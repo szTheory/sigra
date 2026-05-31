@@ -1,5 +1,7 @@
 ---
 created: 2026-05-29T00:00:00.000Z
+status: resolved
+resolved: 2026-05-31
 title: Phase 138 Sigra.Doctor minor (Info) code-review findings
 area: lib/sigra
 files:
@@ -17,6 +19,18 @@ in Phase 140 (commit `6f60743`) was the Gate-5 moduledoc autolink fix at lines
 HEAD: IN-01 `:quiet` paragraph still at doctor.ex:138; IN-02 `bcrypt_configured?/1`
 still hardcoded at doctor.ex:428; IN-03 test grep untouched. Tag removed so this is
 not falsely auto-closed; remains a pending low-priority cleanup for a future pass.
+
+## Resolution (2026-05-31)
+
+Resolved during v1.31 closeout:
+
+- IN-01: `run/1` docs no longer claim `:quiet` changes returned rows; they now
+  state that output verbosity belongs to the Mix task while `run/1` returns the
+  full structured diagnosis.
+- IN-02: `:password_migration` now has an inline feature-definition note that it
+  is intentionally two-state because there is no host config flag.
+- IN-03: the brittle source-grep test was removed; behavior-level exit tests
+  remain.
 
 ## Problem
 

@@ -197,6 +197,9 @@ working end-to-end reference in under a minute.
 Four touchpoints, all inside `test/example/`:
 
 1. **Dep** — `mix.exs` carries `{:threadline, "~> 0.5", only: [:dev, :test]}`.
+   That scope is correct for this demo because the app never calls `Threadline.*`
+   modules from production paths; move the dependency to prod scope before copying
+   this pattern into production code that calls Threadline directly.
 
 2. **Config** — Both `lib/example/accounts.ex` (`sigra_config/0`, `audit:` list)
    and `config/config.exs` (`:sigra_config`, `audit:` keyword) carry the
@@ -214,6 +217,10 @@ Four touchpoints, all inside `test/example/`:
      `saved_views`, `evidence_records`
 
    The `test` alias runs `ecto.migrate --quiet` automatically; no manual step.
+   Rollback to exactly the first generated Threadline migration is unsupported
+   for this demo because the generated trigger references fields added by the
+   next migration; migrate or rollback the three committed Threadline migrations
+   as a set.
 
 4. **Integration test** — `test/example_web/threadline_forwarder_test.exs` drives
    login via `ExampleWeb.UserAuth.log_in_user/2`, then asserts that the resulting
@@ -221,7 +228,9 @@ Four touchpoints, all inside `test/example/`:
    `Threadline.Semantics.AuditAction` row joined on `correlation_id == audit_event.id`.
 
    `Sigra.Application` attaches a `:default` forwarder at boot from the
-   `:sigra_config` `audit.forwarders` block. To run with exactly one handler, the
+   `:sigra_config` `audit.forwarders` block. Keep the `forwarders:` entries in
+   `config/config.exs` and `lib/example/accounts.ex` in sync; `sigra_config/0`
+   is the authoritative runtime config. To run with exactly one handler, the
    test (`async: false`) detaches `:default` in setup, attaches a `:test` handler
    pinned to `dispatch: :sync` + `repo: Example.Repo` for deterministic inline
    insertion inside the SQL Sandbox, and restores `:default` in `on_exit`.

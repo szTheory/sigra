@@ -133,11 +133,9 @@ defmodule Sigra.Doctor do
   This is the entrypoint called by `Mix.Tasks.Sigra.Doctor`. All IO formatting
   and exit logic lives in the Mix task, not here.
 
-  Accepts the same injection options as `diagnose/1`, plus:
-
-  - `:quiet` — boolean; when `true`, hints are omitted from the returned rows
-    (the Mix task uses this to tune output verbosity). The verdict and states are
-    always returned regardless of `:quiet`.
+  Accepts the same injection options as `diagnose/1`. Output verbosity is handled
+  by `Mix.Tasks.Sigra.Doctor`; this function always returns the full structured
+  diagnosis.
   """
   @spec run(keyword()) :: diagnosis()
   def run(opts \\ []) do
@@ -237,6 +235,8 @@ defmodule Sigra.Doctor do
         feature: :password_migration,
         deps: ["bcrypt_elixir"],
         availability_keys: [:bcrypt],
+        # No host config flag enables bcrypt migration. The diagnostic is
+        # intentionally two-state: missing or available.
         configured?: &bcrypt_configured?/1,
         hard_fail?: fn _preds, _host, _oban, _module_loaded? -> false end,
         hint_missing:

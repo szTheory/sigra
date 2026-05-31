@@ -603,7 +603,9 @@ defmodule Example.Accounts do
       ],
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
-      # written for session.create, auth.login.*, etc.
+      # written for session.create, auth.login.*, etc. Keep this forwarder
+      # block in sync with config/config.exs; sigra_config/0 is authoritative
+      # at runtime.
       audit: [
         audit_schema: Example.Accounts.AuditEvent,
         forwarders: [

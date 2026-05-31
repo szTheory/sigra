@@ -1,7 +1,7 @@
 ---
 phase: 143
 slug: playwright-demo-spec-screenshots
-status: approved
+status: finalized
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-05-30
@@ -39,10 +39,10 @@ created: 2026-05-30
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 143-01-01 | 01 | 1 | PW-01 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium demo-showcase.spec.ts --reporter=line` | ✅ | ⬜ pending |
-| 143-01-02 | 01 | 1 | PW-01 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium --reporter=line` | ✅ | ⬜ pending |
-| 143-02-01 | 02 | 2 | PW-02 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium --update-snapshots --reporter=line` | ✅ | ⬜ pending |
-| 143-01-03 | 01 | 1 | PW-03 | — | N/A | unit | `cd test/example && mix test test/example/demo/seeds_test.exs` | ✅ | ⬜ pending |
+| 143-01-01 | 01 | 1 | PW-01 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium demo-showcase.spec.ts --reporter=line` | ✅ | ✅ green |
+| 143-01-02 | 01 | 1 | PW-01 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium --reporter=line` | ✅ | ✅ green |
+| 143-02-01 | 02 | 2 | PW-02 | — | N/A | integration | `cd test/example && npx playwright test --project=demo-showcase-chromium --update-snapshots --reporter=line` | ✅ | ✅ green |
+| 143-01-03 | 01 | 1 | PW-03 | — | N/A | unit | `cd test/example && mix test test/example/demo/seeds_test.exs` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -70,11 +70,11 @@ Existing infrastructure covers all phase requirements:
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** finalized 2026-05-31 from `143-VERIFICATION.md` passed evidence

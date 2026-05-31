@@ -152,12 +152,4 @@ defmodule Mix.Tasks.Sigra.DoctorTest do
     assert stdout != "", "expected non-empty stdout output before the exit call"
   end
 
-  # ---------------------------------------------------------------------------
-  # Test 8: no System.halt anywhere in the task file
-  # ---------------------------------------------------------------------------
-
-  test "System.halt is not used in lib/mix/tasks/sigra.doctor.ex" do
-    source = File.read!("lib/mix/tasks/sigra.doctor.ex")
-    refute source =~ "System.halt"
-  end
 end

@@ -1,5 +1,7 @@
 ---
 created: 2026-05-28T00:00:00.000Z
+status: resolved
+resolved: 2026-05-31
 title: Phase 135 code-review deferred findings — Threadline demo polish + upstream note
 area: test/example + docs + upstream
 files:
@@ -16,6 +18,22 @@ Deferred during Phase 135 code review (135-REVIEW.md). CR-02/WR-02 were fixed
 in commit d7e508e. The four items below were verified and intentionally NOT
 fixed because they are upstream-owned or plan-mandated. Tracked here so they are
 not lost.
+
+## Resolution (2026-05-31)
+
+Resolved for v1.31 closeout:
+
+- CR-01 is documented in `test/example/AGENTS.md`: rollback to exactly the first
+  generated Threadline migration is unsupported; migrate/rollback the three
+  committed generated migrations as a set.
+- WR-03 is documented in `test/example/AGENTS.md`: the `only: [:dev, :test]`
+  Threadline dependency scope is correct for this demo, but production code that
+  calls `Threadline.*` directly must move the dependency to prod scope.
+- IN-01 is documented in both `test/example/AGENTS.md` and
+  `test/example/lib/example/accounts.ex`: keep the `forwarders:` blocks in sync,
+  and treat `sigra_config/0` as the authoritative runtime config.
+- WR-01 remains accepted as intentionally strong assertion behavior; no code
+  change needed unless a future Threadline bump breaks the shape.
 
 ## Items
 
