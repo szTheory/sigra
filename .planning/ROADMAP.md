@@ -47,7 +47,7 @@
 - [x] **Phase 143: Playwright Demo Spec & Screenshots** — Demo-persona spec in its own project partition and evaluator-facing screenshot capture (completed 2026-05-30)
 - [x] **Phase 144: README Evaluator Lane & Docs/Proof** — "Try it locally" README section, demo-showcase guide, and milestone proof bundle (completed 2026-05-30)
 - [x] **Phase 144.1: Address Tech Debt** — VALIDATION.md finalization, WR-01 tag fix, Dave credential clarity, spec comment correction (completed 2026-05-30)
-- [ ] **Phase 144.2: Close minor integration debt: testInfo param + ga-evidence link** — (INSERTED) rename unused testInfo param to _testInfo; fix unresolvable ga-evidence.md ExDoc link
+- [x] **Phase 144.2: Close minor integration debt: testInfo param + ga-evidence link** — (INSERTED) rename unused testInfo param to _testInfo; fix unresolvable ga-evidence.md ExDoc link (completed 2026-05-30)
 
 ## Phase Details
 
@@ -198,7 +198,7 @@
 **Plans**: 1 plan
 **Wave 1**
 
-- [ ] 144.2-01-PLAN.md — testInfo rename + ga-evidence.md absolute URL + mix.exs suppression removal (D-01, D-02, D-03)
+- [x] 144.2-01-PLAN.md — testInfo rename + ga-evidence.md absolute URL + mix.exs suppression removal (D-01, D-02, D-03)
 
 ## Progress
 
@@ -209,7 +209,7 @@
 | 143. Playwright Demo Spec & Screenshots | 2/2 | Complete    | 2026-05-30 |
 | 144. README Evaluator Lane & Docs/Proof | 3/3 | Complete    | 2026-05-30 |
 | 144.1. Address Tech Debt | 1/1 | Complete    | 2026-05-30 |
-| 144.2. Close minor integration debt: testInfo param + ga-evidence link | 0/1 | Not started | — |
+| 144.2. Close minor integration debt: testInfo param + ga-evidence link | 1/1 | Complete | 2026-05-30 |
 
 ---
 
