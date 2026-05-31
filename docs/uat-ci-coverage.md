@@ -1,6 +1,6 @@
 # GA UAT — CI vs human coverage (SEED-001 shift-left)
 
-This document maps the eight **SEED-001** human GA items to **merge-blocking CI** substitutes, **library/integration tests**, and **residual** risk that still needs occasional human or vendor-assisted verification.
+This document maps the eight **SEED-001** human GA items to **merge-blocking CI** substitutes, **library/integration tests**, and **residual** risk that still needs occasional human or vendor-assisted verification. Sigra's default verification posture is automation-first: when CI, deterministic local commands, browser automation, or an explicit machine substitute covers the acceptance criteria, the phase is machine-closed and no conversational UAT is required.
 
 | SEED | Topic | CI / automated substitute | Residual (not replaced by CI) |
 |------|--------|----------------------------|-------------------------------|
@@ -72,6 +72,15 @@ This subsection records the machine-vs-human boundary for **OPS-01** in the acti
 - Cross-browser compatibility, branded UI review, and screenshot-heavy review are outside this proof package.
 - This package does not prove SCIM, hosted control plane behavior, opinionated authz, or provider certification.
 
+## v1.32 upgrade and migration proof
+
+- **UPGRADE-02 (machine-closed):** canonical machine proof is the dedicated `CI` / `upgrade_smoke` lane backed by `scripts/ci/upgrade-smoke.sh`, which exercises the latest published `0.3.x` to local `1.0.0` candidate upgrade posture.
+- **UPGRADE-01, MIGRATE-01, MIGRATE-02 (published-doc truths):** these are closed by published guidance surfaces plus docs integrity checks (`mix docs --warnings-as-errors`) for:
+  - `guides/introduction/upgrading-to-v1.0.md`
+  - `guides/introduction/migrating-from-phx-gen-auth.md`
+  - `guides/introduction/migrating-from-pow-guardian-ueberauth.md`
+- **Residual human review boundary:** limited to editorial judgment about migration boundaries, risk framing, and "who should/should not migrate now" wording. This section does not claim executable migration cutover automation or ecosystem-equivalence certification.
+
 ## Where to run this
 
 - **GitHub Actions:** `.github/workflows/ci.yml` — jobs `library_tests`, `example_unit_smoke`, `example_playwright_smoke` (includes `ga-uat-shift-left.spec.ts`), `install_smoke`, `getting_started_uat_contract`.
@@ -81,4 +90,5 @@ This subsection records the machine-vs-human boundary for **OPS-01** in the acti
 ## Policy
 
 - **Merge-blocking:** Rows SEED-1–2, 3, 4, 5, 6, 7 (example smoke + Playwright UX), and 8 (doc contract) are considered **machine-closed** for GA posture when the jobs above are green.
-- **Residual:** Real mail clients and live Google OAuth remain **optional** pre-announcement spot checks; track separately (e.g. quarterly) if desired.
+- **Automation-first phase close:** For new phase verification, prefer a `*-VERIFICATION.md` artifact backed by commands, CI jobs, Playwright/browser automation, screenshot contracts, or grep/documentation gates. Do not create mandatory human UAT when those machine checks cover the phase truths.
+- **Residual:** Real mail clients, live Google OAuth, provider-specific behavior, and subjective review remain **optional** spot checks unless a milestone explicitly promotes one to a required automated or CI gate. Track them separately rather than blocking ordinary phase close.

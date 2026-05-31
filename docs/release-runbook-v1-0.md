@@ -10,6 +10,7 @@ This document is the single source of truth for release gates, evidence, recover
 | Library tests | `CI` / `library_tests` | release tag | `Gate=library_tests`, run URL, run id, pass status | If unavailable on tag, record: `gate`, `reason`, `approver`, `evidence URL`, `expiry` |
 | Install golden/idempotency | `CI` / `install_golden_contract` | release tag | `Gate=install_golden_contract`, run URL/log, pass status | Same waiver fields required |
 | Install smoke | `CI` / `install_smoke` | release tag | `Gate=install_smoke`, run URL/log, pass status | Same waiver fields required |
+| Upgrade smoke | `CI` / `upgrade_smoke` | release tag | `Gate=upgrade_smoke`, run URL/log, pass status | Same waiver fields required |
 | Example HTTP smoke | `CI` / `example_http_smoke` | release tag | `Gate=example_http_smoke`, run URL/log, pass status | Same waiver fields required |
 | Example Playwright smoke | `CI` / `example_playwright_smoke` | release tag | `Gate=example_playwright_smoke`, run URL/log, pass status | Same waiver fields required |
 | Generated admin Playwright smoke | `CI` / `generated_admin_playwright_smoke` | release tag | `Gate=generated_admin_playwright_smoke`, run URL/log, pass status | Same waiver fields required |
@@ -31,6 +32,7 @@ Use one row per gate and do not publish until required rows are complete.
 | library_tests | `CI` / `library_tests` | `v1.0.0` |  |  |  |  |
 | install_golden_contract | `CI` / `install_golden_contract` | `v1.0.0` |  |  |  |  |
 | install_smoke | `CI` / `install_smoke` | `v1.0.0` |  |  |  |  |
+| upgrade_smoke | `CI` / `upgrade_smoke` | `v1.0.0` |  |  |  |  |
 | example_http_smoke | `CI` / `example_http_smoke` | `v1.0.0` |  |  |  |  |
 | example_playwright_smoke | `CI` / `example_playwright_smoke` | `v1.0.0` |  |  |  |  |
 | generated_admin_playwright_smoke | `CI` / `generated_admin_playwright_smoke` | `v1.0.0` |  |  |  |  |
