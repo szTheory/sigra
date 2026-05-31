@@ -19,7 +19,7 @@
 | You are… | Do this first |
 |----------|----------------|
 | **Evaluating** | Skim **Where code lives** (diagram), **What ships**, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
-| **Integrating** | Run **First integration** (diagram + commands), read **Prerequisites**, then follow [Installation](guides/introduction/installation.md) and [Getting started](guides/introduction/getting-started.md). |
+| **Integrating** | Run **First integration** (diagram + commands), read **Prerequisites** and the [Sigra 1.0 contract](guides/introduction/contract.md), then follow [Installation](guides/introduction/installation.md) and [Getting started](guides/introduction/getting-started.md). |
 | **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
 | **Maintaining / releasing** | See [`MAINTAINING.md`](MAINTAINING.md) for version bumps, Hex and GitHub releases, and planning hygiene for maintainers. |
 
@@ -72,8 +72,10 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 0.2"}
+   {:sigra, "~> 1.0"}
    ```
+
+   This is the selected 1.0 package line. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
 
 2. **Scaffold** (from app root; names must match your domain):
 
@@ -170,7 +172,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | **Enumeration** | Safer defaults on account discovery flows (details in HexDocs per flow). |
 | **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
 
-For threat-model detail and per-flow guarantees, use **HexDocs** and the guides above — the README stays a map, not a spec.
+For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](SECURITY.md), and the [Sigra 1.0 contract](guides/introduction/contract.md) for the full invariants and non-goals — the README stays a map, not a spec.
 
 ## Release evidence (maintainers and auditors)
 
