@@ -36,12 +36,143 @@
 - ✅ **v1.29 SUITE-INTEGRATION (Companion-Library Integration)** — Phases **131–136** (shipped **2026-05-29**). See [v1.29 archive](milestones/v1.29-ROADMAP.md), [v1.29 requirements](milestones/v1.29-REQUIREMENTS.md), [v1.29 milestone audit](milestones/v1.29-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.30 TRUST-HARDENING (Operator Confidence & Debt Closure)** — Phases **137–140** (shipped **2026-05-29**). See [v1.30 archive](milestones/v1.30-ROADMAP.md), [v1.30 requirements](milestones/v1.30-REQUIREMENTS.md), [v1.30 milestone audit](milestones/v1.30-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.31 DEMO-SHOWCASE** — Phases **141–144.2** (shipped **2026-05-31**). See [v1.31 archive](milestones/v1.31-ROADMAP.md), [v1.31 requirements](milestones/v1.31-REQUIREMENTS.md), [v1.31 milestone audit](milestones/v1.31-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
+- 🔄 **v1.32 RELEASE-ADOPTION** — Phases **145–149** (active). Goal: cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel without adding new auth primitives.
 
 ## Current Milestone
 
-No active milestone. Start the next milestone with `$gsd-new-milestone`; phases continue from **145**.
+**v1.32 RELEASE-ADOPTION**
+
+**Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
+
+**Scope posture:** This is a release-truth and adoption milestone, not a feature milestone. No SCIM, hosted control plane, generic compliance platform, authorization engine, broad generated-host UI redesign, or new auth primitives.
+
+**Research basis:**
+- `.planning/research/RELEASE-MECHANICS.md`
+- `.planning/research/ADOPTION-DX.md`
+- `.planning/research/ECOSYSTEM-BENCHMARKS.md`
+- `.planning/research/LOCAL-PROMPT-SYNTHESIS.md`
+- `.planning/research/SUMMARY.md`
+
+## Phase Summary
+
+| Phase | Name | Goal | Requirements | Success Criteria |
+|-------|------|------|--------------|------------------|
+| 145 | 1.0 Contract And Release Truth | Lock the public 1.0 contract and remove version/scope ambiguity before release automation work. | REL1-01, REL1-04, CONTRACT-01..04 | 5 |
+| 146 | Release Gate And Maintainer Runbook | Make the 1.0 publish path deterministic, evidence-backed, and recoverable. | REL1-02, REL1-03 | 5 |
+| 147 | Upgrade And Migration Lanes | Give existing and migrating teams executable guidance before the adoption push. | UPGRADE-01..02, MIGRATE-01..02 | 5 |
+| 148 | Evaluator Funnel And First-Run DX | Turn README, HexDocs, demo, and doctor guidance into one canonical first-10-minutes path. | ADOPT-01..04 | 5 |
+| 149 | Launch Evidence And Announcement Pack | Package the public 1.0 story around proof, comparisons, and post-release triage. | LAUNCH-01..04 | 5 |
+
+## Phase Details
+
+### Phase 145: 1.0 Contract And Release Truth
+
+**Goal:** Lock the public 1.0 contract and remove version/scope ambiguity before release automation work.
+
+**Requirements:** REL1-01, REL1-04, CONTRACT-01, CONTRACT-02, CONTRACT-03, CONTRACT-04
+
+**Success criteria:**
+1. `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, README, and maintainer docs agree on the selected Hex `1.0.0` path.
+2. Public docs explain planning milestones vs installable Hex versions without relying on maintainer tribal knowledge.
+3. A single 1.0 contract states supported Elixir, OTP, Phoenix, Ecto, Postgres, and optional-dependency posture.
+4. Docs clearly separate library-owned, generated-host-owned, and shared seam surfaces.
+5. Security invariants and non-goals are visible from the top-level docs and do not overclaim host-owned responsibilities.
+
+**Why first:** Release automation should not encode a contract that the public docs cannot explain.
+
+### Phase 146: Release Gate And Maintainer Runbook
+
+**Goal:** Make the 1.0 publish path deterministic, evidence-backed, and recoverable.
+
+**Requirements:** REL1-02, REL1-03
+
+**Success criteria:**
+1. Maintainer runbook covers dry-run, package inspection, tag/source-ref checks, Hex publish, docs publish, post-publish visibility, and revert/replace recovery.
+2. Release gate matrix includes library tests, install golden/idempotency, fresh install smoke, example/browser smoke, dep-off lane, docs warnings, Hex dry-run, and post-publish checks.
+3. Release gates run against the release ref or explicitly document why a gate is manual with evidence.
+4. First-14-day hotfix policy and triage expectations are documented before publish.
+5. A failed dry-run or publish has an explicit recovery path that does not require inventing process under pressure.
+
+### Phase 147: Upgrade And Migration Lanes
+
+**Goal:** Give existing and migrating teams executable guidance before the adoption push.
+
+**Requirements:** UPGRADE-01, UPGRADE-02, MIGRATE-01, MIGRATE-02
+
+**Success criteria:**
+1. `upgrading-to-v1.0.md` covers breaking changes, generated-file review, migration/schema impact, rollback notes, and verification commands.
+2. Automated consumer upgrade smoke proves latest `0.3.x` posture can move to `1.0.0` candidate source without unexpected compile/install/runtime regressions.
+3. `phx.gen.auth` migration lane explains when to migrate, when not to, and how Sigra's scope/session/token model differs.
+4. Pow/Guardian/Ueberauth migration lane explains cutover options, session/token/OAuth ownership boundaries, and migration risk.
+5. Migration docs are linked from README, ExDoc, launch notes, and AI-consumption index surfaces.
+
+### Phase 148: Evaluator Funnel And First-Run DX
+
+**Goal:** Turn README, HexDocs, demo, and doctor guidance into one canonical first-10-minutes path.
+
+**Requirements:** ADOPT-01, ADOPT-02, ADOPT-03, ADOPT-04
+
+**Success criteria:**
+1. README, Hex package text, ExDoc, and `test/example/README.md` all point to the same first evaluator path.
+2. A fresh evaluator can run the demo and reach a meaningful auth flow in 10 minutes or less using documented commands.
+3. Demo persona map explains what each seeded account proves, including locked, MFA, OAuth-linked, passkey, admin, and rough-edge states.
+4. Screenshot grid and demo limitations make evaluator proof inspectable without pretending the demo is production certification.
+5. First-run doctor/troubleshooting guidance shows expected success and common failure output after install.
+
+### Phase 149: Launch Evidence And Announcement Pack
+
+**Goal:** Package the public 1.0 story around proof, comparisons, and post-release triage.
+
+**Requirements:** LAUNCH-01, LAUNCH-02, LAUNCH-03, LAUNCH-04
+
+**Success criteria:**
+1. 1.0 announcement draft is publish-ready and includes problem framing, differentiators, non-goals, proof links, and upgrade guidance.
+2. Public docs include honest comparisons against `phx.gen.auth`, Pow/Guardian/Ueberauth composition, and hosted auth.
+3. Evidence bundle links CI gates, UAT/CI mapping, docs build, demo screenshots, release dry-run/publish checks, and known limitations.
+4. `llms.txt` or equivalent AI-consumption index points to canonical install, ownership, migration, security, and demo paths.
+5. Release notes clearly say who should upgrade now, who can wait, and how adopter-reported regressions are triaged in the hotfix window.
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| REL1-01 | Phase 145 | Pending |
+| REL1-02 | Phase 146 | Pending |
+| REL1-03 | Phase 146 | Pending |
+| REL1-04 | Phase 145 | Pending |
+| CONTRACT-01 | Phase 145 | Pending |
+| CONTRACT-02 | Phase 145 | Pending |
+| CONTRACT-03 | Phase 145 | Pending |
+| CONTRACT-04 | Phase 145 | Pending |
+| UPGRADE-01 | Phase 147 | Pending |
+| UPGRADE-02 | Phase 147 | Pending |
+| MIGRATE-01 | Phase 147 | Pending |
+| MIGRATE-02 | Phase 147 | Pending |
+| ADOPT-01 | Phase 148 | Pending |
+| ADOPT-02 | Phase 148 | Pending |
+| ADOPT-03 | Phase 148 | Pending |
+| ADOPT-04 | Phase 148 | Pending |
+| LAUNCH-01 | Phase 149 | Pending |
+| LAUNCH-02 | Phase 149 | Pending |
+| LAUNCH-03 | Phase 149 | Pending |
+| LAUNCH-04 | Phase 149 | Pending |
+
+**Coverage:** 20/20 requirements mapped, 0 unmapped.
 
 ## Phases
+
+<details open>
+<summary>🔄 v1.32 RELEASE-ADOPTION (Phases 145–149) — ACTIVE</summary>
+
+**Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
+
+- [ ] **Phase 145: 1.0 Contract And Release Truth** — public contract, version-axis clarity, ownership boundaries, security invariants, and SemVer/deprecation posture
+- [ ] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy
+- [ ] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane
+- [ ] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output
+- [ ] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes
+
+</details>
 
 <details>
 <summary>✅ v1.31 DEMO-SHOWCASE (Phases 141–144.2) — SHIPPED 2026-05-31</summary>

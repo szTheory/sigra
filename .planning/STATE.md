@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.31
-milestone_name: DEMO-SHOWCASE
-status: Awaiting next milestone
-last_updated: "2026-05-31T14:33:53.067Z"
-last_activity: 2026-05-31 — Milestone v1.31 completed and archived
+milestone: v1.32
+milestone_name: RELEASE-ADOPTION
+status: planning
+last_updated: "2026-05-31T14:52:14.661Z"
+last_activity: 2026-05-31
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 14
-  completed_plans: 14
-  percent: 100
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,32 +21,36 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Awaiting next milestone
+**Current focus:** v1.32 RELEASE-ADOPTION — Phase 145 next
 
 ## Current Position
 
-Phase: Milestone v1.31 complete
+Phase: 145 — 1.0 Contract And Release Truth
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-05-31 — Milestone v1.31 completed and archived
+Status: Ready for phase discussion/planning
+Last activity: 2026-05-31 — Milestone v1.32 roadmap created
 
 ## Accumulating Context
 
+- `v1.32 RELEASE-ADOPTION` roadmap created 2026-05-31: 5 phases (145–149), 20/20 requirements mapped. Phase 145 locks the public 1.0 contract and release truth; Phase 146 builds deterministic release gates and maintainer runbook; Phase 147 ships upgrade/migration lanes; Phase 148 tightens evaluator funnel and first-run DX; Phase 149 packages launch evidence and announcement materials.
+- Research consensus from `.planning/research/RELEASE-MECHANICS.md`, `ADOPTION-DX.md`, `ECOSYSTEM-BENCHMARKS.md`, `LOCAL-PROMPT-SYNTHESIS.md`, and `SUMMARY.md`: cut real Hex `1.0.0` directly from `main`, avoid a public RC train unless a concrete blocker appears, and keep v1.32 as release-truth/adoption work rather than new auth feature work.
+- Selected scope: SemVer/public API contract, generated-host ownership contract, compatibility/support boundaries, release gate matrix, upgrade smoke, migration lanes, demo/evaluator funnel, announcement/evidence bundle, and first-14-day hotfix policy.
+- Non-goals locked: no SCIM, hosted control plane, authorization engine, generic compliance platform, broad generated-host UI redesign, Mailglass adapter resurrection, public RC train by default, or new auth primitives.
 - `v1.31 DEMO-SHOWCASE` roadmap created 2026-05-29: 4 phases (141–144), 14/14 requirements mapped. Phase 141 Seed Data Layer (SEED-01..06, hard dependency for all later phases, owns full security posture) → Phase 142 Dev Credentials Page & App Framing (DEMO-01/DEMO-02, depends on 141) → Phase 143 Playwright Demo Spec & Screenshots (PW-01/PW-02/PW-03, depends on 141) → Phase 144 README Evaluator Lane & Docs/Proof (DOC-01/DOC-02/DOC-03, depends on 141 + 143). Seeds-first / proof-last invariant honored per SUMMARY.md firm ordering rule.
 - Granularity config is "fine" but this is a low-net-new-code milestone (data + one dev LiveView + Playwright + docs). 4 phases map cleanly to natural delivery boundaries without artificial padding.
 - Key architectural decisions locked in SUMMARY.md: no Faker dep (determinism); deterministic demo-only TOTP secret is acceptable behind the `Mix.env()==:test` guard; 6 persona roster (admin/alice/bob/carol/dave/frank); email domains `@demo.sigra.dev` (seeded) vs `@example.test` (golden-path) are an enforced invariant; Argon2 dev cost override `t_cost: 2, m_cost: 12` in `dev.exs` (not `t_cost: 1, m_cost: 8`).
 - `v1.30 TRUST-HARDENING` shipped + archived 2026-05-29 (Phases 137–140, 11/11 requirements). Phase 141 continues the sequential numbering.
 
-## Research Flags (Surface at Phase 141 Plan Time)
+## Research Flags
 
-These require quick codebase confirmation before writing seed insert code — not pre-planning research, just spot-checks:
+Surface these during v1.32 planning:
 
 | Flag | What to Confirm | Impact if Wrong |
 |------|-----------------|-----------------|
-| `user_identities` schema fields | Exact column names for Carol's OAuth identity insert | Wrong column names cause compile/runtime failure on seed run |
-| `EnterpriseConnection` schema shape | Required fields + column names for Acme Corp SSO row | Same — insert fails if fields are wrong |
-| `Sigra.Testing.setup_totp/2` in dev | Whether the function is available outside `MIX_ENV=test` | If test-only, use direct `Repo.insert!` on `UserMfaCredential` instead |
-| `UserPasskey.create_changeset/2` + Wax | Whether inserting a passkey display row triggers Wax ceremony validation | If yes, skip the passkey display row and note as deferred; avoid fabricated COSE key issues |
+| Release Please 1.0 jump | Whether Release Please needs config or manual PR handling to jump from `0.3.0` to `1.0.0` cleanly | Wrong automation assumptions can produce `0.4.0` or malformed changelog/tag state |
+| Hex publish dry-run | Exact package files, docs size, source links, and warnings from `mix hex.publish --dry-run` | Publish can fail late or ship stale/missing docs |
+| Consumer upgrade smoke | Whether the latest published `0.3.x` posture can be simulated locally without requiring real Hex `1.0.0` | Upgrade gate may need path/source override design before release |
+| Top-level docs IA | Exact README/ExDoc/Hex package entry points that need canonical first-path alignment | Adoption funnel can remain fragmented despite new docs |
 
 ## Deferred Items
 
@@ -75,7 +79,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Start Phase 145 with `/gsd-discuss-phase 145` or plan directly with `/gsd-plan-phase 145`.
 
 ### Blockers
 
@@ -105,5 +109,6 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 
 ### Roadmap Evolution
 
+- v1.32 RELEASE-ADOPTION created after research-backed milestone selection. Five phases (145–149) map 20 requirements with zero unmapped requirements.
 - Phase 144.1 inserted after Phase 144: Address tech debt: VALIDATION.md finalization + Dave credential clarity + spec comment (URGENT)
 - Phase 144.2 inserted after Phase 144.1: Close minor integration debt: testInfo param + ga-evidence link (URGENT)

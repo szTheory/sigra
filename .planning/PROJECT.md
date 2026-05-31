@@ -103,7 +103,20 @@ Archives:
 
 `v1.31 DEMO-SHOWCASE` is shipped and archived (Phases 141–144.2, 14/14 requirements). The example app now doubles as adopter proof and an evaluator walkthrough: `mix setup && mix phx.server` yields seeded personas, visible rough edges, dev credentials, Playwright-backed screenshots, and docs that guide a click-around review.
 
-No milestone is active. The next milestone should start with `$gsd-new-milestone`; phase numbering continues from **Phase 145**. DEMO-03 (in-app per-persona explainer banner) remains a future requirement, not shipped scope.
+## Current Milestone: v1.32 RELEASE-ADOPTION
+
+**Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
+
+**Target features:**
+- Direct Hex `1.0.0` release path with SemVer, changelog, Release Please, HexDocs, tag, dry-run, publish, and recovery truth aligned.
+- Public 1.0 contract covering API stability, generated-host ownership, supported Elixir/Phoenix/Ecto ranges, deprecation policy, security invariants, and explicit non-goals.
+- Upgrade and adoption lanes for current `0.3.x` users, greenfield Phoenix 1.8 apps, `phx.gen.auth` apps, and Pow/Guardian/Ueberauth-style stacks.
+- Canonical evaluator funnel over README, HexDocs, demo showcase, screenshots, proof links, and launch announcement materials.
+- First-14-day post-1.0 hotfix and adopter-triage policy.
+
+This is a release-truth and adoption milestone, not a feature milestone. No new auth primitives, framework expansion, hosted-control-plane behavior, or broad UI redesign belong in scope.
+
+Phase numbering continues from **Phase 145**. DEMO-03 (in-app per-persona explainer banner) remains a future requirement, not v1.32 scope.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
 
@@ -239,12 +252,12 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** No milestone active — `/gsd-new-milestone` to start the next cycle (questioning → research → requirements → roadmap). Phases continue from **Phase 145**. Re-rank `MILESTONE-ARC.md` first.
+**Immediate next action:** v1.32 RELEASE-ADOPTION is active — start Phase 145 with `/gsd-discuss-phase 145` or plan directly with `/gsd-plan-phase 145`.
 
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
 **Last shipped milestone:**
-- `v1.31 DEMO-SHOWCASE` (shipped 2026-05-31, Phases 141–144.2) — Seed-rich Evaluator Demo Showcase. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`.
+- `v1.31 DEMO-SHOWCASE` (shipped 2026-05-31, Phases 141–144.2) — Seed-rich Evaluator Demo Showcase. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`. v1.32 is now active as the real Hex `1.0.0` release and adoption push.
 
 **Ranked follow-on (next candidates after v1.30):**
 - **"Demo Showcase"** — seed-rich, persona-driven, one-command spin-up extending `test/example/` (not a new repo). Ranked highest-value near-term build by the mid-v1.30 boundary assessment; closes the one genuine adoption gap (no evaluator-facing demo). See `.planning/threads/adoption-evidence-and-demo-showcase.md`.
