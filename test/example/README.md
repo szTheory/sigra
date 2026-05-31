@@ -1,6 +1,7 @@
 # Vaultr — Sigra Demo App
 
-Vaultr is a showcase Phoenix app demonstrating [Sigra](https://hexdocs.pm/sigra) — a comprehensive authentication library for Phoenix 1.8+. It covers registration, email confirmation, password reset, TOTP MFA, OAuth/social login, and account lifecycle out of the box. You can run it locally in one command and explore every auth feature with pre-seeded personas.
+Vaultr is the runnable local companion for Sigra's canonical evaluator walkthrough:
+[Demo Showcase](https://hexdocs.pm/sigra/demo-showcase.html).
 
 ## Try it locally
 
@@ -25,7 +26,7 @@ cd test/example
 mix setup && mix phx.server
 ```
 
-Then visit http://localhost:4000
+Then visit http://localhost:4000/demo/credentials first.
 
 ## Demo Personas
 
@@ -33,18 +34,20 @@ All personas use the `@demo.sigra.dev` email domain. Passwords are public-by-des
 
 | Email | Password | Feature demonstrated |
 |-------|----------|---------------------|
-| admin@demo.sigra.dev | DemoAdmin1!SecurePass | Admin — TOTP MFA, passkey display row, multi-org owner, rich audit trail |
-| alice@demo.sigra.dev | AliceDemoPass1! | Standard confirmed user — happy path login, Acme Corp member |
-| bob@demo.sigra.dev | BobDemoPass1!Beta | TOTP MFA enrolled — org owner (Beta Labs) |
-| carol@demo.sigra.dev | CarolDemoPass1!Github | OAuth identity — GitHub-linked login (carol@demo.sigra.dev) |
-| dave@demo.sigra.dev | DaveDemoPass1!Locked | Locked account — failed login attempts exhausted, unconfirmed |
-| frank@demo.sigra.dev | FrankDemoPass1!Deleted | Scheduled deletion — account marked for deletion |
+| admin@demo.sigra.dev | DemoAdmin1!SecurePass | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
+| alice@demo.sigra.dev | AliceDemoPass1! | Happy path confirmed user baseline |
+| bob@demo.sigra.dev | BobDemoPass1!Beta | TOTP MFA enrolled plus org-owner coverage |
+| carol@demo.sigra.dev | CarolDemoPass1!Github | Seeded GitHub OAuth-linked identity row for inspection |
+| dave@demo.sigra.dev | DaveDemoPass1!Locked | Locked and unconfirmed rough edge |
+| frank@demo.sigra.dev | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active) |
 
 ## Rough Edges
 
 **Dave — locked and unconfirmed:** Dave's account is locked AND unconfirmed. Try logging in — with the correct password or a wrong one — to see Sigra's enumeration-resistant response. The error does not reveal whether the account exists, is locked, or is unconfirmed. Unlock via /admin/users as the admin persona.
 
 **Frank — scheduled deletion:** Frank's `scheduled_deletion_at` is set — the account is still active and accessible. Inspect via /admin/users as the admin persona.
+
+**Carol — seeded OAuth identity vs live provider flow:** Carol has a seeded GitHub identity row for inspection in admin detail views, but live GitHub OAuth still requires evaluator-supplied provider credentials.
 
 ## Dev Tools
 
@@ -53,6 +56,6 @@ All personas use the `@demo.sigra.dev` email domain. Passwords are public-by-des
 
 ## Learn More About Sigra
 
+- [Demo Showcase guide](https://hexdocs.pm/sigra/demo-showcase.html) — canonical evaluator path with screenshot grid and proof boundaries
 - [Getting Started](https://hexdocs.pm/sigra/getting-started.html) guide
 - [Full documentation](https://hexdocs.pm/sigra) on Hexdocs
-- [Demo Showcase guide](https://hexdocs.pm/sigra/demo-showcase.html) — walkthrough with screenshots
