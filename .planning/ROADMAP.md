@@ -93,6 +93,12 @@
 4. First-14-day hotfix policy and triage expectations are documented before publish.
 5. A failed dry-run or publish has an explicit recovery path that does not require inventing process under pressure.
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] `146-01-PLAN.md` — make canonical CI and publish workflows runnable on the release ref and evidence-complete
+- [ ] `146-02-PLAN.md` — create the canonical 1.0 release runbook, maintainer routers, and first-14-day hotfix policy
+
 ### Phase 147: Upgrade And Migration Lanes
 
 **Goal:** Give existing and migrating teams executable guidance before the adoption push.
