@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
-status: ready_to_plan
-last_updated: 2026-05-31T18:33:29.042Z
+status: planning
+last_updated: "2026-05-31T20:43:41.121Z"
 last_activity: 2026-05-31
 progress:
   total_phases: 5
@@ -37,6 +37,7 @@ Last activity: 2026-05-31
 - Phase 146 completed 2026-05-31: canonical CI can be manually dispatched only on `refs/tags/v*` for release evidence, Release Please and manual Hex publish both enforce version/ref/manifest/source-ref/package/visibility gates, `docs/release-runbook-v1-0.md` is the canonical runbook, and maintainer routers point to it. Verification scored 11/11 codebase must-haves with three live release UAT items tracked in `.planning/phases/146-release-gate-and-maintainer-runbook/146-HUMAN-UAT.md`.
 - Phase 147 context gathered 2026-05-31 in assumptions mode: `.planning/phases/147-upgrade-and-migration-lanes/147-CONTEXT.md` locks the `upgrading-to-v1.0.md` operational guide shape, a dedicated `0.3.x` consumer-to-`1.0.0` candidate smoke lane, comparative boundary-first migration docs for `phx.gen.auth` and Pow/Guardian/Ueberauth, and discovery wiring through README, ExDoc, release/evidence docs, and `doc/llms.txt`.
 - Phase 147 completed 2026-05-31: `scripts/ci/upgrade-smoke.sh` and `CI` / `upgrade_smoke` prove published-consumer upgrade posture, public upgrade and migration guides are wired through README/CHANGELOG/ExDoc/AI index/release evidence, code review is clean, and verification passed 9/9 must-haves. Review cleanup made the smoke lane source series configurable (`SIGRA_UPGRADE_SOURCE_SERIES`) so live Hex package truth can move beyond the historical v1.0 source series without stale docs.
+- Phase 148 context gathered 2026-05-31 in assumptions mode: `.planning/phases/148-evaluator-funnel-and-first-run-dx/148-CONTEXT.md` locks the demo showcase as the canonical evaluator-first path, reuse of existing six-persona demo data and four committed screenshots, first-run `mix sigra.doctor` guidance, and a docs/assets/routing-only scope boundary that leaves DEMO-03 and Phase 149 launch packaging deferred.
 - Phase 145 context gathered 2026-05-31 in assumptions mode: `.planning/phases/145-1-0-contract-and-release-truth/145-CONTEXT.md` locks direct Hex `1.0.0` from `main`, public version-axis messaging, canonical 1.0 contract surface, one-time Release Please `release-as: "1.0.0"` override, ownership boundaries, and security invariants/non-goals.
 - Phase 145 Plan 01 completed 2026-05-31: `guides/introduction/contract.md` is the canonical public 1.0 contract, README/CHANGELOG route version-axis readers to it, SECURITY.md exposes invariants/non-goals, and `mix docs --warnings-as-errors` passes. Global `mix format --check-formatted` still reports unrelated pre-existing formatter drift outside Plan 01's write set.
 - Phase 145 Plan 02 completed 2026-05-31: Release Please has the one-time `release-as: "1.0.0"` override, `.release-please-manifest.json` and `mix.exs` remain at last shipped/current `0.3.0`, maintainer docs explain the direct Hex 1.0 path and cleanup rule, and first-path install examples use `{:sigra, "~> 1.0"}` while companion pins remain unchanged. `mix docs --warnings-as-errors` and companion recipe contract tests pass; global formatter drift remains outside Plan 02's write set.
