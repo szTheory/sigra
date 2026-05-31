@@ -113,9 +113,9 @@ Archives:
 
 ## Current State
 
-`v1.32 RELEASE-ADOPTION` is in progress. Phases 145-146 are complete: the public 1.0 contract/release truth is locked, the release-ref gate and publish/recovery workflows are evidence-backed, and `docs/release-runbook-v1-0.md` is the canonical maintainer runbook. Phase 146 has three live release-operation UAT items tracked for the actual tag/publish/HexDocs flow.
+`v1.32 RELEASE-ADOPTION` is in progress. Phases 145-147 are complete: the public 1.0 contract/release truth is locked, the release-ref gate and publish/recovery workflows are evidence-backed, `docs/release-runbook-v1-0.md` is the canonical maintainer runbook, and upgrade/migration lanes are wired through README, CHANGELOG, ExDoc, AI index, release evidence, and a dedicated `upgrade_smoke` proof lane. Phase 146 still has three live release-operation UAT items tracked for the actual tag/publish/HexDocs flow.
 
-Next focus: Phase 147, upgrade and migration lanes for existing `0.3.x` users plus greenfield and migration-path adopters.
+Next focus: Phase 148, evaluator funnel and first-run DX.
 
 ## Current Milestone: v1.32 RELEASE-ADOPTION
 
