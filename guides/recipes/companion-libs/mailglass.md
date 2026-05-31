@@ -99,7 +99,7 @@ module registered as `Sigra.Mailer`.
 
 ### 2. Mailglass adapter unconfigured or API key missing
 
-If Mailglass is not configured or the API key is missing at runtime, `Mailglass.deliver/2`
+If Mailglass is not configured or the API key is missing at runtime, `Mailglass.deliver/1`
 returns `{:error, _}`. Because `MyApp.SigraAuthMailer.deliver/3` propagates this return value,
 `Sigra.Mailer.deliver/3` returns `{:error, _}` and the calling auth flow surfaces an error to
 the user. This is intentional — Sigra does not silently swallow delivery failures. See the
