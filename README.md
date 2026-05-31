@@ -145,7 +145,8 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | Installation & env | [introduction/installation.md](guides/introduction/installation.md) |
 | First happy path | [introduction/getting-started.md](guides/introduction/getting-started.md) |
 | Companion library suite | [introduction/suite-integration.md](guides/introduction/suite-integration.md) |
-| Upgrade notes | [v1.0 → v1.1](guides/introduction/upgrading-to-v1.1.md) · [toward v1.7](guides/introduction/upgrading-to-v1.7.md) · [toward v1.8](guides/introduction/upgrading-to-v1.8.md) |
+| Upgrade notes | [latest 0.3.x -> 1.0](guides/introduction/upgrading-to-v1.0.md) · [v1.0 → v1.1](guides/introduction/upgrading-to-v1.1.md) · [toward v1.7](guides/introduction/upgrading-to-v1.7.md) · [toward v1.8](guides/introduction/upgrading-to-v1.8.md) |
+| Migration lanes | [from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) · [from Pow/Guardian/Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) |
 | Registration | [flows/registration.md](guides/flows/registration.md) |
 | Login / logout | [flows/login-and-logout.md](guides/flows/login-and-logout.md) |
 | Password reset | [flows/password-reset.md](guides/flows/password-reset.md) |
