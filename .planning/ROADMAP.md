@@ -7,7 +7,7 @@
 
 - [x] **Phase 150: Issue Triage & Bugfix Cadence** - Establish a repeatable process for monitoring adopter feedback, diagnosing friction, and patching bugs. (completed 2026-06-01)
 - [ ] **Phase 151: Ecosystem Sync & Hex Dependency Management** - Routine dependency bumps and verifying framework/OTP compatibility.
-- [ ] **Phase 152: Strategic Bet Evaluation Gate** - A formal checkpoint to evaluate if accumulated adopter demand warrants future work on strategic bets.
+- [x] **Phase 152: Strategic Bet Evaluation Gate** - A formal checkpoint to evaluate if accumulated adopter demand warrants future work on strategic bets. (completed 2026-06-01)
 
 ---
 
@@ -44,7 +44,7 @@
   2. A concrete threshold of adopter demand is established for overriding the maintenance-first default.
   3. Approved strategic bets (if any) are queued for deep research; rejected bets are formally deferred.
 **Plans**: 1 plan
-- [ ] 152-01-PLAN.md — Create formal evaluation document for SCIM, Lockspire, and Threadline
+- [x] 152-01-PLAN.md — Create formal evaluation document for SCIM, Lockspire, and Threadline
 
 ---
 
@@ -54,4 +54,4 @@
 |-------|----------------|--------|-----------|
 | 150. Issue Triage & Bugfix Cadence | 1/1 | Complete    | 2026-06-01 |
 | 151. Ecosystem Sync & Hex Dependency Management | 0/1 | Planned | - |
-| 152. Strategic Bet Evaluation Gate | 0/1 | Planned | - |
+| 152. Strategic Bet Evaluation Gate | 1/1 | Complete   | 2026-06-01 |

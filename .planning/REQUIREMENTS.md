@@ -25,9 +25,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Strategic Bet Evaluation Gate (STRAT)
 
-- [ ] **STRAT-01**: A formal evaluation document is created to assess if accumulated adopter demand warrants beginning work on `SCIM`, `sigra_lockspire`, or `Threadline` correlation.
-- [ ] **STRAT-02**: The evaluation explicitly defines the threshold of adopter demand required to override the maintenance-first default and violate the Diminishing Returns Wall.
-- [ ] **STRAT-03**: Any approved strategic bet includes deeper research scoping (e.g., `ex_scim` vs custom implementations for directory sync) to prepare for future implementation phases.
+- [x] **STRAT-01**: A formal evaluation document is created to assess if accumulated adopter demand warrants beginning work on `SCIM`, `sigra_lockspire`, or `Threadline` correlation.
+- [x] **STRAT-02**: The evaluation explicitly defines the threshold of adopter demand required to override the maintenance-first default and violate the Diminishing Returns Wall.
+- [x] **STRAT-03**: Any approved strategic bet includes deeper research scoping (e.g., `ex_scim` vs custom implementations for directory sync) to prepare for future implementation phases.
 
 ## Out of Scope
 
@@ -50,9 +50,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | ECO-01 | Phase 151 | Pending |
 | ECO-02 | Phase 151 | Pending |
 | ECO-03 | Phase 151 | Pending |
-| STRAT-01 | Phase 152 | Pending |
-| STRAT-02 | Phase 152 | Pending |
-| STRAT-03 | Phase 152 | Pending |
+| STRAT-01 | Phase 152 | Complete |
+| STRAT-02 | Phase 152 | Complete |
+| STRAT-03 | Phase 152 | Complete |
 
 **Coverage:**
 - v1 requirements: 9 total
