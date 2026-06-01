@@ -6,7 +6,7 @@
 ## Phases
 
 - [x] **Phase 150: Issue Triage & Bugfix Cadence** - Establish a repeatable process for monitoring adopter feedback, diagnosing friction, and patching bugs. (completed 2026-06-01)
-- [ ] **Phase 151: Ecosystem Sync & Hex Dependency Management** - Routine dependency bumps and verifying framework/OTP compatibility.
+- [x] **Phase 151: Ecosystem Sync & Hex Dependency Management** - Routine dependency bumps and verifying framework/OTP compatibility. (completed 2026-06-01)
 - [x] **Phase 152: Strategic Bet Evaluation Gate** - A formal checkpoint to evaluate if accumulated adopter demand warrants future work on strategic bets. (completed 2026-06-01)
 
 ---
@@ -33,7 +33,7 @@
   2. All dependencies are bumped to their latest stable versions without breaking CI pipelines.
   3. A minor or patch release is prepared if dependencies require it.
 **Plans**: 1 plan
-- [ ] 151-01-PLAN.md — Update Erlang to 28.5 and batch update Hex dependencies
+- [x] 151-01-PLAN.md — Update Erlang to 28.5 and batch update Hex dependencies
 
 ### Phase 152: Strategic Bet Evaluation Gate
 **Goal**: Validate feature requests against the Diminishing Returns Wall and establish a formal evaluation for future strategic bets.
@@ -53,5 +53,5 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 150. Issue Triage & Bugfix Cadence | 1/1 | Complete    | 2026-06-01 |
-| 151. Ecosystem Sync & Hex Dependency Management | 0/1 | Planned | - |
+| 151. Ecosystem Sync & Hex Dependency Management | 1/1 | Complete    | 2026-06-01 |
 | 152. Strategic Bet Evaluation Gate | 1/1 | Complete   | 2026-06-01 |

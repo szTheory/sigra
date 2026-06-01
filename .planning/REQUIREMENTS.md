@@ -19,9 +19,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Ecosystem Sync & Hex Dependency Management (ECO)
 
-- [ ] **ECO-01**: CI pipeline verifies compatibility with the latest minor versions of Elixir and Phoenix, ensuring zero deprecation warnings on the latest OTP.
-- [ ] **ECO-02**: Hex dependencies (including those managed by Dependabot) are routinely bumped to their latest secure and compatible versions.
-- [ ] **ECO-03**: Supply-chain security and framework alignment are confirmed via a passing CI suite and, if necessary, a minor/patch Hex release.
+- [x] **ECO-01**: CI pipeline verifies compatibility with the latest minor versions of Elixir and Phoenix, ensuring zero deprecation warnings on the latest OTP.
+- [x] **ECO-02**: Hex dependencies (including those managed by Dependabot) are routinely bumped to their latest secure and compatible versions.
+- [x] **ECO-03**: Supply-chain security and framework alignment are confirmed via a passing CI suite and, if necessary, a minor/patch Hex release.
 
 ### Strategic Bet Evaluation Gate (STRAT)
 
@@ -47,9 +47,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | MAINT-01 | Phase 150 | Complete |
 | MAINT-02 | Phase 150 | Complete |
 | MAINT-03 | Phase 150 | Complete |
-| ECO-01 | Phase 151 | Pending |
-| ECO-02 | Phase 151 | Pending |
-| ECO-03 | Phase 151 | Pending |
+| ECO-01 | Phase 151 | Complete |
+| ECO-02 | Phase 151 | Complete |
+| ECO-03 | Phase 151 | Complete |
 | STRAT-01 | Phase 152 | Complete |
 | STRAT-02 | Phase 152 | Complete |
 | STRAT-03 | Phase 152 | Complete |
