@@ -1,28 +1,23 @@
-# Strategic Bets Evaluation (v1.33)
+# Strategic Bet Evaluations: v1.33
 
-**Status:** Proposed / Evaluated
-**Date:** 2026-06-01 (assumed)
+## Threshold for Action
 
-## Purpose
-To transition Sigra to long-term stewardship by establishing strict criteria for greenfield enterprise feature requests. This formal evaluation document assesses whether accumulated adopter demand warrants beginning work on `SCIM`, `sigra_lockspire`, or `Threadline` correlation, enforcing the Diminishing Returns Wall.
-
-## Threshold for Action (Diminishing Returns Wall)
-To override the maintenance-first default and violate the Diminishing Returns Wall, a strict threshold must be met. The formal threshold for overriding requires an **enterprise adopter contract explicitly blocked by the lack of the feature** (such as JIT provisioning proving insufficient). Without this concrete business blocker, feature work will remain deferred to prioritize stability and maintenance.
+In accordance with the Diminishing Returns Wall framing (D-01), the project's posture remains **maintenance-first**. Greenfield enterprise features are strictly blocked from the core roadmap unless accompanied by an explicit enterprise adopter contract requiring them. We do not build open-ended complex capabilities on speculation.
 
 ## Bet: SCIM / Directory Sync
-**Status:** Pending concrete enterprise block.
 
-**Evaluation:** 
-Implementation is deferred until a concrete enterprise contract requires it. When implemented, the scope must be explicitly restricted to adopting the `ex_scim` dependency rather than building a custom minimal implementation (which would require complex conflict resolution and idempotency logic for `GET`, `POST`, and `PATCH` on `/Users`). By using `ex_scim`, we can leverage existing protocol parsing and validation available on Hex.pm.
+**Status:** Pending concrete enterprise block
+
+Enterprise directory sync (SCIM) is a valuable feature for large-scale deployments but carries significant surface area. Until a concrete enterprise block necessitates it, this bet remains paused. When eventually unblocked, the implementation must use the `ex_scim` dependency for protocol parsing and validation rather than hand-rolling a custom minimal implementation (D-02).
 
 ## Bet: sigra_lockspire Glue
+
 **Status:** Deferred
 
-**Evaluation:**
-Per D-02 (and ADR 001), the `sigra_lockspire` glue package remains formally deferred and blocked until both libraries (Sigra and Lockspire) are fully stable and a real companion-app trigger fires. Hosts must hand-wire integration until this threshold is met.
+A dedicated glue package (`sigra_lockspire`) for integrating Sigra with the Lockspire authorization platform has been deferred (D-03). Lockspire integration will remain a host-owned responsibility via manual stub generation, allowing operators full control over their specific integration topologies without burdening the Sigra core with an explicit dependency.
 
 ## Bet: Threadline Correlation
+
 **Status:** Deferred
 
-**Evaluation:**
-Per D-03, Threadline correlation (trace-correlation ID propagation in `lib/sigra/audit/forwarders/threadline.ex`) cannot proceed. This feature is blocked until a stable upstream injection seam exists in Threadline.
+Trace-correlation ID propagation across the Threadline forwarder is currently deferred (D-04). We will hold on this until Threadline provides a stable upstream injection seam. Note that Threadline v0.5.0+ may unblock this in the future, at which point the bet can be re-evaluated.
