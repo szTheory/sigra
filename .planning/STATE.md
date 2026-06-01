@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
 status: executing
-last_updated: "2026-06-01T15:20:37.337Z"
+last_updated: "2026-06-01T15:23:28.230Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 13
   percent: 80
 ---
 
@@ -26,7 +26,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 149 (launch-evidence-and-announcement-pack) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-01
 
@@ -118,6 +118,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 | Phase 140 P03 | 953 | 2 tasks | 3 files |
 | Phase 147 P01 | 20min | 2 tasks | 2 files |
 | Phase 149 P01 | 8 min | 3 tasks | 3 files |
+| Phase 149 P02 | 3 min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
