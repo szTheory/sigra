@@ -83,7 +83,7 @@ defmodule Sigra.Planning.Phase149LaunchEvidenceAndAnnouncementPackTest do
     assert next_steps =~ "docs/launch/v1.0/alternatives.md"
     assert next_steps =~ "docs/launch/v1.0/evidence.md"
 
-    for entry <- ["announcement.md", "alternatives.md", "evidence.md", "changelog.md", "security.md"] do
+    for entry <- ["announcement.html", "alternatives.html", "evidence.html", "changelog.md", "security.md"] do
       assert llms =~ entry
     end
 

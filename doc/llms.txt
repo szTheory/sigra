@@ -64,9 +64,9 @@ Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (s
   - [Audit semantics in Sigra](audit-semantics.md)
   - [GA UAT — CI vs human coverage (SEED-001 shift-left)](uat-ci-coverage.md)
   - [Release evidence router](ga-evidence.md)
-  - [Sigra Hex 1.0.0 Announcement](announcement.md)
-  - [Sigra 1.0 Alternatives Comparison](alternatives.md)
-  - [Sigra Hex 1.0.0 Launch Evidence Bundle](evidence.md)
+  - [Sigra Hex 1.0.0 Announcement](announcement.html)
+  - [Sigra 1.0 Alternatives Comparison](alternatives.html)
+  - [Sigra Hex 1.0.0 Launch Evidence Bundle](evidence.html)
   - [Nyquist posture matrix (maintainer)](nyquist-posture-matrix.md)
   - [Next steps (manual only)](next-steps-manual.md)
 
@@ -313,4 +313,3 @@ without eyeballing a 20+ file raw diff.
 - [mix sigra.install](Mix.Tasks.Sigra.Install.md): Generates Sigra authentication scaffold.
 - [mix sigra.upgrade](Mix.Tasks.Sigra.Upgrade.md): Upgrades a Sigra-installed app from an older schema version to the
 current library version (Phase 18 D-08).
-

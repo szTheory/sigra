@@ -94,9 +94,9 @@ for file in "${README}" "${CHANGELOG}" "${NEXT_STEPS}"; do
 done
 
 for needle in \
-  "announcement.md" \
-  "alternatives.md" \
-  "evidence.md" \
+  "announcement.html" \
+  "alternatives.html" \
+  "evidence.html" \
   "changelog.md" \
   "security.md"; do
   require_text "${LLMS}" "${needle}"
