@@ -32,7 +32,8 @@
   1. CI passes with zero deprecation warnings on the latest OTP.
   2. All dependencies are bumped to their latest stable versions without breaking CI pipelines.
   3. A minor or patch release is prepared if dependencies require it.
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 151-01-PLAN.md — Update Erlang to 28.5 and batch update Hex dependencies
 
 ### Phase 152: Strategic Bet Evaluation Gate
 **Goal**: Validate feature requests against the Diminishing Returns Wall and establish a formal evaluation for future strategic bets.
@@ -51,5 +52,5 @@
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 150. Issue Triage & Bugfix Cadence | 1/1 | Complete    | 2026-06-01 |
-| 151. Ecosystem Sync & Hex Dependency Management | 0/0 | Not started | - |
+| 151. Ecosystem Sync & Hex Dependency Management | 0/1 | Planned | - |
 | 152. Strategic Bet Evaluation Gate | 0/0 | Not started | - |
