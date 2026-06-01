@@ -35,9 +35,9 @@
 
 ### Launch Evidence
 
-- [ ] **LAUNCH-01**: Maintainer has a publish-ready 1.0 announcement package with problem framing, core differentiators, explicit non-goals, proof links, upgrade guidance, and "who should upgrade now vs wait" guidance.
-- [ ] **LAUNCH-02**: Public docs include an honest "Sigra vs alternatives" section comparing `phx.gen.auth`, Pow/Guardian/Ueberauth composition, and hosted auth without overclaiming.
-- [ ] **LAUNCH-03**: Maintainer can attach a compact 1.0 evidence bundle to the release/announcement covering CI gates, UAT/CI mapping, demo screenshots, docs build, and known limitations.
+- [x] **LAUNCH-01**: Maintainer has a publish-ready 1.0 announcement package with problem framing, core differentiators, explicit non-goals, proof links, upgrade guidance, and "who should upgrade now vs wait" guidance.
+- [x] **LAUNCH-02**: Public docs include an honest "Sigra vs alternatives" section comparing `phx.gen.auth`, Pow/Guardian/Ueberauth composition, and hosted auth without overclaiming.
+- [x] **LAUNCH-03**: Maintainer can attach a compact 1.0 evidence bundle to the release/announcement covering CI gates, UAT/CI mapping, demo screenshots, docs build, and known limitations.
 - [ ] **LAUNCH-04**: AI-consumption assets (`llms.txt` or equivalent docs index) point to canonical install, ownership, migration, security, and demo paths so generated guidance stays consistent.
 
 ## Future Requirements
@@ -82,9 +82,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ADOPT-02 | Phase 148 | Complete |
 | ADOPT-03 | Phase 148 | Complete |
 | ADOPT-04 | Phase 148 | Complete |
-| LAUNCH-01 | Phase 149 | Pending |
-| LAUNCH-02 | Phase 149 | Pending |
-| LAUNCH-03 | Phase 149 | Pending |
+| LAUNCH-01 | Phase 149 | Complete |
+| LAUNCH-02 | Phase 149 | Complete |
+| LAUNCH-03 | Phase 149 | Complete |
 | LAUNCH-04 | Phase 149 | Pending |
 | DEMO-03 | Future | Deferred |
 | SCIM-01 | Future | Deferred |

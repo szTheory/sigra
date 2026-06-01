@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
-status: planning
-last_updated: "2026-06-01T00:29:55.029Z"
-last_activity: 2026-05-31
+status: executing
+last_updated: "2026-06-01T15:20:37.337Z"
+last_activity: 2026-06-01
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 14
+  completed_plans: 12
   percent: 80
 ---
 
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 149 — Launch Evidence And Announcement Pack
+**Current focus:** Phase 149 — launch-evidence-and-announcement-pack
 
 ## Current Position
 
-Phase: 149
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-05-31
+Phase: 149 (launch-evidence-and-announcement-pack) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-06-01
 
 ## Accumulating Context
 
@@ -117,6 +117,7 @@ Items acknowledged and deferred OUT of v1.31 scope (see REQUIREMENTS.md Future R
 | Phase 140 P02 | 5min | 3 tasks | 3 files |
 | Phase 140 P03 | 953 | 2 tasks | 3 files |
 | Phase 147 P01 | 20min | 2 tasks | 2 files |
+| Phase 149 P01 | 8 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
