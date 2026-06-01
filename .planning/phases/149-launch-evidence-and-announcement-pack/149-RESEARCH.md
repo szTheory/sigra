@@ -204,12 +204,12 @@ Source: `docs/ga-evidence.md` [VERIFIED: repo grep]
 | A1 | Overclaim warning phrases should include “drop-in replacement / certified / fully equivalent” | Common Pitfalls | May miss some risky wording variants in checks |
 | A2 | Marketing framing is the primary cause of comparison overclaim drift | Common Pitfalls | Could underweight other drift sources (e.g., rushed maintenance edits) |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should a root `llms.txt` be added now or deferred?**
    - What we know: `doc/llms.txt` already exists and is routed in ExDoc output. [VERIFIED: repo grep]
    - What's unclear: Whether root-level discovery materially improves external agent behavior for this project.
-   - Recommendation: Plan as optional task with strict “pointer-only, no second vocabulary” guardrail.
+   - RESOLVED: Add a root `llms.txt` now as a pointer-only discoverability file that links to `doc/llms.txt` and/or the published HexDocs `llms.txt` path. Keep `doc/llms.txt` as the single full taxonomy and explicitly prohibit a second `## Pages` vocabulary in the root file.
 
 ## Environment Availability
 
