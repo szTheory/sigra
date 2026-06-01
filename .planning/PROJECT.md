@@ -113,7 +113,7 @@ Archives:
 
 ## Current State
 
-`v1.32 RELEASE-ADOPTION` is in progress. Phases 145-147 are complete: the public 1.0 contract/release truth is locked, the release-ref gate and publish/recovery workflows are evidence-backed, `docs/release-runbook-v1-0.md` is the canonical maintainer runbook, and upgrade/migration lanes are wired through README, CHANGELOG, ExDoc, AI index, release evidence, and a dedicated `upgrade_smoke` proof lane. Phase 146 still has three live release-operation UAT items tracked for the actual tag/publish/HexDocs flow.
+`v1.32 RELEASE-ADOPTION` is in progress. Phases 145-147 are complete: the public 1.0 contract/release truth is locked, the release-ref gate and publish/recovery workflows are evidence-backed, `docs/release-runbook-v1-0.md` is the canonical maintainer runbook, and upgrade/migration lanes are wired through README, CHANGELOG, ExDoc, AI index, release evidence, and a dedicated `upgrade_smoke` proof lane. Phase 146 still has three live release-operation UAT items tracked for the actual tag/publish/HexDocs flow. Phase 151 complete — ecosystem-sync-hex-dependency-management.
 
 Next focus: Phase 148, evaluator funnel and first-run DX.
 
@@ -316,6 +316,9 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Validated — Phase 151
+- ✓ **ECO-01, ECO-02, ECO-03** — Validated in Phase 151: ecosystem-sync-hex-dependency-management
 
 ### Validated — v1.31 DEMO-SHOWCASE (shipped 2026-05-31)
 
@@ -762,3 +765,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-05-31 after v1.31 DEMO-SHOWCASE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.31-*`; live `REQUIREMENTS.md` removed for the next milestone; phases continue from **145**.*
 *Last updated: 2026-06-01 — Phase 150 (Issue Triage & Bugfix Cadence) shipped. Requirements MAINT-01..MAINT-03 validated.*
+*Last updated: 2026-06-01 — Phase 151 (Ecosystem Sync & Hex Dependency Management) complete.*
