@@ -61,7 +61,7 @@
 | 146 | Release Gate And Maintainer Runbook | Make the 1.0 publish path deterministic, evidence-backed, and recoverable. | REL1-02, REL1-03 | 5 |
 | 147 | Upgrade And Migration Lanes | 4/4 | Complete    | 2026-05-31 |
 | 148 | Evaluator Funnel And First-Run DX | 3/3 | Complete    | 2026-05-31 |
-| 149 | Launch Evidence And Announcement Pack | 2/3 | In Progress|  |
+| 149 | Launch Evidence And Announcement Pack | 3/3 | Complete   | 2026-06-01 |
 
 ## Phase Details
 
