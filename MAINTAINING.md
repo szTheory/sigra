@@ -6,6 +6,14 @@ Hex releases exercise the library and templates — they do **not** validate an 
 
 On your **first public Hex release**, follow **`Release automation`** for the mechanical ship path; when you are ready to coordinate evidence and optional comms around that ship, use **`First public launch (announcement checklist)`** later in this file.
 
+## Issue Triage & Bugfix Cadence
+
+1. **Monitor:** Check GitHub issues (`gh issue list`) weekly.
+2. **Categorize:** Label issues as `bug` (core logic), `friction` (DX/documentation), or `enhancement` (feature request).
+3. **Prioritize:** Address `bug` and `friction` items in the next patch release. Defer `enhancement` items. Reference the severity classes (P0-P3) from `docs/release-runbook-v1-0.md`.
+4. **Communication Posture:** Keep updates factual and version-specific. State impact, workaround status, and next decision checkpoint. Avoid implying unsupported guarantees beyond documented release evidence.
+5. **Template Updates:** Whenever generator templates are touched, the maintainer MUST list `mix sigra.upgrade --yes` under a "Template Updates Required" header in `CHANGELOG.md`.
+
 ## Milestone cadence and pause (v1.11+)
 
 GSD milestones (**`/gsd-new-milestone`**, **`.planning/REQUIREMENTS.md`**, phased **`.planning/ROADMAP.md`**) are for **coordinated tranches** that move **North Star** outcomes in **`.planning/PROJECT.md`**. They are **not** required for every Hex publish.
