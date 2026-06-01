@@ -153,6 +153,13 @@ Plans:
 4. `llms.txt` or equivalent AI-consumption index points to canonical install, ownership, migration, security, and demo paths.
 5. Release notes clearly say who should upgrade now, who can wait, and how adopter-reported regressions are triaged in the hotfix window.
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] `149-01-PLAN.md` — create the canonical `docs/launch/v1.0/` announcement, alternatives, and evidence docs
+- [ ] `149-02-PLAN.md` — route README, changelog guidance, ExDoc, GitHub Release drafting guidance, and AI indexes to the launch pack
+- [ ] `149-03-PLAN.md` — add launch-pack docs-contract checks for routes, placeholders, and forbidden claims
+
 ## Traceability
 
 | Requirement | Phase | Status |
