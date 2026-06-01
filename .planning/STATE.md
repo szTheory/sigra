@@ -26,7 +26,6 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 152
-Plan: 01
 Status: Complete
 Last activity: 2026-06-01
 
@@ -35,6 +34,7 @@ Last activity: 2026-06-01
 - `v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` roadmap created based on research in `.planning/research/SUMMARY.md`.
 - 3 phases (150–152), 9/9 requirements mapped. Phase 150 focuses on issue triage and bugfixes; Phase 151 on ecosystem sync; Phase 152 on evaluating strategic bets.
 - Phase numbering continues from 150 (v1.32 ended at 149).
+- Phase 152 complete, evaluation document created.
 
 ## Deferred Items
 
