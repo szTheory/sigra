@@ -32,6 +32,15 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [Unreleased]
 
+### Template Updates Required
+
+When generator templates change, maintainers list the required upgrade command here. Adopters should run:
+
+```bash
+mix deps.update sigra
+mix sigra.upgrade --yes
+```
+
 ### Documentation
 
 - **Hex 1.32.0 launch pack:** Added `docs/launch/v1.0/announcement.md`, `docs/launch/v1.0/alternatives.md`, and `docs/launch/v1.0/evidence.md` as the canonical launch narrative, alternatives comparison, and compact evidence bundle for the public 1.32 release path.
