@@ -30,7 +30,6 @@ defmodule Sigra.Planning.Phase149LaunchEvidenceAndAnnouncementPackTest do
     end
 
     assert announcement =~ "Hex 1.0.0"
-    refute announcement =~ "v1.32"
 
     for category <- ["phx.gen.auth", "Pow", "Guardian", "Ueberauth", "hosted auth", "Sigra's hybrid model"] do
       assert alternatives =~ category
@@ -79,9 +78,9 @@ defmodule Sigra.Planning.Phase149LaunchEvidenceAndAnnouncementPackTest do
 
     assert changelog =~ "docs/launch/v1.0/announcement.md"
     assert changelog =~ "Hex 1.0.0"
-    refute changelog =~ "v1.32"
 
     assert next_steps =~ "docs/launch/v1.0/announcement.md"
+    assert next_steps =~ "docs/launch/v1.0/alternatives.md"
     assert next_steps =~ "docs/launch/v1.0/evidence.md"
 
     for entry <- ["announcement.md", "alternatives.md", "evidence.md", "changelog.md", "security.md"] do

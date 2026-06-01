@@ -89,6 +89,7 @@ done
 
 for file in "${README}" "${CHANGELOG}" "${NEXT_STEPS}"; do
   require_text "${file}" "docs/launch/v1.0/announcement.md"
+  require_text "${file}" "docs/launch/v1.0/alternatives.md"
   require_text "${file}" "docs/launch/v1.0/evidence.md"
 done
 

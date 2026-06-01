@@ -34,6 +34,7 @@ Release Please creates the release when the Release PR merges. For a hand-cut re
 Supporting links for the release body:
 
 - `docs/launch/v1.0/evidence.md` for release proof, post-publish placeholders, and proof boundaries.
+- `docs/launch/v1.0/alternatives.md` for bounded comparison and "when not to choose Sigra" guidance.
 - The matching `CHANGELOG.md` SemVer section for exact package deltas.
 - `docs/release-runbook-v1-0.md` for release-ref evidence and first-14-day hotfix policy.
 
