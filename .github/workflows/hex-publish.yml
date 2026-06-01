@@ -10,16 +10,25 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Git tag or commit SHA that resolves to v<release_version> (e.g. v0.2.1).'
+        description: 'Git tag or commit SHA that resolves to v<release_version> (e.g. v1.32.0).'
         required: true
         type: string
       release_version:
-        description: 'Expected @version string in mix.exs at that ref (e.g. 0.2.1).'
+        description: 'Expected @version string in mix.exs at that ref (e.g. 1.32.0).'
         required: true
         type: string
+      dry_run:
+        description: 'Run mix hex.publish --dry-run instead of publishing.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+
+concurrency:
+  group: hex-publish-${{ inputs.tag }}
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -156,17 +165,29 @@ jobs:
             exit 1
           fi
 
+      - name: Skip if version already on Hex
+        id: idempotency
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          if mix hex.info sigra "${{ inputs.release_version }}" 2>/dev/null | grep -q "Released:"; then
+            echo "Version ${{ inputs.release_version }} of sigra already on Hex - skipping publish."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Dry run Hex publish
+        if: ${{ inputs.dry_run == true || steps.idempotency.outputs.skip != 'true' }}
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
         run: mix hex.publish --dry-run --yes
 
       - name: Publish to Hex
+        if: ${{ inputs.dry_run != true && steps.idempotency.outputs.skip != 'true' }}
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
         run: mix hex.publish --yes
 
       - name: Verify version on Hex.pm
+        if: ${{ inputs.dry_run != true }}
         env:
           VERSION: ${{ inputs.release_version }}
         run: |

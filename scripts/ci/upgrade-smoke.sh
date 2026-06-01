@@ -13,7 +13,7 @@ source "${_ci_here}/lib/mix-deps-get-retry.sh"
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app_upgrade}"
 START_VERSION_OVERRIDE="${SIGRA_UPGRADE_SMOKE_START_VERSION:-}"
-SOURCE_SERIES="${SIGRA_UPGRADE_SOURCE_SERIES:-0.3}"
+SOURCE_SERIES="${SIGRA_UPGRADE_SOURCE_SERIES:-1}"
 
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"

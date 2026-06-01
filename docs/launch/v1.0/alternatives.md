@@ -1,4 +1,4 @@
-# Sigra 1.0 Alternatives Comparison
+# Sigra 1.32 Alternatives Comparison
 
 This page compares Sigra's hybrid library-plus-generator model with common Phoenix authentication choices. It is a selection aid, not a claim that Sigra is universally better.
 

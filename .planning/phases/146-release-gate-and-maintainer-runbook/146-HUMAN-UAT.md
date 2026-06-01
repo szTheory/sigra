@@ -17,7 +17,7 @@ Awaiting live release-operation verification after the release tag and publish e
 
 ### 1. Release-Tag CI Evidence Run
 
-expected: Manual dispatch on `v1.0.0` succeeds and required gate jobs pass with evidence links.
+expected: Manual dispatch on `v1.32.0` succeeds and required gate jobs pass with evidence links.
 result: pending
 
 ### 2. Live Publish + Hex Visibility

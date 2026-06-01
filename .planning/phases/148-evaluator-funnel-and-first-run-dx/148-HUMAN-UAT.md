@@ -1,5 +1,5 @@
 ---
-status: resolved
+status: complete
 phase: 148-evaluator-funnel-and-first-run-dx
 source:
   - 148-VERIFICATION.md

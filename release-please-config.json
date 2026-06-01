@@ -7,7 +7,7 @@
     ".": {
       "changelog-path": "CHANGELOG.md",
       "include-v-in-tag": true,
-      "release-as": "1.0.0"
+      "release-as": "1.32.0"
     }
   }
 }

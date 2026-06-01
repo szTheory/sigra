@@ -36,13 +36,13 @@
 - ✅ **v1.29 SUITE-INTEGRATION (Companion-Library Integration)** — Phases **131–136** (shipped **2026-05-29**). See [v1.29 archive](milestones/v1.29-ROADMAP.md), [v1.29 requirements](milestones/v1.29-REQUIREMENTS.md), [v1.29 milestone audit](milestones/v1.29-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.30 TRUST-HARDENING (Operator Confidence & Debt Closure)** — Phases **137–140** (shipped **2026-05-29**). See [v1.30 archive](milestones/v1.30-ROADMAP.md), [v1.30 requirements](milestones/v1.30-REQUIREMENTS.md), [v1.30 milestone audit](milestones/v1.30-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
 - ✅ **v1.31 DEMO-SHOWCASE** — Phases **141–144.2** (shipped **2026-05-31**). See [v1.31 archive](milestones/v1.31-ROADMAP.md), [v1.31 requirements](milestones/v1.31-REQUIREMENTS.md), [v1.31 milestone audit](milestones/v1.31-MILESTONE-AUDIT.md), and [MILESTONES.md](MILESTONES.md).
-- 🔄 **v1.32 RELEASE-ADOPTION** — Phases **145–149** (active). Goal: cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel without adding new auth primitives.
+- 🔄 **v1.32 RELEASE-ADOPTION** — Phases **145–149** (active). Goal: cut Sigra's real Hex `1.32.0` release and package a proof-backed adoption funnel without adding new auth primitives.
 
 ## Current Milestone
 
 **v1.32 RELEASE-ADOPTION**
 
-**Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
+**Goal:** Cut Sigra's real Hex `1.32.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
 
 **Scope posture:** This is a release-truth and adoption milestone, not a feature milestone. No SCIM, hosted control plane, generic compliance platform, authorization engine, broad generated-host UI redesign, or new auth primitives.
 
@@ -72,7 +72,7 @@
 **Requirements:** REL1-01, REL1-04, CONTRACT-01, CONTRACT-02, CONTRACT-03, CONTRACT-04
 
 **Success criteria:**
-1. `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, README, and maintainer docs agree on the selected Hex `1.0.0` path.
+1. `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, README, and maintainer docs agree on the selected Hex `1.32.0` path.
 2. Public docs explain planning milestones vs installable Hex versions without relying on maintainer tribal knowledge.
 3. A single 1.0 contract states supported Elixir, OTP, Phoenix, Ecto, Postgres, and optional-dependency posture.
 4. Docs clearly separate library-owned, generated-host-owned, and shared seam surfaces.
@@ -107,7 +107,7 @@ Plans:
 
 **Success criteria:**
 1. `upgrading-to-v1.0.md` covers breaking changes, generated-file review, migration/schema impact, rollback notes, and verification commands.
-2. Automated consumer upgrade smoke proves latest `0.3.x` posture can move to `1.0.0` candidate source without unexpected compile/install/runtime regressions.
+2. Automated consumer upgrade smoke proves the latest published 1.x posture can move to the local candidate source without unexpected compile/install/runtime regressions.
 3. `phx.gen.auth` migration lane explains when to migrate, when not to, and how Sigra's scope/session/token model differs.
 4. Pow/Guardian/Ueberauth migration lane explains cutover options, session/token/OAuth ownership boundaries, and migration risk.
 5. Migration docs are linked from README, ExDoc, launch notes, and AI-consumption index surfaces.
@@ -115,7 +115,7 @@ Plans:
 **Plans:** 4/4 plans complete
 
 Plans:
-- [ ] `147-01-PLAN.md` — add the deterministic published-0.3.0 to local-1.0.0 consumer upgrade smoke lane and CI job
+- [ ] `147-01-PLAN.md` — add the deterministic published-package to local-candidate consumer upgrade smoke lane and CI job
 - [ ] `147-02-PLAN.md` — author the operational v1.0 upgrade guide plus split boundary-first migration guides
 - [ ] `147-03-PLAN.md` — wire the new guides into README, CHANGELOG, ExDoc extras, and `doc/llms.txt`
 - [ ] `147-04-PLAN.md` — thread upgrade smoke and migration guidance through release-evidence routing docs
@@ -192,11 +192,11 @@ Plans:
 <details open>
 <summary>🔄 v1.32 RELEASE-ADOPTION (Phases 145–149) — ACTIVE</summary>
 
-**Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
+**Goal:** Cut Sigra's real Hex `1.32.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
 
 - [x] **Phase 145: 1.0 Contract And Release Truth** — public contract, version-axis clarity, ownership boundaries, security invariants, and SemVer/deprecation posture (completed 2026-05-31)
 - [x] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy (completed 2026-05-31)
-- [x] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane (completed 2026-05-31)
+- [x] **Phase 147: Upgrade And Migration Lanes** — historical v1.0 upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane (completed 2026-05-31)
 - [x] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output (completed 2026-05-31)
 - [x] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes (completed 2026-06-01)
 

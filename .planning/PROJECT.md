@@ -22,7 +22,7 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 ## Post-1.0 Operating Posture
 
-After `v1.32 RELEASE-ADOPTION` closes and Sigra's real Hex `1.0.0` release is cut, treat the library as broadly feature-complete for the expected Phoenix authentication-library surface. The default future posture is maintenance, release support, adopter feedback, and selective strategic building — not another open-ended feature treadmill.
+After `v1.32 RELEASE-ADOPTION` closes and Sigra's real Hex `1.32.0` release is cut, treat the library as broadly feature-complete for the expected Phoenix authentication-library surface. The default future posture is maintenance, release support, adopter feedback, and selective strategic building — not another open-ended feature treadmill.
 
 Future milestones should begin from this assumption:
 
@@ -119,10 +119,10 @@ Next focus: Phase 148, evaluator funnel and first-run DX.
 
 ## Current Milestone: v1.32 RELEASE-ADOPTION
 
-**Goal:** Cut Sigra's real Hex `1.0.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
+**Goal:** Cut Sigra's real Hex `1.32.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
 
 **Target features:**
-- Direct Hex `1.0.0` release path with SemVer, changelog, Release Please, HexDocs, tag, dry-run, publish, and recovery truth aligned.
+- Direct Hex `1.32.0` release path with SemVer, changelog, Release Please, HexDocs, tag, dry-run, publish, and recovery truth aligned.
 - Public 1.0 contract covering API stability, generated-host ownership, supported Elixir/Phoenix/Ecto ranges, deprecation policy, security invariants, and explicit non-goals.
 - Upgrade and adoption lanes for current `0.3.x` users, greenfield Phoenix 1.8 apps, `phx.gen.auth` apps, and Pow/Guardian/Ueberauth-style stacks.
 - Canonical evaluator funnel over README, HexDocs, demo showcase, screenshots, proof links, and launch announcement materials.
@@ -271,7 +271,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 **Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
 **Last shipped milestone:**
-- `v1.31 DEMO-SHOWCASE` (shipped 2026-05-31, Phases 141–144.2) — Seed-rich Evaluator Demo Showcase. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`. v1.32 is now active as the real Hex `1.0.0` release and adoption push.
+- `v1.31 DEMO-SHOWCASE` (shipped 2026-05-31, Phases 141–144.2) — Seed-rich Evaluator Demo Showcase. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`. v1.32 is now active as the real Hex `1.32.0` release and adoption push.
 
 **Ranked follow-on (next candidates after v1.30):**
 - **"Demo Showcase"** — seed-rich, persona-driven, one-command spin-up extending `test/example/` (not a new repo). Ranked highest-value near-term build by the mid-v1.30 boundary assessment; closes the one genuine adoption gap (no evaluator-facing demo). See `.planning/threads/adoption-evidence-and-demo-showcase.md`.

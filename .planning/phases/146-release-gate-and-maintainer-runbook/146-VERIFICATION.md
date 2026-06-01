@@ -6,7 +6,7 @@ score: 11/11 must-haves verified
 overrides_applied: 0
 human_verification:
   - test: "Run release-ref CI evidence pass from a real v* tag"
-    expected: "Manual dispatch on v1.0.0 succeeds and required gate jobs pass with evidence links"
+    expected: "Manual dispatch on v1.32.0 succeeds and required gate jobs pass with evidence links"
     why_human: "Requires live GitHub Actions run execution and maintainer sign-off"
   - test: "Run publish/recovery flow to Hex and verify visibility"
     expected: "Dry-run/publish steps succeed and Hex API/package page show the released version"
@@ -105,7 +105,7 @@ No `TBD`, `FIXME`, or `XXX` debt markers were found in scoped files.
 
 ### 1. Release-Tag CI Evidence Run
 
-**Test:** Dispatch `CI` on an actual release tag (for example `v1.0.0`) and collect run evidence.  
+**Test:** Dispatch `CI` on an actual release tag (for example `v1.32.0`) and collect run evidence.  
 **Expected:** All required gate jobs pass (or documented waivers recorded) with evidence URLs and reviewer sign-off.  
 **Why human:** Requires live GitHub Actions execution and operator evidence review.
 
