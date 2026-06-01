@@ -61,7 +61,7 @@
 | 146 | Release Gate And Maintainer Runbook | Make the 1.0 publish path deterministic, evidence-backed, and recoverable. | REL1-02, REL1-03 | 5 |
 | 147 | Upgrade And Migration Lanes | 4/4 | Complete    | 2026-05-31 |
 | 148 | Evaluator Funnel And First-Run DX | 3/3 | Complete    | 2026-05-31 |
-| 149 | Launch Evidence And Announcement Pack | 3/3 | Complete   | 2026-06-01 |
+| 149 | Launch Evidence And Announcement Pack | 3/3 | Complete    | 2026-06-01 |
 
 ## Phase Details
 
@@ -153,7 +153,7 @@ Plans:
 4. `llms.txt` or equivalent AI-consumption index points to canonical install, ownership, migration, security, and demo paths.
 5. Release notes clearly say who should upgrade now, who can wait, and how adopter-reported regressions are triaged in the hotfix window.
 
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] `149-01-PLAN.md` — create the canonical `docs/launch/v1.0/` announcement, alternatives, and evidence docs
@@ -198,7 +198,7 @@ Plans:
 - [x] **Phase 146: Release Gate And Maintainer Runbook** — deterministic publish runbook, release gate matrix, dry-run/package inspection, recovery, and hotfix policy (completed 2026-05-31)
 - [x] **Phase 147: Upgrade And Migration Lanes** — `0.3.x` to `1.0.0` upgrade guide, consumer upgrade smoke, `phx.gen.auth` lane, Pow/Guardian/Ueberauth lane (completed 2026-05-31)
 - [x] **Phase 148: Evaluator Funnel And First-Run DX** — canonical first path, persona map, screenshot grid, demo limitations, and doctor/troubleshooting output (completed 2026-05-31)
-- [ ] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes
+- [x] **Phase 149: Launch Evidence And Announcement Pack** — announcement draft, alternatives comparison, evidence bundle, AI-consumption index, and release notes (completed 2026-06-01)
 
 </details>
 
