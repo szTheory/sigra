@@ -45,7 +45,7 @@ Those boundaries are part of the release, not omissions from the announcement.
 Use these proof surfaces when evaluating or announcing the release:
 
 - [Launch evidence bundle](evidence.md) - compact evidence router for release gates, docs proof, UAT-to-CI mapping, upgrade smoke, demo proof, post-publish placeholders, and proof boundaries. Repo path: `docs/launch/v1.0/evidence.md`.
-- [Release runbook v1.0](../../release-runbook-v1-0.md) - maintainer release gate matrix, publish checks, recovery path, and first-14-day hotfix policy. Repo path: `docs/release-runbook-v1-0.md`.
+- [Release runbook v1.0](release-runbook-v1-0.html) - maintainer release gate matrix, publish checks, recovery path, and first-14-day hotfix policy. Repo path: `docs/release-runbook-v1-0.md`.
 - [Demo Showcase](../../../guides/introduction/demo-showcase.md) - runnable evaluator-first Vaultr example app with committed screenshots and explicit proof limitations. Repo path: `guides/introduction/demo-showcase.md`.
 - [Sigra 1.0 contract](../../../guides/introduction/contract.md) - installable package truth, ownership boundaries, SemVer policy, security invariants, and non-goals. Repo path: `guides/introduction/contract.md`.
 
@@ -74,4 +74,4 @@ For tradeoffs, use the [alternatives comparison](alternatives.md). It is deliber
 
 The release runbook defines the first-14-day hotfix policy for Hex `1.0.0`: P0/P1 issues are same-business-day triage, P2 issues are reviewed within 24 hours, and P3 polish is batched into planned patch work. Every intake needs a repro command/ref, failing run URL or log, affected version, and workaround status.
 
-See the [Release runbook v1.0](../../release-runbook-v1-0.md#first-14-days-hotfix-policy) for the canonical severity and patch decision boundaries.
+See the [Release runbook v1.0](release-runbook-v1-0.html#first-14-days-hotfix-policy) for the canonical severity and patch decision boundaries.

@@ -180,6 +180,9 @@ For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](
 
 Sigra keeps an **evidence hub** (what we ran versus waived for GA cuts, how CI maps to human UAT rows, and pointers to planning artifacts on GitHub). That material is **not** a compliance certificate for your application — integration and deployment risk stay with the **host**.
 
+- **[Sigra Hex 1.0.0 launch announcement](docs/launch/v1.0/announcement.md)** — canonical launch narrative, audience guidance, proof links, and first-14-day triage pointer.
+- **[Sigra alternatives comparison](docs/launch/v1.0/alternatives.md)** — boundary-first comparison against `phx.gen.auth`, Pow/Guardian/Ueberauth-style composition, hosted auth, and Sigra's hybrid model.
+- **[Sigra launch evidence bundle](docs/launch/v1.0/evidence.md)** — attachable release proof router with post-publish placeholders and proof boundaries.
 - **[GA evidence and audit posture](docs/ga-evidence.md)** — router page; same content ships on [HexDocs](https://hexdocs.pm/sigra/ga-evidence.html).
 - **[UAT versus CI coverage](docs/uat-ci-coverage.md)** — machine versus human boundaries.
 

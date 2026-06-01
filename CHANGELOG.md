@@ -34,6 +34,8 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Documentation
 
+- **Hex 1.0.0 launch pack:** Added `docs/launch/v1.0/announcement.md`, `docs/launch/v1.0/alternatives.md`, and `docs/launch/v1.0/evidence.md` as the canonical launch narrative, alternatives comparison, and compact evidence bundle for the public 1.0 release path.
+- **Hex 1.0.0 release guidance:** GitHub Release, README, HexDocs, and AI-consumption routing should point to `docs/launch/v1.0/announcement.md` as the source for who should upgrade now, who should wait, and where proof lives.
 - **Mailglass integration posture (v1.29 DOC-01):** Sigra ships no library-resident Mailglass adapter and no `--with-mailglass` installer flag. The supported integration posture is recipe-only host-owned wiring: the host implements `Sigra.Mailer` and delegates to a Mailglass-backed module. See `guides/recipes/companion-libs/mailglass.md` for the current supported configuration.
 - **v1.0 adopter routing:** Existing pre-1.0 adopters should start with `guides/introduction/upgrading-to-v1.0.md` for the historical v1.0 cutover flow.
 - **Migration lane (`phx.gen.auth`):** Existing `phx.gen.auth` teams should use `guides/introduction/migrating-from-phx-gen-auth.md` for boundary-first migration guidance.

@@ -17,18 +17,18 @@ This bundle is the compact attachable evidence page for the Sigra Hex 1.0.0 laun
 
 | Evidence area | Canonical source | Status before publish | Post-publish action |
 | --- | --- | --- | --- |
-| Release gate matrix | [Release runbook v1.0](../../release-runbook-v1-0.md#release-gate-matrix) (`docs/release-runbook-v1-0.md`) | Gate list, ref rules, required evidence, and waiver fields are defined | Fill release-ref run URLs and waiver rows, if any |
-| Existing evidence router | [GA evidence and audit posture](../../ga-evidence.md) (`docs/ga-evidence.md`) | Existing router defines canonical release-evidence surfaces and pinned-link policy | Keep this launch bundle aligned with the existing evidence router |
-| Docs warnings-as-errors | [Release runbook dry-run and package inspection](../../release-runbook-v1-0.md#dry-run-and-package-inspection) (`docs/release-runbook-v1-0.md`) | `mix docs --warnings-as-errors` is a required publish blocker | Attach release-ref command or CI log |
-| UAT-to-CI mapping | [UAT versus CI coverage](../../uat-ci-coverage.md) (`docs/uat-ci-coverage.md`) | Machine-vs-human proof boundaries are documented | Link final release-ref CI jobs where applicable |
-| Upgrade smoke | [Upgrading to v1.0](../../../guides/introduction/upgrading-to-v1.0.md) (`guides/introduction/upgrading-to-v1.0.md`) and [upgrade proof](../../uat-ci-coverage.md#v132-upgrade-and-migration-proof) | `CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh` define the published-consumer lane | Attach release-ref `upgrade_smoke` run URL |
+| Release gate matrix | [Release runbook v1.0](release-runbook-v1-0.html#release-gate-matrix) (`docs/release-runbook-v1-0.md`) | Gate list, ref rules, required evidence, and waiver fields are defined | Fill release-ref run URLs and waiver rows, if any |
+| Existing evidence router | [GA evidence and audit posture](ga-evidence.html) (`docs/ga-evidence.md`) | Existing router defines canonical release-evidence surfaces and pinned-link policy | Keep this launch bundle aligned with the existing evidence router |
+| Docs warnings-as-errors | [Release runbook dry-run and package inspection](release-runbook-v1-0.html#dry-run-and-package-inspection) (`docs/release-runbook-v1-0.md`) | `mix docs --warnings-as-errors` is a required publish blocker | Attach release-ref command or CI log |
+| UAT-to-CI mapping | [UAT versus CI coverage](uat-ci-coverage.html) (`docs/uat-ci-coverage.md`) | Machine-vs-human proof boundaries are documented | Link final release-ref CI jobs where applicable |
+| Upgrade smoke | [Upgrading to v1.0](upgrading-to-v1-0.html) (`guides/introduction/upgrading-to-v1.0.md`) and [upgrade proof](uat-ci-coverage.html#v132-upgrade-and-migration-proof) | `CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh` define the published-consumer lane | Attach release-ref `upgrade_smoke` run URL |
 | Demo screenshot proof | [Demo Showcase](../../../guides/introduction/demo-showcase.md) (`guides/introduction/demo-showcase.md`) | Committed screenshots and seeded personas document evaluator proof and limitations | Keep screenshots tied to the release tag |
 | Known limitations | [Sigra 1.0 contract](../../../guides/introduction/contract.md#non-goals), [Demo proof boundary](../../../guides/introduction/demo-showcase.md#proof-boundary-and-limitations), and this page | Non-goals and residual proof boundaries are explicit | Re-check launch copy did not add unsupported claims |
-| Hex visibility | [Release runbook post-publish visibility](../../release-runbook-v1-0.md#post-publish-visibility) | Placeholder only | Replace `POST_PUBLISH_HEX_VISIBILITY_URL` after Hex shows `1.0.0` |
-| HexDocs/source-link truth | [Release runbook post-publish visibility](../../release-runbook-v1-0.md#post-publish-visibility) and `mix.exs` `source_ref: "v#{@version}"` | Placeholder only | Replace `POST_PUBLISH_HEXDOCS_VERSION_URL` after docs and source links resolve |
-| GitHub Release | [Release runbook evidence commands](../../release-runbook-v1-0.md#release-evidence-checklist) | Placeholder only | Replace `POST_PUBLISH_GITHUB_RELEASE_URL` after the release exists |
-| Release-ref CI URLs | [Release runbook evidence checklist](../../release-runbook-v1-0.md#release-evidence-checklist) | Placeholder only | Replace `POST_PUBLISH_RELEASE_REF_CI_URLS` with final run URLs |
-| Waivers | [Release runbook gate matrix](../../release-runbook-v1-0.md#release-gate-matrix) | No waiver is assumed by this bundle | Any waiver must record gate, reason, approver, evidence URL, and expiry |
+| Hex visibility | [Release runbook post-publish visibility](release-runbook-v1-0.html#post-publish-visibility) | Placeholder only | Replace `POST_PUBLISH_HEX_VISIBILITY_URL` after Hex shows `1.0.0` |
+| HexDocs/source-link truth | [Release runbook post-publish visibility](release-runbook-v1-0.html#post-publish-visibility) and `mix.exs` `source_ref: "v#{@version}"` | Placeholder only | Replace `POST_PUBLISH_HEXDOCS_VERSION_URL` after docs and source links resolve |
+| GitHub Release | [Release runbook evidence commands](release-runbook-v1-0.html#release-evidence-checklist) | Placeholder only | Replace `POST_PUBLISH_GITHUB_RELEASE_URL` after the release exists |
+| Release-ref CI URLs | [Release runbook evidence checklist](release-runbook-v1-0.html#release-evidence-checklist) | Placeholder only | Replace `POST_PUBLISH_RELEASE_REF_CI_URLS` with final run URLs |
+| Waivers | [Release runbook gate matrix](release-runbook-v1-0.html#release-gate-matrix) | No waiver is assumed by this bundle | Any waiver must record gate, reason, approver, evidence URL, and expiry |
 
 ## Post-publish placeholders
 

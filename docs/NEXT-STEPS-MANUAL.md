@@ -29,7 +29,13 @@ After **`main`** has the commit you intend to ship:
 
 ## 3. GitHub Release
 
-Release Please creates the release when the Release PR merges. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and paste the matching **`CHANGELOG.md`** section.
+Release Please creates the release when the Release PR merges. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and draft the body from the canonical launch announcement: `docs/launch/v1.0/announcement.md`.
+
+Supporting links for the release body:
+
+- `docs/launch/v1.0/evidence.md` for release proof, post-publish placeholders, and proof boundaries.
+- The matching `CHANGELOG.md` SemVer section for exact package deltas.
+- `docs/release-runbook-v1-0.md` for release-ref evidence and first-14-day hotfix policy.
 
 ## 4. Sanity check
 
