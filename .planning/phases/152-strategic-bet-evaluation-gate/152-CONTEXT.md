@@ -1,4 +1,4 @@
-# Phase 152: Strategic Bet Evaluation Gate - Context
+# Phase 152: strategic-bet-evaluation-gate - Context
 
 **Gathered:** 2026-06-01 (assumptions mode)
 **Status:** Ready for planning
@@ -6,23 +6,27 @@
 <domain>
 ## Phase Boundary
 
-A formal evaluation document is created to assess if accumulated adopter demand warrants beginning work on `SCIM`, `sigra_lockspire`, or `Threadline` correlation. The evaluation explicitly defines the threshold of adopter demand required to override the maintenance-first default and violate the Diminishing Returns Wall. Any approved strategic bet includes deeper research scoping (e.g., `ex_scim` vs custom implementations for directory sync) to prepare for future implementation phases.
+A formal document assesses demand for SCIM, sigra_lockspire, and Threadline. Approved strategic bets (if any) are queued for deep research; rejected bets are formally deferred.
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### Overriding the Diminishing Returns Wall
-- **D-01:** The formal threshold for overriding the Diminishing Returns Wall requires an enterprise adopter contract explicitly blocked by the lack of the feature (e.g., JIT provisioning proving insufficient).
+### Strategic Evaluation Threshold (Diminishing Returns Wall)
+- **D-01:** Greenfield enterprise features (like SCIM or new auth primitives) will remain blocked unless an explicit enterprise adopter contract requires them.
 
-### `sigra_lockspire` Glue Deferral
-- **D-02:** The `sigra_lockspire` glue package remains formally deferred and blocked until both libraries are fully stable and a real companion-app trigger fires.
+### SCIM Implementation Strategy
+- **D-02:** When SCIM is eventually unblocked by an enterprise contract, it will use the `ex_scim` dependency rather than a custom minimal implementation.
 
-### Threadline Correlation
-- **D-03:** Threadline correlation (trace-correlation ID propagation) cannot proceed until a stable upstream injection seam exists in Threadline.
+### Lockspire Integration Posture
+- **D-03:** Lockspire integration will remain a host-owned responsibility (manual stub generation) rather than a published glue package (`sigra_lockspire`).
+
+### Threadline Tracing Correlation
+- **D-04:** Threadline trace-correlation ID propagation is deferred until Threadline provides a stable upstream injection seam (noting that external research shows Threadline v0.5.0+ has unblocked this seam).
 
 ### Claude's Discretion
-- **SCIM / Directory Sync Implementation:** The strategic evaluation will scope adopting the `ex_scim` dependency against building a custom minimal implementation, rather than building a generic integration immediately.
+None
+
 </decisions>
 
 <canonical_refs>
@@ -30,11 +34,9 @@ A formal evaluation document is created to assess if accumulated adopter demand 
 
 **Downstream agents MUST read these before planning or implementing.**
 
-- .planning/PROJECT.md
-- .planning/MILESTONE-ARC.md
-- .planning/research/SUMMARY.md
-- .planning/decisions/001-defer-sigra-lockspire-glue-package.md
-- .planning/milestones/v1.30-REQUIREMENTS.md
+.planning/ROADMAP.md
+.planning/decisions/001-defer-sigra-lockspire-glue-package.md
+.planning/decisions/002-strategic-bets-v1.33.md
 </canonical_refs>
 
 <code_context>
@@ -42,7 +44,6 @@ A formal evaluation document is created to assess if accumulated adopter demand 
 
 ### Reusable Assets
 - `ex_scim` (v0.2.0) is available on Hex.pm for protocol parsing and validation.
-- Custom SCIM v2.0 sync requires `GET`, `POST`, and `PATCH` on `/Users` with complex conflict resolution and idempotency logic.
 
 ### Established Patterns
 - "Maintenance-first" posture blocks unbounded enterprise feature creep.
