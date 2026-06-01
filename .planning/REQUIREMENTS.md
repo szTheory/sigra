@@ -1,101 +1,60 @@
-# Requirements: Sigra v1.32 RELEASE-ADOPTION
+# Requirements: Sigra — v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
-**Defined:** 2026-05-31
+**Defined:** 2026-06-01
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-## v1.32 Requirements
+**Milestone goal:** Manage the long-term viability of the hybrid lib+generator architecture through issue triage, ecosystem sync, and establishing a formal gate for strategic bets based on adopter demand. Transition Sigra from a phase of active feature construction into a phase of stewardship and stability.
 
-### Release Truth
+**Research basis:** `.planning/research/SUMMARY.md` (HIGH confidence). The ecosystem standard for post-1.0 libraries dictates that maintenance, operator trust, and security supersede greenfield feature development.
 
-- [x] **REL1-01**: Maintainer can cut Hex `1.0.0` with `mix.exs`, `.release-please-manifest.json`, `CHANGELOG.md`, release tag, Hex version, and HexDocs `source_ref` all aligned.
-- [ ] **REL1-02**: Maintainer can run a 1.0 release gate matrix that blocks publish unless library tests, install golden/idempotency, fresh install smoke, example/browser smoke, dep-off lane, docs warnings, Hex dry-run, and post-publish visibility checks are green or explicitly waived with evidence.
-- [ ] **REL1-03**: Maintainer can follow a deterministic 1.0 runbook covering normal publish, dry-run inspection, tag/source-link checks, Hex publish, documentation publish, revert/replace recovery, and first-14-day hotfix policy.
-- [x] **REL1-04**: Release notes can explain the planning-milestone-vs-Hex-version axis without confusing users about installable versions.
+## v1 Requirements
 
-### Public Contract
+Requirements for this milestone. Each maps to exactly one roadmap phase (phases continue from 150).
 
-- [x] **CONTRACT-01**: Developer can read a single public 1.0 contract that states supported Elixir, OTP, Phoenix, Ecto, and Postgres ranges plus optional dependency posture.
-- [x] **CONTRACT-02**: Developer can distinguish library-owned, generated-host-owned, and shared seam surfaces before installing or upgrading Sigra.
-- [x] **CONTRACT-03**: Developer can understand Sigra's SemVer, public API stability, experimental/private API, and deprecation/removal policy.
-- [x] **CONTRACT-04**: Developer can read a security invariants and non-goals table covering sessions, tokens, MFA/passkeys, audit durability, mail/Oban/OAuth responsibilities, and host-owned authz/business policy.
+### Issue Triage & Bugfix Cadence (MAINT)
 
-### Upgrade And Migration
+- [x] **MAINT-01**: Maintainer runbook includes a clear, repeatable process for monitoring adopter feedback, triaging issues, and prioritizing bug fixes without accumulating technical debt.
+- [x] **MAINT-02**: Known high-priority bugs and adopter-reported friction points are diagnosed and patched in the codebase.
+- [x] **MAINT-03**: A documented process exists for communicating generated-host template updates to adopters who have already run `mix sigra.install` prior to minor/patch bumps.
 
-- [x] **UPGRADE-01**: Existing `0.3.x` adopter can follow an `upgrading-to-v1.0.md` guide with breaking-change table, generated-file review strategy, migration/schema impact, rollback notes, and verification commands.
-- [x] **UPGRADE-02**: Maintainer can run an automated consumer upgrade smoke from latest `0.3.x` posture to `1.0.0`-candidate source and fail the release on unexpected compile/install/runtime regressions.
-- [x] **MIGRATE-01**: Phoenix developer using `phx.gen.auth` can evaluate a migration lane that compares scope/session/token models, adoption sequence, risks, and when not to migrate.
-- [x] **MIGRATE-02**: Developer using Pow, Guardian, Ueberauth, or composed auth stacks can evaluate a migration lane that explains cutover options, session/token/OAuth ownership differences, and migration risk.
+### Ecosystem Sync & Hex Dependency Management (ECO)
 
-### Adoption Funnel
+- [ ] **ECO-01**: CI pipeline verifies compatibility with the latest minor versions of Elixir and Phoenix, ensuring zero deprecation warnings on the latest OTP.
+- [ ] **ECO-02**: Hex dependencies (including those managed by Dependabot) are routinely bumped to their latest secure and compatible versions.
+- [ ] **ECO-03**: Supply-chain security and framework alignment are confirmed via a passing CI suite and, if necessary, a minor/patch Hex release.
 
-- [x] **ADOPT-01**: New evaluator can find one canonical first path from README, Hex package text, ExDoc, and `test/example/README.md` to run the demo and see meaningful auth flows in 10 minutes or less.
-- [x] **ADOPT-02**: Evaluator can use a persona intent map and screenshot grid to understand what each seeded demo account proves, including rough-edge states and explicit demo limitations.
-- [x] **ADOPT-03**: Developer can choose between greenfield, existing-app, migration, and advanced-control adoption lanes from the top-level docs without reading the whole guide set first.
-- [x] **ADOPT-04**: Developer can run `mix sigra.doctor` or equivalent documented verification immediately after install and understand expected success/failure output for common first-run mistakes.
+### Strategic Bet Evaluation Gate (STRAT)
 
-### Launch Evidence
-
-- [x] **LAUNCH-01**: Maintainer has a publish-ready 1.0 announcement package with problem framing, core differentiators, explicit non-goals, proof links, upgrade guidance, and "who should upgrade now vs wait" guidance.
-- [x] **LAUNCH-02**: Public docs include an honest "Sigra vs alternatives" section comparing `phx.gen.auth`, Pow/Guardian/Ueberauth composition, and hosted auth without overclaiming.
-- [x] **LAUNCH-03**: Maintainer can attach a compact 1.0 evidence bundle to the release/announcement covering CI gates, UAT/CI mapping, demo screenshots, docs build, and known limitations.
-- [x] **LAUNCH-04**: AI-consumption assets (`llms.txt` or equivalent docs index) point to canonical install, ownership, migration, security, and demo paths so generated guidance stays consistent.
-
-## Future Requirements
-
-### Post-Launch
-
-- **DEMO-03**: In-app per-persona explainer banner in the demo showcase.
-- **SCIM-01**: Directory sync / SCIM once real adopter demand validates the enterprise lifecycle need.
-- **CORR-01**: Threadline correlation-ID propagation after a stable Threadline injection seam exists.
-- **GLUE-01**: Optional `sigra_lockspire` glue package after both APIs stabilize and a real companion-app trigger fires.
+- [ ] **STRAT-01**: A formal evaluation document is created to assess if accumulated adopter demand warrants beginning work on `SCIM`, `sigra_lockspire`, or `Threadline` correlation.
+- [ ] **STRAT-02**: The evaluation explicitly defines the threshold of adopter demand required to override the maintenance-first default and violate the Diminishing Returns Wall.
+- [ ] **STRAT-03**: Any approved strategic bet includes deeper research scoping (e.g., `ex_scim` vs custom implementations for directory sync) to prepare for future implementation phases.
 
 ## Out of Scope
 
+Explicitly excluded. Documented to prevent scope creep.
+
 | Feature | Reason |
 |---------|--------|
-| New auth primitives | 1.0 launch should stabilize and explain the existing contract, not expand it. |
-| Public RC train | Direct `1.0.0` is the selected path; RCs are fallback only if a concrete blocker appears. |
-| Hosted control plane | Sigra remains a self-hosted Phoenix library with host-owned generated code. |
-| Opinionated authorization engine | Authz policy is host business logic; Sigra provides identity and seams. |
-| Broad UI redesign | This milestone may improve docs/demo affordances, not redesign generated-host UI. |
-| Compliance certification claims | Evidence and operator guidance are in scope; legal certification is not. |
+| Greenfield Feature Implementation | The baseline must be stable before expanding the surface area. Building "nice-to-have" capabilities without concrete adopter demand violates the Diminishing Returns Wall. |
+| Opinionated RBAC or Generic Admin UI | Feature creep that is out of scope for a post-1.0 authentication library. |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
+Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REL1-01 | Phase 145 | Complete |
-| REL1-02 | Phase 146 | Pending |
-| REL1-03 | Phase 146 | Pending |
-| REL1-04 | Phase 145 | Complete |
-| CONTRACT-01 | Phase 145 | Complete |
-| CONTRACT-02 | Phase 145 | Complete |
-| CONTRACT-03 | Phase 145 | Complete |
-| CONTRACT-04 | Phase 145 | Complete |
-| UPGRADE-01 | Phase 147 | Complete |
-| UPGRADE-02 | Phase 147 | Complete |
-| MIGRATE-01 | Phase 147 | Complete |
-| MIGRATE-02 | Phase 147 | Complete |
-| ADOPT-01 | Phase 148 | Complete |
-| ADOPT-02 | Phase 148 | Complete |
-| ADOPT-03 | Phase 148 | Complete |
-| ADOPT-04 | Phase 148 | Complete |
-| LAUNCH-01 | Phase 149 | Complete |
-| LAUNCH-02 | Phase 149 | Complete |
-| LAUNCH-03 | Phase 149 | Complete |
-| LAUNCH-04 | Phase 149 | Complete |
-| DEMO-03 | Future | Deferred |
-| SCIM-01 | Future | Deferred |
-| CORR-01 | Future | Deferred |
-| GLUE-01 | Future | Deferred |
+| MAINT-01 | Phase 150 | Complete |
+| MAINT-02 | Phase 150 | Complete |
+| MAINT-03 | Phase 150 | Complete |
+| ECO-01 | Phase 151 | Pending |
+| ECO-02 | Phase 151 | Pending |
+| ECO-03 | Phase 151 | Pending |
+| STRAT-01 | Phase 152 | Pending |
+| STRAT-02 | Phase 152 | Pending |
+| STRAT-03 | Phase 152 | Pending |
 
 **Coverage:**
-- v1.32 requirements: 20 total
-- Mapped to phases: 20
-- Unmapped: 0
-
----
-*Requirements defined: 2026-05-31*
-*Last updated: 2026-05-31 after v1.32 new milestone research synthesis*
+- v1 requirements: 9 total
+- Mapped to phases: 9 (roadmap complete)
+- Unmapped: 0 ✓
