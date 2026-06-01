@@ -1,0 +1,8 @@
+# Sigra llms.txt
+
+The canonical AI-consumption index for this repository is `doc/llms.txt`.
+
+- Local generated index: `doc/llms.txt`
+- Published HexDocs index: https://hexdocs.pm/sigra/llms.txt
+
+This root file is only a discoverability pointer. It does not duplicate the generated ExDoc table of contents or define a second launch-policy vocabulary.
