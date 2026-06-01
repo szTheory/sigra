@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.32
 milestone_name: RELEASE-ADOPTION
-status: active
-last_updated: 2026-05-31T21:39:11.700Z
-last_activity: 2026-05-31 -- Phase 148 complete; Phase 149 ready to plan
+status: planning
+last_updated: "2026-06-01T00:29:55.029Z"
+last_activity: 2026-05-31
 progress:
   total_phases: 5
   completed_phases: 4
@@ -33,6 +33,7 @@ Last activity: 2026-05-31
 ## Accumulating Context
 
 - `v1.32 RELEASE-ADOPTION` roadmap created 2026-05-31: 5 phases (145–149), 20/20 requirements mapped. Phase 145 locks the public 1.0 contract and release truth; Phase 146 builds deterministic release gates and maintainer runbook; Phase 147 ships upgrade/migration lanes; Phase 148 tightens evaluator funnel and first-run DX; Phase 149 packages launch evidence and announcement materials.
+- Phase 149 context gathered 2026-05-31 in assumptions mode with subagent research: `.planning/phases/149-launch-evidence-and-announcement-pack/149-CONTEXT.md` locks a canonical repo-resident 1.0 launch pack, honest Sigra-vs-alternatives comparison, compact attachable evidence bundle, version-clear release-note/adopter guidance, curated AI-consumption routing through `doc/llms.txt`, and a docs/evidence-only scope boundary.
 - Phase 146 context gathered 2026-05-31 in assumptions mode: `.planning/phases/146-release-gate-and-maintainer-runbook/146-CONTEXT.md` locks release-ref gate truth, reuse of existing CI contracts as gate evidence, manual Hex publish recovery as the primary no-invention recovery path, a dedicated release-runbook/policy doc with `MAINTAINING.md` as pointer, first-14-day hotfix triage policy, and post-1.0 cleanup of the one-time Release Please `release-as: "1.0.0"` override.
 - Phase 146 completed 2026-05-31: canonical CI can be manually dispatched only on `refs/tags/v*` for release evidence, Release Please and manual Hex publish both enforce version/ref/manifest/source-ref/package/visibility gates, `docs/release-runbook-v1-0.md` is the canonical runbook, and maintainer routers point to it. Verification scored 11/11 codebase must-haves with three live release UAT items tracked in `.planning/phases/146-release-gate-and-maintainer-runbook/146-HUMAN-UAT.md`.
 - Phase 147 context gathered 2026-05-31 in assumptions mode: `.planning/phases/147-upgrade-and-migration-lanes/147-CONTEXT.md` locks the `upgrading-to-v1.0.md` operational guide shape, a dedicated `0.3.x` consumer-to-`1.0.0` candidate smoke lane, comparative boundary-first migration docs for `phx.gen.auth` and Pow/Guardian/Ueberauth, and discovery wiring through README, ExDoc, release/evidence docs, and `doc/llms.txt`.
