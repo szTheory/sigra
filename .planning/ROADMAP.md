@@ -43,7 +43,8 @@
   1. A formal document assesses demand for SCIM, sigra_lockspire, and Threadline.
   2. A concrete threshold of adopter demand is established for overriding the maintenance-first default.
   3. Approved strategic bets (if any) are queued for deep research; rejected bets are formally deferred.
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 152-01-PLAN.md — Create formal evaluation document for SCIM, Lockspire, and Threadline
 
 ---
 
@@ -53,4 +54,4 @@
 |-------|----------------|--------|-----------|
 | 150. Issue Triage & Bugfix Cadence | 1/1 | Complete    | 2026-06-01 |
 | 151. Ecosystem Sync & Hex Dependency Management | 0/1 | Planned | - |
-| 152. Strategic Bet Evaluation Gate | 0/0 | Not started | - |
+| 152. Strategic Bet Evaluation Gate | 0/1 | Planned | - |
