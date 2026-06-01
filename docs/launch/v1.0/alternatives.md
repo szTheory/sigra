@@ -27,7 +27,7 @@ Use these axes before choosing or migrating:
 - Guardian is token-toolkit oriented. It can remain a good fit when token issuance/verification is the main concern and the surrounding auth system is already stable.
 - Ueberauth is provider-challenge oriented. It remains useful when provider-specific OAuth challenge/callback plumbing is the scoped problem.
 - Pow-style stacks may still fit stable existing apps, especially where migration risk outweighs the value of a new contract.
-- Hosted auth is valid when managed operations matter more than in-repo control.
+- Hosted auth is valid when managed operations matter more than in-repo control; in this page, "hosted auth" means an external managed identity provider rather than repo-owned Phoenix auth code.
 - Sigra's hybrid model is strongest when the team wants Phoenix-native code ownership plus an updateable auth library core.
 
 For migration detail, use [Migrating from phx.gen.auth](../../../guides/introduction/migrating-from-phx-gen-auth.md) and [Migrating from Pow, Guardian, and Ueberauth](../../../guides/introduction/migrating-from-pow-guardian-ueberauth.md).

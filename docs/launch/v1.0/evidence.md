@@ -41,7 +41,7 @@ These tokens are intentionally exact. Do not replace them until the real public 
 
 ## Pinned release-link policy
 
-For release proof hosted outside the Hex package tarball, use pinned `v1.0.0` links instead of `main` blob URLs. This applies to GitHub-hosted planning artifacts, run logs, screenshots, and any release evidence that would otherwise drift after the release.
+For release proof hosted outside the Hex package tarball, use pinned `v1.0.0` links instead of `main` blob URLs. In other words: do not use main blob URLs for release evidence. This applies to GitHub-hosted planning artifacts, run logs, screenshots, and any release evidence that would otherwise drift after the release.
 
 Hex package contents and HexDocs pages can use their own package-version URLs once published. GitHub source proof should point at the release tag.
 
