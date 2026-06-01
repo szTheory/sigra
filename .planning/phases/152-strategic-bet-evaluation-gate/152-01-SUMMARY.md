@@ -1,49 +1,38 @@
 ---
-phase: "152"
-plan: "01"
-subsystem: "planning"
-tags:
-  - "strategic-bets"
-  - "scim"
-  - "lockspire"
-  - "threadline"
+phase: 152-strategic-bet-evaluation-gate
+plan: 01
+subsystem: planning
+tags: [strategic, planning, v1.33]
 dependency_graph:
-  requires: ["STRAT-01", "STRAT-02", "STRAT-03"]
-  provides: ["Strategic bet evaluation decisions"]
-  affects: []
+  requires: []
+  provides: [strategic-bet-evaluations]
+  affects: [roadmap]
 tech_stack:
   added: []
-  patterns: []
+  patterns: [maintenance-first]
 key_files:
-  created:
-    - ".planning/decisions/002-strategic-bets-v1.33.md"
+  created: [.planning/decisions/002-strategic-bets-v1.33.md]
   modified: []
 metrics:
-  duration_minutes: 2
-  completed_at: "2026-06-01T21:23:33Z"
+  duration: "1m"
+  completed_date: "2026-06-01"
 ---
 
-# Phase 152 Plan 01: Create Strategic Bets Evaluation Document Summary
+# Phase 152 Plan 01: Evaluate Strategic Bets Summary
 
-Created the formal evaluation document for v1.33 strategic bets to enforce the Diminishing Returns Wall criteria for greenfield enterprise feature requests.
-
-## Key Decisions
-
-- **Diminishing Returns Wall**: Overriding requires an enterprise adopter contract explicitly blocked by the lack of the feature.
-- **SCIM**: Deferred until explicitly blocked. Scope restricted to adopting `ex_scim` instead of a custom minimal implementation.
-- **sigra_lockspire Glue**: Deferred until both libraries are fully stable.
-- **Threadline Correlation**: Deferred until a stable upstream injection seam exists.
+Formal evaluation document for v1.33 strategic bets created, cementing the maintenance-first posture.
 
 ## Deviations from Plan
 
 None - plan executed exactly as written.
 
-## Known Stubs
+## Key Decisions
 
-None.
+- Formalized the threshold for overriding the Diminishing Returns Wall.
+- Deferred SCIM, sigra_lockspire, and Threadline correlation to future milestones upon enterprise block.
 
-## Threat Flags
+## Threats & Trust Boundaries
 
-None.
-
-## Self-Check: PASSED
+| Threat ID | Category | Component | Disposition | Mitigation Plan |
+|-----------|----------|-----------|-------------|-----------------|
+| T-152-01 | Information Disclosure | Documentation | accept | Strategic evaluations are public open source project decisions. |
