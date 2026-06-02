@@ -410,6 +410,26 @@
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 22%, transparent);
   }
 
+  /* Tenant glyph inside the scope pill (org scope only). */
+  .sg-scope-pill__tenant {
+    font-size: var(--sg-text-xs);
+    line-height: 1;
+  }
+
+  /* Org-scope chrome: a restrained, on-brand "you are inside a tenant" signal.
+   * Uses the info accent family (AA-clean in light + dark via existing token
+   * overrides) so the chip + topbar border read as one system. Global scope
+   * is left exactly as-is. */
+  [data-scope="organization"] .sg-scope-pill {
+    background: var(--sg-color-info-soft);
+    color: var(--sg-color-info);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-info) 28%, transparent);
+  }
+
+  [data-scope="organization"] .sg-admin-topbar {
+    border-top: 2px solid color-mix(in oklab, var(--sg-color-info) 55%, transparent);
+  }
+
   .sg-status-pill,
   .sg-badge {
     background: var(--sg-color-panel-alt);
