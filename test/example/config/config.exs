@@ -34,6 +34,10 @@ config :phoenix, :json_library, Jason
 # of this file so it overrides the configuration defined above.
 
 # Sigra authentication
+passkey_origin =
+  System.get_env("SIGRA_EXAMPLE_URL") ||
+    "http://localhost:#{System.get_env("PORT", "4000")}"
+
 config :example, :sigra,
   repo: Example.Repo,
   user_schema: Example.Accounts.User
@@ -66,7 +70,7 @@ config :example, :sigra_config,
   passkeys: [
     rp_id: "localhost",
     rp_name: "Sigra Example",
-    origin: "http://localhost:4000",
+    origin: passkey_origin,
     timeout_ms: 60_000,
     attestation: :none,
     user_verification: :preferred,

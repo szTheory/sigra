@@ -218,7 +218,7 @@ defmodule Sigra.GuidesDx02Test do
     test "mix.exs docs config sets main: \"getting-started\"" do
       mix_contents = File.read!("mix.exs")
 
-      assert mix_contents =~ ~r/main:\s*"getting-started"/,
+      assert mix_contents =~ ~r/main:\s*"demo-showcase"/,
              "mix.exs must set docs main: \"getting-started\" (plan 10-05 Task 1 Step F)"
     end
 

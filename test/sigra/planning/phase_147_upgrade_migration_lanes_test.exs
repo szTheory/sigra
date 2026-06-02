@@ -26,13 +26,14 @@ defmodule Sigra.Planning.Phase147UpgradeMigrationLanesTest do
     assert ci =~ "needs: release_ref_guard"
     assert ci =~ "run: scripts/ci/upgrade-smoke.sh"
 
-    assert script =~ ~S(SOURCE_SERIES="${SIGRA_UPGRADE_SOURCE_SERIES:-0.3}")
+    assert script =~ ~S(SOURCE_SERIES="${SIGRA_UPGRADE_SOURCE_SERIES:-1}")
     assert script =~ "SIGRA_UPGRADE_SMOKE_START_VERSION"
     assert script =~ "resolve_latest_sigra_source"
     assert script =~ "mix sigra.install --yes Accounts User users"
     assert script =~ "mix sigra.upgrade --allow-dirty --yes"
     assert script =~ "mix compile --warnings-as-errors"
     assert script =~ "mix ecto.migrate"
+    assert script =~ "find_free_port"
     assert script =~ "http://127.0.0.1:${PORT}/users/log_in"
   end
 
@@ -92,7 +93,7 @@ defmodule Sigra.Planning.Phase147UpgradeMigrationLanesTest do
     assert runbook =~
              "| Upgrade smoke | `CI` / `upgrade_smoke` | release tag | `Gate=upgrade_smoke`, run URL/log, pass status | Same waiver fields required |"
 
-    assert runbook =~ "| upgrade_smoke | `CI` / `upgrade_smoke` | `v1.0.0` |"
+    assert runbook =~ "| upgrade_smoke | `CI` / `upgrade_smoke` | `v1.32.0` |"
 
     assert coverage =~ "## v1.32 upgrade and migration proof"
     assert coverage =~ "UPGRADE-02 (machine-closed)"
@@ -105,7 +106,10 @@ defmodule Sigra.Planning.Phase147UpgradeMigrationLanesTest do
     assert evidence =~ "## Upgrade and migration proof"
     assert evidence =~ "[Upgrading to v1.0](upgrading-to-v1.0.html)"
     assert evidence =~ "[Migrating from phx.gen.auth](migrating-from-phx-gen-auth.html)"
-    assert evidence =~ "[Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.html)"
+
+    assert evidence =~
+             "[Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.html)"
+
     assert evidence =~ "`CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh`"
     refute evidence =~ "## Release Gate Matrix"
   end

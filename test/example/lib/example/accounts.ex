@@ -625,7 +625,7 @@ defmodule Example.Accounts do
       passkeys: [
         rp_id: "localhost",
         rp_name: "Sigra Example",
-        origin: "http://localhost:4000",
+        origin: passkey_origin(),
         timeout_ms: 60_000,
         attestation: :none,
         user_verification: :preferred,
@@ -634,6 +634,11 @@ defmodule Example.Accounts do
         user_passkey_schema: Example.Accounts.UserPasskey
       ]
     )
+  end
+
+  defp passkey_origin do
+    System.get_env("SIGRA_EXAMPLE_URL") ||
+      "http://localhost:#{System.get_env("PORT", "4000")}"
   end
 
   @doc "List all active sessions for a user."

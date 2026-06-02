@@ -311,3 +311,23 @@ jobs:
           done
           echo "Timed out waiting for https://hex.pm/api/packages/sigra/releases/${VERSION}"
           exit 1
+
+      - name: Verify HexDocs source links after publish
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          scripts/ci/release-post-publish-verify.sh \
+            --package sigra \
+            --version "${VERSION}" \
+            --tag "${TAG_NAME}" \
+            --evidence-file release-post-publish-evidence.json
+
+      - name: Upload release post-publish evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: release-post-publish-evidence-${{ needs.release-please.outputs.version }}
+          path: release-post-publish-evidence.json
+          if-no-files-found: ignore
+          retention-days: 90

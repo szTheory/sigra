@@ -177,19 +177,22 @@ Architecture not yet mapped. Follow existing patterns found in the codebase.
 that runs in CI runs locally too, and a missing database fails fast
 instead of silently skipping.
 
-One-liner to start a disposable postgres container:
+One-liner to start a disposable postgres container without reserving global
+port 5432:
 
 ```bash
 docker run -d --name sigra-test-postgres \
   -e POSTGRES_DB=sigra_test \
   -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 postgres:16-alpine
+  -p 127.0.0.1::5432 postgres:16-alpine
+docker port sigra-test-postgres 5432
 ```
 
-Any already-running container on port 5432 with the same credentials
-and a `sigra_test` database is fine. The UAT demo stack uses a dynamic
-Postgres port by default, so use `scripts/uat/up.sh` for demo work rather
-than relying on it as the root test database. Run the full suite with:
+Set `PGPORT` to the mapped port printed by `docker port`. Any already-running
+container on port 5432 with the same credentials and a `sigra_test` database is
+also fine. The UAT demo stack uses a dynamic Postgres port by default, so use
+`scripts/uat/up.sh` for demo work rather than relying on it as the root test
+database. Run the full suite with:
 
 ```bash
 mix test

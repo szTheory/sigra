@@ -61,7 +61,7 @@ This subsection records the machine-vs-human boundary for **OPS-01** in the acti
   Proves one canonical happy path, one representative denied path, and operator-visible stage guidance.
 - **Installer parity:** `mix test test/sigra/install/features/organizations_test.exs test/sigra/admin/live/enterprise_connection_live_test.exs`
   Proves generated-host templates and example surfaces describe the same bounded enterprise contract.
-- **Narrow browser lane:** `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4000 npx playwright test tests/admin-generated.spec.ts --project=admin-generated`
+- **Narrow browser lane:** `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=<example-app-url> npx playwright test tests/admin-generated.spec.ts --project=admin-generated`
   Proves a real served route renders bounded enterprise wiring without expanding into a browser or IdP matrix.
 - **Docs / truth-surface grep:** `rg -n "Enterprise|organization|routing|reconciliation|SSO-only|break-glass|SCIM|hosted control plane|opinionated authz|Did Not Prove|Proved" guides/flows/oauth.md docs/uat-ci-coverage.md .planning/phases/126-generated-host-proof-diagnostics-docs/126-VERIFICATION.md`
   Proves the public and maintainer truth surfaces stay explicit about scope and non-goals.
@@ -85,7 +85,7 @@ This subsection records the machine-vs-human boundary for **OPS-01** in the acti
 
 - **GitHub Actions:** `.github/workflows/ci.yml` — jobs `library_tests`, `example_unit_smoke`, `example_playwright_smoke` (includes `ga-uat-shift-left.spec.ts`), `install_smoke`, `getting_started_uat_contract`.
 - **Installer golden / idempotency contract:** locally run **`mix ci.install_golden`** (see [`MAINTAINING.md`](../MAINTAINING.md)); CI mirrors it with job **`install_golden_contract`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (path-filtered on PRs, always on `main` pushes).
-- **Local:** same as CI: `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost` for Elixir tests; Playwright from `test/example/priv/playwright` with example app on port 4000.
+- **Local:** same as CI, but prefer the dynamic UAT values printed by `scripts/uat/up.sh`: `PGUSER=postgres PGPASSWORD=postgres PGHOST=127.0.0.1 PGPORT=<printed-postgres-port>` for example-app tests; Playwright from `test/example/priv/playwright` with `SIGRA_EXAMPLE_URL=<printed-app-url>`.
 
 ## Policy
 

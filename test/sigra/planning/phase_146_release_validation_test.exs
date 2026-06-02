@@ -21,7 +21,7 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
 
     assert ci =~ ~r/^  workflow_dispatch:$/m
     assert ci =~ ~r/release-ref evidence path/i
-    assert ci =~ ~s(gh workflow run "CI" --ref v1.0.0)
+    assert ci =~ ~s(gh workflow run "CI" --ref v1.32.0)
     assert ci =~ ~r/^  push:\n    branches: \[main\]/m
     assert ci =~ ~r/^  pull_request:\n    branches: \[main\]/m
 
@@ -34,6 +34,13 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
   test "146-01-02: publish workflows enforce version, package, dry-run, publish, and visibility gates" do
     release_please = read!(".github/workflows/release-please.yml")
     hex_publish = read!(".github/workflows/hex-publish.yml")
+    post_publish_verify = read!("scripts/ci/release-post-publish-verify.sh")
+
+    assert post_publish_verify =~ "release-post-publish-verify.sh --version <version> --tag <tag>"
+    assert post_publish_verify =~ "https://hex.pm/api/packages/${PACKAGE}/releases/${VERSION}"
+    assert post_publish_verify =~ "https://hexdocs.pm/${PACKAGE}/${VERSION}"
+    assert post_publish_verify =~ "github.com/${REPOSITORY}/blob/${TAG}/"
+    assert post_publish_verify =~ "hexdocs_source_link_points_to_main"
 
     for workflow <- [release_please, hex_publish] do
       assert workflow =~ "release-please-manifest"
@@ -48,6 +55,11 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
       assert workflow =~ "mix hex.publish --dry-run --yes"
       assert workflow =~ "mix hex.publish --yes"
       assert workflow =~ "Verify version on Hex.pm"
+      assert workflow =~ "Verify HexDocs source links after publish"
+      assert workflow =~ "scripts/ci/release-post-publish-verify.sh"
+      assert workflow =~ "--evidence-file release-post-publish-evidence.json"
+      assert workflow =~ "Upload release post-publish evidence"
+      assert workflow =~ "release-post-publish-evidence-"
     end
 
     assert release_please =~ "Verify tag matches release version"
@@ -68,7 +80,7 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
           "## Post-Publish Visibility",
           "## Recovery Decision Tree",
           "## First 14 Days Hotfix Policy",
-          "## Post-1.0 Release Please Cleanup"
+          "## Post-1.32 Release Please Cleanup"
         ] do
       assert runbook =~ heading
     end
@@ -84,15 +96,21 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
     assert runbook =~
              "Gate | Workflow/job or command | Release ref | Evidence URL or log | Reviewer | Waiver? | Notes"
 
-    assert runbook =~ ~s(gh workflow run "CI" --ref v1.0.0)
+    assert runbook =~ ~s(gh workflow run "CI" --ref v1.32.0)
 
     assert runbook =~
-             ~S|gh workflow run "Hex publish (manual recovery)" -f tag=v1.0.0 -f release_version=1.0.0|
+             ~S|gh workflow run "Hex publish (manual recovery)" -f tag=v1.32.0 -f release_version=1.32.0|
 
     assert runbook =~ "mix hex.build --unpack --output sigra-hex-inspect"
     assert runbook =~ "mix hex.publish --dry-run --yes"
+    assert runbook =~
+             "scripts/ci/release-post-publish-verify.sh --package sigra --version 1.32.0 --tag v1.32.0"
+
+    assert runbook =~ "automated post-publish"
+    assert runbook =~ "release-post-publish-evidence-1.32.0"
+    refute runbook =~ "manual post-publish"
     assert runbook =~ ~S(source_ref: "v#{@version}")
-    assert runbook =~ ~s(release-as: "1.0.0")
+    assert runbook =~ ~s(release-as: "1.32.0")
     assert runbook =~ "mix hex.publish --replace"
     assert runbook =~ "mix hex.publish --revert"
     assert runbook =~ "24 hours"

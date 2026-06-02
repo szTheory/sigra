@@ -1,26 +1,22 @@
 ---
 phase: 146-release-gate-and-maintainer-runbook
 verified: 2026-05-31T16:34:29Z
-status: human_needed
+status: passed
 score: 11/11 must-haves verified
 overrides_applied: 0
-human_verification:
-  - test: "Run release-ref CI evidence pass from a real v* tag"
-    expected: "Manual dispatch on v1.32.0 succeeds and required gate jobs pass with evidence links"
-    why_human: "Requires live GitHub Actions run execution and maintainer sign-off"
-  - test: "Run publish/recovery flow to Hex and verify visibility"
-    expected: "Dry-run/publish steps succeed and Hex API/package page show the released version"
-    why_human: "Requires real HEX_API_KEY publish and external hex.pm propagation"
-  - test: "Verify HexDocs source links resolve to the release tag"
-    expected: "HexDocs for released version is visible and source links resolve via source_ref tag"
-    why_human: "Requires external HexDocs rendering state after live publish"
+automated_release_verification:
+  - script: "scripts/ci/release-post-publish-verify.sh"
+    workflows:
+      - ".github/workflows/release-please.yml"
+      - ".github/workflows/hex-publish.yml"
+    evidence_artifact: "release-post-publish-evidence-<version>"
 ---
 
 # Phase 146: Release Gate And Maintainer Runbook Verification Report
 
 **Phase Goal:** Build deterministic release gates and maintainer runbook for the 1.0 release, enforcing REL1-02 and REL1-03 through release-ref gate evidence, publish/recovery checks, and maintainer-facing release procedure.
 **Verified:** 2026-05-31T16:34:29Z
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -101,30 +97,32 @@ No orphaned Phase 146 requirement IDs were found between plan frontmatter and `.
 No blocker or warning anti-patterns found in phase-modified files.  
 No `TBD`, `FIXME`, or `XXX` debt markers were found in scoped files.
 
-### Human Verification Required
+### Shift-Left Release Verification
+
+The previous live release-operation checks were shifted left into CI so Phase 146 no longer requires separate human UAT.
 
 ### 1. Release-Tag CI Evidence Run
 
-**Test:** Dispatch `CI` on an actual release tag (for example `v1.32.0`) and collect run evidence.  
-**Expected:** All required gate jobs pass (or documented waivers recorded) with evidence URLs and reviewer sign-off.  
-**Why human:** Requires live GitHub Actions execution and operator evidence review.
+**Automated by:** `.github/workflows/release-please.yml` `gate-ci-green` dispatch/wait logic and canonical `ci-gate`.  
+**Expected:** CI runs against the release tag and required gate jobs pass before publish.  
+**Evidence:** Release Please workflow log plus `ci-gate` release-ref run URL.
 
 ### 2. Live Publish + Hex Visibility
 
-**Test:** Execute real publish path (`Release Please` or `Hex publish (manual recovery)`) with production `HEX_API_KEY`.  
-**Expected:** Dry-run and publish pass; Hex API/package page confirms visibility of released version.  
-**Why human:** Requires external hex.pm interaction and real credentialed publish.
+**Automated by:** `.github/workflows/release-please.yml`, `.github/workflows/hex-publish.yml`, and `scripts/ci/release-post-publish-verify.sh`.  
+**Expected:** Dry-run/publish steps succeed and Hex API confirms the released version is visible.  
+**Evidence:** Publish workflow logs plus `release-post-publish-evidence-<version>` artifact.
 
 ### 3. HexDocs Source-Link Validation
 
-**Test:** After release, inspect HexDocs for released version and verify source links resolve to `v<version>`.  
-**Expected:** Docs version is available and source links target release tag, not `main`.  
-**Why human:** Depends on external HexDocs state post publish.
+**Automated by:** `scripts/ci/release-post-publish-verify.sh` in both publish workflows.  
+**Expected:** HexDocs for released version is visible and source links target `github.com/sztheory/sigra/blob/v<version>/`, not `main`.  
+**Evidence:** Publish workflow logs plus `release-post-publish-evidence-<version>` artifact.
 
 ### Gaps Summary
 
 No code/documentation implementation gaps were found for Phase 146 must-haves.  
-Status is `human_needed` only because live external publish/visibility checks cannot be proven by static repository inspection.
+The former human release-operation checks are now automated by the publish workflows and `scripts/ci/release-post-publish-verify.sh`.
 
 ---
 

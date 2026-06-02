@@ -41,6 +41,8 @@ PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> iex -S m
 ```
 
 The app URL is printed by `scripts/uat/up.sh`.
+Use that printed app URL for every local browser step below unless a step
+explicitly calls out a fixed external-provider callback URL.
 
 The local Swoosh mailbox preview is at `/dev/mailbox` on that app URL — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
 
@@ -78,10 +80,10 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `04-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
-1. Visit http://localhost:4000/users/register
+1. Visit `<printed-app-url>/users/register`
 2. Register with email `test1@example.com` / password `correcthorsebatterystaple`
 3. Open `/dev/mailbox` in another tab → click the confirmation email → click the confirmation link → you're confirmed and logged in
-4. Navigate to http://localhost:4000/users/sessions
+4. Navigate to `<printed-app-url>/users/sessions`
 5. Open an incognito window → log in as the same user with the same password (this creates a second session)
 6. Switch back to your normal window → refresh `/users/sessions`
 
@@ -105,7 +107,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Steps:**
 1. Logged in from the previous step
 2. Wait at least the configured sudo TTL (default 5 minutes) OR open a private window and log in fresh
-3. Navigate to http://localhost:4000/users/settings
+3. Navigate to `<printed-app-url>/users/settings`
 4. Try to change email or trigger any sensitive action
 
 **Expected:**
@@ -153,7 +155,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 3. Log in with the "Remember me" checkbox **checked**
 4. Verify you're logged in (any authenticated page works — try /users/settings)
 5. Quit the browser entirely (not just the tab — the whole app)
-6. Reopen the browser, navigate to http://localhost:4000
+6. Reopen the browser, navigate to the printed app URL
 
 **Expected:**
 - You're still logged in (no login prompt)
@@ -211,7 +213,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
      ]
    ```
 3. `GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... iex -S mix phx.server`
-4. In a new private browser window, visit http://localhost:4000/users/register
+4. In a new private browser window, visit the matching `/users/register` URL for the callback origin you configured
 5. Click "Sign in with Google"
 6. Grant permission in Google's consent screen
 7. You're redirected back to the app
@@ -457,7 +459,7 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 **Steps:**
 1. After running the UAT items above, open `psql`:
    ```bash
-   docker compose -f scripts/uat/docker-compose.yml exec postgres psql -U postgres example_dev
+   docker compose -p <printed-compose-project> -f scripts/uat/docker-compose.yml exec postgres psql -U postgres example_dev
    ```
 2. `SELECT event_type, actor_id, ip, occurred_at FROM audit_events ORDER BY occurred_at DESC LIMIT 30;`
 
@@ -480,9 +482,9 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 **Steps:**
 ```bash
 cd test/example
-MIX_ENV=test mix ecto.create
-MIX_ENV=test mix ecto.migrate
-mix test --include integration
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> MIX_ENV=test mix ecto.create
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> MIX_ENV=test mix ecto.migrate
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> mix test --include integration
 ```
 
 **Expected:** Full example-app test suite runs against the dockerized Postgres. The phase 10-06 SUMMARY claims 34/34 tests pass.

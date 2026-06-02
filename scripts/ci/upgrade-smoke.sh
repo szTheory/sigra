@@ -9,6 +9,8 @@ set -euo pipefail
 _ci_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/ci/lib/mix-deps-get-retry.sh
 source "${_ci_here}/lib/mix-deps-get-retry.sh"
+# shellcheck source=scripts/ci/lib/free-port.sh
+source "${_ci_here}/lib/free-port.sh"
 
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app_upgrade}"
@@ -153,7 +155,7 @@ mix ecto.create
 mix ecto.migrate
 
 # Keep this runner stable even if port 4000 is occupied.
-PORT="${SIGRA_UPGRADE_SMOKE_PORT:-4000}"
+PORT="${SIGRA_UPGRADE_SMOKE_PORT:-$(find_free_port)}"
 
 MIX_ENV=dev PORT="${PORT}" mix phx.server > /tmp/upgrade-smoke-server.log 2>&1 &
 SERVER_PID=$!
@@ -162,7 +164,7 @@ trap 'kill "${SERVER_PID}" 2>/dev/null || true' EXIT
 for i in $(seq 1 180); do
   code="$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:${PORT}/users/log_in" || true)"
   if [[ "${code}" == "200" || "${code}" == "301" || "${code}" == "302" || "${code}" == "303" || "${code}" == "307" || "${code}" == "308" ]]; then
-    echo "==> upgrade-smoke: runtime route check passed at /users/log_in"
+    echo "==> upgrade-smoke: runtime route check passed at http://127.0.0.1:${PORT}/users/log_in"
     exit 0
   fi
   sleep 1

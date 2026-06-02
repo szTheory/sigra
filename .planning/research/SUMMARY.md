@@ -1,73 +1,53 @@
-# Research Summary: v1.32 RELEASE-ADOPTION
+# Research Summary: Sigra Post-1.0 Maintenance and Strategic Bets
 
-**Date:** 2026-05-31
-**Milestone:** v1.32 RELEASE-ADOPTION
-**Decision:** Cut real Hex `1.0.0` directly from `main`, then run a proof-backed adoption push. Do not add new auth primitives in this milestone.
+**Domain:** Open Source Authentication Library Maintenance (Post-1.0)
+**Researched:** 2026-06-01
+**Overall confidence:** HIGH
 
-## Recommendation
+## Executive Summary
 
-Treat v1.32 as a truth-and-adoption milestone:
+After the successful release of `v1.32.0 RELEASE-ADOPTION`, Sigra transitions from a phase of active feature construction into a phase of **stewardship and stability**. The ecosystem standard for post-1.0 libraries (like Ecto, Phoenix, and mature auth tools) dictates that maintenance, operator trust, and security supersede greenfield feature development. The primary goal is managing the long-term viability of the hybrid lib+generator architecture without succumbing to feature creep or violating the established "Diminishing Returns Wall".
 
-1. Make the Hex `1.0.0` decision explicit and enforceable across version metadata, changelog, docs, release automation, and maintainer runbook.
-2. Publish a stable public contract for Sigra's library API, generated-host ownership model, SemVer/deprecation policy, supported stack ranges, and security invariants.
-3. Turn the v1.31 demo into the canonical evaluator funnel: first 10 minutes, persona map, screenshots, proof links, and honest limitations.
-4. Add migration/adoption lanes for the real audiences: greenfield Phoenix 1.8, existing `phx.gen.auth`, and Pow/Guardian/Ueberauth-style stacks.
-5. Package launch materials around evidence, not slogans: release notes, announcement draft, CI/UAT proof bundle, post-1.0 hotfix policy.
+Future strategic bets (e.g., SCIM directory sync, IdP glue packages) must now be driven strictly by documented adopter demand or a compelling thesis, rather than a default assumption of continued expansion. This research codifies the tools, features, and architectural principles required to sustain Sigra in a post-1.0 environment.
 
-## Approach Tradeoffs
+## Key Findings
 
-### Direct `1.0.0` from `main` (selected)
+**Stack:** GitHub Actions, Release Please, Dependabot, and Playwright (for demo-showcase UAT) form the primary stewardship stack.
+**Architecture:** Strict adherence to the Hybrid Lib+Generator pattern and adapter-based seams (for email, audit, and OAuth IdP).
+**Critical pitfall:** Feature creep—specifically, building "nice-to-have" capabilities (like opinionated RBAC or generic admin UI) that violate the Diminishing Returns Wall without concrete adopter demand.
 
-**Pros:** least confusing for adopters, uses existing Release Please + CI substrate, aligns with Sigra's current maturity, avoids a public RC support train.
+## Implications for Roadmap
 
-**Cons:** less external pre-GA feedback than a release candidate.
+Based on research, suggested phase structure for the next operational cycle (v1.33 Post-1.0 Maintenance):
 
-**Why selected:** Sigra already has strong install, example, dep-off, docs, doctor, and UAT evidence. The bottleneck is clarity and adopter conversion, not more pre-release ceremony.
+1. **Phase 150: Issue Triage & Bugfix Cadence** - Establish a repeatable process for monitoring adopter feedback, diagnosing friction, and patching bugs. 
+   - Addresses: Immediate operator trust and stability.
+   - Avoids: Accumulating technical debt from unaddressed community reports.
 
-### Public `1.0.0-rc.N`
+2. **Phase 151: Ecosystem Sync & Hex Dependency Management** - Routine dependency bumps (Dependabot), Elixir/Phoenix version compatibility verification, and ensuring zero deprecation warnings on the latest OTP.
+   - Addresses: Supply-chain security and framework alignment.
+   - Avoids: The "stale project" perception and broken CI pipelines.
 
-**Pros:** useful if broad downstream validation is needed before final GA.
+3. **Phase 152: Strategic Bet Evaluation Gate** - A formal checkpoint to evaluate if accumulated adopter demand warrants beginning work on `SCIM`, `sigra_lockspire`, or `Threadline` correlation. 
+   - Addresses: Validating feature requests against the Diminishing Returns Wall.
+   - Avoids: Unnecessary feature creep and bloated API surface.
 
-**Cons:** creates split docs/messaging, additional support burden, and install-target ambiguity.
+**Phase ordering rationale:**
+- Triage and maintenance (150 & 151) must always precede new features (152) in a post-1.0 posture. The baseline must be stable before expanding the surface area.
 
-**Decision:** keep as a fallback only if the hardening window finds a blocker that genuinely needs external validation.
+**Research flags for phases:**
+- Phase 152: Likely needs deeper research into `ex_scim` vs custom implementations if an enterprise adopter requests directory sync.
 
-### Feature-heavy launch
+## Confidence Assessment
 
-**Pros:** larger headline.
+| Area | Confidence | Notes |
+|------|------------|-------|
+| Stack | HIGH | The current CI/CD stack is proven and aligned with Elixir best practices. |
+| Features | HIGH | Clear boundaries (Diminishing Returns Wall) exist and are documented. |
+| Architecture | HIGH | Hybrid architecture is settled and validated through the 1.0 release. |
+| Pitfalls | HIGH | Historical data and open-source best practices strongly point to feature creep as the primary risk. |
 
-**Cons:** destabilizes the contract right before 1.0 and repeats the "great code, unclear onboarding" failure mode.
+## Gaps to Address
 
-**Decision:** explicitly out of scope.
-
-## Ecosystem Lessons
-
-- Phoenix, Devise, Pow, and Ash show that generators win adoption when the generated blast radius and upgrade story are explicit.
-- Ueberauth and Guardian show the value of a narrow, repeated scope statement; users trust libraries that say what they do not own.
-- Ecto, Plug, Phoenix, and Oban set the bar for changelogs, deprecation posture, tagged docs, source links, and mechanical release runbooks.
-- Django/allauth, Spring Security, Auth.js, Clerk, Auth0, and Supabase reinforce the adoption pattern: quickstart-first docs, clear path selection, runnable examples, and explicit operational limits.
-- For Sigra specifically, the hybrid library+generator model is the moat. The 1.0 launch should explain and prove that model, not obscure it behind marketing.
-
-## Requirements Seed
-
-- Release truth and SemVer contract
-- Public API/generated-host ownership contract
-- Release gate matrix and publish runbook
-- Upgrade/adoption lanes from `0.3.x`, `phx.gen.auth`, and existing auth stacks
-- Security invariants and non-goals
-- Evaluator funnel, demo persona map, screenshots, and proof bundle
-- Announcement and post-release hotfix policy
-
-## Non-Goals
-
-- No SCIM, hosted control plane, generic compliance platform, or new auth primitives.
-- No broad admin expansion, authorization policy engine, or frontend component library.
-- No Mailglass adapter resurrection or other previously corrected overclaims.
-- No public RC train unless a concrete release blocker appears.
-
-## Research Inputs
-
-- `.planning/research/RELEASE-MECHANICS.md`
-- `.planning/research/ADOPTION-DX.md`
-- `.planning/research/ECOSYSTEM-BENCHMARKS.md`
-- `.planning/research/LOCAL-PROMPT-SYNTHESIS.md`
+- At what threshold of adopter demand does a "Strategic Bet" (like SCIM) override the maintenance-first default?
+- How to efficiently communicate generated-host template updates to adopters who have already run `mix sigra.install` prior to minor/patch bumps.

@@ -18,10 +18,10 @@ This document is the single source of truth for release gates, evidence, recover
 | Release metadata truth | `Release Please` outputs `tag_name` + `version` and manifest check | pre-merge main evidence | Release PR/run URL proving `tag_name`, `version`, and `.release-please-manifest.json` alignment | If metadata proof cannot be generated, capture waiver fields |
 | Dry-run and package inspection | `mix hex.build --unpack --output sigra-hex-inspect` and `mix hex.publish --dry-run --yes` | release tag | command logs + artifact listing for unpacked package | If run blocked on ref, capture waiver fields |
 | Hex publish (manual recovery) | `Hex publish (manual recovery)` workflow | release tag | run URL showing inputs `tag` and `release_version`, pass status | If unavailable, waiver fields required |
-| Hex visibility | `curl -fsS https://hex.pm/api/packages/sigra/releases/1.32.0` | manual post-publish | API response/log proving version is visible | If endpoint unreachable, waiver fields required and retry plan |
-| HexDocs/source-link truth | Verify HexDocs page + `source_ref: "v#{@version}"` behavior | manual post-publish | URL showing docs version + source link resolving to `v1.32.0` | If HexDocs lagging, waiver fields required plus follow-up check window |
+| Hex visibility | `release-post-publish-verify.sh` in publish workflow | automated post-publish | workflow log + `release-post-publish-evidence-1.32.0` artifact proving version is visible | If endpoint unreachable, workflow blocks publish verification and must be rerun after propagation |
+| HexDocs/source-link truth | `release-post-publish-verify.sh` in publish workflow | automated post-publish | workflow log + evidence artifact proving docs version is visible and source links resolve to `v1.32.0` | If HexDocs lag, workflow blocks publish verification and must be rerun after propagation |
 
-Ref rule values are strict and limited to: `release tag`, `pre-merge main evidence`, or `manual post-publish`.
+Ref rule values are strict and limited to: `release tag`, `pre-merge main evidence`, or `automated post-publish`.
 
 ## Release Evidence Checklist
 
@@ -40,8 +40,8 @@ Use one row per gate and do not publish until required rows are complete.
 | Release Please metadata truth | `Release Please` outputs + manifest checks | `main` release PR evidence |  |  |  |  |
 | Dry-run + package inspection | `mix hex.build --unpack --output sigra-hex-inspect` + `mix hex.publish --dry-run --yes` | `v1.32.0` |  |  |  |  |
 | Hex publish (manual recovery) | Workflow dispatch run | `v1.32.0` |  |  |  |  |
-| Hex visibility | Hex API check | post-publish `v1.32.0` |  |  |  |  |
-| HexDocs/source-link checks | HexDocs and source link checks | post-publish `v1.32.0` |  |  |  |  |
+| Hex visibility | `release-post-publish-verify.sh` | post-publish `v1.32.0` | workflow log + evidence artifact | CI | No |  |
+| HexDocs/source-link checks | `release-post-publish-verify.sh` | post-publish `v1.32.0` | workflow log + evidence artifact | CI | No |  |
 
 Evidence capture command snippets:
 
@@ -55,6 +55,7 @@ gh workflow run "Hex publish (manual recovery)" -f tag=v1.32.0 -f release_versio
 mix hex.build --unpack --output sigra-hex-inspect
 mix hex.publish --dry-run --yes
 curl -fsS https://hex.pm/api/packages/sigra/releases/1.32.0
+scripts/ci/release-post-publish-verify.sh --package sigra --version 1.32.0 --tag v1.32.0
 ```
 
 ## Dry Run And Package Inspection
@@ -81,17 +82,16 @@ Primary no-invention recovery path: `Hex publish (manual recovery)` with require
 - `tag` must be `v1.32.0` or the exact commit SHA that resolves to the `v1.32.0` tag.
 - `release_version` must be `1.32.0`.
 
-Local trusted-machine publish is fallback only. If fallback is used, maintainers must preserve the same truth checks as automation: tag/version alignment, manifest alignment, `source_ref` check, package inspection, dry-run evidence, and post-publish visibility checks.
+Local trusted-machine publish is fallback only. If fallback is used, maintainers must preserve the same truth checks as automation: tag/version alignment, manifest alignment, `source_ref` check, package inspection, dry-run evidence, and `scripts/ci/release-post-publish-verify.sh --package sigra --version 1.32.0 --tag v1.32.0`.
 
 ## Post-Publish Visibility
 
-After successful publish, verify:
+After successful publish, the publish workflow runs `scripts/ci/release-post-publish-verify.sh` and uploads `release-post-publish-evidence-1.32.0`. The script verifies:
 
 1. Hex package visibility: `curl -fsS https://hex.pm/api/packages/sigra/releases/1.32.0`.
-2. Hex package page shows `1.32.0`.
-3. HexDocs for `1.32.0` is available.
-4. Source links resolve to tagged source via `source_ref: "v#{@version}"`.
-5. Evidence checklist rows for manual post-publish checks are complete with reviewer sign-off.
+2. HexDocs for `1.32.0` is available.
+3. Source links resolve to tagged source via `source_ref: "v#{@version}"`, specifically `github.com/sztheory/sigra/blob/v1.32.0/`.
+4. The evidence artifact records package, version, tag, Hex URL, HexDocs URL, source-link needle, timestamp, and pass/fail status.
 
 ## Recovery Decision Tree
 
