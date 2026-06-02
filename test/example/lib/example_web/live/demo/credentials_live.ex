@@ -1,6 +1,6 @@
 defmodule ExampleWeb.Demo.CredentialsLive do
   @moduledoc """
-  Read-only LiveView that lists all six demo persona credentials at `/demo/credentials`.
+  Read-only LiveView that lists all seven demo persona credentials at `/demo/credentials`.
 
   Available only in development — the route is gated by `Application.compile_env(:example,
   :dev_routes)` and compiles out in test and prod builds.

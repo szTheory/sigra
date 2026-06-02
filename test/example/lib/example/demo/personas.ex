@@ -1,6 +1,6 @@
 defmodule Example.Demo.Personas do
   @moduledoc """
-  Single source of truth for the six demo personas used by `Example.Demo.Seeds`.
+  Single source of truth for the seven demo personas used by `Example.Demo.Seeds`.
 
   This is a pure-data module: no DB calls, no dependencies on other Example modules.
   Consumed both by the seed orchestrator (plan 03) and the `/demo/credentials` LiveView
@@ -18,7 +18,7 @@ defmodule Example.Demo.Personas do
   @demo_totp_secret :crypto.hash(:sha256, "sigra-demo-admin-totp-v1") |> binary_part(0, 20)
 
   @doc """
-  Returns the list of all six demo personas as maps.
+  Returns the list of all seven demo personas as maps.
 
   Each persona map contains:
   - `:email` — fixed `@demo.sigra.dev` address
@@ -31,6 +31,7 @@ defmodule Example.Demo.Personas do
   - `:scheduled_deletion` — whether to set deleted_at + scheduled_deletion_at
   - `:identity_github` — whether to insert a GitHub OAuth identity row
   - `:org_owner` — org handle this persona owns (atom or nil)
+  - `:org_admin` — org handle this persona administers, non-platform (atom or nil)
   - `:org_member` — org handle this persona is a member of (atom or nil)
   """
   @spec all() :: [map()]
@@ -47,6 +48,7 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: false,
         identity_github: false,
         org_owner: :acme,
+        org_admin: nil,
         org_member: :beta
       },
       %{
@@ -60,6 +62,7 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: false,
         identity_github: false,
         org_owner: nil,
+        org_admin: nil,
         org_member: :acme
       },
       %{
@@ -73,6 +76,7 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: false,
         identity_github: false,
         org_owner: :beta,
+        org_admin: nil,
         org_member: nil
       },
       %{
@@ -86,6 +90,7 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: false,
         identity_github: true,
         org_owner: nil,
+        org_admin: nil,
         org_member: :acme
       },
       %{
@@ -99,6 +104,7 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: false,
         identity_github: false,
         org_owner: nil,
+        org_admin: nil,
         org_member: nil
       },
       %{
@@ -112,6 +118,21 @@ defmodule Example.Demo.Personas do
         scheduled_deletion: true,
         identity_github: false,
         org_owner: nil,
+        org_admin: nil,
+        org_member: nil
+      },
+      %{
+        email: "morgan@demo.sigra.dev",
+        display_name: "Morgan (org admin)",
+        password: "MorganDemo1!OrgAdmin",
+        confirmed: true,
+        totp: false,
+        passkey: false,
+        locked: false,
+        scheduled_deletion: false,
+        identity_github: false,
+        org_owner: nil,
+        org_admin: :acme,
         org_member: nil
       }
     ]
@@ -120,7 +141,7 @@ defmodule Example.Demo.Personas do
   @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
-  '@') for all six @demo.sigra.dev personas.
+  '@') for all seven @demo.sigra.dev personas.
   """
   @spec feature_map() :: %{String.t() => String.t()}
   def feature_map do
@@ -130,7 +151,8 @@ defmodule Example.Demo.Personas do
       "bob"   => "TOTP MFA enrolled — org owner (Beta Labs)",
       "carol" => "OAuth identity — GitHub-linked login (carol@demo.sigra.dev)",
       "dave"  => "Locked account — failed login attempts exhausted, unconfirmed",
-      "frank" => "Scheduled deletion — account marked for deletion"
+      "frank" => "Scheduled deletion — account marked for deletion",
+      "morgan" => "Org admin — Acme Corp admin, non-platform, org-scoped console"
     }
   end
 
