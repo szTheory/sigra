@@ -44,6 +44,7 @@ Last activity: 2026-06-02 — Milestone v1.33 completed and archived
 | 260602-gll | Admin-UI Pass 2 Stage 0 — `sg-*` design-system foundation tightening (token cleanup, WCAG-1.4.1 status-redundancy glyph, motion tokens + `sg-skeleton`/`sg-toast`) | 2026-06-02 | ffb7eece |
 | 260602-gzc | Admin-UI Pass 2 Stage 1 — shell IA chrome (tenant-marked scope chip + `data-scope` org recolor, sidebar nouns Users/Audit, stale `admin_shell_test` fixed 2/6→6/6) | 2026-06-02 | 2ec5dd6c |
 | 260602-hao | Admin-UI Pass 2 Stage 2 — needs-led landing launcher (jobs-first cards, demoted posture strip + "N need review" risk line, evaluator capability surface) on both global + org landings | 2026-06-02 | 2e5999ee |
+| 260602-hhr | Admin-UI Pass 2 Stage 3 — users index craft ("Showing X–Y of Z" pagination, applied-filter chips + Clear all, teaching empty states, truncate+tooltip, richer mobile card) | 2026-06-02 | 628ec604 |
 
 > Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
 
