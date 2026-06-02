@@ -50,6 +50,7 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
     <div class="mx-auto max-w-2xl">
       <.header>
         Organization settings
@@ -261,6 +262,7 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
         </.form>
       </section>
     </div>
+    </Layouts.app>
     """
   end
 

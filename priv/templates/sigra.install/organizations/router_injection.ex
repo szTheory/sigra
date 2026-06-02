@@ -14,7 +14,13 @@
 
   # Sigra organizations
   pipeline :org_scoped do
-    plug Sigra.Plug.LoadOrganizationFromSlug
+    plug Sigra.Plug.LoadOrganizationFromSlug,
+      error_handler: <%= web_module %>.AuthErrorHandler,
+      organizations: <%= app_module %>.Organizations,
+      session_store: Sigra.SessionStores.Ecto,
+      session_store_opts: [repo: <%= app_module %>.Repo, session_schema: <%= context_module %>.UserSession],
+      scope_module: <%= context_module %>.Scope
+
     plug Sigra.Plug.RequireMembership,
       error_handler: <%= web_module %>.AuthErrorHandler
   end
@@ -52,7 +58,8 @@
       on_mount: [
         {<%= web_module %>.UserAuth, :ensure_authenticated},
         {<%= web_module %>.UserAuth, :assign_user_organizations},
-        {Sigra.LiveView.OrganizationScope, []}
+        {Sigra.LiveView.OrganizationScope,
+         [organizations: <%= app_module %>.Organizations, scope_module: <%= context_module %>.Scope]}
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index

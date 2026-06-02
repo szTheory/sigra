@@ -138,7 +138,13 @@ defmodule SigraInstallGoldenTmpWeb.Router do
 
   # Sigra organizations
   pipeline :org_scoped do
-    plug Sigra.Plug.LoadOrganizationFromSlug
+    plug Sigra.Plug.LoadOrganizationFromSlug,
+      error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler,
+      organizations: SigraInstallGoldenTmp.Organizations,
+      session_store: Sigra.SessionStores.Ecto,
+      session_store_opts: [repo: SigraInstallGoldenTmp.Repo, session_schema: SigraInstallGoldenTmp.Accounts.UserSession],
+      scope_module: SigraInstallGoldenTmp.Accounts.Scope
+
     plug Sigra.Plug.RequireMembership,
       error_handler: SigraInstallGoldenTmpWeb.AuthErrorHandler
   end
@@ -176,7 +182,8 @@ defmodule SigraInstallGoldenTmpWeb.Router do
       on_mount: [
         {SigraInstallGoldenTmpWeb.UserAuth, :ensure_authenticated},
         {SigraInstallGoldenTmpWeb.UserAuth, :assign_user_organizations},
-        {Sigra.LiveView.OrganizationScope, []}
+        {Sigra.LiveView.OrganizationScope,
+         [organizations: SigraInstallGoldenTmp.Organizations, scope_module: SigraInstallGoldenTmp.Accounts.Scope]}
       ] do
       live "/settings", OrganizationSettingsLive, :edit
       live "/members", OrganizationMembersLive, :index
