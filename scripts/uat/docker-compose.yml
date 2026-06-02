@@ -1,18 +1,15 @@
-name: sigra-uat
-
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: sigra-uat-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: example_dev
     ports:
-      - "5432:5432"
+      - "${SIGRA_UAT_PG_BIND:-127.0.0.1}:${SIGRA_UAT_PG_PORT:-}:5432"
     volumes:
-      - sigra-uat-pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
@@ -20,5 +17,4 @@ services:
       retries: 10
 
 volumes:
-  sigra-uat-pgdata:
-    name: sigra-uat-pgdata
+  pgdata:

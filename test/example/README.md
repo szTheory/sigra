@@ -9,24 +9,26 @@ Vaultr is the runnable local companion for Sigra's canonical evaluator walkthrou
 
 - Elixir 1.18+
 - Erlang/OTP 27+
-- PostgreSQL running (or Docker)
+- Docker Desktop, or PostgreSQL reachable through `PG*` environment variables
 
-Start a disposable Postgres container:
+Recommended Docker path from the repo root:
 
 ```bash
-docker run -d --name vaultr-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16-alpine
+scripts/uat/up.sh
 ```
 
-The container password is `postgres` — matching the app's dev config default.
+The script starts a project-scoped Postgres container on an available local
+port, creates and migrates the demo database, seeds the evaluator personas,
+and prints the exact `PG*` and `PORT` values to use for the Phoenix server.
 
-### One-command setup
+### Manual setup
 
 ```bash
 cd test/example
-mix setup && mix phx.server
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> mix phx.server
 ```
 
-Then visit http://localhost:4000/demo/credentials first.
+Then visit the printed `/demo/credentials` URL first.
 
 ## Demo Personas
 
@@ -51,8 +53,8 @@ All personas use the `@demo.sigra.dev` email domain. Passwords are public-by-des
 
 ## Dev Tools
 
-- http://localhost:4000/dev/mailbox — Swoosh local email inbox (confirmation emails, password reset links, magic links)
-- http://localhost:4000/demo/credentials — In-app credentials cheat-sheet (all personas listed while the server is running)
+- `/dev/mailbox` on the printed app URL — Swoosh local email inbox (confirmation emails, password reset links, magic links)
+- `/demo/credentials` on the printed app URL — In-app credentials cheat-sheet (all personas listed while the server is running)
 
 ## Learn More About Sigra
 

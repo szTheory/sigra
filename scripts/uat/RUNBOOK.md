@@ -20,29 +20,6 @@ This runbook walks through the **19 human verification items** the per-phase ver
 
 ## 0. Bring up the environment
 
-### Homebrew Postgres port-5432 collision (macOS)
-
-If you have `postgresql@14` installed via Homebrew, it may already be bound to
-`127.0.0.1:5432` and will collide with the Docker Postgres container that
-`scripts/uat/up.sh` starts. Check and stop it first:
-
-```bash
-lsof -i :5432  # should be empty; if brew postgres is listed, stop it:
-brew services stop postgresql@14
-scripts/uat/up.sh
-```
-
-After the UAT session, restore the Homebrew Postgres if you use it for other
-projects:
-
-```bash
-scripts/uat/down.sh
-brew services start postgresql@14
-```
-
-Discovered during the v1.0 UAT session (see `.planning/v1.0-UAT-RESULTS.md`
-§ "Environment / setup findings").
-
 ### Start the stack
 
 ```bash
@@ -51,29 +28,33 @@ scripts/uat/up.sh
 ```
 
 This will:
-1. Start Postgres in Docker (port 5432, postgres/postgres)
+1. Start Postgres in Docker under a project-scoped Compose name
 2. Fetch deps in `test/example/`
-3. Create + migrate the `example_dev` database
-4. Print the entry-point URLs
+3. Create, migrate, and seed the `example_dev` database
+4. Print the exact Postgres port, app port, server command, and entry-point URLs
 
 Then in a second terminal:
 
 ```bash
 cd test/example
-iex -S mix phx.server
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> iex -S mix phx.server
 ```
 
-The app is at **http://localhost:4000**.
+The app URL is printed by `scripts/uat/up.sh`.
 
-The local Swoosh mailbox preview is at **http://localhost:4000/dev/mailbox** — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
+The local Swoosh mailbox preview is at `/dev/mailbox` on that app URL — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
 
 When you're done with the UAT session:
 
 ```bash
-scripts/uat/down.sh           # stop containers, keep DB
-scripts/uat/down.sh --purge   # also wipe the DB volume
-brew services start postgresql@14  # macOS only: restore brew Postgres if you stopped it above
+scripts/uat/down.sh           # stop containers for this Compose project, keep DB
+scripts/uat/down.sh --purge   # also wipe this project's DB volume
 ```
+
+By default, the UAT stack does not reserve host port `5432`, so Homebrew
+Postgres, `act`, and other Docker projects can keep running. To force a stable
+Postgres port for debugging, run `SIGRA_UAT_PG_PORT=5432 scripts/uat/up.sh`;
+if that fixed port is occupied, Docker will report the bind conflict.
 
 ---
 
@@ -572,12 +553,14 @@ in turn breaks `mix local.rebar` (can't make HTTPS requests).
 ### Port 5432 collision
 
 Act's postgres service binds `0.0.0.0:5432`, so anything already listening
-there (Homebrew Postgres, UAT compose stack, stale Docker containers) will
-block the job setup:
+there (Homebrew Postgres or stale fixed-port Docker containers) will block the
+job setup. The UAT stack uses a dynamic Postgres port by default, so it should
+not be the source of this conflict unless you started it with
+`SIGRA_UAT_PG_PORT=5432`.
 
 ```bash
 lsof -i :5432                              # find who owns it
-docker stop sigra-uat-postgres 2>/dev/null # if that's the culprit
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
 brew services stop postgresql@14           # if Homebrew Postgres
 ```
 

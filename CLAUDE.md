@@ -181,13 +181,15 @@ One-liner to start a disposable postgres container:
 
 ```bash
 docker run -d --name sigra-test-postgres \
+  -e POSTGRES_DB=sigra_test \
   -e POSTGRES_PASSWORD=postgres \
   -p 5432:5432 postgres:16-alpine
 ```
 
 Any already-running container on port 5432 with the same credentials
-(including the project's `sigra-uat-postgres`) is fine. Run the full
-suite with:
+and a `sigra_test` database is fine. The UAT demo stack uses a dynamic
+Postgres port by default, so use `scripts/uat/up.sh` for demo work rather
+than relying on it as the root test database. Run the full suite with:
 
 ```bash
 mix test
