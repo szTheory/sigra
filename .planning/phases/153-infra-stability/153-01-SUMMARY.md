@@ -82,6 +82,7 @@ Each task was committed atomically:
 1. **Task 1: Build the shared library sandbox harness** - `623c33f2` (`test(153-01)`)
 2. **Task 2: Migrate shared-repo live-DB suites onto owner-per-test rollback cleanup** - `7040bc95` (`test(153-01)`)
 3. **Task 3: Isolate the destructive query planner proof and add a fast infra contract** - `9d3303de` (`test(153-01)`)
+4. **Task 3 verification fix: Make scratch repo teardown idempotent** - `7f73b569` (`fix(153-01)`)
 
 ## Files Created/Modified
 
@@ -111,9 +112,17 @@ Each task was committed atomically:
 - **Verification:** Focused phase command passed with 107 tests, 0 failures.
 - **Committed in:** `7040bc95`
 
+**2. [Rule 3 - Blocking] Made scratch repo teardown idempotent**
+- **Found during:** Final focused verification after metadata close-out.
+- **Issue:** `Sigra.Audit.QueryIndexTest` could call `GenServer.stop/3` after the scratch repo process had already exited, causing an on-exit failure.
+- **Fix:** Wrapped scratch repo teardown so an already-stopped process is tolerated before `storage_down/1`.
+- **Files modified:** `test/sigra/audit/query_index_test.exs`.
+- **Verification:** Fresh focused phase command passed with 107 tests, 0 failures.
+- **Committed in:** `7f73b569`
+
 ---
 
-**Total deviations:** 1 auto-fixed blocking issue.
+**Total deviations:** 2 auto-fixed blocking issues.
 **Impact on plan:** The fix is within the planned sandbox harness boundary and improves the stable-DDL path without changing runtime code.
 
 ## Issues Encountered
