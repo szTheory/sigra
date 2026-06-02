@@ -1,7 +1,9 @@
 defmodule Sigra.Planning.Phase153InfraStabilityContractTest do
   use ExUnit.Case, async: true
 
-  @phase_dir ".planning/phases/153-infra-stability"
+  # Phase 153 (v1.33) artifacts archived under .planning/milestones/v1.33-phases/
+  # once the milestone closed.
+  @phase_dir ".planning/milestones/v1.33-phases/153-infra-stability"
   @shared_repo "test/support/postgres_test_repo.ex"
   @postgres_case "test/support/postgres_case.ex"
   @scratch_repo "test/support/audit_query_index_scratch_repo.ex"

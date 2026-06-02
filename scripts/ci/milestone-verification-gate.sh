@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Fail if a completed v1.2 roadmap phase is missing its *-VERIFICATION.md under
-# .planning/phases/. Phase 35 / ROADMAP SC4.
+# Fail if a completed v1.2 roadmap phase is missing its *-VERIFICATION.md.
+# Phase 35 / ROADMAP SC4. v1.2 (Admin Dashboard) phases 27-35 are archived under
+# .planning/milestones/v1.2-phases/ once the milestone closed, so search all of
+# .planning/ rather than only the active .planning/phases/ working set.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -19,7 +21,7 @@ echo "==> milestone-verification-gate: checking phases ${PHASES_NEEDING_VERIFICA
 for n in "${PHASES_NEEDING_VERIFICATION[@]}"; do
   # Match both `27-VERIFICATION.md` and decimal phases like `28-01-VERIFICATION.md`.
   found="$(
-    find "${ROOT}/.planning/phases" \( -name "${n}-VERIFICATION.md" -o -name "${n}-*-VERIFICATION.md" \) \
+    find "${ROOT}/.planning" \( -name "${n}-VERIFICATION.md" -o -name "${n}-*-VERIFICATION.md" \) \
       2>/dev/null | head -1 || true
   )"
   if [[ -z "${found}" ]]; then
