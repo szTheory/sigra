@@ -67,12 +67,36 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
 
           <label class="sg-field">
             <span class="sg-field-label">Action prefix</span>
-            <input type="text" name="action_prefix" value={param_value(@current_params, "action_prefix")} class="sg-input" />
+            <input
+              type="text"
+              name="action_prefix"
+              value={param_value(@current_params, "action_prefix")}
+              class="sg-input"
+              placeholder="e.g. auth or admin.impersonation"
+            />
           </label>
 
           <label class="sg-field">
             <span class="sg-field-label">Outcome</span>
-            <input type="text" name="outcome" value={param_value(@current_params, "outcome")} class="sg-input" />
+            <select name="outcome" class="sg-select">
+              <option value="" selected={param_value(@current_params, "outcome") == ""}>Any</option>
+              <option value="success" selected={param_value(@current_params, "outcome") == "success"}>
+                Success
+              </option>
+              <option value="failure" selected={param_value(@current_params, "outcome") == "failure"}>
+                Failure
+              </option>
+            </select>
+          </label>
+
+          <label class="sg-field">
+            <span class="sg-field-label">Occurred from</span>
+            <input type="date" name="from" value={param_value(@current_params, "from")} class="sg-input" />
+          </label>
+
+          <label class="sg-field">
+            <span class="sg-field-label">Occurred to</span>
+            <input type="date" name="to" value={param_value(@current_params, "to")} class="sg-input" />
           </label>
         </div>
 
@@ -86,6 +110,21 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <input type="hidden" name="order_by" value={param_value(@current_params, "order_by", "inserted_at")} />
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
+
+      <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
+        <span :for={chip <- applied_chips(@current_params)} class="sg-applied-chip">
+          <span>{chip.label}</span>
+          <a
+            class="sg-applied-chip__remove"
+            href={remove_chip_path(@admin_scope, @current_params, chip.key)}
+            aria-label={"Remove filter " <> chip.label}
+          >
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">remove</span>
+          </a>
+        </span>
+        <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+      </div>
 
       <div :if={@rows != []} class="sg-table-panel">
         <table class="sg-table">
@@ -121,15 +160,32 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
                   <span :if={row.action_badge} class="sg-muted">Effective user: {row.effective_user_label}</span>
                 </div>
               </td>
-              <td class="sg-show-desktop sg-text-sm">{row.outcome}</td>
+              <td class="sg-show-desktop sg-text-sm">
+                <span :if={row_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
+                <span :if={row_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state">
+      <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
         <p class="sg-empty-state__title">No audit events match this view</p>
-        <p class="sg-muted sg-text-sm">Try a different filter or clear one or more params to widen the result set.</p>
+        <%= if any_filter_active?(@current_params) do %>
+          <p class="sg-muted sg-text-sm">
+            No audit events match the active filters. Clear one or more to widen the timeline.
+          </p>
+          <div class="sg-cluster sg-cluster--center">
+            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">
+              Clear all filters
+            </a>
+          </div>
+        <% else %>
+          <p class="sg-muted sg-text-sm">
+            Audit events appear here as activity is recorded. Adjust the filters above to focus on a
+            specific actor, outcome, or time range.
+          </p>
+        <% end %>
       </div>
 
       <nav :if={@meta} class="sg-cluster sg-cluster--between">
@@ -188,6 +244,35 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
   defp scope_copy(_admin_scope), do: "Global audit explorer"
 
   defp param_value(params, key, default \\ ""), do: Map.get(params, key, default)
+
+  @chip_keys ~w(actor effective_user action_prefix outcome from to)
+
+  defp any_filter_active?(params), do: Enum.any?(@chip_keys, &present_param?(params, &1))
+
+  defp applied_chips(params) do
+    for key <- @chip_keys, present_param?(params, key) do
+      %{key: key, label: chip_label(key, param_value(params, key))}
+    end
+  end
+
+  defp chip_label("outcome", value), do: "Outcome: " <> humanize_outcome(value)
+  defp chip_label("action_prefix", value), do: "Action: " <> value
+  defp chip_label("from", value), do: "From: " <> value
+  defp chip_label("to", value), do: "To: " <> value
+  defp chip_label("actor", value), do: "Actor: " <> value
+  defp chip_label("effective_user", value), do: "Effective user: " <> value
+
+  defp humanize_outcome("success"), do: "Success"
+  defp humanize_outcome("failure"), do: "Failure"
+  defp humanize_outcome(value), do: value
+
+  defp remove_chip_path(admin_scope, params, key) do
+    admin_scope
+    |> index_path()
+    |> append_query(params |> Map.delete(key) |> Map.delete("cursor"))
+  end
+
+  defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
 
   defp format_timestamp(%DateTime{} = timestamp),
     do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M:%S")
