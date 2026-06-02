@@ -9,7 +9,7 @@ defmodule Sigra.Audit.Forwarders.ThreadlineTest do
   #
   # Analog: test/sigra/rate_limiters/hammer_test.exs (impl-with-stub-dep idiom)
 
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
   @moduletag :requires_threadline
 
   alias Sigra.Audit.Forwarders.Threadline
@@ -48,16 +48,10 @@ defmodule Sigra.Audit.Forwarders.ThreadlineTest do
   end
 
   # ---------------------------------------------------------------------------
-  # Setup — start the Postgres repo for Test 5, set up teardown for handlers
+  # Setup — prepare Test 5 table and set up teardown for handlers
   # ---------------------------------------------------------------------------
 
-  setup do
-    # Start the live PostgresRepo for Test 5 (Pitfall 2 boundary doctrine).
-    # start_supervised!/1 ensures it's stopped after each test.
-    start_supervised!({Sigra.Test.PostgresRepo, Sigra.Test.PostgresRepo.default_config()})
-
-    repo = Sigra.Test.PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
 
     Ecto.Adapters.SQL.query!(
@@ -82,8 +76,6 @@ defmodule Sigra.Audit.Forwarders.ThreadlineTest do
       """,
       []
     )
-
-    Ecto.Adapters.SQL.query!(repo, "TRUNCATE TABLE audit_events", [])
 
     # Clean up the Threadline handler after each test.
     on_exit(fn -> :telemetry.detach({Threadline, :test}) end)

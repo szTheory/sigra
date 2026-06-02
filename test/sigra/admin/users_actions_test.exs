@@ -1,5 +1,5 @@
 defmodule Sigra.Admin.UsersActionsTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   alias Ecto.Adapters.SQL
   alias Sigra.Admin.Authorizer
@@ -88,89 +88,79 @@ defmodule Sigra.Admin.UsersActionsTest do
   end
 
   setup_all do
-    start_supervised!({@repo, @repo.default_config()})
+    Sigra.Test.PostgresCase.checkout_repo!(fn repo ->
+      ddl = [
+        """
+        CREATE TABLE IF NOT EXISTS admin_action_users (
+          id uuid PRIMARY KEY,
+          email text NOT NULL,
+          display_name text,
+          confirmed_at timestamp,
+          locked_at timestamp,
+          deleted_at timestamp,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_action_organizations (
+          id uuid PRIMARY KEY,
+          name text NOT NULL,
+          slug text NOT NULL,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_action_organization_memberships (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          organization_id uuid NOT NULL,
+          role text NOT NULL,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_action_user_sessions (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          hashed_token bytea NOT NULL,
+          type text NOT NULL,
+          ip text,
+          user_agent text,
+          last_active_at timestamp,
+          active_organization_id uuid,
+          inserted_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_action_audit_events (
+          id uuid PRIMARY KEY,
+          occurred_at timestamp,
+          action text NOT NULL,
+          outcome text,
+          actor_id uuid,
+          actor_type text,
+          target_id uuid,
+          target_type text,
+          organization_id uuid,
+          effective_user_id uuid,
+          ip_address text,
+          user_agent text,
+          metadata jsonb,
+          inserted_at timestamp NOT NULL
+        )
+        """
+      ]
 
-    ddl = [
-      """
-      CREATE TABLE IF NOT EXISTS admin_action_users (
-        id uuid PRIMARY KEY,
-        email text NOT NULL,
-        display_name text,
-        confirmed_at timestamp,
-        locked_at timestamp,
-        deleted_at timestamp,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_action_organizations (
-        id uuid PRIMARY KEY,
-        name text NOT NULL,
-        slug text NOT NULL,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_action_organization_memberships (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        organization_id uuid NOT NULL,
-        role text NOT NULL,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_action_user_sessions (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        hashed_token bytea NOT NULL,
-        type text NOT NULL,
-        ip text,
-        user_agent text,
-        last_active_at timestamp,
-        active_organization_id uuid,
-        inserted_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_action_audit_events (
-        id uuid PRIMARY KEY,
-        occurred_at timestamp,
-        action text NOT NULL,
-        outcome text,
-        actor_id uuid,
-        actor_type text,
-        target_id uuid,
-        target_type text,
-        organization_id uuid,
-        effective_user_id uuid,
-        ip_address text,
-        user_agent text,
-        metadata jsonb,
-        inserted_at timestamp NOT NULL
-      )
-      """
-    ]
+      Enum.each(ddl, &SQL.query!(repo, &1, []))
+    end)
 
-    Enum.each(ddl, &SQL.query!(@repo, &1, []))
     :ok
   end
 
   setup do
-    Enum.each(
-      [
-        "admin_action_audit_events",
-        "admin_action_user_sessions",
-        "admin_action_organization_memberships",
-        "admin_action_organizations",
-        "admin_action_users"
-      ],
-      &SQL.query!(@repo, "TRUNCATE TABLE #{&1} RESTART IDENTITY CASCADE", [])
-    )
-
     org = insert_org(%{id: Ecto.UUID.generate(), slug: "acme", name: "Acme Ops"})
     target_user = insert_user("target@example.com")
     other_user = insert_user("other@example.com")

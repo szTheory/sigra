@@ -1,5 +1,5 @@
 defmodule Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   import Ecto.Query
 
@@ -8,7 +8,6 @@ defmodule Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest do
   alias Sigra.Audit.Assertions
   alias Sigra.Auth
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule B2User do
     @moduledoc false
@@ -42,19 +41,13 @@ defmodule Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS b2_audit_tokens_43 CASCADE", [])
-    Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS b2_audit_users_43 CASCADE", [])
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE b2_audit_users_43 (
+      CREATE TABLE IF NOT EXISTS b2_audit_users_43 (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         email text NOT NULL,
         confirmed_at timestamp,
@@ -67,7 +60,7 @@ defmodule Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE b2_audit_tokens_43 (
+      CREATE TABLE IF NOT EXISTS b2_audit_tokens_43 (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         token bytea NOT NULL,
         context text NOT NULL,
@@ -99,12 +92,6 @@ defmodule Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest do
         inserted_at timestamp NOT NULL DEFAULT now()
       )
       """
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE b2_audit_tokens_43, b2_audit_users_43, audit_events RESTART IDENTITY CASCADE",
-      []
     )
 
     %{repo: repo}

@@ -1,5 +1,5 @@
 defmodule Sigra.Admin.UsersQueryTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   alias Ecto.Adapters.SQL
   alias Sigra.Admin.Scope
@@ -127,97 +127,85 @@ defmodule Sigra.Admin.UsersQueryTest do
   end
 
   setup_all do
-    start_supervised!({@repo, @repo.default_config()})
+    Sigra.Test.PostgresCase.checkout_repo!(fn repo ->
+      ddl = [
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_users (
+          id uuid PRIMARY KEY,
+          email text NOT NULL,
+          display_name text,
+          support_name text,
+          confirmed_at timestamp,
+          locked_at timestamp,
+          deleted_at timestamp,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_organizations (
+          id uuid PRIMARY KEY,
+          name text NOT NULL,
+          slug text NOT NULL,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_organization_memberships (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          organization_id uuid NOT NULL,
+          role text NOT NULL,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_user_sessions (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          last_active_at timestamp,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_user_mfa_credentials (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          enabled_at timestamp,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_user_passkeys (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          credential_id bytea NOT NULL,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS admin_query_user_identities (
+          id uuid PRIMARY KEY,
+          user_id uuid NOT NULL,
+          provider text NOT NULL,
+          inserted_at timestamp NOT NULL,
+          updated_at timestamp NOT NULL
+        )
+        """
+      ]
 
-    ddl = [
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_users (
-        id uuid PRIMARY KEY,
-        email text NOT NULL,
-        display_name text,
-        support_name text,
-        confirmed_at timestamp,
-        locked_at timestamp,
-        deleted_at timestamp,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_organizations (
-        id uuid PRIMARY KEY,
-        name text NOT NULL,
-        slug text NOT NULL,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_organization_memberships (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        organization_id uuid NOT NULL,
-        role text NOT NULL,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_user_sessions (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        last_active_at timestamp,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_user_mfa_credentials (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        enabled_at timestamp,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_user_passkeys (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        credential_id bytea NOT NULL,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """,
-      """
-      CREATE TABLE IF NOT EXISTS admin_query_user_identities (
-        id uuid PRIMARY KEY,
-        user_id uuid NOT NULL,
-        provider text NOT NULL,
-        inserted_at timestamp NOT NULL,
-        updated_at timestamp NOT NULL
-      )
-      """
-    ]
+      Enum.each(ddl, &SQL.query!(repo, &1, []))
+    end)
 
-    Enum.each(ddl, &SQL.query!(@repo, &1, []))
     :ok
   end
 
   setup do
-    Enum.each(
-      [
-        "admin_query_user_identities",
-        "admin_query_user_passkeys",
-        "admin_query_user_mfa_credentials",
-        "admin_query_user_sessions",
-        "admin_query_organization_memberships",
-        "admin_query_organizations",
-        "admin_query_users"
-      ],
-      &SQL.query!(@repo, "TRUNCATE TABLE #{&1} RESTART IDENTITY CASCADE", [])
-    )
-
     org1 = insert_org("Acme Support", "acme")
     org2 = insert_org("Beta Industries", "beta")
 

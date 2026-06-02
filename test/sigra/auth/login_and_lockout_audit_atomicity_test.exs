@@ -1,12 +1,11 @@
 defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   import Mox
 
   alias Sigra.Audit.Assertions
   alias Sigra.Auth
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   setup :verify_on_exit!
 
@@ -41,17 +40,13 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-    Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS b3_login_users_43 CASCADE", [])
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE b3_login_users_43 (
+      CREATE TABLE IF NOT EXISTS b3_login_users_43 (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         email text NOT NULL,
         hashed_password text NOT NULL,
@@ -84,12 +79,6 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
         inserted_at timestamp NOT NULL DEFAULT now()
       )
       """
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE b3_login_users_43, audit_events RESTART IDENTITY CASCADE",
-      []
     )
 
     %{repo: repo}

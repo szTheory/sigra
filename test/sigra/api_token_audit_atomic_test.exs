@@ -1,5 +1,5 @@
 defmodule Sigra.APITokenAuditAtomicTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   defmodule VerifyFailureTelemetryHandler do
     @moduledoc false
@@ -10,7 +10,6 @@ defmodule Sigra.APITokenAuditAtomicTest do
 
   alias Sigra.APIToken
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule ApiTokenRow do
     @moduledoc false
@@ -43,18 +42,13 @@ defmodule Sigra.APITokenAuditAtomicTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS user_api_tokens CASCADE", [])
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE user_api_tokens (
+      CREATE TABLE IF NOT EXISTS user_api_tokens (
         id bigserial PRIMARY KEY,
         user_id uuid NOT NULL,
         hashed_token bytea NOT NULL,
@@ -91,12 +85,6 @@ defmodule Sigra.APITokenAuditAtomicTest do
         inserted_at timestamp NOT NULL DEFAULT now()
       )
       """,
-      []
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE user_api_tokens, audit_events RESTART IDENTITY CASCADE",
       []
     )
 

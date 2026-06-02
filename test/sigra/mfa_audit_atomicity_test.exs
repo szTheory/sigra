@@ -1,5 +1,5 @@
 defmodule Sigra.MFAAuditAtomicityTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   defmodule EnrollInvalidCodeTelemetryHandler do
     @moduledoc false
@@ -12,7 +12,6 @@ defmodule Sigra.MFAAuditAtomicityTest do
 
   alias Sigra.{Config, MFA}
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule MfaCredential do
     @moduledoc false
@@ -77,20 +76,13 @@ defmodule Sigra.MFAAuditAtomicityTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    for t <- ["user_mfa_backup_codes", "user_mfa_credentials", "audit_events", "users"] do
-      Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS #{t} CASCADE", [])
-    end
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE users (
+      CREATE TABLE IF NOT EXISTS users (
         id uuid PRIMARY KEY,
         mfa_trust_epoch integer NOT NULL DEFAULT 0
       )
@@ -101,7 +93,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE user_mfa_credentials (
+      CREATE TABLE IF NOT EXISTS user_mfa_credentials (
         id uuid PRIMARY KEY,
         user_id uuid NOT NULL,
         type varchar(32) NOT NULL,
@@ -121,7 +113,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE user_mfa_backup_codes (
+      CREATE TABLE IF NOT EXISTS user_mfa_backup_codes (
         id uuid PRIMARY KEY,
         user_id uuid NOT NULL,
         hashed_code text NOT NULL,
@@ -135,7 +127,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE audit_events (
+      CREATE TABLE IF NOT EXISTS audit_events (
         id uuid PRIMARY KEY,
         occurred_at timestamp NOT NULL DEFAULT now(),
         action varchar(255) NOT NULL,
@@ -152,12 +144,6 @@ defmodule Sigra.MFAAuditAtomicityTest do
         inserted_at timestamp NOT NULL DEFAULT now()
       )
       """,
-      []
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE user_mfa_backup_codes, user_mfa_credentials, audit_events, users RESTART IDENTITY CASCADE",
       []
     )
 
@@ -925,8 +911,7 @@ defmodule Sigra.MFAAuditAtomicityTest do
         assert count_where(repo, "audit_events", "action = 'mfa.enroll.failure'") == 0
 
         assert_receive {:enroll_invalid_code_telemetry, [:sigra, :audit, :log_safe_error],
-                        %{count: 1},
-                        %{action: "mfa.enroll.failure", reason: reason}}
+                        %{count: 1}, %{action: "mfa.enroll.failure", reason: reason}}
 
         assert reason in [:constraint_violation, :invalid_changeset]
       after

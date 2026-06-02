@@ -30,5 +30,15 @@ if Code.ensure_loaded?(Postgrex) do
 
       {:ok, repo: Sigra.Test.PostgresRepo, sandbox_owner: sandbox_owner}
     end
+
+    def checkout_repo!(fun) when is_function(fun, 1) do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)
+
+      try do
+        fun.(Sigra.Test.PostgresRepo)
+      after
+        Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)
+      end
+    end
   end
 end

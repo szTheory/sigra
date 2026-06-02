@@ -73,15 +73,12 @@ defmodule Sigra.Audit.AuditAssertionsTest do
 end
 
 defmodule Sigra.Audit.AuditAssertionsPostgresTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   alias Sigra.Audit.Assertions
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
 
-  setup do
-    start_supervised!({Sigra.Test.PostgresRepo, Sigra.Test.PostgresRepo.default_config()})
-    repo = Sigra.Test.PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
 
     Ecto.Adapters.SQL.query!(
@@ -107,7 +104,6 @@ defmodule Sigra.Audit.AuditAssertionsPostgresTest do
       []
     )
 
-    Ecto.Adapters.SQL.query!(repo, "TRUNCATE TABLE audit_events", [])
     %{repo: repo}
   end
 

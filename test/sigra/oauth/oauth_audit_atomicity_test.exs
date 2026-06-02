@@ -4,13 +4,12 @@ defmodule Sigra.OAuthAuditAtomicityTest do
   narrative). Happy-path ceremony coverage lives in `Sigra.OAuthCeremonyAuditTest`
   (OA-01).
   """
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   import Ecto.Query
 
   alias Sigra.OAuth.Callback
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule OAuthUser do
     @moduledoc false
@@ -45,20 +44,13 @@ defmodule Sigra.OAuthAuditAtomicityTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    for t <- ["oauth_atomic_identities", "oauth_atomic_users", "audit_events"] do
-      Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS #{t} CASCADE", [])
-    end
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE oauth_atomic_users (
+      CREATE TABLE IF NOT EXISTS oauth_atomic_users (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         email text NOT NULL,
         confirmed_at timestamp,
@@ -71,7 +63,7 @@ defmodule Sigra.OAuthAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE oauth_atomic_identities (
+      CREATE TABLE IF NOT EXISTS oauth_atomic_identities (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id uuid NOT NULL REFERENCES oauth_atomic_users(id) ON DELETE CASCADE,
         provider text NOT NULL,
@@ -93,7 +85,7 @@ defmodule Sigra.OAuthAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE audit_events (
+      CREATE TABLE IF NOT EXISTS audit_events (
         id uuid PRIMARY KEY,
         occurred_at timestamp NOT NULL DEFAULT now(),
         action varchar(255) NOT NULL,
@@ -110,12 +102,6 @@ defmodule Sigra.OAuthAuditAtomicityTest do
         inserted_at timestamp NOT NULL DEFAULT now()
       )
       """
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE oauth_atomic_identities, oauth_atomic_users, audit_events RESTART IDENTITY CASCADE",
-      []
     )
 
     %{repo: repo}
