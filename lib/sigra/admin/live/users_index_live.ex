@@ -68,11 +68,11 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="space-y-6">
+    <section class="sg-stack sg-stack--6">
       <header class="sg-page-header">
         <p class="sg-page-kicker">User operations</p>
-        <h1 class="sg-page-title text-3xl font-semibold">{page_heading(@admin_scope)}</h1>
-        <p class="sg-page-copy text-sm text-base-content/70">{scope_copy(@admin_scope)}</p>
+        <h1 class="sg-page-title">{page_heading(@admin_scope)}</h1>
+        <p class="sg-page-copy">{scope_copy(@admin_scope)}</p>
 
         <dl class="sg-metric-grid">
           <.summary_chip label="Total" value={Map.get(@summary_counts, :total, 0)} />
@@ -84,51 +84,52 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         </dl>
       </header>
 
-      <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
-        <div class="sg-search-row grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
-          <label class="form-control w-full">
-            <span class="label-text text-sm font-semibold">Search</span>
+      <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
+        <div class="sg-search-row">
+          <label class="sg-field">
+            <span class="sg-field-label">Search</span>
             <input
               type="text"
               name="q"
               value={param_value(@current_params, "q")}
               placeholder="Email, user id, or name"
-              class="sg-input input input-bordered w-full"
+              class="sg-input"
             />
           </label>
 
-          <button type="submit" class="sg-press btn btn-primary min-h-11">Search</button>
-          <a href={index_path(@admin_scope)} class="sg-press btn btn-ghost min-h-11">Clear</a>
+          <button type="submit" class="sg-btn sg-btn--primary">Search</button>
+          <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost">Clear</a>
         </div>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="sg-cluster">
           <.quick_filter :for={key <- @quick_filter_keys} key={key} params={@current_params} />
         </div>
 
-        <div class="space-y-3 rounded-md bg-base-100 p-3 shadow-sm">
+        <div class="sg-stack sg-stack--3">
           <button
             type="button"
             phx-click="toggle_filters"
-            class="sg-press btn btn-ghost min-h-11 justify-start px-3"
+            class="sg-btn sg-btn--ghost sg-btn--sm sg-self-start"
             aria-expanded={to_string(@filters_open?)}
           >
             {if(@filters_open?, do: "Hide filters", else: "More filters")}
+            <span class="sg-chevron" aria-hidden="true">▾</span>
           </button>
 
-          <div :if={@filters_open?} class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <label class="form-control">
-              <span class="label-text text-sm font-semibold">Organization</span>
+          <div :if={@filters_open?} class="sg-form-grid sg-form-grid--cols">
+            <label class="sg-field">
+              <span class="sg-field-label">Organization</span>
               <input
                 type="text"
                 name="organization"
                 value={param_value(@current_params, "organization")}
-                class="sg-input input input-bordered w-full"
+                class="sg-input"
               />
             </label>
 
-            <label class="form-control">
-              <span class="label-text text-sm font-semibold">Provider</span>
-              <select name="provider" class="sg-select select select-bordered w-full">
+            <label class="sg-field">
+              <span class="sg-field-label">Provider</span>
+              <select name="provider" class="sg-select">
                 <option value="">Any</option>
                 <option value="local" selected={param_value(@current_params, "provider") == "local"}>Local</option>
                 <option value="google" selected={param_value(@current_params, "provider") == "google"}>Google</option>
@@ -136,23 +137,23 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
               </select>
             </label>
 
-            <label class="form-control">
-              <span class="label-text text-sm font-semibold">Registered from</span>
+            <label class="sg-field">
+              <span class="sg-field-label">Registered from</span>
               <input
                 type="date"
                 name="registered_from"
                 value={param_value(@current_params, "registered_from")}
-                class="sg-input input input-bordered w-full"
+                class="sg-input"
               />
             </label>
 
-            <label class="form-control">
-              <span class="label-text text-sm font-semibold">Registered to</span>
+            <label class="sg-field">
+              <span class="sg-field-label">Registered to</span>
               <input
                 type="date"
                 name="registered_to"
                 value={param_value(@current_params, "registered_to")}
-                class="sg-input input input-bordered w-full"
+                class="sg-input"
               />
             </label>
           </div>
@@ -166,51 +167,50 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       <div
         id="admin-users-desktop-results"
         data-testid="admin-users-desktop-results"
-        class="sg-table-panel hidden lg:block"
+        class="sg-table-panel sg-show-desktop"
       >
-        <table class="table w-full">
+        <table class="sg-table">
           <thead>
             <tr>
               <th><a href={sort_path(@admin_scope, @current_params, "inserted_at")}>User</a></th>
               <th>Status</th>
               <th>Organizations</th>
               <th>Activity</th>
-              <th class="text-right">Action</th>
+              <th class="sg-cell-right">Action</th>
             </tr>
           </thead>
           <tbody>
             <tr :for={row <- @rows}>
-              <td class="align-top">
-                <div class="space-y-1">
-                  <p class="font-semibold">{primary_name(row)}</p>
-                  <p class="text-sm text-base-content/70">{row.user.email}</p>
-                  <code class="sg-code text-xs select-all">{row.user.id}</code>
+              <td>
+                <div class="sg-stack sg-stack--1">
+                  <span class="sg-strong">{primary_name(row)}</span>
+                  <span class="sg-muted sg-text-sm">{row.user.email}</span>
+                  <code class="sg-code">{row.user.id}</code>
                 </div>
               </td>
-              <td class="align-top">
-                <div class="space-y-1 text-sm">
-                  <p>{confirmation_label(row)}</p>
-                  <p>{mfa_label(row)}</p>
-                  <p>{lock_label(row)}</p>
-                  <p>{deletion_label(row)}</p>
-                  <p :for={badge <- row.extra_badges}>{badge_text(badge)}</p>
+              <td>
+                <div class="sg-cluster sg-cluster--2">
+                  <span :for={{label, tone} <- status_pills(row)} class="sg-status-pill" data-tone={tone}>
+                    {label}
+                  </span>
+                  <span :for={badge <- row.extra_badges} class="sg-status-pill">{badge_text(badge)}</span>
                 </div>
               </td>
-              <td class="align-top">
-                <div class="space-y-1 text-sm">
-                  <p>{row.organization_summary}</p>
-                  <p>{pluralize(row.organization_count, "organization")}</p>
+              <td>
+                <div class="sg-stack sg-stack--1 sg-text-sm">
+                  <span>{row.organization_summary}</span>
+                  <span class="sg-muted">{pluralize(row.organization_count, "organization")}</span>
                 </div>
               </td>
-              <td class="align-top">
-                <div class="space-y-1 text-sm">
-                  <p>{activity_label(row)}</p>
-                  <p>{registered_label(row)}</p>
-                  <p :for={column <- row.extra_columns}>{column_text(column, row.user)}</p>
+              <td>
+                <div class="sg-stack sg-stack--1 sg-text-sm">
+                  <span>{activity_label(row)}</span>
+                  <span class="sg-muted">{registered_label(row)}</span>
+                  <span :for={column <- row.extra_columns} class="sg-muted">{column_text(column, row.user)}</span>
                 </div>
               </td>
-              <td class="align-top text-right">
-                <a class="sg-press sg-row-action btn btn-sm btn-primary min-h-11" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+              <td class="sg-cell-right">
+                <a class="sg-btn sg-btn--secondary sg-btn--sm" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
                   Open user
                 </a>
               </td>
@@ -222,46 +222,45 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       <div
         id="admin-users-mobile-results"
         data-testid="admin-users-mobile-results"
-        class="space-y-3 lg:hidden"
+        class="sg-stack sg-stack--3 sg-show-mobile"
       >
-        <article :for={row <- @rows} class="sg-card rounded-lg border border-base-300 bg-base-200 p-4">
-          <div class="space-y-1">
-            <p class="font-semibold">{primary_name(row)}</p>
-            <p class="text-sm text-base-content/70">{row.user.email}</p>
-            <code class="sg-code text-xs select-all">{row.user.id}</code>
+        <article :for={row <- @rows} class="sg-card sg-stack sg-stack--3">
+          <div class="sg-stack sg-stack--1">
+            <span class="sg-strong">{primary_name(row)}</span>
+            <span class="sg-muted sg-text-sm">{row.user.email}</span>
+            <code class="sg-code">{row.user.id}</code>
           </div>
 
-          <div class="mt-3 space-y-1 text-sm">
-            <p>{confirmation_label(row)}</p>
-            <p>{mfa_label(row)}</p>
-            <p>{lock_label(row)}</p>
-            <p>{deletion_label(row)}</p>
-            <p>{row.organization_summary}</p>
-            <p>{activity_label(row)}</p>
-            <p>{registered_label(row)}</p>
-            <p :for={badge <- row.extra_badges}>{badge_text(badge)}</p>
-            <p :for={column <- row.extra_columns}>{column_text(column, row.user)}</p>
+          <div class="sg-cluster sg-cluster--2">
+            <span :for={{label, tone} <- status_pills(row)} class="sg-status-pill" data-tone={tone}>
+              {label}
+            </span>
+            <span :for={badge <- row.extra_badges} class="sg-status-pill">{badge_text(badge)}</span>
           </div>
 
-          <div class="mt-4">
-            <a class="sg-press btn btn-primary min-h-11 w-full" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+          <div class="sg-stack sg-stack--1 sg-text-sm sg-muted">
+            <span>{row.organization_summary} · {pluralize(row.organization_count, "organization")}</span>
+            <span>{activity_label(row)}</span>
+            <span>{registered_label(row)}</span>
+            <span :for={column <- row.extra_columns}>{column_text(column, row.user)}</span>
+          </div>
+
+          <div class="sg-cluster">
+            <a class="sg-btn sg-btn--secondary sg-btn--block" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
               Open user
             </a>
           </div>
         </article>
       </div>
 
-      <div :if={@rows == []} class="sg-card rounded-lg border border-dashed border-base-300 bg-base-100 p-6 text-sm text-base-content/70">
-        <p class="font-semibold">No users match this view</p>
-        <p class="mt-1">Try a different search or clear one or more filters to widen the result set.</p>
+      <div :if={@rows == []} class="sg-empty-state">
+        <p class="sg-empty-state__title">No users match this view</p>
+        <p class="sg-muted sg-text-sm">Try a different search or clear one or more filters to widen the result set.</p>
       </div>
 
-      <nav :if={@meta} class="flex items-center justify-between gap-3">
+      <nav :if={@meta} class="sg-cluster sg-cluster--between">
         <a
-          class={[
-            "sg-press btn btn-outline min-h-11 min-w-11 px-3",
-            if(@meta.previous_page, do: "", else: "btn-disabled")
-          ]}
+          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @current_params, @meta.previous_page)}
           aria-disabled={to_string(is_nil(@meta.previous_page))}
           aria-label="Previous page"
@@ -269,12 +268,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <span aria-hidden="true">&larr;</span>
           <span class="sr-only">Previous page</span>
         </a>
-        <span class="text-sm text-base-content/70">Page {(@meta.current_page || 1)}</span>
+        <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
         <a
-          class={[
-            "sg-press btn btn-outline min-h-11 min-w-11 px-3",
-            if(@meta.next_page, do: "", else: "btn-disabled")
-          ]}
+          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @current_params, @meta.next_page)}
           aria-disabled={to_string(is_nil(@meta.next_page))}
           aria-label="Next page"
@@ -304,7 +300,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   defp quick_filter(assigns) do
     ~H"""
-    <label class="sg-filter-chip label min-h-11 cursor-pointer gap-2 rounded-md bg-base-100 px-3 py-2 shadow-sm">
+    <label class="sg-filter-chip">
       <input
         type="checkbox"
         name={@key}
@@ -312,10 +308,31 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         checked={param_true?(@params, @key)}
         class="checkbox checkbox-sm"
       />
-      <span class="label-text capitalize">{String.replace(@key, "_", " ")}</span>
+      <span>{String.replace(@key, "_", " ")}</span>
     </label>
     """
   end
+
+  # Compact, scannable status as tone pills. `nil` tone renders the neutral pill.
+  defp status_pills(row) do
+    confirmation =
+      if row.user.confirmed_at, do: {"Confirmed", "ok"}, else: {"Unconfirmed", "warn"}
+
+    security =
+      cond do
+        row.has_mfa and row.passkey_count > 0 -> {"MFA + passkeys", "ok"}
+        row.has_mfa -> {"MFA", "ok"}
+        row.passkey_count > 0 -> {"Passkeys", "ok"}
+        true -> {"No MFA", nil}
+      end
+
+    [confirmation, security]
+    |> maybe_append(row.user.locked_at, {"Locked", "risk"})
+    |> maybe_append(row.user.deleted_at, {"Deletion scheduled", "warn"})
+  end
+
+  defp maybe_append(pills, nil, _pill), do: pills
+  defp maybe_append(pills, _present, pill), do: pills ++ [pill]
 
   defp runtime_config! do
     otp_app =
@@ -414,27 +431,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
     end
   end
 
-  defp confirmation_label(row),
-    do: "Confirmation: " <> if(row.user.confirmed_at, do: "Confirmed", else: "Unconfirmed")
-
   defp primary_name(row) do
     Map.get(row.user, :display_name) || row.display_name || row.user.email
   end
-
-  defp mfa_label(row) do
-    "Security: " <>
-      cond do
-        row.has_mfa and row.passkey_count > 0 -> "MFA and passkeys enabled"
-        row.has_mfa -> "MFA enabled"
-        row.passkey_count > 0 -> "Passkeys enabled"
-        true -> "No MFA or passkeys"
-      end
-  end
-
-  defp lock_label(row), do: "Lockout: " <> if(row.user.locked_at, do: "Locked", else: "Active")
-
-  defp deletion_label(row),
-    do: "Deletion: " <> if(row.user.deleted_at, do: "Deleted", else: "Active")
 
   defp activity_label(row) do
     case row.last_active_at do
