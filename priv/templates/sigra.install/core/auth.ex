@@ -614,8 +614,8 @@ defmodule <%= context_module %> do
     end
   end
 
-  defp local_password_reset_denied?(%{password_reset: :deny}), do: true
-  defp local_password_reset_denied?(_policy), do: false
+<%= if organizations? do %>  defp local_password_reset_denied?(%{password_reset: :deny}), do: true
+<% end %>  defp local_password_reset_denied?(_policy), do: false
 
   defp maybe_deliver_enterprise_reset_guidance(user, auth_policy) do
     if slug = auth_policy[:organization_slug] do
