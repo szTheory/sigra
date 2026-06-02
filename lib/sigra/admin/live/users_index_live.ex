@@ -164,6 +164,21 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
 
+      <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
+        <span :for={chip <- applied_chips(@current_params)} class="sg-applied-chip">
+          <span>{chip.label}</span>
+          <a
+            class="sg-applied-chip__remove"
+            href={remove_chip_path(@admin_scope, @current_params, chip.key)}
+            aria-label={"Remove filter " <> chip.label}
+          >
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">remove</span>
+          </a>
+        </span>
+        <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+      </div>
+
       <div
         id="admin-users-desktop-results"
         data-testid="admin-users-desktop-results"
@@ -184,7 +199,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
               <td>
                 <div class="sg-stack sg-stack--1">
                   <span class="sg-strong">{primary_name(row)}</span>
-                  <span class="sg-muted sg-text-sm">{row.user.email}</span>
+                  <span class="sg-muted sg-text-sm sg-truncate" title={row.user.email}>{row.user.email}</span>
                   <code class="sg-code">{row.user.id}</code>
                 </div>
               </td>
@@ -198,7 +213,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
               </td>
               <td>
                 <div class="sg-stack sg-stack--1 sg-text-sm">
-                  <span>{row.organization_summary}</span>
+                  <span class="sg-truncate" title={row.organization_summary}>{row.organization_summary}</span>
                   <span class="sg-muted">{pluralize(row.organization_count, "organization")}</span>
                 </div>
               </td>
@@ -227,7 +242,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <article :for={row <- @rows} class="sg-card sg-stack sg-stack--3">
           <div class="sg-stack sg-stack--1">
             <span class="sg-strong">{primary_name(row)}</span>
-            <span class="sg-muted sg-text-sm">{row.user.email}</span>
+            <span class="sg-muted sg-text-sm sg-truncate" title={row.user.email}>{row.user.email}</span>
             <code class="sg-code">{row.user.id}</code>
           </div>
 
@@ -238,12 +253,26 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             <span :for={badge <- row.extra_badges} class="sg-status-pill">{badge_text(badge)}</span>
           </div>
 
-          <div class="sg-stack sg-stack--1 sg-text-sm sg-muted">
-            <span>{row.organization_summary} · {pluralize(row.organization_count, "organization")}</span>
-            <span>{activity_label(row)}</span>
-            <span>{registered_label(row)}</span>
-            <span :for={column <- row.extra_columns}>{column_text(column, row.user)}</span>
-          </div>
+          <dl class="sg-kv">
+            <div>
+              <dt class="sg-meta-label">Organizations</dt>
+              <dd class="sg-meta-value sg-truncate" title={row.organization_summary}>
+                {row.organization_summary}
+              </dd>
+              <dd class="sg-muted sg-text-sm">{pluralize(row.organization_count, "organization")}</dd>
+            </div>
+            <div>
+              <dt class="sg-meta-label">Activity</dt>
+              <dd class="sg-meta-value">{activity_label(row)}</dd>
+            </div>
+            <div>
+              <dt class="sg-meta-label">Registered</dt>
+              <dd class="sg-meta-value">{registered_label(row)}</dd>
+            </div>
+            <div :for={column <- row.extra_columns}>
+              <dd class="sg-muted sg-text-sm">{column_text(column, row.user)}</dd>
+            </div>
+          </dl>
 
           <div class="sg-cluster">
             <a class="sg-btn sg-btn--secondary sg-btn--block" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
@@ -253,9 +282,23 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         </article>
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state">
+      <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
         <p class="sg-empty-state__title">No users match this view</p>
-        <p class="sg-muted sg-text-sm">Try a different search or clear one or more filters to widen the result set.</p>
+        <%= if any_filter_active?(@current_params) do %>
+          <p class="sg-muted sg-text-sm">
+            No users match the active filters. Clear them to widen the result set.
+          </p>
+          <div class="sg-cluster sg-cluster--center">
+            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">
+              Clear all filters
+            </a>
+          </div>
+        <% else %>
+          <p class="sg-muted sg-text-sm">
+            Users appear here as people register and sign in. Once accounts exist, you can search,
+            filter, and open any user.
+          </p>
+        <% end %>
       </div>
 
       <nav :if={@meta} class="sg-cluster sg-cluster--between">
@@ -268,7 +311,11 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <span aria-hidden="true">&larr;</span>
           <span class="sr-only">Previous page</span>
         </a>
-        <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
+        <% {x, y, z} = showing_range(@meta, @rows) %>
+        <span class="sg-muted sg-text-sm sg-tabular">
+          Showing {x}&ndash;{y} of {z} users
+          <span class="sg-muted">&middot; Page {@meta.current_page || 1} of {@meta.total_pages || 1}</span>
+        </span>
         <a
           class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @current_params, @meta.next_page)}
@@ -365,6 +412,68 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   defp scope_copy(_), do: "User operations"
 
   defp filters_open?(params), do: Enum.any?(@more_filter_keys, &present_param?(params, &1))
+
+  # {x, y, z} pagination readout derived from Flop.Meta. Zero case guarded.
+  defp showing_range(meta, rows) do
+    z = meta.total_count || 0
+
+    if z > 0 do
+      offset = meta.current_offset || 0
+      {offset + 1, offset + length(rows), z}
+    else
+      {0, 0, 0}
+    end
+  end
+
+  defp any_filter_active?(params) do
+    present_param?(params, "q") or
+      Enum.any?(@quick_filter_keys, &param_true?(params, &1)) or
+      Enum.any?(@more_filter_keys, &present_param?(params, &1))
+  end
+
+  # Ordered list of active-filter chips: %{key, label}. Non-filter keys are never iterated.
+  defp applied_chips(params) do
+    search_chips =
+      if present_param?(params, "q") do
+        [%{key: "q", label: "Search: " <> param_value(params, "q")}]
+      else
+        []
+      end
+
+    quick_chips =
+      for key <- @quick_filter_keys, param_true?(params, key) do
+        %{key: key, label: chip_label(key, nil)}
+      end
+
+    more_chips =
+      for key <- @more_filter_keys, present_param?(params, key) do
+        %{key: key, label: chip_label(key, param_value(params, key))}
+      end
+
+    search_chips ++ quick_chips ++ more_chips
+  end
+
+  # Humanized chip labels. Quick keys are flag chips (value ignored);
+  # more keys read "Label: value".
+  defp chip_label("mfa", nil), do: "MFA"
+  defp chip_label("passkeys", nil), do: "Passkeys"
+  defp chip_label(key, nil), do: String.capitalize(key)
+  defp chip_label("provider", value), do: "Provider: " <> value
+  defp chip_label("registered_from", value), do: "Registered from: " <> value
+  defp chip_label("registered_to", value), do: "Registered to: " <> value
+  defp chip_label("organization", value), do: "Organization: " <> value
+  defp chip_label(key, value), do: String.capitalize(key) <> ": " <> value
+
+  # Drop a single filter key, preserve the rest, reset to page 1.
+  defp remove_chip_path(admin_scope, params, key) do
+    admin_scope
+    |> index_path()
+    |> append_query(
+      params
+      |> Map.delete(key)
+      |> Map.put("page", "1")
+    )
+  end
 
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
 
