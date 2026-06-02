@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 status: planning
-last_updated: "2026-06-01T22:29:48.536Z"
+last_updated: "2026-06-02T01:03:43.391Z"
 last_activity: 2026-06-01
 progress:
   total_phases: 4
@@ -26,7 +26,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 153
-Status: Planning
+Status: Context gathered
 Last activity: 2026-06-01
 
 ## Accumulating Context
@@ -34,14 +34,16 @@ Last activity: 2026-06-01
 - `v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` roadmap created based on research in `.planning/research/SUMMARY.md`.
 - 4 phases (150–153), 10/10 requirements mapped.
 - Phase 153 focuses on DB connection sandbox stability and CI leak resolution.
+- Phase 153 context gathered in `.planning/phases/153-infra-stability/153-CONTEXT.md`.
 
 ## Deferred Items
 
-None.
+- `Phoenix.Ecto.SQL.Sandbox` for Playwright/browser acceptance tests remains deferred unless the browser lane is intentionally redesigned around transactional external-client proof.
+- Broad Elixir/OTP/Phoenix CI matrix expansion remains deferred unless a specific compatibility regression requires it.
 
 ## Operator Next Steps
 
-- Create PLAN.md for Phase 153.
+- Create PLAN.md for Phase 153 using `.planning/phases/153-infra-stability/153-CONTEXT.md`.
 
 ### Blockers
 
