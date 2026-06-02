@@ -261,7 +261,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
         |> live("/admin/users/#{target.id}")
 
       assert html =~ "Recent Audit"
-      assert html =~ "badge-warning"
+      # Phase: impersonation events surface as a tone pill (sg-status-pill) rather
+      # than the legacy daisyUI badge-warning class.
+      assert html =~ "sg-status-pill"
       assert html =~ "Impersonation"
       assert html =~ "Impersonation started"
       refute html =~ ~r/<p class="font-semibold">admin\.impersonation\.start</

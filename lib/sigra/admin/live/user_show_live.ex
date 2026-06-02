@@ -260,7 +260,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
       <section class="sg-danger-panel sg-stack sg-stack--3">
         <div class="sg-stack sg-stack--1">
-          <h2 class="sg-section-heading">Danger zone</h2>
+          <h2 class="sg-section-heading">Danger Zone</h2>
           <p class="sg-muted sg-text-sm">Session revocation uses Sigra's canonical session APIs.</p>
           <p class="sg-muted sg-text-sm">
             Support actions affect {@detail.danger_zone.impersonation_target_label} in {@detail.scope_label}.

@@ -112,7 +112,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             class="sg-btn sg-btn--ghost sg-btn--sm sg-self-start"
             aria-expanded={to_string(@filters_open?)}
           >
-            {if(@filters_open?, do: "Hide filters", else: "More filters")}
+            More filters
             <span class="sg-chevron" aria-hidden="true">▾</span>
           </button>
 
