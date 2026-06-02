@@ -47,7 +47,7 @@ defmodule <%= web_module %>.SessionController do
     |> put_flash(:info, "If your email is registered, you will receive a magic link shortly.")
     |> redirect(to: ~p"/users/log_in")
   end
-
+<%= if organizations? do %>
   def create(conn, %{"_action" => "enterprise", "user" => %{"email" => email}}) do
     case <%= app_module %>.Organizations.discover_enterprise_connection(email) do
       {:ok, %{organization_slug: slug}} ->
@@ -64,7 +64,7 @@ defmodule <%= web_module %>.SessionController do
         |> redirect(to: ~p"/users/log_in")
     end
   end
-
+<% end %>
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")
   end
@@ -81,7 +81,7 @@ defmodule <%= web_module %>.SessionController do
         conn
         |> put_flash(:info, info)
         |> UserAuth.log_in_user(user, user_params)
-
+<%= if organizations? do %>
       {:error, :sso_required, %{organization_slug: slug}}
       when is_binary(slug) and slug != "" ->
         conn
@@ -90,7 +90,7 @@ defmodule <%= web_module %>.SessionController do
           to:
             ~p"/organizations/#{slug}/sso?#{%{routing_source: "local_policy"}}"
         )
-
+<% end %>
       _ ->
         conn
         |> put_flash(:error, "Invalid email or password")
@@ -315,7 +315,7 @@ defmodule <%= web_module %>.SessionController do
   defp client_user_agent(conn) do
     conn |> get_req_header("user-agent") |> List.first() || ""
   end
-
+<%= if organizations? do %>
   defp enterprise_discovery_error(:multiple_org_matches),
     do: "We couldn't determine your organization from that work email. Enter your organization and try again."
 
@@ -324,7 +324,7 @@ defmodule <%= web_module %>.SessionController do
 
   defp enterprise_discovery_error(_reason),
     do: "We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again."
-
+<% end %>
 <%= if passkeys? do %>
   defp passkey_registration_options_json(user, challenge, passkeys, config) do
     %{
