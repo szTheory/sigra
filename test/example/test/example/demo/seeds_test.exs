@@ -37,9 +37,7 @@ defmodule Example.Demo.SeedsTest do
   # (non-async) sandbox checkout.
   defp snapshot_counts do
     demo_user_ids =
-      Repo.all(
-        from u in User, where: like(u.email, ^"%#{@demo_domain}"), select: u.id
-      )
+      Repo.all(from u in User, where: like(u.email, ^"%#{@demo_domain}"), select: u.id)
 
     %{
       demo_users: length(demo_user_ids),
@@ -198,13 +196,14 @@ defmodule Example.Demo.SeedsTest do
       assert length(pending) == 1
     end
 
-    test "membership shape: admin in 2 orgs, alice+carol in Acme, bob owns Beta" do
+    test "membership shape: admin in 2 orgs, alice+carol+dave in Acme, bob owns Beta" do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
       beta = Repo.get_by!(Organization, slug: "beta-labs")
 
       admin = demo_user!("admin@demo.sigra.dev")
       alice = demo_user!("alice@demo.sigra.dev")
       carol = demo_user!("carol@demo.sigra.dev")
+      dave = demo_user!("dave@demo.sigra.dev")
       bob = demo_user!("bob@demo.sigra.dev")
 
       admin_orgs =
@@ -217,6 +216,7 @@ defmodule Example.Demo.SeedsTest do
 
       assert membership_role(alice.id, acme.id) == :member
       assert membership_role(carol.id, acme.id) == :member
+      assert membership_role(dave.id, acme.id) == :member
       assert membership_role(admin.id, acme.id) == :owner
       assert membership_role(admin.id, beta.id) == :member
       assert membership_role(bob.id, beta.id) == :owner
@@ -254,6 +254,33 @@ defmodule Example.Demo.SeedsTest do
 
       assert admin_tied >= 1,
              "expected at least one audit row tied to admin via effective_user_id"
+    end
+
+    test "persona and organization audit rows make non-admin detail screens useful" do
+      acme = Repo.get_by!(Organization, slug: "acme-corp")
+      alice = demo_user!("alice@demo.sigra.dev")
+      dave = demo_user!("dave@demo.sigra.dev")
+
+      alice_tied =
+        Repo.aggregate(
+          from(a in AuditEvent, where: a.effective_user_id == ^alice.id),
+          :count
+        )
+
+      assert alice_tied >= 3
+
+      dave_lockout =
+        Repo.one(
+          from(a in AuditEvent,
+            where:
+              a.effective_user_id == ^dave.id and
+                a.organization_id == ^acme.id and
+                a.action == ^"auth.lockout.start"
+          )
+        )
+
+      assert dave_lockout,
+             "expected Acme-scoped lockout evidence so org admin screens show risk state"
     end
   end
 

@@ -14,8 +14,8 @@ defmodule <%= web_module %>.Components.AdminShell do
   def admin_shell(assigns) do
     ~H"""
     <section class="sg-admin-shell min-h-screen bg-base-100 text-base-content">
-      <header class="sg-admin-topbar sticky top-0 z-30 border-b border-base-300 bg-base-200/95 backdrop-blur">
-        <div class="sg-admin-topbar-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <header class="sg-admin-topbar sticky top-0 border-b border-base-300 bg-base-200/95 backdrop-blur">
+        <div class="sg-admin-topbar-inner mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <div class="flex min-w-0 items-center gap-3">
             <a href={overview_link(@admin_scope)} class="sg-brand-mark text-sm font-semibold">
               <span>Admin</span>
@@ -25,24 +25,24 @@ defmodule <%= web_module %>.Components.AdminShell do
 
           <div class="flex items-center gap-2">
             <.scope_switch_link href={users_link(@admin_scope)} active={users_active?(@page_title)}>
-              Users
+              Support users
             </.scope_switch_link>
             <.scope_switch_link
               :if={show_global_link?(@admin_scope)}
               href={~p"/admin"}
               active={overview_active?(@page_title) and global_active?(@admin_scope)}
             >
-              Overview
+              Global overview
             </.scope_switch_link>
             <.scope_switch_link
               :if={organization_link(@admin_scope)}
               href={organization_link(@admin_scope)}
               active={overview_active?(@page_title) and organization_active?(@admin_scope)}
             >
-              Organization
+              Organization overview
             </.scope_switch_link>
             <.scope_switch_link href={audit_link(@admin_scope)} active={audit_active?(@page_title)}>
-              Audit
+              Audit evidence
             </.scope_switch_link>
           </div>
         </div>
@@ -76,7 +76,13 @@ defmodule <%= web_module %>.Components.AdminShell do
               <p class="sg-nav-title mb-2 text-xs font-semibold uppercase text-base-content/60">Scope</p>
               <ul class="menu gap-1 p-0">
                 <li>
-                  <a class={nav_item_class(overview_active?(@page_title) and global_active?(@admin_scope))} href={~p"/admin"}>Global overview</a>
+                  <a
+                    :if={show_global_link?(@admin_scope)}
+                    class={nav_item_class(overview_active?(@page_title) and global_active?(@admin_scope))}
+                    href={~p"/admin"}
+                  >
+                    Global overview
+                  </a>
                 </li>
                 <li :if={organization_link(@admin_scope)}>
                   <a
@@ -106,7 +112,11 @@ defmodule <%= web_module %>.Components.AdminShell do
         >
           <span class="btm-nav-label">Users</span>
         </a>
-        <a href={~p"/admin"} class={bottom_nav_class(overview_active?(@page_title) and global_active?(@admin_scope))}>
+        <a
+          :if={show_global_link?(@admin_scope)}
+          href={~p"/admin"}
+          class={bottom_nav_class(overview_active?(@page_title) and global_active?(@admin_scope))}
+        >
           <span class="btm-nav-label">Home</span>
         </a>
         <a

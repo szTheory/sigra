@@ -85,7 +85,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       </header>
 
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
-        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
+        <div class="sg-search-row grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
           <label class="form-control w-full">
             <span class="label-text text-sm font-semibold">Search</span>
             <input
@@ -112,7 +112,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             class="sg-press btn btn-ghost min-h-11 justify-start px-3"
             aria-expanded={to_string(@filters_open?)}
           >
-            More filters
+            {if(@filters_open?, do: "Hide filters", else: "More filters")}
           </button>
 
           <div :if={@filters_open?} class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -210,7 +210,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 </div>
               </td>
               <td class="align-top text-right">
-                <a class="sg-press btn btn-sm btn-primary min-h-11" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+                <a class="sg-press sg-row-action btn btn-sm btn-primary min-h-11" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
                   Open user
                 </a>
               </td>
@@ -304,7 +304,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   defp quick_filter(assigns) do
     ~H"""
-    <label class="label min-h-11 cursor-pointer gap-2 rounded-md bg-base-100 px-3 py-2 shadow-sm">
+    <label class="sg-filter-chip label min-h-11 cursor-pointer gap-2 rounded-md bg-base-100 px-3 py-2 shadow-sm">
       <input
         type="checkbox"
         name={@key}

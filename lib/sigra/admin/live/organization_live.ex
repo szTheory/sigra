@@ -41,6 +41,31 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         <.metric label="Locked" value={Map.get(@summary_counts, :locked, 0)} tone="risk" />
       </dl>
 
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
+        <div class="sg-toolbar">
+          <div>
+            <h2 class="sg-section-heading">Scoped attention</h2>
+            <p class="sg-section-copy mt-1">
+              Keep support and evidence collection bounded to {@organization_name}.
+            </p>
+          </div>
+          <span class="sg-status-pill" data-tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: "risk", else: "ok")}>
+            {if(Map.get(@summary_counts, :locked, 0) > 0, do: "Needs review", else: "Healthy")}
+          </span>
+        </div>
+
+        <div class="sg-list mt-4">
+          <div class="sg-list-row" data-tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: "risk", else: nil)}>
+            <p class="sg-meta-label">Risk queue</p>
+            <p class="sg-meta-value">{Map.get(@summary_counts, :locked, 0)} locked users in this organization</p>
+          </div>
+          <div class="sg-list-row">
+            <p class="sg-meta-label">Evidence boundary</p>
+            <p class="sg-meta-value">Audit exports from this area stay organization-scoped.</p>
+          </div>
+        </div>
+      </section>
+
       <div class="grid gap-4 lg:grid-cols-2">
         <.task_card
           title="Support organization users"
@@ -83,8 +108,8 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   defp task_card(assigns) do
     ~H"""
     <article class="sg-card sg-card-hover rounded-lg border border-base-300 bg-base-100 p-5">
-      <h2 class="text-lg font-semibold">{@title}</h2>
-      <p class="mt-2 min-h-14 text-sm text-base-content/70">{@body}</p>
+      <h2 class="sg-section-heading">{@title}</h2>
+      <p class="sg-section-copy mt-2 min-h-14">{@body}</p>
       <a href={@href} class="sg-press btn btn-primary mt-4 min-h-11 w-full sm:w-auto">
         {@action}
       </a>

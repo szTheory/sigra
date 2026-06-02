@@ -22,9 +22,9 @@ defmodule ExampleWeb.AdminShellTest do
 
       assert html =~ "Admin"
       assert html =~ "Global"
-      assert html =~ "Users"
+      assert html =~ "Support users"
       assert html =~ "href=\"/admin/users\""
-      assert html =~ "Audit"
+      assert html =~ "Audit evidence"
       assert html =~ "href=\"/admin/audit\""
       assert html =~ "Operate Sigra with confidence"
       assert sidebar_operations_before_scope?(html)
@@ -51,14 +51,14 @@ defmodule ExampleWeb.AdminShellTest do
 
       assert html =~ "Admin"
       assert html =~ "Acme Ops"
-      assert html =~ "Organization"
-      assert html =~ "Users"
+      assert html =~ "Organization overview"
+      assert html =~ "Support users"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/users\""
-      assert html =~ "Audit"
+      assert html =~ "Audit evidence"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/audit\""
       assert html =~ "Work inside this organization scope"
       assert sidebar_operations_before_scope?(html)
-      assert bottom_nav_users_before_home?(html)
+      refute html =~ "btm-nav-label\">Home<"
     end
 
     test "renders explicit impersonation chrome with real admin, effective user, and app-wide stop path" do

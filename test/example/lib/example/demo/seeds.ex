@@ -52,7 +52,7 @@ defmodule Example.Demo.Seeds do
     seed_passkey(users)
     seed_enterprise_connection(acme)
     seed_user_identity(users)
-    seed_audit_events(users)
+    seed_audit_events(users, %{acme: acme, beta: beta})
     print_credentials()
     :ok
   end
@@ -196,6 +196,7 @@ defmodule Example.Demo.Seeds do
 
       nil ->
         changeset = Organization.changeset(%Organization{}, %{name: name, slug: slug})
+
         case Repo.insert(changeset, on_conflict: :nothing) do
           {:ok, %Organization{id: nil}} -> Repo.get_by!(Organization, slug: slug)
           {:ok, org} -> org
@@ -210,11 +211,13 @@ defmodule Example.Demo.Seeds do
     alice = users["alice@demo.sigra.dev"]
     carol = users["carol@demo.sigra.dev"]
     bob = users["bob@demo.sigra.dev"]
+    dave = users["dave@demo.sigra.dev"]
 
     # Acme Corp: admin=owner, alice=member, carol=member
     upsert_membership(admin.id, acme.id, :owner)
     upsert_membership(alice.id, acme.id, :member)
     upsert_membership(carol.id, acme.id, :member)
+    upsert_membership(dave.id, acme.id, :member)
 
     # Beta Labs: admin=member, bob=owner
     upsert_membership(admin.id, beta.id, :member)
@@ -381,23 +384,125 @@ defmodule Example.Demo.Seeds do
     {"session.revoke_all", "success", 17}
   ]
 
-  defp seed_audit_events(users) do
-    admin = users["admin@demo.sigra.dev"]
+  @persona_audit_events [
+    %{
+      email: "alice@demo.sigra.dev",
+      actor: "alice@demo.sigra.dev",
+      action: "auth.login.success",
+      outcome: "success",
+      offset: 18,
+      org: :acme
+    },
+    %{
+      email: "alice@demo.sigra.dev",
+      actor: "admin@demo.sigra.dev",
+      action: "admin.impersonation.start",
+      outcome: "success",
+      offset: 19,
+      org: :acme
+    },
+    %{
+      email: "alice@demo.sigra.dev",
+      actor: "admin@demo.sigra.dev",
+      action: "admin.impersonation.stop",
+      outcome: "success",
+      offset: 20,
+      org: :acme
+    },
+    %{
+      email: "bob@demo.sigra.dev",
+      actor: "bob@demo.sigra.dev",
+      action: "mfa.enroll.success",
+      outcome: "success",
+      offset: 21,
+      org: :beta
+    },
+    %{
+      email: "bob@demo.sigra.dev",
+      actor: "bob@demo.sigra.dev",
+      action: "auth.login.success",
+      outcome: "success",
+      offset: 22,
+      org: :beta
+    },
+    %{
+      email: "carol@demo.sigra.dev",
+      actor: "carol@demo.sigra.dev",
+      action: "auth.oauth.link",
+      outcome: "success",
+      offset: 23,
+      org: :acme
+    },
+    %{
+      email: "carol@demo.sigra.dev",
+      actor: "carol@demo.sigra.dev",
+      action: "auth.login.success",
+      outcome: "success",
+      offset: 24,
+      org: :acme
+    },
+    %{
+      email: "dave@demo.sigra.dev",
+      actor: "dave@demo.sigra.dev",
+      action: "auth.login.failure",
+      outcome: "failure",
+      offset: 25,
+      org: :acme
+    },
+    %{
+      email: "dave@demo.sigra.dev",
+      actor: "dave@demo.sigra.dev",
+      action: "auth.lockout.start",
+      outcome: "failure",
+      offset: 26,
+      org: :acme
+    },
+    %{
+      email: "frank@demo.sigra.dev",
+      actor: "frank@demo.sigra.dev",
+      action: "account.deletion.schedule",
+      outcome: "success",
+      offset: 27,
+      org: nil
+    },
+    %{
+      email: "admin@demo.sigra.dev",
+      actor: "admin@demo.sigra.dev",
+      action: "session.create",
+      outcome: "success",
+      offset: 28,
+      org: :acme
+    },
+    %{
+      email: "admin@demo.sigra.dev",
+      actor: "admin@demo.sigra.dev",
+      action: "session.create",
+      outcome: "success",
+      offset: 29,
+      org: :beta
+    }
+  ]
 
-    # Count-threshold guard: only insert the demo batch if fewer than 15 admin-tied
-    # audit rows exist. This makes a second run/0 call a no-op for audit rows.
-    admin_tied_count =
+  defp seed_audit_events(users, organizations) do
+    admin = users["admin@demo.sigra.dev"]
+    demo_user_ids = users |> Map.values() |> Enum.map(& &1.id)
+
+    # Count-threshold guard: only insert the demo batch if fewer than the full
+    # deterministic demo audit rows exist. This makes a second run/0 call a no-op
+    # while allowing older dev databases with the smaller admin-only batch to
+    # receive the richer persona/org evidence batch on the next seed run.
+    demo_tied_count =
       Repo.aggregate(
-        from(a in AuditEvent, where: a.effective_user_id == ^admin.id),
+        from(a in AuditEvent, where: a.effective_user_id in ^demo_user_ids),
         :count
       )
 
-    if admin_tied_count < 15 do
-      insert_audit_batch(admin)
+    if demo_tied_count < length(@audit_actions) + length(@persona_audit_events) do
+      insert_audit_batch(admin, users, organizations)
     end
   end
 
-  defp insert_audit_batch(admin) do
+  defp insert_audit_batch(admin, users, organizations) do
     # Wrap the whole batch in a transaction: the count-threshold guard above is
     # only idempotent if the batch is all-or-nothing. A mid-batch crash would
     # otherwise leave <15 rows, so the next run/0 re-fires and accumulates
@@ -420,6 +525,30 @@ defmodule Example.Demo.Seeds do
             # TIE-TO-USER: effective_user_id (not just actor_id) so these rows
             # surface on admin's detail page (lib/sigra/admin/audit/query.ex:32).
             effective_user_id: admin.id
+          },
+          allow_reserved: true
+        )
+        |> Repo.insert!()
+      end)
+
+      Enum.each(@persona_audit_events, fn event ->
+        subject = Map.fetch!(users, event.email)
+        actor = Map.fetch!(users, event.actor)
+        organization_id = event.org && Map.fetch!(organizations, event.org).id
+        occurred_at = DateTime.add(@seed_reference_ts, -event.offset * 86_400, :second)
+
+        %AuditEvent{}
+        |> AuditEvent.changeset(
+          %{
+            action: event.action,
+            outcome: event.outcome,
+            occurred_at: occurred_at,
+            actor_id: actor.id,
+            actor_type: "user",
+            target_id: subject.id,
+            target_type: "user",
+            organization_id: organization_id,
+            effective_user_id: subject.id
           },
           allow_reserved: true
         )

@@ -87,7 +87,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
   def render(assigns) do
     ~H"""
     <section :if={@detail} class="space-y-6">
-      <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="sg-toolbar">
         <a class="sg-press btn btn-ghost min-h-11" href={@return_to}>Back to users</a>
         <span class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</span>
       </div>
@@ -115,10 +115,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
       </section>
 
       <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="sg-toolbar">
           <div>
-            <h2 class="text-xl font-semibold">Sessions</h2>
-            <p class="mt-1 text-sm text-base-content/70">
+            <h2 class="sg-section-heading">Sessions</h2>
+            <p class="sg-section-copy mt-1">
               {pluralize(length(@detail.sessions), "active session")}
             </p>
           </div>
@@ -133,16 +133,25 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </button>
         </div>
 
-        <div class="mt-4 space-y-3">
+        <div class="sg-list mt-4">
           <article
             :for={session <- @detail.sessions}
-            class="rounded-md bg-base-200 p-4 text-sm shadow-sm"
+            class="sg-list-row text-sm"
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div class="space-y-1">
-                <p class="font-semibold">{session_label(session)}</p>
-                <p>{session.ip || "Unknown IP"}</p>
-                <p>{activity_label(session.last_active_at)}</p>
+              <div class="grid gap-2 sm:grid-cols-3">
+                <div>
+                  <p class="sg-meta-label">Type</p>
+                  <p class="sg-meta-value">{session_type(session)}</p>
+                </div>
+                <div>
+                  <p class="sg-meta-label">IP address</p>
+                  <p class="sg-meta-value">{session.ip || "Unknown IP"}</p>
+                </div>
+                <div>
+                  <p class="sg-meta-label">Last activity</p>
+                  <p class="sg-meta-value">{activity_value(session.last_active_at)}</p>
+                </div>
               </div>
 
               <button
@@ -155,39 +164,59 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </button>
             </div>
           </article>
-          <p :if={@detail.sessions == []} class="text-sm text-base-content/70">No active sessions.</p>
-        </div>
-      </section>
-
-      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Security</h2>
-        <div class="mt-4 space-y-2 text-sm">
-          <p>{mfa_label(@detail.security.mfa_status)}</p>
-          <p>{pluralize(@detail.security.passkey_count, "passkey")}</p>
-        </div>
-      </section>
-
-      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Identities</h2>
-        <div class="mt-4 space-y-2 text-sm">
-          <p :if={!@detail.identities_available?}>Linked identities are not available for this app.</p>
-          <div :for={identity <- @detail.identities} class="rounded-md bg-base-200 p-3 shadow-sm">
-            <p class="font-semibold">{identity.provider}</p>
-            <p>{Map.get(identity, :provider_email) || Map.get(identity, :provider_uid)}</p>
+          <div :if={@detail.sessions == []} class="sg-empty-state text-sm">
+            <p class="font-semibold">No active sessions</p>
+            <p class="mt-1">This user does not have a currently visible session in this scope.</p>
           </div>
-          <p :if={@detail.identities_available? and @detail.identities == []}>No linked identities.</p>
         </div>
       </section>
 
+      <div class="sg-detail-grid">
+        <section class="sg-detail-panel rounded-lg border border-base-300 bg-base-100 p-5">
+          <h2 class="sg-section-heading">Security</h2>
+          <div class="sg-list mt-4">
+            <div class="sg-list-row">
+              <p class="sg-meta-label">MFA</p>
+              <p class="sg-meta-value">{mfa_value(@detail.security.mfa_status)}</p>
+            </div>
+            <div class="sg-list-row">
+              <p class="sg-meta-label">Passkeys</p>
+              <p class="sg-meta-value">{pluralize(@detail.security.passkey_count, "passkey")}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sg-detail-panel rounded-lg border border-base-300 bg-base-100 p-5">
+          <h2 class="sg-section-heading">Identities</h2>
+          <div class="sg-list mt-4 text-sm">
+            <p :if={!@detail.identities_available?} class="sg-section-copy">Linked identities are not available for this app.</p>
+            <div :for={identity <- @detail.identities} class="sg-list-row">
+              <p class="sg-meta-label">{identity.provider}</p>
+              <p class="sg-meta-value">{Map.get(identity, :provider_email) || Map.get(identity, :provider_uid)}</p>
+            </div>
+            <div :if={@detail.identities_available? and @detail.identities == []} class="sg-empty-state">
+              <p class="font-semibold">No linked identities</p>
+              <p class="mt-1">This user signs in without a visible external identity provider.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
       <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Organizations</h2>
-        <div class="mt-4 space-y-3">
+        <h2 class="sg-section-heading">Organizations</h2>
+        <p class="sg-section-copy mt-1">Tenant memberships and scoped support pivots for this user.</p>
+        <div class="sg-list mt-4">
           <article
             :for={organization <- @detail.organizations}
-            class="rounded-md bg-base-200 p-4 text-sm shadow-sm"
+            class="sg-list-row text-sm"
           >
-            <p class="font-semibold">{organization.organization_name}</p>
-            <p>Role: {organization.role}</p>
+            <div class="sg-toolbar">
+              <div>
+                <p class="sg-meta-label">Organization</p>
+                <p class="sg-meta-value">{organization.organization_name}</p>
+              </div>
+              <span class="sg-status-pill">{organization.role}</span>
+            </div>
             <a
               :if={show_pivot_link?(@admin_scope, organization)}
               class="sg-press btn btn-outline min-h-11 mt-3 w-full sm:w-auto"
@@ -196,15 +225,18 @@ defmodule Sigra.Admin.Live.UserShowLive do
               Open organization-scoped view for {organization.organization_name}
             </a>
           </article>
-          <p :if={@detail.organizations == []} class="text-sm text-base-content/70">No organization memberships.</p>
+          <div :if={@detail.organizations == []} class="sg-empty-state text-sm">
+            <p class="font-semibold">No organization memberships</p>
+            <p class="mt-1">This account is not currently attached to a tenant.</p>
+          </div>
         </div>
       </section>
 
       <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="sg-toolbar">
           <div>
-            <h2 class="text-xl font-semibold">Recent Audit</h2>
-            <p class="mt-1 text-sm text-base-content/70">
+            <h2 class="sg-section-heading">Recent Audit</h2>
+            <p class="sg-section-copy mt-1">
               Recent activity stays aligned with the full scoped audit history for this user.
             </p>
           </div>
@@ -214,21 +246,24 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </a>
         </div>
 
-        <div class="mt-4 space-y-2 text-sm">
-          <div :for={row <- @detail.recent_audit} class="rounded-md bg-base-200 p-3 shadow-sm">
-            <div class="space-y-1">
+        <div class="sg-list mt-4 text-sm">
+          <div :for={row <- @detail.recent_audit} class="sg-list-row">
+            <div class="space-y-2">
               <span :if={row.action_badge} class="badge badge-warning badge-sm">{row.action_badge}</span>
               <p class="font-semibold">{row.action_label}</p>
               <p class="text-sm text-base-content/70">{row.actor_summary}</p>
               <p class="text-xs text-base-content/60">{Calendar.strftime(row.inserted_at, "%Y-%m-%d %H:%M")}</p>
             </div>
           </div>
-          <p :if={@detail.recent_audit == []}>No recent audit activity.</p>
+          <div :if={@detail.recent_audit == []} class="sg-empty-state">
+            <p class="font-semibold">No recent audit activity</p>
+            <p class="mt-1">No scoped events are currently tied to this user.</p>
+          </div>
         </div>
       </section>
 
       <section class="sg-danger-panel rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Danger Zone</h2>
+        <h2 class="sg-section-heading">Danger Zone</h2>
         <p class="mt-2 text-sm text-base-content/70">
           Session revocation uses Sigra's canonical session APIs.
         </p>
@@ -365,20 +400,19 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp deletion_label(identity),
     do: "Deletion: " <> if(identity.deleted?, do: "Deleted", else: "Active")
 
-  defp mfa_label(nil), do: "MFA: Not configured"
+  defp mfa_value(nil), do: "Not configured"
   # Sigra.MFA.status/3 returns %{enabled: true, ...} (atom key, no trailing ?)
-  defp mfa_label(%{enabled: true}), do: "MFA: Enabled"
+  defp mfa_value(%{enabled: true}), do: "Enabled"
   # Legacy shape from earlier Sigra versions — keep for backward compat
-  defp mfa_label(%{enabled?: true}), do: "MFA: Enabled"
-  defp mfa_label(%{enabled_at: %DateTime{}}), do: "MFA: Enabled"
-  defp mfa_label(_status), do: "MFA: Not configured"
+  defp mfa_value(%{enabled?: true}), do: "Enabled"
+  defp mfa_value(%{enabled_at: %DateTime{}}), do: "Enabled"
+  defp mfa_value(_status), do: "Not configured"
 
-  defp session_label(%{type: type}), do: "Session type: " <> to_string(type)
+  defp session_type(%{type: type}), do: to_string(type)
 
-  defp activity_label(%DateTime{} = at),
-    do: "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
+  defp activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
 
-  defp activity_label(_), do: "Last activity: Not available"
+  defp activity_value(_), do: "Not available"
 
   defp pluralize(1, label), do: "1 #{label}"
   defp pluralize(count, label), do: "#{count} #{label}s"

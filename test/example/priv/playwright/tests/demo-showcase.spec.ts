@@ -177,8 +177,9 @@ test.describe('demo-showcase', () => {
     await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);
     await waitForLiveViewReady(page);
 
-    await expect(page.getByText('MFA: Enabled')).toBeVisible();
-    await expect(page.getByText('1 passkey')).toBeVisible();
+    const securityPanel = page.locator('.sg-detail-panel', { hasText: 'MFA' });
+    await expect(securityPanel.getByText('Enabled')).toBeVisible();
+    await expect(securityPanel.getByText('1 passkey')).toBeVisible();
 
     await assertDemoScreenshot(page, testInfo, 'admin-user-detail');
 

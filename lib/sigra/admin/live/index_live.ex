@@ -27,7 +27,7 @@ defmodule Sigra.Admin.Live.IndexLive do
         <p class="sg-page-kicker">Admin overview</p>
         <h1 class="sg-page-title text-3xl font-semibold">Operate Sigra with confidence</h1>
         <p class="sg-page-copy text-sm text-base-content/70">
-          Start with the job at hand: support a user, investigate security state, or collect audit evidence.
+          Start with the job at hand: support a user, investigate security state, or collect scoped audit evidence.
         </p>
       </header>
 
@@ -41,13 +41,13 @@ defmodule Sigra.Admin.Live.IndexLive do
 
       <div class="grid gap-4 lg:grid-cols-3">
         <.task_card
-          title="Find and support users"
+          title="Support users"
           body="Search by email, inspect account state, revoke sessions, and safely start support actions."
           href="/admin/users"
           action="Open users"
         />
         <.task_card
-          title="Investigate audit evidence"
+          title="Investigate evidence"
           body="Filter security events, distinguish actor from effective user, and export scoped CSV evidence."
           href="/admin/audit"
           action="Open audit"
@@ -87,8 +87,8 @@ defmodule Sigra.Admin.Live.IndexLive do
   defp task_card(assigns) do
     ~H"""
     <article class="sg-card sg-card-hover rounded-lg border border-base-300 bg-base-100 p-5">
-      <h2 class="text-lg font-semibold">{@title}</h2>
-      <p class="mt-2 min-h-14 text-sm text-base-content/70">{@body}</p>
+      <h2 class="sg-section-heading">{@title}</h2>
+      <p class="sg-section-copy mt-2 min-h-14">{@body}</p>
       <a href={@href} class="sg-press btn btn-primary mt-4 min-h-11 w-full sm:w-auto">
         {@action}
       </a>
