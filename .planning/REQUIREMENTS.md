@@ -29,6 +29,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 - [x] **STRAT-02**: The evaluation explicitly defines the threshold of adopter demand required to override the maintenance-first default and violate the Diminishing Returns Wall.
 - [x] **STRAT-03**: Any approved strategic bet includes deeper research scoping (e.g., `ex_scim` vs custom implementations for directory sync) to prepare for future implementation phases.
 
+### Infrastructure Stability (INFRA)
+
+- [ ] **INFRA-01**: DB connection sandbox is stabilized and CI connection leaks are resolved, ensuring deterministic test runs and reliable resource cleanup in the build pipeline.
+
 ## Out of Scope
 
 Explicitly excluded. Documented to prevent scope creep.
@@ -53,8 +57,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | STRAT-01 | Phase 152 | Complete |
 | STRAT-02 | Phase 152 | Complete |
 | STRAT-03 | Phase 152 | Complete |
+| INFRA-01 | Phase 153 | Active |
 
 **Coverage:**
-- v1 requirements: 9 total
-- Mapped to phases: 9 (roadmap complete)
+- v1 requirements: 10 total
+- Mapped to phases: 10 (roadmap complete)
 - Unmapped: 0 ✓
