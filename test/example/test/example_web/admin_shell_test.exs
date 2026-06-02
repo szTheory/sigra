@@ -22,13 +22,14 @@ defmodule ExampleWeb.AdminShellTest do
 
       assert html =~ "Admin"
       assert html =~ "Global"
-      assert html =~ "Support users"
+      assert html =~ "Users"
       assert html =~ "href=\"/admin/users\""
-      assert html =~ "Audit evidence"
+      assert html =~ "Audit"
       assert html =~ "href=\"/admin/audit\""
-      assert html =~ "Operate Sigra with confidence"
-      assert sidebar_operations_before_scope?(html)
-      assert bottom_nav_users_before_home?(html)
+      assert html =~ "What do you need to do?"
+      assert html =~ "data-scope=\"global\""
+      assert sidebar_workspace_before_overviews?(html)
+      assert bottom_nav_users_first?(html)
     end
 
     test "renders Admin and the organization name for an organization scope" do
@@ -52,13 +53,14 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Admin"
       assert html =~ "Acme Ops"
       assert html =~ "Organization overview"
-      assert html =~ "Support users"
+      assert html =~ "Users"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/users\""
-      assert html =~ "Audit evidence"
+      assert html =~ "Audit"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/audit\""
       assert html =~ "Work inside this organization scope"
-      assert sidebar_operations_before_scope?(html)
-      refute html =~ "btm-nav-label\">Home<"
+      assert html =~ "data-scope=\"organization\""
+      assert html =~ "Org · Acme Ops"
+      assert sidebar_workspace_before_overviews?(html)
     end
 
     test "renders explicit impersonation chrome with real admin, effective user, and app-wide stop path" do
@@ -121,20 +123,20 @@ defmodule ExampleWeb.AdminShellTest do
     end
   end
 
-  defp sidebar_operations_before_scope?(html) do
-    op = html_offset(html, "uppercase text-base-content/60\">Operations</p>")
-    ov = html_offset(html, "uppercase text-base-content/60\">Scope</p>")
-    is_integer(op) and is_integer(ov) and op < ov
+  defp sidebar_workspace_before_overviews?(html) do
+    ws = html_offset(html, "sg-nav-title\">Workspace<")
+    ov = html_offset(html, "sg-nav-title\">Overviews<")
+    is_integer(ws) and is_integer(ov) and ws < ov
   end
 
-  defp bottom_nav_users_before_home?(html) do
+  defp bottom_nav_users_first?(html) do
     case :binary.match(html, "aria-label=\"Admin bottom nav\"") do
       {start, _} ->
         len = min(2500, byte_size(html) - start)
         fragment = binary_part(html, start, len)
 
-        case {:binary.match(fragment, "btm-nav-label\">Users<"),
-              :binary.match(fragment, "btm-nav-label\">Home<")} do
+        case {:binary.match(fragment, "<span>Users</span>"),
+              :binary.match(fragment, "<span>Global</span>")} do
           {{u0, _}, {g0, _}} when u0 < g0 -> true
           _ -> false
         end

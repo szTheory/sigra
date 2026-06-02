@@ -13,7 +13,7 @@ defmodule <%= web_module %>.Components.AdminShell do
 
   def admin_shell(assigns) do
     ~H"""
-    <section class="sg-admin-shell">
+    <section class="sg-admin-shell" data-scope={scope_mode(@admin_scope)}>
       <header class="sg-admin-topbar">
         <div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
           <div class="sg-cluster sg-cluster--3">
@@ -63,12 +63,12 @@ defmodule <%= web_module %>.Components.AdminShell do
                 <ul class="sg-stack sg-stack--2">
                   <li>
                     <a class={nav_item_class(users_active?(@page_title))} href={users_link(@admin_scope)}>
-                      Support users
+                      Users
                     </a>
                   </li>
                   <li>
                     <a class={nav_item_class(audit_active?(@page_title))} href={audit_link(@admin_scope)}>
-                      Audit evidence
+                      Audit
                     </a>
                   </li>
                 </ul>
@@ -135,7 +135,14 @@ defmodule <%= web_module %>.Components.AdminShell do
 
     ~H"""
     <details :if={length(@targets) > 1} class="sg-scope-switch">
-      <summary class={scope_chip_class(@admin_scope)}>{scope_label(@admin_scope)}</summary>
+      <summary class={scope_chip_class(@admin_scope)}>
+        <span
+          :if={@admin_scope.mode == :organization}
+          class="sg-scope-pill__tenant"
+          aria-hidden="true"
+        >⌂</span>
+        {scope_chip_label(@admin_scope)}
+      </summary>
       <div class="sg-scope-switch__menu">
         <a
           :for={target <- @targets}
@@ -148,7 +155,12 @@ defmodule <%= web_module %>.Components.AdminShell do
       </div>
     </details>
     <span :if={length(@targets) <= 1} class={scope_chip_class(@admin_scope)}>
-      {scope_label(@admin_scope)}
+      <span
+        :if={@admin_scope.mode == :organization}
+        class="sg-scope-pill__tenant"
+        aria-hidden="true"
+      >⌂</span>
+      {scope_chip_label(@admin_scope)}
     </span>
     """
   end
@@ -206,6 +218,12 @@ defmodule <%= web_module %>.Components.AdminShell do
   defp scope_label(_), do: "Unknown scope"
 
   defp scope_chip_class(_admin_scope), do: "sg-scope-pill"
+
+  defp scope_mode(%{mode: :organization}), do: "organization"
+  defp scope_mode(_), do: "global"
+
+  defp scope_chip_label(%{mode: :organization} = s), do: "Org · " <> scope_label(s)
+  defp scope_chip_label(s), do: scope_label(s)
 
   defp impersonating?(%{impersonating_from: %_{}}), do: true
   defp impersonating?(_), do: false
