@@ -46,6 +46,7 @@ Last activity: 2026-06-02 — Milestone v1.33 completed and archived
 | 260602-hao | Admin-UI Pass 2 Stage 2 — needs-led landing launcher (jobs-first cards, demoted posture strip + "N need review" risk line, evaluator capability surface) on both global + org landings | 2026-06-02 | 2e5999ee |
 | 260602-hhr | Admin-UI Pass 2 Stage 3 — users index craft ("Showing X–Y of Z" pagination, applied-filter chips + Clear all, teaching empty states, truncate+tooltip, richer mobile card) | 2026-06-02 | 628ec604 |
 | 260602-hoz | Admin-UI Pass 2 Stage 4 — summary-first user detail (security facts strip: MFA/passkeys/active/last-seen + foregrounded risk callout; session recency cue) | 2026-06-02 | 1b2e56cd |
+| 260602-hvx | Admin-UI Pass 2 Stage 5 — investigator-shaped audit (Outcome select, from/to date range, applied-filter chips, failure→risk outcome pill, teaching empty) on index + per-user | 2026-06-02 | 92abb7ce |
 
 > Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
 
