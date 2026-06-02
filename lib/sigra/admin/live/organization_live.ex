@@ -5,6 +5,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   use Phoenix.LiveView
 
+  alias Sigra.Admin.Organizations.Detail
   alias Sigra.Admin.Scope
   alias Sigra.Admin.Users.Query
 
@@ -18,6 +19,8 @@ defmodule Sigra.Admin.Live.OrganizationLive do
      socket
      |> assign(:sigra_config, config)
      |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
+     |> assign(:members, Detail.member_roster(config, admin_scope))
+     |> assign(:pending_invitations, Detail.pending_invitations(config, admin_scope))
      |> assign(:organization_name, organization_name)
      |> assign(:page_title, "#{organization_name} overview")}
   end
@@ -116,6 +119,45 @@ defmodule Sigra.Admin.Live.OrganizationLive do
           Bounded to this org: members, audit evidence, impersonation, scoping.
         </p>
       </section>
+
+      <section class="sg-card sg-stack sg-stack--3">
+        <h2 class="sg-section-heading">Members</h2>
+        <p :if={@members == []} class="sg-section-copy">
+          No members yet — invite teammates to populate this organization.
+        </p>
+        <div :if={@members != []} class="sg-list">
+          <div :for={member <- @members} class="sg-list-row">
+            <p class="sg-meta-value">{member.display_name}</p>
+            <div class="sg-cluster">
+              <span class="sg-status-pill" data-tone={role_tone(member.role)}>{role_label(member.role)}</span>
+              <span :if={member.locked?} class="sg-status-pill" data-tone="risk">Locked</span>
+              <span :if={member.confirmed?} class="sg-status-pill" data-tone="ok">Confirmed</span>
+              <span :if={not member.confirmed?} class="sg-status-pill" data-tone="warn">Unconfirmed</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sg-card sg-stack sg-stack--3">
+        <h2 class="sg-section-heading">Pending invitations</h2>
+        <p :if={@pending_invitations == []} class="sg-section-copy">
+          No pending invitations.
+        </p>
+        <div :if={@pending_invitations != []} class="sg-list">
+          <div
+            :for={invite <- @pending_invitations}
+            class="sg-list-row"
+            data-tone={if(invite.expired?, do: "risk", else: nil)}
+          >
+            <p class="sg-meta-value">{invite.email}</p>
+            <div class="sg-cluster">
+              <span class="sg-status-pill" data-tone={role_tone(invite.role)}>{role_label(invite.role)}</span>
+              <span :if={invite.expired?} class="sg-status-pill" data-tone="risk">Expired</span>
+              <span :if={not invite.expired?} class="sg-meta-label">Expires {format_date(invite.expires_at)}</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
     """
   end
@@ -151,6 +193,26 @@ defmodule Sigra.Admin.Live.OrganizationLive do
     </article>
     """
   end
+
+  defp role_tone(role) do
+    case to_string(role) do
+      "owner" -> "info"
+      "admin" -> "info"
+      _ -> "ok"
+    end
+  end
+
+  defp role_label(role) do
+    case to_string(role) do
+      "owner" -> "Owner"
+      "admin" -> "Admin"
+      "member" -> "Member"
+      other -> String.capitalize(other)
+    end
+  end
+
+  defp format_date(%DateTime{} = dt), do: Calendar.strftime(dt, "%Y-%m-%d")
+  defp format_date(_), do: "—"
 
   defp organization_name(%Scope{organization: %{name: name}}) when is_binary(name), do: name
   defp organization_name(%Scope{organization_slug: slug}) when is_binary(slug), do: slug
