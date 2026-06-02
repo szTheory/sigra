@@ -24,13 +24,30 @@ defmodule ExampleWeb.Components.AdminShell do
             <.scope_switcher admin_scope={@admin_scope} />
           </div>
 
-          <a
-            :if={show_global_link?(@admin_scope) and not global_active?(@admin_scope)}
-            href={~p"/admin"}
-            class="sg-btn sg-btn--ghost sg-btn--sm"
-          >
-            Exit to global
-          </a>
+          <div class="sg-cluster sg-cluster--2">
+            <button
+              id="admin-cmdk"
+              type="button"
+              phx-hook="CmdK"
+              class="sg-cmdk__trigger"
+              aria-label="Open command palette"
+              data-users-href={users_link(@admin_scope)}
+              data-audit-href={audit_link(@admin_scope)}
+              data-overview-href={overview_link(@admin_scope)}
+              data-overview-label={scope_label(@admin_scope)}
+            >
+              <span>Search…</span>
+              <span class="sg-cmdk__trigger-kbd" aria-hidden="true">⌘K</span>
+            </button>
+
+            <a
+              :if={show_global_link?(@admin_scope) and not global_active?(@admin_scope)}
+              href={~p"/admin"}
+              class="sg-btn sg-btn--ghost sg-btn--sm"
+            >
+              Exit to global
+            </a>
+          </div>
         </div>
 
         <.impersonation_banner :if={impersonating?(@current_scope)} current_scope={@current_scope} />
