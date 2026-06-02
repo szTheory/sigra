@@ -1286,6 +1286,108 @@
   }
 
   /* --------------------------------------------------------------------------
+   * COMMAND PALETTE (Cmd-K) — full-viewport scrim + centered dialog.
+   * Reuses the reserved --sg-z-modal ladder slot. Entrance animates ONLY
+   * opacity + transform (scale 0.96→1) so the reduced-motion clamp degrades it
+   * to an instant-but-functional fade. The keyboard nav / active-row highlight
+   * is intentionally instant (no transition) per the motion budget.
+   * ------------------------------------------------------------------------*/
+  .sg-cmdk {
+    position: fixed;
+    inset: 0;
+    z-index: var(--sg-z-modal);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12vh var(--sg-space-4) var(--sg-space-4);
+    background: color-mix(in oklab, var(--sg-color-ink) 38%, transparent);
+  }
+  .sg-cmdk__dialog {
+    width: calc(100vw - 2 * var(--sg-space-4));
+    max-width: 36rem;
+    background: var(--sg-color-panel);
+    border-radius: var(--sg-radius-md);
+    box-shadow: var(--sg-elev-3);
+    overflow: hidden;
+  }
+  .sg-cmdk--enter .sg-cmdk__dialog {
+    animation: sg-cmdk-enter var(--sg-motion-pop) var(--sg-ease-out) both;
+  }
+  @keyframes sg-cmdk-enter {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .sg-cmdk__input {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--sg-color-line);
+    background: transparent;
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    padding: var(--sg-space-3) var(--sg-space-4);
+  }
+  .sg-cmdk__input:focus { outline: none; box-shadow: none; }
+  .sg-cmdk__list {
+    list-style: none;
+    margin: 0;
+    padding: var(--sg-space-2);
+    max-height: 18rem;
+    overflow-y: auto;
+  }
+  .sg-cmdk__item {
+    display: flex;
+    align-items: center;
+    gap: var(--sg-space-2);
+    padding: var(--sg-space-2) var(--sg-space-3);
+    border-radius: var(--sg-radius-sm);
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    cursor: pointer;
+  }
+  .sg-cmdk__item.is-active,
+  .sg-cmdk__item[aria-selected="true"] {
+    background: var(--sg-color-brand-soft);
+    color: var(--sg-color-brand-strong);
+  }
+  .sg-cmdk__empty {
+    padding: var(--sg-space-3);
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+  }
+  .sg-cmdk__trigger {
+    display: none;
+    align-items: center;
+    gap: var(--sg-pill-gap);
+    border: 1px solid var(--sg-color-line);
+    border-radius: var(--sg-radius-sm);
+    background: transparent;
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-xs);
+    padding: var(--sg-pill-pad-y) var(--sg-space-2);
+    cursor: pointer;
+    transition: var(--sg-transition-tone);
+  }
+  .sg-cmdk__trigger.is-ready { display: inline-flex; }
+  .sg-cmdk__trigger:hover {
+    color: var(--sg-color-ink);
+    background: var(--sg-color-panel-alt);
+  }
+  .sg-cmdk__trigger-kbd {
+    font-variant-numeric: tabular-nums;
+    color: var(--sg-color-muted);
+  }
+
+  /* Copy affordance: id chips inside the admin shell are click-to-copy. */
+  .sg-admin-shell code.sg-code {
+    cursor: pointer;
+    transition: var(--sg-transition-tone);
+  }
+  .sg-admin-shell code.sg-code:hover {
+    background: color-mix(in oklab, var(--sg-color-ink) 9%, transparent);
+    color: var(--sg-color-ink);
+  }
+
+  /* --------------------------------------------------------------------------
    * SKELETON — reusable loading placeholder (used by later stages).
    * Shimmer animates only transform (a translating gradient overlay), so the
    * reduced-motion animation clamp neutralizes movement to a static block.
