@@ -108,6 +108,29 @@ defmodule Sigra.Admin.Live.UserShowLive do
             </span>
           </div>
         </div>
+
+        <dl class="sg-summary-facts">
+          <div>
+            <dt class="sg-kv__term">MFA</dt>
+            <dd class="sg-kv__value">{mfa_value(@detail.security.mfa_status)}</dd>
+          </div>
+          <div>
+            <dt class="sg-kv__term">Passkeys</dt>
+            <dd class="sg-kv__value sg-summary-facts__num">{passkey_count(@detail.security)}</dd>
+          </div>
+          <div>
+            <dt class="sg-kv__term">Active</dt>
+            <dd class="sg-kv__value sg-summary-facts__num">{length(@detail.sessions)}</dd>
+          </div>
+          <div>
+            <dt class="sg-kv__term">Last seen</dt>
+            <dd class="sg-kv__value">{last_activity(@detail.sessions)}</dd>
+          </div>
+        </dl>
+
+        <div :if={summary_alert(@detail)} class="sg-list-row" data-tone={elem(summary_alert(@detail), 0)}>
+          <p class="sg-text-sm">{elem(summary_alert(@detail), 1)}</p>
+        </div>
       </section>
 
       <section class="sg-card sg-stack sg-stack--3">
@@ -141,7 +164,12 @@ defmodule Sigra.Admin.Live.UserShowLive do
               <tr :for={session <- @detail.sessions}>
                 <td><span class="sg-strong">{session_type(session)}</span></td>
                 <td><code class="sg-code">{session.ip || "Unknown IP"}</code></td>
-                <td class="sg-muted">{activity_value(session.last_active_at)}</td>
+                <td class="sg-muted">
+                  <span class="sg-summary-facts__num">{activity_value(session.last_active_at)}</span>
+                  <span :if={relative_activity(session.last_active_at)} class="sg-muted sg-text-xs">
+                    {relative_activity(session.last_active_at)}
+                  </span>
+                </td>
                 <td class="sg-cell-right">
                   <button
                     type="button"
@@ -436,6 +464,58 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
 
   defp activity_value(_), do: "Not available"
+
+  # Normalised passkey count for the summary strip (nil → 0).
+  defp passkey_count(%{passkey_count: n}) when is_integer(n), do: n
+  defp passkey_count(_), do: 0
+
+  # Most-recent session activity across all sessions, reusing the absolute
+  # formatter. Guards the empty case so Enum.max is never called on [].
+  defp last_activity(sessions) when is_list(sessions) do
+    sessions
+    |> Enum.map(&Map.get(&1, :last_active_at))
+    |> Enum.filter(&match?(%DateTime{}, &1))
+    |> case do
+      [] -> activity_value(nil)
+      stamps -> activity_value(Enum.max(stamps, DateTime))
+    end
+  end
+
+  defp last_activity(_), do: activity_value(nil)
+
+  # Single highest-priority headline issue for the foregrounded callout.
+  # Priority: locked > unconfirmed > no-MFA. Healthy accounts return nil.
+  defp summary_alert(detail) do
+    identity = detail.identity
+
+    cond do
+      identity.locked? ->
+        {"risk", "Locked — revoke active logins and unlock below."}
+
+      not identity.confirmed? ->
+        {"warn", "Email unconfirmed — the user cannot complete sign-in."}
+
+      not mfa_enabled?(detail.security.mfa_status) ->
+        {"warn", "No MFA configured — recommend enabling a second factor."}
+
+      true ->
+        nil
+    end
+  end
+
+  # Coarse human-readable recency cue beside the absolute timestamp.
+  defp relative_activity(%DateTime{} = at) do
+    diff = DateTime.diff(DateTime.utc_now(), at, :second)
+
+    cond do
+      diff < 60 -> "just now"
+      diff < 3600 -> "#{div(diff, 60)}m ago"
+      diff < 86_400 -> "#{div(diff, 3600)}h ago"
+      true -> "#{div(diff, 86_400)}d ago"
+    end
+  end
+
+  defp relative_activity(_), do: nil
 
   defp pluralize(1, label), do: "1 #{label}"
   defp pluralize(count, label), do: "#{count} #{label}s"
