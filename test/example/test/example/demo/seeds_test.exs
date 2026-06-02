@@ -97,26 +97,26 @@ defmodule Example.Demo.SeedsTest do
              "second run/0 changed counts: first=#{inspect(first)} second=#{inspect(second)}"
 
       # And the first run actually produced data (guards against a vacuous pass).
-      assert first.demo_users == 6
+      assert first.demo_users == length(Personas.all())
       assert first.organizations == 2
     end
   end
 
   # PW-03: seeds-smoke check
-  describe "six personas + states (SEED-02, SEED-03)" do
+  describe "persona catalog + states (SEED-02, SEED-03)" do
     setup do
       assert :ok = Seeds.run()
       :ok
     end
 
-    test "seeds exactly six @demo.sigra.dev users matching the persona catalog" do
+    test "seeds exactly the @demo.sigra.dev persona catalog of users" do
       count =
         Repo.aggregate(
           from(u in User, where: like(u.email, ^"%#{@demo_domain}")),
           :count
         )
 
-      assert count == 6
+      assert count == length(Personas.all())
 
       for persona <- Personas.all() do
         assert demo_user!(persona.email), "missing seeded user #{persona.email}"
