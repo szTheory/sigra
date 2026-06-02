@@ -1097,6 +1097,73 @@
   .sg-tile:focus-visible { outline: none; box-shadow: var(--sg-focus-ring); }
 
   /* --------------------------------------------------------------------------
+   * POSTURE STRIP (demoted metrics: secondary surface, sits below the jobs)
+   * ------------------------------------------------------------------------*/
+  .sg-posture-strip {
+    background: var(--sg-color-panel-alt);
+    box-shadow: var(--sg-elev-inset);
+    padding: var(--sg-space-3);
+  }
+  /* Risk line: the one thing on the strip that must pop. */
+  .sg-posture-strip__risk {
+    text-decoration: none;
+    border-radius: var(--sg-radius-sm);
+  }
+  .sg-posture-strip__risk:focus-visible { outline: none; box-shadow: var(--sg-focus-ring); }
+
+  /* Small clickable count entry point (replaces the big tile on the strip). */
+  .sg-metric-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sg-space-1);
+    padding: var(--sg-space-2);
+    border-radius: var(--sg-radius-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow var(--sg-motion-fast) var(--sg-ease);
+  }
+  .sg-metric-link__label {
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-xs);
+    font-weight: var(--sg-weight-bold);
+    letter-spacing: var(--sg-tracking-wide);
+    text-transform: uppercase;
+  }
+  .sg-metric-link__value {
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-bold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .sg-metric-link:hover { box-shadow: var(--sg-elev-1); }
+  }
+  .sg-metric-link:focus-visible { outline: none; box-shadow: var(--sg-focus-ring); }
+
+  /* --------------------------------------------------------------------------
+   * CAPABILITY SURFACE (evaluator orientation: subordinate to the jobs)
+   * ------------------------------------------------------------------------*/
+  .sg-capability__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sg-space-1);
+    background: var(--sg-color-panel-alt);
+    padding: var(--sg-space-3);
+    border-radius: var(--sg-radius-md);
+    box-shadow: var(--sg-elev-inset);
+  }
+  .sg-capability__label {
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-bold);
+    color: var(--sg-color-ink);
+  }
+  .sg-capability__desc {
+    font-size: var(--sg-text-xs);
+    color: var(--sg-color-muted);
+    line-height: 1.4;
+  }
+
+  /* --------------------------------------------------------------------------
    * SPECIAL PANELS
    * ------------------------------------------------------------------------*/
   .sg-danger-panel {
