@@ -25,6 +25,46 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.33 — POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+
+**Shipped:** 2026-06-02
+**Phases:** 4 (150, 151, 152, 153) | **Plans:** 4
+
+### What was built
+
+- Maintainer triage cadence, bug-prioritization posture, and generated-host template-update communication rules.
+- Erlang/OTP and Hex dependency sync within the existing compatibility proof surface.
+- A formal strategic-bet evaluation gate that keeps SCIM, `sigra_lockspire`, and Threadline correlation deferred until concrete adopter demand appears.
+- A shared SQL Sandbox harness for library live-DB tests, owner-per-test rollback cleanup, and isolated query-index scratch storage.
+
+### What worked
+
+- The stale milestone audit correctly forced a real closure phase instead of letting the connection-exhaustion blocker disappear into narrative.
+- Phase 153 kept the fix bounded to test infrastructure: no runtime code changes, no example-app sandbox redesign, and no CI matrix expansion.
+- The focused Phase 153 proof was fast and decisive: 107 tests, 0 failures.
+
+### What was inefficient
+
+- Phase 153 initially had a summary but no canonical `153-VERIFICATION.md`, so milestone close had to backfill the verification artifact from fresh evidence.
+- Local focused tests still emit unrelated `Chimeway.Repo` missing database configuration startup noise; it does not block the focused proof, but it weakens full-suite signal quality.
+
+### Patterns established
+
+- Live library Postgres suites use `Sigra.Test.PostgresCase, async: false` with one sandbox owner per test.
+- Storage-destructive proofs use isolated scratch repos rather than mutating shared repo configuration.
+- Strategic bets remain gated by explicit adopter demand rather than speculative feature expansion.
+
+### Key lessons
+
+- A `gaps_found` audit can be the right answer even when most requirements are satisfied; it should drive closure work until the broken flow is truly represented by passing evidence.
+- Verification files are close-critical artifacts. A passing summary is not a substitute for the canonical phase verification report.
+
+### Cost observations
+
+- Model mix: n/a.
+- Sessions: single close session with one focused proof run.
+- Notable: the milestone-close work was mostly archival and artifact reconciliation; the only fresh test execution was the Phase 153 focused suite.
+
 ## Milestone: v1.30 — TRUST-HARDENING (Operator Confidence & Debt Closure)
 
 **Shipped:** 2026-05-29

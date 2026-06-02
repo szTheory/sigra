@@ -1,5 +1,29 @@
 # Milestones
 
+## v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS (Shipped: 2026-06-02)
+
+**Phases completed:** 4 phases, 4 plans, 3 tasks
+**Requirements:** 10/10 satisfied (MAINT-01..03, ECO-01..03, STRAT-01..03, INFRA-01)
+**Milestone audit:** passed — 10/10 requirements, 4/4 phases verified, 3/3 integration checks connected, 3/3 flows wired.
+
+**Key accomplishments:**
+
+- Formalized the post-1.0 maintainer triage cadence and generated-host template update communication rules.
+- Synced the Erlang/OTP toolchain and Hex dependencies while preserving the existing release proof surface.
+- Created the v1.33 strategic-bet evaluation gate for SCIM, `sigra_lockspire`, and Threadline correlation.
+- Shared SQL Sandbox harness for library live-DB tests with isolated query-index scratch storage.
+
+**Known deferred item at close:** Local focused Phase 153 proof passes, but full-suite local signal still includes unrelated `Chimeway.Repo` missing database configuration startup noise.
+
+**Archive:**
+
+- [v1.33 Roadmap](milestones/v1.33-ROADMAP.md)
+- [v1.33 Requirements](milestones/v1.33-REQUIREMENTS.md)
+- [v1.33 Milestone Audit](milestones/v1.33-MILESTONE-AUDIT.md)
+- [v1.33 Phase Artifacts](milestones/v1.33-phases/)
+
+---
+
 ## v1.31 DEMO-SHOWCASE (Shipped: 2026-05-31)
 
 **Phases completed:** 6 phases (141–144.2), 14 plans, all VERIFICATION = passed, all 6 phases Nyquist-compliant

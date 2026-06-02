@@ -32,24 +32,25 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
-## Latest Shipped Milestone: v1.31 DEMO-SHOWCASE
+## Latest Shipped Milestone: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
-**Shipped:** 2026-05-31 (Phases 141–144.2) · 14/14 requirements satisfied · all 6 phases Nyquist-compliant
+**Shipped:** 2026-06-02 (Phases 150–153) · 10/10 requirements satisfied · milestone audit passed
 
-Sigra now has a seed-rich evaluator showcase in `test/example/`: deterministic auth-state personas, one-command setup, dev-only credentials, realistic Vaultr framing, Playwright proof, screenshots, and evaluator-facing docs.
+Sigra has shifted into a post-1.0 stewardship posture: maintainer triage and template-update communication are documented, the toolchain and Hex dependencies are synced, strategic bets are gated by concrete adopter demand, and the live Postgres test harness is stabilized through a shared SQL Sandbox owner-per-test pattern.
 
 Archives:
-- [`.planning/milestones/v1.31-ROADMAP.md`](milestones/v1.31-ROADMAP.md)
-- [`.planning/milestones/v1.31-REQUIREMENTS.md`](milestones/v1.31-REQUIREMENTS.md)
-- [`.planning/milestones/v1.31-MILESTONE-AUDIT.md`](milestones/v1.31-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.33-ROADMAP.md`](milestones/v1.33-ROADMAP.md)
+- [`.planning/milestones/v1.33-REQUIREMENTS.md`](milestones/v1.33-REQUIREMENTS.md)
+- [`.planning/milestones/v1.33-MILESTONE-AUDIT.md`](milestones/v1.33-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.33-phases/`](milestones/v1.33-phases/)
 
-### Just shipped: v1.31 DEMO-SHOWCASE
+### Just shipped: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
-- shipped deterministic six-persona seeds for `test/example/`, including idempotent upserts, a test-env raise guard, realistic audit-event variety, Argon2id dev-cost posture, and demo-only TOTP labeling
-- shipped a dev-only `/demo/credentials` LiveView plus stdout credentials summary and Vaultr app framing so evaluators can explore the demo without setup guesswork
-- shipped an isolated `demo-showcase-chromium` Playwright partition with structural persona assertions, seed-smoke CI coverage, and committed evaluator screenshots
-- shipped the README “Try it locally” lane and `guides/introduction/demo-showcase.md` with screenshots and ExDoc wiring
-- closed milestone hygiene: validation bookkeeping finalized, Dave lockout copy corrected, stale tag links fixed, `_testInfo` renamed, ga-evidence ExDoc warning coverage restored, and the missing 144.2 verification artifact filed
+- formalized maintainer issue triage, bug prioritization, and generated-host template-update communication in maintainer/release surfaces
+- updated the Erlang/OTP toolchain target and Hex dependency lockfile while preserving the existing compatibility proof surface
+- created the v1.33 strategic-bet evaluation gate so SCIM, `sigra_lockspire`, and Threadline correlation stay deferred unless concrete adopter demand overrides maintenance-first defaults
+- stabilized the library live-DB test harness with `Sigra.Test.PostgresCase`, SQL Sandbox manual mode, owner-per-test rollback cleanup, and isolated query-index scratch storage
+- closed the stale audit blocker from the earlier connection-exhaustion finding; focused Phase 153 proof passes with 107 tests and 0 failures
 
 ## Previous Shipped Milestone: v1.30 TRUST-HARDENING
 
@@ -113,24 +114,16 @@ Archives:
 
 ## Current State
 
-`v1.32 RELEASE-ADOPTION` is in progress. Phases 145-147 are complete: the public 1.0 contract/release truth is locked, the release-ref gate and publish/recovery workflows are evidence-backed, `docs/release-runbook-v1-0.md` is the canonical maintainer runbook, and upgrade/migration lanes are wired through README, CHANGELOG, ExDoc, AI index, release evidence, and a dedicated `upgrade_smoke` proof lane. Phase 146 still has three live release-operation UAT items tracked for the actual tag/publish/HexDocs flow. Phase 151 complete — ecosystem-sync-hex-dependency-management.
+`v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` is shipped and archived. Sigra's current posture is maintenance-first: preserve the released authentication surface, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: Phase 148, evaluator funnel and first-run DX.
+Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 153.
 
-## Current Milestone: v1.32 RELEASE-ADOPTION
+## Next Milestone Goals
 
-**Goal:** Cut Sigra's real Hex `1.32.0` release and package a proof-backed adoption funnel so Phoenix teams can evaluate, install, upgrade, and trust the library without reverse-engineering its boundaries.
-
-**Target features:**
-- Direct Hex `1.32.0` release path with SemVer, changelog, Release Please, HexDocs, tag, dry-run, publish, and recovery truth aligned.
-- Public 1.0 contract covering API stability, generated-host ownership, supported Elixir/Phoenix/Ecto ranges, deprecation policy, security invariants, and explicit non-goals.
-- Upgrade and adoption lanes for current `0.3.x` users, greenfield Phoenix 1.8 apps, `phx.gen.auth` apps, and Pow/Guardian/Ueberauth-style stacks.
-- Canonical evaluator funnel over README, HexDocs, demo showcase, screenshots, proof links, and launch announcement materials.
-- First-14-day post-1.0 hotfix and adopter-triage policy.
-
-This is a release-truth and adoption milestone, not a feature milestone. No new auth primitives, framework expansion, hosted-control-plane behavior, or broad UI redesign belong in scope.
-
-Phase numbering continues from **Phase 145**. DEMO-03 (in-app per-persona explainer banner) remains a future requirement, not v1.32 scope.
+- Treat regressions, security/trust findings, release failures, dependency drift, and adopter-reported friction as the default highest-value work.
+- Keep strategic bets gated by the v1.33 decision: enterprise features such as SCIM, `sigra_lockspire`, and Threadline correlation need explicit demand before implementation.
+- Resolve the non-blocking `Chimeway.Repo` missing database configuration startup noise before using local full-suite `mix test` output as a clean release signal.
+- Avoid broad feature expansion, generated-host UI redesign, hosted-control-plane behavior, or generic authorization/compliance work unless the next milestone explicitly promotes it.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
 
@@ -766,3 +759,4 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-05-31 after v1.31 DEMO-SHOWCASE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.31-*`; live `REQUIREMENTS.md` removed for the next milestone; phases continue from **145**.*
 *Last updated: 2026-06-01 — Phase 150 (Issue Triage & Bugfix Cadence) shipped. Requirements MAINT-01..MAINT-03 validated.*
 *Last updated: 2026-06-01 — Phase 151 (Ecosystem Sync & Hex Dependency Management) complete.*
+*Last updated: 2026-06-02 after v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.33-*`, phase artifacts moved to `milestones/v1.33-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 10/10 requirements satisfied. Phases continue after **153**.*

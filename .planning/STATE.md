@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.33
 milestone_name: POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
-status: verifying
-last_updated: "2026-06-02T05:50:55.166Z"
-last_activity: 2026-06-02
+status: Awaiting next milestone
+last_updated: "2026-06-02T06:20:00.938Z"
+last_activity: 2026-06-02 — Milestone v1.33 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
@@ -21,21 +21,21 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 153 — infra-stability
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 153 (infra-stability) — EXECUTING
-Plan: 1 of 1
-Status: Phase complete — ready for verification
-Last activity: 2026-06-02
+Phase: Milestone v1.33 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-02 — Milestone v1.33 completed and archived
 
 ## Accumulating Context
 
 - `v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` roadmap created based on research in `.planning/research/SUMMARY.md`.
 - 4 phases (150–153), 10/10 requirements mapped.
-- Phase 153 focuses on DB connection sandbox stability and CI leak resolution.
-- Phase 153 context gathered in `.planning/phases/153-infra-stability/153-CONTEXT.md`.
+- Phase 153 closed the DB connection sandbox stability and CI leak-resolution blocker.
+- v1.33 phase artifacts are archived under `.planning/milestones/v1.33-phases/`.
 
 ## Deferred Items
 
@@ -44,7 +44,7 @@ Last activity: 2026-06-02
 
 ## Operator Next Steps
 
-- Create PLAN.md for Phase 153 using `.planning/phases/153-infra-stability/153-CONTEXT.md`.
+- Start the next milestone with `$gsd-new-milestone`.
 
 ### Blockers
 
