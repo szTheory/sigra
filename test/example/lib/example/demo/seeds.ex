@@ -2,12 +2,13 @@ defmodule Example.Demo.Seeds do
   @moduledoc """
   Idempotent demo-database seed orchestrator.
 
-  Calling `run/0` populates the development database with six `@demo.sigra.dev`
+  Calling `run/0` populates the development database with seven `@demo.sigra.dev`
   personas covering every notable auth state (admin with TOTP + passkey + multi-org,
-  standard user, TOTP-enrolled org owner, GitHub OAuth identity, locked-out, and
-  scheduled-deletion). It also seeds the Acme Corp and Beta Labs organizations,
-  memberships, a pending invitation, the Acme Corp SSO enterprise connection, and a
-  rich audit trail (>=15 rows, >=6 distinct action values).
+  standard user, TOTP-enrolled org owner, GitHub OAuth identity, locked-out,
+  scheduled-deletion, and a non-platform org admin). It also seeds the Acme Corp and
+  Beta Labs organizations, memberships, a pending invitation, the Acme Corp SSO
+  enterprise connection, multiple active admin sessions, and a rich audit trail
+  (>=15 rows, >=6 distinct action values).
 
   Calling `run/0` twice is safe: all inserts use `on_conflict: :nothing` keyed on
   existing unique indexes (D-02), except audit events which use a count-threshold
@@ -27,6 +28,7 @@ defmodule Example.Demo.Seeds do
   alias Example.Accounts.OrganizationInvitation
   alias Example.Accounts.UserMFACredential
   alias Example.Accounts.UserPasskey
+  alias Example.Accounts.UserSession
   alias Example.Accounts.EnterpriseConnection
   alias Example.Accounts.UserIdentity
   alias Example.Accounts.AuditEvent
@@ -50,6 +52,7 @@ defmodule Example.Demo.Seeds do
     seed_invitation(acme)
     seed_mfa_credentials(users)
     seed_passkey(users)
+    seed_sessions(users)
     seed_enterprise_connection(acme)
     seed_user_identity(users)
     seed_audit_events(users, %{acme: acme, beta: beta})
@@ -212,9 +215,11 @@ defmodule Example.Demo.Seeds do
     carol = users["carol@demo.sigra.dev"]
     bob = users["bob@demo.sigra.dev"]
     dave = users["dave@demo.sigra.dev"]
+    morgan = users["morgan@demo.sigra.dev"]
 
-    # Acme Corp: admin=owner, alice=member, carol=member
+    # Acme Corp: admin=owner, morgan=admin (non-platform), alice=member, carol=member
     upsert_membership(admin.id, acme.id, :owner)
+    upsert_membership(morgan.id, acme.id, :admin)
     upsert_membership(alice.id, acme.id, :member)
     upsert_membership(carol.id, acme.id, :member)
     upsert_membership(dave.id, acme.id, :member)
@@ -304,6 +309,49 @@ defmodule Example.Demo.Seeds do
       nickname: "Demo Security Key"
     })
     |> Repo.insert!(on_conflict: :nothing, conflict_target: [:credential_id])
+  end
+
+  ## ── Multi-session evidence for the admin persona ─────────────────────────────
+  #
+  # Seed three active sessions for the admin persona so the user-detail Sessions
+  # table renders populated. Each row carries a REQUIRED hashed_token (binary),
+  # derived deterministically so re-runs are stable, with distinct IPs and
+  # staggered last_active_at. UserSession timestamps use updated_at:false — only
+  # inserted_at is set. The unique index user_sessions_hashed_token_index makes
+  # on_conflict/conflict_target idempotency safe.
+
+  @admin_sessions [
+    %{n: "1", ip: "203.0.113.10", user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15", offset_days: 0},
+    %{n: "2", ip: "198.51.100.22", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0", offset_days: 1},
+    %{n: "3", ip: "192.0.2.44", user_agent: "Mozilla/5.0 (X11; Linux x86_64) Firefox/125.0", offset_days: 3}
+  ]
+
+  defp seed_sessions(users) do
+    admin = users["admin@demo.sigra.dev"]
+
+    Enum.each(@admin_sessions, fn session ->
+      hashed_token = :crypto.hash(:sha256, "sigra-demo-admin-session-" <> session.n)
+
+      # UserSession timestamps are :utc_datetime_usec — coerce to microsecond
+      # precision. @seed_reference_ts is second-precision, and DateTime.truncate/2
+      # leaves precision at {0, 0} (which Ecto rejects), so set {0, 6} explicitly.
+      active_at =
+        @seed_reference_ts
+        |> DateTime.add(-session.offset_days * 86_400, :second)
+        |> Map.put(:microsecond, {0, 6})
+
+      %UserSession{}
+      |> Ecto.Changeset.change(%{
+        user_id: admin.id,
+        hashed_token: hashed_token,
+        type: "standard",
+        ip: session.ip,
+        user_agent: session.user_agent,
+        last_active_at: active_at,
+        inserted_at: active_at
+      })
+      |> Repo.insert!(on_conflict: :nothing, conflict_target: [:hashed_token])
+    end)
   end
 
   ## ── Acme Corp SSO EnterpriseConnection (D-08) ────────────────────────────────
