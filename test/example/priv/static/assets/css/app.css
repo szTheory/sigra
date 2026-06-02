@@ -153,10 +153,16 @@
     --sg-color-line: rgba(255, 255, 255, 0.1);
     --sg-color-line-strong: rgba(255, 255, 255, 0.16);
     --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
-    --sg-color-risk-soft: rgba(180, 35, 24, 0.18);
-    --sg-color-warn-soft: rgba(161, 92, 0, 0.18);
-    --sg-color-ok-soft: rgba(23, 107, 67, 0.18);
-    --sg-color-info-soft: rgba(29, 78, 216, 0.18);
+    /* Lighten tone text + backgrounds for dark mode so pills/rows keep WCAG AA
+     * contrast (dark-mode tinted backgrounds need light tone text). */
+    --sg-color-ok: #5dd1a0;
+    --sg-color-warn: #f5c451;
+    --sg-color-risk: #f8a39c;
+    --sg-color-info: #9db8f5;
+    --sg-color-risk-soft: rgba(248, 113, 113, 0.16);
+    --sg-color-warn-soft: rgba(245, 196, 81, 0.16);
+    --sg-color-ok-soft: rgba(52, 211, 153, 0.16);
+    --sg-color-info-soft: rgba(120, 150, 245, 0.16);
     --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
     --sg-elev-1: 0 0 0 1px rgba(255, 255, 255, 0.09);
     --sg-elev-2: 0 0 0 1px rgba(255, 255, 255, 0.15);
@@ -1043,9 +1049,9 @@
   }
 
   .sg-impersonation {
-    border-top: 1px solid color-mix(in oklab, var(--sg-color-warn) 28%, transparent);
+    border-top: 1px solid color-mix(in oklab, var(--sg-color-warn) 36%, transparent);
     background: var(--sg-color-warn-soft);
-    color: #4a2a00;
+    color: var(--sg-color-ink);
     font-size: var(--sg-text-sm);
   }
   .sg-impersonation__inner { padding-block: var(--sg-space-3); }
