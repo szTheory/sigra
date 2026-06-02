@@ -227,8 +227,21 @@ jobs:
       - name: Install phx_new archive
         run: mix archive.install --force hex phx_new
       - name: Fetch library deps
+        env:
+          MIX_ENV: test
         run: mix deps.get
+      # Compile deps BEFORE removing threadline. On a cache miss `_build` is empty,
+      # and `mix compile --no-deps-check` (below) does not build dependencies — it
+      # would compile the library against absent Ecto/Phoenix.LiveView and fail with
+      # "module Ecto.Query is not loaded". Compiling deps first (in test env, the env
+      # the project compile uses) makes the lane robust to cache misses.
+      - name: Compile deps in test env (dep-off lane)
+        env:
+          MIX_ENV: test
+        run: mix deps.compile
       - name: Remove :threadline from dep graph (dep-off lane)
+        env:
+          MIX_ENV: test
         run: |
           mix deps.unlock threadline
           mix deps.clean threadline --build
