@@ -7,114 +7,178 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
 
   attr :admin_scope, :map, required: true
   attr :current_scope, :map, default: nil
+  attr :page_title, :string, default: nil
   slot :special_session
   slot :inner_block, required: true
 
   def admin_shell(assigns) do
     ~H"""
-    <section class="min-h-screen bg-base-100 text-base-content">
-      <header class="sticky top-0 z-30 border-b border-base-300 bg-base-200/95 backdrop-blur">
-        <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-semibold">Admin</span>
-            <span class={scope_chip_class(@admin_scope)}>{scope_label(@admin_scope)}</span>
+    <section class="sg-admin-shell" data-scope={scope_mode(@admin_scope)}>
+      <header class="sg-admin-topbar">
+        <div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
+          <div class="sg-cluster sg-cluster--3">
+            <a href={overview_link(@admin_scope)} class="sg-brand-mark">
+              <span class="sg-brand-mark__glyph" aria-hidden="true"></span>
+              <span>Admin</span>
+            </a>
+            <.scope_switcher admin_scope={@admin_scope} />
           </div>
 
-          <div class="flex items-center gap-2">
-            <.scope_switch_link href={users_link(@admin_scope)} active={users_active?(@admin_scope)}>
-              Users
-            </.scope_switch_link>
-            <.scope_switch_link
-              :if={show_global_link?(@admin_scope)}
+          <div class="sg-cluster sg-cluster--2">
+            <button
+              id="admin-cmdk"
+              type="button"
+              phx-hook="CmdK"
+              class="sg-cmdk__trigger"
+              aria-label="Open command palette"
+              data-users-href={users_link(@admin_scope)}
+              data-audit-href={audit_link(@admin_scope)}
+              data-overview-href={overview_link(@admin_scope)}
+              data-overview-label={scope_label(@admin_scope)}
+            >
+              <span>Jump to…</span>
+              <span class="sg-cmdk__trigger-kbd" aria-hidden="true">⌘K</span>
+            </button>
+
+            <a
+              :if={show_global_link?(@admin_scope) and not global_active?(@admin_scope)}
               href={~p"/admin"}
-              active={global_active?(@admin_scope)}
+              class="sg-btn sg-btn--ghost sg-btn--sm"
             >
-              Global
-            </.scope_switch_link>
-            <.scope_switch_link
-              :if={organization_link(@admin_scope)}
-              href={organization_link(@admin_scope)}
-              active={organization_active?(@admin_scope)}
-            >
-              Organization
-            </.scope_switch_link>
+              Exit to global
+            </a>
           </div>
         </div>
 
         <.impersonation_banner :if={impersonating?(@current_scope)} current_scope={@current_scope} />
       </header>
 
-      <div class="mx-auto flex max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:px-8">
-        <aside class="hidden w-64 shrink-0 lg:block">
-          <nav aria-label="Admin navigation" class="space-y-4">
-            <div class="rounded-lg bg-base-200 p-3">
-              <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Operations</p>
-              <ul class="menu gap-1 p-0">
-                <li>
-                  <a
-                    class={nav_item_class(users_active?(@admin_scope))}
-                    href={users_link(@admin_scope)}
-                  >
-                    Users
-                  </a>
-                </li>
-                <li>
-                  <a class={nav_item_class(false)} href={audit_link(@admin_scope)}>
-                    Audit
-                  </a>
-                </li>
-              </ul>
-            </div>
+      <div class="sg-container sg-admin-content">
+        <nav
+          :if={not overview_active?(@page_title)}
+          class="sg-admin-crumbs"
+          aria-label="Breadcrumb"
+        >
+          <ol class="sg-breadcrumb">
+            <li>
+              <a class="sg-breadcrumb__item" href={overview_link(@admin_scope)}>
+                {scope_label(@admin_scope)}
+              </a>
+            </li>
+            <li class="sg-breadcrumb__sep" aria-hidden="true">/</li>
+            <li>
+              <span class="sg-breadcrumb__item" aria-current="page">{@page_title}</span>
+            </li>
+          </ol>
+        </nav>
 
-            <div class="rounded-lg bg-base-200 p-3">
-              <p class="mb-2 text-xs font-semibold uppercase text-base-content/60">Overview</p>
-              <ul class="menu gap-1 p-0">
-                <li>
-                  <a class={nav_item_class(global_active?(@admin_scope))} href={~p"/admin"}>Global</a>
-                </li>
-                <li :if={organization_link(@admin_scope)}>
-                  <a
-                    class={nav_item_class(organization_active?(@admin_scope))}
-                    href={organization_link(@admin_scope)}
-                  >
-                    Organization
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </nav>
-        </aside>
+        <div class="sg-admin-body">
+          <aside class="sg-admin-sidebar">
+            <nav aria-label="Admin navigation" class="sg-stack">
+              <div class="sg-nav-card">
+                <p class="sg-nav-title">Workspace</p>
+                <ul class="sg-stack sg-stack--2">
+                  <li>
+                    <a class={nav_item_class(users_active?(@page_title))} href={users_link(@admin_scope)}>
+                      Users
+                    </a>
+                  </li>
+                  <li>
+                    <a class={nav_item_class(audit_active?(@page_title))} href={audit_link(@admin_scope)}>
+                      Audit
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-        <main class="min-w-0 flex-1 space-y-4">
-          {render_slot(@inner_block)}
-        </main>
+              <div class="sg-nav-card">
+                <p class="sg-nav-title">Overviews</p>
+                <ul class="sg-stack sg-stack--2">
+                  <li :if={show_global_link?(@admin_scope)}>
+                    <a
+                      class={nav_item_class(overview_active?(@page_title) and global_active?(@admin_scope))}
+                      href={~p"/admin"}
+                    >
+                      Global overview
+                    </a>
+                  </li>
+                  <li :if={organization_link(@admin_scope)}>
+                    <a
+                      class={nav_item_class(overview_active?(@page_title) and organization_active?(@admin_scope))}
+                      href={organization_link(@admin_scope)}
+                    >
+                      Organization overview
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+          </aside>
+
+          <main class="sg-admin-main sg-stack sg-stack--5">
+            {render_slot(@inner_block)}
+          </main>
+        </div>
       </div>
 
-      <nav
-        aria-label="Admin bottom nav"
-        class="btm-nav border-t border-base-300 bg-base-200 lg:hidden"
-      >
+      <nav aria-label="Admin bottom nav" class="sg-bottom-nav sg-show-mobile">
         <a
           href={users_link(@admin_scope)}
-          class={bottom_nav_class(users_active?(@admin_scope))}
+          class={["sg-bottom-nav__item", bottom_nav_class(users_active?(@page_title))]}
         >
-          <span class="btm-nav-label">Users</span>
-        </a>
-        <a href={~p"/admin"} class={bottom_nav_class(global_active?(@admin_scope))}>
-          <span class="btm-nav-label">Global</span>
+          <span>Users</span>
         </a>
         <a
-          :if={organization_link(@admin_scope)}
-          href={organization_link(@admin_scope)}
-          class={bottom_nav_class(organization_active?(@admin_scope))}
+          href={overview_link(@admin_scope)}
+          class={["sg-bottom-nav__item", bottom_nav_class(overview_active?(@page_title))]}
         >
-          <span class="btm-nav-label">Organization</span>
+          <span>{scope_label(@admin_scope)}</span>
         </a>
-        <a href={audit_link(@admin_scope)} class={bottom_nav_class(false)}>
-          <span class="btm-nav-label">Audit</span>
+        <a
+          href={audit_link(@admin_scope)}
+          class={["sg-bottom-nav__item", bottom_nav_class(audit_active?(@page_title))]}
+        >
+          <span>Audit</span>
         </a>
       </nav>
     </section>
+    """
+  end
+
+  attr :admin_scope, :map, required: true
+
+  defp scope_switcher(assigns) do
+    assigns = assign(assigns, :targets, scope_targets(assigns.admin_scope))
+
+    ~H"""
+    <details :if={length(@targets) > 1} class="sg-scope-switch">
+      <summary class={scope_chip_class(@admin_scope)}>
+        <span
+          :if={@admin_scope.mode == :organization}
+          class="sg-scope-pill__tenant"
+          aria-hidden="true"
+        >⌂</span>
+        {scope_chip_label(@admin_scope)}
+      </summary>
+      <div class="sg-scope-switch__menu">
+        <a
+          :for={target <- @targets}
+          href={target.href}
+          class="sg-scope-switch__item"
+          aria-current={to_string(target.current?)}
+        >
+          {target.label}
+        </a>
+      </div>
+    </details>
+    <span :if={length(@targets) <= 1} class={scope_chip_class(@admin_scope)}>
+      <span
+        :if={@admin_scope.mode == :organization}
+        class="sg-scope-pill__tenant"
+        aria-hidden="true"
+      >⌂</span>
+      {scope_chip_label(@admin_scope)}
+    </span>
     """
   end
 
@@ -122,33 +186,47 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
 
   def impersonation_banner(assigns) do
     ~H"""
-    <section class="border-t border-base-300 bg-warning/15 text-warning-content">
-      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <div class="space-y-1 text-sm">
-          <p class="font-semibold">Impersonating {user_label(@current_scope.user)}</p>
+    <section class="sg-impersonation">
+      <div class="sg-impersonation__inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
+        <div class="sg-stack sg-stack--2">
+          <p class="sg-impersonation__primary">Impersonating {user_label(@current_scope.user)}</p>
           <p>Signed in as {user_label(@current_scope.impersonating_from)}</p>
         </div>
 
         <form method="post" action={~p"/impersonation"}>
           <input type="hidden" name="_method" value="delete" />
           <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
-          <button type="submit" class="btn btn-sm btn-warning">End impersonation</button>
+          <button type="submit" class="sg-btn sg-btn--danger sg-btn--sm">End impersonation</button>
         </form>
       </div>
     </section>
     """
   end
 
-  attr :href, :string, required: true
-  attr :active, :boolean, default: false
-  slot :inner_block, required: true
+  defp scope_targets(admin_scope) do
+    global =
+      if show_global_link?(admin_scope) do
+        [%{label: "Global overview", href: "/admin", current?: global_active?(admin_scope)}]
+      else
+        []
+      end
 
-  defp scope_switch_link(assigns) do
-    ~H"""
-    <a href={@href} class={["btn btn-sm", if(@active, do: "btn-primary", else: "btn-ghost")]}>
-      {render_slot(@inner_block)}
-    </a>
-    """
+    organization =
+      case organization_link(admin_scope) do
+        nil ->
+          []
+
+        href ->
+          [
+            %{
+              label: "#{scope_label(admin_scope)} overview",
+              href: href,
+              current?: organization_active?(admin_scope)
+            }
+          ]
+      end
+
+    global ++ organization
   end
 
   defp scope_label(%{mode: :global}), do: "Global"
@@ -156,9 +234,13 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
   defp scope_label(%{mode: :organization, organization_slug: slug}) when is_binary(slug), do: slug
   defp scope_label(_), do: "Unknown scope"
 
-  defp scope_chip_class(%{mode: :global}), do: "badge badge-primary"
-  defp scope_chip_class(%{mode: :organization}), do: "badge badge-secondary"
-  defp scope_chip_class(_), do: "badge badge-ghost"
+  defp scope_chip_class(_admin_scope), do: "sg-scope-pill"
+
+  defp scope_mode(%{mode: :organization}), do: "organization"
+  defp scope_mode(_), do: "global"
+
+  defp scope_chip_label(%{mode: :organization} = s), do: "Org · " <> scope_label(s)
+  defp scope_chip_label(s), do: scope_label(s)
 
   defp impersonating?(%{impersonating_from: %_{}}), do: true
   defp impersonating?(_), do: false
@@ -171,6 +253,12 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
   defp show_global_link?(%{mode: :global}), do: true
   defp show_global_link?(%{platform_admin?: true}), do: true
   defp show_global_link?(_), do: false
+
+  defp overview_link(%{mode: :organization, organization_slug: slug}) when is_binary(slug) do
+    ~p"/admin/organizations/#{slug}"
+  end
+
+  defp overview_link(_), do: ~p"/admin"
 
   defp organization_link(%{mode: :organization, organization_slug: slug}) when is_binary(slug) do
     ~p"/admin/organizations/#{slug}"
@@ -188,7 +276,22 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
 
   defp audit_link(_admin_scope), do: "/admin/audit"
 
-  defp users_active?(_admin_scope), do: true
+  defp users_active?(title) when is_binary(title) do
+    title = String.downcase(title)
+    String.contains?(title, "user") and not String.contains?(title, "audit")
+  end
+
+  defp users_active?(_), do: false
+
+  defp audit_active?(title) when is_binary(title),
+    do: String.contains?(String.downcase(title), "audit")
+
+  defp audit_active?(_), do: false
+
+  defp overview_active?(title) when is_binary(title),
+    do: String.contains?(String.downcase(title), "overview")
+
+  defp overview_active?(_), do: false
 
   defp global_active?(%{mode: :global}), do: true
   defp global_active?(_), do: false
@@ -196,8 +299,8 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
   defp organization_active?(%{mode: :organization}), do: true
   defp organization_active?(_), do: false
 
-  defp nav_item_class(true), do: "active rounded-md"
-  defp nav_item_class(false), do: "rounded-md"
+  defp nav_item_class(true), do: "sg-nav-link active"
+  defp nav_item_class(false), do: "sg-nav-link"
 
   defp bottom_nav_class(true), do: "active"
   defp bottom_nav_class(false), do: ""

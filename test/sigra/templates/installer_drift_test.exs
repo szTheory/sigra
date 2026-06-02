@@ -258,8 +258,9 @@ defmodule Sigra.Templates.InstallerDriftTest do
         {"users_link/1 helper defined", ~r/defp users_link\(/, ~r/defp users_link\(/},
         {"at least one href={users_link(@admin_scope)} usage",
          ~r/href=\{users_link\(@admin_scope\)\}/, ~r/href=\{users_link\(@admin_scope\)\}/},
-        {"mobile bottom-nav Users label present", ~r/btm-nav-label">Users</,
-         ~r/btm-nav-label">Users</}
+        {"mobile bottom-nav Users label present (live sg-bottom-nav link)",
+         ~r/href=\{users_link\(@admin_scope\)\}\s*class=\{\["sg-bottom-nav__item"[\s\S]*?<span>Users<\/span>/,
+         ~r/href=\{users_link\(@admin_scope\)\}\s*class=\{\["sg-bottom-nav__item"[\s\S]*?<span>Users<\/span>/}
       ],
       must_not: [
         {"dead <span>Users</span> navigation item absent",
