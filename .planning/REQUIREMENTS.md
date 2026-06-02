@@ -31,7 +31,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase (phases 
 
 ### Infrastructure Stability (INFRA)
 
-- [ ] **INFRA-01**: DB connection sandbox is stabilized and CI connection leaks are resolved, ensuring deterministic test runs and reliable resource cleanup in the build pipeline.
+- [x] **INFRA-01**: DB connection sandbox is stabilized and CI connection leaks are resolved, ensuring deterministic test runs and reliable resource cleanup in the build pipeline.
 
 ## Out of Scope
 

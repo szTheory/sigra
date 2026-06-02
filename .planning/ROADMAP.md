@@ -8,7 +8,7 @@
 - [x] **Phase 150: Issue Triage & Bugfix Cadence** - Establish a repeatable process for monitoring adopter feedback, diagnosing friction, and patching bugs. (completed 2026-06-01)
 - [x] **Phase 151: Ecosystem Sync & Hex Dependency Management** - Routine dependency bumps and verifying framework/OTP compatibility. (completed 2026-06-01)
 - [x] **Phase 152: Strategic Bet Evaluation Gate** - A formal checkpoint to evaluate if accumulated adopter demand warrants future work on strategic bets. (completed 2026-06-01)
-- [ ] **Phase 153: Infrastructure Stability & CI Hardening** - Stabilize DB connection sandbox and resolve CI connection leaks to ensure reliable, deterministic test execution.
+- [x] **Phase 153: Infrastructure Stability & CI Hardening** - Stabilize DB connection sandbox and resolve CI connection leaks to ensure reliable, deterministic test execution. (completed 2026-06-02)
 
 ---
 
@@ -56,7 +56,7 @@
   2. CI runs no longer exhibit database connection leaks or resource exhaustion.
   3. Test cleanup logic is verified to be robust for both local and CI environments.
 **Plans**: 1 plan
-- [ ] 153-01-PLAN.md — Stabilize DB connection sandbox and resolve CI connection leaks
+- [x] 153-01-PLAN.md — Stabilize DB connection sandbox and resolve CI connection leaks
 
 ---
 
@@ -67,4 +67,4 @@
 | 150. Issue Triage & Bugfix Cadence | 1/1 | Complete    | 2026-06-01 |
 | 151. Ecosystem Sync & Hex Dependency Management | 1/1 | Complete    | 2026-06-01 |
 | 152. Strategic Bet Evaluation Gate | 1/1 | Complete   | 2026-06-01 |
-| 153. Infrastructure Stability & CI Hardening | 0/1 | Active     | - |
+| 153. Infrastructure Stability & CI Hardening | 1/1 | Complete   | 2026-06-02 |
