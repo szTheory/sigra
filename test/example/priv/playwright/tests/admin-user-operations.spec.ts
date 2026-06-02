@@ -63,7 +63,9 @@ async function expectScopeChrome(page: Page, scopeLabel: string) {
   const header = page.locator('header').first();
 
   await expect(header.getByText('Admin', { exact: true })).toBeVisible();
-  await expect(header.getByText(scopeLabel, { exact: true }).first()).toBeVisible();
+  // Org scope renders a tenant-marked chip ("Org · {name}"); global stays "Global".
+  // Substring match keeps the scope label assertion robust to that prefix/glyph.
+  await expect(header.getByText(scopeLabel, { exact: false }).first()).toBeVisible();
 }
 
 test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () => {

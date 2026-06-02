@@ -36,7 +36,7 @@ defmodule <%= web_module %>.Components.AdminShell do
               data-overview-href={overview_link(@admin_scope)}
               data-overview-label={scope_label(@admin_scope)}
             >
-              <span>Search…</span>
+              <span>Jump to…</span>
               <span class="sg-cmdk__trigger-kbd" aria-hidden="true">⌘K</span>
             </button>
 
