@@ -31,14 +31,22 @@ if Code.ensure_loaded?(Postgrex) do
       {:ok, repo: Sigra.Test.PostgresRepo, sandbox_owner: sandbox_owner}
     end
 
-    def checkout_repo!(fun) when is_function(fun, 1) do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)
+    @doc """
+    Runs `fun` against the test repo with a real, **non-sandboxed** connection.
 
-      try do
+    Use this for one-time DDL (e.g. `CREATE TABLE IF NOT EXISTS` in `setup_all`).
+    A plain `Sandbox.checkout/1` wraps the work in the per-test transaction that
+    the sandbox rolls back, so DDL never persists — it only appears to work on a
+    dev database that already happens to hold the tables from an earlier run. On
+    a fresh database (CI) those tables are absent and every test in the module
+    fails with `relation "..." does not exist`. `unboxed_run/2` runs outside the
+    sandbox so the DDL commits durably; per-test row inserts still roll back via
+    each test's own sandbox owner.
+    """
+    def checkout_repo!(fun) when is_function(fun, 1) do
+      Ecto.Adapters.SQL.Sandbox.unboxed_run(Sigra.Test.PostgresRepo, fn ->
         fun.(Sigra.Test.PostgresRepo)
-      after
-        Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)
-      end
+      end)
     end
   end
 end
