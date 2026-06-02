@@ -85,7 +85,14 @@ defmodule Sigra.Audit.QueryIndexTest do
     """)
 
     on_exit(fn ->
-      if Process.alive?(pid), do: GenServer.stop(pid)
+      if Process.alive?(pid) do
+        try do
+          GenServer.stop(pid)
+        catch
+          :exit, _ -> :ok
+        end
+      end
+
       _ = Ecto.Adapters.Postgres.storage_down(config)
     end)
 
