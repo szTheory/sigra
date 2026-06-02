@@ -25,27 +25,40 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="space-y-6">
+    <section class="sg-stack sg-stack--6">
       <header class="sg-page-header">
         <p class="sg-page-kicker">Organization overview</p>
-        <h1 class="sg-page-title text-3xl font-semibold">{@organization_name}</h1>
-        <p class="sg-page-copy text-sm text-base-content/70">
+        <h1 class="sg-page-title">{@organization_name}</h1>
+        <p class="sg-page-copy">
           Work inside this organization scope: support members, inspect security posture, and review audit evidence without losing tenant context.
         </p>
       </header>
 
-      <dl class="sg-metric-grid">
-        <.metric label="Users" value={Map.get(@summary_counts, :total, 0)} />
-        <.metric label="Confirmed" value={Map.get(@summary_counts, :confirmed, 0)} tone="ok" />
-        <.metric label="MFA enabled" value={Map.get(@summary_counts, :mfa, 0)} />
-        <.metric label="Locked" value={Map.get(@summary_counts, :locked, 0)} tone="risk" />
-      </dl>
+      <div class="sg-metric-grid">
+        <.tile label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
+        <.tile
+          label="Confirmed"
+          value={Map.get(@summary_counts, :confirmed, 0)}
+          href={users_path(@admin_scope) <> "?confirmed=true"}
+        />
+        <.tile
+          label="MFA enabled"
+          value={Map.get(@summary_counts, :mfa, 0)}
+          href={users_path(@admin_scope) <> "?mfa=true"}
+        />
+        <.tile
+          label="Locked"
+          value={Map.get(@summary_counts, :locked, 0)}
+          tone="risk"
+          href={users_path(@admin_scope) <> "?locked=true"}
+        />
+      </div>
 
-      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <div class="sg-toolbar">
-          <div>
+      <section class="sg-card sg-stack sg-stack--3">
+        <div class="sg-cluster sg-cluster--between">
+          <div class="sg-stack sg-stack--1">
             <h2 class="sg-section-heading">Scoped attention</h2>
-            <p class="sg-section-copy mt-1">
+            <p class="sg-section-copy">
               Keep support and evidence collection bounded to {@organization_name}.
             </p>
           </div>
@@ -54,10 +67,12 @@ defmodule Sigra.Admin.Live.OrganizationLive do
           </span>
         </div>
 
-        <div class="sg-list mt-4">
+        <div class="sg-list">
           <div class="sg-list-row" data-tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: "risk", else: nil)}>
             <p class="sg-meta-label">Risk queue</p>
-            <p class="sg-meta-value">{Map.get(@summary_counts, :locked, 0)} locked users in this organization</p>
+            <p class="sg-meta-value">
+              {locked_summary(Map.get(@summary_counts, :locked, 0))} in this organization
+            </p>
           </div>
           <div class="sg-list-row">
             <p class="sg-meta-label">Evidence boundary</p>
@@ -66,7 +81,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </div>
       </section>
 
-      <div class="grid gap-4 lg:grid-cols-2">
+      <div class="sg-grid sg-grid--2">
         <.task_card
           title="Support organization users"
           body="Search members, open account detail, and pivot through session, security, and membership state."
@@ -86,17 +101,18 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   attr :label, :string, required: true
   attr :value, :integer, required: true
+  attr :href, :string, required: true
   attr :tone, :string, default: nil
 
-  defp metric(assigns) do
+  defp tile(assigns) do
     ~H"""
-    <div class="sg-metric">
-      <dt>{@label}</dt>
-      <dd>{@value}</dd>
-      <span :if={@tone} class="sg-status-pill mt-3" data-tone={@tone}>
+    <a href={@href} class="sg-tile">
+      <span class="sg-metric__label">{@label}</span>
+      <span class="sg-metric__value">{@value}</span>
+      <span :if={@tone} class="sg-status-pill sg-tile__pill" data-tone={@tone}>
         {status_label(@tone)}
       </span>
-    </div>
+    </a>
     """
   end
 
@@ -107,12 +123,14 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   defp task_card(assigns) do
     ~H"""
-    <article class="sg-card sg-card-hover rounded-lg border border-base-300 bg-base-100 p-5">
-      <h2 class="sg-section-heading">{@title}</h2>
-      <p class="sg-section-copy mt-2 min-h-14">{@body}</p>
-      <a href={@href} class="sg-press btn btn-primary mt-4 min-h-11 w-full sm:w-auto">
-        {@action}
-      </a>
+    <article class="sg-card sg-card-hover sg-stack sg-stack--3">
+      <div class="sg-stack sg-stack--2">
+        <h2 class="sg-section-heading">{@title}</h2>
+        <p class="sg-section-copy">{@body}</p>
+      </div>
+      <div class="sg-cluster">
+        <a href={@href} class="sg-btn sg-btn--primary">{@action}</a>
+      </div>
     </article>
     """
   end
@@ -130,6 +148,9 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   defp status_label("ok"), do: "Healthy"
   defp status_label("risk"), do: "Risk"
   defp status_label(_), do: ""
+
+  defp locked_summary(1), do: "1 locked user"
+  defp locked_summary(count), do: "#{count} locked users"
 
   defp runtime_config! do
     otp_app =
