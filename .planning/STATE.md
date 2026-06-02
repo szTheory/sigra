@@ -48,6 +48,7 @@ Last activity: 2026-06-02 — Milestone v1.33 completed and archived
 | 260602-hoz | Admin-UI Pass 2 Stage 4 — summary-first user detail (security facts strip: MFA/passkeys/active/last-seen + foregrounded risk callout; session recency cue) | 2026-06-02 | 1b2e56cd |
 | 260602-hvx | Admin-UI Pass 2 Stage 5 — investigator-shaped audit (Outcome select, from/to date range, applied-filter chips, failure→risk outcome pill, teaching empty) on index + per-user | 2026-06-02 | 92abb7ce |
 | 260602-i3m | Admin-UI Pass 2 Stage 6 — org overview made real: new `Sigra.Admin.Organizations.Detail` (member roster + pending-invitations, org-scoped/fails-closed) + render + Morgan org-admin persona + multi-session seeds + 11 library tests | 2026-06-02 | c11a7848, 425ae1cf |
+| 260602-ikd | Admin-UI Pass 2 Stage 7 — Cmd-K command palette + copy-to-clipboard (plain-JS hooks injected into the hand-maintained example bundle, node-check + boot-smoke verified; hidden-until-hook progressive enhancement) + sg-cmdk overlay | 2026-06-02 | 87e9d375, ba364d71, 1452c5fd |
 
 > Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
 
