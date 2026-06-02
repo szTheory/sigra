@@ -92,7 +92,10 @@
   --sg-control-md: 2.75rem;
   --sg-control-lg: 3rem;
 
-  /* Elevation ladder */
+  /* Elevation ladder.
+   * Tinting convention: token-level neutral shadows use raw rgba() (below and in
+   * the dark-mode overrides); component-level brand/tone tints use
+   * color-mix(in oklab, <token> ... ). Do not churn one into the other. */
   --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
   --sg-elev-1:
     0 0 0 1px rgba(21, 21, 21, 0.06),
@@ -106,11 +109,13 @@
     0 0 0 1px rgba(21, 21, 21, 0.12),
     0 12px 28px -12px rgba(21, 21, 21, 0.4),
     0 30px 64px -32px rgba(21, 21, 21, 0.5);
-  /* Back-compat aliases (existing rules reference these names) */
-  --sg-shadow-border: var(--sg-elev-1);
-  --sg-shadow-border-hover: var(--sg-elev-2);
 
-  /* Motion */
+  /* Motion.
+   * Budget mapping: press=120ms · pop=180ms · panel=medium(220ms) ·
+   * overlay=slow(300ms). ease-out for enters; never ease-in for enters;
+   * flat ease-out (not spring) on destructive. */
+  --sg-motion-press: 120ms;
+  --sg-motion-pop: 180ms;
   --sg-motion-fast: 140ms;
   --sg-motion-medium: 220ms;
   --sg-motion-slow: 300ms;
@@ -135,12 +140,21 @@
   --sg-z-base: 0;
   --sg-z-nav: 30;
   --sg-z-dropdown: 40;
-  --sg-z-modal: 50;
+  --sg-z-modal: 50; /* reserved for the Stage-1 Cmd-K command palette — do not remove */
   --sg-z-toast: 60;
 
   /* Layout */
   --sg-container-max: 80rem;
   --sg-breakpoint-lg: 1024px;
+  --sg-measure: 68ch; /* prose measure cap */
+
+  /* Component sizing tokens (named values with no spacing-scale fit) */
+  --sg-pill-h: 1.625rem;
+  --sg-pill-gap: 0.3rem;
+  --sg-pill-pad-y: 0.1875rem;
+  --sg-pill-pad-x: 0.625rem;
+  --sg-bottom-nav-gap: 0.125rem;
+  --sg-code-pad-y: 0.0625rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -354,7 +368,7 @@
   .sg-brand-mark {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--sg-space-2);
     font-size: var(--sg-text-sm);
     font-weight: var(--sg-weight-semibold);
     letter-spacing: 0;
@@ -379,11 +393,11 @@
   .sg-status-pill,
   .sg-badge {
     display: inline-flex;
-    min-height: 1.625rem;
+    min-height: var(--sg-pill-h);
     align-items: center;
-    gap: 0.3rem;
+    gap: var(--sg-pill-gap);
     border-radius: var(--sg-radius-full);
-    padding: 0.1875rem 0.625rem;
+    padding: var(--sg-pill-pad-y) var(--sg-pill-pad-x);
     font-size: var(--sg-text-xs);
     font-weight: var(--sg-weight-semibold);
     line-height: 1;
@@ -414,7 +428,29 @@
   .sg-badge--info { background: var(--sg-color-info-soft); color: var(--sg-color-info); box-shadow: none; }
   .sg-badge--brand { background: var(--sg-color-brand-soft); color: var(--sg-color-brand-strong); box-shadow: none; }
 
-  /* A small dot that can precede pill text to reinforce tone */
+  /* Status redundancy (WCAG 1.4.1): every TONED pill gains a non-color glyph
+   * cue via ::before, keyed on [data-tone], so color is never the only signal.
+   * The glyph inherits the tone color via currentColor (light + dark — tone text
+   * colors are remapped for dark mode in the token block). Neutral pills (no
+   * data-tone) intentionally get no glyph. This is the automatic path; the
+   * explicit .sg-status-pill__dot below stays for any future dot markup. */
+  .sg-status-pill[data-tone]::before {
+    content: "";
+    flex-shrink: 0;
+    line-height: 1;
+    font-size: var(--sg-text-2xs);
+    font-weight: var(--sg-weight-bold);
+  }
+  /* Trailing \FE0E (VS15) forces TEXT presentation so these glyphs render
+   * monochrome and inherit currentColor, instead of as colored emoji on
+   * macOS/iOS (notably \26A0 warning) which would break tone-color + alignment. */
+  .sg-status-pill[data-tone="ok"]::before { content: "\2713\FE0E"; }   /* ✓ check */
+  .sg-status-pill[data-tone="warn"]::before { content: "\26A0\FE0E"; } /* ⚠ warning */
+  .sg-status-pill[data-tone="risk"]::before { content: "\2715\FE0E"; } /* ✕ cross */
+  .sg-status-pill[data-tone="info"]::before { content: "\0069"; }      /* i info */
+
+  /* A small dot that can precede pill text to reinforce tone (explicit markup
+   * path; the [data-tone]::before glyph above is the automatic CSS-only path). */
   .sg-status-pill__dot {
     width: 0.5rem;
     height: 0.5rem;
@@ -483,7 +519,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.125rem;
+    gap: var(--sg-bottom-nav-gap);
     min-height: 3.5rem;
     padding: var(--sg-space-2);
     color: var(--sg-color-muted);
@@ -612,7 +648,7 @@
     text-wrap: balance;
   }
   .sg-page-copy {
-    max-width: 68ch;
+    max-width: var(--sg-measure);
     color: var(--sg-color-muted);
     line-height: var(--sg-leading-normal);
     text-wrap: pretty;
@@ -622,15 +658,13 @@
     display: grid;
     gap: var(--sg-space-2);
   }
-  .sg-section-heading,
-  .sg-section__heading {
+  .sg-section-heading {
     font-size: var(--sg-text-md);
     font-weight: var(--sg-weight-bold);
     letter-spacing: 0;
     line-height: var(--sg-leading-snug);
   }
-  .sg-section-copy,
-  .sg-section__copy {
+  .sg-section-copy {
     color: var(--sg-color-muted);
     font-size: var(--sg-text-sm);
   }
@@ -872,6 +906,7 @@
     display: grid;
     gap: var(--sg-space-3);
   }
+  /* Both names referenced in markup — intentional aliases, do not collapse. */
   .sg-kv__term,
   .sg-meta-label {
     color: var(--sg-color-muted);
@@ -880,6 +915,7 @@
     letter-spacing: var(--sg-tracking-wide);
     text-transform: uppercase;
   }
+  /* Both names referenced in markup — intentional aliases, do not collapse. */
   .sg-kv__value,
   .sg-meta-value {
     color: var(--sg-color-ink);
@@ -905,7 +941,7 @@
     color: var(--sg-color-muted);
     font-size: var(--sg-text-xs);
     font-variant-numeric: tabular-nums;
-    padding: 0.0625rem 0.25rem;
+    padding: var(--sg-code-pad-y) var(--sg-space-1);
   }
 
   /* --------------------------------------------------------------------------
@@ -1000,6 +1036,7 @@
     box-shadow: var(--sg-elev-1);
     padding: var(--sg-space-4);
   }
+  /* Both selector forms referenced in markup (dl dt/dd and BEM) — do not collapse. */
   .sg-metric dt,
   .sg-metric__label {
     color: var(--sg-color-muted);
@@ -1008,6 +1045,7 @@
     letter-spacing: var(--sg-tracking-wide);
     text-transform: uppercase;
   }
+  /* Both selector forms referenced in markup (dl dt/dd and BEM) — do not collapse. */
   .sg-metric dd,
   .sg-metric__value {
     margin-top: var(--sg-space-1);
@@ -1078,6 +1116,54 @@
     box-shadow: var(--sg-elev-3);
     padding: var(--sg-space-3) var(--sg-space-4);
     font-size: var(--sg-text-sm);
+  }
+  /* Toast enter/leave — opacity + transform only (composite-safe). Enter pops
+   * up from below; leave is faster than enter (budget) and flat ease-out (never
+   * ease-in for enters, never a destructive spring, no collapse-to-zero scale).
+   * Under reduced motion the global animation-duration clamp neutralizes both
+   * keyframes to a static end state. */
+  .sg-toast--enter {
+    animation: sg-toast-enter var(--sg-motion-pop) var(--sg-ease-out) both;
+  }
+  .sg-toast--leave {
+    animation: sg-toast-leave var(--sg-motion-press) var(--sg-ease-out) both;
+  }
+  @keyframes sg-toast-enter {
+    from { opacity: 0; transform: translateY(0.5rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes sg-toast-leave {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(0.5rem); }
+  }
+
+  /* --------------------------------------------------------------------------
+   * SKELETON — reusable loading placeholder (used by later stages).
+   * Shimmer animates only transform (a translating gradient overlay), so the
+   * reduced-motion animation clamp neutralizes movement to a static block.
+   * ------------------------------------------------------------------------*/
+  .sg-skeleton {
+    position: relative;
+    overflow: hidden;
+    min-height: var(--sg-space-4);
+    border-radius: var(--sg-radius-sm);
+    background: color-mix(in oklab, var(--sg-color-line) 60%, transparent);
+  }
+  .sg-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--sg-color-panel) 70%, transparent),
+      transparent
+    );
+    transform: translateX(-100%);
+    animation: sg-skeleton-shimmer var(--sg-motion-slow) var(--sg-ease) infinite;
+  }
+  @keyframes sg-skeleton-shimmer {
+    to { transform: translateX(100%); }
   }
 }
 
