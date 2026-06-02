@@ -49,6 +49,7 @@ Last activity: 2026-06-02 — Milestone v1.33 completed and archived
 | 260602-hvx | Admin-UI Pass 2 Stage 5 — investigator-shaped audit (Outcome select, from/to date range, applied-filter chips, failure→risk outcome pill, teaching empty) on index + per-user | 2026-06-02 | 92abb7ce |
 | 260602-i3m | Admin-UI Pass 2 Stage 6 — org overview made real: new `Sigra.Admin.Organizations.Detail` (member roster + pending-invitations, org-scoped/fails-closed) + render + Morgan org-admin persona + multi-session seeds + 11 library tests | 2026-06-02 | c11a7848, 425ae1cf |
 | 260602-ikd | Admin-UI Pass 2 Stage 7 — Cmd-K command palette + copy-to-clipboard (plain-JS hooks injected into the hand-maintained example bundle, node-check + boot-smoke verified; hidden-until-hook progressive enhancement) + sg-cmdk overlay | 2026-06-02 | 87e9d375, ba364d71, 1452c5fd |
+| 260602-stage8 | Admin-UI Pass 2 Stage 8 — evidence/baselines/parity: caught+fixed 2 behavioral regressions (Cmd-K 'Jump to…' relabel, scope-chrome assertion), ruled out passkey CDP env failure, regenerated 19 baselines (axe green chromium/mobile/dark), all gates green (lib 55/55, example admin 33/33, parity OK, warnings-clean) | 2026-06-02 | 2581fa4a, 4baselines |
 
 > Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
 
