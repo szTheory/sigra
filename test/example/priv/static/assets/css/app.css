@@ -1119,6 +1119,23 @@
     line-height: 1;
   }
 
+  /* Summary-first facts strip (user detail top card): horizontal, wrapping
+   * term/value pairs. Owns LAYOUT only — sg-kv__term/__value style the text. */
+  .sg-summary-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sg-space-5);
+    margin-top: var(--sg-space-3);
+  }
+  .sg-summary-facts > div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sg-space-1);
+  }
+  .sg-summary-facts__num {
+    font-variant-numeric: tabular-nums;
+  }
+
   /* Clickable triage tile (metric that links to a filtered view) */
   .sg-tile {
     display: flex;
