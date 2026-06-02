@@ -24,6 +24,8 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, :needs_review, needs_review(assigns.summary_counts))
+
     ~H"""
     <section class="sg-stack sg-stack--6">
       <header class="sg-page-header">
@@ -34,23 +36,18 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </p>
       </header>
 
-      <div class="sg-metric-grid">
-        <.tile label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
-        <.tile
-          label="Confirmed"
-          value={Map.get(@summary_counts, :confirmed, 0)}
-          href={users_path(@admin_scope) <> "?confirmed=true"}
+      <div class="sg-grid sg-grid--2">
+        <.task_card
+          title="Support members"
+          body="Search org members, open account detail, and pivot through session, security, and membership state."
+          href={users_path(@admin_scope)}
+          action="Open members"
         />
-        <.tile
-          label="MFA enabled"
-          value={Map.get(@summary_counts, :mfa, 0)}
-          href={users_path(@admin_scope) <> "?mfa=true"}
-        />
-        <.tile
-          label="Locked"
-          value={Map.get(@summary_counts, :locked, 0)}
-          tone="risk"
-          href={users_path(@admin_scope) <> "?locked=true"}
+        <.task_card
+          title="Investigate org events"
+          body="Filter audit evidence scoped to this organization and export only its events."
+          href={audit_path(@admin_scope)}
+          action="Open audit"
         />
       </div>
 
@@ -59,7 +56,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
           <div class="sg-stack sg-stack--1">
             <h2 class="sg-section-heading">Scoped attention</h2>
             <p class="sg-section-copy">
-              Keep support and evidence collection bounded to {@organization_name}.
+              Support and evidence stay bounded to {@organization_name}.
             </p>
           </div>
           <span class="sg-status-pill" data-tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: "risk", else: "ok")}>
@@ -81,20 +78,44 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </div>
       </section>
 
-      <div class="sg-grid sg-grid--2">
-        <.task_card
-          title="Support organization users"
-          body="Search members, open account detail, and pivot through session, security, and membership state."
-          href={users_path(@admin_scope)}
-          action="Open users"
-        />
-        <.task_card
-          title="Review organization audit"
-          body="Filter scoped audit evidence and export only the events relevant to this organization."
-          href={audit_path(@admin_scope)}
-          action="Open audit"
-        />
-      </div>
+      <section class="sg-card sg-posture-strip sg-stack sg-stack--3">
+        <a
+          href={users_path(@admin_scope) <> "?locked=true"}
+          class="sg-cluster sg-cluster--start sg-posture-strip__risk"
+        >
+          <span class="sg-status-pill" data-tone={if(@needs_review > 0, do: "risk", else: "ok")}>
+            {if(@needs_review > 0, do: "#{@needs_review} accounts need review", else: "All clear")}
+          </span>
+        </a>
+
+        <div class="sg-cluster sg-cluster--3">
+          <.metric_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
+          <.metric_link
+            label="Confirmed"
+            value={Map.get(@summary_counts, :confirmed, 0)}
+            href={users_path(@admin_scope) <> "?confirmed=true"}
+          />
+          <.metric_link
+            label="MFA"
+            value={Map.get(@summary_counts, :mfa, 0)}
+            href={users_path(@admin_scope) <> "?mfa=true"}
+          />
+          <.metric_link
+            label="Passkeys"
+            value={Map.get(@summary_counts, :passkeys, 0)}
+            href={users_path(@admin_scope) <> "?passkeys=true"}
+          />
+          <.metric_link
+            label="Locked"
+            value={Map.get(@summary_counts, :locked, 0)}
+            href={users_path(@admin_scope) <> "?locked=true"}
+          />
+        </div>
+
+        <p class="sg-section-copy">
+          Bounded to this org: members, audit evidence, impersonation, scoping.
+        </p>
+      </section>
     </section>
     """
   end
@@ -102,16 +123,12 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   attr :label, :string, required: true
   attr :value, :integer, required: true
   attr :href, :string, required: true
-  attr :tone, :string, default: nil
 
-  defp tile(assigns) do
+  defp metric_link(assigns) do
     ~H"""
-    <a href={@href} class="sg-tile">
-      <span class="sg-metric__label">{@label}</span>
-      <span class="sg-metric__value">{@value}</span>
-      <span :if={@tone} class="sg-status-pill sg-tile__pill" data-tone={@tone}>
-        {status_label(@tone)}
-      </span>
+    <a href={@href} class="sg-metric-link">
+      <span class="sg-metric-link__label">{@label}</span>
+      <span class="sg-metric-link__value">{@value}</span>
     </a>
     """
   end
@@ -145,9 +162,9 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   defp audit_path(%Scope{organization_slug: slug}) when is_binary(slug),
     do: "/admin/organizations/#{slug}/audit"
 
-  defp status_label("ok"), do: "Healthy"
-  defp status_label("risk"), do: "Risk"
-  defp status_label(_), do: ""
+  defp needs_review(counts) do
+    Map.get(counts, :locked, 0) + Map.get(counts, :deleted, 0)
+  end
 
   defp locked_summary(1), do: "1 locked user"
   defp locked_summary(count), do: "#{count} locked users"
