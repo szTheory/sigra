@@ -18,13 +18,7 @@ defmodule ExampleWeb.AdminShellTest do
 
       conn = build_conn() |> log_in_user(platform_admin) |> get(~p"/admin")
 
-      assert redirected_to(conn) == "/admin/users"
-
-      html =
-        conn
-        |> recycle()
-        |> get(~p"/admin/users")
-        |> html_response(200)
+      html = html_response(conn, 200)
 
       assert html =~ "Admin"
       assert html =~ "Global"
@@ -32,8 +26,9 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "href=\"/admin/users\""
       assert html =~ "Audit"
       assert html =~ "href=\"/admin/audit\""
-      assert sidebar_operations_before_overview?(html)
-      assert bottom_nav_users_before_global?(html)
+      assert html =~ "Operate Sigra with confidence"
+      assert sidebar_operations_before_scope?(html)
+      assert bottom_nav_users_before_home?(html)
     end
 
     test "renders Admin and the organization name for an organization scope" do
@@ -52,13 +47,7 @@ defmodule ExampleWeb.AdminShellTest do
         |> log_in_user(org_admin)
         |> get(~p"/admin/organizations/#{organization.slug}")
 
-      assert redirected_to(conn) == "/admin/organizations/#{organization.slug}/users"
-
-      html =
-        conn
-        |> recycle()
-        |> get(~p"/admin/organizations/#{organization.slug}/users")
-        |> html_response(200)
+      html = html_response(conn, 200)
 
       assert html =~ "Admin"
       assert html =~ "Acme Ops"
@@ -67,8 +56,9 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/users\""
       assert html =~ "Audit"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/audit\""
-      assert sidebar_operations_before_overview?(html)
-      assert bottom_nav_users_before_global?(html)
+      assert html =~ "Work inside this organization scope"
+      assert sidebar_operations_before_scope?(html)
+      assert bottom_nav_users_before_home?(html)
     end
 
     test "renders explicit impersonation chrome with real admin, effective user, and app-wide stop path" do
@@ -131,20 +121,20 @@ defmodule ExampleWeb.AdminShellTest do
     end
   end
 
-  defp sidebar_operations_before_overview?(html) do
+  defp sidebar_operations_before_scope?(html) do
     op = html_offset(html, "uppercase text-base-content/60\">Operations</p>")
-    ov = html_offset(html, "uppercase text-base-content/60\">Overview</p>")
+    ov = html_offset(html, "uppercase text-base-content/60\">Scope</p>")
     is_integer(op) and is_integer(ov) and op < ov
   end
 
-  defp bottom_nav_users_before_global?(html) do
+  defp bottom_nav_users_before_home?(html) do
     case :binary.match(html, "aria-label=\"Admin bottom nav\"") do
       {start, _} ->
         len = min(2500, byte_size(html) - start)
         fragment = binary_part(html, start, len)
 
         case {:binary.match(fragment, "btm-nav-label\">Users<"),
-              :binary.match(fragment, "btm-nav-label\">Global<")} do
+              :binary.match(fragment, "btm-nav-label\">Home<")} do
           {{u0, _}, {g0, _}} when u0 < g0 -> true
           _ -> false
         end

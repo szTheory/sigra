@@ -47,38 +47,39 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
   def render(assigns) do
     ~H"""
     <section class="space-y-6">
-      <header class="space-y-1">
-        <h1 class="text-2xl font-semibold">Audit</h1>
-        <p class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</p>
+      <header class="sg-page-header">
+        <p class="sg-page-kicker">Audit evidence</p>
+        <h1 class="sg-page-title text-3xl font-semibold">Audit</h1>
+        <p class="sg-page-copy text-sm text-base-content/70">{scope_copy(@admin_scope)}</p>
       </header>
 
-      <form method="get" action={index_path(@admin_scope)} class="space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
+      <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
         <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <label class="form-control">
             <span class="label-text text-sm font-semibold">Actor</span>
-            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="input input-bordered w-full" />
+            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input input input-bordered w-full" />
           </label>
 
           <label class="form-control">
             <span class="label-text text-sm font-semibold">Effective user</span>
-            <input type="text" name="effective_user" value={param_value(@current_params, "effective_user")} class="input input-bordered w-full" />
+            <input type="text" name="effective_user" value={param_value(@current_params, "effective_user")} class="sg-input input input-bordered w-full" />
           </label>
 
           <label class="form-control">
             <span class="label-text text-sm font-semibold">Action prefix</span>
-            <input type="text" name="action_prefix" value={param_value(@current_params, "action_prefix")} class="input input-bordered w-full" />
+            <input type="text" name="action_prefix" value={param_value(@current_params, "action_prefix")} class="sg-input input input-bordered w-full" />
           </label>
 
           <label class="form-control">
             <span class="label-text text-sm font-semibold">Outcome</span>
-            <input type="text" name="outcome" value={param_value(@current_params, "outcome")} class="input input-bordered w-full" />
+            <input type="text" name="outcome" value={param_value(@current_params, "outcome")} class="sg-input input input-bordered w-full" />
           </label>
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button type="submit" class="btn btn-primary min-h-11">Apply filters</button>
-          <a href={index_path(@admin_scope)} class="btn btn-ghost min-h-11">Clear</a>
-          <a href={export_path(@admin_scope, @current_params)} class="btn btn-outline min-h-11">
+          <button type="submit" class="sg-press btn btn-primary min-h-11">Apply filters</button>
+          <a href={index_path(@admin_scope)} class="sg-press btn btn-ghost min-h-11">Clear</a>
+          <a href={export_path(@admin_scope, @current_params)} class="sg-press btn btn-outline min-h-11">
             Export CSV
           </a>
         </div>
@@ -88,7 +89,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
 
-      <div class="overflow-x-auto">
+      <div class="sg-table-panel overflow-x-auto">
         <table class="table w-full">
           <thead>
             <tr>
@@ -103,7 +104,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
               <td class="align-top">
                 <div class="space-y-1">
                   <p>{format_timestamp(row.inserted_at)}</p>
-                  <code class="text-xs">{row.id}</code>
+                  <code class="sg-code text-xs">{row.id}</code>
                 </div>
               </td>
               <td class="align-top">
@@ -128,7 +129,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         </table>
       </div>
 
-      <div :if={@rows == []} class="rounded-lg border border-dashed border-base-300 bg-base-100 p-6 text-sm text-base-content/70">
+      <div :if={@rows == []} class="sg-card rounded-lg border border-dashed border-base-300 bg-base-100 p-6 text-sm text-base-content/70">
         <p class="font-semibold">No audit events match this view</p>
         <p class="mt-1">Try a different filter or clear one or more params to widen the result set.</p>
       </div>
@@ -136,7 +137,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
       <nav :if={@meta} class="flex items-center justify-between gap-3">
         <a
           class={[
-            "btn btn-outline min-h-11 min-w-11 px-3",
+            "sg-press btn btn-outline min-h-11 min-w-11 px-3",
             if(@meta.previous_page, do: "", else: "btn-disabled")
           ]}
           href={page_path(@admin_scope, @current_params, @meta.previous_page)}
@@ -149,7 +150,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <span class="text-sm text-base-content/70">Page {(@meta.current_page || 1)}</span>
         <a
           class={[
-            "btn btn-outline min-h-11 min-w-11 px-3",
+            "sg-press btn btn-outline min-h-11 min-w-11 px-3",
             if(@meta.next_page, do: "", else: "btn-disabled")
           ]}
           href={page_path(@admin_scope, @current_params, @meta.next_page)}

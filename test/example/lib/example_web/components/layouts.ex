@@ -39,13 +39,14 @@ defmodule ExampleWeb.Layouts do
     default: [],
     doc: "list of {organization, role} tuples for the current user (Phase 16 D-26)"
 
+  attr :wide, :boolean, default: false
   slot :inner_block, required: true
 
   def app(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8">
+    <header class="sg-app-header navbar sticky top-0 z-20 px-4 sm:px-6 lg:px-8">
       <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
+        <a href="/" class="sg-brand-mark flex-1 flex w-fit items-center gap-2">
           <img src={~p"/images/logo.svg"} width="36" alt="" />
           <span class="text-sm font-semibold" data-testid="app-name">Vaultr</span>
         </a>
@@ -70,7 +71,7 @@ defmodule ExampleWeb.Layouts do
     <.impersonation_banner :if={@current_scope && @current_scope.impersonating_from} current_scope={@current_scope} />
 
     <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl space-y-4">
+      <div class={["mx-auto space-y-4", if(@wide, do: "max-w-5xl", else: "max-w-2xl")]}>
         {render_slot(@inner_block)}
       </div>
     </main>
@@ -82,11 +83,12 @@ defmodule ExampleWeb.Layouts do
   attr :flash, :map, default: %{}, doc: "the map of flash messages"
   attr :current_scope, :map, default: nil
   attr :admin_scope, :map, default: nil
+  attr :page_title, :string, default: nil
   attr :inner_content, :any, default: nil
 
   def admin(assigns) do
     ~H"""
-    <.admin_shell admin_scope={@admin_scope} current_scope={@current_scope}>
+    <.admin_shell admin_scope={@admin_scope} current_scope={@current_scope} page_title={@page_title}>
       {@inner_content}
     </.admin_shell>
 

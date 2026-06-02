@@ -88,23 +88,33 @@ defmodule Sigra.Admin.Live.UserShowLive do
     ~H"""
     <section :if={@detail} class="space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <a class="btn btn-ghost min-h-11" href={@return_to}>Back to users</a>
+        <a class="sg-press btn btn-ghost min-h-11" href={@return_to}>Back to users</a>
         <span class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</span>
       </div>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h1 class="text-2xl font-semibold">Identity &amp; Status</h1>
-        <div class="mt-4 space-y-2 text-sm">
-          <p class="font-semibold">{@detail.display_name}</p>
-          <p>{@detail.user.email}</p>
-          <code class="text-xs select-all">{@detail.user.id}</code>
-          <p>{confirmation_label(@detail.identity)}</p>
-          <p>{lock_label(@detail.identity)}</p>
-          <p>{deletion_label(@detail.identity)}</p>
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
+        <p class="sg-page-kicker">Identity &amp; Status</p>
+        <div class="mt-2 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="min-w-0">
+            <h1 class="sg-page-title text-3xl font-semibold">{@detail.display_name || @detail.user.email}</h1>
+            <p class="mt-2 text-sm text-base-content/70">{@detail.user.email}</p>
+            <code class="sg-code mt-2 inline-block text-xs select-all">{@detail.user.id}</code>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="sg-status-pill" data-tone={if(@detail.identity.confirmed?, do: "ok", else: "warn")}>
+              {confirmation_label(@detail.identity)}
+            </span>
+            <span class="sg-status-pill" data-tone={if(@detail.identity.locked?, do: "risk", else: "ok")}>
+              {lock_label(@detail.identity)}
+            </span>
+            <span class="sg-status-pill" data-tone={if(@detail.identity.deleted?, do: "warn", else: "ok")}>
+              {deletion_label(@detail.identity)}
+            </span>
+          </div>
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 class="text-xl font-semibold">Sessions</h2>
@@ -117,7 +127,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
             :if={@detail.sessions != []}
             type="button"
             phx-click="open_revoke_all_sessions"
-            class="btn btn-error min-h-11"
+            class="sg-press btn btn-error min-h-11"
           >
             Revoke all sessions
           </button>
@@ -126,7 +136,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         <div class="mt-4 space-y-3">
           <article
             :for={session <- @detail.sessions}
-            class="rounded-md border border-base-300 bg-base-200 p-4 text-sm"
+            class="rounded-md bg-base-200 p-4 text-sm shadow-sm"
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div class="space-y-1">
@@ -139,7 +149,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
                 type="button"
                 phx-click="open_revoke_session"
                 phx-value-token={Base.url_encode64(session.hashed_token, padding: false)}
-                class="btn btn-error min-h-11 w-full sm:w-auto"
+                class="sg-press btn btn-error min-h-11 w-full sm:w-auto"
               >
                 Revoke session
               </button>
@@ -149,7 +159,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
         <h2 class="text-xl font-semibold">Security</h2>
         <div class="mt-4 space-y-2 text-sm">
           <p>{mfa_label(@detail.security.mfa_status)}</p>
@@ -157,11 +167,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
         <h2 class="text-xl font-semibold">Identities</h2>
         <div class="mt-4 space-y-2 text-sm">
           <p :if={!@detail.identities_available?}>Linked identities are not available for this app.</p>
-          <div :for={identity <- @detail.identities} class="rounded-md border border-base-300 bg-base-200 p-3">
+          <div :for={identity <- @detail.identities} class="rounded-md bg-base-200 p-3 shadow-sm">
             <p class="font-semibold">{identity.provider}</p>
             <p>{Map.get(identity, :provider_email) || Map.get(identity, :provider_uid)}</p>
           </div>
@@ -169,18 +179,18 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
         <h2 class="text-xl font-semibold">Organizations</h2>
         <div class="mt-4 space-y-3">
           <article
             :for={organization <- @detail.organizations}
-            class="rounded-md border border-base-300 bg-base-200 p-4 text-sm"
+            class="rounded-md bg-base-200 p-4 text-sm shadow-sm"
           >
             <p class="font-semibold">{organization.organization_name}</p>
             <p>Role: {organization.role}</p>
             <a
               :if={show_pivot_link?(@admin_scope, organization)}
-              class="btn btn-outline min-h-11 mt-3 w-full sm:w-auto"
+              class="sg-press btn btn-outline min-h-11 mt-3 w-full sm:w-auto"
               href={pivot_path(@admin_scope, @detail.user.id, organization, @return_to)}
             >
               Open organization-scoped view for {organization.organization_name}
@@ -190,7 +200,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 class="text-xl font-semibold">Recent Audit</h2>
@@ -199,13 +209,13 @@ defmodule Sigra.Admin.Live.UserShowLive do
             </p>
           </div>
 
-          <a class="btn btn-outline min-h-11" href={full_audit_path(@admin_scope, @detail.user.id, @return_to)}>
+          <a class="sg-press btn btn-outline min-h-11" href={full_audit_path(@admin_scope, @detail.user.id, @return_to)}>
             View full audit
           </a>
         </div>
 
         <div class="mt-4 space-y-2 text-sm">
-          <div :for={row <- @detail.recent_audit} class="rounded-md border border-base-300 bg-base-200 p-3">
+          <div :for={row <- @detail.recent_audit} class="rounded-md bg-base-200 p-3 shadow-sm">
             <div class="space-y-1">
               <span :if={row.action_badge} class="badge badge-warning badge-sm">{row.action_badge}</span>
               <p class="font-semibold">{row.action_label}</p>
@@ -217,7 +227,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section class="sg-danger-panel rounded-lg border border-base-300 bg-base-100 p-5">
         <h2 class="text-xl font-semibold">Danger Zone</h2>
         <p class="mt-2 text-sm text-base-content/70">
           Session revocation uses Sigra's canonical session APIs.
@@ -234,7 +244,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         >
           <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
           <input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
-          <button type="submit" class="btn btn-warning min-h-11 w-full sm:w-auto">
+          <button type="submit" class="sg-press btn btn-warning min-h-11 w-full sm:w-auto">
             Start impersonation
           </button>
         </form>
@@ -247,13 +257,13 @@ defmodule Sigra.Admin.Live.UserShowLive do
           :if={@detail.danger_zone.revoke_all_sessions?}
           type="button"
           phx-click="open_revoke_all_sessions"
-          class="btn btn-error min-h-11 mt-4 w-full sm:w-auto"
+          class="sg-press btn btn-error min-h-11 mt-4 w-full sm:w-auto"
         >
           Revoke all sessions
         </button>
       </section>
 
-      <section :for={section <- @detail.extra_detail_sections} class="rounded-lg border border-base-300 bg-base-100 p-5">
+      <section :for={section <- @detail.extra_detail_sections} class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
         <h2 class="text-xl font-semibold">{Map.get(section, :title) || Map.get(section, "title")}</h2>
         <p class="mt-2 text-sm text-base-content/70">{Map.get(section, :body) || Map.get(section, "body")}</p>
       </section>
@@ -263,8 +273,8 @@ defmodule Sigra.Admin.Live.UserShowLive do
           <p class="text-base font-semibold">Confirm action</p>
           <p class="mt-3 text-sm">{@confirm_action.copy}</p>
           <div class="modal-action">
-            <button type="button" phx-click="cancel_confirm" class="btn btn-ghost min-h-11">Cancel</button>
-            <button type="button" phx-click="confirm_action" class="btn btn-error min-h-11">Confirm</button>
+            <button type="button" phx-click="cancel_confirm" class="sg-press btn btn-ghost min-h-11">Cancel</button>
+            <button type="button" phx-click="confirm_action" class="sg-press btn btn-error min-h-11">Confirm</button>
           </div>
         </div>
       </dialog>

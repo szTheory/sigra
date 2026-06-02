@@ -69,24 +69,23 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   def render(assigns) do
     ~H"""
     <section class="space-y-6">
-      <header class="space-y-3">
-        <div class="space-y-1">
-          <h1 class="text-2xl font-semibold">{page_heading(@admin_scope)}</h1>
-          <p class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</p>
-        </div>
+      <header class="sg-page-header">
+        <p class="sg-page-kicker">User operations</p>
+        <h1 class="sg-page-title text-3xl font-semibold">{page_heading(@admin_scope)}</h1>
+        <p class="sg-page-copy text-sm text-base-content/70">{scope_copy(@admin_scope)}</p>
 
-        <div class="flex flex-wrap gap-2">
+        <dl class="sg-metric-grid">
           <.summary_chip label="Total" value={Map.get(@summary_counts, :total, 0)} />
           <.summary_chip label="Confirmed" value={Map.get(@summary_counts, :confirmed, 0)} />
           <.summary_chip label="MFA" value={Map.get(@summary_counts, :mfa, 0)} />
           <.summary_chip label="Passkeys" value={Map.get(@summary_counts, :passkeys, 0)} />
           <.summary_chip label="Locked" value={Map.get(@summary_counts, :locked, 0)} />
           <.summary_chip label="Deleted" value={Map.get(@summary_counts, :deleted, 0)} />
-        </div>
+        </dl>
       </header>
 
-      <form method="get" action={index_path(@admin_scope)} class="space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
-        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
+        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
           <label class="form-control w-full">
             <span class="label-text text-sm font-semibold">Search</span>
             <input
@@ -94,25 +93,23 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
               name="q"
               value={param_value(@current_params, "q")}
               placeholder="Email, user id, or name"
-              class="input input-bordered w-full"
+              class="sg-input input input-bordered w-full"
             />
           </label>
 
-          <div class="grid grid-cols-2 gap-2 lg:flex">
-            <button type="submit" class="btn btn-primary min-h-11">Search</button>
-            <a href={index_path(@admin_scope)} class="btn btn-ghost min-h-11">Clear</a>
-          </div>
+          <button type="submit" class="sg-press btn btn-primary min-h-11">Search</button>
+          <a href={index_path(@admin_scope)} class="sg-press btn btn-ghost min-h-11">Clear</a>
         </div>
 
         <div class="flex flex-wrap gap-2">
           <.quick_filter :for={key <- @quick_filter_keys} key={key} params={@current_params} />
         </div>
 
-        <div class="space-y-3 rounded-md border border-base-300 bg-base-100 p-3">
+        <div class="space-y-3 rounded-md bg-base-100 p-3 shadow-sm">
           <button
             type="button"
             phx-click="toggle_filters"
-            class="btn btn-ghost min-h-11 justify-start px-0"
+            class="sg-press btn btn-ghost min-h-11 justify-start px-3"
             aria-expanded={to_string(@filters_open?)}
           >
             More filters
@@ -125,13 +122,13 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 type="text"
                 name="organization"
                 value={param_value(@current_params, "organization")}
-                class="input input-bordered w-full"
+                class="sg-input input input-bordered w-full"
               />
             </label>
 
             <label class="form-control">
               <span class="label-text text-sm font-semibold">Provider</span>
-              <select name="provider" class="select select-bordered w-full">
+              <select name="provider" class="sg-select select select-bordered w-full">
                 <option value="">Any</option>
                 <option value="local" selected={param_value(@current_params, "provider") == "local"}>Local</option>
                 <option value="google" selected={param_value(@current_params, "provider") == "google"}>Google</option>
@@ -145,7 +142,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 type="date"
                 name="registered_from"
                 value={param_value(@current_params, "registered_from")}
-                class="input input-bordered w-full"
+                class="sg-input input input-bordered w-full"
               />
             </label>
 
@@ -155,7 +152,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 type="date"
                 name="registered_to"
                 value={param_value(@current_params, "registered_to")}
-                class="input input-bordered w-full"
+                class="sg-input input input-bordered w-full"
               />
             </label>
           </div>
@@ -169,7 +166,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       <div
         id="admin-users-desktop-results"
         data-testid="admin-users-desktop-results"
-        class="hidden lg:block"
+        class="sg-table-panel hidden lg:block"
       >
         <table class="table w-full">
           <thead>
@@ -187,7 +184,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 <div class="space-y-1">
                   <p class="font-semibold">{primary_name(row)}</p>
                   <p class="text-sm text-base-content/70">{row.user.email}</p>
-                  <code class="text-xs select-all">{row.user.id}</code>
+                  <code class="sg-code text-xs select-all">{row.user.id}</code>
                 </div>
               </td>
               <td class="align-top">
@@ -213,7 +210,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
                 </div>
               </td>
               <td class="align-top text-right">
-                <a class="btn btn-sm btn-primary min-h-11" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+                <a class="sg-press btn btn-sm btn-primary min-h-11" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
                   Open user
                 </a>
               </td>
@@ -227,11 +224,11 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         data-testid="admin-users-mobile-results"
         class="space-y-3 lg:hidden"
       >
-        <article :for={row <- @rows} class="rounded-lg border border-base-300 bg-base-200 p-4">
+        <article :for={row <- @rows} class="sg-card rounded-lg border border-base-300 bg-base-200 p-4">
           <div class="space-y-1">
             <p class="font-semibold">{primary_name(row)}</p>
             <p class="text-sm text-base-content/70">{row.user.email}</p>
-            <code class="text-xs select-all">{row.user.id}</code>
+            <code class="sg-code text-xs select-all">{row.user.id}</code>
           </div>
 
           <div class="mt-3 space-y-1 text-sm">
@@ -247,14 +244,14 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           </div>
 
           <div class="mt-4">
-            <a class="btn btn-primary min-h-11 w-full" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
+            <a class="sg-press btn btn-primary min-h-11 w-full" href={open_user_path(@admin_scope, row.user.id, @current_params)}>
               Open user
             </a>
           </div>
         </article>
       </div>
 
-      <div :if={@rows == []} class="rounded-lg border border-dashed border-base-300 bg-base-100 p-6 text-sm text-base-content/70">
+      <div :if={@rows == []} class="sg-card rounded-lg border border-dashed border-base-300 bg-base-100 p-6 text-sm text-base-content/70">
         <p class="font-semibold">No users match this view</p>
         <p class="mt-1">Try a different search or clear one or more filters to widen the result set.</p>
       </div>
@@ -262,7 +259,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       <nav :if={@meta} class="flex items-center justify-between gap-3">
         <a
           class={[
-            "btn btn-outline min-h-11 min-w-11 px-3",
+            "sg-press btn btn-outline min-h-11 min-w-11 px-3",
             if(@meta.previous_page, do: "", else: "btn-disabled")
           ]}
           href={page_path(@admin_scope, @current_params, @meta.previous_page)}
@@ -275,7 +272,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <span class="text-sm text-base-content/70">Page {(@meta.current_page || 1)}</span>
         <a
           class={[
-            "btn btn-outline min-h-11 min-w-11 px-3",
+            "sg-press btn btn-outline min-h-11 min-w-11 px-3",
             if(@meta.next_page, do: "", else: "btn-disabled")
           ]}
           href={page_path(@admin_scope, @current_params, @meta.next_page)}
@@ -295,9 +292,9 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   defp summary_chip(assigns) do
     ~H"""
-    <div class="rounded-md border border-base-300 bg-base-100 px-3 py-2 text-sm">
-      <span class="font-semibold">{@label}</span>
-      <span class="ml-2 text-base-content/70">{@value}</span>
+    <div class="sg-metric">
+      <dt>{@label}</dt>
+      <dd>{@value}</dd>
     </div>
     """
   end
@@ -307,7 +304,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   defp quick_filter(assigns) do
     ~H"""
-    <label class="label min-h-11 cursor-pointer gap-2 rounded-md border border-base-300 bg-base-100 px-3 py-2">
+    <label class="label min-h-11 cursor-pointer gap-2 rounded-md bg-base-100 px-3 py-2 shadow-sm">
       <input
         type="checkbox"
         name={@key}

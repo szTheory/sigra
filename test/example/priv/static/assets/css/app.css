@@ -1,1 +1,350 @@
-/* This file is for your main application CSS */
+/* Vaultr/Sigra demo design layer.
+ *
+ * The generated admin screens still carry Tailwind/DaisyUI utility classes as
+ * their fallback. These scoped classes tighten the example app and screenshot
+ * evidence without requiring a host application to adopt this exact brand.
+ */
+
+:root {
+  --sg-color-ink: #151515;
+  --sg-color-muted: #686868;
+  --sg-color-subtle: #f6f5f2;
+  --sg-color-panel: #ffffff;
+  --sg-color-panel-alt: #fbfaf7;
+  --sg-color-line: rgba(21, 21, 21, 0.1);
+  --sg-color-line-strong: rgba(21, 21, 21, 0.16);
+  --sg-color-brand: #c2410c;
+  --sg-color-brand-strong: #9a3412;
+  --sg-color-brand-soft: #fff0e8;
+  --sg-color-risk: #b42318;
+  --sg-color-risk-soft: #fff1f0;
+  --sg-color-warn: #a15c00;
+  --sg-color-warn-soft: #fff7e6;
+  --sg-color-ok: #176b43;
+  --sg-color-ok-soft: #ecfdf3;
+  --sg-radius-xs: 0.375rem;
+  --sg-radius-sm: 0.5rem;
+  --sg-radius-md: 0.75rem;
+  --sg-radius-lg: 1rem;
+  --sg-shadow-border:
+    0 0 0 1px rgba(21, 21, 21, 0.06),
+    0 1px 2px -1px rgba(21, 21, 21, 0.08),
+    0 10px 30px -24px rgba(21, 21, 21, 0.35);
+  --sg-shadow-border-hover:
+    0 0 0 1px rgba(21, 21, 21, 0.1),
+    0 3px 10px -8px rgba(21, 21, 21, 0.35),
+    0 18px 44px -30px rgba(21, 21, 21, 0.45);
+  --sg-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sg-color-ink: #f4f1eb;
+    --sg-color-muted: #bdb5aa;
+    --sg-color-subtle: #171614;
+    --sg-color-panel: #1f1d1a;
+    --sg-color-panel-alt: #25221e;
+    --sg-color-line: rgba(255, 255, 255, 0.1);
+    --sg-color-line-strong: rgba(255, 255, 255, 0.16);
+    --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
+    --sg-shadow-border: 0 0 0 1px rgba(255, 255, 255, 0.09);
+    --sg-shadow-border-hover: 0 0 0 1px rgba(255, 255, 255, 0.15);
+  }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--sg-color-subtle);
+  color: var(--sg-color-ink);
+}
+
+.sg-app-header {
+  border-bottom: 1px solid var(--sg-color-line);
+  background: color-mix(in oklab, var(--sg-color-panel) 92%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.sg-admin-shell {
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--sg-color-brand-soft) 42%, transparent), transparent 18rem),
+    var(--sg-color-subtle);
+  color: var(--sg-color-ink);
+}
+
+.sg-admin-topbar {
+  border-bottom: 1px solid var(--sg-color-line);
+  background: color-mix(in oklab, var(--sg-color-panel) 92%, transparent);
+  box-shadow: 0 8px 26px -24px rgba(21, 21, 21, 0.7);
+}
+
+.sg-admin-topbar-inner {
+  min-height: 4rem;
+}
+
+.sg-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.sg-scope-pill,
+.sg-status-pill {
+  display: inline-flex;
+  min-height: 1.625rem;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.1875rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sg-scope-pill {
+  background: var(--sg-color-brand-soft);
+  color: var(--sg-color-brand-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 22%, transparent);
+}
+
+.sg-status-pill {
+  background: var(--sg-color-panel-alt);
+  color: var(--sg-color-muted);
+  box-shadow: inset 0 0 0 1px var(--sg-color-line);
+}
+
+.sg-status-pill[data-tone="ok"] {
+  background: var(--sg-color-ok-soft);
+  color: var(--sg-color-ok);
+}
+
+.sg-status-pill[data-tone="warn"] {
+  background: var(--sg-color-warn-soft);
+  color: var(--sg-color-warn);
+}
+
+.sg-status-pill[data-tone="risk"] {
+  background: var(--sg-color-risk-soft);
+  color: var(--sg-color-risk);
+}
+
+.sg-nav-card,
+.sg-card,
+.sg-filter-panel,
+.sg-table-panel {
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-color-panel);
+  box-shadow: var(--sg-shadow-border);
+}
+
+.sg-nav-card {
+  padding: 0.75rem;
+}
+
+.sg-nav-title {
+  margin-bottom: 0.5rem;
+  color: var(--sg-color-muted);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sg-nav-link {
+  min-height: 2.5rem;
+  border-radius: var(--sg-radius-sm);
+  color: var(--sg-color-muted);
+  font-weight: 650;
+  transition-property: background-color, color, box-shadow, transform;
+  transition-duration: 140ms;
+  transition-timing-function: var(--sg-ease);
+}
+
+.sg-nav-link:hover,
+.sg-nav-link:focus-visible {
+  background: var(--sg-color-brand-soft);
+  color: var(--sg-color-brand-strong);
+}
+
+.sg-nav-link.active {
+  background: var(--sg-color-brand);
+  color: white;
+  box-shadow: 0 10px 20px -16px var(--sg-color-brand);
+}
+
+.sg-top-action {
+  border: 0;
+  border-radius: var(--sg-radius-sm);
+  box-shadow: var(--sg-shadow-border);
+  transition-property: transform, box-shadow, background-color;
+  transition-duration: 140ms;
+  transition-timing-function: var(--sg-ease);
+}
+
+.sg-top-action:hover {
+  box-shadow: var(--sg-shadow-border-hover);
+  transform: translateY(-1px);
+}
+
+.sg-top-action:active,
+.sg-press:active {
+  transform: scale(0.96);
+}
+
+.sg-page-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.sg-page-kicker {
+  color: var(--sg-color-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sg-page-title {
+  font-size: clamp(1.6rem, 2.3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.sg-page-copy {
+  max-width: 68ch;
+  color: var(--sg-color-muted);
+  text-wrap: pretty;
+}
+
+.sg-card {
+  padding: 1rem;
+  transition-property: box-shadow, transform;
+  transition-duration: 140ms;
+  transition-timing-function: var(--sg-ease);
+}
+
+.sg-card-hover:hover {
+  box-shadow: var(--sg-shadow-border-hover);
+  transform: translateY(-1px);
+}
+
+.sg-filter-panel {
+  padding: 1rem;
+}
+
+.sg-form-grid {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.sg-input,
+.sg-select {
+  min-height: 2.75rem;
+  border-radius: var(--sg-radius-sm);
+  border-color: var(--sg-color-line-strong);
+  background-color: var(--sg-color-panel);
+}
+
+.sg-table-panel {
+  overflow: hidden;
+}
+
+.sg-table-panel table {
+  font-size: 0.875rem;
+}
+
+.sg-table-panel th {
+  color: var(--sg-color-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.sg-table-panel td,
+.sg-table-panel th {
+  border-color: var(--sg-color-line);
+  padding-block: 1rem;
+}
+
+.sg-code {
+  border-radius: var(--sg-radius-xs);
+  background: color-mix(in oklab, var(--sg-color-ink) 5%, transparent);
+  color: var(--sg-color-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  padding: 0.0625rem 0.25rem;
+}
+
+.sg-metric-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+.sg-metric {
+  border-radius: var(--sg-radius-md);
+  background: var(--sg-color-panel);
+  box-shadow: var(--sg-shadow-border);
+  padding: 0.875rem;
+}
+
+.sg-metric dt {
+  color: var(--sg-color-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sg-metric dd {
+  margin-top: 0.25rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.sg-danger-panel {
+  border-radius: var(--sg-radius-md);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, var(--sg-color-risk-soft) 78%, transparent), var(--sg-color-panel));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--sg-color-risk) 16%, transparent);
+}
+
+.sg-impersonation {
+  border-top: 1px solid color-mix(in oklab, var(--sg-color-warn) 28%, transparent);
+  background: var(--sg-color-warn-soft);
+  color: #4a2a00;
+}
+
+.sg-bottom-nav {
+  border-top: 1px solid var(--sg-color-line);
+  background: color-mix(in oklab, var(--sg-color-panel) 94%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+@media (max-width: 640px) {
+  .sg-card,
+  .sg-filter-panel {
+    padding: 0.875rem;
+  }
+
+  .sg-page-title {
+    font-size: 1.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
