@@ -220,6 +220,7 @@
   .sg-cluster--3 { gap: var(--sg-space-3); }
   .sg-cluster--between { justify-content: space-between; }
   .sg-cluster--end { justify-content: flex-end; }
+  .sg-cluster--start { align-items: flex-start; }
 
   /* Responsive show/hide — the core substrate fix (kills duplicated content) */
   .sg-show-desktop { display: none; }
@@ -946,6 +947,23 @@
   }
   .sg-table tbody tr:last-child td,
   .sg-table-panel tbody tr:last-child td { border-bottom: 0; }
+
+  /* Severity-tone rows (audit timelines): tinted bg + left tone bar so failures
+   * and noteworthy events become scan anchors. Declared after zebra to win. */
+  .sg-table tbody tr[data-tone] td:first-child,
+  .sg-table-panel tbody tr[data-tone] td:first-child { border-left: 3px solid transparent; }
+  .sg-table tbody tr[data-tone="ok"],
+  .sg-table-panel tbody tr[data-tone="ok"] { background: color-mix(in oklab, var(--sg-color-ok-soft) 45%, transparent); }
+  .sg-table tbody tr[data-tone="ok"] td:first-child { border-left-color: var(--sg-color-ok); }
+  .sg-table tbody tr[data-tone="warn"],
+  .sg-table-panel tbody tr[data-tone="warn"] { background: color-mix(in oklab, var(--sg-color-warn-soft) 50%, transparent); }
+  .sg-table tbody tr[data-tone="warn"] td:first-child { border-left-color: var(--sg-color-warn); }
+  .sg-table tbody tr[data-tone="risk"],
+  .sg-table-panel tbody tr[data-tone="risk"] { background: color-mix(in oklab, var(--sg-color-risk-soft) 50%, transparent); }
+  .sg-table tbody tr[data-tone="risk"] td:first-child { border-left-color: var(--sg-color-risk); }
+  .sg-table tbody tr[data-tone="info"],
+  .sg-table-panel tbody tr[data-tone="info"] { background: color-mix(in oklab, var(--sg-color-info-soft) 50%, transparent); }
+  .sg-table tbody tr[data-tone="info"] td:first-child { border-left-color: var(--sg-color-info); }
 
   /* Day-group sticky sub-header for audit timelines */
   .sg-day-group {

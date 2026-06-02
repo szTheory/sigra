@@ -58,51 +58,53 @@ defmodule Sigra.Admin.Live.AuditUserLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <section :if={@detail} class="space-y-6">
-      <div class="sg-toolbar">
-        <a class="sg-press btn btn-ghost min-h-11" href={@return_to}>Back to user</a>
-        <span class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</span>
+    <section :if={@detail} class="sg-stack sg-stack--6">
+      <div class="sg-cluster sg-cluster--between">
+        <a class="sg-btn sg-btn--ghost sg-btn--sm" href={@return_to}>
+          <span aria-hidden="true">&larr;</span> Back to user
+        </a>
+        <span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>
       </div>
 
       <header class="sg-page-header">
         <p class="sg-page-kicker">User audit evidence</p>
-        <h1 class="sg-page-title text-3xl font-semibold">{@detail.display_name || @detail.user.email}</h1>
-        <p class="sg-page-copy text-sm text-base-content/70">
+        <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
+        <p class="sg-page-copy">
           Filter this user's scoped event history, distinguish support actions from user actions, and export evidence.
         </p>
-        <div class="sg-action-row">
+        <div class="sg-cluster sg-cluster--2">
           <span class="sg-status-pill">{@detail.user.email}</span>
-          <code class="sg-code text-xs select-all">{@detail.user.id}</code>
+          <code class="sg-code">{@detail.user.id}</code>
         </div>
       </header>
 
-      <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel space-y-4 rounded-lg border border-base-300 bg-base-200 p-4">
-        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <label class="form-control">
-            <span class="label-text text-sm font-semibold">Action prefix</span>
-            <input type="text" name="action_prefix" value={param_value(@current_params, "action_prefix")} class="sg-input input input-bordered w-full" />
+      <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
+        <div class="sg-form-grid sg-form-grid--cols">
+          <label class="sg-field">
+            <span class="sg-field-label">Action prefix</span>
+            <input type="text" name="action_prefix" value={param_value(@current_params, "action_prefix")} class="sg-input" />
           </label>
 
-          <label class="form-control">
-            <span class="label-text text-sm font-semibold">Outcome</span>
-            <input type="text" name="outcome" value={param_value(@current_params, "outcome")} class="sg-input input input-bordered w-full" />
+          <label class="sg-field">
+            <span class="sg-field-label">Outcome</span>
+            <input type="text" name="outcome" value={param_value(@current_params, "outcome")} class="sg-input" />
           </label>
 
-          <label class="form-control">
-            <span class="label-text text-sm font-semibold">Actor</span>
-            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input input input-bordered w-full" />
+          <label class="sg-field">
+            <span class="sg-field-label">Actor</span>
+            <input type="text" name="actor" value={param_value(@current_params, "actor")} class="sg-input" />
           </label>
 
-          <label class="form-control">
-            <span class="label-text text-sm font-semibold">Occurred after</span>
-            <input type="text" name="from" value={param_value(@current_params, "from")} class="sg-input input input-bordered w-full" placeholder="2026-05-01" />
+          <label class="sg-field">
+            <span class="sg-field-label">Occurred after</span>
+            <input type="text" name="from" value={param_value(@current_params, "from")} class="sg-input" placeholder="2026-05-01" />
           </label>
         </div>
 
-        <div class="sg-action-row">
-          <button type="submit" class="sg-press btn btn-primary min-h-11">Apply filters</button>
-          <a href={clear_path(@admin_scope, @detail.user.id, @return_to)} class="sg-press btn btn-ghost min-h-11">Clear</a>
-          <a href={export_path(@admin_scope, @detail.user.id, export_params(@current_params, @return_to))} class="sg-press btn btn-outline min-h-11">
+        <div class="sg-cluster">
+          <button type="submit" class="sg-btn sg-btn--primary">Apply filters</button>
+          <a href={clear_path(@admin_scope, @detail.user.id, @return_to)} class="sg-btn sg-btn--ghost">Clear</a>
+          <a href={export_path(@admin_scope, @detail.user.id, export_params(@current_params, @return_to))} class="sg-btn sg-btn--secondary">
             Export CSV
           </a>
         </div>
@@ -113,58 +115,54 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         <input type="hidden" name="order_direction" value={param_value(@current_params, "order_direction", "desc")} />
       </form>
 
-      <div class="sg-table-panel overflow-x-auto">
-        <table class="table w-full">
+      <div :if={@rows != []} class="sg-table-panel">
+        <table class="sg-table">
           <thead>
             <tr>
               <th><a href={sort_path(@admin_scope, @detail.user.id, @current_params, "inserted_at")}>Occurred</a></th>
-              <th>Action</th>
+              <th>Event</th>
               <th>Actor</th>
-              <th class="hidden md:table-cell">Outcome</th>
+              <th class="sg-show-desktop">Outcome</th>
             </tr>
           </thead>
           <tbody>
-            <tr :for={row <- @rows}>
-              <td class="align-top">
-                <div class="space-y-1">
-                  <p>{format_timestamp(row.inserted_at)}</p>
-                  <code class="sg-code text-xs">{row.id}</code>
+            <tr :for={row <- @rows} data-tone={row_tone(row)}>
+              <td class="sg-nowrap">
+                <div class="sg-stack sg-stack--1">
+                  <span class="sg-text-sm">{format_timestamp(row.inserted_at)}</span>
+                  <code class="sg-code">{row.id}</code>
                 </div>
               </td>
-              <td class="align-top">
-                <div class="space-y-1">
-                  <span :if={row.action_badge} class="badge badge-warning badge-sm">{row.action_badge}</span>
-                  <p class="font-semibold">{row.action_label}</p>
-                  <p class="text-sm text-base-content/70">{row.action}</p>
+              <td>
+                <div class="sg-stack sg-stack--1">
+                  <div class="sg-cluster sg-cluster--2">
+                    <span class="sg-status-pill" data-tone={row_tone(row)}>{row.action_label}</span>
+                    <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
+                  </div>
+                  <code class="sg-code">{row.action}</code>
                 </div>
               </td>
-              <td class="align-top">
-                <div class="space-y-1">
-                  <p>{row.actor_summary}</p>
-                  <p :if={row.action_badge} class="text-sm text-base-content/70">Actor: {row.actor_label}</p>
-                  <p :if={row.action_badge} class="text-sm text-base-content/70">
-                    Effective user: {row.effective_user_label}
-                  </p>
+              <td>
+                <div class="sg-stack sg-stack--1 sg-text-sm">
+                  <span>{row.actor_summary}</span>
+                  <span :if={row.action_badge} class="sg-muted">Actor: {row.actor_label}</span>
+                  <span :if={row.action_badge} class="sg-muted">Effective user: {row.effective_user_label}</span>
                 </div>
               </td>
-              <td class="hidden align-top md:table-cell">{row.outcome}</td>
+              <td class="sg-show-desktop sg-text-sm">{row.outcome}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state rounded-lg border border-dashed border-base-300 bg-base-100 p-6 text-sm text-base-content/70">
-        <p class="font-semibold">No audit events match this user view</p>
-        <p class="mt-1">Try a different filter or clear one or more params to widen the result set.</p>
+      <div :if={@rows == []} class="sg-empty-state">
+        <p class="sg-empty-state__title">No audit events match this user view</p>
+        <p class="sg-muted sg-text-sm">Try a different filter or clear one or more params to widen the result set.</p>
       </div>
 
-      <nav :if={@meta} class="flex items-center justify-between gap-3">
+      <nav :if={@meta} class="sg-cluster sg-cluster--between">
         <a
-          class={[
-            "btn btn-outline min-h-11 min-w-11 px-3",
-            "sg-press",
-            if(@meta.previous_page, do: "", else: "btn-disabled")
-          ]}
+          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @detail.user.id, @current_params, @meta.previous_page)}
           aria-disabled={to_string(is_nil(@meta.previous_page))}
           aria-label="Previous page"
@@ -172,13 +170,9 @@ defmodule Sigra.Admin.Live.AuditUserLive do
           <span aria-hidden="true">&larr;</span>
           <span class="sr-only">Previous page</span>
         </a>
-        <span class="text-sm text-base-content/70">Page {(@meta.current_page || 1)}</span>
+        <span class="sg-muted sg-text-sm">Page {@meta.current_page || 1}</span>
         <a
-          class={[
-            "btn btn-outline min-h-11 min-w-11 px-3",
-            "sg-press",
-            if(@meta.next_page, do: "", else: "btn-disabled")
-          ]}
+          class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.next_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @detail.user.id, @current_params, @meta.next_page)}
           aria-disabled={to_string(is_nil(@meta.next_page))}
           aria-label="Next page"
@@ -190,6 +184,12 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     </section>
     """
   end
+
+  # Severity tone mirrors the global explorer: failures risk, impersonation info,
+  # routine success neutral.
+  defp row_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
+  defp row_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
+  defp row_tone(_row), do: nil
 
   defp runtime_config! do
     otp_app =
