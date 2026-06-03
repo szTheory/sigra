@@ -31,7 +31,7 @@ Archive:
 
 **Milestone Goal:** Take the admin UI from "each screen polished individually" to one coherent, needs-led journey — principle of least surprise everywhere, "same job → same component."
 
-- [ ] **Phase 154: Design Contract + sg-notice** — Job→Component mapping, 3 page archetypes, ARIA/motion specs; sg-notice CSS addition. No behavior change.
+- [x] **Phase 154: Design Contract + sg-notice** — Job→Component mapping, 3 page archetypes, ARIA/motion specs; sg-notice CSS addition. No behavior change. (completed 2026-06-03)
 - [ ] **Phase 155: Shared Component Foundation (KEYSTONE)** — Build `Sigra.Admin.Components`; 5×3 baselines green with zero re-records; admin-generated parity green.
 - [ ] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately.
 - [ ] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects.
@@ -56,8 +56,8 @@ Archive:
 **Plans**: 2 plans
 Plans:
 
-- [ ] 154-01-PLAN.md — Design contract governance doc + ExDoc registration (COMP-03)
-- [ ] 154-02-PLAN.md — sg-notice CSS inside @layer sg-components (COMP-04)
+- [x] 154-01-PLAN.md — Design contract governance doc + ExDoc registration (COMP-03)
+- [x] 154-02-PLAN.md — sg-notice CSS inside @layer sg-components (COMP-04)
 
 **Cross-cutting constraints:**
 
@@ -167,7 +167,7 @@ Plans:
 | 151. Ecosystem Sync & Hex Dependency Management | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
-| 154. Design Contract + sg-notice | v1.34 | 0/2 | Not started | - |
+| 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete   | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 0/TBD | Not started | - |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/TBD | Not started | - |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
