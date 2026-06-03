@@ -53,6 +53,9 @@ for this phase.
 | 2xl | 28px (1.75rem) | `--sg-space-7` | — |
 | 3xl | 32px (2rem) | `--sg-space-8` | Section gaps |
 
+Extended values (12, 20, 28) are pre-existing `sg-*` tokens from `app.css`
+(lines 20–31); all are multiples of 4 — grid alignment preserved.
+
 Exceptions for this phase: none. `sg-notice` padding is `--sg-space-4` (same as
 `.sg-list-row` at line 949) to preserve behavioral parity with the existing
 contextual-alert treatment.
@@ -65,12 +68,26 @@ Source: `app.css` lines 20–31; CONTEXT.md D-06.
 
 All type expressed as `sg-*` custom properties from `:root` (app.css lines 33–55).
 
+**Declared type scale for this phase (2 weights):**
+
+`--sg-weight-regular` (450) for body/prose; `--sg-weight-semibold` (700) for all
+heading/label/emphasis roles. `--sg-weight-semibold` is chosen as the single
+emphasis weight because it is the dominant heading and label weight across admin
+page headers, chips, stat labels, and `sg-strong` (see `app.css` lines 374, 403,
+548, 577, 660, 712, 731, 817, 999, 1244) — the section-heading role in this phase
+collapses onto it, preserving existing rendered appearance.
+
 | Role | Token | Computed Size | Weight Token | Computed Weight | Line Height |
 |------|-------|---------------|--------------|-----------------|-------------|
 | Body / notice text | `--sg-text-sm` | 14px (0.875rem) | `--sg-weight-regular` | 450 | `--sg-leading-normal` (1.5) |
-| Label / meta | `--sg-text-2xs` | 11px (0.6875rem) | `--sg-weight-bold` | 800 | `--sg-leading-normal` (1.5) |
-| Section heading | `--sg-text-base` | 16px (1rem) | `--sg-weight-semibold` | 700 | `--sg-leading-snug` (1.3) |
-| Page title | `--sg-text-2xl` | clamp(1.6rem, 2.3vw, 2.4rem) | `--sg-weight-bold` | 800 | `--sg-leading-tight` (1.1) |
+| Label / meta / section heading | `--sg-text-2xs`–`--sg-text-base` | 11–16px | `--sg-weight-semibold` | 700 | `--sg-leading-snug` (1.3) |
+| Page title | `--sg-text-2xl` | clamp(1.6rem, 2.3vw, 2.4rem) | `--sg-weight-semibold` | 700 | `--sg-leading-tight` (1.1) |
+
+> **Existing token palette (reference — not part of this phase's declared scale):**
+> `--sg-weight-bold` (800) exists in `app.css` line 46 and is used by
+> `sg-kv__term` / `sg-meta-label` uppercase micro-labels and brand-mark glyphs
+> (lines 978, 386, 463, 497, etc.). These are pre-existing component usages, not
+> introduced in Phase 154.
 
 **For `sg-notice` specifically:** body text uses `--sg-text-sm` at
 `--sg-weight-regular` (450), matching the existing `sg-list-row` content
