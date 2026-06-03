@@ -1,6 +1,6 @@
 # GA UAT — CI vs human coverage (SEED-001 shift-left)
 
-This document maps the eight **SEED-001** human GA items to **merge-blocking CI** substitutes, **library/integration tests**, and **residual** risk that still needs occasional human or vendor-assisted verification.
+This document maps the eight **SEED-001** human GA items to **merge-blocking CI** substitutes, **library/integration tests**, and **residual** risk that still needs occasional human or vendor-assisted verification. Sigra's default verification posture is automation-first: when CI, deterministic local commands, browser automation, or an explicit machine substitute covers the acceptance criteria, the phase is machine-closed and no conversational UAT is required.
 
 | SEED | Topic | CI / automated substitute | Residual (not replaced by CI) |
 |------|--------|----------------------------|-------------------------------|
@@ -49,13 +49,46 @@ Human vs machine boundaries for **v1.4** are recorded in **`.planning/v1.4-GA-UA
 - **Governance:** if an outcome row disagrees with **§ Policy** below, **edit `.planning/v1.12-UAT-EVIDENCE.md` first**, then align prose here.
 - **Downstream:** phase **75** links **`upgrading-to-v1.12.md`** to this path (**TRN-01**) — keep the filename stable.
 
+## OPS-01 bounded enterprise proof package
+
+This subsection records the machine-vs-human boundary for **OPS-01** in the active `v1.27 ENT-SSO` milestone. It is intentionally narrow: one bounded enterprise contract, one canonical operator story, and no claim of live-provider certification.
+
+### Machine (merge-blocking or command-first)
+
+- **Root proof:** `mix test test/sigra/enterprise_connections/validation_test.exs test/sigra/enterprise_connections/activation_test.exs test/sigra/enterprise_routing/discovery_test.exs test/sigra/oauth/enterprise_callback_test.exs test/sigra/oauth/enterprise_reconciliation_test.exs test/sigra/auth_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs`
+  Proves setup, routing, reconciliation, and enforcement truth stays bounded to library-owned outcomes.
+- **Example/generated-host proof:** `cd test/example && MIX_ENV=test mix test --include example_app test/example_web/integration/enterprise_sso_routing_flow_test.exs test/example_web/integration/enterprise_sso_reconciliation_flow_test.exs test/example_web/controllers/session_controller_test.exs test/example_web/live/organization_settings_live_test.exs`
+  Proves one canonical happy path, one representative denied path, and operator-visible stage guidance.
+- **Installer parity:** `mix test test/sigra/install/features/organizations_test.exs test/sigra/admin/live/enterprise_connection_live_test.exs`
+  Proves generated-host templates and example surfaces describe the same bounded enterprise contract.
+- **Narrow browser lane:** `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=<example-app-url> npx playwright test tests/admin-generated.spec.ts --project=admin-generated`
+  Proves a real served route renders bounded enterprise wiring without expanding into a browser or IdP matrix.
+- **Docs / truth-surface grep:** `rg -n "Enterprise|organization|routing|reconciliation|SSO-only|break-glass|SCIM|hosted control plane|opinionated authz|Did Not Prove|Proved" guides/flows/oauth.md docs/uat-ci-coverage.md .planning/phases/126-generated-host-proof-diagnostics-docs/126-VERIFICATION.md`
+  Proves the public and maintainer truth surfaces stay explicit about scope and non-goals.
+
+### Human / live-provider residual
+
+- Live enterprise IdP consent screens, tenant-specific policy, and provider operational quirks are not covered by the machine lanes above.
+- Cross-browser compatibility, branded UI review, and screenshot-heavy review are outside this proof package.
+- This package does not prove SCIM, hosted control plane behavior, opinionated authz, or provider certification.
+
+## v1.32 upgrade and migration proof
+
+- **UPGRADE-02 (machine-closed):** canonical machine proof is the dedicated `CI` / `upgrade_smoke` lane backed by `scripts/ci/upgrade-smoke.sh`, which exercises a selected published Hex source series against the local candidate checkout. The release proof lane defaults to `SIGRA_UPGRADE_SOURCE_SERIES=1` so it starts from the latest published 1.x package before switching to the local candidate; maintainers can override the series for historical cutover checks.
+- **UPGRADE-01, MIGRATE-01, MIGRATE-02 (published-doc truths):** these are closed by published guidance surfaces plus docs integrity checks (`mix docs --warnings-as-errors`) for:
+  - `guides/introduction/upgrading-to-v1.0.md`
+  - `guides/introduction/migrating-from-phx-gen-auth.md`
+  - `guides/introduction/migrating-from-pow-guardian-ueberauth.md`
+- **Residual human review boundary:** limited to editorial judgment about migration boundaries, risk framing, and "who should/should not migrate now" wording. This section does not claim executable migration cutover automation or ecosystem-equivalence certification.
+
 ## Where to run this
 
 - **GitHub Actions:** `.github/workflows/ci.yml` — jobs `library_tests`, `example_unit_smoke`, `example_playwright_smoke` (includes `ga-uat-shift-left.spec.ts`), `install_smoke`, `getting_started_uat_contract`.
 - **Installer golden / idempotency contract:** locally run **`mix ci.install_golden`** (see [`MAINTAINING.md`](../MAINTAINING.md)); CI mirrors it with job **`install_golden_contract`** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (path-filtered on PRs, always on `main` pushes).
-- **Local:** same as CI: `PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost` for Elixir tests; Playwright from `test/example/priv/playwright` with example app on port 4000.
+- **Local:** same as CI, but prefer the dynamic UAT values printed by `scripts/uat/up.sh`: `PGUSER=postgres PGPASSWORD=postgres PGHOST=127.0.0.1 PGPORT=<printed-postgres-port>` for example-app tests; Playwright from `test/example/priv/playwright` with `SIGRA_EXAMPLE_URL=<printed-app-url>`.
 
 ## Policy
 
 - **Merge-blocking:** Rows SEED-1–2, 3, 4, 5, 6, 7 (example smoke + Playwright UX), and 8 (doc contract) are considered **machine-closed** for GA posture when the jobs above are green.
-- **Residual:** Real mail clients and live Google OAuth remain **optional** pre-announcement spot checks; track separately (e.g. quarterly) if desired.
+- **Automation-first phase close:** For new phase verification, prefer a `*-VERIFICATION.md` artifact backed by commands, CI jobs, Playwright/browser automation, screenshot contracts, or grep/documentation gates. Do not create mandatory human UAT when those machine checks cover the phase truths.
+- **Residual:** Real mail clients, live Google OAuth, provider-specific behavior, and subjective review remain **optional** spot checks unless a milestone explicitly promotes one to a required automated or CI gate. Track them separately rather than blocking ordinary phase close.

@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  # Release-ref evidence path: manually dispatch this workflow from a v* tag
+  # (`gh workflow run "CI" --ref v1.32.0` or Actions UI) to rerun canonical gates.
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -18,6 +21,26 @@ permissions:
 # Library/install failures are unrelated to that secret.
 
 jobs:
+  release_ref_guard:
+    name: Release ref guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require release tag ref for manual release evidence
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "Non-manual CI run; release-ref guard not applicable."
+            exit 0
+          fi
+          case "${GITHUB_REF}" in
+            refs/tags/v*) ;;
+            *)
+              echo "Manual CI release-evidence runs must use refs/tags/v*; got ${GITHUB_REF}"
+              echo "Run with: gh workflow run \"CI\" --ref v1.32.0"
+              exit 1
+              ;;
+          esac
+
   milestone_verification_gate:
     name: Milestone VERIFICATION.md gate
     runs-on: ubuntu-latest
@@ -56,6 +79,7 @@ jobs:
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
     runs-on: ubuntu-latest
+    needs: release_ref_guard
     services:
       postgres:
         image: postgres:15
@@ -122,6 +146,7 @@ jobs:
   library_tests:
     name: Library tests
     runs-on: ubuntu-latest
+    needs: release_ref_guard
     services:
       postgres:
         image: postgres:15
@@ -166,6 +191,71 @@ jobs:
         run: mix test
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
+
+  library_tests_dep_off:
+    name: Library tests (dep-off — Threadline absent)
+    runs-on: ubuntu-latest
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+          POSTGRES_DB: sigra_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps (dep-off lane)
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: "${{ runner.os }}-library-dep-off-${{ hashFiles('mix.lock') }}"
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch library deps
+        env:
+          MIX_ENV: test
+        run: mix deps.get
+      # Compile deps BEFORE removing threadline. On a cache miss `_build` is empty,
+      # and `mix compile --no-deps-check` (below) does not build dependencies — it
+      # would compile the library against absent Ecto/Phoenix.LiveView and fail with
+      # "module Ecto.Query is not loaded". Compiling deps first (in test env, the env
+      # the project compile uses) makes the lane robust to cache misses.
+      - name: Compile deps in test env (dep-off lane)
+        env:
+          MIX_ENV: test
+        run: mix deps.compile
+      - name: Remove :threadline from dep graph (dep-off lane)
+        env:
+          MIX_ENV: test
+        run: |
+          mix deps.unlock threadline
+          mix deps.clean threadline --build
+      - name: Compile without Threadline (proves Code.ensure_loaded? wraps work)
+        env:
+          MIX_ENV: test
+        run: mix compile --warnings-as-errors --no-deps-check
+      - name: Run library tests (Threadline absent)
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix test --exclude requires_threadline --no-deps-check
 
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
@@ -220,6 +310,7 @@ jobs:
     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
     name: Install smoke (fresh phx.new + sigra.install)
     runs-on: ubuntu-latest
+    needs: release_ref_guard
     services:
       postgres:
         image: postgres:15
@@ -265,6 +356,55 @@ jobs:
           # Fresh tmp_app includes Cloak.Vault; compile/boot needs a dummy key (same as admin-acceptance-smoke.sh).
           CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: scripts/ci/install-smoke.sh
+
+  upgrade_smoke:
+    name: Upgrade smoke (published source series -> local candidate)
+    runs-on: ubuntu-latest
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+      - name: Cache Hex registry
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run upgrade smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+        run: scripts/ci/upgrade-smoke.sh
 
   passkeys_manual_fallback_smoke:
     name: Passkeys manual fallback smoke
@@ -394,9 +534,11 @@ jobs:
           # maintainer from unknowingly inheriting command-injection if
           # the matrix value ever gets sourced from `github.event.*`.
           MATRIX_FLAGS: ${{ matrix.flags }}
-        # shellcheck disable=SC2086 -- MATRIX_FLAGS is an intentional
-        # space-separated list of install flags; word-splitting is desired.
-        run: mix sigra.install Accounts User users $MATRIX_FLAGS --yes
+        run: |
+          # MATRIX_FLAGS is an intentional space-separated list of install flags;
+          # word-splitting is desired.
+          # shellcheck disable=SC2086
+          mix sigra.install Accounts User users $MATRIX_FLAGS --yes
       - name: Compile + migrate + test
         working-directory: tmp_app
         env:
@@ -487,6 +629,7 @@ jobs:
   example_http_smoke:
     name: Example HTTP smoke (boot + curl critical routes)
     runs-on: ubuntu-latest
+    needs: release_ref_guard
     services:
       postgres:
         image: postgres:15
@@ -551,6 +694,7 @@ jobs:
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
     runs-on: ubuntu-latest
+    needs: release_ref_guard
     services:
       postgres:
         image: postgres:15
@@ -596,6 +740,14 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix ecto.create && mix ecto.migrate
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
       - name: Install Playwright deps
         working-directory: test/example/priv/playwright
         run: npm ci
@@ -702,6 +854,15 @@ jobs:
             tests/organizations.spec.ts \
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts
+      - name: Run demo-showcase spec (demo-showcase-chromium)
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/demo-showcase.spec.ts \
+            --project=demo-showcase-chromium
       - name: Dump example app log (on failure)
         if: failure()
         # WR-04: surface the backgrounded server log directly in the
@@ -791,6 +952,7 @@ jobs:
   generated_admin_playwright_smoke:
     name: Generated admin Playwright smoke
     runs-on: ubuntu-latest
+    needs: release_ref_guard
     # Cold mix phx.new + compile + Playwright can exceed 30m on busy runners;
     # 45–60m is the tuned band for this job.
     timeout-minutes: 60
@@ -924,3 +1086,52 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run Phase 34 mechanical UAT contracts
         run: scripts/ci/phase34-uat-contracts.sh
+
+  ci-gate:
+    name: ci-gate
+    runs-on: ubuntu-latest
+    needs:
+      - install_golden_contract
+      - library_tests
+      - library_tests_dep_off
+      - install_smoke
+      - upgrade_smoke
+      - example_http_smoke
+      - example_playwright_smoke
+      - generated_admin_playwright_smoke
+    if: always()
+    steps:
+      - name: Verify required release CI lanes
+        env:
+          INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
+          LIBRARY_TESTS: ${{ needs.library_tests.result }}
+          LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
+          INSTALL_SMOKE: ${{ needs.install_smoke.result }}
+          UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
+          EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
+          GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
+        run: |
+          set -euo pipefail
+          failed=0
+          for lane in \
+            INSTALL_GOLDEN_CONTRACT \
+            LIBRARY_TESTS \
+            LIBRARY_TESTS_DEP_OFF \
+            INSTALL_SMOKE \
+            UPGRADE_SMOKE \
+            EXAMPLE_HTTP_SMOKE \
+            EXAMPLE_PLAYWRIGHT_SMOKE \
+            GENERATED_ADMIN_PLAYWRIGHT_SMOKE
+          do
+            result="${!lane}"
+            if [[ "$result" != "success" ]]; then
+              echo "Required release lane $lane: $result"
+              failed=1
+            fi
+          done
+          if [[ "$failed" -ne 0 ]]; then
+            echo "ci-gate failed: one or more required release lanes did not succeed."
+            exit 1
+          fi
+          echo "ci-gate passed: all required release lanes succeeded."

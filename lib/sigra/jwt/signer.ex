@@ -15,7 +15,7 @@ defmodule Sigra.JWT.Signer do
   """
   @spec ensure_joken!() :: :ok
   def ensure_joken! do
-    unless Code.ensure_loaded?(Joken) do
+    unless Sigra.OptionalDeps.joken_available?() do
       raise RuntimeError, """
       Joken is required for JWT support but is not available.
 

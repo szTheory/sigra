@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: post-v1.26
-milestone_name: Next milestone selection
-status: ready_for_next_milestone
-last_updated: "2026-05-25T10:30:00.000Z"
-last_activity: 2026-05-25 -- Archived v1.26 PK-LIFECYCLE planning artifacts and reset the planning surface for next milestone selection
+milestone: v1.33
+milestone_name: POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+status: Awaiting next milestone
+last_updated: "2026-06-02T16:12:00.000Z"
+last_activity: 2026-06-02 — Admin-UI Pass 2 Stage 0 (design-system foundation) completed (quick 260602-gll)
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 4
+  completed_phases: 4
+  total_plans: 4
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -21,38 +21,53 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** choose the next milestone after the v1.26 archive closeout
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: none selected
-Plan: 0 of 0
-Status: v1.26 PK-LIFECYCLE is archived; roadmap and requirements are reset for the next milestone definition
-Last activity: 2026-05-25 -- archived v1.26 planning artifacts, acknowledged deferred items, and left ENT-SSO as the default next candidate
+Phase: Milestone v1.33 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-02 — Milestone v1.33 completed and archived
 
 ## Accumulating Context
 
+- `v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` roadmap created based on research in `.planning/research/SUMMARY.md`.
+- 4 phases (150–153), 10/10 requirements mapped.
+- Phase 153 closed the DB connection sandbox stability and CI leak-resolution blocker.
+- v1.33 phase artifacts are archived under `.planning/milestones/v1.33-phases/`.
+
+## Quick Tasks Completed
+
+| ID | Task | Date | Commit |
+|----|------|------|--------|
+| 260602-gll | Admin-UI Pass 2 Stage 0 — `sg-*` design-system foundation tightening (token cleanup, WCAG-1.4.1 status-redundancy glyph, motion tokens + `sg-skeleton`/`sg-toast`) | 2026-06-02 | ffb7eece |
+| 260602-gzc | Admin-UI Pass 2 Stage 1 — shell IA chrome (tenant-marked scope chip + `data-scope` org recolor, sidebar nouns Users/Audit, stale `admin_shell_test` fixed 2/6→6/6) | 2026-06-02 | 2ec5dd6c |
+| 260602-hao | Admin-UI Pass 2 Stage 2 — needs-led landing launcher (jobs-first cards, demoted posture strip + "N need review" risk line, evaluator capability surface) on both global + org landings | 2026-06-02 | 2e5999ee |
+| 260602-hhr | Admin-UI Pass 2 Stage 3 — users index craft ("Showing X–Y of Z" pagination, applied-filter chips + Clear all, teaching empty states, truncate+tooltip, richer mobile card) | 2026-06-02 | 628ec604 |
+| 260602-hoz | Admin-UI Pass 2 Stage 4 — summary-first user detail (security facts strip: MFA/passkeys/active/last-seen + foregrounded risk callout; session recency cue) | 2026-06-02 | 1b2e56cd |
+| 260602-hvx | Admin-UI Pass 2 Stage 5 — investigator-shaped audit (Outcome select, from/to date range, applied-filter chips, failure→risk outcome pill, teaching empty) on index + per-user | 2026-06-02 | 92abb7ce |
+| 260602-i3m | Admin-UI Pass 2 Stage 6 — org overview made real: new `Sigra.Admin.Organizations.Detail` (member roster + pending-invitations, org-scoped/fails-closed) + render + Morgan org-admin persona + multi-session seeds + 11 library tests | 2026-06-02 | c11a7848, 425ae1cf |
+| 260602-ikd | Admin-UI Pass 2 Stage 7 — Cmd-K command palette + copy-to-clipboard (plain-JS hooks injected into the hand-maintained example bundle, node-check + boot-smoke verified; hidden-until-hook progressive enhancement) + sg-cmdk overlay | 2026-06-02 | 87e9d375, ba364d71, 1452c5fd |
+| 260602-stage8 | Admin-UI Pass 2 Stage 8 — evidence/baselines/parity: caught+fixed 2 behavioral regressions (Cmd-K 'Jump to…' relabel, scope-chrome assertion), ruled out passkey CDP env failure, regenerated 19 baselines (axe green chromium/mobile/dark), all gates green (lib 55/55, example admin 33/33, parity OK, warnings-clean) | 2026-06-02 | 2581fa4a, 4baselines |
+
+> Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
+
 ## Deferred Items
 
-Items acknowledged and deferred at v1.26 milestone close on 2026-05-25:
-
-| Category | Item | Status |
-|----------|------|--------|
-| todo | 2026-05-08-write-accrue-integration-recipe.md | pending |
-| todo | 2026-05-08-write-lockspire-integration-recipe.md | pending |
-| todo | 2026-05-08-write-relyra-integration-recipe.md | pending |
-| todo | 2026-05-08-write-rulestead-integration-recipe.md | pending |
-| todo | 2026-05-08-write-threadline-integration-recipe.md | pending |
-| seed | SEED-011-ecosystem-integrations | dormant |
-
-### Decisions
-
-- Activated `PK-LIFECYCLE` as the v1.26 milestone per the ranked milestone arc.
-- Treat existing passkey CRUD, WebAuthn ceremony plumbing, and passkey-primary toggle as shipped foundation rather than new feature scope.
-- Closed the stale Phase 88 working-tree todo after re-verifying the branch was clean on 2026-05-23.
-- Archived `v1.26 PK-LIFECYCLE` after the repaired-form proof surfaces, milestone audit, and Nyquist closure all aligned on 2026-05-25.
+- `Phoenix.Ecto.SQL.Sandbox` for Playwright/browser acceptance tests remains deferred unless the browser lane is intentionally redesigned around transactional external-client proof.
+- Broad Elixir/OTP/Phoenix CI matrix expansion remains deferred unless a specific compatibility regression requires it.
 
 ## Operator Next Steps
 
-- Select the next milestone from `MILESTONE-ARC.md`; `ENT-SSO` remains the default candidate.
-- Start the next milestone with `$gsd-new-milestone` to create a fresh `REQUIREMENTS.md`.
+- Start the next milestone with `$gsd-new-milestone`.
+
+### Blockers
+
+- None.
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 153 P01 | 72 min | 3 tasks | 21 files |

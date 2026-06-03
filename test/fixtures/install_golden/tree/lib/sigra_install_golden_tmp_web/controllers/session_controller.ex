@@ -48,6 +48,23 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
     |> redirect(to: ~p"/users/log_in")
   end
 
+  def create(conn, %{"_action" => "enterprise", "user" => %{"email" => email}}) do
+    case SigraInstallGoldenTmp.Organizations.discover_enterprise_connection(email) do
+      {:ok, %{organization_slug: slug}} ->
+        conn
+        |> redirect(
+          to:
+            ~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"
+        )
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, enterprise_discovery_error(reason))
+        |> put_flash(:email, String.slice(email, 0, 160))
+        |> redirect(to: ~p"/users/log_in")
+    end
+  end
+
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")
   end
@@ -59,16 +76,26 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
   defp create(conn, %{"user" => user_params}, info) do
     %{"email" => email, "password" => password} = user_params
 
-    if user = Auth.get_user_by_email_and_password(email, password) do
-      conn
-      |> put_flash(:info, info)
-      |> UserAuth.log_in_user(user, user_params)
-    else
-      # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
-      conn
-      |> put_flash(:error, "Invalid email or password")
-      |> put_flash(:email, String.slice(email, 0, 160))
-      |> redirect(to: ~p"/users/log_in")
+    case Auth.authenticate_user(email, password) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, info)
+        |> UserAuth.log_in_user(user, user_params)
+
+      {:error, :sso_required, %{organization_slug: slug}}
+      when is_binary(slug) and slug != "" ->
+        conn
+        |> put_flash(:error, "Your organization requires enterprise sign-in.")
+        |> redirect(
+          to:
+            ~p"/organizations/#{slug}/sso?#{%{routing_source: "local_policy"}}"
+        )
+
+      _ ->
+        conn
+        |> put_flash(:error, "Invalid email or password")
+        |> put_flash(:email, String.slice(email, 0, 160))
+        |> redirect(to: ~p"/users/log_in")
     end
   end
 
@@ -288,6 +315,15 @@ defmodule SigraInstallGoldenTmpWeb.SessionController do
   defp client_user_agent(conn) do
     conn |> get_req_header("user-agent") |> List.first() || ""
   end
+
+  defp enterprise_discovery_error(:multiple_org_matches),
+    do: "We couldn't determine your organization from that work email. Enter your organization and try again."
+
+  defp enterprise_discovery_error(:org_connection_unavailable),
+    do: "Enterprise sign-in is not available for that organization right now. Try again or contact your administrator."
+
+  defp enterprise_discovery_error(_reason),
+    do: "We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again."
 
 
   defp passkey_registration_options_json(user, challenge, passkeys, config) do

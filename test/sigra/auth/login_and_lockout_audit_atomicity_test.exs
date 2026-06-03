@@ -1,12 +1,11 @@
 defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   import Mox
 
   alias Sigra.Audit.Assertions
   alias Sigra.Auth
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   setup :verify_on_exit!
 
@@ -25,17 +24,29 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
+  defmodule SSOOnlyOrganizations do
+    def local_auth_policy_for(%{email: "b3-sso@example.com"}, _opts) do
+      %{
+        organization_id: "org-b3",
+        enforcement_mode: :sso_required,
+        break_glass: false,
+        password_login: :deny,
+        password_reset: :deny
+      }
+    end
 
+    def local_auth_policy_for(_user, _opts) do
+      %{password_login: :allow, password_reset: :allow, break_glass: false}
+    end
+  end
+
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-    Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS b3_login_users_43 CASCADE", [])
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE b3_login_users_43 (
+      CREATE TABLE IF NOT EXISTS b3_login_users_43 (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         email text NOT NULL,
         hashed_password text NOT NULL,
@@ -70,12 +81,6 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
       """
     )
 
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE b3_login_users_43, audit_events RESTART IDENTITY CASCADE",
-      []
-    )
-
     %{repo: repo}
   end
 
@@ -84,6 +89,7 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
       repo: repo,
       user_schema: LoginUser,
       otp_app: :sigra,
+      organizations_module: SSOOnlyOrganizations,
       audit: [audit_schema: AuditTestEvent],
       session: [store: Sigra.MockSessionStore, session_schema: LoginUser],
       suspicious_login: [enabled: false, notify: false],
@@ -139,6 +145,44 @@ defmodule Sigra.Auth.LoginAndLockoutAuditAtomicityTest do
       actor_id: user.id,
       target_id: user.id,
       metadata: %{"method" => "password"}
+    })
+  end
+
+  test "config authenticate: SSO-only denial returns before auth.login.success and session.create",
+       %{repo: repo} do
+    password = "long_password_123"
+    hashed = Sigra.Crypto.hash_password(password)
+
+    {:ok, user} =
+      %LoginUser{}
+      |> Ecto.Changeset.change(%{
+        email: "b3-sso@example.com",
+        hashed_password: hashed,
+        confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second),
+        failed_login_attempts: 0,
+        locked_at: nil
+      })
+      |> repo.insert()
+
+    cfg = sigra_config(repo)
+
+    assert {:error, :sso_required} =
+             Auth.authenticate(cfg, %{
+               "email" => user.email,
+               "password" => password
+             })
+
+    assert is_nil(
+             Assertions.latest_audit_event(repo, AuditTestEvent, action: "auth.login.success")
+           )
+
+    assert is_nil(Assertions.latest_audit_event(repo, AuditTestEvent, action: "session.create"))
+
+    Assertions.assert_audit_fields(repo, AuditTestEvent, %{
+      action: "auth.login.failure",
+      actor_id: user.id,
+      target_id: user.id,
+      metadata: %{"reason" => "sso_required", "organization_id" => "org-b3"}
     })
   end
 end

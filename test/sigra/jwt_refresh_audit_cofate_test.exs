@@ -6,14 +6,13 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
   `audit_jwt_refresh_reuse/2` (Phase **81**), see
   `test/sigra/api_token_audit_atomic_test.exs`.
   """
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   @moduletag :capture_log
 
   alias Sigra.JWT
   alias Sigra.JWT.RefreshToken
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule VerifyFailureTelemetryHandler do
     @moduledoc false
@@ -48,20 +47,13 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    for t <- ["jwt_refresh_cofate_user_tokens", "jwt_refresh_cofate_users"] do
-      Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS #{t} CASCADE", [])
-    end
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE jwt_refresh_cofate_users (
+      CREATE TABLE IF NOT EXISTS jwt_refresh_cofate_users (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         email text,
         token_epoch integer NOT NULL DEFAULT 0,
@@ -75,7 +67,7 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE jwt_refresh_cofate_user_tokens (
+      CREATE TABLE IF NOT EXISTS jwt_refresh_cofate_user_tokens (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         token bytea NOT NULL,
         context varchar(255) NOT NULL,
@@ -110,20 +102,6 @@ defmodule Sigra.JWTRefreshAuditCofateTest do
       """,
       []
     )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE jwt_refresh_cofate_user_tokens RESTART IDENTITY CASCADE",
-      []
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE jwt_refresh_cofate_users RESTART IDENTITY CASCADE",
-      []
-    )
-
-    Ecto.Adapters.SQL.query!(repo, "TRUNCATE TABLE audit_events RESTART IDENTITY CASCADE", [])
 
     %{repo: repo}
   end

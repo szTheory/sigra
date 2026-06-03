@@ -37,7 +37,7 @@ defmodule Sigra.MixProject do
       description:
         "Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth " <>
           "(sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more " <>
-          "are optional host deps. See https://hexdocs.pm/sigra and the README for details.",
+          "are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.",
       source_url: @source_url,
       homepage_url: @source_url,
       package: package(),
@@ -67,6 +67,10 @@ defmodule Sigra.MixProject do
         Bcrypt,
         Hammer,
         Swoosh.Email,
+        Threadline,
+        Threadline.ActorRef,
+        Threadline.AuditChange,
+        Threadline.AuditTransaction,
         Oban,
         Oban.Worker,
         Oban.Job,
@@ -78,9 +82,13 @@ defmodule Sigra.MixProject do
         Joken.Signer,
         Joken.Config,
         EQRCode,
+        Chimeway,
+        Chimeway.Notifier,
         # Internal modules defined only when an optional dep is loaded
+        Sigra.Integrations.Chimeway,
         Sigra.Workers.AccountDeletion,
         Sigra.Workers.AuditCleanup,
+        Sigra.Workers.AuditForward,
         Sigra.Workers.EmailDelivery,
         Sigra.Workers.TokenCleanup
       ]
@@ -108,6 +116,9 @@ defmodule Sigra.MixProject do
       {:nimble_totp, "~> 1.0"},
       {:cloak_ecto, "~> 1.3"},
       {:wax_, "~> 0.7"},
+      {:threadline, "~> 0.5", optional: true},
+      # Optional Chimeway bridge — host adds `{:chimeway, "~> 1.0"}`; local dev may use CHIMEWAY_PATH path dep.
+      {:chimeway, "~> 1.0", optional: true},
       {:eqrcode, "~> 0.2.1", optional: true},
       # Dev/test
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
@@ -115,11 +126,11 @@ defmodule Sigra.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.1", only: :test},
       {:stream_data, "~> 1.1", only: [:dev, :test]},
-      # Postgres driver used only by the opt-in `:postgres` tagged tests
-      # (e.g. `test/sigra/audit/query_index_test.exs`) that assert Query
-      # plans against a live Postgres repo. Excluded from default test runs
+      # Postgres driver. Required at runtime when threadline (optional) is used;
+      # also used by opt-in `:postgres` tagged tests (e.g. `test/sigra/audit/query_index_test.exs`)
+      # that assert Query plans against a live Postgres repo. Excluded from default test runs
       # via `ExUnit.start(exclude: [:postgres])` in test/test_helper.exs.
-      {:postgrex, "~> 0.17", only: :test}
+      {:postgrex, "~> 0.17"}
     ]
   end
 
@@ -153,13 +164,25 @@ defmodule Sigra.MixProject do
       # are intentionally relative from this guide for repo navigation.
       skip_undefined_reference_warnings_on: [
         "guides/introduction/upgrading-to-v1.10.md",
-        "guides/introduction/upgrading-to-v1.11.md"
+        "guides/introduction/upgrading-to-v1.11.md",
+        # Phase 131: hidden Application helpers referenced in moduledocs; suppressed pending
+        # a @doc false / @moduledoc false strategy alignment in a future phase.
+        "lib/sigra/audit/forwarder.ex",
+        "lib/sigra/audit/forwarders.ex",
+        "lib/sigra/audit/forwarders/noop.ex",
+        "lib/sigra/audit/forwarders/threadline.ex",
+        "lib/sigra/workers/audit_forward.ex",
+        # Phase 132: recipe files reference hidden Application helpers and the Sigra.Mailer
+        # behaviour callback (which is a @callback, not a @doc function).
+        "guides/recipes/companion-libs/threadline.md",
+        "guides/recipes/companion-libs/mailglass.md"
       ],
-      main: "getting-started",
+      main: "demo-showcase",
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
       formatters: ["html", "markdown"],
+      assets: %{"guides/assets" => "assets"},
       extras: [
         "README.md",
         "CONTRIBUTING.md",
@@ -169,6 +192,7 @@ defmodule Sigra.MixProject do
         "CHANGELOG.md",
         "guides/introduction/installation.md",
         "guides/introduction/getting-started.md",
+        "guides/introduction/contract.md",
         "guides/introduction/first-hour.md",
         "guides/introduction/intermediate-production-path.md",
         "guides/reference/generator-options.md",
@@ -178,7 +202,12 @@ defmodule Sigra.MixProject do
         "guides/introduction/upgrading-to-v1.10.md",
         "guides/introduction/upgrading-to-v1.11.md",
         "guides/introduction/upgrading-to-v1.12.md",
+        "guides/introduction/upgrading-to-v1.0.md",
         "guides/introduction/upgrading-to-v1.1.md",
+        "guides/introduction/migrating-from-phx-gen-auth.md",
+        "guides/introduction/migrating-from-pow-guardian-ueberauth.md",
+        "guides/introduction/suite-integration.md",
+        "guides/introduction/demo-showcase.md",
         "guides/flows/registration.md",
         "guides/flows/login-and-logout.md",
         "guides/flows/password-reset.md",
@@ -190,6 +219,9 @@ defmodule Sigra.MixProject do
         "docs/audit-semantics.md",
         "docs/uat-ci-coverage.md",
         "docs/ga-evidence.md",
+        "docs/launch/v1.0/announcement.md",
+        "docs/launch/v1.0/alternatives.md",
+        "docs/launch/v1.0/evidence.md",
         "docs/nyquist-posture-matrix.md",
         "docs/NEXT-STEPS-MANUAL.md",
         "guides/recipes/testing.md",
@@ -198,13 +230,20 @@ defmodule Sigra.MixProject do
         "guides/recipes/multi-tenant.md",
         "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md",
-        "guides/recipes/companion-oauth-provider.md"
+        "guides/recipes/companion-oauth-provider.md",
+        "guides/recipes/companion-libs/threadline.md",
+        "guides/recipes/companion-libs/mailglass.md",
+        "guides/recipes/companion-libs/accrue.md",
+        "guides/recipes/companion-libs/lockspire.md",
+        "guides/recipes/companion-libs/relyra.md",
+        "guides/recipes/companion-libs/rulestead.md"
       ],
       groups_for_extras: [
         Introduction: ~r{guides/introduction/.?},
         Reference: ~r{guides/reference/.?},
         Flows: ~r{guides/flows/.?},
-        Recipes: ~r{guides/recipes/.?},
+        "Companion Libraries": ~r{guides/recipes/companion-libs/.?},
+        Recipes: ~r{guides/recipes/[^/]+\.md$},
         Docs: ~r{^docs/|^SECURITY\.md$}
       ],
       groups_for_modules: [

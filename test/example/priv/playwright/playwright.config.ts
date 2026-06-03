@@ -29,6 +29,9 @@ const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
 // (Playwright mobile preset is WebKit).
 const WEBAUTHN_CDP_SPECS =
   /passkeys-hooks\.spec\.ts|passkey-options\.spec\.ts|passkey-login\.spec\.ts/;
+// Evaluator-facing demo showcase spec — runs in its own partition so it does
+// not interfere with the behavior-truth lanes (chromium, mobile).
+const DEMO_SHOWCASE_SPEC = /demo-showcase\.spec\.ts/;
 
 // GitHub Pages publish job sets SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1 so reviewer
 // videos are retained on green runs (default CI keeps video on failure only).
@@ -78,7 +81,7 @@ export default defineConfig({
     // specs so those stay scoped to their partitioned projects.
     {
       name: 'chromium',
-      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_GENERATED_SPEC],
+      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_GENERATED_SPEC, DEMO_SHOWCASE_SPEC],
       use: { ...devices['Desktop Chrome'] },
     },
     // Mobile coverage for non-admin flows (golden-path, organizations,
@@ -92,6 +95,7 @@ export default defineConfig({
         ADMIN_CHECKPOINTS_SPEC,
         ADMIN_GENERATED_SPEC,
         WEBAUTHN_CDP_SPECS,
+        DEMO_SHOWCASE_SPEC,
       ],
       use: { ...devices['iPhone 13'] },
     },
@@ -143,6 +147,14 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         video: checkpointVideo,
       },
+    },
+    // Evaluator-facing demo showcase lane: exercises seeded personas and
+    // captures four committed PNG baselines for evaluator-facing screenshots.
+    // Excluded from chromium and mobile via testIgnore (D-03).
+    {
+      name: 'demo-showcase-chromium',
+      testMatch: DEMO_SHOWCASE_SPEC,
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 });

@@ -6,6 +6,14 @@ Hex releases exercise the library and templates — they do **not** validate an 
 
 On your **first public Hex release**, follow **`Release automation`** for the mechanical ship path; when you are ready to coordinate evidence and optional comms around that ship, use **`First public launch (announcement checklist)`** later in this file.
 
+## Issue Triage & Bugfix Cadence
+
+1. **Monitor:** Check GitHub issues (`gh issue list`) weekly.
+2. **Categorize:** Label issues as `bug` (core logic), `friction` (DX/documentation), or `enhancement` (feature request).
+3. **Prioritize:** Address `bug` and `friction` items in the next patch release. Defer `enhancement` items. Reference the severity classes (P0-P3) from `docs/release-runbook-v1-0.md`.
+4. **Communication Posture:** Keep updates factual and version-specific. State impact, workaround status, and next decision checkpoint. Avoid implying unsupported guarantees beyond documented release evidence.
+5. **Template Updates:** Whenever generator templates are touched, the maintainer MUST list `mix sigra.upgrade --yes` under a "Template Updates Required" header in `CHANGELOG.md`.
+
 ## Milestone cadence and pause (v1.11+)
 
 GSD milestones (**`/gsd-new-milestone`**, **`.planning/REQUIREMENTS.md`**, phased **`.planning/ROADMAP.md`**) are for **coordinated tranches** that move **North Star** outcomes in **`.planning/PROJECT.md`**. They are **not** required for every Hex publish.
@@ -133,6 +141,18 @@ gh run watch "$(gh run list --workflow 'Release Please' --limit 1 --json databas
 
 Do **not** enable **Allow GitHub Actions to create and approve pull requests**. Instead add a fine-grained **PAT** as the **`RELEASE_PLEASE_TOKEN`** secret (contents + pull-requests write, and any scopes Release Please needs for your branch rules). The workflow uses `token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}` — see **Release automation** below.
 
+## Sigra 1.32 release path
+
+The selected release path is a direct Hex `1.32.0` cut from `main`, not a public RC train by default. RCs are a fallback only if hardening finds a concrete blocker that needs external validation.
+
+For this one-time major release, `release-please-config.json` carries `"release-as": "1.32.0"` in `packages["."]`. `.release-please-manifest.json` remains the last shipped `0.3.0` until the Release Please release PR records the new release, and `mix.exs` `@version` changes inside that Release Please release PR.
+
+After the 1.32 release PR merges and the release is cut, remove or update the `"release-as": "1.32.0"` override before normal conventional-commit SemVer resumes.
+
+Phase 146 canonical runbook: `docs/release-runbook-v1-0.md`.
+It is the single source for the release gate matrix, dry-run/package inspection, publish recovery branches, post-publish checks, and first-14-day hotfix policy.
+Keep this file as the maintainer entry-point index and do not duplicate the full matrix here.
+
 ## Release automation (default)
 
 Sigra follows the same pattern as sibling libraries (**Release Please** + **Hex on merge**):
@@ -215,11 +235,43 @@ Use only when not using the Release PR flow. Adjust version strings to match `mi
 
 ## Semver for Sigra (pre-1.0)
 
+This section is historical pre-1.0 policy. For the selected major release decision, follow [Sigra 1.32 release path](#sigra-132-release-path).
+
 Hex and Mix treat `0.x` minors as potentially breaking. Use **`0.y.z` patches** only for doc-only fixes, internal-only changes, or releases that do **not** add new **supported public** `lib/` API since the last published version.
 
 Use a **`0.y` minor bump** when you ship **new supported public** modules or functions on Hex since the last publish. In particular: if the last Hex publish was **`0.1.0`** without `Sigra.Audit.Assertions`, a release that includes that module (or any comparable new supported public `lib/` surface) must be at least **`0.2.0`**. Do **not** jump to **`1.0.0`** unless the project explicitly decides to declare API stability with coordinated messaging.
 
 Atomic release hygiene: keep **`mix.exs` `@version`**, **`CHANGELOG.md`**, the **`v<version>`** tag, Hex publish, and the GitHub Release aligned in one tight commit series (or a documented sequence), not scattered across unrelated merges.
+
+## OptionalDeps single source of truth (Phase 137)
+
+`lib/sigra/optional_deps.ex` (`Sigra.OptionalDeps`) is the canonical module for runtime optional-dep checks. All runtime optional-dep guards delegate to it via per-dep `available?/0` predicates. To add or audit an optional dependency, edit `lib/sigra/optional_deps.ex` — do not scatter new `Code.ensure_loaded?` guards across call sites.
+
+The "single source of truth" claim applies to **runtime guards only**. The narrow documented exceptions that are out of scope: compile-time `defmodule` wrappers that must resolve at compile time, dynamic host-schema atom checks, boot-warning `cond` blocks, and the doctor task's dynamic-forwarder check. These are not Phase 137 gaps; they are inherent to their respective roles and are not convertible to runtime delegates.
+
+## Recipe-contract fixture (Phase 139)
+
+`test/sigra/recipes/companion_lib_contract_test.exs` is a **maintainer-internal** merge-blocking drift guard, NOT a Hex-facing recipe or adopter-facing test. It is a CI contract assertion that runs in the standard `mix test` suite.
+
+Every companion-lib recipe under `guides/recipes/companion-libs/` must carry five required markers: a `## Failure modes` section, a `## Non-goals` section, a "Sigra works fully standalone" banner, `validated_against:` frontmatter, and `last_validated:` frontmatter. The fixture asserts that all six recipes carry all five markers and will fail the test suite if any marker drifts or a new recipe is added without them.
+
+## Deprecation removal timeline
+
+Two live deprecated functions have committed removal schedules:
+
+- **`Sigra.MFA.Trust.cookie_opts/0`** — already raises at runtime (no-return stub). The raising stub will be deleted entirely in `0.4.0`. Migration: use `cookie_opts/1` with `%Sigra.Config{}` so `cookie_domain` is honored.
+- **`Sigra.Account.audit_forced_password_change/2`** — still works (soft-deprecated). Removed in `0.5.0`. Migration: use `clear_password_change_requirement/3` when `:audit_schema` is configured.
+
+Removal process: each removal-target version will carry a CHANGELOG entry and the function body will be deleted (not just the annotation). Removal targets are expressed as Hex SemVer `0.x` minors, consistent with the pre-1.0 policy above.
+
+### Dual version axes — why HexDocs renders "since 0.9.0 / removal 0.5.0" (intentional)
+
+Sigra carries **two coexisting version axes**, and a deprecated function's rendered HexDocs header can therefore show a removal target *numerically lower* than its `@doc since:` value. This is a known, accepted convention — not a bug:
+
+- **Hex-published SemVer axis** — what `mix.exs` `@version` tracks (currently `0.x`). **Removal targets** (`0.4.0`, `0.5.0`) are chosen on this axis and are correctly *future* relative to the published version.
+- **Internal milestone/planning axis** — the `@doc since:` annotations across `lib/` are keyed to the milestone numbering (which runs ahead, e.g. `0.6.0`, `0.9.0`, up to `0.11.0`), **not** the Hex release axis.
+
+Because the two axes share a `0.x` shape, ExDoc renders both numbers in one header (`cookie_opts/0`: since 0.6.0, removal 0.4.0; `audit_forced_password_change/2`: since 0.9.0, removal 0.5.0), producing an apparent inversion. The **removal targets are authoritative and correct** (Hex axis); the `since:` values are milestone-axis labels. Fully reconciling this would mean re-keying every `@doc since:` in the library onto the Hex SemVer axis — a deliberate, separate, library-wide change tracked in `.planning/todos/pending/2026-05-29-deprecation-since-vs-removal-version-axis.md`, not a milestone-close edit. Until that lands, read "removal in X" as the Hex-axis commitment and treat `since:` as informational. (Cosmetic: ExDoc also appends a trailing period, rendering `0.5.0..` / `0.4.0..` — harmless.)
 
 ## Planning hygiene (without gsd-tools JSON)
 

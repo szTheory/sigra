@@ -170,12 +170,12 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
               </button>
             <% :not_scheduled -> %>
               <p class="mt-2 text-sm text-gray-500">
-                Permanently delete your account and all associated data.
-                This action cannot be undone after the grace period expires.
+                Schedule account deletion according to your configured deletion strategy.
+                After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
               </p>
               <button
                 phx-click="confirm_delete"
-                data-confirm="Are you sure? Your account will be deactivated immediately and permanently deleted. All sessions will be signed out."
+                data-confirm="Are you sure? Your account will be deactivated immediately, all sessions will be signed out, and finalization will follow your configured deletion strategy."
                 class="mt-4 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded"
               >
                 Delete my account
@@ -271,12 +271,13 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
     user = socket.assigns.current_scope.user
 
     case Auth.schedule_deletion(user) do
-      {:ok, _user, scheduled_date} ->
+      {:ok, updated_user, scheduled_date} ->
         {:noreply,
          socket
          |> put_flash(:info, "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.")
          |> assign(
-           deletion_status: Auth.deletion_status(user),
+           current_scope: %{socket.assigns.current_scope | user: updated_user},
+           deletion_status: Auth.deletion_status(updated_user),
            scheduled_deletion_date: to_string(scheduled_date)
          )}
 
@@ -296,11 +297,12 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
     user = socket.assigns.current_scope.user
 
     case Auth.cancel_deletion(user) do
-      {:ok, _user} ->
+      {:ok, updated_user} ->
         {:noreply,
          socket
          |> put_flash(:info, "Account deletion cancelled. Your account is active again.")
          |> assign(
+           current_scope: %{socket.assigns.current_scope | user: updated_user},
            deletion_status: :not_scheduled,
            scheduled_deletion_date: nil
          )}

@@ -45,6 +45,61 @@ Common failures when adding Sigra to a Phoenix 1.8+ app and how to fix them.
 
 Then bump the dependency, **`mix deps.get`**, and re-run **`mix test`** (and **`mix sigra.upgrade --yes`** only when **`CHANGELOG.md`** or release notes tell you to).
 
+## First-run verification with `mix sigra.doctor`
+
+Run this immediately after install from your host app root:
+
+```bash
+mix sigra.doctor
+mix sigra.doctor --quiet
+```
+
+`mix sigra.doctor` prints one row per optional feature with these states:
+
+- `[ ] missing` — optional dependency is not present; this is non-fatal unless you configured that feature.
+- `[~] available` — dependency is loaded but the feature is not configured.
+- `[✓] loaded` — dependency is loaded and the feature is configured/active.
+- `[!] misconfigured` — feature is configured but required wiring/dependencies are missing.
+
+Verdict lines come from the task output and must be interpreted literally:
+
+- `OK: all configured features are properly wired.`
+- `ERROR: misconfigured features detected (see above). Fix the issues above before deploying.`
+
+Exit semantics are:
+
+- `exit 0`: all configured features are wired correctly, or no optional features are configured.
+- `exit 1`: at least one configured feature has broken wiring.
+
+### Success example
+
+```text
+$ mix sigra.doctor --quiet
+==> sigra.doctor
+
+  [~] available oauth (OAuth/OIDC) (not configured)
+  [~] available async_email (Swoosh + Oban) (not configured)
+  [✓] loaded     rate_limiting (Hammer)
+
+OK: all configured features are properly wired.
+```
+
+### Failure example (configured OAuth without Assent and async email without supervised Oban/Swoosh)
+
+```text
+$ mix sigra.doctor
+==> sigra.doctor
+
+  [!] misconfigured oauth (OAuth/OIDC) — OAuth providers are configured but Assent is missing.
+  [!] misconfigured async_email (Swoosh + Oban) — Async email is configured but Swoosh and/or supervised Oban are missing.
+  [ ] missing   enterprise_connections (Req)
+
+Misconfigured features:
+  oauth: configured providers but Assent is not loaded.
+  async_email: enabled but requires both Swoosh and supervised Oban.
+ERROR: misconfigured features detected (see above). Fix the issues above before deploying.
+```
+
 ## Still stuck
 
 - Search existing issues on the Sigra repository.

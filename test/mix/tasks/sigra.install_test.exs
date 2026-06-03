@@ -166,6 +166,7 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         schema_alias: "User",
         repo_module: "MyApp.Repo",
         web_module: "MyAppWeb",
+        app_module: "MyApp",
         otp_app: :my_app,
         organizations?: true,
         passkeys?: false

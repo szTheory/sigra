@@ -148,6 +148,35 @@ defmodule <%= context_module %>.Emails do
     |> text_body(text_body)
   end
 
+  @doc "Builds enterprise SSO reset guidance email when local reset is unavailable."
+  def enterprise_sso_reset_email(user, organization_name, url) do
+    html_content = """
+    <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
+      #{dgettext("sigra", "Hi, your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.", organization: organization_name)}
+    </p>
+    #{cta_button(dgettext("sigra", "Continue with enterprise sign-in"), url)}
+    <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
+      #{dgettext("sigra", "Enterprise sign-in link:")} #{url}
+    </p>
+    """
+
+    text_body = """
+    #{dgettext("sigra", "Hi,")}
+
+    #{dgettext("sigra", "Your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.", organization: organization_name)}
+
+    #{dgettext("sigra", "Enterprise sign-in link:")} #{url}
+
+    ---
+    #{footer_text()}
+    """
+
+    base_email(user.email)
+    |> subject(dgettext("sigra", "Use enterprise sign-in"))
+    |> html_body(base_layout(html_content))
+    |> text_body(text_body)
+  end
+
   @doc "Builds a suspicious login notification email."
   def suspicious_login_email(user, details) do
     ip = details |> Map.get(:ip, "Unknown") |> html_escape_string()
@@ -665,14 +694,14 @@ defmodule <%= context_module %>.Emails do
       #{dgettext("sigra", "Account Deleted")}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
-      #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
+      #{dgettext("sigra", "Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
     </p>
     """
 
     text_body = """
     #{dgettext("sigra", "Account Deleted")}
 
-    #{dgettext("sigra", "Your %{app_name} account and associated data have been permanently removed. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
+    #{dgettext("sigra", "Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.", app_name: "<%= app_name %>")}
 
     ---
     #{footer_text()}

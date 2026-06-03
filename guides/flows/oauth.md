@@ -1,183 +1,208 @@
-# OAuth and Social Login
+# OAuth, OIDC, and Enterprise Sign-In
 
-Sigra wraps [Assent](https://hexdocs.pm/assent) for OAuth 2.0 and OpenID Connect (OIDC). Out of the box it supports Google, GitHub, Apple, and Facebook; additional providers are a few lines of config. This guide covers provider setup, the callback flow, account linking, and unlinking.
+Sigra wraps [Assent](https://hexdocs.pm/assent) for OAuth 2.0 and OpenID Connect (OIDC). Out of the box it supports social sign-in providers such as Google, GitHub, Apple, and Facebook, and it now also ships an organization-scoped enterprise OIDC path for bounded B2B SSO.
+
+This guide is intentionally narrow. It explains:
+
+- provider OAuth / OIDC basics for consumer-style sign-in,
+- the bounded enterprise sign-in contract Sigra ships for organizations,
+- which operator signals belong to setup, routing, reconciliation, and enforcement,
+- and what Sigra does not claim in this milestone.
 
 ## What Sigra gives you
 
-- **`Sigra.OAuth.authorize_url/3`** — returns the provider's authorization URL with PKCE state stored in the session.
-- **`Sigra.OAuth.callback`** — handles the provider's callback: exchanges the code, fetches the user info, returns normalized user data.
-- **`Sigra.Auth.register_oauth/4`** — creates a new user from OAuth user info.
-- **`Sigra.Auth.login_oauth/4`** — logs in an existing user by provider identity.
-- **`Sigra.Auth.link_provider/4`** — links a provider identity to an existing user account.
-- **`Sigra.Auth.unlink_provider/4`** — unlinks a provider identity.
-- **Generated `UserIdentity` schema** — stores `provider`, `provider_user_id`, encrypted `access_token` and `refresh_token` (via `cloak_ecto`).
+- **`Sigra.OAuth.authorize_url/3`** builds the provider authorization URL and stores PKCE state in the session.
+- **`Sigra.OAuth.handle_callback/4`** exchanges the provider callback for normalized identity data.
+- **`Sigra.Auth.register_oauth/4`** creates a new user from OAuth user info.
+- **`Sigra.Auth.login_oauth/4`** logs in an existing user by provider identity.
+- **`Sigra.Auth.link_provider/4`** links a provider identity to an existing account.
+- **`Sigra.Auth.unlink_provider/4`** unlinks a provider identity while protecting the last sign-in method.
+- **`Sigra.EnterpriseConnections`** owns organization-scoped enterprise connection lifecycle, validation, and activation truth.
+- **`Sigra.EnterpriseRouting`** resolves enterprise login through an explicit organization route or bounded domain discovery.
+- **`Sigra.OAuth.EnterpriseReconciliation`** owns just-in-time organization membership reconciliation and typed refusal outcomes.
+- **`Sigra.Auth`** enforces SSO-only posture and break-glass denial truth for local password sign-in.
 
-## Provider configuration
+## Provider OAuth / OIDC basics
 
 Sigra reads provider config from `Sigra.Config.oauth[:providers]`:
 
-    # config/config.exs
-    config :my_app, MyApp.Auth.Config,
-      repo: MyApp.Repo,
-      user_schema: MyApp.Accounts.User,
-      oauth: [
-        enabled: true,
-        providers: [
-          google: [
-            client_id: System.get_env("GOOGLE_CLIENT_ID"),
-            client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
-            redirect_uri: "https://myapp.com/auth/google/callback",
-            scope: "openid email profile"
-          ],
-          github: [
-            client_id: System.get_env("GITHUB_CLIENT_ID"),
-            client_secret: System.get_env("GITHUB_CLIENT_SECRET"),
-            redirect_uri: "https://myapp.com/auth/github/callback"
-          ]
-        ]
+```elixir
+# config/config.exs
+config :my_app, MyApp.Auth.Config,
+  repo: MyApp.Repo,
+  user_schema: MyApp.Accounts.User,
+  oauth: [
+    enabled: true,
+    providers: [
+      google: [
+        client_id: System.get_env("GOOGLE_CLIENT_ID"),
+        client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
+        redirect_uri: "https://myapp.com/auth/google/callback",
+        scope: "openid email profile"
+      ],
+      github: [
+        client_id: System.get_env("GITHUB_CLIENT_ID"),
+        client_secret: System.get_env("GITHUB_CLIENT_SECRET"),
+        redirect_uri: "https://myapp.com/auth/github/callback"
       ]
+    ]
+  ]
+```
 
-**Never hardcode client secrets** — always use `System.get_env/1`. See [Deployment](deployment.html) for env var management.
+Never hardcode client secrets. Use `System.get_env/1` or equivalent runtime secret management.
 
-## Happy path
+### Happy path
 
-### Step 1: Start the flow
+1. Start the flow with a link such as `~p"/auth/google"`.
+2. `Sigra.OAuth.authorize_url/3` generates PKCE state and redirects to the provider.
+3. `Sigra.OAuth.handle_callback/4` verifies the return trip, exchanges the code, and normalizes user info.
+4. Your host app decides whether to register, log in, or require an explicit account-linking confirmation step.
 
-Generate a "Sign in with Google" button that links to `/auth/google`:
+### Account linking
 
-    <.link href={~p"/auth/google"} class="btn btn-google">
-      Sign in with Google
-    </.link>
+If provider email matches an existing user without an existing identity row, Sigra recommends a confirmation flow that requires the existing password before linking. Do not silently link on email match alone.
 
-The generated controller action:
+### Unlinking
 
-    def request(conn, %{"provider" => provider}) do
-      case Sigra.OAuth.authorize_url(config(), provider, conn) do
-        {:ok, %{url: url, session_params: params}} ->
-          conn
-          |> put_session(:oauth_state, params)
-          |> redirect(external: url)
+`Sigra.Auth.unlink_provider/4` refuses to remove the last sign-in method. Users must keep at least one viable path, or set a password first.
 
-        {:error, reason} ->
-          conn
-          |> put_flash(:error, "Could not start #{provider} sign-in: #{inspect(reason)}")
-          |> redirect(to: ~p"/users/log-in")
-      end
-    end
+## Enterprise sign-in contract
 
-`authorize_url/3` generates PKCE verifier + code challenge and stores them in the session (as `session_params`) so `callback/4` can verify the return trip.
+Sigra's enterprise story in `v1.27 ENT-SSO` is deliberately bounded:
 
-### Step 2: Handle the callback
+- **OIDC-first** and organization-scoped.
+- **Thin-host**: the library owns the security-critical truth; generated/example hosts present it honestly.
+- **Four operator stages**: setup, routing, reconciliation, and enforcement.
+- **Representative proof**, not a broad certification matrix.
 
-When the user authorizes, Google redirects them to `/auth/google/callback?code=...&state=...`. The controller:
+Sigra does not claim:
 
-    def callback(conn, %{"provider" => provider} = params) do
-      session_params = get_session(conn, :oauth_state)
+- SCIM or directory sync,
+- hosted control plane behavior,
+- opinionated authorization policy,
+- live-provider certification across enterprise environments,
+- or a general enterprise identity platform beyond bounded org-scoped sign-in.
 
-      case Sigra.OAuth.callback(config(), provider, params, session_params) do
-        {:ok, %{user: user_info, token: token}} ->
-          handle_oauth_user(conn, provider, user_info, token)
+## Enterprise setup
 
-        {:error, reason} ->
-          conn
-          |> put_flash(:error, "Sign-in failed: #{inspect(reason)}")
-          |> redirect(to: ~p"/users/log-in")
-      end
-    end
+Each organization owns its own enterprise connection. The generated host exposes a draft → validate → activate lifecycle backed by `Sigra.EnterpriseConnections`.
 
-`Sigra.OAuth.callback` verifies the PKCE challenge, exchanges the code for tokens, fetches the user info endpoint, and normalizes the response across providers. The `user_info` map always has `:email`, `:provider_id`, `:name`, `:avatar_url`.
+Setup truth is intentionally machine-readable and bounded:
 
-### Step 3: Three cases
+- saving keeps a **draft**,
+- validation failures stay **non-active**,
+- activation succeeds only after validation passes,
+- and safe diagnostics live on persisted lifecycle state such as `validation_failed` plus `last_validation_error`.
 
-Your `handle_oauth_user/3` handles the three possible states:
+When setup fails, operators should start here first:
 
-    defp handle_oauth_user(conn, provider, user_info, token) do
-      case Accounts.find_or_create_oauth_user(provider, user_info, token) do
-        {:ok, :new_user, user} ->
-          conn
-          |> put_flash(:info, "Welcome! Account created via #{provider}.")
-          |> UserAuth.log_in_user(user)
+- confirm issuer, client ID, client secret, scopes, and discovery document URI,
+- run validation again,
+- and treat `validation_failed` as the source of truth rather than guessing from callback behavior.
 
-        {:ok, :existing_user_linked, user} ->
-          conn
-          |> put_flash(:info, "Signed in via #{provider}.")
-          |> UserAuth.log_in_user(user)
+## Enterprise routing
 
-        {:ok, :needs_linking, user} ->
-          # Email matches an existing user but no identity for this provider yet
-          conn
-          |> put_session(:pending_oauth_link, %{provider: provider, user_info: user_info, token: token})
-          |> redirect(to: ~p"/auth/confirm-link")
-      end
-    end
+Enterprise sign-in starts from an organization-aware path:
 
-The third case — "email matches existing user, but they've never signed in with this provider" — is where account-takeover risk lives. Sigra's recommendation: show a confirmation page asking the user to log in with their existing password before linking the new provider. Don't silently link.
+- explicit organization route such as `/organizations/:org/sso`, or
+- bounded email-domain discovery that resolves to exactly one routable organization connection.
 
-## Account linking
+Routing stays fail-closed. The important outcome classes are:
 
-The confirm-link page asks for the existing password:
+- `:no_org_match`,
+- `:multiple_org_matches`,
+- `:org_connection_unavailable`.
 
-    def handle_event("confirm_link", %{"user" => %{"password" => password}}, socket) do
-      %{provider: provider, user_info: user_info, token: token} = get_session(socket, :pending_oauth_link)
-      user = Accounts.get_user_by_email(user_info.email)
+Operators should use the canonical organization route whenever possible. Domain discovery is a convenience layer, not a second source of truth.
 
-      case Accounts.get_user_by_email_and_password(user.email, password) do
-        %User{} = verified_user ->
-          {:ok, _identity} = Sigra.Auth.link_provider(config(), verified_user, %{provider: provider, user_info: user_info, token: token})
-          UserAuth.log_in_user(socket, verified_user)
+## Enterprise reconciliation
 
-        nil ->
-          {:noreply, put_flash(socket, :error, "Incorrect password")}
-      end
-    end
+After callback, Sigra revalidates the routed organization context and reconciles the identity into the correct organization. This stage is owned by `Sigra.OAuth.Callback` and `Sigra.OAuth.EnterpriseReconciliation`.
 
-After linking, future sign-ins via that provider go straight through to `:existing_user_linked`.
+Representative reconciliation outcomes include:
 
-## Unlinking
+- `:existing_membership`,
+- `:invitation_consumed`,
+- `:jit_created`,
+- `:ambiguous_email_match`,
+- `:provider_subject_conflict`.
 
-On the account settings page, let users unlink providers:
+Unsafe reconciliation does not silently downgrade into another auth mode. The generated host keeps the user on the same organization-scoped enterprise recovery path.
 
-    def handle_event("unlink", %{"provider" => provider}, socket) do
-      user = socket.assigns.current_scope.user
+## SSO-only enforcement and break-glass
 
-      case Sigra.Auth.unlink_provider(config(), user, provider) do
-        {:ok, _} ->
-          {:noreply, put_flash(socket, :info, "Unlinked #{provider}.")}
+Organizations can require enterprise sign-in for members while preserving explicit break-glass recovery.
 
-        {:error, :last_login_method} ->
-          {:noreply, put_flash(socket, :error, "You cannot unlink your only sign-in method. Set a password first.")}
-      end
-    end
+The bounded enforcement contract is:
 
-`unlink_provider/4` refuses to remove the last sign-in method — otherwise the user is locked out.
+- local password sign-in is denied with `:sso_required` when SSO-only applies,
+- denial happens before normal success or session creation,
+- explicit break-glass members can keep password access,
+- and break-glass means password sign-in and password reset only.
 
-## Token encryption
+Magic links and passkeys are not the break-glass path for this milestone's SSO-only posture.
 
-Access tokens and refresh tokens are encrypted at rest via `cloak_ecto`. The generated `UserIdentity` schema uses `Cloak.Ecto.Binary` for the `access_token` and `refresh_token` fields. Configure your Cloak vault in `lib/my_app/vault.ex`:
+## Operator troubleshooting by stage
 
-    defmodule MyApp.Vault do
-      use Cloak.Vault, otp_app: :my_app
-    end
+Use the first failing stage instead of reverse-engineering internals:
 
-    config :my_app, MyApp.Vault,
-      ciphers: [
-        default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: System.get_env("CLOAK_KEY") |> Base.decode64!()}
-      ]
+### 1. Setup
 
-`CLOAK_KEY` must be a 32-byte key base64-encoded. Generate with `:crypto.strong_rand_bytes(32) |> Base.encode64()`.
+- Look for `validation_failed` and `last_validation_error`.
+- Confirm OIDC discovery and client credentials.
+- Do not assume an inactive connection is safe to route.
+
+### 2. Routing
+
+- Check whether the login used the explicit organization route or domain discovery.
+- Investigate `:no_org_match`, `:multiple_org_matches`, or `:org_connection_unavailable`.
+- Prefer the canonical organization-scoped sign-in route for retries.
+
+### 3. Reconciliation
+
+- Verify whether the callback produced `:existing_membership`, `:invitation_consumed`, or `:jit_created`.
+- Treat `:ambiguous_email_match` and `:provider_subject_conflict` as safe refusals, not partial success.
+- Keep recovery on the same organization enterprise path.
+
+### 4. Enforcement
+
+- If local password sign-in is denied, confirm whether SSO-only is enabled.
+- Verify break-glass membership for the affected operator.
+- Do not treat a denied local login as a callback or routing problem.
 
 ## Testing
 
-    test "mock OAuth callback creates a new user" do
-      params = Sigra.Testing.mock_oauth_callback(provider: :google, email: "alice@example.com")
-      conn = get(build_conn(), ~p"/auth/google/callback", params)
+Root and host proof should stay layered:
 
-      assert conn.assigns.current_scope.user.email == "alice@example.com"
-    end
+- root ExUnit for setup, routing, callback, reconciliation, and enforcement outcomes,
+- `test/example` integration coverage for canonical success and denied paths,
+- generated-host parity checks for installer templates,
+- and one intentionally narrow browser lane for served-route proof.
+
+See [../docs/uat-ci-coverage.md](../docs/uat-ci-coverage.md) for the machine-vs-human boundary.
+
+## Token encryption
+
+Access and refresh tokens are encrypted at rest via `cloak_ecto`. The generated `UserIdentity` schema uses `Cloak.Ecto.Binary` for token fields. Configure your vault in `lib/my_app/vault.ex`:
+
+```elixir
+defmodule MyApp.Vault do
+  use Cloak.Vault, otp_app: :my_app
+end
+
+config :my_app, MyApp.Vault,
+  ciphers: [
+    default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: System.get_env("CLOAK_KEY") |> Base.decode64!()}
+  ]
+```
 
 ## Related
 
-- [Account Lifecycle](account-lifecycle.html) — changing email after OAuth signup.
-- [Deployment](deployment.html) — env var setup for client secrets.
-- `Sigra.OAuth` — authorize_url, callback
-- `Sigra.Auth.register_oauth/4`, `login_oauth/4`, `link_provider/4`, `unlink_provider/4`
+- [Account Lifecycle](account-lifecycle.html)
+- [Deployment](deployment.html)
+- [../docs/uat-ci-coverage.md](../docs/uat-ci-coverage.md)
+- `Sigra.OAuth`
+- `Sigra.EnterpriseConnections`
+- `Sigra.EnterpriseRouting`
+- `Sigra.OAuth.EnterpriseReconciliation`
+- `Sigra.Auth`

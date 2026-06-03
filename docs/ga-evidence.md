@@ -1,18 +1,33 @@
-# GA evidence & audit posture
+# Release evidence router
 
-This page is a **router** for the v1.4 GA narrative: it does not duplicate the GA matrix; it points to the canonical planning artifacts and packaged maintainer docs.
+This page routes maintainers and reviewers to the canonical release-evidence surfaces for the Sigra 1.32 path.
+It does not duplicate the release gate matrix.
 
-## Executed vs Waived
+## Canonical sources
 
-**Executed** means we ran the listed procedure or produced the named artifact for the milestone. **Waived** means a matrix row was intentionally not re-run for that cut, with a documented substitute (often CI) where applicable. Neither label moves integration or deployment risk to the library — your **host application** still owns those boundaries.
+- [Release runbook v1.32](release-runbook-v1-0.html) — canonical release gate matrix, release-ref evidence checklist, dry-run/package inspection, publish paths, recovery decision tree, post-publish visibility checks, and first-14-day hotfix policy.
+- [UAT ↔ CI coverage](uat-ci-coverage.html) — machine-vs-human coverage mapping for proof posture.
+- [Maintaining](maintaining.html) — stable maintainer entry point and release automation index.
 
-## Where to read next
+## Upgrade and migration proof
 
-- [UAT ↔ CI coverage — OA-01 / OA-02 machine baseline (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/docs/uat-ci-coverage.md)
-- [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md)
-- [v1.4 requirements closure (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md)
-- [UAT ↔ CI coverage](uat-ci-coverage.html)
-- [Audit semantics](audit-semantics.html)
-- [Maintaining & releasing](maintaining.html)
+- [Upgrading to v1.0](upgrading-to-v1.0.html)
+- [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.html)
+- [Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.html)
+- Canonical machine proof for published-consumer upgrade posture: `CI` / `upgrade_smoke` plus `scripts/ci/upgrade-smoke.sh`. The harness defaults to the latest published 1.x source series and can be retargeted with `SIGRA_UPGRADE_SOURCE_SERIES` when live Hex package truth has moved on.
+
+## GitHub-hosted proof links policy
+
+For release proof hosted outside the Hex package tarball (for example `.planning/` artifacts on GitHub), use pinned `v<version>` links.
+Do not use `main` blob URLs for release evidence.
+
+Examples:
+
+- Good: `https://github.com/szTheory/sigra/blob/v1.32.0/.planning/...`
+- Not allowed for release proof: `https://github.com/szTheory/sigra/blob/main/.planning/...`
+
+## Related docs
+
 - [Contributing](contributing.html)
 - [Security policy](security.html)
+- [Audit semantics](audit-semantics.html)

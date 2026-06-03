@@ -86,185 +86,253 @@ defmodule Sigra.Admin.Live.UserShowLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <section :if={@detail} class="space-y-6">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <a class="btn btn-ghost min-h-11" href={@return_to}>Back to users</a>
-        <span class="text-sm text-base-content/70">{scope_copy(@admin_scope)}</span>
+    <section :if={@detail} class="sg-stack sg-stack--6">
+      <div class="sg-cluster sg-cluster--between">
+        <a class="sg-btn sg-btn--ghost sg-btn--sm" href={@return_to}>
+          <span aria-hidden="true">&larr;</span> Back to users
+        </a>
+        <span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>
       </div>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h1 class="text-2xl font-semibold">Identity &amp; Status</h1>
-        <div class="mt-4 space-y-2 text-sm">
-          <p class="font-semibold">{@detail.display_name}</p>
-          <p>{@detail.user.email}</p>
-          <code class="text-xs select-all">{@detail.user.id}</code>
-          <p>{confirmation_label(@detail.identity)}</p>
-          <p>{lock_label(@detail.identity)}</p>
-          <p>{deletion_label(@detail.identity)}</p>
+      <section class="sg-card sg-stack sg-stack--3">
+        <div class="sg-cluster sg-cluster--between sg-cluster--start sg-cluster--3">
+          <div class="sg-stack sg-stack--1">
+            <p class="sg-page-kicker">Identity &amp; Status</p>
+            <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
+            <span class="sg-muted sg-text-sm">{@detail.user.email}</span>
+            <code class="sg-code">{@detail.user.id}</code>
+          </div>
+          <div class="sg-cluster sg-cluster--2">
+            <span :for={{label, tone} <- status_pills(@detail)} class="sg-status-pill" data-tone={tone}>
+              {label}
+            </span>
+          </div>
+        </div>
+
+        <dl class="sg-summary-facts">
+          <div>
+            <dt class="sg-kv__term">MFA</dt>
+            <dd class="sg-kv__value">{mfa_value(@detail.security.mfa_status)}</dd>
+          </div>
+          <div>
+            <dt class="sg-kv__term">Passkeys</dt>
+            <dd class="sg-kv__value sg-summary-facts__num">{passkey_count(@detail.security)}</dd>
+          </div>
+          <div>
+            <dt class="sg-kv__term">Active</dt>
+            <dd class="sg-kv__value sg-summary-facts__num">{length(@detail.sessions)}</dd>
+          </div>
+          <div>
+            <dt class="sg-kv__term">Last seen</dt>
+            <dd class="sg-kv__value">{last_activity(@detail.sessions)}</dd>
+          </div>
+        </dl>
+
+        <div :if={summary_alert(@detail)} class="sg-list-row" data-tone={elem(summary_alert(@detail), 0)}>
+          <p class="sg-text-sm">{elem(summary_alert(@detail), 1)}</p>
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-semibold">Sessions</h2>
-            <p class="mt-1 text-sm text-base-content/70">
-              {pluralize(length(@detail.sessions), "active session")}
-            </p>
+      <section class="sg-card sg-stack sg-stack--3">
+        <div class="sg-cluster sg-cluster--between">
+          <div class="sg-stack sg-stack--1">
+            <h2 class="sg-section-heading">Sessions</h2>
+            <p class="sg-section-copy">{pluralize(length(@detail.sessions), "active session")}</p>
           </div>
 
           <button
             :if={@detail.sessions != []}
             type="button"
             phx-click="open_revoke_all_sessions"
-            class="btn btn-error min-h-11"
+            class="sg-btn sg-btn--danger sg-btn--sm"
           >
             Revoke all sessions
           </button>
         </div>
 
-        <div class="mt-4 space-y-3">
-          <article
-            :for={session <- @detail.sessions}
-            class="rounded-md border border-base-300 bg-base-200 p-4 text-sm"
-          >
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div class="space-y-1">
-                <p class="font-semibold">{session_label(session)}</p>
-                <p>{session.ip || "Unknown IP"}</p>
-                <p>{activity_label(session.last_active_at)}</p>
-              </div>
+        <div :if={@detail.sessions != []} class="sg-table-panel">
+          <table class="sg-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>IP address</th>
+                <th>Last activity</th>
+                <th class="sg-cell-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr :for={session <- @detail.sessions}>
+                <td><span class="sg-strong">{session_type(session)}</span></td>
+                <td><code class="sg-code">{session.ip || "Unknown IP"}</code></td>
+                <td class="sg-muted">
+                  <span class="sg-summary-facts__num">{activity_value(session.last_active_at)}</span>
+                  <span :if={relative_activity(session.last_active_at)} class="sg-muted sg-text-xs">
+                    {relative_activity(session.last_active_at)}
+                  </span>
+                </td>
+                <td class="sg-cell-right">
+                  <button
+                    type="button"
+                    phx-click="open_revoke_session"
+                    phx-value-token={Base.url_encode64(session.hashed_token, padding: false)}
+                    class="sg-btn sg-btn--danger sg-btn--sm"
+                  >
+                    Revoke session
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-              <button
-                type="button"
-                phx-click="open_revoke_session"
-                phx-value-token={Base.url_encode64(session.hashed_token, padding: false)}
-                class="btn btn-error min-h-11 w-full sm:w-auto"
+        <div :if={@detail.sessions == []} class="sg-empty-state">
+          <p class="sg-empty-state__title">No active sessions.</p>
+          <p class="sg-muted sg-text-sm">This user does not have a currently visible session in this scope.</p>
+        </div>
+      </section>
+
+      <div class="sg-detail-grid">
+        <section class="sg-detail-panel sg-stack sg-stack--3">
+          <h2 class="sg-section-heading">Security</h2>
+          <dl class="sg-kv">
+            <div>
+              <dt class="sg-kv__term">MFA</dt>
+              <dd class="sg-kv__value">{mfa_value(@detail.security.mfa_status)}</dd>
+            </div>
+            <div>
+              <dt class="sg-kv__term">Passkeys</dt>
+              <dd class="sg-kv__value">{pluralize(@detail.security.passkey_count, "passkey")}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="sg-detail-panel sg-stack sg-stack--3">
+          <h2 class="sg-section-heading">Identities</h2>
+          <p :if={!@detail.identities_available?} class="sg-section-copy">
+            Linked identities are not available for this app.
+          </p>
+          <dl :if={@detail.identities != []} class="sg-kv">
+            <div :for={identity <- @detail.identities}>
+              <dt class="sg-kv__term">{identity.provider}</dt>
+              <dd class="sg-kv__value">
+                {Map.get(identity, :provider_email) || Map.get(identity, :provider_uid)}
+              </dd>
+            </div>
+          </dl>
+          <div :if={@detail.identities_available? and @detail.identities == []} class="sg-empty-state">
+            <p class="sg-empty-state__title">No linked identities</p>
+            <p class="sg-muted sg-text-sm">This user signs in without a visible external identity provider.</p>
+          </div>
+        </section>
+      </div>
+
+      <section class="sg-card sg-stack sg-stack--3">
+        <div class="sg-stack sg-stack--1">
+          <h2 class="sg-section-heading">Organizations</h2>
+          <p class="sg-section-copy">Tenant memberships and scoped support pivots for this user.</p>
+        </div>
+        <div class="sg-list">
+          <article :for={organization <- @detail.organizations} class="sg-list-row sg-stack sg-stack--3">
+            <div class="sg-cluster sg-cluster--between">
+              <div class="sg-stack sg-stack--1">
+                <span class="sg-meta-label">Organization</span>
+                <span class="sg-meta-value">{organization.organization_name}</span>
+              </div>
+              <span class="sg-status-pill">{organization.role}</span>
+            </div>
+            <div :if={show_pivot_link?(@admin_scope, organization)} class="sg-cluster">
+              <a
+                class="sg-btn sg-btn--secondary sg-btn--sm"
+                href={pivot_path(@admin_scope, @detail.user.id, organization, @return_to)}
               >
-                Revoke session
-              </button>
+                Open organization-scoped view for {organization.organization_name}
+              </a>
             </div>
           </article>
-          <p :if={@detail.sessions == []} class="text-sm text-base-content/70">No active sessions.</p>
-        </div>
-      </section>
-
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Security</h2>
-        <div class="mt-4 space-y-2 text-sm">
-          <p>{mfa_label(@detail.security.mfa_status)}</p>
-          <p>{pluralize(@detail.security.passkey_count, "passkey")}</p>
-        </div>
-      </section>
-
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Identities</h2>
-        <div class="mt-4 space-y-2 text-sm">
-          <p :if={!@detail.identities_available?}>Linked identities are not available for this app.</p>
-          <div :for={identity <- @detail.identities} class="rounded-md border border-base-300 bg-base-200 p-3">
-            <p class="font-semibold">{identity.provider}</p>
-            <p>{Map.get(identity, :provider_email) || Map.get(identity, :provider_uid)}</p>
+          <div :if={@detail.organizations == []} class="sg-empty-state">
+            <p class="sg-empty-state__title">No organization memberships</p>
+            <p class="sg-muted sg-text-sm">This account is not currently attached to a tenant.</p>
           </div>
-          <p :if={@detail.identities_available? and @detail.identities == []}>No linked identities.</p>
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Organizations</h2>
-        <div class="mt-4 space-y-3">
-          <article
-            :for={organization <- @detail.organizations}
-            class="rounded-md border border-base-300 bg-base-200 p-4 text-sm"
-          >
-            <p class="font-semibold">{organization.organization_name}</p>
-            <p>Role: {organization.role}</p>
-            <a
-              :if={show_pivot_link?(@admin_scope, organization)}
-              class="btn btn-outline min-h-11 mt-3 w-full sm:w-auto"
-              href={pivot_path(@admin_scope, @detail.user.id, organization, @return_to)}
-            >
-              Open organization-scoped view for {organization.organization_name}
-            </a>
-          </article>
-          <p :if={@detail.organizations == []} class="text-sm text-base-content/70">No organization memberships.</p>
-        </div>
-      </section>
-
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <div class="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-semibold">Recent Audit</h2>
-            <p class="mt-1 text-sm text-base-content/70">
+      <section class="sg-card sg-stack sg-stack--3">
+        <div class="sg-cluster sg-cluster--between">
+          <div class="sg-stack sg-stack--1">
+            <h2 class="sg-section-heading">Recent Audit</h2>
+            <p class="sg-section-copy">
               Recent activity stays aligned with the full scoped audit history for this user.
             </p>
           </div>
 
-          <a class="btn btn-outline min-h-11" href={full_audit_path(@admin_scope, @detail.user.id, @return_to)}>
+          <a class="sg-btn sg-btn--secondary sg-btn--sm" href={full_audit_path(@admin_scope, @detail.user.id, @return_to)}>
             View full audit
           </a>
         </div>
 
-        <div class="mt-4 space-y-2 text-sm">
-          <div :for={row <- @detail.recent_audit} class="rounded-md border border-base-300 bg-base-200 p-3">
-            <div class="space-y-1">
-              <span :if={row.action_badge} class="badge badge-warning badge-sm">{row.action_badge}</span>
-              <p class="font-semibold">{row.action_label}</p>
-              <p class="text-sm text-base-content/70">{row.actor_summary}</p>
-              <p class="text-xs text-base-content/60">{Calendar.strftime(row.inserted_at, "%Y-%m-%d %H:%M")}</p>
+        <div class="sg-list">
+          <article :for={row <- @detail.recent_audit} class="sg-list-row sg-stack sg-stack--2" data-tone={audit_tone(row)}>
+            <div class="sg-cluster sg-cluster--2">
+              <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
+              <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
             </div>
+            <span class="sg-muted sg-text-sm">{row.actor_summary}</span>
+            <span class="sg-muted sg-text-xs">{Calendar.strftime(row.inserted_at, "%Y-%m-%d %H:%M")}</span>
+          </article>
+          <div :if={@detail.recent_audit == []} class="sg-empty-state">
+            <p class="sg-empty-state__title">No recent audit activity</p>
+            <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
           </div>
-          <p :if={@detail.recent_audit == []}>No recent audit activity.</p>
         </div>
       </section>
 
-      <section class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">Danger Zone</h2>
-        <p class="mt-2 text-sm text-base-content/70">
-          Session revocation uses Sigra's canonical session APIs.
-        </p>
-        <p class="mt-2 text-sm text-base-content/70">
-          Support actions affect {@detail.danger_zone.impersonation_target_label} in {@detail.scope_label}.
-        </p>
+      <section class="sg-danger-panel sg-stack sg-stack--3">
+        <div class="sg-stack sg-stack--1">
+          <h2 class="sg-section-heading">Danger Zone</h2>
+          <p class="sg-muted sg-text-sm">Session revocation uses Sigra's canonical session APIs.</p>
+          <p class="sg-muted sg-text-sm">
+            Support actions affect {@detail.danger_zone.impersonation_target_label} in {@detail.scope_label}.
+          </p>
+        </div>
 
-        <form
-          :if={show_impersonation_start?(@current_scope)}
-          method="post"
-          action={impersonation_start_path(@admin_scope, @detail.user.id)}
-          class="mt-4 space-y-3"
-        >
-          <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
-          <input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
-          <button type="submit" class="btn btn-warning min-h-11 w-full sm:w-auto">
-            Start impersonation
+        <div class="sg-cluster">
+          <form
+            :if={show_impersonation_start?(@current_scope)}
+            method="post"
+            action={impersonation_start_path(@admin_scope, @detail.user.id)}
+          >
+            <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+            <input :if={@return_to} type="hidden" name="return_to" value={@return_to} />
+            <button type="submit" class="sg-btn sg-btn--primary sg-btn--sm">Start impersonation</button>
+          </form>
+
+          <button
+            :if={@detail.danger_zone.revoke_all_sessions?}
+            type="button"
+            phx-click="open_revoke_all_sessions"
+            class="sg-btn sg-btn--danger sg-btn--sm"
+          >
+            Revoke all sessions
           </button>
-        </form>
+        </div>
 
-        <p :if={!show_impersonation_start?(@current_scope)} class="mt-4 text-sm text-base-content/70">
+        <p :if={!show_impersonation_start?(@current_scope)} class="sg-muted sg-text-sm">
           End impersonation before starting another session.
         </p>
-
-        <button
-          :if={@detail.danger_zone.revoke_all_sessions?}
-          type="button"
-          phx-click="open_revoke_all_sessions"
-          class="btn btn-error min-h-11 mt-4 w-full sm:w-auto"
-        >
-          Revoke all sessions
-        </button>
       </section>
 
-      <section :for={section <- @detail.extra_detail_sections} class="rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-xl font-semibold">{Map.get(section, :title) || Map.get(section, "title")}</h2>
-        <p class="mt-2 text-sm text-base-content/70">{Map.get(section, :body) || Map.get(section, "body")}</p>
+      <section :for={section <- @detail.extra_detail_sections} class="sg-card sg-stack sg-stack--2">
+        <h2 class="sg-section-heading">{Map.get(section, :title) || Map.get(section, "title")}</h2>
+        <p class="sg-muted sg-text-sm">{Map.get(section, :body) || Map.get(section, "body")}</p>
       </section>
 
       <dialog :if={@confirm_action} open class="modal">
         <div class="modal-box">
-          <p class="text-base font-semibold">Confirm action</p>
-          <p class="mt-3 text-sm">{@confirm_action.copy}</p>
+          <p class="sg-section-heading">Confirm action</p>
+          <p class="sg-text-sm" style="margin-top: var(--sg-space-3);">{@confirm_action.copy}</p>
           <div class="modal-action">
-            <button type="button" phx-click="cancel_confirm" class="btn btn-ghost min-h-11">Cancel</button>
-            <button type="button" phx-click="confirm_action" class="btn btn-error min-h-11">Confirm</button>
+            <button type="button" phx-click="cancel_confirm" class="sg-btn sg-btn--ghost sg-btn--sm">Cancel</button>
+            <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">Confirm</button>
           </div>
         </div>
       </dialog>
@@ -347,25 +415,107 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   defp scope_copy(_admin_scope), do: "Global user operations"
 
-  defp confirmation_label(identity),
-    do: "Confirmation: " <> if(identity.confirmed?, do: "Confirmed", else: "Unconfirmed")
+  # Concise, scannable identity/security status as tone pills. Only surfaces the
+  # risky states (locked/deletion) as pills — "active" states are not noise.
+  defp status_pills(detail) do
+    identity = detail.identity
 
-  defp lock_label(identity), do: "Lockout: " <> if(identity.locked?, do: "Locked", else: "Active")
+    confirmation =
+      if identity.confirmed?, do: {"Confirmed", "ok"}, else: {"Unconfirmed", "warn"}
 
-  defp deletion_label(identity),
-    do: "Deletion: " <> if(identity.deleted?, do: "Deleted", else: "Active")
+    [confirmation, security_pill(detail.security)]
+    |> maybe_append(identity.locked?, {"Locked", "risk"})
+    |> maybe_append(identity.deleted?, {"Deletion scheduled", "warn"})
+  end
 
-  defp mfa_label(nil), do: "MFA: Not configured"
-  defp mfa_label(%{enabled?: true}), do: "MFA: Enabled"
-  defp mfa_label(%{enabled_at: %DateTime{}}), do: "MFA: Enabled"
-  defp mfa_label(_status), do: "MFA: Not configured"
+  defp maybe_append(pills, true, pill), do: pills ++ [pill]
+  defp maybe_append(pills, _falsey, _pill), do: pills
 
-  defp session_label(%{type: type}), do: "Session type: " <> to_string(type)
+  defp security_pill(security) do
+    mfa? = mfa_enabled?(security.mfa_status)
+    passkeys? = (security.passkey_count || 0) > 0
 
-  defp activity_label(%DateTime{} = at),
-    do: "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
+    cond do
+      mfa? and passkeys? -> {"MFA + passkeys", "ok"}
+      mfa? -> {"MFA", "ok"}
+      passkeys? -> {"Passkeys", "ok"}
+      true -> {"No MFA", nil}
+    end
+  end
 
-  defp activity_label(_), do: "Last activity: Not available"
+  defp mfa_enabled?(status), do: mfa_value(status) == "Enabled"
+
+  # Recent-audit tone: stay calm (neutral) on success, flag failures as risk.
+  defp audit_tone(%{outcome: "success"}), do: nil
+  defp audit_tone(%{outcome: nil}), do: nil
+  defp audit_tone(%{outcome: _}), do: "risk"
+  defp audit_tone(_), do: nil
+
+  defp mfa_value(nil), do: "Not configured"
+  # Sigra.MFA.status/3 returns %{enabled: true, ...} (atom key, no trailing ?)
+  defp mfa_value(%{enabled: true}), do: "Enabled"
+  # Legacy shape from earlier Sigra versions — keep for backward compat
+  defp mfa_value(%{enabled?: true}), do: "Enabled"
+  defp mfa_value(%{enabled_at: %DateTime{}}), do: "Enabled"
+  defp mfa_value(_status), do: "Not configured"
+
+  defp session_type(%{type: type}), do: to_string(type)
+
+  defp activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
+
+  defp activity_value(_), do: "Not available"
+
+  # Normalised passkey count for the summary strip (nil → 0).
+  defp passkey_count(%{passkey_count: n}) when is_integer(n), do: n
+  defp passkey_count(_), do: 0
+
+  # Most-recent session activity across all sessions, reusing the absolute
+  # formatter. Guards the empty case so Enum.max is never called on [].
+  defp last_activity(sessions) when is_list(sessions) do
+    sessions
+    |> Enum.map(&Map.get(&1, :last_active_at))
+    |> Enum.filter(&match?(%DateTime{}, &1))
+    |> case do
+      [] -> activity_value(nil)
+      stamps -> activity_value(Enum.max(stamps, DateTime))
+    end
+  end
+
+  defp last_activity(_), do: activity_value(nil)
+
+  # Single highest-priority headline issue for the foregrounded callout.
+  # Priority: locked > unconfirmed > no-MFA. Healthy accounts return nil.
+  defp summary_alert(detail) do
+    identity = detail.identity
+
+    cond do
+      identity.locked? ->
+        {"risk", "Locked — revoke active logins and unlock below."}
+
+      not identity.confirmed? ->
+        {"warn", "Email unconfirmed — the user cannot complete sign-in."}
+
+      not mfa_enabled?(detail.security.mfa_status) ->
+        {"warn", "No MFA configured — recommend enabling a second factor."}
+
+      true ->
+        nil
+    end
+  end
+
+  # Coarse human-readable recency cue beside the absolute timestamp.
+  defp relative_activity(%DateTime{} = at) do
+    diff = DateTime.diff(DateTime.utc_now(), at, :second)
+
+    cond do
+      diff < 60 -> "just now"
+      diff < 3600 -> "#{div(diff, 60)}m ago"
+      diff < 86_400 -> "#{div(diff, 3600)}h ago"
+      true -> "#{div(diff, 86_400)}d ago"
+    end
+  end
+
+  defp relative_activity(_), do: nil
 
   defp pluralize(1, label), do: "1 #{label}"
   defp pluralize(count, label), do: "#{count} #{label}s"

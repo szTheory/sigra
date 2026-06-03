@@ -34,6 +34,10 @@ config :phoenix, :json_library, Jason
 # of this file so it overrides the configuration defined above.
 
 # Sigra authentication
+passkey_origin =
+  System.get_env("SIGRA_EXAMPLE_URL") ||
+    "http://localhost:#{System.get_env("PORT", "4000")}"
+
 config :example, :sigra,
   repo: Example.Repo,
   user_schema: Example.Accounts.User
@@ -48,12 +52,25 @@ config :example, :sigra_config,
     session_schema: Example.Accounts.UserSession
   ],
   audit: [
-    audit_schema: Example.Accounts.AuditEvent
+    audit_schema: Example.Accounts.AuditEvent,
+    forwarders: [
+      [
+        module: Sigra.Audit.Forwarders.Threadline,
+        id: :default,
+        # dispatch: :auto resolves to :sync when Oban is not supervised (the
+        # case in this example app). Pin dispatch: :sync in attach/1 calls for
+        # deterministic inline insertion.
+        dispatch: :auto,
+        # Threadline 0.5+ is DB-based; writes audit_actions via repo: — no HTTP
+        # endpoint or api_key required.
+        repo: Example.Repo
+      ]
+    ]
   ],
   passkeys: [
     rp_id: "localhost",
     rp_name: "Sigra Example",
-    origin: "http://localhost:4000",
+    origin: passkey_origin,
     timeout_ms: 60_000,
     attestation: :none,
     user_verification: :preferred,

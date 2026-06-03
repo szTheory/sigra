@@ -592,6 +592,37 @@ defmodule Sigra.Organizations.Invitations do
     end
   end
 
+  @doc false
+  @spec accept_exact_pending_multi(map(), struct(), struct() | {:changes_key, atom()}, String.t()) ::
+          {:ok, Ecto.Multi.t()} | :not_found
+  def accept_exact_pending_multi(config, org, user_ref, normalized_email) do
+    case exact_pending_for_email(config, org, normalized_email) do
+      nil ->
+        :not_found
+
+      invitation ->
+        now = DateTime.utc_now() |> DateTime.truncate(:second)
+        user_scope = %{user: user_ref, membership: nil, active_organization: org}
+
+        accept_changeset = fn changes ->
+          user =
+            case user_ref do
+              {:changes_key, key} -> Map.fetch!(changes, key)
+              %_{} = direct_user -> direct_user
+            end
+
+          Ecto.Changeset.change(invitation, %{accepted_at: now, accepted_by_id: user.id})
+        end
+
+        {:ok,
+         Multi.new()
+         |> Multi.append(
+           Sigra.Organizations.add_member_multi(config, user_scope, org, user_ref, invitation.role)
+         )
+         |> Multi.update(:accept_invitation, accept_changeset)}
+    end
+  end
+
   defp run_accept_with_signup_multi(config, invitation, user_params, org) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
@@ -645,6 +676,32 @@ defmodule Sigra.Organizations.Invitations do
 
       {:error, _step, reason, _} ->
         {:error, reason}
+    end
+  end
+
+  defp exact_pending_for_email(config, org, normalized_email) do
+    cond do
+      is_nil(normalized_email) or normalized_email == "" ->
+        nil
+
+      function_exported?(config.repo, :enterprise_pending_invitations, 2) ->
+        config.repo
+        |> apply(:enterprise_pending_invitations, [config.schemas.invitation, org.id])
+        |> Enum.find(fn invitation ->
+          Sigra.Auth.normalize_email(invitation.email) == normalized_email
+        end)
+
+      true ->
+        schema = config.schemas.invitation
+
+        from(i in schema,
+          where: i.organization_id == ^org.id,
+          where: is_nil(i.accepted_at) and is_nil(i.revoked_at)
+        )
+        |> config.repo.all()
+        |> Enum.find(fn invitation ->
+          Sigra.Auth.normalize_email(invitation.email) == normalized_email
+        end)
     end
   end
 

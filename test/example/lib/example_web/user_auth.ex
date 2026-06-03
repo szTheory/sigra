@@ -86,6 +86,12 @@ defmodule ExampleWeb.UserAuth do
     |> put_token_in_session(token)
   end
 
+  def enterprise_return_to_path(conn, organization_slug) when is_binary(organization_slug) do
+    conn
+    |> get_session(:user_return_to)
+    |> sanitize_enterprise_return_to(organization_slug)
+  end
+
   def begin_impersonation(conn, impersonation_token, admin_token, opts \\ [])
       when is_binary(impersonation_token) and is_binary(admin_token) do
     conn
@@ -569,4 +575,25 @@ defmodule ExampleWeb.UserAuth do
   end
 
   defp signed_in_path(_conn), do: ~p"/"
+
+  defp sanitize_enterprise_return_to(path, organization_slug) when is_binary(path) do
+    cond do
+      not String.starts_with?(path, "/") ->
+        nil
+
+      String.starts_with?(path, "//") ->
+        nil
+
+      String.starts_with?(path, "/organizations/#{organization_slug}") ->
+        path
+
+      path == "/organizations" ->
+        path
+
+      true ->
+        nil
+    end
+  end
+
+  defp sanitize_enterprise_return_to(_path, _organization_slug), do: nil
 end

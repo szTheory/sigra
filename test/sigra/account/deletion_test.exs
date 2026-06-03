@@ -82,6 +82,114 @@ defmodule Sigra.Account.DeletionTest do
       assert %DateTime{} = scheduled_at
     end
 
+    test "enqueues account deletion worker when generated-host job context is present" do
+      user = build_user()
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        assert %Multi{} = multi
+
+        [{:user, {:update, changeset, []}}, {:tokens, {:delete_all, _query, []}}] =
+          Multi.to_list(multi)
+
+        now = Ecto.Changeset.get_change(changeset, :deleted_at)
+        scheduled = Ecto.Changeset.get_change(changeset, :scheduled_deletion_at)
+        Process.put(:account_deletion_scheduled_at, scheduled)
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | deleted_at: now,
+               scheduled_deletion_at: scheduled,
+               original_email: user.email,
+               pending_email: nil
+           }
+         }}
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:delete_all_for_user, fn 1, [] -> {1, nil} end)
+
+      Sigra.MockRepo
+      |> expect(:insert, fn changeset ->
+        assert changeset.valid? == true
+        assert Ecto.Changeset.get_field(changeset, :worker) == "Sigra.Workers.AccountDeletion"
+        assert Ecto.Changeset.get_field(changeset, :queue) == "sigra_lifecycle"
+
+        assert DateTime.compare(
+                 Ecto.Changeset.get_field(changeset, :scheduled_at),
+                 Process.get(:account_deletion_scheduled_at)
+               ) == :eq
+
+        assert Ecto.Changeset.get_field(changeset, :replace) == [
+                 scheduled: [:scheduled_at, :args]
+               ]
+
+        args = Ecto.Changeset.get_field(changeset, :args)
+
+        assert args["user_id"] == 1
+        assert args["strategy"] == "soft_delete"
+        assert args["repo"] == Atom.to_string(Sigra.MockRepo)
+        assert args["user_schema"] == Atom.to_string(Sigra.TestUser)
+        assert args["user_token_schema"] == Atom.to_string(Sigra.TestUserToken)
+        assert args["session_store"] == Atom.to_string(Sigra.MockSessionStore)
+        assert Map.has_key?(args, "organization_id") == true
+        assert Map.has_key?(args, "actor_id") == true
+        assert Map.has_key?(args, "audit_schema") == true
+        assert Map.has_key?(args, "scope_module") == true
+
+        {:ok, %Oban.Job{}}
+      end)
+
+      assert {:ok, updated_user, scheduled_at} =
+               Deletion.schedule(
+                 Sigra.MockRepo,
+                 user,
+                 base_opts(
+                   user_schema: Sigra.TestUser,
+                   user_token_schema: Sigra.TestUserToken
+                 )
+               )
+
+      assert updated_user.scheduled_deletion_at == scheduled_at
+    end
+
+    test "safely degrades without enqueue when job context is missing" do
+      user = build_user()
+
+      Sigra.MockRepo
+      |> expect(:transaction, fn multi ->
+        assert %Multi{} = multi
+
+        [{:user, {:update, changeset, []}}, {:tokens, {:delete_all, _query, []}}] =
+          Multi.to_list(multi)
+
+        now = Ecto.Changeset.get_change(changeset, :deleted_at)
+        scheduled = Ecto.Changeset.get_change(changeset, :scheduled_deletion_at)
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | deleted_at: now,
+               scheduled_deletion_at: scheduled,
+               original_email: user.email,
+               pending_email: nil
+           }
+         }}
+      end)
+
+      Sigra.MockSessionStore
+      |> expect(:delete_all_for_user, fn 1, [] -> {1, nil} end)
+
+      assert {:ok, updated_user, scheduled_at} =
+               Deletion.schedule(Sigra.MockRepo, user, base_opts())
+
+      assert updated_user.scheduled_deletion_at == scheduled_at
+      assert %DateTime{} = scheduled_at
+    end
+
     test "returns {:error, :already_scheduled} when deletion is already scheduled" do
       user =
         build_user(%{
@@ -126,6 +234,14 @@ defmodule Sigra.Account.DeletionTest do
 
       assert result == {:error, :not_scheduled}
     end
+
+    test "returns {:error, :not_scheduled} when user is already finalized" do
+      user = build_user(%{deleted_at: ~U[2026-01-01 00:00:00Z]})
+
+      result = Deletion.cancel(Sigra.MockRepo, user, base_opts())
+
+      assert result == {:error, :not_scheduled}
+    end
   end
 
   # --- execute/3 ---
@@ -135,14 +251,30 @@ defmodule Sigra.Account.DeletionTest do
       user =
         build_user(%{
           deleted_at: ~U[2026-01-01 00:00:00Z],
-          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z]
+          scheduled_deletion_at: ~U[2026-01-15 00:00:00Z],
+          original_email: "user@example.com",
+          pending_email: "pending@example.com"
         })
 
-      # Soft delete: just clear MFA data, no row deletion
       Sigra.MockRepo
       |> expect(:transaction, fn multi ->
         assert %Multi{} = multi
-        {:ok, %{}}
+        [{:user, {:update, changeset, []}}] = Multi.to_list(multi)
+
+        assert Ecto.Changeset.get_change(changeset, :scheduled_deletion_at) == nil
+        assert Ecto.Changeset.get_change(changeset, :pending_email) == nil
+        assert Ecto.Changeset.get_change(changeset, :original_email) == nil
+        assert Ecto.Changeset.get_change(changeset, :deleted_at) == nil
+
+        {:ok,
+         %{
+           user: %{
+             user
+             | original_email: nil,
+               pending_email: nil,
+               scheduled_deletion_at: nil
+           }
+         }}
       end)
 
       opts = base_opts(config: [deletion: [strategy: :soft_delete]])
@@ -188,6 +320,14 @@ defmodule Sigra.Account.DeletionTest do
 
     test "returns {:error, :not_scheduled} when user is not scheduled for deletion" do
       user = build_user()
+
+      opts = base_opts(config: [deletion: [strategy: :soft_delete]])
+
+      assert {:error, :not_scheduled} = Deletion.execute(Sigra.MockRepo, user, opts)
+    end
+
+    test "returns {:error, :not_scheduled} when user is already finalized" do
+      user = build_user(%{deleted_at: ~U[2026-01-01 00:00:00Z]})
 
       opts = base_opts(config: [deletion: [strategy: :soft_delete]])
 

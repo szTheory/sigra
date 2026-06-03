@@ -1,14 +1,14 @@
 if Code.ensure_loaded?(Postgrex) do
   defmodule Sigra.Test.PostgresRepo do
     @moduledoc """
-    Minimal Postgres-backed Ecto.Repo used exclusively by the opt-in
-    `:postgres` tagged tests (e.g. `Sigra.Audit.QueryIndexTest`) that need a
-    real Postgres query planner to assert index-hit invariants.
+    Minimal Postgres-backed Ecto.Repo used by the tests that need a real
+    Postgres query planner to assert DB-level invariants (e.g.
+    `Sigra.Audit.QueryIndexTest` checking index hits).
 
-    This repo is **not** started by the Sigra application — tests that need
-    it must call `Sigra.Test.PostgresRepo.start_link/0` in their own setup
-    (or use `start_supervised!/1`). Excluded from the default `mix test`
-    run via the `:postgres` module tag in `test/test_helper.exs`.
+    This repo is **not** started by the Sigra application. `test/test_helper.exs`
+    starts it once for the library test suite and puts it in manual SQL Sandbox
+    mode. Tests that need live Postgres should use `Sigra.Test.PostgresCase` so
+    each test gets an owner process and rollback cleanup.
 
     Connection config is read from environment variables so CI and local
     dev can override without touching source:
@@ -28,7 +28,9 @@ if Code.ensure_loaded?(Postgrex) do
         username: System.get_env("SIGRA_TEST_PG_USERNAME", "postgres"),
         password: System.get_env("SIGRA_TEST_PG_PASSWORD", "postgres"),
         database: System.get_env("SIGRA_TEST_PG_DATABASE", "sigra_test"),
-        pool_size: 2,
+        pool: Ecto.Adapters.SQL.Sandbox,
+        pool_size: 4,
+        ownership_timeout: 120_000,
         log: false
       ]
     end

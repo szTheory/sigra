@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Planning milestones vs Hex releases
 
-This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.2.0]`** for **published Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.0–v1.4** in **`.planning/MILESTONES.md`** — those **v1.x** labels describe shipped *tranches* of work, **not** a second installable version axis on Hex (this repo remains **0.x** on Hex until a real **1.0.0**). Each dated release below may include a **Roadmap traceability** subsection (H3) linking back to the milestone narrative. When in doubt, treat **`MILESTONES.md`** as canonical for dates and archive paths.
+This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.3.0]`** for **installable Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.x** in **`.planning/`** and archived milestone docs — those labels describe shipped tranches of work, **not** a second installable version axis on Hex. When in doubt, treat this changelog's SemVer headings and live Hex package metadata as the installable version truth; treat planning milestones as project-management traceability.
 
 ## [0.3.0](https://github.com/szTheory/sigra/compare/v0.2.5...v0.3.0) (2026-05-25)
 
@@ -31,6 +31,24 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 * Planning milestone **v1.26 PK-LIFECYCLE** (phases **115–121**) shipped on **2026-05-25**; see [`.planning/milestones/v1.26-ROADMAP.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.26-ROADMAP.md), [`.planning/milestones/v1.26-REQUIREMENTS.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.26-REQUIREMENTS.md), and [`.planning/milestones/v1.26-MILESTONE-AUDIT.md`](https://github.com/szTheory/sigra/blob/main/.planning/milestones/v1.26-MILESTONE-AUDIT.md).
 
 ## [Unreleased]
+
+### Template Updates Required
+
+When generator templates change, maintainers list the required upgrade command here. Adopters should run:
+
+```bash
+mix deps.update sigra
+mix sigra.upgrade --yes
+```
+
+### Documentation
+
+- **Hex 1.32.0 launch pack:** Added `docs/launch/v1.0/announcement.md`, `docs/launch/v1.0/alternatives.md`, and `docs/launch/v1.0/evidence.md` as the canonical launch narrative, alternatives comparison, and compact evidence bundle for the public 1.32 release path.
+- **Hex 1.32.0 release guidance:** GitHub Release, README, HexDocs, and AI-consumption routing should point to `docs/launch/v1.0/announcement.md` as the source for who should upgrade now, who should wait, and where proof lives.
+- **Mailglass integration posture (v1.29 DOC-01):** Sigra ships no library-resident Mailglass adapter and no `--with-mailglass` installer flag. The supported integration posture is recipe-only host-owned wiring: the host implements `Sigra.Mailer` and delegates to a Mailglass-backed module. See `guides/recipes/companion-libs/mailglass.md` for the current supported configuration.
+- **v1.0 adopter routing:** Existing pre-1.0 adopters should start with `guides/introduction/upgrading-to-v1.0.md` for the historical v1.0 cutover flow.
+- **Migration lane (`phx.gen.auth`):** Existing `phx.gen.auth` teams should use `guides/introduction/migrating-from-phx-gen-auth.md` for boundary-first migration guidance.
+- **Migration lane (Pow/Guardian/Ueberauth):** Existing Pow/Guardian/Ueberauth teams should use `guides/introduction/migrating-from-pow-guardian-ueberauth.md` for boundary-first migration guidance.
 
 ## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
 
@@ -202,7 +220,7 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 * **10.1-01:** build proper UserToken structs in request_password_reset and request_magic_link ([10c7cf9](https://github.com/szTheory/sigra/commit/10c7cf9be31d28e50d42a37a17091a7fef771788))
 * **10.1-02:** backport installer template fixes [#1](https://github.com/szTheory/sigra/issues/1)-8 ([0ab0d04](https://github.com/szTheory/sigra/commit/0ab0d043b573a13a9f5cfdb03c242a202a6c94e8))
 * **10.1-02:** backport installer template fixes [#9](https://github.com/szTheory/sigra/issues/9)-16 ([b19bdf3](https://github.com/szTheory/sigra/commit/b19bdf3c58cbac2920427bcd14f51ece152210fa))
-* **10.1-03:** eliminate mix docs --warnings-as-errors [@doc](https://github.com/doc) reference warnings ([b1f49d3](https://github.com/szTheory/sigra/commit/b1f49d39d0bd7bd76c6cecf077a678243b0f2478))
+* **10.1-03:** eliminate mix docs --warnings-as-errors `@doc` reference warnings ([b1f49d3](https://github.com/szTheory/sigra/commit/b1f49d39d0bd7bd76c6cecf077a678243b0f2478))
 * **10.1-05:** scenario/2 raises ArgumentError with valid atoms on unknown scenarios ([95987e2](https://github.com/szTheory/sigra/commit/95987e239f6b544af2ac39b6549ae82f90995a16))
 * **10.1-06:** delete aspirational cursor_portability_test ([182edbf](https://github.com/szTheory/sigra/commit/182edbfc87eee7acb6d7534607ef365cf0e929aa))
 * **10.1-06:** generator_reset_test stale alias assertion ([81d66fd](https://github.com/szTheory/sigra/commit/81d66fd5354de24fa048ddb9e14081c681735a64))
@@ -218,8 +236,6 @@ This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 * **example:** JS bundle + endpoint socket + router auth pipeline ([58b7122](https://github.com/szTheory/sigra/commit/58b7122df97529a9604e06ea1b18071fb021785e))
 * **mfa:** correct Ecto.Multi.merge arity for lockout audit Multis ([09e2263](https://github.com/szTheory/sigra/commit/09e22637898512404ac7c81d1e488685d8215699))
 * **MFA:** handle cleanup Multi errors in disable flows ([2e1d309](https://github.com/szTheory/sigra/commit/2e1d30936b7ab4d40f458eb49d4b91ae7d438d67))
-
-## [Unreleased]
 
 - **Chore:** Root `.formatter.exs` no longer scans `test/example/_build` (and
   other generated trees) where Hex-copied `*.ex` install templates are not
@@ -353,6 +369,6 @@ Planning milestone **v1.2** (admin dashboard tranche; **not** a Hex version): sh
   for zero-downtime deploy on production audit tables. On SQLite/MySQL, a
   plain `change/0` migration emits the same shape non-concurrently.
 
-[Unreleased]: https://github.com/sztheory/sigra/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/sztheory/sigra/compare/v0.3.0...HEAD
 [0.2.0]: https://github.com/sztheory/sigra/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/sztheory/sigra/releases/tag/v0.1.0

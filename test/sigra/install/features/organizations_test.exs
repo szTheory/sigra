@@ -37,7 +37,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
   end
 
   describe "migrations/1" do
-    test "returns organizations + audit_events_org_columns slots in order" do
+    test "returns organizations, enterprise_connections, and audit_events_org_columns slots in order" do
       slots = Organizations.migrations([])
 
       # Phase 24.1: Organizations now owns both its own `:organizations`
@@ -45,10 +45,15 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # (moved from Features.Core so the hard FK to organizations
       # lands after the organizations table is created, and is omitted
       # entirely under --no-organizations).
-      assert length(slots) == 2
+      assert length(slots) == 4
 
       assert [
                {:organizations, "organizations/migration.exs", "create_organizations.exs"},
+               {:enterprise_connections, "organizations/enterprise_connections_migration.exs",
+                "create_enterprise_connections.exs"},
+               {:organization_auth_policies,
+                "organizations/organization_auth_policies_migration.exs",
+                "create_organization_auth_policies.exs"},
                {:audit_events_org_columns, "core/alter_audit_events_add_org_columns.exs",
                 "alter_audit_events_add_org_columns.exs"}
              ] = slots
@@ -85,6 +90,25 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert {:eex, _, target} = wrapper
       assert target == Path.join(["lib", "my_app", "organizations.ex"])
+    end
+
+    test "registers enterprise connection schema and migration templates" do
+      files = Organizations.files(otp_app: :my_app, context_alias: "Accounts")
+
+      assert {:eex, "organizations/enterprise_connection.ex", target} =
+               Enum.find(files, fn {:eex, template, _target} ->
+                 template == "organizations/enterprise_connection.ex"
+               end)
+
+      assert target == Path.join(["lib", "my_app", "accounts", "enterprise_connection.ex"])
+
+      assert {:eex, "organizations/enterprise_connection_oidc_settings.ex", settings_target} =
+               Enum.find(files, fn {:eex, template, _target} ->
+                 template == "organizations/enterprise_connection_oidc_settings.ex"
+               end)
+
+      assert settings_target ==
+               Path.join(["lib", "my_app", "accounts", "enterprise_connection_oidc_settings.ex"])
     end
 
     test "renders target path relative to the host app's otp_app" do
@@ -136,6 +160,56 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert organizations_template =~ "def set_active_organization(conn, org)"
       assert organizations_template =~ "Sigra.Plug.PutActiveOrganization.call(conn, org, [])"
       assert organizations_template =~ "use Sigra.Organizations"
+    end
+
+    test "organizations.ex template exposes enterprise connection delegates" do
+      organizations_template =
+        File.read!("priv/templates/sigra.install/organizations/organizations.ex")
+
+      assert organizations_template =~ "Sigra.EnterpriseConnections"
+      assert organizations_template =~ "change_enterprise_connection"
+      assert organizations_template =~ "validate_enterprise_connection"
+      assert organizations_template =~ "activate_enterprise_connection"
+      assert organizations_template =~ "disable_enterprise_connection"
+      assert organizations_template =~ "discover_enterprise_connection"
+      assert organizations_template =~ "get_routable_enterprise_connection"
+      assert organizations_template =~ "Sigra.EnterpriseRouting"
+    end
+
+    test "core login templates expose the enterprise discovery branch and canonical redirect wiring" do
+      session_controller = File.read!("priv/templates/sigra.install/core/session_controller.ex")
+      login_html = File.read!("priv/templates/sigra.install/core/login_html.ex")
+
+      assert session_controller =~ ~s|%{"_action" => "enterprise", "user" => %{"email" => email}}|
+      assert session_controller =~ "discover_enterprise_connection"
+
+      assert session_controller =~
+               ~S|~p"/organizations/#{slug}/sso?#{%{routing_source: "domain_discovery"}}"|
+
+      assert session_controller =~ "enterprise_discovery_error"
+
+      assert login_html =~ ~s|id="enterprise_login_form"|
+      assert login_html =~ ~s|<input type="hidden" name="_action" value="enterprise" />|
+      assert login_html =~ "Enter your work email."
+      assert login_html =~ "canonical enterprise sign-in route"
+    end
+
+    test "organization settings template contains Enterprise SSO status and validate/activate actions" do
+      template =
+        File.read!(
+          "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
+        )
+
+      assert template =~ "Enterprise SSO"
+      assert template =~ "Setup"
+      assert template =~ "Routing"
+      assert template =~ "Reconciliation"
+      assert template =~ "Enforcement"
+      assert template =~ "validation_failed"
+      assert template =~ "last_validation_error"
+      assert template =~ "SSO-only"
+      assert template =~ "Validate"
+      assert template =~ "Activate"
     end
 
     test "organizations.ex template compiles against real Sigra.Organizations.__using__/1 (CR-01 regression)" do
@@ -203,6 +277,24 @@ defmodule Sigra.Install.Features.OrganizationsTest do
         @primary_key {:id, :binary_id, autogenerate: true}
         schema "users_template_compile_#{suffix}" do
           field :email, :string
+        end
+      end
+
+      defmodule #{context_module}.OrganizationAuthPolicy do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organization_auth_policies_template_compile_#{suffix}" do
+          field :enforcement_mode, Ecto.Enum, values: [:optional, :sso_required]
+          belongs_to :organization, #{context_module}.Organization, type: :binary_id
+        end
+      end
+
+      defmodule #{context_module}.OrganizationAuthPolicyExemption do
+        use Ecto.Schema
+        @primary_key {:id, :binary_id, autogenerate: true}
+        schema "organization_auth_policy_exemptions_template_compile_#{suffix}" do
+          field :organization_id, :binary_id
+          field :user_id, :binary_id
         end
       end
 
@@ -549,7 +641,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
     @injections_binding [
       otp_app: :my_app,
       web_module: "MyAppWeb",
-      app_module: "MyApp"
+      app_module: "MyApp",
+      context_module: "MyApp.Accounts"
     ]
 
     test "returns list with router injection only (Phase 24.1: user_auth baked into template)" do
@@ -581,6 +674,12 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert router_injection
       assert router_injection.content =~ ~s|post "/organizations/switch"|
       assert router_injection.content =~ ~s|scope "/organizations/:org"|
+      assert router_injection.content =~ ~s|get "/sso", EnterpriseSSOController, :new|
+      assert router_injection.content =~ ~s|post "/sso", EnterpriseSSOController, :create|
+
+      assert router_injection.content =~
+               ~s|get "/sso/callback", EnterpriseSSOController, :callback|
+
       assert router_injection.content =~ "Sigra.Plug.LoadOrganizationFromSlug"
     end
   end
@@ -594,6 +693,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert "organizations/components/org_switcher.ex" in sources
       assert "organizations/controllers/organization_switch_controller.ex" in sources
+      assert "organizations/controllers/enterprise_sso_controller.ex" in sources
       # Phase 16 Plan 05: OrganizationMembersLive template
       assert "organizations/live/organization_members_live.ex" in sources
 
@@ -602,6 +702,11 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert Enum.any?(
                targets,
                &String.ends_with?(&1, "controllers/organization_switch_controller.ex")
+             )
+
+      assert Enum.any?(
+               targets,
+               &String.ends_with?(&1, "controllers/enterprise_sso_controller.ex")
              )
 
       assert Enum.any?(

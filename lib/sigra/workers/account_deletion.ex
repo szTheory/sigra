@@ -24,11 +24,9 @@ if Code.ensure_loaded?(Oban.Worker) do
       * `"strategy"`             - Deletion strategy ("soft_delete", "hard_delete", "anonymize").
       * `"repo"`                 - Repo module as a stringified module name.
       * `"user_schema"`          - User schema as a stringified module name.
-      * `"scope_module"`         - Host scope module as a stringified module name.
+      * `"scope_module"`         - Host scope module as a stringified module name, or `nil`.
       * `"organization_schema"`  - Organization schema stringified, or `nil`.
-      * `"audit_schema"`         - Audit event schema as a stringified module name.
-                                   Required for `account.deletion_executed`
-                                   emission.
+      * `"audit_schema"`         - Audit event schema as a stringified module name, or `nil`.
 
     Optional:
 
@@ -77,7 +75,12 @@ if Code.ensure_loaded?(Oban.Worker) do
       # Step 2: resolve stringified modules (safe for known good keys).
       repo = Module.safe_concat([args["repo"]])
       user_schema = Module.safe_concat([args["user_schema"]])
-      scope_module = Module.safe_concat([args["scope_module"]])
+
+      scope_module =
+        case args["scope_module"] do
+          nil -> nil
+          mod when is_binary(mod) -> Module.safe_concat([mod])
+        end
 
       organization_schema =
         case args["organization_schema"] do
@@ -97,7 +100,11 @@ if Code.ensure_loaded?(Oban.Worker) do
           {mod, id} -> repo.get(mod, id)
         end
 
-      scope = Sigra.Scope.build(scope_module, user, active_organization: active_org)
+      scope =
+        case scope_module do
+          nil -> nil
+          mod -> Sigra.Scope.build(mod, user, active_organization: active_org)
+        end
 
       perform(scope, args)
     end
@@ -106,8 +113,19 @@ if Code.ensure_loaded?(Oban.Worker) do
     def perform(_scope, args) do
       repo = Module.safe_concat([Map.fetch!(args, "repo")])
       user_schema = Module.safe_concat([Map.fetch!(args, "user_schema")])
-      audit_schema = Module.safe_concat([Map.fetch!(args, "audit_schema")])
-      scope_module = Module.safe_concat([Map.fetch!(args, "scope_module")])
+
+      audit_schema =
+        case Map.fetch!(args, "audit_schema") do
+          nil -> nil
+          mod -> Module.safe_concat([mod])
+        end
+
+      scope_module =
+        case Map.fetch!(args, "scope_module") do
+          nil -> nil
+          mod -> Module.safe_concat([mod])
+        end
+
       user_id = Map.fetch!(args, "user_id")
       strategy = String.to_existing_atom(Map.fetch!(args, "strategy"))
 

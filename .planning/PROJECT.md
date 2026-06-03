@@ -18,51 +18,135 @@ Milestone scoping for GSD (`/gsd-new-milestone`, `/gsd-plan-phase`) should prefe
 
 **GSD use:** When a phase or milestone proposal does not clearly move one of the bullets above, treat it as lower priority unless it closes a documented adoption gap or security/audit risk.
 
-**GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops.
+**GSD preference:** When the user delegates architecture or product tradeoffs, default to researched decisive recommendations and only escalate choices that materially alter the security model, the public/semver contract, or the generated-host contract. Implementation-level forks should usually be resolved by the agent without reopening broad decision loops. Repo default: discuss-phase should run assumption-first, do codebase, prompt, and relevant primary-source prior-art research before questioning, synthesize one cohesive recommendation set, and ask only when no clear winner remains after narrowing. Treat this as the default for future discuss/research/planning work unless the user explicitly asks to stay in brainstorming mode.
 
-## Latest Shipped Milestone: v1.26 PK-LIFECYCLE
+## Post-1.0 Operating Posture
 
-**Shipped:** 2026-05-25
+After `v1.32 RELEASE-ADOPTION` closes and Sigra's real Hex `1.32.0` release is cut, treat the library as broadly feature-complete for the expected Phoenix authentication-library surface. The default future posture is maintenance, release support, adopter feedback, and selective strategic building — not another open-ended feature treadmill.
 
-Sigra now ships a closure-complete passkey lifecycle story on top of its existing WebAuthn substrate: truthful last-passkey deletion posture, recovery-first passkey-primary and enrollment flows, honest cross-device and RP-ID/origin migration guidance, bounded generated-host/browser proof, and repaired-form verification authority that lives on the original implementation phases rather than stale summaries.
+Future milestones should begin from this assumption:
+
+- **Release-grade until evidence says otherwise** — do not re-litigate "are we done?" at every milestone. Ask what concrete risk, adopter pain, or strategic opportunity justifies new work.
+- **Maintenance first** — prioritize regressions, security/trust findings, upgrade issues, docs corrections, CI/release failures, and adopter-reported friction.
+- **Strategic bets only by thesis** — new capability work should have a clear product thesis, ecosystem signal, or contract gap. Good examples: a real adopter integration need, a security model improvement, or a narrowly scoped ecosystem wedge.
+- **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
+- **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
+
+## Latest Shipped Milestone: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+
+**Shipped:** 2026-06-02 (Phases 150–153) · 10/10 requirements satisfied · milestone audit passed
+
+Sigra has shifted into a post-1.0 stewardship posture: maintainer triage and template-update communication are documented, the toolchain and Hex dependencies are synced, strategic bets are gated by concrete adopter demand, and the live Postgres test harness is stabilized through a shared SQL Sandbox owner-per-test pattern.
 
 Archives:
-- [`.planning/milestones/v1.26-ROADMAP.md`](milestones/v1.26-ROADMAP.md)
-- [`.planning/milestones/v1.26-REQUIREMENTS.md`](milestones/v1.26-REQUIREMENTS.md)
-- [`.planning/milestones/v1.26-MILESTONE-AUDIT.md`](milestones/v1.26-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.33-ROADMAP.md`](milestones/v1.33-ROADMAP.md)
+- [`.planning/milestones/v1.33-REQUIREMENTS.md`](milestones/v1.33-REQUIREMENTS.md)
+- [`.planning/milestones/v1.33-MILESTONE-AUDIT.md`](milestones/v1.33-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.33-phases/`](milestones/v1.33-phases/)
 
-## Previous Shipped Milestone: v1.25 EMAIL-RAILS
+### Just shipped: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
-**Shipped:** 2026-05-23
+- formalized maintainer issue triage, bug prioritization, and generated-host template-update communication in maintainer/release surfaces
+- updated the Erlang/OTP toolchain target and Hex dependency lockfile while preserving the existing compatibility proof surface
+- created the v1.33 strategic-bet evaluation gate so SCIM, `sigra_lockspire`, and Threadline correlation stay deferred unless concrete adopter demand overrides maintenance-first defaults
+- stabilized the library live-DB test harness with `Sigra.Test.PostgresCase`, SQL Sandbox manual mode, owner-per-test rollback cleanup, and isolated query-index scratch storage
+- closed the stale audit blocker from the earlier connection-exhaustion finding; focused Phase 153 proof passes with 107 tests and 0 failures
 
-Sigra now ships a coherent email-operations story on top of its auth substrate: an optional Mailglass adapter, generated-host override rails, preview-catalog support, provider-agnostic telemetry and async delivery posture, and bounce/complaint hooks with concrete provider recipes and example proof.
+## Previous Shipped Milestone: v1.30 TRUST-HARDENING
+
+**Shipped:** 2026-05-29 (Phases 137–140)
+
+Sigra carries legible operator trust: a single canonical answer to optional-dependency availability, a one-command operator diagnostic, and companion-recipe contracts that cannot silently drift.
 
 Archives:
-- [`.planning/milestones/v1.25-ROADMAP.md`](milestones/v1.25-ROADMAP.md)
-- [`.planning/milestones/v1.25-REQUIREMENTS.md`](milestones/v1.25-REQUIREMENTS.md)
-- [`.planning/milestones/v1.25-MILESTONE-AUDIT.md`](milestones/v1.25-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.30-ROADMAP.md`](milestones/v1.30-ROADMAP.md)
+- [`.planning/milestones/v1.30-REQUIREMENTS.md`](milestones/v1.30-REQUIREMENTS.md)
+- [`.planning/milestones/v1.30-MILESTONE-AUDIT.md`](milestones/v1.30-MILESTONE-AUDIT.md)
+
+### Just shipped: v1.30 TRUST-HARDENING
+
+- shipped `Sigra.OptionalDeps` SOT (OD-01/OD-02): 9 `*_available?/0` predicates + config-driven `encryption_active?/1`; ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with zero runtime behavior change
+- shipped `mix sigra.doctor` (DR-01/DR-02): nine-feature optional-dep matrix with actionable hints, four boot-wiring hard-fail checks, and a non-zero CI gate
+- shipped the merge-blocking companion-lib recipe-contract fixture (RCT-01), plus Lockspire/Rulestead sister-repo contract verification (RCV-01/RCV-02)
+- shipped deprecation hygiene (DEPR-01/DEPR-02): Hex-SemVer removal targets and migration notes for both live `@deprecated` functions
+- landed the PROOF-01 eight-gate proof bundle and DOC-01 docs alignment
+
+## Previous Shipped Milestone: v1.29 SUITE-INTEGRATION
+
+**Shipped:** 2026-05-29 (Phases 131–136)
+
+Sigra now composes cleanly with the rest of the szTheory OSS suite: a first-class, optional-dep-safe Threadline audit forwarder (the milestone's only new library code), recipe coverage for the five other companion libraries, and a coherent suite-narrative entry point — without owning any sister library's roadmap and without re-landing the orphaned Phase 111/114 Mailglass adapter.
+
+Archives:
+- [`.planning/milestones/v1.29-ROADMAP.md`](milestones/v1.29-ROADMAP.md)
+- [`.planning/milestones/v1.29-REQUIREMENTS.md`](milestones/v1.29-REQUIREMENTS.md)
+- [`.planning/milestones/v1.29-MILESTONE-AUDIT.md`](milestones/v1.29-MILESTONE-AUDIT.md)
+
+### Just shipped: v1.29 SUITE-INTEGRATION
+
+- shipped `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline` telemetry-tap impl + `Noop` fallback + optional `Sigra.Workers.AuditForward` Oban worker — `:auto`/`:async`/`:sync` dispatch, `[:sigra,:audit,:forward,:ok|:error]` telemetry, Sigra audit row stays source-of-truth, optional-dep safe (no Threadline runtime dep when unused)
+- published six companion-library recipes under `guides/recipes/companion-libs/` (Threadline, Mailglass, Accrue, Lockspire, Relyra, Rulestead) on a uniform template with the "Sigra works fully standalone" banner, under a new ExDoc "Companion Libraries" group
+- published `guides/introduction/suite-integration.md` suite narrative (ASCII ecosystem diagram, fan-out matrix, Diminishing Returns Wall framing) + README pointer
+- extended `test/example/` with a runnable end-to-end Threadline forwarder demo proven by a real DB round-trip test on existing CI lanes (no new top-level `examples/`)
+- landed the PROOF-01 proof bundle (full suite + dep-off lane + example app + `mix docs --warnings-as-errors` exit 0) and the v1.25 EMAIL-RAILS Mailglass-narrative corrigendum (DOC-01)
+
+## Previous Shipped Milestone: v1.28 DATA-LIFECYCLE
+
+**Shipped:** 2026-05-27
+
+Sigra now ships a bounded, truthful auth/account data lifecycle: a versioned Sigra-owned export payload with explicit omission truth, schedule/cancel/execute deletion semantics that match operator-facing docs, generated-host parity for templates and docs, and a release-readiness proof package — all without expanding into generic compliance, SCIM, BI exports, or hosted-control-plane behavior.
+
+Archives:
+- [`.planning/milestones/v1.28-ROADMAP.md`](milestones/v1.28-ROADMAP.md)
+- [`.planning/milestones/v1.28-REQUIREMENTS.md`](milestones/v1.28-REQUIREMENTS.md)
+- [`.planning/milestones/v1.28-MILESTONE-AUDIT.md`](milestones/v1.28-MILESTONE-AUDIT.md)
+
+## Earlier Shipped Milestone: v1.27 ENT-SSO
+
+**Shipped:** 2026-05-26
+
+Sigra now ships a bounded enterprise login contract for organization-based B2B adopters: truthful enterprise connection setup and activation, canonical org-aware routing and bounded discovery, safe JIT membership reconciliation, SSO-only enforcement with explicit break-glass recovery, and a generated-host/operator proof package that stays honest about non-goals.
+
+Archives:
+- [`.planning/milestones/v1.27-ROADMAP.md`](milestones/v1.27-ROADMAP.md)
+- [`.planning/milestones/v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md)
+- [`.planning/milestones/v1.27-MILESTONE-AUDIT.md`](milestones/v1.27-MILESTONE-AUDIT.md)
 
 ## Current State
 
-`v1.26 PK-LIFECYCLE` is now shipped and archived. The live milestone planning surface has been collapsed, `REQUIREMENTS.md` has been archived, and the project is back in milestone-selection mode.
+`v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` is shipped and archived. Sigra's current posture is maintenance-first: preserve the released authentication surface, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-The repaired-form rule for the passkey lifecycle work is now explicit and archived: Phases `119` and `120` were backfill/reconciliation phases, while authoritative proof authority remains on Phases `115` and `116`. Phase `121` closed the remaining Nyquist and milestone-truth debt without reopening runtime passkey claims.
+Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 153.
 
 ## Next Milestone Goals
 
-- Select the next milestone from the ranked arc, with `ENT-SSO` as the default candidate.
-- Preserve the current discipline: favor work that improves production trust, integration clarity, or DX on rough edges over generic admin expansion.
-- Start the next milestone with a fresh requirements contract rather than carrying forward the archived v1.26 scope.
+- Treat regressions, security/trust findings, release failures, dependency drift, and adopter-reported friction as the default highest-value work.
+- Keep strategic bets gated by the v1.33 decision: enterprise features such as SCIM, `sigra_lockspire`, and Threadline correlation need explicit demand before implementation.
+- Resolve the non-blocking `Chimeway.Repo` missing database configuration startup noise before using local full-suite `mix test` output as a clean release signal.
+- Avoid broad feature expansion, generated-host UI redesign, hosted-control-plane behavior, or generic authorization/compliance work unless the next milestone explicitly promotes it.
 
-## Current Milestone Status
+### Just shipped: v1.28 DATA-LIFECYCLE
 
-Latest verified milestone: `v1.26 PK-LIFECYCLE`.
+- added versioned Sigra-owned auth/account export with `schema_version: 1`, lifecycle status, and configured-schema safe serializers
+- added explicit structured omission notes for optional export schemas (truthful instead of silent)
+- added account deletion enqueue that builds `Sigra.Workers.AccountDeletion` jobs when generated-host context exists and degrades safely when absent
+- added active-scheduled gating on cancel/execute paths and stale worker no-op behavior via `Sigra.Account.Deletion.scheduled?/1`
+- added row-preserving soft-delete finalization that clears scheduled-deletion and pending/original email fields without claiming hard deletion
+- aligned generated host templates, example app, install golden fixture, and public docs with the bounded library contract
+- locked targeted release-readiness proof through 56+66 lifecycle/install-lane tests, 2211 full-suite tests, and `mix docs --warnings-as-errors` exit 0
 
-Current active milestone: none selected.
+### Previously shipped: v1.27 ENT-SSO
 
-The archived v1.26 authorities are `.planning/phases/115-last-passkey-safety-deletion-truth/115-VERIFICATION.md`, `.planning/phases/115-last-passkey-safety-deletion-truth/115-VALIDATION.md`, `.planning/phases/116-recovery-first-passkey-bootstrap/116-VERIFICATION.md`, `.planning/phases/116-recovery-first-passkey-bootstrap/116-VALIDATION.md`, `.planning/phases/117-cross-device-rp-id-trust-rails/117-VALIDATION.md`, `.planning/phases/118-generated-host-proof-milestone-closeout/118-VERIFICATION.md`, `.planning/phases/118-generated-host-proof-milestone-closeout/118-VALIDATION.md`, and `.planning/phases/121-pk-lifecycle-nyquist-closure/121-VERIFICATION.md`.
+- added truthful organization-bound enterprise connection setup and activation refusal
+- added canonical org-aware enterprise routing with bounded exact-match discovery
+- added safe JIT enterprise reconciliation and first-session org/audit truth
+- added SSO-only enforcement with explicit break-glass recovery
+- closed generated-host/operator proof, installer parity, and bounded enterprise docs
+- backfilled authoritative verification artifacts for Phases 123, 124, and 125
 
-### Just shipped: v1.26 PK-LIFECYCLE
+Archives: [`.planning/milestones/v1.27-ROADMAP.md`](milestones/v1.27-ROADMAP.md), [`v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md), [`v1.27-MILESTONE-AUDIT.md`](milestones/v1.27-MILESTONE-AUDIT.md).
+
+### Previously shipped: v1.26 PK-LIFECYCLE
 
 - strengthened last-passkey deletion truth
 - backfilled `PK-02` through `115-VERIFICATION.md` and `115-VALIDATION.md`
@@ -76,10 +160,11 @@ The archived v1.26 authorities are `.planning/phases/115-last-passkey-safety-del
 
 ### Previously shipped: v1.25 EMAIL-RAILS
 
-- optional Mailglass adapter plus `--with-mailglass` installer path
-- generated-host override seam and Mailglass preview catalog for auth emails
+- generated-host override seam for auth emails (override rails and failure handler seams)
 - provider-agnostic async-delivery telemetry verified as a zero-code closure
 - canonical bounce/complaint normalizer, host-owned handler seam, and runnable provider recipes
+
+**Corrigendum (v1.29 DOC-01, 2026-05-28):** The original v1.25 narrative claimed an optional Mailglass adapter plus `--with-mailglass` installer path and a Mailglass preview catalog for auth emails. These did not land on the release branch. The library-resident `Sigra.Mailers.Adapters.Mailglass` module and the `--with-mailglass` flag from Phase 111/114 were never merged to `main` and are not part of the supported surface. The supported Mailglass posture is recipe-only host-owned wiring via the `Sigra.Mailer` behaviour — no library-resident adapter, no `--with-mailglass` flag. See `guides/recipes/companion-libs/mailglass.md`.
 
 ### Previously shipped: v1.24 Session Control Plane
 
@@ -174,20 +259,24 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
-**Immediate next action:** **Select the next milestone and create a fresh requirements contract**
+**Immediate next action:** v1.32 RELEASE-ADOPTION is active — plan Phase 148 with `/gsd-plan-phase 148`.
 
-**Recent between-milestones closeout:** **`REL-01 Release Truth Reset`**
+**Recent between-milestones closeouts:** **`REL-01 Release Truth Reset`** (v1.20-era release/version truth reset)
 
-**Current active milestone:**
-- none selected after the v1.26 archive closeout
+**Last shipped milestone:**
+- `v1.31 DEMO-SHOWCASE` (shipped 2026-05-31, Phases 141–144.2) — Seed-rich Evaluator Demo Showcase. The named milestone arc was exhausted through v1.29; v1.30 deepened shipped substrate per the arc's own ranking rules (diagnostics/trust > greenfield), shipping the previously trigger-gated `Sigra.OptionalDeps` SOT + `mix sigra.doctor`. v1.32 is now active as the real Hex `1.32.0` release and adoption push.
 
-**Ranked follow-ons:**
-- `ENT-SSO` — enterprise SSO and B2B directory-routing foundations
-- `DATA-LIFECYCLE` — auth-data export, audit inclusion, and anonymize/delete lifecycle guidance
-- `SUITE-INTEGRATION` — companion-library integration once the sharper adoption blockers are closed
+**Ranked follow-on (next candidates after v1.30):**
+- **"Demo Showcase"** — seed-rich, persona-driven, one-command spin-up extending `test/example/` (not a new repo). Ranked highest-value near-term build by the mid-v1.30 boundary assessment; closes the one genuine adoption gap (no evaluator-facing demo). See `.planning/threads/adoption-evidence-and-demo-showcase.md`.
+- **1.0 Hex cut + adoption push** — the honest bottleneck is absence of real adopters, not features.
+- `SCIM / Directory Sync` — newly ripe (ENT-SSO proved the login+JIT wedge the arc required); large; compliant with the Wall. Strongest greenfield candidate.
+- Threadline correlation-ID propagation (CORR-01) — blocked on a stable Threadline injection seam.
+- `sigra_lockspire` glue package (ADR 001) — blocked until both libraries stabilize + a real companion-app trigger fires.
+- The "Diminishing Returns Wall" still excludes opinionated authz, billing, and frontend component libraries.
 
-**Deferred after `v1.26` milestone selection:**
+**Deferred after `v1.29` shipment:**
 - `sigra_lockspire` glue package per **ADR 001** once a real companion-app trigger fires.
+- full SCIM / directory sync and generic directory lifecycle automation until an enterprise SSO milestone proves the narrower login + JIT wedge first
 - Any theme that primarily expands generic admin CRUD, hosted-control-plane behavior, or authz policy rather than the auth control plane itself.
 - Any newly identified validation or assurance work should use newly numbered phases; do not reuse **999.x**.
 
@@ -220,6 +309,63 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Validated — Phase 151
+- ✓ **ECO-01, ECO-02, ECO-03** — Validated in Phase 151: ecosystem-sync-hex-dependency-management
+
+### Validated — v1.31 DEMO-SHOWCASE (shipped 2026-05-31)
+
+_See [`.planning/milestones/v1.31-REQUIREMENTS.md`](milestones/v1.31-REQUIREMENTS.md), [`.planning/milestones/v1.31-ROADMAP.md`](milestones/v1.31-ROADMAP.md), and [`.planning/milestones/v1.31-MILESTONE-AUDIT.md`](milestones/v1.31-MILESTONE-AUDIT.md) for the archived bounded contract (14/14 satisfied)._
+
+- ✓ **SEED-01..SEED-06** — deterministic six-persona demo seed layer with idempotency, test-env guard, audit variety, and security posture — **Phase 141**
+- ✓ **DEMO-01, DEMO-02** — dev credentials page, stdout summary, and realistic app framing — **Phase 142**
+- ✓ **PW-01..PW-03** — isolated demo-showcase Playwright partition, screenshots, and seeds-smoke coverage — **Phase 143**
+- ✓ **DOC-01..DOC-03** — evaluator README lane, guide, ExDoc wiring, screenshots, and proof bundle — **Phase 144**
+
+### Validated — v1.30 TRUST-HARDENING (shipped 2026-05-29)
+
+_See [`.planning/milestones/v1.30-REQUIREMENTS.md`](milestones/v1.30-REQUIREMENTS.md), [`.planning/milestones/v1.30-ROADMAP.md`](milestones/v1.30-ROADMAP.md), and [`.planning/milestones/v1.30-MILESTONE-AUDIT.md`](milestones/v1.30-MILESTONE-AUDIT.md) for the archived bounded contract (11/11 satisfied)._
+
+- ✓ **OD-01, OD-02** — `Sigra.OptionalDeps` single-source-of-truth (9 `*_available?/0` predicates + `encryption_active?/1`); ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with zero runtime behavior change — **Phase 137**
+- ✓ **DR-01, DR-02** — `mix sigra.doctor`: per-feature optional-dep matrix with remediation hints + four boot-wiring hard-fail checks + non-zero CI exit gate — **Phase 138**
+- ✓ **RCT-01** — merge-blocking ExUnit fixture asserting all 6 companion-lib recipes carry the five required contract markers — **Phase 139**
+- ✓ **RCV-01, RCV-02** — Lockspire `resolve_account/2` return shape + Rulestead `@behaviour` contract verified against sister repos (`def616d`/`0a18360`) and recipes corrected — **Phase 139**
+- ✓ **DEPR-01, DEPR-02** — Hex-SemVer removal targets + migration notes for `audit_forced_password_change/2` (→ 0.5.0) and `cookie_opts/0` (→ 0.4.0) — **Phase 140**
+- ✓ **PROOF-01, DOC-01** — eight-gate proof bundle (full suite + dep-off lane + `mix docs --warnings-as-errors` + `test/example/` doctor run + per-phase verification) + docs alignment — **Phase 140**
+
+### Validated — v1.29 SUITE-INTEGRATION (shipped 2026-05-29)
+
+_See [`.planning/milestones/v1.29-REQUIREMENTS.md`](milestones/v1.29-REQUIREMENTS.md), [`.planning/milestones/v1.29-ROADMAP.md`](milestones/v1.29-ROADMAP.md), and [`.planning/milestones/v1.29-MILESTONE-AUDIT.md`](milestones/v1.29-MILESTONE-AUDIT.md) for the archived bounded contract (16/16 satisfied)._
+
+- ✓ **TL-01..TL-05, FB-01** — `Sigra.Audit.Forwarder` behaviour + `Sigra.Audit.Forwarders.Threadline`/`Noop` + optional `Sigra.Workers.AuditForward` worker; `:auto`/`:async`/`:sync` dispatch; `[:sigra,:audit,:forward,:ok|:error]` telemetry; optional-dep safe; Sigra audit row stays source-of-truth — **Phase 131**
+- ✓ **RC-01, RC-02** — Threadline canary recipe + Mailglass host-owned-wiring recipe under `guides/recipes/companion-libs/` — **Phase 132**
+- ✓ **NX-01** — `guides/introduction/suite-integration.md` suite narrative + ecosystem diagram + fan-out matrix + README pointer — **Phase 133**
+- ✓ **RC-03..RC-06** — Accrue, Lockspire, Relyra, Rulestead recipe-only companion-lib docs — **Phase 134**
+- ✓ **EX-01** — runnable end-to-end Threadline forwarder demo in `test/example/` proven on existing CI lanes — **Phase 135**
+- ✓ **PROOF-01, DOC-01** — six-gate proof bundle (full suite + dep-off lane + example app + `mix docs --warnings-as-errors` exit 0) + v1.25 EMAIL-RAILS Mailglass-narrative corrigendum — **Phase 136**
+
+### Validated — v1.28 DATA-LIFECYCLE (shipped 2026-05-27)
+
+_See [`.planning/milestones/v1.28-REQUIREMENTS.md`](milestones/v1.28-REQUIREMENTS.md), [`.planning/milestones/v1.28-ROADMAP.md`](milestones/v1.28-ROADMAP.md), and [`.planning/milestones/v1.28-MILESTONE-AUDIT.md`](milestones/v1.28-MILESTONE-AUDIT.md) for the archived bounded contract._
+
+- ✓ **EXP-01** — Versioned Sigra-owned auth/account export with lifecycle fields, sessions, identities, audit rows, MFA, passkeys, backup-code summary, and org memberships — **Phase 127**
+- ✓ **EXP-02** — Explicit structured omission notes for missing optional export schemas (truthful, not silent) — **Phase 127**
+- ✓ **LIFE-01** — Deletion scheduling enqueues `Sigra.Workers.AccountDeletion` when Oban + generated-host context are available, with safe missing-context degradation — **Phase 128**
+- ✓ **LIFE-02** — Cancel/execute paths gated to actively scheduled deletions; finalized users return `{:error, :not_scheduled}` — **Phase 128**
+- ✓ **LIFE-03** — Soft-delete finalization clears scheduled deletion state and pending/original email fields without claiming hard deletion — **Phase 128**
+- ✓ **HOST-01** — Generated host templates, example app, and install golden fixture preserve library export/lifecycle semantics — **Phase 129**
+- ✓ **DOC-01** — Account lifecycle, audit export, and testing docs explain Sigra-owned vs host-owned data boundaries, omission behavior, and deletion strategy consequences — **Phase 129**
+- ✓ **PROOF-01** — Targeted lifecycle/export tests + 2211 full-suite tests + `mix docs --warnings-as-errors` exit 0 (release docs gate unblocked by commit `110a560`) — **Phase 130**
+
+### Archived — v1.27 ENT-SSO (shipped 2026-05-26)
+
+_See [`.planning/milestones/v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md), [`.planning/milestones/v1.27-ROADMAP.md`](milestones/v1.27-ROADMAP.md), and [`.planning/milestones/v1.27-MILESTONE-AUDIT.md`](milestones/v1.27-MILESTONE-AUDIT.md) for the archived enterprise SSO contract._
+
+- **SSO-01 / SSO-02** — Organization-bound enterprise OIDC connection setup, validation, and truthful activation refusal — Phase 122
+- **SSO-03** — Org-aware enterprise routing with bounded exact-match email-domain discovery, signed authorize context, callback revalidation — Phase 123
+- **SSO-04 / JIT-01 / JIT-02** — Safe JIT enterprise reconciliation, exact invite reuse, first-session org/audit truth — Phase 124
+- **ENF-01** — SSO-only enforcement with explicit break-glass recovery — Phase 125
+- **PROOF-01 / OPS-01 / DOC-01** — Generated-host/operator proof, installer parity, bounded enterprise docs — Phase 126
 
 ### Archived — v1.26 PK-LIFECYCLE (shipped 2026-05-25)
 
@@ -548,6 +694,11 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | v1.2 admin is default-on installer feature with library-owned enforcement | Keeps security semantics in the dep while host owns policy module + shell chrome; matches hybrid architecture. | ✓ Validated v1.2 — plugs, `Sigra.Admin.*`, generator parity phases 32-33 |
 | Shift-left gates for installer + verification docs | Prevents INT-01..04 recurrence: emission audit, drift dead-text nav guard, milestone VERIFICATION.md gate, installer-scoped milestone audit CI, artifact bundle contract. | ✓ Validated v1.2 — Phase 35 |
 | v1.3 audit assertions + partial Multi conversion | Give hosts test-grade audit helpers and prove one high-risk API path can commit business + audit rows atomically without inventing audit macros. | ✓ Validated v1.3 — Assertions module + `api.token_create` Multi; OAuth smoke out of scope |
+| Library owns versioned export payload via `Sigra.DataExport.export_auth_data/3` | Keep the auth/account export contract bounded and testable inside the library so generated hosts can call a thin wrapper instead of reimplementing payload shape, lifecycle status, or omission semantics. | ✓ Validated v1.28 — schema_version 1 + structured omission notes + curated safe serializers ship in Phase 127; generated host parity in Phase 129 |
+| Backup codes summary-only and enterprise connections excluded from user export | Honor security model: never round-trip raw backup codes or enterprise-org secrets through a user-initiated data export; expose counts and presence only. | ✓ Validated v1.28 (Phase 127) — backup codes export as summary; enterprise connections explicitly excluded |
+| Account deletion enqueue ownership stays in `Sigra.Account.Deletion.schedule/3` | Schedule/cancel/execute semantics belong in the library; the generated host wires the worker but does not re-implement gating. Safe degradation when Oban or generated-host context is missing prevents silent loss. | ✓ Validated v1.28 (Phase 128) — `Sigra.Workers.AccountDeletion` enqueue + `scheduled?/1` gating + stale-job no-ops |
+| Soft-delete finalization is row-preserving | Soft-delete must clear scheduled-deletion + pending/original email fields without claiming hard deletion or destroying the row, so audit and recovery stay possible. | ✓ Validated v1.28 (Phase 128) — `deleted_at` preserved; row not destroyed |
+| Adoption is the bottleneck, not features (assessment 2026-05-29) | Repo-grounded done-band is 90–95% for scope; adoption-evidence automation (E2E/install-smoke/golden-path/dep-off CI) is already strong. The honest constraint on "done" is absence of real adopters. | → Next build wedge = `DEMO-SHOWCASE` (seed-rich evaluator demo, extend `test/example/`); then 1.0 Hex cut + adoption push over further feature wedges. See MILESTONE-ARC.md Candidates + `.planning/threads/adoption-evidence-and-demo-showcase.md`. Working branch name `v1.28-data-lifecycle` is stale vs active v1.30. |
 
 ## Evolution
 
@@ -571,6 +722,7 @@ This document evolves at phase transitions and milestone boundaries.
 <details>
 <summary>Archived milestone “Last updated” footers (v1.0–v1.17 execution log)</summary>
 
+- **2026-05-27** — **`/gsd-complete-milestone` v1.28**: archived **`v1.28-REQUIREMENTS.md`**, **`v1.28-ROADMAP.md`**, **`v1.28-MILESTONE-AUDIT.md`**; archived phase directories **127–130** under `milestones/v1.28-phases/`; live **`REQUIREMENTS.md`** removed; tag **`v1.28`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.17**: **`MILESTONES.md`** + **`RETROSPECTIVE.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.17`**; **`ROADMAP`** link → **`milestones/v1.17-REQUIREMENTS.md`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.16**: archived **`v1.16-REQUIREMENTS.md`**, **`v1.16-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.16`**.
 - **2026-04-24** — **`/gsd-complete-milestone` v1.15**: archived **`v1.15-REQUIREMENTS.md`**, **`v1.15-ROADMAP.md`**; live **`REQUIREMENTS.md`** removed; tag **`v1.15`**.
@@ -594,4 +746,17 @@ This document evolves at phase transitions and milestone boundaries.
 
 </details>
 
-*Last updated: 2026-05-23 — archived `v1.25` EMAIL-RAILS and cleared the live milestone surface for next-milestone selection.*
+*Last updated: 2026-05-28 — Phase 136 (Verification Proof Bundle + Narrative-Honesty Corrigendum) shipped (PROOF-01, DOC-01). PROOF-01 proof bundle run on release-branch HEAD — five hard test/docs gates green (full `mix test` 2252/0, `test/sigra/audit/` 60/0, dep-off lane 2246/0, `test/example/` 236/0, `mix docs --warnings-as-errors` exit 0); `mix credo --strict` recorded as a non-CI-enforced local advisory (506 pre-existing library style/design issues disclosed, non-blocking — the 2 enforced custom Sigra checks pass). Per-phase `131–136-VERIFICATION.md` all filed with canonical dash-prefix names (132 history-preserving rename, 133 backfilled). DOC-01 v1.25 EMAIL-RAILS Mailglass corrigendum landed across MILESTONES.md/PROJECT.md/CHANGELOG.md (the library-resident adapter + `--with-mailglass` flag did not land; recipe-only host-owned `Sigra.Mailer` posture). PROOF-01 + DOC-01 reconciled in-place. **v1.29 SUITE-INTEGRATION shipped and archived on 2026-05-29 via `/gsd-complete-milestone` — milestone audit passed (16/16 requirements, 6/6 phases, 5/5 integration, 2/2 flows); ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.29-*`, live `REQUIREMENTS.md` removed for the next milestone, tagged `v1.29`.***
+
+*Last updated: 2026-05-28 — `/gsd-new-milestone` opened **v1.30 TRUST-HARDENING** (Operator Confidence & Debt Closure). The named milestone arc was exhausted through v1.29; v1.30 deepens shipped substrate per the arc's ranking rules. Scope: `mix sigra.doctor`, `Sigra.OptionalDeps` SOT, recipe-contract test fixtures, deprecation-removal timelines, sister-repo recipe-contract verification, proof/docs at close. Phases continue from **137**. Note: 88 stale phase directories (pre-v1.29 + un-archived v1.29 `131–136`) remain in `.planning/phases/` — destructive `phases.clear` was deliberately skipped (no number collision at 137+); recommend a `/gsd-cleanup` archive pass.*
+
+*Last updated: 2026-05-29 — Phase 140 (Deprecation Hygiene + Verification & Docs Close) shipped (DEPR-01, DEPR-02, PROOF-01, DOC-01) — the final phase of **v1.30 TRUST-HARDENING**. The 2 live `@deprecated` functions now carry concrete Hex-SemVer removal targets (`Sigra.MFA.Trust.cookie_opts/0` → 0.4.0, `Sigra.Account.audit_forced_password_change/2` → 0.5.0) with migration notes, rendered into published docs (Gate 8 proof). DOC-01 closed: `mix sigra.doctor` operator section in `guides/recipes/deployment.md` + 3 maintainer sections in `MAINTAINING.md` (OptionalDeps SOT, recipe-contract fixture, deprecation timeline); ROADMAP Phase 137 reconciled to 3/3 Complete (D-12). PROOF-01 eight-gate bundle filed at `140-VERIFICATION.md` (status: passed): 6/8 hard gates green; 2 non-green results are pre-existing/environmental and recorded verbatim — Gates 1/3 install-test failures are the local Xcode-license/argon2-NIF compile block (CI unaffected), Gate 7 doctor exit-1 is the `test/example/` passkeys-on-plaintext-stub wiring gap. Code review: 1 Warning (WR-01 deprecation since-vs-removal version-axis inversion) + 2 Info deferred to tracked todos. **All v1.30 phases (137–140) complete — milestone ready to close via `/gsd-complete-milestone`.** Carry-forward to milestone close: WR-01 version-axis reconciliation; deferred phase-138 doctor Info findings (IN-01/02/03, untagged from 140 — not folded in); REQUIREMENTS.md traceability gaps (SCIM-01/CORR-01/GLUE-01); 88 stale phase dirs pending `/gsd-cleanup`.*
+
+*Last updated: 2026-05-29 after v1.30 TRUST-HARDENING milestone — **shipped and archived via `/gsd-complete-milestone`**. Milestone audit re-run (post-137-closeout) found **11/11 requirements satisfied, 4/4 integration seams WIRED, 3/3 flows intact** — `gaps_found` reflected process/hygiene only, and all four were closed retroactively at this close: filed `137-VERIFICATION.md` from existing UAT/VALIDATION/SECURITY evidence; reconstructed `138-VALIDATION.md` (State B) and signed off `139-VALIDATION.md` (State A) → all 4 phases now Nyquist-compliant; ticked OD-01/OD-02 in REQUIREMENTS.md. WR-01 dual-version-axis deprecation wart resolved to "accept + document" (dual-axis note added to MAINTAINING.md; library-wide `@doc since:` re-keying kept as an open tracked todo). ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.30-*`, ROADMAP collapsed in place, live `REQUIREMENTS.md` removed for the next milestone, tagged `v1.30` (not pushed). 3 deferred tech-debt todos acknowledged in STATE.md (phase-135 cross-milestone, WR-01 version-axis, phase-138 doctor IN-01/02/03). Phases continue from **141**; re-rank `MILESTONE-ARC.md` before `/gsd-new-milestone`. Still pending: 88 stale phase dirs await a `/gsd-cleanup` archive pass.*
+
+*Last updated: 2026-05-29 — `/gsd-new-milestone` opened **v1.31 DEMO-SHOWCASE** (Seed-rich Evaluator Demo Showcase). `MILESTONE-ARC.md` re-ranked first: DATA-LIFECYCLE/SUITE-INTEGRATION/TRUST-HARDENING marked shipped, DEMO-SHOWCASE promoted to SELECTED-next, greenfield SCIM explicitly deprioritized below it and the subsequent 1.0 Hex cut + adoption push. Goal: turn `test/example/` into double-duty adopter proof + click-around evaluator showcase (seed-rich personas, deterministic `seeds.exs`, one-command spin-up, README "try it locally" lane, Playwright over seeded data). The unbuilt remainder of v1.29's deferred "reference starter app"; extends `test/example/` (no new repo). Research-first chosen. Phases continue from **141**.*
+
+*Last updated: 2026-05-31 after v1.31 DEMO-SHOWCASE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.31-*`; live `REQUIREMENTS.md` removed for the next milestone; phases continue from **145**.*
+*Last updated: 2026-06-01 — Phase 150 (Issue Triage & Bugfix Cadence) shipped. Requirements MAINT-01..MAINT-03 validated.*
+*Last updated: 2026-06-01 — Phase 151 (Ecosystem Sync & Hex Dependency Management) complete.*
+*Last updated: 2026-06-02 after v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.33-*`, phase artifacts moved to `milestones/v1.33-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 10/10 requirements satisfied. Phases continue after **153**.*

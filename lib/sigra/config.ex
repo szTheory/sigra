@@ -815,6 +815,16 @@ defmodule Sigra.Config do
           default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.),
           doc:
             "Reserved action prefixes developers cannot use (D-17, D-18). Default: ~w(auth. session. mfa. oauth. api. account. sigra. passkey.)."
+        ],
+        forwarders: [
+          type: {:custom, Sigra.Config, :validate_forwarders, []},
+          default: [],
+          doc:
+            "Audit forwarders (Phase 131, v1.29 SUITE-INTEGRATION). Each entry is a keyword list " <>
+              "with :module (required, atom), :dispatch (:auto | :async | :sync, default :auto), " <>
+              ":id (atom, default :default), and arbitrary impl-specific keys (e.g. Threadline " <>
+              "carries :endpoint and :api_key — these are validated inside each impl's attach/1). " <>
+              "Per-forwarder :dispatch knob mirrors email[:delivery_mode] (D-07). Default: []."
         ]
       ]
     ]
@@ -928,6 +938,66 @@ defmodule Sigra.Config do
   def new!(opts) when is_list(opts) do
     validated = NimbleOptions.validate!(opts, @schema)
     struct!(__MODULE__, validated)
+  end
+
+  @doc false
+  # NimbleOptions custom validator for the audit[:forwarders] list (D-06, Phase 131).
+  # Called by NimbleOptions at config validation time via {:custom, Sigra.Config, :validate_forwarders, []}.
+  #
+  # Validates the canonical keys (:module required, :dispatch enum, :id atom) while
+  # allowing arbitrary impl-specific keys to pass through unvalidated (D-08).
+  # This matches the oauth[:providers] precedent at lib/sigra/config.ex:40 where
+  # impl-specific keys (provider credentials, etc.) are validated inside each impl.
+  #
+  # Returns {:ok, list} on success; {:error, message} on first invalid entry.
+  # NimbleOptions wraps the message in NimbleOptions.ValidationError automatically.
+  @spec validate_forwarders(list()) :: {:ok, list()} | {:error, String.t()}
+  def validate_forwarders(list) when is_list(list) do
+    # Accumulates a normalized list (with :dispatch and :id defaults injected) rather
+    # than returning the original input. Downstream consumers that call
+    # Keyword.fetch!(entry, :dispatch) (rather than Keyword.get with a default) will
+    # work correctly after validation. WR-07: returning raw input was a maintenance
+    # landmine — any new consumer that assumed "validation already normalized this"
+    # would silently break on missing default keys.
+    result =
+      Enum.reduce_while(list, {:ok, []}, fn entry, {:ok, acc} ->
+        cond do
+          not is_list(entry) ->
+            {:halt,
+             {:error,
+              "forwarder entry must be a keyword list, got unexpected type"}}
+
+          not Keyword.has_key?(entry, :module) ->
+            {:halt,
+             {:error,
+              "required :module option not found in forwarder entry, received options: #{inspect(Keyword.keys(entry))}"}}
+
+          not is_atom(Keyword.get(entry, :module)) ->
+            {:halt, {:error, ":module must be an atom"}}
+
+          (dispatch = Keyword.get(entry, :dispatch, :auto)) not in [:auto, :async, :sync] ->
+            {:halt,
+             {:error,
+              "invalid :dispatch value #{inspect(dispatch)} in forwarder entry, expected one of: :auto, :async, :sync"}}
+
+          not is_atom(Keyword.get(entry, :id, :default)) ->
+            {:halt, {:error, ":id must be an atom in forwarder entry"}}
+
+          true ->
+            normalized =
+              entry
+              |> Keyword.put_new(:dispatch, :auto)
+              |> Keyword.put_new(:id, :default)
+
+            {:cont, {:ok, acc ++ [normalized]}}
+        end
+      end)
+
+    result
+  end
+
+  def validate_forwarders(_other) do
+    {:error, "forwarders must be a list"}
   end
 
   @doc """

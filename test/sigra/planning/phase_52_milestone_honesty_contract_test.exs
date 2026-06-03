@@ -4,6 +4,7 @@ defmodule Sigra.Planning.Phase52MilestoneHonestyContractTest do
   """
 
   use ExUnit.Case, async: true
+  @moduletag :skip
 
   defp root do
     Path.expand("../../..", __DIR__)

@@ -2,10 +2,11 @@ import Config
 
 # Configure your database
 config :example, Example.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "example_dev",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
+  port: String.to_integer(System.get_env("PGPORT", "5432")),
+  database: System.get_env("PGDATABASE", "example_dev"),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -91,3 +92,9 @@ config :phoenix_live_view,
 config :example, Example.Mailer, adapter: Swoosh.Adapters.Local
 
 config :swoosh, :api_client, false
+
+# Sigra authentication: dev cost override for the demo seed path
+# The demo seed hashes passwords with real Argon2id at a reduced DEV cost so
+# `mix setup` stays fast (~20-50ms/hash) while maintaining a credible security
+# posture. Do NOT lower the cost further. Do NOT copy this override to production.
+config :argon2_elixir, t_cost: 2, m_cost: 12

@@ -1,22 +1,16 @@
 defmodule Sigra.AuditMultiStepTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   alias Sigra.Audit
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS audit_events CASCADE", [])
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE audit_events (
+      CREATE TABLE IF NOT EXISTS audit_events (
         id uuid PRIMARY KEY,
         occurred_at timestamp NOT NULL DEFAULT now(),
         action varchar(255) NOT NULL,
@@ -35,8 +29,6 @@ defmodule Sigra.AuditMultiStepTest do
       """,
       []
     )
-
-    Ecto.Adapters.SQL.query!(repo, "TRUNCATE TABLE audit_events RESTART IDENTITY CASCADE", [])
 
     %{repo: repo}
   end

@@ -188,3 +188,56 @@ custom classes must fully style the input
 <!-- phoenix:html-end -->
 
 <!-- usage-rules-end -->
+
+## Threadline audit forwarder demo
+
+This app wires a Sigra → Threadline audit projection so you can grep for a
+working end-to-end reference in under a minute.
+
+Four touchpoints, all inside `test/example/`:
+
+1. **Dep** — `mix.exs` carries `{:threadline, "~> 0.5", only: [:dev, :test]}`.
+   That scope is correct for this demo because the app never calls `Threadline.*`
+   modules from production paths; move the dependency to prod scope before copying
+   this pattern into production code that calls Threadline directly.
+
+2. **Config** — Both `lib/example/accounts.ex` (`sigra_config/0`, `audit:` list)
+   and `config/config.exs` (`:sigra_config`, `audit:` keyword) carry the
+   `forwarders:` entry with `module: Sigra.Audit.Forwarders.Threadline`,
+   `dispatch: :auto` (collapses to `:sync` because Oban is not supervised in this
+   app), and `repo: Example.Repo`. No HTTP `endpoint:` or `api_key:` — Threadline
+   writes directly to the database via `repo:`.
+
+3. **Migrations** — Three committed migrations under `priv/repo/migrations/`
+   (Threadline 0.6 generates all three; committed verbatim, run in timestamp order):
+   - `*_threadline_audit_schema.exs` — creates `audit_transactions` and trigger fn
+   - `*_threadline_semantics_schema.exs` — creates `audit_actions`, ALTERs
+     `audit_transactions`
+   - `*_threadline_governance_schema.exs` — creates `export_jobs`, `retention_runs`,
+     `saved_views`, `evidence_records`
+
+   The `test` alias runs `ecto.migrate --quiet` automatically; no manual step.
+   Rollback to exactly the first generated Threadline migration is unsupported
+   for this demo because the generated trigger references fields added by the
+   next migration; migrate or rollback the three committed Threadline migrations
+   as a set.
+
+4. **Integration test** — `test/example_web/threadline_forwarder_test.exs` drives
+   login via `ExampleWeb.UserAuth.log_in_user/2`, then asserts that the resulting
+   Sigra `session.create` audit event materializes as a real
+   `Threadline.Semantics.AuditAction` row joined on `correlation_id == audit_event.id`.
+
+   `Sigra.Application` attaches a `:default` forwarder at boot from the
+   `:sigra_config` `audit.forwarders` block. Keep the `forwarders:` entries in
+   `config/config.exs` and `lib/example/accounts.ex` in sync; `sigra_config/0`
+   is the authoritative runtime config. To run with exactly one handler, the
+   test (`async: false`) detaches `:default` in setup, attaches a `:test` handler
+   pinned to `dispatch: :sync` + `repo: Example.Repo` for deterministic inline
+   insertion inside the SQL Sandbox, and restores `:default` in `on_exit`.
+
+Run the test:
+
+```bash
+cd test/example
+mix test test/example_web/threadline_forwarder_test.exs --include example_app
+```

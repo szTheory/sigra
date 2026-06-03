@@ -5,13 +5,12 @@ defmodule Sigra.OAuthCeremonyAuditTest do
   `.planning/milestones/v1.6-REQUIREMENTS.md` (OA-01).
   """
 
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   alias Sigra.Audit.Assertions
   alias Sigra.OAuth
   alias Sigra.OAuth.Callback
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule OAuthUser do
     @moduledoc false
@@ -75,20 +74,13 @@ defmodule Sigra.OAuthCeremonyAuditTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    for t <- ["oauth_atomic_identities", "oauth_atomic_users", "audit_events"] do
-      Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS #{t} CASCADE", [])
-    end
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE oauth_atomic_users (
+      CREATE TABLE IF NOT EXISTS oauth_atomic_users (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         email text NOT NULL,
         confirmed_at timestamp,
@@ -101,7 +93,7 @@ defmodule Sigra.OAuthCeremonyAuditTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE oauth_atomic_identities (
+      CREATE TABLE IF NOT EXISTS oauth_atomic_identities (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id uuid NOT NULL REFERENCES oauth_atomic_users(id) ON DELETE CASCADE,
         provider text NOT NULL,
@@ -123,7 +115,7 @@ defmodule Sigra.OAuthCeremonyAuditTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE audit_events (
+      CREATE TABLE IF NOT EXISTS audit_events (
         id uuid PRIMARY KEY,
         occurred_at timestamp NOT NULL DEFAULT now(),
         action varchar(255) NOT NULL,
@@ -140,12 +132,6 @@ defmodule Sigra.OAuthCeremonyAuditTest do
         inserted_at timestamp NOT NULL DEFAULT now()
       )
       """
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE oauth_atomic_identities, oauth_atomic_users, audit_events RESTART IDENTITY CASCADE",
-      []
     )
 
     %{repo: repo}
@@ -175,7 +161,7 @@ defmodule Sigra.OAuthCeremonyAuditTest do
     repo
     |> oauth_config()
     |> Map.put(:secret_key_base, String.duplicate("a", 64))
-    |> Map.put(:oauth, [
+    |> Map.put(:oauth,
       enabled: true,
       providers: [
         mock: [client_id: "test_id", client_secret: "test_secret", strategy: MockStrategy]
@@ -183,7 +169,7 @@ defmodule Sigra.OAuthCeremonyAuditTest do
       session_type: :remember_me,
       link_confirmation: :required,
       trust_provider_email: true
-    ])
+    )
   end
 
   defp token do

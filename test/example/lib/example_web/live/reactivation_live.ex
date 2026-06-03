@@ -34,7 +34,8 @@ defmodule ExampleWeb.ReactivationLive do
 
       <div class="mt-6 text-sm text-gray-700">
         <p>
-          Your account and data will be permanently removed on {@scheduled_deletion_date}.
+          Your account is scheduled for deletion on {@scheduled_deletion_date}.
+          Finalization will follow the configured deletion strategy.
         </p>
         <p class="mt-4">
           If you'd like to keep your account, you can cancel the deletion now.

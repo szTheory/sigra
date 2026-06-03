@@ -1,0 +1,316 @@
+# Sigra v0.3.0 - Table of Contents
+
+Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.
+
+## Pages
+
+- [Sigra](readme.md)
+- [Contributing to Sigra](contributing.md)
+- [Maintaining Sigra](maintaining.md)
+- [LICENSE](license.md)
+- [Changelog](changelog.md)
+
+- Introduction
+  - [Installation](installation.md)
+  - [getting-started](getting-started.md)
+  - [Sigra 1.32 Contract](contract.md)
+  - [First hour with Sigra](first-hour.md)
+  - [After the first hour: toward solo production](intermediate-production-path.md)
+  - [Troubleshooting install](troubleshooting-install.md)
+  - [Upgrading notes — toward v1.7](upgrading-to-v1-7.md)
+  - [Upgrading notes — toward v1.8](upgrading-to-v1-8.md)
+  - [Upgrading notes — toward v1.10](upgrading-to-v1-10.md)
+  - [Upgrading notes — toward v1.11](upgrading-to-v1-11.md)
+  - [Upgrading notes — toward v1.12](upgrading-to-v1-12.md)
+  - [Upgrading to v1.0](upgrading-to-v1-0.md)
+  - [Upgrading to v1.1](upgrading-to-v1-1.md)
+  - [Migrating from phx.gen.auth](migrating-from-phx-gen-auth.md)
+  - [Migrating from Pow, Guardian, and Ueberauth](migrating-from-pow-guardian-ueberauth.md)
+  - [Suite Integration](suite-integration.md)
+  - [Demo Showcase — Vaultr Example App](demo-showcase.md)
+
+- Reference
+  - [Generator and install options](generator-options.md)
+
+- Flows
+  - [User Registration](registration.md)
+  - [Login and Logout](login-and-logout.md)
+  - [Password Reset](password-reset.md)
+  - [Multi-Factor Authentication](mfa.md)
+  - [OAuth, OIDC, and Enterprise Sign-In](oauth.md)
+  - [API Authentication](api-authentication.md)
+  - [Account Lifecycle](account-lifecycle.md)
+  - [Audit Logging](audit-logging.md)
+
+- Companion Libraries
+  - [Recipe: Sigra + Threadline (audit forwarding)](threadline.md)
+  - [Recipe: Sigra + Mailglass (transactional auth email)](mailglass.md)
+  - [Recipe: Sigra + Accrue (seat-limit gating + subscription lifecycle)](accrue.md)
+  - [Recipe: Sigra + Lockspire (embedded OAuth/OIDC provider)](lockspire.md)
+  - [Recipe: Sigra + Relyra (SAML 2.0 SP federation)](relyra.md)
+  - [Recipe: Sigra + Rulestead (feature-flag gating from current_scope)](rulestead.md)
+
+- Recipes
+  - [Testing Auth Flows](testing.md)
+  - [Subdomain Authentication](subdomain-auth.md)
+  - [Custom User Fields](custom-user-fields.md)
+  - [Multi-Tenant Apps](multi-tenant.md)
+  - [Passkeys](passkeys.md)
+  - [Deployment](deployment.md)
+  - [Recipe: Sigra + embedded OAuth/OIDC provider (e.g. Lockspire)](companion-oauth-provider.md)
+
+- Docs
+  - [Security Policy](security.md)
+  - [Audit semantics in Sigra](audit-semantics.md)
+  - [GA UAT — CI vs human coverage (SEED-001 shift-left)](uat-ci-coverage.md)
+  - [Release evidence router](ga-evidence.md)
+  - [Sigra Hex 1.32.0 Announcement](announcement.md)
+  - [Sigra 1.32 Alternatives Comparison](alternatives.md)
+  - [Sigra Hex 1.32.0 Launch Evidence Bundle](evidence.md)
+  - [Nyquist posture matrix (maintainer)](nyquist-posture-matrix.md)
+  - [Next steps (manual only)](next-steps-manual.md)
+
+## Modules
+
+- [Sigra.APIToken](Sigra.APIToken.md): Core API token operations: creation, verification, revocation, and scope checks.
+- [Sigra.APIToken.ScopeRegistry](Sigra.APIToken.ScopeRegistry.md): Scope validation and registry for API tokens.
+- [Sigra.Account](Sigra.Account.md): Account lifecycle orchestrator.
+- [Sigra.Account.Deletion](Sigra.Account.Deletion.md): Account deletion lifecycle: schedule, cancel, execute.
+- [Sigra.Account.EmailChange](Sigra.Account.EmailChange.md): Email change lifecycle: request, confirm, cancel.
+- [Sigra.Account.PasswordChange](Sigra.Account.PasswordChange.md): Password change lifecycle: change, set for OAuth users, force change.
+- [Sigra.Admin.Audit.CSVExport](Sigra.Admin.Audit.CSVExport.md): Stable CSV encoding for admin audit evidence exports.
+
+- [Sigra.Admin.Audit.Explorer](Sigra.Admin.Audit.Explorer.md): Shared scope-safe list orchestration for admin audit explorer routes.
+
+- [Sigra.Admin.Audit.Export](Sigra.Admin.Audit.Export.md): Shared scope-safe CSV export orchestration for admin audit explorer routes.
+
+- [Sigra.Admin.Audit.Presenter](Sigra.Admin.Audit.Presenter.md): Canonical operator-facing audit row presentation helpers.
+
+- [Sigra.Admin.Audit.Query](Sigra.Admin.Audit.Query.md): Admin-owned audit query wrapper for shared explorer and export semantics.
+
+- [Sigra.Admin.Audit.QueryParams](Sigra.Admin.Audit.QueryParams.md): Whitelist-first normalization for admin audit explorer and export filters.
+
+- [Sigra.Admin.Authorizer](Sigra.Admin.Authorizer.md): Direct-path admin authorization helpers for exports, mutations, and queries.
+- [Sigra.Admin.Live.AuditIndexLive](Sigra.Admin.Live.AuditIndexLive.md): Global and organization-scoped audit explorer.
+
+- [Sigra.Admin.Live.AuditUserLive](Sigra.Admin.Live.AuditUserLive.md): Per-user admin audit explorer for global and organization-scoped routes.
+
+- [Sigra.Admin.Live.IndexLive](Sigra.Admin.Live.IndexLive.md): Foundation global admin entry LiveView.
+- [Sigra.Admin.Live.OrganizationLive](Sigra.Admin.Live.OrganizationLive.md): Foundation organization-scoped admin entry LiveView.
+- [Sigra.Admin.Live.UserShowLive](Sigra.Admin.Live.UserShowLive.md): Admin user detail surface with scope-safe session controls.
+
+- [Sigra.Admin.Live.UsersIndexLive](Sigra.Admin.Live.UsersIndexLive.md): Admin user index for global and organization-scoped user operations.
+
+- [Sigra.Admin.Policy](Sigra.Admin.Policy.md): Behaviour for host-owned admin access decisions.
+- [Sigra.Admin.Scope](Sigra.Admin.Scope.md): Request-local resolved admin scope derived from the host's current scope.
+- [Sigra.Admin.Users.Actions](Sigra.Admin.Users.Actions.md): Scope-aware admin mutations for the user detail surface.
+
+- [Sigra.Admin.Users.DefaultHooks](Sigra.Admin.Users.DefaultHooks.md): Default no-op implementation for `Sigra.Admin.Users.Hooks`.
+
+- [Sigra.Admin.Users.Detail](Sigra.Admin.Users.Detail.md): Scope-safe loader for the admin user detail surface.
+
+- [Sigra.Admin.Users.Hooks](Sigra.Admin.Users.Hooks.md): Host-owned customization hooks for admin user surfaces.
+- [Sigra.Admin.Users.Query](Sigra.Admin.Users.Query.md): Canonical query contract for the admin user list surface.
+
+- [Sigra.Application](Sigra.Application.md): OTP application callback for Sigra.
+- [Sigra.Credo.NoLogSafe2InLib](Sigra.Credo.NoLogSafe2InLib.md): ## Basics
+- [Sigra.Credo.NoUnscopedOrgQueryInLib](Sigra.Credo.NoUnscopedOrgQueryInLib.md): ## Basics
+- [Sigra.DataExport](Sigra.DataExport.md): Behaviour for exporting user data.
+- [Sigra.Delivery](Sigra.Delivery.md): Email delivery orchestration.
+- [Sigra.Doctor](Sigra.Doctor.md): Pure diagnostic module that builds Sigra's nine-feature optional-dependency
+matrix, validates boot-time wiring for configured features, and returns a
+structured diagnosis result.
+- [Sigra.Ecto.Types.StringList](Sigra.Ecto.Types.StringList.md): Custom Ecto type for storing lists as comma-separated strings.
+- [Sigra.Email](Sigra.Email.md): Email normalization and format validation.
+- [Sigra.EmailTemplates](Sigra.EmailTemplates.md): Behaviour for generated email template modules.
+- [Sigra.EnterpriseAuthPolicy](Sigra.EnterpriseAuthPolicy.md): Host-aware local-auth policy evaluation for enterprise SSO enforcement.
+
+- [Sigra.EnterpriseConnections](Sigra.EnterpriseConnections.md): Organization-scoped enterprise connection lifecycle management.
+- [Sigra.EnterpriseConnections.Validation](Sigra.EnterpriseConnections.Validation.md): OIDC discovery and client-setting preflight validation for enterprise connections.
+
+- [Sigra.EnterpriseRouting](Sigra.EnterpriseRouting.md): Library-owned enterprise routing rules for bounded discovery and canonical
+organization entry.
+
+- [Sigra.Env](Sigra.Env.md): Release-safe Mix environment detection.
+- [Sigra.Error](Sigra.Error.md): Error types and safe message mapping for Sigra authentication.
+- [Sigra.GeoIP](Sigra.GeoIP.md): Behaviour for IP geolocation lookups.
+- [Sigra.Hasher](Sigra.Hasher.md): Behaviour for password hashing implementations.
+- [Sigra.Hashers.Argon2](Sigra.Hashers.Argon2.md): Argon2id password hasher implementation.
+- [Sigra.Hashers.Bcrypt](Sigra.Hashers.Bcrypt.md): Bcrypt password hasher for migration from bcrypt to Argon2id.
+- [Sigra.Hooks](Sigra.Hooks.md): Lifecycle hook execution engine.
+- [Sigra.Identity](Sigra.Identity.md): Library struct representing an OAuth identity (provider account linked to a user).
+- [Sigra.Impersonation](Sigra.Impersonation.md): Library-owned impersonation orchestration over real Sigra sessions.
+
+- [Sigra.Install.Feature](Sigra.Install.Feature.md): Behaviour that every `mix sigra.install` feature module implements.
+- [Sigra.Install.Features.Admin](Sigra.Install.Features.Admin.md): `Sigra.Install.Feature` implementation for the admin feature.
+- [Sigra.Install.Features.Core](Sigra.Install.Features.Core.md): `Sigra.Install.Feature` implementation for v1.0's core authentication
+scaffold: users, sessions, tokens, MFA, sudo, reset password, confirmation,
+audit events, and (optionally) API token, JWT, and LiveView UI.
+- [Sigra.Install.Features.Organizations](Sigra.Install.Features.Organizations.md): `Sigra.Install.Feature` implementation for the organizations feature:
+multi-tenant organization support with memberships and invitations.
+- [Sigra.Install.Features.Passkeys](Sigra.Install.Features.Passkeys.md): `Sigra.Install.Feature` implementation for the passkeys feature.
+- [Sigra.Install.Injection](Sigra.Install.Injection.md): Structured injection descriptor for `Sigra.Install.Injector`.
+- [Sigra.Install.Injector](Sigra.Install.Injector.md): Idempotent code injection for Sigra install generator.
+- [Sigra.Install.MigrationTimestamps](Sigra.Install.MigrationTimestamps.md): Deterministic slot-based timestamp allocator for installer
+migrations (GEN-07).
+- [Sigra.Install.Report](Sigra.Install.Report.md): Record-as-you-go accumulator for installer decisions, rendered as
+a 4-column post-install summary (GEN-05).
+- [Sigra.Install.Runner](Sigra.Install.Runner.md): Generic walker over a `[Sigra.Install.Feature]` list. Feature-agnostic:
+adding `Features.Organizations`, `Features.Passkeys`, or `Features.Admin`
+in a later phase requires ZERO edits to this module — only a new entry
+in the caller's feature list.
+- [Sigra.Integrations.Chimeway](Sigra.Integrations.Chimeway.md): Sigra → Chimeway auth notification bridge (ECOS-09).
+- [Sigra.JWT](Sigra.JWT.md): JWT access token generation, verification, and refresh token management.
+- [Sigra.JWT.ClaimsBuilder](Sigra.JWT.ClaimsBuilder.md): Behaviour for adding custom claims to JWT access tokens.
+- [Sigra.JWT.RefreshToken](Sigra.JWT.RefreshToken.md): Refresh token management with family-based reuse detection.
+- [Sigra.JWT.Signer](Sigra.JWT.Signer.md): JWT key loading and signer creation.
+- [Sigra.LiveView.AdminScope](Sigra.LiveView.AdminScope.md): LiveView `on_mount` parity for admin scope enforcement.
+- [Sigra.LiveView.OrganizationScope](Sigra.LiveView.OrganizationScope.md): LiveView `on_mount` parallel of `Sigra.Plug.LoadOrganizationFromSlug`
+(Phase 16 D-03, D-04).
+- [Sigra.Lockout](Sigra.Lockout.md): Account lockout logic for brute force prevention.
+- [Sigra.Mailer](Sigra.Mailer.md): Behaviour for email delivery implementations.
+- [Sigra.OAuth](Sigra.OAuth.md): OAuth orchestrator for Sigra authentication.
+- [Sigra.OAuth.Callback](Sigra.OAuth.Callback.md): Processes OAuth callback data and routes to the appropriate account action.
+- [Sigra.OAuth.EnterpriseReconciliation](Sigra.OAuth.EnterpriseReconciliation.md): Library-owned enterprise user and membership reconciliation.
+
+- [Sigra.OAuth.Strategies](Sigra.OAuth.Strategies.md): Resolves provider atoms to their corresponding strategy wrapper modules.
+- [Sigra.OAuth.Strategies.Apple](Sigra.OAuth.Strategies.Apple.md): Wraps `Assent.Strategy.Apple` for Sigra OAuth integration.
+- [Sigra.OAuth.Strategies.Facebook](Sigra.OAuth.Strategies.Facebook.md): Wraps `Assent.Strategy.Facebook` for Sigra OAuth integration.
+- [Sigra.OAuth.Strategies.Generic](Sigra.OAuth.Strategies.Generic.md): Generic fallback strategy wrapper for any Assent strategy (D-13).
+- [Sigra.OAuth.Strategies.Github](Sigra.OAuth.Strategies.Github.md): Wraps `Assent.Strategy.Github` for Sigra OAuth integration.
+- [Sigra.OAuth.Strategies.Google](Sigra.OAuth.Strategies.Google.md): Wraps `Assent.Strategy.Google` for Sigra OAuth integration.
+- [Sigra.OptionalDeps](Sigra.OptionalDeps.md): Single source of truth for optional-dependency availability predicates.
+- [Sigra.Organizations](Sigra.Organizations.md): Context module for organization CRUD operations, membership management,
+and safety guards.
+- [Sigra.Organizations.Callbacks](Sigra.Organizations.Callbacks.md): Behaviour for organization lifecycle hook callbacks.
+- [Sigra.Organizations.Invitations](Sigra.Organizations.Invitations.md): Phase 17 invitation lifecycle: `create/2`, `revoke/3`, `list_pending/2`,
+`list_pending_for_user/2`. `accept/3` and `accept_with_signup/3` land
+in Plan 17-05.
+- [Sigra.Organizations.Query](Sigra.Organizations.Query.md): Tenant-scoping query helpers for organization-aware schemas.
+- [Sigra.Organizations.Slug](Sigra.Organizations.Slug.md): Slug generation and validation for organizations.
+- [Sigra.Passkeys](Sigra.Passkeys.md): Public passkey context for registration and credential management helpers.
+
+- [Sigra.Passkeys.Authentication](Sigra.Passkeys.Authentication.md): WebAuthn authentication ceremony helpers.
+
+- [Sigra.Passkeys.CoseKey](Sigra.Passkeys.CoseKey.md): Serialize / deserialize COSE public keys (integer-keyed maps returned by
+wax_ via `Wax.AttestedCredentialData.credential_public_key`).
+- [Sigra.Passkeys.Credential](Sigra.Passkeys.Credential.md): Library struct representing a WebAuthn passkey credential.
+- [Sigra.Passkeys.DeleteResult](Sigra.Passkeys.DeleteResult.md): Outcome metadata for a passkey deletion.
+
+- [Sigra.Passkeys.DeviceName](Sigra.Passkeys.DeviceName.md): Resolves friendly labels for stored passkey credentials.
+- [Sigra.Passkeys.Registration](Sigra.Passkeys.Registration.md): WebAuthn registration ceremony helpers.
+- [Sigra.Passkeys.SignCountPolicy](Sigra.Passkeys.SignCountPolicy.md): Pure sign-count regression policy machine.
+
+- [Sigra.PasswordPolicy](Sigra.PasswordPolicy.md): NIST-compliant password validation and strength analysis.
+- [Sigra.PasswordPolicy.CommonPasswords](Sigra.PasswordPolicy.CommonPasswords.md): Compile-time embedded common password list for rejection checking.
+- [Sigra.RateLimiter](Sigra.RateLimiter.md): Behaviour for rate limiting implementations.
+- [Sigra.RateLimiters.Hammer](Sigra.RateLimiters.Hammer.md): Hammer 7.x rate limiter implementation.
+- [Sigra.RateLimiters.Noop](Sigra.RateLimiters.Noop.md): No-op rate limiter that always allows requests.
+- [Sigra.Scope](Sigra.Scope.md): Library-side scope helpers. The `%Scope{}` struct itself is generated
+into the host app — this module only provides constructors that work
+via `struct/2` reflection on the host's module.
+- [Sigra.Scope.Hydration](Sigra.Scope.Hydration.md): Pure scope-hydration contract shared between `Sigra.Plug.LoadActiveOrganization`
+(Plug pipeline) and the generated `UserAuth.on_mount` callback (LiveView).
+- [Sigra.Session](Sigra.Session.md): Struct representing an authenticated user session.
+- [Sigra.SessionStore](Sigra.SessionStore.md): Behaviour for session persistence implementations.
+- [Sigra.SessionStores.Ecto](Sigra.SessionStores.Ecto.md): Ecto-backed session store implementation.
+- [Sigra.SuspiciousLogin](Sigra.SuspiciousLogin.md): Suspicious login detection. Compares login IP against all active session IPs
+for the user. Triggers on new IP during explicit login only.
+- [Sigra.Telemetry](Sigra.Telemetry.md): Telemetry integration for Sigra authentication events.
+- [Sigra.Token](Sigra.Token.md): Signed token generation and verification.
+- [Sigra.UAParser](Sigra.UAParser.md): Lightweight user-agent string parser.
+- [Sigra.Upgrade](Sigra.Upgrade.md): Orchestrator for `mix sigra.upgrade` (Phase 18 D-08).
+- [Sigra.Upgrade.Backfill](Sigra.Upgrade.Backfill.md): Library-resident backfill logic for `mix sigra.upgrade --backfill-personal-orgs`.
+- [Sigra.Workers](Sigra.Workers.md): Behaviour contract for Sigra-aware background workers that require
+tenant context. Pure `@callback` contract — the behaviour itself has
+zero compile-time dependency on any background job library.
+- [Sigra.Workers.AccountDeletion](Sigra.Workers.AccountDeletion.md): Oban worker for executing scheduled account deletions.
+- [Sigra.Workers.AuditCleanup](Sigra.Workers.AuditCleanup.md): Optional Oban worker that deletes audit rows older than the configured
+retention window (D-10 retention cleanup for AUDIT-03).
+- [Sigra.Workers.AuditForward](Sigra.Workers.AuditForward.md): Optional Oban worker for async audit forwarder dispatch.
+- [Sigra.Workers.CleanupExpiredInvitations](Sigra.Workers.CleanupExpiredInvitations.md): Optional Oban worker that hard-deletes expired, unaccepted invitation
+rows past the configured retention window (D-11).
+- [Sigra.Workers.EmailDelivery](Sigra.Workers.EmailDelivery.md): Oban worker for asynchronous email delivery.
+- [Sigra.Workers.TokenCleanup](Sigra.Workers.TokenCleanup.md): Oban cron worker for cleaning up expired tokens.
+
+- Core
+  - [Sigra](Sigra.md): Comprehensive authentication library for Phoenix 1.8+.
+  - [Sigra.Auth](Sigra.Auth.md): Core authentication orchestrator.
+  - [Sigra.Config](Sigra.Config.md): Configuration for Sigra authentication.
+  - [Sigra.Crypto](Sigra.Crypto.md): Password hashing, verification, and hash upgrade operations.
+
+- Plugs
+  - [Sigra.Plug.ErrorHandler](Sigra.Plug.ErrorHandler.md): Behaviour for handling authentication errors in the HTTP pipeline.
+  - [Sigra.Plug.FetchBearer](Sigra.Plug.FetchBearer.md): Extracts a bearer token from the Authorization header and assigns current_scope.
+  - [Sigra.Plug.FetchSession](Sigra.Plug.FetchSession.md): Fetches the current user session, enforces timeouts, and assigns `current_scope`.
+  - [Sigra.Plug.ForbidDuringImpersonation](Sigra.Plug.ForbidDuringImpersonation.md): Blocks sensitive mutations while impersonation is active.
+
+  - [Sigra.Plug.LoadActiveOrganization](Sigra.Plug.LoadActiveOrganization.md): Hydrates `scope.active_organization` and `scope.membership` from the caller's
+`%Sigra.Session{}` (read from `conn.private[:sigra_session]`, stashed by
+`Sigra.Plug.FetchSession`).
+  - [Sigra.Plug.LoadOrganizationFromSlug](Sigra.Plug.LoadOrganizationFromSlug.md): URL-driven active organization loader (Phase 16 D-03, D-04, D-13).
+  - [Sigra.Plug.PasskeyChallenge](Sigra.Plug.PasskeyChallenge.md): Plug-edge session adapter for passkey ceremony challenges.
+  - [Sigra.Plug.PutActiveOrganization](Sigra.Plug.PutActiveOrganization.md): The **single** authoritative write site for "set the active organization".
+  - [Sigra.Plug.RateLimit](Sigra.Plug.RateLimit.md): IP-based rate limiting plug for auth routes.
+  - [Sigra.Plug.RequireAdminAccess](Sigra.Plug.RequireAdminAccess.md): Resolves and enforces admin access at the Plug boundary.
+  - [Sigra.Plug.RequireAuthenticated](Sigra.Plug.RequireAuthenticated.md): Authentication gate plug that halts unauthenticated requests.
+  - [Sigra.Plug.RequireMFA](Sigra.Plug.RequireMFA.md): MFA session gate plug.
+  - [Sigra.Plug.RequireMFAEnrolled](Sigra.Plug.RequireMFAEnrolled.md): Plug that requires the current user to have MFA enrolled.
+  - [Sigra.Plug.RequireMembership](Sigra.Plug.RequireMembership.md): Halts the pipeline unless `conn.assigns[:current_scope]` has a non-nil
+`active_organization` and (optionally) a membership role in the configured
+`:roles` list.
+  - [Sigra.Plug.RequirePasswordChange](Sigra.Plug.RequirePasswordChange.md): Plug that redirects users who must change their password.
+  - [Sigra.Plug.RequireScopes](Sigra.Plug.RequireScopes.md): Route-level scope enforcement plug for API token authentication.
+  - [Sigra.Plug.RequireSudo](Sigra.Plug.RequireSudo.md): Sudo mode gate plug that requires recent re-authentication.
+
+- MFA
+  - [Sigra.MFA](Sigra.MFA.md): Core MFA orchestrator module.
+  - [Sigra.MFA.BackupCodes](Sigra.MFA.BackupCodes.md): Backup code generation, hashing, and atomic consumption.
+  - [Sigra.MFA.Credential](Sigra.MFA.Credential.md): Library struct representing an MFA credential (e.g., TOTP enrollment).
+  - [Sigra.MFA.Lockout](Sigra.MFA.Lockout.md): MFA-specific lockout logic, mirroring `Sigra.Lockout` pattern.
+  - [Sigra.MFA.Trust](Sigra.MFA.Trust.md): Trust cookie HMAC signing, verification, and mass revocation.
+
+- Audit
+  - [Sigra.Audit](Sigra.Audit.md): Structured audit logging for Sigra.
+  - [Sigra.Audit.Assertions](Sigra.Audit.Assertions.md): Plain-function helpers for asserting on persisted audit rows in tests.
+  - [Sigra.Audit.Changeset](Sigra.Audit.Changeset.md): Changeset validators for audit events.
+  - [Sigra.Audit.Cursor](Sigra.Audit.Cursor.md): Base64URL cursor encoding for audit log pagination (D-13).
+  - [Sigra.Audit.Forwarder](Sigra.Audit.Forwarder.md): Behaviour for audit-event forwarders.
+  - [Sigra.Audit.Forwarders](Sigra.Audit.Forwarders.md): Shared audit forwarder dispatcher.
+  - [Sigra.Audit.Forwarders.Noop](Sigra.Audit.Forwarders.Noop.md): No-op audit forwarder.
+  - [Sigra.Audit.Forwarders.Threadline](Sigra.Audit.Forwarders.Threadline.md): Audit forwarder that ships committed Sigra audit rows to Threadline
+via `Threadline.record_action/2`.
+  - [Sigra.Audit.Query](Sigra.Audit.Query.md): Composable Ecto query builder for `audit_events`.
+
+- Testing
+  - [Sigra.Testing](Sigra.Testing.md): Test assertion helpers for Sigra authentication.
+
+- Exceptions
+  - [Sigra.Admin.Authorizer.UnauthorizedError](Sigra.Admin.Authorizer.UnauthorizedError.md)
+  - [Sigra.Error.AccountLocked](Sigra.Error.AccountLocked.md): Raised when an account is temporarily locked due to failed attempts.
+  - [Sigra.Error.AlreadyConfirmed](Sigra.Error.AlreadyConfirmed.md): Raised when a user's email is already confirmed.
+  - [Sigra.Error.InsufficientScope](Sigra.Error.InsufficientScope.md): Raised when a valid token lacks required scopes.
+  - [Sigra.Error.InvalidCredentials](Sigra.Error.InvalidCredentials.md): Raised when authentication fails due to wrong email or password.
+  - [Sigra.Error.MFAError](Sigra.Error.MFAError.md): Raised when an MFA operation fails.
+  - [Sigra.Error.MFARequired](Sigra.Error.MFARequired.md): Raised when JWT login requires MFA verification.
+  - [Sigra.Error.OAuthError](Sigra.Error.OAuthError.md): Raised when an OAuth operation fails.
+  - [Sigra.Error.RateLimited](Sigra.Error.RateLimited.md): Raised when a rate limit has been exceeded.
+  - [Sigra.Error.TokenExpired](Sigra.Error.TokenExpired.md): Raised when a token has exceeded its time-to-live.
+  - [Sigra.Error.TokenInvalid](Sigra.Error.TokenInvalid.md): Raised when a token is malformed, tampered, or otherwise invalid.
+  - [Sigra.Error.TokenRevoked](Sigra.Error.TokenRevoked.md): Raised when a revoked API token or JWT refresh token is used.
+  - [Sigra.Error.Unconfirmed](Sigra.Error.Unconfirmed.md): Raised when an unconfirmed user attempts a restricted action.
+
+## Mix Tasks
+
+- [mix sigra.doctor](Mix.Tasks.Sigra.Doctor.md): Diagnoses Sigra's optional-dependency wiring and prints a per-feature status
+matrix showing which optional features are missing, available (loaded but
+unconfigured), loaded and active, or configured-but-broken.
+- [mix sigra.fixture.rebless_golden](Mix.Tasks.Sigra.Fixture.ReblessGolden.md): Regenerates the `test/fixtures/install_golden/` baseline driven by the
+`Sigra.Test.InstallFixture` harness, then prints a structured delta report
+grouped by top-level directory so the operator can review what changed
+without eyeballing a 20+ file raw diff.
+- [mix sigra.gen.oauth](Mix.Tasks.Sigra.Gen.Oauth.md): Generates OAuth support for Sigra authentication.
+- [mix sigra.install](Mix.Tasks.Sigra.Install.md): Generates Sigra authentication scaffold.
+- [mix sigra.upgrade](Mix.Tasks.Sigra.Upgrade.md): Upgrades a Sigra-installed app from an older schema version to the
+current library version (Phase 18 D-08).
+

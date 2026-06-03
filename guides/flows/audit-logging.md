@@ -46,9 +46,9 @@ Sigra writes these automatically (this list is not exhaustive — check `lib/sig
 - `mfa.backup_code.used`
 - `api_token.create` / `api_token.revoke`
 - `oauth.link.success` / `oauth.unlink.success`
-- `account.email_change.request` / `account.email_change.confirm`
-- `account.password_change.success`
-- `account.deletion.schedule` / `account.deletion.cancel` / `account.deletion.execute`
+- `account.email_change_request` / `account.email_change_confirm`
+- `account.password_change`
+- `account.deletion_schedule` / `account.deletion_cancel` / `account.deletion_execute`
 
 ## Configuring audit
 
@@ -90,7 +90,7 @@ Filter by time range:
 
 Your own code can write domain-specific events. Prefix them to avoid colliding with `auth.`, `mfa.`, `api_token.`, `oauth.`, `account.`:
 
-    Sigra.Audit.log(config, "billing.subscription.upgraded",
+    Sigra.Audit.log("billing.subscription.upgraded",
       actor_id: user.id,
       actor_type: "user",
       target_id: subscription.id,
@@ -119,16 +119,31 @@ For atomicity, write the audit row inside the same transaction as the business o
 
 `Sigra.Audit.log_multi` adds a `{:audit, ...}` step to your multi. If the business op fails, the audit row rolls back with it.
 
-## Streaming for SIEM export
+## Auth/account data export boundary
 
-For SOC2 / HIPAA compliance you may need to export events to Splunk, Datadog, or a self-hosted SIEM. Use `Sigra.Audit.stream/2`:
+Use `Sigra.DataExport.export_auth_data/3` when you need Sigra-owned auth/account data for a user. The export is versioned and bounded to Sigra-owned sections such as account lifecycle fields, sessions, identities, audit rows, MFA credentials, passkeys, backup-code summary, and organization memberships when those generated schemas are configured.
+
+The export is not host-owned domain data. Host applications remain responsible for their own domain export, retention policy, and legal interpretation.
+
+The returned `omissions` list is part of the contract. When optional Sigra-owned schemas are absent, Sigra returns explicit omission notes for those sections instead of silently implying the export is complete.
+
+## Cursor pagination and streaming for SIEM export
+
+Use `Sigra.Audit.list/2` for stable cursor-based pagination when you need
+checkpointed export batches. Use `Sigra.Audit.stream/2` for database-backed
+streaming inside a transaction when you want to process a large slice in one run.
+
+Cursor pagination:
+
+    {:ok, %{entries: entries, next_cursor: cursor}} =
+      Sigra.Audit.list(config(), audit_schema: MyApp.AuditEvent, limit: 1_000)
+
+Streaming:
 
     Sigra.Audit.stream(config(), since: last_export_cursor)
     |> Stream.map(&encode_for_siem/1)
     |> Stream.chunk_every(1_000)
     |> Enum.each(&SIEM.Client.push_batch/1)
-
-The stream is cursor-based and stable across pagination boundaries (see `test/sigra/audit/cursor_portability_test.exs`).
 
 ## Retention
 

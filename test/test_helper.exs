@@ -5,6 +5,11 @@
 # the dev prereq docker one-liner.
 ExUnit.start()
 
+if Code.ensure_loaded?(Postgrex) and Code.ensure_loaded?(Sigra.Test.PostgresRepo) do
+  {:ok, _pid} = Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())
+  Ecto.Adapters.SQL.Sandbox.mode(Sigra.Test.PostgresRepo, :manual)
+end
+
 # Define Mox mocks for Sigra.Auth tests
 Mox.defmock(Sigra.MockRepo, for: Sigra.MockRepo.Behaviour)
 Mox.defmock(Sigra.MockRateLimiter, for: Sigra.RateLimiter)

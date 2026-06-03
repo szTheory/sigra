@@ -66,7 +66,8 @@ defmodule Example.MixProject do
       {:assent, "~> 0.3"},
       {:joken, "~> 2.6"},
       {:eqrcode, "~> 0.2.1"},
-      {:mox, "~> 1.1", only: :test}
+      {:mox, "~> 1.1", only: :test},
+      {:threadline, "~> 0.5", only: [:dev, :test]}
     ]
   end
 

@@ -82,7 +82,7 @@ defmodule Sigra.Plug.RateLimit do
   end
 
   defp resolve_limiter(nil) do
-    if Code.ensure_loaded?(Hammer) do
+    if Sigra.OptionalDeps.hammer_available?() do
       Sigra.RateLimiters.Hammer
     else
       Logger.warning(

@@ -17,7 +17,7 @@ defmodule Sigra.Audit.QueryIndexTest do
 
       mix test test/sigra/audit/query_index_test.exs
 
-  The test spins up a throwaway `Sigra.Test.PostgresRepo`, creates the
+  The test spins up a throwaway `Sigra.Test.AuditQueryIndexScratchRepo`, creates the
   minimal `audit_events` + `organizations` schema inline (enough for the
   FK target + composite index to exist), runs `EXPLAIN` on the query, and
   asserts the plan text substring-matches
@@ -34,28 +34,19 @@ defmodule Sigra.Audit.QueryIndexTest do
   @moduletag :postgres
 
   alias Sigra.Audit.Query
+  alias Sigra.Test.AuditQueryIndexScratchRepo
 
   @index_name "audit_events_organization_id_inserted_at_index"
-  # Never run storage_up/storage_down against the shared `sigra_test` DB used
-  # by Sigra.Test.PostgresRepo in other modules — `mix test` runs files in
-  # parallel by default, so dropping `sigra_test` here would race admin/audit
-  # integration tests and invalidate their pools mid-suite.
-  @scratch_database "sigra_audit_query_index_scratch"
 
   setup_all do
-    repo = Sigra.Test.PostgresRepo
-
-    config =
-      repo.default_config()
-      |> Keyword.put(:database, @scratch_database)
-
-    Application.put_env(:sigra, repo, config)
+    repo = AuditQueryIndexScratchRepo
+    config = repo.default_config()
 
     # Drop + create an isolated scratch database so repeated runs are idempotent.
     _ = Ecto.Adapters.Postgres.storage_down(config)
     :ok = Ecto.Adapters.Postgres.storage_up(config)
 
-    {:ok, _pid} = repo.start_link()
+    {:ok, pid} = repo.start_link(config)
 
     # Create the minimal schema inline: organizations (FK target) +
     # audit_events with the same column set the generator template emits,
@@ -94,6 +85,14 @@ defmodule Sigra.Audit.QueryIndexTest do
     """)
 
     on_exit(fn ->
+      if Process.alive?(pid) do
+        try do
+          GenServer.stop(pid)
+        catch
+          :exit, _ -> :ok
+        end
+      end
+
       _ = Ecto.Adapters.Postgres.storage_down(config)
     end)
 

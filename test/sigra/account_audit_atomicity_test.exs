@@ -1,11 +1,10 @@
 defmodule Sigra.AccountAuditAtomicityTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   import Ecto.Query
 
   alias Sigra.Account
   alias Sigra.Test.AuditEvent, as: AuditTestEvent
-  alias Sigra.Test.PostgresRepo
 
   defmodule AccountAuditUserToken do
     @moduledoc false
@@ -56,20 +55,13 @@ defmodule Sigra.AccountAuditAtomicityTest do
     end
   end
 
-  setup do
-    start_supervised!({PostgresRepo, PostgresRepo.default_config()})
-    repo = PostgresRepo
-
+  setup %{repo: repo} do
     Ecto.Adapters.SQL.query!(repo, "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"", [])
-
-    for t <- ["account_audit_user_tokens", "account_audit_users_44", "audit_events"] do
-      Ecto.Adapters.SQL.query!(repo, "DROP TABLE IF EXISTS #{t} CASCADE", [])
-    end
 
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE account_audit_users_44 (
+      CREATE TABLE IF NOT EXISTS account_audit_users_44 (
         id uuid PRIMARY KEY,
         email text NOT NULL,
         hashed_password text,
@@ -90,7 +82,7 @@ defmodule Sigra.AccountAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE audit_events (
+      CREATE TABLE IF NOT EXISTS audit_events (
         id uuid PRIMARY KEY,
         occurred_at timestamp NOT NULL DEFAULT now(),
         action varchar(255) NOT NULL,
@@ -113,7 +105,7 @@ defmodule Sigra.AccountAuditAtomicityTest do
     Ecto.Adapters.SQL.query!(
       repo,
       """
-      CREATE TABLE account_audit_user_tokens (
+      CREATE TABLE IF NOT EXISTS account_audit_user_tokens (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id uuid NOT NULL,
         token bytea NOT NULL,
@@ -123,12 +115,6 @@ defmodule Sigra.AccountAuditAtomicityTest do
         updated_at timestamp NOT NULL DEFAULT now()
       )
       """,
-      []
-    )
-
-    Ecto.Adapters.SQL.query!(
-      repo,
-      "TRUNCATE TABLE account_audit_users_44, account_audit_user_tokens, audit_events RESTART IDENTITY CASCADE",
       []
     )
 

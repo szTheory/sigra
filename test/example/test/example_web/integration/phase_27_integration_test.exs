@@ -7,36 +7,32 @@ defmodule ExampleWeb.Phase27IntegrationTest do
   @moduletag :integration
 
   describe "platform admin routes" do
-    test "platform admin reaches /admin and sees Admin plus Global", %{conn: conn} do
+    test "platform admin reaches /admin and sees the needs-led landing", %{conn: conn} do
       platform_admin = platform_admin_fixture()
 
-      conn = conn |> log_in_user(platform_admin) |> get(~p"/admin")
-      assert redirected_to(conn) == "/admin/users"
-
+      # /admin renders the needs-led landing launcher (200), not a redirect — it is
+      # the entry point the whole admin IA (nav "Global overview", Cmd-K jump,
+      # breadcrumbs) is built around.
       html =
         conn
-        |> recycle()
-        |> get(~p"/admin/users")
+        |> log_in_user(platform_admin)
+        |> get(~p"/admin")
         |> html_response(200)
 
+      assert html =~ "What do you need to do?"
       assert html =~ "Admin"
       assert html =~ "Global"
-      assert html =~ "Users"
     end
 
     test "platform admin can intentionally enter /admin/organizations/:org", %{conn: conn} do
       platform_admin = platform_admin_fixture()
       organization = AccountsFixtures.create_organization(%{name: "Acme HQ", slug: "acme-hq"})
 
-      conn =
-        conn |> log_in_user(platform_admin) |> get(~p"/admin/organizations/#{organization.slug}")
-
-      assert redirected_to(conn) == "/admin/organizations/#{organization.slug}/users"
-
+      # The org root renders the organization overview landing (200) in tenant scope.
       html =
         conn
-        |> recycle()
-        |> get(~p"/admin/organizations/#{organization.slug}/users")
+        |> log_in_user(platform_admin)
+        |> get(~p"/admin/organizations/#{organization.slug}")
         |> html_response(200)
 
       assert html =~ "Admin"
@@ -66,18 +62,15 @@ defmodule ExampleWeb.Phase27IntegrationTest do
 
       AccountsFixtures.create_membership(org_admin, organization, :admin)
 
-      conn = conn |> log_in_user(org_admin) |> get(~p"/admin/organizations/#{organization.slug}")
-      assert redirected_to(conn) == "/admin/organizations/#{organization.slug}/users"
-
       html =
         conn
-        |> recycle()
-        |> get(~p"/admin/organizations/#{organization.slug}/users")
+        |> log_in_user(org_admin)
+        |> get(~p"/admin/organizations/#{organization.slug}")
         |> html_response(200)
 
       assert html =~ "Admin"
       assert html =~ organization.name
-      assert html =~ "Users"
+      assert html =~ "Organization"
     end
 
     test "org admin gets a not found response on an out-of-scope organization slug", %{conn: conn} do

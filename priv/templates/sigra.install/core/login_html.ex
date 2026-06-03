@@ -51,6 +51,10 @@ defmodule <%= web_module %>.SessionHTML do
           <a href="#login_form" class="btn btn-secondary w-full">Use password instead</a>
         </div>
 
+        <p class="mt-3 text-sm text-base-content/70">
+          Passkeys are not break-glass sign-in for SSO-only organizations.
+        </p>
+
         <%% # Magic link recovery remains visible in passkey-primary mode. %>
         <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="mt-3">
           <input type="hidden" name="_action" value="magic_link" />
@@ -60,6 +64,10 @@ defmodule <%= web_module %>.SessionHTML do
             Email me a magic link
           </.button>
         </.form>
+
+        <p class="mt-2 text-sm text-base-content/70">
+          Magic links are not break-glass recovery for SSO-only organizations.
+        </p>
 
         <%% # Password fallback stays on the same controller-rendered page. %>
         <div class="relative my-6">
@@ -122,6 +130,10 @@ defmodule <%= web_module %>.SessionHTML do
           </.button>
         </.form>
 
+        <p class="mt-2 text-sm text-base-content/70">
+          Magic links are not break-glass recovery for SSO-only organizations.
+        </p>
+
         <%% # Divider %>
         <div class="relative my-6">
           <div class="absolute inset-0 flex items-center">
@@ -151,6 +163,38 @@ defmodule <%= web_module %>.SessionHTML do
 <%= if passkeys? do %>
       <%% end %>
 <% end %>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <hr class="w-full" />
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="bg-white px-2 text-gray-500">or continue with enterprise SSO</span>
+        </div>
+      </div>
+
+      <section class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-base-content">Enterprise sign-in</h2>
+          <p class="text-sm text-base-content/70">
+            Enter your work email. If Sigra finds one exact active organization match, it will send you to the
+            canonical enterprise sign-in route for that organization.
+          </p>
+        </div>
+
+        <.form :let={f} for={@form} id="enterprise_login_form" action={~p"/users/log_in"} method="post" class="mt-4 space-y-4">
+          <input type="hidden" name="_action" value="enterprise" />
+          <.input field={f[:email]} type="email" label="Work email" autocomplete="username" required />
+
+          <.button class="btn btn-outline w-full">
+            Continue with enterprise SSO
+          </.button>
+        </.form>
+
+        <p class="mt-3 text-sm text-base-content/70">
+          If your organization enforces SSO-only, break-glass stays limited to password sign-in and password reset.
+        </p>
+      </section>
     </div>
     """
   end

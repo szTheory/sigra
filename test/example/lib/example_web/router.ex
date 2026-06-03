@@ -174,6 +174,11 @@ defmodule ExampleWeb.Router do
       pipe_through :browser
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+
+    scope "/demo", ExampleWeb do
+      pipe_through :browser
+      live "/credentials", Demo.CredentialsLive
+    end
   end
 
   # Sigra organizations (Phase 16)
@@ -204,6 +209,14 @@ defmodule ExampleWeb.Router do
       live "/organizations", OrganizationsLive.Index, :index
       live "/organizations/new", OrganizationsLive.New, :new
     end
+  end
+
+  scope "/organizations/:org", ExampleWeb do
+    pipe_through [:browser]
+
+    get "/sso", EnterpriseSSOController, :new
+    post "/sso", EnterpriseSSOController, :create
+    get "/sso/callback", EnterpriseSSOController, :callback
   end
 
   scope "/organizations/:org", ExampleWeb do

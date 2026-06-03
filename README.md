@@ -18,10 +18,11 @@
 
 | You are… | Do this first |
 |----------|----------------|
-| **Evaluating** | Skim **Where code lives** (diagram), **What ships**, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
-| **Integrating** | Run **First integration** (diagram + commands), read **Prerequisites**, then follow [Installation](guides/introduction/installation.md) and [Getting started](guides/introduction/getting-started.md). |
-| **Contributing** | Match [toolchain pins in `.tool-versions`](https://github.com/sztheory/sigra/blob/main/.tool-versions), run Postgres-backed tests per [`CLAUDE.md` in the repo](https://github.com/sztheory/sigra/blob/main/CLAUDE.md), read [`CONTRIBUTING.md`](CONTRIBUTING.md); use the [reference example app](https://github.com/sztheory/sigra/tree/main/test/example) as the integration host. |
-| **Maintaining / releasing** | See [`MAINTAINING.md`](MAINTAINING.md) for version bumps, Hex and GitHub releases, and planning hygiene for maintainers. |
+| **Evaluating** | Start with the [Demo Showcase](guides/introduction/demo-showcase.md), run the Vaultr example app flow, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
+| **Greenfield Phoenix app** | Read [Installation](guides/introduction/installation.md), then follow [Getting started](guides/introduction/getting-started.md) for first-run auth flows. |
+| **Existing Sigra app / upgrade** | Follow [Upgrading to v1.0](guides/introduction/upgrading-to-v1.0.md) for the operational preflight, generated-host review, and rollback path. |
+| **Migrating from another auth stack** | Use [Migrating from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) and [Migrating from Pow, Guardian, and Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) to choose the right cutover lane. |
+| **Advanced control** | Use the [Sigra 1.32 contract](guides/introduction/contract.md), [Generator and install options](guides/reference/generator-options.md), [Deployment](guides/recipes/deployment.md), and [Troubleshooting install](guides/introduction/troubleshooting-install.md). |
 
 ## Before production
 
@@ -72,8 +73,10 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 0.2"}
+   {:sigra, "~> 1.0"}
    ```
+
+   This is the selected 1.0 contract line. If Hex package metadata advertises a newer installable line, treat Hex as the current package truth and use the version constraint appropriate for your target. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.32 contract](guides/introduction/contract.md).
 
 2. **Scaffold** (from app root; names must match your domain):
 
@@ -142,7 +145,9 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 |-------|--------|
 | Installation & env | [introduction/installation.md](guides/introduction/installation.md) |
 | First happy path | [introduction/getting-started.md](guides/introduction/getting-started.md) |
-| Upgrade notes | [v1.0 → v1.1](guides/introduction/upgrading-to-v1.1.md) · [toward v1.7](guides/introduction/upgrading-to-v1.7.md) · [toward v1.8](guides/introduction/upgrading-to-v1.8.md) |
+| Companion library suite | [introduction/suite-integration.md](guides/introduction/suite-integration.md) |
+| Upgrade notes | [pre-1.0 -> v1.0](guides/introduction/upgrading-to-v1.0.md) · [v1.0 → v1.1](guides/introduction/upgrading-to-v1.1.md) · [toward v1.7](guides/introduction/upgrading-to-v1.7.md) · [toward v1.8](guides/introduction/upgrading-to-v1.8.md) |
+| Migration lanes | [from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) · [from Pow/Guardian/Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) |
 | Registration | [flows/registration.md](guides/flows/registration.md) |
 | Login / logout | [flows/login-and-logout.md](guides/flows/login-and-logout.md) |
 | Password reset | [flows/password-reset.md](guides/flows/password-reset.md) |
@@ -169,12 +174,15 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | **Enumeration** | Safer defaults on account discovery flows (details in HexDocs per flow). |
 | **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
 
-For threat-model detail and per-flow guarantees, use **HexDocs** and the guides above — the README stays a map, not a spec.
+For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](SECURITY.md), and the [Sigra 1.32 contract](guides/introduction/contract.md) for the full invariants and non-goals — the README stays a map, not a spec.
 
 ## Release evidence (maintainers and auditors)
 
 Sigra keeps an **evidence hub** (what we ran versus waived for GA cuts, how CI maps to human UAT rows, and pointers to planning artifacts on GitHub). That material is **not** a compliance certificate for your application — integration and deployment risk stay with the **host**.
 
+- **[Sigra Hex 1.32.0 launch announcement](docs/launch/v1.0/announcement.md)** — canonical launch narrative, audience guidance, proof links, and first-14-day triage pointer.
+- **[Sigra alternatives comparison](docs/launch/v1.0/alternatives.md)** — boundary-first comparison against `phx.gen.auth`, Pow/Guardian/Ueberauth-style composition, hosted auth, and Sigra's hybrid model.
+- **[Sigra launch evidence bundle](docs/launch/v1.0/evidence.md)** — attachable release proof router with post-publish placeholders and proof boundaries.
 - **[GA evidence and audit posture](docs/ga-evidence.md)** — router page; same content ships on [HexDocs](https://hexdocs.pm/sigra/ga-evidence.html).
 - **[UAT versus CI coverage](docs/uat-ci-coverage.md)** — machine versus human boundaries.
 

@@ -113,10 +113,24 @@ defmodule Sigra.Workers.AccountDeletionTest do
       assert {:ok, :not_scheduled} = AccountDeletion.perform(%Oban.Job{args: args})
     end
 
+    test "returns {:ok, :not_scheduled} when stale job finds finalized soft-deleted user" do
+      defmodule TestRepoFinalizedSoftDeleted do
+        def get(_schema, _id),
+          do: %{id: 1, deleted_at: ~U[2026-01-01 00:00:00Z], scheduled_deletion_at: nil}
+      end
+
+      args =
+        base_args(%{
+          "repo" => "Sigra.Workers.AccountDeletionTest.TestRepoFinalizedSoftDeleted"
+        })
+
+      assert {:ok, :not_scheduled} = AccountDeletion.perform(%Oban.Job{args: args})
+    end
+
     test "reconstructs scope via Sigra.Scope.build and passes it to perform/2" do
       source = File.read!("lib/sigra/workers/account_deletion.ex")
       # 15-02 invariant: scope is built from scope_module + user + active_org
-      assert source =~ "Sigra.Scope.build(scope_module"
+      assert source =~ "Sigra.Scope.build("
     end
 
     test "uses Module.safe_concat for repo resolution (T-8-10 mitigation)" do

@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+_ci_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/ci/lib/free-port.sh
+source "${_ci_here}/lib/free-port.sh"
+
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_ROOT="${TMP_ROOT:-/tmp/sigra-passkeys-default}"
 
@@ -113,13 +117,14 @@ run_smoke() {
   MIX_ENV=dev mix ecto.migrate
 
   echo "==> passkeys-default: booting app and checking root responds"
-  PHX_SERVER=true MIX_ENV=dev mix phx.server > "/tmp/${label}-server.log" 2>&1 &
+  local port="${SIGRA_PASSKEYS_DEFAULT_PORT:-$(find_free_port)}"
+  PHX_SERVER=true MIX_ENV=dev PORT="${port}" mix phx.server > "/tmp/${label}-server.log" 2>&1 &
   local server_pid=$!
   trap 'kill ${server_pid} 2>/dev/null || true' RETURN
 
   for i in $(seq 1 30); do
-    if curl -sf http://localhost:4000/ > /dev/null; then
-      echo "==> passkeys-default: ${label} responded after ${i}s"
+    if curl -sf "http://127.0.0.1:${port}/" > /dev/null; then
+      echo "==> passkeys-default: ${label} responded at http://127.0.0.1:${port}/ after ${i}s"
       kill "${server_pid}" 2>/dev/null || true
       wait "${server_pid}" 2>/dev/null || true
       trap - RETURN

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Mechanical checks for Phase 34 /gsd-verify-work closure without human
-# confirmation. See .planning/phases/34-*/34-UAT.md for the user-observable
-# mapping; this script enforces the Phase 34-02 PLAN grep contracts on
-# 28-VERIFICATION.md plus smoke harness parseability (34-01 SUMMARY).
+# confirmation. See .planning/milestones/v1.2-phases/34-*/34-UAT.md for the
+# user-observable mapping; this script enforces the Phase 34-02 PLAN grep
+# contracts on 28-VERIFICATION.md plus smoke harness parseability (34-01 SUMMARY).
+# Phases 27-35 (v1.2 Admin Dashboard) are archived under
+# .planning/milestones/v1.2-phases/ once the milestone closed.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-VFY="${ROOT}/.planning/phases/28-user-operations-surface/28-VERIFICATION.md"
+VFY="${ROOT}/.planning/milestones/v1.2-phases/28-user-operations-surface/28-VERIFICATION.md"
 SMOKE="${ROOT}/scripts/ci/admin-acceptance-smoke.sh"
 
 fail() {

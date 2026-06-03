@@ -24,7 +24,7 @@
     "ui_safety_gate": true,
     "text_mode": false,
     "research_before_questions": true,
-    "discuss_mode": "discuss",
+    "discuss_mode": "assumptions",
     "skip_discuss": false,
     "_auto_chain_active": false,
     "discuss_comprehensive_research": true,
@@ -47,5 +47,9 @@
   "agent_skills": {},
   "resolve_model_ids": "omit",
   "mode": "yolo",
-  "granularity": "fine"
+  "granularity": "fine",
+  "model_overrides": {
+    "gsd-executor": "claude-sonnet-4-6",
+    "gsd-code-fixer": "claude-sonnet-4-6"
+  }
 }

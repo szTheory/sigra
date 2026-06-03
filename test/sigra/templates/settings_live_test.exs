@@ -84,6 +84,18 @@ defmodule Sigra.Templates.SettingsLiveTest do
       assert content =~ "Delete my account"
     end
 
+    test "uses strategy-neutral deletion copy", %{content: content} do
+      assert content =~
+               "Schedule account deletion according to your configured deletion strategy."
+
+      assert content =~
+               "After the grace period expires, Sigra finalizes the account lifecycle according to that strategy."
+
+      refute content =~ "all associated data"
+      refute content =~ "account and data will be permanently removed"
+      refute content =~ "account and associated data have been permanently removed"
+    end
+
     test "contains scheduled deletion status display", %{content: content} do
       assert content =~ "scheduled for deletion"
       assert content =~ "scheduled_deletion_date"
@@ -148,12 +160,74 @@ defmodule Sigra.Templates.SettingsLiveTest do
       assert content =~ "scheduled_deletion_date"
     end
 
+    test "uses strategy-neutral scheduled deletion copy", %{content: content} do
+      assert content =~ "Your account is scheduled for deletion on"
+      assert content =~ "Finalization will follow the configured deletion strategy."
+
+      refute content =~ "all associated data"
+      refute content =~ "account and data will be permanently removed"
+      refute content =~ "account and associated data have been permanently removed"
+    end
+
     test "links to log out", %{content: content} do
       assert content =~ ~s(/users/log_out)
     end
 
     test "uses max-w-md layout", %{content: content} do
       assert content =~ "mx-auto max-w-md"
+    end
+  end
+
+  describe "emails.ex template" do
+    setup do
+      content = File.read!(Path.join(@templates_dir, "emails.ex"))
+      %{content: content}
+    end
+
+    test "uses strategy-neutral deletion finalized copy", %{content: content} do
+      assert content =~
+               "account deletion has been finalized according to the configured deletion strategy"
+
+      refute content =~ "all associated data"
+      refute content =~ "account and data will be permanently removed"
+      refute content =~ "account and associated data have been permanently removed"
+    end
+  end
+
+  describe "auth.ex generated data export wrapper" do
+    setup do
+      content = File.read!(Path.join(@templates_dir, "auth.ex"))
+      %{content: content}
+    end
+
+    test "delegates auth data export to Sigra.DataExport with mergeable defaults", %{
+      content: content
+    } do
+      assert content =~ "def export_auth_data(user, opts \\\\ [])"
+      assert content =~ "Sigra.DataExport.export_auth_data(Repo, user,"
+      assert content =~ "Keyword.merge(default_auth_export_opts(), opts)"
+      assert content =~ "defp default_auth_export_opts"
+    end
+
+    test "defaults only always-core auth export schemas", %{content: content} do
+      default_opts = default_auth_export_opts_body(content)
+
+      assert default_opts =~ "session_schema:"
+      assert default_opts =~ "audit_schema:"
+      assert default_opts =~ "mfa_credential_schema:"
+      assert default_opts =~ "backup_code_schema:"
+
+      refute default_opts =~ "identity_schema:"
+      refute default_opts =~ "user_passkey_schema:"
+      refute default_opts =~ "membership_schema:"
+    end
+
+    test "keeps export payload shape in the library", %{content: content} do
+      wrapper = export_auth_data_body(content)
+
+      refute wrapper =~ "schema_version:"
+      refute wrapper =~ "omissions:"
+      refute wrapper =~ "enterprise:"
     end
   end
 
@@ -200,6 +274,26 @@ defmodule Sigra.Templates.SettingsLiveTest do
 
     test "contains force_password_change_fixture", %{content: content} do
       assert content =~ "def force_password_change_fixture"
+    end
+  end
+
+  defp default_auth_export_opts_body(content) do
+    case Regex.run(~r/defp default_auth_export_opts do\s*(?<body>[\s\S]*?)\n  end/, content,
+           capture: ["body"]
+         ) do
+      [body] -> body
+      nil -> ""
+    end
+  end
+
+  defp export_auth_data_body(content) do
+    case Regex.run(
+           ~r/def export_auth_data\(user, opts \\\\ \[\]\) do\s*(?<body>[\s\S]*?)\n  end/,
+           content,
+           capture: ["body"]
+         ) do
+      [body] -> body
+      nil -> ""
     end
   end
 end

@@ -20,29 +20,6 @@ This runbook walks through the **19 human verification items** the per-phase ver
 
 ## 0. Bring up the environment
 
-### Homebrew Postgres port-5432 collision (macOS)
-
-If you have `postgresql@14` installed via Homebrew, it may already be bound to
-`127.0.0.1:5432` and will collide with the Docker Postgres container that
-`scripts/uat/up.sh` starts. Check and stop it first:
-
-```bash
-lsof -i :5432  # should be empty; if brew postgres is listed, stop it:
-brew services stop postgresql@14
-scripts/uat/up.sh
-```
-
-After the UAT session, restore the Homebrew Postgres if you use it for other
-projects:
-
-```bash
-scripts/uat/down.sh
-brew services start postgresql@14
-```
-
-Discovered during the v1.0 UAT session (see `.planning/v1.0-UAT-RESULTS.md`
-§ "Environment / setup findings").
-
 ### Start the stack
 
 ```bash
@@ -51,29 +28,35 @@ scripts/uat/up.sh
 ```
 
 This will:
-1. Start Postgres in Docker (port 5432, postgres/postgres)
+1. Start Postgres in Docker under a project-scoped Compose name
 2. Fetch deps in `test/example/`
-3. Create + migrate the `example_dev` database
-4. Print the entry-point URLs
+3. Create, migrate, and seed the `example_dev` database
+4. Print the exact Postgres port, app port, server command, and entry-point URLs
 
 Then in a second terminal:
 
 ```bash
 cd test/example
-iex -S mix phx.server
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> iex -S mix phx.server
 ```
 
-The app is at **http://localhost:4000**.
+The app URL is printed by `scripts/uat/up.sh`.
+Use that printed app URL for every local browser step below unless a step
+explicitly calls out a fixed external-provider callback URL.
 
-The local Swoosh mailbox preview is at **http://localhost:4000/dev/mailbox** — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
+The local Swoosh mailbox preview is at `/dev/mailbox` on that app URL — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
 
 When you're done with the UAT session:
 
 ```bash
-scripts/uat/down.sh           # stop containers, keep DB
-scripts/uat/down.sh --purge   # also wipe the DB volume
-brew services start postgresql@14  # macOS only: restore brew Postgres if you stopped it above
+scripts/uat/down.sh           # stop containers for this Compose project, keep DB
+scripts/uat/down.sh --purge   # also wipe this project's DB volume
 ```
+
+By default, the UAT stack does not reserve host port `5432`, so Homebrew
+Postgres, `act`, and other Docker projects can keep running. To force a stable
+Postgres port for debugging, run `SIGRA_UAT_PG_PORT=5432 scripts/uat/up.sh`;
+if that fixed port is occupied, Docker will report the bind conflict.
 
 ---
 
@@ -97,10 +80,10 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `04-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
-1. Visit http://localhost:4000/users/register
+1. Visit `<printed-app-url>/users/register`
 2. Register with email `test1@example.com` / password `correcthorsebatterystaple`
 3. Open `/dev/mailbox` in another tab → click the confirmation email → click the confirmation link → you're confirmed and logged in
-4. Navigate to http://localhost:4000/users/sessions
+4. Navigate to `<printed-app-url>/users/sessions`
 5. Open an incognito window → log in as the same user with the same password (this creates a second session)
 6. Switch back to your normal window → refresh `/users/sessions`
 
@@ -124,7 +107,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Steps:**
 1. Logged in from the previous step
 2. Wait at least the configured sudo TTL (default 5 minutes) OR open a private window and log in fresh
-3. Navigate to http://localhost:4000/users/settings
+3. Navigate to `<printed-app-url>/users/settings`
 4. Try to change email or trigger any sensitive action
 
 **Expected:**
@@ -172,7 +155,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 3. Log in with the "Remember me" checkbox **checked**
 4. Verify you're logged in (any authenticated page works — try /users/settings)
 5. Quit the browser entirely (not just the tab — the whole app)
-6. Reopen the browser, navigate to http://localhost:4000
+6. Reopen the browser, navigate to the printed app URL
 
 **Expected:**
 - You're still logged in (no login prompt)
@@ -230,7 +213,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
      ]
    ```
 3. `GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... iex -S mix phx.server`
-4. In a new private browser window, visit http://localhost:4000/users/register
+4. In a new private browser window, visit the matching `/users/register` URL for the callback origin you configured
 5. Click "Sign in with Google"
 6. Grant permission in Google's consent screen
 7. You're redirected back to the app
@@ -476,7 +459,7 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 **Steps:**
 1. After running the UAT items above, open `psql`:
    ```bash
-   docker compose -f scripts/uat/docker-compose.yml exec postgres psql -U postgres example_dev
+   docker compose -p <printed-compose-project> -f scripts/uat/docker-compose.yml exec postgres psql -U postgres example_dev
    ```
 2. `SELECT event_type, actor_id, ip, occurred_at FROM audit_events ORDER BY occurred_at DESC LIMIT 30;`
 
@@ -499,9 +482,9 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 **Steps:**
 ```bash
 cd test/example
-MIX_ENV=test mix ecto.create
-MIX_ENV=test mix ecto.migrate
-mix test --include integration
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> MIX_ENV=test mix ecto.create
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> MIX_ENV=test mix ecto.migrate
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> mix test --include integration
 ```
 
 **Expected:** Full example-app test suite runs against the dockerized Postgres. The phase 10-06 SUMMARY claims 34/34 tests pass.
@@ -572,12 +555,14 @@ in turn breaks `mix local.rebar` (can't make HTTPS requests).
 ### Port 5432 collision
 
 Act's postgres service binds `0.0.0.0:5432`, so anything already listening
-there (Homebrew Postgres, UAT compose stack, stale Docker containers) will
-block the job setup:
+there (Homebrew Postgres or stale fixed-port Docker containers) will block the
+job setup. The UAT stack uses a dynamic Postgres port by default, so it should
+not be the source of this conflict unless you started it with
+`SIGRA_UAT_PG_PORT=5432`.
 
 ```bash
 lsof -i :5432                              # find who owns it
-docker stop sigra-uat-postgres 2>/dev/null # if that's the culprit
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
 brew services stop postgresql@14           # if Homebrew Postgres
 ```
 

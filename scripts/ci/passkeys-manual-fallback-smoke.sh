@@ -13,6 +13,10 @@
 
 set -euo pipefail
 
+_ci_here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/ci/lib/free-port.sh
+source "${_ci_here}/lib/free-port.sh"
+
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app_passkeys_manual}"
 
@@ -124,13 +128,14 @@ MIX_ENV=dev mix ecto.create
 MIX_ENV=dev mix ecto.migrate
 
 echo "==> passkeys-manual-fallback: booting app and checking root responds"
-PHX_SERVER=true MIX_ENV=dev mix phx.server > /tmp/passkeys-manual-fallback-server.log 2>&1 &
+PORT="${SIGRA_PASSKEYS_MANUAL_FALLBACK_PORT:-$(find_free_port)}"
+PHX_SERVER=true MIX_ENV=dev PORT="${PORT}" mix phx.server > /tmp/passkeys-manual-fallback-server.log 2>&1 &
 SERVER_PID=$!
 trap 'kill ${SERVER_PID} 2>/dev/null || true' EXIT
 
 for i in $(seq 1 30); do
-  if curl -sf http://localhost:4000/ > /dev/null; then
-    echo "==> passkeys-manual-fallback: app responded after ${i}s"
+  if curl -sf "http://127.0.0.1:${PORT}/" > /dev/null; then
+    echo "==> passkeys-manual-fallback: app responded at http://127.0.0.1:${PORT}/ after ${i}s"
     break
   fi
   if [[ "${i}" -eq 30 ]]; then

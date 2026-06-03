@@ -36,11 +36,13 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
       socket
       |> assign(:page_title, "Organization settings")
       |> assign(:org, org)
+      |> assign(:enterprise_connection, Organizations.get_enterprise_connection(scope))
       |> assign(:rename_form, to_form(%{"name" => org.name}, as: :organization))
       |> assign(:slug_form_open?, false)
       |> assign(:delete_form_open?, false)
       |> assign(:slug_form, blank_slug_form())
       |> assign(:delete_form, blank_delete_form())
+      |> assign_enterprise_form()
 
     {:ok, socket}
   end
@@ -48,6 +50,7 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
   @impl true
   def render(assigns) do
     ~H"""
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
     <div class="mx-auto max-w-2xl">
       <.header>
         Organization settings
@@ -148,7 +151,118 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
           </.button>
         <%% end %>
       </section>
+
+      <section class="bg-base-200 p-6 rounded-lg mt-8">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-semibold">Enterprise SSO</h2>
+            <p class="text-sm text-base-content/70 mt-1">
+              Configure an organization-bound enterprise connection. Saving keeps a draft;
+              validate checks OIDC discovery; activate only succeeds when validation passes.
+            </p>
+          </div>
+          <span class="badge badge-outline">
+            {enterprise_status(@enterprise_connection)}
+          </span>
+        </div>
+
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Setup</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              Save a draft, validate discovery, then activate. If the connection stays
+              `validation_failed`, use the last validation error as the setup-stage truth.
+            </p>
+          </div>
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Routing</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              Enterprise sign-in should start from the canonical organization route or
+              bounded domain discovery, not a generic fallback path.
+            </p>
+          </div>
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Reconciliation</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              Callback recovery stays on the same organization enterprise route when
+              reconciliation fails safely.
+            </p>
+          </div>
+          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
+            <h3 class="font-semibold">Enforcement</h3>
+            <p class="mt-1 text-sm text-base-content/70">
+              SSO-only denial is separate from setup and routing. Use explicit break-glass
+              members for the password-only recovery path.
+            </p>
+          </div>
+        </div>
+
+        <%%= if @enterprise_connection && @enterprise_connection.last_validation_error do %>
+          <div role="alert" class="alert alert-warning alert-soft mt-4">
+            <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+            <span>{@enterprise_connection.last_validation_error}</span>
+          </div>
+        <%% end %>
+
+        <.form for={@enterprise_form} phx-submit="submit_enterprise_connection" class="mt-4 space-y-4">
+          <.input field={@enterprise_form[:display_name]} label="Display name" required />
+          <.input
+            field={@enterprise_form[:login_hint_domains]}
+            label="Login hint domains"
+            value={csv_value(@enterprise_form[:login_hint_domains].value)}
+          />
+
+          <.inputs_for :let={oidc_form} field={@enterprise_form[:oidc_settings]}>
+            <div class="grid gap-4 md:grid-cols-2">
+              <.input field={oidc_form[:issuer]} label="OIDC issuer" required />
+              <.input field={oidc_form[:client_id]} label="Client ID" required />
+              <.input
+                field={oidc_form[:encrypted_client_secret]}
+                type="password"
+                label="Client secret"
+                required
+              />
+              <.input
+                field={oidc_form[:discovery_document_uri]}
+                label="Discovery document URI"
+              />
+              <.input
+                field={oidc_form[:client_authentication_method]}
+                label="Client authentication method"
+                required
+              />
+              <.input
+                field={oidc_form[:scopes]}
+                label="Scopes"
+                value={csv_value(oidc_form[:scopes].value)}
+                required
+              />
+            </div>
+          </.inputs_for>
+
+          <div class="flex flex-wrap gap-2">
+            <.button type="submit" name="_action" value="save" phx-disable-with="Saving...">
+              Save draft
+            </.button>
+            <.button type="submit" name="_action" value="validate" phx-disable-with="Validating...">
+              Validate
+            </.button>
+            <.button type="submit" name="_action" value="activate" phx-disable-with="Activating...">
+              Activate
+            </.button>
+            <.button
+              :if={@enterprise_connection}
+              type="button"
+              phx-click="disable_enterprise_connection"
+              class="btn btn-ghost"
+            >
+              Disable
+            </.button>
+          </div>
+        </.form>
+      </section>
     </div>
+    </Layouts.app>
     """
   end
 
@@ -246,6 +360,57 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
     end
   end
 
+  def handle_event("submit_enterprise_connection", %{"enterprise_connection" => params, "_action" => action}, socket) do
+    scope = socket.assigns.current_scope
+
+    result =
+      case action do
+        "save" -> Organizations.save_enterprise_connection(scope, params)
+        "validate" -> Organizations.validate_enterprise_connection(scope, params)
+        "activate" -> Organizations.activate_enterprise_connection(scope, params)
+      end
+
+    case result do
+      {:ok, connection} ->
+        {:noreply,
+         socket
+         |> assign(:enterprise_connection, connection)
+         |> assign_enterprise_form()
+         |> put_flash(:info, enterprise_flash(action))}
+
+      {:error, :validation_failed} ->
+        {:noreply,
+         socket
+         |> assign(:enterprise_connection, Organizations.get_enterprise_connection(scope))
+         |> assign_enterprise_form()
+         |> put_flash(:error, "Enterprise connection stayed non-active because validation failed.")}
+
+      {:error, :validation_failed, connection} ->
+        {:noreply,
+         socket
+         |> assign(:enterprise_connection, connection)
+         |> assign_enterprise_form()
+         |> put_flash(:error, "Enterprise connection stayed non-active because validation failed.")}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, :enterprise_form, to_form(%{changeset | action: :validate}, as: :enterprise_connection))}
+    end
+  end
+
+  def handle_event("disable_enterprise_connection", _params, socket) do
+    case Organizations.disable_enterprise_connection(socket.assigns.current_scope) do
+      {:ok, connection} ->
+        {:noreply,
+         socket
+         |> assign(:enterprise_connection, connection)
+         |> assign_enterprise_form()
+         |> put_flash(:info, "Enterprise connection disabled.")}
+
+      {:error, :not_found} ->
+        {:noreply, put_flash(socket, :error, "No enterprise connection is configured yet.")}
+    end
+  end
+
   # ──────────────────────────────────────────────────────────────────────────
   # Form builders + error remapping
   #
@@ -296,6 +461,46 @@ defmodule <%= web_module %>.OrganizationSettingsLive do
 
   defp normalize(params) when is_map(params), do: params
   defp normalize(_), do: %{}
+
+  defp assign_enterprise_form(socket) do
+    scope = socket.assigns.current_scope
+
+    changeset =
+      Organizations.change_enterprise_connection(
+        scope,
+        default_enterprise_attrs(socket.assigns[:enterprise_connection])
+      )
+
+    assign(socket, :enterprise_form, to_form(changeset, as: :enterprise_connection))
+  end
+
+  defp default_enterprise_attrs(nil) do
+    %{
+      "display_name" => "",
+      "login_hint_domains" => "",
+      "oidc_settings" => %{
+        "issuer" => "",
+        "discovery_document_uri" => "",
+        "client_id" => "",
+        "encrypted_client_secret" => "",
+        "client_authentication_method" => "client_secret_basic",
+        "scopes" => "openid, profile, email"
+      }
+    }
+  end
+
+  defp default_enterprise_attrs(_connection), do: %{}
+
+  defp enterprise_status(nil), do: "draft"
+  defp enterprise_status(connection), do: connection.status
+
+  defp enterprise_flash("save"), do: "Enterprise connection draft saved."
+  defp enterprise_flash("validate"), do: "Enterprise connection validated."
+  defp enterprise_flash("activate"), do: "Enterprise connection activated."
+
+  defp csv_value(value) when is_list(value), do: Enum.join(value, ", ")
+  defp csv_value(value) when is_binary(value), do: value
+  defp csv_value(_value), do: ""
 
   # Remap library-emitted slug error messages to the exact UI-SPEC copy.
   #

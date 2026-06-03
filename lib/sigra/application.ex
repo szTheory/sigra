@@ -21,6 +21,8 @@ defmodule Sigra.Application do
   def start(_type, _args) do
     maybe_warn_audit_cleanup_fallback()
     maybe_warn_missing_cookie_domain()
+    maybe_warn_missing_forwarder_deps()
+    attach_forwarders()
     verify_vault!()
 
     Supervisor.start_link([], strategy: :one_for_one, name: Sigra.Supervisor)
@@ -85,6 +87,85 @@ defmodule Sigra.Application do
 
         :ok
     end
+  end
+
+  @doc false
+  def maybe_warn_missing_forwarder_deps do
+    otp_app = Application.get_env(:sigra, :otp_app)
+
+    forwarders =
+      case otp_app && Application.get_env(otp_app, :sigra_config) do
+        opts when is_list(opts) ->
+          opts |> Keyword.get(:audit, []) |> Keyword.get(:forwarders, [])
+
+        _ ->
+          []
+      end
+
+    Enum.each(forwarders, fn forwarder_opts ->
+      module = Keyword.fetch!(forwarder_opts, :module)
+
+      unless Code.ensure_loaded?(module) do
+        Logger.warning("""
+        [Sigra.Audit] Forwarder #{inspect(module)} is configured but its module is not loaded.
+        Audit events will not be forwarded. Add the corresponding dep to mix.exs (e.g.
+        `{:threadline, "~> 0.5", optional: true}`), or remove the forwarder entry from
+        your sigra_config/0 `audit: [forwarders: [...]]` block.
+        See guides/recipes/companion-libs/threadline.md for full wiring.
+        """)
+      end
+    end)
+
+    :ok
+  end
+
+  @doc false
+  def attach_forwarders do
+    otp_app = Application.get_env(:sigra, :otp_app)
+
+    forwarders =
+      case otp_app && Application.get_env(otp_app, :sigra_config) do
+        opts when is_list(opts) ->
+          opts |> Keyword.get(:audit, []) |> Keyword.get(:forwarders, [])
+
+        _ ->
+          []
+      end
+
+    Enum.each(forwarders, fn forwarder_opts ->
+      module = Keyword.fetch!(forwarder_opts, :module)
+      dispatch = Keyword.get(forwarder_opts, :dispatch, :auto)
+
+      if dispatch == :async and not Sigra.Audit.Forwarders.oban_running?(forwarder_opts) do
+        raise ArgumentError, """
+        [Sigra.Audit] Forwarder #{inspect(module)} is configured with dispatch: :async
+        but Oban is not supervised in this app.
+
+        Boot-time fail is intentional: silent degradation to :sync would mask the
+        misconfiguration. Fix one of:
+          - add {:oban, "~> 2.17"} to mix.exs deps and supervise it, or
+          - change dispatch to :auto (falls back to :sync if Oban is absent), or
+          - remove the forwarder entry.
+
+        See guides/recipes/companion-libs/threadline.md for full wiring.
+        """
+      end
+
+      if Code.ensure_loaded?(module) do
+        # Idempotency: detach-then-attach so that `recompile()` in dev
+        # (which restarts the application) picks up fresh opts without
+        # silently leaving the previous handler attached with stale opts.
+        # `:telemetry.attach/4` returns {:error, :already_exists} on duplicate
+        # handler IDs — detaching first avoids that and ensures fresh opts apply.
+        # Handler ID is derived from {module, :id} — same derivation as each
+        # impl's attach/1 (e.g. Threadline uses {__MODULE__, opts[:id] || :default}).
+        handler_id = {module, Keyword.get(forwarder_opts, :id, :default)}
+        _ = :telemetry.detach(handler_id)
+        module.attach(forwarder_opts)
+      end
+    end)
+
+    :ok
   end
 
   @doc false

@@ -202,6 +202,24 @@ Add a health check that verifies the DB and the Sigra config:
       end
     end
 
+## Operator diagnostics
+
+Before deploying, run `mix sigra.doctor` from your application directory to verify all configured optional features are properly wired. This command is a complement to health-check smoke tests — it checks the dependency wiring layer, not runtime liveness.
+
+```bash
+# Human-readable matrix output
+mix sigra.doctor
+
+# Machine-readable; suitable for a pre-deploy CI gate
+mix sigra.doctor --quiet
+```
+
+**Exit code contract:** exit 0 means all configured features are properly wired (or no optional features are configured); exit 1 means at least one configured feature has broken wiring. Absent optional deps are NOT an error — the command only exits 1 on configured-but-broken wiring, making it safe to run in dep-off CI lanes.
+
+The command covers nine features: `totp_mfa`, `password_migration`, `oauth`, `rate_limiting`, `jwt`, `async_email`, `audit_forwarding`, `encryption`, and `enterprise_connections`. Each feature row shows one of four states: `loaded`, `available`, `configured_but_missing`, or `missing`.
+
+Run from the application directory (not the Sigra library root) so the task picks up your application's own config and dependency tree.
+
 ## Fly.io specifics
 
     fly secrets set \

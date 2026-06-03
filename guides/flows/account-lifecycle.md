@@ -125,7 +125,7 @@ Immediate deletion is dangerous: users change their minds, and you lose audit hi
       end
     end
 
-`schedule_deletion/3` sets `deletion_scheduled_at` on the user, **immediately revokes all sessions and tokens** (the user is logged out everywhere), and enqueues an Oban job for `delete_at`.
+`schedule_deletion/3` sets `deleted_at` and `scheduled_deletion_at`, **immediately revokes all sessions and tokens** (the user is logged out everywhere), and, when Oban is available, enqueues `Sigra.Workers.AccountDeletion` for the scheduled deletion time.
 
 ### Step 2: Cancel (before grace period ends)
 
@@ -137,20 +137,22 @@ If the user logs in during the grace window, show a reactivation banner:
       {:noreply, put_flash(socket, :info, "Deletion cancelled. Welcome back.")}
     end
 
-`cancel_deletion/3` clears `deletion_scheduled_at` and cancels the Oban job.
+`cancel_deletion/3` clears the scheduled-deletion markers and reactivates the account. If an already-enqueued deletion job later fires, it becomes a no-op because the account is no longer scheduled.
 
 ### Step 3: Execute (grace period expires)
 
-The Oban worker (`Sigra.Workers.DeleteAccount`) calls `execute_deletion/3` which applies your configured strategy:
+The Oban worker (`Sigra.Workers.AccountDeletion`) calls `execute_deletion/3` which applies your configured strategy:
 
     config :my_app, MyApp.Auth.Config,
       deletion: [
         strategy: :anonymize  # :soft_delete | :hard_delete | :anonymize
       ]
 
-- `:hard_delete` — `Repo.delete(user)`. Cascades remove tokens, sessions, audit events.
-- `:soft_delete` — sets `deleted_at`, keeps the row (and PII) in the DB. Good for audit compliance.
-- `:anonymize` — clears PII fields (email, name) but keeps the row for referential integrity. Recommended default.
+- `:hard_delete` — deletes the user row and Sigra token rows. Other row cleanup follows your DB constraints and host-owned schema design.
+- `:soft_delete` — finalizes the deletion lifecycle while preserving the user row and its PII and clearing scheduled-deletion staging fields.
+- `:anonymize` — clears Sigra-owned user PII fields while keeping the row for referential integrity. Recommended default.
+
+The strategy-specific contract is: :soft_delete preserves the user row and its PII. These strategies apply to Sigra-owned auth/account state. Sigra lifecycle finalization does not claim to delete host-owned domain data; your application still owns domain-table cleanup, retention policy, and legal interpretation.
 
 ## Testing
 
@@ -163,7 +165,7 @@ The Oban worker (`Sigra.Workers.DeleteAccount`) calls `execute_deletion/3` which
       assert get(conn, ~p"/dashboard").status == 200
     end
 
-    test "schedule_deletion logs out and sets deletion_scheduled_at" do
+    test "schedule_deletion logs out and sets scheduled_deletion_at" do
       %{user: user, conn: conn} = Sigra.Testing.authenticated_fixture()
 
       {:ok, _, delete_at} = Sigra.Auth.schedule_deletion(config(), user, user_token_schema: UserToken)

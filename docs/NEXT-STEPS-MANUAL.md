@@ -2,7 +2,9 @@
 
 Use this when something **cannot** be driven by GitHub Actions (credentials outside GitHub, one-off maintainer tasks).
 
-**Default Hex + GitHub releases:** see **`MAINTAINING.md` → Release automation**. On `main`, [Release Please](https://github.com/googleapis/release-please) opens a **Release PR** from conventional commits; **merging that PR** creates the **GitHub Release + `v*` tag** and runs **`publish-hex`** with **`HEX_API_KEY`**. Recovery: **Actions → Hex publish (manual recovery)**.
+Canonical release procedure: `docs/release-runbook-v1-0.md` (gate matrix, release-ref evidence, dry-run/package inspection, publish/recovery, and first-14-day hotfix policy).
+
+**Default Hex + GitHub releases:** see **`MAINTAINING.md` → Release automation** plus `docs/release-runbook-v1-0.md`. On `main`, [Release Please](https://github.com/googleapis/release-please) opens a **Release PR** from conventional commits; **merging that PR** creates the **GitHub Release + `v*` tag** and runs **`publish-hex`** with **`HEX_API_KEY`**. Primary recovery: **Actions → Hex publish (manual recovery)**.
 
 ---
 
@@ -19,14 +21,22 @@ gh pr merge <N> --merge
 After **`main`** has the commit you intend to ship:
 
 1. Confirm **`mix.exs`** `@version` and **`MAINTAINING.md`** semver notes.
-2. **`HEX_API_KEY`** in **Settings → Secrets → Actions**, then either:
+2. Follow runbook release-ref checks first (tag/version/manifest/source_ref, package inspection, dry-run) in `docs/release-runbook-v1-0.md`.
+3. **`HEX_API_KEY`** in **Settings → Secrets → Actions**, then either:
    - merge the **Release PR** from Release Please (preferred), or
    - **Actions → Hex publish (manual recovery)** with tag/SHA + version string, or
-   - local: `mix hex.publish --yes`
+   - local trusted-machine publish fallback only: `mix hex.publish --yes`
 
 ## 3. GitHub Release
 
-Release Please creates the release when the Release PR merges. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and paste the matching **`CHANGELOG.md`** section.
+Release Please creates the release when the Release PR merges. For a hand-cut release, use **GitHub → Releases** from the **`v<version>`** tag and draft the body from the canonical launch announcement: `docs/launch/v1.0/announcement.md`.
+
+Supporting links for the release body:
+
+- `docs/launch/v1.0/evidence.md` for release proof, post-publish placeholders, and proof boundaries.
+- `docs/launch/v1.0/alternatives.md` for bounded comparison and "when not to choose Sigra" guidance.
+- The matching `CHANGELOG.md` SemVer section for exact package deltas.
+- `docs/release-runbook-v1-0.md` for release-ref evidence and first-14-day hotfix policy.
 
 ## 4. Sanity check
 

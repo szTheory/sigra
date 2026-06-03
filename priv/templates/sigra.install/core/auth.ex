@@ -48,9 +48,20 @@ defmodule <%= context_module %> do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    case SigraAuth.authenticate(Repo, %{"email" => email, "password" => password}, user_schema: <%= schema_alias %>) do
+    case authenticate_user(email, password) do
       {:ok, user} -> user
-      {:error, _} -> nil
+      _ -> nil
+    end
+  end
+
+  @doc "Authenticates a user and preserves typed denial results for controller handling."
+  def authenticate_user(email, password)
+      when is_binary(email) and is_binary(password) do
+    case SigraAuth.authenticate(sigra_config(), %{"email" => email, "password" => password}) do
+      {:ok, user} -> {:ok, user}
+      {:ok, user, _session_meta} -> {:ok, user}
+      {:error, :sso_required} -> typed_local_auth_denial(email, :sso_required)
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -410,12 +421,15 @@ defmodule <%= context_module %> do
   """
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
+    user = get_user_by_email(email)
+<%= if organizations?, do: "    auth_policy = user && #{app_module}.Organizations.local_auth_policy_for(user)", else: "    auth_policy = nil" %>
+
     case Sigra.Auth.request_password_reset(Repo, email,
-      user_schema: <%= schema_alias %>,
-      user_token_schema: UserToken,
-      secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
-      url_fun: reset_password_url_fun
-    ) do
+           user_schema: <%= schema_alias %>,
+           user_token_schema: UserToken,
+           secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
+           url_fun: reset_password_url_fun<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
+         ) do
       {:ok, {signed_token, url}} ->
         user = get_user_by_email(email)
 
@@ -435,6 +449,10 @@ defmodule <%= context_module %> do
         {:ok, :sent}
 
       {:ok, :sent} ->
+        if user && local_password_reset_denied?(auth_policy) do
+          maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+        end
+
         # Non-existent email -- enumeration safe
         {:ok, :sent}
 
@@ -495,7 +513,7 @@ defmodule <%= context_module %> do
       user_token_schema: UserToken,
       user_schema: <%= schema_alias %>,
       changeset_fn: &<%= schema_alias %>.password_changeset/2,
-      reset_ttl: 3600
+      reset_ttl: 3600<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
     )
   end
 
@@ -530,6 +548,8 @@ defmodule <%= context_module %> do
     Sigra.Config.new!(
       repo: <%= repo_module %>,
       user_schema: <%= schema_alias %>,
+      scope_module: <%= context_module %>.Scope,
+<%= if organizations?, do: "      organizations_module: #{app_module}.Organizations,", else: "" %>
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession
@@ -583,6 +603,42 @@ defmodule <%= context_module %> do
       threshold: Keyword.get(config.lockout, :threshold, 5),
       duration: Keyword.get(config.lockout, :duration, 900)
     ]
+  end
+
+  defp typed_local_auth_denial(email, reason) do
+    case get_user_by_email(email) do
+<%= if organizations?, do: "      %#{schema_alias}{} = user ->\n        {:error, reason, #{app_module}.Organizations.local_auth_policy_for(user)}", else: "      %#{schema_alias}{} ->\n        {:error, reason}" %>
+
+      _ ->
+        {:error, reason}
+    end
+  end
+
+<%= if organizations? do %>  defp local_password_reset_denied?(%{password_reset: :deny}), do: true
+<% end %>  defp local_password_reset_denied?(_policy), do: false
+
+  defp maybe_deliver_enterprise_reset_guidance(user, auth_policy) do
+    if slug = auth_policy[:organization_slug] do
+      url = <%= web_module %>.Endpoint.url() <> "/organizations/#{slug}/sso"
+      email =
+        <%= context_module %>.Emails.enterprise_sso_reset_email(
+          user,
+          auth_policy[:organization_name] || slug,
+          url
+        )
+
+      Sigra.Delivery.deliver(
+        :reset_password_guidance,
+        %{
+          user_id: user.id,
+          to: user.email,
+          subject: email.subject,
+          body: %{html: email.html_body, text: email.text_body},
+          url: url
+        },
+        delivery_opts()
+      )
+    end
   end
 
   ## MFA
@@ -975,10 +1031,16 @@ defmodule <%= context_module %> do
 
   Returns `{:ok, user, scheduled_date}` or `{:error, reason}`.
   """
-  def schedule_deletion(user) do
+  def schedule_deletion(user, opts \\ []) do
     Sigra.Auth.schedule_deletion(sigra_config(), user,
-      user_token_schema: UserToken,
-      session_store: Sigra.SessionStores.Ecto
+      Keyword.merge(
+        [
+          changeset_fn: &User.deletion_changeset/2,
+          user_token_schema: UserToken,
+          session_store: Sigra.SessionStores.Ecto
+        ],
+        opts
+      )
     )
   end
 
@@ -1008,6 +1070,18 @@ defmodule <%= context_module %> do
   end
 
   @doc """
+  Export Sigra-owned auth and account data for a user.
+
+  Caller opts may provide optional generated schemas such as OAuth
+  identities, passkeys, or organization memberships.
+  """
+  def export_auth_data(user, opts \\ []) do
+    Sigra.DataExport.export_auth_data(Repo, user,
+      Keyword.merge(default_auth_export_opts(), opts)
+    )
+  end
+
+  @doc """
   Check if the user must change their password.
   """
   def must_change_password?(user) do
@@ -1015,6 +1089,15 @@ defmodule <%= context_module %> do
   end
 
   # -- Private helpers --
+
+  defp default_auth_export_opts do
+    [
+      session_schema: <%= context_module %>.UserSession,
+      audit_schema: <%= context_module %>.AuditEvent,
+      mfa_credential_schema: <%= context_module %>.UserMFACredential,
+      backup_code_schema: <%= context_module %>.UserBackupCode
+    ]
+  end
 
   defp delivery_opts do
     [

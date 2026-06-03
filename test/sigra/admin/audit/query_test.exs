@@ -1,5 +1,5 @@
 defmodule Sigra.Admin.Audit.QueryTest do
-  use ExUnit.Case, async: false
+  use Sigra.Test.PostgresCase, async: false
 
   alias Ecto.Adapters.SQL
   alias Sigra.Admin.Audit.Query
@@ -25,32 +25,30 @@ defmodule Sigra.Admin.Audit.QueryTest do
   end
 
   setup_all do
-    start_supervised!({@repo, @repo.default_config()})
-
-    SQL.query!(
-      @repo,
-      """
-      CREATE TABLE IF NOT EXISTS admin_audit_query_events (
-        id uuid PRIMARY KEY,
-        action text NOT NULL,
-        outcome text,
-        actor_id uuid,
-        target_id uuid,
-        target_type text,
-        organization_id uuid,
-        effective_user_id uuid,
-        inserted_at timestamp NOT NULL
+    Sigra.Test.PostgresCase.checkout_repo!(fn repo ->
+      SQL.query!(
+        repo,
+        """
+        CREATE TABLE IF NOT EXISTS admin_audit_query_events (
+          id uuid PRIMARY KEY,
+          action text NOT NULL,
+          outcome text,
+          actor_id uuid,
+          target_id uuid,
+          target_type text,
+          organization_id uuid,
+          effective_user_id uuid,
+          inserted_at timestamp NOT NULL
+        )
+        """,
+        []
       )
-      """,
-      []
-    )
+    end)
 
     :ok
   end
 
   setup do
-    SQL.query!(@repo, "TRUNCATE TABLE admin_audit_query_events RESTART IDENTITY CASCADE", [])
-
     org_id = Ecto.UUID.generate()
     subject_user_id = Ecto.UUID.generate()
     actor_id = Ecto.UUID.generate()

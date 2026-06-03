@@ -177,21 +177,34 @@ Architecture not yet mapped. Follow existing patterns found in the codebase.
 that runs in CI runs locally too, and a missing database fails fast
 instead of silently skipping.
 
-One-liner to start a disposable postgres container:
+One-liner to start a disposable postgres container without reserving global
+port 5432:
 
 ```bash
 docker run -d --name sigra-test-postgres \
+  -e POSTGRES_DB=sigra_test \
   -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 postgres:16-alpine
+  -p 127.0.0.1::5432 postgres:16-alpine
+docker port sigra-test-postgres 5432
 ```
 
-Any already-running container on port 5432 with the same credentials
-(including the project's `sigra-uat-postgres`) is fine. Run the full
-suite with:
+Set `PGPORT` to the mapped port printed by `docker port`. Any already-running
+container on port 5432 with the same credentials and a `sigra_test` database is
+also fine. The UAT demo stack uses a dynamic Postgres port by default, so use
+`scripts/uat/up.sh` for demo work rather than relying on it as the root test
+database. Run the full suite with:
 
 ```bash
-PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix test
+mix test
 ```
+
+No env prefix is needed: `mix test` sets `MIX_ENV=test` itself, and the
+real-DB test repo (`Sigra.Test.PostgresRepo`) plus the install-golden
+fixture already default to `postgres`/`postgres`/`localhost`. To point at a
+Postgres with different credentials, override the vars the test repo
+actually reads — `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_USERNAME`,
+`SIGRA_TEST_PG_PASSWORD`, `SIGRA_TEST_PG_DATABASE` — not the libpq `PG*`
+vars.
 
 <!-- GSD:skills-start source:skills/ -->
 ## Project Skills

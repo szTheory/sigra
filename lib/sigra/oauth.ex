@@ -136,7 +136,7 @@ defmodule Sigra.OAuth do
   def handle_callback(config, provider, params, session_params) do
     result =
       Telemetry.span([:sigra, :oauth, :callback], %{provider: provider}, fn ->
-        with :ok <- verify_state(params, session_params, config.secret_key_base) do
+        with {:ok, state_data} <- verify_state(params, session_params, config.secret_key_base) do
           provider_config = get_provider_config(config, provider) || []
 
           case Strategies.resolve(provider, provider_config) do
@@ -148,7 +148,15 @@ defmodule Sigra.OAuth do
 
               case strategy_module.callback(provider_config, params, assent_session) do
                 {:ok, user_info, token} ->
-                  Callback.process_callback(config, provider, user_info, token)
+                  Callback.process_callback(config, provider, user_info, token,
+                    enterprise_context: %{
+                      state: normalize_enterprise_context(Map.get(state_data, :enterprise_context)),
+                      session:
+                        normalize_enterprise_context(
+                          session_params[:enterprise_context] || session_params["enterprise_context"]
+                        )
+                    }
+                  )
 
                 {:error, error} ->
                   Logger.error("OAuth callback failed for #{provider}: #{inspect(error)}")
@@ -427,11 +435,13 @@ defmodule Sigra.OAuth do
     end
   end
 
-  defp do_authorize_url(config, strategy_module, provider, provider_config, _opts) do
+  defp do_authorize_url(config, strategy_module, provider, provider_config, opts) do
+    enterprise_context = normalize_enterprise_context(Keyword.get(opts, :enterprise))
+
     case strategy_module.authorize_url(provider_config) do
       {:ok, %{url: url, session_params: assent_session}} ->
         # Generate HMAC-signed state to replace Assent's
-        state = generate_state(config.secret_key_base, provider)
+        state = generate_state(config.secret_key_base, provider, enterprise_context)
 
         # Replace state in the URL
         new_url = replace_url_state(url, state)
@@ -439,14 +449,20 @@ defmodule Sigra.OAuth do
         # Build session params with Sigra state + PKCE verifier
         session_params =
           %{sigra_state: state}
+          |> maybe_put(:enterprise_context, enterprise_context)
           |> maybe_put(:code_verifier, Map.get(assent_session, :code_verifier))
 
         {:ok, new_url, session_params}
 
       {:ok, %{url: url}} ->
-        state = generate_state(config.secret_key_base, provider)
+        state = generate_state(config.secret_key_base, provider, enterprise_context)
         new_url = replace_url_state(url, state)
-        {:ok, new_url, %{sigra_state: state}}
+
+        session_params =
+          %{sigra_state: state}
+          |> maybe_put(:enterprise_context, enterprise_context)
+
+        {:ok, new_url, session_params}
 
       {:error, error} ->
         Logger.error("OAuth authorize_url failed for #{provider}: #{inspect(error)}")
@@ -454,16 +470,16 @@ defmodule Sigra.OAuth do
     end
   end
 
-  defp generate_state(secret_key_base, provider) do
+  defp generate_state(secret_key_base, provider, enterprise_context) do
     nonce = :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
 
     Token.generate(
       secret_key_base,
       @oauth_state_purpose,
-      %{
-        provider: to_string(provider),
-        nonce: nonce
-      },
+      %{}
+      |> Map.put(:provider, to_string(provider))
+      |> Map.put(:nonce, nonce)
+      |> maybe_put(:enterprise_context, enterprise_context),
       max_age: @oauth_state_max_age
     )
   end
@@ -483,11 +499,32 @@ defmodule Sigra.OAuth do
         case Token.verify(secret_key_base, @oauth_state_purpose, state,
                max_age: @oauth_state_max_age
              ) do
-          {:ok, _data} -> :ok
+          {:ok, data} -> {:ok, data}
           {:error, _} -> {:error, %OAuthError{provider: nil, error_code: :state_mismatch}}
         end
     end
   end
+
+  defp normalize_enterprise_context(nil), do: nil
+
+  defp normalize_enterprise_context(%{} = enterprise_context) do
+    with organization_id when not is_nil(organization_id) <-
+           enterprise_context[:organization_id] || enterprise_context["organization_id"],
+         connection_id when not is_nil(connection_id) <-
+           enterprise_context[:connection_id] || enterprise_context["connection_id"],
+         routing_source when not is_nil(routing_source) <-
+           enterprise_context[:routing_source] || enterprise_context["routing_source"] do
+      %{
+        organization_id: organization_id,
+        connection_id: connection_id,
+        routing_source: routing_source
+      }
+    else
+      _ -> nil
+    end
+  end
+
+  defp normalize_enterprise_context(_), do: nil
 
   defp replace_url_state(url, state) do
     uri = URI.parse(url)
@@ -499,7 +536,7 @@ defmodule Sigra.OAuth do
   defp extract_assent_session(session_params) do
     # Pass through PKCE code_verifier and other Assent-required session state
     session_params
-    |> Map.drop([:sigra_state, "sigra_state"])
+    |> Map.drop([:sigra_state, "sigra_state", :enterprise_context, "enterprise_context"])
     |> Map.to_list()
     |> Enum.into(%{})
   end

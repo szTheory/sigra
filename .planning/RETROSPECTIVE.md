@@ -1,6 +1,206 @@
 # Project Retrospective
 
-*Living document updated at milestone boundaries. v1.17 section added at milestone close (2026-04-24).*
+*Living document updated at milestone boundaries. v1.30 section added at milestone close (2026-05-29). Note: v1.18–v1.27 retrospective entries were skipped during execution; v1.28 resumed the cadence.*
+
+## In-flight posture capture: v1.32 — RELEASE-ADOPTION
+
+**Captured:** 2026-05-31 during Phase 147 planning/execution handoff  
+**Status:** active milestone, not yet closed
+
+### Decision
+
+v1.32 is the transition from building broad auth-library surface area to proving, releasing, and supporting it. Once Phases 147-149 and the live release UAT items are complete, the right default is to cut the real Hex `1.0.0` release rather than invent another broad polish or feature milestone.
+
+### Posture for future milestones
+
+- Sigra should be treated as release-grade and broadly feature-complete for the expected Phoenix auth-library surface after v1.32 closes.
+- Future work defaults to maintenance, release support, adopter feedback, docs/upgrade clarity, and selective strategic bets.
+- New feature milestones need a concrete reason: adopter demand, security/trust risk, ecosystem strategy, or an explicitly chosen product expansion.
+- Open-ended polish should stay quiet unless it removes adoption friction, closes release risk, or fixes a verified trust gap.
+- Future agents should not keep re-asking "are we done?" by default. They should start from this posture, inspect current evidence, and recommend maintenance or strategic work only when the evidence supports it.
+
+### Boundaries to preserve
+
+- Do not reopen new auth primitives, hosted control-plane behavior, SCIM/directory sync, generic compliance platform work, broad generated-host UI redesign, or generic authorization policy by default.
+- Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
+- Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
+
+## Milestone: v1.33 — POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+
+**Shipped:** 2026-06-02
+**Phases:** 4 (150, 151, 152, 153) | **Plans:** 4
+
+### What was built
+
+- Maintainer triage cadence, bug-prioritization posture, and generated-host template-update communication rules.
+- Erlang/OTP and Hex dependency sync within the existing compatibility proof surface.
+- A formal strategic-bet evaluation gate that keeps SCIM, `sigra_lockspire`, and Threadline correlation deferred until concrete adopter demand appears.
+- A shared SQL Sandbox harness for library live-DB tests, owner-per-test rollback cleanup, and isolated query-index scratch storage.
+
+### What worked
+
+- The stale milestone audit correctly forced a real closure phase instead of letting the connection-exhaustion blocker disappear into narrative.
+- Phase 153 kept the fix bounded to test infrastructure: no runtime code changes, no example-app sandbox redesign, and no CI matrix expansion.
+- The focused Phase 153 proof was fast and decisive: 107 tests, 0 failures.
+
+### What was inefficient
+
+- Phase 153 initially had a summary but no canonical `153-VERIFICATION.md`, so milestone close had to backfill the verification artifact from fresh evidence.
+- Local focused tests still emit unrelated `Chimeway.Repo` missing database configuration startup noise; it does not block the focused proof, but it weakens full-suite signal quality.
+
+### Patterns established
+
+- Live library Postgres suites use `Sigra.Test.PostgresCase, async: false` with one sandbox owner per test.
+- Storage-destructive proofs use isolated scratch repos rather than mutating shared repo configuration.
+- Strategic bets remain gated by explicit adopter demand rather than speculative feature expansion.
+
+### Key lessons
+
+- A `gaps_found` audit can be the right answer even when most requirements are satisfied; it should drive closure work until the broken flow is truly represented by passing evidence.
+- Verification files are close-critical artifacts. A passing summary is not a substitute for the canonical phase verification report.
+
+### Cost observations
+
+- Model mix: n/a.
+- Sessions: single close session with one focused proof run.
+- Notable: the milestone-close work was mostly archival and artifact reconciliation; the only fresh test execution was the Phase 153 focused suite.
+
+## Milestone: v1.30 — TRUST-HARDENING (Operator Confidence & Debt Closure)
+
+**Shipped:** 2026-05-29
+**Phases:** 4 (137, 138, 139, 140) | **Plans:** 10 (`137-01`..`137-03`, `138-01`..`138-02`, `139-01`..`139-02`, `140-01`..`140-03`)
+**Git range:** `de3f3f8`..HEAD — ~89 commits, 90 files changed, +10,991 / −63 (dominated by `.planning/` docs)
+**Timeline:** ~2 days — 2026-05-28 → 2026-05-29
+
+### What was built
+
+- **OD-01/OD-02** — `Sigra.OptionalDeps`: one canonical module with 9 `*_available?/0` predicates (oban/bcrypt/eqrcode/threadline/assent/swoosh/joken/hammer/req) + config-driven `encryption_active?/1`. ~29 scattered `Code.ensure_loaded?` guards consolidated across 17 delegation sites with **zero runtime behavior change** — proven by a 12-test drift-catching unit suite (each predicate asserted `== Code.ensure_loaded?(Mod)`, so the test stays valid in a dep-off env) and the existing `library_tests_dep_off` CI lane. Documented fences (compile-time defmodule wrappers, dynamic host-schema atoms, internal-worker leg, Oban boot warning) were deliberately left literal.
+- **DR-01/DR-02** — `mix sigra.doctor`: a pure injectable `Sigra.Doctor` core (nine-feature matrix, four states, four D-09 boot-wiring hard-fail checks, no IO) + a thin Mix-task shell (ANSI output, `--quiet`, `exit({:shutdown,1})` CI gate, never `System.halt`). 30 tests via an injection seam + CaptureIO, no subprocess.
+- **RCT-01/RCV-01/RCV-02** — a merge-blocking pure-ExUnit fixture asserting all 6 companion-lib recipes carry five required markers (+ a standalone D-05 non-empty-glob guard), plus sister-repo verification of the Lockspire `resolve_account/2` return shape and Rulestead `@behaviour` contract (`def616d`/`0a18360`), with the folded phase-134 residual todo closed.
+- **DEPR-01/DEPR-02/PROOF-01/DOC-01** — Hex-SemVer removal targets + migration notes on both live `@deprecated` functions; an eight-gate proof bundle filed at `140-VERIFICATION.md`; docs aligned (deployment operator-diagnostics + three MAINTAINING maintainer notes).
+
+### What worked
+
+- **SOT-before-consumer sequencing** — building `Sigra.OptionalDeps` (137) before `mix sigra.doctor` (138) meant the doctor consumed a frozen predicate surface; the integration checker later confirmed the doctor re-implements no dep checks (all 9 predicates + `encryption_active?/1` delegated).
+- **Drift-catching equality assertions** — writing the SOT unit tests as `predicate() == Code.ensure_loaded?(Mod)` rather than hardcoded booleans made one test file valid in both dep-on and dep-off environments, and turned the "no behavior change" invariant into something mechanically checkable.
+- **Injection seam for the diagnostic** — `Sigra.Doctor`'s `predicates:`/`host_sigra:`/`oban_running:`/`module_loaded?:` overrides let all 30 doctor tests run without toggling the ambient dep tree or spawning subprocesses (<0.1s feedback), and made the four D-09 hard-fail branches fully unit-testable.
+- **Honest low-code framing** — declaring up front that v1.30 was a consolidation milestone (net new lib surface = `OptionalDeps` + `Doctor` + the task) kept it bounded and on the right side of the Diminishing Returns Wall.
+
+### What was inefficient
+
+- **Verification-artifact bookkeeping lagged execution** — at milestone-audit time Phase 137 had no `137-VERIFICATION.md` (only UAT/VALIDATION/SECURITY), Phase 138 had no `138-VALIDATION.md`, and Phase 139's `139-VALIDATION.md` was a never-signed pre-execution draft. All three were substantively done — the gap was purely filing the canonical artifact. Closing them at milestone close cost a full retroactive pass (file one VERIFICATION, reconstruct one VALIDATION, sign off another, tick two checkboxes). A per-phase "VALIDATION signed off post-execution?" gate would have caught this before close.
+- **`gsd-sdk query audit-open` false positives, third milestone running** — it flagged 3 genuinely-complete quick tasks as open (each has a SUMMARY.md; `status:` frontmatter just isn't where the SDK looks). MAINTAINING.md already documents the SDK as unreliable for this repo and prescribes grep-driven checks — the audit-open call could be dropped from the close flow entirely here.
+- **The SDK's `milestone.complete` accomplishments were unusable** — it globbed *all* phase SUMMARYs (so the v1.30 MILESTONES.md entry came out full of v1.29 Threadline/suite content + literal "One-liner:" artifacts + a wrong `10 phases / 23 plans` count) and had to be rewritten by hand. The counts in its JSON (`phases: 10`) are cumulative-disk, not milestone-scoped.
+- **A deferred fold-in silently didn't happen** — the phase-138 doctor Info findings (IN-01/02/03) were tagged for a Phase-140 fold-in that never occurred; they were still in `pending/` at close and had to be carried forward. "Resolve in phase N+k" notes need a verification step at phase N+k.
+
+### Patterns established
+
+- **Retroactive artifact backfill at milestone close is legitimate when alternate evidence is current and strong** — a missing `VERIFICATION.md` was closed by synthesizing from existing UAT (7/7) + VALIDATION (nyquist-compliant) + SECURITY (9/9) + the integration checker, with an explicit `backfilled: true` frontmatter flag, rather than re-running execution.
+- **Document, don't churn, a versioning-coherence wart** — WR-01 (deprecation removal target rendering *before* `@doc since:`, an artifact of a Hex-SemVer axis vs an internal milestone axis) was resolved to "accept + document": a "Dual version axes" note in MAINTAINING.md plus a kept-open todo for a future library-wide `since:` re-keying, instead of a large mechanical edit at close.
+
+### Key lessons
+
+- A phase can be functionally and code-verified (integration checker WIRED, tests green) yet still trip the close gate purely on artifact hygiene. Treat `*-VERIFICATION.md` / signed `*-VALIDATION.md` as execution deliverables, not close-time chores.
+- When a milestone audit says `gaps_found` but `requirements: N/N` with zero unsatisfied, read the gap categories before reacting — process/hygiene gaps close in minutes; requirement gaps need phases.
+
+### Cost observations
+
+- Model mix: predominantly Opus (single-session close). Sessions: 1 (this close) atop the per-phase execution sessions.
+- Notable: the entire close was no-code — every gap closed with docs/artifacts. The expensive part was reading evidence across UAT/VALIDATION/SECURITY/integration to file one honest VERIFICATION, not generating anything.
+
+## Milestone: v1.29 — SUITE-INTEGRATION (Companion-Library Integration)
+
+**Shipped:** 2026-05-29
+**Phases:** 6 (131, 132, 133, 134, 135, 136) | **Plans:** 13 (`131-01`..`131-06`, `132-01`, `133-01`, `134-01`, `135-01`, `136-01`..`136-03`)
+**Git range:** `5026262`..HEAD — ~133 commits, 110 files changed, +19,460 / −67 (~17k of which is recipe/narrative docs)
+**Timeline:** 2 days — 2026-05-27 → 2026-05-28
+
+### What was built
+
+- **TL-01..TL-05 / FB-01** — `Sigra.Audit.Forwarder` single-callback behaviour + `Sigra.Audit.Forwarders.Threadline` telemetry-tap impl + `Noop` fallback + optional `Sigra.Workers.AuditForward` Oban worker. `:auto`/`:async`/`:sync` dispatch on the `Sigra.Delivery` precedent; `[:sigra,:audit,:forward,:ok|:error]` telemetry; whole impl wrapped in `Code.ensure_loaded?(Threadline)` with a one-shot boot warning; the Sigra audit DB row stays source-of-truth (post-commit projection, never a destination swap, never rolls back the originating txn). The only new library code in the milestone.
+- **RC-01..RC-06 / NX-01** — six companion-library recipes under `guides/recipes/companion-libs/` (Threadline, Mailglass, Accrue, Lockspire, Relyra, Rulestead) on a uniform template + `guides/introduction/suite-integration.md` narrative (ASCII diagram, fan-out matrix, Diminishing Returns Wall), all under a new ExDoc "Companion Libraries" group with no orphan pages.
+- **EX-01** — `test/example/` extended with a runnable Sigra→Threadline audit projection demo: dev/test dep + ordered migrations + dual `forwarders:` config + an integration test asserting a `session.create` audit event materializes as a Threadline `audit_actions` row joined on `correlation_id`, green on existing CI lanes (no new top-level `examples/`).
+- **PROOF-01 / DOC-01** — six-gate proof bundle green on release-branch HEAD (full suite 2252, audit suite 60, dep-off lane 2246 with Threadline absent, example app 236, `mix docs --warnings-as-errors` exit 0); `131-VERIFICATION.md`..`136-VERIFICATION.md` filed; v1.25 EMAIL-RAILS Mailglass overclaim corrected across MILESTONES.md/PROJECT.md/CHANGELOG.md.
+
+### What worked
+
+- **Bounded "one piece of new library code" framing** — deciding up front that only the Threadline forwarder was library code (everything else recipe/narrative/`test/example/`) kept the milestone honest to the Diminishing Returns Wall and made phase scoping trivial.
+- **Behaviour-first (Phase 131 before any 2nd forwarder)** — locking `Sigra.Audit.Forwarder` + the `forwarders:` config shape before recipes/demo pinned against it meant the canary recipe, the demo, and the example config all referenced a frozen contract.
+- **Real E2E demo as the integration proof** — the `test/example/` DB round-trip test (Phase 135) caught the RC-01 config-drift class of bug that prose review would have missed; the milestone audit's "verbatim paste fires `:forward:error`" finding came directly from having a runnable reference.
+
+### What was inefficient
+
+- **Recipe config drift slipped past phase verification** — RC-01 (threadline.md shipped `endpoint:`/`api_key:`, omitted the required `repo:` key) and CR-01 (accrue/audit-logging referenced a non-existent `log/1`/`log/3`) were both caught only at milestone audit, requiring two post-verification quick tasks (`260528-nwa`, `260528-sbn`). Recipe-contract test fixtures (deferred) would have caught the config-block divergence between validator, recipe, and example mechanically.
+- **Three audit passes to close** — gaps_found → tech_debt → passed. The doc-debt (mailglass corrigendum present-tense pointer, `~> 1.29` vs `~> 0.2` self-pins) was avoidable drift that a version-pin lint would have flagged before the first audit.
+- **Quick-task status frontmatter again unstamped** — same bookkeeping miss as v1.28: `gsd-sdk query audit-open` flagged two genuinely-complete quick tasks as open at close because they lacked a `status: complete` field.
+
+### Patterns established
+
+- **`guides/recipes/companion-libs/<name>.md` subdir convention** + ExDoc "Companion Libraries" group as the home for all future companion-lib recipes, on a uniform template (`validated_against:`/`last_validated:` frontmatter, `mix.exs` snippet, "Failure modes", "Non-goals", standalone banner).
+- **`Sigra.Audit.Forwarders.*` naming** ("Forwarders" not "Adapters") to signal projection-not-destination-swap semantics — applies to any future post-commit audit sink.
+- **Extend `test/example/` over new top-level `examples/`** — reaffirmed; existing CI lanes cover it and it avoids re-opening the Phase 114 nested-example-app drift.
+
+### Key lessons
+
+- A runnable reference example is worth more than recipe prose for catching integration drift — the config block an adopter pastes must be byte-for-byte identical across validator, recipe, and example, and only an executable test enforces that.
+- Version-pin and present-tense-pointer drift in docs is a recurring, cheap-to-prevent audit gap; a lint over recipe self-pins and corrigendum pointers would remove a whole audit pass.
+
+### Cost observations
+
+- Lowest-code milestone in recent memory: 1 new library module, ~17k of the diff is documentation. Three audit passes added overhead but each was a focused doc-only quick task, not re-execution.
+- Quick tasks `260528-nwa` / `260528-sbn` were the right tool for post-verification doc-debt closure — atomic, doc-only, no library wiring touched, `mix docs --warnings-as-errors` re-verified exit 0.
+
+---
+
+## Milestone: v1.28 — DATA-LIFECYCLE (Compliance Export & Data Lifecycle)
+
+**Shipped:** 2026-05-27
+**Phases:** 4 (127, 128, 129, 130) | **Plans:** 6 (`127-01`, `127-02`, `128-01`, `129-01`, `129-02`, `130-01`)
+**Git range:** `v1.27..v1.28` — 77 commits, 78 files changed, +10,340 / −145
+**Timeline:** single-day milestone — 2026-05-27 02:00 → 08:42 EDT (~7 hours of execution time)
+
+### What was built
+
+- **EXP-01 / EXP-02** — `Sigra.DataExport.export_auth_data/3` ships `schema_version: 1` with curated safe serializers, lifecycle status derived from `Sigra.Account.Deletion.status/1`, explicit structured omission notes, backup-code summary-only exposure, and explicit exclusion of enterprise connections.
+- **LIFE-01 / LIFE-02 / LIFE-03** — `Sigra.Account.Deletion.schedule/3` enqueues `Sigra.Workers.AccountDeletion` when Oban + generated-host context exist; degrades safely when context is absent; cancel/execute gated through `Deletion.scheduled?/1`; soft-delete finalization clears scheduled-deletion + pending/original email fields while preserving the row and `deleted_at`.
+- **HOST-01** — Generated host templates, example app, and install golden fixture all delegate to library export/lifecycle APIs (no per-host re-implementation).
+- **DOC-01** — Account lifecycle, audit export, and testing docs pin Sigra-owned vs host-owned data boundaries, omission behavior, and deletion strategy consequences; guide tests assert the contract.
+- **PROOF-01** — 56+66 lifecycle/install-lane targeted tests, 2211 full-suite tests, and `mix docs --warnings-as-errors` exit 0 (unblocked by docs-fix commit `110a560`).
+
+### What worked
+
+- **Assumptions-mode discuss → planning → execute** chain on day-of: all four phases planned and executed in a single working session with clean handoffs through `*-CONTEXT.md` resume artifacts.
+- **RED-first plan-01 for Phase 127** — test-only proof committed before implementation gave Plan 02 a precise contract to satisfy; export payload shape stabilized fast.
+- **Single library ownership boundary** — keeping export payload in `Sigra.DataExport.export_auth_data/3` and deletion lifecycle in `Sigra.Account.Deletion` meant Phase 129 generated-host work was a thin wrapper, not a re-implementation.
+- **Audit unblocker via quick-task `260527-bsd`** — when PROOF-01 hit the `mix docs --warnings-as-errors` blocker on OAuth callback xrefs, a focused quick task (commits `110a560` + `111e024`) closed the docs gate and reconciled all five v1.28 traceability artifacts in one atomic doc-only pass.
+
+### What was inefficient
+
+- **Docs gate caught late** — `mix docs --warnings-as-errors` is a release-readiness gate that should run earlier in Phase 130 (or in a Phase 129 verification step) so docs-xref drift surfaces before the final proof commit, not after.
+- **Quick-task SUMMARY missing `status: complete` field** — bookkeeping caused `gsd-sdk query audit-open` to flag a clean task as open at milestone close. Future quick-tasks should set `status: complete` in frontmatter alongside `completed: <timestamp>`.
+- **No v1.18–v1.27 retrospective entries** — 10 milestones shipped without retrospective sections, leaving cross-milestone trend tables stale. Worth a one-time backfill pass before next retrospective grows further.
+
+### Patterns established
+
+- **Versioned payload + structured omissions** — Library-owned exports carry `schema_version` plus an explicit `omissions` block keyed by `(section, schema)` rather than silently dropping missing optional data.
+- **Safe missing-context degradation for schedulers** — Background-job scheduling functions check for required context (Oban + generated-host modules) and no-op rather than failing when the host hasn't wired them; explicit return values communicate the degradation.
+- **Active-scheduled gating for state transitions** — Cancel/execute paths assert `scheduled?/1` and return `{:error, :not_scheduled}` rather than mutating finalized rows; stale workers also use the same predicate to no-op gracefully.
+- **Row-preserving soft-delete finalization** — Soft-delete clears scheduled-deletion + pending/original email fields while preserving the row and `deleted_at`, keeping audit + recovery possible.
+
+### Key lessons
+
+1. **Run release docs gate early.** `mix docs --warnings-as-errors` is a fast check; bake it into the phase that owns docs (Phase 129) so xref drift gets caught before the verification phase.
+2. **RED-first for contract-defining plans.** Phase 127 Plan 01 as test-only proof made Plan 02 implementation almost mechanical and prevented payload-shape drift.
+3. **One library ownership boundary per concern.** Resisting the urge to duplicate export logic into generated-host templates kept Phase 129 small and made HOST-01 verification trivial.
+4. **Acknowledge bookkeeping gaps explicitly.** The `status: complete` frontmatter quirk in the quick-task SUMMARY surfaced through `audit-open` — fix the canonical form rather than acknowledging it as deferred debt.
+
+### Cost observations
+
+- Model mix: n/a (not instrumented)
+- Sessions: single working day (2026-05-27, ~7 hours wall-clock)
+- Notable: 77 commits with +10,340 / −145 in a single day is a high-throughput milestone; the bounded scope (auth export + deletion lifecycle only — no SCIM, BI export, hosted control plane) and the strong substrate from v1.0–v1.27 (account lifecycle, audit, Oban workers, generated-host pattern) were the leverage.
+
+---
 
 ## Milestone: v1.17 — Forced password change audit atomicity
 

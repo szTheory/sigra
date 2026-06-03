@@ -37,6 +37,32 @@ defmodule Sigra.AuthTest do
     end
   end
 
+  defmodule TestEnterprisePolicy do
+    def local_auth_policy_for(%{email: "sso@example.com"}, _opts) do
+      %{
+        organization_id: "org-sso",
+        enforcement_mode: :sso_required,
+        break_glass: false,
+        password_login: :deny,
+        password_reset: :deny
+      }
+    end
+
+    def local_auth_policy_for(%{email: "breakglass@example.com"}, _opts) do
+      %{
+        organization_id: "org-sso",
+        enforcement_mode: :sso_required,
+        break_glass: true,
+        password_login: :allow,
+        password_reset: :allow
+      }
+    end
+
+    def local_auth_policy_for(_user, _opts) do
+      %{password_login: :allow, password_reset: :allow, break_glass: false}
+    end
+  end
+
   describe "register/3" do
     test "with valid attrs returns {:ok, user}" do
       user = %TestUser{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
@@ -202,6 +228,29 @@ defmodule Sigra.AuthTest do
 
       assert {:ok, authenticated_user} = result
       assert authenticated_user.id == 1
+    end
+
+    test "with SSO-only policy returns {:error, :sso_required}" do
+      hashed = Sigra.Crypto.hash_password("correct_password")
+
+      user = %TestUser{
+        id: 9,
+        email: "sso@example.com",
+        hashed_password: hashed,
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 0
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "sso@example.com"] -> user end)
+
+      assert {:error, :sso_required} =
+               Auth.authenticate(
+                 Sigra.MockRepo,
+                 %{"email" => "sso@example.com", "password" => "correct_password"},
+                 user_schema: TestUser,
+                 enterprise_auth_policy: TestEnterprisePolicy
+               )
     end
 
     test "with wrong password increments failed_login_attempts" do
@@ -855,6 +904,22 @@ defmodule Sigra.AuthTest do
 
       assert {:error, :rate_limited} = result
     end
+
+    test "returns enumeration-safe success when local reset is denied by policy" do
+      user = %TestUser{id: 41, email: "sso@example.com"}
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "sso@example.com"] -> user end)
+
+      assert {:ok, :sent} =
+               Auth.request_password_reset(Sigra.MockRepo, "sso@example.com",
+                 user_schema: TestUser,
+                 user_token_schema: TestUserToken,
+                 secret_key_base: @secret_key_base,
+                 url_fun: fn token -> "https://example.com/reset/#{token}" end,
+                 enterprise_auth_policy: TestEnterprisePolicy
+               )
+    end
   end
 
   describe "request_password_reset/3" do
@@ -950,6 +1015,7 @@ defmodule Sigra.AuthTest do
       |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] ->
         token_record
       end)
+      |> expect(:get!, fn TestUser, 1 -> user end)
       |> expect(:transaction, fn multi ->
         assert %Ecto.Multi{} = multi
         updated_user = %{user | hashed_password: "new_argon2_hash"}
@@ -997,6 +1063,43 @@ defmodule Sigra.AuthTest do
         )
 
       assert {:error, :token_invalid} = result
+    end
+
+    test "with valid token but denied policy returns {:error, :password_reset_denied}" do
+      user = %TestUser{id: 51, email: "sso@example.com", hashed_password: "old_hash"}
+
+      {raw_bytes, hashed} = Sigra.Token.generate_hashed_token()
+      signed_token = Plug.Crypto.sign(@secret_key_base, "sigra-reset-token", raw_bytes)
+      encoded_token = Base.url_encode64(signed_token, padding: false)
+
+      token_record = %TestUserToken{
+        id: 1,
+        token: hashed,
+        context: "reset_password",
+        sent_to: "sso@example.com",
+        user_id: 51,
+        inserted_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUserToken, [token: _, context: "reset_password"] ->
+        token_record
+      end)
+      |> expect(:get!, fn TestUser, 51 -> user end)
+
+      assert {:error, :password_reset_denied} =
+               Auth.reset_password(
+                 Sigra.MockRepo,
+                 encoded_token,
+                 %{"password" => "new_password"},
+                 secret_key_base: @secret_key_base,
+                 user_token_schema: TestUserToken,
+                 user_schema: TestUser,
+                 changeset_fn: fn record, attrs ->
+                   Ecto.Changeset.change(record, hashed_password: attrs["password"])
+                 end,
+                 enterprise_auth_policy: TestEnterprisePolicy
+               )
     end
   end
 

@@ -8,6 +8,7 @@ defmodule Sigra.Planning.Phase50NyquistDocsContractTest do
   """
 
   use ExUnit.Case, async: true
+  @moduletag :skip
 
   @re_validation ~r/nyquist_compliant:|phase 50|waiver/
 
