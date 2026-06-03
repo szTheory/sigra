@@ -111,7 +111,7 @@ All entries document **current reality** and **already-locked winners** only. No
 | **Job** | Block-level contextual alert with semantic tone (`ok` / `warn` / `risk` / `info`). Used for summary alerts inside identity cards and scoped-attention rows. ARIA live region for dynamic status updates. |
 | **Winning markup / CSS** | Currently uses `.sg-list-row[data-tone]` (migration target): `<div class="sg-list-row" data-tone={tone}><p class="sg-text-sm">...</p></div>`. The `sg-notice` CSS class is added in Phase 154 (COMP-04). Call-site migration to `<.notice>` is Phase 156 (COHR-05). ARIA attributes (`role="alert"` for risk; `role="status" aria-live="polite"` for warn/ok/info) are applied in Phase 155 HEEx markup per the ARIA contract table. Source: `user_show_live.ex:131`, `organization_live.ex:71`. |
 | **ARIA role(s)** | `risk` tone: `role="alert"` (implicit assertive live region). `warn`/`ok`/`info` tones: `role="status" aria-live="polite"`. No-tone: `role="region"`. ARIA attributes are applied in Phase 155 HEEx markup, not via CSS. |
-| **Motion spec** | `transition: var(--sg-transition-tone)` on base rule (color/background-color/box-shadow, 140ms). Not animated on initial render. Not animated on keyboard navigation. Not animated on filter-apply (keyboard-frequent interaction per GATE-03). `prefers-reduced-motion` handled automatically by the universal rule at `app.css:1437–1447`. |
+| **Motion spec** | `transition: var(--sg-transition-tone)` on base rule (color/background-color/box-shadow, 140ms). Not animated on initial render. Not animated on keyboard navigation. Not animated on filter-apply (keyboard-frequent interaction per GATE-03). `prefers-reduced-motion` handled automatically by the universal rule at `app.css:1463–1473`. |
 | **When NOT to use** | Do NOT use `notice` for inline form field validation — use `sg-error` / Phoenix form error helpers. Do NOT use `notice` for persistent navigation context — use `scope_ribbon`. Do NOT use `notice` where a `sg-list-row[data-tone]` row is part of tabular/list data rather than a standalone alert. |
 
 ---
@@ -121,9 +121,9 @@ All entries document **current reality** and **already-locked winners** only. No
 | Property | Value |
 |----------|-------|
 | **Job** | Loading placeholder that matches the shape of the content it will replace during async data fetch. Communicates that content is loading, not absent. |
-| **Winning markup / CSS** | `<div class="sg-skeleton">` — CSS defined at `app.css:1395–1417`. No LiveView currently renders a skeleton element; Phase 157 adds async overview data (LAND-04). |
+| **Winning markup / CSS** | `<div class="sg-skeleton">` — CSS defined at `app.css:1421–1443`. No LiveView currently renders a skeleton element; Phase 157 adds async overview data (LAND-04). |
 | **ARIA role(s)** | No additional ARIA on the skeleton itself. When content loads, screen readers announce the replacement content. Consider `aria-busy="true"` on the containing section during load (Phase 157 concern). |
-| **Motion spec** | Shimmer animation via `sg-skeleton-shimmer` `@keyframes` using `translateX` only (composite-safe, GPU-accelerated). `prefers-reduced-motion: reduce` strips the animation via the universal `animation-duration: 0.01ms !important` rule at `app.css:1437–1447`, leaving a static block. |
+| **Motion spec** | Shimmer animation via `sg-skeleton-shimmer` `@keyframes` using `translateX` only (composite-safe, GPU-accelerated). `prefers-reduced-motion: reduce` strips the animation via the universal `animation-duration: 0.01ms !important` rule at `app.css:1463–1473`, leaving a static block. |
 | **When NOT to use** | Do NOT use `skeleton` for error states — use `notice` with `risk` tone. Do NOT use `skeleton` for empty states — use `empty_state`. Do NOT use `skeleton` for content that is available synchronously. |
 
 ---
