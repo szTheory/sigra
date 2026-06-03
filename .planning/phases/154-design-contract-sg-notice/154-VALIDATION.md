@@ -2,7 +2,7 @@
 phase: 154
 slug: design-contract-sg-notice
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-03
 ---
@@ -93,6 +93,6 @@ These are not per-task; they are whole-phase invariants checked before verify-wo
 - [ ] Wave 0 covers all MISSING references (none — existing infra)
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 70s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-03

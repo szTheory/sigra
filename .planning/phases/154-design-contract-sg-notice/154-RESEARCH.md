@@ -766,14 +766,14 @@ No other changes to `mix.exs`. The `groups_for_extras: [Reference: ~r{guides/ref
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **`sg-notice__body` sub-element**
+1. **`sg-notice__body` sub-element** — RESOLVED
    - What we know: The UI-SPEC mentions `.sg-notice__body` as an optional sub-element.
    - What's unclear: Should the CSS include `.sg-notice__body { }` as a stub? There is no existing usage to match.
    - Recommendation: Do NOT include `.sg-notice__body` in Phase 154 CSS (it adds complexity with no behavior-preserving target). Phase 155 defines the sub-element when building the HEEx component. Keep Phase 154 CSS to the minimal 5-rule block.
 
-2. **`stat` component markup (read-only KPI)**
+2. **`stat` component markup (read-only KPI)** — RESOLVED
    - What we know: No dedicated "stat without link" markup exists in any LiveView.
    - What's unclear: Should the contract doc describe a hypothetical markup, or just acknowledge the gap and defer?
    - Recommendation: Per D-08, document as "markup-consolidation target, form deferred to Phase 155 (COMP-01)." Do not invent markup — document the `sg-metric-link` pattern as the closest analog.
