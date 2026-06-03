@@ -15,7 +15,7 @@
 ## Checklist
 
 - [ ] PostgreSQL reachable (`localhost:5432` or your URL); credentials match `config/dev.exs`.
-- [ ] `{:sigra, "~> 1.0"}` in `mix.exs`; `mix deps.get`. If you are reading `main` before Hex shows `1.32.0`, use the latest published Sigra package or a source checkout until the release PR lands.
+- [ ] `{:sigra, "~> 1.0"}` in `mix.exs`; `mix deps.get`. If you are reading `main` before Hex shows `1.0.0`, use the latest published Sigra package or a source checkout until the release PR lands.
 - [ ] `mix sigra.install` (use `--yes` in CI or scripts); then `mix ecto.migrate`.
 - [ ] `mix test` in the **host** app passes (or at least compiles) before layering optional features.
 - [ ] `mix phx.server` — open `/users/register`, complete getting-started flow.

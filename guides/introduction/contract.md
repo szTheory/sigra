@@ -1,19 +1,19 @@
-# Sigra 1.32 Contract
+# Sigra 1.0 Contract
 
-This page is the public contract for the selected Sigra `1.32.0` release line. It explains what the Hex package promises, what generated host applications own, and which parts are shared seams.
+This page is the public contract for the selected Sigra `1.0.0` release line. It explains what the Hex package promises, what generated host applications own, and which parts are shared seams.
 
 ## Version Axes
 
 Sigra has two version axes:
 
-- **Hex package SemVer** is the installable package line. The current published package truth before the release PR is `1.20.0`; the selected release path moves to real Hex `1.32.0`.
-- **GSD planning milestones** such as `v1.32` are planning tranche labels. For this release, the package target intentionally aligns to `1.32.0`; future planning labels still should not be treated as a second installable package version unless the release docs say so.
+- **Hex package SemVer** is the installable package line. The current published package truth before the release PR is `1.20.0`; the selected release path moves to real Hex `1.0.0`.
+- **GSD planning milestones** such as `v1.32` are planning tranche labels. For this release, the package target intentionally aligns to `1.0.0`; future planning labels still should not be treated as a second installable package version unless the release docs say so.
 
 When public docs, HexDocs, tags, and release notes refer to the package, treat Hex SemVer as the source of truth.
 
 ## Supported Stack
 
-Sigra's `1.32.0` contract follows the package and generator posture in `mix.exs`:
+Sigra's `1.0.0` contract follows the package and generator posture in `mix.exs`:
 
 | Surface | Contract |
 |---------|----------|
@@ -56,7 +56,7 @@ For the top-level security table, vulnerability reporting policy, and non-goal b
 
 ## Non-Goals
 
-Sigra `1.32.0` does not promise:
+Sigra `1.0.0` does not promise:
 
 - A hosted control plane or managed identity service.
 - Compliance certification or a host deployment warranty.

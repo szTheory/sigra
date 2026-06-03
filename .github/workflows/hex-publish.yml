@@ -10,11 +10,11 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Git tag or commit SHA that resolves to v<release_version> (e.g. v1.32.0).'
+        description: 'Git tag or commit SHA that resolves to v<release_version> (e.g. v1.0.0).'
         required: true
         type: string
       release_version:
-        description: 'Expected @version string in mix.exs at that ref (e.g. 1.32.0).'
+        description: 'Expected @version string in mix.exs at that ref (e.g. 1.0.0).'
         required: true
         type: string
       dry_run:

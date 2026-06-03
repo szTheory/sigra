@@ -22,7 +22,7 @@
 | **Greenfield Phoenix app** | Read [Installation](guides/introduction/installation.md), then follow [Getting started](guides/introduction/getting-started.md) for first-run auth flows. |
 | **Existing Sigra app / upgrade** | Follow [Upgrading to v1.0](guides/introduction/upgrading-to-v1.0.md) for the operational preflight, generated-host review, and rollback path. |
 | **Migrating from another auth stack** | Use [Migrating from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) and [Migrating from Pow, Guardian, and Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) to choose the right cutover lane. |
-| **Advanced control** | Use the [Sigra 1.32 contract](guides/introduction/contract.md), [Generator and install options](guides/reference/generator-options.md), [Deployment](guides/recipes/deployment.md), and [Troubleshooting install](guides/introduction/troubleshooting-install.md). |
+| **Advanced control** | Use the [Sigra 1.0 contract](guides/introduction/contract.md), [Generator and install options](guides/reference/generator-options.md), [Deployment](guides/recipes/deployment.md), and [Troubleshooting install](guides/introduction/troubleshooting-install.md). |
 
 ## Before production
 
@@ -76,7 +76,7 @@ flowchart TD
    {:sigra, "~> 1.0"}
    ```
 
-   This is the selected 1.0 contract line. If Hex package metadata advertises a newer installable line, treat Hex as the current package truth and use the version constraint appropriate for your target. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.32 contract](guides/introduction/contract.md).
+   This is the selected 1.0 contract line. If Hex package metadata advertises a newer installable line, treat Hex as the current package truth and use the version constraint appropriate for your target. For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
 
 2. **Scaffold** (from app root; names must match your domain):
 
@@ -174,13 +174,13 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | **Enumeration** | Safer defaults on account discovery flows (details in HexDocs per flow). |
 | **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
 
-For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](SECURITY.md), and the [Sigra 1.32 contract](guides/introduction/contract.md) for the full invariants and non-goals — the README stays a map, not a spec.
+For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](SECURITY.md), and the [Sigra 1.0 contract](guides/introduction/contract.md) for the full invariants and non-goals — the README stays a map, not a spec.
 
 ## Release evidence (maintainers and auditors)
 
 Sigra keeps an **evidence hub** (what we ran versus waived for GA cuts, how CI maps to human UAT rows, and pointers to planning artifacts on GitHub). That material is **not** a compliance certificate for your application — integration and deployment risk stay with the **host**.
 
-- **[Sigra Hex 1.32.0 launch announcement](docs/launch/v1.0/announcement.md)** — canonical launch narrative, audience guidance, proof links, and first-14-day triage pointer.
+- **[Sigra Hex 1.0.0 launch announcement](docs/launch/v1.0/announcement.md)** — canonical launch narrative, audience guidance, proof links, and first-14-day triage pointer.
 - **[Sigra alternatives comparison](docs/launch/v1.0/alternatives.md)** — boundary-first comparison against `phx.gen.auth`, Pow/Guardian/Ueberauth-style composition, hosted auth, and Sigra's hybrid model.
 - **[Sigra launch evidence bundle](docs/launch/v1.0/evidence.md)** — attachable release proof router with post-publish placeholders and proof boundaries.
 - **[GA evidence and audit posture](docs/ga-evidence.md)** — router page; same content ships on [HexDocs](https://hexdocs.pm/sigra/ga-evidence.html).

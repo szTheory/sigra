@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/ci/launch-pack-contract.sh
 #
-# Phase 149 shift-left: prove the Sigra 1.32 launch pack exists, routes
+# Phase 149 shift-left: prove the Sigra 1.0 launch pack exists, routes
 # through public/AI entry points, preserves post-publish placeholders, and
 # does not introduce unsupported launch claims.
 
@@ -82,7 +82,7 @@ for needle in \
   "POST_PUBLISH_HEXDOCS_VERSION_URL" \
   "POST_PUBLISH_GITHUB_RELEASE_URL" \
   "POST_PUBLISH_RELEASE_REF_CI_URLS" \
-  "v1.32.0" \
+  "v1.0.0" \
   "main blob URLs"; do
   require_text "${EVIDENCE}" "${needle}"
 done

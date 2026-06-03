@@ -13,7 +13,7 @@ Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (s
 - Introduction
   - [Installation](installation.md)
   - [getting-started](getting-started.md)
-  - [Sigra 1.32 Contract](contract.md)
+  - [Sigra 1.0 Contract](contract.md)
   - [First hour with Sigra](first-hour.md)
   - [After the first hour: toward solo production](intermediate-production-path.md)
   - [Troubleshooting install](troubleshooting-install.md)
@@ -64,9 +64,9 @@ Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (s
   - [Audit semantics in Sigra](audit-semantics.md)
   - [GA UAT — CI vs human coverage (SEED-001 shift-left)](uat-ci-coverage.md)
   - [Release evidence router](ga-evidence.md)
-  - [Sigra Hex 1.32.0 Announcement](announcement.md)
-  - [Sigra 1.32 Alternatives Comparison](alternatives.md)
-  - [Sigra Hex 1.32.0 Launch Evidence Bundle](evidence.md)
+  - [Sigra Hex 1.0.0 Announcement](announcement.md)
+  - [Sigra 1.0 Alternatives Comparison](alternatives.md)
+  - [Sigra Hex 1.0.0 Launch Evidence Bundle](evidence.md)
   - [Nyquist posture matrix (maintainer)](nyquist-posture-matrix.md)
   - [Next steps (manual only)](next-steps-manual.md)
 
