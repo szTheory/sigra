@@ -49,7 +49,10 @@ Archive:
   2. Three page archetypes (Overview, List, Detail) are documented as explicit component compositions, so any future screen can be assembled from the mapping without bespoke design.
   3. The `sg-notice` component style (~15 lines) is added inside `@layer sg-components` in `app.css` using only existing tokens — no unlayered rules, no new `!important`.
   4. No Playwright baselines change; no LiveView files are modified; the `admin-generated` parity lane stays green.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 154-01-PLAN.md — Design contract governance doc + ExDoc registration (COMP-03)
+- [ ] 154-02-PLAN.md — sg-notice CSS inside @layer sg-components (COMP-04)
 **UI hint**: yes
 
 ### Phase 155: Shared Component Foundation (KEYSTONE)
@@ -136,7 +139,7 @@ Archive:
 | 151. Ecosystem Sync & Hex Dependency Management | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
-| 154. Design Contract + sg-notice | v1.34 | 0/TBD | Not started | - |
+| 154. Design Contract + sg-notice | v1.34 | 0/2 | Not started | - |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 0/TBD | Not started | - |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/TBD | Not started | - |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
