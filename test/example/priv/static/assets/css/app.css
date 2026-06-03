@@ -966,6 +966,32 @@
     box-shadow: inset 3px 0 0 0 var(--sg-color-info), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-info) 20%, transparent);
   }
 
+  /* NOTICE — behavior-preserving consolidation of sg-list-row[data-tone] alert pattern.
+   * Phase 156 (COHR-05) migrates call sites to <.notice>. Source: Phase 154 COMP-04. */
+  .sg-notice {
+    border-radius: var(--sg-radius-sm);
+    background: var(--sg-color-panel-alt);
+    box-shadow: var(--sg-elev-inset);
+    padding: var(--sg-space-4);
+    transition: var(--sg-transition-tone);
+  }
+  .sg-notice[data-tone="ok"] {
+    background: color-mix(in oklab, var(--sg-color-ok-soft) 62%, var(--sg-color-panel));
+    box-shadow: inset 3px 0 0 0 var(--sg-color-ok), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-ok) 18%, transparent);
+  }
+  .sg-notice[data-tone="warn"] {
+    background: color-mix(in oklab, var(--sg-color-warn-soft) 62%, var(--sg-color-panel));
+    box-shadow: inset 3px 0 0 0 var(--sg-color-warn), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-warn) 20%, transparent);
+  }
+  .sg-notice[data-tone="risk"] {
+    background: color-mix(in oklab, var(--sg-color-risk-soft) 62%, var(--sg-color-panel));
+    box-shadow: inset 3px 0 0 0 var(--sg-color-risk), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-risk) 20%, transparent);
+  }
+  .sg-notice[data-tone="info"] {
+    background: color-mix(in oklab, var(--sg-color-info-soft) 62%, var(--sg-color-panel));
+    box-shadow: inset 3px 0 0 0 var(--sg-color-info), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-info) 20%, transparent);
+  }
+
   .sg-kv {
     display: grid;
     gap: var(--sg-space-3);
