@@ -28,7 +28,7 @@ Add `:sigra` to `deps/0` in `mix.exs`:
       ]
     end
 
-The selected 1.32 package line is governed by the [Sigra 1.32 contract](contract.html). If you are reading `main` before Hex shows `1.32.0`, use the latest published Sigra package or a source checkout until the release PR lands.
+The selected 1.0 package line is governed by the [Sigra 1.0 contract](contract.html). If you are reading `main` before Hex shows `1.0.0`, use the latest published Sigra package or a source checkout until the release PR lands.
 
 Fetch it:
 

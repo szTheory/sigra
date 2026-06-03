@@ -21,7 +21,7 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
 
     assert ci =~ ~r/^  workflow_dispatch:$/m
     assert ci =~ ~r/release-ref evidence path/i
-    assert ci =~ ~s(gh workflow run "CI" --ref v1.32.0)
+    assert ci =~ ~s(gh workflow run "CI" --ref v1.0.0)
     assert ci =~ ~r/^  push:\n    branches: \[main\]/m
     assert ci =~ ~r/^  pull_request:\n    branches: \[main\]/m
 
@@ -80,7 +80,7 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
           "## Post-Publish Visibility",
           "## Recovery Decision Tree",
           "## First 14 Days Hotfix Policy",
-          "## Post-1.32 Release Please Cleanup"
+          "## Post-1.0 Release Please Cleanup"
         ] do
       assert runbook =~ heading
     end
@@ -96,21 +96,21 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
     assert runbook =~
              "Gate | Workflow/job or command | Release ref | Evidence URL or log | Reviewer | Waiver? | Notes"
 
-    assert runbook =~ ~s(gh workflow run "CI" --ref v1.32.0)
+    assert runbook =~ ~s(gh workflow run "CI" --ref v1.0.0)
 
     assert runbook =~
-             ~S|gh workflow run "Hex publish (manual recovery)" -f tag=v1.32.0 -f release_version=1.32.0|
+             ~S|gh workflow run "Hex publish (manual recovery)" -f tag=v1.0.0 -f release_version=1.0.0|
 
     assert runbook =~ "mix hex.build --unpack --output sigra-hex-inspect"
     assert runbook =~ "mix hex.publish --dry-run --yes"
     assert runbook =~
-             "scripts/ci/release-post-publish-verify.sh --package sigra --version 1.32.0 --tag v1.32.0"
+             "scripts/ci/release-post-publish-verify.sh --package sigra --version 1.0.0 --tag v1.0.0"
 
     assert runbook =~ "automated post-publish"
-    assert runbook =~ "release-post-publish-evidence-1.32.0"
+    assert runbook =~ "release-post-publish-evidence-1.0.0"
     refute runbook =~ "manual post-publish"
     assert runbook =~ ~S(source_ref: "v#{@version}")
-    assert runbook =~ ~s(release-as: "1.32.0")
+    assert runbook =~ ~s(release-as: "1.0.0")
     assert runbook =~ "mix hex.publish --replace"
     assert runbook =~ "mix hex.publish --revert"
     assert runbook =~ "24 hours"

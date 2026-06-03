@@ -40,7 +40,7 @@ defp deps do
 end
 ```
 
-If you are reading `main` before Hex shows `1.32.0`, use the latest published Sigra package or a source checkout until the release PR lands.
+If you are reading `main` before Hex shows `1.0.0`, use the latest published Sigra package or a source checkout until the release PR lands.
 
 ## Gating a Sigra-protected controller action
 
@@ -107,7 +107,7 @@ defp deps do
 end
 ```
 
-If you are reading `main` before Hex shows `1.32.0`, use the latest published Sigra package or a source checkout until the release PR lands.
+If you are reading `main` before Hex shows `1.0.0`, use the latest published Sigra package or a source checkout until the release PR lands.
 
 Mount the admin UI in your router and supply a `RulesteadPolicy` module:
 

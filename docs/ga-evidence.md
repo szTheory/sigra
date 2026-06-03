@@ -1,11 +1,11 @@
 # Release evidence router
 
-This page routes maintainers and reviewers to the canonical release-evidence surfaces for the Sigra 1.32 path.
+This page routes maintainers and reviewers to the canonical release-evidence surfaces for the Sigra 1.0 path.
 It does not duplicate the release gate matrix.
 
 ## Canonical sources
 
-- [Release runbook v1.32](release-runbook-v1-0.html) — canonical release gate matrix, release-ref evidence checklist, dry-run/package inspection, publish paths, recovery decision tree, post-publish visibility checks, and first-14-day hotfix policy.
+- [Release runbook v1.0](release-runbook-v1-0.html) — canonical release gate matrix, release-ref evidence checklist, dry-run/package inspection, publish paths, recovery decision tree, post-publish visibility checks, and first-14-day hotfix policy.
 - [UAT ↔ CI coverage](uat-ci-coverage.html) — machine-vs-human coverage mapping for proof posture.
 - [Maintaining](maintaining.html) — stable maintainer entry point and release automation index.
 
@@ -23,7 +23,7 @@ Do not use `main` blob URLs for release evidence.
 
 Examples:
 
-- Good: `https://github.com/szTheory/sigra/blob/v1.32.0/.planning/...`
+- Good: `https://github.com/szTheory/sigra/blob/v1.0.0/.planning/...`
 - Not allowed for release proof: `https://github.com/szTheory/sigra/blob/main/.planning/...`
 
 ## Related docs

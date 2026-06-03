@@ -93,9 +93,9 @@ defmodule Sigra.Planning.Phase147UpgradeMigrationLanesTest do
     assert runbook =~
              "| Upgrade smoke | `CI` / `upgrade_smoke` | release tag | `Gate=upgrade_smoke`, run URL/log, pass status | Same waiver fields required |"
 
-    assert runbook =~ "| upgrade_smoke | `CI` / `upgrade_smoke` | `v1.32.0` |"
+    assert runbook =~ "| upgrade_smoke | `CI` / `upgrade_smoke` | `v1.0.0` |"
 
-    assert coverage =~ "## v1.32 upgrade and migration proof"
+    assert coverage =~ "## v1.0 upgrade and migration proof"
     assert coverage =~ "UPGRADE-02 (machine-closed)"
     assert coverage =~ "`CI` / `upgrade_smoke`"
     assert coverage =~ "scripts/ci/upgrade-smoke.sh"

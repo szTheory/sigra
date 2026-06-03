@@ -72,7 +72,7 @@ This subsection records the machine-vs-human boundary for **OPS-01** in the acti
 - Cross-browser compatibility, branded UI review, and screenshot-heavy review are outside this proof package.
 - This package does not prove SCIM, hosted control plane behavior, opinionated authz, or provider certification.
 
-## v1.32 upgrade and migration proof
+## v1.0 upgrade and migration proof
 
 - **UPGRADE-02 (machine-closed):** canonical machine proof is the dedicated `CI` / `upgrade_smoke` lane backed by `scripts/ci/upgrade-smoke.sh`, which exercises a selected published Hex source series against the local candidate checkout. The release proof lane defaults to `SIGRA_UPGRADE_SOURCE_SERIES=1` so it starts from the latest published 1.x package before switching to the local candidate; maintainers can override the series for historical cutover checks.
 - **UPGRADE-01, MIGRATE-01, MIGRATE-02 (published-doc truths):** these are closed by published guidance surfaces plus docs integrity checks (`mix docs --warnings-as-errors`) for:
