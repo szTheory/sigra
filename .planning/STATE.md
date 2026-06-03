@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: planning
-last_updated: "2026-06-03T21:58:01.198Z"
+last_updated: "2026-06-03T00:00:00.000Z"
 last_activity: 2026-06-03
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,53 +21,43 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Planning next milestone
+**Current focus:** Phase 154 — Design Contract + sg-notice (ready to plan)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 154 of 160 (Design Contract + sg-notice)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-06-03 — Milestone v1.34 started
+Status: Ready to plan
+Last activity: 2026-06-03 — Roadmap created for v1.34 ADMIN-UI-COHERENCE (Phases 154–160)
 
-## Accumulating Context
+Progress: [░░░░░░░░░░] 0%
 
-- `v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` roadmap created based on research in `.planning/research/SUMMARY.md`.
-- 4 phases (150–153), 10/10 requirements mapped.
-- Phase 153 closed the DB connection sandbox stability and CI leak-resolution blocker.
-- v1.33 phase artifacts are archived under `.planning/milestones/v1.33-phases/`.
+## Accumulated Context
 
-## Quick Tasks Completed
+### Decisions
 
-| ID | Task | Date | Commit |
-|----|------|------|--------|
-| 260602-gll | Admin-UI Pass 2 Stage 0 — `sg-*` design-system foundation tightening (token cleanup, WCAG-1.4.1 status-redundancy glyph, motion tokens + `sg-skeleton`/`sg-toast`) | 2026-06-02 | ffb7eece |
-| 260602-gzc | Admin-UI Pass 2 Stage 1 — shell IA chrome (tenant-marked scope chip + `data-scope` org recolor, sidebar nouns Users/Audit, stale `admin_shell_test` fixed 2/6→6/6) | 2026-06-02 | 2ec5dd6c |
-| 260602-hao | Admin-UI Pass 2 Stage 2 — needs-led landing launcher (jobs-first cards, demoted posture strip + "N need review" risk line, evaluator capability surface) on both global + org landings | 2026-06-02 | 2e5999ee |
-| 260602-hhr | Admin-UI Pass 2 Stage 3 — users index craft ("Showing X–Y of Z" pagination, applied-filter chips + Clear all, teaching empty states, truncate+tooltip, richer mobile card) | 2026-06-02 | 628ec604 |
-| 260602-hoz | Admin-UI Pass 2 Stage 4 — summary-first user detail (security facts strip: MFA/passkeys/active/last-seen + foregrounded risk callout; session recency cue) | 2026-06-02 | 1b2e56cd |
-| 260602-hvx | Admin-UI Pass 2 Stage 5 — investigator-shaped audit (Outcome select, from/to date range, applied-filter chips, failure→risk outcome pill, teaching empty) on index + per-user | 2026-06-02 | 92abb7ce |
-| 260602-i3m | Admin-UI Pass 2 Stage 6 — org overview made real: new `Sigra.Admin.Organizations.Detail` (member roster + pending-invitations, org-scoped/fails-closed) + render + Morgan org-admin persona + multi-session seeds + 11 library tests | 2026-06-02 | c11a7848, 425ae1cf |
-| 260602-ikd | Admin-UI Pass 2 Stage 7 — Cmd-K command palette + copy-to-clipboard (plain-JS hooks injected into the hand-maintained example bundle, node-check + boot-smoke verified; hidden-until-hook progressive enhancement) + sg-cmdk overlay | 2026-06-02 | 87e9d375, ba364d71, 1452c5fd |
-| 260602-stage8 | Admin-UI Pass 2 Stage 8 — evidence/baselines/parity: caught+fixed 2 behavioral regressions (Cmd-K 'Jump to…' relabel, scope-chrome assertion), ruled out passkey CDP env failure, regenerated 19 baselines (axe green chromium/mobile/dark), all gates green (lib 55/55, example admin 33/33, parity OK, warnings-clean) | 2026-06-02 | 2581fa4a, 4baselines |
+- Phase 155 is the keystone: zero Playwright baseline re-records is the non-negotiable proof of behavior-preserving extraction. A re-record in Phase 155 is a bug, not permission to proceed.
+- `admin-generated` installer-parity lane runs as a gate on every phase that touches admin HEEx — not a Phase 160 afterthought.
+- CSS boundary: all new styles inside `@layer sg-components { }`. No unlayered rules. One permitted addition: ~15 lines of `sg-notice` styles in Phase 154.
+- No new Hex deps, no Tailwind, no Alpine.js, no `assign_async/3` for this milestone.
+- GATE-01/02/03 are cross-cutting; each maps to one owning phase (GATE-01/02 ratified at 160; GATE-03 owned at 159).
 
-> Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
+### Pending Todos
 
-## Deferred Items
+None yet.
 
-- `Phoenix.Ecto.SQL.Sandbox` for Playwright/browser acceptance tests remains deferred unless the browser lane is intentionally redesigned around transactional external-client proof.
-- Broad Elixir/OTP/Phoenix CI matrix expansion remains deferred unless a specific compatibility regression requires it.
-
-## Operator Next Steps
-
-- Start the next milestone with `$gsd-new-milestone`.
-
-### Blockers
+### Blockers/Concerns
 
 - None.
 
-## Performance Metrics
+## Deferred Items
 
-| Phase | Plan | Duration | Notes |
-|-------|------|----------|-------|
-| Phase 153 P01 | 72 min | 3 tasks | 21 files |
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
+
+## Session Continuity
+
+Last session: 2026-06-03
+Stopped at: Roadmap created — ready to plan Phase 154
+Resume file: None

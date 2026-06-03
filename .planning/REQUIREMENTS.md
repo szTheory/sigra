@@ -76,22 +76,39 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation (each requirement maps to exactly one phase).
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01..04 | TBD | Pending |
-| LAND-01..04 | TBD | Pending |
-| COHR-01..06 | TBD | Pending |
-| AUDX-01..03 | TBD | Pending |
-| FIXT-01..05 | TBD | Pending |
-| GATE-01..03 | TBD | Pending |
+| COMP-03 | Phase 154 | Pending |
+| COMP-04 | Phase 154 | Pending |
+| COMP-01 | Phase 155 | Pending |
+| COMP-02 | Phase 155 | Pending |
+| COHR-01 | Phase 156 | Pending |
+| COHR-02 | Phase 156 | Pending |
+| COHR-03 | Phase 156 | Pending |
+| COHR-04 | Phase 156 | Pending |
+| COHR-05 | Phase 156 | Pending |
+| COHR-06 | Phase 156 | Pending |
+| LAND-01 | Phase 157 | Pending |
+| LAND-02 | Phase 157 | Pending |
+| LAND-03 | Phase 157 | Pending |
+| LAND-04 | Phase 157 | Pending |
+| AUDX-01 | Phase 158 | Pending |
+| AUDX-02 | Phase 158 | Pending |
+| AUDX-03 | Phase 158 | Pending |
+| FIXT-01 | Phase 159 | Pending |
+| FIXT-02 | Phase 159 | Pending |
+| FIXT-03 | Phase 159 | Pending |
+| FIXT-04 | Phase 159 | Pending |
+| FIXT-05 | Phase 159 | Pending |
+| GATE-03 | Phase 159 | Pending |
+| GATE-01 | Phase 160 | Pending |
+| GATE-02 | Phase 160 | Pending |
 
 **Coverage:**
 - v1 requirements: 25 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 25 ⚠️ (roadmapper will map all)
+- Mapped to phases: 25/25 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-06-03*
-*Last updated: 2026-06-03 after initial definition (v1.34 ADMIN-UI-COHERENCE)*
+*Last updated: 2026-06-03 — traceability populated by roadmapper (v1.34 ADMIN-UI-COHERENCE)*
