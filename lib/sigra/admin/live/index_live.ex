@@ -46,6 +46,19 @@ defmodule Sigra.Admin.Live.IndexLive do
         </p>
       </header>
 
+      <.notice
+        :if={not @loading}
+        tone={if @needs_review > 0, do: :risk, else: :ok}
+        role="status"
+      >
+        <%= if @needs_review > 0 do %>
+          {@needs_review} accounts need review —
+          <a href="/admin/users?locked=true">Review now</a>
+        <% else %>
+          All clear
+        <% end %>
+      </.notice>
+
       <div class="sg-grid sg-grid--3">
         <.task_card
           title="Find a user"
@@ -67,40 +80,46 @@ defmodule Sigra.Admin.Live.IndexLive do
         />
       </div>
 
-      <section class="sg-card sg-posture-strip sg-stack sg-stack--3">
-        <a href="/admin/users?locked=true" class="sg-cluster sg-cluster--start sg-posture-strip__risk">
-          <span class="sg-status-pill" data-tone={if(@needs_review > 0, do: "risk", else: "ok")}>
-            {if(@needs_review > 0, do: "#{@needs_review} accounts need review", else: "All clear")}
-          </span>
-        </a>
-
+      <section
+        class="sg-card sg-posture-strip sg-stack sg-stack--3"
+        aria-busy={if @loading, do: "true"}
+      >
         <div class="sg-cluster sg-cluster--3">
-          <.stat_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
-          <.stat_link
-            label="Confirmed"
-            value={Map.get(@summary_counts, :confirmed, 0)}
-            href="/admin/users?confirmed=true"
-          />
-          <.stat_link
-            label="MFA"
-            value={Map.get(@summary_counts, :mfa, 0)}
-            href="/admin/users?mfa=true"
-          />
-          <.stat_link
-            label="Passkeys"
-            value={Map.get(@summary_counts, :passkeys, 0)}
-            href="/admin/users?passkeys=true"
-          />
-          <.stat_link
-            label="Locked"
-            value={Map.get(@summary_counts, :locked, 0)}
-            href="/admin/users?locked=true"
-          />
-          <.stat_link
-            label="Deleted"
-            value={Map.get(@summary_counts, :deleted, 0)}
-            href="/admin/users?deleted=true"
-          />
+          <%= if @loading do %>
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+          <% else %>
+            <.stat_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
+            <.stat_link
+              label="Confirmed"
+              value={Map.get(@summary_counts, :confirmed, 0)}
+              href="/admin/users?confirmed=true"
+            />
+            <.stat_link
+              label="MFA"
+              value={Map.get(@summary_counts, :mfa, 0)}
+              href="/admin/users?mfa=true"
+            />
+            <.stat_link
+              label="Passkeys"
+              value={Map.get(@summary_counts, :passkeys, 0)}
+              href="/admin/users?passkeys=true"
+            />
+            <.stat_link
+              label="Locked"
+              value={Map.get(@summary_counts, :locked, 0)}
+              href="/admin/users?locked=true"
+            />
+            <.stat_link
+              label="Deleted"
+              value={Map.get(@summary_counts, :deleted, 0)}
+              href="/admin/users?deleted=true"
+            />
+          <% end %>
         </div>
       </section>
 
