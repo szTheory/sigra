@@ -78,9 +78,9 @@ Plans:
   4. No existing LiveView behavior changes; all axe (WCAG A/AA) checks stay green.
 
 **Plans**: 3 plans
-- [ ] 155-01-PLAN.md — Build `Sigra.Admin.Components` with all 10 canonical function components (COMP-01)
+- [x] 155-01-PLAN.md — Build `Sigra.Admin.Components` with all 10 canonical function components (COMP-01)
 - [ ] 155-02-PLAN.md — `render_component` byte/structural-equality proof harness, goldens from original markup (COMP-02)
-- [ ] 155-03-PLAN.md — D-09 design-contract notice ARIA amendment + D-14 CI gate wiring (`needs: [release_ref_guard, library_tests]`)
+- [x] 155-03-PLAN.md — D-09 design-contract notice ARIA amendment + D-14 CI gate wiring (`needs: [release_ref_guard, library_tests]`)
 **UI hint**: yes
 
 ### Phase 156: Adopt Shared Components on Baselined Screens
@@ -171,7 +171,7 @@ Plans:
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
-| 155. Shared Component Foundation (KEYSTONE) | v1.34 | 0/TBD | Not started | - |
+| 155. Shared Component Foundation (KEYSTONE) | v1.34 | 2/3 | In Progress|  |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/TBD | Not started | - |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
