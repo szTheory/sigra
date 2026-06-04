@@ -168,6 +168,29 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await clearBrowserSession(page);
     await registerUser(page, adminEmail, password);
 
+    // --- Checkpoint: Global overview (/admin) --------------------------------
+    // Phase 157 LAND-01..04: front-door archetype with deferred load.
+    // D-06 HARD REQUIREMENT: wait for loaded data (sg-metric-link__value visible),
+    // not just .phx-connected — connected? gate defers queries to connected mount,
+    // creating a brief window where .phx-connected is set but skeleton is still shown.
+    await page.goto('/admin');
+    await waitForLiveViewReady(page);
+    await expect(page.locator('.sg-metric-link__value').first()).toBeVisible();
+    await expect(page.locator('.sg-notice').first()).toBeVisible();
+    await captureAndVerify(page, testInfo, 'global-overview');
+    await assertCheckpointScreenshot(page, testInfo, 'global-overview');
+
+    // --- Checkpoint: Org overview (/admin/organizations/:slug) ---------------
+    // Phase 157 LAND-01..04: same front-door archetype, org scope.
+    // Org route: redesigned OrganizationLive (not the "org landing stub" referenced
+    // in CP3 comment — that was before Phase 157 created this baseline).
+    await page.goto(`/admin/organizations/${orgSlug}`);
+    await waitForLiveViewReady(page);
+    await expect(page.locator('.sg-metric-link__value').first()).toBeVisible();
+    await expect(page.locator('.sg-notice').first()).toBeVisible();
+    await captureAndVerify(page, testInfo, 'org-overview');
+    await assertCheckpointScreenshot(page, testInfo, 'org-overview');
+
     // --- Checkpoint 1: Global user index (/admin/users) --------------------
     // D-28: "global user index" — proves admin shell chrome, Global scope
     // label, dense list layout, and action visibility on the primary admin
