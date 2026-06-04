@@ -77,7 +77,10 @@ Plans:
   3. The `admin-generated` installer-parity lane is green; no LiveView call sites have changed yet, so template parity is unaffected.
   4. No existing LiveView behavior changes; all axe (WCAG A/AA) checks stay green.
 
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 155-01-PLAN.md — Build `Sigra.Admin.Components` with all 10 canonical function components (COMP-01)
+- [ ] 155-02-PLAN.md — `render_component` byte/structural-equality proof harness, goldens from original markup (COMP-02)
+- [ ] 155-03-PLAN.md — D-09 design-contract notice ARIA amendment + D-14 CI gate wiring (`needs: [release_ref_guard, library_tests]`)
 **UI hint**: yes
 
 ### Phase 156: Adopt Shared Components on Baselined Screens
