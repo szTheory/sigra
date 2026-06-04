@@ -171,7 +171,7 @@ The rendered HEEx markup of **each** of the 10 components is the sampled signal.
 - **Phase gate:** full suite green; admin-checkpoint Playwright green with zero re-records; `admin-generated` parity lane green; axe WCAG A/AA green.
 
 ### CI Gate Wiring (D-14) — verified, one-line edit
-- Component-equality test runs under `mix test` in the existing **`library_tests`** job (`ci.yml:146-191`, runs plain `mix test` at `:191`, **no Postgres service** — perfect for the DB-free test).
+- Component-equality test runs under `mix test` in the existing **`library_tests`** job (`ci.yml:146-191`, runs plain `mix test` at `:191`). The new component test is itself DB-free, but the lane **does run a `postgres:15` service** (`ci.yml:150-160`) because the full `mix test` includes DB-dependent tests — the DB-free component test rides this lane harmlessly.
 - The admin checkpoints run inside **`example_playwright_smoke`** (`ci.yml:694`, has its own Postgres service `:698-703`), at steps `:806-822` (5 specs × 3 projects: chromium/mobile/dark).
 - **The gate edit:** `ci.yml:697` currently reads `needs: release_ref_guard`. Change to `needs: [release_ref_guard, library_tests]`. This makes Playwright physically unable to start until byte-equality passes — stronger and less bypassable than in-script step ordering (D-14).
 - Baselines that must NOT re-record: `test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/` (slugs `global-user-index`, `user-detail`, `audit-explorer`, `org-scoped-admin`, `impersonation-banner`).
@@ -209,7 +209,7 @@ The rendered HEEx markup of **each** of the 10 components is the sampled signal.
 
 ### Pitfall 4: Putting the component test in the DB lane or behind ConnCase
 **What goes wrong:** needless coupling to Postgres/endpoint; `async` false; slower gate.
-**How to avoid:** `use ExUnit.Case, async: true`, `@endpoint nil` — mirror `authorizer_test.exs`. It lands in `library_tests` (no Postgres service), which is exactly where the gate `needs:` points.
+**How to avoid:** `use ExUnit.Case, async: true`, `@endpoint nil` — mirror `authorizer_test.exs`. The test is DB-free and lands in `library_tests` (the lane runs Postgres for other tests, but this test needs none), which is exactly where the gate `needs:` points.
 
 ### Pitfall 5: Forgetting `page_back`/`scope_ribbon`/notice differ only by caller copy across files
 **What goes wrong:** treating "Back to users" vs "Back to user", or differing `scope_copy/1` returns, or `remove_chip_path/3` vs `/5`, as component differences.

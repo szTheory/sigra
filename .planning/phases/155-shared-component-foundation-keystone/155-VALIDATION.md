@@ -23,7 +23,7 @@ created: 2026-06-04
 | **Framework** | ExUnit (`use ExUnit.Case, async: true`) — phoenix_live_view 1.1.31 (verified in `mix.lock`) |
 | **Config file** | none — ExUnit + `Phoenix.LiveViewTest` already present; `@endpoint nil`, no ConnCase, no Postgres |
 | **Quick run command** | `mix test test/sigra/admin/components_test.exs` |
-| **Full suite command** | `mix test` (the `library_tests` CI lane; no Postgres service) |
+| **Full suite command** | `mix test` (the `library_tests` CI lane). The component test is DB-free, but the lane itself runs a `postgres:15` service for other DB-dependent tests (ci.yml:150-160). |
 | **Estimated runtime** | ~2–5 seconds (DB-free, async) |
 
 ---
