@@ -58,7 +58,7 @@ defmodule Sigra.Admin.ComponentsTest do
   # In HEEx attribute position, atom :risk renders as "risk", so data-tone="risk" matches.
   # The notice component ships sg-notice (pixel-neutral — sg-notice is a byte-clone of
   # sg-list-row per app.css:945-993, Phase 154 intent).
-  @notice_golden "<div class=\"sg-notice\" data-tone=\"risk\">\n  <p class=\"sg-text-sm\">Locked — revoke active logins and unlock below.</p>\n</div>"
+  @notice_golden "<div class=\"sg-notice \" data-tone=\"risk\">\n  <p class=\"sg-text-sm\">Locked — revoke active logins and unlock below.</p>\n</div>"
 
   # ---------------------------------------------------------------------------
   # Strict byte-equal assertions (7) — D-11

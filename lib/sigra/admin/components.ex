@@ -292,13 +292,15 @@ defmodule Sigra.Admin.Components do
     default: nil,
     doc: "the visual tone applied via data-tone; renders as a string in the HTML attribute"
 
+  attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
+
   attr :rest, :global, doc: "arbitrary HTML attributes (e.g., a live-region role for opt-in post-load notices)"
 
   slot :inner_block, required: true, doc: "the notice message content"
 
   def notice(assigns) do
     ~H"""
-    <div class="sg-notice" data-tone={@tone} {@rest}>
+    <div class={["sg-notice", @class]} data-tone={@tone} {@rest}>
       <p class="sg-text-sm">{render_slot(@inner_block)}</p>
     </div>
     """
