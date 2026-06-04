@@ -262,14 +262,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
 
         <div class="sg-list">
-          <article :for={row <- @detail.recent_audit} class="sg-list-row sg-stack sg-stack--2" data-tone={audit_tone(row)}>
-            <div class="sg-cluster sg-cluster--2">
-              <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
-              <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
-            </div>
-            <span class="sg-muted sg-text-sm">{row.actor_summary}</span>
-            <span class="sg-muted sg-text-xs">{Calendar.strftime(row.inserted_at, "%Y-%m-%d %H:%M")}</span>
-          </article>
+          <.audit_row :for={row <- @detail.recent_audit} row={row} />
           <.empty_state :if={@detail.recent_audit == []} title="No recent audit activity"><p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p></.empty_state>
         </div>
       </section>
@@ -432,12 +425,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
   end
 
   defp mfa_enabled?(status), do: mfa_value(status) == "Enabled"
-
-  # Recent-audit tone: stay calm (neutral) on success, flag failures as risk.
-  defp audit_tone(%{outcome: "success"}), do: nil
-  defp audit_tone(%{outcome: nil}), do: nil
-  defp audit_tone(%{outcome: _}), do: "risk"
-  defp audit_tone(_), do: nil
 
   defp mfa_value(nil), do: "Not configured"
   # Sigra.MFA.status/3 returns %{enabled: true, ...} (atom key, no trailing ?)
