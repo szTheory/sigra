@@ -136,33 +136,40 @@ The three archetypes define how components compose into full pages. All composit
 
 **Source:** `index_live.ex` (Global Overview), `organization_live.ex` (Org Overview)
 
-**Current component composition:**
+**Phase 157 component composition (canonical after LAND-01/02/03/04):**
 
 ```
 <section class="sg-stack sg-stack--6">
-  <header class="sg-page-header">         [open header — locked winner per COHR-02]
+  <header class="sg-page-header">                          [1] open header — locked winner per COHR-02
     <p class="sg-page-kicker">
     <h1 class="sg-page-title">
     <p class="sg-page-copy">
 
-  <div class="sg-grid sg-grid--3">        [task_card grid — 3 cards Global, 2 cards Org]
+  <.notice tone={:risk|:ok} role="status">                [2] LOUD ALARM — first after header
+    ...inline alarm content (count + deep-link or "All clear")...
+  </.notice>  (:if={not @loading})
+
+  <div class="sg-grid sg-grid--{3|2}">                    [3] PRIMARY content — task_card grid
     task_card x N
 
-  <section class="sg-card sg-posture-strip sg-stack sg-stack--3">
-    <a class="sg-posture-strip__risk">    [needs-review status pill — links to filtered]
-      <span class="sg-status-pill" data-tone={...}>
-    </a>
+  <section class="sg-card sg-posture-strip sg-stack sg-stack--3" aria-busy={...}>  [4] demoted stat_link strip
     <div class="sg-cluster sg-cluster--3">
-      stat_link x N                       [stat_link strip]
+      stat_link x N  (or skeleton x N when loading)
 
-  <section class="sg-stack sg-stack--3"> [capability section — lowest priority]
+  <section class="sg-stack sg-stack--3">                  [5] Global only — capability matrix
     capability x N
+
+  ── Org only — demoted scoped-detail tail (below shared archetype) ──
+  <section class="sg-card sg-stack sg-stack--3">          [Org] Members roster
+  <section class="sg-card sg-stack sg-stack--3">          [Org] Pending invitations
 ```
 
+**Org variant:** Items 1–4 are byte-coherent across Global and Org Overviews. Org appends a demoted scoped-detail tail (Members roster + Pending invitations) below the shared front-door archetype. This tail is Org-only; it is NOT part of the shared archetype. No `page_back` on Overview screens (leaf-only constraint).
+
 **Notes:**
-- The needs-review alarm is a `sg-status-pill` inside `sg-posture-strip` (a card surface), not a `sg-notice` block. Phase 157 (LAND-01) will promote it. Document current state.
-- No `sg-notice` component is currently used in Overview pages.
-- `organization_live.ex:71` uses `sg-list-row data-tone` as a contextual alert inside the "Scoped attention" card — this is a `notice` consolidation target for Phase 156 (COHR-05).
+- The alarm is now `<.notice tone={:risk|:ok}>` as the first child after the header, with `role="status"` opt-in for the post-load dynamic count (Phase 157, LAND-01). The old `sg-status-pill` inside `sg-posture-strip__risk` anchor has been removed from both strips.
+- All `<.notice>` slot content is inline — no block `<p>` children (D-07). The `notice/1` component wraps the slot in `<p class="sg-text-sm">`, so any block child would produce invalid `<p><p>…</p></p>`.
+- Deferred data load via `connected?(socket)` gate: disconnected mount assigns `loading: true` + empty structs; connected mount runs queries inline and assigns `loading: false`. Containing `<section>` carries `aria-busy="true"` during load.
 
 ---
 
