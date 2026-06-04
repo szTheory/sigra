@@ -8,16 +8,19 @@ import { TEST_PASSWORD } from '../helpers/fixtures';
 // Phase 31 Plan 2: curated admin checkpoint spec.
 //
 // Per D-04, D-19, D-20, D-25, D-26, D-27, D-28, D-29, and D-30 this spec
-// captures the five required reviewer pages as explicit screenshots so the
+// captures the eight required reviewer pages as explicit screenshots so the
 // Playwright HTML report becomes asynchronously reviewable on green runs
 // without widening the behavior suite across every viewport/theme:
 //
-//   1. Global user index                               (/admin/users)
-//   2. User detail                                     (/admin/users/:id)
-//   3. Organization-scoped admin page                  (/admin/organizations/:slug)
-//   4. Active impersonation banner on a non-admin
+//   1. Global overview                                 (/admin)
+//   2. Org overview                                    (/admin/organizations/:slug)
+//   3. Global user index                               (/admin/users)
+//   4. User detail                                     (/admin/users/:id)
+//   5. Organization-scoped admin page                  (/admin/organizations/:slug/users)
+//   6. Active impersonation banner on a non-admin
 //      page (the impersonated user's org members view) (/organizations/:slug/members)
-//   5. Audit explorer                                  (/admin/audit?...)
+//   7. Per-user audit                                  (/admin/users/:id/audit)
+//   8. Audit explorer                                  (/admin/audit?...)
 //
 // This spec runs in exactly three partitioned projects configured by
 // `playwright.config.ts` (D-27, D-29):
@@ -264,14 +267,79 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     await expect(page).toHaveURL(/\/admin\/users\?.*q=/);
     await waitForLiveViewReady(page);
 
-    // --- Checkpoint 5: Audit explorer (/admin/audit) -----------------------
+    // --- Checkpoint 6: Per-user audit (/admin/users/:id/audit) -------------
+    // Phase 158 GATE-01: per-user audit surface with mobile card layout
+    // (AUDX-01) and loaded-row wait (D-06 HARD REQUIREMENT).
+    // Navigate using the detailPath captured above — same targetEmail user
+    // who has admin.impersonation rows from the impersonation START/STOP
+    // above, so zero new seed is needed.
+    const userAuditPath = detailPath.replace(/\?.*$/, '') + '/audit';
+    await page.goto(userAuditPath);
+    await waitForLiveViewReady(page);
+    // Self-justifying capture (Phase 158): the screenshot is a by-product of
+    // asserted-correct, tone-mapped DOM — not something a human must bless.
+    // Shared lib-owned chrome present on every project:
+    await expect(page.getByRole('link', { name: 'Back to user' })).toBeVisible(); // page_back/1
+    await expect(page.getByText('Global audit explorer')).toBeVisible(); // scope_ribbon/1
+    // D-06 HARD-FAIL + tone proof: assert a VISIBLE loaded impersonation row
+    // carrying data-tone="info" (the exact tone the ExUnit golden pins), in the
+    // project-appropriate layout — NOT just .phx-connected. This user was
+    // impersonated immediately above, so admin.impersonation.* rows exist.
+    const isMobileProject = testInfo.project.name.includes('mobile');
+    if (isMobileProject) {
+      const mobileResults = page.locator('[data-testid="admin-audit-user-mobile-results"]');
+      await expect(mobileResults).toBeVisible();
+      await expect(
+        page.locator('[data-testid="admin-audit-user-desktop-results"]'),
+      ).toBeHidden();
+      await expect(
+        mobileResults.locator('article[data-tone="info"]').first(),
+      ).toBeVisible();
+    } else {
+      const desktopResults = page.locator('[data-testid="admin-audit-user-desktop-results"]');
+      await expect(desktopResults).toBeVisible();
+      await expect(
+        page.locator('[data-testid="admin-audit-user-mobile-results"]'),
+      ).toBeHidden();
+      await expect(
+        desktopResults.locator('tbody tr[data-tone="info"]').first(),
+      ).toBeVisible();
+    }
+    await captureAndVerify(page, testInfo, 'user-audit');
+    await assertCheckpointScreenshot(page, testInfo, 'user-audit');
+
+    // --- Checkpoint 8: Audit explorer (/admin/audit) -----------------------
     // D-28: "audit explorer" — proves filter/export usability and
     // impersonation attribution on the primary investigation surface.
     await page.goto('/admin/audit?action_prefix=admin.impersonation');
     await waitForLiveViewReady(page);
     await expect(page.getByRole('heading', { name: 'Audit' })).toBeVisible();
-    await expect(page.getByText('Impersonation').first()).toBeVisible();
+    await expect(page.getByText('Global audit explorer')).toBeVisible(); // scope_ribbon/1
+    // Self-justifying capture (Phase 158 AUDX-02 / D-05): encode the intended
+    // delta — the all-viewport quick-filter chip row — as positive assertions on
+    // the chips' real name/value, so the new baseline reflects asserted-correct DOM.
+    const failuresChip = page.locator(
+      'label.sg-filter-chip:has(input[name="outcome"][value="failure"])',
+    );
+    await expect(failuresChip).toBeVisible();
+    await expect(failuresChip).toContainText('Failures');
+    const impersonationChip = page.locator(
+      'label.sg-filter-chip:has(input[name="action_prefix"][value="admin.impersonation"])',
+    );
+    await expect(impersonationChip).toBeVisible();
+    await expect(impersonationChip).toContainText('Impersonation');
+    // This view was opened with ?action_prefix=admin.impersonation, so it is checked.
+    await expect(impersonationChip.locator('input')).toBeChecked();
     await expect(page.getByRole('link', { name: 'Export CSV' })).toBeVisible();
+    // Per-project layout: the dual-layout swap is the other half of the intended delta.
+    const isMobileExplorer = testInfo.project.name.includes('mobile');
+    if (isMobileExplorer) {
+      await expect(page.locator('[data-testid="admin-audit-mobile-results"]')).toBeVisible();
+      await expect(page.locator('[data-testid="admin-audit-desktop-results"]')).toBeHidden();
+    } else {
+      await expect(page.locator('[data-testid="admin-audit-desktop-results"]')).toBeVisible();
+      await expect(page.locator('[data-testid="admin-audit-mobile-results"]')).toBeHidden();
+    }
     await captureAndVerify(page, testInfo, 'audit-explorer');
     await assertCheckpointScreenshot(page, testInfo, 'audit-explorer');
   });
