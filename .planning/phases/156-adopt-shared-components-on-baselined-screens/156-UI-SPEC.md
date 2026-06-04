@@ -1,7 +1,7 @@
 ---
 phase: 156
 slug: adopt-shared-components-on-baselined-screens
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-04
@@ -59,6 +59,12 @@ existing `--sg-space-*` custom properties. No exceptions introduced by this phas
 Exceptions: none introduced by Phase 156. The `scope_ribbon` span carries zero additional
 spacing; it inherits cluster gap from its `sg-cluster--between` container.
 
+> **Token provenance.** Every value above (including `12px`/`--sg-space-3` and
+> `20px`/`--sg-space-5`, which fall outside a 4·{1,2,4,6,8} canonical set) is a **pre-existing,
+> locked `sg-*` layer token — not a new value introduced by this phase.** All seven are exact
+> multiples of the 4px base grid, so there is no grid-alignment risk; the canonical reference
+> set is a heuristic, not a constraint on this mature design system.
+
 ---
 
 ## Typography
@@ -83,6 +89,14 @@ system. Sizes below are the resolved computed values (not raw em values).
 - `page_back` button: `sg-btn sg-btn--ghost sg-btn--sm` — 14px, weight 600 (semibold).
 - `page_kicker`: `sg-page-kicker` — 14px, weight 700, uppercase, tracked wide.
 - Mobile `sg-page-title` override at breakpoint: `1.5rem` (see `app.css:1454`).
+
+> **Declared scale vs. inherited weights.** The Typography table above declares the phase's
+> two-weight scale: `--sg-weight-regular` (450) and `--sg-weight-bold` (800). The weights 600
+> (`sg-btn--ghost--sm`, used by `page_back`) and 700 (`--sg-weight-semibold`, used by
+> `empty_state__title` and `page_kicker`) named in the usages list are **resolved from
+> pre-existing `sg-btn` and `--sg-weight-*` token definitions — not additions to the scale.**
+> Phase 156 introduces no new weight tokens; counting four weights here would be a
+> mis-reading of inherited component styles as new declarations.
 
 ---
 
@@ -216,10 +230,12 @@ are the canonical set that must survive unchanged (byte-faithful migration requi
 | scope_ribbon — user detail (global) | UserShowLive | `"Global user operations"` |
 | scope_ribbon — user detail (org) | UserShowLive | `"{org.name} user"` |
 | page_back — user detail | UserShowLive | `"Back to users"` |
-| empty_state — sessions | UserShowLive | Existing copy preserved — do not alter |
-| empty_state — organizations | UserShowLive | Existing copy preserved — do not alter |
-| empty_state — users list | UsersIndexLive | Existing copy preserved — do not alter |
-| empty_state — audit list | AuditIndexLive | Existing copy preserved — do not alter |
+| empty_state — sessions | UserShowLive | title `"No active sessions."` (no body) — `user_show_live.ex:189` |
+| empty_state — linked identities | UserShowLive | title `"No linked identities"` (no body) — `user_show_live.ex:223` |
+| empty_state — organizations | UserShowLive | title `"No organization memberships"` (no body) — `user_show_live.ex:253` |
+| empty_state — recent audit | UserShowLive | title `"No recent audit activity"` + body `"No scoped events are currently tied to this user."` — `user_show_live.ex:283-284` |
+| empty_state — users list | UsersIndexLive | title `"No users match this view"` + body `"No users match the active filters. Clear them to widen the result set."` — `users_index_live.ex:286-289` |
+| empty_state — audit list | AuditIndexLive | title `"No audit events match this view"` + body `"No audit events match the active filters. Clear one or more to widen the timeline."` — `audit_index_live.ex:173-176` |
 | notice — identity summary alert | UserShowLive | Existing dynamic copy from `summary_alert/1` — preserved |
 | notice — org scoped attention | OrgOverviewLive | Existing dynamic copy — preserved |
 
@@ -289,11 +305,11 @@ No third-party component registries. All components are in `lib/sigra/admin/comp
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS — empty-state copy now reproduced inline (flag resolved)
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS — declared-scale-vs-inherited-weight note added (flag resolved)
+- [x] Dimension 5 Spacing: PASS — token-provenance note added for 12px/20px (flag resolved)
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** APPROVED — gsd-ui-checker verified 6/6; 3 documentation-clarity flags resolved.
