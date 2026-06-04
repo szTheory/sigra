@@ -392,18 +392,19 @@ This is byte-identical to the `<.applied_chip>` golden (`components_test.exs:40`
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Where does `audit_tone/1` live?**
    - Known: it must be a single source of truth (D-10). House style is flat function components; the helper is currently a `defp` in each LiveView.
    - Unclear: whether the unified helper lives as a private fn inside `Sigra.Admin.Components` (callable from `audit_row/1` only) or remains a `defp` duplicated-but-identical in the views, or becomes a public helper.
-   - Recommendation: make it a private fn co-located with `audit_row/1` in `components.ex`, called by the component itself (since the desktop `<tr>` rows also need it for `data-tone`, expose it minimally — e.g. a tiny `audit_tone/1` public-or-shared helper, OR let the explorers keep an identical `defp` that the planner deduplicates). Resolve in planning; the golden (D-10) should pin the mapping wherever it lands.
+   - RESOLVED in Plans 01/02/03/04: a private `audit_tone/1` lives in `components.ex` (authored in Plan 01, called by `audit_row/1`); each consuming LiveView's divergent `row_tone/1` is retired/consolidated to the identical body (the explorer desktop `<tr>` rows reference the same unified mapping in Plans 02/03), and the D-10 golden pins the mapping in `components_test.exs`.
 
 2. **Which date format + helper name does `audit_row/1` use?** (Pitfall #2)
    - Known: explorer table = `%Y-%m-%d %H:%M:%S`; compact card = `%Y-%m-%d %H:%M`; no `format_date/1` exists in audit views.
-   - Recommendation: give `audit_row/1` one private date helper with the D-09 head set; pick ONE format (likely `%Y-%m-%d %H:%M` to match the compact card and minimize the byte diff there) and accept the explorer-table format shift as part of the D-07 re-record, OR keep two call-site formats if the desktop `<tr>` stays inline (it does). Resolve explicitly in planning.
+   - RESOLVED in Plan 01: a private `format_date/1` (with the D-09 head set for %DateTime/%NaiveDateTime/nil/raise) using the format `%Y-%m-%d %H:%M` (no seconds, to match the compact card and minimize that golden's diff); the desktop explorer `<tr>` keeps its own inline seconds form (`%Y-%m-%d %H:%M:%S`), so there is no explorer-table format shift to re-record.
 
 3. **Chip placement + microcopy** (Claude's discretion) — above the detailed filter form, below `<.applied_chip>` row, per UI-SPEC. Labels "Failures" / "Impersonation".
+   - RESOLVED in Plans 02/03: quick-filter chips placed above the detailed filter form, labels "Failures" / "Impersonation".
 
 ---
 

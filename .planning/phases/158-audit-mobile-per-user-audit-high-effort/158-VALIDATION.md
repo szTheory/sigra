@@ -1,9 +1,9 @@
 ---
 phase: 158
 slug: audit-mobile-per-user-audit-high-effort
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-04
 ---
 
