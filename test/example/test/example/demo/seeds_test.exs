@@ -56,6 +56,13 @@ defmodule Example.Demo.SeedsTest do
           from(i in OrganizationInvitation, where: i.email == ^"invited@demo.sigra.dev"),
           :count
         ),
+      expired_invitations:
+        Repo.aggregate(
+          from(i in OrganizationInvitation,
+            where: i.email == ^"expired-invite@demo.sigra.dev"
+          ),
+          :count
+        ),
       mfa_credentials:
         Repo.aggregate(
           from(c in UserMFACredential, where: c.user_id in ^demo_user_ids),
@@ -138,6 +145,47 @@ defmodule Example.Demo.SeedsTest do
       refute is_nil(frank.scheduled_deletion_at)
     end
 
+    test "grace is a deletion-scheduled Acme member" do
+      acme = Repo.get_by!(Organization, slug: "acme-corp")
+      grace = demo_user!("grace@demo.sigra.dev")
+
+      refute is_nil(grace.deleted_at)
+      refute is_nil(grace.scheduled_deletion_at)
+
+      assert membership_role(grace.id, acme.id) == :member,
+             "grace should be an Acme Corp member so in-roster deletion pill renders"
+    end
+
+    test "pat has no MFA credential but has a passkey row" do
+      pat = demo_user!("pat@demo.sigra.dev")
+
+      mfa_count =
+        Repo.aggregate(from(c in UserMFACredential, where: c.user_id == ^pat.id), :count)
+
+      assert mfa_count == 0
+
+      passkey_count =
+        Repo.aggregate(from(p in UserPasskey, where: p.user_id == ^pat.id), :count)
+
+      assert passkey_count >= 1
+    end
+
+    test "exactly one expired invitation for expired-invite@demo.sigra.dev" do
+      expired =
+        Repo.all(
+          from i in OrganizationInvitation,
+            where:
+              i.email == ^"expired-invite@demo.sigra.dev" and
+                is_nil(i.accepted_at) and is_nil(i.revoked_at)
+        )
+
+      assert length(expired) == 1
+      expired_row = hd(expired)
+
+      assert DateTime.compare(expired_row.expires_at, DateTime.utc_now()) == :lt,
+             "expired invitation expires_at should be in the past"
+    end
+
     test "carol has a GitHub OAuth identity" do
       carol = demo_user!("carol@demo.sigra.dev")
 
@@ -214,12 +262,16 @@ defmodule Example.Demo.SeedsTest do
 
       assert admin_orgs == 2
 
+      grace = demo_user!("grace@demo.sigra.dev")
+
       assert membership_role(alice.id, acme.id) == :member
       assert membership_role(carol.id, acme.id) == :member
       assert membership_role(dave.id, acme.id) == :member
       assert membership_role(admin.id, acme.id) == :owner
       assert membership_role(admin.id, beta.id) == :member
       assert membership_role(bob.id, beta.id) == :owner
+      assert membership_role(grace.id, acme.id) == :member,
+             "grace should be an Acme member for the roster deletion pill to render"
     end
   end
 
