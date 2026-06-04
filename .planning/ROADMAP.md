@@ -32,7 +32,7 @@ Archive:
 **Milestone Goal:** Take the admin UI from "each screen polished individually" to one coherent, needs-led journey — principle of least surprise everywhere, "same job → same component."
 
 - [x] **Phase 154: Design Contract + sg-notice** — Job→Component mapping, 3 page archetypes, ARIA/motion specs; sg-notice CSS addition. No behavior change. (completed 2026-06-03)
-- [ ] **Phase 155: Shared Component Foundation (KEYSTONE)** — Build `Sigra.Admin.Components`; 5×3 baselines green with zero re-records; admin-generated parity green.
+- [x] **Phase 155: Shared Component Foundation (KEYSTONE)** — Build `Sigra.Admin.Components`; 5×3 baselines green with zero re-records; admin-generated parity green. (completed 2026-06-04)
 - [ ] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately.
 - [ ] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects.
 - [ ] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects.
@@ -79,7 +79,7 @@ Plans:
 
 **Plans**: 3 plans
 - [x] 155-01-PLAN.md — Build `Sigra.Admin.Components` with all 10 canonical function components (COMP-01)
-- [ ] 155-02-PLAN.md — `render_component` byte/structural-equality proof harness, goldens from original markup (COMP-02)
+- [x] 155-02-PLAN.md — `render_component` byte/structural-equality proof harness, goldens from original markup (COMP-02)
 - [x] 155-03-PLAN.md — D-09 design-contract notice ARIA amendment + D-14 CI gate wiring (`needs: [release_ref_guard, library_tests]`)
 **UI hint**: yes
 
@@ -171,7 +171,7 @@ Plans:
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
-| 155. Shared Component Foundation (KEYSTONE) | v1.34 | 2/3 | In Progress|  |
+| 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete   | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/TBD | Not started | - |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
