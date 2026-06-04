@@ -10,8 +10,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Shared Component Foundation (COMP)
 
-- [ ] **COMP-01**: A lib-owned `Sigra.Admin.Components` module provides the canonical admin component set (`stat_link`, `stat`, `task_card`, `summary_chip`, `applied_chip`, `empty_state`, `page_back`, `scope_ribbon`, `notice`, `skeleton`), each with documented `attr`/`slot` contracts.
-- [ ] **COMP-02**: The component extraction is behavior-preserving — the 5 existing admin checkpoint baselines (×3 projects) stay green with zero re-records, proven by rendered-markup equality before Playwright runs.
+- [x] **COMP-01**: A lib-owned `Sigra.Admin.Components` module provides the canonical admin component set (`stat_link`, `stat`, `task_card`, `summary_chip`, `applied_chip`, `empty_state`, `page_back`, `scope_ribbon`, `notice`, `skeleton`), each with documented `attr`/`slot` contracts.
+- [x] **COMP-02**: The component extraction is behavior-preserving — the 5 existing admin checkpoint baselines (×3 projects) stay green with zero re-records, proven by rendered-markup equality before Playwright runs.
 - [x] **COMP-03**: A committed "Job → Component" mapping plus 3 page archetypes (Overview / List / Detail) document the same-job→same-component conventions, including when-NOT-to-use, ARIA, and motion specs.
 - [x] **COMP-04**: The one new `sg-notice` component style is added inside the existing `@layer sg-components` using existing tokens only (no new tokens or motion primitives).
 
@@ -80,8 +80,8 @@ Explicitly excluded. Documented to prevent scope creep.
 |-------------|-------|--------|
 | COMP-03 | Phase 154 | Complete |
 | COMP-04 | Phase 154 | Complete |
-| COMP-01 | Phase 155 | Pending |
-| COMP-02 | Phase 155 | Pending |
+| COMP-01 | Phase 155 | Complete |
+| COMP-02 | Phase 155 | Complete |
 | COHR-01 | Phase 156 | Pending |
 | COHR-02 | Phase 156 | Pending |
 | COHR-03 | Phase 156 | Pending |

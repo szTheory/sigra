@@ -171,7 +171,7 @@ Plans:
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
-| 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete   | 2026-06-04 |
+| 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/TBD | Not started | - |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
