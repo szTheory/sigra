@@ -35,7 +35,7 @@ Archive:
 - [x] **Phase 155: Shared Component Foundation (KEYSTONE)** — Build `Sigra.Admin.Components`; 5×3 baselines green with zero re-records; admin-generated parity green. (completed 2026-06-04)
 - [x] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately. (completed 2026-06-04)
 - [x] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects. (completed 2026-06-04)
-- [ ] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects.
+- [x] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects. (completed 2026-06-04)
 - [ ] **Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment** — End-to-end journey seams fixed; seed gaps closed; motion usage audit.
 - [ ] **Phase 160: Regression Hardening + Baseline Ratification** — All baselines ratified; all gates closed; milestone proof bundle.
 
@@ -183,7 +183,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — markup must be final before baselines)*
 
-- [ ] 158-05-PLAN.md — Playwright: new `user-audit` slug + deliberate `audit-explorer` ×3 re-record + conditional `user-detail` re-record + axe green ×3 + parity green (AUDX-01/02/03, GATE-01, GATE-02)
+- [x] 158-05-PLAN.md — Playwright: new `user-audit` slug + deliberate `audit-explorer` ×3 re-record + conditional `user-detail` re-record + axe green ×3 + parity green (AUDX-01/02/03, GATE-01, GATE-02)
 
 **UI hint**: yes
 
@@ -229,6 +229,6 @@ Plans:
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
-| 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 4/5 | In Progress|  |
+| 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete   | 2026-06-04 |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
