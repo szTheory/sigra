@@ -138,7 +138,22 @@ Plans:
   4. Async overview data renders a `<.skeleton>` loading state instead of an empty flash or layout jump.
   5. New Playwright checkpoints `global-overview` and `org-overview` pass with axe green across all 3 projects (chromium, mobile, dark); `admin-generated` parity lane stays green.
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 1** *(parallel — no file overlap)*
+
+- [ ] 157-01-PLAN.md — Global Overview redesign: `index_live.ex` connected?-gate mount, front-door archetype, alarm notice, skeleton shapes, delete sg-posture-strip__risk (LAND-01, LAND-02, LAND-03, LAND-04)
+- [ ] 157-02-PLAN.md — Org Overview redesign: `organization_live.ex` connected?-gate mount, delete Scoped-attention card (D-07 fold), front-door archetype, skeleton shapes ×3 regions, preserve members+invitations tail; design contract Org-variant note (LAND-01, LAND-02, LAND-03, LAND-04)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 157-03-PLAN.md — ExUnit coverage: `describe "Phase 157 Overview redesign"` in `admin_shell_test.exs` — two-mount proof (GET=skeleton, live/2=data) for both screens; archetype-order and alarm-position assertions (LAND-01, LAND-02, LAND-03, LAND-04)
+
+**Wave 3** *(blocked on Wave 2 — ExUnit must be green before baseline recording)*
+
+- [ ] 157-04-PLAN.md — Playwright baselines: add `global-overview` + `org-overview` slugs to `admin-checkpoints.spec.ts` with loaded-data wait guard; record 6 new PNGs; verify axe ×3 green; parity lane green (LAND-01, LAND-02, LAND-03, LAND-04)
+
 **UI hint**: yes
 
 ### Phase 158: Audit Mobile + Per-User Audit (High Effort)
@@ -197,7 +212,7 @@ Plans:
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
-| 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
+| 157. Overview Landings (Highest Effort) | v1.34 | 0/4 | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
