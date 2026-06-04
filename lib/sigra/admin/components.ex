@@ -2,7 +2,7 @@ defmodule Sigra.Admin.Components do
   @moduledoc """
   Lib-owned canonical admin component set for Sigra's admin LiveViews.
 
-  Provides 10 flat, stateless `Phoenix.Component` function components that consolidate
+  Provides 11 flat, stateless `Phoenix.Component` function components that consolidate
   the duplicated admin chrome across LiveViews. Security-critical design and a11y fixes
   propagate to host apps via `mix deps.update` (D-05).
 
@@ -24,6 +24,7 @@ defmodule Sigra.Admin.Components do
     - `scope_ribbon/1` — Persistent in-body scope indicator
     - `notice/1` — Block-level toned contextual alert
     - `skeleton/1` — Loading-shape placeholder
+    - `audit_row/1` — Audit event card (sg-list-row) with unified tone and date formatting
 
   """
   use Phoenix.Component
@@ -328,5 +329,87 @@ defmodule Sigra.Admin.Components do
     ~H"""
     <div class={["sg-skeleton", @class]} {@rest}></div>
     """
+  end
+
+  # ---------------------------------------------------------------------------
+  # audit_row/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders an audit event card (`sg-list-row`) with a pill cluster, actor summary,
+  optional detail lines, and a formatted timestamp.
+
+  This is the single shared component for all three audit surfaces:
+  - `AuditIndexLive` mobile card list (`show_detail: true`, `show_codes: true`)
+  - `AuditUserLive` mobile card list (`show_detail: true`, `show_codes: true`)
+  - `UserShowLive` "Recent Audit" compact block (defaults: `show_detail: false`, `show_codes: false`)
+
+  Tone is derived from `row.outcome` and `row.action_badge` via the single internal
+  `audit_tone/1` helper, which is the authoritative source replacing the divergent
+  `row_tone/1` helpers previously present in `AuditIndexLive` and `AuditUserLive`.
+
+  The `format_date/1` helper handles `%DateTime{}` and `%NaiveDateTime{}` values,
+  renders `nil` as `"—"`, and raises `ArgumentError` on any other type (D-09 fix).
+
+  ## Examples
+
+      <.audit_row row={row} />
+
+      <.audit_row row={row} show_detail show_codes />
+
+  """
+  attr :row, :map, required: true, doc: "the presenter row map for the audit event"
+
+  attr :show_detail, :boolean,
+    default: false,
+    doc: "renders the Actor and Effective user detail lines (on in explorers, off in compact block)"
+
+  attr :show_codes, :boolean,
+    default: false,
+    doc: "renders the event id and action code lines (on in explorers, off in compact block)"
+
+  attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
+  attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
+
+  def audit_row(assigns) do
+    ~H"""
+    <article class={["sg-list-row sg-stack sg-stack--2", @class]} data-tone={audit_tone(@row)} {@rest}>
+      <div class="sg-cluster sg-cluster--2">
+        <span class="sg-status-pill" data-tone={audit_tone(@row)}>{@row.action_label}</span>
+        <span :if={@row.action_badge} class="sg-status-pill" data-tone="info">{@row.action_badge}</span>
+      </div>
+      <span class="sg-muted sg-text-sm">{@row.actor_summary}</span>
+      <span :if={@show_detail} class="sg-muted sg-text-sm">Actor: {@row.actor_label}</span>
+      <span :if={@show_detail and @row.action_badge} class="sg-muted sg-text-sm">Effective user: {@row.effective_user_label}</span>
+      <span class="sg-muted sg-text-xs">{format_date(@row.inserted_at)}</span>
+      <code :if={@show_codes} class="sg-code">{@row.id}</code>
+      <code :if={@show_codes} class="sg-code">{@row.action}</code>
+    </article>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # Private helpers for audit_row/1
+  # ---------------------------------------------------------------------------
+
+  # Single source of truth for audit tone derivation (D-10).
+  # Retires the divergent row_tone/1 (×2) in AuditIndexLive/AuditUserLive and
+  # the old audit_tone/1 in UserShowLive.
+  defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
+  defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
+  defp audit_tone(_row), do: nil
+
+  # Date formatting helper for audit timestamps (D-09 fix).
+  # Handles %DateTime{} and %NaiveDateTime{} (formats as "%Y-%m-%d %H:%M", no seconds).
+  # nil → "—" (explicit nil placeholder).
+  # Any other value raises ArgumentError — the catch-all must NOT silently render
+  # a populated-but-wrong-typed value into user-facing HEEx (T-158-01 mitigation).
+  defp format_date(%DateTime{} = dt), do: Calendar.strftime(dt, "%Y-%m-%d %H:%M")
+  defp format_date(%NaiveDateTime{} = ndt), do: Calendar.strftime(ndt, "%Y-%m-%d %H:%M")
+  defp format_date(nil), do: "—"
+
+  defp format_date(value) do
+    raise ArgumentError,
+          "format_date/1 expected %DateTime{}, %NaiveDateTime{}, or nil, got: #{inspect(value)}"
   end
 end
