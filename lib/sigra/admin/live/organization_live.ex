@@ -88,7 +88,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
       <section class="sg-card sg-posture-strip sg-stack sg-stack--3" aria-busy={if @loading, do: "true"}>
         <div class="sg-cluster sg-cluster--3">
           <%= if @loading do %>
-            <.skeleton /><.skeleton /><.skeleton /><.skeleton /><.skeleton />
+            <.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" />
           <% else %>
             <.stat_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
             <.stat_link
@@ -123,7 +123,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
       <section class="sg-card sg-stack sg-stack--3">
         <h2 class="sg-section-heading">Members</h2>
         <%= if @loading do %>
-          <.skeleton /><.skeleton /><.skeleton />
+          <.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" />
         <% else %>
           <p :if={@members == []} class="sg-section-copy">
             No members yet — invite teammates to populate this organization.
@@ -145,7 +145,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
       <section class="sg-card sg-stack sg-stack--3">
         <h2 class="sg-section-heading">Pending invitations</h2>
         <%= if @loading do %>
-          <.skeleton /><.skeleton />
+          <.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" />
         <% else %>
           <p :if={@pending_invitations == []} class="sg-section-copy">
             No pending invitations.
