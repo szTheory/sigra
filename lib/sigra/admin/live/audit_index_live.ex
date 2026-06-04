@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Audit.Explorer
   alias Sigra.Admin.Scope
 
@@ -50,8 +52,8 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
       <header class="sg-page-header">
         <p class="sg-page-kicker">Audit evidence</p>
         <h1 class="sg-page-title">Audit</h1>
-        <p class="sg-page-copy">{scope_copy(@admin_scope)}</p>
       </header>
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
         <div class="sg-form-grid sg-form-grid--cols">
@@ -112,17 +114,11 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
       </form>
 
       <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
-        <span :for={chip <- applied_chips(@current_params)} class="sg-applied-chip">
-          <span>{chip.label}</span>
-          <a
-            class="sg-applied-chip__remove"
-            href={remove_chip_path(@admin_scope, @current_params, chip.key)}
-            aria-label={"Remove filter " <> chip.label}
-          >
-            <span aria-hidden="true">&times;</span>
-            <span class="sr-only">remove</span>
-          </a>
-        </span>
+        <.applied_chip
+          :for={chip <- applied_chips(@current_params)}
+          label={chip.label}
+          remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
+        />
         <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
       </div>
 
@@ -169,24 +165,16 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         </table>
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
-        <p class="sg-empty-state__title">No audit events match this view</p>
+      <.empty_state :if={@rows == []} title="No audit events match this view">
         <%= if any_filter_active?(@current_params) do %>
-          <p class="sg-muted sg-text-sm">
-            No audit events match the active filters. Clear one or more to widen the timeline.
-          </p>
+          <p class="sg-muted sg-text-sm">No audit events match the active filters. Clear one or more to widen the timeline.</p>
           <div class="sg-cluster sg-cluster--center">
-            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">
-              Clear all filters
-            </a>
+            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>
           </div>
         <% else %>
-          <p class="sg-muted sg-text-sm">
-            Audit events appear here as activity is recorded. Adjust the filters above to focus on a
-            specific actor, outcome, or time range.
-          </p>
+          <p class="sg-muted sg-text-sm">Audit events appear here as activity is recorded. Adjust the filters above to focus on a specific actor, outcome, or time range.</p>
         <% end %>
-      </div>
+      </.empty_state>
 
       <nav :if={@meta} class="sg-cluster sg-cluster--between">
         <a
