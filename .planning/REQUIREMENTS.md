@@ -24,12 +24,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Journey Coherence (COHR)
 
-- [ ] **COHR-01**: All 6 admin screens render via the shared components; no duplicated private `stat`/`task`/`chip`/`empty` defs remain.
-- [ ] **COHR-02**: The user-detail identity header uses the open `sg-page-header` archetype, consistent with the other screens (no boxed-card outlier).
-- [ ] **COHR-03**: A single back-nav component (consuming `return_to`) is used consistently on detail/leaf screens, with the breadcrumb handling hierarchy — one obvious way back.
-- [ ] **COHR-04**: A persistent in-body scope ribbon shows the current scope (Global vs org name) on every list and leaf screen.
-- [ ] **COHR-05**: Contextual alerts (summary alerts and flashes) render through the one shared `notice` component with consistent tone treatment.
-- [ ] **COHR-06**: Empty-state structure and spacing are consistent across all screens.
+- [x] **COHR-01**: All 6 admin screens render via the shared components; no duplicated private `stat`/`task`/`chip`/`empty` defs remain.
+- [x] **COHR-02**: The user-detail identity header uses the open `sg-page-header` archetype, consistent with the other screens (no boxed-card outlier).
+- [x] **COHR-03**: A single back-nav component (consuming `return_to`) is used consistently on detail/leaf screens, with the breadcrumb handling hierarchy — one obvious way back.
+- [x] **COHR-04**: A persistent in-body scope ribbon shows the current scope (Global vs org name) on every list and leaf screen.
+- [x] **COHR-05**: Contextual alerts (summary alerts and flashes) render through the one shared `notice` component with consistent tone treatment.
+- [x] **COHR-06**: Empty-state structure and spacing are consistent across all screens.
 
 ### Audit Screens (AUDX)
 
@@ -82,12 +82,12 @@ Explicitly excluded. Documented to prevent scope creep.
 | COMP-04 | Phase 154 | Complete |
 | COMP-01 | Phase 155 | Complete |
 | COMP-02 | Phase 155 | Complete |
-| COHR-01 | Phase 156 | Pending |
-| COHR-02 | Phase 156 | Pending |
-| COHR-03 | Phase 156 | Pending |
-| COHR-04 | Phase 156 | Pending |
-| COHR-05 | Phase 156 | Pending |
-| COHR-06 | Phase 156 | Pending |
+| COHR-01 | Phase 156 | Complete |
+| COHR-02 | Phase 156 | Complete |
+| COHR-03 | Phase 156 | Complete |
+| COHR-04 | Phase 156 | Complete |
+| COHR-05 | Phase 156 | Complete |
+| COHR-06 | Phase 156 | Complete |
 | LAND-01 | Phase 157 | Pending |
 | LAND-02 | Phase 157 | Pending |
 | LAND-03 | Phase 157 | Pending |
