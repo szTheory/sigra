@@ -153,6 +153,109 @@ defmodule ExampleWeb.AdminShellTest do
     end
   end
 
+  describe "Phase 157 Overview redesign" do
+    test "global overview disconnected mount (GET) renders skeleton, not stat values" do
+      platform_admin =
+        AccountsFixtures.user_fixture(%{
+          email:
+            "platform-admin+157-global-skel-#{System.unique_integer([:positive])}@example.com"
+        })
+
+      conn = build_conn() |> log_in_user(platform_admin) |> get(~p"/admin")
+      html = html_response(conn, 200)
+
+      assert html =~ "sg-skeleton"
+      assert html =~ ~s(aria-busy="true")
+      refute html =~ "sg-metric-link__value"
+      refute html =~ "sg-posture-strip__risk"
+    end
+
+    test "global overview connected mount (live/2) renders data, not skeleton" do
+      platform_admin =
+        AccountsFixtures.user_fixture(%{
+          email:
+            "platform-admin+157-global-live-#{System.unique_integer([:positive])}@example.com"
+        })
+
+      {:ok, _view, html} = build_conn() |> log_in_user(platform_admin) |> live(~p"/admin")
+
+      refute html =~ "sg-skeleton"
+      refute html =~ ~s(aria-busy="true")
+      assert html =~ "sg-metric-link__value"
+      assert html =~ "sg-notice"
+      assert html =~ ~s(role="status")
+      refute html =~ "sg-posture-strip__risk"
+
+      assert html_offset(html, "sg-notice") < html_offset(html, "sg-grid sg-grid--3")
+      assert html_offset(html, "sg-grid sg-grid--3") < html_offset(html, "sg-card sg-posture-strip")
+    end
+
+    test "org overview disconnected mount (GET) renders skeleton, not stat values" do
+      org_admin =
+        AccountsFixtures.user_fixture(%{
+          email:
+            "org-admin+157-org-skel-#{System.unique_integer([:positive])}@example.com"
+        })
+
+      organization =
+        AccountsFixtures.create_organization(%{
+          name: "Test Org 157",
+          slug: "test-org-157-skel-#{System.unique_integer([:positive])}"
+        })
+
+      AccountsFixtures.create_membership(org_admin, organization, :admin)
+
+      conn =
+        build_conn()
+        |> log_in_user(org_admin)
+        |> get(~p"/admin/organizations/#{organization.slug}")
+
+      html = html_response(conn, 200)
+
+      assert html =~ "sg-skeleton"
+      assert html =~ ~s(aria-busy="true")
+      refute html =~ "sg-metric-link__value"
+      refute html =~ "sg-posture-strip__risk"
+      refute html =~ "Scoped attention"
+    end
+
+    test "org overview connected mount (live/2) renders data, not skeleton" do
+      org_admin =
+        AccountsFixtures.user_fixture(%{
+          email:
+            "org-admin+157-org-live-#{System.unique_integer([:positive])}@example.com"
+        })
+
+      organization =
+        AccountsFixtures.create_organization(%{
+          name: "Test Org 157",
+          slug: "test-org-157-live-#{System.unique_integer([:positive])}"
+        })
+
+      AccountsFixtures.create_membership(org_admin, organization, :admin)
+
+      {:ok, _view, html} =
+        build_conn()
+        |> log_in_user(org_admin)
+        |> live(~p"/admin/organizations/#{organization.slug}")
+
+      refute html =~ "sg-skeleton"
+      refute html =~ ~s(aria-busy="true")
+      assert html =~ "sg-metric-link__value"
+      assert html =~ "sg-notice"
+      assert html =~ ~s(role="status")
+      refute html =~ "sg-posture-strip__risk"
+      refute html =~ "Scoped attention"
+
+      assert html_offset(html, "sg-notice") < html_offset(html, "sg-grid sg-grid--2")
+      assert html_offset(html, "sg-grid sg-grid--2") < html_offset(html, "sg-card sg-posture-strip")
+
+      assert html =~ "sg-posture-strip"
+      assert html =~ "Members"
+      assert html =~ "Pending invitations"
+    end
+  end
+
   describe "denied states are not blank pages" do
     test "access denied renders explicit copy for insufficient scope" do
       conn =
