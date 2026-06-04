@@ -14,11 +14,21 @@ defmodule Sigra.Admin.Live.IndexLive do
     config = runtime_config!()
     admin_scope = socket.assigns.admin_scope
 
-    {:ok,
-     socket
-     |> assign(:sigra_config, config)
-     |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
-     |> assign(:page_title, "Global overview")}
+    if connected?(socket) do
+      {:ok,
+       socket
+       |> assign(:sigra_config, config)
+       |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
+       |> assign(:loading, false)
+       |> assign(:page_title, "Global overview")}
+    else
+      {:ok,
+       socket
+       |> assign(:sigra_config, config)
+       |> assign(:summary_counts, %{})
+       |> assign(:loading, true)
+       |> assign(:page_title, "Global overview")}
+    end
   end
 
   @impl true
