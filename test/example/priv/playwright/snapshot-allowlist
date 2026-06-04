@@ -1,0 +1,16 @@
+# Intended-delta snapshot slugs for the admin-checkpoints Playwright baselines.
+#
+# One slug per line. A slug covers all three projects at once
+# (chromium / mobile / dark) — e.g. `user-audit` allows
+# user-audit-admin-checkpoints-{chromium,mobile,dark}.png to change.
+#
+# STEADY STATE: this file is empty (comments only). scripts/ci/snapshot-canary-guard.sh
+# fails CI if any baseline PNG changes whose slug is not listed here, so a PR that
+# deliberately re-records baselines MUST add the slug(s) in the same diff — making
+# the intent reviewable. Reset to empty once the re-recording PR merges.
+#
+# The `impersonation-banner` canary must NEVER appear here.
+#
+# Phase 158 intended deltas (remove after merge to main):
+user-audit
+audit-explorer
