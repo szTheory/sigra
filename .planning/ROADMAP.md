@@ -173,7 +173,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 158-01-PLAN.md — Add shared `audit_row/1` (11th component) + unified `audit_tone/1` + reconciled `format_date/1` (D-09) with byte-goldens (AUDX-03, D-01, D-09, D-10)
+- [x] 158-01-PLAN.md — Add shared `audit_row/1` (11th component) + unified `audit_tone/1` + reconciled `format_date/1` (D-09) with byte-goldens (AUDX-03, D-01, D-09, D-10)
 
 **Wave 2** *(parallel — no file overlap; each touches one LiveView)*
 
@@ -229,6 +229,6 @@ Plans:
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
-| 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/5 | Planned | - |
+| 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 1/5 | In Progress|  |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
