@@ -531,7 +531,7 @@ If any existing test asserts these strings, they fail after the redesign and mus
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Skeleton shape for Org tail during loading**
    - What we know: the tail has Members + Pending invitations sections, each with unknown row counts at load time (the data is what the skeleton replaces).
