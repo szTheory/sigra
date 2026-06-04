@@ -78,9 +78,11 @@ Plans:
   4. No existing LiveView behavior changes; all axe (WCAG A/AA) checks stay green.
 
 **Plans**: 3 plans
+
 - [x] 155-01-PLAN.md — Build `Sigra.Admin.Components` with all 10 canonical function components (COMP-01)
 - [x] 155-02-PLAN.md — `render_component` byte/structural-equality proof harness, goldens from original markup (COMP-02)
 - [x] 155-03-PLAN.md — D-09 design-contract notice ARIA amendment + D-14 CI gate wiring (`needs: [release_ref_guard, library_tests]`)
+
 **UI hint**: yes
 
 ### Phase 156: Adopt Shared Components on Baselined Screens
@@ -101,12 +103,25 @@ Plans:
 **Plans**: 6 plans
 Plans:
 
+**Wave 1**
+
 - [ ] 156-01-PLAN.md — CSS tone-merge: merge `.sg-list-row[data-tone]` + `.sg-notice[data-tone]` to shared selectors in `app.css` (D-08, COHR-05)
 - [ ] 156-02-PLAN.md — Pixel-neutral import swap: `index_live.ex` + `organization_live.ex` — delete `defp metric_link`/`defp task_card`, add import, rename to `<.stat_link>`, migrate `organization_live.ex` notice (COHR-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 156-03-PLAN.md — `UsersIndexLive` migration: import, `defp summary_chip` removal, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `global-user-index` + `org-scoped-admin` baselines (COHR-01, COHR-04, COHR-06)
 - [ ] 156-04-PLAN.md — `UserShowLive` migration: import, header archetype sg-card→sg-page-header, `<.page_back>`, `<.scope_ribbon>`, `<.notice>`, `<.empty_state>` ×4, `summary_alert/1` atom refactor; re-record `user-detail` baseline (COHR-01, COHR-02, COHR-03, COHR-04, COHR-05, COHR-06)
 - [ ] 156-05-PLAN.md — `AuditIndexLive` migration: import, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `audit-explorer` baseline (COHR-01, COHR-04, COHR-06)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 156-06-PLAN.md — Phase gate: full ExUnit + full Playwright checkpoint spec (4 slugs re-recorded, `impersonation-banner` byte-green) + parity smoke green (all COHR-01..06)
+
+**Cross-cutting constraints:**
+
+- D-07: A `<.scope_ribbon copy={scope_copy(@admin_scope)} />` element appears immediately after the `<header class=\"sg-page-header\">` block (not nested inside it) — same scope-display component on every list/leaf screen
+- `impersonation-banner` snapshot stays byte-green
 
 **UI hint**: yes
 

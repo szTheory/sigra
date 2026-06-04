@@ -722,7 +722,7 @@ applies to this phase.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Empty state body text: preserve or drop on `user_show_live.ex` migration?**
    - What we know: The 3 user_show_live empty states (sessions, identities, organizations) have
