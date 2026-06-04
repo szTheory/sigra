@@ -1,10 +1,11 @@
 ---
 phase: 158
 slug: audit-mobile-per-user-audit-high-effort
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-04
+reviewed_at: 2026-06-04
 ---
 
 # Phase 158 — UI Design Contract
