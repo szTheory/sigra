@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Audit.Explorer
   alias Sigra.Admin.Scope
   alias Sigra.Admin.Users.Detail
@@ -151,7 +153,12 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         </a>
       </div>
 
-      <div :if={@rows != []} class="sg-table-panel">
+      <div
+        :if={@rows != []}
+        id="admin-audit-user-desktop-results"
+        data-testid="admin-audit-user-desktop-results"
+        class="sg-table-panel sg-show-desktop"
+      >
         <table class="sg-table">
           <thead>
             <tr>
@@ -162,7 +169,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             </tr>
           </thead>
           <tbody>
-            <tr :for={row <- @rows} data-tone={row_tone(row)}>
+            <tr :for={row <- @rows} data-tone={audit_tone(row)}>
               <td class="sg-nowrap">
                 <div class="sg-stack sg-stack--1">
                   <span class="sg-text-sm">{format_timestamp(row.inserted_at)}</span>
@@ -172,7 +179,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
               <td>
                 <div class="sg-stack sg-stack--1">
                   <div class="sg-cluster sg-cluster--2">
-                    <span class="sg-status-pill" data-tone={row_tone(row)}>{row.action_label}</span>
+                    <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
                     <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
                   </div>
                   <code class="sg-code">{row.action}</code>
@@ -186,12 +193,21 @@ defmodule Sigra.Admin.Live.AuditUserLive do
                 </div>
               </td>
               <td class="sg-show-desktop sg-text-sm">
-                <span :if={row_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
-                <span :if={row_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
+                <span :if={audit_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
+                <span :if={audit_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div
+        :if={@rows != []}
+        id="admin-audit-user-mobile-results"
+        data-testid="admin-audit-user-mobile-results"
+        class="sg-stack sg-stack--3 sg-show-mobile"
+      >
+        <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
       <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
@@ -241,11 +257,11 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     """
   end
 
-  # Severity tone mirrors the global explorer: failures risk, impersonation info,
-  # routine success neutral.
-  defp row_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
-  defp row_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
-  defp row_tone(_row), do: nil
+  # Severity tone: unified body matching audit_tone/1 in Sigra.Admin.Components (D-10).
+  # Failures surface as risk, impersonation as info, routine success stays neutral.
+  defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
+  defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
+  defp audit_tone(_row), do: nil
 
   defp runtime_config! do
     otp_app =
