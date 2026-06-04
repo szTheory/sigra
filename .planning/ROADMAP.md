@@ -98,7 +98,16 @@ Plans:
   6. Empty-state structure and spacing are consistent across all screens via `<.empty_state>`.
   7. The `admin-generated` parity lane stays green after each screen is modified; intended visual deltas are re-recorded deliberately after HTML report review.
 
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+
+- [ ] 156-01-PLAN.md — CSS tone-merge: merge `.sg-list-row[data-tone]` + `.sg-notice[data-tone]` to shared selectors in `app.css` (D-08, COHR-05)
+- [ ] 156-02-PLAN.md — Pixel-neutral import swap: `index_live.ex` + `organization_live.ex` — delete `defp metric_link`/`defp task_card`, add import, rename to `<.stat_link>`, migrate `organization_live.ex` notice (COHR-01)
+- [ ] 156-03-PLAN.md — `UsersIndexLive` migration: import, `defp summary_chip` removal, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `global-user-index` + `org-scoped-admin` baselines (COHR-01, COHR-04, COHR-06)
+- [ ] 156-04-PLAN.md — `UserShowLive` migration: import, header archetype sg-card→sg-page-header, `<.page_back>`, `<.scope_ribbon>`, `<.notice>`, `<.empty_state>` ×4, `summary_alert/1` atom refactor; re-record `user-detail` baseline (COHR-01, COHR-02, COHR-03, COHR-04, COHR-05, COHR-06)
+- [ ] 156-05-PLAN.md — `AuditIndexLive` migration: import, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `audit-explorer` baseline (COHR-01, COHR-04, COHR-06)
+- [ ] 156-06-PLAN.md — Phase gate: full ExUnit + full Playwright checkpoint spec (4 slugs re-recorded, `impersonation-banner` byte-green) + parity smoke green (all COHR-01..06)
+
 **UI hint**: yes
 
 ### Phase 157: Overview Landings (Highest Effort)
@@ -172,7 +181,7 @@ Plans:
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
-| 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/TBD | Not started | - |
+| 156. Adopt Shared Components on Baselined Screens | v1.34 | 0/6 | Not started | - |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
