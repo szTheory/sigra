@@ -6,6 +6,45 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
   alias Example.Accounts.AuditEvent
   alias Example.Repo
 
+  describe "Phase 158 shared chrome components (AUDX-03)" do
+    test "renders page_back ghost-button with back arrow and 'Back to user' label", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      subject = user_fixture(%{email: "audit-chrome-subject@example.com"})
+
+      html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/users/#{subject.id}/audit?return_to=%2Fadmin%2Fusers%2F#{subject.id}")
+        |> html_response(200)
+
+      assert html =~ "sg-btn--ghost",
+             "page_back ghost-button class must render"
+
+      assert html =~ "Back to user",
+             "page_back label must render 'Back to user'"
+
+      assert html =~ "&larr;",
+             "page_back must include left-arrow glyph"
+    end
+
+    test "renders empty_state with per-user copy when no events exist", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      subject = user_fixture(%{email: "audit-empty-subject@example.com"})
+
+      html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/users/#{subject.id}/audit")
+        |> html_response(200)
+
+      assert html =~ "No audit events for this user",
+             "empty_state title must match per-user copy contract"
+
+      assert html =~ "No scoped events are currently tied to this user.",
+             "empty_state body must match per-user copy contract"
+    end
+  end
+
   describe "Phase 30 per-user audit explorer contracts" do
     test "global per-user audit route loads and preserves filter context in the URL", %{
       conn: conn
