@@ -75,10 +75,10 @@ defmodule Sigra.Admin.Components do
 
   def stat(assigns) do
     ~H"""
-    <div class={["sg-metric", @class]} {@rest}>
+    <dl class={["sg-metric", @class]} {@rest}>
       <dt class="sg-metric__label">{@label}</dt>
       <dd class="sg-metric__value">{@value}</dd>
-    </div>
+    </dl>
     """
   end
 
