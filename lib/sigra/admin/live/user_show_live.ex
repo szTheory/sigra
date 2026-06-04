@@ -129,7 +129,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </dl>
 
         <.notice :if={summary_alert(@detail)} tone={elem(summary_alert(@detail), 0)}>
-          <p class="sg-text-sm">{elem(summary_alert(@detail), 1)}</p>
+          {elem(summary_alert(@detail), 1)}
         </.notice>
       </header>
 
