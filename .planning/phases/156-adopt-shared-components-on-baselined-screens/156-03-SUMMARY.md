@@ -87,7 +87,11 @@ completed: 2026-06-04
 
 None — plan executed exactly as written.
 
-## Deferred to Orchestrator Wave Gate
+## Task 2 — Baselines (✓ RESOLVED by orchestrator wave gate)
+
+The orchestrator completed Task 2 on a freshly-compiled example dev server (port 4007). `global-user-index` and `org-scoped-admin` re-recorded ×3 projects after full-page visual confirmation the delta is exactly the COHR-04 scope-ribbon addition + `sg-page-copy` removal; `impersonation-banner` kept byte-green (restored after `--update-snapshots=all`). Full checkpoint spec **15/15 green**; full `mix test` **2333/0**. Baseline commit: `2b4b4b32`.
+
+_Original deferral note (for history):_
 
 **Task 2 (Playwright baseline re-record) is deferred to the execute-phase orchestrator.**
 

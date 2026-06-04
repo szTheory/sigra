@@ -83,7 +83,11 @@ completed: 2026-06-04
 
 None — plan executed exactly as written for Task 1. Task 2 was explicitly excluded from this agent's scope per the orchestrator directive.
 
-## Deferred to Orchestrator Wave Gate
+## Task 2 — Baselines (✓ RESOLVED by orchestrator wave gate)
+
+The orchestrator completed Task 2 on a freshly-compiled example dev server (port 4007). `audit-explorer` re-recorded ×3 projects after full-page visual confirmation the delta is exactly the COHR-04 scope-ribbon addition + `sg-page-copy` removal; `impersonation-banner` kept byte-green. Full checkpoint spec **15/15 green**; full `mix test` **2333/0**. Baseline commit: `82bd9682`.
+
+_Original deferral note (for history):_
 
 **Task 2: Playwright baseline re-record for slug `audit-explorer` (×3 projects)**
 

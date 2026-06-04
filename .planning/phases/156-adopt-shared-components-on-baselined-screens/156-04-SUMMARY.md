@@ -82,7 +82,11 @@ completed: 2026-06-04
 - Changed `summary_alert/1` string literals `"risk"`/`"warn"` to atoms `:risk`/`:warn` to satisfy the `notice/1` component's `attr :tone, :atom` contract. Logic and priority unchanged.
 - The 3 remaining `sg-card sg-stack sg-stack--3` sections (Sessions, Organizations, Recent Audit) are intentionally preserved — only the identity header section at the top of render/1 was replaced per COHR-02.
 
-## Deferred to Orchestrator Wave Gate
+## Task 2 — Baselines (✓ RESOLVED by orchestrator wave gate)
+
+The orchestrator completed Task 2 on a freshly-compiled example dev server (port 4007). `user-detail` re-recorded ×3 projects after full-page visual confirmation the delta is exactly the COHR-02 open `sg-page-header` archetype (replacing the boxed `sg-card`) plus page_back, scope_ribbon, notice, and 4× empty_state migrations; `impersonation-banner` kept byte-green. Full checkpoint spec **15/15 green**; full `mix test` **2333/0**. Baseline commit: `63791c05`.
+
+_Original deferral note (for history):_
 
 **Task 2: Playwright baseline re-record for `user-detail` slug (×3 projects)** is performed CENTRALLY by the orchestrator after all Wave-2 code migrations land. This agent did NOT boot a Phoenix server, did NOT run `npx playwright`, and did NOT touch any `.png` snapshot files.
 
