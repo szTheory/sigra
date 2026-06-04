@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: executing
-last_updated: "2026-06-04T15:59:16.382Z"
+last_updated: "2026-06-04T16:11:47.160Z"
 last_activity: 2026-06-04
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 14
-  percent: 43
+  completed_plans: 15
+  percent: 57
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 157 (overview-landings-highest-effort) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-06-04
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Accumulated Context
 
@@ -41,6 +41,7 @@ Progress: [█████████░] 93%
 - CSS boundary: all new styles inside `@layer sg-components { }`. No unlayered rules. One permitted addition: ~15 lines of `sg-notice` styles in Phase 154.
 - No new Hex deps, no Tailwind, no Alpine.js, no `assign_async/3` for this milestone.
 - GATE-01/02/03 are cross-cutting; each maps to one owning phase (GATE-01/02 ratified at 160; GATE-03 owned at 159).
+- [Phase ?]: global-overview and org-overview captured with sg-metric-link__value visibility wait before capture (D-06 perpetual-flake guard)
 
 ### Pending Todos
 
@@ -58,8 +59,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-04T15:59:16.375Z
-Stopped at: Phase 157 UI-SPEC approved
+Last session: 2026-06-04T16:11:47.155Z
+Stopped at: Completed 157-04-PLAN.md — Phase 157 complete
 Resume file: None
 
 ## Performance Metrics
@@ -67,3 +68,4 @@ Resume file: None
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 157 P03 | 5m | 1 tasks | 1 files |
+| Phase 157-overview-landings-highest-effort P04 | 9min | 2 tasks | 7 files |

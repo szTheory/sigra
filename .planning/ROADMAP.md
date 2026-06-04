@@ -34,7 +34,7 @@ Archive:
 - [x] **Phase 154: Design Contract + sg-notice** — Job→Component mapping, 3 page archetypes, ARIA/motion specs; sg-notice CSS addition. No behavior change. (completed 2026-06-03)
 - [x] **Phase 155: Shared Component Foundation (KEYSTONE)** — Build `Sigra.Admin.Components`; 5×3 baselines green with zero re-records; admin-generated parity green. (completed 2026-06-04)
 - [x] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately. (completed 2026-06-04)
-- [ ] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects.
+- [x] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects. (completed 2026-06-04)
 - [ ] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects.
 - [ ] **Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment** — End-to-end journey seams fixed; seed gaps closed; motion usage audit.
 - [ ] **Phase 160: Regression Hardening + Baseline Ratification** — All baselines ratified; all gates closed; milestone proof bundle.
@@ -152,7 +152,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — ExUnit must be green before baseline recording)*
 
-- [ ] 157-04-PLAN.md — Playwright baselines: add `global-overview` + `org-overview` slugs to `admin-checkpoints.spec.ts` with loaded-data wait guard; record 6 new PNGs; verify axe ×3 green; parity lane green (LAND-01, LAND-02, LAND-03, LAND-04)
+- [x] 157-04-PLAN.md — Playwright baselines: add `global-overview` + `org-overview` slugs to `admin-checkpoints.spec.ts` with loaded-data wait guard; record 6 new PNGs; verify axe ×3 green; parity lane green (LAND-01, LAND-02, LAND-03, LAND-04)
 
 **UI hint**: yes
 
@@ -212,7 +212,7 @@ Plans:
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
-| 157. Overview Landings (Highest Effort) | v1.34 | 3/4 | In Progress|  |
+| 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete   | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
