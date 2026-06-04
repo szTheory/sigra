@@ -56,6 +56,29 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
+        <div class="sg-cluster">
+          <label class="sg-filter-chip">
+            <input
+              type="checkbox"
+              name="outcome"
+              value="failure"
+              checked={@current_params[:outcome] == "failure"}
+              class="checkbox checkbox-sm"
+            />
+            <span>Failures</span>
+          </label>
+          <label class="sg-filter-chip">
+            <input
+              type="checkbox"
+              name="action_prefix"
+              value="admin.impersonation"
+              checked={@current_params[:action_prefix] == "admin.impersonation"}
+              class="checkbox checkbox-sm"
+            />
+            <span>Impersonation</span>
+          </label>
+        </div>
+
         <div class="sg-form-grid sg-form-grid--cols">
           <label class="sg-field">
             <span class="sg-field-label">Actor</span>
@@ -122,7 +145,12 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
       </div>
 
-      <div :if={@rows != []} class="sg-table-panel">
+      <div
+        :if={@rows != []}
+        id="admin-audit-desktop-results"
+        data-testid="admin-audit-desktop-results"
+        class="sg-table-panel sg-show-desktop"
+      >
         <table class="sg-table">
           <thead>
             <tr>
@@ -133,7 +161,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
             </tr>
           </thead>
           <tbody>
-            <tr :for={row <- @rows} data-tone={row_tone(row)}>
+            <tr :for={row <- @rows} data-tone={audit_tone(row)}>
               <td class="sg-nowrap">
                 <div class="sg-stack sg-stack--1">
                   <span class="sg-text-sm">{format_timestamp(row.inserted_at)}</span>
@@ -143,7 +171,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
               <td>
                 <div class="sg-stack sg-stack--1">
                   <div class="sg-cluster sg-cluster--2">
-                    <span class="sg-status-pill" data-tone={row_tone(row)}>{row.action_label}</span>
+                    <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
                     <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
                   </div>
                   <code class="sg-code">{row.action}</code>
@@ -157,12 +185,21 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
                 </div>
               </td>
               <td class="sg-show-desktop sg-text-sm">
-                <span :if={row_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
-                <span :if={row_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
+                <span :if={audit_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
+                <span :if={audit_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div
+        :if={@rows != []}
+        id="admin-audit-mobile-results"
+        data-testid="admin-audit-mobile-results"
+        class="sg-stack sg-stack--3 sg-show-mobile"
+      >
+        <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
       <.empty_state :if={@rows == []} title="No audit events match this view">
@@ -203,9 +240,10 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
 
   # Severity tone: failures pop as risk, impersonation as info, routine success
   # stays calm (neutral zebra). Keeps the timeline scannable, not a wall.
-  defp row_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
-  defp row_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
-  defp row_tone(_row), do: nil
+  # Unified body — identical to Components.audit_tone/1 (D-10 single source of truth).
+  defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
+  defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
+  defp audit_tone(_row), do: nil
 
   defp runtime_config! do
     otp_app =
