@@ -9,15 +9,15 @@ defmodule Example.Demo.PersonasTest do
 
   alias Example.Demo.Personas
 
-  @expected_handles ~w(admin alice bob carol dave frank morgan)
+  @expected_handles ~w(admin alice bob carol dave frank morgan pat grace)
   @demo_domain "@demo.sigra.dev"
   @personas_source Path.expand("../../../lib/example/demo/personas.ex", __DIR__)
 
   describe "all/0 catalog shape" do
-    test "returns exactly seven personas with the expected handles" do
+    test "returns exactly nine personas with the expected handles" do
       personas = Personas.all()
 
-      assert length(personas) == 7
+      assert length(personas) == 9
 
       handles =
         personas
