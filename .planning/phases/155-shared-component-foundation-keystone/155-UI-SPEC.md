@@ -1,10 +1,11 @@
 ---
 phase: 155
 slug: shared-component-foundation-keystone
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-03
+reviewed_at: 2026-06-03
 ---
 
 # Phase 155 — UI Design Contract
