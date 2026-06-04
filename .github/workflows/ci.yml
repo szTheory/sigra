@@ -694,7 +694,7 @@ jobs:
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
     runs-on: ubuntu-latest
-    needs: release_ref_guard
+    needs: [release_ref_guard, library_tests]
     services:
       postgres:
         image: postgres:15
