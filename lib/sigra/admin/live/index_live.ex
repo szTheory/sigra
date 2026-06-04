@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.IndexLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Users.Query
 
   @impl true
@@ -63,28 +65,28 @@ defmodule Sigra.Admin.Live.IndexLive do
         </a>
 
         <div class="sg-cluster sg-cluster--3">
-          <.metric_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
-          <.metric_link
+          <.stat_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
+          <.stat_link
             label="Confirmed"
             value={Map.get(@summary_counts, :confirmed, 0)}
             href="/admin/users?confirmed=true"
           />
-          <.metric_link
+          <.stat_link
             label="MFA"
             value={Map.get(@summary_counts, :mfa, 0)}
             href="/admin/users?mfa=true"
           />
-          <.metric_link
+          <.stat_link
             label="Passkeys"
             value={Map.get(@summary_counts, :passkeys, 0)}
             href="/admin/users?passkeys=true"
           />
-          <.metric_link
+          <.stat_link
             label="Locked"
             value={Map.get(@summary_counts, :locked, 0)}
             href="/admin/users?locked=true"
           />
-          <.metric_link
+          <.stat_link
             label="Deleted"
             value={Map.get(@summary_counts, :deleted, 0)}
             href="/admin/users?deleted=true"
@@ -108,38 +110,6 @@ defmodule Sigra.Admin.Live.IndexLive do
         </div>
       </section>
     </section>
-    """
-  end
-
-  attr :label, :string, required: true
-  attr :value, :integer, required: true
-  attr :href, :string, required: true
-
-  defp metric_link(assigns) do
-    ~H"""
-    <a href={@href} class="sg-metric-link">
-      <span class="sg-metric-link__label">{@label}</span>
-      <span class="sg-metric-link__value">{@value}</span>
-    </a>
-    """
-  end
-
-  attr :title, :string, required: true
-  attr :body, :string, required: true
-  attr :href, :string, required: true
-  attr :action, :string, required: true
-
-  defp task_card(assigns) do
-    ~H"""
-    <article class="sg-card sg-card-hover sg-stack sg-stack--3">
-      <div class="sg-stack sg-stack--2">
-        <h2 class="sg-section-heading">{@title}</h2>
-        <p class="sg-section-copy">{@body}</p>
-      </div>
-      <div class="sg-cluster">
-        <a href={@href} class="sg-btn sg-btn--primary">{@action}</a>
-      </div>
-    </article>
     """
   end
 
