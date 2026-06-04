@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: executing
-last_updated: "2026-06-04T21:58:35.165Z"
-last_activity: 2026-06-04 -- Phase 159 planning complete
+last_updated: "2026-06-04T21:59:59.715Z"
+last_activity: 2026-06-04 -- Phase 159 execution started
 progress:
   total_phases: 7
   completed_phases: 5
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 159 — cross journey coherence sweep + seed enrichment
+**Current focus:** Phase 159 — cross-journey-coherence-sweep-seed-enrichment
 
 ## Current Position
 
-Phase: 159
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-04 -- Phase 159 planning complete
+Phase: 159 (cross-journey-coherence-sweep-seed-enrichment) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 159
+Last activity: 2026-06-04 -- Phase 159 execution started
 
 Progress: [██████████] 100%
 

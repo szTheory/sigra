@@ -204,8 +204,8 @@ Plans:
 
 **Wave 1** *(parallel — no file overlap)*
 
-- [ ] 159-01-PLAN.md — Lib code fixes: deletion_scheduled? in detail.ex, roster pill + format_date in organization_live.ex, notice <p>→<div> in components.ex (FIXT-02)
-- [ ] 159-02-PLAN.md — New personas: pat (passkey-only) + grace (deletion-scheduled Acme) in personas.ex (FIXT-02, FIXT-03, FIXT-04, FIXT-05)
+- [x] 159-01-PLAN.md — Lib code fixes: deletion_scheduled? in detail.ex, roster pill + format_date in organization_live.ex, notice <p>→<div> in components.ex (FIXT-02)
+- [x] 159-02-PLAN.md — New personas: pat (passkey-only) + grace (deletion-scheduled Acme) in personas.ex (FIXT-02, FIXT-03, FIXT-04, FIXT-05)
 
 **Wave 2** *(blocked on Wave 1 — requires both lib code and persona definitions)*
 
@@ -245,5 +245,5 @@ Plans:
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete    | 2026-06-04 |
-| 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
+| 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 2/4 | In Progress|  |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
