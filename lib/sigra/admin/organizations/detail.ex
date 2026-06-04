@@ -24,6 +24,7 @@ defmodule Sigra.Admin.Organizations.Detail do
           role: atom() | String.t() | nil,
           confirmed?: boolean(),
           locked?: boolean(),
+          deletion_scheduled?: boolean(),
           display_name: String.t() | nil
         }
 
@@ -108,6 +109,7 @@ defmodule Sigra.Admin.Organizations.Detail do
       role: role,
       confirmed?: not is_nil(Map.get(user, :confirmed_at)),
       locked?: not is_nil(Map.get(user, :locked_at)),
+      deletion_scheduled?: not is_nil(Map.get(user, :deleted_at)),
       display_name: display_name
     }
   end

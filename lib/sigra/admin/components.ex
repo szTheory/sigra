@@ -302,7 +302,7 @@ defmodule Sigra.Admin.Components do
   def notice(assigns) do
     ~H"""
     <div class={["sg-notice", @class]} data-tone={@tone} {@rest}>
-      <p class="sg-text-sm">{render_slot(@inner_block)}</p>
+      <div class="sg-text-sm">{render_slot(@inner_block)}</div>
     </div>
     """
   end
