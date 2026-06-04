@@ -199,7 +199,22 @@ Plans:
   3. The motion usage audit is complete: keyboard-frequent interactions (⌘K result filtering, filter apply, row updates) have no animation; enters use ease-out; destructive actions use flat easing — verified by a keyboard-only session through the admin console.
   4. Empty-state spacing, notice/flash unification, focus/hover parity, back-nav round-trips, and `<.scope_ribbon>` presence are confirmed on all 6 screens via a scripted Playwright journey filmstrip.
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+**Wave 1** *(parallel — no file overlap)*
+
+- [ ] 159-01-PLAN.md — Lib code fixes: deletion_scheduled? in detail.ex, roster pill + format_date in organization_live.ex, notice <p>→<div> in components.ex (FIXT-02)
+- [ ] 159-02-PLAN.md — New personas: pat (passkey-only) + grace (deletion-scheduled Acme) in personas.ex (FIXT-02, FIXT-03, FIXT-04, FIXT-05)
+
+**Wave 2** *(blocked on Wave 1 — requires both lib code and persona definitions)*
+
+- [ ] 159-03-PLAN.md — Seed enrichment: expired invitation, grace membership, pat passkey, audit rows; seeds_test.exs assertions + snapshot_counts (FIXT-01, FIXT-02, FIXT-03, FIXT-04, FIXT-05)
+
+**Wave 3** *(blocked on Wave 2 — verifies seeded demo DB states)*
+
+- [ ] 159-04-PLAN.md — CSS motion fix (sg-filter-chip pointer:fine guard) + admin-coherence-sweep.spec.ts filmstrip (GATE-03)
+
 **UI hint**: yes
 
 ### Phase 160: Regression Hardening + Baseline Ratification
