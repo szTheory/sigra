@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Organizations.Detail
   alias Sigra.Admin.Scope
   alias Sigra.Admin.Users.Query
@@ -68,12 +70,12 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </div>
 
         <div class="sg-list">
-          <div class="sg-list-row" data-tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: "risk", else: nil)}>
+          <.notice tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: :risk, else: nil)}>
             <p class="sg-meta-label">Risk queue</p>
             <p class="sg-meta-value">
               {locked_summary(Map.get(@summary_counts, :locked, 0))} in this organization
             </p>
-          </div>
+          </.notice>
           <div class="sg-list-row">
             <p class="sg-meta-label">Evidence boundary</p>
             <p class="sg-meta-value">Audit exports from this area stay organization-scoped.</p>
@@ -92,23 +94,23 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </a>
 
         <div class="sg-cluster sg-cluster--3">
-          <.metric_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
-          <.metric_link
+          <.stat_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
+          <.stat_link
             label="Confirmed"
             value={Map.get(@summary_counts, :confirmed, 0)}
             href={users_path(@admin_scope) <> "?confirmed=true"}
           />
-          <.metric_link
+          <.stat_link
             label="MFA"
             value={Map.get(@summary_counts, :mfa, 0)}
             href={users_path(@admin_scope) <> "?mfa=true"}
           />
-          <.metric_link
+          <.stat_link
             label="Passkeys"
             value={Map.get(@summary_counts, :passkeys, 0)}
             href={users_path(@admin_scope) <> "?passkeys=true"}
           />
-          <.metric_link
+          <.stat_link
             label="Locked"
             value={Map.get(@summary_counts, :locked, 0)}
             href={users_path(@admin_scope) <> "?locked=true"}
@@ -159,38 +161,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </div>
       </section>
     </section>
-    """
-  end
-
-  attr :label, :string, required: true
-  attr :value, :integer, required: true
-  attr :href, :string, required: true
-
-  defp metric_link(assigns) do
-    ~H"""
-    <a href={@href} class="sg-metric-link">
-      <span class="sg-metric-link__label">{@label}</span>
-      <span class="sg-metric-link__value">{@value}</span>
-    </a>
-    """
-  end
-
-  attr :title, :string, required: true
-  attr :body, :string, required: true
-  attr :href, :string, required: true
-  attr :action, :string, required: true
-
-  defp task_card(assigns) do
-    ~H"""
-    <article class="sg-card sg-card-hover sg-stack sg-stack--3">
-      <div class="sg-stack sg-stack--2">
-        <h2 class="sg-section-heading">{@title}</h2>
-        <p class="sg-section-copy">{@body}</p>
-      </div>
-      <div class="sg-cluster">
-        <a href={@href} class="sg-btn sg-btn--primary">{@action}</a>
-      </div>
-    </article>
     """
   end
 
