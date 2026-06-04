@@ -441,19 +441,19 @@ This is not a rename/refactor phase. No runtime state migration is required. The
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED — all three adjudicated in planning; implemented in 159-03/159-04)
 
-1. **Passkey-only persona for Playwright verification**
+1. **Passkey-only persona for Playwright verification** [RESOLVED → seeded demo DB persona `pat@demo.sigra.dev`, behavior-only assertion in `admin-coherence-sweep.spec.ts` (159-04)]
    - What we know: Playwright uses ad-hoc fixtures; inserting a display-only passkey row requires a direct DB call or test API not currently exposed
    - What's unclear: Whether the sibling spec can verify the "Passkeys" pill without either (a) a test-only DB-insert endpoint or (b) depending on the seeded demo DB
    - Recommendation: Assert the passkey-only pill against the seeded demo DB persona (`pat@demo.sigra.dev`) in the coherence spec, with a documented dependency that `mix run priv/repo/seeds.exs` must have been run in the dev environment. Alternatively, skip pixel assertion and rely on ExUnit tests for the passkey pill path.
 
-2. **`snapshot_counts` coverage of expired invitation**
+2. **`snapshot_counts` coverage of expired invitation** [RESOLVED → standalone `expired_invitations` assertion added in `seeds_test.exs` (159-03 Task 2)]
    - What we know: `snapshot_counts` scopes `invitations:` only to `invited@demo.sigra.dev`
    - What's unclear: Whether the planner wants strict idempotency testing of the expired invitation row
    - Recommendation: Add a standalone test assertion in `seeds_test.exs` that verifies exactly one expired invitation row for `expired-invite@demo.sigra.dev` exists after `Seeds.run/0`.
 
-3. **Dave's org membership and FIXT-02 options**
+3. **Dave's org membership and FIXT-02 options** [RESOLVED → new Acme member persona `grace@demo.sigra.dev` with `scheduled_deletion: true` (159-02)]
    - What we know: Dave (`dave@demo.sigra.dev`) has `org_member: nil` in personas.ex — he is NOT an Acme member (contradicting the misleading `seed_memberships` comment which suggests he is added to Acme). Checking `seeds.ex:225`: `upsert_membership(dave.id, acme.id, :member)` IS called. So Dave IS an Acme member but is locked (not deletion-scheduled). Frank has `scheduled_deletion: true` but `org_member: nil` — he is never added to any org.
    - What's unclear: Whether the planner prefers to add `scheduled_deletion: true` to an existing Acme member (e.g., Alice or Dave) or add a NEW persona (`pat@demo.sigra.dev` or similar).
    - Recommendation: Add a NEW Acme member persona (e.g., `grace@demo.sigra.dev`) with `scheduled_deletion: true, org_member: :acme`. This avoids mutating existing personas whose states are tested individually (Alice/Carol are confirmed+happy, Dave is locked). Grace demonstrates the deletion-scheduled-in-org state cleanly.
