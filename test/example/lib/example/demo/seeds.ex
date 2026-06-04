@@ -217,12 +217,16 @@ defmodule Example.Demo.Seeds do
     dave = users["dave@demo.sigra.dev"]
     morgan = users["morgan@demo.sigra.dev"]
 
-    # Acme Corp: admin=owner, morgan=admin (non-platform), alice=member, carol=member
+    grace = users["grace@demo.sigra.dev"]
+
+    # Acme Corp: admin=owner, morgan=admin (non-platform), alice=member, carol=member,
+    #            dave=member, grace=member (deletion-scheduled, FIXT-02)
     upsert_membership(admin.id, acme.id, :owner)
     upsert_membership(morgan.id, acme.id, :admin)
     upsert_membership(alice.id, acme.id, :member)
     upsert_membership(carol.id, acme.id, :member)
     upsert_membership(dave.id, acme.id, :member)
+    upsert_membership(grace.id, acme.id, :member)
 
     # Beta Labs: admin=member, bob=owner
     upsert_membership(admin.id, beta.id, :member)
@@ -265,6 +269,34 @@ defmodule Example.Demo.Seeds do
       })
       |> Repo.insert!()
     end
+
+    # Second invitation block — expired (FIXT-01)
+    # expires_at is pinned in the real past so expired?/1 evaluates true against
+    # DateTime.utc_now(). A distinct email avoids conflicts with the pending invite.
+    expired_email = "expired-invite@demo.sigra.dev"
+    expired_ts = ~U[2026-01-01 00:00:00Z]
+
+    existing_expired =
+      Repo.one(
+        from(i in OrganizationInvitation,
+          where:
+            i.organization_id == ^acme.id and
+              i.email == ^expired_email and
+              is_nil(i.accepted_at) and
+              is_nil(i.revoked_at)
+        )
+      )
+
+    unless existing_expired do
+      %OrganizationInvitation{}
+      |> OrganizationInvitation.changeset(%{
+        email: expired_email,
+        role: :member,
+        expires_at: expired_ts,
+        organization_id: acme.id
+      })
+      |> Repo.insert!()
+    end
   end
 
   ## ── TOTP MFA credentials (D-06) ──────────────────────────────────────────────
@@ -294,16 +326,23 @@ defmodule Example.Demo.Seeds do
 
   defp seed_passkey(users) do
     admin = users["admin@demo.sigra.dev"]
+    pat = users["pat@demo.sigra.dev"]
 
     # display-only; will not authenticate
     # Fabricated binary credential_id and public_key — zero Wax validation,
-    # so the insert succeeds. The row exists only to populate the admin UI panel.
-    credential_id = :crypto.hash(:sha256, "sigra-demo-admin-passkey-credential-id-v1")
-    public_key = :crypto.hash(:sha256, "sigra-demo-admin-passkey-public-key-v1")
+    # so the inserts succeed. Rows exist only to populate the admin UI panel.
+    upsert_passkey(admin, "sigra-demo-admin-passkey-credential-id-v1")
+    # pat@demo.sigra.dev: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
+    upsert_passkey(pat, "sigra-demo-pat-passkey-credential-id-v1")
+  end
+
+  defp upsert_passkey(user, seed_string) do
+    credential_id = :crypto.hash(:sha256, seed_string)
+    public_key = :crypto.hash(:sha256, seed_string <> "-pubkey")
 
     %UserPasskey{}
     |> UserPasskey.create_changeset(%{
-      user_id: admin.id,
+      user_id: user.id,
       credential_id: credential_id,
       public_key: public_key,
       nickname: "Demo Security Key"
@@ -528,6 +567,39 @@ defmodule Example.Demo.Seeds do
       outcome: "success",
       offset: 29,
       org: :beta
+    },
+    # FIXT-04: richer audit variety — pat (passkey-only) and grace (in-roster deletion)
+    %{
+      email: "pat@demo.sigra.dev",
+      actor: "pat@demo.sigra.dev",
+      action: "auth.password.change",
+      outcome: "success",
+      offset: 30,
+      org: nil
+    },
+    %{
+      email: "pat@demo.sigra.dev",
+      actor: "pat@demo.sigra.dev",
+      action: "auth.magic_link.sent",
+      outcome: "success",
+      offset: 31,
+      org: nil
+    },
+    %{
+      email: "grace@demo.sigra.dev",
+      actor: "grace@demo.sigra.dev",
+      action: "api.token.create",
+      outcome: "success",
+      offset: 32,
+      org: :acme
+    },
+    %{
+      email: "carol@demo.sigra.dev",
+      actor: "carol@demo.sigra.dev",
+      action: "auth.oauth.link",
+      outcome: "success",
+      offset: 33,
+      org: :acme
     }
   ]
 
