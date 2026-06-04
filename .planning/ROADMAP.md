@@ -110,9 +110,9 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 156-03-PLAN.md — `UsersIndexLive` migration: import, `defp summary_chip` removal, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `global-user-index` + `org-scoped-admin` baselines (COHR-01, COHR-04, COHR-06)
-- [ ] 156-04-PLAN.md — `UserShowLive` migration: import, header archetype sg-card→sg-page-header, `<.page_back>`, `<.scope_ribbon>`, `<.notice>`, `<.empty_state>` ×4, `summary_alert/1` atom refactor; re-record `user-detail` baseline (COHR-01, COHR-02, COHR-03, COHR-04, COHR-05, COHR-06)
-- [ ] 156-05-PLAN.md — `AuditIndexLive` migration: import, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `audit-explorer` baseline (COHR-01, COHR-04, COHR-06)
+- [x] 156-03-PLAN.md — `UsersIndexLive` migration: import, `defp summary_chip` removal, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `global-user-index` + `org-scoped-admin` baselines (COHR-01, COHR-04, COHR-06)
+- [x] 156-04-PLAN.md — `UserShowLive` migration: import, header archetype sg-card→sg-page-header, `<.page_back>`, `<.scope_ribbon>`, `<.notice>`, `<.empty_state>` ×4, `summary_alert/1` atom refactor; re-record `user-detail` baseline (COHR-01, COHR-02, COHR-03, COHR-04, COHR-05, COHR-06)
+- [x] 156-05-PLAN.md — `AuditIndexLive` migration: import, `<.scope_ribbon>` after header, `<.applied_chip>`, `<.empty_state>`; re-record `audit-explorer` baseline (COHR-01, COHR-04, COHR-06)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -196,7 +196,7 @@ Plans:
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
-| 156. Adopt Shared Components on Baselined Screens | v1.34 | 2/6 | In Progress|  |
+| 156. Adopt Shared Components on Baselined Screens | v1.34 | 5/6 | In Progress|  |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
