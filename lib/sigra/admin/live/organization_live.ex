@@ -46,6 +46,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
     ~H"""
     <section class="sg-stack sg-stack--6">
+      <%!-- [1] open header — unchanged --%>
       <header class="sg-page-header">
         <p class="sg-page-kicker">Organization overview</p>
         <h1 class="sg-page-title">{@organization_name}</h1>
@@ -54,6 +55,20 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </p>
       </header>
 
+      <%!-- [2] LOUD ALARM — first child after header; only when data loaded (D-02, Landmine 3) --%>
+      <.notice
+        :if={not @loading}
+        tone={if @needs_review > 0, do: :risk, else: :ok}
+        role="status"
+      >
+        <%= if @needs_review > 0 do %>
+          {@needs_review} {if @needs_review == 1, do: "account needs", else: "accounts need"} review — <a href={users_path(@admin_scope) <> "?locked=true"}>Review now</a>
+        <% else %>
+          All clear
+        <% end %>
+      </.notice>
+
+      <%!-- [3] PRIMARY content — task_card grid --%>
       <div class="sg-grid sg-grid--2">
         <.task_card
           title="Support members"
@@ -69,65 +84,34 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         />
       </div>
 
-      <section class="sg-card sg-stack sg-stack--3">
-        <div class="sg-cluster sg-cluster--between">
-          <div class="sg-stack sg-stack--1">
-            <h2 class="sg-section-heading">Scoped attention</h2>
-            <p class="sg-section-copy">
-              Support and evidence stay bounded to {@organization_name}.
-            </p>
-          </div>
-          <span class="sg-status-pill" data-tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: "risk", else: "ok")}>
-            {if(Map.get(@summary_counts, :locked, 0) > 0, do: "Needs review", else: "Healthy")}
-          </span>
-        </div>
-
-        <div class="sg-list">
-          <.notice tone={if(Map.get(@summary_counts, :locked, 0) > 0, do: :risk, else: nil)}>
-            <p class="sg-meta-label">Risk queue</p>
-            <p class="sg-meta-value">
-              {locked_summary(Map.get(@summary_counts, :locked, 0))} in this organization
-            </p>
-          </.notice>
-          <div class="sg-list-row">
-            <p class="sg-meta-label">Evidence boundary</p>
-            <p class="sg-meta-value">Audit exports from this area stay organization-scoped.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="sg-card sg-posture-strip sg-stack sg-stack--3">
-        <a
-          href={users_path(@admin_scope) <> "?locked=true"}
-          class="sg-cluster sg-cluster--start sg-posture-strip__risk"
-        >
-          <span class="sg-status-pill" data-tone={if(@needs_review > 0, do: "risk", else: "ok")}>
-            {if(@needs_review > 0, do: "#{@needs_review} accounts need review", else: "All clear")}
-          </span>
-        </a>
-
+      <%!-- [4] demoted posture strip with skeleton shapes when loading --%>
+      <section class="sg-card sg-posture-strip sg-stack sg-stack--3" aria-busy={if @loading, do: "true"}>
         <div class="sg-cluster sg-cluster--3">
-          <.stat_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
-          <.stat_link
-            label="Confirmed"
-            value={Map.get(@summary_counts, :confirmed, 0)}
-            href={users_path(@admin_scope) <> "?confirmed=true"}
-          />
-          <.stat_link
-            label="MFA"
-            value={Map.get(@summary_counts, :mfa, 0)}
-            href={users_path(@admin_scope) <> "?mfa=true"}
-          />
-          <.stat_link
-            label="Passkeys"
-            value={Map.get(@summary_counts, :passkeys, 0)}
-            href={users_path(@admin_scope) <> "?passkeys=true"}
-          />
-          <.stat_link
-            label="Locked"
-            value={Map.get(@summary_counts, :locked, 0)}
-            href={users_path(@admin_scope) <> "?locked=true"}
-          />
+          <%= if @loading do %>
+            <.skeleton /><.skeleton /><.skeleton /><.skeleton /><.skeleton />
+          <% else %>
+            <.stat_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
+            <.stat_link
+              label="Confirmed"
+              value={Map.get(@summary_counts, :confirmed, 0)}
+              href={users_path(@admin_scope) <> "?confirmed=true"}
+            />
+            <.stat_link
+              label="MFA"
+              value={Map.get(@summary_counts, :mfa, 0)}
+              href={users_path(@admin_scope) <> "?mfa=true"}
+            />
+            <.stat_link
+              label="Passkeys"
+              value={Map.get(@summary_counts, :passkeys, 0)}
+              href={users_path(@admin_scope) <> "?passkeys=true"}
+            />
+            <.stat_link
+              label="Locked"
+              value={Map.get(@summary_counts, :locked, 0)}
+              href={users_path(@admin_scope) <> "?locked=true"}
+            />
+          <% end %>
         </div>
 
         <p class="sg-section-copy">
@@ -135,43 +119,52 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </p>
       </section>
 
+      <%!-- Org-only demoted scoped-detail tail (D-05) — BELOW the shared front-door archetype --%>
       <section class="sg-card sg-stack sg-stack--3">
         <h2 class="sg-section-heading">Members</h2>
-        <p :if={@members == []} class="sg-section-copy">
-          No members yet — invite teammates to populate this organization.
-        </p>
-        <div :if={@members != []} class="sg-list">
-          <div :for={member <- @members} class="sg-list-row">
-            <p class="sg-meta-value">{member.display_name}</p>
-            <div class="sg-cluster">
-              <span class="sg-status-pill" data-tone={role_tone(member.role)}>{role_label(member.role)}</span>
-              <span :if={member.locked?} class="sg-status-pill" data-tone="risk">Locked</span>
-              <span :if={member.confirmed?} class="sg-status-pill" data-tone="ok">Confirmed</span>
-              <span :if={not member.confirmed?} class="sg-status-pill" data-tone="warn">Unconfirmed</span>
+        <%= if @loading do %>
+          <.skeleton /><.skeleton /><.skeleton />
+        <% else %>
+          <p :if={@members == []} class="sg-section-copy">
+            No members yet — invite teammates to populate this organization.
+          </p>
+          <div :if={@members != []} class="sg-list">
+            <div :for={member <- @members} class="sg-list-row">
+              <p class="sg-meta-value">{member.display_name}</p>
+              <div class="sg-cluster">
+                <span class="sg-status-pill" data-tone={role_tone(member.role)}>{role_label(member.role)}</span>
+                <span :if={member.locked?} class="sg-status-pill" data-tone="risk">Locked</span>
+                <span :if={member.confirmed?} class="sg-status-pill" data-tone="ok">Confirmed</span>
+                <span :if={not member.confirmed?} class="sg-status-pill" data-tone="warn">Unconfirmed</span>
+              </div>
             </div>
           </div>
-        </div>
+        <% end %>
       </section>
 
       <section class="sg-card sg-stack sg-stack--3">
         <h2 class="sg-section-heading">Pending invitations</h2>
-        <p :if={@pending_invitations == []} class="sg-section-copy">
-          No pending invitations.
-        </p>
-        <div :if={@pending_invitations != []} class="sg-list">
-          <div
-            :for={invite <- @pending_invitations}
-            class="sg-list-row"
-            data-tone={if(invite.expired?, do: "risk", else: nil)}
-          >
-            <p class="sg-meta-value">{invite.email}</p>
-            <div class="sg-cluster">
-              <span class="sg-status-pill" data-tone={role_tone(invite.role)}>{role_label(invite.role)}</span>
-              <span :if={invite.expired?} class="sg-status-pill" data-tone="risk">Expired</span>
-              <span :if={not invite.expired?} class="sg-meta-label">Expires {format_date(invite.expires_at)}</span>
+        <%= if @loading do %>
+          <.skeleton /><.skeleton />
+        <% else %>
+          <p :if={@pending_invitations == []} class="sg-section-copy">
+            No pending invitations.
+          </p>
+          <div :if={@pending_invitations != []} class="sg-list">
+            <div
+              :for={invite <- @pending_invitations}
+              class="sg-list-row"
+              data-tone={if(invite.expired?, do: "risk", else: nil)}
+            >
+              <p class="sg-meta-value">{invite.email}</p>
+              <div class="sg-cluster">
+                <span class="sg-status-pill" data-tone={role_tone(invite.role)}>{role_label(invite.role)}</span>
+                <span :if={invite.expired?} class="sg-status-pill" data-tone="risk">Expired</span>
+                <span :if={not invite.expired?} class="sg-meta-label">Expires {format_date(invite.expires_at)}</span>
+              </div>
             </div>
           </div>
-        </div>
+        <% end %>
       </section>
     </section>
     """
@@ -210,9 +203,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   defp needs_review(counts) do
     Map.get(counts, :locked, 0) + Map.get(counts, :deleted, 0)
   end
-
-  defp locked_summary(1), do: "1 locked user"
-  defp locked_summary(count), do: "#{count} locked users"
 
   defp runtime_config! do
     otp_app =
