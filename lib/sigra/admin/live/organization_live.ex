@@ -13,18 +13,31 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    admin_scope = socket.assigns.admin_scope
     config = runtime_config!()
+    admin_scope = socket.assigns.admin_scope
     organization_name = organization_name(admin_scope)
 
-    {:ok,
-     socket
-     |> assign(:sigra_config, config)
-     |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
-     |> assign(:members, Detail.member_roster(config, admin_scope))
-     |> assign(:pending_invitations, Detail.pending_invitations(config, admin_scope))
-     |> assign(:organization_name, organization_name)
-     |> assign(:page_title, "#{organization_name} overview")}
+    socket =
+      socket
+      |> assign(:sigra_config, config)
+      |> assign(:organization_name, organization_name)
+      |> assign(:page_title, "#{organization_name} overview")
+
+    if connected?(socket) do
+      {:ok,
+       socket
+       |> assign(:loading, false)
+       |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
+       |> assign(:members, Detail.member_roster(config, admin_scope))
+       |> assign(:pending_invitations, Detail.pending_invitations(config, admin_scope))}
+    else
+      {:ok,
+       socket
+       |> assign(:loading, true)
+       |> assign(:summary_counts, %{})
+       |> assign(:members, [])
+       |> assign(:pending_invitations, [])}
+    end
   end
 
   @impl true
