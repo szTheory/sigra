@@ -212,7 +212,7 @@ Plans:
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
-| 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete   | 2026-06-04 |
+| 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
