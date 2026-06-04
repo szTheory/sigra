@@ -33,9 +33,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Audit Screens (AUDX)
 
-- [ ] **AUDX-01**: The audit explorer (`AuditIndexLive`) has a mobile card layout mirroring the users-index dual-layout pattern, usable on small screens.
-- [ ] **AUDX-02**: The audit explorer gains quick-filter chips for common cases (e.g. outcome=failure, impersonation) consistent with the users-index filter idiom.
-- [ ] **AUDX-03**: Per-user audit (`AuditUserLive`) is reconciled with the explorer — shared components, shared filter idiom, mobile layout, and a shared audit-row presentation also used by the user-detail "recent audit" block.
+- [x] **AUDX-01**: The audit explorer (`AuditIndexLive`) has a mobile card layout mirroring the users-index dual-layout pattern, usable on small screens.
+- [x] **AUDX-02**: The audit explorer gains quick-filter chips for common cases (e.g. outcome=failure, impersonation) consistent with the users-index filter idiom.
+- [x] **AUDX-03**: Per-user audit (`AuditUserLive`) is reconciled with the explorer — shared components, shared filter idiom, mobile layout, and a shared audit-row presentation also used by the user-detail "recent audit" block.
 
 ### Seed Expression (FIXT)
 
@@ -92,9 +92,9 @@ Explicitly excluded. Documented to prevent scope creep.
 | LAND-02 | Phase 157 | Complete |
 | LAND-03 | Phase 157 | Complete |
 | LAND-04 | Phase 157 | Complete |
-| AUDX-01 | Phase 158 | Pending |
-| AUDX-02 | Phase 158 | Pending |
-| AUDX-03 | Phase 158 | Pending |
+| AUDX-01 | Phase 158 | Complete |
+| AUDX-02 | Phase 158 | Complete |
+| AUDX-03 | Phase 158 | Complete |
 | FIXT-01 | Phase 159 | Pending |
 | FIXT-02 | Phase 159 | Pending |
 | FIXT-03 | Phase 159 | Pending |
