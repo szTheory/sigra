@@ -866,9 +866,11 @@
     box-shadow: var(--sg-elev-inset);
     cursor: pointer;
     font-size: var(--sg-text-sm);
-    transition: var(--sg-transition-tone), var(--sg-transition-press);
   }
   @media (hover: hover) and (pointer: fine) {
+    .sg-filter-chip {
+      transition: var(--sg-transition-tone), var(--sg-transition-press);
+    }
     .sg-filter-chip:hover {
       background: var(--sg-color-brand-soft);
       box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 24%, transparent);
