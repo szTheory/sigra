@@ -33,7 +33,7 @@ Archive:
 
 - [x] **Phase 154: Design Contract + sg-notice** — Job→Component mapping, 3 page archetypes, ARIA/motion specs; sg-notice CSS addition. No behavior change. (completed 2026-06-03)
 - [x] **Phase 155: Shared Component Foundation (KEYSTONE)** — Build `Sigra.Admin.Components`; 5×3 baselines green with zero re-records; admin-generated parity green. (completed 2026-06-04)
-- [ ] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately.
+- [x] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately. (completed 2026-06-04)
 - [ ] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects.
 - [ ] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects.
 - [ ] **Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment** — End-to-end journey seams fixed; seed gaps closed; motion usage audit.
@@ -116,7 +116,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 156-06-PLAN.md — Phase gate: full ExUnit + full Playwright checkpoint spec (4 slugs re-recorded, `impersonation-banner` byte-green) + parity smoke green (all COHR-01..06)
+- [x] 156-06-PLAN.md — Phase gate: full ExUnit + full Playwright checkpoint spec (4 slugs re-recorded, `impersonation-banner` byte-green) + parity smoke green (all COHR-01..06)
 
 **Cross-cutting constraints:**
 
@@ -196,7 +196,7 @@ Plans:
 | 153. Infrastructure Stability & CI Hardening | v1.33 | 1/1 | Complete | 2026-06-02 |
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
-| 156. Adopt Shared Components on Baselined Screens | v1.34 | 5/6 | In Progress|  |
+| 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete   | 2026-06-04 |
 | 157. Overview Landings (Highest Effort) | v1.34 | 0/TBD | Not started | - |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
