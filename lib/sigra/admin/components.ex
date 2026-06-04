@@ -408,8 +408,8 @@ defmodule Sigra.Admin.Components do
   defp format_date(%NaiveDateTime{} = ndt), do: Calendar.strftime(ndt, "%Y-%m-%d %H:%M")
   defp format_date(nil), do: "—"
 
-  defp format_date(value),
-    do:
-      raise ArgumentError,
-            "format_date/1 expected %DateTime{}, %NaiveDateTime{}, or nil, got: #{inspect(value)}"
+  defp format_date(value) do
+    raise ArgumentError,
+          "format_date/1 expected %DateTime{}, %NaiveDateTime{}, or nil, got: #{inspect(value)}"
+  end
 end
