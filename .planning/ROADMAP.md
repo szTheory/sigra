@@ -36,7 +36,7 @@ Archive:
 - [x] **Phase 156: Adopt Shared Components on Baselined Screens** — All 5 baselined screens import shared components; visual seam coherence reconciled; baselines re-recorded deliberately. (completed 2026-06-04)
 - [x] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects. (completed 2026-06-04)
 - [x] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects. (completed 2026-06-04)
-- [ ] **Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment** — End-to-end journey seams fixed; seed gaps closed; motion usage audit.
+- [x] **Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment** — End-to-end journey seams fixed; seed gaps closed; motion usage audit. (completed 2026-06-04)
 - [ ] **Phase 160: Regression Hardening + Baseline Ratification** — All baselines ratified; all gates closed; milestone proof bundle.
 
 ## Phase Details
@@ -213,7 +213,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 — verifies seeded demo DB states)*
 
-- [ ] 159-04-PLAN.md — CSS motion fix (sg-filter-chip pointer:fine guard) + admin-coherence-sweep.spec.ts filmstrip (GATE-03)
+- [x] 159-04-PLAN.md — CSS motion fix (sg-filter-chip pointer:fine guard) + admin-coherence-sweep.spec.ts filmstrip (GATE-03)
 
 **UI hint**: yes
 
@@ -245,5 +245,5 @@ Plans:
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete    | 2026-06-04 |
-| 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 3/4 | In Progress|  |
+| 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 4/4 | Complete   | 2026-06-04 |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
