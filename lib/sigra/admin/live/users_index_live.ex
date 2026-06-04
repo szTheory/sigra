@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Scope
   alias Sigra.Admin.Users.Hooks
   alias Sigra.Admin.Users.Query
@@ -72,7 +74,6 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       <header class="sg-page-header">
         <p class="sg-page-kicker">User operations</p>
         <h1 class="sg-page-title">{page_heading(@admin_scope)}</h1>
-        <p class="sg-page-copy">{scope_copy(@admin_scope)}</p>
 
         <dl class="sg-metric-grid">
           <.summary_chip label="Total" value={Map.get(@summary_counts, :total, 0)} />
@@ -83,6 +84,8 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <.summary_chip label="Deleted" value={Map.get(@summary_counts, :deleted, 0)} />
         </dl>
       </header>
+
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
         <div class="sg-search-row">
@@ -165,17 +168,11 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
       </form>
 
       <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
-        <span :for={chip <- applied_chips(@current_params)} class="sg-applied-chip">
-          <span>{chip.label}</span>
-          <a
-            class="sg-applied-chip__remove"
-            href={remove_chip_path(@admin_scope, @current_params, chip.key)}
-            aria-label={"Remove filter " <> chip.label}
-          >
-            <span aria-hidden="true">&times;</span>
-            <span class="sr-only">remove</span>
-          </a>
-        </span>
+        <.applied_chip
+          :for={chip <- applied_chips(@current_params)}
+          label={chip.label}
+          remove_href={remove_chip_path(@admin_scope, @current_params, chip.key)}
+        />
         <a href={index_path(@admin_scope)} class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
       </div>
 
@@ -282,24 +279,16 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         </article>
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
-        <p class="sg-empty-state__title">No users match this view</p>
+      <.empty_state :if={@rows == []} title="No users match this view">
         <%= if any_filter_active?(@current_params) do %>
-          <p class="sg-muted sg-text-sm">
-            No users match the active filters. Clear them to widen the result set.
-          </p>
+          <p class="sg-muted sg-text-sm">No users match the active filters. Clear them to widen the result set.</p>
           <div class="sg-cluster sg-cluster--center">
-            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">
-              Clear all filters
-            </a>
+            <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>
           </div>
         <% else %>
-          <p class="sg-muted sg-text-sm">
-            Users appear here as people register and sign in. Once accounts exist, you can search,
-            filter, and open any user.
-          </p>
+          <p class="sg-muted sg-text-sm">Users appear here as people register and sign in. Once accounts exist, you can search, filter, and open any user.</p>
         <% end %>
-      </div>
+      </.empty_state>
 
       <nav :if={@meta} class="sg-cluster sg-cluster--between">
         <a
@@ -327,18 +316,6 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         </a>
       </nav>
     </section>
-    """
-  end
-
-  attr :label, :string, required: true
-  attr :value, :integer, required: true
-
-  defp summary_chip(assigns) do
-    ~H"""
-    <div class="sg-metric">
-      <dt>{@label}</dt>
-      <dd>{@value}</dd>
-    </div>
     """
   end
 
