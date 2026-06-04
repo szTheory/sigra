@@ -177,9 +177,9 @@ Plans:
 
 **Wave 2** *(parallel — no file overlap; each touches one LiveView)*
 
-- [ ] 158-02-PLAN.md — `AuditIndexLive`: dual-layout (sg-show-desktop/mobile) + value-setting quick-filter chips + tone consolidation (AUDX-01, AUDX-02)
-- [ ] 158-03-PLAN.md — `AuditUserLive`: subject-scoped dual-layout + shared chrome (page_back/scope_ribbon/notice/empty_state/applied_chip) + chips + tone consolidation (AUDX-03)
-- [ ] 158-04-PLAN.md — `UserShowLive`: route "Recent Audit" through compact `audit_row/1`, retire old `audit_tone/1` (AUDX-03)
+- [x] 158-02-PLAN.md — `AuditIndexLive`: dual-layout (sg-show-desktop/mobile) + value-setting quick-filter chips + tone consolidation (AUDX-01, AUDX-02)
+- [x] 158-03-PLAN.md — `AuditUserLive`: subject-scoped dual-layout + shared chrome (page_back/scope_ribbon/notice/empty_state/applied_chip) + chips + tone consolidation (AUDX-03)
+- [x] 158-04-PLAN.md — `UserShowLive`: route "Recent Audit" through compact `audit_row/1`, retire old `audit_tone/1` (AUDX-03)
 
 **Wave 3** *(blocked on Wave 2 — markup must be final before baselines)*
 
@@ -229,6 +229,6 @@ Plans:
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
-| 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 1/5 | In Progress|  |
+| 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 4/5 | In Progress|  |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
