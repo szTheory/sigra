@@ -62,7 +62,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
               type="checkbox"
               name="outcome"
               value="failure"
-              checked={@current_params[:outcome] == "failure"}
+              checked={param_value(@current_params, "outcome") == "failure"}
               class="checkbox checkbox-sm"
             />
             <span>Failures</span>
@@ -72,7 +72,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
               type="checkbox"
               name="action_prefix"
               value="admin.impersonation"
-              checked={@current_params[:action_prefix] == "admin.impersonation"}
+              checked={param_value(@current_params, "action_prefix") == "admin.impersonation"}
               class="checkbox checkbox-sm"
             />
             <span>Impersonation</span>

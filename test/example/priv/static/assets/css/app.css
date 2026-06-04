@@ -880,6 +880,16 @@
     color: var(--sg-color-brand-strong);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 32%, transparent);
   }
+  /* Dark mode: the brand-strong foreground (#9a3412) is unreadable on the dark
+   * brand-soft tint (WCAG AA fail, ~1.88:1). Lighten the active-chip text to a
+   * brand orange that clears 4.5:1 — mirrors the tone-text lightening at L170.
+   * Scoped to the chip; the global --sg-color-brand-strong dark gap is tracked
+   * separately (it affects other brand-soft surfaces too). */
+  @media (prefers-color-scheme: dark) {
+    .sg-filter-chip:has(input:checked) {
+      color: #fdba74;
+    }
+  }
 
   /* Removable applied-filter pill (active filter summary above results) */
   .sg-applied-chip {
