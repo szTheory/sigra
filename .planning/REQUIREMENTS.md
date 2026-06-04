@@ -17,10 +17,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Needs-led Landing (LAND)
 
-- [ ] **LAND-01**: On both Overview landings, the needs-review alarm is the most prominent element above the task grid — loud when count > 0 (linking to the filtered risk view), "all clear" when 0.
-- [ ] **LAND-02**: Both Overviews lead with verb-first task cards; posture metrics are demoted to a secondary deep-link strip; the capability matrix is demoted to lowest priority.
-- [ ] **LAND-03**: The Global and Org overviews share a consistent visual rhythm and archetype (differing task counts are acceptable; layout and components are consistent).
-- [ ] **LAND-04**: Async overview data renders a loading skeleton instead of an empty flash or layout jump.
+- [x] **LAND-01**: On both Overview landings, the needs-review alarm is the most prominent element above the task grid — loud when count > 0 (linking to the filtered risk view), "all clear" when 0.
+- [x] **LAND-02**: Both Overviews lead with verb-first task cards; posture metrics are demoted to a secondary deep-link strip; the capability matrix is demoted to lowest priority.
+- [x] **LAND-03**: The Global and Org overviews share a consistent visual rhythm and archetype (differing task counts are acceptable; layout and components are consistent).
+- [x] **LAND-04**: Async overview data renders a loading skeleton instead of an empty flash or layout jump.
 
 ### Journey Coherence (COHR)
 
@@ -88,10 +88,10 @@ Explicitly excluded. Documented to prevent scope creep.
 | COHR-04 | Phase 156 | Complete |
 | COHR-05 | Phase 156 | Complete |
 | COHR-06 | Phase 156 | Complete |
-| LAND-01 | Phase 157 | Pending |
-| LAND-02 | Phase 157 | Pending |
-| LAND-03 | Phase 157 | Pending |
-| LAND-04 | Phase 157 | Pending |
+| LAND-01 | Phase 157 | Complete |
+| LAND-02 | Phase 157 | Complete |
+| LAND-03 | Phase 157 | Complete |
+| LAND-04 | Phase 157 | Complete |
 | AUDX-01 | Phase 158 | Pending |
 | AUDX-02 | Phase 158 | Pending |
 | AUDX-03 | Phase 158 | Pending |

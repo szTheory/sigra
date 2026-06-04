@@ -148,7 +148,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 157-03-PLAN.md — ExUnit coverage: `describe "Phase 157 Overview redesign"` in `admin_shell_test.exs` — two-mount proof (GET=skeleton, live/2=data) for both screens; archetype-order and alarm-position assertions (LAND-01, LAND-02, LAND-03, LAND-04)
+- [x] 157-03-PLAN.md — ExUnit coverage: `describe "Phase 157 Overview redesign"` in `admin_shell_test.exs` — two-mount proof (GET=skeleton, live/2=data) for both screens; archetype-order and alarm-position assertions (LAND-01, LAND-02, LAND-03, LAND-04)
 
 **Wave 3** *(blocked on Wave 2 — ExUnit must be green before baseline recording)*
 
@@ -212,7 +212,7 @@ Plans:
 | 154. Design Contract + sg-notice | v1.34 | 2/2 | Complete    | 2026-06-03 |
 | 155. Shared Component Foundation (KEYSTONE) | v1.34 | 3/3 | Complete    | 2026-06-04 |
 | 156. Adopt Shared Components on Baselined Screens | v1.34 | 6/6 | Complete    | 2026-06-04 |
-| 157. Overview Landings (Highest Effort) | v1.34 | 2/4 | In Progress|  |
+| 157. Overview Landings (Highest Effort) | v1.34 | 3/4 | In Progress|  |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 0/TBD | Not started | - |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 0/TBD | Not started | - |
 | 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
