@@ -134,6 +134,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
               <div class="sg-cluster">
                 <span class="sg-status-pill" data-tone={role_tone(member.role)}>{role_label(member.role)}</span>
                 <span :if={member.locked?} class="sg-status-pill" data-tone="risk">Locked</span>
+                <span :if={member.deletion_scheduled?} class="sg-status-pill" data-tone="warn">Deletion scheduled</span>
                 <span :if={member.confirmed?} class="sg-status-pill" data-tone="ok">Confirmed</span>
                 <span :if={not member.confirmed?} class="sg-status-pill" data-tone="warn">Unconfirmed</span>
               </div>
@@ -188,6 +189,8 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   end
 
   defp format_date(%DateTime{} = dt), do: Calendar.strftime(dt, "%Y-%m-%d")
+  defp format_date(%NaiveDateTime{} = ndt), do: Calendar.strftime(ndt, "%Y-%m-%d")
+  defp format_date(nil), do: "—"
   defp format_date(_), do: "—"
 
   defp organization_name(%Scope{organization: %{name: name}}) when is_binary(name), do: name
