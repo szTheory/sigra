@@ -62,10 +62,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     ~H"""
     <section :if={@detail} class="sg-stack sg-stack--6">
       <div class="sg-cluster sg-cluster--between">
-        <a class="sg-btn sg-btn--ghost sg-btn--sm" href={@return_to}>
-          <span aria-hidden="true">&larr;</span> Back to user
-        </a>
-        <span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>
+        <.page_back return_to={@return_to} label="Back to user" />
+        <.scope_ribbon copy={scope_copy(@admin_scope)} />
       </div>
 
       <header class="sg-page-header">
@@ -79,6 +77,35 @@ defmodule Sigra.Admin.Live.AuditUserLive do
           <code class="sg-code">{@detail.user.id}</code>
         </div>
       </header>
+
+      <div class="sg-cluster sg-cluster--2">
+        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
+          <input type="hidden" name="return_to" value={@return_to} />
+          <label class="sg-filter-chip">
+            <input
+              type="checkbox"
+              name="outcome"
+              value="failure"
+              checked={param_value(@current_params, "outcome") == "failure"}
+              class="checkbox checkbox-sm"
+            />
+            <span>Failures</span>
+          </label>
+        </form>
+        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
+          <input type="hidden" name="return_to" value={@return_to} />
+          <label class="sg-filter-chip">
+            <input
+              type="checkbox"
+              name="action_prefix"
+              value="admin.impersonation"
+              checked={param_value(@current_params, "action_prefix") == "admin.impersonation"}
+              class="checkbox checkbox-sm"
+            />
+            <span>Impersonation</span>
+          </label>
+        </form>
+      </div>
 
       <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
         <div class="sg-form-grid sg-form-grid--cols">
@@ -137,17 +164,11 @@ defmodule Sigra.Admin.Live.AuditUserLive do
       </form>
 
       <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
-        <span :for={chip <- applied_chips(@current_params)} class="sg-applied-chip">
-          <span>{chip.label}</span>
-          <a
-            class="sg-applied-chip__remove"
-            href={remove_chip_path(@admin_scope, @detail.user.id, @current_params, @return_to, chip.key)}
-            aria-label={"Remove filter " <> chip.label}
-          >
-            <span aria-hidden="true">&times;</span>
-            <span class="sr-only">remove</span>
-          </a>
-        </span>
+        <.applied_chip
+          :for={chip <- applied_chips(@current_params)}
+          label={chip.label}
+          remove_href={remove_chip_path(@admin_scope, @detail.user.id, @current_params, @return_to, chip.key)}
+        />
         <a href={clear_path(@admin_scope, @detail.user.id, @return_to)} class="sg-btn sg-btn--ghost sg-btn--sm">
           Clear all
         </a>
@@ -210,27 +231,17 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
-        <p class="sg-empty-state__title">No audit events match this user view</p>
-        <%= if any_filter_active?(@current_params) do %>
-          <p class="sg-muted sg-text-sm">
-            No audit events match the active filters for this user. Clear one or more to widen the timeline.
-          </p>
-          <div class="sg-cluster sg-cluster--center">
-            <a
-              href={clear_path(@admin_scope, @detail.user.id, @return_to)}
-              class="sg-btn sg-btn--secondary sg-btn--sm"
-            >
-              Clear all filters
-            </a>
-          </div>
-        <% else %>
-          <p class="sg-muted sg-text-sm">
-            This user's audit events appear here as activity is recorded. Adjust the filters above to
-            focus on a specific actor, outcome, or time range.
-          </p>
-        <% end %>
-      </div>
+      <.empty_state :if={@rows == []} title="No audit events for this user">
+        <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
+        <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--center">
+          <a
+            href={clear_path(@admin_scope, @detail.user.id, @return_to)}
+            class="sg-btn sg-btn--secondary sg-btn--sm"
+          >
+            Clear all filters
+          </a>
+        </div>
+      </.empty_state>
 
       <nav :if={@meta} class="sg-cluster sg-cluster--between">
         <a
