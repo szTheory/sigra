@@ -38,15 +38,17 @@ created: 2026-06-04
 
 All spacing uses the existing `--sg-space-*` token set. Tokens map to a 4px base (1rem = 16px assumed):
 
-| Token | CSS Var | Value | Usage in this phase |
-|-------|---------|-------|---------------------|
-| xs | `--sg-space-1` | 4px (0.25rem) | Intra-row text stack gap (`sg-stack--1`) |
-| sm | `--sg-space-2` | 8px (0.5rem) | Pill cluster gap (`sg-stack--2`, `sg-cluster--2`); filter chip padding-y |
-| md-sm | `--sg-space-3` | 12px (0.75rem) | Card/row vertical stack gap (`sg-stack--3`); filter chip padding-x |
-| md | `--sg-space-4` | 16px (1rem) | Default `sg-stack` gap; container padding-inline |
-| lg | `--sg-space-6` | 24px (1.5rem) | Admin content padding-block |
-| xl | `--sg-space-8` | 32px (2rem) | Major layout gap |
-| 2xl | `--sg-space-12` | 48px (3rem) | Page-level bottom padding |
+| Token | CSS Var | Value | Grid alignment | Usage in this phase |
+|-------|---------|-------|----------------|---------------------|
+| xs | `--sg-space-1` | 4px (0.25rem) | 1×4px | Intra-row text stack gap (`sg-stack--1`) |
+| sm | `--sg-space-2` | 8px (0.5rem) | 2×4px | Pill cluster gap (`sg-stack--2`, `sg-cluster--2`); filter chip padding-y |
+| md-sm | `--sg-space-3` | 12px (0.75rem) | 3×4px — pre-existing `app.css` token (lines 22–30), reused not introduced | Card/row vertical stack gap (`sg-stack--3`); filter chip padding-x |
+| md | `--sg-space-4` | 16px (1rem) | 4×4px | Default `sg-stack` gap; container padding-inline |
+| lg | `--sg-space-6` | 24px (1.5rem) | 6×4px | Admin content padding-block |
+| xl | `--sg-space-8` | 32px (2rem) | 8×4px | Major layout gap |
+| 2xl | `--sg-space-12` | 48px (3rem) | 12×4px | Page-level bottom padding |
+
+**Spacing scale note:** All declared tokens are multiples of 4px and are pre-existing tokens defined in `app.css` lines 22–30. This phase documents and reuses them — no new tokens are introduced (CONTEXT.md: "no new design tokens"). `--sg-space-3` (12px = 3×4px) sits between the 8px and 16px steps of the standard set and is intentionally present in the project's token scale; it is not an arbitrary off-grid value.
 
 **Touch target exception:** `sg-filter-chip` has `min-height: var(--sg-control-md)` = 2.75rem (44px). This meets WCAG 2.5.5 touch target minimum for mobile. No additional exception needed.
 
