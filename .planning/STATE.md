@@ -4,7 +4,7 @@ milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: executing
 last_updated: "2026-06-04T21:59:59.715Z"
-last_activity: 2026-06-04 -- Phase 159 execution started
+last_activity: 2026-06-04 -- Phase 159 executed (4/4 plans); verification gaps_found (5/6) — GATE-03 coherence-sweep spec blocker
 progress:
   total_phases: 7
   completed_phases: 5
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 159 (cross-journey-coherence-sweep-seed-enrichment) — EXECUTING
-Plan: 1 of 4
-Status: Executing Phase 159
-Last activity: 2026-06-04 -- Phase 159 execution started
+Phase: 159 (cross-journey-coherence-sweep-seed-enrichment) — GAPS_FOUND (awaiting gap closure)
+Plan: 4 of 4 executed
+Status: Phase 159 verification gaps_found (5/6 must-haves) — GATE-03 coherence-sweep spec blocker (CR-01)
+Last activity: 2026-06-04 -- Phase 159 executed; verification gaps_found
 
 Progress: [██████████] 100%
 
