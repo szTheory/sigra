@@ -39,11 +39,11 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Seed Expression (FIXT)
 
-- [ ] **FIXT-01**: Seed data includes an expired organization invitation so the "Expired" pill renders on the org overview.
-- [ ] **FIXT-02**: Seed data places a deletion-scheduled user in an organization so the "Deletion scheduled" member state renders in the roster.
-- [ ] **FIXT-03**: Seed data includes a passkey-only (no-MFA) user so that pill combination renders on the users index.
-- [ ] **FIXT-04**: Audit seed data includes richer event variety (e.g. password change, magic link, API token, a second OAuth provider) so the audit explorer is self-demonstrating.
-- [ ] **FIXT-05**: Seed enrichment stays deterministic (pinned reference timestamp) and idempotent (count-threshold / on-conflict guards updated in lockstep), test-env guarded, with no leakage into non-demo tests.
+- [x] **FIXT-01**: Seed data includes an expired organization invitation so the "Expired" pill renders on the org overview.
+- [x] **FIXT-02**: Seed data places a deletion-scheduled user in an organization so the "Deletion scheduled" member state renders in the roster.
+- [x] **FIXT-03**: Seed data includes a passkey-only (no-MFA) user so that pill combination renders on the users index.
+- [x] **FIXT-04**: Audit seed data includes richer event variety (e.g. password change, magic link, API token, a second OAuth provider) so the audit explorer is self-demonstrating.
+- [x] **FIXT-05**: Seed enrichment stays deterministic (pinned reference timestamp) and idempotent (count-threshold / on-conflict guards updated in lockstep), test-env guarded, with no leakage into non-demo tests.
 
 ### Verification Gates (GATE)
 
@@ -95,11 +95,11 @@ Explicitly excluded. Documented to prevent scope creep.
 | AUDX-01 | Phase 158 | Complete |
 | AUDX-02 | Phase 158 | Complete |
 | AUDX-03 | Phase 158 | Complete |
-| FIXT-01 | Phase 159 | Pending |
-| FIXT-02 | Phase 159 | Pending |
-| FIXT-03 | Phase 159 | Pending |
-| FIXT-04 | Phase 159 | Pending |
-| FIXT-05 | Phase 159 | Pending |
+| FIXT-01 | Phase 159 | Complete |
+| FIXT-02 | Phase 159 | Complete |
+| FIXT-03 | Phase 159 | Complete |
+| FIXT-04 | Phase 159 | Complete |
+| FIXT-05 | Phase 159 | Complete |
 | GATE-03 | Phase 159 | Complete |
 | GATE-01 | Phase 160 | Complete |
 | GATE-02 | Phase 160 | Complete |
@@ -111,4 +111,4 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ---
 *Requirements defined: 2026-06-03*
-*Last updated: 2026-06-03 — traceability populated by roadmapper (v1.34 ADMIN-UI-COHERENCE)*
+*Last updated: 2026-06-05 — FIXT-01..05 marked Complete (Phase 159 verified 6/6); GATE-01/02 marked Complete (Phase 160 ratification)*

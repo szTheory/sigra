@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
-status: executing
-last_updated: "2026-06-05T13:55:23.377Z"
+status: milestone-complete
+last_updated: "2026-06-05T10:00:00.000Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 29
-  completed_plans: 28
-  percent: 86
+  completed_plans: 29
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 160 (regression-hardening-baseline-ratification) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
+Phase: 160 (regression-hardening-baseline-ratification) — COMPLETE
+Plan: 4 of 4 — all plans executed
+Status: v1.34 ADMIN-UI-COHERENCE complete — milestone-complete
 Last activity: 2026-06-05
 
-Progress: [██████████] 97%
+Progress: [██████████] 100%
 
 ## Accumulated Context
 
@@ -47,6 +47,7 @@ Progress: [██████████] 97%
 - [Phase ?]: IN-03: needs_review/1 extracted to Sigra.Admin module; defp removed from both LiveViews
 - [Phase ?]: GATE-02: admin-generated lane green — no template drift; D-06/D-07/D-08 fixes do not affect priv/templates/sigra.install/ (admin LiveViews are library-owned, not generated)
 - [Phase 160-03]: impersonation-banner canary restored from git HEAD after bulk --update-snapshots=all; 7 dark baselines re-recorded; axe WCAG-AA 0 violations confirmed by gate exit 0; snapshot-allowlist reset to steady-state (D-03)
+- [Phase 160-04]: compare-mode 3-project Playwright exits 0, canary guard exits 0 (0 changed slugs), ExUnit 19/19 byte-goldens pass; admin-design-contract.md ratified; GATE-01/02 + FIXT-01..05 flipped to Complete; v1.34-MILESTONE-AUDIT.md created; milestone closed
 
 ### Pending Todos
 
@@ -64,8 +65,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-05T13:55:23.373Z
-Stopped at: Completed 160-03-PLAN.md (dark baseline re-records, D-03 allowlist reset)
+Last session: 2026-06-05T10:00:00.000Z
+Stopped at: Completed 160-04-PLAN.md — v1.34 ADMIN-UI-COHERENCE milestone closed
 Resume file: None
 
 ## Performance Metrics
@@ -77,3 +78,4 @@ Resume file: None
 | Phase 160 P01 | 15min | 3 tasks | 6 files |
 | Phase 160 P02 | 4min | 1 tasks | 0 files |
 | Phase 160 P03 | 15min | 2 tasks | 8 files |
+| Phase 160 P04 | 20min | 2 tasks | 6 files |

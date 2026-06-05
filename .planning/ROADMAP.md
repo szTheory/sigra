@@ -1,12 +1,12 @@
 # Roadmap: Sigra
 
 **Core Value**: Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status**: Active — v1.34 ADMIN-UI-COHERENCE in progress
+**Status**: Active — v1.34 ADMIN-UI-COHERENCE complete (2026-06-05)
 
 ## Milestones
 
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
-- 🚧 **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (in progress)
+- ✅ **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (completed 2026-06-05)
 
 ## Phases
 
@@ -27,7 +27,7 @@ Archive:
 
 </details>
 
-### 🚧 v1.34 ADMIN-UI-COHERENCE (In Progress)
+### ✅ v1.34 ADMIN-UI-COHERENCE (Completed 2026-06-05)
 
 **Milestone Goal:** Take the admin UI from "each screen polished individually" to one coherent, needs-led journey — principle of least surprise everywhere, "same job → same component."
 
@@ -37,7 +37,7 @@ Archive:
 - [x] **Phase 157: Overview Landings (Highest Effort)** — Both Overview screens fully needs-led; new `global-overview` + `org-overview` checkpoints ×3 projects. (completed 2026-06-04)
 - [x] **Phase 158: Audit Mobile + Per-User Audit (High Effort)** — `AuditIndexLive` mobile card layout; `AuditUserLive` reconciled; new `user-audit` checkpoint ×3 projects. (completed 2026-06-04)
 - [x] **Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment** — End-to-end journey seams fixed; seed gaps closed; motion usage audit. (verification passed 6/6 2026-06-05 — GATE-03 closed via gap-closure plan 159-05) (completed 2026-06-05)
-- [ ] **Phase 160: Regression Hardening + Baseline Ratification** — All baselines ratified; all gates closed; milestone proof bundle.
+- [x] **Phase 160: Regression Hardening + Baseline Ratification** — All baselines ratified; all gates closed; milestone proof bundle. (completed 2026-06-05)
 
 ## Phase Details
 
@@ -247,7 +247,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 160-04-PLAN.md — Design contract ratification + milestone proof bundle + GATE-01/GATE-02 gate flips (GATE-01, GATE-02)
+- [x] 160-04-PLAN.md — Design contract ratification + milestone proof bundle + GATE-01/GATE-02 gate flips (GATE-01, GATE-02)
 
 **UI hint**: yes
 
@@ -265,4 +265,4 @@ Plans:
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete    | 2026-06-04 |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 5/5 | Complete (6/6) | 2026-06-05 |
-| 160. Regression Hardening + Baseline Ratification | v1.34 | 3/4 | In Progress|  |
+| 160. Regression Hardening + Baseline Ratification | v1.34 | 4/4 | Complete    | 2026-06-05 |

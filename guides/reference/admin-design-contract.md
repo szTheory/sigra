@@ -25,10 +25,10 @@ All entries document **current reality** and **already-locked winners** only. No
 | Property | Value |
 |----------|-------|
 | **Job** | Numeric KPI without navigation. Read-only posture metric. No `<a>` element. Used when a count communicates state but does not link anywhere. |
-| **Winning markup / CSS** | Markup-consolidation target — no dedicated implementation yet. Closest analog is `sg-metric-link` markup without the `<a>` wrapper. Executable component form deferred to Phase 155 (COMP-01). Do NOT invent a `.sg-stat` CSS class. |
+| **Winning markup / CSS** | Markup-consolidation target — no dedicated implementation yet. Closest analog is `sg-metric-link` markup without the `<a>` wrapper. Implemented in Phase 155 (COMP-01). Do NOT invent a `.sg-stat` CSS class. |
 | **ARIA role(s)** | Static text — no interactive role. Semantics depend on container context (e.g. `<dl>` with `<dt>`/`<dd>` for labelled counts). |
 | **Motion spec** | Not animated. Static read-only display element. |
-| **When NOT to use** | Do NOT use `stat` when the KPI navigates to a filtered view — use `stat_link`. Do NOT invent `.sg-stat` before Phase 155. |
+| **When NOT to use** | Do NOT use `stat` when the KPI navigates to a filtered view — use `stat_link`. Do NOT invent `.sg-stat` CSS class (only the component abstraction is canonical). |
 
 ---
 
@@ -97,7 +97,7 @@ All entries document **current reality** and **already-locked winners** only. No
 | Property | Value |
 |----------|-------|
 | **Job** | Persistent in-body scope indicator showing whether the admin is viewing Global context or a specific organisation. Present on every list and leaf screen. |
-| **Winning markup / CSS** | Currently rendered as `<span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>` alongside `page_back` inside `<div class="sg-cluster sg-cluster--between">`. No dedicated `scope_ribbon` CSS class yet. Source: `user_show_live.ex:94`, `audit_user_live.ex:66`. Canonical component form deferred to Phase 155 (COMP-01); present on every list and leaf screen. Note: `sg-scope-pill` in the topbar (`sg-admin-topbar`) is a different element — it appears in the layout shell, not the page body. |
+| **Winning markup / CSS** | Currently rendered as `<span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>` alongside `page_back` inside `<div class="sg-cluster sg-cluster--between">`. No dedicated `scope_ribbon` CSS class yet. Source: `user_show_live.ex:94`, `audit_user_live.ex:66`. Implemented in Phase 155 (COMP-01); present on every list and leaf screen as of Phase 156. Note: `sg-scope-pill` in the topbar (`sg-admin-topbar`) is a different element — it appears in the layout shell, not the page body. |
 | **ARIA role(s)** | Decorative scope copy — no additional ARIA. Screen readers read the span text inline. |
 | **Motion spec** | Not animated. Static display. |
 | **When NOT to use** | Do NOT use `scope_ribbon` for primary navigation. Do NOT replace the topbar `sg-scope-pill` with `scope_ribbon` — they serve different contexts. |
@@ -170,6 +170,8 @@ The three archetypes define how components compose into full pages. All composit
 - The alarm is now `<.notice tone={:risk|:ok}>` as the first child after the header, with `role="status"` opt-in for the post-load dynamic count (Phase 157, LAND-01). The old `sg-status-pill` inside `sg-posture-strip__risk` anchor has been removed from both strips.
 - All `<.notice>` slot content is inline — no block `<p>` children (D-07). The `notice/1` component wraps the slot in `<p class="sg-text-sm">`, so any block child would produce invalid `<p><p>…</p></p>`.
 - Deferred data load via `connected?(socket)` gate: disconnected mount assigns `loading: true` + empty structs; connected mount runs queries inline and assigns `loading: false`. Containing `<section>` carries `aria-busy="true"` during load.
+- **role="status" adjudication (v1.34 close):** The alarm notice uses `role="status"` as an opt-in live-region attribute for the post-load dynamic count. This is intentional — `role="status"` is the correct ARIA live-region for polite post-load count updates on Overview screens (as opposed to `role="alert"` which is reserved for interrupting content). Resolved: no code change needed. Ratified at v1.34 close.
+- **Dark WCAG-AA resolution (v1.34 close):** The `--sg-color-brand-strong` token was lightened in the dark `:root` block in Phase 160 (D-06) to `#fdba74`, clearing WCAG-AA on dark brand-soft backgrounds. All dark baselines were re-recorded; axe confirms 0 violations.
 
 ---
 
@@ -247,3 +249,7 @@ The three archetypes define how components compose into full pages. All composit
 **Notes:**
 - The Identity card uses a boxed `sg-card` container (not the open `sg-page-header` pattern). This is the current state and is the COHR-02 reconciliation target for Phase 156. Open `sg-page-header` is the locked winner for list/detail headers.
 - The `notice` at line 131 currently uses `sg-list-row data-tone` — this is the Phase 156 (COHR-05) call-site migration target.
+
+---
+
+**Ratified:** v1.34 ADMIN-UI-COHERENCE (2026-06-05). This contract reflects the final Phases 154–160 implementation reality. All "same job → same component" principles are enforced by the committed Playwright baselines and the ExUnit component byte-golden suite.
