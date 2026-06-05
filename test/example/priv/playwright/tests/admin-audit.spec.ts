@@ -132,7 +132,7 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await expect(page).toHaveURL(new RegExp(`/admin/organizations/${orgSlug}/users/[^/]+/audit`));
     await expect(page.getByText(targetEmail).first()).toBeVisible();
 
-    await page.fill('input[name="action_prefix"]', 'session');
+    await page.getByRole('textbox', { name: 'Action prefix' }).fill('session');
     await page.getByRole('button', { name: 'Apply filters' }).click();
     await waitForLiveViewReady(page);
     await expect(page).toHaveURL(/action_prefix=session/);
