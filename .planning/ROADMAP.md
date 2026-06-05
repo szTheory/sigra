@@ -243,7 +243,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 160-03-PLAN.md — Dark baseline re-record for D-06 brand-strong fix + allowlist reset (GATE-01)
+- [x] 160-03-PLAN.md — Dark baseline re-record for D-06 brand-strong fix + allowlist reset (GATE-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -265,4 +265,4 @@ Plans:
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete    | 2026-06-04 |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 5/5 | Complete (6/6) | 2026-06-05 |
-| 160. Regression Hardening + Baseline Ratification | v1.34 | 2/4 | In Progress|  |
+| 160. Regression Hardening + Baseline Ratification | v1.34 | 3/4 | In Progress|  |

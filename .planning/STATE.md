@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: executing
-last_updated: "2026-06-05T13:49:57.324Z"
+last_updated: "2026-06-05T13:55:23.377Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 29
-  completed_plans: 27
+  completed_plans: 28
   percent: 86
 ---
 
@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 160 (regression-hardening-baseline-ratification) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-06-05
 
-Progress: [█████████░] 93%
+Progress: [██████████] 97%
 
 ## Accumulated Context
 
@@ -46,6 +46,7 @@ Progress: [█████████░] 93%
 - [Phase ?]: D-07: Fix the LINK not the count; OR-filter key so needs-review alarm reconciles without visible text change
 - [Phase ?]: IN-03: needs_review/1 extracted to Sigra.Admin module; defp removed from both LiveViews
 - [Phase ?]: GATE-02: admin-generated lane green — no template drift; D-06/D-07/D-08 fixes do not affect priv/templates/sigra.install/ (admin LiveViews are library-owned, not generated)
+- [Phase 160-03]: impersonation-banner canary restored from git HEAD after bulk --update-snapshots=all; 7 dark baselines re-recorded; axe WCAG-AA 0 violations confirmed by gate exit 0; snapshot-allowlist reset to steady-state (D-03)
 
 ### Pending Todos
 
@@ -63,8 +64,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-05T13:49:57.315Z
-Stopped at: Completed 160-01-PLAN.md (D-06/D-07/D-08)
+Last session: 2026-06-05T13:55:23.373Z
+Stopped at: Completed 160-03-PLAN.md (dark baseline re-records, D-03 allowlist reset)
 Resume file: None
 
 ## Performance Metrics
@@ -75,3 +76,4 @@ Resume file: None
 | Phase 157-overview-landings-highest-effort P04 | 9min | 2 tasks | 7 files |
 | Phase 160 P01 | 15min | 3 tasks | 6 files |
 | Phase 160 P02 | 4min | 1 tasks | 0 files |
+| Phase 160 P03 | 15min | 2 tasks | 8 files |
