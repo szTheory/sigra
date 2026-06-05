@@ -627,53 +627,59 @@ defmodule Example.Demo.Seeds do
     # only idempotent if the batch is all-or-nothing. A mid-batch crash would
     # otherwise leave <15 rows, so the next run/0 re-fires and accumulates
     # duplicates indefinitely.
-    Repo.transaction(fn ->
-      Enum.each(@audit_actions, fn {action, outcome, offset_days} ->
-        # Spread occurred_at deterministically over a past-30-days window.
-        # Use @seed_reference_ts as the fixed anchor — NOT DateTime.utc_now().
-        occurred_at =
-          DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
+    result =
+      Repo.transaction(fn ->
+        Enum.each(@audit_actions, fn {action, outcome, offset_days} ->
+          # Spread occurred_at deterministically over a past-30-days window.
+          # Use @seed_reference_ts as the fixed anchor — NOT DateTime.utc_now().
+          occurred_at =
+            DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
 
-        %AuditEvent{}
-        |> AuditEvent.changeset(
-          %{
-            action: action,
-            outcome: outcome,
-            occurred_at: occurred_at,
-            actor_id: admin.id,
-            actor_type: "user",
-            # TIE-TO-USER: effective_user_id (not just actor_id) so these rows
-            # surface on admin's detail page (lib/sigra/admin/audit/query.ex:32).
-            effective_user_id: admin.id
-          },
-          allow_reserved: true
-        )
-        |> Repo.insert!()
+          %AuditEvent{}
+          |> AuditEvent.changeset(
+            %{
+              action: action,
+              outcome: outcome,
+              occurred_at: occurred_at,
+              actor_id: admin.id,
+              actor_type: "user",
+              # TIE-TO-USER: effective_user_id (not just actor_id) so these rows
+              # surface on admin's detail page (lib/sigra/admin/audit/query.ex:32).
+              effective_user_id: admin.id
+            },
+            allow_reserved: true
+          )
+          |> Repo.insert!()
+        end)
+
+        Enum.each(@persona_audit_events, fn event ->
+          subject = Map.fetch!(users, event.email)
+          actor = Map.fetch!(users, event.actor)
+          organization_id = event.org && Map.fetch!(organizations, event.org).id
+          occurred_at = DateTime.add(@seed_reference_ts, -event.offset * 86_400, :second)
+
+          %AuditEvent{}
+          |> AuditEvent.changeset(
+            %{
+              action: event.action,
+              outcome: event.outcome,
+              occurred_at: occurred_at,
+              actor_id: actor.id,
+              actor_type: "user",
+              target_id: subject.id,
+              target_type: "user",
+              organization_id: organization_id,
+              effective_user_id: subject.id
+            },
+            allow_reserved: true
+          )
+          |> Repo.insert!()
+        end)
       end)
 
-      Enum.each(@persona_audit_events, fn event ->
-        subject = Map.fetch!(users, event.email)
-        actor = Map.fetch!(users, event.actor)
-        organization_id = event.org && Map.fetch!(organizations, event.org).id
-        occurred_at = DateTime.add(@seed_reference_ts, -event.offset * 86_400, :second)
-
-        %AuditEvent{}
-        |> AuditEvent.changeset(
-          %{
-            action: event.action,
-            outcome: event.outcome,
-            occurred_at: occurred_at,
-            actor_id: actor.id,
-            actor_type: "user",
-            target_id: subject.id,
-            target_type: "user",
-            organization_id: organization_id,
-            effective_user_id: subject.id
-          },
-          allow_reserved: true
-        )
-        |> Repo.insert!()
-      end)
-    end)
+    case result do
+      {:ok, _} -> :ok
+      {:error, reason} -> raise "insert_audit_batch/3 failed: #{inspect(reason)}"
+    end
   end
 end

@@ -57,7 +57,7 @@ defmodule Sigra.Admin.ComponentsTest do
 
   # scope_ribbon — original inline <span> from user_show_live.ex:94
   # Fixed assigns: copy: "Platform admin"
-  @scope_ribbon_golden "<span class=\"sg-muted sg-text-sm \">Platform admin</span>"
+  @scope_ribbon_golden "<span class=\"sg-scope-ribbon sg-muted sg-text-sm \">Platform admin</span>"
 
   # notice — TARGET sg-notice form (D-07/D-12), deliberately ≠ current sg-list-row.
   # The original call site (user_show_live.ex:131-133) uses sg-list-row with string tone.
