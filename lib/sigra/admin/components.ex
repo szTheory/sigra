@@ -245,8 +245,9 @@ defmodule Sigra.Admin.Components do
   @doc """
   Renders a persistent in-body scope indicator as a decorative inline span.
 
-  The copy is caller-supplied (e.g., the result of `scope_copy/1`). No dedicated
-  class is added; the component reuses `sg-muted sg-text-sm`.
+  The copy is caller-supplied (e.g., the result of `scope_copy/1`). The component
+  emits the stable hook class `sg-scope-ribbon` (consumed by Playwright, per D-07)
+  alongside the visual utility classes `sg-muted sg-text-sm`.
 
   ## Examples
 
@@ -258,7 +259,7 @@ defmodule Sigra.Admin.Components do
 
   def scope_ribbon(assigns) do
     ~H"""
-    <span class={["sg-muted sg-text-sm", @class]} {@rest}>{@copy}</span>
+    <span class={["sg-scope-ribbon sg-muted sg-text-sm", @class]} {@rest}>{@copy}</span>
     """
   end
 
