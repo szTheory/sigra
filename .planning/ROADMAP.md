@@ -233,7 +233,14 @@ Plans:
   3. `admin-checkpoints-{chromium,mobile,dark}` passes cleanly; `demo-showcase` is green; no unintended baseline re-records exist in the committed PNG set.
   4. The component governance contract (Job→Component mapping, archetype compositions, when-NOT-to-use entries, ARIA specs) is committed and referenced from the repo.
 
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+
+- [ ] 160-01-PLAN.md — Code folds: dark brand-strong CSS override + needs-review link fix + Sigra.Admin shared helper (GATE-01)
+- [ ] 160-02-PLAN.md — GATE-02 parity lane close: admin-generated smoke + installer template sync if needed (GATE-02)
+- [ ] 160-03-PLAN.md — Dark baseline re-record for D-06 brand-strong fix + allowlist reset (GATE-01)
+- [ ] 160-04-PLAN.md — Design contract ratification + milestone proof bundle + GATE-01/GATE-02 gate flips (GATE-01, GATE-02)
+
 **UI hint**: yes
 
 ## Progress
@@ -250,4 +257,4 @@ Plans:
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete    | 2026-06-04 |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 5/5 | Complete (6/6) | 2026-06-05 |
-| 160. Regression Hardening + Baseline Ratification | v1.34 | 0/TBD | Not started | - |
+| 160. Regression Hardening + Baseline Ratification | v1.34 | 0/4 | In progress | - |
