@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.33
-milestone_name: POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+milestone: v1.34
+milestone_name: ADMIN-UI-COHERENCE
 status: Awaiting next milestone
-last_updated: "2026-06-02T16:12:00.000Z"
-last_activity: 2026-06-02 — Admin-UI Pass 2 Stage 0 (design-system foundation) completed (quick 260602-gll)
+last_updated: "2026-06-05T16:10:27.361Z"
+last_activity: 2026-06-05 — Milestone v1.34 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
+  total_phases: 7
+  completed_phases: 7
+  total_plans: 29
+  completed_plans: 29
   percent: 100
 ---
 
@@ -25,49 +25,59 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.33 complete
+Phase: Milestone v1.34 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-06-02 — Milestone v1.33 completed and archived
+Last activity: 2026-06-05 — Milestone v1.34 completed and archived
 
-## Accumulating Context
+## Accumulated Context
 
-- `v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` roadmap created based on research in `.planning/research/SUMMARY.md`.
-- 4 phases (150–153), 10/10 requirements mapped.
-- Phase 153 closed the DB connection sandbox stability and CI leak-resolution blocker.
-- v1.33 phase artifacts are archived under `.planning/milestones/v1.33-phases/`.
+### Decisions
 
-## Quick Tasks Completed
+- Phase 155 is the keystone: zero Playwright baseline re-records is the non-negotiable proof of behavior-preserving extraction. A re-record in Phase 155 is a bug, not permission to proceed.
+- `admin-generated` installer-parity lane runs as a gate on every phase that touches admin HEEx — not a Phase 160 afterthought.
+- CSS boundary: all new styles inside `@layer sg-components { }`. No unlayered rules. One permitted addition: ~15 lines of `sg-notice` styles in Phase 154.
+- No new Hex deps, no Tailwind, no Alpine.js, no `assign_async/3` for this milestone.
+- GATE-01/02/03 are cross-cutting; each maps to one owning phase (GATE-01/02 ratified at 160; GATE-03 owned at 159).
+- [Phase ?]: global-overview and org-overview captured with sg-metric-link__value visibility wait before capture (D-06 perpetual-flake guard)
+- [Phase ?]: D-06: --sg-color-brand-strong override placed in unlayered dark :root block (token foundation, not component rule)
+- [Phase ?]: D-07: Fix the LINK not the count; OR-filter key so needs-review alarm reconciles without visible text change
+- [Phase ?]: IN-03: needs_review/1 extracted to Sigra.Admin module; defp removed from both LiveViews
+- [Phase ?]: GATE-02: admin-generated lane green — no template drift; D-06/D-07/D-08 fixes do not affect priv/templates/sigra.install/ (admin LiveViews are library-owned, not generated)
+- [Phase 160-03]: impersonation-banner canary restored from git HEAD after bulk --update-snapshots=all; 7 dark baselines re-recorded; axe WCAG-AA 0 violations confirmed by gate exit 0; snapshot-allowlist reset to steady-state (D-03)
+- [Phase 160-04]: compare-mode 3-project Playwright exits 0, canary guard exits 0 (0 changed slugs), ExUnit 19/19 byte-goldens pass; admin-design-contract.md ratified; GATE-01/02 + FIXT-01..05 flipped to Complete; v1.34-MILESTONE-AUDIT.md created; milestone closed
 
-| ID | Task | Date | Commit |
-|----|------|------|--------|
-| 260602-gll | Admin-UI Pass 2 Stage 0 — `sg-*` design-system foundation tightening (token cleanup, WCAG-1.4.1 status-redundancy glyph, motion tokens + `sg-skeleton`/`sg-toast`) | 2026-06-02 | ffb7eece |
-| 260602-gzc | Admin-UI Pass 2 Stage 1 — shell IA chrome (tenant-marked scope chip + `data-scope` org recolor, sidebar nouns Users/Audit, stale `admin_shell_test` fixed 2/6→6/6) | 2026-06-02 | 2ec5dd6c |
-| 260602-hao | Admin-UI Pass 2 Stage 2 — needs-led landing launcher (jobs-first cards, demoted posture strip + "N need review" risk line, evaluator capability surface) on both global + org landings | 2026-06-02 | 2e5999ee |
-| 260602-hhr | Admin-UI Pass 2 Stage 3 — users index craft ("Showing X–Y of Z" pagination, applied-filter chips + Clear all, teaching empty states, truncate+tooltip, richer mobile card) | 2026-06-02 | 628ec604 |
-| 260602-hoz | Admin-UI Pass 2 Stage 4 — summary-first user detail (security facts strip: MFA/passkeys/active/last-seen + foregrounded risk callout; session recency cue) | 2026-06-02 | 1b2e56cd |
-| 260602-hvx | Admin-UI Pass 2 Stage 5 — investigator-shaped audit (Outcome select, from/to date range, applied-filter chips, failure→risk outcome pill, teaching empty) on index + per-user | 2026-06-02 | 92abb7ce |
-| 260602-i3m | Admin-UI Pass 2 Stage 6 — org overview made real: new `Sigra.Admin.Organizations.Detail` (member roster + pending-invitations, org-scoped/fails-closed) + render + Morgan org-admin persona + multi-session seeds + 11 library tests | 2026-06-02 | c11a7848, 425ae1cf |
-| 260602-ikd | Admin-UI Pass 2 Stage 7 — Cmd-K command palette + copy-to-clipboard (plain-JS hooks injected into the hand-maintained example bundle, node-check + boot-smoke verified; hidden-until-hook progressive enhancement) + sg-cmdk overlay | 2026-06-02 | 87e9d375, ba364d71, 1452c5fd |
-| 260602-stage8 | Admin-UI Pass 2 Stage 8 — evidence/baselines/parity: caught+fixed 2 behavioral regressions (Cmd-K 'Jump to…' relabel, scope-chrome assertion), ruled out passkey CDP env failure, regenerated 19 baselines (axe green chromium/mobile/dark), all gates green (lib 55/55, example admin 33/33, parity OK, warnings-clean) | 2026-06-02 | 2581fa4a, 4baselines |
+### Pending Todos
 
-> Part of the ad-hoc "Admin UI Pass 2" effort (plan: `~/.claude/plans/summary-this-session-reshaped-fancy-curry.md`). Stages 1–8 follow.
+None yet.
+
+### Blockers/Concerns
+
+- None.
 
 ## Deferred Items
 
-- `Phoenix.Ecto.SQL.Sandbox` for Playwright/browser acceptance tests remains deferred unless the browser lane is intentionally redesigned around transactional external-client proof.
-- Broad Elixir/OTP/Phoenix CI matrix expansion remains deferred unless a specific compatibility regression requires it.
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
 
-## Operator Next Steps
+## Session Continuity
 
-- Start the next milestone with `$gsd-new-milestone`.
-
-### Blockers
-
-- None.
+Last session: 2026-06-05T10:00:00.000Z
+Stopped at: Completed 160-04-PLAN.md — v1.34 ADMIN-UI-COHERENCE milestone closed
+Resume file: None
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
-| Phase 153 P01 | 72 min | 3 tasks | 21 files |
+| Phase 157 P03 | 5m | 1 tasks | 1 files |
+| Phase 157-overview-landings-highest-effort P04 | 9min | 2 tasks | 7 files |
+| Phase 160 P01 | 15min | 3 tasks | 6 files |
+| Phase 160 P02 | 4min | 1 tasks | 0 files |
+| Phase 160 P03 | 15min | 2 tasks | 8 files |
+| Phase 160 P04 | 20min | 2 tasks | 6 files |
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

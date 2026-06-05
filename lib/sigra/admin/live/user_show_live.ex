@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Scope
   alias Sigra.Admin.Users.Actions
   alias Sigra.Admin.Users.Detail
@@ -88,13 +90,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
     ~H"""
     <section :if={@detail} class="sg-stack sg-stack--6">
       <div class="sg-cluster sg-cluster--between">
-        <a class="sg-btn sg-btn--ghost sg-btn--sm" href={@return_to}>
-          <span aria-hidden="true">&larr;</span> Back to users
-        </a>
-        <span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>
+        <.page_back label="Back to users" return_to={@return_to} />
+        <.scope_ribbon copy={scope_copy(@admin_scope)} />
       </div>
 
-      <section class="sg-card sg-stack sg-stack--3">
+      <header class="sg-page-header">
         <div class="sg-cluster sg-cluster--between sg-cluster--start sg-cluster--3">
           <div class="sg-stack sg-stack--1">
             <p class="sg-page-kicker">Identity &amp; Status</p>
@@ -128,10 +128,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </div>
         </dl>
 
-        <div :if={summary_alert(@detail)} class="sg-list-row" data-tone={elem(summary_alert(@detail), 0)}>
-          <p class="sg-text-sm">{elem(summary_alert(@detail), 1)}</p>
-        </div>
-      </section>
+        <.notice :if={summary_alert(@detail)} tone={elem(summary_alert(@detail), 0)}>
+          {elem(summary_alert(@detail), 1)}
+        </.notice>
+      </header>
 
       <section class="sg-card sg-stack sg-stack--3">
         <div class="sg-cluster sg-cluster--between">
@@ -185,10 +185,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </table>
         </div>
 
-        <div :if={@detail.sessions == []} class="sg-empty-state">
-          <p class="sg-empty-state__title">No active sessions.</p>
-          <p class="sg-muted sg-text-sm">This user does not have a currently visible session in this scope.</p>
-        </div>
+        <.empty_state :if={@detail.sessions == []} title="No active sessions."><p class="sg-muted sg-text-sm">This user does not have a currently visible session in this scope.</p></.empty_state>
       </section>
 
       <div class="sg-detail-grid">
@@ -219,10 +216,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </dd>
             </div>
           </dl>
-          <div :if={@detail.identities_available? and @detail.identities == []} class="sg-empty-state">
-            <p class="sg-empty-state__title">No linked identities</p>
-            <p class="sg-muted sg-text-sm">This user signs in without a visible external identity provider.</p>
-          </div>
+          <.empty_state :if={@detail.identities_available? and @detail.identities == []} title="No linked identities"><p class="sg-muted sg-text-sm">This user signs in without a visible external identity provider.</p></.empty_state>
         </section>
       </div>
 
@@ -249,10 +243,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </a>
             </div>
           </article>
-          <div :if={@detail.organizations == []} class="sg-empty-state">
-            <p class="sg-empty-state__title">No organization memberships</p>
-            <p class="sg-muted sg-text-sm">This account is not currently attached to a tenant.</p>
-          </div>
+          <.empty_state :if={@detail.organizations == []} title="No organization memberships"><p class="sg-muted sg-text-sm">This account is not currently attached to a tenant.</p></.empty_state>
         </div>
       </section>
 
@@ -271,18 +262,8 @@ defmodule Sigra.Admin.Live.UserShowLive do
         </div>
 
         <div class="sg-list">
-          <article :for={row <- @detail.recent_audit} class="sg-list-row sg-stack sg-stack--2" data-tone={audit_tone(row)}>
-            <div class="sg-cluster sg-cluster--2">
-              <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
-              <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
-            </div>
-            <span class="sg-muted sg-text-sm">{row.actor_summary}</span>
-            <span class="sg-muted sg-text-xs">{Calendar.strftime(row.inserted_at, "%Y-%m-%d %H:%M")}</span>
-          </article>
-          <div :if={@detail.recent_audit == []} class="sg-empty-state">
-            <p class="sg-empty-state__title">No recent audit activity</p>
-            <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
-          </div>
+          <.audit_row :for={row <- @detail.recent_audit} row={row} />
+          <.empty_state :if={@detail.recent_audit == []} title="No recent audit activity"><p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p></.empty_state>
         </div>
       </section>
 
@@ -445,12 +426,6 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
   defp mfa_enabled?(status), do: mfa_value(status) == "Enabled"
 
-  # Recent-audit tone: stay calm (neutral) on success, flag failures as risk.
-  defp audit_tone(%{outcome: "success"}), do: nil
-  defp audit_tone(%{outcome: nil}), do: nil
-  defp audit_tone(%{outcome: _}), do: "risk"
-  defp audit_tone(_), do: nil
-
   defp mfa_value(nil), do: "Not configured"
   # Sigra.MFA.status/3 returns %{enabled: true, ...} (atom key, no trailing ?)
   defp mfa_value(%{enabled: true}), do: "Enabled"
@@ -490,13 +465,13 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
     cond do
       identity.locked? ->
-        {"risk", "Locked — revoke active logins and unlock below."}
+        {:risk, "Locked — revoke active logins and unlock below."}
 
       not identity.confirmed? ->
-        {"warn", "Email unconfirmed — the user cannot complete sign-in."}
+        {:warn, "Email unconfirmed — the user cannot complete sign-in."}
 
       not mfa_enabled?(detail.security.mfa_status) ->
-        {"warn", "No MFA configured — recommend enabling a second factor."}
+        {:warn, "No MFA configured — recommend enabling a second factor."}
 
       true ->
         nil

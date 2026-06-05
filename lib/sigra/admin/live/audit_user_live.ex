@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Audit.Explorer
   alias Sigra.Admin.Scope
   alias Sigra.Admin.Users.Detail
@@ -60,10 +62,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     ~H"""
     <section :if={@detail} class="sg-stack sg-stack--6">
       <div class="sg-cluster sg-cluster--between">
-        <a class="sg-btn sg-btn--ghost sg-btn--sm" href={@return_to}>
-          <span aria-hidden="true">&larr;</span> Back to user
-        </a>
-        <span class="sg-muted sg-text-sm">{scope_copy(@admin_scope)}</span>
+        <.page_back return_to={@return_to} label="Back to user" />
+        <.scope_ribbon copy={scope_copy(@admin_scope)} />
       </div>
 
       <header class="sg-page-header">
@@ -77,6 +77,35 @@ defmodule Sigra.Admin.Live.AuditUserLive do
           <code class="sg-code">{@detail.user.id}</code>
         </div>
       </header>
+
+      <div class="sg-cluster sg-cluster--2">
+        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
+          <input type="hidden" name="return_to" value={@return_to} />
+          <label class="sg-filter-chip">
+            <input
+              type="checkbox"
+              name="outcome"
+              value="failure"
+              checked={param_value(@current_params, "outcome") == "failure"}
+              class="checkbox checkbox-sm"
+            />
+            <span>Failures</span>
+          </label>
+        </form>
+        <form method="get" action={index_path(@admin_scope, @detail.user.id)}>
+          <input type="hidden" name="return_to" value={@return_to} />
+          <label class="sg-filter-chip">
+            <input
+              type="checkbox"
+              name="action_prefix"
+              value="admin.impersonation"
+              checked={param_value(@current_params, "action_prefix") == "admin.impersonation"}
+              class="checkbox checkbox-sm"
+            />
+            <span>Impersonation</span>
+          </label>
+        </form>
+      </div>
 
       <form method="get" action={index_path(@admin_scope, @detail.user.id)} class="sg-filter-panel sg-stack">
         <div class="sg-form-grid sg-form-grid--cols">
@@ -135,23 +164,22 @@ defmodule Sigra.Admin.Live.AuditUserLive do
       </form>
 
       <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--start">
-        <span :for={chip <- applied_chips(@current_params)} class="sg-applied-chip">
-          <span>{chip.label}</span>
-          <a
-            class="sg-applied-chip__remove"
-            href={remove_chip_path(@admin_scope, @detail.user.id, @current_params, @return_to, chip.key)}
-            aria-label={"Remove filter " <> chip.label}
-          >
-            <span aria-hidden="true">&times;</span>
-            <span class="sr-only">remove</span>
-          </a>
-        </span>
+        <.applied_chip
+          :for={chip <- applied_chips(@current_params)}
+          label={chip.label}
+          remove_href={remove_chip_path(@admin_scope, @detail.user.id, @current_params, @return_to, chip.key)}
+        />
         <a href={clear_path(@admin_scope, @detail.user.id, @return_to)} class="sg-btn sg-btn--ghost sg-btn--sm">
           Clear all
         </a>
       </div>
 
-      <div :if={@rows != []} class="sg-table-panel">
+      <div
+        :if={@rows != []}
+        id="admin-audit-user-desktop-results"
+        data-testid="admin-audit-user-desktop-results"
+        class="sg-table-panel sg-show-desktop"
+      >
         <table class="sg-table">
           <thead>
             <tr>
@@ -162,7 +190,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
             </tr>
           </thead>
           <tbody>
-            <tr :for={row <- @rows} data-tone={row_tone(row)}>
+            <tr :for={row <- @rows} data-tone={audit_tone(row)}>
               <td class="sg-nowrap">
                 <div class="sg-stack sg-stack--1">
                   <span class="sg-text-sm">{format_timestamp(row.inserted_at)}</span>
@@ -172,7 +200,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
               <td>
                 <div class="sg-stack sg-stack--1">
                   <div class="sg-cluster sg-cluster--2">
-                    <span class="sg-status-pill" data-tone={row_tone(row)}>{row.action_label}</span>
+                    <span class="sg-status-pill" data-tone={audit_tone(row)}>{row.action_label}</span>
                     <span :if={row.action_badge} class="sg-status-pill" data-tone="info">{row.action_badge}</span>
                   </div>
                   <code class="sg-code">{row.action}</code>
@@ -186,35 +214,34 @@ defmodule Sigra.Admin.Live.AuditUserLive do
                 </div>
               </td>
               <td class="sg-show-desktop sg-text-sm">
-                <span :if={row_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
-                <span :if={row_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
+                <span :if={audit_tone(row) == "risk"} class="sg-status-pill" data-tone="risk">{row.outcome}</span>
+                <span :if={audit_tone(row) != "risk"} class="sg-muted">{row.outcome}</span>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div :if={@rows == []} class="sg-empty-state sg-stack sg-stack--3">
-        <p class="sg-empty-state__title">No audit events match this user view</p>
-        <%= if any_filter_active?(@current_params) do %>
-          <p class="sg-muted sg-text-sm">
-            No audit events match the active filters for this user. Clear one or more to widen the timeline.
-          </p>
-          <div class="sg-cluster sg-cluster--center">
-            <a
-              href={clear_path(@admin_scope, @detail.user.id, @return_to)}
-              class="sg-btn sg-btn--secondary sg-btn--sm"
-            >
-              Clear all filters
-            </a>
-          </div>
-        <% else %>
-          <p class="sg-muted sg-text-sm">
-            This user's audit events appear here as activity is recorded. Adjust the filters above to
-            focus on a specific actor, outcome, or time range.
-          </p>
-        <% end %>
+      <div
+        :if={@rows != []}
+        id="admin-audit-user-mobile-results"
+        data-testid="admin-audit-user-mobile-results"
+        class="sg-stack sg-stack--3 sg-show-mobile"
+      >
+        <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
+
+      <.empty_state :if={@rows == []} title="No audit events for this user">
+        <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
+        <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--center">
+          <a
+            href={clear_path(@admin_scope, @detail.user.id, @return_to)}
+            class="sg-btn sg-btn--secondary sg-btn--sm"
+          >
+            Clear all filters
+          </a>
+        </div>
+      </.empty_state>
 
       <nav :if={@meta} class="sg-cluster sg-cluster--between">
         <a
@@ -241,11 +268,11 @@ defmodule Sigra.Admin.Live.AuditUserLive do
     """
   end
 
-  # Severity tone mirrors the global explorer: failures risk, impersonation info,
-  # routine success neutral.
-  defp row_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
-  defp row_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
-  defp row_tone(_row), do: nil
+  # Severity tone: unified body matching audit_tone/1 in Sigra.Admin.Components (D-10).
+  # Failures surface as risk, impersonation as info, routine success stays neutral.
+  defp audit_tone(%{outcome: outcome}) when outcome not in ["success", nil, ""], do: "risk"
+  defp audit_tone(%{action_badge: badge}) when not is_nil(badge), do: "info"
+  defp audit_tone(_row), do: nil
 
   defp runtime_config! do
     otp_app =

@@ -24,6 +24,7 @@ defmodule Sigra.Admin.Organizations.Detail do
           role: atom() | String.t() | nil,
           confirmed?: boolean(),
           locked?: boolean(),
+          deletion_scheduled?: boolean(),
           display_name: String.t() | nil
         }
 
@@ -108,6 +109,7 @@ defmodule Sigra.Admin.Organizations.Detail do
       role: role,
       confirmed?: not is_nil(Map.get(user, :confirmed_at)),
       locked?: not is_nil(Map.get(user, :locked_at)),
+      deletion_scheduled?: not is_nil(Map.get(user, :deleted_at)),
       display_name: display_name
     }
   end
@@ -116,7 +118,8 @@ defmodule Sigra.Admin.Organizations.Detail do
     expires_at = Map.get(invitation, :expires_at)
 
     expired? =
-      not is_nil(expires_at) and DateTime.compare(expires_at, now) == :lt
+      not is_nil(expires_at) and
+        DateTime.compare(normalize_to_datetime(expires_at), now) == :lt
 
     %{
       email: Map.get(invitation, :email),
@@ -125,6 +128,12 @@ defmodule Sigra.Admin.Organizations.Detail do
       expired?: expired?
     }
   end
+
+  # Normalizes expires_at to a DateTime for comparison. Handles DateTime (pass-through),
+  # NaiveDateTime (converted to UTC), and nil (pass-through — guarded by caller).
+  defp normalize_to_datetime(%DateTime{} = dt), do: dt
+  defp normalize_to_datetime(%NaiveDateTime{} = ndt), do: DateTime.from_naive!(ndt, "Etc/UTC")
+  defp normalize_to_datetime(nil), do: nil
 
   defp member_sort_key(row) do
     label = (row.display_name || "") |> to_string() |> String.downcase()

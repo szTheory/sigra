@@ -4,12 +4,25 @@ This is the canonical evaluator-first path for Sigra. It is a runnable, source-b
 
 ## Run Demo Showcase
 
+Recommended path from the Sigra repo root:
+
 ```bash
-cd test/example
-mix setup && mix phx.server
+scripts/uat/up.sh
 ```
 
-Open [http://localhost:4000/demo/credentials](http://localhost:4000/demo/credentials). This `/demo/credentials` page is the first live stop and shows the current seeded personas, emails, and passwords.
+The script starts a project-scoped Postgres container on available localhost ports, creates and migrates the demo database, seeds the personas, and prints the exact Phoenix server command. Run that printed command in a second terminal, then open the printed `/demo/credentials` URL. That page is the first live stop and shows the current seeded personas, emails, and passwords.
+
+Need the URLs again later?
+
+```bash
+scripts/uat/status.sh
+```
+
+If you already have PostgreSQL available and want the plain Phoenix path, this also works from `test/example`:
+
+```bash
+mix setup && mix phx.server
+```
 
 If first-run verification fails after setup, run `mix sigra.doctor` and use the fixes in [Troubleshooting install](troubleshooting-install.md).
 

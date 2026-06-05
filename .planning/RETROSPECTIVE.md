@@ -25,6 +25,51 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.34 — ADMIN-UI-COHERENCE
+
+**Shipped:** 2026-06-05
+**Phases:** 7 (154, 155, 156, 157, 158, 159, 160) | **Plans:** 29
+
+### What was built
+
+- A committed admin design contract: canonical component jobs, 3 page archetypes, ARIA and motion rules, and when-not-to-use guidance.
+- `Sigra.Admin.Components`, migrated across the 6 existing admin screens so repeated jobs use shared components instead of private duplicate fragments.
+- Needs-led Global and Org Overview landings with a prominent risk alarm, verb-first task cards, demoted posture/capability sections, and skeleton loading states.
+- Reconciled audit surfaces: mobile card fallback, shared audit row, consistent quick filters, back navigation, scope ribbon, notices, and empty states.
+- Deterministic demo seed enrichment for expired invitations, deletion-scheduled users, passkey-only users, and richer audit-event variety.
+- Ratification through 3-project Playwright checkpoints, axe gates, snapshot canary guard, ExUnit component goldens, and admin-generated parity.
+
+### What worked
+
+- The Phase 155 keystone constraint was valuable: no Playwright re-records during component extraction kept behavior-preserving work honest before visual changes began.
+- The "same job -> same component" contract gave later phases a concrete standard instead of another subjective polish loop.
+- Adding new checkpoint slugs for under-covered surfaces (`global-overview`, `org-overview`, `user-audit`) improved proof quality without widening the whole behavior matrix.
+- The final Phase 160 ratification caught and closed real integration details: dark contrast, needs-review link/filter wiring, canary drift, and admin-generated parity.
+
+### What was inefficient
+
+- Some generated milestone summary extraction was too raw for closeout, producing placeholder "One-liner" rows that needed manual cleanup.
+- Several small issues surfaced late through review/audit rather than phase-local checks, especially count/filter reconciliation and date-format robustness.
+- The milestone deliberately reopened a polish exception after the post-1.0 maintenance posture, so future work should keep this exception bounded and evidence-led.
+
+### Patterns established
+
+- Future admin UI changes should route through `Sigra.Admin.Components` and the design contract before adding bespoke markup.
+- Screenshot baseline changes need deliberate slugs, wait guards, allowlist/reset discipline, and canary protection.
+- Demo seed data is part of evaluator UX; empty or impossible states weaken the generated admin surface even when core auth behavior is correct.
+
+### Key lessons
+
+- Component extraction should prove byte/structural equivalence before adoption, then baseline re-records should happen only after the shared calls are wired.
+- Needs-led IA is not just visual polish when the admin surface is an adoption/evaluator touchpoint; it belongs in roadmap only when tied to concrete adoption proof.
+- Milestone-close automation is useful for archival, but the shipped narrative still needs human curation.
+
+### Cost observations
+
+- Model mix: n/a.
+- Sessions: multiple phase execution sessions plus one closeout session.
+- Notable: most closeout work was documentation/archive hygiene; the expensive verification happened in Phase 160 through Playwright compare mode, canary guard, and parity proof.
+
 ## Milestone: v1.33 — POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
 **Shipped:** 2026-06-02

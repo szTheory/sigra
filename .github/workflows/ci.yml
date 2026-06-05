@@ -694,7 +694,7 @@ jobs:
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
     runs-on: ubuntu-latest
-    needs: release_ref_guard
+    needs: [release_ref_guard, library_tests]
     services:
       postgres:
         image: postgres:15
@@ -1087,6 +1087,32 @@ jobs:
       - name: Run Phase 34 mechanical UAT contracts
         run: scripts/ci/phase34-uat-contracts.sh
 
+  # Phase 158 (ADMIN-UI-COHERENCE): standing automated replacement for the manual
+  # "human eyeballs git status before re-recording admin baselines" review.
+  # Fast, dependency-free (pure git). In steady state the committed allowlist
+  # (test/example/priv/playwright/snapshot-allowlist) is empty, so ANY admin
+  # checkpoint baseline PNG change fails unless the PR declares the slug in-diff.
+  snapshot_drift_guard:
+    name: Snapshot drift guard (canary allowlist)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0
+      - name: Resolve base ref
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run snapshot canary / drift allowlist guard
+        run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
+
   ci-gate:
     name: ci-gate
     runs-on: ubuntu-latest
@@ -1099,6 +1125,7 @@ jobs:
       - example_http_smoke
       - example_playwright_smoke
       - generated_admin_playwright_smoke
+      - snapshot_drift_guard
     if: always()
     steps:
       - name: Verify required release CI lanes
@@ -1111,6 +1138,7 @@ jobs:
           EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
           EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
           GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
+          SNAPSHOT_DRIFT_GUARD: ${{ needs.snapshot_drift_guard.result }}
         run: |
           set -euo pipefail
           failed=0
@@ -1122,7 +1150,8 @@ jobs:
             UPGRADE_SMOKE \
             EXAMPLE_HTTP_SMOKE \
             EXAMPLE_PLAYWRIGHT_SMOKE \
-            GENERATED_ADMIN_PLAYWRIGHT_SMOKE
+            GENERATED_ADMIN_PLAYWRIGHT_SMOKE \
+            SNAPSHOT_DRIFT_GUARD
           do
             result="${!lane}"
             if [[ "$result" != "success" ]]; then

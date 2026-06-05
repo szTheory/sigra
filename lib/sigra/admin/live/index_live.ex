@@ -5,6 +5,8 @@ defmodule Sigra.Admin.Live.IndexLive do
 
   use Phoenix.LiveView
 
+  import Sigra.Admin.Components
+
   alias Sigra.Admin.Users.Query
 
   @impl true
@@ -12,16 +14,26 @@ defmodule Sigra.Admin.Live.IndexLive do
     config = runtime_config!()
     admin_scope = socket.assigns.admin_scope
 
-    {:ok,
-     socket
-     |> assign(:sigra_config, config)
-     |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
-     |> assign(:page_title, "Global overview")}
+    if connected?(socket) do
+      {:ok,
+       socket
+       |> assign(:sigra_config, config)
+       |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
+       |> assign(:loading, false)
+       |> assign(:page_title, "Global overview")}
+    else
+      {:ok,
+       socket
+       |> assign(:sigra_config, config)
+       |> assign(:summary_counts, %{})
+       |> assign(:loading, true)
+       |> assign(:page_title, "Global overview")}
+    end
   end
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :needs_review, needs_review(assigns.summary_counts))
+    assigns = assign(assigns, :needs_review, Sigra.Admin.needs_review(assigns.summary_counts))
 
     ~H"""
     <section class="sg-stack sg-stack--6">
@@ -33,6 +45,20 @@ defmodule Sigra.Admin.Live.IndexLive do
           Posture counts below stay live: every one is an entry point into a filtered list.
         </p>
       </header>
+
+      <%!-- Opt in to role=status because the alarm appears only after LiveView connects. --%>
+      <.notice
+        :if={not @loading}
+        tone={if @needs_review > 0, do: :risk, else: :ok}
+        role="status"
+      >
+        <%= if @needs_review > 0 do %>
+          {@needs_review} accounts need review —
+          <a href="/admin/users?needs_review=true">Review now</a>
+        <% else %>
+          All clear
+        <% end %>
+      </.notice>
 
       <div class="sg-grid sg-grid--3">
         <.task_card
@@ -50,45 +76,51 @@ defmodule Sigra.Admin.Live.IndexLive do
         <.task_card
           title="Review risky accounts"
           body="Jump straight to locked or deletion-scheduled accounts before they surprise support."
-          href="/admin/users?locked=true"
+          href="/admin/users?needs_review=true"
           action="Review locked"
         />
       </div>
 
-      <section class="sg-card sg-posture-strip sg-stack sg-stack--3">
-        <a href="/admin/users?locked=true" class="sg-cluster sg-cluster--start sg-posture-strip__risk">
-          <span class="sg-status-pill" data-tone={if(@needs_review > 0, do: "risk", else: "ok")}>
-            {if(@needs_review > 0, do: "#{@needs_review} accounts need review", else: "All clear")}
-          </span>
-        </a>
-
+      <section
+        class="sg-card sg-posture-strip sg-stack sg-stack--3"
+        aria-busy={if @loading, do: "true"}
+      >
         <div class="sg-cluster sg-cluster--3">
-          <.metric_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
-          <.metric_link
-            label="Confirmed"
-            value={Map.get(@summary_counts, :confirmed, 0)}
-            href="/admin/users?confirmed=true"
-          />
-          <.metric_link
-            label="MFA"
-            value={Map.get(@summary_counts, :mfa, 0)}
-            href="/admin/users?mfa=true"
-          />
-          <.metric_link
-            label="Passkeys"
-            value={Map.get(@summary_counts, :passkeys, 0)}
-            href="/admin/users?passkeys=true"
-          />
-          <.metric_link
-            label="Locked"
-            value={Map.get(@summary_counts, :locked, 0)}
-            href="/admin/users?locked=true"
-          />
-          <.metric_link
-            label="Deleted"
-            value={Map.get(@summary_counts, :deleted, 0)}
-            href="/admin/users?deleted=true"
-          />
+          <%= if @loading do %>
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+            <.skeleton class="sg-metric-link" />
+          <% else %>
+            <.stat_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
+            <.stat_link
+              label="Confirmed"
+              value={Map.get(@summary_counts, :confirmed, 0)}
+              href="/admin/users?confirmed=true"
+            />
+            <.stat_link
+              label="MFA"
+              value={Map.get(@summary_counts, :mfa, 0)}
+              href="/admin/users?mfa=true"
+            />
+            <.stat_link
+              label="Passkeys"
+              value={Map.get(@summary_counts, :passkeys, 0)}
+              href="/admin/users?passkeys=true"
+            />
+            <.stat_link
+              label="Locked"
+              value={Map.get(@summary_counts, :locked, 0)}
+              href="/admin/users?needs_review=true"
+            />
+            <.stat_link
+              label="Deleted"
+              value={Map.get(@summary_counts, :deleted, 0)}
+              href="/admin/users?deleted=true"
+            />
+          <% end %>
         </div>
       </section>
 
@@ -112,38 +144,6 @@ defmodule Sigra.Admin.Live.IndexLive do
   end
 
   attr :label, :string, required: true
-  attr :value, :integer, required: true
-  attr :href, :string, required: true
-
-  defp metric_link(assigns) do
-    ~H"""
-    <a href={@href} class="sg-metric-link">
-      <span class="sg-metric-link__label">{@label}</span>
-      <span class="sg-metric-link__value">{@value}</span>
-    </a>
-    """
-  end
-
-  attr :title, :string, required: true
-  attr :body, :string, required: true
-  attr :href, :string, required: true
-  attr :action, :string, required: true
-
-  defp task_card(assigns) do
-    ~H"""
-    <article class="sg-card sg-card-hover sg-stack sg-stack--3">
-      <div class="sg-stack sg-stack--2">
-        <h2 class="sg-section-heading">{@title}</h2>
-        <p class="sg-section-copy">{@body}</p>
-      </div>
-      <div class="sg-cluster">
-        <a href={@href} class="sg-btn sg-btn--primary">{@action}</a>
-      </div>
-    </article>
-    """
-  end
-
-  attr :label, :string, required: true
   attr :desc, :string, required: true
 
   defp capability(assigns) do
@@ -155,22 +155,7 @@ defmodule Sigra.Admin.Live.IndexLive do
     """
   end
 
-  defp needs_review(counts) do
-    Map.get(counts, :locked, 0) + Map.get(counts, :deleted, 0)
-  end
-
   defp runtime_config! do
-    otp_app =
-      Application.get_env(:sigra, :otp_app) ||
-        raise ArgumentError, "Sigra admin overview requires Application.get_env(:sigra, :otp_app)"
-
-    host_config =
-      Application.get_env(otp_app, :sigra_config) ||
-        raise ArgumentError,
-              "Sigra admin overview requires Application.get_env(#{inspect(otp_app)}, :sigra_config)"
-
-    host_config
-    |> Keyword.put_new(:otp_app, otp_app)
-    |> Sigra.Config.new!()
+    Sigra.Admin.runtime_config!("Sigra admin overview")
   end
 end

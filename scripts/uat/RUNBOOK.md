@@ -31,13 +31,14 @@ This will:
 1. Start Postgres in Docker under a project-scoped Compose name
 2. Fetch deps in `test/example/`
 3. Create, migrate, and seed the `example_dev` database
-4. Print the exact Postgres port, app port, server command, and entry-point URLs
+4. Write the current runtime env to `tmp/uat.env`
+5. Print the exact Postgres port, app port, server command, and entry-point URLs
 
 Then in a second terminal:
 
 ```bash
 cd test/example
-PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> iex -S mix phx.server
+PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> SIGRA_EXAMPLE_URL=<printed-app-url> iex -S mix phx.server
 ```
 
 The app URL is printed by `scripts/uat/up.sh`.
@@ -49,6 +50,8 @@ The local Swoosh mailbox preview is at `/dev/mailbox` on that app URL — open t
 When you're done with the UAT session:
 
 ```bash
+scripts/uat/status.sh         # reprint URLs and the server command
+scripts/uat/up.sh --print-env # print export lines for ad-hoc commands
 scripts/uat/down.sh           # stop containers for this Compose project, keep DB
 scripts/uat/down.sh --purge   # also wipe this project's DB volume
 ```
@@ -57,6 +60,18 @@ By default, the UAT stack does not reserve host port `5432`, so Homebrew
 Postgres, `act`, and other Docker projects can keep running. To force a stable
 Postgres port for debugging, run `SIGRA_UAT_PG_PORT=5432 scripts/uat/up.sh`;
 if that fixed port is occupied, Docker will report the bind conflict.
+
+The helper also avoids fixed Phoenix port `4000` by default. Use
+`SIGRA_EXAMPLE_PORT=4000 scripts/uat/up.sh` only when you need a stable browser
+origin, such as an external OAuth callback. If multiple demo projects are
+running, leave both ports dynamic and use `scripts/uat/status.sh` to recover the
+current URLs.
+
+Each checkout gets a Compose project name based on user, branch, and checkout
+path. That keeps containers, networks, and volumes separate when you run several
+Sigra clones or sibling OSS libraries at the same time. A reverse proxy such as
+Traefik or Caddy is intentionally not required for this path; add one only when
+you need stable local hostnames or HTTPS across several containerized UIs.
 
 ---
 

@@ -167,6 +167,10 @@
     --sg-color-line: rgba(255, 255, 255, 0.1);
     --sg-color-line-strong: rgba(255, 255, 255, 0.16);
     --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
+    /* Dark-mode brand-strong: lightened to clear WCAG AA on dark brand-soft tint
+     * (~1.88:1 → >=4.5:1). Supersedes the scoped chip fix at the .sg-filter-chip
+     * block below. */
+    --sg-color-brand-strong: #fdba74;
     /* Lighten tone text + backgrounds for dark mode so pills/rows keep WCAG AA
      * contrast (dark-mode tinted backgrounds need light tone text). */
     --sg-color-ok: #5dd1a0;
@@ -866,9 +870,11 @@
     box-shadow: var(--sg-elev-inset);
     cursor: pointer;
     font-size: var(--sg-text-sm);
-    transition: var(--sg-transition-tone), var(--sg-transition-press);
   }
   @media (hover: hover) and (pointer: fine) {
+    .sg-filter-chip {
+      transition: var(--sg-transition-tone), var(--sg-transition-press);
+    }
     .sg-filter-chip:hover {
       background: var(--sg-color-brand-soft);
       box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 24%, transparent);
@@ -879,6 +885,14 @@
     background: var(--sg-color-brand-soft);
     color: var(--sg-color-brand-strong);
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 32%, transparent);
+  }
+  /* Dark mode: the brand-strong foreground (#9a3412) is unreadable on the dark
+   * brand-soft tint (WCAG AA fail, ~1.88:1). The global --sg-color-brand-strong
+   * override in the dark :root block (above) now handles all brand-soft surfaces,
+   * including this chip. Scoped override removed — no duplication. */
+  @media (prefers-color-scheme: dark) {
+    .sg-filter-chip:has(input:checked) {
+    }
   }
 
   /* Removable applied-filter pill (active filter summary above results) */
@@ -949,21 +963,32 @@
     padding: var(--sg-space-4);
     transition: var(--sg-transition-tone);
   }
-  .sg-list-row[data-tone="ok"] {
+  .sg-list-row[data-tone="ok"],  .sg-notice[data-tone="ok"] {
     background: color-mix(in oklab, var(--sg-color-ok-soft) 62%, var(--sg-color-panel));
     box-shadow: inset 3px 0 0 0 var(--sg-color-ok), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-ok) 18%, transparent);
   }
-  .sg-list-row[data-tone="warn"] {
+  .sg-list-row[data-tone="warn"], .sg-notice[data-tone="warn"] {
     background: color-mix(in oklab, var(--sg-color-warn-soft) 62%, var(--sg-color-panel));
     box-shadow: inset 3px 0 0 0 var(--sg-color-warn), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-warn) 20%, transparent);
   }
-  .sg-list-row[data-tone="risk"] {
+  .sg-list-row[data-tone="risk"], .sg-notice[data-tone="risk"] {
     background: color-mix(in oklab, var(--sg-color-risk-soft) 62%, var(--sg-color-panel));
     box-shadow: inset 3px 0 0 0 var(--sg-color-risk), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-risk) 20%, transparent);
   }
-  .sg-list-row[data-tone="info"] {
+  .sg-list-row[data-tone="info"], .sg-notice[data-tone="info"] {
     background: color-mix(in oklab, var(--sg-color-info-soft) 62%, var(--sg-color-panel));
     box-shadow: inset 3px 0 0 0 var(--sg-color-info), inset 0 0 0 1px color-mix(in oklab, var(--sg-color-info) 20%, transparent);
+  }
+
+  /* NOTICE — behavior-preserving consolidation of sg-list-row[data-tone] alert pattern.
+   * Phase 156 (COHR-05) migrates call sites to <.notice>. Source: Phase 154 COMP-04.
+   * D-08: tone selectors merged above into shared-selector block (156-01). */
+  .sg-notice {
+    border-radius: var(--sg-radius-sm);
+    background: var(--sg-color-panel-alt);
+    box-shadow: var(--sg-elev-inset);
+    padding: var(--sg-space-4);
+    transition: var(--sg-transition-tone);
   }
 
   .sg-kv {

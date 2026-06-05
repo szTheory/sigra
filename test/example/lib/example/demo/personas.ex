@@ -1,6 +1,6 @@
 defmodule Example.Demo.Personas do
   @moduledoc """
-  Single source of truth for the seven demo personas used by `Example.Demo.Seeds`.
+  Single source of truth for the nine demo personas used by `Example.Demo.Seeds`.
 
   This is a pure-data module: no DB calls, no dependencies on other Example modules.
   Consumed both by the seed orchestrator (plan 03) and the `/demo/credentials` LiveView
@@ -18,7 +18,7 @@ defmodule Example.Demo.Personas do
   @demo_totp_secret :crypto.hash(:sha256, "sigra-demo-admin-totp-v1") |> binary_part(0, 20)
 
   @doc """
-  Returns the list of all seven demo personas as maps.
+  Returns the list of all nine demo personas as maps.
 
   Each persona map contains:
   - `:email` — fixed `@demo.sigra.dev` address
@@ -134,6 +134,34 @@ defmodule Example.Demo.Personas do
         org_owner: nil,
         org_admin: :acme,
         org_member: nil
+      },
+      %{
+        email: "pat@demo.sigra.dev",
+        display_name: "Pat",
+        password: "PatDemoPass1!Passkey",
+        confirmed: true,
+        totp: false,
+        passkey: true,
+        locked: false,
+        scheduled_deletion: false,
+        identity_github: false,
+        org_owner: nil,
+        org_admin: nil,
+        org_member: nil
+      },
+      %{
+        email: "grace@demo.sigra.dev",
+        display_name: "Grace",
+        password: "GraceDemoPass1!Acme",
+        confirmed: true,
+        totp: false,
+        passkey: false,
+        locked: false,
+        scheduled_deletion: true,
+        identity_github: false,
+        org_owner: nil,
+        org_admin: nil,
+        org_member: :acme
       }
     ]
   end
@@ -141,7 +169,7 @@ defmodule Example.Demo.Personas do
   @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
-  '@') for all seven @demo.sigra.dev personas.
+  '@') for all nine @demo.sigra.dev personas.
   """
   @spec feature_map() :: %{String.t() => String.t()}
   def feature_map do
@@ -152,7 +180,9 @@ defmodule Example.Demo.Personas do
       "carol" => "OAuth identity — GitHub-linked login (carol@demo.sigra.dev)",
       "dave"  => "Locked account — failed login attempts exhausted, unconfirmed",
       "frank" => "Scheduled deletion — account marked for deletion",
-      "morgan" => "Org admin — Acme Corp admin, non-platform, org-scoped console"
+      "morgan" => "Org admin — Acme Corp admin, non-platform, org-scoped console",
+      "pat"   => "Passkey-only user — no MFA, passkey display row, demonstrates Passkeys pill on users index",
+      "grace" => "Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill"
     }
   end
 

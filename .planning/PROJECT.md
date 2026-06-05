@@ -32,7 +32,28 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
-## Latest Shipped Milestone: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+## Latest Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
+
+**Shipped:** 2026-06-05 (Phases 154-160) · 25/25 requirements satisfied · milestone audit passed
+
+Sigra's generated admin UI is now a coherent, needs-led operator journey instead of a set of individually polished screens. The milestone established a shared `Sigra.Admin.Components` contract, migrated all 6 admin screens to same-job -> same-component conventions, hardened the Overview and Audit evaluator paths, enriched deterministic demo data, and ratified the surface through Playwright/axe/admin-generated parity gates.
+
+Archives:
+- [`.planning/milestones/v1.34-ROADMAP.md`](milestones/v1.34-ROADMAP.md)
+- [`.planning/milestones/v1.34-REQUIREMENTS.md`](milestones/v1.34-REQUIREMENTS.md)
+- [`.planning/milestones/v1.34-MILESTONE-AUDIT.md`](milestones/v1.34-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.34-phases/`](milestones/v1.34-phases/)
+
+### Just shipped: v1.34 ADMIN-UI-COHERENCE
+
+- published the admin design contract and canonical component jobs/archetypes
+- built `Sigra.Admin.Components` and migrated all 6 admin screens away from private duplicate UI fragments
+- reworked Global/Org Overview into needs-led front doors with skeleton loading, a single prominent risk alarm, verb-first task cards, and demoted posture/capability strips
+- reconciled audit surfaces with mobile layouts, shared audit rows, consistent filters, and new `user-audit` checkpoint coverage
+- enriched deterministic demo seeds so previously empty/risk states render for evaluators
+- ratified the milestone with 3-project Playwright compare mode, dark WCAG-AA baseline updates, snapshot canary guard, ExUnit component goldens, and admin-generated parity
+
+## Previous Shipped Milestone: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
 **Shipped:** 2026-06-02 (Phases 150–153) · 10/10 requirements satisfied · milestone audit passed
 
@@ -114,15 +135,16 @@ Archives:
 
 ## Current State
 
-`v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` is shipped and archived. Sigra's current posture is maintenance-first: preserve the released authentication surface, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
+`v1.34 ADMIN-UI-COHERENCE` is shipped and archived. Sigra's current posture remains maintenance-first, with a stronger evaluator/admin experience: preserve the released authentication surface, keep the shared admin-component contract coherent, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 153.
+Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 160.
 
 ## Next Milestone Goals
 
 - Treat regressions, security/trust findings, release failures, dependency drift, and adopter-reported friction as the default highest-value work.
 - Keep strategic bets gated by the v1.33 decision: enterprise features such as SCIM, `sigra_lockspire`, and Threadline correlation need explicit demand before implementation.
 - Resolve the non-blocking `Chimeway.Repo` missing database configuration startup noise before using local full-suite `mix test` output as a clean release signal.
+- Preserve the v1.34 admin design contract: future generated-admin work should use `Sigra.Admin.Components` and add/re-record Playwright checkpoints deliberately.
 - Avoid broad feature expansion, generated-host UI redesign, hosted-control-plane behavior, or generic authorization/compliance work unless the next milestone explicitly promotes it.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
@@ -760,3 +782,12 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-06-01 — Phase 150 (Issue Triage & Bugfix Cadence) shipped. Requirements MAINT-01..MAINT-03 validated.*
 *Last updated: 2026-06-01 — Phase 151 (Ecosystem Sync & Hex Dependency Management) complete.*
 *Last updated: 2026-06-02 after v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.33-*`, phase artifacts moved to `milestones/v1.33-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 10/10 requirements satisfied. Phases continue after **153**.*
+*Last updated: 2026-06-03 — `/gsd-new-milestone` opened **v1.34 ADMIN-UI-COHERENCE** (admin UI coherence & needs-led journey pass). Explicit user-promoted exception to the Post-1.0 "polish is not default roadmap" posture, justified by the admin UI being the evaluator-facing showcase + generated-host adoption surface (Clear integration path / Great DX North Star). Scope locked: polish the 6 existing admin screens + enrich seed data, consolidate duplicated components into a shared `Sigra.Admin.Components` module, harden the needs-led landing, heaviest effort on under-iterated areas (two Overview landings, org overview, per-user audit, audit mobile). No net-new surfaces, no nav restructure, no token-layer work. Verification automated-only (playwright admin-checkpoints {chromium,mobile,dark} + axe + admin-generated parity; coverage closed by ADDING checkpoints). Research-first chosen. Kickoff brief: `~/.claude/plans/recap-sigra-v1-0-0-ga-cached-puppy.md`. Phases continue from **154**.*
+
+*Last updated: 2026-06-05 after v1.34 ADMIN-UI-COHERENCE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.34-*`, phase artifacts moved to `milestones/v1.34-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 25/25 requirements satisfied. Phases continue after **160**.*
+
+*Last updated: 2026-06-03 — Phase 154 (Design Contract + sg-notice) complete — COMP-03, COMP-04 validated. Committed `guides/reference/admin-design-contract.md` (the governance contract: 10 canonical component jobs with winning CSS/ARIA/motion-incl-explicit-"not-animated"/when-NOT-to-use, plus 3 page archetypes — Overview/List/Detail — as explicit component compositions) and registered it in the mix.exs ExDoc extras. Added the `.sg-notice` style (base + 4 tone variants) inside `@layer sg-components` in `test/example/.../app.css` — a behavior-preserving selector-rename of `.sg-list-row[data-tone]` (same tokens/color-mix/ring-opacity asymmetry, no new `!important`). No LiveView or Playwright-baseline changes (verifier 4/4, status passed). Code review: 1 Warning fixed in-phase (WR-01 — the doc's `app.css` line citations were shifted by this changeset's own CSS insertion; corrected to 1421–1443 / 1463–1473); WR-02 (sg-notice/sg-list-row tone-rule duplication has no drift guard) deferred to a tracked pending todo for the 154→156 migration window. Phases continue from **155** (KEYSTONE: build `Sigra.Admin.Components`).*
+
+*Last updated: 2026-06-04 — Phase 155 (Shared Component Foundation, KEYSTONE) complete — COMP-01, COMP-02 validated (verifier 9/9, status passed). Built `lib/sigra/admin/components.ex` — the lib-owned `Sigra.Admin.Components` module with all 10 canonical admin function components in contract order (`stat_link`, `stat`, `task_card`, `summary_chip`, `applied_chip`, `empty_state`, `page_back`, `scope_ribbon`, `notice`, `skeleton`), each declaring explicit `attr`/`slot` contracts, `attr :class, :any, default: nil` merged as `class={["sg-…", @class]}`, and `attr :rest, :global`. The `notice` component ships its target `sg-notice`/`data-tone` form with no default live-region role (D-07/D-08). Module is intentionally UNWIRED this phase — no LiveView consumes it (that is Phase 156); original `defp`/inline markup stays in place. COMP-02 proof: `test/sigra/admin/components_test.exs` — 10 DB-free `render_component/2` tests (7 strict byte-equal goldens from original markup, 1 target golden for `notice`, 2 structural asserts for `stat`/`skeleton`), all green, each carrying a drift message citing the design contract and forbidding Playwright baseline re-records (D-13). Also wired the CI gate so `example_playwright_smoke` `needs: [release_ref_guard, library_tests]` (D-14) and corrected the design contract's notice ARIA entry to the no-role form (D-09). Full suite green (2333 tests, 0 failures). Code review: 1 Warning fixed in-phase (WR-01/WR-02 — `notice/1` was the only component missing the `attr :class` merge mandated by D-02, a latent duplicate-`class` hazard for Phase 156; commit 5ad22cda added the attr + merge and updated `@notice_golden`); 3 Info deferred (IN-03 orphaned `<dt>/<dd>` in `summary_chip` is verbatim behavior-preservation — a Phase 156 `<dl>`-wrapper note, not a defect). Phases continue from **156** (adopt shared components on baselined screens).*
+
+*Last updated: 2026-06-04 — Phase 157 (Overview Landings, Highest Effort) complete — LAND-01..04 validated (verifier 15/15, status passed). Both Overview LiveViews (`lib/sigra/admin/live/index_live.ex` Global, `organization_live.ex` Org) redesigned into the shared "front-door" archetype: `mount/3` split with a `connected?(socket)` gate (disconnected path assigns loading state with zero DB queries; connected path runs queries inline) (LAND-04); needs-review alarm `<.notice role="status">` promoted as the first element above the task grid (LAND-01); canonical archetype order header → alarm → task grid → demoted posture strip → capability/tail (LAND-02/03); `<.skeleton>` shapes matched to replaced content during load (`aria-busy`); Org view also dropped the old "Scoped attention" card + nested-`<p>` notice (D-07) while preserving the Members + Pending-invitations demoted tail (D-05); `sg-posture-strip__risk` anchor deleted from both. Coverage closed by ADDING (not re-recording): 4 new ExUnit two-mount-proof tests in `admin_shell_test.exs` (10/10 green; skeleton-on-GET vs data-on-live + archetype-order asserts) and 2 new Playwright checkpoint slugs `global-overview`/`org-overview` with a `.sg-metric-link__value` wait guard (6 new baselines ×3 projects, axe WCAG A/AA green ×3). `admin-design-contract.md` Overview Archetype updated with the Org-variant note. Code review: 1 Warning fixed in-phase (WR-02 — org skeletons were unclassed vs the global view's `sg-metric-link`/`sg-list-row`, causing layout shift + breaking the byte-coherent items-1-4 claim; commit 58068721); WR-01 (pre-existing alarm count/link mismatch — sums locked+deleted but deep-links locked-only), WR-03 (pre-existing `format_date` swallows `NaiveDateTime`), WR-05 (debatable `role="status"` on the connected?-gated notice), and WR-04 + IN-01..04 deferred to 4 tracked pending todos. SC5 axe gate shifted left from human_needed to automation (orchestrator booted a dev server + ran the checkpoint spec ×3 → 3 passed). Phases continue from **158** (Audit Mobile + Per-User Audit).*
