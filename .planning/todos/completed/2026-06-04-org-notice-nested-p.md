@@ -1,6 +1,8 @@
 ---
 created: 2026-06-04T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: notice/1 now wraps slot content in a div, and OrganizationLive no longer passes nested p blocks to notice.
 title: organization_live notice call passes block <p> children into notice's <p> wrapper (nested <p>)
 area: lib/sigra/admin/live
 files:

@@ -1,6 +1,8 @@
 ---
 created: 2026-06-04T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: Runtime config loading is shared, role-tone intent is documented, and remaining overview semantics are intentionally retained from Phase 160.
 title: Admin Overview cleanup — dead test refutes, hardcoded paths, duplicated config helper, role_tone
 area: lib/sigra/admin/live
 files:

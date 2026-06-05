@@ -1,6 +1,8 @@
 ---
 created: 2026-06-04T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: Phase 160-03 set dark --sg-color-brand-strong and ratified dark baselines with axe green.
 title: lighten --sg-color-brand-strong in dark mode (global brand-on-brand-soft WCAG gap)
 area: test/example/priv/static/assets/css
 files:

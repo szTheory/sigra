@@ -1,6 +1,8 @@
 ---
 created: 2026-06-05T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: Accepted Phase 160 stat-link semantics, added needs_review/1 spec, shared overview runtime config, and left CSS-only optional spot checks to completed milestone evidence.
 title: Phase 160 code-review deferred findings (WR-02, WR-04, IN-01, IN-02)
 area: lib/sigra/admin, test/example/priv/static/assets/css
 files:

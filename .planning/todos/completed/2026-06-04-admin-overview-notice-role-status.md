@@ -1,6 +1,8 @@
 ---
 created: 2026-06-04T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: Kept role="status" for the post-connect alarm and documented the opt-in rationale at both overview call sites.
 title: decide role="status" semantics on the connected?-gated Overview alarm notice
 area: lib/sigra/admin/live
 files:

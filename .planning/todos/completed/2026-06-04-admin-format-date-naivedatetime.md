@@ -1,6 +1,8 @@
 ---
 created: 2026-06-04T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: organization_live.ex and shared audit_row/1 now handle %NaiveDateTime{} explicitly.
 title: format_date/1 silently renders non-DateTime host timestamps as "—"
 area: lib/sigra/admin/live
 files:

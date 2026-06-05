@@ -1,9 +1,11 @@
 ---
 created: 2026-06-03T00:00:00.000Z
-status: folded
+status: completed
 folded_into: phase-156
 folded_at: 2026-06-04
 folded_resolution: shared-selector merge (.sg-list-row[data-tone], .sg-notice[data-tone]) per 156-CONTEXT D-08
+completed_at: 2026-06-05
+completion_evidence: Phase 156 folded the duplicate tone rules into shared selectors.
 title: sg-notice / sg-list-row tone-rule duplication has no drift guard
 area: test/example/priv/static/assets/css
 files:

@@ -1,6 +1,8 @@
 ---
 created: 2026-06-04T00:00:00.000Z
-status: pending
+status: completed
+completed_at: 2026-06-05
+completion_evidence: Phase 160 added the needs_review OR-filter path and shared Sigra.Admin.needs_review/1.
 title: needs-review alarm count includes deleted accounts but deep-links to locked-only filter
 area: lib/sigra/admin/live
 files:
