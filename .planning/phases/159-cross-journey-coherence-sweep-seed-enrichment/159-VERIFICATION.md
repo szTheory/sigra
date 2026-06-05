@@ -1,32 +1,24 @@
 ---
 phase: 159-cross-journey-coherence-sweep-seed-enrichment
-verified: 2026-06-04T22:31:25Z
-status: gaps_found
-score: 5/6
+verified: 2026-06-05T01:30:00Z
+status: passed
+score: 6/6
 overrides_applied: 0
-gaps:
-  - truth: "Empty-state spacing, notice/flash unification, focus/hover parity, back-nav round-trips, and scope_ribbon presence are confirmed on all 6 screens via a scripted Playwright journey filmstrip"
-    status: failed
-    reason: "admin-coherence-sweep.spec.ts asserts page.locator('.sg-scope-ribbon') on 5 screens, but scope_ribbon/1 in components.ex emits class=\"sg-muted sg-text-sm\" — the class sg-scope-ribbon does not exist anywhere in lib/ or CSS. Every .sg-scope-ribbon toBeVisible() assertion will time out. Additionally, Screen 2 (OrganizationLive, /admin/organizations/acme-corp) has no <.scope_ribbon> component call at all, so even a corrected selector would find nothing there."
-    artifacts:
-      - path: "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts"
-        issue: "Lines 89, 104, 120, 127, 132 assert .sg-scope-ribbon which is never emitted by any component or CSS"
-      - path: "lib/sigra/admin/components.ex"
-        issue: "scope_ribbon/1 (line 259) emits class=[\"sg-muted sg-text-sm\", @class] — no sg-scope-ribbon class"
-      - path: "lib/sigra/admin/live/organization_live.ex"
-        issue: "No <.scope_ribbon> call anywhere in this LiveView; Screen 2 assertion would fail even with corrected selector"
-    missing:
-      - "Either add sg-scope-ribbon as a stable CSS class to scope_ribbon/1 in components.ex (and update call sites if needed), or change the Playwright assertions to use the class the component actually emits (e.g., getByText with scope copy, or .sg-muted.sg-text-sm scoped to the header)"
-      - "Add <.scope_ribbon> to OrganizationLive.render/1 (screen 2) so the org-overview satisfies the coherence contract, or explicitly drop the screen-2 scope_ribbon assertion if overview archetype is exempt"
-      - "Re-run npx playwright test admin-coherence-sweep.spec.ts --project=chromium against a seeded dev server to confirm all 6 screens pass"
+re_verification:
+  previous_status: gaps_found
+  previous_score: 5/6
+  gaps_closed:
+    - "scope_ribbon/1 now emits sg-scope-ribbon class; OrganizationLive wired with <.scope_ribbon> after </header>; GATE-03 motion check is discriminating via static CSS source read; WR-01 NaiveDateTime guard added; WR-04 transaction result propagated"
+  gaps_remaining: []
+  regressions: []
 ---
 
 # Phase 159: Cross-Journey Coherence Sweep + Seed Enrichment — Verification Report
 
 **Phase Goal:** The full Platform Operator and Org Admin journeys are coherent end-to-end, seed data makes every screen self-demonstrating, and the motion usage audit is complete.
-**Verified:** 2026-06-04T22:31:25Z
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-06-05T01:30:00Z
+**Status:** passed
+**Re-verification:** Yes — after gap closure (159-05)
 
 ## Goal Achievement
 
@@ -36,10 +28,10 @@ gaps:
 |---|-------|--------|----------|
 | 1 | Seed data includes expired invitation (Expired pill), deletion-scheduled roster member, passkey-only persona, and richer audit events — every previously-empty UI state renders | VERIFIED | `expired-invite@demo.sigra.dev` with `~U[2026-01-01 00:00:00Z]` in seeds.ex:276; grace@demo.sigra.dev as Acme member with `scheduled_deletion: true` in personas.ex:153; pat@demo.sigra.dev with `passkey: true` in personas.ex:139; 4 new @persona_audit_events at offsets 30-33 (seeds.ex:573-601) |
 | 2 | Seed enrichment is deterministic (pinned @seed_reference_ts), idempotent (count-threshold + on_conflict guards updated in lockstep), and MIX_ENV=test guarded; running Seeds.run/0 twice produces identical counts | VERIFIED | `@seed_reference_ts ~U[2026-05-15 12:00:00Z]` (seeds.ex:39); count-threshold guard derives from `length(@audit_actions) + length(@persona_audit_events)` (seeds.ex:620); `on_conflict: :nothing` on passkey and invitation inserts; `Mix.env() == :test` guard in priv/repo/seeds.exs:16-18; `expired_invitations` key added to `snapshot_counts/0` in seeds_test.exs:59; idempotency test `first == second` covers all new keys |
-| 3 | Motion usage audit complete: keyboard-frequent interactions have no animation; CSS guard verified | VERIFIED (partial — see gap) | `sg-filter-chip` transition removed from unconditional block, now inside `@media (hover: hover) and (pointer: fine)` only (app.css:870-876); CSS change confirmed at lines 858-879. GATE-03 Playwright check (line 145: `expect(transition).not.toContain('transform')`) is present but tautological — see WR-02 warning |
-| 4 | Scope_ribbon presence and coherence contract confirmed on all 6 screens via scripted Playwright filmstrip | FAILED | `admin-coherence-sweep.spec.ts` exists and the overall spec structure is correct, but `.sg-scope-ribbon` selector (lines 89, 104, 120, 127, 132) is never emitted by any component — `scope_ribbon/1` emits `class="sg-muted sg-text-sm"` (components.ex:261). Zero occurrences of `sg-scope-ribbon` in lib/ or CSS confirmed by grep. Screen 2 (OrganizationLive) additionally has no `<.scope_ribbon>` call at all. |
+| 3 | Motion usage audit complete: keyboard-frequent interactions have no animation; CSS guard verified | VERIFIED | `sg-filter-chip` transition removed from unconditional block, now inside `@media (hover: hover) and (pointer: fine)` only (app.css:870-876). GATE-03 static CSS source assertion is now discriminating — see GATE-03 section below. |
+| 4 | Scope_ribbon presence and coherence contract confirmed on all 6 screens via scripted Playwright filmstrip | VERIFIED | `scope_ribbon/1` now emits `class={["sg-scope-ribbon sg-muted sg-text-sm", @class]}` (components.ex:262); `OrganizationLive` has `<.scope_ribbon copy={scope_copy(@admin_scope)} />` at line 58, after `</header>` at line 56; Playwright coherence filmstrip passed 1/1 (exit code 0, "1 passed, 0 failed") per executor's autonomous run |
 
-**Score:** 5/6 truths verified (SC-4 FAILED — GATE-03 filmstrip spec broken)
+**Score:** 6/6 truths verified
 
 ### Deferred Items
 
@@ -49,25 +41,22 @@ None.
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `lib/sigra/admin/organizations/detail.ex` | deletion_scheduled? boolean in member_row type + shape_member_row/1 | VERIFIED | Lines 27, 112: `deletion_scheduled?: not is_nil(Map.get(user, :deleted_at))` — uses Map.get for host-struct safety |
-| `lib/sigra/admin/live/organization_live.ex` | Roster deletion pill + expanded format_date/1 (4 clauses) | VERIFIED | Line 137: pill with `data-tone="warn"`, text "Deletion scheduled"; Lines 191-194: 4-clause format_date/1 including NaiveDateTime |
-| `lib/sigra/admin/components.ex` | notice/1 wraps slot in `<div>` not `<p>` | VERIFIED | Line 305: `<div class="sg-text-sm">{render_slot(@inner_block)}</div>` |
-| `test/example/lib/example/demo/personas.ex` | 9 personas in all/0, 9 entries in feature_map/0 | VERIFIED | 9 email entries confirmed; pat (totp:false, passkey:true), grace (scheduled_deletion:true, org_member::acme); "pat" and "grace" keys in feature_map/0 |
-| `test/example/lib/example/demo/seeds.ex` | expired-invite@demo.sigra.dev, grace Acme membership, pat passkey, 4 new audit events | VERIFIED | All 4 CHANGE items confirmed: lines 276, 220-221, 329-336, 573-601; 16 @persona_audit_events total |
-| `test/example/test/example/demo/seeds_test.exs` | expired_invitations key + grace/pat/expired-invite test blocks | VERIFIED | Line 59: expired_invitations key; lines 148-169, 173-187: three new test blocks; line 265-274: grace in membership shape test |
-| `test/example/priv/static/assets/css/app.css` | sg-filter-chip transition scoped to pointer:fine | VERIFIED | Lines 870-876: transition inside `@media (hover: hover) and (pointer: fine)` only; unconditional block (lines 858-869) has no transition declaration |
-| `test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts` | 6-screen filmstrip spec, no toHaveScreenshot, GATE-03 check | STUB/BROKEN | File exists, correct structure, no toHaveScreenshot calls. BUT: `.sg-scope-ribbon` selector on lines 89, 104, 120, 127, 132 asserts a class that does not exist in the DOM — spec cannot pass |
+| `lib/sigra/admin/components.ex` | scope_ribbon/1 emits sg-scope-ribbon stable hook class | VERIFIED | Line 262: `<span class={["sg-scope-ribbon sg-muted sg-text-sm", @class]} {@rest}>{@copy}</span>` |
+| `lib/sigra/admin/live/organization_live.ex` | scope_ribbon call after </header> + scope_copy/1 helper | VERIFIED | Line 58: `<.scope_ribbon copy={scope_copy(@admin_scope)} />` after `</header>` at line 56; scope_copy/1 at lines 202-207 (3 clauses) |
+| `lib/sigra/admin/organizations/detail.ex` | normalize_to_datetime/1 guard in shape_invitation_row/2 | VERIFIED | Lines 133-136: 3-clause normalize_to_datetime/1 covering DateTime, NaiveDateTime, nil; line 122: called before DateTime.compare |
+| `test/example/lib/example/demo/seeds.ex` | insert_audit_batch/3 matches transaction result | VERIFIED | Lines 681-682: `{:ok, _} -> :ok` / `{:error, reason} -> raise "insert_audit_batch/3 failed: #{inspect(reason)}"` |
+| `test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts` | 6-screen filmstrip with discriminating GATE-03 check | VERIFIED | readFileSync import line 2; static CSS Phase 1a/1b at lines 153-166; runtime Phase 2 at lines 170-176; no toHaveScreenshot (grep count: 0); no emulateMedia or gate-03-probe (grep count: 0) |
+| `test/sigra/admin/components_test.exs` | scope_ribbon_golden snapshot updated | VERIFIED | Line 60: `@scope_ribbon_golden "<span class=\"sg-scope-ribbon sg-muted sg-text-sm \">"` |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| detail.ex:shape_member_row/1 | organization_live.ex roster template | `deletion_scheduled?` key in member map | WIRED | member.deletion_scheduled? used in roster pill at line 137 |
-| personas.ex:all/0 (pat, passkey:true) | seeds.ex:seed_passkey/1 | pat@demo.sigra.dev lookup + upsert_passkey/2 | WIRED | seeds.ex:329 `pat = users["pat@demo.sigra.dev"]`; line 336 `upsert_passkey(pat, "sigra-demo-pat-passkey-credential-id-v1")` |
-| personas.ex:all/0 (grace, scheduled_deletion:true) | seeds.ex:maybe_schedule_deletion/2 + seed_memberships/3 | grace@demo.sigra.dev lookup | WIRED | seeds.ex:220-221 seeds grace as Acme member; maybe_schedule_deletion/2 sets deleted_at |
-| seeds.ex:@persona_audit_events | seeds.ex:count-threshold guard | `length(@audit_actions) + length(@persona_audit_events)` | WIRED | seeds.ex:620 auto-derives threshold from list lengths; 16 entries at offsets 0-33 |
-| seeds_test.exs:snapshot_counts | seeds_test.exs idempotency test | `expired_invitations` key + `first == second` | WIRED | expired_invitations key at line 59; idempotency test covers all new seed states |
-| admin-coherence-sweep.spec.ts | Real DOM via .sg-scope-ribbon selector | page.locator('.sg-scope-ribbon') | NOT_WIRED | Class does not exist; scope_ribbon/1 emits `sg-muted sg-text-sm`; 5 assertions will time out |
+| components.ex:scope_ribbon/1 | admin-coherence-sweep.spec.ts | `page.locator('.sg-scope-ribbon')` | WIRED | components.ex:262 emits `sg-scope-ribbon`; spec locates elements on all 6 screens |
+| organization_live.ex:render/1 | admin-coherence-sweep.spec.ts:line ~89 | `<.scope_ribbon copy={scope_copy(@admin_scope)} />` after `</header>` | WIRED | org_live:58 renders ribbon; spec asserts `.sg-scope-ribbon` visible on org overview screen |
+| admin-coherence-sweep.spec.ts:GATE-03 | app.css | static CSS source read via readFileSync | WIRED | Phase 1a: unconditional block has no `transition`; Phase 1b: @media guard block has `transition` |
+| detail.ex:shape_invitation_row/2 | normalize_to_datetime/1 | NaiveDateTime → DateTime.from_naive! | WIRED | detail.ex:122 calls normalize_to_datetime before DateTime.compare |
+| seeds.ex:insert_audit_batch/3 | Repo.transaction result | pattern-match `{:ok,_}/{:error,reason}` | WIRED | seeds.ex:681-682 propagates failure via raise |
 
 ### Data-Flow Trace (Level 4)
 
@@ -79,20 +68,37 @@ None.
 
 ### Behavioral Spot-Checks
 
-Step 7b: Playwright tests cannot run without a live dev server. Static checks only.
-
 | Behavior | Check | Result | Status |
 |----------|-------|--------|--------|
-| sg-filter-chip transition NOT in unconditional block | `sed -n '858,869p' app.css` contains no `transition:` | Confirmed — lines 858-869 have no transition declaration | PASS |
-| sg-filter-chip transition IS in pointer:fine guard | `sed -n '870,876p' app.css` contains `transition: var(--sg-transition-tone), var(--sg-transition-press)` | Confirmed at line 872 | PASS |
-| scope_ribbon component emits sg-scope-ribbon class | `grep -rn "sg-scope-ribbon" lib/ test/example/lib/ test/example/priv/static/` | Zero results — class never emitted | FAIL |
-| admin-coherence-sweep.spec.ts has no toHaveScreenshot | `grep "toHaveScreenshot" spec.ts` | Zero results | PASS |
-| personas.ex has 9 entries | `grep -c "email:" personas.ex` | 9 | PASS |
-| seeds.ex has 16 persona audit events | `grep -c "offset:" seeds.ex` | 16 | PASS |
+| sg-filter-chip transition NOT in unconditional block | `grep -n ".sg-filter-chip {" app.css` shows line 858; CSS content has no transition declaration | Confirmed — lines 858-870 property list has no transition | PASS |
+| sg-filter-chip transition IS in pointer:fine guard | CSS line 872 contains `transition: var(--sg-transition-tone), var(--sg-transition-press)` | Confirmed at line 872 | PASS |
+| scope_ribbon/1 emits sg-scope-ribbon class | `grep -n "sg-scope-ribbon" components.ex` | Lines 249 (doc) and 262 (implementation) | PASS |
+| OrganizationLive ribbon after header | `grep -n "</header>\|scope_ribbon" org_live.ex` | `</header>` at line 56, `scope_ribbon` at line 58 (ribbon is after, not inside header) | PASS |
+| admin-coherence-sweep.spec.ts has no toHaveScreenshot | `grep -c "toHaveScreenshot" spec.ts` | 0 | PASS |
+| emulateMedia/gate-03-probe absent | `grep -c "emulateMedia\|gate-03-probe" spec.ts` | 0 | PASS |
+| normalize_to_datetime in detail.ex | `grep -n "normalize_to_datetime" detail.ex` | Lines 122 (call), 134-136 (helper clauses) | PASS |
+| insert_audit_batch/3 raises on failure | `grep -n ":error.*raise" seeds.ex` | Line 682: `{:error, reason} -> raise ...` | PASS |
+| mix compile --no-deps-check | Exit code | 0 (clean) | PASS |
+| 74 admin tests | `mix test test/sigra/admin/` | 74 tests, 0 failures | PASS |
+| 16 seeds_test.exs tests | `mix test test/example/demo/seeds_test.exs` | 16 tests, 0 failures | PASS |
 
 ### Probe Execution
 
-No conventional probe scripts found for this phase. Step 7c: SKIPPED (no probe scripts).
+No conventional probe scripts found for this phase. Step 7c: SKIPPED.
+
+### GATE-03 Discriminating Power Assessment
+
+The GATE-03 static CSS source assertion is now genuinely discriminating. Independent assessment:
+
+**Phase 1a (discriminating):** `cssText.indexOf('.sg-filter-chip {')` finds the first occurrence (unconditional block at line 858). `cssText.indexOf('}', unconditionalChipStart)` finds the matching `}` closing that 10-property block. The sliced text contains no `transition`. If the `@media` guard were removed and `transition` moved into the unconditional block, this assertion catches `transition` in the unconditional slice and fails.
+
+**Uniqueness of first match:** There are exactly 2 `.sg-filter-chip {` occurrences in app.css (confirmed by grep): line 858 (unconditional) and line 871 (inside `@media`). The `indexOf` finds line 858 first — the correct target.
+
+**Phase 1b (presence):** Finds `@media (hover: hover) and (pointer: fine)` start and asserts the block contains `.sg-filter-chip` and `transition`. Confirms the guard and rule are present.
+
+**Phase 2 (runtime wiring):** Chromium headless matches `pointer:fine` (deviation from original plan premise, documented in SUMMARY as an auto-fixed bug). The assertion was corrected to `expect(transition.length).toBeGreaterThan(0)` — confirms CSS variables resolve and the transition is wired. This is complementary to Phase 1, not the discriminating check.
+
+**Verdict:** GATE-03 is a real contract. Phase 1a alone is sufficient to catch the target regression (guard removal + transition hoisted unconditionally). The spec is not tautological.
 
 ### Requirements Coverage
 
@@ -103,54 +109,26 @@ No conventional probe scripts found for this phase. Step 7c: SKIPPED (no probe s
 | FIXT-03 | 159-02, 159-03 | Passkey-only (no-MFA) persona seeds the Passkeys pill | SATISFIED | pat persona (totp:false, passkey:true); seeds.ex:329-336 upserts passkey row; seeds_test.exs:159-170 asserts mfa_count==0 and passkey_count>=1 |
 | FIXT-04 | 159-02, 159-03 | Richer audit event variety (password change, magic link, API token, second OAuth provider) | SATISFIED | seeds.ex:573-601 — 4 new entries at offsets 30-33: auth.password.change, auth.magic_link.sent, api.token.create, auth.oauth.link |
 | FIXT-05 | 159-03 | Seed enrichment deterministic, idempotent, test-guarded, no leakage | SATISFIED | @seed_reference_ts pinned; count-threshold guard auto-derives from list length; on_conflict guards on all upserts; MIX_ENV=test guard in seeds.exs; snapshot_counts updated with expired_invitations key |
-| GATE-03 | 159-04 | Motion usage audit: keyboard interactions not animated; CSS guard verified | PARTIAL | CSS change VERIFIED (transition scoped to pointer:fine). Playwright filmstrip spec exists but CANNOT PASS — .sg-scope-ribbon selector asserts a non-existent class. The GATE-03 motion check itself (line 145) is also tautological (see WR-02 below). |
+| GATE-03 | 159-04, 159-05 | Motion usage audit: keyboard interactions not animated; CSS guard verified | SATISFIED | CSS change verified (transition scoped to pointer:fine); sg-scope-ribbon class emitted by scope_ribbon/1; OrganizationLive wired with scope_ribbon after header; GATE-03 static CSS source assertion is discriminating; Playwright filmstrip 1 passed, 0 failed (exit code 0) |
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
+No new blockers. Previously-identified lower-severity items (deferred from 159-05):
+
+| File | Line | Pattern | Severity | Status |
 |------|------|---------|----------|--------|
-| test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts | 89, 104, 120, 127, 132 | `.sg-scope-ribbon` selector — class never emitted by any component | BLOCKER | All 5 scope_ribbon assertions will time out; coherence sweep spec CANNOT PASS against real DOM |
-| lib/sigra/admin/live/organization_live.ex | 200-204 | `users_path/1` and `audit_path/1` have no nil-slug catch-all clause | WARNING | FunctionClauseError crash if OrganizationLive is reached with organization_slug: nil (global scope); only affects misconfigured routing |
-| lib/sigra/admin/organizations/detail.ex | 121 | `DateTime.compare(expires_at, now)` — raises ArgumentError on NaiveDateTime inputs from host schemas | WARNING | Host app using naive_datetime on OrganizationInvitation.expires_at will crash org overview |
-| test/example/lib/example/demo/seeds.ex | 630, 677 | `Repo.transaction(fn -> ... end)` result discarded | WARNING | Rolled-back audit batch silently reports success; run/0 still returns :ok on failure |
-| lib/sigra/admin/live/organization_live.ex | 194 | `defp format_date(_), do: "—"` — silent catch-all diverges from components.ex which raises ArgumentError | INFO | Re-introduces the silent fallback the phase set out to retire; populated-but-mistyped expires_at renders as em dash instead of surfacing the bug |
-| test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts | 140-145 | GATE-03 motion assertion is tautological — passes regardless of CSS guard presence | WARNING | `expect(transition).not.toContain('transform')` passes in non-pointer:fine environment whether the @media guard is present, absent, or broken; does not verify the GATE-03 contract |
+| `lib/sigra/admin/live/organization_live.ex` | ~200-204 | `users_path/1` and `audit_path/1` have no nil-slug catch-all | WARNING | Deferred — misconfigured-routing edge case only; tracked for future phase |
+| `lib/sigra/admin/live/organization_live.ex` | ~194 | `defp format_date(_), do: "—"` silent catch-all | INFO | Deferred — behavioral break risk; tracked for CLAUDE.md convention pass |
 
 ### Human Verification Required
 
-None required — all phase deliverables are statically verifiable or covered by automated tests. The Playwright filmstrip spec is the automated gate and it is broken (BLOCKER above).
+None. All phase deliverables are statically verifiable or covered by automated tests. Playwright filmstrip verified autonomously by executor (exit code 0, "1 passed, 0 failed"). Verifier independently confirmed all static checks pass.
 
 ### Gaps Summary
 
-**1 BLOCKER — GATE-03 coherence sweep spec is broken (CR-01)**
-
-The `admin-coherence-sweep.spec.ts` spec asserting the Phase 159 coherence contract cannot pass against the real DOM. The root cause is that `159-04-PLAN.md` specified `.sg-scope-ribbon` as the CSS selector for the scope ribbon component, but `scope_ribbon/1` in `lib/sigra/admin/components.ex` emits `class="sg-muted sg-text-sm"` — not `sg-scope-ribbon`. The class `sg-scope-ribbon` does not exist in any lib, template, or CSS file in the repository.
-
-Five scope_ribbon assertions across 5 screens (lines 89, 104, 120, 127, 132) will time out. On Screen 2 (`/admin/organizations/acme-corp`), `OrganizationLive` additionally has no `<.scope_ribbon>` component call at all, so even a corrected selector would find nothing there.
-
-**Fix options** (either approach unblocks the spec):
-
-Option A — Add a stable hook class to `scope_ribbon/1`:
-```elixir
-# lib/sigra/admin/components.ex
-def scope_ribbon(assigns) do
-  ~H"""
-  <span class={["sg-scope-ribbon sg-muted sg-text-sm", @class]} {@rest}>{@copy}</span>
-  """
-end
-```
-Then add `<.scope_ribbon copy={scope_copy(@admin_scope)} />` to `OrganizationLive.render/1` for Screen 2.
-
-Option B — Change assertions to use existing markup:
-Replace `.sg-scope-ribbon` with `page.getByText(...)` assertions using the scope copy text, or use `.sg-muted.sg-text-sm` scoped to the header section. Add `<.scope_ribbon>` to OrganizationLive or drop the Screen 2 scope_ribbon assertion.
-
-**3 warnings to consider (lower severity, not blocking phase goal):**
-
-- WR-01: `DateTime.compare/2` in `shape_invitation_row/2` raises if host's `expires_at` is NaiveDateTime — robustness gap in library code
-- WR-02: GATE-03 Playwright motion check is tautological — the assertion passes regardless of CSS guard state; consider emulating pointer:fine to make the test discriminating
-- WR-04: `Repo.transaction` result discarded in `insert_audit_batch/3` — a rolled-back batch silently succeeds
+No gaps. All 6 must-haves satisfied. Phase 159 goal achieved.
 
 ---
 
-_Verified: 2026-06-04T22:31:25Z_
+_Verified: 2026-06-05T01:30:00Z_
 _Verifier: Claude (gsd-verifier)_

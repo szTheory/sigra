@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
-status: verifying
+status: verified
 last_updated: "2026-06-05T01:04:37.757Z"
-last_activity: 2026-06-05
+last_activity: 2026-06-05 -- Phase 159 verification passed 6/6 (GATE-03 closed via 159-05)
 progress:
   total_phases: 7
   completed_phases: 6
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 159 — cross-journey-coherence-sweep-seed-enrichment
+**Current focus:** Phase 160 — Regression Hardening + Baseline Ratification (next)
 
 ## Current Position
 
-Phase: 159 (cross-journey-coherence-sweep-seed-enrichment) — GAPS_FOUND (awaiting gap closure)
-Plan: 4 of 4 executed
-Status: Phase complete — ready for verification
-Last activity: 2026-06-05
+Phase: 159 (cross-journey-coherence-sweep-seed-enrichment) — VERIFIED PASSED (6/6)
+Plan: 5 of 5 executed (159-05 gap closure complete)
+Status: Phase complete — GATE-03 closed; ready to advance to Phase 160
+Last activity: 2026-06-05 -- Phase 159 verification passed 6/6
 
 Progress: [██████████] 100%
 
