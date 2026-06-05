@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: executing
-last_updated: "2026-06-05T13:46:21.380Z"
+last_updated: "2026-06-05T13:49:57.324Z"
 last_activity: 2026-06-05
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 29
-  completed_plans: 26
+  completed_plans: 27
   percent: 86
 ---
 
@@ -26,11 +26,11 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 160 (regression-hardening-baseline-ratification) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-06-05
 
-Progress: [█████████░] 90%
+Progress: [█████████░] 93%
 
 ## Accumulated Context
 
@@ -45,6 +45,7 @@ Progress: [█████████░] 90%
 - [Phase ?]: D-06: --sg-color-brand-strong override placed in unlayered dark :root block (token foundation, not component rule)
 - [Phase ?]: D-07: Fix the LINK not the count; OR-filter key so needs-review alarm reconciles without visible text change
 - [Phase ?]: IN-03: needs_review/1 extracted to Sigra.Admin module; defp removed from both LiveViews
+- [Phase ?]: GATE-02: admin-generated lane green — no template drift; D-06/D-07/D-08 fixes do not affect priv/templates/sigra.install/ (admin LiveViews are library-owned, not generated)
 
 ### Pending Todos
 
@@ -62,7 +63,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-05T13:46:21.375Z
+Last session: 2026-06-05T13:49:57.315Z
 Stopped at: Completed 160-01-PLAN.md (D-06/D-07/D-08)
 Resume file: None
 
@@ -73,3 +74,4 @@ Resume file: None
 | Phase 157 P03 | 5m | 1 tasks | 1 files |
 | Phase 157-overview-landings-highest-effort P04 | 9min | 2 tasks | 7 files |
 | Phase 160 P01 | 15min | 3 tasks | 6 files |
+| Phase 160 P02 | 4min | 1 tasks | 0 files |

@@ -239,7 +239,7 @@ Plans:
 **Wave 1**
 
 - [x] 160-01-PLAN.md — Code folds: dark brand-strong CSS override + needs-review link fix + Sigra.Admin shared helper (GATE-01)
-- [ ] 160-02-PLAN.md — GATE-02 parity lane close: admin-generated smoke + installer template sync if needed (GATE-02)
+- [x] 160-02-PLAN.md — GATE-02 parity lane close: admin-generated smoke + installer template sync if needed (GATE-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -265,4 +265,4 @@ Plans:
 | 157. Overview Landings (Highest Effort) | v1.34 | 4/4 | Complete    | 2026-06-04 |
 | 158. Audit Mobile + Per-User Audit (High Effort) | v1.34 | 5/5 | Complete    | 2026-06-04 |
 | 159. Cross-Journey Coherence Sweep + Seed Enrichment | v1.34 | 5/5 | Complete (6/6) | 2026-06-05 |
-| 160. Regression Hardening + Baseline Ratification | v1.34 | 1/4 | In Progress|  |
+| 160. Regression Hardening + Baseline Ratification | v1.34 | 2/4 | In Progress|  |
