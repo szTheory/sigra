@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
-status: milestone_complete
-last_updated: 2026-06-05T14:20:30.699Z
-last_activity: 2026-06-05
+status: Awaiting next milestone
+last_updated: "2026-06-05T16:10:27.361Z"
+last_activity: 2026-06-05 — Milestone v1.34 completed and archived
 progress:
   total_phases: 7
   completed_phases: 7
   total_plans: 29
-  completed_plans: 43
+  completed_plans: 29
   percent: 100
-stopped_at: Milestone complete (Phase 160 was final phase)
 ---
 
 # Project State
@@ -22,16 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Milestone complete
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 160
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-06-05
-
-Progress: [██████████] 100%
+Phase: Milestone v1.34 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-05 — Milestone v1.34 completed and archived
 
 ## Accumulated Context
 
@@ -80,3 +77,7 @@ Resume file: None
 | Phase 160 P02 | 4min | 1 tasks | 0 files |
 | Phase 160 P03 | 15min | 2 tasks | 8 files |
 | Phase 160 P04 | 20min | 2 tasks | 6 files |
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone

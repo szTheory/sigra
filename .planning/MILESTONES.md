@@ -1,5 +1,33 @@
 # Milestones
 
+## v1.34 ADMIN-UI-COHERENCE (Shipped: 2026-06-05)
+
+**Phases completed:** 7 phases, 29 plans, 39 tasks
+**Requirements:** 25/25 satisfied (COMP-01..04, LAND-01..04, COHR-01..06, AUDX-01..03, FIXT-01..05, GATE-01..03)
+**Milestone audit:** passed — 25/25 requirements, 7/7 phases complete and verified, 4/4 integration checks, 2/2 E2E flows wired.
+
+**Delivered:** Took Sigra's generated admin UI from individually polished screens to one coherent, needs-led journey across the 6 existing admin surfaces, governed by "same job -> same component" and ratified by automated Playwright/axe/admin-generated parity gates.
+
+**Key accomplishments:**
+
+- Published the admin design contract: Job -> Component mapping for the canonical component set, 3 page archetypes, ARIA rules, motion constraints, and when-not-to-use guidance.
+- Built `Sigra.Admin.Components` with the canonical admin components plus a byte/structural render-component proof harness, then migrated all 6 admin screens away from private duplicate UI fragments.
+- Reworked Global and Org Overview as needs-led front doors: prominent needs-review alarm, verb-first task cards, demoted posture/capability strips, and skeleton loading states.
+- Reconciled audit surfaces with mobile card layouts, shared audit rows, common filter chips, consistent back/scope/notice/empty-state treatment, and new `user-audit` checkpoint coverage.
+- Enriched deterministic demo seed data so expired invitations, deletion-scheduled users, passkey-only users, and richer audit events all render in the evaluator experience.
+- Ratified the milestone with 3-project Playwright compare mode, dark WCAG-AA fix and baseline re-record, snapshot canary guard, ExUnit component goldens, and `admin-generated` installer parity.
+
+**Known deferred item at close:** Existing `Phoenix.Ecto.SQL.Sandbox` browser-acceptance-test gap remains deferred from v1.33. The v1.34 audit also records a non-blocking latent warning: needs-review count uses a sum while the filter is a set union if one account is both locked and deletion-scheduled; current seed personas are disjoint.
+
+**Archive:**
+
+- [v1.34 Roadmap](milestones/v1.34-ROADMAP.md)
+- [v1.34 Requirements](milestones/v1.34-REQUIREMENTS.md)
+- [v1.34 Milestone Audit](milestones/v1.34-MILESTONE-AUDIT.md)
+- [v1.34 Phase Artifacts](milestones/v1.34-phases/)
+
+---
+
 ## v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS (Shipped: 2026-06-02)
 
 **Phases completed:** 4 phases, 4 plans, 3 tasks

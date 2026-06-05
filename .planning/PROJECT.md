@@ -32,21 +32,28 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
-## Current Milestone: v1.34 ADMIN-UI-COHERENCE
+## Latest Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
 
-**Goal:** Take the admin UI from "each screen polished individually" to one coherent, needs-led journey — principle of least surprise everywhere, "same job → same component."
+**Shipped:** 2026-06-05 (Phases 154-160) · 25/25 requirements satisfied · milestone audit passed
 
-**Why this is promoted now (vs. the Post-1.0 "polish is not default roadmap" posture):** The admin UI is Sigra's evaluator-facing showcase surface (v1.31 DEMO-SHOWCASE) and a generated-host adoption touchpoint. Coherent, intuitive operator UX directly serves the **Clear integration path** and **Great DX** North Star bullets. This is an explicit, user-promoted exception (2026-06-03), bounded to coherence of the existing surface — not a broad feature expansion.
+Sigra's generated admin UI is now a coherent, needs-led operator journey instead of a set of individually polished screens. The milestone established a shared `Sigra.Admin.Components` contract, migrated all 6 admin screens to same-job -> same-component conventions, hardened the Overview and Audit evaluator paths, enriched deterministic demo data, and ratified the surface through Playwright/axe/admin-generated parity gates.
 
-**Scope (locked):** Polish the 6 existing admin screens + enrich seed data so every screen fully expresses itself. Consolidate duplicated components (3 "stat" variants, 2 filter idioms, boxed-vs-open headers) into a shared lib-owned `Sigra.Admin.Components` module. Harden the needs-led landing (verbs-first task cards, one risk alarm, demoted posture metrics). Heaviest effort on under-iterated areas with no screenshot baseline today: the two Overview landings, org overview, per-user audit, and audit mobile.
+Archives:
+- [`.planning/milestones/v1.34-ROADMAP.md`](milestones/v1.34-ROADMAP.md)
+- [`.planning/milestones/v1.34-REQUIREMENTS.md`](milestones/v1.34-REQUIREMENTS.md)
+- [`.planning/milestones/v1.34-MILESTONE-AUDIT.md`](milestones/v1.34-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.34-phases/`](milestones/v1.34-phases/)
 
-**Out of scope:** No net-new admin surfaces (API-token/service-account management UIs). No top-level nav restructure (keep the Overview→List→Detail IA). No token-layer/motion-primitive work (the `sg-*` layer is mature and Emil-Kowalski-compliant; this milestone audits *usage*).
+### Just shipped: v1.34 ADMIN-UI-COHERENCE
 
-**Verification:** Automated only (Jon's standing zero-human-UAT preference) — playwright `admin-checkpoints-{chromium,mobile,dark}` + axe (WCAG A/AA) + `admin-generated` installer-parity. Coverage gaps closed by ADDING checkpoints (`global-overview`, `org-overview`, `user-audit`), not by widening the behavior matrix.
+- published the admin design contract and canonical component jobs/archetypes
+- built `Sigra.Admin.Components` and migrated all 6 admin screens away from private duplicate UI fragments
+- reworked Global/Org Overview into needs-led front doors with skeleton loading, a single prominent risk alarm, verb-first task cards, and demoted posture/capability strips
+- reconciled audit surfaces with mobile layouts, shared audit rows, consistent filters, and new `user-audit` checkpoint coverage
+- enriched deterministic demo seeds so previously empty/risk states render for evaluators
+- ratified the milestone with 3-project Playwright compare mode, dark WCAG-AA baseline updates, snapshot canary guard, ExUnit component goldens, and admin-generated parity
 
-**Kickoff brief:** `~/.claude/plans/recap-sigra-v1-0-0-ga-cached-puppy.md` (approved 2026-06-03). Phases continue from 154.
-
-## Latest Shipped Milestone: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
+## Previous Shipped Milestone: v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS
 
 **Shipped:** 2026-06-02 (Phases 150–153) · 10/10 requirements satisfied · milestone audit passed
 
@@ -128,15 +135,16 @@ Archives:
 
 ## Current State
 
-`v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS` is shipped and archived. Sigra's current posture is maintenance-first: preserve the released authentication surface, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
+`v1.34 ADMIN-UI-COHERENCE` is shipped and archived. Sigra's current posture remains maintenance-first, with a stronger evaluator/admin experience: preserve the released authentication surface, keep the shared admin-component contract coherent, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 153.
+Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 160.
 
 ## Next Milestone Goals
 
 - Treat regressions, security/trust findings, release failures, dependency drift, and adopter-reported friction as the default highest-value work.
 - Keep strategic bets gated by the v1.33 decision: enterprise features such as SCIM, `sigra_lockspire`, and Threadline correlation need explicit demand before implementation.
 - Resolve the non-blocking `Chimeway.Repo` missing database configuration startup noise before using local full-suite `mix test` output as a clean release signal.
+- Preserve the v1.34 admin design contract: future generated-admin work should use `Sigra.Admin.Components` and add/re-record Playwright checkpoints deliberately.
 - Avoid broad feature expansion, generated-host UI redesign, hosted-control-plane behavior, or generic authorization/compliance work unless the next milestone explicitly promotes it.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
@@ -775,6 +783,8 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-06-01 — Phase 151 (Ecosystem Sync & Hex Dependency Management) complete.*
 *Last updated: 2026-06-02 after v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.33-*`, phase artifacts moved to `milestones/v1.33-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 10/10 requirements satisfied. Phases continue after **153**.*
 *Last updated: 2026-06-03 — `/gsd-new-milestone` opened **v1.34 ADMIN-UI-COHERENCE** (admin UI coherence & needs-led journey pass). Explicit user-promoted exception to the Post-1.0 "polish is not default roadmap" posture, justified by the admin UI being the evaluator-facing showcase + generated-host adoption surface (Clear integration path / Great DX North Star). Scope locked: polish the 6 existing admin screens + enrich seed data, consolidate duplicated components into a shared `Sigra.Admin.Components` module, harden the needs-led landing, heaviest effort on under-iterated areas (two Overview landings, org overview, per-user audit, audit mobile). No net-new surfaces, no nav restructure, no token-layer work. Verification automated-only (playwright admin-checkpoints {chromium,mobile,dark} + axe + admin-generated parity; coverage closed by ADDING checkpoints). Research-first chosen. Kickoff brief: `~/.claude/plans/recap-sigra-v1-0-0-ga-cached-puppy.md`. Phases continue from **154**.*
+
+*Last updated: 2026-06-05 after v1.34 ADMIN-UI-COHERENCE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.34-*`, phase artifacts moved to `milestones/v1.34-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 25/25 requirements satisfied. Phases continue after **160**.*
 
 *Last updated: 2026-06-03 — Phase 154 (Design Contract + sg-notice) complete — COMP-03, COMP-04 validated. Committed `guides/reference/admin-design-contract.md` (the governance contract: 10 canonical component jobs with winning CSS/ARIA/motion-incl-explicit-"not-animated"/when-NOT-to-use, plus 3 page archetypes — Overview/List/Detail — as explicit component compositions) and registered it in the mix.exs ExDoc extras. Added the `.sg-notice` style (base + 4 tone variants) inside `@layer sg-components` in `test/example/.../app.css` — a behavior-preserving selector-rename of `.sg-list-row[data-tone]` (same tokens/color-mix/ring-opacity asymmetry, no new `!important`). No LiveView or Playwright-baseline changes (verifier 4/4, status passed). Code review: 1 Warning fixed in-phase (WR-01 — the doc's `app.css` line citations were shifted by this changeset's own CSS insertion; corrected to 1421–1443 / 1463–1473); WR-02 (sg-notice/sg-list-row tone-rule duplication has no drift guard) deferred to a tracked pending todo for the 154→156 migration window. Phases continue from **155** (KEYSTONE: build `Sigra.Admin.Components`).*
 
