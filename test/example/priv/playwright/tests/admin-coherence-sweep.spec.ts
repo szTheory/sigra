@@ -1,4 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'fs';
+import path from 'path';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 159 Plan 4: admin coherence filmstrip spec.
@@ -131,17 +133,44 @@ test.describe('Phase 159 coherence sweep', () => {
     await waitForLiveViewReady(page);
     await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
 
-    // GATE-03: Keyboard motion check — filter chip transition must not contain 'transform'
-    // After the D-06 CSS fix, the transition is inside @media (hover: hover) and (pointer: fine).
-    // Playwright's Chromium test environment does not expose a pointer:fine media feature,
-    // so the transition is suppressed for keyboard and touch users as intended.
+    // GATE-03: Filter chip motion guard — two-phase check (static CSS source + runtime computed style).
+    //
+    // Phase 1 — Static CSS source assertion:
+    //   Reads app.css as text and verifies that:
+    //   (a) The unconditional .sg-filter-chip block does NOT contain 'transition'
+    //       (so the transition is NOT applied to all pointer types unconditionally).
+    //   (b) The @media (hover: hover) and (pointer: fine) guard block DOES contain 'transition'
+    //       scoped to .sg-filter-chip.
+    //   These two assertions together are discriminating: if the @media guard is removed and
+    //   the transition moved to the unconditional block, assertion (a) catches it and fails.
+    //
+    // Phase 2 — Runtime computed-style assertion:
+    //   Chromium headless does not expose a pointer:fine media feature, so the @media guard
+    //   suppresses the transition at runtime. Confirms the headless environment correctly
+    //   receives no transform animation.
+    const cssPath = path.resolve(__dirname, '../../../priv/static/assets/css/app.css');
+    const cssText = readFileSync(cssPath, 'utf-8');
+
+    // Phase 1a: unconditional .sg-filter-chip block must not contain 'transition'
+    const unconditionalChipStart = cssText.indexOf('.sg-filter-chip {');
+    const unconditionalChipEnd = cssText.indexOf('}', unconditionalChipStart);
+    const unconditionalBlock = cssText.slice(unconditionalChipStart, unconditionalChipEnd + 1);
+    expect(unconditionalBlock).not.toMatch(/transition/);
+
+    // Phase 1b: @media guard block must contain transition for .sg-filter-chip
+    const mediaGuardStart = cssText.indexOf('@media (hover: hover) and (pointer: fine)');
+    const mediaGuardEnd = cssText.indexOf('\n  }', cssText.indexOf('.sg-filter-chip:hover', mediaGuardStart)) + 4;
+    const mediaGuardBlock = cssText.slice(mediaGuardStart, mediaGuardEnd);
+    expect(mediaGuardBlock).toMatch(/\.sg-filter-chip/);
+    expect(mediaGuardBlock).toMatch(/transition/);
+
+    // Phase 2: runtime computed-style assertion in headless (non-pointer:fine) environment
     await page.goto('/admin/users');
     await waitForLiveViewReady(page);
     const chip = page.locator('label.sg-filter-chip').first();
     await chip.focus();
     const transition = await chip.evaluate((el) => getComputedStyle(el).transition);
-    // In a non-pointer:fine environment (keyboard/touch), transition should not animate transforms.
-    // The scoped CSS means keyboard chip-toggle produces no transform animation (GATE-03).
+    // Headless Chromium has no pointer:fine capability — @media guard suppresses transform animation.
     expect(transition).not.toContain('transform');
   });
 });
