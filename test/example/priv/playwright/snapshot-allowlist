@@ -11,11 +11,3 @@
 #
 # The `impersonation-banner` canary must NEVER appear here.
 #
-# Phase 160 D-06 dark brand-strong fix (remove after merge to main):
-global-overview
-org-overview
-user-audit
-global-user-index
-user-detail
-org-scoped-admin
-audit-explorer
