@@ -47,7 +47,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Verification Gates (GATE)
 
-- [ ] **GATE-01**: New screenshot checkpoints (`global-overview`, `org-overview`, `user-audit`) are added across chromium/mobile/dark with axe (WCAG A/AA) gates.
+- [x] **GATE-01**: New screenshot checkpoints (`global-overview`, `org-overview`, `user-audit`) are added across chromium/mobile/dark with axe (WCAG A/AA) gates.
 - [ ] **GATE-02**: The `admin-generated` installer-parity lane stays green on every phase that changes admin HEEx (templates mirrored to `test/example/`).
 - [x] **GATE-03**: Motion usage is audited — keyboard-frequent interactions (⌘K result filtering, filter apply, row updates) are not animated; enters use ease-out; destructive uses flat easing.
 
@@ -101,7 +101,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | FIXT-04 | Phase 159 | Pending |
 | FIXT-05 | Phase 159 | Pending |
 | GATE-03 | Phase 159 | Complete |
-| GATE-01 | Phase 160 | Pending |
+| GATE-01 | Phase 160 | Complete |
 | GATE-02 | Phase 160 | Pending |
 
 **Coverage:**

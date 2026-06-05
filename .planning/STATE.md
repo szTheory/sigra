@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.34
 milestone_name: ADMIN-UI-COHERENCE
 status: executing
-last_updated: "2026-06-05T13:34:10.687Z"
-last_activity: 2026-06-05 -- Phase 160 planning complete
+last_updated: "2026-06-05T13:46:21.380Z"
+last_activity: 2026-06-05
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
   percent: 86
 ---
 
@@ -21,16 +21,16 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 160 — Regression Hardening + Baseline Ratification (next)
+**Current focus:** Phase 160 — regression-hardening-baseline-ratification
 
 ## Current Position
 
-Phase: 159 (cross-journey-coherence-sweep-seed-enrichment) — VERIFIED PASSED (6/6)
-Plan: 5 of 5 executed (159-05 gap closure complete)
+Phase: 160 (regression-hardening-baseline-ratification) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-05 -- Phase 160 planning complete
+Last activity: 2026-06-05
 
-Progress: [██████████] 100%
+Progress: [█████████░] 90%
 
 ## Accumulated Context
 
@@ -42,6 +42,9 @@ Progress: [██████████] 100%
 - No new Hex deps, no Tailwind, no Alpine.js, no `assign_async/3` for this milestone.
 - GATE-01/02/03 are cross-cutting; each maps to one owning phase (GATE-01/02 ratified at 160; GATE-03 owned at 159).
 - [Phase ?]: global-overview and org-overview captured with sg-metric-link__value visibility wait before capture (D-06 perpetual-flake guard)
+- [Phase ?]: D-06: --sg-color-brand-strong override placed in unlayered dark :root block (token foundation, not component rule)
+- [Phase ?]: D-07: Fix the LINK not the count; OR-filter key so needs-review alarm reconciles without visible text change
+- [Phase ?]: IN-03: needs_review/1 extracted to Sigra.Admin module; defp removed from both LiveViews
 
 ### Pending Todos
 
@@ -59,9 +62,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-05T01:19:38.188Z
-Stopped at: Phase 160 context gathered (assumptions mode)
-Resume file: .planning/phases/160-regression-hardening-baseline-ratification/160-CONTEXT.md
+Last session: 2026-06-05T13:46:21.375Z
+Stopped at: Completed 160-01-PLAN.md (D-06/D-07/D-08)
+Resume file: None
 
 ## Performance Metrics
 
@@ -69,3 +72,4 @@ Resume file: .planning/phases/160-regression-hardening-baseline-ratification/160
 |-------|------|----------|-------|
 | Phase 157 P03 | 5m | 1 tasks | 1 files |
 | Phase 157-overview-landings-highest-effort P04 | 9min | 2 tasks | 7 files |
+| Phase 160 P01 | 15min | 3 tasks | 6 files |
