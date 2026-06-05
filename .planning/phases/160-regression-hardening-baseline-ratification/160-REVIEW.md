@@ -15,8 +15,25 @@ findings:
   warning: 4
   info: 2
   total: 7
-status: issues_found
+status: remediated
+remediation:
+  resolved: [CR-01, WR-01, WR-03]
+  deferred: [WR-02, WR-04, IN-01, IN-02]
+  fix_commit: 8231f840
 ---
+
+> **Remediation (2026-06-05, post-review):** The verified blocker and the verified
+> security finding were fixed in commit `8231f840`:
+> - **CR-01 (resolved):** `needs_review` registered in `@allowed_params`, `@filter_fields`,
+>   the `Params` embedded schema, and Flop `filterable` — the filter is now reachable.
+> - **WR-01 (resolved):** `or_where` → `where` with an internal `or`, so the
+>   locked∪deleted disjunction ANDs against the base authorization scope (no cross-org leak).
+> - **WR-03 (resolved):** Added regression coverage in `users_query_test.exs` — global
+>   union (bob+carol) and an org-scope safety assertion (org1 admin sees only carol).
+> - **Deferred to tracked todo (`.planning/todos/pending`):** WR-02 (stat-tile label was
+>   plan-directed; UX judgment call), WR-04 (cosmetic empty CSS rule), IN-01/IN-02
+>   (optional hardening / contrast spot-check). None block the phase goal.
+> 74 admin tests pass; compile clean. No checkpoint baseline impact (server-side query only).
 
 # Phase 160: Code Review Report
 
