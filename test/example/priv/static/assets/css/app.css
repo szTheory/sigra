@@ -167,6 +167,10 @@
     --sg-color-line: rgba(255, 255, 255, 0.1);
     --sg-color-line-strong: rgba(255, 255, 255, 0.16);
     --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
+    /* Dark-mode brand-strong: lightened to clear WCAG AA on dark brand-soft tint
+     * (~1.88:1 → >=4.5:1). Supersedes the scoped chip fix at the .sg-filter-chip
+     * block below. */
+    --sg-color-brand-strong: #fdba74;
     /* Lighten tone text + backgrounds for dark mode so pills/rows keep WCAG AA
      * contrast (dark-mode tinted backgrounds need light tone text). */
     --sg-color-ok: #5dd1a0;
@@ -883,13 +887,11 @@
     box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sg-color-brand) 32%, transparent);
   }
   /* Dark mode: the brand-strong foreground (#9a3412) is unreadable on the dark
-   * brand-soft tint (WCAG AA fail, ~1.88:1). Lighten the active-chip text to a
-   * brand orange that clears 4.5:1 — mirrors the tone-text lightening at L170.
-   * Scoped to the chip; the global --sg-color-brand-strong dark gap is tracked
-   * separately (it affects other brand-soft surfaces too). */
+   * brand-soft tint (WCAG AA fail, ~1.88:1). The global --sg-color-brand-strong
+   * override in the dark :root block (above) now handles all brand-soft surfaces,
+   * including this chip. Scoped override removed — no duplication. */
   @media (prefers-color-scheme: dark) {
     .sg-filter-chip:has(input:checked) {
-      color: #fdba74;
     }
   }
 
