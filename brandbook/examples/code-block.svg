@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra code block specimen</title>
+  <desc id="desc">A code block specimen for Sigra documentation and landing pages.</desc>
+  <rect width="960" height="420" fill="#f6f5f2"/>
+  <rect x="72" y="60" width="816" height="300" rx="16" fill="#151515"/>
+  <rect x="72" y="60" width="816" height="48" rx="16" fill="#25221e"/>
+  <circle cx="104" cy="84" r="6" fill="#f8a39c"/>
+  <circle cx="128" cy="84" r="6" fill="#f5c451"/>
+  <circle cx="152" cy="84" r="6" fill="#5dd1a0"/>
+  <text x="190" y="91" fill="#bdb5aa" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="14">mix.exs</text>
+  <g font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="18">
+    <text x="104" y="154" fill="#bdb5aa">defp deps do</text>
+    <text x="104" y="190" fill="#bdb5aa">  [</text>
+    <text x="104" y="226" fill="#fdba74">    {:sigra, "~&gt; 1.0"}</text>
+    <text x="104" y="262" fill="#bdb5aa">  ]</text>
+    <text x="104" y="298" fill="#bdb5aa">end</text>
+  </g>
+</svg>

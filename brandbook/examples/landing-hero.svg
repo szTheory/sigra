@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra landing hero specimen</title>
+  <desc id="desc">A landing page hero concept for Sigra with no fake product UI or stock imagery.</desc>
+  <rect width="1280" height="720" fill="#f6f5f2"/>
+  <rect x="720" y="78" width="440" height="520" rx="22" fill="#ffffff" stroke="rgba(21,21,21,.12)"/>
+  <rect x="760" y="128" width="360" height="54" rx="10" fill="#151515"/>
+  <text x="784" y="162" fill="#f4f1eb" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="18">mix sigra.install</text>
+  <g transform="translate(760 218)" stroke="#c2410c" stroke-width="3" fill="none">
+    <rect width="360" height="72" rx="12"/>
+    <rect y="104" width="360" height="72" rx="12"/>
+    <rect y="208" width="360" height="72" rx="12"/>
+    <path d="M180 72v32M180 176v32"/>
+  </g>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <text x="104" y="164" fill="#151515" font-size="78" font-weight="800" letter-spacing="0">Sigra</text>
+    <text x="104" y="246" fill="#151515" font-size="58" font-weight="800" letter-spacing="0">Auth you can keep</text>
+    <text x="104" y="310" fill="#151515" font-size="58" font-weight="800" letter-spacing="0">patching after install.</text>
+    <text x="104" y="380" fill="#686868" font-size="23" font-weight="600" letter-spacing="0">Phoenix-native auth with an updateable security core and generated host code that stays visible in your repo.</text>
+  </g>
+  <rect x="104" y="438" width="166" height="48" rx="8" fill="#c2410c"/>
+  <text x="133" y="468" fill="#ffffff" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="800">Read the docs</text>
+  <rect x="286" y="438" width="154" height="48" rx="8" fill="#ffffff" stroke="rgba(21,21,21,.16)"/>
+  <text x="317" y="468" fill="#151515" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="800">View GitHub</text>
+</svg>

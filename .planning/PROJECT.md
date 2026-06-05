@@ -32,7 +32,28 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
-## Latest Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
+## Latest Shipped Milestone: v1.35 BRAND-SYSTEM-PRESSURE-TEST
+
+**Shipped:** 2026-06-05 (Phases 161-166) · 15/15 requirements satisfied · milestone audit passed
+
+Sigra now has a source-controlled brand system that makes its existing OSS/devtools posture buildable without redesign churn. The milestone extracted the repo's strongest inherited brand truth — production-minded Phoenix auth, library-owned security-sensitive behavior, generated host-owned code, and explicit boundaries — into a self-contained `brandbook/` with a critical audit, HTML brand book, semantic tokens, SVG logo system, visual specimens, voice rules, and repo artifact policy.
+
+Archives:
+- [`.planning/milestones/v1.35-ROADMAP.md`](milestones/v1.35-ROADMAP.md)
+- [`.planning/milestones/v1.35-REQUIREMENTS.md`](milestones/v1.35-REQUIREMENTS.md)
+- [`.planning/milestones/v1.35-MILESTONE-AUDIT.md`](milestones/v1.35-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.35-phases/`](milestones/v1.35-phases/)
+
+### Just shipped: v1.35 BRAND-SYSTEM-PRESSURE-TEST
+
+- committed `brandbook/pressure-test-audit.md` with the requested 14-section critical audit and KEEP/TIGHTEN/REWORK/ADD/REMOVE judgment
+- committed `brandbook/brand-book.md` with brand DNA, positioning, voice system, microcopy, landing/docs blueprint, accessibility rules, and artifact policy
+- added `brandbook/tokens.json` and `brandbook/tokens.css` for raw palette, semantic roles, typography, spacing, radius, borders, focus, code, callouts, and states
+- added a small SVG logo system: primary lockup, icon-only mark, monochrome mark, favicon, and social preview card
+- added SVG specimens for palette, typography, README header, landing hero, docs page, code, terminal, component states, and architecture diagram
+- added `brandbook/index.html`, a directly openable static HTML brandbook with no build step, CDN, web font, runtime dependency, or raster-heavy payload
+
+## Previous Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
 
 **Shipped:** 2026-06-05 (Phases 154-160) · 25/25 requirements satisfied · milestone audit passed
 
@@ -135,9 +156,9 @@ Archives:
 
 ## Current State
 
-`v1.34 ADMIN-UI-COHERENCE` is shipped and archived. Sigra's current posture remains maintenance-first, with a stronger evaluator/admin experience: preserve the released authentication surface, keep the shared admin-component contract coherent, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
+`v1.35 BRAND-SYSTEM-PRESSURE-TEST` is shipped and archived. Sigra's current posture remains maintenance-first, now with a self-contained brandbook under `brandbook/` for future docs, landing, README, social, and UI/UX collateral. Preserve the released authentication surface, keep the shared admin-component contract coherent, keep brand adoption separate from runtime/generated code unless a focused milestone promotes it, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 160.
+Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 166.
 
 ## Next Milestone Goals
 
@@ -145,6 +166,7 @@ Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering
 - Keep strategic bets gated by the v1.33 decision: enterprise features such as SCIM, `sigra_lockspire`, and Threadline correlation need explicit demand before implementation.
 - Resolve the non-blocking `Chimeway.Repo` missing database configuration startup noise before using local full-suite `mix test` output as a clean release signal.
 - Preserve the v1.34 admin design contract: future generated-admin work should use `Sigra.Admin.Components` and add/re-record Playwright checkpoints deliberately.
+- Preserve the v1.35 brandbook boundary: future brand/public-site adoption should start from `brandbook/` and should not mutate README, HexDocs, generated templates, or runtime UI without a focused scope.
 - Avoid broad feature expansion, generated-host UI redesign, hosted-control-plane behavior, or generic authorization/compliance work unless the next milestone explicitly promotes it.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
@@ -785,6 +807,8 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-06-03 — `/gsd-new-milestone` opened **v1.34 ADMIN-UI-COHERENCE** (admin UI coherence & needs-led journey pass). Explicit user-promoted exception to the Post-1.0 "polish is not default roadmap" posture, justified by the admin UI being the evaluator-facing showcase + generated-host adoption surface (Clear integration path / Great DX North Star). Scope locked: polish the 6 existing admin screens + enrich seed data, consolidate duplicated components into a shared `Sigra.Admin.Components` module, harden the needs-led landing, heaviest effort on under-iterated areas (two Overview landings, org overview, per-user audit, audit mobile). No net-new surfaces, no nav restructure, no token-layer work. Verification automated-only (playwright admin-checkpoints {chromium,mobile,dark} + axe + admin-generated parity; coverage closed by ADDING checkpoints). Research-first chosen. Kickoff brief: `~/.claude/plans/recap-sigra-v1-0-0-ga-cached-puppy.md`. Phases continue from **154**.*
 
 *Last updated: 2026-06-05 after v1.34 ADMIN-UI-COHERENCE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.34-*`, phase artifacts moved to `milestones/v1.34-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 25/25 requirements satisfied. Phases continue after **160**.*
+
+*Last updated: 2026-06-05 after v1.35 BRAND-SYSTEM-PRESSURE-TEST milestone — shipped and archived with a self-contained `brandbook/` directory: pressure-test audit, brand book, static HTML review surface, JSON/CSS tokens, SVG logo system, social card, and visual specimens. No runtime library, generated-template, README, HexDocs, or guide adoption changes were made. Phases continue after **166**.*
 
 *Last updated: 2026-06-03 — Phase 154 (Design Contract + sg-notice) complete — COMP-03, COMP-04 validated. Committed `guides/reference/admin-design-contract.md` (the governance contract: 10 canonical component jobs with winning CSS/ARIA/motion-incl-explicit-"not-animated"/when-NOT-to-use, plus 3 page archetypes — Overview/List/Detail — as explicit component compositions) and registered it in the mix.exs ExDoc extras. Added the `.sg-notice` style (base + 4 tone variants) inside `@layer sg-components` in `test/example/.../app.css` — a behavior-preserving selector-rename of `.sg-list-row[data-tone]` (same tokens/color-mix/ring-opacity asymmetry, no new `!important`). No LiveView or Playwright-baseline changes (verifier 4/4, status passed). Code review: 1 Warning fixed in-phase (WR-01 — the doc's `app.css` line citations were shifted by this changeset's own CSS insertion; corrected to 1421–1443 / 1463–1473); WR-02 (sg-notice/sg-list-row tone-rule duplication has no drift guard) deferred to a tracked pending todo for the 154→156 migration window. Phases continue from **155** (KEYSTONE: build `Sigra.Admin.Components`).*
 

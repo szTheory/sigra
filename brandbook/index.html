@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sigra Brand Book</title>
+    <link rel="stylesheet" href="tokens.css">
+    <style>
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background:
+          linear-gradient(180deg, color-mix(in oklab, var(--sigra-accent-soft) 40%, transparent), transparent 26rem),
+          var(--sigra-bg);
+        color: var(--sigra-text);
+        font-family: var(--sigra-font-sans);
+        font-size: var(--sigra-text-base);
+        line-height: var(--sigra-leading-normal);
+        letter-spacing: 0;
+      }
+      a { color: inherit; }
+      img { display: block; max-width: 100%; height: auto; }
+      code {
+        border-radius: var(--sigra-radius-xs);
+        background: var(--sigra-code-bg);
+        color: var(--sigra-code-text);
+        font-family: var(--sigra-font-mono);
+        font-size: 0.92em;
+        padding: 0.08rem 0.25rem;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--sigra-border);
+        background: color-mix(in oklab, var(--sigra-surface) 94%, transparent);
+        backdrop-filter: blur(16px);
+      }
+      .sidebar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sigra-space-4);
+        max-width: 76rem;
+        margin: 0 auto;
+        padding: var(--sigra-space-3) var(--sigra-space-4);
+      }
+      .brand-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--sigra-space-2);
+        font-weight: var(--sigra-weight-bold);
+        text-decoration: none;
+      }
+      .brand-chip img { width: 32px; height: 32px; }
+      .nav {
+        display: flex;
+        gap: var(--sigra-space-2);
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .nav a {
+        border-radius: var(--sigra-radius-full);
+        color: var(--sigra-text-muted);
+        padding: 0.35rem 0.65rem;
+        text-decoration: none;
+      }
+      .nav a:hover,
+      .nav a:focus-visible {
+        background: var(--sigra-accent-soft);
+        color: var(--sigra-accent-strong);
+        outline: none;
+      }
+      main {
+        width: min(76rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: var(--sigra-space-10) 0 var(--sigra-space-16);
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-8);
+        align-items: end;
+        min-height: 72vh;
+        padding-bottom: var(--sigra-space-8);
+      }
+      .hero-logo { width: min(320px, 80vw); }
+      .eyebrow {
+        color: var(--sigra-accent-strong);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 {
+        max-width: 11ch;
+        margin-bottom: var(--sigra-space-4);
+        font-size: var(--sigra-text-hero);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin-bottom: var(--sigra-space-3);
+        font-size: clamp(1.7rem, 3vw, 2.6rem);
+        line-height: var(--sigra-leading-tight);
+        letter-spacing: 0;
+      }
+      h3 {
+        margin-bottom: var(--sigra-space-2);
+        font-size: var(--sigra-text-md);
+        letter-spacing: 0;
+      }
+      .lead {
+        max-width: 64ch;
+        color: var(--sigra-text-muted);
+        font-size: clamp(1.05rem, 2vw, 1.35rem);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .hero-panel {
+        border-radius: 22px;
+        background: var(--sigra-surface);
+        box-shadow: var(--sigra-shadow-panel);
+        padding: var(--sigra-space-6);
+      }
+      .terminal {
+        overflow-x: auto;
+        border-radius: var(--sigra-radius-md);
+        background: #151515;
+        color: #f4f1eb;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-sm);
+        padding: var(--sigra-space-4);
+        white-space: pre;
+      }
+      section {
+        border-top: 1px solid var(--sigra-border);
+        padding: var(--sigra-space-10) 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+        gap: var(--sigra-space-4);
+      }
+      .panel {
+        border-radius: var(--sigra-radius-md);
+        background: var(--sigra-surface);
+        box-shadow: var(--sigra-shadow-panel);
+        padding: var(--sigra-space-5);
+      }
+      .quiet {
+        color: var(--sigra-text-muted);
+      }
+      .score {
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .score-row {
+        display: grid;
+        grid-template-columns: minmax(9rem, 1fr) auto;
+        gap: var(--sigra-space-3);
+        align-items: center;
+        border-bottom: 1px solid var(--sigra-border);
+        padding-bottom: var(--sigra-space-3);
+      }
+      .score-row:last-child { border-bottom: 0; padding-bottom: 0; }
+      .meter {
+        width: 9rem;
+        height: 0.6rem;
+        overflow: hidden;
+        border-radius: var(--sigra-radius-full);
+        background: var(--sigra-disabled-bg);
+      }
+      .meter > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--sigra-accent);
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+        gap: var(--sigra-space-3);
+      }
+      .swatch {
+        min-height: 7rem;
+        border-radius: var(--sigra-radius-md);
+        box-shadow: var(--sigra-shadow-inset);
+        padding: var(--sigra-space-3);
+      }
+      .swatch strong,
+      .swatch span { display: block; }
+      .swatch span { font-family: var(--sigra-font-mono); font-size: var(--sigra-text-xs); }
+      .logo-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+        gap: var(--sigra-space-4);
+        align-items: center;
+      }
+      .logo-box {
+        display: grid;
+        min-height: 10rem;
+        place-items: center;
+        border-radius: var(--sigra-radius-md);
+        background: var(--sigra-surface);
+        box-shadow: var(--sigra-shadow-panel);
+        padding: var(--sigra-space-5);
+      }
+      .logo-box.dark { background: #171614; color: #f4f1eb; }
+      .logo-box img { max-height: 84px; }
+      .specimen-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+        gap: var(--sigra-space-4);
+      }
+      .specimen {
+        overflow: hidden;
+        border-radius: var(--sigra-radius-md);
+        background: var(--sigra-surface);
+        box-shadow: var(--sigra-shadow-panel);
+      }
+      .specimen figcaption {
+        border-top: 1px solid var(--sigra-border);
+        color: var(--sigra-text-muted);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-semibold);
+        padding: var(--sigra-space-3) var(--sigra-space-4);
+      }
+      .rules {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+        gap: var(--sigra-space-4);
+      }
+      .rule-list {
+        margin: 0;
+        padding-left: 1.1rem;
+      }
+      .rule-list li + li { margin-top: var(--sigra-space-2); }
+      .copy-block {
+        border-left: 3px solid var(--sigra-accent);
+        background: var(--sigra-surface-alt);
+        border-radius: 0 var(--sigra-radius-sm) var(--sigra-radius-sm) 0;
+        padding: var(--sigra-space-4);
+      }
+      .table-wrap { overflow-x: auto; }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--sigra-text-sm);
+      }
+      th, td {
+        border-bottom: 1px solid var(--sigra-border);
+        padding: var(--sigra-space-3);
+        text-align: left;
+        vertical-align: top;
+      }
+      th { color: var(--sigra-text); font-weight: var(--sigra-weight-bold); }
+      td { color: var(--sigra-text-muted); }
+      .asset-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-2);
+      }
+      .asset-links a {
+        border-radius: var(--sigra-radius-full);
+        background: var(--sigra-accent-soft);
+        color: var(--sigra-accent-strong);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.45rem 0.7rem;
+        text-decoration: none;
+      }
+      .footer {
+        color: var(--sigra-text-muted);
+        font-size: var(--sigra-text-sm);
+      }
+      @media (min-width: 900px) {
+        .layout { grid-template-columns: 18rem minmax(0, 1fr); }
+        .sidebar {
+          height: 100vh;
+          border-right: 1px solid var(--sigra-border);
+          border-bottom: 0;
+        }
+        .sidebar-inner {
+          height: 100%;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-start;
+          padding: var(--sigra-space-6);
+        }
+        .nav {
+          flex-direction: column;
+          align-items: stretch;
+          overflow: visible;
+          white-space: normal;
+          width: 100%;
+        }
+        .hero { grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr); }
+      }
+      @media print {
+        body { background: #fff; color: #111; }
+        .sidebar { display: none; }
+        .layout { display: block; }
+        main { width: 100%; padding: 0; }
+        section { break-inside: avoid; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-inner">
+          <a class="brand-chip" href="#top">
+            <img src="favicon.svg" alt="">
+            <span>Sigra Brand</span>
+          </a>
+          <nav class="nav" aria-label="Brand book sections" tabindex="0">
+            <a href="#judgment">Judgment</a>
+            <a href="#dna">DNA</a>
+            <a href="#tokens">Tokens</a>
+            <a href="#logo">Logo</a>
+            <a href="#examples">Examples</a>
+            <a href="#voice">Voice</a>
+            <a href="#blueprint">Blueprint</a>
+            <a href="#artifacts">Artifacts</a>
+          </nav>
+        </div>
+      </aside>
+
+      <main id="top">
+        <header class="hero">
+          <div>
+            <img class="hero-logo" src="logo-primary.svg" alt="Sigra">
+            <p class="eyebrow">Brand system pressure test</p>
+            <h1>Auth you can keep patching after install.</h1>
+            <p class="lead">Sigra's brand should feel like its architecture: library-owned security-sensitive behavior, generated Phoenix code your team can review, and explicit boundaries instead of launch-page fog.</p>
+            <div class="asset-links" aria-label="Source documents">
+              <a href="pressure-test-audit.md">Audit MD</a>
+              <a href="brand-book.md">Brand Book MD</a>
+              <a href="tokens.json">Tokens JSON</a>
+              <a href="tokens.css">Tokens CSS</a>
+            </div>
+          </div>
+          <div class="hero-panel">
+            <h2>Buildable, not ornamental.</h2>
+            <p class="quiet">This brandbook is intentionally source-controlled as HTML, Markdown, JSON, CSS, and SVG. No PDF dependency. No web fonts. No raster payload unless a distribution target requires it.</p>
+            <pre class="terminal" tabindex="0">$ open brandbook/index.html
+$ jq . brandbook/tokens.json
+$ xmllint --noout brandbook/logo-mark.svg</pre>
+          </div>
+        </header>
+
+        <section id="judgment">
+          <p class="eyebrow">Executive judgment</p>
+          <h2>Strong strategy. Missing public system. Fixed without a redesign.</h2>
+          <div class="grid">
+            <article class="panel">
+              <h3>Keep</h3>
+              <p class="quiet">The README and launch docs are credible because they name ownership, caveats, and proof. That is Sigra's strongest brand asset.</p>
+            </article>
+            <article class="panel">
+              <h3>Tighten</h3>
+              <p class="quiet">Turn implicit voice, visual, token, and artifact choices into citable repo files so future work does not drift.</p>
+            </article>
+            <article class="panel">
+              <h3>Do not do</h3>
+              <p class="quiet">No mascot, no generic auth lock illustration, no blue-purple gradients, no "seamless next-generation" language.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="dna">
+          <p class="eyebrow">Brand DNA</p>
+          <h2>A protected core framed by visible code.</h2>
+          <div class="grid">
+            <article class="panel">
+              <h3>Essence</h3>
+              <p>Production-minded Phoenix authentication that stays patchable after install.</p>
+            </article>
+            <article class="panel">
+              <h3>Audience</h3>
+              <p>Phoenix teams, Elixir maintainers, SaaS builders, and operators who want auth control without owning every sensitive edge forever.</p>
+            </article>
+            <article class="panel">
+              <h3>Anti-traits</h3>
+              <p>Black-box magic, hosted-auth cosplay, enterprise fluff, vague innovation language, and decorative geometry with no contract meaning.</p>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <p class="eyebrow">Scorecard</p>
+          <h2>What the inherited repo brand already had.</h2>
+          <div class="panel score" aria-label="Pressure-test scorecard">
+            <div class="score-row"><span>Developer credibility</span><div class="meter" role="meter" aria-label="Developer credibility score" aria-valuemin="0" aria-valuemax="10" aria-valuenow="9"><span style="width:90%"></span></div></div>
+            <div class="score-row"><span>Elixir ecosystem fit</span><div class="meter" role="meter" aria-label="Elixir ecosystem fit score" aria-valuemin="0" aria-valuemax="10" aria-valuenow="8"><span style="width:80%"></span></div></div>
+            <div class="score-row"><span>Distinctiveness</span><div class="meter" role="meter" aria-label="Distinctiveness score" aria-valuemin="0" aria-valuemax="10" aria-valuenow="7"><span style="width:70%"></span></div></div>
+            <div class="score-row"><span>Visual coherence</span><div class="meter" role="meter" aria-label="Visual coherence score" aria-valuemin="0" aria-valuemax="10" aria-valuenow="6"><span style="width:60%"></span></div></div>
+            <div class="score-row"><span>Pre-milestone logo readiness</span><div class="meter" role="meter" aria-label="Pre-milestone logo readiness score" aria-valuemin="0" aria-valuemax="10" aria-valuenow="3"><span style="width:30%"></span></div></div>
+          </div>
+        </section>
+
+        <section id="tokens">
+          <p class="eyebrow">Tokens</p>
+          <h2>Warm restraint, semantic status, no token theater.</h2>
+          <div class="swatches">
+            <div class="swatch" style="background:#151515;color:#fff"><strong>Ink</strong><span>#151515</span></div>
+            <div class="swatch" style="background:#ffffff;color:#151515"><strong>Surface</strong><span>#ffffff</span></div>
+            <div class="swatch" style="background:#f6f5f2;color:#151515"><strong>Warm bg</strong><span>#f6f5f2</span></div>
+            <div class="swatch" style="background:#c2410c;color:#fff"><strong>Accent</strong><span>#c2410c</span></div>
+            <div class="swatch" style="background:#fff0e8;color:#9a3412"><strong>Accent soft</strong><span>#fff0e8</span></div>
+            <div class="swatch" style="background:#171614;color:#fdba74"><strong>Dark accent</strong><span>#fdba74</span></div>
+          </div>
+        </section>
+
+        <section id="logo">
+          <p class="eyebrow">Logo system</p>
+          <h2>Combination lockup plus small mark. No mascot.</h2>
+          <div class="logo-strip">
+            <div class="logo-box"><img src="logo-primary.svg" alt="Sigra primary logo"></div>
+            <div class="logo-box"><img src="logo-mark.svg" alt="Sigra icon mark" style="width:84px"></div>
+            <div class="logo-box dark">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="mono-title" style="width:84px;height:84px;color:#f4f1eb">
+                <title id="mono-title">Sigra monochrome mark</title>
+                <rect x="4" y="4" width="56" height="56" rx="12" fill="none" stroke="currentColor" stroke-width="5"/>
+                <path d="M22 18h-5v28h5" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M42 18h5v28h-5" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M32 16v32" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+                <circle cx="32" cy="32" r="8" fill="none" stroke="currentColor" stroke-width="5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="rules" style="margin-top:var(--sigra-space-4)">
+            <article class="panel">
+              <h3>Use</h3>
+              <ul class="rule-list">
+                <li>Primary lockup for brandbook, landing, README visual, and talks.</li>
+                <li>Mark for favicon, package avatar, social avatar, compact cards.</li>
+                <li>Monochrome mark for print, restricted color, and low contrast contexts.</li>
+              </ul>
+            </article>
+            <article class="panel">
+              <h3>Avoid</h3>
+              <ul class="rule-list">
+                <li>No gradients, bevels, shadows, rotations, or mascot additions.</li>
+                <li>No tiny wordmark where the icon mark is more legible.</li>
+                <li>No unrelated lock or shield icons beside the mark.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="examples">
+          <p class="eyebrow">Visual examples</p>
+          <h2>Specimens that clarify implementation choices.</h2>
+          <div class="specimen-grid">
+            <figure class="specimen"><img src="examples/palette.svg" alt="Sigra palette specimen"><figcaption>Palette specimen</figcaption></figure>
+            <figure class="specimen"><img src="examples/readme-header.svg" alt="Sigra README header specimen"><figcaption>README header</figcaption></figure>
+            <figure class="specimen"><img src="examples/landing-hero.svg" alt="Sigra landing hero specimen"><figcaption>Landing hero</figcaption></figure>
+            <figure class="specimen"><img src="examples/docs-page.svg" alt="Sigra docs page specimen"><figcaption>Docs page</figcaption></figure>
+            <figure class="specimen"><img src="examples/code-block.svg" alt="Sigra code block specimen"><figcaption>Code block</figcaption></figure>
+            <figure class="specimen"><img src="examples/architecture-diagram.svg" alt="Sigra architecture diagram specimen"><figcaption>Architecture diagram</figcaption></figure>
+          </div>
+        </section>
+
+        <section id="voice">
+          <p class="eyebrow">Voice</p>
+          <h2>Maintainer-grade copy, not SaaS fog.</h2>
+          <div class="rules">
+            <article class="panel">
+              <h3>Use this vocabulary</h3>
+              <ul class="rule-list">
+                <li>Library-owned security-sensitive behavior</li>
+                <li>Generated host-owned Phoenix code</li>
+                <li>Reviewable modules</li>
+                <li>Explicit non-goals</li>
+                <li>Host-owned policy</li>
+              </ul>
+            </article>
+            <article class="panel">
+              <h3>Avoid this vocabulary</h3>
+              <ul class="rule-list">
+                <li>Seamless</li>
+                <li>Magic</li>
+                <li>Next-generation</li>
+                <li>Military-grade</li>
+                <li>Complete identity platform</li>
+              </ul>
+            </article>
+          </div>
+          <div class="copy-block" style="margin-top:var(--sigra-space-4)">
+            <strong>README-ready line:</strong>
+            <p>Sigra gives Phoenix teams an updateable authentication core while keeping generated application code visible in the host repo.</p>
+          </div>
+        </section>
+
+        <section id="blueprint">
+          <p class="eyebrow">Landing and docs blueprint</p>
+          <h2>Every page starts from the same contract.</h2>
+          <div class="table-wrap panel">
+            <table>
+              <thead>
+                <tr><th>Surface</th><th>Required content</th><th>Brand behavior</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Landing hero</td><td>Name, promise, install snippet, docs/GitHub CTAs.</td><td>Show product mechanics first; no abstract hero art.</td></tr>
+                <tr><td>Docs intro</td><td>Installation, quickstart, ownership boundary, example.</td><td>Explain the contract, then show code.</td></tr>
+                <tr><td>Comparison</td><td>phx.gen.auth, hosted auth, composed legacy libraries.</td><td>Boundary-first, not superiority theater.</td></tr>
+                <tr><td>Release note</td><td>Changed behavior, compatibility, migration, proof.</td><td>Concrete, calm, and linkable.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="artifacts">
+          <p class="eyebrow">Repo artifacts</p>
+          <h2>All killer, no filler.</h2>
+          <div class="grid">
+            <article class="panel">
+              <h3>Commit</h3>
+              <p class="quiet">Markdown, HTML, JSON, CSS, SVG logos, SVG specimens.</p>
+            </article>
+            <article class="panel">
+              <h3>Generate only when needed</h3>
+              <p class="quiet">PNG social card exports, PDFs, screenshot captures.</p>
+            </article>
+            <article class="panel">
+              <h3>Keep out</h3>
+              <p class="quiet">Font files, stock images, vendor-locked exports, large binary asset packs.</p>
+            </article>
+          </div>
+        </section>
+
+        <p class="footer">Sigra brandbook v1.0. Source-controlled under <code>brandbook/</code>. Built from repo truth: README, launch docs, security posture, and the v1.34 admin design contract.</p>
+      </main>
+    </div>
+  </body>
+</html>
