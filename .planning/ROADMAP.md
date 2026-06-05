@@ -236,9 +236,17 @@ Plans:
 **Plans**: 4 plans
 Plans:
 
+**Wave 1**
+
 - [ ] 160-01-PLAN.md — Code folds: dark brand-strong CSS override + needs-review link fix + Sigra.Admin shared helper (GATE-01)
 - [ ] 160-02-PLAN.md — GATE-02 parity lane close: admin-generated smoke + installer template sync if needed (GATE-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 160-03-PLAN.md — Dark baseline re-record for D-06 brand-strong fix + allowlist reset (GATE-01)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 160-04-PLAN.md — Design contract ratification + milestone proof bundle + GATE-01/GATE-02 gate flips (GATE-01, GATE-02)
 
 **UI hint**: yes
