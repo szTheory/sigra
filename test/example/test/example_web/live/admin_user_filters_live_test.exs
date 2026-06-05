@@ -36,6 +36,9 @@ defmodule ExampleWeb.AdminUserFiltersLiveTest do
       assert filter_html(conn, platform_admin, "passkeys=true") =~ passkey_user.email
       assert filter_html(conn, platform_admin, "locked=true") =~ locked_user.email
       assert filter_html(conn, platform_admin, "deleted=true") =~ deleted_user.email
+
+      assert filter_html(conn, platform_admin, "needs_review=true") =~ locked_user.email
+      assert filter_html(conn, platform_admin, "needs_review=true") =~ deleted_user.email
     end
 
     test "more filters include provider and registered_from registered_to range controls", %{
