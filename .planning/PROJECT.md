@@ -32,11 +32,11 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
-## Latest Shipped Milestone: v1.35 BRAND-SYSTEM-PRESSURE-TEST
+## Active Milestone: v1.35 BRAND-SYSTEM-PRESSURE-TEST
 
-**Shipped:** 2026-06-05 (Phases 161-166) · 15/15 requirements satisfied · milestone audit passed
+**Status:** Needs ratification (Phases 161-167) · 17/20 requirements satisfied · logo direction review pending
 
-Sigra now has a source-controlled brand system that makes its existing OSS/devtools posture buildable without redesign churn. The milestone extracted the repo's strongest inherited brand truth — production-minded Phoenix auth, library-owned security-sensitive behavior, generated host-owned code, and explicit boundaries — into a self-contained `brandbook/` with a critical audit, HTML brand book, semantic tokens, SVG logo system, visual specimens, voice rules, and repo artifact policy.
+Sigra has source-controlled draft brand collateral that makes its existing OSS/devtools posture buildable without redesign churn. The first pass extracted the repo's strongest inherited brand truth — production-minded Phoenix auth, library-owned security-sensitive behavior, generated host-owned code, and explicit boundaries — into a self-contained `brandbook/`. That pass was useful but process-incomplete: it skipped human logo direction review before claiming milestone completion. Phase 167 repairs that gap by presenting logo options and holding final logo ratification until a direction is selected or critiqued.
 
 Archives:
 - [`.planning/milestones/v1.35-ROADMAP.md`](milestones/v1.35-ROADMAP.md)
@@ -44,14 +44,15 @@ Archives:
 - [`.planning/milestones/v1.35-MILESTONE-AUDIT.md`](milestones/v1.35-MILESTONE-AUDIT.md)
 - [`.planning/milestones/v1.35-phases/`](milestones/v1.35-phases/)
 
-### Just shipped: v1.35 BRAND-SYSTEM-PRESSURE-TEST
+### v1.35 status
 
-- committed `brandbook/pressure-test-audit.md` with the requested 14-section critical audit and KEEP/TIGHTEN/REWORK/ADD/REMOVE judgment
-- committed `brandbook/brand-book.md` with brand DNA, positioning, voice system, microcopy, landing/docs blueprint, accessibility rules, and artifact policy
+- committed draft `brandbook/pressure-test-audit.md` with the requested 14-section critical audit and KEEP/TIGHTEN/REWORK/ADD/REMOVE judgment
+- committed draft `brandbook/brand-book.md` with brand DNA, positioning, voice system, microcopy, landing/docs blueprint, accessibility rules, and artifact policy
 - added `brandbook/tokens.json` and `brandbook/tokens.css` for raw palette, semantic roles, typography, spacing, radius, borders, focus, code, callouts, and states
-- added a small SVG logo system: primary lockup, icon-only mark, monochrome mark, favicon, and social preview card
-- added SVG specimens for palette, typography, README header, landing hero, docs page, code, terminal, component states, and architecture diagram
+- added draft SVG logo collateral and visual specimens, now explicitly marked pending ratification
+- added `brandbook/logo-options/` with five distinct SVG logo directions and review notes
 - added `brandbook/index.html`, a directly openable static HTML brandbook with no build step, CDN, web font, runtime dependency, or raster-heavy payload
+- pending: human logo direction selection/critique, final logo replacement, and final verification before milestone completion
 
 ## Previous Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
 
@@ -156,9 +157,9 @@ Archives:
 
 ## Current State
 
-`v1.35 BRAND-SYSTEM-PRESSURE-TEST` is shipped and archived. Sigra's current posture remains maintenance-first, now with a self-contained brandbook under `brandbook/` for future docs, landing, README, social, and UI/UX collateral. Preserve the released authentication surface, keep the shared admin-component contract coherent, keep brand adoption separate from runtime/generated code unless a focused milestone promotes it, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
+`v1.35 BRAND-SYSTEM-PRESSURE-TEST` is active and needs Phase 167 logo ratification before it can be completed. Sigra's current posture remains maintenance-first, now with self-contained draft brandbook collateral under `brandbook/` for future docs, landing, README, social, and UI/UX work. Preserve the released authentication surface, keep the shared admin-component contract coherent, keep brand adoption separate from runtime/generated code unless a focused milestone promotes it, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: define the next milestone with `$gsd-new-milestone`; phase numbering should continue after Phase 166.
+Next focus: review `brandbook/logo-options/index.html`, choose or critique a direction, then execute Phase 167 plan 02 to finalize and verify the selected logo system. Phase numbering should continue after Phase 167 once v1.35 is ratified.
 
 ## Next Milestone Goals
 
@@ -808,7 +809,7 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-06-05 after v1.34 ADMIN-UI-COHERENCE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.34-*`, phase artifacts moved to `milestones/v1.34-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 25/25 requirements satisfied. Phases continue after **160**.*
 
-*Last updated: 2026-06-05 after v1.35 BRAND-SYSTEM-PRESSURE-TEST milestone — shipped and archived with a self-contained `brandbook/` directory: pressure-test audit, brand book, static HTML review surface, JSON/CSS tokens, SVG logo system, social card, and visual specimens. No runtime library, generated-template, README, HexDocs, or guide adoption changes were made. Phases continue after **166**.*
+*Last updated: 2026-06-05 after v1.35 process correction — the previous v1.35 completion claim was premature because logo options were not shown for human review. v1.35 is reopened with Phase **167** (Logo Options + Brand Direction Review). `brandbook/logo-options/` now contains five draft SVG directions and the current logo files are explicitly draft pending ratification. No runtime library, generated-template, README, HexDocs, or guide adoption changes were made. Phase 167 plan 02 is waiting on human logo direction selection/critique.*
 
 *Last updated: 2026-06-03 — Phase 154 (Design Contract + sg-notice) complete — COMP-03, COMP-04 validated. Committed `guides/reference/admin-design-contract.md` (the governance contract: 10 canonical component jobs with winning CSS/ARIA/motion-incl-explicit-"not-animated"/when-NOT-to-use, plus 3 page archetypes — Overview/List/Detail — as explicit component compositions) and registered it in the mix.exs ExDoc extras. Added the `.sg-notice` style (base + 4 tone variants) inside `@layer sg-components` in `test/example/.../app.css` — a behavior-preserving selector-rename of `.sg-list-row[data-tone]` (same tokens/color-mix/ring-opacity asymmetry, no new `!important`). No LiveView or Playwright-baseline changes (verifier 4/4, status passed). Code review: 1 Warning fixed in-phase (WR-01 — the doc's `app.css` line citations were shifted by this changeset's own CSS insertion; corrected to 1421–1443 / 1463–1473); WR-02 (sg-notice/sg-list-row tone-rule duplication has no drift guard) deferred to a tracked pending todo for the 154→156 migration window. Phases continue from **155** (KEYSTONE: build `Sigra.Admin.Components`).*
 

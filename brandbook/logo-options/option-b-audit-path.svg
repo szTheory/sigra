@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-labelledby="title desc">
+  <title id="title">Option B: Audit Path</title>
+  <desc id="desc">A route-like S path through checkpoints, emphasizing traceability and reviewable auth flows.</desc>
+  <rect x="24" y="28" width="64" height="64" rx="14" fill="#151515"/>
+  <path d="M70 44c-16 0-28 4-28 14 0 18 28 8 28 26 0 10-12 14-28 14" transform="translate(0 -10)" fill="none" stroke="#fdba74" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="43" cy="44" r="5" fill="#fff0e8"/>
+  <circle cx="68" cy="60" r="5" fill="#fff0e8"/>
+  <circle cx="43" cy="76" r="5" fill="#fff0e8"/>
+  <path d="M36 38h-6v44h6M76 38h6v44h-6" fill="none" stroke="#c2410c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="112" y="64" fill="#151515" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="36" font-weight="800">Sigra</text>
+  <text x="112" y="88" fill="#686868" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="13" font-weight="700">traceable auth flow</text>
+</svg>

@@ -76,6 +76,8 @@ Rules:
 
 ### Logo System
 
+**Status:** Draft pending Phase 167 ratification. The first committed logo system is useful working collateral, but it is not final until a direction from `brandbook/logo-options/` is selected or revised.
+
 Files:
 
 - Primary lockup: `logo-primary.svg`
@@ -83,6 +85,7 @@ Files:
 - Monochrome mark: `logo-monochrome.svg`
 - Favicon: `favicon.svg`
 - Social card: `social-card.svg`
+- Draft options: `logo-options/`
 
 Concept: a protected core framed by visible host-code rails. The mark represents Sigra's central architecture: library-owned sensitive behavior surrounded by code the host can inspect and own.
 
@@ -94,6 +97,7 @@ Rules:
 - Minimum mark size: 16px favicon, 24px UI, 40px marketing.
 - Clearspace: at least one quarter of the mark width.
 - Do not rotate, bevel, shadow, gradient-fill, or mascot-extend the mark.
+- Do not replace the draft logo set with a final set until Phase 167 plan 02 runs after human selection/critique.
 
 ## UI And Component Guidance
 
@@ -220,4 +224,3 @@ Use brand tokens for docs and marketing components:
 - Prefer text, CSS, JSON, HTML, and SVG.
 - Do not commit generated PNG/PDF exports by default.
 - If public README/HexDocs surfaces adopt these assets, do that in a separate focused change.
-

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-labelledby="title desc">
+  <title id="title">Option E: Session Gate</title>
+  <desc id="desc">A compact gate-like mark that references session control and explicit access boundaries.</desc>
+  <rect x="24" y="28" width="64" height="64" rx="14" fill="#1f1d1a"/>
+  <path d="M42 76V52c0-9 6-16 14-16s14 7 14 16v24" fill="none" stroke="#fdba74" stroke-width="5" stroke-linecap="round"/>
+  <rect x="38" y="54" width="36" height="28" rx="8" fill="#c2410c"/>
+  <path d="M49 68h14M56 61v14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M34 42h-5v36h5M78 42h5v36h-5" fill="none" stroke="#fff0e8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="112" y="64" fill="#151515" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="36" font-weight="800">Sigra</text>
+  <text x="112" y="88" fill="#686868" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="13" font-weight="700">session boundary, explicit access</text>
+</svg>

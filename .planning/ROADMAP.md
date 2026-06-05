@@ -1,13 +1,13 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.35 BRAND-SYSTEM-PRESSURE-TEST complete (2026-06-05)
+**Status:** v1.35 BRAND-SYSTEM-PRESSURE-TEST reopened — Phase 167 logo ratification pending
 
 ## Milestones
 
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 - ✅ **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (shipped 2026-06-05)
-- ✅ **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-166 (completed 2026-06-05)
+- 🔄 **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-167 (needs logo ratification)
 
 ## Phases
 
@@ -31,16 +31,17 @@ Archive:
 
 </details>
 
-### ✅ v1.35 BRAND-SYSTEM-PRESSURE-TEST (Completed 2026-06-05)
+### 🔄 v1.35 BRAND-SYSTEM-PRESSURE-TEST (Needs Ratification)
 
 **Milestone Goal:** Pressure-test Sigra's brand posture and commit a self-contained brandbook that is useful for docs, READMEs, landing pages, UI/UX buildout, marketing copy, design tokens, SVG logos, and future collateral without causing repo churn or binary sprawl.
 
 - [x] **Phase 161: Brand Evidence Extraction + Pressure-Test Audit** — Repo-derived source review and 14-section audit. (completed 2026-06-05)
 - [x] **Phase 162: Brand DNA + Voice System** — Brand essence, positioning, voice rules, microcopy, and copy blocks. (completed 2026-06-05)
 - [x] **Phase 163: Tokens + UI/UX Buildout Spec** — JSON/CSS tokens, semantic states, component guidance, accessibility posture. (completed 2026-06-05)
-- [x] **Phase 164: Logo + SVG Asset System** — Primary logo, mark, monochrome, favicon, social card, visual specimens. (completed 2026-06-05)
+- [x] **Phase 164: Draft Logo + SVG Asset System** — Primary logo, mark, monochrome, favicon, social card, visual specimens prepared as draft collateral. (completed 2026-06-05)
 - [x] **Phase 165: Static HTML Brand Book** — Directly openable `brandbook/index.html`, no runtime dependencies. (completed 2026-06-05)
 - [x] **Phase 166: Verification + Repo Hygiene** — JSON/SVG/HTML/file-size/git hygiene gates. (completed 2026-06-05)
+- [ ] **Phase 167: Logo Options + Brand Direction Review** — Process repair phase: present logo directions, get human selection/critique, then finalize chosen logo system. (1/2 plans complete; awaiting human selection)
 
 Archive:
 
@@ -70,3 +71,4 @@ Archive:
 | 164. Logo + SVG Asset System | v1.35 | 1/1 | Complete | 2026-06-05 |
 | 165. Static HTML Brand Book | v1.35 | 1/1 | Complete | 2026-06-05 |
 | 166. Verification + Repo Hygiene | v1.35 | 1/1 | Complete | 2026-06-05 |
+| 167. Logo Options + Brand Direction Review | v1.35 | 1/2 | Waiting on user | — |
