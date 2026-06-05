@@ -21,6 +21,7 @@ defmodule Sigra.Admin.Users.Query do
     passkeys
     locked
     deleted
+    needs_review
     provider
     registered_from
     registered_to
@@ -34,6 +35,7 @@ defmodule Sigra.Admin.Users.Query do
     :passkeys,
     :locked,
     :deleted,
+    :needs_review,
     :provider,
     :registered_from,
     :registered_to
@@ -54,6 +56,7 @@ defmodule Sigra.Admin.Users.Query do
         :passkeys,
         :locked,
         :deleted,
+        :needs_review,
         :provider,
         :registered_from,
         :registered_to
@@ -77,6 +80,7 @@ defmodule Sigra.Admin.Users.Query do
       field :passkeys, :boolean
       field :locked, :boolean
       field :deleted, :boolean
+      field :needs_review, :boolean
       field :provider, :string
       field :registered_from, :date
       field :registered_to, :date
@@ -311,7 +315,9 @@ defmodule Sigra.Admin.Users.Query do
   end
 
   defp apply_filter(query, %Flop.Filter{field: :needs_review, value: true}, _helpers) do
-    or_where(query, [user: user], not is_nil(user.locked_at) or not is_nil(user.deleted_at))
+    # `where` (AND) with an internal OR disjunction — NOT `or_where`, which would OR
+    # against the base authorization scope and leak cross-org locked/deleted users.
+    where(query, [user: user], not is_nil(user.locked_at) or not is_nil(user.deleted_at))
   end
 
   defp apply_filter(query, %Flop.Filter{field: :needs_review, value: false}, _helpers), do: query

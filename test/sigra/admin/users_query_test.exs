@@ -328,6 +328,8 @@ defmodule Sigra.Admin.UsersQueryTest do
       assert_ids(ctx, %{"passkeys" => "true"}, [ctx.alice.id])
       assert_ids(ctx, %{"locked" => "true"}, [ctx.bob.id])
       assert_ids(ctx, %{"deleted" => "true"}, [ctx.carol.id])
+      # needs_review is the locked OR deleted union (D-07): bob (locked) + carol (deleted)
+      assert_ids(ctx, %{"needs_review" => "true"}, [ctx.bob.id, ctx.carol.id])
       assert_ids(ctx, %{"provider" => "google"}, [ctx.alice.id])
       assert_ids(ctx, %{"provider" => "local"}, [ctx.carol.id])
       assert_ids(ctx, %{"registered_from" => "2026-02-01"}, [ctx.bob.id, ctx.carol.id])
@@ -393,6 +395,14 @@ defmodule Sigra.Admin.UsersQueryTest do
       assert counts.total == 2
       assert counts.confirmed == 2
       assert counts.deleted == 1
+
+      # needs_review must stay org-scoped: org1 admin sees carol (deleted, in org1) but
+      # NOT bob (locked, in org2). Guards against the or_where regression that would OR
+      # the locked/deleted disjunction against the base authorization scope (WR-01).
+      assert {:ok, {rows, _meta, _params}} =
+               Query.list_users(ctx.config, ctx.org_scope, %{"needs_review" => "true"})
+
+      assert Enum.map(rows, & &1.user.id) == [ctx.carol.id]
     end
   end
 
