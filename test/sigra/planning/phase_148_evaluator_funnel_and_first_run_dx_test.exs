@@ -21,7 +21,10 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     llms = read!("doc/llms.txt")
 
     assert readme =~ "Pick your lane"
-    assert readme =~ "| **Evaluating** | Start with the [Demo Showcase](guides/introduction/demo-showcase.md)"
+
+    assert readme =~
+             "| **Evaluating** | Start with the [Demo Showcase](guides/introduction/demo-showcase.md)"
+
     assert readme =~ "Troubleshooting install"
 
     assert mix_exs =~ ~s(main: "demo-showcase")
@@ -36,9 +39,10 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     showcase = read!("guides/introduction/demo-showcase.md")
     example = read!("test/example/README.md")
 
-    assert showcase =~ "cd test/example"
+    assert showcase =~ "scripts/uat/up.sh"
+    assert showcase =~ "scripts/uat/status.sh"
+    assert showcase =~ "printed `/demo/credentials` URL"
     assert showcase =~ "mix setup && mix phx.server"
-    assert showcase =~ "Open [http://localhost:4000/demo/credentials]"
 
     for email <- [
           "admin@demo.sigra.dev",

@@ -58,6 +58,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <%!-- [2] LOUD ALARM — first child after header; only when data loaded (D-02, Landmine 3) --%>
+      <%!-- Opt in to role=status because the alarm appears only after LiveView connects. --%>
       <.notice
         :if={not @loading}
         tone={if @needs_review > 0, do: :risk, else: :ok}
@@ -175,6 +176,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   defp role_tone(role) do
     case to_string(role) do
+      # Owner/Admin share the same visual tone; the label carries the distinction.
       "owner" -> "info"
       "admin" -> "info"
       _ -> "ok"
@@ -213,18 +215,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
     do: "/admin/organizations/#{slug}/audit"
 
   defp runtime_config! do
-    otp_app =
-      Application.get_env(:sigra, :otp_app) ||
-        raise ArgumentError,
-              "Sigra organization admin overview requires Application.get_env(:sigra, :otp_app)"
-
-    host_config =
-      Application.get_env(otp_app, :sigra_config) ||
-        raise ArgumentError,
-              "Sigra organization admin overview requires Application.get_env(#{inspect(otp_app)}, :sigra_config)"
-
-    host_config
-    |> Keyword.put_new(:otp_app, otp_app)
-    |> Sigra.Config.new!()
+    Sigra.Admin.runtime_config!("Sigra organization admin overview")
   end
 end

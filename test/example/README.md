@@ -19,16 +19,50 @@ scripts/uat/up.sh
 
 The script starts a project-scoped Postgres container on an available local
 port, creates and migrates the demo database, seeds the evaluator personas,
-and prints the exact `PG*` and `PORT` values to use for the Phoenix server.
+and prints the exact server command and URLs. It also writes the current
+runtime values to `tmp/uat.env`, which is ignored by git.
 
-### Manual setup
+In a second terminal, run the server command printed by `scripts/uat/up.sh`.
+It includes the discovered `PG*`, `PORT`, and `SIGRA_EXAMPLE_URL` values:
 
 ```bash
-cd test/example
-PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> mix phx.server
+cd test/example && PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> SIGRA_EXAMPLE_URL=<printed-app-url> iex -S mix phx.server
 ```
 
 Then visit the printed `/demo/credentials` URL first.
+
+### Everyday commands
+
+```bash
+scripts/uat/status.sh       # reprint URLs, ports, and the server command
+scripts/uat/up.sh --print-env
+scripts/uat/down.sh         # stop containers, keep the database volume
+scripts/uat/down.sh --purge # stop containers and delete this stack's database volume
+```
+
+`scripts/uat/up.sh` chooses a Compose project name from your user, branch, and
+checkout path. That lets multiple Sigra checkouts, or sibling Elixir libraries
+with their own demo UIs, run side by side. Postgres and Phoenix use available
+localhost ports by default, so the stack does not reserve `5432` or `4000`.
+
+When you need fixed ports for external callbacks or a debugger, opt in:
+
+```bash
+SIGRA_UAT_PG_PORT=5432 SIGRA_EXAMPLE_PORT=4000 scripts/uat/up.sh
+```
+
+If a fixed port is already occupied, Docker or Phoenix will fail loudly. Drop
+the override and rerun `scripts/uat/up.sh` to return to conflict-free dynamic
+ports.
+
+### Manual setup without Docker
+
+If you already have PostgreSQL running locally, you can skip the UAT helper:
+
+```bash
+cd test/example
+mix setup && mix phx.server
+```
 
 ## Demo Personas
 

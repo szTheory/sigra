@@ -46,6 +46,7 @@ defmodule Sigra.Admin.Live.IndexLive do
         </p>
       </header>
 
+      <%!-- Opt in to role=status because the alarm appears only after LiveView connects. --%>
       <.notice
         :if={not @loading}
         tone={if @needs_review > 0, do: :risk, else: :ok}
@@ -155,17 +156,6 @@ defmodule Sigra.Admin.Live.IndexLive do
   end
 
   defp runtime_config! do
-    otp_app =
-      Application.get_env(:sigra, :otp_app) ||
-        raise ArgumentError, "Sigra admin overview requires Application.get_env(:sigra, :otp_app)"
-
-    host_config =
-      Application.get_env(otp_app, :sigra_config) ||
-        raise ArgumentError,
-              "Sigra admin overview requires Application.get_env(#{inspect(otp_app)}, :sigra_config)"
-
-    host_config
-    |> Keyword.put_new(:otp_app, otp_app)
-    |> Sigra.Config.new!()
+    Sigra.Admin.runtime_config!("Sigra admin overview")
   end
 end
