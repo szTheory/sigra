@@ -11,7 +11,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   alias Sigra.Admin.Users.Hooks
   alias Sigra.Admin.Users.Query
 
-  @quick_filter_keys ~w(confirmed mfa passkeys locked deleted)
+  @quick_filter_keys ~w(confirmed mfa passkeys locked deleted needs_review)
   @more_filter_keys ~w(provider registered_from registered_to organization)
 
   @impl true
@@ -434,6 +434,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   # more keys read "Label: value".
   defp chip_label("mfa", nil), do: "MFA"
   defp chip_label("passkeys", nil), do: "Passkeys"
+  defp chip_label("needs_review", nil), do: "Needs review"
   defp chip_label(key, nil), do: String.capitalize(key)
   defp chip_label("provider", value), do: "Provider: " <> value
   defp chip_label("registered_from", value), do: "Registered from: " <> value

@@ -310,6 +310,12 @@ defmodule Sigra.Admin.Users.Query do
     end
   end
 
+  defp apply_filter(query, %Flop.Filter{field: :needs_review, value: true}, _helpers) do
+    or_where(query, [user: user], not is_nil(user.locked_at) or not is_nil(user.deleted_at))
+  end
+
+  defp apply_filter(query, %Flop.Filter{field: :needs_review, value: false}, _helpers), do: query
+
   defp apply_filter(query, %Flop.Filter{field: :provider, value: value}, helpers) do
     provider = String.downcase(to_string(value))
 

@@ -42,7 +42,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :needs_review, needs_review(assigns.summary_counts))
+    assigns = assign(assigns, :needs_review, Sigra.Admin.needs_review(assigns.summary_counts))
 
     ~H"""
     <section class="sg-stack sg-stack--6">
@@ -64,7 +64,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         role="status"
       >
         <%= if @needs_review > 0 do %>
-          {@needs_review} {if @needs_review == 1, do: "account needs", else: "accounts need"} review — <a href={users_path(@admin_scope) <> "?locked=true"}>Review now</a>
+          {@needs_review} {if @needs_review == 1, do: "account needs", else: "accounts need"} review — <a href={users_path(@admin_scope) <> "?needs_review=true"}>Review now</a>
         <% else %>
           All clear
         <% end %>
@@ -111,7 +111,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
             <.stat_link
               label="Locked"
               value={Map.get(@summary_counts, :locked, 0)}
-              href={users_path(@admin_scope) <> "?locked=true"}
+              href={users_path(@admin_scope) <> "?needs_review=true"}
             />
           <% end %>
         </div>
@@ -211,10 +211,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
 
   defp audit_path(%Scope{organization_slug: slug}) when is_binary(slug),
     do: "/admin/organizations/#{slug}/audit"
-
-  defp needs_review(counts) do
-    Map.get(counts, :locked, 0) + Map.get(counts, :deleted, 0)
-  end
 
   defp runtime_config! do
     otp_app =

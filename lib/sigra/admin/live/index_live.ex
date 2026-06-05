@@ -33,7 +33,7 @@ defmodule Sigra.Admin.Live.IndexLive do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :needs_review, needs_review(assigns.summary_counts))
+    assigns = assign(assigns, :needs_review, Sigra.Admin.needs_review(assigns.summary_counts))
 
     ~H"""
     <section class="sg-stack sg-stack--6">
@@ -53,7 +53,7 @@ defmodule Sigra.Admin.Live.IndexLive do
       >
         <%= if @needs_review > 0 do %>
           {@needs_review} accounts need review —
-          <a href="/admin/users?locked=true">Review now</a>
+          <a href="/admin/users?needs_review=true">Review now</a>
         <% else %>
           All clear
         <% end %>
@@ -75,7 +75,7 @@ defmodule Sigra.Admin.Live.IndexLive do
         <.task_card
           title="Review risky accounts"
           body="Jump straight to locked or deletion-scheduled accounts before they surprise support."
-          href="/admin/users?locked=true"
+          href="/admin/users?needs_review=true"
           action="Review locked"
         />
       </div>
@@ -112,7 +112,7 @@ defmodule Sigra.Admin.Live.IndexLive do
             <.stat_link
               label="Locked"
               value={Map.get(@summary_counts, :locked, 0)}
-              href="/admin/users?locked=true"
+              href="/admin/users?needs_review=true"
             />
             <.stat_link
               label="Deleted"
@@ -152,10 +152,6 @@ defmodule Sigra.Admin.Live.IndexLive do
       <span class="sg-capability__desc">{@desc}</span>
     </div>
     """
-  end
-
-  defp needs_review(counts) do
-    Map.get(counts, :locked, 0) + Map.get(counts, :deleted, 0)
   end
 
   defp runtime_config! do
