@@ -63,6 +63,20 @@
         color: var(--sigra-text-muted);
         font-size: var(--sigra-text-sm);
       }
+      .selected {
+        border: 2px solid var(--sigra-accent);
+      }
+      .selected h2::after {
+        content: "Selected";
+        display: inline-block;
+        margin-left: var(--sigra-space-2);
+        padding: 0.15rem 0.45rem;
+        border-radius: var(--sigra-radius-sm);
+        background: var(--sigra-accent-soft);
+        color: var(--sigra-accent-strong);
+        font-size: var(--sigra-text-xs);
+        vertical-align: middle;
+      }
       a {
         color: var(--sigra-accent-strong);
         font-weight: var(--sigra-weight-bold);
@@ -72,15 +86,15 @@
   <body>
     <main>
       <a href="../index.html">Back to brandbook</a>
-      <h1>Logo options, not a decision.</h1>
-      <p>Phase 167 reopens the brand milestone for the missing direction review. These are draft SVG directions. Pick one, critique one, or reject the set before the final logo system is ratified.</p>
+      <h1>Logo review archive.</h1>
+      <p>Phase 167 selected Option A: Core Rails as the final Sigra logo direction. These SVGs remain as comparison history; the active assets live one directory up.</p>
 
       <div class="grid">
-        <article>
+        <article class="selected">
           <img src="option-a-core-rails.svg" alt="Option A Core Rails">
           <div class="copy">
             <h2>A. Core Rails</h2>
-            <p class="risk">Best continuity and strongest architecture metaphor. Risk: needs explanation when seen cold.</p>
+            <p class="risk">Ratified direction. Best continuity and strongest architecture metaphor; pair with the visible-host-code explanation when seen cold.</p>
           </div>
         </article>
         <article>

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
   <title id="title">Sigra social preview card</title>
-  <desc id="desc">A social preview card for Sigra, a production-minded authentication library for Phoenix 1.8 and later.</desc>
+  <desc id="desc">A social preview card for Sigra using the ratified Core Rails mark.</desc>
   <defs>
     <style>
       .bg { fill: #f6f5f2; }

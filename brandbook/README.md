@@ -19,12 +19,12 @@ Open [`index.html`](index.html) directly in a browser. It has no build step, CDN
 | [`logo-monochrome.svg`](logo-monochrome.svg) | One-color mark for restricted contexts. |
 | [`favicon.svg`](favicon.svg) | Browser/favicon source. |
 | [`social-card.svg`](social-card.svg) | SVG social preview source. Export PNG only when a platform requires it. |
-| [`logo-options/`](logo-options/) | Phase 167 draft logo directions for human selection/critique before ratification. |
+| [`logo-options/`](logo-options/) | Phase 167 logo direction review archive; Option A was selected. |
 | [`examples/`](examples/) | Source-controlled visual specimens for palette, type, README, landing, docs, code, terminal, components, and diagrams. |
 
 ## Ratification Status
 
-The current logo files are draft collateral. Phase 167 reopened v1.35 because the first pass incorrectly skipped logo direction review. Pick or critique a direction from [`logo-options/`](logo-options/) before treating `logo-primary.svg`, `logo-mark.svg`, `logo-monochrome.svg`, `favicon.svg`, or `social-card.svg` as final.
+The current logo files are ratified Phase 167 assets. The selected direction is **Option A: Core Rails**, which represents Sigra's library-owned protected core framed by visible host-owned code rails. [`logo-options/`](logo-options/) remains as review history and comparison collateral.
 
 ## Maintenance Rules
 

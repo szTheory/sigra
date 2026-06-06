@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
   <title id="title">Sigra mark</title>
-  <desc id="desc">A compact Sigra symbol showing a protected core framed by visible code rails.</desc>
+  <desc id="desc">The ratified Core Rails symbol showing a protected core framed by visible code rails.</desc>
   <rect width="64" height="64" rx="14" fill="#c2410c"/>
   <path d="M22 18h-5v28h5" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M42 18h5v28h-5" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>

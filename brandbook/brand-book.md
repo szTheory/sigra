@@ -76,7 +76,7 @@ Rules:
 
 ### Logo System
 
-**Status:** Draft pending Phase 167 ratification. The first committed logo system is useful working collateral, but it is not final until a direction from `brandbook/logo-options/` is selected or revised.
+**Status:** Ratified in Phase 167. The selected direction is **Option A: Core Rails**, chosen for continuity with Sigra's architecture metaphor and small-size durability.
 
 Files:
 
@@ -85,7 +85,7 @@ Files:
 - Monochrome mark: `logo-monochrome.svg`
 - Favicon: `favicon.svg`
 - Social card: `social-card.svg`
-- Draft options: `logo-options/`
+- Logo review archive: `logo-options/`
 
 Concept: a protected core framed by visible host-code rails. The mark represents Sigra's central architecture: library-owned sensitive behavior surrounded by code the host can inspect and own.
 
@@ -97,7 +97,7 @@ Rules:
 - Minimum mark size: 16px favicon, 24px UI, 40px marketing.
 - Clearspace: at least one quarter of the mark width.
 - Do not rotate, bevel, shadow, gradient-fill, or mascot-extend the mark.
-- Do not replace the draft logo set with a final set until Phase 167 plan 02 runs after human selection/critique.
+- Preserve the Core Rails metaphor when creating future variants; `logo-options/` remains review history, not the active logo source.
 
 ## UI And Component Guidance
 
