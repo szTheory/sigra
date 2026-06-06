@@ -11,8 +11,13 @@
     <rect y="208" width="360" height="72" rx="12"/>
     <path d="M180 72v32M180 176v32"/>
   </g>
+  <g transform="translate(98 96)">
+    <path d="M17 14v14M32 23v18M47 36v14" fill="none" stroke="#fdba74" stroke-width="8" stroke-linecap="round"/>
+    <path d="M17 36v14M47 14v14" fill="none" stroke="#c2410c" stroke-width="8" stroke-linecap="round"/>
+    <path d="M17 32h30" fill="none" stroke="#9a3412" stroke-width="4" stroke-linecap="round"/>
+  </g>
   <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
-    <text x="104" y="164" fill="#151515" font-size="78" font-weight="800" letter-spacing="0">Sigra</text>
+    <text x="170" y="150" fill="#151515" font-size="64" font-weight="850" letter-spacing="0">Sigra</text>
     <text x="104" y="246" fill="#151515" font-size="58" font-weight="800" letter-spacing="0">Auth you can keep</text>
     <text x="104" y="310" fill="#151515" font-size="58" font-weight="800" letter-spacing="0">patching after install.</text>
     <text x="104" y="380" fill="#686868" font-size="23" font-weight="600" letter-spacing="0">Phoenix-native auth with an updateable security core and generated host code that stays visible in your repo.</text>

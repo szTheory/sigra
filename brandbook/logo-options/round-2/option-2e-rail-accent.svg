@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Option 2E: Rail Accent</title>
+  <desc id="desc">A wordmark-compatible rail accent made from staggered host-code rails, designed as a favicon seed.</desc>
+  <rect width="64" height="64" rx="12" fill="#151515"/>
+  <path d="M19 16v13M32 24v16M45 35v13" fill="none" stroke="#fdba74" stroke-width="8" stroke-linecap="round"/>
+  <path d="M19 35v13M45 16v13" fill="none" stroke="#c2410c" stroke-width="8" stroke-linecap="round"/>
+  <path d="M19 32h26" fill="none" stroke="#fff0e8" stroke-width="4" stroke-linecap="round"/>
+</svg>

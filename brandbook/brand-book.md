@@ -76,28 +76,32 @@ Rules:
 
 ### Logo System
 
-**Status:** Ratified in Phase 167. The selected direction is **Option A: Core Rails**, chosen for continuity with Sigra's architecture metaphor and small-size durability.
+Sigra uses the **Rail Accent tight lockup** as its primary identity system. The mark keeps the host-rail metaphor while reading as a clean, wordmark-led developer brand.
 
 Files:
 
-- Primary lockup: `logo-primary.svg`
-- Mark: `logo-mark.svg`
+- Primary light lockup: `logo-primary.svg`
+- Primary dark lockup: `logo-primary-dark.svg`
+- Free-standing mark: `logo-mark.svg`
 - Monochrome mark: `logo-monochrome.svg`
-- Favicon: `favicon.svg`
+- Favicon source: `favicon.svg`
 - Social card: `social-card.svg`
-- Logo review archive: `logo-options/`
 
-Concept: a protected core framed by visible host-code rails. The mark represents Sigra's central architecture: library-owned sensitive behavior surrounded by code the host can inspect and own.
+Concept: visible host-code rails around a patchable core. The mark represents Sigra's central architecture without diagramming it too literally: library-owned sensitive behavior stays updateable while generated Phoenix code remains visible to the host application.
 
 Rules:
 
 - Use the primary lockup for brandbook, landing, README visuals, and presentation openings.
-- Use the mark for favicon, social avatar, package avatar, and compact cards.
-- Use monochrome where print, low-color, or very small UI requires it.
+- Use `logo-primary.svg` on light surfaces and `logo-primary-dark.svg` on dark surfaces.
+- Use the free-standing mark for UI accents where a tile would feel too heavy.
+- Use `favicon.svg` for browser favicon; it uses the same Rail Accent geometry as `logo-mark.svg`.
+- Use the free-standing mark for package avatars, social avatars, and compact cards unless a platform requires a separate filled-square export.
+- Use monochrome where print, low-color, or restricted-color contexts require it.
 - Minimum mark size: 16px favicon, 24px UI, 40px marketing.
 - Clearspace: at least one quarter of the mark width.
 - Do not rotate, bevel, shadow, gradient-fill, or mascot-extend the mark.
-- Preserve the Core Rails metaphor when creating future variants; `logo-options/` remains review history, not the active logo source.
+- Do not put the black-wordmark light lockup on a dark surface.
+- Preserve the Rail Accent metaphor when creating future variants; active production assets live in the files listed above.
 
 ## UI And Component Guidance
 

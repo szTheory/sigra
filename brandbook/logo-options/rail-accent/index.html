@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sigra Rail Accent Variations</title>
+    <link rel="stylesheet" href="../../tokens.css">
+    <style>
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background:
+          linear-gradient(90deg, rgba(253, 186, 116, 0.08) 1px, transparent 1px),
+          linear-gradient(rgba(253, 186, 116, 0.055) 1px, transparent 1px),
+          #151515;
+        background-size: 54px 54px;
+        color: #f4f1eb;
+        font-family: var(--sigra-font-sans);
+        line-height: var(--sigra-leading-normal);
+        letter-spacing: 0;
+      }
+      a {
+        color: #fdba74;
+        font-weight: var(--sigra-weight-bold);
+      }
+      img,
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      main {
+        width: min(92rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: var(--sigra-space-8) 0 var(--sigra-space-16);
+      }
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: var(--sigra-space-3);
+        border-bottom: 1px solid rgba(255,255,255,0.14);
+        padding-bottom: var(--sigra-space-4);
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-3);
+        font-size: var(--sigra-text-sm);
+      }
+      .pill {
+        border: 1px solid rgba(253,186,116,0.36);
+        border-radius: var(--sigra-radius-full);
+        color: #fdba74;
+        font-size: var(--sigra-text-xs);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.35rem 0.65rem;
+        text-transform: uppercase;
+      }
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-6);
+        padding: var(--sigra-space-10) 0 var(--sigra-space-8);
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+      h1 {
+        max-width: 12ch;
+        margin-bottom: var(--sigra-space-4);
+        font-size: clamp(2.7rem, 8vw, 7.2rem);
+        line-height: 0.88;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin-bottom: var(--sigra-space-3);
+        font-size: clamp(1.45rem, 3vw, 2.35rem);
+        line-height: var(--sigra-leading-tight);
+        letter-spacing: 0;
+      }
+      h3 {
+        margin-bottom: var(--sigra-space-2);
+        font-size: var(--sigra-text-md);
+        letter-spacing: 0;
+      }
+      .kicker {
+        color: #fdba74;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+      }
+      .lead {
+        max-width: 64ch;
+        color: #d8d0c4;
+        font-size: clamp(1.08rem, 1.8vw, 1.32rem);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .review-note {
+        align-content: start;
+        border-left: 3px solid #c2410c;
+        background: rgba(31,29,26,0.78);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.09);
+        padding: var(--sigra-space-5);
+      }
+      .review-note p {
+        color: #d8d0c4;
+      }
+      .rules {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-2);
+        margin: var(--sigra-space-5) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .rules li {
+        border: 1px solid rgba(253,186,116,0.28);
+        border-radius: var(--sigra-radius-full);
+        background: rgba(253,186,116,0.08);
+        color: #fdba74;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.36rem 0.62rem;
+      }
+      .comparison {
+        display: grid;
+        gap: var(--sigra-space-6);
+      }
+      .variant {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-4);
+        border-top: 1px solid rgba(255,255,255,0.15);
+        padding-top: var(--sigra-space-6);
+      }
+      .variant.source {
+        border-top-color: #fdba74;
+      }
+      .variant-copy {
+        align-content: start;
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .label {
+        color: #fdba74;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+      }
+      .variant.source .label::after {
+        content: "Source";
+        display: inline-block;
+        margin-left: var(--sigra-space-2);
+        border: 1px solid rgba(253,186,116,0.42);
+        border-radius: var(--sigra-radius-full);
+        color: #f4f1eb;
+        font-family: var(--sigra-font-sans);
+        font-size: var(--sigra-text-xs);
+        padding: 0.12rem 0.5rem;
+        text-transform: uppercase;
+      }
+      .variant-copy p,
+      .critique p {
+        color: #cfc6ba;
+        margin-bottom: 0;
+      }
+      .previews {
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .surface {
+        display: grid;
+        min-height: 9.5rem;
+        align-content: center;
+        border-radius: var(--sigra-radius-xs);
+        padding: var(--sigra-space-4);
+      }
+      .surface.light {
+        background: #f6f5f2;
+        color: #151515;
+        box-shadow: inset 0 0 0 1px rgba(21,21,21,0.11);
+      }
+      .surface.dark {
+        background: #171614;
+        color: #f4f1eb;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.13);
+      }
+      .lockup {
+        display: inline-grid;
+        grid-template-columns: 3.9rem auto;
+        align-items: center;
+        gap: 0.55rem;
+        width: max-content;
+        max-width: 100%;
+      }
+      .lockup.integrated {
+        grid-template-columns: 3.35rem auto;
+        gap: 0.35rem;
+      }
+      .lockup.tile {
+        grid-template-columns: 3.7rem auto;
+        gap: 0.6rem;
+      }
+      .lockup img {
+        width: 3.9rem;
+        height: 3.9rem;
+      }
+      .lockup.integrated img {
+        width: 3.35rem;
+        height: 3.35rem;
+      }
+      .lockup.tile img {
+        width: 3.7rem;
+        height: 3.7rem;
+      }
+      .wordmark {
+        display: block;
+        font-size: clamp(3.25rem, 7vw, 5rem);
+        font-weight: 850;
+        line-height: 0.85;
+        letter-spacing: 0;
+      }
+      .wordmark.tight {
+        margin-left: -0.08rem;
+      }
+      .mark-lab {
+        display: grid;
+        grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
+        gap: var(--sigra-space-4);
+        align-items: center;
+        border-top: 1px solid rgba(255,255,255,0.10);
+        padding-top: var(--sigra-space-3);
+      }
+      .mark-stage {
+        display: grid;
+        place-items: center;
+        width: 6.25rem;
+        height: 6.25rem;
+        border-radius: var(--sigra-radius-xs);
+        background: #f6f5f2;
+        box-shadow: inset 0 0 0 1px rgba(21,21,21,0.10);
+      }
+      .mark-stage.dark {
+        background: #171614;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.13);
+      }
+      .mark-stage img {
+        width: 4rem;
+        height: 4rem;
+      }
+      .favicons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: var(--sigra-space-4);
+      }
+      .favicon {
+        display: grid;
+        gap: 0.35rem;
+        color: #bdb5aa;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-xs);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .mono-sample {
+        color: currentColor;
+      }
+      .mono-invert {
+        filter: invert(1);
+      }
+      .critique {
+        display: grid;
+        gap: var(--sigra-space-3);
+        align-content: start;
+      }
+      .verdict {
+        color: #fdba74;
+        font-weight: var(--sigra-weight-bold);
+      }
+      .tradeoff {
+        border-top: 1px solid rgba(255,255,255,0.10);
+        color: #fdba74;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding-top: var(--sigra-space-3);
+      }
+      footer {
+        border-top: 1px solid rgba(255,255,255,0.15);
+        color: #bdb5aa;
+        margin-top: var(--sigra-space-8);
+        padding-top: var(--sigra-space-5);
+      }
+      @media (min-width: 920px) {
+        header { grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr); }
+        .variant { grid-template-columns: minmax(14rem, 0.62fr) minmax(0, 1.5fr) minmax(17rem, 0.72fr); }
+      }
+      @media (max-width: 560px) {
+        main { width: min(100% - 1rem, 92rem); }
+        .surface { min-height: 7.5rem; }
+        .lockup,
+        .lockup.integrated,
+        .lockup.tile {
+          grid-template-columns: 2.9rem auto;
+          gap: 0.32rem;
+        }
+        .lockup img,
+        .lockup.integrated img,
+        .lockup.tile img {
+          width: 2.9rem;
+          height: 2.9rem;
+        }
+        .wordmark {
+          font-size: clamp(2.35rem, 14vw, 3.2rem);
+        }
+        .mark-lab { grid-template-columns: minmax(0, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="topbar">
+        <nav class="links" aria-label="Logo review links">
+          <a href="../index.html">Early concepts</a>
+          <a href="../round-2/index.html">Round 2 board</a>
+          <a href="../../index.html">Brandbook</a>
+          <a href="README.md">Variation notes</a>
+        </nav>
+        <span class="pill">Rail Accent specimens</span>
+      </div>
+
+      <header>
+        <div>
+          <p class="kicker">Primary lockup / no slogan / tight mark gap</p>
+          <h1>Make the rail do less.</h1>
+          <p class="lead">The Rail Accent carries Sigra best when it stays restrained: visible rails, a confident wordmark, and small marks that stay legible without turning into generic app badges.</p>
+          <ul class="rules" aria-label="Variation constraints">
+            <li>No subtitle</li>
+            <li>Bigger wordmark</li>
+            <li>Tight mark gap</li>
+            <li>Tile only when useful</li>
+            <li>Light and dark first</li>
+          </ul>
+        </div>
+        <aside class="review-note">
+          <h2>System behavior</h2>
+          <p>The primary lockup is transparent and wordmark-led. The favicon uses the same Rail Accent geometry as the free-standing mark.</p>
+          <p>Light and dark lockups use explicit assets so contrast stays predictable when the logo is embedded as an image.</p>
+        </aside>
+      </header>
+
+      <section class="comparison" aria-label="Rail Accent logo specimens">
+        <article class="variant source" id="ra-01">
+          <div class="variant-copy">
+            <span class="label">RA-01</span>
+            <h2>Tight Lockup</h2>
+            <p>Primary source study: the rail accent becomes a free-standing mark and sits close to a larger Sigra wordmark.</p>
+          </div>
+          <div class="previews">
+            <div class="surface light">
+              <div class="lockup"><img src="ra-01-tight-lockup.svg" alt=""><strong class="wordmark tight">Sigra</strong></div>
+            </div>
+            <div class="surface dark">
+              <div class="lockup"><img src="ra-01-tight-lockup.svg" alt=""><strong class="wordmark tight">Sigra</strong></div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="ra-01-tight-lockup.svg" alt="RA-01 Tight Lockup mark"></div>
+              <div class="favicons">
+                <span class="favicon"><img src="ra-01-tight-lockup.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon"><img src="ra-01-tight-lockup.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon"><img src="ra-01-tight-lockup.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="critique">
+            <p class="verdict">Likely strongest primary lockup.</p>
+            <p>It keeps the visual rhythm you liked while dropping the badge. The wordmark feels closer and more confident.</p>
+            <p class="tradeoff">Risk: mark-alone use needs a controlled background because the free-standing rails are intentionally light.</p>
+          </div>
+        </article>
+
+        <article class="variant" id="ra-02">
+          <div class="variant-copy">
+            <span class="label">RA-02</span>
+            <h2>Inline Rail</h2>
+            <p>The accent compresses toward the wordmark, acting less like an icon and more like a proprietary leading glyph.</p>
+          </div>
+          <div class="previews">
+            <div class="surface light">
+              <div class="lockup integrated"><img src="ra-02-inline-rail.svg" alt=""><strong class="wordmark">Sigra</strong></div>
+            </div>
+            <div class="surface dark">
+              <div class="lockup integrated"><img src="ra-02-inline-rail.svg" alt=""><strong class="wordmark">Sigra</strong></div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage dark"><img src="ra-02-inline-rail.svg" alt="RA-02 Inline Rail mark"></div>
+              <div class="favicons">
+                <span class="favicon"><img src="ra-02-inline-rail.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon"><img src="ra-02-inline-rail.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon"><img src="ra-02-inline-rail.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="critique">
+            <p class="verdict">Best if the mark should feel attached to the name.</p>
+            <p>It makes the rail accent less app-icon-like and more like a wordmark system.</p>
+            <p class="tradeoff">Risk: the accent is less satisfying as a standalone avatar than RA-03.</p>
+          </div>
+        </article>
+
+        <article class="variant" id="ra-03">
+          <div class="variant-copy">
+            <span class="label">RA-03</span>
+            <h2>Bounded Avatar Study</h2>
+            <p>The bounded version is an archived small-surface study for platform-specific square avatar needs.</p>
+          </div>
+          <div class="previews">
+            <div class="surface light">
+              <div class="lockup tile"><img src="ra-03-soft-tile-favicon.svg" alt=""><strong class="wordmark">Sigra</strong></div>
+            </div>
+            <div class="surface dark">
+              <div class="lockup tile"><img src="ra-03-soft-tile-favicon.svg" alt=""><strong class="wordmark">Sigra</strong></div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="ra-03-soft-tile-favicon.svg" alt="RA-03 Bounded Avatar Study mark"></div>
+              <div class="favicons">
+                <span class="favicon"><img src="ra-03-soft-tile-favicon.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon"><img src="ra-03-soft-tile-favicon.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon"><img src="ra-03-soft-tile-favicon.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="critique">
+            <p class="verdict">Archived bounded-mark study.</p>
+            <p>The tile is useful only when a platform requires a filled square avatar.</p>
+            <p class="tradeoff">Do not use it as the default favicon source.</p>
+          </div>
+        </article>
+
+        <article class="variant" id="ra-04">
+          <div class="variant-copy">
+            <span class="label">RA-04</span>
+            <h2>Open Rail Frame</h2>
+            <p>A partial boundary surrounds the accent without closing into a rounded rectangle, shield, or lock.</p>
+          </div>
+          <div class="previews">
+            <div class="surface light">
+              <div class="lockup"><img src="ra-04-open-rail-frame.svg" alt=""><strong class="wordmark tight">Sigra</strong></div>
+            </div>
+            <div class="surface dark">
+              <div class="lockup"><img src="ra-04-open-rail-frame.svg" alt=""><strong class="wordmark tight">Sigra</strong></div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage dark"><img src="ra-04-open-rail-frame.svg" alt="RA-04 Open Rail Frame mark"></div>
+              <div class="favicons">
+                <span class="favicon"><img src="ra-04-open-rail-frame.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon"><img src="ra-04-open-rail-frame.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon"><img src="ra-04-open-rail-frame.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="critique">
+            <p class="verdict">Best protected-core hint without a badge.</p>
+            <p>The corners add a boundary signal while keeping the mark lighter and less overplayed.</p>
+            <p class="tradeoff">Risk: the frame detail gets delicate at 16px.</p>
+          </div>
+        </article>
+
+        <article class="variant" id="ra-05">
+          <div class="variant-copy">
+            <span class="label">RA-05</span>
+            <h2>Monochrome Rail</h2>
+            <p>A one-color durability test for low-color, print, GitHub, and docs edge cases.</p>
+          </div>
+          <div class="previews">
+            <div class="surface light">
+              <div class="lockup mono-sample" style="color:#151515"><img src="ra-05-monochrome-rail.svg" alt=""><strong class="wordmark tight">Sigra</strong></div>
+            </div>
+            <div class="surface dark">
+              <div class="lockup mono-sample" style="color:#f4f1eb"><img class="mono-invert" src="ra-05-monochrome-rail.svg" alt=""><strong class="wordmark tight">Sigra</strong></div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage dark mono-sample" style="color:#f4f1eb"><img class="mono-invert" src="ra-05-monochrome-rail.svg" alt="RA-05 Monochrome Rail mark"></div>
+              <div class="favicons">
+                <span class="favicon"><img class="mono-invert" src="ra-05-monochrome-rail.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon"><img class="mono-invert" src="ra-05-monochrome-rail.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon"><img class="mono-invert" src="ra-05-monochrome-rail.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="critique">
+            <p class="verdict">System requirement specimen.</p>
+            <p>It proves the rail idea can survive restricted color contexts.</p>
+            <p class="tradeoff">Production use should export explicit black and white mono assets rather than relying on CSS filters.</p>
+          </div>
+        </article>
+      </section>
+
+      <footer>
+        <p>This board is archive/reference material. Active production logo files live in the parent brandbook directory.</p>
+      </footer>
+    </main>
+  </body>
+</html>

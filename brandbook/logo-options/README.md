@@ -1,6 +1,8 @@
-# Sigra Logo Direction Options
+# Sigra Logo Exploration Archive
 
-These are the Phase 167 direction-review records. **Option A: Core Rails** was selected and ratified as the final logo direction; the other options remain comparison history.
+This folder preserves logo exploration artifacts for provenance. Active production logo guidance lives in the parent brandbook files.
+
+The active Sigra identity uses the Rail Accent source set: primary light and dark lockups, a free-standing mark, a favicon source with the same mark geometry, a monochrome mark, and a social card source.
 
 ## Selection Criteria
 
@@ -12,24 +14,24 @@ Use these criteria when choosing or critiquing:
 - Does it feel credible on GitHub, Hex.pm, HexDocs, docs pages, and conference slides?
 - Does it create useful design constraints without making future implementation fragile?
 
-## Options
+## Historical Concepts
 
-| Option | File | Best case | Risk |
+| Option | File | Notes | Archive status |
 | --- | --- | --- | --- |
-| A. Core Rails | [`option-a-core-rails.svg`](option-a-core-rails.svg) | Selected direction. Strongest continuity with the brandbook and most literal architecture metaphor. | Needs the "visible host code" explanation when seen cold. |
-| B. Audit Path | [`option-b-audit-path.svg`](option-b-audit-path.svg) | Best if Sigra wants traceability and audit semantics to lead the identity. | Small nodes can become busy at favicon size. |
-| C. Keystone Core | [`option-c-keystone-core.svg`](option-c-keystone-core.svg) | Strong substrate/library metaphor; less generic than a lock. | Keystone shape may need refinement to avoid feeling like construction branding. |
-| D. Wordmark Only | [`option-d-wordmark-only.svg`](option-d-wordmark-only.svg) | Lowest abstraction risk and most OSS-maintainer restrained. | Needs a separate favicon mark or very careful rail accent extraction. |
-| E. Session Gate | [`option-e-session-gate.svg`](option-e-session-gate.svg) | Most immediately auth-adjacent while still referencing explicit boundaries. | Closest to generic lock/gate territory; use only if recognizability matters more than distinctiveness. |
+| A. Core Rails | [`option-a-core-rails.svg`](option-a-core-rails.svg) | Literal protected-core and rail metaphor. | Historical concept. |
+| B. Audit Path | [`option-b-audit-path.svg`](option-b-audit-path.svg) | Traceability-led route with checkpoint nodes. | Historical concept. |
+| C. Keystone Core | [`option-c-keystone-core.svg`](option-c-keystone-core.svg) | Substrate/library metaphor. | Historical concept. |
+| D. Wordmark Only | [`option-d-wordmark-only.svg`](option-d-wordmark-only.svg) | Restrained text-led route. | Historical concept. |
+| E. Session Gate | [`option-e-session-gate.svg`](option-e-session-gate.svg) | Bounded mark with auth-adjacent structure. | Historical concept. |
 
-## Ratified Direction
+## Active Source Set
 
-Option A is the ratified direction. It is specific to Sigra's hybrid model, simple enough for maintainers to edit, and strong at small sizes.
-
-Option D is the conservative fallback if any symbol feels like over-branding for an OSS library.
-
-Option E is the safest recognizable-auth option, but it is also the most likely to blend into the broader auth/devtools category.
+- Primary light lockup: [`../logo-primary.svg`](../logo-primary.svg)
+- Primary dark lockup: [`../logo-primary-dark.svg`](../logo-primary-dark.svg)
+- Free-standing mark: [`../logo-mark.svg`](../logo-mark.svg)
+- Favicon source: [`../favicon.svg`](../favicon.svg)
+- Monochrome mark: [`../logo-monochrome.svg`](../logo-monochrome.svg)
 
 ## Historical Alternatives
 
-Use the remaining options only as history if future work reopens the logo system. Do not treat them as active variants without a new focused decision.
+Use archived options only for provenance or future research. Do not treat them as active variants without updating the brandbook source set.

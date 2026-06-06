@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sigra Logo Options — Round 2</title>
+    <link rel="stylesheet" href="../../tokens.css">
+    <style>
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background:
+          linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+          #171614;
+        background-size: 44px 44px;
+        color: #f4f1eb;
+        font-family: var(--sigra-font-sans);
+        line-height: var(--sigra-leading-normal);
+        letter-spacing: 0;
+      }
+      a { color: #fdba74; font-weight: var(--sigra-weight-bold); }
+      img { display: block; max-width: 100%; height: auto; }
+      main {
+        width: min(90rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: var(--sigra-space-8) 0 var(--sigra-space-16);
+      }
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sigra-space-3);
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+        padding-bottom: var(--sigra-space-4);
+      }
+      .crumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-3);
+        font-size: var(--sigra-text-sm);
+      }
+      .status {
+        border: 1px solid rgba(253,186,116,0.32);
+        border-radius: var(--sigra-radius-full);
+        color: #fdba74;
+        font-size: var(--sigra-text-xs);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.35rem 0.6rem;
+        text-transform: uppercase;
+      }
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-6);
+        padding: var(--sigra-space-10) 0 var(--sigra-space-8);
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 {
+        max-width: 13ch;
+        margin-bottom: var(--sigra-space-4);
+        font-size: clamp(2.5rem, 8vw, 6.4rem);
+        line-height: 0.9;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin-bottom: var(--sigra-space-2);
+        font-size: clamp(1.55rem, 3vw, 2.45rem);
+        line-height: var(--sigra-leading-tight);
+        letter-spacing: 0;
+      }
+      h3 {
+        margin-bottom: var(--sigra-space-2);
+        font-size: var(--sigra-text-md);
+        letter-spacing: 0;
+      }
+      .lead {
+        max-width: 68ch;
+        color: #d4ccc1;
+        font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .brief {
+        display: grid;
+        gap: var(--sigra-space-3);
+        align-content: start;
+        border-left: 3px solid #c2410c;
+        background: rgba(31,29,26,0.78);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+        padding: var(--sigra-space-5);
+      }
+      .brief p { margin-bottom: 0; color: #d4ccc1; }
+      .rules {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-2);
+        margin: var(--sigra-space-4) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .rules li {
+        border: 1px solid rgba(253,186,116,0.24);
+        border-radius: var(--sigra-radius-full);
+        background: rgba(253,186,116,0.08);
+        color: #fdba74;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.35rem 0.6rem;
+      }
+      .options {
+        display: grid;
+        gap: var(--sigra-space-5);
+      }
+      .option {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-5);
+        border: 1px solid rgba(255,255,255,0.11);
+        border-radius: var(--sigra-radius-sm);
+        background: rgba(31,29,26,0.88);
+        box-shadow: 0 24px 70px -48px rgba(0,0,0,0.85);
+        padding: var(--sigra-space-4);
+      }
+      .option-head {
+        display: grid;
+        gap: var(--sigra-space-3);
+        align-content: start;
+      }
+      .code {
+        color: #fdba74;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+      }
+      .option-head p,
+      .notes p {
+        color: #c9c0b4;
+        margin-bottom: var(--sigra-space-3);
+      }
+      .preview {
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .lockups {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+        gap: var(--sigra-space-3);
+      }
+      .surface {
+        display: grid;
+        align-content: center;
+        min-height: 9.5rem;
+        border-radius: var(--sigra-radius-sm);
+        padding: var(--sigra-space-4);
+      }
+      .surface.light {
+        background: #f6f5f2;
+        color: #151515;
+        box-shadow: inset 0 0 0 1px rgba(21,21,21,0.10);
+      }
+      .surface.dark {
+        background: #151515;
+        color: #f4f1eb;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+      }
+      .lockup {
+        display: inline-grid;
+        grid-template-columns: 4rem minmax(0, auto);
+        align-items: center;
+        gap: var(--sigra-space-3);
+      }
+      .lockup img {
+        width: 4rem;
+        height: 4rem;
+      }
+      .word {
+        display: grid;
+        gap: 0.15rem;
+      }
+      .word strong {
+        font-size: 2.25rem;
+        font-weight: 850;
+        line-height: 1;
+      }
+      .word span {
+        color: currentColor;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        opacity: 0.68;
+      }
+      .mark-lab {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: var(--sigra-space-4);
+        align-items: center;
+        border-top: 1px solid rgba(255,255,255,0.10);
+        padding-top: var(--sigra-space-3);
+      }
+      .mark-stage {
+        display: grid;
+        place-items: center;
+        width: 6rem;
+        height: 6rem;
+        border-radius: var(--sigra-radius-sm);
+        background: #f6f5f2;
+      }
+      .mark-stage img {
+        width: 4rem;
+        height: 4rem;
+      }
+      .favicons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: var(--sigra-space-4);
+      }
+      .favicon-sample {
+        display: grid;
+        gap: 0.35rem;
+        color: #bdb5aa;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-xs);
+      }
+      .favicon-sample img {
+        image-rendering: auto;
+      }
+      .notes {
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .scores {
+        display: grid;
+        gap: var(--sigra-space-2);
+      }
+      .score {
+        display: grid;
+        grid-template-columns: 7rem minmax(0, 1fr);
+        gap: var(--sigra-space-3);
+        align-items: center;
+        color: #d4ccc1;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .meter {
+        height: 0.55rem;
+        overflow: hidden;
+        border-radius: var(--sigra-radius-full);
+        background: rgba(255,255,255,0.10);
+      }
+      .meter span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: #fdba74;
+      }
+      .test {
+        border-top: 1px solid rgba(255,255,255,0.10);
+        color: #fdba74;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding-top: var(--sigra-space-3);
+      }
+      footer {
+        border-top: 1px solid rgba(255,255,255,0.12);
+        color: #bdb5aa;
+        margin-top: var(--sigra-space-8);
+        padding-top: var(--sigra-space-5);
+      }
+      @media (min-width: 980px) {
+        header { grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr); }
+        .option { grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.55fr) minmax(18rem, 0.9fr); }
+      }
+      @media (max-width: 520px) {
+        main { width: min(100% - 1rem, 90rem); }
+        .lockup { grid-template-columns: 3.25rem minmax(0, auto); }
+        .lockup img { width: 3.25rem; height: 3.25rem; }
+        .word strong { font-size: 1.8rem; }
+        .mark-lab { grid-template-columns: minmax(0, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="topbar">
+        <nav class="crumbs" aria-label="Logo archive links">
+          <a href="../index.html">Early concepts</a>
+          <a href="../../index.html">Brandbook</a>
+          <a href="README.md">Round 2 notes</a>
+        </nav>
+        <span class="status">Archive study</span>
+      </div>
+
+      <header>
+        <div>
+          <p class="code">Round 2 archive / compact marks / rail geometry</p>
+          <h1>Sharper marks, fewer metaphors.</h1>
+          <p class="lead">This board preserves expanded logo studies focused on compact silhouettes, rail geometry, favicon durability, and dark-surface legibility.</p>
+          <ul class="rules" aria-label="Design constraints">
+            <li>No crosses</li>
+            <li>No lock/shield cliches</li>
+            <li>No baked-in black wordmark</li>
+            <li>Favicon first</li>
+            <li>OSS tool, not SaaS fog</li>
+          </ul>
+        </div>
+        <aside class="brief">
+          <h2>How to read this archive</h2>
+          <p>Look for how each mark handles small sizes, color constraints, and the balance between architecture meaning and visual simplicity.</p>
+          <p>Wordmarks are composed in HTML so light and dark previews use the correct foreground color.</p>
+        </aside>
+      </header>
+
+      <section class="options" aria-label="Second-round logo options">
+        <article class="option" id="option-2a">
+          <div class="option-head">
+            <p class="code">2A</p>
+            <h2>Rails Path</h2>
+            <p>A cleaner evolution of Option B: an S-like route held between code rails, stripped of audit checkpoints.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="option-2a-rails-path.svg" alt=""><span class="word"><strong>Sigra</strong><span>protected core, visible host code</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="option-2a-rails-path.svg" alt=""><span class="word"><strong>Sigra</strong><span>protected core, visible host code</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="option-2a-rails-path.svg" alt="Option 2A Rails Path mark"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="option-2a-rails-path.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="option-2a-rails-path.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="option-2a-rails-path.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> strongest continuity from B while feeling more logo-native.</p>
+            <p><strong>Risk:</strong> can still read as route/path before it reads as Sigra.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:86%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:76%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:72%"></span></div></div>
+            </div>
+            <div class="test">Tests whether B can become a real identity without the traceability story.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-2b">
+          <div class="option-head">
+            <p class="code">2B</p>
+            <h2>Core Gate</h2>
+            <p>Uses Option E's compact badge presence, but swaps lock geometry for a protected aperture between rails.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="option-2b-core-gate.svg" alt=""><span class="word"><strong>Sigra</strong><span>library core, host-owned rails</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="option-2b-core-gate.svg" alt=""><span class="word"><strong>Sigra</strong><span>library core, host-owned rails</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="option-2b-core-gate.svg" alt="Option 2B Core Gate mark"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="option-2b-core-gate.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="option-2b-core-gate.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="option-2b-core-gate.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> compact, sturdy, and closer to the protected-core idea.</p>
+            <p><strong>Risk:</strong> aperture may need one more simplification pass for tiny sizes.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:80%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:82%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:86%"></span></div></div>
+            </div>
+            <div class="test">Tests whether E's badge feel can survive without lock or medical-sign baggage.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-2c">
+          <div class="option-head">
+            <p class="code">2C</p>
+            <h2>Host Rails Monogram</h2>
+            <p>A restrained S monogram built from rails, aimed at GitHub, Hex.pm, docs, and package avatars.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="option-2c-host-rails-monogram.svg" alt=""><span class="word"><strong>Sigra</strong><span>reviewable Phoenix auth</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="option-2c-host-rails-monogram.svg" alt=""><span class="word"><strong>Sigra</strong><span>reviewable Phoenix auth</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="option-2c-host-rails-monogram.svg" alt="Option 2C Host Rails Monogram mark"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="option-2c-host-rails-monogram.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="option-2c-host-rails-monogram.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="option-2c-host-rails-monogram.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> most package-avatar friendly and least auth-cliche.</p>
+            <p><strong>Risk:</strong> warm tile may feel softer than the desired sharp OSS-tool posture.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:74%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:78%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:70%"></span></div></div>
+            </div>
+            <div class="test">Tests if Sigra should look more like a crisp developer-tool monogram.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-2d">
+          <div class="option-head">
+            <p class="code">2D</p>
+            <h2>Protected Channel</h2>
+            <p>A channel mark where the protected core is implied by negative space and path control.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="option-2d-protected-channel.svg" alt=""><span class="word"><strong>Sigra</strong><span>controlled auth boundaries</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="option-2d-protected-channel.svg" alt=""><span class="word"><strong>Sigra</strong><span>controlled auth boundaries</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="option-2d-protected-channel.svg" alt="Option 2D Protected Channel mark"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="option-2d-protected-channel.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="option-2d-protected-channel.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="option-2d-protected-channel.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> feels active and controlled without saying lock, shield, or audit.</p>
+            <p><strong>Risk:</strong> more abstract; may need pairing with a stronger wordmark.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:72%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:84%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:76%"></span></div></div>
+            </div>
+            <div class="test">Tests a less literal protected-core route with more motion and less badge convention.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-2e">
+          <div class="option-head">
+            <p class="code">2E</p>
+            <h2>Rail Accent</h2>
+            <p>A wordmark-led route with a distinctive rail accent that can still become the favicon mark.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="option-2e-rail-accent.svg" alt=""><span class="word"><strong>Sigra</strong><span>patchable auth core</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="option-2e-rail-accent.svg" alt=""><span class="word"><strong>Sigra</strong><span>patchable auth core</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="option-2e-rail-accent.svg" alt="Option 2E Rail Accent mark"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="option-2e-rail-accent.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="option-2e-rail-accent.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="option-2e-rail-accent.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> avoids generic auth symbolism and gives the wordmark a proprietary accent.</p>
+            <p><strong>Risk:</strong> may be too abstract if the mark appears without the Sigra word.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:78%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:80%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:62%"></span></div></div>
+            </div>
+            <div class="test">Tests whether Sigra should stop forcing a symbol and lead with a stronger wordmark system.</div>
+          </div>
+        </article>
+      </section>
+
+      <footer>
+        <p>This board is archive/reference material. Active production logo files live in the parent brandbook directory.</p>
+      </footer>
+    </main>
+  </body>
+</html>

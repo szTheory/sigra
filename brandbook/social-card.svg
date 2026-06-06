@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
   <title id="title">Sigra social preview card</title>
-  <desc id="desc">A social preview card for Sigra using the ratified Core Rails mark.</desc>
+  <desc id="desc">A social preview card for Sigra using the Rail Accent logo system.</desc>
   <defs>
     <style>
       .bg { fill: #f6f5f2; }
@@ -8,35 +8,41 @@
       .ink { fill: #151515; }
       .muted { fill: #686868; }
       .accent { fill: #c2410c; }
+      .strong { fill: #9a3412; }
+      .warm { fill: #fdba74; }
       .soft { fill: #fff0e8; }
       .type { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
-      .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; }
+      .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; letter-spacing: 0; }
     </style>
   </defs>
   <rect class="bg" width="1200" height="630"/>
-  <path d="M0 0h1200v24H0z" fill="#151515"/>
-  <rect x="72" y="72" width="1056" height="486" rx="24" class="panel"/>
-  <g transform="translate(112 112)">
-    <rect width="72" height="72" rx="16" class="accent"/>
-    <path d="M25 20h-6v32h6M47 20h6v32h-6M36 18v36" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="36" cy="36" r="9" fill="#fff0e8" stroke="#fff" stroke-width="5"/>
-    <circle cx="36" cy="36" r="3.5" fill="#c2410c"/>
+  <path d="M0 0h1200v22H0z" fill="#151515"/>
+  <rect x="72" y="70" width="1056" height="488" rx="24" class="panel"/>
+
+  <g transform="translate(104 106)">
+    <g transform="scale(1.15)">
+      <path d="M17 14v14M32 23v18M47 36v14" fill="none" stroke="#fdba74" stroke-width="8" stroke-linecap="round"/>
+      <path d="M17 36v14M47 14v14" fill="none" stroke="#c2410c" stroke-width="8" stroke-linecap="round"/>
+      <path d="M17 32h30" fill="none" stroke="#9a3412" stroke-width="4" stroke-linecap="round"/>
+    </g>
   </g>
-  <text x="208" y="158" class="type ink" font-size="52" font-weight="800">Sigra</text>
-  <text x="112" y="250" class="type ink" font-size="58" font-weight="800">Production-minded auth</text>
-  <text x="112" y="318" class="type ink" font-size="58" font-weight="800">for Phoenix 1.8+</text>
-  <text x="112" y="382" class="type muted" font-size="25" font-weight="600">Library-owned security core. Generated Phoenix code you can review.</text>
-  <g transform="translate(112 438)">
-    <rect width="500" height="64" rx="10" fill="#151515"/>
+  <text x="186" y="154" class="type ink" font-size="56" font-weight="850">Sigra</text>
+
+  <text x="104" y="256" class="type ink" font-size="60" font-weight="850">Auth you can keep</text>
+  <text x="104" y="326" class="type ink" font-size="60" font-weight="850">patching after install.</text>
+  <text x="104" y="392" class="type muted" font-size="25" font-weight="650">Library-owned security-sensitive behavior. Generated Phoenix code you can review.</text>
+
+  <g transform="translate(104 448)">
+    <rect width="510" height="64" rx="10" fill="#151515"/>
     <text x="24" y="40" class="mono" fill="#f4f1eb" font-size="22">mix sigra.install Accounts User users</text>
   </g>
-  <g transform="translate(742 138)">
-    <rect width="280" height="324" rx="18" class="soft"/>
-    <rect x="34" y="42" width="212" height="42" rx="8" fill="#ffffff"/>
-    <rect x="34" y="106" width="212" height="42" rx="8" fill="#ffffff"/>
-    <rect x="34" y="170" width="212" height="42" rx="8" fill="#ffffff"/>
-    <rect x="34" y="234" width="120" height="42" rx="8" class="accent"/>
-    <path d="M68 62h108M68 126h142M68 190h124" stroke="#686868" stroke-width="8" stroke-linecap="round"/>
-    <path d="M188 255h28" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+
+  <g transform="translate(768 128)">
+    <rect x="0" y="0" width="286" height="356" rx="18" class="soft"/>
+    <path d="M58 52v75M144 92v168M228 178v126" fill="none" stroke="#fdba74" stroke-width="26" stroke-linecap="round"/>
+    <path d="M58 186v118M228 52v75" fill="none" stroke="#c2410c" stroke-width="26" stroke-linecap="round"/>
+    <path d="M58 156h170" fill="none" stroke="#9a3412" stroke-width="12" stroke-linecap="round"/>
+    <rect x="36" y="286" width="214" height="34" rx="8" fill="#ffffff"/>
+    <path d="M62 303h94M174 303h48" fill="none" stroke="#686868" stroke-width="7" stroke-linecap="round"/>
   </g>
 </svg>
