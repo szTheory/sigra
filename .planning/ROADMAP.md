@@ -1,13 +1,13 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.35 BRAND-SYSTEM-PRESSURE-TEST complete — Phase 167 ratified Option A Core Rails
+**Status:** v1.35 BRAND-SYSTEM-PRESSURE-TEST shipped and archived — planning next milestone
 
 ## Milestones
 
-- ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
+- ✅ **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-167 (shipped 2026-06-05)
 - ✅ **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (shipped 2026-06-05)
-- ✅ **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-167 (completed 2026-06-05)
+- ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
 ## Phases
 
@@ -31,17 +31,18 @@ Archive:
 
 </details>
 
-### ✅ v1.35 BRAND-SYSTEM-PRESSURE-TEST (Complete)
+<details>
+<summary>✅ v1.35 BRAND-SYSTEM-PRESSURE-TEST (Phases 161-167) — SHIPPED 2026-06-05</summary>
 
 **Milestone Goal:** Pressure-test Sigra's brand posture and commit a self-contained brandbook that is useful for docs, READMEs, landing pages, UI/UX buildout, marketing copy, design tokens, SVG logos, and future collateral without causing repo churn or binary sprawl.
 
-- [x] **Phase 161: Brand Evidence Extraction + Pressure-Test Audit** — Repo-derived source review and 14-section audit. (completed 2026-06-05)
-- [x] **Phase 162: Brand DNA + Voice System** — Brand essence, positioning, voice rules, microcopy, and copy blocks. (completed 2026-06-05)
-- [x] **Phase 163: Tokens + UI/UX Buildout Spec** — JSON/CSS tokens, semantic states, component guidance, accessibility posture. (completed 2026-06-05)
-- [x] **Phase 164: Logo + SVG Asset System** — Primary logo, mark, monochrome, favicon, social card, and visual specimens prepared. (completed 2026-06-05)
-- [x] **Phase 165: Static HTML Brand Book** — Directly openable `brandbook/index.html`, no runtime dependencies. (completed 2026-06-05)
-- [x] **Phase 166: Verification + Repo Hygiene** — JSON/SVG/HTML/file-size/git hygiene gates. (completed 2026-06-05)
-- [x] **Phase 167: Logo Options + Brand Direction Review** — Process repair phase completed; Option A Core Rails selected and finalized. (completed 2026-06-05)
+- [x] Phase 161: Brand Evidence Extraction + Pressure-Test Audit (1/1 plan) — completed 2026-06-05
+- [x] Phase 162: Brand DNA + Voice System (1/1 plan) — completed 2026-06-05
+- [x] Phase 163: Tokens + UI/UX Buildout Spec (1/1 plan) — completed 2026-06-05
+- [x] Phase 164: Logo + SVG Asset System (1/1 plan) — completed 2026-06-05
+- [x] Phase 165: Static HTML Brand Book (1/1 plan) — completed 2026-06-05
+- [x] Phase 166: Verification + Repo Hygiene (1/1 plan) — completed 2026-06-05
+- [x] Phase 167: Logo Options + Brand Direction Review (2/2 plans) — completed 2026-06-05
 
 Archive:
 
@@ -49,6 +50,8 @@ Archive:
 - [v1.35 Requirements](milestones/v1.35-REQUIREMENTS.md)
 - [v1.35 Milestone Audit](milestones/v1.35-MILESTONE-AUDIT.md)
 - [v1.35 Phase Artifacts](milestones/v1.35-phases/)
+
+</details>
 
 ## Progress
 

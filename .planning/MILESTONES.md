@@ -1,5 +1,33 @@
 # Milestones
 
+## v1.35 BRAND-SYSTEM-PRESSURE-TEST (Shipped: 2026-06-05)
+
+**Phases completed:** 7 phases, 8 plans
+**Requirements:** 20/20 satisfied (EVID-01..03, DNA-01, VOICE-01, TOK-01..02, UI-01, A11Y-01, LOGO-01..02, VIS-01, HTML-01, REPO-01, QA-01, RAT-01..05)
+**Milestone audit:** passed — 20/20 requirements, 7/7 phases complete and verified, 4/4 integration checks, 3/3 flows wired.
+
+**Delivered:** Committed a self-contained, source-controlled Sigra brand system and repaired the logo-ratification gap by presenting five directions, selecting Option A Core Rails, and finalizing the brandbook without touching runtime code, generated templates, README, HexDocs, or guides.
+
+**Key accomplishments:**
+
+- Produced the 14-section brand pressure-test audit from repo truth and the supplied prompt, separating inherited OSS/devtools strengths from missing implementation-ready artifacts.
+- Codified Sigra's brand DNA, positioning, voice rules, ready-to-use copy blocks, component guidance, accessibility posture, and source-control asset policy in `brandbook/brand-book.md`.
+- Added `brandbook/tokens.json` and `brandbook/tokens.css` with raw palette, semantic roles, typography, spacing, radius, borders, shadows, motion, focus, code, callout, and state tokens.
+- Built the SVG asset system and specimens: primary lockup, icon mark, monochrome mark, favicon, social card, palette, typography, README header, landing hero, docs page, code block, terminal, component states, and architecture diagram.
+- Added `brandbook/index.html`, a directly openable static HTML brandbook with no build step, CDN, web font, runtime dependency, or raster-heavy payload.
+- Repaired the premature closeout by adding Phase 167 logo options, recording human selection of Option A Core Rails, finalizing the logo set, and rerunning JSON/SVG/HTML/browser/axe/file-size/git hygiene gates.
+
+**Known deferred items at close:** PNG/PDF exports, README/HexDocs visual adoption, and visual regression coverage for `brandbook/index.html` remain deferred until a focused distribution or adoption need exists.
+
+**Archive:**
+
+- [v1.35 Roadmap](milestones/v1.35-ROADMAP.md)
+- [v1.35 Requirements](milestones/v1.35-REQUIREMENTS.md)
+- [v1.35 Milestone Audit](milestones/v1.35-MILESTONE-AUDIT.md)
+- [v1.35 Phase Artifacts](milestones/v1.35-phases/)
+
+---
+
 ## v1.34 ADMIN-UI-COHERENCE (Shipped: 2026-06-05)
 
 **Phases completed:** 7 phases, 29 plans, 39 tasks

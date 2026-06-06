@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.35
 milestone_name: BRAND-SYSTEM-PRESSURE-TEST
-status: Complete
-last_updated: "2026-06-06T00:50:00Z"
-last_activity: 2026-06-05 — Option A Core Rails selected and finalized across the brandbook logo system.
+status: Archived
+last_updated: "2026-06-06T01:19:03Z"
+last_activity: 2026-06-05 — v1.35 archived, requirements preserved in milestones/, and live planning reset for the next milestone.
 progress:
   total_phases: 7
   completed_phases: 7
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.35 BRAND-SYSTEM-PRESSURE-TEST is complete after Phase 167 logo ratification.
+**Current focus:** Planning the next milestone after v1.35 BRAND-SYSTEM-PRESSURE-TEST.
 
 ## Current Position
 
 Phase: 167 — Logo Options + Brand Direction Review
 Plan: 167-02 complete
-Status: Option A Core Rails ratified and final logo system updated
-Last activity: 2026-06-05 — Option A Core Rails selected and finalized across primary logo, mark, monochrome mark, favicon, social card, brand book, and HTML brandbook.
+Status: v1.35 archived; next milestone not yet defined
+Last activity: 2026-06-05 — v1.35 closeout preserved the roadmap, requirements, audit, and phase artifacts under `.planning/milestones/`.
 
 ## Accumulated Context
 
@@ -82,4 +82,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- v1.35 is ready for milestone archival/closeout.
+- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after Phase 167.
