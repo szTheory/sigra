@@ -1,27 +1,47 @@
 # Phase 167 Verification
 
-**Status:** partial / human_needed
+**Status:** passed
 
 ## Verified
 
-- v1.35 planning state has been reopened as needs ratification.
-- Phase 167 exists and records the missing logo review process.
-- `brandbook/logo-options/` contains five draft SVG logo directions.
-- Current logo files are documented as draft pending ratification.
-- Static checks passed on 2026-06-05:
-  - `jq . brandbook/tokens.json`
-  - `xmllint --noout` for all SVG files under `brandbook/`
-  - Python `HTMLParser` smoke for `brandbook/index.html` and `brandbook/logo-options/index.html`
-  - `git diff --check`
-- Browser checks passed on 2026-06-05 with local Playwright + axe:
-  - `/brandbook/index.html` desktop: 10 images, axe 0, no body overflow
-  - `/brandbook/index.html` mobile: 10 images, axe 0, no body overflow
-  - `/brandbook/logo-options/index.html` desktop: 5 images, axe 0, no body overflow
-  - `/brandbook/logo-options/index.html` mobile: 5 images, axe 0, no body overflow
-- Repo-size check remains bounded: `brandbook/` is 160K; `brandbook/logo-options/` is 28K.
+- v1.35 planning state was reopened for the missing logo review and then completed after ratification.
+- Human logo decision recorded: **Option A: Core Rails**.
+- Final logo assets now document the Core Rails direction as ratified:
+  - `brandbook/logo-primary.svg`
+  - `brandbook/logo-mark.svg`
+  - `brandbook/logo-monochrome.svg`
+  - `brandbook/favicon.svg`
+  - `brandbook/social-card.svg`
+- `brandbook/brand-book.md`, `brandbook/README.md`, `brandbook/index.html`, and `brandbook/logo-options/` no longer instruct maintainers to treat the final logo files as draft collateral.
+- `brandbook/logo-options/` remains as review history and marks Option A as the selected direction.
+
+## Static Checks
+
+Final static checks passed on 2026-06-05 after the selected direction landed:
+
+- `jq . brandbook/tokens.json` -> OK
+- `find brandbook -maxdepth 2 -name '*.svg' -print0 | xargs -0 -n1 xmllint --noout` -> OK
+- Python `HTMLParser` smoke for `brandbook/index.html` and `brandbook/logo-options/index.html` -> OK
+- `find brandbook -type f -size +250k -print` -> no files over 250K
+- `du -sh brandbook brandbook/logo-options` -> `164K brandbook`, `32K brandbook/logo-options`
+- `git diff --check` -> OK
+
+## Browser And Axe Checks
+
+Final browser checks passed on 2026-06-05 with local Playwright + axe through a temporary HTTP server:
+
+- `/brandbook/index.html` desktop 1440x1200: `OK (9 sections, 10 images, axe 0, body 1440/1440)`
+- `/brandbook/index.html` mobile 390x1200: `OK (9 sections, 10 images, axe 0, body 390/390)`
+- `/brandbook/logo-options/index.html` desktop 1440x1200: `OK (0 sections, 5 images, axe 0, body 1440/1440)`
+- `/brandbook/logo-options/index.html` mobile 390x1200: `OK (0 sections, 5 images, axe 0, body 390/390)`
+
+Screenshots were written outside the repo:
+
+- `/tmp/sigra-brandbook-desktop.png`
+- `/tmp/sigra-brandbook-mobile.png`
+- `/tmp/sigra-logo-options-desktop.png`
+- `/tmp/sigra-logo-options-mobile.png`
 
 ## Pending
 
-- User selection or critique of a logo direction.
-- Final selected/revised logo application across primary logo, mark, monochrome mark, favicon, social card, brand book, and HTML brandbook.
-- Final brandbook verification after selected direction lands.
+None.

@@ -34,9 +34,9 @@ Future milestones should begin from this assumption:
 
 ## Active Milestone: v1.35 BRAND-SYSTEM-PRESSURE-TEST
 
-**Status:** Needs ratification (Phases 161-167) · 17/20 requirements satisfied · logo direction review pending
+**Status:** Complete (Phases 161-167) · 20/20 requirements satisfied · Option A Core Rails ratified
 
-Sigra has source-controlled draft brand collateral that makes its existing OSS/devtools posture buildable without redesign churn. The first pass extracted the repo's strongest inherited brand truth — production-minded Phoenix auth, library-owned security-sensitive behavior, generated host-owned code, and explicit boundaries — into a self-contained `brandbook/`. That pass was useful but process-incomplete: it skipped human logo direction review before claiming milestone completion. Phase 167 repairs that gap by presenting logo options and holding final logo ratification until a direction is selected or critiqued.
+Sigra has source-controlled brand collateral that makes its existing OSS/devtools posture buildable without redesign churn. The first pass extracted the repo's strongest inherited brand truth — production-minded Phoenix auth, library-owned security-sensitive behavior, generated host-owned code, and explicit boundaries — into a self-contained `brandbook/`. Phase 167 repaired the missing human logo review by presenting five directions and ratifying Option A: Core Rails.
 
 Archives:
 - [`.planning/milestones/v1.35-ROADMAP.md`](milestones/v1.35-ROADMAP.md)
@@ -46,13 +46,13 @@ Archives:
 
 ### v1.35 status
 
-- committed draft `brandbook/pressure-test-audit.md` with the requested 14-section critical audit and KEEP/TIGHTEN/REWORK/ADD/REMOVE judgment
-- committed draft `brandbook/brand-book.md` with brand DNA, positioning, voice system, microcopy, landing/docs blueprint, accessibility rules, and artifact policy
+- committed `brandbook/pressure-test-audit.md` with the requested 14-section critical audit and KEEP/TIGHTEN/REWORK/ADD/REMOVE judgment
+- committed `brandbook/brand-book.md` with brand DNA, positioning, voice system, microcopy, landing/docs blueprint, accessibility rules, and artifact policy
 - added `brandbook/tokens.json` and `brandbook/tokens.css` for raw palette, semantic roles, typography, spacing, radius, borders, focus, code, callouts, and states
-- added draft SVG logo collateral and visual specimens, now explicitly marked pending ratification
-- added `brandbook/logo-options/` with five distinct SVG logo directions and review notes
+- ratified Option A Core Rails across SVG logo collateral, favicon, social card, HTML brandbook, and brand guidance
+- retained `brandbook/logo-options/` with five distinct SVG logo directions and review notes as history
 - added `brandbook/index.html`, a directly openable static HTML brandbook with no build step, CDN, web font, runtime dependency, or raster-heavy payload
-- pending: human logo direction selection/critique, final logo replacement, and final verification before milestone completion
+- completed final JSON/SVG/HTML/browser/axe/file-size/git hygiene verification after logo ratification
 
 ## Previous Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
 
@@ -157,9 +157,9 @@ Archives:
 
 ## Current State
 
-`v1.35 BRAND-SYSTEM-PRESSURE-TEST` is active and needs Phase 167 logo ratification before it can be completed. Sigra's current posture remains maintenance-first, now with self-contained draft brandbook collateral under `brandbook/` for future docs, landing, README, social, and UI/UX work. Preserve the released authentication surface, keep the shared admin-component contract coherent, keep brand adoption separate from runtime/generated code unless a focused milestone promotes it, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
+`v1.35 BRAND-SYSTEM-PRESSURE-TEST` is complete after Phase 167 logo ratification. Sigra's current posture remains maintenance-first, now with self-contained brandbook collateral under `brandbook/` for future docs, landing, README, social, and UI/UX work. Preserve the released authentication surface, keep the shared admin-component contract coherent, keep brand adoption separate from runtime/generated code unless a focused milestone promotes it, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: review `brandbook/logo-options/index.html`, choose or critique a direction, then execute Phase 167 plan 02 to finalize and verify the selected logo system. Phase numbering should continue after Phase 167 once v1.35 is ratified.
+Next focus: archive/close v1.35, then continue phase numbering after Phase 167 for the next milestone.
 
 ## Next Milestone Goals
 
@@ -809,7 +809,7 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-06-05 after v1.34 ADMIN-UI-COHERENCE milestone — shipped and archived via `$gsd-complete-milestone`. ROADMAP/REQUIREMENTS/audit archived to `milestones/v1.34-*`, phase artifacts moved to `milestones/v1.34-phases/`, live `REQUIREMENTS.md` removed for the next milestone, and the close audit passed with 25/25 requirements satisfied. Phases continue after **160**.*
 
-*Last updated: 2026-06-05 after v1.35 process correction — the previous v1.35 completion claim was premature because logo options were not shown for human review. v1.35 is reopened with Phase **167** (Logo Options + Brand Direction Review). `brandbook/logo-options/` now contains five draft SVG directions and the current logo files are explicitly draft pending ratification. No runtime library, generated-template, README, HexDocs, or guide adoption changes were made. Phase 167 plan 02 is waiting on human logo direction selection/critique.*
+*Last updated: 2026-06-05 after v1.35 logo ratification — Phase **167** completed the process repair by selecting Option A Core Rails from `brandbook/logo-options/` and finalizing it across the logo system, brandbook, requirements, roadmap, state, and audit artifacts. No runtime library, generated-template, README, HexDocs, or guide adoption changes were made. v1.35 is complete and ready for archival/closeout.*
 
 *Last updated: 2026-06-03 — Phase 154 (Design Contract + sg-notice) complete — COMP-03, COMP-04 validated. Committed `guides/reference/admin-design-contract.md` (the governance contract: 10 canonical component jobs with winning CSS/ARIA/motion-incl-explicit-"not-animated"/when-NOT-to-use, plus 3 page archetypes — Overview/List/Detail — as explicit component compositions) and registered it in the mix.exs ExDoc extras. Added the `.sg-notice` style (base + 4 tone variants) inside `@layer sg-components` in `test/example/.../app.css` — a behavior-preserving selector-rename of `.sg-list-row[data-tone]` (same tokens/color-mix/ring-opacity asymmetry, no new `!important`). No LiveView or Playwright-baseline changes (verifier 4/4, status passed). Code review: 1 Warning fixed in-phase (WR-01 — the doc's `app.css` line citations were shifted by this changeset's own CSS insertion; corrected to 1421–1443 / 1463–1473); WR-02 (sg-notice/sg-list-row tone-rule duplication has no drift guard) deferred to a tracked pending todo for the 154→156 migration window. Phases continue from **155** (KEYSTONE: build `Sigra.Admin.Components`).*
 

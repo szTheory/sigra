@@ -4,7 +4,7 @@
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 **Milestone goal:** Pressure-test Sigra's repo-derived brand posture and commit a self-contained, source-control-friendly brandbook that supports docs, READMEs, landing pages, UI/UX buildout, marketing copy, design tokens, SVG logos, and future collateral without causing repo churn or binary sprawl.
 
-**Status:** Reopened for Phase 167 logo direction review. The first pass produced useful draft collateral but incorrectly skipped human logo option review before marking the milestone complete.
+**Status:** Complete. Phase 167 ratified Option A: Core Rails as the final logo direction after the missing human review step.
 
 ## v1 Requirements
 
@@ -42,9 +42,9 @@
 
 - [x] **RAT-01**: v1.35 planning truth is corrected from "complete" to "needs ratification" so the milestone no longer claims completion before logo review.
 - [x] **RAT-02**: `brandbook/logo-options/` presents five distinct SVG logo directions with usage notes, risks, and an initial recommendation.
-- [ ] **RAT-03**: A human selects or critiques a logo direction before any final logo system replaces the draft collateral.
-- [ ] **RAT-04**: The selected/revised logo direction is finalized across primary logo, mark, monochrome mark, favicon, social card, HTML brandbook, and brand-book guidance.
-- [ ] **RAT-05**: Final brandbook ratification runs JSON/SVG/HTML/browser/axe/file-size/git hygiene after the selected logo direction lands.
+- [x] **RAT-03**: A human selected Option A: Core Rails before final logo system ratification.
+- [x] **RAT-04**: The selected Core Rails direction is finalized across primary logo, mark, monochrome mark, favicon, social card, HTML brandbook, and brand-book guidance.
+- [x] **RAT-05**: Final brandbook ratification runs JSON/SVG/HTML/browser/axe/file-size/git hygiene after the selected logo direction lands.
 
 ## Out Of Scope
 
@@ -77,6 +77,6 @@
 | QA-01 | 166 | Complete |
 | RAT-01 | 167 | Complete |
 | RAT-02 | 167 | Complete |
-| RAT-03 | 167 | Pending human selection |
-| RAT-04 | 167 | Pending |
-| RAT-05 | 167 | Pending |
+| RAT-03 | 167 | Complete |
+| RAT-04 | 167 | Complete |
+| RAT-05 | 167 | Complete |
