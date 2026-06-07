@@ -10,7 +10,6 @@ defmodule Example.Demo.PersonasTest do
   alias Example.Demo.Personas
 
   @expected_handles ~w(admin alice bob carol dave frank morgan pat grace)
-  @demo_domain "@demo.sigra.dev"
   @personas_source Path.expand("../../../lib/example/demo/personas.ex", __DIR__)
 
   describe "all/0 catalog shape" do
@@ -40,9 +39,11 @@ defmodule Example.Demo.PersonasTest do
 
   describe "domain segregation (SEED-05)" do
     test "every persona email ends with the demo domain" do
+      demo_domain = "@" <> Personas.demo_domain()
+
       for persona <- Personas.all() do
-        assert String.ends_with?(persona.email, @demo_domain),
-               "#{persona.email} must end with #{@demo_domain}"
+        assert String.ends_with?(persona.email, demo_domain),
+               "#{persona.email} must end with #{demo_domain}"
       end
     end
 

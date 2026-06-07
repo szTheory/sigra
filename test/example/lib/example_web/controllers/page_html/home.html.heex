@@ -1,53 +1,165 @@
 <Layouts.flash_group flash={@flash} />
 
-<main class="min-h-[calc(100vh-4rem)] bg-base-100 px-4 py-10 sm:px-6 lg:px-8">
-  <section class="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-    <div class="space-y-6">
-      <p class="sg-page-kicker">Vaultr demo app</p>
-      <h1 class="sg-page-title text-4xl font-semibold">
-        A realistic SaaS auth surface for evaluating Sigra.
-      </h1>
-      <p class="sg-page-copy text-base text-base-content/70">
-        Vaultr is a seed-populated demo tenant with realistic auth states, operator workflows, and audit evidence. Use it to click through the happy path and the rough edges before wiring Sigra into a real app.
-      </p>
+<main class="vt-home">
+  <div class="vt-home__shell" data-testid="home-evaluator-doorway">
+    <header class="vt-topline" aria-label="Vaultr demo identity">
+      <a href="/" class="vt-brand">
+        <img
+          src={~p"/images/vaultr-mark.svg"}
+          width="36"
+          height="36"
+          alt=""
+          class="vt-brand__mark"
+        />
+        <span>
+          <span class="vt-brand__name">Vaultr</span>
+          <span class="vt-brand__tag">Fictional SaaS access vault</span>
+        </span>
+      </a>
 
-      <div class="flex flex-wrap gap-3">
-        <a href="/demo/credentials" class="sg-press btn btn-primary min-h-11">
-          Open demo personas
-        </a>
-        <a href="/admin" class="sg-press btn btn-outline min-h-11">
-          Open admin
-        </a>
-        <a href="/dev/mailbox" class="sg-press btn btn-ghost min-h-11">
-          Inspect mailbox
-        </a>
+      <div class="vt-domain-strip" data-testid="home-domain-context">
+        <span class="vt-domain-strip__label">Cohort</span>
+        <code class="vt-code">{"@" <> @demo_domain}</code>
+        <span class="vt-domain-strip__label">Local host</span>
+        <code class="vt-code">{@local_origin}</code>
       </div>
-    </div>
+    </header>
 
-    <div class="grid gap-4">
-      <article class="sg-card rounded-lg border border-base-300 bg-base-100 p-5">
-        <h2 class="text-lg font-semibold">Evaluator journey</h2>
-        <ol class="mt-4 space-y-3 text-sm text-base-content/70">
-          <li><strong>1.</strong> Pick a persona and sign in with public demo credentials.</li>
-          <li><strong>2.</strong> Explore user support, sessions, MFA, passkeys, and organization scope.</li>
-          <li><strong>3.</strong> Review audit evidence and exported CSV paths.</li>
-        </ol>
-      </article>
+    <section class="vt-hero">
+      <div class="vt-hero__copy">
+        <p class="vt-kicker">Vaultr demo app · secured by Sigra</p>
+        <h1 class="vt-title">Evaluate Sigra inside a distinct customer app.</h1>
+        <p class="vt-subtitle">
+          Vaultr is the fictional host app. Sigra supplies authentication, organizations,
+          audit trails, and operator tooling underneath it. The seeded Vaultr cohort lets
+          evaluators inspect customer sign-in and support workflows without creating accounts.
+        </p>
 
-      <div class="grid gap-4 sm:grid-cols-3">
-        <div class="sg-metric">
-          <dt>Personas</dt>
-          <dd>6</dd>
+        <div class="vt-identity-grid">
+          <div class="vt-identity-item">
+            <span>Vaultr cohort domain</span>
+            <strong>{"@" <> @demo_domain}</strong>
+          </div>
+          <div class="vt-identity-item">
+            <span>Local evaluation host</span>
+            <strong>{@local_origin}</strong>
+          </div>
+          <div class="vt-identity-item">
+            <span>Sigra operator surface</span>
+            <strong>/admin</strong>
+          </div>
         </div>
-        <div class="sg-metric">
-          <dt>Tenants</dt>
-          <dd>2</dd>
-        </div>
-        <div class="sg-metric">
-          <dt>Audit rows</dt>
-          <dd>15+</dd>
+
+        <div class="vt-action-row">
+          <a href="/users/log_in" class="vt-btn vt-btn--primary">
+            Sign in to Vaultr
+          </a>
+          <a href="/admin" class="vt-btn vt-btn--ghost">
+            Open Sigra Admin
+          </a>
+          <a href="/dev/mailbox" class="vt-btn vt-btn--secondary">
+            Inspect mailbox
+          </a>
         </div>
       </div>
-    </div>
-  </section>
+
+      <aside class="vt-panel vt-panel--operator" data-testid="home-shared-login-copy">
+        <p class="vt-kicker">One login, two jobs.</p>
+        <h2 class="vt-panel__title">Use Vaultr login for both customer and operator personas.</h2>
+        <p class="vt-copy">
+          <code class="vt-code">/users/log_in</code>
+          is Vaultr's shared login. Customer personas land in Vaultr auth flows; Sigra
+          operator personas can continue into admin routes.
+        </p>
+        <ul class="vt-operator-list">
+          <li>
+            <strong>Global Sigra Admin</strong>
+            <br />
+            <code class="vt-code">admin@demo.vaultr.test</code>
+            opens <code class="vt-code">/admin</code>.
+          </li>
+          <li>
+            <strong>Acme org admin</strong>
+            <br />
+            <code class="vt-code">morgan@demo.vaultr.test</code>
+            opens <code class="vt-code">/admin/organizations/acme-corp</code>.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="vt-card-grid" aria-label="Vaultr seeded demo world">
+      <div class="vt-panel">
+        <div class="vt-panel__header">
+          <div>
+            <p class="vt-kicker">Demo cohort</p>
+            <h2 class="vt-panel__title">Start with these accounts</h2>
+          </div>
+          <a href="/demo/credentials" class="vt-btn vt-btn--ghost">View all personas</a>
+        </div>
+
+        <div class="vt-persona-list" data-testid="home-featured-personas">
+          <article :for={c <- @featured_credentials} class="vt-persona-row">
+            <div>
+              <h3>{c.display_name}</h3>
+              <p class="vt-copy">{c.feature}</p>
+            </div>
+            <dl class="vt-identity-grid">
+              <div class="vt-identity-item">
+                <dt class="vt-domain-strip__label">Email</dt>
+                <dd><code class="vt-code">{c.email}</code></dd>
+              </div>
+              <div class="vt-identity-item">
+                <dt class="vt-domain-strip__label">Password</dt>
+                <dd><code class="vt-code">{c.password}</code></dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      </div>
+
+      <div class="vt-panel">
+        <div class="vt-metric-grid">
+          <dl class="vt-metric" data-testid="home-stat-personas">
+            <dt>Demo personas</dt>
+            <dd>{@persona_count}</dd>
+          </dl>
+          <dl class="vt-metric" data-testid="home-stat-tenants">
+            <dt>Organizations</dt>
+            <dd>{@tenant_count}</dd>
+          </dl>
+          <dl class="vt-metric" data-testid="home-stat-audit">
+            <dt>Audit rows</dt>
+            <dd>{@audit_row_count}</dd>
+          </dl>
+        </div>
+
+        <div class="vt-panel__header">
+          <div>
+            <p class="vt-kicker">Seeded evidence</p>
+            <h2 class="vt-panel__title">What the Vaultr world proves</h2>
+          </div>
+        </div>
+
+        <ul class="vt-seed-list">
+          <li>
+            <strong>Acme Corp</strong>
+            and <strong>Beta Labs</strong>
+            exercise organization scope, memberships, invitations, and tenant-aware audit rows.
+          </li>
+          <li>
+            <strong>{"@" <> @demo_domain}</strong> is the fixture-only Vaultr cohort domain.
+          </li>
+          <li>
+            <strong>Sigra Admin</strong>
+            shows support operations: user search, session review, impersonation, audit filters, exports, and scoped org views.
+          </li>
+          <li>
+            <strong>Org admin path:</strong>
+            sign in as <code class="vt-code">morgan@demo.vaultr.test</code>, then open <code class="vt-code">/admin/organizations/acme-corp</code>.
+          </li>
+        </ul>
+      </div>
+    </section>
+  </div>
 </main>

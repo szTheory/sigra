@@ -54,6 +54,26 @@ Archives:
 - added `brandbook/index.html`, a directly openable static HTML brandbook with no build step, CDN, web font, runtime dependency, or raster-heavy payload
 - completed final JSON/SVG/HTML/browser/axe/file-size/git hygiene verification after logo ratification
 
+## Previous Shipped Milestone: v1.36 ADMIN-BRAND-THEME-POLISH
+
+**Shipped:** 2026-06-06 (Phases 168-172) · 14/14 requirements satisfied · milestone audit passed
+
+Sigra's generated admin UI now carries the ratified Rail Accent brand treatment in the shell and supports explicit Light, Dark, and System modes without leaking admin theme state into global DaisyUI theming. The milestone also captured durable admin UI principles for future agents, tightened the admin design contract, refreshed intentional browser baselines, and proved generated-host parity through the acceptance smoke.
+
+Archives:
+- [`.planning/milestones/v1.36-ROADMAP.md`](milestones/v1.36-ROADMAP.md)
+- [`.planning/milestones/v1.36-REQUIREMENTS.md`](milestones/v1.36-REQUIREMENTS.md)
+- [`.planning/milestones/v1.36-MILESTONE-AUDIT.md`](milestones/v1.36-MILESTONE-AUDIT.md)
+
+### Just shipped: v1.36 ADMIN-BRAND-THEME-POLISH
+
+- promoted the Rail Accent mark into generated/example/golden admin shell chrome and removed placeholder-brand treatment
+- exposed Light, Dark, and System modes in admin chrome with local persistence, early boot, system fallback, radiogroup keyboard behavior, and no global DaisyUI `data-theme`
+- added logo and selected-control tokens that keep brand contrast correct across light/dark/forced modes
+- tightened mobile safe-area spacing, long-title wrapping, filter accenting, and command palette job copy
+- added `guides/reference/admin-ui-principles.md` and linked it from `CLAUDE.md`, root `AGENTS.md`, and `test/example/AGENTS.md`
+- added focused browser coverage for theme behavior and refreshed four intentional admin checkpoint baselines under the snapshot canary guard
+
 ## Previous Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
 
 **Shipped:** 2026-06-05 (Phases 154-160) · 25/25 requirements satisfied · milestone audit passed

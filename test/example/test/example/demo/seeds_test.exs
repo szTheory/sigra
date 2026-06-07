@@ -8,7 +8,7 @@ defmodule Example.Demo.SeedsTest do
 
   Covers:
   - SEED-01 idempotency (run twice -> identical counts)
-  - SEED-02 six personas + org/membership/invitation shape
+  - SEED-02 nine personas + org/membership/invitation shape
   - SEED-03 rough-edge persona states (locked, scheduled-deletion, oauth identity, mfa, passkey)
   - SEED-04 audit liveness (>=15 rows, >=6 distinct actions, admin-tied)
   - SEED-06 security posture (argon2id hashes, deterministic totp secret)
@@ -28,7 +28,7 @@ defmodule Example.Demo.SeedsTest do
   alias Example.Accounts.UserIdentity
   alias Example.Accounts.AuditEvent
 
-  @demo_domain "@demo.sigra.dev"
+  @demo_domain "@demo.vaultr.test"
 
   defp demo_user!(email), do: Accounts.get_user_by_email(email)
 
@@ -53,13 +53,13 @@ defmodule Example.Demo.SeedsTest do
         ),
       invitations:
         Repo.aggregate(
-          from(i in OrganizationInvitation, where: i.email == ^"invited@demo.sigra.dev"),
+          from(i in OrganizationInvitation, where: i.email == ^"invited@demo.vaultr.test"),
           :count
         ),
       expired_invitations:
         Repo.aggregate(
           from(i in OrganizationInvitation,
-            where: i.email == ^"expired-invite@demo.sigra.dev"
+            where: i.email == ^"expired-invite@demo.vaultr.test"
           ),
           :count
         ),
@@ -116,7 +116,7 @@ defmodule Example.Demo.SeedsTest do
       :ok
     end
 
-    test "seeds exactly the @demo.sigra.dev persona catalog of users" do
+    test "seeds exactly the @demo.vaultr.test persona catalog of users" do
       count =
         Repo.aggregate(
           from(u in User, where: like(u.email, ^"%#{@demo_domain}")),
@@ -131,7 +131,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "dave is the locked-out persona" do
-      dave = demo_user!("dave@demo.sigra.dev")
+      dave = demo_user!("dave@demo.vaultr.test")
 
       assert dave.failed_login_attempts == 5
       refute is_nil(dave.locked_at)
@@ -139,7 +139,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "frank is the scheduled-deletion persona" do
-      frank = demo_user!("frank@demo.sigra.dev")
+      frank = demo_user!("frank@demo.vaultr.test")
 
       refute is_nil(frank.deleted_at)
       refute is_nil(frank.scheduled_deletion_at)
@@ -147,7 +147,7 @@ defmodule Example.Demo.SeedsTest do
 
     test "grace is a deletion-scheduled Acme member" do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
-      grace = demo_user!("grace@demo.sigra.dev")
+      grace = demo_user!("grace@demo.vaultr.test")
 
       refute is_nil(grace.deleted_at)
       refute is_nil(grace.scheduled_deletion_at)
@@ -157,7 +157,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "pat has no MFA credential but has a passkey row" do
-      pat = demo_user!("pat@demo.sigra.dev")
+      pat = demo_user!("pat@demo.vaultr.test")
 
       mfa_count =
         Repo.aggregate(from(c in UserMFACredential, where: c.user_id == ^pat.id), :count)
@@ -170,12 +170,12 @@ defmodule Example.Demo.SeedsTest do
       assert passkey_count >= 1
     end
 
-    test "exactly one expired invitation for expired-invite@demo.sigra.dev" do
+    test "exactly one expired invitation for expired-invite@demo.vaultr.test" do
       expired =
         Repo.all(
           from i in OrganizationInvitation,
             where:
-              i.email == ^"expired-invite@demo.sigra.dev" and
+              i.email == ^"expired-invite@demo.vaultr.test" and
                 is_nil(i.accepted_at) and is_nil(i.revoked_at)
         )
 
@@ -187,7 +187,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "carol has a GitHub OAuth identity" do
-      carol = demo_user!("carol@demo.sigra.dev")
+      carol = demo_user!("carol@demo.vaultr.test")
 
       identity =
         Repo.one(
@@ -199,7 +199,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "admin and bob have a totp MFA credential with the deterministic secret" do
-      for email <- ["admin@demo.sigra.dev", "bob@demo.sigra.dev"] do
+      for email <- ["admin@demo.vaultr.test", "bob@demo.vaultr.test"] do
         user = demo_user!(email)
 
         credential =
@@ -216,7 +216,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "admin has at least one passkey row" do
-      admin = demo_user!("admin@demo.sigra.dev")
+      admin = demo_user!("admin@demo.vaultr.test")
 
       passkey_count =
         Repo.aggregate(
@@ -232,12 +232,12 @@ defmodule Example.Demo.SeedsTest do
       assert Repo.get_by(Organization, slug: "beta-labs")
     end
 
-    test "exactly one pending invitation to invited@demo.sigra.dev" do
+    test "exactly one pending invitation to invited@demo.vaultr.test" do
       pending =
         Repo.all(
           from i in OrganizationInvitation,
             where:
-              i.email == ^"invited@demo.sigra.dev" and
+              i.email == ^"invited@demo.vaultr.test" and
                 is_nil(i.accepted_at) and is_nil(i.revoked_at)
         )
 
@@ -248,11 +248,11 @@ defmodule Example.Demo.SeedsTest do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
       beta = Repo.get_by!(Organization, slug: "beta-labs")
 
-      admin = demo_user!("admin@demo.sigra.dev")
-      alice = demo_user!("alice@demo.sigra.dev")
-      carol = demo_user!("carol@demo.sigra.dev")
-      dave = demo_user!("dave@demo.sigra.dev")
-      bob = demo_user!("bob@demo.sigra.dev")
+      admin = demo_user!("admin@demo.vaultr.test")
+      alice = demo_user!("alice@demo.vaultr.test")
+      carol = demo_user!("carol@demo.vaultr.test")
+      dave = demo_user!("dave@demo.vaultr.test")
+      bob = demo_user!("bob@demo.vaultr.test")
 
       admin_orgs =
         Repo.aggregate(
@@ -262,7 +262,7 @@ defmodule Example.Demo.SeedsTest do
 
       assert admin_orgs == 2
 
-      grace = demo_user!("grace@demo.sigra.dev")
+      grace = demo_user!("grace@demo.vaultr.test")
 
       assert membership_role(alice.id, acme.id) == :member
       assert membership_role(carol.id, acme.id) == :member
@@ -270,6 +270,7 @@ defmodule Example.Demo.SeedsTest do
       assert membership_role(admin.id, acme.id) == :owner
       assert membership_role(admin.id, beta.id) == :member
       assert membership_role(bob.id, beta.id) == :owner
+
       assert membership_role(grace.id, acme.id) == :member,
              "grace should be an Acme member for the roster deletion pill to render"
     end
@@ -282,7 +283,7 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "at least 15 audit events across at least 6 distinct actions, admin-tied" do
-      admin = demo_user!("admin@demo.sigra.dev")
+      admin = demo_user!("admin@demo.vaultr.test")
 
       admin_tied =
         Repo.aggregate(
@@ -310,8 +311,8 @@ defmodule Example.Demo.SeedsTest do
 
     test "persona and organization audit rows make non-admin detail screens useful" do
       acme = Repo.get_by!(Organization, slug: "acme-corp")
-      alice = demo_user!("alice@demo.sigra.dev")
-      dave = demo_user!("dave@demo.sigra.dev")
+      alice = demo_user!("alice@demo.vaultr.test")
+      dave = demo_user!("dave@demo.vaultr.test")
 
       alice_tied =
         Repo.aggregate(
@@ -344,7 +345,7 @@ defmodule Example.Demo.SeedsTest do
 
     test "a confirmed persona's hashed_password is an argon2id hash" do
       # Alice is confirmed and (unlike dave) retains her hashed password.
-      alice = demo_user!("alice@demo.sigra.dev")
+      alice = demo_user!("alice@demo.vaultr.test")
 
       assert is_binary(alice.hashed_password)
 

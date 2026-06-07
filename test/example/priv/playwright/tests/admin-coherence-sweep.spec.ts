@@ -23,7 +23,7 @@ import { TEST_PASSWORD } from '../helpers/fixtures';
 //
 // Seeded demo DB dependency: Screens 2 and 3 assert pills that require
 // `mix run priv/repo/seeds.exs` to have been run in the dev environment.
-// pat@demo.sigra.dev (passkeys), grace@demo.sigra.dev (deletion-scheduled Acme member),
+// pat@demo.vaultr.test (passkeys), grace@demo.vaultr.test (deletion-scheduled Acme member),
 // and an expired-invite row must exist in the database.
 //
 // This spec runs in the default chromium project — the spec file name
@@ -84,18 +84,18 @@ test.describe('Phase 159 coherence sweep', () => {
     await expect(page.locator('.sg-notice').first()).toBeVisible();
 
     // SCREEN 2 — Org overview (/admin/organizations/acme-corp)
-    // Requires mix run priv/repo/seeds.exs — acme-corp org, grace@demo.sigra.dev member,
+    // Requires mix run priv/repo/seeds.exs — acme-corp org, grace@demo.vaultr.test member,
     // expired invite row, and deletion-scheduled user must exist in the database.
     await page.goto('/admin/organizations/acme-corp');
     await waitForLiveViewReady(page);
     await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
     // FIXT-01: Expired pill — seeded expired invitation for acme-corp
-    // Requires mix run priv/repo/seeds.exs (expired-invite@demo.sigra.dev row)
+    // Requires mix run priv/repo/seeds.exs (expired-invite@demo.vaultr.test row)
     await expect(
       page.locator('.sg-status-pill[data-tone="risk"]').filter({ hasText: 'Expired' })
     ).toBeVisible();
-    // FIXT-02: Deletion scheduled pill — grace@demo.sigra.dev is scheduled for deletion
-    // Requires mix run priv/repo/seeds.exs (grace@demo.sigra.dev with deletion scheduled)
+    // FIXT-02: Deletion scheduled pill — grace@demo.vaultr.test is scheduled for deletion
+    // Requires mix run priv/repo/seeds.exs (grace@demo.vaultr.test with deletion scheduled)
     await expect(
       page.locator('.sg-status-pill[data-tone="warn"]').filter({ hasText: 'Deletion scheduled' })
     ).toBeVisible();
@@ -104,9 +104,9 @@ test.describe('Phase 159 coherence sweep', () => {
     await page.goto('/admin/users');
     await waitForLiveViewReady(page);
     await expect(page.locator('.sg-scope-ribbon')).toBeVisible();
-    // FIXT-03: Passkeys pill — pat@demo.sigra.dev has a registered passkey
-    // Requires mix run priv/repo/seeds.exs (pat@demo.sigra.dev must exist with passkey)
-    await page.goto('/admin/users?q=pat%40demo.sigra.dev');
+    // FIXT-03: Passkeys pill — pat@demo.vaultr.test has a registered passkey
+    // Requires mix run priv/repo/seeds.exs (pat@demo.vaultr.test must exist with passkey)
+    await page.goto('/admin/users?q=pat%40demo.vaultr.test');
     await waitForLiveViewReady(page);
     await expect(
       page.locator('.sg-status-pill[data-tone="ok"]').filter({ hasText: 'Passkeys' }).first()

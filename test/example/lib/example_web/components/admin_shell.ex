@@ -13,18 +13,79 @@ defmodule ExampleWeb.Components.AdminShell do
 
   def admin_shell(assigns) do
     ~H"""
+    <script>
+      (function () {
+        try {
+          var value = window.localStorage && window.localStorage.getItem("sigra.admin.theme");
+          if (value === "light" || value === "dark") {
+            document.documentElement.setAttribute("data-sg-admin-theme", value);
+          } else {
+            document.documentElement.removeAttribute("data-sg-admin-theme");
+          }
+        } catch (err) {}
+      })();
+    </script>
     <section class="sg-admin-shell" data-scope={scope_mode(@admin_scope)}>
       <header class="sg-admin-topbar">
         <div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
           <div class="sg-cluster sg-cluster--3">
-            <a href={overview_link(@admin_scope)} class="sg-brand-mark">
-              <span class="sg-brand-mark__glyph" aria-hidden="true"></span>
-              <span>Admin</span>
+            <a href={overview_link(@admin_scope)} class="sg-brand-mark" aria-label="Sigra admin overview">
+              <svg
+                class="sg-brand-mark__logo"
+                viewBox="0 0 64 64"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path class="sg-brand-mark__rail-accent" d="M17 14v14M32 23v18M47 36v14" />
+                <path class="sg-brand-mark__rail-ember" d="M17 36v14M47 14v14" />
+                <path class="sg-brand-mark__core" d="M17 32h30" />
+              </svg>
+              <span class="sg-brand-mark__word">Sigra</span>
+              <span class="sg-brand-mark__section">Admin</span>
             </a>
             <.scope_switcher admin_scope={@admin_scope} />
           </div>
 
           <div class="sg-cluster sg-cluster--2">
+            <div
+              id="admin-theme-switch"
+              class="sg-theme-switch"
+              phx-hook="ThemeSwitch"
+              role="radiogroup"
+              aria-label="Theme"
+            >
+              <button
+                type="button"
+                class="sg-theme-switch__button"
+                role="radio"
+                data-theme-value="light"
+                aria-checked="false"
+                tabindex="-1"
+              >
+                Light
+              </button>
+              <button
+                type="button"
+                class="sg-theme-switch__button"
+                role="radio"
+                data-theme-value="dark"
+                aria-checked="false"
+                tabindex="-1"
+              >
+                Dark
+              </button>
+              <button
+                type="button"
+                class="sg-theme-switch__button"
+                role="radio"
+                data-theme-value="system"
+                aria-checked="true"
+                tabindex="0"
+              >
+                System
+              </button>
+            </div>
+
             <button
               id="admin-cmdk"
               type="button"

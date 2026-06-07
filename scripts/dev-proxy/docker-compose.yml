@@ -1,0 +1,21 @@
+services:
+  traefik:
+    image: ${SIGRA_DEV_PROXY_TRAEFIK_IMAGE:-traefik:v3.7.1}
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=${SIGRA_DEV_PROXY_NETWORK:-proxy}"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "${SIGRA_DEV_PROXY_BIND:-127.0.0.1}:${SIGRA_DEV_PROXY_HTTP_PORT:-80}:80"
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  proxy:
+    name: ${SIGRA_DEV_PROXY_NETWORK:-proxy}
+    external: true

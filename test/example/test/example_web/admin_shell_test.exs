@@ -21,6 +21,16 @@ defmodule ExampleWeb.AdminShellTest do
       html = html_response(conn, 200)
 
       assert html =~ "Admin"
+      assert html =~ "Sigra"
+      assert html =~ "sg-brand-mark__logo"
+      assert html =~ "sg-brand-mark__rail-accent"
+      refute html =~ "sg-brand-mark__glyph"
+      assert html =~ "role=\"radiogroup\""
+      assert html =~ "aria-label=\"Theme\""
+      assert html =~ "data-theme-value=\"light\""
+      assert html =~ "data-theme-value=\"dark\""
+      assert html =~ "data-theme-value=\"system\""
+      assert html =~ "phx-hook=\"ThemeSwitch\""
       assert html =~ "Global"
       assert html =~ "Users"
       assert html =~ "href=\"/admin/users\""
@@ -187,14 +197,15 @@ defmodule ExampleWeb.AdminShellTest do
       refute html =~ "sg-posture-strip__risk"
 
       assert html_offset(html, "sg-notice") < html_offset(html, "sg-grid sg-grid--3")
-      assert html_offset(html, "sg-grid sg-grid--3") < html_offset(html, "sg-card sg-posture-strip")
+
+      assert html_offset(html, "sg-grid sg-grid--3") <
+               html_offset(html, "sg-card sg-posture-strip")
     end
 
     test "org overview disconnected mount (GET) renders skeleton, not stat values" do
       org_admin =
         AccountsFixtures.user_fixture(%{
-          email:
-            "org-admin+157-org-skel-#{System.unique_integer([:positive])}@example.com"
+          email: "org-admin+157-org-skel-#{System.unique_integer([:positive])}@example.com"
         })
 
       organization =
@@ -222,8 +233,7 @@ defmodule ExampleWeb.AdminShellTest do
     test "org overview connected mount (live/2) renders data, not skeleton" do
       org_admin =
         AccountsFixtures.user_fixture(%{
-          email:
-            "org-admin+157-org-live-#{System.unique_integer([:positive])}@example.com"
+          email: "org-admin+157-org-live-#{System.unique_integer([:positive])}@example.com"
         })
 
       organization =
@@ -248,7 +258,9 @@ defmodule ExampleWeb.AdminShellTest do
       refute html =~ "Scoped attention"
 
       assert html_offset(html, "sg-notice") < html_offset(html, "sg-grid sg-grid--2")
-      assert html_offset(html, "sg-grid sg-grid--2") < html_offset(html, "sg-card sg-posture-strip")
+
+      assert html_offset(html, "sg-grid sg-grid--2") <
+               html_offset(html, "sg-card sg-posture-strip")
 
       assert html =~ "sg-posture-strip"
       assert html =~ "Members"

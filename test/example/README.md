@@ -7,7 +7,7 @@ Vaultr is the runnable local companion for Sigra's canonical evaluator walkthrou
 
 ### Prerequisites
 
-- Elixir 1.18+
+- Elixir 1.19+
 - Erlang/OTP 27+
 - Docker Desktop, or PostgreSQL reachable through `PG*` environment variables
 
@@ -30,6 +30,21 @@ cd test/example && PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed
 ```
 
 Then visit the printed `/demo/credentials` URL first.
+
+For a stable `.localhost` URL, use the shared local Traefik proxy:
+
+```bash
+scripts/dev-proxy/up.sh
+scripts/uat/up.sh --proxy
+```
+
+That route starts Vaultr as a Docker `web` service on the external Docker
+network named `proxy` and lets the shared `dev_proxy-traefik-1` route
+`http://sigra.localhost`. Sigra does not start its own port-80 Traefik in this
+path. The proxy helper is a generic local-dev convenience shipped by Sigra;
+any compatible Traefik attached to `proxy` works. If you need an isolated fallback proxy, use
+`scripts/uat/up.sh --private-traefik`, which binds
+`http://sigra.localhost:18080` by default.
 
 ### Everyday commands
 
@@ -66,16 +81,16 @@ mix setup && mix phx.server
 
 ## Demo Personas
 
-All personas use the `@demo.sigra.dev` email domain. Passwords are public-by-design demo credentials — never use them in production.
+All personas use the `@demo.vaultr.test` email domain. Passwords are public-by-design demo credentials — never use them in production.
 
 | Email | Password | Feature demonstrated |
 |-------|----------|---------------------|
-| admin@demo.sigra.dev | DemoAdmin1!SecurePass | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
-| alice@demo.sigra.dev | AliceDemoPass1! | Happy path confirmed user baseline |
-| bob@demo.sigra.dev | BobDemoPass1!Beta | TOTP MFA enrolled plus org-owner coverage |
-| carol@demo.sigra.dev | CarolDemoPass1!Github | Seeded GitHub OAuth-linked identity row for inspection |
-| dave@demo.sigra.dev | DaveDemoPass1!Locked | Locked and unconfirmed rough edge |
-| frank@demo.sigra.dev | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active) |
+| admin@demo.vaultr.test | DemoAdmin1!SecurePass | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
+| alice@demo.vaultr.test | AliceDemoPass1! | Happy path confirmed user baseline |
+| bob@demo.vaultr.test | BobDemoPass1!Beta | TOTP MFA enrolled plus org-owner coverage |
+| carol@demo.vaultr.test | CarolDemoPass1!Github | Seeded GitHub OAuth-linked identity row for inspection |
+| dave@demo.vaultr.test | DaveDemoPass1!Locked | Locked and unconfirmed rough edge |
+| frank@demo.vaultr.test | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active) |
 
 ## Rough Edges
 

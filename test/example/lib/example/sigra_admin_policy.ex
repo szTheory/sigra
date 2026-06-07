@@ -12,15 +12,15 @@ defmodule Example.SigraAdminPolicy do
   import Ecto.Query, only: [from: 2]
 
   alias Example.Accounts.OrganizationMembership
+  alias Example.Demo.Personas
   alias Example.Repo
 
   @platform_admin_prefix "platform-admin+"
   @org_admin_prefix "org-admin+"
-  @demo_admin_email "admin@demo.sigra.dev"
 
   @impl true
   def platform_admin?(%{user: %{email: email}}) when is_binary(email) do
-    String.starts_with?(email, @platform_admin_prefix) or email == @demo_admin_email
+    String.starts_with?(email, @platform_admin_prefix) or email == Personas.email("admin")
   end
 
   def platform_admin?(_scope), do: false
@@ -28,7 +28,7 @@ defmodule Example.SigraAdminPolicy do
   @impl true
   def admin_org_ids(%{user: %{id: user_id, email: email}})
       when is_binary(email) and is_binary(user_id) do
-    if String.starts_with?(email, @org_admin_prefix) do
+    if String.starts_with?(email, @org_admin_prefix) or email == Personas.email("morgan") do
       user_id
       |> admin_memberships()
       |> Sigra.Admin.Policy.admin_org_ids_from_memberships()

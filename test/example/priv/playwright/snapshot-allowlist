@@ -11,10 +11,7 @@
 #
 # The `impersonation-banner` canary must NEVER appear here.
 #
-audit-explorer
 global-overview
-global-user-index
 org-overview
-org-scoped-admin
 user-audit
 user-detail

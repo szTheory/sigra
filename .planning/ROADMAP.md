@@ -1,15 +1,35 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.35 BRAND-SYSTEM-PRESSURE-TEST shipped and archived — planning next milestone
+**Status:** v1.36 ADMIN-BRAND-THEME-POLISH shipped 2026-06-06
 
 ## Milestones
 
+- ✅ **v1.36 ADMIN-BRAND-THEME-POLISH** — Phases 168-172 (shipped 2026-06-06)
 - ✅ **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-167 (shipped 2026-06-05)
 - ✅ **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (shipped 2026-06-05)
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
 ## Phases
+
+<details>
+<summary>✅ v1.36 ADMIN-BRAND-THEME-POLISH (Phases 168-172) — SHIPPED 2026-06-06</summary>
+
+**Milestone Goal:** Align the admin UI with the ratified Rail Accent brand system, add explicit Light/Dark/System theme support, and tighten the design-system guidance/tests without reopening the broad v1.34 admin redesign.
+
+- [x] Phase 168: Admin Brand + Theme Audit (1/1 plan) — completed 2026-06-06
+- [x] Phase 169: Durable UI Principles + Design Contract Update (1/1 plan) — completed 2026-06-06
+- [x] Phase 170: Rail Accent Shell + Theme Control (1/1 plan) — completed 2026-06-06
+- [x] Phase 171: Design-System Touchpoint Polish (1/1 plan) — completed 2026-06-06
+- [x] Phase 172: Tests, Evidence, and Baseline Ratification (1/1 plan) — completed 2026-06-06
+
+Archive:
+
+- [v1.36 Roadmap](milestones/v1.36-ROADMAP.md)
+- [v1.36 Requirements](milestones/v1.36-REQUIREMENTS.md)
+- [v1.36 Milestone Audit](milestones/v1.36-MILESTONE-AUDIT.md)
+
+</details>
 
 <details>
 <summary>✅ v1.34 ADMIN-UI-COHERENCE (Phases 154-160) — SHIPPED 2026-06-05</summary>
@@ -75,3 +95,8 @@ Archive:
 | 165. Static HTML Brand Book | v1.35 | 1/1 | Complete | 2026-06-05 |
 | 166. Verification + Repo Hygiene | v1.35 | 1/1 | Complete | 2026-06-05 |
 | 167. Logo Options + Brand Direction Review | v1.35 | 2/2 | Complete | 2026-06-05 |
+| 168. Admin Brand + Theme Audit | v1.36 | 1/1 | Complete | 2026-06-06 |
+| 169. Durable UI Principles + Design Contract Update | v1.36 | 1/1 | Complete | 2026-06-06 |
+| 170. Rail Accent Shell + Theme Control | v1.36 | 1/1 | Complete | 2026-06-06 |
+| 171. Design-System Touchpoint Polish | v1.36 | 1/1 | Complete | 2026-06-06 |
+| 172. Tests, Evidence, and Baseline Ratification | v1.36 | 1/1 | Complete | 2026-06-06 |

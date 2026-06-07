@@ -6,7 +6,7 @@ defmodule Example.Demo.Personas do
   Consumed both by the seed orchestrator (plan 03) and the `/demo/credentials` LiveView
   (plan 04).
 
-  All personas use the `@demo.sigra.dev` email domain to keep seeded data strictly
+  All personas use the `@demo.vaultr.test` email domain to keep seeded data strictly
   segregated from the golden-path CI fixture domain used in `mix test`.
 
   Passwords are public-by-design demo credentials. Each password satisfies
@@ -16,12 +16,25 @@ defmodule Example.Demo.Personas do
 
   # Demo-only — intentionally deterministic. Never use in production.
   @demo_totp_secret :crypto.hash(:sha256, "sigra-demo-admin-totp-v1") |> binary_part(0, 20)
+  @demo_domain "demo.vaultr.test"
+
+  @doc """
+  Returns the fictional Vaultr cohort email domain used by the demo data.
+  """
+  @spec demo_domain() :: String.t()
+  def demo_domain, do: @demo_domain
+
+  @doc """
+  Builds a demo-cohort email address for a local part.
+  """
+  @spec email(String.t()) :: String.t()
+  def email(local) when is_binary(local), do: local <> "@" <> @demo_domain
 
   @doc """
   Returns the list of all nine demo personas as maps.
 
   Each persona map contains:
-  - `:email` — fixed `@demo.sigra.dev` address
+  - `:email` — fixed `@demo.vaultr.test` address
   - `:display_name` — role-descriptive, stable across re-seeds
   - `:password` — policy-passing, public-by-design demo credential
   - `:confirmed` — whether to confirm the user after registration
@@ -38,7 +51,7 @@ defmodule Example.Demo.Personas do
   def all do
     [
       %{
-        email: "admin@demo.sigra.dev",
+        email: email("admin"),
         display_name: "Admin (operator)",
         password: "DemoAdmin1!SecurePass",
         confirmed: true,
@@ -52,7 +65,7 @@ defmodule Example.Demo.Personas do
         org_member: :beta
       },
       %{
-        email: "alice@demo.sigra.dev",
+        email: email("alice"),
         display_name: "Alice",
         password: "AliceDemoPass1!",
         confirmed: true,
@@ -66,7 +79,7 @@ defmodule Example.Demo.Personas do
         org_member: :acme
       },
       %{
-        email: "bob@demo.sigra.dev",
+        email: email("bob"),
         display_name: "Bob",
         password: "BobDemoPass1!Beta",
         confirmed: true,
@@ -80,7 +93,7 @@ defmodule Example.Demo.Personas do
         org_member: nil
       },
       %{
-        email: "carol@demo.sigra.dev",
+        email: email("carol"),
         display_name: "Carol",
         password: "CarolDemoPass1!Github",
         confirmed: true,
@@ -94,7 +107,7 @@ defmodule Example.Demo.Personas do
         org_member: :acme
       },
       %{
-        email: "dave@demo.sigra.dev",
+        email: email("dave"),
         display_name: "Dave",
         password: "DaveDemoPass1!Locked",
         confirmed: false,
@@ -108,7 +121,7 @@ defmodule Example.Demo.Personas do
         org_member: nil
       },
       %{
-        email: "frank@demo.sigra.dev",
+        email: email("frank"),
         display_name: "Frank",
         password: "FrankDemoPass1!Deleted",
         confirmed: true,
@@ -122,7 +135,7 @@ defmodule Example.Demo.Personas do
         org_member: nil
       },
       %{
-        email: "morgan@demo.sigra.dev",
+        email: email("morgan"),
         display_name: "Morgan (org admin)",
         password: "MorganDemo1!OrgAdmin",
         confirmed: true,
@@ -136,7 +149,7 @@ defmodule Example.Demo.Personas do
         org_member: nil
       },
       %{
-        email: "pat@demo.sigra.dev",
+        email: email("pat"),
         display_name: "Pat",
         password: "PatDemoPass1!Passkey",
         confirmed: true,
@@ -150,7 +163,7 @@ defmodule Example.Demo.Personas do
         org_member: nil
       },
       %{
-        email: "grace@demo.sigra.dev",
+        email: email("grace"),
         display_name: "Grace",
         password: "GraceDemoPass1!Acme",
         confirmed: true,
@@ -169,19 +182,20 @@ defmodule Example.Demo.Personas do
   @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
-  '@') for all nine @demo.sigra.dev personas.
+  '@') for all nine @demo.vaultr.test personas.
   """
   @spec feature_map() :: %{String.t() => String.t()}
   def feature_map do
     %{
       "admin" => "Admin — TOTP MFA, passkey display row, multi-org owner, rich audit trail",
       "alice" => "Standard confirmed user — happy path login, Acme Corp member",
-      "bob"   => "TOTP MFA enrolled — org owner (Beta Labs)",
-      "carol" => "OAuth identity — GitHub-linked login (carol@demo.sigra.dev)",
-      "dave"  => "Locked account — failed login attempts exhausted, unconfirmed",
+      "bob" => "TOTP MFA enrolled — org owner (Beta Labs)",
+      "carol" => "OAuth identity — GitHub-linked login (#{email("carol")})",
+      "dave" => "Locked account — failed login attempts exhausted, unconfirmed",
       "frank" => "Scheduled deletion — account marked for deletion",
       "morgan" => "Org admin — Acme Corp admin, non-platform, org-scoped console",
-      "pat"   => "Passkey-only user — no MFA, passkey display row, demonstrates Passkeys pill on users index",
+      "pat" =>
+        "Passkey-only user — no MFA, passkey display row, demonstrates Passkeys pill on users index",
       "grace" => "Deletion-scheduled Acme member — demonstrates in-roster Deletion scheduled pill"
     }
   end

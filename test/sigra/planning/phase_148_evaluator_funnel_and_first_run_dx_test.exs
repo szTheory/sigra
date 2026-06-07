@@ -45,12 +45,12 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert showcase =~ "mix setup && mix phx.server"
 
     for email <- [
-          "admin@demo.sigra.dev",
-          "alice@demo.sigra.dev",
-          "bob@demo.sigra.dev",
-          "carol@demo.sigra.dev",
-          "dave@demo.sigra.dev",
-          "frank@demo.sigra.dev"
+          "admin@demo.vaultr.test",
+          "alice@demo.vaultr.test",
+          "bob@demo.vaultr.test",
+          "carol@demo.vaultr.test",
+          "dave@demo.vaultr.test",
+          "frank@demo.vaultr.test"
         ] do
       assert showcase =~ email
     end
@@ -123,5 +123,54 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
                end)
              end)
            ) == {:shutdown, 1}
+  end
+
+  test "148-04: UAT proxy contract uses shared Traefik without Sigra owning port 80" do
+    up = read!("scripts/uat/up.sh")
+    compose = read!("scripts/uat/docker-compose.yml")
+    dev_proxy_up = read!("scripts/dev-proxy/up.sh")
+    dev_proxy_compose = read!("scripts/dev-proxy/docker-compose.yml")
+    runbook = read!("scripts/uat/RUNBOOK.md")
+    example = read!("test/example/README.md")
+
+    assert up =~ "--proxy"
+    assert up =~ "--private-traefik"
+    assert up =~ "dev_proxy-traefik-1"
+    assert up =~ "scripts/dev-proxy/up.sh"
+    assert up =~ "SIGRA_UAT_PROXY_NETWORK"
+    assert up =~ "Project-private Traefik is not allowed to bind 127.0.0.1:80"
+    refute up =~ "scoria"
+
+    assert compose =~ "profiles: [\"proxy\"]"
+    assert compose =~ "traefik.enable=true"
+    assert compose =~ "traefik.docker.network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
+    assert compose =~ "name: ${SIGRA_UAT_PROXY_NETWORK:-proxy}"
+    assert compose =~ "external: true"
+    assert compose =~ "profiles: [\"private-traefik\"]"
+    assert compose =~ "${SIGRA_UAT_PROXY_PORT:-18080}:80"
+    refute compose =~ "${SIGRA_UAT_PROXY_PORT:-80}:80"
+    refute compose =~ "127.0.0.1:80:80"
+
+    assert dev_proxy_up =~ "SIGRA_DEV_PROXY_PROJECT:-dev_proxy"
+    assert dev_proxy_up =~ "SIGRA_DEV_PROXY_NETWORK:-proxy"
+    assert dev_proxy_up =~ "docker network create"
+    assert dev_proxy_compose =~ "--providers.docker=true"
+    assert dev_proxy_compose =~ "--providers.docker.exposedbydefault=false"
+
+    assert dev_proxy_compose =~
+             "${SIGRA_DEV_PROXY_BIND:-127.0.0.1}:${SIGRA_DEV_PROXY_HTTP_PORT:-80}:80"
+
+    assert dev_proxy_compose =~ "name: ${SIGRA_DEV_PROXY_NETWORK:-proxy}"
+    assert dev_proxy_compose =~ "external: true"
+
+    for doc <- [runbook, example] do
+      assert doc =~ "dev_proxy-traefik-1"
+      assert doc =~ ~r/external Docker\s+network named `proxy`/
+      assert doc =~ "http://sigra.localhost"
+      assert doc =~ "scripts/dev-proxy/up.sh"
+      assert doc =~ "--private-traefik"
+      assert doc =~ "18080"
+      refute doc =~ "scoria"
+    end
   end
 end

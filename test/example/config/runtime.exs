@@ -20,15 +20,6 @@ if System.get_env("PHX_SERVER") do
   config :example, ExampleWeb.Endpoint, server: true
 end
 
-config :example, ExampleWeb.Endpoint,
-  http: [
-    ip: {127, 0, 0, 1},
-    port:
-      String.to_integer(
-        System.get_env("PORT", if(config_env() == :test, do: "4002", else: "4000"))
-      )
-  ]
-
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

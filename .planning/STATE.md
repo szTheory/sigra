@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.35
-milestone_name: BRAND-SYSTEM-PRESSURE-TEST
-status: Archived
-last_updated: "2026-06-06T01:19:03Z"
-last_activity: 2026-06-05 — v1.35 archived, requirements preserved in milestones/, and live planning reset for the next milestone.
+milestone: v1.36
+milestone_name: ADMIN-BRAND-THEME-POLISH
+status: Complete
+last_updated: "2026-06-06T02:30:00-04:00"
+last_activity: 2026-06-06 — v1.36 shipped: Rail Accent admin shell, Light/Dark/System theme support, durable UI principles, deterministic browser coverage, and refreshed intentional admin checkpoints.
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 8
-  completed_plans: 8
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 5
+  completed_plans: 5
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Planning the next milestone after v1.35 BRAND-SYSTEM-PRESSURE-TEST.
+**Current focus:** v1.36 ADMIN-BRAND-THEME-POLISH complete; ready for next milestone selection.
 
 ## Current Position
 
-Phase: 167 — Logo Options + Brand Direction Review
-Plan: 167-02 complete
-Status: v1.35 archived; next milestone not yet defined
-Last activity: 2026-06-05 — v1.35 closeout preserved the roadmap, requirements, audit, and phase artifacts under `.planning/milestones/`.
+Phase: 172 — Tests, Evidence, and Baseline Ratification
+Plan: 172-01 complete
+Status: v1.36 complete
+Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, snapshot, and generated-host acceptance verification.
 
 ## Accumulated Context
 
@@ -43,6 +43,11 @@ Last activity: 2026-06-05 — v1.35 closeout preserved the roadmap, requirements
 - `brandbook/tokens.json` and `brandbook/tokens.css` are the brand collateral token source; they do not mutate admin/generated UI tokens by themselves.
 - Phase 167 plan 01 generated five logo options and an options review page; Phase 167 plan 02 finalized Option A Core Rails after human selection.
 - Human logo decision: Option A Core Rails is the ratified Sigra logo direction.
+- v1.36 scope decision: admin UI only; do not polish non-admin demo/auth/organization screens unless required for admin evidence.
+- v1.36 theme decision: expose Light, Dark, and System as an explicit shell control with local persistence and system fallback.
+- v1.36 architecture decision: preserve the hand-authored `sg-*` BEM/cascade-layer CSS system and route reusable markup through `Sigra.Admin.Components` or the shell seam.
+- v1.36 theme decision: use a namespaced `data-sg-admin-theme` root carrier plus `.sg-admin-shell[data-theme]`; do not set global DaisyUI `data-theme` from the admin switch.
+- v1.36 visual-baseline decision: refreshed checkpoint PNGs are limited to `global-overview`, `org-overview`, `user-detail`, and `user-audit`.
 
 ### Pending Todos
 
@@ -79,7 +84,12 @@ Resume file: None
 | Phase 166 | 1 plan | same session | Verification + repo hygiene |
 | Phase 167 P01 | 1 plan | same session | Logo option generation + presentation |
 | Phase 167 P02 | 1 plan | same session | Option A logo ratification + final verification |
+| Phase 168 | 1 plan | same session | Admin brand/theme audit with parallel agent findings |
+| Phase 169 | 1 plan | same session | Durable admin UI principles + design contract update |
+| Phase 170 | 1 plan | same session | Rail Accent shell + Light/Dark/System theme control |
+| Phase 171 | 1 plan | same session | Scoped admin design-system touchpoint polish |
+| Phase 172 | 1 plan | same session | ExUnit, Playwright, snapshot, and generated-host verification |
 
 ## Operator Next Steps
 
-- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after Phase 167.
+- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after v1.36.

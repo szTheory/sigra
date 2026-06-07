@@ -39,6 +39,9 @@ defmodule ExampleWeb.SessionControllerTest do
       assert body =~ ~s(id="enterprise_login_form")
       assert body =~ ~s(action="/users/log_in")
       assert body =~ ~s(method="post")
+      assert body =~ "Log in to Vaultr"
+      assert body =~ "shared demo login for Vaultr users and Sigra Admin operators"
+      assert body =~ "admin@demo.vaultr.test"
       assert body =~ "Magic links are not break-glass recovery for SSO-only organizations"
       assert body =~ "break-glass stays limited to password sign-in"
     end

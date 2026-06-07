@@ -2,10 +2,11 @@ defmodule Example.Demo.Seeds do
   @moduledoc """
   Idempotent demo-database seed orchestrator.
 
-  Calling `run/0` populates the development database with seven `@demo.sigra.dev`
+  Calling `run/0` populates the development database with nine `@demo.vaultr.test`
   personas covering every notable auth state (admin with TOTP + passkey + multi-org,
   standard user, TOTP-enrolled org owner, GitHub OAuth identity, locked-out,
-  scheduled-deletion, and a non-platform org admin). It also seeds the Acme Corp and
+  scheduled-deletion, non-platform org admin, passkey-only, and deletion-scheduled
+  org member). It also seeds the Acme Corp and
   Beta Labs organizations, memberships, a pending invitation, the Acme Corp SSO
   enterprise connection, multiple active admin sessions, and a rich audit trail
   (>=15 rows, >=6 distinct action values).
@@ -70,6 +71,9 @@ defmodule Example.Demo.Seeds do
       IO.puts("[#{local}]  #{p.email}  #{p.password}  (#{feature})")
     end)
   end
+
+  defp demo_email(local), do: Personas.email(local)
+  defp demo_user(users, local), do: Map.fetch!(users, demo_email(local))
 
   ## ── User creation + state patches ───────────────────────────────────────────
 
@@ -152,17 +156,6 @@ defmodule Example.Demo.Seeds do
 
   defp maybe_lock(user, _persona), do: user
 
-  defp maybe_schedule_deletion(user, %{email: "dave@demo.sigra.dev"}) do
-    # Clear Dave's hashed_password (no context API for this — use deletion_changeset).
-    if is_nil(user.hashed_password) do
-      user
-    else
-      user
-      |> User.deletion_changeset(%{hashed_password: nil})
-      |> Repo.update!()
-    end
-  end
-
   defp maybe_schedule_deletion(user, %{scheduled_deletion: true}) do
     deleted_ts = ~U[2026-05-16 08:00:00Z]
     scheduled_ts = ~U[2026-05-30 08:00:00Z]
@@ -179,7 +172,25 @@ defmodule Example.Demo.Seeds do
     end
   end
 
+  defp maybe_schedule_deletion(user, %{email: email}) when is_binary(email) do
+    if email == demo_email("dave") do
+      clear_hashed_password(user)
+    else
+      user
+    end
+  end
+
   defp maybe_schedule_deletion(user, _persona), do: user
+
+  defp clear_hashed_password(user) do
+    if is_nil(user.hashed_password) do
+      user
+    else
+      user
+      |> User.deletion_changeset(%{hashed_password: nil})
+      |> Repo.update!()
+    end
+  end
 
   ## ── Organizations ────────────────────────────────────────────────────────────
 
@@ -210,14 +221,14 @@ defmodule Example.Demo.Seeds do
   ## ── Memberships ──────────────────────────────────────────────────────────────
 
   defp seed_memberships(users, acme, beta) do
-    admin = users["admin@demo.sigra.dev"]
-    alice = users["alice@demo.sigra.dev"]
-    carol = users["carol@demo.sigra.dev"]
-    bob = users["bob@demo.sigra.dev"]
-    dave = users["dave@demo.sigra.dev"]
-    morgan = users["morgan@demo.sigra.dev"]
+    admin = demo_user(users, "admin")
+    alice = demo_user(users, "alice")
+    carol = demo_user(users, "carol")
+    bob = demo_user(users, "bob")
+    dave = demo_user(users, "dave")
+    morgan = demo_user(users, "morgan")
 
-    grace = users["grace@demo.sigra.dev"]
+    grace = demo_user(users, "grace")
 
     # Acme Corp: admin=owner, morgan=admin (non-platform), alice=member, carol=member,
     #            dave=member, grace=member (deletion-scheduled, FIXT-02)
@@ -242,8 +253,8 @@ defmodule Example.Demo.Seeds do
   ## ── Pending invitation ───────────────────────────────────────────────────────
 
   defp seed_invitation(acme) do
-    expires_ts = ~U[2026-06-30 00:00:00Z]
-    invite_email = "invited@demo.sigra.dev"
+    expires_ts = ~U[2099-06-30 00:00:00Z]
+    invite_email = demo_email("invited")
 
     # organization_invitations_pending_index is a partial unique index
     # (WHERE accepted_at IS NULL AND revoked_at IS NULL).
@@ -273,7 +284,7 @@ defmodule Example.Demo.Seeds do
     # Second invitation block — expired (FIXT-01)
     # expires_at is pinned in the real past so expired?/1 evaluates true against
     # DateTime.utc_now(). A distinct email avoids conflicts with the pending invite.
-    expired_email = "expired-invite@demo.sigra.dev"
+    expired_email = demo_email("expired-invite")
     expired_ts = ~U[2026-01-01 00:00:00Z]
 
     existing_expired =
@@ -302,8 +313,8 @@ defmodule Example.Demo.Seeds do
   ## ── TOTP MFA credentials (D-06) ──────────────────────────────────────────────
 
   defp seed_mfa_credentials(users) do
-    admin = users["admin@demo.sigra.dev"]
-    bob = users["bob@demo.sigra.dev"]
+    admin = demo_user(users, "admin")
+    bob = demo_user(users, "bob")
 
     enabled_ts = ~U[2026-04-01 10:00:00Z]
 
@@ -325,14 +336,14 @@ defmodule Example.Demo.Seeds do
   ## ── Admin passkey display row (D-07) ─────────────────────────────────────────
 
   defp seed_passkey(users) do
-    admin = users["admin@demo.sigra.dev"]
-    pat = users["pat@demo.sigra.dev"]
+    admin = demo_user(users, "admin")
+    pat = demo_user(users, "pat")
 
     # display-only; will not authenticate
     # Fabricated binary credential_id and public_key — zero Wax validation,
     # so the inserts succeed. Rows exist only to populate the admin UI panel.
     upsert_passkey(admin, "sigra-demo-admin-passkey-credential-id-v1")
-    # pat@demo.sigra.dev: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
+    # pat@demo.vaultr.test: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
     upsert_passkey(pat, "sigra-demo-pat-passkey-credential-id-v1")
   end
 
@@ -360,13 +371,28 @@ defmodule Example.Demo.Seeds do
   # on_conflict/conflict_target idempotency safe.
 
   @admin_sessions [
-    %{n: "1", ip: "203.0.113.10", user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15", offset_days: 0},
-    %{n: "2", ip: "198.51.100.22", user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0", offset_days: 1},
-    %{n: "3", ip: "192.0.2.44", user_agent: "Mozilla/5.0 (X11; Linux x86_64) Firefox/125.0", offset_days: 3}
+    %{
+      n: "1",
+      ip: "203.0.113.10",
+      user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15",
+      offset_days: 0
+    },
+    %{
+      n: "2",
+      ip: "198.51.100.22",
+      user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0",
+      offset_days: 1
+    },
+    %{
+      n: "3",
+      ip: "192.0.2.44",
+      user_agent: "Mozilla/5.0 (X11; Linux x86_64) Firefox/125.0",
+      offset_days: 3
+    }
   ]
 
   defp seed_sessions(users) do
-    admin = users["admin@demo.sigra.dev"]
+    admin = demo_user(users, "admin")
 
     Enum.each(@admin_sessions, fn session ->
       hashed_token = :crypto.hash(:sha256, "sigra-demo-admin-session-" <> session.n)
@@ -429,14 +455,14 @@ defmodule Example.Demo.Seeds do
   ## ── Carol's GitHub OAuth identity (D-09) ─────────────────────────────────────
 
   defp seed_user_identity(users) do
-    carol = users["carol@demo.sigra.dev"]
+    carol = demo_user(users, "carol")
 
     %UserIdentity{}
     |> UserIdentity.changeset(%{
       user_id: carol.id,
       provider: "github",
       provider_uid: "carol-gh-demo-uid",
-      provider_email: "carol@demo.sigra.dev"
+      provider_email: demo_email("carol")
     })
     |> Repo.insert!(on_conflict: :nothing, conflict_target: [:user_id, :provider])
   end
@@ -471,140 +497,142 @@ defmodule Example.Demo.Seeds do
     {"session.revoke_all", "success", 17}
   ]
 
-  @persona_audit_events [
-    %{
-      email: "alice@demo.sigra.dev",
-      actor: "alice@demo.sigra.dev",
-      action: "auth.login.success",
-      outcome: "success",
-      offset: 18,
-      org: :acme
-    },
-    %{
-      email: "alice@demo.sigra.dev",
-      actor: "admin@demo.sigra.dev",
-      action: "admin.impersonation.start",
-      outcome: "success",
-      offset: 19,
-      org: :acme
-    },
-    %{
-      email: "alice@demo.sigra.dev",
-      actor: "admin@demo.sigra.dev",
-      action: "admin.impersonation.stop",
-      outcome: "success",
-      offset: 20,
-      org: :acme
-    },
-    %{
-      email: "bob@demo.sigra.dev",
-      actor: "bob@demo.sigra.dev",
-      action: "mfa.enroll.success",
-      outcome: "success",
-      offset: 21,
-      org: :beta
-    },
-    %{
-      email: "bob@demo.sigra.dev",
-      actor: "bob@demo.sigra.dev",
-      action: "auth.login.success",
-      outcome: "success",
-      offset: 22,
-      org: :beta
-    },
-    %{
-      email: "carol@demo.sigra.dev",
-      actor: "carol@demo.sigra.dev",
-      action: "auth.oauth.link",
-      outcome: "success",
-      offset: 23,
-      org: :acme
-    },
-    %{
-      email: "carol@demo.sigra.dev",
-      actor: "carol@demo.sigra.dev",
-      action: "auth.login.success",
-      outcome: "success",
-      offset: 24,
-      org: :acme
-    },
-    %{
-      email: "dave@demo.sigra.dev",
-      actor: "dave@demo.sigra.dev",
-      action: "auth.login.failure",
-      outcome: "failure",
-      offset: 25,
-      org: :acme
-    },
-    %{
-      email: "dave@demo.sigra.dev",
-      actor: "dave@demo.sigra.dev",
-      action: "auth.lockout.start",
-      outcome: "failure",
-      offset: 26,
-      org: :acme
-    },
-    %{
-      email: "frank@demo.sigra.dev",
-      actor: "frank@demo.sigra.dev",
-      action: "account.deletion.schedule",
-      outcome: "success",
-      offset: 27,
-      org: nil
-    },
-    %{
-      email: "admin@demo.sigra.dev",
-      actor: "admin@demo.sigra.dev",
-      action: "session.create",
-      outcome: "success",
-      offset: 28,
-      org: :acme
-    },
-    %{
-      email: "admin@demo.sigra.dev",
-      actor: "admin@demo.sigra.dev",
-      action: "session.create",
-      outcome: "success",
-      offset: 29,
-      org: :beta
-    },
-    # FIXT-04: richer audit variety — pat (passkey-only) and grace (in-roster deletion)
-    %{
-      email: "pat@demo.sigra.dev",
-      actor: "pat@demo.sigra.dev",
-      action: "auth.password.change",
-      outcome: "success",
-      offset: 30,
-      org: nil
-    },
-    %{
-      email: "pat@demo.sigra.dev",
-      actor: "pat@demo.sigra.dev",
-      action: "auth.magic_link.sent",
-      outcome: "success",
-      offset: 31,
-      org: nil
-    },
-    %{
-      email: "grace@demo.sigra.dev",
-      actor: "grace@demo.sigra.dev",
-      action: "api.token.create",
-      outcome: "success",
-      offset: 32,
-      org: :acme
-    },
-    %{
-      email: "carol@demo.sigra.dev",
-      actor: "carol@demo.sigra.dev",
-      action: "auth.oauth.link",
-      outcome: "success",
-      offset: 33,
-      org: :acme
-    }
-  ]
+  defp persona_audit_events do
+    [
+      %{
+        email: demo_email("alice"),
+        actor: demo_email("alice"),
+        action: "auth.login.success",
+        outcome: "success",
+        offset: 18,
+        org: :acme
+      },
+      %{
+        email: demo_email("alice"),
+        actor: demo_email("admin"),
+        action: "admin.impersonation.start",
+        outcome: "success",
+        offset: 19,
+        org: :acme
+      },
+      %{
+        email: demo_email("alice"),
+        actor: demo_email("admin"),
+        action: "admin.impersonation.stop",
+        outcome: "success",
+        offset: 20,
+        org: :acme
+      },
+      %{
+        email: demo_email("bob"),
+        actor: demo_email("bob"),
+        action: "mfa.enroll.success",
+        outcome: "success",
+        offset: 21,
+        org: :beta
+      },
+      %{
+        email: demo_email("bob"),
+        actor: demo_email("bob"),
+        action: "auth.login.success",
+        outcome: "success",
+        offset: 22,
+        org: :beta
+      },
+      %{
+        email: demo_email("carol"),
+        actor: demo_email("carol"),
+        action: "auth.oauth.link",
+        outcome: "success",
+        offset: 23,
+        org: :acme
+      },
+      %{
+        email: demo_email("carol"),
+        actor: demo_email("carol"),
+        action: "auth.login.success",
+        outcome: "success",
+        offset: 24,
+        org: :acme
+      },
+      %{
+        email: demo_email("dave"),
+        actor: demo_email("dave"),
+        action: "auth.login.failure",
+        outcome: "failure",
+        offset: 25,
+        org: :acme
+      },
+      %{
+        email: demo_email("dave"),
+        actor: demo_email("dave"),
+        action: "auth.lockout.start",
+        outcome: "failure",
+        offset: 26,
+        org: :acme
+      },
+      %{
+        email: demo_email("frank"),
+        actor: demo_email("frank"),
+        action: "account.deletion.schedule",
+        outcome: "success",
+        offset: 27,
+        org: nil
+      },
+      %{
+        email: demo_email("admin"),
+        actor: demo_email("admin"),
+        action: "session.create",
+        outcome: "success",
+        offset: 28,
+        org: :acme
+      },
+      %{
+        email: demo_email("admin"),
+        actor: demo_email("admin"),
+        action: "session.create",
+        outcome: "success",
+        offset: 29,
+        org: :beta
+      },
+      # FIXT-04: richer audit variety — pat (passkey-only) and grace (in-roster deletion)
+      %{
+        email: demo_email("pat"),
+        actor: demo_email("pat"),
+        action: "auth.password.change",
+        outcome: "success",
+        offset: 30,
+        org: nil
+      },
+      %{
+        email: demo_email("pat"),
+        actor: demo_email("pat"),
+        action: "auth.magic_link.sent",
+        outcome: "success",
+        offset: 31,
+        org: nil
+      },
+      %{
+        email: demo_email("grace"),
+        actor: demo_email("grace"),
+        action: "api.token.create",
+        outcome: "success",
+        offset: 32,
+        org: :acme
+      },
+      %{
+        email: demo_email("carol"),
+        actor: demo_email("carol"),
+        action: "auth.oauth.link",
+        outcome: "success",
+        offset: 33,
+        org: :acme
+      }
+    ]
+  end
 
   defp seed_audit_events(users, organizations) do
-    admin = users["admin@demo.sigra.dev"]
+    admin = demo_user(users, "admin")
     demo_user_ids = users |> Map.values() |> Enum.map(& &1.id)
 
     # Count-threshold guard: only insert the demo batch if fewer than the full
@@ -617,7 +645,7 @@ defmodule Example.Demo.Seeds do
         :count
       )
 
-    if demo_tied_count < length(@audit_actions) + length(@persona_audit_events) do
+    if demo_tied_count < length(@audit_actions) + length(persona_audit_events()) do
       insert_audit_batch(admin, users, organizations)
     end
   end
@@ -652,7 +680,7 @@ defmodule Example.Demo.Seeds do
           |> Repo.insert!()
         end)
 
-        Enum.each(@persona_audit_events, fn event ->
+        Enum.each(persona_audit_events(), fn event ->
           subject = Map.fetch!(users, event.email)
           actor = Map.fetch!(users, event.actor)
           organization_id = event.org && Map.fetch!(organizations, event.org).id

@@ -28,20 +28,23 @@ If first-run verification fails after setup, run `mix sigra.doctor` and use the 
 
 ## Evaluator Persona Map
 
-These six personas come from `Example.Demo.Personas.feature_map/0` and are the source of truth for what the showcase proves.
+These nine personas come from `Example.Demo.Personas.feature_map/0` and are the source of truth for what the showcase proves.
 
-- `admin@demo.sigra.dev`: admin/operator surface, TOTP MFA, passkey display row, multi-org ownership/membership, and audit trail inspection via `/admin` and `/admin/audit`.
-- `alice@demo.sigra.dev`: happy-path confirmed login baseline.
-- `bob@demo.sigra.dev`: second TOTP/MFA-enabled user plus org-owner coverage.
-- `carol@demo.sigra.dev`: seeded GitHub OAuth-linked identity row for inspection; live GitHub OAuth still requires evaluator-supplied provider credentials.
-- `dave@demo.sigra.dev`: locked and unconfirmed rough edge for enumeration-resistant login behavior.
-- `frank@demo.sigra.dev`: scheduled deletion lifecycle state while still active.
+- `admin@demo.vaultr.test`: admin/operator surface, TOTP MFA, passkey display row, multi-org ownership/membership, and audit trail inspection via `/admin` and `/admin/audit`.
+- `alice@demo.vaultr.test`: happy-path confirmed login baseline.
+- `bob@demo.vaultr.test`: second TOTP/MFA-enabled user plus org-owner coverage.
+- `carol@demo.vaultr.test`: seeded GitHub OAuth-linked identity row for inspection; live GitHub OAuth still requires evaluator-supplied provider credentials.
+- `dave@demo.vaultr.test`: locked and unconfirmed rough edge for enumeration-resistant login behavior.
+- `frank@demo.vaultr.test`: scheduled deletion lifecycle state while still active.
+- `morgan@demo.vaultr.test`: non-platform Acme org admin for org-scoped admin-console evaluation.
+- `pat@demo.vaultr.test`: passkey-only persona for the no-MFA passkey state.
+- `grace@demo.vaultr.test`: deletion-scheduled Acme member for in-roster lifecycle evidence.
 
 ## Screenshot Grid
 
 | Credentials | Admin Users |
 | --- | --- |
-| ![Credentials view with six seeded personas](assets/demo-credentials-demo-showcase-chromium.png) | ![Admin users list view](assets/admin-user-list-demo-showcase-chromium.png) |
+| ![Credentials view with nine seeded personas](assets/demo-credentials-demo-showcase-chromium.png) | ![Admin users list view](assets/admin-user-list-demo-showcase-chromium.png) |
 
 | Admin User Detail | Audit Explorer |
 | --- | --- |
