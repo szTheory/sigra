@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra color palette specimen</title>
+  <desc id="desc">A source-controlled specimen of Sigra brand colors and semantic tone colors.</desc>
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+    .label { fill: #151515; font-size: 18px; font-weight: 700; }
+    .code { fill: #686868; font-size: 14px; font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; }
+  </style>
+  <rect width="960" height="540" fill="#f6f5f2"/>
+  <text x="56" y="72" class="label" font-size="30">Sigra Palette</text>
+  <g transform="translate(56 112)">
+    <rect width="152" height="120" rx="10" fill="#151515"/><text x="0" y="148" class="label">Ink</text><text x="0" y="170" class="code">#151515</text>
+    <rect x="176" width="152" height="120" rx="10" fill="#ffffff" stroke="rgba(21,21,21,.14)"/><text x="176" y="148" class="label">Surface</text><text x="176" y="170" class="code">#ffffff</text>
+    <rect x="352" width="152" height="120" rx="10" fill="#f6f5f2" stroke="rgba(21,21,21,.14)"/><text x="352" y="148" class="label">Warm bg</text><text x="352" y="170" class="code">#f6f5f2</text>
+    <rect x="528" width="152" height="120" rx="10" fill="#c2410c"/><text x="528" y="148" class="label">Accent</text><text x="528" y="170" class="code">#c2410c</text>
+    <rect x="704" width="152" height="120" rx="10" fill="#fff0e8" stroke="rgba(21,21,21,.14)"/><text x="704" y="148" class="label">Accent soft</text><text x="704" y="170" class="code">#fff0e8</text>
+  </g>
+  <g transform="translate(56 330)">
+    <rect width="152" height="76" rx="10" fill="#ecfdf3"/><text x="18" y="46" fill="#176b43" font-size="18" font-weight="800">Success</text>
+    <rect x="176" width="152" height="76" rx="10" fill="#fff7e6"/><text x="194" y="46" fill="#a15c00" font-size="18" font-weight="800">Warning</text>
+    <rect x="352" width="152" height="76" rx="10" fill="#fff1f0"/><text x="370" y="46" fill="#b42318" font-size="18" font-weight="800">Error</text>
+    <rect x="528" width="152" height="76" rx="10" fill="#eef2ff"/><text x="546" y="46" fill="#1d4ed8" font-size="18" font-weight="800">Info</text>
+    <rect x="704" width="152" height="76" rx="10" fill="#1f1d1a"/><text x="722" y="46" fill="#fdba74" font-size="18" font-weight="800">Dark accent</text>
+  </g>
+</svg>

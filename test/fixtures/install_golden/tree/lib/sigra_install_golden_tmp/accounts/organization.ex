@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.Organization do
   @moduledoc """
   Schema for the `organizations` table.
@@ -14,6 +15,9 @@ defmodule SigraInstallGoldenTmp.Accounts.Organization do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "organizations" do
     field :name, :string

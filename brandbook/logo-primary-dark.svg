@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 78" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra primary logo for dark surfaces</title>
+  <desc id="desc">The Sigra Rail Accent tight lockup with a light wordmark for dark surfaces.</desc>
+  <g transform="translate(10 7)">
+    <path d="M17 14v14M32 23v18M47 36v14" fill="none" stroke="#fdba74" stroke-width="8" stroke-linecap="round"/>
+    <path d="M17 36v14M47 14v14" fill="none" stroke="#f97316" stroke-width="8" stroke-linecap="round"/>
+    <path d="M17 32h30" fill="none" stroke="#f4f1eb" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <text x="75" y="55" fill="#f4f1eb" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="48" font-weight="850" letter-spacing="0">Sigra</text>
+</svg>

@@ -21,6 +21,8 @@ defmodule Example.Accounts.AuditEvent do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "audit_events" do
     field :occurred_at, :utc_datetime_usec
     field :action, :string

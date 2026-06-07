@@ -1,7 +1,7 @@
 // Sigra admin hooks — plain JS (NO import/export so it runs unbundled when
 // pasted into the hand-maintained app.js readable tail).
 //
-// Defines window.SigraAdminHooks = { CmdK, CopyToClipboard }:
+// Defines window.SigraAdminHooks = { CmdK, CopyToClipboard, ThemeSwitch }:
 //   - CmdK: a fully client-side Cmd-K / Ctrl-K command palette bound to the
 //     hidden topbar trigger. Reveals the trigger on mount (progressive
 //     enhancement — hosts without this hook never see a dead button), opens an
@@ -10,8 +10,44 @@
 //   - CopyToClipboard: a delegated click handler on `.sg-admin-shell code.sg-code`
 //     id chips — copies the text and shows a transient Stage-0 sg-toast. No
 //     per-LiveView markup edits required.
+//   - ThemeSwitch: a Light/Dark/System segmented control. Persists an explicit
+//     choice in localStorage; System removes the override and follows
+//     prefers-color-scheme through CSS.
 (function () {
   "use strict";
+
+  var THEME_STORAGE_KEY = "sigra.admin.theme";
+  var THEMES = ["light", "dark", "system"];
+
+  function storedTheme() {
+    try {
+      var value = window.localStorage && window.localStorage.getItem(THEME_STORAGE_KEY);
+      return THEMES.indexOf(value) === -1 ? "system" : value;
+    } catch (err) {
+      return "system";
+    }
+  }
+
+  function applyTheme(value) {
+    var theme = THEMES.indexOf(value) === -1 ? "system" : value;
+    if (theme === "system") {
+      document.documentElement.removeAttribute("data-sg-admin-theme");
+    } else {
+      document.documentElement.setAttribute("data-sg-admin-theme", theme);
+    }
+    document.documentElement.dataset.sgAdminThemePreference = theme;
+    document.querySelectorAll(".sg-admin-shell").forEach(function (shell) {
+      shell.dataset.themePreference = theme;
+      if (theme === "system") {
+        shell.removeAttribute("data-theme");
+      } else {
+        shell.setAttribute("data-theme", theme);
+      }
+    });
+    return theme;
+  }
+
+  applyTheme(storedTheme());
 
   // ---- shared toast helper (reuses Stage-0 sg-toast classes) --------------
   function ensureToastRegion() {
@@ -54,10 +90,10 @@
 
       var ds = this.el.dataset;
       this.commands = [
-        { label: "Go to Users", href: ds.usersHref || "/admin/users" },
-        { label: "Go to Audit", href: ds.auditHref || "/admin/audit" },
+        { label: "Find users", href: ds.usersHref || "/admin/users" },
+        { label: "Investigate audit", href: ds.auditHref || "/admin/audit" },
         {
-          label: "Go to " + (ds.overviewLabel || "Global") + " overview",
+          label: "Review " + (ds.overviewLabel || "Global") + " overview",
           href: ds.overviewHref || "/admin"
         }
       ];
@@ -351,10 +387,96 @@
     }
   };
 
+  var ThemeSwitch = {
+    mounted: function () {
+      var self = this;
+      this.el.classList.add("is-ready");
+      this.buttons = Array.prototype.slice.call(
+        this.el.querySelectorAll("[data-theme-value]")
+      );
+      this._onClick = function (event) {
+        var button = event.target.closest("[data-theme-value]");
+        if (!button || self.buttons.indexOf(button) === -1) return;
+        event.preventDefault();
+        self.setTheme(button.dataset.themeValue || "system", true);
+      };
+      this.el.addEventListener("click", this._onClick);
+      this._onKeydown = function (event) {
+        self.handleKeydown(event);
+      };
+      this.el.addEventListener("keydown", this._onKeydown);
+      this._onStorage = function (event) {
+        if (event.key === THEME_STORAGE_KEY) {
+          self.setTheme(storedTheme(), false);
+        }
+      };
+      window.addEventListener("storage", this._onStorage);
+      this.setTheme(storedTheme(), false);
+    },
+
+    setTheme: function (value, persist) {
+      var theme = applyTheme(value);
+      if (persist) {
+        try {
+          if (theme === "system") {
+            window.localStorage.removeItem(THEME_STORAGE_KEY);
+          } else {
+            window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+          }
+        } catch (err) {}
+      }
+      this.buttons.forEach(function (button) {
+        var selected = button.dataset.themeValue === theme;
+        button.setAttribute("aria-checked", selected ? "true" : "false");
+        button.setAttribute("tabindex", selected ? "0" : "-1");
+        button.classList.toggle("is-active", selected);
+      });
+    },
+
+    handleKeydown: function (event) {
+      var currentIndex = this.buttons.indexOf(document.activeElement);
+      if (currentIndex === -1) return;
+      var key = event.key;
+      var nextIndex = currentIndex;
+      if (key === "ArrowRight" || key === "ArrowDown") {
+        nextIndex = (currentIndex + 1) % this.buttons.length;
+      } else if (key === "ArrowLeft" || key === "ArrowUp") {
+        nextIndex = (currentIndex - 1 + this.buttons.length) % this.buttons.length;
+      } else if (key === "Home") {
+        nextIndex = 0;
+      } else if (key === "End") {
+        nextIndex = this.buttons.length - 1;
+      } else if (key === " " || key === "Enter") {
+        event.preventDefault();
+        this.setTheme(document.activeElement.dataset.themeValue || "system", true);
+        return;
+      } else {
+        return;
+      }
+      event.preventDefault();
+      var next = this.buttons[nextIndex];
+      next.focus();
+      this.setTheme(next.dataset.themeValue || "system", true);
+    },
+
+    destroyed: function () {
+      if (this.el && this._onClick) {
+        this.el.removeEventListener("click", this._onClick);
+      }
+      if (this.el && this._onKeydown) {
+        this.el.removeEventListener("keydown", this._onKeydown);
+      }
+      if (this._onStorage) {
+        window.removeEventListener("storage", this._onStorage);
+      }
+    }
+  };
+
   installCopyDelegate();
 
   window.SigraAdminHooks = {
     CmdK: CmdK,
-    CopyToClipboard: CopyToClipboard
+    CopyToClipboard: CopyToClipboard,
+    ThemeSwitch: ThemeSwitch
   };
 })();

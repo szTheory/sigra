@@ -17,10 +17,24 @@ config :example, Example.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
+dev_bind_ip =
+  case System.get_env("SIGRA_EXAMPLE_BIND", "127.0.0.1") do
+    "127.0.0.1" ->
+      {127, 0, 0, 1}
+
+    "0.0.0.0" ->
+      {0, 0, 0, 0}
+
+    other ->
+      raise "unsupported SIGRA_EXAMPLE_BIND=#{inspect(other)}; expected 127.0.0.1 or 0.0.0.0"
+  end
+
+dev_endpoint_port = String.to_integer(System.get_env("PORT", "4000"))
+
 config :example, ExampleWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}],
+  http: [ip: dev_bind_ip, port: dev_endpoint_port],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,

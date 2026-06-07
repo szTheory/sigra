@@ -1,6 +1,6 @@
 # Login and Logout
 
-Sigra uses database-backed session tokens (not stateful JWTs for sessions). A login creates a row in `users_tokens`, writes a reference to the Phoenix session cookie, and optionally sets a long-lived remember-me cookie. Logout deletes the row and clears the cookies. This guide covers the flow, remember-me, session renewal, and logout-everywhere.
+Sigra uses database-backed session tokens (not stateful JWTs for sessions). A login creates a row in `auth.user_tokens` on Postgres installs, writes a reference to the Phoenix session cookie, and optionally sets a long-lived remember-me cookie. Logout deletes the row and clears the cookies. This guide covers the flow, remember-me, session renewal, and logout-everywhere.
 
 ## What Sigra gives you
 
@@ -31,7 +31,7 @@ The generated `SessionController.create/2` (or its LiveView equivalent) calls:
 
 `log_in_user/3` does four things:
 
-1. Generates a 32-byte random token, stores its SHA-256 hash in `users_tokens` with `context: "session"`.
+1. Generates a 32-byte random token, stores its SHA-256 hash in `auth.user_tokens` with `context: "session"`.
 2. Calls `Plug.Conn.configure_session(renew: true)` to rotate the Phoenix session ID.
 3. Writes the raw token to the Phoenix session under `:user_token`.
 4. If `params["user"]["remember_me"] == "true"`, sets the signed remember-me cookie with the same token.
@@ -107,7 +107,7 @@ For a "log out of all devices" button (common on account security pages), call:
       |> put_flash(:info, "Logged out of all devices.")
     end
 
-`delete_all_user_session_tokens/1` issues a single `delete_all` against `users_tokens` for that user, context `"session"`. Every session — on every device — is invalidated.
+`delete_all_user_session_tokens/1` issues a single `delete_all` against `auth.user_tokens` for that user, context `"session"`. Every session — on every device — is invalidated.
 
 ## Protecting routes
 

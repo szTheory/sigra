@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Option 2B: Core Gate</title>
+  <desc id="desc">A protected aperture bounded by visible host rails, borrowing Option E's badge strength without lock geometry.</desc>
+  <rect width="64" height="64" rx="12" fill="#1f1d1a"/>
+  <path d="M18 15v34M46 15v34" fill="none" stroke="#fff0e8" stroke-width="5" stroke-linecap="round"/>
+  <path fill="#c2410c" fill-rule="evenodd" d="M23 18h18a8 8 0 0 1 8 8v12a8 8 0 0 1-8 8H23a8 8 0 0 1-8-8V26a8 8 0 0 1 8-8Zm7 10h4a6 6 0 0 1 0 12h-4a6 6 0 0 1 0-12Z"/>
+  <path d="M25 24h14M25 40h14" fill="none" stroke="#fdba74" stroke-width="3" stroke-linecap="round"/>
+</svg>

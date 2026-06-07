@@ -13,11 +13,13 @@ defmodule Sigra.Passkeys.MigrationTemplateTest do
   test "postgres migration uses uuid aaguid and unique credential_id index" do
     content = render_template(adapter: :postgres, binary_id: true)
 
-    assert content =~ "create table(:user_passkeys, primary_key: false)"
+    assert content =~
+             "create table(:user_passkeys, Keyword.merge(@prefix_opts, [primary_key: false]))"
+
     assert content =~ "add :aaguid, :uuid"
     assert content =~ "add :public_key, :binary, null: false"
-    assert content =~ "create index(:user_passkeys, [:user_id])"
-    assert content =~ "create unique_index(:user_passkeys, [:credential_id])"
+    assert content =~ "create index(:user_passkeys, [:user_id], @prefix_opts)"
+    assert content =~ "create unique_index(:user_passkeys, [:credential_id], @prefix_opts)"
   end
 
   test "mysql and sqlite migrations fall back to fixed-width binary aaguid" do

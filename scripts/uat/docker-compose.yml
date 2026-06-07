@@ -19,5 +19,81 @@ services:
       timeout: 3s
       retries: 10
 
+  web:
+    profiles: ["proxy"]
+    build:
+      context: ../..
+      dockerfile: scripts/uat/Dockerfile.example
+      args:
+        SIGRA_UAT_ELIXIR_IMAGE: ${SIGRA_UAT_ELIXIR_IMAGE:-elixir:1.19.5-otp-28-slim}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MIX_ENV: dev
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: example_dev
+      PORT: "4000"
+      SIGRA_EXAMPLE_BIND: 0.0.0.0
+      SIGRA_EXAMPLE_URL: "http://${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
+    ports:
+      - "${SIGRA_UAT_WEB_BIND:-127.0.0.1}:${SIGRA_UAT_WEB_PORT:-}:4000"
+    networks:
+      - default
+      - proxy
+    labels:
+      - "dev.sigra.role=demo-web"
+      - "dev.sigra.stack=uat"
+      - "dev.sigra.proxy-host=${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
+      - "dev.sigra.proxy-network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
+      - "traefik.enable=true"
+      - "traefik.docker.network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.entrypoints=web"
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.rule=Host(`${SIGRA_UAT_PROXY_HOST:-sigra.localhost}`)"
+      - "traefik.http.services.${SIGRA_UAT_PROXY_ROUTER:-sigra}.loadbalancer.server.port=4000"
+    volumes:
+      - ../..:/app
+      - root_deps:/app/deps
+      - root_build:/app/_build
+      - example_deps:/app/test/example/deps
+      - example_build:/app/test/example/_build
+      - hex:/root/.hex
+      - mix:/root/.mix
+
+  traefik:
+    image: ${SIGRA_UAT_TRAEFIK_IMAGE:-traefik:v3.7.1}
+    restart: unless-stopped
+    profiles: ["private-traefik"]
+    command:
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    labels:
+      dev.sigra.role: demo-proxy
+      dev.sigra.stack: uat
+    ports:
+      - "${SIGRA_UAT_PROXY_BIND:-127.0.0.1}:${SIGRA_UAT_PROXY_PORT:-18080}:80"
+    volumes:
+      - "${SIGRA_UAT_TRAEFIK_DYNAMIC_DIR:-../../tmp/uat-traefik}:/etc/traefik/dynamic:ro"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 volumes:
   pgdata:
+  root_deps:
+  root_build:
+  example_deps:
+  example_build:
+  hex:
+  mix:
+
+networks:
+  proxy:
+    name: ${SIGRA_UAT_PROXY_NETWORK:-proxy}
+    external: true
+  default:

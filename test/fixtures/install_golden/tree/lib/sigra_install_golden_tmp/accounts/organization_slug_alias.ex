@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.OrganizationSlugAlias do
   @moduledoc """
   Schema for the `organization_slug_aliases` table.
@@ -18,6 +19,9 @@ defmodule SigraInstallGoldenTmp.Accounts.OrganizationSlugAlias do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "organization_slug_aliases" do
     field :old_slug, :string

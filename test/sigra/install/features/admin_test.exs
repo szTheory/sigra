@@ -192,8 +192,20 @@ defmodule Sigra.Install.Features.AdminTest do
       assert File.exists?("priv/templates/sigra.install/admin/policy.ex")
       assert File.exists?("priv/templates/sigra.install/admin/router_injection.ex")
       assert File.exists?("priv/templates/sigra.install/admin/components/admin_shell.ex")
+      assert File.exists?("priv/templates/sigra.install/admin/admin_hooks.js")
       assert File.exists?("priv/templates/sigra.install/admin/impersonation_controller.ex")
       assert File.exists?("priv/templates/sigra.install/admin/audit_export_controller.ex")
+    end
+
+    test "admin hook template exports the theme switch hook" do
+      source = File.read!("priv/templates/sigra.install/admin/admin_hooks.js")
+
+      assert source =~ "ThemeSwitch"
+      assert source =~ "sigra.admin.theme"
+      assert source =~ "data-sg-admin-theme"
+      assert source =~ "aria-checked"
+      refute source =~ "aria-pressed"
+      refute source =~ "document.documentElement.setAttribute(\"data-theme\""
     end
   end
 

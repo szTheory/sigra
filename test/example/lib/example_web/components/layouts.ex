@@ -44,34 +44,36 @@ defmodule ExampleWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="sg-app-header navbar sticky top-0 z-20 px-4 sm:px-6 lg:px-8">
-      <div class="flex-1">
-        <a href="/" class="sg-brand-mark flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" alt="" />
-          <span class="text-sm font-semibold" data-testid="app-name">Vaultr</span>
+    <header class="vt-app-header">
+      <div class="vt-app-header__inner vt-app-container">
+        <a href="/" class="vt-brand">
+          <img src={~p"/images/vaultr-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
+          <span>
+            <span class="vt-brand__name" data-testid="app-name">Vaultr</span>
+            <span class="vt-brand__tag">Fictional cohort app</span>
+          </span>
         </a>
-      </div>
-      <div class="flex-none">
-        <.org_switcher
-          :if={@current_scope && @current_scope.active_organization}
-          current_scope={@current_scope}
-          user_organizations={@user_organizations}
-          return_to="/"
-        />
-        <ul class="flex flex-column px-1 space-x-4 items-center">
-          <li :if={is_nil(@current_scope)}>
-            <a href={~p"/users/log_in"} class="btn btn-primary">
-              Sign In <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-        </ul>
+        <div class="vt-app-actions">
+          <.org_switcher
+            :if={@current_scope && @current_scope.active_organization}
+            current_scope={@current_scope}
+            user_organizations={@user_organizations}
+            return_to="/"
+          />
+          <a :if={is_nil(@current_scope)} href={~p"/users/log_in"} class="vt-btn vt-btn--primary">
+            Sign In <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
       </div>
     </header>
 
-    <.impersonation_banner :if={@current_scope && @current_scope.impersonating_from} current_scope={@current_scope} />
+    <.impersonation_banner
+      :if={@current_scope && @current_scope.impersonating_from}
+      current_scope={@current_scope}
+    />
 
-    <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class={["mx-auto space-y-4", if(@wide, do: "max-w-5xl", else: "max-w-2xl")]}>
+    <main class="vt-app-main">
+      <div class={["vt-app-container", @wide && "vt-app-container--wide"]}>
         {render_slot(@inner_block)}
       </div>
     </main>

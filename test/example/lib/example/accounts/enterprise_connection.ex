@@ -8,6 +8,8 @@ defmodule Example.Accounts.EnterpriseConnection do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "enterprise_connections" do
     field :protocol, Ecto.Enum, values: [:oidc], default: :oidc
     field :status, Ecto.Enum, values: [:draft, :validation_failed, :active, :disabled], default: :draft

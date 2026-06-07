@@ -14,7 +14,7 @@ Many checklist items are now duplicated or superseded by **merge-blocking CI** a
 This runbook walks through the **19 human verification items** the per-phase verifiers deferred during phases 4, 5, 6, 8, 9, and 10. Once all are checked off, milestone v1.0 is GA-ready.
 
 **Estimated time:** 90-150 minutes for all 19 items in one focused session.
-**Prerequisites:** Docker Desktop running, Elixir 1.18+, a modern browser.
+**Prerequisites:** Docker Desktop running, Elixir 1.19+, a modern browser.
 
 ---
 
@@ -34,7 +34,42 @@ This will:
 4. Write the current runtime env to `tmp/uat.env`
 5. Print the exact Postgres port, app port, server command, and entry-point URLs
 
-Then in a second terminal:
+Optional stable local URL through the shared proxy:
+
+```bash
+scripts/dev-proxy/up.sh
+scripts/uat/up.sh --proxy
+```
+
+`--proxy` starts the Dockerized Vaultr example app and attaches it to the
+external Docker network named `proxy`. The shared `dev_proxy-traefik-1`
+container owns `127.0.0.1:80` and routes `.localhost` hostnames, so Sigra is
+reachable at `http://sigra.localhost` without reserving its own port-80 proxy.
+The raw `127.0.0.1:<port>` URL is still printed as a fallback. The
+`scripts/dev-proxy/up.sh` helper is generic local developer infrastructure:
+any compatible Traefik attached to the external Docker network named `proxy`
+can route Sigra's labels, and no sibling project checkout is required.
+
+Do not use a project-private Sigra Traefik on port 80. If you explicitly need a
+private fallback proxy for UAT isolation, use the opt-in fallback:
+
+```bash
+scripts/uat/up.sh --private-traefik
+```
+
+That keeps Phoenix running on the host and starts Sigra's private Traefik on
+`http://sigra.localhost:18080`. Choose another nonstandard fallback port with:
+
+```bash
+SIGRA_UAT_PROXY_PORT=18081 scripts/uat/up.sh --private-traefik
+```
+
+The private fallback proxy image defaults to `traefik:v3.7.1`. Override
+`SIGRA_UAT_TRAEFIK_IMAGE` if your local Docker cache or project policy uses a
+different Traefik v3 tag.
+
+For the default raw path and the `--private-traefik` fallback, start Phoenix in
+a second terminal:
 
 ```bash
 cd test/example
@@ -42,8 +77,11 @@ PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> SIGRA_EX
 ```
 
 The app URL is printed by `scripts/uat/up.sh`.
-Use that printed app URL for every local browser step below unless a step
-explicitly calls out a fixed external-provider callback URL.
+Use the printed app URL for every local browser step below unless a step
+explicitly calls out a fixed external-provider callback URL. In shared proxy
+mode, Phoenix is already running inside the Compose `web` service and
+`scripts/uat/status.sh` prints the Docker logs command instead of a manual
+server command.
 
 The local Swoosh mailbox preview is at `/dev/mailbox` on that app URL — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
 
@@ -69,9 +107,10 @@ current URLs.
 
 Each checkout gets a Compose project name based on user, branch, and checkout
 path. That keeps containers, networks, and volumes separate when you run several
-Sigra clones or sibling OSS libraries at the same time. A reverse proxy such as
-Traefik or Caddy is intentionally not required for this path; add one only when
-you need stable local hostnames or HTTPS across several containerized UIs.
+Sigra clones or sibling OSS libraries at the same time. The default
+dynamic-port path stays the lowest-friction UAT route; the stable
+`http://sigra.localhost` path composes with the one shared local Traefik instead
+of starting a Sigra-owned port-80 proxy.
 
 ---
 

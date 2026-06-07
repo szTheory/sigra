@@ -39,6 +39,7 @@ defmodule Sigra.Install.TemplateRenderTest do
     organizations?: true,
     passkeys?: true,
     adapter: :postgres,
+    auth_prefix: "auth",
     reset_password_url: "http://localhost:4000/users/reset-password",
     settings_url: "http://localhost:4000/users/settings",
     opts: [

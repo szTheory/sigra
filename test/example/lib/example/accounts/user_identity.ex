@@ -15,6 +15,8 @@ defmodule Example.Accounts.UserIdentity do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "user_identities" do
     field :provider, :string
     field :provider_uid, :string

@@ -37,11 +37,19 @@ defmodule ExampleWeb.Demo.CredentialsLiveTest do
       assert html =~ ~s(data-testid="demo-persona-row-carol")
       assert html =~ ~s(data-testid="demo-persona-row-dave")
       assert html =~ ~s(data-testid="demo-persona-row-frank")
+      assert html =~ ~s(data-testid="demo-persona-row-morgan")
+      assert html =~ ~s(data-testid="demo-persona-row-pat")
+      assert html =~ ~s(data-testid="demo-persona-row-grace")
       assert html =~ ~s(data-testid="demo-dev-only-badge")
 
       # DEMO-02: branding
       assert html =~ ~s(data-testid="app-name")
       assert html =~ "Vaultr"
+      assert html =~ "Sigra supplies its auth"
+      assert html =~ "@demo.vaultr.test"
+      assert html =~ "admin@demo.vaultr.test"
+      assert html =~ "morgan@demo.vaultr.test"
+      assert html =~ "/admin/organizations/acme-corp"
     end
   end
 end

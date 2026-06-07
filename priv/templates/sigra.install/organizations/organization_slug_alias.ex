@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.OrganizationSlugAlias do
   @moduledoc """
   Schema for the `organization_slug_aliases` table.
@@ -19,6 +20,9 @@ defmodule <%= context_module %>.OrganizationSlugAlias do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "organization_slug_aliases" do
     field :old_slug, :string
     field :expires_at, :utc_datetime

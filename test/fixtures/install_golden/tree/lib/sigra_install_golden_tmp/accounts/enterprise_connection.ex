@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.EnterpriseConnection do
   @moduledoc """
   Host-owned enterprise connection schema for organization-bound SSO setup.
@@ -10,6 +11,9 @@ defmodule SigraInstallGoldenTmp.Accounts.EnterpriseConnection do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+
+  @schema_prefix "auth"
 
 
   schema "enterprise_connections" do

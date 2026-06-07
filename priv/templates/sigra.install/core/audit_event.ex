@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.AuditEvent do
   @moduledoc """
   Ecto schema for audit log events.
@@ -21,6 +22,9 @@ defmodule <%= context_module %>.AuditEvent do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "audit_events" do
     field :occurred_at, :utc_datetime_usec
     field :action, :string

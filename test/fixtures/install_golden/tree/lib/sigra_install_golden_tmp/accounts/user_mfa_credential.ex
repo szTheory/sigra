@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.UserMFACredential do
   @moduledoc """
   Ecto schema for MFA credentials (e.g., TOTP enrollment).
@@ -14,6 +15,9 @@ defmodule SigraInstallGoldenTmp.Accounts.UserMFACredential do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "user_mfa_credentials" do
     belongs_to :user, SigraInstallGoldenTmp.Accounts.User

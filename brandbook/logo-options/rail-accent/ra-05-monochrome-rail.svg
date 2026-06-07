@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">RA-05 Monochrome Rail</title>
+  <desc id="desc">A one-color durability version of the rail accent for restricted-color contexts.</desc>
+  <path d="M17 14v15M32 23v18M47 35v15" fill="none" stroke="#151515" stroke-width="8" stroke-linecap="round"/>
+  <path d="M17 35v15M47 14v15" fill="none" stroke="#151515" stroke-width="8" stroke-linecap="round" opacity="0.72"/>
+  <path d="M17 32h30" fill="none" stroke="#151515" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-labelledby="title desc">
+  <title id="title">Option D: Wordmark Only</title>
+  <desc id="desc">A restrained wordmark-first direction with a small code-rail accent and no standalone symbol.</desc>
+  <rect x="24" y="40" width="8" height="40" rx="4" fill="#c2410c"/>
+  <rect x="42" y="40" width="8" height="40" rx="4" fill="#c2410c"/>
+  <text x="66" y="70" fill="#151515" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="46" font-weight="850">Sigra</text>
+  <circle cx="184" cy="58" r="5" fill="#c2410c"/>
+  <text x="68" y="94" fill="#686868" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="13" font-weight="700">wordmark-first, lowest abstraction risk</text>
+</svg>

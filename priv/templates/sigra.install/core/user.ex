@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.<%= schema_alias %> do
   use Ecto.Schema
   import Ecto.Changeset
@@ -5,6 +6,9 @@ defmodule <%= context_module %>.<%= schema_alias %> do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "<%= table_name %>" do
     field :email, :string
     field :password, :string, virtual: true, redact: true

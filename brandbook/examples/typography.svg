@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra typography specimen</title>
+  <desc id="desc">A typography specimen showing Sigra's practical system font stack and mono code stack.</desc>
+  <rect width="960" height="540" fill="#fbfaf7"/>
+  <text x="64" y="92" fill="#151515" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="58" font-weight="800" letter-spacing="0">Readable, exact, calm.</text>
+  <text x="64" y="152" fill="#686868" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="600" letter-spacing="0">Sigra uses practical system type: no font files, no CDN, no brand lock-in.</text>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" letter-spacing="0">
+    <text x="64" y="240" fill="#151515" font-size="32" font-weight="800">Opening promise: updateable auth core, editable Phoenix code.</text>
+    <text x="64" y="292" fill="#151515" font-size="20" font-weight="600">Docs voice: specific nouns, bounded claims, concrete tradeoffs.</text>
+    <text x="64" y="340" fill="#686868" font-size="16" font-weight="450">Muted text stays useful: caveats, ownership boundaries, and next steps.</text>
+  </g>
+  <rect x="64" y="390" width="560" height="74" rx="10" fill="#151515"/>
+  <text x="88" y="436" fill="#f4f1eb" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="20">mix sigra.install Accounts User users</text>
+</svg>

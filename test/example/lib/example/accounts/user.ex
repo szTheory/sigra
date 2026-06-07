@@ -5,6 +5,8 @@ defmodule Example.Accounts.User do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "users" do
     field :email, :string
     field :display_name, :string

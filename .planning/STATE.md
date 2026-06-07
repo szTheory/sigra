@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.34
-milestone_name: ADMIN-UI-COHERENCE
-status: Awaiting next milestone
-last_updated: "2026-06-05T16:10:27.361Z"
-last_activity: 2026-06-05 — Milestone v1.34 completed and archived
+milestone: v1.36
+milestone_name: ADMIN-BRAND-THEME-POLISH
+status: Complete
+last_updated: "2026-06-06T02:30:00-04:00"
+last_activity: 2026-06-06 — v1.36 shipped: Rail Accent admin shell, Light/Dark/System theme support, durable UI principles, deterministic browser coverage, and refreshed intentional admin checkpoints.
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 29
-  completed_plans: 29
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 5
+  completed_plans: 5
   percent: 100
 ---
 
@@ -21,35 +21,37 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Planning next milestone
+**Current focus:** v1.36 ADMIN-BRAND-THEME-POLISH complete; ready for next milestone selection.
 
 ## Current Position
 
-Phase: Milestone v1.34 complete
-Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-05 — Milestone v1.34 completed and archived
+Phase: 172 — Tests, Evidence, and Baseline Ratification
+Plan: 172-01 complete
+Status: v1.36 complete
+Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, snapshot, and generated-host acceptance verification.
 
 ## Accumulated Context
 
 ### Decisions
 
-- Phase 155 is the keystone: zero Playwright baseline re-records is the non-negotiable proof of behavior-preserving extraction. A re-record in Phase 155 is a bug, not permission to proceed.
-- `admin-generated` installer-parity lane runs as a gate on every phase that touches admin HEEx — not a Phase 160 afterthought.
-- CSS boundary: all new styles inside `@layer sg-components { }`. No unlayered rules. One permitted addition: ~15 lines of `sg-notice` styles in Phase 154.
-- No new Hex deps, no Tailwind, no Alpine.js, no `assign_async/3` for this milestone.
-- GATE-01/02/03 are cross-cutting; each maps to one owning phase (GATE-01/02 ratified at 160; GATE-03 owned at 159).
-- [Phase ?]: global-overview and org-overview captured with sg-metric-link__value visibility wait before capture (D-06 perpetual-flake guard)
-- [Phase ?]: D-06: --sg-color-brand-strong override placed in unlayered dark :root block (token foundation, not component rule)
-- [Phase ?]: D-07: Fix the LINK not the count; OR-filter key so needs-review alarm reconciles without visible text change
-- [Phase ?]: IN-03: needs_review/1 extracted to Sigra.Admin module; defp removed from both LiveViews
-- [Phase ?]: GATE-02: admin-generated lane green — no template drift; D-06/D-07/D-08 fixes do not affect priv/templates/sigra.install/ (admin LiveViews are library-owned, not generated)
-- [Phase 160-03]: impersonation-banner canary restored from git HEAD after bulk --update-snapshots=all; 7 dark baselines re-recorded; axe WCAG-AA 0 violations confirmed by gate exit 0; snapshot-allowlist reset to steady-state (D-03)
-- [Phase 160-04]: compare-mode 3-project Playwright exits 0, canary guard exits 0 (0 changed slugs), ExUnit 19/19 byte-goldens pass; admin-design-contract.md ratified; GATE-01/02 + FIXT-01..05 flipped to Complete; v1.34-MILESTONE-AUDIT.md created; milestone closed
+- Source material for v1.35 was intentionally repo evidence plus the supplied pressure-test prompt; no external AI-generated brand book was available in the repository.
+- Process correction: the original v1.35 closeout was premature because it skipped human logo direction review. Phase 167 repaired that gap and ratified Option A Core Rails.
+- Brand artifacts are self-contained under `brandbook/` to avoid churn in runtime code, generated templates, README, HexDocs, or existing docs.
+- Asset policy is text/SVG-first: Markdown, HTML, JSON, CSS, and SVG are committed; PNG/PDF/raster exports are generated only for concrete distribution targets.
+- The brand concept is "protected core framed by visible host-code rails", mapping directly to Sigra's library-owned security core plus generated host-owned Phoenix code.
+- The existing README/launch/security posture remains the voice source of truth: boundary-first, technically exact, low hype.
+- `brandbook/tokens.json` and `brandbook/tokens.css` are the brand collateral token source; they do not mutate admin/generated UI tokens by themselves.
+- Phase 167 plan 01 generated five logo options and an options review page; Phase 167 plan 02 finalized Option A Core Rails after human selection.
+- Human logo decision: Option A Core Rails is the ratified Sigra logo direction.
+- v1.36 scope decision: admin UI only; do not polish non-admin demo/auth/organization screens unless required for admin evidence.
+- v1.36 theme decision: expose Light, Dark, and System as an explicit shell control with local persistence and system fallback.
+- v1.36 architecture decision: preserve the hand-authored `sg-*` BEM/cascade-layer CSS system and route reusable markup through `Sigra.Admin.Components` or the shell seam.
+- v1.36 theme decision: use a namespaced `data-sg-admin-theme` root carrier plus `.sg-admin-shell[data-theme]`; do not set global DaisyUI `data-theme` from the admin switch.
+- v1.36 visual-baseline decision: refreshed checkpoint PNGs are limited to `global-overview`, `org-overview`, `user-detail`, and `user-audit`.
 
 ### Pending Todos
 
-None yet.
+- None.
 
 ### Blockers/Concerns
 
@@ -58,26 +60,36 @@ None yet.
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
-|----------|------|--------|-------------|
+| --- | --- | --- | --- |
+| Brand exports | PNG/PDF exports for social/platform use | Deferred until a concrete platform target requires raster | v1.35 |
+| Public docs | README/HexDocs visual adoption | Deferred to a separate focused change to avoid brand churn | v1.35 |
+| Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
 | Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
 
 ## Session Continuity
 
-Last session: 2026-06-05T10:00:00.000Z
-Stopped at: Completed 160-04-PLAN.md — v1.34 ADMIN-UI-COHERENCE milestone closed
+Last session: 2026-06-06T00:50:00.000Z
+Stopped at: Phase 167 complete after logo ratification
 Resume file: None
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Notes |
-|-------|------|----------|-------|
-| Phase 157 P03 | 5m | 1 tasks | 1 files |
-| Phase 157-overview-landings-highest-effort P04 | 9min | 2 tasks | 7 files |
-| Phase 160 P01 | 15min | 3 tasks | 6 files |
-| Phase 160 P02 | 4min | 1 tasks | 0 files |
-| Phase 160 P03 | 15min | 2 tasks | 8 files |
-| Phase 160 P04 | 20min | 2 tasks | 6 files |
+| --- | --- | --- | --- |
+| Phase 161 | 1 plan | same session | Repo evidence extraction + audit |
+| Phase 162 | 1 plan | same session | Brand DNA + voice |
+| Phase 163 | 1 plan | same session | Tokens + UI guidance |
+| Phase 164 | 1 plan | same session | SVG logo/specimen assets |
+| Phase 165 | 1 plan | same session | Static HTML brandbook |
+| Phase 166 | 1 plan | same session | Verification + repo hygiene |
+| Phase 167 P01 | 1 plan | same session | Logo option generation + presentation |
+| Phase 167 P02 | 1 plan | same session | Option A logo ratification + final verification |
+| Phase 168 | 1 plan | same session | Admin brand/theme audit with parallel agent findings |
+| Phase 169 | 1 plan | same session | Durable admin UI principles + design contract update |
+| Phase 170 | 1 plan | same session | Rail Accent shell + Light/Dark/System theme control |
+| Phase 171 | 1 plan | same session | Scoped admin design-system touchpoint polish |
+| Phase 172 | 1 plan | same session | ExUnit, Playwright, snapshot, and generated-host verification |
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after v1.36.

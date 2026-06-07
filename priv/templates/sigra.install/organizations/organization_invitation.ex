@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.OrganizationInvitation do
   @moduledoc """
   Schema for the `organization_invitations` table.
@@ -22,6 +23,9 @@ defmodule <%= context_module %>.OrganizationInvitation do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "organization_invitations" do
     field :email, :string
     field :role, Ecto.Enum, values: [:owner, :admin, :member]

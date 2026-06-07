@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.OrganizationMembership do
   @moduledoc """
   Schema for the `organization_memberships` table.
@@ -15,6 +16,9 @@ defmodule SigraInstallGoldenTmp.Accounts.OrganizationMembership do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "organization_memberships" do
     field :role, Ecto.Enum, values: [:owner, :admin, :member]

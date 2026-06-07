@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.Organization do
   @moduledoc """
   Schema for the `organizations` table.
@@ -15,6 +16,9 @@ defmodule <%= context_module %>.Organization do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "organizations" do
     field :name, :string
     field :slug, :string

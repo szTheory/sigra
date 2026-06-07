@@ -9,7 +9,7 @@ import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 
 // Phase 143 Plan 2: evaluator-facing demo showcase spec.
 //
-// Exercises the six seeded demo personas using structural assertions
+// Exercises the nine seeded demo personas using structural assertions
 // (data-testid and email-based locators — never display-name text) and
 // captures four committed PNG baselines for evaluator-facing screenshots.
 //
@@ -21,20 +21,33 @@ import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 
 // Demo-only deterministic secret — matches Personas.demo_totp_secret/0
 const DEMO_TOTP_B32 = 'CSIL7ZDJ7RGXDGXRGIV3Q6CZIBOESTCW';
-const DEMO_ADMIN_EMAIL = 'admin@demo.sigra.dev';
+const DEMO_ADMIN_EMAIL = 'admin@demo.vaultr.test';
 const DEMO_ADMIN_PASSWORD = 'DemoAdmin1!SecurePass';
-const DEMO_ALICE_EMAIL = 'alice@demo.sigra.dev';
+const DEMO_ALICE_EMAIL = 'alice@demo.vaultr.test';
 const DEMO_ALICE_PASSWORD = 'AliceDemoPass1!';
 const EVALUATOR_FLOW_MAX_MS = 10 * 60 * 1000;
 const DEMO_EMAILS = [
-  'admin@demo.sigra.dev',
-  'alice@demo.sigra.dev',
-  'bob@demo.sigra.dev',
-  'carol@demo.sigra.dev',
-  'dave@demo.sigra.dev',
-  'frank@demo.sigra.dev',
+  'admin@demo.vaultr.test',
+  'alice@demo.vaultr.test',
+  'bob@demo.vaultr.test',
+  'carol@demo.vaultr.test',
+  'dave@demo.vaultr.test',
+  'frank@demo.vaultr.test',
+  'morgan@demo.vaultr.test',
+  'pat@demo.vaultr.test',
+  'grace@demo.vaultr.test',
 ];
-const DEMO_LOCALS = ['admin', 'alice', 'bob', 'carol', 'dave', 'frank'];
+const DEMO_LOCALS = [
+  'admin',
+  'alice',
+  'bob',
+  'carol',
+  'dave',
+  'frank',
+  'morgan',
+  'pat',
+  'grace',
+];
 
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
@@ -104,6 +117,28 @@ async function loginDemoAdmin(page: Page) {
 }
 
 test.describe('demo-showcase', () => {
+  test('home page orients evaluators before login', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.locator('[data-testid="home-evaluator-doorway"]')).toBeVisible();
+    await expect(page.getByText('Vaultr demo app · secured by Sigra')).toBeVisible();
+    await expect(page.getByText('Evaluate Sigra inside a distinct customer app.')).toBeVisible();
+    await expect(page.locator('[data-testid="home-domain-context"]')).toContainText(
+      'demo.vaultr.test',
+    );
+    await expect(page.getByText('One login, two jobs.')).toBeVisible();
+    await expect(page.getByText('admin@demo.vaultr.test').first()).toBeVisible();
+    await expect(page.getByText('@demo.vaultr.test').first()).toBeVisible();
+    await expect(page.locator('[data-testid="home-stat-personas"]')).toContainText('9');
+    await expect(page.locator('[data-testid="home-featured-personas"]')).toContainText(
+      'morgan@demo.vaultr.test',
+    );
+    await expect(page.getByRole('link', { name: 'Open Sigra Admin' })).toHaveAttribute(
+      'href',
+      '/admin',
+    );
+  });
+
   test('documented evaluator path reaches authenticated flow within ten minutes', async ({
     page,
   }) => {
@@ -136,7 +171,7 @@ test.describe('demo-showcase', () => {
     page,
   }, testInfo) => {
     // ──────────────────────────────────────────────────────────────────
-    // Step 1: /demo/credentials — assert all 6 persona rows by data-testid
+    // Step 1: /demo/credentials — assert all 9 persona rows by data-testid
     // ──────────────────────────────────────────────────────────────────
     await page.goto('/demo/credentials');
     await waitForLiveViewReady(page);
@@ -155,9 +190,9 @@ test.describe('demo-showcase', () => {
     await loginDemoAdmin(page);
 
     // ──────────────────────────────────────────────────────────────────
-    // Step 3: /admin/users?q=demo.sigra.dev — assert all 6 demo emails
+    // Step 3: /admin/users?q=demo.vaultr.test — assert all 9 demo emails
     // ──────────────────────────────────────────────────────────────────
-    await page.goto('/admin/users?q=demo.sigra.dev');
+    await page.goto('/admin/users?q=demo.vaultr.test');
     await waitForLiveViewReady(page);
 
     for (const email of DEMO_EMAILS) {

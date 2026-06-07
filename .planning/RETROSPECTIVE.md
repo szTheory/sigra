@@ -25,6 +25,50 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.35 — BRAND-SYSTEM-PRESSURE-TEST
+
+**Shipped:** 2026-06-05
+**Phases:** 7 (161, 162, 163, 164, 165, 166, 167) | **Plans:** 8
+
+### What was built
+
+- A repo-derived 14-section brand pressure-test audit that kept Sigra's inherited OSS/devtools strengths separate from missing implementation-ready collateral.
+- `brandbook/brand-book.md` with brand DNA, positioning, design principles, voice rules, copy blocks, component guidance, accessibility posture, and asset policy.
+- `brandbook/tokens.json` and `brandbook/tokens.css` for practical source-controlled brand tokens without mutating runtime or generated UI CSS.
+- A text/SVG-first logo and specimen system: primary lockup, icon mark, monochrome mark, favicon, social card, visual specimens, and usage guidance.
+- `brandbook/index.html`, a static, directly openable brandbook with local assets only.
+- A repaired logo-ratification flow: Phase 167 presented five directions, recorded the human choice, finalized Option A Core Rails, and reran JSON/SVG/HTML/browser/axe/file-size/git hygiene gates.
+
+### What worked
+
+- Keeping the source material to repo truth plus the supplied prompt prevented generic brand advice and anchored the outcome in Sigra's actual architecture.
+- The source-control-friendly artifact policy kept the milestone useful without introducing binary sprawl or broad README/HexDocs/generated-template churn.
+- Phase 167 was the right correction: it acknowledged the premature completion claim, added a human logo decision point, and repaired the state instead of discarding the useful earlier work.
+
+### What was inefficient
+
+- The first closeout treated logo assets as final before the human direction review happened, forcing a process-repair phase.
+- Browser/axe verification initially used the wrong Playwright context shape for the installed axe package and had to be rerun with `browser.newContext()`.
+- v1.35 became a brand collateral exception to the maintenance-first default; future brand adoption should stay focused on concrete distribution or adoption needs.
+
+### Patterns established
+
+- Brand collateral lives under `brandbook/` unless a future focused milestone explicitly promotes it into README, HexDocs, generated templates, or runtime UI.
+- Text/SVG/HTML/JSON/CSS are the committed source artifacts; PNG/PDF/raster exports are generated only for a concrete platform target.
+- Logo direction review should be a real gate before final asset ratification whenever multiple visual directions are plausible.
+
+### Key lessons
+
+- Brand work can be roadmap-worthy when it makes adoption and docs surfaces buildable, but it should remain bounded and source-controlled.
+- A milestone closeout must distinguish "artifact exists" from "artifact has passed the intended decision gate."
+- Static local HTML plus axe/browser checks is enough for this kind of lightweight brandbook proof when no runtime behavior changes.
+
+### Cost observations
+
+- Model mix: n/a.
+- Sessions: one brandbook execution session plus one closeout session.
+- Notable: the expensive step was not code implementation; it was recovering decision integrity around the logo direction while keeping the final artifact set coherent.
+
 ## Milestone: v1.34 — ADMIN-UI-COHERENCE
 
 **Shipped:** 2026-06-05

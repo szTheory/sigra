@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-labelledby="title desc">
+  <title id="title">Option A: Core Rails</title>
+  <desc id="desc">A protected core framed by visible code rails; closest to the draft incumbent Sigra mark.</desc>
+  <rect x="24" y="28" width="64" height="64" rx="14" fill="#c2410c"/>
+  <path d="M46 46h-5v28h5" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M66 46h5v28h-5" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M56 44v32" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="56" cy="60" r="8" fill="#fff0e8" stroke="#fff" stroke-width="4"/>
+  <circle cx="56" cy="60" r="3" fill="#c2410c"/>
+  <text x="112" y="64" fill="#151515" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="36" font-weight="800">Sigra</text>
+  <text x="112" y="88" fill="#686868" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="13" font-weight="700">protected core + visible host code</text>
+</svg>

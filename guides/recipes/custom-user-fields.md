@@ -10,6 +10,7 @@ After `mix sigra.install`, you have `lib/my_app/accounts/user.ex`:
       use Ecto.Schema
       import Ecto.Changeset
 
+      @schema_prefix "auth"
       schema "users" do
         field :email, :string
         field :password, :string, virtual: true, redact: true
@@ -36,6 +37,7 @@ You own this file. Add fields, validations, helpers — whatever your app needs.
 
 Suppose you want `display_name`, `timezone`, and `role`:
 
+    @schema_prefix "auth"
     schema "users" do
       field :email, :string
       field :password, :string, virtual: true, redact: true
@@ -62,13 +64,13 @@ Then in `priv/repo/migrations/*_add_user_profile_fields.exs`:
       use Ecto.Migration
 
       def change do
-        alter table(:users) do
+        alter table(:users, prefix: "auth") do
           add :display_name, :string
           add :timezone, :string, null: false, default: "UTC"
           add :role, :string, null: false, default: "user"
         end
 
-        create index(:users, [:role])
+        create index(:users, [:role], prefix: "auth")
       end
     end
 

@@ -6,6 +6,8 @@ defmodule Example.Accounts.OrganizationAuthPolicyExemption do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "organization_auth_policy_exemptions" do
     belongs_to :organization, Example.Accounts.Organization
     belongs_to :user, Example.Accounts.User

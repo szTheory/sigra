@@ -212,6 +212,10 @@ vars.
 No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skills/`, `.cursor/skills/`, or `.github/skills/` with a `SKILL.md` index file.
 <!-- GSD:skills-end -->
 
+## Admin UI Direction
+
+When changing Sigra admin UI, follow `guides/reference/admin-ui-principles.md` and `guides/reference/admin-design-contract.md`. Preserve the `sg-*` cascade-layer/BEM design system, use the Rail Accent brand assets from `brandbook/`, support Light/Dark/System theme behavior, and keep browser tests deterministic.
+
 <!-- GSD:workflow-start source:GSD defaults -->
 ## GSD Workflow Enforcement
 

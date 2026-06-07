@@ -4,6 +4,19 @@ This document is the durable, citable authority for the Sigra admin UI component
 
 All entries document **current reality** and **already-locked winners** only. No new design calls are made here.
 
+## v1.36 Brand And Theme Addendum
+
+The v1.36 admin brand pass promotes the ratified Rail Accent system from `brandbook/` into admin chrome while preserving the v1.34 component contract.
+
+- The `sg-*` token layer remains the admin UI source of truth. Token values should stay aligned with `brandbook/tokens.*`; class names should not churn unless there is a deliberate migration.
+- The admin shell owns Sigra identity. Use Rail Accent mark/lockup assets, never a placeholder tile or black wordmark on dark surfaces.
+- Admin supports Light, Dark, and System. Explicit Light/Dark choices set `data-sg-admin-theme` on the document root and `data-theme` on `.sg-admin-shell`; System removes the override and follows `prefers-color-scheme`.
+- Theme controls are shell-level utilities, not page content. They must be reachable by keyboard, expose selected state, and persist without server state.
+- New visual polish must be routed through reusable `sg-*` primitives or `Sigra.Admin.Components`; one-off padding, radius, hover, and color fixes are contract drift.
+- Browser coverage must include theme behavior, no broken brand assets, and axe checks on curated admin checkpoints.
+
+See also: [Admin UI Principles](admin-ui-principles.md).
+
 ---
 
 ## Job -> Component Mapping
@@ -121,8 +134,8 @@ All entries document **current reality** and **already-locked winners** only. No
 | Property | Value |
 |----------|-------|
 | **Job** | Loading placeholder that matches the shape of the content it will replace during async data fetch. Communicates that content is loading, not absent. |
-| **Winning markup / CSS** | `<div class="sg-skeleton">` — CSS defined at `app.css:1421–1443`. No LiveView currently renders a skeleton element; Phase 157 adds async overview data (LAND-04). |
-| **ARIA role(s)** | No additional ARIA on the skeleton itself. When content loads, screen readers announce the replacement content. Consider `aria-busy="true"` on the containing section during load (Phase 157 concern). |
+| **Winning markup / CSS** | `<div class="sg-skeleton">` — CSS defined in `app.css`. Overview posture strips render skeletons while disconnected/deferred data is loading. |
+| **ARIA role(s)** | No additional ARIA on the skeleton itself. The containing section carries `aria-busy="true"` while content is loading; screen readers announce the replacement content when loaded. |
 | **Motion spec** | Shimmer animation via `sg-skeleton-shimmer` `@keyframes` using `translateX` only (composite-safe, GPU-accelerated). `prefers-reduced-motion: reduce` strips the animation via the universal `animation-duration: 0.01ms !important` rule at `app.css:1463–1473`, leaving a static block. |
 | **When NOT to use** | Do NOT use `skeleton` for error states — use `notice` with `risk` tone. Do NOT use `skeleton` for empty states — use `empty_state`. Do NOT use `skeleton` for content that is available synchronously. |
 
@@ -190,7 +203,7 @@ The three archetypes define how components compose into full pages. All composit
     <dl class="sg-metric-grid">             [summary_chip strip]
       summary_chip x N
 
-  scope_ribbon                              [alongside page header, current: sg-muted span]
+  scope_ribbon                              [body scope indicator]
 
   <form class="sg-filter-panel sg-stack">  [filter panel]
     <div class="sg-search-row">
@@ -225,12 +238,13 @@ The three archetypes define how components compose into full pages. All composit
 <section class="sg-stack sg-stack--6">
   <div class="sg-cluster sg-cluster--between">  [page_back + scope_ribbon]
     page_back (sg-btn sg-btn--ghost sg-btn--sm)
-    scope_ribbon (current: sg-muted sg-text-sm span)
+    scope_ribbon
 
-  <section class="sg-card sg-stack sg-stack--3"> [Identity card — BOXED outlier]
-    <h1 class="sg-page-title">                  [NOTE: currently boxed sg-card, not open
-    <dl class="sg-summary-facts">               sg-page-header — COHR-02 reconciliation
-    notice (sg-list-row data-tone — line 131)   target for Phase 156]
+  <header class="sg-page-header">               [open identity header]
+    <p class="sg-page-kicker">
+    <h1 class="sg-page-title">
+    <dl class="sg-summary-facts">
+    notice
 
   <section class="sg-card sg-stack sg-stack--3"> [Sessions card]
     <div class="sg-table-panel">               [session table]
@@ -247,8 +261,8 @@ The three archetypes define how components compose into full pages. All composit
 ```
 
 **Notes:**
-- The Identity card uses a boxed `sg-card` container (not the open `sg-page-header` pattern). This is the current state and is the COHR-02 reconciliation target for Phase 156. Open `sg-page-header` is the locked winner for list/detail headers.
-- The `notice` at line 131 currently uses `sg-list-row data-tone` — this is the Phase 156 (COHR-05) call-site migration target.
+- Detail headers use the open `sg-page-header` pattern. The former boxed identity-card outlier was reconciled in v1.34.
+- Summary alerts use the shared `<.notice>` component.
 
 ---
 

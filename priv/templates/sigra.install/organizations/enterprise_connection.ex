@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.EnterpriseConnection do
   @moduledoc """
   Host-owned enterprise connection schema for organization-bound SSO setup.
@@ -10,6 +11,9 @@ defmodule <%= context_module %>.EnterpriseConnection do
 <%= if binary_id do %>
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+<% end %>
+
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
 <% end %>
 
   schema "enterprise_connections" do

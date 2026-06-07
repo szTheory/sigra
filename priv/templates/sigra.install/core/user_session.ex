@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.UserSession do
   @moduledoc """
   Ecto schema for database-backed user sessions.
@@ -18,6 +19,9 @@ defmodule <%= context_module %>.UserSession do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "user_sessions" do
     field :hashed_token, :binary
     field :type, :string, default: "standard"

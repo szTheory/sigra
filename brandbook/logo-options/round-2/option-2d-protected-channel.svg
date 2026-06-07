@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Option 2D: Protected Channel</title>
+  <desc id="desc">A protected channel mark where the core is implied by negative space instead of a literal lock or shield.</desc>
+  <rect width="64" height="64" rx="12" fill="#c2410c"/>
+  <path d="M17 21h22c6 0 10 4 10 10s-4 10-10 10H25c-5 0-8 3-8 8" fill="none" stroke="#fff0e8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17 21h22c6 0 10 4 10 10s-4 10-10 10H25c-5 0-8 3-8 8" fill="none" stroke="#151515" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="27" y="27" width="10" height="10" rx="3" fill="#151515"/>
+  <path d="M49 17v10M49 37v10" fill="none" stroke="#fdba74" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.UserIdentity do
   @moduledoc """
   OAuth identity linking a user to an external provider.
@@ -15,6 +16,9 @@ defmodule <%= context_module %>.UserIdentity do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "user_identities" do
     field :provider, :string
     field :provider_uid, :string

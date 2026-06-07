@@ -6,6 +6,8 @@ defmodule Example.Accounts.OrganizationInvitation do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "organization_invitations" do
     field :email, :string
     field :role, Ecto.Enum, values: [:owner, :admin, :member]

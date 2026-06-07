@@ -196,6 +196,7 @@ defmodule Sigra.MixProject do
         "guides/introduction/first-hour.md",
         "guides/introduction/intermediate-production-path.md",
         "guides/reference/generator-options.md",
+        "guides/reference/admin-ui-principles.md",
         "guides/reference/admin-design-contract.md",
         "guides/introduction/troubleshooting-install.md",
         "guides/introduction/upgrading-to-v1.7.md",

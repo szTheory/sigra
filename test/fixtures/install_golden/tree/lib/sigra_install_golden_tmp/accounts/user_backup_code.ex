@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.UserBackupCode do
   @moduledoc """
   Ecto schema for MFA backup/recovery codes.
@@ -14,6 +15,9 @@ defmodule SigraInstallGoldenTmp.Accounts.UserBackupCode do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "user_backup_codes" do
     belongs_to :user, SigraInstallGoldenTmp.Accounts.User

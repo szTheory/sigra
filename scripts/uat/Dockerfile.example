@@ -1,0 +1,14 @@
+ARG SIGRA_UAT_ELIXIR_IMAGE=elixir:1.19.5-otp-28-slim
+FROM ${SIGRA_UAT_ELIXIR_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends build-essential ca-certificates git inotify-tools \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/test/example
+
+RUN mix local.hex --force && mix local.rebar --force
+
+CMD ["sh", "-lc", "mix deps.get && exec mix phx.server"]

@@ -1,0 +1,45 @@
+# Sigra Brandbook
+
+This directory is the source-controlled brand system for Sigra. It is intentionally self-contained and mostly text/SVG so the repo gets useful collateral without binary sprawl.
+
+## Open The Brand Book
+
+Open [`index.html`](index.html) directly in a browser. It has no build step, CDN, web font, or runtime dependency.
+
+## Files
+
+| File | Purpose |
+| --- | --- |
+| [`pressure-test-audit.md`](pressure-test-audit.md) | Historical audit that informed the first complete brand system. |
+| [`brand-book.md`](brand-book.md) | Durable brand system: strategy, voice, visual rules, tokens, logo usage, UI guidance, copy blocks. |
+| [`tokens.json`](tokens.json) | Token source for raw palette, semantic colors, typography, spacing, radius, states, code/callout roles. |
+| [`tokens.css`](tokens.css) | CSS custom properties and small implementation examples for docs/marketing surfaces. |
+| [`logo-primary.svg`](logo-primary.svg) | Primary Rail Accent lockup for light surfaces. |
+| [`logo-primary-dark.svg`](logo-primary-dark.svg) | Primary Rail Accent lockup for dark surfaces. |
+| [`logo-mark.svg`](logo-mark.svg) | Free-standing Rail Accent mark for UI accents. |
+| [`logo-monochrome.svg`](logo-monochrome.svg) | One-color Rail Accent mark for restricted contexts. |
+| [`favicon.svg`](favicon.svg) | Browser/favicon source using the same Rail Accent mark geometry. |
+| [`social-card.svg`](social-card.svg) | SVG social preview source. Export PNG only when a platform requires it. |
+| [`logo-options/`](logo-options/) | Archived logo exploration studies. |
+| [`examples/`](examples/) | Source-controlled visual specimens for palette, type, README, landing, docs, code, terminal, components, and diagrams. |
+
+## Logo System
+
+The current logo files are the Sigra Rail Accent assets. Use the tight lockup for primary identity, the dark lockup for dark surfaces, and the free-standing mark for lightweight UI accents, favicon, and avatar surfaces. [`logo-options/`](logo-options/) is archive material, not usage guidance.
+
+## Maintenance Rules
+
+- Keep brand assets in `brandbook/`; do not scatter them into `docs/`, `guides/`, or generated templates without a separate implementation decision.
+- Prefer SVG, Markdown, JSON, CSS, and HTML. Commit PNG/JPG exports only when a distribution target requires raster.
+- Do not add font files or external font/CDN dependencies.
+- Do not replace Sigra's current low-BS technical voice with SaaS launch copy.
+- Token changes must update both `tokens.json` and `tokens.css`.
+- New visual examples must explain what implementation decision they clarify.
+
+## Suggested Checks
+
+```sh
+jq . brandbook/tokens.json
+find brandbook -name '*.svg' -print0 | xargs -0 -n1 xmllint --noout
+find brandbook -type f -size +250k -print
+```
