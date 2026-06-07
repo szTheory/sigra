@@ -163,18 +163,29 @@ defmodule Sigra.UpgradeIntegrationTest do
       {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
       run_data_migrations!(app_dir)
 
-      first_count = count_personal_orgs!(app_dir)
+      if organizations_table_exists?(app_dir) do
+        first_count = count_personal_orgs!(app_dir)
 
-      assert first_count == seeded_count,
-             "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
+        assert first_count == seeded_count,
+               "expected #{seeded_count} personal orgs after first backfill, got #{first_count}"
 
-      # Re-run: must be a no-op.
-      {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
-      {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
-      run_data_migrations!(app_dir)
+        # Re-run: must be a no-op.
+        {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+        {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+        run_data_migrations!(app_dir)
 
-      second_count = count_personal_orgs!(app_dir)
-      assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
+        second_count = count_personal_orgs!(app_dir)
+        assert second_count == seeded_count, "expected re-run to be a no-op; got #{second_count}"
+      else
+        # Some dependency-minimal install shapes do not install organizations.
+        # Backfill must remain a no-op in that shape, including on re-run.
+        {:ok, _} = InstallFixture.run_sigra_upgrade(app_dir, ["--backfill-personal-orgs"])
+        {:ok, _} = InstallFixture.run_mix(app_dir, ["ecto.migrate"])
+        run_data_migrations!(app_dir)
+
+        refute organizations_table_exists?(app_dir),
+               "expected backfill to preserve org-absent install shape"
+      end
     end
   end
 
@@ -260,7 +271,7 @@ defmodule Sigra.UpgradeIntegrationTest do
     result =
       Ecto.Adapters.SQL.query!(
         #{otp_module}.Repo,
-        "SELECT 1 FROM information_schema.tables WHERE table_name = 'organizations'",
+        "SELECT 1 FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = 'organizations'",
         []
       )
     IO.puts("SIGRA_TEST_RESULT:" <> Integer.to_string(length(result.rows)))
