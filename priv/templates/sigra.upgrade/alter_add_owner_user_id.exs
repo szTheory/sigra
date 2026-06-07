@@ -36,23 +36,27 @@ defmodule <%= repo_module %>.Migrations.AddOwnerUserIdToOrganizations do
         """
         DO $$
         BEGIN
-          IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns
-            WHERE table_name = 'organizations' AND column_name = 'owner_user_id'
-          ) THEN
-            ALTER TABLE organizations
-              ADD COLUMN owner_user_id <%= if binary_id do %>uuid<% else %>bigint<% end %>;
-          END IF;
+          IF to_regclass('organizations') IS NOT NULL THEN
+            IF NOT EXISTS (
+              SELECT 1 FROM information_schema.columns
+              WHERE table_schema = current_schema()
+                AND table_name = 'organizations'
+                AND column_name = 'owner_user_id'
+            ) THEN
+              ALTER TABLE organizations
+                ADD COLUMN owner_user_id <%= if binary_id do %>uuid<% else %>bigint<% end %>;
+            END IF;
 
-          IF NOT EXISTS (
-            SELECT 1 FROM pg_constraint
-            WHERE conname = 'organizations_owner_user_id_fkey'
-          ) THEN
-            ALTER TABLE organizations
-              ADD CONSTRAINT organizations_owner_user_id_fkey
-              FOREIGN KEY (owner_user_id)
-              REFERENCES <%= table_name %>(id)
-              ON DELETE SET NULL;
+            IF NOT EXISTS (
+              SELECT 1 FROM pg_constraint
+              WHERE conname = 'organizations_owner_user_id_fkey'
+            ) THEN
+              ALTER TABLE organizations
+                ADD CONSTRAINT organizations_owner_user_id_fkey
+                FOREIGN KEY (owner_user_id)
+                REFERENCES <%= table_name %>(id)
+                ON DELETE SET NULL;
+            END IF;
           END IF;
         END$$;
         """,
@@ -75,12 +79,18 @@ defmodule <%= repo_module %>.Migrations.AddOwnerUserIdToOrganizations do
     # already populated from a prior backfill is a no-op.
     execute(
       """
-      UPDATE organizations o SET owner_user_id = (
-        SELECT m.user_id FROM organization_memberships m
-        WHERE m.organization_id = o.id AND m.role = 'owner'
-        ORDER BY m.inserted_at ASC
-        LIMIT 1
-      ) WHERE owner_user_id IS NULL
+      DO $$
+      BEGIN
+        IF to_regclass('organizations') IS NOT NULL
+           AND to_regclass('organization_memberships') IS NOT NULL THEN
+          UPDATE organizations o SET owner_user_id = (
+            SELECT m.user_id FROM organization_memberships m
+            WHERE m.organization_id = o.id AND m.role = 'owner'
+            ORDER BY m.inserted_at ASC
+            LIMIT 1
+          ) WHERE owner_user_id IS NULL;
+        END IF;
+      END$$;
       """,
       ""
     )
@@ -92,20 +102,24 @@ defmodule <%= repo_module %>.Migrations.AddOwnerUserIdToOrganizations do
         """
         DO $$
         BEGIN
-          IF EXISTS (
-            SELECT 1 FROM pg_constraint
-            WHERE conname = 'organizations_owner_user_id_fkey'
-          ) THEN
-            ALTER TABLE organizations
-              DROP CONSTRAINT organizations_owner_user_id_fkey;
-          END IF;
+          IF to_regclass('organizations') IS NOT NULL THEN
+            IF EXISTS (
+              SELECT 1 FROM pg_constraint
+              WHERE conname = 'organizations_owner_user_id_fkey'
+            ) THEN
+              ALTER TABLE organizations
+                DROP CONSTRAINT organizations_owner_user_id_fkey;
+            END IF;
 
-          IF EXISTS (
-            SELECT 1 FROM information_schema.columns
-            WHERE table_name = 'organizations' AND column_name = 'owner_user_id'
-          ) THEN
-            ALTER TABLE organizations
-              DROP COLUMN owner_user_id;
+            IF EXISTS (
+              SELECT 1 FROM information_schema.columns
+              WHERE table_schema = current_schema()
+                AND table_name = 'organizations'
+                AND column_name = 'owner_user_id'
+            ) THEN
+              ALTER TABLE organizations
+                DROP COLUMN owner_user_id;
+            END IF;
           END IF;
         END$$;
         """,
