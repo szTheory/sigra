@@ -31,6 +31,7 @@
 
 - Reference
   - [Generator and install options](generator-options.md)
+  - [Sigra Admin UI Principles](admin-ui-principles.md)
   - [Sigra Admin Design Contract](admin-design-contract.md)
 
 - Flows
