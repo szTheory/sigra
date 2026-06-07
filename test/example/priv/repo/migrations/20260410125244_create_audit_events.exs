@@ -1,8 +1,10 @@
 defmodule Example.Repo.Migrations.CreateAuditEvents do
   use Ecto.Migration
 
+  @prefix_opts [prefix: "auth"]
+
   def change do
-    create table(:audit_events, primary_key: false) do
+    create table(:audit_events, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
       add(:occurred_at, :utc_datetime_usec, null: false)
       add(:action, :string, null: false, size: 255)
@@ -18,8 +20,8 @@ defmodule Example.Repo.Migrations.CreateAuditEvents do
       timestamps(type: :utc_datetime_usec, updated_at: false)
     end
 
-    create(index(:audit_events, [:actor_id, :inserted_at]))
-    create(index(:audit_events, [:action, :inserted_at]))
-    create(index(:audit_events, [:inserted_at]))
+    create(index(:audit_events, [:actor_id, :inserted_at], @prefix_opts))
+    create(index(:audit_events, [:action, :inserted_at], @prefix_opts))
+    create(index(:audit_events, [:inserted_at], @prefix_opts))
   end
 end

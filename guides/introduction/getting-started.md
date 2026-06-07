@@ -147,7 +147,7 @@ The default layout includes a "Log out" link that posts to `DELETE /users/log_ou
       |> redirect(to: ~p"/")
     end
 
-`delete_user_session_token/1` removes the row from `users_tokens`, `renew_session/1` rotates the Phoenix session ID to defeat session-fixation, and the remember-me cookie is cleared. After the redirect, the user is anonymous again and protected routes bounce them to `/users/log_in`.
+`delete_user_session_token/1` removes the row from `auth.user_tokens` on Postgres installs, `renew_session/1` rotates the Phoenix session ID to defeat session-fixation, and the remember-me cookie is cleared. After the redirect, the user is anonymous again and protected routes bounce them to `/users/log_in`.
 
 Confirm: open devtools → Cookies. The `_my_app_key` value should have changed (session renewed) and `_my_app_web_user_remember_me` should be gone.
 
@@ -160,7 +160,7 @@ Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.com` an
       &url(~p"/users/reset-password/#{&1}")
     )
 
-This generates an HMAC-signed reset token, stores its hash in `users_tokens` with a 60-minute TTL, and sends the email via the configured mailer. **By design, the form shows the same success message whether or not the email exists in your database** — this prevents enumeration attacks.
+This generates an HMAC-signed reset token, stores its hash in `auth.user_tokens` with a 60-minute TTL, and sends the email via the configured mailer. **By design, the form shows the same success message whether or not the email exists in your database** — this prevents enumeration attacks.
 
 Check <http://localhost:4000/dev/mailbox> again. You'll see a new message: **"Reset password instructions"**. The body contains a link like:
 
@@ -171,7 +171,7 @@ Check <http://localhost:4000/dev/mailbox> again. You'll see a new message: **"Re
 Click the link (or copy it into your browser). `ResetPasswordLive` looks up the token via `Accounts.get_user_by_reset_password_token/1`, which:
 
 1. Decodes the HMAC-signed token (rejects tampered tokens immediately).
-2. Looks up the matching row in `users_tokens` by the token's hash (not the raw value).
+2. Looks up the matching row in `auth.user_tokens` by the token's hash (not the raw value).
 3. Checks that `inserted_at + 60 minutes > now`.
 4. Returns the associated user, or `nil` if any check fails.
 

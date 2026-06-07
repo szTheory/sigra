@@ -10,6 +10,8 @@ defmodule Example.Accounts.UserToken do
   @change_email_validity_in_days 1
   @magic_link_validity_in_seconds 600
 
+  @schema_prefix "auth"
+
   schema "user_tokens" do
     field :token, :binary
     field :context, :string

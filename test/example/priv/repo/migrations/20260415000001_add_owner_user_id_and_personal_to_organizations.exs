@@ -7,18 +7,23 @@ defmodule Example.Repo.Migrations.AddOwnerUserIdAndPersonalToOrganizations do
   # schema was missing these columns, breaking
   # Example.Organizations.LastOwnerTest which calls
   # create_org_with_owner(user).
+  @prefix_opts [prefix: "auth"]
+  @ref_opts [prefix: "auth"]
+
   def change do
-    alter table(:organizations) do
-      add(:owner_user_id, references(:users, type: :binary_id, on_delete: :nilify_all))
+    alter table(:organizations, @prefix_opts) do
+      add(:owner_user_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all)))
       add(:personal, :boolean, default: false, null: false)
     end
 
-    create(index(:organizations, [:owner_user_id]))
+    create(index(:organizations, [:owner_user_id], @prefix_opts))
 
     create(
       unique_index(:organizations, [:owner_user_id],
-        where: "personal = true",
-        name: :organizations_personal_owner_unique_index
+        Keyword.merge(@prefix_opts,
+          where: "personal = true",
+          name: :organizations_personal_owner_unique_index
+        )
       )
     )
   end

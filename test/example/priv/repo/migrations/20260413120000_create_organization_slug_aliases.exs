@@ -1,13 +1,16 @@
 defmodule Example.Repo.Migrations.CreateOrganizationSlugAliases do
   use Ecto.Migration
 
+  @prefix_opts [prefix: "auth"]
+  @ref_opts [prefix: "auth"]
+
   def up do
-    create table(:organization_slug_aliases, primary_key: false) do
+    create table(:organization_slug_aliases, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
 
       add(
         :organization_id,
-        references(:organizations, type: :binary_id, on_delete: :delete_all),
+        references(:organizations, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
         null: false
       )
 
@@ -17,7 +20,7 @@ defmodule Example.Repo.Migrations.CreateOrganizationSlugAliases do
       timestamps(type: :utc_datetime, updated_at: false)
     end
 
-    create(index(:organization_slug_aliases, [:organization_id]))
+    create(index(:organization_slug_aliases, [:organization_id], @prefix_opts))
 
     # Phase 16 Plan 01 D-13: the library would prefer a partial unique index
     # scoped to `expires_at > now()` but Postgres rejects `now()` in index
@@ -26,12 +29,12 @@ defmodule Example.Repo.Migrations.CreateOrganizationSlugAliases do
     # rows before the old_slug becomes reclaimable.
     create(
       unique_index(:organization_slug_aliases, [:old_slug],
-        name: :organization_slug_aliases_old_slug_active_idx
+        Keyword.merge(@prefix_opts, name: :organization_slug_aliases_old_slug_active_idx)
       )
     )
   end
 
   def down do
-    drop(table(:organization_slug_aliases))
+    drop(table(:organization_slug_aliases, @prefix_opts))
   end
 end

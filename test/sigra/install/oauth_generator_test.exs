@@ -238,11 +238,12 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       # now has a `primary_key: false` EEx branch, so match on the prefix
       # rather than the full `create table(:user_identities)` literal.
       assert String.contains?(content, "create table(:user_identities")
-      assert String.contains?(content, "unique_index(:user_identities, [:user_id, :provider])")
+      assert String.contains?(content, "@prefix_opts")
+      assert String.contains?(content, "unique_index(:user_identities, [:user_id, :provider], @prefix_opts)")
 
       assert String.contains?(
                content,
-               "unique_index(:user_identities, [:provider, :provider_uid])"
+               "unique_index(:user_identities, [:provider, :provider_uid], @prefix_opts)"
              )
 
       assert String.contains?(content, ":encrypted_access_token, :binary")
@@ -251,12 +252,12 @@ defmodule Sigra.Install.OAuthGeneratorTest do
     test "oauth_migration.exs template supports binary_id (uuid) primary keys" do
       content = File.read!(Path.join(@template_dir, "oauth_migration.exs"))
       # D-10: uuid is the default; the template must honor a binary_id binding.
-      assert String.contains?(content, "<%= if binary_id do %>, primary_key: false")
+      assert String.contains?(content, "<%= if binary_id, do: \"[primary_key: false]\"")
       assert String.contains?(content, "add :id, :binary_id, primary_key: true")
 
       assert String.contains?(
                content,
-               "references(:users<%= if binary_id do %>, type: :binary_id"
+               "references(:users, Keyword.merge(@ref_opts"
              )
     end
 
@@ -322,6 +323,40 @@ defmodule Sigra.Install.OAuthGeneratorTest do
       content = File.read!(Path.join(@template_dir, "oauth_test_helpers.ex"))
       assert String.contains?(content, "Sigra.Testing")
       assert String.contains?(content, "oauth_login")
+    end
+
+    test "oauth templates render Postgres auth prefix" do
+      binding = [
+        context_module: "MyApp.Accounts",
+        schema_alias: "User",
+        app_module: "MyApp",
+        auth_prefix: "auth",
+        binary_id: true
+      ]
+
+      migration = EEx.eval_file(Path.join(@template_dir, "oauth_migration.exs"), binding)
+      schema = EEx.eval_file(Path.join(@template_dir, "user_identity.ex"), binding)
+
+      assert String.contains?(migration, ~s(@auth_prefix "auth"))
+      assert String.contains?(migration, "create table(:user_identities, Keyword.merge(@prefix_opts")
+      assert String.contains?(migration, "references(:users, Keyword.merge(@ref_opts")
+      assert String.contains?(schema, ~s(@schema_prefix "auth"))
+    end
+
+    test "oauth templates render without prefix for non-Postgres adapters" do
+      binding = [
+        context_module: "MyApp.Accounts",
+        schema_alias: "User",
+        app_module: "MyApp",
+        auth_prefix: nil,
+        binary_id: true
+      ]
+
+      migration = EEx.eval_file(Path.join(@template_dir, "oauth_migration.exs"), binding)
+      schema = EEx.eval_file(Path.join(@template_dir, "user_identity.ex"), binding)
+
+      assert String.contains?(migration, "@auth_prefix nil")
+      refute String.contains?(schema, "@schema_prefix")
     end
   end
 

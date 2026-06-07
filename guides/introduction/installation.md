@@ -47,6 +47,7 @@ For the **complete** switch matrix (defaults, “see also” links, and prose cl
 | `--live` / `--no-live` | Generate LiveView pages (default: `--live`). |
 | `--binary-id` / `--no-binary-id` | UUID vs bigint primary keys (default: binary IDs on). |
 | `--table` | Override the generated table name. |
+| `--auth-prefix` | Postgres schema for Sigra-owned tables (default: `auth`; use `public` for old placement). |
 | `--api` | Generate API token controller (implied by `--jwt`). |
 | `--jwt` | Generate JWT token controller. |
 | `--admin` / `--no-admin` | Admin scaffolding (default: on). |
@@ -62,6 +63,14 @@ Sigra generates `uuid` (binary_id) primary keys by default — no flag required.
 
     mix sigra.install Accounts User users --no-binary-id
 
+On Postgres, Sigra also puts its generated auth-owned tables in an `auth` schema by default. This is deliberate namespace hygiene: your application tables can stay in `public`, while Sigra's users, tokens, sessions, MFA, passkeys, OAuth identities, organizations, enterprise SSO, API tokens, and audit events share an explicit auth boundary. The generated migration creates the schema and uses Ecto prefixes; it does not depend on `search_path`.
+
+If you want the old public-schema placement for a new Postgres install, choose it explicitly:
+
+    mix sigra.install Accounts User users --auth-prefix public
+
+MySQL and SQLite keep their current default-schema behavior.
+
 This generates the **application-owned** scaffolding into your project:
 
 - `lib/my_app/accounts.ex` — the `Accounts` context with `register_user/2`, `get_user_by_email_and_password/2`, `deliver_user_reset_password_instructions/2`, and friends.
@@ -69,7 +78,7 @@ This generates the **application-owned** scaffolding into your project:
 - `lib/my_app/accounts/user_token.ex` — session, confirmation, reset, and magic-link token schema.
 - `lib/my_app_web/user_auth.ex` — the `UserAuth` plug module: `log_in_user/3`, `log_out_user/1`, `fetch_current_scope/2`, `require_authenticated_user/2`.
 - `lib/my_app_web/live/user_registration_live.ex` and friends — the registration, login, password-reset, and settings LiveViews.
-- `priv/repo/migrations/*_create_users_auth_tables.exs` — the users + tokens migrations.
+- `priv/repo/migrations/*_create_users_auth_tables.exs` — the users + tokens migrations, under `auth` by default on Postgres.
 - `test/support/auth_fixtures.ex` — scenario fixtures (`user_fixture`, `authenticated_fixture`, etc.).
 
 **You own this code.** Security-critical primitives (hashing, TOTP verification, token HMACs) live in the library and update via `mix deps.update sigra`. Everything in your app — schemas, routes, templates, LiveViews — is yours to customize without fighting the library.
@@ -80,7 +89,7 @@ The generator also patches your router with the auth pipelines and scopes. Re-ru
 
     mix ecto.migrate
 
-This creates the `users` and `users_tokens` tables (plus any optional tables such as `audit_events` if you enabled **audit logging** in the installer).
+On Postgres this creates the `auth` schema and Sigra-owned tables such as `auth.users`, `auth.user_tokens`, and `auth.user_sessions` (plus optional tables such as `auth.audit_events`). On MySQL and SQLite, tables are created in the adapter's default placement.
 
 ## Smoke test
 
@@ -95,7 +104,7 @@ If that worked, you're ready. Continue with [Getting Started](getting-started.ht
 ## Troubleshooting
 
 - **`** (UndefinedFunctionError) Sigra.Config.new!/1`** — run `mix deps.get && mix deps.compile sigra` to pick up the library.
-- **`** (Ecto.MigrationError) relation "users" already exists`** — you already have a `users` table from a prior library. Either drop it or rename the Sigra table via the generated migration.
+- **`** (Ecto.MigrationError) relation "users" already exists`** — you already have a `users` table in the target schema from a prior library. Either drop it, choose `--auth-prefix public` only when that is intentional, or rename the Sigra table via the generated migration.
 - **`mix sigra.install` skips files you want to regenerate** — pass `--force` and re-run. Be warned: this overwrites any local edits.
 - **Compilation warnings about `:cookie_domain`** — see [Subdomain Authentication](subdomain-auth.html) if you want subdomain-scoped cookies, or set `cookie_domain: nil` explicitly to silence the prod boot warning.
 

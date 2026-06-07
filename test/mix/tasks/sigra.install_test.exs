@@ -93,7 +93,8 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         repo_module: "MyApp.Repo",
         table_name: "users",
         binary_id: false,
-        adapter: :postgres
+        adapter: :postgres,
+        auth_prefix: "auth"
       ]
 
       template_path =
@@ -101,9 +102,11 @@ defmodule Mix.Tasks.Sigra.InstallTest do
 
       content = EEx.eval_file(template_path, binding)
 
+      assert String.contains?(content, ~s(@auth_prefix "auth"))
+      assert String.contains?(content, "CREATE SCHEMA IF NOT EXISTS")
       assert String.contains?(content, "CREATE EXTENSION IF NOT EXISTS citext")
       assert String.contains?(content, ":citext")
-      assert String.contains?(content, "create table(:users)")
+      assert String.contains?(content, "create table(:users, Keyword.merge(@prefix_opts")
       assert String.contains?(content, "unique_index(:users, [:email]")
     end
 

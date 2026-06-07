@@ -5,7 +5,7 @@ Sigra's password reset flow uses a one-time, HMAC-signed token with a 60-minute 
 ## What Sigra gives you
 
 - **`MyAppWeb.ResetPasswordLive`** — two LiveViews: one for "request a reset" and one for "enter your new password."
-- **`MyApp.Accounts.deliver_user_reset_password_instructions/2`** — generates a reset token, stores its hash in `users_tokens`, sends the email.
+- **`MyApp.Accounts.deliver_user_reset_password_instructions/2`** — generates a reset token, stores its hash in `auth.user_tokens` on Postgres installs, sends the email.
 - **`MyApp.Accounts.get_user_by_reset_password_token/1`** — verifies the token (HMAC, hash lookup, TTL) and returns the user.
 - **`MyApp.Accounts.reset_user_password/2`** — updates the password, deletes the reset token, and invalidates every session and token for that user.
 - **`Sigra.Auth.request_password_reset/3`** — library primitive. Enumeration-safe: returns `:ok` whether the email exists or not.
@@ -32,7 +32,7 @@ The generated `ResetPasswordLive` renders a form with one field: email. Submitti
        |> redirect(to: ~p"/")}
     end
 
-`deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `users_tokens` with `context: "reset_password"`, and renders the email template.
+`deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `auth.user_tokens` with `context: "reset_password"`, and renders the email template.
 
 **Enumeration prevention** is the critical property: render the same flash message whether the email exists or not. Attackers cannot use the reset form as an email oracle.
 
@@ -62,7 +62,7 @@ The visible portion after `/users/reset-password/` is the HMAC-signed token. Whe
 `get_user_by_reset_password_token/1` verifies:
 
 1. The HMAC signature (rejects tampered tokens).
-2. The hash exists in `users_tokens` (rejects fabricated or already-used tokens).
+2. The hash exists in `auth.user_tokens` (rejects fabricated or already-used tokens).
 3. `inserted_at + 60 minutes > now` (rejects expired tokens).
 
 All three checks run in constant time where relevant.
@@ -128,7 +128,7 @@ When a password is reset, Sigra assumes the user forgot it (best case) or that a
 - Any lingering remember-me cookie must stop working.
 - Any pending magic-link or confirmation token should be revoked.
 
-The `delete_all` on `users_tokens` handles all of this in one query.
+The `delete_all` on `auth.user_tokens` handles all of this in one query.
 
 ## Testing
 

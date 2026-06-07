@@ -10,6 +10,7 @@ defmodule Mix.Tasks.Sigra.Install do
       mix sigra.install Accounts User users --admin
       mix sigra.install Accounts User users --no-admin
       mix sigra.install Accounts User users --no-passkeys
+      mix sigra.install Accounts User users --auth-prefix public
 
   Arguments: `context_name schema_name table_name`.
 
@@ -23,6 +24,7 @@ defmodule Mix.Tasks.Sigra.Install do
     * `--jwt` — Generate JWT token controller
     * `--admin` / `--no-admin` — Generate admin scaffolding (default: true)
     * `--passkeys` / `--no-passkeys` — Generate passkey scaffolding (default: true)
+    * `--auth-prefix` — Postgres schema for Sigra-owned auth tables (default: "auth"; use "public" for default-schema placement)
     * `--yes` — Non-interactive mode (reserved; required by CI smoke jobs)
 
   ## Architecture (Phase 11)
@@ -54,6 +56,7 @@ defmodule Mix.Tasks.Sigra.Install do
     organizations: :boolean,
     passkeys: :boolean,
     admin: :boolean,
+    auth_prefix: :string,
     yes: :boolean
   ]
   @default_opts [
@@ -113,6 +116,7 @@ defmodule Mix.Tasks.Sigra.Install do
     otp_app = Mix.Phoenix.otp_app()
     repo_module = get_repo_module(otp_app)
     adapter = detect_adapter(repo_module)
+    auth_prefix = resolve_auth_prefix!(adapter, opts)
     app_name = otp_app |> to_string() |> Macro.camelize()
 
     [
@@ -136,6 +140,7 @@ defmodule Mix.Tasks.Sigra.Install do
       passkeys?: Keyword.get(opts, :passkeys, true),
       admin?: Keyword.get(opts, :admin, true),
       adapter: adapter,
+      auth_prefix: auth_prefix,
       reset_password_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/reset-password",
       settings_url: "\#{#{inspect(web_module)}.Endpoint.url()}/users/settings",
       opts: opts
@@ -160,5 +165,30 @@ defmodule Mix.Tasks.Sigra.Install do
     else
       :postgres
     end
+  end
+
+  defp resolve_auth_prefix!(:postgres, opts) do
+    opts
+    |> Keyword.get(:auth_prefix, "auth")
+    |> validate_auth_prefix!()
+  end
+
+  defp resolve_auth_prefix!(_adapter, opts) do
+    case Keyword.fetch(opts, :auth_prefix) do
+      {:ok, _prefix} ->
+        Mix.raise("--auth-prefix is only supported for Postgres repos.")
+
+      :error -> nil
+    end
+  end
+
+  defp validate_auth_prefix!(prefix) when is_binary(prefix) do
+    unless prefix =~ ~r/^[a-z][a-z0-9_]*$/ do
+      Mix.raise(
+        "The auth prefix must be a safe database identifier (e.g., auth or public), got: #{inspect(prefix)}"
+      )
+    end
+
+    prefix
   end
 end

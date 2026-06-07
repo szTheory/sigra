@@ -1,11 +1,14 @@
 defmodule Example.Repo.Migrations.CreateEnterpriseConnections do
   use Ecto.Migration
 
+  @prefix_opts [prefix: "auth"]
+  @ref_opts [prefix: "auth"]
+
   def change do
-    create table(:enterprise_connections, primary_key: false) do
+    create table(:enterprise_connections, Keyword.merge(@prefix_opts, primary_key: false)) do
       add :id, :binary_id, primary_key: true
 
-      add :organization_id, references(:organizations, type: :binary_id, on_delete: :delete_all),
+      add :organization_id, references(:organizations, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
         null: false
 
       add :protocol, :string, null: false
@@ -19,11 +22,13 @@ defmodule Example.Repo.Migrations.CreateEnterpriseConnections do
       timestamps(type: :utc_datetime)
     end
 
-    create index(:enterprise_connections, [:organization_id])
+    create index(:enterprise_connections, [:organization_id], @prefix_opts)
 
     create unique_index(:enterprise_connections, [:organization_id, :protocol, :display_name],
-             where: "status = 'active'",
-             name: :enterprise_connections_active_display_name_index
+             Keyword.merge(@prefix_opts,
+               where: "status = 'active'",
+               name: :enterprise_connections_active_display_name_index
+             )
            )
   end
 end

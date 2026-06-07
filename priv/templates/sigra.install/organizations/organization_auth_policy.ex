@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.OrganizationAuthPolicy do
   @moduledoc false
   use Ecto.Schema
@@ -5,6 +6,9 @@ defmodule <%= context_module %>.OrganizationAuthPolicy do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
 
   schema "organization_auth_policies" do
     field :enforcement_mode, Ecto.Enum, values: [:optional, :sso_required], default: :optional

@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.OrganizationAuthPolicy do
   @moduledoc false
   use Ecto.Schema
@@ -5,6 +6,9 @@ defmodule SigraInstallGoldenTmp.Accounts.OrganizationAuthPolicy do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "organization_auth_policies" do
     field :enforcement_mode, Ecto.Enum, values: [:optional, :sso_required], default: :optional

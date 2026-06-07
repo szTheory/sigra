@@ -9,11 +9,14 @@ defmodule Example.Repo.Migrations.AddRevokedByIdToOrganizationInvitations do
   only the generated schema + migration needed updating).
   """
 
+  @prefix_opts [prefix: "auth"]
+  @ref_opts [prefix: "auth"]
+
   def change do
-    alter table(:organization_invitations) do
+    alter table(:organization_invitations, @prefix_opts) do
       add(
         :revoked_by_id,
-        references(:users, type: :binary_id, on_delete: :nilify_all)
+        references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all))
       )
     end
   end

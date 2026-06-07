@@ -18,6 +18,8 @@ defmodule Example.Accounts.UserSession do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "user_sessions" do
     field :hashed_token, :binary
     field :type, :string, default: "standard"

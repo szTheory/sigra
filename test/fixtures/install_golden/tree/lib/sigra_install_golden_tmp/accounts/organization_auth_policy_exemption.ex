@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.OrganizationAuthPolicyExemption do
   @moduledoc false
   use Ecto.Schema
@@ -5,6 +6,9 @@ defmodule SigraInstallGoldenTmp.Accounts.OrganizationAuthPolicyExemption do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "organization_auth_policy_exemptions" do
     belongs_to :organization, SigraInstallGoldenTmp.Accounts.Organization

@@ -1152,7 +1152,7 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       template = File.read!(@template_path)
 
       hashed_token_matches =
-        Regex.scan(~r/unique_index\(:organization_invitations, \[:hashed_token\]\)/, template)
+        Regex.scan(~r/unique_index\(:organization_invitations, \[:hashed_token\]/, template)
 
       # One occurrence per adapter branch (postgres + mysql/sqlite).
       assert length(hashed_token_matches) == 2,

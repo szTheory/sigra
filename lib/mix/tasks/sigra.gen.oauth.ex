@@ -17,6 +17,8 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
     * `--live` / `--no-live` - Generate LiveView settings page (default: false)
     * `--no-vault` - Skip Vault and Encrypted.Binary generation
       (use if already created by another generator)
+    * `--auth-prefix` - Postgres schema for Sigra-owned auth tables (default:
+      inferred from generated User schema, otherwise "auth" on Postgres)
 
   ## Requirements
 
@@ -40,7 +42,8 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
     providers: :string,
     live: :boolean,
     no_vault: :boolean,
-    binary_id: :boolean
+    binary_id: :boolean,
+    auth_prefix: :string
   ]
 
   @default_opts [live: false, no_vault: false, binary_id: true]
@@ -57,11 +60,14 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
     web_module = Module.concat([Mix.Phoenix.web_module(base)])
     otp_app = Mix.Phoenix.otp_app()
     otp_app_str = to_string(otp_app)
+    repo_module = get_repo_module(otp_app)
+    adapter = detect_adapter(repo_module)
 
     # Detect context module from existing sigra config or default to Accounts
     context_name = detect_context_name(otp_app, base)
     context_module = Module.concat([base, context_name])
     schema_alias = "User"
+    auth_prefix = resolve_auth_prefix!(opts, context_module, schema_alias, adapter)
 
     app_name = otp_app |> to_string() |> Macro.camelize()
     from_email = "noreply@example.com"
@@ -82,6 +88,8 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
       settings_path: settings_path,
       password_path: password_path,
       otp_app: otp_app,
+      adapter: adapter,
+      auth_prefix: auth_prefix,
       binary_id: Keyword.get(opts, :binary_id, true)
     ]
 
@@ -409,5 +417,62 @@ defmodule Mix.Tasks.Sigra.Gen.Oauth do
     #{providers_instructions}
     #{if opts[:live], do: "  LiveView settings page was generated for OAuth account management.\n", else: "  Controller-based settings page was generated for OAuth account management.\n"}
     """)
+  end
+
+  defp get_repo_module(otp_app) do
+    case Application.get_env(otp_app, :ecto_repos, []) do
+      [repo | _] -> repo
+      [] -> Module.concat([Mix.Phoenix.base(), "Repo"])
+    end
+  end
+
+  defp detect_adapter(repo_module) do
+    if Code.ensure_loaded?(repo_module) and function_exported?(repo_module, :__adapter__, 0) do
+      case repo_module.__adapter__() do
+        Ecto.Adapters.Postgres -> :postgres
+        Ecto.Adapters.MyXQL -> :mysql
+        Ecto.Adapters.SQLite3 -> :sqlite
+        _ -> :postgres
+      end
+    else
+      :postgres
+    end
+  end
+
+  defp resolve_auth_prefix!(opts, context_module, schema_alias, adapter) do
+    case Keyword.fetch(opts, :auth_prefix) do
+      {:ok, prefix} ->
+        if adapter == :postgres do
+          validate_auth_prefix!(prefix)
+        else
+          Mix.raise("--auth-prefix is only supported for Postgres repos.")
+        end
+
+      :error ->
+        inferred_user_prefix(context_module, schema_alias) || default_auth_prefix(adapter)
+    end
+  end
+
+  defp default_auth_prefix(:postgres), do: "auth"
+  defp default_auth_prefix(_adapter), do: nil
+
+  defp inferred_user_prefix(context_module, schema_alias) do
+    user_module = Module.concat(context_module, schema_alias)
+
+    if Code.ensure_loaded?(user_module) and function_exported?(user_module, :__schema__, 1) do
+      user_module.__schema__(:prefix)
+    end
+  rescue
+    _ -> nil
+  end
+
+  defp validate_auth_prefix!(prefix) when is_binary(prefix) do
+    unless prefix =~ ~r/^[a-z][a-z0-9_]*$/ do
+      Mix.raise(
+        "The auth prefix must be a safe database identifier (e.g., auth or public), got: #{inspect(prefix)}"
+      )
+    end
+
+    prefix
   end
 end

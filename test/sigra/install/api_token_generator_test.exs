@@ -53,7 +53,7 @@ defmodule Sigra.Install.APITokenGeneratorTest do
   describe "api_token_migration.exs template (Postgres)" do
     test "creates user_api_tokens table" do
       content = render_template("api_token_migration.exs")
-      assert content =~ "create table(:user_api_tokens, primary_key: false)"
+      assert content =~ "create table(:user_api_tokens, Keyword.merge(@prefix_opts, primary_key: false))"
     end
 
     test "contains binary_id primary key" do
@@ -78,12 +78,13 @@ defmodule Sigra.Install.APITokenGeneratorTest do
 
     test "contains unique index on hashed_token" do
       content = render_template("api_token_migration.exs")
-      assert content =~ "create unique_index(:user_api_tokens, [:hashed_token])"
+      assert content =~ "create unique_index(:user_api_tokens, [:hashed_token], @prefix_opts)"
     end
 
     test "contains composite index for active token lookup" do
       content = render_template("api_token_migration.exs")
-      assert content =~ "create index(:user_api_tokens, [:user_id, :revoked_at, :expires_at])"
+      assert content =~
+               "create index(:user_api_tokens, [:user_id, :revoked_at, :expires_at], @prefix_opts)"
     end
 
     test "adds token_epoch to users table" do

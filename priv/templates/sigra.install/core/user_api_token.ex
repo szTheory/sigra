@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.UserAPIToken do
   @moduledoc """
   Ecto schema for user API tokens (personal access tokens).
@@ -17,6 +18,9 @@ defmodule <%= context_module %>.UserAPIToken do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
 
   schema "user_api_tokens" do
     field :hashed_token, :binary

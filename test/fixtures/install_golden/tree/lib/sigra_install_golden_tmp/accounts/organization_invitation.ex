@@ -1,3 +1,4 @@
+
 defmodule SigraInstallGoldenTmp.Accounts.OrganizationInvitation do
   @moduledoc """
   Schema for the `organization_invitations` table.
@@ -21,6 +22,9 @@ defmodule SigraInstallGoldenTmp.Accounts.OrganizationInvitation do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
+  @schema_prefix "auth"
+
 
   schema "organization_invitations" do
     field :email, :string

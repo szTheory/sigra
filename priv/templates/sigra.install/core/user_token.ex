@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.UserToken do
   use Ecto.Schema
   import Ecto.Query
@@ -9,6 +10,9 @@ defmodule <%= context_module %>.UserToken do
   @reset_password_validity_in_days 1
   @change_email_validity_in_days 1
   @magic_link_validity_in_seconds 600
+
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
 
   schema "user_tokens" do
     field :token, :binary

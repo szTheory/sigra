@@ -15,6 +15,8 @@ defmodule Example.Accounts.UserMFACredential do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @schema_prefix "auth"
+
   schema "user_mfa_credentials" do
     belongs_to :user, Example.Accounts.User
     field :type, :string

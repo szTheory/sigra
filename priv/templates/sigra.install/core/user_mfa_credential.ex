@@ -1,3 +1,4 @@
+<% auth_prefix = Keyword.get(binding(), :auth_prefix) %>
 defmodule <%= context_module %>.UserMFACredential do
   @moduledoc """
   Ecto schema for MFA credentials (e.g., TOTP enrollment).
@@ -15,6 +16,9 @@ defmodule <%= context_module %>.UserMFACredential do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 <% end %>
+<%= if auth_prefix do %>  @schema_prefix "<%= auth_prefix %>"
+<% end %>
+
   schema "user_mfa_credentials" do
     belongs_to :user, <%= context_module %>.<%= schema_alias %>
     field :type, :string

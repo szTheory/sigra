@@ -140,6 +140,10 @@ mix sigra.upgrade --yes
 - **Migration lane (`phx.gen.auth`):** Existing `phx.gen.auth` teams should use `guides/introduction/migrating-from-phx-gen-auth.md` for boundary-first migration guidance.
 - **Migration lane (Pow/Guardian/Ueberauth):** Existing Pow/Guardian/Ueberauth teams should use `guides/introduction/migrating-from-pow-guardian-ueberauth.md` for boundary-first migration guidance.
 
+### Changed
+
+- **BREAKING (installer):** Postgres installs now put Sigra-owned auth tables in the `auth` schema by default. Pass `--auth-prefix public` to intentionally generate the previous public-schema placement; MySQL and SQLite remain unprefixed.
+
 ## [0.2.5](https://github.com/szTheory/sigra/compare/v0.2.4...v0.2.5) (2026-04-25)
 
 ### Changed

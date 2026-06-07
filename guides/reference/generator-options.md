@@ -7,6 +7,7 @@ This page is the **canonical human index** for `mix sigra.install` switches. Exh
 | `--live` / `--no-live` | true | Generate LiveView-based auth pages vs a slimmer controller-only surface. | [Getting started](../introduction/getting-started.html) |
 | `--binary-id` / `--no-binary-id` | true | Use UUID primary keys (`binary_id`) vs bigint integer IDs. | [Installation](../introduction/installation.html) |
 | `--table` | — | Override the generated Ecto table name instead of using the third positional argument. | [Installation](../introduction/installation.html) |
+| `--auth-prefix` | `auth` on Postgres | Put Sigra-owned auth tables in a Postgres schema; pass `--auth-prefix public` for old public-schema placement. | [Installation](../introduction/installation.html) |
 | `--api` | false | Emit the API token controller and routes for programmatic clients. | [API authentication](../flows/api-authentication.html) |
 | `--jwt` | false | Emit JWT access/refresh handling (implies the API token path). | [API authentication](../flows/api-authentication.html) |
 | `--organizations` / `--no-organizations` | true | Generate organizations, memberships, and tenant-aware routing. | [Multi-tenant apps](../recipes/multi-tenant.html) |
@@ -21,6 +22,18 @@ The default install keeps **LiveView** on so registration, login, settings, and 
 ## Binary IDs
 
 Sigra defaults **`binary_id`** to **on**, which matches the generator migrations you see in new apps (`uuid` columns). If you are grafting Sigra onto an existing `bigint` users table, `--no-binary-id` keeps the installer aligned with your current primary-key story—read [Installation](../introduction/installation.html) before flipping this on a brownfield app.
+
+## Auth Schema Prefix
+
+On Postgres, Sigra defaults generated auth-owned tables to the **`auth` schema**. That keeps `public` available for your product/domain tables while Sigra's users, sessions, MFA, passkeys, OAuth identities, organizations, enterprise SSO, API tokens, and audit events live under one explicit boundary. The generated migrations use Ecto `prefix:` options and create the schema; they do not rely on `search_path`.
+
+Use `--auth-prefix public` when you intentionally want the older public-schema placement:
+
+```bash
+mix sigra.install Accounts User users --auth-prefix public
+```
+
+MySQL and SQLite keep the current default-schema behavior because their schema/prefix semantics are not equivalent to Postgres.
 
 ## API and JWT
 
