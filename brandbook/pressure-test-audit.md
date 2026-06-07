@@ -288,4 +288,3 @@ Do not do:
 - Could it survive dark mode, small sizes, docs pages, and social previews? Yes, with committed dark tokens, favicon, monochrome mark, and social card.
 - Does it feel specific to Sigra? Yes: the protected-core/code-rails metaphor and voice map to Sigra's actual architecture.
 - Does it avoid unnecessary brand thrash? Yes: it preserves the existing product truth and makes it buildable.
-
