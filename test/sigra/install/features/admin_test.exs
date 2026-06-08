@@ -173,6 +173,9 @@ defmodule Sigra.Install.Features.AdminTest do
       assert content =~ ~s|live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index|
 
       assert content =~
+               ~s|live "/admin/auth-branding", Elixir.Sigra.Admin.Live.BrandingLive, :index|
+
+      assert content =~
                ~s|live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show|
 
       assert content =~ ~s|live "/", Elixir.Sigra.Admin.Live.OrganizationLive, :show|
@@ -197,12 +200,31 @@ defmodule Sigra.Install.Features.AdminTest do
       assert File.exists?("priv/templates/sigra.install/admin/audit_export_controller.ex")
     end
 
+    test "admin shell template exposes the auth branding nav item" do
+      source = File.read!("priv/templates/sigra.install/admin/components/admin_shell.ex")
+
+      assert source =~ "branding_link(@admin_scope)"
+      assert source =~ ~s|~p"/admin/auth-branding"|
+      assert source =~ "Branding"
+      assert source =~ "branding_active?"
+      assert source =~ "data-sg-admin-js"
+      assert source =~ "data-sg-admin-theme-preference"
+      assert source =~ ~s(<nav class="sg-admin-crumbs" aria-label="Breadcrumb">)
+      assert source =~ "if overview_active?(@page_title) do"
+      refute source =~ ":if={not overview_active?(@page_title)}"
+      assert source_order?(source, "sg-nav-title\">Overviews<", "sg-nav-title\">Workspace<")
+
+      bottom_nav = source_fragment(source, ~s(aria-label="Admin bottom nav"), 1600)
+      assert source_order?(bottom_nav, "overview_link(@admin_scope)", "users_link(@admin_scope)")
+    end
+
     test "admin hook template exports the theme switch hook" do
       source = File.read!("priv/templates/sigra.install/admin/admin_hooks.js")
 
       assert source =~ "ThemeSwitch"
       assert source =~ "sigra.admin.theme"
       assert source =~ "data-sg-admin-theme"
+      assert source =~ "sgAdminThemePreference"
       assert source =~ "aria-checked"
       refute source =~ "aria-pressed"
       refute source =~ "document.documentElement.setAttribute(\"data-theme\""
@@ -225,6 +247,27 @@ defmodule Sigra.Install.Features.AdminTest do
 
       assert source =~ ~s({:phoenix_live_view, "~> 1.1"})
       refute source =~ ~s({:phoenix_live_view, "~> 1.1", optional: true})
+    end
+  end
+
+  defp source_order?(source, first, second) do
+    first_offset = source_offset(source, first)
+    second_offset = source_offset(source, second)
+
+    is_integer(first_offset) and is_integer(second_offset) and first_offset < second_offset
+  end
+
+  defp source_fragment(source, needle, len) do
+    case :binary.match(source, needle) do
+      {start, _} -> binary_part(source, start, min(len, byte_size(source) - start))
+      :nomatch -> ""
+    end
+  end
+
+  defp source_offset(source, needle) do
+    case :binary.match(source, needle) do
+      {offset, _} -> offset
+      :nomatch -> nil
     end
   end
 end

@@ -2,6 +2,7 @@ defmodule ExampleWeb.SessionController do
   use ExampleWeb, :controller
 
   alias Example.Accounts, as: Auth
+  alias Example.Demo.Branding
   alias ExampleWeb.UserAuth
 
   @impersonation_denial_message "You can't change account security settings while impersonating."
@@ -24,14 +25,24 @@ defmodule ExampleWeb.SessionController do
   end
 
   def new(conn, _params) do
+    conn = Plug.Conn.fetch_cookies(conn)
     email = Phoenix.Flash.get(conn.assigns.flash, :email) || ""
     form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
     magic_link_form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
+    default_selection = Branding.selection_from_cookies(conn.req_cookies)
+    default_id = default_selection.id
+    default_brand = default_selection.profile
+    brand_presets = Branding.presets_for_ui()
 
     render(conn, :new,
       form: form,
       magic_link_form: magic_link_form,
-      passkey_primary_enabled: Auth.passkey_primary_enabled?()
+      passkey_primary_enabled: Auth.passkey_primary_enabled?(),
+      demo_brand_default_id: default_id,
+      demo_brand_default_theme: default_selection.theme,
+      demo_brand_presets_json: Jason.encode!(brand_presets),
+      demo_brand_default_profile: default_brand,
+      demo_brand_default_style: default_selection.style
     )
   end
 

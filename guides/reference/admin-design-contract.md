@@ -180,9 +180,11 @@ The three archetypes define how components compose into full pages. All composit
 **Org variant:** Items 1–4 are byte-coherent across Global and Org Overviews. Org appends a demoted scoped-detail tail (Members roster + Pending invitations) below the shared front-door archetype. This tail is Org-only; it is NOT part of the shared archetype. No `page_back` on Overview screens (leaf-only constraint).
 
 **Notes:**
+- Admin shell breadcrumbs are present on every admin page. Overview pages render a single current-page crumb (for example, `Global overview`) to preserve shell layout rhythm without inventing a parent trail.
 - The alarm is now `<.notice tone={:risk|:ok}>` as the first child after the header, with `role="status"` opt-in for the post-load dynamic count (Phase 157, LAND-01). The old `sg-status-pill` inside `sg-posture-strip__risk` anchor has been removed from both strips.
 - All `<.notice>` slot content is inline — no block `<p>` children (D-07). The `notice/1` component wraps the slot in `<p class="sg-text-sm">`, so any block child would produce invalid `<p><p>…</p></p>`.
 - Deferred data load via `connected?(socket)` gate: disconnected mount assigns `loading: true` + empty structs; connected mount runs queries inline and assigns `loading: false`. Containing `<section>` carries `aria-busy="true"` during load.
+- No `page_back` on Overview screens (leaf-only constraint).
 - **role="status" adjudication (v1.34 close):** The alarm notice uses `role="status"` as an opt-in live-region attribute for the post-load dynamic count. This is intentional — `role="status"` is the correct ARIA live-region for polite post-load count updates on Overview screens (as opposed to `role="alert"` which is reserved for interrupting content). Resolved: no code change needed. Ratified at v1.34 close.
 - **Dark WCAG-AA resolution (v1.34 close):** The `--sg-color-brand-strong` token was lightened in the dark `:root` block in Phase 160 (D-06) to `#fdba74`, clearing WCAG-AA on dark brand-soft backgrounds. All dark baselines were re-recorded; axe confirms 0 violations.
 

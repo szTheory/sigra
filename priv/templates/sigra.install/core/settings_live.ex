@@ -15,6 +15,7 @@ defmodule <%= web_module %>.SettingsLive do
   is owned by your application.
   """
   use <%= web_module %>, :live_view
+  import <%= web_module %>.SigraAuthComponents
 
   alias <%= context_module %>, as: Auth
 
@@ -55,7 +56,8 @@ defmodule <%= web_module %>.SettingsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <.header>
         Account Settings
         <:subtitle>Manage your email, password, and account.</:subtitle>
@@ -184,7 +186,8 @@ defmodule <%= web_module %>.SettingsLive do
           <%% end %>
         </div>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

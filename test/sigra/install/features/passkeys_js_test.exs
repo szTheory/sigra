@@ -108,6 +108,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       for expected <- [
             "attachPasskeyLogin",
             "DOMContentLoaded",
+            "silentConditionalErrors",
             "#passkey_login_form",
             "#passkey_login_button",
             "/users/log_in/passkey/options",
@@ -346,13 +347,33 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       end
     end
 
-    test "controller login maps unsupported abort and timeout to safe copy" do
+    test "controller login keeps conditional UI startup failures silent" do
       if node = System.find_executable("node") do
         for scenario <- ["unsupported", "abort", "timeout"] do
           stdout = run_browser_helper_node!(node, scenario)
           result = Jason.decode!(stdout)
 
-          assert result["status"] in ["unsupported", "canceled", "timeout"]
+          assert result["status"] in [nil, ""]
+          assert result["statusText"] == ""
+          assert result["submittedAction"] == nil
+          assert result["fallbackVisible"] == true
+        end
+      else
+        flunk("node executable is required for passkey browser helper coverage")
+      end
+    end
+
+    test "controller login explicit click maps unsupported abort and timeout to safe copy" do
+      if node = System.find_executable("node") do
+        for {scenario, status} <- [
+              {"explicit_unsupported", "unsupported"},
+              {"explicit_abort", "canceled"},
+              {"explicit_timeout", "timeout"}
+            ] do
+          stdout = run_browser_helper_node!(node, scenario)
+          result = Jason.decode!(stdout)
+
+          assert result["status"] == status
           refute result["statusText"] =~ "AbortError"
           refute result["statusText"] =~ "NotAllowedError"
           refute result["statusText"] =~ "raw browser"
@@ -494,6 +515,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     }
     form.querySelector = function(selector) {
       if (selector === "input[name='user[email]']") return emailInput
+      if (selector === "input[name='user[email]']:not([data-passkey-email-shadow])") return emailInput
       if (selector === "input[name='passkey[response]']") return responseInput
       if (selector === "[data-passkey-login-status]") return statusElement
       if (selector === "[data-passkey-fallback]") return fallbackElement
@@ -501,24 +523,26 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     }
 
     const scenario = #{inspect(scenario)}
+    const explicitScenario = scenario.startsWith("explicit_")
+    const failureScenario = explicitScenario ? scenario.replace("explicit_", "") : scenario
 
-    globalThis.__browserAutofillAvailable = scenario !== "unsupported"
+    globalThis.__browserAutofillAvailable = failureScenario !== "unsupported"
     globalThis.__browserStartAuthentication = async (_optionsJSON, useBrowserAutofill) => {
       credentialRequests.push({ mediation: useBrowserAutofill ? "conditional" : null })
 
-      if (scenario === "abort") {
+      if (failureScenario === "abort") {
         const error = new Error("raw browser abort message")
         error.name = "AbortError"
         throw error
       }
 
-      if (scenario === "timeout") {
+      if (failureScenario === "timeout") {
         const error = new Error("raw browser timeout message")
         error.name = "TimeoutError"
         throw error
       }
 
-      if (scenario === "unsupported") {
+      if (failureScenario === "unsupported") {
         const error = new Error("raw browser unsupported message")
         error.name = "NotSupportedError"
         throw error
@@ -559,9 +583,9 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       }
     }
 
-    const result = await attachPasskeyLogin({ enableConditionalUI: scenario !== "explicit" })
+    const result = await attachPasskeyLogin({ enableConditionalUI: !(scenario === "explicit" || explicitScenario) })
 
-    if (scenario === "explicit") {
+    if (scenario === "explicit" || explicitScenario) {
       await button.click()
     }
 

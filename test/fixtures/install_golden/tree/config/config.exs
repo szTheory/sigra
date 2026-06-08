@@ -52,6 +52,11 @@ config :sigra_install_golden_tmp, :sigra,
 config :sigra_install_golden_tmp, :sigra_config,
   repo: SigraInstallGoldenTmp.Repo,
   user_schema: SigraInstallGoldenTmp.Accounts.User,
+  branding: [
+    product_name: "SigraInstallGoldenTmp",
+    email_from_name: "SigraInstallGoldenTmp",
+    email_from_address: "noreply@example.com"
+  ],
   session: [
     store: Sigra.SessionStores.Ecto,
     session_schema: SigraInstallGoldenTmp.Accounts.UserSession

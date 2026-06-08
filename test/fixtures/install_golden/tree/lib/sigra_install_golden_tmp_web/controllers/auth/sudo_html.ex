@@ -11,10 +11,12 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SudoHTML do
   """
 
   use SigraInstallGoldenTmpWeb, :html
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   def new(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         Confirm your password
         <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
@@ -38,7 +40,8 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SudoHTML do
           Go back
         </.link>
       </p>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 end

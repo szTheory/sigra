@@ -10,6 +10,7 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   alias SigraInstallGoldenTmp.Accounts, as: Auth
 
@@ -47,7 +48,8 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         Two-factor authentication
         <:subtitle>
@@ -299,7 +301,8 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeLive do
           Cancel and sign out
         </.link>
       </p>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

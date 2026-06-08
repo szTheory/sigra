@@ -23,8 +23,11 @@
 * creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_controller.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/mfa_challenge_html.ex
 * creating priv/repo/migrations/TIMESTAMP_create_audit_events.exs
+* creating priv/repo/migrations/TIMESTAMP_create_sigra_brand_profiles.exs
 * creating lib/sigra_install_golden_tmp/accounts/audit_event.ex
 * skipping lib/sigra_install_golden_tmp/mailer.ex (already exists)
+* creating lib/sigra_install_golden_tmp_web/components/sigra_auth_components.ex
+* creating priv/static/assets/sigra_auth.css
 * creating lib/sigra_install_golden_tmp/vault.ex
 * creating lib/sigra_install_golden_tmp/accounts/encrypted.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/session_html.ex

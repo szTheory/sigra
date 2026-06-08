@@ -14,21 +14,12 @@ defmodule Sigra.Admin.Live.IndexLive do
     config = runtime_config!()
     admin_scope = socket.assigns.admin_scope
 
-    if connected?(socket) do
-      {:ok,
-       socket
-       |> assign(:sigra_config, config)
-       |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
-       |> assign(:loading, false)
-       |> assign(:page_title, "Global overview")}
-    else
-      {:ok,
-       socket
-       |> assign(:sigra_config, config)
-       |> assign(:summary_counts, %{})
-       |> assign(:loading, true)
-       |> assign(:page_title, "Global overview")}
-    end
+    {:ok,
+     socket
+     |> assign(:sigra_config, config)
+     |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
+     |> assign(:loading, false)
+     |> assign(:page_title, "Global overview")}
   end
 
   @impl true
@@ -46,12 +37,7 @@ defmodule Sigra.Admin.Live.IndexLive do
         </p>
       </header>
 
-      <%!-- Opt in to role=status because the alarm appears only after LiveView connects. --%>
-      <.notice
-        :if={not @loading}
-        tone={if @needs_review > 0, do: :risk, else: :ok}
-        role="status"
-      >
+      <.notice :if={not @loading} tone={if @needs_review > 0, do: :risk, else: :ok}>
         <%= if @needs_review > 0 do %>
           {@needs_review} accounts need review —
           <a href="/admin/users?needs_review=true">Review now</a>

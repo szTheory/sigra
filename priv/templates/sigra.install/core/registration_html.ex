@@ -7,10 +7,12 @@ defmodule <%= web_module %>.RegistrationHTML do
   feedback (that requires LiveView's phx-change).
   """
   use <%= web_module %>, :html
+  import <%= web_module %>.SigraAuthComponents
 
   def new(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         Register
         <:subtitle>
@@ -46,7 +48,8 @@ defmodule <%= web_module %>.RegistrationHTML do
           Create an account <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 end

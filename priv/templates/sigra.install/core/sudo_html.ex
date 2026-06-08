@@ -11,10 +11,12 @@ defmodule <%= web_module %>.Auth.SudoHTML do
   """
 
   use <%= web_module %>, :html
+  import <%= web_module %>.SigraAuthComponents
 
   def new(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         Confirm your password
         <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
@@ -38,7 +40,8 @@ defmodule <%= web_module %>.Auth.SudoHTML do
           Go back
         </.link>
       </p>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 end

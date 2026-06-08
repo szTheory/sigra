@@ -80,6 +80,37 @@ defmodule ExampleWeb.AdminUserIndexLiveTest do
       assert html =~ "Open user"
       assert html =~ "/admin/users/#{user.id}?return_to="
     end
+
+    test "single-page result sets show a quiet count instead of disabled pagination", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+      user_fixture(%{email: "single-page-result@example.com", display_name: "Single Result"})
+      user_fixture(%{email: "other-single-page@example.com", display_name: "Other Result"})
+
+      conn = conn |> log_in_user(platform_admin) |> get("/admin/users?q=single-page-result")
+      html = html_response(conn, 200)
+
+      assert html =~ "Single Result"
+      assert html =~ "Showing all 1 user"
+      refute html =~ ~s(aria-label="Previous page")
+      refute html =~ ~s(aria-label="Next page")
+      refute html =~ "Page 1 of 1"
+    end
+
+    test "multi-page result sets keep previous and next navigation", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      user_fixture(%{email: "paged-result-a@example.com", display_name: "Paged Result A"})
+      user_fixture(%{email: "paged-result-b@example.com", display_name: "Paged Result B"})
+
+      conn = conn |> log_in_user(platform_admin) |> get("/admin/users?q=paged-result&page_size=1")
+      html = html_response(conn, 200)
+
+      assert html =~ ~s(aria-label="Previous page")
+      assert html =~ ~s(aria-label="Next page")
+      assert html =~ "Page 1 of 2"
+      refute html =~ "Showing all 2 users"
+    end
   end
 
   defp platform_admin_fixture do

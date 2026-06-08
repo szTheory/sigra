@@ -130,6 +130,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | **Identity** | Argon2id passwords, optional bcrypt → Argon2id upgrade on login, remember-me, sudo / step-up hooks. |
 | **Sessions** | Database-backed sessions, device/IP metadata hooks, revocation patterns the generators wire up. |
 | **Email** | Registration, confirmation (link + code), magic link, reset, lifecycle mailers — Swoosh-shaped templates in the host. |
+| **Branding** | Generated auth forms and emails ship with Light/Dark/System styling, config/admin brand tokens, and host-owned full-control templates. |
 | **MFA** | TOTP (NimbleTOTP), backup codes, lockout-aware verification; trust-this-device patterns in the example app. |
 | **OAuth** | Assent-backed strategies, encrypted token fields when Cloak is in play; optional `mix sigra.gen.oauth` for incremental adoption. |
 | **Passkeys** | WebAuthn via `wax_` when enabled — registration + authentication ceremonies with host-owned credential rows. |
@@ -157,6 +158,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 | API / JWT | [flows/api-authentication.md](guides/flows/api-authentication.md) |
 | Audit logging | [flows/audit-logging.md](guides/flows/audit-logging.md), [audit semantics](docs/audit-semantics.md) |
 | Deployment | [recipes/deployment.md](guides/recipes/deployment.md) |
+| Auth branding | [recipes/auth-branding.md](guides/recipes/auth-branding.md) |
 | Testing | [recipes/testing.md](guides/recipes/testing.md) |
 | Passkeys | [recipes/passkeys.md](guides/recipes/passkeys.md) |
 | Multi-tenant patterns | [recipes/multi-tenant.md](guides/recipes/multi-tenant.md) |

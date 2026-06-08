@@ -34,6 +34,7 @@
       ] do
       live "/admin", Elixir.Sigra.Admin.Live.IndexLive, :index
       live "/admin/audit", Elixir.Sigra.Admin.Live.AuditIndexLive, :index
+      live "/admin/auth-branding", Elixir.Sigra.Admin.Live.BrandingLive, :index
       live "/admin/users", Elixir.Sigra.Admin.Live.UsersIndexLive, :index
       live "/admin/users/:id", Elixir.Sigra.Admin.Live.UserShowLive, :show
       live "/admin/users/:id/audit", Elixir.Sigra.Admin.Live.AuditUserLive, :show

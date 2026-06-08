@@ -14,6 +14,7 @@ defmodule <%= web_module %>.MFASettingsLive do
   is owned by your application.
   """
   use <%= web_module %>, :live_view
+  import <%= web_module %>.SigraAuthComponents
 
   alias <%= context_module %>, as: Auth
 
@@ -61,7 +62,8 @@ defmodule <%= web_module %>.MFASettingsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <%%= if @mfa_enabled do %>
         <%% # Surface 3: MFA Settings Card %>
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -247,7 +249,8 @@ defmodule <%= web_module %>.MFASettingsLive do
 <%= if passkeys? do %>
       <%%= render_passkeys_section(assigns) %>
 <% end %>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

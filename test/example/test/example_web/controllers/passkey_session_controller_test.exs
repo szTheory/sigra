@@ -139,11 +139,11 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       refute body =~ "data-phx-session"
       assert body =~ ~s(id="passkey_login_form")
       assert body =~ ~s(action="/users/log_in/passkey")
-      assert body =~ "Continue with passkey"
-      assert body =~ "Use password instead"
+      assert body =~ "Use a passkey"
       assert body =~ "Email me a magic link"
-      assert body =~ "Passkeys are not break-glass sign-in for SSO-only organizations"
-      assert body =~ "Magic links are not break-glass recovery for SSO-only organizations"
+      assert body =~ "Enterprise SSO"
+      assert body =~ ~s(data-email-input=)
+      assert body =~ ~s(data-passkey-login-status)
       assert body =~ ~s(autocomplete="username webauthn")
     end
 

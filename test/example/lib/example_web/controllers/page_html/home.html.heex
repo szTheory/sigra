@@ -1,4 +1,5 @@
 <Layouts.flash_group flash={@flash} />
+<link phx-track-static rel="stylesheet" href={~p"/assets/sigra_auth.css"} />
 
 <main class="vt-home">
   <div class="vt-home__shell" data-testid="home-evaluator-doorway">
@@ -86,6 +87,145 @@
           </li>
         </ul>
       </aside>
+    </section>
+
+    <section
+      class="vt-brand-lab"
+      data-testid="demo-brand-lab"
+      data-demo-brand-surface
+      data-demo-brand-presets={@demo_brand_presets_json}
+      data-demo-brand-default={@demo_brand_default_id}
+      data-demo-brand-theme-default={to_string(@demo_brand_default_theme)}
+      data-theme={to_string(@demo_brand_default_theme)}
+      style={@demo_brand_default_style}
+    >
+      <div class="vt-brand-lab__header">
+        <div>
+          <p class="vt-kicker">White-label preview</p>
+          <h2 class="vt-panel__title">Switch the auth brand</h2>
+          <p class="vt-copy" data-demo-brand-description>
+            {@demo_brand_default_description}
+          </p>
+        </div>
+
+        <div class="vt-brand-controls">
+          <label class="vt-brand-select" for="demo_brand_select">
+            <span>Brand preset</span>
+            <select id="demo_brand_select" data-demo-brand-select>
+              <option
+                :for={preset <- @demo_brand_presets}
+                value={preset.id}
+                selected={preset.id == @demo_brand_default_id}
+              >
+                {preset.label}
+              </option>
+            </select>
+          </label>
+
+          <fieldset class="vt-theme-control" aria-label="Brand theme">
+            <legend>Brand theme</legend>
+            <div class="vt-theme-control__options">
+              <label :for={theme <- [:system, :light, :dark]}>
+                <input
+                  type="radio"
+                  name="demo_brand_theme"
+                  value={to_string(theme)}
+                  checked={theme == @demo_brand_default_theme}
+                  data-demo-brand-theme
+                />
+                <span>{String.capitalize(to_string(theme))}</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="vt-brand-lab__grid">
+        <div
+          class="sigra-auth sigra-auth--preview"
+          data-demo-auth-preview
+          data-theme={to_string(@demo_brand_default_theme)}
+          style={@demo_brand_default_style}
+        >
+          <section class="sigra-auth__viewport" aria-label="Auth preview">
+            <div class="sigra-auth__panel">
+              <div class="sigra-auth__brand">
+                <img
+                  src={@demo_brand_default_profile.logo_url || ""}
+                  alt={
+                    if @demo_brand_default_profile.logo_url,
+                      do: @demo_brand_default_profile.logo_alt,
+                      else: ""
+                  }
+                  class="sigra-auth__logo"
+                  data-demo-brand-logo
+                  hidden={is_nil(@demo_brand_default_profile.logo_url)}
+                />
+                <div
+                  class="sigra-auth__mark"
+                  aria-hidden="true"
+                  data-demo-brand-fallback-mark
+                  hidden={not is_nil(@demo_brand_default_profile.logo_url)}
+                >
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <p class="sigra-auth__product" data-demo-brand-text="product_name">
+                  {@demo_brand_default_profile.product_name}
+                </p>
+              </div>
+
+              <div>
+                <h1>
+                  Log in to
+                  <span data-demo-brand-text="product_name">
+                    {@demo_brand_default_profile.product_name}
+                  </span>
+                </h1>
+                <p>New here? Create an account.</p>
+              </div>
+
+              <form aria-label="Auth preview form">
+                <input
+                  type="email"
+                  value="morgan@example.test"
+                  aria-label="Email preview"
+                  readonly
+                />
+                <input type="password" value="password" aria-label="Password preview" readonly />
+                <button type="button">Log in</button>
+              </form>
+            </div>
+          </section>
+        </div>
+
+        <article class="vt-email-preview" data-demo-email-preview>
+          <div class="vt-email-preview__chrome">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="vt-email-preview__meta">
+            <span>From</span>
+            <strong data-demo-brand-text="email_from_name">
+              {@demo_brand_default_profile.email_from_name}
+            </strong>
+            <code class="vt-code" data-demo-brand-text="email_from_address">
+              {@demo_brand_default_profile.email_from_address}
+            </code>
+          </div>
+          <h3 data-demo-brand-subject>{@demo_brand_default_subject}</h3>
+          <p>
+            Finish setting up your
+            <span data-demo-brand-text="product_name">
+              {@demo_brand_default_profile.product_name}
+            </span>
+            account. This preview uses the same brand tokens as the generated auth templates.
+          </p>
+          <span class="vt-email-preview__button">Confirm account</span>
+        </article>
+      </div>
     </section>
 
     <section class="vt-card-grid" aria-label="Vaultr seeded demo world">

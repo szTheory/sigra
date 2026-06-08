@@ -21,6 +21,7 @@ defmodule Sigra.Config do
   secret_key_base: [type: {:or, [:string, nil]}, default: nil, doc: "The host app's secret key base. Required for JWT HS256 signing and token operations."],
   mailer: [type: :atom, doc: "The mailer module implementing `Sigra.Mailer` behaviour."],
   email_module: [type: {:or, [:atom, nil]}, default: nil, doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."],
+  branding: [type: :keyword_list, default: [], doc: "Brand tokens consumed by generated auth screens and transactional emails. Values are validated by `Sigra.Branding.Profile`.", keys: [product_name: [type: :string, doc: "Product name shown on generated auth screens and email headers."], logo_url: [type: {:or, [:string, nil]}, default: nil, doc: "Optional logo URL for generated auth screens."], logo_alt: [type: :string, default: "Application logo", doc: "Accessible alt text for the optional logo."], accent_color: [type: :string, default: "#c2410c", doc: "Primary brand color as a 6-digit hex value."], accent_foreground: [type: :string, default: "#ffffff", doc: "Text color on the accent color as a 6-digit hex value."], background_color: [type: :string, default: "#f7f4ee", doc: "Auth page background color as a 6-digit hex value."], surface_color: [type: :string, default: "#ffffff", doc: "Auth card/email surface color as a 6-digit hex value."], text_color: [type: :string, default: "#171717", doc: "Primary text color as a 6-digit hex value."], muted_color: [type: :string, default: "#6b6258", doc: "Secondary text color as a 6-digit hex value."], border_color: [type: :string, default: "#ded8cf", doc: "Border color as a 6-digit hex value."], dark_accent_color: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme primary brand color as a 6-digit hex value."], dark_accent_foreground: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme text color on the accent color as a 6-digit hex value."], dark_background_color: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme auth page background color as a 6-digit hex value."], dark_surface_color: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme auth card/email surface color as a 6-digit hex value."], dark_text_color: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme primary text color as a 6-digit hex value."], dark_muted_color: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme secondary text color as a 6-digit hex value."], dark_border_color: [type: {:or, [:string, nil]}, default: nil, doc: "Optional dark-theme border color as a 6-digit hex value."], support_url: [type: {:or, [:string, nil]}, default: nil, doc: "Optional support URL shown by generated auth surfaces."], privacy_url: [type: {:or, [:string, nil]}, default: nil, doc: "Optional privacy policy URL shown by generated auth surfaces."], terms_url: [type: {:or, [:string, nil]}, default: nil, doc: "Optional terms URL shown by generated auth surfaces."], email_from_name: [type: :string, default: "Your app", doc: "Display name for generated transactional email senders."], email_from_address: [type: {:or, [:string, nil]}, default: nil, doc: "Email address for generated transactional email senders."], email_reply_to: [type: {:or, [:string, nil]}, default: nil, doc: "Optional reply-to address for generated transactional emails."], theme: [type: {:in, [:system, :light, :dark]}, default: :system, doc: "Generated auth page theme mode. Default: :system."]]],
   password: [type: :keyword_list, default: [], doc: "Password hashing and validation options.", keys: [min_length: [type: :pos_integer, default: 8, doc: "Minimum password length. NIST SP 800-63B recommends at least 8."], max_length: [type: :pos_integer, default: 72, doc: "Maximum password length. Set to 72 to match bcrypt's limit for migration compatibility."], hasher: [type: :atom, default: Sigra.Hashers.Argon2, doc: "Module implementing the `Sigra.Hasher` behaviour."], notify_on_change: [type: :boolean, default: true, doc: "Send notification email when password is changed. Default: true."], invalidate_sessions_on_change: [type: :boolean, default: true, doc: "Invalidate all other sessions on password change. Default: true."]]],
   password_policy: [type: :keyword_list, default: [], doc: "Password validation policy options for `Sigra.PasswordPolicy`.", keys: [min_length: [type: :pos_integer, default: 8, doc: "Minimum password length. Default: 8 (NIST SP 800-63B)."], max_bytes: [type: :pos_integer, default: 72, doc: "Maximum password byte size. Default: 72 (bcrypt compatibility)."], require_uppercase: [type: :boolean, default: false, doc: "Require at least one uppercase letter. Default: false."], require_digit: [type: :boolean, default: false, doc: "Require at least one digit. Default: false."], require_special: [type: :boolean, default: false, doc: "Require at least one special character. Default: false."], check_common: [type: :boolean, default: true, doc: "Check against the embedded common passwords list. Default: true."], check_breached: [type: :boolean, default: false, doc: "Check against the HIBP breached passwords API. Default: false."], password_max_age: [type: {:or, [:pos_integer, nil]}, default: nil, doc: "Maximum password age in seconds before forced rotation. Default: nil (disabled)."]]],
   magic_link: [type: :keyword_list, default: [], doc: "Magic link authentication options.", keys: [ttl: [type: :pos_integer, default: 600, doc: "Magic link token TTL in seconds. Default: 600 (10 minutes)."], max_requests: [type: :pos_integer, default: 3, doc: "Maximum magic link requests within the rate limit window. Default: 3."], window_seconds: [type: :pos_integer, default: 900, doc: "Rate limit window for magic link requests in seconds. Default: 900 (15 minutes)."]]],
@@ -85,6 +86,135 @@ defmodule Sigra.Config do
       type: {:or, [:atom, nil]},
       default: nil,
       doc: "The generated email template module implementing `Sigra.EmailTemplates` behaviour."
+    ],
+    branding: [
+      type: :keyword_list,
+      default: [],
+      doc:
+        "Brand tokens consumed by generated auth screens and transactional emails. Values are validated by `Sigra.Branding.Profile`.",
+      keys: [
+        product_name: [
+          type: :string,
+          doc: "Product name shown on generated auth screens and email headers."
+        ],
+        logo_url: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional logo URL for generated auth screens."
+        ],
+        logo_alt: [
+          type: :string,
+          default: "Application logo",
+          doc: "Accessible alt text for the optional logo."
+        ],
+        accent_color: [
+          type: :string,
+          default: "#c2410c",
+          doc: "Primary brand color as a 6-digit hex value."
+        ],
+        accent_foreground: [
+          type: :string,
+          default: "#ffffff",
+          doc: "Text color on the accent color as a 6-digit hex value."
+        ],
+        background_color: [
+          type: :string,
+          default: "#f7f4ee",
+          doc: "Auth page background color as a 6-digit hex value."
+        ],
+        surface_color: [
+          type: :string,
+          default: "#ffffff",
+          doc: "Auth card/email surface color as a 6-digit hex value."
+        ],
+        text_color: [
+          type: :string,
+          default: "#171717",
+          doc: "Primary text color as a 6-digit hex value."
+        ],
+        muted_color: [
+          type: :string,
+          default: "#6b6258",
+          doc: "Secondary text color as a 6-digit hex value."
+        ],
+        border_color: [
+          type: :string,
+          default: "#ded8cf",
+          doc: "Border color as a 6-digit hex value."
+        ],
+        dark_accent_color: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc:
+            "Optional dark-theme primary brand color as a 6-digit hex value. Falls back to :accent_color."
+        ],
+        dark_accent_foreground: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc:
+            "Optional dark-theme text color on the accent color as a 6-digit hex value. Falls back to :accent_foreground."
+        ],
+        dark_background_color: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional dark-theme auth page background color as a 6-digit hex value."
+        ],
+        dark_surface_color: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional dark-theme auth card/email surface color as a 6-digit hex value."
+        ],
+        dark_text_color: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional dark-theme primary text color as a 6-digit hex value."
+        ],
+        dark_muted_color: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional dark-theme secondary text color as a 6-digit hex value."
+        ],
+        dark_border_color: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional dark-theme border color as a 6-digit hex value."
+        ],
+        support_url: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional support URL shown by generated auth surfaces."
+        ],
+        privacy_url: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional privacy policy URL shown by generated auth surfaces."
+        ],
+        terms_url: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional terms URL shown by generated auth surfaces."
+        ],
+        email_from_name: [
+          type: :string,
+          default: "Your app",
+          doc: "Display name for generated transactional email senders."
+        ],
+        email_from_address: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Email address for generated transactional email senders."
+        ],
+        email_reply_to: [
+          type: {:or, [:string, nil]},
+          default: nil,
+          doc: "Optional reply-to address for generated transactional emails."
+        ],
+        theme: [
+          type: {:in, [:system, :light, :dark]},
+          default: :system,
+          doc: "Generated auth page theme mode. Default: :system."
+        ]
+      ]
     ],
     cookie_domain: [
       type: {:or, [:string, nil]},
@@ -840,6 +970,7 @@ defmodule Sigra.Config do
           mailer: module() | nil,
           email_module: module() | nil,
           cookie_domain: String.t() | nil,
+          branding: keyword(),
           password: keyword(),
           password_policy: keyword(),
           magic_link: keyword(),
@@ -874,6 +1005,7 @@ defmodule Sigra.Config do
     :mailer,
     :email_module,
     cookie_domain: nil,
+    branding: [],
     password: [],
     password_policy: [],
     magic_link: [],
@@ -963,9 +1095,7 @@ defmodule Sigra.Config do
       Enum.reduce_while(list, {:ok, []}, fn entry, {:ok, acc} ->
         cond do
           not is_list(entry) ->
-            {:halt,
-             {:error,
-              "forwarder entry must be a keyword list, got unexpected type"}}
+            {:halt, {:error, "forwarder entry must be a keyword list, got unexpected type"}}
 
           not Keyword.has_key?(entry, :module) ->
             {:halt,

@@ -3,10 +3,9 @@
 //
 // Defines window.SigraAdminHooks = { CmdK, CopyToClipboard, ThemeSwitch }:
 //   - CmdK: a fully client-side Cmd-K / Ctrl-K command palette bound to the
-//     hidden topbar trigger. Reveals the trigger on mount (progressive
-//     enhancement — hosts without this hook never see a dead button), opens an
-//     ARIA dialog/listbox with focus trap, scope-aware nav + find-a-user free
-//     text. No server round-trips (window.location.assign only).
+//     topbar trigger. Opens an ARIA dialog/listbox with focus trap, scope-aware
+//     nav + find-a-user free text. No server round-trips (window.location.assign
+//     only).
 //   - CopyToClipboard: a delegated click handler on `.sg-admin-shell code.sg-code`
 //     id chips — copies the text and shows a transient Stage-0 sg-toast. No
 //     per-LiveView markup edits required.
@@ -21,7 +20,8 @@
 
   function storedTheme() {
     try {
-      var value = window.localStorage && window.localStorage.getItem(THEME_STORAGE_KEY);
+      var value =
+        window.localStorage && window.localStorage.getItem(THEME_STORAGE_KEY);
       return THEMES.indexOf(value) === -1 ? "system" : value;
     } catch (err) {
       return "system";
@@ -86,7 +86,6 @@
   var CmdK = {
     mounted: function () {
       var self = this;
-      this.el.classList.add("is-ready");
 
       var ds = this.el.dataset;
       this.commands = [
@@ -94,8 +93,8 @@
         { label: "Investigate audit", href: ds.auditHref || "/admin/audit" },
         {
           label: "Review " + (ds.overviewLabel || "Global") + " overview",
-          href: ds.overviewHref || "/admin"
-        }
+          href: ds.overviewHref || "/admin",
+        },
       ];
       this.usersHref = ds.usersHref || "/admin/users";
 
@@ -247,7 +246,8 @@
         event.preventDefault();
         if (this.filtered.length) {
           this.activeIndex =
-            (this.activeIndex - 1 + this.filtered.length) % this.filtered.length;
+            (this.activeIndex - 1 + this.filtered.length) %
+            this.filtered.length;
           this.refreshActive();
         }
         return;
@@ -330,7 +330,7 @@
 
     disconnected: function () {
       this.close();
-    }
+    },
   };
 
   // ---- CopyToClipboard (delegated; no per-LiveView markup) ----------------
@@ -384,15 +384,14 @@
   var CopyToClipboard = {
     mounted: function () {
       installCopyDelegate();
-    }
+    },
   };
 
   var ThemeSwitch = {
     mounted: function () {
       var self = this;
-      this.el.classList.add("is-ready");
       this.buttons = Array.prototype.slice.call(
-        this.el.querySelectorAll("[data-theme-value]")
+        this.el.querySelectorAll("[data-theme-value]"),
       );
       this._onClick = function (event) {
         var button = event.target.closest("[data-theme-value]");
@@ -441,14 +440,18 @@
       if (key === "ArrowRight" || key === "ArrowDown") {
         nextIndex = (currentIndex + 1) % this.buttons.length;
       } else if (key === "ArrowLeft" || key === "ArrowUp") {
-        nextIndex = (currentIndex - 1 + this.buttons.length) % this.buttons.length;
+        nextIndex =
+          (currentIndex - 1 + this.buttons.length) % this.buttons.length;
       } else if (key === "Home") {
         nextIndex = 0;
       } else if (key === "End") {
         nextIndex = this.buttons.length - 1;
       } else if (key === " " || key === "Enter") {
         event.preventDefault();
-        this.setTheme(document.activeElement.dataset.themeValue || "system", true);
+        this.setTheme(
+          document.activeElement.dataset.themeValue || "system",
+          true,
+        );
         return;
       } else {
         return;
@@ -469,7 +472,7 @@
       if (this._onStorage) {
         window.removeEventListener("storage", this._onStorage);
       }
-    }
+    },
   };
 
   installCopyDelegate();
@@ -477,6 +480,6 @@
   window.SigraAdminHooks = {
     CmdK: CmdK,
     CopyToClipboard: CopyToClipboard,
-    ThemeSwitch: ThemeSwitch
+    ThemeSwitch: ThemeSwitch,
   };
 })();

@@ -67,18 +67,19 @@ defmodule Sigra.Install.Features.CoreTest do
   end
 
   describe "migrations/1" do
-    test "returns exactly 4 slot entries in canonical order" do
+    test "returns exactly 5 slot entries in canonical order" do
       # Phase 24.1: :audit_events_org_columns moved to the Organizations
       # feature so its hard FK to the organizations table lands AFTER
       # that table is created, and is omitted entirely under
       # --no-organizations.
       slots = Core.migrations(@binding)
-      assert length(slots) == 4
+      assert length(slots) == 5
 
       assert [
                {:primary, "core/migration.exs", _primary_basename},
                {:active_org_column, "core/add_active_organization_id_to_user_sessions.exs",
                 _active_org_basename},
+               {:brand_profiles, "core/create_brand_profiles.exs", _brand_profiles_basename},
                {:api_token, "core/api_token_migration.exs", _api_basename},
                {:audit_events, "core/create_audit_events.exs", _audit_basename}
              ] = slots
@@ -95,6 +96,15 @@ defmodule Sigra.Install.Features.CoreTest do
       assert Enum.any?(slots, fn
                {:active_org_column, _, base} ->
                  String.contains?(base, "add_active_organization_id_to_user_sessions") and
+                   String.ends_with?(base, ".exs")
+
+               _ ->
+                 false
+             end)
+
+      assert Enum.any?(slots, fn
+               {:brand_profiles, _, base} ->
+                 String.contains?(base, "create_sigra_brand_profiles") and
                    String.ends_with?(base, ".exs")
 
                _ ->
@@ -141,6 +151,8 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/conn_case_helpers.ex" in sources
       assert "core/emails.ex" in sources
       assert "core/auth_mailer.ex" in sources
+      assert "core/sigra_auth_components.ex" in sources
+      assert "core/sigra_auth.css" in sources
       assert "core/confirmation_controller.ex" in sources
       assert "core/confirmation_html.ex" in sources
       assert "core/reset_password_controller.ex" in sources
@@ -189,16 +201,17 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/migration.exs" in sources
       assert "core/add_active_organization_id_to_user_sessions.exs" in sources
       assert "core/create_audit_events.exs" in sources
+      assert "core/create_brand_profiles.exs" in sources
       # api_token migration is only included with --api/--jwt
       refute "core/api_token_migration.exs" in sources
     end
 
-    test "default (live=true, api=false, jwt=false) returns exactly 38 files" do
-      # 28 base_files + 9 ui_files (live-mode) + 3 inlined migrations
-      # (primary + active_org_column + audit_events); api_token migration
-      # is --api-only; audit_events_org_columns moved to the Organizations
+    test "default (live=true, api=false, jwt=false) returns exactly 41 files" do
+      # Includes default live UI, the non-api core set, auth/email branding
+      # assets, and inlined non-api migrations. api_token migration is
+      # --api-only; audit_events_org_columns moved to the Organizations
       # feature in Phase 24.1 (was previously in Core's files/1).
-      assert length(Core.files(@binding)) == 38
+      assert length(Core.files(@binding)) == 41
     end
 
     test "--no-live excludes LiveView UI templates and includes controller-mode UI" do
@@ -218,9 +231,9 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "core/mfa_settings_html.ex" in sources
     end
 
-    test "--no-live returns exactly 32 files" do
+    test "--no-live returns exactly 35 files" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
-      assert length(Core.files(binding)) == 32
+      assert length(Core.files(binding)) == 35
     end
 
     test "falls back to the plaintext stub when encryption-requiring features are disabled" do
@@ -276,6 +289,9 @@ defmodule Sigra.Install.Features.CoreTest do
       assert "lib/my_app_web/controllers/auth/sudo_controller.ex" in targets
       assert "lib/my_app_web/controllers/session_html.ex" in targets
       assert "lib/my_app_web/live/auth/session_live.ex" in targets
+      assert "lib/my_app_web/components/sigra_auth_components.ex" in targets
+      assert "priv/static/assets/sigra_auth.css" in targets
+      assert "priv/repo/migrations/TIMESTAMP_create_sigra_brand_profiles.exs" in targets
       assert "test/support/fixtures/auth_fixtures.ex" in targets
       assert "test/support/conn_case_helpers.ex" in targets
       assert "lib/my_app/mailer.ex" in targets

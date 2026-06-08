@@ -10,6 +10,7 @@ defmodule <%= web_module %>.ReactivationLive do
   is owned by your application.
   """
   use <%= web_module %>, :live_view
+  import <%= web_module %>.SigraAuthComponents
 
   alias <%= context_module %>, as: Auth
 
@@ -32,7 +33,8 @@ defmodule <%= web_module %>.ReactivationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md mt-16">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-md mt-16">
       <.header>
         Your account is scheduled for deletion
       </.header>
@@ -58,7 +60,8 @@ defmodule <%= web_module %>.ReactivationLive do
           I understand, sign me out
         </.link>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

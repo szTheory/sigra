@@ -10,6 +10,7 @@ defmodule SigraInstallGoldenTmpWeb.ReactivationLive do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   alias SigraInstallGoldenTmp.Accounts, as: Auth
 
@@ -32,7 +33,8 @@ defmodule SigraInstallGoldenTmpWeb.ReactivationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md mt-16">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-md mt-16">
       <.header>
         Your account is scheduled for deletion
       </.header>
@@ -58,7 +60,8 @@ defmodule SigraInstallGoldenTmpWeb.ReactivationLive do
           I understand, sign me out
         </.link>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

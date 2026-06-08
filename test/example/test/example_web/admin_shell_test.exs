@@ -31,15 +31,37 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "data-theme-value=\"dark\""
       assert html =~ "data-theme-value=\"system\""
       assert html =~ "phx-hook=\"ThemeSwitch\""
+      assert html =~ "data-sg-admin-js"
+      assert html =~ "data-sg-admin-theme-preference"
       assert html =~ "Global"
       assert html =~ "Users"
       assert html =~ "href=\"/admin/users\""
       assert html =~ "Audit"
       assert html =~ "href=\"/admin/audit\""
+      assert html =~ "Branding"
+      assert html =~ "href=\"/admin/auth-branding\""
       assert html =~ "What do you need to do?"
       assert html =~ "data-scope=\"global\""
-      assert sidebar_workspace_before_overviews?(html)
-      assert bottom_nav_users_first?(html)
+      assert sidebar_overviews_before_workspace?(html)
+      assert bottom_nav_overview_first?(html)
+      assert overview_breadcrumb?(html, "Global overview")
+    end
+
+    test "renders parent and current breadcrumb for global workspace pages" do
+      platform_admin =
+        AccountsFixtures.user_fixture(%{
+          email: "platform-admin+users-crumb-#{System.unique_integer([:positive])}@example.com"
+        })
+
+      conn = build_conn() |> log_in_user(platform_admin) |> get(~p"/admin/users")
+
+      breadcrumb = breadcrumb_fragment(html_response(conn, 200))
+
+      assert breadcrumb =~ ~s(href="/admin")
+      assert breadcrumb =~ "Global"
+      assert breadcrumb =~ "sg-breadcrumb__sep"
+      assert breadcrumb =~ ~s(aria-current="page">Users</span>)
+      assert html_offset(breadcrumb, "Global") < html_offset(breadcrumb, "Users</span>")
     end
 
     test "renders Admin and the organization name for an organization scope" do
@@ -70,7 +92,8 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Work inside this organization scope"
       assert html =~ "data-scope=\"organization\""
       assert html =~ "Org · Acme Ops"
-      assert sidebar_workspace_before_overviews?(html)
+      assert sidebar_overviews_before_workspace?(html)
+      assert overview_breadcrumb?(html, "Acme Ops overview")
     end
 
     test "renders explicit impersonation chrome with real admin, effective user, and app-wide stop path" do
@@ -133,26 +156,43 @@ defmodule ExampleWeb.AdminShellTest do
     end
   end
 
-  defp sidebar_workspace_before_overviews?(html) do
-    ws = html_offset(html, "sg-nav-title\">Workspace<")
+  defp sidebar_overviews_before_workspace?(html) do
     ov = html_offset(html, "sg-nav-title\">Overviews<")
-    is_integer(ws) and is_integer(ov) and ws < ov
+    ws = html_offset(html, "sg-nav-title\">Workspace<")
+    is_integer(ov) and is_integer(ws) and ov < ws
   end
 
-  defp bottom_nav_users_first?(html) do
+  defp bottom_nav_overview_first?(html) do
     case :binary.match(html, "aria-label=\"Admin bottom nav\"") do
       {start, _} ->
         len = min(2500, byte_size(html) - start)
         fragment = binary_part(html, start, len)
 
-        case {:binary.match(fragment, "<span>Users</span>"),
-              :binary.match(fragment, "<span>Global</span>")} do
-          {{u0, _}, {g0, _}} when u0 < g0 -> true
+        case {:binary.match(fragment, "<span>Global</span>"),
+              :binary.match(fragment, "<span>Users</span>")} do
+          {{g0, _}, {u0, _}} when g0 < u0 -> true
           _ -> false
         end
 
       :nomatch ->
         false
+    end
+  end
+
+  defp overview_breadcrumb?(html, page_title) do
+    breadcrumb = breadcrumb_fragment(html)
+
+    breadcrumb =~ ~s(aria-label="Breadcrumb") and
+      breadcrumb =~ ~s(aria-current="page">#{page_title}</span>) and
+      not String.contains?(breadcrumb, "sg-breadcrumb__sep")
+  end
+
+  defp breadcrumb_fragment(html), do: html_fragment(html, ~s(aria-label="Breadcrumb"), 800)
+
+  defp html_fragment(html, needle, len) do
+    case :binary.match(html, needle) do
+      {start, _} -> binary_part(html, start, min(len, byte_size(html) - start))
+      :nomatch -> ""
     end
   end
 
@@ -164,7 +204,7 @@ defmodule ExampleWeb.AdminShellTest do
   end
 
   describe "Phase 157 Overview redesign" do
-    test "global overview disconnected mount (GET) renders skeleton, not stat values" do
+    test "global overview disconnected mount (GET) renders data, not skeleton" do
       platform_admin =
         AccountsFixtures.user_fixture(%{
           email:
@@ -174,9 +214,12 @@ defmodule ExampleWeb.AdminShellTest do
       conn = build_conn() |> log_in_user(platform_admin) |> get(~p"/admin")
       html = html_response(conn, 200)
 
-      assert html =~ "sg-skeleton"
-      assert html =~ ~s(aria-busy="true")
-      refute html =~ "sg-metric-link__value"
+      refute html =~ "sg-skeleton"
+      refute html =~ ~s(aria-busy="true")
+      assert html =~ "sg-metric-link__value"
+      assert html =~ "sg-notice"
+      refute html =~ ~s(role="status")
+      refute html =~ ~s(data-phx-id=)
       refute html =~ "sg-posture-strip__risk"
     end
 
@@ -193,7 +236,7 @@ defmodule ExampleWeb.AdminShellTest do
       refute html =~ ~s(aria-busy="true")
       assert html =~ "sg-metric-link__value"
       assert html =~ "sg-notice"
-      assert html =~ ~s(role="status")
+      refute html =~ ~s(role="status")
       refute html =~ "sg-posture-strip__risk"
 
       assert html_offset(html, "sg-notice") < html_offset(html, "sg-grid sg-grid--3")

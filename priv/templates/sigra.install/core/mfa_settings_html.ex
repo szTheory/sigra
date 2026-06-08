@@ -9,6 +9,7 @@ defmodule <%= web_module %>.MFASettingsHTML do
   is owned by your application.
   """
   use <%= web_module %>, :html
+  import <%= web_module %>.SigraAuthComponents
 
   @doc """
   Renders the MFA settings section.
@@ -24,7 +25,8 @@ defmodule <%= web_module %>.MFASettingsHTML do
   """
   def mfa_settings(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <%%= if @mfa_enabled do %>
         <%% # Surface 3: MFA Settings Card %>
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -280,7 +282,8 @@ defmodule <%= web_module %>.MFASettingsHTML do
             </script>
         <%% end %>
       <%% end %>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 end

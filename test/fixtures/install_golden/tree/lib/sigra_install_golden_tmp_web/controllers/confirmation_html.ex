@@ -8,12 +8,14 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :html
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   use Gettext, backend: SigraInstallGoldenTmpWeb.Gettext
 
   def new(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         {dgettext("sigra", "Confirm your email")}
         <:subtitle>
@@ -44,13 +46,15 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
           {dgettext("sigra", "Didn't receive a code?")}
         </.link>
       </p>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 
   def already_confirmed(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         {dgettext("sigra", "Email already confirmed")}
         <:subtitle>
@@ -63,13 +67,15 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
           {dgettext("sigra", "Log in")}
         </.link>
       </p>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 
   def expired(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         {dgettext("sigra", "Confirmation link expired")}
         <:subtitle>
@@ -82,7 +88,8 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationHTML do
           {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 end

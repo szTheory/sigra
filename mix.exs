@@ -232,6 +232,7 @@ defmodule Sigra.MixProject do
         "guides/recipes/multi-tenant.md",
         "guides/recipes/passkeys.md",
         "guides/recipes/deployment.md",
+        "guides/recipes/auth-branding.md",
         "guides/recipes/companion-oauth-provider.md",
         "guides/recipes/companion-libs/threadline.md",
         "guides/recipes/companion-libs/mailglass.md",

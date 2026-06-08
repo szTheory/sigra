@@ -13,6 +13,7 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   alias SigraInstallGoldenTmp.Accounts, as: Auth
 
@@ -30,7 +31,8 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <.header>
         Active Sessions
         <:subtitle>These devices are currently signed in to your account.</:subtitle>
@@ -94,7 +96,8 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
           Log out of all devices
         </.button>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

@@ -593,6 +593,19 @@ defmodule Example.Accounts do
       user_schema: User,
       scope_module: Example.Accounts.Scope,
       organizations_module: Example.Organizations,
+      branding: [
+        product_name: "Vaultr",
+        email_from_name: "Vaultr",
+        email_from_address: "noreply@example.com",
+        accent_color: "#9a3412",
+        accent_foreground: "#ffffff",
+        background_color: "#f7f4ee",
+        surface_color: "#ffffff",
+        text_color: "#171717",
+        muted_color: "#6b6258",
+        border_color: "#ded8cf",
+        theme: :system
+      ],
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: Example.Accounts.UserSession
@@ -623,7 +636,7 @@ defmodule Example.Accounts do
         ]
       ],
       passkeys: [
-        rp_id: "localhost",
+        rp_id: passkey_rp_id(),
         rp_name: "Sigra Example",
         origin: passkey_origin(),
         timeout_ms: 60_000,
@@ -639,6 +652,11 @@ defmodule Example.Accounts do
   defp passkey_origin do
     System.get_env("SIGRA_EXAMPLE_URL") ||
       "http://localhost:#{System.get_env("PORT", "4000")}"
+  end
+
+  defp passkey_rp_id do
+    System.get_env("SIGRA_PASSKEY_RP_ID") ||
+      (URI.parse(passkey_origin()).host || "localhost")
   end
 
   @doc "List all active sessions for a user."

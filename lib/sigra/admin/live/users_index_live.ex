@@ -290,7 +290,14 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         <% end %>
       </.empty_state>
 
-      <nav :if={@meta} class="sg-cluster sg-cluster--between">
+      <p
+        :if={@meta && @rows != [] && not multi_page?(@meta)}
+        class="sg-muted sg-text-sm sg-tabular"
+      >
+        {all_results_label(@meta)}
+      </p>
+
+      <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
         <a
           class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @current_params, @meta.previous_page)}
@@ -400,6 +407,17 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
     else
       {0, 0, 0}
     end
+  end
+
+  defp multi_page?(nil), do: false
+
+  defp multi_page?(meta) do
+    (meta.total_pages || 1) > 1 or not is_nil(meta.previous_page) or not is_nil(meta.next_page)
+  end
+
+  defp all_results_label(meta) do
+    total = meta.total_count || 0
+    "Showing all #{total} #{if total == 1, do: "user", else: "users"}"
   end
 
   defp any_filter_active?(params) do

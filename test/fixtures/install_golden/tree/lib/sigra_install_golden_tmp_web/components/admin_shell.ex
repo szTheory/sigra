@@ -17,12 +17,19 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
       (function () {
         try {
           var value = window.localStorage && window.localStorage.getItem("sigra.admin.theme");
-          if (value === "light" || value === "dark") {
-            document.documentElement.setAttribute("data-sg-admin-theme", value);
-          } else {
+          var preference = value === "light" || value === "dark" ? value : "system";
+          document.documentElement.setAttribute("data-sg-admin-js", "true");
+          document.documentElement.setAttribute("data-sg-admin-theme-preference", preference);
+          if (preference === "system") {
             document.documentElement.removeAttribute("data-sg-admin-theme");
+          } else {
+            document.documentElement.setAttribute("data-sg-admin-theme", preference);
           }
-        } catch (err) {}
+        } catch (err) {
+          document.documentElement.setAttribute("data-sg-admin-js", "true");
+          document.documentElement.setAttribute("data-sg-admin-theme-preference", "system");
+          document.documentElement.removeAttribute("data-sg-admin-theme");
+        }
       })();
     </script>
     <section class="sg-admin-shell" data-scope={scope_mode(@admin_scope)}>
@@ -115,43 +122,29 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
       </header>
 
       <div class="sg-container sg-admin-content">
-        <nav
-          :if={not overview_active?(@page_title)}
-          class="sg-admin-crumbs"
-          aria-label="Breadcrumb"
-        >
+        <nav class="sg-admin-crumbs" aria-label="Breadcrumb">
           <ol class="sg-breadcrumb">
-            <li>
-              <a class="sg-breadcrumb__item" href={overview_link(@admin_scope)}>
-                {scope_label(@admin_scope)}
-              </a>
-            </li>
-            <li class="sg-breadcrumb__sep" aria-hidden="true">/</li>
-            <li>
-              <span class="sg-breadcrumb__item" aria-current="page">{@page_title}</span>
-            </li>
+            <%= if overview_active?(@page_title) do %>
+              <li>
+                <span class="sg-breadcrumb__item" aria-current="page">{@page_title}</span>
+              </li>
+            <% else %>
+              <li>
+                <a class="sg-breadcrumb__item" href={overview_link(@admin_scope)}>
+                  {scope_label(@admin_scope)}
+                </a>
+              </li>
+              <li class="sg-breadcrumb__sep" aria-hidden="true">/</li>
+              <li>
+                <span class="sg-breadcrumb__item" aria-current="page">{@page_title}</span>
+              </li>
+            <% end %>
           </ol>
         </nav>
 
         <div class="sg-admin-body">
           <aside class="sg-admin-sidebar">
             <nav aria-label="Admin navigation" class="sg-stack">
-              <div class="sg-nav-card">
-                <p class="sg-nav-title">Workspace</p>
-                <ul class="sg-stack sg-stack--2">
-                  <li>
-                    <a class={nav_item_class(users_active?(@page_title))} href={users_link(@admin_scope)}>
-                      Users
-                    </a>
-                  </li>
-                  <li>
-                    <a class={nav_item_class(audit_active?(@page_title))} href={audit_link(@admin_scope)}>
-                      Audit
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
               <div class="sg-nav-card">
                 <p class="sg-nav-title">Overviews</p>
                 <ul class="sg-stack sg-stack--2">
@@ -173,6 +166,27 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
                   </li>
                 </ul>
               </div>
+
+              <div class="sg-nav-card">
+                <p class="sg-nav-title">Workspace</p>
+                <ul class="sg-stack sg-stack--2">
+                  <li>
+                    <a class={nav_item_class(users_active?(@page_title))} href={users_link(@admin_scope)}>
+                      Users
+                    </a>
+                  </li>
+                  <li>
+                    <a class={nav_item_class(audit_active?(@page_title))} href={audit_link(@admin_scope)}>
+                      Audit
+                    </a>
+                  </li>
+                  <li>
+                    <a class={nav_item_class(branding_active?(@page_title))} href={branding_link(@admin_scope)}>
+                      Branding
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </nav>
           </aside>
 
@@ -184,22 +198,28 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
 
       <nav aria-label="Admin bottom nav" class="sg-bottom-nav sg-show-mobile">
         <a
-          href={users_link(@admin_scope)}
-          class={["sg-bottom-nav__item", bottom_nav_class(users_active?(@page_title))]}
-        >
-          <span>Users</span>
-        </a>
-        <a
           href={overview_link(@admin_scope)}
           class={["sg-bottom-nav__item", bottom_nav_class(overview_active?(@page_title))]}
         >
           <span>{scope_label(@admin_scope)}</span>
         </a>
         <a
+          href={users_link(@admin_scope)}
+          class={["sg-bottom-nav__item", bottom_nav_class(users_active?(@page_title))]}
+        >
+          <span>Users</span>
+        </a>
+        <a
           href={audit_link(@admin_scope)}
           class={["sg-bottom-nav__item", bottom_nav_class(audit_active?(@page_title))]}
         >
           <span>Audit</span>
+        </a>
+        <a
+          href={branding_link(@admin_scope)}
+          class={["sg-bottom-nav__item", bottom_nav_class(branding_active?(@page_title))]}
+        >
+          <span>Brand</span>
         </a>
       </nav>
     </section>
@@ -337,6 +357,8 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
 
   defp audit_link(_admin_scope), do: "/admin/audit"
 
+  defp branding_link(_admin_scope), do: ~p"/admin/auth-branding"
+
   defp users_active?(title) when is_binary(title) do
     title = String.downcase(title)
     String.contains?(title, "user") and not String.contains?(title, "audit")
@@ -348,6 +370,11 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
     do: String.contains?(String.downcase(title), "audit")
 
   defp audit_active?(_), do: false
+
+  defp branding_active?(title) when is_binary(title),
+    do: String.contains?(String.downcase(title), "brand")
+
+  defp branding_active?(_), do: false
 
   defp overview_active?(title) when is_binary(title),
     do: String.contains?(String.downcase(title), "overview")

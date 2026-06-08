@@ -27,6 +27,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     confirmation_html.ex
     confirmation_live.ex
     conn_case_helpers.ex
+    create_brand_profiles.exs
     create_audit_events.exs
     emails.ex
     encrypted.ex
@@ -50,6 +51,8 @@ defmodule Sigra.Install.TemplatesLayoutTest do
     session_controller.ex
     session_live.ex
     settings_live.ex
+    sigra_auth.css
+    sigra_auth_components.ex
     sudo_controller.ex
     sudo_html.ex
     token_controller.ex
@@ -68,7 +71,7 @@ defmodule Sigra.Install.TemplatesLayoutTest do
 
   test "templates have been relocated under core/ subdirectory" do
     core_files = @core_dir |> File.ls!() |> Enum.sort()
-    assert length(core_files) == 49
+    assert length(core_files) == 52
     assert core_files == Enum.sort(@manifest_post_move)
   end
 

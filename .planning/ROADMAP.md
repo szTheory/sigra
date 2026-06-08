@@ -1,16 +1,37 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.36 ADMIN-BRAND-THEME-POLISH shipped 2026-06-06
+**Status:** v1.37 AUTH-BRANDING-WHITELABEL shipped 2026-06-07
 
 ## Milestones
 
+- ✅ **v1.37 AUTH-BRANDING-WHITELABEL** — Phases 173-177 (shipped 2026-06-07)
 - ✅ **v1.36 ADMIN-BRAND-THEME-POLISH** — Phases 168-172 (shipped 2026-06-06)
 - ✅ **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-167 (shipped 2026-06-05)
 - ✅ **v1.34 ADMIN-UI-COHERENCE** — Phases 154-160 (shipped 2026-06-05)
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
 ## Phases
+
+<details>
+<summary>✅ v1.37 AUTH-BRANDING-WHITELABEL (Phases 173-177) — SHIPPED 2026-06-07</summary>
+
+**Milestone Goal:** Make Sigra's generated authentication forms and emails production-ready by default, while giving adopters a low-friction white-label path, an admin/operator customizer, a code/config path, and a full-control escape hatch.
+
+- [x] Phase 173: Auth Branding Contract + Token Model (1/1 plan) — completed 2026-06-07
+- [x] Phase 174: Generated Auth Shell + Light/Dark/System CSS (1/1 plan) — completed 2026-06-07
+- [x] Phase 175: Admin Customizer + Email Branding (1/1 plan) — completed 2026-06-07
+- [x] Phase 176: Generated Host, Example, Docs, and Golden Parity (1/1 plan) — completed 2026-06-07
+- [x] Phase 177: Verification, Generated-Host Smoke, and Audit Closure (1/1 plan) — completed 2026-06-07
+
+Archive:
+
+- [v1.37 Roadmap](milestones/v1.37-ROADMAP.md)
+- [v1.37 Requirements](milestones/v1.37-REQUIREMENTS.md)
+- [v1.37 Milestone Audit](milestones/v1.37-MILESTONE-AUDIT.md)
+- [v1.37 Phase Artifacts](milestones/v1.37-phases/)
+
+</details>
 
 <details>
 <summary>✅ v1.36 ADMIN-BRAND-THEME-POLISH (Phases 168-172) — SHIPPED 2026-06-06</summary>
@@ -100,3 +121,8 @@ Archive:
 | 170. Rail Accent Shell + Theme Control | v1.36 | 1/1 | Complete | 2026-06-06 |
 | 171. Design-System Touchpoint Polish | v1.36 | 1/1 | Complete | 2026-06-06 |
 | 172. Tests, Evidence, and Baseline Ratification | v1.36 | 1/1 | Complete | 2026-06-06 |
+| 173. Auth Branding Contract + Token Model | v1.37 | 1/1 | Complete | 2026-06-07 |
+| 174. Generated Auth Shell + Light/Dark/System CSS | v1.37 | 1/1 | Complete | 2026-06-07 |
+| 175. Admin Customizer + Email Branding | v1.37 | 1/1 | Complete | 2026-06-07 |
+| 176. Generated Host, Example, Docs, and Golden Parity | v1.37 | 1/1 | Complete | 2026-06-07 |
+| 177. Verification, Generated-Host Smoke, and Audit Closure | v1.37 | 1/1 | Complete | 2026-06-07 |

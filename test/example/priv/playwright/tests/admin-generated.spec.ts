@@ -23,13 +23,15 @@ import { TEST_PASSWORD } from "../helpers/fixtures";
 
 const platformAdminEmail =
   process.env.SIGRA_PLATFORM_ADMIN_EMAIL ?? "platform-admin@example.test";
-const orgAdminEmail = process.env.SIGRA_ORG_ADMIN_EMAIL ?? "org-admin@example.test";
+const orgAdminEmail =
+  process.env.SIGRA_ORG_ADMIN_EMAIL ?? "org-admin@example.test";
 const adminPassword = process.env.SIGRA_ADMIN_PASSWORD ?? TEST_PASSWORD;
 const allowedOrgSlug = process.env.SIGRA_ALLOWED_ORG_SLUG ?? "allowed-org";
 const allowedOrgName = process.env.SIGRA_ALLOWED_ORG_NAME ?? "Allowed Org";
 const otherOrgSlug = process.env.SIGRA_OTHER_ORG_SLUG ?? "other-scope";
 const impersonationTargetEmail =
-  process.env.SIGRA_IMPERSONATION_TARGET_EMAIL ?? "impersonation-target@example.test";
+  process.env.SIGRA_IMPERSONATION_TARGET_EMAIL ??
+  "impersonation-target@example.test";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
@@ -74,10 +76,38 @@ test("generated host admin shell renders on desktop and mobile", async ({
   // Desktop shell: Global scope label and admin sidebar navigation.
   await page.setViewportSize(DESKTOP_VIEWPORT);
   await page.goto("/admin");
-  await expect(adminShellHeader(page).getByText("Admin", { exact: true })).toBeVisible();
+  await expect(
+    adminShellHeader(page).getByText("Admin", { exact: true }),
+  ).toBeVisible();
   await expect(adminShellHeader(page)).toContainText("Global");
-  await expect(page.locator('nav[aria-label="Admin navigation"]')).toBeVisible();
-  await captureAdminCheckpoint(page, testInfo, { name: "shell-global-desktop" });
+  await expect(
+    page.locator('nav[aria-label="Admin navigation"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('nav[aria-label="Admin navigation"]'),
+  ).toContainText("Branding");
+  await captureAdminCheckpoint(page, testInfo, {
+    name: "shell-global-desktop",
+  });
+
+  // Auth branding customizer: generated-host route, form, and previews.
+  await page
+    .locator('nav[aria-label="Admin navigation"]')
+    .getByText("Branding")
+    .click();
+  await waitForLiveViewReady(page);
+  await expect(
+    page.getByRole("heading", { name: "Auth forms and emails" }),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="admin-auth-branding-form"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="admin-auth-preview"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('[data-testid="admin-email-preview"]'),
+  ).toBeVisible();
 
   // Desktop organization scope: header + main reflect the scoped org.
   await page.goto(`/admin/organizations/${allowedOrgSlug}`);
@@ -90,16 +120,25 @@ test("generated host admin shell renders on desktop and mobile", async ({
   // Mobile shell: bottom navigation and Global scope still reachable.
   await page.setViewportSize(MOBILE_VIEWPORT);
   await page.goto("/admin");
-  await expect(adminShellHeader(page).getByText("Admin", { exact: true })).toBeVisible();
-  await expect(page.locator('nav[aria-label="Admin bottom nav"]')).toBeVisible();
-  await expect(page.locator('nav[aria-label="Admin bottom nav"]')).toContainText(
-    "Global",
-  );
+  await expect(
+    adminShellHeader(page).getByText("Admin", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator('nav[aria-label="Admin bottom nav"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('nav[aria-label="Admin bottom nav"]'),
+  ).toContainText("Global");
+  await expect(
+    page.locator('nav[aria-label="Admin bottom nav"]'),
+  ).toContainText("Brand");
   await captureAdminCheckpoint(page, testInfo, { name: "shell-global-mobile" });
 
   // Mobile organization scope: bottom nav stays, header reflects the org.
   await page.goto(`/admin/organizations/${allowedOrgSlug}`);
-  await expect(page.locator('nav[aria-label="Admin bottom nav"]')).toBeVisible();
+  await expect(
+    page.locator('nav[aria-label="Admin bottom nav"]'),
+  ).toBeVisible();
   await expect(adminShellHeader(page)).toContainText(allowedOrgName);
   await captureAdminCheckpoint(page, testInfo, {
     name: "allowed-org-mobile",
@@ -122,7 +161,9 @@ test("generated host admin denial responses show explicit copy", async ({
     await logIn(page, orgAdminEmail, adminPassword);
 
     // Allowed organization access: org admin can reach its own org scope.
-    const allowedResponse = await page.goto(`/admin/organizations/${allowedOrgSlug}`);
+    const allowedResponse = await page.goto(
+      `/admin/organizations/${allowedOrgSlug}`,
+    );
     expect(allowedResponse?.status()).toBe(200);
     await expect(adminShellHeader(page)).toContainText(allowedOrgName);
 
@@ -137,7 +178,9 @@ test("generated host admin denial responses show explicit copy", async ({
 
     // Not-found out-of-scope organization: org admin hits 404 with explicit
     // not-found copy, never a 403 that would leak org existence.
-    const notFoundResponse = await page.goto(`/admin/organizations/${otherOrgSlug}`);
+    const notFoundResponse = await page.goto(
+      `/admin/organizations/${otherOrgSlug}`,
+    );
     expect(notFoundResponse?.status()).toBe(404);
     await expect(page.locator("body")).toContainText(
       "Not found. This organization admin scope is unavailable.",
@@ -167,7 +210,9 @@ test.describe("OPS-01 bounded enterprise surface", () => {
     page,
   }) => {
     await logIn(page, orgAdminEmail, adminPassword);
-    const response = await page.goto(`/organizations/${allowedOrgSlug}/settings`);
+    const response = await page.goto(
+      `/organizations/${allowedOrgSlug}/settings`,
+    );
     expect(response?.status()).toBe(200);
     await waitForLiveViewReady(page);
     await expect(page.locator("main")).toContainText("Allowed Org");
@@ -189,9 +234,7 @@ test.describe("VFY-01 generated host audit CSV export", () => {
     expect(contentType).toMatch(/csv/i);
     const body = await res.text();
     const firstLine =
-      body
-        .split(/\r?\n/)
-        .find((line) => line.trim().length > 0) ?? "";
+      body.split(/\r?\n/).find((line) => line.trim().length > 0) ?? "";
     expect(firstLine).toContain("occurred_at");
     expect(firstLine).toContain("impersonation_state");
   });
@@ -214,9 +257,7 @@ test.describe("VFY-01 generated host impersonation start", () => {
     await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);
     const detailUrl = new URL(page.url());
     const detailPath = `${detailUrl.pathname}${detailUrl.search}`;
-    await page.goto(
-      `/users/sudo?return_to=${encodeURIComponent(detailPath)}`,
-    );
+    await page.goto(`/users/sudo?return_to=${encodeURIComponent(detailPath)}`);
     await confirmSudo(page, adminPassword);
     await expect(page).toHaveURL(
       new RegExp(`${detailUrl.pathname.replaceAll("/", "\\/")}\\?`),

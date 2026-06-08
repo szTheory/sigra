@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.36
-milestone_name: ADMIN-BRAND-THEME-POLISH
+milestone: v1.37
+milestone_name: AUTH-BRANDING-WHITELABEL
 status: Complete
-last_updated: "2026-06-06T02:30:00-04:00"
-last_activity: 2026-06-06 — v1.36 shipped: Rail Accent admin shell, Light/Dark/System theme support, durable UI principles, deterministic browser coverage, and refreshed intentional admin checkpoints.
+last_updated: "2026-06-07T16:38:59-04:00"
+last_activity: 2026-06-07 — v1.37 shipped: branded auth shell, Light/Dark/System auth defaults, validated brand profile, admin customizer, branded emails, docs, golden parity, and generated-host smoke proof.
 progress:
   total_phases: 5
   completed_phases: 5
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.36 ADMIN-BRAND-THEME-POLISH complete; ready for next milestone selection.
+**Current focus:** v1.37 AUTH-BRANDING-WHITELABEL complete; ready for next milestone selection.
 
 ## Current Position
 
-Phase: 172 — Tests, Evidence, and Baseline Ratification
-Plan: 172-01 complete
-Status: v1.36 complete
-Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, snapshot, and generated-host acceptance verification.
+Phase: 177 — Verification, Generated-Host Smoke, and Audit Closure
+Plan: 177-01 complete
+Status: v1.37 complete
+Last activity: 2026-06-07 — milestone shipped after compile, docs, focused ExUnit, example LiveView tests, diff hygiene, and generated-host Playwright smoke verification.
 
 ## Accumulated Context
 
@@ -48,6 +48,13 @@ Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, 
 - v1.36 architecture decision: preserve the hand-authored `sg-*` BEM/cascade-layer CSS system and route reusable markup through `Sigra.Admin.Components` or the shell seam.
 - v1.36 theme decision: use a namespaced `data-sg-admin-theme` root carrier plus `.sg-admin-shell[data-theme]`; do not set global DaisyUI `data-theme` from the admin switch.
 - v1.36 visual-baseline decision: refreshed checkpoint PNGs are limited to `global-overview`, `org-overview`, `user-detail`, and `user-audit`.
+- v1.37 architecture decision: auth branding is a structured token profile, not raw runtime CSS by default.
+- v1.37 styling decision: generated auth defaults live in host-owned `SigraAuthComponents` and scoped `.sigra-auth` CSS, preserving full custom control without taking over the app design system.
+- v1.37 theme decision: auth surfaces support Light, Dark, and System independently from the admin shell theme control.
+- v1.37 persistence decision: global admin branding uses `sigra_brand_profiles` in the configured auth schema prefix and falls back to code/config defaults when the table or repo is unavailable.
+- v1.37 email decision: transactional emails share the same branding profile as auth forms so product identity stays coherent across the auth journey.
+- v1.37 generated-host fix: avoid Elixir boolean `not` against nullable assigns in templates; use `!` truthiness guards for generated HEEx conditions.
+- v1.37 generated-host fix: runtime branding prefix detection must handle generated user schemas that need `Code.ensure_loaded?/1` before `__schema__(:prefix)`.
 
 ### Pending Todos
 
@@ -89,7 +96,12 @@ Resume file: None
 | Phase 170 | 1 plan | same session | Rail Accent shell + Light/Dark/System theme control |
 | Phase 171 | 1 plan | same session | Scoped admin design-system touchpoint polish |
 | Phase 172 | 1 plan | same session | ExUnit, Playwright, snapshot, and generated-host verification |
+| Phase 173 | 1 plan | same session | Auth branding profile contract + config/runtime resolution |
+| Phase 174 | 1 plan | same session | Generated auth shell + scoped Light/Dark/System CSS |
+| Phase 175 | 1 plan | same session | Admin branding customizer + branded emails |
+| Phase 176 | 1 plan | same session | Example, golden fixture, docs, and installer parity |
+| Phase 177 | 1 plan | same session | Compile, docs, tests, diff hygiene, and generated-host smoke |
 
 ## Operator Next Steps
 
-- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after v1.36.
+- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after v1.37.

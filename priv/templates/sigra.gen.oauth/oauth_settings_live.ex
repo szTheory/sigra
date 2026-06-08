@@ -12,6 +12,7 @@ defmodule <%= web_module %>.OAuthSettingsLive do
 
   use <%= web_module %>, :live_view
 
+  import <%= web_module %>.SigraAuthComponents
   import <%= web_module %>.OAuthHTML
 
   @impl true
@@ -48,7 +49,8 @@ defmodule <%= web_module %>.OAuthSettingsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <.header>
         Connected Accounts
         <:subtitle>Manage your linked sign-in providers.</:subtitle>
@@ -127,7 +129,8 @@ defmodule <%= web_module %>.OAuthSettingsLive do
           <p class="mt-8 text-sm text-gray-500">All available providers are connected.</p>
         <% end %>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

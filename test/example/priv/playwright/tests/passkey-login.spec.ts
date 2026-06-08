@@ -27,9 +27,13 @@ async function confirmSignupForPasskeyBootstrap(
 ) {
   const confirmHref = await extractConfirmationLink(page, email);
   expect(confirmHref).toContain("/users/confirm/");
+  const confirmUrl = new URL(confirmHref, page.url());
+  const appOrigin = new URL(page.url()).origin;
 
   await page.context().clearCookies();
-  await page.goto(confirmHref);
+  await page.goto(
+    `${appOrigin}${confirmUrl.pathname}${confirmUrl.search}${confirmUrl.hash}`,
+  );
   await expect(page).toHaveURL(/\/users\/sudo\?return_to=/);
 }
 
@@ -53,16 +57,19 @@ async function addVirtualAuthenticator(
   const client = await page.context().newCDPSession(page);
   await client.send("WebAuthn.enable");
 
-  const { authenticatorId } = await client.send("WebAuthn.addVirtualAuthenticator", {
-    options: {
-      protocol: "ctap2",
-      transport: "internal",
-      hasResidentKey: true,
-      hasUserVerification: true,
-      isUserVerified: true,
-      automaticPresenceSimulation: true,
+  const { authenticatorId } = await client.send(
+    "WebAuthn.addVirtualAuthenticator",
+    {
+      options: {
+        protocol: "ctap2",
+        transport: "internal",
+        hasResidentKey: true,
+        hasUserVerification: true,
+        isUserVerified: true,
+        automaticPresenceSimulation: true,
+      },
     },
-  });
+  );
 
   return {
     async close() {
@@ -106,7 +113,9 @@ async function enrollPasskeyFromSettings(
 
   await page.waitForURL(/\/users\/settings\/mfa/);
   await page.waitForLoadState("networkidle");
-  await expect(page.locator("#passkeys")).not.toContainText("No passkeys added yet");
+  await expect(page.locator("#passkeys")).not.toContainText(
+    "No passkeys added yet",
+  );
 }
 
 test.describe("passkey-primary login fallback smoke", () => {
@@ -116,31 +125,34 @@ test.describe("passkey-primary login fallback smoke", () => {
     await page.goto("/users/log_in");
 
     const runtimeState = await page.evaluate(() => {
-      const runtime = (window as typeof window & {
-        SigraPasskeyRuntime?: {
-          PasskeyRegister?: unknown;
-          PasskeyAuthenticate?: unknown;
-          attachPasskeyLogin?: unknown;
-        };
-        liveSocket?: {
-          hooks?: Record<string, unknown>;
-        };
-      }).SigraPasskeyRuntime;
-      const liveSocket = (window as typeof window & {
-        liveSocket?: {
-          hooks?: Record<string, unknown>;
-        };
-      }).liveSocket;
+      const runtime = (
+        window as typeof window & {
+          SigraPasskeyRuntime?: {
+            PasskeyRegister?: unknown;
+            PasskeyAuthenticate?: unknown;
+            attachPasskeyLogin?: unknown;
+          };
+          liveSocket?: {
+            hooks?: Record<string, unknown>;
+          };
+        }
+      ).SigraPasskeyRuntime;
+      const liveSocket = (
+        window as typeof window & {
+          liveSocket?: {
+            hooks?: Record<string, unknown>;
+          };
+        }
+      ).liveSocket;
 
       return {
         hasRuntime: Boolean(runtime),
-        registerMountedType:
-          typeof (runtime?.PasskeyRegister as { mounted?: unknown } | undefined)
-            ?.mounted,
-        authenticateMountedType:
-          typeof (
-            runtime?.PasskeyAuthenticate as { mounted?: unknown } | undefined
-          )?.mounted,
+        registerMountedType: typeof (
+          runtime?.PasskeyRegister as { mounted?: unknown } | undefined
+        )?.mounted,
+        authenticateMountedType: typeof (
+          runtime?.PasskeyAuthenticate as { mounted?: unknown } | undefined
+        )?.mounted,
         attachType: typeof runtime?.attachPasskeyLogin,
         hasRegisterHook: Boolean(liveSocket?.hooks?.PasskeyRegister),
         hasAuthenticateHook: Boolean(liveSocket?.hooks?.PasskeyAuthenticate),
@@ -152,8 +164,10 @@ test.describe("passkey-primary login fallback smoke", () => {
       page.locator('input[autocomplete="username webauthn"]'),
     ).toBeVisible();
     await expect(page.locator("#passkey_login_button")).toBeVisible();
-    await expect(page.getByText("Continue with passkey")).toBeVisible();
-    await expect(page.getByText("Use password instead")).toBeVisible();
+    await expect(page.getByText("Use a passkey")).toBeVisible();
+    await expect(
+      page.getByText("We couldn't finish passkey sign-in"),
+    ).toHaveCount(0);
     await expect(page.getByText("Email me a magic link")).toBeVisible();
     expect(runtimeState).toEqual({
       hasRuntime: true,
@@ -181,26 +195,29 @@ test.describe("passkey-primary login fallback smoke", () => {
       await page.goto("/users/log_in");
 
       const runtimeState = await page.evaluate(() => {
-        const runtime = (window as typeof window & {
-          SigraPasskeyRuntime?: {
-            PasskeyAuthenticate?: unknown;
-            attachPasskeyLogin?: unknown;
-          };
-          liveSocket?: {
-            hooks?: Record<string, unknown>;
-          };
-        }).SigraPasskeyRuntime;
-        const liveSocket = (window as typeof window & {
-          liveSocket?: {
-            hooks?: Record<string, unknown>;
-          };
-        }).liveSocket;
+        const runtime = (
+          window as typeof window & {
+            SigraPasskeyRuntime?: {
+              PasskeyAuthenticate?: unknown;
+              attachPasskeyLogin?: unknown;
+            };
+            liveSocket?: {
+              hooks?: Record<string, unknown>;
+            };
+          }
+        ).SigraPasskeyRuntime;
+        const liveSocket = (
+          window as typeof window & {
+            liveSocket?: {
+              hooks?: Record<string, unknown>;
+            };
+          }
+        ).liveSocket;
 
         return {
-          authenticateMountedType:
-            typeof (
-              runtime?.PasskeyAuthenticate as { mounted?: unknown } | undefined
-            )?.mounted,
+          authenticateMountedType: typeof (
+            runtime?.PasskeyAuthenticate as { mounted?: unknown } | undefined
+          )?.mounted,
           attachType: typeof runtime?.attachPasskeyLogin,
           hasAuthenticateHook: Boolean(liveSocket?.hooks?.PasskeyAuthenticate),
         };
