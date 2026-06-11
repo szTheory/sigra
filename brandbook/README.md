@@ -8,24 +8,26 @@ Open [`index.html`](index.html) directly in a browser. It has no build step, CDN
 
 ## Files
 
-| File | Purpose |
-| --- | --- |
-| [`pressure-test-audit.md`](pressure-test-audit.md) | Historical audit that informed the first complete brand system. |
-| [`brand-book.md`](brand-book.md) | Durable brand system: strategy, voice, visual rules, tokens, logo usage, UI guidance, copy blocks. |
-| [`tokens.json`](tokens.json) | Token source for raw palette, semantic colors, typography, spacing, radius, states, code/callout roles. |
-| [`tokens.css`](tokens.css) | CSS custom properties and small implementation examples for docs/marketing surfaces. |
-| [`logo-primary.svg`](logo-primary.svg) | Primary Rail Accent lockup for light surfaces. |
-| [`logo-primary-dark.svg`](logo-primary-dark.svg) | Primary Rail Accent lockup for dark surfaces. |
-| [`logo-mark.svg`](logo-mark.svg) | Free-standing Rail Accent mark for UI accents. |
-| [`logo-monochrome.svg`](logo-monochrome.svg) | One-color Rail Accent mark for restricted contexts. |
-| [`favicon.svg`](favicon.svg) | Browser/favicon source using the same Rail Accent mark geometry. |
-| [`social-card.svg`](social-card.svg) | SVG social preview source. Export PNG only when a platform requires it. |
-| [`logo-options/`](logo-options/) | Archived logo exploration studies. |
-| [`examples/`](examples/) | Source-controlled visual specimens for palette, type, README, landing, docs, code, terminal, components, and diagrams. |
+| File                                               | Purpose                                                                                                                |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [`pressure-test-audit.md`](pressure-test-audit.md) | Historical audit that informed the first complete brand system.                                                        |
+| [`brand-book.md`](brand-book.md)                   | Durable brand system: strategy, voice, visual rules, tokens, logo usage, UI guidance, copy blocks.                     |
+| [`tokens.json`](tokens.json)                       | Token source for raw palette, semantic colors, typography, spacing, radius, states, code/callout roles.                |
+| [`tokens.css`](tokens.css)                         | CSS custom properties and small implementation examples for docs/marketing surfaces.                                   |
+| [`logo-primary.svg`](logo-primary.svg)             | Primary Rail Accent lockup for light surfaces.                                                                         |
+| [`logo-primary-dark.svg`](logo-primary-dark.svg)   | Primary Rail Accent lockup for dark surfaces.                                                                          |
+| [`logo-mark.svg`](logo-mark.svg)                   | Free-standing Rail Accent mark for UI accents.                                                                         |
+| [`logo-monochrome.svg`](logo-monochrome.svg)       | One-color Rail Accent mark for restricted contexts.                                                                    |
+| [`favicon.svg`](favicon.svg)                       | Browser/favicon source using the same Rail Accent mark geometry.                                                       |
+| [`social-card.svg`](social-card.svg)               | SVG social preview source. Export PNG only when a platform requires it.                                                |
+| [`logo-options/`](logo-options/)                   | Archived logo exploration studies.                                                                                     |
+| [`examples/`](examples/)                           | Source-controlled visual specimens for palette, type, README, landing, docs, code, terminal, components, and diagrams. |
 
 ## Logo System
 
 The current logo files are the Sigra Rail Accent assets. Use the tight lockup for primary identity, the dark lockup for dark surfaces, and the free-standing mark for lightweight UI accents, favicon, and avatar surfaces. [`logo-options/`](logo-options/) is archive material, not usage guidance.
+
+The lockup wordmark is outlined from Inter Display Black v4.1. The SVGs should remain path-only so the logo renders identically without installing fonts or loading a runtime web font.
 
 ## Maintenance Rules
 

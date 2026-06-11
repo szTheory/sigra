@@ -31,7 +31,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
 
     # Partial unique index: only enforce email uniqueness for active users
     create(
-      unique_index(:users, [:email],
+      unique_index(
+        :users,
+        [:email],
         Keyword.merge(@prefix_opts,
           where: "deleted_at IS NULL",
           name: :users_email_active_index
@@ -41,7 +43,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
 
     # Partial unique index on pending_email
     create(
-      unique_index(:users, [:pending_email],
+      unique_index(
+        :users,
+        [:pending_email],
         Keyword.merge(@prefix_opts,
           where: "pending_email IS NOT NULL",
           name: :users_pending_email_index
@@ -49,9 +53,18 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
       )
     )
 
+    create(index(:users, [:inserted_at], @prefix_opts))
+
     create table(:user_tokens, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
-      add(:user_id, references(:users, Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)), null: false)
+
+      add(
+        :user_id,
+        references(
+          :users,
+          Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
+        ), null: false)
+
       add(:token, :binary, null: false)
       add(:context, :string, null: false)
       add(:sent_to, :string)
@@ -65,7 +78,14 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
 
     create table(:user_sessions, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
-      add(:user_id, references(:users, Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)), null: false)
+
+      add(
+        :user_id,
+        references(
+          :users,
+          Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
+        ), null: false)
+
       add(:hashed_token, :binary, null: false)
       add(:type, :string, null: false, default: "standard")
       add(:ip, :string)
@@ -82,11 +102,20 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
     create(index(:user_sessions, [:user_id], @prefix_opts))
     create(index(:user_sessions, [:user_id, :type], @prefix_opts))
     create(index(:user_sessions, [:inserted_at], @prefix_opts))
+    create(index(:user_sessions, [:last_active_at], @prefix_opts))
+    create(index(:user_sessions, [:user_id, :last_active_at], @prefix_opts))
 
     # MFA Credentials (TOTP secrets, lockout tracking)
     create table(:user_mfa_credentials, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
-      add(:user_id, references(:users, Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)), null: false)
+
+      add(
+        :user_id,
+        references(
+          :users,
+          Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
+        ), null: false)
+
       add(:type, :string, null: false)
       add(:encrypted_secret, :binary, null: false)
       add(:last_used_at, :utc_datetime_usec)
@@ -103,7 +132,14 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
     # Backup Codes (one row per code, atomic consumption)
     create table(:user_backup_codes, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
-      add(:user_id, references(:users, Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)), null: false)
+
+      add(
+        :user_id,
+        references(
+          :users,
+          Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
+        ), null: false)
+
       add(:hashed_code, :string, null: false)
       add(:used_at, :utc_datetime_usec)
 

@@ -155,19 +155,55 @@ defmodule Sigra.Admin.Users.Query do
 
   @spec summary_counts(map(), Scope.t()) :: map()
   def summary_counts(config, %Scope{} = admin_scope) do
+    %{posture: posture} = summary_stats(config, admin_scope)
+
+    %{
+      total: posture.total,
+      confirmed: posture.confirmed,
+      mfa: posture.mfa_enabled,
+      passkeys: posture.passkey_users,
+      locked: posture.locked_out,
+      deleted: posture.deletion_scheduled
+    }
+  end
+
+  @spec summary_stats(map(), Scope.t(), keyword()) :: map()
+  def summary_stats(config, %Scope{} = admin_scope, opts \\ []) do
     hooks = Hooks.resolve(config)
     helpers = helpers(config, hooks, admin_scope)
     repo = config.repo
     base = base_query(config, admin_scope, helpers)
+    now = Keyword.get(opts, :now, DateTime.utc_now())
+    {week_start, month_start} = summary_window_starts(now)
+    deletion_field = deletion_summary_field(helpers.user_schema)
 
     %{
-      total: repo.aggregate(base, :count, :id),
-      confirmed:
-        repo.aggregate(where(base, [user: user], not is_nil(user.confirmed_at)), :count, :id),
-      mfa: count_mfa(repo, base, helpers),
-      passkeys: count_passkeys(repo, base, helpers),
-      locked: repo.aggregate(where(base, [user: user], not is_nil(user.locked_at)), :count, :id),
-      deleted: repo.aggregate(where(base, [user: user], not is_nil(user.deleted_at)), :count, :id)
+      posture: %{
+        total: repo.aggregate(base, :count, :id),
+        confirmed:
+          repo.aggregate(where(base, [user: user], not is_nil(user.confirmed_at)), :count, :id),
+        mfa_enabled: count_mfa(repo, base, helpers),
+        passkey_users: count_passkeys(repo, base, helpers),
+        locked_out:
+          repo.aggregate(where(base, [user: user], not is_nil(user.locked_at)), :count, :id),
+        deletion_scheduled:
+          repo.aggregate(
+            where(base, [user: user], not is_nil(field(user, ^deletion_field))),
+            :count,
+            :id
+          )
+      },
+      growth: %{
+        new_this_week:
+          repo.aggregate(where(base, [user: user], user.inserted_at >= ^week_start), :count, :id),
+        new_this_month:
+          repo.aggregate(where(base, [user: user], user.inserted_at >= ^month_start), :count, :id)
+      },
+      activity: activity_stats(repo, base, helpers, week_start, month_start),
+      windows: %{
+        week_start: week_start,
+        month_start: month_start
+      }
     }
   end
 
@@ -622,6 +658,63 @@ defmodule Sigra.Admin.Users.Query do
       :count,
       :id
     )
+  end
+
+  defp activity_stats(_repo, _base, %{session_schema: nil}, _week_start, _month_start) do
+    %{available?: false, active_this_week: nil, active_this_month: nil}
+  end
+
+  defp activity_stats(repo, base, _helpers, week_start, month_start) do
+    %{
+      available?: true,
+      active_this_week:
+        repo.aggregate(
+          where(
+            base,
+            [session_state: session],
+            not is_nil(session.last_active_at) and session.last_active_at >= ^week_start
+          ),
+          :count,
+          :id
+        ),
+      active_this_month:
+        repo.aggregate(
+          where(
+            base,
+            [session_state: session],
+            not is_nil(session.last_active_at) and session.last_active_at >= ^month_start
+          ),
+          :count,
+          :id
+        )
+    }
+  end
+
+  defp summary_window_starts(%DateTime{} = now) do
+    utc_now = DateTime.shift_zone!(now, "Etc/UTC")
+    date = DateTime.to_date(utc_now)
+
+    week_start =
+      date
+      |> Date.add(-(Date.day_of_week(date) - 1))
+      |> DateTime.new!(~T[00:00:00], "Etc/UTC")
+
+    month_start =
+      date.year
+      |> Date.new!(date.month, 1)
+      |> DateTime.new!(~T[00:00:00], "Etc/UTC")
+
+    {week_start, month_start}
+  end
+
+  defp deletion_summary_field(user_schema) do
+    if schema_field?(user_schema, :scheduled_deletion_at),
+      do: :scheduled_deletion_at,
+      else: :deleted_at
+  end
+
+  defp schema_field?(schema, field) when is_atom(schema) and is_atom(field) do
+    Code.ensure_loaded?(schema) and field in schema.__schema__(:fields)
   end
 
   defp to_flop_params(params) do

@@ -127,19 +127,28 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
 
   test "148-04: UAT proxy contract uses shared Traefik without Sigra owning port 80" do
     up = read!("scripts/uat/up.sh")
+    dockerfile = read!("scripts/uat/Dockerfile.example")
     compose = read!("scripts/uat/docker-compose.yml")
     dev_proxy_up = read!("scripts/dev-proxy/up.sh")
     dev_proxy_compose = read!("scripts/dev-proxy/docker-compose.yml")
     runbook = read!("scripts/uat/RUNBOOK.md")
     example = read!("test/example/README.md")
+    example_dev = read!("test/example/config/dev.exs")
 
     assert up =~ "--proxy"
     assert up =~ "--private-traefik"
+    assert up =~ "--refresh-code"
+    assert up =~ "mix deps.compile sigra --force"
+    assert up =~ "fail_on_proxy_host_conflict"
+    assert up =~ "dev.sigra.proxy-host"
     assert up =~ "dev_proxy-traefik-1"
     assert up =~ "scripts/dev-proxy/up.sh"
     assert up =~ "SIGRA_UAT_PROXY_NETWORK"
     assert up =~ "Project-private Traefik is not allowed to bind 127.0.0.1:80"
     refute up =~ "scoria"
+
+    assert dockerfile =~ "mix deps.compile sigra --force"
+    assert example_dev =~ "reloadable_apps: [:example, :sigra]"
 
     assert compose =~ "profiles: [\"proxy\"]"
     assert compose =~ "traefik.enable=true"
@@ -169,6 +178,7 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
       assert doc =~ "http://sigra.localhost"
       assert doc =~ "scripts/dev-proxy/up.sh"
       assert doc =~ "--private-traefik"
+      assert doc =~ "--refresh-code"
       assert doc =~ "18080"
       refute doc =~ "scoria"
     end

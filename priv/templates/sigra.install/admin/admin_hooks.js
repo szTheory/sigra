@@ -1,7 +1,8 @@
 // Sigra admin hooks — plain JS (NO import/export so it runs unbundled when
 // pasted into the hand-maintained app.js readable tail).
 //
-// Defines window.SigraAdminHooks = { CmdK, CopyToClipboard, ThemeSwitch }:
+// Defines window.SigraAdminHooks = { CmdK, CopyToClipboard, ThemeSwitch,
+// AuthBrandingPreview }:
 //   - CmdK: a fully client-side Cmd-K / Ctrl-K command palette bound to the
 //     topbar trigger. Opens an ARIA dialog/listbox with focus trap, scope-aware
 //     nav + find-a-user free text. No server round-trips (window.location.assign
@@ -12,11 +13,43 @@
 //   - ThemeSwitch: a Light/Dark/System segmented control. Persists an explicit
 //     choice in localStorage; System removes the override and follows
 //     prefers-color-scheme through CSS.
+//   - PageLoadingIndicator: listens to LiveView page-loading events and toggles
+//     a restrained admin topbar loading rail for route navigation only.
+//   - MetricHelp: delegated metric help popovers for hover, keyboard, and touch.
+//   - FieldHelp: delegated form-label help tooltips for hover, keyboard, and touch.
+//   - AuthBrandingPreview: optimistic local CSS-token updates for auth-branding
+//     color previews while LiveView remains the source of truth for validation.
 (function () {
   "use strict";
 
   var THEME_STORAGE_KEY = "sigra.admin.theme";
   var THEMES = ["light", "dark", "system"];
+  var PAGE_LOADING_DELAY_MS = 180;
+  var PAGE_LOADING_MIN_VISIBLE_MS = 220;
+  var PAGE_LOADING_FADE_MS = 160;
+  var PAGE_LOADING_MAX_ACTIVE_MS = 10000;
+  var PAGE_LOADING_KINDS = {
+    initial: true,
+    patch: true,
+    redirect: true,
+  };
+  var AUTH_BRANDING_HEX = /^#[0-9a-fA-F]{6}$/;
+  var AUTH_BRANDING_COLOR_TOKENS = {
+    accent_color: "--sigra-auth-light-accent",
+    accent_foreground: "--sigra-auth-light-on-accent",
+    background_color: "--sigra-auth-light-bg",
+    surface_color: "--sigra-auth-light-surface",
+    text_color: "--sigra-auth-light-text",
+    muted_color: "--sigra-auth-light-muted",
+    border_color: "--sigra-auth-light-border",
+    dark_accent_color: "--sigra-auth-dark-accent",
+    dark_accent_foreground: "--sigra-auth-dark-on-accent",
+    dark_background_color: "--sigra-auth-dark-bg",
+    dark_surface_color: "--sigra-auth-dark-surface",
+    dark_text_color: "--sigra-auth-dark-text",
+    dark_muted_color: "--sigra-auth-dark-muted",
+    dark_border_color: "--sigra-auth-dark-border",
+  };
 
   function storedTheme() {
     try {
@@ -378,12 +411,505 @@
     }
   }
 
+  function adminShell() {
+    return document.querySelector(".sg-admin-shell");
+  }
+
+  // ---- MetricHelp (delegated; hover/focus/touch help for summary metrics) --
+  function installMetricHelp() {
+    if (window.__sigraMetricHelpInstalled) return;
+    window.__sigraMetricHelpInstalled = true;
+
+    function finePointer() {
+      return (
+        window.matchMedia &&
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      );
+    }
+
+    function rootFrom(target) {
+      return target && target.closest
+        ? target.closest("[data-sg-metric-help-root]")
+        : null;
+    }
+
+    function helpFor(root) {
+      var id = root && root.getAttribute("aria-describedby");
+      return id ? document.getElementById(id) : null;
+    }
+
+    function open(root) {
+      var help = helpFor(root);
+      if (!root || !help) return;
+      help.hidden = false;
+      root.dataset.helpOpen = "true";
+    }
+
+    function close(root) {
+      var help = helpFor(root);
+      if (!root || !help) return;
+      help.hidden = true;
+      delete root.dataset.helpOpen;
+      delete root.dataset.helpFocusOpenedAt;
+    }
+
+    function closeAll(except) {
+      document
+        .querySelectorAll('[data-sg-metric-help-root][data-help-open="true"]')
+        .forEach(function (root) {
+          if (root !== except) close(root);
+        });
+    }
+
+    function closeRootWhenIdle(root) {
+      window.setTimeout(function () {
+        if (!root || root.contains(document.activeElement)) return;
+        close(root);
+      }, 0);
+    }
+
+    document.addEventListener("click", function (event) {
+      var root = rootFrom(event.target);
+      if (root) {
+        var alreadyOpen = root.dataset.helpOpen === "true";
+        var openedByFocusAt = Number(root.dataset.helpFocusOpenedAt || 0);
+        var focusJustOpened =
+          alreadyOpen &&
+          document.activeElement === root &&
+          Date.now() - openedByFocusAt < 350;
+        delete root.dataset.helpFocusOpenedAt;
+        closeAll(root);
+        if (alreadyOpen && !focusJustOpened) {
+          close(root);
+        } else {
+          open(root);
+        }
+        return;
+      }
+
+      closeAll(null);
+    });
+
+    document.addEventListener("focusin", function (event) {
+      var root = rootFrom(event.target);
+      if (!root) return;
+      closeAll(root);
+      open(root);
+      root.dataset.helpFocusOpenedAt = String(Date.now());
+    });
+
+    document.addEventListener("focusout", function (event) {
+      var root = rootFrom(event.target);
+      if (root) closeRootWhenIdle(root);
+    });
+
+    document.addEventListener("mouseover", function (event) {
+      if (!finePointer()) return;
+      var root = rootFrom(event.target);
+      if (!root) return;
+      closeAll(root);
+      open(root);
+    });
+
+    document.addEventListener("mouseout", function (event) {
+      if (!finePointer()) return;
+      var root = rootFrom(event.target);
+      if (!root || root.contains(event.relatedTarget)) return;
+      closeRootWhenIdle(root);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      closeAll(null);
+    });
+  }
+
+  // ---- FieldHelp (delegated; hover/focus/touch help for form labels) -------
+  function installFieldHelp() {
+    if (window.__sigraFieldHelpInstalled) return;
+    window.__sigraFieldHelpInstalled = true;
+
+    function finePointer() {
+      return (
+        window.matchMedia &&
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      );
+    }
+
+    function rootFrom(target) {
+      return target && target.closest
+        ? target.closest("[data-sg-field-help-root]")
+        : null;
+    }
+
+    function triggerFrom(target) {
+      return target && target.closest
+        ? target.closest("[data-sg-field-help-trigger]")
+        : null;
+    }
+
+    function triggerFor(root) {
+      return root && root.querySelector("[data-sg-field-help-trigger]");
+    }
+
+    function helpFor(root) {
+      var trigger = triggerFor(root);
+      var id = trigger && trigger.getAttribute("aria-controls");
+      return id ? document.getElementById(id) : null;
+    }
+
+    function open(root) {
+      var trigger = triggerFor(root);
+      var help = helpFor(root);
+      if (!root || !trigger || !help) return;
+      help.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      root.dataset.helpOpen = "true";
+    }
+
+    function close(root) {
+      var trigger = triggerFor(root);
+      var help = helpFor(root);
+      if (!root || !trigger || !help) return;
+      help.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      delete root.dataset.helpOpen;
+      delete root.dataset.helpFocusOpenedAt;
+    }
+
+    function closeAll(except) {
+      document
+        .querySelectorAll('[data-sg-field-help-root][data-help-open="true"]')
+        .forEach(function (root) {
+          if (root !== except) close(root);
+        });
+    }
+
+    function closeRootWhenIdle(root) {
+      window.setTimeout(function () {
+        if (!root || root.contains(document.activeElement)) return;
+        close(root);
+      }, 0);
+    }
+
+    document.addEventListener("click", function (event) {
+      var trigger = triggerFrom(event.target);
+      if (trigger) {
+        var root = rootFrom(trigger);
+        var alreadyOpen = root && root.dataset.helpOpen === "true";
+        var openedByFocusAt = Number(
+          (root && root.dataset.helpFocusOpenedAt) || 0,
+        );
+        var focusJustOpened =
+          alreadyOpen &&
+          document.activeElement === trigger &&
+          Date.now() - openedByFocusAt < 350;
+        if (root) delete root.dataset.helpFocusOpenedAt;
+        closeAll(root);
+        if (alreadyOpen && !focusJustOpened) {
+          close(root);
+        } else {
+          open(root);
+        }
+        return;
+      }
+
+      if (!rootFrom(event.target)) closeAll(null);
+    });
+
+    document.addEventListener("focusin", function (event) {
+      var root = rootFrom(event.target);
+      if (!root) return;
+      closeAll(root);
+      open(root);
+      root.dataset.helpFocusOpenedAt = String(Date.now());
+    });
+
+    document.addEventListener("focusout", function (event) {
+      var root = rootFrom(event.target);
+      if (root) closeRootWhenIdle(root);
+    });
+
+    document.addEventListener("mouseover", function (event) {
+      if (!finePointer()) return;
+      var root = rootFrom(event.target);
+      if (!root) return;
+      closeAll(root);
+      open(root);
+    });
+
+    document.addEventListener("mouseout", function (event) {
+      if (!finePointer()) return;
+      var root = rootFrom(event.target);
+      if (!root || root.contains(event.relatedTarget)) return;
+      closeRootWhenIdle(root);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      closeAll(null);
+    });
+  }
+
+  function pageLoadingKind(event) {
+    var detail = (event && event.detail) || {};
+    return detail.kind || "redirect";
+  }
+
+  function routePageLoadingKind(event) {
+    return PAGE_LOADING_KINDS[pageLoadingKind(event)] === true;
+  }
+
+  function installPageLoadingIndicator() {
+    if (window.__sigraPageLoadingIndicatorInstalled) return;
+    window.__sigraPageLoadingIndicatorInstalled = true;
+
+    var activeCount = 0;
+    var showTimer = null;
+    var hideTimer = null;
+    var resetTimer = null;
+    var failsafeTimer = null;
+    var visibleSince = 0;
+
+    function clearShowTimer() {
+      if (showTimer) {
+        window.clearTimeout(showTimer);
+        showTimer = null;
+      }
+    }
+
+    function clearHideTimer() {
+      if (hideTimer) {
+        window.clearTimeout(hideTimer);
+        hideTimer = null;
+      }
+    }
+
+    function clearResetTimer() {
+      if (resetTimer) {
+        window.clearTimeout(resetTimer);
+        resetTimer = null;
+      }
+    }
+
+    function clearFailsafeTimer() {
+      if (failsafeTimer) {
+        window.clearTimeout(failsafeTimer);
+        failsafeTimer = null;
+      }
+    }
+
+    function setShellBusy(value) {
+      document.querySelectorAll(".sg-admin-shell").forEach(function (shell) {
+        if (value) {
+          shell.setAttribute("aria-busy", "true");
+        } else {
+          shell.removeAttribute("aria-busy");
+        }
+      });
+    }
+
+    function clearTimers() {
+      clearShowTimer();
+      clearHideTimer();
+      clearResetTimer();
+      clearFailsafeTimer();
+    }
+
+    function removeLoadingState() {
+      document.documentElement.removeAttribute("data-sg-admin-page-loading");
+      setShellBusy(false);
+      visibleSince = 0;
+    }
+
+    function resetLoadingState() {
+      activeCount = 0;
+      clearTimers();
+      removeLoadingState();
+    }
+
+    function completeLoadingState() {
+      clearTimers();
+      activeCount = 0;
+      setShellBusy(false);
+
+      if (
+        document.documentElement.getAttribute("data-sg-admin-page-loading") ===
+        "true"
+      ) {
+        document.documentElement.dataset.sgAdminPageLoading = "complete";
+        resetTimer = window.setTimeout(
+          removeLoadingState,
+          PAGE_LOADING_FADE_MS,
+        );
+      } else {
+        removeLoadingState();
+      }
+    }
+
+    function startFailsafeTimer() {
+      clearFailsafeTimer();
+      failsafeTimer = window.setTimeout(
+        resetLoadingState,
+        PAGE_LOADING_MAX_ACTIVE_MS,
+      );
+    }
+
+    function show() {
+      showTimer = null;
+      if (activeCount <= 0 || !adminShell()) return;
+      visibleSince = Date.now();
+      document.documentElement.dataset.sgAdminPageLoading = "true";
+      setShellBusy(true);
+    }
+
+    function scheduleHide() {
+      if (
+        !document.documentElement.hasAttribute("data-sg-admin-page-loading")
+      ) {
+        completeLoadingState();
+        return;
+      }
+
+      var elapsed = Date.now() - visibleSince;
+      var remaining = Math.max(PAGE_LOADING_MIN_VISIBLE_MS - elapsed, 0);
+      if (remaining > 0) {
+        hideTimer = window.setTimeout(completeLoadingState, remaining);
+      } else {
+        completeLoadingState();
+      }
+    }
+
+    window.addEventListener("phx:page-loading-start", function (event) {
+      if (pageLoadingKind(event) === "error") {
+        resetLoadingState();
+        return;
+      }
+      if (!routePageLoadingKind(event) || !adminShell()) return;
+
+      activeCount += 1;
+      clearHideTimer();
+      clearResetTimer();
+      setShellBusy(true);
+      startFailsafeTimer();
+
+      if (
+        document.documentElement.getAttribute("data-sg-admin-page-loading") ===
+        "complete"
+      ) {
+        document.documentElement.removeAttribute("data-sg-admin-page-loading");
+      }
+
+      if (
+        !showTimer &&
+        document.documentElement.getAttribute("data-sg-admin-page-loading") !==
+          "true"
+      ) {
+        showTimer = window.setTimeout(show, PAGE_LOADING_DELAY_MS);
+      }
+    });
+
+    window.addEventListener("phx:page-loading-stop", function (event) {
+      if (pageLoadingKind(event) === "error") {
+        resetLoadingState();
+        return;
+      }
+      if (!routePageLoadingKind(event)) return;
+
+      activeCount = Math.max(activeCount - 1, 0);
+      if (activeCount === 0) {
+        scheduleHide();
+      }
+    });
+
+    window.addEventListener("pagehide", function () {
+      resetLoadingState();
+    });
+
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted) {
+        resetLoadingState();
+      }
+    });
+  }
+
   // CopyToClipboard is a no-op LiveView hook shell; the real behavior is the
   // delegated document listener installed once below. Registering it as a hook
   // keeps the LiveSocket hooks map symmetric and lets hosts opt in by name.
   var CopyToClipboard = {
     mounted: function () {
       installCopyDelegate();
+    },
+  };
+
+  function authBrandingColorInput(target) {
+    return target && typeof target.closest === "function"
+      ? target.closest("[data-sg-auth-branding-color]")
+      : null;
+  }
+
+  function applyAuthBrandingColor(form, input) {
+    var name = input && input.dataset.sgAuthBrandingColor;
+    var property = AUTH_BRANDING_COLOR_TOKENS[name];
+    var value = String((input && input.value) || "")
+      .trim()
+      .toLowerCase();
+    if (!property || !AUTH_BRANDING_HEX.test(value)) return;
+
+    form
+      .querySelectorAll("[data-sg-auth-branding-preview]")
+      .forEach(function (preview) {
+        preview.style.setProperty(property, value);
+      });
+
+    var field = input.closest(".sg-color-field");
+    var label =
+      field && field.querySelector("[data-sg-auth-branding-color-value]");
+    if (label) {
+      label.textContent = value;
+    }
+  }
+
+  function applyAuthBrandingColors(form) {
+    form
+      .querySelectorAll("[data-sg-auth-branding-color]")
+      .forEach(function (input) {
+        applyAuthBrandingColor(form, input);
+      });
+  }
+
+  var AuthBrandingPreview = {
+    mounted: function () {
+      var self = this;
+
+      this._onInputCapture = function (event) {
+        var input = authBrandingColorInput(event.target);
+        if (!input || !self.el.contains(input)) return;
+        applyAuthBrandingColor(self.el, input);
+        event.stopPropagation();
+      };
+      this._onChange = function (event) {
+        var input = authBrandingColorInput(event.target);
+        if (!input || !self.el.contains(input)) return;
+        applyAuthBrandingColor(self.el, input);
+      };
+
+      this.el.addEventListener("input", this._onInputCapture, true);
+      this.el.addEventListener("change", this._onChange);
+      applyAuthBrandingColors(this.el);
+    },
+
+    updated: function () {
+      applyAuthBrandingColors(this.el);
+    },
+
+    destroyed: function () {
+      if (this.el && this._onInputCapture) {
+        this.el.removeEventListener("input", this._onInputCapture, true);
+      }
+      if (this.el && this._onChange) {
+        this.el.removeEventListener("change", this._onChange);
+      }
     },
   };
 
@@ -476,8 +1002,12 @@
   };
 
   installCopyDelegate();
+  installMetricHelp();
+  installFieldHelp();
+  installPageLoadingIndicator();
 
   window.SigraAdminHooks = {
+    AuthBrandingPreview: AuthBrandingPreview,
     CmdK: CmdK,
     CopyToClipboard: CopyToClipboard,
     ThemeSwitch: ThemeSwitch,

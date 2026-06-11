@@ -28,7 +28,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
      |> assign(:filters_open?, false)
      |> assign(:page_title, "Users")
      |> assign(:rows, [])
-     |> assign(:summary_counts, %{})
+     |> assign(:summary_stats, empty_summary_stats())
      |> assign(:meta, nil)
      |> assign(:current_params, %{})}
   end
@@ -43,7 +43,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
        socket
        |> assign(:rows, rows)
        |> assign(:meta, meta)
-       |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
+       |> assign(:summary_stats, Query.summary_stats(config, admin_scope))
        |> assign(:current_params, normalized)
        |> assign(:filters_open?, filters_open?(normalized))
        |> assign(:page_title, page_title(admin_scope))}
@@ -57,7 +57,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
          )
          |> assign(:rows, [])
          |> assign(:meta, nil)
-         |> assign(:summary_counts, %{})
+         |> assign(:summary_stats, empty_summary_stats())
          |> assign(:current_params, %{})}
     end
   end
@@ -69,23 +69,89 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
 
   @impl true
   def render(assigns) do
+    assigns =
+      assigns
+      |> assign(:summary_posture, summary_group(assigns.summary_stats, :posture))
+
     ~H"""
     <section class="sg-stack sg-stack--6">
       <header class="sg-page-header">
         <p class="sg-page-kicker">User operations</p>
         <h1 class="sg-page-title">{page_heading(@admin_scope)}</h1>
-
-        <dl class="sg-metric-grid">
-          <.summary_chip label="Total" value={Map.get(@summary_counts, :total, 0)} />
-          <.summary_chip label="Confirmed" value={Map.get(@summary_counts, :confirmed, 0)} />
-          <.summary_chip label="MFA" value={Map.get(@summary_counts, :mfa, 0)} />
-          <.summary_chip label="Passkeys" value={Map.get(@summary_counts, :passkeys, 0)} />
-          <.summary_chip label="Locked" value={Map.get(@summary_counts, :locked, 0)} />
-          <.summary_chip label="Deleted" value={Map.get(@summary_counts, :deleted, 0)} />
-        </dl>
       </header>
 
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
+
+      <% total_users = summary_count(@summary_posture, :total) %>
+      <% confirmed_users = summary_count(@summary_posture, :confirmed) %>
+      <% mfa_users = summary_count(@summary_posture, :mfa_enabled) %>
+      <% passkey_users = summary_count(@summary_posture, :passkey_users) %>
+      <% locked_users = summary_count(@summary_posture, :locked_out) %>
+      <% deletion_scheduled_users = summary_count(@summary_posture, :deletion_scheduled) %>
+      <section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
+        <h2 id="users-health-heading" class="sg-section-heading">User health</h2>
+        <dl class="sg-metric-grid" aria-label="User health summary">
+          <.summary_chip
+            id="users-metric-total"
+            icon="users"
+            label="Total users"
+            value={total_users}
+            value_suffix="total users"
+          />
+          <.summary_chip
+            id="users-metric-confirmed"
+            icon="check"
+            label="Confirmed users"
+            value={confirmed_users}
+            value_suffix="confirmed"
+            subvalue={summary_percent(confirmed_users, total_users)}
+            help="These users confirmed their email and can sign in normally."
+          />
+          <.summary_chip
+            id="users-metric-mfa"
+            icon="mfa"
+            label="MFA enrolled"
+            value={mfa_users}
+            value_suffix="MFA enabled"
+            subvalue={summary_percent(mfa_users, total_users)}
+            help="These users have multifactor authentication enabled. Higher coverage lowers account takeover risk."
+          />
+          <.summary_chip
+            id="users-metric-passkeys"
+            icon="fingerprint"
+            label="Passkey users"
+            value={passkey_users}
+            value_suffix="with passkeys"
+            subvalue={summary_percent(passkey_users, total_users)}
+            help="These users have at least one passkey. Passkeys make phishing attacks harder."
+          />
+          <.summary_chip
+            id="users-metric-locked"
+            icon="lock"
+            label="Locked users"
+            value={locked_users}
+            value_suffix="locked out"
+            subvalue={summary_percent(locked_users, total_users)}
+            help="These users are locked out after failed sign-in attempts. Review the account before unlocking."
+            tone={summary_tone(locked_users, "risk")}
+          />
+          <.summary_chip
+            id="users-metric-deletion"
+            icon="clock"
+            label="Deletion scheduled"
+            value={deletion_scheduled_users}
+            value_suffix="pending deletion"
+            subvalue={summary_percent(deletion_scheduled_users, total_users)}
+            help="These users are scheduled for deletion. Access is disabled and active sessions are revoked."
+            tone={summary_tone(deletion_scheduled_users, "warn")}
+          />
+        </dl>
+      </section>
+
+      <section class="sg-stack sg-stack--4" aria-labelledby="find-users-heading">
+      <div class="sg-stack sg-stack--1">
+        <h2 id="find-users-heading" class="sg-section-heading">Find users</h2>
+      </div>
 
       <form method="get" action={index_path(@admin_scope)} class="sg-filter-panel sg-stack">
         <div class="sg-search-row">
@@ -322,6 +388,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
           <span class="sr-only">Next page</span>
         </a>
       </nav>
+      </section>
     </section>
     """
   end
@@ -394,6 +461,40 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
     do: "Organization-scoped user operations for #{name}"
 
   defp scope_copy(_), do: "User operations"
+
+  defp empty_summary_stats do
+    %{
+      posture: %{
+        total: 0,
+        confirmed: 0,
+        mfa_enabled: 0,
+        passkey_users: 0,
+        locked_out: 0,
+        deletion_scheduled: 0
+      },
+      growth: %{new_this_week: 0, new_this_month: 0},
+      activity: %{available?: false, active_this_week: nil, active_this_month: nil}
+    }
+  end
+
+  defp summary_group(stats, key) when is_map(stats), do: Map.get(stats, key, %{})
+  defp summary_group(_stats, _key), do: %{}
+
+  defp summary_count(counts, key) when is_map(counts), do: Map.get(counts, key, 0)
+  defp summary_count(_counts, _key), do: 0
+
+  defp summary_percent(count, total), do: "#{percent_of(count, total)}% of total users"
+
+  defp percent_of(_count, total) when total in [nil, 0], do: 0
+
+  defp percent_of(count, total) do
+    (count / total * 100)
+    |> Float.round()
+    |> trunc()
+  end
+
+  defp summary_tone(count, tone) when count > 0, do: tone
+  defp summary_tone(_count, _tone), do: nil
 
   defp filters_open?(params), do: Enum.any?(@more_filter_keys, &present_param?(params, &1))
 

@@ -93,6 +93,7 @@ Rules:
 
 - Use the primary lockup for brandbook, landing, README visuals, and presentation openings.
 - Use `logo-primary.svg` on light surfaces and `logo-primary-dark.svg` on dark surfaces.
+- The lockup wordmark is outlined from Inter Display Black v4.1. Do not recreate the logo as live SVG text or runtime web-font text.
 - Use the free-standing mark for UI accents where a tile would feel too heavy.
 - Use `favicon.svg` for browser favicon; it uses the same Rail Accent geometry as `logo-mark.svg`.
 - Use the free-standing mark for package avatars, social avatars, and compact cards unless a platform requires a separate filled-square export.
@@ -127,13 +128,13 @@ Use brand tokens for docs and marketing components:
 
 ### Say / Do Not Say
 
-| Say | Do not say |
-| --- | --- |
-| "Library-owned security-sensitive behavior" | "Military-grade security" |
-| "Generated host-owned Phoenix code" | "Seamless integration" |
-| "Review generated diffs before rollout" | "Zero-effort migration" |
+| Say                                           | Do not say                   |
+| --------------------------------------------- | ---------------------------- |
+| "Library-owned security-sensitive behavior"   | "Military-grade security"    |
+| "Generated host-owned Phoenix code"           | "Seamless integration"       |
+| "Review generated diffs before rollout"       | "Zero-effort migration"      |
 | "Host-owned authorization and product policy" | "Complete identity platform" |
-| "Use `mix sigra.doctor` to inspect wiring" | "It just works" |
+| "Use `mix sigra.doctor` to inspect wiring"    | "It just works"              |
 
 ### Tone By Context
 

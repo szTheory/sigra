@@ -19,6 +19,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
      |> assign(:detail, nil)
      |> assign(:return_to, nil)
      |> assign(:confirm_action, nil)
+     |> assign(:admin_breadcrumbs, nil)
      |> assign(:page_title, "User")}
   end
 
@@ -33,6 +34,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
      |> assign(:detail, detail)
      |> assign(:return_to, return_to)
      |> assign(:confirm_action, nil)
+     |> assign(:admin_breadcrumbs, user_breadcrumbs(admin_scope, detail, return_to))
      |> assign(:page_title, detail.display_name || detail.user.email)}
   end
 
@@ -89,10 +91,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
   def render(assigns) do
     ~H"""
     <section :if={@detail} class="sg-stack sg-stack--6">
-      <div class="sg-cluster sg-cluster--between">
-        <.page_back label="Back to users" return_to={@return_to} />
-        <.scope_ribbon copy={scope_copy(@admin_scope)} />
-      </div>
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <header class="sg-page-header">
         <div class="sg-cluster sg-cluster--between sg-cluster--start sg-cluster--3">
@@ -327,7 +326,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
   end
 
   defp sanitize_return_to(path, admin_scope) when is_binary(path) do
-    if String.starts_with?(path, ["/admin/users", "/admin/organizations/"]) do
+    if users_index_path?(path, admin_scope) do
       path
     else
       default_return_to(admin_scope)
@@ -341,6 +340,26 @@ defmodule Sigra.Admin.Live.UserShowLive do
        do: "/admin/organizations/#{slug}/users"
 
   defp default_return_to(_admin_scope), do: "/admin/users"
+
+  defp user_breadcrumbs(admin_scope, detail, return_to) do
+    [
+      %{label: "Overview", href: overview_path(admin_scope)},
+      %{label: "Users", href: return_to},
+      %{label: detail.user.email}
+    ]
+  end
+
+  defp overview_path(%Scope{mode: :organization, organization_slug: slug}) when is_binary(slug),
+    do: "/admin/organizations/#{slug}"
+
+  defp overview_path(_admin_scope), do: "/admin"
+
+  defp users_index_path?(path, %Scope{mode: :organization, organization_slug: slug})
+       when is_binary(slug) do
+    URI.parse(path).path == "/admin/organizations/#{slug}/users"
+  end
+
+  defp users_index_path?(path, _admin_scope), do: URI.parse(path).path == "/admin/users"
 
   defp pivot_path(_admin_scope, user_id, organization, return_to) do
     path = "/admin/organizations/#{organization.organization_slug}/users/#{user_id}"

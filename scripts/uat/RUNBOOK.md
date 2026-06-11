@@ -4,10 +4,10 @@
 
 Many checklist items are now duplicated or superseded by **merge-blocking CI** and **ExUnit/Playwright** contracts. Before spending human time on a row, see **[`docs/uat-ci-coverage.md`](../../docs/uat-ci-coverage.md)** for the SEED-001 / v1.3 mapping (which jobs close which SEED, and what is still residual).
 
-| Work type | Use this runbook when… |
-|-----------|-------------------------|
+| Work type                | Use this runbook when…                                                                                                                    |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | **CI already covers it** | You only need a release paper trail — link workflow run URLs + commit SHA in `.planning/uat-evidence/` instead of re-running every click. |
-| **Residual row** | You care about real Gmail/Outlook/Apple rendering or live Google OAuth UX — run the relevant section below. |
+| **Residual row**         | You care about real Gmail/Outlook/Apple rendering or live Google OAuth UX — run the relevant section below.                               |
 
 ---
 
@@ -28,6 +28,7 @@ scripts/uat/up.sh
 ```
 
 This will:
+
 1. Start Postgres in Docker under a project-scoped Compose name
 2. Fetch deps in `test/example/`
 3. Create, migrate, and seed the `example_dev` database
@@ -49,6 +50,17 @@ The raw `127.0.0.1:<port>` URL is still printed as a fallback. The
 `scripts/dev-proxy/up.sh` helper is generic local developer infrastructure:
 any compatible Traefik attached to the external Docker network named `proxy`
 can route Sigra's labels, and no sibling project checkout is required.
+Proxy mode recompiles the local Sigra path dependency on startup. If you change
+Sigra library code while the Dockerized app is already running and a browser
+refresh still looks stale, run:
+
+```bash
+scripts/uat/up.sh --refresh-code
+```
+
+`--proxy` fails fast if another running Sigra UAT web container already claims
+the same `SIGRA_UAT_PROXY_HOST`, which prevents `sigra.localhost` from silently
+routing to an older checkout.
 
 Do not use a project-private Sigra Traefik on port 80. If you explicitly need a
 private fallback proxy for UAT isolation, use the opt-in fallback:
@@ -89,6 +101,7 @@ When you're done with the UAT session:
 
 ```bash
 scripts/uat/status.sh         # reprint URLs and the server command
+scripts/uat/up.sh --refresh-code # recompile Sigra in the Dockerized proxy app
 scripts/uat/up.sh --print-env # print export lines for ad-hoc commands
 scripts/uat/down.sh           # stop containers for this Compose project, keep DB
 scripts/uat/down.sh --purge   # also wipe this project's DB volume
@@ -117,6 +130,7 @@ of starting a Sigra-owned port-80 proxy.
 ## How to use this runbook
 
 Each item has:
+
 - **Phase / source** — which phase verifier deferred it
 - **Steps** — exact click-by-click walkthrough
 - **Expected** — what you should see
@@ -134,6 +148,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `04-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
+
 1. Visit `<printed-app-url>/users/register`
 2. Register with email `test1@example.com` / password `correcthorsebatterystaple`
 3. Open `/dev/mailbox` in another tab → click the confirmation email → click the confirmation link → you're confirmed and logged in
@@ -142,6 +157,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 6. Switch back to your normal window → refresh `/users/sessions`
 
 **Expected:**
+
 - "Active Sessions" page heading
 - 2 rows shown, each with: device/user-agent string, IP address, last-active timestamp
 - The current session is marked with a "This device" badge
@@ -159,12 +175,14 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `04-VERIFICATION.md` (human_needed item 2)
 
 **Steps:**
+
 1. Logged in from the previous step
 2. Wait at least the configured sudo TTL (default 5 minutes) OR open a private window and log in fresh
 3. Navigate to `<printed-app-url>/users/settings`
 4. Try to change email or trigger any sensitive action
 
 **Expected:**
+
 - You're redirected to `/users/sudo`
 - Page asks for current password
 - Entering correct password redirects you back to the original settings page with the action now allowed
@@ -181,12 +199,14 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `04-VERIFICATION.md` (human_needed item 3)
 
 **Steps:**
+
 1. Log out
 2. Navigate to /users/log_in
 3. Enter `test1@example.com` with a wrong password 5 times in a row
 4. Open /dev/mailbox
 
 **Expected:**
+
 - 1 "Account locked" email appears
 - Subject line is clear and non-alarmist
 - HTML body has a heading, an explanation paragraph, and the unlock-time
@@ -204,6 +224,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `04-VERIFICATION.md` (human_needed item 4)
 
 **Steps:**
+
 1. Wait for lockout (default 15 min) or restart the database to clear it: `cd test/example && mix ecto.reset`
 2. Re-register if needed (or use a different email)
 3. Log in with the "Remember me" checkbox **checked**
@@ -212,6 +233,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 6. Reopen the browser, navigate to the printed app URL
 
 **Expected:**
+
 - You're still logged in (no login prompt)
 - /users/sessions still shows the session as active
 - The session was rehydrated from the long-lived `_example_user_remember_me` cookie
@@ -229,6 +251,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `05-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
+
 1. In a temp directory: `mix phx.new test_oauth_app --no-tailwind --no-esbuild --binary-id`
 2. `cd test_oauth_app`
 3. Add to `mix.exs` deps: `{:sigra, path: "/Users/jon/projects/sigra"}`
@@ -237,6 +260,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 6. `mix sigra.gen.oauth google github`
 
 **Expected:**
+
 - Generator creates 12+ files without errors
 - Routes injected into `router.ex` for OAuth callbacks
 - Config injected into `config/config.exs` for provider strategies
@@ -256,6 +280,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Requires:** A Google OAuth client ID + secret. Get one from https://console.cloud.google.com/apis/credentials → "Create OAuth client ID" → Web application → Authorized redirect URI: `http://localhost:4000/auth/google/callback`
 
 **Steps (using the example app from `scripts/uat/up.sh`, NOT a fresh app):**
+
 1. Stop the server (Ctrl-C twice)
 2. Edit `test/example/config/dev.exs` and add a strategy block (or set env vars and reload):
    ```elixir
@@ -273,6 +298,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 7. You're redirected back to the app
 
 **Expected:**
+
 - Redirect to Google succeeds (no SSL/redirect-URI mismatch)
 - Google consent screen lists the right scopes (email, profile)
 - Callback creates a new user with the Google email
@@ -292,6 +318,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Requires:** UAT 5.2 set up (or similar OAuth provider config in the temp app)
 
 **Steps:**
+
 1. Logged in as a user that registered via password
 2. Navigate to /users/settings
 3. Find the "Linked accounts" section
@@ -300,6 +327,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 6. Try to unlink your password method (or unlink Google — whichever leaves you with 0 auth methods)
 
 **Expected:**
+
 - Linking flow works without losing the original session
 - After linking, both auth methods are visible
 - The "unlink" button on the **last** auth method is disabled with a tooltip explaining why
@@ -314,12 +342,14 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `05-VERIFICATION.md` (human_needed item 4)
 
 **Steps:**
+
 1. Register a user with email `match@example.com` and a password (DO NOT link OAuth)
 2. Log out
 3. Visit /users/log_in
 4. Click "Sign in with Google" using a Google account whose email is also `match@example.com`
 
 **Expected:**
+
 - The app detects the email match
 - You see a flash: "An account with this email already exists. Log in to link your provider."
 - You're redirected to /users/log_in
@@ -338,6 +368,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `06-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
+
 1. Already covered as a side-effect of UAT 5.1 (the temp app)
 2. Verify in the temp app:
    - `lib/test_oauth_app/accounts/user_mfa_credential.ex` exists
@@ -357,6 +388,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `06-VERIFICATION.md` (human_needed item 2)
 
 **Steps:**
+
 1. In the example app, log in as a user
 2. Navigate to /users/settings/mfa
 3. Click "Enroll in MFA"
@@ -369,6 +401,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 10. You should be redirected to the MFA challenge page
 
 **Expected on the challenge page:**
+
 - Two tabs: "Authenticator code" and "Backup code"
 - 6-digit input field (or 6 separate boxes)
 - Auto-submit fires when you've typed all 6 digits (no submit button click required)
@@ -386,6 +419,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Steps:** Combined with 6.2 — the enrollment flow itself.
 
 **Expected during enrollment:**
+
 - QR code renders (clearly scannable)
 - Manual entry secret (Base32 string) is visible below the QR
 - Confirmation code input accepts a valid 6-digit code
@@ -403,6 +437,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `06-VERIFICATION.md` (human_needed item 4 — flagged because the handler has a TODO comment)
 
 **Steps:**
+
 1. Logged in with MFA enabled
 2. Navigate to /users/settings/mfa
 3. Click "Regenerate backup codes"
@@ -410,6 +445,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 5. New backup codes appear
 
 **Expected:**
+
 - The new set of 8-10 codes is displayed
 - The OLD backup codes no longer work (try to log in using one of the old codes — should fail with "invalid code")
 - The new codes work
@@ -427,10 +463,12 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `08-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
+
 1. Logged in as a user
 2. Navigate to /users/settings
 
 **Expected (3 sections, top to bottom):**
+
 - **Email** section: current email, change-email form (new email + current password), pending-change banner if a change is in progress
 - **Password** section: change-password form (current + new + confirm) for password users, OR a "Set password" form for OAuth-only users
 - **Danger zone** section: red border, account deletion form requiring you to type your email to confirm
@@ -444,6 +482,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `08-VERIFICATION.md` (human_needed item 2)
 
 **Steps:**
+
 1. Wait for sudo TTL to expire (or log out + back in)
 2. Try to:
    - Change email (submit the form)
@@ -463,6 +502,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `08-VERIFICATION.md` (human_needed item 3)
 
 **Steps:**
+
 1. Logged in as a user
 2. Navigate to /users/settings → Danger zone
 3. Type your email in the confirm field and click "Delete account"
@@ -470,6 +510,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 5. Try to log back in
 
 **Expected:**
+
 - After login, instead of landing on the home page, you see the /users/reactivation page
 - The page explains the account is scheduled for deletion
 - A "Cancel deletion" button restores the account
@@ -486,6 +527,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
 **Source:** `08-VERIFICATION.md` (human_needed item 4)
 
 **Steps:**
+
 1. Trigger each of these flows from a logged-in user and check `/dev/mailbox`:
    - Email change request → 1 email to **new** address (confirmation), 1 email to **old** address (notification)
    - Email change cancel → 1 email to old address (cancelled)
@@ -495,6 +537,7 @@ Mark each item with `[x]` as you complete it. If something fails, leave the chec
    - Account reactivation → 1 email (cancelled)
 
 **Expected:** All 7 emails render with:
+
 - Clear subject lines
 - Heading + body copy that matches the action
 - Security footer ("If you did not initiate this, contact support immediately")
@@ -511,6 +554,7 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 ### [ ] 9.1 Spot-check audit table
 
 **Steps:**
+
 1. After running the UAT items above, open `psql`:
    ```bash
    docker compose -p <printed-compose-project> -f scripts/uat/docker-compose.yml exec postgres psql -U postgres example_dev
@@ -518,6 +562,7 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 2. `SELECT event_type, actor_id, ip, occurred_at FROM audit_events ORDER BY occurred_at DESC LIMIT 30;`
 
 **Expected:**
+
 - Rows for: `auth.register.success`, `auth.login.success`, `auth.login.failure` (5 of these from item 4.3), `auth.password_reset_complete`, `auth.confirmation_verify.success`, `auth.mfa.enroll`, `auth.email_change.request`, `auth.account.delete.request`, etc.
 - Each row has user ID (where applicable), IP, timestamp, JSONB metadata
 
@@ -534,6 +579,7 @@ Phase 9 has a single architectural caveat (C-1: log_safe hybrid is non-atomic) a
 **Source:** `10-VERIFICATION.md` (human_needed item 1)
 
 **Steps:**
+
 ```bash
 cd test/example
 PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> MIX_ENV=test mix ecto.create
@@ -554,6 +600,7 @@ PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> mix test --include integration
 **Source:** `10-VERIFICATION.md` (human_needed item 2)
 
 **Steps:**
+
 ```bash
 cd /Users/jon/projects/sigra   # repo root, NOT test/example
 mix docs
@@ -561,6 +608,7 @@ open doc/index.html            # macOS; xdg-open on Linux
 ```
 
 **Expected:**
+
 - The landing page is `getting-started.md` content (not the README or a stub)
 - Sidebar is grouped: **Introduction** / **Flows** / **Recipes**
 - All 15 guides render with formatting intact
@@ -575,6 +623,7 @@ open doc/index.html            # macOS; xdg-open on Linux
 **Source:** `10-VERIFICATION.md` (human_needed item 3)
 
 **Steps:** Read `guides/introduction/getting-started.md` from top to bottom as if you were a new user who just discovered Sigra. Check:
+
 - Does the intro explain what Sigra is and why someone would use it (vs phx.gen.auth, Pow, Guardian)?
 - Are the install steps complete and copy-pasteable?
 - Are there obvious typos, broken links, dead code samples?
@@ -681,7 +730,7 @@ optional. See phase 10.1.1 CONTEXT.md D-15.
 
 ## When you're done
 
-Total checked: ___ / 19
+Total checked: \_\_\_ / 19
 
 If all 19 are `[x]` and the test suite still passes:
 
@@ -692,6 +741,7 @@ scripts/uat/down.sh           # tear down (or --purge to wipe DB volume)
 ```
 
 Then come back to me with the results and I'll:
+
 1. Update each phase's `*-HUMAN-UAT.md` file marking gaps as resolved
 2. Run `/gsd-validate-phase` for the 6 Nyquist-non-compliant phases
 3. Run `/gsd-complete-milestone v1.0` to archive

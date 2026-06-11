@@ -22,6 +22,11 @@ defmodule Sigra.Install.Features.AdminTest do
       assert {:eex, "admin/policy.ex", "lib/my_app/sigra_admin_policy.ex"} in files
 
       assert {:eex, "admin/components/admin_shell.ex", "lib/my_app_web/components/admin_shell.ex"} in files
+
+      assert {:eex, "admin/sigra-logo-primary.svg", "priv/static/images/sigra-logo-primary.svg"} in files
+
+      assert {:eex, "admin/sigra-logo-primary-dark.svg",
+              "priv/static/images/sigra-logo-primary-dark.svg"} in files
     end
 
     test "emits impersonation_controller template to host controllers/admin/ directory" do
@@ -75,6 +80,7 @@ defmodule Sigra.Install.Features.AdminTest do
       assert layouts_admin.marker == "def admin(assigns) do"
       assert layouts_admin.anchor == :before_last_end
       assert layouts_admin.content =~ "<.admin_shell"
+      assert layouts_admin.content =~ "admin_breadcrumbs={@admin_breadcrumbs}"
       assert layouts_admin.content =~ "<.flash_group"
 
       assert error_handler.marker == "def auth_error(conn, :insufficient_scope, _opts) do"
@@ -203,14 +209,32 @@ defmodule Sigra.Install.Features.AdminTest do
     test "admin shell template exposes the auth branding nav item" do
       source = File.read!("priv/templates/sigra.install/admin/components/admin_shell.ex")
 
+      assert source =~ "sg-brand-mark__lockup"
+      assert source =~ ~s|~p"/images/sigra-logo-primary.svg"|
+      assert source =~ ~s|~p"/images/sigra-logo-primary-dark.svg"|
+      assert source =~ ~s|width="188"|
+      assert source =~ ~s|height="54"|
+      refute source =~ "sg-brand-mark__word"
+      refute source =~ "sg-brand-mark__core"
       assert source =~ "branding_link(@admin_scope)"
       assert source =~ ~s|~p"/admin/auth-branding"|
       assert source =~ "Branding"
       assert source =~ "branding_active?"
+      assert source =~ "defp admin_link(assigns)"
+      assert source =~ ~s|<.link :if={@live} navigate={@href}|
+      assert source =~ "same_admin_session?"
+      assert source =~ "attr :admin_breadcrumbs, :list"
+      assert source =~ "breadcrumb_items(assigns.admin_scope"
+      assert source =~ "breadcrumb_link?"
+      assert source =~ ~s|Overview|
+      assert source =~ "fallback_breadcrumb_items"
+      assert source =~ "breadcrumb_label(page_title)"
       assert source =~ "data-sg-admin-js"
       assert source =~ "data-sg-admin-theme-preference"
+      assert source =~ "sg-admin-loading-bar"
+      assert source =~ "data-sg-admin-loading-bar"
+      assert source =~ ~s|aria-hidden="true"|
       assert source =~ ~s(<nav class="sg-admin-crumbs" aria-label="Breadcrumb">)
-      assert source =~ "if overview_active?(@page_title) do"
       refute source =~ ":if={not overview_active?(@page_title)}"
       assert source_order?(source, "sg-nav-title\">Overviews<", "sg-nav-title\">Workspace<")
 
@@ -218,7 +242,22 @@ defmodule Sigra.Install.Features.AdminTest do
       assert source_order?(bottom_nav, "overview_link(@admin_scope)", "users_link(@admin_scope)")
     end
 
-    test "admin hook template exports the theme switch hook" do
+    test "admin logo templates are cropped path-only lockups" do
+      for path <- [
+            "priv/templates/sigra.install/admin/sigra-logo-primary.svg",
+            "priv/templates/sigra.install/admin/sigra-logo-primary-dark.svg"
+          ] do
+        source = File.read!(path)
+
+        assert source =~ ~s(viewBox="20 12 188 54")
+        assert source =~ "Inter Display Black v4.1."
+        assert source =~ "<path"
+        refute source =~ "<text"
+        refute source =~ "font-family"
+      end
+    end
+
+    test "admin hook template exports admin client utilities" do
       source = File.read!("priv/templates/sigra.install/admin/admin_hooks.js")
 
       assert source =~ "ThemeSwitch"
@@ -226,6 +265,23 @@ defmodule Sigra.Install.Features.AdminTest do
       assert source =~ "data-sg-admin-theme"
       assert source =~ "sgAdminThemePreference"
       assert source =~ "aria-checked"
+      assert source =~ "installPageLoadingIndicator"
+      assert source =~ "installMetricHelp"
+      assert source =~ "data-sg-metric-help-root"
+      assert source =~ "installFieldHelp"
+      assert source =~ "data-sg-field-help-root"
+      assert source =~ "data-sg-field-help-trigger"
+      assert source =~ "AuthBrandingPreview"
+      assert source =~ "AUTH_BRANDING_COLOR_TOKENS"
+      assert source =~ "data-sg-auth-branding-color"
+      assert source =~ "data-sg-auth-branding-preview"
+      assert source =~ "event.stopPropagation()"
+      assert source =~ "phx:page-loading-start"
+      assert source =~ "phx:page-loading-stop"
+      assert source =~ "PAGE_LOADING_MAX_ACTIVE_MS"
+      assert source =~ "pageLoadingKind(event) === \"error\""
+      assert source =~ "data-sg-admin-page-loading"
+      assert source =~ "aria-busy"
       refute source =~ "aria-pressed"
       refute source =~ "document.documentElement.setAttribute(\"data-theme\""
     end

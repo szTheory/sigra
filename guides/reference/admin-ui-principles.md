@@ -19,7 +19,7 @@ Use GOV.UK-style service thinking: start from user needs, make the next action o
 - `/admin` is a needs-led launcher: tasks first, posture second, capabilities last.
 - Overview pages explain where to go next; list pages help narrow a set; detail pages help decide and act.
 - Scope must be visible in shell chrome and in page body on list/detail screens.
-- Leaf screens use a single-step back control. Breadcrumbs explain hierarchy; they are not action controls.
+- User leaf screens use breadcrumbs for hierarchy and return context. A separate back control is only for leaf screens that cannot express the path as `Overview / Workspace / Item`.
 - Progressive reveal is preferred for power-user filters and secondary evidence. Do not make the common path pay for uncommon complexity.
 
 ## Design System

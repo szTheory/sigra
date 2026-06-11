@@ -67,6 +67,10 @@ defmodule Sigra.Admin.ComponentsTest do
   # sg-list-row per app.css:945-993, Phase 154 intent).
   @notice_golden "<div class=\"sg-notice \" data-tone=\"risk\">\n  <div class=\"sg-text-sm\">Locked — revoke active logins and unlock below.</div>\n</div>"
 
+  # notice_link — inline notice action link. It is intentionally an underlined
+  # native anchor, not a button-looking split action.
+  @notice_link_golden "<a href=\"/admin/users?needs_review=true\" class=\"sg-notice__action \">\n  Review accounts\n</a>"
+
   # ---------------------------------------------------------------------------
   # audit_row goldens (D-10, D-11) — Phase 158, Plan 01
   #
@@ -166,6 +170,68 @@ defmodule Sigra.Admin.ComponentsTest do
            "summary_chip drifted — see admin-design-contract.md; do not re-record Playwright baselines"
   end
 
+  test "summary_chip renders enhanced read-only posture metric with help" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "users-metric-mfa",
+        icon: "mfa",
+        label: "MFA enrolled",
+        value: 42,
+        value_unit: "%",
+        value_suffix: "MFA coverage",
+        subvalue: "7 users with MFA",
+        help:
+          "These users have multifactor authentication enabled. Higher coverage lowers account takeover risk.",
+        tone: "ok"
+      )
+
+    assert html =~ ~s(id="users-metric-mfa")
+    assert html =~ ~s(data-tone="ok")
+    assert html =~ ~s(data-sg-metric-enhanced="true")
+    assert html =~ ~s(data-sg-metric-has-subvalue="true")
+    assert html =~ ~s(data-sg-metric-help-root="true")
+    assert html =~ ~s(tabindex="0")
+    assert html =~ ~s(aria-describedby="users-metric-mfa-help")
+    assert html =~ ~s(class="sg-metric__icon")
+    assert html =~ ~s(data-icon="mfa")
+    assert html =~ ~s(class="sg-metric__icon-text")
+    assert html =~ "MFA"
+    refute html =~ ~s(class="sg-metric__icon-svg")
+    refute html =~ ~s(<path)
+    assert html =~ ~s(class="sg-metric__unit")
+    assert html =~ ~s(class="sg-metric__caption")
+    assert html =~ "MFA enrolled"
+    assert html =~ "42"
+    assert html =~ "MFA coverage"
+    assert html =~ "7 users with MFA"
+    refute html =~ "sg-metric__value-suffix"
+    assert html =~ ~s(role="tooltip")
+
+    assert html =~
+             "These users have multifactor authentication enabled. Higher coverage lowers account takeover risk."
+
+    refute html =~ ~s(type="button")
+    refute html =~ "sg-metric__help-trigger"
+    refute html =~ "?"
+    refute html =~ "<a"
+  end
+
+  test "summary_chip renders plain check icon without an inner circle" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "users-metric-confirmed",
+        icon: "check",
+        label: "Confirmed users",
+        value: 8,
+        value_suffix: "confirmed"
+      )
+
+    assert html =~ ~s(data-icon="check")
+    assert html =~ ~s(d="m6.75 12.25 3.5 3.5 7-8")
+    refute html =~ ~s(d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z")
+    refute html =~ ~s(data-icon="check-circle")
+  end
+
   test "applied_chip renders original inline applied chip bytes faithfully" do
     html =
       render_component(&Components.applied_chip/1,
@@ -224,6 +290,49 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html == @notice_golden,
            "notice drifted — see admin-design-contract.md; do not re-record Playwright baselines"
+  end
+
+  test "notice_link renders native inline notice action link" do
+    html =
+      render_component(&Components.notice_link/1,
+        href: "/admin/users?needs_review=true",
+        inner_block: [%{inner_block: fn _, _ -> "Review accounts" end}]
+      )
+
+    assert html == @notice_link_golden,
+           "notice_link drifted — see admin-design-contract.md; keep notice actions inline"
+  end
+
+  test "field_help renders accessible label-adjacent tooltip control" do
+    html =
+      render_component(&Components.field_help/1,
+        id: "branding-logo-url-help",
+        label: "Logo URL",
+        inner_block: [
+          %{
+            inner_block: fn _, _ ->
+              "Shown on generated auth screens and email headers when set."
+            end
+          }
+        ]
+      )
+
+    assert html =~ ~s(class="sg-field-help ")
+    assert html =~ ~s(data-sg-field-help-root="true")
+    assert html =~ ~s(type="button")
+    assert html =~ ~s(class="sg-field-help__trigger")
+    assert html =~ ~s(aria-label="Help: Logo URL")
+    assert html =~ ~s(aria-controls="branding-logo-url-help")
+    assert html =~ ~s(aria-describedby="branding-logo-url-help")
+    assert html =~ ~s(aria-expanded="false")
+    assert html =~ ~s(data-sg-field-help-trigger="true")
+    assert html =~ ~s(id="branding-logo-url-help")
+    assert html =~ ~s(class="sg-field-help__panel")
+    assert html =~ ~s(role="tooltip")
+    assert html =~ "hidden"
+    assert html =~ "Shown on generated auth screens and email headers when set."
+    refute html =~ ~s(title=)
+    refute html =~ "<a"
   end
 
   # ---------------------------------------------------------------------------

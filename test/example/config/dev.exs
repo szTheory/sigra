@@ -37,6 +37,7 @@ config :example, ExampleWeb.Endpoint,
   http: [ip: dev_bind_ip, port: dev_endpoint_port],
   check_origin: false,
   code_reloader: true,
+  reloadable_apps: [:example, :sigra],
   debug_errors: true,
   secret_key_base: "mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi",
   watchers: []

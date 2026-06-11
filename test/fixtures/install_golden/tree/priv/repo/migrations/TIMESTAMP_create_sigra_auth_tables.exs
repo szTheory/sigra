@@ -37,6 +37,7 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateSigraAuthTables do
     create unique_index(:users, [:email], Keyword.merge(@prefix_opts, where: "deleted_at IS NULL", name: :users_email_active_index))
     # Partial unique index on pending_email
     create unique_index(:users, [:pending_email], Keyword.merge(@prefix_opts, where: "pending_email IS NOT NULL", name: :users_pending_email_index))
+    create index(:users, [:inserted_at], @prefix_opts)
 
     create table(:user_tokens, Keyword.merge(@prefix_opts, [primary_key: false])) do
       add :id, :binary_id, primary_key: true
@@ -71,6 +72,8 @@ defmodule SigraInstallGoldenTmp.Repo.Migrations.CreateSigraAuthTables do
     create index(:user_sessions, [:user_id], @prefix_opts)
     create index(:user_sessions, [:user_id, :type], @prefix_opts)
     create index(:user_sessions, [:inserted_at], @prefix_opts)
+    create index(:user_sessions, [:last_active_at], @prefix_opts)
+    create index(:user_sessions, [:user_id, :last_active_at], @prefix_opts)
 
     # MFA Credentials (TOTP secrets, lockout tracking)
     create table(:user_mfa_credentials, Keyword.merge(@prefix_opts, [primary_key: false])) do

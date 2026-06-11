@@ -41,6 +41,85 @@ defmodule ExampleWeb.AdminUserFiltersLiveTest do
       assert filter_html(conn, platform_admin, "needs_review=true") =~ deleted_user.email
     end
 
+    test "summary metrics explain unfiltered user posture with counts, percentages, and help", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+
+      user_fixture(%{email: "confirmed-summary@example.com", display_name: "Confirmed Summary"})
+      |> update_user(%{confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+
+      user_fixture(%{email: "mfa-summary@example.com", display_name: "MFA Summary"})
+      |> tap(&insert_mfa/1)
+
+      user_fixture(%{email: "passkey-summary@example.com", display_name: "Passkey Summary"})
+      |> tap(&passkey_fixture/1)
+
+      user_fixture(%{email: "locked-summary@example.com", display_name: "Locked Summary"})
+      |> update_user(%{locked_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+
+      user_fixture(%{email: "deletion-summary@example.com", display_name: "Deletion Summary"})
+      |> update_user(%{deleted_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+
+      html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/users")
+        |> html_response(200)
+
+      assert html =~ ~s(id="users-metric-total")
+      assert html =~ "User health"
+      assert html =~ "Find users"
+      assert html =~ ~s(<dd class="sg-metric__caption">total users</dd>)
+      refute html =~ "Visible in this scope"
+      refute html =~ "All accounts visible in this admin scope."
+      refute html =~ ~s(id="users-metric-total-help")
+      assert html =~ ~s(<dd class="sg-metric__caption">confirmed</dd>)
+      assert html =~ ~s(<dd class="sg-metric__caption">MFA enabled</dd>)
+      assert html =~ ~s(<dd class="sg-metric__caption">with passkeys</dd>)
+      assert html =~ ~s(<dd class="sg-metric__caption">locked out</dd>)
+      assert html =~ ~s(<dd class="sg-metric__caption">pending deletion</dd>)
+      refute html =~ "sg-metric__value-suffix"
+      assert html =~ "% of total users"
+      assert html =~ "These users confirmed their email and can sign in normally."
+
+      assert html =~
+               "These users have multifactor authentication enabled. Higher coverage lowers account takeover risk."
+
+      assert html =~
+               "These users have at least one passkey. Passkeys make phishing attacks harder."
+
+      assert html =~
+               "These users are locked out after failed sign-in attempts. Review the account before unlocking."
+
+      assert html =~
+               "These users are scheduled for deletion. Access is disabled and active sessions are revoked."
+
+      assert html =~ ~s(data-sg-metric-help-root="true")
+      assert html =~ ~s(data-icon="check")
+      assert html =~ ~s(data-icon="mfa")
+      refute html =~ ~s(data-icon="phone-check")
+      assert html =~ ~s(data-icon="fingerprint")
+      refute html =~ ~s(data-icon="check-circle")
+      refute html =~ ~s(data-sg-metric-help-trigger)
+      refute html =~ "sg-metric__help-trigger"
+      assert html =~ ~s(id="users-metric-mfa-help")
+      assert html =~ ~s(data-tone="risk")
+      assert html =~ ~s(data-tone="warn")
+
+      filtered_html =
+        conn
+        |> recycle()
+        |> log_in_user(platform_admin)
+        |> get("/admin/users?q=definitely-no-user")
+        |> html_response(200)
+
+      assert filtered_html =~ "No users match this view"
+
+      assert metric_number(filtered_html, "users-metric-total") ==
+               metric_number(html, "users-metric-total")
+    end
+
     test "more filters include provider and registered_from registered_to range controls", %{
       conn: conn
     } do
@@ -132,5 +211,13 @@ defmodule ExampleWeb.AdminUserFiltersLiveTest do
     |> Repo.insert!()
 
     user
+  end
+
+  defp metric_number(html, id) do
+    pattern =
+      ~r/id="#{Regex.escape(id)}".*?<span class="sg-metric__number">\s*(?<number>\d+)/s
+
+    %{"number" => number} = Regex.named_captures(pattern, html)
+    String.to_integer(number)
   end
 end

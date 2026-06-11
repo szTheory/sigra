@@ -11,4 +11,4 @@ WORKDIR /app/test/example
 
 RUN mix local.hex --force && mix local.rebar --force
 
-CMD ["sh", "-lc", "mix deps.get && exec mix phx.server"]
+CMD ["sh", "-lc", "mix deps.get && mix deps.compile sigra --force && exec mix phx.server"]

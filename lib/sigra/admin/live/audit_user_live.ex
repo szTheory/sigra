@@ -21,6 +21,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
      |> assign(:meta, nil)
      |> assign(:current_params, %{})
      |> assign(:return_to, nil)
+     |> assign(:admin_breadcrumbs, nil)
      |> assign(:page_title, "User audit")}
   end
 
@@ -40,6 +41,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
          |> assign(:meta, meta)
          |> assign(:current_params, current_params)
          |> assign(:return_to, return_to)
+         |> assign(:admin_breadcrumbs, audit_breadcrumbs(admin_scope, detail, return_to))
          |> assign(:page_title, "#{detail.display_name || detail.user.email} audit")}
 
       {:error, _reason} ->
@@ -53,7 +55,8 @@ defmodule Sigra.Admin.Live.AuditUserLive do
          |> assign(:rows, [])
          |> assign(:meta, nil)
          |> assign(:current_params, %{})
-         |> assign(:return_to, return_to)}
+         |> assign(:return_to, return_to)
+         |> assign(:admin_breadcrumbs, audit_breadcrumbs(admin_scope, detail, return_to))}
     end
   end
 
@@ -61,10 +64,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
   def render(assigns) do
     ~H"""
     <section :if={@detail} class="sg-stack sg-stack--6">
-      <div class="sg-cluster sg-cluster--between">
-        <.page_back return_to={@return_to} label="Back to user" />
-        <.scope_ribbon copy={scope_copy(@admin_scope)} />
-      </div>
+      <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <header class="sg-page-header">
         <p class="sg-page-kicker">User audit evidence</p>
@@ -306,6 +306,64 @@ defmodule Sigra.Admin.Live.AuditUserLive do
        do: "/admin/organizations/#{slug}/users/#{user_id}"
 
   defp default_return_to(_admin_scope, user_id), do: "/admin/users/#{user_id}"
+
+  defp audit_breadcrumbs(admin_scope, detail, return_to) do
+    users_return_to = users_index_return_to(return_to, admin_scope)
+
+    [
+      %{label: "Overview", href: overview_path(admin_scope)},
+      %{label: "Users", href: users_return_to},
+      %{
+        label: detail.user.email,
+        href: user_detail_path(admin_scope, detail.user.id, users_return_to)
+      },
+      %{label: "Audit"}
+    ]
+  end
+
+  defp overview_path(%Scope{mode: :organization, organization_slug: slug}) when is_binary(slug),
+    do: "/admin/organizations/#{slug}"
+
+  defp overview_path(_admin_scope), do: "/admin"
+
+  defp users_index_return_to(return_to, admin_scope) do
+    if users_index_path?(return_to, admin_scope) do
+      return_to
+    else
+      default_users_return_to(admin_scope)
+    end
+  end
+
+  defp users_index_path?(path, %Scope{mode: :organization, organization_slug: slug})
+       when is_binary(path) and is_binary(slug) do
+    URI.parse(path).path == "/admin/organizations/#{slug}/users"
+  end
+
+  defp users_index_path?(path, _admin_scope) when is_binary(path),
+    do: URI.parse(path).path == "/admin/users"
+
+  defp users_index_path?(_path, _admin_scope), do: false
+
+  defp default_users_return_to(%Scope{mode: :organization, organization_slug: slug})
+       when is_binary(slug),
+       do: "/admin/organizations/#{slug}/users"
+
+  defp default_users_return_to(_admin_scope), do: "/admin/users"
+
+  defp user_detail_path(%Scope{mode: :organization, organization_slug: slug}, user_id, return_to)
+       when is_binary(slug) do
+    with_return_to("/admin/organizations/#{slug}/users/#{user_id}", return_to)
+  end
+
+  defp user_detail_path(_admin_scope, user_id, return_to) do
+    with_return_to("/admin/users/#{user_id}", return_to)
+  end
+
+  defp with_return_to(path, return_to) when is_binary(return_to) and return_to != "" do
+    path <> "?return_to=" <> URI.encode_www_form(return_to)
+  end
+
+  defp with_return_to(path, _return_to), do: path
 
   defp index_path(%Scope{mode: :organization, organization_slug: slug}, user_id)
        when is_binary(slug),

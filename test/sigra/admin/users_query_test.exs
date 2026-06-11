@@ -53,6 +53,23 @@ defmodule Sigra.Admin.UsersQueryTest do
     end
   end
 
+  defmodule UserWithScheduledDeletion do
+    use Ecto.Schema
+
+    @primary_key {:id, :binary_id, autogenerate: false}
+    schema "admin_query_users" do
+      field :email, :string
+      field :display_name, :string
+      field :support_name, :string
+      field :confirmed_at, :utc_datetime
+      field :locked_at, :utc_datetime
+      field :deleted_at, :utc_datetime
+      field :scheduled_deletion_at, :utc_datetime
+
+      timestamps(type: :utc_datetime)
+    end
+  end
+
   defmodule Organization do
     use Ecto.Schema
 
@@ -138,10 +155,12 @@ defmodule Sigra.Admin.UsersQueryTest do
           confirmed_at timestamp,
           locked_at timestamp,
           deleted_at timestamp,
+          scheduled_deletion_at timestamp,
           inserted_at timestamp NOT NULL,
           updated_at timestamp NOT NULL
         )
         """,
+        "ALTER TABLE admin_query_users ADD COLUMN IF NOT EXISTS scheduled_deletion_at timestamp",
         """
         CREATE TABLE IF NOT EXISTS admin_query_organizations (
           id uuid PRIMARY KEY,
@@ -345,6 +364,61 @@ defmodule Sigra.Admin.UsersQueryTest do
 
       assert {:ok, {[], _meta, _params}} =
                Query.list_users(local_only_config, ctx.global_scope, %{"provider" => "github"})
+    end
+
+    test "summary_stats reports scoped posture, growth, and session activity from fixed UTC windows",
+         ctx do
+      stats = Query.summary_stats(ctx.config, ctx.global_scope, now: @now)
+
+      assert stats.posture == %{
+               total: 3,
+               confirmed: 2,
+               mfa_enabled: 1,
+               passkey_users: 1,
+               locked_out: 1,
+               deletion_scheduled: 1
+             }
+
+      assert stats.growth == %{new_this_week: 0, new_this_month: 0}
+      assert stats.activity == %{available?: true, active_this_week: 2, active_this_month: 2}
+      assert stats.windows.week_start == ~U[2026-04-13 00:00:00Z]
+      assert stats.windows.month_start == ~U[2026-04-01 00:00:00Z]
+
+      org_stats = Query.summary_stats(ctx.config, ctx.org_scope, now: @now)
+
+      assert org_stats.posture.total == 2
+      assert org_stats.posture.confirmed == 2
+      assert org_stats.posture.locked_out == 0
+      assert org_stats.posture.deletion_scheduled == 1
+      assert org_stats.activity.active_this_week == 2
+    end
+
+    test "summary_stats handles optional auth schemas without inventing activity", ctx do
+      config =
+        ctx.config
+        |> Map.delete(:session)
+        |> Map.delete(:mfa)
+        |> Map.delete(:passkeys)
+
+      stats = Query.summary_stats(config, ctx.global_scope, now: @now)
+
+      assert stats.posture.total == 3
+      assert stats.posture.mfa_enabled == 0
+      assert stats.posture.passkey_users == 0
+      assert stats.activity == %{available?: false, active_this_week: nil, active_this_month: nil}
+    end
+
+    test "summary_stats prefers scheduled_deletion_at when the user schema exposes it", ctx do
+      SQL.query!(
+        @repo,
+        "UPDATE admin_query_users SET scheduled_deletion_at = $1 WHERE id = $2",
+        [@now, Ecto.UUID.dump!(ctx.bob.id)]
+      )
+
+      config = %{ctx.config | user_schema: UserWithScheduledDeletion}
+      stats = Query.summary_stats(config, ctx.global_scope, now: @now)
+
+      assert stats.posture.deletion_scheduled == 1
     end
 
     test "URL-addressable filtering and pagination remain scope-safe for global and organization admins",

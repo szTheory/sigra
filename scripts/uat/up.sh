@@ -16,6 +16,7 @@
 #   scripts/uat/up.sh --proxy          # Dockerized app via shared dev_proxy Traefik
 #   scripts/uat/up.sh --private-traefik # host-run fallback via private Traefik on :18080
 #   scripts/uat/up.sh --status         # reprint URLs/env for the last started stack
+#   scripts/uat/up.sh --refresh-code   # recompile the Dockerized Sigra path dependency
 #   scripts/uat/up.sh --print-env      # print export lines for the last started stack
 
 set -euo pipefail
@@ -31,6 +32,7 @@ RESET_DB=0
 SEED_DEMO=1
 STATUS_ONLY=0
 PRINT_ENV_ONLY=0
+REFRESH_CODE_ONLY=0
 ENABLE_SHARED_PROXY=0
 ENABLE_PRIVATE_TRAEFIK=0
 
@@ -148,6 +150,7 @@ print_export_env() {
 
 print_status() {
   load_state_file
+  local compose_file="${SIGRA_UAT_COMPOSE_FILE:-${COMPOSE_FILE}}"
   local proxy_status_lines=""
   local server_lines="Start the Phoenix server:"
   local server_note="  ${SIGRA_UAT_SERVER_COMMAND}
@@ -209,8 +212,76 @@ Tear down:
 EOF
 
   if command -v docker >/dev/null 2>&1 && docker ps >/dev/null 2>&1; then
-    docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy --profile private-traefik ps
+    warn_on_proxy_host_conflict
+    docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy --profile private-traefik ps
   fi
+}
+
+proxy_host_claimants() {
+  local host="$1"
+
+  docker ps \
+    --filter "label=dev.sigra.stack=uat" \
+    --filter "label=dev.sigra.role=demo-web" \
+    --filter "label=dev.sigra.proxy-host=${host}" \
+    --format '{{.Names}}\t{{.Label "com.docker.compose.project"}}\t{{.Status}}'
+}
+
+proxy_host_conflicts() {
+  local claimants
+
+  claimants="$(proxy_host_claimants "${SIGRA_UAT_PROXY_HOST}" || true)"
+  printf '%s\n' "${claimants}" | awk -F '\t' -v project="${SIGRA_UAT_PROJECT}" 'NF && $2 != project {print $0}'
+}
+
+warn_on_proxy_host_conflict() {
+  local conflicts
+
+  conflicts="$(proxy_host_conflicts)"
+  if [[ -z "${conflicts}" ]]; then
+    return
+  fi
+
+  yellow "    Warning: other running Sigra UAT web services also claim ${SIGRA_UAT_PROXY_HOST}:"
+  printf '%s\n' "${conflicts}" | sed 's/^/      /'
+}
+
+fail_on_proxy_host_conflict() {
+  local conflicts
+
+  conflicts="$(proxy_host_conflicts)"
+
+  if [[ -z "${conflicts}" ]]; then
+    return
+  fi
+
+  red "Another running Sigra UAT web service already claims ${SIGRA_UAT_PROXY_HOST}:"
+  printf '%s\n' "${conflicts}" | sed 's/^/  /'
+  red "Stop the other stack or choose a different SIGRA_UAT_PROXY_HOST before starting --proxy."
+  exit 1
+}
+
+refresh_proxy_code() {
+  load_state_file
+
+  if [[ "${SIGRA_UAT_PROXY_MODE:-none}" != "shared" ]]; then
+    red "The last UAT stack was not started with --proxy; --refresh-code only applies to the Dockerized shared-proxy app."
+    exit 1
+  fi
+
+  local compose_file="${SIGRA_UAT_COMPOSE_FILE:-${COMPOSE_FILE}}"
+
+  fail_on_proxy_host_conflict
+
+  cyan "==> Recompiling Sigra path dependency for ${SIGRA_UAT_PROJECT}"
+  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy run --rm --no-deps web sh -lc \
+    "mix deps.get && mix deps.compile sigra --force && mix compile --force"
+
+  cyan "==> Restarting Dockerized Vaultr example app"
+  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy restart web
+
+  green "==> Refreshed Dockerized Sigra code for ${SIGRA_UAT_PROXY_URL}"
+  print_status
 }
 
 port_80_owners() {
@@ -332,6 +403,7 @@ setup_docker_example() {
   local setup_script
   setup_script="set -e
 mix deps.get
+mix deps.compile sigra --force
 if [ '${RESET_DB}' = '1' ]; then
   mix ecto.drop --quiet || true
 fi
@@ -378,6 +450,10 @@ while [[ $# -gt 0 ]]; do
       STATUS_ONLY=1
       shift
       ;;
+    --refresh-code)
+      REFRESH_CODE_ONLY=1
+      shift
+      ;;
     --print-env)
       PRINT_ENV_ONLY=1
       shift
@@ -395,6 +471,11 @@ done
 
 if [ "${PRINT_ENV_ONLY}" -eq 1 ]; then
   print_export_env
+  exit 0
+fi
+
+if [ "${REFRESH_CODE_ONLY}" -eq 1 ]; then
+  refresh_proxy_code
   exit 0
 fi
 
@@ -453,6 +534,7 @@ case "${SIGRA_UAT_PROXY_MODE}" in
     SIGRA_EXAMPLE_BIND="0.0.0.0"
     SIGRA_UAT_RAW_URL=""
     warn_about_shared_proxy
+    fail_on_proxy_host_conflict
     ;;
   private-traefik)
     SIGRA_UAT_PROXY_ENABLED=1
