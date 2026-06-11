@@ -232,6 +232,25 @@ defmodule Sigra.Admin.ComponentsTest do
     refute html =~ ~s(data-icon="check-circle")
   end
 
+  test "summary_chip renders simple sparkles icon for new metrics" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "overview-metric-new-users",
+        icon: "sparkles",
+        label: "New users",
+        value: 12,
+        value_suffix: "new this week"
+      )
+
+    assert html =~ ~s(data-icon="sparkles")
+
+    assert html =~
+             ~s(d="M12 3.75 13.8 9.7 19.75 12 13.8 14.3 12 20.25 10.2 14.3 4.25 12 10.2 9.7 12 3.75Z")
+
+    refute html =~ ~s(data-icon="calendar-plus")
+    refute html =~ ~s(d="M6.75 3v3")
+  end
+
   test "applied_chip renders original inline applied chip bytes faithfully" do
     html =
       render_component(&Components.applied_chip/1,

@@ -55,9 +55,12 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ ~s(id="overview-metric-total-users")
       assert html =~ ~s(<dd class="sg-metric__caption">total users</dd>)
       assert html =~ ~s(id="overview-metric-new-users")
+      assert html =~ ~s(data-icon="sparkles")
+      refute html =~ ~s(data-icon="calendar-plus")
       assert html =~ "new this week"
       assert html =~ ~s(id="overview-metric-active-users")
       assert html =~ "active this week"
+      refute html =~ ~r/<dd class="sg-metric__subvalue">\d+ this month<\/dd>/
       assert html =~ ~s(id="overview-metric-auth-coverage")
       assert html =~ "MFA coverage"
       assert html =~ "data-scope=\"global\""

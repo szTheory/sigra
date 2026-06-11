@@ -319,14 +319,13 @@ defmodule Sigra.Admin.Components do
     ]
   end
 
-  defp summary_icon_paths("calendar-plus") do
+  defp summary_icon_paths("sparkles") do
     [
-      "M6.75 3v3",
-      "M17.25 3v3",
-      "M4.75 8.25h14.5",
-      "M5 5.25h14a1.75 1.75 0 0 1 1.75 1.75v12A1.75 1.75 0 0 1 19 20.75H5A1.75 1.75 0 0 1 3.25 19V7A1.75 1.75 0 0 1 5 5.25Z",
-      "M12 11.25v5",
-      "M9.5 13.75h5"
+      "M12 3.75 13.8 9.7 19.75 12 13.8 14.3 12 20.25 10.2 14.3 4.25 12 10.2 9.7 12 3.75Z",
+      "M18.5 3.75v3",
+      "M20 5.25h-3",
+      "M5.5 16.75v2.5",
+      "M6.75 18H4.25"
     ]
   end
 

@@ -901,6 +901,12 @@ test.describe("admin theme switch", () => {
     await expect(page.locator("#overview-metric-new-users")).toContainText(
       "new this week",
     );
+    await expect(
+      page.locator('#overview-metric-new-users [data-icon="sparkles"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('#overview-metric-new-users [data-icon="calendar-plus"]'),
+    ).toHaveCount(0);
     await expect(page.locator("#overview-metric-auth-coverage")).toContainText(
       "MFA coverage",
     );

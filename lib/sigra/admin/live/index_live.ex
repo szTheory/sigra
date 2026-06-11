@@ -93,11 +93,11 @@ defmodule Sigra.Admin.Live.IndexLive do
           />
           <.summary_chip
             id="overview-metric-new-users"
-            icon="calendar-plus"
+            icon="sparkles"
             label="New users"
             value={new_this_week}
             value_suffix="new this week"
-            subvalue={"#{new_this_month} this month"}
+            subvalue={month_detail(new_this_week, new_this_month)}
             help="Accounts registered since Monday UTC and since the first day of this month."
           />
           <.summary_chip
@@ -107,7 +107,7 @@ defmodule Sigra.Admin.Live.IndexLive do
             label="Active users"
             value={active_this_week}
             value_suffix="active this week"
-            subvalue={"#{active_this_month} this month"}
+            subvalue={month_detail(active_this_week, active_this_month)}
             help="Users with session activity since Monday UTC and since the first day of this month."
           />
           <.summary_chip
@@ -140,6 +140,9 @@ defmodule Sigra.Admin.Live.IndexLive do
 
   defp activity_available?(%{available?: true}), do: true
   defp activity_available?(_activity), do: false
+
+  defp month_detail(count, count), do: nil
+  defp month_detail(_week_count, month_count), do: "#{month_count} this month"
 
   defp percent_of(_count, total) when total in [nil, 0], do: 0
 
