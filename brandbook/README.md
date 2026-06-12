@@ -29,6 +29,18 @@ The current logo files are the Sigra Rail Accent assets. Use the tight lockup fo
 
 The lockup wordmark is outlined from Inter Display Black v4.1. The SVGs should remain path-only so the logo renders identically without installing fonts or loading a runtime web font.
 
+## Font Provenance
+
+Round-3 candidate wordmarks are outlined using opentype.js 2.0.0 (MIT) from OFL-licensed variable TTFs. Font binaries are gitignored; only the resulting SVG path data is committed. Each candidate SVG `<desc>` records: font name, version, OFL license, opentype.js version, and generation date.
+
+| Font | Version | License | Source | Used in |
+| --- | --- | --- | --- | --- |
+| Inter Display | v4.1 | OFL | github.com/rsms/inter | logo-primary.svg (v1), round-3 A4 candidate |
+| Space Grotesk | v2.0.0 | OFL | github.com/floriankarsten/space-grotesk | Round-3 A1, B1 candidates |
+| Plus Jakarta Sans | v2.7.1 | OFL | github.com/tokotype/PlusJakartaSans | Round-3 A2, C1 candidates |
+| Syne | latest | OFL | github.com/google/fonts/tree/main/ofl/syne | Round-3 A3 candidate |
+| Geist | v1.7.2 | OFL | github.com/vercel/geist-font | Round-3 B2 candidate |
+
 ## Maintenance Rules
 
 - Keep brand assets in `brandbook/`; do not scatter them into `docs/`, `guides/`, or generated templates without a separate implementation decision.
