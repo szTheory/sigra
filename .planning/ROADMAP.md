@@ -119,7 +119,7 @@ Archive:
   4. The audit's action plan section contains a prioritized list that directly drives the scope of Phases 179–183.
 **Plans**: 2 plans
 Plans:
-- [ ] 178-01-PLAN.md — Write brandbook/pressure-test-audit-v2.md: full 14-section audit with KEEP/TIGHTEN/REWORK verdicts and szTheory suite brand-architecture section
+- [x] 178-01-PLAN.md — Write brandbook/pressure-test-audit-v2.md: full 14-section audit with KEEP/TIGHTEN/REWORK verdicts and szTheory suite brand-architecture section
 - [ ] 178-02-PLAN.md — Write brandbook/logo-v2-design-brief.md: standalone design brief encoding 7 hard constraints, OFL font shortlist, letterform anatomy, and render-critique rubric
 **UI hint**: yes
 
@@ -213,7 +213,7 @@ Plans:
 | 175. Admin Customizer + Email Branding | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 176. Generated Host, Example, Docs, and Golden Parity | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 177. Verification, Generated-Host Smoke, and Audit Closure | v1.37 | 1/1 | Complete | 2026-06-07 |
-| 178. Brand v2 Pressure-Test Audit | v1.38 | 0/? | Not started | - |
+| 178. Brand v2 Pressure-Test Audit | v1.38 | 1/2 | In Progress|  |
 | 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 0/? | Not started | - |
 | 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
 | 181. Ratified Logo System Buildout | v1.38 | 0/? | Not started | - |
