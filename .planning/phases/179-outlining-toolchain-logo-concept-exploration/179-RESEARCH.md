@@ -510,7 +510,7 @@ The `<link rel="stylesheet" href="../../tokens.css">` path is fixed — gallery 
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Font download location: `/tmp/sigra-fonts/` vs `scripts/brand/fonts/`**
    - What we know: CONTEXT says "gitignored temp location"; `/tmp/` is already in `.gitignore`; `scripts/brand/fonts/` would need a new gitignore entry
