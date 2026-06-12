@@ -16,7 +16,7 @@
 
 ### Logo Exploration (LOGO2)
 
-- [ ] **BRAND2-04**: A committed, reproducible glyph-outlining script (opentype.js, OFL fonts downloaded to a gitignored location) produces wordmark path source; no font binaries are committed and font name/version provenance is documented in SVG `<desc>` and `brandbook/README.md`.
+- [x] **BRAND2-04**: A committed, reproducible glyph-outlining script (opentype.js, OFL fonts downloaded to a gitignored location) produces wordmark path source; no font binaries are committed and font name/version provenance is documented in SVG `<desc>` and `brandbook/README.md`.
 - [ ] **BRAND2-05**: 5–7 logo candidates exist, including at least 2 fully integrated custom typemarks (motif worked into the letterforms, not icon-beside-text), each pre-verified through a rendered self-critique loop at 16/32/54px and hero scale in light and dark before presentation.
 - [ ] **BRAND2-06**: Candidates are presented in a `brandbook/logo-options/round-3/` gallery matching the established round-2 format (standalone `index.html` linking `../../tokens.css` plus a `README.md` rationale table).
 
@@ -65,7 +65,7 @@
 | BRAND2-01 | Phase 178 | Complete |
 | BRAND2-02 | Phase 178 | Complete |
 | BRAND2-03 | Phase 178 | Complete |
-| BRAND2-04 | Phase 179 | Pending |
+| BRAND2-04 | Phase 179 | Complete |
 | BRAND2-05 | Phase 179 | Pending |
 | BRAND2-06 | Phase 179 | Pending |
 | BRAND2-07 | Phase 180 | Pending |

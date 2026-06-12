@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.38
 milestone_name: BRAND-V2
 status: executing
-last_updated: "2026-06-12T15:15:26.275Z"
-last_activity: 2026-06-12 -- Phase 178 execution started
+last_updated: "2026-06-12T15:50:27.937Z"
+last_activity: 2026-06-12
 progress:
   total_phases: 30
-  completed_phases: 0
-  total_plans: 2
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 3
+  percent: 3
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 178 — brand-v2-pressure-test-audit
+**Current focus:** Phase 179 — outlining-toolchain-logo-concept-exploration
 
 ## Current Position
 
-Phase: 178 — Brand v2 Pressure-Test Audit (complete); next: 179
-Plan: 2 of 2 complete
-Status: Phase 178 verified passed; Phase 179 ready to plan
-Last activity: 2026-06-12 -- Phase 178 execution started
+Phase: 179 (outlining-toolchain-logo-concept-exploration) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-06-12
 
 ## Accumulated Context
 
@@ -55,6 +55,8 @@ Last activity: 2026-06-12 -- Phase 178 execution started
 - v1.37 email decision: transactional emails share the same branding profile as auth forms so product identity stays coherent across the auth journey.
 - v1.37 generated-host fix: avoid Elixir boolean `not` against nullable assigns in templates; use `!` truthiness guards for generated HEEx conditions.
 - v1.37 generated-host fix: runtime branding prefix detection must handle generated user schemas that need `Code.ensure_loaded?/1` before `__schema__(:prefix)`.
+- [Phase ?]: opentype.parse(readFileSync(path).buffer) is the correct Node.js API for opentype.js v2.0 in ESM scripts; loadSync is deprecated and returns undefined
+- [Phase ?]: playwright-core is reused from test/example/priv/playwright/ in critique-render.mjs to avoid duplicate install
 
 ### Pending Todos
 
@@ -75,8 +77,8 @@ Last activity: 2026-06-12 -- Phase 178 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-06T00:50:00.000Z
-Stopped at: Phase 167 complete after logo ratification
+Last session: 2026-06-12T15:50:27.933Z
+Stopped at: Completed 179-01-PLAN.md
 Resume file: None
 
 ## Performance Metrics
@@ -101,6 +103,7 @@ Resume file: None
 | Phase 175 | 1 plan | same session | Admin branding customizer + branded emails |
 | Phase 176 | 1 plan | same session | Example, golden fixture, docs, and installer parity |
 | Phase 177 | 1 plan | same session | Compile, docs, tests, diff hygiene, and generated-host smoke |
+| Phase 179 P01 | 10m | 3 tasks | 6 files |
 
 ## Operator Next Steps
 
