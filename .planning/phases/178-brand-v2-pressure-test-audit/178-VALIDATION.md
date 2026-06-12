@@ -1,9 +1,9 @@
 ---
 phase: 178
 slug: brand-v2-pressure-test-audit
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-12
 ---
 
@@ -73,4 +73,4 @@ created: 2026-06-12
 - [ ] Feedback latency < 5s
 - [ ] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-12 — all phase-gate greps verified green by gsd-verifier (178-VERIFICATION.md, 9/9 truths; section count 14, REWORK evidence triples present, suite section names all 7 libraries, brief encodes all 7 constraints)

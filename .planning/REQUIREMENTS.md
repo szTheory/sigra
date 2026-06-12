@@ -10,9 +10,9 @@
 
 ### Audit v2 (AUDIT2)
 
-- [ ] **BRAND2-01**: `brandbook/pressure-test-audit-v2.md` re-runs the full 14-section pressure test (executive judgment, brand DNA, scorecard, surface stress tests, gaps, upgrades, tokens, logo system, visual examples, voice, landing/docs blueprint, artifact plan, action plan, quality gate) against the current brandbook with KEEP/TIGHTEN/REWORK/ADD/REMOVE verdicts, evidence required for every REWORK, and KEEP as the default posture.
-- [ ] **BRAND2-02**: The audit includes a multi-library brand-architecture section for the szTheory OSS suite (what is shared across Sigra/Accrue/Mailglass/Threadline/Lockspire/Relyra/Rulestead vs unique per library), informed by competitor/ecosystem visual research.
-- [ ] **BRAND2-03**: A logo v2 design brief encodes the hard constraints: no rectangular container, boundary-breaking allowed, tight logotype proximity, subtitle-free main lockup, integrated-typemark candidates required, ember-anchored tunable palette, OFL typeface freedom.
+- [x] **BRAND2-01**: `brandbook/pressure-test-audit-v2.md` re-runs the full 14-section pressure test (executive judgment, brand DNA, scorecard, surface stress tests, gaps, upgrades, tokens, logo system, visual examples, voice, landing/docs blueprint, artifact plan, action plan, quality gate) against the current brandbook with KEEP/TIGHTEN/REWORK/ADD/REMOVE verdicts, evidence required for every REWORK, and KEEP as the default posture.
+- [x] **BRAND2-02**: The audit includes a multi-library brand-architecture section for the szTheory OSS suite (what is shared across Sigra/Accrue/Mailglass/Threadline/Lockspire/Relyra/Rulestead vs unique per library), informed by competitor/ecosystem visual research.
+- [x] **BRAND2-03**: A logo v2 design brief encodes the hard constraints: no rectangular container, boundary-breaking allowed, tight logotype proximity, subtitle-free main lockup, integrated-typemark candidates required, ember-anchored tunable palette, OFL typeface freedom.
 
 ### Logo Exploration (LOGO2)
 
@@ -62,9 +62,9 @@
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| BRAND2-01 | Phase 178 | Pending |
-| BRAND2-02 | Phase 178 | Pending |
-| BRAND2-03 | Phase 178 | Pending |
+| BRAND2-01 | Phase 178 | Complete |
+| BRAND2-02 | Phase 178 | Complete |
+| BRAND2-03 | Phase 178 | Complete |
 | BRAND2-04 | Phase 179 | Pending |
 | BRAND2-05 | Phase 179 | Pending |
 | BRAND2-06 | Phase 179 | Pending |

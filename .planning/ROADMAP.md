@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 active — Phase 178 ready to plan
+**Status:** v1.38 BRAND-V2 active — Phase 178 complete; Phase 179 ready to plan
 
 ## Milestones
 
@@ -18,7 +18,7 @@
 
 **Milestone Goal:** Pressure-test the v1.35 brand system against a fresh 14-section critical audit and elevate the Sigra identity with a redesigned, fully integrated logo system — ratified by the maintainer — propagated coherently everywhere the existing logo already lives.
 
-- [ ] **Phase 178: Brand v2 Pressure-Test Audit** — 14-section KEEP/TIGHTEN/REWORK/ADD/REMOVE audit, szTheory suite brand architecture, logo v2 design brief. (not started)
+- [x] **Phase 178: Brand v2 Pressure-Test Audit** — 14-section KEEP/TIGHTEN/REWORK/ADD/REMOVE audit, szTheory suite brand architecture, logo v2 design brief. (completed 2026-06-12)
 - [ ] **Phase 179: Outlining Toolchain + Logo Concept Exploration** — Committed opentype.js glyph-outlining script; 5–7 candidates with ≥2 integrated typemarks; Playwright render-critique loop; round-3 gallery. (not started)
 - [ ] **Phase 180: Human Logo Ratification Gate** — Maintainer selects direction/typeface/palette; one round-4 refinement loop budgeted; decision recorded. (not started)
 - [ ] **Phase 181: Ratified Logo System Buildout** — Full asset set (primary, dark, subtitle variant, mark, monochrome, favicon, social cards), render-verified, clearspace/min-size/misuse documented, v1 assets archived. (not started)
