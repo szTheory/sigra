@@ -117,7 +117,10 @@ Archive:
   2. The audit includes a named szTheory suite brand-architecture section covering shared vs per-library identity elements for all seven libraries, informed by documented competitor/ecosystem visual research.
   3. A logo v2 design brief is committed that explicitly encodes: no rectangular container, boundary-breaking allowed, tight logotype proximity, subtitle-free main lockup, integrated-typemark candidates required, ember-anchored tunable palette, OFL-only typefaces.
   4. The audit's action plan section contains a prioritized list that directly drives the scope of Phases 179–183.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 178-01-PLAN.md — Write brandbook/pressure-test-audit-v2.md: full 14-section audit with KEEP/TIGHTEN/REWORK verdicts and szTheory suite brand-architecture section
+- [ ] 178-02-PLAN.md — Write brandbook/logo-v2-design-brief.md: standalone design brief encoding 7 hard constraints, OFL font shortlist, letterform anatomy, and render-critique rubric
 **UI hint**: yes
 
 ### Phase 179: Outlining Toolchain + Logo Concept Exploration
