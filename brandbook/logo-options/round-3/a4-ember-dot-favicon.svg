@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="550 120 1950 1950" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra A4 ember-dot favicon</title>
+  <desc id="desc">Font: Inter Display v4.1 (OFL) wght=900. A4 favicon: the i stem with the enlarged ember-700 dot. Outlined with opentype.js 2.0.0. Generated 2026-06-12.</desc>
+  <style>#glyphs { fill: #151515; } @media (prefers-color-scheme: dark) { #glyphs { fill: #f4f1eb; } }</style>
+  <g id="glyphs">
+    <path id="g-1" d="M1708 2048L1306 2048L1306 930L1708 930L1708 2048" />
+  </g>
+  <circle id="ember-dot" cx="1525" cy="470" r="330" fill="#c2410c" />
+</svg>

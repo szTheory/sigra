@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="490 265 950 950" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra A1 rail-i favicon</title>
+  <desc id="desc">Font: Space Grotesk v2.0 (OFL) wght=700. A1 favicon: i and g glyphs with the ember-300 rail tittle block. Outlined with opentype.js 2.0.0. Generated 2026-06-12.</desc>
+  <style>#glyphs { fill: #151515; } @media (prefers-color-scheme: dark) { #glyphs { fill: #f4f1eb; } }</style>
+  <g id="glyphs">
+    <path id="g-1" d="M720 1000L594 1000L594 504L720 504L720 1000" />
+    <path id="g-2" d="M836 754L836 738Q836 660 867 604.50Q898 549 949.50 519.50Q1001 490 1062 490Q1130 490 1165 514Q1200 538 1216 564L1234 564L1234 504L1358 504L1358 1088Q1358 1139 1328 1169.50Q1298 1200 1248 1200L828 1200L828 1090L1204 1090Q1232 1090 1232 1060L1232 931L1214 931Q1204 947 1186 963.50Q1168 980 1138 991Q1108 1002 1062 1002Q1001 1002 949.50 972.50Q898 943 867 887.50Q836 832 836 754M1098 892Q1156 892 1195 855Q1234 818 1234 751L1234 741Q1234 673 1195.50 636.50Q1157 600 1098 600Q1040 600 1001 636.50Q962 673 962 741L962 751Q962 818 1001 855Q1040 892 1098 892" />
+  </g>
+  <rect id="rail-tittle" x="564" y="272" width="174" height="174" fill="#fdba74" />
+</svg>
