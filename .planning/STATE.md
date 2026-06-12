@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.38
 milestone_name: BRAND-V2
-status: executing
-last_updated: "2026-06-12T15:50:27.937Z"
+status: verifying
+last_updated: "2026-06-12T16:38:42.144Z"
 last_activity: 2026-06-12
 progress:
   total_phases: 30
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
-  percent: 3
+  completed_plans: 4
+  percent: 7
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 179 (outlining-toolchain-logo-concept-exploration) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-12
 
 ## Accumulated Context
@@ -57,6 +57,8 @@ Last activity: 2026-06-12
 - v1.37 generated-host fix: runtime branding prefix detection must handle generated user schemas that need `Code.ensure_loaded?/1` before `__schema__(:prefix)`.
 - [Phase ?]: opentype.parse(readFileSync(path).buffer) is the correct Node.js API for opentype.js v2.0 in ESM scripts; loadSync is deprecated and returns undefined
 - [Phase ?]: playwright-core is reused from test/example/priv/playwright/ in critique-render.mjs to avoid duplicate install
+- [Phase 179]: A3 crossbar-s reworked to rail-g after failing the render gate twice; B2 s-substitute is a serpentine rail-switchback; C1 mark set into line-1 negative space — Render-critique loop verdicts: planned geometries fought the chosen fonts' anatomy; reworked designs pass all rubric rows
+- [Phase 179]: outline-wordmark.mjs: variation coords require font as 5th getPath arg; toPathData must use flipY:false on getPath output — Two latent Plan 01 toolchain bugs caught by visually reading renders; fixed before candidate work
 
 ### Pending Todos
 
@@ -77,7 +79,7 @@ Last activity: 2026-06-12
 
 ## Session Continuity
 
-Last session: 2026-06-12T15:50:27.933Z
+Last session: 2026-06-12T16:37:28.031Z
 Stopped at: Completed 179-01-PLAN.md
 Resume file: None
 
@@ -104,6 +106,7 @@ Resume file: None
 | Phase 176 | 1 plan | same session | Example, golden fixture, docs, and installer parity |
 | Phase 177 | 1 plan | same session | Compile, docs, tests, diff hygiene, and generated-host smoke |
 | Phase 179 P01 | 10m | 3 tasks | 6 files |
+| Phase 179 P02 | ~40 minutes | 3 tasks | 25 files |
 
 ## Operator Next Steps
 

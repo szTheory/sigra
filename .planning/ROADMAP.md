@@ -134,7 +134,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 179-01-PLAN.md — Toolchain + harness: scripts/brand/package.json, outline-wordmark.mjs, critique-render.mjs, .gitignore entries, brandbook/README.md font provenance
-- [ ] 179-02-PLAN.md — Candidates + critique loop + gallery: 7 candidate SVG sets, brandbook/logo-options/round-3/index.html + README.md
+- [x] 179-02-PLAN.md — Candidates + critique loop + gallery: 7 candidate SVG sets, brandbook/logo-options/round-3/index.html + README.md
 **UI hint**: yes
 
 ### Phase 180: Human Logo Ratification Gate
@@ -217,7 +217,7 @@ Plans:
 | 176. Generated Host, Example, Docs, and Golden Parity | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 177. Verification, Generated-Host Smoke, and Audit Closure | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 178. Brand v2 Pressure-Test Audit | v1.38 | 2/2 | Complete   | 2026-06-12 |
-| 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 1/2 | In Progress|  |
+| 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 2/2 | Complete   | 2026-06-12 |
 | 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
 | 181. Ratified Logo System Buildout | v1.38 | 0/? | Not started | - |
 | 182. Brand Book v2 + Tokens | v1.38 | 0/? | Not started | - |
