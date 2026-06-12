@@ -62,17 +62,17 @@
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| BRAND2-01 | — | Pending |
-| BRAND2-02 | — | Pending |
-| BRAND2-03 | — | Pending |
-| BRAND2-04 | — | Pending |
-| BRAND2-05 | — | Pending |
-| BRAND2-06 | — | Pending |
-| BRAND2-07 | — | Pending |
-| BRAND2-08 | — | Pending |
-| BRAND2-09 | — | Pending |
-| BRAND2-10 | — | Pending |
-| BRAND2-11 | — | Pending |
-| BRAND2-12 | — | Pending |
-| BRAND2-13 | — | Pending |
-| BRAND2-14 | — | Pending |
+| BRAND2-01 | Phase 178 | Pending |
+| BRAND2-02 | Phase 178 | Pending |
+| BRAND2-03 | Phase 178 | Pending |
+| BRAND2-04 | Phase 179 | Pending |
+| BRAND2-05 | Phase 179 | Pending |
+| BRAND2-06 | Phase 179 | Pending |
+| BRAND2-07 | Phase 180 | Pending |
+| BRAND2-08 | Phase 181 | Pending |
+| BRAND2-09 | Phase 182 | Pending |
+| BRAND2-10 | Phase 182 | Pending |
+| BRAND2-11 | Phase 183 | Pending |
+| BRAND2-12 | Phase 183 | Pending |
+| BRAND2-13 | Phase 183 | Pending |
+| BRAND2-14 | Phase 183 | Pending |
