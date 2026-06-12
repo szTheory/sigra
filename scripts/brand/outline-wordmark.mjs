@@ -4,8 +4,10 @@
 // Usage: node scripts/brand/outline-wordmark.mjs <font.ttf> <wght> <output.svg>
 // Run from repo root. Font must be in scripts/brand/fonts/ (gitignored). Run npm install in scripts/brand/ first.
 //
-// CRITICAL: Always use .toPathData({ decimalPlaces: 2 }) — the object form.
-// Never use .toPathData(2) — the integer shorthand sets flipY: false in opentype.js v2.0 → upside-down wordmark.
+// CRITICAL: Always use .toPathData({ decimalPlaces: 2, flipY: false }).
+// glyph.getPath already emits SVG-oriented (y-down) coordinates with the baseline at the
+// passed y; toPathData's flipY is for font-coordinate (y-up) paths and would flip each
+// glyph a second time around its own bounding box (per-glyph upside-down output).
 
 import { createRequire } from 'module';
 import { writeFileSync, readFileSync } from 'fs';
@@ -48,14 +50,16 @@ let totalWidth = 0;
 // iteration which bypasses the GSUB/Bidi processing layer entirely.
 try {
   font.forEachGlyph('sigra', 0, fontSize, fontSize, { kerning: true }, (glyph, x, y) => {
-    // ALWAYS use the object form { decimalPlaces: 2 } — inherits flipY: true (the default in opentype.js v2.0).
-    // NEVER use .toPathData(2) — the integer shorthand explicitly sets flipY: false in v2.0 → upside-down output.
+    // CRITICAL: glyph.getPath(x, y, fontSize) ALREADY returns SVG-oriented (y-down) coordinates
+    // with the baseline at the passed y. toPathData's flipY option is for paths still in font
+    // (y-up) coordinates — applying it here flips each glyph a second time around its own
+    // bounding box, producing per-glyph upside-down output. Always pass flipY: false.
     // CRITICAL: pass `font` as the 5th getPath argument — glyph.getPath only applies the
     // font.variation axis coordinates (set above) when it receives the font object. Without it,
     // every weight renders at the variable font's default (lightest) master. Passing font also
     // hvar-adjusts glyph.advanceWidth in place BEFORE forEachGlyph advances x, so letter spacing
     // matches the instanced weight.
-    const d = glyph.getPath(x, y, fontSize, {}, font).toPathData({ decimalPlaces: 2 });
+    const d = glyph.getPath(x, y, fontSize, {}, font).toPathData({ decimalPlaces: 2, flipY: false });
     paths.push(`<path id="g-${paths.length}" d="${d}" />`);
     totalWidth = x + (glyph.advanceWidth || 0) * (fontSize / font.unitsPerEm);
   });
@@ -70,8 +74,9 @@ try {
     const glyphIndex = font.charToGlyphIndex(text[i]);
     const glyph = font.glyphs.get(glyphIndex);
     // Pass `font` so the variation axis coordinates are applied (see note above) and
-    // glyph.advanceWidth is hvar-adjusted before we read it below.
-    const d = glyph.getPath(xPos, fontSize, fontSize, {}, font).toPathData({ decimalPlaces: 2 });
+    // glyph.advanceWidth is hvar-adjusted before we read it below. flipY: false because
+    // getPath output is already SVG-oriented (see note above).
+    const d = glyph.getPath(xPos, fontSize, fontSize, {}, font).toPathData({ decimalPlaces: 2, flipY: false });
     paths.push(`<path id="g-${i}" d="${d}" />`);
     const advance = (glyph.advanceWidth || 0) * (fontSize / font.unitsPerEm);
     if (i < text.length - 1) {
