@@ -50,7 +50,12 @@ try {
   font.forEachGlyph('sigra', 0, fontSize, fontSize, { kerning: true }, (glyph, x, y) => {
     // ALWAYS use the object form { decimalPlaces: 2 } — inherits flipY: true (the default in opentype.js v2.0).
     // NEVER use .toPathData(2) — the integer shorthand explicitly sets flipY: false in v2.0 → upside-down output.
-    const d = glyph.getPath(x, y, fontSize).toPathData({ decimalPlaces: 2 });
+    // CRITICAL: pass `font` as the 5th getPath argument — glyph.getPath only applies the
+    // font.variation axis coordinates (set above) when it receives the font object. Without it,
+    // every weight renders at the variable font's default (lightest) master. Passing font also
+    // hvar-adjusts glyph.advanceWidth in place BEFORE forEachGlyph advances x, so letter spacing
+    // matches the instanced weight.
+    const d = glyph.getPath(x, y, fontSize, {}, font).toPathData({ decimalPlaces: 2 });
     paths.push(`<path id="g-${paths.length}" d="${d}" />`);
     totalWidth = x + (glyph.advanceWidth || 0) * (fontSize / font.unitsPerEm);
   });
@@ -64,7 +69,9 @@ try {
   for (let i = 0; i < text.length; i++) {
     const glyphIndex = font.charToGlyphIndex(text[i]);
     const glyph = font.glyphs.get(glyphIndex);
-    const d = glyph.getPath(xPos, fontSize, fontSize).toPathData({ decimalPlaces: 2 });
+    // Pass `font` so the variation axis coordinates are applied (see note above) and
+    // glyph.advanceWidth is hvar-adjusted before we read it below.
+    const d = glyph.getPath(xPos, fontSize, fontSize, {}, font).toPathData({ decimalPlaces: 2 });
     paths.push(`<path id="g-${i}" d="${d}" />`);
     const advance = (glyph.advanceWidth || 0) * (fontSize / font.unitsPerEm);
     if (i < text.length - 1) {
