@@ -1,0 +1,10 @@
+{
+  "name": "sigra-brand-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brand toolchain scripts for Sigra (phase 179 BRAND2-04)",
+  "type": "module",
+  "dependencies": {
+    "opentype.js": "^2.0.0"
+  }
+}
