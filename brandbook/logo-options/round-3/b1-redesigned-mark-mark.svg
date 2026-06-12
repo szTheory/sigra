@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra B1 redesigned mark</title>
+  <desc id="desc">B1 redesigned Rail Accent mark: two staggered ember bars with heavier stroke and a single core line, simplified for 16px favicon durability. Generated 2026-06-12.</desc>
+  <g transform="translate(7.5 6)" fill="none" stroke-linecap="round">
+    <path d="M17 10v22" stroke="#fdba74" stroke-width="12" />
+    <path d="M32 20v22" stroke="#c2410c" stroke-width="12" />
+    <path d="M11 21h16" stroke="#9a3412" stroke-width="4" />
+  </g>
+</svg>

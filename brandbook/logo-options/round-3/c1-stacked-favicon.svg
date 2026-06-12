@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra C1 favicon</title>
+  <desc id="desc">C1 favicon: the Rail Accent mark alone — the stacked wordmark is not legible at favicon scale, so the mark IS the favicon. Generated 2026-06-12.</desc>
+  <path d="M17 14v14M32 23v18M47 36v14" fill="none" stroke="#fdba74" stroke-width="8" stroke-linecap="round"/>
+  <path d="M17 36v14M47 14v14" fill="none" stroke="#c2410c" stroke-width="8" stroke-linecap="round"/>
+  <path d="M17 32h30" fill="none" stroke="#9a3412" stroke-width="4" stroke-linecap="round"/>
+</svg>
