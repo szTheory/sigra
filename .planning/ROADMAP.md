@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 active — Phase 178 complete; Phase 179 ready to plan
+**Status:** v1.38 BRAND-V2 active — Phase 178 complete; Phase 179 planned (2 plans)
 
 ## Milestones
 
@@ -131,7 +131,10 @@ Plans:
   1. A committed script using opentype.js can be invoked to produce wordmark path source from OFL fonts stored at a gitignored path; font name, version, and download provenance are documented in the SVG `<desc>` element and `brandbook/README.md`; no font binary is committed.
   2. At least 5 and at most 7 logo candidate SVGs exist, with at least 2 candidates where the motif is worked into the letterforms (not icon-beside-text), and each candidate has been rendered at 16px, 32px, 54px, and hero scale in both light and dark before being included.
   3. `brandbook/logo-options/round-3/index.html` opens directly from disk (no server, CDN, or build step required), links `../../tokens.css`, shows every candidate at favicon scale in both themes, and a companion `README.md` rationale table documents the design decisions behind each option.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 179-01-PLAN.md — Toolchain + harness: scripts/brand/package.json, outline-wordmark.mjs, critique-render.mjs, .gitignore entries, brandbook/README.md font provenance
+- [ ] 179-02-PLAN.md — Candidates + critique loop + gallery: 7 candidate SVG sets, brandbook/logo-options/round-3/index.html + README.md
 **UI hint**: yes
 
 ### Phase 180: Human Logo Ratification Gate
@@ -214,7 +217,7 @@ Plans:
 | 176. Generated Host, Example, Docs, and Golden Parity | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 177. Verification, Generated-Host Smoke, and Audit Closure | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 178. Brand v2 Pressure-Test Audit | v1.38 | 2/2 | Complete   | 2026-06-12 |
-| 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 0/? | Not started | - |
+| 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 0/2 | Not started | - |
 | 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
 | 181. Ratified Logo System Buildout | v1.38 | 0/? | Not started | - |
 | 182. Brand Book v2 + Tokens | v1.38 | 0/? | Not started | - |
