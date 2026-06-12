@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.37
-milestone_name: AUTH-BRANDING-WHITELABEL
-status: Complete
-last_updated: "2026-06-07T16:38:59-04:00"
-last_activity: 2026-06-07 — v1.37 shipped: branded auth shell, Light/Dark/System auth defaults, validated brand profile, admin customizer, branded emails, docs, golden parity, and generated-host smoke proof.
+milestone: v1.38
+milestone_name: BRAND-V2
+status: planning
+last_updated: "2026-06-12T14:26:01.602Z"
+last_activity: 2026-06-12
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 177 — Verification, Generated-Host Smoke, and Audit Closure
-Plan: 177-01 complete
-Status: v1.37 complete
-Last activity: 2026-06-07 — milestone shipped after compile, docs, focused ExUnit, example LiveView tests, diff hygiene, and generated-host Playwright smoke verification.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-12 — Milestone v1.38 started
 
 ## Accumulated Context
 
