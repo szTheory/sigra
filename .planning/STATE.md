@@ -123,6 +123,10 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **Ship v1.38 BRAND-V2:** open a PR to main (consider `/gsd-pr-branch` to filter .planning commits). All 6 phases complete; D4 Linked Rail shipped repo-wide.
+- **PR #52 (v1.38 BRAND-V2 → main):** OPEN, CI greening after the repo-hygiene pass (2026-06-13). Merge once green.
+- **CI fixes applied (PR #52):** pinned `phx_new` to 1.8.7 (quick task 260613-f1p — upstream 1.8.8 `<.button type>` drop broke install/golden/vault jobs) and declared the 7 D4 admin-snapshot slugs in the allowlist (Phase 183-02 had reset it prematurely on-branch). Both verified locally.
+- **Post-merge follow-up:** reset `test/example/priv/playwright/snapshot-allowlist` to empty (steady state) once #52 lands on main.
+- **Release (after green main):** merge the release-please PR (#47) to publish to hex.pm — review the computed version vs hex history first.
+- **Forward-compat (deferred):** `SEED-004` — make Sigra robust to phx.new ≥1.8.8 button API, then bump/remove the phx_new pin.
 - **Post-milestone fast-follow (deferred):** README header + GitHub social preview adoption (`/gsd-quick`).
-- **Pre-existing bug hand-off (NOT from this milestone):** `/gsd-debug` the auth.ex `app_name` generated-template compile bug; `/gsd-quick` the core template count (52 vs 49). See `.planning/seeds/preexisting-core-template-failures.md`.
+- **Resolved (prior session):** the 2 core-template test failures (auth.ex `app_name` binding + count 52 vs 49) were branch regressions fixed in `232b4e35`; see `.planning/seeds/preexisting-core-template-failures.md`. Not outstanding.
