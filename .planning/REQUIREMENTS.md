@@ -26,7 +26,7 @@
 
 ### Ratified System Buildout (SYS2)
 
-- [ ] **BRAND2-08**: The full ratified asset set ships: `logo-primary.svg`, `logo-primary-dark.svg`, separate `logo-primary-subtitle.svg`, `logo-mark.svg`, `logo-monochrome.svg`, `favicon.svg`, and social cards (light and dark), each render-verified, with clearspace, minimum sizes, and misuse rules documented.
+- [x] **BRAND2-08**: The full ratified asset set ships: `logo-primary.svg`, `logo-primary-dark.svg`, separate `logo-primary-subtitle.svg`, `logo-mark.svg`, `logo-monochrome.svg`, `favicon.svg`, and social cards (light and dark), each render-verified, with clearspace, minimum sizes, and misuse rules documented.
 
 ### Brand Book v2 (BOOK2)
 
@@ -69,7 +69,7 @@
 | BRAND2-05 | Phase 179 | Complete |
 | BRAND2-06 | Phase 179 | Complete |
 | BRAND2-07 | Phase 180 | Complete |
-| BRAND2-08 | Phase 181 | Pending |
+| BRAND2-08 | Phase 181 | Complete |
 | BRAND2-09 | Phase 182 | Pending |
 | BRAND2-10 | Phase 182 | Pending |
 | BRAND2-11 | Phase 183 | Pending |
