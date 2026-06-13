@@ -27,7 +27,7 @@ Seven+ files under `brandbook/`: `logo-primary.svg`, `logo-primary-dark.svg`, `l
 
 ### Usage rules + archive
 - Clearspace (defined in mark-relative units), minimum sizes, and ≥4 misuse examples documented in `brandbook/README.md` (companion markdown is acceptable per roadmap; index.html integration is Phase 182's job).
-- v1 assets MOVED (git mv, not duplicated) into an archive location under `brandbook/logo-options/` (e.g. `archive-v1/`) with a deprecation note; working set contains only ratified v2 files. Do NOT touch `priv/templates/` or `test/example/` copies — that is Phase 183.
+- v1 assets are MOVED into an archive location under `brandbook/logo-options/` (`archive-v1/`) with a deprecation note; the working set ends up containing only ratified v2 files at the canonical paths. **Mechanism (clarified for executor):** archive the v1 files by reading them from the LIVE working tree *before* any v2 overwrite (the order matters — once a canonical path is overwritten with v2, its v1 content is only recoverable from git history, which is fragile). The logical outcome is what's locked: v1 preserved in `archive-v1/`, canonical paths hold v2, no v1/v2 duplication in the final working set. Whether git records this as a rename or as add-then-modify is immaterial — do not depend on `git mv` rename-tracking. Do NOT touch `priv/templates/` or `test/example/` copies — that is Phase 183.
 
 ### Claude's Discretion
 - Exact subtitle text/styling for the subtitle variant (existing brand voice: "Phoenix auth that ships" appears in round galleries).

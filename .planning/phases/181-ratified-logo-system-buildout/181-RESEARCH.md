@@ -630,22 +630,16 @@ Rendered for both `light` and `dark` color scheme (`page.emulateMedia({colorSche
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Subtitle text finalization**
-   - What we know: "Phoenix auth that ships" has been used consistently across round-3 and round-4 gallery previews as the subtitle preview text
-   - What's unclear: Whether this is the production subtitle or a placeholder
-   - Recommendation: Use "Phoenix auth that ships" as the production subtitle text unless brand-book.md voice section provides a stronger alternative; it is concise, brand-consistent, and technically honest
+1. **Subtitle text finalization** — RESOLVED
+   - Decision: **"Phoenix auth that ships"** IS the production subtitle text (also locked in 181-CONTEXT.md). Used consistently across round-3/round-4 previews; concise, brand-consistent, technically honest. Applies only to `logo-primary-subtitle.svg`; the main lockup remains subtitle-free.
 
-2. **Social card v1 replacement vs archival of the v1 content**
-   - What we know: `social-card.svg` currently embeds the v1 Rail Accent mark paths inline; it is NOT referenced by `brandbook/index.html`
-   - What's unclear: Whether the v1 social card composition (taglines, code block) should be adapted or fully redesigned
-   - Recommendation: Adapt the v1 layout (panel + tagline + install snippet) — the composition is solid; replace only the mark geometry and adjust fills to v2
+2. **Social card v1 replacement vs full redesign** — RESOLVED
+   - Decision: **Adapt the v1 layout** (panel + tagline + install snippet) — the composition is solid. Replace only the mark geometry (Rail Accent strokes → D4 abstract rail glyph) and adjust fills to v2. No full redesign. The v1 `social-card.svg` is not referenced by `index.html`, so its replacement carries no broken-reference risk.
 
-3. **Palette micro-tuning scope**
-   - What we know: CONTEXT permits tuning within hue 15–40° if it measurably improves legibility at small sizes; default is no change
-   - What's unclear: Whether the ember-700 `#c2410c` on the favicon at 16px needs brightening for legibility on non-white backgrounds
-   - Recommendation: Default to no change; make a final determination only after reading the 16px favicon kill test PNG
+3. **Palette micro-tuning scope** — RESOLVED
+   - Decision: **Default to no change.** Keep ember-700 `#c2410c` and ember-300 `#fdba74` as ratified. Micro-tuning within hue 15–40° is permitted ONLY if the executor reads the 16px favicon kill-test PNG and finds a measurable legibility failure on a non-white background; any such change MUST be recorded in the plan SUMMARY for Phase 182 token-bump and Phase 183 sg-* sync. Absent a demonstrated failure, ship the ratified values unchanged.
 
 ---
 
