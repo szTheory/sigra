@@ -76,8 +76,8 @@ defmodule ExampleWeb.AdminShellTest do
           ] do
         source = File.read!(path)
 
-        assert source =~ ~s(viewBox="20 12 188 54")
-        assert source =~ "Inter Display Black v4.1."
+        assert source =~ ~s(viewBox="20 220 2361 1000")
+        assert source =~ "Space Grotesk v2.0"
         assert source =~ "<path"
         refute source =~ "<text"
         refute source =~ "font-family"
