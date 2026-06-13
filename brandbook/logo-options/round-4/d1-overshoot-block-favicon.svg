@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 20 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra D1 overshoot block favicon</title>
+  <desc id="desc">Font: Space Grotesk v2.0 (OFL) wght=700. D1 favicon: standalone rail-i: bare stem with an enlarged ember rail block, block-to-stem ratio re-tuned for 16px. Derived from round-3 a1 outlines (opentype.js 2.0.0). Generated 2026-06-12.</desc>
+  <style>#glyphs { fill: #151515; } #rail-block { fill: #c2410c; } @media (prefers-color-scheme: dark) { #glyphs { fill: #f4f1eb; } #rail-block { fill: #fdba74; } }</style>
+  <g id="glyphs">
+    <rect x="410" y="420" width="180" height="560" />
+  </g>
+  <rect id="rail-block" x="350" y="60" width="300" height="300" />
+</svg>

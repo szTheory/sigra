@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-129 97 960 960" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra D3 monogram-s favicon</title>
+  <desc id="desc">Font: Space Grotesk v2.0 (OFL) wght=700. D3 favicon: s + ember block monogram: the Space Grotesk s with the rail block floating staggered above its entry stroke. Derived from round-3 a1 outlines (opentype.js 2.0.0). Generated 2026-06-12.</desc>
+  <style>#glyphs { fill: #151515; } #rail-block { fill: #c2410c; } @media (prefers-color-scheme: dark) { #glyphs { fill: #f4f1eb; } #rail-block { fill: #fdba74; } }</style>
+  <g id="glyphs">
+    <path d="M276 1014Q179 1014 117 972Q55 930 42 852L158 822Q165 857 181.50 877Q198 897 222.50 905.50Q247 914 276 914Q320 914 341 898.50Q362 883 362 860Q362 837 342 824.50Q322 812 278 804L250 799Q198 789 155 771.50Q112 754 86 723Q60 692 60 643Q60 569 114 529.50Q168 490 256 490Q339 490 394 527Q449 564 466 624L349 660Q341 622 316.50 606Q292 590 256 590Q220 590 201 602.50Q182 615 182 637Q182 661 202 672.50Q222 684 256 690L284 695Q340 705 385.50 721.50Q431 738 457.50 768.50Q484 799 484 851Q484 929 427.50 971.50Q371 1014 276 1014" />
+  </g>
+  <rect id="rail-block" x="360" y="140" width="300" height="300" />
+</svg>

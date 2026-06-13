@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 40 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra D2 rail-bar tittle favicon</title>
+  <desc id="desc">Font: Space Grotesk v2.0 (OFL) wght=700. D2 favicon: standalone rail-i with the 3:2 rail-bar tittle spanning wider than the stem. Derived from round-3 a1 outlines (opentype.js 2.0.0). Generated 2026-06-12.</desc>
+  <style>#glyphs { fill: #151515; } #rail-block { fill: #c2410c; } @media (prefers-color-scheme: dark) { #glyphs { fill: #f4f1eb; } #rail-block { fill: #fdba74; } }</style>
+  <g id="glyphs">
+    <rect x="410" y="440" width="180" height="540" />
+  </g>
+  <rect id="rail-block" x="290" y="100" width="420" height="280" />
+</svg>
