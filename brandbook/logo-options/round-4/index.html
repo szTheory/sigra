@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sigra Logo Options — Round 4</title>
+    <link rel="stylesheet" href="../../tokens.css">
+    <style>
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background:
+          linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+          #171614;
+        background-size: 44px 44px;
+        color: #f4f1eb;
+        font-family: var(--sigra-font-sans);
+        line-height: var(--sigra-leading-normal);
+        letter-spacing: 0;
+      }
+      a { color: #fdba74; font-weight: var(--sigra-weight-bold); }
+      img { display: block; max-width: 100%; height: auto; }
+      main {
+        width: min(90rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: var(--sigra-space-8) 0 var(--sigra-space-16);
+      }
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sigra-space-3);
+        border-bottom: 1px solid rgba(255,255,255,0.12);
+        padding-bottom: var(--sigra-space-4);
+      }
+      .crumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-3);
+        font-size: var(--sigra-text-sm);
+      }
+      .status {
+        border: 1px solid rgba(253,186,116,0.32);
+        border-radius: var(--sigra-radius-full);
+        color: #fdba74;
+        font-size: var(--sigra-text-xs);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.35rem 0.6rem;
+        text-transform: uppercase;
+      }
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-6);
+        padding: var(--sigra-space-10) 0 var(--sigra-space-8);
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 {
+        max-width: 13ch;
+        margin-bottom: var(--sigra-space-4);
+        font-size: clamp(2.5rem, 8vw, 6.4rem);
+        line-height: 0.9;
+        letter-spacing: 0;
+      }
+      h2 {
+        margin-bottom: var(--sigra-space-2);
+        font-size: clamp(1.55rem, 3vw, 2.45rem);
+        line-height: var(--sigra-leading-tight);
+        letter-spacing: 0;
+      }
+      h3 {
+        margin-bottom: var(--sigra-space-2);
+        font-size: var(--sigra-text-md);
+        letter-spacing: 0;
+      }
+      .lead {
+        max-width: 68ch;
+        color: #d4ccc1;
+        font-size: clamp(1.05rem, 1.8vw, 1.28rem);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .brief {
+        display: grid;
+        gap: var(--sigra-space-3);
+        align-content: start;
+        border-left: 3px solid #c2410c;
+        background: rgba(31,29,26,0.78);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+        padding: var(--sigra-space-5);
+      }
+      .brief p { margin-bottom: 0; color: #d4ccc1; }
+      .rules {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sigra-space-2);
+        margin: var(--sigra-space-4) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .rules li {
+        border: 1px solid rgba(253,186,116,0.24);
+        border-radius: var(--sigra-radius-full);
+        background: rgba(253,186,116,0.08);
+        color: #fdba74;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding: 0.35rem 0.6rem;
+      }
+      .options {
+        display: grid;
+        gap: var(--sigra-space-5);
+      }
+      .option {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sigra-space-5);
+        border: 1px solid rgba(255,255,255,0.11);
+        border-radius: var(--sigra-radius-sm);
+        background: rgba(31,29,26,0.88);
+        box-shadow: 0 24px 70px -48px rgba(0,0,0,0.85);
+        padding: var(--sigra-space-4);
+      }
+      .option-head {
+        display: grid;
+        gap: var(--sigra-space-3);
+        align-content: start;
+      }
+      .code {
+        color: #fdba74;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+      }
+      .option-head p,
+      .notes p {
+        color: #c9c0b4;
+        margin-bottom: var(--sigra-space-3);
+      }
+      .preview {
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .lockups {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+        gap: var(--sigra-space-3);
+      }
+      .surface {
+        display: grid;
+        align-content: center;
+        min-height: 9.5rem;
+        border-radius: var(--sigra-radius-sm);
+        padding: var(--sigra-space-4);
+      }
+      .surface.light {
+        background: #f6f5f2;
+        color: #151515;
+        box-shadow: inset 0 0 0 1px rgba(21,21,21,0.10);
+      }
+      .surface.dark {
+        background: #151515;
+        color: #f4f1eb;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+      }
+      .lockup {
+        display: inline-grid;
+        grid-template-columns: minmax(0, auto);
+        align-items: center;
+        gap: var(--sigra-space-3);
+      }
+      .lockup img {
+        width: min(100%, 20rem);
+        height: auto;
+      }
+      .lockup.with-word {
+        grid-template-columns: minmax(0, auto) minmax(0, auto);
+        justify-content: start;
+      }
+      .word {
+        display: grid;
+        gap: 0.15rem;
+      }
+      .word span {
+        color: currentColor;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        opacity: 0.68;
+      }
+      .mark-lab {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: var(--sigra-space-4);
+        align-items: center;
+        border-top: 1px solid rgba(255,255,255,0.10);
+        padding-top: var(--sigra-space-3);
+      }
+      .mark-stage {
+        display: grid;
+        place-items: center;
+        width: 6rem;
+        height: 6rem;
+        border-radius: var(--sigra-radius-sm);
+        background: #f6f5f2;
+      }
+      .mark-stage img {
+        width: 4rem;
+        height: 4rem;
+        color-scheme: light;
+      }
+      .favicons {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: var(--sigra-space-4);
+      }
+      .favicon-sample {
+        display: grid;
+        gap: 0.35rem;
+        color: #bdb5aa;
+        font-family: var(--sigra-font-mono);
+        font-size: var(--sigra-text-xs);
+      }
+      .favicon-sample img {
+        image-rendering: auto;
+        color-scheme: light;
+        background: #f6f5f2;
+        border-radius: 2px;
+      }
+      .notes {
+        display: grid;
+        gap: var(--sigra-space-3);
+      }
+      .scores {
+        display: grid;
+        gap: var(--sigra-space-2);
+      }
+      .score {
+        display: grid;
+        grid-template-columns: 7rem minmax(0, 1fr);
+        gap: var(--sigra-space-3);
+        align-items: center;
+        color: #d4ccc1;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-semibold);
+      }
+      .meter {
+        height: 0.55rem;
+        overflow: hidden;
+        border-radius: var(--sigra-radius-full);
+        background: rgba(255,255,255,0.10);
+      }
+      .meter span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: #fdba74;
+      }
+      .test {
+        border-top: 1px solid rgba(255,255,255,0.10);
+        color: #fdba74;
+        font-size: var(--sigra-text-sm);
+        font-weight: var(--sigra-weight-bold);
+        padding-top: var(--sigra-space-3);
+      }
+      footer {
+        border-top: 1px solid rgba(255,255,255,0.12);
+        color: #bdb5aa;
+        margin-top: var(--sigra-space-8);
+        padding-top: var(--sigra-space-5);
+      }
+      @media (min-width: 980px) {
+        header { grid-template-columns: minmax(0, 1.1fr) minmax(22rem, 0.9fr); }
+        .option { grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.55fr) minmax(18rem, 0.9fr); }
+      }
+      @media (max-width: 520px) {
+        main { width: min(100% - 1rem, 90rem); }
+        .lockup img { width: 100%; }
+        .mark-lab { grid-template-columns: minmax(0, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="topbar">
+        <nav class="crumbs" aria-label="Logo archive links">
+          <a href="../round-3/index.html">Round 3 board</a>
+          <a href="../../index.html">Brandbook</a>
+          <a href="README.md">Round 4 notes</a>
+        </nav>
+        <span class="status">Final selection</span>
+      </div>
+
+      <header>
+        <div>
+          <p class="code">Round 4 refinement / ratified A1 rail-i / Space Grotesk Bold</p>
+          <h1>A1, tightened up.</h1>
+          <p class="lead">The gate ratified the A1 Rail-i direction and spent its one refinement round here. Two mandates: kill the ig-crop favicon (it read as Instagram) and push the wordmark's weak spots — tittle pop at 16px, g-tail deliberateness, tittle-vs-tail balance. Five candidates keep the Space Grotesk Bold rail-i spine and vary the favicon treatment, tittle geometry, and accent depth. Three favicon treatments survived the 16px kill test; the all-apricot favicon did not and was cut mid-round. Selection happens from this board — no further rounds.</p>
+          <ul class="rules" aria-label="Design constraints">
+            <li>Ratified A1 spine only</li>
+            <li>Instagram-free favicons</li>
+            <li>16px kill test enforced</li>
+            <li>No background container</li>
+            <li>Subtitle-free primary</li>
+            <li>Ember hue 15&ndash;40&deg; only</li>
+            <li>One refinement round</li>
+          </ul>
+        </div>
+        <aside class="brief">
+          <h2>How to read this board</h2>
+          <p>Every wordmark is the ratified A1 skeleton — judge the deltas. Favicon row first: D1/D2/D5 test the standalone rail-i, D3 tests an s monogram, D4 tests an abstract rail glyph. Then check the tittle treatment at the small lockup and whether the g tail reads as a deliberate rail.</p>
+          <p>Light lockups use ember-700 for small-size contrast (D5 keeps the ratified ember-300 as the control); dark lockups keep ember-300 throughout.</p>
+        </aside>
+      </header>
+
+      <section class="options" aria-label="Fourth-round logo options">
+        <article class="option" id="option-d1">
+          <div class="option-head">
+            <p class="code">D1</p>
+            <h2>Overshoot Block</h2>
+            <p>The tittle enlarged 174&rarr;210 units with optical overshoot above x-height and deepened to ember-700 on light surfaces. The ratified g tail is untouched. Favicon: standalone rail-i, block-to-stem ratio re-tuned to 1.67.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="d1-overshoot-block-typemark.svg" alt="D1 overshoot block typemark on light"></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="d1-overshoot-block-typemark-dark.svg" alt="D1 overshoot block typemark on dark"></div>
+              </div>
+            </div>
+            <div class="lockups" style="margin-top: var(--sigra-space-2)">
+              <div class="surface light">
+                <div class="lockup with-word"><img src="d1-overshoot-block-typemark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup with-word"><img src="d1-overshoot-block-typemark-dark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="d1-overshoot-block-favicon.svg" alt="D1 standalone rail-i favicon"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="d1-overshoot-block-favicon.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="d1-overshoot-block-favicon.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="d1-overshoot-block-favicon.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> the most direct fix for both round-3 flags — the ember-700 block holds at every scale and the overshoot makes the tittle read confident instead of timid.</p>
+            <p><strong>Risk:</strong> ember-700 on light shifts the wordmark personality from apricot-soft toward brick-bold; the square block + bare stem favicon is the most conventional of the three treatments.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:88%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:84%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:86%"></span></div></div>
+            </div>
+            <div class="test">Tests whether enlarging and deepening the tittle alone takes the ratified A1 to production grade.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-d2">
+          <div class="option-head">
+            <p class="code">D2</p>
+            <h2>Rail-Bar Tittle</h2>
+            <p>The tittle stretched to a 3:2 rail bar (270&times;180 units) spanning wider than the stem — the most literal rail quote in the set. Ember-700 on light; ratified g tail unchanged. Favicon: standalone rail-i with the bar tittle.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="d2-rail-bar-typemark.svg" alt="D2 rail-bar typemark on light"></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="d2-rail-bar-typemark-dark.svg" alt="D2 rail-bar typemark on dark"></div>
+              </div>
+            </div>
+            <div class="lockups" style="margin-top: var(--sigra-space-2)">
+              <div class="surface light">
+                <div class="lockup with-word"><img src="d2-rail-bar-typemark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup with-word"><img src="d2-rail-bar-typemark-dark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="d2-rail-bar-favicon.svg" alt="D2 rail-bar favicon"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="d2-rail-bar-favicon.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="d2-rail-bar-favicon.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="d2-rail-bar-favicon.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> the wider-than-stem bar kills any generic-i or information-icon read at favicon scale and quotes the Rail Accent bar geometry directly.</p>
+            <p><strong>Risk:</strong> the bar flirts with a flag/table silhouette at tiny sizes; as the shape departs from a dot, the i reads slightly less like an i.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:82%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:88%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:84%"></span></div></div>
+            </div>
+            <div class="test">Tests how far the tittle can stretch toward pure rail geometry before it stops reading as an i.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-d3">
+          <div class="option-head">
+            <p class="code">D3</p>
+            <h2>Monogram-S</h2>
+            <p>A 200-unit tittle with the ink-trap gap widened 58&rarr;90 units so block and stem never fuse at small sizes. Favicon: the Space Grotesk s with the ember block staggered above its entry stroke — the first letter owns the avatar.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="d3-monogram-s-typemark.svg" alt="D3 monogram-s typemark on light"></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="d3-monogram-s-typemark-dark.svg" alt="D3 monogram-s typemark on dark"></div>
+              </div>
+            </div>
+            <div class="lockups" style="margin-top: var(--sigra-space-2)">
+              <div class="surface light">
+                <div class="lockup with-word"><img src="d3-monogram-s-typemark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup with-word"><img src="d3-monogram-s-typemark-dark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="d3-monogram-s-favicon.svg" alt="D3 s-monogram favicon"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="d3-monogram-s-favicon.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="d3-monogram-s-favicon.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="d3-monogram-s-favicon.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> the monogram puts the brand's first letter on avatar surfaces, and the widened ink trap keeps the wordmark's block and stem crisp down to favicon scale.</p>
+            <p><strong>Risk:</strong> weakest 16px ember presence of the surviving favicons — the block reads at roughly 3px; the monogram needs 24px and up to feel designed. The taller gap also floats the tittle slightly looser at hero scale.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:80%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:82%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:80%"></span></div></div>
+            </div>
+            <div class="test">Tests whether the first letter beats the i as the avatar identity.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-d4">
+          <div class="option-head">
+            <p class="code">D4</p>
+            <h2>Linked Rail</h2>
+            <p>The g tail extended further left to x=557 so its tip aligns exactly under the tittle's left edge — tittle above, rail below, one bracketing system around &ldquo;ig&rdquo;. Favicon: an abstract rail glyph (ink stem + leftward foot + ember block), no letter at all.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="d4-linked-rail-typemark.svg" alt="D4 linked rail typemark on light"></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="d4-linked-rail-typemark-dark.svg" alt="D4 linked rail typemark on dark"></div>
+              </div>
+            </div>
+            <div class="lockups" style="margin-top: var(--sigra-space-2)">
+              <div class="surface light">
+                <div class="lockup with-word"><img src="d4-linked-rail-typemark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup with-word"><img src="d4-linked-rail-typemark-dark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="d4-linked-rail-favicon.svg" alt="D4 abstract rail glyph favicon"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="d4-linked-rail-favicon.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="d4-linked-rail-favicon.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="d4-linked-rail-favicon.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> the aligned tittle and tail visibly become one rail system — the strongest answer to &ldquo;does the tail look deliberate?&rdquo; The abstract favicon is fully ownable with zero letter-confusion risk.</p>
+            <p><strong>Risk:</strong> the longer underslung tail is the boldest wordmark move on the board — it must keep reading as a rail, never an underline; the favicon carries no letterform at all, so it needs repetition to attach to the name.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:84%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:90%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:90%"></span></div></div>
+            </div>
+            <div class="test">Tests whether making the rail system explicit — aligned tittle + extended tail — deepens the concept or over-eggs it.</div>
+          </div>
+        </article>
+
+        <article class="option" id="option-d5">
+          <div class="option-head">
+            <p class="code">D5</p>
+            <h2>Quiet Ember</h2>
+            <p>The control: closest to the ratified round-3 lockup. Tittle nudged 174&rarr;190 units, apricot ember-300 kept on both light and dark. Favicon: standalone rail-i that auto-darkens to ember-700 on light — ember-300 failed the 16px kill test outright.</p>
+          </div>
+          <div class="preview">
+            <div class="lockups">
+              <div class="surface light">
+                <div class="lockup"><img src="d5-quiet-ember-typemark.svg" alt="D5 quiet ember typemark on light"></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup"><img src="d5-quiet-ember-typemark-dark.svg" alt="D5 quiet ember typemark on dark"></div>
+              </div>
+            </div>
+            <div class="lockups" style="margin-top: var(--sigra-space-2)">
+              <div class="surface light">
+                <div class="lockup with-word"><img src="d5-quiet-ember-typemark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+              <div class="surface dark">
+                <div class="lockup with-word"><img src="d5-quiet-ember-typemark-dark.svg" alt=""><span class="word"><span>Phoenix auth that ships</span></span></div>
+              </div>
+            </div>
+            <div class="mark-lab">
+              <div class="mark-stage"><img src="d5-quiet-ember-favicon.svg" alt="D5 rail-i favicon (ember-700 on light)"></div>
+              <div class="favicons">
+                <span class="favicon-sample"><img src="d5-quiet-ember-favicon.svg" alt="" style="width:32px;height:32px">32px</span>
+                <span class="favicon-sample"><img src="d5-quiet-ember-favicon.svg" alt="" style="width:24px;height:24px">24px</span>
+                <span class="favicon-sample"><img src="d5-quiet-ember-favicon.svg" alt="" style="width:16px;height:16px">16px</span>
+              </div>
+            </div>
+          </div>
+          <div class="notes">
+            <p><strong>Strength:</strong> preserves the exact soft-apricot personality the gate ratified; at hero and topbar scale it is the gentlest, most editorial lockup on the board.</p>
+            <p><strong>Risk:</strong> ember-300 vanished at 16px on light in render testing, so this system must carry two accent values (apricot wordmark, brick favicon) — more brand surface to govern.</p>
+            <div class="scores">
+              <div class="score"><span>Appeal</span><div class="meter"><span style="width:84%"></span></div></div>
+              <div class="score"><span>Distinctive</span><div class="meter"><span style="width:78%"></span></div></div>
+              <div class="score"><span>Concept</span><div class="meter"><span style="width:76%"></span></div></div>
+            </div>
+            <div class="test">The control — is the ratified soft-apricot worth governing a two-value accent system?</div>
+          </div>
+        </article>
+      </section>
+
+      <footer>
+        <p>Round 4 is the milestone's single budgeted refinement loop. The final selection is made from this board; the decision is recorded in the round-3 README ratification section and Phase 181 builds the production asset set from it.</p>
+      </footer>
+    </main>
+  </body>
+</html>
