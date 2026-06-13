@@ -11,13 +11,3 @@
 #
 # The `impersonation-banner` canary must NEVER appear here.
 #
-# v1.38 BRAND-V2 (PR #52): D4 Linked Rail logo recapture — admin-checkpoint
-# baselines re-recorded in Phase 183-02. These 7 slugs are the intended delta
-# vs origin/main. Reset to empty in a follow-up once #52 merges.
-audit-explorer
-global-overview
-global-user-index
-org-overview
-org-scoped-admin
-user-audit
-user-detail
