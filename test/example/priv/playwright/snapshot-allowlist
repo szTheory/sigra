@@ -11,7 +11,3 @@
 #
 # The `impersonation-banner` canary must NEVER appear here.
 #
-global-overview
-org-overview
-user-audit
-user-detail
