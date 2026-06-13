@@ -160,7 +160,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 181-01-PLAN.md — Typemark + mark + favicon: produce logo-primary.svg, logo-primary-dark.svg, logo-primary-subtitle.svg, logo-mark.svg, logo-monochrome.svg, favicon.svg from D4 source; render-verify all six
-- [ ] 181-02-PLAN.md — Social cards + archive + usage rules: social-card.svg and social-card-dark.svg, archive v1 assets atomically, update brandbook/README.md with clearspace/min-size/misuse documentation
+- [x] 181-02-PLAN.md — Social cards + archive + usage rules: social-card.svg and social-card-dark.svg, archive v1 assets atomically, update brandbook/README.md with clearspace/min-size/misuse documentation
 **UI hint**: yes
 
 ### Phase 182: Brand Book v2 + Tokens
@@ -222,6 +222,6 @@ Plans:
 | 178. Brand v2 Pressure-Test Audit | v1.38 | 2/2 | Complete   | 2026-06-12 |
 | 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 2/2 | Complete   | 2026-06-12 |
 | 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
-| 181. Ratified Logo System Buildout | v1.38 | 1/2 | In Progress|  |
+| 181. Ratified Logo System Buildout | v1.38 | 2/2 | Complete   | 2026-06-13 |
 | 182. Brand Book v2 + Tokens | v1.38 | 0/? | Not started | - |
 | 183. Propagation, Parity + Verification | v1.38 | 0/? | Not started | - |
