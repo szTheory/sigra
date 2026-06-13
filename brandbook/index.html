@@ -330,8 +330,10 @@
           <nav class="nav" aria-label="Brand book sections" tabindex="0">
             <a href="#judgment">Judgment</a>
             <a href="#dna">DNA</a>
+            <a href="#scorecard">Scorecard</a>
             <a href="#tokens">Tokens</a>
             <a href="#logo">Logo</a>
+            <a href="#suite">Suite</a>
             <a href="#examples">Examples</a>
             <a href="#voice">Voice</a>
             <a href="#blueprint">Blueprint</a>
@@ -400,7 +402,7 @@ $ xmllint --noout brandbook/logo-mark.svg</pre>
           </div>
         </section>
 
-        <section>
+        <section id="scorecard">
           <p class="eyebrow">Scorecard</p>
           <h2>Reference-quality checks.</h2>
           <div class="panel score" aria-label="Brand quality scorecard">
@@ -427,31 +429,100 @@ $ xmllint --noout brandbook/logo-mark.svg</pre>
 
         <section id="logo">
           <p class="eyebrow">Logo system</p>
-          <h2>Rail Accent tight lockup plus durable small marks.</h2>
-          <p class="lead">Use the Rail Accent source set for Sigra identity across docs, README visuals, package surfaces, and presentations.</p>
+          <h2>D4 Linked Rail: the ratified Sigra mark system.</h2>
+          <p class="lead">The D4 Linked Rail is a fully integrated typemark. The ember-colored rail block above the <em>i</em> and the extended <em>g</em> tail form a single bracketing rail — the mark is structural in the letterforms, not applied on top.</p>
+
+          <h3 style="margin-top:var(--sigra-space-5)">Lockup set</h3>
           <div class="logo-strip">
-            <div class="logo-box light lockup"><img src="logo-primary.svg" alt="Sigra primary logo for light surfaces"></div>
-            <div class="logo-box dark lockup"><img src="logo-primary-dark.svg" alt="Sigra primary logo for dark surfaces"></div>
-            <div class="logo-box mark"><img src="logo-mark.svg" alt="Sigra Rail Accent mark"></div>
-            <div class="logo-box favicon"><img src="favicon.svg" alt="Sigra favicon mark"></div>
+            <div class="logo-box light lockup"><img src="logo-primary.svg" alt="Sigra primary logo, D4 Linked Rail lockup for light surfaces"></div>
+            <div class="logo-box dark lockup"><img src="logo-primary-dark.svg" alt="Sigra primary logo, D4 Linked Rail lockup for dark surfaces"></div>
+            <div class="logo-box light lockup"><img src="logo-primary-subtitle.svg" alt="Sigra primary logo with subtitle, light surface — use for tall-format contexts such as slide decks and social headers"></div>
+            <div class="logo-box mark"><img src="logo-mark.svg" alt="Sigra D4 Linked Rail free-standing mark, for UI accents and compact contexts"></div>
+            <div class="logo-box light mark"><img src="logo-monochrome.svg" alt="Sigra monochrome mark for single-ink print and restricted-color contexts"></div>
+            <div class="logo-box favicon"><img src="favicon.svg" alt="Sigra favicon mark, minimum 16 px render size"></div>
+            <div class="logo-box light"><img src="social-card.svg" alt="Sigra social card preview for light-background platforms such as GitHub and X"></div>
+            <div class="logo-box dark"><img src="social-card-dark.svg" alt="Sigra social card preview for dark-background platforms"></div>
           </div>
+
           <div class="rules" style="margin-top:var(--sigra-space-4)">
+            <article class="panel">
+              <h3>Integrated typemark anatomy</h3>
+              <ul class="rule-list">
+                <li><strong>Rail block (ember):</strong> the solid ember-colored rectangle positioned above the <em>i</em> tittle replaces the conventional dot. It is the ember accent, not decorative punctuation.</li>
+                <li><strong>Extended <em>g</em> tail:</strong> the descender of the lowercase <em>g</em> is drawn out to align horizontally beneath the rail block, completing the bracketing rail on the baseline side.</li>
+                <li>Together, the rail block and the extended tail create one continuous vertical rail that brackets the interior letterforms — giving the mark its name and differentiating it from any clip-art assembly.</li>
+              </ul>
+            </article>
+            <article class="panel">
+              <h3>Clearspace and minimum sizes</h3>
+              <ul class="rule-list">
+                <li><strong>Clearspace:</strong> reserve space equal to the mark height on all four sides of the lockup. Do not crowd the mark with text, borders, or other graphic elements.</li>
+                <li><strong>Primary lockup:</strong> 120 px minimum width in digital contexts.</li>
+                <li><strong>Free-standing mark:</strong> 24 px minimum rendered size.</li>
+                <li><strong>Favicon:</strong> 16 px minimum; use the <code>favicon.svg</code> source — it is optimised for square display at very small sizes.</li>
+                <li><strong>Monochrome mark:</strong> 24 px minimum; do not use monochrome below this size or the rail bracket becomes illegible.</li>
+              </ul>
+            </article>
             <article class="panel">
               <h3>Use</h3>
               <ul class="rule-list">
                 <li>Primary lockups for brandbook, landing, README visual, and talks.</li>
+                <li>Subtitle lockup for tall-format contexts: slide headers, social preview cards, and two-line display surfaces.</li>
                 <li>Free-standing mark for UI accents, favicon, package avatar, social avatar, and compact cards.</li>
-                <li>Monochrome mark for print and restricted-color contexts.</li>
+                <li>Monochrome mark for print, one-color embossing, and restricted-color contexts.</li>
+                <li>Social card SVGs as the authoritative source for all OpenGraph and platform preview images.</li>
               </ul>
             </article>
             <article class="panel">
-              <h3>Avoid</h3>
+              <h3>Misuse — do not</h3>
               <ul class="rule-list">
-                <li>No gradients, bevels, shadows, rotations, or mascot additions.</li>
-                <li>No tiny wordmark where the icon mark is more legible.</li>
-                <li>No black wordmark SVG on a dark surface; use the dark lockup.</li>
-                <li>No unrelated lock or shield icons beside the mark.</li>
+                <li>Do not add a rectangular container, badge, or background shape behind the mark — the D4 rail block is not a badge element.</li>
+                <li>Do not rotate, skew, or mirror any part of the lockup.</li>
+                <li>Do not recolor the ember rail block using <code>ember-300</code>, <code>ember-200</code>, or any non-700 ember step — the rail block must use <code>ember-700 #c2410c</code> on light surfaces.</li>
+                <li>Do not use the monochrome mark at sizes below 24 px — at that scale the rail bracket degrades to visual noise.</li>
+                <li>Do not apply drop shadows, gradients, or bevels to any element of the lockup.</li>
+                <li>Do not use the black wordmark SVG on dark surfaces — use <code>logo-primary-dark.svg</code> instead.</li>
               </ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="suite">
+          <p class="eyebrow">Suite architecture</p>
+          <h2>Seven libraries, one coherent system.</h2>
+          <p class="lead">The szTheory OSS suite uses a shared design vocabulary while each library owns its mark, accent hue, and domain metaphor. This keeps the suite coherent without forcing visual uniformity.</p>
+          <div class="table-wrap panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Library</th>
+                  <th>Domain metaphor</th>
+                  <th>Accent hue</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Sigra</strong></td><td>Protected core framed by visible host-code rails — the <em>g</em> tail and rail block bracket the letterforms as the library brackets the host app.</td><td>Ember ~15° — <code>#c2410c</code></td></tr>
+                <tr><td><strong>Accrue</strong></td><td>Ledger accumulation — precision tracking of resources over time.</td><td>Unique hue, ≥15° from siblings</td></tr>
+                <tr><td><strong>Mailglass</strong></td><td>Transparent delivery — mail flows through a visible, inspectable channel.</td><td>Unique hue, ≥15° from siblings</td></tr>
+                <tr><td><strong>Threadline</strong></td><td>Trace — a continuous thread connecting events in sequence.</td><td>Unique hue, ≥15° from siblings</td></tr>
+                <tr><td><strong>Lockspire</strong></td><td>Lock-spire — a lock whose shackle terminates in a rising spire, connoting aspiration within constraint.</td><td>Unique hue, ≥15° from siblings</td></tr>
+                <tr><td><strong>Relyra</strong></td><td>Reliability — dependable infrastructure, the lyre's consistent resonance.</td><td>Unique hue, ≥15° from siblings</td></tr>
+                <tr><td><strong>Rulestead</strong></td><td>Governance — a steadfast ruleset, homestead-level permanence.</td><td>Unique hue, ≥15° from siblings</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="grid" style="margin-top:var(--sigra-space-4)">
+            <article class="panel">
+              <h3>Rule 1 — Shared wordmark typeface</h3>
+              <p class="quiet">Inherit Space Grotesk v2.0 (OFL, wght 700) as the suite wordmark typeface. All seven library logotypes use this face at the same weight for a recognisable family relationship.</p>
+            </article>
+            <article class="panel">
+              <h3>Rule 2 — Domain-specific mark</h3>
+              <p class="quiet">Each library adopts a unique mark that reflects its domain metaphor. The mark must be legible at 16 px (favicon), 24 px (compact UI), and in monochrome. Do not reuse or adapt Sigra's D4 rail system for a sibling mark.</p>
+            </article>
+            <article class="panel">
+              <h3>Rule 3 — Hue separation</h3>
+              <p class="quiet">Each library selects an accent hue at least 15° from every existing sibling's hue on the color wheel. Sigra occupies ember ~15°. New libraries must verify the separation against all currently ratified sibling hues before committing a color.</p>
             </article>
           </div>
         </section>
