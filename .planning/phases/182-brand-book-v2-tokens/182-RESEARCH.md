@@ -599,7 +599,7 @@ du -sh brandbook/
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 All resolved autonomously per instructions.
 
