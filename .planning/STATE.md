@@ -74,6 +74,12 @@ Last activity: 2026-06-13 -- D4 Linked Rail propagated repo-wide; 21 Playwright 
 
 - None.
 
+## Quick Tasks Completed
+
+| Quick ID | Task | Status | Date |
+| --- | --- | --- | --- |
+| 260613-f1p | Pin phx_new to 1.8.7 in CI workflows (fix PR #52 red CI from phx_new 1.8.8 `<.button type>` drop). Verified: vault_promotion + golden_diff pass locally; SEED-004 filed for forward-compat. | complete ✓ | 2026-06-13 |
+
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
