@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 active — Phases 178-182 complete (brand book v2 + tokens shipped, axe clean); Phase 183 (propagation + parity) next
+**Status:** v1.38 BRAND-V2 COMPLETE — all 6 phases (178-183) done; D4 Linked Rail logo shipped repo-wide, baselines recaptured, gates green. 2 pre-existing core-template failures tracked as hand-off.
 
 ## Milestones
 
@@ -23,7 +23,7 @@
 - [x] **Phase 180: Human Logo Ratification Gate** — Maintainer ratified D4 Linked Rail (round-4 refinement of A1 Rail-i, Space Grotesk 700); one round-4 loop used; decision recorded in round-3 README. (completed 2026-06-12)
 - [x] **Phase 181: Ratified Logo System Buildout** — 8 D4 Linked Rail SVGs built + render-verified (16px favicon kill test passed); clearspace/min-size/6 misuse examples documented; 6 v1 assets archived. (completed 2026-06-12)
 - [x] **Phase 182: Brand Book v2 + Tokens** — index.html v2 (expanded logo-system + szTheory suite sections); tokens 1.0.1 + change policy; stale specimens fixed; axe zero violations. (completed 2026-06-13)
-- [ ] **Phase 183: Propagation, Parity + Verification** — Byte-identical logo propagation under unchanged filenames; sg-* token sync; Playwright baseline recapture; hygiene gate. (not started)
+- [x] **Phase 183: Propagation, Parity + Verification** — D4 logo propagated to installer+example (byte-identical, filenames unchanged); token parity verified unchanged; 21 Playwright baselines recaptured, canary intact, allowlist reset; hygiene green; 2 pre-existing core failures documented. (completed 2026-06-13)
 
 <details>
 <summary>✅ v1.37 AUTH-BRANDING-WHITELABEL (Phases 173-177) — SHIPPED 2026-06-07</summary>

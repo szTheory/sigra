@@ -35,10 +35,10 @@
 
 ### Propagation And Parity (PROP2)
 
-- [ ] **BRAND2-11**: The ratified logo is propagated byte-identically to `priv/templates/sigra.install/admin/` and `test/example/priv/static/images/` under unchanged filenames, and all installer/example parity tests pass.
-- [ ] **BRAND2-12**: sg-* token values in the example app CSS, `sigra_auth.css` accent defaults, and the admin design contract are re-synced to brandbook tokens (or verified unchanged if the palette was kept).
-- [ ] **BRAND2-13**: Admin Playwright baselines are recaptured once via `scripts/ci/snapshot-recapture-gate.sh` with all intended slugs declared, and the snapshot canary guard returns to its empty steady state.
-- [ ] **BRAND2-14**: A final hygiene gate verifies JSON/SVG/HTML parseability, file-size limits, no binary sprawl, a small brandbook size delta, green `mix test`, and clean git status.
+- [x] **BRAND2-11**: The ratified logo is propagated byte-identically to `priv/templates/sigra.install/admin/` and `test/example/priv/static/images/` under unchanged filenames, and all installer/example parity tests pass.
+- [x] **BRAND2-12**: sg-* token values in the example app CSS, `sigra_auth.css` accent defaults, and the admin design contract are re-synced to brandbook tokens (or verified unchanged if the palette was kept).
+- [x] **BRAND2-13**: Admin Playwright baselines are recaptured once via `scripts/ci/snapshot-recapture-gate.sh` with all intended slugs declared, and the snapshot canary guard returns to its empty steady state.
+- [x] **BRAND2-14**: A final hygiene gate verifies JSON/SVG/HTML parseability, file-size limits, no binary sprawl, a small brandbook size delta, green `mix test`, and clean git status.
 
 ## Out Of Scope
 
@@ -72,7 +72,7 @@
 | BRAND2-08 | Phase 181 | Complete |
 | BRAND2-09 | Phase 182 | Complete |
 | BRAND2-10 | Phase 182 | Complete |
-| BRAND2-11 | Phase 183 | Pending |
-| BRAND2-12 | Phase 183 | Pending |
-| BRAND2-13 | Phase 183 | Pending |
-| BRAND2-14 | Phase 183 | Pending |
+| BRAND2-11 | Phase 183 | Complete |
+| BRAND2-12 | Phase 183 | Complete |
+| BRAND2-13 | Phase 183 | Complete |
+| BRAND2-14 | Phase 183 | Complete |
