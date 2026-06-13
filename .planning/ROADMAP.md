@@ -1,11 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 COMPLETE — all 6 phases (178-183) done; D4 Linked Rail logo shipped repo-wide, baselines recaptured, gates green. 2 pre-existing core-template failures tracked as hand-off.
+**Status:** v1.38 BRAND-V2 SHIPPED 2026-06-13 (merged to main, archived). D4 Linked Rail logo propagated repo-wide; `v1.1.0` published to hex.pm via the full release-please → CI-gate → hex-publish pipeline. No active milestone — ready for the next.
 
 ## Milestones
 
-- 🔄 **v1.38 BRAND-V2** — Phases 178-183 (active)
+- ✅ **v1.38 BRAND-V2** — Phases 178-183 (shipped 2026-06-13)
 - ✅ **v1.37 AUTH-BRANDING-WHITELABEL** — Phases 173-177 (shipped 2026-06-07)
 - ✅ **v1.36 ADMIN-BRAND-THEME-POLISH** — Phases 168-172 (shipped 2026-06-06)
 - ✅ **v1.35 BRAND-SYSTEM-PRESSURE-TEST** — Phases 161-167 (shipped 2026-06-05)
@@ -14,7 +14,8 @@
 
 ## Phases
 
-### v1.38 BRAND-V2
+<details>
+<summary>✅ v1.38 BRAND-V2 (Phases 178-183) — SHIPPED 2026-06-13</summary>
 
 **Milestone Goal:** Pressure-test the v1.35 brand system against a fresh 14-section critical audit and elevate the Sigra identity with a redesigned, fully integrated logo system — ratified by the maintainer — propagated coherently everywhere the existing logo already lives.
 
@@ -23,7 +24,15 @@
 - [x] **Phase 180: Human Logo Ratification Gate** — Maintainer ratified D4 Linked Rail (round-4 refinement of A1 Rail-i, Space Grotesk 700); one round-4 loop used; decision recorded in round-3 README. (completed 2026-06-12)
 - [x] **Phase 181: Ratified Logo System Buildout** — 8 D4 Linked Rail SVGs built + render-verified (16px favicon kill test passed); clearspace/min-size/6 misuse examples documented; 6 v1 assets archived. (completed 2026-06-12)
 - [x] **Phase 182: Brand Book v2 + Tokens** — index.html v2 (expanded logo-system + szTheory suite sections); tokens 1.0.1 + change policy; stale specimens fixed; axe zero violations. (completed 2026-06-13)
-- [x] **Phase 183: Propagation, Parity + Verification** — D4 logo propagated to installer+example (byte-identical, filenames unchanged); token parity verified unchanged; 21 Playwright baselines recaptured, canary intact, allowlist reset; hygiene green; 2 pre-existing core failures documented. (completed 2026-06-13)
+- [x] **Phase 183: Propagation, Parity + Verification** — D4 logo propagated to installer+example (byte-identical, filenames unchanged); token parity verified unchanged; 21 Playwright baselines recaptured, canary intact, allowlist reset; hygiene green. (completed 2026-06-13)
+
+Archive:
+
+- [v1.38 Roadmap](milestones/v1.38-ROADMAP.md)
+- [v1.38 Requirements](milestones/v1.38-REQUIREMENTS.md)
+- [v1.38 Phase Artifacts](milestones/v1.38-phases/)
+
+</details>
 
 <details>
 <summary>✅ v1.37 AUTH-BRANDING-WHITELABEL (Phases 173-177) — SHIPPED 2026-06-07</summary>

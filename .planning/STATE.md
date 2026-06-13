@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.38
 milestone_name: BRAND-V2
-status: milestone-complete
-last_updated: "2026-06-13T07:00:00.000Z"
-last_activity: 2026-06-13 -- Phase 183 complete; v1.38 BRAND-V2 milestone DONE (all 6 phases)
+status: milestone-shipped
+last_updated: "2026-06-13T16:30:00.000Z"
+last_activity: 2026-06-13 -- v1.38 BRAND-V2 SHIPPED (PR #52 merged, v1.1.0 to hex) + archived to milestones/; repo-hygiene clean baseline
 progress:
   total_phases: 30
   completed_phases: 6
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.38 BRAND-V2 milestone COMPLETE — ready to ship (PR to main)
+**Current focus:** No active milestone — v1.38 BRAND-V2 shipped + archived. Ready for the next milestone (`/gsd-new-milestone`).
 
 ## Current Position
 
-Phase: 183 (propagation-parity-verification) — COMPLETE (VERIFICATION 4/4 passed-with-notes)
-Plan: 2 of 2 complete
-Status: v1.38 BRAND-V2 milestone DONE — all 6 phases (178-183) complete. Next: ship (PR to main) + post-milestone fast-follow (README/social adoption). 2 pre-existing core-template failures tracked in .planning/seeds/.
-Last activity: 2026-06-13 -- D4 Linked Rail propagated repo-wide; 21 Playwright baselines recaptured; gates green
+Phase: none active — v1.38 BRAND-V2 archived to `.planning/milestones/v1.38-phases/`
+Plan: n/a
+Status: v1.38 BRAND-V2 SHIPPED 2026-06-13 — PR #52 merged to main (`e8faee8c`), `v1.1.0` published to hex via the full release-please → CI-gate → hex-publish pipeline, milestone archived, repo in a clean baseline. Deferred fast-follow: README header + GitHub social-preview adoption (`/gsd-quick`).
+Last activity: 2026-06-13 -- repo-hygiene pass: phx_new 1.8.7 pin, snapshot allowlist steady-state, branches pruned, v1.38 archived
 
 ## Accumulated Context
 
@@ -63,8 +63,8 @@ Last activity: 2026-06-13 -- D4 Linked Rail propagated repo-wide; 21 Playwright 
 - [Phase 181]: Built 8 D4 production SVGs at brandbook/ (logo-primary{,-dark,-subtitle}, logo-mark, logo-monochrome, favicon, social-card{,-dark}); palette UNCHANGED from ratified (#c2410c / #fdba74 — 16px kill test passed on ratified values, no micro-tuning). 6 v1 Rail Accent assets archived to brandbook/logo-options/archive-v1/ (read from live tree before overwrite; deprecation README). Verified 4/4.
 - [Phase 182]: index.html v2 (expanded #logo multi-lockup + typemark anatomy + clearspace/misuse; new #suite szTheory 7-lib section; #scorecard). tokens.json PATCH-bumped 1.0.0→1.0.1 + meta.changed; tokens.css provenance header (values unchanged); Token Change Policy section in README. Stale v1 staggered-bars mark (path M17 14v14) replaced with D4 geometry in examples/landing-hero.svg + readme-header.svg. Committed axe gate at scripts/brand/axe-brandbook.mjs (serves brandbook/ on :7743, AxeBuilder wcag2a/wcag2aa) — ZERO violations. Verified 4/4.
 - [Phase 183]: D4 logo propagated to installer (priv/templates/sigra.install/admin/sigra-logo-primary{,-dark}.svg) + example (test/example/priv/static/images/) as a PURE viewBox reframe (viewBox="20 220 2361 1000", path-only, "Space Grotesk v2.0" provenance) — installer==example byte-identical. Companion rail-accent-mark{,-dark}.svg swapped to D4 abstract mark. Guard-test reality: the "parity" tests pinned v1 content (viewBox 20 12 188 54 + "Inter Display Black v4.1.") so 2 assertion strings/file were updated to D4 + the install golden fixture's 2 logo SVGs regenerated (documented SC1 deviation — invariant preserved). Token parity VERIFIED UNCHANGED (#c2410c/#fdba74). 21 admin Playwright baselines recaptured (7 slugs×3 projects) via snapshot-recapture-gate.sh on :4011; impersonation-banner canary untouched; allowlist reset to empty. 3 stale playwright spec selectors fixed (pre-existing UI drift). Verified 4/4 passed-with-notes.
-- [Phase 183 HAND-OFF]: 2 PRE-EXISTING core-template failures (byte-identical to main, NOT from this milestone) tracked in .planning/seeds/preexisting-core-template-failures.md: (1) auth.ex:554 undefined `app_name` EEx binding → generated host auth context won't compile (REAL bug, needs /gsd-debug); (2) isolation_test.exs:86 core template count 52 vs 49 (needs /gsd-quick). The brand milestone introduced ZERO new test failures.
-- [Phase ?]: Recaptured 7 non-canary admin Playwright baselines for D4 logo; canary restored; allowlist reset to empty
+- [RESOLVED 2026-06-13]: The two "pre-existing core-template failures" (auth.ex `app_name` binding + count 52 vs 49) were branch regressions, fixed in `232b4e35` (see `.planning/seeds/preexisting-core-template-failures.md`). The later red CI was a separate issue — upstream `phx_new` 1.8.8 dropping `type` from `<.button>` — fixed by pinning `phx_new 1.8.7` (forward-compat in `SEED-004`). All gates green; nothing outstanding.
+- [Phase 183]: Recaptured 7 non-canary admin Playwright baselines for D4 logo; canary restored; allowlist returned to empty steady-state on main 2026-06-13.
 
 ### Pending Todos
 
@@ -123,10 +123,8 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **PR #52 (v1.38 BRAND-V2 → main):** OPEN, CI greening after the repo-hygiene pass (2026-06-13). Merge once green.
-- **CI fixes applied (PR #52):** pinned `phx_new` to 1.8.7 (quick task 260613-f1p — upstream 1.8.8 `<.button type>` drop broke install/golden/vault jobs) and declared the 7 D4 admin-snapshot slugs in the allowlist (Phase 183-02 had reset it prematurely on-branch). Both verified locally.
-- **Post-merge follow-up:** reset `test/example/priv/playwright/snapshot-allowlist` to empty (steady state) once #52 lands on main.
-- **Release (after green main):** merge the release-please PR (#47) to publish to hex.pm — review the computed version vs hex history first.
-- **Forward-compat (deferred):** `SEED-004` — make Sigra robust to phx.new ≥1.8.8 button API, then bump/remove the phx_new pin.
-- **Post-milestone fast-follow (deferred):** README header + GitHub social preview adoption (`/gsd-quick`).
-- **Resolved (prior session):** the 2 core-template test failures (auth.ex `app_name` binding + count 52 vs 49) were branch regressions fixed in `232b4e35`; see `.planning/seeds/preexisting-core-template-failures.md`. Not outstanding.
+- **Start next milestone** when ready: `/gsd-new-milestone` (does the full PROJECT.md evolution + REQUIREMENTS reset + git tag that this lightweight archive deliberately deferred).
+- **Forward-compat (deferred):** `SEED-004` — make Sigra robust to phx.new ≥1.8.8 button API, then bump/remove the `phx_new 1.8.7` pin.
+- **Fast-follow (deferred):** README header + GitHub social-preview adoption (`/gsd-quick`).
+- **Hex versioning wart (deferred, Jon's call):** stray `1.20.0` still outranks `1.1.0`/`1.0.0` as `latest_stable` on hex. Fix when desired: `mix hex.user auth` then `mix hex.retire sigra 1.20.0 …` (reversible via `--unretire`).
+- **Done 2026-06-13:** v1.38 shipped + archived, `v1.1.0` on hex, CI green, PRs triaged, local git clean (only `main`), snapshot allowlist at steady-state.
