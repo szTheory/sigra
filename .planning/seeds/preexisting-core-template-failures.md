@@ -1,18 +1,12 @@
-# Pre-existing core-template test failures (surfaced during v1.38 Phase 183)
+# [RESOLVED] Two mix-test failures on v1.38-brand-v2 (were branch regressions, NOT pre-existing)
 
-**Status:** OPEN — NOT introduced by v1.38 brand milestone (both byte-identical to the `main` merge-base).
-**Found:** 2026-06-13 while running the full `mix test` gate in Phase 183.
+**Status:** RESOLVED 2026-06-13 (fix committed on v1.38-brand-v2 / PR #52).
 
-## 1. auth.ex undefined `app_name` (REAL generated-template bug — higher priority)
-- **Test:** `test/mix/tasks/sigra.install_test.exs:166` ("renders auth context template")
-- **Cause:** `priv/templates/sigra.install/core/auth.ex:554` references EEx binding `app_name` (`product_name: "<%= app_name %>"`, `email_from_name: "<%= app_name %>"`) but the render binding does not provide it → `CompileError: undefined variable "app_name"`.
-- **Impact:** A host app generated from this template branch would fail to compile its auth context. Shipping-relevant.
-- **Recommended:** `/gsd-debug` — determine the correct binding (likely `app_name` should be derived from the app module/name in the installer binding, or the template should use an existing var).
+## Correction to the original diagnosis
+These were initially recorded (during Phase 183) as "pre-existing failures on main, byte-identical to merge-base." **That was wrong** — it relied on a stale local `main` pointer (`d0a02f9f`), which is itself a brand-branch commit ("Add auth branding previews and admin polish"), not `origin/main`. Against the real `origin/main` (`d9aefe2f`), both tests PASS. The failures were **regressions introduced on this branch by `d0a02f9f`** and would have shipped to main via PR #52 if not caught.
 
-## 2. core template count drift
-- **Test:** `test/sigra/install/isolation_test.exs:86` — asserts `priv/templates/sigra.install/core/*` contains exactly 49 templates; actual is 52.
-- **Cause:** 3 core templates added at/before the merge-base without bumping the assertion count.
-- **Impact:** Test-bookkeeping only (unless the 3 extra files are unintended).
-- **Recommended:** `/gsd-quick` — confirm the 3 extra templates are intended, then update the count to 52 (or remove strays).
+## What was actually wrong + the fix
+1. `test/mix/tasks/sigra.install_test.exs:166` ("renders auth context template") — `d0a02f9f` added a `branding:` block to `core/auth.ex` referencing `<%= app_name %>` and `<%= from_email %>`. The real installer (`lib/mix/tasks/sigra.install.ex`) provides both, but this test's hand-built EEx binding was not updated. **Fix:** added `app_name: "MyApp"` + `from_email: "noreply@example.com"` to the test binding. The template + installer were always correct (no shipping bug).
+2. `test/sigra/install/isolation_test.exs:86` — `d0a02f9f` added 3 legitimate core templates (`create_brand_profiles.exs`, `sigra_auth.css`, `sigra_auth_components.ex`). **Fix:** bumped the expected count 49 → 52.
 
-Both are out of scope for the brand milestone (logo propagation never touched `core/`).
+Full root `mix test` now green: 2381 tests, 0 failures.
