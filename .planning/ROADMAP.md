@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 active — Phases 178-181 complete (D4 logo asset set built); Phase 182 (brand book v2 + tokens) next
+**Status:** v1.38 BRAND-V2 active — Phases 178-182 complete (brand book v2 + tokens shipped, axe clean); Phase 183 (propagation + parity) next
 
 ## Milestones
 
@@ -22,7 +22,7 @@
 - [x] **Phase 179: Outlining Toolchain + Logo Concept Exploration** — Committed opentype.js glyph-outlining script; 7 candidates with 4 integrated typemarks; Playwright render-critique loop; round-3 gallery. (completed 2026-06-12)
 - [x] **Phase 180: Human Logo Ratification Gate** — Maintainer ratified D4 Linked Rail (round-4 refinement of A1 Rail-i, Space Grotesk 700); one round-4 loop used; decision recorded in round-3 README. (completed 2026-06-12)
 - [x] **Phase 181: Ratified Logo System Buildout** — 8 D4 Linked Rail SVGs built + render-verified (16px favicon kill test passed); clearspace/min-size/6 misuse examples documented; 6 v1 assets archived. (completed 2026-06-12)
-- [ ] **Phase 182: Brand Book v2 + Tokens** — Professional standalone index.html v2; version-bumped tokens with change policy; regenerated examples/ specimens; axe pass. (not started)
+- [x] **Phase 182: Brand Book v2 + Tokens** — index.html v2 (expanded logo-system + szTheory suite sections); tokens 1.0.1 + change policy; stale specimens fixed; axe zero violations. (completed 2026-06-13)
 - [ ] **Phase 183: Propagation, Parity + Verification** — Byte-identical logo propagation under unchanged filenames; sg-* token sync; Playwright baseline recapture; hygiene gate. (not started)
 
 <details>

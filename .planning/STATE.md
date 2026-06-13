@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.38
 milestone_name: BRAND-V2
-status: verifying
-last_updated: "2026-06-13T05:01:53.272Z"
-last_activity: 2026-06-13
+status: executing
+last_updated: "2026-06-13T05:15:00.000Z"
+last_activity: 2026-06-13 -- Phase 182 complete; brand book v2 + tokens shipped, axe clean, verified 4/4
 progress:
   total_phases: 30
   completed_phases: 5
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 182 — brand-book-v2-tokens
+**Current focus:** Phase 183 — propagation-parity-verification
 
 ## Current Position
 
-Phase: 181 (ratified-logo-system-buildout) — COMPLETE (VERIFICATION 4/4 passed)
+Phase: 182 (brand-book-v2-tokens) — COMPLETE (VERIFICATION 4/4 passed, axe zero violations)
 Plan: 2 of 2 complete
-Status: Phase complete — ready for verification
-Last activity: 2026-06-13
+Status: Phase 183 (propagation, parity + verification) is next — the milestone's final phase
+Last activity: 2026-06-13 -- Phase 182 shipped index.html v2 + tokens 1.0.1 + committed axe gate
 
 ## Accumulated Context
 
@@ -60,7 +60,8 @@ Last activity: 2026-06-13
 - [Phase 179]: A3 crossbar-s reworked to rail-g after failing the render gate twice; B2 s-substitute is a serpentine rail-switchback; C1 mark set into line-1 negative space — Render-critique loop verdicts: planned geometries fought the chosen fonts' anatomy; reworked designs pass all rubric rows
 - [Phase 179]: outline-wordmark.mjs: variation coords require font as 5th getPath arg; toPathData must use flipY:false on getPath output — Two latent Plan 01 toolchain bugs caught by visually reading renders; fixed before candidate work
 - [Phase 180]: Human gate ratified **D4 Linked Rail** (round-4 refinement of A1 Rail-i): Space Grotesk v2.0 wght 700, ember rail-block tittle + g tail extended to x=557 aligning under the tittle as one bracketing rail system; favicon is the abstract rail glyph (no letter — round-3 "ig" crop read as Instagram and is retired). Palette fine-tuning allowed within hue 15–40° in Phase 181; light-surface favicon accent is ember-700. One budgeted round-4 loop used; decision recorded in brandbook/logo-options/round-3/README.md.
-- [Phase 181]: Built 8 D4 production SVGs at brandbook/ (logo-primary{,-dark,-subtitle}, logo-mark, logo-monochrome, favicon, social-card{,-dark}); palette UNCHANGED from ratified (#c2410c / #fdba74 — 16px kill test passed on ratified values, no micro-tuning). 6 v1 Rail Accent assets archived to brandbook/logo-options/archive-v1/ (read from live tree before overwrite; deprecation README). Verified 4/4. CARRY-FORWARD to Phase 182: brandbook/README.md Files table still labels 5 entries "Rail Accent" and omits logo-primary-subtitle.svg + social-card-dark.svg — refresh in the 182 brandbook sweep.
+- [Phase 181]: Built 8 D4 production SVGs at brandbook/ (logo-primary{,-dark,-subtitle}, logo-mark, logo-monochrome, favicon, social-card{,-dark}); palette UNCHANGED from ratified (#c2410c / #fdba74 — 16px kill test passed on ratified values, no micro-tuning). 6 v1 Rail Accent assets archived to brandbook/logo-options/archive-v1/ (read from live tree before overwrite; deprecation README). Verified 4/4.
+- [Phase 182]: index.html v2 (expanded #logo multi-lockup + typemark anatomy + clearspace/misuse; new #suite szTheory 7-lib section; #scorecard). tokens.json PATCH-bumped 1.0.0→1.0.1 + meta.changed; tokens.css provenance header (values unchanged); Token Change Policy section in README. Stale v1 staggered-bars mark (path M17 14v14) replaced with D4 geometry in examples/landing-hero.svg + readme-header.svg. Committed axe gate at scripts/brand/axe-brandbook.mjs (serves brandbook/ on :7743, AxeBuilder wcag2a/wcag2aa) — ZERO violations. Verified 4/4. NOTE for Phase 183: ember three-surface parity (#c2410c across brandbook tokens / admin --sg-color-brand / auth --sigra-auth-light-accent) is now documented; palette was NOT changed so 183's sg-* sync should be a verify-unchanged, not a value edit.
 
 ### Pending Todos
 
@@ -82,7 +83,7 @@ Last activity: 2026-06-13
 ## Session Continuity
 
 Last session: 2026-06-13T05:01:53.269Z
-Stopped at: Completed Phase 181 (both plans + verification 4/4)
+Stopped at: Completed Phase 182 (brand book v2 + tokens, axe clean, verified 4/4)
 Resume file: None
 
 ## Performance Metrics
@@ -112,4 +113,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 182` to begin Phase 182: Brand Book v2 + Tokens (index.html v2, version-bumped tokens, regenerated specimens, README Files-table refresh carried from Phase 181).
+- Run `/gsd-plan-phase 183` to begin Phase 183: Propagation, Parity + Verification (byte-identical logo propagation into installer/example under unchanged filenames; sg-*/sigra_auth.css verify-unchanged since palette held; single Playwright baseline recapture on port 4011; hygiene gate). Final milestone phase.
