@@ -115,7 +115,7 @@ Archive:
 **Success Criteria** (what must be TRUE):
   1. `brandbook/pressure-test-audit-v2.md` exists with all 14 sections populated and every REWORK verdict accompanied by evidence; KEEP sections carry no unsupported claims.
   2. The audit includes a named szTheory suite brand-architecture section covering shared vs per-library identity elements for all seven libraries, informed by documented competitor/ecosystem visual research.
-  3. A logo v2 design brief is committed that explicitly encodes: no rectangular container, boundary-breaking allowed, tight logotype proximity, subtitle-free main lockup, integrated-typemark candidates required, ember-anchored tunable palette, OFL-only typefaces.
+  3. A logo v2 design brief is committed that explicitly encodes: no rectangular container, boundary-breaking allowed, tight logotype proximity, subtitle-free main lockup, integrated-typemark candidates required, ember-anchored tunable palette, OFL typeface freedom.
   4. The audit's action plan section contains a prioritized list that directly drives the scope of Phases 179–183.
 **Plans**: 2 plans
 Plans:
@@ -172,7 +172,10 @@ Plans:
   2. An automated axe accessibility check on `brandbook/index.html` returns zero violations.
   3. `brandbook/tokens.json` carries an incremented version field and `brandbook/tokens.css` is regenerated from it; a token change policy document (or section in `brandbook/README.md`) describes how token values are versioned and when consuming code should expect updates.
   4. Every specimen file in `brandbook/examples/` has been regenerated or verified to embed the ratified v2 mark (no stale v1 mark references remain).
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 182-01-PLAN.md — Token bump + brand-book.md + README Files-table + stale specimens: tokens.json v1.0.1, tokens.css provenance header, README refresh, brand-book.md suite/ember-parity content, two stale specimen SVGs updated to D4 geometry
+- [ ] 182-02-PLAN.md — index.html v2 expansion + axe harness + axe gate: #scorecard id, expanded #logo section with all 8 D4 assets, new #suite section, scripts/brand/axe-brandbook.mjs, zero-violation axe run
 **UI hint**: yes
 
 ### Phase 183: Propagation, Parity + Verification
@@ -223,5 +226,5 @@ Plans:
 | 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 2/2 | Complete   | 2026-06-12 |
 | 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
 | 181. Ratified Logo System Buildout | v1.38 | 2/2 | Complete   | 2026-06-13 |
-| 182. Brand Book v2 + Tokens | v1.38 | 0/? | Not started | - |
+| 182. Brand Book v2 + Tokens | v1.38 | 0/2 | Not started | - |
 | 183. Propagation, Parity + Verification | v1.38 | 0/? | Not started | - |
