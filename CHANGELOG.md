@@ -9,6 +9,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This changelog uses **[Semantic Versioning](https://semver.org/spec/v2.0.0.html)** headings like **`[0.3.0]`** for **installable Hex releases**. Separately, maintainers track **planning milestones** labeled **v1.x** in **`.planning/`** and archived milestone docs — those labels describe shipped tranches of work, **not** a second installable version axis on Hex. When in doubt, treat this changelog's SemVer headings and live Hex package metadata as the installable version truth; treat planning milestones as project-management traceability.
 
+## [1.1.0](https://github.com/szTheory/sigra/compare/v1.0.0...v1.1.0) (2026-06-13)
+
+
+### Features
+
+* **154-02:** add sg-notice CSS block inside [@layer](https://github.com/layer) sg-components ([2c023ba](https://github.com/szTheory/sigra/commit/2c023baea2110ad50edd8c7c05ae8f2dfdc82a49))
+* **155-01:** add stat, skeleton, and notice components (all 10 complete) ([969fbe8](https://github.com/szTheory/sigra/commit/969fbe808c1feb0192d7271c9e8906bd66f50592))
+* **155-01:** define 8 live-analog admin components in Sigra.Admin.Components ([d13801d](https://github.com/szTheory/sigra/commit/d13801d85da9d206890ab6c9a614de8f39e069e7))
+* **157-01:** redesign render/1 with front-door archetype and skeleton state ([0a7cdce](https://github.com/szTheory/sigra/commit/0a7cdcee084042dd25f181c8512882debd46a241))
+* **157-01:** split mount/3 with connected? gate and loading assign ([29a72c4](https://github.com/szTheory/sigra/commit/29a72c4236c1a3c496be2574d208ff20c1ecf1e1))
+* **157-02:** redesign org overview render/1 — front-door archetype + skeletons ([23b482e](https://github.com/szTheory/sigra/commit/23b482ed340c72c6d986e15cdb1d0725daf97f6a))
+* **157-02:** split org overview mount/3 with connected? gate ([3dc1979](https://github.com/szTheory/sigra/commit/3dc19797ba1eee181da4c3a40cc04c7b3b130f4a))
+* **157-04:** add global-overview and org-overview checkpoint blocks to admin-checkpoints.spec.ts ([e6296d5](https://github.com/szTheory/sigra/commit/e6296d5c839539f6cf4d42f7ed25c72e7a8d001a))
+* **157-04:** record 6 initial PNG baselines for global-overview and org-overview ([e609b48](https://github.com/szTheory/sigra/commit/e609b48af1d74071c17705c0052bbfdbda6c5d40))
+* **158-01:** add audit_row/1 as 11th component with audit_tone/1 and format_date/1 ([e56ccd7](https://github.com/szTheory/sigra/commit/e56ccd7ca5162daa3a8ac4c46ae33bce46d36eec))
+* **158-02:** dual-layout wrappers + audit_row mobile cards + tone consolidation in AuditIndexLive ([73d296c](https://github.com/szTheory/sigra/commit/73d296cc5564235f4c7cccaf9dc4de2d46a1cdec))
+* **158-03:** add dual-layout + audit_row mobile cards to AuditUserLive ([1d05c1e](https://github.com/szTheory/sigra/commit/1d05c1e498d36dcd3f6abef98a7c94a4ac92d8f2))
+* **158-03:** wire shared chrome + quick-filter chips into AuditUserLive ([10fe1e4](https://github.com/szTheory/sigra/commit/10fe1e4ecf950f2987cca09bc530ee7322e50369))
+* **158-04:** route user-detail Recent Audit through compact audit_row ([4f190da](https://github.com/szTheory/sigra/commit/4f190daff70f688edc4179e8eda0d43eacd27361))
+* **158:** automated snapshot drift guard + recapture gate (zero-human baseline review) ([0d3c4d2](https://github.com/szTheory/sigra/commit/0d3c4d27a70594657d7084270912b7bcc1a6360d))
+* **159-01:** add deletion_scheduled? to member_row type and shape_member_row/1 ([8fbeedc](https://github.com/szTheory/sigra/commit/8fbeedc002ea302aa9753369d2ca72de1abed54e))
+* **159-01:** add roster deletion pill and expand format_date/1 in organization_live.ex ([75be3ba](https://github.com/szTheory/sigra/commit/75be3baeb5e3d0c4a49681f01d806d3bb94e8da9))
+* **159-02:** add pat and grace personas to all/0 and feature_map/0 ([a5c4f9a](https://github.com/szTheory/sigra/commit/a5c4f9a47dcbaf3a8dd486f2d1dafcc822eb7d58))
+* **159-03:** enrich seeds.ex with expired invite, grace Acme membership, pat passkey, FIXT-04 audit rows ([332d3c7](https://github.com/szTheory/sigra/commit/332d3c79bda9bec9456f5e12bea7d4a3cd0e9aed))
+* **159-03:** update seeds_test.exs — expired_invitations key, grace/pat/expired-invite tests ([4261ad6](https://github.com/szTheory/sigra/commit/4261ad6100de62774dd96f6f701a7a289ec89634))
+* **159-04:** add admin-coherence-sweep.spec.ts — behavior filmstrip + GATE-03 check (D-07) ([8223496](https://github.com/szTheory/sigra/commit/82234969f15ce696d966723cb41d6906e556bae9))
+* **159-05:** fix scope_ribbon class + add OrganizationLive ribbon call ([8ed3ddc](https://github.com/szTheory/sigra/commit/8ed3ddce01627bbbe9f2dafd21d4c2dfbc97cf24))
+* **159-05:** make GATE-03 motion check discriminating (WR-02) ([8169478](https://github.com/szTheory/sigra/commit/81694789b4334fe504f601f45aa71d5f90d5d211))
+* **159-05:** run coherence sweep Playwright spec + fix spec locator issues ([31e05f8](https://github.com/szTheory/sigra/commit/31e05f89c8ab6490a4bedefadee8a4d84a153b87))
+* **160-01:** D-06 dark brand-strong WCAG-AA fix + Sigra.Admin shared helper (IN-03) ([36bc1cf](https://github.com/szTheory/sigra/commit/36bc1cf749d0a14aa5f7617aa33a847c28c48501))
+* **160-03:** re-record 7 dark checkpoint baselines for D-06 brand-strong fix ([e3cacd1](https://github.com/szTheory/sigra/commit/e3cacd1b7ad8ddcd486f4892970e22d8b091bfc2))
+* **179-01:** critique-render.mjs + brandbook/README.md font provenance (BRAND2-04) ([beebd16](https://github.com/szTheory/sigra/commit/beebd16a7b2af5594153033e7598f3f1c2dcb43a))
+* **179-01:** outline-wordmark.mjs — per-glyph SVG path generator (BRAND2-04) ([d267b99](https://github.com/szTheory/sigra/commit/d267b99c2f423fd61015fec897e03e2152419827))
+* **179-02:** add B1/B2 refined lockups and C1 stacked wildcard ([3437b86](https://github.com/szTheory/sigra/commit/3437b867c2c9ef22520602f96a5a0223e5b3d4e8))
+* **179-02:** add Direction A integrated typemark candidates A1-A4 ([a6be5ca](https://github.com/szTheory/sigra/commit/a6be5ca064ab43423366d8abb4b5e34eba65af15))
+* **179-02:** add round-3 gallery index and rationale README ([16a6cdd](https://github.com/szTheory/sigra/commit/16a6cddd5bf3512f233dd818d1fc89843aa38b7a))
+* **180-01:** add round-4 gallery index and README ([b6256e9](https://github.com/szTheory/sigra/commit/b6256e9e88ce77b587bf19e67a962b33d5823c04))
+* **180-01:** add round-4 rail-i refinement candidates ([b9b5b64](https://github.com/szTheory/sigra/commit/b9b5b64c95ad7d0dd172675afb8484d291724355))
+* **181-01:** write D4 Linked Rail mark, monochrome, and favicon SVGs ([8e52d20](https://github.com/szTheory/sigra/commit/8e52d20635cc1316fdbb68990c4dcba8fe681916))
+* **181-01:** write D4 Linked Rail typemark SVGs (primary, dark, subtitle) ([ee29553](https://github.com/szTheory/sigra/commit/ee29553679aa81e16be1117403bfc37940ee15cc))
+* **181-02:** archive v1 social-card and write D4 v2 social cards (light + dark) ([0445a98](https://github.com/szTheory/sigra/commit/0445a98e87071a666d0c7614fe90e0aafee20a7e))
+* **182-01:** replace stale v1 mark geometry in landing-hero.svg + readme-header.svg ([d9175d7](https://github.com/szTheory/sigra/commit/d9175d78916936830c0d7beb6060f13baacc8f32))
+* **182-02:** add scripts/brand/axe-brandbook.mjs — committed axe WCAG gate ([fadda96](https://github.com/szTheory/sigra/commit/fadda9643719dcdc22abd4477900090fcab9f959))
+* **182-02:** expand index.html — scorecard id, expanded #logo, new #suite section ([a2a6684](https://github.com/szTheory/sigra/commit/a2a6684b5b227c1bf00ce0925af14a4fd27a7d3f))
+* **183-01:** propagate D4 admin lockup SVGs to installer + example ([71953c4](https://github.com/szTheory/sigra/commit/71953c4806dd8a89f367b45780c6b15b6fa50440))
+* **183-01:** replace companion marks with D4 abstract rail glyph geometry ([33313ee](https://github.com/szTheory/sigra/commit/33313ee11f17a9e25284492b72332bdaf0231beb))
+
+
+### Bug Fixes
+
+* **154:** correct app.css line citations shifted by sg-notice insertion (WR-01) ([3c0f033](https://github.com/szTheory/sigra/commit/3c0f033b74c075ba75a5ab7bce111ccf0ef6cba8))
+* **155:** add attr :class merge to notice/1 (WR-01/WR-02) ([5ad22cd](https://github.com/szTheory/sigra/commit/5ad22cda5e29819350aeb08571a28dd658bbbcd1))
+* **156:** remove nested &lt;p&gt; in user_show notice call (code-review WR-01) ([ad506c2](https://github.com/szTheory/sigra/commit/ad506c2cb024b2cdc1716318689b3f09f8d9e067))
+* **157:** match org overview skeleton shapes to replaced content (WR-02) ([5806872](https://github.com/szTheory/sigra/commit/580687213c99f12f1cbd9a021b28ac25fb410b48))
+* **158:** reflect active quick-filter chip state + dark-mode contrast ([b92777a](https://github.com/szTheory/sigra/commit/b92777a44156e053655f7f94d4e4eac7ee8fbcd4))
+* **159-01:** replace &lt;p&gt; with &lt;div&gt; in notice/1 slot wrapper (org-notice-nested-p) ([81eeeb5](https://github.com/szTheory/sigra/commit/81eeeb570d5ac2a885d27bed38b4c29033df7310))
+* **159-04:** scope sg-filter-chip transition to pointer:fine devices (D-06 GATE-03) ([1364d17](https://github.com/szTheory/sigra/commit/1364d173c42bb70867033153fb782ace6cf29890))
+* **159-05:** WR-01 NaiveDateTime guard + WR-04 transaction result propagation ([65f7ce1](https://github.com/szTheory/sigra/commit/65f7ce15585eb8a38a174b08a0ba476d39d8e3e3))
+* **160-01:** D-07 needs-review link + OR-filter fix, dedup needs_review/1 (IN-03) ([e0df0f3](https://github.com/szTheory/sigra/commit/e0df0f3c84dc21469c71d276900aa55b8366daa1))
+* **160:** wire needs_review filter into Flop param contract + scope-safe where (CR-01, WR-01) ([8231f84](https://github.com/szTheory/sigra/commit/8231f84084314b074515b5d31e74fcc22843fd09))
+* **179-02:** apply variable-font axis coords in glyph outlining ([ec2bd48](https://github.com/szTheory/sigra/commit/ec2bd48b5033faa3b58654047d5c163a290f2815))
+* **179-02:** remove double Y-flip in outlined glyph path data ([5a02a27](https://github.com/szTheory/sigra/commit/5a02a27010fc4ddf3c125936e6b75c85d3d9507e))
+* **ci:** pin phx_new to 1.8.7 to restore green install/golden jobs ([f5755a4](https://github.com/szTheory/sigra/commit/f5755a405e63231fe225c7bf74f4ea5433a0f7e2))
+* **install:** repair auth-context test binding + core template count ([232b4e3](https://github.com/szTheory/sigra/commit/232b4e35c5d076c5ceb5487406c04c7ea57eae04))
+* **upgrade:** guard organization migrations ([073f8fe](https://github.com/szTheory/sigra/commit/073f8fe8c8557a31da2ae2d938202c0b51f80097))
+
 ## [1.0.0](https://github.com/szTheory/sigra/compare/v0.3.0...v1.0.0) (2026-06-03)
 
 
