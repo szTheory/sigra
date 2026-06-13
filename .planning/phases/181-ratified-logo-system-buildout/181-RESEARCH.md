@@ -17,7 +17,7 @@
 - **Hard constraints from design brief still bind:** no rectangular container, subtitle-free main lockup, tight logotype proximity, viewBox padding must contain boundary-breaking geometry (54px admin topbar slot must not clip).
 - **Asset set (BRAND2-08):** `logo-primary.svg`, `logo-primary-dark.svg`, `logo-primary-subtitle.svg` (ONLY variant with subtitle), `logo-mark.svg`, `logo-monochrome.svg`, `favicon.svg`, `social-card.svg` + dark variant. SVG-only; no raster; no font binaries.
 - **Render verification:** every asset verified through committed Playwright `file://` harness at intended sizes; renders throwaway (never committed); executor must Read PNGs, not just run harness.
-- **Archive:** v1 assets MOVED (git mv) into `brandbook/logo-options/archive-v1/` with deprecation note.
+- **Archive:** v1 assets MOVED into `brandbook/logo-options/archive-v1/` with deprecation note — by reading each v1 file from the LIVE working tree and writing it to the archive path BEFORE the canonical path is overwritten with v2 (see CONTEXT.md; do not rely on git mv rename-tracking or git-history recovery).
 - **Do NOT touch:** `priv/templates/` or `test/example/` copies — Phase 183 scope.
 
 ### Claude's Discretion
@@ -46,7 +46,7 @@
 
 ## Summary
 
-Phase 181 is an SVG production phase with no new external dependencies. The ratified D4 Linked Rail geometry already exists as clean, production-quality SVGs in `brandbook/logo-options/round-4/`; the production asset set is derived directly from those files by: (1) copying or adapting the SVG content, (2) updating `<title>/<desc>` provenance to production language, and (3) producing three net-new files (`logo-primary-subtitle.svg`, `social-card-dark.svg`, and, depending on naming, a v2 `social-card.svg`). Exactly six v1 files are archived (`logo-primary.svg`, `logo-primary-dark.svg`, `logo-mark.svg`, `logo-monochrome.svg`, `favicon.svg`, `social-card.svg`) via `git mv` into `brandbook/logo-options/archive-v1/`, and new v2 files are written at the same canonical paths so `brandbook/index.html` never has broken `src` references. The examples specimens (`examples/readme-header.svg`, `examples/landing-hero.svg`) embed v1 mark geometry inline and are NOT broken by the mv; they are Phase 182/183 scope. The `priv/templates/` and `test/example/priv/static/images/` files use a different naming convention (`sigra-logo-primary.svg`) and are untouched until Phase 183.
+Phase 181 is an SVG production phase with no new external dependencies. The ratified D4 Linked Rail geometry already exists as clean, production-quality SVGs in `brandbook/logo-options/round-4/`; the production asset set is derived directly from those files by: (1) copying or adapting the SVG content, (2) updating `<title>/<desc>` provenance to production language, and (3) producing three net-new files (`logo-primary-subtitle.svg`, `social-card-dark.svg`, and, depending on naming, a v2 `social-card.svg`). Exactly six v1 files are archived (`logo-primary.svg`, `logo-primary-dark.svg`, `logo-mark.svg`, `logo-monochrome.svg`, `favicon.svg`, `social-card.svg`) by reading each from the live working tree and writing it into `brandbook/logo-options/archive-v1/` BEFORE the canonical path is overwritten with v2 — so `brandbook/index.html` never has broken `src` references. The examples specimens (`examples/readme-header.svg`, `examples/landing-hero.svg`) embed v1 mark geometry inline and are NOT broken by the archive; they are Phase 182/183 scope. The `priv/templates/` and `test/example/priv/static/images/` files use a different naming convention (`sigra-logo-primary.svg`) and are untouched until Phase 183.
 
 **Primary recommendation:** Derive every production SVG directly from the round-4 d4 source files. The glyph path data is already correct; the only authoring work per file is adjusting `<title>`, `<desc>`, fill tokens, and viewBox to match each variant's requirements. Build the render harness HTML files in `/tmp/` per the Phase 179 pattern, run `critique-render.mjs`, Read the PNGs, then commit assets. Archive v1 in the same commit to keep `index.html` references continuously live.
 
@@ -58,7 +58,7 @@ Phase 181 is an SVG production phase with no new external dependencies. The rati
 |------------|-------------|----------------|-----------|
 | SVG asset production | Brandbook (static files) | — | All assets are static files; no runtime component |
 | Render verification | Scripts / Playwright harness | — | `critique-render.mjs` drives Chromium at `file://` URLs |
-| Archive / git provenance | Git (mv + new write) | — | git mv preserves rename history; new write at same path means index.html never broken |
+| Archive / provenance | Read live v1 → Write to archive-v1/, then overwrite canonical with v2 | — | live-tree read before overwrite preserves exact v1 content; same-commit v2 write means index.html never broken (do not depend on git mv rename-tracking) |
 | Usage rule documentation | `brandbook/README.md` | `brandbook/brand-book.md` | README gets machine-verifiable clearspace/min-size table; brand-book.md updated logo system section |
 | No runtime propagation | — | — | Phase 183 handles priv/templates and test/example |
 
