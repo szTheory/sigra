@@ -157,7 +157,10 @@ Plans:
   2. Each asset has been visually verified at its intended display size (favicon verified at 16px and 32px; social cards at thumbnail scale; primary lockup at hero and inline scales) in both light and dark contexts with no rendering artifacts.
   3. Clearspace rules, minimum size requirements, and at least four documented misuse examples are committed in the brandbook (as part of `index.html` or a companion markdown file).
   4. Prior v1 logo assets are moved to an archive path or tagged with a deprecation note so the working asset set contains only ratified v2 files.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 181-01-PLAN.md — Typemark + mark + favicon: produce logo-primary.svg, logo-primary-dark.svg, logo-primary-subtitle.svg, logo-mark.svg, logo-monochrome.svg, favicon.svg from D4 source; render-verify all six
+- [ ] 181-02-PLAN.md — Social cards + archive + usage rules: social-card.svg and social-card-dark.svg, archive v1 assets atomically, update brandbook/README.md with clearspace/min-size/misuse documentation
 **UI hint**: yes
 
 ### Phase 182: Brand Book v2 + Tokens
