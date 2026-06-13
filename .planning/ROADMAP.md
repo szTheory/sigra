@@ -224,7 +224,7 @@ Plans:
 | 177. Verification, Generated-Host Smoke, and Audit Closure | v1.37 | 1/1 | Complete | 2026-06-07 |
 | 178. Brand v2 Pressure-Test Audit | v1.38 | 2/2 | Complete   | 2026-06-12 |
 | 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 2/2 | Complete   | 2026-06-12 |
-| 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
+| 180. Human Logo Ratification Gate | v1.38 | 1/1 | Complete   | 2026-06-12 |
 | 181. Ratified Logo System Buildout | v1.38 | 2/2 | Complete   | 2026-06-13 |
 | 182. Brand Book v2 + Tokens | v1.38 | 2/2 | Complete   | 2026-06-13 |
 | 183. Propagation, Parity + Verification | v1.38 | 0/? | Not started | - |
