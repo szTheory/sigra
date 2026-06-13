@@ -30,8 +30,8 @@
 
 ### Brand Book v2 (BOOK2)
 
-- [ ] **BRAND2-09**: `brandbook/index.html` is upgraded to a professional standalone v2 document reflecting all audit verdicts and the ratified logo system, openable directly from disk with no build step, CDN, web font, or runtime dependency, and passing an axe accessibility check.
-- [ ] **BRAND2-10**: `brandbook/tokens.json` and `brandbook/tokens.css` are updated and version-bumped per ratified decisions with a documented token change policy, and the `brandbook/examples/` specimens embedding the old mark are regenerated.
+- [x] **BRAND2-09**: `brandbook/index.html` is upgraded to a professional standalone v2 document reflecting all audit verdicts and the ratified logo system, openable directly from disk with no build step, CDN, web font, or runtime dependency, and passing an axe accessibility check.
+- [x] **BRAND2-10**: `brandbook/tokens.json` and `brandbook/tokens.css` are updated and version-bumped per ratified decisions with a documented token change policy, and the `brandbook/examples/` specimens embedding the old mark are regenerated.
 
 ### Propagation And Parity (PROP2)
 
@@ -70,8 +70,8 @@
 | BRAND2-06 | Phase 179 | Complete |
 | BRAND2-07 | Phase 180 | Complete |
 | BRAND2-08 | Phase 181 | Complete |
-| BRAND2-09 | Phase 182 | Pending |
-| BRAND2-10 | Phase 182 | Pending |
+| BRAND2-09 | Phase 182 | Complete |
+| BRAND2-10 | Phase 182 | Complete |
 | BRAND2-11 | Phase 183 | Pending |
 | BRAND2-12 | Phase 183 | Pending |
 | BRAND2-13 | Phase 183 | Pending |

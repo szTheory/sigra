@@ -174,7 +174,7 @@ Plans:
   4. Every specimen file in `brandbook/examples/` has been regenerated or verified to embed the ratified v2 mark (no stale v1 mark references remain).
 **Plans**: 2 plans
 Plans:
-- [ ] 182-01-PLAN.md — Token bump + brand-book.md + README Files-table + stale specimens: tokens.json v1.0.1, tokens.css provenance header, README refresh, brand-book.md suite/ember-parity content, two stale specimen SVGs updated to D4 geometry
+- [x] 182-01-PLAN.md — Token bump + brand-book.md + README Files-table + stale specimens: tokens.json v1.0.1, tokens.css provenance header, README refresh, brand-book.md suite/ember-parity content, two stale specimen SVGs updated to D4 geometry
 - [ ] 182-02-PLAN.md — index.html v2 expansion + axe harness + axe gate: #scorecard id, expanded #logo section with all 8 D4 assets, new #suite section, scripts/brand/axe-brandbook.mjs, zero-violation axe run
 **UI hint**: yes
 
@@ -226,5 +226,5 @@ Plans:
 | 179. Outlining Toolchain + Logo Concept Exploration | v1.38 | 2/2 | Complete   | 2026-06-12 |
 | 180. Human Logo Ratification Gate | v1.38 | 0/? | Not started | - |
 | 181. Ratified Logo System Buildout | v1.38 | 2/2 | Complete   | 2026-06-13 |
-| 182. Brand Book v2 + Tokens | v1.38 | 0/2 | Not started | - |
+| 182. Brand Book v2 + Tokens | v1.38 | 1/2 | In Progress|  |
 | 183. Propagation, Parity + Verification | v1.38 | 0/? | Not started | - |
