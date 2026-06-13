@@ -37,6 +37,7 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
     create unique_index(:<%= table_name %>, [:email], Keyword.merge(@prefix_opts, where: "deleted_at IS NULL", name: :<%= table_name %>_email_active_index))
     # Partial unique index on pending_email
     create unique_index(:<%= table_name %>, [:pending_email], Keyword.merge(@prefix_opts, where: "pending_email IS NOT NULL", name: :<%= table_name %>_pending_email_index))
+    create index(:<%= table_name %>, [:inserted_at], @prefix_opts)
 
     create table(:user_tokens, Keyword.merge(@prefix_opts, <%= if binary_id, do: "[primary_key: false]", else: "[]" %>)) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
@@ -71,6 +72,8 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
     create index(:user_sessions, [:user_id], @prefix_opts)
     create index(:user_sessions, [:user_id, :type], @prefix_opts)
     create index(:user_sessions, [:inserted_at], @prefix_opts)
+    create index(:user_sessions, [:last_active_at], @prefix_opts)
+    create index(:user_sessions, [:user_id, :last_active_at], @prefix_opts)
 
     # MFA Credentials (TOTP secrets, lockout tracking)
     create table(:user_mfa_credentials, Keyword.merge(@prefix_opts, <%= if binary_id, do: "[primary_key: false]", else: "[]" %>)) do
@@ -144,6 +147,7 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
     # Composite index for application-level uniqueness enforcement on active users
     create index(:<%= table_name %>, [:email, :deleted_at])
     create index(:<%= table_name %>, [:pending_email])
+    create index(:<%= table_name %>, [:inserted_at])
 
     create table(:user_tokens<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
@@ -178,6 +182,8 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
     create index(:user_sessions, [:user_id])
     create index(:user_sessions, [:user_id, :type])
     create index(:user_sessions, [:inserted_at])
+    create index(:user_sessions, [:last_active_at])
+    create index(:user_sessions, [:user_id, :last_active_at])
 
     # MFA Credentials (TOTP secrets, lockout tracking)
     create table(:user_mfa_credentials<%= if binary_id do %>, primary_key: false<% end %>) do
@@ -238,6 +244,7 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
     # Composite index for application-level uniqueness enforcement on active users
     create index(:<%= table_name %>, [:email, :deleted_at])
     create index(:<%= table_name %>, [:pending_email])
+    create index(:<%= table_name %>, [:inserted_at])
 
     create table(:user_tokens<%= if binary_id do %>, primary_key: false<% end %>) do
 <%= if binary_id do %>      add :id, :binary_id, primary_key: true
@@ -272,6 +279,8 @@ defmodule <%= repo_module %>.Migrations.CreateSigraAuthTables do
     create index(:user_sessions, [:user_id])
     create index(:user_sessions, [:user_id, :type])
     create index(:user_sessions, [:inserted_at])
+    create index(:user_sessions, [:last_active_at])
+    create index(:user_sessions, [:user_id, :last_active_at])
 
     # MFA Credentials (TOTP secrets, lockout tracking)
     create table(:user_mfa_credentials<%= if binary_id do %>, primary_key: false<% end %>) do

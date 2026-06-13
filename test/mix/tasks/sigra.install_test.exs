@@ -170,6 +170,8 @@ defmodule Mix.Tasks.Sigra.InstallTest do
         repo_module: "MyApp.Repo",
         web_module: "MyAppWeb",
         app_module: "MyApp",
+        app_name: "MyApp",
+        from_email: "noreply@example.com",
         otp_app: :my_app,
         organizations?: true,
         passkeys?: false

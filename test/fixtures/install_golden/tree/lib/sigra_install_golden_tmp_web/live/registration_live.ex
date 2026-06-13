@@ -1,21 +1,23 @@
 defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   alias SigraInstallGoldenTmp.Accounts.User
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header>
-        Register
-        <:subtitle>
-          Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
-            Log in
-          </.link>
-          to your account now.
-        </:subtitle>
-      </.header>
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
+        <.header>
+          Register
+          <:subtitle>
+            Already registered?
+            <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
+              Log in
+            </.link>
+            to your account now.
+          </:subtitle>
+        </.header>
 
       <.form
         :let={f}
@@ -80,8 +82,9 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
         <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
           Create an account <span aria-hidden="true">&rarr;</span>
         </.button>
-      </.form>
-    </div>
+        </.form>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

@@ -2,12 +2,11 @@ defmodule Sigra.Admin.Components do
   @moduledoc """
   Lib-owned canonical admin component set for Sigra's admin LiveViews.
 
-  Provides 11 flat, stateless `Phoenix.Component` function components that consolidate
+  Provides 13 flat, stateless `Phoenix.Component` function components that consolidate
   the duplicated admin chrome across LiveViews. Security-critical design and a11y fixes
   propagate to host apps via `mix deps.update` (D-05).
 
-  Each component emits only existing `sg-*` CSS classes as defined by the design contract.
-  No component introduces new CSS classes.
+  Each component emits only `sg-*` CSS classes defined by the design contract.
 
   See the [Admin Design Contract](guides/reference/admin-design-contract.md) for the
   authoritative per-component markup, class, and ARIA specification.
@@ -23,6 +22,8 @@ defmodule Sigra.Admin.Components do
     - `page_back/1` — Single-step back to list
     - `scope_ribbon/1` — Persistent in-body scope indicator
     - `notice/1` — Block-level toned contextual alert
+    - `notice_link/1` — Inline notice action link
+    - `field_help/1` — Label-adjacent explanatory tooltip trigger
     - `skeleton/1` — Loading-shape placeholder
     - `audit_row/1` — Audit event card (sg-list-row) with unified tone and date formatting
 
@@ -127,23 +128,214 @@ defmodule Sigra.Admin.Components do
   @doc """
   Renders a non-interactive aggregate posture badge using definition-list semantics.
 
+  The basic form preserves the original compact `<dt>/<dd>` output. Optional
+  icon, value_suffix, subvalue, tone, and help assigns opt into the richer
+  posture-summary treatment used by list page headers.
+
   ## Examples
 
       <.summary_chip label="MFA enabled" value={7} />
+      <.summary_chip
+        id="users-metric-mfa"
+        icon="mfa"
+        label="MFA enrolled"
+        value={42}
+        value_unit="%"
+        value_suffix="MFA coverage"
+        subvalue="7 users with MFA"
+        help="These users have multifactor authentication enabled. Higher coverage lowers account takeover risk."
+      />
   """
+  attr :id, :string, default: nil, doc: "optional root id; also seeds the help id"
   attr :label, :string, required: true, doc: "the term / KPI label"
   attr :value, :integer, required: true, doc: "the numeric KPI value"
+  attr :icon, :string, default: nil, doc: "optional built-in metric icon name"
+  attr :value_unit, :string, default: nil, doc: "optional unit rendered tight against the number"
+  attr :value_suffix, :string, default: nil, doc: "optional second-line label for the number"
+  attr :subvalue, :string, default: nil, doc: "optional secondary metric context"
+  attr :help, :string, default: nil, doc: "optional short explanatory help copy"
+  attr :tone, :string, default: nil, doc: "optional metric tone (risk, warn, ok, info)"
   attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
   attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
 
   def summary_chip(assigns) do
-    ~H"""
-    <div class={["sg-metric", @class]} {@rest}>
-      <dt>{@label}</dt>
-      <dd>{@value}</dd>
-    </div>
-    """
+    if summary_chip_enhanced?(assigns) do
+      assigns =
+        assigns
+        |> assign(:help_id, summary_chip_help_id(assigns))
+        |> assign(:caption, summary_chip_caption(assigns))
+        |> assign(:icon_text, summary_icon_text(assigns.icon))
+
+      ~H"""
+      <div
+        id={@id}
+        class={["sg-metric", @class]}
+        data-tone={@tone}
+        data-sg-metric-enhanced="true"
+        data-sg-metric-has-subvalue={if @subvalue, do: "true", else: nil}
+        data-sg-metric-help-root={if @help, do: "true", else: nil}
+        tabindex={if @help, do: "0", else: nil}
+        aria-describedby={if @help, do: @help_id, else: nil}
+        {@rest}
+      >
+        <dt class="sg-metric__label">
+          <span :if={@icon} class="sg-metric__icon" data-icon={@icon} aria-hidden="true">
+            <span :if={@icon_text} class="sg-metric__icon-text">{@icon_text}</span>
+            <svg
+              :if={!@icon_text}
+              class="sg-metric__icon-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              focusable="false"
+              aria-hidden="true"
+            >
+              <path
+                :for={path <- summary_icon_paths(@icon)}
+                d={path}
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          <span class="sg-metric__label-text">{@label}</span>
+        </dt>
+        <dd class="sg-metric__value">
+          <span class="sg-metric__number">
+            {@value}<span :if={@value_unit} class="sg-metric__unit">{@value_unit}</span>
+          </span>
+        </dd>
+        <dd class="sg-metric__caption">{@caption}</dd>
+        <dd :if={@subvalue} class="sg-metric__subvalue">{@subvalue}</dd>
+        <dd :if={@help} id={@help_id} class="sg-metric__help" role="tooltip" hidden>
+          {@help}
+        </dd>
+      </div>
+      """
+    else
+      ~H"""
+      <div id={@id} class={["sg-metric", @class]} {@rest}>
+        <dt>{@label}</dt>
+        <dd>{@value}</dd>
+      </div>
+      """
+    end
   end
+
+  defp summary_chip_enhanced?(assigns) do
+    Enum.any?(
+      [:icon, :value_unit, :value_suffix, :subvalue, :help, :tone],
+      &present_assign?(assigns, &1)
+    )
+  end
+
+  defp present_assign?(assigns, key), do: present_value?(Map.get(assigns, key))
+  defp present_value?(value) when value in [nil, ""], do: false
+  defp present_value?(_value), do: true
+
+  defp summary_chip_help_id(%{id: id}) when is_binary(id) and id != "", do: id <> "-help"
+
+  defp summary_chip_help_id(%{label: label}) do
+    slug =
+      label
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9]+/, "-")
+      |> String.trim("-")
+
+    "sg-metric-" <> slug <> "-help"
+  end
+
+  defp summary_chip_caption(%{value_suffix: value_suffix})
+       when is_binary(value_suffix) and value_suffix != "",
+       do: value_suffix
+
+  defp summary_chip_caption(%{label: label}), do: label
+
+  defp summary_icon_text("mfa"), do: "MFA"
+  defp summary_icon_text(_icon), do: nil
+
+  defp summary_icon_paths("users") do
+    [
+      "M7.5 11.25a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z",
+      "M2.75 21a4.75 4.75 0 0 1 9.5 0",
+      "M16.5 10.75a3.25 3.25 0 1 0 0-6.5",
+      "M14.75 15.5A4.5 4.5 0 0 1 21.25 21"
+    ]
+  end
+
+  defp summary_icon_paths("check") do
+    [
+      "m6.75 12.25 3.5 3.5 7-8"
+    ]
+  end
+
+  defp summary_icon_paths("check-circle") do
+    [
+      "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z",
+      "m8.75 12.25 2.25 2.25 4.5-5"
+    ]
+  end
+
+  defp summary_icon_paths("shield-check") do
+    [
+      "M12 21.5s7.5-4 7.5-10V5.75L12 3 4.5 5.75v5.75c0 6 7.5 10 7.5 10Z",
+      "m8.75 12 2.15 2.15 4.35-4.9"
+    ]
+  end
+
+  defp summary_icon_paths("phone-check") do
+    [
+      "M9 2.75h6a1.75 1.75 0 0 1 1.75 1.75v15A1.75 1.75 0 0 1 15 21.25H9a1.75 1.75 0 0 1-1.75-1.75v-15A1.75 1.75 0 0 1 9 2.75Z",
+      "M10.25 17.75h3.5",
+      "m9.75 11.75 1.45 1.45 3.05-3.4"
+    ]
+  end
+
+  defp summary_icon_paths("fingerprint") do
+    [
+      "M7 11.25a5 5 0 0 1 10 0v1.25",
+      "M9.25 14.75v-3.5a2.75 2.75 0 0 1 5.5 0v2.5",
+      "M12 11.25v3.25",
+      "M6.25 15.75c.9-1.15 1.25-2.6 1.25-4.5",
+      "M9.5 20.75c1.4-1.65 2.25-3.75 2.5-6.25",
+      "M14.75 20.25c.85-1.55 1.25-3.35 1.25-5.25",
+      "M17.75 16.75c.35-1.4.5-2.85.5-4.25"
+    ]
+  end
+
+  defp summary_icon_paths("lock") do
+    [
+      "M7 10.5V8a5 5 0 0 1 10 0v2.5",
+      "M5.75 10.5h12.5v9.75H5.75z",
+      "M12 15v2"
+    ]
+  end
+
+  defp summary_icon_paths("clock") do
+    [
+      "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z",
+      "M12 7.5v5l3.25 2"
+    ]
+  end
+
+  defp summary_icon_paths("sparkles") do
+    [
+      "M12 3.75 13.8 9.7 19.75 12 13.8 14.3 12 20.25 10.2 14.3 4.25 12 10.2 9.7 12 3.75Z",
+      "M18.5 3.75v3",
+      "M20 5.25h-3",
+      "M5.5 16.75v2.5",
+      "M6.75 18H4.25"
+    ]
+  end
+
+  defp summary_icon_paths("activity") do
+    [
+      "M3.5 12h3.25l2.1-5 4.3 10 2.1-5H20.5"
+    ]
+  end
+
+  defp summary_icon_paths(_), do: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"]
 
   # ---------------------------------------------------------------------------
   # applied_chip/1
@@ -160,7 +352,11 @@ defmodule Sigra.Admin.Components do
       <.applied_chip label="Active" remove_href="/admin/users?status=" />
   """
   attr :label, :string, required: true, doc: "the filter label shown inside the chip"
-  attr :remove_href, :string, required: true, doc: "the URL to navigate to in order to remove this filter"
+
+  attr :remove_href, :string,
+    required: true,
+    doc: "the URL to navigate to in order to remove this filter"
+
   attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
   attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
 
@@ -296,7 +492,8 @@ defmodule Sigra.Admin.Components do
 
   attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
 
-  attr :rest, :global, doc: "arbitrary HTML attributes (e.g., a live-region role for opt-in post-load notices)"
+  attr :rest, :global,
+    doc: "arbitrary HTML attributes (e.g., a live-region role for opt-in post-load notices)"
 
   slot :inner_block, required: true, doc: "the notice message content"
 
@@ -305,6 +502,113 @@ defmodule Sigra.Admin.Components do
     <div class={["sg-notice", @class]} data-tone={@tone} {@rest}>
       <div class="sg-text-sm">{render_slot(@inner_block)}</div>
     </div>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # notice_link/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders an inline navigation action for use inside `notice/1` copy.
+
+  This remains a native link and keeps notice content sentence-shaped. Use it
+  when the notice names a concrete next step; use `task_card/1` or `sg-btn`
+  variants for standalone primary actions.
+
+  ## Examples
+
+      <.notice tone={:risk}>
+        3 accounts need review —
+        <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
+      </.notice>
+  """
+  attr :href, :string, required: true, doc: "the URL the notice action navigates to"
+  attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
+  attr :rest, :global, doc: "arbitrary HTML attributes added to the root link"
+
+  slot :inner_block, required: true, doc: "the notice action label"
+
+  def notice_link(assigns) do
+    ~H"""
+    <a href={@href} class={["sg-notice__action", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </a>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # field_help/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a compact label-adjacent help trigger with a non-interactive tooltip.
+
+  Use this for admin form fields whose effect is not obvious from the label alone.
+  Keep the tooltip copy brief and plain-language; the panel should not contain
+  links or other interactive content.
+
+  ## Examples
+
+      <span class="sg-field-label-row">
+        <label class="sg-field-label" for="branding-logo-url">Logo URL</label>
+        <.field_help id="branding-logo-url-help" label="Logo URL">
+          Shown on generated auth screens and email headers when set.
+        </.field_help>
+      </span>
+  """
+  attr :id, :string, required: true, doc: "stable id for the tooltip panel"
+  attr :label, :string, required: true, doc: "field label used in the trigger's accessible name"
+  attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
+  attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
+
+  slot :inner_block, required: true, doc: "plain explanatory tooltip copy"
+
+  def field_help(assigns) do
+    ~H"""
+    <span class={["sg-field-help", @class]} data-sg-field-help-root="true" {@rest}>
+      <button
+        type="button"
+        class="sg-field-help__trigger"
+        aria-label={"Help: #{@label}"}
+        aria-controls={@id}
+        aria-describedby={@id}
+        aria-expanded="false"
+        data-sg-field-help-trigger="true"
+      >
+        <svg
+          class="sg-field-help__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          focusable="false"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M12 11.25v5"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M12 7.75h.01"
+            stroke="currentColor"
+            stroke-width="2.3"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+      <span id={@id} class="sg-field-help__panel" role="tooltip" hidden>
+        {render_slot(@inner_block)}
+      </span>
+    </span>
     """
   end
 
@@ -323,7 +627,10 @@ defmodule Sigra.Admin.Components do
 
       <.skeleton class="h-8 w-32" />
   """
-  attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element (e.g., height/width)"
+  attr :class, :any,
+    default: nil,
+    doc: "additional CSS classes merged onto the root element (e.g., height/width)"
+
   attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
 
   def skeleton(assigns) do
@@ -363,7 +670,8 @@ defmodule Sigra.Admin.Components do
 
   attr :show_detail, :boolean,
     default: false,
-    doc: "renders the Actor and Effective user detail lines (on in explorers, off in compact block)"
+    doc:
+      "renders the Actor and Effective user detail lines (on in explorers, off in compact block)"
 
   attr :show_codes, :boolean,
     default: false,

@@ -11,10 +11,12 @@
     <rect y="208" width="360" height="72" rx="12"/>
     <path d="M180 72v32M180 176v32"/>
   </g>
-  <g transform="translate(98 96)">
-    <path d="M17 14v14M32 23v18M47 36v14" fill="none" stroke="#fdba74" stroke-width="8" stroke-linecap="round"/>
-    <path d="M17 36v14M47 14v14" fill="none" stroke="#c2410c" stroke-width="8" stroke-linecap="round"/>
-    <path d="M17 32h30" fill="none" stroke="#9a3412" stroke-width="4" stroke-linecap="round"/>
+  <g transform="translate(98 96) scale(0.057) translate(70 60)">
+    <g fill="#151515">
+      <rect x="540" y="360" width="180" height="580"/>
+      <rect x="180" y="760" width="540" height="180"/>
+    </g>
+    <rect fill="#c2410c" x="400" y="-20" width="320" height="320"/>
   </g>
   <g font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
     <text x="170" y="150" fill="#151515" font-size="64" font-weight="850" letter-spacing="0">Sigra</text>

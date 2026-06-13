@@ -82,10 +82,12 @@ Files:
 
 - Primary light lockup: `logo-primary.svg`
 - Primary dark lockup: `logo-primary-dark.svg`
+- Subtitle variant lockup: `logo-primary-subtitle.svg`
 - Free-standing mark: `logo-mark.svg`
 - Monochrome mark: `logo-monochrome.svg`
 - Favicon source: `favicon.svg`
-- Social card: `social-card.svg`
+- Social card (light): `social-card.svg`
+- Social card (dark): `social-card-dark.svg`
 
 Concept: visible host-code rails around a patchable core. The mark represents Sigra's central architecture without diagramming it too literally: library-owned sensitive behavior stays updateable while generated Phoenix code remains visible to the host application.
 
@@ -93,6 +95,7 @@ Rules:
 
 - Use the primary lockup for brandbook, landing, README visuals, and presentation openings.
 - Use `logo-primary.svg` on light surfaces and `logo-primary-dark.svg` on dark surfaces.
+- The lockup wordmark is outlined from Space Grotesk v2.0 (OFL) wght=700, using opentype.js 2.0.0. Do not recreate the logo as live SVG text or runtime web-font text.
 - Use the free-standing mark for UI accents where a tile would feel too heavy.
 - Use `favicon.svg` for browser favicon; it uses the same Rail Accent geometry as `logo-mark.svg`.
 - Use the free-standing mark for package avatars, social avatars, and compact cards unless a platform requires a separate filled-square export.
@@ -102,6 +105,68 @@ Rules:
 - Do not rotate, bevel, shadow, gradient-fill, or mascot-extend the mark.
 - Do not put the black-wordmark light lockup on a dark surface.
 - Preserve the Rail Accent metaphor when creating future variants; active production assets live in the files listed above.
+
+### Integrated Typemark Anatomy
+
+The D4 Linked Rail mark uses two functionally distinct visual elements:
+
+- **Rail-block tittle:** An ember-colored rect (`fill: #c2410c` on light surfaces, `fill: #fdba74` on dark surfaces) positioned above the `i` stem, replacing the conventional dot with a solid brand-colored block.
+- **Extended `g` tail:** The `g` descender is extended and aligned under the rail-block tittle, so that the two elements bracket the wordmark horizontally — the tittle at the upper right, the `g` tail at the lower left.
+
+Together they form a single rail system across the wordmark. These elements are functional, not decorative: they encode the "protected core framed by visible host-code rails" metaphor directly in the letterforms. The visual reading is a track or guide rail — an implicit frame around patchable behavior.
+
+The integrated typemark is a formal lockup class distinct from mark-beside-text. It should appear as a complete unit; do not use the rail-block tittle in isolation without the full wordmark.
+
+### Three-Surface Ember Parity Rule
+
+`ember-700: #c2410c` is the canonical Sigra brand accent, consumed by three independent surfaces:
+
+1. `brandbook/tokens.json` — the semantic `accent` token under `semantic.light.color`
+2. Admin CSS — `--sg-color-brand: #c2410c` in the generated admin shell
+3. Auth CSS — `--sigra-auth-light-accent: #c2410c` in the generated auth form styles
+
+Any new surface carrying the Sigra brand accent must reference the brandbook token rather than hardcoding `#c2410c`. When the token value changes (a major version bump per the Token Change Policy in README.md), all three surfaces must be updated atomically in the same PR.
+
+The `--sigra-auth-*` token family is a consumer of the brandbook's `ember-700` value — it defaults to that value through `--sigra-auth-light-accent`. It is architecturally downstream of the brandbook, not a peer of it.
+
+## Suite Architecture
+
+Sigra is one of seven szTheory OSS libraries that share a coherent visual system: Sigra, Accrue, Mailglass, Threadline, Lockspire, Relyra, and Rulestead.
+
+### Shared vs Per-Library Elements
+
+| Element | Shared across suite | Per-library |
+|---------|---------------------|-------------|
+| Wordmark typeface | Yes — Space Grotesk v2.0 (OFL) wght=700 | No |
+| Design vocabulary | Yes — precision, explicitable contracts, host-owned behavior | No |
+| Voice register | Yes — maintainer-grade technical | No |
+| Token naming convention | Yes — `--sg-*` namespace established | No |
+| Documentation layout | Yes — same docs layout and badge style | No |
+| Mark / glyph | No | Yes — distinct per library domain |
+| Accent color | No | Yes — unique hue, ≥15° from any sibling on color wheel |
+| Domain metaphor in mark | No | Yes — see library list below |
+
+### Library Domain Metaphors
+
+| Library | Domain metaphor | Notes |
+|---------|-----------------|-------|
+| Sigra | Rails — protected core framed by host-code rails | Ember accent (~15° hue) |
+| Accrue | Ledger — accumulation, precision | — |
+| Mailglass | Transparency — visible delivery | — |
+| Threadline | Trace | — |
+| Lockspire | Lock/spire | — |
+| Relyra | Reliability | — |
+| Rulestead | Governance | — |
+
+### New Library Onboarding Rules
+
+When creating a new szTheory library brandbook:
+
+1. **Inherit the ratified suite wordmark typeface:** Space Grotesk v2.0, wght=700, OFL license. Outline using opentype.js 2.0.0 before committing.
+2. **Adopt a unique mark reflecting the library's domain metaphor.** The mark should communicate the domain without diagramming it too literally.
+3. **Select an accent hue at least 15° from any existing sibling's accent on the color wheel.** Sigra uses ember (~15°); a new library should occupy a distinct hue region to maintain visual differentiation across the suite.
+
+No other shared-element constraint applies. The library owns its own brandbook and token system.
 
 ## UI And Component Guidance
 
@@ -127,13 +192,13 @@ Use brand tokens for docs and marketing components:
 
 ### Say / Do Not Say
 
-| Say | Do not say |
-| --- | --- |
-| "Library-owned security-sensitive behavior" | "Military-grade security" |
-| "Generated host-owned Phoenix code" | "Seamless integration" |
-| "Review generated diffs before rollout" | "Zero-effort migration" |
+| Say                                           | Do not say                   |
+| --------------------------------------------- | ---------------------------- |
+| "Library-owned security-sensitive behavior"   | "Military-grade security"    |
+| "Generated host-owned Phoenix code"           | "Seamless integration"       |
+| "Review generated diffs before rollout"       | "Zero-effort migration"      |
 | "Host-owned authorization and product policy" | "Complete identity platform" |
-| "Use `mix sigra.doctor` to inspect wiring" | "It just works" |
+| "Use `mix sigra.doctor` to inspect wiring"    | "It just works"              |
 
 ### Tone By Context
 

@@ -10,6 +10,12 @@ defmodule Sigra.AdminTest do
       assert Admin.needs_review(counts) == 7
     end
 
+    test "sums new posture keys when summary_stats are used" do
+      counts = %{locked_out: 3, deletion_scheduled: 4}
+
+      assert Admin.needs_review(counts) == 7
+    end
+
     test "returns the locked count when deleted key is absent" do
       counts = %{locked: 5}
 

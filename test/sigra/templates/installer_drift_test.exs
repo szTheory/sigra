@@ -259,8 +259,8 @@ defmodule Sigra.Templates.InstallerDriftTest do
         {"at least one href={users_link(@admin_scope)} usage",
          ~r/href=\{users_link\(@admin_scope\)\}/, ~r/href=\{users_link\(@admin_scope\)\}/},
         {"mobile bottom-nav Users label present (live sg-bottom-nav link)",
-         ~r/href=\{users_link\(@admin_scope\)\}\s*class=\{\["sg-bottom-nav__item"[\s\S]*?<span>Users<\/span>/,
-         ~r/href=\{users_link\(@admin_scope\)\}\s*class=\{\["sg-bottom-nav__item"[\s\S]*?<span>Users<\/span>/}
+         ~r/<nav aria-label="Admin bottom nav"[\s\S]*?<\.admin_link[\s\S]*?href=\{users_link\(@admin_scope\)\}[\s\S]*?class=\{\["sg-bottom-nav__item"[\s\S]*?<span>Users<\/span>/,
+         ~r/<nav aria-label="Admin bottom nav"[\s\S]*?<\.admin_link[\s\S]*?href=\{users_link\(@admin_scope\)\}[\s\S]*?class=\{\["sg-bottom-nav__item"[\s\S]*?<span>Users<\/span>/}
       ],
       must_not: [
         {"dead <span>Users</span> navigation item absent",
@@ -286,6 +286,73 @@ defmodule Sigra.Templates.InstallerDriftTest do
             Regex.compile!("<li>\\s*<span[^>]*>#{escaped}</span>\\s*</li>")
           }
         end
+    },
+    %{
+      # Phase 37 — admin route navigation gets a Sigra-owned loading rail
+      # installed from the same plain-JS seam in the example app and installer.
+      id: "fix #20 — admin_hooks page loading indicator mirrored",
+      template: "priv/templates/sigra.install/admin/admin_hooks.js",
+      example: "test/example/assets/js/admin_hooks.js",
+      must_have: [
+        {"page loading installer present", ~r/function installPageLoadingIndicator\(/,
+         ~r/function installPageLoadingIndicator\(/},
+        {"LiveView page loading start listener present", ~r/phx:page-loading-start/,
+         ~r/phx:page-loading-start/},
+        {"LiveView page loading stop listener present", ~r/phx:page-loading-stop/,
+         ~r/phx:page-loading-stop/},
+        {"page loading failsafe present", ~r/PAGE_LOADING_MAX_ACTIVE_MS/,
+         ~r/PAGE_LOADING_MAX_ACTIVE_MS/},
+        {"page loading error reset present", ~r/pageLoadingKind\(event\) === "error"/,
+         ~r/pageLoadingKind\(event\) === "error"/},
+        {"admin page loading data attribute present", ~r/data-sg-admin-page-loading/,
+         ~r/data-sg-admin-page-loading/},
+        {"admin shell busy state present", ~r/aria-busy/, ~r/aria-busy/}
+      ],
+      must_not: [
+        {"NProgress dependency absent", ~r/NProgress/, ~r/NProgress/},
+        {"topbar package import absent", ~r/from ["']topbar["']|require\(["']topbar["']\)/,
+         ~r/from ["']topbar["']|require\(["']topbar["']\)/}
+      ]
+    },
+    %{
+      # Admin form field help stays delegated and mirrored between the example
+      # app and installer template so generated apps get the same touch/keyboard
+      # affordance as Sigra's reference admin.
+      id: "fix #21 — admin_hooks field help mirrored",
+      template: "priv/templates/sigra.install/admin/admin_hooks.js",
+      example: "test/example/assets/js/admin_hooks.js",
+      must_have: [
+        {"field help installer present", ~r/function installFieldHelp\(/,
+         ~r/function installFieldHelp\(/},
+        {"field help root selector present", ~r/data-sg-field-help-root/,
+         ~r/data-sg-field-help-root/},
+        {"field help trigger selector present", ~r/data-sg-field-help-trigger/,
+         ~r/data-sg-field-help-trigger/},
+        {"field help aria expanded state present", ~r/aria-expanded/, ~r/aria-expanded/},
+        {"field help installed at boot", ~r/installFieldHelp\(\)/, ~r/installFieldHelp\(\)/}
+      ]
+    },
+    %{
+      # Auth-branding color previews use a small optimistic hook so color-picker
+      # drags update CSS tokens immediately while LiveView keeps validation and
+      # persistence authoritative.
+      id: "fix #22 — admin_hooks auth branding preview mirrored",
+      template: "priv/templates/sigra.install/admin/admin_hooks.js",
+      example: "test/example/assets/js/admin_hooks.js",
+      must_have: [
+        {"auth branding preview hook present", ~r/var AuthBrandingPreview = \{/,
+         ~r/var AuthBrandingPreview = \{/},
+        {"color token map present", ~r/AUTH_BRANDING_COLOR_TOKENS/,
+         ~r/AUTH_BRANDING_COLOR_TOKENS/},
+        {"color input selector present", ~r/data-sg-auth-branding-color/,
+         ~r/data-sg-auth-branding-color/},
+        {"preview selector present", ~r/data-sg-auth-branding-preview/,
+         ~r/data-sg-auth-branding-preview/},
+        {"drag-time input propagation is stopped", ~r/event\.stopPropagation\(\)/,
+         ~r/event\.stopPropagation\(\)/},
+        {"hook exported in admin hooks map", ~r/AuthBrandingPreview: AuthBrandingPreview/,
+         ~r/AuthBrandingPreview: AuthBrandingPreview/}
+      ]
     }
   ]
 

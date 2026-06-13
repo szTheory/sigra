@@ -12,8 +12,6 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
   import Swoosh.Email
   use Gettext, backend: SigraInstallGoldenTmpWeb.Gettext
 
-  @from_address {"SigraInstallGoldenTmp", "noreply@example.com"}
-
   @font_family ~s(-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif)
 
   # -- Public API --
@@ -99,7 +97,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, click the button below to log in to your account. This link expires in 10 minutes.")}
     </p>
-    #{cta_button(dgettext("sigra", "Log in to %{app_name}", app_name: "SigraInstallGoldenTmp"), url)}
+    #{cta_button(dgettext("sigra", "Log in to %{app_name}", app_name: product_name()), url)}
     <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
       #{dgettext("sigra", "Or use this link:")} #{url}
     </p>
@@ -117,7 +115,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     """
 
     base_email(user.email)
-    |> subject(dgettext("sigra", "Log in to %{app_name}", app_name: "SigraInstallGoldenTmp"))
+    |> subject(dgettext("sigra", "Log in to %{app_name}", app_name: product_name()))
     |> html_body(base_layout(html_content))
     |> text_body(text_body)
   end
@@ -901,10 +899,13 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
   defp base_email(to) do
     new()
     |> to(to)
-    |> from(@from_address)
+    |> from(Sigra.Branding.email_from(branding()))
+    |> maybe_reply_to(branding())
   end
 
   defp base_layout(content_html) do
+    branding = branding()
+
     """
     <!DOCTYPE html>
     <html lang="en">
@@ -912,25 +913,23 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <title>SigraInstallGoldenTmp</title>
+      <title>#{branding.product_name}</title>
     </head>
-    <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: #{@font_family};">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f4f4f5;">
+    <body style="margin: 0; padding: 0; background-color: #{branding.background_color}; font-family: #{@font_family};">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #{branding.background_color};">
         <tr>
           <td align="center" style="padding: 24px 16px;">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; width: 100%;">
               <!-- Header -->
               <tr>
                 <td align="center" style="padding: 24px 16px 12px 16px;">
-                  <h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.2; color: #18181b; font-family: #{@font_family};">
-                    SigraInstallGoldenTmp
-                  </h1>
+                  #{email_logo_or_name(branding)}
                 </td>
               </tr>
               <!-- Content Card -->
               <tr>
                 <td>
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #ffffff; border: 1px solid #e4e4e7; border-radius: 8px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #{branding.surface_color}; border: 1px solid #{branding.border_color}; border-radius: 8px;">
                     <tr>
                       <td style="padding: 24px 16px;">
                         #{content_html}
@@ -942,7 +941,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
               <!-- Footer -->
               <tr>
                 <td align="center" style="padding: 24px 16px;">
-                  <p style="margin: 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family};">
+                  <p style="margin: 0; font-size: 14px; color: #{branding.muted_color}; line-height: 1.5; font-family: #{@font_family};">
                     #{footer_text()}
                   </p>
                 </td>
@@ -957,11 +956,13 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
   end
 
   defp cta_button(label, url) do
+    branding = branding()
+
     """
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 24px 0;">
       <tr>
         <td align="center">
-          <a href="#{url}" style="display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; font-size: 16px; font-weight: 700; line-height: 1.0; font-family: #{@font_family}; text-decoration: none; border-radius: 8px;" role="link">
+          <a href="#{url}" style="display: inline-block; padding: 12px 24px; background-color: #{branding.accent_color}; color: #{branding.accent_foreground}; font-size: 16px; font-weight: 700; line-height: 1.0; font-family: #{@font_family}; text-decoration: none; border-radius: 8px;" role="link">
             #{label}
           </a>
         </td>
@@ -974,7 +975,7 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     dgettext(
       "sigra",
       "You're receiving this email because you have an account with %{app_name}. If you didn't request this, you can safely ignore this email.",
-      app_name: "SigraInstallGoldenTmp"
+      app_name: product_name()
     )
   end
 
@@ -982,8 +983,41 @@ defmodule SigraInstallGoldenTmp.Accounts.Emails do
     dgettext(
       "sigra",
       "You received this email because your %{app_name} account experienced a security event.",
-      app_name: "SigraInstallGoldenTmp"
+      app_name: product_name()
     )
+  end
+
+  defp branding do
+    Application.get_env(:sigra_install_golden_tmp, :sigra_config, [])
+    |> Sigra.Branding.resolve(
+      defaults: [
+        product_name: "SigraInstallGoldenTmp",
+        email_from_name: "SigraInstallGoldenTmp",
+        email_from_address: "noreply@example.com"
+      ]
+    )
+  end
+
+  defp product_name, do: branding().product_name
+
+  defp maybe_reply_to(email, %{email_reply_to: reply_to}) when is_binary(reply_to) do
+    reply_to(email, reply_to)
+  end
+
+  defp maybe_reply_to(email, _branding), do: email
+
+  defp email_logo_or_name(%{logo_url: logo_url, logo_alt: logo_alt}) when is_binary(logo_url) do
+    """
+    <img src="#{html_escape_string(logo_url)}" alt="#{html_escape_string(logo_alt)}" width="96" style="display: inline-block; max-width: 160px; height: auto;" />
+    """
+  end
+
+  defp email_logo_or_name(%{product_name: product_name, text_color: text_color}) do
+    """
+    <h1 style="margin: 0; font-size: 24px; font-weight: 700; line-height: 1.2; color: #{text_color}; font-family: #{@font_family};">
+      #{html_escape_string(product_name)}
+    </h1>
+    """
   end
 
   defp html_escape_string(value) when is_binary(value) do

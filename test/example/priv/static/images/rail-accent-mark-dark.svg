@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -60 1040 1040" role="img" aria-labelledby="rail-accent-mark-dark-title rail-accent-mark-dark-desc">
+  <title id="rail-accent-mark-dark-title">Sigra mark for dark surfaces</title>
+  <desc id="rail-accent-mark-dark-desc">Sigra D4 abstract rail glyph for dark surfaces. Ember-300 (#fdba74) rail block on dark.</desc>
+  <g id="glyphs" fill="#f4f1eb">
+    <rect x="540" y="360" width="180" height="580" />
+    <rect x="180" y="760" width="540" height="180" />
+  </g>
+  <rect id="rail-block" x="400" y="-20" width="320" height="320" fill="#fdba74" />
+</svg>

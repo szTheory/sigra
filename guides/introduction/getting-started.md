@@ -250,7 +250,7 @@ When you click **Add passkey**, the app posts to `/users/settings/mfa/passkeys/o
 
 Open a private window and visit <http://localhost:4000/users/log_in>. With `passkey_primary_enabled: true`, the generated page keeps all three entry points visible:
 
-- **Continue with passkey**
+- **Use a passkey**
 - **Use password instead**
 - **Email me a magic link**
 

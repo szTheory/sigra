@@ -59,6 +59,7 @@
   - [Multi-Tenant Apps](multi-tenant.md)
   - [Passkeys](passkeys.md)
   - [Deployment](deployment.md)
+  - [Auth Branding](auth-branding.md)
   - [Recipe: Sigra + embedded OAuth/OIDC provider (e.g. Lockspire)](companion-oauth-provider.md)
 
 - Docs
@@ -100,6 +101,8 @@
 
 - [Sigra.Admin.Live.AuditUserLive](Sigra.Admin.Live.AuditUserLive.md): Per-user admin audit explorer for global and organization-scoped routes.
 
+- [Sigra.Admin.Live.BrandingLive](Sigra.Admin.Live.BrandingLive.md): Global auth and email branding customizer for generated Sigra installs.
+
 - [Sigra.Admin.Live.IndexLive](Sigra.Admin.Live.IndexLive.md): Global admin orientation surface.
 
 - [Sigra.Admin.Live.OrganizationLive](Sigra.Admin.Live.OrganizationLive.md): Organization-scoped admin orientation surface.
@@ -121,6 +124,8 @@
 - [Sigra.Admin.Users.Query](Sigra.Admin.Users.Query.md): Canonical query contract for the admin user list surface.
 
 - [Sigra.Application](Sigra.Application.md): OTP application callback for Sigra.
+- [Sigra.Branding](Sigra.Branding.md): Brand profile resolution for generated auth UI and transactional emails.
+- [Sigra.Branding.Profile](Sigra.Branding.Profile.md): Validated brand tokens shared by generated Sigra auth screens and emails.
 - [Sigra.Credo.NoLogSafe2InLib](Sigra.Credo.NoLogSafe2InLib.md): ## Basics
 - [Sigra.Credo.NoUnscopedOrgQueryInLib](Sigra.Credo.NoUnscopedOrgQueryInLib.md): ## Basics
 - [Sigra.DataExport](Sigra.DataExport.md): Behaviour for exporting user data.

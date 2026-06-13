@@ -1,5 +1,60 @@
 # Milestones
 
+## v1.37 AUTH-BRANDING-WHITELABEL (Shipped: 2026-06-07)
+
+**Phases completed:** 5 phases, 5 plans
+**Requirements:** 16/16 satisfied (AUTH-UI-01..04, BRAND-01..04, EMAIL-01, ADMIN-01..02, GEN-01..02, DOC-01, TEST-01..02)
+**Milestone audit:** passed — branded auth shell, Light/Dark/System defaults, admin customizer, email branding, docs, golden parity, and generated-host smoke all verified.
+
+**Delivered:** Made Sigra's generated authentication forms and emails look production-ready by default, with structured white-label tokens, code/config defaults, admin-saved global branding, and host-owned component/CSS escape hatches for full custom control.
+
+**Key accomplishments:**
+
+- Added `Sigra.Branding.Profile` and `Sigra.Branding` as the canonical branding contract for auth forms and transactional emails.
+- Generated `sigra_brand_profiles` persistence with configured auth-schema prefix support, JSON-safe profile storage, and safe fallback when the repo/table is unavailable.
+- Generated `SigraAuthComponents` and scoped `sigra_auth.css` so login, registration, reset, confirmation, MFA, sudo, settings, OAuth settings, and invitation flows have branded Light/Dark/System defaults.
+- Added `/admin/auth-branding` with `sg-*` admin controls, auth preview, email preview, save, and reset flows.
+- Updated generated emails to use branding-driven sender identity, reply-to, logo/product name, CTA, and footer links.
+- Updated example app, install golden fixture, README, installation guide, ExDoc, and recipe docs; final generated-host smoke passed after fixing real generated-template/prefix issues.
+
+**Known deferred items at close:** Per-organization branding, uploaded asset storage, arbitrary runtime CSS/HTML editing, and pixel-baselined auth visual checkpoints remain deferred until there is concrete adopter demand.
+
+**Archive:**
+
+- [v1.37 Roadmap](milestones/v1.37-ROADMAP.md)
+- [v1.37 Requirements](milestones/v1.37-REQUIREMENTS.md)
+- [v1.37 Milestone Audit](milestones/v1.37-MILESTONE-AUDIT.md)
+- [v1.37 Phase Artifacts](milestones/v1.37-phases/)
+
+---
+
+## v1.36 ADMIN-BRAND-THEME-POLISH (Shipped: 2026-06-06)
+
+**Phases completed:** 5 phases, 5 plans
+**Requirements:** 14/14 satisfied (BRAND-01..02, THEME-01..03, UX-01..02, DS-01..02, DOC-01..02, TEST-01..03)
+**Milestone audit:** passed — Rail Accent admin shell, explicit Light/Dark/System support, durable UI principles, deterministic browser coverage, and generated-host acceptance smoke all verified.
+
+**Delivered:** Aligned the generated admin UI with the ratified Rail Accent brand system, added explicit admin Light/Dark/System theme support, and tightened design-system guidance/tests without reopening the broad v1.34 admin redesign.
+
+**Key accomplishments:**
+
+- Promoted the Rail Accent mark into generated/example/golden admin shell chrome and removed placeholder-brand treatment.
+- Added an admin-only Light/Dark/System theme control with local persistence, system fallback, early boot behavior, radiogroup semantics, and no global DaisyUI `data-theme`.
+- Extended the `sg-*` token layer for logo colors and selected-brand control contrast across light, dark, forced-light, and forced-dark modes.
+- Tightened admin mobile safe-area spacing, long-title wrapping, filter control accenting, and command palette copy around user jobs.
+- Added durable admin UI principles, linked agent entrypoints, refreshed four intentional admin checkpoint baselines, and proved generated-host parity.
+
+**Known deferred items at close:** Existing `Phoenix.Ecto.SQL.Sandbox` browser-acceptance-test gap remains deferred from v1.33.
+
+**Archive:**
+
+- [v1.36 Roadmap](milestones/v1.36-ROADMAP.md)
+- [v1.36 Requirements](milestones/v1.36-REQUIREMENTS.md)
+- [v1.36 Milestone Audit](milestones/v1.36-MILESTONE-AUDIT.md)
+- [v1.36 Phase Artifacts](milestones/v1.36-phases/)
+
+---
+
 ## v1.35 BRAND-SYSTEM-PRESSURE-TEST (Shipped: 2026-06-05)
 
 **Phases completed:** 7 phases, 8 plans

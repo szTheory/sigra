@@ -9,10 +9,12 @@ defmodule <%= web_module %>.MFAChallengeHTML do
   is owned by your application.
   """
   use <%= web_module %>, :html
+  import <%= web_module %>.SigraAuthComponents
 
   def mfa_challenge(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         Two-factor authentication
         <:subtitle>
@@ -136,10 +138,10 @@ defmodule <%= web_module %>.MFAChallengeHTML do
           Cancel and sign out
         </.link>
       </p>
-    </div>
+      </div>
 
-    <%% # Tab switching JS %>
-    <script>
+      <%% # Tab switching JS %>
+      <script>
       function switchTab(tab) {
         // Update tab buttons
         document.querySelectorAll('[role="tab"]').forEach(function(btn) {
@@ -174,7 +176,8 @@ defmodule <%= web_module %>.MFAChallengeHTML do
           });
         }
       });
-    </script>
+      </script>
+    </.sigra_auth_page>
     """
   end
 end

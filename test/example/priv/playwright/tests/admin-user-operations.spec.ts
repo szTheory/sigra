@@ -103,7 +103,10 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     await waitForLiveViewReady(page);
     await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);
     await expect(page.getByText('Global user operations')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Back to users' })).toHaveAttribute(
+    // User detail uses breadcrumbs (not a "Back to users" link) for filtered-list
+    // context; the "Users" crumb carries the preserved return_to. See admin-theme.spec.ts.
+    const breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(breadcrumb.getByRole('link', { name: 'Users' })).toHaveAttribute(
       'href',
       /return_to|\/admin\/users\?/,
     );

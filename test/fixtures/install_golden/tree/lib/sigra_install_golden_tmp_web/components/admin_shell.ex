@@ -8,41 +8,68 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
   attr :admin_scope, :map, required: true
   attr :current_scope, :map, default: nil
   attr :page_title, :string, default: nil
+  attr :admin_breadcrumbs, :list, default: nil
   slot :special_session
   slot :inner_block, required: true
 
   def admin_shell(assigns) do
+    assigns =
+      assign(
+        assigns,
+        :breadcrumb_items,
+        breadcrumb_items(assigns.admin_scope, assigns.page_title, assigns.admin_breadcrumbs)
+      )
+
     ~H"""
     <script>
       (function () {
         try {
           var value = window.localStorage && window.localStorage.getItem("sigra.admin.theme");
-          if (value === "light" || value === "dark") {
-            document.documentElement.setAttribute("data-sg-admin-theme", value);
-          } else {
+          var preference = value === "light" || value === "dark" ? value : "system";
+          document.documentElement.setAttribute("data-sg-admin-js", "true");
+          document.documentElement.setAttribute("data-sg-admin-theme-preference", preference);
+          if (preference === "system") {
             document.documentElement.removeAttribute("data-sg-admin-theme");
+          } else {
+            document.documentElement.setAttribute("data-sg-admin-theme", preference);
           }
-        } catch (err) {}
+        } catch (err) {
+          document.documentElement.setAttribute("data-sg-admin-js", "true");
+          document.documentElement.setAttribute("data-sg-admin-theme-preference", "system");
+          document.documentElement.removeAttribute("data-sg-admin-theme");
+        }
       })();
     </script>
     <section class="sg-admin-shell" data-scope={scope_mode(@admin_scope)}>
       <header class="sg-admin-topbar">
         <div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
           <div class="sg-cluster sg-cluster--3">
-            <a href={overview_link(@admin_scope)} class="sg-brand-mark" aria-label="Sigra admin overview">
-              <svg
-                class="sg-brand-mark__logo"
-                viewBox="0 0 64 64"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path class="sg-brand-mark__rail-accent" d="M17 14v14M32 23v18M47 36v14" />
-                <path class="sg-brand-mark__rail-ember" d="M17 36v14M47 14v14" />
-                <path class="sg-brand-mark__core" d="M17 32h30" />
-              </svg>
-              <span class="sg-brand-mark__word">Sigra</span>
+            <.admin_link
+              href={overview_link(@admin_scope)}
+              live={same_admin_session?(@admin_scope, overview_link(@admin_scope))}
+              class="sg-brand-mark"
+              aria-label="Sigra admin overview"
+            >
+              <span class="sg-brand-mark__lockup" aria-hidden="true">
+                <img
+                  class="sg-brand-mark__image sg-brand-mark__image--light"
+                  src={~p"/images/sigra-logo-primary.svg"}
+                  alt=""
+                  width="188"
+                  height="54"
+                  decoding="async"
+                />
+                <img
+                  class="sg-brand-mark__image sg-brand-mark__image--dark"
+                  src={~p"/images/sigra-logo-primary-dark.svg"}
+                  alt=""
+                  width="188"
+                  height="54"
+                  decoding="async"
+                />
+              </span>
               <span class="sg-brand-mark__section">Admin</span>
-            </a>
+            </.admin_link>
             <.scope_switcher admin_scope={@admin_scope} />
           </div>
 
@@ -101,34 +128,51 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
               <span class="sg-cmdk__trigger-kbd" aria-hidden="true">⌘K</span>
             </button>
 
-            <a
+            <.admin_link
               :if={show_global_link?(@admin_scope) and not global_active?(@admin_scope)}
               href={~p"/admin"}
+              live={same_admin_session?(@admin_scope, ~p"/admin")}
               class="sg-btn sg-btn--ghost sg-btn--sm"
             >
               Exit to global
-            </a>
+            </.admin_link>
           </div>
         </div>
 
         <.impersonation_banner :if={impersonating?(@current_scope)} current_scope={@current_scope} />
+        <span
+          class="sg-admin-loading-bar"
+          data-sg-admin-loading-bar
+          aria-hidden="true"
+        />
       </header>
 
       <div class="sg-container sg-admin-content">
-        <nav
-          :if={not overview_active?(@page_title)}
-          class="sg-admin-crumbs"
-          aria-label="Breadcrumb"
-        >
+        <nav class="sg-admin-crumbs" aria-label="Breadcrumb">
           <ol class="sg-breadcrumb">
-            <li>
-              <a class="sg-breadcrumb__item" href={overview_link(@admin_scope)}>
-                {scope_label(@admin_scope)}
-              </a>
-            </li>
-            <li class="sg-breadcrumb__sep" aria-hidden="true">/</li>
-            <li>
-              <span class="sg-breadcrumb__item" aria-current="page">{@page_title}</span>
+            <li :for={{item, index} <- Enum.with_index(@breadcrumb_items)}>
+              <span class="sg-breadcrumb__segment">
+                <.admin_link
+                  :if={breadcrumb_link?(item, index, @breadcrumb_items)}
+                  class="sg-breadcrumb__item"
+                  href={item.href}
+                  live={same_admin_session?(@admin_scope, item.href)}
+                >
+                  {item.label}
+                </.admin_link>
+                <span
+                  :if={!breadcrumb_link?(item, index, @breadcrumb_items)}
+                  class="sg-breadcrumb__item"
+                  aria-current={if breadcrumb_current?(index, @breadcrumb_items), do: "page"}
+                >
+                  {item.label}
+                </span>
+                <span
+                  :if={!breadcrumb_current?(index, @breadcrumb_items)}
+                  class="sg-breadcrumb__sep"
+                  aria-hidden="true"
+                >/</span>
+              </span>
             </li>
           </ol>
         </nav>
@@ -137,39 +181,58 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
           <aside class="sg-admin-sidebar">
             <nav aria-label="Admin navigation" class="sg-stack">
               <div class="sg-nav-card">
-                <p class="sg-nav-title">Workspace</p>
+                <p class="sg-nav-title">Overviews</p>
                 <ul class="sg-stack sg-stack--2">
-                  <li>
-                    <a class={nav_item_class(users_active?(@page_title))} href={users_link(@admin_scope)}>
-                      Users
-                    </a>
+                  <li :if={show_global_link?(@admin_scope)}>
+                    <.admin_link
+                      class={nav_item_class(overview_active?(@page_title) and global_active?(@admin_scope))}
+                      href={~p"/admin"}
+                      live={same_admin_session?(@admin_scope, ~p"/admin")}
+                    >
+                      Global overview
+                    </.admin_link>
                   </li>
-                  <li>
-                    <a class={nav_item_class(audit_active?(@page_title))} href={audit_link(@admin_scope)}>
-                      Audit
-                    </a>
+                  <li :if={organization_link(@admin_scope)}>
+                    <.admin_link
+                      class={nav_item_class(overview_active?(@page_title) and organization_active?(@admin_scope))}
+                      href={organization_link(@admin_scope)}
+                      live={same_admin_session?(@admin_scope, organization_link(@admin_scope))}
+                    >
+                      Organization overview
+                    </.admin_link>
                   </li>
                 </ul>
               </div>
 
               <div class="sg-nav-card">
-                <p class="sg-nav-title">Overviews</p>
+                <p class="sg-nav-title">Workspace</p>
                 <ul class="sg-stack sg-stack--2">
-                  <li :if={show_global_link?(@admin_scope)}>
-                    <a
-                      class={nav_item_class(overview_active?(@page_title) and global_active?(@admin_scope))}
-                      href={~p"/admin"}
+                  <li>
+                    <.admin_link
+                      class={nav_item_class(users_active?(@page_title))}
+                      href={users_link(@admin_scope)}
+                      live={same_admin_session?(@admin_scope, users_link(@admin_scope))}
                     >
-                      Global overview
-                    </a>
+                      Users
+                    </.admin_link>
                   </li>
-                  <li :if={organization_link(@admin_scope)}>
-                    <a
-                      class={nav_item_class(overview_active?(@page_title) and organization_active?(@admin_scope))}
-                      href={organization_link(@admin_scope)}
+                  <li>
+                    <.admin_link
+                      class={nav_item_class(audit_active?(@page_title))}
+                      href={audit_link(@admin_scope)}
+                      live={same_admin_session?(@admin_scope, audit_link(@admin_scope))}
                     >
-                      Organization overview
-                    </a>
+                      Audit
+                    </.admin_link>
+                  </li>
+                  <li>
+                    <.admin_link
+                      class={nav_item_class(branding_active?(@page_title))}
+                      href={branding_link(@admin_scope)}
+                      live={same_admin_session?(@admin_scope, branding_link(@admin_scope))}
+                    >
+                      Branding
+                    </.admin_link>
                   </li>
                 </ul>
               </div>
@@ -183,26 +246,53 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
       </div>
 
       <nav aria-label="Admin bottom nav" class="sg-bottom-nav sg-show-mobile">
-        <a
-          href={users_link(@admin_scope)}
-          class={["sg-bottom-nav__item", bottom_nav_class(users_active?(@page_title))]}
-        >
-          <span>Users</span>
-        </a>
-        <a
+        <.admin_link
           href={overview_link(@admin_scope)}
+          live={same_admin_session?(@admin_scope, overview_link(@admin_scope))}
           class={["sg-bottom-nav__item", bottom_nav_class(overview_active?(@page_title))]}
         >
           <span>{scope_label(@admin_scope)}</span>
-        </a>
-        <a
+        </.admin_link>
+        <.admin_link
+          href={users_link(@admin_scope)}
+          live={same_admin_session?(@admin_scope, users_link(@admin_scope))}
+          class={["sg-bottom-nav__item", bottom_nav_class(users_active?(@page_title))]}
+        >
+          <span>Users</span>
+        </.admin_link>
+        <.admin_link
           href={audit_link(@admin_scope)}
+          live={same_admin_session?(@admin_scope, audit_link(@admin_scope))}
           class={["sg-bottom-nav__item", bottom_nav_class(audit_active?(@page_title))]}
         >
           <span>Audit</span>
-        </a>
+        </.admin_link>
+        <.admin_link
+          href={branding_link(@admin_scope)}
+          live={same_admin_session?(@admin_scope, branding_link(@admin_scope))}
+          class={["sg-bottom-nav__item", bottom_nav_class(branding_active?(@page_title))]}
+        >
+          <span>Brand</span>
+        </.admin_link>
       </nav>
     </section>
+    """
+  end
+
+  attr :href, :string, required: true
+  attr :class, :any, default: nil
+  attr :live, :boolean, default: false
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  defp admin_link(assigns) do
+    ~H"""
+    <.link :if={@live} navigate={@href} class={@class} {@rest}>
+      {render_slot(@inner_block)}
+    </.link>
+    <a :if={!@live} href={@href} class={@class} {@rest}>
+      {render_slot(@inner_block)}
+    </a>
     """
   end
 
@@ -222,14 +312,15 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
         {scope_chip_label(@admin_scope)}
       </summary>
       <div class="sg-scope-switch__menu">
-        <a
+        <.admin_link
           :for={target <- @targets}
           href={target.href}
           class="sg-scope-switch__item"
+          live={same_admin_session?(@admin_scope, target.href)}
           aria-current={to_string(target.current?)}
         >
           {target.label}
-        </a>
+        </.admin_link>
       </div>
     </details>
     <span :if={length(@targets) <= 1} class={scope_chip_class(@admin_scope)}>
@@ -303,6 +394,72 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
   defp scope_chip_label(%{mode: :organization} = s), do: "Org · " <> scope_label(s)
   defp scope_chip_label(s), do: scope_label(s)
 
+  defp breadcrumb_items(admin_scope, page_title, admin_breadcrumbs)
+       when is_list(admin_breadcrumbs) do
+    admin_breadcrumbs
+    |> Enum.map(&normalize_breadcrumb/1)
+    |> Enum.reject(&is_nil/1)
+    |> case do
+      [] -> fallback_breadcrumb_items(admin_scope, page_title)
+      items -> items
+    end
+  end
+
+  defp breadcrumb_items(admin_scope, page_title, _admin_breadcrumbs) do
+    fallback_breadcrumb_items(admin_scope, page_title)
+  end
+
+  defp fallback_breadcrumb_items(admin_scope, page_title) do
+    if overview_active?(page_title) do
+      [%{label: breadcrumb_label(page_title), href: nil}]
+    else
+      [
+        %{label: "Overview", href: overview_link(admin_scope)},
+        %{label: page_title || "Page", href: nil}
+      ]
+    end
+  end
+
+  defp normalize_breadcrumb(%{} = breadcrumb) do
+    label = Map.get(breadcrumb, :label) || Map.get(breadcrumb, "label")
+    href = Map.get(breadcrumb, :href) || Map.get(breadcrumb, "href")
+
+    cond do
+      not is_binary(label) or label == "" -> nil
+      is_binary(href) and href != "" -> %{label: label, href: href}
+      true -> %{label: label, href: nil}
+    end
+  end
+
+  defp normalize_breadcrumb(_breadcrumb), do: nil
+
+  defp breadcrumb_link?(%{href: href}, index, items) when is_binary(href) do
+    not breadcrumb_current?(index, items)
+  end
+
+  defp breadcrumb_link?(_item, _index, _items), do: false
+
+  defp breadcrumb_current?(index, items), do: index == length(items) - 1
+
+  defp breadcrumb_label(title) when is_binary(title) do
+    if overview_active?(title), do: "Overview", else: title
+  end
+
+  defp breadcrumb_label(_), do: "Overview"
+
+  defp same_admin_session?(%{mode: :global}, href) when is_binary(href) do
+    (href == "/admin" or String.starts_with?(href, "/admin/")) and
+      not String.starts_with?(href, "/admin/organizations/")
+  end
+
+  defp same_admin_session?(%{mode: :organization, organization_slug: slug}, href)
+       when is_binary(slug) and is_binary(href) do
+    prefix = "/admin/organizations/#{slug}"
+    href == prefix or String.starts_with?(href, prefix <> "/")
+  end
+
+  defp same_admin_session?(_admin_scope, _href), do: false
+
   defp impersonating?(%{impersonating_from: %_{}}), do: true
   defp impersonating?(_), do: false
 
@@ -337,6 +494,8 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
 
   defp audit_link(_admin_scope), do: "/admin/audit"
 
+  defp branding_link(_admin_scope), do: ~p"/admin/auth-branding"
+
   defp users_active?(title) when is_binary(title) do
     title = String.downcase(title)
     String.contains?(title, "user") and not String.contains?(title, "audit")
@@ -348,6 +507,11 @@ defmodule SigraInstallGoldenTmpWeb.Components.AdminShell do
     do: String.contains?(String.downcase(title), "audit")
 
   defp audit_active?(_), do: false
+
+  defp branding_active?(title) when is_binary(title),
+    do: String.contains?(String.downcase(title), "brand")
+
+  defp branding_active?(_), do: false
 
   defp overview_active?(title) when is_binary(title),
     do: String.contains?(String.downcase(title), "overview")

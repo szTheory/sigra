@@ -87,6 +87,7 @@ defmodule Sigra.Install.Features.Core do
       {:primary, "core/migration.exs", "create_sigra_auth_tables.exs"},
       {:active_org_column, "core/add_active_organization_id_to_user_sessions.exs",
        "add_active_organization_id_to_user_sessions.exs"},
+      {:brand_profiles, "core/create_brand_profiles.exs", "create_sigra_brand_profiles.exs"},
       {:api_token, "core/api_token_migration.exs", "create_user_api_tokens.exs"},
       {:audit_events, "core/create_audit_events.exs", "create_audit_events.exs"}
       # Phase 24.1: :audit_events_org_columns moved to a later feature
@@ -168,6 +169,10 @@ defmodule Sigra.Install.Features.Core do
       {:eex, "core/create_audit_events.exs",
        migration_target(binding, :audit_events, "create_audit_events.exs")}
 
+    brand_profiles_migration =
+      {:eex, "core/create_brand_profiles.exs",
+       migration_target(binding, :brand_profiles, "create_sigra_brand_profiles.exs")}
+
     # Phase 24.1: audit_org_columns_migration removed from Core —
     # see the comment in migrations/1 for rationale.
 
@@ -231,6 +236,9 @@ defmodule Sigra.Install.Features.Core do
         # Phase 9: audit events migration (monolith position 23)
         audit_migration,
 
+        # v1.37: optional global auth/email brand profile managed from Sigra admin.
+        brand_profiles_migration,
+
         # Phase 24.1: audit_org_columns_migration moved to a later
         # feature's files/1 so the hard FK to the organizations table
         # lands AFTER that table is created and only when
@@ -240,7 +248,12 @@ defmodule Sigra.Install.Features.Core do
         {:eex, "core/audit_event.ex", Path.join(["lib", otp_app, ctx, "audit_event.ex"])},
 
         # Phase 10.1: Swoosh mailer wrapper (skipped if host already has one)
-        {:eex, "core/mailer.ex", Path.join(["lib", otp_app, "mailer.ex"])}
+        {:eex, "core/mailer.ex", Path.join(["lib", otp_app, "mailer.ex"])},
+
+        # v1.37: generated public auth design layer.
+        {:eex, "core/sigra_auth_components.ex",
+         Path.join(["lib", web, "components", "sigra_auth_components.ex"])},
+        {:eex, "core/sigra_auth.css", Path.join(["priv", "static", "assets", "sigra_auth.css"])}
       ]
 
     base
@@ -536,6 +549,11 @@ defmodule Sigra.Install.Features.Core do
     config :#{otp_app}, :sigra_config,
       repo: #{repo_module},
       user_schema: #{context_module}.#{schema_alias},
+      branding: [
+        product_name: "#{Macro.camelize(otp_app)}",
+        email_from_name: "#{Macro.camelize(otp_app)}",
+        email_from_address: "noreply@example.com"
+      ],
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: #{context_module}.UserSession

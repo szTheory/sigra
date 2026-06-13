@@ -6,13 +6,15 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   new password form, and expired token page for password reset flows.
   """
   use <%= web_module %>, :html
+  import <%= web_module %>.SigraAuthComponents
 
   @doc """
   Renders the "request reset" form where the user enters their email.
   """
   def new(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         {dgettext("sigra", "Forgot your password?")}
         <:subtitle>
@@ -33,7 +35,8 @@ defmodule <%= web_module %>.ResetPasswordHTML do
           {dgettext("sigra", "Back to log in")}
         </.link>
       </p>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 
@@ -42,7 +45,8 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   """
   def edit(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         {dgettext("sigra", "Reset your password")}
         <:subtitle>
@@ -58,7 +62,8 @@ defmodule <%= web_module %>.ResetPasswordHTML do
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 
@@ -68,7 +73,8 @@ defmodule <%= web_module %>.ResetPasswordHTML do
   """
   def expired(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         {dgettext("sigra", "Reset link expired")}
         <:subtitle>
@@ -81,7 +87,8 @@ defmodule <%= web_module %>.ResetPasswordHTML do
           {dgettext("sigra", "Request new reset email")}
         </.link>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 end

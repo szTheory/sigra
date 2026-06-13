@@ -45,11 +45,20 @@ path. The proxy helper is a generic local-dev convenience shipped by Sigra;
 any compatible Traefik attached to `proxy` works. If you need an isolated fallback proxy, use
 `scripts/uat/up.sh --private-traefik`, which binds
 `http://sigra.localhost:18080` by default.
+Proxy mode recompiles the local Sigra path dependency on startup and refuses to
+start if another running UAT web container already claims the same
+`SIGRA_UAT_PROXY_HOST`. If the Dockerized app is already running and you change
+Sigra library code, refresh the compiled dependency with:
+
+```bash
+scripts/uat/up.sh --refresh-code
+```
 
 ### Everyday commands
 
 ```bash
 scripts/uat/status.sh       # reprint URLs, ports, and the server command
+scripts/uat/up.sh --refresh-code
 scripts/uat/up.sh --print-env
 scripts/uat/down.sh         # stop containers, keep the database volume
 scripts/uat/down.sh --purge # stop containers and delete this stack's database volume
@@ -83,14 +92,14 @@ mix setup && mix phx.server
 
 All personas use the `@demo.vaultr.test` email domain. Passwords are public-by-design demo credentials — never use them in production.
 
-| Email | Password | Feature demonstrated |
-|-------|----------|---------------------|
-| admin@demo.vaultr.test | DemoAdmin1!SecurePass | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
-| alice@demo.vaultr.test | AliceDemoPass1! | Happy path confirmed user baseline |
-| bob@demo.vaultr.test | BobDemoPass1!Beta | TOTP MFA enrolled plus org-owner coverage |
-| carol@demo.vaultr.test | CarolDemoPass1!Github | Seeded GitHub OAuth-linked identity row for inspection |
-| dave@demo.vaultr.test | DaveDemoPass1!Locked | Locked and unconfirmed rough edge |
-| frank@demo.vaultr.test | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active) |
+| Email                  | Password               | Feature demonstrated                                                                               |
+| ---------------------- | ---------------------- | -------------------------------------------------------------------------------------------------- |
+| admin@demo.vaultr.test | DemoAdmin1!SecurePass  | Admin/operator coverage — TOTP MFA, passkey display row, multi-org ownership, and audit inspection |
+| alice@demo.vaultr.test | AliceDemoPass1!        | Happy path confirmed user baseline                                                                 |
+| bob@demo.vaultr.test   | BobDemoPass1!Beta      | TOTP MFA enrolled plus org-owner coverage                                                          |
+| carol@demo.vaultr.test | CarolDemoPass1!Github  | Seeded GitHub OAuth-linked identity row for inspection                                             |
+| dave@demo.vaultr.test  | DaveDemoPass1!Locked   | Locked and unconfirmed rough edge                                                                  |
+| frank@demo.vaultr.test | FrankDemoPass1!Deleted | Scheduled deletion lifecycle (still active)                                                        |
 
 ## Rough Edges
 

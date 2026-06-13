@@ -43,6 +43,18 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert Enum.all?(positions, fn {_label, position} -> is_integer(position) end)
       assert ordered?(positions)
       assert html =~ "/admin/users?q=detail-order"
+      refute html =~ "Back to users"
+
+      breadcrumb = breadcrumb_fragment(html)
+
+      assert breadcrumb =~ ~s(href="/admin")
+      assert breadcrumb =~ "Overview"
+      assert breadcrumb =~ ~s(href="/admin/users?q=detail-order")
+      assert breadcrumb =~ "Users"
+      assert breadcrumb =~ ~s(aria-current="page")
+      assert breadcrumb =~ target.email
+      assert html_offset(breadcrumb, "Overview") < html_offset(breadcrumb, "Users")
+      assert html_offset(breadcrumb, "Users") < html_offset(breadcrumb, target.email)
     end
 
     test "Revoke session and revoke all sessions keep the current scope and target identity visible in confirmations",
@@ -238,6 +250,15 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "/admin/organizations/#{org.slug}/users/#{target.id}/audit"
       assert html =~ "return_to=%2Fadmin%2Forganizations%2F#{org.slug}%2Fusers%3Fq%3Dorg-preview"
       assert html =~ "Session Create"
+
+      breadcrumb = breadcrumb_fragment(html)
+
+      assert breadcrumb =~ ~s(href="/admin/organizations/#{org.slug}")
+      assert breadcrumb =~ "Overview"
+      assert breadcrumb =~ ~s(href="/admin/organizations/#{org.slug}/users?q=org-preview")
+      assert breadcrumb =~ "Users"
+      assert breadcrumb =~ target.email
+      refute html =~ "Back to users"
     end
 
     test "recent audit preview uses Presenter labels and impersonation badge when applicable",
@@ -281,6 +302,13 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
     case :binary.match(html, needle) do
       {offset, _length} -> offset
       :nomatch -> nil
+    end
+  end
+
+  defp breadcrumb_fragment(html) do
+    case :binary.match(html, ~s(aria-label="Breadcrumb")) do
+      {start, _} -> binary_part(html, start, min(1_200, byte_size(html) - start))
+      :nomatch -> ""
     end
   end
 

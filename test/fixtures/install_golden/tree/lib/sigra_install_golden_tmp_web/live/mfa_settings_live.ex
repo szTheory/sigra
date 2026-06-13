@@ -14,6 +14,7 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   alias SigraInstallGoldenTmp.Accounts, as: Auth
 
@@ -58,7 +59,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <%= if @mfa_enabled do %>
         <% # Surface 3: MFA Settings Card %>
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -244,7 +246,8 @@ defmodule SigraInstallGoldenTmpWeb.MFASettingsLive do
 
       <%= render_passkeys_section(assigns) %>
 
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

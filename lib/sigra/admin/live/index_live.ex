@@ -14,26 +14,25 @@ defmodule Sigra.Admin.Live.IndexLive do
     config = runtime_config!()
     admin_scope = socket.assigns.admin_scope
 
-    if connected?(socket) do
-      {:ok,
-       socket
-       |> assign(:sigra_config, config)
-       |> assign(:summary_counts, Query.summary_counts(config, admin_scope))
-       |> assign(:loading, false)
-       |> assign(:page_title, "Global overview")}
-    else
-      {:ok,
-       socket
-       |> assign(:sigra_config, config)
-       |> assign(:summary_counts, %{})
-       |> assign(:loading, true)
-       |> assign(:page_title, "Global overview")}
-    end
+    {:ok,
+     socket
+     |> assign(:sigra_config, config)
+     |> assign(:summary_stats, Query.summary_stats(config, admin_scope))
+     |> assign(:loading, false)
+     |> assign(:page_title, "Global overview")}
   end
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :needs_review, Sigra.Admin.needs_review(assigns.summary_counts))
+    assigns =
+      assigns
+      |> assign(:summary_posture, summary_group(assigns.summary_stats, :posture))
+      |> assign(:summary_growth, summary_group(assigns.summary_stats, :growth))
+      |> assign(:summary_activity, summary_group(assigns.summary_stats, :activity))
+      |> assign(
+        :needs_review,
+        Sigra.Admin.needs_review(summary_group(assigns.summary_stats, :posture))
+      )
 
     ~H"""
     <section class="sg-stack sg-stack--6">
@@ -42,19 +41,13 @@ defmodule Sigra.Admin.Live.IndexLive do
         <h1 class="sg-page-title">What do you need to do?</h1>
         <p class="sg-page-copy">
           Start from the job at hand — find a user, investigate an event, or review risky accounts.
-          Posture counts below stay live: every one is an entry point into a filtered list.
         </p>
       </header>
 
-      <%!-- Opt in to role=status because the alarm appears only after LiveView connects. --%>
-      <.notice
-        :if={not @loading}
-        tone={if @needs_review > 0, do: :risk, else: :ok}
-        role="status"
-      >
+      <.notice :if={not @loading} tone={if @needs_review > 0, do: :risk, else: :ok}>
         <%= if @needs_review > 0 do %>
           {@needs_review} accounts need review —
-          <a href="/admin/users?needs_review=true">Review now</a>
+          <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
         <% else %>
           All clear
         <% end %>
@@ -81,78 +74,82 @@ defmodule Sigra.Admin.Live.IndexLive do
         />
       </div>
 
-      <section
-        class="sg-card sg-posture-strip sg-stack sg-stack--3"
-        aria-busy={if @loading, do: "true"}
-      >
-        <div class="sg-cluster sg-cluster--3">
-          <%= if @loading do %>
-            <.skeleton class="sg-metric-link" />
-            <.skeleton class="sg-metric-link" />
-            <.skeleton class="sg-metric-link" />
-            <.skeleton class="sg-metric-link" />
-            <.skeleton class="sg-metric-link" />
-            <.skeleton class="sg-metric-link" />
-          <% else %>
-            <.stat_link label="Total" value={Map.get(@summary_counts, :total, 0)} href="/admin/users" />
-            <.stat_link
-              label="Confirmed"
-              value={Map.get(@summary_counts, :confirmed, 0)}
-              href="/admin/users?confirmed=true"
-            />
-            <.stat_link
-              label="MFA"
-              value={Map.get(@summary_counts, :mfa, 0)}
-              href="/admin/users?mfa=true"
-            />
-            <.stat_link
-              label="Passkeys"
-              value={Map.get(@summary_counts, :passkeys, 0)}
-              href="/admin/users?passkeys=true"
-            />
-            <.stat_link
-              label="Locked"
-              value={Map.get(@summary_counts, :locked, 0)}
-              href="/admin/users?needs_review=true"
-            />
-            <.stat_link
-              label="Deleted"
-              value={Map.get(@summary_counts, :deleted, 0)}
-              href="/admin/users?deleted=true"
-            />
-          <% end %>
-        </div>
-      </section>
-
-      <section class="sg-stack sg-stack--3">
-        <div class="sg-stack sg-stack--1">
-          <h2 class="sg-section-heading">What Sigra can do</h2>
-          <p class="sg-section-copy">This admin console surfaces:</p>
-        </div>
-        <div class="sg-capability sg-grid sg-grid--3">
-          <.capability label="Sessions" desc="View and revoke active sessions per user." />
-          <.capability label="MFA (TOTP)" desc="See TOTP enrollment and backup-code state." />
-          <.capability label="Passkeys" desc="Inspect registered WebAuthn credentials." />
-          <.capability label="OAuth identities" desc="View linked social/OIDC identities." />
-          <.capability label="Audit evidence" desc="Filter security events and export CSV." />
-          <.capability label="Impersonation" desc="Start scoped sudo sessions with an audit trail." />
-          <.capability label="Organization scoping" desc="Operate bounded to a single tenant." />
-        </div>
+      <% total_users = summary_count(@summary_posture, :total) %>
+      <% new_this_week = summary_count(@summary_growth, :new_this_week) %>
+      <% new_this_month = summary_count(@summary_growth, :new_this_month) %>
+      <% active_this_week = summary_count(@summary_activity, :active_this_week) %>
+      <% active_this_month = summary_count(@summary_activity, :active_this_month) %>
+      <% mfa_users = summary_count(@summary_posture, :mfa_enabled) %>
+      <% passkey_users = summary_count(@summary_posture, :passkey_users) %>
+      <section class="sg-stack sg-stack--3" aria-labelledby="admin-user-snapshot-heading">
+        <h2 id="admin-user-snapshot-heading" class="sg-section-heading">User snapshot</h2>
+        <dl class="sg-metric-grid" aria-label="User snapshot">
+          <.summary_chip
+            id="overview-metric-total-users"
+            icon="users"
+            label="Total users"
+            value={total_users}
+            value_suffix="total users"
+          />
+          <.summary_chip
+            id="overview-metric-new-users"
+            icon="sparkles"
+            label="New users"
+            value={new_this_week}
+            value_suffix="new this week"
+            subvalue={month_detail(new_this_week, new_this_month)}
+            help="Accounts registered since Monday UTC and since the first day of this month."
+          />
+          <.summary_chip
+            :if={activity_available?(@summary_activity)}
+            id="overview-metric-active-users"
+            icon="activity"
+            label="Active users"
+            value={active_this_week}
+            value_suffix="active this week"
+            subvalue={month_detail(active_this_week, active_this_month)}
+            help="Users with session activity since Monday UTC and since the first day of this month."
+          />
+          <.summary_chip
+            id="overview-metric-auth-coverage"
+            icon="mfa"
+            label="Authentication coverage"
+            value={percent_of(mfa_users, total_users)}
+            value_unit="%"
+            value_suffix="MFA coverage"
+            subvalue={"#{percent_of(passkey_users, total_users)}% passkey coverage"}
+            help="Coverage uses total users as the denominator."
+          />
+        </dl>
       </section>
     </section>
     """
   end
 
-  attr :label, :string, required: true
-  attr :desc, :string, required: true
+  defp summary_group(stats, key) when is_map(stats), do: Map.get(stats, key, %{})
+  defp summary_group(_stats, _key), do: %{}
 
-  defp capability(assigns) do
-    ~H"""
-    <div class="sg-capability__item">
-      <span class="sg-capability__label">{@label}</span>
-      <span class="sg-capability__desc">{@desc}</span>
-    </div>
-    """
+  defp summary_count(counts, key) when is_map(counts) do
+    case Map.get(counts, key, 0) do
+      nil -> 0
+      value -> value
+    end
+  end
+
+  defp summary_count(_counts, _key), do: 0
+
+  defp activity_available?(%{available?: true}), do: true
+  defp activity_available?(_activity), do: false
+
+  defp month_detail(count, count), do: nil
+  defp month_detail(_week_count, month_count), do: "#{month_count} this month"
+
+  defp percent_of(_count, total) when total in [nil, 0], do: 0
+
+  defp percent_of(count, total) do
+    (count / total * 100)
+    |> Float.round()
+    |> trunc()
   end
 
   defp runtime_config! do

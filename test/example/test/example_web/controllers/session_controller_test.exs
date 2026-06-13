@@ -20,6 +20,7 @@ defmodule ExampleWeb.SessionControllerTest do
 
   alias Example.Accounts
   alias Example.Accounts.Scope
+  alias Example.Demo.Branding
 
   @moduletag :example_app
 
@@ -30,20 +31,79 @@ defmodule ExampleWeb.SessionControllerTest do
   end
 
   describe "GET /users/log_in (B9 plain-controller login page)" do
-    test "renders 200 with both magic-link and password forms", %{conn: conn} do
+    test "renders 200 with compact password, passkey, magic-link, and SSO controls", %{conn: conn} do
       conn = get(conn, ~p"/users/log_in")
       body = html_response(conn, 200)
 
+      assert body =~ ~s(data-testid="vaultr-login")
+      assert body =~ ~s(data-demo-brand-presets=)
+      assert body =~ ~s(data-demo-brand-default="night-ops")
+      assert body =~ ~s(data-demo-brand-theme-default="dark")
+      assert body =~ ~s(data-theme="dark")
+      assert body =~ "--vt-dark-color-primary: #48d6ca"
+      assert body =~ "--vt-dark-color-panel: #0d242b"
+      assert body =~ "--vt-light-color-primary: #087d87"
+      assert body =~ ~s(data-demo-brand-initial)
+      assert body =~ ~r/>\s*N\s*</
+      assert body =~ ~s(id="passkey_login_form")
       assert body =~ ~s(id="magic_link_form")
       assert body =~ ~s(id="login_form")
       assert body =~ ~s(id="enterprise_login_form")
       assert body =~ ~s(action="/users/log_in")
       assert body =~ ~s(method="post")
-      assert body =~ "Log in to Vaultr"
-      assert body =~ "shared demo login for Vaultr users and Sigra Admin operators"
-      assert body =~ "admin@demo.vaultr.test"
-      assert body =~ "Magic links are not break-glass recovery for SSO-only organizations"
-      assert body =~ "break-glass stays limited to password sign-in"
+      assert body =~ "Log in to"
+      assert body =~ "New to"
+      assert body =~ "Create an account."
+      assert body =~ "Use a passkey"
+      assert body =~ "Email me a magic link"
+      assert body =~ "Enterprise SSO"
+      assert body =~ "Keep me signed in"
+      assert body =~ ~s(data-passkey-login-status)
+      assert body =~ ~s(data-passkey-status="")
+      assert body =~ ~s(autocomplete="username webauthn")
+      refute body =~ "Use your email and password"
+      refute body =~ "Passkeys appear through browser autofill"
+      refute body =~ "Secured by Sigra"
+      refute body =~ "Keep me logged in"
+      refute body =~ "shared demo login for Vaultr users and Sigra Admin operators"
+      refute body =~ "admin@demo.vaultr.test"
+      refute body =~ "We couldn't finish passkey sign-in"
+    end
+
+    test "renders cookie-selected brand before demo JavaScript runs", %{conn: conn} do
+      conn =
+        conn
+        |> put_req_cookie(Branding.cookie_name(), "vaultr")
+        |> get(~p"/users/log_in")
+
+      body = html_response(conn, 200)
+
+      assert body =~ ~s(data-demo-brand-default="vaultr")
+      assert body =~ ~s(data-demo-brand-theme-default="light")
+      assert body =~ ~s(data-theme="light")
+      assert body =~ "Log in to"
+      assert body =~ "Vaultr"
+      assert body =~ "--vt-light-color-primary: #045f73"
+      assert body =~ "--vt-light-color-panel: #fbfefd"
+      assert body =~ "--vt-dark-color-primary: #5eead4"
+      assert body =~ ~s(data-demo-brand-logo)
+      assert body =~ ~s(src="/images/vaultr-mark.svg")
+    end
+
+    test "renders cookie-selected brand theme before demo JavaScript runs", %{conn: conn} do
+      conn =
+        conn
+        |> put_req_cookie(Branding.cookie_name(), "vaultr")
+        |> put_req_cookie(Branding.theme_cookie_name(), "dark")
+        |> get(~p"/users/log_in")
+
+      body = html_response(conn, 200)
+
+      assert body =~ ~s(data-demo-brand-default="vaultr")
+      assert body =~ ~s(data-demo-brand-theme-default="dark")
+      assert body =~ ~s(data-theme="dark")
+      assert body =~ "--vt-dark-color-primary: #5eead4"
+      assert body =~ "--vt-dark-color-panel: #0b2930"
     end
 
     test "login page is a dead render (no phx-* attributes)", %{conn: conn} do

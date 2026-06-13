@@ -77,14 +77,16 @@ defmodule Sigra.Install.GeneratorEmailTest do
       assert content =~ ~s(dgettext("sigra")
     end
 
-    test "includes CTA button color from UI-SPEC" do
+    test "drives CTA button color from branding tokens" do
       content = render_template("emails.ex")
-      assert content =~ "#2563eb"
+      assert content =~ "branding.accent_color"
+      assert content =~ "branding.accent_foreground"
     end
 
-    test "includes background color from UI-SPEC" do
+    test "drives layout colors from branding tokens" do
       content = render_template("emails.ex")
-      assert content =~ "#f4f4f5"
+      assert content =~ "branding.background_color"
+      assert content =~ "branding.surface_color"
     end
 
     test "uses accessible table layout" do
@@ -95,6 +97,7 @@ defmodule Sigra.Install.GeneratorEmailTest do
     test "sets from address from binding" do
       content = render_template("emails.ex")
       assert content =~ "noreply@example.com"
+      assert content =~ "Sigra.Branding.email_from(branding())"
     end
   end
 

@@ -78,10 +78,14 @@ This generates the **application-owned** scaffolding into your project:
 - `lib/my_app/accounts/user_token.ex` — session, confirmation, reset, and magic-link token schema.
 - `lib/my_app_web/user_auth.ex` — the `UserAuth` plug module: `log_in_user/3`, `log_out_user/1`, `fetch_current_scope/2`, `require_authenticated_user/2`.
 - `lib/my_app_web/live/user_registration_live.ex` and friends — the registration, login, password-reset, and settings LiveViews.
+- `lib/my_app_web/components/sigra_auth_components.ex` and `priv/static/assets/sigra_auth.css` — the generated auth shell and scoped Light/Dark/System styling.
 - `priv/repo/migrations/*_create_users_auth_tables.exs` — the users + tokens migrations, under `auth` by default on Postgres.
+- `priv/repo/migrations/*_create_sigra_brand_profiles.exs` — optional global auth/email brand tokens managed from the generated admin UI.
 - `test/support/auth_fixtures.ex` — scenario fixtures (`user_fixture`, `authenticated_fixture`, etc.).
 
 **You own this code.** Security-critical primitives (hashing, TOTP verification, token HMACs) live in the library and update via `mix deps.update sigra`. Everything in your app — schemas, routes, templates, LiveViews — is yours to customize without fighting the library.
+
+Auth forms and transactional emails also get brandable defaults. Use `branding:` in `sigra_config/0`, the generated `/admin/auth-branding` page, or edit the generated host templates directly. See [Auth Branding](../recipes/auth-branding.html) for the lanes and tradeoffs.
 
 The generator also patches your router with the auth pipelines and scopes. Re-running `mix sigra.install` is safe: it detects existing files and skips them (pass `--force` to overwrite).
 

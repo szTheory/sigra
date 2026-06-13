@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="791 331 1000 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Sigra A2 descender-rail favicon</title>
+  <desc id="desc">Font: Plus Jakarta Sans v2.7 ExtraBold (OFL) wght=800. A2 favicon: the g glyph with its descender continuing as the ember-800 rail bar. Outlined with opentype.js 2.0.0. Generated 2026-06-12.</desc>
+  <style>#glyphs { fill: #151515; } @media (prefers-color-scheme: dark) { #glyphs { fill: #f4f1eb; } }</style>
+  <g id="glyphs">
+    <path id="g-2" d="M1098 1220Q1035 1220 981 1199Q927 1178 888.50 1140.50Q850 1103 833 1052L972 1003Q983 1041 1017 1063Q1051 1085 1098 1085Q1154 1085 1186 1054.50Q1218 1024 1218 971L1218 919Q1164 973 1072 973Q996 973 936 938.50Q876 904 842 843.50Q808 783 808 706Q808 629 842 569.50Q876 510 935 476Q994 442 1069 442Q1170 442 1228 511L1228 454L1368 454L1368 971Q1368 1043 1333 1099.50Q1298 1156 1237.50 1188Q1177 1220 1098 1220M1093 837Q1149 837 1183.50 801.50Q1218 766 1218 708Q1218 649 1183.50 613Q1149 577 1093 577Q1036 577 999.50 613.50Q963 650 963 708Q963 765 999.50 801Q1036 837 1093 837" />
+  </g>
+  <path id="rail-bar" d="M1330 1145H1690" fill="none" stroke="#9a3412" stroke-width="150" stroke-linecap="round" />
+</svg>

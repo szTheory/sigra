@@ -303,7 +303,7 @@ defmodule Sigra.Test.InstallFixture do
   """
   @spec snapshot_paths(Path.t()) :: %{String.t() => binary()}
   def snapshot_paths(app_dir) do
-    tracked_dirs = ["lib", "priv/repo/migrations", "config", "test/support"]
+    tracked_dirs = ["lib", "priv/repo/migrations", "priv/static", "config", "test/support"]
 
     for sub <- tracked_dirs,
         abs_sub = Path.join(app_dir, sub),
@@ -334,6 +334,7 @@ defmodule Sigra.Test.InstallFixture do
     tracked_dirs = [
       "lib",
       "priv/repo/migrations",
+      "priv/static",
       "config",
       "test/support"
     ]

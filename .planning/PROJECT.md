@@ -32,6 +32,68 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
+## Current Milestone: v1.38 BRAND-V2
+
+**Goal:** Pressure-test the v1.35 brand system against a fresh 14-section critical audit and elevate the Sigra identity with a redesigned, fully integrated logo system — ratified by the maintainer — propagated coherently everywhere the existing logo already lives.
+
+**Lane (MILESTONE-ARC):** Strategic bet — deliberate brand-elevation thesis with explicit boundaries; user-promoted exception to "polish is not default roadmap" (same justification class as v1.34: the brand is the evaluator-facing adoption surface).
+
+**Target features:**
+- 14-section pressure-test audit v2 of `brandbook/` with KEEP/TIGHTEN/REWORK/ADD/REMOVE verdicts (evidence required for REWORK; KEEP is default), including a multi-library szTheory suite brand-architecture section
+- Logo v2: 5–7 candidates including ≥2–3 fully integrated custom typemarks (motif worked into letterforms), produced through a committed opentype.js OFL-font outlining toolchain and a Playwright render-critique loop; human ratification gate before buildout
+- Ratified logo system: primary/dark/subtitle-variant lockups, mark, monochrome, favicon, social cards (light + dark), with clearspace/min-size/misuse rules
+- Brand book `index.html` upgraded to a professional standalone v2 document; tokens version-bumped; specimens regenerated
+- Propagation: installer templates + example app under unchanged filenames, sg-* token sync if palette tuned, Playwright baseline recapture, hygiene gate
+
+**Hard design constraints:** no rectangular container behind the logomark (boundary-breaking allowed); logotype close to the mark; subtitle-free main lockup (separate subtitle variant allowed); ember-anchored tunable palette; SVG-only committed assets; OFL fonts only, no font binaries committed.
+
+**Out of scope:** README/GitHub-social adoption (gsd-quick fast-follow after ship), HexDocs/ExDoc theming, landing page/marketing site, PNG export pipeline, sg-* class churn or admin component redesign, sibling-library brandbooks, per-org branding.
+
+**Approved kickoff plan:** `~/.claude/plans/brand-book-pressure-test-squishy-eich.md`
+
+## Previous Shipped Milestone: v1.37 AUTH-BRANDING-WHITELABEL
+
+**Shipped:** 2026-06-07 (Phases 173-177) · 16/16 requirements satisfied · milestone audit passed
+
+Sigra's generated authentication forms and emails now carry a production-ready default brand treatment, support Light/Dark/System modes, and expose a structured white-label path for teams that want polish without becoming designers. Adopters can configure branding through code/config, persist a global profile from the generated admin UI, or take full control by editing the generated auth component and scoped CSS.
+
+Archives:
+- [`.planning/milestones/v1.37-ROADMAP.md`](milestones/v1.37-ROADMAP.md)
+- [`.planning/milestones/v1.37-REQUIREMENTS.md`](milestones/v1.37-REQUIREMENTS.md)
+- [`.planning/milestones/v1.37-MILESTONE-AUDIT.md`](milestones/v1.37-MILESTONE-AUDIT.md)
+- [`.planning/milestones/v1.37-phases/`](milestones/v1.37-phases/)
+
+### Just shipped: v1.37 AUTH-BRANDING-WHITELABEL
+
+- added `Sigra.Branding.Profile` and `Sigra.Branding` as the canonical auth/email branding contract
+- generated `sigra_brand_profiles` persistence with configured auth-schema prefix support and missing-table fallback
+- generated `SigraAuthComponents` plus scoped `sigra_auth.css` for branded Light/Dark/System auth defaults
+- wrapped generated login, registration, reset, confirmation, MFA, sudo, settings, OAuth settings, and invitation auth surfaces
+- added `/admin/auth-branding` with `sg-*` admin UI controls, auth preview, email preview, save, and reset flows
+- updated generated transactional emails to use profile-driven sender, reply-to, logo/product name, CTA, and footer links
+- documented default, white-label, code-config, admin-config, and full-custom paths in README, installation guide, ExDoc, and recipe docs
+- proved generated-host behavior through focused tests, docs warnings-as-errors, diff hygiene, and browser smoke
+
+## Previous Shipped Milestone: v1.36 ADMIN-BRAND-THEME-POLISH
+
+**Shipped:** 2026-06-06 (Phases 168-172) · 14/14 requirements satisfied · milestone audit passed
+
+Sigra's generated admin UI now carries the ratified Rail Accent brand treatment in the shell and supports explicit Light, Dark, and System modes without leaking admin theme state into global DaisyUI theming. The milestone also captured durable admin UI principles for future agents, tightened the admin design contract, refreshed intentional browser baselines, and proved generated-host parity through the acceptance smoke.
+
+Archives:
+- [`.planning/milestones/v1.36-ROADMAP.md`](milestones/v1.36-ROADMAP.md)
+- [`.planning/milestones/v1.36-REQUIREMENTS.md`](milestones/v1.36-REQUIREMENTS.md)
+- [`.planning/milestones/v1.36-MILESTONE-AUDIT.md`](milestones/v1.36-MILESTONE-AUDIT.md)
+
+### Just shipped: v1.36 ADMIN-BRAND-THEME-POLISH
+
+- promoted the Rail Accent mark into generated/example/golden admin shell chrome and removed placeholder-brand treatment
+- exposed Light, Dark, and System modes in admin chrome with local persistence, early boot, system fallback, radiogroup keyboard behavior, and no global DaisyUI `data-theme`
+- added logo and selected-control tokens that keep brand contrast correct across light/dark/forced modes
+- tightened mobile safe-area spacing, long-title wrapping, filter accenting, and command palette job copy
+- added `guides/reference/admin-ui-principles.md` and linked it from `CLAUDE.md`, root `AGENTS.md`, and `test/example/AGENTS.md`
+- added focused browser coverage for theme behavior and refreshed four intentional admin checkpoint baselines under the snapshot canary guard
+
 ## Previous Shipped Milestone: v1.35 BRAND-SYSTEM-PRESSURE-TEST
 
 **Shipped:** 2026-06-05 (Phases 161-167) · 20/20 requirements satisfied · milestone audit passed · Option A Core Rails ratified
@@ -53,26 +115,6 @@ Archives:
 - retained `brandbook/logo-options/` with five distinct SVG logo directions and review notes as history
 - added `brandbook/index.html`, a directly openable static HTML brandbook with no build step, CDN, web font, runtime dependency, or raster-heavy payload
 - completed final JSON/SVG/HTML/browser/axe/file-size/git hygiene verification after logo ratification
-
-## Previous Shipped Milestone: v1.36 ADMIN-BRAND-THEME-POLISH
-
-**Shipped:** 2026-06-06 (Phases 168-172) · 14/14 requirements satisfied · milestone audit passed
-
-Sigra's generated admin UI now carries the ratified Rail Accent brand treatment in the shell and supports explicit Light, Dark, and System modes without leaking admin theme state into global DaisyUI theming. The milestone also captured durable admin UI principles for future agents, tightened the admin design contract, refreshed intentional browser baselines, and proved generated-host parity through the acceptance smoke.
-
-Archives:
-- [`.planning/milestones/v1.36-ROADMAP.md`](milestones/v1.36-ROADMAP.md)
-- [`.planning/milestones/v1.36-REQUIREMENTS.md`](milestones/v1.36-REQUIREMENTS.md)
-- [`.planning/milestones/v1.36-MILESTONE-AUDIT.md`](milestones/v1.36-MILESTONE-AUDIT.md)
-
-### Just shipped: v1.36 ADMIN-BRAND-THEME-POLISH
-
-- promoted the Rail Accent mark into generated/example/golden admin shell chrome and removed placeholder-brand treatment
-- exposed Light, Dark, and System modes in admin chrome with local persistence, early boot, system fallback, radiogroup keyboard behavior, and no global DaisyUI `data-theme`
-- added logo and selected-control tokens that keep brand contrast correct across light/dark/forced modes
-- tightened mobile safe-area spacing, long-title wrapping, filter accenting, and command palette job copy
-- added `guides/reference/admin-ui-principles.md` and linked it from `CLAUDE.md`, root `AGENTS.md`, and `test/example/AGENTS.md`
-- added focused browser coverage for theme behavior and refreshed four intentional admin checkpoint baselines under the snapshot canary guard
 
 ## Previous Shipped Milestone: v1.34 ADMIN-UI-COHERENCE
 
@@ -177,9 +219,9 @@ Archives:
 
 ## Current State
 
-`v1.35 BRAND-SYSTEM-PRESSURE-TEST` is shipped and archived after Phase 167 logo ratification. Sigra's current posture remains maintenance-first, now with self-contained brandbook collateral under `brandbook/` for future docs, landing, README, social, and UI/UX work. Preserve the released authentication surface, keep the shared admin-component contract coherent, keep brand adoption separate from runtime/generated code unless a focused milestone promotes it, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
+`v1.37 AUTH-BRANDING-WHITELABEL` is shipped and archived after Phase 177 verification. Sigra's current posture remains maintenance-first, now with production-ready generated auth/email branding, a structured white-label token profile, admin-operated global branding, code/config defaults, and host-owned generated files for full custom control. Preserve the released authentication surface, keep the shared admin-component contract coherent, treat auth/email branding as part of the generated-host contract, respond to adopter friction, keep release and dependency lanes healthy, and promote new feature work only when a concrete adopter/security/product signal justifies it.
 
-Next focus: define a fresh milestone with requirements and roadmap; continue phase numbering after Phase 167.
+Next focus: v1.38 BRAND-V2 — brand pressure-test v2 + integrated logo redesign; phases continue from Phase 178.
 
 ## Next Milestone Goals
 
@@ -188,6 +230,7 @@ Next focus: define a fresh milestone with requirements and roadmap; continue pha
 - Resolve the non-blocking `Chimeway.Repo` missing database configuration startup noise before using local full-suite `mix test` output as a clean release signal.
 - Preserve the v1.34 admin design contract: future generated-admin work should use `Sigra.Admin.Components` and add/re-record Playwright checkpoints deliberately.
 - Preserve the v1.35 brandbook boundary: future brand/public-site adoption should start from `brandbook/` and should not mutate README, HexDocs, generated templates, or runtime UI without a focused scope.
+- Preserve the v1.37 auth-branding contract: defaults should remain polished and scoped, white-label tokens should stay structured and validated, admin changes should use `sg-*` components, and full custom styling should remain host-owned generated code/CSS.
 - Avoid broad feature expansion, generated-host UI redesign, hosted-control-plane behavior, or generic authorization/compliance work unless the next milestone explicitly promotes it.
 
 ### Just shipped: v1.28 DATA-LIFECYCLE
@@ -834,5 +877,7 @@ This document evolves at phase transitions and milestone boundaries.
 *Last updated: 2026-06-03 — Phase 154 (Design Contract + sg-notice) complete — COMP-03, COMP-04 validated. Committed `guides/reference/admin-design-contract.md` (the governance contract: 10 canonical component jobs with winning CSS/ARIA/motion-incl-explicit-"not-animated"/when-NOT-to-use, plus 3 page archetypes — Overview/List/Detail — as explicit component compositions) and registered it in the mix.exs ExDoc extras. Added the `.sg-notice` style (base + 4 tone variants) inside `@layer sg-components` in `test/example/.../app.css` — a behavior-preserving selector-rename of `.sg-list-row[data-tone]` (same tokens/color-mix/ring-opacity asymmetry, no new `!important`). No LiveView or Playwright-baseline changes (verifier 4/4, status passed). Code review: 1 Warning fixed in-phase (WR-01 — the doc's `app.css` line citations were shifted by this changeset's own CSS insertion; corrected to 1421–1443 / 1463–1473); WR-02 (sg-notice/sg-list-row tone-rule duplication has no drift guard) deferred to a tracked pending todo for the 154→156 migration window. Phases continue from **155** (KEYSTONE: build `Sigra.Admin.Components`).*
 
 *Last updated: 2026-06-04 — Phase 155 (Shared Component Foundation, KEYSTONE) complete — COMP-01, COMP-02 validated (verifier 9/9, status passed). Built `lib/sigra/admin/components.ex` — the lib-owned `Sigra.Admin.Components` module with all 10 canonical admin function components in contract order (`stat_link`, `stat`, `task_card`, `summary_chip`, `applied_chip`, `empty_state`, `page_back`, `scope_ribbon`, `notice`, `skeleton`), each declaring explicit `attr`/`slot` contracts, `attr :class, :any, default: nil` merged as `class={["sg-…", @class]}`, and `attr :rest, :global`. The `notice` component ships its target `sg-notice`/`data-tone` form with no default live-region role (D-07/D-08). Module is intentionally UNWIRED this phase — no LiveView consumes it (that is Phase 156); original `defp`/inline markup stays in place. COMP-02 proof: `test/sigra/admin/components_test.exs` — 10 DB-free `render_component/2` tests (7 strict byte-equal goldens from original markup, 1 target golden for `notice`, 2 structural asserts for `stat`/`skeleton`), all green, each carrying a drift message citing the design contract and forbidding Playwright baseline re-records (D-13). Also wired the CI gate so `example_playwright_smoke` `needs: [release_ref_guard, library_tests]` (D-14) and corrected the design contract's notice ARIA entry to the no-role form (D-09). Full suite green (2333 tests, 0 failures). Code review: 1 Warning fixed in-phase (WR-01/WR-02 — `notice/1` was the only component missing the `attr :class` merge mandated by D-02, a latent duplicate-`class` hazard for Phase 156; commit 5ad22cda added the attr + merge and updated `@notice_golden`); 3 Info deferred (IN-03 orphaned `<dt>/<dd>` in `summary_chip` is verbatim behavior-preservation — a Phase 156 `<dl>`-wrapper note, not a defect). Phases continue from **156** (adopt shared components on baselined screens).*
+
+*Last updated: 2026-06-12 — `/gsd-new-milestone` opened **v1.38 BRAND-V2** (brand pressure-test v2 + integrated logo redesign). Strategic-bet lane; user-promoted exception to the polish posture (brand = evaluator-facing adoption surface, same class as v1.34). Scope: 14-section audit v2 of `brandbook/` (KEEP/TIGHTEN/REWORK/ADD/REMOVE + szTheory suite architecture), committed opentype.js OFL outlining toolchain, 5–7 logo candidates incl. ≥2–3 integrated typemarks via Playwright render-critique loop, human ratification gate, full ratified asset system (incl. subtitle variant + dark social card), brand book HTML v2 + version-bumped tokens, propagation to installer/example under unchanged filenames with sg-* sync + baseline recapture + hygiene gate. Constraints: no rectangular logomark container, tight logotype proximity, subtitle-free main lockup, ember-anchored tunable palette, SVG-only commits, no font binaries. Deferred: README/social adoption (fast-follow), HexDocs theming, landing page, PNG pipeline, sibling brandbooks. Kickoff plan: `~/.claude/plans/brand-book-pressure-test-squishy-eich.md`. Phases continue from **178**.*
 
 *Last updated: 2026-06-04 — Phase 157 (Overview Landings, Highest Effort) complete — LAND-01..04 validated (verifier 15/15, status passed). Both Overview LiveViews (`lib/sigra/admin/live/index_live.ex` Global, `organization_live.ex` Org) redesigned into the shared "front-door" archetype: `mount/3` split with a `connected?(socket)` gate (disconnected path assigns loading state with zero DB queries; connected path runs queries inline) (LAND-04); needs-review alarm `<.notice role="status">` promoted as the first element above the task grid (LAND-01); canonical archetype order header → alarm → task grid → demoted posture strip → capability/tail (LAND-02/03); `<.skeleton>` shapes matched to replaced content during load (`aria-busy`); Org view also dropped the old "Scoped attention" card + nested-`<p>` notice (D-07) while preserving the Members + Pending-invitations demoted tail (D-05); `sg-posture-strip__risk` anchor deleted from both. Coverage closed by ADDING (not re-recording): 4 new ExUnit two-mount-proof tests in `admin_shell_test.exs` (10/10 green; skeleton-on-GET vs data-on-live + archetype-order asserts) and 2 new Playwright checkpoint slugs `global-overview`/`org-overview` with a `.sg-metric-link__value` wait guard (6 new baselines ×3 projects, axe WCAG A/AA green ×3). `admin-design-contract.md` Overview Archetype updated with the Org-variant note. Code review: 1 Warning fixed in-phase (WR-02 — org skeletons were unclassed vs the global view's `sg-metric-link`/`sg-list-row`, causing layout shift + breaking the byte-coherent items-1-4 claim; commit 58068721); WR-01 (pre-existing alarm count/link mismatch — sums locked+deleted but deep-links locked-only), WR-03 (pre-existing `format_date` swallows `NaiveDateTime`), WR-05 (debatable `role="status"` on the connected?-gated notice), and WR-04 + IN-01..04 deferred to 4 tracked pending todos. SC5 axe gate shifted left from human_needed to automation (orchestrator booted a dev server + ran the checkpoint spec ×3 → 3 passed). Phases continue from **158** (Audit Mobile + Per-User Audit).*

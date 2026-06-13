@@ -16,78 +16,131 @@ defmodule ExampleWeb.SessionHTML do
 
   def new(assigns) do
     ~H"""
-    <section class="vt-auth" data-testid="vaultr-login">
+    <section
+      class="vt-auth vt-auth--login"
+      data-testid="vaultr-login"
+      data-demo-brand-surface
+      data-demo-brand-presets={@demo_brand_presets_json}
+      data-demo-brand-default={@demo_brand_default_id}
+      data-demo-brand-theme-default={to_string(@demo_brand_default_theme)}
+      data-theme={to_string(@demo_brand_default_theme)}
+      style={@demo_brand_default_style}
+    >
       <div class="vt-auth__panel">
         <a href={~p"/"} class="vt-brand">
-          <img src={~p"/images/vaultr-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
+          <img
+            src={@demo_brand_default_profile.logo_url || ""}
+            alt={
+              if @demo_brand_default_profile.logo_url,
+                do: @demo_brand_default_profile.logo_alt,
+                else: ""
+            }
+            class="vt-brand__mark"
+            data-demo-brand-logo
+            hidden={is_nil(@demo_brand_default_profile.logo_url)}
+          />
+          <span
+            class="vt-brand__mark vt-brand__mark--generated"
+            data-demo-brand-initial
+            data-demo-brand-fallback-mark
+            hidden={not is_nil(@demo_brand_default_profile.logo_url)}
+          >
+            {String.slice(@demo_brand_default_profile.product_name, 0, 1)}
+          </span>
           <span>
-            <span class="vt-brand__name">Vaultr</span>
-            <span class="vt-brand__tag">Fictional cohort app</span>
+            <span class="vt-brand__name" data-demo-brand-text="product_name">
+              {@demo_brand_default_profile.product_name}
+            </span>
           </span>
         </a>
 
         <div class="vt-auth__intro">
-          <p class="vt-kicker">Shared Vaultr login</p>
-          <h1 class="vt-auth__title">Log in to Vaultr</h1>
+          <p class="vt-kicker">Sign in</p>
+          <h1 class="vt-auth__title">
+            Log in to
+            <span data-demo-brand-text="product_name">
+              {@demo_brand_default_profile.product_name}
+            </span>
+          </h1>
           <p class="vt-auth__copy">
-            This is the shared demo login for Vaultr users and Sigra Admin operators.
-            Use <code class="vt-code">admin@demo.vaultr.test</code>
-            for the platform-operator path into <code class="vt-code">/admin</code>.
-            Don't have an account?
+            New to <span data-demo-brand-text="product_name">
+              {@demo_brand_default_profile.product_name}
+            </span>?
             <.link navigate={~p"/users/register"} class="vt-link">
-              Sign up
+              Create an account.
             </.link>
-            for an account now.
           </p>
         </div>
 
+        <.form
+          :let={f}
+          for={@form}
+          id="login_form"
+          action={~p"/users/log_in"}
+          method="post"
+          class="vt-auth__form vt-auth__form--primary"
+        >
+          <.input
+            field={f[:email]}
+            type="email"
+            label="Email"
+            autocomplete="username webauthn"
+            required
+          />
+          <.input
+            field={f[:password]}
+            type="password"
+            label="Password"
+            autocomplete="current-password"
+            required
+          />
+
+          <div class="vt-remember-row">
+            <label>
+              <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
+              Keep me signed in
+            </label>
+          </div>
+
+          <.button class="vt-btn vt-btn--primary vt-btn--block">
+            Log in <span aria-hidden="true">&rarr;</span>
+          </.button>
+        </.form>
+
         <%= if @passkey_primary_enabled do %>
-          <% # Passkey-primary section %>
           <.form
-            :let={f}
             for={@form}
             id="passkey_login_form"
             action="/users/log_in/passkey"
             method="post"
-            class="vt-auth__form"
+            class="vt-auth__method"
             data-options-path="/users/log_in/passkey/options"
+            data-email-input="#login_form input[name='user[email]']"
           >
-            <.input
-              field={f[:email]}
-              type="email"
-              label="Email"
-              autocomplete="username webauthn"
-              required
-            />
+            <input type="hidden" name="user[email]" data-passkey-email-shadow />
             <input type="hidden" name="passkey[response]" id="passkey_login_response" />
+
             <p
               data-passkey-login-status
               data-passkey-status=""
-              class="vt-auth__copy"
+              class="vt-auth__status"
               aria-live="polite"
             >
             </p>
 
-            <.button
+            <button
               type="button"
               id="passkey_login_button"
-              class="vt-btn vt-btn--primary vt-btn--block"
+              class="vt-auth__method-button"
             >
-              Continue with passkey
-            </.button>
+              <span aria-hidden="true" class="vt-auth__method-icon">PK</span>
+              <span>Use a passkey</span>
+            </button>
           </.form>
+        <% end %>
 
-          <div class="vt-auth__form">
-            <a href="#login_form" class="vt-btn vt-btn--secondary vt-btn--block">
-              Use password instead
-            </a>
-          </div>
-
-          <p class="vt-auth__copy">
-            Passkeys are not break-glass sign-in for SSO-only organizations.
-          </p>
-
-          <% # Magic link recovery remains visible in passkey-primary mode. %>
+        <details class="vt-auth__disclosure">
+          <summary>Email me a magic link</summary>
           <.form
             :let={f}
             for={@magic_link_form}
@@ -100,123 +153,19 @@ defmodule ExampleWeb.SessionHTML do
             <.input
               field={f[:email]}
               type="email"
-              label="Email for recovery link"
+              label="Email"
               autocomplete="username"
               required
             />
 
             <.button class="vt-btn vt-btn--ghost vt-btn--block">
-              Email me a magic link
+              Send magic link
             </.button>
           </.form>
+        </details>
 
-          <p class="vt-auth__copy">
-            Magic links are not break-glass recovery for SSO-only organizations.
-          </p>
-
-          <% # Password fallback stays on the same controller-rendered page. %>
-          <div class="vt-divider">
-            <span>or use your password</span>
-          </div>
-
-          <.form
-            :let={f}
-            for={@form}
-            id="login_form"
-            action={~p"/users/log_in"}
-            method="post"
-            class="vt-auth__form"
-          >
-            <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-            <.input
-              field={f[:password]}
-              type="password"
-              label="Password"
-              autocomplete="current-password"
-              required
-            />
-
-            <div class="vt-remember-row">
-              <label>
-                <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
-                Keep me logged in
-              </label>
-            </div>
-
-            <.button class="vt-btn vt-btn--primary vt-btn--block">
-              Log in <span aria-hidden="true">&rarr;</span>
-            </.button>
-          </.form>
-        <% else %>
-          <% # Magic link section %>
-          <.form
-            :let={f}
-            for={@magic_link_form}
-            id="magic_link_form"
-            action={~p"/users/log_in"}
-            method="post"
-            class="vt-auth__form"
-          >
-            <input type="hidden" name="_action" value="magic_link" />
-            <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-
-            <.button class="vt-btn vt-btn--primary vt-btn--block">
-              Send magic link <span aria-hidden="true">&rarr;</span>
-            </.button>
-          </.form>
-
-          <p class="vt-auth__copy">
-            Magic links are not break-glass recovery for SSO-only organizations.
-          </p>
-
-          <% # Divider %>
-          <div class="vt-divider">
-            <span>or sign in with password</span>
-          </div>
-
-          <% # Password section %>
-          <.form
-            :let={f}
-            for={@form}
-            id="login_form"
-            action={~p"/users/log_in"}
-            method="post"
-            class="vt-auth__form"
-          >
-            <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-            <.input
-              field={f[:password]}
-              type="password"
-              label="Password"
-              autocomplete="current-password"
-              required
-            />
-
-            <div class="vt-remember-row">
-              <label>
-                <input type="checkbox" name={f[:remember_me].name} value="true" class="checkbox" />
-                Keep me logged in
-              </label>
-            </div>
-
-            <.button class="vt-btn vt-btn--primary vt-btn--block">
-              Log in <span aria-hidden="true">&rarr;</span>
-            </.button>
-          </.form>
-        <% end %>
-
-        <div class="vt-divider">
-          <span>or continue with enterprise SSO</span>
-        </div>
-
-        <section class="vt-auth__secondary">
-          <div class="vt-auth__intro">
-            <h2 class="vt-auth__title">Enterprise sign-in</h2>
-            <p class="vt-auth__copy">
-              Enter your work email. If Sigra finds one exact active organization match, it will send you to the
-              canonical enterprise sign-in route for that organization.
-            </p>
-          </div>
+        <details class="vt-auth__disclosure">
+          <summary>Enterprise SSO</summary>
 
           <.form
             :let={f}
@@ -239,12 +188,7 @@ defmodule ExampleWeb.SessionHTML do
               Continue with enterprise SSO
             </.button>
           </.form>
-
-          <p class="vt-auth__copy">
-            If your organization enforces SSO-only, break-glass stays limited to password sign-in
-            and password reset.
-          </p>
-        </section>
+        </details>
       </div>
     </section>
     """

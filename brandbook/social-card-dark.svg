@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="scd-title scd-desc">
+  <title id="scd-title">Sigra social preview card (dark)</title>
+  <desc id="scd-desc">A dark-surface social preview card for Sigra featuring the D4 Linked Rail typemark.</desc>
+  <defs>
+    <style>
+      .bg { fill: #171614; }
+      .panel { fill: #1e1c1a; stroke: rgba(244, 241, 235, 0.10); }
+      .ink { fill: #f4f1eb; }
+      .muted { fill: #a0998f; }
+      .accent { fill: #fdba74; }
+      .strong { fill: #c2410c; }
+      .warm { fill: #fdba74; }
+      .soft { fill: #2a2520; }
+      .type { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: 0; }
+      .mono { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; letter-spacing: 0; }
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="630"/>
+  <path d="M0 0h1200v22H0z" fill="#f4f1eb"/>
+  <rect x="72" y="70" width="1056" height="488" rx="24" class="panel"/>
+
+  <!-- D4 abstract rail mark in upper-left, ~64px rendered height at scale(0.075) in 1040-unit space -->
+  <g transform="translate(104 90) scale(0.075)">
+    <g id="scd-glyphs" fill="#f4f1eb">
+      <rect x="540" y="360" width="180" height="580"/>
+      <rect x="180" y="760" width="540" height="180"/>
+    </g>
+    <rect id="scd-rail-block" x="400" y="-20" width="320" height="320" fill="#fdba74"/>
+  </g>
+  <text x="186" y="154" class="type ink" font-size="56" font-weight="850">Sigra</text>
+
+  <text x="104" y="256" class="type ink" font-size="60" font-weight="850">Auth you can keep</text>
+  <text x="104" y="326" class="type ink" font-size="60" font-weight="850">patching after install.</text>
+  <text x="104" y="392" class="type muted" font-size="25" font-weight="650">Library-owned security-sensitive behavior. Generated Phoenix code you can review.</text>
+
+  <g transform="translate(104 448)">
+    <rect width="510" height="64" rx="10" fill="#f4f1eb"/>
+    <text x="24" y="40" class="mono" fill="#171614" font-size="22">mix sigra.install Accounts User users</text>
+  </g>
+
+  <!-- Right panel with D4 abstract mark scaled to fill the panel -->
+  <g transform="translate(768 128)">
+    <rect x="0" y="0" width="286" height="356" rx="18" class="soft"/>
+    <g transform="translate(23 20) scale(0.24)">
+      <g fill="#f4f1eb">
+        <rect x="540" y="360" width="180" height="580"/>
+        <rect x="180" y="760" width="540" height="180"/>
+      </g>
+      <rect x="400" y="-20" width="320" height="320" fill="#fdba74"/>
+    </g>
+  </g>
+</svg>

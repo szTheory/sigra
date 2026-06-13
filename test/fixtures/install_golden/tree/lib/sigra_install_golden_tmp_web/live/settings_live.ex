@@ -15,6 +15,7 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   alias SigraInstallGoldenTmp.Accounts, as: Auth
 
@@ -55,7 +56,8 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <.header>
         Account Settings
         <:subtitle>Manage your email, password, and account.</:subtitle>
@@ -184,7 +186,8 @@ defmodule SigraInstallGoldenTmpWeb.SettingsLive do
           <% end %>
         </div>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

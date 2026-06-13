@@ -9,6 +9,7 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :live_view
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   use Gettext, backend: SigraInstallGoldenTmpWeb.Gettext
 
@@ -16,8 +17,9 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <%= case @live_action do %>
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
+        <%= case @live_action do %>
         <% :new -> %>
           <.header>
             {dgettext("sigra", "Confirm your email")}
@@ -80,8 +82,9 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationLive do
           <.button phx-click="resend" phx-disable-with={dgettext("sigra", "Sending...")} class="btn btn-primary w-full">
             {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
           </.button>
-      <% end %>
-    </div>
+        <% end %>
+      </div>
+    </.sigra_auth_page>
     """
   end
 

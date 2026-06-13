@@ -24,6 +24,7 @@ defmodule Sigra.Install.GeneratorPasskeysOptOutTest do
     "/users/settings/mfa/passkeys",
     "enroll_passkey",
     "Continue with passkey",
+    "Use a passkey",
     "Add a passkey after creating your account"
   ]
 

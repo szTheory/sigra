@@ -46,3 +46,7 @@ test/example/deps/
 
 # Local research prompts (not part of the library release).
 /prompts/
+
+# Brand toolchain — font binaries and render artifacts (never commit font TTFs).
+/scripts/brand/node_modules/
+/scripts/brand/fonts/

@@ -9,10 +9,12 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
   is owned by your application.
   """
   use SigraInstallGoldenTmpWeb, :html
+  import SigraInstallGoldenTmpWeb.SigraAuthComponents
 
   def mfa_challenge(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-sm">
       <.header>
         Two-factor authentication
         <:subtitle>
@@ -136,10 +138,10 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
           Cancel and sign out
         </.link>
       </p>
-    </div>
+      </div>
 
-    <% # Tab switching JS %>
-    <script>
+      <% # Tab switching JS %>
+      <script>
       function switchTab(tab) {
         // Update tab buttons
         document.querySelectorAll('[role="tab"]').forEach(function(btn) {
@@ -174,7 +176,8 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
           });
         }
       });
-    </script>
+      </script>
+    </.sigra_auth_page>
     """
   end
 end

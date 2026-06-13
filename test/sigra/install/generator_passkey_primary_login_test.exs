@@ -15,17 +15,23 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
             "passkey[response]",
             "/users/log_in/passkey",
             "/users/log_in/passkey/options",
-            "Continue with passkey",
+            "Use a passkey",
             "Use password instead",
+            "data-passkey-login-status",
             "Email me a magic link"
           ] do
         assert content =~ expected
       end
 
+      refute content =~ "window.SigraPasskeys"
       refute content =~ "phx-submit"
       refute content =~ "choose your sign-in method"
       refute content =~ "passkey screen"
       refute content =~ "password screen"
+      refute content =~ "Keep me logged in"
+      assert content =~ "Keep me signed in"
+      assert content =~ ~s|dgettext("sigra", "Log in")|
+      assert content =~ ~s|dgettext("sigra", "Create an account.")|
     end
   end
 

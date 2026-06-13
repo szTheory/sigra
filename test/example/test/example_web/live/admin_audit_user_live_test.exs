@@ -7,24 +7,37 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
   alias Example.Repo
 
   describe "Phase 158 shared chrome components (AUDX-03)" do
-    test "renders page_back ghost-button with back arrow and 'Back to user' label", %{conn: conn} do
+    test "renders Overview / Users / email / Audit breadcrumb instead of a back button", %{
+      conn: conn
+    } do
       platform_admin = platform_admin_fixture()
       subject = user_fixture(%{email: "audit-chrome-subject@example.com"})
+      return_to = "/admin/users?order_by=inserted_at&order_direction=desc"
 
       html =
         conn
         |> log_in_user(platform_admin)
-        |> get("/admin/users/#{subject.id}/audit?return_to=%2Fadmin%2Fusers%2F#{subject.id}")
+        |> get("/admin/users/#{subject.id}/audit?return_to=#{URI.encode_www_form(return_to)}")
         |> html_response(200)
 
-      assert html =~ "sg-btn--ghost",
-             "page_back ghost-button class must render"
+      breadcrumb = breadcrumb_fragment(html)
 
-      assert html =~ "Back to user",
-             "page_back label must render 'Back to user'"
+      assert breadcrumb =~ ~s(href="/admin")
+      assert breadcrumb =~ "Overview"
+      assert breadcrumb =~ ~s(href="/admin/users?order_by=inserted_at&amp;order_direction=desc")
+      assert breadcrumb =~ "Users"
 
-      assert html =~ "&larr;",
-             "page_back must include left-arrow glyph"
+      assert breadcrumb =~
+               ~s(href="/admin/users/#{subject.id}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc")
+
+      assert breadcrumb =~ subject.email
+      assert breadcrumb =~ ~s(aria-current="page")
+      assert breadcrumb =~ "Audit"
+      assert html_offset(breadcrumb, "Overview") < html_offset(breadcrumb, "Users")
+      assert html_offset(breadcrumb, "Users") < html_offset(breadcrumb, subject.email)
+      assert html_offset(breadcrumb, subject.email) < html_offset(breadcrumb, "Audit")
+      refute html =~ "Back to user"
+      refute html =~ "&larr; Back to user"
     end
 
     test "renders empty_state with per-user copy when no events exist", %{conn: conn} do
@@ -153,5 +166,19 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
     %AuditEvent{}
     |> Ecto.Changeset.change(Map.merge(defaults, attrs))
     |> Repo.insert!()
+  end
+
+  defp breadcrumb_fragment(html) do
+    case :binary.match(html, ~s(aria-label="Breadcrumb")) do
+      {start, _} -> binary_part(html, start, min(1_400, byte_size(html) - start))
+      :nomatch -> ""
+    end
+  end
+
+  defp html_offset(html, needle) do
+    case :binary.match(html, needle) do
+      {offset, _length} -> offset
+      :nomatch -> nil
+    end
   end
 end

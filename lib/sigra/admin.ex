@@ -9,7 +9,10 @@ defmodule Sigra.Admin do
   """
   @spec needs_review(map()) :: non_neg_integer()
   def needs_review(counts) do
-    Map.get(counts, :locked, 0) + Map.get(counts, :deleted, 0)
+    locked = Map.get(counts, :locked_out, Map.get(counts, :locked, 0))
+    deletion_scheduled = Map.get(counts, :deletion_scheduled, Map.get(counts, :deleted, 0))
+
+    locked + deletion_scheduled
   end
 
   @doc """

@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.36
-milestone_name: ADMIN-BRAND-THEME-POLISH
-status: Complete
-last_updated: "2026-06-06T02:30:00-04:00"
-last_activity: 2026-06-06 — v1.36 shipped: Rail Accent admin shell, Light/Dark/System theme support, durable UI principles, deterministic browser coverage, and refreshed intentional admin checkpoints.
+milestone: v1.38
+milestone_name: BRAND-V2
+status: milestone-complete
+last_updated: "2026-06-13T07:00:00.000Z"
+last_activity: 2026-06-13 -- Phase 183 complete; v1.38 BRAND-V2 milestone DONE (all 6 phases)
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 30
+  completed_phases: 6
+  total_plans: 11
+  completed_plans: 11
+  percent: 20
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.36 ADMIN-BRAND-THEME-POLISH complete; ready for next milestone selection.
+**Current focus:** v1.38 BRAND-V2 milestone COMPLETE — ready to ship (PR to main)
 
 ## Current Position
 
-Phase: 172 — Tests, Evidence, and Baseline Ratification
-Plan: 172-01 complete
-Status: v1.36 complete
-Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, snapshot, and generated-host acceptance verification.
+Phase: 183 (propagation-parity-verification) — COMPLETE (VERIFICATION 4/4 passed-with-notes)
+Plan: 2 of 2 complete
+Status: v1.38 BRAND-V2 milestone DONE — all 6 phases (178-183) complete. Next: ship (PR to main) + post-milestone fast-follow (README/social adoption). 2 pre-existing core-template failures tracked in .planning/seeds/.
+Last activity: 2026-06-13 -- D4 Linked Rail propagated repo-wide; 21 Playwright baselines recaptured; gates green
 
 ## Accumulated Context
 
@@ -48,6 +48,23 @@ Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, 
 - v1.36 architecture decision: preserve the hand-authored `sg-*` BEM/cascade-layer CSS system and route reusable markup through `Sigra.Admin.Components` or the shell seam.
 - v1.36 theme decision: use a namespaced `data-sg-admin-theme` root carrier plus `.sg-admin-shell[data-theme]`; do not set global DaisyUI `data-theme` from the admin switch.
 - v1.36 visual-baseline decision: refreshed checkpoint PNGs are limited to `global-overview`, `org-overview`, `user-detail`, and `user-audit`.
+- v1.37 architecture decision: auth branding is a structured token profile, not raw runtime CSS by default.
+- v1.37 styling decision: generated auth defaults live in host-owned `SigraAuthComponents` and scoped `.sigra-auth` CSS, preserving full custom control without taking over the app design system.
+- v1.37 theme decision: auth surfaces support Light, Dark, and System independently from the admin shell theme control.
+- v1.37 persistence decision: global admin branding uses `sigra_brand_profiles` in the configured auth schema prefix and falls back to code/config defaults when the table or repo is unavailable.
+- v1.37 email decision: transactional emails share the same branding profile as auth forms so product identity stays coherent across the auth journey.
+- v1.37 generated-host fix: avoid Elixir boolean `not` against nullable assigns in templates; use `!` truthiness guards for generated HEEx conditions.
+- v1.37 generated-host fix: runtime branding prefix detection must handle generated user schemas that need `Code.ensure_loaded?/1` before `__schema__(:prefix)`.
+- [Phase ?]: opentype.parse(readFileSync(path).buffer) is the correct Node.js API for opentype.js v2.0 in ESM scripts; loadSync is deprecated and returns undefined
+- [Phase ?]: playwright-core is reused from test/example/priv/playwright/ in critique-render.mjs to avoid duplicate install
+- [Phase 179]: A3 crossbar-s reworked to rail-g after failing the render gate twice; B2 s-substitute is a serpentine rail-switchback; C1 mark set into line-1 negative space — Render-critique loop verdicts: planned geometries fought the chosen fonts' anatomy; reworked designs pass all rubric rows
+- [Phase 179]: outline-wordmark.mjs: variation coords require font as 5th getPath arg; toPathData must use flipY:false on getPath output — Two latent Plan 01 toolchain bugs caught by visually reading renders; fixed before candidate work
+- [Phase 180]: Human gate ratified **D4 Linked Rail** (round-4 refinement of A1 Rail-i): Space Grotesk v2.0 wght 700, ember rail-block tittle + g tail extended to x=557 aligning under the tittle as one bracketing rail system; favicon is the abstract rail glyph (no letter — round-3 "ig" crop read as Instagram and is retired). Palette fine-tuning allowed within hue 15–40° in Phase 181; light-surface favicon accent is ember-700. One budgeted round-4 loop used; decision recorded in brandbook/logo-options/round-3/README.md.
+- [Phase 181]: Built 8 D4 production SVGs at brandbook/ (logo-primary{,-dark,-subtitle}, logo-mark, logo-monochrome, favicon, social-card{,-dark}); palette UNCHANGED from ratified (#c2410c / #fdba74 — 16px kill test passed on ratified values, no micro-tuning). 6 v1 Rail Accent assets archived to brandbook/logo-options/archive-v1/ (read from live tree before overwrite; deprecation README). Verified 4/4.
+- [Phase 182]: index.html v2 (expanded #logo multi-lockup + typemark anatomy + clearspace/misuse; new #suite szTheory 7-lib section; #scorecard). tokens.json PATCH-bumped 1.0.0→1.0.1 + meta.changed; tokens.css provenance header (values unchanged); Token Change Policy section in README. Stale v1 staggered-bars mark (path M17 14v14) replaced with D4 geometry in examples/landing-hero.svg + readme-header.svg. Committed axe gate at scripts/brand/axe-brandbook.mjs (serves brandbook/ on :7743, AxeBuilder wcag2a/wcag2aa) — ZERO violations. Verified 4/4.
+- [Phase 183]: D4 logo propagated to installer (priv/templates/sigra.install/admin/sigra-logo-primary{,-dark}.svg) + example (test/example/priv/static/images/) as a PURE viewBox reframe (viewBox="20 220 2361 1000", path-only, "Space Grotesk v2.0" provenance) — installer==example byte-identical. Companion rail-accent-mark{,-dark}.svg swapped to D4 abstract mark. Guard-test reality: the "parity" tests pinned v1 content (viewBox 20 12 188 54 + "Inter Display Black v4.1.") so 2 assertion strings/file were updated to D4 + the install golden fixture's 2 logo SVGs regenerated (documented SC1 deviation — invariant preserved). Token parity VERIFIED UNCHANGED (#c2410c/#fdba74). 21 admin Playwright baselines recaptured (7 slugs×3 projects) via snapshot-recapture-gate.sh on :4011; impersonation-banner canary untouched; allowlist reset to empty. 3 stale playwright spec selectors fixed (pre-existing UI drift). Verified 4/4 passed-with-notes.
+- [Phase 183 HAND-OFF]: 2 PRE-EXISTING core-template failures (byte-identical to main, NOT from this milestone) tracked in .planning/seeds/preexisting-core-template-failures.md: (1) auth.ex:554 undefined `app_name` EEx binding → generated host auth context won't compile (REAL bug, needs /gsd-debug); (2) isolation_test.exs:86 core template count 52 vs 49 (needs /gsd-quick). The brand milestone introduced ZERO new test failures.
+- [Phase ?]: Recaptured 7 non-canary admin Playwright baselines for D4 logo; canary restored; allowlist reset to empty
 
 ### Pending Todos
 
@@ -56,6 +73,12 @@ Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, 
 ### Blockers/Concerns
 
 - None.
+
+## Quick Tasks Completed
+
+| Quick ID | Task | Status | Date |
+| --- | --- | --- | --- |
+| 260613-f1p | Pin phx_new to 1.8.7 in CI workflows (fix PR #52 red CI from phx_new 1.8.8 `<.button type>` drop). Verified: vault_promotion + golden_diff pass locally; SEED-004 filed for forward-compat. | complete ✓ | 2026-06-13 |
 
 ## Deferred Items
 
@@ -68,8 +91,8 @@ Last activity: 2026-06-06 — milestone shipped after final ExUnit, Playwright, 
 
 ## Session Continuity
 
-Last session: 2026-06-06T00:50:00.000Z
-Stopped at: Phase 167 complete after logo ratification
+Last session: 2026-06-13T06:44:34.918Z
+Stopped at: Completed 183-02-PLAN.md
 Resume file: None
 
 ## Performance Metrics
@@ -89,7 +112,21 @@ Resume file: None
 | Phase 170 | 1 plan | same session | Rail Accent shell + Light/Dark/System theme control |
 | Phase 171 | 1 plan | same session | Scoped admin design-system touchpoint polish |
 | Phase 172 | 1 plan | same session | ExUnit, Playwright, snapshot, and generated-host verification |
+| Phase 173 | 1 plan | same session | Auth branding profile contract + config/runtime resolution |
+| Phase 174 | 1 plan | same session | Generated auth shell + scoped Light/Dark/System CSS |
+| Phase 175 | 1 plan | same session | Admin branding customizer + branded emails |
+| Phase 176 | 1 plan | same session | Example, golden fixture, docs, and installer parity |
+| Phase 177 | 1 plan | same session | Compile, docs, tests, diff hygiene, and generated-host smoke |
+| Phase 179 P01 | 10m | 3 tasks | 6 files |
+| Phase 179 P02 | ~40 minutes | 3 tasks | 25 files |
+| Phase 183 P02 | 90 | 2 tasks | 24 files |
 
 ## Operator Next Steps
 
-- Run `$gsd-new-milestone` to define fresh requirements and roadmap for the next milestone after v1.36.
+- **PR #52 (v1.38 BRAND-V2 → main):** OPEN, CI greening after the repo-hygiene pass (2026-06-13). Merge once green.
+- **CI fixes applied (PR #52):** pinned `phx_new` to 1.8.7 (quick task 260613-f1p — upstream 1.8.8 `<.button type>` drop broke install/golden/vault jobs) and declared the 7 D4 admin-snapshot slugs in the allowlist (Phase 183-02 had reset it prematurely on-branch). Both verified locally.
+- **Post-merge follow-up:** reset `test/example/priv/playwright/snapshot-allowlist` to empty (steady state) once #52 lands on main.
+- **Release (after green main):** merge the release-please PR (#47) to publish to hex.pm — review the computed version vs hex history first.
+- **Forward-compat (deferred):** `SEED-004` — make Sigra robust to phx.new ≥1.8.8 button API, then bump/remove the phx_new pin.
+- **Post-milestone fast-follow (deferred):** README header + GitHub social preview adoption (`/gsd-quick`).
+- **Resolved (prior session):** the 2 core-template test failures (auth.ex `app_name` binding + count 52 vs 49) were branch regressions fixed in `232b4e35`; see `.planning/seeds/preexisting-core-template-failures.md`. Not outstanding.

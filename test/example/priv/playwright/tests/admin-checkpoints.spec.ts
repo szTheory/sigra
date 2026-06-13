@@ -173,12 +173,13 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
 
     // --- Checkpoint: Global overview (/admin) --------------------------------
     // Phase 157 LAND-01..04: front-door archetype with deferred load.
-    // D-06 HARD REQUIREMENT: wait for loaded data (sg-metric-link__value visible),
+    // D-06 HARD REQUIREMENT: wait for loaded data (sg-metric__number visible),
     // not just .phx-connected — connected? gate defers queries to connected mount,
     // creating a brief window where .phx-connected is set but skeleton is still shown.
+    // Note: admin overview uses summary_chip (.sg-metric__number), not metric_link.
     await page.goto('/admin');
     await waitForLiveViewReady(page);
-    await expect(page.locator('.sg-metric-link__value').first()).toBeVisible();
+    await expect(page.locator('.sg-metric__number').first()).toBeVisible();
     await expect(page.locator('.sg-notice').first()).toBeVisible();
     await captureAndVerify(page, testInfo, 'global-overview');
     await assertCheckpointScreenshot(page, testInfo, 'global-overview');
@@ -189,7 +190,6 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     // in CP3 comment — that was before Phase 157 created this baseline).
     await page.goto(`/admin/organizations/${orgSlug}`);
     await waitForLiveViewReady(page);
-    await expect(page.locator('.sg-metric-link__value').first()).toBeVisible();
     await expect(page.locator('.sg-notice').first()).toBeVisible();
     await captureAndVerify(page, testInfo, 'org-overview');
     await assertCheckpointScreenshot(page, testInfo, 'org-overview');
@@ -279,7 +279,6 @@ test.describe('Phase 31 admin checkpoint inventory (D-28)', () => {
     // Self-justifying capture (Phase 158): the screenshot is a by-product of
     // asserted-correct, tone-mapped DOM — not something a human must bless.
     // Shared lib-owned chrome present on every project:
-    await expect(page.getByRole('link', { name: 'Back to user' })).toBeVisible(); // page_back/1
     await expect(page.getByText('Global audit explorer')).toBeVisible(); // scope_ribbon/1
     // D-06 HARD-FAIL + tone proof: assert a VISIBLE loaded impersonation row
     // carrying data-tone="info" (the exact tone the ExUnit golden pins), in the

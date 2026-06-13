@@ -65,7 +65,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         role="status"
       >
         <%= if @needs_review > 0 do %>
-          {@needs_review} {if @needs_review == 1, do: "account needs", else: "accounts need"} review — <a href={users_path(@admin_scope) <> "?needs_review=true"}>Review now</a>
+          {@needs_review} {if @needs_review == 1, do: "account needs", else: "accounts need"} review — <.notice_link href={users_path(@admin_scope) <> "?needs_review=true"}>Review accounts</.notice_link>
         <% else %>
           All clear
         <% end %>
@@ -86,41 +86,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
           action="Open audit"
         />
       </div>
-
-      <%!-- [4] demoted posture strip with skeleton shapes when loading --%>
-      <section class="sg-card sg-posture-strip sg-stack sg-stack--3" aria-busy={if @loading, do: "true"}>
-        <div class="sg-cluster sg-cluster--3">
-          <%= if @loading do %>
-            <.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" /><.skeleton class="sg-metric-link" />
-          <% else %>
-            <.stat_link label="Users" value={Map.get(@summary_counts, :total, 0)} href={users_path(@admin_scope)} />
-            <.stat_link
-              label="Confirmed"
-              value={Map.get(@summary_counts, :confirmed, 0)}
-              href={users_path(@admin_scope) <> "?confirmed=true"}
-            />
-            <.stat_link
-              label="MFA"
-              value={Map.get(@summary_counts, :mfa, 0)}
-              href={users_path(@admin_scope) <> "?mfa=true"}
-            />
-            <.stat_link
-              label="Passkeys"
-              value={Map.get(@summary_counts, :passkeys, 0)}
-              href={users_path(@admin_scope) <> "?passkeys=true"}
-            />
-            <.stat_link
-              label="Locked"
-              value={Map.get(@summary_counts, :locked, 0)}
-              href={users_path(@admin_scope) <> "?needs_review=true"}
-            />
-          <% end %>
-        </div>
-
-        <p class="sg-section-copy">
-          Bounded to this org: members, audit evidence, impersonation, scoping.
-        </p>
-      </section>
 
       <%!-- Org-only demoted scoped-detail tail (D-05) — BELOW the shared front-door archetype --%>
       <section class="sg-card sg-stack sg-stack--3">

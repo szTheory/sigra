@@ -32,7 +32,7 @@ With `passkey_primary_enabled: true`, `/users/log_in` keeps the passkey form vis
 
 The generated login page includes:
 
-- **Continue with passkey**
+- **Use a passkey**
 - **Use password instead**
 - **Email me a magic link**
 

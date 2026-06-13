@@ -552,6 +552,11 @@ defmodule SigraInstallGoldenTmp.Accounts do
       user_schema: User,
       scope_module: SigraInstallGoldenTmp.Accounts.Scope,
       organizations_module: SigraInstallGoldenTmp.Organizations,
+      branding: [
+        product_name: "SigraInstallGoldenTmp",
+        email_from_name: "SigraInstallGoldenTmp",
+        email_from_address: "noreply@example.com"
+      ],
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: SigraInstallGoldenTmp.Accounts.UserSession

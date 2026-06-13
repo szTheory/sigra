@@ -57,6 +57,12 @@ defmodule Sigra.Templates.SessionTemplatesTest do
       assert content =~ "index(:user_sessions, [:inserted_at])"
     end
 
+    test "contains admin summary indexes for users and session activity", %{content: content} do
+      assert content =~ "index(:<%= table_name %>, [:inserted_at]"
+      assert content =~ "index(:user_sessions, [:last_active_at])"
+      assert content =~ "index(:user_sessions, [:user_id, :last_active_at])"
+    end
+
     test "includes user_sessions in all three adapter sections", %{content: content} do
       # Each adapter section should have user_sessions
       sections = String.split(content, "create table(:user_sessions")

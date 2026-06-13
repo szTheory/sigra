@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-70 -60 1040 1040" role="img" aria-labelledby="rail-accent-mark-title rail-accent-mark-desc">
+  <title id="rail-accent-mark-title">Sigra mark</title>
+  <desc id="rail-accent-mark-desc">Sigra D4 abstract rail glyph for light surfaces. Ink stem, leftward foot, ember-700 (#c2410c) rail block.</desc>
+  <g id="glyphs" fill="#151515">
+    <rect x="540" y="360" width="180" height="580" />
+    <rect x="180" y="760" width="540" height="180" />
+  </g>
+  <rect id="rail-block" x="400" y="-20" width="320" height="320" fill="#c2410c" />
+</svg>

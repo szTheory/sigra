@@ -550,6 +550,11 @@ defmodule <%= context_module %> do
       user_schema: <%= schema_alias %>,
       scope_module: <%= context_module %>.Scope,
 <%= if organizations?, do: "      organizations_module: #{app_module}.Organizations,", else: "" %>
+      branding: [
+        product_name: "<%= app_name %>",
+        email_from_name: "<%= app_name %>",
+        email_from_address: "<%= from_email %>"
+      ],
       session: [
         store: Sigra.SessionStores.Ecto,
         session_schema: <%= context_module %>.UserSession

@@ -13,6 +13,7 @@ defmodule <%= web_module %>.Auth.SessionLive do
   is owned by your application.
   """
   use <%= web_module %>, :live_view
+  import <%= web_module %>.SigraAuthComponents
 
   alias <%= context_module %>, as: Auth
 
@@ -30,7 +31,8 @@ defmodule <%= web_module %>.Auth.SessionLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <.sigra_auth_page>
+      <div class="mx-auto max-w-2xl">
       <.header>
         Active Sessions
         <:subtitle>These devices are currently signed in to your account.</:subtitle>
@@ -94,7 +96,8 @@ defmodule <%= web_module %>.Auth.SessionLive do
           Log out of all devices
         </.button>
       </div>
-    </div>
+      </div>
+    </.sigra_auth_page>
     """
   end
 
