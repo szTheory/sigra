@@ -145,7 +145,9 @@ Plans:
   1. The round-3 (or round-4 after one budgeted refinement loop) gallery README records the maintainer's selection with the chosen direction name, typeface, and any palette tuning notes.
   2. If a refinement round was used, the round-4 output is committed and the selection is made from that refined set; no additional refinement rounds are opened.
   3. The recorded decision is specific enough that Phase 181 asset buildout can proceed without reopening the design question.
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [x] 180-01-PLAN.md — Human logo ratification gate: round-4 D4 Linked Rail selected, decision recorded in round-3 README
 **UI hint**: yes
 
 ### Phase 181: Ratified Logo System Buildout
@@ -187,7 +189,10 @@ Plans:
   2. sg-* token values in the example app CSS, `sigra_auth.css` accent defaults, and the admin design contract are either updated to match any palette tuning from Phase 180 or explicitly verified unchanged when no palette change was made.
   3. `scripts/ci/snapshot-recapture-gate.sh` is run exactly once with all intended slugs declared and completes successfully; the snapshot canary guard returns to its expected empty steady state after the recapture.
   4. A final hygiene sweep confirms: all JSON/SVG/HTML files parse without errors, no committed binary files were introduced, `brandbook/` size delta is within acceptable bounds, `mix test` exits 0, and `git status` is clean.
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 183-01-PLAN.md — SVG propagation (D4 admin lockups + companion marks, installer==example byte-identical) + 2 guard test file updates + token parity verification + both mix test suites green
+- [ ] 183-02-PLAN.md — Playwright baseline recapture (allowlist +3, --update-snapshots=all on port 4011, canary restore, gate run, allowlist reset) + final hygiene sweep
 **UI hint**: yes
 
 ## Progress
