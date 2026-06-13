@@ -191,8 +191,8 @@ Plans:
   4. A final hygiene sweep confirms: all JSON/SVG/HTML files parse without errors, no committed binary files were introduced, `brandbook/` size delta is within acceptable bounds, `mix test` exits 0, and `git status` is clean.
 **Plans**: 2 plans
 Plans:
-- [ ] 183-01-PLAN.md — SVG propagation (D4 admin lockups + companion marks, installer==example byte-identical) + 2 guard test file updates + token parity verification + both mix test suites green
-- [ ] 183-02-PLAN.md — Playwright baseline recapture (allowlist +3, --update-snapshots=all on port 4011, canary restore, gate run, allowlist reset) + final hygiene sweep
+- [x] 183-01-PLAN.md — SVG propagation (D4 admin lockups + companion marks, installer==example byte-identical) + 2 guard test file updates + token parity verification + both mix test suites green
+- [x] 183-02-PLAN.md — Playwright baseline recapture (allowlist +3, --update-snapshots=all on port 4011, canary restore, gate run, allowlist reset) + final hygiene sweep
 **UI hint**: yes
 
 ## Progress
@@ -232,4 +232,4 @@ Plans:
 | 180. Human Logo Ratification Gate | v1.38 | 1/1 | Complete   | 2026-06-12 |
 | 181. Ratified Logo System Buildout | v1.38 | 2/2 | Complete   | 2026-06-13 |
 | 182. Brand Book v2 + Tokens | v1.38 | 2/2 | Complete   | 2026-06-13 |
-| 183. Propagation, Parity + Verification | v1.38 | 0/? | Not started | - |
+| 183. Propagation, Parity + Verification | v1.38 | 2/2 | Complete   | 2026-06-13 |
