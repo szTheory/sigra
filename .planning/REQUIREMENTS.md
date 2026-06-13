@@ -22,7 +22,7 @@
 
 ### Ratification (RAT2)
 
-- [ ] **BRAND2-07**: A human selects the final logo direction, typemark treatment, typeface, and palette tuning at an explicit ratification gate (one refinement round budgeted); the decision and rationale are recorded in the gallery README.
+- [x] **BRAND2-07**: A human selects the final logo direction, typemark treatment, typeface, and palette tuning at an explicit ratification gate (one refinement round budgeted); the decision and rationale are recorded in the gallery README.
 
 ### Ratified System Buildout (SYS2)
 
@@ -68,7 +68,7 @@
 | BRAND2-04 | Phase 179 | Complete |
 | BRAND2-05 | Phase 179 | Complete |
 | BRAND2-06 | Phase 179 | Complete |
-| BRAND2-07 | Phase 180 | Pending |
+| BRAND2-07 | Phase 180 | Complete |
 | BRAND2-08 | Phase 181 | Pending |
 | BRAND2-09 | Phase 182 | Pending |
 | BRAND2-10 | Phase 182 | Pending |

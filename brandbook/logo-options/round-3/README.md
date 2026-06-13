@@ -19,3 +19,18 @@ Every candidate passed the Playwright render-critique gate (16/32/54px and hero,
 | C1 Stacked wordmark | [`c1-stacked-primary.svg`](c1-stacked-primary.svg) | Whether breaking the single-line convention is worth the horizontal-context cost; favicon is the mark alone. |
 
 Open [`index.html`](index.html) to compare mark-only, light/dark lockup, and favicon previews.
+
+## Ratification (Phase 180)
+
+**Date:** 2026-06-12 · **Decided by:** maintainer (szTheory), the milestone's single human gate.
+
+**Ratified: D4 Linked Rail** — the round-4 refinement of **A1 Rail-i** (see [`../round-4/`](../round-4/README.md)).
+
+- **Direction:** A1 Rail-i typemark, refined as D4 Linked Rail. Wordmark is "sigra" with the i tittle replaced by an ember rail block and the g tail extended leftward to x=557 so its tip aligns exactly under the tittle's left edge — tittle above, rail below, one bracketing rail system around "ig".
+- **Typeface:** Space Grotesk v2.0 (OFL), wght 700, outlined to paths with opentype.js 2.0.0 — no font binaries in the repo.
+- **Mark / favicon:** the abstract rail glyph from `d4-linked-rail-favicon.svg` (ink stem + leftward foot + ember block, no letter). The round-3 "ig" crop is retired permanently — the maintainer flagged it as reading like the Instagram logotype.
+- **Palette:** ember-anchored with fine-tuning allowed within hue 15–40° during Phase 181 buildout; light-surface favicon accent is ember-700 `#c2410c` (ember-300 failed the 16px kill test on light).
+- **Round-4 usage:** yes — the one budgeted refinement loop was used to fix the favicon and tighten the tittle/tail per gate feedback. Selection from the round-4 board is final; no further rounds.
+- **Runner-ups:** D1 Overshoot Block (safest pick; lost on concept — no rail-system linkage, conventional rail-i favicon). Round-3 runner-ups: B2 Letterform Substitution (Geist's Vercel association; agent-recommended but not chosen), A2 Descender-Rail (weak mark-alone story), A3 Rail-g rejected explicitly ("g swirl … looks like a glitch"), A4/B1/C1 not shortlisted.
+
+**Phase 181 builds the production asset set (primary, dark, subtitle variant, mark, monochrome, favicon, social cards) from D4 Linked Rail without reopening design questions.**

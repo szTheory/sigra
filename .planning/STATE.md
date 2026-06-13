@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.38
 milestone_name: BRAND-V2
-status: verifying
-last_updated: "2026-06-12T16:38:42.144Z"
-last_activity: 2026-06-12
+status: executing
+last_updated: "2026-06-12T16:47:12.958Z"
+last_activity: 2026-06-12 -- Phase 180 complete; D4 Linked Rail ratified
 progress:
   total_phases: 30
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
-  percent: 7
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 5
+  percent: 10
 ---
 
 # Project State
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 179 — outlining-toolchain-logo-concept-exploration
+**Current focus:** Phase 180 — human-logo-ratification-gate
 
 ## Current Position
 
-Phase: 179 (outlining-toolchain-logo-concept-exploration) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
-Last activity: 2026-06-12
+Phase: 180 (human-logo-ratification-gate) — COMPLETE (D4 Linked Rail ratified)
+Plan: 1 of 1 complete
+Status: Phase 181 (ratified logo system buildout) is next
+Last activity: 2026-06-12 -- Phase 180 gate complete; D4 Linked Rail ratified after one round-4 refinement loop
 
 ## Accumulated Context
 
@@ -59,6 +59,7 @@ Last activity: 2026-06-12
 - [Phase ?]: playwright-core is reused from test/example/priv/playwright/ in critique-render.mjs to avoid duplicate install
 - [Phase 179]: A3 crossbar-s reworked to rail-g after failing the render gate twice; B2 s-substitute is a serpentine rail-switchback; C1 mark set into line-1 negative space — Render-critique loop verdicts: planned geometries fought the chosen fonts' anatomy; reworked designs pass all rubric rows
 - [Phase 179]: outline-wordmark.mjs: variation coords require font as 5th getPath arg; toPathData must use flipY:false on getPath output — Two latent Plan 01 toolchain bugs caught by visually reading renders; fixed before candidate work
+- [Phase 180]: Human gate ratified **D4 Linked Rail** (round-4 refinement of A1 Rail-i): Space Grotesk v2.0 wght 700, ember rail-block tittle + g tail extended to x=557 aligning under the tittle as one bracketing rail system; favicon is the abstract rail glyph (no letter — round-3 "ig" crop read as Instagram and is retired). Palette fine-tuning allowed within hue 15–40° in Phase 181; light-surface favicon accent is ember-700. One budgeted round-4 loop used; decision recorded in brandbook/logo-options/round-3/README.md.
 
 ### Pending Todos
 
@@ -110,4 +111,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 178` to begin Phase 178: Brand v2 Pressure-Test Audit.
+- Run `/gsd-plan-phase 181` to begin Phase 181: Ratified Logo System Buildout (from D4 Linked Rail).

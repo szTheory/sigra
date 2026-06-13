@@ -1,7 +1,7 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 active — Phases 178-179 complete; Phase 180 (human ratification gate) next
+**Status:** v1.38 BRAND-V2 active — Phases 178-180 complete (D4 Linked Rail ratified); Phase 181 (asset buildout) next
 
 ## Milestones
 
@@ -20,7 +20,7 @@
 
 - [x] **Phase 178: Brand v2 Pressure-Test Audit** — 14-section KEEP/TIGHTEN/REWORK/ADD/REMOVE audit, szTheory suite brand architecture, logo v2 design brief. (completed 2026-06-12)
 - [x] **Phase 179: Outlining Toolchain + Logo Concept Exploration** — Committed opentype.js glyph-outlining script; 7 candidates with 4 integrated typemarks; Playwright render-critique loop; round-3 gallery. (completed 2026-06-12)
-- [ ] **Phase 180: Human Logo Ratification Gate** — Maintainer selects direction/typeface/palette; one round-4 refinement loop budgeted; decision recorded. (not started)
+- [x] **Phase 180: Human Logo Ratification Gate** — Maintainer ratified D4 Linked Rail (round-4 refinement of A1 Rail-i, Space Grotesk 700); one round-4 loop used; decision recorded in round-3 README. (completed 2026-06-12)
 - [ ] **Phase 181: Ratified Logo System Buildout** — Full asset set (primary, dark, subtitle variant, mark, monochrome, favicon, social cards), render-verified, clearspace/min-size/misuse documented, v1 assets archived. (not started)
 - [ ] **Phase 182: Brand Book v2 + Tokens** — Professional standalone index.html v2; version-bumped tokens with change policy; regenerated examples/ specimens; axe pass. (not started)
 - [ ] **Phase 183: Propagation, Parity + Verification** — Byte-identical logo propagation under unchanged filenames; sg-* token sync; Playwright baseline recapture; hygiene gate. (not started)
