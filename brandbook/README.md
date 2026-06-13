@@ -14,12 +14,14 @@ Open [`index.html`](index.html) directly in a browser. It has no build step, CDN
 | [`brand-book.md`](brand-book.md)                   | Durable brand system: strategy, voice, visual rules, tokens, logo usage, UI guidance, copy blocks.                     |
 | [`tokens.json`](tokens.json)                       | Token source for raw palette, semantic colors, typography, spacing, radius, states, code/callout roles.                |
 | [`tokens.css`](tokens.css)                         | CSS custom properties and small implementation examples for docs/marketing surfaces.                                   |
-| [`logo-primary.svg`](logo-primary.svg)             | Primary Rail Accent lockup for light surfaces.                                                                         |
-| [`logo-primary-dark.svg`](logo-primary-dark.svg)   | Primary Rail Accent lockup for dark surfaces.                                                                          |
-| [`logo-mark.svg`](logo-mark.svg)                   | Free-standing Rail Accent mark for UI accents.                                                                         |
-| [`logo-monochrome.svg`](logo-monochrome.svg)       | One-color Rail Accent mark for restricted contexts.                                                                    |
-| [`favicon.svg`](favicon.svg)                       | Browser/favicon source using the same Rail Accent mark geometry.                                                       |
-| [`social-card.svg`](social-card.svg)               | SVG social preview source. Export PNG only when a platform requires it.                                                |
+| [`logo-primary.svg`](logo-primary.svg)                         | D4 Linked Rail primary lockup for light surfaces.                                                                      |
+| [`logo-primary-dark.svg`](logo-primary-dark.svg)               | D4 Linked Rail primary lockup for dark surfaces.                                                                       |
+| [`logo-primary-subtitle.svg`](logo-primary-subtitle.svg)       | D4 Linked Rail lockup with subtitle line for tall-format contexts.                                                     |
+| [`logo-mark.svg`](logo-mark.svg)                               | D4 Linked Rail abstract mark (standalone + favicon contexts).                                                          |
+| [`logo-monochrome.svg`](logo-monochrome.svg)                   | Single-ink monochrome typemark for emboss/print contexts.                                                              |
+| [`favicon.svg`](favicon.svg)                                   | D4 Linked Rail favicon mark — light/dark via `prefers-color-scheme`.                                                   |
+| [`social-card.svg`](social-card.svg)                           | SVG social preview source. Export PNG only when a platform requires it.                                                |
+| [`social-card-dark.svg`](social-card-dark.svg)                 | SVG social preview source for dark-background platforms.                                                               |
 | [`logo-options/`](logo-options/)                   | Archived logo exploration studies.                                                                                     |
 | [`examples/`](examples/)                           | Source-controlled visual specimens for palette, type, README, landing, docs, code, terminal, components, and diagrams. |
 
@@ -84,6 +86,27 @@ Round-3 candidate wordmarks are outlined using opentype.js 2.0.0 (MIT) from OFL-
 - Do not replace Sigra's current low-BS technical voice with SaaS launch copy.
 - Token changes must update both `tokens.json` and `tokens.css`.
 - New visual examples must explain what implementation decision they clarify.
+
+## Token Change Policy
+
+`tokens.json` follows semantic versioning on the `version` field:
+
+- **Patch** (`1.0.x`): metadata-only changes — `changed` date, `source` annotation updates.
+  No consuming surface requires changes.
+- **Minor** (`1.x.0`): new tokens added. Consuming surfaces (`--sg-*` in admin CSS,
+  `--sigra-auth-*` in `sigra_auth.css`) may reference the new token but are not required to.
+- **Major** (`x.0.0`): token value changed or token removed. Consuming surfaces **must**
+  review the diff and update hardcoded fallbacks before shipping.
+
+**Three-surface ember parity rule:** `ember-700: #c2410c` is the canonical accent value
+consumed by three independent surfaces — `brandbook/tokens.json`, admin CSS
+(`--sg-color-brand`), and auth CSS (`--sigra-auth-light-accent`). Any new surface carrying
+the Sigra brand accent must reference the brandbook token rather than hardcoding `#c2410c`.
+When the token value changes (major bump), all three surfaces must be updated atomically
+in the same PR.
+
+The `meta.changed` date uses ISO 8601 (`YYYY-MM-DD`). It records the last date any token
+value or file structure changed — metadata-only patches do not update it.
 
 ## Suggested Checks
 
