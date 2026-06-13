@@ -1,3 +1,9 @@
+/* Sigra brand tokens — CSS custom properties
+ * Derived from brandbook/tokens.json v1.0.1
+ * Hand-maintained sync. When tokens.json version changes, update this file
+ * and increment the version reference above.
+ * Do not add web fonts, external imports, or CDN links.
+ */
 :root {
   color-scheme: light dark;
   --sigra-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
