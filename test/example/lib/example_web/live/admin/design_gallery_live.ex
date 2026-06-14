@@ -69,28 +69,41 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           <div id="board-summary_chip" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">summary_chip</p>
             <div class="sg-stack sg-stack--3">
+              <%!-- summary_chip emits bare <dt>/<dd> with no <dl> of its own,
+                   so each board variant is wrapped in <dl class="sg-metric-grid">
+                   exactly as the real admin does (a11y dlitem rule). --%>
               <span class="sg-muted sg-text-xs">basic</span>
-              <.summary_chip label="Sessions" value={12} />
+              <dl class="sg-metric-grid">
+                <.summary_chip label="Sessions" value={12} />
+              </dl>
 
               <span class="sg-muted sg-text-xs">enhanced: icon, value_unit, subvalue, help, tone: risk</span>
-              <.summary_chip
-                label="Failed Logins"
-                value={7}
-                icon="shield-check"
-                value_unit="today"
-                subvalue="Spike detected"
-                help="Logins that failed authentication."
-                tone="risk"
-              />
+              <dl class="sg-metric-grid">
+                <.summary_chip
+                  label="Failed Logins"
+                  value={7}
+                  icon="shield-check"
+                  value_unit="today"
+                  subvalue="Spike detected"
+                  help="Logins that failed authentication."
+                  tone="risk"
+                />
+              </dl>
 
               <span class="sg-muted sg-text-xs">tone: warn</span>
-              <.summary_chip label="Pending Reviews" value={4} tone="warn" />
+              <dl class="sg-metric-grid">
+                <.summary_chip label="Pending Reviews" value={4} tone="warn" />
+              </dl>
 
               <span class="sg-muted sg-text-xs">tone: ok</span>
-              <.summary_chip label="MFA Enabled" value={98} tone="ok" />
+              <dl class="sg-metric-grid">
+                <.summary_chip label="MFA Enabled" value={98} tone="ok" />
+              </dl>
 
               <span class="sg-muted sg-text-xs">tone: info</span>
-              <.summary_chip label="Active Sessions" value={31} tone="info" />
+              <dl class="sg-metric-grid">
+                <.summary_chip label="Active Sessions" value={31} tone="info" />
+              </dl>
             </div>
           </div>
 
