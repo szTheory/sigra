@@ -123,6 +123,8 @@
   --sg-motion-fast: 140ms;
   --sg-motion-medium: 220ms;
   --sg-motion-slow: 300ms;
+  --sg-motion-exit: 160ms;
+  --sg-motion-tooltip: 180ms;
   --sg-ease: cubic-bezier(0.2, 0, 0, 1);
   --sg-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --sg-ease-in: cubic-bezier(0.4, 0, 1, 1);
@@ -135,6 +137,12 @@
   --sg-transition-enter:
     opacity var(--sg-motion-medium) var(--sg-ease-out),
     transform var(--sg-motion-medium) var(--sg-ease-out);
+  --sg-transition-exit:
+    opacity var(--sg-motion-exit) var(--sg-ease-in),
+    transform var(--sg-motion-exit) var(--sg-ease-in);
+  --sg-transition-tooltip:
+    opacity var(--sg-motion-tooltip) var(--sg-ease-out),
+    transform var(--sg-motion-tooltip) var(--sg-ease-out);
 
   /* Focus */
   --sg-focus-ring: 0 0 0 3px

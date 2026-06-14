@@ -329,7 +329,7 @@ defmodule Sigra.Install.Features.AdminTest do
 
   describe "D-11 System↔explicit-toggle dark-block parity" do
     # Line ranges verified 2026-06-14:
-    #   sigra_admin.css @media dark block: lines 167-204 (zero-indexed: 166..203)
+    #   sigra_admin.css @media dark block: lines 177-210 (zero-indexed: 176..209)
     #   app.css explicit-toggle dark block: lines 1512-1543 (zero-indexed: 1511..1542)
 
     test "admin dark @media block and app.css explicit-toggle dark block declare identical --sg-* values" do
@@ -402,10 +402,10 @@ defmodule Sigra.Install.Features.AdminTest do
 
   defp extract_dark_media_props(css) do
     # Extract --sg-* declarations from @media (prefers-color-scheme: dark) block.
-    # Uses the verified line range (lines 167-204, zero-indexed 166..203).
+    # Uses the verified line range (lines 177-210, zero-indexed 176..209).
     css
     |> String.split("\n")
-    |> Enum.slice(166..203)
+    |> Enum.slice(176..209)
     |> Enum.filter(&String.contains?(&1, "--sg-"))
     |> Enum.map(&String.trim/1)
     |> Enum.sort()

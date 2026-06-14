@@ -148,7 +148,7 @@ Light-mode values. Dark overrides simplify to outline-only rings to avoid halos 
 
 ## Motion
 
-Five duration tokens and four easing curves validated against emilkowal.ski's research on micro-interaction timing. Three composed transition shorthands for the most common animation patterns.
+Seven duration tokens and four easing curves validated against emilkowal.ski's research on micro-interaction timing. Five composed transition shorthands for the most common animation patterns.
 
 **Motion budget verdict: ALIGNED, Tier 1 Ratified.**
 
@@ -161,6 +161,8 @@ Five duration tokens and four easing curves validated against emilkowal.ski's re
 | `--sg-motion-fast` | `140ms` | Tone-swap and hover color transitions; emilkowal.ski places "micro-interactions" in the 100–200ms range — ALIGNED | `motion.fast` |
 | `--sg-motion-medium` | `220ms` | Panel slides and card expansions; emilkowal.ski's 150–250ms dropdown range includes 220ms — ALIGNED | `motion.medium` |
 | `--sg-motion-slow` | `300ms` | Full-overlay enter (command palette, modal); emilkowal.ski's "under 300ms" ceiling for user-perceived instant — ALIGNED/MARGINAL at ceiling; acceptable for full modal overlays; exit-asymmetry refinement deferred to Phase 187 per D-09 | `admin-layer decision` |
+| `--sg-motion-exit` | `160ms` | Phase 187 D-06 additive exit asymmetry; exits complete faster than medium enters while preserving all Phase 186 duration values | `admin-layer decision` |
+| `--sg-motion-tooltip` | `180ms` | Phase 187 D-06 tooltip-specific timing; keeps tooltip reveal timing explicit without retuning the Phase 186 `--sg-motion-pop` value | `admin-layer decision` |
 
 ### Easing Tokens
 
@@ -178,6 +180,8 @@ Five duration tokens and four easing curves validated against emilkowal.ski's re
 | `--sg-transition-press` | `transform var(--sg-motion-fast) var(--sg-ease)` | Button scale-down on press; fast + default ease gives a crisp physical click feel | `admin-layer decision` |
 | `--sg-transition-tone` | `color, background-color, box-shadow — all at fast + ease` | Hover state color swap; groups the three most common interactive-element properties so they animate in unison without cascade drift | `admin-layer decision` |
 | `--sg-transition-enter` | `opacity + transform at medium + ease-out` | Element entrance (slides, reveals); opacity fade combined with slight position shift is the canonical "enter" pattern per emilkowal.ski | `admin-layer decision` |
+| `--sg-transition-exit` | `opacity + transform at exit + ease-in` | Phase 187 D-06 exit asymmetry; accelerates disappearing surfaces without altering the locked Phase 186 enter and slow-overlay durations | `admin-layer decision` |
+| `--sg-transition-tooltip` | `opacity + transform at tooltip + ease-out` | Phase 187 D-06 tooltip-specific timing; gives tooltip/help surfaces a named shorthand while preserving the Phase 186 value lock | `admin-layer decision` |
 
 ---
 
