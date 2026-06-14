@@ -191,7 +191,17 @@ Plans:
   4. A quality-tier ledger `guides/reference/admin-quality-ledger.md` records the achieved tier (0/1/2) + evidence link per fractal-level item, and a merge-blocking `scripts/ci/quality-ledger-monotonic.sh` fails CI if any cell's tier decreased versus the base ref.
   5. The fractal scorecard rubric (shared D1–D11 + component/group/page/flow add-ons) is committed as the ratified re-evaluation instrument.
 
-**Plans**: Not yet planned
+**Plans**: 3 plans
+
+**Wave 1** (parallel)
+
+- [ ] 185-01-PLAN.md — Gallery LiveView scaffold (all 13 component boards + MG-1..MG-5 groups), dev-gated router entry, D-04 contract guard, quality ledger, fractal scorecard rubric
+- [ ] 185-02-PLAN.md — quality-ledger-monotonic.sh guard script + CI job (quality_ledger_monotonic) + ci-gate registration
+
+**Wave 2** (blocked on Wave 1)
+
+- [ ] 185-03-PLAN.md — admin-design Playwright spec + 3 projects in playwright.config.ts + snapshot-allowlist-design + canary guard extension + recapture gate extension + CI design board run + initial baseline capture
+
 **UI hint**: yes
 
 ### Phase 186: Token Foundation (L0)
