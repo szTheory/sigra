@@ -137,16 +137,17 @@ function rgbChannels(value: string): [number, number, number] {
 }
 
 function oklabChannels(value: string): [number, number, number] {
-  const channels = value
-    .match(/[-\d.]+/g)
-    ?.slice(0, 3)
-    .map(Number);
+  const raw = value.match(/[-\d.]+%?/g)?.slice(0, 3);
 
-  if (!channels || channels.length < 3) {
+  if (!raw || raw.length < 3) {
     throw new Error(`Expected a CSS oklab color, got ${value}`);
   }
 
-  const [lightness, a, b] = channels;
+  // Lightness may serialize as a percentage (e.g. "62.8%"); normalize to 0..1.
+  const [lightness, a, b] = raw.map((token) =>
+    token.endsWith("%") ? Number(token.slice(0, -1)) / 100 : Number(token),
+  );
+
   const longL = lightness + 0.3963377774 * a + 0.2158037573 * b;
   const longM = lightness - 0.1055613458 * a - 0.0638541728 * b;
   const longS = lightness - 0.0894841775 * a + 1.291485548 * b;
@@ -154,10 +155,13 @@ function oklabChannels(value: string): [number, number, number] {
   const m = longM ** 3;
   const s = longS ** 3;
 
+  // Ottosson reference LMS→linear-sRGB matrix (each row sums to 1.0, so a
+  // neutral OKLab color maps to neutral RGB). The previous constants summed to
+  // 0.50/1.00/1.03 and turned white into cyan.
   return [
-    linearSrgbToChannel(2.4885527 * l - 2.4230963 * m + 0.4353387 * s),
-    linearSrgbToChannel(-0.8139603 * l + 1.987769 * m - 0.1734407 * s),
-    linearSrgbToChannel(0.0275693 * l - 0.1525687 * m + 1.152175 * s),
+    linearSrgbToChannel(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+    linearSrgbToChannel(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+    linearSrgbToChannel(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
   ];
 }
 
@@ -1476,7 +1480,9 @@ test.describe("admin theme switch", () => {
 
     if (brandSoftRgbaMatch && panelRgbMatch) {
       const [, rs, gs, bs, as_] = brandSoftRgbaMatch.map(Number);
-      const alpha = as_ ?? 1;
+      // Number(undefined) is NaN, and `NaN ?? 1` is NaN — guard with isFinite
+      // so a colour with no alpha group composites at full opacity.
+      const alpha = Number.isFinite(as_) ? as_ : 1;
       const [, rp, gp, bp] = panelRgbMatch.map(Number);
       const cr = Math.round(alpha * rs + (1 - alpha) * rp);
       const cg = Math.round(alpha * gs + (1 - alpha) * gp);
