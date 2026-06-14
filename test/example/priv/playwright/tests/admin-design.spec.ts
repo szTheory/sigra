@@ -69,15 +69,19 @@ const COMPONENT_BOARDS = [
 const GROUP_BOARDS = ['board-mg-1', 'board-mg-2', 'board-mg-3', 'board-mg-4', 'board-mg-5'];
 
 test.describe('Design gallery board snapshots', () => {
-  test.beforeAll(async ({ browser }) => {
-    const suffix = Date.now();
+  // Each Playwright test runs in an isolated browser context, so the admin
+  // session must be established inside the test's own context (mirrors
+  // admin-checkpoints.spec.ts, which calls registerUser per test). Registering
+  // once in beforeAll on a separate page does NOT authenticate the test pages.
+  // The gallery renders static literal assigns only, so the unique per-test
+  // email never appears in any board screenshot — captures stay deterministic.
+  test.beforeEach(async ({ page }, testInfo) => {
+    const suffix = `${Date.now()}-${testInfo.project.name}-${testInfo.title}`.replace(
+      /[^a-z0-9]+/gi,
+      '-',
+    );
     const adminEmail = `platform-admin+design-${suffix}@example.test`;
-    const page = await browser.newPage();
     await registerUser(page, adminEmail, TEST_PASSWORD);
-    await page.close();
-  });
-
-  test.beforeEach(async ({ page }) => {
     await page.goto('/admin/_design');
     await waitForLiveViewReady(page);
   });
