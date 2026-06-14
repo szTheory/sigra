@@ -217,7 +217,18 @@ Plans:
   4. Three-surface ember parity is preserved across any token change (`brandbook/tokens.json` ↔ admin `--sg-*` ↔ auth `--sigra-auth-*`); auth surfaces remain coherent and any token deltas are declared in the allowlists.
   5. Tokens render correctly across Light, Dark, and System (explicit `data-sg-admin-theme` + `prefers-color-scheme`) with no theme-ignoring hardcoded values; dark uses lightened brand-strong (`#fdba74`).
 
-**Plans**: Not yet planned
+**Plans**: 4 plans
+
+**Wave 1** (parallel)
+
+- [ ] 186-01-PLAN.md — Token reference doc (admin-token-reference.md) + quality ledger L0 row
+- [ ] 186-02-PLAN.md — D-11 ExUnit dark-block parity assertion (admin_test.exs)
+- [ ] 186-03-PLAN.md — contrastRatio() tone-soft extension (admin-theme.spec.ts)
+
+**Wave 2** (blocked on Wave 1)
+
+- [ ] 186-04-PLAN.md — Adversarial axe audit + conditional value-change gate + phase close
+
 **UI hint**: yes
 
 ### Phase 187: Individual Components (L1)
