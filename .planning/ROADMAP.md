@@ -170,7 +170,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 184-02-PLAN.md — Ship via admin.ex files/1 (DIST-02) + layout link (DIST-03) + example copy + golden fixture + DIST-05 parity tests
+- [x] 184-02-PLAN.md — Ship via admin.ex files/1 (DIST-02) + layout link (DIST-03) + example copy + golden fixture + DIST-05 parity tests
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
