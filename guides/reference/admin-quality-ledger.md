@@ -33,6 +33,7 @@ between the base branch and the PR branch.
 
 | Item | Level | Tier | Evidence |
 |------|-------|------|----------|
+| token-layer | L0 | 1 | [admin-token-reference.md](admin-token-reference.md) |
 | stat | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | stat_link | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | task_card | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
