@@ -409,22 +409,19 @@ assert html == @task_card_golden,
 | A3 | Add a standalone `board-notice_link` unless embedded coverage is explicitly justified. | Pitfalls | Could add one more baseline than desired, but aligns with 13-component requirement. |
 | A4 | Add a deterministic five-width overflow pass in Playwright. | Pitfalls | Exact implementation may differ, but COMP-05 requires width evidence. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `notice_link` get a standalone board?**
    - What we know: It is canonical and has a component function; current board list omits it. [VERIFIED: `components.ex`, `admin-design.spec.ts`]
-   - What's unclear: Whether embedded coverage inside `board-notice` is acceptable to the reviewer.
-   - Recommendation: Add `board-notice_link` for clean per-component attribution. [ASSUMED]
+   - RESOLVED: Add a standalone `board-notice_link` for clean per-component attribution. Embedded coverage inside `board-notice` remains useful as notice composition evidence, but it does not satisfy the per-component board contract for `notice_link`.
 
 2. **Which components truly need markup changes?**
    - What we know: CSS-only changes should cause zero byte-golden churn. [VERIFIED: `187-CONTEXT.md`]
-   - What's unclear: Disabled/inert/loading/error states may require attributes/classes on some components.
-   - Recommendation: Decide per component during audit; require a one-line golden rationale for every markup delta. [VERIFIED: `187-CONTEXT.md`]
+   - RESOLVED: Markup changes are allowed only when needed for state semantics, ARIA, or inert behavior. CSS-only visual/state work must not churn byte goldens, and every markup/golden delta must include a `Phase 187 intended markup delta:` rationale.
 
 3. **How much behavior testing should accompany tooltip states?**
    - What we know: JS hooks implement summary metric and field-help open/close/Escape/outside behavior. [VERIFIED: `admin_hooks.js` grep]
-   - What's unclear: Whether Phase 187 should add behavior assertions or only render open states in gallery.
-   - Recommendation: Add minimal deterministic behavior checks for `field_help` and `summary_chip` help because their states are JS-dependent. [ASSUMED]
+   - RESOLVED: Tooltip/help behavior scope includes deterministic Playwright behavior assertions for `field_help` and summary-chip help open, focus, Escape-close, and outside-close paths. Tests must use stable hooks and LiveView readiness, with no sleeps and no focus trap; default render remains closed.
 
 ## Environment Availability
 
