@@ -221,9 +221,9 @@ Plans:
 
 **Wave 1** (parallel)
 
-- [ ] 186-01-PLAN.md — Token reference doc (admin-token-reference.md) + quality ledger L0 row
-- [ ] 186-02-PLAN.md — D-11 ExUnit dark-block parity assertion (admin_test.exs)
-- [ ] 186-03-PLAN.md — contrastRatio() tone-soft extension (admin-theme.spec.ts)
+- [x] 186-01-PLAN.md — Token reference doc (admin-token-reference.md) + quality ledger L0 row
+- [x] 186-02-PLAN.md — D-11 ExUnit dark-block parity assertion (admin_test.exs)
+- [x] 186-03-PLAN.md — contrastRatio() tone-soft extension (admin-theme.spec.ts)
 
 **Wave 2** (blocked on Wave 1)
 
