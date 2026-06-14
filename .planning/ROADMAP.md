@@ -149,6 +149,117 @@ Archive:
 
 ## Phase Details
 
+### Phase 184: Distribution & Parity
+**Goal**: The canonical admin `sg-*` design system ships from the installer to generated hosts and the example app consumes that exact same stylesheet, so the admin-CSS distribution gap is closed and a freshly generated host renders a styled admin UI — proven by a merge-blocking byte-parity test and a generated-host smoke lane.
+**Depends on**: Phase 183 (v1.38 shipped)
+**Requirements**: DIST-01, DIST-02, DIST-03, DIST-04, DIST-05, DIST-06
+**Success Criteria** (what must be TRUE):
+  1. The admin `sg-*` design system is extracted into a single canonical installer template `priv/templates/sigra.install/admin/sigra_admin.css`, with the example-only `vt-*`/Vaultr brand layer left out of the extraction.
+  2. The installer ships the admin stylesheet to generated hosts via `lib/sigra/install/features/admin.ex` `files/1` → host `priv/static/assets/sigra_admin.css` (analog of `core/sigra_auth.css`), and the generated admin layout links it via a `<link rel="stylesheet">` in `def admin/1` of `priv/templates/sigra.install/admin/layouts_admin_injection.ex`.
+  3. The example app consumes the same canonical CSS (no divergent copy), so Playwright/axe run against the shipped stylesheet.
+  4. A merge-blocking parity test proves the example admin CSS is byte-identical to the installer template (mirroring the existing `sigra_auth.css` install-golden parity).
+  5. A freshly generated host renders a styled admin UI, proven by the `generated_admin_playwright_smoke` lane (`RUN_PARITY=1`), and the existing snapshot canary stays green (no visual delta).
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 185: Audit Infrastructure
+**Goal**: An example-only `/admin/_design` gallery renders every component and group in every state from the real `Sigra.Admin.Components`, backed by a board-snapshot lane + axe, an empty design allowlist + gallery canary, a quality-tier ledger with a merge-blocking monotonic guard, and a ratified fractal scorecard rubric — the re-runnable instrument the rest of the milestone is graded against.
+**Depends on**: Phase 184
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05, INFRA-06
+**Success Criteria** (what must be TRUE):
+  1. An example-only `/admin/_design` gallery LiveView renders every component and meta-component group in every state, importing the real `Sigra.Admin.Components` (never bespoke markup), living only under `test/example/` and contract-guarded against ever being templated into `priv/templates/sigra.install/`.
+  2. A Playwright project trio `admin-design-{chromium,mobile,dark}` captures one composite state-matrix board PNG per component/group (element-scoped to stable ids) with paired axe (`wcag2a`+`wcag2aa`, 0 violations).
+  3. A second empty `snapshot-allowlist-design` plus a designated gallery canary board enforce the empty-allowlist discipline, and `scripts/ci/snapshot-canary-guard.sh` recognizes the `-admin-design-*` slug pattern.
+  4. A quality-tier ledger `guides/reference/admin-quality-ledger.md` records the achieved tier (0/1/2) + evidence link per fractal-level item, and a merge-blocking `scripts/ci/quality-ledger-monotonic.sh` fails CI if any cell's tier decreased versus the base ref.
+  5. The fractal scorecard rubric (shared D1–D11 + component/group/page/flow add-ons) is committed as the ratified re-evaluation instrument.
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 186: Token Foundation (L0)
+**Goal**: The `:root` token layer is adversarially audited and ratified across Light/Dark/System with documented rationale and brand references, every color pair passes AA, motion-budget tokens are validated against emilkowal.ski guidance, and three-surface ember parity is preserved so auth stays coherent. This is the only phase permitted to change token values.
+**Depends on**: Phase 185
+**Requirements**: TOKEN-01, TOKEN-02, TOKEN-03, TOKEN-04, THEME-01
+**Success Criteria** (what must be TRUE):
+  1. The `:root` token layer (color, type scale, spacing, radius, control heights, elevation/shadow, focus ring, z-index) is audited and ratified, each token carrying a documented rationale + brand reference.
+  2. Every color token pair passes WCAG AA in light AND dark (axe-verified), including text on brand-soft surfaces.
+  3. Motion-budget tokens (durations + easings) are validated against emilkowal.ski timing/easing guidance and ratified as the project motion budget.
+  4. Three-surface ember parity is preserved across any token change (`brandbook/tokens.json` ↔ admin `--sg-*` ↔ auth `--sigra-auth-*`); auth surfaces remain coherent and any token deltas are declared in the allowlists.
+  5. Tokens render correctly across Light, Dark, and System (explicit `data-sg-admin-theme` + `prefers-color-scheme`) with no theme-ignoring hardcoded values; dark uses lightened brand-strong (`#fdba74`).
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 187: Individual Components (L1)
+**Goal**: Each of the 13 canonical components passes the full per-component scorecard — emilkowal.ski micro-interactions, complete visually-distinct states, responsive 320–1440, per-component axe, and on-brand microcopy — at ≥ Ratified (target Award-grade) in light/dark/mobile, with the gallery exhaustively rendering each component's states.
+**Depends on**: Phase 186
+**Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06
+**Success Criteria** (what must be TRUE):
+  1. All 13 canonical components pass the per-component scorecard (D1–D11) in light/dark/mobile at ≥ Ratified (target Award-grade), with the gallery state-matrix exhaustively rendering each component's states.
+  2. Each component's micro-interactions are emilkowal.ski-aligned (exact-property transitions never `transition:all`, pointer-gated hover, keyboard-frequent paths not animated, reduced-motion strips movement, interruptible).
+  3. Each component exposes complete, visually-distinct interaction states (default/hover/focus-visible/active/disabled/loading/empty/error as applicable); disabled looks disabled and is inert.
+  4. Per-component axe is clean (light+dark), ARIA is correct per contract, and byte-golden ExUnit goldens are updated only for intended markup changes.
+  5. Each component reflows correctly with no overflow/clip/squish at 320/375/768/1024/1440, and component-level microcopy (empty_state, notice, field_help) is on-brand and serves the JTBD; the ledger is raised.
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 188: Meta-Components / Groups (L2)
+**Goal**: The MG-1..MG-11 group catalog passes the meta scorecard — intra-group rhythm, no card-in-card nesting, right-component-for-job composition, zero/loading/error states, content-equivalent desktop-table↔mobile-card swaps, and byte-coherent reuse across pages.
+**Depends on**: Phase 187
+**Requirements**: GROUP-01, GROUP-02, GROUP-03, GROUP-04
+**Success Criteria** (what must be TRUE):
+  1. All meta-component groups (MG-1..MG-11) pass the meta scorecard, including intra-group rhythm, no card-in-card nesting, and right-component-for-job composition.
+  2. Each group defines its zero, loading, and error states.
+  3. Desktop-table ↔ mobile-card swaps are content-equivalent at the breakpoint, with graceful overflow (wrap/scroll-contain/truncate) and no squished columns.
+  4. Groups reused across ≥2 pages render byte-coherently, and the ledger is raised.
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 189: Page Compositions (L3)
+**Goal**: The 3 page archetypes (Overview/List/Detail) plus the non-archetypal Branding customizer and Audit explorer pass the page scorecard — GOV.UK information architecture, principle of least surprise, correct overlay/modal + scroll/sticky + pagination behavior, and page-level a11y/responsive — with the 8 admin checkpoints × 3 projects ratified.
+**Depends on**: Phase 188
+**Requirements**: PAGE-01, PAGE-02, PAGE-03, PAGE-04, PAGE-05
+**Success Criteria** (what must be TRUE):
+  1. The 3 archetypes (Overview/List/Detail) pass the page scorecard, including archetype conformance and consistent page vertical rhythm (no flush sections / no double gaps).
+  2. GOV.UK information architecture is verifiable (general→specific; tasks-first / posture-second / capabilities-last) and the principle-of-least-surprise checklist passes.
+  3. Overlays/modals center correctly, trap focus, dismiss on Escape/outside-click/cancel, and restore scroll; sticky/scroll behavior causes no layout shift; pagination is honest (no phantom affordances).
+  4. The non-archetypal pages (Branding customizer, Audit explorer) are explicitly scored against the rubric.
+  5. Page-level a11y (landmark/heading order, focus management on navigate/patch) passes, and the 8 admin checkpoints × 3 projects are ratified.
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 190: Flows & Fixture Data (L4)
+**Goal**: Each persona JTBD journey (platform admin / support investigator / org admin) passes happy + main-error + boundary with scope and return-context preserved, full keyboard operability, calm reduced-motion behavior, and persistent theme — each reproducible from a deterministic seed/persona fixture.
+**Depends on**: Phase 189
+**Requirements**: FLOW-01, FLOW-02, FLOW-03, DATA-01
+**Success Criteria** (what must be TRUE):
+  1. Each persona JTBD journey (platform admin / support investigator / org admin) passes happy + main-error + boundary, with scope and return-context preserved across navigation.
+  2. Each flow is fully keyboard-operable with visible focus and remains calm under `prefers-reduced-motion`.
+  3. The Light/Dark/System choice persists across the whole flow and on reload (no server state).
+  4. Deterministic seed/persona enrichment provides a fixture reproducing each flow's happy, error, and boundary case.
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 191: Microcopy & IA Sweep
+**Goal**: A system-wide voice pass aligns all admin microcopy with the brand book and GOV.UK plain-language standards, producing a committed one-term-per-concept glossary with no synonym drift and consistent error/empty/success/warning tone across every admin surface.
+**Depends on**: Phase 190
+**Requirements**: COPY-01, COPY-02, COPY-03
+**Success Criteria** (what must be TRUE):
+  1. A system-wide voice pass aligns all admin microcopy with the brand book (precise/honest/useful/calm/maintainer-grade); errors state what failed + why it matters + the next action.
+  2. A GOV.UK plain-language pass yields a committed one-term-per-concept glossary with no synonym drift across pages.
+  3. Empty-state, success, and warning copy is consistent across all admin surfaces, and the ledger is raised.
+**Plans**: Not yet planned
+**UI hint**: yes
+
+### Phase 192: Ratification & Baseline Lock
+**Goal**: The terminal idempotency gate re-runs every scorecard, deliberately recaptures all baselines via the recapture gate, resets both allowlists to empty, proves generated-host parity, runs full-surface axe and byte-goldens, and commits the final ledger — so a re-run starts from "current = ratified" and the monotonic guard proves forward-only.
+**Depends on**: Phase 191
+**Requirements**: GATE-01, GATE-02, GATE-03
+**Success Criteria** (what must be TRUE):
+  1. All baselines (admin checkpoints + gallery boards) are deliberately recaptured via the recapture gate; both allowlists are reset to empty; both canaries are green.
+  2. Generated-host parity is proven (`RUN_PARITY=1`), full-surface axe is clean, and the byte-golden component suite is green.
+  3. The final quality ledger records the achieved tier per item, and the monotonic guard is green versus `origin/main` (forward-only proven so a re-run starts from "current = ratified").
+**Plans**: Not yet planned
+**UI hint**: yes
+
 ### Phase 178: Brand v2 Pressure-Test Audit
 **Goal**: The v1.35 brandbook has been re-examined section-by-section with evidence-backed verdicts, the szTheory suite brand architecture is documented, and a logo v2 design brief encodes all hard constraints for the exploration phase.
 **Depends on**: Phase 177 (v1.37 shipped)
