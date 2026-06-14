@@ -42,21 +42,17 @@ created: 2026-06-14
 
 ## Per-Task Verification Map
 
+> Task IDs and waves below are reconciled to the authoritative PLAN.md frontmatter (3 plans, 5 tasks, waves 1–3). `<plan>-<task>` numbering.
+
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 184-01-01 | 01 | 0 | DIST-01 | — | N/A (CSS asset) | unit | `mix test test/sigra/install/features/admin_test.exs` + `grep -c 'var(--vt-' priv/templates/sigra.install/admin/sigra_admin.css` (expect 0) | ❌ W0 (new template + test) | ⬜ pending |
-| 184-01-02 | 01 | 0 | DIST-01 (D-03 audit) | — | N/A | unit | `! grep -q 'var(--vt-' priv/templates/sigra.install/admin/sigra_admin.css && ! grep -q 'daisyui\|default\.css' priv/templates/sigra.install/admin/sigra_admin.css` | ❌ W0 | ⬜ pending |
-| 184-02-01 | 02 | 1 | DIST-02 | — | N/A | unit | `mix test test/sigra/install/features/admin_test.exs` (files/1 tuple assertion) | ❌ W0 (new assertion) | ⬜ pending |
-| 184-02-02 | 02 | 1 | DIST-03 | — | N/A | unit | `mix test test/sigra/install/features/admin_test.exs` (layout `<link>` injection assertion) | ❌ W0 (new assertion) | ⬜ pending |
-| 184-03-01 | 03 | 1 | DIST-04 | — | N/A | integration | `mix test test/sigra/install/features/admin_test.exs` (DIST-05 byte-compare proves DIST-04 by implication; example `app.css` has no `@layer sg-*`) | ❌ W0 (new example copy) | ⬜ pending |
-| 184-03-02 | 03 | 1 | DIST-05 (template≡example) | — | N/A | unit | `mix test test/sigra/install/features/admin_test.exs` (new `DIST-05 example≡template byte-parity` describe block) | ❌ W0 (new test) | ⬜ pending |
-| 184-03-03 | 03 | 1 | DIST-05 (template≡fixture) | — | N/A | integration | `mix test test/sigra/install/golden_diff_test.exs --only golden` | ❌ W0 (new fixture file) | ⬜ pending |
-| 184-04-01 | 04 | 2 | DIST-06 | — | N/A | E2E | CI `generated_admin_playwright_smoke` → `scripts/ci/admin-acceptance-smoke.sh --test all` (styled assertion in `admin-generated.spec.ts`) | ❌ W0 (new assertion) | ⬜ pending |
-| 184-04-02 | 04 | 2 | DIST-06 (D-11 canary) | — | N/A | E2E | `scripts/ci/snapshot-canary-guard.sh` (empty allowlist stays green) | ✅ existing harness | ⬜ pending |
+| 184-01-01 | 01 | 1 | DIST-01 (+ D-03 audit) | — | N/A (CSS asset) | unit | `grep -c 'var(--vt-' priv/templates/sigra.install/admin/sigra_admin.css` (expect 0) + `grep -q '@layer sg-base, sg-components, sg-overrides;' priv/templates/sigra.install/admin/sigra_admin.css` + no daisyUI/`default.css` base-rule dep | ❌ W0 (new template) | ⬜ pending |
+| 184-02-01 | 02 | 2 | DIST-02, DIST-03 | — | N/A | unit | `mix test test/sigra/install/features/admin_test.exs` (files/1 tuple assertion + layout `<link>` injection assertion) | ❌ W0 (new assertions) | ⬜ pending |
+| 184-02-02 | 02 | 2 | DIST-04, DIST-05 | — | N/A | integration | `mix test test/sigra/install/features/admin_test.exs` (new `DIST-05 example≡template byte-parity` describe block; example `app.css` has no `@layer sg-*`) + `mix test test/sigra/install/golden_diff_test.exs --only golden` (template≡fixture) | ❌ W0 (new example + fixture copies, new test) | ⬜ pending |
+| 184-03-01 | 03 | 3 | DIST-06 | — | N/A | E2E | CI `generated_admin_playwright_smoke` → `scripts/ci/admin-acceptance-smoke.sh --test all` (styled assertion in `admin-generated.spec.ts`; `grep -c 'DIST-06' …admin-generated.spec.ts` returns 1) | ❌ W0 (new assertion) | ⬜ pending |
+| 184-03-02 | 03 | 3 | DIST-06 (D-11 canary) | — | N/A | E2E | `bash scripts/ci/snapshot-canary-guard.sh` (empty allowlist stays green — visual no-op) | ✅ existing harness | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
-
-> Wave numbers above are the validation-map's best estimate; the authoritative wave assignment lives in each PLAN.md frontmatter.
 
 ---
 
