@@ -99,6 +99,7 @@ defmodule SigraInstallGoldenTmpWeb.Layouts do
 
   def admin(assigns) do
     ~H"""
+    <link phx-track-static rel="stylesheet" href={~p"/assets/sigra_admin.css"} />
     <.admin_shell
       admin_scope={@admin_scope}
       current_scope={@current_scope}

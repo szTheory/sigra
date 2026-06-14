@@ -42,6 +42,12 @@ defmodule Sigra.Install.Features.AdminTest do
       assert {:eex, "admin/audit_export_controller.ex",
               "lib/my_app_web/controllers/admin/audit_export_controller.ex"} in files
     end
+
+    test "emits sigra_admin.css installer template to host priv/static/assets/ (DIST-02)" do
+      files = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
+
+      assert {:eex, "admin/sigra_admin.css", "priv/static/assets/sigra_admin.css"} in files
+    end
   end
 
   describe "migrations/1" do
@@ -82,6 +88,8 @@ defmodule Sigra.Install.Features.AdminTest do
       assert layouts_admin.content =~ "<.admin_shell"
       assert layouts_admin.content =~ "admin_breadcrumbs={@admin_breadcrumbs}"
       assert layouts_admin.content =~ "<.flash_group"
+      assert layouts_admin.content =~ ~s|href={~p"/assets/sigra_admin.css"}|,
+             "layouts_admin injection must include the sigra_admin.css <link> tag (DIST-03)"
 
       assert error_handler.marker == "def auth_error(conn, :insufficient_scope, _opts) do"
       assert error_handler.anchor == :before_last_end
@@ -303,6 +311,19 @@ defmodule Sigra.Install.Features.AdminTest do
 
       assert source =~ ~s({:phoenix_live_view, "~> 1.1"})
       refute source =~ ~s({:phoenix_live_view, "~> 1.1", optional: true})
+    end
+  end
+
+  describe "DIST-05 example≡template byte-parity (sigra_admin.css)" do
+    test "example copy is byte-identical to the installer template" do
+      template = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+      example = File.read!("test/example/priv/static/assets/sigra_admin.css")
+
+      assert byte_size(template) == byte_size(example),
+             "size mismatch — resync with: cp priv/templates/sigra.install/admin/sigra_admin.css test/example/priv/static/assets/sigra_admin.css"
+
+      assert template == example,
+             "content mismatch — example copy has diverged from the installer template; resync with: cp priv/templates/sigra.install/admin/sigra_admin.css test/example/priv/static/assets/sigra_admin.css"
     end
   end
 
