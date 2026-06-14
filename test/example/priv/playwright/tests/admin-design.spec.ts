@@ -137,6 +137,51 @@ test.describe('Design gallery board snapshots', () => {
     }
   });
 
+  test('metrics and help boards expose required L1 state evidence', async ({ page }) => {
+    const statBoard = page.locator('#board-stat');
+    await expect(statBoard.getByText('read-only KPI')).toBeVisible();
+    const statRoot = statBoard.locator('.sg-metric').first();
+    await expect(statRoot).not.toHaveAttribute('href', /.+/);
+    await expect(statRoot).not.toHaveAttribute('tabindex', /.+/);
+    await expect(statRoot).not.toHaveClass(/sg-card-hover/);
+    await expect(statBoard.locator('a')).toHaveCount(0);
+
+    const statLinkBoard = page.locator('#board-stat_link');
+    for (const label of ['default', 'hover', 'focus-visible', 'active']) {
+      await expect(statLinkBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(statLinkBoard.locator('.sg-metric-link')).toHaveCount(4);
+
+    const summaryBoard = page.locator('#board-summary_chip');
+    for (const label of [
+      'tone: neutral',
+      'tone: ok',
+      'tone: warn',
+      'tone: risk',
+      'tone: info',
+      'help closed',
+      'help open',
+      'focus-visible',
+    ]) {
+      await expect(summaryBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(summaryBoard.locator('[data-sg-metric-help-root]')).toHaveCount(3);
+    await expect(summaryBoard.locator('[data-help-open="true"]')).toHaveCount(1);
+    await expect(summaryBoard.locator('[role="tooltip"]')).toHaveCount(3);
+
+    const fieldHelpBoard = page.locator('#board-field_help');
+    for (const label of ['closed', 'open', 'focus-visible', 'click/tap', 'Escape close']) {
+      await expect(fieldHelpBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(fieldHelpBoard.locator('[data-sg-field-help-root]')).toHaveCount(5);
+    await expect(fieldHelpBoard.locator('[role="tooltip"]')).toHaveCount(5);
+    await expect(
+      fieldHelpBoard.locator(
+        '.sg-field-help__panel a, .sg-field-help__panel button, .sg-field-help__panel [phx-click], .sg-field-help__panel [role="button"]',
+      ),
+    ).toHaveCount(0);
+  });
+
   test('help states open and close with Escape without trapping focus', async ({ page }) => {
     const fieldHelp = page.locator('#board-field_help [data-sg-field-help-root]').first();
     const fieldTrigger = fieldHelp.locator('[data-sg-field-help-trigger]');

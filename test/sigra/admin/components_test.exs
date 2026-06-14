@@ -437,6 +437,40 @@ defmodule Sigra.Admin.ComponentsTest do
 
     refute html =~ "sg-stat",
            "stat drifted: must not use invented sg-stat class — see admin-design-contract.md; do not re-record Playwright baselines"
+
+    refute html =~ "tabindex",
+           "stat drifted: read-only KPI must not become keyboard-focusable"
+
+    refute html =~ "href=",
+           "stat drifted: read-only KPI must not expose navigation attributes"
+
+    refute html =~ "sg-card-hover",
+           "stat drifted: read-only KPI must not expose hover-lift affordance"
+  end
+
+  test "metrics and help shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    assert Regex.match?(
+             ~r/@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*\.sg-metric-link:hover[\s\S]*\}/,
+             css
+           ),
+           "stat_link hover state must stay pointer-gated"
+
+    assert css =~ ".sg-metric-link:active",
+           "stat_link must expose a visible active state"
+
+    assert css =~ "transform var(--sg-motion-fast) var(--sg-ease)",
+           "stat_link transition must name exact properties, including transform"
+
+    assert css =~ "--sg-transition-tooltip",
+           "summary_chip and field_help tooltip panels must use the tooltip transition token"
+
+    assert css =~ ".sg-metric__help",
+           "summary_chip help panel CSS must ship from sigra_admin.css"
+
+    assert css =~ ".sg-field-help__panel",
+           "field_help panel CSS must ship from sigra_admin.css"
   end
 
   test "skeleton renders loading placeholder with sg-skeleton class" do
