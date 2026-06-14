@@ -4,6 +4,12 @@
 # (chromium / mobile / dark) — e.g. `board-stat` allows
 # board-stat-admin-design-{chromium,mobile,dark}.png to change.
 #
+# NOTE: slugs use the HYPHENATED filename form, not the LiveView board id.
+# Playwright maps a board id like `board-stat_link` to the PNG filename
+# `board-stat-link-admin-design-*.png`, so the allowlist entry is
+# `board-stat-link` (underscores become hyphens). Copy the slug from the
+# committed PNG filename, not from the spec's COMPONENT_BOARDS id.
+#
 # STEADY STATE: this file is empty (comments only). scripts/ci/snapshot-canary-guard.sh
 # fails CI if any baseline PNG changes whose slug is not listed here, so a PR that
 # deliberately re-records baselines MUST add the slug(s) in the same diff.

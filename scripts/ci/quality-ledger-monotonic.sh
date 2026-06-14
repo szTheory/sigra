@@ -21,8 +21,8 @@ fail() {
 
 extract_tiers() {
   grep -E '^\| [a-z]' | awk -F'|' '{
-    item=gensub(/^ +| +$/, "", "g", $2)
-    tier=gensub(/^ +| +$/, "", "g", $4)
+    item=$2; gsub(/^ +| +$/, "", item)
+    tier=$4; gsub(/^ +| +$/, "", tier)
     if (tier ~ /^[012]$/) print item ":" tier
   }'
 }

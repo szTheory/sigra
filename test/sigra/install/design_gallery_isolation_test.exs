@@ -16,6 +16,13 @@ defmodule Sigra.Install.DesignGalleryIsolationTest do
   @installer_template_root "priv/templates/sigra.install"
 
   test "no design gallery artifact exists in installer template tree (D-04)" do
+    # Precondition: guard against a false green if the template root is renamed,
+    # missing, or the suite runs from the wrong CWD — Path.wildcard would return
+    # [] and the assertion below would pass vacuously, silently disabling D-04.
+    assert File.dir?(@installer_template_root),
+           "installer template root #{@installer_template_root} not found — " <>
+             "run from the repo root; D-04 guard cannot verify isolation"
+
     offenders =
       Path.wildcard("#{@installer_template_root}/**/*")
       |> Enum.filter(&String.contains?(&1, "design"))
