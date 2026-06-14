@@ -21,7 +21,7 @@ created: 2026-06-14
 | **Config file** | `mix.exs`; `test/example/priv/playwright/playwright.config.ts` |
 | **Quick run command** | `mix test test/sigra/admin/components_test.exs test/sigra/install/features/admin_test.exs` |
 | **Full suite command** | `mix test test/sigra/admin/components_test.exs test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs && (cd test/example/priv/playwright && npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark)` |
-| **Estimated runtime** | TBD after Wave 0 confirms affected-board lane timing |
+| **Estimated runtime** | Quick command: 0.74s wall-clock. Full command: 292.22s wall-clock (~4m52s) with the example server already running on `SIGRA_EXAMPLE_URL=http://localhost:4011`. |
 
 ---
 
@@ -30,7 +30,7 @@ created: 2026-06-14
 - **After every task commit:** Run `mix test test/sigra/admin/components_test.exs test/sigra/install/features/admin_test.exs`
 - **After every plan wave:** Run the full suite command above, plus `bash scripts/ci/quality-ledger-monotonic.sh --base HEAD`
 - **Before `$gsd-verify-work`:** Full suite, snapshot canary/recapture gates as needed, install goldens, component goldens, and ledger monotonic must be green
-- **Max feedback latency:** TBD after Wave 0 measures the admin design trio
+- **Max feedback latency:** ~4m52s for the full ExUnit + admin-design chromium/mobile/dark lane; 0.74s for the quick ExUnit lane.
 
 ---
 
@@ -38,9 +38,9 @@ created: 2026-06-14
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 187-W0-01 | TBD | 0 | COMP-01, COMP-04 | T-187-01 | Gallery evidence remains example-only and does not leak into generated hosts | Playwright board inventory + axe | `cd test/example/priv/playwright && npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium` | yes, needs board expansion | pending |
-| 187-W0-02 | TBD | 0 | COMP-05 | T-187-02 | Component boards do not overflow, clip, or squish at required widths | Playwright viewport assertions | Add focused assertions for 320/375/768/1024/1440 in `test/example/priv/playwright/tests/admin-design.spec.ts` | no | pending |
-| 187-W0-03 | TBD | 0 | COMP-03, COMP-04 | T-187-03 | Help/tooltip states remain keyboard reachable, escapable, and non-trapping | Playwright DOM/behavior assertions | Add deterministic open/focus/Escape assertions for `field_help` and summary-chip help | partial | pending |
+| 187-W0-01 | 187-01 | 0 | COMP-01, COMP-04 | T-187-01 | Gallery evidence remains example-only and does not leak into generated hosts | Playwright board inventory + axe | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --grep "notice_link\|overflow\|help"` | yes, 13 L1 boards including `board-notice_link` | green |
+| 187-W0-02 | 187-01 | 0 | COMP-05 | T-187-02 | Component boards do not overflow, clip, or squish at required widths | Playwright viewport assertions | `RESPONSIVE_WIDTHS = [320, 375, 768, 1024, 1440] as const` plus focused overflow assertion | yes | green |
+| 187-W0-03 | 187-01 | 0 | COMP-03, COMP-04 | T-187-03 | Help/tooltip states remain keyboard reachable, escapable, and non-trapping | Playwright DOM/behavior assertions | Deterministic open attrs for `field_help` and `summary_chip`; Escape-close assertions pass | yes | green |
 | 187-W0-04 | TBD | 0 | COMP-01, COMP-02, COMP-03 | T-187-04 | Post-migration shipped component CSS lives in canonical `sigra_admin.css`, migrated selectors are removed from example `app.css`, and example CSS cannot mask missing shipped rules | Shipped-CSS migration, duplicate-removal grep/script, and install parity tests | Duplicate-selector check against `test/example/priv/static/assets/css/app.css` plus `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs` | partial | pending |
 | 187-PHASE | TBD | final | COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06 | T-187-01..04 | HEEx escaping preserved, disabled states inert, and accessibility gates clean | ExUnit + Playwright + axe + ledger | Full suite command plus `bash scripts/ci/quality-ledger-monotonic.sh --base HEAD` | partial | pending |
 
@@ -50,11 +50,13 @@ created: 2026-06-14
 
 ## Wave 0 Requirements
 
-- [ ] Inventory exact component `sg-*` CSS blocks currently in `test/example/priv/static/assets/css/app.css` and map them to the 13 canonical components before migration. This inventory alone does not green `187-W0-04`; that row turns green only after the Plan 02 shipped-CSS migration, duplicate removal, and parity checks pass.
-- [ ] Decide and implement the evidence shape for `notice_link`: add `board-notice_link` or document why embedded coverage in `board-notice` satisfies COMP-01 and COMP-04.
-- [ ] Add deterministic overflow/clip/squish assertions for component boards at 320, 375, 768, 1024, and 1440 pixels.
-- [ ] Add or expose deterministic open states for `field_help` and summary-chip help so COMP-03 and COMP-04 are testable.
-- [ ] Measure the quick and full validation command runtimes and replace the TBD timing fields above.
+- [x] Inventory exact component `sg-*` CSS blocks currently in `test/example/priv/static/assets/css/app.css` and map them to the 13 canonical components before migration. This inventory alone does not green `187-W0-04`; that row turns green only after the Plan 02 shipped-CSS migration, duplicate removal, and parity checks pass.
+- [x] Decide and implement the evidence shape for `notice_link`: add `board-notice_link` or document why embedded coverage in `board-notice` satisfies COMP-01 and COMP-04.
+- [x] Add deterministic overflow/clip/squish assertions for component boards at 320, 375, 768, 1024, and 1440 pixels.
+- [x] Add or expose deterministic open states for `field_help` and summary-chip help so COMP-03 and COMP-04 are testable.
+- [x] Measure the quick and full validation command runtimes and replace the TBD timing fields above.
+
+187-W0-04 remains pending until Plan 02 completes shipped-CSS migration, duplicate removal from app.css, and install/golden parity checks.
 
 ---
 
