@@ -166,7 +166,7 @@ Archive:
 Plans:
 **Wave 1**
 
-- [ ] 184-01-PLAN.md — Extract canonical sigra_admin.css template from app.css (selective sg-* extraction, D-03 dependency audit)
+- [x] 184-01-PLAN.md — Extract canonical sigra_admin.css template from app.css (selective sg-* extraction, D-03 dependency audit)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
