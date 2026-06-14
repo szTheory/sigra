@@ -23,12 +23,12 @@
 
 ### Audit Infrastructure (INFRA) — Phase 185
 
-- [ ] **INFRA-01**: An example-only `/admin/_design` gallery LiveView renders every component and every meta-component group in every state, importing the real `Sigra.Admin.Components` (never bespoke markup); it lives only under `test/example/` and is never templated into `priv/templates/sigra.install/` (contract-guarded).
-- [ ] **INFRA-02**: A dedicated Playwright project trio `admin-design-{chromium,mobile,dark}` captures one composite state-matrix board PNG per component/group (element-scoped to stable ids), with axe (`wcag2a`+`wcag2aa`, 0 violations) paired to each board.
-- [ ] **INFRA-03**: A second empty `snapshot-allowlist-design` + a designated gallery canary board enforce the empty-allowlist discipline; `scripts/ci/snapshot-canary-guard.sh` recognizes the `-admin-design-*` slug pattern.
-- [ ] **INFRA-04**: A quality-tier ledger `guides/reference/admin-quality-ledger.md` records, per fractal-level item, the achieved tier (0/1/2) + evidence link.
-- [ ] **INFRA-05**: A merge-blocking `scripts/ci/quality-ledger-monotonic.sh` fails CI if any ledger cell's tier decreased versus the base ref.
-- [ ] **INFRA-06**: The fractal scorecard rubric (shared D1–D11 + component/group/page/flow add-ons) is committed as the ratified re-evaluation instrument.
+- [x] **INFRA-01**: An example-only `/admin/_design` gallery LiveView renders every component and every meta-component group in every state, importing the real `Sigra.Admin.Components` (never bespoke markup); it lives only under `test/example/` and is never templated into `priv/templates/sigra.install/` (contract-guarded).
+- [x] **INFRA-02**: A dedicated Playwright project trio `admin-design-{chromium,mobile,dark}` captures one composite state-matrix board PNG per component/group (element-scoped to stable ids), with axe (`wcag2a`+`wcag2aa`, 0 violations) paired to each board.
+- [x] **INFRA-03**: A second empty `snapshot-allowlist-design` + a designated gallery canary board enforce the empty-allowlist discipline; `scripts/ci/snapshot-canary-guard.sh` recognizes the `-admin-design-*` slug pattern.
+- [x] **INFRA-04**: A quality-tier ledger `guides/reference/admin-quality-ledger.md` records, per fractal-level item, the achieved tier (0/1/2) + evidence link.
+- [x] **INFRA-05**: A merge-blocking `scripts/ci/quality-ledger-monotonic.sh` fails CI if any ledger cell's tier decreased versus the base ref.
+- [x] **INFRA-06**: The fractal scorecard rubric (shared D1–D11 + component/group/page/flow add-ons) is committed as the ratified re-evaluation instrument.
 
 ### Token Foundation (TOKEN / THEME) — Phase 186
 
