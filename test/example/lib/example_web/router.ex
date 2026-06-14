@@ -179,6 +179,20 @@ defmodule ExampleWeb.Router do
       pipe_through :browser
       live "/credentials", Demo.CredentialsLive
     end
+
+    scope "/admin", ExampleWeb.Admin do
+      pipe_through [:browser, :require_authenticated, :admin_global]
+
+      live_session :admin_design_gallery,
+        layout: {ExampleWeb.Layouts, :admin},
+        on_mount: [
+          {ExampleWeb.UserAuth, :ensure_authenticated},
+          {Sigra.LiveView.AdminScope,
+           [mode: :global, policy: Example.SigraAdminPolicy, login_path: "/users/log_in"]}
+        ] do
+        live "/_design", DesignGalleryLive, :index
+      end
+    end
   end
 
   # Sigra organizations (Phase 16)
