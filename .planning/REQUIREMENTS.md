@@ -14,12 +14,12 @@
 
 ### Distribution & Parity (DIST) — Phase 184
 
-- [ ] **DIST-01**: The admin `sg-*` design system is extracted out of the example app into a single canonical installer template `priv/templates/sigra.install/admin/sigra_admin.css`; the example-only `vt-*`/Vaultr brand layer is NOT extracted.
-- [ ] **DIST-02**: The installer ships the admin stylesheet to generated hosts via `lib/sigra/install/features/admin.ex` `files/1` → host `priv/static/assets/sigra_admin.css` (analog of `core/sigra_auth.css`).
-- [ ] **DIST-03**: The generated admin layout links the stylesheet (a `<link rel="stylesheet">` added to `def admin/1` in `priv/templates/sigra.install/admin/layouts_admin_injection.ex`).
-- [ ] **DIST-04**: The example app consumes the same canonical CSS (no divergent copy), so Playwright/axe run against the shipped stylesheet.
-- [ ] **DIST-05**: A merge-blocking parity test proves the example admin CSS is byte-identical to the installer template (mirroring the existing `sigra_auth.css` install-golden parity).
-- [ ] **DIST-06**: A freshly generated host renders a *styled* admin UI, proven by the `generated_admin_playwright_smoke` lane (`RUN_PARITY=1`).
+- [x] **DIST-01**: The admin `sg-*` design system is extracted out of the example app into a single canonical installer template `priv/templates/sigra.install/admin/sigra_admin.css`; the example-only `vt-*`/Vaultr brand layer is NOT extracted.
+- [x] **DIST-02**: The installer ships the admin stylesheet to generated hosts via `lib/sigra/install/features/admin.ex` `files/1` → host `priv/static/assets/sigra_admin.css` (analog of `core/sigra_auth.css`).
+- [x] **DIST-03**: The generated admin layout links the stylesheet (a `<link rel="stylesheet">` added to `def admin/1` in `priv/templates/sigra.install/admin/layouts_admin_injection.ex`).
+- [x] **DIST-04**: The example app consumes the same canonical CSS (no divergent copy), so Playwright/axe run against the shipped stylesheet.
+- [x] **DIST-05**: A merge-blocking parity test proves the example admin CSS is byte-identical to the installer template (mirroring the existing `sigra_auth.css` install-golden parity).
+- [x] **DIST-06**: A freshly generated host renders a *styled* admin UI, proven by the `generated_admin_playwright_smoke` lane (`RUN_PARITY=1`).
 
 ### Audit Infrastructure (INFRA) — Phase 185
 
