@@ -76,21 +76,21 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               <.summary_chip
                 label="Failed Logins"
                 value={7}
-                icon={:shield}
+                icon="shield-check"
                 value_unit="today"
                 subvalue="Spike detected"
                 help="Logins that failed authentication."
-                tone={:risk}
+                tone="risk"
               />
 
               <span class="sg-muted sg-text-xs">tone: warn</span>
-              <.summary_chip label="Pending Reviews" value={4} tone={:warn} />
+              <.summary_chip label="Pending Reviews" value={4} tone="warn" />
 
               <span class="sg-muted sg-text-xs">tone: ok</span>
-              <.summary_chip label="MFA Enabled" value={98} tone={:ok} />
+              <.summary_chip label="MFA Enabled" value={98} tone="ok" />
 
               <span class="sg-muted sg-text-xs">tone: info</span>
-              <.summary_chip label="Active Sessions" value={31} tone={:info} />
+              <.summary_chip label="Active Sessions" value={31} tone="info" />
             </div>
           </div>
 
@@ -239,8 +239,8 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <dl class="sg-metric-grid">
               <.summary_chip label="Total Users" value={3_842} />
               <.summary_chip label="Active Sessions" value={127} />
-              <.summary_chip label="Failed Logins" value={7} tone={:risk} />
-              <.summary_chip label="MFA Enabled" value={94} tone={:ok} />
+              <.summary_chip label="Failed Logins" value={7} tone="risk" />
+              <.summary_chip label="MFA Enabled" value={94} tone="ok" />
             </dl>
           </div>
 
