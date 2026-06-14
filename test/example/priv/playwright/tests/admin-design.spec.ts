@@ -182,6 +182,59 @@ test.describe('Design gallery board snapshots', () => {
     ).toHaveCount(0);
   });
 
+  test('action boards expose required L1 state evidence and inert disabled examples', async ({
+    page,
+  }) => {
+    const taskBoard = page.locator('#board-task_card');
+    for (const label of ['default', 'hover', 'CTA focus-visible', 'CTA active', 'disabled']) {
+      await expect(taskBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(taskBoard.locator('article.sg-card-hover')).toHaveCount(4);
+    await expect(taskBoard.locator('article[tabindex], article[href]')).toHaveCount(0);
+
+    for (const id of [
+      'task-card-disabled-native',
+      'task-card-disabled-aria',
+      'task-card-disabled-class',
+    ]) {
+      const disabledExample = page.locator(`#${id}`);
+      await expect(disabledExample).toBeVisible();
+      const inert = await disabledExample.evaluate((element) => {
+        const el = element as HTMLElement & { disabled?: boolean };
+        return {
+          pointerEvents: getComputedStyle(el).pointerEvents,
+          disabled: el.disabled === true,
+          tabIndex: el.tabIndex,
+          href: el.getAttribute('href'),
+        };
+      });
+      expect(inert.pointerEvents, `${id} should ignore pointer input`).toBe('none');
+      expect(
+        inert.disabled || inert.tabIndex < 0 || inert.href === null,
+        `${id} should not be keyboard focusable`,
+      ).toBeTruthy();
+    }
+
+    const chipBoard = page.locator('#board-applied_chip');
+    for (const label of ['default', 'hover', 'focus-visible', 'active']) {
+      await expect(chipBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(
+      chipBoard.locator('.sg-applied-chip__remove[aria-label="Remove filter Role: Admin"]'),
+    ).toHaveCount(4);
+    await expect(chipBoard.locator('.sg-applied-chip__remove span[aria-hidden="true"]')).toHaveCount(
+      4,
+    );
+
+    const pageBackBoard = page.locator('#board-page_back');
+    for (const label of ['default', 'hover', 'focus-visible', 'active']) {
+      await expect(pageBackBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(pageBackBoard.locator('a.sg-btn--ghost')).toHaveCount(4);
+    await expect(pageBackBoard.locator('a', { hasText: 'Back to users' })).toHaveCount(4);
+    await expect(pageBackBoard.locator('span[aria-hidden="true"]')).toHaveCount(4);
+  });
+
   test('help states open and close with Escape without trapping focus', async ({ page }) => {
     const fieldHelp = page.locator('#board-field_help [data-sg-field-help-root]').first();
     const fieldTrigger = fieldHelp.locator('[data-sg-field-help-trigger]');

@@ -301,6 +301,19 @@ defmodule Sigra.Admin.ComponentsTest do
            "applied_chip drifted — see admin-design-contract.md; do not re-record Playwright baselines"
   end
 
+  test "applied_chip remove link keeps explicit accessible remove label" do
+    html =
+      render_component(&Components.applied_chip/1,
+        label: "Role: Admin",
+        remove_href: "/admin/users?role="
+      )
+
+    assert html =~ ~s(aria-label="Remove filter Role: Admin")
+    assert html =~ ~s(<span aria-hidden="true">&times;</span>)
+    assert html =~ ~s(class="sg-applied-chip__remove")
+    assert html =~ ~s(href="/admin/users?role=")
+  end
+
   test "empty_state renders original inline empty state bytes faithfully" do
     html =
       render_component(&Components.empty_state/1,
@@ -321,6 +334,37 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html == @page_back_golden,
            "page_back drifted — see admin-design-contract.md; do not re-record Playwright baselines"
+  end
+
+  test "page_back keeps hidden arrow glyph and descriptive text" do
+    html =
+      render_component(&Components.page_back/1,
+        return_to: "/admin/users",
+        label: "Back to users"
+      )
+
+    assert html =~ ~s(<span aria-hidden="true">&larr;</span> Back to users)
+    assert html =~ ~s(href="/admin/users")
+    refute html =~ ~s(aria-label=)
+  end
+
+  test "action-family shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    assert Regex.match?(
+             ~r/@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*\.sg-card-hover:hover[\s\S]*\}/,
+             css
+           ),
+           "task_card hover lift must stay pointer-gated"
+
+    assert css =~ ".sg-applied-chip__remove:focus-visible",
+           "applied_chip remove affordance must expose focus-visible styling"
+
+    assert css =~ ".sg-applied-chip__remove:active",
+           "applied_chip remove affordance must expose active styling"
+
+    refute css =~ ~r/transition:\s*all/,
+           "action-family CSS must use exact-property transitions"
   end
 
   test "scope_ribbon renders original inline scope span bytes faithfully" do
