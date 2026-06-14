@@ -200,7 +200,7 @@ Plans:
 
 **Wave 2** (blocked on Wave 1)
 
-- [ ] 185-03-PLAN.md — admin-design Playwright spec + 3 projects in playwright.config.ts + snapshot-allowlist-design + canary guard extension + recapture gate extension + CI design board run + initial baseline capture
+- [x] 185-03-PLAN.md — admin-design Playwright spec + 3 projects in playwright.config.ts + snapshot-allowlist-design + canary guard extension + recapture gate extension + CI design board run + initial baseline capture
 
 **UI hint**: yes
 
