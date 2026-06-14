@@ -1362,4 +1362,92 @@ test.describe("admin theme switch", () => {
       "true",
     );
   });
+
+  test("tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)", async ({
+    page,
+  }) => {
+    // This test covers color pairs that axe skips because the backgrounds are
+    // alpha-composited color-mix() values resolved at render time. The four
+    // tone notices and the brand-soft metric icon are the critical surfaces.
+    await logInAsPlatformAdmin(page);
+    await page.goto("/admin/_design");
+    await waitForLiveViewReady(page);
+
+    const tones = ["ok", "warn", "risk", "info"] as const;
+
+    // --- Light mode: four tone-on-soft notice pairs ---
+    for (const tone of tones) {
+      const notice = page.locator(`.sg-notice[data-tone="${tone}"]`).first();
+      await expect(notice).toBeVisible();
+
+      const readNoticeStyles = async () =>
+        notice.evaluate((el) => {
+          const inner = el.querySelector(".sg-text-sm") as HTMLElement | null;
+          if (!inner) throw new Error("Expected .sg-text-sm inside .sg-notice");
+          return {
+            color: getComputedStyle(inner).color,
+            background: getComputedStyle(el).backgroundColor,
+          };
+        });
+
+      await expect
+        .poll(async () => {
+          const styles = await readNoticeStyles();
+          return contrastRatio(styles.color, styles.background);
+        })
+        .toBeGreaterThanOrEqual(4.5);
+    }
+
+    // --- Switch to dark mode ---
+    await page.getByRole("radio", { name: "Dark" }).click();
+    await expect(page.locator(".sg-admin-shell")).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+
+    // --- Dark mode: four tone-on-soft notice pairs ---
+    for (const tone of tones) {
+      const notice = page.locator(`.sg-notice[data-tone="${tone}"]`).first();
+      await expect(notice).toBeVisible();
+
+      const readNoticeStyles = async () =>
+        notice.evaluate((el) => {
+          const inner = el.querySelector(".sg-text-sm") as HTMLElement | null;
+          if (!inner) throw new Error("Expected .sg-text-sm inside .sg-notice");
+          return {
+            color: getComputedStyle(inner).color,
+            background: getComputedStyle(el).backgroundColor,
+          };
+        });
+
+      await expect
+        .poll(async () => {
+          const styles = await readNoticeStyles();
+          return contrastRatio(styles.color, styles.background);
+        })
+        .toBeGreaterThanOrEqual(4.5);
+    }
+
+    // --- Dark mode: brand-strong text on brand-soft background (metric icon) ---
+    // The .sg-metric__icon element uses background: --sg-color-brand-soft and
+    // color: --sg-color-brand-strong. In dark mode this is #fdba74 on rgba(243,90,16,0.16)
+    // — the critical pair that axe skips due to the alpha-composited rgba background.
+    const metricIcon = page
+      .locator(".sg-metric[data-sg-metric-enhanced] .sg-metric__icon")
+      .first();
+    await expect(metricIcon).toBeVisible();
+
+    const readIconStyles = async () =>
+      metricIcon.evaluate((el) => ({
+        color: getComputedStyle(el).color,
+        background: getComputedStyle(el).backgroundColor,
+      }));
+
+    await expect
+      .poll(async () => {
+        const styles = await readIconStyles();
+        return contrastRatio(styles.color, styles.background);
+      })
+      .toBeGreaterThanOrEqual(4.5);
+  });
 });
