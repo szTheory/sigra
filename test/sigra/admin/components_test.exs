@@ -205,6 +205,7 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ "MFA coverage"
     assert html =~ "7 users with MFA"
     refute html =~ "sg-metric__value-suffix"
+    assert html =~ ~s(class="sg-metric__help")
     assert html =~ ~s(role="tooltip")
 
     assert html =~
@@ -229,7 +230,8 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html =~ ~s(data-sg-metric-help-root="true")
     assert html =~ ~s(id="users-metric-mfa-help")
-    assert html =~ ~s(role="tooltip" hidden)
+    assert html =~ ~s(id="users-metric-mfa-help" class="sg-metric__help" hidden)
+    assert html =~ ~s(role="tooltip")
     refute html =~ ~s(data-help-open="true")
   end
 
@@ -248,8 +250,9 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ ~s(data-sg-metric-help-root="true")
     assert html =~ ~s(data-help-open="true")
     assert html =~ ~s(id="users-metric-mfa-help")
+    assert html =~ ~s(class="sg-metric__help")
     assert html =~ ~s(role="tooltip")
-    refute html =~ ~s(role="tooltip" hidden)
+    refute html =~ ~s(class="sg-metric__help" hidden)
   end
 
   test "summary_chip renders plain check icon without an inner circle" do

@@ -80,6 +80,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               <span class="sg-muted sg-text-xs">enhanced: icon, value_unit, subvalue, help, tone: risk</span>
               <dl class="sg-metric-grid">
                 <.summary_chip
+                  id="summary-chip-help-closed"
                   label="Failed Logins"
                   value={7}
                   icon="shield-check"
@@ -87,6 +88,22 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   subvalue="Spike detected"
                   help="Logins that failed authentication."
                   tone="risk"
+                />
+              </dl>
+
+              <span class="sg-muted sg-text-xs">enhanced: help open for deterministic evidence</span>
+              <dl class="sg-metric-grid">
+                <.summary_chip
+                  id="summary-chip-help-open"
+                  label="MFA Coverage"
+                  value={94}
+                  icon="mfa"
+                  value_unit="%"
+                  value_suffix="MFA coverage"
+                  subvalue="6 accounts still need setup"
+                  help="Shows the share of users with multifactor authentication enabled."
+                  tone="ok"
+                  open
                 />
               </dl>
 
@@ -172,13 +189,30 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             </div>
           </div>
 
+          <%!-- board-notice_link --%>
+          <div id="board-notice_link" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">notice_link</p>
+            <div class="sg-stack sg-stack--3">
+              <span class="sg-muted sg-text-xs">inline next-step link inside notice copy</span>
+              <.notice tone={:risk}>
+                3 accounts need review —
+                <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
+              </.notice>
+            </div>
+          </div>
+
           <%!-- board-field_help --%>
           <div id="board-field_help" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">field_help</p>
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">default (panel hidden)</span>
-              <.field_help id="fh-example" label="API Token">
+              <.field_help id="fh-example-closed" label="API Token">
                 Token generated at account creation.
+              </.field_help>
+
+              <span class="sg-muted sg-text-xs">open for deterministic evidence</span>
+              <.field_help id="fh-example-open" label="Session Lifetime" open>
+                Controls how long an admin session can stay active before re-authentication.
               </.field_help>
             </div>
           </div>
