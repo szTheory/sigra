@@ -34,7 +34,7 @@
 
 - [x] **TOKEN-01**: The `:root` token layer (color, type scale, spacing, radius, control heights, elevation/shadow, focus ring, z-index) is audited and ratified, each token carrying a documented rationale + brand reference.
 - [x] **TOKEN-02**: Every color token pair passes WCAG AA in light AND dark (axe-verified), including text on brand-soft surfaces.
-- [ ] **TOKEN-03**: Motion-budget tokens (durations + easings) are validated against emilkowal.ski timing/easing guidance and ratified as the project motion budget.
+- [x] **TOKEN-03**: Motion-budget tokens (durations + easings) are validated against emilkowal.ski timing/easing guidance and ratified as the project motion budget.
 - [x] **TOKEN-04**: Three-surface ember parity is preserved across any token change (`brandbook/tokens.json` ↔ admin `--sg-*` ↔ auth `--sigra-auth-*`); auth surfaces remain coherent.
 - [x] **THEME-01**: Tokens render correctly across Light, Dark, and System (explicit `data-sg-admin-theme` + `prefers-color-scheme`) with no theme-ignoring hardcoded values; dark uses lightened brand-strong (`#fdba74`).
 
