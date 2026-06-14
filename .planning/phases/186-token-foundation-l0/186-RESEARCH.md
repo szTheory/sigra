@@ -598,7 +598,11 @@ Security domain is not applicable to this phase. The phase touches CSS custom pr
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> Both questions below carry inline recommendations that the Phase 186 plans implement:
+> Q1 → single `| token-layer | L0 | 1 | … |` ledger row (plan 186-01); Q2 → lightweight
+> auth ember cross-check (risk/warn/ok/info light+dark) in the D-11 describe block (plan 186-02).
 
 1. **Single L0 row vs per-token-group sub-rows in the ledger**
    - What we know: CONTEXT.md marks this as Claude's Discretion; the monotonic guard reads any row whose first cell starts with a lowercase letter
