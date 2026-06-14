@@ -159,7 +159,11 @@ Archive:
   3. The example app consumes the same canonical CSS (no divergent copy), so Playwright/axe run against the shipped stylesheet.
   4. A merge-blocking parity test proves the example admin CSS is byte-identical to the installer template (mirroring the existing `sigra_auth.css` install-golden parity).
   5. A freshly generated host renders a styled admin UI, proven by the `generated_admin_playwright_smoke` lane (`RUN_PARITY=1`), and the existing snapshot canary stays green (no visual delta).
-**Plans**: Not yet planned
+**Plans**: 3 plans
+Plans:
+- [ ] 184-01-PLAN.md — Extract canonical sigra_admin.css template from app.css (selective sg-* extraction, D-03 dependency audit)
+- [ ] 184-02-PLAN.md — Ship via admin.ex files/1 (DIST-02) + layout link (DIST-03) + example copy + golden fixture + DIST-05 parity tests
+- [ ] 184-03-PLAN.md — DIST-06 styled Playwright assertion + D-11 snapshot canary verification
 **UI hint**: yes
 
 ### Phase 185: Audit Infrastructure
