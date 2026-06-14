@@ -216,6 +216,42 @@ defmodule Sigra.Admin.ComponentsTest do
     refute html =~ "<a"
   end
 
+  test "summary_chip help defaults closed" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "users-metric-mfa",
+        icon: "mfa",
+        label: "MFA enrolled",
+        value: 42,
+        value_suffix: "MFA coverage",
+        help: "These users have multifactor authentication enabled."
+      )
+
+    assert html =~ ~s(data-sg-metric-help-root="true")
+    assert html =~ ~s(id="users-metric-mfa-help")
+    assert html =~ ~s(role="tooltip" hidden)
+    refute html =~ ~s(data-help-open="true")
+  end
+
+  test "summary_chip open renders deterministic help evidence" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "users-metric-mfa",
+        icon: "mfa",
+        label: "MFA enrolled",
+        value: 42,
+        value_suffix: "MFA coverage",
+        help: "These users have multifactor authentication enabled.",
+        open: true
+      )
+
+    assert html =~ ~s(data-sg-metric-help-root="true")
+    assert html =~ ~s(data-help-open="true")
+    assert html =~ ~s(id="users-metric-mfa-help")
+    assert html =~ ~s(role="tooltip")
+    refute html =~ ~s(role="tooltip" hidden)
+  end
+
   test "summary_chip renders plain check icon without an inner circle" do
     html =
       render_component(&Components.summary_chip/1,
@@ -352,6 +388,31 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ "Shown on generated auth screens and email headers when set."
     refute html =~ ~s(title=)
     refute html =~ "<a"
+  end
+
+  test "field_help open renders deterministic help evidence" do
+    html =
+      render_component(&Components.field_help/1,
+        id: "branding-logo-url-help",
+        label: "Logo URL",
+        open: true,
+        inner_block: [
+          %{
+            inner_block: fn _, _ ->
+              "Shown on generated auth screens and email headers when set."
+            end
+          }
+        ]
+      )
+
+    assert html =~ ~s(class="sg-field-help ")
+    assert html =~ ~s(data-sg-field-help-root="true")
+    assert html =~ ~s(data-help-open="true")
+    assert html =~ ~s(aria-expanded="true")
+    assert html =~ ~s(id="branding-logo-url-help")
+    assert html =~ ~s(class="sg-field-help__panel")
+    assert html =~ ~s(role="tooltip")
+    refute html =~ ~s(role="tooltip" hidden)
   end
 
   # ---------------------------------------------------------------------------

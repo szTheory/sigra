@@ -60,11 +60,13 @@ async function assertBoardScreenshot(page: Page, testInfo: TestInfo, boardId: st
   });
 }
 
+const RESPONSIVE_WIDTHS = [320, 375, 768, 1024, 1440] as const;
+
 const COMPONENT_BOARDS = [
   'board-stat', 'board-stat_link', 'board-task_card', 'board-summary_chip',
   'board-applied_chip', 'board-empty_state', 'board-page_back', 'board-scope_ribbon',
   'board-notice',       // designated canary (D-10)
-  'board-field_help', 'board-skeleton', 'board-audit_row',
+  'board-notice_link', 'board-field_help', 'board-skeleton', 'board-audit_row',
 ];
 const GROUP_BOARDS = ['board-mg-1', 'board-mg-2', 'board-mg-3', 'board-mg-4', 'board-mg-5'];
 
@@ -91,4 +93,80 @@ test.describe('Design gallery board snapshots', () => {
       await assertBoardScreenshot(page, testInfo, boardId);
     });
   }
+
+  test('notice_link board is registered as a standalone L1 component', async () => {
+    expect(COMPONENT_BOARDS).toHaveLength(13);
+    expect(COMPONENT_BOARDS).toContain('board-notice');
+    expect(COMPONENT_BOARDS).toContain('board-notice_link');
+  });
+
+  test('component boards do not overflow at required responsive widths', async ({ page }) => {
+    for (const width of RESPONSIVE_WIDTHS) {
+      await page.setViewportSize({ width, height: 900 });
+
+      for (const boardId of COMPONENT_BOARDS) {
+        const board = page.locator(`#${boardId}`);
+        await expect(board, `${boardId} should exist at ${width}px`).toBeVisible();
+
+        const fit = await board.evaluate((element) => {
+          const boardRect = element.getBoundingClientRect();
+          const children = Array.from(element.querySelectorAll('*'));
+          const overflowingChild = children.find((child) => {
+            const rect = child.getBoundingClientRect();
+            return rect.left < -1 || rect.right > window.innerWidth + 1;
+          });
+
+          return {
+            boardInsideViewport: boardRect.left >= -1 && boardRect.right <= window.innerWidth + 1,
+            noHorizontalOverflow: element.scrollWidth <= element.clientWidth + 1,
+            overflowingChild: overflowingChild
+              ? `${overflowingChild.tagName.toLowerCase()}.${Array.from(overflowingChild.classList).join('.')}`
+              : null,
+          };
+        });
+
+        expect(
+          fit,
+          `${boardId} should stay inside ${width}px viewport without scrollWidth overflow`,
+        ).toMatchObject({
+          boardInsideViewport: true,
+          noHorizontalOverflow: true,
+          overflowingChild: null,
+        });
+      }
+    }
+  });
+
+  test('help states open and close with Escape without trapping focus', async ({ page }) => {
+    const fieldHelp = page.locator('#board-field_help [data-sg-field-help-root]').first();
+    const fieldTrigger = fieldHelp.locator('[data-sg-field-help-trigger]');
+    const fieldPanelId = await fieldTrigger.getAttribute('aria-controls');
+    if (!fieldPanelId) throw new Error('field_help trigger is missing aria-controls');
+    const fieldPanel = page.locator(`#${fieldPanelId}`);
+
+    await fieldTrigger.focus();
+    await expect(fieldTrigger).toHaveAttribute('aria-expanded', 'true');
+    await expect(fieldHelp).toHaveAttribute('data-help-open', 'true');
+    await expect(fieldPanel).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(fieldTrigger).toHaveAttribute('aria-expanded', 'false');
+    await expect(fieldHelp).not.toHaveAttribute('data-help-open', 'true');
+    await expect(fieldPanel).toBeHidden();
+    await expect(fieldTrigger).toBeFocused();
+
+    const metricHelp = page.locator('#board-summary_chip [data-sg-metric-help-root]').first();
+    const metricPanelId = await metricHelp.getAttribute('aria-describedby');
+    if (!metricPanelId) throw new Error('summary_chip help root is missing aria-describedby');
+    const metricPanel = page.locator(`#${metricPanelId}`);
+
+    await metricHelp.focus();
+    await expect(metricHelp).toHaveAttribute('data-help-open', 'true');
+    await expect(metricPanel).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(metricHelp).not.toHaveAttribute('data-help-open', 'true');
+    await expect(metricPanel).toBeHidden();
+    await expect(metricHelp).toBeFocused();
+  });
 });
