@@ -3,7 +3,7 @@ phase: 187
 slug: individual-components-l1
 status: draft
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-06-14
 ---
 
@@ -41,7 +41,7 @@ created: 2026-06-14
 | 187-W0-01 | 187-01 | 0 | COMP-01, COMP-04 | T-187-01 | Gallery evidence remains example-only and does not leak into generated hosts | Playwright board inventory + axe | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --grep "notice_link\|overflow\|help"` | yes, 13 L1 boards including `board-notice_link` | green |
 | 187-W0-02 | 187-01 | 0 | COMP-05 | T-187-02 | Component boards do not overflow, clip, or squish at required widths | Playwright viewport assertions | `RESPONSIVE_WIDTHS = [320, 375, 768, 1024, 1440] as const` plus focused overflow assertion | yes | green |
 | 187-W0-03 | 187-01 | 0 | COMP-03, COMP-04 | T-187-03 | Help/tooltip states remain keyboard reachable, escapable, and non-trapping | Playwright DOM/behavior assertions | Deterministic open attrs for `field_help` and `summary_chip`; Escape-close assertions pass | yes | green |
-| 187-W0-04 | TBD | 0 | COMP-01, COMP-02, COMP-03 | T-187-04 | Post-migration shipped component CSS lives in canonical `sigra_admin.css`, migrated selectors are removed from example `app.css`, and example CSS cannot mask missing shipped rules | Shipped-CSS migration, duplicate-removal grep/script, and install parity tests | Duplicate-selector check against `test/example/priv/static/assets/css/app.css` plus `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs` | partial | pending |
+| 187-W0-04 | 187-02 | 0 | COMP-01, COMP-02, COMP-03 | T-187-04 | Post-migration shipped component CSS lives in canonical `sigra_admin.css`, migrated selectors are removed from example `app.css`, and example CSS cannot mask missing shipped rules | Shipped-CSS migration, duplicate-removal grep/script, install parity tests, and admin-design matrix | Duplicate-selector check against `test/example/priv/static/assets/css/app.css`, canonical `@layer sg-components` selector script, CSS parity `cmp`, `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs`, and `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark` | yes | green |
 | 187-PHASE | TBD | final | COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06 | T-187-01..04 | HEEx escaping preserved, disabled states inert, and accessibility gates clean | ExUnit + Playwright + axe + ledger | Full suite command plus `bash scripts/ci/quality-ledger-monotonic.sh --base HEAD` | partial | pending |
 
 *Status: pending | green | red | flaky*
@@ -56,7 +56,7 @@ created: 2026-06-14
 - [x] Add or expose deterministic open states for `field_help` and summary-chip help so COMP-03 and COMP-04 are testable.
 - [x] Measure the quick and full validation command runtimes and replace the TBD timing fields above.
 
-187-W0-04 remains pending until Plan 02 completes shipped-CSS migration, duplicate removal from app.css, and install/golden parity checks.
+187-W0-04 greened after Plan 02 completed shipped-CSS migration, duplicate removal from `app.css`, canonical/example/golden CSS parity, install/golden tests, and the chromium/mobile/dark admin-design matrix.
 
 ---
 
