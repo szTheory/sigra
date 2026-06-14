@@ -86,6 +86,15 @@ test("generated host admin shell renders on desktop and mobile", async ({
   await expect(
     page.locator('nav[aria-label="Admin navigation"]'),
   ).toContainText("Branding");
+  // DIST-06: proves sigra_admin.css :root token block loaded
+  // (the brand token is defined only in sigra_admin.css, not in default.css or app.css)
+  const brandColor = await page.evaluate(
+    () =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--sg-color-brand")
+        .trim(),
+  );
+  expect(brandColor).toBe("#c2410c");
   await captureAdminCheckpoint(page, testInfo, {
     name: "shell-global-desktop",
   });
