@@ -1,0 +1,368 @@
+/* Vaultr/Sigra demo design layer.
+ *
+ * The generated admin screens carry Tailwind/DaisyUI utility classes as a
+ * fallback for host apps that compile Tailwind. This example app is built
+ * WITHOUT a Tailwind pipeline, so those utilities are inert here — every
+ * layout, spacing, and responsive behavior is owned by the hand-written
+ * `sg-*` token system below. Host apps may adopt or ignore this brand.
+ *
+ * Architecture: a token-driven, BEM-flavored component layer. Cascade layers
+ * (declared below) make `sg-*` authoritatively win over daisyUI's `default.css`
+ * without `!important` — the only `!important` permitted in this file is the
+ * documented `prefers-reduced-motion` block at the very bottom.
+ */
+
+@layer sg-base, sg-components, sg-overrides;
+
+/* ============================================================================
+ * TOKENS (v2) — the brand guide. Single source of truth for every value.
+ * ==========================================================================*/
+:root {
+  /* Spacing scale (4px base) */
+  --sg-space-1: 0.25rem;
+  --sg-space-2: 0.5rem;
+  --sg-space-3: 0.75rem;
+  --sg-space-4: 1rem;
+  --sg-space-5: 1.25rem;
+  --sg-space-6: 1.5rem;
+  --sg-space-7: 1.75rem;
+  --sg-space-8: 2rem;
+  --sg-space-10: 2.5rem;
+  --sg-space-12: 3rem;
+
+  /* Type scale (~1.2 minor-third) */
+  --sg-text-2xs: 0.6875rem;
+  --sg-text-xs: 0.75rem;
+  --sg-text-sm: 0.875rem;
+  --sg-text-base: 1rem;
+  --sg-text-md: 1.125rem;
+  --sg-text-lg: 1.45rem;
+  --sg-text-xl: 1.875rem;
+  --sg-text-2xl: clamp(1.6rem, 2.3vw, 2.4rem);
+
+  --sg-weight-regular: 450;
+  --sg-weight-medium: 600;
+  --sg-weight-semibold: 700;
+  --sg-weight-bold: 800;
+
+  --sg-leading-tight: 1.1;
+  --sg-leading-snug: 1.3;
+  --sg-leading-normal: 1.5;
+  --sg-leading-relaxed: 1.6;
+
+  --sg-tracking-tight: 0;
+  --sg-tracking-wide: 0.04em;
+  --sg-tracking-wider: 0.08em;
+
+  /* Color — neutrals */
+  --sg-color-ink: #151515;
+  --sg-color-muted: #686868;
+  --sg-color-subtle: #f6f5f2;
+  --sg-color-panel: #ffffff;
+  --sg-color-panel-alt: #fbfaf7;
+  --sg-color-line: rgba(21, 21, 21, 0.1);
+  --sg-color-line-strong: rgba(21, 21, 21, 0.16);
+
+  /* Color — brand (burnt orange) */
+  --sg-color-brand: #c2410c;
+  --sg-color-brand-strong: #9a3412;
+  --sg-color-brand-solid: #9a3412;
+  --sg-color-brand-fill-hover: #c74712;
+  --sg-color-brand-fill-active: #9a3412;
+  --sg-color-brand-soft: #fff0e8;
+  --sg-color-on-brand: #ffffff;
+  --sg-color-on-brand-solid: #ffffff;
+  --sg-logo-rail-accent: #fdba74;
+  --sg-logo-rail-ember: #c2410c;
+  --sg-logo-core: #9a3412;
+
+  /* Color — semantic status */
+  --sg-color-risk: #b42318;
+  --sg-color-risk-soft: #fff1f0;
+  --sg-color-warn: #a15c00;
+  --sg-color-warn-soft: #fff7e6;
+  --sg-color-ok: #176b43;
+  --sg-color-ok-soft: #ecfdf3;
+  --sg-color-info: #1d4ed8;
+  --sg-color-info-soft: #eef2ff;
+
+  /* Radii */
+  --sg-radius-xs: 0.375rem;
+  --sg-radius-sm: 0.5rem;
+  --sg-radius-md: 0.75rem;
+  --sg-radius-lg: 1rem;
+  --sg-radius-full: 999px;
+
+  /* Control heights */
+  --sg-control-xs: 1.75rem;
+  --sg-control-sm: 2.25rem;
+  --sg-control-md: 2.75rem;
+  --sg-control-lg: 3rem;
+
+  /* Elevation ladder.
+   * Tinting convention: token-level neutral shadows use raw rgba() (below and in
+   * the dark-mode overrides); component-level brand/tone tints use
+   * color-mix(in oklab, <token> ... ). Do not churn one into the other. */
+  --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
+  --sg-elev-1:
+    0 0 0 1px rgba(21, 21, 21, 0.06), 0 1px 2px -1px rgba(21, 21, 21, 0.08),
+    0 10px 30px -24px rgba(21, 21, 21, 0.35);
+  --sg-elev-2:
+    0 0 0 1px rgba(21, 21, 21, 0.1), 0 3px 10px -8px rgba(21, 21, 21, 0.35),
+    0 18px 44px -30px rgba(21, 21, 21, 0.45);
+  --sg-elev-3:
+    0 0 0 1px rgba(21, 21, 21, 0.12), 0 12px 28px -12px rgba(21, 21, 21, 0.4),
+    0 30px 64px -32px rgba(21, 21, 21, 0.5);
+
+  /* Motion.
+   * Budget mapping: press=120ms · pop=180ms · panel=medium(220ms) ·
+   * overlay=slow(300ms). ease-out for enters; never ease-in for enters;
+   * flat ease-out (not spring) on destructive. */
+  --sg-motion-press: 120ms;
+  --sg-motion-pop: 180ms;
+  --sg-motion-fast: 140ms;
+  --sg-motion-medium: 220ms;
+  --sg-motion-slow: 300ms;
+  --sg-ease: cubic-bezier(0.2, 0, 0, 1);
+  --sg-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --sg-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --sg-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --sg-transition-press: transform var(--sg-motion-fast) var(--sg-ease);
+  --sg-transition-tone:
+    color var(--sg-motion-fast) var(--sg-ease),
+    background-color var(--sg-motion-fast) var(--sg-ease),
+    box-shadow var(--sg-motion-fast) var(--sg-ease);
+  --sg-transition-enter:
+    opacity var(--sg-motion-medium) var(--sg-ease-out),
+    transform var(--sg-motion-medium) var(--sg-ease-out);
+
+  /* Focus */
+  --sg-focus-ring: 0 0 0 3px
+    color-mix(in oklab, var(--sg-color-brand) 35%, transparent);
+  --sg-focus-ring-offset: 2px;
+
+  /* Z-index ladder */
+  --sg-z-base: 0;
+  --sg-z-nav: 30;
+  --sg-z-dropdown: 40;
+  --sg-z-modal: 50; /* reserved for the Stage-1 Cmd-K command palette — do not remove */
+  --sg-z-toast: 60;
+
+  /* Layout */
+  --sg-container-max: 80rem;
+  --sg-breakpoint-lg: 1024px;
+  --sg-measure: 68ch; /* prose measure cap */
+
+  /* Component sizing tokens (named values with no spacing-scale fit) */
+  --sg-pill-h: 1.625rem;
+  --sg-pill-gap: 0.3rem;
+  --sg-pill-pad-y: 0.1875rem;
+  --sg-pill-pad-x: 0.625rem;
+  --sg-bottom-nav-gap: 0.125rem;
+  --sg-code-pad-y: 0.0625rem;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sg-color-ink: #f4f1eb;
+    --sg-color-muted: #bdb5aa;
+    --sg-color-subtle: #171614;
+    --sg-color-panel: #1f1d1a;
+    --sg-color-panel-alt: #25221e;
+    --sg-color-line: rgba(255, 255, 255, 0.1);
+    --sg-color-line-strong: rgba(255, 255, 255, 0.16);
+    --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
+    --sg-color-brand-solid: #fdba74;
+    --sg-color-brand-fill-hover: #c74712;
+    --sg-color-brand-fill-active: #9a3412;
+    --sg-color-on-brand-solid: #151515;
+    --sg-logo-rail-ember: #f97316;
+    --sg-logo-core: #f4f1eb;
+    /* Dark-mode brand-strong: lightened to clear WCAG AA on dark brand-soft tint
+     * (~1.88:1 → >=4.5:1). Supersedes the scoped chip fix at the .sg-filter-chip
+     * block below. */
+    --sg-color-brand-strong: #fdba74;
+    /* Lighten tone text + backgrounds for dark mode so pills/rows keep WCAG AA
+     * contrast (dark-mode tinted backgrounds need light tone text). */
+    --sg-color-ok: #5dd1a0;
+    --sg-color-warn: #f5c451;
+    --sg-color-risk: #f8a39c;
+    --sg-color-info: #9db8f5;
+    --sg-color-risk-soft: rgba(248, 113, 113, 0.16);
+    --sg-color-warn-soft: rgba(245, 196, 81, 0.16);
+    --sg-color-ok-soft: rgba(52, 211, 153, 0.16);
+    --sg-color-info-soft: rgba(120, 150, 245, 0.16);
+    --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
+    --sg-elev-1: 0 0 0 1px rgba(255, 255, 255, 0.09);
+    --sg-elev-2: 0 0 0 1px rgba(255, 255, 255, 0.15);
+    --sg-elev-3:
+      0 0 0 1px rgba(255, 255, 255, 0.18), 0 24px 60px -28px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+  }
+}
+
+/* ============================================================================
+ * BASE
+ * ==========================================================================*/
+@layer sg-base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--sg-color-subtle);
+    color: var(--sg-color-ink);
+  }
+
+  :where(a) {
+    color: inherit;
+  }
+}
+
+@layer sg-components {
+  /* --------------------------------------------------------------------------
+   * LAYOUT PRIMITIVES — replace the inert Tailwind utilities (mobile-first)
+   * ------------------------------------------------------------------------*/
+  .sg-container {
+    width: 100%;
+    max-width: var(--sg-container-max);
+    margin-inline: auto;
+    padding-inline: var(--sg-space-4);
+  }
+
+  .sg-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sg-space-4);
+  }
+  .sg-stack--1 {
+    gap: var(--sg-space-1);
+  }
+  .sg-stack--2 {
+    gap: var(--sg-space-2);
+  }
+  .sg-stack--3 {
+    gap: var(--sg-space-3);
+  }
+  .sg-stack--5 {
+    gap: var(--sg-space-5);
+  }
+  .sg-stack--6 {
+    gap: var(--sg-space-6);
+  }
+
+  .sg-grid {
+    display: grid;
+    gap: var(--sg-space-4);
+    grid-template-columns: 1fr;
+  }
+  .sg-grid--auto {
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+
+  .sg-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sg-space-2);
+  }
+  .sg-cluster--3 {
+    gap: var(--sg-space-3);
+  }
+  .sg-cluster--between {
+    justify-content: space-between;
+  }
+  .sg-cluster--end {
+    justify-content: flex-end;
+  }
+  .sg-cluster--center {
+    justify-content: center;
+  }
+  .sg-cluster--start {
+    align-items: flex-start;
+  }
+
+  /* Responsive show/hide — the core substrate fix (kills duplicated content) */
+  .sg-show-desktop {
+    display: none;
+  }
+  .sg-show-mobile {
+    display: revert;
+  }
+
+  @media (min-width: 1024px) {
+    .sg-container {
+      padding-inline: var(--sg-space-8);
+    }
+    .sg-grid--2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .sg-grid--3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .sg-show-desktop {
+      display: revert;
+    }
+    .sg-show-mobile {
+      display: none;
+    }
+  }
+}
+
+/* ============================================================================
+ * SMALL-SCREEN TWEAKS
+ * ==========================================================================*/
+@layer sg-overrides {
+  @media (max-width: 640px) {
+    .sg-card,
+    .sg-filter-panel,
+    .sg-detail-panel {
+      padding: var(--sg-space-4);
+    }
+    .sg-page-title {
+      font-size: 1.5rem;
+    }
+    .sg-admin-topbar-inner {
+      align-items: flex-start;
+    }
+    .sg-theme-switch__button {
+      min-width: 2rem;
+      padding-inline: var(--sg-space-2);
+    }
+    .sg-cmdk__trigger > span:first-child {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  }
+}
+
+/* ============================================================================
+ * REDUCED MOTION — documented exception: the only `!important` in this file.
+ * Keeps meaning-carrying transitions (color/opacity/shadow) short; strips
+ * movement (transform) and keyframe animation.
+ * ==========================================================================*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-property:
+      color, background-color, border-color, box-shadow, opacity, fill, stroke !important;
+    transition-duration: var(--sg-motion-fast) !important;
+  }
+
+  .sg-admin-loading-bar::before {
+    animation: none !important;
+    transform: scaleX(1);
+    transition: none !important;
+  }
+}
