@@ -1,8 +1,8 @@
 ---
 phase: 185
 slug: audit-infrastructure
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-14
 ---
@@ -21,7 +21,7 @@ created: 2026-06-14
 |----------|-------|
 | **Framework** | ExUnit (`mix test`) + Playwright (`npx playwright test`) |
 | **Config file** | `test/example/priv/playwright/playwright.config.ts` |
-| **Quick run command** | `mix test test/sigra/installer/design_gallery_isolation_test.exs` |
+| **Quick run command** | `mix test test/sigra/install/design_gallery_isolation_test.exs` |
 | **Full suite command** | `mix test && (cd test/example/priv/playwright && npx playwright test tests/admin-design.spec.ts)` |
 | **Estimated runtime** | ~15s quick (no Postgres) · ~3-5 min full (3 Playwright projects + axe) |
 
@@ -29,7 +29,7 @@ created: 2026-06-14
 
 ## Sampling Rate
 
-- **After every task commit:** Run `mix test test/sigra/installer/design_gallery_isolation_test.exs` (instant, no Postgres, guards D-04 isolation)
+- **After every task commit:** Run `mix test test/sigra/install/design_gallery_isolation_test.exs` (instant, no Postgres, guards D-04 isolation)
 - **After every plan wave:** Run full `mix test` + design gallery Playwright run across `admin-design-{chromium,mobile,dark}`
 - **Before `/gsd:verify-work`:** Full suite green + `scripts/ci/snapshot-canary-guard.sh` design invocation + `scripts/ci/quality-ledger-monotonic.sh` both pass
 - **Max feedback latency:** ~15s (quick) / ~300s (full)
@@ -42,7 +42,7 @@ created: 2026-06-14
 |--------|-----------------|-----------|-------------------|-------------|
 | INFRA-01 | Gallery route renders under real admin shell with all boards | Playwright smoke | `npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium` | ❌ W0 |
 | INFRA-01 | Gallery compiles out in `MIX_ENV=test`/prod (dev_routes gate) | mix compile assertion | `MIX_ENV=test mix compile --no-deps-check` + assert `/admin/_design` absent | ❌ W0 |
-| INFRA-01 | D-04: no `*design*` artifact in `priv/templates/sigra.install/` | ExUnit | `mix test test/sigra/installer/design_gallery_isolation_test.exs` | ❌ W0 |
+| INFRA-01 | D-04: no `*design*` artifact in `priv/templates/sigra.install/` | ExUnit | `mix test test/sigra/install/design_gallery_isolation_test.exs` | ❌ W0 |
 | INFRA-02 | Element-scoped composite board PNG per component/group across 3 projects | Playwright visual | `npx playwright test tests/admin-design.spec.ts --project=admin-design-{chromium,mobile,dark}` | ❌ W0 |
 | INFRA-02 | 0 axe WCAG2A+AA violations per board | Playwright axe | same spec run (`assertNoAxeViolations` inside each board capture) | ❌ W0 |
 | INFRA-03 | `snapshot-allowlist-design` exists, steady-state empty | Bash | `grep -v '^#' .../snapshot-allowlist-design | grep -q . && exit 1 || exit 0` | ❌ W0 |
@@ -62,7 +62,7 @@ created: 2026-06-14
 
 Files that must exist (at least as test/skeleton structure) before implementation tasks run:
 
-- [ ] `test/sigra/installer/design_gallery_isolation_test.exs` — D-04 ExUnit contract guard (filesystem glob over `priv/templates/sigra.install/`)
+- [ ] `test/sigra/install/design_gallery_isolation_test.exs` — D-04 ExUnit contract guard (filesystem glob over `priv/templates/sigra.install/`)
 - [ ] `test/example/priv/playwright/tests/admin-design.spec.ts` — board-snapshot + axe spec skeleton
 - [ ] `test/example/priv/playwright/snapshot-allowlist-design` — empty allowlist (comments-only)
 - [ ] `scripts/ci/quality-ledger-monotonic.sh` — monotonic guard script
@@ -83,11 +83,11 @@ Files that must exist (at least as test/skeleton structure) before implementatio
 
 ## Validation Sign-Off
 
-- [ ] All requirements have an `<automated>` verify or Wave 0 dependency
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (6 net-new instrument files)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 300s (full) / < 15s (quick)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All requirements have an `<automated>` verify or Wave 0 dependency
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (6 net-new instrument files)
+- [x] No watch-mode flags
+- [x] Feedback latency < 300s (full) / < 15s (quick)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-14 (`wave_0_complete` flips true during execution once Wave 0 instrument files land)

@@ -866,8 +866,8 @@ And the `snapshot_drift_guard` job gains a second guard invocation for the desig
 `priv/templates/sigra.install/` contains "design" or "_design" in its filename.
 
 ```elixir
-# test/sigra/installer/design_gallery_isolation_test.exs
-defmodule Sigra.Installer.DesignGalleryIsolationTest do
+# test/sigra/install/design_gallery_isolation_test.exs
+defmodule Sigra.Install.DesignGalleryIsolationTest do
   use ExUnit.Case, async: true
 
   @installer_template_root "priv/templates/sigra.install"
@@ -1161,7 +1161,7 @@ No missing dependencies.
 |----------|-------|
 | Framework | ExUnit (`mix test`) + Playwright (`npx playwright test`) |
 | Config file | `test/example/priv/playwright/playwright.config.ts` |
-| Quick run command | `mix test test/sigra/installer/design_gallery_isolation_test.exs` (D-04 guard) |
+| Quick run command | `mix test test/sigra/install/design_gallery_isolation_test.exs` (D-04 guard) |
 | Full suite command | `mix test && (cd test/example/priv/playwright && npx playwright test tests/admin-design.spec.ts)` |
 
 ### Phase Requirements → Test Map
@@ -1170,7 +1170,7 @@ No missing dependencies.
 |--------|----------|-----------|-------------------|-------------|
 | INFRA-01 (gallery route) | Gallery route exists and renders under admin shell with all 13 boards | Playwright smoke | `npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium` | Wave 0 gap |
 | INFRA-01 (compile-out) | Gallery compiles out in `MIX_ENV=test` (no route defined) | ExUnit (router test or mix compile check) | `MIX_ENV=test mix compile --no-deps-check` + assert `/admin/_design` is absent | Wave 0 gap |
-| INFRA-01 (D-04 contract) | No `*design*` file in `priv/templates/sigra.install/` | ExUnit | `mix test test/sigra/installer/design_gallery_isolation_test.exs` | Wave 0 gap |
+| INFRA-01 (D-04 contract) | No `*design*` file in `priv/templates/sigra.install/` | ExUnit | `mix test test/sigra/install/design_gallery_isolation_test.exs` | Wave 0 gap |
 | INFRA-02 (board PNGs) | 13 component boards + MG-N group boards captured as element-scoped PNGs across 3 projects | Playwright visual regression | `npx playwright test tests/admin-design.spec.ts --project=admin-design-{chromium,mobile,dark}` | Wave 0 gap |
 | INFRA-02 (axe) | 0 axe WCAG2A+AA violations on each board | Playwright axe (`assertNoAxeViolations`) | Same command — axe runs inside each `assertBoardScreenshot` call | Wave 0 gap |
 | INFRA-03 (allowlist empty) | `snapshot-allowlist-design` exists and has no non-comment content | Bash | `grep -v '^#' test/example/priv/playwright/snapshot-allowlist-design | grep -q . && exit 1 || exit 0` | Wave 0 gap |
@@ -1185,13 +1185,13 @@ No missing dependencies.
 
 ### Sampling Rate
 
-- **Per task commit:** `mix test test/sigra/installer/design_gallery_isolation_test.exs` (instant, no Postgres, guards D-04)
+- **Per task commit:** `mix test test/sigra/install/design_gallery_isolation_test.exs` (instant, no Postgres, guards D-04)
 - **Per wave merge:** Full `mix test` + design gallery Playwright run across 3 projects
 - **Phase gate:** All of the above + `bash scripts/ci/snapshot-canary-guard.sh` design invocation + `bash scripts/ci/quality-ledger-monotonic.sh` before `/gsd:verify-work`
 
 ### Wave 0 Gaps (files that must exist before implementation tasks run)
 
-- [ ] `test/sigra/installer/design_gallery_isolation_test.exs` — D-04 ExUnit contract guard
+- [ ] `test/sigra/install/design_gallery_isolation_test.exs` — D-04 ExUnit contract guard
 - [ ] `test/example/priv/playwright/tests/admin-design.spec.ts` — board-snapshot + axe spec skeleton (at minimum, the file and test structure; actual boards added as gallery is built)
 - [ ] `test/example/priv/playwright/snapshot-allowlist-design` — empty allowlist (comments-only)
 - [ ] `scripts/ci/quality-ledger-monotonic.sh` — monotonic guard script
