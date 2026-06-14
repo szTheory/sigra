@@ -1,0 +1,13 @@
+# Intended-delta snapshot slugs for the admin-design Playwright baselines.
+#
+# One slug per line. A slug covers all three projects at once
+# (chromium / mobile / dark) — e.g. `board-stat` allows
+# board-stat-admin-design-{chromium,mobile,dark}.png to change.
+#
+# STEADY STATE: this file is empty (comments only). scripts/ci/snapshot-canary-guard.sh
+# fails CI if any baseline PNG changes whose slug is not listed here, so a PR that
+# deliberately re-records baselines MUST add the slug(s) in the same diff.
+# Reset to empty once the re-recording PR merges.
+#
+# The `board-notice` canary must NEVER appear here.
+#
