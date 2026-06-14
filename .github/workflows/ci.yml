@@ -1113,6 +1113,30 @@ jobs:
       - name: Run snapshot canary / drift allowlist guard
         run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
 
+  # Phase 185 (AUDIT-INFRA): merge-blocking quality ledger monotonic guard.
+  # Fails if any tier cell in guides/reference/admin-quality-ledger.md
+  # decreased vs the PR base ref — "only move forward, never regress".
+  quality_ledger_monotonic:
+    name: Quality ledger monotonic guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          fetch-depth: 0
+      - name: Resolve base ref
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run quality ledger monotonic guard
+        run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
+
   ci-gate:
     name: ci-gate
     runs-on: ubuntu-latest
@@ -1126,6 +1150,7 @@ jobs:
       - example_playwright_smoke
       - generated_admin_playwright_smoke
       - snapshot_drift_guard
+      - quality_ledger_monotonic
     if: always()
     steps:
       - name: Verify required release CI lanes
@@ -1139,6 +1164,7 @@ jobs:
           EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
           GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
           SNAPSHOT_DRIFT_GUARD: ${{ needs.snapshot_drift_guard.result }}
+          QUALITY_LEDGER_MONOTONIC: ${{ needs.quality_ledger_monotonic.result }}
         run: |
           set -euo pipefail
           failed=0
@@ -1151,7 +1177,8 @@ jobs:
             EXAMPLE_HTTP_SMOKE \
             EXAMPLE_PLAYWRIGHT_SMOKE \
             GENERATED_ADMIN_PLAYWRIGHT_SMOKE \
-            SNAPSHOT_DRIFT_GUARD
+            SNAPSHOT_DRIFT_GUARD \
+            QUALITY_LEDGER_MONOTONIC
           do
             result="${!lane}"
             if [[ "$result" != "success" ]]; then
