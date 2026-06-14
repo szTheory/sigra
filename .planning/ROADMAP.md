@@ -195,8 +195,8 @@ Plans:
 
 **Wave 1** (parallel)
 
-- [ ] 185-01-PLAN.md — Gallery LiveView scaffold (all 13 component boards + MG-1..MG-5 groups), dev-gated router entry, D-04 contract guard, quality ledger, fractal scorecard rubric
-- [ ] 185-02-PLAN.md — quality-ledger-monotonic.sh guard script + CI job (quality_ledger_monotonic) + ci-gate registration
+- [x] 185-01-PLAN.md — Gallery LiveView scaffold (all 13 component boards + MG-1..MG-5 groups), dev-gated router entry, D-04 contract guard, quality ledger, fractal scorecard rubric
+- [x] 185-02-PLAN.md — quality-ledger-monotonic.sh guard script + CI job (quality_ledger_monotonic) + ci-gate registration
 
 **Wave 2** (blocked on Wave 1)
 
