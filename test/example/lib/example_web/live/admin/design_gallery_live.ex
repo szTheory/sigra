@@ -47,7 +47,36 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <p class="sg-muted sg-text-sm">stat_link</p>
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">default</span>
-              <.stat_link href="/admin/users" label="Total Users" value={3_842} />
+              <.stat_link
+                id="stat-link-default"
+                href="/admin/users"
+                label="Total Users"
+                value={3_842}
+              />
+
+              <span class="sg-muted sg-text-xs">hover</span>
+              <.stat_link
+                id="stat-link-hover"
+                href="/admin/users"
+                label="Invited Users"
+                value={18}
+              />
+
+              <span class="sg-muted sg-text-xs">focus-visible</span>
+              <.stat_link
+                id="stat-link-focus"
+                href="/admin/users"
+                label="Locked Users"
+                value={2}
+              />
+
+              <span class="sg-muted sg-text-xs">active</span>
+              <.stat_link
+                id="stat-link-active"
+                href="/admin/users"
+                label="Needs Review"
+                value={3}
+              />
             </div>
           </div>
 
@@ -72,12 +101,13 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               <%!-- summary_chip emits bare <dt>/<dd> with no <dl> of its own,
                    so each board variant is wrapped in <dl class="sg-metric-grid">
                    exactly as the real admin does (a11y dlitem rule). --%>
-              <span class="sg-muted sg-text-xs">basic</span>
+              <span class="sg-muted sg-text-xs">tone: neutral</span>
               <dl class="sg-metric-grid">
-                <.summary_chip label="Sessions" value={12} />
+                <.summary_chip id="summary-chip-neutral" label="Sessions" value={12} />
               </dl>
 
-              <span class="sg-muted sg-text-xs">enhanced: icon, value_unit, subvalue, help, tone: risk</span>
+              <span class="sg-muted sg-text-xs">tone: risk</span>
+              <span class="sg-muted sg-text-xs">help closed</span>
               <dl class="sg-metric-grid">
                 <.summary_chip
                   id="summary-chip-help-closed"
@@ -91,7 +121,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 />
               </dl>
 
-              <span class="sg-muted sg-text-xs">enhanced: help open for deterministic evidence</span>
+              <span class="sg-muted sg-text-xs">help open</span>
               <dl class="sg-metric-grid">
                 <.summary_chip
                   id="summary-chip-help-open"
@@ -120,6 +150,19 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               <span class="sg-muted sg-text-xs">tone: info</span>
               <dl class="sg-metric-grid">
                 <.summary_chip label="Active Sessions" value={31} tone="info" />
+              </dl>
+
+              <span class="sg-muted sg-text-xs">focus-visible</span>
+              <dl class="sg-metric-grid">
+                <.summary_chip
+                  id="summary-chip-focus"
+                  label="Recovery Codes"
+                  value={11}
+                  icon="fingerprint"
+                  value_suffix="need rotation"
+                  help="Shows accounts with recovery codes older than policy."
+                  tone="info"
+                />
               </dl>
             </div>
           </div>
@@ -205,14 +248,29 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           <div id="board-field_help" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">field_help</p>
             <div class="sg-stack sg-stack--3">
-              <span class="sg-muted sg-text-xs">default (panel hidden)</span>
+              <span class="sg-muted sg-text-xs">closed</span>
               <.field_help id="fh-example-closed" label="API Token">
                 Token generated at account creation.
               </.field_help>
 
-              <span class="sg-muted sg-text-xs">open for deterministic evidence</span>
+              <span class="sg-muted sg-text-xs">open</span>
               <.field_help id="fh-example-open" label="Session Lifetime" open>
                 Controls how long an admin session can stay active before re-authentication.
+              </.field_help>
+
+              <span class="sg-muted sg-text-xs">focus-visible</span>
+              <.field_help id="fh-example-focus" label="Invite Domain">
+                Limits which email domains can receive admin invitations.
+              </.field_help>
+
+              <span class="sg-muted sg-text-xs">click/tap</span>
+              <.field_help id="fh-example-click" label="Audit Retention">
+                Sets how long audit events remain searchable.
+              </.field_help>
+
+              <span class="sg-muted sg-text-xs">Escape close</span>
+              <.field_help id="fh-example-escape" label="Impersonation Reason">
+                Records why an operator opened a support session.
               </.field_help>
             </div>
           </div>
