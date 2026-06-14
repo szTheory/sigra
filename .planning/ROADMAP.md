@@ -174,7 +174,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 184-03-PLAN.md — DIST-06 styled Playwright assertion + D-11 snapshot canary verification
+- [x] 184-03-PLAN.md — DIST-06 styled Playwright assertion + D-11 snapshot canary verification
 
 **UI hint**: yes
 
