@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.38
-milestone_name: BRAND-V2
-status: milestone-shipped
-last_updated: "2026-06-13T16:30:00.000Z"
-last_activity: 2026-06-13 -- v1.38 BRAND-V2 SHIPPED (PR #52 merged, v1.1.0 to hex) + archived to milestones/; repo-hygiene clean baseline
+milestone: v1.39
+milestone_name: DS-COHERENCE
+status: planning
+last_updated: "2026-06-14T00:47:54.615Z"
+last_activity: 2026-06-14
 progress:
-  total_phases: 30
-  completed_phases: 6
-  total_plans: 11
-  completed_plans: 11
-  percent: 20
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: none active — v1.38 BRAND-V2 archived to `.planning/milestones/v1.38-phases/`
-Plan: n/a
-Status: v1.38 BRAND-V2 SHIPPED 2026-06-13 — PR #52 merged to main (`e8faee8c`), `v1.1.0` published to hex via the full release-please → CI-gate → hex-publish pipeline, milestone archived, repo in a clean baseline. Deferred fast-follow: README header + GitHub social-preview adoption (`/gsd-quick`).
-Last activity: 2026-06-13 -- repo-hygiene pass: phx_new 1.8.7 pin, snapshot allowlist steady-state, branches pruned, v1.38 archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-06-14 — Milestone v1.39 started
 
 ## Accumulated Context
 

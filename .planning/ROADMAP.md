@@ -1,10 +1,11 @@
 # Roadmap: Sigra
 
 **Core Value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
-**Status:** v1.38 BRAND-V2 SHIPPED 2026-06-13 (merged to main, archived). D4 Linked Rail logo propagated repo-wide; `v1.1.0` published to hex.pm via the full release-please → CI-gate → hex-publish pipeline. No active milestone — ready for the next.
+**Status:** v1.39 DS-COHERENCE ACTIVE (opened 2026-06-13) — admin/operator design-system fractal audit + hardening, phases 184-192. Defining requirements → roadmap. Previous: v1.38 BRAND-V2 shipped 2026-06-13 (`v1.1.0` on hex.pm).
 
 ## Milestones
 
+- ◆ **v1.39 DS-COHERENCE** — Phases 184-192 (active, opened 2026-06-13)
 - ✅ **v1.38 BRAND-V2** — Phases 178-183 (shipped 2026-06-13)
 - ✅ **v1.37 AUTH-BRANDING-WHITELABEL** — Phases 173-177 (shipped 2026-06-07)
 - ✅ **v1.36 ADMIN-BRAND-THEME-POLISH** — Phases 168-172 (shipped 2026-06-06)
@@ -13,6 +14,37 @@
 - ✅ **v1.33 POST-1.0-MAINTENANCE-AND-STRATEGIC-BETS** — Phases 150-153 (shipped 2026-06-02)
 
 ## Phases
+
+### ◆ v1.39 DS-COHERENCE (Phases 184-192) — ACTIVE
+
+**Milestone Goal:** Turn the strengthened v1.38 brand into a systematically audited, award-grade admin/operator design system — evaluated *fractally* (components → groups → pages → flows) and shipped to real adopters by closing the admin-CSS distribution gap, governed by a re-runnable quality ledger so re-runs only move quality forward.
+
+**Approved plan:** `~/.claude/plans/design-system-stress-test-serialized-candy.md`
+**Idempotency:** quality-tier ledger (Drift/Ratified/Award-grade) + merge-blocking monotonic guard + canary/allowlist/axe/byte-golden harness + deterministic fractal scorecard (D1–D11 + level add-ons).
+**Methodology (every phase):** subagent research (best practices, anti-patterns, footguns, user loved/hated) → adversarial judge → synthesis, per GSD research→plan→execute→verify. Phase 186 is the ONLY phase allowed to change token *values* (blast-radius control).
+
+- [ ] **Phase 184: Distribution & Parity** — Extract canonical admin `sg-*` CSS into a shipped installer asset (`priv/templates/sigra.install/admin/sigra_admin.css`); link it in the generated admin layout; example consumes the same file; merge-blocking example≡template parity; styled generated-host proof. Requirements: DIST-01..06.
+  - Success: installer ships `sigra_admin.css`; admin layout links it; parity test green; generated host renders styled admin; existing canary stays green (no visual delta).
+- [ ] **Phase 185: Audit Infrastructure** — Build the example-only `/admin/_design` gallery (renders every component + group in every state, imports real `Sigra.Admin.Components`, never templated to installer); `admin-design-{chromium,mobile,dark}` board snapshot lane + empty `snapshot-allowlist-design` + gallery canary + axe; quality ledger + monotonic guard; ratified fractal scorecard rubric. Requirements: INFRA-01..06.
+  - Success: gallery + snapshot lane green with axe; ledger + `quality-ledger-monotonic.sh` merge-blocking; rubric committed.
+- [ ] **Phase 186: Token Foundation (L0)** — Adversarially audit + ratify the `:root` token layer (color/type/space/radius/shadow/control/elev/focus/z) in Light/Dark/System vs brand parity; validate motion-budget tokens against emilkowal.ski; preserve three-surface ember parity (auth stays coherent). Requirements: TOKEN-01..04, THEME-01.
+  - Success: every token has rationale + brand ref; all color pairs pass AA light+dark; motion tokens ratified; auth coherence preserved; token deltas declared in allowlists.
+- [ ] **Phase 187: Individual Components (L1)** — Each of 13 components × full scorecard: emilkowal.ski micro-interactions, complete states, responsive 320–1440, a11y, local microcopy. Requirements: COMP-01..06.
+  - Success: every component ≥ Ratified (target Award-grade) light/dark/mobile; byte-goldens updated only for intended markup; per-component axe clean; reduced-motion verified; ledger raised.
+- [ ] **Phase 188: Meta-Components / Groups (L2)** — The MG-1..MG-11 group catalog × meta scorecard: intra-group rhythm, no nesting, right-component-for-job, zero/loading/error states, desktop-table↔mobile-card swap integrity, cross-page byte-coherence. Requirements: GROUP-01..04.
+  - Success: each group passes; desktop/mobile content-equivalent at swap breakpoint; reused groups render byte-coherently; ledger raised.
+- [ ] **Phase 189: Page Compositions (L3)** — 3 archetypes (Overview/List/Detail) + non-archetypal Branding customizer + Audit explorer × page scorecard: GOV.UK IA, least-surprise, overlay/modal + scroll/sticky + pagination correctness, page-level a11y + responsive. Requirements: PAGE-01..05.
+  - Success: each page passes; 8 checkpoints × 3 projects ratified; IA hierarchy verifiable; non-archetypal pages explicitly scored.
+- [ ] **Phase 190: Flows & Fixture Data (L4)** — Persona JTBD journeys (platform admin / support investigator / org admin) across happy/error/boundary; deterministic seed/persona enrichment; scope/return continuity; keyboard + reduced-motion full traversal; theme persistence. Requirements: FLOW-01..03, DATA-01.
+  - Success: each persona flow passes happy + main-error + boundary with a deterministic fixture; scope/return context preserved; flow specs green.
+- [ ] **Phase 191: Microcopy & IA Sweep** — System-wide voice pass vs brand book; GOV.UK plain-language; one-term-per-concept glossary; error/empty/success tone consistency across all admin surfaces. Requirements: COPY-01..03.
+  - Success: glossary committed; every string passes voice + plain-language rubric; no synonym drift; ledger raised.
+- [ ] **Phase 192: Ratification & Baseline Lock** — Terminal idempotency gate: re-run every scorecard; deliberately recapture all baselines (checkpoints + gallery) via the recapture gate; reset both allowlists to empty; prove generated-host parity (`RUN_PARITY=1`); full-surface axe; byte-goldens; commit final ledger. Requirements: GATE-01..03.
+  - Success: all baselines ratified + both canaries green; allowlists empty; generated-host parity proven; final ledger records achieved tier per item; monotonic guard green vs origin/main.
+
+**Requirement coverage:** DIST (184), INFRA (185), TOKEN/THEME (186), COMP (187), GROUP (188), PAGE (189), FLOW/DATA (190), COPY (191), GATE (192) — every v1.39 requirement maps to exactly one phase.
+
+---
 
 <details>
 <summary>✅ v1.38 BRAND-V2 (Phases 178-183) — SHIPPED 2026-06-13</summary>
