@@ -34,17 +34,17 @@ between the base branch and the PR branch.
 | Item | Level | Tier | Evidence |
 |------|-------|------|----------|
 | token-layer | L0 | 1 | [admin-token-reference.md](admin-token-reference.md) |
-| stat | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| stat_link | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| stat | L1 | 1 | [board-stat admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| stat_link | L1 | 1 | [board-stat_link admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | task_card | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| summary_chip | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| summary_chip | L1 | 1 | [board-summary_chip admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | applied_chip | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | empty_state | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | page_back | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | scope_ribbon | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | notice | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | notice_link | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| field_help | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| field_help | L1 | 1 | [board-field_help admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | skeleton | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | audit_row | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | mg-1-metric-strip | L2 | 1 | [admin-design.spec.ts board-mg-1](#) |
