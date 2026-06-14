@@ -227,7 +227,7 @@ Plans:
 
 **Wave 2** (blocked on Wave 1)
 
-- [ ] 186-04-PLAN.md — Adversarial axe audit + conditional value-change gate + phase close
+- [x] 186-04-PLAN.md — Adversarial axe audit + conditional value-change gate + phase close
 
 **UI hint**: yes
 
