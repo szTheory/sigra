@@ -820,6 +820,17 @@ jobs:
             --project=admin-checkpoints-chromium \
             --project=admin-checkpoints-mobile \
             --project=admin-checkpoints-dark
+      - name: Run design gallery boards (chromium, mobile, dark)
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark
       # Playwright clears test-results/ at the start of each `playwright test`
       # invocation. Stage curated admin PNGs now so the later non-admin wave
       # does not wipe them before the artifact bundle contract runs.
@@ -1112,6 +1123,13 @@ jobs:
           fi
       - name: Run snapshot canary / drift allowlist guard
         run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Run snapshot canary / drift guard — design lane
+        run: |
+          SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots" \
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base "${{ steps.base.outputs.ref }}" \
+            --allowlist test/example/priv/playwright/snapshot-allowlist-design \
+            --canary board-notice
 
   # Phase 185 (AUDIT-INFRA): merge-blocking quality ledger monotonic guard.
   # Fails if any tier cell in guides/reference/admin-quality-ledger.md

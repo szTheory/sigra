@@ -51,7 +51,9 @@ for s in "${EXTRA_ALLOW[@]:-}"; do
 done
 
 slug_of() {
-  basename "$1" | sed -E 's/-admin-checkpoints-(chromium|mobile|dark)\.png$//'
+  basename "$1" | sed -E \
+    's/-admin-checkpoints-(chromium|mobile|dark)\.png$//;
+     s/-admin-design-(chromium|mobile|dark)\.png$//'
 }
 
 # --- collect changed snapshot files: tracked diff + untracked ---------------
