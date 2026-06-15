@@ -1,9 +1,9 @@
 ---
 phase: 188
 slug: meta-components-groups-l2
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: ratified
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-15
 ---
 
@@ -20,7 +20,7 @@ created: 2026-06-15
 | **Framework** | ExUnit + Playwright |
 | **Config file** | `mix.exs`, `test/example/priv/playwright/playwright.config.ts` |
 | **Quick run command** | `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs` |
-| **Full suite command** | `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs && (cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark) && bash scripts/ci/quality-ledger-monotonic.sh --base HEAD && (cd test/example && mix precommit)` |
+| **Full suite command** | `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs && (cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark) && bash scripts/ci/quality-ledger-monotonic.sh --base HEAD && SNAP_DIR=test/example/priv/playwright/tests/admin-design.spec.ts-snapshots bash scripts/ci/snapshot-canary-guard.sh --base HEAD --allowlist test/example/priv/playwright/snapshot-allowlist-design --canary board-notice && ! rg -v '^#|^$' test/example/priv/playwright/snapshot-allowlist-design && (cd test/example && mix precommit)` |
 | **Estimated runtime** | ~180-300 seconds with the example app already running |
 
 ---
@@ -38,10 +38,10 @@ created: 2026-06-15
 
 | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| GROUP-01 | T-188-01 | MG-1..MG-11 use the right component for each job, avoid card-in-card nesting, and pass scorecard assertions. | Playwright DOM + source assertions | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --grep "board-mg"` | yes | pending |
-| GROUP-02 | T-188-02 | Each MG board has documented zero, loading, and error states, or a source-commented impossibility rationale. | Playwright DOM + source assertions | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --grep "state"` | yes | pending |
-| GROUP-03 | T-188-03 | Desktop table and mobile card variants expose equivalent primary facts, status/outcome, secondary facts, identifiers, and navigation/actions without squished columns. | Playwright responsive assertions | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --grep "MG-5|MG-6|content-equivalent"` | yes | pending |
-| GROUP-04 | T-188-04 | Reused groups render byte-coherently across pages except for named density/scope variants documented in board labels and ledger evidence. | Playwright DOM + ledger guard | `bash scripts/ci/quality-ledger-monotonic.sh --base HEAD` plus matching Playwright coherence assertions | yes | pending |
+| GROUP-01 | T-188-01 | MG-1..MG-11 use the right component for each job, avoid card-in-card nesting, and pass scorecard assertions. | Playwright DOM + source assertions | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark` | yes | green |
+| GROUP-02 | T-188-02 | Each MG board has documented zero, loading, and error states, or a source-commented impossibility rationale. | Playwright DOM + source assertions | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark` | yes | green |
+| GROUP-03 | T-188-03 | Desktop table and mobile card variants expose equivalent primary facts, status/outcome, secondary facts, identifiers, and navigation/actions without squished columns. | Playwright responsive assertions | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark` | yes | green |
+| GROUP-04 | T-188-04 | Reused groups render byte-coherently across pages except for named density/scope variants documented in board labels and ledger evidence. | Playwright DOM + ledger guard | `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark` plus `bash scripts/ci/quality-ledger-monotonic.sh --base HEAD` | yes | green |
 
 *Status: pending, green, red, flaky*
 
@@ -49,10 +49,10 @@ created: 2026-06-15
 
 ## Wave 0 Requirements
 
-- [ ] Confirm the example app is running for Playwright with `SIGRA_EXAMPLE_URL=http://localhost:4011`.
-- [ ] Confirm `test/example/priv/playwright/tests/admin-design.spec.ts` contains deterministic readiness gates and no sleeps.
-- [ ] Confirm `scripts/ci/quality-ledger-monotonic.sh --base HEAD` is available before any ledger tier edits.
-- [ ] Confirm all planned UI assertions use roles, stable hooks, and existing `sg-*` selectors.
+- [x] Confirm the example app is running for Playwright with `SIGRA_EXAMPLE_URL=http://localhost:4011`.
+- [x] Confirm `test/example/priv/playwright/tests/admin-design.spec.ts` contains deterministic readiness gates and no sleeps.
+- [x] Confirm `scripts/ci/quality-ledger-monotonic.sh --base HEAD` is available before any ledger tier edits.
+- [x] Confirm all planned UI assertions use roles, stable hooks, and existing `sg-*` selectors.
 
 ---
 
@@ -67,11 +67,22 @@ created: 2026-06-15
 
 ## Validation Sign-Off
 
-- [ ] All tasks have automated verify commands or explicit manual-only rationale.
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verification.
-- [ ] Wave 0 covers missing prerequisites before UI implementation tasks.
-- [ ] No watch-mode flags.
-- [ ] Feedback latency under 300 seconds for wave validation.
-- [ ] `nyquist_compliant: true` set in frontmatter after executable plans map final task IDs.
+- [x] All tasks have automated verify commands or explicit manual-only rationale.
+- [x] Sampling continuity: no 3 consecutive tasks without automated verification.
+- [x] Wave 0 covers missing prerequisites before UI implementation tasks.
+- [x] No watch-mode flags.
+- [x] Feedback latency under 300 seconds for wave validation.
+- [x] `nyquist_compliant: true` set in frontmatter after executable plans map final task IDs.
 
-**Approval:** pending
+## Final Gate Evidence
+
+Executed on 2026-06-15 with the example app served at `http://localhost:4011`:
+
+- `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs` — 29 tests, 0 failures. The run emitted the known Chimeway.Repo missing `:database` log noise.
+- `cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark` — 102 tests, 0 failures.
+- `bash scripts/ci/quality-ledger-monotonic.sh --base HEAD` — passed, 31 cells checked.
+- `SNAP_DIR=test/example/priv/playwright/tests/admin-design.spec.ts-snapshots bash scripts/ci/snapshot-canary-guard.sh --base HEAD --allowlist test/example/priv/playwright/snapshot-allowlist-design --canary board-notice` — passed, 0 changed slugs.
+- `! rg -v '^#|^$' test/example/priv/playwright/snapshot-allowlist-design` — passed; allowlist is comments-only.
+- `cd test/example && mix precommit` — 213 tests, 0 failures, 79 excluded.
+
+**Approval:** approved
