@@ -106,7 +106,7 @@
 | INFRA-01..06 | 185 | pending |
 | TOKEN-01..04, THEME-01 | 186 | pending |
 | COMP-01..06 | 187 | pending |
-| GROUP-01..04 | 188 | pending |
+| GROUP-01..04 | 188 | complete |
 | PAGE-01..05 | 189 | pending |
 | FLOW-01..03, DATA-01 | 190 | pending |
 | COPY-01..03 | 191 | pending |

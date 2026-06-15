@@ -31,7 +31,7 @@
   - Success: every token has rationale + brand ref; all color pairs pass AA light+dark; motion tokens ratified; auth coherence preserved; token deltas declared in allowlists.
 - [ ] **Phase 187: Individual Components (L1)** — Each of 13 components × full scorecard: emilkowal.ski micro-interactions, complete states, responsive 320–1440, a11y, local microcopy. Requirements: COMP-01..06.
   - Success: every component ≥ Ratified (target Award-grade) light/dark/mobile; byte-goldens updated only for intended markup; per-component axe clean; reduced-motion verified; ledger raised.
-- [ ] **Phase 188: Meta-Components / Groups (L2)** — The MG-1..MG-11 group catalog × meta scorecard: intra-group rhythm, no nesting, right-component-for-job, zero/loading/error states, desktop-table↔mobile-card swap integrity, cross-page byte-coherence. Requirements: GROUP-01..04.
+- [x] **Phase 188: Meta-Components / Groups (L2)** — The MG-1..MG-11 group catalog × meta scorecard: intra-group rhythm, no nesting, right-component-for-job, zero/loading/error states, desktop-table↔mobile-card swap integrity, cross-page byte-coherence. Requirements: GROUP-01..04. (completed 2026-06-15)
   - Success: each group passes; desktop/mobile content-equivalent at swap breakpoint; reused groups render byte-coherently; ledger raised.
 - [ ] **Phase 189: Page Compositions (L3)** — 3 archetypes (Overview/List/Detail) + non-archetypal Branding customizer + Audit explorer × page scorecard: GOV.UK IA, least-surprise, overlay/modal + scroll/sticky + pagination correctness, page-level a11y + responsive. Requirements: PAGE-01..05.
   - Success: each page passes; 8 checkpoints × 3 projects ratified; IA hierarchy verifiable; non-archetypal pages explicitly scored.
