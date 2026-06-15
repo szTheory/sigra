@@ -91,6 +91,57 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 href="/admin/users?flagged=true"
                 action="Review"
               />
+
+              <span class="sg-muted sg-text-xs">hover</span>
+              <.task_card
+                title="Review invited accounts"
+                body="18 invitations are still pending."
+                href="/admin/users?invited=true"
+                action="Open invitations"
+              />
+
+              <span class="sg-muted sg-text-xs">CTA focus-visible</span>
+              <.task_card
+                title="Unlock accounts"
+                body="2 accounts are locked after failed attempts."
+                href="/admin/users?locked=true"
+                action="View locked users"
+              />
+
+              <span class="sg-muted sg-text-xs">CTA active</span>
+              <.task_card
+                title="Resolve review queue"
+                body="3 accounts need an operator decision."
+                href="/admin/users?needs_review=true"
+                action="Review accounts"
+              />
+
+              <span class="sg-muted sg-text-xs">disabled</span>
+              <div class="sg-cluster">
+                <button
+                  id="task-card-disabled-native"
+                  class="sg-btn sg-btn--primary"
+                  type="button"
+                  disabled
+                >
+                  Disabled button
+                </button>
+                <a
+                  id="task-card-disabled-aria"
+                  class="sg-btn sg-btn--secondary"
+                  aria-disabled="true"
+                  tabindex="-1"
+                >
+                  Unavailable link
+                </a>
+                <span
+                  id="task-card-disabled-class"
+                  class="sg-btn sg-btn--ghost is-disabled"
+                  aria-disabled="true"
+                >
+                  Disabled span
+                </span>
+              </div>
             </div>
           </div>
 
@@ -172,7 +223,16 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <p class="sg-muted sg-text-sm">applied_chip</p>
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">default</span>
-              <.applied_chip label="Status: Active" remove_href="?status=" />
+              <.applied_chip label="Role: Admin" remove_href="?role=" />
+
+              <span class="sg-muted sg-text-xs">hover</span>
+              <.applied_chip label="Role: Admin" remove_href="?role=" />
+
+              <span class="sg-muted sg-text-xs">focus-visible</span>
+              <.applied_chip label="Role: Admin" remove_href="?role=" />
+
+              <span class="sg-muted sg-text-xs">active</span>
+              <.applied_chip label="Role: Admin" remove_href="?role=" />
             </div>
           </div>
 
@@ -192,7 +252,16 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <p class="sg-muted sg-text-sm">page_back</p>
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">default</span>
-              <.page_back return_to="/admin" label="Dashboard" />
+              <.page_back return_to="/admin/users" label="Back to users" />
+
+              <span class="sg-muted sg-text-xs">hover</span>
+              <.page_back return_to="/admin/users" label="Back to users" />
+
+              <span class="sg-muted sg-text-xs">focus-visible</span>
+              <.page_back return_to="/admin/users" label="Back to users" />
+
+              <span class="sg-muted sg-text-xs">active</span>
+              <.page_back return_to="/admin/users" label="Back to users" />
             </div>
           </div>
 
