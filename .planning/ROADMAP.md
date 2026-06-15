@@ -258,7 +258,7 @@ Plans:
 
 **Wave 3** (blocked on Wave 2)
 
-- [ ] 188-05-PLAN.md — Playwright L2 catalog, responsive, equivalence, coherence, axe, and snapshot evidence
+- [x] 188-05-PLAN.md — Playwright L2 catalog, responsive, equivalence, coherence, axe, and snapshot evidence
 
 **Wave 4** (blocked on Wave 3)
 
