@@ -583,6 +583,35 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html =~ "sg-skeleton",
            "skeleton drifted: required sg-skeleton class missing — see admin-design-contract.md; do not re-record Playwright baselines"
+
+    refute html =~ ~s(aria-busy=),
+           "skeleton itself must stay decorative; busy state belongs on the containing region"
+  end
+
+  test "loading and audit shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    assert css =~ ".sg-skeleton::after"
+    assert Regex.match?(
+             ~r/@keyframes sg-skeleton-shimmer \{[\s\S]*transform:\s*translateX\(100%\)/,
+             css
+           ),
+           "skeleton shimmer must animate transform only"
+
+    assert Regex.match?(
+             ~r/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*animation-duration:\s*0\.01ms !important/,
+             css
+           ),
+           "reduced motion must strip active skeleton shimmer movement"
+
+    assert css =~ ".sg-status-pill[data-tone]::before",
+           "audit status pills must expose a non-color glyph cue"
+
+    assert css =~ ".sg-code",
+           "audit rows with code evidence must use shipped code styling"
+
+    refute css =~ ~r/transition:\s*all/,
+           "loading/audit CSS must use exact-property transitions"
   end
 
   # ---------------------------------------------------------------------------

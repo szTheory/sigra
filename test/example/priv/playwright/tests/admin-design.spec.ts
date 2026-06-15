@@ -290,6 +290,64 @@ test.describe('Design gallery board snapshots', () => {
     ).toHaveCount(4);
   });
 
+  test('skeleton and audit_row boards expose required L1 state evidence and reduced motion', async ({
+    page,
+  }) => {
+    const skeletonBoard = page.locator('#board-skeleton');
+    for (const label of [
+      'aria-busy container',
+      'line skeleton',
+      'block skeleton',
+      'card skeleton',
+      'reduced motion static',
+    ]) {
+      await expect(skeletonBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(skeletonBoard.locator('[aria-busy="true"]')).toHaveCount(1);
+    await expect(skeletonBoard.locator('.sg-skeleton[aria-busy]')).toHaveCount(0);
+    await expect(skeletonBoard.locator('.sg-skeleton')).toHaveCount(5);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const reducedMotion = await skeletonBoard.locator('.sg-skeleton').first().evaluate((element) => {
+      const after = getComputedStyle(element, '::after');
+      const toMs = (duration: string) =>
+        duration
+          .split(',')
+          .map((part) => part.trim())
+          .filter(Boolean)
+          .map((part) => {
+            const value = Number.parseFloat(part);
+            return part.endsWith('ms') ? value : value * 1000;
+          });
+
+      return {
+        animationName: after.animationName,
+        maxDurationMs: Math.max(...toMs(after.animationDuration)),
+        iterationCounts: after.animationIterationCount.split(',').map((part) => part.trim()),
+      };
+    });
+
+    expect(
+      reducedMotion.animationName === 'none' || reducedMotion.maxDurationMs <= 1,
+      'reduced motion should strip active skeleton shimmer movement',
+    ).toBeTruthy();
+    expect(reducedMotion.iterationCounts.every((count) => count === '1')).toBeTruthy();
+
+    const auditBoard = page.locator('#board-audit_row');
+    for (const label of ['success compact', 'info full with codes', 'risk failure']) {
+      await expect(auditBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(auditBoard.locator('article.sg-list-row')).toHaveCount(3);
+    await expect(auditBoard.locator('article.sg-list-row:not([data-tone])')).toHaveCount(1);
+    await expect(auditBoard.locator('article.sg-list-row[data-tone="info"]')).toHaveCount(1);
+    await expect(auditBoard.locator('article.sg-list-row[data-tone="risk"]')).toHaveCount(1);
+    await expect(auditBoard.locator('.sg-status-pill[data-tone="info"]')).toHaveCount(2);
+    await expect(auditBoard.locator('.sg-status-pill[data-tone="risk"]')).toHaveCount(1);
+    await expect(auditBoard.locator('code.sg-code')).toHaveCount(2);
+    await expect(auditBoard.getByText('uuid-5678', { exact: true })).toBeVisible();
+    await expect(auditBoard.getByText('admin.impersonation.start', { exact: true })).toBeVisible();
+  });
+
   test('help states open and close with Escape without trapping focus', async ({ page }) => {
     const fieldHelp = page.locator('#board-field_help [data-sg-field-help-root]').first();
     const fieldTrigger = fieldHelp.locator('[data-sg-field-help-trigger]');
