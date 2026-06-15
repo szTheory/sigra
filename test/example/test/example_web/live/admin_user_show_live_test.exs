@@ -79,13 +79,23 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
           "token" => Base.url_encode64(session.hashed_token, padding: false)
         })
 
+      assert html =~ "Revoke this session?"
+
       assert html =~
-               "Revoke this session for #{target.email} in Global scope? The user will need to sign in again."
+               "Revoke this session for #{target.email}? This signs them out of that browser or device."
+
+      assert html =~ "Keep sessions"
+      assert html =~ "Revoke session"
 
       html = render_click(view, :open_revoke_all_sessions, %{})
 
+      assert html =~ "Revoke all sessions?"
+
       assert html =~
-               "Revoke every active session for #{target.email} in Global scope? This signs them out everywhere."
+               "Revoke every active session for #{target.email}? This signs them out everywhere."
+
+      assert html =~ "Keep sessions"
+      assert html =~ "Revoke all sessions"
     end
 
     test "platform admins can pivot from a global user detail page into an organization-scoped view",
