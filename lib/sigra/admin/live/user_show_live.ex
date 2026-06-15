@@ -44,7 +44,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
      assign(socket, :confirm_action, %{
        type: :revoke_session,
        token: Base.url_decode64!(encoded_token, padding: false),
-       copy: revoke_session_copy(socket.assigns.detail)
+       title: "Revoke this session?",
+       copy: revoke_session_copy(socket.assigns.detail),
+       confirm_label: "Revoke session",
+       cancel_label: "Keep sessions"
      })}
   end
 
@@ -52,7 +55,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
     {:noreply,
      assign(socket, :confirm_action, %{
        type: :revoke_all_sessions,
-       copy: revoke_all_sessions_copy(socket.assigns.detail)
+       title: "Revoke all sessions?",
+       copy: revoke_all_sessions_copy(socket.assigns.detail),
+       confirm_label: "Revoke all sessions",
+       cancel_label: "Keep sessions"
      })}
   end
 
@@ -403,11 +409,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp show_impersonation_start?(_current_scope), do: true
 
   defp revoke_session_copy(detail) do
-    "Revoke this session for #{detail.user.email} in #{detail.scope_label}? The user will need to sign in again."
+    "Revoke this session for #{detail.user.email}? This signs them out of that browser or device."
   end
 
   defp revoke_all_sessions_copy(detail) do
-    "Revoke every active session for #{detail.user.email} in #{detail.scope_label}? This signs them out everywhere."
+    "Revoke every active session for #{detail.user.email}? This signs them out everywhere."
   end
 
   defp scope_copy(%Scope{mode: :organization, organization: %{name: name}}),
