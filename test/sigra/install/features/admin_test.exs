@@ -394,6 +394,26 @@ defmodule Sigra.Install.Features.AdminTest do
                  "update sigra_auth.css to restore ember parity with admin dark tokens"
       end
     end
+
+    test "admin token reference documents every canonical :root --sg-* token" do
+      admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+      token_reference = File.read!("guides/reference/admin-token-reference.md")
+
+      documented_tokens =
+        ~r/`(--sg-[\w-]+)`/
+        |> Regex.scan(token_reference, capture: :all_but_first)
+        |> List.flatten()
+        |> MapSet.new()
+
+      missing_tokens =
+        admin_css
+        |> extract_root_sg_token_names()
+        |> Enum.reject(&MapSet.member?(documented_tokens, &1))
+
+      assert missing_tokens == [],
+             "guides/reference/admin-token-reference.md is missing documented rows for: " <>
+               Enum.join(missing_tokens, ", ")
+    end
   end
 
   defp extract_dark_media_props(css) do
@@ -452,6 +472,46 @@ defmodule Sigra.Install.Features.AdminTest do
       |> String.trim()
     end)
     |> Enum.sort()
+  end
+
+  defp extract_root_sg_token_names(css) do
+    css
+    |> extract_css_blocks(":root")
+    |> Enum.flat_map(&extract_sg_declarations/1)
+    |> Enum.map(fn declaration ->
+      [token_name, _value] = String.split(declaration, ":", parts: 2)
+      token_name
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp extract_css_blocks(css, selector) do
+    do_extract_css_blocks(css, selector, [])
+  end
+
+  defp do_extract_css_blocks(css, selector, blocks) do
+    case :binary.match(css, selector) do
+      {selector_offset, _} ->
+        block_source = binary_part(css, selector_offset, byte_size(css) - selector_offset)
+
+        case :binary.match(block_source, "{") do
+          {brace_offset, 1} ->
+            block_with_prefix =
+              binary_part(block_source, brace_offset, byte_size(block_source) - brace_offset)
+
+            block = take_balanced_block(block_with_prefix)
+            consumed_bytes = selector_offset + brace_offset + byte_size(block)
+            rest = binary_part(css, consumed_bytes, byte_size(css) - consumed_bytes)
+            do_extract_css_blocks(rest, selector, [block | blocks])
+
+          :nomatch ->
+            Enum.reverse(blocks)
+        end
+
+      :nomatch ->
+        Enum.reverse(blocks)
+    end
   end
 
   defp extract_token_value(css, token_name) do
