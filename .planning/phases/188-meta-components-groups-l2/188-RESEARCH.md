@@ -367,17 +367,15 @@ async function assertBoardScreenshot(page: Page, testInfo: TestInfo, boardId: st
 |---|-------|---------|---------------|
 | A1 | Screenshots catch gross visual drift but not same-data same-structure claims. | Common Pitfalls | Planner may over-index on DOM assertions; acceptable because added assertions are low risk. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How high should each L2 ledger row be raised?**
    - What we know: Existing L2 rows are tier 1 and tiers cannot decrease. [VERIFIED: codebase grep]
-   - What's unclear: Whether final evidence justifies tier 2 for any MG row is a design judgment after implementation screenshots. [ASSUMED]
-   - Recommendation: Plan for "raise to achieved tier" with human-visible screenshot review before tier 2 claims. [CITED: guides/reference/admin-quality-ledger.md]
+   - Resolution: Ledger tier is raised only after evidence review. Executors must keep the existing monotonic floor, review the generated screenshots/assertions, and record the achieved tier without claiming tier 2 from intent alone. [CITED: guides/reference/admin-quality-ledger.md]
 
 2. **Should repeated group rendering be factored into new helpers?**
    - What we know: Production group patterns repeat across LiveViews, but the existing system mainly composes L1 function components and `sg-*` classes directly. [VERIFIED: codebase grep]
-   - What's unclear: Whether helper extraction will reduce meaningful duplication without obscuring page-specific IA. [ASSUMED]
-   - Recommendation: Prefer targeted helper extraction only for byte-coherence failures found during tests; do not add abstractions just to make the catalog look symmetrical. [ASSUMED]
+   - Resolution: Helper extraction is only for byte-coherence failures where it reduces real duplication. Executors should keep direct L1 component composition unless tests expose same-data structural drift that a small helper cleanly removes. [ASSUMED]
 
 ## Environment Availability
 

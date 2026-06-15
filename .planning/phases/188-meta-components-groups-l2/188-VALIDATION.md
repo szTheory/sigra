@@ -20,7 +20,7 @@ created: 2026-06-15
 | **Framework** | ExUnit + Playwright |
 | **Config file** | `mix.exs`, `test/example/priv/playwright/playwright.config.ts` |
 | **Quick run command** | `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs` |
-| **Full suite command** | `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs && (cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark) && bash scripts/ci/quality-ledger-monotonic.sh --base HEAD` |
+| **Full suite command** | `mix test test/sigra/install/features/admin_test.exs test/sigra/install/golden_diff_test.exs && (cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark) && bash scripts/ci/quality-ledger-monotonic.sh --base HEAD && (cd test/example && mix precommit)` |
 | **Estimated runtime** | ~180-300 seconds with the example app already running |
 
 ---
