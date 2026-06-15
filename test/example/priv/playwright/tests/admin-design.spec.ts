@@ -23,10 +23,25 @@ async function registerUser(page: Page, email: string, password: string) {
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
-  await page.locator('form:has(input[name="user[password]"])').first().evaluate((form) => {
-    (form as HTMLFormElement).requestSubmit();
-  });
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await Promise.all([
+    page.waitForURL((url) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
+    page.getByRole('button', { name: /Create an account/ }).click(),
+  ]);
+  await expect(page.getByRole('alert')).toContainText('Account created successfully!');
+}
+
+let registrationSequence = 0;
+
+function adminDesignEmail(testInfo: TestInfo) {
+  // Example.SigraAdminPolicy requires this prefix for global admin access.
+  const project = testInfo.project.name
+    .replace(/^admin-design-/, '')
+    .replace(/[^a-z0-9]+/gi, '')
+    .slice(0, 8);
+  const sequence = (++registrationSequence).toString(36);
+  const timestamp = Date.now().toString(36);
+
+  return `platform-admin+dg-${timestamp}-${project}-${sequence}-${testInfo.retry}@example.test`;
 }
 
 /** Phase 35: axe a11y gate paired with each board snapshot. */
@@ -78,11 +93,7 @@ test.describe('Design gallery board snapshots', () => {
   // The gallery renders static literal assigns only, so the unique per-test
   // email never appears in any board screenshot — captures stay deterministic.
   test.beforeEach(async ({ page }, testInfo) => {
-    const suffix = `${Date.now()}-${testInfo.project.name}-${testInfo.title}`.replace(
-      /[^a-z0-9]+/gi,
-      '-',
-    );
-    const adminEmail = `platform-admin+design-${suffix}@example.test`;
+    const adminEmail = adminDesignEmail(testInfo);
     await registerUser(page, adminEmail, TEST_PASSWORD);
     await page.goto('/admin/_design');
     await waitForLiveViewReady(page);
