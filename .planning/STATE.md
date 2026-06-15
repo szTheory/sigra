@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
 status: executing
-last_updated: "2026-06-15T21:25:06.801Z"
+last_updated: "2026-06-15T21:30:34.889Z"
 last_activity: 2026-06-15
 progress:
   total_phases: 39
   completed_phases: 4
   total_plans: 23
-  completed_plans: 19
+  completed_plans: 20
   percent: 10
 ---
 
@@ -26,7 +26,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 188 (meta-components-groups-l2) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-06-15
 
@@ -69,6 +69,8 @@ Last activity: 2026-06-15
 - [Phase 188]: Documented token completeness is enforced by ExUnit rather than manual review. — The admin-token-reference guard extracts canonical :root --sg-* token names and fails when a documented row is missing.
 - [Phase 188]: Panel rhythm for sg-filter-panel and sg-detail-panel moved with the group selectors so generated hosts keep the same internal spacing. — Those panels are the L2 group surfaces; leaving their padding in app.css would keep generated-host evidence masked by the example layer.
 - [Phase 188]: No --sg-* token declarations were changed; this was a selector migration and mirror sync only. — Phase 188 D-03 through D-05 required canonical shipped CSS migration without Phase 186 token retuning.
+- [Phase 188]: MG-3 and MG-5 use unframed board wrappers where group content contains sg-card children. — This preserves the Phase 188 no card-in-card scoring rule while still rendering real task-card and mobile-card examples.
+- [Phase 188]: MG-11 confirmation overlays are inline-scoped in the gallery so static evidence does not cover the full page. — The gallery must render all boards simultaneously; literal fixed overlays would obscure unrelated evidence.
 
 ### Pending Todos
 
@@ -95,8 +97,8 @@ Last activity: 2026-06-15
 
 ## Session Continuity
 
-Last session: 2026-06-15T21:24:56.938Z
-Stopped at: Completed 188-02-PLAN.md
+Last session: 2026-06-15T21:30:25.981Z
+Stopped at: Completed 188-03-PLAN.md
 Resume file: None
 
 ## Performance Metrics
@@ -133,6 +135,7 @@ Resume file: None
 | Phase 187 P07 | 7 min | 3 tasks | 1 files |
 | Phase 188 P01 | 4 min | 3 tasks | 2 files |
 | Phase 188 P02 | 4 min | 2 tasks | 4 files |
+| Phase 188 P03 | 6 min | 2 tasks | 1 files |
 
 ## Operator Next Steps
 
