@@ -12,7 +12,11 @@ defmodule Example.Accounts.EnterpriseConnection do
 
   schema "enterprise_connections" do
     field :protocol, Ecto.Enum, values: [:oidc], default: :oidc
-    field :status, Ecto.Enum, values: [:draft, :validation_failed, :active, :disabled], default: :draft
+
+    field :status, Ecto.Enum,
+      values: [:draft, :validation_failed, :active, :disabled],
+      default: :draft
+
     field :display_name, :string
     field :login_hint_domains, {:array, :string}, default: []
     field :last_validated_at, :utc_datetime_usec
@@ -40,7 +44,10 @@ defmodule Example.Accounts.EnterpriseConnection do
     ])
     |> validate_required([:organization_id, :protocol, :status, :display_name])
     |> validate_length(:display_name, min: 1, max: 255)
-    |> cast_embed(:oidc_settings, required: true, with: &EnterpriseConnectionOIDCSettings.changeset/2)
+    |> cast_embed(:oidc_settings,
+      required: true,
+      with: &EnterpriseConnectionOIDCSettings.changeset/2
+    )
     |> assoc_constraint(:organization)
     |> unique_constraint(:display_name, name: :enterprise_connections_active_display_name_index)
   end

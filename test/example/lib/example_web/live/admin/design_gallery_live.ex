@@ -297,7 +297,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               </.notice>
 
               <span class="sg-muted sg-text-xs">tone: info</span>
-              <.notice tone={:info}>Impersonation session active. End it before navigating away.</.notice>
+              <.notice tone={:info}>
+                Impersonation session active. End it before navigating away.
+              </.notice>
             </div>
           </div>
 
@@ -395,47 +397,53 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <p class="sg-muted sg-text-sm">audit_row</p>
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">success compact</span>
-              <.audit_row row={%{
-                id: "uuid-1234",
-                inserted_at: ~N[2026-01-15 10:30:00],
-                action: "auth.login.success",
-                action_label: "Login succeeded",
-                action_badge: nil,
-                actor_label: "alice@example.test",
-                effective_user_label: "alice@example.test",
-                actor_summary: "alice@example.test",
-                outcome: "success"
-              }} />
+              <.audit_row row={
+                %{
+                  id: "uuid-1234",
+                  inserted_at: ~N[2026-01-15 10:30:00],
+                  action: "auth.login.success",
+                  action_label: "Login succeeded",
+                  action_badge: nil,
+                  actor_label: "alice@example.test",
+                  effective_user_label: "alice@example.test",
+                  actor_summary: "alice@example.test",
+                  outcome: "success"
+                }
+              } />
 
               <span class="sg-muted sg-text-xs">info full with codes</span>
               <.audit_row
-                row={%{
-                  id: "uuid-5678",
-                  inserted_at: ~N[2026-01-15 11:00:00],
-                  action: "admin.impersonation.start",
-                  action_label: "Impersonation started",
-                  action_badge: "Impersonation",
-                  actor_label: "admin@example.test",
-                  effective_user_label: "alice@example.test",
-                  actor_summary: "admin@example.test acting as alice@example.test",
-                  outcome: "success"
-                }}
+                row={
+                  %{
+                    id: "uuid-5678",
+                    inserted_at: ~N[2026-01-15 11:00:00],
+                    action: "admin.impersonation.start",
+                    action_label: "Impersonation started",
+                    action_badge: "Impersonation",
+                    actor_label: "admin@example.test",
+                    effective_user_label: "alice@example.test",
+                    actor_summary: "admin@example.test acting as alice@example.test",
+                    outcome: "success"
+                  }
+                }
                 show_detail
                 show_codes
               />
 
               <span class="sg-muted sg-text-xs">risk failure</span>
-              <.audit_row row={%{
-                id: "uuid-9999",
-                inserted_at: ~N[2026-01-15 09:00:00],
-                action: "auth.login.failure",
-                action_label: "Login failed",
-                action_badge: nil,
-                actor_label: "unknown@example.test",
-                effective_user_label: "unknown@example.test",
-                actor_summary: "unknown@example.test",
-                outcome: "failure"
-              }} />
+              <.audit_row row={
+                %{
+                  id: "uuid-9999",
+                  inserted_at: ~N[2026-01-15 09:00:00],
+                  action: "auth.login.failure",
+                  action_label: "Login failed",
+                  action_badge: nil,
+                  actor_label: "unknown@example.test",
+                  effective_user_label: "unknown@example.test",
+                  actor_summary: "unknown@example.test",
+                  outcome: "failure"
+                }
+              } />
             </div>
           </div>
         </div>
@@ -520,7 +528,11 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 </form>
                 <p class="sg-muted sg-text-sm">No applied filters.</p>
               </div>
-              <div data-testid="mg-2-loading" class="sg-filter-panel sg-stack sg-stack--3" aria-busy="true">
+              <div
+                data-testid="mg-2-loading"
+                class="sg-filter-panel sg-stack sg-stack--3"
+                aria-busy="true"
+              >
                 <.skeleton />
                 <.skeleton />
               </div>
@@ -617,7 +629,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                         <td>
                           <div class="sg-stack sg-stack--1">
                             <span class="sg-strong">Alice Admin</span>
-                            <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">alice@example.test</span>
+                            <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">
+                              alice@example.test
+                            </span>
                             <code class="sg-code">user_188_alice</code>
                           </div>
                         </td>
@@ -637,7 +651,12 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                           </div>
                         </td>
                         <td class="sg-cell-right">
-                          <a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/user_188_alice">Open user</a>
+                          <a
+                            class="sg-btn sg-btn--secondary sg-btn--sm"
+                            href="/admin/users/user_188_alice"
+                          >
+                            Open user
+                          </a>
                         </td>
                       </tr>
                     </tbody>
@@ -647,7 +666,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   <article class="sg-card sg-stack sg-stack--3">
                     <div class="sg-stack sg-stack--1">
                       <span class="sg-strong">Alice Admin</span>
-                      <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">alice@example.test</span>
+                      <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">
+                        alice@example.test
+                      </span>
                       <code class="sg-code">user_188_alice</code>
                     </div>
                     <span class="sg-status-pill" data-tone="ok">Active</span>
@@ -666,11 +687,20 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                         <dd class="sg-meta-value">2026-01-02</dd>
                       </div>
                     </dl>
-                    <a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/user_188_alice">Open user</a>
+                    <a
+                      class="sg-btn sg-btn--secondary sg-btn--block"
+                      href="/admin/users/user_188_alice"
+                    >
+                      Open user
+                    </a>
                   </article>
                 </div>
                 <nav class="sg-cluster sg-cluster--between" aria-label="User results pagination">
-                  <a class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true" aria-label="Previous page">
+                  <a
+                    class="sg-btn sg-btn--secondary sg-btn--icon is-disabled"
+                    aria-disabled="true"
+                    aria-label="Previous page"
+                  >
                     <span aria-hidden="true">&larr;</span>
                     <span class="sr-only">Previous page</span>
                   </a>
@@ -683,7 +713,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               </div>
               <div data-testid="mg-5-zero">
                 <.empty_state title="No users match this view">
-                  <p class="sg-muted sg-text-sm">Clear one or more filters to widen the result set.</p>
+                  <p class="sg-muted sg-text-sm">
+                    Clear one or more filters to widen the result set.
+                  </p>
                 </.empty_state>
               </div>
               <div data-testid="mg-5-loading" class="sg-stack sg-stack--3" aria-busy="true">
@@ -692,7 +724,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <.skeleton />
               </div>
               <div data-testid="mg-5-error">
-                <.notice tone={:risk}>Unable to load users. Refresh the page, then try again.</.notice>
+                <.notice tone={:risk}>
+                  Unable to load users. Refresh the page, then try again.
+                </.notice>
               </div>
             </div>
           </section>
@@ -733,20 +767,30 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   </table>
                 </div>
                 <div data-testid="mg-6-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
-                  <.audit_row row={%{
-                    id: "evt_188_login",
-                    inserted_at: ~N[2026-01-15 14:00:00],
-                    action: "admin.impersonation.start",
-                    action_label: "Impersonation",
-                    action_badge: "Impersonation",
-                    actor_label: "admin@example.test",
-                    effective_user_label: "alice@example.test",
-                    actor_summary: "admin@example.test acting as alice@example.test",
-                    outcome: "success"
-                  }} show_detail show_codes />
+                  <.audit_row
+                    row={
+                      %{
+                        id: "evt_188_login",
+                        inserted_at: ~N[2026-01-15 14:00:00],
+                        action: "admin.impersonation.start",
+                        action_label: "Impersonation",
+                        action_badge: "Impersonation",
+                        actor_label: "admin@example.test",
+                        effective_user_label: "alice@example.test",
+                        actor_summary: "admin@example.test acting as alice@example.test",
+                        outcome: "success"
+                      }
+                    }
+                    show_detail
+                    show_codes
+                  />
                 </div>
                 <nav class="sg-cluster sg-cluster--between" aria-label="Audit feed pagination">
-                  <a class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true" aria-label="Previous page">
+                  <a
+                    class="sg-btn sg-btn--secondary sg-btn--icon is-disabled"
+                    aria-disabled="true"
+                    aria-label="Previous page"
+                  >
                     <span aria-hidden="true">&larr;</span>
                     <span class="sr-only">Previous page</span>
                   </a>
@@ -755,7 +799,9 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                     <span aria-hidden="true">&rarr;</span>
                     <span class="sr-only">Next page</span>
                   </a>
-                  <a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/audit/export.csv">Export CSV</a>
+                  <a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/audit/export.csv">
+                    Export CSV
+                  </a>
                 </nav>
               </div>
               <div data-testid="mg-6-zero">
@@ -768,33 +814,47 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <.skeleton class="sg-list-row" />
               </div>
               <div data-testid="mg-6-error">
-                <.notice tone={:risk}>Unable to load audit events. Refresh the page, then try again.</.notice>
+                <.notice tone={:risk}>
+                  Unable to load audit events. Refresh the page, then try again.
+                </.notice>
               </div>
               <div data-testid="mg-6-coherence-a" class="sg-list">
-                <.audit_row row={%{
-                  id: "evt_188_login",
-                  inserted_at: ~N[2026-01-15 14:00:00],
-                  action: "admin.impersonation.start",
-                  action_label: "Impersonation",
-                  action_badge: "Impersonation",
-                  actor_label: "admin@example.test",
-                  effective_user_label: "alice@example.test",
-                  actor_summary: "admin@example.test acting as alice@example.test",
-                  outcome: "success"
-                }} show_detail show_codes />
+                <.audit_row
+                  row={
+                    %{
+                      id: "evt_188_login",
+                      inserted_at: ~N[2026-01-15 14:00:00],
+                      action: "admin.impersonation.start",
+                      action_label: "Impersonation",
+                      action_badge: "Impersonation",
+                      actor_label: "admin@example.test",
+                      effective_user_label: "alice@example.test",
+                      actor_summary: "admin@example.test acting as alice@example.test",
+                      outcome: "success"
+                    }
+                  }
+                  show_detail
+                  show_codes
+                />
               </div>
               <div data-testid="mg-6-coherence-b" class="sg-list">
-                <.audit_row row={%{
-                  id: "evt_188_login",
-                  inserted_at: ~N[2026-01-15 14:00:00],
-                  action: "admin.impersonation.start",
-                  action_label: "Impersonation",
-                  action_badge: "Impersonation",
-                  actor_label: "admin@example.test",
-                  effective_user_label: "alice@example.test",
-                  actor_summary: "admin@example.test acting as alice@example.test",
-                  outcome: "success"
-                }} show_detail show_codes />
+                <.audit_row
+                  row={
+                    %{
+                      id: "evt_188_login",
+                      inserted_at: ~N[2026-01-15 14:00:00],
+                      action: "admin.impersonation.start",
+                      action_label: "Impersonation",
+                      action_badge: "Impersonation",
+                      actor_label: "admin@example.test",
+                      effective_user_label: "alice@example.test",
+                      actor_summary: "admin@example.test acting as alice@example.test",
+                      outcome: "success"
+                    }
+                  }
+                  show_detail
+                  show_codes
+                />
               </div>
             </div>
           </div>
@@ -813,14 +873,18 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 </article>
               </div>
               <div data-testid="mg-7-zero">
-                <.empty_state title="No members yet"><p class="sg-muted sg-text-sm">Invite a teammate to start this organization.</p></.empty_state>
+                <.empty_state title="No members yet">
+                  <p class="sg-muted sg-text-sm">Invite a teammate to start this organization.</p>
+                </.empty_state>
               </div>
               <div data-testid="mg-7-loading" class="sg-list" aria-busy="true">
                 <.skeleton class="sg-list-row" />
                 <.skeleton class="sg-list-row" />
               </div>
               <div data-testid="mg-7-error">
-                <.notice tone={:risk}>Unable to load members. Refresh the page, then check the organization scope.</.notice>
+                <.notice tone={:risk}>
+                  Unable to load members. Refresh the page, then check the organization scope.
+                </.notice>
               </div>
             </div>
           </div>
@@ -839,14 +903,20 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 </article>
               </div>
               <div data-testid="mg-8-zero">
-                <.empty_state title="No pending invitations."><p class="sg-muted sg-text-sm">Invitations appear here until accepted or expired.</p></.empty_state>
+                <.empty_state title="No pending invitations.">
+                  <p class="sg-muted sg-text-sm">
+                    Invitations appear here until accepted or expired.
+                  </p>
+                </.empty_state>
               </div>
               <div data-testid="mg-8-loading" class="sg-list" aria-busy="true">
                 <.skeleton class="sg-list-row" />
                 <.skeleton class="sg-list-row" />
               </div>
               <div data-testid="mg-8-error">
-                <.notice tone={:risk}>Unable to load pending invitations. Refresh the page, then check invitation settings.</.notice>
+                <.notice tone={:risk}>
+                  Unable to load pending invitations. Refresh the page, then check invitation settings.
+                </.notice>
               </div>
             </div>
           </div>
@@ -865,20 +935,33 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                   <span class="sg-status-pill" data-tone="info">MFA enabled</span>
                 </div>
                 <dl class="sg-summary-facts">
-                  <div><dt class="sg-kv__term">MFA</dt><dd class="sg-kv__value">Enabled</dd></div>
-                  <div><dt class="sg-kv__term">Passkeys</dt><dd class="sg-kv__value sg-summary-facts__num">2</dd></div>
-                  <div><dt class="sg-kv__term">Active</dt><dd class="sg-kv__value sg-summary-facts__num">1</dd></div>
+                  <div>
+                    <dt class="sg-kv__term">MFA</dt>
+                    <dd class="sg-kv__value">Enabled</dd>
+                  </div>
+                  <div>
+                    <dt class="sg-kv__term">Passkeys</dt>
+                    <dd class="sg-kv__value sg-summary-facts__num">2</dd>
+                  </div>
+                  <div>
+                    <dt class="sg-kv__term">Active</dt>
+                    <dd class="sg-kv__value sg-summary-facts__num">1</dd>
+                  </div>
                 </dl>
               </header>
               <div data-testid="mg-9-zero">
-                <p class="sg-muted sg-text-sm">Optional identity fields collapse without blank labels.</p>
+                <p class="sg-muted sg-text-sm">
+                  Optional identity fields collapse without blank labels.
+                </p>
               </div>
               <div data-testid="mg-9-loading" class="sg-stack sg-stack--2" aria-busy="true">
                 <.skeleton />
                 <.skeleton />
               </div>
               <div data-testid="mg-9-error">
-                <.notice tone={:risk}>Unable to load user identity. Return to users, then open the account again.</.notice>
+                <.notice tone={:risk}>
+                  Unable to load user identity. Return to users, then open the account again.
+                </.notice>
               </div>
             </div>
           </div>
@@ -891,34 +974,48 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 <section class="sg-detail-panel sg-stack sg-stack--3">
                   <h3 class="sg-section-heading">Security</h3>
                   <dl class="sg-kv">
-                    <div><dt class="sg-kv__term">MFA</dt><dd class="sg-kv__value">Enabled</dd></div>
-                    <div><dt class="sg-kv__term">Passkeys</dt><dd class="sg-kv__value">2 passkeys</dd></div>
+                    <div>
+                      <dt class="sg-kv__term">MFA</dt>
+                      <dd class="sg-kv__value">Enabled</dd>
+                    </div>
+                    <div>
+                      <dt class="sg-kv__term">Passkeys</dt>
+                      <dd class="sg-kv__value">2 passkeys</dd>
+                    </div>
                   </dl>
                 </section>
                 <section class="sg-detail-panel sg-stack sg-stack--3">
                   <h3 class="sg-section-heading">Recent Audit</h3>
-                  <.audit_row row={%{
-                    id: "evt_188_login",
-                    inserted_at: ~N[2026-01-15 14:00:00],
-                    action: "auth.login.success",
-                    action_label: "Login",
-                    action_badge: nil,
-                    actor_label: "alice@example.test",
-                    effective_user_label: "alice@example.test",
-                    actor_summary: "alice@example.test",
-                    outcome: "success"
-                  }} />
+                  <.audit_row row={
+                    %{
+                      id: "evt_188_login",
+                      inserted_at: ~N[2026-01-15 14:00:00],
+                      action: "auth.login.success",
+                      action_label: "Login",
+                      action_badge: nil,
+                      actor_label: "alice@example.test",
+                      effective_user_label: "alice@example.test",
+                      actor_summary: "alice@example.test",
+                      outcome: "success"
+                    }
+                  } />
                 </section>
               </div>
               <div data-testid="mg-10-zero">
-                <.empty_state title="No linked identities"><p class="sg-muted sg-text-sm">This user signs in without a visible external identity provider.</p></.empty_state>
+                <.empty_state title="No linked identities">
+                  <p class="sg-muted sg-text-sm">
+                    This user signs in without a visible external identity provider.
+                  </p>
+                </.empty_state>
               </div>
               <div data-testid="mg-10-loading" class="sg-detail-grid" aria-busy="true">
                 <.skeleton class="sg-detail-panel" />
                 <.skeleton class="sg-detail-panel" />
               </div>
               <div data-testid="mg-10-error">
-                <.notice tone={:risk}>Unable to load detail panels. Refresh the page, then check user detail logs.</.notice>
+                <.notice tone={:risk}>
+                  Unable to load detail panels. Refresh the page, then check user detail logs.
+                </.notice>
               </div>
             </div>
           </div>
@@ -929,18 +1026,28 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <div class="sg-stack sg-stack--3">
               <div data-testid="mg-11-populated" class="sg-danger-panel sg-stack sg-stack--3">
                 <h3 class="sg-section-heading">Danger Zone</h3>
-                <p class="sg-muted sg-text-sm">Session revocation signs users out of active browsers.</p>
-                <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">Revoke all sessions</button>
+                <p class="sg-muted sg-text-sm">
+                  Session revocation signs users out of active browsers.
+                </p>
+                <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">
+                  Revoke all sessions
+                </button>
               </div>
               <div data-testid="mg-11-zero">
                 <p class="sg-muted sg-text-sm">Dangerous actions are hidden when unavailable.</p>
               </div>
-              <div data-testid="mg-11-loading" class="sg-danger-panel sg-stack sg-stack--2" aria-busy="true">
+              <div
+                data-testid="mg-11-loading"
+                class="sg-danger-panel sg-stack sg-stack--2"
+                aria-busy="true"
+              >
                 <.skeleton />
                 <.skeleton />
               </div>
               <div data-testid="mg-11-error">
-                <.notice tone={:risk}>Unable to revoke sessions. Refresh the page, then try again.</.notice>
+                <.notice tone={:risk}>
+                  Unable to revoke sessions. Refresh the page, then try again.
+                </.notice>
               </div>
               <div
                 class="sg-confirm-overlay"
@@ -948,12 +1055,23 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 data-testid="mg-11-coherence-a"
                 style="position: relative; inset: auto;"
               >
-                <section class="sg-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="mg-11-confirm-title-a">
+                <section
+                  class="sg-confirm-dialog"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="mg-11-confirm-title-a"
+                >
                   <p id="mg-11-confirm-title-a" class="sg-section-heading">Revoke all sessions?</p>
-                  <p class="sg-text-sm">Revoke every active session for alice@example.test? This signs them out everywhere.</p>
+                  <p class="sg-text-sm">
+                    Revoke every active session for alice@example.test? This signs them out everywhere.
+                  </p>
                   <div class="sg-confirm-dialog__actions">
-                    <button type="button" class="sg-btn sg-btn--ghost sg-btn--sm">Keep sessions</button>
-                    <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">Revoke all sessions</button>
+                    <button type="button" class="sg-btn sg-btn--ghost sg-btn--sm">
+                      Keep sessions
+                    </button>
+                    <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">
+                      Revoke all sessions
+                    </button>
                   </div>
                 </section>
               </div>
@@ -963,12 +1081,23 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 data-testid="mg-11-coherence-b"
                 style="position: relative; inset: auto;"
               >
-                <section class="sg-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="mg-11-confirm-title-b">
+                <section
+                  class="sg-confirm-dialog"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="mg-11-confirm-title-b"
+                >
                   <p id="mg-11-confirm-title-b" class="sg-section-heading">Revoke all sessions?</p>
-                  <p class="sg-text-sm">Revoke every active session for alice@example.test? This signs them out everywhere.</p>
+                  <p class="sg-text-sm">
+                    Revoke every active session for alice@example.test? This signs them out everywhere.
+                  </p>
                   <div class="sg-confirm-dialog__actions">
-                    <button type="button" class="sg-btn sg-btn--ghost sg-btn--sm">Keep sessions</button>
-                    <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">Revoke all sessions</button>
+                    <button type="button" class="sg-btn sg-btn--ghost sg-btn--sm">
+                      Keep sessions
+                    </button>
+                    <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">
+                      Revoke all sessions
+                    </button>
                   </div>
                 </section>
               </div>

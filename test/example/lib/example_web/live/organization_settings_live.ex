@@ -215,7 +215,10 @@ defmodule ExampleWeb.OrganizationSettingsLive do
               </div>
               <span class={[
                 "badge",
-                if(@auth_policy.enforcement_mode == :sso_required, do: "badge-warning", else: "badge-outline")
+                if(@auth_policy.enforcement_mode == :sso_required,
+                  do: "badge-warning",
+                  else: "badge-outline"
+                )
               ]}>
                 {auth_policy_status(@auth_policy)}
               </span>

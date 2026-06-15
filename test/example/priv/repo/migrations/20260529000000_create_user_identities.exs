@@ -7,7 +7,11 @@ defmodule Example.Repo.Migrations.CreateUserIdentities do
   def change do
     create_if_not_exists table(:user_identities, Keyword.merge(@prefix_opts, primary_key: false)) do
       add :id, :binary_id, primary_key: true
-      add :user_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)), null: false
+
+      add :user_id,
+          references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
+          null: false
+
       add :provider, :string, null: false
       add :provider_uid, :string, null: false
       add :encrypted_access_token, :binary

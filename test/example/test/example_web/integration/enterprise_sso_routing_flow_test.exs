@@ -19,7 +19,8 @@ defmodule ExampleWeb.EnterpriseSSORoutingFlowTest do
         "user" => %{"email" => "person@acme.example"}
       })
 
-    assert redirected_to(conn) == ~p"/organizations/acme/sso?#{%{routing_source: "domain_discovery"}}"
+    assert redirected_to(conn) ==
+             ~p"/organizations/acme/sso?#{%{routing_source: "domain_discovery"}}"
 
     redirected_conn =
       conn

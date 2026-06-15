@@ -15,7 +15,9 @@ defmodule Example.Repo.Migrations.CreateOrganizations do
     end
 
     create(
-      unique_index(:organizations, [:slug],
+      unique_index(
+        :organizations,
+        [:slug],
         Keyword.merge(@prefix_opts,
           where: "deleted_at IS NULL",
           name: :organizations_slug_active_index
@@ -27,11 +29,18 @@ defmodule Example.Repo.Migrations.CreateOrganizations do
       add(:id, :binary_id, primary_key: true)
       add(:role, :string, null: false, default: "member")
 
-      add(:organization_id, references(:organizations, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
+      add(
+        :organization_id,
+        references(
+          :organizations,
+          Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)
+        ), null: false)
+
+      add(
+        :user_id,
+        references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
         null: false
       )
-
-      add(:user_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)), null: false)
 
       timestamps(type: :utc_datetime)
     end
@@ -48,18 +57,30 @@ defmodule Example.Repo.Migrations.CreateOrganizations do
       add(:revoked_at, :utc_datetime)
       add(:expires_at, :utc_datetime, null: false)
 
-      add(:organization_id, references(:organizations, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
-        null: false
+      add(
+        :organization_id,
+        references(
+          :organizations,
+          Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)
+        ), null: false)
+
+      add(
+        :invited_by_id,
+        references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all))
       )
 
-      add(:invited_by_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all)))
-      add(:accepted_by_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all)))
+      add(
+        :accepted_by_id,
+        references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all))
+      )
 
       timestamps(type: :utc_datetime)
     end
 
     create(
-      unique_index(:organization_invitations, [:organization_id, :email],
+      unique_index(
+        :organization_invitations,
+        [:organization_id, :email],
         Keyword.merge(@prefix_opts,
           where: "accepted_at IS NULL AND revoked_at IS NULL",
           name: :organization_invitations_pending_index

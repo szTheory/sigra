@@ -7,7 +7,13 @@ defmodule Example.Repo.Migrations.CreateUserPasskeys do
   def change do
     create table(:user_passkeys, Keyword.merge(@prefix_opts, primary_key: false)) do
       add(:id, :binary_id, primary_key: true)
-      add(:user_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)), null: false)
+
+      add(
+        :user_id,
+        references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
+        null: false
+      )
+
       add(:credential_id, :binary, null: false)
       add(:public_key, :binary, null: false)
       add(:sign_count, :integer, default: 0, null: false)

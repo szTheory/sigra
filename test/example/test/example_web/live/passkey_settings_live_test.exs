@@ -187,8 +187,10 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
         |> post(~p"/users/settings/mfa/passkeys/#{encoded_id}/delete")
 
       assert redirected_to(conn) == ~p"/users/settings/mfa#passkeys"
+
       assert Phoenix.Flash.get(conn.assigns.flash, :info) ==
                "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey."
+
       refute Repo.get(UserPasskey, passkey.id)
     end
 
