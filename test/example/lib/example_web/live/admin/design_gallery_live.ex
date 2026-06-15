@@ -2,7 +2,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
   @moduledoc """
   Example-only design gallery for /admin/_design.
 
-  Renders all 13 Sigra.Admin.Components + meta-component groups (MG-1..MG-5)
+  Renders all 13 Sigra.Admin.Components + meta-component groups (MG-1..MG-11)
   in every state, inside the real admin shell. Available in development only —
   the route is compile_env(:example, :dev_routes) gated.
 
@@ -447,108 +447,152 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           <%!-- board-mg-1: Metric / Summary Strip --%>
           <div id="board-mg-1" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-1 Metric / Summary Strip</p>
-            <dl class="sg-metric-grid">
-              <.summary_chip label="Total Users" value={3_842} />
-              <.summary_chip label="Active Sessions" value={127} />
-              <.summary_chip label="Failed Logins" value={7} tone="risk" />
-              <.summary_chip label="MFA Enabled" value={94} tone="ok" />
-            </dl>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-1-populated" class="sg-stack sg-stack--2">
+                <p class="sg-muted sg-text-xs">populated</p>
+                <dl class="sg-metric-grid">
+                  <.summary_chip label="Total Users" value={3_842} />
+                  <.summary_chip label="Active Sessions" value={127} tone="info" />
+                  <.summary_chip label="Failed Logins" value={7} tone="risk" />
+                  <.summary_chip label="MFA Enabled" value={94} value_unit="%" tone="ok" />
+                </dl>
+              </div>
+              <div data-testid="mg-1-zero" class="sg-stack sg-stack--2">
+                <p class="sg-muted sg-text-xs">zero</p>
+                <dl class="sg-metric-grid">
+                  <.summary_chip label="Total Users" value={0} />
+                  <.summary_chip label="Active Sessions" value={0} tone="info" />
+                  <.summary_chip label="Failed Logins" value={0} tone="ok" />
+                </dl>
+              </div>
+              <div data-testid="mg-1-loading" class="sg-metric-grid" aria-busy="true">
+                <.skeleton class="sg-card" />
+                <.skeleton class="sg-card" />
+                <.skeleton class="sg-card" />
+              </div>
+              <div data-testid="mg-1-error">
+                <.notice tone={:risk}>
+                  Unable to load summary metrics. Refresh the page, then check admin logs if it happens again.
+                </.notice>
+              </div>
+            </div>
           </div>
 
           <%!-- board-mg-2: Filter Panel + Applied-chip Row --%>
           <div id="board-mg-2" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-2 Filter Panel + Applied-chip Row</p>
             <div class="sg-stack sg-stack--3">
-              <form class="sg-stack sg-stack--2">
-                <label class="sg-label" for="mg2-status">Status</label>
-                <select id="mg2-status" class="sg-select" name="status">
-                  <option value="">All</option>
-                  <option value="active" selected>Active</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              </form>
-              <div class="sg-cluster sg-cluster--start">
+              <div data-testid="mg-2-populated" class="sg-stack sg-stack--3">
+                <form class="sg-filter-panel sg-stack sg-stack--3">
+                  <div class="sg-search-row">
+                    <label class="sg-field" for="mg2-search">
+                      <span class="sg-field-label">Search</span>
+                      <input id="mg2-search" class="sg-input" value="alice" />
+                    </label>
+                    <button type="button" class="sg-btn sg-btn--primary">Apply filters</button>
+                    <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                  </div>
+                  <div class="sg-cluster sg-cluster--start">
+                    <label class="sg-filter-chip">
+                      <input type="checkbox" checked /> Active
+                    </label>
+                    <label class="sg-filter-chip">
+                      <input type="checkbox" /> Locked
+                    </label>
+                  </div>
+                </form>
+                <div class="sg-cluster sg-cluster--start">
+                  <.applied_chip label="Status: Active" remove_href="?status=" />
+                  <.applied_chip label="Search: alice" remove_href="?q=" />
+                  <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all filters</a>
+                </div>
+              </div>
+              <div data-testid="mg-2-zero" class="sg-stack sg-stack--3">
+                <form class="sg-filter-panel sg-stack sg-stack--3">
+                  <div class="sg-search-row">
+                    <label class="sg-field" for="mg2-zero-search">
+                      <span class="sg-field-label">Search</span>
+                      <input id="mg2-zero-search" class="sg-input" />
+                    </label>
+                    <button type="button" class="sg-btn sg-btn--primary">Apply filters</button>
+                    <a href="?" class="sg-btn sg-btn--ghost">Clear</a>
+                  </div>
+                </form>
+                <p class="sg-muted sg-text-sm">No applied filters.</p>
+              </div>
+              <div data-testid="mg-2-loading" class="sg-filter-panel sg-stack sg-stack--3" aria-busy="true">
+                <.skeleton />
+                <.skeleton />
+              </div>
+              <div data-testid="mg-2-error">
+                <.notice tone={:risk}>
+                  Unable to apply filters. Refresh the page, then try again.
+                </.notice>
+              </div>
+              <div class="sg-cluster sg-cluster--start" data-testid="mg-2-coherence-a">
                 <.applied_chip label="Status: Active" remove_href="?status=" />
                 <.applied_chip label="MFA: Enabled" remove_href="?mfa=" />
-                <a href="?" class="sg-btn sg-btn--ghost sg-btn--sm">Clear all</a>
+              </div>
+              <div class="sg-cluster sg-cluster--start" data-testid="mg-2-coherence-b">
+                <.applied_chip label="Status: Active" remove_href="?status=" />
+                <.applied_chip label="MFA: Enabled" remove_href="?mfa=" />
               </div>
             </div>
           </div>
 
           <%!-- board-mg-3: Task-card Grid --%>
-          <div id="board-mg-3" class="sg-card sg-stack sg-stack--4">
+          <section id="board-mg-3" class="sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-3 Task-card Grid</p>
-            <div class="sg-grid sg-grid--2">
-              <.task_card
-                title="Review flagged accounts"
-                body="3 accounts require immediate attention."
-                href="/admin/users?flagged=true"
-                action="Review"
-              />
-              <.task_card
-                title="Invite your team"
-                body="Add teammates so they can access the admin panel."
-                href="/admin/users/invite"
-                action="Send invitations"
-              />
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-3-populated" class="sg-grid sg-grid--2">
+                <.task_card
+                  title="Review flagged accounts"
+                  body="3 accounts require immediate attention."
+                  href="/admin/users?flagged=true"
+                  action="Review accounts"
+                />
+                <.task_card
+                  title="Invite your team"
+                  body="Add teammates so they can access the admin panel."
+                  href="/admin/users/invite"
+                  action="Send invitations"
+                />
+              </div>
+              <p data-testid="mg-3-zero-note" class="sg-muted sg-text-sm">
+                Zero state is not applicable because overview tasks are static capability launchers.
+              </p>
+              <p data-testid="mg-3-loading-note" class="sg-muted sg-text-sm">
+                Loading state is not applicable because overview tasks are static capability launchers.
+              </p>
+              <div data-testid="mg-3-error">
+                <.notice tone={:risk}>
+                  Unable to load admin tasks. Refresh the page, then use the sidebar if the issue continues.
+                </.notice>
+              </div>
             </div>
-          </div>
+          </section>
 
           <%!-- board-mg-4: Alarm Notice Band --%>
           <div id="board-mg-4" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">MG-4 Alarm Notice Band</p>
             <div class="sg-stack sg-stack--3">
-              <.notice tone={:risk}>
-                High login failure rate detected — <.notice_link href="/admin/audit">View audit log</.notice_link>
-              </.notice>
-              <.notice tone={:ok}>
-                All scheduled maintenance tasks completed successfully.
-              </.notice>
-            </div>
-          </div>
-
-          <%!-- board-mg-5: Audit Feed + Pagination --%>
-          <div id="board-mg-5" class="sg-card sg-stack sg-stack--4">
-            <p class="sg-muted sg-text-sm">MG-5 Audit Feed + Pagination</p>
-            <div class="sg-stack sg-stack--3">
-              <%!-- Desktop table header --%>
-              <div class="sg-table-header sg-hidden-mobile">
-                <span>Event</span>
-                <span>Actor</span>
-                <span>Time</span>
+              <div data-testid="mg-4-populated">
+                <.notice tone={:risk}>
+                  High login failure rate detected -
+                  <.notice_link href="/admin/audit">View audit log</.notice_link>
+                </.notice>
               </div>
-              <%!-- Audit rows --%>
-              <.audit_row row={%{
-                id: "uuid-aaaa",
-                inserted_at: ~N[2026-01-15 14:00:00],
-                action: "auth.login.success",
-                action_label: "Login",
-                action_badge: nil,
-                actor_label: "alice@example.test",
-                effective_user_label: "alice@example.test",
-                actor_summary: "alice@example.test",
-                outcome: "success"
-              }} />
-              <.audit_row row={%{
-                id: "uuid-bbbb",
-                inserted_at: ~N[2026-01-15 13:45:00],
-                action: "auth.login.failure",
-                action_label: "Login failed",
-                action_badge: nil,
-                actor_label: "bob@example.test",
-                effective_user_label: "bob@example.test",
-                actor_summary: "bob@example.test",
-                outcome: "failure"
-              }} />
-              <%!-- Pagination --%>
-              <nav class="sg-pagination" aria-label="Audit feed pagination">
-                <a href="#" class="sg-btn sg-btn--ghost sg-btn--sm" aria-label="Previous page">
-                  &larr; Previous
-                </a>
-                <a href="#" class="sg-btn sg-btn--ghost sg-btn--sm" aria-label="Next page">
-                  Next &rarr;
-                </a>
-              </nav>
+              <div data-testid="mg-4-zero">
+                <.notice tone={:ok}>All clear. No accounts need review.</.notice>
+              </div>
+              <div data-testid="mg-4-loading" aria-busy="true">
+                <.skeleton />
+              </div>
+              <div data-testid="mg-4-error">
+                <.notice tone={:risk}>
+                  Unable to check review status. Refresh the page, then open users to inspect manually.
+                </.notice>
+              </div>
             </div>
           </div>
         </div>
