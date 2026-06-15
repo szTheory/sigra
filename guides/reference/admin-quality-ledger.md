@@ -45,8 +45,8 @@ between the base branch and the PR branch.
 | notice | L1 | 1 | [board-notice admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | notice_link | L1 | 1 | [board-notice_link admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | field_help | L1 | 1 | [board-field_help admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| skeleton | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| audit_row | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| skeleton | L1 | 1 | [board-skeleton admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| audit_row | L1 | 1 | [board-audit_row admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | mg-1-metric-strip | L2 | 1 | [admin-design.spec.ts board-mg-1](#) |
 | mg-2-filter-panel | L2 | 1 | [admin-design.spec.ts board-mg-2](#) |
 | mg-3-task-grid | L2 | 1 | [admin-design.spec.ts board-mg-3](#) |
