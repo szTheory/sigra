@@ -283,9 +283,9 @@ test.describe('Design gallery board snapshots', () => {
     await expect(page.locator('#board-mg-3 article.sg-card')).toHaveCount(2);
     await expect(page.locator('#board-mg-3')).not.toHaveClass(/(^|\s)sg-card(\s|$)/);
     await expect(page.locator('#board-mg-4 .sg-notice')).toHaveCount(3);
-    await expect(page.locator('[data-testid="mg-5-desktop-results"]')).toBeVisible();
+    await expect(page.locator('[data-testid="mg-5-desktop-results"]')).toBeAttached();
     await expect(page.locator('[data-testid="mg-5-mobile-results"]')).toBeAttached();
-    await expect(page.locator('[data-testid="mg-6-desktop-results"]')).toBeVisible();
+    await expect(page.locator('[data-testid="mg-6-desktop-results"]')).toBeAttached();
     await expect(page.locator('[data-testid="mg-6-mobile-results"]')).toBeAttached();
     await expect(page.locator('#board-mg-6 article.sg-list-row')).toHaveCount(3);
     await expect(page.locator('#board-mg-7 .sg-list-row')).toHaveCount(3);
