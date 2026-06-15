@@ -332,6 +332,7 @@ test.describe('Design gallery board snapshots', () => {
       'reduced motion should strip active skeleton shimmer movement',
     ).toBeTruthy();
     expect(reducedMotion.iterationCounts.every((count) => count === '1')).toBeTruthy();
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
 
     const auditBoard = page.locator('#board-audit_row');
     for (const label of ['success compact', 'info full with codes', 'risk failure']) {
