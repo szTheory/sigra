@@ -365,9 +365,28 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           <%!-- board-skeleton --%>
           <div id="board-skeleton" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">skeleton</p>
-            <div class="sg-stack sg-stack--3">
-              <span class="sg-muted sg-text-xs">loading placeholder</span>
-              <.skeleton class="sg-w-48 sg-h-4" />
+            <div
+              class="sg-stack sg-stack--3"
+              aria-busy="true"
+              aria-label="Loading users"
+              data-skeleton-loading-region
+            >
+              <span class="sg-muted sg-text-xs">aria-busy container</span>
+
+              <span class="sg-muted sg-text-xs">line skeleton</span>
+              <.skeleton style="inline-size: 12rem; block-size: 1rem;" />
+
+              <span class="sg-muted sg-text-xs">block skeleton</span>
+              <.skeleton style="inline-size: 100%; block-size: 4rem;" />
+
+              <span class="sg-muted sg-text-xs">card skeleton</span>
+              <div class="sg-card sg-stack sg-stack--3" aria-hidden="true">
+                <.skeleton style="inline-size: 45%; block-size: 1rem;" />
+                <.skeleton style="inline-size: 100%; block-size: 0.75rem;" />
+                <.skeleton style="inline-size: 70%; block-size: 0.75rem;" />
+              </div>
+
+              <span class="sg-muted sg-text-xs">reduced motion static</span>
             </div>
           </div>
 
@@ -375,12 +394,12 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           <div id="board-audit_row" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">audit_row</p>
             <div class="sg-stack sg-stack--3">
-              <span class="sg-muted sg-text-xs">show_detail: false (compact)</span>
+              <span class="sg-muted sg-text-xs">success compact</span>
               <.audit_row row={%{
                 id: "uuid-1234",
                 inserted_at: ~N[2026-01-15 10:30:00],
                 action: "auth.login.success",
-                action_label: "Login",
+                action_label: "Login succeeded",
                 action_badge: nil,
                 actor_label: "alice@example.test",
                 effective_user_label: "alice@example.test",
@@ -388,7 +407,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 outcome: "success"
               }} />
 
-              <span class="sg-muted sg-text-xs">show_detail: true, show_codes: true (action_badge: info)</span>
+              <span class="sg-muted sg-text-xs">info full with codes</span>
               <.audit_row
                 row={%{
                   id: "uuid-5678",
@@ -405,7 +424,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
                 show_codes
               />
 
-              <span class="sg-muted sg-text-xs">tone: risk (non-success outcome)</span>
+              <span class="sg-muted sg-text-xs">risk failure</span>
               <.audit_row row={%{
                 id: "uuid-9999",
                 inserted_at: ~N[2026-01-15 09:00:00],
