@@ -752,6 +752,7 @@
     background: var(--sg-color-panel-alt);
     box-shadow: var(--sg-elev-inset);
     padding: var(--sg-space-4);
+    transition: var(--sg-transition-tone);
   }
   .sg-notice__action {
     display: inline-flex;

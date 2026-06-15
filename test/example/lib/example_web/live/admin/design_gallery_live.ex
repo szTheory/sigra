@@ -242,7 +242,7 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             <div class="sg-stack sg-stack--3">
               <span class="sg-muted sg-text-xs">default</span>
               <.empty_state title="No users found">
-                <p>Adjust your filters.</p>
+                <p>Try adjusting your filters.</p>
               </.empty_state>
             </div>
           </div>
@@ -305,7 +305,25 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
           <div id="board-notice_link" class="sg-card sg-stack sg-stack--4">
             <p class="sg-muted sg-text-sm">notice_link</p>
             <div class="sg-stack sg-stack--3">
-              <span class="sg-muted sg-text-xs">inline next-step link inside notice copy</span>
+              <span class="sg-muted sg-text-xs">default</span>
+              <.notice tone={:risk}>
+                3 accounts need review —
+                <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
+              </.notice>
+
+              <span class="sg-muted sg-text-xs">hover</span>
+              <.notice tone={:risk}>
+                3 accounts need review —
+                <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
+              </.notice>
+
+              <span class="sg-muted sg-text-xs">focus-visible</span>
+              <.notice tone={:risk}>
+                3 accounts need review —
+                <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
+              </.notice>
+
+              <span class="sg-muted sg-text-xs">active</span>
               <.notice tone={:risk}>
                 3 accounts need review —
                 <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
