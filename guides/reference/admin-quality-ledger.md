@@ -36,11 +36,11 @@ between the base branch and the PR branch.
 | token-layer | L0 | 1 | [admin-token-reference.md](admin-token-reference.md) |
 | stat | L1 | 1 | [board-stat admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | stat_link | L1 | 1 | [board-stat_link admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| task_card | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| task_card | L1 | 1 | [board-task_card admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | summary_chip | L1 | 1 | [board-summary_chip admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| applied_chip | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| applied_chip | L1 | 1 | [board-applied_chip admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | empty_state | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| page_back | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
+| page_back | L1 | 1 | [board-page_back admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | scope_ribbon | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | notice | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | notice_link | L1 | 1 | [components_test.exs](../../test/sigra/admin/components_test.exs) |
