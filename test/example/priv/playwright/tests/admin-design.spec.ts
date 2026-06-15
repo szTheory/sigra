@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, type Page, type TestInfo } from '@playwright/test';
+import { test, expect, type Locator, type Page, type TestInfo } from '@playwright/test';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 
 // Phase 185 (AUDIT-INFRA): admin-design board-snapshot spec.
@@ -83,7 +83,122 @@ const COMPONENT_BOARDS = [
   'board-notice',       // designated canary (D-10)
   'board-notice_link', 'board-field_help', 'board-skeleton', 'board-audit_row',
 ];
-const GROUP_BOARDS = ['board-mg-1', 'board-mg-2', 'board-mg-3', 'board-mg-4', 'board-mg-5'];
+const GROUP_BOARDS = [
+  'board-mg-1',
+  'board-mg-2',
+  'board-mg-3',
+  'board-mg-4',
+  'board-mg-5',
+  'board-mg-6',
+  'board-mg-7',
+  'board-mg-8',
+  'board-mg-9',
+  'board-mg-10',
+  'board-mg-11',
+] as const;
+
+const GROUP_STATE_MARKERS: Record<(typeof GROUP_BOARDS)[number], string[]> = {
+  'board-mg-1': ['mg-1-populated', 'mg-1-zero', 'mg-1-loading', 'mg-1-error'],
+  'board-mg-2': ['mg-2-populated', 'mg-2-zero', 'mg-2-loading', 'mg-2-error'],
+  'board-mg-3': ['mg-3-populated', 'mg-3-zero-note', 'mg-3-loading-note', 'mg-3-error'],
+  'board-mg-4': ['mg-4-populated', 'mg-4-zero', 'mg-4-loading', 'mg-4-error'],
+  'board-mg-5': ['mg-5-populated', 'mg-5-zero', 'mg-5-loading', 'mg-5-error'],
+  'board-mg-6': ['mg-6-populated', 'mg-6-zero', 'mg-6-loading', 'mg-6-error'],
+  'board-mg-7': ['mg-7-populated', 'mg-7-zero', 'mg-7-loading', 'mg-7-error'],
+  'board-mg-8': ['mg-8-populated', 'mg-8-zero', 'mg-8-loading', 'mg-8-error'],
+  'board-mg-9': ['mg-9-populated', 'mg-9-zero', 'mg-9-loading', 'mg-9-error'],
+  'board-mg-10': ['mg-10-populated', 'mg-10-zero', 'mg-10-loading', 'mg-10-error'],
+  'board-mg-11': ['mg-11-populated', 'mg-11-zero', 'mg-11-loading', 'mg-11-error'],
+};
+
+const normalizeText = (value: string | null) => (value ?? '').replace(/\s+/g, ' ').trim();
+
+async function expectTokensInBothContainers(
+  desktop: Locator,
+  mobile: Locator,
+  tokens: string[],
+  label: string,
+) {
+  const desktopText = normalizeText(await desktop.textContent());
+  const mobileText = normalizeText(await mobile.textContent());
+
+  for (const token of tokens) {
+    expect(desktopText, `${label}: desktop should include ${token}`).toContain(token);
+    expect(mobileText, `${label}: mobile should include ${token}`).toContain(token);
+  }
+}
+
+async function firstTexts(root: Locator, selector: string, limit = 1) {
+  return (await root.locator(selector).evaluateAll(
+    (elements, max) =>
+      elements
+        .slice(0, max as number)
+        .map((element) => element.textContent?.replace(/\s+/g, ' ').trim() ?? '')
+        .filter(Boolean),
+    limit,
+  )) as string[];
+}
+
+async function assertUserResultEquivalence(desktop: Locator, mobile: Locator, label: string) {
+  const tokens = [
+    ...(await firstTexts(desktop, '.sg-strong', 1)),
+    ...(await firstTexts(desktop, 'code.sg-code', 1)),
+    ...(await firstTexts(desktop, '.sg-status-pill', 2)),
+    ...(await firstTexts(desktop, 'td:nth-child(3) span', 2)),
+    ...(await firstTexts(desktop, 'td:nth-child(4) span', 2)),
+    'Open user',
+  ];
+
+  await expectTokensInBothContainers(desktop, mobile, tokens, label);
+}
+
+async function assertAuditResultEquivalence(desktop: Locator, mobile: Locator, label: string) {
+  const tokens = [
+    ...(await firstTexts(desktop, 'code.sg-code', 2)),
+    ...(await firstTexts(desktop, '.sg-status-pill', 2)),
+    ...(await firstTexts(desktop, 'td:nth-child(3) span', 3)),
+  ];
+
+  await expectTokensInBothContainers(desktop, mobile, tokens, label);
+
+  const desktopTone = await desktop.locator('tbody tr, article.sg-list-row').first().getAttribute('data-tone');
+  const mobileTone = await mobile.locator('article.sg-list-row').first().getAttribute('data-tone');
+  expect(mobileTone, `${label}: mobile tone should match desktop outcome tone`).toBe(desktopTone);
+}
+
+async function normalizedInnerHTML(locator: Locator) {
+  return locator.evaluate((element) => {
+    const clone = element.cloneNode(true) as HTMLElement;
+    const comments = document.createTreeWalker(clone, NodeFilter.SHOW_COMMENT);
+    const staleComments: Comment[] = [];
+
+    while (comments.nextNode()) {
+      staleComments.push(comments.currentNode as Comment);
+    }
+
+    staleComments.forEach((comment) => comment.remove());
+
+    clone.querySelectorAll('*').forEach((node) => {
+      for (const attribute of Array.from(node.attributes)) {
+        if (attribute.name.startsWith('data-phx-') || attribute.name === 'data-phx-id') {
+          node.removeAttribute(attribute.name);
+        }
+      }
+
+      const id = node.getAttribute('id');
+      if (id?.startsWith('mg-11-confirm-title-')) {
+        node.setAttribute('id', 'mg-11-confirm-title');
+      }
+
+      const labelledBy = node.getAttribute('aria-labelledby');
+      if (labelledBy?.startsWith('mg-11-confirm-title-')) {
+        node.setAttribute('aria-labelledby', 'mg-11-confirm-title');
+      }
+    });
+
+    return clone.innerHTML.replace(/\s+/g, ' ').trim();
+  });
+}
 
 test.describe('Design gallery board snapshots', () => {
   // Each Playwright test runs in an isolated browser context, so the admin
@@ -111,11 +226,13 @@ test.describe('Design gallery board snapshots', () => {
     expect(COMPONENT_BOARDS).toContain('board-notice_link');
   });
 
-  test('component boards do not overflow at required responsive widths', async ({ page }) => {
+  test('component and group boards do not overflow at required responsive widths', async ({
+    page,
+  }) => {
     for (const width of RESPONSIVE_WIDTHS) {
       await page.setViewportSize({ width, height: 900 });
 
-      for (const boardId of COMPONENT_BOARDS) {
+      for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS]) {
         const board = page.locator(`#${boardId}`);
         await expect(board, `${boardId} should exist at ${width}px`).toBeVisible();
 
@@ -145,6 +262,131 @@ test.describe('Design gallery board snapshots', () => {
           overflowingChild: null,
         });
       }
+    }
+  });
+
+  test('group boards expose catalog states and right components', async ({ page }) => {
+    for (const boardId of GROUP_BOARDS) {
+      const board = page.locator(`#${boardId}`);
+      await expect(board, `${boardId} should be visible`).toBeVisible();
+
+      for (const marker of GROUP_STATE_MARKERS[boardId]) {
+        await expect(
+          page.locator(`[data-testid="${marker}"]`),
+          `${boardId} should expose ${marker}`,
+        ).toBeVisible();
+      }
+    }
+
+    await expect(page.locator('#board-mg-1 .sg-metric')).toHaveCount(7);
+    await expect(page.locator('#board-mg-2 .sg-applied-chip')).toHaveCount(6);
+    await expect(page.locator('#board-mg-3 article.sg-card')).toHaveCount(2);
+    await expect(page.locator('#board-mg-3')).not.toHaveClass(/(^|\s)sg-card(\s|$)/);
+    await expect(page.locator('#board-mg-4 .sg-notice')).toHaveCount(3);
+    await expect(page.locator('[data-testid="mg-5-desktop-results"]')).toBeVisible();
+    await expect(page.locator('[data-testid="mg-5-mobile-results"]')).toBeAttached();
+    await expect(page.locator('[data-testid="mg-6-desktop-results"]')).toBeVisible();
+    await expect(page.locator('[data-testid="mg-6-mobile-results"]')).toBeAttached();
+    await expect(page.locator('#board-mg-6 article.sg-list-row')).toHaveCount(3);
+    await expect(page.locator('#board-mg-7 .sg-list-row')).toHaveCount(3);
+    await expect(page.locator('#board-mg-8 .sg-list-row')).toHaveCount(3);
+    await expect(page.locator('#board-mg-9 .sg-summary-facts')).toHaveCount(1);
+    await expect(page.locator('#board-mg-10 .sg-detail-grid')).toHaveCount(2);
+    await expect(page.locator('#board-mg-11 .sg-confirm-overlay .sg-confirm-dialog')).toHaveCount(
+      2,
+    );
+
+    const nestedCards = await page.locator(GROUP_BOARDS.map((id) => `#${id}`).join(',')).evaluateAll(
+      (boards) =>
+        boards.flatMap((board) => {
+          if (board.hasAttribute('data-sg-card-nesting-audit-only')) return [];
+          const nested = board.querySelectorAll('.sg-card .sg-card:not(.sg-skeleton)');
+          return Array.from(nested).map((element) => ({
+            boardId: board.id,
+            className: element.getAttribute('class'),
+          }));
+        }),
+    );
+
+    expect(nestedCards, 'group boards should not contain .sg-card .sg-card nesting').toEqual([]);
+  });
+
+  test('MG-5 and MG-6 desktop and mobile representations are content-equivalent', async ({
+    page,
+  }) => {
+    await assertUserResultEquivalence(
+      page.locator('[data-testid="mg-5-desktop-results"]'),
+      page.locator('[data-testid="mg-5-mobile-results"]'),
+      'gallery MG-5',
+    );
+
+    await assertAuditResultEquivalence(
+      page.locator('[data-testid="mg-6-desktop-results"]'),
+      page.locator('[data-testid="mg-6-mobile-results"]'),
+      'gallery MG-6',
+    );
+    await expectTokensInBothContainers(
+      page.locator('[data-testid="mg-6-populated"]'),
+      page.locator('[data-testid="mg-6-populated"]'),
+      ['Previous page', 'Next page', 'Export CSV'],
+      'gallery MG-6 controls',
+    );
+
+    await page.goto('/admin/users');
+    await waitForLiveViewReady(page);
+    await assertUserResultEquivalence(
+      page.locator('[data-testid="admin-users-desktop-results"]'),
+      page.locator('[data-testid="admin-users-mobile-results"]'),
+      'admin users',
+    );
+
+    await page.goto('/admin/audit');
+    await waitForLiveViewReady(page);
+    const auditDesktop = page.locator('[data-testid="admin-audit-desktop-results"]');
+    if ((await auditDesktop.count()) > 0) {
+      await assertAuditResultEquivalence(
+        auditDesktop,
+        page.locator('[data-testid="admin-audit-mobile-results"]'),
+        'admin audit',
+      );
+      await expect(page.getByRole('link', { name: 'Previous page' })).toBeAttached();
+      await expect(page.getByRole('link', { name: 'Next page' })).toBeAttached();
+      await expect(page.getByRole('link', { name: 'Export CSV' })).toBeAttached();
+    }
+
+    await page.goto('/admin/users');
+    await waitForLiveViewReady(page);
+    const userDetailHref = await page
+      .locator('[data-testid="admin-users-desktop-results"] a', { hasText: 'Open user' })
+      .first()
+      .getAttribute('href');
+    if (!userDetailHref) throw new Error('admin users first Open user link is missing href');
+    await page.goto(userDetailHref);
+    await waitForLiveViewReady(page);
+    await page.getByRole('link', { name: 'View full audit' }).click();
+    await waitForLiveViewReady(page);
+
+    const userAuditDesktop = page.locator('[data-testid="admin-audit-user-desktop-results"]');
+    if ((await userAuditDesktop.count()) > 0) {
+      await assertAuditResultEquivalence(
+        userAuditDesktop,
+        page.locator('[data-testid="admin-audit-user-mobile-results"]'),
+        'admin user audit',
+      );
+      await expect(page.getByRole('link', { name: 'Previous page' })).toBeAttached();
+      await expect(page.getByRole('link', { name: 'Next page' })).toBeAttached();
+    }
+  });
+
+  test('reused group examples render byte-coherently for equivalent data', async ({ page }) => {
+    for (const pair of [
+      ['mg-2-coherence-a', 'mg-2-coherence-b'],
+      ['mg-6-coherence-a', 'mg-6-coherence-b'],
+      ['mg-11-coherence-a', 'mg-11-coherence-b'],
+    ] as const) {
+      await expect(normalizedInnerHTML(page.locator(`[data-testid="${pair[0]}"]`))).resolves.toEqual(
+        await normalizedInnerHTML(page.locator(`[data-testid="${pair[1]}"]`)),
+      );
     }
   });
 
