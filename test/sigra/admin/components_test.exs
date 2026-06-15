@@ -46,10 +46,10 @@ defmodule Sigra.Admin.ComponentsTest do
   # Fixed assigns: label: "Active", remove_href: "/admin/users?status="
   @applied_chip_golden "<span class=\"sg-applied-chip \">\n  <span>Active</span>\n  <a class=\"sg-applied-chip__remove\" href=\"/admin/users?status=\" aria-label=\"Remove filter Active\">\n    <span aria-hidden=\"true\">&times;</span>\n    <span class=\"sr-only\">remove</span>\n  </a>\n</span>"
 
-  # empty_state — original inline markup from users_index_live.ex:285-302
-  # Fixed assigns: title: "No users match this view"; inner_block with fixed literal body.
+  # empty_state — component-local contract copy from Phase 187 UI-SPEC.
+  # Fixed assigns: title: "No users found"; inner_block with fixed literal body.
   # NOTE: inner_block returns a raw string which is HTML-escaped by render_slot/1.
-  @empty_state_golden "<div class=\"sg-empty-state sg-stack sg-stack--3 \">\n  <p class=\"sg-empty-state__title\">No users match this view</p>\n  Try adjusting your filters.\n</div>"
+  @empty_state_golden "<div class=\"sg-empty-state sg-stack sg-stack--3 \">\n  <p class=\"sg-empty-state__title\">No users found</p>\n  Try adjusting your filters.\n</div>"
 
   # page_back — original inline <a> from user_show_live.ex:91-93
   # Fixed assigns: return_to: "/admin/users", label: "Back to users"
@@ -314,10 +314,10 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ ~s(href="/admin/users?role=")
   end
 
-  test "empty_state renders original inline empty state bytes faithfully" do
+  test "empty_state renders contract empty state copy faithfully" do
     html =
       render_component(&Components.empty_state/1,
-        title: "No users match this view",
+        title: "No users found",
         inner_block: [%{inner_block: fn _, _ -> "Try adjusting your filters." end}]
       )
 
@@ -377,6 +377,18 @@ defmodule Sigra.Admin.ComponentsTest do
            "scope_ribbon drifted — see admin-design-contract.md; do not re-record Playwright baselines"
   end
 
+  test "scope_ribbon default markup stays static body copy" do
+    html =
+      render_component(&Components.scope_ribbon/1,
+        copy: "Viewing all organizations"
+      )
+
+    assert html =~ ~s(<span class="sg-scope-ribbon sg-muted sg-text-sm ")
+    refute html =~ ~s(href=)
+    refute html =~ ~s(role="link")
+    refute html =~ ~s(tabindex=)
+  end
+
   # ---------------------------------------------------------------------------
   # Full target golden assertion (1) — notice — D-12
   # ---------------------------------------------------------------------------
@@ -394,6 +406,30 @@ defmodule Sigra.Admin.ComponentsTest do
            "notice drifted — see admin-design-contract.md; do not re-record Playwright baselines"
   end
 
+  test "notice omits live-region role by default and permits explicit opt-in" do
+    html =
+      render_component(&Components.notice/1,
+        tone: :warn,
+        inner_block: [
+          %{inner_block: fn _, _ -> "Password reset email delivery delayed." end}
+        ]
+      )
+
+    refute html =~ ~s(role="alert")
+    refute html =~ ~s(role="status")
+
+    opt_in_html =
+      render_component(&Components.notice/1,
+        tone: :info,
+        role: "status",
+        inner_block: [
+          %{inner_block: fn _, _ -> "Impersonation session active." end}
+        ]
+      )
+
+    assert opt_in_html =~ ~s(role="status")
+  end
+
   test "notice_link renders native inline notice action link" do
     html =
       render_component(&Components.notice_link/1,
@@ -403,6 +439,31 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html == @notice_link_golden,
            "notice_link drifted — see admin-design-contract.md; keep notice actions inline"
+  end
+
+  test "content-status shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    [_, notice_block] = Regex.run(~r/\.sg-notice\s*\{([^}]*)\}/, css)
+
+    assert Regex.match?(~r/transition:\s*var\(--sg-transition-tone\)/, notice_block),
+           "notice tone changes must use the shared exact-property tone transition"
+
+    for tone <- ~w(ok warn risk info) do
+      assert css =~ ~s(.sg-notice[data-tone="#{tone}"]),
+             "notice must expose #{tone} tone styling"
+    end
+
+    assert css =~ ".sg-notice__action:hover"
+    assert css =~ ".sg-notice__action:focus-visible"
+    assert css =~ ".sg-notice__action:active"
+
+    [_, scope_ribbon_block] = Regex.run(~r/\.sg-scope-ribbon\s*\{([^}]*)\}/, css)
+    refute scope_ribbon_block =~ "transition"
+    refute scope_ribbon_block =~ "animation"
+
+    refute css =~ ~r/transition:\s*all/,
+           "content/status CSS must use exact-property transitions"
   end
 
   test "field_help renders accessible label-adjacent tooltip control" do

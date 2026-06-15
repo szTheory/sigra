@@ -246,6 +246,50 @@ test.describe('Design gallery board snapshots', () => {
     await expect(pageBackBoard.locator('span[aria-hidden="true"]')).toHaveCount(4);
   });
 
+  test('content and notice boards expose required L1 state evidence', async ({ page }) => {
+    const emptyBoard = page.locator('#board-empty_state');
+    await expect(emptyBoard.getByText('No users found', { exact: true })).toBeVisible();
+    await expect(emptyBoard.getByText('Try adjusting your filters.', { exact: true })).toBeVisible();
+
+    const scopeBoard = page.locator('#board-scope_ribbon');
+    for (const label of ['global scope', 'org scope']) {
+      await expect(scopeBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(scopeBoard.locator('.sg-scope-ribbon')).toHaveCount(2);
+    await expect(
+      scopeBoard.locator('.sg-scope-ribbon[href], .sg-scope-ribbon[role="link"], .sg-scope-ribbon[tabindex]'),
+    ).toHaveCount(0);
+
+    const noticeBoard = page.locator('#board-notice');
+    for (const label of [
+      'tone: nil (neutral)',
+      'tone: ok',
+      'tone: warn',
+      'tone: risk (with embedded notice_link)',
+      'tone: info',
+    ]) {
+      await expect(noticeBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(noticeBoard.locator('.sg-notice')).toHaveCount(5);
+    await expect(noticeBoard.locator('.sg-notice[role="alert"], .sg-notice[role="status"]')).toHaveCount(
+      0,
+    );
+    for (const tone of ['ok', 'warn', 'risk', 'info']) {
+      await expect(noticeBoard.locator(`.sg-notice[data-tone="${tone}"]`)).toHaveCount(1);
+    }
+
+    const noticeLinkBoard = page.locator('#board-notice_link');
+    for (const label of ['default', 'hover', 'focus-visible', 'active']) {
+      await expect(noticeLinkBoard.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(noticeLinkBoard.locator('a.sg-notice__action')).toHaveCount(4);
+    await expect(
+      noticeLinkBoard.locator('a.sg-notice__action[href="/admin/users?needs_review=true"]', {
+        hasText: 'Review accounts',
+      }),
+    ).toHaveCount(4);
+  });
+
   test('help states open and close with Escape without trapping focus', async ({ page }) => {
     const fieldHelp = page.locator('#board-field_help [data-sg-field-help-root]').first();
     const fieldTrigger = fieldHelp.locator('[data-sg-field-help-trigger]');
