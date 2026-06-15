@@ -312,16 +312,25 @@ defmodule Sigra.Admin.Live.UserShowLive do
         <p class="sg-muted sg-text-sm">{Map.get(section, :body) || Map.get(section, "body")}</p>
       </section>
 
-      <dialog :if={@confirm_action} open class="modal">
-        <div class="modal-box">
-          <p class="sg-section-heading">Confirm action</p>
+      <div :if={@confirm_action} class="sg-confirm-overlay" role="presentation">
+        <section
+          class="sg-confirm-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="user-session-confirm-title"
+        >
+          <p id="user-session-confirm-title" class="sg-section-heading">{@confirm_action.title}</p>
           <p class="sg-text-sm" style="margin-top: var(--sg-space-3);">{@confirm_action.copy}</p>
-          <div class="modal-action">
-            <button type="button" phx-click="cancel_confirm" class="sg-btn sg-btn--ghost sg-btn--sm">Cancel</button>
-            <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">Confirm</button>
+          <div class="sg-confirm-dialog__actions">
+            <button type="button" phx-click="cancel_confirm" class="sg-btn sg-btn--ghost sg-btn--sm">
+              {@confirm_action.cancel_label}
+            </button>
+            <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">
+              {@confirm_action.confirm_label}
+            </button>
           </div>
-        </div>
-      </dialog>
+        </section>
+      </div>
     </section>
     """
   end
