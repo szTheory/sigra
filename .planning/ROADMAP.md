@@ -254,7 +254,7 @@ Plans:
 **Wave 2** (blocked on Wave 1 where noted)
 
 - [x] 188-03-PLAN.md — MG-1..MG-11 design gallery catalog and state boards
-- [ ] 188-04-PLAN.md — MG-11 production confirmation standardization in UserShowLive
+- [x] 188-04-PLAN.md — MG-11 production confirmation standardization in UserShowLive
 
 **Wave 3** (blocked on Wave 2)
 
