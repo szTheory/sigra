@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
@@ -191,6 +191,17 @@ function contrastRatio(foreground: string, background: string) {
   const darker = Math.min(foregroundLuminance, backgroundLuminance);
 
   return (lighter + 0.05) / (darker + 0.05);
+}
+
+async function readNoticeStyles(notice: Locator) {
+  return notice.evaluate((el) => {
+    const inner = el.querySelector(".sg-text-sm") as HTMLElement | null;
+    if (!inner) throw new Error("Expected .sg-text-sm inside .sg-notice");
+    return {
+      color: getComputedStyle(inner).color,
+      background: getComputedStyle(el).backgroundColor,
+    };
+  });
 }
 
 async function expectPaletteFieldsAligned(
@@ -1384,19 +1395,9 @@ test.describe("admin theme switch", () => {
       const notice = page.locator(`.sg-notice[data-tone="${tone}"]`).first();
       await expect(notice).toBeVisible();
 
-      const readNoticeStyles = async () =>
-        notice.evaluate((el) => {
-          const inner = el.querySelector(".sg-text-sm") as HTMLElement | null;
-          if (!inner) throw new Error("Expected .sg-text-sm inside .sg-notice");
-          return {
-            color: getComputedStyle(inner).color,
-            background: getComputedStyle(el).backgroundColor,
-          };
-        });
-
       await expect
         .poll(async () => {
-          const styles = await readNoticeStyles();
+          const styles = await readNoticeStyles(notice);
           return contrastRatio(styles.color, styles.background);
         })
         .toBeGreaterThanOrEqual(4.5);
@@ -1414,19 +1415,9 @@ test.describe("admin theme switch", () => {
       const notice = page.locator(`.sg-notice[data-tone="${tone}"]`).first();
       await expect(notice).toBeVisible();
 
-      const readNoticeStyles = async () =>
-        notice.evaluate((el) => {
-          const inner = el.querySelector(".sg-text-sm") as HTMLElement | null;
-          if (!inner) throw new Error("Expected .sg-text-sm inside .sg-notice");
-          return {
-            color: getComputedStyle(inner).color,
-            background: getComputedStyle(el).backgroundColor,
-          };
-        });
-
       await expect
         .poll(async () => {
-          const styles = await readNoticeStyles();
+          const styles = await readNoticeStyles(notice);
           return contrastRatio(styles.color, styles.background);
         })
         .toBeGreaterThanOrEqual(4.5);
