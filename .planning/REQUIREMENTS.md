@@ -51,10 +51,10 @@
 
 ### Meta-Components / Groups (GROUP) — Phase 188
 
-- [ ] **GROUP-01**: All meta-component groups (MG-1..MG-11) pass the meta scorecard, including intra-group rhythm, no card-in-card nesting, and right-component-for-job composition.
+- [x] **GROUP-01**: All meta-component groups (MG-1..MG-11) pass the meta scorecard, including intra-group rhythm, no card-in-card nesting, and right-component-for-job composition.
 - [ ] **GROUP-02**: Each group defines its zero, loading, and error states.
-- [ ] **GROUP-03**: Desktop-table ↔ mobile-card swaps are content-equivalent at the breakpoint, with graceful overflow (wrap/scroll-contain/truncate) and no squished columns.
-- [ ] **GROUP-04**: Groups reused across ≥2 pages render byte-coherently.
+- [x] **GROUP-03**: Desktop-table ↔ mobile-card swaps are content-equivalent at the breakpoint, with graceful overflow (wrap/scroll-contain/truncate) and no squished columns.
+- [x] **GROUP-04**: Groups reused across ≥2 pages render byte-coherently.
 
 ### Page Compositions (PAGE) — Phase 189
 
