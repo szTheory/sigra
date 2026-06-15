@@ -60,7 +60,7 @@ Applied to each of the 13 `Sigra.Admin.Components` function components.
 
 ### L2 Meta-Component Group Add-ons
 
-Applied to each of the 5 meta-component group boards (MG-1 through MG-5).
+Applied to each of the 11 meta-component group boards (MG-1 through MG-11).
 
 - **Intra-group rhythm consistent** — spacing between components within the group uses a
   single `sg-stack--N` tier; no mixed stacking contexts within one group.

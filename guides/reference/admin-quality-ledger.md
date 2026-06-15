@@ -47,11 +47,17 @@ between the base branch and the PR branch.
 | field_help | L1 | 1 | [board-field_help admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | skeleton | L1 | 1 | [board-skeleton admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
 | audit_row | L1 | 1 | [board-audit_row admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts), [components_test.exs](../../test/sigra/admin/components_test.exs) |
-| mg-1-metric-strip | L2 | 1 | [admin-design.spec.ts board-mg-1](#) |
-| mg-2-filter-panel | L2 | 1 | [admin-design.spec.ts board-mg-2](#) |
-| mg-3-task-grid | L2 | 1 | [admin-design.spec.ts board-mg-3](#) |
-| mg-4-alarm-notice | L2 | 1 | [admin-design.spec.ts board-mg-4](#) |
-| mg-5-audit-feed | L2 | 1 | [admin-design.spec.ts board-mg-5](#) |
+| mg-1-metric-summary-strip | L2 | 1 | [board-mg-1 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
+| mg-2-filter-panel-applied-chips | L2 | 1 | [board-mg-2 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, byte-coherently reused chips, responsive overflow |
+| mg-3-task-card-grid | L2 | 1 | [board-mg-3 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, no card-in-card nesting, responsive overflow |
+| mg-4-alarm-notice-band | L2 | 1 | [board-mg-4 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
+| mg-5-user-results-pagination | L2 | 1 | [board-mg-5 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, content-equivalent desktop/mobile results, responsive overflow |
+| mg-6-audit-feed-pagination | L2 | 1 | [board-mg-6 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, content-equivalent desktop/mobile audit feed, byte-coherently reused feed |
+| mg-7-organization-member-roster | L2 | 1 | [board-mg-7 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
+| mg-8-pending-invitations | L2 | 1 | [board-mg-8 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
+| mg-9-identity-header-summary-facts | L2 | 1 | [board-mg-9 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
+| mg-10-detail-facts-membership-panels | L2 | 1 | [board-mg-10 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
+| mg-11-destructive-action-confirmation | L2 | 1 | [board-mg-11 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, byte-coherently reused confirmation, canary-clean snapshots |
 | index-live | L3 | 1 | [admin-checkpoints: global-overview](#) |
 | organization-live | L3 | 1 | [admin-checkpoints: org-overview](#) |
 | users-index-live | L3 | 1 | [admin-checkpoints: users-index](#) |
