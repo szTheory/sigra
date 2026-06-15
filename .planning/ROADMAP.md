@@ -249,7 +249,7 @@ Plans:
 **Wave 1** (parallel)
 
 - [x] 188-01-PLAN.md — Folded D-11 token/theme harness hardening
-- [ ] 188-02-PLAN.md — L2 group CSS migration into canonical shipped sigra_admin.css and mirrors
+- [x] 188-02-PLAN.md — L2 group CSS migration into canonical shipped sigra_admin.css and mirrors
 
 **Wave 2** (blocked on Wave 1 where noted)
 
