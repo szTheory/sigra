@@ -262,7 +262,7 @@ Plans:
 
 **Wave 4** (blocked on Wave 3)
 
-- [ ] 188-06-PLAN.md — L2 scorecard, quality ledger, and validation ratification
+- [x] 188-06-PLAN.md — L2 scorecard, quality ledger, and validation ratification
 **UI hint**: yes
 
 ### Phase 188: Meta-Components / Groups (L2)
