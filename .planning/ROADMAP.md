@@ -244,7 +244,25 @@ Plans:
   4. Per-component axe is clean (light+dark), ARIA is correct per contract, and byte-golden ExUnit goldens are updated only for intended markup changes.
   5. Each component reflows correctly with no overflow/clip/squish at 320/375/768/1024/1440, and component-level microcopy (empty_state, notice, field_help) is on-brand and serves the JTBD; the ledger is raised.
 
-**Plans**: Not yet planned
+**Plans**: 6 plans
+Plans:
+**Wave 1** (parallel)
+
+- [ ] 188-01-PLAN.md — Folded D-11 token/theme harness hardening
+- [ ] 188-02-PLAN.md — L2 group CSS migration into canonical shipped sigra_admin.css and mirrors
+
+**Wave 2** (blocked on Wave 1 where noted)
+
+- [ ] 188-03-PLAN.md — MG-1..MG-11 design gallery catalog and state boards
+- [ ] 188-04-PLAN.md — MG-11 production confirmation standardization in UserShowLive
+
+**Wave 3** (blocked on Wave 2)
+
+- [ ] 188-05-PLAN.md — Playwright L2 catalog, responsive, equivalence, coherence, axe, and snapshot evidence
+
+**Wave 4** (blocked on Wave 3)
+
+- [ ] 188-06-PLAN.md — L2 scorecard, quality ledger, and validation ratification
 **UI hint**: yes
 
 ### Phase 188: Meta-Components / Groups (L2)
