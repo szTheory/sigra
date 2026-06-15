@@ -595,6 +595,385 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
               </div>
             </div>
           </div>
+
+          <%!-- board-mg-5: User Results + Pagination --%>
+          <section id="board-mg-5" class="sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-5 User Results + Pagination</p>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-5-populated" class="sg-stack sg-stack--3">
+                <div data-testid="mg-5-desktop-results" class="sg-table-panel sg-show-desktop">
+                  <table class="sg-table">
+                    <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Organizations</th>
+                        <th>Activity</th>
+                        <th class="sg-cell-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div class="sg-stack sg-stack--1">
+                            <span class="sg-strong">Alice Admin</span>
+                            <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">alice@example.test</span>
+                            <code class="sg-code">user_188_alice</code>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="sg-status-pill" data-tone="ok">Active</span>
+                        </td>
+                        <td>
+                          <div class="sg-stack sg-stack--1 sg-text-sm">
+                            <span>Rail Ops</span>
+                            <span class="sg-muted">2 organizations</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="sg-stack sg-stack--1 sg-text-sm">
+                            <span>Seen today</span>
+                            <span class="sg-muted">Registered 2026-01-02</span>
+                          </div>
+                        </td>
+                        <td class="sg-cell-right">
+                          <a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/user_188_alice">Open user</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div data-testid="mg-5-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+                  <article class="sg-card sg-stack sg-stack--3">
+                    <div class="sg-stack sg-stack--1">
+                      <span class="sg-strong">Alice Admin</span>
+                      <span class="sg-muted sg-text-sm sg-truncate" title="alice@example.test">alice@example.test</span>
+                      <code class="sg-code">user_188_alice</code>
+                    </div>
+                    <span class="sg-status-pill" data-tone="ok">Active</span>
+                    <dl class="sg-kv">
+                      <div>
+                        <dt class="sg-meta-label">Organizations</dt>
+                        <dd class="sg-meta-value">Rail Ops</dd>
+                        <dd class="sg-muted sg-text-sm">2 organizations</dd>
+                      </div>
+                      <div>
+                        <dt class="sg-meta-label">Activity</dt>
+                        <dd class="sg-meta-value">Seen today</dd>
+                      </div>
+                      <div>
+                        <dt class="sg-meta-label">Registered</dt>
+                        <dd class="sg-meta-value">2026-01-02</dd>
+                      </div>
+                    </dl>
+                    <a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/user_188_alice">Open user</a>
+                  </article>
+                </div>
+                <nav class="sg-cluster sg-cluster--between" aria-label="User results pagination">
+                  <a class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true" aria-label="Previous page">
+                    <span aria-hidden="true">&larr;</span>
+                    <span class="sr-only">Previous page</span>
+                  </a>
+                  <span class="sg-muted sg-text-sm sg-tabular">Showing 1-1 of 1 users</span>
+                  <a class="sg-btn sg-btn--secondary sg-btn--icon" href="#" aria-label="Next page">
+                    <span aria-hidden="true">&rarr;</span>
+                    <span class="sr-only">Next page</span>
+                  </a>
+                </nav>
+              </div>
+              <div data-testid="mg-5-zero">
+                <.empty_state title="No users match this view">
+                  <p class="sg-muted sg-text-sm">Clear one or more filters to widen the result set.</p>
+                </.empty_state>
+              </div>
+              <div data-testid="mg-5-loading" class="sg-stack sg-stack--3" aria-busy="true">
+                <.skeleton />
+                <.skeleton />
+                <.skeleton />
+              </div>
+              <div data-testid="mg-5-error">
+                <.notice tone={:risk}>Unable to load users. Refresh the page, then try again.</.notice>
+              </div>
+            </div>
+          </section>
+
+          <%!-- board-mg-6: Audit Feed + Pagination --%>
+          <div id="board-mg-6" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-6 Audit Feed + Pagination</p>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-6-populated" class="sg-stack sg-stack--3">
+                <div data-testid="mg-6-desktop-results" class="sg-table-panel sg-show-desktop">
+                  <table class="sg-table">
+                    <thead>
+                      <tr>
+                        <th>Occurred</th>
+                        <th>Event</th>
+                        <th>Actor</th>
+                        <th>Outcome</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr data-tone="info">
+                        <td>
+                          <span class="sg-text-sm">2026-01-15 14:00</span>
+                          <code class="sg-code">evt_188_login</code>
+                        </td>
+                        <td>
+                          <span class="sg-status-pill" data-tone="info">Impersonation</span>
+                          <code class="sg-code">admin.impersonation.start</code>
+                        </td>
+                        <td>
+                          <span>admin@example.test acting as alice@example.test</span>
+                          <span class="sg-muted sg-text-sm">Actor: admin@example.test</span>
+                          <span class="sg-muted sg-text-sm">Effective user: alice@example.test</span>
+                        </td>
+                        <td><span class="sg-muted">success</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div data-testid="mg-6-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+                  <.audit_row row={%{
+                    id: "evt_188_login",
+                    inserted_at: ~N[2026-01-15 14:00:00],
+                    action: "admin.impersonation.start",
+                    action_label: "Impersonation",
+                    action_badge: "Impersonation",
+                    actor_label: "admin@example.test",
+                    effective_user_label: "alice@example.test",
+                    actor_summary: "admin@example.test acting as alice@example.test",
+                    outcome: "success"
+                  }} show_detail show_codes />
+                </div>
+                <nav class="sg-cluster sg-cluster--between" aria-label="Audit feed pagination">
+                  <a class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true" aria-label="Previous page">
+                    <span aria-hidden="true">&larr;</span>
+                    <span class="sr-only">Previous page</span>
+                  </a>
+                  <span class="sg-muted sg-text-sm">Page 1</span>
+                  <a class="sg-btn sg-btn--secondary sg-btn--icon" href="#" aria-label="Next page">
+                    <span aria-hidden="true">&rarr;</span>
+                    <span class="sr-only">Next page</span>
+                  </a>
+                  <a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/audit/export.csv">Export CSV</a>
+                </nav>
+              </div>
+              <div data-testid="mg-6-zero">
+                <.empty_state title="No audit events match this view">
+                  <p class="sg-muted sg-text-sm">Clear one or more filters to widen the timeline.</p>
+                </.empty_state>
+              </div>
+              <div data-testid="mg-6-loading" class="sg-list" aria-busy="true">
+                <.skeleton class="sg-list-row" />
+                <.skeleton class="sg-list-row" />
+              </div>
+              <div data-testid="mg-6-error">
+                <.notice tone={:risk}>Unable to load audit events. Refresh the page, then try again.</.notice>
+              </div>
+              <div data-testid="mg-6-coherence-a" class="sg-list">
+                <.audit_row row={%{
+                  id: "evt_188_login",
+                  inserted_at: ~N[2026-01-15 14:00:00],
+                  action: "admin.impersonation.start",
+                  action_label: "Impersonation",
+                  action_badge: "Impersonation",
+                  actor_label: "admin@example.test",
+                  effective_user_label: "alice@example.test",
+                  actor_summary: "admin@example.test acting as alice@example.test",
+                  outcome: "success"
+                }} show_detail show_codes />
+              </div>
+              <div data-testid="mg-6-coherence-b" class="sg-list">
+                <.audit_row row={%{
+                  id: "evt_188_login",
+                  inserted_at: ~N[2026-01-15 14:00:00],
+                  action: "admin.impersonation.start",
+                  action_label: "Impersonation",
+                  action_badge: "Impersonation",
+                  actor_label: "admin@example.test",
+                  effective_user_label: "alice@example.test",
+                  actor_summary: "admin@example.test acting as alice@example.test",
+                  outcome: "success"
+                }} show_detail show_codes />
+              </div>
+            </div>
+          </div>
+
+          <%!-- board-mg-7: Organization Member Roster --%>
+          <div id="board-mg-7" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-7 Organization Member Roster</p>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-7-populated" class="sg-list">
+                <article class="sg-list-row sg-stack sg-stack--2">
+                  <div class="sg-cluster sg-cluster--between">
+                    <span class="sg-strong">alice@example.test</span>
+                    <span class="sg-status-pill" data-tone="info">Owner</span>
+                  </div>
+                  <span class="sg-muted sg-text-sm">Joined 2026-01-02</span>
+                </article>
+              </div>
+              <div data-testid="mg-7-zero">
+                <.empty_state title="No members yet"><p class="sg-muted sg-text-sm">Invite a teammate to start this organization.</p></.empty_state>
+              </div>
+              <div data-testid="mg-7-loading" class="sg-list" aria-busy="true">
+                <.skeleton class="sg-list-row" />
+                <.skeleton class="sg-list-row" />
+              </div>
+              <div data-testid="mg-7-error">
+                <.notice tone={:risk}>Unable to load members. Refresh the page, then check the organization scope.</.notice>
+              </div>
+            </div>
+          </div>
+
+          <%!-- board-mg-8: Pending Invitations --%>
+          <div id="board-mg-8" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-8 Pending Invitations</p>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-8-populated" class="sg-list">
+                <article class="sg-list-row sg-stack sg-stack--2" data-tone="warn">
+                  <div class="sg-cluster sg-cluster--between">
+                    <span class="sg-strong">new.admin@example.test</span>
+                    <span class="sg-status-pill" data-tone="warn">Pending</span>
+                  </div>
+                  <span class="sg-muted sg-text-sm">Invited 2026-01-12</span>
+                </article>
+              </div>
+              <div data-testid="mg-8-zero">
+                <.empty_state title="No pending invitations."><p class="sg-muted sg-text-sm">Invitations appear here until accepted or expired.</p></.empty_state>
+              </div>
+              <div data-testid="mg-8-loading" class="sg-list" aria-busy="true">
+                <.skeleton class="sg-list-row" />
+                <.skeleton class="sg-list-row" />
+              </div>
+              <div data-testid="mg-8-error">
+                <.notice tone={:risk}>Unable to load pending invitations. Refresh the page, then check invitation settings.</.notice>
+              </div>
+            </div>
+          </div>
+
+          <%!-- board-mg-9: Identity Header + Summary Facts --%>
+          <div id="board-mg-9" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-9 Identity Header + Summary Facts</p>
+            <div class="sg-stack sg-stack--3">
+              <header data-testid="mg-9-populated" class="sg-page-header">
+                <p class="sg-page-kicker">Identity &amp; Status</p>
+                <h3 class="sg-page-title">Alice Admin</h3>
+                <span class="sg-muted sg-text-sm">alice@example.test</span>
+                <code class="sg-code">user_188_alice</code>
+                <div class="sg-cluster sg-cluster--2">
+                  <span class="sg-status-pill" data-tone="ok">Active</span>
+                  <span class="sg-status-pill" data-tone="info">MFA enabled</span>
+                </div>
+                <dl class="sg-summary-facts">
+                  <div><dt class="sg-kv__term">MFA</dt><dd class="sg-kv__value">Enabled</dd></div>
+                  <div><dt class="sg-kv__term">Passkeys</dt><dd class="sg-kv__value sg-summary-facts__num">2</dd></div>
+                  <div><dt class="sg-kv__term">Active</dt><dd class="sg-kv__value sg-summary-facts__num">1</dd></div>
+                </dl>
+              </header>
+              <div data-testid="mg-9-zero">
+                <p class="sg-muted sg-text-sm">Optional identity fields collapse without blank labels.</p>
+              </div>
+              <div data-testid="mg-9-loading" class="sg-stack sg-stack--2" aria-busy="true">
+                <.skeleton />
+                <.skeleton />
+              </div>
+              <div data-testid="mg-9-error">
+                <.notice tone={:risk}>Unable to load user identity. Return to users, then open the account again.</.notice>
+              </div>
+            </div>
+          </div>
+
+          <%!-- board-mg-10: Detail Facts + Membership Panels --%>
+          <div id="board-mg-10" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-10 Detail Facts + Membership Panels</p>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-10-populated" class="sg-detail-grid">
+                <section class="sg-detail-panel sg-stack sg-stack--3">
+                  <h3 class="sg-section-heading">Security</h3>
+                  <dl class="sg-kv">
+                    <div><dt class="sg-kv__term">MFA</dt><dd class="sg-kv__value">Enabled</dd></div>
+                    <div><dt class="sg-kv__term">Passkeys</dt><dd class="sg-kv__value">2 passkeys</dd></div>
+                  </dl>
+                </section>
+                <section class="sg-detail-panel sg-stack sg-stack--3">
+                  <h3 class="sg-section-heading">Recent Audit</h3>
+                  <.audit_row row={%{
+                    id: "evt_188_login",
+                    inserted_at: ~N[2026-01-15 14:00:00],
+                    action: "auth.login.success",
+                    action_label: "Login",
+                    action_badge: nil,
+                    actor_label: "alice@example.test",
+                    effective_user_label: "alice@example.test",
+                    actor_summary: "alice@example.test",
+                    outcome: "success"
+                  }} />
+                </section>
+              </div>
+              <div data-testid="mg-10-zero">
+                <.empty_state title="No linked identities"><p class="sg-muted sg-text-sm">This user signs in without a visible external identity provider.</p></.empty_state>
+              </div>
+              <div data-testid="mg-10-loading" class="sg-detail-grid" aria-busy="true">
+                <.skeleton class="sg-detail-panel" />
+                <.skeleton class="sg-detail-panel" />
+              </div>
+              <div data-testid="mg-10-error">
+                <.notice tone={:risk}>Unable to load detail panels. Refresh the page, then check user detail logs.</.notice>
+              </div>
+            </div>
+          </div>
+
+          <%!-- board-mg-11: Destructive Action + Confirmation --%>
+          <div id="board-mg-11" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">MG-11 Destructive Action + Confirmation</p>
+            <div class="sg-stack sg-stack--3">
+              <div data-testid="mg-11-populated" class="sg-danger-panel sg-stack sg-stack--3">
+                <h3 class="sg-section-heading">Danger Zone</h3>
+                <p class="sg-muted sg-text-sm">Session revocation signs users out of active browsers.</p>
+                <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">Revoke all sessions</button>
+              </div>
+              <div data-testid="mg-11-zero">
+                <p class="sg-muted sg-text-sm">Dangerous actions are hidden when unavailable.</p>
+              </div>
+              <div data-testid="mg-11-loading" class="sg-danger-panel sg-stack sg-stack--2" aria-busy="true">
+                <.skeleton />
+                <.skeleton />
+              </div>
+              <div data-testid="mg-11-error">
+                <.notice tone={:risk}>Unable to revoke sessions. Refresh the page, then try again.</.notice>
+              </div>
+              <div
+                class="sg-confirm-overlay"
+                role="presentation"
+                data-testid="mg-11-coherence-a"
+                style="position: relative; inset: auto;"
+              >
+                <section class="sg-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="mg-11-confirm-title-a">
+                  <p id="mg-11-confirm-title-a" class="sg-section-heading">Revoke all sessions?</p>
+                  <p class="sg-text-sm">Revoke every active session for alice@example.test? This signs them out everywhere.</p>
+                  <div class="sg-confirm-dialog__actions">
+                    <button type="button" class="sg-btn sg-btn--ghost sg-btn--sm">Keep sessions</button>
+                    <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">Revoke all sessions</button>
+                  </div>
+                </section>
+              </div>
+              <div
+                class="sg-confirm-overlay"
+                role="presentation"
+                data-testid="mg-11-coherence-b"
+                style="position: relative; inset: auto;"
+              >
+                <section class="sg-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="mg-11-confirm-title-b">
+                  <p id="mg-11-confirm-title-b" class="sg-section-heading">Revoke all sessions?</p>
+                  <p class="sg-text-sm">Revoke every active session for alice@example.test? This signs them out everywhere.</p>
+                  <div class="sg-confirm-dialog__actions">
+                    <button type="button" class="sg-btn sg-btn--ghost sg-btn--sm">Keep sessions</button>
+                    <button type="button" class="sg-btn sg-btn--danger sg-btn--sm">Revoke all sessions</button>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </section>
