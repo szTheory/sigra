@@ -328,10 +328,6 @@ defmodule Sigra.Install.Features.AdminTest do
   end
 
   describe "D-11 System↔explicit-toggle dark-block parity" do
-    # Line ranges verified 2026-06-14:
-    #   sigra_admin.css @media dark block: lines 177-210 (zero-indexed: 176..209)
-    #   app.css explicit-toggle dark block: lines 1512-1543 (zero-indexed: 1511..1542)
-
     test "admin dark @media block and app.css explicit-toggle dark block declare identical --sg-* values" do
       admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
       app_css = File.read!("test/example/priv/static/assets/css/app.css")
@@ -401,24 +397,60 @@ defmodule Sigra.Install.Features.AdminTest do
   end
 
   defp extract_dark_media_props(css) do
-    # Extract --sg-* declarations from @media (prefers-color-scheme: dark) block.
-    # Uses the verified line range (lines 177-210, zero-indexed 176..209).
     css
-    |> String.split("\n")
-    |> Enum.slice(176..209)
-    |> Enum.filter(&String.contains?(&1, "--sg-"))
-    |> Enum.map(&String.trim/1)
-    |> Enum.sort()
+    |> extract_css_block("@media (prefers-color-scheme: dark)")
+    |> extract_sg_declarations()
   end
 
   defp extract_explicit_dark_props(css) do
-    # Extract --sg-* declarations from .sg-admin-shell[data-theme="dark"] block.
-    # Uses the verified line range (lines 1512-1543, zero-indexed 1511..1542).
     css
-    |> String.split("\n")
-    |> Enum.slice(1511..1542)
-    |> Enum.filter(&String.contains?(&1, "--sg-"))
-    |> Enum.map(&String.trim/1)
+    |> extract_css_block(~s(html[data-sg-admin-theme="dark"] .sg-admin-shell))
+    |> extract_sg_declarations()
+  end
+
+  defp extract_css_block(css, selector) do
+    with {selector_offset, _} <- :binary.match(css, selector),
+         block_source <- binary_part(css, selector_offset, byte_size(css) - selector_offset),
+         {brace_offset, 1} <- :binary.match(block_source, "{") do
+      block_source
+      |> binary_part(brace_offset, byte_size(block_source) - brace_offset)
+      |> take_balanced_block()
+    else
+      :nomatch -> flunk("Could not find CSS block for #{selector}")
+    end
+  end
+
+  defp take_balanced_block(source) do
+    source
+    |> String.graphemes()
+    |> Enum.reduce_while({0, []}, fn
+      "{", {depth, chars} ->
+        {:cont, {depth + 1, ["{" | chars]}}
+
+      "}", {1, chars} ->
+        {:halt, Enum.reverse(["}" | chars])}
+
+      "}", {depth, chars} ->
+        {:cont, {depth - 1, ["}" | chars]}}
+
+      char, {depth, chars} ->
+        {:cont, {depth, [char | chars]}}
+    end)
+    |> case do
+      chars when is_list(chars) -> Enum.join(chars)
+      {_depth, _chars} -> flunk("Could not find balanced CSS block")
+    end
+  end
+
+  defp extract_sg_declarations(block) do
+    ~r/--sg-[\w-]+\s*:\s*[^;]+;/s
+    |> Regex.scan(block)
+    |> List.flatten()
+    |> Enum.map(fn declaration ->
+      declaration
+      |> String.replace(~r/\s+/, " ")
+      |> String.trim()
+    end)
     |> Enum.sort()
   end
 
