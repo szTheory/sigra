@@ -647,7 +647,7 @@ The **anti-enumeration** brand-voice rule (D-13) is asserted: the 403 body is a 
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Session revoke copy mismatch**
    - What we know: `brand-book.md:249` has `"Session revoked. The user will need to sign in again on that device."` but `user_show_live.ex:81` emits `"Session revoked."` (short form).
