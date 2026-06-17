@@ -172,26 +172,47 @@ export async function seedThemeAndAssertNoFlash(
  *   - `localStorage.getItem("sigra.admin.theme")` equals theme
  *
  * For `'system'`:
- *   - `html` does NOT have `data-sg-admin-theme` attribute
- *   - `localStorage.getItem("sigra.admin.theme")` is null
+ *   - `html[data-sg-admin-theme-preference]` equals `"system"` (the user's
+ *      recorded selection — this is the source of truth for the preference)
+ *   - `html` does NOT have `data-sg-admin-theme` (the resolved-theme attribute
+ *      is only emitted for explicit light/dark; in system mode the page follows
+ *      the OS scheme via CSS so no resolved override is written)
+ *   - `.sg-admin-shell` does NOT have `data-theme` (same rationale)
+ *   - `localStorage.getItem("sigra.admin.theme")` equals `"system"`
+ *
+ * NOTE: The live app ALWAYS sets `data-sg-admin-theme` to the RESOLVED theme for
+ * explicit light/dark choices, and records the user's selection separately in
+ * `data-sg-admin-theme-preference`. The `system` preference is therefore verified
+ * via the preference attribute + the ABSENCE of an explicit resolved override.
  *
  * Uses web-first auto-retrying `expect(locator).toHaveAttribute(...)` for
  * theme assertions — never toHaveCSS (computed colors vary by OS).
  *
- * Source: admin-theme.spec.ts:415-479.
+ * Source: admin-theme.spec.ts:415-479; live DOM model verified against the
+ * running example server (data-sg-admin-theme-preference="system").
  */
 export async function assertThemeAttributes(
   page: Page,
   theme: 'dark' | 'light' | 'system',
 ): Promise<void> {
   if (theme === 'system') {
+    // System preference is recorded in the dedicated preference attribute.
+    await expect(page.locator('html')).toHaveAttribute(
+      'data-sg-admin-theme-preference',
+      'system',
+    );
+    // No explicit resolved-theme override is emitted in system mode.
     await expect(page.locator('html')).not.toHaveAttribute(
       'data-sg-admin-theme',
       /.+/,
     );
+    await expect(page.locator('.sg-admin-shell')).not.toHaveAttribute(
+      'data-theme',
+      /.+/,
+    );
     expect(
       await page.evaluate(() => localStorage.getItem('sigra.admin.theme')),
-    ).toBeNull();
+    ).toBe('system');
   } else {
     await expect(page.locator('.sg-admin-shell')).toHaveAttribute(
       'data-theme',

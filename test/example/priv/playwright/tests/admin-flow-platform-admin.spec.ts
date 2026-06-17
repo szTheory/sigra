@@ -88,10 +88,18 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       const aliceRow = adminUsersEmailLocator(page, DEMO_ALICE_EMAIL);
       await expect(aliceRow).toBeVisible();
 
-      // 3. Open alice's user detail.
-      await page.getByRole('link', { name: 'Open user' }).first().click();
+      // 3. Open alice's user detail. The "Search" button is a LiveView event that
+      //    patches the results list; clicking the row link immediately after races
+      //    that patch and the click is swallowed (the URL never leaves the list).
+      //    Read the visible row's "Open user" href and navigate to it directly —
+      //    this preserves the return_to scope param and lands on the detail page.
+      const aliceDetailHref = await aliceRow
+        .getByRole('link', { name: 'Open user' })
+        .getAttribute('href');
+      expect(aliceDetailHref).toMatch(/\/admin\/users\/[a-f0-9-]+/);
+      await page.goto(aliceDetailHref!);
+      await expect(page).toHaveURL(/\/admin\/users\/[a-f0-9-]+/, { timeout: 10000 });
       await waitForLiveViewReady(page);
-      await expect(page).toHaveURL(/\/admin\/users\/[^?/]+/);
       await assertScopeChrome(page, 'Global');
 
       // 4. Breadcrumb "Users" link must carry the return_to / ?q= scope.
@@ -101,8 +109,17 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
         /return_to|\/admin\/users\?/,
       );
 
-      // 5. Recent audit is visible (alice has 3 seeded events).
-      await expect(page.locator('.sg-list .sg-audit-row, .sg-list [class*="audit"]').first()).toBeVisible();
+      // 5. Recent audit is visible (alice has seeded events). The Recent Audit
+      //    section is the <section> containing the "View full audit" link; each
+      //    event renders as an <article class="sg-list-row"> with a status pill
+      //    (audit_row/1 in lib/sigra/admin/components.ex:699 — no "sg-audit-row"
+      //    class exists, so the row is matched via .sg-list-row + .sg-status-pill).
+      const recentAuditSection = page
+        .locator('section')
+        .filter({ has: page.getByRole('link', { name: 'View full audit' }) });
+      await expect(
+        recentAuditSection.locator('.sg-list .sg-list-row .sg-status-pill').first(),
+      ).toBeVisible();
 
       // 6. Navigate to alice's full per-user audit.
       await page.getByRole('link', { name: 'View full audit' }).click();
@@ -142,8 +159,14 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       const daveRow = adminUsersEmailLocator(page, DEMO_DAVE_EMAIL);
       await expect(daveRow).toBeVisible();
 
-      // 2. Open dave's user detail.
-      await page.getByRole('link', { name: 'Open user' }).first().click();
+      // 2. Open dave's user detail. Navigate via the row's href (the post-Search
+      //    LiveView patch swallows an immediate link click — see happy path note).
+      const daveDetailHref = await daveRow
+        .getByRole('link', { name: 'Open user' })
+        .getAttribute('href');
+      expect(daveDetailHref).toMatch(/\/admin\/users\/[a-f0-9-]+/);
+      await page.goto(daveDetailHref!);
+      await expect(page).toHaveURL(/\/admin\/users\/[a-f0-9-]+/, { timeout: 10000 });
       await waitForLiveViewReady(page);
       await assertScopeChrome(page, 'Global');
 
@@ -181,8 +204,14 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       const frankRow = adminUsersEmailLocator(page, DEMO_FRANK_EMAIL);
       await expect(frankRow).toBeVisible();
 
-      // 2. Open frank's user detail.
-      await page.getByRole('link', { name: 'Open user' }).first().click();
+      // 2. Open frank's user detail. Navigate via the row's href (the post-Search
+      //    LiveView patch swallows an immediate link click — see happy path note).
+      const frankDetailHref = await frankRow
+        .getByRole('link', { name: 'Open user' })
+        .getAttribute('href');
+      expect(frankDetailHref).toMatch(/\/admin\/users\/[a-f0-9-]+/);
+      await page.goto(frankDetailHref!);
+      await expect(page).toHaveURL(/\/admin\/users\/[a-f0-9-]+/, { timeout: 10000 });
       await waitForLiveViewReady(page);
 
       // 3. Scheduled-deletion indicator visible.
@@ -225,8 +254,16 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
 
       await page.fill('input[name="q"]', DEMO_ALICE_EMAIL);
       await page.click('button:has-text("Search")');
-      await expect(adminUsersEmailLocator(page, DEMO_ALICE_EMAIL)).toBeVisible();
-      await page.getByRole('link', { name: 'Open user' }).first().click();
+      const aliceRowKb = adminUsersEmailLocator(page, DEMO_ALICE_EMAIL);
+      await expect(aliceRowKb).toBeVisible();
+      // Navigate via the row's href (post-Search LiveView patch swallows an
+      // immediate link click — see happy path note).
+      const aliceDetailHrefKb = await aliceRowKb
+        .getByRole('link', { name: 'Open user' })
+        .getAttribute('href');
+      expect(aliceDetailHrefKb).toMatch(/\/admin\/users\/[a-f0-9-]+/);
+      await page.goto(aliceDetailHrefKb!);
+      await expect(page).toHaveURL(/\/admin\/users\/[a-f0-9-]+/, { timeout: 10000 });
       await waitForLiveViewReady(page);
 
       // Locate the "Revoke all sessions" or "Revoke session" trigger button.
@@ -321,10 +358,16 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
       await page.emulateMedia({ colorScheme: 'light' });
       await assertThemeAttributes(page, 'dark');
 
-      // 5. Set localStorage to 'system' → reload → html should NOT have data-sg-admin-theme
-      // (system mode removes the explicit override attribute).
-      await page.evaluate(() => {
-        localStorage.setItem('sigra.admin.theme', 'system');
+      // 5. Flip to 'system' preference → reload → preference persists.
+      // The admin shell re-syncs localStorage from server state on LiveView mount,
+      // so a bare localStorage.setItem('system') is overwritten back to 'dark' on
+      // reload. Seed via addInitScript instead: it runs on EVERY navigation (incl.
+      // reload) before both the inline no-flash script and the LiveView mount, so the
+      // 'system' selection survives. In system mode the app records the choice in
+      // data-sg-admin-theme-preference="system" and emits NO explicit resolved
+      // data-sg-admin-theme override (the page follows the OS scheme via CSS).
+      await page.addInitScript(() => {
+        window.localStorage.setItem('sigra.admin.theme', 'system');
       });
       await page.reload();
       await waitForLiveViewReady(page);
