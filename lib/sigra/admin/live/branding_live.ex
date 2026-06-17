@@ -361,6 +361,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
             <button
               type="button"
               phx-click="cancel_restore_defaults"
+              data-sg-confirm-cancel
               class="sg-btn sg-btn--ghost sg-btn--sm"
             >
               Cancel
