@@ -302,7 +302,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 189-03-PLAN.md — Dedicated modal-interaction spec + axe-while-open + 8×3 checkpoint ratification + 6 L3 ledger rows ratified (PAGE-03/05)
+- [x] 189-03-PLAN.md — Dedicated modal-interaction spec + axe-while-open + 8×3 checkpoint ratification + 6 L3 ledger rows ratified (PAGE-03/05)
 
 **UI hint**: yes
 
