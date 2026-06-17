@@ -388,9 +388,14 @@
       // is correct for a destructive confirm per APG Dialog guidance).
       var dialog = this.el.querySelector(".sg-confirm-dialog");
       if (dialog) {
-        var focusables = dialog.querySelectorAll(FOCUSABLE);
-        if (focusables.length) {
-          focusables[0].focus();
+        var cancelEl = dialog.querySelector("[data-sg-confirm-cancel]");
+        if (cancelEl) {
+          cancelEl.focus();
+        } else {
+          var focusables = dialog.querySelectorAll(FOCUSABLE);
+          if (focusables.length) {
+            focusables[0].focus();
+          }
         }
       }
 
@@ -400,6 +405,7 @@
         try {
           if (key === "Escape") {
             event.preventDefault();
+            event.stopImmediatePropagation();
             self._cancel();
             return;
           }
@@ -433,6 +439,11 @@
     _cancel: function () {
       var dialog = this.el.querySelector(".sg-confirm-dialog");
       if (!dialog) return;
+      var cancelEl = dialog.querySelector("[data-sg-confirm-cancel]");
+      if (cancelEl) {
+        cancelEl.click();
+        return;
+      }
       var focusables = dialog.querySelectorAll(FOCUSABLE);
       // Cancel is always the FIRST button in the dialog (both LiveViews render
       // Cancel before the confirm/danger button).
@@ -468,8 +479,13 @@
       document.body.classList.remove("sg-body-scroll-locked");
       // Return focus to the element that opened the dialog (the trigger button),
       // not to this.el which has already been removed from the DOM.
-      if (this._trigger && this._trigger.focus) {
+      // WR-02: guard with document.contains() so we fall back to document.body
+      // when the trigger itself has been removed from the DOM (e.g. after a
+      // LiveView patch that replaces the triggering element).
+      if (this._trigger && document.contains(this._trigger) && this._trigger.focus) {
         this._trigger.focus();
+      } else {
+        document.body.focus();
       }
     },
   };

@@ -322,7 +322,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
           <p id="user-session-confirm-title" class="sg-section-heading">{@confirm_action.title}</p>
           <p class="sg-text-sm" style="margin-top: var(--sg-space-3);">{@confirm_action.copy}</p>
           <div class="sg-confirm-dialog__actions">
-            <button type="button" phx-click="cancel_confirm" class="sg-btn sg-btn--ghost sg-btn--sm">
+            <button type="button" phx-click="cancel_confirm" data-sg-confirm-cancel class="sg-btn sg-btn--ghost sg-btn--sm">
               {@confirm_action.cancel_label}
             </button>
             <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">
