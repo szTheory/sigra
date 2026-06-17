@@ -297,8 +297,8 @@ Plans:
 
 **Wave 1** (parallel — no file overlap)
 
-- [ ] 189-01-PLAN.md — ConfirmDialog APG modal hook (JS ×2) + scroll-lock CSS (×3 parity) + phx-hook wiring on user_show_live & branding_live (PAGE-03)
-- [ ] 189-02-PLAN.md — IA / vertical-rhythm / landmark-heading / honest-pagination audit on index, organization, users_index, audit_index, audit_user (PAGE-01/02/04/05)
+- [x] 189-01-PLAN.md — ConfirmDialog APG modal hook (JS ×2) + scroll-lock CSS (×3 parity) + phx-hook wiring on user_show_live & branding_live (PAGE-03)
+- [x] 189-02-PLAN.md — IA / vertical-rhythm / landmark-heading / honest-pagination audit on index, organization, users_index, audit_index, audit_user (PAGE-01/02/04/05)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
