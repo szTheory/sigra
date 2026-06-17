@@ -22,10 +22,23 @@ findings:
   warning: 4
   info: 2
   total: 7
-status: issues_found
+status: resolved
+remediation:
+  cr_01: fixed inline during execute-phase (audit pagination guard cursor-meta KeyError); proven by example admin_audit_{index,user}_live_test.exs (7 tests, 0 failures)
+  warnings: deferred to .planning/todos/pending/2026-06-17-phase-189-review-deferred.md (WR-01/02/03 hook hardening, WR-04 pre-existing branding error leak)
+  info: no action required
 ---
 
 # Phase 189: Code Review Report
+
+> **Remediation (execute-phase, 2026-06-17):** CR-01 (BLOCKER) was verified
+> against the codebase and fixed inline — the audit pagination guard referenced
+> `meta.total_pages` on the cursor-based audit explorer meta map (no such key),
+> raising `KeyError` on every audit render. Fixed in both `audit_index_live` and
+> `audit_user_live` by dropping the meaningless `total_pages` term; the existing
+> example `admin_audit_{index,user}_live_test.exs` (7 tests) are the regression
+> guard and pass. WR-01..WR-04 (hardening / pre-existing) are tracked in
+> `.planning/todos/pending/2026-06-17-phase-189-review-deferred.md`.
 
 **Reviewed:** 2026-06-17
 **Depth:** standard
