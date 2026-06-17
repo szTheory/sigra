@@ -26,6 +26,10 @@ const ADMIN_BEHAVIOR_SPECS =
 const ADMIN_CHECKPOINTS_SPEC = /admin-checkpoints\.spec\.ts/;
 const ADMIN_DESIGN_SPEC = /admin-design\.spec\.ts/;
 const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
+// Phase 189 Plan 03: dedicated modal-interaction spec (PAGE-03 APG gates).
+// Runs on the main `chromium` behavior lane (NOT excluded from it).
+// Excluded from `mobile` (admin behavior stays on chromium per D-01..D-05).
+const ADMIN_MODAL_SPEC = /admin-modal-interaction\.spec\.ts/;
 // Virtual WebAuthn authenticator uses Chrome DevTools Protocol — Chromium only
 // (Playwright mobile preset is WebKit).
 const WEBAUTHN_CDP_SPECS =
@@ -98,6 +102,7 @@ export default defineConfig({
         ADMIN_GENERATED_SPEC,
         WEBAUTHN_CDP_SPECS,
         DEMO_SHOWCASE_SPEC,
+        ADMIN_MODAL_SPEC,
       ],
       use: { ...devices['iPhone 13'] },
     },
