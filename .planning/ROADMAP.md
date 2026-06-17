@@ -293,7 +293,17 @@ Plans:
   4. The non-archetypal pages (Branding customizer, Audit explorer) are explicitly scored against the rubric.
   5. Page-level a11y (landmark/heading order, focus management on navigate/patch) passes, and the 8 admin checkpoints × 3 projects are ratified.
 
-**Plans**: Not yet planned
+**Plans**: 3 plans
+
+**Wave 1** (parallel — no file overlap)
+
+- [ ] 189-01-PLAN.md — ConfirmDialog APG modal hook (JS ×2) + scroll-lock CSS (×3 parity) + phx-hook wiring on user_show_live & branding_live (PAGE-03)
+- [ ] 189-02-PLAN.md — IA / vertical-rhythm / landmark-heading / honest-pagination audit on index, organization, users_index, audit_index, audit_user (PAGE-01/02/04/05)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 189-03-PLAN.md — Dedicated modal-interaction spec + axe-while-open + 8×3 checkpoint ratification + 6 L3 ledger rows ratified (PAGE-03/05)
+
 **UI hint**: yes
 
 ### Phase 190: Flows & Fixture Data (L4)
