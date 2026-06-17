@@ -327,8 +327,8 @@ Plans:
 
 **Wave 2** *(parallel, blocked on Wave 1)*
 
-- [ ] 190-03-PLAN.md — Platform admin JTBD flow spec: happy (alice) + main-error (dave locked) + boundary (frank + empty filter) + keyboard + reduced-motion + theme persistence + reload
-- [ ] 190-04-PLAN.md — Support investigator + org admin JTBD flow specs: impersonation journey + banner continuity; 403 permission-denied + empty audit boundary (morgan zero events)
+- [x] 190-03-PLAN.md — Platform admin JTBD flow spec: happy (alice) + main-error (dave locked) + boundary (frank + empty filter) + keyboard + reduced-motion + theme persistence + reload
+- [x] 190-04-PLAN.md — Support investigator + org admin JTBD flow specs: impersonation journey + banner continuity; 403 permission-denied + empty audit boundary (morgan zero events)
 
 **Wave 3** *(blocked on Wave 2)*
 
