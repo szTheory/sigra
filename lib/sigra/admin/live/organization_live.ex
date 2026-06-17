@@ -55,10 +55,9 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         </p>
       </header>
 
-      <.scope_ribbon copy={scope_copy(@admin_scope)} />
-
       <%!-- [2] LOUD ALARM — first child after header; only when data loaded (D-02, Landmine 3) --%>
       <%!-- Opt in to role=status because the alarm appears only after LiveView connects. --%>
+      <%!-- scope_ribbon intentionally omitted on Overview: topbar sg-scope-pill is sufficient (UI-SPEC L152). --%>
       <.notice
         :if={not @loading}
         tone={if @needs_review > 0, do: :risk, else: :ok}
@@ -165,13 +164,6 @@ defmodule Sigra.Admin.Live.OrganizationLive do
   defp organization_name(%Scope{organization: %{name: name}}) when is_binary(name), do: name
   defp organization_name(%Scope{organization_slug: slug}) when is_binary(slug), do: slug
   defp organization_name(_), do: "Organization"
-
-  defp scope_copy(%Scope{organization: %{name: name}}), do: "#{name} org overview"
-
-  defp scope_copy(%Scope{organization_slug: slug}) when is_binary(slug),
-    do: "#{slug} org overview"
-
-  defp scope_copy(_), do: "Organization overview"
 
   defp users_path(%Scope{organization_slug: slug}) when is_binary(slug),
     do: "/admin/organizations/#{slug}/users"
