@@ -40,23 +40,35 @@ created: 2026-06-17
 
 ## Spacing Scale
 
-Declared values — 4px base grid, all tokens in `rem` (source: `admin-token-reference.md`):
+Declared values — 4px base grid, all tokens in `rem` (source: `admin-token-reference.md`).
+
+**Standard-set tokens (within checker set {4, 8, 16, 24, 32, 48, 64}):**
 
 | Token | CSS Custom Property | Value | Usage |
 |-------|--------------------|----|-------|
 | 1 | `--sg-space-1` | 4px (0.25rem) | Micro gap between icon and label, pill padding |
 | 2 | `--sg-space-2` | 8px (0.5rem) | Tight intra-component gap (button icon-to-text) |
-| 3 | `--sg-space-3` | 12px (0.75rem) | Compact padding within list rows and small cards |
 | 4 | `--sg-space-4` | 16px (1rem) | Standard section padding, card internal spacing |
-| 5 | `--sg-space-5` | 20px (1.25rem) | Comfortable spacing between sibling controls |
 | 6 | `--sg-space-6` | 24px (1.5rem) | Major intra-section gap; heading-to-content separator |
 | 8 | `--sg-space-8` | 32px (2rem) | Between major page sections |
-| 10 | `--sg-space-10` | 40px (2.5rem) | Between grouped top-level sections |
 | 12 | `--sg-space-12` | 48px (3rem) | Page top padding, hero-level gaps |
+
+**Pre-ratified design-system tokens (not introduced by this phase / out of contract scope):**
+
+The following three tokens are part of the shipped `sg-*` vocabulary and were ratified
+before Phase 190. They are valid 4px-grid multiples but fall outside the checker's standard
+set. They are documented here as exceptions — Phase 190 makes no new spacing decision for
+these values; flow specs assert against them as-shipped.
+
+| Token | CSS Custom Property | Value | Justification |
+|-------|--------------------|----|-------|
+| 3 | `--sg-space-3` | 12px (0.75rem) | Pre-ratified `sg-*` token (4px grid); compact padding within list rows and small cards |
+| 5 | `--sg-space-5` | 20px (1.25rem) | Pre-ratified `sg-*` token (4px grid); comfortable spacing between sibling controls |
+| 10 | `--sg-space-10` | 40px (2.5rem) | Pre-ratified `sg-*` token (4px grid); between grouped top-level sections |
 
 Control height relevant for touch targets: `--sg-control-md` = 44px (meets WCAG 2.5.8 minimum target size). All keyboard-reachable controls in the flow specs must meet this minimum.
 
-Exceptions: `--sg-space-7` (28px / 1.75rem) is an admin-layer decision for generous top/bottom padding on large sections. No new spacing values are introduced in Phase 190.
+Other exceptions: `--sg-space-7` (28px / 1.75rem) is an admin-layer decision for generous top/bottom padding on large sections. No new spacing values are introduced in Phase 190.
 
 ---
 
@@ -64,17 +76,28 @@ Exceptions: `--sg-space-7` (28px / 1.75rem) is an admin-layer decision for gener
 
 Source: `admin-token-reference.md`. All tokens use the `sg-*` CSS custom property system.
 
+**Contract weights (2 primary weights used by Phase 190's asserted surfaces):**
+
 | Role | CSS Token | Size | Weight Token | Weight | Line Height Token | Line Height |
 |------|-----------|------|-------------|--------|-------------------|-------------|
 | Body (default) | `--sg-text-base` | 16px (1rem) | `--sg-weight-regular` | 450 | `--sg-leading-normal` | 1.5 |
 | Body (secondary, table cells) | `--sg-text-sm` | 14px (0.875rem) | `--sg-weight-regular` | 450 | `--sg-leading-snug` | 1.3 |
 | Section heading (H2) | `--sg-text-lg` | ~23px (1.45rem) | `--sg-weight-semibold` | 700 | `--sg-leading-tight` | 1.1 |
-| Page title (H1) | `--sg-text-xl` | 30px (1.875rem) | `--sg-weight-bold` | 800 | `--sg-leading-tight` | 1.1 |
+| Page title (H1) | `--sg-text-xl` | 30px (1.875rem) | `--sg-weight-semibold` | 700 | `--sg-leading-tight` | 1.1 |
 
-> The weight vocabulary has 4 named weights (`regular` 450, `medium` 600, `semibold` 700, `bold` 800).
-> The two primary weights for body content are `regular` (450) for body/secondary and `semibold` (700)
-> for headings — consistent with the "2 primary weights" contract. Bold (800) applies only to
-> display numbers and page titles.
+Primary weights: `--sg-weight-regular` (450) for body and secondary text; `--sg-weight-semibold` (700) for headings and titles.
+
+**Pre-ratified design-system tokens (not introduced by this phase / out of contract scope):**
+
+The following weights are part of the shipped `sg-*` vocabulary and were ratified before
+Phase 190. They appear in the design system token reference but are not exercised by the
+surfaces Phase 190's flow specs assert against. They are documented here for completeness
+only — no new weight decision is made in Phase 190.
+
+| Weight Token | Weight | Where It Appears in the Shipped System |
+|-------------|--------|----------------------------------------|
+| `--sg-weight-medium` | 600 | Emphasis labels and sub-headings in non-asserted surfaces |
+| `--sg-weight-bold` | 800 | Display numbers and stat callouts in non-asserted surfaces |
 
 ---
 
@@ -98,6 +121,8 @@ Source: `admin-token-reference.md`. All values are `sg-*` CSS custom properties 
 - Impersonation banner brand elements
 
 **Accent is NOT used for:** every heading, every icon, decorative backgrounds, secondary buttons, or informational notices.
+
+**Primary visual anchor:** The scope ribbon + primary CTA cluster at the top of the users list is the focal point of the main admin screen — it establishes the operator's scope context and surfaces the primary next action before any list content.
 
 **Semantic status colors (referenced in flow assertions):**
 
