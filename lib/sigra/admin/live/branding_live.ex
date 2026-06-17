@@ -711,6 +711,17 @@ defmodule Sigra.Admin.Live.BrandingLive do
   defp error_message(%{message: message}) when is_binary(message), do: message
   defp error_message(%ArgumentError{} = error), do: Exception.message(error)
 
+  defp error_message(%Ecto.Changeset{} = changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
+        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
+      end)
+    end)
+    |> Enum.map_join("; ", fn {field, errors} ->
+      "#{field}: #{Enum.join(errors, ", ")}"
+    end)
+  end
+
   defp error_message(%{__struct__: _module} = exception) do
     Exception.message(exception)
   rescue
