@@ -525,4 +525,4 @@ Plans:
 | 187. Individual Components (L1) | v1.39 | 6/6 | Complete | 2026-06-15 |
 | 188. Meta-Components / Groups (L2) | v1.39 | 6/6 | Complete | 2026-06-15 |
 | 189. Page Compositions (L3) | v1.39 | 3/3 | Complete | 2026-06-17 |
-| 190. Flows & Fixture Data (L4) | v1.39 | 5/5 | Complete   | 2026-06-17 |
+| 190. Flows & Fixture Data (L4) | v1.39 | 5/5 | Complete    | 2026-06-17 |

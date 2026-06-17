@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
-status: executing
-last_updated: "2026-06-17T19:30:46.817Z"
+status: ready_to_plan
+last_updated: 2026-06-17T21:04:47.675Z
 last_activity: 2026-06-17
 progress:
   total_phases: 39
@@ -11,6 +11,7 @@ progress:
   total_plans: 31
   completed_plans: 31
   percent: 18
+stopped_at: Phase 190 complete (5/5) — ready to discuss Phase 191
 ---
 
 # Project State
@@ -21,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 190 — flows-fixture-data-l4
+**Current focus:** Phase 191 — microcopy & ia sweep
 
 ## Current Position
 
-Phase: 190 (flows-fixture-data-l4) — EXECUTING
-Plan: 2 of 5
-Status: Ready to execute
+Phase: 191
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-06-17
 
 ## Accumulated Context
