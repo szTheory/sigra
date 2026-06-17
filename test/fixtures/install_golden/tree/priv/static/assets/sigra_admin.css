@@ -673,6 +673,9 @@
       transform: translateY(0) scale(1);
     }
   }
+  body.sg-body-scroll-locked {
+    overflow: hidden;
+  }
 
   .sg-search-row {
     display: grid;
