@@ -1,9 +1,9 @@
 ---
 phase: 191
 slug: microcopy-ia-sweep
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-06-17
 ---
 
@@ -49,9 +49,12 @@ created: 2026-06-17
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| (planner fills) | — | — | COPY-01 | T-191-01 (enumeration boundary) | Auth/reset/magic-link error copy stays uniform/generic | unit | `mix test test/sigra/admin/glossary_test.exs` | ❌ W0 | ⬜ pending |
-| (planner fills) | — | — | COPY-02 | — | One-term-per-concept glossary; banned synonyms fail the drift guard | unit | `mix test test/sigra/admin/glossary_test.exs` | ❌ W0 | ⬜ pending |
-| (planner fills) | — | — | COPY-03 | — | Consistent empty/success/warning tone; ledger monotonic-raised | guard | `scripts/ci/quality-ledger-monotonic.sh` | ✅ | ⬜ pending |
+| 191-01 T1 | 01 | 1 | COPY-02 | — | Glossary doc lists every canonical term + banned alias (single source of truth for the guard) | source | `test -f guides/reference/admin-glossary.md && grep -c "Canonical" guides/reference/admin-glossary.md` | ❌ W0 | ⬜ pending |
+| 191-01 T2 | 01 | 1 | COPY-02 | T-191-01 (enumeration boundary) | Source-parsing drift guard; honors the branding_live auth-preview carve-out; no auth-boundary string made more specific | unit | `mix test test/sigra/admin/glossary_test.exs` | ❌ W0 | ⬜ pending |
+| 191-02 T1 | 02 | 2 | COPY-01, COPY-03 | T-191-01 | Banned synonyms replaced on global vs org surfaces (user ≠ member); empty/warning tone consistent | source | `grep` violation count == 0 (true gate) | ✅ | ⬜ pending |
+| 191-02 T2 | 02 | 2 | COPY-01, COPY-02, COPY-03 | T-191-02 (no leaked internals / WR-04) | inspect/1 leak removed at branding_live.ex:731; guard GREEN; @notice_golden updated same-diff | unit | `mix test test/sigra/admin/glossary_test.exs test/sigra/admin/components_test.exs` | ✅ | ⬜ pending |
+| 191-03 T1 | 03 | 3 | COPY-01, COPY-03 | — | branding-live L3 row appended; D9/D10 re-score increase-only | guard | `scripts/ci/quality-ledger-monotonic.sh` | ✅ | ⬜ pending |
+| 191-04 T1 | 04 | 4 | COPY-01, COPY-03 | — | Recapture 5 affected slugs × 3 projects; canaries never allowlisted; allowlist reset to empty | visual | `scripts/ci/snapshot-recapture-gate.sh <5 slugs>` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -80,11 +83,11 @@ created: 2026-06-17
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references (glossary doc + glossary test)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 120s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (glossary doc + glossary test — created in Wave 1 / Plan 01 before Plan 02 consumes them)
+- [x] No watch-mode flags
+- [x] Feedback latency < 120s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-17

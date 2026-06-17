@@ -852,22 +852,25 @@ The E-6 rule is a **security-critical constraint** that MUST be preserved by the
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **`quick_filter` chip auto-humanizer (users_index_live.ex:409)**
    - What we know: `String.replace(@key, "_", " ")` produces chip labels "confirmed", "mfa", "passkeys", "locked", "deleted", "needs review" from the `@quick_filter_keys` list.
    - What's unclear: "deleted" as a filter chip label vs "Deletion scheduled" as the status pill on the same row is inconsistent (one says "deleted", the other says "Deletion scheduled"). Is this worth fixing in 191?
    - Recommendation: Yes — change the `chip_label` fallback for "deleted" to "Deletion scheduled" (consistent with the pill and the summary_chip label). One-line fix in the `chip_label/2` function at line 557. But the auto-humanizer at line 409 only runs for the checkbox display — add an explicit `chip_label("deleted", nil)` clause.
+   - **RESOLVED: folded into Plan 02 as a COPY-03 coherence edit.**
 
 2. **`summary_alert/1` line 508 voice improvement**
    - What we know: `"No MFA configured — recommend enabling a second factor."` uses passive "recommend" per D-03 concern.
    - What's unclear: The second half is addressed to... whom? The operator reads this, but they can't configure MFA for the user — only recommend the user do it.
    - Recommendation: `"No MFA configured — ask the user to enable a second factor."` — clearer about who takes the action.
+   - **RESOLVED: already fixed in Plan 02 (active-voice rewrite).**
 
 3. **`user_show_live.ex:124` — `Active` dt label**
    - What we know: "Active" in the summary-facts strip refers to the count of active sessions. The Sessions section below has the same data.
    - What's unclear: Is this redundancy intentional (summary strip = at-a-glance, section = detail)?
    - Recommendation: Keep as-is but rename to `Sessions` for clarity. Planner should evaluate whether this is a scope creep (structural concern) vs pure copy.
+   - **DEFERRED: borderline structural relabel, not required for COPY-01/02/03; out of this phase's copy-only scope — capture for a later pass if desired.**
 
 ---
 
