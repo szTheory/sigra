@@ -346,7 +346,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
         </section>
       </section>
 
-      <div :if={@restore_defaults_open?} class="sg-confirm-overlay" role="presentation">
+      <div :if={@restore_defaults_open?} id="restore-defaults-overlay" phx-hook="ConfirmDialog" class="sg-confirm-overlay" role="presentation">
         <section
           class="sg-confirm-dialog"
           role="dialog"
