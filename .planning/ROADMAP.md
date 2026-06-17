@@ -35,7 +35,7 @@
   - Success: each group passes; desktop/mobile content-equivalent at swap breakpoint; reused groups render byte-coherently; ledger raised.
 - [x] **Phase 189: Page Compositions (L3)** — 3 archetypes (Overview/List/Detail) + non-archetypal Branding customizer + Audit explorer × page scorecard: GOV.UK IA, least-surprise, overlay/modal + scroll/sticky + pagination correctness, page-level a11y + responsive. Requirements: PAGE-01..05. (completed 2026-06-17)
   - Success: each page passes; 8 checkpoints × 3 projects ratified; IA hierarchy verifiable; non-archetypal pages explicitly scored.
-- [ ] **Phase 190: Flows & Fixture Data (L4)** — Persona JTBD journeys (platform admin / support investigator / org admin) across happy/error/boundary; deterministic seed/persona enrichment; scope/return continuity; keyboard + reduced-motion full traversal; theme persistence. Requirements: FLOW-01..03, DATA-01.
+- [x] **Phase 190: Flows & Fixture Data (L4)** — Persona JTBD journeys (platform admin / support investigator / org admin) across happy/error/boundary; deterministic seed/persona enrichment; scope/return continuity; keyboard + reduced-motion full traversal; theme persistence. Requirements: FLOW-01..03, DATA-01. (completed 2026-06-17)
   - Success: each persona flow passes happy + main-error + boundary with a deterministic fixture; scope/return context preserved; flow specs green.
 - [ ] **Phase 191: Microcopy & IA Sweep** — System-wide voice pass vs brand book; GOV.UK plain-language; one-term-per-concept glossary; error/empty/success tone consistency across all admin surfaces. Requirements: COPY-01..03.
   - Success: glossary committed; every string passes voice + plain-language rubric; no synonym drift; ledger raised.
@@ -332,7 +332,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 190-05-PLAN.md — Quality ledger 3 L4 rows ratification + VALIDATION.md population + seed idempotency verification
+- [x] 190-05-PLAN.md — Quality ledger 3 L4 rows ratification + VALIDATION.md population + seed idempotency verification
 
 **UI hint**: yes
 
@@ -519,3 +519,10 @@ Plans:
 | 181. Ratified Logo System Buildout | v1.38 | 2/2 | Complete   | 2026-06-13 |
 | 182. Brand Book v2 + Tokens | v1.38 | 2/2 | Complete   | 2026-06-13 |
 | 183. Propagation, Parity + Verification | v1.38 | 2/2 | Complete   | 2026-06-13 |
+| 184. Distribution & Parity | v1.39 | 3/3 | Complete | 2026-06-14 |
+| 185. Audit Infrastructure | v1.39 | 3/3 | Complete | 2026-06-14 |
+| 186. Token Foundation (L0) | v1.39 | 4/4 | Complete | 2026-06-14 |
+| 187. Individual Components (L1) | v1.39 | 6/6 | Complete | 2026-06-15 |
+| 188. Meta-Components / Groups (L2) | v1.39 | 6/6 | Complete | 2026-06-15 |
+| 189. Page Compositions (L3) | v1.39 | 3/3 | Complete | 2026-06-17 |
+| 190. Flows & Fixture Data (L4) | v1.39 | 5/5 | Complete | 2026-06-17 |
