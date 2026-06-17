@@ -66,10 +66,10 @@
 
 ### Flows & Fixture Data (FLOW / DATA) — Phase 190
 
-- [ ] **FLOW-01**: Each persona JTBD journey (platform admin / support investigator / org admin) passes happy + main-error + boundary, with scope and return-context preserved across navigation.
-- [ ] **FLOW-02**: Each flow is fully keyboard-operable with visible focus and remains calm under `prefers-reduced-motion`.
-- [ ] **FLOW-03**: The Light/Dark/System choice persists across the whole flow and on reload (no server state).
-- [ ] **DATA-01**: Deterministic seed/persona enrichment provides a fixture reproducing each flow's happy, error, and boundary case.
+- [x] **FLOW-01**: Each persona JTBD journey (platform admin / support investigator / org admin) passes happy + main-error + boundary, with scope and return-context preserved across navigation.
+- [x] **FLOW-02**: Each flow is fully keyboard-operable with visible focus and remains calm under `prefers-reduced-motion`.
+- [x] **FLOW-03**: The Light/Dark/System choice persists across the whole flow and on reload (no server state).
+- [x] **DATA-01**: Deterministic seed/persona enrichment provides a fixture reproducing each flow's happy, error, and boundary case.
 
 ### Microcopy & IA Sweep (COPY) — Phase 191
 
