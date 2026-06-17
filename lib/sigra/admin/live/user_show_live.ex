@@ -312,7 +312,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
         <p class="sg-muted sg-text-sm">{Map.get(section, :body) || Map.get(section, "body")}</p>
       </section>
 
-      <div :if={@confirm_action} class="sg-confirm-overlay" role="presentation">
+      <div :if={@confirm_action} id="user-session-confirm-overlay" phx-hook="ConfirmDialog" class="sg-confirm-overlay" role="presentation">
         <section
           class="sg-confirm-dialog"
           role="dialog"
