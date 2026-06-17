@@ -467,11 +467,15 @@ defmodule Sigra.Admin.Live.AuditUserLive do
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
 
   # Honest pagination guard: hide nav entirely when results fit one page.
-  # Mirrors users_index_live.ex multi_page?/1 (D-09 honest-pagination contract).
+  # Unlike users_index_live's %Flop.Meta{} struct, the audit explorer returns a
+  # cursor-based meta map (current_page/previous_page/next_page) with no
+  # :total_pages key, so referencing meta.total_pages here would raise KeyError.
+  # Cursor pagination never knows a total page count — a previous or next cursor
+  # is the honest (D-09) signal that more than one page exists.
   defp multi_page?(nil), do: false
 
   defp multi_page?(meta) do
-    (meta.total_pages || 1) > 1 or not is_nil(meta.previous_page) or not is_nil(meta.next_page)
+    not is_nil(meta.previous_page) or not is_nil(meta.next_page)
   end
 
   defp format_timestamp(%DateTime{} = timestamp),
