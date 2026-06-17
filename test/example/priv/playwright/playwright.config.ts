@@ -22,7 +22,7 @@ import { defineConfig, devices } from '@playwright/test';
 // and debugging value is highest.
 
 const ADMIN_BEHAVIOR_SPECS =
-  /(admin-user-operations|admin-audit|admin-theme|impersonation|admin-flow)\.spec\.ts/;
+  /(admin-user-operations|admin-audit|admin-theme|impersonation|admin-flow-).*\.spec\.ts/;
 const ADMIN_CHECKPOINTS_SPEC = /admin-checkpoints\.spec\.ts/;
 const ADMIN_DESIGN_SPEC = /admin-design\.spec\.ts/;
 const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
