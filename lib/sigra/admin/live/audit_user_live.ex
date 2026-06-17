@@ -243,7 +243,7 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         </div>
       </.empty_state>
 
-      <nav :if={@meta} class="sg-cluster sg-cluster--between">
+      <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
         <a
           class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @detail.user.id, @current_params, @meta.previous_page)}
@@ -465,6 +465,14 @@ defmodule Sigra.Admin.Live.AuditUserLive do
   end
 
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
+
+  # Honest pagination guard: hide nav entirely when results fit one page.
+  # Mirrors users_index_live.ex multi_page?/1 (D-09 honest-pagination contract).
+  defp multi_page?(nil), do: false
+
+  defp multi_page?(meta) do
+    (meta.total_pages || 1) > 1 or not is_nil(meta.previous_page) or not is_nil(meta.next_page)
+  end
 
   defp format_timestamp(%DateTime{} = timestamp),
     do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M:%S")
