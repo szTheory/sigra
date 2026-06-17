@@ -347,7 +347,24 @@ Plans:
   2. A GOV.UK plain-language pass yields a committed one-term-per-concept glossary with no synonym drift across pages.
   3. Empty-state, success, and warning copy is consistent across all admin surfaces, and the ledger is raised.
 
-**Plans**: Not yet planned
+**Plans**: 4 plans
+
+**Wave 1**
+
+- [ ] 191-01-PLAN.md — Glossary document (guides/reference/admin-glossary.md) + ExUnit drift guard (test/sigra/admin/glossary_test.exs)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 191-02-PLAN.md — Apply all copy violations across 5 affected LiveViews + components_test.exs golden update
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 191-03-PLAN.md — Quality ledger: add branding-live L3 row + D9/D10 axis re-scores
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 191-04-PLAN.md — Snapshot recapture for 5 affected slugs + canary restore + allowlist reset
+
 **UI hint**: yes
 
 ### Phase 192: Ratification & Baseline Lock
