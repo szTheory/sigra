@@ -58,11 +58,11 @@
 
 ### Page Compositions (PAGE) — Phase 189
 
-- [ ] **PAGE-01**: The 3 archetypes (Overview/List/Detail) pass the page scorecard, including archetype conformance and consistent page vertical rhythm (no flush sections / no double gaps).
-- [ ] **PAGE-02**: GOV.UK information architecture is verifiable (general→specific; tasks-first / posture-second / capabilities-last) and the principle-of-least-surprise checklist passes.
-- [ ] **PAGE-03**: Overlays/modals center correctly, trap focus, dismiss on Escape/outside-click/cancel, and restore scroll; sticky/scroll behavior causes no layout shift; pagination is honest (no phantom affordances).
-- [ ] **PAGE-04**: The non-archetypal pages (Branding customizer, Audit explorer) are explicitly scored against the rubric.
-- [ ] **PAGE-05**: Page-level a11y (landmark/heading order, focus management on navigate/patch) passes; the 8 admin checkpoints × 3 projects are ratified.
+- [x] **PAGE-01**: The 3 archetypes (Overview/List/Detail) pass the page scorecard, including archetype conformance and consistent page vertical rhythm (no flush sections / no double gaps).
+- [x] **PAGE-02**: GOV.UK information architecture is verifiable (general→specific; tasks-first / posture-second / capabilities-last) and the principle-of-least-surprise checklist passes.
+- [x] **PAGE-03**: Overlays/modals center correctly, trap focus, dismiss on Escape/outside-click/cancel, and restore scroll; sticky/scroll behavior causes no layout shift; pagination is honest (no phantom affordances).
+- [x] **PAGE-04**: The non-archetypal pages (Branding customizer, Audit explorer) are explicitly scored against the rubric.
+- [x] **PAGE-05**: Page-level a11y (landmark/heading order, focus management on navigate/patch) passes; the 8 admin checkpoints × 3 projects are ratified.
 
 ### Flows & Fixture Data (FLOW / DATA) — Phase 190
 
