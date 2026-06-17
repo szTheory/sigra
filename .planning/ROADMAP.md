@@ -322,8 +322,8 @@ Plans:
 
 **Wave 1** (parallel)
 
-- [ ] 190-01-PLAN.md — WR-01/02/03 admin_hooks.js ConfirmDialog hardening (data-sg-confirm-cancel, body-sentinel focus fallback, Escape stopImmediatePropagation) + data-sg-confirm-cancel attribute in user_show_live/branding_live + WR-04 Ecto.Changeset error mapping
-- [ ] 190-02-PLAN.md — playwright.config.ts ADMIN_BEHAVIOR_SPECS regex fix (add admin-flow) + helpers/adminFlows.ts shared flow utilities (login, readiness, scope, theme, reduced-motion)
+- [x] 190-01-PLAN.md — WR-01/02/03 admin_hooks.js ConfirmDialog hardening (data-sg-confirm-cancel, body-sentinel focus fallback, Escape stopImmediatePropagation) + data-sg-confirm-cancel attribute in user_show_live/branding_live + WR-04 Ecto.Changeset error mapping
+- [x] 190-02-PLAN.md — playwright.config.ts ADMIN_BEHAVIOR_SPECS regex fix (add admin-flow) + helpers/adminFlows.ts shared flow utilities (login, readiness, scope, theme, reduced-motion)
 
 **Wave 2** *(parallel, blocked on Wave 1)*
 

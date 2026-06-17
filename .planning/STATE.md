@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
 status: executing
-last_updated: "2026-06-17T18:21:30.619Z"
-last_activity: 2026-06-17 -- Phase 190 planning complete
+last_updated: "2026-06-17T18:31:07.581Z"
+last_activity: 2026-06-17 -- Phase 190 execution started
 progress:
   total_phases: 39
   completed_phases: 6
@@ -21,14 +21,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 190 — flows & fixture data (l4)
+**Current focus:** Phase 190 — flows-fixture-data-l4
 
 ## Current Position
 
-Phase: 190
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-17 -- Phase 190 planning complete
+Phase: 190 (flows-fixture-data-l4) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 190
+Last activity: 2026-06-17 -- Phase 190 execution started
 
 ## Accumulated Context
 
