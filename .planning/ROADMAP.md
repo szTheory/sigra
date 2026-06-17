@@ -318,7 +318,22 @@ Plans:
   3. The Light/Dark/System choice persists across the whole flow and on reload (no server state).
   4. Deterministic seed/persona enrichment provides a fixture reproducing each flow's happy, error, and boundary case.
 
-**Plans**: Not yet planned
+**Plans**: 5 plans
+
+**Wave 1** (parallel)
+
+- [ ] 190-01-PLAN.md — WR-01/02/03 admin_hooks.js ConfirmDialog hardening (data-sg-confirm-cancel, body-sentinel focus fallback, Escape stopImmediatePropagation) + data-sg-confirm-cancel attribute in user_show_live/branding_live + WR-04 Ecto.Changeset error mapping
+- [ ] 190-02-PLAN.md — playwright.config.ts ADMIN_BEHAVIOR_SPECS regex fix (add admin-flow) + helpers/adminFlows.ts shared flow utilities (login, readiness, scope, theme, reduced-motion)
+
+**Wave 2** *(parallel, blocked on Wave 1)*
+
+- [ ] 190-03-PLAN.md — Platform admin JTBD flow spec: happy (alice) + main-error (dave locked) + boundary (frank + empty filter) + keyboard + reduced-motion + theme persistence + reload
+- [ ] 190-04-PLAN.md — Support investigator + org admin JTBD flow specs: impersonation journey + banner continuity; 403 permission-denied + empty audit boundary (morgan zero events)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 190-05-PLAN.md — Quality ledger 3 L4 rows ratification + VALIDATION.md population + seed idempotency verification
+
 **UI hint**: yes
 
 ### Phase 191: Microcopy & IA Sweep
