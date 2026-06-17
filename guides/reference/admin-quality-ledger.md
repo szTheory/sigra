@@ -58,9 +58,9 @@ between the base branch and the PR branch.
 | mg-9-identity-header-summary-facts | L2 | 1 | [board-mg-9 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
 | mg-10-detail-facts-membership-panels | L2 | 1 | [board-mg-10 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, responsive overflow, canary-clean snapshots |
 | mg-11-destructive-action-confirmation | L2 | 1 | [board-mg-11 admin-design.spec.ts](../../test/example/priv/playwright/tests/admin-design.spec.ts) — catalog states/right components, byte-coherently reused confirmation, canary-clean snapshots |
-| index-live | L3 | 1 | [admin-checkpoints: global-overview](#) |
-| organization-live | L3 | 1 | [admin-checkpoints: org-overview](#) |
-| users-index-live | L3 | 1 | [admin-checkpoints: users-index](#) |
-| user-show-live | L3 | 1 | [admin-checkpoints: user-detail](#) |
-| audit-index-live | L3 | 1 | [admin-checkpoints: audit-index](#) |
-| audit-user-live | L3 | 1 | [admin-checkpoints: user-audit](#) |
+| index-live | L3 | 1 | [admin-checkpoints global-overview — 3 projects × toHaveScreenshot + axe](../../test/example/priv/playwright/tests/admin-checkpoints.spec.ts) |
+| organization-live | L3 | 1 | [admin-checkpoints org-overview — 3 projects × toHaveScreenshot + axe](../../test/example/priv/playwright/tests/admin-checkpoints.spec.ts) |
+| users-index-live | L3 | 1 | [admin-checkpoints global-user-index — 3 projects × toHaveScreenshot + axe](../../test/example/priv/playwright/tests/admin-checkpoints.spec.ts) |
+| user-show-live | L3 | 1 | [admin-checkpoints user-detail — 3 projects × toHaveScreenshot + axe](../../test/example/priv/playwright/tests/admin-checkpoints.spec.ts); [admin-modal-interaction: 7 APG gates + axe-while-open](../../test/example/priv/playwright/tests/admin-modal-interaction.spec.ts) |
+| audit-index-live | L3 | 1 | [admin-checkpoints audit-explorer — 3 projects × toHaveScreenshot + axe](../../test/example/priv/playwright/tests/admin-checkpoints.spec.ts) |
+| audit-user-live | L3 | 1 | [admin-checkpoints user-audit — 3 projects × toHaveScreenshot + axe](../../test/example/priv/playwright/tests/admin-checkpoints.spec.ts) |
