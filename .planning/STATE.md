@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md`
 Phase: 192
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-06-18 — Completed quick task 260618-fch: fix vault_promotion_test.exs known failure (button type)
+Last activity: 2026-06-18 — Resolved golden_diff_test.exs known failure (local phx_new version drift; no fixture change)
 
 ## Accumulated Context
 
@@ -114,6 +114,7 @@ Last activity: 2026-06-18 — Completed quick task 260618-fch: fix vault_promoti
 | --- | --- | --- | --- |
 | 260613-f1p | Pin phx_new to 1.8.7 in CI workflows (fix PR #52 red CI from phx_new 1.8.8 `<.button type>` drop). Verified: vault_promotion + golden_diff pass locally; SEED-004 filed for forward-compat. | complete ✓ | 2026-06-13 |
 | 260618-fch | Fix vault_promotion_test.exs known failure — strip unsupported `type` attr from `<.button>` across 7 installer templates (durable fix vs phx_new button `:rest` allowlist) + sync example/golden mirrors + lift known_failure quarantine. Verified: 1 test, 0 failures. | complete ✓ | 2026-06-18 |
+| 260618-gdf | Resolve golden_diff_test.exs known failure — root cause was local phx_new 1.8.8 vs CI-pinned 1.8.7 (spurious config.exs `root_tag_attribute` byte-diff), NOT a stale fixture. Installed 1.8.7, lifted known_failure tag (no fixture change), documented phx_new 1.8.7 dev prereq in CLAUDE.md. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
 
 ## Deferred Items
 
