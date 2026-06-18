@@ -65,7 +65,7 @@ defmodule Sigra.Admin.ComponentsTest do
   # In HEEx attribute position, atom :risk renders as "risk", so data-tone="risk" matches.
   # The notice component ships sg-notice (pixel-neutral — sg-notice is a byte-clone of
   # sg-list-row per app.css:945-993, Phase 154 intent).
-  @notice_golden "<div class=\"sg-notice \" data-tone=\"risk\">\n  <div class=\"sg-text-sm\">Locked — revoke active logins and unlock below.</div>\n</div>"
+  @notice_golden "<div class=\"sg-notice \" data-tone=\"risk\">\n  <div class=\"sg-text-sm\">Locked — revoke active sessions and unlock below.</div>\n</div>"
 
   # notice_link — inline notice action link. It is intentionally an underlined
   # native anchor, not a button-looking split action.
@@ -398,7 +398,7 @@ defmodule Sigra.Admin.ComponentsTest do
       render_component(&Components.notice/1,
         tone: :risk,
         inner_block: [
-          %{inner_block: fn _, _ -> "Locked — revoke active logins and unlock below." end}
+          %{inner_block: fn _, _ -> "Locked — revoke active sessions and unlock below." end}
         ]
       )
 

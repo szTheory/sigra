@@ -99,7 +99,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
         <p class="sg-page-kicker">Branding</p>
         <h1 class="sg-page-title">Auth forms and emails</h1>
         <p class="sg-page-copy">
-          Tune the generated login, account, invitation, and transactional email defaults without replacing the host-owned templates.
+          Tune the generated sign-in, account, invitation, and transactional email defaults without replacing the host-owned templates.
         </p>
       </header>
 
@@ -580,7 +580,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
     ~H"""
     <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>
       <div class="sg-card sg-stack sg-stack--3" data-testid={@login_testid}>
-        <h2 class="sg-section-heading">Login preview</h2>
+        <h2 class="sg-section-heading">Sign-in preview</h2>
         <div
           class="sigra-auth sigra-auth--preview"
           data-theme={@theme}
@@ -728,5 +728,5 @@ defmodule Sigra.Admin.Live.BrandingLive do
     _ -> inspect(exception)
   end
 
-  defp error_message(reason), do: "Could not save auth branding: #{inspect(reason)}"
+  defp error_message(_reason), do: "Could not save auth branding. Check the values and try again."
 end
