@@ -1,6 +1,8 @@
 ---
 created: 2026-06-14T00:00:00.000Z
-status: pending
+status: done
+resolved: 2026-06-18
+resolved_by: quick task 260618-gly
 title: harden D-11 parity extractors and minor cleanups (phase 186 deferred review findings)
 area: test
 files:
@@ -9,6 +11,29 @@ files:
   - guides/reference/admin-token-reference.md
 source: 186-REVIEW.md (WR-01, WR-02, WR-03, IN-02, IN-03)
 ---
+
+## Resolution (2026-06-18, quick task 260618-gly)
+
+- **WR-01** (hardcoded line-range extractors) — already resolved by a prior pass:
+  the structural `extract_css_block/2` + `take_balanced_block/1` + `extract_sg_declarations/1`
+  helpers are in place; no hardcoded line ranges remain.
+- **IN-02** (duplicated `readNoticeStyles` closure) — already resolved: it is a single
+  top-level helper in `admin-theme.spec.ts`, used at both former call sites.
+- **WR-02** — replaced the `Enum.drop_while |> Enum.take(30)` auth dark-block window with
+  `extract_css_block/2` anchored on `.sigra-auth[data-theme="dark"]` (reads to the matching
+  balanced `}`). Assertions unchanged.
+- **WR-03** — `extract_token_value/2` now scopes its search to the correct CSS block via
+  `extract_css_blocks/2` with an optional `context_selector` (default `:root`; auth call
+  site passes `.sigra-auth`, since auth light tokens live there, not in `:root`).
+- Verified: `mix test test/sigra/install/features/admin_test.exs` → 27 tests, 0 failures;
+  `Enum.take(30)` no longer present.
+
+### Deferred (optional)
+
+- **IN-03** — token-reference completeness CI guard (diff `--sg-*` defs in `sigra_admin.css`
+  `:root` vs documented backtick tokens; optional `oklabChannels()` unit guard). Explicitly
+  marked optional in 186-REVIEW.md; left for a separate pass. Tracked in
+  `.planning/todos/pending/2026-06-18-token-reference-completeness-ci-guard.md`.
 
 ## Why deferred
 
