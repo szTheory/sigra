@@ -2,15 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
+current_phase: 191
+current_phase_name: microcopy-ia-sweep
 status: executing
-last_updated: "2026-06-17T22:11:23.796Z"
-last_activity: 2026-06-17 -- Phase 191 planning complete
+stopped_at: Completed 191-01-PLAN.md
+last_updated: "2026-06-18T00:43:40.781Z"
+last_activity: 2026-06-17
+last_activity_desc: Phase 191 execution started
 progress:
-  total_phases: 39
+  total_phases: 15
   completed_phases: 7
   total_plans: 35
-  completed_plans: 31
-  percent: 18
+  completed_plans: 32
+  percent: 47
 ---
 
 # Project State
@@ -21,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 191 — microcopy & ia sweep
+**Current focus:** Phase 191 — microcopy-ia-sweep
 
 ## Current Position
 
-Phase: 191
-Plan: Not started
+Phase: 191 (microcopy-ia-sweep) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-17 -- Phase 191 planning complete
+Last activity: 2026-06-17 -- Phase 191 execution started
 
 ## Accumulated Context
 
@@ -78,6 +82,9 @@ Last activity: 2026-06-17 -- Phase 191 planning complete
 - [Phase 188]: Phase 188 L2 ledger remains Tier 1 for MG-1 through MG-11 rather than claiming award-grade Tier 2. — The phase established ratified executable evidence and visual baselines, but did not run a separate award-grade polish review.
 - [Phase 188]: Phase 188 validation is ratified from passing ExUnit, admin-design, ledger, canary, allowlist, and example precommit gates. — The validation document should reflect reproducible command evidence rather than intent-only status.
 - [Phase ?]: Phase 190 L4 tier rationale: weakest-link bounded by L3 Tier 1 constituents; flow-only criteria passing confirms Tier 1 = Ratified
+- [Phase ?]: DOM-marker anchoring for branding_live.ex carve-out in glossary_test.exs (D-09)
+- [Phase ?]: admin-glossary.md enforced by ExUnit test; ships with library so adopters inherit drift guard (D-07)
+- [Phase ?]: account not in automated banned_terms (too many legitimate uses); handled per-line in Wave 2 (Pitfall 1)
 
 ### Pending Todos
 
@@ -104,8 +111,8 @@ Last activity: 2026-06-17 -- Phase 191 planning complete
 
 ## Session Continuity
 
-Last session: 2026-06-17T21:35:25.280Z
-Stopped at: Phase 191 context gathered (assumptions mode)
+Last session: 2026-06-18T00:43:40.773Z
+Stopped at: Completed 191-01-PLAN.md
 Resume file: .planning/phases/191-microcopy-ia-sweep/191-CONTEXT.md
 
 ## Performance Metrics
@@ -147,6 +154,7 @@ Resume file: .planning/phases/191-microcopy-ia-sweep/191-CONTEXT.md
 | Phase 188 P05 | 24 min | 3 tasks | 35 files |
 | Phase 188 P06 | 14 min | 2 tasks | 26 files |
 | Phase 190 P05 | 3 min | 2 tasks | 3 files |
+| Phase 191 P01 | 235 | 2 tasks | 2 files |
 
 ## Operator Next Steps
 

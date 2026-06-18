@@ -263,6 +263,7 @@ Plans:
 **Wave 4** (blocked on Wave 3)
 
 - [x] 188-06-PLAN.md — L2 scorecard, quality ledger, and validation ratification
+
 **UI hint**: yes
 
 ### Phase 188: Meta-Components / Groups (L2)
@@ -347,11 +348,11 @@ Plans:
   2. A GOV.UK plain-language pass yields a committed one-term-per-concept glossary with no synonym drift across pages.
   3. Empty-state, success, and warning copy is consistent across all admin surfaces, and the ledger is raised.
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 
 **Wave 1**
 
-- [ ] 191-01-PLAN.md — Glossary document (guides/reference/admin-glossary.md) + ExUnit drift guard (test/sigra/admin/glossary_test.exs)
+- [x] 191-01-PLAN.md — Glossary document (guides/reference/admin-glossary.md) + ExUnit drift guard (test/sigra/admin/glossary_test.exs)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
