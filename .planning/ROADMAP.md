@@ -405,7 +405,7 @@ Plans:
 - [x] 192-01-PLAN.md
 - [x] 192-02-PLAN.md
 - [x] 192-03-PLAN.md
-- [ ] 192-04-PLAN.md
+- [x] 192-04-PLAN.md
 
 - [x] 178-01-PLAN.md — Write brandbook/pressure-test-audit-v2.md: full 14-section audit with KEEP/TIGHTEN/REWORK verdicts and szTheory suite brand-architecture section
 - [x] 178-02-PLAN.md — Write brandbook/logo-v2-design-brief.md: standalone design brief encoding 7 hard constraints, OFL font shortlist, letterform anatomy, and render-critique rubric
