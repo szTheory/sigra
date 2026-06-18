@@ -37,7 +37,7 @@
   - Success: each page passes; 8 checkpoints × 3 projects ratified; IA hierarchy verifiable; non-archetypal pages explicitly scored.
 - [x] **Phase 190: Flows & Fixture Data (L4)** — Persona JTBD journeys (platform admin / support investigator / org admin) across happy/error/boundary; deterministic seed/persona enrichment; scope/return continuity; keyboard + reduced-motion full traversal; theme persistence. Requirements: FLOW-01..03, DATA-01. (completed 2026-06-17)
   - Success: each persona flow passes happy + main-error + boundary with a deterministic fixture; scope/return context preserved; flow specs green.
-- [ ] **Phase 191: Microcopy & IA Sweep** — System-wide voice pass vs brand book; GOV.UK plain-language; one-term-per-concept glossary; error/empty/success tone consistency across all admin surfaces. Requirements: COPY-01..03.
+- [x] **Phase 191: Microcopy & IA Sweep** — System-wide voice pass vs brand book; GOV.UK plain-language; one-term-per-concept glossary; error/empty/success tone consistency across all admin surfaces. Requirements: COPY-01..03. (completed 2026-06-18)
   - Success: glossary committed; every string passes voice + plain-language rubric; no synonym drift; ledger raised.
 - [ ] **Phase 192: Ratification & Baseline Lock** — Terminal idempotency gate: re-run every scorecard; deliberately recapture all baselines (checkpoints + gallery) via the recapture gate; reset both allowlists to empty; prove generated-host parity (`RUN_PARITY=1`); full-surface axe; byte-goldens; commit final ledger. Requirements: GATE-01..03.
   - Success: all baselines ratified + both canaries green; allowlists empty; generated-host parity proven; final ledger records achieved tier per item; monotonic guard green vs origin/main.
