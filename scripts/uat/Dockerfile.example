@@ -53,6 +53,22 @@ RUN mix deps.get
 # changes. An example-only edit (layer 4) never invalidates this.
 RUN mix deps.compile
 
+# test/example/config/dev.exs reads these at COMPILE time (the endpoint `ip` and
+# the Repo connection). Because this image compiles at BUILD time (not at
+# container start), they must be baked to the SAME values the container uses at
+# runtime, or Elixir's validate_compile_env aborts boot ("different value ... for
+# ExampleWeb.Endpoint") and the Repo would point at localhost instead of the
+# compose `postgres` service. Constant for the Dockerized proxy path; the compose
+# `web` service sets the identical values at runtime. Placed here (not at the top)
+# so changing them only re-bakes the example compile, not the cached deps layers.
+ENV SIGRA_EXAMPLE_BIND=0.0.0.0 \
+    PORT=4000 \
+    PGHOST=postgres \
+    PGPORT=5432 \
+    PGUSER=postgres \
+    PGPASSWORD=postgres \
+    PGDATABASE=example_dev
+
 # 4. EXAMPLE APP SOURCE — last. Editing example templates/code triggers at most a
 #    fast incremental recompile here; the deps+sigra layer stays cached.
 COPY test/example ./
