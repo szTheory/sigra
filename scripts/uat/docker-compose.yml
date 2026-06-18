@@ -49,12 +49,22 @@ services:
       - "dev.sigra.role=demo-web"
       - "dev.sigra.stack=uat"
       - "dev.sigra.proxy-host=${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
+      # Vendor-neutral claim label so sibling libs (and Sigra's own conflict
+      # check) can see who holds a given host without depending on dev.sigra.*.
+      - "dev.local.proxy-host=${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
       - "dev.sigra.proxy-network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
       - "traefik.enable=true"
       - "traefik.docker.network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
+      # Primary router — the per-checkout unique host (never collides).
       - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.entrypoints=web"
       - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.rule=Host(`${SIGRA_UAT_PROXY_HOST:-sigra.localhost}`)"
       - "traefik.http.services.${SIGRA_UAT_PROXY_ROUTER:-sigra}.loadbalancer.server.port=4000"
+      # Friendly alias router (sigra.localhost) -> same service. When the alias
+      # host equals the primary host (not the primary checkout) this is a
+      # harmless self-duplicate; only the primary checkout sets a distinct alias.
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}-alias.entrypoints=web"
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}-alias.rule=Host(`${SIGRA_UAT_ALIAS_HOST:-sigra.localhost}`)"
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}-alias.service=${SIGRA_UAT_PROXY_ROUTER:-sigra}"
     # Deps + build artifacts live in the image (built by Dockerfile.example with
     # cache-correct layers + BuildKit cache mounts). No source bind mount and no
     # caching named volumes: code changes are applied via `docker compose build web`
