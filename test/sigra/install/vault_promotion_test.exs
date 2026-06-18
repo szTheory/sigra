@@ -5,7 +5,6 @@ defmodule Sigra.Install.VaultPromotionTest do
 
   @moduletag :install
   @moduletag timeout: 600_000
-  @moduletag known_failure: "undefined attribute for CoreComponents.button/1 under --warnings-as-errors; installer template diverged from generated host; reproduces on origin/main; tracked: .planning/todos/pending/2026-06-18-install-vault-promotion-known-failure.md"
 
   test "mix sigra.install --passkeys emits the real vault and encrypted binary templates" do
     {:ok, %{app_dir: app_dir}} =
