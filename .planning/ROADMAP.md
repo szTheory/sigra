@@ -364,7 +364,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 191-04-PLAN.md — Snapshot recapture for 5 affected slugs + canary restore + allowlist reset
+- [x] 191-04-PLAN.md — Snapshot recapture for 5 affected slugs + canary restore + allowlist reset
 
 **UI hint**: yes
 
