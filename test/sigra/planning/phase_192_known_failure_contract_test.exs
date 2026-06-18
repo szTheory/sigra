@@ -1,13 +1,18 @@
 defmodule Sigra.Planning.Phase192KnownFailureContractTest do
   @moduledoc """
   Self-healing contract: if any quarantined known failure starts passing,
-  remove its tag and resolve the tracking todo. This test goes green (fails CI)
-  if any quarantine tag is removed, forcing cleanup.
+  remove its tag and resolve the tracking todo. This test fails CI if a tracked
+  quarantine tag is removed without retiring its assertion here, forcing cleanup.
 
-  The three quarantined known failures for Phase 192 are:
-    1. test/sigra/install/golden_diff_test.exs — generated-tree byte diff vs committed fixture
-    2. test/sigra/install/vault_promotion_test.exs — undefined attribute for CoreComponents.button/1
-    3. test/example/priv/playwright/tests/admin-design.spec.ts MG-5/6 — data-dependent pagination
+  Phase 192 originally quarantined three known failures. Two were resolved on
+  2026-06-18 and their assertions retired (see below); one remains:
+    1. (RESOLVED 2026-06-18, quick task 260618-gdf) golden_diff_test.exs — was a
+       local phx_new 1.8.8 vs CI-pinned 1.8.7 env drift, not a stale fixture.
+    2. (RESOLVED 2026-06-18, quick task 260618-fch) vault_promotion_test.exs —
+       installer templates emitted `<.button type=...>`; the `type` attr is now
+       stripped and the test passes.
+    3. test/example/priv/playwright/tests/admin-design.spec.ts MG-5/6 — data-dependent
+       pagination (still quarantined; tracked todo still pending).
 
   Modeled on test/sigra/planning/phase_51_install_golden_ci_contract_test.exs.
   """
@@ -20,24 +25,6 @@ defmodule Sigra.Planning.Phase192KnownFailureContractTest do
 
   defp read!(rel) do
     root() |> Path.join(rel) |> File.read!()
-  end
-
-  test "192-KF-01: golden_diff_test.exs has @moduletag known_failure quarantine tag" do
-    content = read!("test/sigra/install/golden_diff_test.exs")
-
-    assert content =~ "@moduletag known_failure:",
-           "golden_diff_test.exs is missing its @moduletag known_failure tag — " <>
-             "if the test is now passing, remove the tag and resolve " <>
-             ".planning/todos/pending/2026-06-18-install-golden-diff-known-failure.md"
-  end
-
-  test "192-KF-02: vault_promotion_test.exs has @moduletag known_failure quarantine tag" do
-    content = read!("test/sigra/install/vault_promotion_test.exs")
-
-    assert content =~ "@moduletag known_failure:",
-           "vault_promotion_test.exs is missing its @moduletag known_failure tag — " <>
-             "if the test is now passing, remove the tag and resolve " <>
-             ".planning/todos/pending/2026-06-18-install-vault-promotion-known-failure.md"
   end
 
   test "192-KF-03: admin-design.spec.ts MG-5/6 test has test.fail() quarantine marker" do
