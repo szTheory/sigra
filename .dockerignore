@@ -1,0 +1,30 @@
+# Build context = repo root (scripts/uat/docker-compose.yml uses context: ../..).
+# Keep the context small and prevent host build artifacts from busting Docker's
+# layer cache or bloating the image.
+
+.git
+.direnv
+tmp
+
+# Elixir build artifacts (compiled in-image; never copy host copies in)
+_build
+deps
+test/example/_build
+test/example/deps
+test/fixtures/install_golden/tree/_build
+test/fixtures/install_golden/tree/deps
+
+# Node / Playwright
+node_modules
+test/example/assets/node_modules
+test/example/priv/playwright/node_modules
+test/example/priv/playwright/test-results
+test/example/priv/playwright/playwright-report
+
+# Editor / OS
+.elixir_ls
+.vscode
+.DS_Store
+
+# Local-only scaffolds
+tmp_app

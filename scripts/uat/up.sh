@@ -273,12 +273,14 @@ refresh_proxy_code() {
 
   fail_on_proxy_host_conflict
 
-  cyan "==> Recompiling Sigra path dependency for ${SIGRA_UAT_PROJECT}"
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy run --rm --no-deps web sh -lc \
-    "mix deps.get && mix deps.compile sigra --force && mix compile --force"
+  # Cache-aware rebuild: Dockerfile.example layers recompile sigra only if lib/priv
+  # changed and the example only if its source changed — deps are never re-fetched
+  # for a source/style edit. Replaces the old unconditional deps.get + --force recompiles.
+  cyan "==> Rebuilding Dockerized app image (cache-aware) for ${SIGRA_UAT_PROJECT}"
+  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy build web
 
   cyan "==> Restarting Dockerized Vaultr example app"
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy restart web
+  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy up -d web
 
   green "==> Refreshed Dockerized Sigra code for ${SIGRA_UAT_PROXY_URL}"
   print_status
@@ -400,10 +402,10 @@ setup_docker_example() {
   docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy stop web >/dev/null 2>&1 || true
   docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy build web
 
+  # Deps + sigra are already compiled into the image by Dockerfile.example, so the
+  # one-time setup only prepares the database (no deps.get / no --force recompiles).
   local setup_script
   setup_script="set -e
-mix deps.get
-mix deps.compile sigra --force
 if [ '${RESET_DB}' = '1' ]; then
   mix ecto.drop --quiet || true
 fi

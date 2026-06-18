@@ -55,14 +55,12 @@ services:
       - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.entrypoints=web"
       - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.rule=Host(`${SIGRA_UAT_PROXY_HOST:-sigra.localhost}`)"
       - "traefik.http.services.${SIGRA_UAT_PROXY_ROUTER:-sigra}.loadbalancer.server.port=4000"
-    volumes:
-      - ../..:/app
-      - root_deps:/app/deps
-      - root_build:/app/_build
-      - example_deps:/app/test/example/deps
-      - example_build:/app/test/example/_build
-      - hex:/root/.hex
-      - mix:/root/.mix
+    # Deps + build artifacts live in the image (built by Dockerfile.example with
+    # cache-correct layers + BuildKit cache mounts). No source bind mount and no
+    # caching named volumes: code changes are applied via `docker compose build web`
+    # (fast, layer-cached) — `scripts/uat/up.sh --refresh-code` does this. The
+    # default host-run mode (`scripts/uat/up.sh` without --proxy) remains the live
+    # save->reload path for active development.
 
   traefik:
     image: ${SIGRA_UAT_TRAEFIK_IMAGE:-traefik:v3.7.1}
@@ -85,12 +83,6 @@ services:
 
 volumes:
   pgdata:
-  root_deps:
-  root_build:
-  example_deps:
-  example_build:
-  hex:
-  mix:
 
 networks:
   proxy:
