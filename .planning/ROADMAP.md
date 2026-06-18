@@ -41,6 +41,11 @@
   - Success: glossary committed; every string passes voice + plain-language rubric; no synonym drift; ledger raised.
 - [ ] **Phase 192: Ratification & Baseline Lock** — Terminal idempotency gate: re-run every scorecard; deliberately recapture all baselines (checkpoints + gallery) via the recapture gate; reset both allowlists to empty; prove generated-host parity (`RUN_PARITY=1`); full-surface axe; byte-goldens; commit final ledger. Requirements: GATE-01..03.
   - Success: all baselines ratified + both canaries green; allowlists empty; generated-host parity proven; final ledger records achieved tier per item; monotonic guard green vs origin/main.
+  - **Plans:** 4 plans
+    - [ ] 192-01-PLAN.md — Widen axe tags to WCAG 2.1/2.2 AA in both Playwright helpers (D-07)
+    - [ ] 192-02-PLAN.md — Executable quarantine: known_failure tags, test.fail(), self-healing contract test, 2 tracking todos (D-11/D-12)
+    - [ ] 192-03-PLAN.md — Reword GATE-01 in REQUIREMENTS.md to remove force-recapture contradiction (D-04)
+    - [ ] 192-04-PLAN.md — Gate proof: compare-mode zero-drift, CI parity citation, monotonic guard, ledger terminal ratification (D-01/D-03/D-05/D-10/D-13)
 
 **Requirement coverage:** DIST (184), INFRA (185), TOKEN/THEME (186), COMP (187), GROUP (188), PAGE (189), FLOW/DATA (190), COPY (191), GATE (192) — every v1.39 requirement maps to exactly one phase.
 
