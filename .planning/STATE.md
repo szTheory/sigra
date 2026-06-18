@@ -2,15 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
+current_phase: 192
+current_phase_name: ratification-baseline-lock
 status: executing
-stopped_at: Phase 192 context gathered (assumptions mode)
-last_updated: "2026-06-18T05:54:44.859Z"
-last_activity: 2026-06-18 -- Phase 192 planning complete
+stopped_at: Completed 192-01-PLAN.md
+last_updated: "2026-06-18T06:03:05.595Z"
+last_activity: 2026-06-18
 progress:
   total_phases: 15
   completed_phases: 8
   total_plans: 39
-  completed_plans: 35
+  completed_plans: 36
   percent: 53
 ---
 
@@ -22,14 +24,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 192 — ratification & baseline lock
+**Current focus:** Phase 192 — ratification-baseline-lock
 
 ## Current Position
 
-Phase: 192
-Plan: Not started
+Phase: 192 (ratification-baseline-lock) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-18 -- Phase 192 planning complete
+Last activity: 2026-06-18
 
 ## Accumulated Context
 
@@ -89,6 +91,8 @@ Last activity: 2026-06-18 -- Phase 192 planning complete
 - [Phase ?]: Quality ledger update
 - [Phase 191]: admin-design MG-5/6 content-equivalence test failure is pre-existing data-state issue from Phase 188 (requires 25+ audit events for pagination); not a Phase 191 regression
 - [Phase 191]: SIGRA_EXAMPLE_URL=http://localhost:4011 must be set for local Playwright runs; default 4000 collides with Rulestead Docker
+- [Phase ?]: D-07: Widened axe withTags from wcag2a/wcag2aa to full WCAG 2.1/2.2 AA five-element array in both admin Playwright helpers
+- [Phase ?]: D-09: best_practice tag-group excluded from both withTags calls; region exclusion rationale preserved
 
 ### Pending Todos
 
@@ -115,9 +119,9 @@ Last activity: 2026-06-18 -- Phase 192 planning complete
 
 ## Session Continuity
 
-Last session: 2026-06-18T05:23:34.334Z
-Stopped at: Phase 192 context gathered (assumptions mode)
-Resume file: .planning/phases/192-ratification-baseline-lock/192-CONTEXT.md
+Last session: 2026-06-18T06:03:05.587Z
+Stopped at: Completed 192-01-PLAN.md
+Resume file: None
 
 ## Performance Metrics
 
@@ -162,6 +166,7 @@ Resume file: .planning/phases/192-ratification-baseline-lock/192-CONTEXT.md
 | Phase 191 P02 | 20 | 2 tasks | 6 files |
 | Phase 191 P03 | 3 min | 1 tasks | 1 files |
 | Phase 191 P04 | 135 min | 1 tasks | 16 files |
+| Phase 192 P01 | 1 | 2 tasks | 2 files |
 
 ## Operator Next Steps
 

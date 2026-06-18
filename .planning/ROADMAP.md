@@ -42,7 +42,7 @@
 - [ ] **Phase 192: Ratification & Baseline Lock** — Terminal idempotency gate: re-run every scorecard; deliberately recapture all baselines (checkpoints + gallery) via the recapture gate; reset both allowlists to empty; prove generated-host parity (`RUN_PARITY=1`); full-surface axe; byte-goldens; commit final ledger. Requirements: GATE-01..03.
   - Success: all baselines ratified + both canaries green; allowlists empty; generated-host parity proven; final ledger records achieved tier per item; monotonic guard green vs origin/main.
   - **Plans:** 4 plans
-    - [ ] 192-01-PLAN.md — Widen axe tags to WCAG 2.1/2.2 AA in both Playwright helpers (D-07)
+    - [x] 192-01-PLAN.md — Widen axe tags to WCAG 2.1/2.2 AA in both Playwright helpers (D-07)
     - [ ] 192-02-PLAN.md — Executable quarantine: known_failure tags, test.fail(), self-healing contract test, 2 tracking todos (D-11/D-12)
     - [ ] 192-03-PLAN.md — Reword GATE-01 in REQUIREMENTS.md to remove force-recapture contradiction (D-04)
     - [ ] 192-04-PLAN.md — Gate proof: compare-mode zero-drift, CI parity citation, monotonic guard, ledger terminal ratification (D-01/D-03/D-05/D-10/D-13)
@@ -384,7 +384,7 @@ Plans:
   2. Generated-host parity is proven (`RUN_PARITY=1`), full-surface axe is clean, and the byte-golden component suite is green.
   3. The final quality ledger records the achieved tier per item, and the monotonic guard is green versus `origin/main` (forward-only proven so a re-run starts from "current = ratified").
 
-**Plans**: Not yet planned
+**Plans**: 1/4 plans executed
 **UI hint**: yes
 
 ### Phase 178: Brand v2 Pressure-Test Audit
@@ -401,6 +401,11 @@ Plans:
 
 **Plans**: 2 plans
 Plans:
+
+- [x] 192-01-PLAN.md
+- [ ] 192-02-PLAN.md
+- [ ] 192-03-PLAN.md
+- [ ] 192-04-PLAN.md
 
 - [x] 178-01-PLAN.md — Write brandbook/pressure-test-audit-v2.md: full 14-section audit with KEEP/TIGHTEN/REWORK verdicts and szTheory suite brand-architecture section
 - [x] 178-02-PLAN.md — Write brandbook/logo-v2-design-brief.md: standalone design brief encoding 7 hard constraints, OFL font shortlist, letterform anatomy, and render-critique rubric

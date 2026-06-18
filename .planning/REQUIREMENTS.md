@@ -80,7 +80,7 @@
 ### Ratification & Baseline Lock (GATE) — Phase 192
 
 - [ ] **GATE-01**: All baselines (admin checkpoints + gallery boards) are deliberately recaptured via the recapture gate; both allowlists are reset to empty; both canaries are green.
-- [ ] **GATE-02**: Generated-host parity is proven (`RUN_PARITY=1`), full-surface axe is clean, and the byte-golden component suite is green.
+- [x] **GATE-02**: Generated-host parity is proven (`RUN_PARITY=1`), full-surface axe is clean, and the byte-golden component suite is green.
 - [ ] **GATE-03**: The final quality ledger records the achieved tier per item, and the monotonic guard is green versus `origin/main` (forward-only proven so a re-run starts from "current = ratified").
 
 ## Future Requirements (deferred)
