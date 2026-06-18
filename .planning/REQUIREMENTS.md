@@ -73,9 +73,9 @@
 
 ### Microcopy & IA Sweep (COPY) — Phase 191
 
-- [ ] **COPY-01**: A system-wide voice pass aligns all admin microcopy with the brand book (precise/honest/useful/calm/maintainer-grade); errors state what failed + why it matters + the next action.
+- [x] **COPY-01**: A system-wide voice pass aligns all admin microcopy with the brand book (precise/honest/useful/calm/maintainer-grade); errors state what failed + why it matters + the next action.
 - [x] **COPY-02**: A GOV.UK plain-language pass yields a committed one-term-per-concept glossary with no synonym drift across pages.
-- [ ] **COPY-03**: Empty-state, success, and warning copy is consistent across all admin surfaces.
+- [x] **COPY-03**: Empty-state, success, and warning copy is consistent across all admin surfaces.
 
 ### Ratification & Baseline Lock (GATE) — Phase 192
 

@@ -348,7 +348,7 @@ Plans:
   2. A GOV.UK plain-language pass yields a committed one-term-per-concept glossary with no synonym drift across pages.
   3. Empty-state, success, and warning copy is consistent across all admin surfaces, and the ledger is raised.
 
-**Plans**: 1/4 plans executed
+**Plans**: 2/4 plans executed
 
 **Wave 1**
 
@@ -356,7 +356,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 191-02-PLAN.md — Apply all copy violations across 5 affected LiveViews + components_test.exs golden update
+- [x] 191-02-PLAN.md — Apply all copy violations across 5 affected LiveViews + components_test.exs golden update
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
