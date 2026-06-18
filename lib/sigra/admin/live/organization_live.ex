@@ -64,7 +64,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         role="status"
       >
         <%= if @needs_review > 0 do %>
-          {@needs_review} {if @needs_review == 1, do: "account needs", else: "accounts need"} review — <.notice_link href={users_path(@admin_scope) <> "?needs_review=true"}>Review accounts</.notice_link>
+          {@needs_review} {if @needs_review == 1, do: "member needs", else: "members need"} review — <.notice_link href={users_path(@admin_scope) <> "?needs_review=true"}>Review members</.notice_link>
         <% else %>
           All clear
         <% end %>
@@ -74,12 +74,12 @@ defmodule Sigra.Admin.Live.OrganizationLive do
       <div class="sg-grid sg-grid--2">
         <.task_card
           title="Support members"
-          body="Search org members, open account detail, and pivot through session, security, and membership state."
+          body="Search organization members, open member detail, and pivot through session, security, and membership state."
           href={users_path(@admin_scope)}
           action="Open members"
         />
         <.task_card
-          title="Investigate org events"
+          title="Investigate organization events"
           body="Filter audit evidence scoped to this organization and export only its events."
           href={audit_path(@admin_scope)}
           action="Open audit"
@@ -93,7 +93,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
           <.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" /><.skeleton class="sg-list-row" />
         <% else %>
           <p :if={@members == []} class="sg-section-copy">
-            No members yet — invite teammates to populate this organization.
+            No members yet — invite members to populate this organization.
           </p>
           <div :if={@members != []} class="sg-list">
             <div :for={member <- @members} class="sg-list-row">
