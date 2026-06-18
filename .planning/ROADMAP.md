@@ -39,7 +39,7 @@
   - Success: each persona flow passes happy + main-error + boundary with a deterministic fixture; scope/return context preserved; flow specs green.
 - [x] **Phase 191: Microcopy & IA Sweep** — System-wide voice pass vs brand book; GOV.UK plain-language; one-term-per-concept glossary; error/empty/success tone consistency across all admin surfaces. Requirements: COPY-01..03. (completed 2026-06-18)
   - Success: glossary committed; every string passes voice + plain-language rubric; no synonym drift; ledger raised.
-- [ ] **Phase 192: Ratification & Baseline Lock** — Terminal idempotency gate: re-run every scorecard; deliberately recapture all baselines (checkpoints + gallery) via the recapture gate; reset both allowlists to empty; prove generated-host parity (`RUN_PARITY=1`); full-surface axe; byte-goldens; commit final ledger. Requirements: GATE-01..03.
+- [x] **Phase 192: Ratification & Baseline Lock** — Terminal idempotency gate: re-run every scorecard; deliberately recapture all baselines (checkpoints + gallery) via the recapture gate; reset both allowlists to empty; prove generated-host parity (`RUN_PARITY=1`); full-surface axe; byte-goldens; commit final ledger. Requirements: GATE-01..03. (completed 2026-06-18)
   - Success: all baselines ratified + both canaries green; allowlists empty; generated-host parity proven; final ledger records achieved tier per item; monotonic guard green vs origin/main.
   - **Plans:** 4 plans
     - [x] 192-01-PLAN.md — Widen axe tags to WCAG 2.1/2.2 AA in both Playwright helpers (D-07)
