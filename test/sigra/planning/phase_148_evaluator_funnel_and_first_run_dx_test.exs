@@ -133,12 +133,15 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     dev_proxy_compose = read!("scripts/dev-proxy/docker-compose.yml")
     runbook = read!("scripts/uat/RUNBOOK.md")
     example = read!("test/example/README.md")
+    local_dev = read!("guides/recipes/local-development.md")
     example_dev = read!("test/example/config/dev.exs")
 
     assert up =~ "--proxy"
     assert up =~ "--private-traefik"
     assert up =~ "--refresh-code"
-    assert up =~ "mix deps.compile sigra --force"
+    # --refresh-code is now a cache-aware image rebuild, not a forced runtime recompile.
+    assert up =~ "--profile proxy build web"
+    refute up =~ "mix deps.compile sigra --force"
     assert up =~ "fail_on_proxy_host_conflict"
     assert up =~ "dev.sigra.proxy-host"
     assert up =~ "dev_proxy-traefik-1"
@@ -147,7 +150,9 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert up =~ "Project-private Traefik is not allowed to bind 127.0.0.1:80"
     refute up =~ "scoria"
 
-    assert dockerfile =~ "mix deps.compile sigra --force"
+    # Cache-correct Dockerfile: deps compiled in a build layer (no forced runtime recompile).
+    assert dockerfile =~ "mix deps.compile"
+    refute dockerfile =~ "mix deps.compile sigra --force"
     assert example_dev =~ "reloadable_apps: [:example, :sigra]"
 
     assert compose =~ "profiles: [\"proxy\"]"
@@ -172,15 +177,27 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert dev_proxy_compose =~ "name: ${SIGRA_DEV_PROXY_NETWORK:-proxy}"
     assert dev_proxy_compose =~ "external: true"
 
-    for doc <- [runbook, example] do
-      assert doc =~ "dev_proxy-traefik-1"
-      assert doc =~ ~r/external Docker\s+network named `proxy`/
-      assert doc =~ "http://sigra.localhost"
-      assert doc =~ "scripts/dev-proxy/up.sh"
-      assert doc =~ "--private-traefik"
-      assert doc =~ "--refresh-code"
-      assert doc =~ "18080"
-      refute doc =~ "scoria"
-    end
+    # The full shared-proxy contract now lives in the example README (canonical
+    # evaluator doc) — unchanged.
+    assert example =~ "dev_proxy-traefik-1"
+    assert example =~ ~r/external Docker\s+network named `proxy`/
+    assert example =~ "http://sigra.localhost"
+    assert example =~ "scripts/dev-proxy/up.sh"
+    assert example =~ "--private-traefik"
+    assert example =~ "--refresh-code"
+    assert example =~ "18080"
+    refute example =~ "scoria"
+
+    # The shared-proxy + per-branch-host workflow is documented in the
+    # local-development guide (the runbook now points here rather than duplicating it).
+    assert local_dev =~ "scripts/dev-proxy/up.sh"
+    assert local_dev =~ "sigra.localhost"
+    assert local_dev =~ "--private-traefik"
+    assert local_dev =~ "--refresh-code"
+    assert local_dev =~ ~r/shared .proxy. Docker network/
+    refute local_dev =~ "scoria"
+
+    # The runbook delegates environment setup to the guide instead of duplicating it.
+    assert runbook =~ "guides/recipes/local-development.md"
   end
 end
