@@ -172,39 +172,37 @@ Architecture not yet mapped. Follow existing patterns found in the codebase.
 
 ## Local development prerequisites
 
-`mix test` requires a live Postgres at `localhost:5432` with credentials
-`postgres`/`postgres`. There is no `:postgres` tag exclusion — every test
-that runs in CI runs locally too, and a missing database fails fast
-instead of silently skipping.
+`mix test` requires a live Postgres with credentials `postgres`/`postgres` and a
+`sigra_test` database. There is no `:postgres` tag exclusion — every test that
+runs in CI runs locally too, and a missing database fails fast instead of
+silently skipping.
 
-One-liner to start a disposable postgres container without reserving global
-port 5432:
-
-```bash
-docker run -d --name sigra-test-postgres \
-  -e POSTGRES_DB=sigra_test \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 127.0.0.1::5432 postgres:16-alpine
-docker port sigra-test-postgres 5432
-```
-
-Set `PGPORT` to the mapped port printed by `docker port`. Any already-running
-container on port 5432 with the same credentials and a `sigra_test` database is
-also fine. The UAT demo stack uses a dynamic Postgres port by default, so use
-`scripts/uat/up.sh` for demo work rather than relying on it as the root test
-database. Run the full suite with:
+Recommended: boot a Dockerized test Postgres on a **dynamic** host port (never
+reserves global 5432, so it can't contend with a Homebrew Postgres or a sibling
+lib's database), then let `mix test` discover the port:
 
 ```bash
+scripts/db/up.sh          # boots ephemeral test PG, writes tmp/db.env
+direnv allow              # one-time; auto-loads tmp/db.env on every cd
+# …or, without direnv:    source tmp/db.env
 mix test
 ```
 
-No env prefix is needed: `mix test` sets `MIX_ENV=test` itself, and the
-real-DB test repo (`Sigra.Test.PostgresRepo`) plus the install-golden
-fixture already default to `postgres`/`postgres`/`localhost`. To point at a
-Postgres with different credentials, override the vars the test repo
-actually reads — `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_USERNAME`,
-`SIGRA_TEST_PG_PASSWORD`, `SIGRA_TEST_PG_DATABASE` — not the libpq `PG*`
-vars.
+`scripts/db/up.sh` discovers the assigned port and writes both naming
+conventions into `tmp/db.env` — `SIGRA_TEST_PG_*` (read by `Sigra.Test.PostgresRepo`)
+and `PG*` (read by `test/example` and the install fixtures). Tear down with
+`scripts/db/down.sh`. The full Docker dev/demo story (Postgres, shared-Traefik
+multi-project workflow, build caching) is documented in
+[`guides/recipes/local-development.md`](guides/recipes/local-development.md).
+
+When `tmp/db.env` is **not** loaded (CI, or a Homebrew Postgres on 5432), every
+reader falls back to `localhost:5432` automatically — so CI and a plain local
+5432 both still work with no env prefix (`mix test` sets `MIX_ENV=test` itself).
+To point at a Postgres with different connection details, override the vars the
+test repo actually reads — `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_PORT`,
+`SIGRA_TEST_PG_USERNAME`, `SIGRA_TEST_PG_PASSWORD`, `SIGRA_TEST_PG_DATABASE` —
+not the libpq `PG*` vars. The UAT demo stack (`scripts/uat/up.sh`) runs its own
+separate, persistent Postgres for demo work; don't use it as the test database.
 
 The install golden tests (`test/sigra/install/golden_diff_test.exs` and the
 other `mix sigra.install` fixtures) require the **phx_new 1.8.7** archive

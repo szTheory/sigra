@@ -14,6 +14,8 @@ if Code.ensure_loaded?(Postgrex) do
     dev can override without touching source:
 
       * `SIGRA_TEST_PG_HOSTNAME` — default `localhost`
+      * `SIGRA_TEST_PG_PORT` — default `5432` (point at a Dockerized Postgres on a
+        dynamic host port; `scripts/db/up.sh` writes this into `tmp/db.env`)
       * `SIGRA_TEST_PG_USERNAME` — default `postgres`
       * `SIGRA_TEST_PG_PASSWORD` — default `postgres`
       * `SIGRA_TEST_PG_DATABASE` — default `sigra_test`
@@ -25,6 +27,7 @@ if Code.ensure_loaded?(Postgrex) do
     def default_config do
       [
         hostname: System.get_env("SIGRA_TEST_PG_HOSTNAME", "localhost"),
+        port: String.to_integer(System.get_env("SIGRA_TEST_PG_PORT", "5432")),
         username: System.get_env("SIGRA_TEST_PG_USERNAME", "postgres"),
         password: System.get_env("SIGRA_TEST_PG_PASSWORD", "postgres"),
         database: System.get_env("SIGRA_TEST_PG_DATABASE", "sigra_test"),

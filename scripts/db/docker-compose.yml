@@ -1,0 +1,37 @@
+# Sigra local TEST/DEV Postgres — ephemeral, dynamic host port.
+#
+# Deliberately separate from scripts/uat/docker-compose.yml:
+#   - This DB is for `mix test` and ad-hoc local dev. It is EPHEMERAL: there is
+#     NO named volume, so it can be nuked and recreated freely and never hits the
+#     postgres 15<->16 persisted-volume version-skew lockup.
+#   - The UAT/demo DB (example_dev, persistent `pgdata` volume) lives in
+#     scripts/uat/docker-compose.yml and is left untouched.
+#
+# The host port is DYNAMIC (empty left-hand side -> Docker assigns an ephemeral
+# 127.0.0.1 port). This never reserves global 5432, so it cannot contend with a
+# Homebrew Postgres or with a sibling lib's database. `scripts/db/up.sh`
+# discovers the assigned port and writes it to tmp/db.env.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    labels:
+      dev.sigra.role: test-db
+      dev.sigra.stack: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sigra_test
+    # Headroom for the install suite, which spawns many generated apps each with
+    # their own connection pool (default max_connections=100 is the saturation
+    # source). Isolation onto this dedicated container is the real fix; 200 is
+    # cheap belt-and-suspenders on a dev box.
+    command: ["postgres", "-c", "max_connections=200"]
+    ports:
+      - "${SIGRA_DB_BIND:-127.0.0.1}:${SIGRA_DB_PORT:-}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+# NOTE: intentionally NO `volumes:` block — the test DB is disposable.
