@@ -68,3 +68,22 @@ between the base branch and the PR branch.
 | flow-platform-admin | L4 | 1 | [admin-flow-platform-admin.spec.ts — platform admin JTBD: happy/error/boundary, scope/return-context, keyboard, reduced-motion, theme-persistence + reload](../../test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts) |
 | flow-support-investigator | L4 | 1 | [admin-flow-support-investigator.spec.ts — investigator posture: find→audit→impersonate→return, banner continuity, ConfirmDialog APG gates, theme](../../test/example/priv/playwright/tests/admin-flow-support-investigator.spec.ts) |
 | flow-org-admin | L4 | 1 | [admin-flow-org-admin.spec.ts — org admin JTBD: tenant-bounded access, 403 permission-denied, empty audit boundary, theme](../../test/example/priv/playwright/tests/admin-flow-org-admin.spec.ts) |
+
+## Terminal Ratification — Phase 192
+
+All ~35 quality-ledger cells are locked at **Tier 1 (Ratified)** as of Phase 192
+(2026-06-18). This is the terminal gate of the v1.39 DS-COHERENCE milestone.
+
+**Forward-only guarantee:** The monotonic guard (`scripts/ci/quality-ledger-monotonic.sh
+--base origin/main`) protects every cell permanently — no future PR may decrease any tier.
+Tier 1 is the minimum floor from this point forward.
+
+**Tier 2 is NOT declared here.** Tier 2 ("Award-grade") is subjective (see Tier Vocabulary
+above) and requires objective proxies ratcheted separately in a future milestone. It is
+never a build-failing monotonic integer on an aesthetic verdict. See D-02 in the
+192-CONTEXT.md for the earned-separately path.
+
+**Proof method:** compare-mode zero-drift idempotency (not force-recapture) — re-rendering
+all 6 Playwright projects produces zero PNG delta; both allowlists verified at steady-state
+empty; both canaries byte-stable; byte-golden component suite green; monotonic guard green
+vs `origin/main`; generated-host parity proven via CI SHA for the admin-acceptance job.

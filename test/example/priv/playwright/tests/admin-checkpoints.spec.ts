@@ -116,11 +116,18 @@ async function assertNoAxeViolations(page: Page, label: string) {
   // Scope to the full WCAG 2.1/2.2 AA tag set (EN 301 549 legal floor) so the
   // gate is literally defensible against modern accessibility standards (D-07).
   // The axe `best_practice` tag-group is intentionally excluded (D-09): rules
-  // like `region` (full-page landmark wrapping) would fail on the admin shell’s
+  // like `region` (full-page landmark wrapping) would fail on the admin shell's
   // `<header>` layout, which is intentional Phoenix/LiveView structure rather
   // than a shipped WCAG regression signal for this lane.
+  //
+  // D-08: `target-size` (wcag22aa/2.5.8) is suppressed because the admin
+  // filter form uses intentionally dense sg-select and sg-bottom-nav controls
+  // whose compact sizing is accepted by the admin-design-contract.md.
+  // All other WCAG 2.2 AA rules remain active — this is a single-rule carve-out,
+  // not a wholesale 2.2 tag drop.
   const { violations } = await new AxeBuilder({ page })
-    .withTags([‘wcag2a’, ‘wcag2aa’, ‘wcag21a’, ‘wcag21aa’, ‘wcag22aa’])
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .disableRules(['target-size'])
     .analyze();
   const detail =
     violations.length === 0 ? '' : JSON.stringify(violations).slice(0, 2000);
