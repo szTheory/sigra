@@ -91,7 +91,17 @@ violations=0
 for sl in "${!CHANGED_SLUGS[@]}"; do
   kind="${CHANGED_SLUGS[$sl]}"
   if [[ "$sl" == "$CANARY" ]]; then
-    fail "canary snapshot changed: '${CANARY}' must stay byte-green (kind=${kind})"
+    # A canary is a tripwire against UNINTENDED drift of an ESTABLISHED baseline,
+    # so it fires on modify/delete/mixed — never on first establishment. Pure
+    # `added` is the legitimate one-time birth of the canary (e.g. a brand-new
+    # gallery introduced wholesale vs a base that lacks it); tolerating it keeps
+    # the tripwire armed for every future incremental PR while letting the
+    # introduction PR pass. The canary is still NOT allowlistable.
+    if [[ "$kind" == "added" ]]; then
+      echo "snapshot-canary-guard: OK canary first-established (added): ${CANARY}"
+      continue
+    fi
+    fail "canary snapshot ${kind}: '${CANARY}' must stay byte-green — modify/delete of an established canary is forbidden"
   fi
   if [[ -z "${ALLOWED[$sl]:-}" ]]; then
     echo "snapshot-canary-guard: FAIL: unintended snapshot change: ${sl} (${kind}) — not in ${ALLOWLIST}" >&2
