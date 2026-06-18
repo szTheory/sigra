@@ -359,7 +359,7 @@ defmodule Sigra.Install.Features.AdminTest do
             {"--sg-color-ok", "--sigra-auth-ok"}
           ] do
         admin_val = extract_token_value(admin_css, admin_token)
-        auth_val = extract_token_value(auth_css, auth_token)
+        auth_val = extract_token_value(auth_css, auth_token, ".sigra-auth")
 
         assert admin_val == auth_val,
                "Light ember parity mismatch for #{admin_token} (admin) vs #{auth_token} (auth): " <>
@@ -511,8 +511,13 @@ defmodule Sigra.Install.Features.AdminTest do
     end
   end
 
-  defp extract_token_value(css, token_name) do
-    css
+  defp extract_token_value(css, token_name, context_selector \\ ":root") do
+    root_content =
+      css
+      |> extract_css_blocks(context_selector)
+      |> Enum.join("\n")
+
+    root_content
     |> String.split("\n")
     |> Enum.find_value(fn line ->
       trimmed = String.trim(line)
