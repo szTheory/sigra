@@ -134,7 +134,9 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
       await expect(revokeSession).toHaveCount(before - 1);
     }
 
-    await expect(page.getByText('No active sessions.')).toBeVisible();
+    // Empty-state title dropped its trailing period in the v1.39 admin redesign
+    // (lib user_show_live.ex: `title="No active sessions"`).
+    await expect(page.getByText('No active sessions')).toBeVisible();
     await expectScopeChrome(page, 'Global');
   });
 
