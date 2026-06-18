@@ -371,12 +371,9 @@ defmodule Sigra.Install.Features.AdminTest do
       admin_dark_lines =
         admin_css |> extract_dark_media_props() |> Enum.join("\n")
 
-      auth_dark_lines =
+      auth_dark_block =
         auth_css
-        |> String.split("\n")
-        |> Enum.drop_while(&(not String.contains?(&1, "data-theme=\"dark\"")))
-        |> Enum.take(30)
-        |> Enum.join("\n")
+        |> extract_css_block(~s(.sigra-auth[data-theme="dark"]))
 
       # Note: --sg-color-panel vs --sigra-auth-surface intentionally differ
       # (#1f1d1a vs #211f1c); not asserted here.
@@ -389,7 +386,7 @@ defmodule Sigra.Install.Features.AdminTest do
                "Admin dark #{admin_token} should be #{dark_val} — " <>
                  "if changed, update sigra_auth.css to restore ember parity"
 
-        assert String.contains?(auth_dark_lines, "#{auth_token}: #{dark_val};"),
+        assert String.contains?(auth_dark_block, "#{auth_token}: #{dark_val};"),
                "Auth dark #{auth_token} should be #{dark_val} — " <>
                  "update sigra_auth.css to restore ember parity with admin dark tokens"
       end
