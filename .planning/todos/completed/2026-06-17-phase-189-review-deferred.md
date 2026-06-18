@@ -1,6 +1,8 @@
 ---
 created: 2026-06-17T00:00:00.000Z
-status: pending
+status: done
+resolved: 2026-06-18
+resolved_by: investigation + test(189) commit this session
 title: ConfirmDialog hook hardening + branding error leak (phase 189 deferred review findings)
 area: admin-ui
 files:
@@ -9,6 +11,39 @@ files:
   - lib/sigra/admin/live/branding_live.ex
 source: 189-REVIEW.md (WR-01, WR-02, WR-03, WR-04)
 ---
+
+## Resolution (2026-06-18)
+
+All four findings were already fixed in the source (most likely during phase 192's
+admin-hooks Escape work); this pass verified that and closed the dormant gap in the
+verification.
+
+- **WR-01** (Cancel via positional `focusables[0]`) — RESOLVED: the ConfirmDialog hook
+  `mounted()` and `_cancel()` both target `[data-sg-confirm-cancel]` with a `focusables[0]`
+  fallback; the overlay Cancel buttons in `user_show_live.ex` and `branding_live.ex` carry
+  the `data-sg-confirm-cancel` attribute.
+- **WR-02** (focus-return with no `<body>` sentinel) — RESOLVED: `destroyed()` guards with
+  `document.contains(this._trigger)` and falls back to `document.body.focus()` (commented
+  `// WR-02`).
+- **WR-03** (Escape lacks `stopImmediatePropagation`) — RESOLVED: the Escape branch calls
+  `event.stopImmediatePropagation()` before `_cancel()`.
+- **WR-04** (branding `error_message/1` `inspect/1` leak) — RESOLVED: `branding_live.ex`
+  now has a dedicated `%Ecto.Changeset{}` clause (human-readable traversal) and a
+  `%{__struct__: _}` clause using `Exception.message/1` with a safe rescue — no raw
+  `inspect/1` of a non-exception struct reaches the UI.
+- Both `admin_hooks.js` mirrors are byte-identical and the served example bundle
+  (`test/example/priv/static/assets/js/app.js`) carries the hardened hook (marker parity
+  verified).
+
+### Verification gap found and fixed
+
+The PAGE-03 verification spec `admin-modal-interaction.spec.ts` (authored in phase 189)
+was **never wired into CI** and had a **stale `/cancel/i` matcher** (the cancel label is
+action-specific copy — "Keep sessions" since 188-04), so it could not pass and never ran.
+Fixed the matcher to select via the stable `[data-sg-confirm-cancel]` contract and added
+the spec to the chromium admin-behavior lane in `.github/workflows/ci.yml`. Ran green
+locally against a booted example server (disposable Postgres): 1 passed, all 7 APG gates
+(initial focus, tab containment, Escape close, focus return, ARIA, axe-while-open).
 
 ## Why deferred
 
