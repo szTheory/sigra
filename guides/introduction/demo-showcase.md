@@ -24,6 +24,8 @@ If you already have PostgreSQL available and want the plain Phoenix path, this a
 mix setup && mix phx.server
 ```
 
+> Working **on** Sigra (tests, a stable demo URL, Docker Postgres, build caching)? See [Local development with Docker](../recipes/local-development.html).
+
 If first-run verification fails after setup, run `mix sigra.doctor` and use the fixes in [Troubleshooting install](troubleshooting-install.md).
 
 ## Evaluator Persona Map

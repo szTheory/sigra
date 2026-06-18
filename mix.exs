@@ -230,6 +230,7 @@ defmodule Sigra.MixProject do
         "docs/launch/v1.0/evidence.md",
         "docs/nyquist-posture-matrix.md",
         "docs/NEXT-STEPS-MANUAL.md",
+        "guides/recipes/local-development.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",
