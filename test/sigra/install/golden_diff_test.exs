@@ -37,7 +37,6 @@ defmodule Sigra.Install.GoldenDiffTest do
 
   @moduletag :golden
   @moduletag timeout: 300_000
-  @moduletag known_failure: "generated-tree byte diff vs committed fixture; reproduces on origin/main; tracked: .planning/todos/pending/2026-06-18-install-golden-diff-known-failure.md"
 
   @fixture_dir Path.expand("../../fixtures/install_golden", __DIR__)
   @fixture_tree_dir Path.join(@fixture_dir, "tree")

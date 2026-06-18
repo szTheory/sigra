@@ -206,6 +206,20 @@ actually reads — `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_USERNAME`,
 `SIGRA_TEST_PG_PASSWORD`, `SIGRA_TEST_PG_DATABASE` — not the libpq `PG*`
 vars.
 
+The install golden tests (`test/sigra/install/golden_diff_test.exs` and the
+other `mix sigra.install` fixtures) require the **phx_new 1.8.7** archive
+installed locally to match the CI pin (SEED-004):
+
+```bash
+mix archive.install --force hex phx_new 1.8.7
+```
+
+A newer archive (e.g. 1.8.8, which adds the `config :phoenix_live_view,
+root_tag_attribute: ...` block to generated `config/config.exs`) produces a
+spurious byte-diff against the committed fixture and fails `golden_diff_test`
+locally even though CI is green. Do **not** regenerate the fixture to "fix"
+this — install 1.8.7 instead.
+
 <!-- GSD:skills-start source:skills/ -->
 ## Project Skills
 
