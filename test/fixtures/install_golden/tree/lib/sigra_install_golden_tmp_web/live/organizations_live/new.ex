@@ -79,7 +79,6 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationsLive.New do
         </p>
 
         <.button
-          type="submit"
           phx-disable-with="Creating..."
           class="btn btn-primary w-full mt-4"
         >

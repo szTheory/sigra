@@ -110,7 +110,6 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
         </p>
 
         <.button
-          type="submit"
           phx-disable-with="Creating..."
           class="btn btn-primary w-full mt-4"
         >

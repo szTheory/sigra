@@ -262,7 +262,6 @@ defmodule ExampleWeb.OrganizationSettingsLive do
 
               <div class="flex flex-wrap gap-2">
                 <.button
-                  type="submit"
                   name="_action"
                   value="enable_sso_only"
                   phx-disable-with="Enabling..."
@@ -270,7 +269,6 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                   Enable SSO-only
                 </.button>
                 <.button
-                  type="submit"
                   name="_action"
                   value="disable_sso_only"
                   class="btn btn-ghost"

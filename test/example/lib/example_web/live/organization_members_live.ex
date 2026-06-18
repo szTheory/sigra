@@ -340,14 +340,14 @@ defmodule ExampleWeb.OrganizationMembersLive do
       <.header>
         Members ({@total_count})
         <:actions>
-          <.button
+          <button
             :if={owner_or_admin?(@current_scope)}
             type="button"
             phx-click="open_invite_modal"
             id="invite-member-button"
           >
             Invite member
-          </.button>
+          </button>
           <.button
             :if={not owner_or_admin?(@current_scope)}
             disabled
