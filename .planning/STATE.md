@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md`
 Phase: 192
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-06-18 — Phase 192 complete
+Last activity: 2026-06-18 — Completed quick task 260618-fch: fix vault_promotion_test.exs known failure (button type)
 
 ## Accumulated Context
 
@@ -113,6 +113,7 @@ Last activity: 2026-06-18 — Phase 192 complete
 | Quick ID | Task | Status | Date |
 | --- | --- | --- | --- |
 | 260613-f1p | Pin phx_new to 1.8.7 in CI workflows (fix PR #52 red CI from phx_new 1.8.8 `<.button type>` drop). Verified: vault_promotion + golden_diff pass locally; SEED-004 filed for forward-compat. | complete ✓ | 2026-06-13 |
+| 260618-fch | Fix vault_promotion_test.exs known failure — strip unsupported `type` attr from `<.button>` across 7 installer templates (durable fix vs phx_new button `:rest` allowlist) + sync example/golden mirrors + lift known_failure quarantine. Verified: 1 test, 0 failures. | complete ✓ | 2026-06-18 |
 
 ## Deferred Items
 
