@@ -118,12 +118,18 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     const confirmPrompt = page.getByText(
       `Revoke this session for ${targetEmail}? This signs them out of that browser or device.`,
     );
+    // The ConfirmDialog's danger button now carries the action-specific label
+    // ("Revoke session", not "Confirm" — Phase 188-04), which collides by name with
+    // the per-row revoke triggers, so scope the confirm click to the dialog overlay.
+    const confirmButton = page
+      .locator('#user-session-confirm-overlay')
+      .getByRole('button', { name: 'Revoke session' });
 
     while ((await revokeSession.count()) > 0) {
       const before = await revokeSession.count();
       await revokeSession.first().click();
       await expect(confirmPrompt).toBeVisible();
-      await page.getByRole('button', { name: 'Confirm' }).click();
+      await confirmButton.click();
       await expect(page.getByText('Session revoked.')).toBeVisible();
       await expect(revokeSession).toHaveCount(before - 1);
     }
