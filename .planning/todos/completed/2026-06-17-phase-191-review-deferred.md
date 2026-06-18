@@ -1,12 +1,29 @@
 ---
 created: 2026-06-17T00:00:00.000Z
-status: pending
+status: done
+resolved: 2026-06-18
+resolved_by: quick task 260618-grh
 title: narrow glossary drift-guard action= strip pattern (phase 191 deferred review finding WR-01)
 area: test
 files:
   - test/sigra/admin/glossary_test.exs
 source: 191-REVIEW.md (WR-01)
 ---
+
+## Resolution (2026-06-18, quick task 260618-grh)
+
+Narrowed the `@strip_patterns` `action=` rule from the broad
+`~r/(href|action|phx-\w+|name=|input\s+.*name)=/` to `~r/(href=|action=\{|phx-\w+=)/`
+plus a separate `~r/(name=|input\s+.*name)=/`. The `{` is a clean discriminator:
+all URL-bearing form actions in the scanned LiveViews use `action={…}` (Elixir
+expression) and are still stripped, while human-copy component attrs use
+`action="…"` (string literal — e.g. "Open members", "Find a user", "Review users")
+and are now scanned for banned terms instead of being stripped wholesale.
+
+Added a regression test that injects a banned term in a synthetic `action="Review logins"`
+value (in-memory), asserts it survives stripping, then asserts the banned-terms scan
+catches "logins" — closing the false-negative gap permanently. Verified:
+`mix test test/sigra/admin/glossary_test.exs` → 2 tests, 0 failures.
 
 ## Why deferred
 

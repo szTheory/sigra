@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md`
 Phase: 192
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-06-18 — Completed quick task 260618-gly: hardened phase-186 D-11 parity test extractors (WR-02/WR-03)
+Last activity: 2026-06-18 — Completed quick task 260618-grh: narrowed glossary drift-guard action= strip (phase 191 WR-01)
 
 ## Accumulated Context
 
@@ -116,6 +116,7 @@ Last activity: 2026-06-18 — Completed quick task 260618-gly: hardened phase-18
 | 260618-fch | Fix vault_promotion_test.exs known failure — strip unsupported `type` attr from `<.button>` across 7 installer templates (durable fix vs phx_new button `:rest` allowlist) + sync example/golden mirrors + lift known_failure quarantine. Verified: 1 test, 0 failures. | complete ✓ | 2026-06-18 |
 | 260618-gdf | Resolve golden_diff_test.exs known failure — root cause was local phx_new 1.8.8 vs CI-pinned 1.8.7 (spurious config.exs `root_tag_attribute` byte-diff), NOT a stale fixture. Installed 1.8.7, lifted known_failure tag (no fixture change), documented phx_new 1.8.7 dev prereq in CLAUDE.md. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
 | 260618-gly | Harden phase-186 D-11 parity test extractors — WR-02 (structural `extract_css_block/2` for auth dark block, replacing `Enum.take(30)`) + WR-03 (`extract_token_value/2` scoped to correct CSS block via optional selector). WR-01/IN-02 already resolved by prior pass; IN-03 optional CI guard deferred to new todo. Verified: 27 tests, 0 failures. | complete ✓ | 2026-06-18 |
+| 260618-grh | Narrow glossary drift-guard `action=` strip (phase 191 WR-01) — strip `action={…}` expressions but scan `action="…"` copy literals for banned terms; added regression test for the false-negative gap. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
 
 ## Deferred Items
 
