@@ -8324,6 +8324,19 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
       );
     }
 
+    // Set when Escape dismisses help; suppresses the synthetic mouseover that
+    // Chromium dispatches when hiding the panel collapses layout under a
+    // stationary cursor (which would otherwise re-open the help). Cleared on a
+    // genuine pointer move so real hover-to-reopen still works.
+    var escapeDismissedUntil = 0;
+    document.addEventListener(
+      "mousemove",
+      function () {
+        escapeDismissedUntil = 0;
+      },
+      true,
+    );
+
     function rootFrom(target) {
       return target && target.closest
         ? target.closest("[data-sg-metric-help-root]")
@@ -8402,6 +8415,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
     document.addEventListener("mouseover", function (event) {
       if (!finePointer()) return;
+      if (Date.now() < escapeDismissedUntil) return;
       var root = rootFrom(event.target);
       if (!root) return;
       closeAll(root);
@@ -8417,6 +8431,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
     document.addEventListener("keydown", function (event) {
       if (event.key !== "Escape") return;
+      escapeDismissedUntil = Date.now() + 400;
       closeAll(null);
     });
   }
