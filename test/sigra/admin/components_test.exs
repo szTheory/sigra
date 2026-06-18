@@ -69,6 +69,8 @@ defmodule Sigra.Admin.ComponentsTest do
 
   # notice_link — inline notice action link. It is intentionally an underlined
   # native anchor, not a button-looking split action.
+  # Structural rendering test — inner_block text is arbitrary; copy hygiene is
+  # out of scope here (test files are excluded from the glossary drift guard).
   @notice_link_golden "<a href=\"/admin/users?needs_review=true\" class=\"sg-notice__action \">\n  Review accounts\n</a>"
 
   # ---------------------------------------------------------------------------

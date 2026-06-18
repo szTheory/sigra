@@ -725,7 +725,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
   defp error_message(%{__struct__: _module} = exception) do
     Exception.message(exception)
   rescue
-    _ -> inspect(exception)
+    _ -> "Could not save auth branding. Check the values and try again."
   end
 
   defp error_message(_reason), do: "Could not save auth branding. Check the values and try again."
