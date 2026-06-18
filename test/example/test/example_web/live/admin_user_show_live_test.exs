@@ -35,7 +35,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
           "Security",
           "Identities",
           "Organizations",
-          "Recent Audit",
+          "Recent audit",
           "Danger Zone"
         ]
         |> Enum.map(&{&1, html_offset(html, &1)})
@@ -216,7 +216,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
           "/admin/users/#{target.id}?return_to=#{URI.encode_www_form("/admin/users?q=preview-target")}"
         )
 
-      assert html =~ "Recent Audit"
+      assert html =~ "Recent audit"
 
       # Phase 33: preview rows are Presenter-shaped (action_label), not raw `event.action` headings.
       assert html =~ "Session Create"
@@ -291,7 +291,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
         |> log_in_user(platform_admin)
         |> live("/admin/users/#{target.id}")
 
-      assert html =~ "Recent Audit"
+      assert html =~ "Recent audit"
       # Phase: impersonation events surface as a tone pill (sg-status-pill) rather
       # than the legacy daisyUI badge-warning class.
       assert html =~ "sg-status-pill"

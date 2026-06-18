@@ -90,7 +90,7 @@ defmodule ExampleWeb.AdminUserFiltersLiveTest do
                "These users have at least one passkey. Passkeys make phishing attacks harder."
 
       assert html =~
-               "These users are locked out after failed sign-in attempts. Review the account before unlocking."
+               "These users are locked out after failed sign-in attempts. Review the user before unlocking."
 
       assert html =~
                "These users are scheduled for deletion. Access is disabled and active sessions are revoked."
