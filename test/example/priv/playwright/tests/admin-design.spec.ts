@@ -46,12 +46,16 @@ function adminDesignEmail(testInfo: TestInfo) {
 
 /** Phase 35: axe a11y gate paired with each board snapshot. */
 async function assertNoAxeViolations(page: Page, label: string) {
-  // Scope to WCAG A/AA tags so best-practice rules like `region` (full-page
-  // landmark wrapping) do not fail on the admin shell's `<header>` layout,
-  // which is intentional Phoenix/LiveView structure rather than a shipped
-  // WCAG regression signal for this lane.
+  // Scope to the full WCAG 2.1/2.2 AA tag set (EN 301 549 legal floor) so the
+  // gate is literally defensible against modern accessibility standards (D-07).
+  // This helper is element-scoped (board locator, not full page), so it runs
+  // against the board element rather than the whole admin shell. The axe
+  // `best_practice` tag-group is intentionally excluded (D-09): rules like
+  // `region` (full-page landmark wrapping) would fail on the admin shell's
+  // `<header>` layout, which is intentional Phoenix/LiveView structure rather
+  // than a shipped WCAG regression signal for this lane.
   const { violations } = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa'])
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();
   const detail =
     violations.length === 0 ? '' : JSON.stringify(violations).slice(0, 2000);
