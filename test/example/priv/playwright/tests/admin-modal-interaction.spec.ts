@@ -103,7 +103,11 @@ test.describe('ConfirmDialog modal interaction (PAGE-03 APG gates)', () => {
 
     // ── Gate 2: Initial focus is on Cancel button ─────────────────────────────
     // The ConfirmDialog hook focuses the Cancel button (first focusable) on mount.
-    const cancelButton = dialog.getByRole('button', { name: /cancel/i });
+    // Select by the stable [data-sg-confirm-cancel] contract the hook itself uses
+    // (mounted()/_cancel() both querySelector it) rather than by visible label —
+    // the label is action-specific copy (e.g. "Keep sessions", set in 188-04) and
+    // must not couple this APG gate to microcopy.
+    const cancelButton = dialog.locator('[data-sg-confirm-cancel]');
     await expect(cancelButton).toBeVisible();
     // Assert activeElement is the Cancel button (or inside the cancel button).
     const isCancelFocused = await page.evaluate(() => {

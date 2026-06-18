@@ -794,14 +794,18 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        # D-04, D-27: the three admin behavior specs are the canonical
-        # Phase 31 browser contract. They run only on the `chromium`
-        # project per wave 1's partitioning (playwright.config.ts).
+        # D-04, D-27: the canonical Phase 31 browser contract specs. They run
+        # only on the `chromium` project per wave 1's partitioning
+        # (playwright.config.ts). admin-modal-interaction (PAGE-03 ConfirmDialog
+        # APG gates) is wired in here so the ConfirmDialog hook's
+        # focus-trap/Escape/focus-return behavior is actually guarded — it was
+        # authored in phase 189 but previously never run in CI.
         run: |
           npx playwright test \
             tests/admin-user-operations.spec.ts \
             tests/impersonation.spec.ts \
             tests/admin-audit.spec.ts \
+            tests/admin-modal-interaction.spec.ts \
             --project=chromium
       - name: Run admin checkpoints (chromium, mobile, dark-chromium)
         working-directory: test/example/priv/playwright
