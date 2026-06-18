@@ -45,6 +45,32 @@ defmodule Sigra.Admin.GlossaryTest do
     end
   end
 
+  describe "strip_non_copy_lines regression — action= human copy" do
+    test "action=\"...\" lines with human copy survive stripping and are scanned" do
+      # Build a synthetic indexed_lines list in memory (no file I/O).
+      # "logins" is a banned term (canonical: "sessions") — it should be caught
+      # when it appears inside an action="..." component attribute value.
+      indexed_lines = [{"          action=\"Review logins\"", 99}]
+
+      # The line must NOT be stripped — action="{" is stripped, not action="..."
+      surviving = strip_non_copy_lines(indexed_lines)
+      assert surviving != [], "Expected action=\"...\" line to survive strip_non_copy_lines/1"
+
+      # The surviving line must trigger a banned-term violation for "logins"
+      violations =
+        Enum.flat_map(surviving, fn {line, _line_num} ->
+          banned_terms()
+          |> Enum.flat_map(fn {pattern, _canonical, _description} ->
+            regex = Regex.compile!(pattern, [:caseless])
+            Regex.scan(regex, line) |> Enum.map(fn [matched | _] -> matched end)
+          end)
+        end)
+
+      assert Enum.any?(violations, &String.match?(&1, ~r/logins/i)),
+             "Expected banned term 'logins' to be caught in action=\"...\" value, got: #{inspect(violations)}"
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # Core helpers
   # ---------------------------------------------------------------------------
@@ -169,8 +195,12 @@ defmodule Sigra.Admin.GlossaryTest do
     # Exclude lines that have visible text between HTML tags (e.g. <h2 class="...">Text</h2>)
     # so that headings/labels with class= attributes are still scanned for banned terms.
     ~r/class=(?!.*>\s*[A-Za-z][^<]+<)/,
-    # URL / event / input name HTML attributes
-    ~r/(href|action|phx-\w+|name=|input\s+.*name)=/,
+    # URL / event HTML attributes — strip Elixir-expression form actions (action={...})
+    # and href/phx-* attrs; but leave action="..." string literals live so component
+    # copy values (e.g. action="Review users") are scanned for banned terms.
+    ~r/(href=|action=\{|phx-\w+=)/,
+    # Input name attributes
+    ~r/(name=|input\s+.*name)=/,
     # Elixir pipeline expressions
     ~r/\|>/,
     # Regex literals inside source
