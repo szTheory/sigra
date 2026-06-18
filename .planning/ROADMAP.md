@@ -348,7 +348,7 @@ Plans:
   2. A GOV.UK plain-language pass yields a committed one-term-per-concept glossary with no synonym drift across pages.
   3. Empty-state, success, and warning copy is consistent across all admin surfaces, and the ledger is raised.
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 
 **Wave 1**
 
@@ -360,7 +360,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 191-03-PLAN.md — Quality ledger: add branding-live L3 row + D9/D10 axis re-scores
+- [x] 191-03-PLAN.md — Quality ledger: add branding-live L3 row + D9/D10 axis re-scores
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
