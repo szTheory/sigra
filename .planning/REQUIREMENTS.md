@@ -110,4 +110,4 @@
 | PAGE-01..05 | 189 | pending |
 | FLOW-01..03, DATA-01 | 190 | pending |
 | COPY-01..03 | 191 | complete |
-| GATE-01..03 | 192 | pending |
+| GATE-01..03 | 192 | complete |
