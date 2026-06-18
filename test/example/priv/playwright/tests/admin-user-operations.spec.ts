@@ -116,7 +116,7 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     // the list is empty afterward.
     const revokeSession = page.getByRole('button', { name: 'Revoke session' });
     const confirmPrompt = page.getByText(
-      `Revoke this session for ${targetEmail} in Global scope? The user will need to sign in again.`,
+      `Revoke this session for ${targetEmail}? This signs them out of that browser or device.`,
     );
 
     while ((await revokeSession.count()) > 0) {
