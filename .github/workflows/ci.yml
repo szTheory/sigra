@@ -165,6 +165,7 @@ jobs:
           version-file: .tool-versions
           version-type: strict
       - name: Cache library deps
+        id: deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
@@ -189,6 +190,30 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix test
+      - name: CI run summary
+        if: always()
+        run: |
+          {
+            echo "## library_tests"
+            echo "- elixir: $(elixir --version | tail -1)"
+            echo "- otp: $(erl -noshell -eval 'io:format("~s", [erlang:system_info(otp_release)]), halt().')"
+            echo "- schedulers_online: $(elixir -e 'IO.write(System.schedulers_online())')"
+            echo "- deps cache hit: ${{ steps.deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Test timing summary
+        if: always()
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          {
+            echo "## Slowest tests"
+            echo '```'
+            mix test --slowest 10 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Check docs build cleanly
         run: mix docs --warnings-as-errors
 
@@ -716,6 +741,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
       - name: Cache example deps
+        id: example_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
