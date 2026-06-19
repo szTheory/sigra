@@ -22,8 +22,10 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
 
     assert readme =~ "Pick your lane"
 
-    assert readme =~
-             "| **Evaluating** | Start with the [Demo Showcase](guides/introduction/demo-showcase.md)"
+    # The Evaluating row now leads with the one-command demo, then routes to the
+    # same Demo Showcase lane (funnel guarantee preserved; lead-in updated).
+    assert readme =~ "| **Evaluating** | Run `scripts/uat/up.sh`"
+    assert readme =~ "[Demo Showcase](guides/introduction/demo-showcase.md)"
 
     assert readme =~ "Troubleshooting install"
 
@@ -41,7 +43,10 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
 
     assert showcase =~ "scripts/uat/up.sh"
     assert showcase =~ "scripts/uat/status.sh"
-    assert showcase =~ "printed `/demo/credentials` URL"
+    # The demo now auto-opens the /demo/credentials landing (was: open the printed
+    # URL). The evaluator-lands-on-/demo/credentials guarantee is unchanged.
+    assert showcase =~ "auto-opens"
+    assert showcase =~ "`/demo/credentials`"
     assert showcase =~ "mix setup && mix phx.server"
 
     for email <- [

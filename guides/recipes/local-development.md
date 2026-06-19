@@ -84,7 +84,7 @@ Save a `test/example` template or a `lib/` source file and it hot-reloads in the
 
 The shared proxy is what keeps multiple Elixir apps (each with its own admin UI) out of each other's way:
 
-- **One global Traefik** (`scripts/dev-proxy/up.sh`, auto-started) owns `127.0.0.1:80` and routes every project's `.localhost` hostname — so Sigra and sibling libraries coexist without anyone reserving port 80 or 4000.
+- **One global Traefik** (`scripts/dev-proxy/up.sh`, auto-started) owns `127.0.0.1:80` and routes every project's `.localhost` hostname over the shared `proxy` Docker network — so Sigra and sibling libraries coexist without anyone reserving port 80 or 4000.
 - **Each checkout/branch gets a unique host** (`sigra-<branch>-<hash>.localhost`), derived so two branches or worktrees never collide. (Two Traefik routers with the *same* host would silently round-robin between them — the unique-by-construction host avoids that.)
 - **`http://sigra.localhost` is claim-based.** The first stack to claim it — on **any** branch, not just the default — gets the friendly alias; everyone else keeps their unique per-checkout host. So you still get the clean URL on a feature branch.
 - **Per-host cookie jars.** A session on `sigra.localhost` is *not* shared with `sigra-feature-x.localhost`. That's a feature for auth testing, not a bug.
