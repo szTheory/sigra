@@ -203,6 +203,9 @@ test repo actually reads — `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_PORT`,
 `SIGRA_TEST_PG_USERNAME`, `SIGRA_TEST_PG_PASSWORD`, `SIGRA_TEST_PG_DATABASE` —
 not the libpq `PG*` vars. The UAT demo stack (`scripts/uat/up.sh`) runs its own
 separate, persistent Postgres for demo work; don't use it as the test database.
+`scripts/uat/up.sh` with no flags is now a single hands-off command — it boots the
+Dockerized demo behind shared Traefik with live reload, health-gates the URL, and
+auto-opens `/demo/credentials` (no second terminal; `--dev` for the host-run path).
 
 The install golden tests (`test/sigra/install/golden_diff_test.exs` and the
 other `mix sigra.install` fixtures) require the **phx_new 1.8.7** archive

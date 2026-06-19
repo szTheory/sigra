@@ -18,7 +18,7 @@
 
 | You are… | Do this first |
 |----------|----------------|
-| **Evaluating** | Start with the [Demo Showcase](guides/introduction/demo-showcase.md), run the Vaultr example app flow, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
+| **Evaluating** | Run `scripts/uat/up.sh` — one command boots the seeded Vaultr demo behind Traefik and auto-opens it (no second terminal). See the [Demo Showcase](guides/introduction/demo-showcase.md) for the guided walkthrough, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
 | **Greenfield Phoenix app** | Read [Installation](guides/introduction/installation.md), then follow [Getting started](guides/introduction/getting-started.md) for first-run auth flows. |
 | **Existing Sigra app / upgrade** | Follow [Upgrading to v1.0](guides/introduction/upgrading-to-v1.0.md) for the operational preflight, generated-host review, and rollback path. |
 | **Migrating from another auth stack** | Use [Migrating from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) and [Migrating from Pow, Guardian, and Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) to choose the right cutover lane. |

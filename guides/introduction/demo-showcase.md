@@ -10,7 +10,7 @@ Recommended path from the Sigra repo root:
 scripts/uat/up.sh
 ```
 
-The script starts a project-scoped Postgres container on available localhost ports, creates and migrates the demo database, seeds the personas, and prints the exact Phoenix server command. Run that printed command in a second terminal, then open the printed `/demo/credentials` URL. That page is the first live stop and shows the current seeded personas, emails, and passwords.
+That's the whole command — it opens itself. It starts a project-scoped Postgres, builds and boots the demo behind the shared Traefik proxy, waits until the app actually responds, then **auto-opens** the `/demo/credentials` page (no second terminal). That page is the first live stop and shows the current seeded personas, emails, and passwords. It also prints grouped auth/admin/ops routes to copy-paste. (Working on Sigra and want the host-run path or the full flag list? See [Local development with Docker](../recipes/local-development.html).)
 
 Need the URLs again later?
 

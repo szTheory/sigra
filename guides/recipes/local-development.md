@@ -9,9 +9,9 @@ If you just want to *install Sigra into your own app*, you want [Installation](.
 ## Gameplan (TL;DR)
 
 1. **Tests:** `scripts/db/up.sh` → `direnv allow` (once) → `mix test`. A throwaway Postgres on a random port; nothing to configure.
-2. **Demo app:** `scripts/uat/up.sh` (host-run, live reload) — or `scripts/uat/up.sh --proxy` for a stable `http://…localhost` URL through the shared proxy.
+2. **Demo app:** `scripts/uat/up.sh` — **one command.** It builds + boots the demo behind the shared Traefik proxy with live reload, waits until the app actually responds, auto-opens `/demo/credentials`, and prints grouped auth/admin/ops routes. No second terminal.
 3. **Read the printout.** Both scripts print the exact URLs, routes, and commands to copy-paste.
-4. **Iterate.** Host-run reloads on save. The Docker demo path rebuilds from a layer cache — style edits never re-download deps.
+4. **Iterate.** Save a template or `lib/` source and it hot-reloads in the running container (bind-mount + inotify) — no image rebuild, and style edits never re-download deps. Prefer the raw host-run path? Use `--dev`.
 5. **Tear down:** `scripts/db/down.sh` and `scripts/uat/down.sh`.
 
 ## What this gives you / what it doesn't
@@ -51,29 +51,44 @@ How it works: the container publishes Postgres on a **random** host port (so it 
 
 ## Running the demo app
 
+One command does everything:
+
 ```bash
 scripts/uat/up.sh
 ```
 
-This starts a project-scoped Postgres, creates/migrates/seeds the `example_dev` database, and prints the Phoenix server command plus every key URL. Phoenix runs **on the host** here, so saving a file live-reloads — this is the day-to-day development path. Run the printed `iex -S mix phx.server` command, then open the printed `/demo/credentials` URL.
+That single command:
 
-## Stable URLs: the shared-proxy workflow
+1. starts a project-scoped Postgres and creates/migrates/seeds the `example_dev` database,
+2. builds + boots the demo **as a container behind the shared Traefik proxy** (bringing the proxy up automatically if it isn't running), with the repo **bind-mounted for live reload**,
+3. **waits until the app actually responds** (a readiness probe — the URL is never printed as live while it's still `STARTING`),
+4. **auto-opens** `http://…localhost/demo/credentials`, and
+5. prints grouped **auth / admin / ops** routes to copy-paste (sign in as `admin@demo.vaultr.test` for the admin routes).
 
-When you want a real hostname instead of `127.0.0.1:<random-port>` — and you're running several apps at once — use the shared proxy:
+Save a `test/example` template or a `lib/` source file and it hot-reloads in the running container — no image rebuild. There's **no second terminal**: the server is already up by the time the script returns.
 
-```bash
-scripts/uat/up.sh --proxy
-```
+### Flags
 
-This builds the demo app as a container, attaches it to the shared `proxy` Docker network, and prints a URL like `http://sigra-main-1a2b3c.localhost`. One global Traefik (`scripts/dev-proxy/up.sh`, brought up automatically if absent) owns `127.0.0.1:80` and routes every project's `.localhost` hostname — so Sigra, and sibling libraries, coexist without anyone reserving port 80 or 4000.
+| Flag | What it does |
+|---|---|
+| (none) / `--proxy` | The default: Dockerized demo behind shared Traefik, live reload, health-gated, auto-open. `--proxy` is just an explicit alias of the default. |
+| `--dev` / `--host` | Host-run Phoenix instead of the container — fastest live reload, no Docker app build. Starts + health-gates the server for you, in the background. |
+| `--attach` / `--iex` | Host-run in the **foreground**, bound to an IEx shell (Ctrl-C twice to stop). Implies the host-run path. |
+| `--no-watch` | Proxy mode without the bind-mount live-reload override (apply source changes with `--refresh-code`). |
+| `--no-open` | Don't auto-open the browser when the app is ready. |
+| `--reset` | Drop and recreate the demo database first. |
+| `--no-seed` | Skip seeding the demo personas. |
+| `--private-traefik` | Host-run fallback behind a project-private Traefik on `:18080` (no shared `:80`). |
 
-A few things worth knowing:
+### Running several Sigra-family libs at once
 
-- **Each checkout/branch gets a unique host** (`sigra-<branch>-<hash>.localhost`), derived so two branches or worktrees never collide. (Two Traefik routers with the *same* host would silently round-robin between them — the unique-by-construction host avoids that entirely.)
-- **Your primary checkout also answers on `http://sigra.localhost`** — a friendly alias attached only when you're on the default branch and no other stack already holds it. A second branch doesn't fail; it just keeps its own unique host.
+The shared proxy is what keeps multiple Elixir apps (each with its own admin UI) out of each other's way:
+
+- **One global Traefik** (`scripts/dev-proxy/up.sh`, auto-started) owns `127.0.0.1:80` and routes every project's `.localhost` hostname — so Sigra and sibling libraries coexist without anyone reserving port 80 or 4000.
+- **Each checkout/branch gets a unique host** (`sigra-<branch>-<hash>.localhost`), derived so two branches or worktrees never collide. (Two Traefik routers with the *same* host would silently round-robin between them — the unique-by-construction host avoids that.)
+- **`http://sigra.localhost` is claim-based.** The first stack to claim it — on **any** branch, not just the default — gets the friendly alias; everyone else keeps their unique per-checkout host. So you still get the clean URL on a feature branch.
 - **Per-host cookie jars.** A session on `sigra.localhost` is *not* shared with `sigra-feature-x.localhost`. That's a feature for auth testing, not a bug.
 - **Firefox / Safari / `curl`** don't resolve `*.localhost`. Use the printed **RAW FALLBACK** `http://127.0.0.1:<port>` for those.
-- A project-private fallback proxy (no shared :80) is available via `scripts/uat/up.sh --private-traefik`.
 
 ## How the Docker build caches your changes
 
@@ -95,8 +110,9 @@ That does a cache-aware `docker compose build` + restart — not a from-scratch 
 
 ## Iterating on code
 
-- **Day-to-day:** use host-run (`scripts/uat/up.sh` with no flag). Save a file → Phoenix live-reloads. No Docker rebuild in the loop.
-- **Demo / parity / sharing a URL:** use `--proxy`, and `--refresh-code` to pick up source changes.
+- **Day-to-day (default):** `scripts/uat/up.sh`. Save a `test/example` template or `lib/` source → it hot-reloads in the container (bind-mount + inotify). No image rebuild in the loop, and no second terminal.
+- **Fastest reload:** `scripts/uat/up.sh --dev` runs Phoenix on the host directly — no container layer at all. Tail `tmp/uat-phoenix.log` for output, or `--attach` to drop into IEx.
+- **No bind-mount:** `--no-watch` runs the container without the live-reload mount; pick up source changes with `scripts/uat/up.sh --refresh-code` (cache-aware rebuild + restart).
 
 ## Teardown
 
@@ -111,7 +127,9 @@ scripts/uat/down.sh       # stop the demo stack (--purge to drop the seeded demo
 - **`mix test` connects to the wrong DB** — confirm `tmp/db.env` is loaded (`direnv allow`, or `source tmp/db.env`). Unloaded, it defaults to `localhost:5432` by design.
 - **`http://sigra.localhost` doesn't resolve** — you're likely in Firefox/Safari/`curl`; use the printed RAW FALLBACK `127.0.0.1:<port>`.
 - **Port 80 already owned** — a sibling project's proxy already holds it; that's fine, Sigra routes through it. To run your own, set `SIGRA_DEV_PROXY_HTTP_PORT`.
-- **Browser looks stale after a Sigra source change (`--proxy`)** — run `scripts/uat/up.sh --refresh-code`.
+- **Demo URL says `STARTING — not yet responding`** — the readiness probe hasn't seen a 200 yet. Give it a few seconds; if it persists, check the logs. Host-run (`--dev`) logs are in `tmp/uat-phoenix.log`; container logs are `docker compose … logs -f web` (the exact command is printed under COMMANDS).
+- **Hot reload feels slow on macOS** — Docker bind-mount file-watching has noticeable latency on macOS. For the tightest save→reload loop, use `scripts/uat/up.sh --dev` (host-run, no bind mount).
+- **Browser looks stale after a source change with `--no-watch`** — you opted out of the live-reload mount; run `scripts/uat/up.sh --refresh-code`.
 - **`different value ... for ExampleWeb.Endpoint`** — the image was built with different bind/port than runtime; rebuild with `--refresh-code`.
 
 ## Where to go next

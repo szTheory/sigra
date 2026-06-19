@@ -28,13 +28,26 @@ The rest of this runbook assumes the stack is already up.
 The one-liner, from the repo root:
 
 ```bash
-scripts/uat/up.sh            # host-run demo; or `--proxy` for a stable URL
+scripts/uat/up.sh            # default: Dockerized demo behind Traefik, live reload,
+                             #   health-gated, auto-opens /demo/credentials
 ```
 
-It starts Postgres, prepares the `example_dev` database, and prints every key
-URL/route, the server command, the mailbox (`/dev/mailbox`), and teardown
-(`scripts/uat/down.sh`). Use the printed app URL for the browser steps below
-unless a step calls out a fixed external-provider callback URL.
+By default this builds + boots the demo as a container behind the shared Traefik
+proxy with live reload, waits until it actually responds, auto-opens
+`/demo/credentials`, and prints every key URL/route (grouped auth/admin/ops), the
+mailbox (`/dev/mailbox`), and teardown (`scripts/uat/down.sh`). Useful flags:
+
+| Flag | Effect |
+| ---- | ------ |
+| (none) / `--proxy` | Default Dockerized shared-Traefik path (`--proxy` is an explicit alias). |
+| `--dev` / `--host` | Host-run Phoenix (fastest live reload), started + health-gated for you. |
+| `--attach` / `--iex` | Host-run in the foreground, bound to an IEx shell. |
+| `--no-watch` | Proxy mode without the bind-mount live reload. |
+| `--no-open` | Don't auto-open the browser. |
+| `--private-traefik` | Host-run fallback behind a private Traefik on `:18080`. |
+
+Use the printed app URL for the browser steps below unless a step calls out a
+fixed external-provider callback URL.
 
 ---
 
