@@ -10,10 +10,15 @@
 # for the per-item walkthrough.
 #
 # Usage:
-#   scripts/uat/up.sh                  # postgres + host-run Phoenix URL/env
+#   scripts/uat/up.sh                  # DEFAULT: Dockerized demo behind shared Traefik,
+#                                      #   live reload, health-gated, auto-opens /demo/credentials
+#   scripts/uat/up.sh --proxy          # explicit alias of the default (shared Traefik)
+#   scripts/uat/up.sh --dev / --host   # host-run Phoenix (fast live reload, no Docker app build)
+#   scripts/uat/up.sh --attach / --iex # host-run in the foreground bound to an IEx shell
+#   scripts/uat/up.sh --no-watch       # proxy mode without the bind-mount live-reload override
+#   scripts/uat/up.sh --no-open        # do not auto-open the demo URL when ready
 #   scripts/uat/up.sh --reset          # drop and recreate the database first
 #   scripts/uat/up.sh --no-seed        # skip demo persona seeding
-#   scripts/uat/up.sh --proxy          # Dockerized app via shared dev_proxy Traefik
 #   scripts/uat/up.sh --private-traefik # host-run fallback via private Traefik on :18080
 #   scripts/uat/up.sh --status         # reprint URLs/env for the last started stack
 #   scripts/uat/up.sh --refresh-code   # recompile the Dockerized Sigra path dependency
@@ -37,6 +42,20 @@ PRINT_ENV_ONLY=0
 REFRESH_CODE_ONLY=0
 ENABLE_SHARED_PROXY=0
 ENABLE_PRIVATE_TRAEFIK=0
+# New default-mode + UX flags (see Usage). The no-flag default is now the
+# Dockerized shared-Traefik path WITH live reload, auto-open, and a readiness gate.
+ENABLE_DEV_HOST=0
+SIGRA_UAT_OPEN="${SIGRA_UAT_OPEN:-1}"
+ENABLE_ATTACH=0
+ENABLE_WATCH=1
+# Readiness state — set by wait_for_http; print_status branches the PRIMARY URL
+# line on it so a STARTING server is never advertised as live.
+SIGRA_UAT_READY=0
+# Host-run server PID + log paths (only written in --dev mode).
+SIGRA_UAT_HOST_PID_FILE="${REPO_ROOT}/tmp/uat-phoenix.pid"
+SIGRA_UAT_HOST_LOG_FILE="${REPO_ROOT}/tmp/uat-phoenix.log"
+# Watch override file applied by default in proxy mode (disable with --no-watch).
+WATCH_FILE="${REPO_ROOT}/scripts/uat/docker-compose.watch.yml"
 
 cyan() { printf '\033[36m%s\033[0m\n' "$*"; }
 green() { printf '\033[32m%s\033[0m\n' "$*"; }
@@ -74,6 +93,9 @@ SIGRA_UAT_PROXY_ROUTER=$(shell_quote "${SIGRA_UAT_PROXY_ROUTER:-}")
 SIGRA_UAT_PROXY_PORT=$(shell_quote "${SIGRA_UAT_PROXY_PORT:-}")
 SIGRA_UAT_PROXY_URL=$(shell_quote "${SIGRA_UAT_PROXY_URL:-}")
 SIGRA_UAT_RAW_URL=$(shell_quote "${SIGRA_UAT_RAW_URL:-${SIGRA_EXAMPLE_URL}}")
+SIGRA_UAT_READY=$(shell_quote "${SIGRA_UAT_READY:-0}")
+SIGRA_UAT_HOST_PID_FILE=$(shell_quote "${SIGRA_UAT_HOST_PID_FILE:-}")
+SIGRA_UAT_HOST_LOG_FILE=$(shell_quote "${SIGRA_UAT_HOST_LOG_FILE:-}")
 SIGRA_UAT_WEB_HOST_PORT=$(shell_quote "${SIGRA_UAT_WEB_HOST_PORT:-}")
 SIGRA_UAT_TRAEFIK_IMAGE=$(shell_quote "${SIGRA_UAT_TRAEFIK_IMAGE:-}")
 SIGRA_UAT_TRAEFIK_DYNAMIC_DIR=$(shell_quote "${SIGRA_UAT_TRAEFIK_DYNAMIC_DIR:-}")
@@ -141,6 +163,13 @@ print_status() {
   local compose_file="${SIGRA_UAT_COMPOSE_FILE:-${COMPOSE_FILE}}"
   local base="${SIGRA_EXAMPLE_URL}"
 
+  # Branch the primary-URL line on readiness so a STARTING server is never
+  # advertised as live.
+  local primary_line=" PRIMARY URL   ${base}"
+  if [[ "${SIGRA_UAT_READY:-0}" != "1" ]]; then
+    primary_line=" PRIMARY URL   ${base}   STARTING — not yet responding (see ${SIGRA_UAT_HOST_LOG_FILE:-tmp/uat-phoenix.log})"
+  fi
+
   # Optional alias + raw-fallback lines, shown only when meaningful.
   local alias_line="" raw_line="" server_line=""
   case "${SIGRA_UAT_PROXY_MODE:-none}" in
@@ -149,14 +178,16 @@ print_status() {
         alias_line=" ALIAS         http://${SIGRA_UAT_ALIAS_HOST}            (primary checkout)"
       fi
       raw_line=" RAW FALLBACK  ${SIGRA_UAT_RAW_URL}            (use in Firefox/Safari/curl — they don't resolve *.localhost)"
-      server_line=" Logs          ${SIGRA_UAT_SERVER_COMMAND}"
+      # Server is already running in the container — point at logs, not a run command.
+      server_line=" Logs          docker compose -p ${SIGRA_UAT_PROJECT} -f ${compose_file} --profile proxy logs -f web"
       ;;
     private-traefik)
       raw_line=" RAW FALLBACK  ${SIGRA_UAT_RAW_URL}            (host Phoenix port ${SIGRA_EXAMPLE_PORT})"
       server_line=" Server        ${SIGRA_UAT_SERVER_COMMAND}"
       ;;
     *)
-      server_line=" Server        ${SIGRA_UAT_SERVER_COMMAND}"
+      # Host-run (--dev): the server is already started in the background.
+      server_line=" Logs          tail -f ${SIGRA_UAT_HOST_LOG_FILE:-tmp/uat-phoenix.log}  ·  Attach IEx: ${SIGRA_UAT_SERVER_COMMAND}"
       ;;
   esac
 
@@ -166,7 +197,7 @@ print_status() {
  Sigra UAT  ·  project: ${SIGRA_UAT_PROJECT}
 ────────────────────────────────────────────────────────────
 
- PRIMARY URL   ${base}
+${primary_line}
 ${alias_line:+${alias_line}
 }${raw_line:+${raw_line}
 }
@@ -178,6 +209,14 @@ ${alias_line:+${alias_line}
    MFA / TOTP  ${base}/users/settings/mfa
    Sudo        ${base}/users/sudo
    Reactivate  ${base}/users/reactivation
+
+ ADMIN ROUTES  (sign in as admin@demo.vaultr.test)
+   Dashboard   ${base}/admin
+   Users       ${base}/admin/users
+   Audit       ${base}/admin/audit
+   Branding    ${base}/admin/auth-branding
+   Design      ${base}/admin/_design
+   Org-scoped  ${base}/admin/organizations/acme-corp
 
  OPS
    Mailbox     ${SIGRA_UAT_MAILBOX_URL}
@@ -429,9 +468,20 @@ setup_host_example() {
 }
 
 setup_docker_example() {
+  # Compose -f args: base file, plus the live-reload override by default
+  # (suppressed with --no-watch). The override bind-mounts the repo for hot
+  # reload and shadows compiled artifacts with named volumes (compile-env safe).
+  local -a compose_files=(-f "${COMPOSE_FILE}")
+  if [ "${ENABLE_WATCH}" -eq 1 ]; then
+    compose_files+=(-f "${WATCH_FILE}")
+    cyan "==> Live reload ON (bind-mount override; disable with --no-watch)"
+  else
+    yellow "==> --no-watch: bind-mount live reload disabled (rebuild with --refresh-code)"
+  fi
+
   cyan "==> Preparing Dockerized Vaultr example app"
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy stop web >/dev/null 2>&1 || true
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy build web
+  docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" --profile proxy stop web >/dev/null 2>&1 || true
+  docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" --profile proxy build web
 
   # Deps + sigra are already compiled into the image by Dockerfile.example, so the
   # one-time setup only prepares the database (no deps.get / no --force recompiles).
@@ -446,18 +496,88 @@ if [ '${SEED_DEMO}' = '1' ]; then
   mix run priv/repo/seeds.exs
 fi"
 
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy run --rm web sh -lc "${setup_script}"
+  docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" --profile proxy run --rm web sh -lc "${setup_script}"
 
   if [ "${SEED_DEMO}" -ne 1 ]; then
     yellow "==> --no-seed requested: demo personas were not seeded"
   fi
 
   cyan "==> Starting Dockerized Vaultr example app"
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy up -d web
+  # --wait blocks on the web healthcheck so a STARTING container isn't advertised.
+  docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" --profile proxy up -d --wait web
 
-  SIGRA_UAT_WEB_HOST_PORT="$(docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" port web 4000 | awk -F: 'END {print $NF}')"
+  SIGRA_UAT_WEB_HOST_PORT="$(docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" port web 4000 | awk -F: 'END {print $NF}')"
   if [[ -n "${SIGRA_UAT_WEB_HOST_PORT}" ]]; then
     SIGRA_UAT_RAW_URL="http://127.0.0.1:${SIGRA_UAT_WEB_HOST_PORT}"
+  fi
+
+  # Final readiness gate on the raw 127.0.0.1 URL (resolves everywhere).
+  wait_for_http "${SIGRA_UAT_RAW_URL}"
+}
+
+# Poll an HTTP URL until it answers 200 (or times out). Sets the SIGRA_UAT_READY
+# global from the result and logs accordingly — never exits non-zero, so a slow
+# boot degrades to a STARTING label in print_status instead of a hard failure.
+# Always probe the RAW 127.0.0.1:<published-port> URL (resolves in every browser,
+# bypasses *.localhost DNS).
+wait_for_http() {
+  local url="$1"
+  local timeout="${2:-60}"
+  local waited=0
+
+  cyan "==> Waiting for ${url} to respond (up to ${timeout}s)"
+  while [[ "${waited}" -lt "${timeout}" ]]; do
+    if curl -fsS --max-time 2 "${url}" >/dev/null 2>&1; then
+      SIGRA_UAT_READY=1
+      green "    Up — ${url} responded after ${waited}s"
+      return 0
+    fi
+    sleep 1
+    waited=$((waited + 1))
+  done
+
+  SIGRA_UAT_READY=0
+  yellow "    Not ready after ${timeout}s — ${url} is still starting (see ${SIGRA_UAT_HOST_LOG_FILE} for host-run logs)."
+  return 0
+}
+
+# Background host-run Phoenix in test/example with the same PG*/PORT/SIGRA_EXAMPLE_*
+# env the SIGRA_UAT_SERVER_COMMAND uses; log to tmp/uat-phoenix.log, PID to
+# tmp/uat-phoenix.pid so --status and down.sh can find it.
+start_host_server() {
+  mkdir -p "$(dirname "${SIGRA_UAT_HOST_LOG_FILE}")"
+  cyan "==> Starting host-run Phoenix (logs: ${SIGRA_UAT_HOST_LOG_FILE})"
+  (
+    cd "${EXAMPLE_DIR}"
+    PGHOST="${PGHOST}" PGPORT="${PGPORT}" PGUSER="${PGUSER}" PGPASSWORD="${PGPASSWORD}" \
+      PGDATABASE="${PGDATABASE}" PORT="${SIGRA_EXAMPLE_PORT}" \
+      SIGRA_EXAMPLE_BIND="${SIGRA_EXAMPLE_BIND}" SIGRA_EXAMPLE_URL="${SIGRA_EXAMPLE_URL}" \
+      mix phx.server
+  ) >"${SIGRA_UAT_HOST_LOG_FILE}" 2>&1 &
+  printf '%s' "$!" >"${SIGRA_UAT_HOST_PID_FILE}"
+}
+
+# Cheap TOCTOU guard: if the chosen host-run port got taken during setup, grab a
+# fresh free port and re-derive the dependent URLs. Only meaningful in none mode.
+ensure_port_free() {
+  if lsof -iTCP:"${SIGRA_EXAMPLE_PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
+    yellow "    Port ${SIGRA_EXAMPLE_PORT} got taken during setup; selecting another."
+    SIGRA_EXAMPLE_PORT="$(find_free_port)"
+    SIGRA_UAT_RAW_URL="http://127.0.0.1:${SIGRA_EXAMPLE_PORT}"
+    SIGRA_EXAMPLE_URL="${SIGRA_UAT_RAW_URL}"
+    export PORT="${SIGRA_EXAMPLE_PORT}"
+    export SIGRA_EXAMPLE_URL
+  fi
+}
+
+# Open the demo URL once the readiness probe has passed. Tolerant of a missing
+# opener (headless / CI) and of --no-open.
+maybe_open_browser() {
+  [[ "${SIGRA_UAT_OPEN}" = "1" && "${SIGRA_UAT_READY}" = "1" ]] || return 0
+  if command -v open >/dev/null 2>&1; then
+    open "${SIGRA_UAT_DEMO_URL}" >/dev/null 2>&1 || true
+  elif command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "${SIGRA_UAT_DEMO_URL}" >/dev/null 2>&1 || true
   fi
 }
 
@@ -473,6 +593,22 @@ while [[ $# -gt 0 ]]; do
       ;;
     --proxy)
       ENABLE_SHARED_PROXY=1
+      shift
+      ;;
+    --dev|--host)
+      ENABLE_DEV_HOST=1
+      shift
+      ;;
+    --attach|--iex)
+      ENABLE_ATTACH=1
+      shift
+      ;;
+    --no-watch)
+      ENABLE_WATCH=0
+      shift
+      ;;
+    --no-open)
+      SIGRA_UAT_OPEN=0
       shift
       ;;
     --private-traefik)
@@ -492,7 +628,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --help|-h)
-      sed -n '2,22p' "${BASH_SOURCE[0]}"
+      sed -n '2,27p' "${BASH_SOURCE[0]}"
       exit 0
       ;;
     *)
@@ -535,12 +671,16 @@ SIGRA_UAT_ALIAS_HOST="${SIGRA_UAT_ALIAS_HOST:-${SIGRA_UAT_PROXY_HOST}}"
 SIGRA_UAT_TRAEFIK_IMAGE="${SIGRA_UAT_TRAEFIK_IMAGE:-traefik:v3.7.1}"
 SIGRA_UAT_TRAEFIK_DYNAMIC_DIR="${SIGRA_UAT_TRAEFIK_DYNAMIC_DIR:-${REPO_ROOT}/tmp/uat-traefik}"
 
-if [[ "${ENABLE_SHARED_PROXY}" = "1" ]]; then
-  SIGRA_UAT_PROXY_MODE="shared"
-elif [[ "${ENABLE_PRIVATE_TRAEFIK}" = "1" ]]; then
+# Mode selection. The no-flag default is now the Dockerized shared-Traefik path
+# (was `none`). --private-traefik keeps its dedicated path; --dev/--host opts into
+# the host-run (`none`) path; --proxy is an explicit alias of the new default.
+if [[ "${ENABLE_PRIVATE_TRAEFIK}" = "1" ]]; then
   SIGRA_UAT_PROXY_MODE="private-traefik"
-else
+elif [[ "${ENABLE_DEV_HOST}" = "1" ]]; then
   SIGRA_UAT_PROXY_MODE="none"
+else
+  # Default, or explicit --proxy.
+  SIGRA_UAT_PROXY_MODE="shared"
 fi
 SIGRA_UAT_PROXY_ENABLED=0
 
@@ -575,16 +715,15 @@ case "${SIGRA_UAT_PROXY_MODE}" in
     # Safari / curl, which don't resolve *.localhost the way Chrome does.
     SIGRA_UAT_WEB_PORT="${SIGRA_UAT_WEB_PORT:-$(find_free_port)}"
     SIGRA_UAT_RAW_URL="http://127.0.0.1:${SIGRA_UAT_WEB_PORT}"
-    # Friendly alias only for the primary checkout: default branch AND nobody
-    # else currently claims sigra.localhost. Otherwise the alias stays equal to
-    # the (unique) primary host so its router is a harmless self-duplicate.
-    if is_default_branch && ! alias_claimed_by_other; then
+    # Friendly alias is claim-based (NOT default-branch-only): the first stack to
+    # claim sigra.localhost on ANY branch gets it, so a feature branch still earns
+    # the clean URL. If another stack already holds it, fall back to the (unique)
+    # primary host so this alias router is a harmless self-duplicate.
+    if ! alias_claimed_by_other; then
       SIGRA_UAT_ALIAS_HOST="$(alias_proxy_host)"
     else
       SIGRA_UAT_ALIAS_HOST="${SIGRA_UAT_PROXY_HOST}"
-      if is_default_branch; then
-        yellow "    Note: $(alias_proxy_host) is already claimed by another stack; using your unique host only."
-      fi
+      yellow "    Note: $(alias_proxy_host) is already claimed by another stack; using your unique host only."
     fi
     ensure_shared_proxy
     warn_about_shared_proxy
@@ -659,6 +798,25 @@ if [[ "${SIGRA_UAT_PROXY_MODE}" = "shared" ]]; then
 else
   SIGRA_UAT_SERVER_COMMAND="cd test/example && PGHOST=${PGHOST} PGPORT=${PGPORT} PGUSER=${PGUSER} PGPASSWORD=${PGPASSWORD} PGDATABASE=${PGDATABASE} PORT=${SIGRA_EXAMPLE_PORT} SIGRA_EXAMPLE_BIND=${SIGRA_EXAMPLE_BIND} SIGRA_EXAMPLE_URL=${SIGRA_EXAMPLE_URL} iex -S mix phx.server"
   setup_host_example
+
+  # Host-run path (--dev / mode none): actually start + health-gate Phoenix.
+  if [[ "${SIGRA_UAT_PROXY_MODE}" = "none" ]]; then
+    if [ "${ENABLE_ATTACH}" -eq 1 ]; then
+      # Foreground, terminal-bound IEx: hand the terminal to the server directly.
+      cyan "==> --attach: starting Phoenix in the foreground (IEx); Ctrl-C twice to stop"
+      cd "${EXAMPLE_DIR}"
+      exec env PGHOST="${PGHOST}" PGPORT="${PGPORT}" PGUSER="${PGUSER}" PGPASSWORD="${PGPASSWORD}" \
+        PGDATABASE="${PGDATABASE}" PORT="${SIGRA_EXAMPLE_PORT}" \
+        SIGRA_EXAMPLE_BIND="${SIGRA_EXAMPLE_BIND}" SIGRA_EXAMPLE_URL="${SIGRA_EXAMPLE_URL}" \
+        iex -S mix phx.server
+    else
+      ensure_port_free
+      SIGRA_UAT_MAILBOX_URL="${SIGRA_EXAMPLE_URL}/dev/mailbox"
+      SIGRA_UAT_DEMO_URL="${SIGRA_EXAMPLE_URL}/demo/credentials"
+      start_host_server
+      wait_for_http "${SIGRA_UAT_RAW_URL}"
+    fi
+  fi
 fi
 
 SIGRA_UAT_PLAYWRIGHT_COMMAND="cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=${SIGRA_EXAMPLE_URL} npx playwright test"
@@ -666,3 +824,4 @@ SIGRA_UAT_PLAYWRIGHT_COMMAND="cd test/example/priv/playwright && SIGRA_EXAMPLE_U
 write_state_file
 green "==> Wrote UAT env to ${STATE_FILE}"
 print_status
+maybe_open_browser

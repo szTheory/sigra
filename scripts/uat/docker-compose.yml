@@ -42,6 +42,15 @@ services:
       SIGRA_EXAMPLE_URL: "http://${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
     ports:
       - "${SIGRA_UAT_WEB_BIND:-127.0.0.1}:${SIGRA_UAT_WEB_PORT:-}:4000"
+    # Health-gate boot so `up -d --wait web` blocks until Phoenix actually serves
+    # the public, no-auth dev route. The slim image ships wget; if a future base
+    # drops it, swap to the curl form proven elsewhere in these scripts.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4000/demo/credentials >/dev/null 2>&1 || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
     networks:
       - default
       - proxy

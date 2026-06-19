@@ -1,0 +1,46 @@
+# Live-reload override for the Dockerized demo (proxy mode), applied BY DEFAULT
+# by scripts/uat/up.sh unless --no-watch is passed. Merged on top of
+# docker-compose.yml via `-f docker-compose.yml -f docker-compose.watch.yml`.
+#
+# What it does: bind-mounts the repo root over the image's /app so saving a
+# template / .heex / lib/ source hot-reloads in the running container (the image
+# ships inotify; Phoenix code-reloader picks the change up). Named volumes shadow
+# the compiled artifacts (_build, deps) at BOTH /app and /app/test/example so the
+# host source tree never clobbers the in-image, glibc-compiled NIFs (argon2 /
+# comeonin) and prebuilt deps.
+#
+# COMPILE-ENV INVARIANT (load-bearing — do NOT break):
+#   This override is bind-mount + named-volume shadowing ONLY. It MUST NOT add an
+#   `environment:` block to the web service — in particular it must not set or
+#   override the example bind address, the HTTP port, any Postgres connection var,
+#   or the example URL. The in-container recompile (triggered by the bind-mounted
+#   source) reads the compile-time values baked into the image by
+#   Dockerfile.example; if the runtime values here diverged from those, Phoenix's
+#   validate_compile_env would abort boot. Keep this file env-free for the web
+#   service — inherit every environment value from docker-compose.yml unchanged.
+services:
+  web:
+    volumes:
+      # Repo root → image WORKDIR is /app/test/example; mount the whole repo so
+      # both lib/ (sigra source) and test/example/ edits live-reload.
+      - "../..:/app:cached"
+      # Shadow compiled artifacts so host files never clobber in-image builds/NIFs.
+      - "build_root:/app/_build"
+      - "deps_root:/app/deps"
+      - "build_example:/app/test/example/_build"
+      - "deps_example:/app/test/example/deps"
+    networks:
+      - default
+      - proxy
+
+volumes:
+  build_root:
+  deps_root:
+  build_example:
+  deps_example:
+
+networks:
+  proxy:
+    name: ${SIGRA_UAT_PROXY_NETWORK:-proxy}
+    external: true
+  default:
