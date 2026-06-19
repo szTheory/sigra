@@ -51,6 +51,36 @@ signal or trading trust for speed.
 6. **Consolidate micro-jobs** — fold the trivial guard jobs into one cheap "fast checks" job to
    cut per-job runner startup overhead, while preserving stable required-check names.
 
+### Session-discovered evidence (2026-06-19, debugging PR #54)
+
+Three concrete, repo-specific findings surfaced while getting the v1.39 ship green —
+ground truth that sharpens the theses above:
+
+1. **The ~25m critical path is a job-level SERIALIZATION, not just slow jobs (likely #1 win).**
+   `example_playwright_smoke` declares `needs: [release_ref_guard, library_tests]`
+   (`.github/workflows/ci.yml`), so the two longest jobs run **sequentially**: `library_tests`
+   (~16m) must finish before the full-lifecycle Playwright lane (~9m) even starts. The
+   Playwright lane boots its own example app + Postgres service and consumes **no** output
+   from `library_tests`, so that `needs` edge appears gratuitous. Dropping it (keep only
+   `release_ref_guard`) likely cuts wall-clock from ~25m toward ~16m for one-line change —
+   evaluate first.
+
+2. **Fail-fast inside a multi-step job hides downstream failures (DX + iteration-cost tax).**
+   `example_playwright_smoke` runs ~6 sequential `npx playwright test` steps in one shared
+   booted app; a failure in an early step masks all later steps. This session that cost
+   **3 full ~25m CI round-trips** to surface three independent stale assertions in ONE spec
+   (`admin-user-operations.spec.ts`), then a 4th round-trip to surface the design-gallery
+   step. Weigh splitting these seams into parallel jobs, or a run-all-then-report harness
+   (`--max-failures=0` + aggregate), against the current one-shared-boot cost saving.
+
+3. **Visual-snapshot lanes are environment-fragile and were never CI-validated.**
+   The net-new admin-design gallery boards hard-fail on image *dimension* mismatch — CI's
+   dev-mode boot renders boards ~20–53px taller than the local capture harness (brand
+   webfont almost certainly not loading → fallback line-heights). Now demoted to
+   `continue-on-error` and tracked in **`SEED-006`**. The audit should treat gallery lane
+   placement (PR vs nightly) and deterministic visual capture (font load + in-CI recapture)
+   as in-scope.
+
 P-levels, tradeoffs, patches, and the broader audit (caching keys, `mix test --slowest`,
 dialyzer/credo decisions, matrix/trigger redesign, security/release hardening) are the audit
 milestone's job — see the companion playbook embedded below.
@@ -84,7 +114,9 @@ recommendations + concrete patches as stepwise PRs.
 ## Pointers
 - Baseline source: `.github/workflows/ci.yml`; PR #54 runs `27783442056` / `27785703122`.
 - Related: `[[reference_sigra_docker_dx]]` (the Docker DX overhaul that landed alongside this);
-  `SEED-004` (phx_new pin — a CI determinism decision the audit must respect).
+  `SEED-004` (phx_new pin — a CI determinism decision the audit must respect);
+  `SEED-006` (admin-design gallery CI fragility — the gallery lane's placement and
+  deterministic visual capture are part of this audit's surface).
 - Registered as a future strategic-bet candidate in `.planning/MILESTONE-ARC.md` (Candidates → `### future-idea`).
 
 ---
