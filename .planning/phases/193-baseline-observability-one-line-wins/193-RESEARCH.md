@@ -410,17 +410,19 @@ expect(Math.abs(bb - eb)).toBeLessThanOrEqual(2);
 
 All other claims are `[VERIFIED]` against live `ci.yml`, real `gh run` data, or in-repo files.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How many comparable green full-CI runs exist for a meaningful p95?**
    - What we know: `gh run list` shows many recent `chore:` push runs; REQUIREMENTS cites `27846034918`, SEED-005 cites `27783442056`/`27785703122`.
    - What's unclear: whether ≥5 green, same-trigger, full runs exist for a real p95 vs a point estimate.
    - Recommendation: gather what exists, label sample size, use the longest as the conservative baseline. Don't block BASE-01 on a perfect p95.
+   - **RESOLVED:** Plan 193-01 Task 1 enforces this — its action + acceptance criteria mandate an explicit sample-size note and forbid presenting p95 as if many runs exist (`n<5` ⇒ labeled point estimate, per RESEARCH Pitfall 2). BASE-01 is not blocked on a perfect p95.
 
 2. **Does the line-890 `afterBackgroundColor`/`expectedOnAccent` exact check also flake?**
    - What we know: it's the same exact-`toBe`-color family as the line-885 assertion the todo cites.
    - What's unclear: the todo only evidences the line-885 `backgroundColor` flake.
    - Recommendation: fix only the evidenced assertion (885-887); apply the same tolerance to 890-892 only if it independently flakes (don't over-edit).
+   - **RESOLVED:** Plan 193-02 Task 1 scopes the fix to the evidenced assertion (lines 885-887) only and explicitly leaves 890-892 untouched. The same tolerance is applied to 890-892 only if it independently flakes later.
 
 ## Environment Availability
 
