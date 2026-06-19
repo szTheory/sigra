@@ -264,10 +264,10 @@ The remaining meaningful work clusters are:
 
 > **Meta-framing (graduated from 137-LEARNINGS, 2026-05-29):** the honest bottleneck for "is Sigra done?" is **absence of real adopters, not missing features**. Demo Showcase is the best remaining *build*; the move after it is non-code — a 1.0 Hex cut + adoption push. Weight that above further feature wedges.
 
-### future-idea
+### ACTIVE — promoted to milestone v1.40 (2026-06-19)
 
-**ID:** `CI-PERF` — **CI/CD Pipeline Performance Audit** (filed 2026-06-18; see `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md`)
-**Lane:** Maintenance / trust (CI) + contributor DX. **Priority:** Medium-High, but **not** correctness — CI is green, just slow (~17–30m PR wall-clock; long poles: `library_tests` ~16m unpartitioned, `library_tests_dep_off` ~13m full rerun, two Playwright lanes ~8–13m). Defer until a maintenance window; drive with the verbatim companion playbook in the seed. Guardrails: keep high-value gates, cut only lowest-signal/flaky, deterministic, cache correctly, never trade trust for speed.
+**ID:** `CI-PERF` — **CI/CD Pipeline Performance Audit** (filed 2026-06-18; promoted to active milestone **v1.40 CI-PERF** on 2026-06-19; see `.planning/seeds/SEED-005-ci-cd-pipeline-performance-audit.md` + `.planning/REQUIREMENTS.md`)
+**Lane:** Maintenance / trust (CI) + contributor DX. **Priority:** Medium-High, but **not** correctness — CI is green, just slow (~17–30m PR wall-clock; long poles: `library_tests` ~16m unpartitioned, `library_tests_dep_off` ~13m full rerun, two Playwright lanes ~8–22m). Driven by the verbatim companion playbook in the seed. Guardrails: keep high-value gates, cut only lowest-signal/flaky, deterministic, cache correctly, never trade trust for speed.
 
 ## The "Diminishing Returns" Wall (Permanent Non-Goals)
 

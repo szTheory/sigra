@@ -32,6 +32,16 @@ Future milestones should begin from this assumption:
 - **Polish is not default roadmap** — super-polish, broad UI redesign, compliance theater, hosted-control-plane imitation, SCIM/directory sync, generic authorization policy, and new auth primitives stay deferred unless explicitly promoted by evidence.
 - **Quieter future planning** — agents should make decisive recommendations from repo evidence and ask fewer broad questions. Escalate only decisions that materially alter the security model, public/semver contract, generated-host contract, or post-1.0 strategic direction.
 
+## Current Milestone: v1.40 CI-PERF (in planning)
+
+**Goal:** Cut PR CI wall-clock from ~22m toward well under ~12m on a fast PR path by attacking the long poles — **without** weakening coverage, determinism, or trust. A maintenance/trust (CI/DX) lane, not a feature milestone.
+
+**Why now:** PR #56 run `27846034918` — 20/23 jobs finished ≤3.1m, but wall-clock was gated by three poles: `example_playwright_smoke` 22.2m, `library_tests` 15.9m, `library_tests_dep_off` 13.9m. Every PR pays this tax.
+
+**Scope (from SEED-005 + SEED-006):** drop the gratuitous `example_playwright_smoke needs: [library_tests]` serialization (likely #1 win); partition `library_tests`; slim the dep-off full rerun; PR-fast vs nightly-broad trigger split; Playwright boot-sharing/sharding + deterministic readiness; re-gate the `continue-on-error` design-gallery lane with deterministic CI fonts/recapture (SEED-006); correct caching + micro-job consolidation; documented `mix ci`; fix the known demo-showcase rgb flake. **Guardrails:** keep high-value gates, cut only lowest-signal/redundant/flaky with evidence, never trade trust for speed (tradeoffs → nightly tier), keep it simple. Respect SEED-004 (phx_new 1.8.7 pin) and snapshot/baseline determinism.
+
+Requirements: [`.planning/REQUIREMENTS.md`](REQUIREMENTS.md) (18 reqs across BASE/CRIT/TEST/PW/CACHE/DX/FLAKE/GATE).
+
 ## Latest Shipped Milestone: v1.39 DS-COHERENCE
 
 **Shipped:** 2026-06-19 (Phases 184-192) · 42/42 requirements satisfied · Phase 192 terminal ratification gate green (no separate milestone audit needed)

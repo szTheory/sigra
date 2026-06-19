@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.39
-milestone_name: DS-COHERENCE
-current_phase: 39
-status: Awaiting next milestone
-stopped_at: Completed 192-01-PLAN.md
-last_updated: "2026-06-19T16:16:25.291Z"
+milestone: v1.40
+milestone_name: CI-PERF
+status: planning
+last_updated: "2026-06-19T20:52:30.360Z"
 last_activity: 2026-06-19
-last_activity_desc: Milestone v1.39 completed and archived
 progress:
-  total_phases: 15
-  completed_phases: 9
-  total_plans: 39
-  completed_plans: 39
-  percent: 60
-current_phase_name: ratification-baseline-lock
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.39 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: PR #56 open — post-v1.39 cleanup + demo Docker DX overhaul (awaiting merge to main)
-Last activity: 2026-06-19 — Shipped PR #56 (demo DX overhaul + v1.39 cleanup); code-review remediated (orphaned-BEAM teardown, leaking watch volumes, profile-gated down, PID-reuse guard)
+Status: Defining requirements
+Last activity: 2026-06-19 — Milestone v1.40 started
 
 ## Accumulated Context
 
