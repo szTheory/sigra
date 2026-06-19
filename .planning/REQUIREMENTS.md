@@ -10,8 +10,8 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 ### Baseline & observability (measure before optimize)
 
-- [ ] **BASE-01**: Capture a before-state baseline table from `.github/workflows/ci.yml` + recent runs — per-job duration, p95, critical path, cache hit/miss, required-vs-not, quality signal, likely bottleneck. Committed as a planning artifact.
-- [ ] **BASE-02**: Collect Elixir-side diagnostics to target the suite — `mix test --slowest`, `System.schedulers_online()` on the runner, top slow compile modules — and record them as the optimization target.
+- [x] **BASE-01**: Capture a before-state baseline table from `.github/workflows/ci.yml` + recent runs — per-job duration, p95, critical path, cache hit/miss, required-vs-not, quality signal, likely bottleneck. Committed as a planning artifact.
+- [x] **BASE-02**: Collect Elixir-side diagnostics to target the suite — `mix test --slowest`, `System.schedulers_online()` on the runner, top slow compile modules — and record them as the optimization target.
 - [ ] **BASE-03**: CI job summaries surface resolved versions, cache hit/miss, and a test-timing summary so future regressions are visible (observability, not just speed).
 
 ### Critical-path & trigger model

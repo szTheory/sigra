@@ -50,7 +50,7 @@
   4. The demo-showcase remember-checkbox color assertion is deterministic (or removed) with no retry papering-over, and the tracked todo is closed.
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the post-change run's wall-clock/critical-path is compared against the committed baseline; the de-flaked spec runs green across repeated CI runs without retries.
 **Plans**: 3 plans
-- [ ] 193-01-PLAN.md — Capture before-state CI baseline + Elixir diagnostics (BASE-01, BASE-02)
+- [x] 193-01-PLAN.md — Capture before-state CI baseline + Elixir diagnostics (BASE-01, BASE-02)
 - [ ] 193-02-PLAN.md — De-flake demo-showcase color assertion + close todo (FLAKE-01)
 - [ ] 193-03-PLAN.md — Add CI step-summary observability + drop gratuitous needs edge (BASE-03, CRIT-01)
 
@@ -261,7 +261,7 @@ Archive:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 193. Baseline, Observability & One-Line Wins | v1.40 | 0/? | Not started | - |
+| 193. Baseline, Observability & One-Line Wins | v1.40 | 1/3 | In Progress|  |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 0/? | Not started | - |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |

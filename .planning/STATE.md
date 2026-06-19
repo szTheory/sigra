@@ -2,17 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-current_phase_name: defining requirements
 status: executing
 stopped_at: Completed 192-01-PLAN.md
-last_updated: "2026-06-19T21:26:18.832Z"
+last_updated: "2026-06-19T21:50:25.460Z"
 last_activity: 2026-06-19
-last_activity_desc: Milestone v1.40 started
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -24,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones — v1.39 DS-COHERENCE shipped & archived 2026-06-19. Run `/gsd-new-milestone` for the next cycle (phases continue from 193).
+**Current focus:** Phase 193 — baseline-observability-one-line-wins
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
+Phase: 193 (baseline-observability-one-line-wins) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-19 — Milestone v1.40 started
+Last activity: 2026-06-19
 
 ## Accumulated Context
 
@@ -156,7 +154,7 @@ Last activity: 2026-06-19 — Milestone v1.40 started
 
 ## Session Continuity
 
-Last session: 2026-06-18T07:18:09.153Z
+Last session: 2026-06-19T21:50:25.456Z
 Stopped at: Completed 192-01-PLAN.md
 Resume file: None
 
@@ -207,6 +205,7 @@ Resume file: None
 | Phase 192 P02 | 10 | 2 tasks | 6 files |
 | Phase 192 P03 | 1 min | 1 tasks | 1 files |
 | Phase 192 P04 | 45 min | - tasks | - files |
+| Phase 193 P01 | 1096 | 2 tasks | 1 files |
 
 ## Operator Next Steps
 
