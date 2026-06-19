@@ -40,6 +40,17 @@ assertion on the rendered event count / make it conditional rather than
 unconditional. Prefer (a) so the gallery deterministically exercises the paginated
 state regardless of boot-time seeding order.
 
+## Update 2026-06-19 (related: SEED-006)
+
+This todo is the MG-5/6 **content-equivalence** test (pagination needs ≥25 audit events),
+`test.fail`'d in 192-02 (`cdd7fe13`). When the gallery CI step finally ran un-masked on
+PR #54, a **separate** test — the `Design gallery board snapshots` test (admin-design.spec.ts:222)
+— failed for ~11 boards (incl. mg-5/6) on **image dimension mismatch** (CI renders boards
+taller, likely a brand-font-load difference vs the local capture harness). That broader
+in-CI baseline problem is tracked in **SEED-006**, which demoted the gallery step to
+`continue-on-error` for the v1.39 ship. Resolve this content-equivalence todo as part of
+the SEED-006 re-gating work (don't fix in isolation).
+
 ## Also note (separate, unrelated)
 
 Full `mix test` shows 2 pre-existing install-golden failures that reproduce
