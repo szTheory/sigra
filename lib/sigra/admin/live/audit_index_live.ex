@@ -213,7 +213,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <% end %>
       </.empty_state>
 
-      <nav :if={@meta} class="sg-cluster sg-cluster--between">
+      <nav :if={@meta && multi_page?(@meta)} class="sg-cluster sg-cluster--between">
         <a
           class={["sg-btn sg-btn--secondary sg-btn--icon", if(@meta.previous_page, do: "", else: "is-disabled")]}
           href={page_path(@admin_scope, @current_params, @meta.previous_page)}
@@ -299,6 +299,18 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
   end
 
   defp present_param?(params, key), do: param_value(params, key) not in [nil, ""]
+
+  # Honest pagination guard: hide nav entirely when results fit one page.
+  # Unlike users_index_live's %Flop.Meta{} struct, the audit explorer returns a
+  # cursor-based meta map (current_page/previous_page/next_page) with no
+  # :total_pages key, so referencing meta.total_pages here would raise KeyError.
+  # Cursor pagination never knows a total page count — a previous or next cursor
+  # is the honest (D-09) signal that more than one page exists.
+  defp multi_page?(nil), do: false
+
+  defp multi_page?(meta) do
+    not is_nil(meta.previous_page) or not is_nil(meta.next_page)
+  end
 
   defp format_timestamp(%DateTime{} = timestamp),
     do: Calendar.strftime(timestamp, "%Y-%m-%d %H:%M:%S")

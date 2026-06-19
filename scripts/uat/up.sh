@@ -28,6 +28,8 @@ STATE_FILE="${REPO_ROOT}/tmp/uat.env"
 SHARED_PROXY_UP="${SIGRA_UAT_SHARED_PROXY_UP:-scripts/dev-proxy/up.sh}"
 # shellcheck source=scripts/ci/lib/free-port.sh
 source "${REPO_ROOT}/scripts/ci/lib/free-port.sh"
+# shellcheck source=scripts/uat/lib/naming.sh
+source "${REPO_ROOT}/scripts/uat/lib/naming.sh"
 RESET_DB=0
 SEED_DEMO=1
 STATUS_ONLY=0
@@ -41,24 +43,8 @@ green() { printf '\033[32m%s\033[0m\n' "$*"; }
 yellow() { printf '\033[33m%s\033[0m\n' "$*"; }
 red() { printf '\033[31m%s\033[0m\n' "$*"; }
 
-slugify() {
-  printf '%s' "$1" \
-    | tr '[:upper:]' '[:lower:]' \
-    | sed -E 's/[^a-z0-9_-]+/-/g; s/^-+//; s/-+$//' \
-    | cut -c1-56
-}
-
-default_project_name() {
-  local branch user hash slug
-  branch="$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'local')"
-  user="${USER:-$(id -un 2>/dev/null || printf 'dev')}"
-  hash="$(printf '%s' "${REPO_ROOT}" | shasum 2>/dev/null | awk '{print substr($1,1,8)}')"
-  if [[ -z "${hash}" ]]; then
-    hash="$(printf '%s' "${REPO_ROOT}" | cksum | awk '{print $1}')"
-  fi
-  slug="$(slugify "sigra-uat-${user}-${branch}-${hash}")"
-  printf '%s' "${slug:-sigra-uat-local}"
-}
+# slugify / default_project_name / default_proxy_host / alias_proxy_host /
+# is_default_branch are provided by scripts/uat/lib/naming.sh (sourced above).
 
 shell_quote() {
   printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
@@ -82,6 +68,7 @@ SIGRA_UAT_COMPOSE_FILE=$(shell_quote "${COMPOSE_FILE}")
 SIGRA_UAT_PROXY_MODE=$(shell_quote "${SIGRA_UAT_PROXY_MODE:-none}")
 SIGRA_UAT_PROXY_ENABLED=$(shell_quote "${SIGRA_UAT_PROXY_ENABLED:-0}")
 SIGRA_UAT_PROXY_HOST=$(shell_quote "${SIGRA_UAT_PROXY_HOST:-}")
+SIGRA_UAT_ALIAS_HOST=$(shell_quote "${SIGRA_UAT_ALIAS_HOST:-}")
 SIGRA_UAT_PROXY_NETWORK=$(shell_quote "${SIGRA_UAT_PROXY_NETWORK:-}")
 SIGRA_UAT_PROXY_ROUTER=$(shell_quote "${SIGRA_UAT_PROXY_ROUTER:-}")
 SIGRA_UAT_PROXY_PORT=$(shell_quote "${SIGRA_UAT_PROXY_PORT:-}")
@@ -125,6 +112,7 @@ print_export_env() {
     SIGRA_UAT_PROXY_MODE \
     SIGRA_UAT_PROXY_ENABLED \
     SIGRA_UAT_PROXY_HOST \
+    SIGRA_UAT_ALIAS_HOST \
     SIGRA_UAT_PROXY_NETWORK \
     SIGRA_UAT_PROXY_ROUTER \
     SIGRA_UAT_PROXY_PORT \
@@ -151,64 +139,58 @@ print_export_env() {
 print_status() {
   load_state_file
   local compose_file="${SIGRA_UAT_COMPOSE_FILE:-${COMPOSE_FILE}}"
-  local proxy_status_lines=""
-  local server_lines="Start the Phoenix server:"
-  local server_note="  ${SIGRA_UAT_SERVER_COMMAND}
-  (leave that running, then walk the runbook in your browser)"
+  local base="${SIGRA_EXAMPLE_URL}"
 
+  # Optional alias + raw-fallback lines, shown only when meaningful.
+  local alias_line="" raw_line="" server_line=""
   case "${SIGRA_UAT_PROXY_MODE:-none}" in
     shared)
-      proxy_status_lines="  Raw app fallback:  ${SIGRA_UAT_RAW_URL}
-  Proxy:            shared dev_proxy Traefik at ${SIGRA_UAT_PROXY_URL} -> Docker service web:4000
-  Proxy network:    ${SIGRA_UAT_PROXY_NETWORK}"
-      server_lines="Phoenix server:"
-      server_note="  Running in Docker service 'web'.
-  Logs: ${SIGRA_UAT_SERVER_COMMAND}"
+      if [[ -n "${SIGRA_UAT_ALIAS_HOST:-}" && "${SIGRA_UAT_ALIAS_HOST}" != "${SIGRA_UAT_PROXY_HOST}" ]]; then
+        alias_line=" ALIAS         http://${SIGRA_UAT_ALIAS_HOST}            (primary checkout)"
+      fi
+      raw_line=" RAW FALLBACK  ${SIGRA_UAT_RAW_URL}            (use in Firefox/Safari/curl — they don't resolve *.localhost)"
+      server_line=" Logs          ${SIGRA_UAT_SERVER_COMMAND}"
       ;;
     private-traefik)
-      proxy_status_lines="  Raw app fallback:  ${SIGRA_UAT_RAW_URL}
-  Proxy:            private fallback Traefik at ${SIGRA_UAT_PROXY_URL} -> host Phoenix port ${SIGRA_EXAMPLE_PORT}"
+      raw_line=" RAW FALLBACK  ${SIGRA_UAT_RAW_URL}            (host Phoenix port ${SIGRA_EXAMPLE_PORT})"
+      server_line=" Server        ${SIGRA_UAT_SERVER_COMMAND}"
+      ;;
+    *)
+      server_line=" Server        ${SIGRA_UAT_SERVER_COMMAND}"
       ;;
   esac
 
   cat <<EOF
 
---------------------------------------------------------------------
-Sigra UAT environment.
+────────────────────────────────────────────────────────────
+ Sigra UAT  ·  project: ${SIGRA_UAT_PROJECT}
+────────────────────────────────────────────────────────────
 
-  App:               ${SIGRA_EXAMPLE_URL}
-${proxy_status_lines}
-  Email mailbox:     ${SIGRA_UAT_MAILBOX_URL}
-  Demo doorway:      ${SIGRA_UAT_DEMO_URL}
-  Postgres:          ${PGHOST}:${PGPORT}  (user: ${PGUSER} / pw: ${PGPASSWORD} / db: ${PGDATABASE})
-  Compose project:   ${SIGRA_UAT_PROJECT}
-  State file:        ${STATE_FILE}
+ PRIMARY URL   ${base}
+${alias_line:+${alias_line}
+}${raw_line:+${raw_line}
+}
+ AUTH ROUTES   (copy-paste)
+   Register    ${base}/users/register
+   Log in      ${base}/users/log_in
+   Sessions    ${base}/users/sessions
+   Settings    ${base}/users/settings
+   MFA / TOTP  ${base}/users/settings/mfa
+   Sudo        ${base}/users/sudo
+   Reactivate  ${base}/users/reactivation
 
-Runbook (step-by-step):
-  scripts/uat/RUNBOOK.md
+ OPS
+   Mailbox     ${SIGRA_UAT_MAILBOX_URL}
+   Demo creds  ${SIGRA_UAT_DEMO_URL}
+   Postgres    ${PGHOST}:${PGPORT}  (user ${PGUSER} / pw ${PGPASSWORD} / db ${PGDATABASE})
 
-Key entry points:
-  /users/register      - registration flow (UAT items 04, 05, 06)
-  /users/log_in        - login + remember-me (UAT items 04)
-  /users/sessions      - active session management (UAT item 04)
-  /users/settings      - account settings, email change, password change, delete (UAT item 08)
-  /users/settings/mfa  - TOTP enrollment + backup codes (UAT item 06)
-  /users/sudo          - sudo re-auth (UAT item 04, 08)
-  /users/reactivation  - grace-period reactivation (UAT item 08)
-
-${server_lines}
-${server_note}
-
-Playwright:
-  ${SIGRA_UAT_PLAYWRIGHT_COMMAND}
-
-Export env for ad-hoc commands:
-  scripts/uat/up.sh --print-env
-
-Tear down:
-  scripts/uat/down.sh
-
---------------------------------------------------------------------
+ COMMANDS  (copy-paste)
+${server_line}
+   Playwright  ${SIGRA_UAT_PLAYWRIGHT_COMMAND}
+   Env         scripts/uat/up.sh --print-env
+   Runbook     scripts/uat/RUNBOOK.md
+   Teardown    scripts/uat/down.sh
+────────────────────────────────────────────────────────────
 EOF
 
   if command -v docker >/dev/null 2>&1 && docker ps >/dev/null 2>&1; then
@@ -220,11 +202,60 @@ EOF
 proxy_host_claimants() {
   local host="$1"
 
-  docker ps \
-    --filter "label=dev.sigra.stack=uat" \
-    --filter "label=dev.sigra.role=demo-web" \
-    --filter "label=dev.sigra.proxy-host=${host}" \
-    --format '{{.Names}}\t{{.Label "com.docker.compose.project"}}\t{{.Status}}'
+  # Union the vendor-neutral dev.local.proxy-host (so we also see sibling libs
+  # that adopt the same etiquette) AND the legacy dev.sigra.proxy-host (so we
+  # still see older/other Sigra UAT containers that predate the neutral label).
+  # --filter is AND within a query, so run one query per label and dedupe.
+  {
+    docker ps \
+      --filter "label=dev.local.proxy-host=${host}" \
+      --format '{{.Names}}\t{{.Label "com.docker.compose.project"}}\t{{.Status}}'
+    docker ps \
+      --filter "label=dev.sigra.proxy-host=${host}" \
+      --format '{{.Names}}\t{{.Label "com.docker.compose.project"}}\t{{.Status}}'
+  } | awk 'NF && !seen[$0]++'
+}
+
+# True when a DIFFERENT compose project currently claims the friendly alias host.
+alias_claimed_by_other() {
+  local claimants
+  claimants="$(proxy_host_claimants "$(alias_proxy_host)" 2>/dev/null || true)"
+  printf '%s\n' "${claimants}" \
+    | awk -F '\t' -v project="${SIGRA_UAT_PROJECT}" 'NF && $2 != project {found=1} END{exit found?0:1}'
+}
+
+# Bring up the shared dev_proxy Traefik if it isn't already serving :80.
+# Idempotent and sibling-safe: if a NON-dev_proxy container already owns :80
+# (e.g. another project's Traefik on the proxy network), leave it alone — any
+# Traefik on the proxy network routes Sigra's labels. Opt out with
+# SIGRA_UAT_AUTO_PROXY=0.
+ensure_shared_proxy() {
+  [[ "${SIGRA_UAT_AUTO_PROXY:-1}" = "1" ]] || return 0
+
+  local owners expected
+  owners="$(port_80_owners || true)"
+  expected="dev_proxy-traefik-1"
+
+  if [[ -n "${owners}" ]]; then
+    if printf '%s\n' "${owners}" | awk '{print $1}' | grep -qx "${expected}"; then
+      return 0  # shared proxy already running — no-op
+    fi
+    yellow "    Note: 127.0.0.1:80 is owned by another container (not dev_proxy):"
+    printf '%s\n' "${owners}" | sed 's/^/      /'
+    yellow "    Leaving it as-is; any Traefik on the '${SIGRA_UAT_PROXY_NETWORK}' network will route Sigra's labels."
+    return 0
+  fi
+
+  cyan "==> Starting shared dev_proxy Traefik (auto; set SIGRA_UAT_AUTO_PROXY=0 to skip)"
+  local proxy_up="${SHARED_PROXY_UP}"
+  [[ "${proxy_up}" = /* ]] || proxy_up="${REPO_ROOT}/${proxy_up}"
+  if [[ "${SIGRA_UAT_PROXY_NETWORK}" != "proxy" ]]; then
+    SIGRA_DEV_PROXY_NETWORK="${SIGRA_UAT_PROXY_NETWORK}" "${proxy_up}" || \
+      yellow "    Warning: shared proxy bring-up failed; ${SIGRA_UAT_PROXY_URL} will route once it is up."
+  else
+    "${proxy_up}" || \
+      yellow "    Warning: shared proxy bring-up failed; ${SIGRA_UAT_PROXY_URL} will route once it is up."
+  fi
 }
 
 proxy_host_conflicts() {
@@ -273,12 +304,14 @@ refresh_proxy_code() {
 
   fail_on_proxy_host_conflict
 
-  cyan "==> Recompiling Sigra path dependency for ${SIGRA_UAT_PROJECT}"
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy run --rm --no-deps web sh -lc \
-    "mix deps.get && mix deps.compile sigra --force && mix compile --force"
+  # Cache-aware rebuild: Dockerfile.example layers recompile sigra only if lib/priv
+  # changed and the example only if its source changed — deps are never re-fetched
+  # for a source/style edit. Replaces the old unconditional deps.get + --force recompiles.
+  cyan "==> Rebuilding Dockerized app image (cache-aware) for ${SIGRA_UAT_PROJECT}"
+  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy build web
 
   cyan "==> Restarting Dockerized Vaultr example app"
-  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy restart web
+  docker compose -p "${SIGRA_UAT_PROJECT}" -f "${compose_file}" --profile proxy up -d web
 
   green "==> Refreshed Dockerized Sigra code for ${SIGRA_UAT_PROXY_URL}"
   print_status
@@ -400,10 +433,10 @@ setup_docker_example() {
   docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy stop web >/dev/null 2>&1 || true
   docker compose -p "${SIGRA_UAT_PROJECT}" -f "${COMPOSE_FILE}" --profile proxy build web
 
+  # Deps + sigra are already compiled into the image by Dockerfile.example, so the
+  # one-time setup only prepares the database (no deps.get / no --force recompiles).
   local setup_script
   setup_script="set -e
-mix deps.get
-mix deps.compile sigra --force
 if [ '${RESET_DB}' = '1' ]; then
   mix ecto.drop --quiet || true
 fi
@@ -490,9 +523,15 @@ if [[ "${ENABLE_SHARED_PROXY}" = "1" && "${ENABLE_PRIVATE_TRAEFIK}" = "1" ]]; th
 fi
 
 SIGRA_UAT_PROJECT="${SIGRA_UAT_PROJECT:-${COMPOSE_PROJECT_NAME:-$(default_project_name)}}"
-SIGRA_UAT_PROXY_HOST="${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
+# Per-checkout host, unique by construction (never collides across branches /
+# worktrees / sibling libs, so Traefik never silently round-robins two backends).
+SIGRA_UAT_PROXY_HOST="${SIGRA_UAT_PROXY_HOST:-$(default_proxy_host)}"
 SIGRA_UAT_PROXY_NETWORK="${SIGRA_UAT_PROXY_NETWORK:-proxy}"
 SIGRA_UAT_PROXY_ROUTER="${SIGRA_UAT_PROXY_ROUTER:-$(slugify "${SIGRA_UAT_PROJECT}")}"
+# Friendly stable alias (sigra.localhost) attached only for the primary checkout
+# (default branch, alias unclaimed). When not eligible it falls back to the
+# primary host, making the alias router a harmless duplicate to the same backend.
+SIGRA_UAT_ALIAS_HOST="${SIGRA_UAT_ALIAS_HOST:-${SIGRA_UAT_PROXY_HOST}}"
 SIGRA_UAT_TRAEFIK_IMAGE="${SIGRA_UAT_TRAEFIK_IMAGE:-traefik:v3.7.1}"
 SIGRA_UAT_TRAEFIK_DYNAMIC_DIR="${SIGRA_UAT_TRAEFIK_DYNAMIC_DIR:-${REPO_ROOT}/tmp/uat-traefik}"
 
@@ -532,7 +571,22 @@ case "${SIGRA_UAT_PROXY_MODE}" in
     SIGRA_EXAMPLE_URL="${SIGRA_UAT_PROXY_URL}"
     SIGRA_EXAMPLE_PORT=4000
     SIGRA_EXAMPLE_BIND="0.0.0.0"
-    SIGRA_UAT_RAW_URL=""
+    # Publish a real host port so a 127.0.0.1:<port> raw URL works in Firefox /
+    # Safari / curl, which don't resolve *.localhost the way Chrome does.
+    SIGRA_UAT_WEB_PORT="${SIGRA_UAT_WEB_PORT:-$(find_free_port)}"
+    SIGRA_UAT_RAW_URL="http://127.0.0.1:${SIGRA_UAT_WEB_PORT}"
+    # Friendly alias only for the primary checkout: default branch AND nobody
+    # else currently claims sigra.localhost. Otherwise the alias stays equal to
+    # the (unique) primary host so its router is a harmless self-duplicate.
+    if is_default_branch && ! alias_claimed_by_other; then
+      SIGRA_UAT_ALIAS_HOST="$(alias_proxy_host)"
+    else
+      SIGRA_UAT_ALIAS_HOST="${SIGRA_UAT_PROXY_HOST}"
+      if is_default_branch; then
+        yellow "    Note: $(alias_proxy_host) is already claimed by another stack; using your unique host only."
+      fi
+    fi
+    ensure_shared_proxy
     warn_about_shared_proxy
     fail_on_proxy_host_conflict
     ;;
@@ -563,6 +617,7 @@ SIGRA_UAT_MAILBOX_URL="${SIGRA_EXAMPLE_URL}/dev/mailbox"
 SIGRA_UAT_DEMO_URL="${SIGRA_EXAMPLE_URL}/demo/credentials"
 
 export SIGRA_UAT_PROXY_HOST
+export SIGRA_UAT_ALIAS_HOST
 export SIGRA_UAT_PROXY_NETWORK
 export SIGRA_UAT_PROXY_ROUTER
 export SIGRA_UAT_PROXY_BIND="${SIGRA_UAT_PROXY_BIND:-127.0.0.1}"

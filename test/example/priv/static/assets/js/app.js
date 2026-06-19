@@ -8180,6 +8180,96 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     },
   };
 
+  // ---- ConfirmDialog hook (refreshed from assets/js/admin_hooks.js) --------
+  // WAI-ARIA APG Dialog (Modal): focus trap, initial focus on Cancel, Escape +
+  // scrim cancel, focus return to trigger on destroy. WR-01/02/03 hardening.
+  var ConfirmDialog = {
+    mounted: function () {
+      var self = this;
+      this._trigger = document.activeElement;
+      document.body.classList.add("sg-body-scroll-locked");
+      var dialog = this.el.querySelector(".sg-confirm-dialog");
+      if (dialog) {
+        var cancelEl = dialog.querySelector("[data-sg-confirm-cancel]");
+        if (cancelEl) {
+          cancelEl.focus();
+        } else {
+          var focusables = dialog.querySelectorAll(FOCUSABLE);
+          if (focusables.length) {
+            focusables[0].focus();
+          }
+        }
+      }
+      this._onKeydown = function (event) {
+        var key = event.key;
+        try {
+          if (key === "Escape") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            self._cancel();
+            return;
+          }
+          if (key === "Tab") {
+            self._trapFocus(event);
+          }
+        } catch (err) {
+          // never throw from a keydown handler
+        }
+      };
+      document.addEventListener("keydown", this._onKeydown);
+      this._onOverlayClick = function (event) {
+        try {
+          if (event.target === self.el) {
+            self._cancel();
+          }
+        } catch (err) {
+          // never throw from a click handler
+        }
+      };
+      this.el.addEventListener("click", this._onOverlayClick);
+    },
+    _cancel: function () {
+      var dialog = this.el.querySelector(".sg-confirm-dialog");
+      if (!dialog) return;
+      var cancelEl = dialog.querySelector("[data-sg-confirm-cancel]");
+      if (cancelEl) {
+        cancelEl.click();
+        return;
+      }
+      var focusables = dialog.querySelectorAll(FOCUSABLE);
+      if (focusables.length) {
+        focusables[0].click();
+      }
+    },
+    _trapFocus: function (event) {
+      var dialog = this.el.querySelector(".sg-confirm-dialog");
+      if (!dialog) return;
+      var focusables = dialog.querySelectorAll(FOCUSABLE);
+      if (!focusables.length) return;
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    },
+    destroyed: function () {
+      document.removeEventListener("keydown", this._onKeydown);
+      if (this._onOverlayClick) {
+        this.el.removeEventListener("click", this._onOverlayClick);
+      }
+      document.body.classList.remove("sg-body-scroll-locked");
+      if (this._trigger && document.contains(this._trigger) && this._trigger.focus) {
+        this._trigger.focus();
+      } else {
+        document.body.focus();
+      }
+    },
+  };
+
   function installCopyDelegate() {
     if (window.__sigraCopyDelegateInstalled) return;
     window.__sigraCopyDelegateInstalled = true;
@@ -8233,6 +8323,19 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
         window.matchMedia("(hover: hover) and (pointer: fine)").matches
       );
     }
+
+    // Set when Escape dismisses help; suppresses the synthetic mouseover that
+    // Chromium dispatches when hiding the panel collapses layout under a
+    // stationary cursor (which would otherwise re-open the help). Cleared on a
+    // genuine pointer move so real hover-to-reopen still works.
+    var escapeDismissedUntil = 0;
+    document.addEventListener(
+      "mousemove",
+      function () {
+        escapeDismissedUntil = 0;
+      },
+      true,
+    );
 
     function rootFrom(target) {
       return target && target.closest
@@ -8312,6 +8415,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
     document.addEventListener("mouseover", function (event) {
       if (!finePointer()) return;
+      if (Date.now() < escapeDismissedUntil) return;
       var root = rootFrom(event.target);
       if (!root) return;
       closeAll(root);
@@ -8327,6 +8431,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
 
     document.addEventListener("keydown", function (event) {
       if (event.key !== "Escape") return;
+      escapeDismissedUntil = Date.now() + 400;
       closeAll(null);
     });
   }
@@ -8812,6 +8917,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
   window.SigraAdminHooks = {
     AuthBrandingPreview: AuthBrandingPreview,
     CmdK: CmdK,
+    ConfirmDialog: ConfirmDialog,
     CopyToClipboard: CopyToClipboard,
     ThemeSwitch: ThemeSwitch,
   };
@@ -8830,6 +8936,7 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
       PasskeyAuthenticate: passkeyRuntime.PasskeyAuthenticate,
       AuthBrandingPreview: (window.SigraAdminHooks || {}).AuthBrandingPreview,
       CmdK: (window.SigraAdminHooks || {}).CmdK,
+      ConfirmDialog: (window.SigraAdminHooks || {}).ConfirmDialog,
       CopyToClipboard: (window.SigraAdminHooks || {}).CopyToClipboard,
       ThemeSwitch: (window.SigraAdminHooks || {}).ThemeSwitch,
     },

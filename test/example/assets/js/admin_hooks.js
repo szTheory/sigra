@@ -366,6 +366,130 @@
     },
   };
 
+  // ---- ConfirmDialog hook -------------------------------------------------
+  // Provides WAI-ARIA APG "Dialog (Modal)" behavior for the conditionally
+  // rendered `.sg-confirm-overlay` / `.sg-confirm-dialog` markup. Attaches via
+  // phx-hook="ConfirmDialog" on the :if-gated overlay div. Works generically
+  // for both user_show_live (cancel_confirm) and branding_live
+  // (cancel_restore_defaults) — never hardcodes a page-specific server event.
+  var ConfirmDialog = {
+    mounted: function () {
+      var self = this;
+
+      // Capture the triggering element BEFORE moving focus so destroyed() can
+      // return focus to it after the overlay is removed from the DOM.
+      this._trigger = document.activeElement;
+
+      // Prevent background scroll while dialog is open.
+      document.body.classList.add("sg-body-scroll-locked");
+
+      // Move focus to the first focusable element inside the dialog (Cancel
+      // renders first in both LiveViews so initial focus lands on Cancel, which
+      // is correct for a destructive confirm per APG Dialog guidance).
+      var dialog = this.el.querySelector(".sg-confirm-dialog");
+      if (dialog) {
+        var cancelEl = dialog.querySelector("[data-sg-confirm-cancel]");
+        if (cancelEl) {
+          cancelEl.focus();
+        } else {
+          var focusables = dialog.querySelectorAll(FOCUSABLE);
+          if (focusables.length) {
+            focusables[0].focus();
+          }
+        }
+      }
+
+      // Document-level keydown handles Escape + Tab trap.
+      this._onKeydown = function (event) {
+        var key = event.key;
+        try {
+          if (key === "Escape") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            self._cancel();
+            return;
+          }
+          if (key === "Tab") {
+            self._trapFocus(event);
+          }
+        } catch (err) {
+          // never throw from a keydown handler
+        }
+      };
+      document.addEventListener("keydown", this._onKeydown);
+
+      // Optional enhancement (D-08): clicking the overlay scrim (outside the
+      // dialog panel) dispatches the Cancel click, same as pressing Escape.
+      this._onOverlayClick = function (event) {
+        try {
+          if (event.target === self.el) {
+            self._cancel();
+          }
+        } catch (err) {
+          // never throw from a click handler
+        }
+      };
+      this.el.addEventListener("click", this._onOverlayClick);
+    },
+
+    // Dispatch a synthetic click on the Cancel button found inside the dialog.
+    // This avoids hardcoding page-specific server event names (cancel_confirm
+    // vs cancel_restore_defaults) — the existing Cancel button already carries
+    // the correct phx-click event name for whichever LiveView this is.
+    _cancel: function () {
+      var dialog = this.el.querySelector(".sg-confirm-dialog");
+      if (!dialog) return;
+      var cancelEl = dialog.querySelector("[data-sg-confirm-cancel]");
+      if (cancelEl) {
+        cancelEl.click();
+        return;
+      }
+      var focusables = dialog.querySelectorAll(FOCUSABLE);
+      // Cancel is always the FIRST button in the dialog (both LiveViews render
+      // Cancel before the confirm/danger button).
+      if (focusables.length) {
+        focusables[0].click();
+      }
+    },
+
+    // Focus-trap boundary logic — keeps Tab / Shift-Tab within the dialog.
+    // Duplicated and specialized from CmdK.trapFocus to avoid coupling.
+    _trapFocus: function (event) {
+      var dialog = this.el.querySelector(".sg-confirm-dialog");
+      if (!dialog) return;
+      var focusables = dialog.querySelectorAll(FOCUSABLE);
+      if (!focusables.length) return;
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    },
+
+    destroyed: function () {
+      // Remove listeners and body class added in mounted().
+      document.removeEventListener("keydown", this._onKeydown);
+      if (this._onOverlayClick) {
+        this.el.removeEventListener("click", this._onOverlayClick);
+      }
+      document.body.classList.remove("sg-body-scroll-locked");
+      // Return focus to the element that opened the dialog (the trigger button),
+      // not to this.el which has already been removed from the DOM.
+      // WR-02: guard with document.contains() so we fall back to document.body
+      // when the trigger itself has been removed from the DOM (e.g. after a
+      // LiveView patch that replaces the triggering element).
+      if (this._trigger && document.contains(this._trigger) && this._trigger.focus) {
+        this._trigger.focus();
+      } else {
+        document.body.focus();
+      }
+    },
+  };
+
   // ---- CopyToClipboard (delegated; no per-LiveView markup) ----------------
   function installCopyDelegate() {
     if (window.__sigraCopyDelegateInstalled) return;
@@ -426,6 +550,19 @@
         window.matchMedia("(hover: hover) and (pointer: fine)").matches
       );
     }
+
+    // Set when Escape dismisses help; suppresses the synthetic mouseover that
+    // Chromium dispatches when hiding the panel collapses layout under a
+    // stationary cursor (which would otherwise re-open the help). Cleared on a
+    // genuine pointer move so real hover-to-reopen still works.
+    var escapeDismissedUntil = 0;
+    document.addEventListener(
+      "mousemove",
+      function () {
+        escapeDismissedUntil = 0;
+      },
+      true,
+    );
 
     function rootFrom(target) {
       return target && target.closest
@@ -505,6 +642,7 @@
 
     document.addEventListener("mouseover", function (event) {
       if (!finePointer()) return;
+      if (Date.now() < escapeDismissedUntil) return;
       var root = rootFrom(event.target);
       if (!root) return;
       closeAll(root);
@@ -520,6 +658,7 @@
 
     document.addEventListener("keydown", function (event) {
       if (event.key !== "Escape") return;
+      escapeDismissedUntil = Date.now() + 400;
       closeAll(null);
     });
   }
@@ -1009,6 +1148,7 @@
   window.SigraAdminHooks = {
     AuthBrandingPreview: AuthBrandingPreview,
     CmdK: CmdK,
+    ConfirmDialog: ConfirmDialog,
     CopyToClipboard: CopyToClipboard,
     ThemeSwitch: ThemeSwitch,
   };

@@ -1,4 +1,4 @@
-# Sigra v1.0.0 - Table of Contents
+# Sigra v1.1.0 - Table of Contents
 
 > Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth (sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.
 
@@ -53,6 +53,7 @@
   - [Recipe: Sigra + Rulestead (feature-flag gating from current_scope)](rulestead.md)
 
 - Recipes
+  - [local-development](local-development.md)
   - [Testing Auth Flows](testing.md)
   - [Subdomain Authentication](subdomain-auth.md)
   - [Custom User Fields](custom-user-fields.md)

@@ -10,7 +10,10 @@ defmodule Example.Repo.Migrations.CreateOrganizationSlugAliases do
 
       add(
         :organization_id,
-        references(:organizations, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
+        references(
+          :organizations,
+          Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)
+        ),
         null: false
       )
 
@@ -28,7 +31,9 @@ defmodule Example.Repo.Migrations.CreateOrganizationSlugAliases do
     # unique index on `old_slug`; application-level cleanup removes expired
     # rows before the old_slug becomes reclaimable.
     create(
-      unique_index(:organization_slug_aliases, [:old_slug],
+      unique_index(
+        :organization_slug_aliases,
+        [:old_slug],
         Keyword.merge(@prefix_opts, name: :organization_slug_aliases_old_slug_active_idx)
       )
     )

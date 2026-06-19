@@ -148,6 +148,7 @@ Add this step to your `"assets.setup"` alias manually:
 * creating priv/static/images/sigra-logo-primary-dark.svg
 * creating lib/sigra_install_golden_tmp_web/controllers/admin/impersonation_controller.ex
 * creating lib/sigra_install_golden_tmp_web/controllers/admin/audit_export_controller.ex
+* creating priv/static/assets/sigra_admin.css
 * injecting lib/sigra_install_golden_tmp_web/router.ex
 * injecting lib/sigra_install_golden_tmp_web/components/layouts.ex
 * injecting lib/sigra_install_golden_tmp_web/components/layouts.ex

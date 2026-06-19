@@ -132,7 +132,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             value={locked_users}
             value_suffix="locked out"
             subvalue={summary_percent(locked_users, total_users)}
-            help="These users are locked out after failed sign-in attempts. Review the account before unlocking."
+            help="These users are locked out after failed sign-in attempts. Review the user before unlocking."
             tone={summary_tone(locked_users, "risk")}
           />
           <.summary_chip
@@ -352,7 +352,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
             <a href={index_path(@admin_scope)} class="sg-btn sg-btn--secondary sg-btn--sm">Clear all filters</a>
           </div>
         <% else %>
-          <p class="sg-muted sg-text-sm">Users appear here as people register and sign in. Once accounts exist, you can search, filter, and open any user.</p>
+          <p class="sg-muted sg-text-sm">Users appear here as people register and sign in. Once users exist, you can search, filter, and open any user.</p>
         <% end %>
       </.empty_state>
 
@@ -554,6 +554,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   defp chip_label("mfa", nil), do: "MFA"
   defp chip_label("passkeys", nil), do: "Passkeys"
   defp chip_label("needs_review", nil), do: "Needs review"
+  defp chip_label("deleted", nil), do: "Deletion scheduled"
   defp chip_label(key, nil), do: String.capitalize(key)
   defp chip_label("provider", value), do: "Provider: " <> value
   defp chip_label("registered_from", value), do: "Registered from: " <> value
@@ -644,7 +645,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   defp activity_label(row) do
     case row.last_active_at do
       %DateTime{} = at -> "Last activity: " <> Calendar.strftime(at, "%Y-%m-%d %H:%M")
-      _ -> "Last activity: Not available"
+      _ -> "Last activity: None recorded"
     end
   end
 

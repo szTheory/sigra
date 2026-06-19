@@ -154,6 +154,11 @@ defmodule Sigra.Admin.Components do
   attr :value_suffix, :string, default: nil, doc: "optional second-line label for the number"
   attr :subvalue, :string, default: nil, doc: "optional secondary metric context"
   attr :help, :string, default: nil, doc: "optional short explanatory help copy"
+
+  attr :open, :boolean,
+    default: false,
+    doc: "renders help open for deterministic design-gallery evidence"
+
   attr :tone, :string, default: nil, doc: "optional metric tone (risk, warn, ok, info)"
   attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
   attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
@@ -174,6 +179,7 @@ defmodule Sigra.Admin.Components do
         data-sg-metric-enhanced="true"
         data-sg-metric-has-subvalue={if @subvalue, do: "true", else: nil}
         data-sg-metric-help-root={if @help, do: "true", else: nil}
+        data-help-open={if @help && @open, do: "true", else: nil}
         tabindex={if @help, do: "0", else: nil}
         aria-describedby={if @help, do: @help_id, else: nil}
         {@rest}
@@ -208,8 +214,8 @@ defmodule Sigra.Admin.Components do
         </dd>
         <dd class="sg-metric__caption">{@caption}</dd>
         <dd :if={@subvalue} class="sg-metric__subvalue">{@subvalue}</dd>
-        <dd :if={@help} id={@help_id} class="sg-metric__help" role="tooltip" hidden>
-          {@help}
+        <dd :if={@help} id={@help_id} class="sg-metric__help" hidden={!@open}>
+          <span role="tooltip">{@help}</span>
         </dd>
       </div>
       """
@@ -559,6 +565,11 @@ defmodule Sigra.Admin.Components do
   """
   attr :id, :string, required: true, doc: "stable id for the tooltip panel"
   attr :label, :string, required: true, doc: "field label used in the trigger's accessible name"
+
+  attr :open, :boolean,
+    default: false,
+    doc: "renders the tooltip open for deterministic design-gallery evidence"
+
   attr :class, :any, default: nil, doc: "additional CSS classes merged onto the root element"
   attr :rest, :global, doc: "arbitrary HTML attributes added to the root element"
 
@@ -566,14 +577,19 @@ defmodule Sigra.Admin.Components do
 
   def field_help(assigns) do
     ~H"""
-    <span class={["sg-field-help", @class]} data-sg-field-help-root="true" {@rest}>
+    <span
+      class={["sg-field-help", @class]}
+      data-sg-field-help-root="true"
+      data-help-open={if @open, do: "true", else: nil}
+      {@rest}
+    >
       <button
         type="button"
         class="sg-field-help__trigger"
         aria-label={"Help: #{@label}"}
         aria-controls={@id}
         aria-describedby={@id}
-        aria-expanded="false"
+        aria-expanded={to_string(@open)}
         data-sg-field-help-trigger="true"
       >
         <svg
@@ -605,7 +621,7 @@ defmodule Sigra.Admin.Components do
           />
         </svg>
       </button>
-      <span id={@id} class="sg-field-help__panel" role="tooltip" hidden>
+      <span id={@id} class="sg-field-help__panel" role="tooltip" hidden={!@open}>
         {render_slot(@inner_block)}
       </span>
     </span>

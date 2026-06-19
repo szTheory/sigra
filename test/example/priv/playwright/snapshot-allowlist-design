@@ -1,0 +1,48 @@
+# Intended-delta snapshot slugs for the admin-design Playwright baselines.
+#
+# One slug per line. A slug covers all three projects at once
+# (chromium / mobile / dark) — e.g. `board-stat` allows
+# board-stat-admin-design-{chromium,mobile,dark}.png to change.
+#
+# NOTE: slugs use the HYPHENATED filename form, not the LiveView board id.
+# Playwright maps a board id like `board-stat_link` to the PNG filename
+# `board-stat-link-admin-design-*.png`, so the allowlist entry is
+# `board-stat-link` (underscores become hyphens). Copy the slug from the
+# committed PNG filename, not from the spec's COMPONENT_BOARDS id.
+#
+# STEADY STATE: this file is empty (comments only). scripts/ci/snapshot-canary-guard.sh
+# fails CI if any baseline PNG changes whose slug is not listed here, so a PR that
+# deliberately re-records baselines MUST add the slug(s) in the same diff.
+# Reset to empty once the re-recording PR merges.
+#
+# The `board-notice` canary must NEVER appear here.
+#
+# v1.39 DS-COHERENCE: the admin design gallery (phases 185-188) is introduced
+# wholesale in this milestone — origin/main (v1.38) has no design baselines, so
+# every board is "added" vs the base. Declare the new boards here for the v1.39
+# ship PR (#54). The `board-notice` canary is handled by the guard's
+# first-establishment rule, not by this list. Reset to empty (comments only)
+# once PR #54 merges.
+board-applied-chip
+board-audit-row
+board-empty-state
+board-field-help
+board-mg-1
+board-mg-2
+board-mg-3
+board-mg-4
+board-mg-5
+board-mg-6
+board-mg-7
+board-mg-8
+board-mg-9
+board-mg-10
+board-mg-11
+board-notice-link
+board-page-back
+board-scope-ribbon
+board-skeleton
+board-stat
+board-stat-link
+board-summary-chip
+board-task-card

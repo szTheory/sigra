@@ -34,10 +34,11 @@ defmodule ExampleWeb.EnterpriseSSOReconciliationFlowTest do
     %{organization: organization}
   end
 
-  test "safe reconciliation honors a compatible return path and falls back to /organizations when needed", %{
-    conn: conn,
-    organization: organization
-  } do
+  test "safe reconciliation honors a compatible return path and falls back to /organizations when needed",
+       %{
+         conn: conn,
+         organization: organization
+       } do
     user = user_fixture(%{email: "person@acme.example"})
     create_membership(user, organization)
 
@@ -76,10 +77,11 @@ defmodule ExampleWeb.EnterpriseSSOReconciliationFlowTest do
     assert get_session(fallback_conn, :user_token)
   end
 
-  test "unsafe reconciliation returns to the enterprise recovery route without creating a session", %{
-    conn: conn,
-    organization: organization
-  } do
+  test "unsafe reconciliation returns to the enterprise recovery route without creating a session",
+       %{
+         conn: conn,
+         organization: organization
+       } do
     :persistent_term.put(
       {MockEnterpriseOAuth, :callback_result},
       {:error, %OAuthError{provider: :oidc, error_code: :provider_subject_conflict}}

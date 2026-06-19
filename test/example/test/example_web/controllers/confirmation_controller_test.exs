@@ -2,7 +2,9 @@ defmodule ExampleWeb.ConfirmationControllerTest do
   use ExampleWeb.ConnCase, async: false
 
   defp source(path), do: File.read!(Path.expand(path, File.cwd!()))
-  defp route_info(method, path), do: Phoenix.Router.route_info(ExampleWeb.Router, method, path, "localhost")
+
+  defp route_info(method, path),
+    do: Phoenix.Router.route_info(ExampleWeb.Router, method, path, "localhost")
 
   describe "confirmed-email passkey enrollment handoff" do
     test "GET /users/confirm/:token?enroll_passkey=1 hands off through sudo-gated passkey settings" do
@@ -36,7 +38,9 @@ defmodule ExampleWeb.ConfirmationControllerTest do
     end
 
     test "router serves token confirmation through ConfirmationController and keeps code entry on LiveView" do
-      assert route_info("GET", "/users/confirm/example-token").plug == ExampleWeb.ConfirmationController
+      assert route_info("GET", "/users/confirm/example-token").plug ==
+               ExampleWeb.ConfirmationController
+
       assert route_info("GET", "/users/confirm/example-token").plug_opts == :confirm
       assert route_info("GET", "/users/confirm").plug == Phoenix.LiveView.Plug
     end

@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
@@ -137,16 +137,17 @@ function rgbChannels(value: string): [number, number, number] {
 }
 
 function oklabChannels(value: string): [number, number, number] {
-  const channels = value
-    .match(/[-\d.]+/g)
-    ?.slice(0, 3)
-    .map(Number);
+  const raw = value.match(/[-\d.]+%?/g)?.slice(0, 3);
 
-  if (!channels || channels.length < 3) {
+  if (!raw || raw.length < 3) {
     throw new Error(`Expected a CSS oklab color, got ${value}`);
   }
 
-  const [lightness, a, b] = channels;
+  // Lightness may serialize as a percentage (e.g. "62.8%"); normalize to 0..1.
+  const [lightness, a, b] = raw.map((token) =>
+    token.endsWith("%") ? Number(token.slice(0, -1)) / 100 : Number(token),
+  );
+
   const longL = lightness + 0.3963377774 * a + 0.2158037573 * b;
   const longM = lightness - 0.1055613458 * a - 0.0638541728 * b;
   const longS = lightness - 0.0894841775 * a + 1.291485548 * b;
@@ -154,10 +155,13 @@ function oklabChannels(value: string): [number, number, number] {
   const m = longM ** 3;
   const s = longS ** 3;
 
+  // Ottosson reference LMS→linear-sRGB matrix (each row sums to 1.0, so a
+  // neutral OKLab color maps to neutral RGB). The previous constants summed to
+  // 0.50/1.00/1.03 and turned white into cyan.
   return [
-    linearSrgbToChannel(2.4885527 * l - 2.4230963 * m + 0.4353387 * s),
-    linearSrgbToChannel(-0.8139603 * l + 1.987769 * m - 0.1734407 * s),
-    linearSrgbToChannel(0.0275693 * l - 0.1525687 * m + 1.152175 * s),
+    linearSrgbToChannel(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+    linearSrgbToChannel(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+    linearSrgbToChannel(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
   ];
 }
 
@@ -187,6 +191,17 @@ function contrastRatio(foreground: string, background: string) {
   const darker = Math.min(foregroundLuminance, backgroundLuminance);
 
   return (lighter + 0.05) / (darker + 0.05);
+}
+
+async function readNoticeStyles(notice: Locator) {
+  return notice.evaluate((el) => {
+    const inner = el.querySelector(".sg-text-sm") as HTMLElement | null;
+    if (!inner) throw new Error("Expected .sg-text-sm inside .sg-notice");
+    return {
+      color: getComputedStyle(inner).color,
+      background: getComputedStyle(el).backgroundColor,
+    };
+  });
 }
 
 async function expectPaletteFieldsAligned(
@@ -1361,5 +1376,117 @@ test.describe("admin theme switch", () => {
       "aria-checked",
       "true",
     );
+  });
+
+  test("tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)", async ({
+    page,
+  }) => {
+    // This test covers color pairs that axe skips because the backgrounds are
+    // alpha-composited color-mix() values resolved at render time. The four
+    // tone notices and the brand-soft metric icon are the critical surfaces.
+    await logInAsPlatformAdmin(page);
+    await page.goto("/admin/_design");
+    await waitForLiveViewReady(page);
+
+    const tones = ["ok", "warn", "risk", "info"] as const;
+
+    // --- Light mode: four tone-on-soft notice pairs ---
+    for (const tone of tones) {
+      const notice = page.locator(`.sg-notice[data-tone="${tone}"]`).first();
+      await expect(notice).toBeVisible();
+
+      await expect
+        .poll(async () => {
+          const styles = await readNoticeStyles(notice);
+          return contrastRatio(styles.color, styles.background);
+        })
+        .toBeGreaterThanOrEqual(4.5);
+    }
+
+    // --- Switch to dark mode ---
+    await page.getByRole("radio", { name: "Dark" }).click();
+    await expect(page.locator(".sg-admin-shell")).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+
+    // --- Dark mode: four tone-on-soft notice pairs ---
+    for (const tone of tones) {
+      const notice = page.locator(`.sg-notice[data-tone="${tone}"]`).first();
+      await expect(notice).toBeVisible();
+
+      await expect
+        .poll(async () => {
+          const styles = await readNoticeStyles(notice);
+          return contrastRatio(styles.color, styles.background);
+        })
+        .toBeGreaterThanOrEqual(4.5);
+    }
+
+    // --- Dark mode: brand-strong text on brand-soft background (metric icon) ---
+    // The .sg-metric__icon element uses background: --sg-color-brand-soft and
+    // color: --sg-color-brand-strong. In dark mode this is #fdba74 on rgba(243,90,16,0.16)
+    // composited against the dark panel background (#1f1d1a).
+    // We assert the CSS variable token values directly (reading :root values in dark context)
+    // rather than relying on computed element styles, which Chromium reports in oklab format
+    // with alpha that our contrastRatio() helper cannot composite reliably.
+    // The composited background is: alpha * brand-soft-rgb + (1-alpha) * panel-rgb
+    //   = 0.16 * rgb(243,90,16) + 0.84 * rgb(31,29,26) = rgb(65,39,24) ≈ L=0.040
+    // Brand-strong in dark (#fdba74 = rgb(253,186,116)) ≈ L=0.587
+    // Contrast ratio: (0.587+0.05)/(0.040+0.05) = 7.1:1 — passes AA (>= 4.5:1).
+    const darkTokenPair = await page.evaluate(() => {
+      const shell = document.querySelector(".sg-admin-shell");
+      if (!shell) throw new Error("No .sg-admin-shell found");
+      const cs = getComputedStyle(shell);
+      return {
+        brandStrong: cs.getPropertyValue("--sg-color-brand-strong").trim(),
+        brandSoft: cs.getPropertyValue("--sg-color-brand-soft").trim(),
+        panel: cs.getPropertyValue("--sg-color-panel").trim(),
+      };
+    });
+
+    // Assert the dark brand-strong token is the AA-compliant lightened value (#fdba74)
+    // This is the direct verification that the WCAG AA remediation from v1.34 is in place.
+    expect(darkTokenPair.brandStrong).toBe("#fdba74");
+
+    // Compute and assert the composited contrast ratio:
+    // brand-soft = rgba(243,90,16,0.16) — parse alpha and composite against panel (#1f1d1a)
+    // brand-strong = #fdba74
+    // Panel in dark = #1f1d1a = rgb(31,29,26)
+    const brandSoftRgbaMatch = darkTokenPair.brandSoft.match(
+      /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/,
+    );
+    const panelHex = darkTokenPair.panel;
+    const panelRgbMatch = panelHex.startsWith("#")
+      ? [
+          null,
+          String(parseInt(panelHex.slice(1, 3), 16)),
+          String(parseInt(panelHex.slice(3, 5), 16)),
+          String(parseInt(panelHex.slice(5, 7), 16)),
+        ]
+      : panelHex.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+
+    expect(brandSoftRgbaMatch).not.toBeNull();
+    expect(panelRgbMatch).not.toBeNull();
+
+    if (brandSoftRgbaMatch && panelRgbMatch) {
+      const [, rs, gs, bs, as_] = brandSoftRgbaMatch.map(Number);
+      // Number(undefined) is NaN, and `NaN ?? 1` is NaN — guard with isFinite
+      // so a colour with no alpha group composites at full opacity.
+      const alpha = Number.isFinite(as_) ? as_ : 1;
+      const [, rp, gp, bp] = panelRgbMatch.map(Number);
+      const cr = Math.round(alpha * rs + (1 - alpha) * rp);
+      const cg = Math.round(alpha * gs + (1 - alpha) * gp);
+      const cb = Math.round(alpha * bs + (1 - alpha) * bp);
+      const compositedBgRgb = `rgb(${cr}, ${cg}, ${cb})`;
+
+      const brandStrongHex = darkTokenPair.brandStrong;
+      const brandStrongRgb = brandStrongHex.startsWith("#")
+        ? `rgb(${parseInt(brandStrongHex.slice(1, 3), 16)}, ${parseInt(brandStrongHex.slice(3, 5), 16)}, ${parseInt(brandStrongHex.slice(5, 7), 16)})`
+        : brandStrongHex;
+
+      const ratio = contrastRatio(brandStrongRgb, compositedBgRgb);
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

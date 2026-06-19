@@ -24,8 +24,16 @@ defmodule Example.Accounts.EnterpriseConnectionOIDCSettings do
       :client_authentication_method,
       :scopes
     ])
-    |> validate_required([:issuer, :client_id, :encrypted_client_secret, :client_authentication_method])
-    |> validate_inclusion(:client_authentication_method, ["client_secret_basic", "client_secret_post"])
+    |> validate_required([
+      :issuer,
+      :client_id,
+      :encrypted_client_secret,
+      :client_authentication_method
+    ])
+    |> validate_inclusion(:client_authentication_method, [
+      "client_secret_basic",
+      "client_secret_post"
+    ])
     |> validate_length(:scopes, min: 1)
   end
 

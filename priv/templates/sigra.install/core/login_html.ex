@@ -51,9 +51,9 @@ defmodule <%= web_module %>.SessionHTML do
           >
           </p>
 
-          <.button type="button" id="passkey_login_button" class="btn btn-primary w-full">
+          <button type="button" id="passkey_login_button" class="btn btn-primary w-full">
             {dgettext("sigra", "Use a passkey")}
-          </.button>
+          </button>
         </.form>
 
         <div class="mt-3">

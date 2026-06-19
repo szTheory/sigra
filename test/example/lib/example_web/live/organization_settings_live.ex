@@ -70,7 +70,7 @@ defmodule ExampleWeb.OrganizationSettingsLive do
           <h2 class="text-lg font-semibold">General</h2>
           <.form for={@rename_form} phx-submit="rename" class="mt-4">
             <.input field={@rename_form[:name]} label="Organization name" required />
-            <.button type="submit" phx-disable-with="Saving...">Save name</.button>
+            <.button phx-disable-with="Saving...">Save name</.button>
           </.form>
         </section>
 
@@ -108,12 +108,12 @@ defmodule ExampleWeb.OrganizationSettingsLive do
               </div>
 
               <div class="flex gap-2">
-                <.button type="submit" class="btn btn-error" phx-disable-with="Updating...">
+                <.button class="btn btn-error" phx-disable-with="Updating...">
                   Update slug
                 </.button>
-                <.button type="button" phx-click="close_slug_form" class="btn btn-ghost">
+                <button type="button" phx-click="close_slug_form" class="btn btn-ghost">
                   Cancel
-                </.button>
+                </button>
               </div>
             </.form>
           <% else %>
@@ -144,12 +144,12 @@ defmodule ExampleWeb.OrganizationSettingsLive do
               />
 
               <div class="flex gap-2">
-                <.button type="submit" class="btn btn-error" phx-disable-with="Deleting...">
+                <.button class="btn btn-error" phx-disable-with="Deleting...">
                   Delete organization permanently
                 </.button>
-                <.button type="button" phx-click="close_delete_form" class="btn btn-ghost">
+                <button type="button" phx-click="close_delete_form" class="btn btn-ghost">
                   Cancel
-                </.button>
+                </button>
               </div>
             </.form>
           <% else %>
@@ -215,7 +215,10 @@ defmodule ExampleWeb.OrganizationSettingsLive do
               </div>
               <span class={[
                 "badge",
-                if(@auth_policy.enforcement_mode == :sso_required, do: "badge-warning", else: "badge-outline")
+                if(@auth_policy.enforcement_mode == :sso_required,
+                  do: "badge-warning",
+                  else: "badge-outline"
+                )
               ]}>
                 {auth_policy_status(@auth_policy)}
               </span>
@@ -259,7 +262,6 @@ defmodule ExampleWeb.OrganizationSettingsLive do
 
               <div class="flex flex-wrap gap-2">
                 <.button
-                  type="submit"
                   name="_action"
                   value="enable_sso_only"
                   phx-disable-with="Enabling..."
@@ -267,7 +269,6 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                   Enable SSO-only
                 </.button>
                 <.button
-                  type="submit"
                   name="_action"
                   value="disable_sso_only"
                   class="btn btn-ghost"
@@ -343,11 +344,10 @@ defmodule ExampleWeb.OrganizationSettingsLive do
             </.inputs_for>
 
             <div class="flex flex-wrap gap-2">
-              <.button type="submit" name="_action" value="save" phx-disable-with="Saving...">
+              <.button name="_action" value="save" phx-disable-with="Saving...">
                 Save draft
               </.button>
               <.button
-                type="submit"
                 name="_action"
                 value="validate"
                 phx-disable-with="Validating..."
@@ -355,21 +355,20 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                 Validate
               </.button>
               <.button
-                type="submit"
                 name="_action"
                 value="activate"
                 phx-disable-with="Activating..."
               >
                 Activate
               </.button>
-              <.button
+              <button
                 :if={@enterprise_connection}
                 type="button"
                 phx-click="disable_enterprise_connection"
                 class="btn btn-ghost"
               >
                 Disable
-              </.button>
+              </button>
             </div>
           </.form>
         </section>

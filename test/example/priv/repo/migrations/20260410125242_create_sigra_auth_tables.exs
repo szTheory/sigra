@@ -63,7 +63,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
         references(
           :users,
           Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
-        ), null: false)
+        ),
+        null: false
+      )
 
       add(:token, :binary, null: false)
       add(:context, :string, null: false)
@@ -84,7 +86,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
         references(
           :users,
           Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
-        ), null: false)
+        ),
+        null: false
+      )
 
       add(:hashed_token, :binary, null: false)
       add(:type, :string, null: false, default: "standard")
@@ -114,7 +118,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
         references(
           :users,
           Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
-        ), null: false)
+        ),
+        null: false
+      )
 
       add(:type, :string, null: false)
       add(:encrypted_secret, :binary, null: false)
@@ -138,7 +144,9 @@ defmodule Example.Repo.Migrations.CreateSigraAuthTables do
         references(
           :users,
           Keyword.merge(@user_ref_opts, type: :binary_id, on_delete: :delete_all)
-        ), null: false)
+        ),
+        null: false
+      )
 
       add(:hashed_code, :string, null: false)
       add(:used_at, :utc_datetime_usec)

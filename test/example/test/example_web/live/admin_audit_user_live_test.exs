@@ -170,7 +170,7 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
 
   defp breadcrumb_fragment(html) do
     case :binary.match(html, ~s(aria-label="Breadcrumb")) do
-      {start, _} -> binary_part(html, start, min(1_400, byte_size(html) - start))
+      {start, _} -> binary_part(html, start, min(3_000, byte_size(html) - start))
       :nomatch -> ""
     end
   end

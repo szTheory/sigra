@@ -198,7 +198,7 @@ defmodule ExampleWeb.MFASettingsLive do
               </div>
 
               <div class="flex items-center gap-3">
-                <.button type="submit">Regenerate codes</.button>
+                <.button>Regenerate codes</.button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"

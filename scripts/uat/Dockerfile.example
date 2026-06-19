@@ -1,14 +1,79 @@
+# syntax=docker/dockerfile:1.7
+# Dev/UAT image for the test/example Phoenix app (Sigra installed as a path dep).
+#
+# Layer order is cache-correct: dependency fetch + compile live in layers keyed
+# ONLY on the manifests (mix.exs/mix.lock), so editing app source or templates
+# does NOT re-download or recompile dependencies. The sigra path dependency is
+# compiled in its own layer keyed on lib/ + priv/, so a style/template change
+# in the example only triggers a fast incremental example recompile.
+#
+# BuildKit cache mounts persist ~/.hex, ~/.mix and the Hex/rebar caches across
+# builds, so even a mix.lock change re-fetches from cache rather than the network.
+#
+# Build context is the repo root (see scripts/uat/docker-compose.yml `context: ../..`).
+# Keep Debian -slim (NOT Alpine): NIF deps argon2_elixir/comeonin compile C via
+# elixir_make and need a glibc toolchain.
 ARG SIGRA_UAT_ELIXIR_IMAGE=elixir:1.19.5-otp-28-slim
 FROM ${SIGRA_UAT_ELIXIR_IMAGE}
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    MIX_ENV=dev \
+    LANG=C.UTF-8
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends build-essential ca-certificates git inotify-tools \
-  && rm -rf /var/lib/apt/lists/*
+# 1. OS toolchain — cached unless the base image changes. build-essential for NIFs,
+#    inotify-tools for Phoenix live reload.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential ca-certificates git inotify-tools
+
+# 2. Hex + rebar — baked into the image (NOT cache-mounted). A cache mount on
+#    /root/.mix or /root/.hex would mask the installed archives in later RUN
+#    steps (mix would print "Shall I install Hex?" and fail to resolve the :hex
+#    SCM), so these must live in real image layers.
+RUN mix local.hex --force && mix local.rebar --force
 
 WORKDIR /app/test/example
 
-RUN mix local.hex --force && mix local.rebar --force
+# 3. DEPENDENCY LAYER — keyed only on manifests + config. Source/template edits
+#    never reach this layer, so a style change never re-fetches or recompiles
+#    deps. The sigra path dep is resolved from /app/mix.exs; its source (lib/priv)
+#    is copied BEFORE compilation so it is never compiled as an empty app.
+COPY mix.exs mix.lock /app/
+COPY config /app/config
+COPY lib /app/lib
+COPY priv /app/priv
+COPY test/example/mix.exs test/example/mix.lock ./
+COPY test/example/config ./config
 
-CMD ["sh", "-lc", "mix deps.get && mix deps.compile sigra --force && exec mix phx.server"]
+RUN mix deps.get
+# Compiles all third-party deps (incl. NIFs argon2/comeonin) AND the sigra path
+# dep in one pass. Baked into the image; cached unless mix.lock or sigra source
+# changes. An example-only edit (layer 4) never invalidates this.
+RUN mix deps.compile
+
+# test/example/config/dev.exs reads these at COMPILE time (the endpoint `ip` and
+# the Repo connection). Because this image compiles at BUILD time (not at
+# container start), they must be baked to the SAME values the container uses at
+# runtime, or Elixir's validate_compile_env aborts boot ("different value ... for
+# ExampleWeb.Endpoint") and the Repo would point at localhost instead of the
+# compose `postgres` service. Constant for the Dockerized proxy path; the compose
+# `web` service sets the identical values at runtime. Placed here (not at the top)
+# so changing them only re-bakes the example compile, not the cached deps layers.
+ENV SIGRA_EXAMPLE_BIND=0.0.0.0 \
+    PORT=4000 \
+    PGHOST=postgres \
+    PGPORT=5432 \
+    PGUSER=postgres \
+    PGPASSWORD=postgres \
+    PGDATABASE=example_dev
+
+# 4. EXAMPLE APP SOURCE — last. Editing example templates/code triggers at most a
+#    fast incremental recompile here; the deps+sigra layer stays cached.
+COPY test/example ./
+RUN mix compile
+
+# Live reload (inotify + Phoenix code reloader) handles in-container recompiles.
+# No deps.get / no --force at runtime.
+CMD ["mix", "phx.server"]

@@ -10,7 +10,8 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
 
   defmodule MockEnterpriseOAuth do
     def authorize_url(_config, :oidc, opts) do
-      {:ok, "https://idp.example.com/authorize", %{state: "state-123", enterprise: opts[:enterprise]}}
+      {:ok, "https://idp.example.com/authorize",
+       %{state: "state-123", enterprise: opts[:enterprise]}}
     end
 
     def handle_callback(_config, :oidc, _params, _session_params) do
@@ -59,7 +60,10 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
       organization: organization,
       connection: connection
     } do
-      conn = post(conn, ~p"/organizations/#{organization.slug}/sso", %{"routing_source" => "domain_discovery"})
+      conn =
+        post(conn, ~p"/organizations/#{organization.slug}/sso", %{
+          "routing_source" => "domain_discovery"
+        })
 
       assert redirected_to(conn) == "https://idp.example.com/authorize"
 
@@ -95,11 +99,16 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
       conn =
         conn
         |> init_test_session(%{
-          enterprise_auth_session: %{state: "state-123", enterprise_context: %{organization_id: organization.id}},
+          enterprise_auth_session: %{
+            state: "state-123",
+            enterprise_context: %{organization_id: organization.id}
+          },
           user_return_to: "/organizations/#{organization.slug}/members"
         })
         |> put_req_header("user-agent", "ExUnit")
-        |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
+        |> get(
+          ~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123"
+        )
 
       assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/members"
       assert get_session(conn, :enterprise_auth_session) == nil
@@ -127,10 +136,15 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
       conn =
         conn
         |> init_test_session(%{
-          enterprise_auth_session: %{state: "state-123", enterprise_context: %{organization_id: organization.id}},
+          enterprise_auth_session: %{
+            state: "state-123",
+            enterprise_context: %{organization_id: organization.id}
+          },
           user_return_to: "/organizations/other-org/settings"
         })
-        |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
+        |> get(
+          ~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123"
+        )
 
       assert redirected_to(conn) == ~p"/organizations"
       assert get_session(conn, :user_token)
@@ -148,7 +162,9 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
       conn =
         conn
         |> init_test_session(%{enterprise_auth_session: %{state: "state-123"}})
-        |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
+        |> get(
+          ~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123"
+        )
 
       assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/sso"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "session expired"
@@ -166,7 +182,9 @@ defmodule ExampleWeb.EnterpriseSSOControllerTest do
       conn =
         conn
         |> init_test_session(%{enterprise_auth_session: %{state: "state-123"}})
-        |> get(~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123")
+        |> get(
+          ~p"/organizations/#{organization.slug}/sso/callback?code=auth-code&state=state-123"
+        )
 
       assert redirected_to(conn) == ~p"/organizations/#{organization.slug}/sso"
       assert get_session(conn, :user_token) == nil

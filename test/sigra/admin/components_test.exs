@@ -46,10 +46,10 @@ defmodule Sigra.Admin.ComponentsTest do
   # Fixed assigns: label: "Active", remove_href: "/admin/users?status="
   @applied_chip_golden "<span class=\"sg-applied-chip \">\n  <span>Active</span>\n  <a class=\"sg-applied-chip__remove\" href=\"/admin/users?status=\" aria-label=\"Remove filter Active\">\n    <span aria-hidden=\"true\">&times;</span>\n    <span class=\"sr-only\">remove</span>\n  </a>\n</span>"
 
-  # empty_state — original inline markup from users_index_live.ex:285-302
-  # Fixed assigns: title: "No users match this view"; inner_block with fixed literal body.
+  # empty_state — component-local contract copy from Phase 187 UI-SPEC.
+  # Fixed assigns: title: "No users found"; inner_block with fixed literal body.
   # NOTE: inner_block returns a raw string which is HTML-escaped by render_slot/1.
-  @empty_state_golden "<div class=\"sg-empty-state sg-stack sg-stack--3 \">\n  <p class=\"sg-empty-state__title\">No users match this view</p>\n  Try adjusting your filters.\n</div>"
+  @empty_state_golden "<div class=\"sg-empty-state sg-stack sg-stack--3 \">\n  <p class=\"sg-empty-state__title\">No users found</p>\n  Try adjusting your filters.\n</div>"
 
   # page_back — original inline <a> from user_show_live.ex:91-93
   # Fixed assigns: return_to: "/admin/users", label: "Back to users"
@@ -65,10 +65,12 @@ defmodule Sigra.Admin.ComponentsTest do
   # In HEEx attribute position, atom :risk renders as "risk", so data-tone="risk" matches.
   # The notice component ships sg-notice (pixel-neutral — sg-notice is a byte-clone of
   # sg-list-row per app.css:945-993, Phase 154 intent).
-  @notice_golden "<div class=\"sg-notice \" data-tone=\"risk\">\n  <div class=\"sg-text-sm\">Locked — revoke active logins and unlock below.</div>\n</div>"
+  @notice_golden "<div class=\"sg-notice \" data-tone=\"risk\">\n  <div class=\"sg-text-sm\">Locked — revoke active sessions and unlock below.</div>\n</div>"
 
   # notice_link — inline notice action link. It is intentionally an underlined
   # native anchor, not a button-looking split action.
+  # Structural rendering test — inner_block text is arbitrary; copy hygiene is
+  # out of scope here (test files are excluded from the glossary drift guard).
   @notice_link_golden "<a href=\"/admin/users?needs_review=true\" class=\"sg-notice__action \">\n  Review accounts\n</a>"
 
   # ---------------------------------------------------------------------------
@@ -205,6 +207,7 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ "MFA coverage"
     assert html =~ "7 users with MFA"
     refute html =~ "sg-metric__value-suffix"
+    assert html =~ ~s(class="sg-metric__help")
     assert html =~ ~s(role="tooltip")
 
     assert html =~
@@ -214,6 +217,44 @@ defmodule Sigra.Admin.ComponentsTest do
     refute html =~ "sg-metric__help-trigger"
     refute html =~ "?"
     refute html =~ "<a"
+  end
+
+  test "summary_chip help defaults closed" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "users-metric-mfa",
+        icon: "mfa",
+        label: "MFA enrolled",
+        value: 42,
+        value_suffix: "MFA coverage",
+        help: "These users have multifactor authentication enabled."
+      )
+
+    assert html =~ ~s(data-sg-metric-help-root="true")
+    assert html =~ ~s(id="users-metric-mfa-help")
+    assert html =~ ~s(id="users-metric-mfa-help" class="sg-metric__help" hidden)
+    assert html =~ ~s(role="tooltip")
+    refute html =~ ~s(data-help-open="true")
+  end
+
+  test "summary_chip open renders deterministic help evidence" do
+    html =
+      render_component(&Components.summary_chip/1,
+        id: "users-metric-mfa",
+        icon: "mfa",
+        label: "MFA enrolled",
+        value: 42,
+        value_suffix: "MFA coverage",
+        help: "These users have multifactor authentication enabled.",
+        open: true
+      )
+
+    assert html =~ ~s(data-sg-metric-help-root="true")
+    assert html =~ ~s(data-help-open="true")
+    assert html =~ ~s(id="users-metric-mfa-help")
+    assert html =~ ~s(class="sg-metric__help")
+    assert html =~ ~s(role="tooltip")
+    refute html =~ ~s(class="sg-metric__help" hidden)
   end
 
   test "summary_chip renders plain check icon without an inner circle" do
@@ -262,10 +303,23 @@ defmodule Sigra.Admin.ComponentsTest do
            "applied_chip drifted — see admin-design-contract.md; do not re-record Playwright baselines"
   end
 
-  test "empty_state renders original inline empty state bytes faithfully" do
+  test "applied_chip remove link keeps explicit accessible remove label" do
+    html =
+      render_component(&Components.applied_chip/1,
+        label: "Role: Admin",
+        remove_href: "/admin/users?role="
+      )
+
+    assert html =~ ~s(aria-label="Remove filter Role: Admin")
+    assert html =~ ~s(<span aria-hidden="true">&times;</span>)
+    assert html =~ ~s(class="sg-applied-chip__remove")
+    assert html =~ ~s(href="/admin/users?role=")
+  end
+
+  test "empty_state renders contract empty state copy faithfully" do
     html =
       render_component(&Components.empty_state/1,
-        title: "No users match this view",
+        title: "No users found",
         inner_block: [%{inner_block: fn _, _ -> "Try adjusting your filters." end}]
       )
 
@@ -284,6 +338,37 @@ defmodule Sigra.Admin.ComponentsTest do
            "page_back drifted — see admin-design-contract.md; do not re-record Playwright baselines"
   end
 
+  test "page_back keeps hidden arrow glyph and descriptive text" do
+    html =
+      render_component(&Components.page_back/1,
+        return_to: "/admin/users",
+        label: "Back to users"
+      )
+
+    assert html =~ ~s(<span aria-hidden="true">&larr;</span> Back to users)
+    assert html =~ ~s(href="/admin/users")
+    refute html =~ ~s(aria-label=)
+  end
+
+  test "action-family shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    assert Regex.match?(
+             ~r/@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*\.sg-card-hover:hover[\s\S]*\}/,
+             css
+           ),
+           "task_card hover lift must stay pointer-gated"
+
+    assert css =~ ".sg-applied-chip__remove:focus-visible",
+           "applied_chip remove affordance must expose focus-visible styling"
+
+    assert css =~ ".sg-applied-chip__remove:active",
+           "applied_chip remove affordance must expose active styling"
+
+    refute css =~ ~r/transition:\s*all/,
+           "action-family CSS must use exact-property transitions"
+  end
+
   test "scope_ribbon renders original inline scope span bytes faithfully" do
     html =
       render_component(&Components.scope_ribbon/1,
@@ -292,6 +377,18 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html == @scope_ribbon_golden,
            "scope_ribbon drifted — see admin-design-contract.md; do not re-record Playwright baselines"
+  end
+
+  test "scope_ribbon default markup stays static body copy" do
+    html =
+      render_component(&Components.scope_ribbon/1,
+        copy: "Viewing all organizations"
+      )
+
+    assert html =~ ~s(<span class="sg-scope-ribbon sg-muted sg-text-sm ")
+    refute html =~ ~s(href=)
+    refute html =~ ~s(role="link")
+    refute html =~ ~s(tabindex=)
   end
 
   # ---------------------------------------------------------------------------
@@ -303,12 +400,36 @@ defmodule Sigra.Admin.ComponentsTest do
       render_component(&Components.notice/1,
         tone: :risk,
         inner_block: [
-          %{inner_block: fn _, _ -> "Locked — revoke active logins and unlock below." end}
+          %{inner_block: fn _, _ -> "Locked — revoke active sessions and unlock below." end}
         ]
       )
 
     assert html == @notice_golden,
            "notice drifted — see admin-design-contract.md; do not re-record Playwright baselines"
+  end
+
+  test "notice omits live-region role by default and permits explicit opt-in" do
+    html =
+      render_component(&Components.notice/1,
+        tone: :warn,
+        inner_block: [
+          %{inner_block: fn _, _ -> "Password reset email delivery delayed." end}
+        ]
+      )
+
+    refute html =~ ~s(role="alert")
+    refute html =~ ~s(role="status")
+
+    opt_in_html =
+      render_component(&Components.notice/1,
+        tone: :info,
+        role: "status",
+        inner_block: [
+          %{inner_block: fn _, _ -> "Impersonation session active." end}
+        ]
+      )
+
+    assert opt_in_html =~ ~s(role="status")
   end
 
   test "notice_link renders native inline notice action link" do
@@ -320,6 +441,31 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html == @notice_link_golden,
            "notice_link drifted — see admin-design-contract.md; keep notice actions inline"
+  end
+
+  test "content-status shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    [_, notice_block] = Regex.run(~r/\.sg-notice\s*\{([^}]*)\}/, css)
+
+    assert Regex.match?(~r/transition:\s*var\(--sg-transition-tone\)/, notice_block),
+           "notice tone changes must use the shared exact-property tone transition"
+
+    for tone <- ~w(ok warn risk info) do
+      assert css =~ ~s(.sg-notice[data-tone="#{tone}"]),
+             "notice must expose #{tone} tone styling"
+    end
+
+    assert css =~ ".sg-notice__action:hover"
+    assert css =~ ".sg-notice__action:focus-visible"
+    assert css =~ ".sg-notice__action:active"
+
+    [_, scope_ribbon_block] = Regex.run(~r/\.sg-scope-ribbon\s*\{([^}]*)\}/, css)
+    refute scope_ribbon_block =~ "transition"
+    refute scope_ribbon_block =~ "animation"
+
+    refute css =~ ~r/transition:\s*all/,
+           "content/status CSS must use exact-property transitions"
   end
 
   test "field_help renders accessible label-adjacent tooltip control" do
@@ -354,6 +500,31 @@ defmodule Sigra.Admin.ComponentsTest do
     refute html =~ "<a"
   end
 
+  test "field_help open renders deterministic help evidence" do
+    html =
+      render_component(&Components.field_help/1,
+        id: "branding-logo-url-help",
+        label: "Logo URL",
+        open: true,
+        inner_block: [
+          %{
+            inner_block: fn _, _ ->
+              "Shown on generated auth screens and email headers when set."
+            end
+          }
+        ]
+      )
+
+    assert html =~ ~s(class="sg-field-help ")
+    assert html =~ ~s(data-sg-field-help-root="true")
+    assert html =~ ~s(data-help-open="true")
+    assert html =~ ~s(aria-expanded="true")
+    assert html =~ ~s(id="branding-logo-url-help")
+    assert html =~ ~s(class="sg-field-help__panel")
+    assert html =~ ~s(role="tooltip")
+    refute html =~ ~s(role="tooltip" hidden)
+  end
+
   # ---------------------------------------------------------------------------
   # Structural assertions (2) — stat, skeleton — D-12
   # ---------------------------------------------------------------------------
@@ -373,6 +544,40 @@ defmodule Sigra.Admin.ComponentsTest do
 
     refute html =~ "sg-stat",
            "stat drifted: must not use invented sg-stat class — see admin-design-contract.md; do not re-record Playwright baselines"
+
+    refute html =~ "tabindex",
+           "stat drifted: read-only KPI must not become keyboard-focusable"
+
+    refute html =~ "href=",
+           "stat drifted: read-only KPI must not expose navigation attributes"
+
+    refute html =~ "sg-card-hover",
+           "stat drifted: read-only KPI must not expose hover-lift affordance"
+  end
+
+  test "metrics and help shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    assert Regex.match?(
+             ~r/@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*\.sg-metric-link:hover[\s\S]*\}/,
+             css
+           ),
+           "stat_link hover state must stay pointer-gated"
+
+    assert css =~ ".sg-metric-link:active",
+           "stat_link must expose a visible active state"
+
+    assert css =~ "transform var(--sg-motion-fast) var(--sg-ease)",
+           "stat_link transition must name exact properties, including transform"
+
+    assert css =~ "--sg-transition-tooltip",
+           "summary_chip and field_help tooltip panels must use the tooltip transition token"
+
+    assert css =~ ".sg-metric__help",
+           "summary_chip help panel CSS must ship from sigra_admin.css"
+
+    assert css =~ ".sg-field-help__panel",
+           "field_help panel CSS must ship from sigra_admin.css"
   end
 
   test "skeleton renders loading placeholder with sg-skeleton class" do
@@ -380,6 +585,35 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html =~ "sg-skeleton",
            "skeleton drifted: required sg-skeleton class missing — see admin-design-contract.md; do not re-record Playwright baselines"
+
+    refute html =~ ~s(aria-busy=),
+           "skeleton itself must stay decorative; busy state belongs on the containing region"
+  end
+
+  test "loading and audit shipped CSS exposes required L1 state hooks" do
+    css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+    assert css =~ ".sg-skeleton::after"
+    assert Regex.match?(
+             ~r/@keyframes sg-skeleton-shimmer \{[\s\S]*transform:\s*translateX\(100%\)/,
+             css
+           ),
+           "skeleton shimmer must animate transform only"
+
+    assert Regex.match?(
+             ~r/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*animation-duration:\s*0\.01ms !important/,
+             css
+           ),
+           "reduced motion must strip active skeleton shimmer movement"
+
+    assert css =~ ".sg-status-pill[data-tone]::before",
+           "audit status pills must expose a non-color glyph cue"
+
+    assert css =~ ".sg-code",
+           "audit rows with code evidence must use shipped code styling"
+
+    refute css =~ ~r/transition:\s*all/,
+           "loading/audit CSS must use exact-property transitions"
   end
 
   # ---------------------------------------------------------------------------

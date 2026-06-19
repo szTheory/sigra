@@ -12,14 +12,20 @@ defmodule Example.Repo.Migrations.AddOwnerUserIdAndPersonalToOrganizations do
 
   def change do
     alter table(:organizations, @prefix_opts) do
-      add(:owner_user_id, references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all)))
+      add(
+        :owner_user_id,
+        references(:users, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :nilify_all))
+      )
+
       add(:personal, :boolean, default: false, null: false)
     end
 
     create(index(:organizations, [:owner_user_id], @prefix_opts))
 
     create(
-      unique_index(:organizations, [:owner_user_id],
+      unique_index(
+        :organizations,
+        [:owner_user_id],
         Keyword.merge(@prefix_opts,
           where: "personal = true",
           name: :organizations_personal_owner_unique_index

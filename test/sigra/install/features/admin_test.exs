@@ -42,6 +42,12 @@ defmodule Sigra.Install.Features.AdminTest do
       assert {:eex, "admin/audit_export_controller.ex",
               "lib/my_app_web/controllers/admin/audit_export_controller.ex"} in files
     end
+
+    test "emits sigra_admin.css installer template to host priv/static/assets/ (DIST-02)" do
+      files = Admin.files(otp_app: :my_app, web_module: "MyAppWeb")
+
+      assert {:eex, "admin/sigra_admin.css", "priv/static/assets/sigra_admin.css"} in files
+    end
   end
 
   describe "migrations/1" do
@@ -82,6 +88,8 @@ defmodule Sigra.Install.Features.AdminTest do
       assert layouts_admin.content =~ "<.admin_shell"
       assert layouts_admin.content =~ "admin_breadcrumbs={@admin_breadcrumbs}"
       assert layouts_admin.content =~ "<.flash_group"
+      assert layouts_admin.content =~ ~s|href={~p"/assets/sigra_admin.css"}|,
+             "layouts_admin injection must include the sigra_admin.css <link> tag (DIST-03)"
 
       assert error_handler.marker == "def auth_error(conn, :insufficient_scope, _opts) do"
       assert error_handler.anchor == :before_last_end
@@ -304,6 +312,223 @@ defmodule Sigra.Install.Features.AdminTest do
       assert source =~ ~s({:phoenix_live_view, "~> 1.1"})
       refute source =~ ~s({:phoenix_live_view, "~> 1.1", optional: true})
     end
+  end
+
+  describe "DIST-05 example≡template byte-parity (sigra_admin.css)" do
+    test "example copy is byte-identical to the installer template" do
+      template = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+      example = File.read!("test/example/priv/static/assets/sigra_admin.css")
+
+      assert byte_size(template) == byte_size(example),
+             "size mismatch — resync with: cp priv/templates/sigra.install/admin/sigra_admin.css test/example/priv/static/assets/sigra_admin.css"
+
+      assert template == example,
+             "content mismatch — example copy has diverged from the installer template; resync with: cp priv/templates/sigra.install/admin/sigra_admin.css test/example/priv/static/assets/sigra_admin.css"
+    end
+  end
+
+  describe "D-11 System↔explicit-toggle dark-block parity" do
+    test "admin dark @media block and app.css explicit-toggle dark block declare identical --sg-* values" do
+      admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+      app_css = File.read!("test/example/priv/static/assets/css/app.css")
+
+      admin_dark_props = extract_dark_media_props(admin_css)
+      app_dark_props = extract_explicit_dark_props(app_css)
+
+      assert admin_dark_props == app_dark_props,
+             "Dark --sg-* token values diverged between System path (@media prefers-color-scheme: dark in sigra_admin.css) " <>
+               "and explicit-toggle path (html[data-sg-admin-theme=dark] .sg-admin-shell in app.css) — " <>
+               "update BOTH dark blocks together when changing any dark token"
+
+      # Dark brand-strong must be #fdba74 (WCAG AA lightened value from v1.34; supersedes
+      # the scoped .sg-filter-chip fix). If changed, update all four parity surfaces and
+      # both snapshot allowlists (snapshot-allowlist + snapshot-allowlist-design).
+      assert "--sg-color-brand-strong: #fdba74;" in admin_dark_props,
+             "dark brand-strong must be #fdba74 (WCAG AA lightened value from v1.34); " <>
+               "if changed, update all four parity surfaces and both snapshot allowlists"
+    end
+
+    test "auth ember-family values match admin equivalents in light and dark" do
+      admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+      auth_css = File.read!("priv/templates/sigra.install/core/sigra_auth.css")
+
+      # Light ember parity
+      for {admin_token, auth_token} <- [
+            {"--sg-color-risk", "--sigra-auth-risk"},
+            {"--sg-color-warn", "--sigra-auth-warn"},
+            {"--sg-color-ok", "--sigra-auth-ok"}
+          ] do
+        admin_val = extract_token_value(admin_css, admin_token)
+        auth_val = extract_token_value(auth_css, auth_token, ".sigra-auth")
+
+        assert admin_val == auth_val,
+               "Light ember parity mismatch for #{admin_token} (admin) vs #{auth_token} (auth): " <>
+                 "#{inspect(admin_val)} != #{inspect(auth_val)} — " <>
+                 "update sigra_auth.css to restore ember parity"
+      end
+
+      # Dark ember parity — extract dark-block lines from each file
+      admin_dark_lines =
+        admin_css |> extract_dark_media_props() |> Enum.join("\n")
+
+      auth_dark_block =
+        auth_css
+        |> extract_css_block(~s(.sigra-auth[data-theme="dark"]))
+
+      # Note: --sg-color-panel vs --sigra-auth-surface intentionally differ
+      # (#1f1d1a vs #211f1c); not asserted here.
+      for {admin_token, auth_token, dark_val} <- [
+            {"--sg-color-risk", "--sigra-auth-risk", "#f8a39c"},
+            {"--sg-color-warn", "--sigra-auth-warn", "#f5c451"},
+            {"--sg-color-ok", "--sigra-auth-ok", "#5dd1a0"}
+          ] do
+        assert String.contains?(admin_dark_lines, "#{admin_token}: #{dark_val};"),
+               "Admin dark #{admin_token} should be #{dark_val} — " <>
+                 "if changed, update sigra_auth.css to restore ember parity"
+
+        assert String.contains?(auth_dark_block, "#{auth_token}: #{dark_val};"),
+               "Auth dark #{auth_token} should be #{dark_val} — " <>
+                 "update sigra_auth.css to restore ember parity with admin dark tokens"
+      end
+    end
+
+    test "admin token reference documents every canonical :root --sg-* token" do
+      admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+      token_reference = File.read!("guides/reference/admin-token-reference.md")
+
+      documented_tokens =
+        ~r/`(--sg-[\w-]+)`/
+        |> Regex.scan(token_reference, capture: :all_but_first)
+        |> List.flatten()
+        |> MapSet.new()
+
+      missing_tokens =
+        admin_css
+        |> extract_root_sg_token_names()
+        |> Enum.reject(&MapSet.member?(documented_tokens, &1))
+
+      assert missing_tokens == [],
+             "guides/reference/admin-token-reference.md is missing documented rows for: " <>
+               Enum.join(missing_tokens, ", ")
+    end
+  end
+
+  defp extract_dark_media_props(css) do
+    css
+    |> extract_css_block("@media (prefers-color-scheme: dark)")
+    |> extract_sg_declarations()
+  end
+
+  defp extract_explicit_dark_props(css) do
+    css
+    |> extract_css_block(~s(html[data-sg-admin-theme="dark"] .sg-admin-shell))
+    |> extract_sg_declarations()
+  end
+
+  defp extract_css_block(css, selector) do
+    with {selector_offset, _} <- :binary.match(css, selector),
+         block_source <- binary_part(css, selector_offset, byte_size(css) - selector_offset),
+         {brace_offset, 1} <- :binary.match(block_source, "{") do
+      block_source
+      |> binary_part(brace_offset, byte_size(block_source) - brace_offset)
+      |> take_balanced_block()
+    else
+      :nomatch -> flunk("Could not find CSS block for #{selector}")
+    end
+  end
+
+  defp take_balanced_block(source) do
+    source
+    |> String.graphemes()
+    |> Enum.reduce_while({0, []}, fn
+      "{", {depth, chars} ->
+        {:cont, {depth + 1, ["{" | chars]}}
+
+      "}", {1, chars} ->
+        {:halt, Enum.reverse(["}" | chars])}
+
+      "}", {depth, chars} ->
+        {:cont, {depth - 1, ["}" | chars]}}
+
+      char, {depth, chars} ->
+        {:cont, {depth, [char | chars]}}
+    end)
+    |> case do
+      chars when is_list(chars) -> Enum.join(chars)
+      {_depth, _chars} -> flunk("Could not find balanced CSS block")
+    end
+  end
+
+  defp extract_sg_declarations(block) do
+    ~r/--sg-[\w-]+\s*:\s*[^;]+;/s
+    |> Regex.scan(block)
+    |> List.flatten()
+    |> Enum.map(fn declaration ->
+      declaration
+      |> String.replace(~r/\s+/, " ")
+      |> String.trim()
+    end)
+    |> Enum.sort()
+  end
+
+  defp extract_root_sg_token_names(css) do
+    css
+    |> extract_css_blocks(":root")
+    |> Enum.flat_map(&extract_sg_declarations/1)
+    |> Enum.map(fn declaration ->
+      [token_name, _value] = String.split(declaration, ":", parts: 2)
+      token_name
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp extract_css_blocks(css, selector) do
+    do_extract_css_blocks(css, selector, [])
+  end
+
+  defp do_extract_css_blocks(css, selector, blocks) do
+    case :binary.match(css, selector) do
+      {selector_offset, _} ->
+        block_source = binary_part(css, selector_offset, byte_size(css) - selector_offset)
+
+        case :binary.match(block_source, "{") do
+          {brace_offset, 1} ->
+            block_with_prefix =
+              binary_part(block_source, brace_offset, byte_size(block_source) - brace_offset)
+
+            block = take_balanced_block(block_with_prefix)
+            consumed_bytes = selector_offset + brace_offset + byte_size(block)
+            rest = binary_part(css, consumed_bytes, byte_size(css) - consumed_bytes)
+            do_extract_css_blocks(rest, selector, [block | blocks])
+
+          :nomatch ->
+            Enum.reverse(blocks)
+        end
+
+      :nomatch ->
+        Enum.reverse(blocks)
+    end
+  end
+
+  defp extract_token_value(css, token_name, context_selector \\ ":root") do
+    root_content =
+      css
+      |> extract_css_blocks(context_selector)
+      |> Enum.join("\n")
+
+    root_content
+    |> String.split("\n")
+    |> Enum.find_value(fn line ->
+      trimmed = String.trim(line)
+
+      if String.starts_with?(trimmed, token_name <> ":") do
+        trimmed
+        |> String.replace_prefix(token_name <> ":", "")
+        |> String.trim()
+        |> String.trim_trailing(";")
+      end
+    end)
   end
 
   defp source_order?(source, first, second) do

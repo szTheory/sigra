@@ -8,8 +8,11 @@ defmodule Example.Repo.Migrations.CreateEnterpriseConnections do
     create table(:enterprise_connections, Keyword.merge(@prefix_opts, primary_key: false)) do
       add :id, :binary_id, primary_key: true
 
-      add :organization_id, references(:organizations, Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)),
-        null: false
+      add :organization_id,
+          references(
+            :organizations,
+            Keyword.merge(@ref_opts, type: :binary_id, on_delete: :delete_all)
+          ), null: false
 
       add :protocol, :string, null: false
       add :status, :string, null: false, default: "draft"
@@ -24,7 +27,9 @@ defmodule Example.Repo.Migrations.CreateEnterpriseConnections do
 
     create index(:enterprise_connections, [:organization_id], @prefix_opts)
 
-    create unique_index(:enterprise_connections, [:organization_id, :protocol, :display_name],
+    create unique_index(
+             :enterprise_connections,
+             [:organization_id, :protocol, :display_name],
              Keyword.merge(@prefix_opts,
                where: "status = 'active'",
                name: :enterprise_connections_active_display_name_index

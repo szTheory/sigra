@@ -20,110 +20,21 @@ This runbook walks through the **19 human verification items** the per-phase ver
 
 ## 0. Bring up the environment
 
-### Start the stack
+Environment setup — Postgres in Docker, the shared-Traefik demo URLs, the build
+caching model, and troubleshooting — now lives in
+**[Local development with Docker](../../guides/recipes/local-development.md)**.
+The rest of this runbook assumes the stack is already up.
+
+The one-liner, from the repo root:
 
 ```bash
-# From the repo root:
-scripts/uat/up.sh
+scripts/uat/up.sh            # host-run demo; or `--proxy` for a stable URL
 ```
 
-This will:
-
-1. Start Postgres in Docker under a project-scoped Compose name
-2. Fetch deps in `test/example/`
-3. Create, migrate, and seed the `example_dev` database
-4. Write the current runtime env to `tmp/uat.env`
-5. Print the exact Postgres port, app port, server command, and entry-point URLs
-
-Optional stable local URL through the shared proxy:
-
-```bash
-scripts/dev-proxy/up.sh
-scripts/uat/up.sh --proxy
-```
-
-`--proxy` starts the Dockerized Vaultr example app and attaches it to the
-external Docker network named `proxy`. The shared `dev_proxy-traefik-1`
-container owns `127.0.0.1:80` and routes `.localhost` hostnames, so Sigra is
-reachable at `http://sigra.localhost` without reserving its own port-80 proxy.
-The raw `127.0.0.1:<port>` URL is still printed as a fallback. The
-`scripts/dev-proxy/up.sh` helper is generic local developer infrastructure:
-any compatible Traefik attached to the external Docker network named `proxy`
-can route Sigra's labels, and no sibling project checkout is required.
-Proxy mode recompiles the local Sigra path dependency on startup. If you change
-Sigra library code while the Dockerized app is already running and a browser
-refresh still looks stale, run:
-
-```bash
-scripts/uat/up.sh --refresh-code
-```
-
-`--proxy` fails fast if another running Sigra UAT web container already claims
-the same `SIGRA_UAT_PROXY_HOST`, which prevents `sigra.localhost` from silently
-routing to an older checkout.
-
-Do not use a project-private Sigra Traefik on port 80. If you explicitly need a
-private fallback proxy for UAT isolation, use the opt-in fallback:
-
-```bash
-scripts/uat/up.sh --private-traefik
-```
-
-That keeps Phoenix running on the host and starts Sigra's private Traefik on
-`http://sigra.localhost:18080`. Choose another nonstandard fallback port with:
-
-```bash
-SIGRA_UAT_PROXY_PORT=18081 scripts/uat/up.sh --private-traefik
-```
-
-The private fallback proxy image defaults to `traefik:v3.7.1`. Override
-`SIGRA_UAT_TRAEFIK_IMAGE` if your local Docker cache or project policy uses a
-different Traefik v3 tag.
-
-For the default raw path and the `--private-traefik` fallback, start Phoenix in
-a second terminal:
-
-```bash
-cd test/example
-PGHOST=127.0.0.1 PGPORT=<printed-postgres-port> PORT=<printed-app-port> SIGRA_EXAMPLE_URL=<printed-app-url> iex -S mix phx.server
-```
-
-The app URL is printed by `scripts/uat/up.sh`.
-Use the printed app URL for every local browser step below unless a step
-explicitly calls out a fixed external-provider callback URL. In shared proxy
-mode, Phoenix is already running inside the Compose `web` service and
-`scripts/uat/status.sh` prints the Docker logs command instead of a manual
-server command.
-
-The local Swoosh mailbox preview is at `/dev/mailbox` on that app URL — open this in a second tab and keep it visible. Every time the app would send an email, it appears here instead.
-
-When you're done with the UAT session:
-
-```bash
-scripts/uat/status.sh         # reprint URLs and the server command
-scripts/uat/up.sh --refresh-code # recompile Sigra in the Dockerized proxy app
-scripts/uat/up.sh --print-env # print export lines for ad-hoc commands
-scripts/uat/down.sh           # stop containers for this Compose project, keep DB
-scripts/uat/down.sh --purge   # also wipe this project's DB volume
-```
-
-By default, the UAT stack does not reserve host port `5432`, so Homebrew
-Postgres, `act`, and other Docker projects can keep running. To force a stable
-Postgres port for debugging, run `SIGRA_UAT_PG_PORT=5432 scripts/uat/up.sh`;
-if that fixed port is occupied, Docker will report the bind conflict.
-
-The helper also avoids fixed Phoenix port `4000` by default. Use
-`SIGRA_EXAMPLE_PORT=4000 scripts/uat/up.sh` only when you need a stable browser
-origin, such as an external OAuth callback. If multiple demo projects are
-running, leave both ports dynamic and use `scripts/uat/status.sh` to recover the
-current URLs.
-
-Each checkout gets a Compose project name based on user, branch, and checkout
-path. That keeps containers, networks, and volumes separate when you run several
-Sigra clones or sibling OSS libraries at the same time. The default
-dynamic-port path stays the lowest-friction UAT route; the stable
-`http://sigra.localhost` path composes with the one shared local Traefik instead
-of starting a Sigra-owned port-80 proxy.
+It starts Postgres, prepares the `example_dev` database, and prints every key
+URL/route, the server command, the mailbox (`/dev/mailbox`), and teardown
+(`scripts/uat/down.sh`). Use the printed app URL for the browser steps below
+unless a step calls out a fixed external-provider callback URL.
 
 ---
 

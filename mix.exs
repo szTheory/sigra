@@ -142,7 +142,11 @@ defmodule Sigra.MixProject do
       ],
       "ci.install_golden": [
         "test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs"
-      ]
+      ],
+      # Boot the ephemeral Dockerized test Postgres. NOTE: a mix alias runs in a
+      # child process and cannot export env into your shell — after this, load
+      # the port via `source tmp/db.env` (or direnv) before running `mix test`.
+      "test.db": ["cmd scripts/db/up.sh"]
     ]
   end
 
@@ -226,6 +230,7 @@ defmodule Sigra.MixProject do
         "docs/launch/v1.0/evidence.md",
         "docs/nyquist-posture-matrix.md",
         "docs/NEXT-STEPS-MANUAL.md",
+        "guides/recipes/local-development.md",
         "guides/recipes/testing.md",
         "guides/recipes/subdomain-auth.md",
         "guides/recipes/custom-user-fields.md",

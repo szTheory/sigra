@@ -37,6 +37,21 @@ echo "snapshot-recapture-gate: (a) compare-mode admin checkpoints across 3 proje
 echo "snapshot-recapture-gate: (b) drift/canary guard (only intended slugs changed, and all did)"
 bash "${ROOT}/scripts/ci/snapshot-canary-guard.sh" --base HEAD --require-all "${ALLOW_ARGS[@]}"
 
+echo "snapshot-recapture-gate: (a2) compare-mode admin design gallery across 3 projects"
+( cd "$PW" && CI=true SIGRA_EXAMPLE_URL="$SIGRA_EXAMPLE_URL" \
+    npx playwright test tests/admin-design.spec.ts \
+      --project=admin-design-chromium \
+      --project=admin-design-mobile \
+      --project=admin-design-dark )
+
+echo "snapshot-recapture-gate: (b2) drift/canary guard — design lane"
+SNAP_DIR="${PW}/tests/admin-design.spec.ts-snapshots" \
+bash "${ROOT}/scripts/ci/snapshot-canary-guard.sh" \
+  --base HEAD \
+  --allowlist "${PW}/snapshot-allowlist-design" \
+  --canary board-notice \
+  --require-all "${ALLOW_ARGS[@]}"
+
 echo "snapshot-recapture-gate: (c) ExUnit component byte-goldens"
 ( cd "$ROOT" && MIX_ENV=test mix test test/sigra/admin/components_test.exs )
 

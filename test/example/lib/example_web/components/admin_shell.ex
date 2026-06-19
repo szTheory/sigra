@@ -171,7 +171,9 @@ defmodule ExampleWeb.Components.AdminShell do
                   :if={!breadcrumb_current?(index, @breadcrumb_items)}
                   class="sg-breadcrumb__sep"
                   aria-hidden="true"
-                >/</span>
+                >
+                  /
+                </span>
               </span>
             </li>
           </ol>

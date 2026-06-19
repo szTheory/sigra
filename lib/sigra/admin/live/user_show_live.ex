@@ -44,7 +44,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
      assign(socket, :confirm_action, %{
        type: :revoke_session,
        token: Base.url_decode64!(encoded_token, padding: false),
-       copy: revoke_session_copy(socket.assigns.detail)
+       title: "Revoke this session?",
+       copy: revoke_session_copy(socket.assigns.detail),
+       confirm_label: "Revoke session",
+       cancel_label: "Keep sessions"
      })}
   end
 
@@ -52,7 +55,10 @@ defmodule Sigra.Admin.Live.UserShowLive do
     {:noreply,
      assign(socket, :confirm_action, %{
        type: :revoke_all_sessions,
-       copy: revoke_all_sessions_copy(socket.assigns.detail)
+       title: "Revoke all sessions?",
+       copy: revoke_all_sessions_copy(socket.assigns.detail),
+       confirm_label: "Revoke all sessions",
+       cancel_label: "Keep sessions"
      })}
   end
 
@@ -184,7 +190,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </table>
         </div>
 
-        <.empty_state :if={@detail.sessions == []} title="No active sessions."><p class="sg-muted sg-text-sm">This user does not have a currently visible session in this scope.</p></.empty_state>
+        <.empty_state :if={@detail.sessions == []} title="No active sessions"><p class="sg-muted sg-text-sm">This user does not have a currently visible session in this scope.</p></.empty_state>
       </section>
 
       <div class="sg-detail-grid">
@@ -242,16 +248,16 @@ defmodule Sigra.Admin.Live.UserShowLive do
               </a>
             </div>
           </article>
-          <.empty_state :if={@detail.organizations == []} title="No organization memberships"><p class="sg-muted sg-text-sm">This account is not currently attached to a tenant.</p></.empty_state>
+          <.empty_state :if={@detail.organizations == []} title="No organization memberships"><p class="sg-muted sg-text-sm">This user is not a member of any organization.</p></.empty_state>
         </div>
       </section>
 
       <section class="sg-card sg-stack sg-stack--3">
         <div class="sg-cluster sg-cluster--between">
           <div class="sg-stack sg-stack--1">
-            <h2 class="sg-section-heading">Recent Audit</h2>
+            <h2 class="sg-section-heading">Recent audit</h2>
             <p class="sg-section-copy">
-              Recent activity stays aligned with the full scoped audit history for this user.
+              Shows the most recent events. Open the full audit to filter and export.
             </p>
           </div>
 
@@ -269,7 +275,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
       <section class="sg-danger-panel sg-stack sg-stack--3">
         <div class="sg-stack sg-stack--1">
           <h2 class="sg-section-heading">Danger Zone</h2>
-          <p class="sg-muted sg-text-sm">Session revocation uses Sigra's canonical session APIs.</p>
+          <p class="sg-muted sg-text-sm">Revoking a session signs the user out of that device immediately.</p>
           <p class="sg-muted sg-text-sm">
             Support actions affect {@detail.danger_zone.impersonation_target_label} in {@detail.scope_label}.
           </p>
@@ -306,16 +312,25 @@ defmodule Sigra.Admin.Live.UserShowLive do
         <p class="sg-muted sg-text-sm">{Map.get(section, :body) || Map.get(section, "body")}</p>
       </section>
 
-      <dialog :if={@confirm_action} open class="modal">
-        <div class="modal-box">
-          <p class="sg-section-heading">Confirm action</p>
+      <div :if={@confirm_action} id="user-session-confirm-overlay" phx-hook="ConfirmDialog" class="sg-confirm-overlay" role="presentation">
+        <section
+          class="sg-confirm-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="user-session-confirm-title"
+        >
+          <p id="user-session-confirm-title" class="sg-section-heading">{@confirm_action.title}</p>
           <p class="sg-text-sm" style="margin-top: var(--sg-space-3);">{@confirm_action.copy}</p>
-          <div class="modal-action">
-            <button type="button" phx-click="cancel_confirm" class="sg-btn sg-btn--ghost sg-btn--sm">Cancel</button>
-            <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">Confirm</button>
+          <div class="sg-confirm-dialog__actions">
+            <button type="button" phx-click="cancel_confirm" data-sg-confirm-cancel class="sg-btn sg-btn--ghost sg-btn--sm">
+              {@confirm_action.cancel_label}
+            </button>
+            <button type="button" phx-click="confirm_action" class="sg-btn sg-btn--danger sg-btn--sm">
+              {@confirm_action.confirm_label}
+            </button>
           </div>
-        </div>
-      </dialog>
+        </section>
+      </div>
     </section>
     """
   end
@@ -403,11 +418,11 @@ defmodule Sigra.Admin.Live.UserShowLive do
   defp show_impersonation_start?(_current_scope), do: true
 
   defp revoke_session_copy(detail) do
-    "Revoke this session for #{detail.user.email} in #{detail.scope_label}? The user will need to sign in again."
+    "Revoke this session for #{detail.user.email}? This signs them out of that browser or device."
   end
 
   defp revoke_all_sessions_copy(detail) do
-    "Revoke every active session for #{detail.user.email} in #{detail.scope_label}? This signs them out everywhere."
+    "Revoke every active session for #{detail.user.email}? This signs them out everywhere."
   end
 
   defp scope_copy(%Scope{mode: :organization, organization: %{name: name}}),
@@ -484,13 +499,13 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
     cond do
       identity.locked? ->
-        {:risk, "Locked — revoke active logins and unlock below."}
+        {:risk, "Locked — revoke active sessions and unlock below."}
 
       not identity.confirmed? ->
         {:warn, "Email unconfirmed — the user cannot complete sign-in."}
 
       not mfa_enabled?(detail.security.mfa_status) ->
-        {:warn, "No MFA configured — recommend enabling a second factor."}
+        {:warn, "No MFA configured — ask the user to set up a second factor."}
 
       true ->
         nil

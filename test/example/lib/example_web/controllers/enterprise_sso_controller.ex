@@ -15,7 +15,10 @@ defmodule ExampleWeb.EnterpriseSSOController do
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "Enterprise sign-in is not available for this organization right now.")
+        |> put_flash(
+          :error,
+          "Enterprise sign-in is not available for this organization right now."
+        )
         |> redirect(to: ~p"/users/log_in")
     end
   end
@@ -41,7 +44,10 @@ defmodule ExampleWeb.EnterpriseSSOController do
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "Enterprise sign-in is not available for this organization right now.")
+        |> put_flash(
+          :error,
+          "Enterprise sign-in is not available for this organization right now."
+        )
         |> redirect(to: ~p"/organizations/#{org_slug}/sso")
     end
   end
@@ -63,7 +69,8 @@ defmodule ExampleWeb.EnterpriseSSOController do
             |> Map.put(:user_agent, client_user_agent(conn))
 
           redirect_path =
-            UserAuth.enterprise_return_to_path(conn, routing.organization.slug) || ~p"/organizations"
+            UserAuth.enterprise_return_to_path(conn, routing.organization.slug) ||
+              ~p"/organizations"
 
           case Sigra.Auth.create_session(Auth.sigra_config(), user, metadata, []) do
             {:ok, session} ->
@@ -83,7 +90,10 @@ defmodule ExampleWeb.EnterpriseSSOController do
         {:link_confirmation_required, _info} ->
           conn
           |> delete_session(@enterprise_session_key)
-          |> put_flash(:error, "Finish sign-in with your existing account before linking enterprise access.")
+          |> put_flash(
+            :error,
+            "Finish sign-in with your existing account before linking enterprise access."
+          )
           |> redirect(to: ~p"/organizations/#{org_slug}/sso")
 
         {:error, %OAuthError{} = error} ->
@@ -96,7 +106,10 @@ defmodule ExampleWeb.EnterpriseSSOController do
       {:error, _reason} ->
         conn
         |> delete_session(@enterprise_session_key)
-        |> put_flash(:error, "Enterprise sign-in is not available for this organization right now.")
+        |> put_flash(
+          :error,
+          "Enterprise sign-in is not available for this organization right now."
+        )
         |> redirect(to: ~p"/organizations/#{org_slug}/sso")
     end
   end

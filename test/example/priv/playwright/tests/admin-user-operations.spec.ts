@@ -116,19 +116,27 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     // the list is empty afterward.
     const revokeSession = page.getByRole('button', { name: 'Revoke session' });
     const confirmPrompt = page.getByText(
-      `Revoke this session for ${targetEmail} in Global scope? The user will need to sign in again.`,
+      `Revoke this session for ${targetEmail}? This signs them out of that browser or device.`,
     );
+    // The ConfirmDialog's danger button now carries the action-specific label
+    // ("Revoke session", not "Confirm" — Phase 188-04), which collides by name with
+    // the per-row revoke triggers, so scope the confirm click to the dialog overlay.
+    const confirmButton = page
+      .locator('#user-session-confirm-overlay')
+      .getByRole('button', { name: 'Revoke session' });
 
     while ((await revokeSession.count()) > 0) {
       const before = await revokeSession.count();
       await revokeSession.first().click();
       await expect(confirmPrompt).toBeVisible();
-      await page.getByRole('button', { name: 'Confirm' }).click();
+      await confirmButton.click();
       await expect(page.getByText('Session revoked.')).toBeVisible();
       await expect(revokeSession).toHaveCount(before - 1);
     }
 
-    await expect(page.getByText('No active sessions.')).toBeVisible();
+    // Empty-state title dropped its trailing period in the v1.39 admin redesign
+    // (lib user_show_live.ex: `title="No active sessions"`).
+    await expect(page.getByText('No active sessions')).toBeVisible();
     await expectScopeChrome(page, 'Global');
   });
 

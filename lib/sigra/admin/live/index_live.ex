@@ -40,14 +40,14 @@ defmodule Sigra.Admin.Live.IndexLive do
         <p class="sg-page-kicker">Admin overview</p>
         <h1 class="sg-page-title">What do you need to do?</h1>
         <p class="sg-page-copy">
-          Start from the job at hand — find a user, investigate an event, or review risky accounts.
+          Start from the job at hand — find a user, investigate an event, or review risky users.
         </p>
       </header>
 
       <.notice :if={not @loading} tone={if @needs_review > 0, do: :risk, else: :ok}>
         <%= if @needs_review > 0 do %>
-          {@needs_review} accounts need review —
-          <.notice_link href="/admin/users?needs_review=true">Review accounts</.notice_link>
+          {@needs_review} users need review —
+          <.notice_link href="/admin/users?needs_review=true">Review users</.notice_link>
         <% else %>
           All clear
         <% end %>
@@ -67,10 +67,10 @@ defmodule Sigra.Admin.Live.IndexLive do
           action="Investigate audit"
         />
         <.task_card
-          title="Review risky accounts"
-          body="Jump straight to locked or deletion-scheduled accounts before they surprise support."
+          title="Review risky users"
+          body="Jump straight to locked or deletion-scheduled users before they surprise support."
           href="/admin/users?needs_review=true"
-          action="Review locked"
+          action="Review users"
         />
       </div>
 
@@ -98,7 +98,7 @@ defmodule Sigra.Admin.Live.IndexLive do
             value={new_this_week}
             value_suffix="new this week"
             subvalue={month_detail(new_this_week, new_this_month)}
-            help="Accounts registered since Monday UTC and since the first day of this month."
+            help="Users registered since Monday UTC and since the first day of this month."
           />
           <.summary_chip
             :if={activity_available?(@summary_activity)}

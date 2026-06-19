@@ -38,7 +38,9 @@ defmodule Sigra.Install.Features.Admin do
       {:eex, "admin/impersonation_controller.ex",
        Path.join(["lib", web, "controllers", "admin", "impersonation_controller.ex"])},
       {:eex, "admin/audit_export_controller.ex",
-       Path.join(["lib", web, "controllers", "admin", "audit_export_controller.ex"])}
+       Path.join(["lib", web, "controllers", "admin", "audit_export_controller.ex"])},
+      {:eex, "admin/sigra_admin.css",
+       Path.join(["priv", "static", "assets", "sigra_admin.css"])}
     ]
   end
 

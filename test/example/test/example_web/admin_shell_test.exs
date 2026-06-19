@@ -359,7 +359,7 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "sg-notice"
       assert html =~ "Find a user"
       assert html =~ "Investigate an event"
-      assert html =~ "Review risky accounts"
+      assert html =~ "Review risky users"
       refute html =~ ~s(role="status")
       refute html =~ ~s(data-phx-id=)
       refute html =~ "sg-metric-link__value"
@@ -385,9 +385,9 @@ defmodule ExampleWeb.AdminShellTest do
       refute html =~ "sg-skeleton"
       refute html =~ ~s(aria-busy="true")
       assert html =~ "sg-notice"
-      assert html =~ "accounts need review"
+      assert html =~ "users need review"
       assert html =~ "sg-notice__action"
-      assert html =~ "Review accounts"
+      assert html =~ "Review users"
       assert html =~ ~s(href="/admin/users?needs_review=true")
       refute html =~ ~s(role="status")
       refute html =~ "sg-metric-link__value"
@@ -421,7 +421,7 @@ defmodule ExampleWeb.AdminShellTest do
 
       assert html =~ "sg-skeleton"
       assert html =~ "Support members"
-      assert html =~ "Investigate org events"
+      assert html =~ "Investigate organization events"
       refute html =~ "sg-metric-link__value"
       refute html =~ "sg-card sg-posture-strip"
       refute html =~ "sg-posture-strip__risk"
@@ -457,9 +457,9 @@ defmodule ExampleWeb.AdminShellTest do
       refute html =~ "sg-skeleton"
       refute html =~ ~s(aria-busy="true")
       assert html =~ "sg-notice"
-      assert html =~ "account needs review"
+      assert html =~ "member needs review"
       assert html =~ "sg-notice__action"
-      assert html =~ "Review accounts"
+      assert html =~ "Review members"
       assert html =~ ~s(href="/admin/organizations/#{organization.slug}/users?needs_review=true")
       assert html =~ ~s(role="status")
       refute html =~ "sg-metric-link__value"

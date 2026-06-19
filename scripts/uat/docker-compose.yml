@@ -49,20 +49,28 @@ services:
       - "dev.sigra.role=demo-web"
       - "dev.sigra.stack=uat"
       - "dev.sigra.proxy-host=${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
+      # Vendor-neutral claim label so sibling libs (and Sigra's own conflict
+      # check) can see who holds a given host without depending on dev.sigra.*.
+      - "dev.local.proxy-host=${SIGRA_UAT_PROXY_HOST:-sigra.localhost}"
       - "dev.sigra.proxy-network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
       - "traefik.enable=true"
       - "traefik.docker.network=${SIGRA_UAT_PROXY_NETWORK:-proxy}"
+      # Primary router — the per-checkout unique host (never collides).
       - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.entrypoints=web"
       - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}.rule=Host(`${SIGRA_UAT_PROXY_HOST:-sigra.localhost}`)"
       - "traefik.http.services.${SIGRA_UAT_PROXY_ROUTER:-sigra}.loadbalancer.server.port=4000"
-    volumes:
-      - ../..:/app
-      - root_deps:/app/deps
-      - root_build:/app/_build
-      - example_deps:/app/test/example/deps
-      - example_build:/app/test/example/_build
-      - hex:/root/.hex
-      - mix:/root/.mix
+      # Friendly alias router (sigra.localhost) -> same service. When the alias
+      # host equals the primary host (not the primary checkout) this is a
+      # harmless self-duplicate; only the primary checkout sets a distinct alias.
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}-alias.entrypoints=web"
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}-alias.rule=Host(`${SIGRA_UAT_ALIAS_HOST:-sigra.localhost}`)"
+      - "traefik.http.routers.${SIGRA_UAT_PROXY_ROUTER:-sigra}-alias.service=${SIGRA_UAT_PROXY_ROUTER:-sigra}"
+    # Deps + build artifacts live in the image (built by Dockerfile.example with
+    # cache-correct layers + BuildKit cache mounts). No source bind mount and no
+    # caching named volumes: code changes are applied via `docker compose build web`
+    # (fast, layer-cached) — `scripts/uat/up.sh --refresh-code` does this. The
+    # default host-run mode (`scripts/uat/up.sh` without --proxy) remains the live
+    # save->reload path for active development.
 
   traefik:
     image: ${SIGRA_UAT_TRAEFIK_IMAGE:-traefik:v3.7.1}
@@ -85,12 +93,6 @@ services:
 
 volumes:
   pgdata:
-  root_deps:
-  root_build:
-  example_deps:
-  example_build:
-  hex:
-  mix:
 
 networks:
   proxy:

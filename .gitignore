@@ -25,6 +25,9 @@ sigra-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+# direnv cache (the committed .envrc is fine; its evaluated cache is not)
+.direnv/
+
 # IDE
 .elixir_ls/
 

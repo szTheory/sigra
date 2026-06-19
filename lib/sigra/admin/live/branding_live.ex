@@ -99,7 +99,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
         <p class="sg-page-kicker">Branding</p>
         <h1 class="sg-page-title">Auth forms and emails</h1>
         <p class="sg-page-copy">
-          Tune the generated login, account, invitation, and transactional email defaults without replacing the host-owned templates.
+          Tune the generated sign-in, account, invitation, and transactional email defaults without replacing the host-owned templates.
         </p>
       </header>
 
@@ -346,7 +346,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
         </section>
       </section>
 
-      <div :if={@restore_defaults_open?} class="sg-confirm-overlay" role="presentation">
+      <div :if={@restore_defaults_open?} id="restore-defaults-overlay" phx-hook="ConfirmDialog" class="sg-confirm-overlay" role="presentation">
         <section
           class="sg-confirm-dialog"
           role="dialog"
@@ -361,6 +361,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
             <button
               type="button"
               phx-click="cancel_restore_defaults"
+              data-sg-confirm-cancel
               class="sg-btn sg-btn--ghost sg-btn--sm"
             >
               Cancel
@@ -579,7 +580,7 @@ defmodule Sigra.Admin.Live.BrandingLive do
     ~H"""
     <section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid={if @active, do: "admin-auth-preview"}>
       <div class="sg-card sg-stack sg-stack--3" data-testid={@login_testid}>
-        <h2 class="sg-section-heading">Login preview</h2>
+        <h2 class="sg-section-heading">Sign-in preview</h2>
         <div
           class="sigra-auth sigra-auth--preview"
           data-theme={@theme}
@@ -710,11 +711,22 @@ defmodule Sigra.Admin.Live.BrandingLive do
   defp error_message(%{message: message}) when is_binary(message), do: message
   defp error_message(%ArgumentError{} = error), do: Exception.message(error)
 
+  defp error_message(%Ecto.Changeset{} = changeset) do
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
+      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
+        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
+      end)
+    end)
+    |> Enum.map_join("; ", fn {field, errors} ->
+      "#{field}: #{Enum.join(errors, ", ")}"
+    end)
+  end
+
   defp error_message(%{__struct__: _module} = exception) do
     Exception.message(exception)
   rescue
-    _ -> inspect(exception)
+    _ -> "Could not save auth branding. Check the values and try again."
   end
 
-  defp error_message(reason), do: "Could not save auth branding: #{inspect(reason)}"
+  defp error_message(_reason), do: "Could not save auth branding. Check the values and try again."
 end

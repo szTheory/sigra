@@ -280,7 +280,7 @@ defmodule SigraInstallGoldenTmpWeb.InvitationAcceptLive do
         <.input field={f[:password]} type="password" label="Password" required />
 
         <div>
-          <.button type="submit" class="btn btn-primary btn-block">
+          <.button class="btn btn-primary btn-block">
             Create account & join {@organization.name}
           </.button>
         </div>

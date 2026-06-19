@@ -22,9 +22,14 @@ import { defineConfig, devices } from '@playwright/test';
 // and debugging value is highest.
 
 const ADMIN_BEHAVIOR_SPECS =
-  /(admin-user-operations|admin-audit|admin-theme|impersonation)\.spec\.ts/;
+  /(admin-user-operations|admin-audit|admin-theme|impersonation|admin-flow-).*\.spec\.ts/;
 const ADMIN_CHECKPOINTS_SPEC = /admin-checkpoints\.spec\.ts/;
+const ADMIN_DESIGN_SPEC = /admin-design\.spec\.ts/;
 const ADMIN_GENERATED_SPEC = /admin-generated\.spec\.ts/;
+// Phase 189 Plan 03: dedicated modal-interaction spec (PAGE-03 APG gates).
+// Runs on the main `chromium` behavior lane (NOT excluded from it).
+// Excluded from `mobile` (admin behavior stays on chromium per D-01..D-05).
+const ADMIN_MODAL_SPEC = /admin-modal-interaction\.spec\.ts/;
 // Virtual WebAuthn authenticator uses Chrome DevTools Protocol — Chromium only
 // (Playwright mobile preset is WebKit).
 const WEBAUTHN_CDP_SPECS =
@@ -81,7 +86,7 @@ export default defineConfig({
     // specs so those stay scoped to their partitioned projects.
     {
       name: 'chromium',
-      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_GENERATED_SPEC, DEMO_SHOWCASE_SPEC],
+      testIgnore: [ADMIN_CHECKPOINTS_SPEC, ADMIN_DESIGN_SPEC, ADMIN_GENERATED_SPEC, DEMO_SHOWCASE_SPEC],
       use: { ...devices['Desktop Chrome'] },
     },
     // Mobile coverage for non-admin flows (golden-path, organizations,
@@ -93,9 +98,11 @@ export default defineConfig({
       testIgnore: [
         ADMIN_BEHAVIOR_SPECS,
         ADMIN_CHECKPOINTS_SPEC,
+        ADMIN_DESIGN_SPEC,
         ADMIN_GENERATED_SPEC,
         WEBAUTHN_CDP_SPECS,
         DEMO_SHOWCASE_SPEC,
+        ADMIN_MODAL_SPEC,
       ],
       use: { ...devices['iPhone 13'] },
     },
@@ -155,6 +162,38 @@ export default defineConfig({
       name: 'demo-showcase-chromium',
       testMatch: DEMO_SHOWCASE_SPEC,
       use: { ...devices['Desktop Chrome'] },
+    },
+    // Admin design gallery lane (chromium desktop): element-scoped board PNG
+    // baselines for all 13 Sigra.Admin.Components + MG-1..MG-5 group boards.
+    // Runs against /admin/_design (dev-only route). Excluded from chromium and
+    // mobile via testIgnore so design lane stays partitioned.
+    {
+      name: 'admin-design-chromium',
+      testMatch: ADMIN_DESIGN_SPEC,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: checkpointVideo,
+      },
+    },
+    // Admin design gallery lane (mobile): mobile-viewport board baselines.
+    {
+      name: 'admin-design-mobile',
+      testMatch: ADMIN_DESIGN_SPEC,
+      use: {
+        ...devices['iPhone 13'],
+        video: checkpointVideo,
+      },
+    },
+    // Admin design gallery lane (dark theme): dark-mode board baselines using
+    // `colorScheme: 'dark'` rather than an interactive toggle (per D-29 pattern).
+    {
+      name: 'admin-design-dark',
+      testMatch: ADMIN_DESIGN_SPEC,
+      use: {
+        ...devices['Desktop Chrome'],
+        colorScheme: 'dark',
+        video: checkpointVideo,
+      },
     },
   ],
 });
