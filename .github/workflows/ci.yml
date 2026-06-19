@@ -824,6 +824,25 @@ jobs:
             --project=admin-checkpoints-chromium \
             --project=admin-checkpoints-mobile \
             --project=admin-checkpoints-dark
+      # Playwright clears test-results/ at the START of each `playwright test`
+      # invocation, so stage the curated admin checkpoint PNGs IMMEDIATELY after
+      # the checkpoints run — before the design-gallery / non-admin / demo-showcase
+      # steps below each wipe test-results. (The design-gallery step was inserted
+      # between checkpoints and this staging step in v1.39 and was silently wiping
+      # the PNGs, so the artifact bundle contract found 0.)
+      - name: Stage admin checkpoint PNGs (before later runs clear test-results)
+        if: success()
+        working-directory: test/example/priv/playwright
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "staging ${src_count} admin-*.png file(s) from test-results/"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          else
+            echo "warning: no admin-*.png under test-results/ after admin checkpoints"
+          fi
+          ls -la artifacts/admin-checkpoints/ || true
       - name: Run design gallery boards (chromium, mobile, dark)
         working-directory: test/example/priv/playwright
         env:
@@ -847,22 +866,6 @@ jobs:
             --project=admin-design-chromium \
             --project=admin-design-mobile \
             --project=admin-design-dark
-      # Playwright clears test-results/ at the start of each `playwright test`
-      # invocation. Stage curated admin PNGs now so the later non-admin wave
-      # does not wipe them before the artifact bundle contract runs.
-      - name: Stage admin checkpoint PNGs (before non-admin run clears test-results)
-        if: success()
-        working-directory: test/example/priv/playwright
-        run: |
-          mkdir -p artifacts/admin-checkpoints/
-          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
-            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
-            echo "staging ${src_count} admin-*.png file(s) from test-results/"
-            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
-          else
-            echo "warning: no admin-*.png under test-results/ after admin checkpoints"
-          fi
-          ls -la artifacts/admin-checkpoints/ || true
       - name: Run non-admin example browser smoke
         working-directory: test/example/priv/playwright
         env:
