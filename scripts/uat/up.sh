@@ -553,9 +553,13 @@ wait_for_http() {
 start_host_server() {
   mkdir -p "$(dirname "${SIGRA_UAT_HOST_LOG_FILE}")"
   cyan "==> Starting host-run Phoenix (logs: ${SIGRA_UAT_HOST_LOG_FILE})"
+  # `exec` so the recorded $! is the process that becomes the BEAM, not a bash
+  # subshell wrapper that would leave Phoenix orphaned (and holding the port)
+  # when down.sh signals the pidfile. The mix→elixir→erl launchers each exec the
+  # next, so on success $! resolves to beam.smp and SIGTERM stops Phoenix cleanly.
   (
     cd "${EXAMPLE_DIR}"
-    PGHOST="${PGHOST}" PGPORT="${PGPORT}" PGUSER="${PGUSER}" PGPASSWORD="${PGPASSWORD}" \
+    exec env PGHOST="${PGHOST}" PGPORT="${PGPORT}" PGUSER="${PGUSER}" PGPASSWORD="${PGPASSWORD}" \
       PGDATABASE="${PGDATABASE}" PORT="${SIGRA_EXAMPLE_PORT}" \
       SIGRA_EXAMPLE_BIND="${SIGRA_EXAMPLE_BIND}" SIGRA_EXAMPLE_URL="${SIGRA_EXAMPLE_URL}" \
       mix phx.server
@@ -676,6 +680,12 @@ SIGRA_UAT_PROXY_ROUTER="${SIGRA_UAT_PROXY_ROUTER:-$(slugify "${SIGRA_UAT_PROJECT
 SIGRA_UAT_ALIAS_HOST="${SIGRA_UAT_ALIAS_HOST:-${SIGRA_UAT_PROXY_HOST}}"
 SIGRA_UAT_TRAEFIK_IMAGE="${SIGRA_UAT_TRAEFIK_IMAGE:-traefik:v3.7.1}"
 SIGRA_UAT_TRAEFIK_DYNAMIC_DIR="${SIGRA_UAT_TRAEFIK_DYNAMIC_DIR:-${REPO_ROOT}/tmp/uat-traefik}"
+
+# --attach/--iex only makes sense for the host-run path; imply --dev so a user
+# asking for a foreground IEx shell doesn't silently get a backgrounded container.
+if [[ "${ENABLE_ATTACH}" = "1" && "${ENABLE_PRIVATE_TRAEFIK}" != "1" ]]; then
+  ENABLE_DEV_HOST=1
+fi
 
 # Mode selection. The no-flag default is now the Dockerized shared-Traefik path
 # (was `none`). --private-traefik keeps its dedicated path; --dev/--host opts into
