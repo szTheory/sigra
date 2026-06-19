@@ -10,13 +10,3 @@
 # the intent reviewable. Reset to empty once the re-recording PR merges.
 #
 # The `impersonation-banner` canary must NEVER appear here.
-#
-# v1.39 DS-COHERENCE: the admin design-system coherence milestone re-recorded
-# these admin-checkpoint baselines (token/component/page-composition redesign).
-# Intended delta for the v1.39 ship PR (#54). Reset this file to empty
-# (comments only) once that PR merges.
-global-overview
-global-user-index
-org-overview
-org-scoped-admin
-user-detail
