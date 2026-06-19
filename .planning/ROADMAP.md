@@ -58,7 +58,7 @@
 
 - [x] 193-01-PLAN.md — Capture before-state CI baseline + Elixir diagnostics (BASE-01, BASE-02)
 - [x] 193-02-PLAN.md — De-flake demo-showcase color assertion + close todo (FLAKE-01)
-- [ ] 193-03-PLAN.md — Add CI step-summary observability + drop gratuitous needs edge (BASE-03, CRIT-01)
+- [x] 193-03-PLAN.md — Add CI step-summary observability + drop gratuitous needs edge (BASE-03, CRIT-01)
 
 ### Phase 194: Caching Correctness & Micro-Job Consolidation
 
@@ -292,7 +292,7 @@ Archive:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 193. Baseline, Observability & One-Line Wins | v1.40 | 2/3 | In Progress|  |
+| 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete   | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 0/? | Not started | - |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |

@@ -4,16 +4,16 @@ milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 193
 current_phase_name: baseline-observability-one-line-wins
-status: executing
-stopped_at: Completed 192-01-PLAN.md
-last_updated: "2026-06-19T22:01:20.384Z"
+status: verifying
+stopped_at: Completed 193-03-PLAN.md
+last_updated: "2026-06-19T22:06:23.375Z"
 last_activity: 2026-06-19
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
-  percent: 0
+  completed_plans: 3
+  percent: 17
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 193 (baseline-observability-one-line-wins) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-19
 
 ## Accumulated Context
@@ -100,6 +100,8 @@ Last activity: 2026-06-19
 - [Phase ?]: Unicode curly-quote bug in 192-01 axe widening fixed (Edit tool artifact); target-size D-08 suppression applied
 - [Phase ?]: [Phase 193-02]: Tolerance widened to ±10 for remember-checkbox color assertion
 - [Phase ?]: [Phase 193-02]: afterBackgroundColor exact check left untouched — not evidenced as flaky by the FLAKE-01 todo (only backgroundColor was cited)
+- [Phase ?]: Drop library_tests edge from example_playwright_smoke.needs — verified gratuitous; keeps release_ref_guard; lane stays required in ci-gate.needs (CRIT-01)
+- [Phase ?]: Add id: deps_cache/example_deps_cache to cache steps + GITHUB_STEP_SUMMARY observability (resolved versions, cache-hit, slowest tests) to library_tests job (BASE-03)
 
 ### Pending Todos
 
@@ -158,8 +160,8 @@ Last activity: 2026-06-19
 
 ## Session Continuity
 
-Last session: 2026-06-19T21:59:57.555Z
-Stopped at: Completed 192-01-PLAN.md
+Last session: 2026-06-19T22:06:23.371Z
+Stopped at: Completed 193-03-PLAN.md
 Resume file: None
 
 ## Performance Metrics
@@ -211,6 +213,7 @@ Resume file: None
 | Phase 192 P04 | 45 min | - tasks | - files |
 | Phase 193 P01 | 1096 | 2 tasks | 1 files |
 | Phase 193 P02 | 6 min | 1 tasks | 2 files |
+| Phase 193 P03 | 2 min | 2 tasks | 1 files |
 
 ## Operator Next Steps
 

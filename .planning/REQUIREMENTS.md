@@ -12,11 +12,11 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 - [x] **BASE-01**: Capture a before-state baseline table from `.github/workflows/ci.yml` + recent runs — per-job duration, p95, critical path, cache hit/miss, required-vs-not, quality signal, likely bottleneck. Committed as a planning artifact.
 - [x] **BASE-02**: Collect Elixir-side diagnostics to target the suite — `mix test --slowest`, `System.schedulers_online()` on the runner, top slow compile modules — and record them as the optimization target.
-- [ ] **BASE-03**: CI job summaries surface resolved versions, cache hit/miss, and a test-timing summary so future regressions are visible (observability, not just speed).
+- [x] **BASE-03**: CI job summaries surface resolved versions, cache hit/miss, and a test-timing summary so future regressions are visible (observability, not just speed).
 
 ### Critical-path & trigger model
 
-- [ ] **CRIT-01**: Remove gratuitous job serialization — `example_playwright_smoke needs: [library_tests]` makes the two longest jobs run sequentially though the Playwright lane consumes nothing from `library_tests`. Drop the edge (keep `release_ref_guard`). *Likely the single biggest, lowest-risk win.*
+- [x] **CRIT-01**: Remove gratuitous job serialization — `example_playwright_smoke needs: [library_tests]` makes the two longest jobs run sequentially though the Playwright lane consumes nothing from `library_tests`. Drop the edge (keep `release_ref_guard`). *Likely the single biggest, lowest-risk win.*
 - [ ] **CRIT-02**: Establish a PR-fast vs nightly/main-broad split — move exhaustive/low-probability coverage (install matrix ×4, upgrade smoke, broad galleries) off the every-PR path to `schedule:`/main, keeping a fast representative PR gate. **Never** strand a correctness-critical test on nightly only.
 - [ ] **CRIT-03**: Preserve a single stable required check (`ci-gate` aggregator) and stable child-check names across the redesign — no branch-protection churn, no path/skip pending-check traps.
 
@@ -68,7 +68,7 @@ Phases assigned during roadmap creation (continue numbering from 193).
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | BASE-01, BASE-02, BASE-03 | 193 | Pending |
-| CRIT-01 | 193 | Pending |
+| CRIT-01 | 193 | Complete |
 | FLAKE-01 | 193 | Complete |
 | CACHE-01, CACHE-02 | 194 | Pending |
 | TEST-01, TEST-02, TEST-03 | 195 | Pending |
