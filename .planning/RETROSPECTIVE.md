@@ -840,6 +840,7 @@ A systematically audited, award-grade admin/operator design system, graded *frac
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.39 | n/a | 9 | Fractal design-system audit (L0–L4) governed by a re-runnable quality-tier ledger + merge-blocking monotonic guard; admin `sg-*` CSS shipped to hosts as `sigra_admin.css`; terminal ratification gate (Phase 192) replaced a separate milestone audit |
 | v1.16 | n/a | 1 | **`APIToken.verify/2`** failure **`api.token_verify.failure`** → **`Multi` + `log_multi_safe`** + **`api_token_audit_atomic_test.exs`** (**044–046** **T1**) |
 | v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |
 | v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
