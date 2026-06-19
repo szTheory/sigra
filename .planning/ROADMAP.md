@@ -34,103 +34,134 @@
 ## Phase Details
 
 ### Phase 193: Baseline, Observability & One-Line Wins
+
 **Goal**: A committed before-state baseline exists so every later phase can prove its win — and the two cheapest, lowest-risk wall-clock wins are already banked.
 **Depends on**: Nothing (first phase of milestone)
 **Requirements**: BASE-01, BASE-02, BASE-03, CRIT-01, FLAKE-01
 **Key tasks**:
+
   - Build the before-state baseline table from `.github/workflows/ci.yml` + recent runs (per-job duration, p95, critical path, cache hit/miss, required-vs-not, quality signal, likely bottleneck); commit as a planning artifact (BASE-01).
   - Collect Elixir-side diagnostics as the optimization target: `mix test --slowest`, `System.schedulers_online()` on the runner, top slow compile modules (BASE-02).
   - Add CI job-summary observability surfacing resolved Elixir/OTP versions, cache hit/miss, and a test-timing summary so future regressions stay visible (BASE-03).
   - Drop the gratuitous `example_playwright_smoke needs: [library_tests]` edge (keep `release_ref_guard`) so the two longest jobs stop running sequentially (CRIT-01).
   - Fix the known-flaky demo-showcase remember-checkbox accent-color (off-by-one rgb) assertion — de-flake or delete, no blanket retries (FLAKE-01).
+
 **Success Criteria** (what must be TRUE):
+
   1. A committed baseline artifact records per-job durations, the critical path, cache hit/miss, and required-vs-not for every CI job — the reference every later phase measures against.
   2. CI run summaries now show resolved versions, cache hit/miss, and a test-timing/slowest-tests summary.
   3. `example_playwright_smoke` no longer waits on `library_tests`; the two long poles run concurrently and measured wall-clock drops toward the `library_tests` time.
   4. The demo-showcase remember-checkbox color assertion is deterministic (or removed) with no retry papering-over, and the tracked todo is closed.
+
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the post-change run's wall-clock/critical-path is compared against the committed baseline; the de-flaked spec runs green across repeated CI runs without retries.
 **Plans**: 3 plans
+
 - [x] 193-01-PLAN.md — Capture before-state CI baseline + Elixir diagnostics (BASE-01, BASE-02)
-- [ ] 193-02-PLAN.md — De-flake demo-showcase color assertion + close todo (FLAKE-01)
+- [x] 193-02-PLAN.md — De-flake demo-showcase color assertion + close todo (FLAKE-01)
 - [ ] 193-03-PLAN.md — Add CI step-summary observability + drop gratuitous needs edge (BASE-03, CRIT-01)
 
 ### Phase 194: Caching Correctness & Micro-Job Consolidation
+
 **Goal**: Caching is correct and observable (no stale-artifact correctness risk), and per-job runner-startup overhead from trivial guard jobs is eliminated — without losing any required-check name.
 **Depends on**: Phase 193 (baseline + observability in place to measure cache hit-rate and per-job overhead before/after)
 **Requirements**: CACHE-01, CACHE-02
 **Key tasks**:
+
   - Audit and correct caching: precise keys (OS/arch/OTP/Elixir/MIX_ENV/lockfile/buster), no `_build` reuse across incompatible combos, never skip `deps.get` after a partial restore, separate deps cache from any PLT cache, document how to bust (CACHE-01).
   - Consolidate the trivial micro-guard jobs (`release_ref_guard`, `milestone_verification_gate`, `installer_milestone_audit`, `getting_started_uat_contract`, `phase_34_uat_contract`, `snapshot_drift_guard`, `quality_ledger_monotonic`) into one cheap "fast checks" job, preserving stable required-check names (CACHE-02).
+
 **Success Criteria** (what must be TRUE):
+
   1. Cache keys are precise and documented; a cache restore never reuses `_build` across incompatible OTP/Elixir/MIX_ENV combos, and `deps.get` always runs after a partial restore.
   2. Cache hit-rate is visible in CI summaries and measurably stable/improved vs the Phase 193 baseline.
   3. The trivial guard jobs run in a single consolidated "fast checks" job, cutting aggregate runner-startup overhead, with every previously-required child-check name still reported.
   4. `ci-gate` remains the single required check and still aggregates the same lane results.
+
 **Verification mechanism (zero-human-UAT)**: CI measures itself — cache hit/miss and per-job counts/overhead from CI summaries compared against the Phase 193 baseline; `ci-gate` child-check names diffed for stability.
 **Plans**: TBD
 
 ### Phase 195: Test-Suite Performance (partition / async / dep-off slim)
+
 **Goal**: The two heaviest Elixir test poles (`library_tests`, `library_tests_dep_off`) are meaningfully faster through evidence-chosen partitioning, broader safe concurrency, and a targeted dep-off subset — with identical quality signal.
 **Depends on**: Phase 193 (slowest-tests + schedulers diagnostics), Phase 194 (correct per-combo caching so partition shards cache safely)
 **Requirements**: TEST-01, TEST-02, TEST-03, CACHE-03
 **Key tasks**:
+
   - Partition `library_tests` via `mix test --partitions N` across parallel shards, each with an isolated Postgres database; merge coverage if applicable; choose N from BASE-02 evidence (don't oversubscribe the 2-core runner) (TEST-01).
   - Slim `library_tests_dep_off`: run a targeted subset that exercises the Threadline-absent compile/guard paths instead of re-running the full ~14m suite (TEST-02).
   - Audit `async: true` coverage: convert safe modules, split oversized serial modules, never mark a global-state-mutating test async; keep sandbox/pool config correct under partitioning (TEST-03).
   - Apply larger runners selectively to long poles only if measurement justifies the cost/speed tradeoff — not by default (CACHE-03).
+
 **Success Criteria** (what must be TRUE):
+
   1. `library_tests` runs as evidence-chosen parallel partitions with isolated per-shard Postgres databases; the same set of tests pass and any coverage merge is correct.
   2. `library_tests_dep_off` proves the Threadline-absent compile/guard paths via a targeted subset and is materially faster than the prior full-suite rerun.
   3. Newly-async modules are async-safe (no global-state mutation marked async) and the sandbox/pool config is correct under partitioning — no flake introduced.
   4. Any larger-runner usage is justified by a recorded before/after measurement, or not used.
+
 **Verification mechanism (zero-human-UAT)**: CI measures itself — partitioned/slimmed job durations and pass counts compared against the Phase 193 baseline; repeated runs confirm no new flake under concurrency.
 **Plans**: TBD
 
 ### Phase 196: PR-Fast vs Nightly-Broad Trigger Model
+
 **Goal**: Every-PR cost is reduced to a fast representative gate while exhaustive/low-probability coverage still runs (on `schedule:`/main), with a single stable required check and no correctness-critical test stranded on nightly only.
 **Depends on**: Phase 193 (baseline classifies which lanes are exhaustive/low-probability), Phase 195 (fast test poles make the PR gate genuinely fast)
 **Requirements**: CRIT-02, CRIT-03
 **Key tasks**:
+
   - Establish a PR-fast vs nightly/main-broad split: move the install matrix (×4), upgrade smoke, and broad galleries off the every-PR path to a `schedule:`/main lane; keep a fast representative PR gate. Never strand a correctness-critical test on nightly only (CRIT-02).
   - Preserve a single stable required check (`ci-gate` aggregator) and stable child-check names across the redesign — no branch-protection churn, no path/skip pending-check traps (CRIT-03).
+
 **Success Criteria** (what must be TRUE):
+
   1. The every-PR path runs a fast representative gate; exhaustive coverage (install matrix ×4, upgrade smoke, broad galleries) runs on a `schedule:`/main lane instead.
   2. No correctness-critical test lives only on nightly — each is covered by either the PR gate or a representative PR-path proxy, with the rationale recorded.
   3. `ci-gate` remains the single required check with stable child-check names; no required check can be left pending by path/skip filtering.
   4. Measured PR-path wall-clock drops vs the Phase 193 baseline with equal-or-greater PR-gate quality signal.
+
 **Verification mechanism (zero-human-UAT)**: CI measures itself — PR-path vs nightly-path job inventories and wall-clock compared against baseline; `ci-gate` required/child-check names diffed for stability; a forced-failure probe confirms the nightly lane still fails on a real regression.
 **Plans**: TBD
 
 ### Phase 197: Playwright Lanes & Design-Gallery Re-Gate
+
 **Goal**: The Playwright critical path is shorter and an early failure no longer masks later steps; browser readiness is deterministic; and the demoted `continue-on-error` admin-design gallery is a hard gate again because its font-reflow height delta is fixed.
 **Depends on**: Phase 193 (CRIT-01 already decoupled the lane), Phase 196 (trigger model decides PR vs nightly placement for heavier galleries)
 **Requirements**: PW-01, PW-02, PW-03
 **Key tasks**:
+
   - Reduce the `example_playwright_smoke` critical path: share app boot and/or shard the serial `npx playwright test` steps so an early-step failure no longer masks independent later-step failures (this session cost multiple ~25m round-trips) (PW-01).
   - Make readiness deterministic everywhere in the browser lanes — no `Process.sleep`-based waits; explicit readiness checks (PW-02).
   - Re-gate the `continue-on-error` admin-design gallery (SEED-006): make CI visual capture deterministic (brand webfont loads in the CI dev-mode boot) and/or recapture baselines in-CI, resolving the systemic ~20–53px height delta (font fallback reflow) — not by widening pixel tolerance — then restore the hard gate (PW-03).
+
 **Success Criteria** (what must be TRUE):
+
   1. The Playwright lane surfaces independent step failures in a single run (sharded/aggregated) instead of masking later steps behind an early failure, and its critical-path time is reduced vs the Phase 193 baseline.
   2. No `Process.sleep`-based readiness remains in the browser lanes; readiness is explicit and deterministic.
   3. `admin-design.spec.ts` runs green in CI across chromium/mobile/dark with baselines captured in (or matched to) the CI environment; the brand webfont loads in the CI dev boot (no fallback-reflow dimension mismatch).
   4. `continue-on-error: true` is removed from the design-gallery step — the lane hard-gates again — and the MG-5/6 data dependency is resolved or explicitly skipped with a recorded reason.
+
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the re-gated gallery runs green in-CI across all three projects (proving deterministic capture), and Playwright-lane critical-path time is compared against the Phase 193 baseline.
 **UI hint**: yes
 **Plans**: TBD
 
 ### Phase 198: Contributor DX & Acceptance Gate
+
 **Goal**: A contributor can reproduce the PR gate locally with one documented command, and the milestone's measured before/after target is met with equal-or-greater quality signal — closing the milestone honestly.
 **Depends on**: Phases 193-197 (the acceptance gate measures the cumulative result; `mix ci` must mirror the final PR gate shape)
 **Requirements**: DX-01, GATE-01, GATE-02
 **Key tasks**:
+
   - Provide a single documented local CI equivalent (`mix ci` alias or `make`/`just` target) that mirrors the PR gate; document it in CONTRIBUTING so a contributor can reproduce a red check locally without guessing (DX-01).
   - Produce the measured before/after acceptance: PR wall-clock + p95 meaningfully faster (target well under ~22m, ideally <~12m on the fast PR path) with equal-or-greater quality signal on the required gate; any faster-but-less-trustworthy change is labeled a tradeoff and moved to an optional/nightly tier (GATE-01).
   - Confirm no flake introduced, no correctness-critical coverage dropped from the merge gate, required-check names stable, `mix ci` documented; respect SEED-004 (phx_new 1.8.7 pin) and preserve snapshot/baseline determinism (GATE-02).
+
 **Success Criteria** (what must be TRUE):
+
   1. `mix ci` (or equivalent) exists, mirrors the PR gate, and is documented in CONTRIBUTING; a contributor can reproduce a red PR check locally.
   2. A committed before/after comparison shows PR-path wall-clock + p95 meaningfully faster than the Phase 193 baseline (target <~12m fast path) with equal-or-greater required-gate quality signal.
   3. No new flake and no correctness-critical coverage was dropped from the merge gate; any speed-for-trust tradeoff is explicitly labeled and tiered to nightly.
   4. Required-check names are stable end-to-end, SEED-004's phx_new 1.8.7 pin is respected, and snapshot/baseline determinism is preserved.
+
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the final before/after wall-clock/p95/flake-rate table is the acceptance evidence; `mix ci` is run locally and in CI to prove parity with the PR gate.
 **Plans**: TBD
 
@@ -261,7 +292,7 @@ Archive:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 193. Baseline, Observability & One-Line Wins | v1.40 | 1/3 | In Progress|  |
+| 193. Baseline, Observability & One-Line Wins | v1.40 | 2/3 | In Progress|  |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 0/? | Not started | - |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |

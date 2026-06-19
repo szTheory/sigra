@@ -44,7 +44,7 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 ### Hygiene
 
-- [ ] **FLAKE-01**: Fix the known-flaky demo-showcase remember-checkbox accent-color assertion (off-by-one rgb) — de-flake or delete; do **not** paper over with blanket retries. (Todo: `.planning/todos/pending/2026-06-19-demo-showcase-remember-checkbox-color-flaky.md`.)
+- [x] **FLAKE-01**: Fix the known-flaky demo-showcase remember-checkbox accent-color assertion (off-by-one rgb) — de-flake or delete; do **not** paper over with blanket retries. (Todo: `.planning/todos/pending/2026-06-19-demo-showcase-remember-checkbox-color-flaky.md`.)
 
 ### Acceptance gate (milestone-level)
 
@@ -69,7 +69,7 @@ Phases assigned during roadmap creation (continue numbering from 193).
 |-------------|-------|--------|
 | BASE-01, BASE-02, BASE-03 | 193 | Pending |
 | CRIT-01 | 193 | Pending |
-| FLAKE-01 | 193 | Pending |
+| FLAKE-01 | 193 | Complete |
 | CACHE-01, CACHE-02 | 194 | Pending |
 | TEST-01, TEST-02, TEST-03 | 195 | Pending |
 | CACHE-03 | 195 | Pending |
@@ -79,6 +79,7 @@ Phases assigned during roadmap creation (continue numbering from 193).
 | GATE-01, GATE-02 | 198 | Pending |
 
 **Coverage:**
+
 - v1.40 requirements: 18 total
 - Mapped to phases: 18 (phases 193–198)
 - Unmapped: 0 ✓
