@@ -504,7 +504,13 @@ fi"
 
   cyan "==> Starting Dockerized Vaultr example app"
   # --wait blocks on the web healthcheck so a STARTING container isn't advertised.
-  docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" --profile proxy up -d --wait web
+  # Non-fatal on purpose: a healthcheck quirk (e.g. a missing probe binary, or a
+  # boot slower than start_period) must never abort a container that is actually
+  # serving. The authoritative gate is the host-side wait_for_http below, which
+  # probes the published 127.0.0.1 port directly.
+  if ! docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" --profile proxy up -d --wait web; then
+    yellow "==> web container did not report healthy in time — falling back to the HTTP probe"
+  fi
 
   SIGRA_UAT_WEB_HOST_PORT="$(docker compose -p "${SIGRA_UAT_PROJECT}" "${compose_files[@]}" port web 4000 | awk -F: 'END {print $NF}')"
   if [[ -n "${SIGRA_UAT_WEB_HOST_PORT}" ]]; then

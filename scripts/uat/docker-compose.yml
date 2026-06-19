@@ -43,14 +43,17 @@ services:
     ports:
       - "${SIGRA_UAT_WEB_BIND:-127.0.0.1}:${SIGRA_UAT_WEB_PORT:-}:4000"
     # Health-gate boot so `up -d --wait web` blocks until Phoenix actually serves
-    # the public, no-auth dev route. The slim image ships wget; if a future base
-    # drops it, swap to the curl form proven elsewhere in these scripts.
+    # the public, no-auth dev route. curl is installed in Dockerfile.example —
+    # the elixir:*-slim (Debian-slim) base ships neither curl nor wget by default,
+    # so the probe binary must be added there (a missing binary = perpetual
+    # `unhealthy`). start_period is generous: the bind-mount watch path recompiles
+    # in-container on first boot, which is slower on macOS virtiofs.
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4000/demo/credentials >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4000/demo/credentials -o /dev/null || exit 1"]
       interval: 3s
       timeout: 3s
       retries: 20
-      start_period: 30s
+      start_period: 60s
     networks:
       - default
       - proxy

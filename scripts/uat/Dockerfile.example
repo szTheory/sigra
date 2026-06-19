@@ -26,7 +26,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
  && apt-get install -y --no-install-recommends \
-      build-essential ca-certificates git inotify-tools
+      build-essential ca-certificates curl git inotify-tools
 
 # 2. Hex + rebar — baked into the image (NOT cache-mounted). A cache mount on
 #    /root/.mix or /root/.hex would mask the installed archives in later RUN
