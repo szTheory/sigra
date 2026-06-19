@@ -189,7 +189,11 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: mix test
+        run: |
+          # Single suite run; --slowest emits the timing table at the end (no second run).
+          # pipefail makes a test failure fail the job despite the tee.
+          set -o pipefail
+          mix test --slowest 10 2>&1 | tee /tmp/library_tests.log
       - name: CI run summary
         if: always()
         run: |
@@ -202,16 +206,13 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Test timing summary
         if: always()
-        env:
-          MIX_ENV: test
-          PGUSER: postgres
-          PGPASSWORD: postgres
-          PGHOST: localhost
         run: |
           {
             echo "## Slowest tests"
             echo '```'
-            mix test --slowest 10 || true
+            # Reuse the captured log from the single test run above — do NOT re-run the suite.
+            awk '/slowest/{f=1} f{print} /Finished in/{f=0}' /tmp/library_tests.log 2>/dev/null \
+              || echo "(timing output unavailable)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Check docs build cleanly
