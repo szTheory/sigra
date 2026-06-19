@@ -31,8 +31,8 @@ See: `.planning/PROJECT.md`
 
 Phase: Milestone v1.39 complete
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-19 — Completed quick task 260619-l1b: demo/admin-UI Docker DX overhaul (proxy+watch default, health-gated URL, auto-open, grouped routes)
+Status: PR #56 open — post-v1.39 cleanup + demo Docker DX overhaul (awaiting merge to main)
+Last activity: 2026-06-19 — Shipped PR #56 (demo DX overhaul + v1.39 cleanup); code-review remediated (orphaned-BEAM teardown, leaking watch volumes, profile-gated down, PID-reuse guard)
 
 ## Accumulated Context
 
