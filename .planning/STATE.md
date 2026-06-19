@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
-current_phase: 192
-status: verifying
+current_phase: 39
+status: Awaiting next milestone
 stopped_at: Completed 192-01-PLAN.md
-last_updated: "2026-06-18T14:36:42.942Z"
-last_activity: 2026-06-18
-last_activity_desc: Phase 192 complete
+last_updated: "2026-06-19T16:16:25.291Z"
+last_activity: 2026-06-19
+last_activity_desc: Milestone v1.39 completed and archived
 progress:
   total_phases: 15
   completed_phases: 9
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 192 — ratification-baseline-lock
+**Current focus:** Between milestones — v1.39 DS-COHERENCE shipped & archived 2026-06-19. Run `/gsd-new-milestone` for the next cycle (phases continue from 193).
 
 ## Current Position
 
-Phase: 192
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-06-18 — Closed phase-189 ConfirmDialog review todo (already fixed; wired PAGE-03 APG spec into CI, verified 7/7 gates)
+Phase: Milestone v1.39 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-19 — Milestone v1.39 completed and archived
 
 ## Accumulated Context
 
@@ -128,6 +128,32 @@ Last activity: 2026-06-18 — Closed phase-189 ConfirmDialog review todo (alread
 | Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
 | Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
 
+### Acknowledged at v1.39 close (2026-06-19)
+
+19 open artifact items acknowledged and deferred at milestone close. None are blockers; all are stale-resolved or deliberately tracked.
+
+| Category | Item | Status | Deferred At |
+| --- | --- | --- | --- |
+| debug | platform-admin-flow-spec | stale-resolved — fixes landed in PR #54; session moved to `debug/resolved/` | v1.39 |
+| quick_task | 260528-nwa-fix-rc-01-in-guides-recipes-companion-li | superseded by v1.39 work | v1.39 |
+| quick_task | 260528-sbn-fix-v1-29-doc-debt-mailglass-corrigendum | superseded / stale | v1.39 |
+| quick_task | 260602-gll-stage-0-admin-ui-pass-2-design-system-fo | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-gzc-stage-1-admin-ui-pass-2-shell-ia-chrome- | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hao-stage-2-admin-ui-pass-2-landing-needs-le | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hhr-stage-3-admin-ui-pass-2-users-index-craf | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hoz-stage-4-admin-ui-pass-2-user-detail-summ | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hvx-stage-5-admin-ui-pass-2-audit-explorer-i | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-i3m-stage-6-admin-ui-pass-2-org-overview-mad | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-ikd-stage-7-admin-ui-pass-2-motion-toast-cmd | superseded by v1.39 DS-COHERENCE | v1.39 |
+| todo | 2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent | tracked — needs 25+ audit events for pagination fixture | v1.39 |
+| todo | 2026-06-17-page04-branding-explicit-scoring | tracked | v1.39 |
+| todo | 2026-06-18-token-reference-completeness-ci-guard | tracked | v1.39 |
+| todo | 2026-06-19-demo-showcase-remember-checkbox-color-flaky | tracked | v1.39 |
+| todo | recapture-gate-single-lane | tracked — shared `--require-all` slugs break single-lane recapture | v1.39 |
+| seed | SEED-004-phx-new-button-forward-compat | dormant | v1.39 |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant | v1.39 |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | v1.39 |
+
 ## Session Continuity
 
 Last session: 2026-06-18T07:18:09.153Z
@@ -184,8 +210,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **Start next milestone** when ready: `/gsd-new-milestone` (does the full PROJECT.md evolution + REQUIREMENTS reset + git tag that this lightweight archive deliberately deferred).
-- **Forward-compat (deferred):** `SEED-004` — make Sigra robust to phx.new ≥1.8.8 button API, then bump/remove the `phx_new 1.8.7` pin.
-- **Fast-follow (deferred):** README header + GitHub social-preview adoption (`/gsd-quick`).
-- **Hex versioning wart (deferred, Jon's call):** stray `1.20.0` still outranks `1.1.0`/`1.0.0` as `latest_stable` on hex. Fix when desired: `mix hex.user auth` then `mix hex.retire sigra 1.20.0 …` (reversible via `--unretire`).
-- **Done 2026-06-13:** v1.38 shipped + archived, `v1.1.0` on hex, CI green, PRs triaged, local git clean (only `main`), snapshot allowlist at steady-state.
+- Start the next milestone with /gsd-new-milestone

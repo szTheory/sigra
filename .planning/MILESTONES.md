@@ -1,5 +1,31 @@
 # Milestones
 
+## v1.39 DS-COHERENCE (Shipped: 2026-06-19)
+
+**Phases completed:** 9 phases (184–192), 39 plans, 63 tasks
+**Requirements:** 42/42 satisfied (DIST-01..06, INFRA-01..06, TOKEN-01..04, THEME-01, COMP-01..06, GROUP-01..04, PAGE-01..05, FLOW-01..03, DATA-01, COPY-01..03, GATE-01..03)
+**Milestone audit:** not separately run — Phase 192 served as the terminal ratification gate (re-ran every scorecard, recaptured all baselines, reset both allowlists to empty, proved generated-host parity, monotonic guard green vs origin/main).
+
+**Delivered:** Turned the strengthened v1.38 brand into a systematically audited, award-grade admin/operator design system — graded *fractally* (components → groups → pages → flows) — and shipped it to real adopters by closing the admin-CSS distribution gap, all governed by a re-runnable quality ledger so re-runs only ever move quality forward.
+
+**Key accomplishments:**
+
+- **Distribution gap closed (DIST):** Extracted the canonical admin `sg-*` design system into a shipped installer asset (`priv/templates/sigra.install/admin/sigra_admin.css`, 368 lines, zero `vt-*` contamination), wired it through the installer pipeline + generated admin layout `<link>`, with merge-blocking byte-parity tests and a generated-host smoke proving a freshly generated host renders a styled admin UI.
+- **Audit infrastructure (INFRA):** Built the example-only `/admin/_design` gallery rendering every component and MG-1..MG-11 group in every state from the real `Sigra.Admin.Components`, plus the `admin-design-{chromium,mobile,dark}` snapshot+axe lane, a machine-parseable quality-tier ledger, and a merge-blocking monotonic guard — the re-runnable instrument grading the milestone.
+- **Token foundation ratified (L0):** Adversarially audited and ratified the `:root` token layer across Light/Dark/System with documented rationale + brand refs; every color pair passes WCAG AA (including alpha-composited tone-on-soft pairs); motion-budget tokens validated; three-surface ember parity preserved (auth stays coherent).
+- **Components, groups, pages scored (L1–L3):** All 13 canonical components, the MG-1..MG-11 group catalog, the 3 page archetypes plus the Branding customizer and Audit explorer passed their fractal scorecards at ≥ Ratified — with an APG-conformant ConfirmDialog, content-equivalent desktop↔mobile swaps, and byte-coherent reuse across pages.
+- **Flows & microcopy (L4 + COPY):** 3 persona JTBD journeys (platform admin / support investigator / org admin) pass happy + error + boundary with scope/return continuity, keyboard operability, reduced-motion calm, and theme persistence from deterministic fixtures; a committed one-term-per-concept glossary is enforced by an ExUnit drift guard.
+- **Terminal ratification & baseline lock (GATE):** Re-ran every scorecard, recaptured all baselines, reset both allowlists to empty, proved generated-host parity (`RUN_PARITY=1`), full-surface axe clean, ~35 ledger cells locked at Tier 1, monotonic guard green vs `origin/main` — a re-run now starts from "current = ratified."
+
+**Known deferred items at close:** 19 open artifact items acknowledged and deferred (see STATE.md Deferred Items) — 1 stale-resolved debug session (moved to resolved/), 10 superseded pre-v1.39 admin-UI quick-tasks, 5 tracked todos (mg5-6 data-dependent equivalence, page04 branding scoring, token-ref CI guard, demo-showcase flaky, recapture-gate single-lane), and 3 dormant seeds (SEED-004 phx_new fwd-compat, SEED-005 CI perf audit, SEED-006 gallery CI baseline recapture).
+
+**Archive:**
+
+- [v1.39 Roadmap](milestones/v1.39-ROADMAP.md)
+- [v1.39 Requirements](milestones/v1.39-REQUIREMENTS.md)
+
+---
+
 ## v1.37 AUTH-BRANDING-WHITELABEL (Shipped: 2026-06-07)
 
 **Phases completed:** 5 phases, 5 plans

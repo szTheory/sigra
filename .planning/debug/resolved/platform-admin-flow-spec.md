@@ -57,3 +57,15 @@ files_changed:
   - test/example/priv/playwright/tests/admin-flow-platform-admin.spec.ts
   - test/example/priv/playwright/helpers/adminFlows.ts
   - test/example/priv/static/assets/js/app.js
+
+
+---
+
+## Resolution (closed at v1.39 milestone close, 2026-06-19)
+
+Stale-resolved. All 4 spec/helper defects were fixed during Phase 190 execution and
+landed in PR #54 (119f9a2f): the platform-admin flow spec now uses visible-row-scoped
+`adminUsersEmailLocator(...)` (not `.first()`), `toHaveURL(/\/admin\/users\/[a-f0-9-]+/,
+{ timeout: 10000 })` navigation waits, and the corrected `data-sg-admin-theme-preference`
+theme model. Phase 190 verified complete. The session file was simply never moved to
+resolved/.
