@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.39
 milestone_name: DS-COHERENCE
-current_phase: 192
-status: verifying
+current_phase: 39
+status: Awaiting next milestone
 stopped_at: Completed 192-01-PLAN.md
-last_updated: "2026-06-18T14:36:42.942Z"
-last_activity: 2026-06-18
-last_activity_desc: Phase 192 complete
+last_updated: "2026-06-19T16:16:25.291Z"
+last_activity: 2026-06-19
+last_activity_desc: Milestone v1.39 completed and archived
 progress:
   total_phases: 15
   completed_phases: 9
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 192 — ratification-baseline-lock
+**Current focus:** Between milestones — v1.39 DS-COHERENCE shipped & archived 2026-06-19. Run `/gsd-new-milestone` for the next cycle (phases continue from 193).
 
 ## Current Position
 
-Phase: 192
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-06-18 — Closed phase-189 ConfirmDialog review todo (already fixed; wired PAGE-03 APG spec into CI, verified 7/7 gates)
+Phase: Milestone v1.39 complete
+Plan: —
+Status: PR #56 open — post-v1.39 cleanup + demo Docker DX overhaul (awaiting merge to main)
+Last activity: 2026-06-19 — Shipped PR #56 (demo DX overhaul + v1.39 cleanup); code-review remediated (orphaned-BEAM teardown, leaking watch volumes, profile-gated down, PID-reuse guard)
 
 ## Accumulated Context
 
@@ -118,6 +118,7 @@ Last activity: 2026-06-18 — Closed phase-189 ConfirmDialog review todo (alread
 | 260618-gly | Harden phase-186 D-11 parity test extractors — WR-02 (structural `extract_css_block/2` for auth dark block, replacing `Enum.take(30)`) + WR-03 (`extract_token_value/2` scoped to correct CSS block via optional selector). WR-01/IN-02 already resolved by prior pass; IN-03 optional CI guard deferred to new todo. Verified: 27 tests, 0 failures. | complete ✓ | 2026-06-18 |
 | 260618-grh | Narrow glossary drift-guard `action=` strip (phase 191 WR-01) — strip `action={…}` expressions but scan `action="…"` copy literals for banned terms; added regression test for the false-negative gap. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
 | 189-verify | Close phase-189 ConfirmDialog review todo — WR-01/02/03/04 found already fixed in source (admin_hooks.js + branding_live.ex); fixed the dormant PAGE-03 verification spec (stale `/cancel/i` → `[data-sg-confirm-cancel]`) and wired admin-modal-interaction.spec.ts into the chromium CI lane. Verified green locally: 7/7 APG gates. | complete ✓ | 2026-06-18 |
+| 260619-l1b | Demo/admin-UI Docker DX overhaul — `scripts/uat/up.sh` (no flags) now defaults to the shared-Traefik proxy path WITH live reload, health-gates the URL (never prints a live URL until an HTTP 200 probe passes; `STARTING` otherwise), auto-opens `/demo/credentials`, and prints grouped auth/admin/ops routes. New flags `--dev`/`--host` (host-run, now actually starts+gates Phoenix), `--attach`/`--iex`, `--no-watch`, `--no-open`. New `docker-compose.watch.yml` bind-mount override (compile-env invariant preserved) + web healthcheck; `down.sh` kills the host-run Phoenix PID; `sigra.localhost` alias relaxed to claim-based (feature branches can win it). Docs refreshed. Follow-up fix (f748005d): web healthcheck used wget but elixir:*-slim ships no wget/curl → perma-unhealthy aborted the script; installed curl + made `up -d --wait` non-fatal (host-side wait_for_http is the real gate). VERIFIED LIVE end-to-end: `up.sh` exits 0, web `(healthy)`, HTTP 200 on raw port + `sigra.localhost` + per-branch host via shared Traefik, `/admin`→302. | complete ✓ | 2026-06-19 |
 
 ## Deferred Items
 
@@ -127,6 +128,32 @@ Last activity: 2026-06-18 — Closed phase-189 ConfirmDialog review todo (alread
 | Public docs | README/HexDocs visual adoption | Deferred to a separate focused change to avoid brand churn | v1.35 |
 | Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
 | Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
+
+### Acknowledged at v1.39 close (2026-06-19)
+
+19 open artifact items acknowledged and deferred at milestone close. None are blockers; all are stale-resolved or deliberately tracked.
+
+| Category | Item | Status | Deferred At |
+| --- | --- | --- | --- |
+| debug | platform-admin-flow-spec | stale-resolved — fixes landed in PR #54; session moved to `debug/resolved/` | v1.39 |
+| quick_task | 260528-nwa-fix-rc-01-in-guides-recipes-companion-li | superseded by v1.39 work | v1.39 |
+| quick_task | 260528-sbn-fix-v1-29-doc-debt-mailglass-corrigendum | superseded / stale | v1.39 |
+| quick_task | 260602-gll-stage-0-admin-ui-pass-2-design-system-fo | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-gzc-stage-1-admin-ui-pass-2-shell-ia-chrome- | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hao-stage-2-admin-ui-pass-2-landing-needs-le | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hhr-stage-3-admin-ui-pass-2-users-index-craf | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hoz-stage-4-admin-ui-pass-2-user-detail-summ | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-hvx-stage-5-admin-ui-pass-2-audit-explorer-i | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-i3m-stage-6-admin-ui-pass-2-org-overview-mad | superseded by v1.39 DS-COHERENCE | v1.39 |
+| quick_task | 260602-ikd-stage-7-admin-ui-pass-2-motion-toast-cmd | superseded by v1.39 DS-COHERENCE | v1.39 |
+| todo | 2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent | tracked — needs 25+ audit events for pagination fixture | v1.39 |
+| todo | 2026-06-17-page04-branding-explicit-scoring | tracked | v1.39 |
+| todo | 2026-06-18-token-reference-completeness-ci-guard | tracked | v1.39 |
+| todo | 2026-06-19-demo-showcase-remember-checkbox-color-flaky | tracked | v1.39 |
+| todo | recapture-gate-single-lane | tracked — shared `--require-all` slugs break single-lane recapture | v1.39 |
+| seed | SEED-004-phx-new-button-forward-compat | dormant | v1.39 |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant | v1.39 |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | v1.39 |
 
 ## Session Continuity
 
@@ -184,8 +211,4 @@ Resume file: None
 
 ## Operator Next Steps
 
-- **Start next milestone** when ready: `/gsd-new-milestone` (does the full PROJECT.md evolution + REQUIREMENTS reset + git tag that this lightweight archive deliberately deferred).
-- **Forward-compat (deferred):** `SEED-004` — make Sigra robust to phx.new ≥1.8.8 button API, then bump/remove the `phx_new 1.8.7` pin.
-- **Fast-follow (deferred):** README header + GitHub social-preview adoption (`/gsd-quick`).
-- **Hex versioning wart (deferred, Jon's call):** stray `1.20.0` still outranks `1.1.0`/`1.0.0` as `latest_stable` on hex. Fix when desired: `mix hex.user auth` then `mix hex.retire sigra 1.20.0 …` (reversible via `--unretire`).
-- **Done 2026-06-13:** v1.38 shipped + archived, `v1.1.0` on hex, CI green, PRs triaged, local git clean (only `main`), snapshot allowlist at steady-state.
+- Start the next milestone with /gsd-new-milestone

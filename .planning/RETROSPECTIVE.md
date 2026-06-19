@@ -25,6 +25,43 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.39 — DS-COHERENCE
+
+**Shipped:** 2026-06-19
+**Phases:** 9 (184–192) | **Plans:** 39 | **Tasks:** 63
+
+### What was built
+
+A systematically audited, award-grade admin/operator design system, graded *fractally* (tokens L0 → components L1 → meta-component groups L2 → page compositions L3 → operator flows L4), and shipped to real adopters by closing the admin-CSS distribution gap. The canonical admin `sg-*` CSS now ships from the installer to generated hosts as `sigra_admin.css` (merge-blocking byte-parity + styled generated-host smoke); an example-only `/admin/_design` gallery + `admin-design-{chromium,mobile,dark}` snapshot+axe lane audits every component/group in isolation; a quality-tier ledger + merge-blocking monotonic guard make re-runs forward-only; a committed one-term-per-concept glossary is enforced by an ExUnit drift guard; and Phase 192 served as a terminal ratification gate proving "current = ratified."
+
+### What worked
+
+- **The idempotency ratchet (ledger + monotonic guard) was the right backbone.** Framing the whole milestone as a re-runnable, forward-only audit meant each phase raised the ledger and CI mechanically prevented regressions — the terminal Phase 192 gate then became a re-run rather than a fresh audit.
+- **Closing the distribution gap first (Phase 184) paid compounding dividends.** Once `sigra_admin.css` shipped and the example consumed the same file, every later phase's evidence (axe, snapshots, generated-host smoke) ran against the actually-shipped stylesheet, not an example-only copy.
+- **Fractal decomposition kept scope honest.** Grading L0→L4 with a shared D1–D11 scorecard plus level add-ons gave each phase a crisp, testable success bar and avoided open-ended "polish."
+- **A terminal ratification phase removed the need for a separate milestone audit.** Phase 192 re-ran every scorecard, recaptured all baselines, reset both allowlists to empty, and ran the monotonic guard vs origin/main — so `/gsd-audit-milestone` was redundant at close.
+
+### What was inefficient
+
+- **Tracking artifacts drifted from reality.** At close, 19 items were open in the audit but none were real blockers — a debug session was stale-resolved (fixes had landed in PR #54 but the file was never moved to `resolved/`), and 10 quick-tasks predating the milestone were fully superseded. Closing/moving artifacts as work lands would make the close cleaner.
+- **ROADMAP.md carried stale Phase Details.** The verbose per-phase blocks for the prior (v1.38) milestone were never pruned at that lightweight close, so this close had to remove 178–192 details together.
+- **A few flaky/data-dependent tests surfaced late** (mg5-6 content-equivalence needs 25+ audit events; demo-showcase remember-checkbox color) and were deferred to tracked todos rather than fixed inline.
+
+### Patterns established
+
+- **Ship design-system CSS like auth CSS:** distributed installer asset + merge-blocking example≡template byte-parity + styled generated-host smoke. Reusable for any future host-facing stylesheet.
+- **Quality-tier ledger + monotonic guard** as a durable, re-runnable governance instrument for subjective-but-gradeable surfaces (design, copy, a11y).
+- **Example-only audit harness** (`/admin/_design` gallery) contract-guarded against installer templating — isolates component/group states without a storybook dependency.
+- **Glossary-as-test:** a one-term-per-concept glossary enforced by an ExUnit drift guard ships with the library so adopters inherit the same copy discipline.
+
+### Key lessons
+
+- A milestone whose final phase is a *terminal idempotency gate* can legitimately skip a separate milestone audit — but only because the gate's invariants (recapture, empty allowlists, parity, monotonic guard) actually subsume the audit's checks. Verify that subsumption before skipping.
+- Move/close tracking artifacts (debug sessions, quick-tasks, todos) at the moment work lands, not at milestone close — otherwise the close audit reads scary when it's actually clean.
+- Internal GSD milestone versions (v1.36–v1.39) are *not* Hex releases (hex is `v1.1.0`); don't git-tag them, and keep the planning-version vs semver distinction explicit to avoid muddying the release line.
+
+---
+
 ## Milestone: v1.35 — BRAND-SYSTEM-PRESSURE-TEST
 
 **Shipped:** 2026-06-05
@@ -803,6 +840,7 @@ v1.32 is the transition from building broad auth-library surface area to proving
 
 | Milestone | Sessions | Phases | Key change |
 |-----------|----------|--------|--------------|
+| v1.39 | n/a | 9 | Fractal design-system audit (L0–L4) governed by a re-runnable quality-tier ledger + merge-blocking monotonic guard; admin `sg-*` CSS shipped to hosts as `sigra_admin.css`; terminal ratification gate (Phase 192) replaced a separate milestone audit |
 | v1.16 | n/a | 1 | **`APIToken.verify/2`** failure **`api.token_verify.failure`** → **`Multi` + `log_multi_safe`** + **`api_token_audit_atomic_test.exs`** (**044–046** **T1**) |
 | v1.14 | n/a | 1 | MFA ad-hoc **`log_safe`** closure (**033**/**034**) → **`Multi` + `log_multi_safe`** + **`mfa_audit_atomicity_test.exs`** |
 | v1.6 | n/a | 3 | Nyquist 41–44 posture matrix + OA-01 OAuth ceremony audit tests + OA-02 docs alignment |
