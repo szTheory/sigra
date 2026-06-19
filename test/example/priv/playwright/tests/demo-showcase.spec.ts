@@ -886,9 +886,12 @@ test.describe("demo-showcase", () => {
     // The expectedAccent probe resolves --vt-color-primary in document.body context while the
     // checked background is computed inside .vt-auth — different cascade contexts produce a
     // systematic per-channel offset (up to ~6 units locally, 1-2 in CI). De-flake with ±10
-    // per-channel tolerance using the in-file rgbChannels() parser (line 52) — tight enough
-    // to catch a wrong brand color (any correct accent is within 10 units) but wide enough to
-    // survive env-specific rendering deltas without retries.
+    // per-channel tolerance using the in-file rgbChannels() parser (line 52).
+    // NOTE: both operands derive from the same live --vt-color-primary token, so this is a
+    // paint-fidelity check (the :checked background renders the primary token within rendering
+    // tolerance), NOT a brand-identity check — it cannot detect a wrong-token swap since both
+    // sides move together. Wide enough to survive env-specific rendering deltas without retries,
+    // tight enough to catch a broken/dropped accent paint.
     const [br, bg, bb] = rgbChannels(rememberCheckedStyles.backgroundColor);
     const [er, eg, eb] = rgbChannels(rememberCheckedStyles.expectedAccent);
     expect(Math.abs(br - er)).toBeLessThanOrEqual(10);
