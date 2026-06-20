@@ -49,6 +49,10 @@ How it works: the container publishes Postgres on a **random** host port (so it 
 
 > This test database is separate from the demo database below. Keep them apart: the demo DB persists seeded personas; the test DB is disposable.
 
+### PR-fast vs nightly CI split
+
+A clean local `mix test` plus the PR-fast gate (the 5 required lanes + install_golden_contract + library_tests_dep_off) is the fast feedback loop; exhaustive broad coverage (install matrix ×4, upgrade smoke, generated-admin Playwright ~60 min) now runs on a nightly schedule/main push, not on every PR.
+
 ### Reproducing the CI dep-off lane locally
 
 The CI dep-off lane verifies that Sigra compiles and the core guard tests pass when the optional `:threadline` dep is absent. Reproduce it locally with a single command:
