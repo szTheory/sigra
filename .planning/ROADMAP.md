@@ -173,7 +173,7 @@
   - [x] 197-01-PLAN.md — PW-02: rewrite the two mailbox `waitForTimeout` sleeps to `expect.poll()` (wave 1)
   - [x] 197-02-PLAN.md — PW-01: `!cancelled()` step guards + `always()` aggregator + staging-guard fix (wave 1)
   - [x] 197-03-PLAN.md — PW-03: self-hosted Space Grotesk woff2 + `--font-sans` + `document.fonts.ready` + MG-5/6 fix (wave 1)
-  - [ ] 197-04-PLAN.md — PW-03: in-CI `admin_design_recapture` job + canary/commit/cross-lane resolution (wave 2)
+  - [x] 197-04-PLAN.md — PW-03: in-CI `admin_design_recapture` job + canary/commit/cross-lane resolution (wave 2)
   - [ ] 197-05-PLAN.md — PW-03: remove `continue-on-error`, re-gate gallery, record SEED-006 correction (wave 3)
 
 ### Phase 198: Contributor DX & Acceptance Gate
@@ -328,7 +328,7 @@ Archive:
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 4/4 | Complete    | 2026-06-20 |
-| 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 3/5 | In Progress|  |
+| 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 4/5 | In Progress|  |
 | 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |
 | 150. Issue Triage & Bugfix Cadence | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 151. Ecosystem Sync & Hex Dependency Management | v1.33 | 1/1 | Complete | 2026-06-01 |

@@ -5,14 +5,14 @@ milestone_name: CI-PERF
 current_phase: 197
 current_phase_name: playwright-lanes-design-gallery-re-gate
 status: executing
-stopped_at: Phase 197 context gathered (assumptions mode)
-last_updated: "2026-06-20T19:13:57.151Z"
+stopped_at: Completed 197-04 admin_design_recapture job (D-09, OQ1/OQ2/OQ3)
+last_updated: "2026-06-20T19:23:24.910Z"
 last_activity: 2026-06-20
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 17
-  completed_plans: 15
+  completed_plans: 16
   percent: 67
 ---
 
@@ -29,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 197 (playwright-lanes-design-gallery-re-gate) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-06-20
 
@@ -124,6 +124,9 @@ Last activity: 2026-06-20
 - [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
 - [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
 - [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
+- [Phase ?]: OQ1: board-notice canary re-established as 'added' via pre-delete before --update-snapshots (tripwire stays armed)
+- [Phase ?]: OQ2: recaptured PNGs committed to ci/recapture-admin-design branch + gh pr create for human review (not silent push to main)
+- [Phase ?]: OQ3: bounded compare-and-report scope -- sibling lanes compared only; drift deferred to tracked todo with per-lane recapture path
 
 ### Pending Todos
 
@@ -182,8 +185,8 @@ Last activity: 2026-06-20
 
 ## Session Continuity
 
-Last session: 2026-06-20T19:13:46.990Z
-Stopped at: Phase 197 context gathered (assumptions mode)
+Last session: 2026-06-20T19:23:24.903Z
+Stopped at: Completed 197-04 admin_design_recapture job (D-09, OQ1/OQ2/OQ3)
 Resume file: 
 
 None
@@ -255,3 +258,4 @@ None
 | Phase 197 P02 | 2min | - tasks | - files |
 | Phase 197 P02 | 2min | 2 tasks | 1 files |
 | Phase 197 P03 | 2min | 4 tasks | 4 files |
+| Phase 197 P04 | 5min | 3 tasks | 1 files |
