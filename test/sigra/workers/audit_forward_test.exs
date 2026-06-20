@@ -4,6 +4,7 @@ defmodule Sigra.Workers.AuditForwardTest do
   # scaffold with StubRepo + cancel-taxonomy assertion style).
 
   use ExUnit.Case, async: true
+  @moduletag :threadline_guard
 
   alias Sigra.Workers.AuditForward
 

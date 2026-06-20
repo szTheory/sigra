@@ -1,5 +1,6 @@
 defmodule Sigra.ConfigForwardersTest do
   use ExUnit.Case, async: true
+  @moduletag :threadline_guard
 
   # Wave 0 test scaffold for the :forwarders key in Sigra.Config audit: schema.
   # Tests are RED until lib/sigra/config.ex is extended in Plan 03 Task 2.

@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Sigra.DoctorTest do
   use ExUnit.Case
+  @moduletag :threadline_guard
 
   import ExUnit.CaptureIO
 

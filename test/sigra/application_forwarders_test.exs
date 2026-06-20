@@ -1,5 +1,6 @@
 defmodule Sigra.ApplicationForwardersTest do
   use ExUnit.Case, async: false
+  @moduletag :threadline_guard
 
   # NOTE: Boot-wiring tests for Sigra.Application.maybe_warn_missing_forwarder_deps/0
   # and attach_forwarders/0. These helpers are added in Plan 05 (Wave 4).
