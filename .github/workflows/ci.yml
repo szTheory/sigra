@@ -1016,7 +1016,7 @@ jobs:
       # between checkpoints and this staging step in v1.39 and was silently wiping
       # the PNGs, so the artifact bundle contract found 0.)
       - name: Stage admin checkpoint PNGs (before later runs clear test-results)
-        if: success()
+        if: ${{ steps.admin_checkpoints.outcome == 'success' }}
         working-directory: test/example/priv/playwright
         run: |
           mkdir -p artifacts/admin-checkpoints/
@@ -1084,6 +1084,26 @@ jobs:
           npx playwright test \
             tests/demo-showcase.spec.ts \
             --project=demo-showcase-chromium
+      - name: Aggregate Playwright step outcomes
+        if: always()
+        # D-02 (197-02): re-fails the job if any guarded seam returned 'failure'.
+        # Without this step, !cancelled() guards allow later seams to run after
+        # an early failure but the job would silently go green. The aggregator
+        # is the load-bearing integrity control (T-197-03).
+        run: |
+          set -euo pipefail
+          fail=0
+          for o in "${{ steps.admin_behavior.outcome }}" \
+                   "${{ steps.admin_checkpoints.outcome }}" \
+                   "${{ steps.design_gallery.outcome }}" \
+                   "${{ steps.non_admin_smoke.outcome }}" \
+                   "${{ steps.demo_showcase.outcome }}"; do
+            [ "$o" = "failure" ] && fail=1
+          done
+          if [ "$fail" -eq 1 ]; then
+            echo "::error::one or more Playwright seams failed"; exit 1
+          fi
+          echo "all seams passed"
       - name: Dump example app log (on failure)
         if: failure()
         # WR-04: surface the backgrounded server log directly in the
