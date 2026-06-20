@@ -195,7 +195,11 @@
   4. Required-check names are stable end-to-end, SEED-004's phx_new 1.8.7 pin is respected, and snapshot/baseline determinism is preserved.
 
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the final before/after wall-clock/p95/flake-rate table is the acceptance evidence; `mix ci` is run locally and in CI to prove parity with the PR gate.
-**Plans**: TBD
+**Plans**: 3 plans
+
+  - [ ] 198-01-PLAN.md — `mix ci` local PR-gate mirror + CONTRIBUTING docs + contract-lock test (DX-01; D-01..D-04)
+  - [ ] 198-02-PLAN.md — design-gallery hard re-gate (confirm-green) + required-name/contract/snapshot guards + todo hygiene (GATE-02; D-06/D-07)
+  - [ ] 198-03-PLAN.md — `198-ACCEPTANCE.md` measured before/after evidence + MAINTAINING pointer (GATE-01/GATE-02; D-05)
 
 <details>
 <summary>✅ v1.39 DS-COHERENCE (Phases 184-192) — SHIPPED 2026-06-19</summary>
