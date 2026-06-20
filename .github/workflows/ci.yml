@@ -612,11 +612,6 @@ jobs:
           PGHOST: localhost
           GITHUB_WORKSPACE: ${{ github.workspace }}
         run: scripts/ci/passkeys-manual-fallback-smoke.sh
-      - name: Forced-failure probe (nightly self-test)
-        if: ${{ inputs.force_fail_probe }}
-        run: |
-          echo "force_fail_probe=true: intentionally failing to prove the nightly lane reports red"
-          exit 1
 
   install_matrix:
     name: Install matrix (flag combinations)
@@ -1344,3 +1339,20 @@ jobs:
             exit 1
           fi
           echo "ci-gate passed: all required release lanes succeeded."
+
+  # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
+  # nightly trigger path reports red on a real failure. Dispatching with
+  # `gh workflow run "CI" -f force_fail_probe=true` reds this job and only
+  # this job. Normal nightly/push/dispatch runs (force_fail_probe=false) keep
+  # the step skipped and the job green. Never runs on pull_request events.
+  # NOT in ci-gate.needs — it is a standalone self-test, not a gate input.
+  nightly_probe:
+    name: Nightly probe (forced-failure self-test)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Forced-failure probe (nightly self-test)
+        if: ${{ inputs.force_fail_probe }}
+        run: |
+          echo "force_fail_probe=true: intentionally failing to prove the nightly lane reports red"
+          exit 1
