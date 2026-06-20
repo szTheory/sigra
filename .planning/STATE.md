@@ -1,20 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.39
-milestone_name: DS-COHERENCE
-current_phase: 39
-status: Awaiting next milestone
-stopped_at: Completed 192-01-PLAN.md
-last_updated: "2026-06-19T16:16:25.291Z"
-last_activity: 2026-06-19
-last_activity_desc: Milestone v1.39 completed and archived
+milestone: v1.40
+milestone_name: CI-PERF
+status: verifying
+stopped_at: Completed 197-05 PW-03 re-gate (D-10 continue-on-error removed, D-07 SEED-006 corrected)
+last_updated: "2026-06-20T19:29:12.873Z"
+last_activity: 2026-06-20
 progress:
-  total_phases: 15
-  completed_phases: 9
-  total_plans: 39
-  completed_plans: 39
-  percent: 60
-current_phase_name: ratification-baseline-lock
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 17
+  completed_plans: 17
+  percent: 83
 ---
 
 # Project State
@@ -25,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Between milestones — v1.39 DS-COHERENCE shipped & archived 2026-06-19. Run `/gsd-new-milestone` for the next cycle (phases continue from 193).
+**Current focus:** Phase 197 — playwright-lanes-design-gallery-re-gate
 
 ## Current Position
 
-Phase: Milestone v1.39 complete
-Plan: —
-Status: PR #56 open — post-v1.39 cleanup + demo Docker DX overhaul (awaiting merge to main)
-Last activity: 2026-06-19 — Shipped PR #56 (demo DX overhaul + v1.39 cleanup); code-review remediated (orphaned-BEAM teardown, leaking watch volumes, profile-gated down, PID-reuse guard)
+Phase: 197 (playwright-lanes-design-gallery-re-gate) — EXECUTING
+Plan: 5 of 5
+Status: Phase complete — ready for verification
+Last activity: 2026-06-20
 
 ## Accumulated Context
 
@@ -99,6 +96,37 @@ Last activity: 2026-06-19 — Shipped PR #56 (demo DX overhaul + v1.39 cleanup);
 - [Phase ?]: GATE-02: Generated admin Playwright smoke CI = success for origin/main SHA 07e15ca9; blocking suite green with quarantine (0 failures, 3 excluded)
 - [Phase ?]: GATE-03: monotonic guard exits 0; ~35 ledger cells locked at Tier 1 in terminal ratification note (Phase 192 2026-06-18)
 - [Phase ?]: Unicode curly-quote bug in 192-01 axe widening fixed (Edit tool artifact); target-size D-08 suppression applied
+- [Phase ?]: [Phase 193-02]: Tolerance widened to ±10 for remember-checkbox color assertion
+- [Phase ?]: [Phase 193-02]: afterBackgroundColor exact check left untouched — not evidenced as flaky by the FLAKE-01 todo (only backgroundColor was cited)
+- [Phase ?]: Drop library_tests edge from example_playwright_smoke.needs — verified gratuitous; keeps release_ref_guard; lane stays required in ci-gate.needs (CRIT-01)
+- [Phase ?]: Add id: deps_cache/example_deps_cache to cache steps + GITHUB_STEP_SUMMARY observability (resolved versions, cache-hit, slowest tests) to library_tests job (BASE-03)
+- [Phase ?]: D-11/D-14: 6 guards folded into fast_checks; ci-gate rewired
+- [Phase ?]: D-12: release_ref_guard kept standalone no-checkout DAG gate (intentional D-12 exclusion)
+- [Phase ?]: D-15: MAINTAINING.md stale required-check string swept from both locations; 5 live names + ci-gate aggregator note confirmed
+- [Phase ?]: [Phase 195-02]: Option (a) chosen for shard test command: keep --slowest 10. A/B measured ~47% speedup without --slowest on async-only files, but subprocess serial tail bounds shard walltime. D-01 default keeps per-test timing observability.
+- [Phase ?]: [Phase 195-02]: mix docs relocated to library_tests_dep_off (already compiled, non-shard, zero overhead). fast_checks alternative rejected: would add toolchain prelude overhead (2-3m).
+- [Phase ?]: [Phase 195-02]: Ruleset 14941512 confirmed at execution time: required check string is byte-identical 'Library tests' — aggregator job id library_tests + name Library tests is safe.
+- [Phase ?]: Kept discrete CI steps, changed only final test command to --only threadline_guard (D-10/D-11/D-14)
+- [Phase ?]: CACHE-03: no larger runners adopted; measurement-gate runbook shipped in guides/recipes/local-development.md (D-21/D-22/D-23)
+- [Phase ?]: Job-level if: github.event_name != 'pull_request' used for 5 moved jobs (196-01 D-02)
+- [Phase ?]: ci-gate skip-tolerant: result != success && result != skipped tolerates PR-skipped needs without weakening real-failure detection (196-01 D-09)
+- [Phase ?]: Live ruleset 14941512 confirmed at execution: 5 required-check contexts, enforcement active, no 6th/renamed context (196-01 D-12)
+- [Phase ?]: ADD-only doc discipline: CI cadence subsection appended to MAINTAINING.md without touching the already-correct required-check section (5 lane names, ci-gate NOT required)
+- [Phase ?]: D-13 correction: CRIT-03 phrasing (single stable required check ci-gate) is stale; live ruleset 14941512 enforces 5 lane name strings; ci-gate is internal aggregator; correction recorded in 196-VERIFICATION.md only
+- [Phase 197]: Used let link closure variable inside expect.poll callback to capture invitation URL — idiomatic TypeScript approach for async side-effect capture — TypeScript type narrowing requires the link variable to be declared in outer scope; closure assignment inside poll keeps the logic self-contained
+- [Phase 197]: Intervals [250, 500, 1000] with timeout 30_000 replaces prior 30x1s fixed budget — Graduated backoff resolves faster on CI while keeping same worst-case budget; follows passkeys-hooks.spec.ts expect.poll precedent
+- [Phase ?]: PW-01 criterion 1a: all 5 Playwright seams in example_playwright_smoke run independently under !cancelled() guards; aggregator re-fails job on any seam failure
+- [Phase ?]: Staging step guard corrected from success() to steps.admin_checkpoints.outcome == 'success' (Pitfall 4 fix)
+- [Phase ?]: webkit cannot be dropped (D-04): iPhone 13 mobile projects need webkit; criterion 1b is reliability win not time reduction
+- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
+- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
+- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
+- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
+- [Phase ?]: OQ1: board-notice canary re-established as 'added' via pre-delete before --update-snapshots (tripwire stays armed)
+- [Phase ?]: OQ2: recaptured PNGs committed to ci/recapture-admin-design branch + gh pr create for human review (not silent push to main)
+- [Phase ?]: OQ3: bounded compare-and-report scope -- sibling lanes compared only; drift deferred to tracked todo with per-lane recapture path
+- [Phase ?]: D-10 re-gate: continue-on-error removed from design gallery step; gallery now hard-gates via the Plan 02 aggregator; inline in example_playwright_smoke (not nightly)
+- [Phase ?]: D-07 operator-truth: SEED-006 false webfont-load premise corrected; real cause was OS system-ui font-metric delta; SEED-006 marked addressed/folded by Phase 197
 
 ### Pending Todos
 
@@ -157,11 +185,11 @@ Last activity: 2026-06-19 — Shipped PR #56 (demo DX overhaul + v1.39 cleanup);
 
 ## Session Continuity
 
-Last session: 2026-06-18T07:18:09.153Z
-Stopped at: Completed 192-01-PLAN.md
-Resume file: None
+Last session: 2026-06-20T19:29:12.867Z
+Stopped at: Completed 197-05 PW-03 re-gate (D-10 continue-on-error removed, D-07 SEED-006 corrected)
+Resume file: 
 
-## Performance Metrics
+None
 
 | Phase | Plan | Duration | Notes |
 | --- | --- | --- | --- |
@@ -208,7 +236,27 @@ Resume file: None
 | Phase 192 P02 | 10 | 2 tasks | 6 files |
 | Phase 192 P03 | 1 min | 1 tasks | 1 files |
 | Phase 192 P04 | 45 min | - tasks | - files |
+| Phase 193 P01 | 1096 | 2 tasks | 1 files |
+| Phase 193 P02 | 6 min | 1 tasks | 2 files |
+| Phase 193 P03 | 2 min | 2 tasks | 1 files |
+| Phase 194 P02 | ~4 minutes | 3 tasks | 2 files |
+| Phase 195 P01 | 3 | 3 tasks | 12 files |
+| Phase 195 P02 | 5 | 3 tasks | 1 files |
+| Phase 195 P03 | 525603 | 2 tasks | 2 files |
+| Phase 196 P01 | 4min | 3 tasks | 1 files |
+| Phase 196 P02 | 1m | 3 tasks | 1 files |
 
 ## Operator Next Steps
 
 - Start the next milestone with /gsd-new-milestone
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 196 P04 | 4min | 2 tasks | 3 files |
+| Phase 197 P02 | 2min | - tasks | - files |
+| Phase 197 P02 | 2min | 2 tasks | 1 files |
+| Phase 197 P03 | 2min | 4 tasks | 4 files |
+| Phase 197 P04 | 5min | 3 tasks | 1 files |
+| Phase 197 P05 | 2m | 2 tasks | 2 files |

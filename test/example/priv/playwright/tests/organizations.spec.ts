@@ -116,7 +116,8 @@ async function extractInvitationLink(
   page: Parameters<typeof test>[0]['page'],
   recipient: string,
 ) {
-  for (let attempt = 0; attempt < 30; attempt += 1) {
+  let link: string | null = null;
+  await expect.poll(async () => {
     const mailbox = (await page.evaluate(async () => {
       const response = await fetch('/dev/mailbox/json');
 
@@ -145,14 +146,20 @@ async function extractInvitationLink(
         normalized.protocol = new URL(page.url()).protocol;
         normalized.host = new URL(page.url()).host;
 
-        return normalized.toString();
+        link = normalized.toString();
       }
     }
 
-    await page.waitForTimeout(1_000);
-  }
+    return link !== null;
+  }, {
+    message: `No invitation link found in mailbox JSON for ${recipient}`,
+    intervals: [250, 500, 1000],
+    timeout: 30_000,
+  }).toBe(true);
 
-  throw new Error(`No invitation link found in mailbox JSON for ${recipient}`);
+  if (!link) throw new Error(`No invitation link found in mailbox JSON for ${recipient}`);
+
+  return link;
 }
 
 test('phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch', async ({

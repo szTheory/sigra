@@ -16,6 +16,13 @@ async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
   });
+  // D-08: wait for the brand webfont so element heights are font-stable before
+  // capture. fonts.ready alone resolves instantly if the face is never requested
+  // (Pitfall 7), so we follow with a hard guard that fails loudly if the woff2
+  // 404'd or --font-sans didn't apply (T-197-06).
+  await page.evaluate(async () => { await (document as any).fonts.ready; });
+  const ok = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
+  expect(ok, 'Space Grotesk must be loaded before snapshot').toBe(true);
 }
 
 async function registerUser(page: Page, email: string, password: string) {
@@ -318,9 +325,7 @@ test.describe('Design gallery board snapshots', () => {
   test('MG-5 and MG-6 desktop and mobile representations are content-equivalent', async ({
     page,
   }) => {
-    // known_failure: data-dependent pagination — needs 25+ audit events per user;
-    // reproduces on origin/main; tracked: .planning/todos/pending/2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent.md
-    test.fail();
+    test.skip('data-dependent pagination across /admin/audit + first-listed-user audit page; no seeded user reaches the >=25-event @default_limit threshold — tracked in .planning/todos/pending/2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent.md');
     await assertUserResultEquivalence(
       page.locator('[data-testid="mg-5-desktop-results"]'),
       page.locator('[data-testid="mg-5-mobile-results"]'),

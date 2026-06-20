@@ -1,5 +1,6 @@
 defmodule Sigra.DoctorTest do
   use ExUnit.Case, async: true
+  @moduletag :threadline_guard
 
   alias Sigra.Doctor
 

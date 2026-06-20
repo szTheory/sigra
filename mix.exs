@@ -143,6 +143,17 @@ defmodule Sigra.MixProject do
       "ci.install_golden": [
         "test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs"
       ],
+      # Local repro of the CI dep-off lane. Unlocks/cleans :threadline, proves
+      # the library compiles without it (--warnings-as-errors, D-09 proof KEPT),
+      # then runs only the tagged guard subset (D-10/D-11 coverage selection).
+      # Usage: MIX_ENV=test mix sigra.dep_off
+      # (assumes deps are already compiled; CI lane compiles deps before calling this)
+      "sigra.dep_off": [
+        "deps.unlock threadline",
+        "deps.clean threadline --build",
+        "compile --warnings-as-errors --no-deps-check",
+        "test --only threadline_guard --no-deps-check"
+      ],
       # Boot the ephemeral Dockerized test Postgres. NOTE: a mix alias runs in a
       # child process and cannot export env into your shell — after this, load
       # the port via `source tmp/db.env` (or direnv) before running `mix test`.

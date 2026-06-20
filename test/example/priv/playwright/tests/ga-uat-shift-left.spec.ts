@@ -75,7 +75,8 @@ async function extractInvitationLink(
   page: import('@playwright/test').Page,
   recipient: string,
 ) {
-  for (let attempt = 0; attempt < 30; attempt += 1) {
+  let link: string | null = null;
+  await expect.poll(async () => {
     const mailbox = (await page.evaluate(async () => {
       const response = await fetch('/dev/mailbox/json');
       return response.json();
@@ -100,12 +101,20 @@ async function extractInvitationLink(
         const normalized = new URL(match[0], page.url());
         normalized.protocol = new URL(page.url()).protocol;
         normalized.host = new URL(page.url()).host;
-        return normalized.toString();
+        link = normalized.toString();
       }
     }
-    await page.waitForTimeout(1_000);
-  }
-  throw new Error(`No invitation link for ${recipient}`);
+
+    return link !== null;
+  }, {
+    message: `No invitation link for ${recipient}`,
+    intervals: [250, 500, 1000],
+    timeout: 30_000,
+  }).toBe(true);
+
+  if (!link) throw new Error(`No invitation link for ${recipient}`);
+
+  return link;
 }
 
 test.describe('GA UAT shift-left (SEED-6 / SEED-7)', () => {

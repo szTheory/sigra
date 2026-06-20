@@ -1,5 +1,6 @@
 defmodule Sigra.OptionalDepsTest do
   use ExUnit.Case, async: true
+  @moduletag :threadline_guard
 
   # SOT unit tests for Sigra.OptionalDeps (Phase 137, Plan 01 — OD-01).
   # Strategy: drift-catching equality assertions — each predicate is asserted

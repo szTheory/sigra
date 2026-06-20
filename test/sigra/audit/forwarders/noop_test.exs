@@ -1,5 +1,6 @@
 defmodule Sigra.Audit.Forwarders.NoopTest do
   use ExUnit.Case, async: true
+  @moduletag :threadline_guard
 
   import ExUnit.CaptureLog
 

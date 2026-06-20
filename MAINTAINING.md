@@ -97,28 +97,112 @@ Pick the **least privilege** your org policy allows while still running third-pa
 
 Unrelated to Release Please on `main`. A common balance is **Require approval for first-time contributors**; stricter orgs use **Require approval for all external contributors**.
 
-### Branch protection — required check for install golden (shift-left)
+### Branch protection — enforced required checks (live ruleset)
 
-**Goal:** Treat installer subprocess health as machine-enforced on **`main`**, with zero ongoing human edits to **`.planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md`** for “PASS” proof.
+Branch protection for `main` is enforced via **ruleset 14941512** (`enforcement: active`), not
+legacy branch protection rules. The five enforced required checks are the **job `name:` strings**
+that GitHub collects as status contexts when each CI job runs:
 
-**Prerequisite:** The workflow file on **`main`** must define job id **`install_golden_contract`** (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Until that commit is merged to the default branch, the check will not appear in GitHub’s branch protection picker.
+1. `Library tests`
+2. `Example unit smoke (ExUnit + ConnTest)`
+3. `Install smoke (fresh phx.new + sigra.install)`
+4. `Example HTTP smoke (boot + curl critical routes)`
+5. `Example Playwright smoke (full lifecycle)`
 
-**Where:** [Repository → Settings → Branches](https://github.com/szTheory/sigra/settings/branches) → **Branch protection rules** → **Add rule** (or edit the rule for **`main`**).
+**`ci-gate` is NOT an enforced required check.** It is an internal aggregator job that gates the
+rest of the DAG; it does not appear in ruleset 14941512’s `required_status_checks`. Do not rename
+or remove the five job `name:` strings above — doing so removes the context GitHub needs to
+enforce the rule.
 
-**What to enable**
+To verify the live list at any time: `gh api repos/szTheory/sigra/rulesets/14941512 --jq ‘.rules[] | select(.type==”required_status_checks”) | .parameters.required_status_checks[].context’`
 
-1. **Require a pull request before merging** — if your org already mandates this on `main`, keep it.
-2. Under **Status checks that are required**, search for and enable exactly this check name (copy/paste — it must match the `name:` field under `install_golden_contract` in `ci.yml`):
+> **Note on install golden (shift-left):** The `install_golden_contract` job is gated on the
+> PR diff touching installer paths and is not in the live ruleset’s required checks.
+> It is a path-scoped quality gate, not a merge-blocking required check — it flows into
+> `ci-gate` (the internal aggregator). The docs below explain its path triggers.
 
-   `Install golden + idempotency contract (subprocess harness)`
+### CI cadence — PR-fast vs nightly/main-broad (Phase 196)
 
-3. Save the rule. New pushes to **`main`** (and PRs that run the job per path rules) must stay green on that check before merge.
+The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** introduced in Phase 196:
 
-**Why this string:** GitHub displays the job’s `name:` string, not the YAML key `install_golden_contract`, in the branch protection UI.
+**PR-fast gate (runs on every PR and push):**
+- The 5 required lanes (Library tests, Example unit smoke, Install smoke, Example HTTP smoke, Example Playwright smoke)
+- `install_golden_contract` (path-gated on installer changes)
+- `library_tests_dep_off` (Threadline dep-off guard)
+
+**Nightly / main / dispatch-broad coverage (runs on `schedule:`, `push: main`, `workflow_dispatch` — skipped on PRs):**
+- `install_matrix` (four flag-combination installs)
+- `upgrade_smoke` (published → local upgrade path)
+- `passkeys_manual_fallback_smoke` and `passkeys_opt_out_smoke`
+- `generated_admin_playwright_smoke` (generated-host admin behavior ~60 min)
+- `nightly_probe` (forced-failure self-test; see runbook below)
+
+The nightly schedule runs at `cron: '30 4 * * *'` (04:30 UTC daily).
+
+#### Accepted residuals (D-07 honest-truth disclosure)
+
+Two coverage areas moved to nightly are accepted residuals and must never be silently treated as "covered on PRs":
+
+1. **`upgrade_smoke` whole upgrade path** — the published-package → local-candidate upgrade path has **no per-PR behavioral proxy**. It runs on `push: main` and release dispatch (so every merge to main is covered before release), but not on individual PRs. This is accepted as release-boundary coverage; any regression surfaces before a Hex publish.
+
+2. **Generated-host template parity** — `generated_admin_playwright_smoke` (the full generated-host admin Playwright run) is fully moved to nightly. Admin _behavior_ is proxied on PRs by `example_playwright_smoke`'s admin specs (a required lane). However, the **template-parity** check (installer-emitted shell vs library admin) becomes nightly-only. This residual is explicitly backstopped by **DIST-06 `scripts/ci/admin-acceptance-smoke.sh`** (`RUN_PARITY`) — the acceptance smoke script that scaffolds a fresh `phx.new + sigra.install` and runs the full Playwright suite against the generated host. This automation is the proxy for template-parity regressions between nightly runs.
+
+These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clock time without silently stranding correctness-critical coverage. They are documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
+
+#### Forced-failure probe runbook (D-14)
+
+The `nightly_probe` job contains a `force_fail_probe`-guarded `exit 1` step that lets you verify the nightly lane actually reports failure when something is broken.
+
+**Red the nightly probe (proves nightly lane detects failures):**
+
+```bash
+gh workflow run "CI" -f force_fail_probe=true
+```
+
+The `nightly_probe` job will report red in the Actions UI independently of all other jobs. This exercises the nightly trigger path without touching real smoke jobs.
+
+**Normal run (default `force_fail_probe=false` — probe stays green):**
+
+```bash
+gh workflow run "CI"
+```
+
+Or simply: push to `main` or wait for the 04:30 UTC schedule — `force_fail_probe` defaults to `false` and the probe step is skipped.
+
+`nightly_probe` is **not** in `ci-gate.needs` and is not a required check, so a red probe does not block PRs — it is a standalone operational self-test.
 
 ### Artifact, log, and cache retention
 
 Retention controls cost and history only; **no impact** on Release Please or Hex publish mechanics.
+
+#### Actions `deps`+`_build` cache keys (CACHE-01)
+
+All 11 `deps`+`_build` cache blocks in `.github/workflows/ci.yml` bind the resolved toolchain
+identity so a stale `_build` is never reused across an incompatible OTP/Elixir/MIX_ENV combo.
+The cache key shape per namespace is:
+
+```
+${{ runner.os }}-<namespace>-otp<OTP>-elixir<ELIXIR>-<MIX_ENV>-<lockfile-hash>-v1
+```
+
+where `<OTP>` and `<ELIXIR>` are the values resolved by `erlef/setup-beam`
+(`steps.setup.outputs.otp-version` / `steps.setup.outputs.elixir-version`), and
+`<lockfile-hash>` is the `hashFiles(...)` of the relevant lockfile(s) for that lane.
+The four cache namespaces (`-library-`, `-library-dep-off-`, `-example-`, `-example-dev-`)
+are preserved so lanes cannot cross-contaminate.
+
+**How to bust the cache manually:** Bump the trailing `-v1` buster segment (e.g. to `-v2`) on
+all 11 deps+`_build` cache keys. This forces a new key namespace so every lane gets a fresh
+cold miss on the next run and rebuilds `_build` from scratch. The `-v1` segment is the documented
+bust handle — increment it globally and commit when you need a forced rebuild (e.g. after an
+OTP upgrade that the key hash alone would not catch, or after suspected cache corruption).
+
+> **Forward-looking note (D-06):** A future Dialyzer/PLT lane MUST get its own separate PLT
+> cache key — never share it with the `deps`+`_build` cache. Merging PLT artifacts into the
+> deps cache would invalidate the deps cache on every Dialyzer run, defeating the caching benefit.
+
+The 4 `-hex-registry-` cache blocks (caching `~/.hex`, not `_build`) are intentionally outside
+this scheme — they carry no stale-artifact correctness risk and already have `restore-keys`.
 
 ### Verify Release Please after changing settings
 
@@ -178,7 +262,7 @@ The **Release captain** opens **one** tracking issue (or equivalent single surfa
 | Step | Owner | What to verify |
 |------|-------|----------------|
 | Default ship path | Release captain | Follow [Release automation (default)](#release-automation-default) end-to-end; use [Manual release checklist (emergency or pre-automation)](#manual-release-checklist-emergency-or-pre-automation) only if you are outside Release Please. |
-| Installer + merge gate | Security / evidence reviewer | Confirm [Installer golden CI contract (phase 50)](#installer-golden-ci-contract-phase-50) expectations; branch protection must require `` `Install golden + idempotency contract (subprocess harness)` `` on **`main`**. |
+| Installer + merge gate | Security / evidence reviewer | Confirm [Installer golden CI contract (phase 50)](#installer-golden-ci-contract-phase-50) expectations; verify the 5 live required checks in [ruleset 14941512](https://api.github.com/repos/szTheory/sigra/rulesets/14941512) (`gh api repos/szTheory/sigra/rulesets/14941512`) are present — see [Branch protection — enforced required checks (live ruleset)](#branch-protection--enforced-required-checks-live-ruleset). |
 | GA matrix honesty | Security / evidence reviewer | Read Executed vs Waived in [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md) — human **GA-02..GA-05** rows may remain **waived** for v1.4; do **not** imply those humans re-ran for a forum post. |
 | Milestone closure narrative | Security / evidence reviewer | [v1.4 milestone requirements (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md) for what “closed” meant for that cut. |
 | CI substitution semantics | Security / evidence reviewer | Packaged doc: [docs/uat-ci-coverage.md](docs/uat-ci-coverage.md). |

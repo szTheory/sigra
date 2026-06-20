@@ -1,8 +1,15 @@
 defmodule Sigra.Planning.Phase51InstallGoldenCiContractTest do
   @moduledoc """
   Structural lock: the extended installer PR path `grep -qE` pattern in
-  `.github/workflows/ci.yml` must stay identical in both
-  `installer_milestone_audit` and `install_golden_contract` (phase 51).
+  `.github/workflows/ci.yml` must stay identical in both the
+  `Installer milestone audit` step (inside the `fast_checks` job) and
+  `install_golden_contract` (phase 51).
+
+  Phase 194 (CACHE-02) folded the standalone `installer_milestone_audit` job
+  into the `fast_checks` job as a step named `Installer milestone audit` whose
+  run command is `bash scripts/ci/installer-milestone-audit.sh`. The path-detector
+  pattern continues to be duplicated across both CI contexts; only the container
+  changed (job → step inside fast_checks).
   """
 
   use ExUnit.Case, async: true
@@ -17,7 +24,7 @@ defmodule Sigra.Planning.Phase51InstallGoldenCiContractTest do
     root() |> Path.join(rel) |> File.read!()
   end
 
-  test "51-01: installer PR path detector extended and duplicated across both jobs" do
+  test "51-01: installer PR path detector extended and duplicated across fast_checks step and install_golden_contract job" do
     yml = read!(".github/workflows/ci.yml")
     escaped = Regex.escape(@path_detector_regex)
 
@@ -25,7 +32,7 @@ defmodule Sigra.Planning.Phase51InstallGoldenCiContractTest do
            "expected the canonical path detector substring exactly twice (both CI jobs)"
 
     assert yml =~ "install_golden_contract:"
-    assert yml =~ "installer_milestone_audit:"
+    assert yml =~ "scripts/ci/installer-milestone-audit.sh"
   end
 
   test "51-02: GA waiver docs tie waived rows to installer golden attestation" do
