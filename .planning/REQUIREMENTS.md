@@ -30,7 +30,7 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 - [x] **PW-01**: Reduce the `example_playwright_smoke` critical path — share app boot, and/or shard the serial `npx playwright test` steps so an early-step failure no longer masks later steps (this session cost multiple ~25m round-trips to surface independent failures).
 - [x] **PW-02**: Deterministic readiness everywhere in the browser lanes — no `Process.sleep`-based waits; explicit readiness checks.
-- [ ] **PW-03** *(folds in SEED-006)*: Re-gate the `continue-on-error` admin-design gallery — make CI visual capture deterministic (brand webfont loads in the CI dev-mode boot) and/or recapture baselines in-CI, then restore it to a hard gate. Resolve the systemic ~20–53px height delta (font fallback reflow), not by widening pixel tolerance.
+- [x] **PW-03** *(folds in SEED-006)*: Re-gate the `continue-on-error` admin-design gallery — make CI visual capture deterministic (brand webfont loads in the CI dev-mode boot) and/or recapture baselines in-CI, then restore it to a hard gate. Resolve the systemic ~20–53px height delta (font fallback reflow), not by widening pixel tolerance.
 
 ### Caching, runners, job topology
 
