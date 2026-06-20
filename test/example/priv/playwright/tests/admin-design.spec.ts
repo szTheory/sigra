@@ -16,6 +16,13 @@ async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
   });
+  // D-08: wait for the brand webfont so element heights are font-stable before
+  // capture. fonts.ready alone resolves instantly if the face is never requested
+  // (Pitfall 7), so we follow with a hard guard that fails loudly if the woff2
+  // 404'd or --font-sans didn't apply (T-197-06).
+  await page.evaluate(async () => { await (document as any).fonts.ready; });
+  const ok = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
+  expect(ok, 'Space Grotesk must be loaded before snapshot').toBe(true);
 }
 
 async function registerUser(page: Page, email: string, password: string) {
