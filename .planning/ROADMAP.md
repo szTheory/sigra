@@ -82,8 +82,9 @@
 > **Reconciliation note (D-15):** Success Criterion #4 above ("`ci-gate` remains the single required check") reflects an outdated premise. The live ruleset 14941512 enforces **5 lane `name:` strings** as the required checks (`Library tests`, `Example unit smoke (ExUnit + ConnTest)`, `Install smoke (fresh phx.new + sigra.install)`, `Example HTTP smoke (boot + curl critical routes)`, `Example Playwright smoke (full lifecycle)`); `ci-gate` is an internal aggregator, NOT an enforced required check. Honest closure verifies the 5 names stay byte-identical AND `ci-gate` keeps aggregating an equal-or-greater result set.
 
 **Plans**: 2 plans
+
 - [x] 194-01-PLAN.md — CACHE-01: precision cache keys (OS+OTP+Elixir+MIX_ENV+lockfile+`-v1` buster) on all 11 deps+`_build` blocks, cache-hit observability, bust doc
-- [ ] 194-02-PLAN.md — CACHE-02: fold 6 leaf guards into one `fast_checks` job, rewire `ci-gate`, reconcile required-check docs
+- [x] 194-02-PLAN.md — CACHE-02: fold 6 leaf guards into one `fast_checks` job, rewire `ci-gate`, reconcile required-check docs
 
 ### Phase 195: Test-Suite Performance (partition / async / dep-off slim)
 
@@ -298,7 +299,7 @@ Archive:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
-| 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 1/2 | In Progress|  |
+| 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete   | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |

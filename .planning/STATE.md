@@ -2,16 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
+current_phase: 194
+current_phase_name: caching-correctness-micro-job-consolidation
 status: executing
-stopped_at: Phase 194 context gathered (assumptions mode)
-last_updated: "2026-06-20T01:42:19.061Z"
-last_activity: 2026-06-20 -- Phase 194 execution started
+stopped_at: Completed Phase 194 Plan 02 (CACHE-02) — micro-job consolidation complete
+last_updated: "2026-06-20T02:07:31.013Z"
+last_activity: 2026-06-20
+last_activity_desc: Phase 194 execution started
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 3
-  percent: 17
+  completed_plans: 5
+  percent: 33
 ---
 
 # Project State
@@ -27,8 +30,8 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 194 (caching-correctness-micro-job-consolidation) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 194
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-06-20 -- Phase 194 execution started
 
 ## Accumulated Context
@@ -100,6 +103,9 @@ Last activity: 2026-06-20 -- Phase 194 execution started
 - [Phase ?]: [Phase 193-02]: afterBackgroundColor exact check left untouched — not evidenced as flaky by the FLAKE-01 todo (only backgroundColor was cited)
 - [Phase ?]: Drop library_tests edge from example_playwright_smoke.needs — verified gratuitous; keeps release_ref_guard; lane stays required in ci-gate.needs (CRIT-01)
 - [Phase ?]: Add id: deps_cache/example_deps_cache to cache steps + GITHUB_STEP_SUMMARY observability (resolved versions, cache-hit, slowest tests) to library_tests job (BASE-03)
+- [Phase ?]: D-11/D-14: 6 guards folded into fast_checks; ci-gate rewired
+- [Phase ?]: D-12: release_ref_guard kept standalone no-checkout DAG gate (intentional D-12 exclusion)
+- [Phase ?]: D-15: MAINTAINING.md stale required-check string swept from both locations; 5 live names + ci-gate aggregator note confirmed
 
 ### Pending Todos
 
@@ -158,8 +164,8 @@ Last activity: 2026-06-20 -- Phase 194 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-20T01:08:36.475Z
-Stopped at: Phase 194 context gathered (assumptions mode)
+Last session: 2026-06-20T02:07:31.005Z
+Stopped at: Completed Phase 194 Plan 02 (CACHE-02) — micro-job consolidation complete
 Resume file: .planning/phases/194-caching-correctness-micro-job-consolidation/194-CONTEXT.md
 
 ## Performance Metrics
@@ -212,6 +218,7 @@ Resume file: .planning/phases/194-caching-correctness-micro-job-consolidation/19
 | Phase 193 P01 | 1096 | 2 tasks | 1 files |
 | Phase 193 P02 | 6 min | 1 tasks | 2 files |
 | Phase 193 P03 | 2 min | 2 tasks | 1 files |
+| Phase 194 P02 | ~4 minutes | 3 tasks | 2 files |
 
 ## Operator Next Steps
 
