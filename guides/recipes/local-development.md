@@ -49,6 +49,23 @@ How it works: the container publishes Postgres on a **random** host port (so it 
 
 > This test database is separate from the demo database below. Keep them apart: the demo DB persists seeded personas; the test DB is disposable.
 
+### Reproducing the CI dep-off lane locally
+
+The CI dep-off lane verifies that Sigra compiles and the core guard tests pass when the optional `:threadline` dep is absent. Reproduce it locally with a single command:
+
+```bash
+MIX_ENV=test mix sigra.dep_off
+```
+
+This alias (in `mix.exs`) runs four steps in order:
+
+1. `deps.unlock threadline` — removes the lockfile entry for `:threadline`.
+2. `deps.clean threadline --build` — clears cached BEAM files for `:threadline`.
+3. `compile --warnings-as-errors --no-deps-check` — proves the library compiles cleanly without the dep (the D-09 compile-proof gate).
+4. `test --only threadline_guard --no-deps-check` — runs only the modules tagged `@moduletag :threadline_guard`, which cover all dep-off guard paths (D-10/D-11 coverage selection).
+
+This requires the same live test Postgres as the full suite (boot one via `scripts/db/up.sh` if needed). After running `mix sigra.dep_off`, restore the dep with `mix deps.get`.
+
 ## Running the demo app
 
 One command does everything:

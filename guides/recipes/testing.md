@@ -224,6 +224,36 @@ library (`lib/sigra/audit/assertions.ex`) so both the main Sigra test suite and
 - **`setup_totp/2` requires a config.** The user's TOTP secret is stored via the configured repo; pass `config: MyApp.Auth.sigra_config()` every time.
 - **Swoosh test mailbox is per-test-process.** Use `assert_email_sent/1` inside the same test that triggered delivery. For async background workers, configure the mailer to send synchronously in test env.
 
+## Is this test allowed to be `async: true`?
+
+A test module may run `async: true` **only if** it touches no shared mutable global state.
+Use this checklist before flipping a module:
+
+| Check | Safe for `async: true`? |
+|-------|------------------------|
+| Reads/writes `Application` env (e.g. `Application.put_env/3`) | No — global mutable |
+| Reads/writes `System` env (e.g. `System.put_env/2`) | No — global mutable |
+| Reads/writes `:persistent_term` | No — global mutable |
+| Uses a named ETS table (any non-process-local name) | No — global mutable |
+| Attaches/detaches a `:telemetry` handler globally | No — handler registry is shared |
+| Sends `set_mox_global` in setup | No — leaks expectations across tests |
+| Mutates filesystem paths, cwd, or Mix archives | No — shared host-process state |
+| Runs `checkout_repo!` / `unboxed_run` (durable DDL) | No — non-sandboxed DB writes |
+| DB access through `Sigra.Test.PostgresCase` only | Yes — `shared: not tags[:async]` auto-isolates the sandbox connection |
+| All state lives in the **process dictionary** | Yes — process-local, never shared |
+| All mocks use `Mox.set_mox_private` (private mode) | Yes — per-test, no global leak |
+
+**If any row above is "No", the module must stay `async: false` and carry a short comment explaining why:**
+
+```elixir
+# async: false because Application env is global mutable state (sets :sigra config)
+use ExUnit.Case, async: false
+```
+
+This convention is already established in `test/sigra/audit/forwarders/threadline_test.exs` — see lines 6–11 for an example with multiple reasons.
+
+**Note:** test-suite partitioning (running shards in parallel CI lanes) does **not** change this rule. Each shard is an independent VM process with its own connection against its own PG container. The async-safety requirement applies within a single ExUnit process, not across shards.
+
 ## Related
 
 - [Getting Started](getting-started.html) — the flow these tests cover.
