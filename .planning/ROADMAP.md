@@ -78,7 +78,12 @@
   4. `ci-gate` remains the single required check and still aggregates the same lane results.
 
 **Verification mechanism (zero-human-UAT)**: CI measures itself — cache hit/miss and per-job counts/overhead from CI summaries compared against the Phase 193 baseline; `ci-gate` child-check names diffed for stability.
-**Plans**: TBD
+
+> **Reconciliation note (D-15):** Success Criterion #4 above ("`ci-gate` remains the single required check") reflects an outdated premise. The live ruleset 14941512 enforces **5 lane `name:` strings** as the required checks (`Library tests`, `Example unit smoke (ExUnit + ConnTest)`, `Install smoke (fresh phx.new + sigra.install)`, `Example HTTP smoke (boot + curl critical routes)`, `Example Playwright smoke (full lifecycle)`); `ci-gate` is an internal aggregator, NOT an enforced required check. Honest closure verifies the 5 names stay byte-identical AND `ci-gate` keeps aggregating an equal-or-greater result set.
+
+**Plans**: 2 plans
+- [ ] 194-01-PLAN.md — CACHE-01: precision cache keys (OS+OTP+Elixir+MIX_ENV+lockfile+`-v1` buster) on all 11 deps+`_build` blocks, cache-hit observability, bust doc
+- [ ] 194-02-PLAN.md — CACHE-02: fold 6 leaf guards into one `fast_checks` job, rewire `ci-gate`, reconcile required-check docs
 
 ### Phase 195: Test-Suite Performance (partition / async / dep-off slim)
 
