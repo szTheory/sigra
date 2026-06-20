@@ -4,9 +4,9 @@ milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 196
 current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
-status: executing
-stopped_at: Completed 196-01-PLAN.md
-last_updated: "2026-06-20T16:27:10.230Z"
+status: ready_to_plan
+stopped_at: Phase 196 complete (4/4) — ready to discuss Phase 197
+last_updated: 2026-06-20T16:34:51.956Z
 last_activity: 2026-06-20
 last_activity_desc: Phase 196 execution started
 progress:
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 196 — PR-Fast vs Nightly-Broad Trigger Model
+**Current focus:** Phase 197 — playwright lanes & design gallery re gate
 
 ## Current Position
 
-Phase: 196 (PR-Fast vs Nightly-Broad Trigger Model) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-06-20 -- Phase 196 execution started
+Phase: 197
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-06-20
 
 ## Accumulated Context
 
