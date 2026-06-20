@@ -2,15 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
+current_phase: 197
+current_phase_name: playwright-lanes-design-gallery-re-gate
 status: executing
 stopped_at: Phase 197 context gathered (assumptions mode)
-last_updated: "2026-06-20T19:02:23.140Z"
+last_updated: "2026-06-20T19:08:00.693Z"
 last_activity: 2026-06-20
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 17
-  completed_plans: 13
+  completed_plans: 14
   percent: 67
 ---
 
@@ -27,7 +29,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 197 (playwright-lanes-design-gallery-re-gate) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-06-20
 
@@ -115,6 +117,9 @@ Last activity: 2026-06-20
 - [Phase ?]: D-13 correction: CRIT-03 phrasing (single stable required check ci-gate) is stale; live ruleset 14941512 enforces 5 lane name strings; ci-gate is internal aggregator; correction recorded in 196-VERIFICATION.md only
 - [Phase 197]: Used let link closure variable inside expect.poll callback to capture invitation URL — idiomatic TypeScript approach for async side-effect capture — TypeScript type narrowing requires the link variable to be declared in outer scope; closure assignment inside poll keeps the logic self-contained
 - [Phase 197]: Intervals [250, 500, 1000] with timeout 30_000 replaces prior 30x1s fixed budget — Graduated backoff resolves faster on CI while keeping same worst-case budget; follows passkeys-hooks.spec.ts expect.poll precedent
+- [Phase ?]: PW-01 criterion 1a: all 5 Playwright seams in example_playwright_smoke run independently under !cancelled() guards; aggregator re-fails job on any seam failure
+- [Phase ?]: Staging step guard corrected from success() to steps.admin_checkpoints.outcome == 'success' (Pitfall 4 fix)
+- [Phase ?]: webkit cannot be dropped (D-04): iPhone 13 mobile projects need webkit; criterion 1b is reliability win not time reduction
 
 ### Pending Todos
 
@@ -173,7 +178,7 @@ Last activity: 2026-06-20
 
 ## Session Continuity
 
-Last session: 2026-06-20T19:01:37.834Z
+Last session: 2026-06-20T19:07:04.750Z
 Stopped at: Phase 197 context gathered (assumptions mode)
 Resume file: 
 
@@ -243,3 +248,5 @@ None
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | Phase 196 P04 | 4min | 2 tasks | 3 files |
+| Phase 197 P02 | 2min | - tasks | - files |
+| Phase 197 P02 | 2min | 2 tasks | 1 files |
