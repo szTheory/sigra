@@ -36,7 +36,7 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 - [x] **CACHE-01**: Audit and correct caching — precise keys (OS/arch/OTP/Elixir/MIX_ENV/lockfile/buster), no `_build` reuse across incompatible combos, never skip `deps.get` after a partial restore; separate deps cache from any PLT cache; document how to bust.
 - [x] **CACHE-02**: Consolidate trivial micro-guard jobs (release-ref, milestone-verification, snapshot-drift, quality-ledger, getting-started/phase-34 contracts) into one cheap "fast checks" job to cut per-job runner-startup overhead — preserving stable required-check names.
-- [ ] **CACHE-03**: Apply larger runners *selectively* to the long poles only if the cost/speed tradeoff is justified by measurement — not by default.
+- [x] **CACHE-03**: Apply larger runners *selectively* to the long poles only if the cost/speed tradeoff is justified by measurement — not by default.
 
 ### Contributor DX
 
@@ -72,7 +72,7 @@ Phases assigned during roadmap creation (continue numbering from 193).
 | FLAKE-01 | 193 | Complete |
 | CACHE-01, CACHE-02 | 194 | Pending |
 | TEST-01, TEST-02, TEST-03 | 195 | Pending |
-| CACHE-03 | 195 | Pending |
+| CACHE-03 | 195 | Complete |
 | CRIT-02, CRIT-03 | 196 | Pending |
 | PW-01, PW-02, PW-03 | 197 | Pending |
 | DX-01 | 198 | Pending |

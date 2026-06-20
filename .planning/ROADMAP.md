@@ -114,7 +114,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 195-03-PLAN.md — Slim `library_tests_dep_off` to the tagged subset + CACHE-03 measurement-gate runbook (TEST-02, CACHE-03)
+- [x] 195-03-PLAN.md — Slim `library_tests_dep_off` to the tagged subset + CACHE-03 measurement-gate runbook (TEST-02, CACHE-03)
 
 ### Phase 196: PR-Fast vs Nightly-Broad Trigger Model
 
@@ -308,7 +308,7 @@ Archive:
 | --- | --- | --- | --- | --- |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
-| 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 2/3 | In Progress|  |
+| 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete   | 2026-06-20 |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |
 | 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |

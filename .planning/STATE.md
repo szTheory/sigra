@@ -4,17 +4,17 @@ milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 195
 current_phase_name: test-suite-performance-partition-async-dep-off-slim
-status: executing
+status: verifying
 stopped_at: Phase 195 context gathered (assumptions mode + research)
-last_updated: "2026-06-20T13:06:02.901Z"
+last_updated: "2026-06-20T13:13:07.440Z"
 last_activity: 2026-06-20
 last_activity_desc: Phase 195 execution started
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
-  percent: 33
+  completed_plans: 8
+  percent: 50
 ---
 
 # Project State
@@ -31,7 +31,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 195 (test-suite-performance-partition-async-dep-off-slim) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-20 — Phase 195 execution started
 
 ## Accumulated Context
@@ -109,6 +109,8 @@ Last activity: 2026-06-20 — Phase 195 execution started
 - [Phase ?]: [Phase 195-02]: Option (a) chosen for shard test command: keep --slowest 10. A/B measured ~47% speedup without --slowest on async-only files, but subprocess serial tail bounds shard walltime. D-01 default keeps per-test timing observability.
 - [Phase ?]: [Phase 195-02]: mix docs relocated to library_tests_dep_off (already compiled, non-shard, zero overhead). fast_checks alternative rejected: would add toolchain prelude overhead (2-3m).
 - [Phase ?]: [Phase 195-02]: Ruleset 14941512 confirmed at execution time: required check string is byte-identical 'Library tests' — aggregator job id library_tests + name Library tests is safe.
+- [Phase ?]: Kept discrete CI steps, changed only final test command to --only threadline_guard (D-10/D-11/D-14)
+- [Phase ?]: CACHE-03: no larger runners adopted; measurement-gate runbook shipped in guides/recipes/local-development.md (D-21/D-22/D-23)
 
 ### Pending Todos
 
@@ -167,7 +169,7 @@ Last activity: 2026-06-20 — Phase 195 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-20T13:05:44.294Z
+Last session: 2026-06-20T13:12:32.574Z
 Stopped at: Phase 195 context gathered (assumptions mode + research)
 Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off-slim/195-CONTEXT.md
 
@@ -224,6 +226,7 @@ Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off
 | Phase 194 P02 | ~4 minutes | 3 tasks | 2 files |
 | Phase 195 P01 | 3 | 3 tasks | 12 files |
 | Phase 195 P02 | 5 | 3 tasks | 1 files |
+| Phase 195 P03 | 525603 | 2 tasks | 2 files |
 
 ## Operator Next Steps
 
