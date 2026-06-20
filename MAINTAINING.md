@@ -97,28 +97,63 @@ Pick the **least privilege** your org policy allows while still running third-pa
 
 Unrelated to Release Please on `main`. A common balance is **Require approval for first-time contributors**; stricter orgs use **Require approval for all external contributors**.
 
-### Branch protection — required check for install golden (shift-left)
+### Branch protection — enforced required checks (live ruleset)
 
-**Goal:** Treat installer subprocess health as machine-enforced on **`main`**, with zero ongoing human edits to **`.planning/phases/50-nyquist-ci-gate-hygiene/50-VERIFICATION.md`** for “PASS” proof.
+Branch protection for `main` is enforced via **ruleset 14941512** (`enforcement: active`), not
+legacy branch protection rules. The five enforced required checks are the **job `name:` strings**
+that GitHub collects as status contexts when each CI job runs:
 
-**Prerequisite:** The workflow file on **`main`** must define job id **`install_golden_contract`** (see [`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Until that commit is merged to the default branch, the check will not appear in GitHub’s branch protection picker.
+1. `Library tests`
+2. `Example unit smoke (ExUnit + ConnTest)`
+3. `Install smoke (fresh phx.new + sigra.install)`
+4. `Example HTTP smoke (boot + curl critical routes)`
+5. `Example Playwright smoke (full lifecycle)`
 
-**Where:** [Repository → Settings → Branches](https://github.com/szTheory/sigra/settings/branches) → **Branch protection rules** → **Add rule** (or edit the rule for **`main`**).
+**`ci-gate` is NOT an enforced required check.** It is an internal aggregator job that gates the
+rest of the DAG; it does not appear in ruleset 14941512’s `required_status_checks`. Do not rename
+or remove the five job `name:` strings above — doing so removes the context GitHub needs to
+enforce the rule.
 
-**What to enable**
+To verify the live list at any time: `gh api repos/szTheory/sigra/rulesets/14941512 --jq ‘.rules[] | select(.type==”required_status_checks”) | .parameters.required_status_checks[].context’`
 
-1. **Require a pull request before merging** — if your org already mandates this on `main`, keep it.
-2. Under **Status checks that are required**, search for and enable exactly this check name (copy/paste — it must match the `name:` field under `install_golden_contract` in `ci.yml`):
-
-   `Install golden + idempotency contract (subprocess harness)`
-
-3. Save the rule. New pushes to **`main`** (and PRs that run the job per path rules) must stay green on that check before merge.
-
-**Why this string:** GitHub displays the job’s `name:` string, not the YAML key `install_golden_contract`, in the branch protection UI.
+> **Note on install golden (shift-left):** The `install_golden_contract` job (name:
+> `Install golden + idempotency contract (subprocess harness)`) is gated on the
+> PR diff touching installer paths and is not in the live ruleset’s required checks.
+> It is a path-scoped quality gate, not a merge-blocking required check. The docs
+> below explain its path triggers.
 
 ### Artifact, log, and cache retention
 
 Retention controls cost and history only; **no impact** on Release Please or Hex publish mechanics.
+
+#### Actions `deps`+`_build` cache keys (CACHE-01)
+
+All 11 `deps`+`_build` cache blocks in `.github/workflows/ci.yml` bind the resolved toolchain
+identity so a stale `_build` is never reused across an incompatible OTP/Elixir/MIX_ENV combo.
+The cache key shape per namespace is:
+
+```
+${{ runner.os }}-<namespace>-otp<OTP>-elixir<ELIXIR>-<MIX_ENV>-<lockfile-hash>-v1
+```
+
+where `<OTP>` and `<ELIXIR>` are the values resolved by `erlef/setup-beam`
+(`steps.setup.outputs.otp-version` / `steps.setup.outputs.elixir-version`), and
+`<lockfile-hash>` is the `hashFiles(...)` of the relevant lockfile(s) for that lane.
+The four cache namespaces (`-library-`, `-library-dep-off-`, `-example-`, `-example-dev-`)
+are preserved so lanes cannot cross-contaminate.
+
+**How to bust the cache manually:** Bump the trailing `-v1` buster segment (e.g. to `-v2`) on
+all 11 deps+`_build` cache keys. This forces a new key namespace so every lane gets a fresh
+cold miss on the next run and rebuilds `_build` from scratch. The `-v1` segment is the documented
+bust handle — increment it globally and commit when you need a forced rebuild (e.g. after an
+OTP upgrade that the key hash alone would not catch, or after suspected cache corruption).
+
+> **Forward-looking note (D-06):** A future Dialyzer/PLT lane MUST get its own separate PLT
+> cache key — never share it with the `deps`+`_build` cache. Merging PLT artifacts into the
+> deps cache would invalidate the deps cache on every Dialyzer run, defeating the caching benefit.
+
+The 4 `-hex-registry-` cache blocks (caching `~/.hex`, not `_build`) are intentionally outside
+this scheme — they carry no stale-artifact correctness risk and already have `restore-keys`.
 
 ### Verify Release Please after changing settings
 

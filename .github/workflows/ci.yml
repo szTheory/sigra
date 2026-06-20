@@ -111,18 +111,21 @@ jobs:
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         if: steps.detect.outputs.run == 'true'
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache library deps
+        id: install_golden_deps_cache
         if: steps.detect.outputs.run == 'true'
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Install Hex + Rebar
         if: steps.detect.outputs.run == 'true'
         run: |
@@ -161,6 +164,7 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
@@ -171,7 +175,8 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Install Hex + Rebar
         run: |
           mix local.hex --force
@@ -202,7 +207,7 @@ jobs:
             echo "- elixir: $(elixir --version | tail -1)"
             echo "- otp: $(erl -noshell -eval 'io:format("~s", [erlang:system_info(otp_release)]), halt().')"
             echo "- schedulers_online: $(elixir -e 'IO.write(System.schedulers_online())')"
-            echo "- deps cache hit: ${{ steps.deps_cache.outputs.cache-hit }}"
+            echo "- deps cache (exact hit): ${{ steps.deps_cache.outputs.cache-hit }}"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Test timing summary
         if: always()
@@ -236,16 +241,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache library deps (dep-off lane)
+        id: dep_off_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: "${{ runner.os }}-library-dep-off-${{ hashFiles('mix.lock') }}"
+          key: ${{ runner.os }}-library-dep-off-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-dep-off-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Install Hex + Rebar
         run: |
           mix local.hex --force
@@ -282,6 +290,13 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix test --exclude requires_threadline --no-deps-check
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## library_tests_dep_off cache"
+            echo "- deps cache (exact hit): ${{ steps.dep_off_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   example_unit_smoke:
     name: Example unit smoke (ExUnit + ConnTest)
@@ -298,16 +313,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
+        id: example_unit_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             test/example/deps
             test/example/_build
-          key: ${{ runner.os }}-example-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}
+          key: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Fetch example deps
         working-directory: test/example
         run: mix deps.get
@@ -330,6 +348,13 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix test --include example_app
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## example_unit_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.example_unit_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   install_smoke:
     # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
@@ -349,16 +374,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
+        id: install_smoke_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
@@ -382,6 +410,13 @@ jobs:
           # Fresh tmp_app includes Cloak.Vault; compile/boot needs a dummy key (same as admin-acceptance-smoke.sh).
           CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
         run: scripts/ci/install-smoke.sh
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## install_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.install_smoke_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   upgrade_smoke:
     name: Upgrade smoke (published source series -> local candidate)
@@ -399,16 +434,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
+        id: upgrade_smoke_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
@@ -447,16 +485,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
+        id: passkeys_fallback_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
@@ -505,16 +546,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
+        id: install_matrix_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Install Hex + Rebar
         run: |
           mix local.hex --force
@@ -620,16 +664,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache Sigra library deps
+        id: passkeys_opt_out_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-library-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
       - name: Cache Hex registry
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
@@ -668,16 +715,19 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
       - name: Cache example deps
+        id: http_smoke_deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
           path: |
             test/example/deps
             test/example/_build
-          key: ${{ runner.os }}-example-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
       - name: Fetch example deps
         working-directory: test/example
         env:
@@ -716,6 +766,13 @@ jobs:
         run: |
           echo "--- /tmp/example-http-server.log ---"
           cat /tmp/example-http-server.log || echo "(no log file)"
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## example_http_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.http_smoke_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   example_playwright_smoke:
     name: Example Playwright smoke (full lifecycle)
@@ -733,6 +790,7 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
         with:
           version-file: .tool-versions
           version-type: strict
@@ -748,7 +806,8 @@ jobs:
           path: |
             test/example/deps
             test/example/_build
-          key: ${{ runner.os }}-example-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
       - name: Fetch example deps
         working-directory: test/example
         env:
@@ -929,6 +988,13 @@ jobs:
         run: |
           echo "--- /tmp/example-playwright-server.log ---"
           cat /tmp/example-playwright-server.log || echo "(no log file)"
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## example_playwright_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.example_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Collect curated admin checkpoint screenshots
         if: always()
         working-directory: test/example/priv/playwright
