@@ -26,7 +26,7 @@
 
 - [x] **Phase 193: Baseline, Observability & One-Line Wins** — capture the before-state baseline + Elixir diagnostics, add CI job-summary observability, then bank the two cheapest wins (drop the gratuitous `needs` edge; fix the rgb flake). Covers BASE-01, BASE-02, BASE-03, CRIT-01, FLAKE-01. (completed 2026-06-20)
 - [ ] **Phase 194: Caching Correctness & Micro-Job Consolidation** — precise cache keys, no stale `_build` reuse across incompatible combos, separated deps/PLT caches, documented busting; fold the trivial guard jobs into one cheap "fast checks" job. Covers CACHE-01, CACHE-02.
-- [ ] **Phase 195: Test-Suite Performance (partition / async / dep-off slim)** — partition `library_tests` across DB-isolated shards, audit/convert `async: true`, slim the dep-off full rerun to a targeted subset, apply larger runners selectively only if measurement justifies. Covers TEST-01, TEST-02, TEST-03, CACHE-03.
+- [x] **Phase 195: Test-Suite Performance (partition / async / dep-off slim)** — partition `library_tests` across DB-isolated shards, audit/convert `async: true`, slim the dep-off full rerun to a targeted subset, apply larger runners selectively only if measurement justifies. Covers TEST-01, TEST-02, TEST-03, CACHE-03. (completed 2026-06-20)
 - [ ] **Phase 196: PR-Fast vs Nightly-Broad Trigger Model** — move exhaustive/low-probability coverage (install matrix ×4, upgrade smoke, broad galleries) off the every-PR path to a `schedule:`/main lane, keep a fast representative PR gate, never strand a correctness-critical test on nightly — all under a single stable `ci-gate` required check with stable child-check names. Covers CRIT-02, CRIT-03.
 - [ ] **Phase 197: Playwright Lanes & Design-Gallery Re-Gate** — reduce the Playwright critical path (boot-sharing/sharding so an early-step failure no longer masks later steps), make readiness deterministic (no `Process.sleep`), and re-gate the `continue-on-error` admin-design gallery by fixing the systemic font-reflow height delta (deterministic CI webfont + in-CI baseline recapture) — folding in SEED-006. Covers PW-01, PW-02, PW-03.
 - [ ] **Phase 198: Contributor DX & Acceptance Gate** — ship a documented local CI equivalent (`mix ci`) in CONTRIBUTING, then prove the milestone-level acceptance: measured before/after PR wall-clock + p95 meaningfully faster with equal-or-greater quality signal, no flake introduced, no correctness-critical coverage dropped, required-check names stable. Covers DX-01, GATE-01, GATE-02.
@@ -308,7 +308,7 @@ Archive:
 | --- | --- | --- | --- | --- |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
-| 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete   | 2026-06-20 |
+| 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |
 | 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |

@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-current_phase: 195
-current_phase_name: test-suite-performance-partition-async-dep-off-slim
+current_phase: 196
+current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
 status: verifying
 stopped_at: Phase 195 context gathered (assumptions mode + research)
-last_updated: "2026-06-20T13:13:07.440Z"
+last_updated: "2026-06-20T13:39:11.131Z"
 last_activity: 2026-06-20
-last_activity_desc: Phase 195 execution started
+last_activity_desc: Phase 195 complete, transitioned to Phase 196
 progress:
   total_phases: 6
   completed_phases: 3
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 195 (test-suite-performance-partition-async-dep-off-slim) — EXECUTING
-Plan: 3 of 3
+Phase: 196 — PR-Fast vs Nightly-Broad Trigger Model
+Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-06-20 — Phase 195 execution started
+Last activity: 2026-06-20 — Phase 195 complete, transitioned to Phase 196
 
 ## Accumulated Context
 

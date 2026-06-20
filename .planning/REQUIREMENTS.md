@@ -71,7 +71,7 @@ Phases assigned during roadmap creation (continue numbering from 193).
 | CRIT-01 | 193 | Complete |
 | FLAKE-01 | 193 | Complete |
 | CACHE-01, CACHE-02 | 194 | Pending |
-| TEST-01, TEST-02, TEST-03 | 195 | Pending |
+| TEST-01, TEST-02, TEST-03 | 195 | Complete |
 | CACHE-03 | 195 | Complete |
 | CRIT-02, CRIT-03 | 196 | Pending |
 | PW-01, PW-02, PW-03 | 197 | Pending |
