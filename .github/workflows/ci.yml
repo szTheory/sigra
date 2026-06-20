@@ -971,6 +971,8 @@ jobs:
       # within a single job so each failure surfaces against its seam while
       # keeping one shared booted example app.
       - name: Run admin behavior browser truth (chromium)
+        id: admin_behavior
+        if: ${{ !cancelled() }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -989,6 +991,8 @@ jobs:
             tests/admin-modal-interaction.spec.ts \
             --project=chromium
       - name: Run admin checkpoints (chromium, mobile, dark-chromium)
+        id: admin_checkpoints
+        if: ${{ !cancelled() }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1025,6 +1029,8 @@ jobs:
           fi
           ls -la artifacts/admin-checkpoints/ || true
       - name: Run design gallery boards (chromium, mobile, dark)
+        id: design_gallery
+        if: ${{ !cancelled() }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1048,6 +1054,8 @@ jobs:
             --project=admin-design-mobile \
             --project=admin-design-dark
       - name: Run non-admin example browser smoke
+        id: non_admin_smoke
+        if: ${{ !cancelled() }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1066,6 +1074,8 @@ jobs:
             tests/passkey-login.spec.ts \
             tests/passkey-options.spec.ts
       - name: Run demo-showcase spec (demo-showcase-chromium)
+        id: demo_showcase
+        if: ${{ !cancelled() }}
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
