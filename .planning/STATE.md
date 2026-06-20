@@ -2,10 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-status: verifying
+current_phase: 196
+current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
+status: executing
 stopped_at: Phase 196 context gathered (assumptions mode)
-last_updated: "2026-06-20T13:48:47.308Z"
-last_activity: 2026-06-20 — Phase 195 complete, transitioned to Phase 196
+last_updated: "2026-06-20T15:56:53.117Z"
+last_activity: 2026-06-20
+last_activity_desc: Phase 195 complete, transitioned to Phase 196
 progress:
   total_phases: 6
   completed_phases: 3
@@ -28,7 +31,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 196 — PR-Fast vs Nightly-Broad Trigger Model
 Plan: Not started
-Status: Phase complete — ready for verification
+Status: Ready to execute
 Last activity: 2026-06-20 — Phase 195 complete, transitioned to Phase 196
 
 ## Accumulated Context
