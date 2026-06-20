@@ -25,7 +25,7 @@ defmodule Sigra.AuthPlainMapRegressionTest do
       proving the option is wired as required.
   """
 
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Auth
 

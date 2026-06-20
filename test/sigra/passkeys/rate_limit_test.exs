@@ -1,5 +1,5 @@
 defmodule Sigra.Passkeys.RateLimitTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Sigra.Passkeys
 
