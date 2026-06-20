@@ -315,14 +315,14 @@ Both are a **floor, not a cap** (D-15). The async checklist (D-17) is the delive
 | A2 | The ruleset still requires exactly `Library tests` (and ci-gate is not itself required) at execution time | Runtime State Inventory | HIGH if stale — but mitigated: D-02/194-D-03 mandate re-reading `gh api repos/szTheory/sigra/rulesets/14941512` before merge. Treat as MUST-VERIFY, not assumed. |
 | A3 | Dropping/avoiding `--trace` (via not using `--slowest` per shard) is acceptable to the user as a measurement-gated option | Pitfall 1 | MEDIUM — D-01 literally says "keep `--slowest 10`". This research recommends *measuring* that choice, not overriding it. If the user wants `--slowest 10` kept unconditionally, the partition win is still real (serial-per-shard, /N), just smaller than the within-shard-async ceiling. Surface to discuss-phase if the planner wants to relax D-01. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Keep `--slowest 10` per shard, or drop it to unlock within-shard async?**
+1. **RESOLVED — Keep `--slowest 10` per shard, or drop it to unlock within-shard async?** Encoded as the Plan 02 Task 2 measurement gate (A/B per-shard, ×3 runs, recorded in SUMMARY), defaulting to keep `--slowest 10` unless within-shard async measurably pays off — the CACHE-03 discipline applied to TEST-01.
    - What we know: `--slowest`→`--trace`→`max_cases=1` (verified); current baseline is already serial; partitioning at N=2 halves serial time regardless.
    - What's unclear: whether the user values per-test timing on every CI run more than the within-shard-async speedup it forecloses.
    - Recommendation: encode a measurement gate (A/B one shard with vs without `--slowest`, ×3 runs, compare walltime + that observability survives via the tee+awk step). Default to keeping D-01's `--slowest 10` if the async delta is small; this is exactly the CACHE-03 measurement-gate discipline applied to TEST-01.
 
-2. **N=2 shard balance with subprocess-test clumping.**
+2. **RESOLVED (deferred by decision) — N=2 shard balance with subprocess-test clumping.** Deferred to the execution-time shard-balance probe: add the shard-balance line to the per-shard `$GITHUB_STEP_SUMMARY` (Plan 02), do not pre-optimize; timing-balance only if the >20%-imbalance trigger fires (D-04 / CONTEXT specifics).
    - What we know: round-robin-by-file (verified); 11 subprocess tests dominate.
    - What's unclear: which partition they land on (depends on file sort order + count).
    - Recommendation: add the shard-balance line to the per-shard `$GITHUB_STEP_SUMMARY`; do not pre-optimize. Defer timing-balance to the >20%-imbalance trigger (D-deferred).
