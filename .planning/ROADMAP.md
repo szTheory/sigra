@@ -134,7 +134,11 @@
   4. Measured PR-path wall-clock drops vs the Phase 193 baseline with equal-or-greater PR-gate quality signal.
 
 **Verification mechanism (zero-human-UAT)**: CI measures itself — PR-path vs nightly-path job inventories and wall-clock compared against baseline; `ci-gate` required/child-check names diffed for stability; a forced-failure probe confirms the nightly lane still fails on a real regression.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 196-01-PLAN.md — ci.yml trigger model: schedule cron + 5 moved-job PR gates + skip-tolerant ci-gate (D-01..D-12)
+- [ ] 196-02-PLAN.md — re-anchor phase_51 contract test to the fast_checks step + re-verify phase_58 slicer (D-15, D-16)
+- [ ] 196-03-PLAN.md — force_fail_probe workflow_dispatch input + needs-free nightly probe job (D-14)
+- [ ] 196-04-PLAN.md — MAINTAINING.md nightly cadence/residuals/probe runbook + local-dev note + VERIFICATION D-13 correction (D-07, D-13, D-14)
 
 ### Phase 197: Playwright Lanes & Design-Gallery Re-Gate
 
