@@ -41,21 +41,30 @@ jobs:
               ;;
           esac
 
-  milestone_verification_gate:
-    name: Milestone VERIFICATION.md gate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - name: Run milestone verification gate
-        run: bash scripts/ci/milestone-verification-gate.sh
-
-  installer_milestone_audit:
-    name: Installer milestone audit (INT-01..03)
+  # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
+  # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.
+  # Each guard is a distinct named run: step so per-guard failure remains legible
+  # in the Actions UI. release_ref_guard stays standalone (D-12).
+  fast_checks:
+    name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
           fetch-depth: 0
+      - name: Resolve base ref
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Milestone verification gate
+        run: bash scripts/ci/milestone-verification-gate.sh
       - name: Detect installer-related changes (PRs only)
         id: detect
         shell: bash
@@ -66,15 +75,29 @@ jobs:
             echo "run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          git fetch origin "${{ github.base_ref }}" --depth=1
           if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^priv/templates/sigra\.install/|^lib/sigra/install/|^lib/sigra/mfa(\.ex|/)|^lib/sigra/oauth(\.ex|/)|^lib/sigra/account(\.ex|/)|^lib/sigra/passkeys(\.ex|/)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
           fi
-      - name: Run installer milestone audit
+      - name: Installer milestone audit (INT-01..03)
         if: steps.detect.outputs.run == 'true'
         run: bash scripts/ci/installer-milestone-audit.sh
+      - name: Getting started doc contract
+        run: bash scripts/ci/getting-started-contract.sh
+      - name: Phase 34 UAT contracts
+        run: scripts/ci/phase34-uat-contracts.sh
+      - name: Snapshot drift guard (canary allowlist)
+        run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Snapshot drift guard — design lane
+        run: |
+          SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots" \
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base "${{ steps.base.outputs.ref }}" \
+            --allowlist test/example/priv/playwright/snapshot-allowlist-design \
+            --canary board-notice
+      - name: Quality ledger monotonic guard
+        run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
@@ -1192,81 +1215,6 @@ jobs:
           path: test/example/priv/playwright/test-results/
           retention-days: 7
 
-  getting_started_uat_contract:
-    name: Getting started doc contract (SEED-8 shift-left)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - name: Run getting-started structural checks
-        run: bash scripts/ci/getting-started-contract.sh
-
-  # Phase 34 /gsd-verify-work shift-left: machine-closed UAT items that do not
-  # need Playwright/Postgres (see 34-UAT.md tests 2–3).
-  phase_34_uat_contract:
-    name: Phase 34 UAT contracts (28-VERIFICATION + smoke bash)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-      - name: Run Phase 34 mechanical UAT contracts
-        run: scripts/ci/phase34-uat-contracts.sh
-
-  # Phase 158 (ADMIN-UI-COHERENCE): standing automated replacement for the manual
-  # "human eyeballs git status before re-recording admin baselines" review.
-  # Fast, dependency-free (pure git). In steady state the committed allowlist
-  # (test/example/priv/playwright/snapshot-allowlist) is empty, so ANY admin
-  # checkpoint baseline PNG change fails unless the PR declares the slug in-diff.
-  snapshot_drift_guard:
-    name: Snapshot drift guard (canary allowlist)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-        with:
-          fetch-depth: 0
-      - name: Resolve base ref
-        id: base
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin "${{ github.base_ref }}" --depth=1
-            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Run snapshot canary / drift allowlist guard
-        run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
-      - name: Run snapshot canary / drift guard — design lane
-        run: |
-          SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots" \
-          bash scripts/ci/snapshot-canary-guard.sh \
-            --base "${{ steps.base.outputs.ref }}" \
-            --allowlist test/example/priv/playwright/snapshot-allowlist-design \
-            --canary board-notice
-
-  # Phase 185 (AUDIT-INFRA): merge-blocking quality ledger monotonic guard.
-  # Fails if any tier cell in guides/reference/admin-quality-ledger.md
-  # decreased vs the PR base ref — "only move forward, never regress".
-  quality_ledger_monotonic:
-    name: Quality ledger monotonic guard
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
-        with:
-          fetch-depth: 0
-      - name: Resolve base ref
-        id: base
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin "${{ github.base_ref }}" --depth=1
-            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Run quality ledger monotonic guard
-        run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
-
   ci-gate:
     name: ci-gate
     runs-on: ubuntu-latest
@@ -1279,8 +1227,7 @@ jobs:
       - example_http_smoke
       - example_playwright_smoke
       - generated_admin_playwright_smoke
-      - snapshot_drift_guard
-      - quality_ledger_monotonic
+      - fast_checks
     if: always()
     steps:
       - name: Verify required release CI lanes
@@ -1293,8 +1240,7 @@ jobs:
           EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
           EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
           GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
-          SNAPSHOT_DRIFT_GUARD: ${{ needs.snapshot_drift_guard.result }}
-          QUALITY_LEDGER_MONOTONIC: ${{ needs.quality_ledger_monotonic.result }}
+          FAST_CHECKS: ${{ needs.fast_checks.result }}
         run: |
           set -euo pipefail
           failed=0
@@ -1307,8 +1253,7 @@ jobs:
             EXAMPLE_HTTP_SMOKE \
             EXAMPLE_PLAYWRIGHT_SMOKE \
             GENERATED_ADMIN_PLAYWRIGHT_SMOKE \
-            SNAPSHOT_DRIFT_GUARD \
-            QUALITY_LEDGER_MONOTONIC
+            FAST_CHECKS
           do
             result="${!lane}"
             if [[ "$result" != "success" ]]; then
