@@ -121,6 +121,56 @@ To verify the live list at any time: `gh api repos/szTheory/sigra/rulesets/14941
 > It is a path-scoped quality gate, not a merge-blocking required check — it flows into
 > `ci-gate` (the internal aggregator). The docs below explain its path triggers.
 
+### CI cadence — PR-fast vs nightly/main-broad (Phase 196)
+
+The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** introduced in Phase 196:
+
+**PR-fast gate (runs on every PR and push):**
+- The 5 required lanes (Library tests, Example unit smoke, Install smoke, Example HTTP smoke, Example Playwright smoke)
+- `install_golden_contract` (path-gated on installer changes)
+- `library_tests_dep_off` (Threadline dep-off guard)
+
+**Nightly / main / dispatch-broad coverage (runs on `schedule:`, `push: main`, `workflow_dispatch` — skipped on PRs):**
+- `install_matrix` (four flag-combination installs)
+- `upgrade_smoke` (published → local upgrade path)
+- `passkeys_manual_fallback_smoke` and `passkeys_opt_out_smoke`
+- `generated_admin_playwright_smoke` (generated-host admin behavior ~60 min)
+- `nightly_probe` (forced-failure self-test; see runbook below)
+
+The nightly schedule runs at `cron: '30 4 * * *'` (04:30 UTC daily).
+
+#### Accepted residuals (D-07 honest-truth disclosure)
+
+Two coverage areas moved to nightly are accepted residuals and must never be silently treated as "covered on PRs":
+
+1. **`upgrade_smoke` whole upgrade path** — the published-package → local-candidate upgrade path has **no per-PR behavioral proxy**. It runs on `push: main` and release dispatch (so every merge to main is covered before release), but not on individual PRs. This is accepted as release-boundary coverage; any regression surfaces before a Hex publish.
+
+2. **Generated-host template parity** — `generated_admin_playwright_smoke` (the full generated-host admin Playwright run) is fully moved to nightly. Admin _behavior_ is proxied on PRs by `example_playwright_smoke`'s admin specs (a required lane). However, the **template-parity** check (installer-emitted shell vs library admin) becomes nightly-only. This residual is explicitly backstopped by **DIST-06 `scripts/ci/admin-acceptance-smoke.sh`** (`RUN_PARITY`) — the acceptance smoke script that scaffolds a fresh `phx.new + sigra.install` and runs the full Playwright suite against the generated host. This automation is the proxy for template-parity regressions between nightly runs.
+
+These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clock time without silently stranding correctness-critical coverage. They are documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
+
+#### Forced-failure probe runbook (D-14)
+
+The `nightly_probe` job contains a `force_fail_probe`-guarded `exit 1` step that lets you verify the nightly lane actually reports failure when something is broken.
+
+**Red the nightly probe (proves nightly lane detects failures):**
+
+```bash
+gh workflow run "CI" -f force_fail_probe=true
+```
+
+The `nightly_probe` job will report red in the Actions UI independently of all other jobs. This exercises the nightly trigger path without touching real smoke jobs.
+
+**Normal run (default `force_fail_probe=false` — probe stays green):**
+
+```bash
+gh workflow run "CI"
+```
+
+Or simply: push to `main` or wait for the 04:30 UTC schedule — `force_fail_probe` defaults to `false` and the probe step is skipped.
+
+`nightly_probe` is **not** in `ci-gate.needs` and is not a required check, so a red probe does not block PRs — it is a standalone operational self-test.
+
 ### Artifact, log, and cache retention
 
 Retention controls cost and history only; **no impact** on Release Please or Hex publish mechanics.
