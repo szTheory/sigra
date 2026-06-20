@@ -3,16 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 195
+current_phase_name: test-suite-performance-partition-async-dep-off-slim
 status: executing
 stopped_at: Phase 195 context gathered (assumptions mode + research)
-last_updated: "2026-06-20T12:43:48.081Z"
+last_updated: "2026-06-20T12:57:43.662Z"
 last_activity: 2026-06-20
-last_activity_desc: Phase 195 planning complete
+last_activity_desc: Phase 195 execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 8
+  completed_plans: 6
   percent: 33
 ---
 
@@ -24,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 195 — test suite performance (partition / async / dep off slim)
+**Current focus:** Phase 195 — test-suite-performance-partition-async-dep-off-slim
 
 ## Current Position
 
-Phase: 195
-Plan: Not started
+Phase: 195 (test-suite-performance-partition-async-dep-off-slim) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-06-20 — Phase 195 planning complete
+Last activity: 2026-06-20 — Phase 195 execution started
 
 ## Accumulated Context
 
@@ -163,7 +164,7 @@ Last activity: 2026-06-20 — Phase 195 planning complete
 
 ## Session Continuity
 
-Last session: 2026-06-20T12:08:28.461Z
+Last session: 2026-06-20T12:57:43.654Z
 Stopped at: Phase 195 context gathered (assumptions mode + research)
 Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off-slim/195-CONTEXT.md
 
@@ -218,6 +219,7 @@ Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off
 | Phase 193 P02 | 6 min | 1 tasks | 2 files |
 | Phase 193 P03 | 2 min | 2 tasks | 1 files |
 | Phase 194 P02 | ~4 minutes | 3 tasks | 2 files |
+| Phase 195 P01 | 3 | 3 tasks | 12 files |
 
 ## Operator Next Steps
 

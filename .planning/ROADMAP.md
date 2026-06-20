@@ -109,7 +109,7 @@
 **Plans**: 3 plans
 **Wave 1**
 
-- [ ] 195-01-PLAN.md — Tag `:threadline_guard` guard subset + `mix sigra.dep_off` alias + 2 safe async flips + async-safety checklist (TEST-02, TEST-03)
+- [x] 195-01-PLAN.md — Tag `:threadline_guard` guard subset + `mix sigra.dep_off` alias + 2 safe async flips + async-safety checklist (TEST-02, TEST-03)
 - [ ] 195-02-PLAN.md — Partition `library_tests` into matrix shards + name-preserving aggregator + relocate `mix docs` (TEST-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -308,7 +308,7 @@ Archive:
 | --- | --- | --- | --- | --- |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
-| 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
+| 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 1/3 | In Progress|  |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |
 | 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |

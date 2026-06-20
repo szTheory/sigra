@@ -23,8 +23,8 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 ### Test-suite performance
 
 - [ ] **TEST-01**: Partition `library_tests` (`mix test --partitions N`) across parallel shards, each with an isolated Postgres database; merge coverage if applicable; partition count chosen from evidence (don't oversubscribe a 2-core runner).
-- [ ] **TEST-02**: Slim `library_tests_dep_off` — run a targeted subset that actually exercises the Threadline-absent compile/guard paths instead of re-running the full ~14m suite.
-- [ ] **TEST-03**: Audit `async: true` coverage — convert safe modules, split oversized serial modules, without marking any global-state-mutating test async. Sandbox/pool config stays correct under partitioning.
+- [x] **TEST-02**: Slim `library_tests_dep_off` — run a targeted subset that actually exercises the Threadline-absent compile/guard paths instead of re-running the full ~14m suite.
+- [x] **TEST-03**: Audit `async: true` coverage — convert safe modules, split oversized serial modules, without marking any global-state-mutating test async. Sandbox/pool config stays correct under partitioning.
 
 ### Playwright lanes
 
