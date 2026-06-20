@@ -106,7 +106,10 @@
   4. Any larger-runner usage is justified by a recorded before/after measurement, or not used.
 
 **Verification mechanism (zero-human-UAT)**: CI measures itself — partitioned/slimmed job durations and pass counts compared against the Phase 193 baseline; repeated runs confirm no new flake under concurrency.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 195-01-PLAN.md — Tag `:threadline_guard` guard subset + `mix sigra.dep_off` alias + 2 safe async flips + async-safety checklist (TEST-02, TEST-03)
+- [ ] 195-02-PLAN.md — Partition `library_tests` into matrix shards + name-preserving aggregator + relocate `mix docs` (TEST-01)
+- [ ] 195-03-PLAN.md — Slim `library_tests_dep_off` to the tagged subset + CACHE-03 measurement-gate runbook (TEST-02, CACHE-03)
 
 ### Phase 196: PR-Fast vs Nightly-Broad Trigger Model
 
