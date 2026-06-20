@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-current_phase: 197
-current_phase_name: playwright-lanes-design-gallery-re-gate
-status: executing
-stopped_at: Completed 197-04 admin_design_recapture job (D-09, OQ1/OQ2/OQ3)
-last_updated: "2026-06-20T19:23:24.910Z"
+status: verifying
+stopped_at: Completed 197-05 PW-03 re-gate (D-10 continue-on-error removed, D-07 SEED-006 corrected)
+last_updated: "2026-06-20T19:29:12.873Z"
 last_activity: 2026-06-20
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 17
-  completed_plans: 16
-  percent: 67
+  completed_plans: 17
+  percent: 83
 ---
 
 # Project State
@@ -30,7 +28,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 197 (playwright-lanes-design-gallery-re-gate) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-20
 
 ## Accumulated Context
@@ -127,6 +125,8 @@ Last activity: 2026-06-20
 - [Phase ?]: OQ1: board-notice canary re-established as 'added' via pre-delete before --update-snapshots (tripwire stays armed)
 - [Phase ?]: OQ2: recaptured PNGs committed to ci/recapture-admin-design branch + gh pr create for human review (not silent push to main)
 - [Phase ?]: OQ3: bounded compare-and-report scope -- sibling lanes compared only; drift deferred to tracked todo with per-lane recapture path
+- [Phase ?]: D-10 re-gate: continue-on-error removed from design gallery step; gallery now hard-gates via the Plan 02 aggregator; inline in example_playwright_smoke (not nightly)
+- [Phase ?]: D-07 operator-truth: SEED-006 false webfont-load premise corrected; real cause was OS system-ui font-metric delta; SEED-006 marked addressed/folded by Phase 197
 
 ### Pending Todos
 
@@ -185,8 +185,8 @@ Last activity: 2026-06-20
 
 ## Session Continuity
 
-Last session: 2026-06-20T19:23:24.903Z
-Stopped at: Completed 197-04 admin_design_recapture job (D-09, OQ1/OQ2/OQ3)
+Last session: 2026-06-20T19:29:12.867Z
+Stopped at: Completed 197-05 PW-03 re-gate (D-10 continue-on-error removed, D-07 SEED-006 corrected)
 Resume file: 
 
 None
@@ -259,3 +259,4 @@ None
 | Phase 197 P02 | 2min | 2 tasks | 1 files |
 | Phase 197 P03 | 2min | 4 tasks | 4 files |
 | Phase 197 P04 | 5min | 3 tasks | 1 files |
+| Phase 197 P05 | 2m | 2 tasks | 2 files |
