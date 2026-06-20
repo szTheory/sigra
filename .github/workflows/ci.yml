@@ -1506,6 +1506,74 @@ jobs:
             --project=admin-design-mobile \
             --project=admin-design-dark \
             --update-snapshots
+      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch (OQ1, OQ2)
+        # OQ1 (board-notice canary re-baseline): board-notice PNGs were deleted before
+        # recapture so they appear as 'added' to the guard — the guard's legitimate birth
+        # path (line 100). NOT allowlisted (canary is never allowlistable); NOT a
+        # forbidden 'modify'. The tripwire stays armed for future incremental PRs.
+        #
+        # OQ2 (reviewable commit): recaptured PNGs land on a ci/recapture-admin-design-<run_id>
+        # branch and a PR is opened via gh pr create — baseline changes get human review
+        # under branch protection rather than a silent push to main. The commit carries
+        # [skip ci] to avoid re-triggering this job.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots"
+
+          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
+          # slug_of: strip -admin-design-{chromium,mobile,dark}.png suffix.
+          declare -A seen_slugs=()
+          while IFS=$'\t' read -r status path; do
+            [[ -z "${path:-}" ]] && continue
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-design-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git diff --name-status HEAD -- "$SNAP_DIR" 2>/dev/null || true)
+          while IFS= read -r line; do
+            [[ "$line" == '??'* ]] || continue
+            path="${line:3}"
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-design-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git status --porcelain -- "$SNAP_DIR" 2>/dev/null || true)
+
+          echo "Changed slugs: ${!seen_slugs[*]}"
+
+          # Build --allow args for all non-canary changed slugs.
+          allow_args=()
+          for sl in "${!seen_slugs[@]}"; do
+            if [[ "$sl" != "board-notice" ]]; then
+              allow_args+=(--allow "$sl")
+            fi
+          done
+
+          # Run canary guard. board-notice should appear as 'added' (deleted before
+          # recapture) which the guard tolerates (line 100 of snapshot-canary-guard.sh).
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base HEAD \
+            --allowlist test/example/priv/playwright/snapshot-allowlist-design \
+            --canary board-notice \
+            "${allow_args[@]}"
+
+          # OQ2: commit to a reviewable branch, not main.
+          BRANCH="ci/recapture-admin-design-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$SNAP_DIR/"
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit -- baselines already match CI render."
+          else
+            git commit -m "ci(197): recapture admin-design baselines in ubuntu CI [skip ci]"
+            git push origin "$BRANCH"
+            gh pr create \
+              --title "ci: recapture admin-design baselines in ubuntu CI (${{ github.run_id }})" \
+              --body "Admin-design baseline recapture (automated). Triggered by the global --font-sans Space Grotesk override (Phase 197-03). OQ1: board-notice canary re-established as added (not modified). OQ2: reviewable PR instead of push to main. Merge after visual review." \
+              --base main \
+              --head "$BRANCH"
+          fi
 
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
   # nightly trigger path reports red on a real failure. Dispatching with
