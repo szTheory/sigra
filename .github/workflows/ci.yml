@@ -355,13 +355,17 @@ jobs:
         env:
           MIX_ENV: test
         run: mix compile --warnings-as-errors --no-deps-check
-      - name: Run library tests (Threadline absent)
+      # D-10/D-11/D-14: Run only the :threadline_guard tagged subset.
+      # `--only threadline_guard` fails RED on zero matches — a dropped/renamed tag turns CI red,
+      # never silently green (the D-11 trust property). This matches the final command in the
+      # `mix sigra.dep_off` alias exactly; local repro: MIX_ENV=test mix sigra.dep_off (D-14).
+      - name: Run guard subset (Threadline absent — :threadline_guard tagged modules only)
         env:
           MIX_ENV: test
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
-        run: mix test --exclude requires_threadline --no-deps-check
+        run: mix test --only threadline_guard --no-deps-check
       # D-07: mix docs relocated here from the shard job (which is N× cost for one artifact).
       # This job already has a compiled toolchain (setup-beam + deps + compile above),
       # is not a shard, and runs exactly once per CI run — the correct host for docs.
