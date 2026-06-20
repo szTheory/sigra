@@ -6,15 +6,15 @@ current_phase: 196
 current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
 status: executing
 stopped_at: Completed 196-01-PLAN.md
-last_updated: "2026-06-20T16:19:53.918Z"
+last_updated: "2026-06-20T16:27:10.230Z"
 last_activity: 2026-06-20
 last_activity_desc: Phase 196 execution started
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
-  percent: 50
+  completed_plans: 12
+  percent: 67
 ---
 
 # Project State
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 196 (PR-Fast vs Nightly-Broad Trigger Model) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-06-20 -- Phase 196 execution started
 
@@ -114,6 +114,8 @@ Last activity: 2026-06-20 -- Phase 196 execution started
 - [Phase ?]: Job-level if: github.event_name != 'pull_request' used for 5 moved jobs (196-01 D-02)
 - [Phase ?]: ci-gate skip-tolerant: result != success && result != skipped tolerates PR-skipped needs without weakening real-failure detection (196-01 D-09)
 - [Phase ?]: Live ruleset 14941512 confirmed at execution: 5 required-check contexts, enforcement active, no 6th/renamed context (196-01 D-12)
+- [Phase ?]: ADD-only doc discipline: CI cadence subsection appended to MAINTAINING.md without touching the already-correct required-check section (5 lane names, ci-gate NOT required)
+- [Phase ?]: D-13 correction: CRIT-03 phrasing (single stable required check ci-gate) is stale; live ruleset 14941512 enforces 5 lane name strings; ci-gate is internal aggregator; correction recorded in 196-VERIFICATION.md only
 
 ### Pending Todos
 
@@ -172,7 +174,7 @@ Last activity: 2026-06-20 -- Phase 196 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-20T16:19:53.913Z
+Last session: 2026-06-20T16:26:56.460Z
 Stopped at: Completed 196-01-PLAN.md
 Resume file: 
 
@@ -236,3 +238,9 @@ None
 ## Operator Next Steps
 
 - Start the next milestone with /gsd-new-milestone
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 196 P04 | 4min | 2 tasks | 3 files |
