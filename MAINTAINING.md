@@ -149,6 +149,28 @@ Two coverage areas moved to nightly are accepted residuals and must never be sil
 
 These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clock time without silently stranding correctness-critical coverage. They are documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
 
+#### Squash-merge `[skip ci]` footgun (merge hygiene)
+
+GitHub honors a `[skip ci]` token found **anywhere** in a commit message, and a
+**squash** merge concatenates *every* commit message in the PR into the squash
+commit body. So if any single commit in the branch quotes or mentions `[skip ci]`
+(even in prose — e.g. describing the `admin_design_recapture` auto-PR, whose own
+commit uses `[skip ci]`), the squash-merge commit inherits it and **the entire
+push-to-main CI run is silently skipped** — including `admin_design_recapture`.
+
+Observed 2026-06-20 merging v1.40 (PR #58): the push-to-main CI run produced **zero**
+runs (`gh api .../actions/workflows/ci.yml/runs` had no entry for the merge SHA), so
+the recapture job never fired.
+
+**When squash-merging a multi-commit PR, scrub the squash commit body of any
+`[skip ci]` / `[ci skip]` token before confirming the merge** (edit the squash
+message in the merge dialog, or `gh pr merge --squash` then verify
+`git log -1 --format=%B origin/main | grep -i 'skip ci'` is empty). If a merge
+already skipped CI, trigger a fresh push-to-main (a follow-up clean-message PR
+merge) or wait for the nightly `schedule` run, which is immune (the token only
+affects `push`/`pull_request` head commits). Tracked as the
+`recapture-pr-skip-ci-pending-trap` finding in the SEED-005 audit.
+
 #### Forced-failure probe runbook (D-14)
 
 The `nightly_probe` job contains a `force_fail_probe`-guarded `exit 1` step that lets you verify the nightly lane actually reports failure when something is broken.
