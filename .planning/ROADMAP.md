@@ -168,7 +168,12 @@
 
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the re-gated gallery runs green in-CI across all three projects (proving deterministic capture), and Playwright-lane critical-path time is compared against the Phase 193 baseline.
 **UI hint**: yes
-**Plans**: TBD
+**Plans**: 5 plans
+  - [ ] 197-01-PLAN.md — PW-02: rewrite the two mailbox `waitForTimeout` sleeps to `expect.poll()` (wave 1)
+  - [ ] 197-02-PLAN.md — PW-01: `!cancelled()` step guards + `always()` aggregator + staging-guard fix (wave 1)
+  - [ ] 197-03-PLAN.md — PW-03: self-hosted Space Grotesk woff2 + `--font-sans` + `document.fonts.ready` + MG-5/6 fix (wave 1)
+  - [ ] 197-04-PLAN.md — PW-03: in-CI `admin_design_recapture` job + canary/commit/cross-lane resolution (wave 2)
+  - [ ] 197-05-PLAN.md — PW-03: remove `continue-on-error`, re-gate gallery, record SEED-006 correction (wave 3)
 
 ### Phase 198: Contributor DX & Acceptance Gate
 
