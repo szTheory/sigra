@@ -1035,18 +1035,19 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: "http://localhost:4000"
-        # NON-BLOCKING (SEED-006): this step is net-new in v1.39 and never ran
-        # green in CI — it was masked by an upstream lane-step failure until that
-        # was fixed. The element-scoped board screenshots hard-fail on dimension
-        # mismatch, and the brand webfont does not load in this dev-mode boot the
-        # way it does in the local design-harness where the baselines were
-        # captured, so ~11 boards (mostly the mobile project) render taller and
-        # mismatch. The spec still RUNS and REPORTS here, but does not hard-gate
-        # the v1.39 ship. The committed baselines remain drift-guarded by
-        # snapshot-canary-guard and admin visual coverage stays gated by
-        # admin-checkpoints. Flip back to blocking once SEED-006 makes the font
-        # load deterministically in CI and recaptures these baselines in-CI.
-        continue-on-error: true
+        # HARD-GATING (Phase 197 / D-10): continue-on-error removed; gallery
+        # now fails the job via the aggregator on any visual regression.
+        # Root-cause correction (D-07): the original non-blocking premise was that
+        # "the brand webfont does not load in CI dev-mode boot" — that was factually
+        # wrong (no @font-face, no *.woff2, and no Google Fonts link was ever served;
+        # the ~20–53px height delta was an OS system-ui font-metric difference between
+        # the macOS capture box and the ubuntu CI runner).
+        # Remediation (Plans 03–04): a self-hosted Space Grotesk variable woff2 is now
+        # committed to test/example/priv/static/assets/fonts/ and wired via @font-face
+        # + --font-sans in app.css; admin-design.spec.ts awaits document.fonts.ready +
+        # asserts fonts.check before any snapshot; CI-native baselines were recaptured
+        # by the admin_design_recapture sibling job and merged. Render is now
+        # OS-independent and the gallery can hard-gate again (SEED-006 addressed).
         run: |
           npx playwright test \
             tests/admin-design.spec.ts \
