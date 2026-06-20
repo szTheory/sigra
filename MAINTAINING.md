@@ -116,11 +116,10 @@ enforce the rule.
 
 To verify the live list at any time: `gh api repos/szTheory/sigra/rulesets/14941512 --jq ‘.rules[] | select(.type==”required_status_checks”) | .parameters.required_status_checks[].context’`
 
-> **Note on install golden (shift-left):** The `install_golden_contract` job (name:
-> `Install golden + idempotency contract (subprocess harness)`) is gated on the
+> **Note on install golden (shift-left):** The `install_golden_contract` job is gated on the
 > PR diff touching installer paths and is not in the live ruleset’s required checks.
-> It is a path-scoped quality gate, not a merge-blocking required check. The docs
-> below explain its path triggers.
+> It is a path-scoped quality gate, not a merge-blocking required check — it flows into
+> `ci-gate` (the internal aggregator). The docs below explain its path triggers.
 
 ### Artifact, log, and cache retention
 
@@ -213,7 +212,7 @@ The **Release captain** opens **one** tracking issue (or equivalent single surfa
 | Step | Owner | What to verify |
 |------|-------|----------------|
 | Default ship path | Release captain | Follow [Release automation (default)](#release-automation-default) end-to-end; use [Manual release checklist (emergency or pre-automation)](#manual-release-checklist-emergency-or-pre-automation) only if you are outside Release Please. |
-| Installer + merge gate | Security / evidence reviewer | Confirm [Installer golden CI contract (phase 50)](#installer-golden-ci-contract-phase-50) expectations; branch protection must require `` `Install golden + idempotency contract (subprocess harness)` `` on **`main`**. |
+| Installer + merge gate | Security / evidence reviewer | Confirm [Installer golden CI contract (phase 50)](#installer-golden-ci-contract-phase-50) expectations; verify the 5 live required checks in [ruleset 14941512](https://api.github.com/repos/szTheory/sigra/rulesets/14941512) (`gh api repos/szTheory/sigra/rulesets/14941512`) are present — see [Branch protection — enforced required checks (live ruleset)](#branch-protection--enforced-required-checks-live-ruleset). |
 | GA matrix honesty | Security / evidence reviewer | Read Executed vs Waived in [v1.4 GA / UAT matrix (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/v1.4-GA-UAT.md) — human **GA-02..GA-05** rows may remain **waived** for v1.4; do **not** imply those humans re-ran for a forum post. |
 | Milestone closure narrative | Security / evidence reviewer | [v1.4 milestone requirements (tag snapshot)](https://github.com/sztheory/sigra/blob/v0.2.0/.planning/milestones/v1.4-REQUIREMENTS.md) for what “closed” meant for that cut. |
 | CI substitution semantics | Security / evidence reviewer | Packaged doc: [docs/uat-ci-coverage.md](docs/uat-ci-coverage.md). |
