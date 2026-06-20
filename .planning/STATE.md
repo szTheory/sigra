@@ -2,13 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-current_phase: 194
-current_phase_name: caching-correctness-micro-job-consolidation
-status: ready_to_plan
-stopped_at: Phase 194 complete (2/2) — ready to discuss Phase 195
-last_updated: 2026-06-20T02:13:52.544Z
+status: planning
+stopped_at: Phase 195 context gathered (assumptions mode + research)
+last_updated: "2026-06-20T12:08:28.466Z"
 last_activity: 2026-06-20
-last_activity_desc: Phase 194 execution started
 progress:
   total_phases: 6
   completed_phases: 2
@@ -164,9 +161,9 @@ Last activity: 2026-06-20
 
 ## Session Continuity
 
-Last session: 2026-06-20T02:07:31.005Z
-Stopped at: Completed Phase 194 Plan 02 (CACHE-02) — micro-job consolidation complete
-Resume file: .planning/phases/194-caching-correctness-micro-job-consolidation/194-CONTEXT.md
+Last session: 2026-06-20T12:08:28.461Z
+Stopped at: Phase 195 context gathered (assumptions mode + research)
+Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off-slim/195-CONTEXT.md
 
 ## Performance Metrics
 
