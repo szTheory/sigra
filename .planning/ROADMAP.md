@@ -24,7 +24,7 @@
 
 **Requirement coverage:** All 18 v1.40 requirements (BASE-01..03, CRIT-01..03, TEST-01..03, PW-01..03, CACHE-01..03, DX-01, FLAKE-01, GATE-01..02) mapped to exactly one phase across 193-198.
 
-- [ ] **Phase 193: Baseline, Observability & One-Line Wins** — capture the before-state baseline + Elixir diagnostics, add CI job-summary observability, then bank the two cheapest wins (drop the gratuitous `needs` edge; fix the rgb flake). Covers BASE-01, BASE-02, BASE-03, CRIT-01, FLAKE-01.
+- [x] **Phase 193: Baseline, Observability & One-Line Wins** — capture the before-state baseline + Elixir diagnostics, add CI job-summary observability, then bank the two cheapest wins (drop the gratuitous `needs` edge; fix the rgb flake). Covers BASE-01, BASE-02, BASE-03, CRIT-01, FLAKE-01. (completed 2026-06-20)
 - [ ] **Phase 194: Caching Correctness & Micro-Job Consolidation** — precise cache keys, no stale `_build` reuse across incompatible combos, separated deps/PLT caches, documented busting; fold the trivial guard jobs into one cheap "fast checks" job. Covers CACHE-01, CACHE-02.
 - [ ] **Phase 195: Test-Suite Performance (partition / async / dep-off slim)** — partition `library_tests` across DB-isolated shards, audit/convert `async: true`, slim the dep-off full rerun to a targeted subset, apply larger runners selectively only if measurement justifies. Covers TEST-01, TEST-02, TEST-03, CACHE-03.
 - [ ] **Phase 196: PR-Fast vs Nightly-Broad Trigger Model** — move exhaustive/low-probability coverage (install matrix ×4, upgrade smoke, broad galleries) off the every-PR path to a `schedule:`/main lane, keep a fast representative PR gate, never strand a correctness-critical test on nightly — all under a single stable `ci-gate` required check with stable child-check names. Covers CRIT-02, CRIT-03.
@@ -292,7 +292,7 @@ Archive:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete   | 2026-06-19 |
+| 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 0/? | Not started | - |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
