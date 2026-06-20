@@ -66,6 +66,47 @@ This alias (in `mix.exs`) runs four steps in order:
 
 This requires the same live test Postgres as the full suite (boot one via `scripts/db/up.sh` if needed). After running `mix sigra.dep_off`, restore the dep with `mix deps.get`.
 
+## Larger-runner measurement gate (CACHE-03)
+
+GitHub's standard `ubuntu-latest` runner (2 vCPU, 7 GB RAM) is **free and unlimited on public repos**. Larger runners (4/8/16/32 vCPU) are **billed per-minute even on public repos and do not consume included minutes** — they bypass the free tier entirely. At the time of writing (June 2026, GitHub Docs), a 4-core larger runner costs ~$0.016/min, while two standard runners share zero cost.
+
+**The default posture is: stay on `ubuntu-latest`. Do not adopt a larger runner.**
+
+### Decision rule (D-22)
+
+Adopt a larger runner for a specific job ONLY if ALL of the following are true:
+
+| Criterion | Test |
+|-----------|------|
+| The job is on the critical path | Its duration directly extends run-level wall-clock |
+| The job is genuinely un-shardable | Cannot be split across multiple standard runners at lower cost |
+| Δwall-clock is material (≥30% on that job) | A/B measured, not estimated |
+| The run-level wall-clock actually drops | The job is not masked by a longer pole (e.g. Playwright ~22m) |
+| The recurring $/min is accepted | Cost reviewed and approved |
+
+If any criterion is false: **reject**. 2 free standard shards (4 effective cores, $0/min) strictly dominate 1 paid 4-core runner for parallelizable work.
+
+### Measurement procedure
+
+1. **Take the baseline.** Use the per-job wall-clock durations from `193-BASELINE.md` as your before-state. For the job under test, note: runner label, wall-clock, and cache-hit.
+2. **A/B test on a larger runner label** (e.g., `ubuntu-latest-4` or `ubuntu-4-core`). Run the job at least 3 times to average out scheduler jitter.
+3. **Measure:** wall-clock, billed-minutes, and cache-hit for each run.
+4. **Apply the decision rule** from the table above. If a criterion fails, stop: reject and document the reason.
+5. **Record a before/after table** (template below) and include it in the phase SUMMARY.md.
+
+### Before/after table template
+
+| Job | Runner label | Wall-clock | Billed-minutes | Cache-hit | Verdict |
+|-----|-------------|-----------|---------------|-----------|---------|
+| _(job name)_ | ubuntu-latest | _(baseline)_ | 0 (free) | _(yes/no)_ | — baseline |
+| _(job name)_ | _(larger label)_ | _(A/B result)_ | _(billed-mins)_ | _(yes/no)_ | accept/reject |
+
+Fill this table with real measurements before merging any larger-runner adoption. A missing or estimated table is grounds to revert the change in the next phase.
+
+### Current status
+
+As of Phase 195, **no larger runners are adopted**. Every job in `ci.yml` uses `runs-on: ubuntu-latest`. The partition win (TEST-01: 2 standard shards halving `library_tests` walltime at $0/min) and the dep-off subset win (TEST-02: `library_tests_dep_off` targeting only the 65-test guard subset instead of the full suite) are the load-bearing Phase 195 gains. Larger runners were evaluated against the decision rule and rejected: the wall-clock pole is `example_playwright_smoke` (~22m, Phase 197 target), not any job that a larger runner would materially shorten.
+
 ## Running the demo app
 
 One command does everything:
