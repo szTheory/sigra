@@ -1370,6 +1370,143 @@ jobs:
           fi
           echo "ci-gate passed: all required release lanes succeeded."
 
+  # D-09 (197-04): dedicated non-PR-gated job that recaptures the 72 admin-design
+  # baselines in-CI so the committed PNGs match what ubuntu CI renders. This job
+  # carries job-level `permissions: contents: write` (the workflow default is
+  # `contents: read`, ci.yml:26) so it can commit the recaptured PNGs. It is
+  # NOT in ci-gate.needs — it is a one-time recapture utility, not a PR gate.
+  # The recaptured PNGs land on a ci/recapture-admin-design-<run_id> branch and
+  # a PR is opened for human review (OQ2) before anything merges to main.
+  admin_design_recapture:
+    name: Recapture admin-design baselines (in-CI)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    needs: release_ref_guard
+    permissions:
+      contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
+      pull-requests: write  # required for gh pr create
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      # Boot prelude — verbatim clone of example_playwright_smoke (ci.yml:886–968)
+      # with the same SHA-pinned actions, MIX_ENV: dev, and readiness loops.
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: erlef/setup-beam@fc68ffb90438ef2936bbb3251622353b3dcb2f93  # v1.24.0
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Cache example deps
+        id: recapture_example_deps_cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
+      - name: Fetch example deps
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Run demo seeds
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix run priv/repo/seeds.exs
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium webkit
+      - name: Boot example app in background
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PHX_SERVER: "true"
+        # WR-04: redirect stdout+stderr so boot output is not interleaved with
+        # step output and is recoverable via the failure dump step below.
+        run: mix phx.server > /tmp/example-recapture-server.log 2>&1 &
+      - name: Wait for app and warm up LiveView routes
+        run: |
+          # Wait for root.
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "App responding after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          # Warm up the routes the test will hit — first-touch pays compile-on-demand
+          # latency in dev mode.
+          for path in /users/register /users/log_in /users/confirm /dev/mailbox /users/sessions /users/sudo /users/settings/mfa /admin/users; do
+            curl -sf -o /dev/null "http://localhost:4000${path}" \
+              && echo "warmed ${path}" \
+              || echo "warmup miss ${path} (non-fatal)"
+          done
+      - name: Re-establish board-notice canary (OQ1 deliberate re-baseline)
+        # OQ1: The global --font-sans override modifies board-notice (the design-lane
+        # canary). snapshot-canary-guard.sh forbids a canary *modify* (line 104) but
+        # tolerates a canary *added* (line 100). To re-establish the canary with the
+        # new font, delete the existing board-notice PNGs BEFORE --update-snapshots
+        # so Playwright re-creates them as newly-added files rather than modifications.
+        # This is a one-time deliberate re-baseline, NOT allowlisting the canary.
+        run: |
+          echo "Removing existing board-notice PNGs so recapture creates them as 'added' (not 'modified')"
+          find test/example/priv/playwright/tests/admin-design.spec.ts-snapshots \
+            -name 'board-notice-admin-design-*.png' -delete || true
+          echo "Removed board-notice PNGs:"
+          ls test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/ | grep board-notice || echo "(none — deletion successful)"
+      - name: Recapture admin-design baselines
+        # D-09: recapture all 72 admin-design PNGs (24 boards × chromium/mobile/dark)
+        # in the ubuntu CI environment so the committed baselines match what CI renders.
+        # The fonts.check hard guard in waitForLiveViewReady (197-03) ensures the font
+        # is loaded before any snapshot is taken.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --update-snapshots
+
   # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
   # nightly trigger path reports red on a real failure. Dispatching with
   # `gh workflow run "CI" -f force_fail_probe=true` reds this job and only
