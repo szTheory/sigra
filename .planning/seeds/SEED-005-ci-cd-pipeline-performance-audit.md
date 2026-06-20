@@ -147,6 +147,57 @@ Jon's framing:
 > goal would be to reduce CI time b/c 17 min is too long we can probably optimize the pipeline
 > significantly
 
+---
+
+## Addendum 2026-06-20 — Playwright parallelization is the #1 unrealized win (phase-197 evidence)
+
+Jon, re-raising during the v1.40 ship (PR #58): **"that playwright time is way too
+slow we should be able to parallelize it somehow."** This sharpens thesis #4 with
+ground truth discovered while executing/verifying **Phase 197** (Playwright Lanes &
+Design-Gallery Re-Gate):
+
+- **Phase 197 did NOT meaningfully cut Playwright wall-clock — and that was recorded
+  honestly.** `197-VERIFICATION.md` Truth #2: "Criterion 1b (critical-path time
+  reduction) — honestly modest/near-zero." What Phase 197 *did* deliver was
+  **failure-surfacing** (5 `!cancelled()`-guarded steps + an `always()` aggregator so
+  an early step no longer masks later ones) and **determinism** (`expect.poll()`, no
+  `waitForTimeout`; self-hosted webfont + `fonts.ready`). Reliability win, not a speed win.
+
+- **Why the speed win is still on the table — the real blocker is serial-by-design:**
+  `playwright.config.ts` is `workers: 1, fullyParallel: false` **deliberately**, because
+  the 5 specs share one booted example app + one Postgres DB with mutating state
+  (D-03/Plan 02 rationale). So the 5 `npx playwright test` launches run **serially** and
+  webkit can't be dropped (three mobile projects use iPhone 13). True parallelism is
+  therefore gated on **test-data isolation**, not on Playwright config flags.
+
+- **The actual path to "way faster" Playwright (for the audit milestone to validate):**
+  1. **Per-shard DB + app isolation** so `fullyParallel`/multi-worker (or matrix-sharded
+     jobs) becomes safe — each shard gets its own database (mirror the `library_tests`
+     partition pattern from Phase 195) + its own booted app/port. This is the structural
+     change that unlocks real wall-clock reduction.
+  2. **Boot-cost amortization** — the `mix deps.get → compile → ecto.create/migrate →
+     seeds → npm ci → playwright install` prelude is the dominant fixed cost and is
+     re-paid per shard; measure whether N shards still net-win after N× prelude, or
+     whether a shared pre-built/cached app image (Docker layer cache, see
+     `[[reference_sigra_docker_dx]]`) removes the per-shard prelude tax.
+  3. **Move heavy galleries to nightly** (design-gallery, demo-showcase) keeping a fast
+     representative admin smoke on the PR path — once visual baselines are deterministic.
+
+- **Adjacent live finding (this session): the design-gallery re-gate has a bootstrap
+  ordering hazard.** Re-gating (removing `continue-on-error`) before ubuntu-native
+  baselines exist on `main` deadlocks the ship, because the recapture job only runs
+  post-merge. Tracked in
+  `.planning/todos/pending/2026-06-20-complete-d10-design-gallery-re-gate-after-recapture.md`.
+  The audit should treat **"gate vs baseline-availability ordering"** as a determinism
+  concern, not just placement.
+
+**Net:** the original audit playbook below still stands; this addendum just pins
+**Playwright test-data isolation (per-shard DB)** as the highest-leverage remaining
+lever and records that Phase 197 already banked the reliability half, leaving the
+wall-clock half explicitly open.
+
+---
+
 The full inflated companion prompt to use as the audit playbook:
 
 ```text
