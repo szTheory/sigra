@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-current_phase: 197
-status: ready_to_plan
+status: executing
 stopped_at: Phase 197 context gathered (assumptions mode)
-last_updated: "2026-06-20T18:03:19.435Z"
+last_updated: "2026-06-20T19:02:23.140Z"
 last_activity: 2026-06-20
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 17
+  completed_plans: 13
   percent: 67
-current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
 ---
 
 # Project State
@@ -24,13 +22,13 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 197 — playwright lanes & design gallery re gate
+**Current focus:** Phase 197 — playwright-lanes-design-gallery-re-gate
 
 ## Current Position
 
-Phase: 197
-Plan: Not started
-Status: Ready to plan
+Phase: 197 (playwright-lanes-design-gallery-re-gate) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
 Last activity: 2026-06-20
 
 ## Accumulated Context
@@ -115,6 +113,8 @@ Last activity: 2026-06-20
 - [Phase ?]: Live ruleset 14941512 confirmed at execution: 5 required-check contexts, enforcement active, no 6th/renamed context (196-01 D-12)
 - [Phase ?]: ADD-only doc discipline: CI cadence subsection appended to MAINTAINING.md without touching the already-correct required-check section (5 lane names, ci-gate NOT required)
 - [Phase ?]: D-13 correction: CRIT-03 phrasing (single stable required check ci-gate) is stale; live ruleset 14941512 enforces 5 lane name strings; ci-gate is internal aggregator; correction recorded in 196-VERIFICATION.md only
+- [Phase 197]: Used let link closure variable inside expect.poll callback to capture invitation URL — idiomatic TypeScript approach for async side-effect capture — TypeScript type narrowing requires the link variable to be declared in outer scope; closure assignment inside poll keeps the logic self-contained
+- [Phase 197]: Intervals [250, 500, 1000] with timeout 30_000 replaces prior 30x1s fixed budget — Graduated backoff resolves faster on CI while keeping same worst-case budget; follows passkeys-hooks.spec.ts expect.poll precedent
 
 ### Pending Todos
 
@@ -173,11 +173,11 @@ Last activity: 2026-06-20
 
 ## Session Continuity
 
-Last session: 2026-06-20T18:03:19.428Z
+Last session: 2026-06-20T19:01:37.834Z
 Stopped at: Phase 197 context gathered (assumptions mode)
 Resume file: 
 
-.planning/phases/197-playwright-lanes-design-gallery-re-gate/197-CONTEXT.md
+None
 
 | Phase | Plan | Duration | Notes |
 | --- | --- | --- | --- |
