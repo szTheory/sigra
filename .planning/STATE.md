@@ -6,14 +6,14 @@ current_phase: 195
 current_phase_name: test-suite-performance-partition-async-dep-off-slim
 status: executing
 stopped_at: Phase 195 context gathered (assumptions mode + research)
-last_updated: "2026-06-20T12:57:43.662Z"
+last_updated: "2026-06-20T13:06:02.901Z"
 last_activity: 2026-06-20
 last_activity_desc: Phase 195 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
   percent: 33
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 195 (test-suite-performance-partition-async-dep-off-slim) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-20 — Phase 195 execution started
 
@@ -106,6 +106,9 @@ Last activity: 2026-06-20 — Phase 195 execution started
 - [Phase ?]: D-11/D-14: 6 guards folded into fast_checks; ci-gate rewired
 - [Phase ?]: D-12: release_ref_guard kept standalone no-checkout DAG gate (intentional D-12 exclusion)
 - [Phase ?]: D-15: MAINTAINING.md stale required-check string swept from both locations; 5 live names + ci-gate aggregator note confirmed
+- [Phase ?]: [Phase 195-02]: Option (a) chosen for shard test command: keep --slowest 10. A/B measured ~47% speedup without --slowest on async-only files, but subprocess serial tail bounds shard walltime. D-01 default keeps per-test timing observability.
+- [Phase ?]: [Phase 195-02]: mix docs relocated to library_tests_dep_off (already compiled, non-shard, zero overhead). fast_checks alternative rejected: would add toolchain prelude overhead (2-3m).
+- [Phase ?]: [Phase 195-02]: Ruleset 14941512 confirmed at execution time: required check string is byte-identical 'Library tests' — aggregator job id library_tests + name Library tests is safe.
 
 ### Pending Todos
 
@@ -164,7 +167,7 @@ Last activity: 2026-06-20 — Phase 195 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-20T12:57:43.654Z
+Last session: 2026-06-20T13:05:44.294Z
 Stopped at: Phase 195 context gathered (assumptions mode + research)
 Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off-slim/195-CONTEXT.md
 
@@ -220,6 +223,7 @@ Resume file: .planning/phases/195-test-suite-performance-partition-async-dep-off
 | Phase 193 P03 | 2 min | 2 tasks | 1 files |
 | Phase 194 P02 | ~4 minutes | 3 tasks | 2 files |
 | Phase 195 P01 | 3 | 3 tasks | 12 files |
+| Phase 195 P02 | 5 | 3 tasks | 1 files |
 
 ## Operator Next Steps
 
