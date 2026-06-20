@@ -196,6 +196,15 @@ Design-Gallery Re-Gate):
 lever and records that Phase 197 already banked the reliability half, leaving the
 wall-clock half explicitly open.
 
+> **CORRECTION (audit executed 2026-06-20 → `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md`):**
+> The multi-lens audit found the #1 lever is NOT parallelization — it's that the
+> `design_gallery` step (57% of the sole PR-critical job) wastes ~700s re-registering
+> a fresh admin user before every one of ~102 board tests. One `storageState` per
+> design project cuts −6 to −7.5 min at low risk with zero coverage loss (Phase 198,
+> P0-1). Per-shard-DB parallelization remains real but is **P1, sequenced AFTER** the
+> gallery work (Phase 200) — in isolation it's bottlenecked by that same 700s leg.
+> See the audit report for the full prioritized Phase 198→203 plan.
+
 ---
 
 The full inflated companion prompt to use as the audit playbook:
