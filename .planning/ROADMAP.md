@@ -196,9 +196,16 @@
 
 **Verification mechanism (zero-human-UAT)**: CI measures itself — the final before/after wall-clock/p95/flake-rate table is the acceptance evidence; `mix ci` is run locally and in CI to prove parity with the PR gate.
 **Plans**: 3 plans
+**Wave 1**
 
   - [ ] 198-01-PLAN.md — `mix ci` local PR-gate mirror + CONTRIBUTING docs + contract-lock test (DX-01; D-01..D-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
   - [ ] 198-02-PLAN.md — design-gallery hard re-gate (confirm-green) + required-name/contract/snapshot guards + todo hygiene (GATE-02; D-06/D-07)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
   - [ ] 198-03-PLAN.md — `198-ACCEPTANCE.md` measured before/after evidence + MAINTAINING pointer (GATE-01/GATE-02; D-05)
 
 <details>
