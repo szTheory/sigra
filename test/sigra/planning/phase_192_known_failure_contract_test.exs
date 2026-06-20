@@ -12,7 +12,9 @@ defmodule Sigra.Planning.Phase192KnownFailureContractTest do
        installer templates emitted `<.button type=...>`; the `type` attr is now
        stripped and the test passes.
     3. test/example/priv/playwright/tests/admin-design.spec.ts MG-5/6 — data-dependent
-       pagination (still quarantined; tracked todo still pending).
+       pagination (still quarantined; tracked todo still pending). Phase 197 (D-11b,
+       f174d84d) migrated the quarantine marker from `test.fail()` to `test.skip(...)`
+       with a recorded reason; this contract now locks the `test.skip(` marker.
 
   Modeled on test/sigra/planning/phase_51_install_golden_ci_contract_test.exs.
   """
@@ -27,7 +29,7 @@ defmodule Sigra.Planning.Phase192KnownFailureContractTest do
     root() |> Path.join(rel) |> File.read!()
   end
 
-  test "192-KF-03: admin-design.spec.ts MG-5/6 test has test.fail() quarantine marker" do
+  test "192-KF-03: admin-design.spec.ts MG-5/6 test has test.skip() quarantine marker" do
     content = read!("test/example/priv/playwright/tests/admin-design.spec.ts")
 
     mg56_block =
@@ -35,8 +37,8 @@ defmodule Sigra.Planning.Phase192KnownFailureContractTest do
       |> String.split("MG-5 and MG-6 desktop and mobile representations are content-equivalent")
       |> List.last()
 
-    assert mg56_block =~ "test.fail()",
-           "admin-design.spec.ts MG-5/6 test is missing test.fail() — " <>
+    assert mg56_block =~ "test.skip(",
+           "admin-design.spec.ts MG-5/6 test is missing its test.skip(...) quarantine marker — " <>
              "if the test is now passing, remove the marker and resolve " <>
              ".planning/todos/pending/2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent.md"
   end
