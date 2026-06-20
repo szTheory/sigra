@@ -169,10 +169,18 @@ jobs:
           PGHOST: localhost
         run: mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs
 
-  library_tests:
-    name: Library tests
+  # TEST-01 (D-01/D-04): 2-leg matrix shard worker. Each leg gets its own
+  # postgres service container (free DB isolation per D-05). The partition is NOT
+  # in the cache key (D-06: both legs share one warm -library- entry).
+  # fail-fast: false (D-01) so one shard failing does not cancel the sibling.
+  library_tests_shard:
+    name: Library tests shard ${{ matrix.partition }}
     runs-on: ubuntu-latest
     needs: release_ref_guard
+    strategy:
+      fail-fast: false            # D-01: one shard failing must NOT cancel the sibling
+      matrix:
+        partition: [1, 2]         # D-04: N=2
     services:
       postgres:
         image: postgres:15
@@ -191,6 +199,8 @@ jobs:
         with:
           version-file: .tool-versions
           version-type: strict
+      # D-06: cache key UNCHANGED from Phase 194 — partition is NOT in the key so
+      # both legs share one warm -library- entry (no split, no doubled cold-compile).
       - name: Cache library deps
         id: deps_cache
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
@@ -211,22 +221,33 @@ jobs:
         run: mix archive.install --force hex phx_new 1.8.7
       - name: Fetch library deps
         run: mix deps.get
-      - name: Run library tests
+      - name: Run library tests (shard ${{ matrix.partition }})
         env:
           MIX_ENV: test
+          # TEST-01 (D-01): selects this leg's test file slice (round-robin by file).
+          # Local repro: MIX_TEST_PARTITION=1 mix test --partitions 2
+          MIX_TEST_PARTITION: ${{ matrix.partition }}
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
         run: |
-          # Single suite run; --slowest emits the timing table at the end (no second run).
-          # pipefail makes a test failure fail the job despite the tee.
           set -o pipefail
-          mix test --slowest 10 2>&1 | tee /tmp/library_tests.log
+          # Measurement gate (Task 2 / RESEARCH Pitfall 1):
+          # Option (a) CHOSEN: keep --slowest 10 per shard (D-01 default).
+          # ⚠ Note: --slowest forces --trace forces --max-cases 1 (serial within shard).
+          # Parallelism is across legs (2 legs × serial-within); within-shard async is not unlocked.
+          # Rationale: D-01 default; preserves per-test timing observability in $GITHUB_STEP_SUMMARY.
+          # A/B evidence: Option (b) (drop --slowest) showed ~47% speedup on async-only files locally,
+          # but the serial subprocess/DDL tests (~11 files, 23-33s each) bound the actual shard
+          # walltime. The partition win (~halving the ~14m test portion to ~7-8m) is the primary gain.
+          # Dropping --slowest (Option b) is deferred to a future phase if the subprocess serial tail
+          # is addressed (D-15/D-20).
+          mix test --partitions 2 --slowest 10 2>&1 | tee /tmp/library_tests_${{ matrix.partition }}.log
       - name: CI run summary
         if: always()
         run: |
           {
-            echo "## library_tests"
+            echo "## library_tests shard ${{ matrix.partition }}"
             echo "- elixir: $(elixir --version | tail -1)"
             echo "- otp: $(erl -noshell -eval 'io:format("~s", [erlang:system_info(otp_release)]), halt().')"
             echo "- schedulers_online: $(elixir -e 'IO.write(System.schedulers_online())')"
@@ -236,15 +257,43 @@ jobs:
         if: always()
         run: |
           {
-            echo "## Slowest tests"
+            echo "## Slowest tests (shard ${{ matrix.partition }})"
             echo '```'
-            # Reuse the captured log from the single test run above — do NOT re-run the suite.
-            awk '/slowest/{f=1} f{print} /Finished in/{f=0}' /tmp/library_tests.log 2>/dev/null \
+            # Reuse the tee'd log from the shard run above — do NOT re-run.
+            # Log path is partition-suffixed so both legs write distinct files (no collision).
+            awk '/slowest/{f=1} f{print} /Finished in/{f=0}' /tmp/library_tests_${{ matrix.partition }}.log 2>/dev/null \
               || echo "(timing output unavailable)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-      - name: Check docs build cleanly
-        run: mix docs --warnings-as-errors
+      # NOTE: `mix docs` (docs build check) REMOVED from this shard job (D-07).
+      # Relocated to library_tests_dep_off which already has a compiled toolchain —
+      # runs once per CI run, never per shard (N× cost for one artifact).
+
+  # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
+  # and name `Library tests` — byte-identical to ruleset 14941512 required check string
+  # (confirmed via gh api repos/szTheory/sigra/rulesets/14941512 at execution time).
+  # A bare matrix on a named job emits "Library tests (1)"/"(2)" — never a bare
+  # "Library tests" — which would orphan the required check (stuck pending → merge outage).
+  # The aggregator restores the bare context and the job id ci-gate.needs references.
+  # ci-gate is UNCHANGED (D-03): still needs: library_tests and reads needs.library_tests.result.
+  library_tests:
+    name: Library tests          # BYTE-IDENTICAL to ruleset 14941512 — DO NOT EDIT (D-02)
+    runs-on: ubuntu-latest
+    needs: [library_tests_shard]
+    if: always()                 # must run even if a shard fails (mirrors ci-gate pattern)
+    steps:
+      - name: Require all library_tests shards to pass
+        env:
+          # needs.<matrix-job>.result is 'success' only if EVERY leg succeeded.
+          # 'failure' if any leg failed — independent of fail-fast: false.
+          SHARDS: ${{ needs.library_tests_shard.result }}
+        run: |
+          set -euo pipefail
+          if [[ "$SHARDS" != "success" ]]; then
+            echo "library_tests_shard result: $SHARDS"
+            exit 1
+          fi
+          echo "all library_tests shards passed"
 
   library_tests_dep_off:
     name: Library tests (dep-off — Threadline absent)
@@ -313,6 +362,11 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: mix test --exclude requires_threadline --no-deps-check
+      # D-07: mix docs relocated here from the shard job (which is N× cost for one artifact).
+      # This job already has a compiled toolchain (setup-beam + deps + compile above),
+      # is not a shard, and runs exactly once per CI run — the correct host for docs.
+      - name: Check docs build cleanly
+        run: mix docs --warnings-as-errors
       - name: Cache hit summary
         if: always()
         run: |
