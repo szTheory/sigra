@@ -2507,3 +2507,20 @@ html[data-sg-admin-js="true"] .sg-cmdk__trigger {
   font-variant-numeric: tabular-nums;
   color: var(--sg-color-muted);
 }
+
+/* D-08: Self-hosted Space Grotesk brand font for OS-independent render determinism.
+ * Served from the example priv/static path; this file loads LAST in root.html.heex
+ * (after default.css → sigra_admin.css), so the :root override wins the cascade.
+ * Do NOT copy this block to sigra_admin.css or any priv/templates/sigra.install/**
+ * file (installer-parity scope — Deferred Idea). */
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/assets/fonts/space-grotesk-var.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-display: swap;
+  font-style: normal;
+}
+:root {
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
