@@ -299,7 +299,7 @@ Archive:
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
-| 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete   | 2026-06-20 |
+| 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 0/? | Not started | - |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |

@@ -4,9 +4,9 @@ milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 194
 current_phase_name: caching-correctness-micro-job-consolidation
-status: executing
-stopped_at: Completed Phase 194 Plan 02 (CACHE-02) — micro-job consolidation complete
-last_updated: "2026-06-20T02:07:31.013Z"
+status: ready_to_plan
+stopped_at: Phase 194 complete (2/2) — ready to discuss Phase 195
+last_updated: 2026-06-20T02:13:52.544Z
 last_activity: 2026-06-20
 last_activity_desc: Phase 194 execution started
 progress:
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 194 — caching-correctness-micro-job-consolidation
+**Current focus:** Phase 195 — test suite performance (partition / async / dep off slim)
 
 ## Current Position
 
-Phase: 194 (caching-correctness-micro-job-consolidation) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-06-20 -- Phase 194 execution started
+Phase: 195
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-06-20
 
 ## Accumulated Context
 

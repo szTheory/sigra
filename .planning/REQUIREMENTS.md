@@ -34,7 +34,7 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 ### Caching, runners, job topology
 
-- [ ] **CACHE-01**: Audit and correct caching — precise keys (OS/arch/OTP/Elixir/MIX_ENV/lockfile/buster), no `_build` reuse across incompatible combos, never skip `deps.get` after a partial restore; separate deps cache from any PLT cache; document how to bust.
+- [x] **CACHE-01**: Audit and correct caching — precise keys (OS/arch/OTP/Elixir/MIX_ENV/lockfile/buster), no `_build` reuse across incompatible combos, never skip `deps.get` after a partial restore; separate deps cache from any PLT cache; document how to bust.
 - [x] **CACHE-02**: Consolidate trivial micro-guard jobs (release-ref, milestone-verification, snapshot-drift, quality-ledger, getting-started/phase-34 contracts) into one cheap "fast checks" job to cut per-job runner-startup overhead — preserving stable required-check names.
 - [ ] **CACHE-03**: Apply larger runners *selectively* to the long poles only if the cost/speed tradeoff is justified by measurement — not by default.
 
