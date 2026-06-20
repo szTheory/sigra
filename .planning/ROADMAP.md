@@ -141,8 +141,8 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 196-02-PLAN.md — re-anchor phase_51 contract test to the fast_checks step + re-verify phase_58 slicer (D-15, D-16)
-- [ ] 196-03-PLAN.md — force_fail_probe workflow_dispatch input + needs-free nightly probe job (D-14)
+- [x] 196-02-PLAN.md — re-anchor phase_51 contract test to the fast_checks step + re-verify phase_58 slicer (D-15, D-16)
+- [x] 196-03-PLAN.md — force_fail_probe workflow_dispatch input + needs-free nightly probe job (D-14)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -321,7 +321,7 @@ Archive:
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
-| 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 1/4 | In Progress|  |
+| 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 3/4 | In Progress|  |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |
 | 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |
 | 150. Issue Triage & Bugfix Cadence | v1.33 | 1/1 | Complete | 2026-06-01 |

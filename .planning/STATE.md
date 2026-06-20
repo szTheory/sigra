@@ -2,15 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
+current_phase: 196
+current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
 status: executing
 stopped_at: Completed 196-01-PLAN.md
-last_updated: "2026-06-20T16:08:07.815Z"
-last_activity: 2026-06-20 -- Phase 196 execution started
+last_updated: "2026-06-20T16:19:53.918Z"
+last_activity: 2026-06-20
+last_activity_desc: Phase 196 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 12
-  completed_plans: 9
+  completed_plans: 11
   percent: 50
 ---
 
@@ -27,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 196 (PR-Fast vs Nightly-Broad Trigger Model) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-06-20 -- Phase 196 execution started
 
@@ -169,11 +172,11 @@ Last activity: 2026-06-20 -- Phase 196 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-20T16:08:07.811Z
+Last session: 2026-06-20T16:19:53.913Z
 Stopped at: Completed 196-01-PLAN.md
 Resume file: 
 
-## Performance Metrics
+None
 
 | Phase | Plan | Duration | Notes |
 | --- | --- | --- | --- |
@@ -228,6 +231,7 @@ Resume file:
 | Phase 195 P02 | 5 | 3 tasks | 1 files |
 | Phase 195 P03 | 525603 | 2 tasks | 2 files |
 | Phase 196 P01 | 4min | 3 tasks | 1 files |
+| Phase 196 P02 | 1m | 3 tasks | 1 files |
 
 ## Operator Next Steps
 
