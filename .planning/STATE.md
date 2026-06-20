@@ -2,18 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
-current_phase: 196
-current_phase_name: PR-Fast vs Nightly-Broad Trigger Model
 status: executing
-stopped_at: Phase 196 context gathered (assumptions mode)
-last_updated: "2026-06-20T15:56:53.117Z"
-last_activity: 2026-06-20
-last_activity_desc: Phase 195 complete, transitioned to Phase 196
+stopped_at: Completed 196-01-PLAN.md
+last_updated: "2026-06-20T16:08:07.815Z"
+last_activity: 2026-06-20 -- Phase 196 execution started
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 12
+  completed_plans: 9
   percent: 50
 ---
 
@@ -25,14 +22,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 195 — test-suite-performance-partition-async-dep-off-slim
+**Current focus:** Phase 196 — PR-Fast vs Nightly-Broad Trigger Model
 
 ## Current Position
 
-Phase: 196 — PR-Fast vs Nightly-Broad Trigger Model
-Plan: Not started
+Phase: 196 (PR-Fast vs Nightly-Broad Trigger Model) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-20 — Phase 195 complete, transitioned to Phase 196
+Last activity: 2026-06-20 -- Phase 196 execution started
 
 ## Accumulated Context
 
@@ -111,6 +108,9 @@ Last activity: 2026-06-20 — Phase 195 complete, transitioned to Phase 196
 - [Phase ?]: [Phase 195-02]: Ruleset 14941512 confirmed at execution time: required check string is byte-identical 'Library tests' — aggregator job id library_tests + name Library tests is safe.
 - [Phase ?]: Kept discrete CI steps, changed only final test command to --only threadline_guard (D-10/D-11/D-14)
 - [Phase ?]: CACHE-03: no larger runners adopted; measurement-gate runbook shipped in guides/recipes/local-development.md (D-21/D-22/D-23)
+- [Phase ?]: Job-level if: github.event_name != 'pull_request' used for 5 moved jobs (196-01 D-02)
+- [Phase ?]: ci-gate skip-tolerant: result != success && result != skipped tolerates PR-skipped needs without weakening real-failure detection (196-01 D-09)
+- [Phase ?]: Live ruleset 14941512 confirmed at execution: 5 required-check contexts, enforcement active, no 6th/renamed context (196-01 D-12)
 
 ### Pending Todos
 
@@ -169,9 +169,9 @@ Last activity: 2026-06-20 — Phase 195 complete, transitioned to Phase 196
 
 ## Session Continuity
 
-Last session: 2026-06-20T13:48:47.303Z
-Stopped at: Phase 196 context gathered (assumptions mode)
-Resume file: .planning/phases/196-pr-fast-vs-nightly-broad-trigger-model/196-CONTEXT.md
+Last session: 2026-06-20T16:08:07.811Z
+Stopped at: Completed 196-01-PLAN.md
+Resume file: 
 
 ## Performance Metrics
 
@@ -227,6 +227,7 @@ Resume file: .planning/phases/196-pr-fast-vs-nightly-broad-trigger-model/196-CON
 | Phase 195 P01 | 3 | 3 tasks | 12 files |
 | Phase 195 P02 | 5 | 3 tasks | 1 files |
 | Phase 195 P03 | 525603 | 2 tasks | 2 files |
+| Phase 196 P01 | 4min | 3 tasks | 1 files |
 
 ## Operator Next Steps
 

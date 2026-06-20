@@ -17,8 +17,8 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 ### Critical-path & trigger model
 
 - [x] **CRIT-01**: Remove gratuitous job serialization — `example_playwright_smoke needs: [library_tests]` makes the two longest jobs run sequentially though the Playwright lane consumes nothing from `library_tests`. Drop the edge (keep `release_ref_guard`). *Likely the single biggest, lowest-risk win.*
-- [ ] **CRIT-02**: Establish a PR-fast vs nightly/main-broad split — move exhaustive/low-probability coverage (install matrix ×4, upgrade smoke, broad galleries) off the every-PR path to `schedule:`/main, keeping a fast representative PR gate. **Never** strand a correctness-critical test on nightly only.
-- [ ] **CRIT-03**: Preserve a single stable required check (`ci-gate` aggregator) and stable child-check names across the redesign — no branch-protection churn, no path/skip pending-check traps.
+- [x] **CRIT-02**: Establish a PR-fast vs nightly/main-broad split — move exhaustive/low-probability coverage (install matrix ×4, upgrade smoke, broad galleries) off the every-PR path to `schedule:`/main, keeping a fast representative PR gate. **Never** strand a correctness-critical test on nightly only.
+- [x] **CRIT-03**: Preserve a single stable required check (`ci-gate` aggregator) and stable child-check names across the redesign — no branch-protection churn, no path/skip pending-check traps.
 
 ### Test-suite performance
 

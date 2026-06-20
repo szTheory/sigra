@@ -137,7 +137,7 @@
 **Plans**: 4 plans
 **Wave 1**
 
-- [ ] 196-01-PLAN.md — ci.yml trigger model: schedule cron + 5 moved-job PR gates + skip-tolerant ci-gate (D-01..D-12)
+- [x] 196-01-PLAN.md — ci.yml trigger model: schedule cron + 5 moved-job PR gates + skip-tolerant ci-gate (D-01..D-12)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -321,7 +321,7 @@ Archive:
 | 193. Baseline, Observability & One-Line Wins | v1.40 | 3/3 | Complete    | 2026-06-19 |
 | 194. Caching Correctness & Micro-Job Consolidation | v1.40 | 2/2 | Complete    | 2026-06-20 |
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
-| 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 0/? | Not started | - |
+| 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 1/4 | In Progress|  |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 0/? | Not started | - |
 | 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |
 | 150. Issue Triage & Bugfix Cadence | v1.33 | 1/1 | Complete | 2026-06-01 |
