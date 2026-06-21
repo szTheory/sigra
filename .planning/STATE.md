@@ -32,7 +32,7 @@ See: `.planning/PROJECT.md`
 Phase: Milestone v1.40 complete
 Plan: —
 Status: Awaiting next milestone
-Last activity: 2026-06-21 — Milestone v1.40 completed and archived
+Last activity: 2026-06-21 — Completed quick task 260621-in8: fix uat up.sh --dev compile-env PORT mismatch
 
 ## Accumulated Context
 
@@ -155,6 +155,7 @@ Last activity: 2026-06-21 — Milestone v1.40 completed and archived
 | 260618-grh | Narrow glossary drift-guard `action=` strip (phase 191 WR-01) — strip `action={…}` expressions but scan `action="…"` copy literals for banned terms; added regression test for the false-negative gap. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
 | 189-verify | Close phase-189 ConfirmDialog review todo — WR-01/02/03/04 found already fixed in source (admin_hooks.js + branding_live.ex); fixed the dormant PAGE-03 verification spec (stale `/cancel/i` → `[data-sg-confirm-cancel]`) and wired admin-modal-interaction.spec.ts into the chromium CI lane. Verified green locally: 7/7 APG gates. | complete ✓ | 2026-06-18 |
 | 260619-l1b | Demo/admin-UI Docker DX overhaul — `scripts/uat/up.sh` (no flags) now defaults to the shared-Traefik proxy path WITH live reload, health-gates the URL (never prints a live URL until an HTTP 200 probe passes; `STARTING` otherwise), auto-opens `/demo/credentials`, and prints grouped auth/admin/ops routes. New flags `--dev`/`--host` (host-run, now actually starts+gates Phoenix), `--attach`/`--iex`, `--no-watch`, `--no-open`. New `docker-compose.watch.yml` bind-mount override (compile-env invariant preserved) + web healthcheck; `down.sh` kills the host-run Phoenix PID; `sigra.localhost` alias relaxed to claim-based (feature branches can win it). Docs refreshed. Follow-up fix (f748005d): web healthcheck used wget but elixir:*-slim ships no wget/curl → perma-unhealthy aborted the script; installed curl + made `up -d --wait` non-fatal (host-side wait_for_http is the real gate). VERIFIED LIVE end-to-end: `up.sh` exits 0, web `(healthy)`, HTTP 200 on raw port + `sigra.localhost` + per-branch host via shared Traefik, `/admin`→302. | complete ✓ | 2026-06-19 |
+| 260621-in8 | Fix `scripts/uat/up.sh --dev` Phoenix `validate_compile_env` boot failure (compile-time `port: 4011` ≠ runtime random port). Root cause: `Example.Organizations` reads `compile_env!` on `ExampleWeb.Endpoint`, freezing the volatile `http.port` into a compile-time invariant; the `none)` branch picked a fresh `find_free_port` each run while reusing the 4011-compiled `_build`. Fix: default `none)` to stable port 4011 (overridable) + add `--no-validate-compile-env` to all 3 host-run server invocations (load-bearing — `ensure_port_free` can still bump to a random port). `shared)`/`private-traefik)` branches untouched. Verified static: `bash -n` clean, 1× `PORT:-4011` in `none)`, 3× `--no-validate-compile-env`. Live boot left to user (needs Docker+PG+browser). | complete ✓ | 2026-06-21 |
 
 ## Deferred Items
 
