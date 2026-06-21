@@ -149,6 +149,10 @@ Two coverage areas moved to nightly are accepted residuals and must never be sil
 
 These two residuals are deliberate, disclosed tradeoffs that shorten PR wall-clock time without silently stranding correctness-critical coverage. They are documented here, not as a footnote, because any maintainer touching the move list must understand what is and is not covered on PRs.
 
+#### Before/after acceptance evidence (v1.40 CI-PERF milestone — Phase 198)
+
+The committed before/after acceptance artifact is at [`.planning/phases/198-contributor-dx-acceptance-gate/198-ACCEPTANCE.md`](.planning/phases/198-contributor-dx-acceptance-gate/198-ACCEPTANCE.md). It diffs real post-197 CI run timings against the 193 baseline (wall-clock, p95, flake-rate) captured via `gh run view --json jobs`, with falsifiable run IDs and the verbatim ruleset 14941512 required-check name attestation (5 names byte-stable; `Library tests`, `Example unit smoke (ExUnit + ConnTest)`, `Install smoke (fresh phx.new + sigra.install)`, `Example HTTP smoke (boot + curl critical routes)`, `Example Playwright smoke (full lifecycle)`). Refer to that document for the measured numbers before changing the CI cadence structure.
+
 #### Squash-merge `[skip ci]` footgun (merge hygiene)
 
 GitHub honors a `[skip ci]` token found **anywhere** in a commit message, and a
