@@ -1,6 +1,9 @@
 ---
 created: 2026-06-20T00:00:00.000Z
-status: pending
+status: resolved
+resolved_at: 2026-06-21
+resolved_by: phase 198-02 (D-07 hygiene)
+resolving_commit: 32d43bb5
 title: Phase51 installer-golden CI-contract test asserts a job (installer_milestone_audit:) that Phase 194 folded into fast_checks
 area: test
 files:
@@ -35,3 +38,14 @@ preserving the original intent (the installer milestone audit still runs in CI).
 Confirm against `MAINTAINING.md §Installer golden CI contract`. Likely a sibling
 debt: re-audit the other Phase-5x `*_ci_contract_test.exs` locks for the same
 Phase-194 job→step fold.
+
+## Resolution (2026-06-21 — Phase 198-02, D-07)
+
+**Already resolved — no fix needed.** The Phase51 contract test was updated as part of
+earlier phase work and no longer asserts `installer_milestone_audit:`. Verified:
+
+- `git grep -n 'installer_milestone_audit:' .github/workflows/ci.yml` → NOT FOUND (correct)
+- `mix test test/sigra/planning/phase_51_install_golden_ci_contract_test.exs` → 2 tests, 0 failures
+- The test now asserts `install_golden_contract:` + `scripts/ci/installer-milestone-audit.sh` (correct anchors)
+
+Closed as already-resolved per D-07. No code change required.
