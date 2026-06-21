@@ -11,7 +11,7 @@ defmodule Example.Demo.BrandingTest do
     ids = Enum.map(presets, & &1.id)
 
     assert Branding.default_id() in ids
-    assert Branding.default_id() == "night-ops"
+    assert Branding.default_id() == "vaultr"
     assert Enum.uniq(ids) == ids
 
     for preset <- presets do
@@ -24,11 +24,11 @@ defmodule Example.Demo.BrandingTest do
       assert Branding.profile_for_theme(preset, :dark).theme == :dark
     end
 
-    assert Branding.default_profile().product_name == "Night Ops"
-    assert Branding.default_profile().theme == :dark
-    assert is_nil(Branding.default_profile().logo_url)
-    assert Branding.default_profile().logo_alt == "Night Ops logo"
-    assert Branding.profile_for_id("night-ops", "light").theme == :light
+    assert Branding.default_profile().product_name == "Vaultr"
+    assert Branding.default_profile().theme == :light
+    assert Branding.default_profile().logo_url == "/images/vaultr-mark.svg"
+    assert Branding.default_profile().logo_alt == "Vaultr logo"
+    assert Branding.profile_for_id("vaultr", "light").theme == :light
   end
 
   test "UI presets expose JSON-safe dual profile maps" do
@@ -48,8 +48,8 @@ defmodule Example.Demo.BrandingTest do
     assert Jason.encode!(Branding.presets_for_ui()) =~ "default_theme"
   end
 
-  test "demo surface style includes generated auth and Vaultr first-paint variant tokens" do
-    style = Branding.demo_surface_style(Branding.default_preset())
+  test "demo surface style includes generated auth and Night Ops first-paint variant tokens" do
+    style = Branding.demo_surface_style(Branding.preset_for_id("night-ops"))
 
     assert style =~ "--sigra-auth-dark-accent: #48d6ca"
     assert style =~ "--sigra-auth-light-accent: #087d87"
@@ -63,7 +63,7 @@ defmodule Example.Demo.BrandingTest do
     assert Branding.cookie_name() == "sigra_demo_brand"
     assert Branding.theme_cookie_name() == "sigra_demo_theme"
     assert Branding.preset_id_from_cookie(%{"sigra_demo_brand" => "night-ops"}) == "night-ops"
-    assert Branding.preset_id_from_cookie(%{"sigra_demo_brand" => "unknown"}) == "night-ops"
+    assert Branding.preset_id_from_cookie(%{"sigra_demo_brand" => "unknown"}) == "vaultr"
     assert Branding.profile_for_id("night-ops").product_name == "Night Ops"
     assert Branding.theme_from_cookie(%{}, "night-ops") == :dark
     assert Branding.theme_from_cookie(%{}, "vaultr") == :light

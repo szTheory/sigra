@@ -198,24 +198,19 @@ async function loginDemoAdmin(page: Page) {
 }
 
 test.describe("demo-showcase", () => {
-  test("login brand colors are server-rendered before demo JavaScript", async ({
+  test("the real login is locked to Vaultr — server-rendered, ignores the brand cookie", async ({
     browser,
     baseURL,
   }) => {
     const resolvedBaseURL =
       baseURL ?? process.env.SIGRA_EXAMPLE_URL ?? "http://localhost:4000";
 
-    const assertLoginFirstPaint = async (
+    // The homepage brand-lab preview can set the sigra_demo_brand cookie, but the
+    // real /users/log_in is the Vaultr app's own auth surface (plain Vaultr palette
+    // + OS light/dark, like the homepage) and must stay Vaultr regardless — even on
+    // first paint, before demo JS runs. app.js is blocked to prove the server render.
+    const assertVaultrLogin = async (
       brandCookie: string | null,
-      expected: {
-        brandId: string;
-        theme: string;
-        colorScheme?: string;
-        productName: string;
-        primary: string;
-        onPrimary: string;
-        panel: string;
-      },
       themeCookie: string | null = null,
     ) => {
       const context = await browser.newContext({
@@ -224,180 +219,88 @@ test.describe("demo-showcase", () => {
       });
 
       try {
-        if (brandCookie) {
-          await context.addCookies([
-            {
-              name: "sigra_demo_brand",
-              value: brandCookie,
-              url: resolvedBaseURL,
-              sameSite: "Lax",
-            },
-          ]);
-        }
-
-        if (themeCookie) {
-          await context.addCookies([
-            {
-              name: "sigra_demo_theme",
-              value: themeCookie,
-              url: resolvedBaseURL,
-              sameSite: "Lax",
-            },
-          ]);
-        }
+        const cookies = [];
+        if (brandCookie)
+          cookies.push({
+            name: "sigra_demo_brand",
+            value: brandCookie,
+            url: resolvedBaseURL,
+            sameSite: "Lax" as const,
+          });
+        if (themeCookie)
+          cookies.push({
+            name: "sigra_demo_theme",
+            value: themeCookie,
+            url: resolvedBaseURL,
+            sameSite: "Lax" as const,
+          });
+        if (cookies.length) await context.addCookies(cookies);
 
         const page = await context.newPage();
         await page.route("**/assets/js/app.js*", (route) => route.abort());
         await page.goto("/users/log_in");
 
         const login = page.locator('[data-testid="vaultr-login"]');
-        await expect(login).toHaveAttribute(
-          "data-demo-brand-default",
-          expected.brandId,
+        // Always Vaultr, never another brand, with no demo-brand switcher hooks.
+        await expect(login).toContainText("Log in to Vaultr");
+        await expect(login).not.toContainText("Night Ops");
+        await expect(login).not.toContainText("Meridian");
+        await expect(login.locator("img.vt-brand__mark")).toHaveAttribute(
+          "src",
+          "/images/vaultr-mark.svg",
         );
-        await expect(login).toHaveAttribute("data-theme", expected.theme);
-        await expect(login).toContainText(expected.productName);
+        const hasBrandHook = await login.evaluate((el) =>
+          [...el.attributes].some((a) => a.name.startsWith("data-demo-brand")),
+        );
+        expect(hasBrandHook).toBe(false);
 
-        const surfaceStyles = await login.evaluate((element) => {
-          const styles = getComputedStyle(element);
-
-          return {
-            primary: styles.getPropertyValue("--vt-color-primary").trim(),
-            onPrimary: styles.getPropertyValue("--vt-color-on-primary").trim(),
-            panel: styles.getPropertyValue("--vt-color-panel").trim(),
-          };
-        });
-
-        expect(surfaceStyles).toEqual({
-          primary: expected.primary,
-          onPrimary: expected.onPrimary,
-          panel: expected.panel,
-        });
-
-        const loginButtonStyles = await login
-          .locator('#login_form button:has-text("Log in")')
-          .evaluate((element) => {
+        // Brand-agnostic cascade check: the auth surface's --vt-color-* tokens (the
+        // global Vaultr palette, dark under this dark context) reach its controls —
+        // the login button uses --vt-color-primary / --vt-color-on-primary and the
+        // remember toggle uses --vt-color-panel.
+        const probe = async (selector: string) =>
+          login.locator(selector).evaluate((element) => {
             const styles = getComputedStyle(element);
             const auth = element.closest(".vt-auth");
-
-            if (!auth) {
-              throw new Error("auth surface missing");
-            }
-
+            if (!auth) throw new Error("auth surface missing");
             const authStyles = getComputedStyle(auth);
-            const probe = document.createElement("span");
-
+            const span = document.createElement("span");
             const resolveColor = (value: string) => {
-              probe.style.color = value;
-              document.body.appendChild(probe);
-              const color = getComputedStyle(probe).color;
-              probe.remove();
-
+              span.style.color = value;
+              document.body.appendChild(span);
+              const color = getComputedStyle(span).color;
+              span.remove();
               return color;
             };
-
             return {
               backgroundColor: styles.backgroundColor,
               color: styles.color,
-              expectedBackground: resolveColor(
+              colorScheme: styles.colorScheme,
+              expectedPrimary: resolveColor(
                 authStyles.getPropertyValue("--vt-color-primary").trim(),
               ),
-              expectedColor: resolveColor(
+              expectedOnPrimary: resolveColor(
                 authStyles.getPropertyValue("--vt-color-on-primary").trim(),
               ),
-            };
-          });
-
-        expect(loginButtonStyles.backgroundColor).toBe(
-          loginButtonStyles.expectedBackground,
-        );
-        expect(loginButtonStyles.color).toBe(loginButtonStyles.expectedColor);
-
-        const rememberStyles = await page
-          .getByLabel("Keep me signed in")
-          .evaluate((element) => {
-            const styles = getComputedStyle(element);
-            const after = getComputedStyle(element, "::after");
-            const auth = element.closest(".vt-auth");
-
-            if (!auth) {
-              throw new Error("auth surface missing");
-            }
-
-            const authStyles = getComputedStyle(auth);
-            const probe = document.createElement("span");
-
-            const resolveColor = (value: string) => {
-              probe.style.color = value;
-              document.body.appendChild(probe);
-              const color = getComputedStyle(probe).color;
-              probe.remove();
-
-              return color;
-            };
-
-            return {
-              backgroundColor: styles.backgroundColor,
-              colorScheme: styles.colorScheme,
-              expectedSurface: resolveColor(
+              expectedPanel: resolveColor(
                 authStyles.getPropertyValue("--vt-color-panel").trim(),
               ),
-              afterOpacity: after.opacity,
             };
           });
 
-        expect(rememberStyles.backgroundColor).toBe(
-          rememberStyles.expectedSurface,
-        );
-        expect(rememberStyles.colorScheme).toBe(
-          expected.colorScheme ?? expected.theme,
-        );
-        expect(rememberStyles.afterOpacity).toBe("0");
+        const button = await probe('#login_form button:has-text("Log in")');
+        expect(button.backgroundColor).toBe(button.expectedPrimary);
+        expect(button.color).toBe(button.expectedOnPrimary);
+        // Follows the OS color-scheme (dark here) without an explicit data-theme.
+        expect(button.colorScheme).toBe("dark");
       } finally {
         await context.close();
       }
     };
 
-    await assertLoginFirstPaint(null, {
-      brandId: "night-ops",
-      theme: "dark",
-      productName: "Night Ops",
-      primary: "#48d6ca",
-      onPrimary: "#062029",
-      panel: "#0d242b",
-    });
-
-    await assertLoginFirstPaint("vaultr", {
-      brandId: "vaultr",
-      theme: "light",
-      productName: "Vaultr",
-      primary: "#045f73",
-      onPrimary: "#ffffff",
-      panel: "#fbfefd",
-    });
-
-    await assertLoginFirstPaint("meridian", {
-      brandId: "meridian",
-      theme: "system",
-      colorScheme: "dark",
-      productName: "Meridian Health",
-      primary: "#72e0aa",
-      onPrimary: "#062116",
-      panel: "#0d281e",
-    });
-
-    await assertLoginFirstPaint(
-      "vaultr",
-      {
-        brandId: "vaultr",
-        theme: "dark",
-        productName: "Vaultr",
-        primary: "#5eead4",
-        onPrimary: "#062029",
-        panel: "#0b2930",
-      },
-      "dark",
-    );
+    await assertVaultrLogin(null);
+    await assertVaultrLogin("meridian"); // brand cookie ignored
+    await assertVaultrLogin("night-ops", "dark"); // brand + theme cookie ignored
   });
 
   test("home page orients evaluators before login", async ({ page }) => {
@@ -589,12 +492,13 @@ test.describe("demo-showcase", () => {
     const brandSelect = page.getByLabel("Brand preset");
     const authPreview = page.locator("[data-demo-auth-preview]");
 
-    await expect(brandSelect).toHaveValue("night-ops");
-    await expect(brandLab.getByLabel("Dark")).toBeChecked();
-    await expect(authPreview).toHaveAttribute("data-theme", "dark");
-    await expect(brandLab).toContainText("Night Ops");
+    // Brand-lab now DEFAULTS to Vaultr (matching the app), then previews others.
+    await expect(brandSelect).toHaveValue("vaultr");
+    await expect(brandLab.getByLabel("Light")).toBeChecked();
+    await expect(authPreview).toHaveAttribute("data-theme", "light");
+    await expect(brandLab).toContainText("Vaultr");
     await expect(
-      brandLab.getByRole("heading", { name: "Log in to Night Ops" }),
+      brandLab.getByRole("heading", { name: "Log in to Vaultr" }),
     ).toBeVisible();
     await brandSelect.selectOption("meridian");
     await expect
@@ -681,33 +585,26 @@ test.describe("demo-showcase", () => {
         ),
       )
       .toBe("#07171d");
+    // KEY GUARD: the brand-lab wrote sigra_demo_brand=night-ops for its own preview
+    // persistence — but the REAL login must ignore it and stay Vaultr. Switching the
+    // homepage brand never re-skins the actual auth surface.
     await page.reload();
     await expect(page.getByLabel("Brand preset")).toHaveValue("night-ops");
-    await expect(page.getByLabel("Dark")).toBeChecked();
     await page.goto("/users/log_in");
     const login = page.locator('[data-testid="vaultr-login"]');
-    await expect(login).toHaveAttribute("data-theme", "dark");
-    await expect(login).toContainText("Night Ops");
-    await expect(login).toContainText("New to Night Ops?");
+    await expect(login).toContainText("Log in to Vaultr");
+    await expect(login).toContainText("New to Vaultr?");
+    await expect(login).not.toContainText("Night Ops");
+    expect(await login.getAttribute("data-demo-brand-default")).toBeNull();
+    await expect(login.locator("[data-demo-brand-logo]")).toHaveCount(0);
+    await expect(login.locator("img.vt-brand__mark")).toHaveAttribute(
+      "src",
+      "/images/vaultr-mark.svg",
+    );
     await expect(login.getByText("Secured by Sigra")).toHaveCount(0);
     await expect(login.getByText("Use your email and password")).toHaveCount(0);
-    await expect(login.locator("[data-demo-brand-logo]")).toBeHidden();
-    await expect(login.locator("[data-demo-brand-initial]")).toHaveText("N");
-    await page.evaluate(() => {
-      window.localStorage.removeItem("sigra.demo.brand");
-      window.localStorage.removeItem("sigra.demo.theme");
-      document.cookie = "sigra_demo_brand=; Max-Age=0; Path=/; SameSite=Lax";
-      document.cookie = "sigra_demo_theme=; Max-Age=0; Path=/; SameSite=Lax";
-    });
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/users/log_in");
-    const defaultLogin = page.locator('[data-testid="vaultr-login"]');
-    await expect(defaultLogin).toHaveAttribute("data-theme", "dark");
-    await expect(defaultLogin).toContainText("Night Ops");
-    await expect(defaultLogin.locator("[data-demo-brand-logo]")).toBeHidden();
-    await expect(defaultLogin.locator("[data-demo-brand-initial]")).toHaveText(
-      "N",
-    );
     const loginButton = page.locator('#login_form button:has-text("Log in")');
     const loginButtonBaseStyles = await loginButton.evaluate((element) => {
       const styles = getComputedStyle(element);

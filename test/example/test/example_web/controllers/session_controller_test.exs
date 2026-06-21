@@ -36,15 +36,12 @@ defmodule ExampleWeb.SessionControllerTest do
       body = html_response(conn, 200)
 
       assert body =~ ~s(data-testid="vaultr-login")
-      assert body =~ ~s(data-demo-brand-presets=)
-      assert body =~ ~s(data-demo-brand-default="night-ops")
-      assert body =~ ~s(data-demo-brand-theme-default="dark")
-      assert body =~ ~s(data-theme="dark")
-      assert body =~ "--vt-dark-color-primary: #48d6ca"
-      assert body =~ "--vt-dark-color-panel: #0d242b"
-      assert body =~ "--vt-light-color-primary: #087d87"
-      assert body =~ ~s(data-demo-brand-initial)
-      assert body =~ ~r/>\s*N\s*</
+      # Real login is the plain Vaultr app surface — no demo-brand switcher hooks
+      # (so neither the cookie nor demo_branding.js re-skins it) and no inline brand
+      # style (it uses the global Vaultr palette + OS light/dark like the homepage).
+      refute body =~ "data-demo-brand"
+      assert body =~ "Log in to Vaultr"
+      assert body =~ ~s(src="/images/vaultr-mark.svg")
       assert body =~ ~s(id="passkey_login_form")
       assert body =~ ~s(id="magic_link_form")
       assert body =~ ~s(id="login_form")
@@ -70,40 +67,22 @@ defmodule ExampleWeb.SessionControllerTest do
       refute body =~ "We couldn't finish passkey sign-in"
     end
 
-    test "renders cookie-selected brand before demo JavaScript runs", %{conn: conn} do
+    test "ignores the demo brand cookie — the real login is always Vaultr", %{conn: conn} do
+      # The homepage brand-lab can preview Night Ops / Meridian, but selecting one
+      # (which writes the sigra_demo_brand cookie) must NOT re-brand the real login.
       conn =
         conn
-        |> put_req_cookie(Branding.cookie_name(), "vaultr")
-        |> get(~p"/users/log_in")
-
-      body = html_response(conn, 200)
-
-      assert body =~ ~s(data-demo-brand-default="vaultr")
-      assert body =~ ~s(data-demo-brand-theme-default="light")
-      assert body =~ ~s(data-theme="light")
-      assert body =~ "Log in to"
-      assert body =~ "Vaultr"
-      assert body =~ "--vt-light-color-primary: #045f73"
-      assert body =~ "--vt-light-color-panel: #fbfefd"
-      assert body =~ "--vt-dark-color-primary: #5eead4"
-      assert body =~ ~s(data-demo-brand-logo)
-      assert body =~ ~s(src="/images/vaultr-mark.svg")
-    end
-
-    test "renders cookie-selected brand theme before demo JavaScript runs", %{conn: conn} do
-      conn =
-        conn
-        |> put_req_cookie(Branding.cookie_name(), "vaultr")
+        |> put_req_cookie(Branding.cookie_name(), "meridian")
         |> put_req_cookie(Branding.theme_cookie_name(), "dark")
         |> get(~p"/users/log_in")
 
       body = html_response(conn, 200)
 
-      assert body =~ ~s(data-demo-brand-default="vaultr")
-      assert body =~ ~s(data-demo-brand-theme-default="dark")
-      assert body =~ ~s(data-theme="dark")
-      assert body =~ "--vt-dark-color-primary: #5eead4"
-      assert body =~ "--vt-dark-color-panel: #0b2930"
+      assert body =~ "Log in to Vaultr"
+      assert body =~ ~s(src="/images/vaultr-mark.svg")
+      refute body =~ "data-demo-brand"
+      refute body =~ "Meridian"
+      refute body =~ "Night Ops"
     end
 
     test "login page is a dead render (no phx-* attributes)", %{conn: conn} do

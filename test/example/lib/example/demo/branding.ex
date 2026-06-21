@@ -10,7 +10,7 @@ defmodule Example.Demo.Branding do
 
   @cookie_name "sigra_demo_brand"
   @theme_cookie_name "sigra_demo_theme"
-  @default_id "night-ops"
+  @default_id "vaultr"
   @theme_modes [:system, :light, :dark]
 
   @sigra_style_tokens [

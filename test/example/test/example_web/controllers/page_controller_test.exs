@@ -17,18 +17,20 @@ defmodule ExampleWeb.PageControllerTest do
     assert html =~ ~s(data-demo-brand-select)
     assert html =~ "White-label preview"
     assert html =~ "Switch the auth brand"
+    # The brand-lab still lists every preset (these are preview options)…
     assert html =~ "Meridian Health"
     assert html =~ "Night Ops"
-    assert html =~ ~s(data-demo-brand-default="night-ops")
-    assert html =~ ~s(data-demo-brand-theme-default="dark")
-    assert html =~ ~s(data-theme="dark")
+    # …but the brand-lab now DEFAULTS to Vaultr (matching the app identity).
+    assert html =~ ~s(data-demo-brand-default="vaultr")
+    assert html =~ ~s(data-demo-brand-theme-default="light")
+    assert html =~ ~s(data-theme="light")
     assert html =~ "Brand theme"
     assert html =~ ~s(data-demo-brand-theme)
-    assert html =~ "Confirm your Night Ops account"
-    assert html =~ "security@night-ops.test"
-    assert html =~ "--vt-dark-color-primary: #48d6ca"
-    assert html =~ "--vt-dark-color-panel: #0d242b"
-    assert html =~ "--vt-light-color-primary: #087d87"
+    assert html =~ "Confirm your Vaultr account"
+    assert html =~ "noreply@demo.vaultr.test"
+    assert html =~ "--vt-light-color-primary: #045f73"
+    assert html =~ "--vt-light-color-panel: #fbfefd"
+    assert html =~ "--vt-dark-color-primary: #5eead4"
     assert html =~ "Demo personas"
     assert html =~ ">9<"
     assert html =~ "Acme Corp"
