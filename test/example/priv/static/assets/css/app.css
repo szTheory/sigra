@@ -72,6 +72,12 @@
   --vt-focus-ring: 0 0 0 3px
     color-mix(in oklab, var(--vt-color-accent) 38%, transparent);
 
+  /* Vaultr mini-brand type — its OWN face, deliberately distinct from the Sigra
+   * wordmark (Space Grotesk). Display = Fraunces (contemporary serif), text =
+   * Inter (humanist sans). Serif-vs-Sigra's-sans = unmistakable separation. */
+  --vt-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --vt-font-text: 'Inter', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   color-scheme: light;
 }
@@ -103,8 +109,34 @@
   }
 }
 
+/* ------------------------------------------------------------------------
  * VAULTR HOST APP — separate fictional app brand, powered by Sigra
  * ------------------------------------------------------------------------*/
+
+/* Vaultr typography — scoped to vt-* surfaces ONLY. The Sigra admin shell
+ * (sg-*) deliberately keeps the Sigra font (Space Grotesk via --font-sans);
+ * do not touch it here. Body text = Inter; titles + the "Vaultr" logotype =
+ * Fraunces serif, so the demo app reads as its own business and the word
+ * "Sigra" in body copy no longer renders in the Sigra logo typeface. */
+.vt-home,
+.vt-auth,
+.vt-app-header,
+.vt-app-main,
+.vt-page-intro {
+  font-family: var(--vt-font-text);
+}
+.vt-title,
+.vt-panel__title,
+.vt-auth__title,
+.vt-brand__name {
+  font-family: var(--vt-font-display);
+  font-optical-sizing: auto;
+}
+.vt-brand__name {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 .vt-home,
 .vt-auth,
 .vt-app-main {
@@ -2517,6 +2549,25 @@ html[data-sg-admin-js="true"] .sg-cmdk__trigger {
   font-family: 'Space Grotesk';
   src: url('/assets/fonts/space-grotesk-var.woff2') format('woff2-variations');
   font-weight: 300 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* Vaultr mini-brand fonts (self-hosted, OFL — see OFL-*.txt alongside).
+ * Fraunces (serif display) + Inter (sans body) give the demo host app its own
+ * identity, distinct from the Sigra wordmark. Example-only: do NOT copy this to
+ * sigra_admin.css or any priv/templates/sigra.install/** file. */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/assets/fonts/fraunces-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/inter-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
   font-display: swap;
   font-style: normal;
 }

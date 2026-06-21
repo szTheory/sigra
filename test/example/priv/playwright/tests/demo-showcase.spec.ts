@@ -412,6 +412,23 @@ test.describe("demo-showcase", () => {
     await expect(
       page.getByText("Evaluate Sigra inside a distinct customer app."),
     ).toBeVisible();
+
+    // Vaultr mini-brand typography guard: the demo host app must render in its
+    // OWN fonts — Fraunces (serif display/wordmark) + Inter (body) — and NEVER
+    // the Sigra brand font (Space Grotesk). Without this, the word "Sigra" in the
+    // hero copy renders in the Sigra logo typeface and looks confusable.
+    const titleFont = await page
+      .locator(".vt-title")
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(titleFont).toContain("Fraunces");
+    expect(titleFont).not.toContain("Space Grotesk");
+    const bodyFont = await page
+      .locator(".vt-subtitle")
+      .first()
+      .evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(bodyFont).toContain("Inter");
+    expect(bodyFont).not.toContain("Space Grotesk");
+
     await expect(
       page.locator('[data-testid="home-domain-context"]'),
     ).toContainText("demo.vaultr.test");
