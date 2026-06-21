@@ -107,6 +107,8 @@ Appended a single paragraph after the "Accepted residuals (D-07)" subsection, be
 
 None — plan executed exactly as written.
 
+**Post-verification addition (2026-06-21):** Added a "Target shortfall (honest disclosure)" subsection to `198-ACCEPTANCE.md` stating that the ~22.1m result meets the hard GATE-01 bar but not the aspirational ROADMAP SC-2 "<~12m fast PR path" stretch target, with root cause (`example_playwright_smoke` is the binding ~22m floor) and deferral note — per D-05 honest-numbers discipline.
+
 **Note on Task 1+2 commit consolidation:** Tasks 1 and 2 both authored the same file (`198-ACCEPTANCE.md`) — Task 1 gathered the data and Task 2 completed the quality-signal and tradeoffs sections. These were committed together in a single atomic commit (525bb0d7) since the file was in-progress through both tasks. This is a reasonable consolidation for a single-file artifact.
 
 ## Decisions Made

@@ -36,6 +36,10 @@
 
 **GATE-01 verdict:** Wall-clock reduced from ~38.6m avg to ~22.1m avg — a **-16.5m (43%) improvement**. The GATE-01 target ("meaningfully faster than the ~38m baseline") is met. The improvement is entirely explained by CRIT-01 (Phase 193): removing the gratuitous `needs: library_tests` edge on `example_playwright_smoke` so the 22-minute Playwright pole runs in parallel from t+6s rather than serialized after the 16m library_tests job.
 
+## Target shortfall (honest disclosure)
+
+The v1.40 result is ~22.1m avg — meeting the hard GATE-01 bar (meaningfully faster than the ~38m 193-BASELINE, -43%) but NOT the aspirational ROADMAP SC-2 "<~12m fast PR path" stretch target. The root cause: once CRIT-01 de-serialized the pipeline, `example_playwright_smoke` (~22m) became the binding run-level floor — the longest single job, so run-level wall-clock cannot drop below it regardless of further parallelization. Reaching <12m requires splitting/parallelizing the Playwright job itself (e.g., sharding the admin and example Playwright suites), which was out of v1.40 CI-PERF scope and is deferred to future work.
+
 **Note on sample size:** n=3 for the after-cohort is a small sample. The p95 is therefore the max of the 3 runs (1379s / 23.0m) — a conservative upper bound. The consistent clustering (1237s, 1369s, 1379s) across 3 runs gives high confidence in the ~22-23m wall-clock range. A larger sample would tighten the p95 estimate but is unlikely to change the conclusion given the consistency observed.
 
 **Note on after-cohort pipeline state:** The after-cohort is post-PR#58/59/60 (v1.40 CI-PERF) and post-Plan-02 re-gate (D-06: `design_gallery` hard re-gated locally but NOT yet pushed to a new PR triggering these CI runs — the re-gate commit exists locally on `main` branch but was committed after run 27884942846). The after-runs therefore reflect the Phase 193-197 pipeline optimizations (CRIT-01 parallelization, Phase 195 shard partitioning, Phase 196 nightly split). The Plan 02 hard re-gate (D-06) changes gating behavior, NOT job durations, so these runs are a valid and complete "after" timing sample for GATE-01.
