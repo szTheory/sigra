@@ -584,7 +584,7 @@ test.describe("demo-showcase", () => {
           getComputedStyle(element).getPropertyValue("--sigra-auth-bg").trim(),
         ),
       )
-      .toBe("#07171d");
+      .toBe("#0c0a1a");
     // KEY GUARD: the brand-lab wrote sigra_demo_brand=night-ops for its own preview
     // persistence — but the REAL login must ignore it and stay Vaultr. Switching the
     // homepage brand never re-skins the actual auth surface.

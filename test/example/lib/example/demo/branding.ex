@@ -128,16 +128,18 @@ defmodule Example.Demo.Branding do
                    theme: :dark
                  )
 
+  # Indigo/violet "security ops" palette — deliberately distinct from Vaultr teal,
+  # Meridian green, and Rail Accent orange so the white-label preview spans 4 hues.
   @night_ops_light Profile.new!(
                      product_name: "Night Ops",
                      logo_alt: "Night Ops logo",
-                     accent_color: "#087d87",
+                     accent_color: "#6d28d9",
                      accent_foreground: "#ffffff",
-                     background_color: "#eef8fa",
-                     surface_color: "#fbfeff",
-                     text_color: "#08232b",
-                     muted_color: "#587178",
-                     border_color: "#c7dde1",
+                     background_color: "#f5f3ff",
+                     surface_color: "#ffffff",
+                     text_color: "#1e1b2e",
+                     muted_color: "#6b6488",
+                     border_color: "#ddd6f5",
                      email_from_name: "Night Ops",
                      email_from_address: "security@night-ops.test",
                      theme: :light
@@ -145,13 +147,13 @@ defmodule Example.Demo.Branding do
   @night_ops_dark Profile.new!(
                     product_name: "Night Ops",
                     logo_alt: "Night Ops logo",
-                    accent_color: "#48d6ca",
-                    accent_foreground: "#062029",
-                    background_color: "#07171d",
-                    surface_color: "#0d242b",
-                    text_color: "#e8fbf7",
-                    muted_color: "#a6c3c5",
-                    border_color: "#244650",
+                    accent_color: "#a78bfa",
+                    accent_foreground: "#140f29",
+                    background_color: "#0c0a1a",
+                    surface_color: "#15122a",
+                    text_color: "#ece9fb",
+                    muted_color: "#a7a0c8",
+                    border_color: "#2e2750",
                     email_from_name: "Night Ops",
                     email_from_address: "security@night-ops.test",
                     theme: :dark

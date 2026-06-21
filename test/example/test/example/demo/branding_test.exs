@@ -51,12 +51,12 @@ defmodule Example.Demo.BrandingTest do
   test "demo surface style includes generated auth and Night Ops first-paint variant tokens" do
     style = Branding.demo_surface_style(Branding.preset_for_id("night-ops"))
 
-    assert style =~ "--sigra-auth-dark-accent: #48d6ca"
-    assert style =~ "--sigra-auth-light-accent: #087d87"
-    assert style =~ "--vt-dark-color-primary: #48d6ca"
-    assert style =~ "--vt-dark-color-panel: #0d242b"
-    assert style =~ "--vt-dark-color-on-primary: #062029"
-    assert style =~ "--vt-light-color-primary: #087d87"
+    assert style =~ "--sigra-auth-dark-accent: #a78bfa"
+    assert style =~ "--sigra-auth-light-accent: #6d28d9"
+    assert style =~ "--vt-dark-color-primary: #a78bfa"
+    assert style =~ "--vt-dark-color-panel: #15122a"
+    assert style =~ "--vt-dark-color-on-primary: #140f29"
+    assert style =~ "--vt-light-color-primary: #6d28d9"
   end
 
   test "cookie-selected preset ids and themes are validated against known demo presets" do
