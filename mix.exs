@@ -137,6 +137,15 @@ defmodule Sigra.MixProject do
   # ci: audit_45 — single scoped `mix test …` bundle (matches 45-06-SUMMARY; no bare root `mix test`).
   defp aliases do
     [
+      # DX-01: local mirror of the PR-fast required gate (compile + test + install-golden + dep-off).
+      # Prerequisites: live Postgres (see scripts/db/up.sh + source tmp/db.env) and phx_new 1.8.7
+      # archive installed locally (mix archive.install --force hex phx_new 1.8.7).
+      ci: [
+        "compile --warnings-as-errors",
+        "test",
+        "ci.install_golden",
+        "sigra.dep_off"
+      ],
       "ci.audit_45": [
         "test test/sigra/oauth/ test/sigra/workers/account_deletion_test.exs test/sigra/account/deletion_test.exs test/sigra/account_audit_atomicity_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs test/sigra/impersonation_test.exs test/sigra/suspicious_login_test.exs test/sigra/lockout_test.exs test/sigra/mfa_audit_atomicity_test.exs test/sigra/api_token_audit_atomic_test.exs"
       ],
