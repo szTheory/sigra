@@ -6,14 +6,14 @@ current_phase: 198
 current_phase_name: contributor-dx-acceptance-gate
 status: executing
 stopped_at: Completed 197-05 PW-03 re-gate (D-10 continue-on-error removed, D-07 SEED-006 corrected)
-last_updated: "2026-06-21T15:56:11.483Z"
+last_updated: "2026-06-21T16:15:56.498Z"
 last_activity: 2026-06-21
 last_activity_desc: Phase 198 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 20
-  completed_plans: 18
+  completed_plans: 19
   percent: 83
 ---
 
@@ -30,7 +30,7 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 Phase: 198 (contributor-dx-acceptance-gate) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-21 -- Phase 198 execution started
 
@@ -130,6 +130,8 @@ Last activity: 2026-06-21 -- Phase 198 execution started
 - [Phase ?]: OQ3: bounded compare-and-report scope -- sibling lanes compared only; drift deferred to tracked todo with per-lane recapture path
 - [Phase ?]: D-10 re-gate: continue-on-error removed from design gallery step; gallery now hard-gates via the Plan 02 aggregator; inline in example_playwright_smoke (not nightly)
 - [Phase ?]: D-07 operator-truth: SEED-006 false webfont-load premise corrected; real cause was OS system-ui font-metric delta; SEED-006 marked addressed/folded by Phase 197
+- [Phase ?]: D-06: design_gallery hard re-gated in ci.yml — continue-on-error removed, aggregator entry restored (commit 32d43bb5)
+- [Phase ?]: D-07: Phase51 stale todo and design-gallery deferral todo closed to .planning/todos/resolved/ (commit 8d3b1e3c)
 
 ### Pending Todos
 
@@ -188,7 +190,7 @@ Last activity: 2026-06-21 -- Phase 198 execution started
 
 ## Session Continuity
 
-Last session: 2026-06-21T15:56:11.475Z
+Last session: 2026-06-21T16:15:12.706Z
 Stopped at: Completed 197-05 PW-03 re-gate (D-10 continue-on-error removed, D-07 SEED-006 corrected)
 Resume file: 
 
@@ -263,3 +265,4 @@ None
 | Phase 197 P03 | 2min | 4 tasks | 4 files |
 | Phase 197 P04 | 5min | 3 tasks | 1 files |
 | Phase 197 P05 | 2m | 2 tasks | 2 files |
+| Phase 198 P02 | 4m | - tasks | - files |

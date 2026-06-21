@@ -49,7 +49,7 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 ### Acceptance gate (milestone-level)
 
 - [ ] **GATE-01**: Measured before/after — PR wall-clock + p95 meaningfully faster (target: well under the current ~22m, ideally <~12m on the fast PR path) with **equal-or-greater** quality signal on the required gate. Any change that is faster-but-less-trustworthy is labeled a tradeoff and moved to an optional/nightly tier.
-- [ ] **GATE-02**: No flake introduced; no correctness-critical coverage dropped from the merge gate; required-check names stable; `mix ci` documented. Respect SEED-004 (phx_new 1.8.7 pin) and preserve snapshot/baseline determinism.
+- [x] **GATE-02**: No flake introduced; no correctness-critical coverage dropped from the merge gate; required-check names stable; `mix ci` documented. Respect SEED-004 (phx_new 1.8.7 pin) and preserve snapshot/baseline determinism.
 
 ## Out of Scope
 
