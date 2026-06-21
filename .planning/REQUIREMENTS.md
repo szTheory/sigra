@@ -40,7 +40,7 @@ Each maps to roadmap phases (193+). "Done" = measured improvement with **equal-o
 
 ### Contributor DX
 
-- [ ] **DX-01**: Provide a single documented local CI equivalent (`mix ci` alias or `make`/`just` target) that mirrors the PR gate; document it in CONTRIBUTING so a contributor can reproduce a red check locally without guessing.
+- [x] **DX-01**: Provide a single documented local CI equivalent (`mix ci` alias or `make`/`just` target) that mirrors the PR gate; document it in CONTRIBUTING so a contributor can reproduce a red check locally without guessing.
 
 ### Hygiene
 
@@ -75,7 +75,7 @@ Phases assigned during roadmap creation (continue numbering from 193).
 | CACHE-03 | 195 | Complete |
 | CRIT-02, CRIT-03 | 196 | Pending |
 | PW-01, PW-02, PW-03 | 197 | Pending |
-| DX-01 | 198 | Pending |
+| DX-01 | 198 | Complete |
 | GATE-01, GATE-02 | 198 | Pending |
 
 **Coverage:**

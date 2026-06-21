@@ -198,7 +198,7 @@
 **Plans**: 3 plans
 **Wave 1**
 
-  - [ ] 198-01-PLAN.md — `mix ci` local PR-gate mirror + CONTRIBUTING docs + contract-lock test (DX-01; D-01..D-04)
+  - [x] 198-01-PLAN.md — `mix ci` local PR-gate mirror + CONTRIBUTING docs + contract-lock test (DX-01; D-01..D-04)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -340,7 +340,7 @@ Archive:
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 4/4 | Complete    | 2026-06-20 |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 5/5 | Complete   | 2026-06-20 |
-| 198. Contributor DX & Acceptance Gate | v1.40 | 0/? | Not started | - |
+| 198. Contributor DX & Acceptance Gate | v1.40 | 1/3 | In Progress|  |
 | 150. Issue Triage & Bugfix Cadence | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 151. Ecosystem Sync & Hex Dependency Management | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
