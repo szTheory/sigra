@@ -1034,17 +1034,6 @@ jobs:
       - name: Run design gallery boards (chromium, mobile, dark)
         id: design_gallery
         if: ${{ !cancelled() }}
-        # TEMP SOFT-GATE (bootstrap ordering — REMOVE in follow-up after recapture lands):
-        # The committed admin-design baselines are macOS-captured and
-        # playwright.config.ts omits the OS suffix, so the very PR that delivers the
-        # admin_design_recapture job cannot pass this step on ubuntu — ubuntu-native
-        # baselines only exist AFTER admin_design_recapture runs (push/schedule,
-        # post-merge). Re-gating (D-10) before those baselines are on main is a
-        # deadlock. So for the v1.40 ship this step is soft. SEQUENCE TO COMPLETE D-10:
-        #   1. merge v1.40 (this soft gate) -> push-to-main fires admin_design_recapture
-        #   2. merge the recapture PR (ubuntu-native PNGs land on main)
-        #   3. follow-up PR removes this continue-on-error -> hard gate restored & green
-        continue-on-error: true
         working-directory: test/example/priv/playwright
         env:
           CI: "true"
@@ -1105,18 +1094,12 @@ jobs:
         # Without this step, !cancelled() guards allow later seams to run after
         # an early failure but the job would silently go green. The aggregator
         # is the load-bearing integrity control (T-197-03).
-        #
-        # TEMP (bootstrap ordering — RESTORE design_gallery here in the same follow-up
-        # that removes its continue-on-error): design_gallery is intentionally OMITTED
-        # from this loop while it is soft-gated. continue-on-error only changes a step's
-        # *conclusion*, not its *outcome*, so leaving it in would re-fail the job on the
-        # macOS-vs-ubuntu baseline mismatch and re-create the ship deadlock. See
-        # .planning/todos/pending/2026-06-20-complete-d10-design-gallery-re-gate-after-recapture.md
         run: |
           set -euo pipefail
           fail=0
           for o in "${{ steps.admin_behavior.outcome }}" \
                    "${{ steps.admin_checkpoints.outcome }}" \
+                   "${{ steps.design_gallery.outcome }}" \
                    "${{ steps.non_admin_smoke.outcome }}" \
                    "${{ steps.demo_showcase.outcome }}"; do
             [ "$o" = "failure" ] && fail=1
