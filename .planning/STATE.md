@@ -4,9 +4,9 @@ milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 198
 current_phase_name: contributor-dx-acceptance-gate
-status: verifying
-stopped_at: Completed 198-03 acceptance evidence plan
-last_updated: "2026-06-21T16:27:15.229Z"
+status: milestone_complete
+stopped_at: Milestone complete (Phase 198 was final phase)
+last_updated: 2026-06-21T16:37:57.599Z
 last_activity: 2026-06-21
 last_activity_desc: Phase 198 execution started
 progress:
@@ -25,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** Phase 198 — contributor-dx-acceptance-gate
+**Current focus:** Milestone complete
 
 ## Current Position
 
-Phase: 198 (contributor-dx-acceptance-gate) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-06-21 -- Phase 198 execution started
+Phase: 198
+Plan: Not started
+Status: Milestone complete
+Last activity: 2026-06-21
 
 ## Accumulated Context
 

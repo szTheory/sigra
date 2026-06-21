@@ -340,7 +340,7 @@ Archive:
 | 195. Test-Suite Performance (partition / async / dep-off slim) | v1.40 | 3/3 | Complete    | 2026-06-20 |
 | 196. PR-Fast vs Nightly-Broad Trigger Model | v1.40 | 4/4 | Complete    | 2026-06-20 |
 | 197. Playwright Lanes & Design-Gallery Re-Gate | v1.40 | 5/5 | Complete   | 2026-06-20 |
-| 198. Contributor DX & Acceptance Gate | v1.40 | 3/3 | Complete   | 2026-06-21 |
+| 198. Contributor DX & Acceptance Gate | v1.40 | 3/3 | Complete    | 2026-06-21 |
 | 150. Issue Triage & Bugfix Cadence | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 151. Ecosystem Sync & Hex Dependency Management | v1.33 | 1/1 | Complete | 2026-06-01 |
 | 152. Strategic Bet Evaluation Gate | v1.33 | 1/1 | Complete | 2026-06-01 |
