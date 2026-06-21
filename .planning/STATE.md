@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v1.40
 milestone_name: CI-PERF
 current_phase: 198
-current_phase_name: contributor-dx-acceptance-gate
-status: milestone_complete
-stopped_at: Milestone complete (Phase 198 was final phase)
-last_updated: 2026-06-21T16:37:57.599Z
+status: Awaiting next milestone
+stopped_at: Milestone v1.40 CI-PERF completed and archived
+last_updated: "2026-06-21T17:03:01.436Z"
 last_activity: 2026-06-21
-last_activity_desc: Phase 198 execution started
+last_activity_desc: Milestone v1.40 completed and archived
 progress:
   total_phases: 6
   completed_phases: 6
   total_plans: 20
   completed_plans: 20
   percent: 100
+current_phase_name: contributor-dx-acceptance-gate
 ---
 
 # Project State
@@ -29,10 +29,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: 198
-Plan: Not started
-Status: Milestone complete
-Last activity: 2026-06-21
+Phase: Milestone v1.40 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-21 — Milestone v1.40 completed and archived
 
 ## Accumulated Context
 
@@ -190,6 +190,29 @@ Last activity: 2026-06-21
 | seed | SEED-004-phx-new-button-forward-compat | dormant | v1.39 |
 | seed | SEED-005-ci-cd-pipeline-performance-audit | dormant | v1.39 |
 | seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant | v1.39 |
+
+### Acknowledged at v1.40 close (2026-06-21)
+
+20 open artifact items acknowledged and deferred at milestone close. None are blockers (audit verdict `tech_debt`: 18/18 reqs satisfied, 7/7 integration wired). The only two v1.40-relevant items are the same audit tech-debt item #3 — Phase 197's "CI measures itself" runtime proof (re-gated design-gallery + recapture job), verified statically/mechanically, awaiting one live non-PR CI run to observe green. The rest are carried backlog (admin-UI pass-2, mailglass corrigendum, dormant seeds).
+
+| Category | Item | Status | Deferred At |
+| --- | --- | --- | --- |
+| verification_gap | 197-VERIFICATION.md [human_needed] | tracked — design-gallery hard re-gate + recapture verified statically; awaits one live non-PR CI run to observe green (zero-human-UAT model; closes naturally on next scheduled/main run) | v1.40 |
+| uat_gap | 197-UAT.md [partial, 0 pending scenarios] | tracked — same CI-observed runtime proof as above | v1.40 |
+| quick_task | 260528-nwa-fix-rc-01-in-guides-recipes-companion-li | superseded / stale | v1.40 |
+| quick_task | 260528-sbn-fix-v1-29-doc-debt-mailglass-corrigendum | superseded / stale | v1.40 |
+| quick_task | 260602-gll..ikd-stage-0..7-admin-ui-pass-2 (8 tasks) | superseded by v1.39 DS-COHERENCE | v1.40 |
+| todo | 2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent | tracked — needs 25+ audit events for pagination fixture | v1.40 |
+| todo | 2026-06-17-page04-branding-explicit-scoring | tracked | v1.40 |
+| todo | 2026-06-18-token-reference-completeness-ci-guard | tracked | v1.40 |
+| todo | 2026-06-19-uat-demo-dx-polish-nits | tracked | v1.40 |
+| todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked (installer DX) | v1.40 |
+| todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — sub-12m fast-path stretch (GATE-01 aspirational); Playwright job sharding | v1.40 |
+| todo | 2026-06-20-runtime-auth-prefix-override | tracked | v1.40 |
+| todo | recapture-gate-single-lane | tracked — shared `--require-all` slugs break single-lane recapture | v1.40 |
+| seed | SEED-004-phx-new-button-forward-compat | dormant | v1.40 |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — this milestone's source seed (audit playbook); resolved in substance, seed kept as reference | v1.40 |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — folded into PW-03 / Phase 197 (addressed) | v1.40 |
 
 ## Session Continuity
 

@@ -25,6 +25,45 @@ v1.32 is the transition from building broad auth-library surface area to proving
 - Do not treat docs/narrative polish as roadmap-worthy unless it is tied to adopter success, release evidence, upgrade/migration clarity, or trust.
 - Keep the v1.32 release/adoption roadmap bounded: Phase 147 upgrade/migration lanes, Phase 148 evaluator funnel, Phase 149 launch evidence/announcement pack, then release/hotfix posture.
 
+## Milestone: v1.40 — CI-PERF
+
+**Shipped:** 2026-06-21
+**Phases:** 6 (193–198) | **Plans:** 20 | **Tasks:** 40
+
+### What was built
+
+A maintenance/trust (CI/DX) lane that cut PR CI wall-clock from **38.6m → 22.1m avg (−43%, n=3)** by attacking the three long poles — without weakening coverage, determinism, or trust. A committed before-state baseline (`193-BASELINE.md`) anchored a measure-before-optimize discipline; the gratuitous `example_playwright_smoke needs: [library_tests]` serialization was dropped (the #1 win); caching was made precise and the trivial micro-guard jobs folded into one `fast_checks` job; `library_tests` was split into a 2-shard matrix behind a name-preserving aggregator (required-check name byte-identical) and `library_tests_dep_off` slimmed to a targeted `--only threadline_guard` subset; a PR-fast vs nightly-broad trigger split moved 5 exhaustive jobs off the every-PR path under one stable `ci-gate`; the Playwright lanes got deterministic `expect.poll()` readiness and a hard-re-gated design-gallery (self-hosted Space Grotesk webfont + in-CI `admin_design_recapture` job, `continue-on-error` removed); and a documented `mix ci` PR-gate mirror plus a real before/after acceptance artifact (`198-ACCEPTANCE.md`) closed it out.
+
+### What worked
+
+- **Measure-before-optimize as Phase 1.** Committing the baseline table + Elixir diagnostics first (193) meant every later phase proved its win against a fixed reference rather than asserting it — and surfaced that the single biggest win was a one-line `needs:` edge removal, not a heroic refactor.
+- **Sequence smallest-safest-first.** Banking the near-one-line wins (the `needs` edge, the rgb de-flake) in Phase 193 delivered most of the wall-clock improvement early and de-risked the rest.
+- **Name-preserving aggregators kept branch protection untouched.** Splitting `library_tests` into shards behind a thin aggregator that reuses the job id + `Library tests` name made a structural change invisible to the required-check ruleset — zero branch-protection churn across a 6-phase redesign (verified against live ruleset 14941512).
+- **Zero-human-UAT held: CI measures itself.** Verification was the pipeline's own before/after timings, cache hit-rate, and flake/rerun rate — no manual UAT round-trips, consistent with the milestone's design.
+- **Honest disclosure of the missed stretch.** The aspirational `<12m` fast path was not reached; rather than quietly dropping it, `198-ACCEPTANCE.md` discloses the ~22m binding floor and routes the remedy (Playwright sharding) to a tracked todo.
+
+### What was inefficient
+
+- **Validation-strategy docs never advanced past draft.** 5 of 6 `VALIDATION.md` stayed `draft`/`nyquist_compliant:false` — expected for a "CI measures itself" infra milestone (deliverables are workflow-YAML/doc edits, not ExUnit sensors), but it leaves the Nyquist lane formally PARTIAL at close.
+- **Traceability table drifted from the checklist.** 13 REQ rows showed `Pending` in the table while their checklist boxes were all `[x]` — pure doc hygiene flagged by every phase verification, reconciled only at close.
+- **One CI-deferred runtime proof remained at close.** The re-gated design-gallery + recapture flow was verified statically/mechanically but not yet observed green in a live non-PR run — acknowledged as the milestone's single open verification item, closing on the next scheduled/main run.
+- **CRIT-03 prose went stale vs reality.** REQUIREMENTS/ROADMAP kept describing a single `ci-gate` required check while the live ruleset enforces 5 lane-name strings; only MAINTAINING.md was authoritative. The framing fix was deferred to a requirements-cleanup pass.
+
+### Patterns established
+
+- **Name-preserving thin aggregator** in front of a sharded matrix job — lets you parallelize a required check without renaming it or touching branch protection. Reusable for any future test-suite split.
+- **PR-fast vs nightly-broad trigger split with a never-strand table.** Move exhaustive/low-probability coverage to `schedule:`/main, but document a per-moved-job proxy proving no correctness-critical test is stranded on nightly-only (plus a scripts/ci backstop for accepted residuals).
+- **Deterministic visual gates via self-hosted webfonts + in-CI recapture**, not widened pixel tolerance — fix the font-metric root cause, then hard-gate.
+- **`mix ci` as a contract-locked PR-gate mirror** so a contributor can reproduce a red check locally; pin the leg set with a test so the alias can't silently drift from CI.
+
+### Key lessons
+
+- For infra/CI milestones, goal achievement is proven by each phase's VERIFICATION.md (and CI measuring itself), not by ExUnit-style Nyquist sensors — so a `tech_debt`-but-no-blockers audit is the *expected* honest close state, not a failure. Don't force ExUnit validation onto workflow-YAML deliverables.
+- A `<target` stretch goal and a `≥bar` hard gate are different commitments — meet and verify the hard bar, and disclose the stretch miss with the binding constraint (here: the ~22m Playwright floor) rather than burying it.
+- When a requirement's prose describes the *mechanism* (e.g. "ci-gate aggregator") but the *enforced contract* is something else (5 lane names in the ruleset), keep one authoritative doc (MAINTAINING.md) correct and reconcile the rest — stale prose in REQUIREMENTS/ROADMAP is low-severity but accumulates.
+
+---
+
 ## Milestone: v1.39 — DS-COHERENCE
 
 **Shipped:** 2026-06-19

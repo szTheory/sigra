@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.40 CI-PERF (Shipped: 2026-06-21)
+
+**Phases completed:** 6 phases (193–198), 20 plans, 40 tasks
+**Requirements:** 18/18 satisfied (BASE-01..03, CRIT-01..03, TEST-01..03, PW-01..03, CACHE-01..03, DX-01, FLAKE-01, GATE-01..02)
+**Milestone audit:** `tech_debt` — 0 unsatisfied requirements, 7/7 cross-phase integration WIRED, both E2E flows wired, no critical blockers. See [`milestones/v1.40-MILESTONE-AUDIT.md`](milestones/v1.40-MILESTONE-AUDIT.md).
+**Headline result:** PR CI wall-clock **38.6m → 22.1m avg (−43%, n=3)**, 0 flakes introduced, 5 required-check name strings byte-stable. The aspirational `<12m` fast-path stretch was **not** reached (binding floor `example_playwright_smoke` ~22m; Playwright job sharding deferred) — disclosed honestly in `198-ACCEPTANCE.md`.
+
+**Delivered:** A maintenance/trust (CI/DX) lane — cut PR CI wall-clock by attacking the three long poles (`example_playwright_smoke`, `library_tests`, `library_tests_dep_off`) without weakening coverage, determinism, or trust, under a measure-before-optimize discipline where the CI pipeline measures itself.
+
+**Key accomplishments:**
+
+- **Baseline + one-line wins (193):** Committed `193-BASELINE.md` before-state reference (per-job table + critical path + Elixir diagnostics) every later phase diffs against; added `$GITHUB_STEP_SUMMARY` observability (resolved versions, cache hit/miss, slowest tests); dropped the gratuitous `example_playwright_smoke needs: [library_tests]` edge so the two long poles run concurrently (CRIT-01, likely #1 win); de-flaked the demo-showcase rgb assertion with a ±10 per-channel tolerance, deterministic 3× at `--retries=0`.
+- **Caching correctness + micro-job fold (194):** 11 precision cache keys (no stale `_build` reuse across incompatible combos, separated deps/PLT caches, documented busting); folded the trivial guard jobs into one cheap `fast_checks` job and rewired `ci-gate`; actionlint clean.
+- **Test-suite performance (195):** 2-shard `library_tests` matrix worker with a name-preserving thin aggregator so the `Library tests` required check stays byte-identical; slimmed `library_tests_dep_off` to a targeted `--only threadline_guard` subset (65 tests vs full ~14m suite); audited `async: true`; a CACHE-03 measurement-gate runbook documenting the reject-by-default larger-runner posture.
+- **PR-fast vs nightly-broad trigger model (196):** Event-gated 5 exhaustive jobs off the every-PR path to a `schedule:`/main cron, made `ci-gate` skip-tolerant for the two moved-and-needed jobs, added a `nightly_probe`, all under one stable `ci-gate` required check — never stranding a correctness-critical test on nightly-only (D-08 never-strand table + DIST-06 backstop for the two accepted nightly residuals).
+- **Playwright lanes + design-gallery hard re-gate (197):** Replaced `waitForTimeout`-based mailbox polls with deterministic `expect.poll()`; self-hosted Space Grotesk woff2 wired into the CI dev-mode boot with a `fonts.check` hard assertion (fixing the systemic font-reflow height delta — corrected the SEED-006 false-premise root cause); added a non-PR `admin_design_recapture` job (canary re-baseline + reviewable-PR commit path + cross-lane drift check) and **removed `continue-on-error` from the design-gallery step**, restoring it to a hard gate.
+- **Contributor DX + acceptance gate (198):** Added a `mix ci` four-leg PR-gate mirror (compile + test + install-golden + dep-off) documented in CONTRIBUTING and pinned by a contract-lock test; committed `198-ACCEPTANCE.md` with real before/after PR-path timings (−16.5m, −43%, n=3), byte-stable required-check names, 0 flakes.
+
+**Known deferred items at close:** 20 open artifacts acknowledged (see STATE.md *Acknowledged at v1.40 close*). The only v1.40-relevant pair is the Phase 197 CI-observed runtime proof (re-gated design-gallery + recapture job — verified statically/mechanically, closes on the next non-PR CI run; the milestone's zero-human-UAT model). The rest are carried backlog (admin-UI pass-2 quick tasks, tracked todos incl. Playwright sharding for the sub-12m stretch) and dormant seeds SEED-004/005/006.
+
+---
+
 ## v1.39 DS-COHERENCE (Shipped: 2026-06-19)
 
 **Phases completed:** 9 phases (184–192), 39 plans, 63 tasks
