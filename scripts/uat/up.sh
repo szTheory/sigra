@@ -562,7 +562,7 @@ start_host_server() {
     exec env PGHOST="${PGHOST}" PGPORT="${PGPORT}" PGUSER="${PGUSER}" PGPASSWORD="${PGPASSWORD}" \
       PGDATABASE="${PGDATABASE}" PORT="${SIGRA_EXAMPLE_PORT}" \
       SIGRA_EXAMPLE_BIND="${SIGRA_EXAMPLE_BIND}" SIGRA_EXAMPLE_URL="${SIGRA_EXAMPLE_URL}" \
-      mix phx.server
+      mix phx.server --no-validate-compile-env
   ) >"${SIGRA_UAT_HOST_LOG_FILE}" 2>&1 &
   printf '%s' "$!" >"${SIGRA_UAT_HOST_PID_FILE}"
 }
@@ -759,7 +759,7 @@ case "${SIGRA_UAT_PROXY_MODE}" in
     SIGRA_EXAMPLE_BIND="0.0.0.0"
     ;;
   none)
-    SIGRA_EXAMPLE_PORT="${SIGRA_EXAMPLE_PORT:-${PORT:-$(find_free_port)}}"
+    SIGRA_EXAMPLE_PORT="${SIGRA_EXAMPLE_PORT:-${PORT:-4011}}"
     SIGRA_UAT_RAW_URL="http://127.0.0.1:${SIGRA_EXAMPLE_PORT}"
     SIGRA_UAT_PROXY_PORT=""
     SIGRA_UAT_PROXY_URL=""
@@ -812,7 +812,7 @@ if [[ "${SIGRA_UAT_PROXY_MODE}" = "shared" ]]; then
   SIGRA_UAT_DEMO_URL="${SIGRA_EXAMPLE_URL}/demo/credentials"
   SIGRA_UAT_SERVER_COMMAND="docker compose -p ${SIGRA_UAT_PROJECT} -f ${COMPOSE_FILE} --profile proxy logs -f web"
 else
-  SIGRA_UAT_SERVER_COMMAND="cd test/example && PGHOST=${PGHOST} PGPORT=${PGPORT} PGUSER=${PGUSER} PGPASSWORD=${PGPASSWORD} PGDATABASE=${PGDATABASE} PORT=${SIGRA_EXAMPLE_PORT} SIGRA_EXAMPLE_BIND=${SIGRA_EXAMPLE_BIND} SIGRA_EXAMPLE_URL=${SIGRA_EXAMPLE_URL} iex -S mix phx.server"
+  SIGRA_UAT_SERVER_COMMAND="cd test/example && PGHOST=${PGHOST} PGPORT=${PGPORT} PGUSER=${PGUSER} PGPASSWORD=${PGPASSWORD} PGDATABASE=${PGDATABASE} PORT=${SIGRA_EXAMPLE_PORT} SIGRA_EXAMPLE_BIND=${SIGRA_EXAMPLE_BIND} SIGRA_EXAMPLE_URL=${SIGRA_EXAMPLE_URL} iex -S mix phx.server --no-validate-compile-env"
   setup_host_example
 
   # Host-run path (--dev / mode none): actually start + health-gate Phoenix.
@@ -824,7 +824,7 @@ else
       exec env PGHOST="${PGHOST}" PGPORT="${PGPORT}" PGUSER="${PGUSER}" PGPASSWORD="${PGPASSWORD}" \
         PGDATABASE="${PGDATABASE}" PORT="${SIGRA_EXAMPLE_PORT}" \
         SIGRA_EXAMPLE_BIND="${SIGRA_EXAMPLE_BIND}" SIGRA_EXAMPLE_URL="${SIGRA_EXAMPLE_URL}" \
-        iex -S mix phx.server
+        iex -S mix phx.server --no-validate-compile-env
     else
       ensure_port_free
       SIGRA_UAT_MAILBOX_URL="${SIGRA_EXAMPLE_URL}/dev/mailbox"
