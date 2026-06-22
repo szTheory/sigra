@@ -52,8 +52,11 @@
         </div>
 
         <div class="vt-action-row">
-          <a href="/users/log_in" class="vt-btn vt-btn--primary">
+          <a :if={is_nil(@current_scope)} href="/users/log_in" class="vt-btn vt-btn--primary">
             Sign in to Vaultr
+          </a>
+          <a :if={@current_scope} href={~p"/app"} class="vt-btn vt-btn--primary">
+            Open your dashboard
           </a>
           <a href="/admin" class="vt-btn vt-btn--ghost">
             Open Sigra Admin
@@ -61,6 +64,15 @@
           <a href="/dev/mailbox" class="vt-btn vt-btn--secondary">
             Inspect mailbox
           </a>
+          <.link
+            :if={@current_scope}
+            href={~p"/users/log_out"}
+            method="delete"
+            class="vt-btn vt-btn--ghost"
+            data-testid="home-log-out"
+          >
+            Log out
+          </.link>
         </div>
       </div>
 

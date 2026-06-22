@@ -107,7 +107,7 @@ defmodule ExampleWeb.SessionControllerTest do
           "user" => %{"email" => user.email, "password" => password}
         })
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/app"
       # Plug session cookie is set when renew_session runs during log_in_user.
       assert get_resp_header(conn, "set-cookie") != []
     end

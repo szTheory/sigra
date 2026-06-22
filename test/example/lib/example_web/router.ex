@@ -125,6 +125,14 @@ defmodule ExampleWeb.Router do
     pipe_through [:browser, :require_authenticated]
 
     delete "/impersonation", Admin.ImpersonationController, :delete
+
+    # Vaultr authenticated account home — the post-login landing for every
+    # persona (see `signed_in_path/1`). A thin host-app hub that routes into
+    # Sigra's real account/security/org/admin surfaces, conditionally per scope.
+    live_session :app_authenticated,
+      on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
+      live "/app", AppLive, :home
+    end
   end
 
   scope "/users", ExampleWeb do

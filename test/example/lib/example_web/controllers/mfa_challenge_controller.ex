@@ -45,7 +45,7 @@ defmodule ExampleWeb.MFAChallengeController do
 
     case result do
       {:ok, _} ->
-        return_to = get_session(conn, :mfa_return_to) || ~p"/"
+        return_to = get_session(conn, :mfa_return_to) || ~p"/app"
 
         conn
         |> delete_session(:mfa_pending)

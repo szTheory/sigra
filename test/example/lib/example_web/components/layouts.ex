@@ -63,6 +63,16 @@ defmodule ExampleWeb.Layouts do
           <a :if={is_nil(@current_scope)} href={~p"/users/log_in"} class="vt-btn vt-btn--primary">
             Sign In <span aria-hidden="true">&rarr;</span>
           </a>
+          <a :if={@current_scope} href={~p"/app"} class="vt-btn vt-btn--ghost">Dashboard</a>
+          <.link
+            :if={@current_scope}
+            href={~p"/users/log_out"}
+            method="delete"
+            class="vt-btn vt-btn--ghost"
+            data-testid="header-log-out"
+          >
+            Log out
+          </.link>
         </div>
       </div>
     </header>

@@ -174,7 +174,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
           }
         })
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/app"
       assert get_resp_header(conn, "set-cookie") != []
 
       user_token = Plug.Conn.get_session(conn, :user_token)
@@ -182,7 +182,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert Accounts.get_user_by_session_token(user_token).id == user.id
 
       follow_up_conn = get(recycle(conn), ~p"/users/log_in")
-      assert redirected_to(follow_up_conn) == ~p"/"
+      assert redirected_to(follow_up_conn) == ~p"/app"
     end
 
     test "invalid passkey-primary login redirects with recovery copy and no standard session", %{

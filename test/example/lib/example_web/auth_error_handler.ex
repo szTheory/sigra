@@ -36,13 +36,25 @@ defmodule ExampleWeb.AuthErrorHandler do
 
   @impl true
   def auth_error(conn, :insufficient_scope, _opts) do
-    conn
-    |> put_status(:forbidden)
-    |> put_resp_content_type("text/html")
-    |> send_resp(
-      403,
-      "Access denied. You do not have access to this admin scope."
-    )
+    # An authenticated user who simply lacks admin scope shouldn't dead-end on a
+    # raw 403 — send them home to their Vaultr account hub with a clear message
+    # (principle of least surprise). Keep the hard 403 for unauthenticated /
+    # non-HTML callers, where there is no session to flash into or page to land on.
+    case conn.assigns[:current_scope] do
+      %{user: %{}} ->
+        conn
+        |> put_flash(:error, "You don't have access to that admin area.")
+        |> redirect(to: ~p"/app")
+
+      _ ->
+        conn
+        |> put_status(:forbidden)
+        |> put_resp_content_type("text/html")
+        |> send_resp(
+          403,
+          "Access denied. You do not have access to this admin scope."
+        )
+    end
   end
 
   @impl true

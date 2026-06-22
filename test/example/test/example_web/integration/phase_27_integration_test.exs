@@ -42,7 +42,8 @@ defmodule ExampleWeb.Phase27IntegrationTest do
   end
 
   describe "org admin routing" do
-    test "org admin is denied at /admin with an access denied response", %{conn: conn} do
+    test "authenticated org admin is denied global /admin, redirected home (no raw 403)",
+         %{conn: conn} do
       org_admin = org_admin_fixture()
 
       conn =
@@ -50,8 +51,10 @@ defmodule ExampleWeb.Phase27IntegrationTest do
         |> log_in_user(org_admin)
         |> get(~p"/admin")
 
-      assert conn.status == 403
-      assert html_response(conn, 403) =~ "Access denied"
+      # An authenticated user lacking platform scope is sent to their account
+      # hub with a flash rather than dead-ending on a raw 403 (least surprise).
+      assert redirected_to(conn) == ~p"/app"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "don't have access"
     end
 
     test "org admin reaches only their allowed /admin/organizations/:org", %{conn: conn} do

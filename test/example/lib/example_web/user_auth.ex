@@ -574,7 +574,7 @@ defmodule ExampleWeb.UserAuth do
     end
   end
 
-  defp signed_in_path(_conn), do: ~p"/"
+  defp signed_in_path(_conn), do: ~p"/app"
 
   defp sanitize_enterprise_return_to(path, organization_slug) when is_binary(path) do
     cond do

@@ -280,7 +280,7 @@ defmodule ExampleWeb.SessionController do
   end
 
   def complete_mfa_passkey(conn, %{"passkey" => passkey_params}) do
-    return_to = get_session(conn, :mfa_return_to) || ~p"/"
+    return_to = get_session(conn, :mfa_return_to) || ~p"/app"
     remember_me = get_session(conn, :mfa_remember_me) == true
     user = conn.assigns.current_scope.user
     old_session = conn.private[:sigra_session]
