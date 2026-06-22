@@ -1,7 +1,7 @@
 /**
  * Phase 190 Plan 04 — Org admin JTBD flow spec (FLOW-01..03, DATA-01).
  *
- * Persona: morgan@demo.vaultr.test — org-scoped admin for Acme Corp.
+ * Persona: morgan@demo.tasklane.test — org-scoped admin for Acme Corp.
  * Morgan is NOT a platform admin, so /admin returns 403 (anti-enumeration).
  *
  * Coverage:
@@ -12,7 +12,7 @@
  *   FLOW-02: reduced-motion — assertReducedMotionEffect() confirms CSS collapsed effect
  *   FLOW-03: theme persistence — dark theme survives org-scoped journey and page.reload()
  *
- * D-03: org admin flow driven by morgan@demo.vaultr.test (tenant-bounded).
+ * D-03: org admin flow driven by morgan@demo.tasklane.test (tenant-bounded).
  * D-04: main-error = permission-denied (morgan hitting /admin returns 403);
  *        boundary = morgan empty audit (zero events seeded for morgan).
  * D-09: flow spec asserts JOURNEY-LEVEL properties only — does not re-test
@@ -117,7 +117,7 @@ test.describe('Phase 190 org admin flow (FLOW-01..03, DATA-01)', () => {
 
         // Step 3: Alice is an Acme member (seeded) — visible in the org-scoped list.
         await expect(
-          adminUsersEmailLocator(page, 'alice@demo.vaultr.test'),
+          adminUsersEmailLocator(page, 'alice@demo.tasklane.test'),
         ).toBeVisible();
 
         // Step 4: Reduced-motion CSS effect — assertReducedMotionEffect checks that
@@ -126,13 +126,13 @@ test.describe('Phase 190 org admin flow (FLOW-01..03, DATA-01)', () => {
         await assertReducedMotionEffect(page);
 
         // Step 5: Navigate to alice's user detail within the org scope.
-        await openOrgUserDetail(page, 'alice@demo.vaultr.test');
+        await openOrgUserDetail(page, 'alice@demo.tasklane.test');
 
         // Step 6: Scope chrome still shows Acme Corp on the user detail page.
         await assertScopeChrome(page, ACME_ORG_NAME);
 
         // Step 7: User detail renders alice's email (confirms we're on the right page).
-        await expect(page.locator('main')).toContainText('alice@demo.vaultr.test');
+        await expect(page.locator('main')).toContainText('alice@demo.tasklane.test');
       },
     );
   });

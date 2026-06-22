@@ -5,10 +5,10 @@
  *   overview → users search → user detail → per-user audit → return with scope
  *   and breadcrumb reconstructed.
  *
- * Happy case:     alice@demo.vaultr.test — confirmed Acme member, audit events visible.
- * Main-error:     dave@demo.vaultr.test — locked + unconfirmed, auth.login.failure +
+ * Happy case:     alice@demo.tasklane.test — confirmed Acme member, audit events visible.
+ * Main-error:     dave@demo.tasklane.test — locked + unconfirmed, auth.login.failure +
  *                 auth.lockout.start audit events visible.
- * Boundary:       frank@demo.vaultr.test — scheduled-deletion indicator visible;
+ * Boundary:       frank@demo.tasklane.test — scheduled-deletion indicator visible;
  *                 empty search filter renders empty state without error styling.
  * Keyboard:       Tab/Enter to "Revoke all sessions" trigger → ConfirmDialog opens →
  *                 focus containment invariant → Escape closes → focus returns to trigger.
@@ -40,9 +40,9 @@ import {
 } from '../helpers/adminFlows';
 
 // Demo persona credentials (public-by-design, dev server only; from personas.ex)
-const DEMO_ALICE_EMAIL = 'alice@demo.vaultr.test';
-const DEMO_DAVE_EMAIL = 'dave@demo.vaultr.test';
-const DEMO_FRANK_EMAIL = 'frank@demo.vaultr.test';
+const DEMO_ALICE_EMAIL = 'alice@demo.tasklane.test';
+const DEMO_DAVE_EMAIL = 'dave@demo.tasklane.test';
+const DEMO_FRANK_EMAIL = 'frank@demo.tasklane.test';
 
 test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
   // D-10: must be at describe-block level before any test runs.

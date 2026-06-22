@@ -35,13 +35,13 @@ defmodule ExampleWeb.SessionControllerTest do
       conn = get(conn, ~p"/users/log_in")
       body = html_response(conn, 200)
 
-      assert body =~ ~s(data-testid="vaultr-login")
-      # Real login is the plain Vaultr app surface — no demo-brand switcher hooks
+      assert body =~ ~s(data-testid="tasklane-login")
+      # Real login is the plain Tasklane app surface — no demo-brand switcher hooks
       # (so neither the cookie nor demo_branding.js re-skins it) and no inline brand
-      # style (it uses the global Vaultr palette + OS light/dark like the homepage).
+      # style (it uses the global Tasklane palette + OS light/dark like the homepage).
       refute body =~ "data-demo-brand"
-      assert body =~ "Log in to Vaultr"
-      assert body =~ ~s(src="/images/vaultr-mark.svg")
+      assert body =~ "Log in to Tasklane"
+      assert body =~ ~s(src="/images/tasklane-mark.svg")
       assert body =~ ~s(id="passkey_login_form")
       assert body =~ ~s(id="magic_link_form")
       assert body =~ ~s(id="login_form")
@@ -62,12 +62,12 @@ defmodule ExampleWeb.SessionControllerTest do
       refute body =~ "Passkeys appear through browser autofill"
       refute body =~ "Secured by Sigra"
       refute body =~ "Keep me logged in"
-      refute body =~ "shared demo login for Vaultr users and Sigra Admin operators"
-      refute body =~ "admin@demo.vaultr.test"
+      refute body =~ "shared demo login for Tasklane users and Sigra Admin operators"
+      refute body =~ "admin@demo.tasklane.test"
       refute body =~ "We couldn't finish passkey sign-in"
     end
 
-    test "ignores the demo brand cookie — the real login is always Vaultr", %{conn: conn} do
+    test "ignores the demo brand cookie — the real login is always Tasklane", %{conn: conn} do
       # The homepage brand-lab can preview Night Ops / Meridian, but selecting one
       # (which writes the sigra_demo_brand cookie) must NOT re-brand the real login.
       conn =
@@ -78,8 +78,8 @@ defmodule ExampleWeb.SessionControllerTest do
 
       body = html_response(conn, 200)
 
-      assert body =~ "Log in to Vaultr"
-      assert body =~ ~s(src="/images/vaultr-mark.svg")
+      assert body =~ "Log in to Tasklane"
+      assert body =~ ~s(src="/images/tasklane-mark.svg")
       refute body =~ "data-demo-brand"
       refute body =~ "Meridian"
       refute body =~ "Night Ops"

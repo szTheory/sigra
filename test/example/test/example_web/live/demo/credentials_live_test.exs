@@ -44,11 +44,11 @@ defmodule ExampleWeb.Demo.CredentialsLiveTest do
 
       # DEMO-02: branding
       assert html =~ ~s(data-testid="app-name")
-      assert html =~ "Vaultr"
+      assert html =~ "Tasklane"
       assert html =~ "Sigra supplies its auth"
-      assert html =~ "@demo.vaultr.test"
-      assert html =~ "admin@demo.vaultr.test"
-      assert html =~ "morgan@demo.vaultr.test"
+      assert html =~ "@demo.tasklane.test"
+      assert html =~ "admin@demo.tasklane.test"
+      assert html =~ "morgan@demo.tasklane.test"
       assert html =~ "/admin/organizations/acme-corp"
     end
   end

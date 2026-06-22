@@ -21,21 +21,21 @@ import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
 
 // Demo-only deterministic secret — matches Personas.demo_totp_secret/0
 const DEMO_TOTP_B32 = "CSIL7ZDJ7RGXDGXRGIV3Q6CZIBOESTCW";
-const DEMO_ADMIN_EMAIL = "admin@demo.vaultr.test";
+const DEMO_ADMIN_EMAIL = "admin@demo.tasklane.test";
 const DEMO_ADMIN_PASSWORD = "DemoAdmin1!SecurePass";
-const DEMO_ALICE_EMAIL = "alice@demo.vaultr.test";
+const DEMO_ALICE_EMAIL = "alice@demo.tasklane.test";
 const DEMO_ALICE_PASSWORD = "AliceDemoPass1!";
 const EVALUATOR_FLOW_MAX_MS = 10 * 60 * 1000;
 const DEMO_EMAILS = [
-  "admin@demo.vaultr.test",
-  "alice@demo.vaultr.test",
-  "bob@demo.vaultr.test",
-  "carol@demo.vaultr.test",
-  "dave@demo.vaultr.test",
-  "frank@demo.vaultr.test",
-  "morgan@demo.vaultr.test",
-  "pat@demo.vaultr.test",
-  "grace@demo.vaultr.test",
+  "admin@demo.tasklane.test",
+  "alice@demo.tasklane.test",
+  "bob@demo.tasklane.test",
+  "carol@demo.tasklane.test",
+  "dave@demo.tasklane.test",
+  "frank@demo.tasklane.test",
+  "morgan@demo.tasklane.test",
+  "pat@demo.tasklane.test",
+  "grace@demo.tasklane.test",
 ];
 const DEMO_LOCALS = [
   "admin",
@@ -198,7 +198,7 @@ async function loginDemoAdmin(page: Page) {
 }
 
 test.describe("demo-showcase", () => {
-  test("the real login is locked to Vaultr — server-rendered, ignores the brand cookie", async ({
+  test("the real login is locked to Tasklane — server-rendered, ignores the brand cookie", async ({
     browser,
     baseURL,
   }) => {
@@ -206,10 +206,10 @@ test.describe("demo-showcase", () => {
       baseURL ?? process.env.SIGRA_EXAMPLE_URL ?? "http://localhost:4000";
 
     // The homepage brand-lab preview can set the sigra_demo_brand cookie, but the
-    // real /users/log_in is the Vaultr app's own auth surface (plain Vaultr palette
-    // + OS light/dark, like the homepage) and must stay Vaultr regardless — even on
+    // real /users/log_in is the Tasklane app's own auth surface (plain Tasklane palette
+    // + OS light/dark, like the homepage) and must stay Tasklane regardless — even on
     // first paint, before demo JS runs. app.js is blocked to prove the server render.
-    const assertVaultrLogin = async (
+    const assertTasklaneLogin = async (
       brandCookie: string | null,
       themeCookie: string | null = null,
     ) => {
@@ -240,14 +240,14 @@ test.describe("demo-showcase", () => {
         await page.route("**/assets/js/app.js*", (route) => route.abort());
         await page.goto("/users/log_in");
 
-        const login = page.locator('[data-testid="vaultr-login"]');
-        // Always Vaultr, never another brand, with no demo-brand switcher hooks.
-        await expect(login).toContainText("Log in to Vaultr");
+        const login = page.locator('[data-testid="tasklane-login"]');
+        // Always Tasklane, never another brand, with no demo-brand switcher hooks.
+        await expect(login).toContainText("Log in to Tasklane");
         await expect(login).not.toContainText("Night Ops");
         await expect(login).not.toContainText("Meridian");
         await expect(login.locator("img.vt-brand__mark")).toHaveAttribute(
           "src",
-          "/images/vaultr-mark.svg",
+          "/images/tasklane-mark.svg",
         );
         const hasBrandHook = await login.evaluate((el) =>
           [...el.attributes].some((a) => a.name.startsWith("data-demo-brand")),
@@ -255,7 +255,7 @@ test.describe("demo-showcase", () => {
         expect(hasBrandHook).toBe(false);
 
         // Brand-agnostic cascade check: the auth surface's --vt-color-* tokens (the
-        // global Vaultr palette, dark under this dark context) reach its controls —
+        // global Tasklane palette, dark under this dark context) reach its controls —
         // the login button uses --vt-color-primary / --vt-color-on-primary and the
         // remember toggle uses --vt-color-panel.
         const probe = async (selector: string) =>
@@ -298,9 +298,9 @@ test.describe("demo-showcase", () => {
       }
     };
 
-    await assertVaultrLogin(null);
-    await assertVaultrLogin("meridian"); // brand cookie ignored
-    await assertVaultrLogin("night-ops", "dark"); // brand + theme cookie ignored
+    await assertTasklaneLogin(null);
+    await assertTasklaneLogin("meridian"); // brand cookie ignored
+    await assertTasklaneLogin("night-ops", "dark"); // brand + theme cookie ignored
   });
 
   test("home page orients evaluators before login", async ({ page }) => {
@@ -310,13 +310,13 @@ test.describe("demo-showcase", () => {
       page.locator('[data-testid="home-evaluator-doorway"]'),
     ).toBeVisible();
     await expect(
-      page.getByText("Vaultr demo app · secured by Sigra"),
+      page.getByText("Tasklane demo app · secured by Sigra"),
     ).toBeVisible();
     await expect(
       page.getByText("Evaluate Sigra inside a distinct customer app."),
     ).toBeVisible();
 
-    // Vaultr mini-brand typography guard: the demo host app must render in its
+    // Tasklane mini-brand typography guard: the demo host app must render in its
     // OWN fonts — Fraunces (serif display/wordmark) + Inter (body) — and NEVER
     // the Sigra brand font (Space Grotesk). Without this, the word "Sigra" in the
     // hero copy renders in the Sigra logo typeface and looks confusable.
@@ -334,12 +334,12 @@ test.describe("demo-showcase", () => {
 
     await expect(
       page.locator('[data-testid="home-domain-context"]'),
-    ).toContainText("demo.vaultr.test");
+    ).toContainText("demo.tasklane.test");
     await expect(page.getByText("One login, two jobs.")).toBeVisible();
     await expect(
-      page.getByText("admin@demo.vaultr.test").first(),
+      page.getByText("admin@demo.tasklane.test").first(),
     ).toBeVisible();
-    await expect(page.getByText("@demo.vaultr.test").first()).toBeVisible();
+    await expect(page.getByText("@demo.tasklane.test").first()).toBeVisible();
     const operatorPanel = page.locator(
       '[data-testid="home-shared-login-copy"]',
     );
@@ -492,13 +492,13 @@ test.describe("demo-showcase", () => {
     const brandSelect = page.getByLabel("Brand preset");
     const authPreview = page.locator("[data-demo-auth-preview]");
 
-    // Brand-lab now DEFAULTS to Vaultr (matching the app), then previews others.
-    await expect(brandSelect).toHaveValue("vaultr");
+    // Brand-lab now DEFAULTS to Tasklane (matching the app), then previews others.
+    await expect(brandSelect).toHaveValue("tasklane");
     await expect(brandLab.getByLabel("Light")).toBeChecked();
     await expect(authPreview).toHaveAttribute("data-theme", "light");
-    await expect(brandLab).toContainText("Vaultr");
+    await expect(brandLab).toContainText("Tasklane");
     await expect(
-      brandLab.getByRole("heading", { name: "Log in to Vaultr" }),
+      brandLab.getByRole("heading", { name: "Log in to Tasklane" }),
     ).toBeVisible();
     await brandSelect.selectOption("meridian");
     await expect
@@ -586,20 +586,20 @@ test.describe("demo-showcase", () => {
       )
       .toBe("#0c0a1a");
     // KEY GUARD: the brand-lab wrote sigra_demo_brand=night-ops for its own preview
-    // persistence — but the REAL login must ignore it and stay Vaultr. Switching the
+    // persistence — but the REAL login must ignore it and stay Tasklane. Switching the
     // homepage brand never re-skins the actual auth surface.
     await page.reload();
     await expect(page.getByLabel("Brand preset")).toHaveValue("night-ops");
     await page.goto("/users/log_in");
-    const login = page.locator('[data-testid="vaultr-login"]');
-    await expect(login).toContainText("Log in to Vaultr");
-    await expect(login).toContainText("New to Vaultr?");
+    const login = page.locator('[data-testid="tasklane-login"]');
+    await expect(login).toContainText("Log in to Tasklane");
+    await expect(login).toContainText("New to Tasklane?");
     await expect(login).not.toContainText("Night Ops");
     expect(await login.getAttribute("data-demo-brand-default")).toBeNull();
     await expect(login.locator("[data-demo-brand-logo]")).toHaveCount(0);
     await expect(login.locator("img.vt-brand__mark")).toHaveAttribute(
       "src",
-      "/images/vaultr-mark.svg",
+      "/images/tasklane-mark.svg",
     );
     await expect(login.getByText("Secured by Sigra")).toHaveCount(0);
     await expect(login.getByText("Use your email and password")).toHaveCount(0);
@@ -823,7 +823,7 @@ test.describe("demo-showcase", () => {
     ).toContainText("9");
     await expect(
       page.locator('[data-testid="home-featured-personas"]'),
-    ).toContainText("morgan@demo.vaultr.test");
+    ).toContainText("morgan@demo.tasklane.test");
     await expect(
       page.getByRole("link", { name: "Open Sigra Admin" }),
     ).toHaveAttribute("href", "/admin");
@@ -914,9 +914,9 @@ test.describe("demo-showcase", () => {
     await loginDemoAdmin(page);
 
     // ──────────────────────────────────────────────────────────────────
-    // Step 3: /admin/users?q=demo.vaultr.test — assert all 9 demo emails
+    // Step 3: /admin/users?q=demo.tasklane.test — assert all 9 demo emails
     // ──────────────────────────────────────────────────────────────────
-    await page.goto("/admin/users?q=demo.vaultr.test");
+    await page.goto("/admin/users?q=demo.tasklane.test");
     await waitForLiveViewReady(page);
 
     for (const email of DEMO_EMAILS) {
