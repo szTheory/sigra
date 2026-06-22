@@ -2,7 +2,7 @@ defmodule Example.Demo.Seeds do
   @moduledoc """
   Idempotent demo-database seed orchestrator.
 
-  Calling `run/0` populates the development database with nine `@demo.vaultr.test`
+  Calling `run/0` populates the development database with nine `@demo.tasklane.test`
   personas covering every notable auth state (admin with TOTP + passkey + multi-org,
   standard user, TOTP-enrolled org owner, GitHub OAuth identity, locked-out,
   scheduled-deletion, non-platform org admin, passkey-only, and deletion-scheduled
@@ -343,7 +343,7 @@ defmodule Example.Demo.Seeds do
     # Fabricated binary credential_id and public_key — zero Wax validation,
     # so the inserts succeed. Rows exist only to populate the admin UI panel.
     upsert_passkey(admin, "sigra-demo-admin-passkey-credential-id-v1")
-    # pat@demo.vaultr.test: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
+    # pat@demo.tasklane.test: passkey-only persona (FIXT-03) — demonstrates "Passkeys" pill
     upsert_passkey(pat, "sigra-demo-pat-passkey-credential-id-v1")
   end
 

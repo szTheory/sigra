@@ -3,18 +3,18 @@
 
 <main class="vt-home">
   <div class="vt-home__shell" data-testid="home-evaluator-doorway">
-    <header class="vt-topline" aria-label="Vaultr demo identity">
+    <header class="vt-topline" aria-label="Tasklane demo identity">
       <a href="/" class="vt-brand">
         <img
-          src={~p"/images/vaultr-mark.svg"}
+          src={~p"/images/tasklane-mark.svg"}
           width="36"
           height="36"
           alt=""
           class="vt-brand__mark"
         />
         <span>
-          <span class="vt-brand__name">Vaultr</span>
-          <span class="vt-brand__tag">Team secrets vault</span>
+          <span class="vt-brand__name">Tasklane</span>
+          <span class="vt-brand__tag">Work tracking for teams</span>
         </span>
       </a>
 
@@ -28,19 +28,20 @@
 
     <section class="vt-hero">
       <div class="vt-hero__copy">
-        <p class="vt-kicker">Vaultr demo app · secured by Sigra</p>
+        <p class="vt-kicker">Tasklane demo app · secured by Sigra</p>
         <h1 class="vt-title">Evaluate Sigra inside a distinct customer app.</h1>
         <p class="vt-subtitle">
-          Vaultr is a fictional <strong>team secrets vault</strong> — companies store and
-          share API keys, passwords, and certificates across teams, behind strong auth.
-          Sigra supplies that authentication, organizations, audit trails, and operator
-          tooling underneath. The seeded Vaultr cohort lets evaluators inspect customer
-          sign-in and support workflows without creating accounts.
+          Tasklane is a fictional <strong>project tracker</strong> — teams plan and ship
+          work together across shared workspaces. Its sign-in, organizations, audit
+          trails, and operator tooling are all powered by Sigra underneath; the product
+          itself (boards and tasks) is out of scope for this auth demo. The seeded
+          Tasklane cohort lets evaluators inspect customer sign-in and support workflows
+          without creating accounts.
         </p>
 
         <div class="vt-identity-grid">
           <div class="vt-identity-item">
-            <span>Vaultr cohort domain</span>
+            <span>Tasklane cohort domain</span>
             <strong>{"@" <> @demo_domain}</strong>
           </div>
           <div class="vt-identity-item">
@@ -55,7 +56,7 @@
 
         <div class="vt-action-row">
           <a :if={is_nil(@current_scope)} href="/users/log_in" class="vt-btn vt-btn--primary">
-            Sign in to Vaultr
+            Sign in to Tasklane
           </a>
           <a :if={@current_scope} href={~p"/app"} class="vt-btn vt-btn--primary">
             Open your dashboard
@@ -80,23 +81,23 @@
 
       <aside class="vt-panel vt-panel--operator" data-testid="home-shared-login-copy">
         <p class="vt-kicker">One login, two jobs.</p>
-        <h2 class="vt-panel__title">Use Vaultr login for both customer and operator personas.</h2>
+        <h2 class="vt-panel__title">Use Tasklane login for both customer and operator personas.</h2>
         <p class="vt-copy">
           <code class="vt-code">/users/log_in</code>
-          is Vaultr's shared login. Customer personas land in Vaultr auth flows; Sigra
+          is Tasklane's shared login. Customer personas land in Tasklane auth flows; Sigra
           operator personas can continue into admin routes.
         </p>
         <ul class="vt-operator-list">
           <li>
             <strong>Global Sigra Admin</strong>
             <br />
-            <code class="vt-code">admin@demo.vaultr.test</code>
+            <code class="vt-code">admin@demo.tasklane.test</code>
             opens <code class="vt-code">/admin</code>.
           </li>
           <li>
             <strong>Acme org admin</strong>
             <br />
-            <code class="vt-code">morgan@demo.vaultr.test</code>
+            <code class="vt-code">morgan@demo.tasklane.test</code>
             opens <code class="vt-code">/admin/organizations/acme-corp</code>.
           </li>
         </ul>
@@ -242,7 +243,7 @@
       </div>
     </section>
 
-    <section class="vt-card-grid" aria-label="Vaultr seeded demo world">
+    <section class="vt-card-grid" aria-label="Tasklane seeded demo world">
       <div class="vt-panel">
         <div class="vt-panel__header">
           <div>
@@ -291,7 +292,7 @@
         <div class="vt-panel__header">
           <div>
             <p class="vt-kicker">Seeded evidence</p>
-            <h2 class="vt-panel__title">What the Vaultr world proves</h2>
+            <h2 class="vt-panel__title">What the Tasklane world proves</h2>
           </div>
         </div>
 
@@ -302,7 +303,7 @@
             exercise organization scope, memberships, invitations, and tenant-aware audit rows.
           </li>
           <li>
-            <strong>{"@" <> @demo_domain}</strong> is the fixture-only Vaultr cohort domain.
+            <strong>{"@" <> @demo_domain}</strong> is the fixture-only Tasklane cohort domain.
           </li>
           <li>
             <strong>Sigra Admin</strong>
@@ -310,7 +311,7 @@
           </li>
           <li>
             <strong>Org admin path:</strong>
-            sign in as <code class="vt-code">morgan@demo.vaultr.test</code>, then open <code class="vt-code">/admin/organizations/acme-corp</code>.
+            sign in as <code class="vt-code">morgan@demo.tasklane.test</code>, then open <code class="vt-code">/admin/organizations/acme-corp</code>.
           </li>
         </ul>
       </div>

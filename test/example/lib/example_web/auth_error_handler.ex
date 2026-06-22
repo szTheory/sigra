@@ -41,7 +41,7 @@ defmodule ExampleWeb.AuthErrorHandler do
   @impl true
   def auth_error(conn, :insufficient_scope, _opts) do
     # An authenticated user who simply lacks admin scope shouldn't dead-end on a
-    # raw 403 — send them home to their Vaultr account hub with a clear message
+    # raw 403 — send them home to their Tasklane account hub with a clear message
     # (principle of least surprise). Keep the hard 403 for unauthenticated /
     # non-HTML callers, where there is no session to flash into or page to land on.
     case conn.assigns[:current_scope] do

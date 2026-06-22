@@ -47,10 +47,10 @@ defmodule ExampleWeb.Layouts do
     <header class="vt-app-header">
       <div class="vt-app-header__inner vt-app-container">
         <a href="/" class="vt-brand">
-          <img src={~p"/images/vaultr-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
+          <img src={~p"/images/tasklane-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
           <span>
-            <span class="vt-brand__name" data-testid="app-name">Vaultr</span>
-            <span class="vt-brand__tag">Team secrets vault</span>
+            <span class="vt-brand__name" data-testid="app-name">Tasklane</span>
+            <span class="vt-brand__tag">Work tracking for teams</span>
           </span>
         </a>
         <div class="vt-app-actions">

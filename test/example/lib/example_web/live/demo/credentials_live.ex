@@ -32,12 +32,12 @@ defmodule ExampleWeb.Demo.CredentialsLive do
         <header class="vt-panel__header">
           <div>
             <p class="vt-kicker">Evaluator hub</p>
-            <h1 class="vt-panel__title">Vaultr demo personas</h1>
+            <h1 class="vt-panel__title">Tasklane demo personas</h1>
             <p class="vt-copy">
-              Vaultr is the fictional host app; Sigra supplies its auth, organizations,
+              Tasklane is the fictional host app; Sigra supplies its auth, organizations,
               audit, and admin UI. Use these public-by-design
               <code class="vt-code">{"@" <> Personas.demo_domain()}</code>
-              credentials on the shared Vaultr login page to exercise both customer journeys
+              credentials on the shared Tasklane login page to exercise both customer journeys
               and Sigra operator workflows.
             </p>
           </div>
@@ -46,16 +46,16 @@ defmodule ExampleWeb.Demo.CredentialsLive do
 
         <div class="vt-card-grid vt-card-grid--three">
           <a href="/users/log_in" class="vt-panel">
-            <p class="vt-kicker">Vaultr</p>
+            <p class="vt-kicker">Tasklane</p>
             <h2 class="vt-panel__title">Sign in</h2>
-            <p class="vt-copy">Use a persona below on Vaultr's shared login page.</p>
+            <p class="vt-copy">Use a persona below on Tasklane's shared login page.</p>
           </a>
           <a href="/admin" class="vt-panel">
             <p class="vt-kicker">Sigra</p>
             <h2 class="vt-panel__title">Operate admin</h2>
             <p class="vt-copy">
-              Sign in as admin@demo.vaultr.test for global /admin. Use
-              morgan@demo.vaultr.test for /admin/organizations/acme-corp.
+              Sign in as admin@demo.tasklane.test for global /admin. Use
+              morgan@demo.tasklane.test for /admin/organizations/acme-corp.
             </p>
           </a>
           <a href="/dev/mailbox" class="vt-panel">

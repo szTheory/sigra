@@ -17,38 +17,38 @@ defmodule ExampleWeb.SessionHTML do
   def new(assigns) do
     ~H"""
     <%!--
-      The real login is the Vaultr app's own auth surface: a plain Vaultr page on
-      the global Vaultr palette + OS light/dark (no data-theme / inline brand style
+      The real login is the Tasklane app's own auth surface: a plain Tasklane page on
+      the global Tasklane palette + OS light/dark (no data-theme / inline brand style
       needed — same as the homepage). It carries NO data-demo-brand-* hooks, so
       neither the brand cookie nor demo_branding.js can re-skin it; the homepage
-      brand-lab is a preview only. "Vaultr" is hard-coded here exactly as the
+      brand-lab is a preview only. "Tasklane" is hard-coded here exactly as the
       homepage header and app shell hard-code it.
     --%>
     <%!--
       data-theme="system" makes the auth surface follow the OS light/dark
       color-scheme (via the .vt-auth[data-theme="system"] rules) — it carries NO
       brand mapping (that needs [data-demo-brand-surface]) and no JS hook (that
-      needs data-demo-brand-presets), so it stays plain Vaultr.
+      needs data-demo-brand-presets), so it stays plain Tasklane.
     --%>
     <section
       class="vt-auth vt-auth--login"
-      data-testid="vaultr-login"
+      data-testid="tasklane-login"
       data-theme="system"
     >
       <div class="vt-auth__panel">
         <a href={~p"/"} class="vt-brand">
-          <img src={~p"/images/vaultr-mark.svg"} alt="Vaultr logo" class="vt-brand__mark" />
+          <img src={~p"/images/tasklane-mark.svg"} alt="Tasklane logo" class="vt-brand__mark" />
           <span>
-            <span class="vt-brand__name">Vaultr</span>
-            <span class="vt-brand__tag">Team secrets vault</span>
+            <span class="vt-brand__name">Tasklane</span>
+            <span class="vt-brand__tag">Work tracking for teams</span>
           </span>
         </a>
 
         <div class="vt-auth__intro">
           <p class="vt-kicker">Sign in</p>
-          <h1 class="vt-auth__title">Log in to Vaultr</h1>
+          <h1 class="vt-auth__title">Log in to Tasklane</h1>
           <p class="vt-auth__copy">
-            New to Vaultr?
+            New to Tasklane?
             <.link navigate={~p"/users/register"} class="vt-link">
               Create an account.
             </.link>

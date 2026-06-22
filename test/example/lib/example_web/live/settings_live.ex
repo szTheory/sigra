@@ -1,6 +1,6 @@
 defmodule ExampleWeb.SettingsLive do
   @moduledoc """
-  Vaultr account settings — the host app's own, fully-functional account screen
+  Tasklane account settings — the host app's own, fully-functional account screen
   built on Sigra's account-management functions.
 
   Sections:
@@ -10,7 +10,7 @@ defmodule ExampleWeb.SettingsLive do
   - **Password** — change with current password, or set one for OAuth-only users
   - **Delete account** — schedule deletion with the configured grace period, cancel
 
-  Rendered inside `Layouts.app` (the authenticated Vaultr chrome) and styled with
+  Rendered inside `Layouts.app` (the authenticated Tasklane chrome) and styled with
   the `vt-*` design system. Adapted from the `mix sigra.install` settings template.
   """
   use ExampleWeb, :live_view
@@ -99,7 +99,7 @@ defmodule ExampleWeb.SettingsLive do
                 label="Display name"
                 placeholder={@current_scope.user.email}
               />
-              <p class="vt-copy">Shown across Vaultr. Leave blank to use your email.</p>
+              <p class="vt-copy">Shown across Tasklane. Leave blank to use your email.</p>
               <.button class="vt-btn vt-btn--primary">Save profile</.button>
             </.form>
           </section>

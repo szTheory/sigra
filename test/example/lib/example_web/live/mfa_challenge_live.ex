@@ -48,10 +48,10 @@ defmodule ExampleWeb.MFAChallengeLive do
     <section class="vt-auth" data-theme="system" data-testid="mfa-challenge">
       <div class="vt-auth__panel">
         <a href={~p"/"} class="vt-brand">
-          <img src={~p"/images/vaultr-mark.svg"} alt="Vaultr logo" class="vt-brand__mark" />
+          <img src={~p"/images/tasklane-mark.svg"} alt="Tasklane logo" class="vt-brand__mark" />
           <span>
-            <span class="vt-brand__name">Vaultr</span>
-            <span class="vt-brand__tag">Team secrets vault</span>
+            <span class="vt-brand__name">Tasklane</span>
+            <span class="vt-brand__tag">Work tracking for teams</span>
           </span>
         </a>
         <div class="vt-auth__intro">

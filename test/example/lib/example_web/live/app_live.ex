@@ -1,8 +1,8 @@
 defmodule ExampleWeb.AppLive do
   @moduledoc """
-  Vaultr authenticated account home (`/app`).
+  Tasklane authenticated account home (`/app`).
 
-  The post-login landing for every persona: a thin, Vaultr-branded hub that
+  The post-login landing for every persona: a thin, Tasklane-branded hub that
   greets the signed-in user and routes them into Sigra's real surfaces
   (account settings, active sessions, organizations) with operator/admin cards
   shown only when the persona's scope allows. This is the demo's proof that a
@@ -29,7 +29,7 @@ defmodule ExampleWeb.AppLive do
 
     {:ok,
      socket
-     |> assign(:page_title, "Your Vaultr account")
+     |> assign(:page_title, "Your Tasklane account")
      |> assign(:greeting_name, user.display_name || user.email)
      |> assign(:mfa_enabled?, Accounts.mfa_enabled?(user))
      |> assign(:passkey_count, Accounts.passkey_count_for_user(user))
@@ -51,7 +51,7 @@ defmodule ExampleWeb.AppLive do
       <section class="vt-page-intro" data-testid="app-account-home">
         <header class="vt-panel__header">
           <div>
-            <p class="vt-kicker">Your Vaultr account</p>
+            <p class="vt-kicker">Your Tasklane account</p>
             <h1 class="vt-panel__title">Welcome back, {@greeting_name}</h1>
             <p class="vt-copy">{@current_scope.user.email}</p>
           </div>
@@ -63,7 +63,7 @@ defmodule ExampleWeb.AppLive do
           data-testid="app-deletion-notice"
         >
           <p class="vt-kicker">Account scheduled for deletion</p>
-          <h2 class="vt-panel__title">Reactivate your Vaultr account</h2>
+          <h2 class="vt-panel__title">Reactivate your Tasklane account</h2>
           <p class="vt-copy">
             This account is scheduled for deletion. You can cancel it and keep your data.
           </p>
@@ -131,7 +131,7 @@ defmodule ExampleWeb.AppLive do
           <div class="vt-panel__header">
             <div>
               <p class="vt-kicker">Organizations</p>
-              <h2 class="vt-panel__title">Where you work in Vaultr</h2>
+              <h2 class="vt-panel__title">Where you work in Tasklane</h2>
             </div>
             <a href={~p"/organizations"} class="vt-btn vt-btn--ghost">View all</a>
           </div>

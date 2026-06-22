@@ -28,8 +28,8 @@ defmodule ExampleWeb.SessionController do
     form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
     magic_link_form = Phoenix.Component.to_form(%{"email" => email}, as: "user")
 
-    # The real login is the Vaultr app's own auth surface — a plain Vaultr page
-    # using the global Vaultr palette + OS light/dark, exactly like the homepage.
+    # The real login is the Tasklane app's own auth surface — a plain Tasklane page
+    # using the global Tasklane palette + OS light/dark, exactly like the homepage.
     # The demo brand cookie / homepage brand-lab drive only the white-label PREVIEW
     # and never re-skin this page, so the login never says "Night Ops" / "Meridian".
     render(conn, :new,

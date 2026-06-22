@@ -594,8 +594,8 @@ defmodule Example.Accounts do
       scope_module: Example.Accounts.Scope,
       organizations_module: Example.Organizations,
       branding: [
-        product_name: "Vaultr",
-        email_from_name: "Vaultr",
+        product_name: "Tasklane",
+        email_from_name: "Tasklane",
         email_from_address: "noreply@example.com",
         accent_color: "#9a3412",
         accent_foreground: "#ffffff",

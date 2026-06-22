@@ -6,7 +6,7 @@ defmodule Example.Demo.Personas do
   Consumed both by the seed orchestrator (plan 03) and the `/demo/credentials` LiveView
   (plan 04).
 
-  All personas use the `@demo.vaultr.test` email domain to keep seeded data strictly
+  All personas use the `@demo.tasklane.test` email domain to keep seeded data strictly
   segregated from the golden-path CI fixture domain used in `mix test`.
 
   Passwords are public-by-design demo credentials. Each password satisfies
@@ -16,10 +16,10 @@ defmodule Example.Demo.Personas do
 
   # Demo-only — intentionally deterministic. Never use in production.
   @demo_totp_secret :crypto.hash(:sha256, "sigra-demo-admin-totp-v1") |> binary_part(0, 20)
-  @demo_domain "demo.vaultr.test"
+  @demo_domain "demo.tasklane.test"
 
   @doc """
-  Returns the fictional Vaultr cohort email domain used by the demo data.
+  Returns the fictional Tasklane cohort email domain used by the demo data.
   """
   @spec demo_domain() :: String.t()
   def demo_domain, do: @demo_domain
@@ -34,7 +34,7 @@ defmodule Example.Demo.Personas do
   Returns the list of all nine demo personas as maps.
 
   Each persona map contains:
-  - `:email` — fixed `@demo.vaultr.test` address
+  - `:email` — fixed `@demo.tasklane.test` address
   - `:display_name` — role-descriptive, stable across re-seeds
   - `:password` — policy-passing, public-by-design demo credential
   - `:confirmed` — whether to confirm the user after registration
@@ -182,7 +182,7 @@ defmodule Example.Demo.Personas do
   @doc """
   Returns the feature-text map keyed by email local part. Single source of truth (D-02)
   consumed by CredentialsLive and Seeds.run/0. Keys are the email local part (string before
-  '@') for all nine @demo.vaultr.test personas.
+  '@') for all nine @demo.tasklane.test personas.
   """
   @spec feature_map() :: %{String.t() => String.t()}
   def feature_map do

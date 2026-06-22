@@ -9,7 +9,7 @@ defmodule ExampleWeb.Components.OrgSwitcher do
 
   Renders a native `<details class="vt-menu">` dropdown (click to open,
   click-outside / Esc close via native `<details>` behaviour), styled with the
-  Vaultr `vt-*` design system. Other organizations are each wrapped in a tiny
+  Tasklane `vt-*` design system. Other organizations are each wrapped in a tiny
   POST form that submits to `/organizations/switch`, preserving the
   sensitive-mutation-via-POST convention (D-05 / ORG-UX-03).
 

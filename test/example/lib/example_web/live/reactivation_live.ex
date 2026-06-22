@@ -30,10 +30,10 @@ defmodule ExampleWeb.ReactivationLive do
     <section class="vt-auth" data-theme="system" data-testid="reactivation">
       <div class="vt-auth__panel">
         <a href={~p"/"} class="vt-brand">
-          <img src={~p"/images/vaultr-mark.svg"} alt="Vaultr logo" class="vt-brand__mark" />
+          <img src={~p"/images/tasklane-mark.svg"} alt="Tasklane logo" class="vt-brand__mark" />
           <span>
-            <span class="vt-brand__name">Vaultr</span>
-            <span class="vt-brand__tag">Team secrets vault</span>
+            <span class="vt-brand__name">Tasklane</span>
+            <span class="vt-brand__tag">Work tracking for teams</span>
           </span>
         </a>
 
@@ -41,7 +41,7 @@ defmodule ExampleWeb.ReactivationLive do
           <p class="vt-kicker">Account</p>
           <h1 class="vt-auth__title">Account scheduled for deletion</h1>
           <p class="vt-auth__copy">
-            If you'd like to keep your Vaultr account, you can cancel the deletion now.
+            If you'd like to keep your Tasklane account, you can cancel the deletion now.
           </p>
         </div>
 
