@@ -79,7 +79,7 @@ defmodule ExampleWeb.Demo.CredentialsLive do
           <tbody>
             <tr :for={c <- @credentials} data-testid={"demo-persona-row-#{c.local}"}>
               <td><strong>{c.display_name}</strong></td>
-              <td>{c.email}</td>
+              <td><code class="vt-code">{c.email}</code></td>
               <td><code class="vt-code">{c.password}</code></td>
               <td>{c.feature}</td>
             </tr>

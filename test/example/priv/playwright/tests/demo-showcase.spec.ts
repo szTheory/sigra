@@ -827,6 +827,40 @@ test.describe("demo-showcase", () => {
     await expect(
       page.getByRole("link", { name: "Open Sigra Admin" }),
     ).toHaveAttribute("href", "/admin");
+
+    // Section spacing: the "Seeded evidence" panel header follows the stat grid
+    // and must get a clear section break above it (previously flush — the grid
+    // has no bottom margin and the kicker is margin: 0).
+    const seededEvidenceGap = await page
+      .locator(".vt-metric-grid + .vt-panel__header")
+      .first()
+      .evaluate((el) => parseFloat(getComputedStyle(el).marginTop));
+    expect(
+      seededEvidenceGap,
+      "panel header after a metric grid needs a top-margin section break",
+    ).toBeGreaterThan(0);
+
+    // Click-to-copy: credential chips copy to the clipboard on click and surface
+    // a transient "Copied" toast (position: fixed — no layout reflow).
+    await page
+      .context()
+      .grantPermissions(["clipboard-read", "clipboard-write"]);
+    const credentialChip = page
+      .locator('[data-testid="home-featured-personas"] code.vt-code')
+      .first();
+    const credentialText = ((await credentialChip.textContent()) ?? "").trim();
+    expect(credentialText.length).toBeGreaterThan(0);
+    expect(
+      await credentialChip.evaluate((el) => getComputedStyle(el).cursor),
+      "credential chip should advertise copy affordance",
+    ).toBe("copy");
+    await credentialChip.click();
+    await expect(page.locator(".sg-toast").first()).toContainText("Copied");
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()), {
+        message: "clicking a credential chip copies its text",
+      })
+      .toBe(credentialText);
   });
 
   test("documented evaluator path reaches authenticated flow within ten minutes", async ({

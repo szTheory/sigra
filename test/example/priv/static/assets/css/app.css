@@ -354,6 +354,12 @@
     monospace;
   font-size: 0.92em;
   overflow-wrap: anywhere;
+  cursor: copy;
+  transition: background var(--sg-motion-press, 120ms) ease;
+}
+
+.vt-code:hover {
+  background: color-mix(in oklab, var(--vt-color-accent-soft) 90%, transparent);
 }
 
 .vt-btn {
@@ -603,6 +609,15 @@ a.vt-panel {
   justify-content: space-between;
   gap: var(--sg-space-3);
   margin-bottom: var(--sg-space-4);
+}
+
+/* A panel header that follows a stat grid introduces a new sub-section, so it
+   needs a clear section break above it (the grid has no bottom margin and the
+   kicker is margin: 0). Header sits closer to the content it labels than to the
+   grid above. Only applies when a header directly follows a metric grid — a
+   header at the top of a panel is untouched. */
+.vt-metric-grid + .vt-panel__header {
+  margin-top: var(--sg-space-6);
 }
 
 .vt-panel__title {
