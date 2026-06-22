@@ -49,9 +49,14 @@ defmodule SigraInstallGoldenTmp.Accounts.UserToken do
   end
 
   defp build_hashed_token(user, context, sent_to) do
-    {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+    # `generate_hashed_token/0` already returns a URL-safe base64 STRING as its
+    # first element (the value to send to the user) plus the SHA-256 hash of the
+    # underlying random bytes to store. Use that encoded string as-is — re-encoding
+    # it produced a double-encoded token that the `verify_*` queries (which decode
+    # exactly once) could never hash back to the stored value.
+    {encoded_token, hashed_token} = Sigra.Token.generate_hashed_token()
 
-    {Base.url_encode64(raw_token, padding: false),
+    {encoded_token,
      %__MODULE__{
        token: hashed_token,
        context: context,

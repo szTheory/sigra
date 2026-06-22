@@ -2293,13 +2293,15 @@ defmodule Sigra.Auth do
   def confirm_email_change(config, encoded_token, opts \\ []) do
     repo = config.repo
     user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+    {session_store, session_store_opts} = session_store_and_opts(config, opts)
 
     merged_opts =
       Keyword.merge(
         [
           user_token_schema: user_token_schema,
           user_schema: config.user_schema,
-          session_store: get_session_store(config),
+          session_store: session_store,
+          session_store_opts: session_store_opts,
           config: config,
           find_user_by_token_fn: fn repo, token ->
             context_prefix = "change:"
