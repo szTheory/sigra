@@ -59,30 +59,34 @@ defmodule ExampleWeb.OrganizationSettingsLive do
       current_scope={@current_scope}
       user_organizations={@user_organizations}
     >
-      <div class="mx-auto max-w-2xl">
-        <.header>
-          Organization settings
-          <:subtitle>{@org.name}</:subtitle>
-        </.header>
+      <section class="vt-page-intro" data-testid="app-organization-settings">
+        <header class="vt-panel__header">
+          <div>
+            <p class="vt-kicker">Organization</p>
+            <h1 class="vt-panel__title">Organization settings</h1>
+            <p class="vt-copy">{@org.name}</p>
+          </div>
+          <a href={~p"/app"} class="vt-btn vt-btn--ghost">Back to dashboard</a>
+        </header>
 
         {# General (rename) — D-10}
-        <section class="bg-base-200 p-6 rounded-lg mt-6">
-          <h2 class="text-lg font-semibold">General</h2>
-          <.form for={@rename_form} phx-submit="rename" class="mt-4">
+        <section class="vt-panel">
+          <p class="vt-kicker">General</p>
+          <.form for={@rename_form} phx-submit="rename" class="vt-form">
             <.input field={@rename_form[:name]} label="Organization name" required />
-            <.button phx-disable-with="Saving...">Save name</.button>
+            <.button phx-disable-with="Saving..." class="vt-btn vt-btn--primary">Save name</.button>
           </.form>
         </section>
 
         {# Slug (progressive disclosure + sudo + typed-confirm + 7-day alias) — D-11, D-12}
-        <section class="bg-base-200 p-6 rounded-lg mt-8">
-          <h2 class="text-lg font-semibold">Slug</h2>
-          <p class="text-sm text-base-content/70 mt-1">
-            Current: <code>{@org.slug}</code>
+        <section class="vt-panel">
+          <p class="vt-kicker">Slug</p>
+          <p class="vt-copy">
+            Current: <code class="vt-code">{@org.slug}</code>
           </p>
 
           <%= if @slug_form_open? do %>
-            <.form for={@slug_form} phx-submit="update_slug" class="mt-4 space-y-3">
+            <.form for={@slug_form} phx-submit="update_slug" class="vt-form">
               <.input field={@slug_form[:slug]} label="New slug" required />
               <.input
                 field={@slug_form[:password]}
@@ -97,39 +101,39 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                 required
               />
 
-              <div role="alert" class="alert alert-warning alert-soft">
-                <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+              <div role="alert" class="vt-alert vt-alert--warning">
                 <span>
-                  Your current slug <code>{@org.slug}</code>
+                  Your current slug <code class="vt-code">{@org.slug}</code>
                   will redirect to the new slug for 7 days, after which it becomes
-                  available to other organizations. Links and bookmarks using <code>{@org.slug}</code>
+                  available to other organizations. Links and bookmarks using
+                  <code class="vt-code">{@org.slug}</code>
                   will continue to work during that window.
                 </span>
               </div>
 
-              <div class="flex gap-2">
-                <.button class="btn btn-error" phx-disable-with="Updating...">
+              <div style="display:flex;gap:var(--sg-space-2)">
+                <.button class="vt-btn vt-btn--danger-solid" phx-disable-with="Updating...">
                   Update slug
                 </.button>
-                <button type="button" phx-click="close_slug_form" class="btn btn-ghost">
+                <button type="button" phx-click="close_slug_form" class="vt-btn vt-btn--ghost">
                   Cancel
                 </button>
               </div>
             </.form>
           <% else %>
-            <.button phx-click="open_slug_form" class="mt-4">Change slug</.button>
+            <.button phx-click="open_slug_form" class="vt-btn">Change slug</.button>
           <% end %>
         </section>
 
         {# Danger zone (soft-delete) — D-10 red-zone treatment, D-11 inline sudo}
-        <section class="mt-8 rounded-lg border border-error/40 border-l-4 border-l-error bg-base-100 p-6">
-          <h2 class="text-lg font-semibold text-error">Danger zone</h2>
-          <p class="text-sm mt-1">
+        <section class="vt-panel" data-testid="org-danger-zone">
+          <p class="vt-kicker">Danger zone</p>
+          <p class="vt-copy">
             Soft-delete this organization. Members lose access immediately.
           </p>
 
           <%= if @delete_form_open? do %>
-            <.form for={@delete_form} phx-submit="soft_delete" class="mt-4 space-y-3">
+            <.form for={@delete_form} phx-submit="soft_delete" class="vt-form">
               <.input
                 field={@delete_form[:password]}
                 type="password"
@@ -143,32 +147,32 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                 required
               />
 
-              <div class="flex gap-2">
-                <.button class="btn btn-error" phx-disable-with="Deleting...">
+              <div style="display:flex;gap:var(--sg-space-2)">
+                <.button class="vt-btn vt-btn--danger-solid" phx-disable-with="Deleting...">
                   Delete organization permanently
                 </.button>
-                <button type="button" phx-click="close_delete_form" class="btn btn-ghost">
+                <button type="button" phx-click="close_delete_form" class="vt-btn vt-btn--ghost">
                   Cancel
                 </button>
               </div>
             </.form>
           <% else %>
-            <.button phx-click="open_delete_form" class="btn btn-error btn-soft mt-4">
+            <.button phx-click="open_delete_form" class="vt-btn vt-btn--danger mt-4">
               Delete organization
             </.button>
           <% end %>
         </section>
 
-        <section class="bg-base-200 p-6 rounded-lg mt-8">
+        <section class="vt-panel">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h2 class="text-lg font-semibold">Enterprise SSO</h2>
+              <p class="vt-kicker">Enterprise SSO</p>
               <p class="text-sm text-base-content/70 mt-1">
                 Configure an organization-bound enterprise connection. Saving keeps a draft;
                 validate checks OIDC discovery; activate only succeeds when validation passes.
               </p>
             </div>
-            <span class="badge badge-outline">
+            <span class="vt-status-pill">
               {enterprise_status(@enterprise_connection)}
             </span>
           </div>
@@ -213,13 +217,7 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                   Turning on SSO-only requires at least one explicit break-glass member.
                 </p>
               </div>
-              <span class={[
-                "badge",
-                if(@auth_policy.enforcement_mode == :sso_required,
-                  do: "badge-warning",
-                  else: "badge-outline"
-                )
-              ]}>
+              <span class="vt-status-pill">
                 {auth_policy_status(@auth_policy)}
               </span>
             </div>
@@ -271,7 +269,7 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                 <.button
                   name="_action"
                   value="disable_sso_only"
-                  class="btn btn-ghost"
+                  class="vt-btn vt-btn--ghost"
                   phx-disable-with="Disabling..."
                 >
                   Disable SSO-only
@@ -290,14 +288,14 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                   class="flex items-center justify-between rounded-lg border border-base-300 bg-base-100 px-3 py-2"
                 >
                   <span>{exemption.email}</span>
-                  <span class="badge badge-outline">break-glass</span>
+                  <span class="vt-status-pill">break-glass</span>
                 </li>
               </ul>
             </div>
           </div>
 
           <%= if @enterprise_connection && @enterprise_connection.last_validation_error do %>
-            <div role="alert" class="alert alert-warning alert-soft mt-4">
+            <div role="alert" class="vt-alert vt-alert--warning">
               <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
               <span>{@enterprise_connection.last_validation_error}</span>
             </div>
@@ -365,14 +363,14 @@ defmodule ExampleWeb.OrganizationSettingsLive do
                 :if={@enterprise_connection}
                 type="button"
                 phx-click="disable_enterprise_connection"
-                class="btn btn-ghost"
+                class="vt-btn vt-btn--ghost"
               >
                 Disable
               </button>
             </div>
           </.form>
         </section>
-      </div>
+      </section>
     </Layouts.app>
     """
   end

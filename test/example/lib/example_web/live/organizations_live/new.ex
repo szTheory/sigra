@@ -15,13 +15,18 @@ defmodule ExampleWeb.OrganizationsLive.New do
   use ExampleWeb, :live_view
 
   alias Example.Organizations
+  alias ExampleWeb.Layouts
 
   @impl true
   def mount(_params, _session, socket) do
+    user = socket.assigns.current_scope.user
+
     socket =
       socket
       |> assign(:form, to_form(%{"name" => ""}, as: :organization))
       |> assign(:slug_preview, "")
+      |> assign(:user_organizations, Organizations.list_organizations_for_user(user))
+      |> assign(:page_title, "New organization")
 
     {:ok, socket}
   end
@@ -54,42 +59,38 @@ defmodule ExampleWeb.OrganizationsLive.New do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md py-16">
-      <.header>
-        Create organization
-      </.header>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      user_organizations={@user_organizations}
+    >
+      <section class="vt-page-intro" data-testid="app-organization-new">
+        <section class="vt-panel">
+          <div class="vt-panel__header">
+            <div>
+              <p class="vt-kicker">Organizations</p>
+              <h1 class="vt-panel__title">Create organization</h1>
+            </div>
+          </div>
 
-      <.form
-        for={@form}
-        id="organization-new-form"
-        phx-change="validate"
-        phx-submit="create"
-        class="mt-8"
-      >
-        <.input field={@form[:name]} type="text" label="Organization name" required />
+          <.form
+            for={@form}
+            id="organization-new-form"
+            phx-change="validate"
+            phx-submit="create"
+            class="vt-form"
+          >
+            <.input field={@form[:name]} type="text" label="Organization name" required />
+            <p id="slug-preview" class="vt-copy" aria-live="polite">{@slug_preview}</p>
+            <.button phx-disable-with="Creating..." class="vt-btn vt-btn--primary">
+              Create organization
+            </.button>
+          </.form>
 
-        <p
-          id="slug-preview"
-          class="text-sm text-base-content/70 mt-1"
-          aria-live="polite"
-        >
-          {@slug_preview}
-        </p>
-
-        <.button
-          phx-disable-with="Creating..."
-          class="btn btn-primary w-full mt-4"
-        >
-          Create organization
-        </.button>
-      </.form>
-
-      <div class="mt-6 text-center">
-        <.link navigate={~p"/organizations"} class="link link-hover text-sm">
-          Cancel
-        </.link>
-      </div>
-    </div>
+          <p><.link navigate={~p"/organizations"} class="vt-link">Cancel</.link></p>
+        </section>
+      </section>
+    </Layouts.app>
     """
   end
 
