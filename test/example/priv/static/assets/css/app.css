@@ -2784,3 +2784,27 @@ html[data-sg-admin-js="true"] .sg-cmdk__trigger {
   font-size: var(--sg-text-2xs);
   font-weight: var(--sg-weight-bold);
 }
+
+button.vt-menu__item {
+  border: 0;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.vt-menu__name {
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-menu__item-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sg-space-2);
+}

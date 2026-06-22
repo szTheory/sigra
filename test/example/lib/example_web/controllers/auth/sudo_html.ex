@@ -14,31 +14,48 @@ defmodule ExampleWeb.Auth.SudoHTML do
 
   def new(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header>
-        Confirm your password
-        <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
-      </.header>
+    <section class="vt-auth" data-theme="system" data-testid="sudo">
+      <div class="vt-auth__panel">
+        <a href={~p"/"} class="vt-brand">
+          <img src={~p"/images/vaultr-mark.svg"} alt="Vaultr logo" class="vt-brand__mark" />
+          <span>
+            <span class="vt-brand__name">Vaultr</span>
+            <span class="vt-brand__tag">Team secrets vault</span>
+          </span>
+        </a>
 
-      <.form :let={f} for={@form} action={~p"/users/sudo"} method="post" class="space-y-4">
-        <input type="hidden" name="sudo[return_to]" value={@return_to} />
-        <.input
-          field={f[:password]}
-          type="password"
-          label="Password"
-          autocomplete="current-password"
-          autofocus
-          required
-        />
-        <.button class="w-full">Confirm password</.button>
-      </.form>
+        <div class="vt-auth__intro">
+          <p class="vt-kicker">Confirm it's you</p>
+          <h1 class="vt-auth__title">Re-enter your password</h1>
+          <p class="vt-auth__copy">
+            For your security, please re-enter your password to continue.
+          </p>
+        </div>
 
-      <p class="mt-4 text-center text-sm">
-        <.link navigate={@return_to || ~p"/"} class="text-brand hover:underline">
-          Go back
-        </.link>
-      </p>
-    </div>
+        <.form
+          :let={f}
+          for={@form}
+          action={~p"/users/sudo"}
+          method="post"
+          class="vt-auth__form vt-auth__form--primary"
+        >
+          <input type="hidden" name="sudo[return_to]" value={@return_to} />
+          <.input
+            field={f[:password]}
+            type="password"
+            label="Password"
+            autocomplete="current-password"
+            autofocus
+            required
+          />
+          <.button class="vt-btn vt-btn--primary vt-btn--block">Confirm password</.button>
+        </.form>
+
+        <p>
+          <.link navigate={@return_to || ~p"/"} class="vt-link">Go back</.link>
+        </p>
+      </div>
+    </section>
     """
   end
 end

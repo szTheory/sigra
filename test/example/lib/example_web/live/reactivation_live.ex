@@ -27,33 +27,39 @@ defmodule ExampleWeb.ReactivationLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md mt-16">
-      <.header>
-        Your account is scheduled for deletion
-      </.header>
+    <section class="vt-auth" data-theme="system" data-testid="reactivation">
+      <div class="vt-auth__panel">
+        <a href={~p"/"} class="vt-brand">
+          <img src={~p"/images/vaultr-mark.svg"} alt="Vaultr logo" class="vt-brand__mark" />
+          <span>
+            <span class="vt-brand__name">Vaultr</span>
+            <span class="vt-brand__tag">Team secrets vault</span>
+          </span>
+        </a>
 
-      <div class="mt-6 text-sm text-gray-700">
-        <p>
-          Your account is scheduled for deletion on {@scheduled_deletion_date}.
-          Finalization will follow the configured deletion strategy.
-        </p>
-        <p class="mt-4">
-          If you'd like to keep your account, you can cancel the deletion now.
-        </p>
-      </div>
+        <div class="vt-auth__intro">
+          <p class="vt-kicker">Account</p>
+          <h1 class="vt-auth__title">Account scheduled for deletion</h1>
+          <p class="vt-auth__copy">
+            If you'd like to keep your Vaultr account, you can cancel the deletion now.
+          </p>
+        </div>
 
-      <div class="mt-8 space-y-3">
-        <.button phx-click="cancel_deletion" class="w-full">
-          Cancel deletion and keep my account
-        </.button>
-        <.link
-          navigate={~p"/users/log_out"}
-          class="block text-center text-sm text-gray-500 hover:underline"
-        >
-          I understand, sign me out
-        </.link>
+        <div class="vt-alert vt-alert--danger">
+          Scheduled for deletion on {@scheduled_deletion_date}. Finalization will follow the
+          configured deletion strategy.
+        </div>
+
+        <div class="vt-auth__form">
+          <.button phx-click="cancel_deletion" class="vt-btn vt-btn--primary vt-btn--block">
+            Cancel deletion and keep my account
+          </.button>
+          <.link href={~p"/users/log_out"} method="delete" class="vt-link">
+            I understand, sign me out
+          </.link>
+        </div>
       </div>
-    </div>
+    </section>
     """
   end
 

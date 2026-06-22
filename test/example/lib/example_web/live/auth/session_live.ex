@@ -15,6 +15,8 @@ defmodule ExampleWeb.Auth.SessionLive do
   use ExampleWeb, :live_view
 
   alias Example.Accounts, as: Auth
+  alias Example.Organizations
+  alias ExampleWeb.Layouts
 
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
@@ -25,77 +27,80 @@ defmodule ExampleWeb.Auth.SessionLive do
      assign(socket,
        sessions: sessions,
        current_token: current_token,
-       page_title: "Active Sessions"
+       user_organizations: Organizations.list_organizations_for_user(user),
+       page_title: "Active sessions"
      )}
   end
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
-      <.header>
-        Active Sessions
-        <:subtitle>These devices are currently signed in to your account.</:subtitle>
-      </.header>
-
-      <div class="mt-8 space-y-4">
-        <div
-          :for={session <- @sessions}
-          class="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
-        >
-          <div class="flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-semibold">
-                {device_name(session)}
-              </span>
-              <span
-                :if={current_session?(session, @current_token)}
-                class="inline-flex items-center rounded-md bg-brand/10 px-2 py-1 text-xs font-semibold text-brand"
-              >
-                This device
-              </span>
-            </div>
-            <div class="mt-1 text-sm text-gray-500">
-              <span>{session.ip || "Unknown IP"}</span>
-              <span class="mx-1">&middot;</span>
-              <span>{location(session)}</span>
-            </div>
-            <div class="mt-1 text-sm text-gray-500">
-              {relative_time(session.last_active_at)}
-            </div>
-          </div>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      user_organizations={@user_organizations}
+    >
+      <section class="vt-page-intro" data-testid="app-sessions">
+        <header class="vt-panel__header">
           <div>
-            <%= if current_session?(session, @current_token) do %>
-              <.button
-                phx-click="revoke_current"
-                phx-value-token={Base.url_encode64(session.hashed_token)}
-                data-confirm="This is your current session. Revoking it will log you out. Continue?"
-                class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
-              >
-                Revoke session
-              </.button>
-            <% else %>
-              <.button
-                phx-click="revoke"
-                phx-value-token={Base.url_encode64(session.hashed_token)}
-                class="text-sm text-red-600 bg-red-50 hover:bg-red-100"
-              >
-                Revoke session
-              </.button>
-            <% end %>
+            <p class="vt-kicker">Security</p>
+            <h1 class="vt-panel__title">Active sessions</h1>
+            <p class="vt-copy">These devices are currently signed in to your account.</p>
           </div>
-        </div>
-      </div>
+          <a href={~p"/app"} class="vt-btn vt-btn--ghost">Back to dashboard</a>
+        </header>
 
-      <div :if={length(@sessions) > 1} class="mt-8 border-t border-gray-200 pt-6">
-        <.button
-          phx-click="revoke_all"
-          data-confirm="This will end all sessions including your current one. You will be logged out."
-          class="text-red-600 bg-red-50 hover:bg-red-100"
-        >
-          Log out of all devices
-        </.button>
-      </div>
-    </div>
+        <div class="vt-seed-list">
+          <article
+            :for={session <- @sessions}
+            class="vt-panel"
+            style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sg-space-3)"
+          >
+            <div>
+              <div style="display:flex;align-items:center;gap:var(--sg-space-2)">
+                <strong>{device_name(session)}</strong>
+                <span
+                  :if={current_session?(session, @current_token)}
+                  class="vt-status-pill vt-status-pill--ok"
+                >
+                  This device
+                </span>
+              </div>
+              <p class="vt-copy">
+                {session.ip || "Unknown IP"} &middot; {location(session)}
+              </p>
+              <p class="vt-copy">{relative_time(session.last_active_at)}</p>
+            </div>
+            <.button
+              :if={current_session?(session, @current_token)}
+              phx-click="revoke_current"
+              phx-value-token={Base.url_encode64(session.hashed_token)}
+              data-confirm="This is your current session. Revoking it will log you out. Continue?"
+              class="vt-btn vt-btn--danger"
+            >
+              Revoke session
+            </.button>
+            <.button
+              :if={!current_session?(session, @current_token)}
+              phx-click="revoke"
+              phx-value-token={Base.url_encode64(session.hashed_token)}
+              class="vt-btn vt-btn--danger"
+            >
+              Revoke session
+            </.button>
+          </article>
+        </div>
+
+        <div :if={length(@sessions) > 1}>
+          <.button
+            phx-click="revoke_all"
+            data-confirm="This will end all sessions including your current one. You will be logged out."
+            class="vt-btn vt-btn--danger-solid"
+          >
+            Log out of all devices
+          </.button>
+        </div>
+      </section>
+    </Layouts.app>
     """
   end
 
