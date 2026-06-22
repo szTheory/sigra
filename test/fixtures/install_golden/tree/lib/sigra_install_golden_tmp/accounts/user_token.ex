@@ -71,6 +71,34 @@ defmodule SigraInstallGoldenTmp.Accounts.UserToken do
   context. The default contexts supported by this function are either
   "confirm" or "reset_password".
   """
+  # Email-change tokens are a special case. They are SENT to the NEW address (stored
+  # on the user as `pending_email`) and tagged with a context embedding the OLD email
+  # ("change:<old>"), so the generic head below — which matches the context exactly and
+  # requires `sent_to == user.email` — can never match them. The caller passes the
+  # "change:" prefix; we match the unique token hash + the change-context prefix + TTL,
+  # and verify the token was sent to the address now pending. `sent_to == user.email`
+  # is intentionally NOT applied here (the email switch happens during confirmation).
+  def verify_email_token_query(token, "change:" <> _) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = Sigra.Token.hash_token(decoded_token)
+
+        query =
+          from token in __MODULE__,
+            join: user in assoc(token, :user),
+            where: token.token == ^hashed_token,
+            where: like(token.context, "change:%"),
+            where: token.inserted_at > ago(@change_email_validity_in_days, "day"),
+            where: token.sent_to == user.pending_email,
+            select: user
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
+
   def verify_email_token_query(token, context) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
