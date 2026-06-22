@@ -22,9 +22,13 @@ defmodule ExampleWeb.AuthErrorHandler do
 
   @impl true
   def auth_error(conn, :stale_sudo, _opts) do
+    # Send the user to the dedicated re-auth page (NOT /users/log_in — an already
+    # authenticated user gets bounced straight back off the login page, so the
+    # password prompt never appears). Carry the original path so SudoController
+    # returns them where they were headed after confirming.
     conn
     |> put_flash(:error, "Please re-enter your password to continue.")
-    |> redirect(to: ~p"/users/log_in")
+    |> redirect(to: ~p"/users/sudo?#{[return_to: conn.request_path]}")
   end
 
   @impl true

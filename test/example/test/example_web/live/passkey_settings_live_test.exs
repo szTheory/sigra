@@ -54,7 +54,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
         |> log_in_user(user)
         |> post(~p"/users/settings/mfa/passkeys/options")
 
-      assert redirected_to(conn) == ~p"/users/log_in"
+      assert redirected_to(conn) =~ "/users/sudo"
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Please re-enter your password to continue."
@@ -68,7 +68,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
           "passkey" => %{"response" => encoded_passkey_response()}
         })
 
-      assert redirected_to(conn) == ~p"/users/log_in"
+      assert redirected_to(conn) =~ "/users/sudo"
       assert Accounts.passkey_count_for_user(user) == before_count
     end
 
@@ -178,7 +178,7 @@ defmodule ExampleWeb.PasskeySettingsLiveTest do
         |> log_in_user(user)
         |> post(~p"/users/settings/mfa/passkeys/#{encoded_id}/delete")
 
-      assert redirected_to(conn) == ~p"/users/log_in"
+      assert redirected_to(conn) =~ "/users/sudo"
       assert Repo.get(UserPasskey, passkey.id)
 
       conn =
