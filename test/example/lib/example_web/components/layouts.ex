@@ -50,7 +50,7 @@ defmodule ExampleWeb.Layouts do
           <img src={~p"/images/vaultr-mark.svg"} width="36" height="36" alt="" class="vt-brand__mark" />
           <span>
             <span class="vt-brand__name" data-testid="app-name">Vaultr</span>
-            <span class="vt-brand__tag">Fictional cohort app</span>
+            <span class="vt-brand__tag">Team secrets vault</span>
           </span>
         </a>
         <div class="vt-app-actions">

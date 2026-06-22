@@ -1211,6 +1211,47 @@ defmodule Example.Accounts do
   end
 
   @doc """
+  Changeset for the account settings "Profile" form (display name).
+  """
+  def change_display_name(user, attrs \\ %{}) do
+    User.profile_changeset(user, attrs)
+  end
+
+  @doc """
+  Persists profile edits (display name). Returns `{:ok, user}` or `{:error, changeset}`.
+  """
+  def update_display_name(user, attrs) do
+    user
+    |> User.profile_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Delivers the email-change confirmation link to the pending new address.
+
+  Mirrors the reset-password delivery path: builds the branded email via
+  `Emails.email_change_confirmation_email/3` and hands it to `Sigra.Delivery`.
+  The caller (settings LiveView) supplies the confirm URL since route/URL
+  building is a web-layer concern.
+  """
+  def deliver_email_change_confirmation(%User{} = user, new_email, url)
+      when is_binary(new_email) and is_binary(url) do
+    email_struct = Example.Accounts.Emails.email_change_confirmation_email(user, new_email, url)
+
+    Sigra.Delivery.deliver(
+      :email_change,
+      %{
+        user_id: user.id,
+        to: new_email,
+        subject: email_struct.subject,
+        body: %{html: email_struct.html_body, text: email_struct.text_body},
+        url: url
+      },
+      delivery_opts()
+    )
+  end
+
+  @doc """
   Confirm an email change via the token from the confirmation email.
 
   Returns `{:ok, user}` or `:error`.

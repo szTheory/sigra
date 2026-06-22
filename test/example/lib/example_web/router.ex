@@ -147,6 +147,7 @@ defmodule ExampleWeb.Router do
       on_mount: [{ExampleWeb.UserAuth, :ensure_authenticated}] do
       live "/sessions", Auth.SessionLive, :index
       live "/settings", SettingsLive, :edit
+      live "/settings/confirm-email/:token", SettingsLive, :confirm_email
       live "/reactivation", ReactivationLive
     end
   end

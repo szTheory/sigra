@@ -95,6 +95,28 @@ defmodule Example.Accounts.User do
   end
 
   @doc """
+  A changeset for editing user profile fields (currently the display name).
+
+  The display name is optional; clearing it falls back to the email for
+  greetings. Used by the account settings "Profile" section.
+  """
+  def profile_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:display_name])
+    |> update_change(:display_name, &normalize_display_name/1)
+    |> validate_length(:display_name, max: 80)
+  end
+
+  defp normalize_display_name(nil), do: nil
+
+  defp normalize_display_name(value) when is_binary(value) do
+    case String.trim(value) do
+      "" -> nil
+      trimmed -> trimmed
+    end
+  end
+
+  @doc """
   A changeset for changing the user email.
 
   It requires the email to change otherwise an error is added.

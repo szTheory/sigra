@@ -163,7 +163,7 @@ defmodule Example.Demo.Branding do
     %{
       id: "vaultr",
       label: "Vaultr",
-      description: "Teal security SaaS default for the fictional cohort app.",
+      description: "Teal default for Vaultr — the fictional team secrets vault.",
       email_subject: "Confirm your Vaultr account",
       default_theme: :light,
       profile: @vaultr_light,

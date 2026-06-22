@@ -40,6 +40,7 @@ defmodule ExampleWeb.SessionHTML do
           <img src={~p"/images/vaultr-mark.svg"} alt="Vaultr logo" class="vt-brand__mark" />
           <span>
             <span class="vt-brand__name">Vaultr</span>
+            <span class="vt-brand__tag">Team secrets vault</span>
           </span>
         </a>
 
