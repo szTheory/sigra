@@ -55,14 +55,6 @@ defmodule ExampleWeb.AppLive do
             <h1 class="vt-panel__title">Welcome back, {@greeting_name}</h1>
             <p class="vt-copy">{@current_scope.user.email}</p>
           </div>
-          <.link
-            href={~p"/users/log_out"}
-            method="delete"
-            class="vt-btn vt-btn--ghost"
-            data-testid="app-log-out"
-          >
-            Log out
-          </.link>
         </header>
 
         <div

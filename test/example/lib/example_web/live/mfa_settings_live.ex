@@ -16,6 +16,8 @@ defmodule ExampleWeb.MFASettingsLive do
   use ExampleWeb, :live_view
 
   alias Example.Accounts, as: Auth
+  alias Example.Organizations
+  alias ExampleWeb.Layouts
 
   @doc """
   Mount the MFA settings LiveView.
@@ -30,6 +32,7 @@ defmodule ExampleWeb.MFASettingsLive do
 
     {:ok,
      assign(socket,
+       user_organizations: Organizations.list_organizations_for_user(user),
        mfa_enabled: mfa_status.enabled,
        passkeys: passkeys,
        passkey_count: passkey_count,
@@ -56,20 +59,32 @@ defmodule ExampleWeb.MFASettingsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl">
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      user_organizations={@user_organizations}
+    >
+      <section class="vt-page-intro" data-testid="app-mfa-settings">
+        <header class="vt-panel__header">
+          <div>
+            <p class="vt-kicker">Security</p>
+            <h1 class="vt-panel__title">Two-factor &amp; passkeys</h1>
+          </div>
+          <a href={~p"/app"} class="vt-btn vt-btn--ghost">Back to dashboard</a>
+        </header>
       <%= if @mfa_enabled do %>
         <% # Surface 3: MFA Settings Card %>
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div class="vt-panel">
           <div class="flex justify-between items-center">
             <div>
               <span class="text-sm font-semibold">Two-factor authentication</span>
-              <span class="ml-2 inline-flex items-center text-green-700 bg-green-50 text-xs px-2 py-0.5 rounded-full font-semibold">
+              <span class="vt-status-pill vt-status-pill--ok">
                 Enabled
               </span>
             </div>
             <button
               phx-click="show_disable"
-              class="text-sm text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md"
+              class="vt-btn vt-btn--danger"
             >
               Disable
             </button>
@@ -97,7 +112,7 @@ defmodule ExampleWeb.MFASettingsLive do
             <p class="mt-1">
               <button
                 phx-click="show_regenerate"
-                class="text-sm text-brand hover:underline"
+                class="vt-link"
               >
                 Regenerate codes
               </button>
@@ -117,7 +132,7 @@ defmodule ExampleWeb.MFASettingsLive do
         </div>
 
         <% # Surface 4: Disable Confirmation %>
-        <div :if={@show_disable} class="mt-4 bg-red-50 p-4 rounded-lg border border-red-200">
+        <div :if={@show_disable} class="vt-alert vt-alert--danger">
           <h3 class="text-sm font-semibold text-red-800">Disable two-factor authentication</h3>
           <p class="mt-1 text-sm text-red-700">
             This will remove the extra security on your account.
@@ -149,7 +164,7 @@ defmodule ExampleWeb.MFASettingsLive do
               <div class="flex items-center gap-3">
                 <button
                   type="submit"
-                  class="text-sm text-red-600 bg-red-50 border border-red-300 hover:bg-red-100 px-3 py-1.5 rounded-md"
+                  class="vt-btn vt-btn--danger"
                 >
                   Disable two-factor authentication
                 </button>
@@ -166,7 +181,7 @@ defmodule ExampleWeb.MFASettingsLive do
         </div>
 
         <% # Regenerate codes confirmation %>
-        <div :if={@show_regenerate} class="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div :if={@show_regenerate} class="mt-4 vt-panel">
           <h3 class="text-sm font-semibold">Regenerate backup codes</h3>
           <p class="mt-1 text-sm text-gray-600">
             This will replace all existing backup codes. Enter your current TOTP code to confirm.
@@ -236,13 +251,14 @@ defmodule ExampleWeb.MFASettingsLive do
       <% end %>
 
       {render_passkeys_section(assigns)}
-    </div>
+      </section>
+    </Layouts.app>
     """
   end
 
   defp render_passkeys_section(assigns) do
     ~H"""
-    <section id="passkeys" class="mt-8 bg-gray-50 p-4 rounded-lg border border-gray-200">
+    <section id="passkeys" class="mt-8 vt-panel">
       <div class="flex items-start justify-between gap-4">
         <div>
           <h2 class="text-xl font-semibold">Passkeys</h2>
@@ -397,7 +413,7 @@ defmodule ExampleWeb.MFASettingsLive do
                   type="button"
                   phx-click="open_passkey_rename"
                   phx-value-id={passkey_param_id(passkey)}
-                  class="text-sm text-brand hover:underline"
+                  class="vt-link"
                 >
                   Rename
                 </button>
