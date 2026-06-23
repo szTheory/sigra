@@ -6,6 +6,12 @@ severity: bug
 area: lib/sigra/account/password_change.ex, lib/sigra/account/deletion.ex (+ auth.ex wiring)
 ---
 
+> **RESOLVED 2026-06-23 — quick task 260623-j59** (commits `880fe5fe`, `9a157a9f`, `5a25f665`).
+> Fixed all three real-path defects (missing `session_store_opts`; `Sigra.Config`
+> struct not Access-compatible; `schedule_deletion` missing `token_query_fn`) and
+> added real-store integration coverage (`session_invalidation_test.exs`),
+> regression-proven. See `.planning/quick/260623-j59-fix-session-invalidation-crashes-in-pass/260623-j59-SUMMARY.md`.
+
 # Session invalidation crashes in password-change and account-deletion flows
 
 While fixing email-change confirmation (260622-nft) I found the SAME shipped bug in
