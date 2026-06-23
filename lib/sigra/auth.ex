@@ -2363,12 +2363,14 @@ defmodule Sigra.Auth do
           {:ok, struct()} | {:error, term()}
   def change_password(config, user, current_password, attrs, opts \\ []) do
     repo = config.repo
+    {session_store, session_store_opts} = session_store_and_opts(config, opts)
 
     merged_opts =
       Keyword.merge(
         [
           changeset_fn: Keyword.fetch!(opts, :changeset_fn),
-          session_store: get_session_store(config),
+          session_store: session_store,
+          session_store_opts: session_store_opts,
           config: config,
           validate_password_fn: fn user, password ->
             config.user_schema.valid_password?(user, password)
@@ -2415,6 +2417,7 @@ defmodule Sigra.Auth do
           {:ok, struct(), DateTime.t()} | {:error, term()}
   def schedule_deletion(config, user, opts \\ []) do
     repo = config.repo
+    {session_store, session_store_opts} = session_store_and_opts(config, opts)
 
     merged_opts =
       Keyword.merge(
@@ -2424,7 +2427,8 @@ defmodule Sigra.Auth do
           user_schema: config.user_schema,
           scope_module: Map.get(config, :scope_module),
           audit_schema: get_in(config, [:audit, :audit_schema]),
-          session_store: get_session_store(config),
+          session_store: session_store,
+          session_store_opts: session_store_opts,
           session_schema: get_in(config, [:session, :session_schema]),
           user_token_schema: Keyword.fetch!(opts, :user_token_schema)
         ],
@@ -2483,10 +2487,6 @@ defmodule Sigra.Auth do
   end
 
   # -- Private helpers --
-
-  defp get_session_store(config) do
-    Keyword.get(config.session, :store, Sigra.SessionStores.Ecto)
-  end
 
   # Rejection sampling to eliminate modulo bias. A 4-byte unsigned integer
   # has max value 4,294,967,295. Values >= floor(2^32 / range) * range are

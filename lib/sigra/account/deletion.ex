@@ -394,7 +394,10 @@ defmodule Sigra.Account.Deletion do
     session_store = Keyword.get(opts, :session_store)
 
     if session_store do
-      session_store.delete_all_for_user(user.id, [])
+      # Thread `:repo` + `:session_schema` (via `:session_store_opts`) so the
+      # Ecto store can run the delete. Deletion revokes ALL sessions, so there
+      # is no `except_token` to preserve.
+      session_store.delete_all_for_user(user.id, Keyword.get(opts, :session_store_opts, []))
     end
   end
 end
