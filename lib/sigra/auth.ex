@@ -2418,6 +2418,7 @@ defmodule Sigra.Auth do
   def schedule_deletion(config, user, opts \\ []) do
     repo = config.repo
     {session_store, session_store_opts} = session_store_and_opts(config, opts)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
 
     merged_opts =
       Keyword.merge(
@@ -2426,11 +2427,14 @@ defmodule Sigra.Auth do
           repo: repo,
           user_schema: config.user_schema,
           scope_module: Map.get(config, :scope_module),
-          audit_schema: get_in(config, [:audit, :audit_schema]),
+          audit_schema: get_in(config.audit, [:audit_schema]),
           session_store: session_store,
           session_store_opts: session_store_opts,
-          session_schema: get_in(config, [:session, :session_schema]),
-          user_token_schema: Keyword.fetch!(opts, :user_token_schema)
+          session_schema: get_in(config.session, [:session_schema]),
+          user_token_schema: user_token_schema,
+          token_query_fn: fn user, contexts ->
+            user_token_schema.by_user_and_contexts_query(user, contexts)
+          end
         ],
         opts
       )

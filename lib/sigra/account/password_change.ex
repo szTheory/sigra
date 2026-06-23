@@ -162,7 +162,7 @@ defmodule Sigra.Account.PasswordChange do
     config = Keyword.get(opts, :config, [])
 
     invalidate? =
-      get_in(config, [:password, :invalidate_sessions_on_change]) != false
+      get_in(access_config(config), [:password, :invalidate_sessions_on_change]) != false
 
     if invalidate? do
       session_store = Keyword.get(opts, :session_store)
@@ -184,4 +184,10 @@ defmodule Sigra.Account.PasswordChange do
       end
     end
   end
+
+  # `config` may arrive as a `Sigra.Config` struct (the public `Sigra.Auth`
+  # path), a plain map, or a keyword list (unit tests). Only the latter two are
+  # Access-compatible; a struct must be turned into a map before `get_in/2`.
+  defp access_config(%_{} = config), do: Map.from_struct(config)
+  defp access_config(config), do: config
 end
