@@ -40,6 +40,12 @@ defmodule Example.Demo.Seeds do
   # Using a pinned constant so `occurred_at` spread is reproducible across re-runs.
   @seed_reference_ts ~U[2026-05-15 12:00:00Z]
 
+  # FIXT-02 bulk cohort target size. 36 users + 9 personas = 45 total on /admin/users,
+  # spanning 2 full pages at the @default_limit 25 page size (Finding 1 / D-09).
+  # Kept outside Personas.all/0 and excluded from both demo_user count queries via
+  # the `loadtest-` local-part prefix (Pitfall-3 resolution — seeds_test.exs).
+  @bulk_cohort_size 36
+
   @doc """
   Seeds the demo database idempotently.
 
@@ -48,6 +54,11 @@ defmodule Example.Demo.Seeds do
   """
   @spec run() :: :ok
   def run do
+    # FIXT-02 / Finding 1: seed the bulk cohort BEFORE the persona users so that
+    # the persona users (including admin) are the NEWEST rows (inserted_at DESC sort
+    # on /admin/users keeps admin first-listed — required by the content-equivalence
+    # test in admin-design.spec.ts which opens the first user's audit feed).
+    seed_bulk_users()
     users = seed_users()
     {acme, beta} = seed_organizations()
     seed_memberships(users, acme, beta)
@@ -75,6 +86,77 @@ defmodule Example.Demo.Seeds do
 
   defp demo_email(local), do: Personas.email(local)
   defp demo_user(users, local), do: Map.fetch!(users, demo_email(local))
+
+  ## ── List-scale "ugly" bulk user cohort (FIXT-02, D-09, D-10) ────────────────
+  #
+  # Seeds @bulk_cohort_size users with deliberately stress-test-worthy data:
+  # near-max-length email local parts, long multi-word display names, and a
+  # UUID-shaped identifier embedded in the name.
+  #
+  # Marker: `loadtest-` local-part prefix on `@demo.tasklane.test` domain so BOTH
+  # persona-count queries in seeds_test.exs can exclude them via
+  # `not like(u.email, "loadtest-%")` (Pitfall-3 resolution).
+  #
+  # Idempotency: count-threshold guard mirrors seeds.ex:634-651. The on_conflict
+  # path in register_user/1 (upsert_user/1) handles re-runs for existing rows.
+  # All inserts wrapped in a transaction so a partial run does not leave a count
+  # below threshold and re-fire on the next call.
+  #
+  # These users stay OUT of Personas.all/0 (D-09): no print_credentials output,
+  # no feature_map entry, no /demo/credentials exposure.
+
+  defp seed_bulk_users do
+    existing =
+      Repo.aggregate(
+        from(u in User, where: like(u.email, "loadtest-%")),
+        :count
+      )
+
+    if existing < @bulk_cohort_size do
+      result =
+        Repo.transaction(fn ->
+          Enum.each(1..@bulk_cohort_size, fn n ->
+            # Near-max-length email local part: `loadtest-NN-` prefix + 32-char hex token.
+            # The `@demo.tasklane.test` domain keeps seed data in the test domain while
+            # the `loadtest-` prefix allows BOTH persona-count queries to exclude it.
+            hex_token = Base.encode16(:crypto.hash(:md5, "bulk-user-#{n}-v1"), case: :lower)
+            email = "loadtest-#{String.pad_leading("#{n}", 2, "0")}-#{hex_token}@demo.tasklane.test"
+
+            # UUID-shaped identifier embedded in the display name for rendering pressure.
+            uuid_shaped =
+              "bulk-#{n}-#{Base.encode16(:crypto.hash(:sha256, "name-#{n}"), case: :lower) |> binary_part(0, 8)}"
+
+            # Long multi-word display name to pressure text overflow in the admin UI.
+            display_name =
+              "Load Test User #{String.pad_leading("#{n}", 2, "0")} Very Long Display Name #{uuid_shaped}"
+
+            upsert_user(%{
+              email: email,
+              display_name: display_name,
+              # Deterministic password derived from n — never shown on credentials page.
+              password: "BulkUser#{n}!LoadTest2026"
+            })
+            |> then(fn user ->
+              # Confirm each bulk user so they appear in the list like real users.
+              if user.confirmed_at do
+                user
+              else
+                user
+                |> User.confirm_changeset()
+                |> Repo.update!()
+              end
+            end)
+          end)
+        end)
+
+      case result do
+        {:ok, _} -> :ok
+        {:error, reason} -> raise "seed_bulk_users/0 failed: #{inspect(reason)}"
+      end
+    end
+
+    :ok
+  end
 
   ## ── User creation + state patches ───────────────────────────────────────────
 
