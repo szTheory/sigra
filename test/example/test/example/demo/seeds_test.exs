@@ -10,8 +10,10 @@ defmodule Example.Demo.SeedsTest do
   - SEED-01 idempotency (run twice -> identical counts)
   - SEED-02 nine personas + org/membership/invitation shape
   - SEED-03 rough-edge persona states (locked, scheduled-deletion, oauth identity, mfa, passkey)
-  - SEED-04 audit liveness (>=15 rows, >=6 distinct actions, admin-tied)
+  - SEED-04 audit liveness (>=25 rows, >=6 distinct actions, admin-tied) [FIXT-01]
   - SEED-06 security posture (argon2id hashes, deterministic totp secret)
+  - Bulk-cohort idempotency + exclusion (FIXT-02)
+  - Multi-session/multi-org breadth on admin persona (FIXT-02, D-11)
   """
   use Example.DataCase, async: false
 
@@ -24,20 +26,36 @@ defmodule Example.Demo.SeedsTest do
   alias Example.Accounts.OrganizationInvitation
   alias Example.Accounts.UserMFACredential
   alias Example.Accounts.UserPasskey
+  alias Example.Accounts.UserSession
   alias Example.Accounts.EnterpriseConnection
   alias Example.Accounts.UserIdentity
   alias Example.Accounts.AuditEvent
 
   @demo_domain "@demo.tasklane.test"
 
+  # Pitfall-3 resolution (FIXT-02): The bulk cohort uses emails with the
+  # `loadtest-` local-part prefix on the same @demo.tasklane.test domain.
+  # BOTH persona-count queries that glob `%@demo.tasklane.test` must exclude
+  # `loadtest-%` emails so `demo_users == length(Personas.all())` stays green.
+  # We apply `not like(u.email, "loadtest-%")` to the query in snapshot_counts/0
+  # (line ~40) AND to the SEED-02/03 catalog count (line ~122), which are two
+  # independent queries. The bulk cohort is counted separately in its own test.
+  @bulk_cohort_size 36
+
   defp demo_user!(email), do: Accounts.get_user_by_email(email)
 
   # Counts scoped to demo data so the assertions are unaffected by any
   # incidental rows another part of the suite might have left in a shared
   # (non-async) sandbox checkout.
+  # NOTE: `demo_users` counts only persona-domain users, EXCLUDING the loadtest-*
+  # bulk cohort (Pitfall-3 fix: both glob queries apply `not like(u.email, "loadtest-%")`).
   defp snapshot_counts do
     demo_user_ids =
-      Repo.all(from u in User, where: like(u.email, ^"%#{@demo_domain}"), select: u.id)
+      Repo.all(
+        from u in User,
+          where: like(u.email, ^"%#{@demo_domain}") and not like(u.email, "loadtest-%"),
+          select: u.id
+      )
 
     %{
       demo_users: length(demo_user_ids),
@@ -117,9 +135,14 @@ defmodule Example.Demo.SeedsTest do
     end
 
     test "seeds exactly the @demo.tasklane.test persona catalog of users" do
+      # Pitfall-3 fix: exclude loadtest-* bulk cohort from this count so it
+      # equals length(Personas.all()) — both domain-glob queries must apply
+      # the same exclusion (see snapshot_counts/0 and this query).
       count =
         Repo.aggregate(
-          from(u in User, where: like(u.email, ^"%#{@demo_domain}")),
+          from(u in User,
+            where: like(u.email, ^"%#{@demo_domain}") and not like(u.email, "loadtest-%")
+          ),
           :count
         )
 
@@ -282,7 +305,9 @@ defmodule Example.Demo.SeedsTest do
       :ok
     end
 
-    test "at least 15 audit events across at least 6 distinct actions, admin-tied" do
+    # FIXT-01: raised from >=15 to >=25 to cross the @default_limit 25 page size,
+    # making /admin/audit and the user-detail audit feed paginate for admin.
+    test "at least 25 audit events across at least 6 distinct actions, admin-tied (FIXT-01)" do
       admin = demo_user!("admin@demo.tasklane.test")
 
       admin_tied =
@@ -291,7 +316,8 @@ defmodule Example.Demo.SeedsTest do
           :count
         )
 
-      assert admin_tied >= 15
+      assert admin_tied >= 25,
+             "expected >=25 self-tied admin audit events for pagination (FIXT-01); got #{admin_tied}"
 
       distinct_actions =
         Repo.aggregate(
@@ -303,7 +329,8 @@ defmodule Example.Demo.SeedsTest do
           :count
         )
 
-      assert distinct_actions >= 6
+      assert distinct_actions >= 6,
+             "expected >=6 distinct audit action values for admin; got #{distinct_actions}"
 
       assert admin_tied >= 1,
              "expected at least one audit row tied to admin via effective_user_id"
@@ -351,6 +378,86 @@ defmodule Example.Demo.SeedsTest do
 
       assert String.starts_with?(alice.hashed_password, "$argon2id$"),
              "expected argon2id hash, got prefix #{inspect(String.slice(alice.hashed_password || "", 0, 12))}"
+    end
+  end
+
+  # FIXT-02: list-scale "ugly" bulk cohort (D-09, D-10)
+  # Bulk users use the `loadtest-` local-part prefix on @demo.tasklane.test so
+  # BOTH persona-count queries can exclude them via `not like(u.email, "loadtest-%")`.
+  describe "bulk user cohort (FIXT-02)" do
+    setup do
+      assert :ok = Seeds.run()
+      :ok
+    end
+
+    test "bulk cohort contains exactly @bulk_cohort_size users after run/0" do
+      count =
+        Repo.aggregate(
+          from(u in User, where: like(u.email, "loadtest-%")),
+          :count
+        )
+
+      assert count == @bulk_cohort_size,
+             "expected #{@bulk_cohort_size} bulk cohort users; got #{count}"
+    end
+
+    test "bulk cohort emails are absent from Personas.all()" do
+      persona_emails = Personas.all() |> Enum.map(& &1.email) |> MapSet.new()
+
+      bulk_emails =
+        Repo.all(from u in User, where: like(u.email, "loadtest-%"), select: u.email)
+
+      for email <- bulk_emails do
+        refute MapSet.member?(persona_emails, email),
+               "loadtest user #{email} should not appear in Personas.all()"
+      end
+    end
+
+    test "bulk count is stable across two run/0 calls (idempotency — SEED-01, FIXT-02)" do
+      # First run already done in setup; run a second time and check count is unchanged.
+      assert :ok = Seeds.run()
+
+      count =
+        Repo.aggregate(
+          from(u in User, where: like(u.email, "loadtest-%")),
+          :count
+        )
+
+      assert count == @bulk_cohort_size,
+             "second run/0 changed bulk count; expected #{@bulk_cohort_size}, got #{count} (no-op idempotency violated)"
+    end
+  end
+
+  # FIXT-02, D-11: multi-session + multi-org breadth on admin persona.
+  # Admin must carry >=2 active UserSession rows AND >=2 OrganizationMembership rows
+  # so /admin per-user Sessions and Organizations panels render multiple rows.
+  # Breadth uses EXISTING schema fields only (no new columns — D-11).
+  describe "multi-session/multi-org breadth (FIXT-02, D-11)" do
+    setup do
+      assert :ok = Seeds.run()
+      :ok
+    end
+
+    test "admin persona has >=2 active UserSession rows and >=2 OrganizationMembership rows" do
+      admin = demo_user!("admin@demo.tasklane.test")
+
+      session_count =
+        Repo.aggregate(
+          from(s in UserSession, where: s.user_id == ^admin.id),
+          :count
+        )
+
+      assert session_count >= 2,
+             "admin should have >=2 UserSession rows for FIXT-02 multi-session breadth; got #{session_count}"
+
+      membership_count =
+        Repo.aggregate(
+          from(m in OrganizationMembership, where: m.user_id == ^admin.id),
+          :count
+        )
+
+      assert membership_count >= 2,
+             "admin should have >=2 OrganizationMembership rows for FIXT-02 multi-org breadth; got #{membership_count}"
     end
   end
 
