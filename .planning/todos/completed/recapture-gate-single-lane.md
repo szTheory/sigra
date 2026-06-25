@@ -6,6 +6,16 @@ severity: warning
 area: scripts/ci/snapshot-recapture-gate.sh
 ---
 
+> **RESOLVED 2026-06-24 — quick task 260624-vqv** (commit `cae8cbc9`).
+> `snapshot-recapture-gate.sh` now routes each positional slug to the lane(s)
+> whose snapshot dir actually contains it (working-tree glob), applies
+> `--require-all` + that lane's `--allow` subset only when the lane owns ≥1
+> intended slug, and hard-errors on a slug found in neither lane. Added a
+> `RECAPTURE_DRYRUN=1` seam. `snapshot-canary-guard.sh` untouched. Verified via
+> `bash -n` + `shellcheck` + a dry-run routing proof (checkpoint-only→CK,
+> design-only→DESIGN, unknown→exit 2). See
+> `.planning/quick/260624-vqv-fix-snapshot-recapture-gate-sh-single-la/260624-vqv-SUMMARY.md`.
+
 # snapshot-recapture-gate.sh breaks single-lane recapture (shared --require-all slugs)
 
 **Problem (WR-02, confirmed):** `snapshot-recapture-gate.sh` passes the same
