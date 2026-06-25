@@ -108,6 +108,8 @@ jobs:
             --canary board-notice
       - name: Quality ledger monotonic guard
         run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Quality ledger monotonic guard self-test
+        run: bash scripts/ci/quality-ledger-monotonic.test.sh
 
   install_golden_contract:
     name: Install golden + idempotency contract (subprocess harness)
