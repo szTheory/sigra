@@ -12,8 +12,8 @@
 
 ### Foundation — Tier-2 ratchet & stress fixtures
 
-- [ ] **LEDGER-01**: Maintainer can ratchet a surface from Tier 1 → Tier 2 on **objective evidence** — the quality ledger + fractal scorecard define measurable Tier-2 proxies (motion-token conformance / no `transition: all`, overlay-open axe-clean, desktop↔mobile content-equivalence, focus-trap/restore APG gates, glossary-clean microcopy, density/whitespace rhythm), not a subjective verdict.
-- [ ] **LEDGER-02**: The monotonic guard enforces the Tier-2 ratchet **forward-only** — once a cell reaches Tier 2 no future PR may decrease it; the guard stays merge-blocking vs `origin/main`.
+- [x] **LEDGER-01**: Maintainer can ratchet a surface from Tier 1 → Tier 2 on **objective evidence** — the quality ledger + fractal scorecard define measurable Tier-2 proxies (motion-token conformance / no `transition: all`, overlay-open axe-clean, desktop↔mobile content-equivalence, focus-trap/restore APG gates, glossary-clean microcopy, density/whitespace rhythm), not a subjective verdict.
+- [x] **LEDGER-02**: The monotonic guard enforces the Tier-2 ratchet **forward-only** — once a cell reaches Tier 2 no future PR may decrease it; the guard stays merge-blocking vs `origin/main`.
 - [ ] **FIXT-01**: A deterministic demo persona carries **≥25 audit events** so pagination (MG-5 / MG-6) renders and desktop↔mobile content-equivalence is testable (closes the tracked `admin-design-mg5-6-content-equivalence-data-dependent` todo).
 - [ ] **FIXT-02**: The demo seed data stress-tests the admin surfaces with realistic ugly data — list-scale users, long display names / emails / UUIDs / identifiers, multi-session and multi-org breadth, and varied audit outcomes/severities — under the `MIX_ENV=test` raise guard with idempotent upserts.
 
@@ -67,8 +67,8 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| LEDGER-01 | Phase 199 | Pending |
-| LEDGER-02 | Phase 199 | Pending |
+| LEDGER-01 | Phase 199 | Complete |
+| LEDGER-02 | Phase 199 | Complete |
 | FIXT-01 | Phase 199 | Pending |
 | FIXT-02 | Phase 199 | Pending |
 | DETAIL-01 | Phase 200 | Pending |
