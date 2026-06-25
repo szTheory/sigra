@@ -1,20 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.40
-milestone_name: CI-PERF
-current_phase: 198
-status: Awaiting next milestone
-stopped_at: Milestone v1.40 CI-PERF completed and archived
-last_updated: "2026-06-21T17:03:01.436Z"
-last_activity: 2026-06-21
-last_activity_desc: Milestone v1.40 completed and archived
+milestone: v1.41
+milestone_name: ADMIN-UX-ELEVATION
+status: planning
+last_updated: "2026-06-25T15:30:05.422Z"
+last_activity: 2026-06-25
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 20
-  completed_plans: 20
-  percent: 100
-current_phase_name: contributor-dx-acceptance-gate
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -29,10 +25,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-Phase: Milestone v1.40 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-06-24 — Completed quick task 260624-vqv: fixed scripts/ci/snapshot-recapture-gate.sh single-lane recapture by routing each intended slug to the lane (checkpoint/design) whose snapshot dir contains it, applying --require-all per-lane only; added a RECAPTURE_DRYRUN seam; verified bash -n/shellcheck + dry-run routing proof (cae8cbc9). Earlier same day: 260624-vin wired check_account_active loop-safe (08c947b9→1ea02781)
+Status: Defining requirements
+Last activity: 2026-06-25 — Milestone v1.41 started
 
 ## Accumulated Context
 
