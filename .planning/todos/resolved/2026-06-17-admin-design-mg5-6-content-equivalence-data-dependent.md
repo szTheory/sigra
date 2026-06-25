@@ -1,6 +1,8 @@
 ---
 created: 2026-06-17T00:00:00.000Z
-status: pending
+resolved: 2026-06-25T00:00:00.000Z
+status: resolved
+closed_by: FIXT-01 / Phase 199 plan 04
 title: admin-design MG-5/6 content-equivalence test is data-dependent (pagination needs 25+ audit events)
 area: test
 files:
@@ -8,6 +10,28 @@ files:
 source: phase 191 Wave 4 recapture (191-04) — surfaced in snapshot-recapture-gate.sh admin-design step
 resolves_phase: 199
 ---
+
+## Resolution (2026-06-25, Phase 199 plan 04)
+
+Closed by FIXT-01. The MG-5/MG-6 content-equivalence test is un-skipped and passes against
+the ≥25-event seeded fixture.
+
+**How resolved:**
+- Plan 199-03 seeded the admin persona with 29 self-tied audit events (≥25 FIXT-01 threshold)
+  and a 36-user bulk loadtest cohort inserted BEFORE personas so admin stays first-listed on
+  `/admin/users` (inserted_at DESC sort, newest wins).
+- Plan 199-04 Task 1 removed the `test.skip(...)` call at line 328 of admin-design.spec.ts.
+- The test's live-navigation assertions (lines 347-390) are guarded by conditional `if (count > 0)`
+  blocks, so they correctly exercise pagination only when the data supports it.
+- Empirical blast radius (Task 2): zero baseline PNGs moved — the content-equivalence test
+  takes no screenshots; gallery boards use static assigns; checkpoint lane uses per-run users.
+- Both allowlists remain in empty steady-state (no recapture needed).
+
+**Commit:** 6e6d9936 (feat(199-04): un-skip MG-5/MG-6 content-equivalence test)
+
+---
+
+## Original Todo (archived below for history)
 
 ## What
 
