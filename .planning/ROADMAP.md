@@ -36,15 +36,23 @@
 **Depends on**: Nothing (first phase of milestone)
 **Requirements**: LEDGER-01, LEDGER-02, FIXT-01, FIXT-02
 **Success Criteria** (what must be TRUE):
+
   1. The quality ledger and fractal scorecard define concrete, machine-checkable Tier-2 proxies (motion-token conformance / no `transition: all`, overlay-open axe-clean, desktop↔mobile content-equivalence, focus-trap/restore APG gates, glossary-clean microcopy, density/whitespace rhythm, target-size minimum) so a maintainer can declare Tier 2 on objective evidence, not a subjective verdict.
   2. The monotonic guard script enforces the Tier-2 ratchet — once a cell reaches Tier 2 no future PR may decrease it — and it remains merge-blocking against `origin/main`.
   3. A deterministic demo persona carries ≥25 audit events so MG-5/MG-6 pagination renders in the design gallery and desktop↔mobile content-equivalence is testable (closes the tracked `admin-design-mg5-6-content-equivalence-data-dependent` todo).
   4. The demo seed data includes list-scale users, long display names / emails / UUIDs / identifiers, multi-session and multi-org breadth, and varied audit outcomes/severities — all under the `MIX_ENV=test` raise guard with idempotent upserts.
+
 **Plans**: 4 plans
+**Wave 1**
+
 - [ ] 199-01-PLAN.md — Tier-2 Award-grade scorecard add-on block + ledger assertion convention & prose reconciliation (LEDGER-01)
 - [ ] 199-02-PLAN.md — Monotonic guard 2→1 self-test + merge-blocking CI wiring (LEDGER-02)
 - [ ] 199-03-PLAN.md — Seed fixtures: admin ≥25 self-tied events + list-scale "ugly" bulk cohort, idempotent & raise-guarded (FIXT-01, FIXT-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 199-04-PLAN.md — Un-skip content-equivalence test + empirical recapture + allowlist reset + close tracked todo (FIXT-01)
+
 **UI hint**: yes
 
 ### Phase 200: User Detail Elevation
@@ -53,10 +61,12 @@
 **Depends on**: Phase 199 (stress fixtures available for matrix verification; Tier-2 proxies defined)
 **Requirements**: DETAIL-01, DETAIL-02, DETAIL-03, DETAIL-04
 **Success Criteria** (what must be TRUE):
+
   1. The identity header presents primary identity, one priority alert, and key metrics in a single calm bar — no stacked 4-fact `<dl>` under 3 pills + alert; an operator can orient in under two seconds.
   2. The 9-panel stack is restructured into a JTBD-first composition with grouped sections and progressive disclosure; unbounded sub-lists (Sessions, Organizations, Recent audit) are link-outs rather than inline stacks; host-injected extra-section seams are preserved and the design contract updated.
   3. The session revoke / revoke-all destructive flow uses an APG-compliant dialog (focus trap + restore, Escape, click-outside dismiss, no scrim-hidden modal state) so destructive actions require deliberate confirmation and cannot be triggered by accident.
   4. The page is award-grade across the full matrix (viewports 320–1440px, light/dark/system, empty/loading/error/permission-denied/long-content/keyboard/reduced-motion); the `user-show-live` ledger cell is ratcheted to Tier 2 with proxy evidence.
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -66,10 +76,12 @@
 **Depends on**: Phase 199 (list-scale fixtures; Tier-2 proxies defined), Phase 200 (shared component patterns established)
 **Requirements**: INDEX-01, INDEX-02, INDEX-03, INDEX-04
 **Success Criteria** (what must be TRUE):
+
   1. All filter controls (search, quick toggles, advanced filters, applied-filter state) appear in one coherent panel rather than three separate blocks; an operator can build and clear a filter set without hunting across the page.
   2. The user-health metric strip never obscures or delays access to search — it is demoted or slimmed so search is the dominant first affordance; per-row status pills are reduced to only the ones that carry decision value.
   3. The desktop-table and mobile-card presentations are content-equivalent and share markup/components (DRY); inline row actions are clear; pagination affordances are absent when there is nothing to paginate.
   4. The page is award-grade across the full matrix including list-scale fixtures; the `users-index-live` ledger cell is ratcheted to Tier 2 with proxy evidence.
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -79,9 +91,11 @@
 **Depends on**: Phase 199 (≥25-event persona fixture; Tier-2 proxies defined), Phase 200 (shared patterns), Phase 201 (filter-panel pattern established)
 **Requirements**: AUDIT-01, AUDIT-02, AUDIT-03
 **Success Criteria** (what must be TRUE):
+
   1. Both audit pages share a single filter form with an advanced-disclosure section (quick toggles folded in) rather than separate UI blocks; Export is surfaced to the filter action row, not buried near pagination.
   2. Audit row/column density is reduced (event codes deferred to a drill-down, not a primary column) and mobile-first stacked; pagination renders correctly against the ≥25-event persona fixture and the two audit pages remain byte-coherent in shared markup and components.
   3. Both audit surfaces are award-grade across the full matrix (320–1440px, light/dark/system, empty/loading/error/permission-denied/long-content/keyboard/reduced-motion); `audit-index-live` and `audit-user-live` ledger cells are ratcheted to Tier 2 with proxy evidence.
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -91,8 +105,10 @@
 **Depends on**: Phases 200-202 (elevated deep pages establish the bar to propagate)
 **Requirements**: PROP-01, PROP-02
 **Success Criteria** (what must be TRUE):
+
   1. The Overviews (`index_live.ex`, `organization_live.ex`) and Branding workbench (`branding_live.ex`) use the same components for the same jobs as the elevated deep pages — no duplicate UI fragments, no divergent patterns — and the `/admin/_design` gallery + MG-1..MG-11 reflect the elevated compositions (gallery is the evidence surface, not a separate product).
   2. `guides/reference/admin-design-contract.md` and `admin-ui-principles.md` are updated to document any evolved archetypes or interaction patterns introduced during the elevation phases; the one-term-per-concept glossary remains drift-guarded; no archetype change is silent.
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -102,8 +118,10 @@
 **Depends on**: Phases 199-203 (all page elevation and propagation complete)
 **Requirements**: RATIFY-01, RATIFY-02
 **Success Criteria** (what must be TRUE):
+
   1. All Playwright baselines are recaptured through `snapshot-recapture-gate.sh` with both allowlists (checkpoints and design) reset to empty; the monotonic guard exits 0 vs `origin/main`; the full admin surface is axe-clean including all overlays in their open state; generated-host parity is proven (install-golden byte-diff green with phx_new 1.8.7 + admin-acceptance smoke renders the elevated, styled admin UI on a freshly generated host).
   2. A final adversarial milestone review confirms: no usability-for-aesthetics regression (pages work better for operators, not just look better); no generated-host-contract friction (host extension seams intact, contract doc updated); no broken dark/mobile/keyboard/reduced-motion paths; no screenshot-only quality (all interactions work, not just static captures); all ratcheted Tier-2 ledger cells are locked.
+
 **Plans**: TBD
 **UI hint**: yes
 
