@@ -120,6 +120,52 @@ user detail → impersonation → audit review → sign-out).
   provides enough personas and state that a Playwright test can reproduce the entire flow
   without any out-of-band setup.
 
+### Tier-2 Award-grade Add-on
+
+A surface earns Tier 2 only when, **in addition to its Tier-1 ratification**, every
+APPLICABLE proxy below passes. "Applicable" means the surface exposes the UI or behaviour
+the proxy targets; purely structural surfaces (e.g. `token-layer`) are exempt from proxies
+that do not apply to them.
+
+To assert Tier 2 for a ledger cell, see `admin-quality-ledger.md` → _Asserting Tier 2_.
+
+**Automated gates (proxy pass ↔ named spec/test):**
+
+- **Overlay-open axe-clean** — passes when the `admin-modal-interaction.spec.ts` "axe-while-open"
+  check exits 0 violations on the surface's modal/dialog while it is open (not just on the
+  host page before open). Surfaces that own a modal dialog are subject to this proxy.
+- **Focus-trap and focus-restore (APG)** — passes when the existing "7 APG gates" in
+  `admin-modal-interaction.spec.ts` are all green for the surface's dialog: focus enters
+  the dialog on open, Tab cycles only within the trap, Escape returns focus to the trigger,
+  and focus is restored to the exact triggering element on close. Surfaces that own a modal
+  dialog are subject to this proxy.
+- **Desktop↔mobile content-equivalence** — passes when `admin-design.spec.ts` MG-5 and MG-6
+  content-equivalence assertions are green AND the un-skipped content-equivalence test
+  (delivered by FIXT-01) confirms that no data element visible in the desktop tabular layout
+  is absent from the corresponding mobile card layout. Surfaces that include a results table
+  with a mobile card fallback are subject to this proxy.
+- **Glossary-clean microcopy** — passes when `test/sigra/admin/glossary_test.exs` is green;
+  that test asserts that every user-visible string on the surface uses on-brand, glossary-
+  consistent vocabulary (no leaked internals, no synonym drift, no placeholder text).
+
+**Documented-as-manual (no current automated gate; the following proxies are documented-as-manual):**
+
+- **Motion-token conformance / no `transition: all`** — a reviewer greps the surface's HEEX
+  template and scoped CSS for the literal `transition: all` shorthand (which bypasses
+  `prefers-reduced-motion` guards) and confirms all transitions reference `--sg-duration-*`
+  and `--sg-ease-*` tokens rather than raw millisecond/cubic-bezier values.
+- **Density / whitespace rhythm** — a reviewer confirms the surface uses a consistent
+  `sg-stack--N` tier for vertical rhythm between sections (consistent with the L3
+  page-vertical-rhythm add-on: `sg-stack--6` between major sections, `sg-stack--4` inside
+  cards) and that no section is flush-adjacent or double-gapped without reason.
+- **Target-size minimum** — a reviewer confirms all interactive targets (buttons, links,
+  action icons) meet the WCAG 2.2 target-size floor (24×24 CSS pixels minimum, 44×44
+  recommended). The established `admin-dense-control` suppression precedent applies: controls
+  that intentionally use the dense variant are exempt when the suppression is explicitly
+  documented.
+
+Cross-reference: `admin-design-contract.md`, `admin-quality-ledger.md`
+
 ---
 
 Cross-reference: `admin-design-contract.md`, `admin-ui-principles.md`
