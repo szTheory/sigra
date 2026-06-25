@@ -40,7 +40,11 @@
   2. The monotonic guard script enforces the Tier-2 ratchet — once a cell reaches Tier 2 no future PR may decrease it — and it remains merge-blocking against `origin/main`.
   3. A deterministic demo persona carries ≥25 audit events so MG-5/MG-6 pagination renders in the design gallery and desktop↔mobile content-equivalence is testable (closes the tracked `admin-design-mg5-6-content-equivalence-data-dependent` todo).
   4. The demo seed data includes list-scale users, long display names / emails / UUIDs / identifiers, multi-session and multi-org breadth, and varied audit outcomes/severities — all under the `MIX_ENV=test` raise guard with idempotent upserts.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 199-01-PLAN.md — Tier-2 Award-grade scorecard add-on block + ledger assertion convention & prose reconciliation (LEDGER-01)
+- [ ] 199-02-PLAN.md — Monotonic guard 2→1 self-test + merge-blocking CI wiring (LEDGER-02)
+- [ ] 199-03-PLAN.md — Seed fixtures: admin ≥25 self-tied events + list-scale "ugly" bulk cohort, idempotent & raise-guarded (FIXT-01, FIXT-02)
+- [ ] 199-04-PLAN.md — Un-skip content-equivalence test + empirical recapture + allowlist reset + close tracked todo (FIXT-01)
 **UI hint**: yes
 
 ### Phase 200: User Detail Elevation
