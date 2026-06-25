@@ -322,7 +322,13 @@ defmodule Example.Demo.Seeds do
     upsert_membership(dave.id, acme.id, :member)
     upsert_membership(grace.id, acme.id, :member)
 
-    # Beta Labs: admin=member, bob=owner
+    # Beta Labs: admin=member, bob=owner.
+    # FIXT-02 / D-11 deliberate multi-org breadth: admin owns Acme AND is member of Beta
+    # (>= 2 OrganizationMembership rows) so the /admin per-user Organizations panel
+    # renders multiple rows. Do NOT remove either admin membership — that would break
+    # the multi-org breadth assertion in seeds_test.exs (FIXT-02 contract).
+    # Idempotency: upsert_membership uses on_conflict: :nothing, conflict_target:
+    # [:user_id, :organization_id], so re-running run/0 is a no-op.
     upsert_membership(admin.id, beta.id, :member)
     upsert_membership(bob.id, beta.id, :owner)
   end
@@ -452,6 +458,12 @@ defmodule Example.Demo.Seeds do
   # staggered last_active_at. UserSession timestamps use updated_at:false — only
   # inserted_at is set. The unique index user_sessions_hashed_token_index makes
   # on_conflict/conflict_target idempotency safe.
+  #
+  # FIXT-02 / D-11 deliberate multi-session breadth: admin intentionally carries
+  # 3 sessions (>= 2) so the /admin per-user Sessions panel renders multiple rows.
+  # Do NOT reduce @admin_sessions below 2 entries — that would break the
+  # multi-session breadth assertion in seeds_test.exs (FIXT-02 contract).
+  # Idempotency: on_conflict: :nothing, conflict_target: [:hashed_token].
 
   @admin_sessions [
     %{
