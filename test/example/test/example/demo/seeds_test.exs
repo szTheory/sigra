@@ -316,8 +316,10 @@ defmodule Example.Demo.SeedsTest do
           :count
         )
 
-      assert admin_tied >= 25,
-             "expected >=25 self-tied admin audit events for pagination (FIXT-01); got #{admin_tied}"
+      # FIXT-01: >25 (not >=25) — pagination renders only when multi_page? is true,
+      # which needs strictly more than one page at @default_limit 25.
+      assert admin_tied > 25,
+             "expected >25 self-tied admin audit events so the per-user audit feed paginates (FIXT-01); got #{admin_tied}"
 
       distinct_actions =
         Repo.aggregate(
