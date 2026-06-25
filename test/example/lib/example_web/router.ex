@@ -51,6 +51,7 @@ defmodule ExampleWeb.Router do
 
   pipeline :require_authenticated do
     plug :require_authenticated_user
+    plug :check_account_active
     plug :require_mfa
   end
 
