@@ -2,15 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
-status: planning
-stopped_at: Phase 199 context gathered (assumptions mode)
-last_updated: "2026-06-25T16:15:54.786Z"
-last_activity: 2026-06-25 — v1.41 roadmap created (Phases 199-204, 17 requirements mapped)
+current_phase: 199
+current_phase_name: foundation-tier-2-scorecard-stress-fixtures
+status: executing
+stopped_at: Completed 199-01-PLAN.md
+last_updated: "2026-06-25T18:02:29.800Z"
+last_activity: 2026-06-25
+last_activity_desc: Phase 199 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 4
+  completed_plans: 1
   percent: 0
 ---
 
@@ -22,14 +25,14 @@ See: `.planning/PROJECT.md`
 
 **Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
 
-**Current focus:** v1.41 ADMIN-UX-ELEVATION — Phases 199-204. Elevating the highest-impact admin pages (User Detail, Users Index, Audit surfaces) to award-grade Tier-2 quality, with consistency propagation and terminal ratification.
+**Current focus:** Phase 199 — foundation-tier-2-scorecard-stress-fixtures
 
 ## Current Position
 
-Phase: Phase 199 — Foundation: Tier-2 Scorecard & Stress Fixtures (not started)
-Plan: —
-Status: Roadmap defined; ready to plan Phase 199
-Last activity: 2026-06-25 — v1.41 roadmap created (Phases 199-204, 17 requirements mapped)
+Phase: 199 (foundation-tier-2-scorecard-stress-fixtures) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-06-25 — Phase 199 execution started
 
 Progress: `░░░░░░░░░░░░░░░░░░░░` 0% (0/6 phases)
 
@@ -136,6 +139,10 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: GATE-01 met: PR-path -16.5m wall-clock (-43%)
 - [Phase ?]: 198-ACCEPTANCE.md committed: 5 required-check names byte-stable (ruleset 14941512), 0 flakes, SEED-004 phx_new 1.8.7 confirmed, D-06 hard-gate verified
 - [Phase ?]: MAINTAINING.md ADD-only pointer to 198-ACCEPTANCE.md added; all 5 required-check name strings intact (D-05)
+- [Phase ?]: Tier-2 proxies encoded as prose/bullets in fractal scorecard — no new columns or machine-parseable proxy files
+- [Phase ?]: 4 automated gates mapped (axe-while-open, APG, content-equivalence, glossary) + 3 documented-as-manual proxies (motion, density, target-size) per D-02
+- [Phase ?]: Ledger Tier-2 assertion convention: bare integer 2 + Evidence expansion; decorators forbidden to protect awk guard parse (D-03)
+- [Phase ?]: Terminal-ratification prose reconciled — Tier 2 now objectively earnable via Phase 199 proxy contract; ratcheting starts Phases 200-204 (D-06)
 
 ### Pending Todos
 
@@ -230,11 +237,11 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-25T16:15:54.779Z
-Stopped at: Phase 199 context gathered (assumptions mode)
+Last session: 2026-06-25T18:02:29.792Z
+Stopped at: Completed 199-01-PLAN.md
 Resume file: 
 
-.planning/phases/199-foundation-tier-2-scorecard-stress-fixtures/199-CONTEXT.md
+None
 
 | Phase | Plan | Duration | Notes |
 | --- | --- | --- | --- |
@@ -307,3 +314,4 @@ Resume file:
 | Phase 197 P05 | 2m | 2 tasks | 2 files |
 | Phase 198 P02 | 4m | - tasks | - files |
 | Phase 198 P03 | 383s | 3 tasks | 2 files |
+| Phase 199 P01 | 131s | 2 tasks | 2 files |
