@@ -67,7 +67,19 @@
   3. The session revoke / revoke-all destructive flow uses an APG-compliant dialog (focus trap + restore, Escape, click-outside dismiss, no scrim-hidden modal state) so destructive actions require deliberate confirmation and cannot be triggered by accident.
   4. The page is award-grade across the full matrix (viewports 320–1440px, light/dark/system, empty/loading/error/permission-denied/long-content/keyboard/reduced-motion); the `user-show-live` ledger cell is ratcheted to Tier 2 with proxy evidence.
 
-**Plans**: TBD
+**Plans**: 3 plans
+**Wave 1**
+
+- [ ] 200-01-PLAN.md — New lib-owned UserSessionsLive + /admin/users/:id/sessions route (3-file lockstep) + APG confirm move + glossary scope (DETAIL-02, DETAIL-03)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 200-02-PLAN.md — Recompose user_show_live.ex: calm identity bar + JTBD previews/link-outs + remove session flow + preserve host seam (DETAIL-01, DETAIL-02)
+
+**Wave 3** *(blocked on Waves 1-2)*
+
+- [ ] 200-03-PLAN.md — Checkpoints (user-sessions + user-detail) + recapture + ledger Tier-2 ratchet + design-contract update (DETAIL-03, DETAIL-04)
+
 **UI hint**: yes
 
 ### Phase 201: Users Index Elevation
