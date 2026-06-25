@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.41
 milestone_name: ADMIN-UX-ELEVATION
-status: executing
+current_phase: 199
+current_phase_name: foundation-tier-2-scorecard-stress-fixtures
+status: verifying
 stopped_at: Completed 199-01-PLAN.md
-last_updated: "2026-06-25T18:16:45.300Z"
+last_updated: "2026-06-25T18:47:14.748Z"
 last_activity: 2026-06-25
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 17
 ---
 
 # Project State
@@ -28,7 +30,7 @@ See: `.planning/PROJECT.md`
 
 Phase: 199 (foundation-tier-2-scorecard-stress-fixtures) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-25
 
 Progress: [████████░░] 75%
@@ -141,6 +143,7 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 - [Phase ?]: Ledger Tier-2 assertion convention: bare integer 2 + Evidence expansion; decorators forbidden to protect awk guard parse (D-03)
 - [Phase ?]: Terminal-ratification prose reconciled — Tier 2 now objectively earnable via Phase 199 proxy contract; ratcheting starts Phases 200-204 (D-06)
 - [Phase ?]: D-04 confirmed: guard logic unchanged; D-05 delivered: hermetic bash self-test proves 2→1 decrease is caught; D-07 confirmed: --base wiring byte-unchanged
+- [Phase ?]: Filter /admin/users with ?q= to deterministically target >=25-event seeded admin; avoids inserted_at DESC ordering pollution by harness login user
 
 ### Pending Todos
 
@@ -235,7 +238,7 @@ Roadmap: `.planning/ROADMAP.md` — Phase Details: 199-204
 
 ## Session Continuity
 
-Last session: 2026-06-25T18:16:45.294Z
+Last session: 2026-06-25T18:47:05.117Z
 Stopped at: Completed 199-01-PLAN.md
 Resume file: 
 
@@ -315,3 +318,4 @@ None
 | Phase 199 P01 | 131s | 2 tasks | 2 files |
 | Phase 199 P02 | 5 minutes | 2 tasks | 2 files |
 | Phase 199 P03 | 6min | 4 tasks | 2 files |
+| Phase 199-foundation-tier-2-scorecard-stress-fixtures P04 | 25min | 4 tasks | 1 files |

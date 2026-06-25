@@ -51,7 +51,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 199-04-PLAN.md — Un-skip content-equivalence test + empirical recapture + allowlist reset + close tracked todo (FIXT-01)
+- [x] 199-04-PLAN.md — Un-skip content-equivalence test + empirical recapture + allowlist reset + close tracked todo (FIXT-01)
 
 **UI hint**: yes
 
@@ -274,7 +274,7 @@ Archive:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 3/4 | In Progress|  |
+| 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 4/4 | Complete   | 2026-06-25 |
 | 200. User Detail Elevation | v1.41 | 0/TBD | Not started | - |
 | 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
