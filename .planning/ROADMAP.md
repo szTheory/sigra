@@ -47,7 +47,7 @@
 
 - [x] 199-01-PLAN.md — Tier-2 Award-grade scorecard add-on block + ledger assertion convention & prose reconciliation (LEDGER-01)
 - [x] 199-02-PLAN.md — Monotonic guard 2→1 self-test + merge-blocking CI wiring (LEDGER-02)
-- [ ] 199-03-PLAN.md — Seed fixtures: admin ≥25 self-tied events + list-scale "ugly" bulk cohort, idempotent & raise-guarded (FIXT-01, FIXT-02)
+- [x] 199-03-PLAN.md — Seed fixtures: admin ≥25 self-tied events + list-scale "ugly" bulk cohort, idempotent & raise-guarded (FIXT-01, FIXT-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -274,7 +274,7 @@ Archive:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 | --- | --- | --- | --- | --- |
-| 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 2/4 | In Progress|  |
+| 199. Foundation — Tier-2 Scorecard & Stress Fixtures | v1.41 | 3/4 | In Progress|  |
 | 200. User Detail Elevation | v1.41 | 0/TBD | Not started | - |
 | 201. Users Index Elevation | v1.41 | 0/TBD | Not started | - |
 | 202. Audit Surfaces Elevation | v1.41 | 0/TBD | Not started | - |
