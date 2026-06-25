@@ -243,15 +243,17 @@ they should not move — confirm empirically).
 
 **No `[ASSUMED]` package or version claims** — this phase adds no dependencies.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the content-equivalence test require the FIRST-listed user, or any user, to have ≥25 events?**
    - What we know: `admin-design.spec.ts:371-378` reads the `.first()` "Open user" link's href and navigates there; the test expects pagination controls on that user's audit feed.
    - What's unclear: whether the test's `/admin/users` view is unscoped (newest-first wins) at the point of navigation.
    - Recommendation: Plan a Wave-0 step to run the un-skipped test against seeded data and observe which user it lands on; adjust insert order or add an explicit `?q=admin@demo.tasklane.test` scope to the test navigation if needed (test edit is in-scope per D-13).
+   - **RESOLVED:** Threaded into Plan 04 Task 1 — it runs the un-skipped test empirically and falls back to an explicit `?q=admin@demo.tasklane.test` scope if the `.first()` landing user is not admin. Plan 03 Task 3 also de-risks this by seeding the bulk cohort BEFORE personas so admin stays newest/first-listed.
 
 2. **Exact bulk-cohort size (Claude's discretion, ~30-60).**
    - Recommendation: Pick the smallest size that produces >1 page on `/admin/users` (page size 25, `users/query.ex:65`) — i.e. ≥26 list-visible users total including personas. ~35-40 bulk users gives a clear second page without bloating CI snapshot time. Confirm the page actually paginates with the chosen number.
+   - **RESOLVED:** Plan 03 Task 3 picks ~36 bulk users (within the ~35-40 sweet spot) — a clear second page on the 25-row list without bloating CI snapshot time.
 
 ## Environment Availability
 
