@@ -774,7 +774,9 @@ defmodule Sigra.Testing do
   @spec scheduled_deletion_fixture(module(), struct(), keyword()) :: struct()
   def scheduled_deletion_fixture(repo, user, opts \\ []) do
     grace_days = Keyword.get(opts, :grace_period_days, 14)
-    now = DateTime.utc_now()
+    # Truncate to seconds: Sigra's generated `deleted_at` / `scheduled_deletion_at`
+    # columns are `:utc_datetime` (second precision), which rejects microseconds.
+    now = DateTime.truncate(DateTime.utc_now(), :second)
     scheduled_at = DateTime.add(now, grace_days * 86_400, :second)
 
     user
@@ -794,7 +796,9 @@ defmodule Sigra.Testing do
   @doc since: "0.8.0"
   @spec deleted_user_fixture(module(), struct()) :: struct()
   def deleted_user_fixture(repo, user) do
-    past = DateTime.add(DateTime.utc_now(), -30 * 86_400, :second)
+    # Truncate to seconds to match the `:utc_datetime` deletion columns (see
+    # scheduled_deletion_fixture/3).
+    past = DateTime.add(DateTime.truncate(DateTime.utc_now(), :second), -30 * 86_400, :second)
 
     user
     |> Ecto.Changeset.change(%{
