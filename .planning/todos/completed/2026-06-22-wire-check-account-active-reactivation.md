@@ -6,6 +6,16 @@ severity: warning
 area: test/example/lib/example_web/{router.ex,user_auth.ex}
 ---
 
+> **RESOLVED 2026-06-24 — quick task 260624-vin** (commits `08c947b9`, `619f1b12`, `1ea02781`).
+> Added an exact-`request_path` `exempt_path?/2` guard to both `check_account_active/2`
+> (reactivation + log_out exempt) and `require_password_unchanged/2` (settings + log_out
+> exempt, made loop-safe but left unwired), then wired `plug :check_account_active` into
+> `:require_authenticated` after `:require_authenticated_user`. New conn test proves the
+> 302→reactivation redirect and the no-loop 200 on the reactivation page. Guards mirrored
+> into the installer template + golden fixture (router wiring stays opt-in for hosts).
+> Incidentally fixed a microsecond-vs-`:utc_datetime` crash in `Sigra.Testing` deletion
+> fixtures. See `.planning/quick/260624-vin-wire-check-account-active-into-example-r/260624-vin-SUMMARY.md`.
+
 # Deletion-scheduled personas (Frank/Grace) don't auto-redirect to reactivation
 
 **Problem:** `ExampleWeb.UserAuth.check_account_active/2` exists and is documented
