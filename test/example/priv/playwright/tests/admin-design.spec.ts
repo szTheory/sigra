@@ -325,7 +325,6 @@ test.describe('Design gallery board snapshots', () => {
   test('MG-5 and MG-6 desktop and mobile representations are content-equivalent', async ({
     page,
   }) => {
-    test.skip('data-dependent pagination across /admin/audit + first-listed-user audit page; no seeded user reaches the >=25-event @default_limit threshold — tracked in .planning/todos/pending/2026-06-17-admin-design-mg5-6-content-equivalence-data-dependent.md');
     await assertUserResultEquivalence(
       page.locator('[data-testid="mg-5-desktop-results"]'),
       page.locator('[data-testid="mg-5-mobile-results"]'),
