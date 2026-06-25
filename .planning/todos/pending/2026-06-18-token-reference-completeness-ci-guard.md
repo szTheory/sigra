@@ -7,7 +7,7 @@ files:
   - guides/reference/admin-token-reference.md
   - test/example/priv/playwright/tests/admin-theme.spec.ts
 source: 186-REVIEW.md (IN-03); split out of 2026-06-14-phase-186-review-deferred.md when that todo was closed by quick task 260618-gly
-resolves_phase: 199
+note: resolves_phase was speculatively set to 199, but Phase 199 (Tier-2 scorecard + seed fixtures) did not touch admin-token-reference completeness; tag removed 2026-06-25 so this stays correctly pending. Re-tag to a token/consistency phase (e.g. 204 terminal ratification) when scheduled.
 ---
 
 ## What
