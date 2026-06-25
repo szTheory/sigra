@@ -176,6 +176,19 @@ defmodule Example.Demo.Seeds do
   #   {:error, :email_taken}  — DB-level unique constraint (Sigra.Auth.register/3 path)
   #   {:error, changeset}     — unsafe_validate_unique fires before DB insert
   # Both indicate the user already exists; fetch the existing row.
+  #
+  # CONTRACT: upsert_user/1 requires ONLY %{email, display_name, password} and must
+  # never dereference any other key of its argument. This is load-bearing — the bulk
+  # cohort (seed_bulk_users/0) passes a bare 3-key map, NOT a full persona. Reading any
+  # richer persona key here (e.g. persona.confirmed, persona.locked) would crash the bulk
+  # path with a KeyError on the :email_taken re-fetch branch (i.e. only on re-runs, not
+  # first seed). Keep persona-state handling in patch_user_state/2, which only the
+  # persona call site invokes.
+  @spec upsert_user(%{
+          required(:email) => String.t(),
+          required(:display_name) => String.t(),
+          required(:password) => String.t()
+        }) :: Ecto.Schema.t()
   defp upsert_user(persona) do
     case Accounts.register_user(%{
            email: persona.email,
@@ -773,8 +786,16 @@ defmodule Example.Demo.Seeds do
     result =
       Repo.transaction(fn ->
         Enum.each(@audit_actions, fn {action, outcome, offset_days} ->
-          # Spread occurred_at deterministically over a past-30-days window.
-          # Use @seed_reference_ts as the fixed anchor — NOT DateTime.utc_now().
+          # Pin occurred_at off @seed_reference_ts (NOT DateTime.utc_now()) so the
+          # displayed timestamps are stable across runs.
+          #
+          # NOTE: this does NOT control admin audit-feed ordering. The feed orders
+          # by inserted_at desc (lib/sigra/admin/audit/explorer.ex — @default_order_by
+          # "inserted_at"), not by this pinned occurred_at. Because all rows are
+          # inserted in one transaction within microseconds, the first-listed feed row
+          # (and thus its data-tone) is a function of *insertion order* here, not of the
+          # occurred_at values below. Reordering @audit_actions / persona_audit_events/0
+          # changes which row sorts first.
           occurred_at =
             DateTime.add(@seed_reference_ts, -offset_days * 86_400, :second)
 
